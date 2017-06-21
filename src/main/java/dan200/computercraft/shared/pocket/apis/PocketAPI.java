@@ -12,6 +12,7 @@ import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.pocket.IPocketUpgrade;
 import dan200.computercraft.shared.PocketUpgrades;
 import dan200.computercraft.shared.pocket.core.PocketServerComputer;
+import dan200.computercraft.shared.pocket.items.ItemPocketComputer;
 import dan200.computercraft.shared.util.InventoryUtil;
 import dan200.computercraft.shared.util.WorldUtil;
 import net.minecraft.entity.player.EntityPlayer;
@@ -66,6 +67,12 @@ public class PocketAPI implements ILuaAPI
                     EntityPlayer player = (EntityPlayer) m_computer.getEntity();
                     InventoryPlayer inventory = player.inventory;
 
+                    int computerID = m_computer.getID();
+                    if ( !pocketComputerExists( inventory.mainInventory, computerID ) && !pocketComputerExists( inventory.offHandInventory, computerID ) )
+                    {
+                        throw new LuaException( "Cannot find pocket computer" );
+                    }
+
                     IPocketUpgrade previousUpgrade = m_computer.getUpgrade();
 
                     // Attempt to find the upgrade, starting in the main segment, and then looking in the opposite
@@ -108,6 +115,12 @@ public class PocketAPI implements ILuaAPI
 
                     EntityPlayer player = (EntityPlayer) m_computer.getEntity();
                     InventoryPlayer inventory = player.inventory;
+
+                    int computerID = m_computer.getID();
+                    if ( !pocketComputerExists( inventory.mainInventory, computerID ) && !pocketComputerExists( inventory.offHandInventory, computerID ) )
+                    {
+                        throw new LuaException( "Cannot find pocket computer" );
+                    }
 
                     IPocketUpgrade previousUpgrade = m_computer.getUpgrade();
 
@@ -154,5 +167,21 @@ public class PocketAPI implements ILuaAPI
         }
 
         return null;
+    }
+
+    private static boolean pocketComputerExists( NonNullList<ItemStack> inv, int computerID )
+    {
+        for( ItemStack invStack : inv )
+        {
+            if( !invStack.isEmpty() && invStack.getItem() instanceof ItemPocketComputer )
+            {
+                if( ComputerCraft.Items.pocketComputer.getComputerID( invStack ) == computerID )
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 }
