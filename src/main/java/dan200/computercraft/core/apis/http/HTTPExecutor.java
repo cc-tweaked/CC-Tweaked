@@ -9,6 +9,8 @@ package dan200.computercraft.core.apis.http;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import io.netty.channel.EventLoopGroup;
+import io.netty.channel.nio.NioEventLoopGroup;
 
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -29,6 +31,13 @@ public final class HTTPExecutor
             .setNameFormat( "ComputerCraft-HTTP-%d" )
             .build()
     ) );
+
+    public static final EventLoopGroup LOOP_GROUP = new NioEventLoopGroup( 4, new ThreadFactoryBuilder()
+        .setDaemon( true )
+        .setPriority( Thread.MIN_PRIORITY + (Thread.NORM_PRIORITY - Thread.MIN_PRIORITY) / 2 )
+        .setNameFormat( "ComputerCraft-Netty-%d" )
+        .build()
+    );
 
     private HTTPExecutor()
     {

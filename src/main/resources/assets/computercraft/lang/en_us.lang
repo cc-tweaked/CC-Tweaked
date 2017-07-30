@@ -43,6 +43,7 @@ gui.computercraft:wired_modem.peripheral_connected=Peripheral "%s" connected to 
 gui.computercraft:wired_modem.peripheral_disconnected=Peripheral "%s" disconnected from network
 
 gui.computercraft:config.http_enable=Enable HTTP API
+gui.computercraft:config.http_websocket_enable=Enable HTTP websockets
 gui.computercraft:config.http_whitelist=HTTP whitelist
 gui.computercraft:config.http_blacklist=HTTP blacklist
 gui.computercraft:config.disable_lua51_features=Disable Lua 5.1 features
