@@ -237,9 +237,8 @@ function shell.resolveProgram( _sCommand )
     end
 
     -- If the path is a global path, use it directly
-    local sStartChar = string.sub( _sCommand, 1, 1 )
-    if sStartChar == "/" or sStartChar == "\\" then
-        local sPath = fs.combine( "", _sCommand )
+    if _sCommand:find("/") or _sCommand:find("\\") then
+        local sPath = shell.resolve( _sCommand )
         if fs.exists( sPath ) and not fs.isDir( sPath ) then
             return sPath
         else
@@ -299,9 +298,9 @@ function shell.programs( _bIncludeHidden )
 end
 
 local function completeProgram( sLine )
-    if #sLine > 0 and string.sub( sLine, 1, 1 ) == "/" then
+    if #sLine > 0 and (sLine:find("/") or sLine:find("\\")) then
         -- Add programs from the root
-        return fs.complete( sLine, "", true, false )
+        return fs.complete( sLine, sDir, true, false )
 
     else
         local tResults = {}
@@ -315,6 +314,16 @@ local function completeProgram( sLine )
                     table.insert( tResults, sResult )
                     tSeen[ sResult ] = true
                 end
+            end
+        end
+
+        -- Add all subdirectories. We don't include files as they will be added in the block below
+        local tDirs = fs.complete( sLine, sDir, false, false )
+        for i = 1, #tDirs do
+            if not tSeen[ sResult ] then
+                local sResult = tDirs[i]
+                table.insert (tResults, sResult )
+                tSeen [ sResult ] = true
             end
         end
 
