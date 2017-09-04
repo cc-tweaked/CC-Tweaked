@@ -298,7 +298,7 @@ function create( parent, nX, nY, nWidth, nHeight, bStartVisible )
 
         local tCol
         if type(r) == "number" and g == nil and b == nil then
-            tCol = { colours.rgb8( r ) }
+            tCol = { colours.unpackRGB( r ) }
             tPalette[ colour ] = tCol
         else
             if type( r ) ~= "number" then error( "bad argument #2 (expected number, got " .. type( r ) .. ")", 2 ) end
