@@ -11,6 +11,7 @@ import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.core.computer.IComputerEnvironment;
 import dan200.computercraft.core.terminal.Terminal;
+import dan200.computercraft.shared.util.Colour;
 import dan200.computercraft.shared.util.Palette;
 import org.apache.commons.lang3.ArrayUtils;
 
@@ -65,6 +66,8 @@ public class TermAPI implements ILuaAPI
             "setPaletteColor",
             "getPaletteColour",
             "getPaletteColor",
+            "nativePaletteColour",
+            "nativePaletteColor",
             "getCursorBlink",
         };
     }
@@ -289,6 +292,19 @@ public class TermAPI implements ILuaAPI
                 return null;
             }
             case 23:
+            case 24:
+            {
+                // nativePaletteColour/nativePaletteColor
+                int colour = 15 - parseColour( args );
+                Colour c = Colour.fromInt( colour );
+
+                float[] rgb = c.getRGB();
+
+                Object[] rgbObj = new Object[rgb.length];
+                for( int i = 0; i < rgbObj.length; ++i ) rgbObj[i] = rgb[i];
+                return rgbObj;
+            }
+            case 25:
                 // getCursorBlink
                 return new Object[] { m_terminal.getCursorBlink() };
             default:
