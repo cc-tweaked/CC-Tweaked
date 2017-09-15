@@ -10,6 +10,7 @@ import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
+import dan200.computercraft.shared.computer.blocks.ComputerProxy;
 import dan200.computercraft.shared.computer.blocks.TileComputerBase;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.IComputer;
@@ -43,7 +44,6 @@ import net.minecraftforge.items.wrapper.InvWrapper;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.List;
 
 import static net.minecraftforge.items.CapabilityItemHandler.ITEM_HANDLER_CAPABILITY;
 
@@ -112,6 +112,12 @@ public class TileTurtle extends TileComputerBase
     protected ServerComputer createComputer( int instanceID, int id )
     {
         return createComputer( instanceID, id, ComputerCraft.terminalWidth_turtle, ComputerCraft.terminalHeight_turtle );
+    }
+
+    @Override
+    public ComputerProxy createProxy()
+    {
+        return m_brain.getProxy();
     }
 
     @Override

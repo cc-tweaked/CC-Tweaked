@@ -10,7 +10,6 @@ import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
-import dan200.computercraft.shared.computer.core.ServerComputer;
 
 import javax.annotation.Nonnull;
 
@@ -18,9 +17,9 @@ public class ComputerPeripheral
     implements IPeripheral
 {
     private final String m_type;
-    private final ServerComputer m_computer;
+    private final ComputerProxy m_computer;
 
-    public ComputerPeripheral( String type, ServerComputer computer )
+    public ComputerPeripheral( String type, ComputerProxy computer )
     {
         m_type = type;
         m_computer = computer;

@@ -12,6 +12,8 @@ import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.turtle.*;
+import dan200.computercraft.shared.computer.blocks.ComputerProxy;
+import dan200.computercraft.shared.computer.blocks.TileComputerBase;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.IComputer;
 import dan200.computercraft.shared.computer.core.ServerComputer;
@@ -104,6 +106,7 @@ public class TurtleBrain implements ITurtleAccess
     private static final int ANIM_DURATION = 8;
 
     private TileTurtle m_owner;
+    private ComputerProxy m_proxy;
 
     private LinkedList<TurtleCommandQueueEntry> m_commandQueue;
     private int m_commandsIssued;
@@ -167,6 +170,21 @@ public class TurtleBrain implements ITurtleAccess
     public TileTurtle getOwner()
     {
         return m_owner;
+    }
+
+    public ComputerProxy getProxy()
+    {
+        if(m_proxy == null) {
+            m_proxy = new ComputerProxy()
+            {
+                @Override
+                protected TileComputerBase getTile()
+                {
+                    return m_owner;
+                }
+            };
+        }
+        return m_proxy;
     }
 
     public ComputerFamily getFamily()
