@@ -1,26 +1,31 @@
-ComputerCraft
-=============
-[![Build Status](https://travis-ci.org/dan200/ComputerCraft.svg?branch=master)](https://travis-ci.org/dan200/ComputerCraft)
+# CC: Tweaked
+[![Build Status](https://travis-ci.org/SquidDev-CC/CC-Tweaked.svg?branch=master)](https://travis-ci.org/SquidDev-CC/CC-Tweaked)
 
-ComputerCraft is a Minecraft modification which adds programmable Robots and Computers to the world of Minecraft.
-If you're not familiar with ComputerCraft, visit the [Website](http://www.computercraft.info/download) or the [Wiki](http://www.computercraft.info/wiki) to find out more.
+CC: Tweaked is a fork of ComputerCraft which aims to provide more earlier access to the more experimental and 
+in-development features of the mod. For a more stable experience, I recommend checking out the 
+[original mod](https://github.com/dan200/ComputerCraft).
 
-About this Repository
-=====================
+## What?
+CC: Tweaked does not aim to create a competing fork of ComputerCraft, nor am I planning to take it in in a vastly
+different direction to the original mod. In fact, CC: Tweaked aims to be a nurturing ground for various features, with
+a pull request against the original mod being the end goal.
 
-ComputerCraft was originally released in late 2011 by [Daniel Ratcliffe](https://twitter.com/DanTwoHundred). In early 2017, after working on the mod solo for five years, it was decided to release the source code publicly to allow Dan to devote time to other projects. This repository marks the first public release of this source code.
+CC: Tweaked also includes many pull requests from the community which have not yet been merged, offering a large number
+of additional bug fixes and features over the original mod.
 
-The code in this repository will always represent the "bleeding edge" of the ComputerCraft codebase, but stable builds back to 1.79 will be marked on the [Releases](https://github.com/dan200/ComputerCraft/releases) page.
+## Relation to CCTweaks?
+This mod has nothing to do with CCTweaks, though there is no denying the name is a throwback to it. However, I do plan
+to migrate some features of CCTweaks into CC: Tweaked.
 
-Contributing
-============
+## Contributing
+Any contribution is welcome, be that using the mod, reporting bugs or contributing code. If you do wish to contribute
+code, do consider submitting it to the ComputerCraft repository instead.
 
-While ComputerCraft will no longer be actively developed by Daniel Ratcliffe, you may still contribute pull requests which will be reviewed and incorporated into releases periodically. A pull request is more likely to be accepted if it meets the following criteria:
+That being said, in order to start helping develop CC: Tweaked, you'll need to follow these steps:
 
-* It does not add any new dependencies for compiling, running or using the mod.
-* It does not break compatibility with world saves or programs created with previous versions of the mod.
-* It does not add unneccessary complexity for users of the mod, and maintains the accessibility for which the mod is known.
-* It does not add unneccessary complexity or stylistic changes to the code, especially where functionality is not being changed.
-* It does not create bugs!
-
-The pull requests most likely to be accepted are those which fix bugs, simplify code, or make the mod compatible with newer versions of Minecraft.
+ - **Clone the repository:** `git clone https://github.com/SquidDev-CC/CC-Tweaked.git && cd CC-Tweaked`
+ - **Setup Forge:** `./gradlew setupDecompWorkspace`
+ - **Test your changes:** `./gradlew runClient` (or run the `GradleStart` class from your IDE).
+ 
+If you want to run CC: Tweaked in a normal Minecraft instance, run `./gradlew build` and copy the `.jar` from 
+`build/libs`.
