@@ -45,8 +45,8 @@ public class AddressPredicate
 
     public AddressPredicate( String... filters )
     {
-        List<Pattern> wildcards = this.wildcards = new ArrayList<Pattern>();
-        List<HostRange> ranges = this.ranges = new ArrayList<HostRange>();
+        List<Pattern> wildcards = this.wildcards = new ArrayList<>();
+        List<HostRange> ranges = this.ranges = new ArrayList<>();
 
         for( String filter : filters )
         {

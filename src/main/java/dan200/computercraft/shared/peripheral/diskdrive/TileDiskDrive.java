@@ -24,7 +24,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
-import net.minecraft.util.ITickable;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
@@ -44,7 +43,7 @@ import java.util.Set;
 import static net.minecraftforge.items.CapabilityItemHandler.ITEM_HANDLER_CAPABILITY;
 
 public class TileDiskDrive extends TilePeripheralBase
-    implements IInventory, ITickable
+    implements IInventory
 {
     private static class MountInfo
     {
@@ -610,13 +609,13 @@ public class TileDiskDrive extends TilePeripheralBase
             }
 
             BlockPos pos = getPos();
-            double x = (double)pos.getX() + 0.5 + ((double)xOff * 0.5);
-            double y = (double)pos.getY() + 0.75;
-            double z = (double)pos.getZ() + 0.5 + ((double)zOff * 0.5);
+            double x = pos.getX() + 0.5 + (xOff * 0.5);
+            double y = pos.getY() + 0.75;
+            double z = pos.getZ() + 0.5 + (zOff * 0.5);
             EntityItem entityitem = new EntityItem( getWorld(), x, y, z, disks );
-            entityitem.motionX = (double)xOff * 0.15;
+            entityitem.motionX = xOff * 0.15;
             entityitem.motionY = 0.0;
-            entityitem.motionZ = (double)zOff * 0.15;
+            entityitem.motionZ = zOff * 0.15;
             
             getWorld().spawnEntity(entityitem);
             if( !destroyed )

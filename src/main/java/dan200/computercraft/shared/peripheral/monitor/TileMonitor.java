@@ -290,7 +290,7 @@ public class TileMonitor extends TilePeripheralBase
 
     public double getTextScale()
     {
-        return (double)m_textScale * 0.5;
+        return m_textScale * 0.5;
     }
 
     private void rebuildTerminal()
@@ -301,11 +301,11 @@ public class TileMonitor extends TilePeripheralBase
 
         double textScale = getTextScale();
         int termWidth = (int)Math.max(
-            Math.round( ((double)m_width - 2.0 * ( TileMonitor.RENDER_BORDER + TileMonitor.RENDER_MARGIN )) / (textScale * 6.0 * TileMonitor.RENDER_PIXEL_SCALE) ),
+            Math.round( (m_width - 2.0 * ( TileMonitor.RENDER_BORDER + TileMonitor.RENDER_MARGIN )) / (textScale * 6.0 * TileMonitor.RENDER_PIXEL_SCALE) ),
             1.0
         );
         int termHeight = (int)Math.max(
-            Math.round( ((double)m_height - 2.0 * ( TileMonitor.RENDER_BORDER + TileMonitor.RENDER_MARGIN )) / (textScale * 9.0 * TileMonitor.RENDER_PIXEL_SCALE) ),
+            Math.round( (m_height - 2.0 * ( TileMonitor.RENDER_BORDER + TileMonitor.RENDER_MARGIN )) / (textScale * 9.0 * TileMonitor.RENDER_PIXEL_SCALE) ),
             1.0
         );
         ((ServerTerminal)getLocalTerminal()).resize( termWidth, termHeight );
@@ -709,11 +709,11 @@ public class TileMonitor extends TilePeripheralBase
             return;
         }
         
-        double xCharWidth = ((double)m_width - ((RENDER_BORDER + RENDER_MARGIN) * 2.0)) / ((double)originTerminal.getWidth());
-        double yCharHeight = ((double)m_height - ((RENDER_BORDER + RENDER_MARGIN) * 2.0)) / ((double)originTerminal.getHeight());
+        double xCharWidth = (m_width - ((RENDER_BORDER + RENDER_MARGIN) * 2.0)) / (originTerminal.getWidth());
+        double yCharHeight = (m_height - ((RENDER_BORDER + RENDER_MARGIN) * 2.0)) / (originTerminal.getHeight());
          
-        int xCharPos = (int)Math.min((double)originTerminal.getWidth(), Math.max(((pair.x - RENDER_BORDER - RENDER_MARGIN) / xCharWidth) + 1.0, 1.0));
-        int yCharPos = (int)Math.min((double)originTerminal.getHeight(), Math.max(((pair.y - RENDER_BORDER - RENDER_MARGIN) / yCharHeight) + 1.0, 1.0));
+        int xCharPos = (int)Math.min(originTerminal.getWidth(), Math.max(((pair.x - RENDER_BORDER - RENDER_MARGIN) / xCharWidth) + 1.0, 1.0));
+        int yCharPos = (int)Math.min(originTerminal.getHeight(), Math.max(((pair.y - RENDER_BORDER - RENDER_MARGIN) / yCharHeight) + 1.0, 1.0));
         
         for( int y=0; y<m_height; ++y )
         {

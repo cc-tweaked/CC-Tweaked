@@ -101,7 +101,7 @@ public class TileCable extends TileModemBase
         {
             EnumFacing direction = m_entity.getDirection();
             BlockPos pos = m_entity.getPos().offset( direction );
-            return new Vec3d( (double)pos.getX() + 0.5, (double)pos.getY() + 0.5, (double)pos.getZ() + 0.5 );
+            return new Vec3d( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5 );
         }
 
         @Nonnull
@@ -1056,12 +1056,12 @@ public class TileCable extends TileModemBase
         Queue<SearchLoc> queue = new LinkedList<>();
         enqueue( queue, getWorld(), getPos(), 1 );
         
-        int visited = 0;
+        //int visited = 0;
         while( queue.peek() != null )
         {
             SearchLoc loc = queue.remove();
             visitBlock( queue, loc, searchID, visitor );
-            visited++;
+            //visited++;
         }
         //System.out.println( "Visited "+visited+" common" );
     }

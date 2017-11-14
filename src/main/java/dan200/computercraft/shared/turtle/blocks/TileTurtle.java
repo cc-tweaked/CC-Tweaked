@@ -48,7 +48,7 @@ import java.util.List;
 import static net.minecraftforge.items.CapabilityItemHandler.ITEM_HANDLER_CAPABILITY;
 
 public class TileTurtle extends TileComputerBase
-    implements ITurtleTile, IInventory, ITickable
+    implements ITurtleTile, IInventory
 {
     // Statics
 

@@ -936,11 +936,11 @@ public class TurtleBrain implements ITurtleAccess
                     }
                 }
 
-                double distance = -1.0 + (double)getAnimationFraction( f );
+                double distance = -1.0 + getAnimationFraction( f );
                 return new Vec3d(
-                    distance * (double)dir.getFrontOffsetX(),
-                    distance * (double)dir.getFrontOffsetY(),
-                    distance * (double)dir.getFrontOffsetZ()
+                    distance * dir.getFrontOffsetX(),
+                    distance * dir.getFrontOffsetY(),
+                    distance * dir.getFrontOffsetZ()
                 );
             }
             default:
@@ -955,7 +955,7 @@ public class TurtleBrain implements ITurtleAccess
         if( (side == TurtleSide.Left && m_animation == TurtleAnimation.SwingLeftTool) ||
             (side == TurtleSide.Right && m_animation == TurtleAnimation.SwingRightTool) )
         {
-            return 45.0f * (float)Math.sin( (double) getAnimationFraction( f ) * Math.PI );
+            return 45.0f * (float)Math.sin( getAnimationFraction( f ) * Math.PI );
         }
         return 0.0f;
     }
@@ -1126,39 +1126,39 @@ public class TurtleBrain implements ITurtleAccess
                     float push = Math.max( pushFrac + 0.0125f, 0.0f );
                     if (moveDir.getFrontOffsetX() < 0)
                     {
-                        minX += (double)((float)moveDir.getFrontOffsetX() * push);
+                        minX += moveDir.getFrontOffsetX() * push;
                     }
                     else
                     {
-                        maxX -= (double)((float)moveDir.getFrontOffsetX() * push);
+                        maxX -= moveDir.getFrontOffsetX() * push;
                     }
 
                     if (moveDir.getFrontOffsetY() < 0)
                     {
-                        minY += (double)((float)moveDir.getFrontOffsetY() * push);
+                        minY += moveDir.getFrontOffsetY() * push;
                     }
                     else
                     {
-                        maxY -= (double)((float)moveDir.getFrontOffsetY() * push);
+                        maxY -= moveDir.getFrontOffsetY() * push;
                     }
 
                     if (moveDir.getFrontOffsetZ() < 0)
                     {
-                        minZ += (double)((float)moveDir.getFrontOffsetZ() * push);
+                        minZ += moveDir.getFrontOffsetZ() * push;
                     }
                     else
                     {
-                        maxZ -= (double)((float)moveDir.getFrontOffsetZ() * push);
+                        maxZ -= moveDir.getFrontOffsetZ() * push;
                     }
 
                     AxisAlignedBB aabb = new AxisAlignedBB( minX, minY, minZ, maxX, maxY, maxZ );
                     List<Entity> list = world.getEntitiesWithinAABBExcludingEntity( null, aabb );
                     if( !list.isEmpty() )
                     {
-                        double pushStep = 1.0f / (float) ANIM_DURATION;
-                        double pushStepX = (double) moveDir.getFrontOffsetX() * pushStep;
-                        double pushStepY = (double) moveDir.getFrontOffsetY() * pushStep;
-                        double pushStepZ = (double) moveDir.getFrontOffsetZ() * pushStep;
+                        double pushStep = 1.0f / ANIM_DURATION;
+                        double pushStepX = moveDir.getFrontOffsetX() * pushStep;
+                        double pushStepY = moveDir.getFrontOffsetY() * pushStep;
+                        double pushStepZ = moveDir.getFrontOffsetZ() * pushStep;
                         for (Entity entity : list)
                         {
                             entity.move( MoverType.PISTON, pushStepX, pushStepY, pushStepZ );

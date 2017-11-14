@@ -38,7 +38,7 @@ public class ColourTracker
         int avgB = totalB / count;
 
         float avgTotal = (float) total / (float) count;
-        float avgMax = (float) Math.max( avgR, Math.max( avgG, avgB ) );
+        float avgMax = Math.max( avgR, Math.max( avgG, avgB ) );
         avgR = (int) (avgR * avgTotal / avgMax);
         avgG = (int) (avgG * avgTotal / avgMax);
         avgB = (int) (avgB * avgTotal / avgMax);

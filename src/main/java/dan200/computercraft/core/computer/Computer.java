@@ -452,7 +452,7 @@ public class Computer
     private boolean initFileSystem()
     {
         // Create the file system
-        int id = assignID();
+        assignID();
         try
         {
             m_fileSystem = new FileSystem( "hdd", getRootMount() );

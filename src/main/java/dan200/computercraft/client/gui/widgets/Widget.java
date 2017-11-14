@@ -175,10 +175,10 @@ public abstract class Widget extends Gui
     {
         Tessellator tessellator = Tessellator.getInstance();
         tessellator.getBuffer().begin( GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX );
-        tessellator.getBuffer().pos( (double) ( x + 0 ), (double) ( y + h ), (double) this.zLevel ).tex( 0.0, 1.0 ).endVertex();
-        tessellator.getBuffer().pos( (double) ( x + w ), (double) ( y + h ), (double) this.zLevel ).tex( 1.0, 1.0 ).endVertex();
-        tessellator.getBuffer().pos( (double) ( x + w ), (double) ( y + 0 ), (double) this.zLevel ).tex( 1.0, 0.0 ).endVertex();
-        tessellator.getBuffer().pos( (double) ( x + 0 ), (double) ( y + 0 ), (double) this.zLevel ).tex( 0.0, 0.0 ).endVertex();
+        tessellator.getBuffer().pos( x + 0, y + h, this.zLevel ).tex( 0.0, 1.0 ).endVertex();
+        tessellator.getBuffer().pos( x + w, y + h, this.zLevel ).tex( 1.0, 1.0 ).endVertex();
+        tessellator.getBuffer().pos( x + w, y + 0, this.zLevel ).tex( 1.0, 0.0 ).endVertex();
+        tessellator.getBuffer().pos( x + 0, y + 0, this.zLevel ).tex( 0.0, 0.0 ).endVertex();
         tessellator.draw();
     }
 

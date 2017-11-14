@@ -82,11 +82,11 @@ public class TileEntityMonitorRenderer extends TileEntitySpecialRenderer<TileMon
             GlStateManager.rotate( pitch, 1.0f, 0.0f, 0.0f );
             GlStateManager.translate(
                 -0.5 + TileMonitor.RENDER_BORDER + TileMonitor.RENDER_MARGIN,
-                ((double)origin.getHeight() - 0.5) - (TileMonitor.RENDER_BORDER + TileMonitor.RENDER_MARGIN),
+                (origin.getHeight() - 0.5) - (TileMonitor.RENDER_BORDER + TileMonitor.RENDER_MARGIN),
                 0.5
             );
-            double xSize = (double)origin.getWidth() - 2.0 * ( TileMonitor.RENDER_MARGIN + TileMonitor.RENDER_BORDER );
-            double ySize = (double)origin.getHeight() - 2.0 * ( TileMonitor.RENDER_MARGIN + TileMonitor.RENDER_BORDER );
+            double xSize = origin.getWidth() - 2.0 * ( TileMonitor.RENDER_MARGIN + TileMonitor.RENDER_BORDER );
+            double ySize = origin.getHeight() - 2.0 * ( TileMonitor.RENDER_MARGIN + TileMonitor.RENDER_BORDER );
 
             // Get renderers
             Minecraft mc = Minecraft.getMinecraft();
@@ -126,8 +126,8 @@ public class TileEntityMonitorRenderer extends TileEntitySpecialRenderer<TileMon
                     GlStateManager.pushMatrix();
                     try
                     {
-                        double xScale = xSize / (double) ( width * FixedWidthFontRenderer.FONT_WIDTH );
-                        double yScale = ySize / (double) ( height * FixedWidthFontRenderer.FONT_HEIGHT );
+                        double xScale = xSize / ( width * FixedWidthFontRenderer.FONT_WIDTH );
+                        double yScale = ySize / ( height * FixedWidthFontRenderer.FONT_HEIGHT );
                         GlStateManager.scale( xScale, -yScale, 1.0 );
 
                         // Draw background
@@ -140,7 +140,7 @@ public class TileEntityMonitorRenderer extends TileEntitySpecialRenderer<TileMon
                             {
                                 double marginXSize = TileMonitor.RENDER_MARGIN / xScale;
                                 double marginYSize = TileMonitor.RENDER_MARGIN / yScale;
-                                double marginSquash = marginYSize / (double) FixedWidthFontRenderer.FONT_HEIGHT;
+                                double marginSquash = marginYSize / FixedWidthFontRenderer.FONT_HEIGHT;
 
                                 // Top and bottom margins
                                 GlStateManager.pushMatrix();

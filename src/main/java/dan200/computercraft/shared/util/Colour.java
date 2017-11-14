@@ -52,9 +52,9 @@ public enum Colour
     {
         m_hex = hex;
         m_rgb = new float[] {
-            (float)((hex >> 16) & 0xFF) / 255.0f,
-            (float)((hex >> 8 ) & 0xFF) / 255.0f,
-            (float)((hex      ) & 0xFF) / 255.0f,
+            ((hex >> 16) & 0xFF) / 255.0f,
+            ((hex >> 8 ) & 0xFF) / 255.0f,
+            ((hex      ) & 0xFF) / 255.0f,
         };
     }
 

@@ -52,8 +52,8 @@ public class OSAPI implements ILuaAPI
         @Override
         public int compareTo( @Nonnull Alarm o )
         {
-            double t = (double)m_day * 24.0 + m_time;
-            double ot = (double)m_day * 24.0 + m_time;
+            double t = m_day * 24.0 + m_time;
+            double ot = m_day * 24.0 + m_time;
             if( t < ot ) {
                 return -1;
             } else if( t > ot ) {
@@ -135,13 +135,13 @@ public class OSAPI implements ILuaAPI
             
             if( time > previousTime || day > previousDay )
             {
-                double now = (double)m_day * 24.0 + m_time;
+                double now = m_day * 24.0 + m_time;
                 Iterator<Map.Entry<Integer, Alarm>> it = m_alarms.entrySet().iterator();
                 while( it.hasNext() )
                 {
                     Map.Entry<Integer, Alarm> entry = it.next();
                     Alarm alarm = entry.getValue();
-                    double t = (double)alarm.m_day * 24.0 + alarm.m_time;
+                    double t = alarm.m_day * 24.0 + alarm.m_time;
                     if( now >= t )
                     {
                         queueLuaEvent( "alarm", new Object[]{ entry.getKey() } );
@@ -196,8 +196,8 @@ public class OSAPI implements ILuaAPI
     private float getTimeForCalendar(Calendar c)
     {
         float time = c.get(Calendar.HOUR_OF_DAY);
-        time += (float)c.get(Calendar.MINUTE) / 60.0f;
-        time += (float)c.get(Calendar.SECOND) / (60.0f * 60.0f);
+        time += c.get(Calendar.MINUTE) / 60.0f;
+        time += c.get(Calendar.SECOND) / (60.0f * 60.0f);
         return time;
     }
 
@@ -296,7 +296,7 @@ public class OSAPI implements ILuaAPI
                 // clock
                 synchronized( m_timers )
                 {
-                    return new Object[] { (double)m_clock * 0.05 };
+                    return new Object[] { m_clock * 0.05 };
                 }
             }
             case 11:

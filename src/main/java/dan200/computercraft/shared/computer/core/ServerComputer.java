@@ -328,7 +328,7 @@ public class ServerComputer extends ServerTerminal
     @Override
     public double getTimeOfDay()
     {
-        return (double)((m_world.getWorldTime() + 6000) % 24000) / 1000.0;
+        return (m_world.getWorldTime() + 6000) % 24000 / 1000.0;
     }
 
     @Override

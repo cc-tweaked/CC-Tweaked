@@ -310,10 +310,10 @@ public class TileEntityTurtleRenderer extends TileEntitySpecialRenderer<TileTurt
                         Tessellator tessellator = Tessellator.getInstance();
                         BufferBuilder renderer = tessellator.getBuffer();
                         renderer.begin( GL11.GL_QUADS, DefaultVertexFormats.POSITION_COLOR );
-                        renderer.pos( (double) ( -xOffset - 1 ), (double) ( -1 + yOffset ), 0.0D ).color( 0.0F, 0.0F, 0.0F, 0.25F ).endVertex();
-                        renderer.pos( (double) ( -xOffset - 1 ), (double) ( 8 + yOffset ), 0.0D ).color( 0.0F, 0.0F, 0.0F, 0.25F ).endVertex();
-                        renderer.pos( (double) ( xOffset + 1 ), (double) ( 8 + yOffset ), 0.0D ).color( 0.0F, 0.0F, 0.0F, 0.25F ).endVertex();
-                        renderer.pos( (double) ( xOffset + 1 ), (double) ( -1 + yOffset ), 0.0D ).color( 0.0F, 0.0F, 0.0F, 0.25F ).endVertex();
+                        renderer.pos( -xOffset - 1, -1 + yOffset, 0.0D ).color( 0.0F, 0.0F, 0.0F, 0.25F ).endVertex();
+                        renderer.pos( -xOffset - 1, 8 + yOffset, 0.0D ).color( 0.0F, 0.0F, 0.0F, 0.25F ).endVertex();
+                        renderer.pos( xOffset + 1, 8 + yOffset, 0.0D ).color( 0.0F, 0.0F, 0.0F, 0.25F ).endVertex();
+                        renderer.pos( xOffset + 1, -1 + yOffset, 0.0D ).color( 0.0F, 0.0F, 0.0F, 0.25F ).endVertex();
                         tessellator.draw();
                     }
                     finally

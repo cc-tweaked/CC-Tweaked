@@ -141,10 +141,10 @@ public class FixedWidthFontRenderer
             }
 
             // Draw char
-            int index = (int)s.charAt( i );
+            int index = s.charAt( i );
             if( index < 0 || index > 255 )
             {
-                index = (int)'?';
+                index = '?';
             }
             drawChar( renderer, x + i * FONT_WIDTH, y, index, colour, p, greyScale );
         }

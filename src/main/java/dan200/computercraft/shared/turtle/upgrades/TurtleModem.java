@@ -32,7 +32,6 @@ import javax.vecmath.Matrix4f;
 public class TurtleModem implements ITurtleUpgrade
 {
     private static class Peripheral extends WirelessModemPeripheral
-        implements IPeripheral
     {
         private final ITurtleAccess m_turtle;
 
@@ -55,9 +54,9 @@ public class TurtleModem implements ITurtleUpgrade
         {
             BlockPos turtlePos = m_turtle.getPosition();
             return new Vec3d(
-                (double)turtlePos.getX(),
-                (double)turtlePos.getY(),
-                (double)turtlePos.getZ()
+                turtlePos.getX(),
+                turtlePos.getY(),
+                turtlePos.getZ()
             );
         }
 

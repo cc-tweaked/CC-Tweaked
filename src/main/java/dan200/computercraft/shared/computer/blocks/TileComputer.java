@@ -19,7 +19,6 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.NonNullList;
 
 import javax.annotation.Nonnull;
-import java.util.List;
 
 public class TileComputer extends TileComputerBase
 {

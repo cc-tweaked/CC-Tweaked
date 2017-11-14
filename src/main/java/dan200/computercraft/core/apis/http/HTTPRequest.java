@@ -193,7 +193,7 @@ public class HTTPRequest implements HTTPTask.IHTTPTask
             m_encoding = connection.getContentEncoding();
 
             Joiner joiner = Joiner.on( ',' );
-            Map<String, String> headers = m_responseHeaders = new HashMap<String, String>();
+            Map<String, String> headers = m_responseHeaders = new HashMap<>();
             for( Map.Entry<String, List<String>> header : connection.getHeaderFields().entrySet() )
             {
                 headers.put( header.getKey(), joiner.join( header.getValue() ) );

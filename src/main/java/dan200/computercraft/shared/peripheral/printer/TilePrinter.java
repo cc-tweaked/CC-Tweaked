@@ -17,7 +17,6 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
-import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.ISidedInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -42,7 +41,7 @@ import javax.annotation.Nullable;
 import static net.minecraftforge.items.CapabilityItemHandler.ITEM_HANDLER_CAPABILITY;
 
 public class TilePrinter extends TilePeripheralBase
-    implements IInventory, ISidedInventory
+    implements ISidedInventory
 {
     // Statics
 
@@ -583,9 +582,9 @@ public class TilePrinter extends TilePeripheralBase
         
                     // Spawn the item in the world
                     BlockPos pos = getPos();
-                    double x = (double)pos.getX() + 0.5;
-                    double y = (double)pos.getY() + 0.75;
-                    double z = (double)pos.getZ() + 0.5;
+                    double x = pos.getX() + 0.5;
+                    double y = pos.getY() + 0.75;
+                    double z = pos.getZ() + 0.5;
                     EntityItem entityitem = new EntityItem( getWorld(), x, y, z, stack );
                     entityitem.motionX = getWorld().rand.nextFloat() * 0.2 - 0.1;
                     entityitem.motionY = getWorld().rand.nextFloat() * 0.2 - 0.1;

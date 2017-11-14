@@ -45,7 +45,7 @@ public class TileWirelessModem extends TileModemBase
         public Vec3d getPosition()
         {
             BlockPos pos = m_entity.getPos().offset( m_entity.getDirection() );
-            return new Vec3d( (double)pos.getX(), (double)pos.getY(), (double)pos.getZ() );
+            return new Vec3d( pos.getX(), pos.getY(), pos.getZ() );
         }
 
         @Override

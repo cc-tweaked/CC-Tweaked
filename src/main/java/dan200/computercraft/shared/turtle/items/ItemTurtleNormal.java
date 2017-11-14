@@ -9,7 +9,6 @@ package dan200.computercraft.shared.turtle.items;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
-import dan200.computercraft.shared.common.IColouredItem;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.util.ColourUtils;
 import net.minecraft.block.Block;
@@ -20,7 +19,7 @@ import net.minecraftforge.common.util.Constants;
 
 import javax.annotation.Nonnull;
 
-public class ItemTurtleNormal extends ItemTurtleBase implements IColouredItem
+public class ItemTurtleNormal extends ItemTurtleBase
 {
     public ItemTurtleNormal( Block block )
     {

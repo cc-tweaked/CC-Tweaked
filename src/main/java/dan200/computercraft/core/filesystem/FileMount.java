@@ -95,7 +95,7 @@ public class FileMount implements IWritableMount
     // IMount implementation
     
     @Override
-    public boolean exists( @Nonnull String path ) throws IOException
+    public boolean exists( @Nonnull String path )
     {
         if( !created() )
         {
@@ -109,7 +109,7 @@ public class FileMount implements IWritableMount
     }
     
     @Override
-    public boolean isDirectory( @Nonnull String path ) throws IOException
+    public boolean isDirectory( @Nonnull String path )
     {
         if( !created() )
         {
@@ -339,7 +339,7 @@ public class FileMount implements IWritableMount
     }
     
     @Override
-    public long getRemainingSpace() throws IOException
+    public long getRemainingSpace()
     {
         return Math.max( m_capacity - m_usedSpace, 0 );
     }

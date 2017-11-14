@@ -65,7 +65,7 @@ public class FileSystem
             }
         }
         
-        public boolean isReadOnly( String path ) throws FileSystemException
+        public boolean isReadOnly( String path )
         {
             return (m_writableMount == null);
         }
@@ -347,7 +347,7 @@ public class FileSystem
         mount( new MountWrapper( label, location, mount ) );
     }
     
-    private synchronized void mount( MountWrapper wrapper ) throws FileSystemException
+    private synchronized void mount( MountWrapper wrapper )
     {
         String location = wrapper.getLocation();
         if( m_mounts.containsKey( location ) )

@@ -31,7 +31,7 @@ public abstract class WirelessModemPeripheral extends ModemPeripheral
     {
         if( m_advanced )
         {
-            return (double)Integer.MAX_VALUE;
+            return Integer.MAX_VALUE;
         }
         else
         {
@@ -39,12 +39,12 @@ public abstract class WirelessModemPeripheral extends ModemPeripheral
             if( world != null )
             {
                 Vec3d position = getPosition();
-                double minRange = (double) ComputerCraft.modem_range;
-                double maxRange = (double) ComputerCraft.modem_highAltitudeRange;
+                double minRange = ComputerCraft.modem_range;
+                double maxRange = ComputerCraft.modem_highAltitudeRange;
                 if( world.isRaining() && world.isThundering() )
                 {
-                    minRange = (double) ComputerCraft.modem_rangeDuringStorm;
-                    maxRange = (double) ComputerCraft.modem_highAltitudeRangeDuringStorm;
+                    minRange = ComputerCraft.modem_rangeDuringStorm;
+                    maxRange = ComputerCraft.modem_highAltitudeRangeDuringStorm;
                 }
                 if( position.y > 96.0 && maxRange > minRange )
                 {

@@ -176,14 +176,14 @@ public class JarMount implements IMount
     // IMount implementation
     
     @Override
-    public boolean exists( @Nonnull String path ) throws IOException
+    public boolean exists( @Nonnull String path )
     {
         FileInZip file = m_root.getFile( path );
         return file != null;
     }
     
     @Override
-    public boolean isDirectory( @Nonnull String path ) throws IOException
+    public boolean isDirectory( @Nonnull String path )
     {
         FileInZip file = m_root.getFile( path );
         if( file != null )

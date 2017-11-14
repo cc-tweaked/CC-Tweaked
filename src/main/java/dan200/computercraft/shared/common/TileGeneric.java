@@ -159,7 +159,7 @@ public abstract class TileGeneric extends TileEntity
                     double range = getInteractRange( player );
                     BlockPos pos = getPos();
                     return player.getEntityWorld() == getWorld() &&
-                           player.getDistanceSq( (double)pos.getX() + 0.5, (double)pos.getY() + 0.5, (double)pos.getZ() + 0.5 ) <= ( range * range );
+                           player.getDistanceSq( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5 ) <= ( range * range );
                 }
                 return true;
             }

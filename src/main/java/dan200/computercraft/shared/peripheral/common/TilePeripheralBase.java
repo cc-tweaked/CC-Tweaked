@@ -7,7 +7,6 @@
 package dan200.computercraft.shared.peripheral.common;
 
 import dan200.computercraft.api.peripheral.IPeripheral;
-import dan200.computercraft.shared.common.IDirectionalTile;
 import dan200.computercraft.shared.common.TileGeneric;
 import dan200.computercraft.shared.peripheral.PeripheralType;
 import net.minecraft.item.ItemStack;
@@ -20,7 +19,7 @@ import javax.annotation.Nonnull;
 import java.util.List;
 
 public abstract class TilePeripheralBase extends TileGeneric
-    implements IPeripheralTile, IDirectionalTile, ITickable
+    implements IPeripheralTile, ITickable
 {
     // Statics
 
