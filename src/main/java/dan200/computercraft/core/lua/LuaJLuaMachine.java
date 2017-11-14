@@ -17,6 +17,7 @@ import dan200.computercraft.core.computer.ITask;
 import dan200.computercraft.core.computer.MainThread;
 
 import org.luaj.vm2.*;
+import org.luaj.vm2.lib.Bit32Lib;
 import org.luaj.vm2.lib.OneArgFunction;
 import org.luaj.vm2.lib.VarArgFunction;
 import org.luaj.vm2.lib.ZeroArgFunction;
@@ -54,6 +55,7 @@ public class LuaJLuaMachine implements ILuaMachine
 
         // Create an environment to run in
         m_globals = JsePlatform.debugGlobals();
+        m_globals.load( new Bit32Lib() );
         m_loadString = m_globals.get("loadstring");
         m_assert = m_globals.get("assert");
 
