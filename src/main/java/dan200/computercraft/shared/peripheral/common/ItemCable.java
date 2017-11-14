@@ -89,12 +89,12 @@ public class ItemCable extends ItemPeripheralBase
             {
                 if( !stack.isEmpty() )
                 {
-                    IBlockState newState = existingState.withProperty( BlockCable.Properties.CABLE, true );
+                    IBlockState newState = existingState.withProperty( BlockCable.Properties.CABLE, BlockCableCableVariant.ANY );
                     world.setBlockState( pos, newState, 3 );
                     SoundType soundType = newState.getBlock().getSoundType( newState, world, pos, player );
                     world.playSound( null, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, soundType.getPlaceSound(), SoundCategory.BLOCKS, (soundType.getVolume() + 1.0F) / 2.0F, soundType.getPitch() * 0.8F );
                     stack.shrink( 1 );
-                    
+
                     TileEntity tile = world.getTileEntity( pos );
                     if( tile != null && tile instanceof TileCable )
                     {
@@ -143,7 +143,7 @@ public class ItemCable extends ItemPeripheralBase
                 {
                     if( !stack.isEmpty() )
                     {
-                        IBlockState newState = offsetExistingState.withProperty( BlockCable.Properties.CABLE, true );
+                        IBlockState newState = offsetExistingState.withProperty( BlockCable.Properties.CABLE, BlockCableCableVariant.ANY );
                         world.setBlockState( offset, newState, 3 );
                         SoundType soundType = newState.getBlock().getSoundType( newState, world, offset, player );
                         world.playSound( null, offset.getX() + 0.5, offset.getY() + 0.5, offset.getZ() + 0.5, soundType.getPlaceSound(), SoundCategory.BLOCKS, (soundType.getVolume() + 1.0F) / 2.0F, soundType.getPitch() * 0.8F );

@@ -46,8 +46,8 @@ import static dan200.computercraft.core.apis.ArgumentHelper.getString;
 public class TileCable extends TileModemBase
     implements IPacketNetwork
 {
-    private static final double MIN = 0.375;
-    private static final double MAX = 1 - MIN;
+    public static final double MIN = 0.375;
+    public static final double MAX = 1 - MIN;
 
     private static final AxisAlignedBB BOX_CENTRE = new AxisAlignedBB( MIN, MIN, MIN, MAX, MAX, MAX );
     private static final AxisAlignedBB[] BOXES = new AxisAlignedBB[]{
@@ -359,6 +359,7 @@ public class TileCable extends TileModemBase
                     ((BlockGeneric)getBlockType()).dropItem( getWorld(), getPos(), PeripheralItemFactory.create( PeripheralType.WiredModem, getLabel(), 1 ) );
                     setLabel( null );
                     setBlockState( getBlockState().withProperty( BlockCable.Properties.MODEM, BlockCableModemVariant.None ) );
+                    if( modemChanged() ) networkChanged();
                     break;
                 }
             }
@@ -682,7 +683,7 @@ public class TileCable extends TileModemBase
     {
         if( !getWorld().isRemote )
         {
-            if( !m_destroyed )
+            if( !m_destroyed && getPeripheralType() != PeripheralType.WiredModem)
             {
                 // If this modem is alive, rebuild the network
                 searchNetwork( ( modem, distance ) ->
@@ -711,6 +712,29 @@ public class TileCable extends TileModemBase
                 }
             }
         }
+    }
+
+    public boolean modemChanged()
+    {
+        if( getWorld().isRemote ) return false;
+        
+        boolean requiresUpdate = false;
+
+        PeripheralType type = getPeripheralType();
+        if( type == PeripheralType.Cable )
+        {
+            m_attachedPeripheralID = -1;
+        }
+
+        if( type != PeripheralType.WiredModemWithCable && m_peripheralAccessAllowed )
+        {
+            m_peripheralAccessAllowed = false;
+            requiresUpdate = true;
+            markDirty();
+            updateAnim();
+        }
+        
+        return requiresUpdate;
     }
         
     // private stuff
@@ -1040,5 +1064,11 @@ public class TileCable extends TileModemBase
             visited++;
         }
         //System.out.println( "Visited "+visited+" common" );
+    }
+
+    @Override
+    public boolean canRenderBreaking()
+    {
+        return true;
     }
 }

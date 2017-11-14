@@ -68,7 +68,7 @@ public abstract class BlockGeneric extends Block implements
     }
 
     @Override
-    public final boolean removedByPlayer( @Nonnull IBlockState state, World world, @Nonnull BlockPos pos, @Nonnull EntityPlayer player, boolean willHarvest )
+    public boolean removedByPlayer( @Nonnull IBlockState state, World world, @Nonnull BlockPos pos, @Nonnull EntityPlayer player, boolean willHarvest )
     {
         if( !world.isRemote )
         {
@@ -122,7 +122,7 @@ public abstract class BlockGeneric extends Block implements
 
     @Nonnull
     @Override
-    public final ItemStack getPickBlock( @Nonnull IBlockState state, RayTraceResult target, @Nonnull World world, @Nonnull BlockPos pos, EntityPlayer player )
+    public ItemStack getPickBlock( @Nonnull IBlockState state, RayTraceResult target, @Nonnull World world, @Nonnull BlockPos pos, EntityPlayer player )
     {
         TileEntity tile = world.getTileEntity( pos );
         if( tile != null && tile instanceof TileGeneric )

@@ -2,13 +2,11 @@
     "forge_marker": 1,
     "variants": {
         "cable": {
-            "true": {
-                "submodel": {
-                    "cable": { "model": "computercraft:cable_core" }
-                }
-            },
-            "false": {
-            }
+            "none": { },
+            "any": { "submodel": { "cable": { "model": "computercraft:cable_core_any" } } },
+            "x": { "submodel": { "cable": { "model": "computercraft:cable_core_facing", "y": 90 } } },
+            "y": { "submodel": { "cable": { "model": "computercraft:cable_core_facing", "x": 90 } } },
+            "z": { "submodel": { "cable": { "model": "computercraft:cable_core_facing", "y": 0 } } }
         },
         "up": {
             "true": {

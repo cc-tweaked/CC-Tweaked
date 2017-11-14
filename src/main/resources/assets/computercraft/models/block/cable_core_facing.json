@@ -1,0 +1,22 @@
+{
+    "parent": "block/block",
+    "textures": {
+        "particle": "computercraft:blocks/cable_core",
+        "side": "computercraft:blocks/cable_side",
+        "end": "computercraft:blocks/cable_core"
+    },
+    "elements": [
+        {
+            "from": [ 6, 6, 6 ],
+            "to": [ 10, 10, 10 ],
+            "faces": {
+                "down":  { "uv": [ 6, 6, 10, 10 ], "texture": "#side" },
+                "up":    { "uv": [ 6, 6, 10, 10 ], "texture": "#side" },
+                "north": { "uv": [ 6, 6, 10, 10 ], "texture": "#end" },
+                "south": { "uv": [ 6, 6, 10, 10 ], "texture": "#end" },
+                "west":  { "uv": [ 6, 6, 10, 10 ], "texture": "#side" },
+                "east":  { "uv": [ 6, 6, 10, 10 ], "texture": "#side" }
+            }
+        }
+    ]
+}
