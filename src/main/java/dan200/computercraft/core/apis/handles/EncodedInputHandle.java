@@ -6,6 +6,8 @@ import dan200.computercraft.api.lua.LuaException;
 import javax.annotation.Nonnull;
 import java.io.*;
 
+import static dan200.computercraft.core.apis.ArgumentHelper.*;
+
 public class EncodedInputHandle extends HandleGeneric
 {
     private final BufferedReader m_reader;
@@ -49,6 +51,7 @@ public class EncodedInputHandle extends HandleGeneric
             "readLine",
             "readAll",
             "close",
+            "read",
         };
     }
 
@@ -102,6 +105,26 @@ public class EncodedInputHandle extends HandleGeneric
                 // close
                 close();
                 return null;
+            case 3:
+                // read
+                checkOpen();
+                try
+                {
+                    int count = optInt( args, 0, 1 );
+                    if( count <= 0 || count >= 1024 * 16 )
+                    {
+                        throw new LuaException( "Count out of range" );
+                    }
+                    char[] bytes = new char[ count ];
+                    count = m_reader.read( bytes );
+                    if( count < 0 ) return null;
+                    String str = new String( bytes, 0, count );
+                    return new Object[] { str };
+                }
+                catch( IOException e )
+                {
+                    return null;
+                }
             default:
                 return null;
         }

@@ -91,6 +91,8 @@ function open( _sPath, _sMode )
 					return file.readLine()
 				elseif sFormat == "*a" then
 					return file.readAll()
+                elseif _G.type( sFormat ) == "number" then
+                    return file.read( sFormat )
 				else
 					error( "Unsupported format", 2 )
 				end

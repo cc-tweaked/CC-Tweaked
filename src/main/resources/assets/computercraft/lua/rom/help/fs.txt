@@ -22,6 +22,7 @@ Functions on files opened with mode "r":
 readLine()
 readAll()
 close()
+read( number )
 
 Functions on files opened with mode "w" or "a":
 write( string )
