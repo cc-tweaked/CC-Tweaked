@@ -13,7 +13,11 @@ if #tFiles > 0 then
         if fs.isDir( sDest ) then
             fs.copy( sFile, fs.combine( sDest, fs.getName(sFile) ) )
         elseif #tFiles == 1 then
-            fs.copy( sFile, sDest )
+            if fs.exists( sDest ) then
+                 printError( "Destination exists" )
+            else
+                 fs.copy( sFile, sDest )
+            end
         else
             printError( "Cannot overwrite file multiple times" )
             return
