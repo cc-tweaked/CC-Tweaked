@@ -65,7 +65,8 @@ public class MonitorPeripheral implements IPeripheral
             "setPaletteColour",
             "setPaletteColor",
             "getPaletteColour",
-            "getPaletteColor"
+            "getPaletteColor",
+            "getTextScale"
         };
     }
 
@@ -248,6 +249,11 @@ public class MonitorPeripheral implements IPeripheral
                     return ArrayUtils.toObject( palette.getColour( colour ) );
                 }
                 return null;
+            }
+            case 24:
+            {
+                // getTextScale
+                return new Object[] { m_monitor.getTextScale() };
             }
         }
         return null;
