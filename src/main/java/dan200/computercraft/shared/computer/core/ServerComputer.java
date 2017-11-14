@@ -39,6 +39,7 @@ public class ServerComputer extends ServerTerminal
     private World m_world;
     private BlockPos m_position;
 
+    private final ComputerFamily m_family;
     private final Computer m_computer;
     private NBTTagCompound m_userData;
     private boolean m_changed;
@@ -54,6 +55,7 @@ public class ServerComputer extends ServerTerminal
         m_world = world;
         m_position = null;
 
+        m_family = family;
         m_computer = new Computer( this, getTerminal(), computerID );
         m_computer.setLabel( label );
         m_userData = null;
@@ -61,6 +63,10 @@ public class ServerComputer extends ServerTerminal
 
         m_changedLastFrame = false;
         m_ticksSincePing = 0;
+    }
+
+    public ComputerFamily getFamily(){
+        return m_family;
     }
 
     public World getWorld()
