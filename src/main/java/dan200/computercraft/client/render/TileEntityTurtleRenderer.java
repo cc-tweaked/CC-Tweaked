@@ -116,20 +116,12 @@ public class TileEntityTurtleRenderer extends TileEntitySpecialRenderer<TileTurt
             // Setup the transform
             Vec3d offset;
             float yaw;
-            if( turtle != null )
-            {
-                offset = turtle.getRenderOffset( f );
-                yaw = turtle.getRenderYaw( f );
-            }
-            else
-            {
-                offset = new Vec3d( 0.0, 0.0, 0.0 );
-                yaw = 0.0f;
-            }
+            offset = turtle.getRenderOffset( f );
+            yaw = turtle.getRenderYaw( f );
             GlStateManager.translate( posX + offset.x, posY + offset.y, posZ + offset.z );
 
             // Render the label
-            IComputer computer = (turtle != null) ? turtle.getComputer() : null;
+            IComputer computer = turtle.getComputer();
             String label = (computer != null) ? computer.getLabel() : null;
             if( label != null )
             {
@@ -145,18 +137,9 @@ public class TileEntityTurtleRenderer extends TileEntitySpecialRenderer<TileTurt
             int colour;
             ComputerFamily family;
             ResourceLocation overlay;
-            if( turtle != null )
-            {
-                colour = turtle.getColour();
-                family = turtle.getFamily();
-                overlay = turtle.getOverlay();
-            }
-            else
-            {
-                colour = -1;
-                family = ComputerFamily.Normal;
-                overlay = null;
-            }
+            colour = turtle.getColour();
+            family = turtle.getFamily();
+            overlay = turtle.getOverlay();
 
             renderModel( state, getTurtleModel( family, colour != -1 ), colour == -1 ? null : new int[] { colour } );
 
@@ -183,11 +166,8 @@ public class TileEntityTurtleRenderer extends TileEntitySpecialRenderer<TileTurt
             }
 
             // Render the upgrades
-            if( turtle != null )
-            {
-                renderUpgrade( state, turtle, TurtleSide.Left, f );
-                renderUpgrade( state, turtle, TurtleSide.Right, f );
-            }
+            renderUpgrade( state, turtle, TurtleSide.Left, f );
+            renderUpgrade( state, turtle, TurtleSide.Right, f );
         }
         finally
         {
