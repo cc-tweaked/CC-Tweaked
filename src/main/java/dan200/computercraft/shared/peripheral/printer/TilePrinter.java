@@ -493,21 +493,6 @@ public class TilePrinter extends TilePeripheralBase
                 ItemStack paperStack = m_inventory.get( i );
                 if( !paperStack.isEmpty() && isPaper(paperStack) )
                 {
-                    // Decrement ink
-                    inkStack.shrink( 1 );
-                    if( inkStack.isEmpty() )
-                    {
-                        m_inventory.set( 0, ItemStack.EMPTY );
-                    }
-                                        
-                    // Decrement paper
-                    paperStack.shrink( 1 );
-                    if( paperStack.isEmpty() )
-                    {
-                        m_inventory.set( i, ItemStack.EMPTY );
-                        updateAnim();
-                    }
-                    
                     // Setup the new page
                     int colour = inkStack.getItemDamage();
                     if( colour >= 0 && colour < 16 ) {
@@ -532,6 +517,21 @@ public class TilePrinter extends TilePeripheralBase
                         m_pageTitle = "";
                     }
                     m_page.setCursorPos( 0, 0 );
+
+                    // Decrement ink
+                    inkStack.shrink( 1 );
+                    if( inkStack.isEmpty() )
+                    {
+                        m_inventory.set( 0, ItemStack.EMPTY );
+                    }
+
+                    // Decrement paper
+                    paperStack.shrink( 1 );
+                    if( paperStack.isEmpty() )
+                    {
+                        m_inventory.set( i, ItemStack.EMPTY );
+                        updateAnim();
+                    }
                     
                     markDirty();
                     m_printing = true;
