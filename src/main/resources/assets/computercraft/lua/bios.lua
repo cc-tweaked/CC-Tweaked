@@ -171,8 +171,8 @@ function sleep( nTime )
 end
 
 function write( sText )
-    if sText ~= nil and type( sText ) ~= "string" and type( sText ) ~= "number" then
-        error( "bad argument #1 (expected string, got " .. type( sText ) .. ")", 2 ) 
+    if type( sText ) ~= "string" and type( sText ) ~= "number" then
+        error( "bad argument #1 (expected string or number, got " .. type( sText ) .. ")", 2 ) 
     end
 
     local w,h = term.getSize()        
