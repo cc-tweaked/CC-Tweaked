@@ -6,7 +6,9 @@
 
 package dan200.computercraft.server.proxy;
 
+import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.computer.blocks.TileComputer;
+import dan200.computercraft.shared.network.ComputerCraftPacket;
 import dan200.computercraft.shared.peripheral.diskdrive.TileDiskDrive;
 import dan200.computercraft.shared.peripheral.printer.TilePrinter;
 import dan200.computercraft.shared.proxy.ComputerCraftProxyCommon;
@@ -63,11 +65,6 @@ public class ComputerCraftProxyServer extends ComputerCraftProxyCommon
     public Object getFixedWidthFontRenderer()
     {
         return null;
-    }
-    
-    @Override
-    public void playRecord( SoundEvent record, String recordInfo, World world, BlockPos pos )
-    {
     }
 
     @Override

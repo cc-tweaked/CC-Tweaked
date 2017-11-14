@@ -533,6 +533,11 @@ public class ComputerCraft
         networkEventChannel.sendToServer( encode( packet ) );
     }
 
+    public static void sendToAllAround( ComputerCraftPacket packet, NetworkRegistry.TargetPoint point )
+    {
+        networkEventChannel.sendToAllAround( encode( packet ), point );
+    }
+
     public static void handlePacket( ComputerCraftPacket packet, EntityPlayer player )
     {
         proxy.handlePacket( packet, player );

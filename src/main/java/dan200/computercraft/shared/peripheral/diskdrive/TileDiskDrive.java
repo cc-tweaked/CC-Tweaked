@@ -46,11 +46,6 @@ import static net.minecraftforge.items.CapabilityItemHandler.ITEM_HANDLER_CAPABI
 public class TileDiskDrive extends TilePeripheralBase
     implements IInventory, ITickable
 {
-    // Statics
-
-    private static final int BLOCKEVENT_PLAY_RECORD = 0;
-    private static final int BLOCKEVENT_STOP_RECORD = 1;
-
     private static class MountInfo
     {
         public String mountPath;
@@ -90,7 +85,7 @@ public class TileDiskDrive extends TilePeripheralBase
         {
             if( m_recordPlaying )
             {
-                sendBlockEvent( BLOCKEVENT_STOP_RECORD );
+                stopRecord();
             }
         }
     }
@@ -188,7 +183,7 @@ public class TileDiskDrive extends TilePeripheralBase
         // Music
         synchronized( this )
         {
-            if( m_recordPlaying != m_recordQueued || m_restartRecord )
+            if( !world.isRemote && m_recordPlaying != m_recordQueued || m_restartRecord )
             {
                 m_restartRecord = false;
                 if( m_recordQueued )
@@ -198,7 +193,7 @@ public class TileDiskDrive extends TilePeripheralBase
                     if( record != null )
                     {
                         m_recordPlaying = true;
-                        sendBlockEvent( BLOCKEVENT_PLAY_RECORD );
+                        playRecord();
                     }
                     else
                     {
@@ -207,7 +202,7 @@ public class TileDiskDrive extends TilePeripheralBase
                 }
                 else
                 {
-                    sendBlockEvent( BLOCKEVENT_STOP_RECORD );
+                    stopRecord();
                     m_recordPlaying = false;
                 }
             }
@@ -306,7 +301,7 @@ public class TileDiskDrive extends TilePeripheralBase
             // Stop music
             if( m_recordPlaying )
             {
-                sendBlockEvent( BLOCKEVENT_STOP_RECORD );
+                stopRecord();
                 m_recordPlaying = false;
                 m_recordQueued = false;
             }
@@ -655,25 +650,6 @@ public class TileDiskDrive extends TilePeripheralBase
             NBTTagCompound item = new NBTTagCompound();
             m_diskStack.writeToNBT( item );
             nbttagcompound.setTag( "item", item );
-        }
-    }
-
-    @Override
-    public void onBlockEvent( int eventID, int eventParameter )
-    {
-        super.onBlockEvent( eventID, eventParameter );
-        switch( eventID )
-        {
-            case BLOCKEVENT_PLAY_RECORD:
-            {
-                playRecord();
-                break;
-            }
-            case BLOCKEVENT_STOP_RECORD:
-            {
-                stopRecord();
-                break;
-            }
         }
     }
 

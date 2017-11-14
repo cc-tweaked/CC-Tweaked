@@ -149,7 +149,22 @@ public abstract class ComputerCraftProxyCommon implements IComputerCraftProxy
     }
 
     @Override
-    public abstract void playRecord( SoundEvent record, String recordInfo, World world, BlockPos pos );
+    public void playRecord( SoundEvent record, String recordInfo, World world, BlockPos pos )
+    {
+        ComputerCraftPacket packet = new ComputerCraftPacket();
+        packet.m_packetType = ComputerCraftPacket.PlayRecord;
+        if( record != null )
+        {
+            packet.m_dataInt = new int[] { pos.getX(), pos.getY(), pos.getZ(), SoundEvent.REGISTRY.getIDForObject( record ) };
+            packet.m_dataString = new String[] { recordInfo };
+        }
+        else
+        {
+            packet.m_dataInt = new int[] { pos.getX(), pos.getY(), pos.getZ() };
+        }
+
+        ComputerCraft.sendToAllPlayers( packet );
+    }
 
     @Override
     public abstract Object getDiskDriveGUI( InventoryPlayer inventory, TileDiskDrive drive );

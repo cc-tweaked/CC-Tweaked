@@ -337,22 +337,6 @@ public abstract class BlockGeneric extends Block implements
         return 0;
     }
 
-    @Override
-    @Deprecated
-    public boolean eventReceived( IBlockState state, World world, BlockPos pos, int eventID, int eventParameter )
-    {
-        if( world.isRemote )
-        {
-            TileEntity tile = world.getTileEntity( pos );
-            if( tile != null && tile instanceof TileGeneric )
-            {
-                TileGeneric generic = (TileGeneric)tile;
-                generic.onBlockEvent( eventID, eventParameter );
-            }
-        }
-        return true;
-    }
-
     @Nonnull
     @Override
     public final TileEntity createTileEntity( @Nonnull World world, @Nonnull IBlockState state )

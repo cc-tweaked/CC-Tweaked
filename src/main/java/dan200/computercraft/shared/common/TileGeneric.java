@@ -175,20 +175,6 @@ public abstract class TileGeneric extends TileEntity
     {
     }
 
-    public final void sendBlockEvent( int eventID )
-    {
-        sendBlockEvent( eventID, 0 );
-    }
-
-    public final void sendBlockEvent( int eventID, int eventParameter )
-    {
-        getWorld().addBlockEvent( getPos(), getWorld().getBlockState( getPos() ).getBlock(), eventID, eventParameter );
-    }
-
-    public void onBlockEvent( int eventID, int eventParameter )
-    {
-    }
-
     @Override
     public boolean shouldRefresh( World world, BlockPos pos, @Nonnull IBlockState oldState, @Nonnull IBlockState newState )
     {

@@ -51,7 +51,6 @@ import net.minecraftforge.client.event.RenderHandEvent;
 import net.minecraftforge.client.event.RenderPlayerEvent;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
@@ -315,17 +314,6 @@ public class ComputerCraftProxyClient extends ComputerCraftProxyCommon
     }
 
     @Override
-    public void playRecord( SoundEvent record, String recordInfo, World world, BlockPos pos )
-    {
-        Minecraft mc = FMLClientHandler.instance().getClient();
-        world.playRecord( pos, record );
-        if( record != null )
-        {
-            mc.ingameGUI.setRecordPlayingMessage( recordInfo );
-        }
-    }
-
-    @Override
     public Object getDiskDriveGUI( InventoryPlayer inventory, TileDiskDrive drive )
     {
         return new GuiDiskDrive( inventory, drive );
@@ -385,6 +373,7 @@ public class ComputerCraftProxyClient extends ComputerCraftProxyCommon
             case ComputerCraftPacket.ComputerChanged:
             case ComputerCraftPacket.ComputerTerminalChanged:
             case ComputerCraftPacket.ComputerDeleted:
+            case ComputerCraftPacket.PlayRecord:
             {
                 // Packet from Server to Client
                 IThreadListener listener = Minecraft.getMinecraft();
@@ -437,6 +426,22 @@ public class ComputerCraftProxyClient extends ComputerCraftProxyCommon
                 }
                 break;
             }
+            case ComputerCraftPacket.PlayRecord:
+            {
+                BlockPos pos = new BlockPos( packet.m_dataInt[ 0 ], packet.m_dataInt[ 1 ], packet.m_dataInt[ 2 ] );
+                Minecraft mc = Minecraft.getMinecraft();
+                if( packet.m_dataInt.length > 3 )
+                {
+                    SoundEvent sound = SoundEvent.REGISTRY.getObjectById( packet.m_dataInt[ 3 ] );
+                    mc.world.playRecord( pos, sound );
+                    mc.ingameGUI.setRecordPlayingMessage( packet.m_dataString[ 0 ] );
+                }
+                else
+                {
+                    mc.world.playRecord( pos, null );
+                }
+            }
+
         }
     }
 
