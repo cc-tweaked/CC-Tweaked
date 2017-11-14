@@ -16,7 +16,7 @@ end
 -- Create .lua files by default
 if not fs.exists( sPath ) and not string.find( sPath, "%." ) then
     local sExtension = settings.get("edit.default_extension", "" )
-    if sExtension ~= "" then
+    if sExtension ~= "" and type( sExtension ) == "string" then
         sPath = sPath .. "." .. sExtension
     end
 end
