@@ -46,17 +46,29 @@ repositories {
         name = "JEI"
         url  = "http://dvs1.progwml6.com/files/maven" 
     }
+    maven {
+        name = "squiddev"
+        url = "https://dl.bintray.com/squiddev/maven"
+    }
+}
+
+configurations {
+    shade
+    compile.extendsFrom shade
 }
 
 dependencies {
     deobfProvided "mezz.jei:jei_1.12:4.7.5.86:api"
     runtime "mezz.jei:jei_1.12:4.7.5.86"
+    shade 'org.squiddev:Cobalt:0.3.0'
 }
 
 jar {
     manifest {
         attributes('FMLAT': 'computercraft_at.cfg')
     }
+
+    from configurations.shade.collect { it.isDirectory() ? it : zipTree(it) }
 }
 
 import org.ajoberstar.grgit.Grgit

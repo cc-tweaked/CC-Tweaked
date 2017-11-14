@@ -142,39 +142,6 @@ if _VERSION == "Lua 5.3" and not bit32 then
     ]] )()
 end
 
-if string.find( _HOST, "ComputerCraft" ) == 1 then
-    -- Prevent access to metatables or environments of strings, as these are global between all computers
-    local nativegetmetatable = getmetatable
-    local nativeerror = error
-    local nativetype = type
-    local string_metatable = nativegetmetatable("")
-    function getmetatable( t )
-        local mt = nativegetmetatable( t )
-        if mt == string_metatable then
-            nativeerror( "Attempt to access string metatable", 2 )
-        else
-            return mt
-        end
-    end
-    if _VERSION == "Lua 5.1" and not _CC_DISABLE_LUA51_FEATURES then
-        local string_env = nativegetfenv(("").gsub)
-        function getfenv( env )
-            if env == nil then
-                env = 2
-            elseif nativetype( env ) == "number" and env > 0 then
-                env = env + 1
-            end
-            local fenv = nativegetfenv(env)
-            if fenv == string_env then
-                --nativeerror( "Attempt to access string metatable", 2 )
-                return nativegetfenv( 0 )
-            else
-                return fenv
-            end
-        end
-    end
-end
-
 -- Install lua parts of the os api
 function os.version()
     return "CraftOS 1.8"
@@ -572,7 +539,7 @@ loadfile = function( _sFile, _tEnv )
     end
     local file = fs.open( _sFile, "r" )
     if file then
-        local func, err = load( file.readAll(), fs.getName( _sFile ), "t", _tEnv )
+        local func, err = load( file.readAll(), "@" .. fs.getName( _sFile ), "t", _tEnv )
         file.close()
         return func, err
     end

@@ -35,12 +35,4 @@ zip -r $OUTPUTJAR api/src/dan200/computercraft > /dev/null
 cd ..
 rm -rf deploy/api
 
-echo "Adding LuaJ to deployment..."
-mkdir deploy/luaj
-cd deploy/luaj
-jar xf ../../libs/luaj-jse-2.0.3.jar
-zip -r ../$OUTPUTJAR org > /dev/null
-cd ../..
-rm -rf deploy/luaj
-
 echo "Done."

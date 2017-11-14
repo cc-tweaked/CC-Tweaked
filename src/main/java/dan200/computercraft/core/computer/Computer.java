@@ -15,7 +15,7 @@ import dan200.computercraft.core.apis.*;
 import dan200.computercraft.core.filesystem.FileSystem;
 import dan200.computercraft.core.filesystem.FileSystemException;
 import dan200.computercraft.core.lua.ILuaMachine;
-import dan200.computercraft.core.lua.LuaJLuaMachine;
+import dan200.computercraft.core.lua.CobaltLuaMachine;
 import dan200.computercraft.core.terminal.Terminal;
 
 import java.io.IOException;
@@ -621,7 +621,7 @@ public class Computer
     private void initLua()
     {
         // Create the lua machine
-        ILuaMachine machine = new LuaJLuaMachine( this );
+        ILuaMachine machine = new CobaltLuaMachine( this );
         
         // Add the APIs
         for(ILuaAPI api : m_apis)
