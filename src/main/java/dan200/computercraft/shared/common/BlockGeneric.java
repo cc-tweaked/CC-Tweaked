@@ -111,13 +111,13 @@ public abstract class BlockGeneric extends Block implements
     public final void breakBlock( @Nonnull World world, @Nonnull BlockPos pos, @Nonnull IBlockState newState )
     {
         TileEntity tile = world.getTileEntity( pos );
+        super.breakBlock( world, pos, newState );
+        world.removeTileEntity( pos );
         if( tile != null && tile instanceof TileGeneric )
         {
             TileGeneric generic = (TileGeneric)tile;
             generic.destroy();
         }
-        super.breakBlock( world, pos, newState );
-        world.removeTileEntity( pos );
     }
 
     @Nonnull
