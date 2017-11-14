@@ -44,7 +44,7 @@ minecraft {
 repositories {
     maven {
         name = "JEI"
-        url  = "http://dvs1.progwml6.com/files/maven" 
+        url  = "http://dvs1.progwml6.com/files/maven"
     }
     maven {
         name = "squiddev"
@@ -63,10 +63,22 @@ dependencies {
     shade 'org.squiddev:Cobalt:0.3.0'
 }
 
+javadoc {
+    include "dan200/computercraft/api/**/*.java"
+}
+
 jar {
+    dependsOn javadoc
+
     manifest {
         attributes('FMLAT': 'computercraft_at.cfg')
     }
+
+    into("docs", { from (javadoc.destinationDir) })
+
+    into("api", { from (sourceSets.main.allSource) {
+        include "dan200/computercraft/api/**/*.java"
+    }})
 
     from configurations.shade.collect { it.isDirectory() ? it : zipTree(it) }
 }
@@ -109,3 +121,5 @@ gradle.projectsEvaluated {
     }
 }
 
+runClient.outputs.upToDateWhen { false }
+runServer.outputs.upToDateWhen { false }
