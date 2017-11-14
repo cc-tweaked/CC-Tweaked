@@ -18,6 +18,8 @@ import dan200.computercraft.shared.computer.blocks.BlockComputer;
 import dan200.computercraft.shared.computer.blocks.TileCommandComputer;
 import dan200.computercraft.shared.computer.blocks.TileComputer;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
+import dan200.computercraft.shared.computer.core.IComputer;
+import dan200.computercraft.shared.computer.core.IContainerComputer;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.computer.inventory.ContainerComputer;
 import dan200.computercraft.shared.computer.items.ItemCommandComputer;
@@ -58,6 +60,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.init.Items;
+import net.minecraft.inventory.Container;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemRecord;
 import net.minecraft.item.ItemStack;
@@ -70,6 +73,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegistryEvent;
+import net.minecraftforge.event.entity.player.PlayerContainerEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -644,6 +648,21 @@ public abstract class ComputerCraftProxyCommon implements IComputerCraftProxy
             if( event.getModID().equals( ComputerCraft.MOD_ID ) )
             {
                 ComputerCraft.syncConfig();
+            }
+        }
+
+        @SubscribeEvent
+        public void onContainerOpen( PlayerContainerEvent.Open event )
+        {
+            // If we're opening a computer container then broadcast the terminal state
+            Container container = event.getContainer();
+            if( container instanceof IContainerComputer )
+            {
+                IComputer computer = ((IContainerComputer) container).getComputer();
+                if( computer instanceof ServerComputer )
+                {
+                    ((ServerComputer) computer).sendTerminalState( event.getEntityPlayer() );
+                }
             }
         }
     }

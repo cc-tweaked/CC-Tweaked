@@ -153,11 +153,8 @@ public class ClientComputer extends ClientTerminal
         ComputerCraft.sendToServer( packet );
     }
 
-    @Override
-    public void readDescription( NBTTagCompound nbttagcompound )
+    private void readComputerDescription( NBTTagCompound nbttagcompound )
     {
-        super.readDescription( nbttagcompound );
-
         int oldID = m_computerID;
         String oldLabel = m_label;
         boolean oldOn = m_on;
@@ -189,10 +186,11 @@ public class ClientComputer extends ClientTerminal
         switch( packet.m_packetType )
         {
             case ComputerCraftPacket.ComputerChanged:
-            {
+                readComputerDescription( packet.m_dataNBT );
+                break;
+            case ComputerCraftPacket.ComputerTerminalChanged:
                 readDescription( packet.m_dataNBT );
                 break;
-            }
         }
     }
 }

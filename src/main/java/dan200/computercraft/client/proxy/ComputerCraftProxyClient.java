@@ -383,6 +383,7 @@ public class ComputerCraftProxyClient extends ComputerCraftProxyCommon
         switch( packet.m_packetType )
         {
             case ComputerCraftPacket.ComputerChanged:
+            case ComputerCraftPacket.ComputerTerminalChanged:
             case ComputerCraftPacket.ComputerDeleted:
             {
                 // Packet from Server to Client
@@ -417,6 +418,7 @@ public class ComputerCraftProxyClient extends ComputerCraftProxyCommon
             // Packets from Server to Client //
             ///////////////////////////////////
             case ComputerCraftPacket.ComputerChanged:
+            case ComputerCraftPacket.ComputerTerminalChanged:
             {
                 int instanceID = packet.m_dataInt[ 0 ];
                 if( !ComputerCraft.clientComputerRegistry.contains( instanceID ) )

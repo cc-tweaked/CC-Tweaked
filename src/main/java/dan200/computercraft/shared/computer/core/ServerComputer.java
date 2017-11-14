@@ -20,10 +20,13 @@ import dan200.computercraft.shared.network.ComputerCraftPacket;
 import dan200.computercraft.shared.network.INetworkedThing;
 import dan200.computercraft.shared.util.NBTUtil;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.Container;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Loader;
 
 import java.io.InputStream;
@@ -131,27 +134,62 @@ public class ServerComputer extends ServerTerminal
     {
         m_changed = true;
     }
-
-    public void broadcastState()
-    {
-        // Send state to client
+    
+    private ComputerCraftPacket createComputerPacket() {
         ComputerCraftPacket packet = new ComputerCraftPacket();
         packet.m_packetType = ComputerCraftPacket.ComputerChanged;
         packet.m_dataInt = new int[] { getInstanceID() };
         packet.m_dataNBT = new NBTTagCompound();
-        writeDescription( packet.m_dataNBT );
-        ComputerCraft.sendToAllPlayers( packet );
+        writeComputerDescription( packet.m_dataNBT );
+        return packet;
     }
 
-    public void sendState( EntityPlayer player )
-    {
-        // Send state to client
+    private ComputerCraftPacket createTerminalPacket() {
         ComputerCraftPacket packet = new ComputerCraftPacket();
-        packet.m_packetType = ComputerCraftPacket.ComputerChanged;
+        packet.m_packetType = ComputerCraftPacket.ComputerTerminalChanged;
         packet.m_dataInt = new int[] { getInstanceID() };
         packet.m_dataNBT = new NBTTagCompound();
         writeDescription( packet.m_dataNBT );
-        ComputerCraft.sendToPlayer( player, packet );
+        return packet;
+    }
+
+    public void broadcastState(boolean force)
+    {
+        if(hasOutputChanged() || force)
+        {
+            // Send computer state to all clients
+            ComputerCraft.sendToAllPlayers( createComputerPacket() );
+        }
+
+        if( hasTerminalChanged() || force )
+        {
+            // Send terminal state to clients who are currently interacting with the computer.
+            FMLCommonHandler handler = FMLCommonHandler.instance();
+            if( handler != null )
+            {
+                ComputerCraftPacket packet = createTerminalPacket();
+                MinecraftServer server = handler.getMinecraftServerInstance();
+                for( EntityPlayerMP player : server.getPlayerList().getPlayers() )
+                {
+                    if( isInteracting( player ) )
+                    {
+                        ComputerCraft.sendToPlayer( player, packet );
+                    }
+                }
+            }
+        }
+    }
+
+    public void sendComputerState( EntityPlayer player )
+    {
+        // Send state to client
+        ComputerCraft.sendToPlayer( player, createComputerPacket() );
+    }
+
+    public void sendTerminalState( EntityPlayer player )
+    {
+        // Send terminal state to client
+        ComputerCraft.sendToPlayer( player, createTerminalPacket() );
     }
 
     public void broadcastDelete()
@@ -336,12 +374,8 @@ public class ServerComputer extends ServerTerminal
     }
 
     // Networking stuff
-
-    @Override
-    public void writeDescription( NBTTagCompound nbttagcompound )
+    public void writeComputerDescription( NBTTagCompound nbttagcompound )
     {
-        super.writeDescription( nbttagcompound );
-
         nbttagcompound.setInteger( "id", m_computer.getID() );
         String label = m_computer.getLabel();
         if( label != null )
@@ -362,14 +396,9 @@ public class ServerComputer extends ServerTerminal
     public void handlePacket( ComputerCraftPacket packet, EntityPlayer sender )
     {
         // Allow Computer/Tile updates as they may happen at any time.
-        if (packet.requiresContainer()) {
-            if (sender == null) return;
-
-            Container container = sender.openContainer;
-            if (!(container instanceof IContainerComputer)) return;
-
-            IComputer computer = ((IContainerComputer) container).getComputer();
-            if (computer != this) return;
+        if( packet.requiresContainer() && !isInteracting( sender ) )
+        {
+            return;
         }
 
         // Receive packets sent from the client to the server
@@ -415,9 +444,20 @@ public class ServerComputer extends ServerTerminal
             case ComputerCraftPacket.RequestComputerUpdate:
             {
                 // A player asked for an update on the state of the terminal
-                sendState( sender );
+                sendComputerState( sender );
                 break;
             }
         }
+    }
+
+    private boolean isInteracting( EntityPlayer player )
+    {
+        if( player == null ) return false;
+
+        Container container = player.openContainer;
+        if( !(container instanceof IContainerComputer) ) return false;
+
+        IComputer computer = ((IContainerComputer) container).getComputer();
+        return computer == this;
     }
 }

@@ -30,7 +30,8 @@ public class ComputerCraftPacket
 
     // To client
     public static final byte ComputerChanged = 7;
-    public static final byte ComputerDeleted = 8;
+    public static final byte ComputerTerminalChanged = 8;
+    public static final byte ComputerDeleted = 9;
 
     // Packet class
     public byte m_packetType;
