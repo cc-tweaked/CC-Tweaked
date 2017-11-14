@@ -37,6 +37,7 @@ public abstract class TileComputerBase extends TileGeneric
     protected String m_label;
     protected boolean m_on;
     protected boolean m_startOn;
+    protected boolean m_fresh;
 
     protected TileComputerBase()
     {
@@ -45,6 +46,7 @@ public abstract class TileComputerBase extends TileGeneric
         m_label = null;
         m_on = false;
         m_startOn = false;
+        m_fresh = false;
     }
 
     @Override
@@ -213,7 +215,7 @@ public abstract class TileComputerBase extends TileGeneric
             ServerComputer computer = createServerComputer();
             if( computer != null )
             {
-                if( m_startOn )
+                if( m_startOn || (m_fresh && m_on) )
                 {
                     computer.turnOn();
                     m_startOn = false;
@@ -223,6 +225,7 @@ public abstract class TileComputerBase extends TileGeneric
                 {
                     updateOutput();
                 }
+                m_fresh = false;
                 m_computerID = computer.getID();
                 m_label = computer.getLabel();
                 m_on = computer.isOn();
@@ -471,6 +474,7 @@ public abstract class TileComputerBase extends TileGeneric
             {
                 ServerComputer computer = createComputer( m_instanceID, m_computerID );
                 ComputerCraft.serverComputerRegistry.add( m_instanceID, computer );
+                m_fresh = true;
                 changed = true;
             }
             if( changed )
