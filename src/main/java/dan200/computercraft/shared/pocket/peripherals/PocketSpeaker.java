@@ -11,6 +11,7 @@ import dan200.computercraft.api.pocket.IPocketAccess;
 import dan200.computercraft.api.pocket.IPocketUpgrade;
 import dan200.computercraft.shared.peripheral.PeripheralType;
 import dan200.computercraft.shared.peripheral.common.PeripheralItemFactory;
+import dan200.computercraft.shared.util.Colour;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.item.ItemStack;
@@ -73,6 +74,7 @@ public class PocketSpeaker implements IPocketUpgrade
                 speaker.setLocation( entity.getEntityWorld(), entity.posX, entity.posY, entity.posZ );
             }
             speaker.update();
+            access.setLight( speaker.madeSound(20) ? 0x3320fc : -1 );
         }
     }
 }
