@@ -54,7 +54,7 @@ function input( _arg )
 end
 
 function lines( _sFileName )
-    if _G.type( _sFileNamel ) ~= "string" then
+    if _G.type( _sFileName ) ~= "string" then
         error( "bad argument #1 (expected string, got " .. _G.type( _sFileName ) .. ")", 2 )
     end
 	if _sFileName then
