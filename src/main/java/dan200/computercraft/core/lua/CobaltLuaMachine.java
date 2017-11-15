@@ -15,7 +15,6 @@ import dan200.computercraft.core.apis.ILuaAPI;
 import dan200.computercraft.core.computer.Computer;
 import dan200.computercraft.core.computer.ITask;
 import dan200.computercraft.core.computer.MainThread;
-
 import org.squiddev.cobalt.*;
 import org.squiddev.cobalt.compiler.CompileException;
 import org.squiddev.cobalt.compiler.LoadState;
@@ -123,6 +122,7 @@ public class CobaltLuaMachine implements ILuaMachine
         m_globals.load( state, new MathLib() );
         m_globals.load( state, new CoroutineLib() );
         m_globals.load( state, new Bit32Lib() );
+        if( ComputerCraft.debug_enable ) m_globals.load( state, new DebugLib() );
 
         // Register custom load/loadstring provider which automatically adds prefixes.
         LibFunction.bind( state, m_globals, PrefixLoader.class, new String[]{ "load", "loadstring" } );

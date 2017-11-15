@@ -119,13 +119,14 @@ public class ComputerCraft
         "192.168.0.0/16",
         "fd00::/8",
     };
-    
+
     public static boolean http_enable = true;
     public static boolean http_websocket_enable = true;
     public static AddressPredicate http_whitelist = new AddressPredicate( DEFAULT_HTTP_WHITELIST );
     public static AddressPredicate http_blacklist = new AddressPredicate( DEFAULT_HTTP_BLACKLIST );
     public static boolean disable_lua51_features = false;
     public static String default_computer_settings = "";
+    public static boolean debug_enable = false;
     public static boolean logPeripheralErrors = false;
 
     public static boolean enableCommandBlock = false;
@@ -206,6 +207,7 @@ public class ComputerCraft
         public static Property http_blacklist;
         public static Property disable_lua51_features;
         public static Property default_computer_settings;
+        public static Property debug_enable;
         public static Property logPeripheralErrors;
 
         public static Property enableCommandBlock;
@@ -303,10 +305,13 @@ public class ComputerCraft
         Config.default_computer_settings = Config.config.get( Configuration.CATEGORY_GENERAL, "default_computer_settings", default_computer_settings );
         Config.default_computer_settings.setComment( "A comma seperated list of default system settings to set on new computers. Example: \"shell.autocomplete=false,lua.autocomplete=false,edit.autocomplete=false\" will disable all autocompletion" );
 
+        Config.debug_enable = Config.config.get( Configuration.CATEGORY_GENERAL, "debug_enable", debug_enable );
+        Config.debug_enable.setComment( "Enable Lua's debug library. Whilst this should be safe for general use, it may allow players to interact with other computers. Enable at your own risk." );
+
         Config.logPeripheralErrors = Config.config.get( Configuration.CATEGORY_GENERAL, "logPeripheralErrors", logPeripheralErrors );
         Config.logPeripheralErrors.setComment( "Log exceptions thrown by peripherals and other Lua objects.\n" +
             "This makes it easier for mod authors to debug problems, but may result in log spam should people use buggy methods." );
-        
+
         Config.enableCommandBlock = Config.config.get( Configuration.CATEGORY_GENERAL, "enableCommandBlock", enableCommandBlock );
         Config.enableCommandBlock.setComment( "Enable Command Block peripheral support" );
 
@@ -372,6 +377,7 @@ public class ComputerCraft
         http_blacklist = new AddressPredicate( Config.http_blacklist.getStringList() );
         disable_lua51_features = Config.disable_lua51_features.getBoolean();
         default_computer_settings = Config.default_computer_settings.getString();
+        debug_enable = Config.debug_enable.getBoolean();
         logPeripheralErrors = Config.logPeripheralErrors.getBoolean();
 
         enableCommandBlock = Config.enableCommandBlock.getBoolean();
