@@ -45,12 +45,12 @@ public class DefaultPeripheralProvider implements IPeripheralProvider
                 {
                     if( !((TileTurtle)tile).hasMoved() )
                     {
-                        return new ComputerPeripheral( "turtle", computerTile.createServerComputer() );
+                        return new ComputerPeripheral( "turtle", computerTile.createProxy() );
                     }
                 }
                 else
                 {
-                    return new ComputerPeripheral( "computer", computerTile.createServerComputer() );
+                    return new ComputerPeripheral( "computer", computerTile.createProxy() );
                 }
             }
         }

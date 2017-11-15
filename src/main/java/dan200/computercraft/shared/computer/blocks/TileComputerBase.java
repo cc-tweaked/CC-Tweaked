@@ -389,6 +389,8 @@ public abstract class TileComputerBase extends TileGeneric
 
     protected abstract ServerComputer createComputer( int instanceID, int id );
 
+    public abstract ComputerProxy createProxy();
+
     // ITerminalTile
 
     @Override

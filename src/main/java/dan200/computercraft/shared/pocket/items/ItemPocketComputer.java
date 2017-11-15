@@ -402,10 +402,10 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
     @Override
     public IMount createDataMount( @Nonnull ItemStack stack, @Nonnull World world )
     {
-        ServerComputer computer = createServerComputer( world, null, null, stack );
-        if( computer != null )
+        int id = getComputerID( stack );
+        if( id >= 0 )
         {
-            return computer.getRootMount();
+            return ComputerCraft.createSaveDirMount( world, "computer/" + id, ComputerCraft.computerSpaceLimit );
         }
         return null;
     }

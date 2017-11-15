@@ -25,7 +25,8 @@ public class TileComputer extends TileComputerBase
     // Statics
 
     // Members
-
+    private ComputerProxy m_proxy;
+    
     public TileComputer()
     {
     }
@@ -45,6 +46,23 @@ public class TileComputer extends TileComputerBase
         );
         computer.setPosition( getPos() );
         return computer;
+    }
+
+    @Override
+    public ComputerProxy createProxy()
+    {
+        if( m_proxy == null )
+        {
+            m_proxy = new ComputerProxy()
+            {
+                @Override
+                protected TileComputerBase getTile()
+                {
+                    return TileComputer.this;
+                }
+            };
+        }
+        return m_proxy;
     }
 
     @Override
