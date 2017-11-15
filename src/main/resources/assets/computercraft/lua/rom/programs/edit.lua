@@ -93,7 +93,7 @@ local function save( _sPath )
     -- Save
     local file = nil
     local function innerSave()
-        file = fs.open( _sPath, "w" )
+        file, fileerr = fs.open( _sPath, "w" )
         if file then
             for n, sLine in ipairs( tLines ) do
                 file.write( sLine .. "\n" )
@@ -107,7 +107,7 @@ local function save( _sPath )
     if file then 
         file.close()
     end
-    return ok, err
+    return ok, err, fileerr
 end
 
 local tKeywords = {
@@ -287,11 +287,15 @@ local tMenuFuncs = {
         if bReadOnly then
             sStatus = "Access denied"
         else
-            local ok, err = save( sPath )
+            local ok, err, fileerr  = save( sPath )
             if ok then
                 sStatus="Saved to "..sPath
             else
-                sStatus="Error saving to "..sPath
+                if fileerr then
+                    sStatus="Error saving to "..fileerr
+                else
+                    sStatus="Error saving to "..sPath
+                end
             end
         end
         redrawMenu()
@@ -770,3 +774,4 @@ end
 term.clear()
 term.setCursorBlink( false )
 term.setCursorPos( 1, 1 )
+

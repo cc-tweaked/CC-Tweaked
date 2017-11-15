@@ -128,9 +128,9 @@ local function save(path)
         fs.makeDir(sDir)
     end
 
-    local file = fs.open( path, "w" )
+    local file, err = fs.open( path, "w" )
     if not file then
-        return false
+        return false, err
     end
 
     -- Encode (and trim)
@@ -313,11 +313,15 @@ local function accessMenu()
                         fMessage = "Access denied"
                         return false
                     end
-                    local success = save(sPath)
+                    local success, err = save(sPath)
                     if success then
                         fMessage = "Saved to "..sPath
                     else
-                        fMessage = "Error saving to "..sPath
+                        if err then
+                            fMessage = "Error saving to "..err
+                        else
+                            fMessage = "Error saving to "..sPath
+                        end
                     end
                     return false
                 elseif mChoices[selection]=="Exit" then 
@@ -401,3 +405,4 @@ term.setBackgroundColour(colours.black)
 term.setTextColour(colours.white)
 term.clear()
 term.setCursorPos(1,1)
+
