@@ -113,7 +113,7 @@ local function tabulateCommon( bPaged, ... )
     local tAll = { ... }
     for k,v in ipairs( tAll ) do
         if type( v ) ~= "number" and type( v ) ~= "table" then
-            error( "bad argument #"..k.." (expected number/table, got " .. type( v ) .. ")", 3 ) 
+            error( "bad argument #"..k.." (expected number or table, got " .. type( v ) .. ")", 3 ) 
         end
     end
     
@@ -121,7 +121,10 @@ local function tabulateCommon( bPaged, ... )
     local nMaxLen = w / 8
     for n, t in ipairs( tAll ) do
         if type(t) == "table" then
-            for n, sItem in pairs(t) do
+            for nu, sItem in pairs(t) do
+                if type( sItem ) ~= "string" then
+                    error( "bad argument #"..n.."."..nu.." (expected string, got " .. type( sItem ) .. ")", 3 ) 
+                end
                 nMaxLen = math.max( string.len( sItem ) + 1, nMaxLen )
             end
         end
