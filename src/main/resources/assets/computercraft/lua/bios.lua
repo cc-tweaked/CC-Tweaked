@@ -609,14 +609,12 @@ function os.loadAPI( _sPath )
     if fnAPI then
         local ok, err = pcall( fnAPI )
         if not ok then
-            printError( err )
             tAPIsLoading[sName] = nil
-            return false
+            return error( "Failed to load API " .. sName .. " due to " .. err, 1 )
         end
     else
-        printError( err )
         tAPIsLoading[sName] = nil
-        return false
+        return error( "Failed to load API " .. sName .. " due to " .. err, 1 )
     end
     
     local tAPI = {}
