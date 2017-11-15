@@ -23,8 +23,11 @@ local g_defaultOutput = {
 	bClosed = false,
 	close = function( self )
 	end,
-	write = function( self, _sText )
-		_G.write( _sText )
+	write = function( self, ... )
+        local nLimit = select("#", ... )
+        for n = 1, nLimit do
+            _G.write( select( n, ... ) )
+        end
 	end,
 	flush = function( self )
 	end,
@@ -117,8 +120,11 @@ function open( _sPath, _sMode )
 				file.close()
 				self.bClosed = true
 			end,
-			write = function( self, _sText )
-				file.write( _sText )
+			write = function( self, ... )
+                local nLimit = select("#", ... )
+                for n = 1, nLimit do
+				    file.write( select( n, ... ) )
+                end
 			end,
 			flush = function( self )
 				file.flush()
@@ -146,8 +152,11 @@ function open( _sPath, _sMode )
 				file.close()
 				self.bClosed = true
 			end,
-			write = function( self, _number )
-				file.write( _number )
+			write = function( self, ... )
+                local nLimit = select("#", ... )
+                for n = 1, nLimit do
+				    file.write( select( n, ... ) )
+                end
 			end,
 			flush = function( self )
 				file.flush()
