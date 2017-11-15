@@ -25,7 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class HTTPRequest implements HTTPTask.IHTTPTask
+public class HTTPRequest implements Runnable
 {
     public static URL checkURL( String urlString ) throws HTTPRequestException
     {
@@ -55,11 +55,11 @@ public class HTTPRequest implements HTTPTask.IHTTPTask
         return url;
     }
 
-    public static InetAddress checkHost( URL url ) throws HTTPRequestException
+    public static InetAddress checkHost( String host ) throws HTTPRequestException
     {
         try
         {
-            InetAddress resolved = InetAddress.getByName( url.getHost() );
+            InetAddress resolved = InetAddress.getByName( host );
             if( !ComputerCraft.http_whitelist.matches( resolved ) || ComputerCraft.http_blacklist.matches( resolved ) )
             {
                 throw new HTTPRequestException( "Domain not permitted" );
@@ -73,37 +73,21 @@ public class HTTPRequest implements HTTPTask.IHTTPTask
         }
     }
 
+    private final IAPIEnvironment m_environment;
     private final URL m_url;
     private final String m_urlString;
     private final String m_postText;
     private final Map<String, String> m_headers;
-
-    private boolean m_success = false;
-    private String m_encoding;
-    private byte[] m_result;
     private boolean m_binary;
-    private int m_responseCode = -1;
-    private Map<String, String> m_responseHeaders;
-    private String m_errorMessage;
 
-    public HTTPRequest( String urlString, URL url, final String postText, final Map<String, String> headers, boolean binary ) throws HTTPRequestException
+    public HTTPRequest( IAPIEnvironment environment, String urlString, URL url, final String postText, final Map<String, String> headers, boolean binary ) throws HTTPRequestException
     {
-        // Parse the URL
+        m_environment = environment;
         m_urlString = urlString;
         m_url = url;
         m_binary = binary;
         m_postText = postText;
         m_headers = headers;
-    }
-
-    public InputStream getContents()
-    {
-        byte[] result = m_result;
-        if( result != null )
-        {
-            return new ByteArrayInputStream( result );
-        }
-        return null;
     }
 
     @Override
@@ -112,12 +96,13 @@ public class HTTPRequest implements HTTPTask.IHTTPTask
         // First verify the address is allowed.
         try
         {
-            checkHost( m_url );
+            checkHost( m_url.getHost() );
         }
         catch( HTTPRequestException e )
         {
-            m_success = false;
-            m_errorMessage = e.getMessage();
+            // Queue the failure event if not.
+            String error = e.getMessage();
+            m_environment.queueEvent( "http_failure", new Object[] { m_urlString, error == null ? "Could not connect" : error, null } );
             return;
         }
 
@@ -186,58 +171,36 @@ public class HTTPRequest implements HTTPTask.IHTTPTask
             byte[] result = ByteStreams.toByteArray( is );
             is.close();
 
-            // We completed
-            m_success = responseSuccess;
-            m_result = result;
-            m_responseCode = connection.getResponseCode();
-            m_encoding = connection.getContentEncoding();
-
+            // We've got some sort of response, so let's build a resulting object.
             Joiner joiner = Joiner.on( ',' );
-            Map<String, String> headers = m_responseHeaders = new HashMap<>();
+            Map<String, String> headers = new HashMap<>();
             for( Map.Entry<String, List<String>> header : connection.getHeaderFields().entrySet() )
             {
                 headers.put( header.getKey(), joiner.join( header.getValue() ) );
             }
 
+            InputStream contents = new ByteArrayInputStream( result );
+            ILuaObject stream = wrapStream(
+                m_binary ? new BinaryInputHandle( contents ) : new EncodedInputHandle( contents, connection.getContentEncoding() ),
+                connection.getResponseCode(), headers
+            );
+
             connection.disconnect(); // disconnect
+
+            // Queue the appropriate event.
+            if( responseSuccess )
+            {
+                m_environment.queueEvent( "http_success", new Object[] { m_urlString, stream } );
+            }
+            else
+            {
+                m_environment.queueEvent( "http_failure", new Object[] { m_urlString, "Could not connect", stream } );
+            }
         }
         catch( IOException e )
         {
             // There was an error
-            m_success = false;
-        }
-    }
-
-    @Override
-    public void whenFinished( IAPIEnvironment environment )
-    {
-        final String url = m_urlString;
-        if( m_success )
-        {
-            // Queue the "http_success" event
-            InputStream contents = getContents();
-            Object result = wrapStream(
-                m_binary ? new BinaryInputHandle( contents ) : new EncodedInputHandle( contents, m_encoding ),
-                m_responseCode, m_responseHeaders
-            );
-            environment.queueEvent( "http_success", new Object[] { url, result } );
-        }
-        else
-        {
-            // Queue the "http_failure" event
-            String error = "Could not connect";
-            if( m_errorMessage != null ) error = m_errorMessage;
-
-            InputStream contents = getContents();
-            Object result = null;
-            if( contents != null )
-            {
-                result = wrapStream(
-                    m_binary ? new BinaryInputHandle( contents ) : new EncodedInputHandle( contents, m_encoding ),
-                    m_responseCode, m_responseHeaders
-                );
-            }
-            environment.queueEvent( "http_failure", new Object[] { url, error, result } );
+            m_environment.queueEvent( "http_failure", new Object[] { m_urlString, "Could not connect", null } );
         }
     }
 

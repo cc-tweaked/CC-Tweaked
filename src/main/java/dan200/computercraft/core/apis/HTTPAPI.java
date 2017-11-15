@@ -6,29 +6,37 @@
 
 package dan200.computercraft.core.apis;
 
+import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.core.apis.http.HTTPCheck;
+import dan200.computercraft.core.apis.http.HTTPExecutor;
 import dan200.computercraft.core.apis.http.HTTPRequest;
-import dan200.computercraft.core.apis.http.HTTPTask;
+import dan200.computercraft.core.apis.http.WebsocketConnector;
 
 import javax.annotation.Nonnull;
+import java.io.Closeable;
+import java.io.IOException;
+import java.net.URI;
 import java.net.URL;
 import java.util.*;
+import java.util.concurrent.Future;
 
 import static dan200.computercraft.core.apis.ArgumentHelper.*;
 
 public class HTTPAPI implements ILuaAPI
 {
     private final IAPIEnvironment m_apiEnvironment;
-    private final List<HTTPTask> m_httpTasks;
-    
+    private final List<Future<?>> m_httpTasks;
+    private final Set<Closeable> m_closeables;
+
     public HTTPAPI( IAPIEnvironment environment )
     {
         m_apiEnvironment = environment;
         m_httpTasks = new ArrayList<>();
+        m_closeables = new HashSet<>();
     }
-    
+
     @Override
     public String[] getNames()
     {
@@ -48,15 +56,11 @@ public class HTTPAPI implements ILuaAPI
         // Wait for all of our http requests 
         synchronized( m_httpTasks )
         {
-            Iterator<HTTPTask> it = m_httpTasks.iterator();
+            Iterator<Future<?>> it = m_httpTasks.iterator();
             while( it.hasNext() )
             {
-                final HTTPTask h = it.next();
-                if( h.isFinished() )
-                {
-                    h.whenFinished( m_apiEnvironment );
-                    it.remove();
-                }
+                final Future<?> h = it.next();
+                if( h.isDone() ) it.remove();
             }
         }
     }
@@ -66,11 +70,25 @@ public class HTTPAPI implements ILuaAPI
     {
         synchronized( m_httpTasks )
         {
-            for( HTTPTask r : m_httpTasks )
+            for( Future<?> r : m_httpTasks )
             {
-                r.cancel();
+                r.cancel( false );
             }
             m_httpTasks.clear();
+        }
+        synchronized( m_closeables )
+        {
+            for( Closeable x : m_closeables )
+            {
+                try
+                {
+                    x.close();
+                }
+                catch( IOException ignored )
+                {
+                }
+            }
+            m_closeables.clear();
         }
     }
 
@@ -78,9 +96,10 @@ public class HTTPAPI implements ILuaAPI
     @Override
     public String[] getMethodNames()
     {
-         return new String[] {
+        return new String[] {
             "request",
-            "checkURL"
+            "checkURL",
+            "websocket",
         };
     }
 
@@ -125,10 +144,10 @@ public class HTTPAPI implements ILuaAPI
                 try
                 {
                     URL url = HTTPRequest.checkURL( urlString );
-                    HTTPRequest request = new HTTPRequest( urlString, url, postString, headers, binary );
+                    HTTPRequest request = new HTTPRequest( m_apiEnvironment, urlString, url, postString, headers, binary );
                     synchronized( m_httpTasks )
                     {
-                        m_httpTasks.add( HTTPTask.submit( request ) );
+                        m_httpTasks.add( HTTPExecutor.EXECUTOR.submit( request ) );
                     }
                     return new Object[] { true };
                 }
@@ -147,9 +166,47 @@ public class HTTPAPI implements ILuaAPI
                 try
                 {
                     URL url = HTTPRequest.checkURL( urlString );
-                    HTTPCheck check = new HTTPCheck( urlString, url );
-                    synchronized( m_httpTasks ) {
-                        m_httpTasks.add( HTTPTask.submit( check ) );
+                    HTTPCheck check = new HTTPCheck( m_apiEnvironment, urlString, url );
+                    synchronized( m_httpTasks ) 
+                    {
+                        m_httpTasks.add( HTTPExecutor.EXECUTOR.submit( check ) );
+                    }
+                    return new Object[] { true };
+                }
+                catch( HTTPRequestException e )
+                {
+                    return new Object[] { false, e.getMessage() };
+                }
+            }
+            case 2: // websocket
+            {
+                String address = getString( args, 0 );
+                Map<Object, Object> headerTbl = optTable( args, 1, Collections.emptyMap() );
+
+                HashMap<String, String> headers = new HashMap<String, String>( headerTbl.size() );
+                for( Object key : headerTbl.keySet() )
+                {
+                    Object value = headerTbl.get( key );
+                    if( key instanceof String && value instanceof String )
+                    {
+                        headers.put( (String) key, (String) value );
+                    }
+                }
+
+                if( !ComputerCraft.http_websocket_enable )
+                {
+                    throw new LuaException( "Websocket connections are disabled" );
+                }
+
+                try
+                {
+                    URI uri = WebsocketConnector.checkURI( address );
+                    int port = WebsocketConnector.getPort( uri );
+
+                    Future<?> connector = WebsocketConnector.createConnector( m_apiEnvironment, this, uri, address, port, headers );
+                    synchronized( m_httpTasks )
+                    {
+                        m_httpTasks.add( connector );
                     }
                     return new Object[] { true };
                 }
@@ -162,6 +219,22 @@ public class HTTPAPI implements ILuaAPI
             {
                 return null;
             }
+        }
+    }
+
+    public void addCloseable( Closeable closeable )
+    {
+        synchronized( m_closeables )
+        {
+            m_closeables.add( closeable );
+        }
+    }
+
+    public void removeCloseable( Closeable closeable )
+    {
+        synchronized( m_closeables )
+        {
+            m_closeables.remove( closeable );
         }
     }
 }

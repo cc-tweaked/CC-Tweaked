@@ -5,14 +5,15 @@ import dan200.computercraft.core.apis.IAPIEnvironment;
 
 import java.net.URL;
 
-public class HTTPCheck implements HTTPTask.IHTTPTask
+public class HTTPCheck implements Runnable
 {
+    private final IAPIEnvironment environment;
     private final String urlString;
     private final URL url;
-    private String error;
 
-    public HTTPCheck( String urlString, URL url )
+    public HTTPCheck( IAPIEnvironment environment, String urlString, URL url )
     {
+        this.environment = environment;
         this.urlString = urlString;
         this.url = url;
     }
@@ -22,24 +23,12 @@ public class HTTPCheck implements HTTPTask.IHTTPTask
     {
         try
         {
-            HTTPRequest.checkHost( url );
+            HTTPRequest.checkHost( url.getHost() );
+            environment.queueEvent( "http_check", new Object[] { urlString, true } );
         }
         catch( HTTPRequestException e )
         {
-            error = e.getMessage();
-        }
-    }
-
-    @Override
-    public void whenFinished( IAPIEnvironment environment )
-    {
-        if( error == null )
-        {
-            environment.queueEvent( "http_check", new Object[] { urlString, true } );
-        }
-        else
-        {
-            environment.queueEvent( "http_check", new Object[] { urlString, false, error } );
+            environment.queueEvent( "http_check", new Object[] { urlString, false, e.getMessage() } );
         }
     }
 }

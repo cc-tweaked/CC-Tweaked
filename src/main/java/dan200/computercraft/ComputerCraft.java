@@ -121,6 +121,7 @@ public class ComputerCraft
     };
     
     public static boolean http_enable = true;
+    public static boolean http_websocket_enable = true;
     public static AddressPredicate http_whitelist = new AddressPredicate( DEFAULT_HTTP_WHITELIST );
     public static AddressPredicate http_blacklist = new AddressPredicate( DEFAULT_HTTP_BLACKLIST );
     public static boolean disable_lua51_features = false;
@@ -200,6 +201,7 @@ public class ComputerCraft
         public static Configuration config;
 
         public static Property http_enable;
+        public static Property http_websocket_enable;
         public static Property http_whitelist;
         public static Property http_blacklist;
         public static Property disable_lua51_features;
@@ -270,6 +272,9 @@ public class ComputerCraft
 
         Config.http_enable = Config.config.get( Configuration.CATEGORY_GENERAL, "http_enable", http_enable );
         Config.http_enable.setComment( "Enable the \"http\" API on Computers (see \"http_whitelist\" and \"http_blacklist\" for more fine grained control than this)" );
+
+        Config.http_websocket_enable = Config.config.get( Configuration.CATEGORY_GENERAL, "http_websocket_enable", http_websocket_enable );
+        Config.http_websocket_enable.setComment( "Enable use of http websockets. This requires the \"http_enable\" option to also be true." );
 
         {
             ConfigCategory category = Config.config.getCategory( Configuration.CATEGORY_GENERAL );
@@ -362,6 +367,7 @@ public class ComputerCraft
     public static void syncConfig() {
 
         http_enable = Config.http_enable.getBoolean();
+        http_websocket_enable = Config.http_websocket_enable.getBoolean();
         http_whitelist = new AddressPredicate( Config.http_whitelist.getStringList() );
         http_blacklist = new AddressPredicate( Config.http_blacklist.getStringList() );
         disable_lua51_features = Config.disable_lua51_features.getBoolean();
