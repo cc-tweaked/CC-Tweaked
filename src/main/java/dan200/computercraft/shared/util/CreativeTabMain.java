@@ -9,6 +9,8 @@ package dan200.computercraft.shared.util;
 import dan200.computercraft.ComputerCraft;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.ItemStack;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 import javax.annotation.Nonnull;
 
@@ -16,18 +18,20 @@ public class CreativeTabMain extends CreativeTabs
 {
     public CreativeTabMain( int i )
     {
-        super( i, "ComputerCraft" );
+        super( i, "CC: Tweaked" );
     }
-    
+
     @Nonnull
     @Override
+    @SideOnly(Side.CLIENT)
     public ItemStack getTabIconItem()
     {
         return new ItemStack( ComputerCraft.Blocks.computer );
     }
-    
+
     @Nonnull
     @Override
+    @SideOnly(Side.CLIENT)
     public String getTranslatedTabLabel()
     {
         return getTabLabel();

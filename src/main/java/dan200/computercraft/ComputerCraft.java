@@ -94,7 +94,7 @@ import java.util.zip.ZipFile;
 ///////////////
 
 @Mod(
-    modid = ComputerCraft.MOD_ID, name = "ComputerCraft", version = "${version}",
+    modid = ComputerCraft.MOD_ID, name = "CC: Tweaked", version = "${version}",
     guiFactory = "dan200.computercraft.client.gui.GuiConfigCC$Factory"
 )
 public class ComputerCraft

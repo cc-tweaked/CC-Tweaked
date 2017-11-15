@@ -23,9 +23,9 @@ plugins {
 }
 */
 
-version = "1.80pr1"
-group = "dan200.computercraft"
-archivesBaseName = "ComputerCraft"
+version = "1.80pr1.1"
+group = "org.squiddev"
+archivesBaseName = "cc-tweaked"
 
 minecraft {
     version = "1.12-14.21.1.2387"

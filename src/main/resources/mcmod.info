@@ -1,18 +1,19 @@
 [
     {
         "modid" : "computercraft",
-        "name" : "ComputerCraft",
+        "name" : "CC: Tweaked",
         "version" : "${version}",
         "mcversion" : "${mcversion}",
-        "url" : "http://www.computercraft.info",
+        "url" : "https://github.com/SquidDev-CC/CC-Tweaked",
         "credits" : "Created by Daniel Ratcliffe (@DanTwoHundred)",
-        "authors" : [
+        "authorList" : [
             "Daniel Ratcliffe",
-            "Aaron Mills"
+            "Aaron Mills",
+            "SquidDev"
         ],
-        "description" : "ComputerCraft adds Computers, Programming and Robotics to Minecraft.",
+        "description" : "CC: Tweaked is a fork of ComputerCraft with a focus on more experimental features.",
         "logoFile" : "pack.png",
-        "updateUrl" : "http://www.computercraft.info",
+        "updateUrl" : "https://github.com/SquidDev-CC/CC-Tweaked",
         "parent" : "",
         "screenshots": [
         ]

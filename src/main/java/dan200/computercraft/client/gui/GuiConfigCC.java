@@ -18,7 +18,7 @@ public class GuiConfigCC extends GuiConfig
 {
     public GuiConfigCC( GuiScreen parentScreen )
     {
-        super( parentScreen, getConfigElements(), ComputerCraft.MOD_ID, false, false, "ComputerCraft" );
+        super( parentScreen, getConfigElements(), ComputerCraft.MOD_ID, false, false, "CC: Tweaked" );
     }
 
     private static List<IConfigElement> getConfigElements()
