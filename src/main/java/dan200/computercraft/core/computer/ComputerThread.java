@@ -53,9 +53,10 @@ public class ComputerThread
     /**
      * The thread tasks execute on
      */
-    private static Thread s_thread = null;
+    private static Thread[] s_threads = null;
 
-    private static final AtomicInteger s_counter = new AtomicInteger( 1 );
+    private static final AtomicInteger s_ManagerCounter = new AtomicInteger( 1 );
+    private static final AtomicInteger s_DelegateCounter = new AtomicInteger( 1 );
 
     /**
      * Start the computer thread
@@ -65,14 +66,22 @@ public class ComputerThread
         synchronized( s_stateLock )
         {
             s_stopped = false;
-            if( s_thread == null || !s_thread.isAlive() )
+            if( s_threads == null || s_threads.length != ComputerCraft.computer_threads )
             {
-                SecurityManager manager = System.getSecurityManager();
-                final ThreadGroup group = manager == null ? Thread.currentThread().getThreadGroup() : manager.getThreadGroup();
+                s_threads = new Thread[ ComputerCraft.computer_threads ];
+            }
 
-                Thread thread = s_thread = new Thread( group, new TaskExecutor(), "ComputerCraft-Computer-Manager" );
-                thread.setDaemon( true );
-                thread.start();
+            SecurityManager manager = System.getSecurityManager();
+            final ThreadGroup group = manager == null ? Thread.currentThread().getThreadGroup() : manager.getThreadGroup();
+            for( int i = 0; i < s_threads.length; i++ )
+            {
+                Thread thread = s_threads[ i ];
+                if( thread == null || !thread.isAlive() )
+                {
+                    thread = s_threads[ i ] = new Thread( group, new TaskExecutor(), "ComputerCraft-Computer-Manager-" + s_ManagerCounter.getAndIncrement() );
+                    thread.setDaemon( true );
+                    thread.start();
+                }
             }
         }
     }
@@ -84,12 +93,15 @@ public class ComputerThread
     {
         synchronized( s_stateLock )
         {
-            if( s_thread != null )
+            if( s_threads != null )
             {
                 s_stopped = true;
-                if( s_thread.isAlive() )
+                for( Thread thread : s_threads )
                 {
-                    s_thread.interrupt();
+                    if( thread != null && thread.isAlive() )
+                    {
+                        thread.interrupt();
+                    }
                 }
             }
         }
@@ -178,7 +190,7 @@ public class ComputerThread
 
                 SecurityManager manager = System.getSecurityManager();
                 final ThreadGroup group = manager == null ? Thread.currentThread().getThreadGroup() : manager.getThreadGroup();
-                Thread thread = this.thread = new Thread( group, runner, "ComputerCraft-Computer-Runner" + s_counter.getAndIncrement() );
+                Thread thread = this.thread = new Thread( group, runner, "ComputerCraft-Computer-Runner" + s_DelegateCounter.getAndIncrement() );
                 thread.setDaemon( true );
                 thread.start();
             }

@@ -127,6 +127,7 @@ public class ComputerCraft
     public static boolean disable_lua51_features = false;
     public static String default_computer_settings = "";
     public static boolean debug_enable = false;
+    public static int computer_threads = 1;
     public static boolean logPeripheralErrors = false;
 
     public static boolean enableCommandBlock = false;
@@ -208,6 +209,7 @@ public class ComputerCraft
         public static Property disable_lua51_features;
         public static Property default_computer_settings;
         public static Property debug_enable;
+        public static Property computer_threads;
         public static Property logPeripheralErrors;
 
         public static Property enableCommandBlock;
@@ -308,6 +310,13 @@ public class ComputerCraft
         Config.debug_enable = Config.config.get( Configuration.CATEGORY_GENERAL, "debug_enable", debug_enable );
         Config.debug_enable.setComment( "Enable Lua's debug library. Whilst this should be safe for general use, it may allow players to interact with other computers. Enable at your own risk." );
 
+        Config.computer_threads = Config.config.get( Configuration.CATEGORY_GENERAL, "computer_threads", computer_threads );
+        Config.computer_threads
+            .setMinValue( 1 )
+            .setRequiresWorldRestart( true )
+            .setComment( "Set the number of threads computers can run on. A higher number means more computers can run at once, but may induce lag.\n" +
+                "Please note that some mods may not work with a thread count higher than 1. Use with caution." );
+
         Config.logPeripheralErrors = Config.config.get( Configuration.CATEGORY_GENERAL, "logPeripheralErrors", logPeripheralErrors );
         Config.logPeripheralErrors.setComment( "Log exceptions thrown by peripherals and other Lua objects.\n" +
             "This makes it easier for mod authors to debug problems, but may result in log spam should people use buggy methods." );
@@ -378,6 +387,7 @@ public class ComputerCraft
         disable_lua51_features = Config.disable_lua51_features.getBoolean();
         default_computer_settings = Config.default_computer_settings.getString();
         debug_enable = Config.debug_enable.getBoolean();
+        computer_threads = Config.computer_threads.getInt();
         logPeripheralErrors = Config.logPeripheralErrors.getBoolean();
 
         enableCommandBlock = Config.enableCommandBlock.getBoolean();
