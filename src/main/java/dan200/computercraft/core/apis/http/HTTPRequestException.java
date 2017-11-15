@@ -1,4 +1,4 @@
-package dan200.computercraft.core.apis;
+package dan200.computercraft.core.apis.http;
 
 public class HTTPRequestException extends Exception
 {

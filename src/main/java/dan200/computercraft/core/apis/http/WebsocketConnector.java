@@ -8,7 +8,6 @@ package dan200.computercraft.core.apis.http;
 
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.core.apis.HTTPAPI;
-import dan200.computercraft.core.apis.HTTPRequestException;
 import dan200.computercraft.core.apis.IAPIEnvironment;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelInitializer;

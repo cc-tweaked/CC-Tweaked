@@ -1,6 +1,5 @@
 package dan200.computercraft.core.apis.http;
 
-import dan200.computercraft.core.apis.HTTPRequestException;
 import dan200.computercraft.core.apis.IAPIEnvironment;
 
 import java.net.URL;

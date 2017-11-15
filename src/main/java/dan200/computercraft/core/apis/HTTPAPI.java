@@ -9,10 +9,7 @@ package dan200.computercraft.core.apis;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
-import dan200.computercraft.core.apis.http.HTTPCheck;
-import dan200.computercraft.core.apis.http.HTTPExecutor;
-import dan200.computercraft.core.apis.http.HTTPRequest;
-import dan200.computercraft.core.apis.http.WebsocketConnector;
+import dan200.computercraft.core.apis.http.*;
 
 import javax.annotation.Nonnull;
 import java.io.Closeable;
@@ -53,7 +50,7 @@ public class HTTPAPI implements ILuaAPI
     @Override
     public void advance( double _dt )
     {
-        // Wait for all of our http requests 
+        // Wait for all of our http requests
         synchronized( m_httpTasks )
         {
             Iterator<Future<?>> it = m_httpTasks.iterator();
@@ -64,7 +61,7 @@ public class HTTPAPI implements ILuaAPI
             }
         }
     }
-    
+
     @Override
     public void shutdown( )
     {
@@ -132,7 +129,7 @@ public class HTTPAPI implements ILuaAPI
                         }
                     }
                 }
-                
+
                 // Get binary
                 boolean binary = false;
                 if( args.length >= 4 )
@@ -167,7 +164,7 @@ public class HTTPAPI implements ILuaAPI
                 {
                     URL url = HTTPRequest.checkURL( urlString );
                     HTTPCheck check = new HTTPCheck( m_apiEnvironment, urlString, url );
-                    synchronized( m_httpTasks ) 
+                    synchronized( m_httpTasks )
                     {
                         m_httpTasks.add( HTTPExecutor.EXECUTOR.submit( check ) );
                     }

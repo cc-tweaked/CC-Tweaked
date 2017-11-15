@@ -12,7 +12,6 @@ import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.ILuaObject;
 import dan200.computercraft.api.lua.LuaException;
-import dan200.computercraft.core.apis.HTTPRequestException;
 import dan200.computercraft.core.apis.IAPIEnvironment;
 import dan200.computercraft.core.apis.handles.BinaryInputHandle;
 import dan200.computercraft.core.apis.handles.EncodedInputHandle;
