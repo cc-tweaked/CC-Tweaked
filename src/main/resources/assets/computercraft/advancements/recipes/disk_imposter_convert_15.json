@@ -1,0 +1,24 @@
+{
+    "parent": "minecraft:recipes/root",
+    "rewards": {
+        "recipes": [ "computercraft:disk_imposter_convert_15" ]
+    },
+    "criteria": {
+        "has_normal": {
+            "trigger": "minecraft:inventory_changed",
+            "conditions": {
+                "items": [ { "item": "computercraft:peripheral", "data": 0 } ]
+            }
+        },
+        "has_the_recipe": {
+            "trigger": "minecraft:recipe_unlocked",
+            "conditions": { "recipe": "computercraft:disk_imposter_convert_15" }
+        }
+    },
+    "requirements": [
+        [
+            "has_normal",
+            "has_the_recipe"
+        ]
+    ]
+}
