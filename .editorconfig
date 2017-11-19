@@ -5,7 +5,9 @@ indent_style = space
 indent_size = 4
 end_of_line = lf
 charset = utf-8
-trim_trailing_whitespace = true
+# Sadly too many files have whitespace errors, so we leave this as is for
+# now and just make sure we don't introduce any more.
+# trim_trailing_whitespace = true
 insert_final_newline = true
 
 [*.md]
