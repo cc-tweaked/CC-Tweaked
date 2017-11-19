@@ -290,7 +290,8 @@ public class TileMonitor extends TilePeripheralBase
 
     public double getTextScale()
     {
-        return m_textScale * 0.5;
+        TileMonitor origin = getOrigin();
+        return (origin == null ? m_textScale : origin.m_textScale) * 0.5;
     }
 
     private void rebuildTerminal()
