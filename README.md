@@ -1,8 +1,8 @@
 # ![CC: Tweaked](logo.png)
 [![Build Status](https://travis-ci.org/SquidDev-CC/CC-Tweaked.svg?branch=master)](https://travis-ci.org/SquidDev-CC/CC-Tweaked)
 
-CC: Tweaked is a fork of ComputerCraft which aims to provide more earlier access to the more experimental and 
-in-development features of the mod. For a more stable experience, I recommend checking out the 
+CC: Tweaked is a fork of ComputerCraft which aims to provide earlier access to the more experimental and in-development
+features of the mod. For a more stable experience, I recommend checking out the
 [original mod](https://github.com/dan200/ComputerCraft).
 
 ## What?
