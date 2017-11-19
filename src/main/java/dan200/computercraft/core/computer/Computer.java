@@ -14,8 +14,8 @@ import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.core.apis.*;
 import dan200.computercraft.core.filesystem.FileSystem;
 import dan200.computercraft.core.filesystem.FileSystemException;
-import dan200.computercraft.core.lua.ILuaMachine;
 import dan200.computercraft.core.lua.CobaltLuaMachine;
+import dan200.computercraft.core.lua.ILuaMachine;
 import dan200.computercraft.core.terminal.Terminal;
 
 import java.io.IOException;
@@ -420,14 +420,13 @@ public class Computer
         }
     }
     
-    public boolean pollChanged()
+    public boolean pollAndResetChanged()
     {
-        return m_externalOutputChanged;
-    }
-
-    public void clearChanged()
-    {
-        m_externalOutputChanged = false;
+        synchronized(this) {
+            boolean changed = m_externalOutputChanged;
+            m_externalOutputChanged = false;
+            return changed;
+        }
     }
 
     public boolean isBlinking()
@@ -687,6 +686,7 @@ public class Computer
                 return;
             }
             m_state = State.Starting;
+            m_externalOutputChanged = true;
             m_ticksSinceStart = 0;
         }
         
@@ -746,6 +746,7 @@ public class Computer
                     
                     // Start a new state
                     m_state = State.Running;
+                    m_externalOutputChanged = true;
                     synchronized( m_machine )
                     {
                         m_machine.handleEvent( null, null );
@@ -764,6 +765,7 @@ public class Computer
                 return;
             }
             m_state = State.Stopping;
+            m_externalOutputChanged = true;
         }
         
         // Turn the computercraft off
@@ -827,6 +829,7 @@ public class Computer
                     }
 
                     m_state = State.Off;
+                    m_externalOutputChanged = true;
                     if( reboot )
                     {
                         m_startRequested = true;

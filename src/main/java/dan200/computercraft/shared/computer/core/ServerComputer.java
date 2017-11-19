@@ -100,8 +100,7 @@ public class ServerComputer extends ServerTerminal
         super.update();
         m_computer.advance( 0.05 );
 
-        m_changedLastFrame = m_changed || m_computer.pollChanged();
-        m_computer.clearChanged();
+        m_changedLastFrame = m_computer.pollAndResetChanged() || m_changed;
         m_changed = false;
 
         m_ticksSincePing++;
