@@ -420,6 +420,12 @@ public abstract class TileComputerBase extends TileGeneric
         }
     }
 
+    public String getLabel()
+    {
+        IComputer computer = getComputer();
+        return computer == null ? m_label : computer.getLabel();
+    }
+
     @Override
     public IComputer createComputer()
     {

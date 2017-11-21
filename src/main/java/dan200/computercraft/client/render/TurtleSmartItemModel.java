@@ -35,6 +35,19 @@ import java.util.List;
 
 public class TurtleSmartItemModel implements IBakedModel, IResourceManagerReloadListener
 {
+    private static final Matrix4f s_identity, s_flip;
+
+    static
+    {
+        s_identity = new Matrix4f();
+        s_identity.setIdentity();
+
+        s_flip = new Matrix4f();
+        s_flip.setIdentity();
+        s_flip.m11 = -1; // Flip on the y axis
+        s_flip.m13 = 1; // Models go from (0,0,0) to (1,1,1), so push back up.
+    }
+
     private static class TurtleModelCombination
     {
         public final ComputerFamily m_family;
@@ -43,8 +56,9 @@ public class TurtleSmartItemModel implements IBakedModel, IResourceManagerReload
         public final ITurtleUpgrade m_rightUpgrade;
         public final ResourceLocation m_overlay;
         public final boolean m_christmas;
+        public final boolean m_flip;
 
-        public TurtleModelCombination( ComputerFamily family, boolean colour, ITurtleUpgrade leftUpgrade, ITurtleUpgrade rightUpgrade, ResourceLocation overlay, boolean christmas )
+        public TurtleModelCombination( ComputerFamily family, boolean colour, ITurtleUpgrade leftUpgrade, ITurtleUpgrade rightUpgrade, ResourceLocation overlay, boolean christmas, boolean flip )
         {
             m_family = family;
             m_colour = colour;
@@ -52,22 +66,26 @@ public class TurtleSmartItemModel implements IBakedModel, IResourceManagerReload
             m_rightUpgrade = rightUpgrade;
             m_overlay = overlay;
             m_christmas = christmas;
+            m_flip = flip;
         }
 
         @Override
         public boolean equals( Object other )
         {
-            if( other == this ) {
+            if( other == this )
+            {
                 return true;
             }
-            if( other instanceof TurtleModelCombination ) {
-                TurtleModelCombination otherCombo = (TurtleModelCombination)other;
+            if( other instanceof TurtleModelCombination )
+            {
+                TurtleModelCombination otherCombo = (TurtleModelCombination) other;
                 if( otherCombo.m_family == m_family &&
                     otherCombo.m_colour == m_colour &&
                     otherCombo.m_leftUpgrade == m_leftUpgrade &&
                     otherCombo.m_rightUpgrade == m_rightUpgrade &&
                     Objects.equal( otherCombo.m_overlay, m_overlay ) &&
-                    otherCombo.m_christmas == m_christmas )
+                    otherCombo.m_christmas == m_christmas &&
+                    otherCombo.m_flip == m_flip )
                 {
                     return true;
                 }
@@ -86,10 +104,11 @@ public class TurtleSmartItemModel implements IBakedModel, IResourceManagerReload
             result = prime * result + (m_rightUpgrade != null ? m_rightUpgrade.hashCode() : 0);
             result = prime * result + (m_overlay != null ? m_overlay.hashCode() : 0);
             result = prime * result + (m_christmas ? 1 : 0);
+            result = prime * result + (m_flip ? 1 : 0);
             return result;
         }
     }
-    
+
     private HashMap<TurtleModelCombination, IBakedModel> m_cachedModels;
     private ItemOverrideList m_overrides;
     private final TurtleModelCombination m_defaultCombination;
@@ -97,12 +116,12 @@ public class TurtleSmartItemModel implements IBakedModel, IResourceManagerReload
     public TurtleSmartItemModel()
     {
         m_cachedModels = new HashMap<>();
-        m_defaultCombination = new TurtleModelCombination( ComputerFamily.Normal, false, null, null, null, false );
+        m_defaultCombination = new TurtleModelCombination( ComputerFamily.Normal, false, null, null, null, false, false );
         m_overrides = new ItemOverrideList( new ArrayList<>() )
         {
             @Nonnull
             @Override
-            public IBakedModel handleItemState( @Nonnull IBakedModel originalModel, @Nonnull ItemStack stack, @Nullable World world, @Nullable EntityLivingBase entity)
+            public IBakedModel handleItemState( @Nonnull IBakedModel originalModel, @Nonnull ItemStack stack, @Nullable World world, @Nullable EntityLivingBase entity )
             {
                 ItemTurtleBase turtle = (ItemTurtleBase) stack.getItem();
                 ComputerFamily family = turtle.getFamily( stack );
@@ -111,7 +130,9 @@ public class TurtleSmartItemModel implements IBakedModel, IResourceManagerReload
                 ITurtleUpgrade rightUpgrade = turtle.getUpgrade( stack, TurtleSide.Right );
                 ResourceLocation overlay = turtle.getOverlay( stack );
                 boolean christmas = HolidayUtil.getCurrentHoliday() == Holiday.Christmas;
-                TurtleModelCombination combo = new TurtleModelCombination( family, colour != -1, leftUpgrade, rightUpgrade, overlay, christmas );
+                String label = turtle.getLabel( stack );
+                boolean flip = label != null && (label.equals( "Dinnerbone" ) || label.equals( "Grumm" ));
+                TurtleModelCombination combo = new TurtleModelCombination( family, colour != -1, leftUpgrade, rightUpgrade, overlay, christmas, flip );
                 if( m_cachedModels.containsKey( combo ) )
                 {
                     return m_cachedModels.get( combo );
@@ -147,27 +168,24 @@ public class TurtleSmartItemModel implements IBakedModel, IResourceManagerReload
         ModelResourceLocation overlayModelLocation = TileEntityTurtleRenderer.getTurtleOverlayModel( combo.m_family, combo.m_overlay, combo.m_christmas );
         IBakedModel baseModel = modelManager.getModel( baseModelLocation );
         IBakedModel overlayModel = (overlayModelLocation != null) ? modelManager.getModel( baseModelLocation ) : null;
+        Matrix4f transform = combo.m_flip ? s_flip : s_identity;
         Pair<IBakedModel, Matrix4f> leftModel = (combo.m_leftUpgrade != null) ? combo.m_leftUpgrade.getModel( null, TurtleSide.Left ) : null;
         Pair<IBakedModel, Matrix4f> rightModel = (combo.m_rightUpgrade != null) ? combo.m_rightUpgrade.getModel( null, TurtleSide.Right ) : null;
         if( leftModel != null && rightModel != null )
         {
-            return new TurtleMultiModel( baseModel, overlayModel, leftModel.getLeft(), leftModel.getRight(), rightModel.getLeft(), rightModel.getRight() );
+            return new TurtleMultiModel( baseModel, overlayModel, transform, leftModel.getLeft(), leftModel.getRight(), rightModel.getLeft(), rightModel.getRight() );
         }
         else if( leftModel != null )
         {
-            return new TurtleMultiModel( baseModel, overlayModel, leftModel.getLeft(), leftModel.getRight(), null, null );
+            return new TurtleMultiModel( baseModel, overlayModel, transform, leftModel.getLeft(), leftModel.getRight(), null, null );
         }
         else if( rightModel != null )
         {
-            return new TurtleMultiModel( baseModel, overlayModel, null, null, rightModel.getLeft(), rightModel.getRight() );
-        }
-        else if( overlayModel != null )
-        {
-            return new TurtleMultiModel( baseModel, overlayModel, null, null, null, null );
+            return new TurtleMultiModel( baseModel, overlayModel, transform, null, null, rightModel.getLeft(), rightModel.getRight() );
         }
         else
         {
-            return baseModel;
+            return new TurtleMultiModel( baseModel, overlayModel, transform, null, null, null, null );
         }
     }
 

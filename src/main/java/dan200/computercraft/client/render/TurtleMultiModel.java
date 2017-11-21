@@ -17,16 +17,17 @@ import java.util.Map;
 
 public class TurtleMultiModel implements IBakedModel
 {
-    private IBakedModel m_baseModel;
-    private IBakedModel m_overlayModel;
-    private IBakedModel m_leftUpgradeModel;
-    private Matrix4f m_leftUpgradeTransform;
-    private IBakedModel m_rightUpgradeModel;
-    private Matrix4f m_rightUpgradeTransform;
+    private final IBakedModel m_baseModel;
+    private final IBakedModel m_overlayModel;
+    private final Matrix4f m_generalTransform;
+    private final IBakedModel m_leftUpgradeModel;
+    private final Matrix4f m_leftUpgradeTransform;
+    private final IBakedModel m_rightUpgradeModel;
+    private final Matrix4f m_rightUpgradeTransform;
     private List<BakedQuad> m_generalQuads;
     private Map<EnumFacing, List<BakedQuad>> m_faceQuads;
 
-    public TurtleMultiModel( IBakedModel baseModel, IBakedModel overlayModel, IBakedModel leftUpgradeModel, Matrix4f leftUpgradeTransform, IBakedModel rightUpgradeModel, Matrix4f rightUpgradeTransform )
+    public TurtleMultiModel( IBakedModel baseModel, IBakedModel overlayModel, Matrix4f generalTransform, IBakedModel leftUpgradeModel, Matrix4f leftUpgradeTransform, IBakedModel rightUpgradeModel, Matrix4f rightUpgradeTransform )
     {
         // Get the models
         m_baseModel = baseModel;
@@ -35,6 +36,7 @@ public class TurtleMultiModel implements IBakedModel
         m_leftUpgradeTransform = leftUpgradeTransform;
         m_rightUpgradeModel = rightUpgradeModel;
         m_rightUpgradeTransform = rightUpgradeTransform;
+        m_generalTransform = generalTransform;
         m_generalQuads = null;
         m_faceQuads = new HashMap<>();
     }
@@ -58,18 +60,34 @@ public class TurtleMultiModel implements IBakedModel
     private List<BakedQuad> buildQuads( IBlockState state, EnumFacing side, long rand )
     {
         ArrayList<BakedQuad> quads = new ArrayList<>();
-        quads.addAll( m_baseModel.getQuads( state, side, rand ) );
+        ModelTransformer.transformQuadsTo( quads, m_baseModel.getQuads( state, side, rand ), m_generalTransform );
         if( m_overlayModel != null )
         {
-            quads.addAll( m_overlayModel.getQuads( state, side, rand ) );
+            ModelTransformer.transformQuadsTo( quads, m_overlayModel.getQuads( state, side, rand ), m_generalTransform );
+        }
+        if( m_overlayModel != null )
+        {
+            ModelTransformer.transformQuadsTo( quads, m_overlayModel.getQuads( state, side, rand ), m_generalTransform );
         }
         if( m_leftUpgradeModel != null )
         {
-            ModelTransformer.transformQuadsTo( quads, m_leftUpgradeModel.getQuads( state, side, rand ), m_leftUpgradeTransform );
+            Matrix4f upgradeTransform = m_generalTransform;
+            if( m_leftUpgradeTransform != null )
+            {
+                upgradeTransform = new Matrix4f( m_generalTransform );
+                upgradeTransform.mul( m_leftUpgradeTransform );
+            }
+            ModelTransformer.transformQuadsTo( quads, m_leftUpgradeModel.getQuads( state, side, rand ), upgradeTransform );
         }
         if( m_rightUpgradeModel != null )
         {
-            ModelTransformer.transformQuadsTo( quads, m_rightUpgradeModel.getQuads( state, side, rand ), m_rightUpgradeTransform );
+            Matrix4f upgradeTransform = m_generalTransform;
+            if( m_rightUpgradeTransform != null )
+            {
+                upgradeTransform = new Matrix4f( m_generalTransform );
+                upgradeTransform.mul( m_rightUpgradeTransform );
+            }
+            ModelTransformer.transformQuadsTo( quads, m_rightUpgradeModel.getQuads( state, side, rand ), upgradeTransform );
         }
         quads.trimToSize();
         return quads;
