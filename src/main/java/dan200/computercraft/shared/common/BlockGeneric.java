@@ -241,10 +241,9 @@ public abstract class BlockGeneric extends Block implements
             if( collision.size() > 0 )
             {
                 AxisAlignedBB aabb = collision.get( 0 );
-                for (int i=1; i<collision.size(); ++i )
+                for( int i = 1; i < collision.size(); i++ )
                 {
-                    AxisAlignedBB other = collision.get( 1 );
-                    aabb = aabb.union( other );
+                    aabb = aabb.union( collision.get( i ) );
                 }
                 return aabb;
             }
