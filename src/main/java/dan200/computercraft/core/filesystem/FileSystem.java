@@ -7,6 +7,7 @@
 package dan200.computercraft.core.filesystem;
 
 import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.api.filesystem.IFileSystem;
 import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.api.filesystem.IWritableMount;
 
@@ -290,6 +291,7 @@ public class FileSystem
         }
     }
 
+    private final FileSystemMount m_wrapper = new FileSystemMount( this );
     private final Map<String, MountWrapper> m_mounts = new HashMap<>();
     private final Set<Closeable> m_openFiles = Collections.newSetFromMap( new WeakHashMap<Closeable, Boolean>() );
     
@@ -732,6 +734,11 @@ public class FileSystem
             throw new FileSystemException( "/" + path + ": Invalid Path" );
         }
         return match;
+    }
+
+    public IFileSystem getMountWrapper()
+    {
+        return m_wrapper;
     }
 
     private static String sanitizePath( String path )

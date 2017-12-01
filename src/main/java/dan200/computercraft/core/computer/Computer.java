@@ -8,8 +8,10 @@ package dan200.computercraft.core.computer;
 
 import com.google.common.base.Objects;
 import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.api.filesystem.IFileSystem;
 import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.api.filesystem.IWritableMount;
+import dan200.computercraft.api.lua.*;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.core.apis.*;
 import dan200.computercraft.core.filesystem.FileSystem;
@@ -18,6 +20,8 @@ import dan200.computercraft.core.lua.CobaltLuaMachine;
 import dan200.computercraft.core.lua.ILuaMachine;
 import dan200.computercraft.core.terminal.Terminal;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -173,7 +177,91 @@ public class Computer
             }
         }
     }
-    
+
+    private static class ComputerSystem extends ComputerAccess implements IComputerSystem
+    {
+        private final IAPIEnvironment m_environment;
+
+        private ComputerSystem( IAPIEnvironment m_environment )
+        {
+            super( m_environment );
+            this.m_environment = m_environment;
+        }
+
+        @Nonnull
+        @Override
+        public String getAttachmentName()
+        {
+            return "computer";
+        }
+
+        @Nullable
+        @Override
+        public IFileSystem getFileSystem()
+        {
+            FileSystem fs = m_environment.getFileSystem();
+            return fs == null ? null : fs.getMountWrapper();
+        }
+
+        @Nullable
+        @Override
+        public String getLabel()
+        {
+            return m_environment.getLabel();
+        }
+    }
+
+    private static class APIWrapper implements ILuaAPI
+    {
+        private final ILuaAPI delegate;
+        private final ComputerSystem system;
+
+        private APIWrapper( ILuaAPI delegate, ComputerSystem system )
+        {
+            this.delegate = delegate;
+            this.system = system;
+        }
+
+        @Override
+        public String[] getNames()
+        {
+            return delegate.getNames();
+        }
+
+        @Override
+        public void startup()
+        {
+            delegate.startup();
+        }
+
+        @Override
+        public void update()
+        {
+            delegate.update();
+        }
+
+        @Override
+        public void shutdown()
+        {
+            delegate.shutdown();
+            system.unmountAll();
+        }
+
+        @Nonnull
+        @Override
+        public String[] getMethodNames()
+        {
+            return delegate.getMethodNames();
+        }
+
+        @Nullable
+        @Override
+        public Object[] callMethod( @Nonnull ILuaContext context, int method, @Nonnull Object[] arguments ) throws LuaException, InterruptedException
+        {
+            return delegate.callMethod( context, method, arguments );
+        }
+    }
+
     private static IMount s_romMount = null;
 
     private int m_id;
@@ -371,7 +459,7 @@ public class Computer
                 {
                     for(ILuaAPI api : m_apis)
                     {
-                        api.advance( _dt );
+                        api.update();
                     }
                 }
             }
@@ -615,6 +703,16 @@ public class Computer
         {
             m_apis.add( new HTTPAPI( m_apiEnvironment ) );
         }
+
+        for( ILuaAPIFactory factory : ComputerCraft.getAPIFactories() )
+        {
+            ComputerSystem system = new ComputerSystem( m_apiEnvironment );
+            ILuaAPI api = factory.create( system );
+            if( api != null )
+            {
+                m_apis.add( api );
+            }
+        }
     }
     
     private void initLua()
@@ -790,7 +888,7 @@ public class Computer
                     // Shutdown our APIs
                     synchronized( m_apis )
                     {
-                        for(ILuaAPI api : m_apis)
+                        for( ILuaAPI api : m_apis )
                         {
                             api.shutdown();
                         }

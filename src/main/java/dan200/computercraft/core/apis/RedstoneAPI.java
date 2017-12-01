@@ -6,6 +6,7 @@
 
 package dan200.computercraft.core.apis;
 
+import dan200.computercraft.api.lua.ILuaAPI;
 import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.core.computer.Computer;
@@ -31,21 +32,6 @@ public class RedstoneAPI implements ILuaAPI
         return new String[] {
             "rs", "redstone"
         };
-    }
-
-    @Override
-    public void startup( )
-    {
-    }
-
-    @Override
-    public void advance( double _dt )
-    {
-    }
-    
-    @Override
-    public void shutdown( )
-    {
     }
 
     @Nonnull

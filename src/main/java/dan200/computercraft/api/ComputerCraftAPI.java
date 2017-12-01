@@ -8,6 +8,7 @@ package dan200.computercraft.api;
 
 import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.api.filesystem.IWritableMount;
+import dan200.computercraft.api.lua.ILuaAPIFactory;
 import dan200.computercraft.api.media.IMedia;
 import dan200.computercraft.api.media.IMediaProvider;
 import dan200.computercraft.api.network.IPacketNetwork;
@@ -311,6 +312,22 @@ public final class ComputerCraftAPI
         return null;
     }
 
+    public static void registerAPIFactory( @Nonnull ILuaAPIFactory upgrade )
+    {
+        findCC();
+        if( computerCraft_registerAPIFactory != null )
+        {
+            try
+            {
+                computerCraft_registerAPIFactory.invoke( null, upgrade );
+            }
+            catch( Exception e )
+            {
+                // It failed
+            }
+        }
+    }
+
     // The functions below here are private, and are used to interface with the non-API ComputerCraft classes.
     // Reflection is used here so you can develop your mod without decompiling ComputerCraft and including
     // it in your solution, and so your mod won't crash if ComputerCraft is installed.
@@ -354,6 +371,9 @@ public final class ComputerCraftAPI
                 } );
                 computerCraft_getWirelessNetwork = findCCMethod( "getWirelessNetwork", new Class<?>[] {
                 } );
+                computerCraft_registerAPIFactory = findCCMethod( "registerAPIFactory", new Class<?>[] {
+                    ILuaAPIFactory.class
+                } );
             } catch( Exception e ) {
                 System.out.println( "ComputerCraftAPI: ComputerCraft not found." );
             } finally {
@@ -390,4 +410,5 @@ public final class ComputerCraftAPI
     private static Method computerCraft_registerPermissionProvider = null;
     private static Method computerCraft_registerPocketUpgrade = null;
     private static Method computerCraft_getWirelessNetwork = null;
+    private static Method computerCraft_registerAPIFactory = null;
 }

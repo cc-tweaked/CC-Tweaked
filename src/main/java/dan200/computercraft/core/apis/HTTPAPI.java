@@ -7,6 +7,7 @@
 package dan200.computercraft.core.apis;
 
 import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.api.lua.ILuaAPI;
 import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.core.apis.http.*;
@@ -43,12 +44,7 @@ public class HTTPAPI implements ILuaAPI
     }
 
     @Override
-    public void startup( )
-    {
-    }
-
-    @Override
-    public void advance( double _dt )
+    public void update()
     {
         // Wait for all of our http requests
         synchronized( m_httpTasks )

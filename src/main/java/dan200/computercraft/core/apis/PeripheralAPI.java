@@ -8,24 +8,25 @@ package dan200.computercraft.core.apis;
 
 import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.api.filesystem.IWritableMount;
+import dan200.computercraft.api.lua.ILuaAPI;
 import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
-import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.core.computer.Computer;
 import dan200.computercraft.core.computer.ComputerThread;
 import dan200.computercraft.core.computer.ITask;
 import dan200.computercraft.core.filesystem.FileSystem;
-import dan200.computercraft.core.filesystem.FileSystemException;
 
 import javax.annotation.Nonnull;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 import static dan200.computercraft.core.apis.ArgumentHelper.getString;
 
 public class PeripheralAPI implements ILuaAPI, IAPIEnvironment.IPeripheralChangeListener
 {
-    private class PeripheralWrapper implements IComputerAccess
+    private class PeripheralWrapper extends ComputerAccess
     {
         private final String m_side;
         private final IPeripheral m_peripheral;
@@ -35,10 +36,9 @@ public class PeripheralAPI implements ILuaAPI, IAPIEnvironment.IPeripheralChange
         private Map<String, Integer> m_methodMap;
         private boolean m_attached;
 
-        private Set<String> m_mounts;
-
         public PeripheralWrapper( IPeripheral peripheral, String side )
         {
+            super(m_environment);
             m_side = side;
             m_peripheral = peripheral;
             m_attached = false;
@@ -54,8 +54,6 @@ public class PeripheralAPI implements ILuaAPI, IAPIEnvironment.IPeripheralChange
                     m_methodMap.put( m_methods[i], i );
                 }
             }
-
-            m_mounts = new HashSet<>();
         }
 
         public IPeripheral getPeripheral()
@@ -91,14 +89,11 @@ public class PeripheralAPI implements ILuaAPI, IAPIEnvironment.IPeripheralChange
 
             synchronized( this )
             {
-                m_attached = false;
                 // Unmount everything the detach function forgot to do
-                for( String m_mount : m_mounts )
-                {
-                    m_fileSystem.unmount( m_mount );
-                }
-                m_mounts.clear();
+                unmountAll();
             }
+
+            m_attached = false;
         }
 
         public Object[] call( ILuaContext context, String methodName, Object[] arguments ) throws LuaException, InterruptedException
@@ -122,13 +117,6 @@ public class PeripheralAPI implements ILuaAPI, IAPIEnvironment.IPeripheralChange
         }
 
         // IComputerAccess implementation
-
-        @Override
-        public String mount( @Nonnull String desiredLoc, @Nonnull IMount mount )
-        {
-            return mount( desiredLoc, mount, m_side );
-        }
-
         @Override
         public synchronized String mount( @Nonnull String desiredLoc, @Nonnull IMount mount, @Nonnull String driveName )
         {
@@ -137,31 +125,7 @@ public class PeripheralAPI implements ILuaAPI, IAPIEnvironment.IPeripheralChange
                 throw new RuntimeException( "You are not attached to this Computer" );
             }
 
-            // Mount the location
-            String location;
-            synchronized( m_fileSystem )
-            {
-                location = findFreeLocation( desiredLoc );
-                if( location != null )
-                {
-                    try {
-                        m_fileSystem.mount( driveName, location, mount );
-                    } catch( FileSystemException e ) {
-                        // fail and return null
-                    }
-                }
-            }
-            if( location != null )
-            {
-                m_mounts.add( location );
-            }
-            return location;
-        }
-
-        @Override
-        public String mountWritable( @Nonnull String desiredLoc, @Nonnull IWritableMount mount )
-        {
-            return mountWritable( desiredLoc, mount, m_side );
+            return super.mount( desiredLoc, mount, driveName );
         }
 
         @Override
@@ -172,68 +136,46 @@ public class PeripheralAPI implements ILuaAPI, IAPIEnvironment.IPeripheralChange
                 throw new RuntimeException( "You are not attached to this Computer" );
             }
 
-            // Mount the location
-            String location;
-            synchronized( m_fileSystem )
-            {
-                location = findFreeLocation( desiredLoc );
-                if( location != null )
-                {
-                    try {
-                        m_fileSystem.mountWritable( driveName, location, mount );
-                    } catch( FileSystemException e ) {
-                        // fail and return null
-                    }
-                }
-            }
-            if( location != null )
-            {
-                m_mounts.add( location );
-            }
-            return location;
+            return super.mountWritable( desiredLoc, mount, driveName );
         }
 
         @Override
         public synchronized void unmount( String location )
         {
-            if( !m_attached ) {
+            if( !m_attached )
+            {
                 throw new RuntimeException( "You are not attached to this Computer" );
             }
 
-            if( location != null )
-            {
-                if( !m_mounts.contains( location ) ) {
-                    throw new RuntimeException( "You didn't mount this location" );
-                }
-
-                m_fileSystem.unmount( location );
-                m_mounts.remove( location );
-            }
+            super.unmount( location );
         }
 
         @Override
         public int getID()
         {
-            if( !m_attached ) {
+            if( !m_attached )
+            {
                 throw new RuntimeException( "You are not attached to this Computer" );
             }
-            return m_environment.getComputerID();
+            return super.getID();
         }
 
         @Override
         public void queueEvent( @Nonnull final String event, final Object[] arguments )
         {
-            if( !m_attached ) {
+            if( !m_attached )
+            {
                 throw new RuntimeException( "You are not attached to this Computer" );
             }
-            m_environment.queueEvent( event, arguments );
+            super.queueEvent( event, arguments );
         }
 
         @Nonnull
         @Override
         public String getAttachmentName()
         {
-            if( !m_attached ) {
+            if( !m_attached )
+            {
                 throw new RuntimeException( "You are not attached to this Computer" );
             }
             return m_side;
@@ -354,11 +296,6 @@ public class PeripheralAPI implements ILuaAPI, IAPIEnvironment.IPeripheralChange
                 }
             }
         }
-    }
-
-    @Override
-    public void advance( double _dt )
-    {
     }
 
     @Override
@@ -503,26 +440,5 @@ public class PeripheralAPI implements ILuaAPI, IAPIEnvironment.IPeripheralChange
             }
         }
         return -1;
-    }
-
-    private String findFreeLocation( String desiredLoc )
-    {
-        try
-        {
-            synchronized( m_fileSystem )
-            {
-                if( !m_fileSystem.exists( desiredLoc ) )
-                {
-                    return desiredLoc;
-                }
-                // We used to check foo2,foo3,foo4,etc here
-                // but the disk drive does this itself now
-                return null;
-            }
-        }
-        catch( FileSystemException e )
-        {
-            return null;
-        }
     }
 }

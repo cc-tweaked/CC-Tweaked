@@ -6,6 +6,7 @@
 
 package dan200.computercraft.core.apis;
 
+import dan200.computercraft.api.lua.ILuaAPI;
 import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.core.apis.handles.BinaryInputHandle;
@@ -48,11 +49,6 @@ public class FSAPI implements ILuaAPI
         m_fileSystem = m_env.getFileSystem();
     }
 
-    @Override
-    public void advance( double _dt )
-    {
-    }
-    
     @Override
     public void shutdown( )
     {

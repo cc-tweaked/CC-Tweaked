@@ -5,7 +5,7 @@
  */
 
 package dan200.computercraft.core.lua;
-import dan200.computercraft.core.apis.ILuaAPI;
+import dan200.computercraft.api.lua.ILuaAPI;
 
 import java.io.InputStream;
 import java.io.OutputStream;

@@ -8,9 +8,9 @@ package dan200.computercraft.shared.computer.apis;
 
 import com.google.common.collect.ImmutableMap;
 import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.api.lua.ILuaAPI;
 import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
-import dan200.computercraft.core.apis.ILuaAPI;
 import dan200.computercraft.shared.computer.blocks.TileCommandComputer;
 import dan200.computercraft.shared.util.WorldUtil;
 import net.minecraft.block.Block;
@@ -47,21 +47,6 @@ public class CommandAPI implements ILuaAPI
         return new String[] {
             "commands"
         };
-    }
-
-    @Override
-    public void startup()
-    {
-    }
-
-    @Override
-    public void advance( double dt )
-    {
-    }
-
-    @Override
-    public void shutdown()
-    {
     }
 
     @Nonnull

@@ -9,6 +9,7 @@ package dan200.computercraft;
 import com.google.common.base.CaseFormat;
 import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.api.filesystem.IWritableMount;
+import dan200.computercraft.api.lua.ILuaAPIFactory;
 import dan200.computercraft.api.media.IMedia;
 import dan200.computercraft.api.media.IMediaProvider;
 import dan200.computercraft.api.network.IPacketNetwork;
@@ -82,10 +83,7 @@ import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -251,6 +249,7 @@ public class ComputerCraft
     private static List<IMediaProvider> mediaProviders = new ArrayList<>();
     private static List<ITurtlePermissionProvider> permissionProviders = new ArrayList<>();
     private static final Map<String, IPocketUpgrade> pocketUpgrades = new HashMap<>();
+    private static final Set<ILuaAPIFactory> apiFactories = new LinkedHashSet<>();
 
     // Implementation
     @Mod.Instance( value = ComputerCraft.MOD_ID )
@@ -673,6 +672,14 @@ public class ComputerCraft
         }
     }
 
+    public static void registerAPIFactory( ILuaAPIFactory provider )
+    {
+        if( provider != null )
+        {
+            apiFactories.add( provider );
+        }
+    }
+
     public static IPeripheral getPeripheralAt( World world, BlockPos pos, EnumFacing side )
     {
         // Try the handlers in order:
@@ -798,6 +805,11 @@ public class ComputerCraft
     public IPacketNetwork getWirelessNetwork()
     {
         return WirelessNetwork.getUniversal();
+    }
+
+    public static Iterable<ILuaAPIFactory> getAPIFactories()
+    {
+        return apiFactories;
     }
 
     public static int createUniqueNumberedSaveDir( World world, String parentSubPath )

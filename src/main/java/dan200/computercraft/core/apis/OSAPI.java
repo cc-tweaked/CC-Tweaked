@@ -6,6 +6,7 @@
 
 package dan200.computercraft.core.apis;
 
+import dan200.computercraft.api.lua.ILuaAPI;
 import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.shared.util.StringUtil;
@@ -102,7 +103,7 @@ public class OSAPI implements ILuaAPI
     }
     
     @Override
-    public void advance( double dt )
+    public void update()
     {
         synchronized( m_timers )
         {

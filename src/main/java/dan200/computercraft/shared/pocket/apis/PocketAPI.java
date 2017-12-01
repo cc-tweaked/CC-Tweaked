@@ -7,10 +7,10 @@
 package dan200.computercraft.shared.pocket.apis;
 
 import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.api.lua.ILuaAPI;
 import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.pocket.IPocketUpgrade;
-import dan200.computercraft.core.apis.ILuaAPI;
 import dan200.computercraft.shared.pocket.core.PocketServerComputer;
 import dan200.computercraft.shared.util.InventoryUtil;
 import dan200.computercraft.shared.util.WorldUtil;
@@ -37,21 +37,6 @@ public class PocketAPI implements ILuaAPI
         return new String[] {
             "pocket"
         };
-    }
-
-    @Override
-    public void startup()
-    {
-    }
-
-    @Override
-    public void advance( double dt )
-    {
-    }
-
-    @Override
-    public void shutdown()
-    {
     }
 
     @Nonnull

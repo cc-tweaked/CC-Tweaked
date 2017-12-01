@@ -6,6 +6,7 @@
 
 package dan200.computercraft.core.apis;
 
+import dan200.computercraft.api.lua.ILuaAPI;
 import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.ILuaObject;
 import dan200.computercraft.api.lua.LuaException;
@@ -98,21 +99,6 @@ public class BufferAPI implements ILuaAPI
         return new String[] {
             "buffer"
         };
-    }
-
-    @Override
-    public void startup()
-    {
-    }
-
-    @Override
-    public void advance( double _dt )
-    {
-    }
-
-    @Override
-    public void shutdown()
-    {
     }
 
     @Nonnull
