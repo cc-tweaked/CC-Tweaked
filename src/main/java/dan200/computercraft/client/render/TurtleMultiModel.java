@@ -6,13 +6,10 @@ import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.block.model.ItemOverrideList;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.renderer.vertex.VertexFormat;
-import net.minecraft.client.renderer.vertex.VertexFormatElement;
 import net.minecraft.util.EnumFacing;
 
 import javax.annotation.Nonnull;
 import javax.vecmath.Matrix4f;
-import javax.vecmath.Point3f;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -20,16 +17,17 @@ import java.util.Map;
 
 public class TurtleMultiModel implements IBakedModel
 {
-    private IBakedModel m_baseModel;
-    private IBakedModel m_overlayModel;
-    private IBakedModel m_leftUpgradeModel;
-    private Matrix4f m_leftUpgradeTransform;
-    private IBakedModel m_rightUpgradeModel;
-    private Matrix4f m_rightUpgradeTransform;
+    private final IBakedModel m_baseModel;
+    private final IBakedModel m_overlayModel;
+    private final Matrix4f m_generalTransform;
+    private final IBakedModel m_leftUpgradeModel;
+    private final Matrix4f m_leftUpgradeTransform;
+    private final IBakedModel m_rightUpgradeModel;
+    private final Matrix4f m_rightUpgradeTransform;
     private List<BakedQuad> m_generalQuads;
     private Map<EnumFacing, List<BakedQuad>> m_faceQuads;
 
-    public TurtleMultiModel( IBakedModel baseModel, IBakedModel overlayModel, IBakedModel leftUpgradeModel, Matrix4f leftUpgradeTransform, IBakedModel rightUpgradeModel, Matrix4f rightUpgradeTransform )
+    public TurtleMultiModel( IBakedModel baseModel, IBakedModel overlayModel, Matrix4f generalTransform, IBakedModel leftUpgradeModel, Matrix4f leftUpgradeTransform, IBakedModel rightUpgradeModel, Matrix4f rightUpgradeTransform )
     {
         // Get the models
         m_baseModel = baseModel;
@@ -38,6 +36,7 @@ public class TurtleMultiModel implements IBakedModel
         m_leftUpgradeTransform = leftUpgradeTransform;
         m_rightUpgradeModel = rightUpgradeModel;
         m_rightUpgradeTransform = rightUpgradeTransform;
+        m_generalTransform = generalTransform;
         m_generalQuads = null;
         m_faceQuads = new HashMap<>();
     }
@@ -48,49 +47,50 @@ public class TurtleMultiModel implements IBakedModel
     {
         if( side != null )
         {
-            if( !m_faceQuads.containsKey( side ) )
-            {
-                ArrayList<BakedQuad> quads = new ArrayList<>();
-                if( m_overlayModel != null )
-                {
-                    quads.addAll( m_overlayModel.getQuads( state, side, rand ) );
-                }
-                if( m_leftUpgradeModel != null )
-                {
-                    quads.addAll( transformQuads( m_leftUpgradeModel.getQuads( state, side, rand ), m_leftUpgradeTransform ) );
-                }
-                if( m_rightUpgradeModel != null )
-                {
-                    quads.addAll( transformQuads( m_rightUpgradeModel.getQuads( state, side, rand ), m_rightUpgradeTransform ) );
-                }
-                quads.trimToSize();
-                m_faceQuads.put( side, quads );
-            }
+            if( !m_faceQuads.containsKey( side ) ) m_faceQuads.put( side, buildQuads( state, side, rand ) );
             return m_faceQuads.get( side );
         }
         else
         {
-            if( m_generalQuads == null )
-            {
-                ArrayList<BakedQuad> quads = new ArrayList<>();
-                quads.addAll( m_baseModel.getQuads( state, side, rand ) );
-                if( m_overlayModel != null )
-                {
-                    quads.addAll( m_overlayModel.getQuads( state, side, rand ) );
-                }
-                if( m_leftUpgradeModel != null )
-                {
-                    quads.addAll( transformQuads( m_leftUpgradeModel.getQuads( state, side, rand ), m_leftUpgradeTransform ) );
-                }
-                if( m_rightUpgradeModel != null )
-                {
-                    quads.addAll( transformQuads( m_rightUpgradeModel.getQuads( state, side, rand ), m_rightUpgradeTransform ) );
-                }
-                quads.trimToSize();
-                m_generalQuads = quads;
-            }
+            if( m_generalQuads == null ) m_generalQuads = buildQuads( state, side, rand );
             return m_generalQuads;
         }
+    }
+
+    private List<BakedQuad> buildQuads( IBlockState state, EnumFacing side, long rand )
+    {
+        ArrayList<BakedQuad> quads = new ArrayList<>();
+        ModelTransformer.transformQuadsTo( quads, m_baseModel.getQuads( state, side, rand ), m_generalTransform );
+        if( m_overlayModel != null )
+        {
+            ModelTransformer.transformQuadsTo( quads, m_overlayModel.getQuads( state, side, rand ), m_generalTransform );
+        }
+        if( m_overlayModel != null )
+        {
+            ModelTransformer.transformQuadsTo( quads, m_overlayModel.getQuads( state, side, rand ), m_generalTransform );
+        }
+        if( m_leftUpgradeModel != null )
+        {
+            Matrix4f upgradeTransform = m_generalTransform;
+            if( m_leftUpgradeTransform != null )
+            {
+                upgradeTransform = new Matrix4f( m_generalTransform );
+                upgradeTransform.mul( m_leftUpgradeTransform );
+            }
+            ModelTransformer.transformQuadsTo( quads, m_leftUpgradeModel.getQuads( state, side, rand ), upgradeTransform );
+        }
+        if( m_rightUpgradeModel != null )
+        {
+            Matrix4f upgradeTransform = m_generalTransform;
+            if( m_rightUpgradeTransform != null )
+            {
+                upgradeTransform = new Matrix4f( m_generalTransform );
+                upgradeTransform.mul( m_rightUpgradeTransform );
+            }
+            ModelTransformer.transformQuadsTo( quads, m_rightUpgradeModel.getQuads( state, side, rand ), upgradeTransform );
+        }
+        quads.trimToSize();
+        return quads;
     }
 
     @Override
@@ -131,64 +131,5 @@ public class TurtleMultiModel implements IBakedModel
     public ItemOverrideList getOverrides()
     {
         return ItemOverrideList.NONE;
-    }
-
-    private List<BakedQuad> transformQuads( List<BakedQuad> input, Matrix4f transform )
-    {
-        if( transform == null || input.size() == 0 )
-        {
-            return input;
-        }
-        else
-        {
-            List<BakedQuad> output = new ArrayList<>( input.size() );
-            for( BakedQuad quad : input )
-            {
-                output.add( transformQuad( quad, transform ) );
-            }
-            return output;
-        }
-    }
-
-    private BakedQuad transformQuad( BakedQuad quad, Matrix4f transform )
-    {
-        int[] vertexData = quad.getVertexData().clone();
-        int offset = 0;
-        BakedQuad copy = new BakedQuad( vertexData, -1, quad.getFace(), quad.getSprite(), quad.shouldApplyDiffuseLighting(), quad.getFormat() );
-        VertexFormat format = copy.getFormat();
-        for( int i=0; i<format.getElementCount(); ++i ) // For each vertex element
-        {
-            VertexFormatElement element = format.getElement( i );
-            if( element.isPositionElement() &&
-                element.getType() == VertexFormatElement.EnumType.FLOAT &&
-                element.getElementCount() == 3 ) // When we find a position element
-            {
-                for( int j=0; j<4; ++j ) // For each corner of the quad
-                {
-                    int start = offset + j * format.getNextOffset();
-                    if( (start % 4) == 0 )
-                    {
-                        start = start / 4;
-
-                        // Extract the position
-                        Point3f pos = new Point3f(
-                            Float.intBitsToFloat( vertexData[ start ] ),
-                            Float.intBitsToFloat( vertexData[ start + 1 ] ),
-                            Float.intBitsToFloat( vertexData[ start + 2 ] )
-                        );
-
-                        // Transform the position
-                        transform.transform( pos );
-
-                        // Insert the position
-                        vertexData[ start ] = Float.floatToRawIntBits( pos.x );
-                        vertexData[ start + 1 ] = Float.floatToRawIntBits( pos.y );
-                        vertexData[ start + 2 ] = Float.floatToRawIntBits( pos.z );
-                    }
-                }
-            }
-            offset += element.getSize();
-        }
-        return copy;
     }
 }

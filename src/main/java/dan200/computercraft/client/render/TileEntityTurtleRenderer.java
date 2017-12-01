@@ -9,7 +9,6 @@ package dan200.computercraft.client.render;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
-import dan200.computercraft.shared.computer.core.IComputer;
 import dan200.computercraft.shared.turtle.blocks.TileTurtle;
 import dan200.computercraft.shared.turtle.entity.TurtleVisionCamera;
 import dan200.computercraft.shared.util.Holiday;
@@ -121,18 +120,22 @@ public class TileEntityTurtleRenderer extends TileEntitySpecialRenderer<TileTurt
             GlStateManager.translate( posX + offset.x, posY + offset.y, posZ + offset.z );
 
             // Render the label
-            IComputer computer = turtle.getComputer();
-            String label = (computer != null) ? computer.getLabel() : null;
+            String label = turtle.createProxy().getLabel();
             if( label != null )
             {
                 renderLabel( turtle.getAccess().getPosition(), label );
             }
 
             // Render the turtle
-            GlStateManager.translate( 0.5f, 0.0f, 0.5f );
+            GlStateManager.translate( 0.5f, 0.5f, 0.5f );
             GlStateManager.rotate( 180.0f - yaw, 0.0f, 1.0f, 0.0f );
-            GlStateManager.translate( -0.5f, 0.0f, -0.5f );
-
+            if( label != null && (label.equals( "Dinnerbone" ) || label.equals( "Grumm" )) )
+            {
+                // Flip the model and swap the cull face as winding order will have changed.
+                GlStateManager.scale( 1.0f, -1.0f, 1.0f );
+                GlStateManager.cullFace( GlStateManager.CullFace.FRONT );
+            }
+            GlStateManager.translate( -0.5f, -0.5f, -0.5f );
             // Render the turtle
             int colour;
             ComputerFamily family;
@@ -172,6 +175,7 @@ public class TileEntityTurtleRenderer extends TileEntitySpecialRenderer<TileTurt
         finally
         {
             GlStateManager.popMatrix();
+            GlStateManager.cullFace( GlStateManager.CullFace.BACK );
         }
     }
 
