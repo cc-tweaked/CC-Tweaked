@@ -1,9 +1,9 @@
 package dan200.computercraft.shared.computer.blocks;
 
-import dan200.computercraft.shared.computer.core.ServerComputer;
+import dan200.computercraft.shared.computer.core.IComputer;
 
 /**
- * A proxy object for computer objects, delegating to {@link ServerComputer} or {@link TileComputer} where appropriate.
+ * A proxy object for computer objects, delegating to {@link IComputer} or {@link TileComputer} where appropriate.
  */
 public abstract class ComputerProxy
 {
@@ -12,7 +12,7 @@ public abstract class ComputerProxy
     public void turnOn()
     {
         TileComputerBase tile = getTile();
-        ServerComputer computer = tile.getServerComputer();
+        IComputer computer = tile.getComputer();
         if( computer == null )
         {
             tile.m_startOn = true;
@@ -26,7 +26,7 @@ public abstract class ComputerProxy
     public void shutdown()
     {
         TileComputerBase tile = getTile();
-        ServerComputer computer = tile.getServerComputer();
+        IComputer computer = tile.getComputer();
         if( computer == null )
         {
             tile.m_startOn = false;
@@ -40,7 +40,7 @@ public abstract class ComputerProxy
     public void reboot()
     {
         TileComputerBase tile = getTile();
-        ServerComputer computer = tile.getServerComputer();
+        IComputer computer = tile.getComputer();
         if( computer == null )
         {
             tile.m_startOn = true;
@@ -54,7 +54,7 @@ public abstract class ComputerProxy
     public int assignID()
     {
         TileComputerBase tile = getTile();
-        ServerComputer computer = tile.getServerComputer();
+        IComputer computer = tile.getComputer();
         if( computer == null )
         {
             return tile.m_computerID;
@@ -67,14 +67,14 @@ public abstract class ComputerProxy
 
     public boolean isOn()
     {
-        ServerComputer computer = getTile().getServerComputer();
+        IComputer computer = getTile().getComputer();
         return computer != null && computer.isOn();
     }
 
     public String getLabel()
     {
         TileComputerBase tile = getTile();
-        ServerComputer computer = tile.getServerComputer();
+        IComputer computer = tile.getComputer();
         if( computer == null )
         {
             return tile.m_label;
