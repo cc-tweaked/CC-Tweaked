@@ -23,12 +23,15 @@ import dan200.computercraft.core.apis.AddressPredicate;
 import dan200.computercraft.core.filesystem.ComboMount;
 import dan200.computercraft.core.filesystem.FileMount;
 import dan200.computercraft.core.filesystem.JarMount;
+import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.shared.command.CommandComputer;
 import dan200.computercraft.shared.common.DefaultBundledRedstoneProvider;
 import dan200.computercraft.shared.computer.blocks.BlockCommandComputer;
 import dan200.computercraft.shared.computer.blocks.BlockComputer;
 import dan200.computercraft.shared.computer.blocks.TileComputer;
 import dan200.computercraft.shared.computer.core.ClientComputerRegistry;
+import dan200.computercraft.shared.computer.core.ComputerFamily;
+import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.computer.core.ServerComputerRegistry;
 import dan200.computercraft.shared.media.items.ItemDiskExpanded;
 import dan200.computercraft.shared.media.items.ItemDiskLegacy;
@@ -108,6 +111,7 @@ public class ComputerCraft
     // ComputerCraftEdu uses ID 104
     public static final int printoutGUIID = 105;
     public static final int pocketComputerGUIID = 106;
+    public static final int viewComputerGUIID = 110;
 
     // Configuration options
     private static final String[] DEFAULT_HTTP_WHITELIST = new String[] { "*" };
@@ -517,6 +521,24 @@ public class ComputerCraft
     public static void openPocketComputerGUI( EntityPlayer player, EnumHand hand )
     {
         player.openGui( ComputerCraft.instance, ComputerCraft.pocketComputerGUIID, player.getEntityWorld(), hand.ordinal(), 0, 0 );
+    }
+
+    public static void openComputerGUI( EntityPlayer player, ServerComputer computer )
+    {
+        ComputerFamily family = computer.getFamily();
+        int width = 0, height = 0;
+        Terminal terminal = computer.getTerminal();
+        if( terminal != null )
+        {
+            width = terminal.getWidth();
+            height = terminal.getHeight();
+        }
+        
+        // Pack useful terminal information into the various coordinate bits.
+        // These are extracted in ComputerCraftProxyCommon.getClientGuiElement
+        player.openGui( ComputerCraft.instance, ComputerCraft.viewComputerGUIID, player.getEntityWorld(),
+            computer.getInstanceID(), family.ordinal(), (width & 0xFFFF) << 16 | (height & 0xFFFF)
+        );
     }
 
     public static File getBaseDir()

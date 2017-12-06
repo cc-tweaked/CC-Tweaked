@@ -33,7 +33,7 @@ public class GuiComputer extends GuiContainer
     private final int m_termHeight;
     private WidgetTerminal m_terminal;
 
-    protected GuiComputer( Container container, ComputerFamily family, IComputer computer, int termWidth, int termHeight )
+    public GuiComputer( Container container, ComputerFamily family, IComputer computer, int termWidth, int termHeight )
     {
         super( container );
         m_family = family;

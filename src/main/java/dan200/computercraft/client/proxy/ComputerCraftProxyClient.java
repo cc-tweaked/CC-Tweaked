@@ -12,10 +12,12 @@ import dan200.computercraft.client.render.ItemPocketRenderer;
 import dan200.computercraft.client.render.RenderOverlayCable;
 import dan200.computercraft.client.render.TileEntityCableRenderer;
 import dan200.computercraft.client.render.TileEntityMonitorRenderer;
+import dan200.computercraft.shared.command.ContainerViewComputer;
 import dan200.computercraft.shared.computer.blocks.ComputerState;
 import dan200.computercraft.shared.computer.blocks.TileComputer;
 import dan200.computercraft.shared.computer.core.ClientComputer;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
+import dan200.computercraft.shared.computer.core.IComputer;
 import dan200.computercraft.shared.computer.items.ItemComputer;
 import dan200.computercraft.shared.media.inventory.ContainerHeldItem;
 import dan200.computercraft.shared.media.items.ItemDiskLegacy;
@@ -362,6 +364,13 @@ public class ComputerCraftProxyClient extends ComputerCraftProxyCommon
             return new GuiPocketComputer( container );
         }
         return null;
+    }
+
+    @Override
+    public Object getComputerGUI( IComputer computer, int width, int height, ComputerFamily family )
+    {
+        ContainerViewComputer container = new ContainerViewComputer( computer );
+        return new GuiComputer( container, family, computer, width, height );
     }
 
     @Override

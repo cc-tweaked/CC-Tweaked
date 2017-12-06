@@ -10,6 +10,7 @@ import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.pocket.IPocketUpgrade;
 import dan200.computercraft.core.computer.MainThread;
+import dan200.computercraft.shared.command.ContainerViewComputer;
 import dan200.computercraft.shared.common.ColourableRecipe;
 import dan200.computercraft.shared.common.DefaultBundledRedstoneProvider;
 import dan200.computercraft.shared.common.TileGeneric;
@@ -17,10 +18,7 @@ import dan200.computercraft.shared.computer.blocks.BlockCommandComputer;
 import dan200.computercraft.shared.computer.blocks.BlockComputer;
 import dan200.computercraft.shared.computer.blocks.TileCommandComputer;
 import dan200.computercraft.shared.computer.blocks.TileComputer;
-import dan200.computercraft.shared.computer.core.ComputerFamily;
-import dan200.computercraft.shared.computer.core.IComputer;
-import dan200.computercraft.shared.computer.core.IContainerComputer;
-import dan200.computercraft.shared.computer.core.ServerComputer;
+import dan200.computercraft.shared.computer.core.*;
 import dan200.computercraft.shared.computer.inventory.ContainerComputer;
 import dan200.computercraft.shared.computer.items.ItemCommandComputer;
 import dan200.computercraft.shared.computer.items.ItemComputer;
@@ -183,6 +181,9 @@ public abstract class ComputerCraftProxyCommon implements IComputerCraftProxy
 
     @Override
     public abstract Object getPocketComputerGUI( EntityPlayer player, EnumHand hand );
+
+    @Override
+    public abstract Object getComputerGUI( IComputer computer, int width, int height, ComputerFamily family );
 
     @Override
     public abstract File getWorldDir( World world );
@@ -553,6 +554,11 @@ public abstract class ComputerCraftProxyCommon implements IComputerCraftProxy
                 {
                     return new ContainerPocketComputer( player, x == 0 ? EnumHand.MAIN_HAND : EnumHand.OFF_HAND );
                 }
+                case ComputerCraft.viewComputerGUIID:
+                {
+                    ServerComputer computer = ComputerCraft.serverComputerRegistry.get( x );
+                    return computer == null ? null : new ContainerViewComputer( computer );
+                }
             }
             return null;
         }
@@ -611,6 +617,27 @@ public abstract class ComputerCraftProxyCommon implements IComputerCraftProxy
                 {
                     return getPocketComputerGUI( player, x == 0 ? EnumHand.MAIN_HAND : EnumHand.OFF_HAND );
                 }
+                case ComputerCraft.viewComputerGUIID:
+                {
+                    ClientComputer computer = ComputerCraft.clientComputerRegistry.get( x );
+                    
+                    // We extract some terminal information from the various coordinate flags.
+                    // See ComputerCraft.openComputerGUI for how they are packed. 
+                    ComputerFamily family = ComputerFamily.values()[ y ];
+                    int width = (z >> 16) & 0xFFFF, height = z & 0xFF;
+
+                    if( computer == null )
+                    {
+                        computer = new ClientComputer( x );
+                        ComputerCraft.clientComputerRegistry.add( x, computer );
+                    }
+                    else if( computer.getTerminal() != null )
+                    {
+                        width = computer.getTerminal().getWidth();
+                        height = computer.getTerminal().getHeight();
+                    }
+                    return getComputerGUI( computer, width, height, family );
+                }  
             }
             return null;
         }
