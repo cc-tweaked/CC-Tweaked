@@ -25,6 +25,7 @@ import dan200.computercraft.core.filesystem.FileMount;
 import dan200.computercraft.core.filesystem.JarMount;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.shared.command.CommandComputer;
+import dan200.computercraft.shared.command.CommandComputerCraft;
 import dan200.computercraft.shared.common.DefaultBundledRedstoneProvider;
 import dan200.computercraft.shared.computer.blocks.BlockCommandComputer;
 import dan200.computercraft.shared.computer.blocks.BlockComputer;
@@ -427,6 +428,7 @@ public class ComputerCraft
     public void onServerStarting( FMLServerStartingEvent event )
     {
         event.registerServerCommand( new CommandComputer() );
+        event.registerServerCommand( new CommandComputerCraft() );
     }
 
     @Mod.EventHandler
