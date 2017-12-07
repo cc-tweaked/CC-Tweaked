@@ -10,9 +10,9 @@ import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.api.filesystem.IWritableMount;
+import dan200.computercraft.api.lua.ILuaAPI;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.core.apis.IAPIEnvironment;
-import dan200.computercraft.api.lua.ILuaAPI;
 import dan200.computercraft.core.computer.Computer;
 import dan200.computercraft.core.computer.IComputerEnvironment;
 import dan200.computercraft.shared.common.ServerTerminal;
@@ -309,6 +309,11 @@ public class ServerComputer extends ServerTerminal
     }
 
     public void addAPI( ILuaAPI api )
+    {
+        m_computer.addAPI( api );
+    }
+
+    public void addAPI( dan200.computercraft.core.apis.ILuaAPI api )
     {
         m_computer.addAPI( api );
     }

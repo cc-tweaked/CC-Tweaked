@@ -666,6 +666,11 @@ public class Computer
     {
         m_apis.add( api );
     }
+
+    public void addAPI( dan200.computercraft.core.apis.ILuaAPI api )
+    {
+        addAPI( (ILuaAPI) api );
+    }
     
     public void setPeripheral( int side, IPeripheral peripheral )
     {
