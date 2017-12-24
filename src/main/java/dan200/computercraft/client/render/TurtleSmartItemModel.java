@@ -167,7 +167,7 @@ public class TurtleSmartItemModel implements IBakedModel, IResourceManagerReload
         ModelResourceLocation baseModelLocation = TileEntityTurtleRenderer.getTurtleModel( combo.m_family, combo.m_colour );
         ModelResourceLocation overlayModelLocation = TileEntityTurtleRenderer.getTurtleOverlayModel( combo.m_family, combo.m_overlay, combo.m_christmas );
         IBakedModel baseModel = modelManager.getModel( baseModelLocation );
-        IBakedModel overlayModel = (overlayModelLocation != null) ? modelManager.getModel( baseModelLocation ) : null;
+        IBakedModel overlayModel = (overlayModelLocation != null) ? modelManager.getModel( overlayModelLocation ) : null;
         Matrix4f transform = combo.m_flip ? s_flip : s_identity;
         Pair<IBakedModel, Matrix4f> leftModel = (combo.m_leftUpgrade != null) ? combo.m_leftUpgrade.getModel( null, TurtleSide.Left ) : null;
         Pair<IBakedModel, Matrix4f> rightModel = (combo.m_rightUpgrade != null) ? combo.m_rightUpgrade.getModel( null, TurtleSide.Right ) : null;
