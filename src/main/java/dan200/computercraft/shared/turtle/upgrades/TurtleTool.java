@@ -302,12 +302,13 @@ public class TurtleTool implements ITurtleUpgrade
         return TurtleCommandResult.failure( "Nothing to dig here" );
     }
 
+    @SuppressWarnings("deprecation")
     private List<ItemStack> getBlockDropped( World world, BlockPos pos, EntityPlayer player )
     {
         IBlockState state = world.getBlockState( pos );
         Block block = state.getBlock();
-        NonNullList<ItemStack> drops = NonNullList.create();
-        block.getDrops( drops, world, pos, world.getBlockState( pos ), 0 );
+        // Note, we use the deprecated version as some mods override that instead. Those mods are wrong (TM).
+        List<ItemStack> drops = block.getDrops( world, pos, world.getBlockState( pos ), 0 );
         double chance = ForgeEventFactory.fireBlockHarvesting( drops, world, pos, state, 0, 1, false, player );
 
         for( int i = drops.size() - 1; i >= 0; i-- )
