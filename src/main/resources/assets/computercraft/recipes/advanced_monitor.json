@@ -9,5 +9,5 @@
         "#": { "item": "minecraft:gold_ingot" },
         "G": { "item": "minecraft:glass_pane" }
     },
-    "result": { "item": "computercraft:peripheral", "data": 4 }
+    "result": { "item": "computercraft:peripheral", "data": 4, "count": 4 }
 }
