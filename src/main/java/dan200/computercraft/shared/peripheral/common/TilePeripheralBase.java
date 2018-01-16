@@ -23,7 +23,7 @@ public abstract class TilePeripheralBase extends TileGeneric
 {
     // Statics
 
-    private EnumFacing m_dir;
+    protected EnumFacing m_dir;
     private int m_anim;
     private boolean m_changed;
 
@@ -93,6 +93,11 @@ public abstract class TilePeripheralBase extends TileGeneric
 
     @Override
     public EnumFacing getDirection()
+    {
+        return m_dir;
+    }
+
+    public EnumFacing getCachedDirection()
     {
         return m_dir;
     }

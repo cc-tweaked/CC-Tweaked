@@ -99,7 +99,7 @@ public class TileCable extends TileModemBase
         @Override
         public Vec3d getPosition()
         {
-            EnumFacing direction = m_entity.getDirection();
+            EnumFacing direction = m_entity.getCachedDirection();
             BlockPos pos = m_entity.getPos().offset( direction );
             return new Vec3d( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5 );
         }
@@ -244,6 +244,8 @@ public class TileCable extends TileModemBase
     private boolean m_destroyed;
     
     private int m_lastSearchID;
+
+    private boolean m_hasDirection = false;
     
     public TileCable()
     {
@@ -270,6 +272,28 @@ public class TileCable extends TileModemBase
             networkChanged();
         }
         super.destroy();
+    }
+
+    @Override
+    public void onLoad()
+    {
+        super.onLoad();
+        updateDirection();
+    }
+
+    @Override
+    public void updateContainingBlockInfo()
+    {
+        m_hasDirection = false;
+    }
+
+    private void updateDirection()
+    {
+        if( !m_hasDirection )
+        {
+            m_hasDirection = true;
+            m_dir = getDirection();
+        }
     }
 
     @Override
@@ -551,6 +575,7 @@ public class TileCable extends TileModemBase
     public void update()
     {
         super.update();
+        updateDirection();
         if( !getWorld().isRemote )
         {        
             synchronized( m_peripheralsByName )

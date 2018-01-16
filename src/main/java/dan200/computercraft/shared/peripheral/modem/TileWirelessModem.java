@@ -12,8 +12,8 @@ import dan200.computercraft.shared.peripheral.PeripheralType;
 import dan200.computercraft.shared.peripheral.common.BlockPeripheral;
 import dan200.computercraft.shared.peripheral.common.BlockPeripheralVariant;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
@@ -26,7 +26,7 @@ public class TileWirelessModem extends TileModemBase
     private static class Peripheral extends WirelessModemPeripheral
     {
         private TileModemBase m_entity;
-        
+
         public Peripheral( TileModemBase entity )
         {
             super( false );
@@ -39,12 +39,12 @@ public class TileWirelessModem extends TileModemBase
         {
             return m_entity.getWorld();
         }
-        
+
         @Nonnull
         @Override
         public Vec3d getPosition()
         {
-            BlockPos pos = m_entity.getPos().offset( m_entity.getDirection() );
+            BlockPos pos = m_entity.getPos().offset( m_entity.getCachedDirection() );
             return new Vec3d( pos.getX(), pos.getY(), pos.getZ() );
         }
 
@@ -53,7 +53,7 @@ public class TileWirelessModem extends TileModemBase
         {
             if( other instanceof Peripheral )
             {
-                Peripheral otherModem = (Peripheral)other;
+                Peripheral otherModem = (Peripheral) other;
                 return otherModem.m_entity == m_entity;
             }
             return false;
@@ -62,8 +62,40 @@ public class TileWirelessModem extends TileModemBase
 
     // Members
 
+    private boolean m_hasDirection = false;
+
     public TileWirelessModem()
     {
+        m_dir = EnumFacing.DOWN;
+    }
+
+    @Override
+    public void onLoad()
+    {
+        super.onLoad();
+        updateDirection();
+    }
+
+    @Override
+    public void updateContainingBlockInfo()
+    {
+        m_hasDirection = false;
+    }
+
+    @Override
+    public void update()
+    {
+        super.update();
+        updateDirection();
+    }
+
+    private void updateDirection()
+    {
+        if( !m_hasDirection )
+        {
+            m_hasDirection = true;
+            m_dir = getDirection();
+        }
     }
 
     @Override
