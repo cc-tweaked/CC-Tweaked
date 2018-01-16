@@ -6,9 +6,12 @@
 
 package dan200.computercraft.shared.turtle.blocks;
 
+import dan200.computercraft.shared.computer.core.ComputerFamily;
+
 public class TileTurtleAdvanced extends TileTurtle
 {
     public TileTurtleAdvanced()
     {
+        super( ComputerFamily.Advanced);
     }
 }
