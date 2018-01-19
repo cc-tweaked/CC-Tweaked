@@ -20,6 +20,7 @@ import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.block.model.ModelBakery;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.client.renderer.color.IItemColor;
+import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.resources.IResourceManager;
 import net.minecraft.client.resources.SimpleReloadableResourceManager;
@@ -115,8 +116,23 @@ public class CCTurtleProxyClient extends CCTurtleProxyCommon
         MinecraftForge.EVENT_BUS.register( handlers );
     }
 
-    public class ForgeHandlers
+    public static class ForgeHandlers
     {
+        private static final String[] TURTLE_UPGRADES = {
+            "turtle_modem_off_left",
+            "turtle_modem_on_left",
+            "turtle_modem_off_right",
+            "turtle_modem_on_right",
+            "turtle_crafting_table_left",
+            "turtle_crafting_table_right",
+            "advanced_turtle_modem_off_left",
+            "advanced_turtle_modem_on_left",
+            "advanced_turtle_modem_off_right",
+            "advanced_turtle_modem_on_right",
+            "turtle_speaker_upgrade_left",
+            "turtle_speaker_upgrade_right",
+        };
+
         private TurtleSmartItemModel m_turtleSmartItemModel;
 
         public ForgeHandlers()
@@ -142,24 +158,27 @@ public class CCTurtleProxyClient extends CCTurtleProxyCommon
         @SubscribeEvent
         public void onTextureStitchEvent( TextureStitchEvent.Pre event )
         {
-            event.getMap().registerSprite( new ResourceLocation( "computercraft", "blocks/crafty_upgrade" ) );
+            // Load all textures for upgrades
+            TextureMap map = event.getMap();
+            for( String upgrade : TURTLE_UPGRADES )
+            {
+                IModel model = ModelLoaderRegistry.getModelOrMissing( new ResourceLocation( "computercraft", "block/" + upgrade ) );
+                for( ResourceLocation texture : model.getTextures() )
+                {
+                    map.registerSprite( texture );
+                }
+            }
         }
 
         @SubscribeEvent
         public void onModelBakeEvent( ModelBakeEvent event )
         {
-            loadModel( event, "turtle_modem_off_left" );
-            loadModel( event, "turtle_modem_on_left" );
-            loadModel( event, "turtle_modem_off_right" );
-            loadModel( event, "turtle_modem_on_right" );
-            loadModel( event, "turtle_crafting_table_left" );
-            loadModel( event, "turtle_crafting_table_right" );
-            loadModel( event, "advanced_turtle_modem_off_left" );
-            loadModel( event, "advanced_turtle_modem_on_left" );
-            loadModel( event, "advanced_turtle_modem_off_right" );
-            loadModel( event, "advanced_turtle_modem_on_right" );
-            loadModel( event, "turtle_speaker_upgrade_left" );
-            loadModel( event, "turtle_speaker_upgrade_right" );
+            // Load all upgrade models
+            for( String upgrade : TURTLE_UPGRADES )
+            {
+                loadModel( event, upgrade );
+            }
+
             loadSmartModel( event, "turtle_dynamic", m_turtleSmartItemModel );
         }
 
