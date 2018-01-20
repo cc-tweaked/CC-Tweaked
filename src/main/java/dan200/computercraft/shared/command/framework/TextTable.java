@@ -18,7 +18,7 @@ import static dan200.computercraft.shared.command.framework.ChatHelpers.text;
 public class TextTable
 {
     private static final String CHARACTERS = "\u00c0\u00c1\u00c2\u00c8\u00ca\u00cb\u00cd\u00d3\u00d4\u00d5\u00da\u00df\u00e3\u00f5\u011f\u0130\u0131\u0152\u0153\u015e\u015f\u0174\u0175\u017e\u0207\u0000\u0000\u0000\u0000\u0000\u0000\u0000 !\"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~\u0000\u00c7\u00fc\u00e9\u00e2\u00e4\u00e0\u00e5\u00e7\u00ea\u00eb\u00e8\u00ef\u00ee\u00ec\u00c4\u00c5\u00c9\u00e6\u00c6\u00f4\u00f6\u00f2\u00fb\u00f9\u00ff\u00d6\u00dc\u00f8\u00a3\u00d8\u00d7\u0192\u00e1\u00ed\u00f3\u00fa\u00f1\u00d1\u00aa\u00ba\u00bf\u00ae\u00ac\u00bd\u00bc\u00a1\u00ab\u00bb\u2591\u2592\u2593\u2502\u2524\u2561\u2562\u2556\u2555\u2563\u2551\u2557\u255d\u255c\u255b\u2510\u2514\u2534\u252c\u251c\u2500\u253c\u255e\u255f\u255a\u2554\u2569\u2566\u2560\u2550\u256c\u2567\u2568\u2564\u2565\u2559\u2558\u2552\u2553\u256b\u256a\u2518\u250c\u2588\u2584\u258c\u2590\u2580\u03b1\u03b2\u0393\u03c0\u03a3\u03c3\u03bc\u03c4\u03a6\u0398\u03a9\u03b4\u221e\u2205\u2208\u2229\u2261\u00b1\u2265\u2264\u2320\u2321\u00f7\u2248\u00b0\u2219\u00b7\u221a\u207f\u00b2\u25a0\u0000";
-    private static final int[] CHAR_WIDTHS = new int[] {
+    private static final int[] CHAR_WIDTHS = new int[]{
         6, 6, 6, 6, 6, 6, 4, 6, 6, 6, 6, 6, 6, 6, 6, 4,
         4, 6, 7, 6, 6, 6, 6, 6, 6, 1, 1, 1, 1, 1, 1, 1,
         1, 2, 5, 6, 6, 6, 6, 3, 5, 5, 5, 6, 2, 6, 2, 6,
@@ -55,7 +55,7 @@ public class TextTable
             }
             else if( CHARACTERS.indexOf( character ) != -1 )
             {
-                return CHAR_WIDTHS[ character ];
+                return CHAR_WIDTHS[character];
             }
             else
             {
@@ -108,10 +108,10 @@ public class TextTable
 
     public TextTable( @Nonnull String... header )
     {
-        this.header = new ITextComponent[ header.length ];
+        this.header = new ITextComponent[header.length];
         for( int i = 0; i < header.length; i++ )
         {
-            this.header[ i ] = ChatHelpers.header( header[ i ] );
+            this.header[i] = ChatHelpers.header( header[i] );
         }
         this.columns = header.length;
     }
@@ -136,27 +136,32 @@ public class TextTable
 
         final int maxWidth = getMaxWidth( sender );
 
-        int[] minWidths = new int[ columns ];
-        int[] maxWidths = new int[ columns ];
-        int[] rowWidths = new int[ columns ];
+        int[] minWidths = new int[columns];
+        int[] maxWidths = new int[columns];
+        int[] rowWidths = new int[columns];
 
         if( header != null )
         {
             for( int i = 0; i < columns; i++ )
             {
-                maxWidths[ i ] = minWidths[ i ] = getWidth( header[ i ], sender );
+                maxWidths[i] = minWidths[i] = getWidth( header[i], sender );
             }
         }
 
-        for( ITextComponent[] row : rows )
+        // Limit the number of rows to something sensible.
+        int limit = isPlayer( sender ) ? 30 : 100;
+        if( limit > rows.size() ) limit = rows.size();
+
+        for( int y = 0; y < limit; y++ )
         {
+            ITextComponent[] row = rows.get( y );
             for( int i = 0; i < row.length; i++ )
             {
-                int width = getWidth( row[ i ], sender );
-                rowWidths[ i ] += width;
-                if( width > maxWidths[ i ] )
+                int width = getWidth( row[i], sender );
+                rowWidths[i] += width;
+                if( width > maxWidths[i] )
                 {
-                    maxWidths[ i ] = width;
+                    maxWidths[i] = width;
                 }
             }
         }
@@ -164,7 +169,7 @@ public class TextTable
         // Calculate the average width
         for( int i = 0; i < columns; i++ )
         {
-            rowWidths[ i ] = Math.max( rowWidths[ i ], rows.size() );
+            rowWidths[i] = Math.max( rowWidths[i], rows.size() );
         }
 
         int totalWidth = (columns - 1) * getWidth( SEPARATOR, sender );
@@ -179,7 +184,7 @@ public class TextTable
             for( int i = 0; i < columns; i++ )
             {
                 if( i != 0 ) out.appendSibling( SEPARATOR );
-                appendFixed( out, sender, header[ i ], maxWidths[ i ] );
+                appendFixed( out, sender, header[i], maxWidths[i] );
             }
             out.appendSibling( LINE );
 
@@ -190,15 +195,21 @@ public class TextTable
             out.appendSibling( LINE );
         }
 
-        for( int i = 0; i < rows.size(); i++ )
+        for( int i = 0; i < limit; i++ )
         {
             ITextComponent[] row = rows.get( i );
             if( i != 0 ) out.appendSibling( LINE );
             for( int j = 0; j < columns; j++ )
             {
                 if( j != 0 ) out.appendSibling( SEPARATOR );
-                appendFixed( out, sender, row[ j ], maxWidths[ j ] );
+                appendFixed( out, sender, row[j], maxWidths[j] );
             }
+        }
+
+        if( limit != rows.size() )
+        {
+            out.appendSibling( LINE );
+            out.appendSibling( coloured( (rows.size() - limit) + " additional rows...", TextFormatting.AQUA ) );
         }
 
         sender.sendMessage( out );

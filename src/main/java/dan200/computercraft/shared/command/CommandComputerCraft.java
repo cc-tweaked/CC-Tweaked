@@ -10,11 +10,13 @@ import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -48,8 +50,35 @@ public final class CommandComputerCraft extends CommandDelegate
                 {
                     TextTable table = new TextTable( "Instance", "Id", "On", "Position" );
 
-                    int max = 50;
-                    for( ServerComputer computer : ComputerCraft.serverComputerRegistry.getComputers() )
+                    List<ServerComputer> computers = new ArrayList<>( ComputerCraft.serverComputerRegistry.getComputers() );
+
+                    // Unless we're on a server, limit the number of rows we can send.
+                    if( !(context.getSender() instanceof MinecraftServer) )
+                    {
+                        World world = context.getSender().getEntityWorld();
+                        BlockPos pos = context.getSender().getPosition();
+
+                        computers.sort( ( a, b ) -> {
+                            if( a.getWorld() == b.getWorld() && a.getWorld() == world )
+                            {
+                                return Double.compare( a.getPosition().distanceSq( pos ), b.getPosition().distanceSq( pos ) );
+                            }
+                            else if( a.getWorld() == world )
+                            {
+                                return -1;
+                            }
+                            else if( b.getWorld() == world )
+                            {
+                                return 1;
+                            }
+                            else
+                            {
+                                return Integer.compare( a.getInstanceID(), b.getInstanceID() );
+                            }
+                        } );
+                    }
+
+                    for( ServerComputer computer : computers )
                     {
                         table.addRow(
                             linkComputer( computer ),
@@ -57,8 +86,6 @@ public final class CommandComputerCraft extends CommandDelegate
                             bool( computer.isOn() ),
                             linkPosition( context, computer )
                         );
-
-                        if( max-- < 0 ) break;
                     }
 
                     table.displayTo( context.getSender() );
@@ -80,7 +107,7 @@ public final class CommandComputerCraft extends CommandDelegate
                         IPeripheral peripheral = computer.getPeripheral( i );
                         if( peripheral != null )
                         {
-                            table.addRow( header( "Peripheral " + Computer.s_sideNames[ i ] ), text( peripheral.getType() ) );
+                            table.addRow( header( "Peripheral " + Computer.s_sideNames[i] ), text( peripheral.getType() ) );
                         }
                     }
 
@@ -198,32 +225,36 @@ public final class CommandComputerCraft extends CommandDelegate
             }
         } );
 
-        root.register(new SubCommandBase(
+        root.register( new SubCommandBase(
             "view", "<id>", "View the terminal of a computer.", UserLevel.OP,
             "Open the terminal of a computer, allowing remote control of a computer. This does not provide access to " +
                 "turtle's inventories. You can either specify the computer's instance id (e.g. 123) or computer id (e.g #123)."
-        ) {
+        )
+        {
             @Override
-            public void execute(@Nonnull CommandContext context, @Nonnull List<String> arguments) throws CommandException {
-                if (arguments.size() != 1) throw new CommandException(context.getFullUsage());
+            public void execute( @Nonnull CommandContext context, @Nonnull List<String> arguments ) throws CommandException
+            {
+                if( arguments.size() != 1 ) throw new CommandException( context.getFullUsage() );
 
                 ICommandSender sender = context.getSender();
-                if (!(sender instanceof EntityPlayerMP)) {
-                    throw new CommandException("Cannot open terminal for non-player");
+                if( !(sender instanceof EntityPlayerMP) )
+                {
+                    throw new CommandException( "Cannot open terminal for non-player" );
                 }
 
-                ServerComputer computer = ComputerSelector.getComputer(arguments.get(0));
+                ServerComputer computer = ComputerSelector.getComputer( arguments.get( 0 ) );
                 ComputerCraft.openComputerGUI( (EntityPlayerMP) sender, computer );
             }
 
             @Nonnull
             @Override
-            public List<String> getCompletion(@Nonnull CommandContext context, @Nonnull List<String> arguments) {
+            public List<String> getCompletion( @Nonnull CommandContext context, @Nonnull List<String> arguments )
+            {
                 return arguments.size() == 1
                     ? ComputerSelector.completeComputer( arguments.get( 0 ) )
                     : Collections.emptyList();
             }
-        });
+        } );
 
 
         return root;
