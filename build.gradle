@@ -21,7 +21,6 @@ plugins {
 apply plugin: 'net.minecraftforge.gradle.forge'
 apply plugin: 'org.ajoberstar.grgit'
 
-
 version = "1.80pr1.3"
 group = "org.squiddev"
 archivesBaseName = "cc-tweaked"
@@ -59,7 +58,7 @@ configurations {
 dependencies {
     deobfProvided "mezz.jei:jei_1.12:4.7.5.86:api"
     runtime "mezz.jei:jei_1.12:4.7.5.86"
-    shade 'org.squiddev:Cobalt:0.3.0'
+    shade 'org.squiddev:Cobalt:0.3.1'
 }
 
 javadoc {
