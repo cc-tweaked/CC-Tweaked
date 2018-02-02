@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.core.computer.Computer;
+import dan200.computercraft.core.computer.ComputerTimeTracker;
 import dan200.computercraft.shared.command.framework.*;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import net.minecraft.command.CommandException;
@@ -13,12 +14,12 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
+import net.minecraftforge.common.util.FakePlayer;
 
 import javax.annotation.Nonnull;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import static dan200.computercraft.shared.command.framework.ChatHelpers.*;
 
@@ -256,6 +257,55 @@ public final class CommandComputerCraft extends CommandDelegate
             }
         } );
 
+        CommandRoot track = new CommandRoot( "track", "Track execution times for computers.",
+            "Track how long computers execute for, as well as how many events they handle. This presents information in " +
+                "a similar way to /forge track and can be useful for diagnosing lag." );
+        root.register( track );
+
+        track.register( new SubCommandBase(
+            "start", "Start tracking all computers", UserLevel.OWNER_OP,
+            "Start tracking all computers' execution times and event counts. This will discard the results of previous runs."
+        )
+        {
+            @Override
+            public void execute( @Nonnull CommandContext context, @Nonnull List<String> arguments )
+            {
+                ComputerTimeTracker.start();
+
+                String stopCommand = "/" + context.parent().getFullPath() + " stop";
+                context.getSender().sendMessage( list(
+                    text( "Run " ),
+                    link( text( stopCommand ), stopCommand, "Click to stop tracking" ),
+                    text( " to stop tracking and view the results" )
+                ) );
+            }
+        } );
+
+        track.register( new SubCommandBase(
+            "stop", "Stop tracking all computers", UserLevel.OWNER_OP,
+            "Stop tracking all computers' events and execution times"
+        )
+        {
+            @Override
+            public void execute( @Nonnull CommandContext context, @Nonnull List<String> arguments ) throws CommandException
+            {
+                if( !ComputerTimeTracker.stop() ) throw new CommandException( "Tracking not enabled" );
+                displayTimings( context );
+            }
+        } );
+
+        track.register( new SubCommandBase(
+            "dump", "Dump the latest track results", UserLevel.OWNER_OP,
+            "Dump the latest results of computer tracking."
+        )
+        {
+            @Override
+            public void execute( @Nonnull CommandContext context, @Nonnull List<String> arguments ) throws CommandException
+            {
+                displayTimings( context );
+            }
+        } );
+
 
         return root;
     }
@@ -283,5 +333,64 @@ public final class CommandComputerCraft extends CommandDelegate
         {
             return position( computer.getPosition() );
         }
+    }
+
+    private static void displayTimings( CommandContext context ) throws CommandException
+    {
+        List<ComputerTimeTracker.Timings> timings = ComputerTimeTracker.getTimings();
+        if( timings.isEmpty() ) throw new CommandException( "No timings available" );
+
+        timings.sort( Comparator.comparing( ComputerTimeTracker.Timings::getAverage ).reversed() );
+        TextTable table = new TextTable( "Computer", "Tasks", "Total", "Average", "Maximum" );
+
+        Map<Computer, ServerComputer> lookup = new HashMap<>();
+        int maxId = 0, maxInstance = 0;
+        for( ServerComputer server : ComputerCraft.serverComputerRegistry.getComputers() )
+        {
+            lookup.put( server.getComputer(), server );
+
+            if( server.getInstanceID() > maxInstance ) maxInstance = server.getInstanceID();
+            if( server.getID() > maxId ) maxId = server.getID();
+        }
+
+        ICommandSender sender = context.getSender();
+        boolean isPlayer = sender instanceof EntityPlayerMP && !(sender instanceof FakePlayer);
+
+        for( ComputerTimeTracker.Timings entry : timings )
+        {
+            Computer computer = entry.getComputer();
+            ServerComputer serverComputer = computer == null ? null : lookup.get( computer );
+
+            ITextComponent computerComponent = new TextComponentString( "" )
+                .appendSibling( serverComputer == null ? text( "?" ) : linkComputer( serverComputer ) )
+                .appendText( " (id " + entry.getComputerId() + ")" );
+
+            if( serverComputer != null && UserLevel.OP.canExecute( context ) && isPlayer )
+            {
+                computerComponent
+                    .appendText( " " )
+                    .appendSibling( link(
+                        text( "\u261b" ),
+                        "/computercraft tp " + serverComputer.getInstanceID(),
+                        "Teleport to this computer"
+                    ) )
+                    .appendText( " " )
+                    .appendSibling( link(
+                        text( "\u20e2" ),
+                        "/computercraft view " + serverComputer.getInstanceID(),
+                        "View this computer"
+                    ) );
+            }
+
+            table.addRow(
+                computerComponent,
+                formatted( "%4d", entry.getTasks() ),
+                text( String.format( "%7.1f", entry.getTotalTime() / 1e6 ) + "ms" ),
+                text( String.format( "%4.1f", entry.getAverage() / 1e6 ) + "ms" ),
+                text( String.format( "%5.1f", entry.getMaxTime() / 1e6 ) + "ms" )
+            );
+        }
+
+        table.displayTo( context.getSender() );
     }
 }

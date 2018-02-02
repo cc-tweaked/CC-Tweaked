@@ -94,6 +94,11 @@ public class ServerComputer extends ServerTerminal
         return m_computer.getAPIEnvironment();
     }
 
+    public Computer getComputer()
+    {
+        return m_computer;
+    }
+
     @Override
     public void update()
     {

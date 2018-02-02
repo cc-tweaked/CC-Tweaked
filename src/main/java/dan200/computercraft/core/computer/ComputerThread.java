@@ -195,6 +195,8 @@ public class ComputerThread
                 thread.start();
             }
 
+            long start = System.nanoTime();
+
             // Execute the task
             runner.submit( task );
 
@@ -229,6 +231,10 @@ public class ComputerThread
             }
             finally
             {
+                long stop = System.nanoTime();
+                Computer computer = task.getOwner();
+                if( computer != null ) ComputerTimeTracker.addTiming( computer, stop - start );
+                
                 // Re-add it back onto the queue or remove it
                 synchronized( s_taskLock )
                 {
