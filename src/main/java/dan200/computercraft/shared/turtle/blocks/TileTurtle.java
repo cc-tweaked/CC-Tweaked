@@ -6,6 +6,7 @@
 
 package dan200.computercraft.shared.turtle.blocks;
 
+import com.mojang.authlib.GameProfile;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
@@ -43,7 +44,6 @@ import net.minecraftforge.items.wrapper.InvWrapper;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.List;
 
 import static net.minecraftforge.items.CapabilityItemHandler.ITEM_HANDLER_CAPABILITY;
 
@@ -446,6 +446,12 @@ public class TileTurtle extends TileComputerBase
     public float getToolRenderAngle( TurtleSide side, float f )
     {
         return m_brain.getToolRenderAngle( side, f );
+    }
+
+    public void setOwningPlayer( GameProfile player )
+    {
+        m_brain.setOwningPlayer( player );
+        markDirty();
     }
 
     // IInventory

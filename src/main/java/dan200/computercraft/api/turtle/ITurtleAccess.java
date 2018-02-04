@@ -6,6 +6,7 @@
 
 package dan200.computercraft.api.turtle;
 
+import com.mojang.authlib.GameProfile;
 import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.peripheral.IPeripheral;
@@ -136,6 +137,14 @@ public interface ITurtleAccess
     int getColour();
 
     /**
+     * Get the player who owns this turtle, namely whoever placed it.
+     *
+     * @return This turtle's owner.
+     */
+    @Nonnull
+    GameProfile getOwningPlayer();
+
+    /**
      * Get the inventory of this turtle
      *
      * @return This turtle's inventory
@@ -148,7 +157,7 @@ public interface ITurtleAccess
      * Get the inventory of this turtle as an {@link IItemHandlerModifiable}.
      *
      * @return This turtle's inventory
-     * @see #getInventory() 
+     * @see #getInventory()
      * @see IItemHandlerModifiable
      * @see net.minecraftforge.items.CapabilityItemHandler#ITEM_HANDLER_CAPABILITY
      */

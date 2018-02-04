@@ -163,7 +163,7 @@ public class TurtlePlaceCommand implements ITurtleCommand
 
     public static TurtlePlayer createPlayer( ITurtleAccess turtle, BlockPos position, EnumFacing direction )
     {
-        TurtlePlayer turtlePlayer = new TurtlePlayer( (WorldServer)turtle.getWorld() );
+        TurtlePlayer turtlePlayer = new TurtlePlayer( turtle );
         orientPlayer( turtle, turtlePlayer, position, direction );
         return turtlePlayer;
     }

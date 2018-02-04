@@ -17,11 +17,12 @@ import net.minecraft.block.state.BlockFaceShape;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumBlockRenderType;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
@@ -169,6 +170,10 @@ public class BlockTurtle extends BlockComputerBase
         {
             tile.setWorld( world ); // Not sure why this is necessary
             tile.setPos( pos ); // Not sure why this is necessary
+            if( player instanceof EntityPlayer )
+            {
+                ((TileTurtle) tile).setOwningPlayer( ((EntityPlayer) player).getGameProfile() );
+            }
         }
 
         // Set direction
