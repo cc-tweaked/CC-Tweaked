@@ -6,9 +6,9 @@
         "#D#"
     ],
     "key": {
-        "#": { "item": "minecraft:stone", "data": 0 },
-        "R": { "item": "minecraft:redstone" },
-        "D": { "item": "minecraft:dye", "data": 0 }
+        "#": { "type": "forge:ore_dict", "ore": "stone" },
+        "R": { "type": "forge:ore_dict", "ore": "paneGlass" },
+        "D": { "type": "forge:ore_dict", "ore": "dye" }
     },
     "result": { "item": "computercraft:peripheral", "data": 3 }
 }

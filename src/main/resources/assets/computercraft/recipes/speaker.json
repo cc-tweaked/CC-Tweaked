@@ -6,8 +6,8 @@
         "#R#"
     ],
     "key": {
-        "#": { "item": "minecraft:stone", "data": 0 },
-        "R": { "item": "minecraft:redstone" },
+        "#": { "type": "forge:ore_dict", "ore": "stone" },
+        "R": { "type": "forge:ore_dict", "ore": "dustRedstone" },
         "N": { "item": "minecraft:noteblock" }
     },
     "result": { "item": "computercraft:peripheral", "data": 5 }

@@ -7,23 +7,24 @@
 package dan200.computercraft.shared.media.recipes;
 
 import dan200.computercraft.shared.media.items.ItemPrintout;
-import net.minecraft.init.Items;
 import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
+import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.util.NonNullList;
 import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeHooks;
+import net.minecraftforge.oredict.OreIngredient;
 import net.minecraftforge.registries.IForgeRegistryEntry;
 
 import javax.annotation.Nonnull;
 
 public class PrintoutRecipe extends IForgeRegistryEntry.Impl<IRecipe> implements IRecipe
 {
-    public PrintoutRecipe( )
-    {
-    }
+    private final Ingredient paper = new OreIngredient( "paper" );
+    private final Ingredient leather = new OreIngredient( "leather" );
+    private final Ingredient string = new OreIngredient( "string" );
 
     @Override
     public boolean canFit( int x, int y )
@@ -68,8 +69,7 @@ public class PrintoutRecipe extends IForgeRegistryEntry.Impl<IRecipe> implements
                 ItemStack stack = inventory.getStackInRowAndColumn(x, y);
                 if( !stack.isEmpty() )
                 {
-                    Item item = stack.getItem();
-                    if( item instanceof ItemPrintout && ItemPrintout.getType( stack ) != ItemPrintout.Type.Book )
+                    if( stack.getItem() instanceof ItemPrintout && ItemPrintout.getType( stack ) != ItemPrintout.Type.Book )
                     {
                         if( printouts == null )
                         {
@@ -80,7 +80,7 @@ public class PrintoutRecipe extends IForgeRegistryEntry.Impl<IRecipe> implements
                         numPrintouts++;
                         printoutFound = true;
                     }
-                    else if( item == Items.PAPER )
+                    else if( paper.apply( stack ) )
                     {
                         if( printouts == null )
                         {
@@ -90,11 +90,11 @@ public class PrintoutRecipe extends IForgeRegistryEntry.Impl<IRecipe> implements
                         numPages++;
                         numPrintouts++;
                     }
-                    else if( item == Items.STRING && !stringFound )
+                    else if( string.apply( stack ) && !stringFound )
                     {
                         stringFound = true;
                     }
-                    else if( item == Items.LEATHER && !leatherFound )
+                    else if( leather.apply( stack ) && !leatherFound )
                     {
                         leatherFound = true;
                     }

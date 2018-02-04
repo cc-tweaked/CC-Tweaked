@@ -6,8 +6,8 @@
         "#G#"
     ],
     "key": {
-        "#": { "item": "minecraft:stone", "data": 0 },
-        "G": { "item": "minecraft:glass_pane" },
+        "#": { "type": "forge:ore_dict", "ore": "stone" },
+        "G": { "type": "forge:ore_dict", "ore": "paneGlass" },
         "A": { "item": "minecraft:golden_apple", "data": 0 }
     },
     "result": { "item": "computercraft:pocket_computer", "data": 0 }

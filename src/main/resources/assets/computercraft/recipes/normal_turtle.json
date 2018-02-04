@@ -6,9 +6,9 @@
         "#I#"
     ],
     "key": {
-        "#": { "item": "minecraft:iron_ingot" },
+        "#": { "type": "forge:ore_dict", "ore": "ingotIron" },
         "C": { "item": "computercraft:computer", "data": 0 },
-        "I": { "item": "minecraft:chest" }
+        "I": { "type": "forge:ore_dict", "ore": "chestWood" }
     },
     "family": "Normal"
 }

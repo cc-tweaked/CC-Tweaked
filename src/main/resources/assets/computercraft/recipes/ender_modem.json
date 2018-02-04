@@ -6,7 +6,7 @@
         "###"
     ],
     "key": {
-        "#": { "item": "minecraft:gold_ingot" },
+        "#": { "type": "forge:ore_dict", "ore": "ingotGold" },
         "E": { "item": "minecraft:ender_eye" }
     },
     "result": { "item": "computercraft:advanced_modem", "data": 0 }

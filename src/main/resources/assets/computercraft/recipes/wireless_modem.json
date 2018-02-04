@@ -6,8 +6,8 @@
         "###"
     ],
     "key": {
-        "#": { "item": "minecraft:stone", "data": 0 },
-        "E": { "item": "minecraft:ender_pearl" }
+        "#": { "type": "forge:ore_dict", "ore": "stone" },
+        "E": { "type": "forge:ore_dict", "ore": "enderpearl" }
     },
     "result": { "item": "computercraft:peripheral", "data": 1 }
 }

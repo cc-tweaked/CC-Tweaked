@@ -3,7 +3,7 @@
     "ingredients": [
         { "item": "computercraft:printout", "data": 0 },
         { "item": "computercraft:printout", "data": 0 },
-        { "item": "minecraft:string" }
+        { "type": "forge:ore_dict", "ore": "string" }
     ],
     "result": { "item": "computercraft:printout", "data": 1 }
 }

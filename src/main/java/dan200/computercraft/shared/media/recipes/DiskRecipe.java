@@ -10,19 +10,23 @@ import dan200.computercraft.shared.media.items.ItemDiskLegacy;
 import dan200.computercraft.shared.util.Colour;
 import dan200.computercraft.shared.util.ColourTracker;
 import dan200.computercraft.shared.util.ColourUtils;
-import net.minecraft.init.Items;
 import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
+import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.util.NonNullList;
 import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeHooks;
+import net.minecraftforge.oredict.OreIngredient;
 import net.minecraftforge.registries.IForgeRegistryEntry;
 
 import javax.annotation.Nonnull;
 
 public class DiskRecipe extends IForgeRegistryEntry.Impl<IRecipe> implements IRecipe
 {
+    private final Ingredient paper = new OreIngredient( "paper" );
+    private final Ingredient redstone = new OreIngredient( "dustRedstone" );
+    
     @Override
     public boolean matches( @Nonnull InventoryCrafting inv, @Nonnull World world )
     {
@@ -35,12 +39,12 @@ public class DiskRecipe extends IForgeRegistryEntry.Impl<IRecipe> implements IRe
 
             if( !stack.isEmpty() )
             {
-                if( stack.getItem() == Items.PAPER )
+                if( paper.apply( stack ) )
                 {
                     if( paperFound ) return false;
                     paperFound = true;
                 }
-                else if( stack.getItem() == Items.REDSTONE )
+                else if( redstone.apply( stack ) )
                 {
                     if( redstoneFound ) return false;
                     redstoneFound = true;
@@ -66,8 +70,8 @@ public class DiskRecipe extends IForgeRegistryEntry.Impl<IRecipe> implements IRe
             ItemStack stack = inv.getStackInSlot( i );
 
             if( stack.isEmpty() ) continue;
-            
-            if( stack.getItem() != Items.PAPER && stack.getItem() != Items.REDSTONE )
+
+            if( !paper.apply( stack ) && !redstone.apply( stack ) )
             {
                 int index = ColourUtils.getStackColour( stack );
                 if( index < 0 ) continue;

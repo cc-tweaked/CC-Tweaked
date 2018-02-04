@@ -6,9 +6,9 @@
         "#G#"
     ],
     "key": {
-        "#": { "item": "minecraft:gold_ingot" },
-        "R": { "item": "minecraft:redstone" },
-        "G": { "item": "minecraft:glass_pane" }
+        "#": { "type": "forge:ore_dict", "ore": "ingotGold" },
+        "R": { "type": "forge:ore_dict", "ore": "dustRedstone" },
+        "G": { "type": "forge:ore_dict", "ore": "paneGlass" }
     },
     "result": { "item": "computercraft:computer", "data": 16384 }
 }
