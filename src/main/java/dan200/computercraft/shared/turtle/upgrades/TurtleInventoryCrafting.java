@@ -118,7 +118,7 @@ public class TurtleInventoryCrafting extends InventoryCrafting
             }
 
             // Do post-pickup stuff
-            TurtlePlayer turtlePlayer = new TurtlePlayer( (WorldServer)world );
+            TurtlePlayer turtlePlayer = new TurtlePlayer( m_turtle );
             result.onCrafting( world, turtlePlayer, numToCraft );
             results.add( result );
 

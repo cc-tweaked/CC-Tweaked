@@ -32,7 +32,6 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.ForgeEventFactory;
@@ -148,10 +147,11 @@ public class TurtleTool implements ITurtleUpgrade
         return !block.isAir( state, world, pos ) && block != Blocks.BEDROCK && state.getBlockHardness( world, pos ) > -1.0F;
     }
     
-    protected boolean canHarvestBlock( World world, BlockPos pos )
+    protected boolean canHarvestBlock( ITurtleAccess turtleAccess, BlockPos pos )
     {
+        World world = turtleAccess.getWorld();
         Block block = world.getBlockState( pos ).getBlock();
-        TurtlePlayer turtlePlayer = new TurtlePlayer( (WorldServer)world );
+        TurtlePlayer turtlePlayer = new TurtlePlayer( turtleAccess );
         turtlePlayer.loadInventory( m_item.copy() );
         return ForgeHooks.canHarvestBlock( block, turtlePlayer, world, pos );
     }
@@ -267,7 +267,7 @@ public class TurtleTool implements ITurtleUpgrade
             }
 
             // Consume the items the block drops
-            if( canHarvestBlock( world, newPosition ) )
+            if( canHarvestBlock( turtle, newPosition ) )
             {
                 List<ItemStack> items = getBlockDropped( world, newPosition, turtlePlayer );
                 if( items != null && items.size() > 0 )

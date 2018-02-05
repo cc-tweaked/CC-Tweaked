@@ -7,6 +7,7 @@
 package dan200.computercraft.shared.turtle.core;
 
 import com.google.common.base.Objects;
+import com.mojang.authlib.GameProfile;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
@@ -107,6 +108,7 @@ public class TurtleBrain implements ITurtleAccess
 
     private TileTurtle m_owner;
     private ComputerProxy m_proxy;
+    private GameProfile m_owningPlayer;
 
     private LinkedList<TurtleCommandQueueEntry> m_commandQueue;
     private int m_commandsIssued;
@@ -233,6 +235,20 @@ public class TurtleBrain implements ITurtleAccess
             m_fuelLevel = 0;
         }
 
+        // Read owner
+        if( nbttagcompound.hasKey( "owner", Constants.NBT.TAG_COMPOUND ) )
+        {
+            NBTTagCompound owner = nbttagcompound.getCompoundTag( "owner" );
+            m_owningPlayer = new GameProfile(
+                new UUID( owner.getLong( "upper_id" ), owner.getLong( "lower_id" ) ),
+                owner.getString( "name" )
+            );
+        }
+        else
+        {
+            m_owningPlayer = null;
+        }
+
         // Read colour
         m_colourHex = ColourUtils.getHexColour( nbttagcompound );
 
@@ -319,6 +335,17 @@ public class TurtleBrain implements ITurtleAccess
         nbttagcompound.setInteger( "dir", m_direction.getIndex() );
         nbttagcompound.setInteger( "selectedSlot", m_selectedSlot );
         nbttagcompound.setInteger( "fuelLevel", m_fuelLevel );
+
+        // Write owner
+        if( m_owningPlayer != null )
+        {
+            NBTTagCompound owner = new NBTTagCompound();
+            nbttagcompound.setTag( "owner", owner );
+
+            owner.setLong( "upper_id", m_owningPlayer.getId().getMostSignificantBits() );
+            owner.setLong( "upper_id", m_owningPlayer.getId().getLeastSignificantBits() );
+            owner.setString( "name", m_owningPlayer.getName() );
+        }
 
         // Write upgrades
         String leftUpgradeID = getUpgradeID( getUpgrade( TurtleSide.Left ) );
@@ -835,6 +862,18 @@ public class TurtleBrain implements ITurtleAccess
     public int getColour()
     {
         return m_colourHex;
+    }
+
+    public void setOwningPlayer( GameProfile profile )
+    {
+        m_owningPlayer = profile;
+    }
+
+    @Nonnull
+    @Override
+    public GameProfile getOwningPlayer()
+    {
+        return m_owningPlayer;
     }
 
     @Override

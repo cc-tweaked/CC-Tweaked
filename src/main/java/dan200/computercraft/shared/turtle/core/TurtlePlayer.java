@@ -20,11 +20,12 @@ import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.util.FakePlayer;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.UUID;
 
 public class TurtlePlayer extends FakePlayer
 {
-    private final static GameProfile s_profile = new GameProfile(
+    public final static GameProfile DEFAULT_PROFILE = new GameProfile(
         UUID.fromString( "0d0c4ca0-4ff1-11e4-916c-0800200c9a66" ),
         "ComputerCraft"
     );
@@ -32,12 +33,25 @@ public class TurtlePlayer extends FakePlayer
     @Deprecated
     public TurtlePlayer( World world )
     {
-        this( (WorldServer) world );
+        super( (WorldServer) world, DEFAULT_PROFILE );
+    }
+    
+    public TurtlePlayer( ITurtleAccess turtle )
+    {
+        super( (WorldServer) turtle.getWorld(), getProfile( turtle.getOwningPlayer() ));
+
+        BlockPos position = turtle.getPosition();
+        posX = position.getX() + 0.5;
+        posY = position.getY() + 0.5;
+        posZ = position.getZ() + 0.5;
+
+        rotationYaw = turtle.getDirection().getHorizontalAngle();
+        rotationPitch = 0.0f;
     }
 
-    public TurtlePlayer( WorldServer world )
+    private static GameProfile getProfile( @Nullable GameProfile profile )
     {
-        super( world, s_profile );
+        return profile != null && profile.isComplete() ? profile : DEFAULT_PROFILE;
     }
 
     public void loadInventory( @Nonnull ItemStack currentStack )

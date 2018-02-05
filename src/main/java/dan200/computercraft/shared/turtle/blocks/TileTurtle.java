@@ -6,6 +6,7 @@
 
 package dan200.computercraft.shared.turtle.blocks;
 
+import com.mojang.authlib.GameProfile;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
@@ -466,6 +467,12 @@ public class TileTurtle extends TileComputerBase
     public ComputerFamily getFamily()
     {
         return m_family;
+    }
+
+    public void setOwningPlayer( GameProfile player )
+    {
+        m_brain.setOwningPlayer( player );
+        markDirty();
     }
 
     // IInventory
