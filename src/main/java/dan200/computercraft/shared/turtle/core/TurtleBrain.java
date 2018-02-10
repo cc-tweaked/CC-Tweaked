@@ -343,7 +343,7 @@ public class TurtleBrain implements ITurtleAccess
             nbttagcompound.setTag( "owner", owner );
 
             owner.setLong( "upper_id", m_owningPlayer.getId().getMostSignificantBits() );
-            owner.setLong( "upper_id", m_owningPlayer.getId().getLeastSignificantBits() );
+            owner.setLong( "lower_id", m_owningPlayer.getId().getLeastSignificantBits() );
             owner.setString( "name", m_owningPlayer.getName() );
         }
 
