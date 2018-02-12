@@ -72,6 +72,7 @@ import net.minecraftforge.common.config.ConfigCategory;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
 import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.*;
@@ -103,6 +104,9 @@ public class ComputerCraft
 {
     public static final String MOD_ID = "computercraft";
     public static final String LOWER_ID = "computercraft";
+
+    // Integration
+    public static boolean redstonefluxLoaded = false;
 
     // GUI IDs
     public static final int diskDriveGUIID = 100;
@@ -420,6 +424,7 @@ public class ComputerCraft
     @Mod.EventHandler
     public void init( FMLInitializationEvent event )
     {
+    	redstonefluxLoaded = Loader.isModLoaded("redstoneflux");
         proxy.init();
         turtleProxy.init();
     }
