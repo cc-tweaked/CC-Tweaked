@@ -14,9 +14,9 @@ import dan200.computercraft.api.turtle.TurtleCommandResult;
 import dan200.computercraft.shared.util.WorldUtil;
 import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
@@ -169,6 +169,10 @@ public class TurtleMoveCommand implements ITurtleCommand
         if( !world.isBlockLoaded( position ) )
         {
             return TurtleCommandResult.failure( "Cannot leave loaded world" );
+        }
+        if( !world.getWorldBorder().contains( position ) )
+        {
+            return TurtleCommandResult.failure( "Cannot pass the world border" );
         }
         return TurtleCommandResult.success();
     }

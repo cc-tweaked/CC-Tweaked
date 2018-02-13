@@ -541,10 +541,11 @@ public class TurtleBrain implements ITurtleAccess
             return true;
         }
 
-        if ( !world.isBlockLoaded( pos ) )
-        {
-            return false;
-        }
+        // Ensure the chunk is loaded
+        if( !world.isBlockLoaded( pos ) ) return false;
+
+        // Ensure we're inside the world border
+        if( !world.getWorldBorder().contains( pos ) ) return false;
 
         oldOwner.notifyMoveStart();
 
