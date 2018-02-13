@@ -86,7 +86,7 @@ public class CommandRoot implements ISubCommand
     {
         for( ISubCommand command : subCommands.values() )
         {
-            if( command.checkPermission( context ) ) return true;
+            if( !(command instanceof SubCommandHelp) && command.checkPermission( context ) ) return true;
         }
         return false;
     }
@@ -108,7 +108,7 @@ public class CommandRoot implements ISubCommand
             ISubCommand command = subCommands.get( arguments.get( 0 ) );
             if( command == null || !command.checkPermission( context ) )
             {
-                throw new CommandException( getName() + " " + getUsage( context ) );
+                throw new CommandException( context.getFullUsage() );
             }
 
             command.execute( context.enter( command ), arguments.subList( 1, arguments.size() ) );

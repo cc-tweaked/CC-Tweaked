@@ -36,7 +36,7 @@ public class CommandDelegate implements ICommand
     @Override
     public String getUsage( @Nonnull ICommandSender sender )
     {
-        return "/" + command.getName() + " " + command.getUsage( new CommandContext( sender.getServer(), sender, command ) );
+        return new CommandContext( sender.getServer(), sender, command ).getFullUsage();
     }
 
     @Nonnull

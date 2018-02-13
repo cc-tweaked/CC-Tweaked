@@ -12,7 +12,7 @@ import java.util.function.Predicate;
 
 public final class ComputerSelector
 {
-    private static ServerComputer getComputer( Predicate<ServerComputer> predicate, String kind ) throws CommandException
+    private static List<ServerComputer> getComputers( Predicate<ServerComputer> predicate, String selector ) throws CommandException
     {
         // We copy it to prevent concurrent modifications.
         List<ServerComputer> computers = Lists.newArrayList( ComputerCraft.serverComputerRegistry.getComputers() );
@@ -22,41 +22,40 @@ public final class ComputerSelector
             if( predicate.test( searchComputer ) ) candidates.add( searchComputer );
         }
 
-        if( candidates.size() == 0 )
+        if( candidates.isEmpty() )
         {
-            throw new CommandException( "No such computer for " + kind );
-        }
-        else if( candidates.size() == 1 )
-        {
-            return candidates.get( 0 );
+            throw new CommandException( "No computer matching " + selector );
         }
         else
         {
-            StringBuilder builder = new StringBuilder( "Multiple computers with " )
-                .append( kind ).append( " (instances " );
+            return candidates;
+        }
+    }
 
-            boolean first = true;
-            for( ServerComputer computer : candidates )
+    public static ServerComputer getComputer( String selector ) throws CommandException
+    {
+        List<ServerComputer> computers = getComputers( selector );
+        if( computers.size() == 1 )
+        {
+            return computers.get( 0 );
+        }
+        else
+        {
+            StringBuilder builder = new StringBuilder( "Multiple computers matching " )
+                .append( selector ).append( " (instances " );
+
+            for( int i = 0; i < computers.size(); i++ )
             {
-                if( first )
-                {
-                    first = false;
-                }
-                else
-                {
-                    builder.append( ", " );
-                }
-
-                builder.append( computer.getInstanceID() );
+                if( i > 1 ) builder.append( ", " );
+                builder.append( computers.get( i ).getInstanceID() );
             }
-
             builder.append( ")" );
 
             throw new CommandException( builder.toString() );
         }
     }
 
-    public static ServerComputer getComputer( String selector ) throws CommandException
+    public static List<ServerComputer> getComputers( String selector ) throws CommandException
     {
         if( selector.length() > 0 && selector.charAt( 0 ) == '#' )
         {
@@ -72,17 +71,17 @@ public final class ComputerSelector
                 throw new CommandException( "'" + selector + "' is not a valid number" );
             }
 
-            return getComputer( x -> x.getID() == id, "id " + id );
+            return getComputers( x -> x.getID() == id, selector );
         }
         else if( selector.length() > 0 && selector.charAt( 0 ) == '@' )
         {
             String label = selector.substring( 1 );
-            return getComputer( x -> Objects.equals( label, x.getLabel() ), "label '" + label + "'" );
+            return getComputers( x -> Objects.equals( label, x.getLabel() ), selector );
         }
         else if( selector.length() > 0 && selector.charAt( 0 ) == '~' )
         {
             String familyName = selector.substring( 1 );
-            return getComputer( x -> x.getFamily().name().equalsIgnoreCase( familyName ), "family '" + familyName + "'" );
+            return getComputers( x -> x.getFamily().name().equalsIgnoreCase( familyName ), selector );
         }
         else
         {
@@ -103,7 +102,7 @@ public final class ComputerSelector
             }
             else
             {
-                return computer;
+                return Collections.singletonList( computer );
             }
         }
     }

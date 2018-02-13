@@ -1,6 +1,6 @@
 package dan200.computercraft.shared.command;
 
-import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.core.computer.Computer;
@@ -40,8 +40,8 @@ public final class CommandComputerCraft extends CommandDelegate
 
         root.register( new SubCommandBase(
             "dump", "[id]", "Display the status of computers.", UserLevel.OWNER_OP,
-            "Display the status of all computers or specific information about one computer. You can either specify the computer's instance " +
-                "id (e.g. 123) or computer id (e.g #123)."
+            "Display the status of all computers or specific information about one computer. You can specify the " +
+                "computer's instance id (e.g. 123), computer id (e.g #123) or label (e.g. \"@My Computer\")."
         )
         {
             @Override
@@ -126,25 +126,25 @@ public final class CommandComputerCraft extends CommandDelegate
             {
                 return arguments.size() == 1
                     ? ComputerSelector.completeComputer( arguments.get( 0 ) )
-                    : Collections.<String>emptyList();
+                    : Collections.emptyList();
             }
         } );
 
         root.register( new SubCommandBase(
             "shutdown", "[ids...]", "Shutdown computers remotely.", UserLevel.OWNER_OP,
-            "Shutdown the listed computers or all if none are specified. You can either specify the computer's instance " +
-                "id (e.g. 123) or computer id (e.g #123)."
+            "Shutdown the listed computers or all if none are specified. You can specify the computer's instance id " +
+                "(e.g. 123), computer id (e.g #123) or label (e.g. \"@My Computer\")."
         )
         {
             @Override
             public void execute( @Nonnull CommandContext context, @Nonnull List<String> arguments ) throws CommandException
             {
-                List<ServerComputer> computers = Lists.newArrayList();
+                Set<ServerComputer> computers = Sets.newHashSet();
                 if( arguments.size() > 0 )
                 {
                     for( String arg : arguments )
                     {
-                        computers.add( ComputerSelector.getComputer( arg ) );
+                        computers.addAll( ComputerSelector.getComputers( arg ) );
                     }
                 }
                 else
@@ -166,7 +166,48 @@ public final class CommandComputerCraft extends CommandDelegate
             public List<String> getCompletion( @Nonnull CommandContext context, @Nonnull List<String> arguments )
             {
                 return arguments.size() == 0
-                    ? Collections.<String>emptyList()
+                    ? Collections.emptyList()
+                    : ComputerSelector.completeComputer( arguments.get( arguments.size() - 1 ) );
+            }
+        } );
+
+        root.register( new SubCommandBase(
+            "turn-on", "ids...", "Turn computers on remotely.", UserLevel.OWNER_OP,
+            "Turn on the listed computers. You can specify the computer's instance id (e.g. 123), computer id (e.g #123) " +
+                "or label (e.g. \"@My Computer\")."
+        )
+        {
+            @Override
+            public void execute( @Nonnull CommandContext context, @Nonnull List<String> arguments ) throws CommandException
+            {
+                Set<ServerComputer> computers = Sets.newHashSet();
+                if( arguments.size() > 0 )
+                {
+                    for( String arg : arguments )
+                    {
+                        computers.addAll( ComputerSelector.getComputers( arg ) );
+                    }
+                }
+                else
+                {
+                    computers.addAll( ComputerCraft.serverComputerRegistry.getComputers() );
+                }
+
+                int on = 0;
+                for( ServerComputer computer : computers )
+                {
+                    if( !computer.isOn() ) on++;
+                    computer.turnOn();
+                }
+                context.getSender().sendMessage( text( "Turned on " + on + " / " + computers.size() + " computers" ) );
+            }
+
+            @Nonnull
+            @Override
+            public List<String> getCompletion( @Nonnull CommandContext context, @Nonnull List<String> arguments )
+            {
+                return arguments.size() == 0
+                    ? Collections.emptyList()
                     : ComputerSelector.completeComputer( arguments.get( arguments.size() - 1 ) );
             }
         } );
@@ -222,7 +263,7 @@ public final class CommandComputerCraft extends CommandDelegate
             {
                 return arguments.size() == 1
                     ? ComputerSelector.completeComputer( arguments.get( 0 ) )
-                    : Collections.<String>emptyList();
+                    : Collections.emptyList();
             }
         } );
 
