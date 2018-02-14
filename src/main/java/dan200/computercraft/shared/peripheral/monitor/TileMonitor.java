@@ -41,7 +41,7 @@ public class TileMonitor extends TilePeripheralBase
     // Members
     private ServerMonitor m_serverMonitor;
     private ClientMonitor m_clientMonitor;
-    private boolean hasPeripheral;
+    private MonitorPeripheral m_peripheral;
     private final Set<IComputerAccess> m_computers;
 
     private boolean m_destroyed;
@@ -190,9 +190,10 @@ public class TileMonitor extends TilePeripheralBase
     @Override
     public IPeripheral getPeripheral( EnumFacing side )
     {
-        hasPeripheral = true;
         createServerMonitor(); // Ensure the monitor is created before doing anything else.
-        return new MonitorPeripheral( this );
+
+        if( m_peripheral == null ) m_peripheral = new MonitorPeripheral( this );
+        return m_peripheral;
     }
 
     public ServerMonitor getCachedServerMonitor()
@@ -315,7 +316,6 @@ public class TileMonitor extends TilePeripheralBase
             updateBlock();
         }
     }
-
     // Sizing and placement stuff
 
     @Override
@@ -447,6 +447,9 @@ public class TileMonitor extends TilePeripheralBase
 
     private void resize( int width, int height )
     {
+        // If we're not already the origin then we'll need to generate a new terminal.
+        if(m_xIndex != 0 || m_yIndex != 0) m_serverMonitor = null;
+
         m_xIndex = 0;
         m_yIndex = 0;
         m_width = width;
@@ -462,7 +465,7 @@ public class TileMonitor extends TilePeripheralBase
             for( int y = 0; y < height; y++ )
             {
                 TileMonitor monitor = getNeighbour( x, y );
-                if( monitor != null && monitor.hasPeripheral )
+                if( monitor != null && monitor.m_peripheral != null )
                 {
                     needsTerminal = true;
                     break terminalCheck;
