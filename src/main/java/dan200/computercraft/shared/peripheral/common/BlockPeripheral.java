@@ -631,6 +631,13 @@ public class BlockPeripheral extends BlockPeripheralBase
         return isOpaqueCube( state );
     }
 
+    @Override
+    @Deprecated
+    public boolean isFullBlock( IBlockState state )
+    {
+        return isOpaqueCube( state );
+    }
+
     @Nonnull
     @Override
     @Deprecated
