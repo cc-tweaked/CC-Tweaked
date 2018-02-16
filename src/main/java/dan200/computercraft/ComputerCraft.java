@@ -277,6 +277,18 @@ public class ComputerCraft
 
         // Load config
         Config.config = new Configuration( event.getSuggestedConfigurationFile() );
+        loadConfig();
+
+        // Setup network
+        networkEventChannel = NetworkRegistry.INSTANCE.newEventDrivenChannel( "CC" );
+        networkEventChannel.register( new PacketHandler() );
+
+        proxy.preInit();
+        turtleProxy.preInit();
+    }
+
+    public static void loadConfig()
+    {
         Config.config.load();
 
         Config.http_enable = Config.config.get( Configuration.CATEGORY_GENERAL, "http_enable", http_enable );
@@ -374,13 +386,6 @@ public class ComputerCraft
         }
 
         syncConfig();
-
-        // Setup network
-        networkEventChannel = NetworkRegistry.INSTANCE.newEventDrivenChannel( "CC" );
-        networkEventChannel.register( new PacketHandler() );
-
-        proxy.preInit();
-        turtleProxy.preInit();
     }
 
     public static void syncConfig() {

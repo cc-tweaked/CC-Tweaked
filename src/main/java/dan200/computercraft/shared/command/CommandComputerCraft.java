@@ -346,6 +346,20 @@ public final class CommandComputerCraft extends CommandDelegate
                 displayTimings( context );
             }
         } );
+        
+        root.register( new SubCommandBase(
+            "reload", "Reload the ComputerCraft config file", UserLevel.OWNER_OP,
+            "Reload the ComputerCraft config file"
+        )
+        {
+            @Override
+            public void execute( @Nonnull CommandContext context, @Nonnull List<String> arguments )
+            {
+                ComputerCraft.loadConfig();
+                ComputerCraft.syncConfig();
+                context.getSender().sendMessage( new TextComponentString( "Reloaded config" ) );
+            }
+        } );
 
 
         return root;
