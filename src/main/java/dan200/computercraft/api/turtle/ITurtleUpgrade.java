@@ -8,11 +8,15 @@ package dan200.computercraft.api.turtle;
 
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.peripheral.IPeripheral;
+import dan200.computercraft.api.turtle.event.TurtleAttackEvent;
+import dan200.computercraft.api.turtle.event.TurtleBlockEvent;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.event.entity.player.AttackEntityEvent;
+import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.apache.commons.lang3.tuple.Pair;
@@ -99,6 +103,9 @@ public interface ITurtleUpgrade
     /**
      * Will only be called for Tool turtle. Called when turtle.dig() or turtle.attack() is called
      * by the turtle, and the tool is required to do some work.
+     *
+     * Conforming implementations should fire {@link BlockEvent.BreakEvent} and {@link TurtleBlockEvent.Dig}for digging,
+     * {@link AttackEntityEvent} and {@link TurtleAttackEvent} for attacking.
      *
      * @param turtle    Access to the turtle that the tool resides on.
      * @param side      Which side of the turtle (left or right) the tool resides on.

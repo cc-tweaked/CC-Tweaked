@@ -7,6 +7,7 @@
 package dan200.computercraft;
 
 import com.google.common.base.CaseFormat;
+import com.google.common.base.Converter;
 import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.api.filesystem.IWritableMount;
 import dan200.computercraft.api.lua.ILuaAPIFactory;
@@ -19,6 +20,7 @@ import dan200.computercraft.api.permissions.ITurtlePermissionProvider;
 import dan200.computercraft.api.pocket.IPocketUpgrade;
 import dan200.computercraft.api.redstone.IBundledRedstoneProvider;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
+import dan200.computercraft.api.turtle.event.TurtleAction;
 import dan200.computercraft.core.apis.AddressPredicate;
 import dan200.computercraft.core.filesystem.ComboMount;
 import dan200.computercraft.core.filesystem.FileMount;
@@ -140,6 +142,7 @@ public class ComputerCraft
     public static int advancedTurtleFuelLimit = 100000;
     public static boolean turtlesObeyBlockProtection = true;
     public static boolean turtlesCanPush = true;
+    public static EnumSet<TurtleAction> turtleDisabledActions = EnumSet.noneOf( TurtleAction.class );
 
     public static final int terminalWidth_computer = 51;
     public static final int terminalHeight_computer = 19;
@@ -222,6 +225,7 @@ public class ComputerCraft
         public static Property advancedTurtleFuelLimit;
         public static Property turtlesObeyBlockProtection;
         public static Property turtlesCanPush;
+        public static Property turtleDisabledActions;
 
         public static Property modem_range;
         public static Property modem_highAltitudeRange;
@@ -377,6 +381,9 @@ public class ComputerCraft
         Config.turtlesCanPush = Config.config.get( Configuration.CATEGORY_GENERAL, "turtlesCanPush", turtlesCanPush );
         Config.turtlesCanPush.setComment( "If set to true, Turtles will push entities out of the way instead of stopping if there is space to do so" );
 
+        Config.turtleDisabledActions = Config.config.get( Configuration.CATEGORY_GENERAL, "turtle_disabled_actions", new String[ 0 ] );
+        Config.turtleDisabledActions.setComment( "A list of turtle actions which are disabled." );
+
         Config.maxNotesPerTick = Config.config.get( Configuration.CATEGORY_GENERAL, "maxNotesPerTick", maxNotesPerTick );
         Config.maxNotesPerTick.setComment( "Maximum amount of notes a speaker can play at once" );
 
@@ -416,6 +423,20 @@ public class ComputerCraft
         advancedTurtleFuelLimit = Config.advancedTurtleFuelLimit.getInt();
         turtlesObeyBlockProtection = Config.turtlesObeyBlockProtection.getBoolean();
         turtlesCanPush = Config.turtlesCanPush.getBoolean();
+
+        turtleDisabledActions.clear();
+        Converter<String, String> converter = CaseFormat.LOWER_CAMEL.converterTo( CaseFormat.UPPER_UNDERSCORE );
+        for( String value : Config.turtleDisabledActions.getStringList() )
+        {
+            try
+            {
+                turtleDisabledActions.add( TurtleAction.valueOf( converter.convert( value ) ) );
+            }
+            catch( IllegalArgumentException e )
+            {
+                ComputerCraft.log.error( "Unknown turtle action " + value );
+            }
+        }
 
         maxNotesPerTick = Math.max(1, Config.maxNotesPerTick.getInt());
 

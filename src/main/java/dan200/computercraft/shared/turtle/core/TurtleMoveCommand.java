@@ -11,6 +11,7 @@ import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.ITurtleCommand;
 import dan200.computercraft.api.turtle.TurtleAnimation;
 import dan200.computercraft.api.turtle.TurtleCommandResult;
+import dan200.computercraft.api.turtle.event.TurtleBlockEvent;
 import dan200.computercraft.shared.util.WorldUtil;
 import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
@@ -18,6 +19,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.common.MinecraftForge;
 
 import javax.annotation.Nonnull;
 import java.util.List;
@@ -101,6 +103,12 @@ public class TurtleMoveCommand implements ITurtleCommand
             {
                 return TurtleCommandResult.failure( "Movement obstructed" );
             }
+        }
+
+        TurtleBlockEvent.Move moveEvent = new TurtleBlockEvent.Move( turtle, turtlePlayer, oldWorld, newPosition );
+        if( MinecraftForge.EVENT_BUS.post( moveEvent ) )
+        {
+            return TurtleCommandResult.failure( moveEvent.getFailureMessage() );
         }
 
         // Check fuel level

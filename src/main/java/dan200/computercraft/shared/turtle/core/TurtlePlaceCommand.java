@@ -11,6 +11,7 @@ import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.ITurtleCommand;
 import dan200.computercraft.api.turtle.TurtleAnimation;
 import dan200.computercraft.api.turtle.TurtleCommandResult;
+import dan200.computercraft.api.turtle.event.TurtleBlockEvent;
 import dan200.computercraft.shared.util.DirectionUtil;
 import dan200.computercraft.shared.util.InventoryUtil;
 import dan200.computercraft.shared.util.WorldUtil;
@@ -31,6 +32,7 @@ import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.ForgeHooks;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.fml.common.eventhandler.Event;
 import org.apache.commons.lang3.tuple.Pair;
@@ -64,6 +66,16 @@ public class TurtlePlaceCommand implements ITurtleCommand
         World world = turtle.getWorld();
         BlockPos coordinates = WorldUtil.moveCoords( turtle.getPosition(), direction );
 
+        // Create a fake player, and orient it appropriately
+        BlockPos playerPosition = WorldUtil.moveCoords( turtle.getPosition(), direction );
+        TurtlePlayer turtlePlayer = createPlayer( turtle, playerPosition, direction );
+
+        TurtleBlockEvent.Place place = new TurtleBlockEvent.Place( turtle, turtlePlayer, turtle.getWorld(), coordinates, stack );
+        if( MinecraftForge.EVENT_BUS.post( place ) )
+        {
+            return TurtleCommandResult.failure( place.getFailureMessage() );
+        }
+
         IBlockState previousState;
         if( WorldUtil.isBlockInWorld( world, coordinates ) )
         {
@@ -75,8 +87,8 @@ public class TurtlePlaceCommand implements ITurtleCommand
         }
 
         // Do the deploying
-        String[] errorMessage = new String[1];
-        ItemStack remainder = deploy( stack, turtle, direction, m_extraArguments, errorMessage );
+        String[] errorMessage = new String[ 1 ];
+        ItemStack remainder = deploy( stack, turtle, turtlePlayer, direction, m_extraArguments, errorMessage );
         if( remainder != stack )
         {
             // Put the remaining items back
@@ -117,6 +129,11 @@ public class TurtlePlaceCommand implements ITurtleCommand
         BlockPos playerPosition = WorldUtil.moveCoords( turtle.getPosition(), direction );
         TurtlePlayer turtlePlayer = createPlayer( turtle, playerPosition, direction );
 
+        return deploy( stack, turtle, turtlePlayer, direction, extraArguments, o_errorMessage );
+    }
+
+    public static ItemStack deploy( @Nonnull ItemStack stack, ITurtleAccess turtle, TurtlePlayer turtlePlayer, EnumFacing direction, Object[] extraArguments, String[] o_errorMessage )
+    {
         // Deploy on an entity
         ItemStack remainder = deployOnEntity( stack, turtle, turtlePlayer, direction, extraArguments, o_errorMessage );
         if( remainder != stack )

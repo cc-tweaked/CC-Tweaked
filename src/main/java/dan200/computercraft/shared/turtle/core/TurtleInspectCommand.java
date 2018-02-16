@@ -10,13 +10,15 @@ import com.google.common.collect.ImmutableMap;
 import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.ITurtleCommand;
 import dan200.computercraft.api.turtle.TurtleCommandResult;
+import dan200.computercraft.api.turtle.event.TurtleBlockEvent;
 import dan200.computercraft.shared.util.WorldUtil;
 import net.minecraft.block.Block;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.common.MinecraftForge;
 
 import javax.annotation.Nonnull;
 import java.util.HashMap;
@@ -46,14 +48,14 @@ public class TurtleInspectCommand implements ITurtleCommand
 
         if( WorldUtil.isBlockInWorld( world, newPosition ) )
         {
-            if( !FAIL_ON_AIR || !world.isAirBlock( newPosition ) )
+            IBlockState state = world.getBlockState( newPosition );
+            if( !FAIL_ON_AIR || !state.getBlock().isAir( state, world, newPosition ) )
             {
-                IBlockState state = world.getBlockState( newPosition );
                 Block block = state.getBlock();
                 String name = Block.REGISTRY.getNameForObject( block ).toString();
                 int metadata = block.getMetaFromState( state );
 
-                Map<Object, Object> table = new HashMap<>();
+                Map<String, Object> table = new HashMap<>();
                 table.put( "name", name );
                 table.put( "metadata", metadata );
 
@@ -73,7 +75,15 @@ public class TurtleInspectCommand implements ITurtleCommand
                 }
                 table.put( "state", stateTable );
 
-                return TurtleCommandResult.success( new Object[]{ table } );
+                // Fire the event, exiting if it is cancelled
+                TurtlePlayer turtlePlayer = TurtlePlaceCommand.createPlayer( turtle, oldPosition, direction );
+                TurtleBlockEvent.Inspect event = new TurtleBlockEvent.Inspect( turtle, turtlePlayer, world, newPosition, state, table );
+                if( MinecraftForge.EVENT_BUS.post( event ) )
+                {
+                    return TurtleCommandResult.failure( event.getFailureMessage() );
+                }
+
+                return TurtleCommandResult.success( new Object[] { table } );
             }
         }
 
@@ -83,7 +93,7 @@ public class TurtleInspectCommand implements ITurtleCommand
             table.put( "name", "minecraft:air" );
             table.put( "metadata", 0 );
             table.put( "state", new HashMap<>() );
-            return TurtleCommandResult.success( new Object[]{ table } );
+            return TurtleCommandResult.success( new Object[] { table } );
         }
         return TurtleCommandResult.failure( "No block to inspect" );
     }

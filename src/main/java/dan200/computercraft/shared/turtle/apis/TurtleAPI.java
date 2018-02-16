@@ -12,10 +12,13 @@ import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.ITurtleCommand;
 import dan200.computercraft.api.turtle.TurtleSide;
+import dan200.computercraft.api.turtle.event.TurtleAction;
+import dan200.computercraft.api.turtle.event.TurtleActionEvent;
 import dan200.computercraft.core.apis.IAPIEnvironment;
 import dan200.computercraft.shared.turtle.core.*;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraftforge.common.MinecraftForge;
 
 import javax.annotation.Nonnull;
 import java.util.HashMap;
@@ -424,6 +427,13 @@ public class TurtleAPI implements ILuaAPI
                     table.put( "name", name );
                     table.put( "damage", damage );
                     table.put( "count", count );
+
+                    TurtleActionEvent event = new TurtleActionEvent( m_turtle, TurtleAction.INSPECT_ITEM );
+                    if( MinecraftForge.EVENT_BUS.post( event ) )
+                    {
+                        return new Object[] { false, event.getFailureMessage() };
+                    }
+
                     return new Object[] { table };
                 }
                 else

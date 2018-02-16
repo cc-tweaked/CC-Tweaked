@@ -10,12 +10,14 @@ import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.ITurtleCommand;
 import dan200.computercraft.api.turtle.TurtleAnimation;
 import dan200.computercraft.api.turtle.TurtleCommandResult;
+import dan200.computercraft.api.turtle.event.TurtleInventoryEvent;
 import dan200.computercraft.shared.util.InventoryUtil;
 import dan200.computercraft.shared.util.WorldUtil;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.items.IItemHandler;
 
 import javax.annotation.Nonnull;
@@ -59,6 +61,16 @@ public class TurtleDropCommand implements ITurtleCommand
         EnumFacing side = direction.getOpposite();
 
         IItemHandler inventory = InventoryUtil.getInventory( world, newPosition, side );
+
+        // Fire the event, restoring the inventory and exiting if it is cancelled.
+        TurtlePlayer player = TurtlePlaceCommand.createPlayer( turtle, oldPosition, direction );
+        TurtleInventoryEvent.Drop event = new TurtleInventoryEvent.Drop( turtle, player, world, newPosition, inventory, stack );
+        if( MinecraftForge.EVENT_BUS.post( event ) )
+        {
+            InventoryUtil.storeItems( stack, turtle.getItemHandler(), turtle.getSelectedSlot() );
+            return TurtleCommandResult.failure( event.getFailureMessage() );
+        }
+
         if( inventory != null )
         {
             // Drop the item into the inventory

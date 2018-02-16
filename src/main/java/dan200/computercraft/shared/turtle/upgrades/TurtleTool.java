@@ -9,6 +9,8 @@ package dan200.computercraft.shared.turtle.upgrades;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.turtle.*;
+import dan200.computercraft.api.turtle.event.TurtleAttackEvent;
+import dan200.computercraft.api.turtle.event.TurtleBlockEvent;
 import dan200.computercraft.shared.turtle.core.TurtleBrain;
 import dan200.computercraft.shared.turtle.core.TurtlePlaceCommand;
 import dan200.computercraft.shared.turtle.core.TurtlePlayer;
@@ -127,11 +129,11 @@ public class TurtleTool implements ITurtleUpgrade
         {
             case Attack:
             {
-                return attack( turtle, direction );
+                return attack( turtle, direction, side );
             }
             case Dig:
             {
-                return dig( turtle, direction );
+                return dig( turtle, direction, side );
             }
             default:
             {
@@ -161,7 +163,7 @@ public class TurtleTool implements ITurtleUpgrade
         return 3.0f;
     }
     
-    private TurtleCommandResult attack( final ITurtleAccess turtle, EnumFacing direction )
+    private TurtleCommandResult attack( final ITurtleAccess turtle, EnumFacing direction, TurtleSide side )
     {
         // Create a fake player, and orient it appropriately
         final World world = turtle.getWorld();
@@ -178,8 +180,21 @@ public class TurtleTool implements ITurtleUpgrade
             ItemStack stackCopy = m_item.copy();
             turtlePlayer.loadInventory( stackCopy );
 
-            // Start claiming entity drops
             Entity hitEntity = hit.getKey();
+
+            // Fire several events to ensure we have permissions.
+            if( MinecraftForge.EVENT_BUS.post( new AttackEntityEvent( turtlePlayer, hitEntity ) ) || !hitEntity.canBeAttackedWithItem() )
+            {
+                return TurtleCommandResult.failure( "Nothing to attack here" );
+            }
+
+            TurtleAttackEvent attackEvent = new TurtleAttackEvent( turtle, turtlePlayer, hitEntity, this, side );
+            if( MinecraftForge.EVENT_BUS.post( attackEvent ) )
+            {
+                return TurtleCommandResult.failure( attackEvent.getFailureMessage() );
+            }
+            
+            // Start claiming entity drops
             ComputerCraft.setEntityDropConsumer( hitEntity, ( entity, drop ) ->
             {
                 ItemStack remainder = InventoryUtil.storeItems( drop, turtle.getItemHandler(), turtle.getSelectedSlot() );
@@ -191,8 +206,7 @@ public class TurtleTool implements ITurtleUpgrade
 
             // Attack the entity
             boolean attacked = false;
-            if( hitEntity.canBeAttackedWithItem() && !hitEntity.hitByEntity( turtlePlayer )
-                && !MinecraftForge.EVENT_BUS.post( new AttackEntityEvent( turtlePlayer, hitEntity ) ) )
+            if( !hitEntity.hitByEntity( turtlePlayer ) )
             {
                 float damage = (float)turtlePlayer.getEntityAttribute( SharedMonsterAttributes.ATTACK_DAMAGE ).getAttributeValue();
                 damage *= getDamageMultiplier();
@@ -233,7 +247,7 @@ public class TurtleTool implements ITurtleUpgrade
         return TurtleCommandResult.failure( "Nothing to attack here" );
     }
     
-    private TurtleCommandResult dig( ITurtleAccess turtle, EnumFacing direction )
+    private TurtleCommandResult dig( ITurtleAccess turtle, EnumFacing direction, TurtleSide side )
     {
         // Get ready to dig
         World world = turtle.getWorld();
@@ -264,6 +278,13 @@ public class TurtleTool implements ITurtleUpgrade
             if( !canBreakBlock( world, newPosition ) )
             {
                 return TurtleCommandResult.failure( "Unbreakable block detected" );
+            }
+
+            // Fire the dig event, checking whether it was cancelled.
+            TurtleBlockEvent.Dig digEvent = new TurtleBlockEvent.Dig( turtle, turtlePlayer, world, newPosition, world.getBlockState( newPosition ), this, side );
+            if( MinecraftForge.EVENT_BUS.post( digEvent ) )
+            {
+                return TurtleCommandResult.failure( digEvent.getFailureMessage() );
             }
 
             // Consume the items the block drops

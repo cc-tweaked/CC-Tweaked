@@ -8,6 +8,7 @@ package dan200.computercraft.shared.proxy;
 
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
+import dan200.computercraft.api.turtle.event.TurtleActionEvent;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.turtle.blocks.BlockTurtle;
 import dan200.computercraft.shared.turtle.blocks.TileTurtle;
@@ -464,6 +465,14 @@ public abstract class CCTurtleProxyCommon implements ICCTurtleProxy
         public void onEntityLivingDrops( LivingDropsEvent event )
         {
             dispatchEntityDrops( event.getEntity(), event.getDrops() );
+        }
+        
+        @SubscribeEvent
+        public void onTurtleAction( TurtleActionEvent event) {
+            if( ComputerCraft.turtleDisabledActions.contains( event.getAction() ) )
+            {
+                event.setCanceled( true, "Action has been disabled" );
+            }
         }
     }
     

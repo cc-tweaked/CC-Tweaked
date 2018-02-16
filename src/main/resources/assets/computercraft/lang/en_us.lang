@@ -62,5 +62,6 @@ gui.computercraft:config.turtle_fuel_limit=Turtle fuel limit
 gui.computercraft:config.advanced_turtle_fuel_limit=Advanced Turtle fuel limit
 gui.computercraft:config.turtles_obey_block_protection=Turtles obey block protection
 gui.computercraft:config.turtles_can_push=Turtles can push entities
+gui.computercraft:config.turtle_disabled_actions=Disabled turtle actions
 gui.computercraft:config.maximum_files_open=Maximum files open per computer
 gui.computercraft:config.max_notes_per_tick=Maximum notes that a computer can play at once

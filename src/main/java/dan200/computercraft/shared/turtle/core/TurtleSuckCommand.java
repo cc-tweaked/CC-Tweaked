@@ -10,6 +10,7 @@ import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.ITurtleCommand;
 import dan200.computercraft.api.turtle.TurtleAnimation;
 import dan200.computercraft.api.turtle.TurtleCommandResult;
+import dan200.computercraft.api.turtle.event.TurtleInventoryEvent;
 import dan200.computercraft.shared.util.InventoryUtil;
 import dan200.computercraft.shared.util.WorldUtil;
 import net.minecraft.entity.Entity;
@@ -19,6 +20,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.items.IItemHandler;
 
 import javax.annotation.Nonnull;
@@ -56,6 +58,15 @@ public class TurtleSuckCommand implements ITurtleCommand
         EnumFacing side = direction.getOpposite();
 
         IItemHandler inventory = InventoryUtil.getInventory( world, newPosition, side );
+
+        // Fire the event, exiting if it is cancelled.
+        TurtlePlayer player = TurtlePlaceCommand.createPlayer( turtle, oldPosition, direction );
+        TurtleInventoryEvent.Suck event = new TurtleInventoryEvent.Suck( turtle, player, world, newPosition, inventory );
+        if( MinecraftForge.EVENT_BUS.post( event ) )
+        {
+            return TurtleCommandResult.failure( event.getFailureMessage() );
+        }
+        
         if( inventory != null )
         {
             // Take from inventory of thing in front
