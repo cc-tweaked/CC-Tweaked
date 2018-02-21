@@ -14,29 +14,28 @@ public class ClientTerminal implements ITerminal
     private boolean m_colour;
     private Terminal m_terminal;
     private boolean m_terminalChanged;
-    private boolean m_terminalChangedLastFrame;
 
     public ClientTerminal( boolean colour )
     {
         m_colour = colour;
         m_terminal = null;
         m_terminalChanged = false;
-        m_terminalChangedLastFrame = false;
     }
 
     public void update()
     {
-        m_terminalChangedLastFrame = m_terminalChanged || (m_terminal != null && m_terminal.getChanged());
         if( m_terminal != null )
         {
+            m_terminalChanged |= m_terminal.getChanged();
             m_terminal.clearChanged();
         }
-        m_terminalChanged = false;
     }
 
-    public boolean hasTerminalChanged()
+    public boolean pollTerminalChanged()
     {
-        return m_terminalChangedLastFrame;
+        boolean changed = m_terminalChanged;
+        m_terminalChanged = false;
+        return changed;
     }
 
     // ITerminal implementation

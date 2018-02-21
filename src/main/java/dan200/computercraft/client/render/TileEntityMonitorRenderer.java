@@ -92,7 +92,7 @@ public class TileEntityMonitorRenderer extends TileEntitySpecialRenderer<TileMon
             BufferBuilder renderer = tessellator.getBuffer();
 
             // Get terminal
-            boolean redraw = originTerminal.hasTerminalChanged();
+            boolean redraw = originTerminal.pollTerminalChanged();
 
             // Draw the contents
             GlStateManager.depthMask( false );
