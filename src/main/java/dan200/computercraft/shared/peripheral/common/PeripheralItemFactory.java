@@ -47,6 +47,8 @@ public class PeripheralItemFactory
             {
                 return advancedModem.create( type, label, quantity );
             }
+            case WiredModemFull:
+                return new ItemStack( ComputerCraft.Blocks.wiredModemFull, quantity );
         }
         return ItemStack.EMPTY;
     }

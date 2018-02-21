@@ -35,10 +35,7 @@ import dan200.computercraft.shared.peripheral.commandblock.CommandBlockPeriphera
 import dan200.computercraft.shared.peripheral.common.*;
 import dan200.computercraft.shared.peripheral.diskdrive.ContainerDiskDrive;
 import dan200.computercraft.shared.peripheral.diskdrive.TileDiskDrive;
-import dan200.computercraft.shared.peripheral.modem.BlockAdvancedModem;
-import dan200.computercraft.shared.peripheral.modem.TileAdvancedModem;
-import dan200.computercraft.shared.peripheral.modem.TileCable;
-import dan200.computercraft.shared.peripheral.modem.TileWirelessModem;
+import dan200.computercraft.shared.peripheral.modem.*;
 import dan200.computercraft.shared.peripheral.monitor.TileMonitor;
 import dan200.computercraft.shared.peripheral.printer.ContainerPrinter;
 import dan200.computercraft.shared.peripheral.printer.TilePrinter;
@@ -273,6 +270,10 @@ public abstract class ComputerCraftProxyCommon implements IComputerCraftProxy
         // Command Computer
         ComputerCraft.Blocks.advancedModem = new BlockAdvancedModem();
         registry.register( ComputerCraft.Blocks.advancedModem.setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "advanced_modem" ) ) );
+
+        // Full block modem
+        ComputerCraft.Blocks.wiredModemFull = new BlockWiredModemFull();
+        registry.register( ComputerCraft.Blocks.wiredModemFull.setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "wired_modem_full" ) ) );
     }
 
     @SubscribeEvent
@@ -294,7 +295,10 @@ public abstract class ComputerCraftProxyCommon implements IComputerCraftProxy
 
         // Advanced modem
         registry.register( new ItemAdvancedModem( ComputerCraft.Blocks.advancedModem ).setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "advanced_modem" ) ) );
-
+        
+        // Full block modem
+        registry.register( new ItemWiredModemFull( ComputerCraft.Blocks.wiredModemFull ).setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "wired_modem_full" ) ) );
+        
         // Items
         // Floppy Disk
         ComputerCraft.Items.disk = new ItemDiskLegacy();
@@ -470,6 +474,7 @@ public abstract class ComputerCraftProxyCommon implements IComputerCraftProxy
         GameRegistry.registerTileEntity( TileCommandComputer.class, ComputerCraft.LOWER_ID + " : " + "command_computer" );
         GameRegistry.registerTileEntity( TileAdvancedModem.class, ComputerCraft.LOWER_ID + " : " + "advanced_modem" );
         GameRegistry.registerTileEntity( TileSpeaker.class, ComputerCraft.LOWER_ID + " : " + "speaker" );
+        GameRegistry.registerTileEntity( TileWiredModemFull.class, ComputerCraft.LOWER_ID + " : " + "wired_modem_full" );
 
         // Register peripheral providers
         ComputerCraftAPI.registerPeripheralProvider( new DefaultPeripheralProvider() );

@@ -47,6 +47,7 @@ import dan200.computercraft.shared.network.ComputerCraftPacket;
 import dan200.computercraft.shared.network.PacketHandler;
 import dan200.computercraft.shared.peripheral.common.BlockCable;
 import dan200.computercraft.shared.peripheral.common.BlockPeripheral;
+import dan200.computercraft.shared.peripheral.common.BlockWiredModemFull;
 import dan200.computercraft.shared.peripheral.diskdrive.TileDiskDrive;
 import dan200.computercraft.shared.peripheral.modem.BlockAdvancedModem;
 import dan200.computercraft.shared.peripheral.modem.WirelessNetwork;
@@ -180,6 +181,7 @@ public class ComputerCraft
         public static BlockTurtle turtleAdvanced;
         public static BlockCommandComputer commandComputer;
         public static BlockAdvancedModem advancedModem;
+        public static BlockWiredModemFull wiredModemFull;
     }
 
     public static class Items

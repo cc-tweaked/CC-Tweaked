@@ -115,6 +115,7 @@ public class ComputerCraftProxyClient extends ComputerCraftProxyCommon
         registerItemModel( ComputerCraft.Blocks.commandComputer, "command_computer" );
         registerItemModel( ComputerCraft.Blocks.advancedModem, "advanced_modem" );
         registerItemModel( ComputerCraft.Blocks.peripheral, 5, "speaker" );
+        registerItemModel( ComputerCraft.Blocks.wiredModemFull, "wired_modem_full" );
 
         registerItemModel( ComputerCraft.Items.disk, "disk" );
         registerItemModel( ComputerCraft.Items.diskExpanded, "disk_expanded" );
