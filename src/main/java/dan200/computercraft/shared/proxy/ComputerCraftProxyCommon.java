@@ -52,6 +52,7 @@ import dan200.computercraft.shared.pocket.recipes.PocketComputerUpgradeRecipe;
 import dan200.computercraft.shared.turtle.blocks.TileTurtle;
 import dan200.computercraft.shared.turtle.inventory.ContainerTurtle;
 import dan200.computercraft.shared.util.*;
+import dan200.computercraft.shared.wired.DefaultWiredProvider;
 import net.minecraft.block.Block;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
@@ -291,7 +292,7 @@ public abstract class ComputerCraftProxyCommon implements IComputerCraftProxy
         // Command Computer
         registry.register( new ItemCommandComputer( ComputerCraft.Blocks.commandComputer ).setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "command_computer" ) ) );
 
-        // Command Computer
+        // Advanced modem
         registry.register( new ItemAdvancedModem( ComputerCraft.Blocks.advancedModem ).setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "advanced_modem" ) ) );
 
         // Items
@@ -482,6 +483,9 @@ public abstract class ComputerCraftProxyCommon implements IComputerCraftProxy
 
         // Register media providers
         ComputerCraftAPI.registerMediaProvider( new DefaultMediaProvider() );
+
+        // Register network providers
+        ComputerCraftAPI.registerWiredProvider( new DefaultWiredProvider() );
     }
 
     private void registerForgeHandlers()

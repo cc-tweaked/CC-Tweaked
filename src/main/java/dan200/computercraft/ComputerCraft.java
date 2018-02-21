@@ -14,6 +14,9 @@ import dan200.computercraft.api.lua.ILuaAPIFactory;
 import dan200.computercraft.api.media.IMedia;
 import dan200.computercraft.api.media.IMediaProvider;
 import dan200.computercraft.api.network.IPacketNetwork;
+import dan200.computercraft.api.network.wired.IWiredElement;
+import dan200.computercraft.api.network.wired.IWiredNode;
+import dan200.computercraft.api.network.wired.IWiredProvider;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.peripheral.IPeripheralProvider;
 import dan200.computercraft.api.permissions.ITurtlePermissionProvider;
@@ -57,6 +60,7 @@ import dan200.computercraft.shared.turtle.blocks.BlockTurtle;
 import dan200.computercraft.shared.turtle.blocks.TileTurtle;
 import dan200.computercraft.shared.turtle.upgrades.*;
 import dan200.computercraft.shared.util.*;
+import dan200.computercraft.shared.wired.WiredNode;
 import io.netty.buffer.Unpooled;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
@@ -69,6 +73,7 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.common.config.ConfigCategory;
 import net.minecraftforge.common.config.Configuration;
@@ -259,6 +264,7 @@ public class ComputerCraft
     private static List<ITurtlePermissionProvider> permissionProviders = new ArrayList<>();
     private static final Map<String, IPocketUpgrade> pocketUpgrades = new HashMap<>();
     private static final Set<ILuaAPIFactory> apiFactories = new LinkedHashSet<>();
+    private static final Set<IWiredProvider> wiredProviders = new LinkedHashSet<>();
 
     // Implementation
     @Mod.Instance( value = ComputerCraft.MOD_ID )
@@ -730,6 +736,16 @@ public class ComputerCraft
         }
     }
 
+    public static void registerWiredProvider( IWiredProvider provider )
+    {
+        if( provider != null ) wiredProviders.add( provider );
+    }
+
+    public static IWiredNode createWiredNodeForElement( IWiredElement element )
+    {
+        return new WiredNode( element );
+    }
+
     public static IPeripheral getPeripheralAt( World world, BlockPos pos, EnumFacing side )
     {
         // Try the handlers in order:
@@ -746,6 +762,24 @@ public class ComputerCraft
             catch( Exception e )
             {
                 ComputerCraft.log.error( "Peripheral provider " + peripheralProvider + " errored.", e );
+            }
+        }
+        return null;
+    }
+
+    public static IWiredElement getWiredElementAt( IBlockAccess world, BlockPos pos, EnumFacing side )
+    {
+        // Try the handlers in order:
+        for( IWiredProvider provider : wiredProviders )
+        {
+            try
+            {
+                IWiredElement element = provider.getElement( world, pos, side );
+                if( element != null ) return element;
+            }
+            catch( Exception e )
+            {
+                ComputerCraft.log.error( "Wired element provider " + provider + " errored.", e );
             }
         }
         return null;
