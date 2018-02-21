@@ -196,4 +196,11 @@ public class DiskDrivePeripheral implements IPeripheral
         }
         return false;
     }
+
+    @Nonnull
+    @Override
+    public Object getTarget()
+    {
+        return m_diskDrive;
+    }
 }

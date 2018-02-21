@@ -13,6 +13,8 @@ import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Collections;
+import java.util.Map;
 
 /**
  * The interface passed to peripherals by computers or turtles, providing methods
@@ -154,4 +156,33 @@ public interface IComputerAccess
      */
     @Nonnull
     String getAttachmentName();
+
+    /**
+     * Get a set of peripherals that this computer access can "see", along with their attachment name.
+     *
+     * This may include other peripherals on the wired network or peripherals on other sides of the computer.
+     *
+     * @return All reachable peripherals
+     * @see #getAttachmentName()
+     * @see #getAvailablePeripheral(String)
+     */
+    @Nonnull
+    default Map<String, IPeripheral> getAvailablePeripherals()
+    {
+        return Collections.emptyMap();
+    }
+
+    /**
+     * Get a reachable peripheral with the given attachement name. This is a equivalent to
+     * {@link #getAvailablePeripherals()}{@code .get(name)}, though may be more performant.
+     *
+     * @param name The peripheral's attached name
+     * @return The reachable peripheral, or {@code null} if none can be found.
+     * @see #getAvailablePeripherals()
+     */
+    @Nullable
+    default IPeripheral getAvailablePeripheral( @Nonnull String name )
+    {
+        return null;
+    }
 }

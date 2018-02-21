@@ -11,8 +11,8 @@ import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
@@ -102,6 +102,8 @@ public abstract class ItemPeripheralBase extends ItemBlock implements IPeriphera
             {
                 return "tile.computercraft:speaker";
             }
+            case WiredModemFull:
+                return "tile.computercraft:wired_modem";
         }
     }
 

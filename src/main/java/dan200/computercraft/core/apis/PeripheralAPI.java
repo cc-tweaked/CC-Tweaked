@@ -15,10 +15,11 @@ import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.core.computer.Computer;
 import dan200.computercraft.core.computer.ComputerThread;
 import dan200.computercraft.core.computer.ITask;
-import dan200.computercraft.core.filesystem.FileSystem;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -180,10 +181,49 @@ public class PeripheralAPI implements ILuaAPI, IAPIEnvironment.IPeripheralChange
             }
             return m_side;
         }
+
+        @Nonnull
+        @Override
+        public Map<String, IPeripheral> getAvailablePeripherals()
+        {
+            if( !m_attached )
+            {
+                throw new RuntimeException( "You are not attached to this Computer" );
+            }
+
+            Map<String, IPeripheral> peripherals = new HashMap<>();
+            for( PeripheralWrapper wrapper : m_peripherals )
+            {
+                if( wrapper != null && wrapper.isAttached() )
+                {
+                    peripherals.put( wrapper.getAttachmentName(), wrapper.getPeripheral() );
+                }
+            }
+
+            return Collections.unmodifiableMap( peripherals );
+        }
+
+        @Nullable
+        @Override
+        public IPeripheral getAvailablePeripheral( @Nonnull String name )
+        {
+            if( !m_attached )
+            {
+                throw new RuntimeException( "You are not attached to this Computer" );
+            }
+
+            for( PeripheralWrapper wrapper : m_peripherals )
+            {
+                if( wrapper != null && wrapper.isAttached() && wrapper.getAttachmentName().equals( name ) )
+                {
+                    return wrapper.getPeripheral();
+                }
+            }
+            return null;
+        }
     }
 
     private final IAPIEnvironment m_environment;
-    private FileSystem m_fileSystem;
     private final PeripheralWrapper[] m_peripherals;
     private boolean m_running;
 
@@ -285,7 +325,6 @@ public class PeripheralAPI implements ILuaAPI, IAPIEnvironment.IPeripheralChange
     {
         synchronized( m_peripherals )
         {
-            m_fileSystem = m_environment.getFileSystem();
             m_running = true;
             for( int i=0; i<6; ++i )
             {
@@ -312,7 +351,6 @@ public class PeripheralAPI implements ILuaAPI, IAPIEnvironment.IPeripheralChange
                     wrapper.detach();
                 }
             }
-            m_fileSystem = null;
         }
     }
 

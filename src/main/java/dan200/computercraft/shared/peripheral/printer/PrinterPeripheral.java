@@ -145,6 +145,13 @@ public class PrinterPeripheral implements IPeripheral
         return false;
     }
 
+    @Nonnull
+    @Override
+    public Object getTarget()
+    {
+        return m_printer;
+    }
+
     private Terminal getCurrentPage() throws LuaException
     {
         Terminal currentPage = m_printer.getCurrentPage();

@@ -21,7 +21,8 @@ public enum PeripheralType implements IStringSerializable
     Cable( "cable" ),
     WiredModemWithCable( "wired_modem_with_cable" ),
     AdvancedModem( "advanced_modem" ),
-    Speaker( "speaker" );
+    Speaker( "speaker" ),
+    WiredModemFull( "wired_modem_full" );
 
     private String m_name;
 
