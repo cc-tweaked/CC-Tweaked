@@ -54,8 +54,6 @@ public class RenderOverlayCable
         GlStateManager.depthMask( false );
         GlStateManager.pushMatrix();
 
-        EnumFacing direction = type != PeripheralType.Cable ? cable.getDirection() : null;
-
         {
             EntityPlayer player = event.getPlayer();
             double x = player.lastTickPosX + (player.posX - player.lastTickPosX) * event.getPartialTicks();
@@ -78,7 +76,7 @@ public class RenderOverlayCable
 
             for( EnumFacing facing : EnumFacing.VALUES )
             {
-                if( direction == facing || BlockCable.isCable( world, pos.offset( facing ) ) )
+                if( BlockCable.doesConnectVisually( state, world, pos, facing ) )
                 {
                     flags |= 1 << facing.ordinal();
 
