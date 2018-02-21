@@ -12,6 +12,9 @@ import dan200.computercraft.api.lua.ILuaAPIFactory;
 import dan200.computercraft.api.media.IMedia;
 import dan200.computercraft.api.media.IMediaProvider;
 import dan200.computercraft.api.network.IPacketNetwork;
+import dan200.computercraft.api.network.wired.IWiredElement;
+import dan200.computercraft.api.network.wired.IWiredNode;
+import dan200.computercraft.api.network.wired.IWiredProvider;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.peripheral.IPeripheralProvider;
@@ -21,6 +24,7 @@ import dan200.computercraft.api.redstone.IBundledRedstoneProvider;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
@@ -328,6 +332,81 @@ public final class ComputerCraftAPI
         }
     }
 
+    /**
+     * Registers a peripheral handler to convert blocks into {@link IPeripheral} implementations.
+     *
+     * @param handler The peripheral provider to register.
+     * @see dan200.computercraft.api.peripheral.IPeripheral
+     * @see dan200.computercraft.api.peripheral.IPeripheralProvider
+     */
+    public static void registerWiredProvider( @Nonnull IWiredProvider handler )
+    {
+        findCC();
+        if ( computerCraft_registerWiredProvider != null)
+        {
+            try {
+                computerCraft_registerWiredProvider.invoke( null, handler );
+            } catch (Exception e){
+                // It failed
+            }
+        }
+    }
+
+    /**
+     * Construct a new wired node for a given wired element
+     *
+     * @param element The element to construct it for
+     * @return The element's node
+     * @see IWiredElement#getNode()
+     */
+    @Nonnull
+    public static IWiredNode createWiredNodeForElement( @Nonnull IWiredElement element )
+    {
+        findCC();
+        if( computerCraft_createWiredNodeForElement != null )
+        {
+            try
+            {
+                return (IWiredNode) computerCraft_createWiredNodeForElement.invoke( null, element );
+            }
+            catch( ReflectiveOperationException e )
+            {
+                throw new IllegalStateException( "Error creating wired node", e );
+            }
+        }
+        else
+        {
+            throw new IllegalStateException( "ComputerCraft cannot be found" );
+        }
+    }
+
+    /**
+     * Get the wired network element for a block in world
+     *
+     * @param world The world the block exists in
+     * @param pos   The position the block exists in
+     * @param side  The side to extract the network element from
+     * @return The element's node
+     * @see IWiredElement#getNode()
+     */
+    @Nullable
+    public static IWiredElement getWiredElementAt( @Nonnull IBlockAccess world, @Nonnull BlockPos pos, @Nonnull EnumFacing side )
+    {
+        findCC();
+        if( computerCraft_getWiredElementAt != null )
+        {
+            try
+            {
+                return (IWiredElement) computerCraft_getWiredElementAt.invoke( null, world, pos, side );
+            }
+            catch( ReflectiveOperationException ignored )
+            {
+            }
+        }
+        
+        return null;
+    }
+
     // The functions below here are private, and are used to interface with the non-API ComputerCraft classes.
     // Reflection is used here so you can develop your mod without decompiling ComputerCraft and including
     // it in your solution, and so your mod won't crash if ComputerCraft is installed.
@@ -374,6 +453,15 @@ public final class ComputerCraftAPI
                 computerCraft_registerAPIFactory = findCCMethod( "registerAPIFactory", new Class<?>[] {
                     ILuaAPIFactory.class
                 } );
+                computerCraft_registerWiredProvider = findCCMethod( "registerWiredProvider", new Class<?>[] {
+                    IWiredProvider.class
+                } );
+                computerCraft_createWiredNodeForElement = findCCMethod( "createWiredNodeForElement", new Class<?>[] {
+                    IWiredElement.class
+                } );
+                computerCraft_getWiredElementAt = findCCMethod( "getWiredElementAt", new Class<?>[]{
+                    IBlockAccess.class, BlockPos.class, EnumFacing.class
+                } );
             } catch( Exception e ) {
                 System.out.println( "ComputerCraftAPI: ComputerCraft not found." );
             } finally {
@@ -411,4 +499,7 @@ public final class ComputerCraftAPI
     private static Method computerCraft_registerPocketUpgrade = null;
     private static Method computerCraft_getWirelessNetwork = null;
     private static Method computerCraft_registerAPIFactory = null;
+    private static Method computerCraft_registerWiredProvider = null;
+    private static Method computerCraft_createWiredNodeForElement = null;
+    private static Method computerCraft_getWiredElementAt = null;
 }
