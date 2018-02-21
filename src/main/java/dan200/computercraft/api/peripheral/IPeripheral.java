@@ -115,6 +115,18 @@ public interface IPeripheral
     }
 
     /**
+     * Get the object that this peripheral provides methods for. This will generally be the tile entity
+     * or block, but may be an inventory, entity, etc...
+     *
+     * @return The object this peripheral targets
+     */
+    @Nonnull
+    default Object getTarget()
+    {
+        return this;
+    }
+
+    /**
      * Determine whether this peripheral is equivalent to another one.
      *
      * The minimal example should at least check whether they are the same object. However, you may wish to check if

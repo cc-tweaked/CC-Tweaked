@@ -97,4 +97,11 @@ public class ComputerPeripheral
     {
         return (other != null && other.getClass() == this.getClass());
     }
+
+    @Nonnull
+    @Override
+    public Object getTarget()
+    {
+        return m_computer.getTile();
+    }
 }
