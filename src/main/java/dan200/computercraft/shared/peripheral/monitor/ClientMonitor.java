@@ -29,6 +29,7 @@ public class ClientMonitor extends ClientTerminal
         if( renderDisplayList != -1 )
         {
             ComputerCraft.deleteDisplayLists( renderDisplayList, 3 );
+            renderDisplayList = -1;
         }
     }
 }

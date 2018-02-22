@@ -56,7 +56,7 @@ public class Terminal
         m_palette = new Palette();
     }
 
-    public void reset()
+    public synchronized void reset()
     {
         m_cursorColour = 0;
         m_cursorBackgroundColour = 15;
@@ -76,7 +76,7 @@ public class Terminal
         return m_height;
     }
     
-    public void resize( int width, int height )
+    public synchronized void resize( int width, int height )
     {
         if( width == m_width && height == m_height ) 
         {
@@ -189,7 +189,7 @@ public class Terminal
         return m_palette;
     }
 
-    public void blit( String text, String textColour, String backgroundColour )
+    public synchronized void blit( String text, String textColour, String backgroundColour )
     {
         int x = m_cursorX;
         int y = m_cursorY;
@@ -202,7 +202,7 @@ public class Terminal
         }
     }
 
-    public void write( String text )
+    public synchronized void write( String text )
     {
         int x = m_cursorX;
         int y = m_cursorY;
@@ -215,7 +215,7 @@ public class Terminal
         }
     }
     
-    public void scroll( int yDiff )
+    public synchronized void scroll( int yDiff )
     {
         if( yDiff != 0 )
         {
@@ -245,7 +245,7 @@ public class Terminal
         }
     }
     
-    public void clear()
+    public synchronized void clear()
     {
         for( int y = 0; y < m_height; ++y )
         {
@@ -256,7 +256,7 @@ public class Terminal
         m_changed = true;
     }
 
-    public void clearLine()
+    public synchronized void clearLine()
     {
         int y = m_cursorY;
         if( y >= 0 && y < m_height )
@@ -268,7 +268,7 @@ public class Terminal
         }
     }
         
-    public TextBuffer getLine( int y )
+    public synchronized TextBuffer getLine( int y )
     {
         if( y >= 0 && y < m_height )
         {
@@ -277,7 +277,7 @@ public class Terminal
         return null;
     }
 
-    public void setLine( int y, String text, String textColour, String backgroundColour )
+    public synchronized void setLine( int y, String text, String textColour, String backgroundColour )
     {
         m_text[y].write( text );
         m_textColour[y].write( textColour );
@@ -285,7 +285,7 @@ public class Terminal
         m_changed = true;
     }
     
-    public TextBuffer getTextColourLine( int y )
+    public synchronized TextBuffer getTextColourLine( int y )
     {
         if( y>=0 && y<m_height )
         {
@@ -294,7 +294,7 @@ public class Terminal
         return null;
     }
 
-    public TextBuffer getBackgroundColourLine( int y )
+    public synchronized TextBuffer getBackgroundColourLine( int y )
     {
         if( y>=0 && y<m_height )
         {
@@ -318,7 +318,7 @@ public class Terminal
         m_changed = false;
     }
 
-    public NBTTagCompound writeToNBT( NBTTagCompound nbttagcompound )
+    public synchronized NBTTagCompound writeToNBT( NBTTagCompound nbttagcompound )
     {
         nbttagcompound.setInteger( "term_cursorX", m_cursorX );
         nbttagcompound.setInteger( "term_cursorY", m_cursorY );
@@ -338,7 +338,7 @@ public class Terminal
         return nbttagcompound;
     }
 
-    public void readFromNBT( NBTTagCompound nbttagcompound )
+    public synchronized void readFromNBT( NBTTagCompound nbttagcompound )
     {
         m_cursorX = nbttagcompound.getInteger( "term_cursorX" );
         m_cursorY = nbttagcompound.getInteger( "term_cursorY" );
