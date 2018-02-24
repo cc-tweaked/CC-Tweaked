@@ -108,13 +108,7 @@ public class TileEntityMonitorRenderer extends TileEntitySpecialRenderer<TileMon
                     // Allocate display lists
                     if( originTerminal.renderDisplayLists == null )
                     {
-                        originTerminal.renderDisplayLists = new int[3];
-
-                        for( int list = 0; list < originTerminal.renderDisplayLists.length; list++ )
-                        {
-                            originTerminal.renderDisplayLists[list] = GlStateManager.glGenLists( 1 );
-                        }
-
+                        originTerminal.createLists();
                         redraw = true;
                     }
 

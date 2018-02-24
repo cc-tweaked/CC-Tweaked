@@ -32,7 +32,6 @@ public interface IComputerCraftProxy
 
     boolean getGlobalCursorBlink();
     long getRenderFrame();
-    void deleteDisplayLists( int list, int range );
     Object getFixedWidthFontRenderer();
 
     String getRecordInfo( @Nonnull ItemStack item );

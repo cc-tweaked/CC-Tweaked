@@ -505,11 +505,6 @@ public class ComputerCraft
         return proxy.getRenderFrame();
     }
 
-    public static void deleteDisplayLists( int list, int range )
-    {
-        proxy.deleteDisplayLists( list, range );
-    }
-
     public static Object getFixedWidthFontRenderer()
     {
         return proxy.getFixedWidthFontRenderer();

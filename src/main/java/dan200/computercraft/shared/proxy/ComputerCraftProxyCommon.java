@@ -125,11 +125,6 @@ public abstract class ComputerCraftProxyCommon implements IComputerCraftProxy
     public abstract long getRenderFrame();
 
     @Override
-    public void deleteDisplayLists( int list, int range )
-    {
-    }
-
-    @Override
     public abstract Object getFixedWidthFontRenderer();
 
     @Override

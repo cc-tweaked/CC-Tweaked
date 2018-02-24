@@ -1,12 +1,15 @@
 package dan200.computercraft.shared.peripheral.monitor;
 
-import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.common.ClientTerminal;
-import gnu.trove.set.hash.TIntHashSet;
+import net.minecraft.client.renderer.GlStateManager;
+
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 
 public class ClientMonitor extends ClientTerminal
 {
-    private static final TIntHashSet displayLists = new TIntHashSet();
+    private static final Set<ClientMonitor> allMonitors = new HashSet<>();
 
     private final TileMonitor origin;
 
@@ -24,16 +27,60 @@ public class ClientMonitor extends ClientTerminal
         return origin;
     }
 
+    public void createLists()
+    {
+        if( renderDisplayLists == null )
+        {
+            renderDisplayLists = new int[3];
+
+            for( int i = 0; i < renderDisplayLists.length; i++ )
+            {
+                renderDisplayLists[i] = GlStateManager.glGenLists( 1 );
+            }
+
+            synchronized( allMonitors )
+            {
+                allMonitors.add( this );
+            }
+        }
+    }
+
     public void destroy()
     {
         if( renderDisplayLists != null )
         {
-            for( int displayList : renderDisplayLists )
+            synchronized( allMonitors )
             {
-                ComputerCraft.deleteDisplayLists( displayList, 1 );
+                allMonitors.remove( this );
+            }
+
+            for( int list : renderDisplayLists )
+            {
+                GlStateManager.glDeleteLists( list, 1 );
             }
 
             renderDisplayLists = null;
+        }
+    }
+
+    public static void destroyAll()
+    {
+        synchronized( allMonitors )
+        {
+            for( Iterator<ClientMonitor> iterator = allMonitors.iterator(); iterator.hasNext(); )
+            {
+                ClientMonitor monitor = iterator.next();
+                if( monitor.renderDisplayLists != null )
+                {
+                    for( int list : monitor.renderDisplayLists )
+                    {
+                        GlStateManager.glDeleteLists( list, 1 );
+                    }
+                    monitor.renderDisplayLists = null;
+                }
+
+                iterator.remove();
+            }
         }
     }
 }

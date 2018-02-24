@@ -25,6 +25,7 @@ import dan200.computercraft.shared.media.items.ItemPrintout;
 import dan200.computercraft.shared.network.ComputerCraftPacket;
 import dan200.computercraft.shared.peripheral.diskdrive.TileDiskDrive;
 import dan200.computercraft.shared.peripheral.modem.TileCable;
+import dan200.computercraft.shared.peripheral.monitor.ClientMonitor;
 import dan200.computercraft.shared.peripheral.monitor.TileMonitor;
 import dan200.computercraft.shared.peripheral.printer.TilePrinter;
 import dan200.computercraft.shared.pocket.inventory.ContainerPocketComputer;
@@ -35,7 +36,6 @@ import dan200.computercraft.shared.turtle.entity.TurtleVisionCamera;
 import dan200.computercraft.shared.util.Colour;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.ItemMeshDefinition;
 import net.minecraft.client.renderer.block.model.ModelBakery;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
@@ -57,6 +57,7 @@ import net.minecraftforge.client.event.RenderHandEvent;
 import net.minecraftforge.client.event.RenderPlayerEvent;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
@@ -295,12 +296,6 @@ public class ComputerCraftProxyClient extends ComputerCraftProxyCommon
     public long getRenderFrame()
     {
         return m_renderFrame;
-    }
-
-    @Override
-    public void deleteDisplayLists( int list, int range )
-    {
-        GlStateManager.glDeleteLists( list, range );
     }
 
     @Override
@@ -550,6 +545,15 @@ public class ComputerCraftProxyClient extends ComputerCraftProxyCommon
             if( event.phase == TickEvent.Phase.START )
             {
                 m_renderFrame++;
+            }
+        }
+
+        @SubscribeEvent
+        public void onWorldUnload( WorldEvent.Unload event )
+        {
+            if( event.getWorld().isRemote )
+            {
+                ClientMonitor.destroyAll();
             }
         }
     }
