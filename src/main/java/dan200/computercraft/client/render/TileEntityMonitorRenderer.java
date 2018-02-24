@@ -106,9 +106,15 @@ public class TileEntityMonitorRenderer extends TileEntitySpecialRenderer<TileMon
                     Palette palette = terminal.getPalette();
 
                     // Allocate display lists
-                    if( originTerminal.renderDisplayList < 0 )
+                    if( originTerminal.renderDisplayLists == null )
                     {
-                        originTerminal.renderDisplayList = GlStateManager.glGenLists( 3 );
+                        originTerminal.renderDisplayLists = new int[3];
+
+                        for( int list = 0; list < originTerminal.renderDisplayLists.length; list++ )
+                        {
+                            originTerminal.renderDisplayLists[list] = GlStateManager.glGenLists( 1 );
+                        }
+
                         redraw = true;
                     }
 
@@ -132,7 +138,7 @@ public class TileEntityMonitorRenderer extends TileEntitySpecialRenderer<TileMon
                         if( redraw )
                         {
                             // Build background display list
-                            GlStateManager.glNewList( originTerminal.renderDisplayList, GL11.GL_COMPILE );
+                            GlStateManager.glNewList( originTerminal.renderDisplayLists[0], GL11.GL_COMPILE );
                             try
                             {
                                 double marginXSize = TileMonitor.RENDER_MARGIN / xScale;
@@ -171,7 +177,7 @@ public class TileEntityMonitorRenderer extends TileEntitySpecialRenderer<TileMon
                                 GlStateManager.glEndList();
                             }
                         }
-                        GlStateManager.callList( originTerminal.renderDisplayList );
+                        GlStateManager.callList( originTerminal.renderDisplayLists[0] );
                         GlStateManager.resetColor();
 
                         // Draw text
@@ -179,7 +185,7 @@ public class TileEntityMonitorRenderer extends TileEntitySpecialRenderer<TileMon
                         if( redraw )
                         {
                             // Build text display list
-                            GlStateManager.glNewList( originTerminal.renderDisplayList + 1, GL11.GL_COMPILE );
+                            GlStateManager.glNewList( originTerminal.renderDisplayLists[1], GL11.GL_COMPILE );
                             try
                             {
                                 // Lines
@@ -199,7 +205,7 @@ public class TileEntityMonitorRenderer extends TileEntitySpecialRenderer<TileMon
                                 GlStateManager.glEndList();
                             }
                         }
-                        GlStateManager.callList( originTerminal.renderDisplayList + 1 );
+                        GlStateManager.callList( originTerminal.renderDisplayLists[1] );
                         GlStateManager.resetColor();
 
                         // Draw cursor
@@ -207,7 +213,7 @@ public class TileEntityMonitorRenderer extends TileEntitySpecialRenderer<TileMon
                         if( redraw )
                         {
                             // Build cursor display list
-                            GlStateManager.glNewList( originTerminal.renderDisplayList + 2, GL11.GL_COMPILE );
+                            GlStateManager.glNewList( originTerminal.renderDisplayLists[2], GL11.GL_COMPILE );
                             try
                             {
                                 // Cursor
@@ -233,7 +239,7 @@ public class TileEntityMonitorRenderer extends TileEntitySpecialRenderer<TileMon
                         }
                         if( ComputerCraft.getGlobalCursorBlink() )
                         {
-                            GlStateManager.callList( originTerminal.renderDisplayList + 2 );
+                            GlStateManager.callList( originTerminal.renderDisplayLists[2] );
                             GlStateManager.resetColor();
                         }
                     }

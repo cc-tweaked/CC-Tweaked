@@ -11,7 +11,7 @@ public class ClientMonitor extends ClientTerminal
     private final TileMonitor origin;
 
     public long lastRenderFrame = -1;
-    public int renderDisplayList = -1;
+    public int[] renderDisplayLists = null;
 
     public ClientMonitor( boolean colour, TileMonitor origin )
     {
@@ -26,10 +26,14 @@ public class ClientMonitor extends ClientTerminal
 
     public void destroy()
     {
-        if( renderDisplayList != -1 )
+        if( renderDisplayLists != null )
         {
-            ComputerCraft.deleteDisplayLists( renderDisplayList, 3 );
-            renderDisplayList = -1;
+            for( int displayList : renderDisplayLists )
+            {
+                ComputerCraft.deleteDisplayLists( displayList, 1 );
+            }
+
+            renderDisplayLists = null;
         }
     }
 }
