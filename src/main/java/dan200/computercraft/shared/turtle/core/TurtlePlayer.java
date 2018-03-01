@@ -27,7 +27,7 @@ public class TurtlePlayer extends FakePlayer
 {
     public final static GameProfile DEFAULT_PROFILE = new GameProfile(
         UUID.fromString( "0d0c4ca0-4ff1-11e4-916c-0800200c9a66" ),
-        "ComputerCraft"
+        "[ComputerCraft]"
     );
 
     @Deprecated
