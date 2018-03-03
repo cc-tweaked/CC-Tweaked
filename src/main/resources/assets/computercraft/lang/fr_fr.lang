@@ -1,0 +1,74 @@
+tile.computercraft:computer.name=Ordinateur
+tile.computercraft:advanced_computer.name=Ordinateur avancé
+tile.computercraft:drive.name=Lecteur disque
+tile.computercraft:printer.name=Imprimante
+tile.computercraft:monitor.name=Moniteur
+tile.computercraft:advanced_monitor.name=Moniteur avancé
+tile.computercraft:wireless_modem.name=Modem sans fil
+tile.computercraft:wired_modem.name=Modem filaire
+tile.computercraft:cable.name=Câble réseau
+tile.computercraft:command_computer.name=Ordinateur de commande
+tile.computercraft:advanced_modem.name=Modem de l'Ender
+tile.computercraft:speaker.name=Haut-parleur
+
+tile.computercraft:turtle.name=Tortue
+tile.computercraft:turtle.upgraded.name=Tortue %s
+tile.computercraft:turtle.upgraded_twice.name=Tortue %s %s
+tile.computercraft:advanced_turtle.name=Tortue avancée
+tile.computercraft:advanced_turtle.upgraded.name=Tortue %s avancée
+tile.computercraft:advanced_turtle.upgraded_twice.name=Tortue %s %s avancée
+
+item.computercraft:disk.name=Disquette
+item.computercraft:treasure_disk.name=Disquette
+item.computercraft:page.name=Imprimé
+item.computercraft:pages.name=Imprimés
+item.computercraft:book.name=Livre imprimé
+
+item.computercraft:pocket_computer.name=Ordinateur de poche
+item.computercraft:pocket_computer.upgraded.name=Ordinateur de poche %s
+item.computercraft:advanced_pocket_computer.name=Ordinateur de poche avancé
+item.computercraft:advanced_pocket_computer.upgraded.name=Ordinateur de poche %s avancé
+
+upgrade.minecraft:diamond_sword.adjective=combattante
+upgrade.minecraft:diamond_shovel.adjective=excavatrice
+upgrade.minecraft:diamond_pickaxe.adjective=minière
+upgrade.minecraft:diamond_axe.adjective=forestière
+upgrade.minecraft:diamond_hoe.adjective=agricole
+upgrade.computercraft:wireless_modem.adjective=sans fil
+upgrade.minecraft:crafting_table.adjective=ouvrière
+upgrade.computercraft:advanced_modem.adjective=de l'Ender
+upgrade.computercraft:speaker.adjective=parlante
+
+chat.computercraft.wired_modem.peripheral_connected=Le periphérique "%s" est connecté au réseau
+chat.computercraft.wired_modem.peripheral_disconnected=Le periphérique "%s" est déconnecté du réseau
+
+# Command descriptions, usage and any additional messages.
+
+# Names for the various tracking fields.
+
+# Misc tooltips
+
+# Config options
+gui.computercraft:config.computer_space_limit=Espace disque d'un Ordinateur (octets)
+gui.computercraft:config.floppy_space_limit=Espace disque d'une Disquette (octets)
+gui.computercraft:config.maximum_open_files=Maximum de fichier ouvert par Ordinateur
+gui.computercraft:config.disable_lua51_features=Désactiver les particularités de Lua 5.1
+gui.computercraft:config.default_computer_settings=Configuration d'Ordinateur par défaut
+gui.computercraft:config.log_computer_errors=Journal d'erreur périphériques
+
+gui.computercraft:config.http.enabled=Permettre l'API HTTP
+gui.computercraft:config.http.whitelist=HTTP liste blanche
+gui.computercraft:config.http.blacklist=HTTP liste noire
+
+gui.computercraft:config.peripheral.command_block_enabled=Permettre l'accès d'un Bloc de Commande par périphérique
+gui.computercraft:config.peripheral.modem_range=Portée d'un Modem (par défaut)
+gui.computercraft:config.peripheral.modem_high_altitude_range=Portée d'un Modem (en haute altitude)
+gui.computercraft:config.peripheral.modem_range_during_storm=Portée d'un Modem (par mauvais temps)
+gui.computercraft:config.peripheral.modem_high_altitude_range_during_storm=Portée d'un Modem (en haute altitude, par mauvais temps)
+gui.computercraft:config.peripheral.max_notes_per_tick=Maximum de notes simultanées jouées par Ordinateur
+
+gui.computercraft:config.turtle.need_fuel=Activer la nécessité de carburant au mouvement des Tortues
+gui.computercraft:config.turtle.normal_fuel_limit=Limite de carburant par Tortue
+gui.computercraft:config.turtle.advanced_fuel_limit=Limite de carburant par Tortue avancée
+gui.computercraft:config.turtle.obey_block_protection=Les Tortues respectent les protections de blocs
+gui.computercraft:config.turtle.can_push=Les Tortues peuvent pousser les entitées
