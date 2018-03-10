@@ -243,7 +243,7 @@ public class MonitorPeripheral implements IPeripheral
             case 24:
             {
                 // getTextScale
-                return new Object[] { monitor.getTextScale() };
+                return new Object[] { monitor.getTextScale() / 2.0 };
             }
         }
         return null;
