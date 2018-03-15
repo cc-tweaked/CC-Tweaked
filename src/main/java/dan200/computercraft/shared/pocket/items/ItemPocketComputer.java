@@ -371,6 +371,15 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
         }
     }
 
+    @Override
+    public ItemStack withFamily( @Nonnull ItemStack stack, @Nonnull ComputerFamily family )
+    {
+        return PocketComputerItemFactory.create( 
+            getComputerID( stack ), getLabel( stack ), getColour( stack ),
+            family, getUpgrade( stack )
+        );
+    }
+
     // IMedia
 
     @Override

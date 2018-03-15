@@ -1,16 +1,8 @@
-/*
- * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2017. Do not distribute without permission.
- * Send enquiries to dratcliffe@gmail.com
- */
-
-package dan200.computercraft.shared.turtle.recipes;
+package dan200.computercraft.shared.computer.recipe;
 
 import com.google.gson.JsonObject;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.items.IComputerItem;
-import dan200.computercraft.shared.computer.recipe.ComputerConvertRecipe;
-import dan200.computercraft.shared.turtle.items.TurtleItemFactory;
 import dan200.computercraft.shared.util.RecipeUtil;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
@@ -21,13 +13,13 @@ import net.minecraftforge.common.crafting.JsonContext;
 
 import javax.annotation.Nonnull;
 
-public class TurtleRecipe extends ComputerConvertRecipe
+public class ComputerFamilyRecipe extends ComputerConvertRecipe
 {
     private final ComputerFamily family;
 
-    public TurtleRecipe( String group, @Nonnull CraftingHelper.ShapedPrimer primer, ComputerFamily family )
+    public ComputerFamilyRecipe( String group, @Nonnull CraftingHelper.ShapedPrimer primer, @Nonnull ItemStack result, ComputerFamily family )
     {
-        super( group, primer, TurtleItemFactory.create( -1, null, -1, family, null, null, 0, null ) );
+        super( group, primer, result );
         this.family = family;
     }
 
@@ -35,13 +27,7 @@ public class TurtleRecipe extends ComputerConvertRecipe
     @Override
     protected ItemStack convert( @Nonnull ItemStack stack )
     {
-        IComputerItem item = (IComputerItem) stack.getItem();
-        int computerID = item.getComputerID( stack );
-        String label = item.getLabel( stack );
-
-        if( family == ComputerFamily.Beginners ) computerID = -1;
-
-        return TurtleItemFactory.create( computerID, label, -1, family, null, null, 0, null );
+        return ((IComputerItem) stack.getItem()).withFamily( stack, family );
     }
 
     public static class Factory implements IRecipeFactory
@@ -51,9 +37,11 @@ public class TurtleRecipe extends ComputerConvertRecipe
         {
             String group = JsonUtils.getString( json, "group", "" );
             ComputerFamily family = RecipeUtil.getFamily( json, "family" );
-            CraftingHelper.ShapedPrimer primer = RecipeUtil.getPrimer( context, json );
 
-            return new TurtleRecipe( group, primer, family );
+            CraftingHelper.ShapedPrimer primer = RecipeUtil.getPrimer( context, json );
+            ItemStack result = deserializeItem( JsonUtils.getJsonObject( json, "result" ), false );
+
+            return new ComputerFamilyRecipe( group, primer, result, family );
         }
     }
 }

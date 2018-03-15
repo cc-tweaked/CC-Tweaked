@@ -1,0 +1,14 @@
+{
+    "type": "computercraft:computer_upgrade",
+    "pattern": [
+        "###",
+        "#C#",
+        "# #"
+    ],
+    "key": {
+        "#": { "type": "forge:ore_dict", "ore": "ingotGold" },
+        "C": { "type": "computercraft:computer", "item": "computercraft:computer", "family": "Normal" }
+    },
+    "family": "Advanced",
+    "result": { "item": "computercraft:computer", "data": 16384 }
+}

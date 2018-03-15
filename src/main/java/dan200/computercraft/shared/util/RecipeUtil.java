@@ -9,6 +9,7 @@ package dan200.computercraft.shared.util;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.gson.*;
+import dan200.computercraft.shared.computer.core.ComputerFamily;
 import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.util.JsonUtils;
 import net.minecraft.util.NonNullList;
@@ -101,5 +102,18 @@ public class RecipeUtil
         }
 
         return ings;
+    }
+
+    public static ComputerFamily getFamily( JsonObject json, String name )
+    {
+        String familyName = JsonUtils.getString( json, name );
+        try
+        {
+            return ComputerFamily.valueOf( familyName );
+        }
+        catch( IllegalArgumentException e )
+        {
+            throw new JsonSyntaxException( "Unknown computer family '" + familyName + "' for field " + name );
+        }
     }
 }

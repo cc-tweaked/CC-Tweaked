@@ -27,7 +27,7 @@ import javax.annotation.Nullable;
 public class ItemComputer extends ItemComputerBase
 {
     public static int HIGHEST_DAMAGE_VALUE_ID = 16382;
-    
+
     public ItemComputer( Block block )
     {
         super( block );
@@ -87,7 +87,7 @@ public class ItemComputer extends ItemComputerBase
             TileEntity tile = world.getTileEntity( pos );
             if( tile != null && tile instanceof IComputerTile )
             {
-                IComputerTile computer = (IComputerTile)tile;
+                IComputerTile computer = (IComputerTile) tile;
                 setupComputerAfterPlacement( stack, computer );
             }
             return true;
@@ -146,8 +146,14 @@ public class ItemComputer extends ItemComputerBase
         else
         {
             int damage = stack.getItemDamage() & 0x3fff;
-            return ( damage - 1 );
+            return (damage - 1);
         }
+    }
+
+    @Override
+    public ItemStack withFamily( @Nonnull ItemStack stack, @Nonnull ComputerFamily family )
+    {
+        return ComputerItemFactory.create( getComputerID( stack ), getLabel( stack ), family );
     }
 
     @Override

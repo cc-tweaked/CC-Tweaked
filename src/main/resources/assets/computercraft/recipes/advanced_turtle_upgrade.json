@@ -1,0 +1,18 @@
+{
+    "type": "computercraft:computer_upgrade",
+    "pattern": [
+        "###",
+        "#C#",
+        " B "
+    ],
+    "key": {
+        "#": { "type": "forge:ore_dict", "ore": "ingotGold" },
+        "B": { "type": "forge:ore_dict", "ore": "blockGold" },
+        "C": [
+            { "type": "computercraft:computer", "item": "computercraft:turtle", "family": "Normal" },
+            { "item": "computercraft:turtle_expanded", "data": 0 }
+        ]
+    },
+    "family": "Advanced",
+    "result": { "item": "computercraft:turtle_advanced", "data": 0 }
+}
