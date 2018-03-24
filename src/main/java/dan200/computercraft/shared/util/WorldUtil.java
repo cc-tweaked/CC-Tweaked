@@ -126,22 +126,8 @@ public class WorldUtil
     }
     
     public static Vec3d getRayEnd( EntityPlayer player) {
-        double reach = 4.5;
-        if( player instanceof EntityPlayerMP )
-        {
-            reach = ((EntityPlayerMP) player).interactionManager.getBlockReachDistance();
-        }
-        else if( player.getEntityWorld().isRemote )
-        {
-            reach = Minecraft.getMinecraft().playerController.getBlockReachDistance();
-        }
-        else if( player.capabilities.isCreativeMode )
-        {
-            reach = 5.0;
-        }
-        
+        double reach = player.getEntityAttribute(EntityPlayer.REACH_DISTANCE).getAttributeValue();
         Vec3d look = player.getLookVec();
-
         return getRayStart( player ).addVector( look.x * reach, look.y * reach, look.z * reach );
     }
     

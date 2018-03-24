@@ -91,7 +91,7 @@ public class DiskRecipe extends IForgeRegistryEntry.Impl<IRecipe> implements IRe
     }
 
     @Override
-    public boolean isHidden()
+    public boolean isDynamic()
     {
         return true;
     }

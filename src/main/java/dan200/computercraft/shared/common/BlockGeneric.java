@@ -36,7 +36,7 @@ public abstract class BlockGeneric extends Block implements
     protected BlockGeneric( Material material )
     {
         super( material );
-        this.isBlockContainer = true;
+        this.hasTileEntity = true;
     }
 
     protected abstract IBlockState getDefaultBlockState( int damage, EnumFacing placedSide );

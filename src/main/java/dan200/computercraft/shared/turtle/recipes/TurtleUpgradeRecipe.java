@@ -37,7 +37,7 @@ public class TurtleUpgradeRecipe extends IForgeRegistryEntry.Impl<IRecipe> imple
     }
 
     @Override
-    public boolean isHidden()
+    public boolean isDynamic()
     {
         return true;
     }

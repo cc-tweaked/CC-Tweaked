@@ -26,7 +26,7 @@ group = "org.squiddev"
 archivesBaseName = "cc-tweaked"
 
 minecraft {
-    version = "1.12-14.21.1.2387"
+    version = "1.12.2-14.23.2.2634"
     runDir = "run"
     replace '${version}', project.version
 
@@ -35,7 +35,7 @@ minecraft {
     // stable_#            stables are built at the discretion of the MCP team.
     // Use non-default mappings at your own risk. they may not allways work.
     // simply re-run your setup task after changing the mappings to update your workspace.
-    mappings = "snapshot_20170629"
+    mappings = "snapshot_20180324"
     // makeObfSourceJar = false // an Srg named sources jar is made by default. uncomment this to disable.
 }
 
@@ -56,8 +56,8 @@ configurations {
 }
 
 dependencies {
-    deobfProvided "mezz.jei:jei_1.12:4.7.5.86:api"
-    runtime "mezz.jei:jei_1.12:4.7.5.86"
+    deobfProvided "mezz.jei:jei_1.12.2:4.8.5.159:api"
+    runtime "mezz.jei:jei_1.12.2:4.8.5.159"
     shade 'org.squiddev:Cobalt:0.3.1'
 
     testCompile 'junit:junit:4.11'

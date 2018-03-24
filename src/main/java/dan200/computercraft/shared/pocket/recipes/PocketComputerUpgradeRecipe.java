@@ -34,7 +34,7 @@ public class PocketComputerUpgradeRecipe extends IForgeRegistryEntry.Impl<IRecip
     }
 
     @Override
-    public boolean isHidden()
+    public boolean isDynamic()
     {
         return true;
     }

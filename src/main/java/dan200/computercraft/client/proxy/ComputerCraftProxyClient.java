@@ -569,7 +569,7 @@ public class ComputerCraftProxyClient extends ComputerCraftProxyCommon
         }
 
         @Override
-        public int getColorFromItemstack( @Nonnull ItemStack stack, int layer )
+        public int colorMultiplier( @Nonnull ItemStack stack, int layer )
         {
             return layer == 0 ? 0xFFFFFF : disk.getColour( stack );
         }

@@ -210,7 +210,7 @@ public class CCTurtleProxyClient extends CCTurtleProxyCommon
     private static class TurtleItemColour implements IItemColor
     {
         @Override
-        public int getColorFromItemstack( @Nonnull ItemStack stack, int tintIndex )
+        public int colorMultiplier( @Nonnull ItemStack stack, int tintIndex )
         {
             if( tintIndex == 0 )
             {

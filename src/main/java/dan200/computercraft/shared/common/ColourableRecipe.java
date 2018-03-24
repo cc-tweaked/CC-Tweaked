@@ -86,7 +86,7 @@ public class ColourableRecipe extends IForgeRegistryEntry.Impl<IRecipe> implemen
     }
 
     @Override
-    public boolean isHidden()
+    public boolean isDynamic()
     {
         return true;
     }
