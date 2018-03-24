@@ -9,12 +9,12 @@ package dan200.computercraft.shared.peripheral.modem;
 import com.google.common.base.Objects;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.network.wired.IWiredElement;
-import dan200.computercraft.api.network.wired.IWiredElementTile;
 import dan200.computercraft.api.network.wired.IWiredNode;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.shared.peripheral.common.BlockCable;
 import dan200.computercraft.shared.peripheral.common.TilePeripheralBase;
 import dan200.computercraft.shared.util.IDAssigner;
+import dan200.computercraft.shared.wired.CapabilityWiredElement;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
@@ -23,13 +23,15 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
+import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.Constants;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.File;
 import java.util.*;
 
-public class TileWiredModemFull extends TilePeripheralBase implements IWiredElementTile
+public class TileWiredModemFull extends TilePeripheralBase
 {
     private static class FullElement extends WiredModemElement
     {
@@ -310,9 +312,10 @@ public class TileWiredModemFull extends TilePeripheralBase implements IWiredElem
         BlockPos current = getPos();
         for( EnumFacing facing : EnumFacing.VALUES )
         {
-            if( !world.isBlockLoaded( pos ) ) continue;
+            BlockPos offset = current.offset( facing );
+            if( !world.isBlockLoaded( offset ) ) continue;
 
-            IWiredElement element = ComputerCraft.getWiredElementAt( world, current.offset( facing ), facing.getOpposite() );
+            IWiredElement element = ComputerCraft.getWiredElementAt( world, offset, facing.getOpposite() );
             if( element == null ) continue;
 
             // If we can connect to it then do so
@@ -385,11 +388,22 @@ public class TileWiredModemFull extends TilePeripheralBase implements IWiredElem
 
     // IWiredElementTile
 
-    @Nonnull
     @Override
-    public IWiredElement getWiredElement( @Nonnull EnumFacing side )
+    public boolean hasCapability( @Nonnull Capability<?> capability, @Nullable EnumFacing facing )
     {
-        return m_element;
+        return capability == CapabilityWiredElement.CAPABILITY || super.hasCapability( capability, facing );
+    }
+
+    @Nullable
+    @Override
+    public <T> T getCapability( @Nonnull Capability<T> capability, @Nullable EnumFacing facing )
+    {
+        if( capability == CapabilityWiredElement.CAPABILITY )
+        {
+            return CapabilityWiredElement.CAPABILITY.cast( m_element );
+        }
+
+        return super.getCapability( capability, facing );
     }
 
     // IPeripheralTile

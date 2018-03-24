@@ -18,7 +18,7 @@ import dan200.computercraft.shared.peripheral.common.BlockCableModemVariant;
 import dan200.computercraft.shared.peripheral.common.PeripheralItemFactory;
 import dan200.computercraft.shared.util.IDAssigner;
 import dan200.computercraft.shared.util.PeripheralUtil;
-import dan200.computercraft.api.network.wired.IWiredElementTile;
+import dan200.computercraft.shared.wired.CapabilityWiredElement;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
@@ -31,6 +31,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
+import net.minecraftforge.common.capabilities.Capability;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -39,7 +40,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-public class TileCable extends TileModemBase implements IWiredElementTile
+public class TileCable extends TileModemBase
 {
     public static final double MIN = 0.375;
     public static final double MAX = 1 - MIN;
@@ -488,9 +489,10 @@ public class TileCable extends TileModemBase implements IWiredElementTile
         BlockPos current = getPos();
         for( EnumFacing facing : EnumFacing.VALUES )
         {
-            if( !world.isBlockLoaded( pos ) ) continue;
-            
-            IWiredElement element = ComputerCraft.getWiredElementAt( world, current.offset( facing ), facing.getOpposite() );
+            BlockPos offset = current.offset( facing );
+            if( !world.isBlockLoaded( offset ) ) continue;
+
+            IWiredElement element = ComputerCraft.getWiredElementAt( world, offset, facing.getOpposite() );
             if( element == null ) continue;
 
             if( BlockCable.canConnectIn( state, facing ) )
@@ -597,13 +599,25 @@ public class TileCable extends TileModemBase implements IWiredElementTile
         return true;
     }
 
-    // IWiredElement tile
+    // IWiredElement capability
+
+    @Override
+    public boolean hasCapability( @Nonnull Capability<?> capability, @Nullable EnumFacing facing )
+    {
+        if( capability == CapabilityWiredElement.CAPABILITY ) return BlockCable.canConnectIn( getBlockState(), facing );
+        return super.hasCapability( capability, facing );
+    }
 
     @Nullable
     @Override
-    public IWiredElement getWiredElement( @Nonnull EnumFacing side )
+    public <T> T getCapability( @Nonnull Capability<T> capability, @Nullable EnumFacing facing )
     {
-        return BlockCable.canConnectIn( getBlockState(), side ) ? m_cable : null;
+        if( capability == CapabilityWiredElement.CAPABILITY )
+        {
+            return BlockCable.canConnectIn( getBlockState(), facing ) ? CapabilityWiredElement.CAPABILITY.cast( m_cable ) : null;
+        }
+
+        return super.getCapability( capability, facing );
     }
 
     // IPeripheralTile

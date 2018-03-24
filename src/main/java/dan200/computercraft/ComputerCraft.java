@@ -16,7 +16,6 @@ import dan200.computercraft.api.media.IMediaProvider;
 import dan200.computercraft.api.network.IPacketNetwork;
 import dan200.computercraft.api.network.wired.IWiredElement;
 import dan200.computercraft.api.network.wired.IWiredNode;
-import dan200.computercraft.api.network.wired.IWiredProvider;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.peripheral.IPeripheralProvider;
 import dan200.computercraft.api.permissions.ITurtlePermissionProvider;
@@ -61,6 +60,7 @@ import dan200.computercraft.shared.turtle.blocks.BlockTurtle;
 import dan200.computercraft.shared.turtle.blocks.TileTurtle;
 import dan200.computercraft.shared.turtle.upgrades.*;
 import dan200.computercraft.shared.util.*;
+import dan200.computercraft.shared.wired.CapabilityWiredElement;
 import dan200.computercraft.shared.wired.WiredNode;
 import io.netty.buffer.Unpooled;
 import net.minecraft.entity.Entity;
@@ -69,6 +69,7 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.NonNullList;
@@ -266,7 +267,6 @@ public class ComputerCraft
     private static List<ITurtlePermissionProvider> permissionProviders = new ArrayList<>();
     private static final Map<String, IPocketUpgrade> pocketUpgrades = new HashMap<>();
     private static final Set<ILuaAPIFactory> apiFactories = new LinkedHashSet<>();
-    private static final Set<IWiredProvider> wiredProviders = new LinkedHashSet<>();
 
     // Implementation
     @Mod.Instance( value = ComputerCraft.MOD_ID )
@@ -733,11 +733,6 @@ public class ComputerCraft
         }
     }
 
-    public static void registerWiredProvider( IWiredProvider provider )
-    {
-        if( provider != null ) wiredProviders.add( provider );
-    }
-
     public static IWiredNode createWiredNodeForElement( IWiredElement element )
     {
         return new WiredNode( element );
@@ -766,20 +761,10 @@ public class ComputerCraft
 
     public static IWiredElement getWiredElementAt( IBlockAccess world, BlockPos pos, EnumFacing side )
     {
-        // Try the handlers in order:
-        for( IWiredProvider provider : wiredProviders )
-        {
-            try
-            {
-                IWiredElement element = provider.getElement( world, pos, side );
-                if( element != null ) return element;
-            }
-            catch( Exception e )
-            {
-                ComputerCraft.log.error( "Wired element provider " + provider + " errored.", e );
-            }
-        }
-        return null;
+        TileEntity tile = world.getTileEntity( pos );
+        return tile != null && tile.hasCapability( CapabilityWiredElement.CAPABILITY, side )
+            ? tile.getCapability( CapabilityWiredElement.CAPABILITY, side )
+            : null;
     }
 
     public static int getDefaultBundledRedstoneOutput( World world, BlockPos pos, EnumFacing side )

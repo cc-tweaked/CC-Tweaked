@@ -49,7 +49,7 @@ import dan200.computercraft.shared.pocket.recipes.PocketComputerUpgradeRecipe;
 import dan200.computercraft.shared.turtle.blocks.TileTurtle;
 import dan200.computercraft.shared.turtle.inventory.ContainerTurtle;
 import dan200.computercraft.shared.util.*;
-import dan200.computercraft.shared.wired.DefaultWiredProvider;
+import dan200.computercraft.shared.wired.CapabilityWiredElement;
 import net.minecraft.block.Block;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
@@ -485,7 +485,7 @@ public abstract class ComputerCraftProxyCommon implements IComputerCraftProxy
         ComputerCraftAPI.registerMediaProvider( new DefaultMediaProvider() );
 
         // Register network providers
-        ComputerCraftAPI.registerWiredProvider( new DefaultWiredProvider() );
+        CapabilityWiredElement.register();
     }
 
     private void registerForgeHandlers()

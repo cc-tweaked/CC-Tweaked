@@ -14,12 +14,8 @@ import java.util.Map;
  * as a proxy for all network objects. Whilst the node may change networks, an element's node should remain constant
  * for its lifespan.
  *
- * Elements are generally tied to a block or tile entity in world. One should either register an {@link IWiredProvider}
- * or implement {@link IWiredElementTile} on your tile entity.
- *
- * @see IWiredProvider
- * @see ComputerCraftAPI#registerWiredProvider(IWiredProvider)
- * @see IWiredElementTile
+ * Elements are generally tied to a block or tile entity in world. In such as case, one should provide the
+ * {@link IWiredElement} capability for the appropriate sides.
  */
 public interface IWiredElement extends IWiredSender
 {

@@ -1,7 +1,7 @@
 package dan200.computercraft.shared.peripheral.modem;
 
-import dan200.computercraft.api.network.wired.IWiredNetworkChange;
 import dan200.computercraft.api.network.wired.IWiredElement;
+import dan200.computercraft.api.network.wired.IWiredNetworkChange;
 import dan200.computercraft.api.network.wired.IWiredNode;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.shared.wired.WiredNode;

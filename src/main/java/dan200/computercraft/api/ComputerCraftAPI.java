@@ -14,7 +14,6 @@ import dan200.computercraft.api.media.IMediaProvider;
 import dan200.computercraft.api.network.IPacketNetwork;
 import dan200.computercraft.api.network.wired.IWiredElement;
 import dan200.computercraft.api.network.wired.IWiredNode;
-import dan200.computercraft.api.network.wired.IWiredProvider;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.peripheral.IPeripheralProvider;
@@ -333,26 +332,6 @@ public final class ComputerCraftAPI
     }
 
     /**
-     * Registers a peripheral handler to convert blocks into {@link IPeripheral} implementations.
-     *
-     * @param handler The peripheral provider to register.
-     * @see dan200.computercraft.api.peripheral.IPeripheral
-     * @see dan200.computercraft.api.peripheral.IPeripheralProvider
-     */
-    public static void registerWiredProvider( @Nonnull IWiredProvider handler )
-    {
-        findCC();
-        if ( computerCraft_registerWiredProvider != null)
-        {
-            try {
-                computerCraft_registerWiredProvider.invoke( null, handler );
-            } catch (Exception e){
-                // It failed
-            }
-        }
-    }
-
-    /**
      * Construct a new wired node for a given wired element
      *
      * @param element The element to construct it for
@@ -453,9 +432,6 @@ public final class ComputerCraftAPI
                 computerCraft_registerAPIFactory = findCCMethod( "registerAPIFactory", new Class<?>[] {
                     ILuaAPIFactory.class
                 } );
-                computerCraft_registerWiredProvider = findCCMethod( "registerWiredProvider", new Class<?>[] {
-                    IWiredProvider.class
-                } );
                 computerCraft_createWiredNodeForElement = findCCMethod( "createWiredNodeForElement", new Class<?>[] {
                     IWiredElement.class
                 } );
@@ -499,7 +475,6 @@ public final class ComputerCraftAPI
     private static Method computerCraft_registerPocketUpgrade = null;
     private static Method computerCraft_getWirelessNetwork = null;
     private static Method computerCraft_registerAPIFactory = null;
-    private static Method computerCraft_registerWiredProvider = null;
     private static Method computerCraft_createWiredNodeForElement = null;
     private static Method computerCraft_getWiredElementAt = null;
 }
