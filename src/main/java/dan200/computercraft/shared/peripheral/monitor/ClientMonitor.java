@@ -2,6 +2,7 @@ package dan200.computercraft.shared.peripheral.monitor;
 
 import dan200.computercraft.shared.common.ClientTerminal;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.util.math.BlockPos;
 
 import java.util.HashSet;
 import java.util.Iterator;
@@ -14,6 +15,7 @@ public class ClientMonitor extends ClientTerminal
     private final TileMonitor origin;
 
     public long lastRenderFrame = -1;
+    public BlockPos lastRenderPos = null;
     public int[] renderDisplayLists = null;
 
     public ClientMonitor( boolean colour, TileMonitor origin )

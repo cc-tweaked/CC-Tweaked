@@ -47,19 +47,20 @@ public class TileEntityMonitorRenderer extends TileEntitySpecialRenderer<TileMon
 
         if( originTerminal == null ) return;
         TileMonitor origin = originTerminal.getOrigin();
+        BlockPos monitorPos = monitor.getPos();
 
-        // Ensure each monitor is rendered only once
+        // Ensure each monitor terminal is rendered only once. We allow rendering a specific tile
+        // multiple times in a single frame to ensure compatibility with shaders which may run a 
+        // pass multiple times.
         long renderFrame = ComputerCraft.getRenderFrame();
-        if( originTerminal.lastRenderFrame == renderFrame )
+        if( originTerminal.lastRenderFrame == renderFrame && !monitorPos.equals( originTerminal.lastRenderPos ) )
         {
             return;
         }
-        else
-        {
-            originTerminal.lastRenderFrame = renderFrame;
-        }
 
-        BlockPos monitorPos = monitor.getPos();
+        originTerminal.lastRenderFrame = renderFrame;
+        originTerminal.lastRenderPos = monitorPos;
+
         BlockPos originPos = origin.getPos();
         posX += originPos.getX() - monitorPos.getX();
         posY += originPos.getY() - monitorPos.getY();
