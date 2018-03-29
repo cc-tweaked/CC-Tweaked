@@ -154,7 +154,8 @@ public abstract class ComputerCraftProxyCommon implements IComputerCraftProxy
             packet.m_dataInt = new int[] { pos.getX(), pos.getY(), pos.getZ() };
         }
 
-        ComputerCraft.sendToAllPlayers( packet );
+        NetworkRegistry.TargetPoint point = new NetworkRegistry.TargetPoint( world.provider.getDimension(), pos.getX(), pos.getY(), pos.getZ(), 64 );
+        ComputerCraft.sendToAllAround( packet, point );
     }
 
     @Override

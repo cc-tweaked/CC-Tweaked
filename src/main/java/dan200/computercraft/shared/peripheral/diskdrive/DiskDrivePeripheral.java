@@ -62,9 +62,9 @@ public class DiskDrivePeripheral implements IPeripheral
         {
             case 0:
             {
-                // isPresent
+                // isDiskPresent
                 return new Object[] {
-                    m_diskDrive.getDiskStack() != null
+                    !m_diskDrive.getDiskStack().isEmpty()
                 };
             }
             case 1:
