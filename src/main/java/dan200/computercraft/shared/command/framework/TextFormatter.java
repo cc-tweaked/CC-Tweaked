@@ -18,7 +18,7 @@ import static dan200.computercraft.shared.command.framework.ChatHelpers.coloured
 public class TextFormatter
 {
     private static final int SPACE_WIDTH = 4;
-    private static final char PADDING_CHAR = 'ˌ';
+    private static final char PADDING_CHAR = '\u02cc';
 
     /**
      * Yoinked from FontRenderer
