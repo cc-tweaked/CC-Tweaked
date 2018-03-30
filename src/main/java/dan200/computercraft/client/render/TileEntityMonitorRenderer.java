@@ -18,6 +18,7 @@ import dan200.computercraft.shared.util.Palette;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
@@ -97,6 +98,7 @@ public class TileEntityMonitorRenderer extends TileEntitySpecialRenderer<TileMon
 
             // Draw the contents
             GlStateManager.depthMask( false );
+            OpenGlHelper.setLightmapTextureCoords( OpenGlHelper.lightmapTexUnit, 0xFF, 0xFF );
             GlStateManager.disableLighting();
             mc.entityRenderer.disableLightmap();
             try
