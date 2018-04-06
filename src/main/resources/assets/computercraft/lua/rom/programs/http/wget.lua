@@ -1,11 +1,11 @@
 
 local function printUsage()
     print( "Usage:" )
-    print( "wget <url> <filename>" )
+    print( "wget <url> [filename]" )
 end
  
 local tArgs = { ... }
-if #tArgs < 2 then
+if #tArgs < 1 then
     printUsage()
     return
 end
@@ -15,18 +15,14 @@ if not http then
     printError( "Set http_enable to true in ComputerCraft.cfg" )
     return
 end
- 
+
+local function getFilename( sUrl )
+    sUrl = sUrl:gsub( "[#?].*" , "" ):gsub( "/+$" , "" )
+    return sUrl:match( "/([^/]+)$" )
+end
+
 local function get( sUrl )
     write( "Connecting to " .. sUrl .. "... " )
-
-    local ok, err = http.checkURL( sUrl )
-    if not ok then
-        print( "Failed." )
-        if err then
-            printError( err )
-        end
-        return nil
-    end
 
     local response = http.get( sUrl , nil , true )
     if not response then
@@ -40,10 +36,18 @@ local function get( sUrl )
     response.close()
     return sResponse
 end
- 
+
 -- Determine file to download
 local sUrl = tArgs[1]
-local sFile = tArgs[2]
+
+--Check if the URL is valid
+local ok, err = http.checkURL( sUrl )
+if not ok then
+    printError( err or "Invalid URL." )
+    return
+end
+
+local sFile = tArgs[2] or getFilename( sUrl )
 local sPath = shell.resolve( sFile )
 if fs.exists( sPath ) then
     print( "File already exists" )
