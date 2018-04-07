@@ -76,7 +76,7 @@ public class TileCable extends TileModemBase
         public Vec3d getPosition()
         {
             BlockPos pos = m_entity.getPos();
-            return new Vec3d( (double) pos.getX() + 0.5, (double) pos.getY() + 0.5, (double) pos.getZ() + 0.5 );
+            return new Vec3d( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5 );
         }
 
         @Nonnull
@@ -92,10 +92,7 @@ public class TileCable extends TileModemBase
         @Override
         protected void attachPeripheral( String name, IPeripheral peripheral )
         {
-            if( !name.equals( m_entity.getConnectedPeripheralName() ) )
-            {
-                ((WiredModemPeripheral) m_entity.m_modem).attachPeripheral( name, peripheral );
-            }
+            ((WiredModemPeripheral) m_entity.m_modem).attachPeripheral( name, peripheral );
         }
 
         @Override
@@ -133,6 +130,12 @@ public class TileCable extends TileModemBase
         m_node = m_cable.getNode();
         return new WiredModemPeripheral( m_cable )
         {
+            @Override
+            protected boolean canSeePeripheral( @Nonnull String peripheralName )
+            {
+                return !peripheralName.equals( getConnectedPeripheralName() );
+            }
+
             @Nonnull
             @Override
             public Vec3d getPosition()

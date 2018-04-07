@@ -48,10 +48,7 @@ public class TileWiredModemFull extends TilePeripheralBase
             for( int i = 0; i < 6; i++ )
             {
                 WiredModemPeripheral modem = m_entity.m_modems[i];
-                if( modem != null && !name.equals( m_entity.getCachedPeripheralName( EnumFacing.VALUES[i] ) ) )
-                {
-                    modem.attachPeripheral( name, peripheral );
-                }
+                if( modem != null ) modem.attachPeripheral( name, peripheral );
             }
         }
 
@@ -416,6 +413,12 @@ public class TileWiredModemFull extends TilePeripheralBase
         {
             peripheral = m_modems[side.ordinal()] = new WiredModemPeripheral( m_element )
             {
+                @Override
+                protected boolean canSeePeripheral( @Nonnull String peripheralName )
+                {
+                    return !peripheralName.equals( getCachedPeripheralName( side ) );
+                }
+
                 @Nonnull
                 @Override
                 public Vec3d getPosition()

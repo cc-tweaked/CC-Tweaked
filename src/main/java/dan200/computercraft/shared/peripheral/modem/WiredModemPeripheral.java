@@ -10,7 +10,6 @@ import dan200.computercraft.api.network.wired.IWiredNode;
 import dan200.computercraft.api.network.wired.IWiredSender;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
@@ -20,7 +19,7 @@ import java.util.Map;
 
 import static dan200.computercraft.core.apis.ArgumentHelper.getString;
 
-public class WiredModemPeripheral extends ModemPeripheral implements IWiredSender
+public abstract class WiredModemPeripheral extends ModemPeripheral implements IWiredSender
 {
     private final WiredModemElement modem;
 
@@ -57,12 +56,7 @@ public class WiredModemPeripheral extends ModemPeripheral implements IWiredSende
         return modem.getWorld();
     }
 
-    @Nonnull
-    @Override
-    public Vec3d getPosition()
-    {
-        return modem.getPosition();
-    }
+    protected abstract boolean canSeePeripheral( @Nonnull String peripheralName );
     //endregion
 
     //region IPeripheral
@@ -223,7 +217,7 @@ public class WiredModemPeripheral extends ModemPeripheral implements IWiredSende
 
     private void attachPeripheralImpl( String periphName, IPeripheral peripheral )
     {
-        if( !peripheralWrappers.containsKey( periphName ) )
+        if( !peripheralWrappers.containsKey( periphName ) && canSeePeripheral( periphName ) )
         {
             RemotePeripheralWrapper wrapper = new RemotePeripheralWrapper( modem, peripheral, getComputer(), periphName );
             peripheralWrappers.put( periphName, wrapper );
