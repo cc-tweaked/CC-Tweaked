@@ -293,7 +293,8 @@ public class TileWiredModemFull extends TilePeripheralBase
 
             if( !m_connectionsFormed )
             {
-                networkChanged();
+                connectionsChanged();
+                if( m_peripheralAccessAllowed ) node.invalidate();
                 m_connectionsFormed = true;
             }
         }
@@ -301,7 +302,7 @@ public class TileWiredModemFull extends TilePeripheralBase
         super.update();
     }
 
-    private void networkChanged()
+    private void connectionsChanged()
     {
         if( getWorld().isRemote ) return;
 
@@ -318,8 +319,6 @@ public class TileWiredModemFull extends TilePeripheralBase
             // If we can connect to it then do so
             node.connectTo( element.getNode() );
         }
-
-        node.invalidate();
     }
 
     // private stuff

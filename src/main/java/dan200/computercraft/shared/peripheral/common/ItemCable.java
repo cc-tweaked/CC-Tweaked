@@ -98,8 +98,8 @@ public class ItemCable extends ItemPeripheralBase
                     TileEntity tile = world.getTileEntity( pos );
                     if( tile != null && tile instanceof TileCable )
                     {
-                        TileCable cable = (TileCable)tile;
-                        cable.networkChanged();
+                        TileCable cable = (TileCable) tile;
+                        cable.connectionsChanged();
                     }
                     return EnumActionResult.SUCCESS;
                 }
@@ -131,7 +131,8 @@ public class ItemCable extends ItemPeripheralBase
                         if( tile != null && tile instanceof TileCable )
                         {
                             TileCable cable = (TileCable)tile;
-                            cable.networkChanged();
+                            cable.modemChanged();
+                            cable.connectionsChanged();
                         }
                         return EnumActionResult.SUCCESS;
                     }
@@ -153,7 +154,8 @@ public class ItemCable extends ItemPeripheralBase
                         if( tile != null && tile instanceof TileCable )
                         {
                             TileCable cable = (TileCable)tile;
-                            cable.networkChanged();
+                            cable.modemChanged();
+                            cable.connectionsChanged();
                         }
                         return EnumActionResult.SUCCESS;
                     }

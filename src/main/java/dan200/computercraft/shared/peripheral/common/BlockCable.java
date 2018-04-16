@@ -332,7 +332,8 @@ public class BlockCable extends BlockPeripheralBase
                         item = PeripheralItemFactory.create( PeripheralType.Cable, null, 1 );
                     }
 
-                    cable.networkChanged();
+                    cable.modemChanged();
+                    cable.connectionsChanged();
                     if( !world.isRemote && !player.capabilities.isCreativeMode ) dropItem( world, pos, item );
 
                     return false;
@@ -382,7 +383,7 @@ public class BlockCable extends BlockPeripheralBase
             TileCable cable = (TileCable) tile;
             if( cable.getPeripheralType() != PeripheralType.WiredModem )
             {
-                cable.networkChanged();
+                cable.connectionsChanged();
             }
         }
 
