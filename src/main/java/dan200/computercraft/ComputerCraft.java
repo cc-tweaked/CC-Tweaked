@@ -28,6 +28,7 @@ import dan200.computercraft.core.filesystem.ComboMount;
 import dan200.computercraft.core.filesystem.FileMount;
 import dan200.computercraft.core.filesystem.JarMount;
 import dan200.computercraft.core.terminal.Terminal;
+import dan200.computercraft.core.tracking.Tracking;
 import dan200.computercraft.shared.command.CommandComputer;
 import dan200.computercraft.shared.command.CommandComputerCraft;
 import dan200.computercraft.shared.common.DefaultBundledRedstoneProvider;
@@ -482,6 +483,7 @@ public class ComputerCraft
         {
             ComputerCraft.serverComputerRegistry.reset();
             WirelessNetwork.resetNetworks();
+            Tracking.reset();
         }
     }
 
