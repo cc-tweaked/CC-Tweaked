@@ -95,7 +95,7 @@ public class TileWiredModemFull extends TilePeripheralBase
     private boolean m_connectionsFormed = false;
 
     private final WiredModemElement m_element = new FullElement( this );
-    private final IWiredNode node = m_element.getNode();
+    private final IWiredNode m_node = m_element.getNode();
 
     public TileWiredModemFull()
     {
@@ -106,7 +106,7 @@ public class TileWiredModemFull extends TilePeripheralBase
     {
         if( world == null || !world.isRemote )
         {
-            node.remove();
+            m_node.remove();
             m_connectionsFormed = false;
         }
     }
@@ -163,7 +163,7 @@ public class TileWiredModemFull extends TilePeripheralBase
 
             // Always invalidate the node: it's more accurate than checking if the peripherals
             // have changed
-            node.invalidate();
+            m_node.invalidate();
         }
     }
 
@@ -293,9 +293,9 @@ public class TileWiredModemFull extends TilePeripheralBase
 
             if( !m_connectionsFormed )
             {
-                connectionsChanged();
-                if( m_peripheralAccessAllowed ) node.invalidate();
                 m_connectionsFormed = true;
+                connectionsChanged();
+                if( m_peripheralAccessAllowed ) m_node.invalidate();
             }
         }
 
@@ -317,7 +317,7 @@ public class TileWiredModemFull extends TilePeripheralBase
             if( element == null ) continue;
 
             // If we can connect to it then do so
-            node.connectTo( element.getNode() );
+            m_node.connectTo( element.getNode() );
         }
     }
 
@@ -339,7 +339,7 @@ public class TileWiredModemFull extends TilePeripheralBase
         }
 
         updateAnim();
-        node.invalidate();
+        m_node.invalidate();
     }
 
     @Nonnull

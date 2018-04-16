@@ -475,9 +475,9 @@ public class TileCable extends TileModemBase
         {
             if( !m_connectionsFormed )
             {
+                m_connectionsFormed = true;
                 connectionsChanged();
                 if( m_peripheralAccessAllowed ) m_node.invalidate();
-                m_connectionsFormed = true;
             }
         }
     }
