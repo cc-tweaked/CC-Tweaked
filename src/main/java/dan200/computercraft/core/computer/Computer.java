@@ -20,6 +20,8 @@ import dan200.computercraft.core.filesystem.FileSystemException;
 import dan200.computercraft.core.lua.CobaltLuaMachine;
 import dan200.computercraft.core.lua.ILuaMachine;
 import dan200.computercraft.core.terminal.Terminal;
+import dan200.computercraft.core.tracking.Tracking;
+import dan200.computercraft.core.tracking.TrackingField;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -165,6 +167,12 @@ public class Computer
         public void setLabel( String label )
         {
             m_computer.setLabel( label );
+        }
+
+        @Override
+        public void addTrackingChange( TrackingField field, long change )
+        {
+            Tracking.addValue( m_computer, field, change );
         }
 
         public void onPeripheralChanged( int side, IPeripheral peripheral )

@@ -4,9 +4,13 @@ import com.google.common.collect.Sets;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.core.computer.Computer;
-import dan200.computercraft.core.computer.ComputerTimeTracker;
+import dan200.computercraft.core.tracking.ComputerTracker;
+import dan200.computercraft.core.tracking.Tracking;
+import dan200.computercraft.core.tracking.TrackingContext;
+import dan200.computercraft.core.tracking.TrackingField;
 import dan200.computercraft.shared.command.framework.*;
 import dan200.computercraft.shared.computer.core.ServerComputer;
+import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.Entity;
@@ -25,6 +29,8 @@ import static dan200.computercraft.shared.command.framework.ChatHelpers.*;
 
 public final class CommandComputerCraft extends CommandDelegate
 {
+    public static final UUID SYSTEM_UUID = new UUID( 0, 0 );
+
     public CommandComputerCraft()
     {
         super( create() );
@@ -311,7 +317,7 @@ public final class CommandComputerCraft extends CommandDelegate
             @Override
             public void execute( @Nonnull CommandContext context, @Nonnull List<String> arguments )
             {
-                ComputerTimeTracker.start();
+                getTimingContext( context ).start();
 
                 String stopCommand = "/" + context.parent().getFullPath() + " stop";
                 context.getSender().sendMessage( list(
@@ -330,23 +336,54 @@ public final class CommandComputerCraft extends CommandDelegate
             @Override
             public void execute( @Nonnull CommandContext context, @Nonnull List<String> arguments ) throws CommandException
             {
-                if( !ComputerTimeTracker.stop() ) throw new CommandException( "Tracking not enabled" );
-                displayTimings( context );
+                TrackingContext timings = getTimingContext( context );
+                if( !timings.stop() ) throw new CommandException( "Tracking not enabled" );
+                displayTimings( context, timings.getTimings(), TrackingField.AVERAGE_TIME );
             }
         } );
 
         track.register( new SubCommandBase(
-            "dump", "Dump the latest track results", UserLevel.OWNER_OP,
+            "dump", "[kind]", "Dump the latest track results", UserLevel.OWNER_OP,
             "Dump the latest results of computer tracking."
         )
         {
             @Override
             public void execute( @Nonnull CommandContext context, @Nonnull List<String> arguments ) throws CommandException
             {
-                displayTimings( context );
+                TrackingField field = TrackingField.AVERAGE_TIME;
+                if( arguments.size() >= 1 )
+                {
+                    field = TrackingField.fields().get( arguments.get( 0 ) );
+                    if( field == null ) throw new CommandException( "Unknown field '" + arguments.get( 0 ) + "'" );
+                }
+
+                displayTimings( context, getTimingContext( context ).getTimings(), field );
+            }
+
+            @Nonnull
+            @Override
+            public List<String> getCompletion( @Nonnull CommandContext context, @Nonnull List<String> arguments )
+            {
+                if( arguments.size() == 1 )
+                {
+                    String match = arguments.get( 0 );
+
+                    List<String> out = new ArrayList<>();
+                    for( String key : TrackingField.fields().keySet() )
+                    {
+                        if( CommandBase.doesStringStartWith( match, key ) ) out.add( key );
+                    }
+
+                    out.sort( Comparator.naturalOrder() );
+                    return out;
+                }
+                else
+                {
+                    return super.getCompletion( context, arguments );
+                }
             }
         } );
-        
+
         root.register( new SubCommandBase(
             "reload", "Reload the ComputerCraft config file", UserLevel.OWNER_OP,
             "Reload the ComputerCraft config file"
@@ -390,13 +427,22 @@ public final class CommandComputerCraft extends CommandDelegate
         }
     }
 
-    private static void displayTimings( CommandContext context ) throws CommandException
+    private static TrackingContext getTimingContext( CommandContext context )
     {
-        List<ComputerTimeTracker.Timings> timings = ComputerTimeTracker.getTimings();
-        if( timings.isEmpty() ) throw new CommandException( "No timings available" );
+        Entity entity = context.getSender().getCommandSenderEntity();
+        if( entity instanceof EntityPlayerMP )
+        {
+            return Tracking.getContext( entity.getUniqueID() );
+        }
+        else
+        {
+            return Tracking.getContext( SYSTEM_UUID );
+        }
+    }
 
-        timings.sort( Comparator.comparing( ComputerTimeTracker.Timings::getAverage ).reversed() );
-        TextTable table = new TextTable( "Computer", "Tasks", "Total", "Average", "Maximum" );
+    private static void displayTimings( CommandContext context, List<ComputerTracker> timings, TrackingField field ) throws CommandException
+    {
+        if( timings.isEmpty() ) throw new CommandException( "No timings available" );
 
         Map<Computer, ServerComputer> lookup = new HashMap<>();
         int maxId = 0, maxInstance = 0;
@@ -411,7 +457,17 @@ public final class CommandComputerCraft extends CommandDelegate
         ICommandSender sender = context.getSender();
         boolean isPlayer = sender instanceof EntityPlayerMP && !(sender instanceof FakePlayer);
 
-        for( ComputerTimeTracker.Timings entry : timings )
+        timings.sort( Comparator.<ComputerTracker, Long>comparing( x -> x.get( field ) ).reversed() );
+
+        boolean defaultLayout = field == TrackingField.TASKS || field == TrackingField.TOTAL_TIME
+            || field == TrackingField.AVERAGE_TIME || field == TrackingField.MAX_TIME;
+
+
+        TextTable table = defaultLayout
+            ? new TextTable( "Computer", "Tasks", "Total", "Average", "Maximum" )
+            : new TextTable( "Computer", field.displayName() );
+
+        for( ComputerTracker entry : timings )
         {
             Computer computer = entry.getComputer();
             ServerComputer serverComputer = computer == null ? null : lookup.get( computer );
@@ -437,13 +493,20 @@ public final class CommandComputerCraft extends CommandDelegate
                     ) );
             }
 
-            table.addRow(
-                computerComponent,
-                formatted( "%4d", entry.getTasks() ),
-                text( String.format( "%7.1f", entry.getTotalTime() / 1e6 ) + "ms" ),
-                text( String.format( "%4.1f", entry.getAverage() / 1e6 ) + "ms" ),
-                text( String.format( "%5.1f", entry.getMaxTime() / 1e6 ) + "ms" )
-            );
+            if( defaultLayout )
+            {
+                table.addRow(
+                    computerComponent,
+                    text( entry.getFormatted( TrackingField.TASKS ) ),
+                    text( entry.getFormatted( TrackingField.TOTAL_TIME ) ),
+                    text( entry.getFormatted( TrackingField.AVERAGE_TIME ) ),
+                    text( entry.getFormatted( TrackingField.MAX_TIME ) )
+                );
+            }
+            else
+            {
+                table.addRow( computerComponent, text( entry.getFormatted( field ) ) );
+            }
         }
 
         table.displayTo( context.getSender() );

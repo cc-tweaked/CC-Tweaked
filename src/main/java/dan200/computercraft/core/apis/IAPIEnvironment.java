@@ -11,6 +11,7 @@ import dan200.computercraft.core.computer.Computer;
 import dan200.computercraft.core.computer.IComputerEnvironment;
 import dan200.computercraft.core.filesystem.FileSystem;
 import dan200.computercraft.core.terminal.Terminal;
+import dan200.computercraft.core.tracking.TrackingField;
 
 public interface IAPIEnvironment
 {
@@ -42,4 +43,6 @@ public interface IAPIEnvironment
 
     String getLabel();
     void setLabel( String label );
+
+    void addTrackingChange( TrackingField field, long change );
 }

@@ -7,6 +7,7 @@
 package dan200.computercraft.core.computer;
 
 import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.core.tracking.Tracking;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -233,7 +234,7 @@ public class ComputerThread
             {
                 long stop = System.nanoTime();
                 Computer computer = task.getOwner();
-                if( computer != null ) ComputerTimeTracker.addTiming( computer, stop - start );
+                if( computer != null ) Tracking.addTiming( computer, stop - start );
                 
                 // Re-add it back onto the queue or remove it
                 synchronized( s_taskLock )
