@@ -10,6 +10,8 @@ import java.util.Map;
 
 public class WiredNetworkChange implements IWiredNetworkChange
 {
+    private static final WiredNetworkChange EMPTY = new WiredNetworkChange( Collections.emptyMap(), Collections.emptyMap() );
+
     private final Map<String, IPeripheral> removed;
     private final Map<String, IPeripheral> added;
 
@@ -26,16 +28,30 @@ public class WiredNetworkChange implements IWiredNetworkChange
 
     public static WiredNetworkChange added( Map<String, IPeripheral> added )
     {
-        return new WiredNetworkChange( Collections.emptyMap(), Collections.unmodifiableMap( added ) );
+        return added.isEmpty() ? EMPTY : new WiredNetworkChange( Collections.emptyMap(), Collections.unmodifiableMap( added ) );
     }
 
     public static WiredNetworkChange removed( Map<String, IPeripheral> removed )
     {
-        return new WiredNetworkChange( Collections.unmodifiableMap( removed ), Collections.emptyMap() );
+        return removed.isEmpty() ? EMPTY : new WiredNetworkChange( Collections.unmodifiableMap( removed ), Collections.emptyMap() );
     }
 
     public static WiredNetworkChange changeOf( Map<String, IPeripheral> oldPeripherals, Map<String, IPeripheral> newPeripherals )
     {
+        // Handle the trivial cases, where all peripherals have been added or removed.
+        if( oldPeripherals.isEmpty() && newPeripherals.isEmpty() )
+        {
+            return EMPTY;
+        }
+        else if( oldPeripherals.isEmpty() )
+        {
+            return new WiredNetworkChange( Collections.emptyMap(), newPeripherals );
+        }
+        else if( newPeripherals.isEmpty() )
+        {
+            return new WiredNetworkChange( oldPeripherals, Collections.emptyMap() );
+        }
+
         Map<String, IPeripheral> added = new HashMap<>( newPeripherals );
         Map<String, IPeripheral> removed = new HashMap<>();
 
