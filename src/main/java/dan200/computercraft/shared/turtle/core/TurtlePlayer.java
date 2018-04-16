@@ -11,10 +11,16 @@ import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.shared.util.InventoryUtil;
 import dan200.computercraft.shared.util.WorldUtil;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.IMerchant;
+import net.minecraft.entity.passive.AbstractHorse;
+import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntitySign;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.IInteractionObject;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.util.FakePlayer;
@@ -88,6 +94,12 @@ public class TurtlePlayer extends FakePlayer
     }
 
     @Override
+    public Vec3d getPositionVector()
+    {
+        return new Vec3d( posX, posY, posZ );
+    }
+
+    @Override
     public float getEyeHeight()
     {
         return 0.0f;
@@ -100,17 +112,69 @@ public class TurtlePlayer extends FakePlayer
     }
 
     @Override
+    public void sendEnterCombat()
+    {
+    }
+
+    @Override
+    public void sendEndCombat()
+    {
+    }
+
+    @Nonnull
+    @Override
+    public SleepResult trySleep( @Nonnull BlockPos bedLocation )
+    {
+        return SleepResult.OTHER_PROBLEM;
+    }
+
+    @Override
+    public void openEditSign( TileEntitySign signTile )
+    {
+    }
+
+    @Override
+    public void displayGui( IInteractionObject guiOwner )
+    {
+    }
+
+    @Override
+    public void displayGUIChest( IInventory chestInventory )
+    {
+    }
+
+    @Override
+    public void displayVillagerTradeGui( IMerchant villager )
+    {
+    }
+
+    @Override
+    public void openGuiHorseInventory( AbstractHorse horse, IInventory inventoryIn )
+    {
+    }
+
+    @Override
+    public void openBook( ItemStack stack, @Nonnull EnumHand hand )
+    {
+    }
+
+    @Override
+    public void updateHeldItem()
+    {
+    }
+
+    @Override
+    protected void onItemUseFinish()
+    {
+    }
+
+    @Override
     public void mountEntityAndWakeUp()
     {
     }
 
     @Override
     public void dismountEntity( @Nonnull Entity entity )
-    {
-    }
-
-    @Override
-    public void openEditSign( TileEntitySign signTile )
     {
     }
 }
