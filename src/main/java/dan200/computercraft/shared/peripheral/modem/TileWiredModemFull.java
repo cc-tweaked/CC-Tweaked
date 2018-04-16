@@ -13,7 +13,6 @@ import dan200.computercraft.api.network.wired.IWiredNode;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.shared.peripheral.common.BlockCable;
 import dan200.computercraft.shared.peripheral.common.TilePeripheralBase;
-import dan200.computercraft.shared.util.IDAssigner;
 import dan200.computercraft.shared.wired.CapabilityWiredElement;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
@@ -24,11 +23,9 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.util.Constants;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.io.File;
 import java.util.*;
 
 public class TileWiredModemFull extends TilePeripheralBase
@@ -76,20 +73,12 @@ public class TileWiredModemFull extends TilePeripheralBase
             BlockPos pos = m_entity.getPos();
             return new Vec3d( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5 );
         }
-
-        @Nonnull
-        @Override
-        public Map<String, IPeripheral> getPeripherals()
-        {
-            return m_entity.getPeripherals();
-        }
     }
 
     private WiredModemPeripheral[] m_modems = new WiredModemPeripheral[6];
 
     private boolean m_peripheralAccessAllowed = false;
-    private int[] m_attachedPeripheralIDs = new int[6];
-    private String[] m_attachedPeripheralTypes = new String[6];
+    private WiredModemLocalPeripheral[] m_peripherals = new WiredModemLocalPeripheral[6];
 
     private boolean m_destroyed = false;
     private boolean m_connectionsFormed = false;
@@ -99,7 +88,7 @@ public class TileWiredModemFull extends TilePeripheralBase
 
     public TileWiredModemFull()
     {
-        Arrays.fill( m_attachedPeripheralIDs, -1 );
+        for( int i = 0; i < m_peripherals.length; i++ ) m_peripherals[i] = new WiredModemLocalPeripheral();
     }
 
     private void remove()
@@ -152,18 +141,29 @@ public class TileWiredModemFull extends TilePeripheralBase
     {
         if( !world.isRemote && m_peripheralAccessAllowed )
         {
-            Map<String, IPeripheral> updated = getPeripherals();
-
-            if( updated.isEmpty() )
+            boolean hasChanged = false;
+            for( EnumFacing facing : EnumFacing.VALUES )
             {
-                // If there are no peripherals then disable access and update the display state.
-                m_peripheralAccessAllowed = false;
-                updateAnim();
+                hasChanged |= m_peripherals[facing.ordinal()].attach( world, getPos(), facing );
             }
 
-            // Always invalidate the node: it's more accurate than checking if the peripherals
-            // have changed
-            m_node.invalidate();
+            if( hasChanged ) updateConnectedPeripherals();
+        }
+    }
+
+    @Override
+    public void onNeighbourTileEntityChange( @Nonnull BlockPos neighbour )
+    {
+        if( !world.isRemote && m_peripheralAccessAllowed )
+        {
+            for( EnumFacing facing : EnumFacing.VALUES )
+            {
+                if( getPos().offset( facing ).equals( neighbour ) )
+                {
+                    WiredModemLocalPeripheral peripheral = m_peripherals[facing.ordinal()];
+                    if( peripheral.attach( world, getPos(), facing ) ) updateConnectedPeripherals();
+                }
+            }
         }
     }
 
@@ -180,9 +180,9 @@ public class TileWiredModemFull extends TilePeripheralBase
         if( !getWorld().isRemote )
         {
             // On server, we interacted if a peripheral was found
-            Set<String> oldPeriphName = getPeripherals().keySet();
+            Set<String> oldPeriphName = getConnectedPeripheralNames();
             togglePeripheralAccess();
-            Set<String> periphName = getPeripherals().keySet();
+            Set<String> periphName = getConnectedPeripheralNames();
 
             if( !Objects.equal( periphName, oldPeriphName ) )
             {
@@ -220,17 +220,7 @@ public class TileWiredModemFull extends TilePeripheralBase
     {
         super.readFromNBT( tag );
         m_peripheralAccessAllowed = tag.getBoolean( "peripheralAccess" );
-        for( int i = 0; i < m_attachedPeripheralIDs.length; i++ )
-        {
-            if( tag.hasKey( "peripheralID_" + i, Constants.NBT.TAG_ANY_NUMERIC ) )
-            {
-                m_attachedPeripheralIDs[i] = tag.getInteger( "peripheralID_" + i );
-            }
-            if( tag.hasKey( "peripheralType_" + i, Constants.NBT.TAG_STRING ) )
-            {
-                m_attachedPeripheralTypes[i] = tag.getString( "peripheralType_" + i );
-            }
-        }
+        for( int i = 0; i < m_peripherals.length; i++ ) m_peripherals[i].readNBT( tag, "_" + i );
     }
 
     @Nonnull
@@ -239,17 +229,7 @@ public class TileWiredModemFull extends TilePeripheralBase
     {
         tag = super.writeToNBT( tag );
         tag.setBoolean( "peripheralAccess", m_peripheralAccessAllowed );
-        for( int i = 0; i < m_attachedPeripheralIDs.length; i++ )
-        {
-            if( m_attachedPeripheralIDs[i] >= 0 )
-            {
-                tag.setInteger( "peripheralID_" + i, m_attachedPeripheralIDs[i] );
-            }
-            if( m_attachedPeripheralTypes[i] != null )
-            {
-                tag.setString( "peripheralType_" + i, m_attachedPeripheralTypes[i] );
-            }
-        }
+        for( int i = 0; i < m_peripherals.length; i++ ) m_peripherals[i].writeNBT( tag, "_" + i );
         return tag;
     }
 
@@ -294,8 +274,16 @@ public class TileWiredModemFull extends TilePeripheralBase
             if( !m_connectionsFormed )
             {
                 m_connectionsFormed = true;
+
                 connectionsChanged();
-                if( m_peripheralAccessAllowed ) m_node.invalidate();
+                if( m_peripheralAccessAllowed )
+                {
+                    for( EnumFacing facing : EnumFacing.VALUES )
+                    {
+                        m_peripherals[facing.ordinal()].attach( world, getPos(), facing );
+                    }
+                    updateConnectedPeripherals();
+                }
             }
         }
 
@@ -326,60 +314,63 @@ public class TileWiredModemFull extends TilePeripheralBase
     {
         if( !m_peripheralAccessAllowed )
         {
-            m_peripheralAccessAllowed = true;
-            if( getPeripherals().isEmpty() )
+            boolean hasAny = false;
+            for( EnumFacing facing : EnumFacing.VALUES )
             {
-                m_peripheralAccessAllowed = false;
-                return;
+                WiredModemLocalPeripheral peripheral = m_peripherals[facing.ordinal()];
+                peripheral.attach( world, getPos(), facing );
+                hasAny |= peripheral.hasPeripheral();
             }
+
+            if( !hasAny ) return;
+
+            m_peripheralAccessAllowed = true;
+            m_node.updatePeripherals( getConnectedPeripherals() );
         }
         else
         {
             m_peripheralAccessAllowed = false;
+
+            for( WiredModemLocalPeripheral peripheral : m_peripherals ) peripheral.detach();
+            m_node.updatePeripherals( Collections.emptyMap() );
         }
 
         updateAnim();
-        m_node.invalidate();
     }
 
-    @Nonnull
-    private Map<String, IPeripheral> getPeripherals()
+    private Set<String> getConnectedPeripheralNames()
+    {
+        if( !m_peripheralAccessAllowed ) return Collections.emptySet();
+
+        Set<String> peripherals = new HashSet<>( 6 );
+        for( WiredModemLocalPeripheral m_peripheral : m_peripherals )
+        {
+            String name = m_peripheral.getConnectedName();
+            if( name != null ) peripherals.add( name );
+        }
+        return peripherals;
+    }
+
+    private Map<String, IPeripheral> getConnectedPeripherals()
     {
         if( !m_peripheralAccessAllowed ) return Collections.emptyMap();
 
         Map<String, IPeripheral> peripherals = new HashMap<>( 6 );
-        for( EnumFacing facing : EnumFacing.VALUES )
-        {
-            BlockPos neighbour = getPos().offset( facing );
-            IPeripheral peripheral = TileCable.getPeripheral( getWorld(), neighbour, facing.getOpposite() );
-            if( peripheral != null && !(peripheral instanceof WiredModemPeripheral) )
-            {
-                String type = peripheral.getType();
-                int id = m_attachedPeripheralIDs[facing.ordinal()];
-                String oldType = m_attachedPeripheralTypes[facing.ordinal()];
-                if( id < 0 || !type.equals( oldType ) )
-                {
-                    m_attachedPeripheralTypes[facing.ordinal()] = type;
-                    id = m_attachedPeripheralIDs[facing.ordinal()] = IDAssigner.getNextIDFromFile( new File(
-                        ComputerCraft.getWorldDir( getWorld() ),
-                        "computer/lastid_" + type + ".txt"
-                    ) );
-                }
-
-                peripherals.put( type + "_" + id, peripheral );
-            }
-        }
-
+        for( WiredModemLocalPeripheral m_peripheral : m_peripherals ) m_peripheral.extendMap( peripherals );
         return peripherals;
     }
 
-    private String getCachedPeripheralName( EnumFacing facing )
+    private void updateConnectedPeripherals()
     {
-        if( !m_peripheralAccessAllowed ) return null;
+        Map<String, IPeripheral> peripherals = getConnectedPeripherals();
+        if( peripherals.isEmpty() )
+        {
+            // If there are no peripherals then disable access and update the display state.
+            m_peripheralAccessAllowed = false;
+            updateAnim();
+        }
 
-        int id = m_attachedPeripheralIDs[facing.ordinal()];
-        String type = m_attachedPeripheralTypes[facing.ordinal()];
-        return id < 0 || type == null ? null : type + "_" + id;
+        m_node.updatePeripherals( peripherals );
     }
 
     // IWiredElementTile
@@ -415,7 +406,7 @@ public class TileWiredModemFull extends TilePeripheralBase
                 @Override
                 protected boolean canSeePeripheral( @Nonnull String peripheralName )
                 {
-                    return !peripheralName.equals( getCachedPeripheralName( side ) );
+                    return !peripheralName.equals( m_peripherals[side.ordinal()].getConnectedName() );
                 }
 
                 @Nonnull

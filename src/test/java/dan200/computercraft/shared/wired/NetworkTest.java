@@ -23,7 +23,6 @@ import org.junit.Test;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.BiConsumer;
@@ -379,17 +378,10 @@ public class NetworkTest
             remotePeripherals.putAll( change.peripheralsAdded() );
         }
 
-        @Nonnull
-        @Override
-        public Map<String, IPeripheral> getPeripherals()
-        {
-            return Collections.unmodifiableMap( localPeripherals );
-        }
-
         public NetworkElement addPeripheral( String name )
         {
             localPeripherals.put( name, new NetworkPeripheral() );
-            getNode().invalidate();
+            getNode().updatePeripherals( localPeripherals );
             return this;
         }
 

@@ -1,6 +1,9 @@
 package dan200.computercraft.api.network.wired;
 
+import dan200.computercraft.api.peripheral.IPeripheral;
+
 import javax.annotation.Nonnull;
+import java.util.Map;
 
 /**
  * A wired network is composed of one of more {@link IWiredNode}s, a set of connections between them, and a series
@@ -51,7 +54,8 @@ public interface IWiredNetwork
     /**
      * Sever all connections this node has, removing it from this network.
      *
-     * This should only be used on the server thread.
+     * This should only be used on the server thread. You should only call this on nodes
+     * that your network element owns.
      *
      * @param node The node to remove
      * @return Whether this node was removed from the network. One cannot remove a node from a network where it is the
@@ -62,13 +66,15 @@ public interface IWiredNetwork
     boolean remove( @Nonnull IWiredNode node );
 
     /**
-     * Mark this node's peripherals as having changed.
+     * Update the peripherals a node provides.
      *
-     * This should only be used on the server thread.
+     * This should only be used on the server thread. You should only call this on nodes
+     * that your network element owns.
      *
-     * @param node The node to mark as invalid.
+     * @param node        The node to attach peripherals for.
+     * @param peripherals The new peripherals for this node.
      * @throws IllegalArgumentException If the node is not in the network.
-     * @see IWiredElement#getPeripherals()
+     * @see IWiredNode#updatePeripherals(Map)
      */
-    void invalidate( @Nonnull IWiredNode node );
+    void updatePeripherals( @Nonnull IWiredNode node, @Nonnull Map<String, IPeripheral> peripherals );
 }

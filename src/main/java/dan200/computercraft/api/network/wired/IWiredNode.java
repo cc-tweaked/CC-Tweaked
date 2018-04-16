@@ -1,8 +1,10 @@
 package dan200.computercraft.api.network.wired;
 
 import dan200.computercraft.api.network.IPacketNetwork;
+import dan200.computercraft.api.peripheral.IPeripheral;
 
 import javax.annotation.Nonnull;
+import java.util.Map;
 
 /**
  * Wired nodes act as a layer between {@link IWiredElement}s and {@link IWiredNetwork}s.
@@ -72,7 +74,8 @@ public interface IWiredNode extends IPacketNetwork
     /**
      * Sever all connections this node has, removing it from this network.
      *
-     * This should only be used on the server thread.
+     * This should only be used on the server thread. You should only call this on nodes
+     * that your network element owns.
      *
      * @return Whether this node was removed from the network. One cannot remove a node from a network where it is the
      * only element.
@@ -87,12 +90,14 @@ public interface IWiredNode extends IPacketNetwork
     /**
      * Mark this node's peripherals as having changed.
      *
-     * This should only be used on the server thread.
+     * This should only be used on the server thread. You should only call this on nodes
+     * that your network element owns.
      *
-     * @see IWiredElement#getPeripherals()
+     * @param peripherals The new peripherals for this node.
+     * @see IWiredNetwork#updatePeripherals(IWiredNode, Map)
      */
-    default void invalidate()
+    default void updatePeripherals( @Nonnull Map<String, IPeripheral> peripherals )
     {
-        getNetwork().invalidate( this );
+        getNetwork().updatePeripherals( this, peripherals );
     }
 }

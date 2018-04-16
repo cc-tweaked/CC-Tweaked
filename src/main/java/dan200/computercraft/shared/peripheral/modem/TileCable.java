@@ -16,10 +16,7 @@ import dan200.computercraft.shared.peripheral.PeripheralType;
 import dan200.computercraft.shared.peripheral.common.BlockCable;
 import dan200.computercraft.shared.peripheral.common.BlockCableModemVariant;
 import dan200.computercraft.shared.peripheral.common.PeripheralItemFactory;
-import dan200.computercraft.shared.util.IDAssigner;
-import dan200.computercraft.shared.util.PeripheralUtil;
 import dan200.computercraft.shared.wired.CapabilityWiredElement;
-import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -35,7 +32,6 @@ import net.minecraftforge.common.capabilities.Capability;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.io.File;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -79,16 +75,6 @@ public class TileCable extends TileModemBase
             return new Vec3d( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5 );
         }
 
-        @Nonnull
-        @Override
-        public Map<String, IPeripheral> getPeripherals()
-        {
-            IPeripheral peripheral = m_entity.getConnectedPeripheral();
-            return peripheral != null
-                ? Collections.singletonMap( m_entity.getConnectedPeripheralName(), peripheral )
-                : Collections.emptyMap();
-        }
-
         @Override
         protected void attachPeripheral( String name, IPeripheral peripheral )
         {
@@ -105,23 +91,15 @@ public class TileCable extends TileModemBase
     // Members
 
     private boolean m_peripheralAccessAllowed;
-    private int m_attachedPeripheralID;
+    private WiredModemLocalPeripheral m_peripheral = new WiredModemLocalPeripheral();
 
-    private boolean m_destroyed;
+    private boolean m_destroyed = false;
 
     private boolean m_hasDirection = false;
     private boolean m_connectionsFormed = false;
 
     private WiredModemElement m_cable;
     private IWiredNode m_node;
-
-    public TileCable()
-    {
-        m_peripheralAccessAllowed = false;
-        m_attachedPeripheralID = -1;
-
-        m_destroyed = false;
-    }
 
     @Override
     protected ModemPeripheral createPeripheral()
@@ -133,7 +111,7 @@ public class TileCable extends TileModemBase
             @Override
             protected boolean canSeePeripheral( @Nonnull String peripheralName )
             {
-                return !peripheralName.equals( getConnectedPeripheralName() );
+                return !peripheralName.equals( m_peripheral.getConnectedName() );
             }
 
             @Nonnull
@@ -294,8 +272,27 @@ public class TileCable extends TileModemBase
                     modemChanged();
                     connectionsChanged();
 
-                    break;
+                    return;
                 }
+            }
+        }
+
+        if( !world.isRemote && m_peripheralAccessAllowed )
+        {
+            if( m_peripheral.attach( world, getPos(), dir ) ) updateConnectedPeripherals();
+        }
+    }
+
+    @Override
+    public void onNeighbourTileEntityChange( @Nonnull BlockPos neighbour )
+    {
+        super.onNeighbourTileEntityChange( neighbour );
+        if( !world.isRemote && m_peripheralAccessAllowed )
+        {
+            EnumFacing facing = getDirection();
+            if( getPos().offset( facing ).equals( neighbour ) )
+            {
+                if( m_peripheral.attach( world, getPos(), facing ) ) updateConnectedPeripherals();
             }
         }
     }
@@ -400,9 +397,9 @@ public class TileCable extends TileModemBase
             if( !getWorld().isRemote )
             {
                 // On server, we interacted if a peripheral was found
-                String oldPeriphName = getConnectedPeripheralName();
+                String oldPeriphName = m_peripheral.getConnectedName();
                 togglePeripheralAccess();
-                String periphName = getConnectedPeripheralName();
+                String periphName = m_peripheral.getConnectedName();
 
                 if( !Objects.equal( periphName, oldPeriphName ) )
                 {
@@ -437,7 +434,7 @@ public class TileCable extends TileModemBase
         // Read properties
         super.readFromNBT( nbttagcompound );
         m_peripheralAccessAllowed = nbttagcompound.getBoolean( "peripheralAccess" );
-        m_attachedPeripheralID = nbttagcompound.getInteger( "peripheralID" );
+        m_peripheral.readNBT( nbttagcompound, "" );
     }
 
     @Nonnull
@@ -447,7 +444,7 @@ public class TileCable extends TileModemBase
         // Write properties
         nbttagcompound = super.writeToNBT( nbttagcompound );
         nbttagcompound.setBoolean( "peripheralAccess", m_peripheralAccessAllowed );
-        nbttagcompound.setInteger( "peripheralID", m_attachedPeripheralID );
+        m_peripheral.writeNBT( nbttagcompound, "" );
         return nbttagcompound;
     }
 
@@ -476,8 +473,13 @@ public class TileCable extends TileModemBase
             if( !m_connectionsFormed )
             {
                 m_connectionsFormed = true;
+
                 connectionsChanged();
-                if( m_peripheralAccessAllowed ) m_node.invalidate();
+                if( m_peripheralAccessAllowed )
+                {
+                    m_peripheral.attach( world, pos, m_dir );
+                    updateConnectedPeripherals();
+                }
             }
         }
     }
@@ -515,15 +517,11 @@ public class TileCable extends TileModemBase
         if( getWorld().isRemote ) return;
 
         PeripheralType type = getPeripheralType();
-        if( type == PeripheralType.Cable )
-        {
-            m_attachedPeripheralID = -1;
-        }
-
         if( type != PeripheralType.WiredModemWithCable && m_peripheralAccessAllowed )
         {
             m_peripheralAccessAllowed = false;
-            m_node.invalidate();
+            m_peripheral.detach();
+            m_node.updatePeripherals( Collections.emptyMap() );
             markDirty();
             updateAnim();
         }
@@ -534,61 +532,34 @@ public class TileCable extends TileModemBase
     {
         if( !m_peripheralAccessAllowed )
         {
+            m_peripheral.attach( world, getPos(), getDirection() );
+            if( !m_peripheral.hasPeripheral() ) return;
+
             m_peripheralAccessAllowed = true;
-            if( getConnectedPeripheral() == null )
-            {
-                m_peripheralAccessAllowed = false;
-                return;
-            }
+            m_node.updatePeripherals( m_peripheral.toMap() );
         }
         else
         {
+            m_peripheral.detach();
+
             m_peripheralAccessAllowed = false;
+            m_node.updatePeripherals( Collections.emptyMap() );
         }
 
         updateAnim();
-        m_node.invalidate();
     }
 
-    private String getConnectedPeripheralName()
+    private void updateConnectedPeripherals()
     {
-        IPeripheral periph = getConnectedPeripheral();
-        if( periph != null )
+        Map<String, IPeripheral> peripherals = m_peripheral.toMap();
+        if( peripherals.isEmpty() )
         {
-            String type = periph.getType();
-            if( m_attachedPeripheralID < 0 )
-            {
-                m_attachedPeripheralID = IDAssigner.getNextIDFromFile( new File(
-                    ComputerCraft.getWorldDir( getWorld() ),
-                    "computer/lastid_" + type + ".txt"
-                ) );
-            }
-            return type + "_" + m_attachedPeripheralID;
+            // If there are no peripherals then disable access and update the display state.
+            m_peripheralAccessAllowed = false;
+            updateAnim();
         }
-        return null;
-    }
 
-    private IPeripheral getConnectedPeripheral()
-    {
-        if( m_peripheralAccessAllowed )
-        {
-            if( getPeripheralType() == PeripheralType.WiredModemWithCable )
-            {
-                EnumFacing facing = getDirection();
-                BlockPos neighbour = getPos().offset( facing );
-                IPeripheral peripheral = getPeripheral( getWorld(), neighbour, facing.getOpposite() );
-                return peripheral == null || peripheral instanceof WiredModemPeripheral ? null : peripheral;
-            }
-        }
-        return null;
-    }
-
-    public static IPeripheral getPeripheral( World world, BlockPos pos, EnumFacing facing )
-    {
-        Block block = world.getBlockState( pos ).getBlock();
-        if( block == ComputerCraft.Blocks.wiredModemFull || block == ComputerCraft.Blocks.cable ) return null;
-
-        return PeripheralUtil.getPeripheral( world, pos, facing );
+        m_node.updatePeripherals( peripherals );
     }
 
     @Override

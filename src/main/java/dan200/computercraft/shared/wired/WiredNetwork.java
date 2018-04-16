@@ -1,5 +1,7 @@
 package dan200.computercraft.shared.wired;
 
+import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableMap;
 import dan200.computercraft.api.network.Packet;
 import dan200.computercraft.api.network.wired.IWiredNetwork;
 import dan200.computercraft.api.network.wired.IWiredNode;
@@ -283,9 +285,10 @@ public final class WiredNetwork implements IWiredNetwork
     }
 
     @Override
-    public void invalidate( @Nonnull IWiredNode node )
+    public void updatePeripherals( @Nonnull IWiredNode node, @Nonnull Map<String, IPeripheral> newPeripherals )
     {
         WiredNode wired = checkNode( node );
+        Preconditions.checkNotNull( peripherals, "peripherals cannot be null" );
 
         lock.writeLock().lock();
         try
@@ -293,11 +296,10 @@ public final class WiredNetwork implements IWiredNetwork
             if( wired.network != this ) throw new IllegalStateException( "Node is not on this network" );
 
             Map<String, IPeripheral> oldPeripherals = wired.peripherals;
-            Map<String, IPeripheral> newPeripherals = wired.element.getPeripherals();
             WiredNetworkChange change = WiredNetworkChange.changeOf( oldPeripherals, newPeripherals );
             if( change.isEmpty() ) return;
 
-            wired.peripherals = newPeripherals;
+            wired.peripherals = ImmutableMap.copyOf( newPeripherals );
 
             // Detach the old peripherals then remove them.
             peripherals.keySet().removeAll( change.peripheralsRemoved().keySet() );
