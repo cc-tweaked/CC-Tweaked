@@ -338,7 +338,7 @@ public final class CommandComputerCraft extends CommandDelegate
             {
                 TrackingContext timings = getTimingContext( context );
                 if( !timings.stop() ) throw new CommandException( "Tracking not enabled" );
-                displayTimings( context, timings.getTimings(), TrackingField.AVERAGE_TIME );
+                displayTimings( context, timings.getImmutableTimings(), TrackingField.AVERAGE_TIME );
             }
         } );
 
@@ -357,7 +357,7 @@ public final class CommandComputerCraft extends CommandDelegate
                     if( field == null ) throw new CommandException( "Unknown field '" + arguments.get( 0 ) + "'" );
                 }
 
-                displayTimings( context, getTimingContext( context ).getTimings(), field );
+                displayTimings( context, getTimingContext( context ).getImmutableTimings(), field );
             }
 
             @Nonnull

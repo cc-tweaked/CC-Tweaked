@@ -15,6 +15,7 @@ import dan200.computercraft.core.apis.handles.EncodedInputHandle;
 import dan200.computercraft.core.apis.handles.EncodedOutputHandle;
 import dan200.computercraft.core.filesystem.FileSystem;
 import dan200.computercraft.core.filesystem.FileSystemException;
+import dan200.computercraft.core.tracking.TrackingField;
 
 import javax.annotation.Nonnull;
 import java.io.InputStream;
@@ -88,6 +89,7 @@ public class FSAPI implements ILuaAPI
             {
                 // list
                 String path = getString( args, 0 );
+                m_env.addTrackingChange( TrackingField.FS_OPS );
                 try {
                     String[] results = m_fileSystem.list( path );
                     Map<Object,Object> table = new HashMap<>();
@@ -162,6 +164,7 @@ public class FSAPI implements ILuaAPI
                 // makeDir
                 String path = getString( args, 0 );
                 try {
+                    m_env.addTrackingChange( TrackingField.FS_OPS );
                     m_fileSystem.makeDir( path );
                     return null;
                 } catch( FileSystemException e ) {
@@ -174,6 +177,7 @@ public class FSAPI implements ILuaAPI
                 String path = getString( args, 0 );
                 String dest = getString( args, 1 );
                 try {
+                    m_env.addTrackingChange( TrackingField.FS_OPS );
                     m_fileSystem.move( path, dest );
                     return null;
                 } catch( FileSystemException e ) {
@@ -186,6 +190,7 @@ public class FSAPI implements ILuaAPI
                 String path = getString( args, 0 );
                 String dest = getString( args, 1 );
                 try {
+                    m_env.addTrackingChange( TrackingField.FS_OPS );
                     m_fileSystem.copy( path, dest );
                     return null;
                 } catch( FileSystemException e ) {
@@ -197,6 +202,7 @@ public class FSAPI implements ILuaAPI
                 // delete
                 String path = getString( args, 0 );
                 try {
+                    m_env.addTrackingChange( TrackingField.FS_OPS );
                     m_fileSystem.delete( path );
                     return null;
                 } catch( FileSystemException e ) {
@@ -208,6 +214,7 @@ public class FSAPI implements ILuaAPI
                 // open
                 String path = getString( args, 0 );
                 String mode = getString( args, 1 );
+                m_env.addTrackingChange( TrackingField.FS_OPS );
                 try {
                     switch( mode )
                     {
@@ -288,6 +295,7 @@ public class FSAPI implements ILuaAPI
                 // find
                 String path = getString( args, 0 );
                 try {
+                    m_env.addTrackingChange( TrackingField.FS_OPS );
                     String[] results = m_fileSystem.find( path );
                     Map<Object,Object> table = new HashMap<>();
                     for(int i=0; i<results.length; ++i ) {

@@ -15,6 +15,7 @@ import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.api.turtle.event.TurtleAction;
 import dan200.computercraft.api.turtle.event.TurtleActionEvent;
 import dan200.computercraft.core.apis.IAPIEnvironment;
+import dan200.computercraft.core.tracking.TrackingField;
 import dan200.computercraft.shared.turtle.core.*;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -161,70 +162,83 @@ public class TurtleAPI implements ILuaAPI
             case 0:
             {
                 // forward
+                m_environment.addTrackingChange( TrackingField.TURTLE_OPS );
                 return tryCommand( context, new TurtleMoveCommand( MoveDirection.Forward ) );
             }
             case 1:
             {
                 // back
+                m_environment.addTrackingChange( TrackingField.TURTLE_OPS );
                 return tryCommand( context, new TurtleMoveCommand( MoveDirection.Back ) );
             }
             case 2:
             {
                 // up
+                m_environment.addTrackingChange( TrackingField.TURTLE_OPS );
                 return tryCommand( context, new TurtleMoveCommand( MoveDirection.Up ) );
             }
             case 3:
             {
                 // down
+                m_environment.addTrackingChange( TrackingField.TURTLE_OPS );
                 return tryCommand( context, new TurtleMoveCommand( MoveDirection.Down ) );
             }
             case 4:
             {
                 // turnLeft
+                m_environment.addTrackingChange( TrackingField.TURTLE_OPS );
                 return tryCommand( context, new TurtleTurnCommand( TurnDirection.Left ) );
             }
             case 5:
             {
                 // turnRight
+                m_environment.addTrackingChange( TrackingField.TURTLE_OPS );
                 return tryCommand( context, new TurtleTurnCommand( TurnDirection.Right ) );
             }
             case 6:
             {
                 // dig
                 Optional<TurtleSide> side = parseSide( args, 0 );
+                m_environment.addTrackingChange( TrackingField.TURTLE_OPS );
                 return tryCommand( context, new TurtleDigCommand( InteractDirection.Forward, side ) );
             }
             case 7:
             {
                 // digUp
                 Optional<TurtleSide> side = parseSide( args, 0 );
+                m_environment.addTrackingChange( TrackingField.TURTLE_OPS );
                 return tryCommand( context, new TurtleDigCommand( InteractDirection.Up, side ) );
             }
             case 8:
             {
                 // digDown
                 Optional<TurtleSide> side = parseSide( args, 0 );
+                m_environment.addTrackingChange( TrackingField.TURTLE_OPS );
                 return tryCommand( context, new TurtleDigCommand( InteractDirection.Down, side ) );
             }
             case 9:
             {
                 // place
+                m_environment.addTrackingChange( TrackingField.TURTLE_OPS );
                 return tryCommand( context, new TurtlePlaceCommand( InteractDirection.Forward, args ) );
             }
             case 10:
             {
                 // placeUp
+                m_environment.addTrackingChange( TrackingField.TURTLE_OPS );
                 return tryCommand( context, new TurtlePlaceCommand( InteractDirection.Up, args ) );
             }
             case 11:
             {
                 // placeDown
+                m_environment.addTrackingChange( TrackingField.TURTLE_OPS );
                 return tryCommand( context, new TurtlePlaceCommand( InteractDirection.Down, args ) );
             }
             case 12:
             {
                 // drop
                 int count = parseCount( args, 0 );
+                m_environment.addTrackingChange( TrackingField.TURTLE_OPS );
                 return tryCommand( context, new TurtleDropCommand( InteractDirection.Forward, count ) );
             }
             case 13:
@@ -294,48 +308,56 @@ public class TurtleAPI implements ILuaAPI
             {
                 // attack
                 Optional<TurtleSide> side = parseSide( args, 0 );
+                m_environment.addTrackingChange( TrackingField.TURTLE_OPS );
                 return tryCommand( context, new TurtleAttackCommand( InteractDirection.Forward, side ) );
             }
             case 23:
             {
                 // attackUp
                 Optional<TurtleSide> side = parseSide( args, 0 );
+                m_environment.addTrackingChange( TrackingField.TURTLE_OPS );
                 return tryCommand( context, new TurtleAttackCommand( InteractDirection.Up, side ) );
             }
             case 24:
             {
                 // attackDown
                 Optional<TurtleSide> side = parseSide( args, 0 );
+                m_environment.addTrackingChange( TrackingField.TURTLE_OPS );
                 return tryCommand( context, new TurtleAttackCommand( InteractDirection.Down, side ) );
             }
             case 25:
             {
                 // dropUp
                 int count = parseCount( args, 0 );
+                m_environment.addTrackingChange( TrackingField.TURTLE_OPS );
                 return tryCommand( context, new TurtleDropCommand( InteractDirection.Up, count ) );
             }
             case 26:
             {
                 // dropDown
                 int count = parseCount( args, 0 );
+                m_environment.addTrackingChange( TrackingField.TURTLE_OPS );
                 return tryCommand( context, new TurtleDropCommand( InteractDirection.Down, count ) );
             }
             case 27:
             {
                 // suck
                 int count = parseCount( args, 0 );
+                m_environment.addTrackingChange( TrackingField.TURTLE_OPS );
                 return tryCommand( context, new TurtleSuckCommand( InteractDirection.Forward, count ) );
             }
             case 28:
             {
                 // suckUp
                 int count = parseCount( args, 0 );
+                m_environment.addTrackingChange( TrackingField.TURTLE_OPS );
                 return tryCommand( context, new TurtleSuckCommand( InteractDirection.Up, count ) );
             }
             case 29:
             {
                 // suckDown
                 int count = parseCount( args, 0 );
+                m_environment.addTrackingChange( TrackingField.TURTLE_OPS );
                 return tryCommand( context, new TurtleSuckCommand( InteractDirection.Down, count ) );
             }
             case 30:
@@ -389,11 +411,13 @@ public class TurtleAPI implements ILuaAPI
             case 36:
             {
                 // equipLeft
+                m_environment.addTrackingChange( TrackingField.TURTLE_OPS );
                 return tryCommand( context, new TurtleEquipCommand( TurtleSide.Left ) );
             }
             case 37:
             {
                 // equipRight
+                m_environment.addTrackingChange( TrackingField.TURTLE_OPS );
                 return tryCommand( context, new TurtleEquipCommand( TurtleSide.Right ) );
             }
             case 38:

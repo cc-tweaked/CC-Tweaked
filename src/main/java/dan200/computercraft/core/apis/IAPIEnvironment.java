@@ -45,4 +45,9 @@ public interface IAPIEnvironment
     void setLabel( String label );
 
     void addTrackingChange( TrackingField field, long change );
+
+    default void addTrackingChange( TrackingField field )
+    {
+        addTrackingChange( field, 1 );
+    }
 }

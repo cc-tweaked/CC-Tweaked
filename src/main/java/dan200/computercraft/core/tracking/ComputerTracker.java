@@ -76,7 +76,10 @@ public class ComputerTracker
 
     void addValue( TrackingField field, long change )
     {
-        fields.adjustOrPutValue( field, change, change );
+        synchronized( fields )
+        {
+            fields.adjustOrPutValue( field, change, change );
+        }
     }
 
     public long get( TrackingField field )
@@ -86,7 +89,10 @@ public class ComputerTracker
         if( field == TrackingField.TOTAL_TIME ) return totalTime;
         if( field == TrackingField.AVERAGE_TIME ) return totalTime / tasks;
 
-        return fields.get( field );
+        synchronized( fields )
+        {
+            return fields.get( field );
+        }
     }
 
     public String getFormatted( TrackingField field )

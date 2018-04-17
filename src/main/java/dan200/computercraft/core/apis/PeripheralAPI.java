@@ -15,6 +15,7 @@ import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.core.computer.Computer;
 import dan200.computercraft.core.computer.ComputerThread;
 import dan200.computercraft.core.computer.ITask;
+import dan200.computercraft.core.tracking.TrackingField;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -109,6 +110,7 @@ public class PeripheralAPI implements ILuaAPI, IAPIEnvironment.IPeripheralChange
             }
             if( method >= 0 )
             {
+                m_environment.addTrackingChange( TrackingField.PERIPHERAL_OPS );
                 return m_peripheral.callMethod( this, context, method, arguments );
             }
             else

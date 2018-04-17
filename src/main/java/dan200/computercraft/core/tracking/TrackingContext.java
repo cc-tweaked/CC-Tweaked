@@ -40,11 +40,16 @@ public class TrackingContext
         return true;
     }
 
-    public synchronized List<ComputerTracker> getTimings()
+    public synchronized List<ComputerTracker> getImmutableTimings()
     {
         ArrayList<ComputerTracker> timings = new ArrayList<>( this.timings.size() );
         for( ComputerTracker timing : this.timings ) timings.add( new ComputerTracker( timing ) );
         return timings;
+    }
+
+    public synchronized List<ComputerTracker> getTimings()
+    {
+        return new ArrayList<>( timings );
     }
 
     public void addTiming( Computer computer, long time )
