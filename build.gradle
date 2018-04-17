@@ -60,6 +60,10 @@ dependencies {
     runtime "mezz.jei:jei_1.12.2:4.8.5.159"
     shade 'org.squiddev:Cobalt:0.3.1'
 
+    shade 'io.prometheus:simpleclient_common:0.3.0'
+    shade 'org.eclipse.jetty:jetty-server:9.4.6.v20170531'
+    shade 'javax.servlet:javax.servlet-api:4.0.0'
+
     testCompile 'junit:junit:4.11'
 }
 
