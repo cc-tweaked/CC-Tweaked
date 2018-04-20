@@ -462,8 +462,7 @@ public class ComputerCraft
     @Mod.EventHandler
     public void onServerStarting( FMLServerStartingEvent event )
     {
-        event.registerServerCommand( new CommandComputer() );
-        event.registerServerCommand( new CommandComputerCraft() );
+        proxy.initServer( event.getServer() );
     }
 
     @Mod.EventHandler

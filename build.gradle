@@ -144,10 +144,39 @@ uploadArchives {
         if(project.hasProperty('mavenUploadUrl')) {
             mavenDeployer {
                 configuration = configurations.deployerJars
+
                 repository(url: project.property('mavenUploadUrl')) {
                     authentication(
                         userName: project.property('mavenUploadUser'),
                         privateKey: project.property('mavenUploadKey'))
+                }
+
+                pom.project {
+                    name 'CC: Tweaked'
+                    packaging 'jar'
+                    description 'A fork of ComputerCraft which aims to provide earlier access to the more experimental and in-development features of the mod.'
+                    url 'https://github.com/SquidDev-CC/CC-Tweaked'
+
+                    scm {
+                        url 'https://github.com/dan200/ComputerCraft.git'
+                    }
+
+                    issueManagement {
+                        system 'github'
+                        url 'https://github.com/dan200/ComputerCraft/issues'
+                    }
+
+                    licenses {
+                        license {
+                            name 'ComputerCraft Public License, Version 1.0'
+                            url 'https://github.com/dan200/ComputerCraft/blob/master/LICENSE'
+                            distribution 'repo'
+                        }
+                    }
+                }
+
+                pom.whenConfigured { pom ->
+                    pom.dependencies.clear()
                 }
             }
         }

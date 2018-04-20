@@ -10,6 +10,8 @@ import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.pocket.IPocketUpgrade;
 import dan200.computercraft.core.computer.MainThread;
+import dan200.computercraft.shared.command.CommandComputer;
+import dan200.computercraft.shared.command.CommandComputerCraft;
 import dan200.computercraft.shared.command.ContainerViewComputer;
 import dan200.computercraft.shared.common.ColourableRecipe;
 import dan200.computercraft.shared.common.DefaultBundledRedstoneProvider;
@@ -51,6 +53,7 @@ import dan200.computercraft.shared.turtle.inventory.ContainerTurtle;
 import dan200.computercraft.shared.util.*;
 import dan200.computercraft.shared.wired.CapabilityWiredElement;
 import net.minecraft.block.Block;
+import net.minecraft.command.CommandHandler;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -63,6 +66,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.*;
 import net.minecraft.util.math.BlockPos;
@@ -113,6 +117,14 @@ public abstract class ComputerCraftProxyCommon implements IComputerCraftProxy
     {
         registerTileEntities();
         registerForgeHandlers();
+    }
+
+    @Override
+    public void initServer( MinecraftServer server )
+    {
+        CommandHandler handler = (CommandHandler) server.getCommandManager();
+        handler.registerCommand( new CommandComputer() );
+        handler.registerCommand( new CommandComputerCraft() );
     }
 
     @Override

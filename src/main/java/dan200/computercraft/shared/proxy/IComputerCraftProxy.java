@@ -16,6 +16,7 @@ import dan200.computercraft.shared.turtle.blocks.TileTurtle;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.ItemStack;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.BlockPos;
@@ -28,6 +29,7 @@ public interface IComputerCraftProxy
 {
     void preInit();
     void init();
+    void initServer( MinecraftServer server );
     boolean isClient();
 
     boolean getGlobalCursorBlink();
