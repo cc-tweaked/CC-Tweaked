@@ -14,7 +14,7 @@ import java.util.Map;
  * Note that this <em>will</em> track computers which have been deleted (hence
  * the presence of {@link #timingLookup} and {@link #timings}
  */
-public class TrackingContext
+public class TrackingContext implements Tracker
 {
     private boolean tracking = false;
 
@@ -52,7 +52,8 @@ public class TrackingContext
         return new ArrayList<>( timings );
     }
 
-    public void addTiming( Computer computer, long time )
+    @Override
+    public void addTaskTiming( Computer computer, long time )
     {
         if( !tracking ) return;
 
@@ -66,11 +67,31 @@ public class TrackingContext
                 timings.add( computerTimings );
             }
 
-            computerTimings.addTiming( time );
+            computerTimings.addTaskTiming( time );
         }
     }
 
-    public synchronized void addValue( Computer computer, TrackingField field, long change )
+    @Override
+    public void addServerTiming( Computer computer, long time )
+    {
+        if( !tracking ) return;
+
+        synchronized( this )
+        {
+            ComputerTracker computerTimings = timingLookup.get( computer );
+            if( computerTimings == null )
+            {
+                computerTimings = new ComputerTracker( computer );
+                timingLookup.put( computer, computerTimings );
+                timings.add( computerTimings );
+            }
+
+            computerTimings.addMainTiming( time );
+        }
+    }
+
+    @Override
+    public void addValue( Computer computer, TrackingField field, long change )
     {
         if( !tracking ) return;
 

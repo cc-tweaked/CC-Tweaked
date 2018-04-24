@@ -15,6 +15,9 @@ public class ComputerTracker
     private long totalTime;
     private long maxTime;
 
+    private long serverCount;
+    private long serverTime;
+
     private final TObjectLongHashMap<TrackingField> fields;
 
     public ComputerTracker( Computer computer )
@@ -32,9 +35,12 @@ public class ComputerTracker
         this.tasks = timings.tasks;
         this.totalTime = timings.totalTime;
         this.maxTime = timings.maxTime;
+
+        this.serverCount = timings.serverCount;
+        this.serverTime = timings.serverTime;
+
         this.fields = new TObjectLongHashMap<>( timings.fields );
     }
-
 
     @Nullable
     public Computer getComputer()
@@ -67,11 +73,17 @@ public class ComputerTracker
         return totalTime / tasks;
     }
 
-    void addTiming( long time )
+    void addTaskTiming( long time )
     {
         tasks++;
         totalTime += time;
         if( time > maxTime ) maxTime = time;
+    }
+
+    void addMainTiming( long time )
+    {
+        serverCount++;
+        serverTime += time;
     }
 
     void addValue( TrackingField field, long change )
@@ -88,6 +100,9 @@ public class ComputerTracker
         if( field == TrackingField.MAX_TIME ) return maxTime;
         if( field == TrackingField.TOTAL_TIME ) return totalTime;
         if( field == TrackingField.AVERAGE_TIME ) return totalTime / tasks;
+
+        if( field == TrackingField.SERVER_COUNT ) return serverCount;
+        if( field == TrackingField.SERVER_TIME ) return serverTime;
 
         synchronized( fields )
         {

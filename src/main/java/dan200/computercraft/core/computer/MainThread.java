@@ -6,14 +6,17 @@
 
 package dan200.computercraft.core.computer;
 
-import java.util.LinkedList;
+import dan200.computercraft.core.tracking.Tracking;
+
+import java.util.ArrayDeque;
+import java.util.Queue;
 
 public class MainThread
 {
     private static final int MAX_TASKS_PER_TICK = 1000;
     private static final int MAX_TASKS_TOTAL = 50000;
 
-    private static final LinkedList<ITask> m_outstandingTasks = new LinkedList<>();
+    private static final Queue<ITask> m_outstandingTasks = new ArrayDeque<>();
     private static final Object m_nextUnusedTaskIDLock = new Object();
     private static long m_nextUnusedTaskID = 0;
 
@@ -31,7 +34,7 @@ public class MainThread
         {
             if( m_outstandingTasks.size() < MAX_TASKS_TOTAL )
             {
-                m_outstandingTasks.addLast( task );
+                m_outstandingTasks.offer( task );
                 return true;
             }
         }
@@ -46,14 +49,17 @@ public class MainThread
             ITask task = null;
             synchronized( m_outstandingTasks )
             {
-                if( m_outstandingTasks.size() > 0 )
-                {
-                    task = m_outstandingTasks.removeFirst();
-                }
+                task = m_outstandingTasks.poll();
             }
             if( task != null )
             {
+                long start = System.nanoTime();
                 task.execute();
+
+                long stop = System.nanoTime();
+                Computer computer = task.getOwner();
+                if( computer != null ) Tracking.addServerTiming( computer, stop - start );
+
                 ++tasksThisTick;
             }
             else

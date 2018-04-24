@@ -35,14 +35,25 @@ public class Tracking
         }
     }
 
-    public static void addTiming( Computer computer, long time )
+    public static void addTaskTiming( Computer computer, long time )
     {
         if( tracking.get() == 0 ) return;
 
         synchronized( contexts )
         {
-            for( TrackingContext context : contexts.values() ) context.addTiming( computer, time );
-            for( Tracker tracker : trackers ) tracker.addTiming( computer, time );
+            for( TrackingContext context : contexts.values() ) context.addTaskTiming( computer, time );
+            for( Tracker tracker : trackers ) tracker.addTaskTiming( computer, time );
+        }
+    }
+
+    public static void addServerTiming( Computer computer, long time )
+    {
+        if( tracking.get() == 0 ) return;
+
+        synchronized( contexts )
+        {
+            for( TrackingContext context : contexts.values() ) context.addServerTiming( computer, time );
+            for( Tracker tracker : trackers ) tracker.addServerTiming( computer, time );
         }
     }
 

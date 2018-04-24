@@ -69,17 +69,17 @@ public class ComputerThread
             s_stopped = false;
             if( s_threads == null || s_threads.length != ComputerCraft.computer_threads )
             {
-                s_threads = new Thread[ ComputerCraft.computer_threads ];
+                s_threads = new Thread[ComputerCraft.computer_threads];
             }
 
             SecurityManager manager = System.getSecurityManager();
             final ThreadGroup group = manager == null ? Thread.currentThread().getThreadGroup() : manager.getThreadGroup();
             for( int i = 0; i < s_threads.length; i++ )
             {
-                Thread thread = s_threads[ i ];
+                Thread thread = s_threads[i];
                 if( thread == null || !thread.isAlive() )
                 {
-                    thread = s_threads[ i ] = new Thread( group, new TaskExecutor(), "ComputerCraft-Computer-Manager-" + s_ManagerCounter.getAndIncrement() );
+                    thread = s_threads[i] = new Thread( group, new TaskExecutor(), "ComputerCraft-Computer-Manager-" + s_ManagerCounter.getAndIncrement() );
                     thread.setDaemon( true );
                     thread.start();
                 }
@@ -251,8 +251,8 @@ public class ComputerThread
             {
                 long stop = System.nanoTime();
                 Computer computer = task.getOwner();
-                if( computer != null ) Tracking.addTiming( computer, stop - start );
-                
+                if( computer != null ) Tracking.addTaskTiming( computer, stop - start );
+
                 // Re-add it back onto the queue or remove it
                 synchronized( s_taskLock )
                 {

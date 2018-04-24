@@ -14,6 +14,9 @@ public class TrackingField
     public static final TrackingField AVERAGE_TIME = TrackingField.of( "average", "Average time", x -> String.format( "%4.1fms", x / 1e6 ) );
     public static final TrackingField MAX_TIME = TrackingField.of( "max", "Max time", x -> String.format( "%5.1fms", x / 1e6 ) );
 
+    public static final TrackingField SERVER_COUNT = TrackingField.of( "server_count", "Server task count", x -> String.format( "%4d", x ) );
+    public static final TrackingField SERVER_TIME = TrackingField.of( "server_time", "Server task time", x -> String.format( "%7.1fms", x / 1e6 ) );
+
     public static final TrackingField PERIPHERAL_OPS = TrackingField.of( "peripheral", "Peripheral calls", x -> String.format( "%6d", x ) );
     public static final TrackingField FS_OPS = TrackingField.of( "fs", "Filesystem operations", x -> String.format( "%6d", x ) );
     public static final TrackingField TURTLE_OPS = TrackingField.of( "turtle", "Turtle operations", x -> String.format( "%6d", x ) );
