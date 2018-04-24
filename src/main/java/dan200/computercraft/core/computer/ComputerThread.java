@@ -224,6 +224,23 @@ public class ComputerThread
                     // Interrupt the thread
                     if( !done )
                     {
+                        StringBuilder builder = new StringBuilder( "Terminating " );
+                        if( computer != null )
+                        {
+                            builder.append( "computer " ).append( computer.getID() );
+                        }
+                        else
+                        {
+                            builder.append( "unknown computer" );
+                        }
+
+                        builder.append( ". Thread is currently running" );
+                        for( StackTraceElement element : thread.getStackTrace() )
+                        {
+                            builder.append( "\n  at " ).append( element );
+                        }
+                        ComputerCraft.log.error( builder.toString() );
+
                         thread.interrupt();
                         thread = null;
                         runner = null;
