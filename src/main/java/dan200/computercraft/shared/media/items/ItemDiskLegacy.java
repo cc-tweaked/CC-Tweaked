@@ -54,15 +54,7 @@ public class ItemDiskLegacy extends Item
     @Nonnull
     public static ItemStack createFromIDAndColour( int id, String label, int colour )
     {
-        if( colour != Colour.Blue.getHex() )
-        {
-            return ItemDiskExpanded.createFromIDAndColour( id, label, colour );
-        }
-        
-        ItemStack stack = new ItemStack( ComputerCraft.Items.disk, 1 );
-        ComputerCraft.Items.disk.setDiskID( stack, id );
-        ComputerCraft.Items.disk.setLabel( stack, label );
-        return stack;
+        return ItemDiskExpanded.createFromIDAndColour( id, label, colour );
     }
     
     public int getDiskID( @Nonnull ItemStack stack )
