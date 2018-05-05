@@ -21,6 +21,7 @@ import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.websocketx.WebSocketClientHandshaker;
 import io.netty.handler.codec.http.websocketx.WebSocketClientHandshakerFactory;
 import io.netty.handler.codec.http.websocketx.WebSocketVersion;
+import io.netty.handler.codec.http.websocketx.extensions.compression.WebSocketClientCompressionHandler;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 
@@ -34,7 +35,7 @@ import java.security.KeyStore;
 import java.util.Map;
 import java.util.concurrent.Future;
 
-/*
+/**
  * Provides functionality to verify and connect to a remote websocket.
  */
 public final class WebsocketConnector
@@ -177,7 +178,7 @@ public final class WebsocketConnector
                 httpHeaders.add( header.getKey(), header.getValue() );
             }
 
-            WebSocketClientHandshaker handshaker = WebSocketClientHandshakerFactory.newHandshaker( uri, WebSocketVersion.V13, null, false, httpHeaders );
+            WebSocketClientHandshaker handshaker = WebSocketClientHandshakerFactory.newHandshaker( uri, WebSocketVersion.V13, null, true, httpHeaders );
             final WebsocketConnection connection = new WebsocketConnection( environment, api, handshaker, address );
 
             new Bootstrap()
@@ -190,7 +191,12 @@ public final class WebsocketConnector
                     {
                         ChannelPipeline p = ch.pipeline();
                         if( ssl != null ) p.addLast( ssl.newHandler( ch.alloc(), uri.getHost(), port ) );
-                        p.addLast( new HttpClientCodec(), new HttpObjectAggregator( 8192 ), connection );
+                        p.addLast(
+                            new HttpClientCodec(),
+                            new HttpObjectAggregator( 8192 ),
+                            WebSocketClientCompressionHandler.INSTANCE,
+                            connection
+                        );
                     }
                 } )
                 .remoteAddress( socketAddress )
