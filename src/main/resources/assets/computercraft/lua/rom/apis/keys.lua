@@ -16,7 +16,7 @@ local tKeys = {
 	"comma",	"period",	"slash",	"rightShift","multiply",	-- 51
 	"leftAlt",	"space",	"capsLock",	"f1",		"f2",			-- 56
 	"f3",		"f4",		"f5",		"f6",		"f7",			-- 61
-	"f8",		"f9",		"f10",		"numLock",	"scollLock",	-- 66	
+	"f8",		"f9",		"f10",		"numLock",	"scrollLock",	-- 66	
 	"numPad7",	"numPad8",	"numPad9",	"numPadSubtract","numPad4",	-- 71
 	"numPad5",	"numPad6",	"numPadAdd","numPad1",	"numPad2",		-- 76
 	"numPad3",	"numPad0",	"numPadDecimal",nil,	nil,			-- 81
