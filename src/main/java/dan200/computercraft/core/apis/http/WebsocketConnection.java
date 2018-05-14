@@ -12,6 +12,7 @@ import dan200.computercraft.api.lua.ILuaObject;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.core.apis.HTTPAPI;
 import dan200.computercraft.core.apis.IAPIEnvironment;
+import dan200.computercraft.core.tracking.TrackingField;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
@@ -71,7 +72,7 @@ public class WebsocketConnection extends SimpleChannelInboundHandler<Object> imp
     private void onClosed()
     {
         close( true );
-        computer.queueEvent( CLOSE_EVENT, new Object[] { url } );
+        computer.queueEvent( CLOSE_EVENT, new Object[]{ url } );
     }
 
     @Override
@@ -102,7 +103,7 @@ public class WebsocketConnection extends SimpleChannelInboundHandler<Object> imp
         if( !handshaker.isHandshakeComplete() )
         {
             handshaker.finishHandshake( ch, (FullHttpResponse) msg );
-            computer.queueEvent( SUCCESS_EVENT, new Object[] { url, this } );
+            computer.queueEvent( SUCCESS_EVENT, new Object[]{ url, this } );
             return;
         }
 
@@ -115,14 +116,19 @@ public class WebsocketConnection extends SimpleChannelInboundHandler<Object> imp
         WebSocketFrame frame = (WebSocketFrame) msg;
         if( frame instanceof TextWebSocketFrame )
         {
-            computer.queueEvent( MESSAGE_EVENT, new Object[] { url, ((TextWebSocketFrame) frame).text() } );
+            String data = ((TextWebSocketFrame) frame).text();
+
+            computer.addTrackingChange( TrackingField.WEBSOCKET_INCOMING, data.length() );
+            computer.queueEvent( MESSAGE_EVENT, new Object[]{ url, data } );
         }
         else if( frame instanceof BinaryWebSocketFrame )
         {
             ByteBuf data = frame.content();
-            byte[] converted = new byte[ data.readableBytes() ];
+            byte[] converted = new byte[data.readableBytes()];
             data.readBytes( converted );
-            computer.queueEvent( MESSAGE_EVENT, new Object[] { url, data } );
+
+            computer.addTrackingChange( TrackingField.WEBSOCKET_INCOMING, converted.length );
+            computer.queueEvent( MESSAGE_EVENT, new Object[]{ url, converted } );
         }
         else if( frame instanceof CloseWebSocketFrame )
         {
@@ -135,7 +141,7 @@ public class WebsocketConnection extends SimpleChannelInboundHandler<Object> imp
     public void exceptionCaught( ChannelHandlerContext ctx, Throwable cause )
     {
         ctx.close();
-        computer.queueEvent( FAILURE_EVENT, new Object[] {
+        computer.queueEvent( FAILURE_EVENT, new Object[]{
             url,
             cause instanceof WebSocketHandshakeException ? cause.getMessage() : "Could not connect"
         } );
@@ -145,7 +151,7 @@ public class WebsocketConnection extends SimpleChannelInboundHandler<Object> imp
     @Override
     public String[] getMethodNames()
     {
-        return new String[] { "receive", "send", "close" };
+        return new String[]{ "receive", "send", "close" };
     }
 
     @Nullable
@@ -159,15 +165,16 @@ public class WebsocketConnection extends SimpleChannelInboundHandler<Object> imp
                 {
                     checkOpen();
                     Object[] event = context.pullEvent( MESSAGE_EVENT );
-                    if( event.length >= 3 && Objects.equal( event[ 1 ], url ) )
+                    if( event.length >= 3 && Objects.equal( event[1], url ) )
                     {
-                        return new Object[] { event[ 2 ] };
+                        return new Object[]{ event[2] };
                     }
                 }
             case 1:
             {
                 checkOpen();
-                String text = arguments.length > 0 && arguments[ 0 ] != null ? arguments[ 0 ].toString() : "";
+                String text = arguments.length > 0 && arguments[0] != null ? arguments[0].toString() : "";
+                computer.addTrackingChange( TrackingField.WEBSOCKET_OUTGOING, text.length() );
                 channel.writeAndFlush( new TextWebSocketFrame( text ) );
                 return null;
             }

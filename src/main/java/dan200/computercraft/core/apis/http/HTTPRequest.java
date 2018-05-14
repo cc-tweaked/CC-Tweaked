@@ -15,6 +15,7 @@ import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.core.apis.IAPIEnvironment;
 import dan200.computercraft.core.apis.handles.BinaryInputHandle;
 import dan200.computercraft.core.apis.handles.EncodedInputHandle;
+import dan200.computercraft.core.tracking.TrackingField;
 
 import javax.annotation.Nonnull;
 import java.io.*;
@@ -101,7 +102,7 @@ public class HTTPRequest implements Runnable
         {
             // Queue the failure event if not.
             String error = e.getMessage();
-            m_environment.queueEvent( "http_failure", new Object[] { m_urlString, error == null ? "Could not connect" : error, null } );
+            m_environment.queueEvent( "http_failure", new Object[]{ m_urlString, error == null ? "Could not connect" : error, null } );
             return;
         }
 
@@ -133,6 +134,11 @@ public class HTTPRequest implements Runnable
                     connection.setRequestProperty( header.getKey(), header.getValue() );
                 }
             }
+
+            // Add request size and count to the tracker before opening the connection
+            m_environment.addTrackingChange( TrackingField.HTTP_REQUESTS );
+            m_environment.addTrackingChange( TrackingField.HTTP_UPLOAD,
+                getHeaderSize( connection.getRequestProperties() ) + (m_postText == null ? 0 : m_postText.length()) );
 
             // Send POST text
             if( m_postText != null )
@@ -178,6 +184,9 @@ public class HTTPRequest implements Runnable
                 headers.put( header.getKey(), joiner.join( header.getValue() ) );
             }
 
+            m_environment.addTrackingChange( TrackingField.HTTP_DOWNLOAD,
+                getHeaderSize( connection.getHeaderFields() ) + result.length );
+
             InputStream contents = new ByteArrayInputStream( result );
             ILuaObject stream = wrapStream(
                 m_binary ? new BinaryInputHandle( contents ) : new EncodedInputHandle( contents, connection.getContentEncoding() ),
@@ -189,17 +198,17 @@ public class HTTPRequest implements Runnable
             // Queue the appropriate event.
             if( responseSuccess )
             {
-                m_environment.queueEvent( "http_success", new Object[] { m_urlString, stream } );
+                m_environment.queueEvent( "http_success", new Object[]{ m_urlString, stream } );
             }
             else
             {
-                m_environment.queueEvent( "http_failure", new Object[] { m_urlString, "Could not connect", stream } );
+                m_environment.queueEvent( "http_failure", new Object[]{ m_urlString, "Could not connect", stream } );
             }
         }
         catch( IOException e )
         {
             // There was an error
-            m_environment.queueEvent( "http_failure", new Object[] { m_urlString, "Could not connect", null } );
+            m_environment.queueEvent( "http_failure", new Object[]{ m_urlString, "Could not connect", null } );
         }
     }
 
@@ -209,8 +218,8 @@ public class HTTPRequest implements Runnable
         final int methodOffset = oldMethods.length;
 
         final String[] newMethods = Arrays.copyOf( oldMethods, oldMethods.length + 2 );
-        newMethods[ methodOffset + 0 ] = "getResponseCode";
-        newMethods[ methodOffset + 1 ] = "getResponseHeaders";
+        newMethods[methodOffset + 0] = "getResponseCode";
+        newMethods[methodOffset + 1] = "getResponseHeaders";
 
         return new ILuaObject()
         {
@@ -233,12 +242,12 @@ public class HTTPRequest implements Runnable
                     case 0:
                     {
                         // getResponseCode
-                        return new Object[] { responseCode };
+                        return new Object[]{ responseCode };
                     }
                     case 1:
                     {
                         // getResponseHeaders
-                        return new Object[] { responseHeaders };
+                        return new Object[]{ responseHeaders };
                     }
                     default:
                     {
@@ -247,5 +256,16 @@ public class HTTPRequest implements Runnable
                 }
             }
         };
+    }
+
+    private static long getHeaderSize( Map<String, List<String>> headers )
+    {
+        long size = 0;
+        for( Map.Entry<String, List<String>> header : headers.entrySet() )
+        {
+            size += header.getKey() == null ? 0 : header.getKey().length();
+            for( String value : header.getValue() ) size += value == null ? 0 : value.length() + 1;
+        }
+        return size;
     }
 }

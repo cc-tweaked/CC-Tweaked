@@ -17,9 +17,16 @@ public class TrackingField
     public static final TrackingField SERVER_COUNT = TrackingField.of( "server_count", "Server task count", x -> String.format( "%4d", x ) );
     public static final TrackingField SERVER_TIME = TrackingField.of( "server_time", "Server task time", x -> String.format( "%7.1fms", x / 1e6 ) );
 
-    public static final TrackingField PERIPHERAL_OPS = TrackingField.of( "peripheral", "Peripheral calls", x -> String.format( "%6d", x ) );
-    public static final TrackingField FS_OPS = TrackingField.of( "fs", "Filesystem operations", x -> String.format( "%6d", x ) );
-    public static final TrackingField TURTLE_OPS = TrackingField.of( "turtle", "Turtle operations", x -> String.format( "%6d", x ) );
+    public static final TrackingField PERIPHERAL_OPS = TrackingField.of( "peripheral", "Peripheral calls", TrackingField::formatDefault );
+    public static final TrackingField FS_OPS = TrackingField.of( "fs", "Filesystem operations", TrackingField::formatDefault );
+    public static final TrackingField TURTLE_OPS = TrackingField.of( "turtle", "Turtle operations", TrackingField::formatDefault );
+
+    public static final TrackingField HTTP_REQUESTS = TrackingField.of( "http", "HTTP requests", TrackingField::formatDefault );
+    public static final TrackingField HTTP_UPLOAD = TrackingField.of( "http_upload", "HTTP upload", TrackingField::formatBytes );
+    public static final TrackingField HTTP_DOWNLOAD = TrackingField.of( "http_download", "HTTT download", TrackingField::formatBytes );
+
+    public static final TrackingField WEBSOCKET_INCOMING = TrackingField.of( "websocket_incoming", "Websocket incoming", TrackingField::formatBytes );
+    public static final TrackingField WEBSOCKET_OUTGOING = TrackingField.of( "websocket_outgoing", "Websocket outgoing", TrackingField::formatBytes );
 
     private final String id;
     private final String displayName;
@@ -57,5 +64,25 @@ public class TrackingField
     public static Map<String, TrackingField> fields()
     {
         return Collections.unmodifiableMap( fields );
+    }
+
+    private static String formatDefault( long value )
+    {
+        return String.format( "%6d", value );
+    }
+
+    /**
+     * So technically a kibibyte, but let's not argue here.
+     */
+    private static final int KILOBYTE_SIZE = 1024;
+
+    private static final String SI_PREFIXES = "KMGT";
+
+    private static String formatBytes( long bytes )
+    {
+        if( bytes < 1024 ) return String.format( "%10d B", bytes );
+        int exp = (int) (Math.log( bytes ) / Math.log( KILOBYTE_SIZE ));
+        if( exp > SI_PREFIXES.length() ) exp = SI_PREFIXES.length();
+        return String.format( "%10.1f %siB", bytes / Math.pow( KILOBYTE_SIZE, exp ), SI_PREFIXES.charAt( exp - 1 ) );
     }
 }
