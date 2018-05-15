@@ -79,8 +79,10 @@ public class HTTPRequest implements Runnable
     private final String m_postText;
     private final Map<String, String> m_headers;
     private boolean m_binary;
+    private final String m_method;
+    private final boolean m_followRedirects;
 
-    public HTTPRequest( IAPIEnvironment environment, String urlString, URL url, final String postText, final Map<String, String> headers, boolean binary ) throws HTTPRequestException
+    public HTTPRequest( IAPIEnvironment environment, String urlString, URL url, final String postText, final Map<String, String> headers, boolean binary, final String method, final boolean followRedirects ) throws HTTPRequestException
     {
         m_environment = environment;
         m_urlString = urlString;
@@ -88,6 +90,8 @@ public class HTTPRequest implements Runnable
         m_binary = binary;
         m_postText = postText;
         m_headers = headers;
+        m_method = method;
+        m_followRedirects = followRedirects;
     }
 
     @Override
@@ -120,6 +124,8 @@ public class HTTPRequest implements Runnable
             {
                 connection.setRequestMethod( "GET" );
             }
+            if( m_method != null ) connection.setRequestMethod( m_method );
+            connection.setInstanceFollowRedirects( m_followRedirects );
 
             // Set headers
             connection.setRequestProperty( "accept-charset", "UTF-8" );

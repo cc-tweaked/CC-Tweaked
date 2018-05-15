@@ -6,6 +6,7 @@
 
 package dan200.computercraft.core.apis;
 
+import com.google.common.collect.ImmutableSet;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.lua.ILuaAPI;
 import dan200.computercraft.api.lua.ILuaContext;
@@ -21,9 +22,14 @@ import java.util.*;
 import java.util.concurrent.Future;
 
 import static dan200.computercraft.core.apis.ArgumentHelper.*;
+import static dan200.computercraft.core.apis.TableHelper.*;
 
 public class HTTPAPI implements ILuaAPI
 {
+    private static final Set<String> HTTP_METHODS = ImmutableSet.of(
+        "GET", "POST", "HEAD", "OPTIONS", "PUT", "DELETE"
+    );
+
     private final IAPIEnvironment m_apiEnvironment;
     private final List<Future<?>> m_httpTasks;
     private final Set<Closeable> m_closeables;
@@ -38,7 +44,7 @@ public class HTTPAPI implements ILuaAPI
     @Override
     public String[] getNames()
     {
-        return new String[] {
+        return new String[]{
             "http"
         };
     }
@@ -59,7 +65,7 @@ public class HTTPAPI implements ILuaAPI
     }
 
     @Override
-    public void shutdown( )
+    public void shutdown()
     {
         synchronized( m_httpTasks )
         {
@@ -89,7 +95,7 @@ public class HTTPAPI implements ILuaAPI
     @Override
     public String[] getMethodNames()
     {
-        return new String[] {
+        return new String[]{
             "request",
             "checkURL",
             "websocket",
@@ -101,52 +107,68 @@ public class HTTPAPI implements ILuaAPI
     {
         switch( method )
         {
-            case 0:
+            case 0: // request
             {
-                // request
-                // Get URL
-                String urlString = getString( args, 0 );
+                String urlString, postString, requestMethod;
+                Map<Object, Object> headerTable;
+                boolean binary, redirect;
 
-                // Get POST
-                String postString = optString( args, 1, null );
-
-                // Get Headers
-                Map<String, String> headers = null;
-                Map<Object, Object> table = optTable( args, 2, null );
-                if( table != null )
+                if( args.length >= 1 && args[0] instanceof Map )
                 {
-                    headers = new HashMap<>( table.size() );
-                    for( Object key : table.keySet() )
+                    Map<?, ?> options = (Map) args[0];
+                    urlString = getStringField( options, "url" );
+                    postString = optStringField( options, "body", null );
+                    headerTable = optTableField( options, "headers", null );
+                    binary = optBooleanField( options, "binary", false );
+                    requestMethod = optStringField( options, "method", null );
+                    redirect = optBooleanField( options, "redirect", true );
+
+                }
+                else
+                {
+                    // Get URL and post information
+                    urlString = getString( args, 0 );
+                    postString = optString( args, 1, null );
+                    headerTable = optTable( args, 2, null );
+                    binary = optBoolean( args, 3, false );
+                    requestMethod = null;
+                    redirect = true;
+                }
+
+                Map<String, String> headers = null;
+                if( headerTable != null )
+                {
+                    headers = new HashMap<>( headerTable.size() );
+                    for( Object key : headerTable.keySet() )
                     {
-                        Object value = table.get( key );
+                        Object value = headerTable.get( key );
                         if( key instanceof String && value instanceof String )
                         {
-                            headers.put( (String)key, (String)value );
+                            headers.put( (String) key, (String) value );
                         }
                     }
                 }
 
-                // Get binary
-                boolean binary = false;
-                if( args.length >= 4 )
+
+                if( requestMethod != null && !HTTP_METHODS.contains( requestMethod ) )
                 {
-                    binary = args[ 3 ] != null && !args[ 3 ].equals( Boolean.FALSE );
+                    throw new LuaException( "Unsupported HTTP method" );
                 }
 
                 // Make the request
                 try
                 {
                     URL url = HTTPRequest.checkURL( urlString );
-                    HTTPRequest request = new HTTPRequest( m_apiEnvironment, urlString, url, postString, headers, binary );
+                    HTTPRequest request = new HTTPRequest( m_apiEnvironment, urlString, url, postString, headers, binary, requestMethod, redirect );
                     synchronized( m_httpTasks )
                     {
                         m_httpTasks.add( HTTPExecutor.EXECUTOR.submit( request ) );
                     }
-                    return new Object[] { true };
+                    return new Object[]{ true };
                 }
                 catch( HTTPRequestException e )
                 {
-                    return new Object[] { false, e.getMessage() };
+                    return new Object[]{ false, e.getMessage() };
                 }
             }
             case 1:
@@ -164,11 +186,11 @@ public class HTTPAPI implements ILuaAPI
                     {
                         m_httpTasks.add( HTTPExecutor.EXECUTOR.submit( check ) );
                     }
-                    return new Object[] { true };
+                    return new Object[]{ true };
                 }
                 catch( HTTPRequestException e )
                 {
-                    return new Object[] { false, e.getMessage() };
+                    return new Object[]{ false, e.getMessage() };
                 }
             }
             case 2: // websocket
@@ -201,11 +223,11 @@ public class HTTPAPI implements ILuaAPI
                     {
                         m_httpTasks.add( connector );
                     }
-                    return new Object[] { true };
+                    return new Object[]{ true };
                 }
                 catch( HTTPRequestException e )
                 {
-                    return new Object[] { false, e.getMessage() };
+                    return new Object[]{ false, e.getMessage() };
                 }
             }
             default:

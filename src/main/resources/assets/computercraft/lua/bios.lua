@@ -662,8 +662,36 @@ end
 if http then
     local nativeHTTPRequest = http.request
 
-    local function wrapRequest( _url, _post, _headers, _binary )
-        local ok, err = nativeHTTPRequest( _url, _post, _headers, _binary )
+    local methods = {
+        GET = true, POST = true, HEAD = true,
+        OPTIONS = true, PUT = true, DELETE = true
+    }
+
+    local function checkKey( options, key, ty, opt )
+        local value = options[key]
+        local valueTy = type(value)
+        
+        if (value ~= nil or not opt) and valueTy ~= ty then
+            error(("bad field '%s' (expected %s, got %s"):format(key, ty, valueTy), 4)
+        end
+    end
+
+    local function checkOptions( options, body )
+        checkKey( options, "url", "string")
+        if body == false 
+        then checkKey( options, "body", "nil" ) 
+        else checkKey( options, "body", "string", not body ) end
+        checkKey( options, "headers", "table", true )
+        checkKey( options, "method", "string", true )
+        checkKey( options, "redirect", "boolean", true )
+
+        if options.method and not methods[options.method] then
+            error( "Unsupported HTTP method", 3 )
+        end
+    end
+
+    local function wrapRequest( _url, ... )
+        local ok, err = nativeHTTPRequest( ... )
         if ok then
             while true do
                 local event, param1, param2, param3 = os.pullEvent()
@@ -678,6 +706,11 @@ if http then
     end
     
     http.get = function( _url, _headers, _binary)
+        if type( _url ) == "table" then
+            checkOptions( _url, false )
+            return wrapRequest( _url.url, _url )
+        end
+
         if type( _url ) ~= "string" then
             error( "bad argument #1 (expected string, got " .. type( _url ) .. ")", 2 ) 
         end
@@ -687,10 +720,15 @@ if http then
         if _binary ~= nil and type( _binary ) ~= "boolean" then
             error( "bad argument #3 (expected boolean, got " .. type( _binary ) .. ")", 2 ) 
         end
-        return wrapRequest( _url, nil, _headers, _binary)
+        return wrapRequest( _url, _url, nil, _headers, _binary )
     end
 
     http.post = function( _url, _post, _headers, _binary)
+        if type( _url ) == "table" then
+            checkOptions( _url, true )
+            return wrapRequest( _url.url, _url )
+        end
+
         if type( _url ) ~= "string" then
             error( "bad argument #1 (expected string, got " .. type( _url ) .. ")", 2 ) 
         end
@@ -703,25 +741,34 @@ if http then
         if _binary ~= nil and type( _binary ) ~= "boolean" then
             error( "bad argument #4 (expected boolean, got " .. type( _binary ) .. ")", 2 ) 
         end
-        return wrapRequest( _url, _post or "", _headers, _binary)
+        return wrapRequest( _url, _url, _post, _headers, _binary )
     end
 
     http.request = function( _url, _post, _headers, _binary )
-        if type( _url ) ~= "string" then
-            error( "bad argument #1 (expected string, got " .. type( _url ) .. ")", 2 ) 
+        local url
+        if type( _url ) == "table" then
+            checkOptions( _url )
+            url = _url.url
+        else
+            if type( _url ) ~= "string" then
+                error( "bad argument #1 (expected string, got " .. type( _url ) .. ")", 2 ) 
+            end
+            if _post ~= nil and type( _post ) ~= "string" then
+                error( "bad argument #2 (expected string, got " .. type( _post ) .. ")", 2 ) 
+            end
+            if _headers ~= nil and type( _headers ) ~= "table" then
+                error( "bad argument #3 (expected table, got " .. type( _headers ) .. ")", 2 ) 
+            end
+            if _binary ~= nil and type( _binary ) ~= "boolean" then
+                error( "bad argument #4 (expected boolean, got " .. type( _binary ) .. ")", 2 ) 
+            end
+
+            url = _url.url
         end
-        if _post ~= nil and type( _post ) ~= "string" then
-            error( "bad argument #2 (expected string, got " .. type( _post ) .. ")", 2 ) 
-        end
-        if _headers ~= nil and type( _headers ) ~= "table" then
-            error( "bad argument #3 (expected table, got " .. type( _headers ) .. ")", 2 ) 
-        end
-        if _binary ~= nil and type( _binary ) ~= "boolean" then
-            error( "bad argument #4 (expected boolean, got " .. type( _binary ) .. ")", 2 ) 
-        end
+
         local ok, err = nativeHTTPRequest( _url, _post, _headers, _binary )
         if not ok then
-            os.queueEvent( "http_failure", _url, err )
+            os.queueEvent( "http_failure", url, err )
         end
         return ok, err
     end
