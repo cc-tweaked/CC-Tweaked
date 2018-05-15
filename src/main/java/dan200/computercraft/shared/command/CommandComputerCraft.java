@@ -31,6 +31,10 @@ public final class CommandComputerCraft extends CommandDelegate
 {
     public static final UUID SYSTEM_UUID = new UUID( 0, 0 );
 
+    private static final int DUMP_LIST_ID = 5373952;
+    private static final int DUMP_SINGLE_ID = 1844510720;
+    private static final int TRACK_ID = 373882880;
+
     public CommandComputerCraft()
     {
         super( create() );
@@ -55,7 +59,7 @@ public final class CommandComputerCraft extends CommandDelegate
             {
                 if( arguments.size() == 0 )
                 {
-                    TextTable table = new TextTable( "Instance", "Id", "On", "Position" );
+                    TextTable table = new TextTable( DUMP_LIST_ID, "Instance", "Id", "On", "Position" );
 
                     List<ServerComputer> computers = new ArrayList<>( ComputerCraft.serverComputerRegistry.getComputers() );
 
@@ -101,7 +105,7 @@ public final class CommandComputerCraft extends CommandDelegate
                 {
                     ServerComputer computer = ComputerSelector.getComputer( arguments.get( 0 ) );
 
-                    TextTable table = new TextTable();
+                    TextTable table = new TextTable( DUMP_SINGLE_ID );
                     table.addRow( header( "Instance" ), text( Integer.toString( computer.getInstanceID() ) ) );
                     table.addRow( header( "Id" ), text( Integer.toString( computer.getID() ) ) );
                     table.addRow( header( "Label" ), text( computer.getLabel() ) );
@@ -464,8 +468,8 @@ public final class CommandComputerCraft extends CommandDelegate
 
 
         TextTable table = defaultLayout
-            ? new TextTable( "Computer", "Tasks", "Total", "Average", "Maximum" )
-            : new TextTable( "Computer", field.displayName() );
+            ? new TextTable( TRACK_ID, "Computer", "Tasks", "Total", "Average", "Maximum" )
+            : new TextTable( TRACK_ID, "Computer", field.displayName() );
 
         for( ComputerTracker entry : timings )
         {

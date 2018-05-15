@@ -1,13 +1,17 @@
 package dan200.computercraft.shared.command.framework;
 
 import com.google.common.collect.Lists;
+import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.shared.network.ComputerCraftPacket;
 import net.minecraft.command.ICommandSender;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.Nonnull;
+import java.util.ArrayList;
 import java.util.List;
 
 import static dan200.computercraft.shared.command.framework.ChatHelpers.coloured;
@@ -19,23 +23,27 @@ public class TextTable
     private static final ITextComponent SEPARATOR = coloured( "| ", TextFormatting.GRAY );
     private static final ITextComponent LINE = text( "\n" );
 
+    private final int id;
     private int columns = -1;
     private final ITextComponent[] header;
     private final List<ITextComponent[]> rows = Lists.newArrayList();
 
-    public TextTable( @Nonnull ITextComponent... header )
+    public TextTable( int id, @Nonnull ITextComponent... header )
     {
+        this.id = id;
         this.header = header;
         this.columns = header.length;
     }
 
-    public TextTable()
+    public TextTable(int id)
     {
-        header = null;
+        this.id = id;
+        this.header = null;
     }
 
-    public TextTable( @Nonnull String... header )
+    public TextTable( int id, @Nonnull String... header )
     {
+        this.id = id;
         this.header = new ITextComponent[header.length];
         for( int i = 0; i < header.length; i++ )
         {
@@ -72,9 +80,10 @@ public class TextTable
             }
         }
 
-        // Limit the number of rows to something sensible.
-        int limit = isPlayer( sender ) ? 30 : 100;
-        if( limit > rows.size() ) limit = rows.size();
+        // Limit the number of rows to fit within a single chat window on default Minecraft
+        // options.
+        int height = isPlayer( sender ) ? 18 : 100;
+        int limit = rows.size() <= height ? rows.size() : height - 1;
 
         for( int y = 0; y < limit; y++ )
         {
@@ -95,43 +104,66 @@ public class TextTable
 
         // TODO: Limit the widths of some entries if totalWidth > maxWidth
 
-        ITextComponent out = new TextComponentString( "" );
+        List<ITextComponent> out = new ArrayList<>();
 
         if( header != null )
         {
+            TextComponentString line = new TextComponentString( "" );
             for( int i = 0; i < columns - 1; i++ )
             {
-                appendFixedWidth( out, sender, header[i], maxWidths[i] );
-                out.appendSibling( SEPARATOR );
+                appendFixedWidth( line, sender, header[i], maxWidths[i] );
+                line.appendSibling( SEPARATOR );
             }
-            out.appendSibling( header[columns - 1] );
-            out.appendSibling( LINE );
+            line.appendSibling( header[columns - 1] );
+            out.add( line );
 
             // Round the width up rather than down
             int rowCharWidth = getWidthFor( '=', sender );
             int rowWidth = totalWidth / rowCharWidth + (totalWidth % rowCharWidth == 0 ? 0 : 1);
-            out.appendSibling( coloured( StringUtils.repeat( '=', rowWidth ), TextFormatting.GRAY ) );
-            out.appendSibling( LINE );
+            out.add( coloured( StringUtils.repeat( '=', rowWidth ), TextFormatting.GRAY ) );
         }
 
         for( int i = 0; i < limit; i++ )
         {
+            TextComponentString line = new TextComponentString( "" );
             ITextComponent[] row = rows.get( i );
-            if( i != 0 ) out.appendSibling( LINE );
             for( int j = 0; j < columns - 1; j++ )
             {
-                appendFixedWidth( out, sender, row[j], maxWidths[j] );
-                out.appendSibling( SEPARATOR );
+                appendFixedWidth( line, sender, row[j], maxWidths[j] );
+                line.appendSibling( SEPARATOR );
             }
-            out.appendSibling( row[columns - 1] );
+            line.appendSibling( row[columns - 1] );
+            out.add( line );
         }
 
-        if( limit != rows.size() )
+        if( rows.size() > limit )
         {
-            out.appendSibling( LINE );
-            out.appendSibling( coloured( (rows.size() - limit) + " additional rows...", TextFormatting.AQUA ) );
+            out.add( coloured( (rows.size() - limit) + " additional rows...", TextFormatting.AQUA ) );
         }
 
-        sender.sendMessage( out );
+        if( isPlayer( sender ) && id != 0 )
+        {
+            ComputerCraftPacket packet = new ComputerCraftPacket();
+            packet.m_packetType = ComputerCraftPacket.PostChat;
+            packet.m_dataInt = new int[]{ id };
+
+            String[] lines = packet.m_dataString = new String[out.size()];
+            for( int i = 0; i < out.size(); i++ )
+            {
+                lines[i] = ITextComponent.Serializer.componentToJson( out.get( i ) );
+            }
+
+            ComputerCraft.sendToPlayer( (EntityPlayerMP) sender, packet );
+        }
+        else
+        {
+            ITextComponent result = new TextComponentString( "" );
+            for( int i = 0; i < out.size(); i++ )
+            {
+                if( i > 0 ) result.appendSibling( LINE );
+                result.appendSibling( out.get( 0 ) );
+            }
+            sender.sendMessage( result );
+        }
     }
 }

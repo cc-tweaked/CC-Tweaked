@@ -33,6 +33,7 @@ public class ComputerCraftPacket
     public static final byte ComputerTerminalChanged = 8;
     public static final byte ComputerDeleted = 9;
     public static final byte PlayRecord = 10;
+    public static final byte PostChat = 11;
 
     // Packet class
     public byte m_packetType;

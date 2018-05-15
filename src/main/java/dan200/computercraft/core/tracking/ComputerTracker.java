@@ -99,7 +99,7 @@ public class ComputerTracker
         if( field == TrackingField.TASKS ) return tasks;
         if( field == TrackingField.MAX_TIME ) return maxTime;
         if( field == TrackingField.TOTAL_TIME ) return totalTime;
-        if( field == TrackingField.AVERAGE_TIME ) return totalTime / tasks;
+        if( field == TrackingField.AVERAGE_TIME ) return tasks == 0 ? 0 : totalTime / tasks;
 
         if( field == TrackingField.SERVER_COUNT ) return serverCount;
         if( field == TrackingField.SERVER_TIME ) return serverTime;

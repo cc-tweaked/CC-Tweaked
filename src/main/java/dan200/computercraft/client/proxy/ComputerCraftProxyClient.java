@@ -34,8 +34,10 @@ import dan200.computercraft.shared.proxy.ComputerCraftProxyCommon;
 import dan200.computercraft.shared.turtle.blocks.TileTurtle;
 import dan200.computercraft.shared.turtle.entity.TurtleVisionCamera;
 import dan200.computercraft.shared.util.Colour;
+import gnu.trove.map.hash.TIntIntHashMap;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiNewChat;
 import net.minecraft.client.renderer.ItemMeshDefinition;
 import net.minecraft.client.renderer.block.model.ModelBakery;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
@@ -50,6 +52,7 @@ import net.minecraft.util.IThreadListener;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
@@ -71,6 +74,8 @@ import java.util.List;
 
 public class ComputerCraftProxyClient extends ComputerCraftProxyCommon
 {
+    private static TIntIntHashMap lastCounts = new TIntIntHashMap();
+
     private long m_tick;
     private long m_renderFrame;
     private FixedWidthFontRenderer m_fixedWidthFontRenderer;
@@ -384,6 +389,7 @@ public class ComputerCraftProxyClient extends ComputerCraftProxyCommon
             case ComputerCraftPacket.ComputerTerminalChanged:
             case ComputerCraftPacket.ComputerDeleted:
             case ComputerCraftPacket.PlayRecord:
+            case ComputerCraftPacket.PostChat:
             {
                 // Packet from Server to Client
                 IThreadListener listener = Minecraft.getMinecraft();
@@ -450,6 +456,36 @@ public class ComputerCraftProxyClient extends ComputerCraftProxyCommon
                 {
                     mc.world.playRecord( pos, null );
                 }
+                break;
+            }
+            case ComputerCraftPacket.PostChat:
+            {
+                /*
+                  This allows us to send delete chat messages of the same "category" as the previous one.
+                  It's used by the various /computercraft commands to avoid filling the chat with repetitive
+                  messages.
+                 */
+
+                int id = packet.m_dataInt[0];
+                ITextComponent[] components = new ITextComponent[packet.m_dataString.length];
+                for( int i = 0; i < packet.m_dataString.length; i++ )
+                {
+                    components[i] = ITextComponent.Serializer.jsonToComponent( packet.m_dataString[i] );
+                }
+
+                GuiNewChat chat = Minecraft.getMinecraft().ingameGUI.getChatGUI();
+
+                // Keep track of how many lines we wrote last time, deleting any extra ones.
+                int lastCount = lastCounts.get( id );
+                for( int i = components.length; i < lastCount; i++ ) chat.deleteChatLine( i + id );
+                lastCounts.put( id, components.length );
+
+                // Add new lines
+                for( int i = 0; i < components.length; i++ )
+                {
+                    chat.printChatMessageWithOptionalDeletion( components[i], id + i );
+                }
+                break;
             }
 
         }
