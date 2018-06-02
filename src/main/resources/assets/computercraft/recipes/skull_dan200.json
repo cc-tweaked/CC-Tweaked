@@ -1,7 +1,7 @@
 {
     "type": "minecraft:crafting_shapeless",
     "ingredients": [
-        { "item": "minecraft:skull", "data": 1 },
+        { "item": "minecraft:skull", "data": 32767 },
         { "item": "computercraft:computer", "data": 0 }
     ],
     "result": { 
