@@ -325,9 +325,9 @@ local function completeProgram( sLine )
         -- Add all subdirectories. We don't include files as they will be added in the block below
         local tDirs = fs.complete( sLine, sDir, false, false )
         for i = 1, #tDirs do
+            local sResult = tDirs[i]
             if not tSeen[ sResult ] then
-                local sResult = tDirs[i]
-                table.insert (tResults, sResult )
+                table.insert ( tResults, sResult )
                 tSeen [ sResult ] = true
             end
         end
