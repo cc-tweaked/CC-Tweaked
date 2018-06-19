@@ -20,10 +20,9 @@ import java.io.IOException;
 
 public class GuiPrintout extends GuiContainer
 {
-    private static final ResourceLocation background = new ResourceLocation( "computercraft", "textures/gui/printout.png" );
-    
-    private static final int xSize = 172;
-    private static final int ySize = 209;
+    public static final ResourceLocation BACKGROUND = new ResourceLocation( "computercraft", "textures/gui/printout.png" );
+    public static final int X_SIZE = 172;
+    public static final int Y_SIZE = 209;
     
     private final boolean m_book;
     private final int m_pages;
@@ -142,57 +141,57 @@ public class GuiPrintout extends GuiContainer
         
         // Draw the printout
         GlStateManager.color( 1.0f, 1.0f, 1.0f, 1.0f );
-        this.mc.getTextureManager().bindTexture( background );
+        this.mc.getTextureManager().bindTexture( BACKGROUND );
         
-        int startY = (height - ySize) / 2;
-        //int startX = (width - xSize) / 2 - (m_page * 8);
-        int startX = (width - (xSize + (m_pages - 1)*8)) / 2;
+        int startY = (height - Y_SIZE) / 2;
+        //int startX = (width - X_SIZE) / 2 - (m_page * 8);
+        int startX = (width - (X_SIZE + (m_pages - 1)*8)) / 2;
         
         if( m_book )
         {
             // Border
-            drawTexturedModalRect( startX - 8, startY - 8, xSize + 48, 0, 12, ySize + 24);
-            drawTexturedModalRect( startX + xSize + (m_pages - 1)*8 - 4, startY - 8, xSize + 48 + 12, 0, 12, ySize + 24);
+            drawTexturedModalRect( startX - 8, startY - 8, X_SIZE + 48, 0, 12, Y_SIZE + 24);
+            drawTexturedModalRect( startX + X_SIZE + (m_pages - 1)*8 - 4, startY - 8, X_SIZE + 48 + 12, 0, 12, Y_SIZE + 24);
             
-            drawTexturedModalRect( startX, startY - 8, 0, ySize, xSize, 12);
-            drawTexturedModalRect( startX, startY + ySize - 4, 0, ySize + 12, xSize, 12);
+            drawTexturedModalRect( startX, startY - 8, 0, Y_SIZE, X_SIZE, 12);
+            drawTexturedModalRect( startX, startY + Y_SIZE - 4, 0, Y_SIZE + 12, X_SIZE, 12);
             for( int n=1; n<m_pages; ++n )
             {
-                drawTexturedModalRect( startX + xSize + (n-1)*8, startY - 8, 0, ySize, 8, 12);
-                drawTexturedModalRect( startX + xSize + (n-1)*8, startY + ySize - 4, 0, ySize + 12, 8, 12);
+                drawTexturedModalRect( startX + X_SIZE + (n-1)*8, startY - 8, 0, Y_SIZE, 8, 12);
+                drawTexturedModalRect( startX + X_SIZE + (n-1)*8, startY + Y_SIZE - 4, 0, Y_SIZE + 12, 8, 12);
             }
         }
             
         // Left half
         if( m_page == 0 )
         {            
-            drawTexturedModalRect( startX, startY, 24, 0, xSize / 2, ySize);
-            drawTexturedModalRect( startX, startY, 0, 0, 12, ySize);
+            drawTexturedModalRect( startX, startY, 24, 0, X_SIZE / 2, Y_SIZE );
+            drawTexturedModalRect( startX, startY, 0, 0, 12, Y_SIZE );
         }
         else
         {
-            drawTexturedModalRect( startX, startY, 0, 0, 12, ySize);
+            drawTexturedModalRect( startX, startY, 0, 0, 12, Y_SIZE );
             for( int n=1; n<m_page; ++n )
             {
-                drawTexturedModalRect( startX + n*8, startY, 12, 0, 12, ySize);                
+                drawTexturedModalRect( startX + n*8, startY, 12, 0, 12, Y_SIZE );                
             }
-            drawTexturedModalRect( startX + m_page*8, startY, 24, 0, xSize / 2, ySize);
+            drawTexturedModalRect( startX + m_page*8, startY, 24, 0, X_SIZE / 2, Y_SIZE );
         }
         
         // Right half
         if( m_page == (m_pages - 1) )
         {
-            drawTexturedModalRect( startX + m_page*8 + xSize/2, startY, 24 + xSize / 2, 0, xSize / 2, ySize);
-            drawTexturedModalRect( startX + m_page*8 + (xSize - 12), startY, 24 + xSize + 12, 0, 12, ySize);
+            drawTexturedModalRect( startX + m_page*8 + X_SIZE /2, startY, 24 + X_SIZE / 2, 0, X_SIZE / 2, Y_SIZE );
+            drawTexturedModalRect( startX + m_page*8 + (X_SIZE - 12), startY, 24 + X_SIZE + 12, 0, 12, Y_SIZE );
         }
         else 
         {
-            drawTexturedModalRect( startX + (m_pages - 1)*8 + (xSize - 12), startY, 24 + xSize + 12, 0, 12, ySize);
+            drawTexturedModalRect( startX + (m_pages - 1)*8 + (X_SIZE - 12), startY, 24 + X_SIZE + 12, 0, 12, Y_SIZE );
             for( int n=m_pages-2; n>=m_page; --n )
             {
-                drawTexturedModalRect( startX + n*8 + (xSize - 12), startY, 24 + xSize, 0, 12, ySize);
+                drawTexturedModalRect( startX + n*8 + (X_SIZE - 12), startY, 24 + X_SIZE, 0, 12, Y_SIZE );
             }
-            drawTexturedModalRect( startX + m_page*8 + xSize/2, startY, 24 + xSize / 2, 0, xSize / 2, ySize);
+            drawTexturedModalRect( startX + m_page*8 + X_SIZE /2, startY, 24 + X_SIZE / 2, 0, X_SIZE / 2, Y_SIZE );
         }
 
         // Draw the text
