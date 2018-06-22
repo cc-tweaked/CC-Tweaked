@@ -20,7 +20,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
-import net.minecraftforge.common.util.FakePlayer;
 
 import javax.annotation.Nonnull;
 import java.util.*;
@@ -59,7 +58,7 @@ public final class CommandComputerCraft extends CommandDelegate
             {
                 if( arguments.size() == 0 )
                 {
-                    TextTable table = new TextTable( DUMP_LIST_ID, "Instance", "Id", "On", "Position" );
+                    TextTable table = new TextTable( DUMP_LIST_ID, "Computer", "On", "Position" );
 
                     List<ServerComputer> computers = new ArrayList<>( ComputerCraft.serverComputerRegistry.getComputers() );
 
@@ -92,8 +91,7 @@ public final class CommandComputerCraft extends CommandDelegate
                     for( ServerComputer computer : computers )
                     {
                         table.addRow(
-                            linkComputer( computer ),
-                            text( Integer.toString( computer.getID() ) ),
+                            linkComputer( context, computer, computer.getID() ),
                             bool( computer.isOn() ),
                             linkPosition( context, computer )
                         );
@@ -406,13 +404,46 @@ public final class CommandComputerCraft extends CommandDelegate
         return root;
     }
 
-    private static ITextComponent linkComputer( ServerComputer computer )
+    private static ITextComponent linkComputer( CommandContext context, ServerComputer serverComputer, int computerId )
     {
-        return link(
-            text( Integer.toString( computer.getInstanceID() ) ),
-            "/computercraft dump " + computer.getInstanceID(),
-            "View more info about this computer"
-        );
+        ITextComponent out = new TextComponentString( "" );
+
+        // Append the computer instance
+        if( serverComputer == null )
+        {
+            out.appendSibling( text( "?" ) );
+        }
+        else
+        {
+            out.appendSibling( link(
+                text( Integer.toString( serverComputer.getInstanceID() ) ),
+                "/computercraft dump " + serverComputer.getInstanceID(),
+                "View more info about this computer"
+            ) );
+        }
+
+        // And ID
+        out.appendText( " (id " + computerId + ")" );
+
+        // And, if we're a player, some useful links
+        if( serverComputer != null && UserLevel.OP.canExecute( context ) && context.fromPlayer() )
+        {
+            out
+                .appendText( " " )
+                .appendSibling( link(
+                    text( "\u261b" ),
+                    "/computercraft tp " + serverComputer.getInstanceID(),
+                    "Teleport to this computer"
+                ) )
+                .appendText( " " )
+                .appendSibling( link(
+                    text( "\u20e2" ),
+                    "/computercraft view " + serverComputer.getInstanceID(),
+                    "View this computer"
+                ) );
+        }
+
+        return out;
     }
 
     private static ITextComponent linkPosition( CommandContext context, ServerComputer computer )
@@ -459,7 +490,6 @@ public final class CommandComputerCraft extends CommandDelegate
         }
 
         ICommandSender sender = context.getSender();
-        boolean isPlayer = sender instanceof EntityPlayerMP && !(sender instanceof FakePlayer);
 
         timings.sort( Comparator.<ComputerTracker, Long>comparing( x -> x.get( field ) ).reversed() );
 
@@ -476,26 +506,7 @@ public final class CommandComputerCraft extends CommandDelegate
             Computer computer = entry.getComputer();
             ServerComputer serverComputer = computer == null ? null : lookup.get( computer );
 
-            ITextComponent computerComponent = new TextComponentString( "" )
-                .appendSibling( serverComputer == null ? text( "?" ) : linkComputer( serverComputer ) )
-                .appendText( " (id " + entry.getComputerId() + ")" );
-
-            if( serverComputer != null && UserLevel.OP.canExecute( context ) && isPlayer )
-            {
-                computerComponent
-                    .appendText( " " )
-                    .appendSibling( link(
-                        text( "\u261b" ),
-                        "/computercraft tp " + serverComputer.getInstanceID(),
-                        "Teleport to this computer"
-                    ) )
-                    .appendText( " " )
-                    .appendSibling( link(
-                        text( "\u20e2" ),
-                        "/computercraft view " + serverComputer.getInstanceID(),
-                        "View this computer"
-                    ) );
-            }
+            ITextComponent computerComponent = linkComputer( context, serverComputer, entry.getComputerId() );
 
             if( defaultLayout )
             {

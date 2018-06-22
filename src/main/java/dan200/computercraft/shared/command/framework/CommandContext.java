@@ -2,7 +2,9 @@ package dan200.computercraft.shared.command.framework;
 
 import com.google.common.collect.Lists;
 import net.minecraft.command.ICommandSender;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
+import net.minecraftforge.common.util.FakePlayer;
 
 import java.util.Collections;
 import java.util.List;
@@ -89,5 +91,10 @@ public final class CommandContext
     public ICommandSender getSender()
     {
         return sender;
+    }
+
+    public boolean fromPlayer()
+    {
+        return sender instanceof EntityPlayerMP && !(sender instanceof FakePlayer);
     }
 }

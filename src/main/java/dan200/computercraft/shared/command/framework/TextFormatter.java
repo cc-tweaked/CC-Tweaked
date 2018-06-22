@@ -17,7 +17,6 @@ import static dan200.computercraft.shared.command.framework.ChatHelpers.coloured
  */
 public class TextFormatter
 {
-    private static final int SPACE_WIDTH = 4;
     private static final char PADDING_CHAR = '\u02cc';
 
     /**
@@ -54,7 +53,7 @@ public class TextFormatter
         8, 4,
     };
 
-    private static int getWidth( int codePoint )
+    public static int getWidth( int codePoint )
     {
         // Escape codes
         if( codePoint == 167 ) return -1;
@@ -73,7 +72,7 @@ public class TextFormatter
         return 0;
     }
 
-    private static int getWidth( ITextComponent component )
+    public static int getWidth( ITextComponent component )
     {
         int total = 0;
         if( component instanceof TextComponentString )
@@ -132,19 +131,17 @@ public class TextFormatter
         int width = getWidthFor( entry, sender );
         int delta = maxWidth - width;
 
-        if( delta > 0 )
+        int spaceWidth = getWidthFor( ' ', sender );
+        int spaces = delta / spaceWidth;
+        int extra = delta % spaces;
+
+        // Append a fixed number of spaces
+        if( spaces > 0 ) out.appendSibling( new TextComponentString( StringUtils.repeat( ' ', spaces ) ) );
+
+        // Append several minor characters to pad to a full string 
+        if( extra > 0 )
         {
-            int spaces = delta / SPACE_WIDTH;
-            int extra = delta % SPACE_WIDTH;
-
-            // Append a fixed number of spaces
-            if( spaces > 0 ) out.appendSibling( new TextComponentString( StringUtils.repeat( ' ', spaces ) ) );
-
-            // Append several minor characters to pad to a full string 
-            if( extra > 0 )
-            {
-                out.appendSibling( coloured( StringUtils.repeat( PADDING_CHAR, extra ), TextFormatting.GRAY ) );
-            }
+            out.appendSibling( coloured( StringUtils.repeat( PADDING_CHAR, extra ), TextFormatting.GRAY ) );
         }
     }
 }

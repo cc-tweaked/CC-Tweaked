@@ -35,7 +35,7 @@ public class TextTable
         this.columns = header.length;
     }
 
-    public TextTable(int id)
+    public TextTable( int id )
     {
         this.id = id;
         this.header = null;
@@ -90,14 +90,15 @@ public class TextTable
             ITextComponent[] row = rows.get( y );
             for( int i = 0; i < row.length; i++ )
             {
-                int width = getWidthFor( row[i], sender ) + 3;
+                int width = getWidthFor( row[i], sender );
                 if( width > maxWidths[i] ) maxWidths[i] = width;
             }
         }
 
-        // Add a small amount of extra padding. We include this here instead of the separator to allow
-        // for "extra" characters
-        for( int i = 0; i < maxWidths.length; i++ ) maxWidths[i] += 4;
+        // Add a small amount of extra padding. This defaults to 3 spaces for players
+        // and 1 for everyone else.
+        int padding = isPlayer( sender ) ? getWidth( ' ' ) * 3 : 1;
+        for( int i = 0; i < maxWidths.length; i++ ) maxWidths[i] += padding;
 
         int totalWidth = (columns - 1) * getWidthFor( SEPARATOR, sender );
         for( int x : maxWidths ) totalWidth += x;
@@ -161,7 +162,7 @@ public class TextTable
             for( int i = 0; i < out.size(); i++ )
             {
                 if( i > 0 ) result.appendSibling( LINE );
-                result.appendSibling( out.get( 0 ) );
+                result.appendSibling( out.get( i ) );
             }
             sender.sendMessage( result );
         }

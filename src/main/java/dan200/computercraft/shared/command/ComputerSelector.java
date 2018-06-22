@@ -46,7 +46,7 @@ public final class ComputerSelector
 
             for( int i = 0; i < computers.size(); i++ )
             {
-                if( i > 1 ) builder.append( ", " );
+                if( i > 0 ) builder.append( ", " );
                 builder.append( computers.get( i ).getInstanceID() );
             }
             builder.append( ")" );
