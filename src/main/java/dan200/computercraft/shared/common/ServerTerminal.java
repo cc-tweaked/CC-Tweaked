@@ -54,6 +54,11 @@ public class ServerTerminal implements ITerminal
         }
     }
 
+    protected void markTerminalChanged()
+    {
+        m_terminalChanged = true;
+    }
+
     public void update()
     {
         m_terminalChangedLastFrame = m_terminalChanged || (m_terminal != null && m_terminal.getChanged());

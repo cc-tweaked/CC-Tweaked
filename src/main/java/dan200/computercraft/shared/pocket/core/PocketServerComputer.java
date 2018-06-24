@@ -8,6 +8,7 @@ import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -138,7 +139,7 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
     {
         if( this.m_upgrade == upgrade ) return;
 
-        synchronized (this)
+        synchronized( this )
         {
             ComputerCraft.Items.pocketComputer.setUpgrade( m_stack, upgrade );
             if( m_entity instanceof EntityPlayer ) ((EntityPlayer) m_entity).inventory.markDirty();
@@ -156,6 +157,9 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
             setPosition( entity.getPosition() );
         }
 
+        // If a new entity has picked it up then rebroadcast the terminal to them
+        if( entity != m_entity && entity instanceof EntityPlayerMP ) markTerminalChanged();
+
         m_entity = entity;
         m_stack = stack;
 
@@ -163,6 +167,21 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
         {
             this.m_upgrade = upgrade;
             invalidatePeripheral();
+        }
+    }
+
+    public void broadcastState( boolean force )
+    {
+        super.broadcastState( force );
+
+        if( (hasTerminalChanged() || force) && m_entity instanceof EntityPlayerMP )
+        {
+            // Broadcast the state to the current entity if they're not already interacting with it.
+            EntityPlayerMP player = (EntityPlayerMP) m_entity;
+            if( player.connection != null && !isInteracting( player ) )
+            {
+                ComputerCraft.sendToPlayer( player, createTerminalPacket() );
+            }
         }
     }
 }

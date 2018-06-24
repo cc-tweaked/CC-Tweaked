@@ -154,7 +154,7 @@ public class ServerComputer extends ServerTerminal
         return packet;
     }
 
-    private ComputerCraftPacket createTerminalPacket() {
+    protected ComputerCraftPacket createTerminalPacket() {
         ComputerCraftPacket packet = new ComputerCraftPacket();
         packet.m_packetType = ComputerCraftPacket.ComputerTerminalChanged;
         packet.m_dataInt = new int[] { getInstanceID() };
@@ -465,7 +465,7 @@ public class ServerComputer extends ServerTerminal
         }
     }
 
-    private boolean isInteracting( EntityPlayer player )
+    protected boolean isInteracting( EntityPlayer player )
     {
         if( player == null ) return false;
 
