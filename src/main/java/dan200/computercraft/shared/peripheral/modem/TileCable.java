@@ -108,10 +108,11 @@ public class TileCable extends TileModemBase
         m_node = m_cable.getNode();
         return new WiredModemPeripheral( m_cable )
         {
+            @Nonnull
             @Override
-            protected boolean canSeePeripheral( @Nonnull String peripheralName )
+            protected WiredModemLocalPeripheral getLocalPeripheral()
             {
-                return !peripheralName.equals( m_peripheral.getConnectedName() );
+                return m_peripheral;
             }
 
             @Nonnull

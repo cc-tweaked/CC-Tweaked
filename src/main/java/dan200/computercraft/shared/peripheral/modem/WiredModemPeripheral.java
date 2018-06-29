@@ -56,7 +56,8 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements IW
         return modem.getWorld();
     }
 
-    protected abstract boolean canSeePeripheral( @Nonnull String peripheralName );
+    @Nonnull
+    protected abstract WiredModemLocalPeripheral getLocalPeripheral();
     //endregion
 
     //region IPeripheral
@@ -65,13 +66,14 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements IW
     public String[] getMethodNames()
     {
         String[] methods = super.getMethodNames();
-        String[] newMethods = new String[methods.length + 5];
+        String[] newMethods = new String[methods.length + 6];
         System.arraycopy( methods, 0, newMethods, 0, methods.length );
         newMethods[methods.length] = "getNamesRemote";
         newMethods[methods.length + 1] = "isPresentRemote";
         newMethods[methods.length + 2] = "getTypeRemote";
         newMethods[methods.length + 3] = "getMethodsRemote";
         newMethods[methods.length + 4] = "callRemote";
+        newMethods[methods.length + 5] = "getNameLocal";
         return newMethods;
     }
 
@@ -134,6 +136,12 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements IW
                 Object[] methodArgs = new Object[arguments.length - 2];
                 System.arraycopy( arguments, 2, methodArgs, 0, arguments.length - 2 );
                 return callMethodRemote( remoteName, context, methodName, methodArgs );
+            }
+            case 5:
+            {
+                // getNameLocal
+                String local = getLocalPeripheral().getConnectedName();
+                return local == null ? null : new Object[]{ local };
             }
             default:
             {
@@ -217,7 +225,7 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements IW
 
     private void attachPeripheralImpl( String periphName, IPeripheral peripheral )
     {
-        if( !peripheralWrappers.containsKey( periphName ) && canSeePeripheral( periphName ) )
+        if( !peripheralWrappers.containsKey( periphName ) && !periphName.equals( getLocalPeripheral().getConnectedName() ) )
         {
             RemotePeripheralWrapper wrapper = new RemotePeripheralWrapper( modem, peripheral, getComputer(), periphName );
             peripheralWrappers.put( periphName, wrapper );

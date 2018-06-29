@@ -401,12 +401,14 @@ public class TileWiredModemFull extends TilePeripheralBase
         WiredModemPeripheral peripheral = m_modems[side.ordinal()];
         if( peripheral == null )
         {
+            WiredModemLocalPeripheral localPeripheral = m_peripherals[side.ordinal()];
             peripheral = m_modems[side.ordinal()] = new WiredModemPeripheral( m_element )
             {
+                @Nonnull
                 @Override
-                protected boolean canSeePeripheral( @Nonnull String peripheralName )
+                protected WiredModemLocalPeripheral getLocalPeripheral()
                 {
-                    return !peripheralName.equals( m_peripherals[side.ordinal()].getConnectedName() );
+                    return localPeripheral;
                 }
 
                 @Nonnull
