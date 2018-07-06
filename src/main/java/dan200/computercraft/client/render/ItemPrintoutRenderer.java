@@ -1,17 +1,10 @@
 package dan200.computercraft.client.render;
 
 import dan200.computercraft.ComputerCraft;
-import dan200.computercraft.client.gui.FixedWidthFontRenderer;
-import dan200.computercraft.client.gui.GuiPrintout;
-import dan200.computercraft.core.terminal.TextBuffer;
 import dan200.computercraft.shared.media.items.ItemPrintout;
-import dan200.computercraft.shared.util.Palette;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.ItemRenderer;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumHand;
@@ -20,10 +13,10 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.client.event.RenderItemInFrameEvent;
 import net.minecraftforge.client.event.RenderSpecificHandEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import org.lwjgl.opengl.GL11;
 
 import static dan200.computercraft.client.gui.FixedWidthFontRenderer.FONT_HEIGHT;
 import static dan200.computercraft.client.gui.FixedWidthFontRenderer.FONT_WIDTH;
+import static dan200.computercraft.client.render.PrintoutRenderer.*;
 import static dan200.computercraft.shared.media.items.ItemPrintout.LINES_PER_PAGE;
 import static dan200.computercraft.shared.media.items.ItemPrintout.LINE_MAX_LENGTH;
 
@@ -34,9 +27,6 @@ public class ItemPrintoutRenderer
     {
         ItemStack stack = event.getItemStack();
         if( stack.getItem() != ComputerCraft.Items.printout ) return;
-
-        // We only allow single pages to be viewed in-hand for now
-        if( ItemPrintout.getType( stack ) != ItemPrintout.Type.Single ) return;
 
         event.setCanceled( true );
 
@@ -145,8 +135,8 @@ public class ItemPrintoutRenderer
 
         GlStateManager.rotate( 180f, 0f, 1f, 0f );
         GlStateManager.rotate( 180f, 0f, 0f, 1f );
-        GlStateManager.scale( 0.38f, 0.38f, 0.38f );
-        GlStateManager.translate( -0.5f, -0.5f, 0.0f );
+        GlStateManager.scale( 0.42f, 0.42f, -0.42f );
+        GlStateManager.translate( -0.5f, -0.48f, 0.0f );
 
         drawPrintout( stack );
 
@@ -159,9 +149,6 @@ public class ItemPrintoutRenderer
         ItemStack stack = event.getItem();
         if( stack.getItem() != ComputerCraft.Items.printout ) return;
 
-        // We only allow single pages to be viewed in-hand for now
-        if( ItemPrintout.getType( stack ) != ItemPrintout.Type.Single ) return;
-
         event.setCanceled( true );
 
         GlStateManager.disableLighting();
@@ -169,6 +156,7 @@ public class ItemPrintoutRenderer
         // Move a little bit forward to ensure we're not clipping with the frame
         GlStateManager.translate( 0.0f, 0.0f, -0.001f );
         GlStateManager.rotate( 180f, 0f, 0f, 1f );
+        GlStateManager.scale( 0.95f, 0.95f, -0.95f );
         GlStateManager.translate( -0.5f, -0.5f, 0.0f );
 
         drawPrintout( stack );
@@ -178,42 +166,32 @@ public class ItemPrintoutRenderer
 
     private static void drawPrintout( ItemStack stack )
     {
-        int xMargin = 13;
-        int yMargin = 11;
+        int pages = ItemPrintout.getPageCount( stack );
+        boolean book = ItemPrintout.getType( stack ) == ItemPrintout.Type.Book;
 
-        int width = LINE_MAX_LENGTH * FONT_WIDTH + xMargin * 2;
-        int height = LINES_PER_PAGE * FONT_HEIGHT + yMargin * 2;
-        int max = Math.max( height, width );
+        double width = LINE_MAX_LENGTH * FONT_WIDTH + X_TEXT_MARGIN * 2;
+        double height = LINES_PER_PAGE * FONT_HEIGHT + Y_TEXT_MARGIN * 2;
+
+        // Non-books will be left aligned
+        if( !book ) width += offsetAt( pages );
+
+        double visualWidth = width, visualHeight = height;
+
+        // Meanwhile books will be centred
+        if( book )
+        {
+            visualWidth += 2 * COVER_SIZE + 2 * offsetAt( pages );
+            visualHeight += 2 * COVER_SIZE;
+        }
+
+        double max = Math.max( visualHeight, visualWidth );
 
         // Scale the printout to fit correctly.
         double scale = 1.0 / max;
         GlStateManager.scale( scale, scale, scale );
         GlStateManager.translate( (max - width) / 2.0f, (max - height) / 2.0f, 0.0f );
 
-        drawBackground( 0, 0, 0.01 );
-
-        FixedWidthFontRenderer fontRenderer = (FixedWidthFontRenderer) ComputerCraft.getFixedWidthFontRenderer();
-
-        String[] text = ItemPrintout.getText( stack );
-        String[] colours = ItemPrintout.getColours( stack );
-        for( int line = 0; line < LINES_PER_PAGE && line < text.length; ++line )
-        {
-            fontRenderer.drawString( new TextBuffer( text[ line ] ), xMargin, yMargin + line * FONT_HEIGHT, new TextBuffer( colours[ line ] ), null, 0, 0, false, Palette.DEFAULT );
-        }
-    }
-
-    private static void drawBackground( double x, double y, double z )
-    {
-        Minecraft mc = Minecraft.getMinecraft();
-        mc.getTextureManager().bindTexture( GuiPrintout.BACKGROUND );
-
-        Tessellator tessellator = Tessellator.getInstance();
-        BufferBuilder buffer = tessellator.getBuffer();
-        buffer.begin( GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX );
-        buffer.pos( x, y + GuiPrintout.Y_SIZE, z ).tex( 24 / 256.0, GuiPrintout.Y_SIZE / 256.0 ).endVertex();
-        buffer.pos( x + GuiPrintout.X_SIZE, y + GuiPrintout.Y_SIZE, z ).tex( (24 + GuiPrintout.X_SIZE) / 256.0, GuiPrintout.Y_SIZE / 256.0 ).endVertex();
-        buffer.pos( x + GuiPrintout.X_SIZE, y, z ).tex( (24 + GuiPrintout.X_SIZE) / 256.0, 0 ).endVertex();
-        buffer.pos( x, y, z ).tex( 24 / 256.0, 0 ).endVertex();
-        tessellator.draw();
+        drawBorder( 0, 0, -0.01, 0, pages, book );
+        drawText( X_TEXT_MARGIN, Y_TEXT_MARGIN, 0, ItemPrintout.getText( stack ), ItemPrintout.getColours( stack ) );
     }
 }
