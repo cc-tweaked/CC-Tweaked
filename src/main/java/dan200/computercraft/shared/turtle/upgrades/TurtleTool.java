@@ -29,12 +29,10 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.ForgeEventFactory;
 import net.minecraftforge.event.entity.player.AttackEntityEvent;
@@ -147,15 +145,6 @@ public class TurtleTool implements ITurtleUpgrade
         IBlockState state = world.getBlockState( pos );
         Block block = state.getBlock();
         return !block.isAir( state, world, pos ) && block != Blocks.BEDROCK && state.getBlockHardness( world, pos ) > -1.0F;
-    }
-    
-    protected boolean canHarvestBlock( ITurtleAccess turtleAccess, BlockPos pos )
-    {
-        World world = turtleAccess.getWorld();
-        Block block = world.getBlockState( pos ).getBlock();
-        TurtlePlayer turtlePlayer = new TurtlePlayer( turtleAccess );
-        turtlePlayer.loadInventory( m_item.copy() );
-        return ForgeHooks.canHarvestBlock( block, turtlePlayer, world, pos );
     }
     
     protected float getDamageMultiplier()
@@ -286,9 +275,11 @@ public class TurtleTool implements ITurtleUpgrade
             {
                 return TurtleCommandResult.failure( digEvent.getFailureMessage() );
             }
+            
+            IBlockState previousState = world.getBlockState( newPosition );
 
             // Consume the items the block drops
-            if( canHarvestBlock( turtle, newPosition ) )
+            if( previousState.getBlock().canHarvestBlock( world, newPosition, turtlePlayer ) )
             {
                 List<ItemStack> items = getBlockDropped( world, newPosition, turtlePlayer );
                 if( items != null && items.size() > 0 )
@@ -306,7 +297,6 @@ public class TurtleTool implements ITurtleUpgrade
             }
 
             // Destroy the block
-            IBlockState previousState = world.getBlockState( newPosition );
             world.playEvent(2001, newPosition, Block.getStateId(previousState));
             world.setBlockToAir( newPosition );
 

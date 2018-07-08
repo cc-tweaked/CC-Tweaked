@@ -36,16 +36,31 @@ public class TurtlePlayer extends FakePlayer
         "[ComputerCraft]"
     );
 
+    /**
+     * Construct a TurtlePlayer which exists in the world
+     *
+     * @param world The world the player exists in
+     * @deprecated This is required by {@link Entity}.
+     */
     @Deprecated
     public TurtlePlayer( World world )
     {
         super( (WorldServer) world, DEFAULT_PROFILE );
     }
-    
-    public TurtlePlayer( ITurtleAccess turtle )
-    {
-        super( (WorldServer) turtle.getWorld(), getProfile( turtle.getOwningPlayer() ));
 
+    private TurtlePlayer( ITurtleAccess turtle )
+    {
+        super( (WorldServer) turtle.getWorld(), getProfile( turtle.getOwningPlayer() ) );
+        setState( turtle );
+    }
+
+    private static GameProfile getProfile( @Nullable GameProfile profile )
+    {
+        return profile != null && profile.isComplete() ? profile : DEFAULT_PROFILE;
+    }
+
+    private void setState( ITurtleAccess turtle )
+    {
         BlockPos position = turtle.getPosition();
         posX = position.getX() + 0.5;
         posY = position.getY() + 0.5;
@@ -55,9 +70,23 @@ public class TurtlePlayer extends FakePlayer
         rotationPitch = 0.0f;
     }
 
-    private static GameProfile getProfile( @Nullable GameProfile profile )
+    public static TurtlePlayer get( ITurtleAccess access )
     {
-        return profile != null && profile.isComplete() ? profile : DEFAULT_PROFILE;
+        if( !(access instanceof TurtleBrain) ) return new TurtlePlayer( access );
+
+        TurtleBrain brain = (TurtleBrain) access;
+        TurtlePlayer player = brain.m_cachedPlayer;
+        if( player == null || player.getGameProfile() != getProfile( access.getOwningPlayer() )
+            || player.getEntityWorld() != access.getWorld() )
+        {
+            player = brain.m_cachedPlayer = new TurtlePlayer( brain );
+        }
+        else
+        {
+            player.setState( access );
+        }
+
+        return player;
     }
 
     public void loadInventory( @Nonnull ItemStack currentStack )
@@ -76,7 +105,7 @@ public class TurtlePlayer extends FakePlayer
         // Store (or drop) anything else we found
         BlockPos dropPosition = turtle.getPosition();
         EnumFacing dropDirection = turtle.getDirection().getOpposite();
-        for( int i=0; i<inventory.getSizeInventory(); ++i )
+        for( int i = 0; i < inventory.getSizeInventory(); ++i )
         {
             ItemStack stack = inventory.getStackInSlot( i );
             if( !stack.isEmpty() )

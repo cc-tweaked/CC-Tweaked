@@ -127,6 +127,8 @@ public class TurtleBrain implements ITurtleAccess
     private TurtleAnimation m_animation;
     private int m_animationProgress;
     private int m_lastAnimationProgress;
+    
+    TurtlePlayer m_cachedPlayer;
 
     public TurtleBrain( TileTurtle turtle )
     {

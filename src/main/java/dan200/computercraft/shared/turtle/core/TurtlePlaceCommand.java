@@ -180,12 +180,12 @@ public class TurtlePlaceCommand implements ITurtleCommand
 
     public static TurtlePlayer createPlayer( ITurtleAccess turtle, BlockPos position, EnumFacing direction )
     {
-        TurtlePlayer turtlePlayer = new TurtlePlayer( turtle );
+        TurtlePlayer turtlePlayer = TurtlePlayer.get( turtle );
         orientPlayer( turtle, turtlePlayer, position, direction );
         return turtlePlayer;
     }
 
-    public static void orientPlayer( ITurtleAccess turtle, TurtlePlayer turtlePlayer, BlockPos position, EnumFacing direction )
+    private static void orientPlayer( ITurtleAccess turtle, TurtlePlayer turtlePlayer, BlockPos position, EnumFacing direction )
     {
         turtlePlayer.posX = position.getX() + 0.5;
         turtlePlayer.posY = position.getY() + 0.5;
