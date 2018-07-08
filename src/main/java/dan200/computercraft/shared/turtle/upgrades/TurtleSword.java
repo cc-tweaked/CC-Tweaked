@@ -5,11 +5,13 @@
  */
 
 package dan200.computercraft.shared.turtle.upgrades;
+
+import dan200.computercraft.shared.turtle.core.TurtlePlayer;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.item.Item;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 public class TurtleSword extends TurtleTool
@@ -20,20 +22,16 @@ public class TurtleSword extends TurtleTool
     }
 
     @Override
-    protected boolean canBreakBlock( World world, BlockPos pos )
+    protected boolean canBreakBlock( IBlockState state, World world, BlockPos pos, TurtlePlayer player )
     {
-        if( super.canBreakBlock( world, pos ) )
-        {
-            IBlockState state = world.getBlockState( pos );
-            Material material = state.getMaterial( );
-            return
-                    material == Material.PLANTS ||
-                    material == Material.LEAVES ||
-                    material == Material.VINE ||
-                    material == Material.CLOTH ||
-                    material == Material.WEB;
-        }
-        return false;
+        if( !super.canBreakBlock( state, world, pos, player ) ) return false;
+
+        Material material = state.getMaterial();
+        return material == Material.PLANTS ||
+            material == Material.LEAVES ||
+            material == Material.VINE ||
+            material == Material.CLOTH ||
+            material == Material.WEB;
     }
 
     @Override

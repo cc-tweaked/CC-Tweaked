@@ -241,7 +241,7 @@ public class TurtlePlaceCommand implements ITurtleCommand
         // Start claiming entity drops
         Entity hitEntity = hit.getKey();
         Vec3d hitPos = hit.getValue();
-        ComputerCraft.setEntityDropConsumer( hitEntity, ( entity, drop ) ->
+        ComputerCraft.setDropConsumer( hitEntity, ( drop ) ->
         {
             ItemStack remainder = InventoryUtil.storeItems( drop, turtle.getItemHandler(), turtle.getSelectedSlot() );
             if( !remainder.isEmpty() )
@@ -285,7 +285,7 @@ public class TurtlePlaceCommand implements ITurtleCommand
         }
 
         // Stop claiming drops
-        ComputerCraft.clearEntityDropConsumer( hitEntity );
+        ComputerCraft.clearDropConsumer();
 
         // Put everything we collected into the turtles inventory, then return
         ItemStack remainder = turtlePlayer.unloadInventory( turtle );

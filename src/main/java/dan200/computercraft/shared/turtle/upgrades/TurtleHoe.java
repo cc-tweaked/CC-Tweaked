@@ -11,13 +11,14 @@ import dan200.computercraft.api.turtle.TurtleCommandResult;
 import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.api.turtle.TurtleVerb;
 import dan200.computercraft.shared.turtle.core.TurtlePlaceCommand;
+import dan200.computercraft.shared.turtle.core.TurtlePlayer;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
@@ -30,20 +31,16 @@ public class TurtleHoe extends TurtleTool
     }
 
     @Override
-    protected boolean canBreakBlock( World world, BlockPos pos )
+    protected boolean canBreakBlock( IBlockState state, World world, BlockPos pos, TurtlePlayer player )
     {
-        if( super.canBreakBlock( world, pos ) )
-        {
-            IBlockState state = world.getBlockState( pos );
-            Material material = state.getMaterial( );
-            return
-                material == Material.PLANTS ||
-                material == Material.CACTUS ||
-                material == Material.GOURD ||
-                material == Material.LEAVES ||
-                material == Material.VINE;
-        }
-        return false;
+        if( !super.canBreakBlock( state, world, pos, player ) ) return false;
+
+        Material material = state.getMaterial();
+        return material == Material.PLANTS ||
+            material == Material.CACTUS ||
+            material == Material.GOURD ||
+            material == Material.LEAVES ||
+            material == Material.VINE;
     }
 
     @Nonnull

@@ -23,10 +23,10 @@ import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.item.EntityArmorStand;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
@@ -34,7 +34,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.ForgeEventFactory;
 import net.minecraftforge.event.entity.player.AttackEntityEvent;
 import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.fml.relauncher.Side;
@@ -43,7 +42,9 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nonnull;
 import javax.vecmath.Matrix4f;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 public class TurtleTool implements ITurtleUpgrade
 {
@@ -102,7 +103,7 @@ public class TurtleTool implements ITurtleUpgrade
 
     @Nonnull
     @Override
-    @SideOnly( Side.CLIENT )
+    @SideOnly(Side.CLIENT)
     public Pair<IBakedModel, Matrix4f> getModel( ITurtleAccess turtle, @Nonnull TurtleSide side )
     {
         float xOffset = (side == TurtleSide.Left) ? -0.40625f : 0.40625f;
@@ -140,13 +141,15 @@ public class TurtleTool implements ITurtleUpgrade
         }
     }
 
-    protected boolean canBreakBlock( World world, BlockPos pos )
+    protected boolean canBreakBlock( IBlockState state, World world, BlockPos pos, TurtlePlayer player )
     {
-        IBlockState state = world.getBlockState( pos );
         Block block = state.getBlock();
-        return !block.isAir( state, world, pos ) && block != Blocks.BEDROCK && state.getBlockHardness( world, pos ) > -1.0F;
+        return !block.isAir( state, world, pos )
+            && block != Blocks.BEDROCK
+            && state.getPlayerRelativeBlockHardness( player, world, pos ) > 0
+            && block.canEntityDestroy( state, world, pos, player );
     }
-    
+
     protected float getDamageMultiplier()
     {
         return 3.0f;
@@ -184,20 +187,14 @@ public class TurtleTool implements ITurtleUpgrade
             }
             
             // Start claiming entity drops
-            ComputerCraft.setEntityDropConsumer( hitEntity, ( entity, drop ) ->
-            {
-                ItemStack remainder = InventoryUtil.storeItems( drop, turtle.getItemHandler(), turtle.getSelectedSlot() );
-                if( !remainder.isEmpty() )
-                {
-                    WorldUtil.dropItemStack( remainder, world, position, turtle.getDirection().getOpposite() );
-                }
-            } );
+            List<ItemStack> extra = new ArrayList<>(  );
+            ComputerCraft.setDropConsumer( hitEntity, turtleDropConsumer( turtle, extra ) );
 
             // Attack the entity
             boolean attacked = false;
             if( !hitEntity.hitByEntity( turtlePlayer ) )
             {
-                float damage = (float)turtlePlayer.getEntityAttribute( SharedMonsterAttributes.ATTACK_DAMAGE ).getAttributeValue();
+                float damage = (float) turtlePlayer.getEntityAttribute( SharedMonsterAttributes.ATTACK_DAMAGE ).getAttributeValue();
                 damage *= getDamageMultiplier();
                 if( damage > 0.0f )
                 {
@@ -223,7 +220,7 @@ public class TurtleTool implements ITurtleUpgrade
             }
 
             // Stop claiming drops
-            ComputerCraft.clearEntityDropConsumer( hitEntity );
+            stopConsuming( turtle, extra );
 
             // Put everything we collected into the turtles inventory, then return
             if( attacked )
@@ -240,71 +237,73 @@ public class TurtleTool implements ITurtleUpgrade
     {
         // Get ready to dig
         World world = turtle.getWorld();
-        BlockPos position = turtle.getPosition();
-        BlockPos newPosition = WorldUtil.moveCoords( position, direction );
+        BlockPos turtlePosition = turtle.getPosition();
+        BlockPos blockPosition = WorldUtil.moveCoords( turtlePosition, direction );
 
-        if( WorldUtil.isBlockInWorld( world, newPosition ) &&
-            !world.isAirBlock( newPosition ) &&
-            !WorldUtil.isLiquidBlock( world, newPosition ) )
+        if( WorldUtil.isBlockInWorld( world, blockPosition ) &&
+            !world.isAirBlock( blockPosition ) &&
+            !WorldUtil.isLiquidBlock( world, blockPosition ) )
         {
-            TurtlePlayer turtlePlayer = TurtlePlaceCommand.createPlayer( turtle, position, direction );
+            IBlockState state = world.getBlockState( blockPosition );
+
+            TurtlePlayer turtlePlayer = TurtlePlaceCommand.createPlayer( turtle, turtlePosition, direction );
+            turtlePlayer.loadInventory( m_item.copy() );
+
             if( ComputerCraft.turtlesObeyBlockProtection )
             {
                 // Check spawn protection
-
-                if( MinecraftForge.EVENT_BUS.post( new BlockEvent.BreakEvent( world, newPosition, world.getBlockState( newPosition ), turtlePlayer ) ) )
+                if( MinecraftForge.EVENT_BUS.post( new BlockEvent.BreakEvent( world, blockPosition, state, turtlePlayer ) ) )
                 {
                     return TurtleCommandResult.failure( "Cannot break protected block" );
                 }
-                
-                if( !ComputerCraft.isBlockEditable( world, newPosition, turtlePlayer ) )
+
+                if( !ComputerCraft.isBlockEditable( world, blockPosition, turtlePlayer ) )
                 {
                     return TurtleCommandResult.failure( "Cannot break protected block" );
                 }
             }
 
             // Check if we can break the block
-            if( !canBreakBlock( world, newPosition ) )
+            if( !canBreakBlock( state, world, blockPosition, turtlePlayer ) )
             {
                 return TurtleCommandResult.failure( "Unbreakable block detected" );
             }
 
             // Fire the dig event, checking whether it was cancelled.
-            TurtleBlockEvent.Dig digEvent = new TurtleBlockEvent.Dig( turtle, turtlePlayer, world, newPosition, world.getBlockState( newPosition ), this, side );
+            TurtleBlockEvent.Dig digEvent = new TurtleBlockEvent.Dig( turtle, turtlePlayer, world, blockPosition, state, this, side );
             if( MinecraftForge.EVENT_BUS.post( digEvent ) )
             {
                 return TurtleCommandResult.failure( digEvent.getFailureMessage() );
             }
-            
-            IBlockState previousState = world.getBlockState( newPosition );
 
             // Consume the items the block drops
-            if( previousState.getBlock().canHarvestBlock( world, newPosition, turtlePlayer ) )
-            {
-                List<ItemStack> items = getBlockDropped( world, newPosition, turtlePlayer );
-                if( items != null && items.size() > 0 )
-                {
-                    for( ItemStack stack : items )
-                    {
-                        ItemStack remainder = InventoryUtil.storeItems( stack, turtle.getItemHandler(), turtle.getSelectedSlot() );
-                        if( !remainder.isEmpty() )
-                        {
-                            // If there's no room for the items, drop them
-                            WorldUtil.dropItemStack( remainder, world, position, direction );
-                        }
-                    }
-                }
-            }
+            List<ItemStack> extra = new ArrayList<>(  );
+            ComputerCraft.setDropConsumer( world, blockPosition, turtleDropConsumer( turtle, extra ) );
+
+            TileEntity tile = world.getTileEntity( blockPosition );
+
+            // Much of this logic comes from PlayerInteractionManager#tryHarvestBlock, so it's a good idea
+            // to consult there before making any changes.
+
+            // Play the destruction sound
+            world.playEvent( 2001, blockPosition, Block.getStateId( state ) );
 
             // Destroy the block
-            world.playEvent(2001, newPosition, Block.getStateId(previousState));
-            world.setBlockToAir( newPosition );
+            boolean canHarvest = state.getBlock().canHarvestBlock( world, blockPosition, turtlePlayer );
+            boolean canBreak = state.getBlock().removedByPlayer( state, world, blockPosition, turtlePlayer, canHarvest );
+            if( canBreak ) state.getBlock().onBlockDestroyedByPlayer( world, blockPosition, state );
+            if( canHarvest )
+            {
+                state.getBlock().harvestBlock( world, turtlePlayer, blockPosition, state, tile, turtlePlayer.getHeldItemMainhand() );
+            }
+
+            stopConsuming( turtle, extra );
 
             // Remember the previous block
             if( turtle instanceof TurtleBrain )
             {
-                TurtleBrain brain = (TurtleBrain)turtle;
-                brain.saveBlockChange( newPosition, previousState );
+                TurtleBrain brain = (TurtleBrain) turtle;
+                brain.saveBlockChange( blockPosition, state );
             }
 
             return TurtleCommandResult.success();
@@ -313,22 +312,21 @@ public class TurtleTool implements ITurtleUpgrade
         return TurtleCommandResult.failure( "Nothing to dig here" );
     }
 
-    @SuppressWarnings("deprecation")
-    private List<ItemStack> getBlockDropped( World world, BlockPos pos, EntityPlayer player )
+    private Consumer<ItemStack> turtleDropConsumer( ITurtleAccess turtle, List<ItemStack> extra )
     {
-        IBlockState state = world.getBlockState( pos );
-        Block block = state.getBlock();
-        // Note, we use the deprecated version as some mods override that instead. Those mods are wrong (TM).
-        List<ItemStack> drops = block.getDrops( world, pos, world.getBlockState( pos ), 0 );
-        double chance = ForgeEventFactory.fireBlockHarvesting( drops, world, pos, state, 0, 1, false, player );
-
-        for( int i = drops.size() - 1; i >= 0; i-- )
+        return ( drop ) ->
         {
-            if( world.rand.nextFloat() > chance )
-            {
-                drops.remove( i );
-            }
+            ItemStack remainder = InventoryUtil.storeItems( drop, turtle.getItemHandler(), turtle.getSelectedSlot() );
+            if( !remainder.isEmpty() ) extra.add( remainder );
+        };
+    }
+
+    private void stopConsuming( ITurtleAccess turtle, List<ItemStack> extra )
+    {
+        ComputerCraft.clearDropConsumer();
+        for( ItemStack remainder : extra )
+        {
+            WorldUtil.dropItemStack( remainder, turtle.getWorld(), turtle.getPosition(), turtle.getDirection().getOpposite() );
         }
-        return drops;
     }
 }
