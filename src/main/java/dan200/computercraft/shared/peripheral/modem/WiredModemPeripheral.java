@@ -10,6 +10,8 @@ import dan200.computercraft.api.network.wired.IWiredNode;
 import dan200.computercraft.api.network.wired.IWiredSender;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
+import dan200.computercraft.core.computer.Computer;
+import dan200.computercraft.core.computer.IComputerOwned;
 import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
@@ -273,7 +275,7 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements IW
         throw new LuaException( "No peripheral: " + remoteName );
     }
 
-    private static class RemotePeripheralWrapper implements IComputerAccess
+    private static class RemotePeripheralWrapper implements IComputerAccess, IComputerOwned
     {
         private final WiredModemElement m_element;
         private final IPeripheral m_peripheral;
@@ -407,6 +409,13 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements IW
             {
                 return m_element.getRemotePeripherals().get( name );
             }
+        }
+
+        @Nullable
+        @Override
+        public Computer getComputer()
+        {
+            return m_computer instanceof IComputerOwned ? ((IComputerOwned) m_computer).getComputer() : null;
         }
     }
 }

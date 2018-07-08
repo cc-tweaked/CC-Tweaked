@@ -9,17 +9,19 @@ package dan200.computercraft.core.apis;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.core.computer.Computer;
 import dan200.computercraft.core.computer.IComputerEnvironment;
+import dan200.computercraft.core.computer.IComputerOwned;
 import dan200.computercraft.core.filesystem.FileSystem;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.core.tracking.TrackingField;
 
-public interface IAPIEnvironment
+public interface IAPIEnvironment extends IComputerOwned
 {
     interface IPeripheralChangeListener
     {
         void onPeripheralChanged( int side, IPeripheral newPeripheral );
     }
-    
+
+    @Override
     Computer getComputer();
     int getComputerID();
     IComputerEnvironment getComputerEnvironment();

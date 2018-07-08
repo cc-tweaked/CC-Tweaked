@@ -3,14 +3,17 @@ package dan200.computercraft.core.apis;
 import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.api.filesystem.IWritableMount;
 import dan200.computercraft.api.peripheral.IComputerAccess;
+import dan200.computercraft.core.computer.Computer;
+import dan200.computercraft.core.computer.IComputerOwned;
 import dan200.computercraft.core.filesystem.FileSystem;
 import dan200.computercraft.core.filesystem.FileSystemException;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.HashSet;
 import java.util.Set;
 
-public abstract class ComputerAccess implements IComputerAccess
+public abstract class ComputerAccess implements IComputerAccess, IComputerOwned
 {
     private final IAPIEnvironment m_environment;
     private final Set<String> m_mounts = new HashSet<>();
@@ -131,6 +134,13 @@ public abstract class ComputerAccess implements IComputerAccess
     public void queueEvent( @Nonnull final String event, final Object[] arguments )
     {
         m_environment.queueEvent( event, arguments );
+    }
+
+    @Nullable
+    @Override
+    public Computer getComputer()
+    {
+        return m_environment.getComputer();
     }
 
     private String findFreeLocation( String desiredLoc )
