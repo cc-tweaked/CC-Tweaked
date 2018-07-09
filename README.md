@@ -22,7 +22,7 @@ to see the full changes, but here's a couple of the more interesting changes:
  - Allow running multiple computers at the same time.
  - Websocket support in the HTTP library.
  - Wired modems and cables act more like multiparts.
- - Add map-like rendering for pocket computers.
+ - Add map-like rendering for pocket computers and printed pages/books.
  - Adds the `/computercraft` command, offering various diagnostic tools for server owners. This allows operators to
    track which computers are hogging resources, turn on and shutdown multiple computers at once and interact with
    computers remotely.
