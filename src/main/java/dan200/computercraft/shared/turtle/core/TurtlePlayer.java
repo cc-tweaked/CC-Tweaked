@@ -68,6 +68,8 @@ public class TurtlePlayer extends FakePlayer
 
         rotationYaw = turtle.getDirection().getHorizontalAngle();
         rotationPitch = 0.0f;
+
+        inventory.clear();
     }
 
     public static TurtlePlayer get( ITurtleAccess access )
