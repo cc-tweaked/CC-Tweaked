@@ -382,7 +382,7 @@ public class TurtlePlaceCommand implements ITurtleCommand
 
         // Do the deploying (put everything in the players inventory)
         boolean placed = false;
-
+        TileEntity existingTile = turtle.getWorld().getTileEntity( position );
 
         // See PlayerInteractionManager.processRightClickBlock
         PlayerInteractEvent.RightClickBlock event = ForgeHooks.onRightClickBlock( turtlePlayer, EnumHand.MAIN_HAND, position, side, new Vec3d( hitX, hitY, hitZ ) );
@@ -426,12 +426,11 @@ public class TurtlePlaceCommand implements ITurtleCommand
             {
                 World world = turtle.getWorld();
                 TileEntity tile = world.getTileEntity( position );
-                if( tile == null )
+                if( tile == null || tile == existingTile )
                 {
-                    BlockPos newPosition = WorldUtil.moveCoords( position, side );
-                    tile = world.getTileEntity( newPosition );
+                    tile = world.getTileEntity( WorldUtil.moveCoords( position, side ) );
                 }
-                if( tile != null && tile instanceof TileEntitySign )
+                if( tile instanceof TileEntitySign )
                 {
                     TileEntitySign signTile = (TileEntitySign) tile;
                     String s = (String)extraArguments[0];
