@@ -28,7 +28,7 @@ public class ItemCable extends ItemPeripheralBase
     public ItemCable( Block block )
     {
         super( block );
-        setUnlocalizedName( "computercraft:cable" );
+        setTranslationKey( "computercraft:cable" );
         setCreativeTab( ComputerCraft.mainCreativeTab );
     }
 

@@ -34,7 +34,7 @@ public class ItemTreasureDisk extends Item
     {
         setMaxStackSize( 1 );
         setHasSubtypes( true );
-        setUnlocalizedName( "computercraft:treasure_disk" );
+        setTranslationKey( "computercraft:treasure_disk" );
     }
     
     @Override

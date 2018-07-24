@@ -24,7 +24,7 @@ public class ItemTurtleNormal extends ItemTurtleBase
     public ItemTurtleNormal( Block block )
     {
         super( block );
-        setUnlocalizedName( "computercraft:turtle" );
+        setTranslationKey( "computercraft:turtle" );
         setCreativeTab( ComputerCraft.mainCreativeTab );
     }
 
@@ -72,8 +72,8 @@ public class ItemTurtleNormal extends ItemTurtleBase
         }
         if( overlay != null )
         {
-            nbt.setString( "overlay_mod", overlay.getResourceDomain() );
-            nbt.setString( "overlay_path", overlay.getResourcePath() );
+            nbt.setString( "overlay_mod", overlay.getNamespace() );
+            nbt.setString( "overlay_path", overlay.getPath() );
         }
         stack.setTagCompound( nbt );
 

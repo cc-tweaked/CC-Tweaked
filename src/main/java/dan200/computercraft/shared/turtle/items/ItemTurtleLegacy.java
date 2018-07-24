@@ -23,7 +23,7 @@ public class ItemTurtleLegacy extends ItemTurtleBase
     public ItemTurtleLegacy( Block block )
     {
         super( block );
-        setUnlocalizedName( "computercraft:turtle" );
+        setTranslationKey( "computercraft:turtle" );
         setCreativeTab( ComputerCraft.mainCreativeTab );
     }
 

@@ -413,10 +413,10 @@ public abstract class CCTurtleProxyCommon implements ICCTurtleProxy
         // We have to use mappings.getAllMappings() as the mod ID is upper case but the domain lower.
         for( RegistryEvent.MissingMappings.Mapping<Item> mapping : mappings.getAllMappings() )
         {
-            String domain = mapping.key.getResourceDomain();
+            String domain = mapping.key.getNamespace();
             if( !domain.equalsIgnoreCase( ComputerCraft.MOD_ID ) ) continue;
 
-            String key = mapping.key.getResourcePath();
+            String key = mapping.key.getPath();
             if( key.equalsIgnoreCase( "CC-Turtle" ) )
             {
                 mapping.remap( Item.getItemFromBlock( ComputerCraft.Blocks.turtle ) );
@@ -438,10 +438,10 @@ public abstract class CCTurtleProxyCommon implements ICCTurtleProxy
         // We have to use mappings.getAllMappings() as the mod ID is upper case but the domain lower.
         for( RegistryEvent.MissingMappings.Mapping<Block> mapping : mappings.getAllMappings() )
         {
-            String domain = mapping.key.getResourceDomain();
+            String domain = mapping.key.getNamespace();
             if( !domain.equalsIgnoreCase( ComputerCraft.MOD_ID ) ) continue;
 
-            String key = mapping.key.getResourcePath();
+            String key = mapping.key.getPath();
             if( key.equalsIgnoreCase( "CC-Turtle" ) )
             {
                 mapping.remap( ComputerCraft.Blocks.turtle );

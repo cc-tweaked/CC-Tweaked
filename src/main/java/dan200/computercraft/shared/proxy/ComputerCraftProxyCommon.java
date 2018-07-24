@@ -414,10 +414,10 @@ public abstract class ComputerCraftProxyCommon implements IComputerCraftProxy
         // We have to use mappings.getAllMappings() as the mod ID is upper case but the domain lower.
         for( RegistryEvent.MissingMappings.Mapping<Item> mapping : mappings.getAllMappings() )
         {
-            String domain = mapping.key.getResourceDomain();
+            String domain = mapping.key.getNamespace();
             if( !domain.equalsIgnoreCase( ComputerCraft.MOD_ID ) ) continue;
 
-            String key = mapping.key.getResourcePath();
+            String key = mapping.key.getPath();
             if( key.equalsIgnoreCase( "CC-Computer" ) )
             {
                 mapping.remap( Item.getItemFromBlock( ComputerCraft.Blocks.computer ) );
@@ -451,10 +451,10 @@ public abstract class ComputerCraftProxyCommon implements IComputerCraftProxy
         // We have to use mappings.getAllMappings() as the mod ID is upper case but the domain lower.
         for( RegistryEvent.MissingMappings.Mapping<Block> mapping : mappings.getAllMappings() )
         {
-            String domain = mapping.key.getResourceDomain();
+            String domain = mapping.key.getNamespace();
             if( !domain.equalsIgnoreCase( ComputerCraft.MOD_ID ) ) continue;
 
-            String key = mapping.key.getResourcePath();
+            String key = mapping.key.getPath();
             if( key.equalsIgnoreCase( "CC-Computer" ) )
             {
                 mapping.remap( ComputerCraft.Blocks.computer );

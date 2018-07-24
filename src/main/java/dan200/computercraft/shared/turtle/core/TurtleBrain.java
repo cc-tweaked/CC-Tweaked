@@ -226,7 +226,7 @@ public class TurtleBrain implements ITurtleAccess
     public void readFromNBT( NBTTagCompound nbttagcompound )
     {
         // Read state
-        m_direction = EnumFacing.getFront( nbttagcompound.getInteger( "dir" ) );
+        m_direction = EnumFacing.byIndex( nbttagcompound.getInteger( "dir" ) );
         m_selectedSlot = nbttagcompound.getInteger( "selectedSlot" );
         if( nbttagcompound.hasKey( "fuelLevel" ) )
         {
@@ -370,8 +370,8 @@ public class TurtleBrain implements ITurtleAccess
         // Write overlay
         if( m_overlay != null )
         {
-            nbttagcompound.setString( "overlay_mod", m_overlay.getResourceDomain() );
-            nbttagcompound.setString( "overlay_path", m_overlay.getResourcePath() );
+            nbttagcompound.setString( "overlay_mod", m_overlay.getNamespace() );
+            nbttagcompound.setString( "overlay_path", m_overlay.getPath() );
         }
 
         // Write NBT
@@ -429,8 +429,8 @@ public class TurtleBrain implements ITurtleAccess
         // Overlay
         if( m_overlay != null )
         {
-            nbttagcompound.setString( "overlay_mod", m_overlay.getResourceDomain() );
-            nbttagcompound.setString( "overlay_path", m_overlay.getResourcePath() );
+            nbttagcompound.setString( "overlay_mod", m_overlay.getNamespace() );
+            nbttagcompound.setString( "overlay_path", m_overlay.getPath() );
         }
 
         // Animation
@@ -505,7 +505,7 @@ public class TurtleBrain implements ITurtleAccess
             m_lastAnimationProgress = 0;
         }
 
-        m_direction = EnumFacing.getFront( nbttagcompound.getInteger( "direction" ) );
+        m_direction = EnumFacing.byIndex( nbttagcompound.getInteger( "direction" ) );
         m_fuelLevel = nbttagcompound.getInteger( "fuelLevel" );
     }
 
@@ -998,9 +998,9 @@ public class TurtleBrain implements ITurtleAccess
 
                 double distance = -1.0 + getAnimationFraction( f );
                 return new Vec3d(
-                    distance * dir.getFrontOffsetX(),
-                    distance * dir.getFrontOffsetY(),
-                    distance * dir.getFrontOffsetZ()
+                    distance * dir.getXOffset(),
+                    distance * dir.getYOffset(),
+                    distance * dir.getZOffset()
                 );
             }
             default:
@@ -1184,31 +1184,31 @@ public class TurtleBrain implements ITurtleAccess
 
                     float pushFrac = 1.0f - ((float)(m_animationProgress + 1) / (float)ANIM_DURATION);
                     float push = Math.max( pushFrac + 0.0125f, 0.0f );
-                    if (moveDir.getFrontOffsetX() < 0)
+                    if (moveDir.getXOffset() < 0)
                     {
-                        minX += moveDir.getFrontOffsetX() * push;
+                        minX += moveDir.getXOffset() * push;
                     }
                     else
                     {
-                        maxX -= moveDir.getFrontOffsetX() * push;
+                        maxX -= moveDir.getXOffset() * push;
                     }
 
-                    if (moveDir.getFrontOffsetY() < 0)
+                    if (moveDir.getYOffset() < 0)
                     {
-                        minY += moveDir.getFrontOffsetY() * push;
+                        minY += moveDir.getYOffset() * push;
                     }
                     else
                     {
-                        maxY -= moveDir.getFrontOffsetY() * push;
+                        maxY -= moveDir.getYOffset() * push;
                     }
 
-                    if (moveDir.getFrontOffsetZ() < 0)
+                    if (moveDir.getZOffset() < 0)
                     {
-                        minZ += moveDir.getFrontOffsetZ() * push;
+                        minZ += moveDir.getZOffset() * push;
                     }
                     else
                     {
-                        maxZ -= moveDir.getFrontOffsetZ() * push;
+                        maxZ -= moveDir.getZOffset() * push;
                     }
 
                     AxisAlignedBB aabb = new AxisAlignedBB( minX, minY, minZ, maxX, maxY, maxZ );
@@ -1216,9 +1216,9 @@ public class TurtleBrain implements ITurtleAccess
                     if( !list.isEmpty() )
                     {
                         double pushStep = 1.0f / ANIM_DURATION;
-                        double pushStepX = moveDir.getFrontOffsetX() * pushStep;
-                        double pushStepY = moveDir.getFrontOffsetY() * pushStep;
-                        double pushStepZ = moveDir.getFrontOffsetZ() * pushStep;
+                        double pushStepX = moveDir.getXOffset() * pushStep;
+                        double pushStepY = moveDir.getYOffset() * pushStep;
+                        double pushStepZ = moveDir.getZOffset() * pushStep;
                         for (Entity entity : list)
                         {
                             entity.move( MoverType.PISTON, pushStepX, pushStepY, pushStepZ );

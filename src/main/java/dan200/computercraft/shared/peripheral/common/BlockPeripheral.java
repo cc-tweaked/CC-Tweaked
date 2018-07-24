@@ -44,7 +44,7 @@ public class BlockPeripheral extends BlockPeripheralBase
     public BlockPeripheral()
     {
         setHardness( 2.0f );
-        setUnlocalizedName( "computercraft:peripheral" );
+        setTranslationKey( "computercraft:peripheral" );
         setCreativeTab( ComputerCraft.mainCreativeTab );
         setDefaultState( this.blockState.getBaseState()
             .withProperty( Properties.FACING, EnumFacing.NORTH )
@@ -55,7 +55,7 @@ public class BlockPeripheral extends BlockPeripheralBase
     @Override
     @Nonnull
     @SideOnly( Side.CLIENT)
-    public BlockRenderLayer getBlockLayer()
+    public BlockRenderLayer getRenderLayer()
     {
         return BlockRenderLayer.CUTOUT;
     }
@@ -76,7 +76,7 @@ public class BlockPeripheral extends BlockPeripheralBase
         if( meta >= 2 && meta <= 5 )
         {
             state = state.withProperty( Properties.VARIANT, BlockPeripheralVariant.DiskDriveEmpty );
-            state = state.withProperty( Properties.FACING, EnumFacing.getFront( meta ) );
+            state = state.withProperty( Properties.FACING, EnumFacing.byIndex( meta ) );
         }
         else if( meta <= 9 )
         {
@@ -93,7 +93,7 @@ public class BlockPeripheral extends BlockPeripheralBase
             else
             {
                 state = state.withProperty( Properties.VARIANT, BlockPeripheralVariant.WirelessModemOff );
-                state = state.withProperty( Properties.FACING, EnumFacing.getFront( meta - 4 ) );
+                state = state.withProperty( Properties.FACING, EnumFacing.byIndex( meta - 4 ) );
             }
         }
         else if( meta == 10 )
@@ -651,7 +651,7 @@ public class BlockPeripheral extends BlockPeripheralBase
     public boolean causesSuffocation(IBlockState state)
     {
         // This normally uses the default state 
-        return blockMaterial.blocksMovement() && state.isOpaqueCube();
+        return material.blocksMovement() && state.isOpaqueCube();
     }
 
     @Override

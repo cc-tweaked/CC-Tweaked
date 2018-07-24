@@ -33,7 +33,7 @@ public class BlockAdvancedModem extends BlockPeripheralBase
     public BlockAdvancedModem()
     {
         setHardness( 2.0f );
-        setUnlocalizedName( "computercraft:advanced_modem" );
+        setTranslationKey( "computercraft:advanced_modem" );
         setCreativeTab( ComputerCraft.mainCreativeTab );
         setDefaultState( this.blockState.getBaseState()
             .withProperty( Properties.FACING, EnumFacing.NORTH )
@@ -54,7 +54,7 @@ public class BlockAdvancedModem extends BlockPeripheralBase
     public IBlockState getStateFromMeta( int meta )
     {
         IBlockState state = getDefaultState();
-        state = state.withProperty( Properties.FACING, EnumFacing.getFront( meta ) );
+        state = state.withProperty( Properties.FACING, EnumFacing.byIndex( meta ) );
         state = state.withProperty( Properties.ON, false );
         return state;
     }

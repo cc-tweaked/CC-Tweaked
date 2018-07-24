@@ -33,7 +33,7 @@ public class ItemComputer extends ItemComputerBase
         super( block );
         setMaxStackSize( 64 );
         setHasSubtypes( true );
-        setUnlocalizedName( "computercraft:computer" );
+        setTranslationKey( "computercraft:computer" );
         setCreativeTab( ComputerCraft.mainCreativeTab );
     }
 
@@ -114,7 +114,7 @@ public class ItemComputer extends ItemComputerBase
 
     @Nonnull
     @Override
-    public String getUnlocalizedName( @Nonnull ItemStack stack )
+    public String getTranslationKey( @Nonnull ItemStack stack )
     {
         switch( getFamily( stack ) )
         {

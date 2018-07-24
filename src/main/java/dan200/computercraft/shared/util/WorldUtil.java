@@ -43,14 +43,14 @@ public class WorldUtil
 
     public static Pair<Entity, Vec3d> rayTraceEntities( World world, Vec3d vecStart, Vec3d vecDir, double distance )
     {
-        Vec3d vecEnd = vecStart.addVector( vecDir.x * distance, vecDir.y * distance, vecDir.z * distance );
+        Vec3d vecEnd = vecStart.add( vecDir.x * distance, vecDir.y * distance, vecDir.z * distance );
 
         // Raycast for blocks
-        RayTraceResult result = world.rayTraceBlocks( vecStart.addVector(0.0,0.0,0.0), vecEnd.addVector(0.0,0.0,0.0) );
+        RayTraceResult result = world.rayTraceBlocks( vecStart, vecEnd );
         if( result != null && result.typeOfHit == RayTraceResult.Type.BLOCK )
         {
             distance = vecStart.distanceTo( result.hitVec );
-            vecEnd = vecStart.addVector( vecDir.x * distance, vecDir.y * distance, vecDir.z * distance );
+            vecEnd = vecStart.add( vecDir.x * distance, vecDir.y * distance, vecDir.z * distance );
         }
 
         // Check for entities
@@ -114,7 +114,7 @@ public class WorldUtil
         }
         if( closest != null && closestDist <= distance )
         {
-            Vec3d closestPos = vecStart.addVector( vecDir.x * closestDist, vecDir.y * closestDist, vecDir.z * closestDist );
+            Vec3d closestPos = vecStart.add( vecDir.x * closestDist, vecDir.y * closestDist, vecDir.z * closestDist );
             return Pair.of( closest, closestPos );
         }
         return null;
@@ -128,7 +128,7 @@ public class WorldUtil
     public static Vec3d getRayEnd( EntityPlayer player) {
         double reach = player.getEntityAttribute(EntityPlayer.REACH_DISTANCE).getAttributeValue();
         Vec3d look = player.getLookVec();
-        return getRayStart( player ).addVector( look.x * reach, look.y * reach, look.z * reach );
+        return getRayStart( player ).add( look.x * reach, look.y * reach, look.z * reach );
     }
     
     public static boolean isVecInsideInclusive(AxisAlignedBB bb , Vec3d vec) {
@@ -147,9 +147,9 @@ public class WorldUtil
         double zDir;
         if( direction != null )
         {
-            xDir = direction.getFrontOffsetX();
-            yDir = direction.getFrontOffsetY();
-            zDir = direction.getFrontOffsetZ();
+            xDir = direction.getXOffset();
+            yDir = direction.getYOffset();
+            zDir = direction.getZOffset();
         }
         else
         {

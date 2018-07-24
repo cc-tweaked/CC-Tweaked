@@ -55,7 +55,7 @@ public class BlockCable extends BlockPeripheralBase
     public BlockCable()
     {
         setHardness( 1.5f );
-        setUnlocalizedName( "computercraft:cable" );
+        setTranslationKey( "computercraft:cable" );
         setCreativeTab( ComputerCraft.mainCreativeTab );
         setDefaultState( this.blockState.getBaseState()
             .withProperty( Properties.MODEM, BlockCableModemVariant.None )
@@ -94,12 +94,12 @@ public class BlockCable extends BlockPeripheralBase
         if( meta < 6 )
         {
             state = state.withProperty( Properties.CABLE, BlockCableCableVariant.NONE );
-            state = state.withProperty( Properties.MODEM, BlockCableModemVariant.fromFacing( EnumFacing.getFront( meta ) ) );
+            state = state.withProperty( Properties.MODEM, BlockCableModemVariant.fromFacing( EnumFacing.byIndex( meta ) ) );
         }
         else if( meta < 12 )
         {
             state = state.withProperty( Properties.CABLE, BlockCableCableVariant.ANY );
-            state = state.withProperty( Properties.MODEM, BlockCableModemVariant.fromFacing( EnumFacing.getFront( meta - 6 ) ) );
+            state = state.withProperty( Properties.MODEM, BlockCableModemVariant.fromFacing( EnumFacing.byIndex( meta - 6 ) ) );
         }
         else if( meta == 13 )
         {
@@ -296,7 +296,7 @@ public class BlockCable extends BlockPeripheralBase
                 }
             }
 
-            return result == null ? null : new RayTraceResult( result.hitVec.addVector( pos.getX(), pos.getY(), pos.getZ() ), result.sideHit, pos );
+            return result == null ? null : new RayTraceResult( result.hitVec.add( pos.getX(), pos.getY(), pos.getZ() ), result.sideHit, pos );
         }
         else
         {

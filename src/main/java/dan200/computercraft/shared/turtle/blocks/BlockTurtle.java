@@ -48,7 +48,7 @@ public class BlockTurtle extends BlockComputerBase
     {
         super( Material.IRON );
         setHardness( 2.5f );
-        setUnlocalizedName( "computercraft:turtle" );
+        setTranslationKey( "computercraft:turtle" );
         setCreativeTab( ComputerCraft.mainCreativeTab );
         setDefaultState( this.blockState.getBaseState()
             .withProperty( Properties.FACING, EnumFacing.NORTH )

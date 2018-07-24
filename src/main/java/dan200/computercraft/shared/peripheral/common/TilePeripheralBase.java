@@ -143,7 +143,7 @@ public abstract class TilePeripheralBase extends TileGeneric
         super.readFromNBT(nbttagcompound);
         if( nbttagcompound.hasKey( "dir" ) )
         {
-            m_dir = EnumFacing.getFront( nbttagcompound.getInteger( "dir" ) );
+            m_dir = EnumFacing.byIndex( nbttagcompound.getInteger( "dir" ) );
         }
         if( nbttagcompound.hasKey( "anim" ) )
         {
@@ -174,7 +174,7 @@ public abstract class TilePeripheralBase extends TileGeneric
     public void readDescription( @Nonnull NBTTagCompound nbttagcompound )
     {
         super.readDescription( nbttagcompound );
-        m_dir = EnumFacing.getFront( nbttagcompound.getInteger( "dir" ) );
+        m_dir = EnumFacing.byIndex( nbttagcompound.getInteger( "dir" ) );
         m_anim = nbttagcompound.getInteger( "anim" );
         if( nbttagcompound.hasKey( "label" ) )
         {

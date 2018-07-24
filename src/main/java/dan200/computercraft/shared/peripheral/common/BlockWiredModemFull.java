@@ -34,7 +34,7 @@ public class BlockWiredModemFull extends BlockPeripheralBase
     public BlockWiredModemFull()
     {
         setHardness( 1.5f );
-        setUnlocalizedName( "computercraft:wired_modem_full" );
+        setTranslationKey( "computercraft:wired_modem_full" );
         setCreativeTab( ComputerCraft.mainCreativeTab );
         setDefaultState( blockState.getBaseState()
             .withProperty( Properties.MODEM_ON, false )

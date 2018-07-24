@@ -21,14 +21,14 @@ public class CreativeTabTreasure extends CreativeTabs
     
     @Nonnull
     @Override
-    public ItemStack getTabIconItem()
+    public ItemStack createIcon()
     {
         return new ItemStack( ComputerCraft.Items.treasureDisk );
     }
     
     @Nonnull
     @Override
-    public String getTranslatedTabLabel()
+    public String getTranslationKey()
     {
         return getTabLabel();
     }

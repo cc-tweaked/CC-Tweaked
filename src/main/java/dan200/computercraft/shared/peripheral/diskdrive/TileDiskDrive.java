@@ -605,8 +605,8 @@ public class TileDiskDrive extends TilePeripheralBase
             if( !destroyed )
             {
                 EnumFacing dir = getDirection();
-                xOff = dir.getFrontOffsetX();
-                zOff = dir.getFrontOffsetZ();
+                xOff = dir.getXOffset();
+                zOff = dir.getZOffset();
             }
 
             BlockPos pos = getPos();

@@ -73,13 +73,13 @@ public class InventoryUtil
 
         // Look for entity with inventory
         Vec3d vecStart = new Vec3d(
-            pos.getX() + 0.5 + 0.6 * side.getFrontOffsetX(),
-            pos.getY() + 0.5 + 0.6 * side.getFrontOffsetY(),
-            pos.getZ() + 0.5 + 0.6 * side.getFrontOffsetZ()
+            pos.getX() + 0.5 + 0.6 * side.getXOffset(),
+            pos.getY() + 0.5 + 0.6 * side.getYOffset(),
+            pos.getZ() + 0.5 + 0.6 * side.getZOffset()
         );
         EnumFacing dir = side.getOpposite();
         Vec3d vecDir = new Vec3d(
-            dir.getFrontOffsetX(), dir.getFrontOffsetY(), dir.getFrontOffsetZ()
+            dir.getXOffset(), dir.getYOffset(), dir.getZOffset()
         );
         Pair<Entity, Vec3d> hit = WorldUtil.rayTraceEntities( world, vecStart, vecDir, 1.1 );
         if( hit != null )

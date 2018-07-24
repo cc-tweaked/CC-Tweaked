@@ -126,7 +126,7 @@ public class TurtleCompareCommand implements ITurtleCommand
                 {
                     return TurtleCommandResult.success();
                 }
-                else if( selectedStack.getUnlocalizedName().equals( lookAtStack.getUnlocalizedName() ) )
+                else if( selectedStack.getTranslationKey().equals( lookAtStack.getTranslationKey() ) )
                 {
                     return TurtleCommandResult.success();
                 }

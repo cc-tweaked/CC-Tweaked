@@ -103,7 +103,7 @@ public class TurtleTool implements ITurtleUpgrade
 
     @Nonnull
     @Override
-    @SideOnly(Side.CLIENT)
+    @SideOnly( Side.CLIENT )
     public Pair<IBakedModel, Matrix4f> getModel( ITurtleAccess turtle, @Nonnull TurtleSide side )
     {
         float xOffset = (side == TurtleSide.Left) ? -0.40625f : 0.40625f;
@@ -154,7 +154,7 @@ public class TurtleTool implements ITurtleUpgrade
     {
         return 3.0f;
     }
-    
+
     private TurtleCommandResult attack( final ITurtleAccess turtle, EnumFacing direction, TurtleSide side )
     {
         // Create a fake player, and orient it appropriately
@@ -185,9 +185,9 @@ public class TurtleTool implements ITurtleUpgrade
             {
                 return TurtleCommandResult.failure( attackEvent.getFailureMessage() );
             }
-            
+
             // Start claiming entity drops
-            List<ItemStack> extra = new ArrayList<>(  );
+            List<ItemStack> extra = new ArrayList<>();
             ComputerCraft.setDropConsumer( hitEntity, turtleDropConsumer( turtle, extra ) );
 
             // Attack the entity
@@ -232,7 +232,7 @@ public class TurtleTool implements ITurtleUpgrade
 
         return TurtleCommandResult.failure( "Nothing to attack here" );
     }
-    
+
     private TurtleCommandResult dig( ITurtleAccess turtle, EnumFacing direction, TurtleSide side )
     {
         // Get ready to dig
@@ -277,7 +277,7 @@ public class TurtleTool implements ITurtleUpgrade
             }
 
             // Consume the items the block drops
-            List<ItemStack> extra = new ArrayList<>(  );
+            List<ItemStack> extra = new ArrayList<>();
             ComputerCraft.setDropConsumer( world, blockPosition, turtleDropConsumer( turtle, extra ) );
 
             TileEntity tile = world.getTileEntity( blockPosition );
@@ -291,7 +291,7 @@ public class TurtleTool implements ITurtleUpgrade
             // Destroy the block
             boolean canHarvest = state.getBlock().canHarvestBlock( world, blockPosition, turtlePlayer );
             boolean canBreak = state.getBlock().removedByPlayer( state, world, blockPosition, turtlePlayer, canHarvest );
-            if( canBreak ) state.getBlock().onBlockDestroyedByPlayer( world, blockPosition, state );
+            if( canBreak ) state.getBlock().onPlayerDestroy( world, blockPosition, state );
             if( canHarvest )
             {
                 state.getBlock().harvestBlock( world, turtlePlayer, blockPosition, state, tile, turtlePlayer.getHeldItemMainhand() );

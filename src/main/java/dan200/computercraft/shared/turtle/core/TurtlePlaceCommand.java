@@ -194,9 +194,9 @@ public class TurtlePlaceCommand implements ITurtleCommand
         // Stop intersection with the turtle itself
         if( turtle.getPosition().equals( position ) )
         {
-            turtlePlayer.posX += 0.48 * direction.getFrontOffsetX();
-            turtlePlayer.posY += 0.48 * direction.getFrontOffsetY();
-            turtlePlayer.posZ += 0.48 * direction.getFrontOffsetZ();
+            turtlePlayer.posX += 0.48 * direction.getXOffset();
+            turtlePlayer.posY += 0.48 * direction.getYOffset();
+            turtlePlayer.posZ += 0.48 * direction.getZOffset();
         }
 
         if( direction.getAxis() != EnumFacing.Axis.Y )
@@ -367,9 +367,9 @@ public class TurtlePlaceCommand implements ITurtleCommand
         orientPlayer( turtle, turtlePlayer, playerPosition, playerDir );
 
         // Calculate where the turtle would hit the block
-        float hitX = 0.5f + side.getFrontOffsetX() * 0.5f;
-        float hitY = 0.5f + side.getFrontOffsetY() * 0.5f;
-        float hitZ = 0.5f + side.getFrontOffsetZ() * 0.5f;
+        float hitX = 0.5f + side.getXOffset() * 0.5f;
+        float hitY = 0.5f + side.getYOffset() * 0.5f;
+        float hitZ = 0.5f + side.getZOffset() * 0.5f;
         if( Math.abs( hitY - 0.5f ) < 0.01f )
         {
             hitY = 0.45f;

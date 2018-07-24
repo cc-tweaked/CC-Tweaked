@@ -15,7 +15,7 @@ public class ItemTurtleAdvanced extends ItemTurtleNormal
     public ItemTurtleAdvanced( Block block )
     {
         super( block );
-        setUnlocalizedName( "computercraft:advanced_turtle" );
+        setTranslationKey( "computercraft:advanced_turtle" );
         setCreativeTab( ComputerCraft.mainCreativeTab );
     }
 

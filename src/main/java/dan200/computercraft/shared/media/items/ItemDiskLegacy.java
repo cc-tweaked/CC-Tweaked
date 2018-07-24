@@ -33,7 +33,7 @@ public class ItemDiskLegacy extends Item
     {
         setMaxStackSize( 1 );
         setHasSubtypes( true );
-        setUnlocalizedName( "computercraft:disk" );
+        setTranslationKey( "computercraft:disk" );
         setCreativeTab( ComputerCraft.mainCreativeTab  );
     }
     
