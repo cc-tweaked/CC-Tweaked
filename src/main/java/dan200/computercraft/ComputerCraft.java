@@ -47,7 +47,7 @@ import dan200.computercraft.shared.peripheral.common.BlockPeripheral;
 import dan200.computercraft.shared.peripheral.common.BlockWiredModemFull;
 import dan200.computercraft.shared.peripheral.diskdrive.BlockDiskDrive;
 import dan200.computercraft.shared.peripheral.diskdrive.TileDiskDrive;
-import dan200.computercraft.shared.peripheral.modem.BlockAdvancedModem;
+import dan200.computercraft.shared.peripheral.modem.BlockModem;
 import dan200.computercraft.shared.peripheral.modem.WirelessNetwork;
 import dan200.computercraft.shared.peripheral.printer.TilePrinter;
 import dan200.computercraft.shared.pocket.items.ItemPocketComputer;
@@ -187,7 +187,8 @@ public class ComputerCraft
         public static BlockDiskDrive diskDrive;
         public static BlockPeripheral peripheral;
         public static BlockCable cable;
-        public static BlockAdvancedModem advancedModem;
+        public static BlockModem advancedModem;
+        public static BlockModem wirelessModem;
         public static BlockWiredModemFull wiredModemFull;
     }
 

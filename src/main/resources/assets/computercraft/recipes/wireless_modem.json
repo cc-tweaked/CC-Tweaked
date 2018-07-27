@@ -9,5 +9,5 @@
         "#": { "type": "forge:ore_dict", "ore": "stone" },
         "E": { "type": "forge:ore_dict", "ore": "enderpearl" }
     },
-    "result": { "item": "computercraft:peripheral", "data": 1 }
+    "result": { "item": "computercraft:wireless_modem" }
 }

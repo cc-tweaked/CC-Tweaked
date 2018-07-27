@@ -8,7 +8,6 @@ package dan200.computercraft.shared.peripheral.common;
 
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.peripheral.PeripheralType;
-import dan200.computercraft.shared.peripheral.modem.TileWirelessModem;
 import dan200.computercraft.shared.peripheral.monitor.TileMonitor;
 import dan200.computercraft.shared.peripheral.printer.TilePrinter;
 import dan200.computercraft.shared.peripheral.speaker.TileSpeaker;
@@ -45,7 +44,7 @@ public class BlockPeripheral extends BlockPeripheralBase
         setCreativeTab( ComputerCraft.mainCreativeTab );
         setDefaultState( this.blockState.getBaseState()
             .withProperty( FACING, EnumFacing.NORTH )
-            .withProperty( VARIANT, BlockPeripheralVariant.WirelessModemDownOff )
+            .withProperty( VARIANT, BlockPeripheralVariant.AdvancedMonitor )
         );
     }
 
@@ -70,25 +69,7 @@ public class BlockPeripheral extends BlockPeripheralBase
     public IBlockState getStateFromMeta( int meta )
     {
         IBlockState state = getDefaultState();
-        if( meta <= 9 )
-        {
-            if( meta == 0 )
-            {
-                state = state.withProperty( VARIANT, BlockPeripheralVariant.WirelessModemDownOff );
-                state = state.withProperty( FACING, EnumFacing.NORTH );
-            }
-            else if( meta == 1 )
-            {
-                state = state.withProperty( VARIANT, BlockPeripheralVariant.WirelessModemUpOff );
-                state = state.withProperty( FACING, EnumFacing.NORTH );
-            }
-            else
-            {
-                state = state.withProperty( VARIANT, BlockPeripheralVariant.WirelessModemOff );
-                state = state.withProperty( FACING, EnumFacing.byIndex( meta - 4 ) );
-            }
-        }
-        else if( meta == 10 )
+        if( meta == 10 )
         {
             state = state.withProperty( VARIANT, BlockPeripheralVariant.Monitor );
         }
@@ -122,31 +103,6 @@ public class BlockPeripheral extends BlockPeripheralBase
                     dir = EnumFacing.NORTH;
                 }
                 meta = dir.getIndex();
-                break;
-            }
-            case WirelessModem:
-            {
-                switch( variant )
-                {
-                    case WirelessModemDownOff:
-                    case WirelessModemDownOn:
-                    {
-                        meta = 0;
-                        break;
-                    }
-                    case WirelessModemUpOff:
-                    case WirelessModemUpOn:
-                    {
-                        meta = 1;
-                        break;
-                    }
-                    default:
-                    {
-                        EnumFacing dir = state.getValue( FACING );
-                        meta = dir.getIndex() + 4;
-                        break;
-                    }
-                }
                 break;
             }
             case Monitor:
@@ -191,21 +147,6 @@ public class BlockPeripheral extends BlockPeripheralBase
         {
             anim = 0;
             dir = state.getValue( FACING );
-            switch( state.getValue( VARIANT ) )
-            {
-                case WirelessModemDownOff:
-                case WirelessModemDownOn:
-                {
-                    dir = EnumFacing.DOWN;
-                    break;
-                }
-                case WirelessModemUpOff:
-                case WirelessModemUpOn:
-                {
-                    dir = EnumFacing.UP;
-                    break;
-                }
-            }
         }
 
         PeripheralType type = getPeripheralType( state );
@@ -235,70 +176,6 @@ public class BlockPeripheral extends BlockPeripheralBase
                     case 3:
                     {
                         state = state.withProperty( VARIANT, BlockPeripheralVariant.PrinterBothFull );
-                        break;
-                    }
-                }
-                break;
-            }
-            case WirelessModem:
-            {
-                switch( dir )
-                {
-                    case UP:
-                    {
-                        state = state.withProperty( FACING, EnumFacing.NORTH );
-                        switch( anim )
-                        {
-                            case 0:
-                            default:
-                            {
-                                state = state.withProperty( VARIANT, BlockPeripheralVariant.WirelessModemUpOff );
-                                break;
-                            }
-                            case 1:
-                            {
-                                state = state.withProperty( VARIANT, BlockPeripheralVariant.WirelessModemUpOn );
-                                break;
-                            }
-                        }
-                        break;
-                    }
-                    case DOWN:
-                    {
-                        state = state.withProperty( FACING, EnumFacing.NORTH );
-                        switch( anim )
-                        {
-                            case 0:
-                            default:
-                            {
-                                state = state.withProperty( VARIANT, BlockPeripheralVariant.WirelessModemDownOff );
-                                break;
-                            }
-                            case 1:
-                            {
-                                state = state.withProperty( VARIANT, BlockPeripheralVariant.WirelessModemDownOn );
-                                break;
-                            }
-                        }
-                        break;
-                    }
-                    default:
-                    {
-                        state = state.withProperty( FACING, dir );
-                        switch( anim )
-                        {
-                            case 0:
-                            default:
-                            {
-                                state = state.withProperty( VARIANT, BlockPeripheralVariant.WirelessModemOff );
-                                break;
-                            }
-                            case 1:
-                            {
-                                state = state.withProperty( VARIANT, BlockPeripheralVariant.WirelessModemOn );
-                                break;
-                            }
-                        }
                         break;
                     }
                 }
@@ -429,28 +306,6 @@ public class BlockPeripheral extends BlockPeripheralBase
         switch( type )
         {
             default:
-            case WirelessModem:
-            {
-                EnumFacing dir = placedSide.getOpposite();
-                if( dir == EnumFacing.DOWN )
-                {
-                    return getDefaultState()
-                        .withProperty( VARIANT, BlockPeripheralVariant.WirelessModemDownOff )
-                        .withProperty( FACING, EnumFacing.NORTH );
-                }
-                else if( dir == EnumFacing.UP )
-                {
-                    return getDefaultState()
-                        .withProperty( VARIANT, BlockPeripheralVariant.WirelessModemUpOff )
-                        .withProperty( FACING, EnumFacing.NORTH );
-                }
-                else
-                {
-                    return getDefaultState()
-                        .withProperty( VARIANT, BlockPeripheralVariant.WirelessModemOff )
-                        .withProperty( FACING, dir );
-                }
-            }
             case Monitor:
             {
                 return getDefaultState().withProperty( VARIANT, BlockPeripheralVariant.Monitor );
@@ -488,8 +343,6 @@ public class BlockPeripheral extends BlockPeripheralBase
         switch( type )
         {
             default:
-            case WirelessModem:
-                return new TileWirelessModem();
             case Monitor:
             case AdvancedMonitor:
                 return new TileMonitor();

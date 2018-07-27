@@ -15,17 +15,15 @@ import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
 
-public class TileAdvancedModem extends TileModemBase
+public abstract class TileWirelessModemBase extends TileModemBase
 {
-    // Statics
-
     private static class Peripheral extends WirelessModemPeripheral
     {
-        private TileModemBase m_entity;
+        private TileWirelessModemBase m_entity;
 
-        public Peripheral( TileModemBase entity )
+        public Peripheral( TileWirelessModemBase entity )
         {
-            super( true );
+            super( entity.isAdvanced );
             m_entity = entity;
         }
 
@@ -49,18 +47,19 @@ public class TileAdvancedModem extends TileModemBase
         {
             if( other instanceof Peripheral )
             {
-                Peripheral otherModem = (Peripheral)other;
+                Peripheral otherModem = (Peripheral) other;
                 return otherModem.m_entity == m_entity;
             }
             return false;
         }
     }
 
-    // Members
     private boolean m_hasDirection = false;
+    private final boolean isAdvanced;
 
-    public TileAdvancedModem()
+    public TileWirelessModemBase( boolean isAdvanced )
     {
+        this.isAdvanced = isAdvanced;
         m_dir = EnumFacing.DOWN;
     }
 
@@ -98,7 +97,7 @@ public class TileAdvancedModem extends TileModemBase
     {
         // Wireless Modem
         IBlockState state = getBlockState();
-        return state.getValue( BlockAdvancedModem.FACING );
+        return state.getValue( BlockModem.FACING );
     }
 
     @Override
@@ -106,7 +105,7 @@ public class TileAdvancedModem extends TileModemBase
     {
         // Wireless Modem
         setBlockState( getBlockState()
-            .withProperty( BlockAdvancedModem.FACING, dir )
+            .withProperty( BlockModem.FACING, dir )
         );
     }
 
@@ -114,5 +113,21 @@ public class TileAdvancedModem extends TileModemBase
     protected ModemPeripheral createPeripheral()
     {
         return new Peripheral( this );
+    }
+
+    public static class TileWirelessModem extends TileWirelessModemBase
+    {
+        public TileWirelessModem()
+        {
+            super( false );
+        }
+    }
+
+    public static class TileAdvancedModem extends TileWirelessModemBase
+    {
+        public TileAdvancedModem()
+        {
+            super( true );
+        }
     }
 }

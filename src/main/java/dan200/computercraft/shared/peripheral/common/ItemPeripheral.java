@@ -30,11 +30,6 @@ public class ItemPeripheral extends ItemPeripheralBase
         ItemStack stack;
         switch( type )
         {
-            case WirelessModem:
-            {
-                stack = new ItemStack( this, quantity, 1 );
-                break;
-            }
             case Monitor:
             {
                 stack = new ItemStack( this, quantity, 2 );
@@ -76,7 +71,6 @@ public class ItemPeripheral extends ItemPeripheralBase
         list.add( PeripheralItemFactory.create( PeripheralType.Printer, null, 1 ) );
         list.add( PeripheralItemFactory.create( PeripheralType.Monitor, null, 1 ) );
         list.add( PeripheralItemFactory.create( PeripheralType.AdvancedMonitor, null, 1 ) );
-        list.add( PeripheralItemFactory.create( PeripheralType.WirelessModem, null, 1 ) );
         list.add( PeripheralItemFactory.create( PeripheralType.Speaker, null, 1 ) );
     }
 
@@ -86,10 +80,6 @@ public class ItemPeripheral extends ItemPeripheralBase
         switch( damage )
         {
             default:
-            case 1:
-            {
-                return PeripheralType.WirelessModem;
-            }
             case 2:
             {
                 return PeripheralType.Monitor;

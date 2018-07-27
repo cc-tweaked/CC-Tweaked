@@ -19,7 +19,7 @@
         "has_wireless": {
             "trigger": "minecraft:inventory_changed",
             "conditions": {
-                "items": [ { "item": "computercraft:peripheral", "data": 1 } ]
+                "items": [ { "item": "computercraft:wireless_modem" } ]
             }
         },
         "has_the_recipe": {

@@ -24,9 +24,8 @@ public class PeripheralItemFactory
     @Nonnull
     public static ItemStack create( PeripheralType type, String label, int quantity )
     {
-        ItemPeripheral peripheral = ((ItemPeripheral)Item.getItemFromBlock( ComputerCraft.Blocks.peripheral ));
-        ItemCable cable = ((ItemCable)Item.getItemFromBlock( ComputerCraft.Blocks.cable ));
-        ItemAdvancedModem advancedModem = ((ItemAdvancedModem)Item.getItemFromBlock( ComputerCraft.Blocks.advancedModem ));
+        ItemPeripheral peripheral = ((ItemPeripheral) Item.getItemFromBlock( ComputerCraft.Blocks.peripheral ));
+        ItemCable cable = ((ItemCable) Item.getItemFromBlock( ComputerCraft.Blocks.cable ));
         switch( type )
         {
             case DiskDrive:
@@ -35,12 +34,15 @@ public class PeripheralItemFactory
                 if( label != null ) stack.setStackDisplayName( label );
                 return stack;
             }
+            case WirelessModem:
+                return new ItemStack( ComputerCraft.Blocks.wirelessModem, quantity );
+            case AdvancedModem:
+                return new ItemStack( ComputerCraft.Blocks.advancedModem, quantity );
 
             case Speaker:
             case Printer:
             case Monitor:
             case AdvancedMonitor:
-            case WirelessModem:
             {
                 return peripheral.create( type, label, quantity );
             }
@@ -48,10 +50,6 @@ public class PeripheralItemFactory
             case Cable:
             {
                 return cable.create( type, label, quantity );
-            }
-            case AdvancedModem:
-            {
-                return advancedModem.create( type, label, quantity );
             }
             case WiredModemFull:
                 return new ItemStack( ComputerCraft.Blocks.wiredModemFull, quantity );

@@ -22,18 +22,24 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 
 import javax.annotation.Nonnull;
+import java.util.function.Supplier;
 
-public class BlockAdvancedModem extends BlockPeripheralBase
+public class BlockModem extends BlockPeripheralBase
 {
     public static final PropertyDirection FACING = BlockDirectional.FACING;
     public static final PropertyBool ON = PropertyBool.create( "on" );
 
-    public BlockAdvancedModem()
+    private final PeripheralType type;
+    private final Supplier<TileModemBase> modem;
+
+    public BlockModem( PeripheralType type, Supplier<TileModemBase> modem )
     {
+        this.type = type;
+        this.modem = modem;
+
         setHardness( 2.0f );
-        setTranslationKey( "computercraft:advanced_modem" );
         setCreativeTab( ComputerCraft.mainCreativeTab );
-        setDefaultState( this.blockState.getBaseState()
+        setDefaultState( blockState.getBaseState()
             .withProperty( FACING, EnumFacing.NORTH )
             .withProperty( ON, false )
         );
@@ -41,9 +47,16 @@ public class BlockAdvancedModem extends BlockPeripheralBase
 
     @Nonnull
     @Override
+    public String getTranslationKey()
+    {
+        return "tile." + getRegistryName();
+    }
+
+    @Nonnull
+    @Override
     protected BlockStateContainer createBlockState()
     {
-        return new BlockStateContainer(this, FACING, ON );
+        return new BlockStateContainer( this, FACING, ON );
     }
 
     @Nonnull
@@ -51,17 +64,15 @@ public class BlockAdvancedModem extends BlockPeripheralBase
     @Deprecated
     public IBlockState getStateFromMeta( int meta )
     {
-        IBlockState state = getDefaultState();
-        state = state.withProperty( FACING, EnumFacing.byIndex( meta ) );
-        state = state.withProperty( ON, false );
-        return state;
+        return getDefaultState()
+            .withProperty( FACING, EnumFacing.byIndex( meta ) )
+            .withProperty( ON, false );
     }
 
     @Override
     public int getMetaFromState( IBlockState state )
     {
-        EnumFacing dir = state.getValue( FACING );
-        return dir.getIndex();
+        return state.getValue( FACING ).getIndex();
     }
 
     @Nonnull
@@ -99,19 +110,19 @@ public class BlockAdvancedModem extends BlockPeripheralBase
     @Override
     public PeripheralType getPeripheralType( int damage )
     {
-        return PeripheralType.AdvancedModem;
+        return type;
     }
 
     @Override
     public PeripheralType getPeripheralType( IBlockState state )
     {
-        return PeripheralType.AdvancedModem;
+        return type;
     }
 
     @Override
     public TilePeripheralBase createTile( PeripheralType type )
     {
-        return new TileAdvancedModem();
+        return modem.get();
     }
 
     @Override
