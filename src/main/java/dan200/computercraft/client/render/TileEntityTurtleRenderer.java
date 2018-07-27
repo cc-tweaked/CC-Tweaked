@@ -62,7 +62,7 @@ public class TileEntityTurtleRenderer extends TileEntitySpecialRenderer<TileTurt
         {
             // Check the turtle isn't first person
             Entity viewEntity = Minecraft.getMinecraft().getRenderViewEntity();
-            if( viewEntity != null && viewEntity instanceof TurtleVisionCamera )
+            if( viewEntity instanceof TurtleVisionCamera )
             {
                 TurtleVisionCamera camera = (TurtleVisionCamera) viewEntity;
                 if( camera.getTurtle() == tileEntity.getAccess() )

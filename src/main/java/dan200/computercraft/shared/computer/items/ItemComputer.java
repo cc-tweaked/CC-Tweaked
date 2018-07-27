@@ -85,7 +85,7 @@ public class ItemComputer extends ItemComputerBase
         if( super.placeBlockAt( stack, player, world, pos, side, hitX, hitY, hitZ, newState ) )
         {
             TileEntity tile = world.getTileEntity( pos );
-            if( tile != null && tile instanceof IComputerTile )
+            if( tile instanceof IComputerTile )
             {
                 IComputerTile computer = (IComputerTile) tile;
                 setupComputerAfterPlacement( stack, computer );

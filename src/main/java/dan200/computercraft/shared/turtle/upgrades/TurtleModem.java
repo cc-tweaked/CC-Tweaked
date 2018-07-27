@@ -213,7 +213,7 @@ public class TurtleModem implements ITurtleUpgrade
         if( !turtle.getWorld().isRemote )
         {
             IPeripheral peripheral = turtle.getPeripheral( side );
-            if( peripheral != null && peripheral instanceof Peripheral )
+            if( peripheral instanceof Peripheral )
             {
                 Peripheral modemPeripheral = (Peripheral)peripheral;
                 if( modemPeripheral.pollChanged() )

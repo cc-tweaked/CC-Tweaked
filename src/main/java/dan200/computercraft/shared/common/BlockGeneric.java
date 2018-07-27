@@ -50,7 +50,7 @@ public abstract class BlockGeneric extends Block implements ITileEntityProvider
     public final void getDrops( @Nonnull NonNullList<ItemStack> drops, IBlockAccess world, BlockPos pos, @Nonnull IBlockState state, int fortune )
     {
         TileEntity tile = world.getTileEntity( pos );
-        if( tile != null && tile instanceof TileGeneric )
+        if( tile instanceof TileGeneric )
         {
             TileGeneric generic = (TileGeneric) tile;
             generic.getDroppedItems( drops, false );
@@ -84,7 +84,7 @@ public abstract class BlockGeneric extends Block implements ITileEntityProvider
         // Get items to drop
         NonNullList<ItemStack> drops = NonNullList.create();
         TileEntity tile = world.getTileEntity( pos );
-        if( tile != null && tile instanceof TileGeneric )
+        if( tile instanceof TileGeneric )
         {
             TileGeneric generic = (TileGeneric) tile;
             generic.getDroppedItems( drops, creative );
@@ -111,7 +111,7 @@ public abstract class BlockGeneric extends Block implements ITileEntityProvider
         TileEntity tile = world.getTileEntity( pos );
         super.breakBlock( world, pos, newState );
         world.removeTileEntity( pos );
-        if( tile != null && tile instanceof TileGeneric )
+        if( tile instanceof TileGeneric )
         {
             TileGeneric generic = (TileGeneric)tile;
             generic.destroy();
@@ -123,7 +123,7 @@ public abstract class BlockGeneric extends Block implements ITileEntityProvider
     public ItemStack getPickBlock( @Nonnull IBlockState state, RayTraceResult target, @Nonnull World world, @Nonnull BlockPos pos, EntityPlayer player )
     {
         TileEntity tile = world.getTileEntity( pos );
-        if( tile != null && tile instanceof TileGeneric )
+        if( tile instanceof TileGeneric )
         {
             TileGeneric generic = (TileGeneric)tile;
             return generic.getPickedItem();
@@ -135,7 +135,7 @@ public abstract class BlockGeneric extends Block implements ITileEntityProvider
     public final boolean onBlockActivated( World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ )
     {
         TileEntity tile = world.getTileEntity( pos );
-        if( tile != null && tile instanceof TileGeneric )
+        if( tile instanceof TileGeneric )
         {
             TileGeneric generic = (TileGeneric)tile;
             return generic.onActivate( player, side, hitX, hitY, hitZ );
@@ -148,7 +148,7 @@ public abstract class BlockGeneric extends Block implements ITileEntityProvider
     public final void neighborChanged( IBlockState state, World world, BlockPos pos, Block block, BlockPos neighorPos )
     {
         TileEntity tile = world.getTileEntity( pos );
-        if( tile != null && tile instanceof TileGeneric )
+        if( tile instanceof TileGeneric )
         {
             TileGeneric generic = (TileGeneric)tile;
             generic.onNeighbourChange();

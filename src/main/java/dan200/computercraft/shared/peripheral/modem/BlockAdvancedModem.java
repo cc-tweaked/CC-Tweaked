@@ -74,7 +74,7 @@ public class BlockAdvancedModem extends BlockPeripheralBase
         int anim;
         EnumFacing dir;
         TileEntity tile = world.getTileEntity( pos );
-        if( tile != null && tile instanceof TilePeripheralBase )
+        if( tile instanceof TilePeripheralBase )
         {
             TilePeripheralBase peripheral = (TilePeripheralBase) tile;
             anim = peripheral.getAnim();

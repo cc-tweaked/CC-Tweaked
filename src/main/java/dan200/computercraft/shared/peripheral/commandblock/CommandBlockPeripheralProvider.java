@@ -22,7 +22,7 @@ public class CommandBlockPeripheralProvider implements IPeripheralProvider
     public IPeripheral getPeripheral( @Nonnull World world, @Nonnull BlockPos pos, @Nonnull EnumFacing side )
     {
         TileEntity tile = world.getTileEntity( pos );
-        if( tile != null && tile instanceof TileEntityCommandBlock )
+        if( tile instanceof TileEntityCommandBlock )
         {
             TileEntityCommandBlock commandBlock = (TileEntityCommandBlock)tile;
             return new CommandBlockPeripheral( commandBlock );

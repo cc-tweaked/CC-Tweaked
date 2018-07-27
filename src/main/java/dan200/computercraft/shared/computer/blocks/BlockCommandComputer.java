@@ -82,7 +82,7 @@ public class BlockCommandComputer extends BlockComputerBase
     public IBlockState getActualState( @Nonnull IBlockState state, IBlockAccess world, BlockPos pos )
     {
         TileEntity tile = world.getTileEntity( pos );
-        if( tile != null && tile instanceof IComputerTile )
+        if( tile instanceof IComputerTile )
         {
             IComputer computer = ((IComputerTile)tile).getComputer();
             if( computer != null && computer.isOn() )
@@ -136,7 +136,7 @@ public class BlockCommandComputer extends BlockComputerBase
     {
         // Not sure why this is necessary
         TileEntity tile = world.getTileEntity( pos );
-        if( tile != null && tile instanceof TileCommandComputer )
+        if( tile instanceof TileCommandComputer )
         {
             tile.setWorld( world ); // Not sure why this is necessary
             tile.setPos( pos ); // Not sure why this is necessary

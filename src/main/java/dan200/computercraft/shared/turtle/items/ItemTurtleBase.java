@@ -61,7 +61,7 @@ public abstract class ItemTurtleBase extends ItemComputerBase implements ITurtle
         if( super.placeBlockAt( stack, player, world, pos, side, hitX, hitY, hitZ, newState ) )
         {
             TileEntity tile = world.getTileEntity( pos );
-            if( tile != null && tile instanceof ITurtleTile )
+            if( tile instanceof ITurtleTile )
             {
                 ITurtleTile turtle = (ITurtleTile)tile;
                 setupTurtleAfterPlacement( stack, turtle );

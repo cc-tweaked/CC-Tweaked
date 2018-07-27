@@ -108,7 +108,7 @@ public class TurtleSuckCommand implements ITurtleCommand
                 boolean storedItems = false;
                 for( Entity entity : list )
                 {
-                    if( entity != null && entity instanceof EntityItem && !entity.isDead )
+                    if( entity instanceof EntityItem && !entity.isDead )
                     {
                         // Suck up the item
                         foundItems = true;

@@ -203,7 +203,7 @@ public class BlockCable extends BlockPeripheralBase
 
         int anim;
         TileEntity tile = world.getTileEntity( pos );
-        if( tile != null && tile instanceof TilePeripheralBase )
+        if( tile instanceof TilePeripheralBase )
         {
             TilePeripheralBase peripheral = (TilePeripheralBase) tile;
             anim = peripheral.getAnim();
@@ -332,7 +332,7 @@ public class BlockCable extends BlockPeripheralBase
             if( hit != null )
             {
                 TileEntity tile = world.getTileEntity( pos );
-                if( tile != null && tile instanceof TileCable && tile.hasWorld() )
+                if( tile instanceof TileCable && tile.hasWorld() )
                 {
                     TileCable cable = (TileCable) tile;
 
@@ -367,7 +367,7 @@ public class BlockCable extends BlockPeripheralBase
     public ItemStack getPickBlock( @Nonnull IBlockState state, RayTraceResult hit, @Nonnull World world, @Nonnull BlockPos pos, EntityPlayer player )
     {
         TileEntity tile = world.getTileEntity( pos );
-        if( tile != null && tile instanceof TileCable && tile.hasWorld() )
+        if( tile instanceof TileCable && tile.hasWorld() )
         {
             TileCable cable = (TileCable) tile;
             PeripheralType type = getPeripheralType( state );
@@ -396,7 +396,7 @@ public class BlockCable extends BlockPeripheralBase
     public void onBlockPlacedBy( World world, BlockPos pos, IBlockState state, EntityLivingBase placer, ItemStack stack )
     {
         TileEntity tile = world.getTileEntity( pos );
-        if( tile != null && tile instanceof TileCable )
+        if( tile instanceof TileCable )
         {
             TileCable cable = (TileCable) tile;
             if( cable.getPeripheralType() != PeripheralType.WiredModem )

@@ -530,7 +530,7 @@ public class TurtleBrain implements ITurtleAccess
                 if( block == oldBlock )
                 {
                     TileEntity newTile = world.getTileEntity( pos );
-                    if( newTile != null && newTile instanceof TileTurtle )
+                    if( newTile instanceof TileTurtle )
                     {
                         // Copy the old turtle state into the new turtle
                         TileTurtle newTurtle = (TileTurtle)newTile;

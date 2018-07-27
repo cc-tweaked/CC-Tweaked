@@ -118,7 +118,7 @@ public class ReflectionUtil
             try
             {
                 T result = constructor.newInstance( arguments );
-                if( result != null && resultClass.isInstance( result ) )
+                if( resultClass.isInstance( result ) )
                 {
                     return result;
                 }
@@ -169,7 +169,7 @@ public class ReflectionUtil
                     method.getDeclaringClass().isInstance( object ) )
                 {
                     Object result = method.invoke( object, arguments );
-                    if( result != null && resultClass.isInstance( result ) )
+                    if( resultClass.isInstance( result ) )
                     {
                         return (T)result;
                     }
@@ -194,7 +194,7 @@ public class ReflectionUtil
                     field.getDeclaringClass().isInstance( object ) )
                 {
                     Object result = field.get( object );
-                    if( result != null && resultClass.isInstance( result ) )
+                    if( resultClass.isInstance( result ) )
                     {
                         return (T)result;
                     }

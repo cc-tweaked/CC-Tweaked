@@ -54,7 +54,7 @@ public abstract class TileGeneric extends TileEntity
     public BlockGeneric getBlock()
     {
         Block block = getWorld().getBlockState( getPos() ).getBlock();
-        if( block != null && block instanceof BlockGeneric )
+        if( block instanceof BlockGeneric )
         {
             return (BlockGeneric)block;
         }

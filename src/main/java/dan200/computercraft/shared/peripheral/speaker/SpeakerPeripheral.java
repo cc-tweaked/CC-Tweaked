@@ -69,7 +69,7 @@ public class SpeakerPeripheral implements IPeripheral {
     @Override
     public boolean equals( IPeripheral other )
     {
-        if( other != null && other instanceof SpeakerPeripheral )
+        if( other instanceof SpeakerPeripheral )
         {
             SpeakerPeripheral otherSpeaker = (SpeakerPeripheral) other;
             return otherSpeaker.m_speaker == m_speaker;

@@ -413,7 +413,7 @@ public class TileMonitor extends TilePeripheralBase
             if( world.isBlockLoaded( pos ) )
             {
                 TileEntity tile = world.getTileEntity( pos );
-                if( tile != null && tile instanceof TileMonitor )
+                if( tile instanceof TileMonitor )
                 {
                     TileMonitor monitor = (TileMonitor) tile;
                     if( monitor.getDir() == getDir() && monitor.m_advanced == m_advanced &&

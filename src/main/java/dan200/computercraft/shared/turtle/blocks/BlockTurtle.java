@@ -169,7 +169,7 @@ public class BlockTurtle extends BlockComputerBase
     {
         // Not sure why this is necessary
         TileEntity tile = world.getTileEntity( pos );
-        if( tile != null && tile instanceof TileTurtle )
+        if( tile instanceof TileTurtle )
         {
             tile.setWorld( world ); // Not sure why this is necessary
             tile.setPos( pos ); // Not sure why this is necessary

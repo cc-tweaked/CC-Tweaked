@@ -188,7 +188,7 @@ public class BlockPeripheral extends BlockPeripheralBase
         int anim;
         EnumFacing dir;
         TileEntity tile = world.getTileEntity( pos );
-        if( tile != null && tile instanceof TilePeripheralBase )
+        if( tile instanceof TilePeripheralBase )
         {
             TilePeripheralBase peripheral = (TilePeripheralBase)tile;
             anim = peripheral.getAnim();
@@ -345,7 +345,7 @@ public class BlockPeripheral extends BlockPeripheralBase
             {
                 EnumFacing front;
                 int xIndex, yIndex, width, height;
-                if( tile != null && tile instanceof TileMonitor )
+                if( tile instanceof TileMonitor )
                 {
                     TileMonitor monitor = (TileMonitor)tile;
                     dir = monitor.getDirection();
@@ -560,7 +560,7 @@ public class BlockPeripheral extends BlockPeripheralBase
     {
         // Not sure why this is necessary
         TileEntity tile = world.getTileEntity( pos );
-        if( tile != null && tile instanceof TilePeripheralBase )
+        if( tile instanceof TilePeripheralBase )
         {
             tile.setWorld( world ); // Not sure why this is necessary
             tile.setPos( pos ); // Not sure why this is necessary
@@ -574,7 +574,7 @@ public class BlockPeripheral extends BlockPeripheralBase
             {
                 EnumFacing dir = DirectionUtil.fromEntityRot( player );
                 setDirection( world, pos, dir );
-                if( stack.hasDisplayName() && tile != null && tile instanceof TilePeripheralBase )
+                if( stack.hasDisplayName() && tile instanceof TilePeripheralBase )
                 {
                     TilePeripheralBase peripheral = (TilePeripheralBase)tile;
                     peripheral.setLabel( stack.getDisplayName() );
@@ -584,7 +584,7 @@ public class BlockPeripheral extends BlockPeripheralBase
             case Monitor:
             case AdvancedMonitor:
             {
-                if( tile != null && tile instanceof TileMonitor )
+                if( tile instanceof TileMonitor )
                 {
                     int direction = DirectionUtil.fromEntityRot( player ).getIndex();
                     if( player.rotationPitch > 66.5F )

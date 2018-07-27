@@ -39,7 +39,7 @@ public class RenderOverlayCable
         if( state.getBlock() != ComputerCraft.Blocks.cable ) return;
 
         TileEntity tile = world.getTileEntity( pos );
-        if( tile == null || !(tile instanceof TileCable) ) return;
+        if( !(tile instanceof TileCable) ) return;
 
         event.setCanceled( true );
         TileCable cable = (TileCable) tile;

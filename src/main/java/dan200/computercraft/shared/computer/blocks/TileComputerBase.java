@@ -53,7 +53,7 @@ public abstract class TileComputerBase extends TileGeneric
     public BlockComputerBase getBlock()
     {
         Block block = super.getBlock();
-        if( block != null && block instanceof BlockComputerBase )
+        if( block instanceof BlockComputerBase )
         {
             return (BlockComputerBase) block;
         }

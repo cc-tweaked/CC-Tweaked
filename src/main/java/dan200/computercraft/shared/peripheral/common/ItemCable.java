@@ -96,7 +96,7 @@ public class ItemCable extends ItemPeripheralBase
                     stack.shrink( 1 );
 
                     TileEntity tile = world.getTileEntity( pos );
-                    if( tile != null && tile instanceof TileCable )
+                    if( tile instanceof TileCable )
                     {
                         TileCable cable = (TileCable) tile;
                         cable.connectionsChanged();
@@ -128,7 +128,7 @@ public class ItemCable extends ItemPeripheralBase
                         stack.shrink( 1 );
 
                         TileEntity tile = world.getTileEntity( offset );
-                        if( tile != null && tile instanceof TileCable )
+                        if( tile instanceof TileCable )
                         {
                             TileCable cable = (TileCable)tile;
                             cable.modemChanged();
@@ -151,7 +151,7 @@ public class ItemCable extends ItemPeripheralBase
                         stack.shrink( 1 );
 
                         TileEntity tile = world.getTileEntity( offset );
-                        if( tile != null && tile instanceof TileCable )
+                        if( tile instanceof TileCable )
                         {
                             TileCable cable = (TileCable)tile;
                             cable.modemChanged();
