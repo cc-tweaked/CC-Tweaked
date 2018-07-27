@@ -1,10 +1,5 @@
 {
     "variants": {
-        "facing=north,variant=speaker": { "model": "computercraft:speaker" },
-        "facing=south,variant=speaker": { "model": "computercraft:speaker", "y": 180 },
-        "facing=west,variant=speaker": { "model": "computercraft:speaker", "y": 270 },
-        "facing=east,variant=speaker": { "model": "computercraft:speaker", "y": 90 },
-
         "facing=north,variant=printer_empty": { "model": "computercraft:printer_empty" },
         "facing=south,variant=printer_empty": { "model": "computercraft:printer_empty", "y": 180 },
         "facing=west,variant=printer_empty": { "model": "computercraft:printer_empty", "y": 270 },

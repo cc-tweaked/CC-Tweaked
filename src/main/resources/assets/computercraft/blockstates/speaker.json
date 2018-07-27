@@ -1,0 +1,8 @@
+{
+    "variants": {
+        "facing=north": { "model": "computercraft:speaker" },
+        "facing=south": { "model": "computercraft:speaker", "y": 180 },
+        "facing=west": { "model": "computercraft:speaker", "y": 270 },
+        "facing=east": { "model": "computercraft:speaker", "y": 90 }
+    }
+}

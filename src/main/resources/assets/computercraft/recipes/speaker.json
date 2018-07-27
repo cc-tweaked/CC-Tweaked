@@ -10,5 +10,5 @@
         "R": { "type": "forge:ore_dict", "ore": "dustRedstone" },
         "N": { "item": "minecraft:noteblock" }
     },
-    "result": { "item": "computercraft:peripheral", "data": 5 }
+    "result": { "item": "computercraft:speaker" }
 }

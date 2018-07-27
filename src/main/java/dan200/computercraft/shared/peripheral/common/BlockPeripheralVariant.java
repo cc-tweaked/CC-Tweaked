@@ -112,8 +112,7 @@ public enum BlockPeripheralVariant implements IStringSerializable
     AdvancedMonitorDownLUD( "advanced_monitor_down_lud", PeripheralType.AdvancedMonitor ),
     AdvancedMonitorDownRU( "advanced_monitor_down_ru", PeripheralType.AdvancedMonitor ),
     AdvancedMonitorDownLRU( "advanced_monitor_down_lru", PeripheralType.AdvancedMonitor ),
-    AdvancedMonitorDownLU( "advanced_monitor_down_lu", PeripheralType.AdvancedMonitor ),
-    Speaker( "speaker", PeripheralType.Speaker );
+    AdvancedMonitorDownLU( "advanced_monitor_down_lu", PeripheralType.AdvancedMonitor );
 
     private String m_name;
     private PeripheralType m_peripheralType;
@@ -130,7 +129,7 @@ public enum BlockPeripheralVariant implements IStringSerializable
     {
         return m_name;
     }
-    
+
     public PeripheralType getPeripheralType()
     {
         return m_peripheralType;

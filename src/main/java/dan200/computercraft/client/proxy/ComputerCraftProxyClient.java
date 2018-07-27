@@ -98,6 +98,7 @@ public class ComputerCraftProxyClient extends ComputerCraftProxyCommon
         registerItemModel( ComputerCraft.Blocks.computerCommand, 0, "computer_command" );
 
         registerItemModel( ComputerCraft.Blocks.diskDrive, 0, "disk_drive" );
+        registerItemModel( ComputerCraft.Blocks.speaker, 0, "speaker" );
 
         registerItemModel( ComputerCraft.Blocks.peripheral, 1, "wireless_modem" );
         registerItemModel( ComputerCraft.Blocks.peripheral, 2, "monitor" );
@@ -105,10 +106,10 @@ public class ComputerCraftProxyClient extends ComputerCraftProxyCommon
         registerItemModel( ComputerCraft.Blocks.peripheral, 4, "advanced_monitor" );
         registerItemModel( ComputerCraft.Blocks.cable, 0, "cable" );
         registerItemModel( ComputerCraft.Blocks.cable, 1, "wired_modem" );
-        registerItemModel( ComputerCraft.Blocks.wirelessModem, "wireless_modem" );
-        registerItemModel( ComputerCraft.Blocks.advancedModem, "advanced_modem" );
-        registerItemModel( ComputerCraft.Blocks.peripheral, 5, "speaker" );
-        registerItemModel( ComputerCraft.Blocks.wiredModemFull, "wired_modem_full" );
+
+        registerItemModel( ComputerCraft.Blocks.wirelessModem, 0, "wireless_modem" );
+        registerItemModel( ComputerCraft.Blocks.advancedModem, 0, "advanced_modem" );
+        registerItemModel( ComputerCraft.Blocks.wiredModemFull, 0, "wired_modem_full" );
 
         registerItemModel( ComputerCraft.Items.disk, "disk" );
         registerItemModel( ComputerCraft.Items.treasureDisk, "treasure_disk" );

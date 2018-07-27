@@ -44,6 +44,7 @@ import dan200.computercraft.shared.peripheral.modem.TileWirelessModemBase;
 import dan200.computercraft.shared.peripheral.monitor.TileMonitor;
 import dan200.computercraft.shared.peripheral.printer.ContainerPrinter;
 import dan200.computercraft.shared.peripheral.printer.TilePrinter;
+import dan200.computercraft.shared.peripheral.speaker.BlockSpeaker;
 import dan200.computercraft.shared.peripheral.speaker.TileSpeaker;
 import dan200.computercraft.shared.pocket.inventory.ContainerPocketComputer;
 import dan200.computercraft.shared.pocket.items.ItemPocketComputer;
@@ -271,6 +272,9 @@ public abstract class ComputerCraftProxyCommon implements IComputerCraftProxy
         ComputerCraft.Blocks.diskDrive = new BlockDiskDrive();
         registry.register( ComputerCraft.Blocks.diskDrive.setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "disk_drive" ) ) );
 
+        ComputerCraft.Blocks.speaker = new BlockSpeaker();
+        registry.register( ComputerCraft.Blocks.speaker.setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "speaker" ) ) );
+
         // Cable
         ComputerCraft.Blocks.cable = new BlockCable();
         registry.register( ComputerCraft.Blocks.cable.setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "cable" ) ) );
@@ -300,7 +304,8 @@ public abstract class ComputerCraftProxyCommon implements IComputerCraftProxy
         // Peripheral
         registry.register( new ItemPeripheral( ComputerCraft.Blocks.peripheral ).setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "peripheral" ) ) );
         registry.register( new ItemPeripheralCommon( ComputerCraft.Blocks.diskDrive, PeripheralType.DiskDrive ).setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "disk_drive" ) ) );
-
+        registry.register( new ItemPeripheralCommon( ComputerCraft.Blocks.speaker, PeripheralType.Speaker ).setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "speaker" ) ) );
+        
         // Cable
         registry.register( new ItemCable( ComputerCraft.Blocks.cable ).setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "cable" ) ) );
 

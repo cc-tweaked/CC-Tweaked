@@ -45,11 +45,6 @@ public class ItemPeripheral extends ItemPeripheralBase
                 stack = new ItemStack( this, quantity, 4 );
                 break;
             }
-            case Speaker:
-            {
-                stack = new ItemStack( this, quantity, 5 );
-                break;
-            }
 
             default:
             {
@@ -71,7 +66,6 @@ public class ItemPeripheral extends ItemPeripheralBase
         list.add( PeripheralItemFactory.create( PeripheralType.Printer, null, 1 ) );
         list.add( PeripheralItemFactory.create( PeripheralType.Monitor, null, 1 ) );
         list.add( PeripheralItemFactory.create( PeripheralType.AdvancedMonitor, null, 1 ) );
-        list.add( PeripheralItemFactory.create( PeripheralType.Speaker, null, 1 ) );
     }
 
     @Override
@@ -91,10 +85,6 @@ public class ItemPeripheral extends ItemPeripheralBase
             case 4:
             {
                 return PeripheralType.AdvancedMonitor;
-            }
-            case 5:
-            {
-                return PeripheralType.Speaker;
             }
         }
     }

@@ -38,8 +38,9 @@ public class PeripheralItemFactory
                 return new ItemStack( ComputerCraft.Blocks.wirelessModem, quantity );
             case AdvancedModem:
                 return new ItemStack( ComputerCraft.Blocks.advancedModem, quantity );
-
             case Speaker:
+                return new ItemStack( ComputerCraft.Blocks.speaker, quantity );
+
             case Printer:
             case Monitor:
             case AdvancedMonitor:

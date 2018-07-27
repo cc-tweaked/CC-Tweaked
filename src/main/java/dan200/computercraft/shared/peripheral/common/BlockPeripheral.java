@@ -10,7 +10,6 @@ import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.peripheral.PeripheralType;
 import dan200.computercraft.shared.peripheral.monitor.TileMonitor;
 import dan200.computercraft.shared.peripheral.printer.TilePrinter;
-import dan200.computercraft.shared.peripheral.speaker.TileSpeaker;
 import dan200.computercraft.shared.util.DirectionUtil;
 import net.minecraft.block.BlockHorizontal;
 import net.minecraft.block.properties.PropertyDirection;
@@ -81,10 +80,6 @@ public class BlockPeripheral extends BlockPeripheralBase
         {
             state = state.withProperty( VARIANT, BlockPeripheralVariant.AdvancedMonitor );
         }
-        else if( meta == 13 )
-        {
-            state = state.withProperty( VARIANT, BlockPeripheralVariant.Speaker );
-        }
         return state;
     }
 
@@ -95,16 +90,6 @@ public class BlockPeripheral extends BlockPeripheralBase
         BlockPeripheralVariant variant = state.getValue( VARIANT );
         switch( variant.getPeripheralType() )
         {
-            case DiskDrive:
-            {
-                EnumFacing dir = state.getValue( FACING );
-                if( dir.getAxis() == EnumFacing.Axis.Y )
-                {
-                    dir = EnumFacing.NORTH;
-                }
-                meta = dir.getIndex();
-                break;
-            }
             case Monitor:
             {
                 meta = 10;
@@ -118,11 +103,6 @@ public class BlockPeripheral extends BlockPeripheralBase
             case AdvancedMonitor:
             {
                 meta = 12;
-                break;
-            }
-            case Speaker:
-            {
-                meta = 13;
                 break;
             }
         }
@@ -179,11 +159,6 @@ public class BlockPeripheral extends BlockPeripheralBase
                         break;
                     }
                 }
-                break;
-            }
-            case Speaker:
-            {
-                state = state.withProperty( FACING, dir );
                 break;
             }
             case Monitor:
@@ -318,10 +293,6 @@ public class BlockPeripheral extends BlockPeripheralBase
             {
                 return getDefaultState().withProperty( VARIANT, BlockPeripheralVariant.AdvancedMonitor );
             }
-            case Speaker:
-            {
-                return getDefaultState().withProperty( VARIANT, BlockPeripheralVariant.Speaker );
-            }
         }
     }
 
@@ -348,8 +319,6 @@ public class BlockPeripheral extends BlockPeripheralBase
                 return new TileMonitor();
             case Printer:
                 return new TilePrinter();
-            case Speaker:
-                return new TileSpeaker();
         }
     }
 
@@ -366,8 +335,6 @@ public class BlockPeripheral extends BlockPeripheralBase
 
         switch( getPeripheralType( state ) )
         {
-            case Speaker:
-            case DiskDrive:
             case Printer:
             {
                 EnumFacing dir = DirectionUtil.fromEntityRot( player );
@@ -417,9 +384,7 @@ public class BlockPeripheral extends BlockPeripheralBase
     public final boolean isOpaqueCube( IBlockState state )
     {
         PeripheralType type = getPeripheralType( state );
-        return type == PeripheralType.DiskDrive || type == PeripheralType.Printer
-            || type == PeripheralType.Monitor || type == PeripheralType.AdvancedMonitor
-            || type == PeripheralType.Speaker;
+        return type == PeripheralType.Monitor || type == PeripheralType.AdvancedMonitor;
     }
 
     @Override
