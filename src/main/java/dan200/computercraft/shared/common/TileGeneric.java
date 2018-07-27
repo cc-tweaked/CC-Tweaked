@@ -72,6 +72,11 @@ public abstract class TileGeneric extends TileEntity
 
     public void getDroppedItems( @Nonnull NonNullList<ItemStack> drops, boolean creative )
     {
+        if( !creative )
+        {
+            ItemStack drop = getPickedItem();
+            if( !drop.isEmpty() ) drops.add( drop );
+        }
     }
 
     @Nonnull

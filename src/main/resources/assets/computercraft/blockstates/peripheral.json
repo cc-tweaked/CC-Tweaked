@@ -1,18 +1,5 @@
 {
     "variants": {
-        "facing=north,variant=disk_drive_empty": { "model": "computercraft:disk_drive_empty" },
-        "facing=south,variant=disk_drive_empty": { "model": "computercraft:disk_drive_empty", "y": 180 },
-        "facing=west,variant=disk_drive_empty": { "model": "computercraft:disk_drive_empty", "y": 270 },
-        "facing=east,variant=disk_drive_empty": { "model": "computercraft:disk_drive_empty", "y": 90 },
-        "facing=north,variant=disk_drive_full": { "model": "computercraft:disk_drive_full" },
-        "facing=south,variant=disk_drive_full": { "model": "computercraft:disk_drive_full", "y": 180 },
-        "facing=west,variant=disk_drive_full": { "model": "computercraft:disk_drive_full", "y": 270 },
-        "facing=east,variant=disk_drive_full": { "model": "computercraft:disk_drive_full", "y": 90 },
-        "facing=north,variant=disk_drive_invalid": { "model": "computercraft:disk_drive_invalid" },
-        "facing=south,variant=disk_drive_invalid": { "model": "computercraft:disk_drive_invalid", "y": 180 },
-        "facing=west,variant=disk_drive_invalid": { "model": "computercraft:disk_drive_invalid", "y": 270 },
-        "facing=east,variant=disk_drive_invalid": { "model": "computercraft:disk_drive_invalid", "y": 90 },
-
         "facing=north,variant=speaker": { "model": "computercraft:speaker" },
         "facing=south,variant=speaker": { "model": "computercraft:speaker", "y": 180 },
         "facing=west,variant=speaker": { "model": "computercraft:speaker", "y": 270 },

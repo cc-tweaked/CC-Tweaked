@@ -13,9 +13,6 @@ import javax.annotation.Nonnull;
 
 public enum BlockPeripheralVariant implements IStringSerializable
 {
-    DiskDriveEmpty( "disk_drive_empty", PeripheralType.DiskDrive ),
-    DiskDriveFull( "disk_drive_full", PeripheralType.DiskDrive ),
-    DiskDriveInvalid( "disk_drive_invalid", PeripheralType.DiskDrive ),
     PrinterEmpty( "printer_empty", PeripheralType.Printer ),
     PrinterTopFull( "printer_top_full", PeripheralType.Printer ),
     PrinterBottomFull( "printer_bottom_full", PeripheralType.Printer ),

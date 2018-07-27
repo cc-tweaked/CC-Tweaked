@@ -2,19 +2,23 @@ package dan200.computercraft.shared.peripheral.diskdrive;
 
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.common.BlockGeneric;
-import dan200.computercraft.shared.peripheral.common.TilePeripheralBase;
+import dan200.computercraft.shared.util.DirectionUtil;
 import net.minecraft.block.BlockHorizontal;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.PropertyDirection;
 import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
+import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class BlockDiskDrive extends BlockGeneric
 {
@@ -63,8 +67,9 @@ public class BlockDiskDrive extends BlockGeneric
         return state;
     }
 
+    @Nullable
     @Override
-    protected TilePeripheralBase createTile( int damage )
+    public TileEntity createTileEntity( @Nonnull World world, @Nonnull IBlockState state )
     {
         return new TileDiskDrive();
     }
@@ -80,5 +85,19 @@ public class BlockDiskDrive extends BlockGeneric
             state = state.withProperty( STATE, ((TileDiskDrive) tile).getState() );
         }
         return state;
+    }
+
+    @Override
+    public void onBlockPlacedBy( World world, BlockPos pos, IBlockState state, EntityLivingBase placer, ItemStack stack )
+    {
+        EnumFacing dir = DirectionUtil.fromEntityRot( placer );
+        world.setBlockState( pos, state.withProperty( FACING, dir ) );
+
+        TileEntity tile = world.getTileEntity( pos );
+        if( stack.hasDisplayName() && tile instanceof TileDiskDrive )
+        {
+            TileDiskDrive peripheral = (TileDiskDrive) tile;
+            peripheral.setLabel( stack.getDisplayName() );
+        }
     }
 }

@@ -9,5 +9,5 @@
         "#": { "type": "forge:ore_dict", "ore": "stone" },
         "R": { "type": "forge:ore_dict", "ore": "dustRedstone" }
     },
-    "result": { "item": "computercraft:peripheral", "data": 0 }
+    "result": { "item": "computercraft:disk_drive" }
 }

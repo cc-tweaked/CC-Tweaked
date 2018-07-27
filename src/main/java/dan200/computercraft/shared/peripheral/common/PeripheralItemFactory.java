@@ -29,8 +29,14 @@ public class PeripheralItemFactory
         ItemAdvancedModem advancedModem = ((ItemAdvancedModem)Item.getItemFromBlock( ComputerCraft.Blocks.advancedModem ));
         switch( type )
         {
-            case Speaker:
             case DiskDrive:
+            {
+                ItemStack stack = new ItemStack( ComputerCraft.Blocks.diskDrive, quantity );
+                if( label != null ) stack.setStackDisplayName( label );
+                return stack;
+            }
+
+            case Speaker:
             case Printer:
             case Monitor:
             case AdvancedMonitor:

@@ -25,4 +25,9 @@ public enum DiskDriveState implements IStringSerializable
     {
         return name;
     }
+
+    public static DiskDriveState of( int index )
+    {
+        return index >= 0 && index < VALUES.length ? VALUES[index] : EMPTY;
+    }
 }

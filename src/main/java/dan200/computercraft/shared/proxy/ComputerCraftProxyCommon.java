@@ -31,8 +31,10 @@ import dan200.computercraft.shared.media.items.ItemTreasureDisk;
 import dan200.computercraft.shared.media.recipes.DiskRecipe;
 import dan200.computercraft.shared.media.recipes.PrintoutRecipe;
 import dan200.computercraft.shared.network.ComputerCraftPacket;
+import dan200.computercraft.shared.peripheral.PeripheralType;
 import dan200.computercraft.shared.peripheral.commandblock.CommandBlockPeripheralProvider;
 import dan200.computercraft.shared.peripheral.common.*;
+import dan200.computercraft.shared.peripheral.diskdrive.BlockDiskDrive;
 import dan200.computercraft.shared.peripheral.diskdrive.ContainerDiskDrive;
 import dan200.computercraft.shared.peripheral.diskdrive.TileDiskDrive;
 import dan200.computercraft.shared.peripheral.modem.*;
@@ -263,6 +265,9 @@ public abstract class ComputerCraftProxyCommon implements IComputerCraftProxy
         ComputerCraft.Blocks.peripheral = new BlockPeripheral();
         registry.register( ComputerCraft.Blocks.peripheral.setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "peripheral" ) ) );
 
+        ComputerCraft.Blocks.diskDrive = new BlockDiskDrive();
+        registry.register( ComputerCraft.Blocks.diskDrive.setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "disk_drive" ) ) );
+
         // Cable
         ComputerCraft.Blocks.cable = new BlockCable();
         registry.register( ComputerCraft.Blocks.cable.setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "cable" ) ) );
@@ -288,6 +293,7 @@ public abstract class ComputerCraftProxyCommon implements IComputerCraftProxy
 
         // Peripheral
         registry.register( new ItemPeripheral( ComputerCraft.Blocks.peripheral ).setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "peripheral" ) ) );
+        registry.register( new ItemPeripheralCommon( ComputerCraft.Blocks.diskDrive, PeripheralType.DiskDrive ).setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "disk_drive" ) ) );
 
         // Cable
         registry.register( new ItemCable( ComputerCraft.Blocks.cable ).setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "cable" ) ) );
@@ -408,16 +414,18 @@ public abstract class ComputerCraftProxyCommon implements IComputerCraftProxy
     private void registerTileEntities()
     {
         // Tile Entities
-        GameRegistry.registerTileEntity( TileComputer.class, ComputerCraft.LOWER_ID + " :" + "computer" ); // TODO: split into normal and advanced?
-        GameRegistry.registerTileEntity( TileDiskDrive.class, ComputerCraft.LOWER_ID + " : " + "diskdrive" );
-        GameRegistry.registerTileEntity( TileWirelessModem.class, ComputerCraft.LOWER_ID + " : " + "wirelessmodem" );
-        GameRegistry.registerTileEntity( TileMonitor.class, ComputerCraft.LOWER_ID + " : " + "monitor" );
-        GameRegistry.registerTileEntity( TilePrinter.class, ComputerCraft.LOWER_ID + " : " + "ccprinter" );
-        GameRegistry.registerTileEntity( TileCable.class, ComputerCraft.LOWER_ID + " : " + "wiredmodem" );
-        GameRegistry.registerTileEntity( TileCommandComputer.class, ComputerCraft.LOWER_ID + " : " + "computer_command" );
-        GameRegistry.registerTileEntity( TileAdvancedModem.class, ComputerCraft.LOWER_ID + " : " + "advanced_modem" );
-        GameRegistry.registerTileEntity( TileSpeaker.class, ComputerCraft.LOWER_ID + " : " + "speaker" );
-        GameRegistry.registerTileEntity( TileWiredModemFull.class, ComputerCraft.LOWER_ID + " : " + "wired_modem_full" );
+        GameRegistry.registerTileEntity( TileComputer.class, ComputerCraft.LOWER_ID + ":computer" ); // TODO: split into normal and advanced?
+        GameRegistry.registerTileEntity( TileCommandComputer.class, ComputerCraft.LOWER_ID + ":computer_command" );
+
+        GameRegistry.registerTileEntity( TileDiskDrive.class, ComputerCraft.LOWER_ID + ":disk_drive" );
+        GameRegistry.registerTileEntity( TileWirelessModem.class, ComputerCraft.LOWER_ID + ":wirelessmodem" );
+        GameRegistry.registerTileEntity( TileMonitor.class, ComputerCraft.LOWER_ID + ":monitor" );
+        GameRegistry.registerTileEntity( TilePrinter.class, ComputerCraft.LOWER_ID + ":printer" );
+        GameRegistry.registerTileEntity( TileAdvancedModem.class, ComputerCraft.LOWER_ID + ":advanced_modem" );
+        GameRegistry.registerTileEntity( TileSpeaker.class, ComputerCraft.LOWER_ID + ":speaker" );
+
+        GameRegistry.registerTileEntity( TileCable.class, ComputerCraft.LOWER_ID + ":wired_modem" );
+        GameRegistry.registerTileEntity( TileWiredModemFull.class, ComputerCraft.LOWER_ID + ":wired_modem_full" );
 
         // Register peripheral providers
         ComputerCraftAPI.registerPeripheralProvider( new DefaultPeripheralProvider() );

@@ -45,15 +45,6 @@ public abstract class TilePeripheralBase extends TileGeneric
         return (BlockPeripheralBase)super.getBlock();
     }
 
-    @Override
-    public void getDroppedItems( @Nonnull NonNullList<ItemStack> drops, boolean creative )
-    {
-        if( !creative )
-        {
-            drops.add( PeripheralItemFactory.create( this ) );
-        }
-    }
-
     @Nonnull
     @Override
     public ItemStack getPickedItem()

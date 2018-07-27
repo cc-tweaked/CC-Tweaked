@@ -45,6 +45,7 @@ import dan200.computercraft.shared.network.PacketHandler;
 import dan200.computercraft.shared.peripheral.common.BlockCable;
 import dan200.computercraft.shared.peripheral.common.BlockPeripheral;
 import dan200.computercraft.shared.peripheral.common.BlockWiredModemFull;
+import dan200.computercraft.shared.peripheral.diskdrive.BlockDiskDrive;
 import dan200.computercraft.shared.peripheral.diskdrive.TileDiskDrive;
 import dan200.computercraft.shared.peripheral.modem.BlockAdvancedModem;
 import dan200.computercraft.shared.peripheral.modem.WirelessNetwork;
@@ -57,7 +58,10 @@ import dan200.computercraft.shared.proxy.IComputerCraftProxy;
 import dan200.computercraft.shared.turtle.blocks.BlockTurtle;
 import dan200.computercraft.shared.turtle.blocks.TileTurtle;
 import dan200.computercraft.shared.turtle.upgrades.*;
-import dan200.computercraft.shared.util.*;
+import dan200.computercraft.shared.util.CreativeTabMain;
+import dan200.computercraft.shared.util.IDAssigner;
+import dan200.computercraft.shared.util.InventoryUtil;
+import dan200.computercraft.shared.util.WorldUtil;
 import dan200.computercraft.shared.wired.CapabilityWiredElement;
 import dan200.computercraft.shared.wired.WiredNode;
 import io.netty.buffer.Unpooled;
@@ -176,11 +180,13 @@ public class ComputerCraft
         public static BlockComputer computerNormal;
         public static BlockComputer computerAdvanced;
         public static BlockCommandComputer computerCommand;
-        
-        public static BlockPeripheral peripheral;
-        public static BlockCable cable;
+
         public static BlockTurtle turtleNormal;
         public static BlockTurtle turtleAdvanced;
+
+        public static BlockDiskDrive diskDrive;
+        public static BlockPeripheral peripheral;
+        public static BlockCable cable;
         public static BlockAdvancedModem advancedModem;
         public static BlockWiredModemFull wiredModemFull;
     }
