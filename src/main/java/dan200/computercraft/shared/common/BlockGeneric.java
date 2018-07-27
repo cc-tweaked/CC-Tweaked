@@ -27,7 +27,6 @@ import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.ArrayList;
 import java.util.List;
 
 public abstract class BlockGeneric extends Block implements ITileEntityProvider
@@ -194,71 +193,12 @@ public abstract class BlockGeneric extends Block implements ITileEntityProvider
     public final AxisAlignedBB getBoundingBox( IBlockState state, IBlockAccess world, BlockPos pos )
     {
         TileEntity tile = world.getTileEntity( pos );
-        if( tile != null && tile instanceof TileGeneric && tile.hasWorld() )
+        if( tile instanceof TileGeneric && tile.hasWorld() )
         {
             TileGeneric generic = (TileGeneric)tile;
             return generic.getBounds();
         }
         return FULL_BLOCK_AABB;
-    }
-
-    @Nonnull
-    @Override
-    @Deprecated
-    public final AxisAlignedBB getSelectedBoundingBox( IBlockState state, @Nonnull World world, @Nonnull BlockPos pos )
-    {
-        return getBoundingBox( state, world, pos ).offset( pos );
-    }
-
-    @Override
-    @Deprecated
-    public final AxisAlignedBB getCollisionBoundingBox( IBlockState state, @Nonnull IBlockAccess world, @Nonnull BlockPos pos )
-    {
-        TileEntity tile = world.getTileEntity( pos );
-        if( tile != null && tile instanceof TileGeneric && tile.hasWorld() )
-        {
-            TileGeneric generic = (TileGeneric)tile;
-
-            // Get collision bounds
-            List<AxisAlignedBB> collision = new ArrayList<>( 1 );
-            generic.getCollisionBounds( collision );
-
-            // Return the union of the collision bounds
-            if( collision.size() > 0 )
-            {
-                AxisAlignedBB aabb = collision.get( 0 );
-                for( int i = 1; i < collision.size(); i++ )
-                {
-                    aabb = aabb.union( collision.get( i ) );
-                }
-                return aabb;
-            }
-        }
-        return FULL_BLOCK_AABB;
-    }
-
-    @Override
-    @Deprecated
-    public final void addCollisionBoxToList( IBlockState state, @Nonnull World world, @Nonnull BlockPos pos, @Nonnull AxisAlignedBB bigBox, @Nonnull List<AxisAlignedBB> list, Entity entity, boolean p_185477_7_ )
-    {
-        TileEntity tile = world.getTileEntity( pos );
-        if( tile != null && tile instanceof TileGeneric && tile.hasWorld() )
-        {
-            TileGeneric generic = (TileGeneric)tile;
-
-            // Get collision bounds
-            List<AxisAlignedBB> collision = new ArrayList<>( 1 );
-            generic.getCollisionBounds( collision );
-
-            // Add collision bounds to list
-            if( collision.size() > 0 )
-            {
-                for (AxisAlignedBB localBounds : collision)
-                {
-                    addCollisionBoxToList( pos, bigBox, list, localBounds );
-                }
-            }
-        }
     }
 
     @Nonnull

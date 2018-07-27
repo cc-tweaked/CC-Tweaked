@@ -113,11 +113,6 @@ public abstract class TileGeneric extends TileEntity
         return new AxisAlignedBB( 0.0, 0.0, 0.0, 1.0, 1.0, 1.0 );
     }
 
-    public void getCollisionBounds( @Nonnull List<AxisAlignedBB> bounds )
-    {
-        bounds.add( getBounds() );
-    }
-
     protected double getInteractRange( EntityPlayer player )
     {
         return 8.0;

@@ -367,7 +367,6 @@ public class TileCable extends TileModemBase
         }
     }
 
-    @Override
     public void getCollisionBounds( @Nonnull List<AxisAlignedBB> bounds )
     {
         PeripheralType type = getPeripheralType();

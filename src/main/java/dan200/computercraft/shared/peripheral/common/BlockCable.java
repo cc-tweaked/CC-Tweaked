@@ -7,7 +7,6 @@
 package dan200.computercraft.shared.peripheral.common;
 
 import dan200.computercraft.ComputerCraft;
-import dan200.computercraft.shared.common.TileGeneric;
 import dan200.computercraft.shared.peripheral.PeripheralType;
 import dan200.computercraft.shared.peripheral.modem.TileCable;
 import dan200.computercraft.shared.util.WorldUtil;
@@ -16,6 +15,7 @@ import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.state.BlockFaceShape;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
@@ -269,15 +269,15 @@ public class BlockCable extends BlockPeripheralBase
     public RayTraceResult collisionRayTrace( IBlockState blockState, @Nonnull World world, @Nonnull BlockPos pos, @Nonnull Vec3d start, @Nonnull Vec3d end )
     {
         TileEntity tile = world.getTileEntity( pos );
-        if( tile != null && tile instanceof TileGeneric && tile.hasWorld() )
+        if( tile instanceof TileCable && tile.hasWorld() )
         {
-            TileGeneric generic = (TileGeneric) tile;
+            TileCable cable = (TileCable) tile;
 
             double distance = Double.POSITIVE_INFINITY;
             RayTraceResult result = null;
 
             List<AxisAlignedBB> bounds = new ArrayList<AxisAlignedBB>( 7 );
-            generic.getCollisionBounds( bounds );
+            cable.getCollisionBounds( bounds );
 
             Vec3d startOff = start.subtract( pos.getX(), pos.getY(), pos.getZ() );
             Vec3d endOff = end.subtract( pos.getX(), pos.getY(), pos.getZ() );
@@ -301,6 +301,24 @@ public class BlockCable extends BlockPeripheralBase
         else
         {
             return super.collisionRayTrace( blockState, world, pos, start, end );
+        }
+    }
+
+    @Override
+    @Deprecated
+    public final void addCollisionBoxToList( IBlockState state, @Nonnull World world, @Nonnull BlockPos pos, @Nonnull AxisAlignedBB bigBox, @Nonnull List<AxisAlignedBB> list, Entity entity, boolean p_185477_7_ )
+    {
+        TileEntity tile = world.getTileEntity( pos );
+        if( tile instanceof TileCable && tile.hasWorld() )
+        {
+            TileCable cable = (TileCable) tile;
+
+            // Get collision bounds
+            List<AxisAlignedBB> collision = new ArrayList<>( 1 );
+            cable.getCollisionBounds( collision );
+
+            // Add collision bounds to list
+            for( AxisAlignedBB localBounds : collision ) addCollisionBoxToList( pos, bigBox, list, localBounds );
         }
     }
 
