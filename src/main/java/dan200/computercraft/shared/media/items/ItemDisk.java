@@ -17,6 +17,7 @@ import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.BlockPos;
@@ -26,53 +27,55 @@ import net.minecraft.world.World;
 import javax.annotation.Nonnull;
 import java.util.List;
 
-public class ItemDiskLegacy extends Item
-    implements IMedia, IColouredItem
+public class ItemDisk extends Item implements IMedia, IColouredItem
 {
-    public ItemDiskLegacy()
+    public ItemDisk()
     {
         setMaxStackSize( 1 );
         setHasSubtypes( true );
         setTranslationKey( "computercraft:disk" );
-        setCreativeTab( ComputerCraft.mainCreativeTab  );
+        setCreativeTab( ComputerCraft.mainCreativeTab );
     }
-    
+
     @Override
     public void getSubItems( @Nonnull CreativeTabs tabs, @Nonnull NonNullList<ItemStack> list )
     {
         if( !isInCreativeTab( tabs ) ) return;
-        for( int colour=0; colour<16; ++colour )
-        {
-            ItemStack stack = createFromIDAndColour( -1, null, Colour.values()[ colour ].getHex() );
-            if( stack.getItem() == this )
-            {
-                list.add( stack );
-            }
-        }
+        for( Colour color : Colour.VALUES ) list.add( create( -1, null, color.getHex() ) );
+    }
+
+    public static ItemStack createFromIDAndColour( int id, String label, int colour )
+    {
+        return ComputerCraft.Items.disk.create( id, label, colour );
     }
 
     @Nonnull
-    public static ItemStack createFromIDAndColour( int id, String label, int colour )
+    public ItemStack create( int id, String label, int colour )
     {
-        return ItemDiskExpanded.createFromIDAndColour( id, label, colour );
-    }
-    
-    public int getDiskID( @Nonnull ItemStack stack )
-    {
-        int damage = stack.getItemDamage();
-        if( damage > 0 )
-        {
-            return damage;
-        }
-        return -1;
+        ItemStack stack = new ItemStack( this, 1 );
+
+        NBTTagCompound nbt = stack.getTagCompound();
+        if( nbt == null ) stack.setTagCompound( nbt = new NBTTagCompound() );
+        nbt.setInteger( "color", colour );
+
+        setDiskID( stack, id );
+        setLabel( stack, label );
+        return stack;
     }
 
-    protected void setDiskID( @Nonnull ItemStack stack, int id )
+    public int getDiskID( @Nonnull ItemStack stack )
     {
-        if( id > 0 ) {
-            stack.setItemDamage( id );
-        } else {
-            stack.setItemDamage( 0 );
+        NBTTagCompound nbt = stack.getTagCompound();
+        return nbt != null && nbt.hasKey( "disk_id" ) ? nbt.getInteger( "disk_id" ) : -1;
+    }
+
+    private void setDiskID( @Nonnull ItemStack stack, int id )
+    {
+        if( id >= 0 )
+        {
+            NBTTagCompound nbt = stack.getTagCompound();
+            if( nbt == null ) stack.setTagCompound( nbt = new NBTTagCompound() );
+            nbt.setInteger( "disk_id", id );
         }
     }
 
@@ -82,10 +85,7 @@ public class ItemDiskLegacy extends Item
         if( flag.isAdvanced() )
         {
             int id = getDiskID( stack );
-            if( id >= 0 )
-            {
-                list.add( "(Disk ID: " + id + ")" );
-            }
+            if( id >= 0 ) list.add( "(Disk ID: " + id + ")" );
         }
     }
 
@@ -94,13 +94,9 @@ public class ItemDiskLegacy extends Item
     @Override
     public String getLabel( @Nonnull ItemStack stack )
     {
-        if( stack.hasDisplayName() )
-        {
-            return stack.getDisplayName();
-        }
-        return null;
+        return stack.hasDisplayName() ? stack.getDisplayName() : null;
     }
-    
+
     @Override
     public boolean setLabel( @Nonnull ItemStack stack, String label )
     {
@@ -114,19 +110,19 @@ public class ItemDiskLegacy extends Item
         }
         return true;
     }
-    
+
     @Override
     public String getAudioTitle( @Nonnull ItemStack stack )
     {
         return null;
     }
-    
+
     @Override
     public SoundEvent getAudio( @Nonnull ItemStack stack )
     {
         return null;
     }
-    
+
     @Override
     public IMount createDataMount( @Nonnull ItemStack stack, @Nonnull World world )
     {
@@ -142,7 +138,8 @@ public class ItemDiskLegacy extends Item
     @Override
     public int getColour( @Nonnull ItemStack stack )
     {
-        return Colour.Blue.getHex();
+        NBTTagCompound nbt = stack.getTagCompound();
+        return nbt != null && nbt.hasKey( "color" ) ? nbt.getInteger( "color" ) : Colour.Blue.getHex();
     }
 
     @Override
@@ -154,6 +151,6 @@ public class ItemDiskLegacy extends Item
     @Override
     public ItemStack setColour( ItemStack stack, int colour )
     {
-        return ItemDiskExpanded.createFromIDAndColour( getDiskID( stack ), getLabel( stack ), colour );
+        return create( getDiskID( stack ), getLabel( stack ), colour );
     }
 }

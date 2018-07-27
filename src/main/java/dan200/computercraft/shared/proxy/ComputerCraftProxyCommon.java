@@ -26,8 +26,7 @@ import dan200.computercraft.shared.computer.items.ItemCommandComputer;
 import dan200.computercraft.shared.computer.items.ItemComputer;
 import dan200.computercraft.shared.media.common.DefaultMediaProvider;
 import dan200.computercraft.shared.media.inventory.ContainerHeldItem;
-import dan200.computercraft.shared.media.items.ItemDiskExpanded;
-import dan200.computercraft.shared.media.items.ItemDiskLegacy;
+import dan200.computercraft.shared.media.items.ItemDisk;
 import dan200.computercraft.shared.media.items.ItemPrintout;
 import dan200.computercraft.shared.media.items.ItemTreasureDisk;
 import dan200.computercraft.shared.media.recipes.DiskRecipe;
@@ -309,11 +308,8 @@ public abstract class ComputerCraftProxyCommon implements IComputerCraftProxy
         
         // Items
         // Floppy Disk
-        ComputerCraft.Items.disk = new ItemDiskLegacy();
+        ComputerCraft.Items.disk = new ItemDisk();
         registry.register( ComputerCraft.Items.disk.setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "disk" ) ) );
-
-        ComputerCraft.Items.diskExpanded = new ItemDiskExpanded();
-        registry.register( ComputerCraft.Items.diskExpanded.setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "disk_expanded" ) ) );
 
         // Treasure Disk
         ComputerCraft.Items.treasureDisk = new ItemTreasureDisk();
@@ -344,7 +340,7 @@ public abstract class ComputerCraftProxyCommon implements IComputerCraftProxy
         ItemStack redstone = new ItemStack( Items.REDSTONE, 1 );
         for( int colour = 0; colour < 16; ++colour )
         {
-            ItemStack disk = ItemDiskLegacy.createFromIDAndColour( -1, null, Colour.values()[ colour ].getHex() );
+            ItemStack disk = ItemDisk.createFromIDAndColour( -1, null, Colour.values()[ colour ].getHex() );
             ItemStack dye = new ItemStack( Items.DYE, 1, colour );
 
             int diskIdx = 0;
@@ -353,7 +349,7 @@ public abstract class ComputerCraftProxyCommon implements IComputerCraftProxy
             {
                 if( colour != otherColour )
                 {
-                    disks[ diskIdx++ ] = ItemDiskLegacy.createFromIDAndColour( -1, null, Colour.values()[ otherColour ].getHex() );
+                    disks[ diskIdx++ ] = ItemDisk.createFromIDAndColour( -1, null, Colour.values()[ otherColour ].getHex() );
                 }
             }
 
@@ -429,10 +425,6 @@ public abstract class ComputerCraftProxyCommon implements IComputerCraftProxy
             else if( key.equalsIgnoreCase( "CC-Cable" ) )
             {
                 mapping.remap( Item.getItemFromBlock( ComputerCraft.Blocks.cable ) );
-            }
-            else if( key.equalsIgnoreCase( "diskExpanded" ) )
-            {
-                mapping.remap( ComputerCraft.Items.diskExpanded );
             }
             else if( key.equalsIgnoreCase( "treasureDisk" ) )
             {

@@ -21,7 +21,7 @@ import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.IComputer;
 import dan200.computercraft.shared.computer.items.ItemComputer;
 import dan200.computercraft.shared.media.inventory.ContainerHeldItem;
-import dan200.computercraft.shared.media.items.ItemDiskLegacy;
+import dan200.computercraft.shared.media.items.ItemDisk;
 import dan200.computercraft.shared.media.items.ItemPrintout;
 import dan200.computercraft.shared.network.ComputerCraftPacket;
 import dan200.computercraft.shared.peripheral.diskdrive.TileDiskDrive;
@@ -125,7 +125,6 @@ public class ComputerCraftProxyClient extends ComputerCraftProxyCommon
         registerItemModel( ComputerCraft.Blocks.wiredModemFull, "wired_modem_full" );
 
         registerItemModel( ComputerCraft.Items.disk, "disk" );
-        registerItemModel( ComputerCraft.Items.diskExpanded, "disk_expanded" );
         registerItemModel( ComputerCraft.Items.treasureDisk, "treasure_disk" );
         registerItemModel( ComputerCraft.Items.printout, 0, "printout" );
         registerItemModel( ComputerCraft.Items.printout, 1, "pages" );
@@ -209,7 +208,6 @@ public class ComputerCraftProxyClient extends ComputerCraftProxyCommon
 
         // Setup
         mc.getItemColors().registerItemColorHandler( new DiskColorHandler( ComputerCraft.Items.disk ), ComputerCraft.Items.disk );
-        mc.getItemColors().registerItemColorHandler( new DiskColorHandler( ComputerCraft.Items.diskExpanded ), ComputerCraft.Items.diskExpanded );
 
         mc.getItemColors().registerItemColorHandler( ( stack, layer ) ->
         {
@@ -599,9 +597,9 @@ public class ComputerCraftProxyClient extends ComputerCraftProxyCommon
     @SideOnly(Side.CLIENT)
     private static class DiskColorHandler implements IItemColor
     {
-        private final ItemDiskLegacy disk;
+        private final ItemDisk disk;
 
-        private DiskColorHandler( ItemDiskLegacy disk )
+        private DiskColorHandler( ItemDisk disk )
         {
             this.disk = disk;
         }

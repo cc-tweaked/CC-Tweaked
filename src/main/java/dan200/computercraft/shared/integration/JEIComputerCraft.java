@@ -4,7 +4,7 @@ import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.pocket.IPocketUpgrade;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
-import dan200.computercraft.shared.media.items.ItemDiskLegacy;
+import dan200.computercraft.shared.media.items.ItemDisk;
 import dan200.computercraft.shared.pocket.items.ItemPocketComputer;
 import dan200.computercraft.shared.turtle.items.ITurtleItem;
 import mezz.jei.api.IModPlugin;
@@ -28,7 +28,6 @@ public class JEIComputerCraft implements IModPlugin
         subtypeRegistry.registerSubtypeInterpreter( ComputerCraft.Items.pocketComputer, pocketSubtype );
 
         subtypeRegistry.registerSubtypeInterpreter( ComputerCraft.Items.disk, diskSubtype );
-        subtypeRegistry.registerSubtypeInterpreter( ComputerCraft.Items.diskExpanded, diskSubtype );
     }
 
     @Override
@@ -88,9 +87,9 @@ public class JEIComputerCraft implements IModPlugin
      */
     private static final ISubtypeInterpreter diskSubtype = stack -> {
         Item item = stack.getItem();
-        if( !(item instanceof ItemDiskLegacy) ) return "";
+        if( !(item instanceof ItemDisk) ) return "";
 
-        ItemDiskLegacy disk = (ItemDiskLegacy) item;
+        ItemDisk disk = (ItemDisk) item;
 
         int colour = disk.getColour( stack );
         return colour == -1 ? "" : String.format( "%06x", colour );

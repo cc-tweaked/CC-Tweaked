@@ -29,8 +29,6 @@ import dan200.computercraft.core.filesystem.FileMount;
 import dan200.computercraft.core.filesystem.JarMount;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.core.tracking.Tracking;
-import dan200.computercraft.shared.command.CommandComputer;
-import dan200.computercraft.shared.command.CommandComputerCraft;
 import dan200.computercraft.shared.common.DefaultBundledRedstoneProvider;
 import dan200.computercraft.shared.computer.blocks.BlockCommandComputer;
 import dan200.computercraft.shared.computer.blocks.BlockComputer;
@@ -39,8 +37,7 @@ import dan200.computercraft.shared.computer.core.ClientComputerRegistry;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.computer.core.ServerComputerRegistry;
-import dan200.computercraft.shared.media.items.ItemDiskExpanded;
-import dan200.computercraft.shared.media.items.ItemDiskLegacy;
+import dan200.computercraft.shared.media.items.ItemDisk;
 import dan200.computercraft.shared.media.items.ItemPrintout;
 import dan200.computercraft.shared.media.items.ItemTreasureDisk;
 import dan200.computercraft.shared.network.ComputerCraftPacket;
@@ -188,8 +185,7 @@ public class ComputerCraft
 
     public static class Items
     {
-        public static ItemDiskLegacy disk;
-        public static ItemDiskExpanded diskExpanded;
+        public static ItemDisk disk;
         public static ItemPrintout printout;
         public static ItemTreasureDisk treasureDisk;
         public static ItemPocketComputer pocketComputer;

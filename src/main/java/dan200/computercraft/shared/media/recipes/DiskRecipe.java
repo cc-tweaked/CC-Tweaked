@@ -6,7 +6,7 @@
 
 package dan200.computercraft.shared.media.recipes;
 
-import dan200.computercraft.shared.media.items.ItemDiskLegacy;
+import dan200.computercraft.shared.media.items.ItemDisk;
 import dan200.computercraft.shared.util.Colour;
 import dan200.computercraft.shared.util.ColourTracker;
 import dan200.computercraft.shared.util.ColourUtils;
@@ -81,7 +81,7 @@ public class DiskRecipe extends IForgeRegistryEntry.Impl<IRecipe> implements IRe
             }
         }
 
-        return ItemDiskLegacy.createFromIDAndColour( -1, null, tracker.hasColour() ? tracker.getColour() : Colour.Blue.getHex() );
+        return ItemDisk.createFromIDAndColour( -1, null, tracker.hasColour() ? tracker.getColour() : Colour.Blue.getHex() );
     }
 
     @Override
@@ -100,7 +100,7 @@ public class DiskRecipe extends IForgeRegistryEntry.Impl<IRecipe> implements IRe
     @Override
     public ItemStack getRecipeOutput()
     {
-        return ItemDiskLegacy.createFromIDAndColour( -1, null, Colour.Blue.getHex() );
+        return ItemDisk.createFromIDAndColour( -1, null, Colour.Blue.getHex() );
     }
 
     @Nonnull
