@@ -12,6 +12,7 @@ import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.shared.media.items.ItemPrintout;
 import dan200.computercraft.shared.peripheral.PeripheralType;
 import dan200.computercraft.shared.peripheral.common.TilePeripheralBase;
+import dan200.computercraft.shared.util.IDefaultInventory;
 import dan200.computercraft.shared.util.InventoryUtil;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.item.EntityItem;
@@ -40,8 +41,7 @@ import javax.annotation.Nullable;
 
 import static net.minecraftforge.items.CapabilityItemHandler.ITEM_HANDLER_CAPABILITY;
 
-public class TilePrinter extends TilePeripheralBase
-    implements ISidedInventory
+public class TilePrinter extends TilePeripheralBase implements ISidedInventory, IDefaultInventory
 {
     // Statics
 
@@ -300,49 +300,10 @@ public class TilePrinter extends TilePeripheralBase
         }
     }
 
-    @Override    
-    public int getInventoryStackLimit()
-    {
-        return 64;
-    }
-
-    @Override    
-    public void openInventory( @Nonnull EntityPlayer player )
-    {
-    }
-    
-    @Override    
-    public void closeInventory( @Nonnull EntityPlayer player )
-    {
-    }
-
-    @Override
-    public boolean isItemValidForSlot( int slot, @Nonnull ItemStack itemstack )
-    {
-        return true;
-    }
-
     @Override
     public boolean isUsableByPlayer( @Nonnull EntityPlayer player )
     {
         return isUsable( player, false );
-    }
-
-    @Override
-    public int getFieldCount()
-    {
-        return 0;
-    }
-
-    @Override
-    public int getField(int id)
-    {
-        return 0;
-    }
-
-    @Override
-    public void setField(int id, int value)
-    {
     }
 
     // ISidedInventory implementation

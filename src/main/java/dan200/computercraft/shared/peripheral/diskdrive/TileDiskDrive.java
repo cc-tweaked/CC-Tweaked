@@ -16,14 +16,16 @@ import dan200.computercraft.shared.common.TileGeneric;
 import dan200.computercraft.shared.peripheral.PeripheralType;
 import dan200.computercraft.shared.peripheral.common.IPeripheralTile;
 import dan200.computercraft.shared.peripheral.common.PeripheralItemFactory;
+import dan200.computercraft.shared.util.IDefaultInventory;
 import dan200.computercraft.shared.util.InventoryUtil;
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.*;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
+import net.minecraft.util.ITickable;
+import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
@@ -40,7 +42,7 @@ import java.util.Set;
 
 import static net.minecraftforge.items.CapabilityItemHandler.ITEM_HANDLER_CAPABILITY;
 
-public class TileDiskDrive extends TileGeneric implements IInventory, IPeripheralTile, ITickable
+public class TileDiskDrive extends TileGeneric implements IDefaultInventory, IPeripheralTile, ITickable
 {
     private static class MountInfo
     {
@@ -156,6 +158,8 @@ public class TileDiskDrive extends TileGeneric implements IInventory, IPeriphera
             m_diskStack = new ItemStack( tag.getCompoundTag( "item" ) );
             m_diskMount = null;
         }
+
+        label = tag.hasKey( "label" ) ? tag.getString( "label" ) : null;
     }
 
     @Nonnull
@@ -164,6 +168,7 @@ public class TileDiskDrive extends TileGeneric implements IInventory, IPeriphera
     {
         tag = super.writeToNBT( tag );
         if( !m_diskStack.isEmpty() ) tag.setTag( "item", m_diskStack.writeToNBT( new NBTTagCompound() ) );
+        if( label != null ) tag.setString( "label", label );
         return tag;
     }
 
@@ -368,28 +373,6 @@ public class TileDiskDrive extends TileGeneric implements IInventory, IPeriphera
     }
 
     @Override
-    public int getInventoryStackLimit()
-    {
-        return 64;
-    }
-
-    @Override
-    public void openInventory( @Nonnull EntityPlayer player )
-    {
-    }
-
-    @Override
-    public void closeInventory( @Nonnull EntityPlayer player )
-    {
-    }
-
-    @Override
-    public boolean isItemValidForSlot( int i, @Nonnull ItemStack itemstack )
-    {
-        return true;
-    }
-
-    @Override
     public boolean isUsableByPlayer( @Nonnull EntityPlayer player )
     {
         return isUsable( player, false );
@@ -402,23 +385,6 @@ public class TileDiskDrive extends TileGeneric implements IInventory, IPeriphera
         {
             setInventorySlotContents( 0, ItemStack.EMPTY );
         }
-    }
-
-    @Override
-    public int getFieldCount()
-    {
-        return 0;
-    }
-
-    @Override
-    public int getField( int id )
-    {
-        return 0;
-    }
-
-    @Override
-    public void setField( int id, int value )
-    {
     }
 
     // IPeripheralTile implementation
