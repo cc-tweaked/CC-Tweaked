@@ -26,7 +26,7 @@ public class ItemPrintoutRenderer
     public void onRenderInHand( RenderSpecificHandEvent event )
     {
         ItemStack stack = event.getItemStack();
-        if( stack.getItem() != ComputerCraft.Items.printout ) return;
+        if( !(stack.getItem() instanceof ItemPrintout) ) return;
 
         event.setCanceled( true );
 
@@ -147,7 +147,7 @@ public class ItemPrintoutRenderer
     public void onRenderInFrame( RenderItemInFrameEvent event )
     {
         ItemStack stack = event.getItem();
-        if( stack.getItem() != ComputerCraft.Items.printout ) return;
+        if( !(stack.getItem() instanceof ItemPrintout) ) return;
 
         event.setCanceled( true );
 
@@ -167,7 +167,7 @@ public class ItemPrintoutRenderer
     private static void drawPrintout( ItemStack stack )
     {
         int pages = ItemPrintout.getPageCount( stack );
-        boolean book = ItemPrintout.getType( stack ) == ItemPrintout.Type.Book;
+        boolean book = stack.getItem() == ComputerCraft.Items.printedBook;
 
         double width = LINE_MAX_LENGTH * FONT_WIDTH + X_TEXT_MARGIN * 2;
         double height = LINES_PER_PAGE * FONT_HEIGHT + Y_TEXT_MARGIN * 2;

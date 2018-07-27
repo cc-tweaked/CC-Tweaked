@@ -308,8 +308,14 @@ public abstract class ComputerCraftProxyCommon implements IComputerCraftProxy
         registry.register( ComputerCraft.Items.treasureDisk.setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "treasure_disk" ) ) );
 
         // Printout
-        ComputerCraft.Items.printout = new ItemPrintout();
-        registry.register( ComputerCraft.Items.printout.setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "printout" ) ) );
+        ComputerCraft.Items.printedPage = new ItemPrintout();
+        registry.register( ComputerCraft.Items.printedPage.setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "printed_page" ) ) );
+
+        ComputerCraft.Items.printedPages = new ItemPrintout();
+        registry.register( ComputerCraft.Items.printedPages.setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "printed_pages" ) ) );
+
+        ComputerCraft.Items.printedBook = new ItemPrintout();
+        registry.register( ComputerCraft.Items.printedBook.setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "printed_book" ) ) );
 
         // Pocket computer
         ComputerCraft.Items.pocketComputerNormal = new ItemPocketComputer( ComputerFamily.Normal );

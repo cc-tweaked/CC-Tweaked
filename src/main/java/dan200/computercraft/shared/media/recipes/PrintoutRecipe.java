@@ -6,9 +6,9 @@
 
 package dan200.computercraft.shared.media.recipes;
 
+import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.media.items.ItemPrintout;
 import net.minecraft.inventory.InventoryCrafting;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.item.crafting.Ingredient;
@@ -69,7 +69,7 @@ public class PrintoutRecipe extends IForgeRegistryEntry.Impl<IRecipe> implements
                 ItemStack stack = inventory.getStackInRowAndColumn(x, y);
                 if( !stack.isEmpty() )
                 {
-                    if( stack.getItem() instanceof ItemPrintout && ItemPrintout.getType( stack ) != ItemPrintout.Type.Book )
+                    if( stack.getItem() instanceof ItemPrintout && stack.getItem() != ComputerCraft.Items.printedBook )
                     {
                         if( printouts == null )
                         {

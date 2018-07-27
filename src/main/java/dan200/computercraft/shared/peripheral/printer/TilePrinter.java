@@ -465,7 +465,7 @@ public class TilePrinter extends TilePeripheralBase
     private boolean isPaper( @Nonnull ItemStack stack )
     {
         Item item = stack.getItem();
-        return ( item == Items.PAPER || (item instanceof ItemPrintout && ItemPrintout.getType( stack ) == ItemPrintout.Type.Single) );
+        return item == Items.PAPER || item == ComputerCraft.Items.printedPage;
     }
 
     private boolean canInputPage()

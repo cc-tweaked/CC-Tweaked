@@ -1,9 +1,9 @@
 {
     "type": "computercraft:impostor_shapeless",
     "ingredients": [
-        { "item": "computercraft:printout", "data": 0 },
-        { "item": "computercraft:printout", "data": 0 },
+        { "item": "computercraft:printed_page" },
+        { "item": "computercraft:printed_page" },
         { "type": "forge:ore_dict", "ore": "string" }
     ],
-    "result": { "item": "computercraft:printout", "data": 1 }
+    "result": { "item": "computercraft:printed_pages" }
 }

@@ -188,7 +188,9 @@ public class ComputerCraft
     public static class Items
     {
         public static ItemDisk disk;
-        public static ItemPrintout printout;
+        public static ItemPrintout printedPage;
+        public static ItemPrintout printedPages;
+        public static ItemPrintout printedBook;
         public static ItemTreasureDisk treasureDisk;
         public static ItemPocketComputer pocketComputerNormal;
         public static ItemPocketComputer pocketComputerAdvanced;

@@ -110,9 +110,9 @@ public class ComputerCraftProxyClient extends ComputerCraftProxyCommon
 
         registerItemModel( ComputerCraft.Items.disk, "disk" );
         registerItemModel( ComputerCraft.Items.treasureDisk, "treasure_disk" );
-        registerItemModel( ComputerCraft.Items.printout, 0, "printout" );
-        registerItemModel( ComputerCraft.Items.printout, 1, "pages" );
-        registerItemModel( ComputerCraft.Items.printout, 2, "book" );
+        registerItemModel( ComputerCraft.Items.printedPage, 0, "printout" );
+        registerItemModel( ComputerCraft.Items.printedPages, 0, "pages" );
+        registerItemModel( ComputerCraft.Items.printedBook, 0, "book" );
 
         registerItemModel( ComputerCraft.Items.pocketComputerNormal, new PocketMeshDefinition( "normal" ), new String[]{
             "pocket_computer_normal", "pocket_computer_normal_on", "pocket_computer_normal_blinking",

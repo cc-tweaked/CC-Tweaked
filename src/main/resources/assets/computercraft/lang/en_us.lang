@@ -20,9 +20,9 @@ tile.computercraft:turtle_advanced.upgraded_twice.name=Advanced %s %s Turtle
 
 item.computercraft:disk.name=Floppy Disk
 item.computercraft:treasure_disk.name=Floppy Disk
-item.computercraft:page.name=Printed Page
-item.computercraft:pages.name=Printed Pages
-item.computercraft:book.name=Printed Book
+item.computercraft:printed_page.name=Printed Page
+item.computercraft:printed_pages.name=Printed Pages
+item.computercraft:printed_book.name=Printed Book
 
 item.computercraft:pocket_computer_normal.name=Pocket Computer
 item.computercraft:pocket_computer_normal.upgraded.name=%s Pocket Computer

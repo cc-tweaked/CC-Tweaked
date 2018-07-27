@@ -6,6 +6,7 @@
 
 package dan200.computercraft.client.gui;
 
+import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.core.terminal.TextBuffer;
 import dan200.computercraft.shared.media.inventory.ContainerHeldItem;
 import dan200.computercraft.shared.media.items.ItemPrintout;
@@ -39,7 +40,7 @@ public class GuiPrintout extends GuiContainer
 
         m_page = 0;
         m_pages = Math.max( m_text.length / ItemPrintout.LINES_PER_PAGE, 1 );
-        m_book = ItemPrintout.getType( container.getStack() ) == ItemPrintout.Type.Book;
+        m_book = container.getStack().getItem() == ComputerCraft.Items.printedBook;
     }
 
     @Override
