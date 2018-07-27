@@ -7,7 +7,7 @@
         "has_advanced": {
             "trigger": "minecraft:inventory_changed",
             "conditions": {
-                "items": [ { "item": "computercraft:computer", "data": 16384 } ]
+                "items": [ { "item": "computercraft:computer_advanced" } ]
             }
         },
         "has_the_recipe": {

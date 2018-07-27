@@ -15,7 +15,6 @@ import dan200.computercraft.shared.computer.blocks.TileComputer;
 import dan200.computercraft.shared.computer.core.ClientComputer;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.IComputer;
-import dan200.computercraft.shared.computer.items.ItemComputer;
 import dan200.computercraft.shared.media.inventory.ContainerHeldItem;
 import dan200.computercraft.shared.media.items.ItemDisk;
 import dan200.computercraft.shared.media.items.ItemPrintout;
@@ -94,20 +93,10 @@ public class ComputerCraftProxyClient extends ComputerCraftProxyCommon
     public void registerModels( ModelRegistryEvent event )
     {
         // Register item models
-        registerItemModel( ComputerCraft.Blocks.computer, new ItemMeshDefinition()
-        {
-            private ModelResourceLocation computer = new ModelResourceLocation( "computercraft:computer", "inventory" );
-            private ModelResourceLocation advanced_computer = new ModelResourceLocation( "computercraft:advanced_computer", "inventory" );
-
-            @Nonnull
-            @Override
-            public ModelResourceLocation getModelLocation( @Nonnull ItemStack stack )
-            {
-                ItemComputer itemComputer = (ItemComputer) stack.getItem();
-                ComputerFamily family = itemComputer.getFamily( stack.getItemDamage() );
-                return (family == ComputerFamily.Advanced) ? advanced_computer : computer;
-            }
-        }, new String[]{ "computer", "advanced_computer" } );
+        registerItemModel( ComputerCraft.Blocks.computerNormal, 0, "computer_normal" );
+        registerItemModel( ComputerCraft.Blocks.computerAdvanced, 0, "computer_advanced" );
+        registerItemModel( ComputerCraft.Blocks.computerCommand, 0, "computer_command" );
+        
         registerItemModel( ComputerCraft.Blocks.peripheral, 0, "peripheral" );
         registerItemModel( ComputerCraft.Blocks.peripheral, 1, "wireless_modem" );
         registerItemModel( ComputerCraft.Blocks.peripheral, 2, "monitor" );
@@ -115,7 +104,6 @@ public class ComputerCraftProxyClient extends ComputerCraftProxyCommon
         registerItemModel( ComputerCraft.Blocks.peripheral, 4, "advanced_monitor" );
         registerItemModel( ComputerCraft.Blocks.cable, 0, "cable" );
         registerItemModel( ComputerCraft.Blocks.cable, 1, "wired_modem" );
-        registerItemModel( ComputerCraft.Blocks.commandComputer, "command_computer" );
         registerItemModel( ComputerCraft.Blocks.advancedModem, "advanced_modem" );
         registerItemModel( ComputerCraft.Blocks.peripheral, 5, "speaker" );
         registerItemModel( ComputerCraft.Blocks.wiredModemFull, "wired_modem_full" );
@@ -177,15 +165,7 @@ public class ComputerCraftProxyClient extends ComputerCraftProxyCommon
     {
         final ModelResourceLocation res = new ModelResourceLocation( "computercraft:" + name, "inventory" );
         ModelBakery.registerItemVariants( item, new ResourceLocation( "computercraft", name ) );
-        ModelLoader.setCustomMeshDefinition( item, new ItemMeshDefinition()
-        {
-            @Nonnull
-            @Override
-            public ModelResourceLocation getModelLocation( @Nonnull ItemStack stack )
-            {
-                return res;
-            }
-        } );
+        ModelLoader.setCustomMeshDefinition( item, stack -> res );
     }
 
     private void registerItemModel( Block block, ItemMeshDefinition definition, String[] names )

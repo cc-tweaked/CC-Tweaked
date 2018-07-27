@@ -1,7 +1,7 @@
 {
     "parent": "minecraft:recipes/root",
     "rewards": {
-        "recipes": [ "computercraft:advanced_computer" ]
+        "recipes": [ "computercraft:computer_advanced" ]
     },
     "criteria": {
         "has_redstone": {
@@ -12,7 +12,7 @@
         },
         "has_the_recipe": {
             "trigger": "minecraft:recipe_unlocked",
-            "conditions": { "recipe": "computercraft:advanced_computer" }
+            "conditions": { "recipe": "computercraft:computer_advanced" }
         }
     },
     "requirements": [

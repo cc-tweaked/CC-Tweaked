@@ -23,7 +23,7 @@ import java.io.IOException;
 
 public class GuiComputer extends GuiContainer
 {
-    private static final ResourceLocation background = new ResourceLocation( "computercraft", "textures/gui/corners.png" );
+    private static final ResourceLocation background = new ResourceLocation( "computercraft", "textures/gui/corners_normal.png" );
     private static final ResourceLocation backgroundAdvanced = new ResourceLocation( "computercraft", "textures/gui/corners_advanced.png" );
     private static final ResourceLocation backgroundCommand = new ResourceLocation( "computercraft", "textures/gui/corners_command.png" );
 

@@ -7,7 +7,7 @@
     ],
     "key": {
         "#": { "type": "forge:ore_dict", "ore": "ingotIron" },
-        "C": { "type": "computercraft:computer", "item": "computercraft:computer", "family": "Normal" },
+        "C": { "item": "computercraft:computer_normal" },
         "I": { "type": "forge:ore_dict", "ore": "chestWood" }
     },
     "family": "Normal"

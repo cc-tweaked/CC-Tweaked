@@ -7,58 +7,39 @@
 package dan200.computercraft.shared.computer.items;
 
 import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.shared.computer.blocks.BlockComputer;
 import dan200.computercraft.shared.computer.blocks.IComputerTile;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
-import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 public class ItemComputer extends ItemComputerBase
 {
-    public static int HIGHEST_DAMAGE_VALUE_ID = 16382;
+    private final ComputerFamily family;
 
-    public ItemComputer( Block block )
+    public ItemComputer( BlockComputer block )
     {
         super( block );
+        family = block.getFamily( 0 );
+
         setMaxStackSize( 64 );
-        setHasSubtypes( true );
         setTranslationKey( "computercraft:computer" );
         setCreativeTab( ComputerCraft.mainCreativeTab );
     }
 
-    public ItemStack create( int id, String label, ComputerFamily family )
+    public ItemStack create( int id, String label )
     {
-        // Ignore types we can't handle
-        if( family != ComputerFamily.Normal && family != ComputerFamily.Advanced )
-        {
-            return null;
-        }
-
-        // Build the damage
-        int damage = 0;
-        if( id >= 0 && id <= ItemComputer.HIGHEST_DAMAGE_VALUE_ID )
-        {
-            damage = id + 1;
-        }
-        if( family == ComputerFamily.Advanced )
-        {
-            damage += 0x4000;
-        }
-
         // Return the stack
-        ItemStack result = new ItemStack( this, 1, damage );
-        if( id > ItemComputer.HIGHEST_DAMAGE_VALUE_ID )
+        ItemStack result = new ItemStack( this );
+        if( id >= 0 )
         {
             NBTTagCompound nbt = new NBTTagCompound();
             nbt.setInteger( "computerID", id );
@@ -69,14 +50,6 @@ public class ItemComputer extends ItemComputerBase
             result.setStackDisplayName( label );
         }
         return result;
-    }
-
-    @Override
-    public void getSubItems( @Nullable CreativeTabs tabs, @Nonnull NonNullList<ItemStack> list )
-    {
-        if( !isInCreativeTab( tabs ) ) return;
-        list.add( ComputerItemFactory.create( -1, null, ComputerFamily.Normal ) );
-        list.add( ComputerItemFactory.create( -1, null, ComputerFamily.Advanced ) );
     }
 
     @Override
@@ -112,28 +85,6 @@ public class ItemComputer extends ItemComputerBase
         }
     }
 
-    @Nonnull
-    @Override
-    public String getTranslationKey( @Nonnull ItemStack stack )
-    {
-        switch( getFamily( stack ) )
-        {
-            case Normal:
-            default:
-            {
-                return "tile.computercraft:computer";
-            }
-            case Advanced:
-            {
-                return "tile.computercraft:advanced_computer";
-            }
-            case Command:
-            {
-                return "tile.computercraft:command_computer";
-            }
-        }
-    }
-
     // IComputerItem implementation
 
     @Override
@@ -159,10 +110,6 @@ public class ItemComputer extends ItemComputerBase
     @Override
     public ComputerFamily getFamily( int damage )
     {
-        if( (damage & 0x4000) != 0 )
-        {
-            return ComputerFamily.Advanced;
-        }
-        return ComputerFamily.Normal;
+        return family;
     }
 }

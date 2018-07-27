@@ -10,5 +10,5 @@
         "R": { "type": "forge:ore_dict", "ore": "dustRedstone" },
         "G": { "type": "forge:ore_dict", "ore": "paneGlass" }
     },
-    "result": { "item": "computercraft:computer", "data": 16384 }
+    "result": { "item": "computercraft:computer_advanced" }
 }

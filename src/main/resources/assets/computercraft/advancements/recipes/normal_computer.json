@@ -1,7 +1,7 @@
 {
     "parent": "minecraft:recipes/root",
     "rewards": {
-        "recipes": [ "computercraft:normal_computer" ]
+        "recipes": [ "computercraft:computer_normal" ]
     },
     "criteria": {
         "has_redstone": {
@@ -12,7 +12,7 @@
         },
         "has_the_recipe": {
             "trigger": "minecraft:recipe_unlocked",
-            "conditions": { "recipe": "computercraft:normal_computer" }
+            "conditions": { "recipe": "computercraft:computer_normal" }
         }
     },
     "requirements": [

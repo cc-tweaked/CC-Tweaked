@@ -1,5 +1,6 @@
-tile.computercraft:computer.name=Computer
-tile.computercraft:advanced_computer.name=Advanced Computer
+tile.computercraft:computer_normal.name=Computer
+tile.computercraft:computer_advanced.name=Advanced Computer
+tile.computercraft:computer_command.name=Command Computer
 tile.computercraft:drive.name=Disk Drive
 tile.computercraft:printer.name=Printer
 tile.computercraft:monitor.name=Monitor
@@ -7,7 +8,6 @@ tile.computercraft:advanced_monitor.name=Advanced Monitor
 tile.computercraft:wireless_modem.name=Wireless Modem
 tile.computercraft:wired_modem.name=Wired Modem
 tile.computercraft:cable.name=Networking Cable
-tile.computercraft:command_computer.name=Command Computer
 tile.computercraft:advanced_modem.name=Ender Modem
 tile.computercraft:speaker.name=Speaker
 

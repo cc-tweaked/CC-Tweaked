@@ -13,7 +13,6 @@ import dan200.computercraft.shared.computer.items.ItemComputer;
 import dan200.computercraft.shared.util.DirectionUtil;
 import net.minecraft.block.BlockHorizontal;
 import net.minecraft.block.material.Material;
-import net.minecraft.block.properties.PropertyBool;
 import net.minecraft.block.properties.PropertyDirection;
 import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.state.BlockStateContainer;
@@ -28,33 +27,42 @@ import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
+import java.util.function.Supplier;
 
 public class BlockComputer extends BlockComputerBase
 {
     public static final PropertyDirection FACING = BlockHorizontal.FACING;
-    public static final PropertyBool ADVANCED = PropertyBool.create("advanced");
     public static final PropertyEnum<ComputerState> STATE = PropertyEnum.create("state", ComputerState.class);
 
-    // Members
+    private final ComputerFamily family;
+    private final Supplier<TileComputer> factory;
     
-    public BlockComputer()
+    public BlockComputer( ComputerFamily family, Supplier<TileComputer> factory )
     {
         super( Material.ROCK );
+        this.family = family;
+        this.factory = factory;
         setHardness( 2.0f );
         setTranslationKey( "computercraft:computer" );
         setCreativeTab( ComputerCraft.mainCreativeTab );
         setDefaultState( this.blockState.getBaseState()
             .withProperty( FACING, EnumFacing.NORTH )
-            .withProperty( ADVANCED, false )
             .withProperty( STATE, ComputerState.Off )
         );
     }
 
     @Nonnull
     @Override
+    public String getTranslationKey()
+    {
+        return "tile." + getRegistryName();
+    }
+
+    @Nonnull
+    @Override
     protected BlockStateContainer createBlockState()
     {
-        return new BlockStateContainer( this, FACING, ADVANCED, STATE );
+        return new BlockStateContainer( this, FACING, STATE );
     }
 
     @Nonnull
@@ -63,55 +71,23 @@ public class BlockComputer extends BlockComputerBase
     public IBlockState getStateFromMeta( int meta )
     {
         EnumFacing dir = EnumFacing.byIndex( meta & 0x7 );
-        if( dir.getAxis() == EnumFacing.Axis.Y )
-        {
-            dir = EnumFacing.NORTH;
-        }
+        if( dir.getAxis() == EnumFacing.Axis.Y )dir = EnumFacing.NORTH;
 
-        IBlockState state = getDefaultState().withProperty( FACING, dir );
-        if( meta > 8 )
-        {
-            state = state.withProperty( ADVANCED, true );
-        }
-        else
-        {
-            state = state.withProperty( ADVANCED, false );
-        }
-        return state;
+        return getDefaultState().withProperty( FACING, dir );
     }
 
     @Override
     public int getMetaFromState( IBlockState state )
     {
-        int meta = state.getValue( FACING ).getIndex();
-        if( state.getValue( ADVANCED ) )
-        {
-            meta += 8;
-        }
-        return meta;
+        return state.getValue( FACING ).getIndex();
     }
 
     @Override
     protected IBlockState getDefaultBlockState( ComputerFamily family, EnumFacing placedSide )
     {
         IBlockState state = getDefaultState();
-        if( placedSide.getAxis() != EnumFacing.Axis.Y )
-        {
-            state = state.withProperty( FACING, placedSide );
-        }
-
-        switch( family )
-        {
-            case Normal:
-            default:
-            {
-                return state.withProperty( ADVANCED, false );
-            }
-            case Advanced:
-            {
-                return state.withProperty( ADVANCED, true );
-            }
-        }
+        if( placedSide.getAxis() != EnumFacing.Axis.Y ) state = state.withProperty( FACING, placedSide );
+        return state;
     }
 
     @Nonnull
@@ -141,23 +117,19 @@ public class BlockComputer extends BlockComputerBase
     @Override
     public ComputerFamily getFamily( int damage )
     {
-        return ((ItemComputer) Item.getItemFromBlock(this)).getFamily( damage );
+        return family;
     }
 
     @Override
     public ComputerFamily getFamily( IBlockState state )
     {
-        if( state.getValue( ADVANCED ) ) {
-            return ComputerFamily.Advanced;
-        } else {
-            return ComputerFamily.Normal;
-        }
+        return family;
     }
 
     @Override
     protected TileComputer createTile( ComputerFamily family )
     {
-        return new TileComputer();
+        return factory.get();
     }
 
     @Override

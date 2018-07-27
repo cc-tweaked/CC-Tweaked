@@ -36,20 +36,16 @@ public class ComputerItemFactory
     @Nonnull
     public static ItemStack create( int id, String label, ComputerFamily family )
     {
-        ItemComputer computer = ((ItemComputer)Item.getItemFromBlock( ComputerCraft.Blocks.computer ));
-        ItemCommandComputer commandComputer = ((ItemCommandComputer)Item.getItemFromBlock( ComputerCraft.Blocks.commandComputer ));
         switch( family )
         {
             case Normal:
+                return ((ItemComputer) Item.getItemFromBlock( ComputerCraft.Blocks.computerNormal )).create( id, label );
             case Advanced:
-            {
-                return computer.create( id, label, family );
-            }
+                return ((ItemComputer) Item.getItemFromBlock( ComputerCraft.Blocks.computerAdvanced )).create( id, label );
             case Command:
-            {
-                return commandComputer.create( id, label, family );
-            }
+                return ((ItemComputer) Item.getItemFromBlock( ComputerCraft.Blocks.computerCommand )).create( id, label );
+            default:
+                return ItemStack.EMPTY;
         }
-        return ItemStack.EMPTY;
     }
 }

@@ -10,5 +10,5 @@
         "C": { "item": "minecraft:command_block" },
         "G": { "type": "forge:ore_dict", "ore": "paneGlass" }
     },
-    "result": { "item": "computercraft:command_computer", "data": 0 }
+    "result": { "item": "computercraft:computer_command" }
 }

@@ -26,7 +26,7 @@ public class CreativeTabMain extends CreativeTabs
     @SideOnly(Side.CLIENT)
     public ItemStack createIcon()
     {
-        return new ItemStack( ComputerCraft.Blocks.computer );
+        return new ItemStack( ComputerCraft.Blocks.computerNormal );
     }
 
     @Nonnull

@@ -173,12 +173,14 @@ public class ComputerCraft
     // Blocks and Items
     public static class Blocks
     {
-        public static BlockComputer computer;
+        public static BlockComputer computerNormal;
+        public static BlockComputer computerAdvanced;
+        public static BlockCommandComputer computerCommand;
+        
         public static BlockPeripheral peripheral;
         public static BlockCable cable;
         public static BlockTurtle turtleNormal;
         public static BlockTurtle turtleAdvanced;
-        public static BlockCommandComputer commandComputer;
         public static BlockAdvancedModem advancedModem;
         public static BlockWiredModemFull wiredModemFull;
     }

@@ -22,7 +22,6 @@ import dan200.computercraft.shared.computer.blocks.TileCommandComputer;
 import dan200.computercraft.shared.computer.blocks.TileComputer;
 import dan200.computercraft.shared.computer.core.*;
 import dan200.computercraft.shared.computer.inventory.ContainerComputer;
-import dan200.computercraft.shared.computer.items.ItemCommandComputer;
 import dan200.computercraft.shared.computer.items.ItemComputer;
 import dan200.computercraft.shared.media.common.DefaultMediaProvider;
 import dan200.computercraft.shared.media.inventory.ContainerHeldItem;
@@ -251,8 +250,14 @@ public abstract class ComputerCraftProxyCommon implements IComputerCraftProxy
         IForgeRegistry<Block> registry = event.getRegistry();
 
         // Computer
-        ComputerCraft.Blocks.computer = new BlockComputer();
-        registry.register( ComputerCraft.Blocks.computer.setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "computer" ) ) );
+        ComputerCraft.Blocks.computerNormal = new BlockComputer( ComputerFamily.Normal, TileComputer::new );
+        registry.register( ComputerCraft.Blocks.computerNormal.setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "computer_normal" ) ) );
+
+        ComputerCraft.Blocks.computerAdvanced = new BlockComputer( ComputerFamily.Advanced, TileComputer::new );
+        registry.register( ComputerCraft.Blocks.computerAdvanced.setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "computer_advanced" ) ) );
+
+        ComputerCraft.Blocks.computerCommand = new BlockCommandComputer( ComputerFamily.Command, TileCommandComputer::new );
+        registry.register( ComputerCraft.Blocks.computerCommand.setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "computer_command" ) ) );
 
         // Peripheral
         ComputerCraft.Blocks.peripheral = new BlockPeripheral();
@@ -261,10 +266,6 @@ public abstract class ComputerCraftProxyCommon implements IComputerCraftProxy
         // Cable
         ComputerCraft.Blocks.cable = new BlockCable();
         registry.register( ComputerCraft.Blocks.cable.setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "cable" ) ) );
-
-        // Command Computer
-        ComputerCraft.Blocks.commandComputer = new BlockCommandComputer();
-        registry.register( ComputerCraft.Blocks.commandComputer.setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "command_computer" ) ) );
 
         // Command Computer
         ComputerCraft.Blocks.advancedModem = new BlockAdvancedModem();
@@ -281,16 +282,15 @@ public abstract class ComputerCraftProxyCommon implements IComputerCraftProxy
         IForgeRegistry<Item> registry = event.getRegistry();
 
         // Computer
-        registry.register( new ItemComputer( ComputerCraft.Blocks.computer ).setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "computer" ) ) );
+        registry.register( new ItemComputer( ComputerCraft.Blocks.computerNormal ).setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "computer_normal" ) ) );
+        registry.register( new ItemComputer( ComputerCraft.Blocks.computerAdvanced ).setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "computer_advanced" ) ) );
+        registry.register( new ItemComputer( ComputerCraft.Blocks.computerCommand ).setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "computer_command" ) ) );
 
         // Peripheral
         registry.register( new ItemPeripheral( ComputerCraft.Blocks.peripheral ).setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "peripheral" ) ) );
 
         // Cable
         registry.register( new ItemCable( ComputerCraft.Blocks.cable ).setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "cable" ) ) );
-
-        // Command Computer
-        registry.register( new ItemCommandComputer( ComputerCraft.Blocks.commandComputer ).setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "command_computer" ) ) );
 
         // Advanced modem
         registry.register( new ItemAdvancedModem( ComputerCraft.Blocks.advancedModem ).setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "advanced_modem" ) ) );
@@ -402,13 +402,13 @@ public abstract class ComputerCraftProxyCommon implements IComputerCraftProxy
     private void registerTileEntities()
     {
         // Tile Entities
-        GameRegistry.registerTileEntity( TileComputer.class, ComputerCraft.LOWER_ID + " : " + "computer" );
+        GameRegistry.registerTileEntity( TileComputer.class, ComputerCraft.LOWER_ID + " :" + "computer" ); // TODO: split into normal and advanced?
         GameRegistry.registerTileEntity( TileDiskDrive.class, ComputerCraft.LOWER_ID + " : " + "diskdrive" );
         GameRegistry.registerTileEntity( TileWirelessModem.class, ComputerCraft.LOWER_ID + " : " + "wirelessmodem" );
         GameRegistry.registerTileEntity( TileMonitor.class, ComputerCraft.LOWER_ID + " : " + "monitor" );
         GameRegistry.registerTileEntity( TilePrinter.class, ComputerCraft.LOWER_ID + " : " + "ccprinter" );
         GameRegistry.registerTileEntity( TileCable.class, ComputerCraft.LOWER_ID + " : " + "wiredmodem" );
-        GameRegistry.registerTileEntity( TileCommandComputer.class, ComputerCraft.LOWER_ID + " : " + "command_computer" );
+        GameRegistry.registerTileEntity( TileCommandComputer.class, ComputerCraft.LOWER_ID + " : " + "computer_command" );
         GameRegistry.registerTileEntity( TileAdvancedModem.class, ComputerCraft.LOWER_ID + " : " + "advanced_modem" );
         GameRegistry.registerTileEntity( TileSpeaker.class, ComputerCraft.LOWER_ID + " : " + "speaker" );
         GameRegistry.registerTileEntity( TileWiredModemFull.class, ComputerCraft.LOWER_ID + " : " + "wired_modem_full" );

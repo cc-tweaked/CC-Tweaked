@@ -1,8 +1,0 @@
-{
-    "parent": "block/orientable",
-    "textures": {
-        "front": "computercraft:blocks/command_computer_front_on",
-        "side": "computercraft:blocks/command_computer_side",
-        "top": "computercraft:blocks/command_computer_top"
-    }
-}
