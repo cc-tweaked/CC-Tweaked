@@ -241,19 +241,6 @@ public abstract class TileTurtle extends TileComputerBase implements ITurtleTile
         ComputerCraft.openTurtleGUI( player, this );
     }
 
-    @Override
-    public boolean isImmuneToExplosion( Entity exploder )
-    {
-        if( getFamily() == ComputerFamily.Advanced )
-        {
-            return true;
-        }
-        else
-        {
-            return exploder != null && (exploder instanceof EntityLivingBase || exploder instanceof EntityFireball);
-        }
-    }
-
     @Nonnull
     @Override
     public AxisAlignedBB getBounds()

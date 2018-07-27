@@ -102,11 +102,6 @@ public abstract class TileGeneric extends TileEntity
     {
     }
 
-    public boolean isImmuneToExplosion( Entity exploder )
-    {
-        return false;
-    }
-
     @Nonnull
     public AxisAlignedBB getBounds()
     {

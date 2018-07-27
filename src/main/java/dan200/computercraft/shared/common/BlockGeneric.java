@@ -172,21 +172,6 @@ public abstract class BlockGeneric extends Block implements ITileEntityProvider
         return false; // Generify me if anyone ever feels the need to change this
     }
 
-    @Override
-    public float getExplosionResistance( World world, BlockPos pos, @Nullable Entity exploder, Explosion explosion )
-    {
-        TileEntity tile = world.getTileEntity( pos );
-        if( tile != null && tile instanceof TileGeneric && tile.hasWorld() )
-        {
-            TileGeneric generic = (TileGeneric)tile;
-            if( generic.isImmuneToExplosion( exploder ) )
-            {
-                return 2000.0f;
-            }
-        }
-        return super.getExplosionResistance( world, pos, exploder, explosion );
-    }
-
     @Nonnull
     @Override
     @Deprecated

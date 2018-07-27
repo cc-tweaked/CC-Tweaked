@@ -16,17 +16,21 @@ import net.minecraft.block.properties.PropertyDirection;
 import net.minecraft.block.state.BlockFaceShape;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.projectile.EntityFireball;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumBlockRenderType;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.Explosion;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class BlockTurtle extends BlockComputerBase
 {
@@ -113,6 +117,14 @@ public class BlockTurtle extends BlockComputerBase
     protected IBlockState getDefaultBlockState( ComputerFamily family, EnumFacing placedSide )
     {
         return getDefaultState();
+    }
+
+    @Override
+    @Deprecated
+    public float getExplosionResistance( @Nullable Entity exploder)
+    {
+        return getFamily() == ComputerFamily.Advanced || exploder instanceof EntityLivingBase || exploder instanceof EntityFireball
+            ? 2000 : super.getExplosionResistance( exploder);
     }
 
     private ComputerFamily getFamily()
