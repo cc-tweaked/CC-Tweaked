@@ -11,6 +11,7 @@ import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.IComputer;
 import dan200.computercraft.shared.computer.items.ItemComputer;
 import dan200.computercraft.shared.util.DirectionUtil;
+import net.minecraft.block.BlockHorizontal;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.PropertyBool;
 import net.minecraft.block.properties.PropertyDirection;
@@ -30,13 +31,9 @@ import javax.annotation.Nonnull;
 
 public class BlockComputer extends BlockComputerBase
 {
-    // Statics
-    public static class Properties
-    {
-        public static final PropertyDirection FACING = PropertyDirection.create("facing", EnumFacing.Plane.HORIZONTAL);
-        public static final PropertyBool ADVANCED = PropertyBool.create("advanced");
-        public static final PropertyEnum<ComputerState> STATE = PropertyEnum.create("state", ComputerState.class);
-    }
+    public static final PropertyDirection FACING = BlockHorizontal.FACING;
+    public static final PropertyBool ADVANCED = PropertyBool.create("advanced");
+    public static final PropertyEnum<ComputerState> STATE = PropertyEnum.create("state", ComputerState.class);
 
     // Members
     
@@ -47,9 +44,9 @@ public class BlockComputer extends BlockComputerBase
         setTranslationKey( "computercraft:computer" );
         setCreativeTab( ComputerCraft.mainCreativeTab );
         setDefaultState( this.blockState.getBaseState()
-            .withProperty( Properties.FACING, EnumFacing.NORTH )
-            .withProperty( Properties.ADVANCED, false )
-            .withProperty( Properties.STATE, ComputerState.Off )
+            .withProperty( FACING, EnumFacing.NORTH )
+            .withProperty( ADVANCED, false )
+            .withProperty( STATE, ComputerState.Off )
         );
     }
 
@@ -57,7 +54,7 @@ public class BlockComputer extends BlockComputerBase
     @Override
     protected BlockStateContainer createBlockState()
     {
-        return new BlockStateContainer( this, Properties.FACING, Properties.ADVANCED, Properties.STATE );
+        return new BlockStateContainer( this, FACING, ADVANCED, STATE );
     }
 
     @Nonnull
@@ -71,14 +68,14 @@ public class BlockComputer extends BlockComputerBase
             dir = EnumFacing.NORTH;
         }
 
-        IBlockState state = getDefaultState().withProperty( Properties.FACING, dir );
+        IBlockState state = getDefaultState().withProperty( FACING, dir );
         if( meta > 8 )
         {
-            state = state.withProperty( Properties.ADVANCED, true );
+            state = state.withProperty( ADVANCED, true );
         }
         else
         {
-            state = state.withProperty( Properties.ADVANCED, false );
+            state = state.withProperty( ADVANCED, false );
         }
         return state;
     }
@@ -86,8 +83,8 @@ public class BlockComputer extends BlockComputerBase
     @Override
     public int getMetaFromState( IBlockState state )
     {
-        int meta = state.getValue( Properties.FACING ).getIndex();
-        if( state.getValue( Properties.ADVANCED ) )
+        int meta = state.getValue( FACING ).getIndex();
+        if( state.getValue( ADVANCED ) )
         {
             meta += 8;
         }
@@ -100,7 +97,7 @@ public class BlockComputer extends BlockComputerBase
         IBlockState state = getDefaultState();
         if( placedSide.getAxis() != EnumFacing.Axis.Y )
         {
-            state = state.withProperty( Properties.FACING, placedSide );
+            state = state.withProperty( FACING, placedSide );
         }
 
         switch( family )
@@ -108,11 +105,11 @@ public class BlockComputer extends BlockComputerBase
             case Normal:
             default:
             {
-                return state.withProperty( Properties.ADVANCED, false );
+                return state.withProperty( ADVANCED, false );
             }
             case Advanced:
             {
-                return state.withProperty( Properties.ADVANCED, true );
+                return state.withProperty( ADVANCED, true );
             }
         }
     }
@@ -130,15 +127,15 @@ public class BlockComputer extends BlockComputerBase
             {
                 if( computer.isCursorDisplayed() )
                 {
-                    return state.withProperty( Properties.STATE, ComputerState.Blinking );
+                    return state.withProperty( STATE, ComputerState.Blinking );
                 }
                 else
                 {
-                    return state.withProperty( Properties.STATE, ComputerState.On );
+                    return state.withProperty( STATE, ComputerState.On );
                 }
             }
         }
-        return state.withProperty( Properties.STATE, ComputerState.Off );
+        return state.withProperty( STATE, ComputerState.Off );
     }
 
     @Override
@@ -150,7 +147,7 @@ public class BlockComputer extends BlockComputerBase
     @Override
     public ComputerFamily getFamily( IBlockState state )
     {
-        if( state.getValue( Properties.ADVANCED ) ) {
+        if( state.getValue( ADVANCED ) ) {
             return ComputerFamily.Advanced;
         } else {
             return ComputerFamily.Normal;

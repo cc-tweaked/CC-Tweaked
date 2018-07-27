@@ -185,7 +185,7 @@ public class TileCable extends TileModemBase
     public EnumFacing getDirection()
     {
         IBlockState state = getBlockState();
-        BlockCableModemVariant modem = state.getValue( BlockCable.Properties.MODEM );
+        BlockCableModemVariant modem = state.getValue( BlockCable.MODEM );
         if( modem != BlockCableModemVariant.None )
         {
             return modem.getFacing();
@@ -200,10 +200,10 @@ public class TileCable extends TileModemBase
     public void setDirection( EnumFacing dir )
     {
         IBlockState state = getBlockState();
-        BlockCableModemVariant modem = state.getValue( BlockCable.Properties.MODEM );
+        BlockCableModemVariant modem = state.getValue( BlockCable.MODEM );
         if( modem != BlockCableModemVariant.None )
         {
-            setBlockState( state.withProperty( BlockCable.Properties.MODEM, BlockCableModemVariant.fromFacing( dir ) ) );
+            setBlockState( state.withProperty( BlockCable.MODEM, BlockCableModemVariant.fromFacing( dir ) ) );
         }
     }
 
@@ -269,7 +269,7 @@ public class TileCable extends TileModemBase
                     // Drop the modem and convert to cable
                     ((BlockGeneric) getBlockType()).dropItem( getWorld(), getPos(), PeripheralItemFactory.create( PeripheralType.WiredModem, getLabel(), 1 ) );
                     setLabel( null );
-                    setBlockState( getBlockState().withProperty( BlockCable.Properties.MODEM, BlockCableModemVariant.None ) );
+                    setBlockState( getBlockState().withProperty( BlockCable.MODEM, BlockCableModemVariant.None ) );
                     modemChanged();
                     connectionsChanged();
 

@@ -10,6 +10,7 @@ import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.peripheral.PeripheralType;
 import dan200.computercraft.shared.peripheral.common.BlockPeripheralBase;
 import dan200.computercraft.shared.peripheral.common.TilePeripheralBase;
+import net.minecraft.block.BlockDirectional;
 import net.minecraft.block.properties.PropertyBool;
 import net.minecraft.block.properties.PropertyDirection;
 import net.minecraft.block.state.BlockFaceShape;
@@ -24,11 +25,8 @@ import javax.annotation.Nonnull;
 
 public class BlockAdvancedModem extends BlockPeripheralBase
 {
-    public static class Properties
-    {
-        public static final PropertyDirection FACING = PropertyDirection.create( "facing" );
-        public static final PropertyBool ON = PropertyBool.create( "on" );
-    }
+    public static final PropertyDirection FACING = BlockDirectional.FACING;
+    public static final PropertyBool ON = PropertyBool.create( "on" );
 
     public BlockAdvancedModem()
     {
@@ -36,8 +34,8 @@ public class BlockAdvancedModem extends BlockPeripheralBase
         setTranslationKey( "computercraft:advanced_modem" );
         setCreativeTab( ComputerCraft.mainCreativeTab );
         setDefaultState( this.blockState.getBaseState()
-            .withProperty( Properties.FACING, EnumFacing.NORTH )
-            .withProperty( Properties.ON, false )
+            .withProperty( FACING, EnumFacing.NORTH )
+            .withProperty( ON, false )
         );
     }
 
@@ -45,7 +43,7 @@ public class BlockAdvancedModem extends BlockPeripheralBase
     @Override
     protected BlockStateContainer createBlockState()
     {
-        return new BlockStateContainer(this, Properties.FACING, Properties.ON );
+        return new BlockStateContainer(this, FACING, ON );
     }
 
     @Nonnull
@@ -54,15 +52,15 @@ public class BlockAdvancedModem extends BlockPeripheralBase
     public IBlockState getStateFromMeta( int meta )
     {
         IBlockState state = getDefaultState();
-        state = state.withProperty( Properties.FACING, EnumFacing.byIndex( meta ) );
-        state = state.withProperty( Properties.ON, false );
+        state = state.withProperty( FACING, EnumFacing.byIndex( meta ) );
+        state = state.withProperty( ON, false );
         return state;
     }
 
     @Override
     public int getMetaFromState( IBlockState state )
     {
-        EnumFacing dir = state.getValue( Properties.FACING );
+        EnumFacing dir = state.getValue( FACING );
         return dir.getIndex();
     }
 
@@ -83,11 +81,11 @@ public class BlockAdvancedModem extends BlockPeripheralBase
         else
         {
             anim = 0;
-            dir = state.getValue( Properties.FACING );
+            dir = state.getValue( FACING );
         }
 
-        state = state.withProperty( Properties.FACING, dir );
-        state = state.withProperty( Properties.ON, anim > 0 );
+        state = state.withProperty( FACING, dir );
+        state = state.withProperty( ON, anim > 0 );
         return state;
     }
 
@@ -95,7 +93,7 @@ public class BlockAdvancedModem extends BlockPeripheralBase
     public IBlockState getDefaultBlockState( PeripheralType type, EnumFacing placedSide )
     {
         EnumFacing dir = placedSide.getOpposite();
-        return getDefaultState().withProperty( Properties.FACING, dir );
+        return getDefaultState().withProperty( FACING, dir );
     }
 
     @Override

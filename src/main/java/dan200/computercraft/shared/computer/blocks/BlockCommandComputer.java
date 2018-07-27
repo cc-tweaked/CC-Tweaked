@@ -10,6 +10,7 @@ import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.IComputer;
 import dan200.computercraft.shared.util.DirectionUtil;
+import net.minecraft.block.BlockHorizontal;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.PropertyDirection;
 import net.minecraft.block.properties.PropertyEnum;
@@ -18,8 +19,8 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
@@ -27,15 +28,8 @@ import javax.annotation.Nonnull;
 
 public class BlockCommandComputer extends BlockComputerBase
 {
-    // Statics
-
-    public static class Properties
-    {
-        public static final PropertyDirection FACING = PropertyDirection.create("facing", EnumFacing.Plane.HORIZONTAL);
-        public static final PropertyEnum<ComputerState> STATE = PropertyEnum.create("state", ComputerState.class);
-    }
-
-    // Members
+    public static final PropertyDirection FACING = BlockHorizontal.FACING;
+    public static final PropertyEnum<ComputerState> STATE = PropertyEnum.create("state", ComputerState.class);
 
     public BlockCommandComputer()
     {
@@ -45,8 +39,8 @@ public class BlockCommandComputer extends BlockComputerBase
         setTranslationKey( "computercraft:command_computer" );
         setCreativeTab( ComputerCraft.mainCreativeTab );
         setDefaultState( this.blockState.getBaseState()
-            .withProperty( Properties.FACING, EnumFacing.NORTH )
-            .withProperty( Properties.STATE, ComputerState.Off )
+            .withProperty( FACING, EnumFacing.NORTH )
+            .withProperty( STATE, ComputerState.Off )
         );
     }
 
@@ -54,7 +48,7 @@ public class BlockCommandComputer extends BlockComputerBase
     @Override
     protected BlockStateContainer createBlockState()
     {
-        return new BlockStateContainer(this, Properties.FACING, Properties.STATE );
+        return new BlockStateContainer(this, FACING, STATE );
     }
 
     @Nonnull
@@ -67,13 +61,13 @@ public class BlockCommandComputer extends BlockComputerBase
         {
             dir = EnumFacing.NORTH;
         }
-        return getDefaultState().withProperty( Properties.FACING, dir );
+        return getDefaultState().withProperty( FACING, dir );
     }
 
     @Override
     public int getMetaFromState( IBlockState state )
     {
-        return state.getValue( Properties.FACING ).getIndex();
+        return state.getValue( FACING ).getIndex();
     }
 
     @Nonnull
@@ -89,15 +83,15 @@ public class BlockCommandComputer extends BlockComputerBase
             {
                 if( computer.isCursorDisplayed() )
                 {
-                    return state.withProperty( Properties.STATE, ComputerState.Blinking );
+                    return state.withProperty( STATE, ComputerState.Blinking );
                 }
                 else
                 {
-                    return state.withProperty( Properties.STATE, ComputerState.On );
+                    return state.withProperty( STATE, ComputerState.On );
                 }
             }
         }
-        return state.withProperty( Properties.STATE, ComputerState.Off );
+        return state.withProperty( STATE, ComputerState.Off );
     }
 
     @Override
@@ -105,7 +99,7 @@ public class BlockCommandComputer extends BlockComputerBase
     {
         if( placedSide.getAxis() != EnumFacing.Axis.Y )
         {
-            return getDefaultState().withProperty( Properties.FACING, placedSide );
+            return getDefaultState().withProperty( FACING, placedSide );
         }
         else
         {

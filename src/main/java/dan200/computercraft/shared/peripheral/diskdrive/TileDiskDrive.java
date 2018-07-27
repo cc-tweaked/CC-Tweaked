@@ -125,7 +125,7 @@ public class TileDiskDrive extends TilePeripheralBase
     public EnumFacing getDirection()
     {
         IBlockState state = getBlockState();
-        return state.getValue( BlockPeripheral.Properties.FACING );
+        return state.getValue( BlockPeripheral.FACING );
     }
 
     @Override
@@ -135,7 +135,7 @@ public class TileDiskDrive extends TilePeripheralBase
         {
             dir = EnumFacing.NORTH;
         }
-        setBlockState( getBlockState().withProperty( BlockPeripheral.Properties.FACING, dir ) );
+        setBlockState( getBlockState().withProperty( BlockPeripheral.FACING, dir ) );
     }
 
     @Override

@@ -103,7 +103,7 @@ public class TileWirelessModem extends TileModemBase
     {
         // Wireless Modem
         IBlockState state = getBlockState();
-        switch( state.getValue( BlockPeripheral.Properties.VARIANT ) )
+        switch( state.getValue( BlockPeripheral.VARIANT ) )
         {
             case WirelessModemDownOff:
             case WirelessModemDownOn:
@@ -117,7 +117,7 @@ public class TileWirelessModem extends TileModemBase
             }
             default:
             {
-                return state.getValue( BlockPeripheral.Properties.FACING );
+                return state.getValue( BlockPeripheral.FACING );
             }
         }
     }
@@ -129,22 +129,22 @@ public class TileWirelessModem extends TileModemBase
         if( dir == EnumFacing.UP )
         {
             setBlockState( getBlockState()
-                .withProperty( BlockPeripheral.Properties.VARIANT, BlockPeripheralVariant.WirelessModemUpOff )
-                .withProperty( BlockPeripheral.Properties.FACING, EnumFacing.NORTH )
+                .withProperty( BlockPeripheral.VARIANT, BlockPeripheralVariant.WirelessModemUpOff )
+                .withProperty( BlockPeripheral.FACING, EnumFacing.NORTH )
             );
         }
         else if( dir == EnumFacing.DOWN )
         {
             setBlockState( getBlockState()
-                .withProperty( BlockPeripheral.Properties.VARIANT, BlockPeripheralVariant.WirelessModemDownOff )
-                .withProperty( BlockPeripheral.Properties.FACING, EnumFacing.NORTH )
+                .withProperty( BlockPeripheral.VARIANT, BlockPeripheralVariant.WirelessModemDownOff )
+                .withProperty( BlockPeripheral.FACING, EnumFacing.NORTH )
             );
         }
         else
         {
             setBlockState( getBlockState()
-                .withProperty( BlockPeripheral.Properties.VARIANT, BlockPeripheralVariant.WirelessModemOff )
-                .withProperty( BlockPeripheral.Properties.FACING, dir )
+                .withProperty( BlockPeripheral.VARIANT, BlockPeripheralVariant.WirelessModemOff )
+                .withProperty( BlockPeripheral.FACING, dir )
             );
         }
     }

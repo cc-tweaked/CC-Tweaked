@@ -11,6 +11,7 @@ import dan200.computercraft.shared.computer.blocks.BlockComputerBase;
 import dan200.computercraft.shared.computer.blocks.TileComputerBase;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.util.DirectionUtil;
+import net.minecraft.block.BlockHorizontal;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.PropertyDirection;
 import net.minecraft.block.state.BlockFaceShape;
@@ -25,7 +26,6 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumBlockRenderType;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.Explosion;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
@@ -34,12 +34,7 @@ import javax.annotation.Nullable;
 
 public class BlockTurtle extends BlockComputerBase
 {
-    // Statics
-
-    public static class Properties
-    {
-        public static final PropertyDirection FACING = PropertyDirection.create( "facing", EnumFacing.Plane.HORIZONTAL );
-    }
+    public static final PropertyDirection FACING = BlockHorizontal.FACING;
 
     // Members
 
@@ -50,7 +45,7 @@ public class BlockTurtle extends BlockComputerBase
         setTranslationKey( "computercraft:turtle_normal" );
         setCreativeTab( ComputerCraft.mainCreativeTab );
         setDefaultState( this.blockState.getBaseState()
-            .withProperty( Properties.FACING, EnumFacing.NORTH )
+            .withProperty( FACING, EnumFacing.NORTH )
         );
     }
 
@@ -88,7 +83,7 @@ public class BlockTurtle extends BlockComputerBase
     @Override
     protected BlockStateContainer createBlockState()
     {
-        return new BlockStateContainer(this, Properties.FACING );
+        return new BlockStateContainer(this, FACING );
     }
 
     @Nonnull
@@ -110,7 +105,7 @@ public class BlockTurtle extends BlockComputerBase
     @Deprecated
     public IBlockState getActualState( @Nonnull IBlockState state, IBlockAccess world, BlockPos pos )
     {
-        return state.withProperty( Properties.FACING, getDirection( world, pos ) );
+        return state.withProperty( FACING, getDirection( world, pos ) );
     }
 
     @Override

@@ -98,7 +98,7 @@ public class TileAdvancedModem extends TileModemBase
     {
         // Wireless Modem
         IBlockState state = getBlockState();
-        return state.getValue( BlockAdvancedModem.Properties.FACING );
+        return state.getValue( BlockAdvancedModem.FACING );
     }
 
     @Override
@@ -106,7 +106,7 @@ public class TileAdvancedModem extends TileModemBase
     {
         // Wireless Modem
         setBlockState( getBlockState()
-            .withProperty( BlockAdvancedModem.Properties.FACING, dir )
+            .withProperty( BlockAdvancedModem.FACING, dir )
         );
     }
 

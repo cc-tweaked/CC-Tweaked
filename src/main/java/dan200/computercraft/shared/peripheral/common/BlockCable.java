@@ -36,19 +36,14 @@ import java.util.List;
 
 public class BlockCable extends BlockPeripheralBase
 {
-    // Statics
-
-    public static class Properties
-    {
-        public static final PropertyEnum<BlockCableModemVariant> MODEM = PropertyEnum.create( "modem", BlockCableModemVariant.class );
-        public static final PropertyEnum<BlockCableCableVariant> CABLE = PropertyEnum.create( "cable", BlockCableCableVariant.class );
-        public static final PropertyBool NORTH = PropertyBool.create( "north" );
-        public static final PropertyBool SOUTH = PropertyBool.create( "south" );
-        public static final PropertyBool EAST = PropertyBool.create( "east" );
-        public static final PropertyBool WEST = PropertyBool.create( "west" );
-        public static final PropertyBool UP = PropertyBool.create( "up" );
-        public static final PropertyBool DOWN = PropertyBool.create( "down" );
-    }
+    public static final PropertyEnum<BlockCableModemVariant> MODEM = PropertyEnum.create( "modem", BlockCableModemVariant.class );
+    public static final PropertyEnum<BlockCableCableVariant> CABLE = PropertyEnum.create( "cable", BlockCableCableVariant.class );
+    public static final PropertyBool NORTH = PropertyBool.create( "north" );
+    public static final PropertyBool SOUTH = PropertyBool.create( "south" );
+    public static final PropertyBool EAST = PropertyBool.create( "east" );
+    public static final PropertyBool WEST = PropertyBool.create( "west" );
+    public static final PropertyBool UP = PropertyBool.create( "up" );
+    public static final PropertyBool DOWN = PropertyBool.create( "down" );
 
     // Members
 
@@ -58,14 +53,14 @@ public class BlockCable extends BlockPeripheralBase
         setTranslationKey( "computercraft:cable" );
         setCreativeTab( ComputerCraft.mainCreativeTab );
         setDefaultState( this.blockState.getBaseState()
-            .withProperty( Properties.MODEM, BlockCableModemVariant.None )
-            .withProperty( Properties.CABLE, BlockCableCableVariant.NONE )
-            .withProperty( Properties.NORTH, false )
-            .withProperty( Properties.SOUTH, false )
-            .withProperty( Properties.EAST, false )
-            .withProperty( Properties.WEST, false )
-            .withProperty( Properties.UP, false )
-            .withProperty( Properties.DOWN, false )
+            .withProperty( MODEM, BlockCableModemVariant.None )
+            .withProperty( CABLE, BlockCableCableVariant.NONE )
+            .withProperty( NORTH, false )
+            .withProperty( SOUTH, false )
+            .withProperty( EAST, false )
+            .withProperty( WEST, false )
+            .withProperty( UP, false )
+            .withProperty( DOWN, false )
         );
     }
 
@@ -74,14 +69,14 @@ public class BlockCable extends BlockPeripheralBase
     protected BlockStateContainer createBlockState()
     {
         return new BlockStateContainer( this,
-            Properties.MODEM,
-            Properties.CABLE,
-            Properties.NORTH,
-            Properties.SOUTH,
-            Properties.EAST,
-            Properties.WEST,
-            Properties.UP,
-            Properties.DOWN
+            MODEM,
+            CABLE,
+            NORTH,
+            SOUTH,
+            EAST,
+            WEST,
+            UP,
+            DOWN
         );
     }
 
@@ -93,18 +88,18 @@ public class BlockCable extends BlockPeripheralBase
         IBlockState state = getDefaultState();
         if( meta < 6 )
         {
-            state = state.withProperty( Properties.CABLE, BlockCableCableVariant.NONE );
-            state = state.withProperty( Properties.MODEM, BlockCableModemVariant.fromFacing( EnumFacing.byIndex( meta ) ) );
+            state = state.withProperty( CABLE, BlockCableCableVariant.NONE );
+            state = state.withProperty( MODEM, BlockCableModemVariant.fromFacing( EnumFacing.byIndex( meta ) ) );
         }
         else if( meta < 12 )
         {
-            state = state.withProperty( Properties.CABLE, BlockCableCableVariant.ANY );
-            state = state.withProperty( Properties.MODEM, BlockCableModemVariant.fromFacing( EnumFacing.byIndex( meta - 6 ) ) );
+            state = state.withProperty( CABLE, BlockCableCableVariant.ANY );
+            state = state.withProperty( MODEM, BlockCableModemVariant.fromFacing( EnumFacing.byIndex( meta - 6 ) ) );
         }
         else if( meta == 13 )
         {
-            state = state.withProperty( Properties.CABLE, BlockCableCableVariant.ANY );
-            state = state.withProperty( Properties.MODEM, BlockCableModemVariant.None );
+            state = state.withProperty( CABLE, BlockCableCableVariant.ANY );
+            state = state.withProperty( MODEM, BlockCableModemVariant.None );
         }
         return state;
     }
@@ -113,8 +108,8 @@ public class BlockCable extends BlockPeripheralBase
     public int getMetaFromState( IBlockState state )
     {
         int meta = 0;
-        boolean cable = state.getValue( Properties.CABLE ) != BlockCableCableVariant.NONE;
-        BlockCableModemVariant modem = state.getValue( Properties.MODEM );
+        boolean cable = state.getValue( CABLE ) != BlockCableCableVariant.NONE;
+        BlockCableModemVariant modem = state.getValue( MODEM );
         if( cable && modem != BlockCableModemVariant.None )
         {
             meta = 6 + modem.getFacing().getIndex();
@@ -138,35 +133,35 @@ public class BlockCable extends BlockPeripheralBase
             case Cable:
             {
                 return getDefaultState()
-                    .withProperty( Properties.CABLE, BlockCableCableVariant.ANY )
-                    .withProperty( Properties.MODEM, BlockCableModemVariant.None );
+                    .withProperty( CABLE, BlockCableCableVariant.ANY )
+                    .withProperty( MODEM, BlockCableModemVariant.None );
             }
             case WiredModem:
             default:
             {
                 return getDefaultState()
-                    .withProperty( Properties.CABLE, BlockCableCableVariant.NONE )
-                    .withProperty( Properties.MODEM, BlockCableModemVariant.fromFacing( placedSide.getOpposite() ) );
+                    .withProperty( CABLE, BlockCableCableVariant.NONE )
+                    .withProperty( MODEM, BlockCableModemVariant.fromFacing( placedSide.getOpposite() ) );
             }
             case WiredModemWithCable:
             {
                 return getDefaultState()
-                    .withProperty( Properties.CABLE, BlockCableCableVariant.ANY )
-                    .withProperty( Properties.MODEM, BlockCableModemVariant.fromFacing( placedSide.getOpposite() ) );
+                    .withProperty( CABLE, BlockCableCableVariant.ANY )
+                    .withProperty( MODEM, BlockCableModemVariant.fromFacing( placedSide.getOpposite() ) );
             }
         }
     }
 
     public static boolean canConnectIn( IBlockState state, EnumFacing direction )
     {
-        return state.getValue( BlockCable.Properties.CABLE ) != BlockCableCableVariant.NONE
-            && state.getValue( BlockCable.Properties.MODEM ).getFacing() != direction;
+        return state.getValue( BlockCable.CABLE ) != BlockCableCableVariant.NONE
+            && state.getValue( BlockCable.MODEM ).getFacing() != direction;
     }
 
     public static boolean doesConnectVisually( IBlockState state, IBlockAccess world, BlockPos pos, EnumFacing direction )
     {
-        if( state.getValue( Properties.CABLE ) == BlockCableCableVariant.NONE ) return false;
-        if( state.getValue( Properties.MODEM ).getFacing() == direction ) return true;
+        if( state.getValue( CABLE ) == BlockCableCableVariant.NONE ) return false;
+        if( state.getValue( MODEM ).getFacing() == direction ) return true;
         return ComputerCraft.getWiredElementAt( world, pos.offset( direction ), direction.getOpposite() ) != null;
     }
 
@@ -175,30 +170,30 @@ public class BlockCable extends BlockPeripheralBase
     @Deprecated
     public IBlockState getActualState( @Nonnull IBlockState state, IBlockAccess world, BlockPos pos )
     {
-        state = state.withProperty( Properties.NORTH, doesConnectVisually( state, world, pos, EnumFacing.NORTH ) );
-        state = state.withProperty( Properties.SOUTH, doesConnectVisually( state, world, pos, EnumFacing.SOUTH ) );
-        state = state.withProperty( Properties.EAST, doesConnectVisually( state, world, pos, EnumFacing.EAST ) );
-        state = state.withProperty( Properties.WEST, doesConnectVisually( state, world, pos, EnumFacing.WEST ) );
-        state = state.withProperty( Properties.UP, doesConnectVisually( state, world, pos, EnumFacing.UP ) );
-        state = state.withProperty( Properties.DOWN, doesConnectVisually( state, world, pos, EnumFacing.DOWN ) );
+        state = state.withProperty( NORTH, doesConnectVisually( state, world, pos, EnumFacing.NORTH ) );
+        state = state.withProperty( SOUTH, doesConnectVisually( state, world, pos, EnumFacing.SOUTH ) );
+        state = state.withProperty( EAST, doesConnectVisually( state, world, pos, EnumFacing.EAST ) );
+        state = state.withProperty( WEST, doesConnectVisually( state, world, pos, EnumFacing.WEST ) );
+        state = state.withProperty( UP, doesConnectVisually( state, world, pos, EnumFacing.UP ) );
+        state = state.withProperty( DOWN, doesConnectVisually( state, world, pos, EnumFacing.DOWN ) );
 
-        if( state.getValue( Properties.CABLE ) != BlockCableCableVariant.NONE )
+        if( state.getValue( CABLE ) != BlockCableCableVariant.NONE )
         {
             BlockCableCableVariant direction = null;
-            if( state.getValue( Properties.WEST ) || state.getValue( Properties.EAST ) )
+            if( state.getValue( WEST ) || state.getValue( EAST ) )
             {
                 direction = direction == null ? BlockCableCableVariant.X_AXIS : BlockCableCableVariant.ANY;
             }
-            if( state.getValue( Properties.DOWN ) || state.getValue( Properties.UP ) )
+            if( state.getValue( DOWN ) || state.getValue( UP ) )
             {
                 direction = direction == null ? BlockCableCableVariant.Y_AXIS : BlockCableCableVariant.ANY;
             }
-            if( state.getValue( Properties.NORTH ) || state.getValue( Properties.SOUTH ) )
+            if( state.getValue( NORTH ) || state.getValue( SOUTH ) )
             {
                 direction = direction == null ? BlockCableCableVariant.Z_AXIS : BlockCableCableVariant.ANY;
             }
 
-            state = state.withProperty( Properties.CABLE, direction == null ? BlockCableCableVariant.Z_AXIS : direction );
+            state = state.withProperty( CABLE, direction == null ? BlockCableCableVariant.Z_AXIS : direction );
         }
 
         int anim;
@@ -213,14 +208,14 @@ public class BlockCable extends BlockPeripheralBase
             anim = 0;
         }
 
-        BlockCableModemVariant modem = state.getValue( Properties.MODEM );
+        BlockCableModemVariant modem = state.getValue( MODEM );
         if( modem != BlockCableModemVariant.None )
         {
             modem = BlockCableModemVariant.values()[
                 1 + 6 * anim + modem.getFacing().getIndex()
                 ];
         }
-        state = state.withProperty( Properties.MODEM, modem );
+        state = state.withProperty( MODEM, modem );
 
         return state;
     }
@@ -241,8 +236,8 @@ public class BlockCable extends BlockPeripheralBase
     @Override
     public PeripheralType getPeripheralType( IBlockState state )
     {
-        boolean cable = state.getValue( Properties.CABLE ) != BlockCableCableVariant.NONE;
-        BlockCableModemVariant modem = state.getValue( Properties.MODEM );
+        boolean cable = state.getValue( CABLE ) != BlockCableCableVariant.NONE;
+        BlockCableModemVariant modem = state.getValue( MODEM );
         if( cable && modem != BlockCableModemVariant.None )
         {
             return PeripheralType.WiredModemWithCable;
@@ -341,12 +336,12 @@ public class BlockCable extends BlockPeripheralBase
                     AxisAlignedBB bb = cable.getModemBounds();
                     if( WorldUtil.isVecInsideInclusive( bb, hit.hitVec.subtract( pos.getX(), pos.getY(), pos.getZ() ) ) )
                     {
-                        world.setBlockState( pos, state.withProperty( Properties.MODEM, BlockCableModemVariant.None ), 3 );
+                        world.setBlockState( pos, state.withProperty( MODEM, BlockCableModemVariant.None ), 3 );
                         item = PeripheralItemFactory.create( PeripheralType.WiredModem, null, 1 );
                     }
                     else
                     {
-                        world.setBlockState( pos, state.withProperty( Properties.CABLE, BlockCableCableVariant.NONE ), 3 );
+                        world.setBlockState( pos, state.withProperty( CABLE, BlockCableCableVariant.NONE ), 3 );
                         item = PeripheralItemFactory.create( PeripheralType.Cable, null, 1 );
                     }
 

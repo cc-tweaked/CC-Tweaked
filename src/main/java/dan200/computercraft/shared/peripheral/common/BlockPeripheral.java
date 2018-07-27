@@ -14,6 +14,7 @@ import dan200.computercraft.shared.peripheral.monitor.TileMonitor;
 import dan200.computercraft.shared.peripheral.printer.TilePrinter;
 import dan200.computercraft.shared.peripheral.speaker.TileSpeaker;
 import dan200.computercraft.shared.util.DirectionUtil;
+import net.minecraft.block.BlockHorizontal;
 import net.minecraft.block.properties.PropertyDirection;
 import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.state.BlockFaceShape;
@@ -35,11 +36,8 @@ import javax.annotation.Nonnull;
 
 public class BlockPeripheral extends BlockPeripheralBase
 {
-    public static class Properties
-    {
-        public static final PropertyDirection FACING = PropertyDirection.create( "facing", EnumFacing.Plane.HORIZONTAL );
-        public static final PropertyEnum<BlockPeripheralVariant> VARIANT = PropertyEnum.create( "variant", BlockPeripheralVariant.class );
-    }
+    public static final PropertyDirection FACING = BlockHorizontal.FACING;
+    public static final PropertyEnum<BlockPeripheralVariant> VARIANT = PropertyEnum.create( "variant", BlockPeripheralVariant.class );
 
     public BlockPeripheral()
     {
@@ -47,8 +45,8 @@ public class BlockPeripheral extends BlockPeripheralBase
         setTranslationKey( "computercraft:peripheral" );
         setCreativeTab( ComputerCraft.mainCreativeTab );
         setDefaultState( this.blockState.getBaseState()
-            .withProperty( Properties.FACING, EnumFacing.NORTH )
-            .withProperty( Properties.VARIANT, BlockPeripheralVariant.DiskDriveEmpty )
+            .withProperty( FACING, EnumFacing.NORTH )
+            .withProperty( VARIANT, BlockPeripheralVariant.DiskDriveEmpty )
         );
     }
 
@@ -64,7 +62,7 @@ public class BlockPeripheral extends BlockPeripheralBase
     @Override
     protected BlockStateContainer createBlockState()
     {
-        return new BlockStateContainer( this, Properties.FACING, Properties.VARIANT );
+        return new BlockStateContainer( this, FACING, VARIANT );
     }
 
     @Nonnull
@@ -75,42 +73,42 @@ public class BlockPeripheral extends BlockPeripheralBase
         IBlockState state = getDefaultState();
         if( meta >= 2 && meta <= 5 )
         {
-            state = state.withProperty( Properties.VARIANT, BlockPeripheralVariant.DiskDriveEmpty );
-            state = state.withProperty( Properties.FACING, EnumFacing.byIndex( meta ) );
+            state = state.withProperty( VARIANT, BlockPeripheralVariant.DiskDriveEmpty );
+            state = state.withProperty( FACING, EnumFacing.byIndex( meta ) );
         }
         else if( meta <= 9 )
         {
             if( meta == 0 )
             {
-                state = state.withProperty( Properties.VARIANT, BlockPeripheralVariant.WirelessModemDownOff );
-                state = state.withProperty( Properties.FACING, EnumFacing.NORTH );
+                state = state.withProperty( VARIANT, BlockPeripheralVariant.WirelessModemDownOff );
+                state = state.withProperty( FACING, EnumFacing.NORTH );
             }
             else if( meta == 1 )
             {
-                state = state.withProperty( Properties.VARIANT, BlockPeripheralVariant.WirelessModemUpOff );
-                state = state.withProperty( Properties.FACING, EnumFacing.NORTH );
+                state = state.withProperty( VARIANT, BlockPeripheralVariant.WirelessModemUpOff );
+                state = state.withProperty( FACING, EnumFacing.NORTH );
             }
             else
             {
-                state = state.withProperty( Properties.VARIANT, BlockPeripheralVariant.WirelessModemOff );
-                state = state.withProperty( Properties.FACING, EnumFacing.byIndex( meta - 4 ) );
+                state = state.withProperty( VARIANT, BlockPeripheralVariant.WirelessModemOff );
+                state = state.withProperty( FACING, EnumFacing.byIndex( meta - 4 ) );
             }
         }
         else if( meta == 10 )
         {
-            state = state.withProperty( Properties.VARIANT, BlockPeripheralVariant.Monitor );
+            state = state.withProperty( VARIANT, BlockPeripheralVariant.Monitor );
         }
         else if( meta == 11 )
         {
-            state = state.withProperty( Properties.VARIANT, BlockPeripheralVariant.PrinterEmpty );
+            state = state.withProperty( VARIANT, BlockPeripheralVariant.PrinterEmpty );
         }
         else if( meta == 12 )
         {
-            state = state.withProperty( Properties.VARIANT, BlockPeripheralVariant.AdvancedMonitor );
+            state = state.withProperty( VARIANT, BlockPeripheralVariant.AdvancedMonitor );
         }
         else if (meta == 13)
         {
-            state = state.withProperty( Properties.VARIANT, BlockPeripheralVariant.Speaker);
+            state = state.withProperty( VARIANT, BlockPeripheralVariant.Speaker);
         }
         return state;
     }
@@ -119,12 +117,12 @@ public class BlockPeripheral extends BlockPeripheralBase
     public int getMetaFromState( IBlockState state )
     {
         int meta = 0;
-        BlockPeripheralVariant variant = state.getValue( Properties.VARIANT );
+        BlockPeripheralVariant variant = state.getValue( VARIANT );
         switch( variant.getPeripheralType() )
         {
             case DiskDrive:
             {
-                EnumFacing dir = state.getValue( Properties.FACING );
+                EnumFacing dir = state.getValue( FACING );
                 if( dir.getAxis() == EnumFacing.Axis.Y ) {
                     dir = EnumFacing.NORTH;
                 }
@@ -149,7 +147,7 @@ public class BlockPeripheral extends BlockPeripheralBase
                     }
                     default:
                     {
-                        EnumFacing dir = state.getValue( Properties.FACING );
+                        EnumFacing dir = state.getValue( FACING );
                         meta = dir.getIndex() + 4;
                         break;
                     }
@@ -197,8 +195,8 @@ public class BlockPeripheral extends BlockPeripheralBase
         else
         {
             anim = 0;
-            dir = state.getValue( Properties.FACING );
-            switch( state.getValue( Properties.VARIANT ) )
+            dir = state.getValue( FACING );
+            switch( state.getValue( VARIANT ) )
             {
                 case WirelessModemDownOff:
                 case WirelessModemDownOn:
@@ -220,23 +218,23 @@ public class BlockPeripheral extends BlockPeripheralBase
         {
             case DiskDrive:
             {
-                state = state.withProperty( Properties.FACING, dir );
+                state = state.withProperty( FACING, dir );
                 switch( anim )
                 {
                     case 0:
                     default:
                     {
-                        state = state.withProperty( Properties.VARIANT, BlockPeripheralVariant.DiskDriveEmpty );
+                        state = state.withProperty( VARIANT, BlockPeripheralVariant.DiskDriveEmpty );
                         break;
                     }
                     case 1:
                     {
-                        state = state.withProperty( Properties.VARIANT, BlockPeripheralVariant.DiskDriveInvalid );
+                        state = state.withProperty( VARIANT, BlockPeripheralVariant.DiskDriveInvalid );
                         break;
                     }
                     case 2:
                     {
-                        state = state.withProperty( Properties.VARIANT, BlockPeripheralVariant.DiskDriveFull );
+                        state = state.withProperty( VARIANT, BlockPeripheralVariant.DiskDriveFull );
                         break;
                     }
                 }
@@ -244,28 +242,28 @@ public class BlockPeripheral extends BlockPeripheralBase
             }
             case Printer:
             {
-                state = state.withProperty( Properties.FACING, dir );
+                state = state.withProperty( FACING, dir );
                 switch( anim )
                 {
                     case 0:
                     default:
                     {
-                        state = state.withProperty( Properties.VARIANT, BlockPeripheralVariant.PrinterEmpty );
+                        state = state.withProperty( VARIANT, BlockPeripheralVariant.PrinterEmpty );
                         break;
                     }
                     case 1:
                     {
-                        state = state.withProperty( Properties.VARIANT, BlockPeripheralVariant.PrinterTopFull );
+                        state = state.withProperty( VARIANT, BlockPeripheralVariant.PrinterTopFull );
                         break;
                     }
                     case 2:
                     {
-                        state = state.withProperty( Properties.VARIANT, BlockPeripheralVariant.PrinterBottomFull );
+                        state = state.withProperty( VARIANT, BlockPeripheralVariant.PrinterBottomFull );
                         break;
                     }
                     case 3:
                     {
-                        state = state.withProperty( Properties.VARIANT, BlockPeripheralVariant.PrinterBothFull );
+                        state = state.withProperty( VARIANT, BlockPeripheralVariant.PrinterBothFull );
                         break;
                     }
                 }
@@ -277,18 +275,18 @@ public class BlockPeripheral extends BlockPeripheralBase
                 {
                     case UP:
                     {
-                        state = state.withProperty( Properties.FACING, EnumFacing.NORTH );
+                        state = state.withProperty( FACING, EnumFacing.NORTH );
                         switch( anim )
                         {
                             case 0:
                             default:
                             {
-                                state = state.withProperty( Properties.VARIANT, BlockPeripheralVariant.WirelessModemUpOff );
+                                state = state.withProperty( VARIANT, BlockPeripheralVariant.WirelessModemUpOff );
                                 break;
                             }
                             case 1:
                             {
-                                state = state.withProperty( Properties.VARIANT, BlockPeripheralVariant.WirelessModemUpOn );
+                                state = state.withProperty( VARIANT, BlockPeripheralVariant.WirelessModemUpOn );
                                 break;
                             }
                         }
@@ -296,18 +294,18 @@ public class BlockPeripheral extends BlockPeripheralBase
                     }
                     case DOWN:
                     {
-                        state = state.withProperty( Properties.FACING, EnumFacing.NORTH );
+                        state = state.withProperty( FACING, EnumFacing.NORTH );
                         switch( anim )
                         {
                             case 0:
                             default:
                             {
-                                state = state.withProperty( Properties.VARIANT, BlockPeripheralVariant.WirelessModemDownOff );
+                                state = state.withProperty( VARIANT, BlockPeripheralVariant.WirelessModemDownOff );
                                 break;
                             }
                             case 1:
                             {
-                                state = state.withProperty( Properties.VARIANT, BlockPeripheralVariant.WirelessModemDownOn );
+                                state = state.withProperty( VARIANT, BlockPeripheralVariant.WirelessModemDownOn );
                                 break;
                             }
                         }
@@ -315,18 +313,18 @@ public class BlockPeripheral extends BlockPeripheralBase
                     }
                     default:
                     {
-                        state = state.withProperty( Properties.FACING, dir );
+                        state = state.withProperty( FACING, dir );
                         switch( anim )
                         {
                             case 0:
                             default:
                             {
-                                state = state.withProperty( Properties.VARIANT, BlockPeripheralVariant.WirelessModemOff );
+                                state = state.withProperty( VARIANT, BlockPeripheralVariant.WirelessModemOff );
                                 break;
                             }
                             case 1:
                             {
-                                state = state.withProperty( Properties.VARIANT, BlockPeripheralVariant.WirelessModemOn );
+                                state = state.withProperty( VARIANT, BlockPeripheralVariant.WirelessModemOn );
                                 break;
                             }
                         }
@@ -337,7 +335,7 @@ public class BlockPeripheral extends BlockPeripheralBase
             }
             case Speaker:
             {
-                state = state.withProperty( Properties.FACING, dir );
+                state = state.withProperty( FACING, dir );
                 break;
             }
             case Monitor:
@@ -444,8 +442,8 @@ public class BlockPeripheral extends BlockPeripheralBase
                     }
                 }
 
-                state = state.withProperty( Properties.FACING, dir );
-                state = state.withProperty( Properties.VARIANT,
+                state = state.withProperty( FACING, dir );
+                state = state.withProperty( VARIANT,
                     BlockPeripheralVariant.values()[ baseVariant.ordinal() + subType ]
                 );
                 break;
@@ -462,14 +460,14 @@ public class BlockPeripheral extends BlockPeripheralBase
             case DiskDrive:
             default:
             {
-                IBlockState state = getDefaultState().withProperty( Properties.VARIANT, BlockPeripheralVariant.DiskDriveEmpty );
+                IBlockState state = getDefaultState().withProperty( VARIANT, BlockPeripheralVariant.DiskDriveEmpty );
                 if( placedSide.getAxis() != EnumFacing.Axis.Y )
                 {
-                    return state.withProperty( Properties.FACING, placedSide );
+                    return state.withProperty( FACING, placedSide );
                 }
                 else
                 {
-                    return state.withProperty( Properties.FACING, EnumFacing.NORTH );
+                    return state.withProperty( FACING, EnumFacing.NORTH );
                 }
             }
             case WirelessModem:
@@ -478,37 +476,37 @@ public class BlockPeripheral extends BlockPeripheralBase
                 if( dir == EnumFacing.DOWN )
                 {
                     return getDefaultState()
-                        .withProperty( Properties.VARIANT, BlockPeripheralVariant.WirelessModemDownOff )
-                        .withProperty( Properties.FACING, EnumFacing.NORTH );
+                        .withProperty( VARIANT, BlockPeripheralVariant.WirelessModemDownOff )
+                        .withProperty( FACING, EnumFacing.NORTH );
                 }
                 else if( dir == EnumFacing.UP )
                 {
                     return getDefaultState()
-                        .withProperty( Properties.VARIANT, BlockPeripheralVariant.WirelessModemUpOff )
-                        .withProperty( Properties.FACING, EnumFacing.NORTH );
+                        .withProperty( VARIANT, BlockPeripheralVariant.WirelessModemUpOff )
+                        .withProperty( FACING, EnumFacing.NORTH );
                 }
                 else
                 {
                     return getDefaultState()
-                        .withProperty( Properties.VARIANT, BlockPeripheralVariant.WirelessModemOff )
-                        .withProperty( Properties.FACING, dir );
+                        .withProperty( VARIANT, BlockPeripheralVariant.WirelessModemOff )
+                        .withProperty( FACING, dir );
                 }
             }
             case Monitor:
             {
-                return getDefaultState().withProperty( Properties.VARIANT, BlockPeripheralVariant.Monitor );
+                return getDefaultState().withProperty( VARIANT, BlockPeripheralVariant.Monitor );
             }
             case Printer:
             {
-                return getDefaultState().withProperty( Properties.VARIANT, BlockPeripheralVariant.PrinterEmpty );
+                return getDefaultState().withProperty( VARIANT, BlockPeripheralVariant.PrinterEmpty );
             }
             case AdvancedMonitor:
             {
-                return getDefaultState().withProperty( Properties.VARIANT, BlockPeripheralVariant.AdvancedMonitor );
+                return getDefaultState().withProperty( VARIANT, BlockPeripheralVariant.AdvancedMonitor );
             }
             case Speaker:
             {
-                return getDefaultState().withProperty( Properties.VARIANT, BlockPeripheralVariant.Speaker );
+                return getDefaultState().withProperty( VARIANT, BlockPeripheralVariant.Speaker );
             }
         }
     }
@@ -522,7 +520,7 @@ public class BlockPeripheral extends BlockPeripheralBase
     @Override
     public PeripheralType getPeripheralType( IBlockState state )
     {
-        return state.getValue( Properties.VARIANT ).getPeripheralType();
+        return state.getValue( VARIANT ).getPeripheralType();
     }
 
     @Override

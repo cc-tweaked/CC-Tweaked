@@ -105,7 +105,7 @@ public class TileComputer extends TileComputerBase
     public EnumFacing getDirection()
     {
         IBlockState state = getBlockState();
-        return state.getValue( BlockComputer.Properties.FACING );
+        return state.getValue( BlockComputer.FACING );
     }
 
     @Override
@@ -115,7 +115,7 @@ public class TileComputer extends TileComputerBase
         {
             dir = EnumFacing.NORTH;
         }
-        setBlockState( getBlockState().withProperty( BlockComputer.Properties.FACING, dir ) );
+        setBlockState( getBlockState().withProperty( BlockComputer.FACING, dir ) );
         updateInput();
     }
 

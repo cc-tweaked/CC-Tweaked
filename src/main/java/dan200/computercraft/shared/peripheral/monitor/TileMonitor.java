@@ -75,7 +75,7 @@ public class TileMonitor extends TilePeripheralBase
     public void onLoad()
     {
         super.onLoad();
-        m_advanced = getBlockState().getValue( BlockPeripheral.Properties.VARIANT )
+        m_advanced = getBlockState().getValue( BlockPeripheral.VARIANT )
             .getPeripheralType() == PeripheralType.AdvancedMonitor;
     }
 
