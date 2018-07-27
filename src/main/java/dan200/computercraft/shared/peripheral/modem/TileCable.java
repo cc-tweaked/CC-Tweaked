@@ -17,6 +17,7 @@ import dan200.computercraft.shared.peripheral.common.BlockCable;
 import dan200.computercraft.shared.peripheral.common.BlockCableModemVariant;
 import dan200.computercraft.shared.peripheral.common.PeripheralItemFactory;
 import dan200.computercraft.shared.wired.CapabilityWiredElement;
+import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -231,6 +232,7 @@ public class TileCable extends TileModemBase
         }
     }
 
+    @Nonnull
     @Override
     public ItemStack getPickedItem()
     {
@@ -267,7 +269,7 @@ public class TileCable extends TileModemBase
                 case WiredModemWithCable:
                 {
                     // Drop the modem and convert to cable
-                    ((BlockGeneric) getBlockType()).dropItem( getWorld(), getPos(), PeripheralItemFactory.create( PeripheralType.WiredModem, getLabel(), 1 ) );
+                    Block.spawnAsEntity( getWorld(), getPos(), PeripheralItemFactory.create( PeripheralType.WiredModem, getLabel(), 1 ) );
                     setLabel( null );
                     setBlockState( getBlockState().withProperty( BlockCable.MODEM, BlockCableModemVariant.None ) );
                     modemChanged();

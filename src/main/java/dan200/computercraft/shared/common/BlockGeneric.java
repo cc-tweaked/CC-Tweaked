@@ -10,7 +10,6 @@ import net.minecraft.block.Block;
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -21,13 +20,11 @@ import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.world.Explosion;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.List;
 
 public abstract class BlockGeneric extends Block implements ITileEntityProvider
 {
@@ -38,8 +35,6 @@ public abstract class BlockGeneric extends Block implements ITileEntityProvider
     }
 
     protected abstract IBlockState getDefaultBlockState( int damage, EnumFacing placedSide );
-    protected abstract TileGeneric createTile( IBlockState state );
-    protected abstract TileGeneric createTile( int damage );
 
     @Override
     public final void dropBlockAsItemWithChance( World world, @Nonnull BlockPos pos, @Nonnull IBlockState state, float chance, int fortune )
@@ -93,10 +88,7 @@ public abstract class BlockGeneric extends Block implements ITileEntityProvider
         // Drop items
         if( drops.size() > 0 )
         {
-            for (ItemStack item : drops)
-            {
-                dropItem( world, pos, item );
-            }
+            for( ItemStack item : drops ) dropItem( world, pos, item );
         }
     }
 
@@ -113,7 +105,7 @@ public abstract class BlockGeneric extends Block implements ITileEntityProvider
         world.removeTileEntity( pos );
         if( tile instanceof TileGeneric )
         {
-            TileGeneric generic = (TileGeneric)tile;
+            TileGeneric generic = (TileGeneric) tile;
             generic.destroy();
         }
     }
@@ -125,7 +117,7 @@ public abstract class BlockGeneric extends Block implements ITileEntityProvider
         TileEntity tile = world.getTileEntity( pos );
         if( tile instanceof TileGeneric )
         {
-            TileGeneric generic = (TileGeneric)tile;
+            TileGeneric generic = (TileGeneric) tile;
             return generic.getPickedItem();
         }
         return ItemStack.EMPTY;
@@ -137,7 +129,7 @@ public abstract class BlockGeneric extends Block implements ITileEntityProvider
         TileEntity tile = world.getTileEntity( pos );
         if( tile instanceof TileGeneric )
         {
-            TileGeneric generic = (TileGeneric)tile;
+            TileGeneric generic = (TileGeneric) tile;
             return generic.onActivate( player, side, hitX, hitY, hitZ );
         }
         return false;
@@ -150,7 +142,7 @@ public abstract class BlockGeneric extends Block implements ITileEntityProvider
         TileEntity tile = world.getTileEntity( pos );
         if( tile instanceof TileGeneric )
         {
-            TileGeneric generic = (TileGeneric)tile;
+            TileGeneric generic = (TileGeneric) tile;
             generic.onNeighbourChange();
         }
     }
@@ -161,15 +153,9 @@ public abstract class BlockGeneric extends Block implements ITileEntityProvider
         TileEntity tile = world.getTileEntity( pos );
         if( tile instanceof TileGeneric )
         {
-            TileGeneric generic = (TileGeneric)tile;
+            TileGeneric generic = (TileGeneric) tile;
             generic.onNeighbourTileEntityChange( neighbour );
         }
-    }
-
-    @Override
-    public final boolean canBeReplacedByLeaves( @Nonnull IBlockState state, @Nonnull IBlockAccess world, @Nonnull BlockPos pos )
-    {
-        return false; // Generify me if anyone ever feels the need to change this
     }
 
     @Nonnull
@@ -180,23 +166,21 @@ public abstract class BlockGeneric extends Block implements ITileEntityProvider
         TileEntity tile = world.getTileEntity( pos );
         if( tile instanceof TileGeneric && tile.hasWorld() )
         {
-            TileGeneric generic = (TileGeneric)tile;
+            TileGeneric generic = (TileGeneric) tile;
             return generic.getBounds();
         }
         return FULL_BLOCK_AABB;
     }
 
-    @Nonnull
+    @Nullable
     @Override
-    public final TileEntity createTileEntity( @Nonnull World world, @Nonnull IBlockState state )
-    {
-        return createTile( state );
-    }
+    public abstract TileEntity createTileEntity( @Nonnull World world, @Nonnull IBlockState state );
 
-    @Nonnull
+    @Nullable
     @Override
-    public final TileEntity createNewTileEntity( @Nonnull World world, int damage )
+    @SuppressWarnings( "deprecation" )
+    public TileEntity createNewTileEntity( @Nonnull World worldIn, int meta )
     {
-        return createTile( damage );
+        return createTileEntity( worldIn, getStateFromMeta( meta ) );
     }
 }

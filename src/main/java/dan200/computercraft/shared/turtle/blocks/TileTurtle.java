@@ -173,6 +173,7 @@ public abstract class TileTurtle extends TileComputerBase implements ITurtleTile
         }
     }
 
+    @Nonnull
     @Override
     public ItemStack getPickedItem()
     {

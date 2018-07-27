@@ -10,6 +10,7 @@ import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.peripheral.PeripheralType;
 import dan200.computercraft.shared.peripheral.modem.TileCable;
 import dan200.computercraft.shared.util.WorldUtil;
+import net.minecraft.block.Block;
 import net.minecraft.block.properties.PropertyBool;
 import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.state.BlockFaceShape;
@@ -347,7 +348,7 @@ public class BlockCable extends BlockPeripheralBase
 
                     cable.modemChanged();
                     cable.connectionsChanged();
-                    if( !world.isRemote && !player.capabilities.isCreativeMode ) dropItem( world, pos, item );
+                    if( !world.isRemote && !player.capabilities.isCreativeMode ) Block.spawnAsEntity( world, pos, item );
 
                     return false;
                 }

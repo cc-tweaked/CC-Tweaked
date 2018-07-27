@@ -54,6 +54,7 @@ public abstract class TilePeripheralBase extends TileGeneric
         }
     }
 
+    @Nonnull
     @Override
     public ItemStack getPickedItem()
     {

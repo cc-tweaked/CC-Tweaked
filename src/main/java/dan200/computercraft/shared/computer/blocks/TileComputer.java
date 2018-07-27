@@ -75,6 +75,7 @@ public class TileComputer extends TileComputerBase
         }
     }
 
+    @Nonnull
     @Override
     public ItemStack getPickedItem()
     {

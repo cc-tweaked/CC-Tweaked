@@ -19,6 +19,7 @@ import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public abstract class BlockComputerBase extends BlockDirectional implements IBundledRedstoneBlock
 {
@@ -60,14 +61,9 @@ public abstract class BlockComputerBase extends BlockDirectional implements IBun
         return getDefaultBlockState( placedSide );
     }
 
+    @Nullable
     @Override
-    public final TileComputerBase createTile( IBlockState state )
-    {
-        return createTile();
-    }
-
-    @Override
-    public final TileComputerBase createTile( int damage )
+    public final TileComputerBase createTileEntity( @Nonnull World world, @Nonnull IBlockState state )
     {
         return createTile();
     }

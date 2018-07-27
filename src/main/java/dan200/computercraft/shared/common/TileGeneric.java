@@ -10,29 +10,23 @@ import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.network.ComputerCraftPacket;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.List;
 
 public abstract class TileGeneric extends TileEntity
 {
-    public TileGeneric()
-    {
-    }
-
     public void requestTileEntityUpdate()
     {
         if( getWorld().isRemote )
@@ -53,12 +47,8 @@ public abstract class TileGeneric extends TileEntity
     @Nullable
     public BlockGeneric getBlock()
     {
-        Block block = getWorld().getBlockState( getPos() ).getBlock();
-        if( block instanceof BlockGeneric )
-        {
-            return (BlockGeneric)block;
-        }
-        return null;
+        Block block = getBlockType();
+        return block instanceof BlockGeneric ? (BlockGeneric) block : null;
     }
 
     protected final IBlockState getBlockState()
@@ -84,9 +74,10 @@ public abstract class TileGeneric extends TileEntity
     {
     }
 
+    @Nonnull
     public ItemStack getPickedItem()
     {
-        return null;
+        return ItemStack.EMPTY;
     }
 
     public boolean onActivate( EntityPlayer player, EnumFacing side, float hitX, float hitY, float hitZ )
@@ -124,7 +115,7 @@ public abstract class TileGeneric extends TileEntity
                     double range = getInteractRange( player );
                     BlockPos pos = getPos();
                     return player.getEntityWorld() == getWorld() &&
-                           player.getDistanceSq( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5 ) <= ( range * range );
+                        player.getDistanceSq( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5 ) <= (range * range);
                 }
                 return true;
             }
@@ -172,7 +163,7 @@ public abstract class TileGeneric extends TileEntity
 
     @Nonnull
     @Override
-    public NBTTagCompound getUpdateTag ()
+    public NBTTagCompound getUpdateTag()
     {
         NBTTagCompound tag = super.getUpdateTag();
         writeDescription( tag );
@@ -180,9 +171,9 @@ public abstract class TileGeneric extends TileEntity
     }
 
     @Override
-    public void handleUpdateTag ( @Nonnull NBTTagCompound tag)
+    public void handleUpdateTag( @Nonnull NBTTagCompound tag )
     {
-        super.handleUpdateTag(tag);
+        super.handleUpdateTag( tag );
         readDescription( tag );
     }
 }
