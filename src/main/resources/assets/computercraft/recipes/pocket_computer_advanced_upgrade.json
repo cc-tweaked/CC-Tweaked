@@ -7,8 +7,8 @@
     ],
     "key": {
         "#": { "type": "forge:ore_dict", "ore": "ingotGold" },
-        "C": { "item": "computercraft:pocket_computer", "data": 0 }
+        "C": { "item": "computercraft:pocket_computer_normal" }
     },
     "family": "Advanced",
-    "result": { "item": "computercraft:pocket_computer", "data": 1 }
+    "result": { "item": "computercraft:pocket_computer_advanced" }
 }

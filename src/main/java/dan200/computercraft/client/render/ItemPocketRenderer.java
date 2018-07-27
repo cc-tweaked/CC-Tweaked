@@ -85,7 +85,7 @@ public class ItemPocketRenderer
         GlStateManager.rotate( 180f, 0f, 0f, 1f );
         GlStateManager.scale( 0.5, 0.5, 0.5 );
 
-        ItemPocketComputer pocketComputer = ComputerCraft.Items.pocketComputer;
+        ItemPocketComputer pocketComputer = (ItemPocketComputer) stack.getItem();
         ClientComputer computer = pocketComputer.createClientComputer( stack );
 
         {

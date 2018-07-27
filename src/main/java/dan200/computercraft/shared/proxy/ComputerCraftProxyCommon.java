@@ -312,8 +312,11 @@ public abstract class ComputerCraftProxyCommon implements IComputerCraftProxy
         registry.register( ComputerCraft.Items.printout.setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "printout" ) ) );
 
         // Pocket computer
-        ComputerCraft.Items.pocketComputer = new ItemPocketComputer();
-        registry.register( ComputerCraft.Items.pocketComputer.setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "pocket_computer" ) ) );
+        ComputerCraft.Items.pocketComputerNormal = new ItemPocketComputer( ComputerFamily.Normal );
+        registry.register( ComputerCraft.Items.pocketComputerNormal.setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "pocket_computer_normal" ) ) );
+
+        ComputerCraft.Items.pocketComputerAdvanced = new ItemPocketComputer( ComputerFamily.Advanced);
+        registry.register( ComputerCraft.Items.pocketComputerAdvanced.setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "pocket_computer_advanced" ) ) );
     }
 
     @SubscribeEvent
@@ -379,19 +382,19 @@ public abstract class ComputerCraftProxyCommon implements IComputerCraftProxy
         for( IPocketUpgrade upgrade : ComputerCraft.getVanillaPocketUpgrades() )
         {
             registry.register( new ImpostorRecipe(
-                    "computercraft:normal_pocket_upgrade",
+                    "computercraft:pocket_normal_upgrade",
                     1, 2,
                     new ItemStack[] { upgrade.getCraftingItem(), pocketComputer },
                     PocketComputerItemFactory.create( -1, null, -1, ComputerFamily.Normal, upgrade )
-                ).setRegistryName( new ResourceLocation( "computercraft:normal_pocket_upgrade_" + upgrade.getUpgradeID().toString().replace( ':', '_' ) ) )
+                ).setRegistryName( new ResourceLocation( "computercraft:pocket_normal_upgrade_" + upgrade.getUpgradeID().toString().replace( ':', '_' ) ) )
             );
 
             registry.register(
-                new ImpostorRecipe( "computercraft:advanced_pocket_upgrade",
+                new ImpostorRecipe( "computercraft:pocket_advanced_upgrade",
                     1, 2,
                     new ItemStack[] { upgrade.getCraftingItem(), advancedPocketComputer },
                     PocketComputerItemFactory.create( -1, null, -1, ComputerFamily.Advanced, upgrade )
-                ).setRegistryName( new ResourceLocation( "computercraft:advanced_pocket_upgrade_" + upgrade.getUpgradeID().toString().replace( ':', '_' ) ) )
+                ).setRegistryName( new ResourceLocation( "computercraft:pocket_advanced_upgrade_" + upgrade.getUpgradeID().toString().replace( ':', '_' ) ) )
             );
         }
     }

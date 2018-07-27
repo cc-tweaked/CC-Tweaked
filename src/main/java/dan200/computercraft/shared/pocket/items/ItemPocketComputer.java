@@ -39,25 +39,40 @@ import java.util.List;
 
 public class ItemPocketComputer extends Item implements IComputerItem, IMedia, IColouredItem
 {
-    public ItemPocketComputer()
+    private final ComputerFamily family;
+
+    public ItemPocketComputer( ComputerFamily family )
     {
+        this.family = family;
+
         setMaxStackSize( 1 );
-        setHasSubtypes( true );
-        setTranslationKey( "computercraft:pocket_computer" );
         setCreativeTab( ComputerCraft.mainCreativeTab );
     }
 
-    public ItemStack create( int id, String label, int colour, ComputerFamily family, IPocketUpgrade upgrade )
+    @Nonnull
+    @Override
+    public String getTranslationKey()
     {
-        // Ignore types we can't handle
-        if( family != ComputerFamily.Normal && family != ComputerFamily.Advanced )
-        {
-            return null;
-        }
+        return "item." + getRegistryName();
+    }
 
+    @Nonnull
+    @Override
+    public String getTranslationKey( ItemStack stack )
+    {
+        return getTranslationKey();
+    }
+
+    @Override
+    public boolean shouldCauseReequipAnimation( ItemStack oldStack, ItemStack newStack, boolean slotChanged )
+    {
+        return oldStack.getItem() != newStack.getItem() || getComputerID( oldStack ) != getComputerID( newStack );
+    }
+
+    public ItemStack create( int id, String label, int colour, IPocketUpgrade upgrade )
+    {
         // Build the stack
-        int damage = (family == ComputerFamily.Advanced) ? 1 : 0;
-        ItemStack result = new ItemStack( this, 1, damage );
+        ItemStack result = new ItemStack( this );
         if( id >= 0 || upgrade != null )
         {
             NBTTagCompound compound = new NBTTagCompound();
@@ -82,7 +97,7 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
             if( tag == null ) result.setTagCompound( tag = new NBTTagCompound() );
             tag.setInteger( "colour", colour );
         }
-        
+
         return result;
     }
 
@@ -90,16 +105,10 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
     public void getSubItems( @Nonnull CreativeTabs tabs, @Nonnull NonNullList<ItemStack> list )
     {
         if( !isInCreativeTab( tabs ) ) return;
-        getSubItems( list, ComputerFamily.Normal );
-        getSubItems( list, ComputerFamily.Advanced );
-    }
-
-    private void getSubItems( NonNullList<ItemStack> list, ComputerFamily family )
-    {
-        list.add( PocketComputerItemFactory.create( -1, null, -1, family, null ) );
+        list.add( create( -1, null, -1, null ) );
         for( IPocketUpgrade upgrade : ComputerCraft.getVanillaPocketUpgrades() )
         {
-            list.add( PocketComputerItemFactory.create( -1, null, -1, family, upgrade ) );
+            list.add( create( -1, null, -1, upgrade ) );
         }
     }
 
@@ -189,24 +198,6 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
 
     @Nonnull
     @Override
-    public String getTranslationKey( @Nonnull ItemStack stack )
-    {
-        switch( getFamily( stack ) )
-        {
-            case Normal:
-            default:
-            {
-                return "item.computercraft:pocket_computer";
-            }
-            case Advanced:
-            {
-                return "item.computercraft:advanced_pocket_computer";
-            }
-        }
-    }
-
-    @Nonnull
-    @Override
     public String getItemStackDisplayName( @Nonnull ItemStack stack )
     {
         String baseString = getTranslationKey( stack );
@@ -273,8 +264,8 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
                 computerID,
                 getLabel( stack ),
                 instanceID,
-                getFamily( stack )
-            );
+                getFamily( stack ),
+                this );
             computer.updateValues( entity, stack, getUpgrade( stack ) );
             computer.addAPI( new PocketAPI( computer ) );
             ComputerCraft.serverComputerRegistry.add( instanceID, computer );
@@ -356,25 +347,13 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
     @Override
     public ComputerFamily getFamily( @Nonnull ItemStack stack )
     {
-        int damage = stack.getItemDamage();
-        switch( damage )
-        {
-            case 0:
-            default:
-            {
-                return ComputerFamily.Normal;
-            }
-            case 1:
-            {
-                return ComputerFamily.Advanced;
-            }
-        }
+        return family;
     }
 
     @Override
     public ItemStack withFamily( @Nonnull ItemStack stack, @Nonnull ComputerFamily family )
     {
-        return PocketComputerItemFactory.create( 
+        return PocketComputerItemFactory.create(
             getComputerID( stack ), getLabel( stack ), getColour( stack ),
             family, getUpgrade( stack )
         );
@@ -457,7 +436,7 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
         stack.getTagCompound().setInteger( "sessionID", sessionID );
     }
 
-    @SideOnly(Side.CLIENT)
+    @SideOnly( Side.CLIENT )
     public ComputerState getState( @Nonnull ItemStack stack )
     {
         ClientComputer computer = getClientComputer( stack );
@@ -468,7 +447,7 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
         return ComputerState.Off;
     }
 
-    @SideOnly(Side.CLIENT)
+    @SideOnly( Side.CLIENT )
     public int getLightState( @Nonnull ItemStack stack )
     {
         ClientComputer computer = getClientComputer( stack );

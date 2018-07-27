@@ -24,10 +24,10 @@ item.computercraft:page.name=Printed Page
 item.computercraft:pages.name=Printed Pages
 item.computercraft:book.name=Printed Book
 
-item.computercraft:pocket_computer.name=Pocket Computer
-item.computercraft:pocket_computer.upgraded.name=%s Pocket Computer
-item.computercraft:advanced_pocket_computer.name=Advanced Pocket Computer
-item.computercraft:advanced_pocket_computer.upgraded.name=Advanced %s Pocket Computer
+item.computercraft:pocket_computer_normal.name=Pocket Computer
+item.computercraft:pocket_computer_normal.upgraded.name=%s Pocket Computer
+item.computercraft:pocket_computer_advanced.name=Advanced Pocket Computer
+item.computercraft:pocket_computer_advanced.upgraded.name=Advanced %s Pocket Computer
 
 upgrade.minecraft:diamond_sword.adjective=Melee
 upgrade.minecraft:diamond_shovel.adjective=Digging

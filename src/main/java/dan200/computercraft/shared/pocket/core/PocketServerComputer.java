@@ -6,6 +6,7 @@ import dan200.computercraft.api.pocket.IPocketAccess;
 import dan200.computercraft.api.pocket.IPocketUpgrade;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ServerComputer;
+import dan200.computercraft.shared.pocket.items.ItemPocketComputer;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -26,10 +27,12 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
     private IPocketUpgrade m_upgrade;
     private Entity m_entity;
     private ItemStack m_stack;
+    private final ItemPocketComputer item;
 
-    public PocketServerComputer( World world, int computerID, String label, int instanceID, ComputerFamily family )
+    public PocketServerComputer( World world, int computerID, String label, int instanceID, ComputerFamily family, ItemPocketComputer item )
     {
         super( world, computerID, label, instanceID, family, ComputerCraft.terminalWidth_pocketComputer, ComputerCraft.terminalHeight_pocketComputer );
+        this.item = item;
     }
 
     @Nullable
@@ -42,13 +45,13 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
     @Override
     public int getColour()
     {
-        return ComputerCraft.Items.pocketComputer.getColour( m_stack );
+        return item.getColour( m_stack );
     }
 
     @Override
     public void setColour( int colour )
     {
-        ComputerCraft.Items.pocketComputer.setColourDirect( m_stack, colour );
+        item.setColourDirect( m_stack, colour );
         updateUpgradeNBTData();
     }
 
@@ -89,7 +92,7 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
     @Override
     public NBTTagCompound getUpgradeNBTData()
     {
-        return ComputerCraft.Items.pocketComputer.getUpgradeInfo( m_stack );
+        return item.getUpgradeInfo( m_stack );
     }
 
     @Override
@@ -141,7 +144,7 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
 
         synchronized( this )
         {
-            ComputerCraft.Items.pocketComputer.setUpgrade( m_stack, upgrade );
+            item.setUpgrade( m_stack, upgrade );
             if( m_entity instanceof EntityPlayer ) ((EntityPlayer) m_entity).inventory.markDirty();
 
             this.m_upgrade = upgrade;

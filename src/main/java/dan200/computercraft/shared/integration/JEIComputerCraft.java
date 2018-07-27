@@ -25,7 +25,8 @@ public class JEIComputerCraft implements IModPlugin
         subtypeRegistry.registerSubtypeInterpreter( Item.getItemFromBlock( ComputerCraft.Blocks.turtleNormal ), turtleSubtype );
         subtypeRegistry.registerSubtypeInterpreter( Item.getItemFromBlock( ComputerCraft.Blocks.turtleAdvanced ), turtleSubtype );
 
-        subtypeRegistry.registerSubtypeInterpreter( ComputerCraft.Items.pocketComputer, pocketSubtype );
+        subtypeRegistry.registerSubtypeInterpreter( ComputerCraft.Items.pocketComputerNormal, pocketSubtype );
+        subtypeRegistry.registerSubtypeInterpreter( ComputerCraft.Items.pocketComputerAdvanced, pocketSubtype );
 
         subtypeRegistry.registerSubtypeInterpreter( ComputerCraft.Items.disk, diskSubtype );
     }

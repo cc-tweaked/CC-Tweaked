@@ -2,6 +2,6 @@
     "parent": "item/generated",
     "textures": {
         "layer0": "computercraft:items/pocket_computer_frame",
-        "layer1": "computercraft:items/pocket_computer"
+        "layer1": "computercraft:items/pocket_computer_normal"
     }
 }

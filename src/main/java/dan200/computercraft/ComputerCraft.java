@@ -188,7 +188,8 @@ public class ComputerCraft
         public static ItemDisk disk;
         public static ItemPrintout printout;
         public static ItemTreasureDisk treasureDisk;
-        public static ItemPocketComputer pocketComputer;
+        public static ItemPocketComputer pocketComputerNormal;
+        public static ItemPocketComputer pocketComputerAdvanced;
     }
 
     public static class Upgrades
