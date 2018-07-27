@@ -44,7 +44,7 @@ import java.util.List;
 
 public class TileEntityTurtleRenderer extends TileEntitySpecialRenderer<TileTurtle>
 {
-    private static ModelResourceLocation NORMAL_TURTLE_MODEL = new ModelResourceLocation( "computercraft:turtle", "inventory" );
+    private static ModelResourceLocation NORMAL_TURTLE_MODEL = new ModelResourceLocation( "computercraft:turtle_normal", "inventory" );
     private static ModelResourceLocation ADVANCED_TURTLE_MODEL = new ModelResourceLocation( "computercraft:turtle_advanced", "inventory" );
     private static ModelResourceLocation COLOUR_TURTLE_MODEL = new ModelResourceLocation( "computercraft:turtle_white", "inventory" );
     private static ModelResourceLocation BEGINNER_TURTLE_MODEL = new ModelResourceLocation( "computercraftedu:CC-TurtleJunior", "inventory" );

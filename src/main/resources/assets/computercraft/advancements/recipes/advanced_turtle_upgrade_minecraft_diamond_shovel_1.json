@@ -1,7 +1,7 @@
 {
     "parent": "minecraft:recipes/root",
     "rewards": {
-        "recipes": [ "computercraft:advanced_turtle_upgrade_minecraft_diamond_shovel_1" ]
+        "recipes": [ "computercraft:turtle_advanced_upgrade_minecraft_diamond_shovel_1" ]
     },
     "criteria": {
         "has_normal": {
@@ -12,7 +12,7 @@
         },
         "has_the_recipe": {
             "trigger": "minecraft:recipe_unlocked",
-            "conditions": { "recipe": "computercraft:advanced_turtle_upgrade_minecraft_diamond_shovel_1" }
+            "conditions": { "recipe": "computercraft:turtle_advanced_upgrade_minecraft_diamond_shovel_1" }
         }
     },
     "requirements": [

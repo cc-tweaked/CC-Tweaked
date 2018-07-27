@@ -11,12 +11,12 @@ tile.computercraft:command_computer.name=Command Computer
 tile.computercraft:advanced_modem.name=Ender Modem
 tile.computercraft:speaker.name=Speaker
 
-tile.computercraft:turtle.name=Turtle
-tile.computercraft:turtle.upgraded.name=%s Turtle
-tile.computercraft:turtle.upgraded_twice.name=%s %s Turtle
-tile.computercraft:advanced_turtle.name=Advanced Turtle
-tile.computercraft:advanced_turtle.upgraded.name=Advanced %s Turtle
-tile.computercraft:advanced_turtle.upgraded_twice.name=Advanced %s %s Turtle
+tile.computercraft:turtle_normal.name=Turtle
+tile.computercraft:turtle_normal.upgraded.name=%s Turtle
+tile.computercraft:turtle_normal.upgraded_twice.name=%s %s Turtle
+tile.computercraft:turtle_advanced.name=Advanced Turtle
+tile.computercraft:turtle_advanced.upgraded.name=Advanced %s Turtle
+tile.computercraft:turtle_advanced.upgraded_twice.name=Advanced %s %s Turtle
 
 item.computercraft:disk.name=Floppy Disk
 item.computercraft:treasure_disk.name=Floppy Disk
@@ -59,7 +59,7 @@ gui.computercraft:config.computer_space_limit=Computer space limit (bytes)
 gui.computercraft:config.floppy_space_limit=Floppy Disk space limit (bytes)
 gui.computercraft:config.turtles_need_fuel=Enable fuel
 gui.computercraft:config.turtle_fuel_limit=Turtle fuel limit
-gui.computercraft:config.advanced_turtle_fuel_limit=Advanced Turtle fuel limit
+gui.computercraft:config.turtle_advanced_fuel_limit=Advanced Turtle fuel limit
 gui.computercraft:config.turtles_obey_block_protection=Turtles obey block protection
 gui.computercraft:config.turtles_can_push=Turtles can push entities
 gui.computercraft:config.turtle_disabled_actions=Disabled turtle actions

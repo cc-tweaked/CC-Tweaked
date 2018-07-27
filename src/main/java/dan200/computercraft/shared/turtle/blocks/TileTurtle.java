@@ -48,8 +48,7 @@ import javax.annotation.Nullable;
 
 import static net.minecraftforge.items.CapabilityItemHandler.ITEM_HANDLER_CAPABILITY;
 
-public class TileTurtle extends TileComputerBase
-    implements ITurtleTile, IInventory
+public abstract class TileTurtle extends TileComputerBase implements ITurtleTile, IInventory
 {
     // Statics
 
@@ -73,11 +72,6 @@ public class TileTurtle extends TileComputerBase
     private TurtleBrain m_brain;
     private MoveState m_moveState;
     private ComputerFamily m_family;
-
-    public TileTurtle()
-    {
-        this( ComputerFamily.Normal );
-    }
 
     public TileTurtle(ComputerFamily family)
     {

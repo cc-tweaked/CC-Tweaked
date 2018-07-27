@@ -70,12 +70,11 @@ public class CCTurtleProxyClient extends CCTurtleProxyCommon
         };
         String[] turtleModelNames = new String[] {
             "turtle_dynamic",
-            "turtle", "turtle_advanced",
+            "turtle_normal", "turtle_advanced",
             "turtle_white",
             "turtle_elf_overlay"
         };
-        registerItemModel( ComputerCraft.Blocks.turtle, turtleMeshDefinition, turtleModelNames );
-        registerItemModel( ComputerCraft.Blocks.turtleExpanded, turtleMeshDefinition, turtleModelNames );
+        registerItemModel( ComputerCraft.Blocks.turtleNormal, turtleMeshDefinition, turtleModelNames );
         registerItemModel( ComputerCraft.Blocks.turtleAdvanced, turtleMeshDefinition, turtleModelNames );
     }
 
@@ -87,7 +86,7 @@ public class CCTurtleProxyClient extends CCTurtleProxyCommon
         // Setup turtle colours
         Minecraft.getMinecraft().getItemColors().registerItemColorHandler(
             new TurtleItemColour(),
-            ComputerCraft.Blocks.turtle, ComputerCraft.Blocks.turtleExpanded, ComputerCraft.Blocks.turtleAdvanced
+            ComputerCraft.Blocks.turtleNormal, ComputerCraft.Blocks.turtleAdvanced
         );
 
         // Setup renderers
@@ -125,10 +124,10 @@ public class CCTurtleProxyClient extends CCTurtleProxyCommon
             "turtle_modem_on_right",
             "turtle_crafting_table_left",
             "turtle_crafting_table_right",
-            "advanced_turtle_modem_off_left",
-            "advanced_turtle_modem_on_left",
-            "advanced_turtle_modem_off_right",
-            "advanced_turtle_modem_on_right",
+            "turtle_advanced_modem_off_left",
+            "turtle_advanced_modem_on_left",
+            "turtle_advanced_modem_off_right",
+            "turtle_advanced_modem_on_right",
             "turtle_speaker_upgrade_left",
             "turtle_speaker_upgrade_right",
         };

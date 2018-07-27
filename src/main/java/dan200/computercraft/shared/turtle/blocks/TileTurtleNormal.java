@@ -8,9 +8,9 @@ package dan200.computercraft.shared.turtle.blocks;
 
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 
-public class TileTurtleExpanded extends TileTurtle
+public class TileTurtleNormal extends TileTurtle
 {
-    public TileTurtleExpanded()
+    public TileTurtleNormal()
     {
         super( ComputerFamily.Normal);
     }

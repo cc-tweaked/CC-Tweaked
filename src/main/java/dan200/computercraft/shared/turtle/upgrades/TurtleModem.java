@@ -74,7 +74,6 @@ public class TurtleModem implements ITurtleUpgrade
 
     private boolean m_advanced;
     private ResourceLocation m_id;
-    private int m_legacyID;
 
     @SideOnly( Side.CLIENT )
     private ModelResourceLocation m_leftOffModel;
@@ -88,11 +87,10 @@ public class TurtleModem implements ITurtleUpgrade
     @SideOnly( Side.CLIENT )
     private ModelResourceLocation m_rightOnModel;
 
-    public TurtleModem( boolean advanced, ResourceLocation id, int legacyId )
+    public TurtleModem( boolean advanced, ResourceLocation id )
     {
         m_advanced = advanced;
         m_id = id;
-        m_legacyID = legacyId;
     }
 
     @Nonnull
@@ -157,10 +155,10 @@ public class TurtleModem implements ITurtleUpgrade
         {
             if( m_advanced )
             {
-                m_leftOffModel = new ModelResourceLocation( "computercraft:advanced_turtle_modem_off_left", "inventory" );
-                m_rightOffModel = new ModelResourceLocation( "computercraft:advanced_turtle_modem_off_right", "inventory" );
-                m_leftOnModel = new ModelResourceLocation( "computercraft:advanced_turtle_modem_on_left", "inventory" );
-                m_rightOnModel = new ModelResourceLocation( "computercraft:advanced_turtle_modem_on_right", "inventory" );
+                m_leftOffModel = new ModelResourceLocation( "computercraft:turtle_advanced_modem_off_left", "inventory" );
+                m_rightOffModel = new ModelResourceLocation( "computercraft:turtle_advanced_modem_off_right", "inventory" );
+                m_leftOnModel = new ModelResourceLocation( "computercraft:turtle_advanced_modem_on_left", "inventory" );
+                m_rightOnModel = new ModelResourceLocation( "computercraft:turtle_advanced_modem_on_right", "inventory" );
             }
             else
             {

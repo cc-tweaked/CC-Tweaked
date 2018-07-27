@@ -37,18 +37,13 @@ public class BlockTurtle extends BlockComputerBase
         public static final PropertyDirection FACING = PropertyDirection.create( "facing", EnumFacing.Plane.HORIZONTAL );
     }
 
-    public static BlockTurtle createTurtleBlock()
-    {
-        return new BlockTurtle();
-    }
-
     // Members
 
     public BlockTurtle()
     {
         super( Material.IRON );
         setHardness( 2.5f );
-        setTranslationKey( "computercraft:turtle" );
+        setTranslationKey( "computercraft:turtle_normal" );
         setCreativeTab( ComputerCraft.mainCreativeTab );
         setDefaultState( this.blockState.getBaseState()
             .withProperty( Properties.FACING, EnumFacing.NORTH )
@@ -151,13 +146,9 @@ public class BlockTurtle extends BlockComputerBase
         {
             return new TileTurtleAdvanced();
         }
-        else if( this == ComputerCraft.Blocks.turtleExpanded )
-        {
-            return new TileTurtleExpanded();
-        }
         else
         {
-            return new TileTurtle();
+            return new TileTurtleNormal();
         }
     }
 

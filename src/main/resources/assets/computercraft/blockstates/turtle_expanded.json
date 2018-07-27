@@ -1,8 +1,0 @@
-{
-    "variants": {
-        "facing=north": { "model": "computercraft:turtle" },
-        "facing=south": { "model": "computercraft:turtle", "y": 180 },
-        "facing=west": { "model": "computercraft:turtle", "y": 270 },
-        "facing=east": { "model": "computercraft:turtle", "y": 90 }
-    }
-}

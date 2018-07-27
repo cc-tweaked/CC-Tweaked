@@ -11,12 +11,10 @@ import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.event.TurtleActionEvent;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.turtle.blocks.BlockTurtle;
-import dan200.computercraft.shared.turtle.blocks.TileTurtle;
 import dan200.computercraft.shared.turtle.blocks.TileTurtleAdvanced;
-import dan200.computercraft.shared.turtle.blocks.TileTurtleExpanded;
+import dan200.computercraft.shared.turtle.blocks.TileTurtleNormal;
 import dan200.computercraft.shared.turtle.core.TurtlePlayer;
 import dan200.computercraft.shared.turtle.items.ItemTurtleAdvanced;
-import dan200.computercraft.shared.turtle.items.ItemTurtleLegacy;
 import dan200.computercraft.shared.turtle.items.ItemTurtleNormal;
 import dan200.computercraft.shared.turtle.items.TurtleItemFactory;
 import dan200.computercraft.shared.turtle.recipes.TurtleUpgradeRecipe;
@@ -50,6 +48,7 @@ import javax.annotation.Nonnull;
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.function.Consumer;
 
@@ -76,10 +75,6 @@ public abstract class CCTurtleProxyCommon implements ICCTurtleProxy
         );
 
         registerUpgrades();
-
-        // Recipe types
-        // RecipeSorter.register( "computercraft:turtle", TurtleRecipe.class, RecipeSorter.Category.SHAPED, "after:minecraft:shapeless" );
-        // RecipeSorter.register( "computercraft:turtle_upgrade", TurtleUpgradeRecipe.class, RecipeSorter.Category.SHAPED, "after:minecraft:shapeless" );
     }
 
     @Override
@@ -244,15 +239,11 @@ public abstract class CCTurtleProxyCommon implements ICCTurtleProxy
     {
         IForgeRegistry<Block> registry = event.getRegistry();
 
-        // Turtle
-        ComputerCraft.Blocks.turtle = BlockTurtle.createTurtleBlock();
-        registry.register( ComputerCraft.Blocks.turtle.setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "turtle" ) ) );
-
-        ComputerCraft.Blocks.turtleExpanded = BlockTurtle.createTurtleBlock();
-        registry.register( ComputerCraft.Blocks.turtleExpanded.setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "turtle_expanded" ) ) );
+        ComputerCraft.Blocks.turtleNormal = new BlockTurtle();
+        registry.register( ComputerCraft.Blocks.turtleNormal.setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "turtle_normal" ) ) );
 
         // Advanced Turtle
-        ComputerCraft.Blocks.turtleAdvanced = BlockTurtle.createTurtleBlock();
+        ComputerCraft.Blocks.turtleAdvanced = new BlockTurtle();
         registry.register( ComputerCraft.Blocks.turtleAdvanced.setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "turtle_advanced" ) ) );
     }
 
@@ -261,8 +252,7 @@ public abstract class CCTurtleProxyCommon implements ICCTurtleProxy
     {
         IForgeRegistry<Item> registry = event.getRegistry();
 
-        registry.register( new ItemTurtleLegacy( ComputerCraft.Blocks.turtle ).setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "turtle" ) ) );
-        registry.register( new ItemTurtleNormal( ComputerCraft.Blocks.turtleExpanded ).setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "turtle_expanded" ) ) );
+        registry.register( new ItemTurtleNormal( ComputerCraft.Blocks.turtleNormal ).setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "turtle_normal" ) ) );
         registry.register( new ItemTurtleAdvanced( ComputerCraft.Blocks.turtleAdvanced ).setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "turtle_advanced" ) ) );
     }
 
@@ -284,10 +274,8 @@ public abstract class CCTurtleProxyCommon implements ICCTurtleProxy
             // A turtle just containing this upgrade
             for( ComputerFamily family : ComputerFamily.values() )
             {
-                if( !isUpgradeSuitableForFamily( family, upgrade ) )
-                {
-                    continue;
-                }
+                if( !isUpgradeSuitableForFamily( family, upgrade ) )continue;
+                String familyName = family.toString().toLowerCase( Locale.ENGLISH );
 
                 ItemStack baseTurtle = TurtleItemFactory.create( -1, null, -1, family, null, null, 0, null );
                 if( !baseTurtle.isEmpty() )
@@ -295,37 +283,13 @@ public abstract class CCTurtleProxyCommon implements ICCTurtleProxy
                     ItemStack craftedTurtle = TurtleItemFactory.create( -1, null, -1, family, upgrade, null, 0, null );
                     ItemStack craftedTurtleFlipped = TurtleItemFactory.create( -1, null, -1, family, null, upgrade, 0, null );
                     registry.register(
-                        new ImpostorRecipe( "computercraft:" + family.toString() + "_turtle_upgrade", 2, 1, new ItemStack[] { baseTurtle, craftingItem }, craftedTurtle )
-                            .setRegistryName( new ResourceLocation( "computercraft:" + family + "_turtle_upgrade_" + upgrade.getUpgradeID().toString().replace( ':', '_' ) + "_1" ) )
+                        new ImpostorRecipe( "computercraft:turtle_" + familyName + "_upgrade_", 2, 1, new ItemStack[]{ baseTurtle, craftingItem }, craftedTurtle )
+                            .setRegistryName( new ResourceLocation( "computercraft:turtle_" + familyName + "_upgrade_" + upgrade.getUpgradeID().toString().replace( ':', '_' ) + "_1" ) )
                     );
                     registry.register(
-                        new ImpostorRecipe( "computercraft:" + family.toString() + "_turtle_upgrade", 2, 1, new ItemStack[] { craftingItem, baseTurtle }, craftedTurtleFlipped )
-                            .setRegistryName( new ResourceLocation( "computercraft:" + family + "_turtle_upgrade_" + upgrade.getUpgradeID().toString().replace( ':', '_' ) + "_2" ) )
+                        new ImpostorRecipe( "computercraft:turtle_" + familyName + "_upgrade_", 2, 1, new ItemStack[]{ craftingItem, baseTurtle }, craftedTurtleFlipped )
+                            .setRegistryName( new ResourceLocation( "computercraft:turtle_" + familyName + "_upgrade_" + upgrade.getUpgradeID().toString().replace( ':', '_' ) + "_2" ) )
                     );
-
-                    /*
-                    // A turtle containing this upgrade and another upgrade
-                    for( ITurtleUpgrade otherUpgrade : m_turtleUpgrades.values() )
-                    {
-                        if( isUpgradeVanilla( otherUpgrade ) && isUpgradeSuitableForFamily( family, otherUpgrade ) )
-                        {
-                            ItemStack otherCraftingItem = otherUpgrade.getCraftingItem();
-    
-                            ItemStack otherCraftedTurtle = TurtleItemFactory.create( -1, null, -1, family, null, otherUpgrade, 0, null );
-                            ItemStack comboCraftedTurtle = TurtleItemFactory.create( -1, null, -1, family, upgrade, otherUpgrade, 0, null );
-    
-                            ItemStack otherCraftedTurtleFlipped = TurtleItemFactory.create( -1, null, -1, family, otherUpgrade, null, 0, null );
-                            ItemStack comboCraftedTurtleFlipped = TurtleItemFactory.create( -1, null, -1, family, otherUpgrade, upgrade, 0, null );
-    
-                            recipeList.add( new ImpostorRecipe( 2, 1, new ItemStack[] { otherCraftingItem, craftedTurtle }, comboCraftedTurtle ) );
-                            recipeList.add( new ImpostorRecipe( 2, 1, new ItemStack[] { otherCraftedTurtle, craftingItem }, comboCraftedTurtle ) );
-                            recipeList.add( new ImpostorRecipe( 2, 1, new ItemStack[] { craftedTurtleFlipped, otherCraftingItem }, comboCraftedTurtleFlipped ) );
-                            recipeList.add( new ImpostorRecipe( 2, 1, new ItemStack[] { craftingItem, otherCraftedTurtleFlipped }, comboCraftedTurtleFlipped ) );
-                            recipeList.add( new ImpostorRecipe( 3, 1, new ItemStack[] { otherCraftingItem, baseTurtle, craftingItem,  }, comboCraftedTurtle ) );
-                            recipeList.add( new ImpostorRecipe( 3, 1, new ItemStack[] { craftingItem, baseTurtle, otherCraftingItem }, comboCraftedTurtleFlipped ) );
-                        }
-                    }
-                    */
                 }
             }
         }
@@ -334,7 +298,7 @@ public abstract class CCTurtleProxyCommon implements ICCTurtleProxy
     private void registerUpgrades()
     {
         // Upgrades
-        ComputerCraft.Upgrades.wirelessModem = new TurtleModem( false, new ResourceLocation( "computercraft", "wireless_modem" ), 1 );
+        ComputerCraft.Upgrades.wirelessModem = new TurtleModem( false, new ResourceLocation( "computercraft", "wireless_modem" ) );
         registerTurtleUpgradeInternal( ComputerCraft.Upgrades.wirelessModem );
 
         ComputerCraft.Upgrades.craftingTable = new TurtleCraftingTable( 2 );
@@ -355,7 +319,7 @@ public abstract class CCTurtleProxyCommon implements ICCTurtleProxy
         ComputerCraft.Upgrades.diamondHoe = new TurtleHoe( new ResourceLocation( "minecraft", "diamond_hoe" ), 7, "upgrade.minecraft:diamond_hoe.adjective", Items.DIAMOND_HOE );
         registerTurtleUpgradeInternal( ComputerCraft.Upgrades.diamondHoe );
 
-        ComputerCraft.Upgrades.advancedModem = new TurtleModem( true, new ResourceLocation( "computercraft", "advanced_modem" ), -1 );
+        ComputerCraft.Upgrades.advancedModem = new TurtleModem( true, new ResourceLocation( "computercraft", "advanced_modem" ) );
         registerTurtleUpgradeInternal( ComputerCraft.Upgrades.advancedModem );
 
         ComputerCraft.Upgrades.turtleSpeaker = new TurtleSpeaker( new ResourceLocation( "computercraft", "speaker" ), 8 );
@@ -372,13 +336,9 @@ public abstract class CCTurtleProxyCommon implements ICCTurtleProxy
             if( !domain.equalsIgnoreCase( ComputerCraft.MOD_ID ) ) continue;
 
             String key = mapping.key.getPath();
-            if( key.equalsIgnoreCase( "CC-Turtle" ) )
+            if( key.equalsIgnoreCase( "CC-TurtleExpanded" ) )
             {
-                mapping.remap( Item.getItemFromBlock( ComputerCraft.Blocks.turtle ) );
-            }
-            else if( key.equalsIgnoreCase( "CC-TurtleExpanded" ) )
-            {
-                mapping.remap( Item.getItemFromBlock( ComputerCraft.Blocks.turtleExpanded ) );
+                mapping.remap( Item.getItemFromBlock( ComputerCraft.Blocks.turtleNormal ) );
             }
             else if( key.equalsIgnoreCase( "CC-TurtleAdvanced" ) )
             {
@@ -397,13 +357,9 @@ public abstract class CCTurtleProxyCommon implements ICCTurtleProxy
             if( !domain.equalsIgnoreCase( ComputerCraft.MOD_ID ) ) continue;
 
             String key = mapping.key.getPath();
-            if( key.equalsIgnoreCase( "CC-Turtle" ) )
+            if( key.equalsIgnoreCase( "CC-TurtleExpanded" ) )
             {
-                mapping.remap( ComputerCraft.Blocks.turtle );
-            }
-            else if( key.equalsIgnoreCase( "CC-TurtleExpanded" ) )
-            {
-                mapping.remap( ComputerCraft.Blocks.turtleExpanded );
+                mapping.remap( ComputerCraft.Blocks.turtleNormal );
             }
             else if( key.equalsIgnoreCase( "CC-TurtleAdvanced" ) )
             {
@@ -415,9 +371,8 @@ public abstract class CCTurtleProxyCommon implements ICCTurtleProxy
     private void registerTileEntities()
     {
         // TileEntities
-        GameRegistry.registerTileEntity( TileTurtle.class, ComputerCraft.LOWER_ID + " : " + "turtle" );
-        GameRegistry.registerTileEntity( TileTurtleExpanded.class, ComputerCraft.LOWER_ID + " : " + "turtleex" );
-        GameRegistry.registerTileEntity( TileTurtleAdvanced.class, ComputerCraft.LOWER_ID + " : " + "turtleadv" );
+        GameRegistry.registerTileEntity( TileTurtleNormal.class, ComputerCraft.LOWER_ID + ":turtle_normal" );
+        GameRegistry.registerTileEntity( TileTurtleAdvanced.class, ComputerCraft.LOWER_ID + ":turtle_advanced" );
     }
 
     private void registerForgeHandlers()

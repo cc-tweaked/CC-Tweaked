@@ -12,8 +12,6 @@ import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.IComputer;
 import dan200.computercraft.shared.turtle.blocks.ITurtleTile;
-import dan200.computercraft.shared.util.ReflectionUtil;
-import net.minecraft.block.Block;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
@@ -56,37 +54,16 @@ public class TurtleItemFactory
         {
             case Normal:
             {
-                ItemTurtleBase legacy = ((ItemTurtleBase)Item.getItemFromBlock( ComputerCraft.Blocks.turtle ));
-                ItemTurtleBase normal = ((ItemTurtleBase)Item.getItemFromBlock( ComputerCraft.Blocks.turtleExpanded ));
-                ItemStack legacyStack = legacy.create( id, label, colour, leftUpgrade, rightUpgrade, fuelLevel, overlay );
-                return (legacyStack != null) ? legacyStack : normal.create( id, label, colour, leftUpgrade, rightUpgrade, fuelLevel, overlay );
+                ItemTurtleBase normal = ((ItemTurtleBase) Item.getItemFromBlock( ComputerCraft.Blocks.turtleNormal ));
+                return normal.create( id, label, colour, leftUpgrade, rightUpgrade, fuelLevel, overlay );
             }
             case Advanced:
             {
-                ItemTurtleBase advanced = ((ItemTurtleBase)Item.getItemFromBlock( ComputerCraft.Blocks.turtleAdvanced ));
+                ItemTurtleBase advanced = ((ItemTurtleBase) Item.getItemFromBlock( ComputerCraft.Blocks.turtleAdvanced ));
                 return advanced.create( id, label, colour, leftUpgrade, rightUpgrade, fuelLevel, overlay );
             }
-            case Beginners:
-            {
-                Block beginnersBlock = ReflectionUtil.safeGet(
-                    ReflectionUtil.getOptionalField(
-                        ReflectionUtil.getOptionalInnerClass(
-                            ReflectionUtil.getOptionalClass( "dan200.computercraftedu.ComputerCraftEdu" ),
-                            "Blocks"
-                        ),
-                        "turtleJunior"
-                    ),
-                    null,
-                    Block.class
-                );
-                if( beginnersBlock != null )
-                {
-                    ItemTurtleBase beginnersItem = ((ItemTurtleBase)Item.getItemFromBlock( beginnersBlock ));
-                    return beginnersItem.create( id, label, colour, leftUpgrade, rightUpgrade, fuelLevel, overlay );
-                }
+            default:
                 return ItemStack.EMPTY;
-            }
         }
-        return ItemStack.EMPTY;
     }
 }

@@ -24,7 +24,7 @@ public class ItemTurtleNormal extends ItemTurtleBase
     public ItemTurtleNormal( Block block )
     {
         super( block );
-        setTranslationKey( "computercraft:turtle" );
+        setTranslationKey( "computercraft:turtle_normal" );
         setCreativeTab( ComputerCraft.mainCreativeTab );
     }
 
@@ -32,7 +32,7 @@ public class ItemTurtleNormal extends ItemTurtleBase
     public ItemStack create( int id, String label, int colour, ITurtleUpgrade leftUpgrade, ITurtleUpgrade rightUpgrade, int fuelLevel, ResourceLocation overlay )
     {
         // Build the stack
-        ItemStack stack = new ItemStack( this, 1, 0 );
+        ItemStack stack = new ItemStack( this );
         NBTTagCompound nbt = new NBTTagCompound();
         if( leftUpgrade != null )
         {

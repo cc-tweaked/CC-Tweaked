@@ -179,8 +179,7 @@ public class ComputerCraft
         public static BlockComputer computer;
         public static BlockPeripheral peripheral;
         public static BlockCable cable;
-        public static BlockTurtle turtle;
-        public static BlockTurtle turtleExpanded;
+        public static BlockTurtle turtleNormal;
         public static BlockTurtle turtleAdvanced;
         public static BlockCommandComputer commandComputer;
         public static BlockAdvancedModem advancedModem;
