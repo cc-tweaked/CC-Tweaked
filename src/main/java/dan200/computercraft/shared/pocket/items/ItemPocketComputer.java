@@ -264,7 +264,7 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
                 computerID,
                 getLabel( stack ),
                 instanceID,
-                getFamily( stack ),
+                getFamily(),
                 this );
             computer.updateValues( entity, stack, getUpgrade( stack ) );
             computer.addAPI( new PocketAPI( computer ) );
@@ -345,7 +345,7 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
     }
 
     @Override
-    public ComputerFamily getFamily( @Nonnull ItemStack stack )
+    public ComputerFamily getFamily()
     {
         return family;
     }

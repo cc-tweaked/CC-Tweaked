@@ -420,11 +420,7 @@ public abstract class TileComputerBase extends TileGeneric
     public ComputerFamily getFamily()
     {
         BlockComputerBase block = getBlock();
-        if( block != null )
-        {
-            return block.getFamily( getWorld(), getPos() );
-        }
-        return ComputerFamily.Normal;
+        return block != null ? block.getFamily() : ComputerFamily.Normal;
     }
 
     public ServerComputer createServerComputer()

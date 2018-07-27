@@ -10,6 +10,7 @@ import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
+import dan200.computercraft.shared.turtle.blocks.BlockTurtle;
 import dan200.computercraft.shared.util.ColourUtils;
 import net.minecraft.block.Block;
 import net.minecraft.item.ItemStack;
@@ -19,12 +20,14 @@ import net.minecraftforge.common.util.Constants;
 
 import javax.annotation.Nonnull;
 
-public class ItemTurtleNormal extends ItemTurtleBase
+public class ItemTurtle extends ItemTurtleBase
 {
-    public ItemTurtleNormal( Block block )
+    private final ComputerFamily family;
+    
+    public ItemTurtle( BlockTurtle block )
     {
         super( block );
-        setTranslationKey( "computercraft:turtle_normal" );
+        family = block.getFamily();
         setCreativeTab( ComputerCraft.mainCreativeTab );
     }
 
@@ -86,9 +89,9 @@ public class ItemTurtleNormal extends ItemTurtleBase
     }
 
     @Override
-    public ComputerFamily getFamily( int damage )
+    public ComputerFamily getFamily()
     {
-        return ComputerFamily.Normal;
+        return family;
     }
 
     // ITurtleItem implementation

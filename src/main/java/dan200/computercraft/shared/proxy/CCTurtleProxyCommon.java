@@ -14,8 +14,7 @@ import dan200.computercraft.shared.turtle.blocks.BlockTurtle;
 import dan200.computercraft.shared.turtle.blocks.TileTurtleAdvanced;
 import dan200.computercraft.shared.turtle.blocks.TileTurtleNormal;
 import dan200.computercraft.shared.turtle.core.TurtlePlayer;
-import dan200.computercraft.shared.turtle.items.ItemTurtleAdvanced;
-import dan200.computercraft.shared.turtle.items.ItemTurtleNormal;
+import dan200.computercraft.shared.turtle.items.ItemTurtle;
 import dan200.computercraft.shared.turtle.items.TurtleItemFactory;
 import dan200.computercraft.shared.turtle.recipes.TurtleUpgradeRecipe;
 import dan200.computercraft.shared.turtle.upgrades.*;
@@ -239,11 +238,11 @@ public abstract class CCTurtleProxyCommon implements ICCTurtleProxy
     {
         IForgeRegistry<Block> registry = event.getRegistry();
 
-        ComputerCraft.Blocks.turtleNormal = new BlockTurtle();
+        ComputerCraft.Blocks.turtleNormal = new BlockTurtle( ComputerFamily.Normal, TileTurtleNormal::new );
         registry.register( ComputerCraft.Blocks.turtleNormal.setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "turtle_normal" ) ) );
 
         // Advanced Turtle
-        ComputerCraft.Blocks.turtleAdvanced = new BlockTurtle();
+        ComputerCraft.Blocks.turtleAdvanced = new BlockTurtle( ComputerFamily.Advanced, TileTurtleAdvanced::new );
         registry.register( ComputerCraft.Blocks.turtleAdvanced.setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "turtle_advanced" ) ) );
     }
 
@@ -252,8 +251,8 @@ public abstract class CCTurtleProxyCommon implements ICCTurtleProxy
     {
         IForgeRegistry<Item> registry = event.getRegistry();
 
-        registry.register( new ItemTurtleNormal( ComputerCraft.Blocks.turtleNormal ).setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "turtle_normal" ) ) );
-        registry.register( new ItemTurtleAdvanced( ComputerCraft.Blocks.turtleAdvanced ).setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "turtle_advanced" ) ) );
+        registry.register( new ItemTurtle( ComputerCraft.Blocks.turtleNormal ).setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "turtle_normal" ) ) );
+        registry.register( new ItemTurtle( ComputerCraft.Blocks.turtleAdvanced ).setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "turtle_advanced" ) ) );
     }
 
     @SubscribeEvent

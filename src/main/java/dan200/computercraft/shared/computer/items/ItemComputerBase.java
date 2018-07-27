@@ -28,12 +28,10 @@ public abstract class ItemComputerBase extends ItemBlock implements IComputerIte
         super( block );
     }
 
-    public abstract ComputerFamily getFamily( int damage );
-
     @Override
-    public final int getMetadata( int damage )
+    public int getMetadata( int damage )
     {
-        return damage;
+        return super.getMetadata( damage );
     }
 
     @Override
@@ -62,13 +60,6 @@ public abstract class ItemComputerBase extends ItemBlock implements IComputerIte
             return stack.getDisplayName();
         }
         return null;
-    }
-
-    @Override
-    public final ComputerFamily getFamily( @Nonnull ItemStack stack )
-    {
-        int damage = stack.getItemDamage();
-        return getFamily( damage );
     }
 
     // IMedia implementation
@@ -102,7 +93,7 @@ public abstract class ItemComputerBase extends ItemBlock implements IComputerIte
     @Override
     public IMount createDataMount( @Nonnull ItemStack stack, @Nonnull World world )
     {
-        ComputerFamily family = getFamily( stack );
+        ComputerFamily family = getFamily();
         if( family != ComputerFamily.Command )
         {
             int id = getComputerID( stack );

@@ -10,10 +10,8 @@ import dan200.computercraft.shared.common.BlockDirectional;
 import dan200.computercraft.shared.common.IBundledRedstoneBlock;
 import dan200.computercraft.shared.common.TileGeneric;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
-import dan200.computercraft.shared.computer.items.ItemComputerBase;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.item.Item;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
@@ -27,6 +25,13 @@ public abstract class BlockComputerBase extends BlockDirectional implements IBun
     public BlockComputerBase( Material material )
     {
         super( material );
+    }
+
+    @Nonnull
+    @Override
+    public String getTranslationKey()
+    {
+        return "tile." + getRegistryName();
     }
 
     @Override
@@ -43,36 +48,28 @@ public abstract class BlockComputerBase extends BlockDirectional implements IBun
         updateInput( world, pos );
     }
 
-    protected abstract IBlockState getDefaultBlockState( ComputerFamily family, EnumFacing placedSide );
+    protected abstract IBlockState getDefaultBlockState( EnumFacing placedSide );
 
-    protected abstract ComputerFamily getFamily( int damage );
+    protected abstract TileComputerBase createTile();
 
-    protected abstract ComputerFamily getFamily( IBlockState state );
-
-    protected abstract TileComputerBase createTile( ComputerFamily family );
+    protected abstract ComputerFamily getFamily();
 
     @Override
     protected final IBlockState getDefaultBlockState( int damage, EnumFacing placedSide )
     {
-        ItemComputerBase item = (ItemComputerBase) Item.getItemFromBlock( this );
-        return getDefaultBlockState( item.getFamily( damage ), placedSide );
+        return getDefaultBlockState( placedSide );
     }
 
     @Override
     public final TileComputerBase createTile( IBlockState state )
     {
-        return createTile( getFamily( state ) );
+        return createTile();
     }
 
     @Override
     public final TileComputerBase createTile( int damage )
     {
-        return createTile( getFamily( damage ) );
-    }
-
-    public final ComputerFamily getFamily( IBlockAccess world, BlockPos pos )
-    {
-        return getFamily( world.getBlockState( pos ) );
+        return createTile();
     }
 
     @Override

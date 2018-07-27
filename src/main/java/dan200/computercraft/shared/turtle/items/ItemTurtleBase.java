@@ -114,25 +114,6 @@ public abstract class ItemTurtleBase extends ItemComputerBase implements ITurtle
 
     @Nonnull
     @Override
-    public String getTranslationKey( @Nonnull ItemStack stack )
-    {
-        ComputerFamily family = getFamily( stack );
-        switch( family )
-        {
-            case Normal:
-            default:
-            {
-                return "tile.computercraft:turtle_normal";
-            }
-            case Advanced:
-            {
-                return "tile.computercraft:turtle_advanced";
-            }
-        }
-    }
-
-    @Nonnull
-    @Override
     public String getItemStackDisplayName( @Nonnull ItemStack stack )
     {
         String baseString = getTranslationKey( stack );
@@ -181,7 +162,7 @@ public abstract class ItemTurtleBase extends ItemComputerBase implements ITurtle
     public ItemStack setColour( ItemStack stack, int colour )
     {
         return TurtleItemFactory.create(
-            getComputerID( stack ), getLabel( stack ), colour, getFamily( stack ),
+            getComputerID( stack ), getLabel( stack ), colour, getFamily(),
             getUpgrade( stack, TurtleSide.Left ), getUpgrade( stack, TurtleSide.Right ),
             getFuelLevel( stack ), getOverlay( stack )
         );

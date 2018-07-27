@@ -49,7 +49,7 @@ public class JEIComputerCraft implements IModPlugin
         ITurtleItem turtle = (ITurtleItem) item;
         StringBuilder name = new StringBuilder();
 
-        name.append( turtle.getFamily( stack ).toString() );
+        name.append( turtle.getFamily().toString() );
 
         // Add left and right upgrades to the identifier
         ITurtleUpgrade left = turtle.getUpgrade( stack, TurtleSide.Left );
@@ -73,7 +73,7 @@ public class JEIComputerCraft implements IModPlugin
         ItemPocketComputer pocket = (ItemPocketComputer) item;
         StringBuilder name = new StringBuilder();
 
-        name.append( pocket.getFamily( stack ).toString() );
+        name.append( pocket.getFamily().toString() );
 
         // Add the upgrade to the identifier
         IPocketUpgrade upgrade = pocket.getUpgrade( stack );

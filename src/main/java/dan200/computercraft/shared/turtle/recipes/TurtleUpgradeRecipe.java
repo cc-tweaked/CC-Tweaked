@@ -131,7 +131,7 @@ public class TurtleUpgradeRecipe extends IForgeRegistryEntry.Impl<IRecipe> imple
         // At this point we have a turtle + 1 or 2 items
         // Get the turtle we already have
         ITurtleItem itemTurtle = (ITurtleItem)turtle.getItem();
-        ComputerFamily family = itemTurtle.getFamily( turtle );
+        ComputerFamily family = itemTurtle.getFamily();
         ITurtleUpgrade[] upgrades = {
             itemTurtle.getUpgrade( turtle, TurtleSide.Left ),
             itemTurtle.getUpgrade( turtle, TurtleSide.Right ),

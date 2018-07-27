@@ -15,6 +15,6 @@ public interface IComputerItem
 {
     int getComputerID( @Nonnull ItemStack stack );
     String getLabel( @Nonnull ItemStack stack );
-    ComputerFamily getFamily( @Nonnull ItemStack stack );
+    ComputerFamily getFamily();
     ItemStack withFamily(@Nonnull ItemStack stack, @Nonnull ComputerFamily family);
 }

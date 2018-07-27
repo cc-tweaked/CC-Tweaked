@@ -29,7 +29,7 @@ public class GuiPocketComputer extends GuiComputer
     private static ComputerFamily getFamily( ItemStack stack )
     {
         return stack.getItem() instanceof ItemPocketComputer 
-            ? ((ItemPocketComputer) stack.getItem()).getFamily( stack ) 
+            ? ((ItemPocketComputer) stack.getItem()).getFamily() 
             : ComputerFamily.Normal;
     }
 

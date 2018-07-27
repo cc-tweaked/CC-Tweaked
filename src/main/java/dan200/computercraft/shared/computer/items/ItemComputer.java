@@ -28,10 +28,9 @@ public class ItemComputer extends ItemComputerBase
     public ItemComputer( BlockComputer block )
     {
         super( block );
-        family = block.getFamily( 0 );
+        family = block.getFamily( );
 
         setMaxStackSize( 64 );
-        setTranslationKey( "computercraft:computer" );
         setCreativeTab( ComputerCraft.mainCreativeTab );
     }
 
@@ -107,7 +106,7 @@ public class ItemComputer extends ItemComputerBase
     }
 
     @Override
-    public ComputerFamily getFamily( int damage )
+    public ComputerFamily getFamily()
     {
         return family;
     }

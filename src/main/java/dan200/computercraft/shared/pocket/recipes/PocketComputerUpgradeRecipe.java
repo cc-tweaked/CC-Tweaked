@@ -119,7 +119,7 @@ public class PocketComputerUpgradeRecipe extends IForgeRegistryEntry.Impl<IRecip
         }
 
         // Construct the new stack
-        ComputerFamily family = itemComputer.getFamily( computer );
+        ComputerFamily family = itemComputer.getFamily();
         int computerID = itemComputer.getComputerID( computer );
         String label = itemComputer.getLabel( computer );
         int colour = itemComputer.getColour( computer );

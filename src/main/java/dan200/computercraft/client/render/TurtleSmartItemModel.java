@@ -124,7 +124,7 @@ public class TurtleSmartItemModel implements IBakedModel, IResourceManagerReload
             public IBakedModel handleItemState( @Nonnull IBakedModel originalModel, @Nonnull ItemStack stack, @Nullable World world, @Nullable EntityLivingBase entity )
             {
                 ItemTurtleBase turtle = (ItemTurtleBase) stack.getItem();
-                ComputerFamily family = turtle.getFamily( stack );
+                ComputerFamily family = turtle.getFamily();
                 int colour = turtle.getColour( stack );
                 ITurtleUpgrade leftUpgrade = turtle.getUpgrade( stack, TurtleSide.Left );
                 ITurtleUpgrade rightUpgrade = turtle.getUpgrade( stack, TurtleSide.Right );

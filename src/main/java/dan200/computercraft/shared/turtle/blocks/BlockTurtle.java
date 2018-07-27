@@ -31,18 +31,22 @@ import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.function.Supplier;
 
 public class BlockTurtle extends BlockComputerBase
 {
     public static final PropertyDirection FACING = BlockHorizontal.FACING;
 
-    // Members
+    private final ComputerFamily family;
+    private final Supplier<TileTurtle> factory;
 
-    public BlockTurtle()
+    public BlockTurtle( ComputerFamily family, Supplier<TileTurtle> factory )
     {
         super( Material.IRON );
+        this.family = family;
+        this.factory = factory;
+
         setHardness( 2.5f );
-        setTranslationKey( "computercraft:turtle_normal" );
         setCreativeTab( ComputerCraft.mainCreativeTab );
         setDefaultState( this.blockState.getBaseState()
             .withProperty( FACING, EnumFacing.NORTH )
@@ -83,7 +87,7 @@ public class BlockTurtle extends BlockComputerBase
     @Override
     protected BlockStateContainer createBlockState()
     {
-        return new BlockStateContainer(this, FACING );
+        return new BlockStateContainer( this, FACING );
     }
 
     @Nonnull
@@ -109,54 +113,30 @@ public class BlockTurtle extends BlockComputerBase
     }
 
     @Override
-    protected IBlockState getDefaultBlockState( ComputerFamily family, EnumFacing placedSide )
+    protected IBlockState getDefaultBlockState( EnumFacing placedSide )
     {
         return getDefaultState();
     }
 
     @Override
     @Deprecated
-    public float getExplosionResistance( @Nullable Entity exploder)
+    public float getExplosionResistance( @Nullable Entity exploder )
     {
         return getFamily() == ComputerFamily.Advanced || exploder instanceof EntityLivingBase || exploder instanceof EntityFireball
-            ? 2000 : super.getExplosionResistance( exploder);
+            ? 2000 : super.getExplosionResistance( exploder );
     }
 
-    private ComputerFamily getFamily()
+    @Nonnull
+    @Override
+    public ComputerFamily getFamily()
     {
-        if( this == ComputerCraft.Blocks.turtleAdvanced )
-        {
-            return ComputerFamily.Advanced;
-        }
-        else
-        {
-            return ComputerFamily.Normal;
-        }
+        return family;
     }
 
     @Override
-    public ComputerFamily getFamily( int damage )
+    protected TileComputerBase createTile()
     {
-        return getFamily();
-    }
-
-    @Override
-    public ComputerFamily getFamily( IBlockState state )
-    {
-        return getFamily();
-    }
-
-    @Override
-    protected TileComputerBase createTile( ComputerFamily family )
-    {
-        if( this == ComputerCraft.Blocks.turtleAdvanced )
-        {
-            return new TileTurtleAdvanced();
-        }
-        else
-        {
-            return new TileTurtleNormal();
-        }
+        return factory.get();
     }
 
     @Override

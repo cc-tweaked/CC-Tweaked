@@ -20,7 +20,9 @@ import javax.annotation.Nullable;
 /**
  * Represents an ingredient which requires an item to have a specific
  * computer family. This allows us to have operations which only work 
- * on normal or 
+ * on normal or advanced.
+ * 
+ * TODO This is no longer used as of 1.13, can we remove it?
  */
 public class ComputerIngredient extends Ingredient
 {
@@ -38,7 +40,7 @@ public class ComputerIngredient extends Ingredient
     @Override
     public boolean apply( @Nullable ItemStack stack )
     {
-        return stack != null && stack.getItem() == item && item.getFamily( stack ) == family;
+        return stack != null && stack.getItem() == item && item.getFamily() == family;
     }
 
     public static class Factory implements IIngredientFactory
