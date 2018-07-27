@@ -275,67 +275,6 @@ public abstract class BlockGeneric extends Block implements
         }
     }
 
-    @Override
-    @Deprecated
-    public final boolean canProvidePower( IBlockState state )
-    {
-        return true;
-    }
-
-    @Override
-    public final boolean canConnectRedstone( IBlockState state, IBlockAccess world, BlockPos pos, EnumFacing side )
-    {
-        TileEntity tile = world.getTileEntity( pos );
-        if( tile != null && tile instanceof TileGeneric )
-        {
-            TileGeneric generic = (TileGeneric)tile;
-            return generic.getRedstoneConnectivity( side );
-        }
-        return false;
-    }
-
-    @Override
-    @Deprecated
-    public final int getStrongPower( IBlockState state, IBlockAccess world, BlockPos pos, EnumFacing oppositeSide )
-    {
-        TileEntity tile = world.getTileEntity( pos );
-        if( tile != null && tile instanceof TileGeneric && tile.hasWorld() )
-        {
-            TileGeneric generic = (TileGeneric)tile;
-            return generic.getRedstoneOutput( oppositeSide.getOpposite() );
-        }
-        return 0;
-    }
-
-    @Override
-    @Deprecated
-    public final int getWeakPower( IBlockState state, IBlockAccess world, BlockPos pos, EnumFacing oppositeSide )
-    {
-        return getStrongPower( state, world, pos, oppositeSide );
-    }
-
-    public boolean getBundledRedstoneConnectivity( World world, BlockPos pos, EnumFacing side )
-    {
-        TileEntity tile = world.getTileEntity( pos );
-        if( tile != null && tile instanceof TileGeneric )
-        {
-            TileGeneric generic = (TileGeneric)tile;
-            return generic.getBundledRedstoneConnectivity( side );
-        }
-        return false;
-    }
-
-    public int getBundledRedstoneOutput( World world, BlockPos pos, EnumFacing side )
-    {
-        TileEntity tile = world.getTileEntity( pos );
-        if( tile != null && tile instanceof TileGeneric && tile.hasWorld() )
-        {
-            TileGeneric generic = (TileGeneric)tile;
-            return generic.getBundledRedstoneOutput( side );
-        }
-        return 0;
-    }
-
     @Nonnull
     @Override
     public final TileEntity createTileEntity( @Nonnull World world, @Nonnull IBlockState state )

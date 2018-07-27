@@ -123,26 +123,6 @@ public abstract class TileGeneric extends TileEntity
         bounds.add( getBounds() );
     }
 
-    public boolean getRedstoneConnectivity( EnumFacing side )
-    {
-        return false;
-    }
-
-    public int getRedstoneOutput( EnumFacing side )
-    {
-        return 0;
-    }
-
-    public boolean getBundledRedstoneConnectivity( @Nonnull EnumFacing side )
-    {
-        return false;
-    }
-
-    public int getBundledRedstoneOutput( @Nonnull EnumFacing side )
-    {
-        return 0;
-    }
-
     protected double getInteractRange( EntityPlayer player )
     {
         return 8.0;

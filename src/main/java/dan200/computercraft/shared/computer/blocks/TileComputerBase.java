@@ -55,7 +55,7 @@ public abstract class TileComputerBase extends TileGeneric
         Block block = super.getBlock();
         if( block != null && block instanceof BlockComputerBase )
         {
-            return (BlockComputerBase)block;
+            return (BlockComputerBase) block;
         }
         return null;
     }
@@ -144,53 +144,24 @@ public abstract class TileComputerBase extends TileGeneric
         return false;
     }
 
-    @Override
-    public boolean getRedstoneConnectivity( EnumFacing side )
-    {
-        if( side == null ) return false;
-        int localDir = remapLocalSide( DirectionUtil.toLocal( this, side.getOpposite() ) );
-        return !isRedstoneBlockedOnSide( localDir );
-    }
-
-    @Override
-    public int getRedstoneOutput( EnumFacing side )
+    public int getRedstoneOutput( @Nonnull EnumFacing side )
     {
         int localDir = remapLocalSide( DirectionUtil.toLocal( this, side ) );
-        if( !isRedstoneBlockedOnSide( localDir ) )
+        if( !getWorld().isRemote )
         {
-            if( getWorld() != null && !getWorld().isRemote )
-            {
-                ServerComputer computer = getServerComputer();
-                if( computer != null )
-                {
-                    return computer.getRedstoneOutput( localDir );
-                }
-            }
+            ServerComputer computer = getServerComputer();
+            if( computer != null ) return computer.getRedstoneOutput( localDir );
         }
         return 0;
     }
 
-    @Override
-    public boolean getBundledRedstoneConnectivity( @Nonnull EnumFacing side )
-    {
-        int localDir = remapLocalSide( DirectionUtil.toLocal( this, side ) );
-        return !isRedstoneBlockedOnSide( localDir );
-    }
-
-    @Override
     public int getBundledRedstoneOutput( @Nonnull EnumFacing side )
     {
         int localDir = remapLocalSide( DirectionUtil.toLocal( this, side ) );
-        if( !isRedstoneBlockedOnSide( localDir ) )
+        if( !getWorld().isRemote )
         {
-            if( !getWorld().isRemote )
-            {
-                ServerComputer computer = getServerComputer();
-                if( computer != null )
-                {
-                    return computer.getBundledRedstoneOutput( localDir );
-                }
-            }
+            ServerComputer computer = getServerComputer();
+            if( computer != null ) return computer.getBundledRedstoneOutput( localDir );
         }
         return 0;
     }
@@ -310,11 +281,6 @@ public abstract class TileComputerBase extends TileGeneric
         return false;
     }
 
-    protected boolean isRedstoneBlockedOnSide( int localSide )
-    {
-        return false;
-    }
-
     protected int remapLocalSide( int localSide )
     {
         return localSide;
@@ -324,11 +290,10 @@ public abstract class TileComputerBase extends TileGeneric
     {
         EnumFacing offsetSide = dir.getOpposite();
         int localDir = remapLocalSide( DirectionUtil.toLocal( this, dir ) );
-        if( !isRedstoneBlockedOnSide( localDir ) )
-        {
-            computer.setRedstoneInput( localDir, RedstoneUtil.getRedstoneOutput( getWorld(), offset, offsetSide ) );
-            computer.setBundledRedstoneInput( localDir, RedstoneUtil.getBundledRedstoneOutput( getWorld(), offset, offsetSide ) );
-        }
+
+        computer.setRedstoneInput( localDir, RedstoneUtil.getRedstoneOutput( getWorld(), offset, offsetSide ) );
+        computer.setBundledRedstoneInput( localDir, RedstoneUtil.getBundledRedstoneOutput( getWorld(), offset, offsetSide ) );
+
         if( !isPeripheralBlockedOnSide( localDir ) )
         {
             computer.setPeripheral( localDir, PeripheralUtil.getPeripheral( getWorld(), offset, offsetSide ) );
@@ -368,7 +333,7 @@ public abstract class TileComputerBase extends TileGeneric
             for( EnumFacing dir : EnumFacing.VALUES )
             {
                 BlockPos offset = pos.offset( dir );
-                if ( offset.equals( neighbour ) )
+                if( offset.equals( neighbour ) )
                 {
                     updateSideInput( computer, dir, offset );
                     break;
