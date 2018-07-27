@@ -46,17 +46,6 @@ public interface ITurtleUpgrade
     ResourceLocation getUpgradeID();
 
     /**
-     * Gets a numerical identifier representing this type of turtle upgrade,
-     * for backwards compatibility with pre-1.76 worlds. If your upgrade was
-     * not released for older ComputerCraft versions, you can return -1 here.
-     * The turtle will fail registration if an already used positive ID is specified.
-     *
-     * @return The legacy ID, or -1 if is needed.
-     * @see ComputerCraftAPI#registerTurtleUpgrade(ITurtleUpgrade)
-     */
-    int getLegacyUpgradeID();
-
-    /**
      * Return an unlocalised string to describe this type of turtle in turtle item names.
      *
      * Examples of built-in adjectives are "Wireless", "Mining" and "Crafty".

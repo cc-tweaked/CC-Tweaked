@@ -1110,11 +1110,6 @@ public class ComputerCraft
         return turtleProxy.getTurtleUpgrade( id );
     }
 
-    public static ITurtleUpgrade getTurtleUpgrade( int legacyID )
-    {
-        return turtleProxy.getTurtleUpgrade( legacyID );
-    }
-
     public static ITurtleUpgrade getTurtleUpgrade( @Nonnull ItemStack item )
     {
         return turtleProxy.getTurtleUpgrade( item );

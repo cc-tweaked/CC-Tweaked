@@ -94,12 +94,6 @@ public class TurtleSpeaker implements ITurtleUpgrade
         return m_id;
     }
 
-    @Override
-    public int getLegacyUpgradeID()
-    {
-        return m_legacyID;
-    }
-
     @Nonnull
     @Override
     public String getUnlocalisedAdjective()

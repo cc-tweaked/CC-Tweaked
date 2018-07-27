@@ -13,7 +13,7 @@ public class TurtleAxe extends TurtleTool
 {
     public TurtleAxe( ResourceLocation id, int legacyId, String adjective, Item item )
     {
-        super( id, legacyId, adjective, item );
+        super( id, adjective, item );
     }
 
     @Override

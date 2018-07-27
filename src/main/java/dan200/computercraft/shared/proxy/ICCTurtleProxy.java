@@ -23,7 +23,6 @@ public interface ICCTurtleProxy
 
     void registerTurtleUpgrade( ITurtleUpgrade upgrade );
     ITurtleUpgrade getTurtleUpgrade( String id );
-    ITurtleUpgrade getTurtleUpgrade( int legacyId );
     ITurtleUpgrade getTurtleUpgrade( @Nonnull ItemStack item );
     void addAllUpgradedTurtles( NonNullList<ItemStack> list );
 

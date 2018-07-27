@@ -274,48 +274,18 @@ public class TurtleBrain implements ITurtleAccess
         }
 
         // Read upgrades
-        // (pre-1.4 turtles will have a "subType" variable, newer things will have "leftUpgrade" and "rightUpgrade")
         ITurtleUpgrade leftUpgrade = null;
         ITurtleUpgrade rightUpgrade = null;
-        if( nbttagcompound.hasKey( "subType" ) )
+
+        if( nbttagcompound.hasKey( "leftUpgrade" ) )
         {
-            // Loading a pre-1.4 world
-            int subType = nbttagcompound.getInteger( "subType" );
-            if( (subType & 0x1) > 0 )
-            {
-                leftUpgrade = ComputerCraft.Upgrades.diamondPickaxe;
-            }
-            if( (subType & 0x2) > 0 )
-            {
-                rightUpgrade = ComputerCraft.Upgrades.wirelessModem;
-            }
+            leftUpgrade = ComputerCraft.getTurtleUpgrade( nbttagcompound.getString( "leftUpgrade" ) );
         }
-        else
+        if( nbttagcompound.hasKey( "rightUpgrade" ) )
         {
-            // Loading a post-1.4 world
-            if( nbttagcompound.hasKey( "leftUpgrade" ) )
-            {
-                if( nbttagcompound.getTagId( "leftUpgrade" ) == Constants.NBT.TAG_STRING )
-                {
-                    leftUpgrade = ComputerCraft.getTurtleUpgrade( nbttagcompound.getString( "leftUpgrade" ) );
-                }
-                else
-                {
-                    leftUpgrade = ComputerCraft.getTurtleUpgrade( nbttagcompound.getShort( "leftUpgrade" ) );
-                }
-            }
-            if( nbttagcompound.hasKey( "rightUpgrade" ) )
-            {
-                if( nbttagcompound.getTagId( "rightUpgrade" ) == Constants.NBT.TAG_STRING )
-                {
-                    rightUpgrade = ComputerCraft.getTurtleUpgrade( nbttagcompound.getString( "rightUpgrade" ) );
-                }
-                else
-                {
-                    rightUpgrade = ComputerCraft.getTurtleUpgrade( nbttagcompound.getShort( "rightUpgrade" ) );
-                }
-            }
+            rightUpgrade = ComputerCraft.getTurtleUpgrade( nbttagcompound.getString( "rightUpgrade" ) );
         }
+
         setUpgrade( TurtleSide.Left, leftUpgrade );
         setUpgrade( TurtleSide.Right, rightUpgrade );
 

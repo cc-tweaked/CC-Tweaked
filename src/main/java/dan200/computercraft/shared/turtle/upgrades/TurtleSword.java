@@ -18,7 +18,7 @@ public class TurtleSword extends TurtleTool
 {
     public TurtleSword( ResourceLocation id, int legacyId, String adjective, Item item )
     {
-        super( id, legacyId, adjective, item );
+        super( id, adjective, item );
     }
 
     @Override

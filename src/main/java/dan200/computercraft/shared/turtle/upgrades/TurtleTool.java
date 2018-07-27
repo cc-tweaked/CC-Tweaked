@@ -49,14 +49,12 @@ import java.util.function.Consumer;
 public class TurtleTool implements ITurtleUpgrade
 {
     private ResourceLocation m_id;
-    private int m_legacyId;
     private String m_adjective;
     protected ItemStack m_item;
 
-    public TurtleTool( ResourceLocation id, int legacyID, String adjective, Item item )
+    public TurtleTool( ResourceLocation id, String adjective, Item item )
     {
         m_id = id;
-        m_legacyId = legacyID;
         m_adjective = adjective;
         m_item = new ItemStack( item, 1, 0 );
     }
@@ -66,12 +64,6 @@ public class TurtleTool implements ITurtleUpgrade
     public ResourceLocation getUpgradeID()
     {
         return m_id;
-    }
-
-    @Override
-    public int getLegacyUpgradeID()
-    {
-        return m_legacyId;
     }
 
     @Nonnull

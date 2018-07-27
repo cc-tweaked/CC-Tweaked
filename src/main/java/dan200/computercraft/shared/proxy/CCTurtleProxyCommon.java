@@ -55,20 +55,13 @@ import java.util.function.Consumer;
 
 public abstract class CCTurtleProxyCommon implements ICCTurtleProxy
 {
-    private Map<Integer, ITurtleUpgrade> m_legacyTurtleUpgrades;
-    private Map<String, ITurtleUpgrade> m_turtleUpgrades;
+    private final Map<String, ITurtleUpgrade> m_turtleUpgrades = new HashMap<>();
 
     private Consumer<ItemStack> dropConsumer;
     private WeakReference<World> dropWorld;
     private BlockPos dropPos;
     private AxisAlignedBB dropBounds;
     private WeakReference<Entity> dropEntity;
-
-    public CCTurtleProxyCommon()
-    {
-        m_legacyTurtleUpgrades = new HashMap<>();
-        m_turtleUpgrades = new HashMap<>();
-    }
 
     // ICCTurtleProxy implementation
 
@@ -99,15 +92,6 @@ public abstract class CCTurtleProxyCommon implements ICCTurtleProxy
     @Override
     public void registerTurtleUpgrade( ITurtleUpgrade upgrade )
     {
-        // Check conditions
-        int id = upgrade.getLegacyUpgradeID();
-        if( id >= 0 && id < 64 )
-        {
-            String message = "Error registering '" + upgrade.getUnlocalisedAdjective() + " Turtle'. Legacy UpgradeID '" + id + "' is reserved by ComputerCraft";
-            ComputerCraft.log.error( message );
-            throw new RuntimeException( message );
-        }
-
         // Register
         registerTurtleUpgradeInternal( upgrade );
     }
@@ -116,12 +100,6 @@ public abstract class CCTurtleProxyCommon implements ICCTurtleProxy
     public ITurtleUpgrade getTurtleUpgrade( String id )
     {
         return m_turtleUpgrades.get( id );
-    }
-
-    @Override
-    public ITurtleUpgrade getTurtleUpgrade( int legacyId )
-    {
-        return m_legacyTurtleUpgrades.get( legacyId );
     }
 
     @Override
@@ -248,25 +226,6 @@ public abstract class CCTurtleProxyCommon implements ICCTurtleProxy
     private void registerTurtleUpgradeInternal( ITurtleUpgrade upgrade )
     {
         // Check conditions
-        int legacyID = upgrade.getLegacyUpgradeID();
-        if( legacyID >= 0 )
-        {
-            if( legacyID >= Short.MAX_VALUE )
-            {
-                String message = "Error registering '" + upgrade.getUnlocalisedAdjective() + " Turtle'. UpgradeID '" + legacyID + "' is out of range";
-                ComputerCraft.log.error( message );
-                throw new RuntimeException( message );
-            }
-
-            ITurtleUpgrade existing = m_legacyTurtleUpgrades.get( legacyID );
-            if( existing != null )
-            {
-                String message = "Error registering '" + upgrade.getUnlocalisedAdjective() + " Turtle'. UpgradeID '" + legacyID + "' is already registered by '" + existing.getUnlocalisedAdjective() + " Turtle'";
-                ComputerCraft.log.error( message );
-                throw new RuntimeException( message );
-            }
-        }
-
         String id = upgrade.getUpgradeID().toString();
         ITurtleUpgrade existing = m_turtleUpgrades.get( id );
         if( existing != null )
@@ -277,10 +236,6 @@ public abstract class CCTurtleProxyCommon implements ICCTurtleProxy
         }
 
         // Register
-        if( legacyID >= 0 )
-        {
-            m_legacyTurtleUpgrades.put( legacyID, upgrade );
-        }
         m_turtleUpgrades.put( id, upgrade );
     }
 
@@ -391,7 +346,7 @@ public abstract class CCTurtleProxyCommon implements ICCTurtleProxy
         ComputerCraft.Upgrades.diamondShovel = new TurtleShovel( new ResourceLocation( "minecraft", "diamond_shovel" ), 4, "upgrade.minecraft:diamond_shovel.adjective", Items.DIAMOND_SHOVEL );
         registerTurtleUpgradeInternal( ComputerCraft.Upgrades.diamondShovel );
 
-        ComputerCraft.Upgrades.diamondPickaxe = new TurtleTool( new ResourceLocation( "minecraft", "diamond_pickaxe" ), 5, "upgrade.minecraft:diamond_pickaxe.adjective", Items.DIAMOND_PICKAXE );
+        ComputerCraft.Upgrades.diamondPickaxe = new TurtleTool( new ResourceLocation( "minecraft", "diamond_pickaxe" ), "upgrade.minecraft:diamond_pickaxe.adjective", Items.DIAMOND_PICKAXE );
         registerTurtleUpgradeInternal( ComputerCraft.Upgrades.diamondPickaxe );
 
         ComputerCraft.Upgrades.diamondAxe = new TurtleAxe( new ResourceLocation( "minecraft", "diamond_axe" ), 6, "upgrade.minecraft:diamond_axe.adjective", Items.DIAMOND_AXE );

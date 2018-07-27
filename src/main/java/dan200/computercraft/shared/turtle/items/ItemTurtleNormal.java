@@ -36,27 +36,11 @@ public class ItemTurtleNormal extends ItemTurtleBase
         NBTTagCompound nbt = new NBTTagCompound();
         if( leftUpgrade != null )
         {
-            int leftUpgradeLegacyID = leftUpgrade.getLegacyUpgradeID();
-            if( leftUpgradeLegacyID >= 0 )
-            {
-                nbt.setShort( "leftUpgrade", (short)leftUpgradeLegacyID );
-            }
-            else
-            {
-                nbt.setString( "leftUpgrade", leftUpgrade.getUpgradeID().toString() );
-            }
+            nbt.setString( "leftUpgrade", leftUpgrade.getUpgradeID().toString() );
         }
         if( rightUpgrade != null )
         {
-            int rightUpgradeLegacyID = rightUpgrade.getLegacyUpgradeID();
-            if( rightUpgradeLegacyID >= 0 )
-            {
-                nbt.setShort( "rightUpgrade", (short)rightUpgradeLegacyID );
-            }
-            else
-            {
-                nbt.setString( "rightUpgrade", rightUpgrade.getUpgradeID().toString() );
-            }
+            nbt.setString( "rightUpgrade", rightUpgrade.getUpgradeID().toString() );
         }
         if( id >= 0 )
         {
@@ -125,10 +109,6 @@ public class ItemTurtleNormal extends ItemTurtleBase
                         {
                             return ComputerCraft.getTurtleUpgrade( nbt.getString( "leftUpgrade" ) );
                         }
-                        else
-                        {
-                            return ComputerCraft.getTurtleUpgrade( nbt.getShort( "leftUpgrade" ) );
-                        }
                     }
                     break;
                 }
@@ -139,10 +119,6 @@ public class ItemTurtleNormal extends ItemTurtleBase
                         if( nbt.getTagId( "rightUpgrade" ) == Constants.NBT.TAG_STRING )
                         {
                             return ComputerCraft.getTurtleUpgrade( nbt.getString( "rightUpgrade" ) );
-                        }
-                        else
-                        {
-                            return ComputerCraft.getTurtleUpgrade( nbt.getShort( "rightUpgrade" ) );
                         }
                     }
                     break;
