@@ -102,11 +102,6 @@ public abstract class TileGeneric extends TileEntity
     {
     }
 
-    public boolean isSolidOnSide( int side )
-    {
-        return true;
-    }
-
     public boolean isImmuneToExplosion( Entity exploder )
     {
         return false;

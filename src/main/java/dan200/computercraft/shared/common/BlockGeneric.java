@@ -30,8 +30,7 @@ import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class BlockGeneric extends Block implements
-    ITileEntityProvider
+public abstract class BlockGeneric extends Block implements ITileEntityProvider
 {
     protected BlockGeneric( Material material )
     {
@@ -166,19 +165,6 @@ public abstract class BlockGeneric extends Block implements
             TileGeneric generic = (TileGeneric)tile;
             generic.onNeighbourTileEntityChange( neighbour );
         }
-    }
-
-    @Override
-    @Deprecated
-    public final boolean isSideSolid( IBlockState state, @Nonnull IBlockAccess world, @Nonnull BlockPos pos, EnumFacing side )
-    {
-        TileEntity tile = world.getTileEntity( pos );
-        if( tile != null && tile instanceof TileGeneric )
-        {
-            TileGeneric generic = (TileGeneric)tile;
-            return generic.isSolidOnSide( side.ordinal() );
-        }
-        return false;
     }
 
     @Override

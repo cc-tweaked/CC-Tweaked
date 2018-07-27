@@ -242,12 +242,6 @@ public abstract class TileTurtle extends TileComputerBase implements ITurtleTile
     }
 
     @Override
-    public boolean isSolidOnSide( int side )
-    {
-        return false;
-    }
-
-    @Override
     public boolean isImmuneToExplosion( Entity exploder )
     {
         if( getFamily() == ComputerFamily.Advanced )

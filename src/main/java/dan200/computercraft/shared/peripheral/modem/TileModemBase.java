@@ -47,12 +47,6 @@ public abstract class TileModemBase extends TilePeripheralBase
     }
 
     @Override
-    public boolean isSolidOnSide( int side )
-    {
-        return false;
-    }
-
-    @Override
     public void onNeighbourChange()
     {
         EnumFacing dir = getDirection();
