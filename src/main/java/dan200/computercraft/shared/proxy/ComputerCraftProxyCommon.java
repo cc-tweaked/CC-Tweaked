@@ -101,14 +101,6 @@ public abstract class ComputerCraftProxyCommon implements IComputerCraftProxy
 
         // Creative tab
         ComputerCraft.mainCreativeTab = new CreativeTabMain( CreativeTabs.getNextID() );
-
-        // Recipe types
-        // RecipeSorter.register( "computercraft:impostor", ImpostorRecipe.class, RecipeSorter.Category.SHAPED, "after:minecraft:shapeless" );
-        // RecipeSorter.register( "computercraft:impostor_shapeless", ImpostorShapelessRecipe.class, RecipeSorter.Category.SHAPELESS, "after:minecraft:shapeless" );
-        // RecipeSorter.register( "computercraft:disk", DiskRecipe.class, RecipeSorter.Category.SHAPELESS, "after:minecraft:shapeless" );
-        // RecipeSorter.register( "computercraft:colour", ColourableRecipe.class, RecipeSorter.Category.SHAPELESS, "after:minecraft:shapeless" );
-        // RecipeSorter.register( "computercraft:printout", PrintoutRecipe.class, RecipeSorter.Category.SHAPELESS, "after:minecraft:shapeless" );
-        // RecipeSorter.register( "computercraft:pocket_computer_upgrade", PocketComputerUpgradeRecipe.class, RecipeSorter.Category.SHAPELESS, "after:minecraft:shapeless" );
     }
 
     @Override
@@ -239,7 +231,7 @@ public abstract class ComputerCraftProxyCommon implements IComputerCraftProxy
                 BlockPos pos = new BlockPos( x, y, z );
                 World world = player.getEntityWorld();
                 TileEntity tileEntity = world.getTileEntity( pos );
-                if (tileEntity != null && tileEntity instanceof TileGeneric)
+                if ( tileEntity instanceof TileGeneric )
                 {
                     TileGeneric generic = (TileGeneric) tileEntity;
                     SPacketUpdateTileEntity description = generic.getUpdatePacket();
@@ -404,64 +396,6 @@ public abstract class ComputerCraftProxyCommon implements IComputerCraftProxy
         }
     }
 
-    @SubscribeEvent
-    public void remapItems( RegistryEvent.MissingMappings<Item> mappings )
-    {
-        // We have to use mappings.getAllMappings() as the mod ID is upper case but the domain lower.
-        for( RegistryEvent.MissingMappings.Mapping<Item> mapping : mappings.getAllMappings() )
-        {
-            String domain = mapping.key.getNamespace();
-            if( !domain.equalsIgnoreCase( ComputerCraft.MOD_ID ) ) continue;
-
-            String key = mapping.key.getPath();
-            if( key.equalsIgnoreCase( "CC-Computer" ) )
-            {
-                mapping.remap( Item.getItemFromBlock( ComputerCraft.Blocks.computer ) );
-            }
-            else if( key.equalsIgnoreCase( "CC-Peripheral" ) )
-            {
-                mapping.remap( Item.getItemFromBlock( ComputerCraft.Blocks.peripheral ) );
-            }
-            else if( key.equalsIgnoreCase( "CC-Cable" ) )
-            {
-                mapping.remap( Item.getItemFromBlock( ComputerCraft.Blocks.cable ) );
-            }
-            else if( key.equalsIgnoreCase( "treasureDisk" ) )
-            {
-                mapping.remap( ComputerCraft.Items.treasureDisk );
-            }
-            else if( key.equalsIgnoreCase( "pocketComputer" ) )
-            {
-                mapping.remap( ComputerCraft.Items.pocketComputer );
-            }
-        }
-    }
-
-    @SubscribeEvent
-    public void remapBlocks( RegistryEvent.MissingMappings<Block> mappings )
-    {
-        // We have to use mappings.getAllMappings() as the mod ID is upper case but the domain lower.
-        for( RegistryEvent.MissingMappings.Mapping<Block> mapping : mappings.getAllMappings() )
-        {
-            String domain = mapping.key.getNamespace();
-            if( !domain.equalsIgnoreCase( ComputerCraft.MOD_ID ) ) continue;
-
-            String key = mapping.key.getPath();
-            if( key.equalsIgnoreCase( "CC-Computer" ) )
-            {
-                mapping.remap( ComputerCraft.Blocks.computer );
-            }
-            else if( key.equalsIgnoreCase( "CC-Peripheral" ) )
-            {
-                mapping.remap( ComputerCraft.Blocks.peripheral );
-            }
-            else if( key.equalsIgnoreCase( "CC-Cable" ) )
-            {
-                mapping.remap( ComputerCraft.Blocks.cable );
-            }
-        }
-    }
-
     private void registerTileEntities()
     {
         // Tile Entities
@@ -518,7 +452,7 @@ public abstract class ComputerCraftProxyCommon implements IComputerCraftProxy
                 case ComputerCraft.diskDriveGUIID:
                 {
                     TileEntity tile = world.getTileEntity( pos );
-                    if (tile != null && tile instanceof TileDiskDrive)
+                    if ( tile instanceof TileDiskDrive )
                     {
                         TileDiskDrive drive = (TileDiskDrive) tile;
                         return new ContainerDiskDrive( player.inventory, drive );
@@ -528,7 +462,7 @@ public abstract class ComputerCraftProxyCommon implements IComputerCraftProxy
                 case ComputerCraft.computerGUIID:
                 {
                     TileEntity tile = world.getTileEntity( pos );
-                    if (tile != null && tile instanceof TileComputer)
+                    if ( tile instanceof TileComputer )
                     {
                         TileComputer computer = (TileComputer) tile;
                         return new ContainerComputer( computer );
@@ -538,7 +472,7 @@ public abstract class ComputerCraftProxyCommon implements IComputerCraftProxy
                 case ComputerCraft.printerGUIID:
                 {
                     TileEntity tile = world.getTileEntity( pos );
-                    if (tile != null && tile instanceof TilePrinter)
+                    if ( tile instanceof TilePrinter )
                     {
                         TilePrinter printer = (TilePrinter) tile;
                         return new ContainerPrinter( player.inventory, printer );
@@ -548,7 +482,7 @@ public abstract class ComputerCraftProxyCommon implements IComputerCraftProxy
                 case ComputerCraft.turtleGUIID:
                 {
                     TileEntity tile = world.getTileEntity( pos );
-                    if (tile != null && tile instanceof TileTurtle)
+                    if ( tile instanceof TileTurtle )
                     {
                         TileTurtle turtle = (TileTurtle) tile;
                         return new ContainerTurtle( player.inventory, turtle.getAccess(), turtle.getServerComputer() );
@@ -581,7 +515,7 @@ public abstract class ComputerCraftProxyCommon implements IComputerCraftProxy
                 case ComputerCraft.diskDriveGUIID:
                 {
                     TileEntity tile = world.getTileEntity( pos );
-                    if (tile != null && tile instanceof TileDiskDrive)
+                    if ( tile instanceof TileDiskDrive )
                     {
                         TileDiskDrive drive = (TileDiskDrive) tile;
                         return getDiskDriveGUI( player.inventory, drive );
@@ -591,7 +525,7 @@ public abstract class ComputerCraftProxyCommon implements IComputerCraftProxy
                 case ComputerCraft.computerGUIID:
                 {
                     TileEntity tile = world.getTileEntity( pos );
-                    if (tile != null && tile instanceof TileComputer)
+                    if ( tile instanceof TileComputer )
                     {
                         TileComputer computer = (TileComputer) tile;
                         return getComputerGUI( computer );
@@ -601,7 +535,7 @@ public abstract class ComputerCraftProxyCommon implements IComputerCraftProxy
                 case ComputerCraft.printerGUIID:
                 {
                     TileEntity tile = world.getTileEntity( pos );
-                    if (tile != null && tile instanceof TilePrinter)
+                    if ( tile instanceof TilePrinter )
                     {
                         TilePrinter printer = (TilePrinter) tile;
                         return getPrinterGUI( player.inventory, printer );
@@ -611,7 +545,7 @@ public abstract class ComputerCraftProxyCommon implements IComputerCraftProxy
                 case ComputerCraft.turtleGUIID:
                 {
                     TileEntity tile = world.getTileEntity( pos );
-                    if (tile != null && tile instanceof TileTurtle)
+                    if ( tile instanceof TileTurtle )
                     {
                         TileTurtle turtle = (TileTurtle) tile;
                         return getTurtleGUI( player.inventory, turtle );

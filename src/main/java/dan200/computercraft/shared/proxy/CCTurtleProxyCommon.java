@@ -326,48 +326,6 @@ public abstract class CCTurtleProxyCommon implements ICCTurtleProxy
         registerTurtleUpgradeInternal( ComputerCraft.Upgrades.turtleSpeaker );
     }
 
-    @SubscribeEvent
-    public void remapItems( RegistryEvent.MissingMappings<Item> mappings )
-    {
-        // We have to use mappings.getAllMappings() as the mod ID is upper case but the domain lower.
-        for( RegistryEvent.MissingMappings.Mapping<Item> mapping : mappings.getAllMappings() )
-        {
-            String domain = mapping.key.getNamespace();
-            if( !domain.equalsIgnoreCase( ComputerCraft.MOD_ID ) ) continue;
-
-            String key = mapping.key.getPath();
-            if( key.equalsIgnoreCase( "CC-TurtleExpanded" ) )
-            {
-                mapping.remap( Item.getItemFromBlock( ComputerCraft.Blocks.turtleNormal ) );
-            }
-            else if( key.equalsIgnoreCase( "CC-TurtleAdvanced" ) )
-            {
-                mapping.remap( Item.getItemFromBlock( ComputerCraft.Blocks.turtleAdvanced ) );
-            }
-        }
-    }
-
-    @SubscribeEvent
-    public void remapBlocks( RegistryEvent.MissingMappings<Block> mappings )
-    {
-        // We have to use mappings.getAllMappings() as the mod ID is upper case but the domain lower.
-        for( RegistryEvent.MissingMappings.Mapping<Block> mapping : mappings.getAllMappings() )
-        {
-            String domain = mapping.key.getNamespace();
-            if( !domain.equalsIgnoreCase( ComputerCraft.MOD_ID ) ) continue;
-
-            String key = mapping.key.getPath();
-            if( key.equalsIgnoreCase( "CC-TurtleExpanded" ) )
-            {
-                mapping.remap( ComputerCraft.Blocks.turtleNormal );
-            }
-            else if( key.equalsIgnoreCase( "CC-TurtleAdvanced" ) )
-            {
-                mapping.remap( ComputerCraft.Blocks.turtleAdvanced );
-            }
-        }
-    }
-
     private void registerTileEntities()
     {
         // TileEntities
