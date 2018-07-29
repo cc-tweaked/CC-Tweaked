@@ -6,19 +6,19 @@
 
 package dan200.computercraft.shared.peripheral.monitor;
 
-import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.shared.common.ServerTerminal;
+import dan200.computercraft.shared.common.TileGeneric;
 import dan200.computercraft.shared.peripheral.PeripheralType;
-import dan200.computercraft.shared.peripheral.common.BlockPeripheral;
-import dan200.computercraft.shared.peripheral.common.TilePeripheralBase;
+import dan200.computercraft.shared.peripheral.common.IPeripheralTile;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.ITickable;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -27,14 +27,13 @@ import javax.annotation.Nonnull;
 import java.util.HashSet;
 import java.util.Set;
 
-public class TileMonitor extends TilePeripheralBase
+public abstract class TileMonitor extends TileGeneric implements ITickable, IPeripheralTile
 {
     // Statics
-
     public static final double RENDER_BORDER = (2.0 / 16.0);
     public static final double RENDER_MARGIN = (0.5 / 16.0);
     public static final double RENDER_PIXEL_SCALE = (1.0 / 64.0);
-    
+
     private static final int MAX_WIDTH = 8;
     private static final int MAX_HEIGHT = 6;
 
@@ -42,41 +41,32 @@ public class TileMonitor extends TilePeripheralBase
     private ServerMonitor m_serverMonitor;
     private ClientMonitor m_clientMonitor;
     private MonitorPeripheral m_peripheral;
-    private final Set<IComputerAccess> m_computers;
+    private final Set<IComputerAccess> m_computers = new HashSet<>();
 
-    private boolean m_destroyed;
-    private boolean m_ignoreMe;
+    private boolean m_destroyed = false;
+    private boolean m_ignoreMe = false;
 
-    private int m_width;
-    private int m_height;
-    private int m_xIndex;
-    private int m_yIndex;
+    private int m_width = 1;
+    private int m_height = 1;
+    private int m_xIndex = 0;
+    private int m_yIndex = 0;
 
-    private int m_dir;
+    private EnumFacing cachedFacing;
+    private EnumFacing cachedOrientation;
 
-    private boolean m_advanced;
+    private final boolean advanced;
 
-    public TileMonitor()
+    public TileMonitor( boolean advanced )
     {
-        m_computers = new HashSet<>();
-
-        m_destroyed = false;
-        m_ignoreMe = false;
-        
-        m_width = 1;
-        m_height = 1;
-        m_xIndex = 0;
-        m_yIndex = 0;
-        
-        m_dir = 2;
+        this.advanced = advanced;
     }
 
     @Override
-    public void onLoad()
+    public void updateContainingBlockInfo()
     {
-        super.onLoad();
-        m_advanced = getBlockState().getValue( BlockPeripheral.VARIANT )
-            .getPeripheralType() == PeripheralType.AdvancedMonitor;
+        super.updateContainingBlockInfo();
+        cachedFacing = null;
+        cachedOrientation = null;
     }
 
     @Override
@@ -122,33 +112,29 @@ public class TileMonitor extends TilePeripheralBase
 
     @Nonnull
     @Override
-    public NBTTagCompound writeToNBT( NBTTagCompound nbttagcompound )
+    public NBTTagCompound writeToNBT( NBTTagCompound tag )
     {
-        nbttagcompound = super.writeToNBT( nbttagcompound);
-        nbttagcompound.setInteger( "xIndex", m_xIndex );
-        nbttagcompound.setInteger( "yIndex", m_yIndex );
-        nbttagcompound.setInteger( "width", m_width );
-        nbttagcompound.setInteger( "height", m_height );
-        nbttagcompound.setInteger( "dir", m_dir );
-        return nbttagcompound;
+        tag = super.writeToNBT( tag );
+        tag.setInteger( "xIndex", m_xIndex );
+        tag.setInteger( "yIndex", m_yIndex );
+        tag.setInteger( "width", m_width );
+        tag.setInteger( "height", m_height );
+        return tag;
     }
 
     @Override
-    public void readFromNBT( NBTTagCompound nbttagcompound )
+    public void readFromNBT( NBTTagCompound tag )
     {
-        super.readFromNBT(nbttagcompound);
-        m_xIndex = nbttagcompound.getInteger("xIndex");
-        m_yIndex = nbttagcompound.getInteger("yIndex");
-        m_width = nbttagcompound.getInteger("width");
-        m_height = nbttagcompound.getInteger("height");
-        m_dir = nbttagcompound.getInteger("dir");
+        super.readFromNBT( tag );
+        m_xIndex = tag.getInteger( "xIndex" );
+        m_yIndex = tag.getInteger( "yIndex" );
+        m_width = tag.getInteger( "width" );
+        m_height = tag.getInteger( "height" );
     }
 
     @Override
     public void update()
     {
-        super.update();
-
         if( !getWorld().isRemote )
         {
             if( m_xIndex == 0 && m_yIndex == 0 && m_serverMonitor != null )
@@ -164,7 +150,7 @@ public class TileMonitor extends TilePeripheralBase
 
                             for( IComputerAccess computer : monitor.m_computers )
                             {
-                                computer.queueEvent( "monitor_resize", new Object[] {
+                                computer.queueEvent( "monitor_resize", new Object[]{
                                     computer.getAttachmentName()
                                 } );
                             }
@@ -220,7 +206,7 @@ public class TileMonitor extends TilePeripheralBase
         else if( m_xIndex == 0 && m_yIndex == 0 )
         {
             // If we're the origin, set up the new monitor
-            m_serverMonitor = new ServerMonitor( m_advanced, this );
+            m_serverMonitor = new ServerMonitor( advanced, this );
             m_serverMonitor.rebuild();
 
             // And propagate it to child monitors
@@ -261,37 +247,34 @@ public class TileMonitor extends TilePeripheralBase
     // Networking stuff
 
     @Override
-    public void writeDescription( @Nonnull NBTTagCompound nbttagcompound )
+    public void writeDescription( @Nonnull NBTTagCompound tag )
     {
-        super.writeDescription( nbttagcompound );
-        nbttagcompound.setInteger( "xIndex", m_xIndex );
-        nbttagcompound.setInteger( "yIndex", m_yIndex );
-        nbttagcompound.setInteger( "width", m_width );
-        nbttagcompound.setInteger( "height", m_height );
-        nbttagcompound.setInteger( "monitorDir", m_dir );
+        super.writeDescription( tag );
+        tag.setInteger( "xIndex", m_xIndex );
+        tag.setInteger( "yIndex", m_yIndex );
+        tag.setInteger( "width", m_width );
+        tag.setInteger( "height", m_height );
 
         if( m_xIndex == 0 && m_yIndex == 0 && m_serverMonitor != null )
         {
-            m_serverMonitor.writeDescription( nbttagcompound );
+            m_serverMonitor.writeDescription( tag );
         }
     }
 
     @Override
-    public final void readDescription( @Nonnull NBTTagCompound nbttagcompound )
+    public final void readDescription( @Nonnull NBTTagCompound tag )
     {
-        super.readDescription( nbttagcompound );
+        super.readDescription( tag );
 
         int oldXIndex = m_xIndex;
         int oldYIndex = m_yIndex;
         int oldWidth = m_width;
         int oldHeight = m_height;
-        int oldDir = m_dir;
 
-        m_xIndex = nbttagcompound.getInteger( "xIndex" );
-        m_yIndex = nbttagcompound.getInteger( "yIndex" );
-        m_width = nbttagcompound.getInteger( "width" );
-        m_height = nbttagcompound.getInteger( "height" );
-        m_dir = nbttagcompound.getInteger( "monitorDir" );
+        m_xIndex = tag.getInteger( "xIndex" );
+        m_yIndex = tag.getInteger( "yIndex" );
+        m_width = tag.getInteger( "width" );
+        m_height = tag.getInteger( "height" );
 
         if( oldXIndex != m_xIndex || oldYIndex != m_yIndex )
         {
@@ -304,101 +287,90 @@ public class TileMonitor extends TilePeripheralBase
         if( m_xIndex == 0 && m_yIndex == 0 )
         {
             // If we're the origin terminal then read the description
-            if( m_clientMonitor == null ) m_clientMonitor = new ClientMonitor( m_advanced, this );
-            m_clientMonitor.readDescription( nbttagcompound );
+            if( m_clientMonitor == null ) m_clientMonitor = new ClientMonitor( advanced, this );
+            m_clientMonitor.readDescription( tag );
         }
 
         if( oldXIndex != m_xIndex || oldYIndex != m_yIndex ||
-            oldWidth != m_width || oldHeight != m_height ||
-            oldDir != m_dir )
+            oldWidth != m_width || oldHeight != m_height )
         {
             // One of our properties has changed, so ensure we redraw the block
             updateBlock();
         }
     }
+
     // Sizing and placement stuff
+
+    private void fetchBlockInfo()
+    {
+        if( cachedOrientation == null )
+        {
+            IBlockState state = getBlockState();
+            blockType = state.getBlock();
+            cachedOrientation = state.getValue( BlockMonitor.ORIENTATION );
+            cachedFacing = state.getValue( BlockMonitor.FACING );
+        }
+    }
 
     @Override
     public EnumFacing getDirection()
     {
-        int dir = getDir() % 6;
-        switch( dir ) {
-            case 2: return EnumFacing.NORTH;
-            case 3: return EnumFacing.SOUTH;
-            case 4: return EnumFacing.WEST;
-            case 5: return EnumFacing.EAST;
-        }
-        return EnumFacing.NORTH;
+        fetchBlockInfo();
+        return cachedFacing;
     }
 
-    public int getDir()
+    private EnumFacing getOrientation()
     {
-        return m_dir;
-    }
-    
-    public void setDir( int dir )
-    {
-        m_dir = dir;
-        markDirty();
+        fetchBlockInfo();
+        return cachedOrientation;
     }
 
     public EnumFacing getFront()
     {
-        return m_dir <= 5 ? EnumFacing.byIndex( m_dir ) : (m_dir <= 11 ? EnumFacing.DOWN : EnumFacing.UP);
+        EnumFacing orientation = getOrientation();
+        return orientation == EnumFacing.NORTH ? getDirection() : orientation;
     }
 
     public EnumFacing getRight()
     {
-        int dir = getDir() % 6;
-        switch( dir ) {
-            case 2: return EnumFacing.WEST;
-            case 3: return EnumFacing.EAST;
-            case 4: return EnumFacing.SOUTH;
-            case 5: return EnumFacing.NORTH;
-        }
-        return EnumFacing.WEST;
+        return getDirection().rotateYCCW();
     }
-    
+
     private EnumFacing getDown()
     {
-        int dir = getDir();
-        if (dir <= 5) return EnumFacing.UP;
-        
-        switch( dir ) {
-            // up facing
-            case 8: return EnumFacing.NORTH;
-            case 9: return EnumFacing.SOUTH;
-            case 10: return EnumFacing.WEST;
-            case 11: return EnumFacing.EAST;
-            // down facing
-            case 14: return EnumFacing.SOUTH;
-            case 15: return EnumFacing.NORTH;
-            case 16: return EnumFacing.EAST;
-            case 17: return EnumFacing.WEST;
+        EnumFacing orientation = getOrientation();
+        switch( orientation )
+        {
+            default:
+            case NORTH:
+                return EnumFacing.UP;
+            case UP:
+                return getDirection().getOpposite();
+            case DOWN:
+                return getDirection();
         }
-        return EnumFacing.NORTH;
     }
-    
+
     public int getWidth()
     {
         return m_width;
     }
-    
+
     public int getHeight()
     {
         return m_height;
     }
-    
+
     public int getXIndex()
     {
         return m_xIndex;
     }
-    
+
     public int getYIndex()
     {
         return m_yIndex;
     }
-    
+
     private TileMonitor getSimilarMonitorAt( BlockPos pos )
     {
         if( pos.equals( getPos() ) )
@@ -416,14 +388,14 @@ public class TileMonitor extends TilePeripheralBase
                 if( tile instanceof TileMonitor )
                 {
                     TileMonitor monitor = (TileMonitor) tile;
-                    if( monitor.getDir() == getDir() && monitor.m_advanced == m_advanced &&
-                        !monitor.m_destroyed && !monitor.m_ignoreMe )
+                    if( monitor.getDirection() == getDirection() && monitor.getOrientation() == getOrientation() &&
+                        monitor.getBlock() == getBlock() && !monitor.m_destroyed && !monitor.m_ignoreMe )
                     {
                         return monitor;
                     }
                 }
             }
-            
+
         }
         return null;
     }
@@ -439,7 +411,7 @@ public class TileMonitor extends TilePeripheralBase
             pos.offset( right, xOffset ).offset( down, yOffset )
         );
     }
-    
+
     public TileMonitor getOrigin()
     {
         return getNeighbour( 0, 0 );
@@ -448,7 +420,7 @@ public class TileMonitor extends TilePeripheralBase
     private void resize( int width, int height )
     {
         // If we're not already the origin then we'll need to generate a new terminal.
-        if(m_xIndex != 0 || m_yIndex != 0) m_serverMonitor = null;
+        if( m_xIndex != 0 || m_yIndex != 0 ) m_serverMonitor = null;
 
         m_xIndex = 0;
         m_yIndex = 0;
@@ -476,7 +448,7 @@ public class TileMonitor extends TilePeripheralBase
         // Either delete the current monitor or sync a new one.
         if( needsTerminal )
         {
-            if( m_serverMonitor == null ) m_serverMonitor = new ServerMonitor( m_advanced, this );
+            if( m_serverMonitor == null ) m_serverMonitor = new ServerMonitor( advanced, this );
         }
         else
         {
@@ -507,153 +479,127 @@ public class TileMonitor extends TilePeripheralBase
 
     private boolean mergeLeft()
     {
-        TileMonitor left = getNeighbour( -1,0 );
+        TileMonitor left = getNeighbour( -1, 0 );
         if( left != null && left.m_yIndex == 0 && left.m_height == m_height )
         {
             int width = left.m_width + m_width;
             if( width <= MAX_WIDTH )
             {
                 TileMonitor origin = left.getOrigin();
-                if( origin != null )
-                {
-                    origin.resize( width, m_height );
-                }
+                if( origin != null ) origin.resize( width, m_height );
                 left.expand();
                 return true;
             }
         }
         return false;
     }
-    
+
     private boolean mergeRight()
     {
-        TileMonitor right = getNeighbour( m_width,0 );
+        TileMonitor right = getNeighbour( m_width, 0 );
         if( right != null && right.m_yIndex == 0 && right.m_height == m_height )
         {
             int width = m_width + right.m_width;
             if( width <= MAX_WIDTH )
             {
                 TileMonitor origin = getOrigin();
-                if( origin != null )
-                {
-                    origin.resize( width, m_height );
-                }
+                if( origin != null ) origin.resize( width, m_height );
                 expand();
                 return true;
             }
         }
         return false;
     }
-    
+
     private boolean mergeUp()
     {
-        TileMonitor above = getNeighbour( 0,m_height );
+        TileMonitor above = getNeighbour( 0, m_height );
         if( above != null && above.m_xIndex == 0 && above.m_width == m_width )
         {
             int height = above.m_height + m_height;
-            if( height <= MAX_HEIGHT)
+            if( height <= MAX_HEIGHT )
             {
                 TileMonitor origin = getOrigin();
-                if( origin != null )
-                {
-                    origin.resize( m_width, height );
-                }
+                if( origin != null ) origin.resize( m_width, height );
                 expand();
                 return true;
             }
         }
         return false;
     }
-    
+
     private boolean mergeDown()
     {
-        TileMonitor below = getNeighbour( 0,-1 );
+        TileMonitor below = getNeighbour( 0, -1 );
         if( below != null && below.m_xIndex == 0 && below.m_width == m_width )
         {
             int height = m_height + below.m_height;
             if( height <= MAX_HEIGHT )
             {
                 TileMonitor origin = below.getOrigin();
-                if( origin != null )
-                {
-                    origin.resize( m_width, height );
-                }
+                if( origin != null ) origin.resize( m_width, height );
                 below.expand();
                 return true;
             }
         }
         return false;
     }
-    
+
     public void expand()
     {
-        while( mergeLeft() || mergeRight() || mergeUp() || mergeDown() ) {}
+        while( mergeLeft() || mergeRight() || mergeUp() || mergeDown() )
+        {
+        }
     }
-    
+
     public void contractNeighbours()
     {
         m_ignoreMe = true;
-        if( m_xIndex > 0 ) {
+        if( m_xIndex > 0 )
+        {
             TileMonitor left = getNeighbour( m_xIndex - 1, m_yIndex );
-            if( left != null ) {
-                left.contract( );
-            }
+            if( left != null ) left.contract();
         }
-        if( m_xIndex + 1 < m_width ) {
+        if( m_xIndex + 1 < m_width )
+        {
             TileMonitor right = getNeighbour( m_xIndex + 1, m_yIndex );
-            if( right != null ) {
-                right.contract();
-            }
+            if( right != null ) right.contract();
         }
-        if( m_yIndex > 0 ) {
+        if( m_yIndex > 0 )
+        {
             TileMonitor below = getNeighbour( m_xIndex, m_yIndex - 1 );
-            if( below != null ) {
-                below.contract();
-            }
+            if( below != null ) below.contract();
         }
-        if( m_yIndex + 1 < m_height ) {
+        if( m_yIndex + 1 < m_height )
+        {
             TileMonitor above = getNeighbour( m_xIndex, m_yIndex + 1 );
-            if( above != null ) {
-                above.contract();
-            }
+            if( above != null ) above.contract();
         }
         m_ignoreMe = false;
     }
-    
+
     public void contract()
     {
         int height = m_height;
         int width = m_width;
-        
+
         TileMonitor origin = getOrigin();
         if( origin == null )
         {
             TileMonitor right = null;
             TileMonitor below = null;
-            if( width > 1 ) {
-                right = getNeighbour( 1, 0 );
-            }
-            if( height > 1 ) {
-                below = getNeighbour( 0, 1 );
-            }
-            if( right != null ) {
-                right.resize( width - 1, 1 );
-            }
-            if( below != null ) {
-                below.resize( width, height - 1 );
-            }
-            if( right != null ) {
-                right.expand();
-            }
-            if( below != null ) {
-                below.expand();
-            }
+            if( width > 1 ) right = getNeighbour( 1, 0 );
+            if( height > 1 ) below = getNeighbour( 0, 1 );
+            if( right != null ) right.resize( width - 1, 1 );
+            if( below != null ) below.resize( width, height - 1 );
+            if( right != null ) right.expand();
+            if( below != null ) below.expand();
             return;
         }
-        
-        for( int y=0; y<height; ++y )
+
+        for( int y = 0; y < height; ++y )
         {
-            for( int x=0; x<width; ++x )
+            for( int x = 0; x < width; ++x )
             {
                 TileMonitor monitor = origin.getNeighbour( x, y );
                 if( monitor == null )
@@ -663,50 +609,45 @@ public class TileMonitor extends TilePeripheralBase
                     TileMonitor left = null;
                     TileMonitor right = null;
                     TileMonitor below = null;
-                    
-                       if( y > 0 ) {
+
+                    if( y > 0 )
+                    {
                         above = origin;
                         above.resize( width, y );
                     }
-                    if( x > 0 ) {
+                    if( x > 0 )
+                    {
                         left = origin.getNeighbour( 0, y );
                         left.resize( x, 1 );
                     }
-                    if( x + 1 < width ) {
+                    if( x + 1 < width )
+                    {
                         right = origin.getNeighbour( x + 1, y );
                         right.resize( width - (x + 1), 1 );
                     }
-                    if( y + 1 < height ) {
+                    if( y + 1 < height )
+                    {
                         below = origin.getNeighbour( 0, y + 1 );
                         below.resize( width, height - (y + 1) );
                     }
 
                     // Re-expand
-                    if( above != null ) {
-                        above.expand();
-                    }
-                    if( left != null ) {
-                        left.expand();
-                    }
-                    if( right != null ) {
-                        right.expand();
-                    }
-                    if( below != null ) {
-                        below.expand();
-                    }
+                    if( above != null ) above.expand();
+                    if( left != null ) left.expand();
+                    if( right != null ) right.expand();
+                    if( below != null ) below.expand();
                     return;
-                }                
+                }
             }
         }
     }
-    
+
     public void monitorTouched( float xPos, float yPos, float zPos )
     {
-        int side = getDir();
-        XYPair pair = convertToXY( xPos, yPos, zPos, side );
+        XYPair pair = convertToXY( xPos, yPos, zPos, getDirection(), getOrientation() );
         pair = new XYPair( pair.x + m_xIndex, pair.y + m_height - m_yIndex - 1 );
 
-        if (pair.x > (m_width - RENDER_BORDER) || pair.y > (m_height - RENDER_BORDER) || pair.x < (RENDER_BORDER) || pair.y < (RENDER_BORDER))
+        if( pair.x > (m_width - RENDER_BORDER) || pair.y > (m_height - RENDER_BORDER) || pair.x < (RENDER_BORDER) || pair.y < (RENDER_BORDER) )
         {
             return;
         }
@@ -728,11 +669,11 @@ public class TileMonitor extends TilePeripheralBase
             for( int x = 0; x < m_width; ++x )
             {
                 TileMonitor monitor = getNeighbour( x, y );
-                if( monitor == null )continue;
+                if( monitor == null ) continue;
 
                 for( IComputerAccess computer : monitor.m_computers )
                 {
-                    computer.queueEvent( "monitor_touch", new Object[] {
+                    computer.queueEvent( "monitor_touch", new Object[]{
                         computer.getAttachmentName(), xCharPos, yCharPos
                     } );
                 }
@@ -740,39 +681,54 @@ public class TileMonitor extends TilePeripheralBase
         }
     }
 
-    private XYPair convertToXY( float xPos, float yPos, float zPos, int side )
+    private static XYPair convertToXY( float xPos, float yPos, float zPos, EnumFacing facing, EnumFacing orientation )
     {
-        switch (side)
+        switch( orientation )
         {
-        case 2:
-            return new XYPair( 1 - xPos, 1 - yPos );
-        case 3:
-            return new XYPair( xPos, 1 - yPos );
-        case 4:
-            return new XYPair( zPos, 1 - yPos );
-        case 5:
-            return new XYPair( 1 - zPos, 1 - yPos );
-        case 8:
-            return new XYPair( 1 - xPos, zPos );
-        case 9:
-            return new XYPair( xPos, 1 - zPos );
-        case 10:
-            return new XYPair( zPos, xPos );
-        case 11:
-            return new XYPair( 1 - zPos, 1 - xPos );
-        case 14:
-            return new XYPair( 1 - xPos, 1 - zPos );
-        case 15:
-            return new XYPair( xPos, zPos );
-        case 16:
-            return new XYPair( zPos, 1 - xPos );
-        case 17:
-            return new XYPair( 1 - zPos, xPos );
-        default:
-            return new XYPair( xPos, zPos );
+            case NORTH:
+                switch( facing )
+                {
+                    case NORTH:
+                        return new XYPair( 1 - xPos, 1 - yPos );
+                    case SOUTH:
+                        return new XYPair( xPos, 1 - yPos );
+                    case WEST:
+                        return new XYPair( zPos, 1 - yPos );
+                    case EAST:
+                        return new XYPair( 1 - zPos, 1 - yPos );
+                }
+                break;
+            case UP:
+                switch( facing )
+                {
+                    case NORTH:
+                        return new XYPair( 1 - xPos, zPos );
+                    case SOUTH:
+                        return new XYPair( xPos, 1 - zPos );
+                    case WEST:
+                        return new XYPair( zPos, xPos );
+                    case EAST:
+                        return new XYPair( 1 - zPos, 1 - xPos );
+                }
+                break;
+            case DOWN:
+                switch( facing )
+                {
+                    case NORTH:
+                        return new XYPair( 1 - xPos, 1 - zPos );
+                    case SOUTH:
+                        return new XYPair( xPos, zPos );
+                    case WEST:
+                        return new XYPair( zPos, 1 - xPos );
+                    case EAST:
+                        return new XYPair( 1 - zPos, xPos );
+                }
+                break;
         }
+
+        return new XYPair( xPos, yPos );
     }
-    
+
     public void addComputer( IComputerAccess computer )
     {
         synchronized( this )
@@ -780,7 +736,7 @@ public class TileMonitor extends TilePeripheralBase
             m_computers.add( computer );
         }
     }
-    
+
     public void removeComputer( IComputerAccess computer )
     {
         synchronized( this )
@@ -788,25 +744,25 @@ public class TileMonitor extends TilePeripheralBase
             m_computers.remove( computer );
         }
     }
-    
-    public static class XYPair
+
+    private static class XYPair
     {
         public final float x;
         public final float y;
 
-        private XYPair( float x, float y )
+        XYPair( float x, float y )
         {
             this.x = x;
             this.y = y;
         }
     }
-    
+
     @Nonnull
     @Override
     public AxisAlignedBB getRenderBoundingBox()
     {
-        TileMonitor start = getNeighbour(0, 0);
-        TileMonitor end = getNeighbour(m_width - 1, m_height - 1);
+        TileMonitor start = getNeighbour( 0, 0 );
+        TileMonitor end = getNeighbour( m_width - 1, m_height - 1 );
         if( start != null && end != null )
         {
             BlockPos startPos = start.getPos();
@@ -827,27 +783,35 @@ public class TileMonitor extends TilePeripheralBase
     }
 
     @Override
-    public boolean shouldRefresh( World world, BlockPos pos, @Nonnull IBlockState oldState, @Nonnull IBlockState newState )
+    public PeripheralType getPeripheralType()
     {
-        if( super.shouldRefresh( world, pos, oldState, newState ) )
+        return advanced ? PeripheralType.AdvancedMonitor : PeripheralType.Monitor;
+    }
+
+    @Override
+    public String getLabel()
+    {
+        return null;
+    }
+
+    @Override
+    public void setDirection( EnumFacing dir )
+    {
+    }
+
+    public static class TileMonitorNormal extends TileMonitor
+    {
+        public TileMonitorNormal()
         {
-            return true;
-        }
-        else
-        {
-            switch( ComputerCraft.Blocks.peripheral.getPeripheralType( newState ) )
-            {
-                case Monitor:
-                case AdvancedMonitor:
-                {
-                    return false;
-                }
-                default:
-                {
-                    return true;
-                }
-            }
+            super( false );
         }
     }
 
+    public static class TileMonitorAdvanced extends TileMonitor
+    {
+        public TileMonitorAdvanced()
+        {
+            super( true );
+        }
+    }
 }

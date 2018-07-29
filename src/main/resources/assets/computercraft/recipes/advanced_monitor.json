@@ -9,5 +9,5 @@
         "#": { "type": "forge:ore_dict", "ore": "ingotGold" },
         "G": { "type": "forge:ore_dict", "ore": "paneGlass" }
     },
-    "result": { "item": "computercraft:peripheral", "data": 4, "count": 4 }
+    "result": { "item": "computercraft:monitor_advanced", "count": 4 }
 }

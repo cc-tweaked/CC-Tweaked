@@ -63,14 +63,6 @@ public abstract class ItemPeripheralBase extends ItemBlock
             {
                 return "tile.computercraft:printer";
             }
-            case Monitor:
-            {
-                return "tile.computercraft:monitor";
-            }
-            case AdvancedMonitor:
-            {
-                return "tile.computercraft:advanced_monitor";
-            }
             case WiredModem:
             case WiredModemWithCable:
             {

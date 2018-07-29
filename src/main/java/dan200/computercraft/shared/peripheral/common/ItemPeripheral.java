@@ -30,19 +30,9 @@ public class ItemPeripheral extends ItemPeripheralBase
         ItemStack stack;
         switch( type )
         {
-            case Monitor:
-            {
-                stack = new ItemStack( this, quantity, 2 );
-                break;
-            }
             case Printer:
             {
                 stack = new ItemStack( this, quantity, 3 );
-                break;
-            }
-            case AdvancedMonitor:
-            {
-                stack = new ItemStack( this, quantity, 4 );
                 break;
             }
 
@@ -64,8 +54,6 @@ public class ItemPeripheral extends ItemPeripheralBase
     {
         if( !isInCreativeTab( tabs ) ) return;
         list.add( PeripheralItemFactory.create( PeripheralType.Printer, null, 1 ) );
-        list.add( PeripheralItemFactory.create( PeripheralType.Monitor, null, 1 ) );
-        list.add( PeripheralItemFactory.create( PeripheralType.AdvancedMonitor, null, 1 ) );
     }
 
     @Override
@@ -74,17 +62,9 @@ public class ItemPeripheral extends ItemPeripheralBase
         switch( damage )
         {
             default:
-            case 2:
-            {
-                return PeripheralType.Monitor;
-            }
             case 3:
             {
                 return PeripheralType.Printer;
-            }
-            case 4:
-            {
-                return PeripheralType.AdvancedMonitor;
             }
         }
     }

@@ -99,11 +99,11 @@ public class ComputerCraftProxyClient extends ComputerCraftProxyCommon
 
         registerItemModel( ComputerCraft.Blocks.diskDrive, 0, "disk_drive" );
         registerItemModel( ComputerCraft.Blocks.speaker, 0, "speaker" );
+        registerItemModel( ComputerCraft.Blocks.monitorNormal, 0, "monitor_normal" );
+        registerItemModel( ComputerCraft.Blocks.monitorAdvanced, 0, "monitor_advanced" );
 
-        registerItemModel( ComputerCraft.Blocks.peripheral, 1, "wireless_modem" );
-        registerItemModel( ComputerCraft.Blocks.peripheral, 2, "monitor" );
         registerItemModel( ComputerCraft.Blocks.peripheral, 3, "printer" );
-        registerItemModel( ComputerCraft.Blocks.peripheral, 4, "advanced_monitor" );
+
         registerItemModel( ComputerCraft.Blocks.cable, 0, "cable" );
         registerItemModel( ComputerCraft.Blocks.cable, 1, "wired_modem" );
 

@@ -119,4 +119,11 @@ public class DirectionUtil
             default: return 0.0f;
         }
     }
+
+    public static EnumFacing fromPitchAngle( EntityLivingBase entity )
+    {
+        if( entity.rotationPitch > 66.5F ) return EnumFacing.UP;
+        if( entity.rotationPitch < -66.5F ) return EnumFacing.DOWN;
+        return EnumFacing.NORTH;
+    }
 }

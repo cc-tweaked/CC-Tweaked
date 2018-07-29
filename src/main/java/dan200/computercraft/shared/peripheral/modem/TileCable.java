@@ -170,6 +170,7 @@ public class TileCable extends TileModemBase
     @Override
     public void updateContainingBlockInfo()
     {
+        super.updateContainingBlockInfo();
         m_hasDirection = false;
     }
 

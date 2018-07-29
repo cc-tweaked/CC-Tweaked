@@ -9,5 +9,5 @@
         "#": { "type": "forge:ore_dict", "ore": "stone" },
         "G": { "type": "forge:ore_dict", "ore": "paneGlass" }
     },
-    "result": { "item": "computercraft:peripheral", "data": 2 }
+    "result": { "item": "computercraft:monitor_normal" }
 }
