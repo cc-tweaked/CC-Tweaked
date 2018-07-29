@@ -37,10 +37,7 @@ import dan200.computercraft.shared.peripheral.common.*;
 import dan200.computercraft.shared.peripheral.diskdrive.BlockDiskDrive;
 import dan200.computercraft.shared.peripheral.diskdrive.ContainerDiskDrive;
 import dan200.computercraft.shared.peripheral.diskdrive.TileDiskDrive;
-import dan200.computercraft.shared.peripheral.modem.BlockModem;
-import dan200.computercraft.shared.peripheral.modem.TileCable;
-import dan200.computercraft.shared.peripheral.modem.TileWiredModemFull;
-import dan200.computercraft.shared.peripheral.modem.TileWirelessModemBase;
+import dan200.computercraft.shared.peripheral.modem.*;
 import dan200.computercraft.shared.peripheral.monitor.TileMonitor;
 import dan200.computercraft.shared.peripheral.printer.ContainerPrinter;
 import dan200.computercraft.shared.peripheral.printer.TilePrinter;
@@ -65,6 +62,7 @@ import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.inventory.Container;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemRecord;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
@@ -303,18 +301,18 @@ public abstract class ComputerCraftProxyCommon implements IComputerCraftProxy
 
         // Peripheral
         registry.register( new ItemPeripheral( ComputerCraft.Blocks.peripheral ).setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "peripheral" ) ) );
-        registry.register( new ItemPeripheralCommon( ComputerCraft.Blocks.diskDrive, PeripheralType.DiskDrive ).setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "disk_drive" ) ) );
-        registry.register( new ItemPeripheralCommon( ComputerCraft.Blocks.speaker, PeripheralType.Speaker ).setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "speaker" ) ) );
+        registry.register( new ItemBlock( ComputerCraft.Blocks.diskDrive ).setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "disk_drive" ) ) );
+        registry.register( new ItemBlock( ComputerCraft.Blocks.speaker ).setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "speaker" ) ) );
         
         // Cable
         registry.register( new ItemCable( ComputerCraft.Blocks.cable ).setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "cable" ) ) );
 
         // Modem
-        registry.register( new ItemPeripheralCommon( ComputerCraft.Blocks.wirelessModem, PeripheralType.WirelessModem ).setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "wireless_modem" ) ) );
-        registry.register( new ItemPeripheralCommon( ComputerCraft.Blocks.advancedModem, PeripheralType.AdvancedModem ).setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "advanced_modem" ) ) );
+        registry.register( new ItemModem( ComputerCraft.Blocks.wirelessModem ).setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "wireless_modem" ) ) );
+        registry.register( new ItemModem( ComputerCraft.Blocks.advancedModem ).setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "advanced_modem" ) ) );
         
         // Full block modem
-        registry.register( new ItemWiredModemFull( ComputerCraft.Blocks.wiredModemFull ).setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "wired_modem_full" ) ) );
+        registry.register( new ItemBlock( ComputerCraft.Blocks.wiredModemFull ).setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "wired_modem_full" ) ) );
         
         // Items
         // Floppy Disk

@@ -44,8 +44,10 @@ public abstract class BlockPeripheralBase extends BlockDirectional
     @Override
     protected final IBlockState getDefaultBlockState( int damage, EnumFacing placedSide )
     {
-        ItemPeripheralBase item = (ItemPeripheralBase) Item.getItemFromBlock( this );
-        return getDefaultBlockState( item.getPeripheralType( damage ), placedSide );
+        Item item = Item.getItemFromBlock( this );
+        PeripheralType type = null;
+        if( item instanceof ItemPeripheralBase ) type = ((ItemPeripheralBase) item).getPeripheralType( damage );
+        return getDefaultBlockState( type, placedSide );
     }
 
     @Nullable

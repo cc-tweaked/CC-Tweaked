@@ -29,12 +29,6 @@ public abstract class ItemComputerBase extends ItemBlock implements IComputerIte
     }
 
     @Override
-    public int getMetadata( int damage )
-    {
-        return super.getMetadata( damage );
-    }
-
-    @Override
     public void addInformation( @Nonnull ItemStack stack, @Nullable World world, @Nonnull List<String> list, @Nonnull ITooltipFlag flag )
     {
         if( flag.isAdvanced() )

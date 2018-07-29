@@ -17,7 +17,7 @@ import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
 
-public abstract class ItemPeripheralBase extends ItemBlock implements IPeripheralItem
+public abstract class ItemPeripheralBase extends ItemBlock
 {
     protected ItemPeripheralBase( Block block )
     {
@@ -40,12 +40,6 @@ public abstract class ItemPeripheralBase extends ItemBlock implements IPeriphera
         PeripheralType type = getPeripheralType( stack );
         switch( type )
         {
-            case WirelessModem:
-            case WiredModem:
-            case AdvancedModem:
-            {
-                return world.isSideSolid( pos, side );
-            }
             case Cable:
             {
                 return true;
@@ -64,11 +58,7 @@ public abstract class ItemPeripheralBase extends ItemBlock implements IPeriphera
         PeripheralType type = getPeripheralType( stack );
         switch( type )
         {
-            case DiskDrive:
             default:
-            {
-                return "tile.computercraft:drive";
-            }
             case Printer:
             {
                 return "tile.computercraft:printer";
@@ -81,10 +71,6 @@ public abstract class ItemPeripheralBase extends ItemBlock implements IPeriphera
             {
                 return "tile.computercraft:advanced_monitor";
             }
-            case WirelessModem:
-            {
-                return "tile.computercraft:wireless_modem";
-            }
             case WiredModem:
             case WiredModemWithCable:
             {
@@ -94,22 +80,9 @@ public abstract class ItemPeripheralBase extends ItemBlock implements IPeriphera
             {
                 return "tile.computercraft:cable";
             }
-            case AdvancedModem:
-            {
-                return "tile.computercraft:advanced_modem";
-            }
-            case Speaker:
-            {
-                return "tile.computercraft:speaker";
-            }
-            case WiredModemFull:
-                return "tile.computercraft:wired_modem";
         }
     }
 
-    // IPeripheralItem implementation
-
-    @Override
     public final PeripheralType getPeripheralType( @Nonnull ItemStack stack )
     {
         return getPeripheralType( stack.getItemDamage() );
