@@ -312,8 +312,7 @@ public abstract class TileMonitor extends TileGeneric implements ITickable, IPer
         }
     }
 
-    @Override
-    public EnumFacing getDirection()
+    public EnumFacing getFacing()
     {
         fetchBlockInfo();
         return cachedFacing;
@@ -328,12 +327,12 @@ public abstract class TileMonitor extends TileGeneric implements ITickable, IPer
     public EnumFacing getFront()
     {
         EnumFacing orientation = getOrientation();
-        return orientation == EnumFacing.NORTH ? getDirection() : orientation;
+        return orientation == EnumFacing.NORTH ? getFacing() : orientation;
     }
 
     public EnumFacing getRight()
     {
-        return getDirection().rotateYCCW();
+        return getFacing().rotateYCCW();
     }
 
     private EnumFacing getDown()
@@ -345,9 +344,9 @@ public abstract class TileMonitor extends TileGeneric implements ITickable, IPer
             case NORTH:
                 return EnumFacing.UP;
             case UP:
-                return getDirection().getOpposite();
+                return getFacing().getOpposite();
             case DOWN:
-                return getDirection();
+                return getFacing();
         }
     }
 
@@ -388,7 +387,7 @@ public abstract class TileMonitor extends TileGeneric implements ITickable, IPer
                 if( tile instanceof TileMonitor )
                 {
                     TileMonitor monitor = (TileMonitor) tile;
-                    if( monitor.getDirection() == getDirection() && monitor.getOrientation() == getOrientation() &&
+                    if( monitor.getFacing() == getFacing() && monitor.getOrientation() == getOrientation() &&
                         monitor.getBlock() == getBlock() && !monitor.m_destroyed && !monitor.m_ignoreMe )
                     {
                         return monitor;
@@ -644,7 +643,7 @@ public abstract class TileMonitor extends TileGeneric implements ITickable, IPer
 
     public void monitorTouched( float xPos, float yPos, float zPos )
     {
-        XYPair pair = convertToXY( xPos, yPos, zPos, getDirection(), getOrientation() );
+        XYPair pair = convertToXY( xPos, yPos, zPos, getFacing(), getOrientation() );
         pair = new XYPair( pair.x + m_xIndex, pair.y + m_height - m_yIndex - 1 );
 
         if( pair.x > (m_width - RENDER_BORDER) || pair.y > (m_height - RENDER_BORDER) || pair.x < (RENDER_BORDER) || pair.y < (RENDER_BORDER) )
@@ -786,17 +785,6 @@ public abstract class TileMonitor extends TileGeneric implements ITickable, IPer
     public PeripheralType getPeripheralType()
     {
         return advanced ? PeripheralType.AdvancedMonitor : PeripheralType.Monitor;
-    }
-
-    @Override
-    public String getLabel()
-    {
-        return null;
-    }
-
-    @Override
-    public void setDirection( EnumFacing dir )
-    {
     }
 
     public static class TileMonitorNormal extends TileMonitor

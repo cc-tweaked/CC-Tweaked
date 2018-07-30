@@ -46,25 +46,4 @@ public class TileSpeaker extends TileGeneric implements ITickable, IPeripheralTi
     {
         return m_peripheral;
     }
-
-    @Override
-    public String getLabel()
-    {
-        return null;
-    }
-
-    @Override
-    public EnumFacing getDirection()
-    {
-        return getBlockState().getValue( BlockSpeaker.FACING );
-    }
-
-    @Override
-    public void setDirection( EnumFacing dir )
-    {
-        if( dir.getAxis() != EnumFacing.Axis.Y )
-        {
-            setBlockState( getBlockState().withProperty( BlockSpeaker.FACING, dir ) );
-        }
-    }
 }

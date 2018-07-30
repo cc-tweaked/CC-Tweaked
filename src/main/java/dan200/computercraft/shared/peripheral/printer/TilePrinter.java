@@ -360,17 +360,6 @@ public class TilePrinter extends TileGeneric implements ISidedInventory, IDefaul
         return PeripheralType.Printer;
     }
 
-    @Override
-    public EnumFacing getDirection()
-    {
-        return getBlockState().getValue( BlockPrinter.FACING );
-    }
-
-    @Override
-    public void setDirection( EnumFacing dir )
-    {
-    }
-
     public boolean isBottomFull()
     {
         return bottomFull;
@@ -380,7 +369,6 @@ public class TilePrinter extends TileGeneric implements ISidedInventory, IDefaul
     {
         return topFull;
     }
-
 
     @Override
     public IPeripheral getPeripheral( EnumFacing side )

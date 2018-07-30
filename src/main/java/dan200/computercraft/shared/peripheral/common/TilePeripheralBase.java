@@ -7,19 +7,17 @@
 package dan200.computercraft.shared.peripheral.common;
 
 import dan200.computercraft.api.peripheral.IPeripheral;
+import dan200.computercraft.shared.common.IDirectionalTile;
 import dan200.computercraft.shared.common.TileGeneric;
 import dan200.computercraft.shared.peripheral.PeripheralType;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.ITickable;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.NonNullList;
+import net.minecraft.util.ITickable;
 
 import javax.annotation.Nonnull;
-import java.util.List;
 
-public abstract class TilePeripheralBase extends TileGeneric
-    implements IPeripheralTile, ITickable
+public abstract class TilePeripheralBase extends TileGeneric implements IPeripheralTile, ITickable, IDirectionalTile
 {
     // Statics
 
@@ -42,7 +40,7 @@ public abstract class TilePeripheralBase extends TileGeneric
     @Override
     public BlockPeripheralBase getBlock()
     {
-        return (BlockPeripheralBase)super.getBlock();
+        return (BlockPeripheralBase) super.getBlock();
     }
 
     @Nonnull
@@ -108,7 +106,7 @@ public abstract class TilePeripheralBase extends TileGeneric
     {
         return m_anim;
     }
-    
+
     public synchronized void setAnim( int anim )
     {
         if( anim != m_anim )
@@ -118,7 +116,7 @@ public abstract class TilePeripheralBase extends TileGeneric
         }
     }
 
-    @Override    
+    @Override
     public synchronized void update()
     {
         if( m_changed )
@@ -127,12 +125,12 @@ public abstract class TilePeripheralBase extends TileGeneric
             m_changed = false;
         }
     }
-            
-    @Override    
+
+    @Override
     public void readFromNBT( NBTTagCompound nbttagcompound )
     {
         // Read properties
-        super.readFromNBT(nbttagcompound);
+        super.readFromNBT( nbttagcompound );
         if( nbttagcompound.hasKey( "dir" ) )
         {
             m_dir = EnumFacing.byIndex( nbttagcompound.getInteger( "dir" ) );

@@ -68,7 +68,7 @@ public class TileEntityMonitorRenderer extends TileEntitySpecialRenderer<TileMon
         posZ += originPos.getZ() - monitorPos.getZ();
 
         // Determine orientation
-        EnumFacing dir = origin.getDirection();
+        EnumFacing dir = origin.getFacing();
         EnumFacing front = origin.getFront();
         float yaw = DirectionUtil.toYawAngle( dir );
         float pitch = DirectionUtil.toPitchAngle( front );

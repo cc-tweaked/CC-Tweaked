@@ -133,20 +133,9 @@ public class TileDiskDrive extends TileGeneric implements IDefaultInventory, IPe
         }
     }
 
-    @Override
     public EnumFacing getDirection()
     {
         return getBlockState().getValue( BlockDiskDrive.FACING );
-    }
-
-    @Override
-    public void setDirection( EnumFacing dir )
-    {
-        if( dir.getAxis() == EnumFacing.Axis.Y )
-        {
-            dir = EnumFacing.NORTH;
-        }
-        setBlockState( getBlockState().withProperty( BlockDiskDrive.FACING, dir ) );
     }
 
     @Override
