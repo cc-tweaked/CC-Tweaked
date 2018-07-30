@@ -10,7 +10,6 @@ import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.shared.common.IDirectionalTile;
 import dan200.computercraft.shared.common.TileGeneric;
 import dan200.computercraft.shared.peripheral.PeripheralType;
-import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ITickable;
@@ -25,15 +24,11 @@ public abstract class TilePeripheralBase extends TileGeneric implements IPeriphe
     private int m_anim;
     private boolean m_changed;
 
-    private String m_label;
-
     public TilePeripheralBase()
     {
         m_dir = EnumFacing.NORTH;
         m_anim = 0;
         m_changed = false;
-
-        m_label = null;
     }
 
 
@@ -45,7 +40,6 @@ public abstract class TilePeripheralBase extends TileGeneric implements IPeriphe
 
     // IPeripheralTile implementation
 
-    @Override
     public final PeripheralType getPeripheralType()
     {
         return getBlock().getPeripheralType( getBlockState() );
@@ -55,21 +49,6 @@ public abstract class TilePeripheralBase extends TileGeneric implements IPeriphe
     public IPeripheral getPeripheral( EnumFacing side )
     {
         return null;
-    }
-
-    @Override
-    public String getLabel()
-    {
-        if( m_label != null && m_label.length() > 0 )
-        {
-            return m_label;
-        }
-        return null;
-    }
-
-    public void setLabel( String label )
-    {
-        m_label = label;
     }
 
     // IDirectionalTile implementation
@@ -132,10 +111,6 @@ public abstract class TilePeripheralBase extends TileGeneric implements IPeriphe
         {
             m_anim = nbttagcompound.getInteger( "anim" );
         }
-        if( nbttagcompound.hasKey( "label" ) )
-        {
-            m_label = nbttagcompound.getString( "label" );
-        }
     }
 
     @Nonnull
@@ -146,10 +121,6 @@ public abstract class TilePeripheralBase extends TileGeneric implements IPeriphe
         nbttagcompound = super.writeToNBT( nbttagcompound );
         nbttagcompound.setInteger( "dir", m_dir.getIndex() );
         nbttagcompound.setInteger( "anim", m_anim );
-        if( m_label != null )
-        {
-            nbttagcompound.setString( "label", m_label );
-        }
         return nbttagcompound;
     }
 
@@ -159,14 +130,6 @@ public abstract class TilePeripheralBase extends TileGeneric implements IPeriphe
         super.readDescription( nbttagcompound );
         m_dir = EnumFacing.byIndex( nbttagcompound.getInteger( "dir" ) );
         m_anim = nbttagcompound.getInteger( "anim" );
-        if( nbttagcompound.hasKey( "label" ) )
-        {
-            m_label = nbttagcompound.getString( "label" );
-        }
-        else
-        {
-            m_label = null;
-        }
     }
 
     @Override
@@ -175,9 +138,5 @@ public abstract class TilePeripheralBase extends TileGeneric implements IPeriphe
         super.writeDescription( nbttagcompound );
         nbttagcompound.setInteger( "dir", m_dir.getIndex() );
         nbttagcompound.setInteger( "anim", m_anim );
-        if( m_label != null )
-        {
-            nbttagcompound.setString( "label", m_label );
-        }
     }
 }

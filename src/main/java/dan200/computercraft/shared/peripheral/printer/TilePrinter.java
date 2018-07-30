@@ -11,7 +11,6 @@ import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.shared.common.TileGeneric;
 import dan200.computercraft.shared.media.items.ItemPrintout;
-import dan200.computercraft.shared.peripheral.PeripheralType;
 import dan200.computercraft.shared.peripheral.common.IPeripheralTile;
 import dan200.computercraft.shared.util.IDefaultInventory;
 import dan200.computercraft.shared.util.InventoryUtil;
@@ -354,12 +353,6 @@ public class TilePrinter extends TileGeneric implements ISidedInventory, IDefaul
 
     // IPeripheralTile implementation
 
-    @Override
-    public PeripheralType getPeripheralType()
-    {
-        return PeripheralType.Printer;
-    }
-
     public boolean isBottomFull()
     {
         return bottomFull;
@@ -376,7 +369,6 @@ public class TilePrinter extends TileGeneric implements ISidedInventory, IDefaul
         return new PrinterPeripheral( this );
     }
 
-    @Override
     public String getLabel()
     {
         return label;

@@ -229,8 +229,7 @@ public class TileCable extends TileModemBase
                 case WiredModemWithCable:
                 {
                     // Drop the modem and convert to cable
-                    Block.spawnAsEntity( getWorld(), getPos(), PeripheralItemFactory.create( PeripheralType.WiredModem, getLabel(), 1 ) );
-                    setLabel( null );
+                    Block.spawnAsEntity( getWorld(), getPos(), PeripheralItemFactory.create( PeripheralType.WiredModem, null, 1 ) );
                     setBlockState( getBlockState().withProperty( BlockCable.MODEM, BlockCableModemVariant.None ) );
                     modemChanged();
                     connectionsChanged();

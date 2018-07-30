@@ -11,7 +11,6 @@ import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.shared.common.ServerTerminal;
 import dan200.computercraft.shared.common.TileGeneric;
-import dan200.computercraft.shared.peripheral.PeripheralType;
 import dan200.computercraft.shared.peripheral.common.IPeripheralTile;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
@@ -779,12 +778,6 @@ public abstract class TileMonitor extends TileGeneric implements ITickable, IPer
             BlockPos pos = this.getPos();
             return new AxisAlignedBB( pos.getX(), pos.getY(), pos.getZ(), pos.getX() + 1, pos.getY() + 1, pos.getZ() + 1 );
         }
-    }
-
-    @Override
-    public PeripheralType getPeripheralType()
-    {
-        return advanced ? PeripheralType.AdvancedMonitor : PeripheralType.Monitor;
     }
 
     public static class TileMonitorNormal extends TileMonitor

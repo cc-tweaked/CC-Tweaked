@@ -8,7 +8,6 @@ package dan200.computercraft.shared.peripheral.speaker;
 
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.shared.common.TileGeneric;
-import dan200.computercraft.shared.peripheral.PeripheralType;
 import dan200.computercraft.shared.peripheral.common.IPeripheralTile;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ITickable;
@@ -34,12 +33,6 @@ public class TileSpeaker extends TileGeneric implements ITickable, IPeripheralTi
     }
 
     // IPeripheralTile implementation
-
-    @Override
-    public PeripheralType getPeripheralType()
-    {
-        return PeripheralType.Speaker;
-    }
 
     @Override
     public IPeripheral getPeripheral( EnumFacing side )

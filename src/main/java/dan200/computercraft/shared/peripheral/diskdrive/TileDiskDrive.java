@@ -13,7 +13,6 @@ import dan200.computercraft.api.media.IMedia;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.shared.common.TileGeneric;
-import dan200.computercraft.shared.peripheral.PeripheralType;
 import dan200.computercraft.shared.peripheral.common.IPeripheralTile;
 import dan200.computercraft.shared.util.IDefaultInventory;
 import dan200.computercraft.shared.util.InventoryUtil;
@@ -369,20 +368,12 @@ public class TileDiskDrive extends TileGeneric implements IDefaultInventory, IPe
     }
 
     // IPeripheralTile implementation
-
-    @Override
-    public PeripheralType getPeripheralType()
-    {
-        return PeripheralType.DiskDrive;
-    }
-
     @Override
     public IPeripheral getPeripheral( EnumFacing side )
     {
         return new DiskDrivePeripheral( this );
     }
 
-    @Override
     public String getLabel()
     {
         return label;
