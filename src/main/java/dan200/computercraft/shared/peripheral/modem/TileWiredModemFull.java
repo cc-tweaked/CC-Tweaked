@@ -11,12 +11,14 @@ import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.network.wired.IWiredElement;
 import dan200.computercraft.api.network.wired.IWiredNode;
 import dan200.computercraft.api.peripheral.IPeripheral;
+import dan200.computercraft.shared.common.TileGeneric;
 import dan200.computercraft.shared.peripheral.common.BlockCable;
-import dan200.computercraft.shared.peripheral.common.TilePeripheralBase;
+import dan200.computercraft.shared.peripheral.common.IPeripheralTile;
 import dan200.computercraft.shared.wired.CapabilityWiredElement;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.ITickable;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
@@ -28,7 +30,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
 
-public class TileWiredModemFull extends TilePeripheralBase
+public class TileWiredModemFull extends TileGeneric implements IPeripheralTile, ITickable
 {
     private static class FullElement extends WiredModemElement
     {
@@ -86,6 +88,9 @@ public class TileWiredModemFull extends TilePeripheralBase
     private final WiredModemElement m_element = new FullElement( this );
     private final IWiredNode m_node = m_element.getNode();
 
+    private boolean modemOn = false;
+    private boolean peripheralOn = false;
+
     public TileWiredModemFull()
     {
         for( int i = 0; i < m_peripherals.length; i++ ) m_peripherals[i] = new WiredModemLocalPeripheral();
@@ -123,17 +128,6 @@ public class TileWiredModemFull extends TilePeripheralBase
     {
         super.invalidate();
         remove();
-    }
-
-    @Override
-    public EnumFacing getDirection()
-    {
-        return EnumFacing.NORTH;
-    }
-
-    @Override
-    public void setDirection( EnumFacing dir )
-    {
     }
 
     @Override
@@ -235,28 +229,50 @@ public class TileWiredModemFull extends TilePeripheralBase
 
     protected void updateAnim()
     {
-        int anim = 0;
+        boolean modemOn = false, peripheralOn = m_peripheralAccessAllowed;
         for( WiredModemPeripheral modem : m_modems )
         {
             if( modem != null && modem.isActive() )
             {
-                anim += 1;
+                modemOn = true;
                 break;
             }
         }
 
-        if( m_peripheralAccessAllowed )
+        if( modemOn != this.modemOn || peripheralOn != this.peripheralOn )
         {
-            anim += 2;
+            this.modemOn = modemOn;
+            this.peripheralOn = peripheralOn;
+            updateBlock();
         }
-        setAnim( anim );
+    }
+
+    @Override
+    protected void writeDescription( @Nonnull NBTTagCompound tag )
+    {
+        super.writeDescription( tag );
+        tag.setBoolean( "modem_on", modemOn );
+        tag.setBoolean( "peripheral_on", peripheralOn );
     }
 
     @Override
     public final void readDescription( @Nonnull NBTTagCompound tag )
     {
         super.readDescription( tag );
+        modemOn = tag.getBoolean( "modem_on" );
+        peripheralOn = tag.getBoolean( "peripheral_on" );
+
         updateBlock();
+    }
+
+    public boolean isModemOn()
+    {
+        return modemOn;
+    }
+
+    public boolean isPeripheralOn()
+    {
+        return peripheralOn;
     }
 
     @Override
@@ -286,8 +302,6 @@ public class TileWiredModemFull extends TilePeripheralBase
                 }
             }
         }
-
-        super.update();
     }
 
     private void connectionsChanged()

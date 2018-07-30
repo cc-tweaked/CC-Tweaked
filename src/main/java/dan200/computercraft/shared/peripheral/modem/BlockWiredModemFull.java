@@ -4,11 +4,11 @@
  * Send enquiries to dratcliffe@gmail.com
  */
 
-package dan200.computercraft.shared.peripheral.common;
+package dan200.computercraft.shared.peripheral.modem;
 
 import dan200.computercraft.ComputerCraft;
-import dan200.computercraft.shared.peripheral.PeripheralType;
-import dan200.computercraft.shared.peripheral.modem.TileWiredModemFull;
+import dan200.computercraft.shared.common.BlockGeneric;
+import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.PropertyBool;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
@@ -16,18 +16,19 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
+import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
-public class BlockWiredModemFull extends BlockPeripheralBase
+public class BlockWiredModemFull extends BlockGeneric
 {
     public static final PropertyBool MODEM_ON = PropertyBool.create( "modem" );
     public static final PropertyBool PERIPHERAL_ON = PropertyBool.create( "peripheral" );
 
-    // Members
-
     public BlockWiredModemFull()
     {
+        super( Material.ROCK );
         setHardness( 1.5f );
         setTranslationKey( "computercraft:wired_modem_full" );
         setCreativeTab( ComputerCraft.mainCreativeTab );
@@ -38,9 +39,16 @@ public class BlockWiredModemFull extends BlockPeripheralBase
     }
 
     @Override
-    protected IBlockState getDefaultBlockState( PeripheralType type, EnumFacing placedSide )
+    protected IBlockState getDefaultBlockState( int damage, EnumFacing placedSide )
     {
         return getDefaultState();
+    }
+
+    @Nullable
+    @Override
+    public TileEntity createTileEntity( @Nonnull World world, @Nonnull IBlockState state )
+    {
+        return new TileWiredModemFull();
     }
 
     @Nonnull
@@ -68,30 +76,11 @@ public class BlockWiredModemFull extends BlockPeripheralBase
         if( te instanceof TileWiredModemFull )
         {
             TileWiredModemFull modem = (TileWiredModemFull) te;
-            int anim = modem.getAnim();
             state = state
-                .withProperty( MODEM_ON, (anim & 1) != 0 )
-                .withProperty( PERIPHERAL_ON, (anim & 2) != 0 );
+                .withProperty( MODEM_ON, modem.isModemOn() )
+                .withProperty( PERIPHERAL_ON, modem.isPeripheralOn() );
         }
 
         return state;
-    }
-
-    @Override
-    public PeripheralType getPeripheralType( int damage )
-    {
-        return PeripheralType.WiredModemFull;
-    }
-
-    @Override
-    public PeripheralType getPeripheralType( IBlockState state )
-    {
-        return PeripheralType.WiredModemFull;
-    }
-
-    @Override
-    public TilePeripheralBase createTile( PeripheralType type )
-    {
-        return new TileWiredModemFull();
     }
 }

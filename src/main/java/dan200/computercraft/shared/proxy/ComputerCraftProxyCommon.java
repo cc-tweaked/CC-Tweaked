@@ -34,7 +34,7 @@ import dan200.computercraft.shared.network.ComputerCraftPacket;
 import dan200.computercraft.shared.peripheral.PeripheralType;
 import dan200.computercraft.shared.peripheral.commandblock.CommandBlockPeripheralProvider;
 import dan200.computercraft.shared.peripheral.common.BlockCable;
-import dan200.computercraft.shared.peripheral.common.BlockWiredModemFull;
+import dan200.computercraft.shared.peripheral.modem.BlockWiredModemFull;
 import dan200.computercraft.shared.peripheral.common.DefaultPeripheralProvider;
 import dan200.computercraft.shared.peripheral.common.ItemCable;
 import dan200.computercraft.shared.peripheral.diskdrive.BlockDiskDrive;

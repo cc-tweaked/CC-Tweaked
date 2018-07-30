@@ -167,7 +167,7 @@ public class TilePrinter extends TileGeneric implements ISidedInventory, IDefaul
         topFull = tag.getBoolean( "top_full" );
         label = tag.hasKey( "label" ) ? tag.getString( "label" ) : null;
 
-        getWorld().markBlockRangeForRenderUpdate( getPos(), getPos() );
+        updateBlock();
     }
 
     @Override
@@ -628,7 +628,7 @@ public class TilePrinter extends TileGeneric implements ISidedInventory, IDefaul
         {
             this.topFull = topFull;
             this.bottomFull = bottomFull;
-            getWorld().markBlockRangeForRenderUpdate( getPos(), getPos() );
+            updateBlock();
         }
     }
 

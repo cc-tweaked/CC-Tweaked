@@ -43,7 +43,7 @@ import dan200.computercraft.shared.media.items.ItemTreasureDisk;
 import dan200.computercraft.shared.network.ComputerCraftPacket;
 import dan200.computercraft.shared.network.PacketHandler;
 import dan200.computercraft.shared.peripheral.common.BlockCable;
-import dan200.computercraft.shared.peripheral.common.BlockWiredModemFull;
+import dan200.computercraft.shared.peripheral.modem.BlockWiredModemFull;
 import dan200.computercraft.shared.peripheral.diskdrive.BlockDiskDrive;
 import dan200.computercraft.shared.peripheral.diskdrive.TileDiskDrive;
 import dan200.computercraft.shared.peripheral.modem.BlockModem;
