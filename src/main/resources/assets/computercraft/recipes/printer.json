@@ -10,5 +10,5 @@
         "R": { "type": "forge:ore_dict", "ore": "paneGlass" },
         "D": { "type": "forge:ore_dict", "ore": "dye" }
     },
-    "result": { "item": "computercraft:peripheral", "data": 3 }
+    "result": { "item": "computercraft:printer" }
 }

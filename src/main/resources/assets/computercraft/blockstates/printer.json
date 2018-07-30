@@ -1,0 +1,20 @@
+{
+    "variants": {
+        "bottom_full=false,facing=north,top_full=false": { "model": "computercraft:printer_empty" },
+        "bottom_full=false,facing=south,top_full=false": { "model": "computercraft:printer_empty", "y": 180 },
+        "bottom_full=false,facing=west,top_full=false": { "model": "computercraft:printer_empty", "y": 270 },
+        "bottom_full=false,facing=east,top_full=false": { "model": "computercraft:printer_empty", "y": 90 },
+        "bottom_full=true,facing=north,top_full=false": { "model": "computercraft:printer_top_full" },
+        "bottom_full=true,facing=south,top_full=false": { "model": "computercraft:printer_top_full", "y": 180 },
+        "bottom_full=true,facing=west,top_full=false": { "model": "computercraft:printer_top_full", "y": 270 },
+        "bottom_full=true,facing=east,top_full=false": { "model": "computercraft:printer_top_full", "y": 90 },
+        "bottom_full=false,facing=north,top_full=true": { "model": "computercraft:printer_bottom_full" },
+        "bottom_full=false,facing=south,top_full=true": { "model": "computercraft:printer_bottom_full", "y": 180 },
+        "bottom_full=false,facing=west,top_full=true": { "model": "computercraft:printer_bottom_full", "y": 270 },
+        "bottom_full=false,facing=east,top_full=true": { "model": "computercraft:printer_bottom_full", "y": 90 },
+        "bottom_full=true,facing=north,top_full=true": { "model": "computercraft:printer_both_full" },
+        "bottom_full=true,facing=south,top_full=true": { "model": "computercraft:printer_both_full", "y": 180 },
+        "bottom_full=true,facing=west,top_full=true": { "model": "computercraft:printer_both_full", "y": 270 },
+        "bottom_full=true,facing=east,top_full=true": { "model": "computercraft:printer_both_full", "y": 90 }
+    }
+}

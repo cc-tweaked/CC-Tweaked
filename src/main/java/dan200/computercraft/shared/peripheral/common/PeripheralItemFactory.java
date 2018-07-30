@@ -24,7 +24,6 @@ public class PeripheralItemFactory
     @Nonnull
     public static ItemStack create( PeripheralType type, String label, int quantity )
     {
-        ItemPeripheral peripheral = ((ItemPeripheral) Item.getItemFromBlock( ComputerCraft.Blocks.peripheral ));
         ItemCable cable = ((ItemCable) Item.getItemFromBlock( ComputerCraft.Blocks.cable ));
         switch( type )
         {
@@ -34,19 +33,22 @@ public class PeripheralItemFactory
                 if( label != null ) stack.setStackDisplayName( label );
                 return stack;
             }
+            case Printer:
+            {
+                ItemStack stack = new ItemStack( ComputerCraft.Blocks.printer, quantity );
+                if( label != null ) stack.setStackDisplayName( label );
+                return stack;
+            }
             case WirelessModem:
                 return new ItemStack( ComputerCraft.Blocks.wirelessModem, quantity );
             case AdvancedModem:
                 return new ItemStack( ComputerCraft.Blocks.advancedModem, quantity );
             case Speaker:
                 return new ItemStack( ComputerCraft.Blocks.speaker, quantity );
-
-            case Printer:
             case Monitor:
+                return new ItemStack( ComputerCraft.Blocks.monitorNormal, quantity );
             case AdvancedMonitor:
-            {
-                return peripheral.create( type, label, quantity );
-            }
+                return new ItemStack( ComputerCraft.Blocks.monitorAdvanced, quantity );
             case WiredModem:
             case Cable:
             {

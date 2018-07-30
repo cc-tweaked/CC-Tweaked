@@ -43,13 +43,13 @@ import dan200.computercraft.shared.media.items.ItemTreasureDisk;
 import dan200.computercraft.shared.network.ComputerCraftPacket;
 import dan200.computercraft.shared.network.PacketHandler;
 import dan200.computercraft.shared.peripheral.common.BlockCable;
-import dan200.computercraft.shared.peripheral.common.BlockPeripheral;
 import dan200.computercraft.shared.peripheral.common.BlockWiredModemFull;
 import dan200.computercraft.shared.peripheral.diskdrive.BlockDiskDrive;
 import dan200.computercraft.shared.peripheral.diskdrive.TileDiskDrive;
 import dan200.computercraft.shared.peripheral.modem.BlockModem;
 import dan200.computercraft.shared.peripheral.modem.WirelessNetwork;
 import dan200.computercraft.shared.peripheral.monitor.BlockMonitor;
+import dan200.computercraft.shared.peripheral.printer.BlockPrinter;
 import dan200.computercraft.shared.peripheral.printer.TilePrinter;
 import dan200.computercraft.shared.peripheral.speaker.BlockSpeaker;
 import dan200.computercraft.shared.pocket.items.ItemPocketComputer;
@@ -186,11 +186,12 @@ public class ComputerCraft
         public static BlockTurtle turtleNormal;
         public static BlockTurtle turtleAdvanced;
 
-        public static BlockPeripheral peripheral;
         public static BlockDiskDrive diskDrive;
+        public static BlockPrinter printer;
         public static BlockSpeaker speaker;
-        public static BlockMonitor monitorNormal;
         public static BlockMonitor monitorAdvanced;
+        public static BlockMonitor monitorNormal;
+
         public static BlockCable cable;
         public static BlockModem advancedModem;
         public static BlockModem wirelessModem;

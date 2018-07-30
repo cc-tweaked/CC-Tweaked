@@ -33,13 +33,17 @@ import dan200.computercraft.shared.media.recipes.PrintoutRecipe;
 import dan200.computercraft.shared.network.ComputerCraftPacket;
 import dan200.computercraft.shared.peripheral.PeripheralType;
 import dan200.computercraft.shared.peripheral.commandblock.CommandBlockPeripheralProvider;
-import dan200.computercraft.shared.peripheral.common.*;
+import dan200.computercraft.shared.peripheral.common.BlockCable;
+import dan200.computercraft.shared.peripheral.common.BlockWiredModemFull;
+import dan200.computercraft.shared.peripheral.common.DefaultPeripheralProvider;
+import dan200.computercraft.shared.peripheral.common.ItemCable;
 import dan200.computercraft.shared.peripheral.diskdrive.BlockDiskDrive;
 import dan200.computercraft.shared.peripheral.diskdrive.ContainerDiskDrive;
 import dan200.computercraft.shared.peripheral.diskdrive.TileDiskDrive;
 import dan200.computercraft.shared.peripheral.modem.*;
 import dan200.computercraft.shared.peripheral.monitor.BlockMonitor;
 import dan200.computercraft.shared.peripheral.monitor.TileMonitor;
+import dan200.computercraft.shared.peripheral.printer.BlockPrinter;
 import dan200.computercraft.shared.peripheral.printer.ContainerPrinter;
 import dan200.computercraft.shared.peripheral.printer.TilePrinter;
 import dan200.computercraft.shared.peripheral.speaker.BlockSpeaker;
@@ -265,11 +269,11 @@ public abstract class ComputerCraftProxyCommon implements IComputerCraftProxy
         registry.register( ComputerCraft.Blocks.computerCommand.setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "computer_command" ) ) );
 
         // Peripheral
-        ComputerCraft.Blocks.peripheral = new BlockPeripheral();
-        registry.register( ComputerCraft.Blocks.peripheral.setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "peripheral" ) ) );
-
         ComputerCraft.Blocks.diskDrive = new BlockDiskDrive();
         registry.register( ComputerCraft.Blocks.diskDrive.setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "disk_drive" ) ) );
+
+        ComputerCraft.Blocks.printer = new BlockPrinter();
+        registry.register( ComputerCraft.Blocks.printer.setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "printer" ) ) );
 
         ComputerCraft.Blocks.speaker = new BlockSpeaker();
         registry.register( ComputerCraft.Blocks.speaker.setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "speaker" ) ) );
@@ -307,8 +311,8 @@ public abstract class ComputerCraftProxyCommon implements IComputerCraftProxy
         registry.register( new ItemComputer( ComputerCraft.Blocks.computerCommand ).setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "computer_command" ) ) );
 
         // Peripheral
-        registry.register( new ItemPeripheral( ComputerCraft.Blocks.peripheral ).setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "peripheral" ) ) );
         registry.register( new ItemBlock( ComputerCraft.Blocks.diskDrive ).setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "disk_drive" ) ) );
+        registry.register( new ItemBlock( ComputerCraft.Blocks.printer ).setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "printer" ) ) );
         registry.register( new ItemBlock( ComputerCraft.Blocks.speaker ).setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "speaker" ) ) );
         registry.register( new ItemBlock( ComputerCraft.Blocks.monitorNormal ).setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "monitor_normal" ) ) );
         registry.register( new ItemBlock( ComputerCraft.Blocks.monitorAdvanced ).setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "monitor_advanced" ) ) );
