@@ -11,13 +11,11 @@ import dan200.computercraft.shared.network.ComputerCraftPacket;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -68,21 +66,6 @@ public abstract class TileGeneric extends TileEntity
     protected final void setBlockState( IBlockState newState )
     {
         getWorld().setBlockState( getPos(), newState, 3 );
-    }
-
-    public void getDroppedItems( @Nonnull NonNullList<ItemStack> drops, boolean creative )
-    {
-        if( !creative )
-        {
-            ItemStack drop = getPickedItem();
-            if( !drop.isEmpty() ) drops.add( drop );
-        }
-    }
-
-    @Nonnull
-    public ItemStack getPickedItem()
-    {
-        return ItemStack.EMPTY;
     }
 
     public boolean onActivate( EntityPlayer player, EnumFacing side, float hitX, float hitY, float hitZ )

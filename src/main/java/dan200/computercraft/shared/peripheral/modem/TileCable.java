@@ -11,7 +11,6 @@ import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.network.wired.IWiredElement;
 import dan200.computercraft.api.network.wired.IWiredNode;
 import dan200.computercraft.api.peripheral.IPeripheral;
-import dan200.computercraft.shared.common.BlockGeneric;
 import dan200.computercraft.shared.peripheral.PeripheralType;
 import dan200.computercraft.shared.peripheral.common.BlockCable;
 import dan200.computercraft.shared.peripheral.common.BlockCableModemVariant;
@@ -20,10 +19,8 @@ import dan200.computercraft.shared.wired.CapabilityWiredElement;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
@@ -210,44 +207,6 @@ public class TileCable extends TileModemBase
     }
 
     @Override
-    public void getDroppedItems( @Nonnull NonNullList<ItemStack> drops, boolean creative )
-    {
-        if( !creative )
-        {
-            PeripheralType type = getPeripheralType();
-            switch( type )
-            {
-                case Cable:
-                case WiredModem:
-                {
-                    drops.add( PeripheralItemFactory.create( type, getLabel(), 1 ) );
-                    break;
-                }
-                case WiredModemWithCable:
-                {
-                    drops.add( PeripheralItemFactory.create( PeripheralType.WiredModem, getLabel(), 1 ) );
-                    drops.add( PeripheralItemFactory.create( PeripheralType.Cable, null, 1 ) );
-                    break;
-                }
-            }
-        }
-    }
-
-    @Nonnull
-    @Override
-    public ItemStack getPickedItem()
-    {
-        if( getPeripheralType() == PeripheralType.WiredModemWithCable )
-        {
-            return PeripheralItemFactory.create( PeripheralType.WiredModem, getLabel(), 1 );
-        }
-        else
-        {
-            return super.getPickedItem();
-        }
-    }
-
-    @Override
     public void onNeighbourChange()
     {
         EnumFacing dir = getDirection();
@@ -261,7 +220,7 @@ public class TileCable extends TileModemBase
                 case WiredModem:
                 {
                     // Drop everything and remove block
-                    ((BlockGeneric) getBlockType()).dropAllItems( getWorld(), getPos(), false );
+                    getBlock().dropBlockAsItem( getWorld(), getPos(), getBlockState(), 1 );
                     getWorld().setBlockToAir( getPos() );
 
                     // This'll call #destroy(), so we don't need to reset the network here.

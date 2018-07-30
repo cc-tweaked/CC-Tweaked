@@ -10,6 +10,7 @@ import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.computer.blocks.BlockComputerBase;
 import dan200.computercraft.shared.computer.blocks.TileComputerBase;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
+import dan200.computercraft.shared.turtle.items.TurtleItemFactory;
 import dan200.computercraft.shared.util.DirectionUtil;
 import net.minecraft.block.BlockHorizontal;
 import net.minecraft.block.material.Material;
@@ -25,6 +26,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumBlockRenderType;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
@@ -137,6 +139,28 @@ public class BlockTurtle extends BlockComputerBase
     protected TileComputerBase createTile()
     {
         return factory.get();
+    }
+
+
+    @Override
+    protected void getDroppedItems( IBlockState state, IBlockAccess world, BlockPos pos, @Nonnull NonNullList<ItemStack> drops, boolean creative )
+    {
+        TileEntity te = world.getTileEntity( pos );
+        if( te instanceof TileTurtle )
+        {
+            TileTurtle turtle = (TileTurtle) te;
+            if( !creative || turtle.createProxy().getLabel() != null )
+            {
+                drops.add( TurtleItemFactory.create( turtle ) );
+            }
+        }
+    }
+
+    @Override
+    protected ItemStack getComputerItem( IBlockState state, IBlockAccess world, BlockPos pos )
+    {
+        TileEntity te = world.getTileEntity( pos );
+        return te instanceof TileTurtle ? TurtleItemFactory.create( (TileTurtle) te ) : ItemStack.EMPTY;
     }
 
     @Override

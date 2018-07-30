@@ -8,15 +8,11 @@ package dan200.computercraft.shared.computer.blocks;
 
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
-import dan200.computercraft.shared.computer.core.IComputer;
 import dan200.computercraft.shared.computer.core.ServerComputer;
-import dan200.computercraft.shared.computer.items.ComputerItemFactory;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.NonNullList;
 
 import javax.annotation.Nonnull;
 
@@ -26,7 +22,7 @@ public class TileComputer extends TileComputerBase
 
     // Members
     private ComputerProxy m_proxy;
-    
+
     public TileComputer()
     {
     }
@@ -63,23 +59,6 @@ public class TileComputer extends TileComputerBase
             };
         }
         return m_proxy;
-    }
-
-    @Override
-    public void getDroppedItems( @Nonnull NonNullList<ItemStack> drops, boolean creative )
-    {
-        IComputer computer = getComputer();
-        if( !creative || (computer != null && computer.getLabel() != null) )
-        {
-            drops.add( ComputerItemFactory.create( this ) );
-        }
-    }
-
-    @Nonnull
-    @Override
-    public ItemStack getPickedItem()
-    {
-        return ComputerItemFactory.create( this );
     }
 
     @Override
@@ -126,6 +105,6 @@ public class TileComputer extends TileComputerBase
     @Override
     protected int remapLocalSide( int localSide )
     {
-        return s_remapSide[ localSide ];
+        return s_remapSide[localSide];
     }
 }

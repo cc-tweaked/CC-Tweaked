@@ -15,7 +15,6 @@ import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.shared.common.TileGeneric;
 import dan200.computercraft.shared.peripheral.PeripheralType;
 import dan200.computercraft.shared.peripheral.common.IPeripheralTile;
-import dan200.computercraft.shared.peripheral.common.PeripheralItemFactory;
 import dan200.computercraft.shared.util.IDefaultInventory;
 import dan200.computercraft.shared.util.InventoryUtil;
 import net.minecraft.entity.item.EntityItem;
@@ -65,13 +64,6 @@ public class TileDiskDrive extends TileGeneric implements IDefaultInventory, IPe
     private boolean m_recordPlaying = false;
     private boolean m_restartRecord = false;
     private boolean m_ejectQueued = false;
-
-    @Nonnull
-    @Override
-    public ItemStack getPickedItem()
-    {
-        return PeripheralItemFactory.create( this );
-    }
 
     @Override
     public void destroy()

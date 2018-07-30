@@ -23,6 +23,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
@@ -348,7 +349,8 @@ public class BlockCable extends BlockPeripheralBase
 
                     cable.modemChanged();
                     cable.connectionsChanged();
-                    if( !world.isRemote && !player.capabilities.isCreativeMode ) Block.spawnAsEntity( world, pos, item );
+                    if( !world.isRemote && !player.capabilities.isCreativeMode )
+                        Block.spawnAsEntity( world, pos, item );
 
                     return false;
                 }
@@ -386,6 +388,27 @@ public class BlockCable extends BlockPeripheralBase
         }
 
         return PeripheralItemFactory.create( PeripheralType.Cable, null, 1 );
+    }
+
+    @Override
+    public void getDrops( @Nonnull NonNullList<ItemStack> drops, IBlockAccess world, BlockPos pos, @Nonnull IBlockState state, int fortune )
+    {
+        PeripheralType type = getPeripheralType( state );
+        switch( type )
+        {
+            case Cable:
+            case WiredModem:
+            {
+                drops.add( PeripheralItemFactory.create( type, null, 1 ) );
+                break;
+            }
+            case WiredModemWithCable:
+            {
+                drops.add( PeripheralItemFactory.create( PeripheralType.WiredModem, null, 1 ) );
+                drops.add( PeripheralItemFactory.create( PeripheralType.Cable, null, 1 ) );
+                break;
+            }
+        }
     }
 
     @Override

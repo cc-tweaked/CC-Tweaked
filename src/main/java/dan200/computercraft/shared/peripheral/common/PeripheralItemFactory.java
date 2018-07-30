@@ -16,12 +16,6 @@ import javax.annotation.Nonnull;
 public class PeripheralItemFactory
 {
     @Nonnull
-    public static ItemStack create( IPeripheralTile tile )
-    {
-        return create( tile.getPeripheralType(), tile.getLabel(), 1 );
-    }
-
-    @Nonnull
     public static ItemStack create( PeripheralType type, String label, int quantity )
     {
         ItemCable cable = ((ItemCable) Item.getItemFromBlock( ComputerCraft.Blocks.cable ));

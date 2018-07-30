@@ -18,7 +18,6 @@ import dan200.computercraft.shared.computer.core.IComputer;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.turtle.apis.TurtleAPI;
 import dan200.computercraft.shared.turtle.core.TurtleBrain;
-import dan200.computercraft.shared.turtle.items.TurtleItemFactory;
 import dan200.computercraft.shared.util.IDefaultInventory;
 import dan200.computercraft.shared.util.InventoryUtil;
 import dan200.computercraft.shared.util.RedstoneUtil;
@@ -73,7 +72,7 @@ public abstract class TileTurtle extends TileComputerBase implements ITurtleTile
     private MoveState m_moveState;
     private ComputerFamily m_family;
 
-    public TileTurtle(ComputerFamily family)
+    public TileTurtle( ComputerFamily family )
     {
         m_inventory = NonNullList.withSize( INVENTORY_SIZE, ItemStack.EMPTY );
         m_previousInventory = NonNullList.withSize( INVENTORY_SIZE, ItemStack.EMPTY );
@@ -134,7 +133,7 @@ public abstract class TileTurtle extends TileComputerBase implements ITurtleTile
             if( !getWorld().isRemote )
             {
                 int size = getSizeInventory();
-                for( int i=0; i<size; ++i )
+                for( int i = 0; i < size; ++i )
                 {
                     ItemStack stack = getStackInSlot( i );
                     if( !stack.isEmpty() )
@@ -161,23 +160,6 @@ public abstract class TileTurtle extends TileComputerBase implements ITurtleTile
         {
             super.unload();
         }
-    }
-
-    @Override
-    public void getDroppedItems( @Nonnull NonNullList<ItemStack> drops, boolean creative )
-    {
-        IComputer computer = getComputer();
-        if( !creative || (computer != null && computer.getLabel() != null) )
-        {
-            drops.add( TurtleItemFactory.create( this ) );
-        }
-    }
-
-    @Nonnull
-    @Override
-    public ItemStack getPickedItem()
-    {
-        return TurtleItemFactory.create( this );
     }
 
     @Override
@@ -275,7 +257,7 @@ public abstract class TileTurtle extends TileComputerBase implements ITurtleTile
                 }
 
                 m_inventoryChanged = false;
-                for( int n=0; n<getSizeInventory(); ++n )
+                for( int n = 0; n < getSizeInventory(); ++n )
                 {
                     m_previousInventory.set( n, InventoryUtil.copyItem( getStackInSlot( n ) ) );
                 }
@@ -286,16 +268,16 @@ public abstract class TileTurtle extends TileComputerBase implements ITurtleTile
     @Override
     public void onNeighbourChange()
     {
-        if ( m_moveState == MoveState.NOT_MOVED )
+        if( m_moveState == MoveState.NOT_MOVED )
         {
             super.onNeighbourChange();
         }
     }
 
     @Override
-    public void onNeighbourTileEntityChange( @Nonnull BlockPos neighbour)
+    public void onNeighbourTileEntityChange( @Nonnull BlockPos neighbour )
     {
-        if ( m_moveState == MoveState.NOT_MOVED )
+        if( m_moveState == MoveState.NOT_MOVED )
         {
             super.onNeighbourTileEntityChange( neighbour );
         }
@@ -303,7 +285,7 @@ public abstract class TileTurtle extends TileComputerBase implements ITurtleTile
 
     public void notifyMoveStart()
     {
-        if (m_moveState == MoveState.NOT_MOVED)
+        if( m_moveState == MoveState.NOT_MOVED )
         {
             m_moveState = MoveState.IN_PROGRESS;
         }
@@ -312,7 +294,7 @@ public abstract class TileTurtle extends TileComputerBase implements ITurtleTile
     public void notifyMoveEnd()
     {
         // MoveState.MOVED is final
-        if (m_moveState == MoveState.IN_PROGRESS)
+        if( m_moveState == MoveState.IN_PROGRESS )
         {
             m_moveState = MoveState.NOT_MOVED;
         }
@@ -321,16 +303,16 @@ public abstract class TileTurtle extends TileComputerBase implements ITurtleTile
     @Override
     public void readFromNBT( NBTTagCompound nbttagcompound )
     {
-        super.readFromNBT(nbttagcompound);
+        super.readFromNBT( nbttagcompound );
 
         // Read inventory
-        NBTTagList nbttaglist = nbttagcompound.getTagList("Items", Constants.NBT.TAG_COMPOUND);
+        NBTTagList nbttaglist = nbttagcompound.getTagList( "Items", Constants.NBT.TAG_COMPOUND );
         m_inventory = NonNullList.withSize( INVENTORY_SIZE, ItemStack.EMPTY );
         m_previousInventory = NonNullList.withSize( INVENTORY_SIZE, ItemStack.EMPTY );
-        for( int i=0; i<nbttaglist.tagCount(); ++i )
+        for( int i = 0; i < nbttaglist.tagCount(); ++i )
         {
             NBTTagCompound itemtag = nbttaglist.getCompoundTagAt( i );
-            int slot = itemtag.getByte("Slot") & 0xff;
+            int slot = itemtag.getByte( "Slot" ) & 0xff;
             if( slot >= 0 && slot < getSizeInventory() )
             {
                 m_inventory.set( slot, new ItemStack( itemtag ) );
@@ -350,14 +332,14 @@ public abstract class TileTurtle extends TileComputerBase implements ITurtleTile
 
         // Write inventory
         NBTTagList nbttaglist = new NBTTagList();
-        for( int i=0; i<INVENTORY_SIZE; ++i )
+        for( int i = 0; i < INVENTORY_SIZE; ++i )
         {
-            if( !m_inventory.get(i).isEmpty() )
+            if( !m_inventory.get( i ).isEmpty() )
             {
                 NBTTagCompound itemtag = new NBTTagCompound();
-                itemtag.setByte( "Slot", (byte)i );
-                m_inventory.get(i).writeToNBT(itemtag);
-                nbttaglist.appendTag(itemtag);
+                itemtag.setByte( "Slot", (byte) i );
+                m_inventory.get( i ).writeToNBT( itemtag );
+                nbttaglist.appendTag( itemtag );
             }
         }
         nbttagcompound.setTag( "Items", nbttaglist );
@@ -605,7 +587,7 @@ public abstract class TileTurtle extends TileComputerBase implements ITurtleTile
         {
             if( !m_inventoryChanged )
             {
-                for( int n=0; n<getSizeInventory(); ++n )
+                for( int n = 0; n < getSizeInventory(); ++n )
                 {
                     if( !ItemStack.areItemStacksEqual( getStackInSlot( n ), m_previousInventory.get( n ) ) )
                     {
@@ -658,9 +640,14 @@ public abstract class TileTurtle extends TileComputerBase implements ITurtleTile
         ITurtleUpgrade upgrade;
         switch( side )
         {
-            case 4:    upgrade = getUpgrade( TurtleSide.Right ); break;
-            case 5:    upgrade = getUpgrade( TurtleSide.Left ); break;
-            default: return false;
+            case 4:
+                upgrade = getUpgrade( TurtleSide.Right );
+                break;
+            case 5:
+                upgrade = getUpgrade( TurtleSide.Left );
+                break;
+            default:
+                return false;
         }
         return upgrade != null && upgrade.getType().isPeripheral();
     }
@@ -684,7 +671,7 @@ public abstract class TileTurtle extends TileComputerBase implements ITurtleTile
     @Override
     public boolean hasCapability( @Nonnull Capability<?> capability, @Nullable EnumFacing facing )
     {
-        return capability == ITEM_HANDLER_CAPABILITY ||  super.hasCapability( capability, facing );
+        return capability == ITEM_HANDLER_CAPABILITY || super.hasCapability( capability, facing );
     }
 
     @Nullable

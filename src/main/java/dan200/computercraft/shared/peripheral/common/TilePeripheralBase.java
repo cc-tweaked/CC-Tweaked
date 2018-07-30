@@ -43,13 +43,6 @@ public abstract class TilePeripheralBase extends TileGeneric implements IPeriphe
         return (BlockPeripheralBase) super.getBlock();
     }
 
-    @Nonnull
-    @Override
-    public ItemStack getPickedItem()
-    {
-        return PeripheralItemFactory.create( this );
-    }
-
     // IPeripheralTile implementation
 
     @Override

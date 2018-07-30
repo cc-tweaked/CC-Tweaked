@@ -2,6 +2,7 @@ package dan200.computercraft.shared.peripheral.diskdrive;
 
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.common.BlockGeneric;
+import dan200.computercraft.shared.peripheral.printer.TilePrinter;
 import dan200.computercraft.shared.util.DirectionUtil;
 import net.minecraft.block.BlockHorizontal;
 import net.minecraft.block.material.Material;
@@ -10,10 +11,13 @@ import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
@@ -85,6 +89,32 @@ public class BlockDiskDrive extends BlockGeneric
             state = state.withProperty( STATE, ((TileDiskDrive) tile).getState() );
         }
         return state;
+    }
+
+    @Override
+    public void getDrops( @Nonnull NonNullList<ItemStack> drops, IBlockAccess world, BlockPos pos, @Nonnull IBlockState state, int fortune )
+    {
+        drops.add( getItem( world, pos ) );
+    }
+
+    @Nonnull
+    @Override
+    public ItemStack getPickBlock( @Nonnull IBlockState state, RayTraceResult target, @Nonnull World world, @Nonnull BlockPos pos, EntityPlayer player )
+    {
+        return getItem( world, pos );
+    }
+
+    private ItemStack getItem( IBlockAccess world, BlockPos pos )
+    {
+        ItemStack stack = new ItemStack( this );
+        TileEntity te = world.getTileEntity( pos );
+        if( te instanceof TilePrinter )
+        {
+            String label = ((TilePrinter) te).getLabel();
+            if( label != null ) stack.setStackDisplayName( label );
+        }
+
+        return stack;
     }
 
     @Override

@@ -12,14 +12,11 @@ import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
-import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
@@ -36,65 +33,12 @@ public abstract class BlockGeneric extends Block implements ITileEntityProvider
 
     protected abstract IBlockState getDefaultBlockState( int damage, EnumFacing placedSide );
 
-    @Override
-    public final void dropBlockAsItemWithChance( World world, @Nonnull BlockPos pos, @Nonnull IBlockState state, float chance, int fortune )
-    {
-    }
-
-    @Override
-    public final void getDrops( @Nonnull NonNullList<ItemStack> drops, IBlockAccess world, BlockPos pos, @Nonnull IBlockState state, int fortune )
-    {
-        TileEntity tile = world.getTileEntity( pos );
-        if( tile instanceof TileGeneric )
-        {
-            TileGeneric generic = (TileGeneric) tile;
-            generic.getDroppedItems( drops, false );
-        }
-    }
-
     @Nonnull
     @Override
     @Deprecated
     public final IBlockState getStateForPlacement( World world, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ, int damage, EntityLivingBase placer )
     {
         return getDefaultBlockState( damage, side );
-    }
-
-    @Override
-    public boolean removedByPlayer( @Nonnull IBlockState state, World world, @Nonnull BlockPos pos, @Nonnull EntityPlayer player, boolean willHarvest )
-    {
-        if( !world.isRemote )
-        {
-            // Drop items
-            boolean creative = player.capabilities.isCreativeMode;
-            dropAllItems( world, pos, creative );
-        }
-
-        // Remove block
-        return super.removedByPlayer( state, world, pos, player, willHarvest );
-    }
-
-    public final void dropAllItems( World world, BlockPos pos, boolean creative )
-    {
-        // Get items to drop
-        NonNullList<ItemStack> drops = NonNullList.create();
-        TileEntity tile = world.getTileEntity( pos );
-        if( tile instanceof TileGeneric )
-        {
-            TileGeneric generic = (TileGeneric) tile;
-            generic.getDroppedItems( drops, creative );
-        }
-
-        // Drop items
-        if( drops.size() > 0 )
-        {
-            for( ItemStack item : drops ) dropItem( world, pos, item );
-        }
-    }
-
-    public final void dropItem( World world, BlockPos pos, @Nonnull ItemStack stack )
-    {
-        Block.spawnAsEntity( world, pos, stack );
     }
 
     @Override
@@ -108,19 +52,6 @@ public abstract class BlockGeneric extends Block implements ITileEntityProvider
             TileGeneric generic = (TileGeneric) tile;
             generic.destroy();
         }
-    }
-
-    @Nonnull
-    @Override
-    public ItemStack getPickBlock( @Nonnull IBlockState state, RayTraceResult target, @Nonnull World world, @Nonnull BlockPos pos, EntityPlayer player )
-    {
-        TileEntity tile = world.getTileEntity( pos );
-        if( tile instanceof TileGeneric )
-        {
-            TileGeneric generic = (TileGeneric) tile;
-            return generic.getPickedItem();
-        }
-        return ItemStack.EMPTY;
     }
 
     @Override

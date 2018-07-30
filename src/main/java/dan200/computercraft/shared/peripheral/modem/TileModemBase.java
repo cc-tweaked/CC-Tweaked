@@ -7,7 +7,6 @@
 package dan200.computercraft.shared.peripheral.modem;
 
 import dan200.computercraft.api.peripheral.IPeripheral;
-import dan200.computercraft.shared.common.BlockGeneric;
 import dan200.computercraft.shared.peripheral.common.TilePeripheralBase;
 import net.minecraft.block.Block;
 import net.minecraft.nbt.NBTTagCompound;
@@ -56,7 +55,7 @@ public abstract class TileModemBase extends TilePeripheralBase
         ) )
         {
             // Drop everything and remove block
-            ((BlockGeneric)getBlockType()).dropAllItems( getWorld(), getPos(), false );
+            getBlock().dropBlockAsItem( getWorld(), getPos(), getBlockState(), 1 );
             getWorld().setBlockToAir( getPos() );
         }
     }
