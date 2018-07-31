@@ -9,10 +9,10 @@ import dan200.computercraft.shared.util.WorldUtil;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
@@ -52,7 +52,7 @@ public class TileEntityCableRenderer extends TileEntitySpecialRenderer<TileCable
         if( block != ComputerCraft.Blocks.cable ) return;
 
         state = state.getActualState( world, pos );
-        if( te.getPeripheralType() != PeripheralType.Cable && WorldUtil.isVecInsideInclusive( te.getModemBounds(), hit.hitVec.subtract( pos.getX(), pos.getY(), pos.getZ() ) ) )
+        if( te.getPeripheralType() != PeripheralType.Cable && WorldUtil.isVecInsideInclusive( ComputerCraft.Blocks.cable.getModemBounds( state ), hit.hitVec.subtract( pos.getX(), pos.getY(), pos.getZ() ) ) )
         {
             state = block.getDefaultState().withProperty( BlockCable.MODEM, state.getValue( BlockCable.MODEM ) );
         }

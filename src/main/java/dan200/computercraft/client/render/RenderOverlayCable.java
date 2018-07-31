@@ -14,6 +14,7 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
@@ -24,8 +25,8 @@ import org.lwjgl.opengl.GL11;
 public class RenderOverlayCable
 {
     private static final float EXPAND = 0.002f;
-    private static final double MIN = TileCable.MIN - EXPAND;
-    private static final double MAX = TileCable.MAX + EXPAND;
+    private static final double MIN = BlockCable.MIN - EXPAND;
+    private static final double MAX = BlockCable.MAX + EXPAND;
 
     @SubscribeEvent
     public void drawHighlight( DrawBlockHighlightEvent event )
@@ -37,6 +38,7 @@ public class RenderOverlayCable
 
         IBlockState state = world.getBlockState( pos );
         if( state.getBlock() != ComputerCraft.Blocks.cable ) return;
+        state = state.getActualState( world, pos );
 
         TileEntity tile = world.getTileEntity( pos );
         if( !(tile instanceof TileCable) ) return;
@@ -63,9 +65,10 @@ public class RenderOverlayCable
             GlStateManager.translate( -x + pos.getX(), -y + pos.getY(), -z + pos.getZ() );
         }
 
-        if( type != PeripheralType.Cable && WorldUtil.isVecInsideInclusive( cable.getModemBounds(), event.getTarget().hitVec.subtract( pos.getX(), pos.getY(), pos.getZ() ) ) )
+        AxisAlignedBB modemBounds = ComputerCraft.Blocks.cable.getModemBounds( state );
+        if( type != PeripheralType.Cable && WorldUtil.isVecInsideInclusive( modemBounds, event.getTarget().hitVec.subtract( pos.getX(), pos.getY(), pos.getZ() ) ) )
         {
-            RenderGlobal.drawSelectionBoundingBox( cable.getModemBounds(), 0, 0, 0, 0.4f );
+            RenderGlobal.drawSelectionBoundingBox( modemBounds, 0, 0, 0, 0.4f );
         }
         else
         {
@@ -76,11 +79,10 @@ public class RenderOverlayCable
 
             for( EnumFacing facing : EnumFacing.VALUES )
             {
-                if( BlockCable.doesConnectVisually( state, world, pos, facing ) )
+                if( state.getValue( BlockCable.FACINGS[facing.getIndex()] ) )
                 {
                     flags |= 1 << facing.ordinal();
-
-
+                    
                     switch( facing.getAxis() )
                     {
                         case X:

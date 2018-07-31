@@ -27,7 +27,9 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumBlockRenderType;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.NonNullList;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
@@ -130,6 +132,19 @@ public class BlockTurtle extends BlockComputerBase
 
     @Nonnull
     @Override
+    @Deprecated
+    public AxisAlignedBB getBoundingBox( IBlockState state, IBlockAccess world, BlockPos pos )
+    {
+        TileEntity tile = world.getTileEntity( pos );
+        Vec3d offset = tile instanceof TileTurtle ? ((TileTurtle) tile).getRenderOffset( 1 ) : Vec3d.ZERO;
+        return new AxisAlignedBB(
+            offset.x + 0.125, offset.y + 0.125, offset.z + 0.125,
+            offset.x + 0.875, offset.y + 0.875, offset.z + 0.875
+        );
+    }
+
+    @Nonnull
+    @Override
     public ComputerFamily getFamily()
     {
         return family;
@@ -140,7 +155,6 @@ public class BlockTurtle extends BlockComputerBase
     {
         return factory.get();
     }
-
 
     @Override
     protected void getDroppedItems( IBlockState state, IBlockAccess world, BlockPos pos, @Nonnull NonNullList<ItemStack> drops, boolean creative )

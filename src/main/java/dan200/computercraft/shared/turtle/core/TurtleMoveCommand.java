@@ -14,6 +14,7 @@ import dan200.computercraft.api.turtle.TurtleCommandResult;
 import dan200.computercraft.api.turtle.event.TurtleBlockEvent;
 import dan200.computercraft.shared.util.WorldUtil;
 import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -53,9 +54,9 @@ public class TurtleMoveCommand implements ITurtleCommand
         }
 
         // Check existing block is air or replaceable
-        Block block = oldWorld.getBlockState( newPosition ).getBlock();
-        if( block != null &&
-            !oldWorld.isAirBlock( newPosition ) &&
+        IBlockState oldState = oldWorld.getBlockState( newPosition );
+        Block block = oldState.getBlock();
+        if( !oldWorld.isAirBlock( newPosition ) &&
             !WorldUtil.isLiquidBlock( oldWorld, newPosition ) &&
             !block.isReplaceable( oldWorld, newPosition ) )
         {
@@ -63,7 +64,7 @@ public class TurtleMoveCommand implements ITurtleCommand
         }
 
         // Check there isn't anything in the way
-        AxisAlignedBB aabb = ((TurtleBrain)turtle).getOwner().getBounds();
+        AxisAlignedBB aabb = oldState.getBoundingBox( oldWorld, oldPosition );
         aabb = aabb.offset(
             newPosition.getX(),
             newPosition.getY(),

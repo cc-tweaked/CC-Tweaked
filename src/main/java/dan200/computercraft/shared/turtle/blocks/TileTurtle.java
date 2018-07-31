@@ -224,17 +224,6 @@ public abstract class TileTurtle extends TileComputerBase implements ITurtleTile
         ComputerCraft.openTurtleGUI( player, this );
     }
 
-    @Nonnull
-    @Override
-    public AxisAlignedBB getBounds()
-    {
-        Vec3d offset = getRenderOffset( 1.0f );
-        return new AxisAlignedBB(
-            offset.x + 0.125, offset.y + 0.125, offset.z + 0.125,
-            offset.x + 0.875, offset.y + 0.875, offset.z + 0.875
-        );
-    }
-
     @Override
     protected double getInteractRange( EntityPlayer player )
     {

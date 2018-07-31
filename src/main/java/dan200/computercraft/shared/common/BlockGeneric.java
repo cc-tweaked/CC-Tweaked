@@ -15,7 +15,6 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
-import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
@@ -87,20 +86,6 @@ public abstract class BlockGeneric extends Block implements ITileEntityProvider
             TileGeneric generic = (TileGeneric) tile;
             generic.onNeighbourTileEntityChange( neighbour );
         }
-    }
-
-    @Nonnull
-    @Override
-    @Deprecated
-    public final AxisAlignedBB getBoundingBox( IBlockState state, IBlockAccess world, BlockPos pos )
-    {
-        TileEntity tile = world.getTileEntity( pos );
-        if( tile instanceof TileGeneric && tile.hasWorld() )
-        {
-            TileGeneric generic = (TileGeneric) tile;
-            return generic.getBounds();
-        }
-        return FULL_BLOCK_AABB;
     }
 
     @Nullable

@@ -8,6 +8,7 @@ package dan200.computercraft.shared.peripheral.common;
 
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.peripheral.PeripheralType;
+import dan200.computercraft.shared.peripheral.modem.BlockModem;
 import dan200.computercraft.shared.peripheral.modem.TileCable;
 import dan200.computercraft.shared.util.WorldUtil;
 import net.minecraft.block.Block;
@@ -47,7 +48,20 @@ public class BlockCable extends BlockPeripheralBase
     public static final PropertyBool UP = PropertyBool.create( "up" );
     public static final PropertyBool DOWN = PropertyBool.create( "down" );
 
-    // Members
+    public static final PropertyBool[] FACINGS = new PropertyBool[]{ DOWN, UP, NORTH, SOUTH, WEST, EAST };
+
+    public static final double MIN = 0.375;
+    public static final double MAX = 1 - MIN;
+
+    private static final AxisAlignedBB BOX_CENTRE = new AxisAlignedBB( MIN, MIN, MIN, MAX, MAX, MAX );
+    private static final AxisAlignedBB[] BOXES = new AxisAlignedBB[]{
+        new AxisAlignedBB( MIN, 0, MIN, MAX, MIN, MAX ),   // Down
+        new AxisAlignedBB( MIN, MAX, MIN, MAX, 1, MAX ),   // Up
+        new AxisAlignedBB( MIN, MIN, 0, MAX, MAX, MIN ),   // North
+        new AxisAlignedBB( MIN, MIN, MAX, MAX, MAX, 1 ),   // South
+        new AxisAlignedBB( 0, MIN, MIN, MIN, MAX, MAX ),   // West
+        new AxisAlignedBB( MAX, MIN, MIN, 1, MAX, MAX ),   // East
+    };
 
     public BlockCable()
     {
@@ -160,7 +174,7 @@ public class BlockCable extends BlockPeripheralBase
             && state.getValue( BlockCable.MODEM ).getFacing() != direction;
     }
 
-    public static boolean doesConnectVisually( IBlockState state, IBlockAccess world, BlockPos pos, EnumFacing direction )
+    private static boolean doesConnectVisually( IBlockState state, IBlockAccess world, BlockPos pos, EnumFacing direction )
     {
         if( state.getValue( CABLE ) == BlockCableCableVariant.NONE ) return false;
         if( state.getValue( MODEM ).getFacing() == direction ) return true;
@@ -213,11 +227,8 @@ public class BlockCable extends BlockPeripheralBase
         BlockCableModemVariant modem = state.getValue( MODEM );
         if( modem != BlockCableModemVariant.None )
         {
-            modem = BlockCableModemVariant.values()[
-                1 + 6 * anim + modem.getFacing().getIndex()
-                ];
+            state = state.withProperty( MODEM, BlockCableModemVariant.values()[1 + 6 * anim + modem.getFacing().getIndex()] );
         }
-        state = state.withProperty( MODEM, modem );
 
         return state;
     }
@@ -263,60 +274,64 @@ public class BlockCable extends BlockPeripheralBase
     @Nullable
     @Override
     @Deprecated
-    public RayTraceResult collisionRayTrace( IBlockState blockState, @Nonnull World world, @Nonnull BlockPos pos, @Nonnull Vec3d start, @Nonnull Vec3d end )
+    public RayTraceResult collisionRayTrace( IBlockState state, @Nonnull World world, @Nonnull BlockPos pos, @Nonnull Vec3d start, @Nonnull Vec3d end )
     {
-        TileEntity tile = world.getTileEntity( pos );
-        if( tile instanceof TileCable && tile.hasWorld() )
+        state = state.getActualState( world, pos );
+
+        double distance = Double.POSITIVE_INFINITY;
+        RayTraceResult result = null;
+
+        Vec3d startOff = start.subtract( pos.getX(), pos.getY(), pos.getZ() );
+        Vec3d endOff = end.subtract( pos.getX(), pos.getY(), pos.getZ() );
+
+        for( AxisAlignedBB bb : getCollisionBounds( state ) )
         {
-            TileCable cable = (TileCable) tile;
-
-            double distance = Double.POSITIVE_INFINITY;
-            RayTraceResult result = null;
-
-            List<AxisAlignedBB> bounds = new ArrayList<AxisAlignedBB>( 7 );
-            cable.getCollisionBounds( bounds );
-
-            Vec3d startOff = start.subtract( pos.getX(), pos.getY(), pos.getZ() );
-            Vec3d endOff = end.subtract( pos.getX(), pos.getY(), pos.getZ() );
-
-            for( AxisAlignedBB bb : bounds )
+            RayTraceResult hit = bb.calculateIntercept( startOff, endOff );
+            if( hit != null )
             {
-                RayTraceResult hit = bb.calculateIntercept( startOff, endOff );
-                if( hit != null )
+                double newDistance = hit.hitVec.squareDistanceTo( startOff );
+                if( newDistance <= distance )
                 {
-                    double newDistance = hit.hitVec.squareDistanceTo( startOff );
-                    if( newDistance <= distance )
-                    {
-                        distance = newDistance;
-                        result = hit;
-                    }
+                    distance = newDistance;
+                    result = hit;
                 }
             }
+        }
 
-            return result == null ? null : new RayTraceResult( result.hitVec.add( pos.getX(), pos.getY(), pos.getZ() ), result.sideHit, pos );
-        }
-        else
-        {
-            return super.collisionRayTrace( blockState, world, pos, start, end );
-        }
+        return result == null ? null : new RayTraceResult( result.hitVec.add( pos.getX(), pos.getY(), pos.getZ() ), result.sideHit, pos );
     }
 
     @Override
     @Deprecated
     public final void addCollisionBoxToList( IBlockState state, @Nonnull World world, @Nonnull BlockPos pos, @Nonnull AxisAlignedBB bigBox, @Nonnull List<AxisAlignedBB> list, Entity entity, boolean p_185477_7_ )
     {
-        TileEntity tile = world.getTileEntity( pos );
-        if( tile instanceof TileCable && tile.hasWorld() )
+        state = state.getActualState( world, pos );
+        for( AxisAlignedBB localBounds : getCollisionBounds( state ) )
         {
-            TileCable cable = (TileCable) tile;
-
-            // Get collision bounds
-            List<AxisAlignedBB> collision = new ArrayList<>( 1 );
-            cable.getCollisionBounds( collision );
-
-            // Add collision bounds to list
-            for( AxisAlignedBB localBounds : collision ) addCollisionBoxToList( pos, bigBox, list, localBounds );
+            addCollisionBoxToList( pos, bigBox, list, localBounds );
         }
+    }
+
+    private List<AxisAlignedBB> getCollisionBounds( IBlockState state )
+    {
+        List<AxisAlignedBB> bounds = new ArrayList<>( 1 );
+        PeripheralType type = getPeripheralType( state );
+        if( type == PeripheralType.WiredModem || type == PeripheralType.WiredModemWithCable )
+        {
+            bounds.add( getModemBounds( state ) );
+        }
+
+        if( type == PeripheralType.Cable || type == PeripheralType.WiredModemWithCable )
+        {
+            bounds.add( BOX_CENTRE );
+
+            for( EnumFacing facing : EnumFacing.VALUES )
+            {
+                if( state.getValue( FACINGS[facing.getIndex()] ) ) bounds.add( BOXES[facing.getIndex()] );
+            }
+        }
+
+        return bounds;
     }
 
     @Override
@@ -335,7 +350,7 @@ public class BlockCable extends BlockPeripheralBase
 
                     ItemStack item;
 
-                    AxisAlignedBB bb = cable.getModemBounds();
+                    AxisAlignedBB bb = getModemBounds( state );
                     if( WorldUtil.isVecInsideInclusive( bb, hit.hitVec.subtract( pos.getX(), pos.getY(), pos.getZ() ) ) )
                     {
                         world.setBlockState( pos, state.withProperty( MODEM, BlockCableModemVariant.None ), 3 );
@@ -372,7 +387,7 @@ public class BlockCable extends BlockPeripheralBase
 
             if( type == PeripheralType.WiredModemWithCable )
             {
-                if( hit == null || WorldUtil.isVecInsideInclusive( cable.getModemBounds(), hit.hitVec.subtract( pos.getX(), pos.getY(), pos.getZ() ) ) )
+                if( hit == null || WorldUtil.isVecInsideInclusive( getModemBounds( state ), hit.hitVec.subtract( pos.getX(), pos.getY(), pos.getZ() ) ) )
                 {
                     return PeripheralItemFactory.create( PeripheralType.WiredModem, null, 1 );
                 }
@@ -425,6 +440,56 @@ public class BlockCable extends BlockPeripheralBase
         }
 
         super.onBlockPlacedBy( world, pos, state, placer, stack );
+    }
+
+    public AxisAlignedBB getModemBounds( @Nonnull IBlockState state )
+    {
+        EnumFacing direction = state.getValue( MODEM ).getFacing();
+        return direction != null ? BlockModem.BOXES[direction.getIndex()] : FULL_BLOCK_AABB;
+    }
+
+    public AxisAlignedBB getCableBounds( IBlockState state )
+    {
+        double xMin = 0.375;
+        double yMin = 0.375;
+        double zMin = 0.375;
+        double xMax = 0.625;
+        double yMax = 0.625;
+        double zMax = 0.625;
+
+        if( state.getValue( WEST ) ) xMin = 0.0;
+        if( state.getValue( EAST ) ) xMax = 1.0;
+        if( state.getValue( DOWN ) ) yMin = 0.0;
+        if( state.getValue( UP ) ) yMax = 1.0;
+        if( state.getValue( NORTH ) ) zMin = 0.0;
+        if( state.getValue( SOUTH ) ) zMax = 1.0;
+        return new AxisAlignedBB( xMin, yMin, zMin, xMax, yMax, zMax );
+    }
+
+    @Nonnull
+    @Override
+    @Deprecated
+    public AxisAlignedBB getBoundingBox( IBlockState state, IBlockAccess world, BlockPos pos )
+    {
+        PeripheralType type = getPeripheralType( state );
+        switch( type )
+        {
+            case WiredModem:
+            default:
+            {
+                return getModemBounds( state );
+            }
+            case Cable:
+            {
+                return getCableBounds( state );
+            }
+            case WiredModemWithCable:
+            {
+                AxisAlignedBB modem = getModemBounds( state );
+                AxisAlignedBB cable = getCableBounds( state );
+                return modem.union( cable );
+            }
+        }
     }
 
     @Override

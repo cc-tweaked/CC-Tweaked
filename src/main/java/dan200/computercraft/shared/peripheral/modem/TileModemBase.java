@@ -8,23 +8,13 @@ package dan200.computercraft.shared.peripheral.modem;
 
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.shared.peripheral.common.TilePeripheralBase;
-import net.minecraft.block.Block;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.math.AxisAlignedBB;
 
 import javax.annotation.Nonnull;
 
 public abstract class TileModemBase extends TilePeripheralBase
 {
-    private static final AxisAlignedBB[] BOXES = new AxisAlignedBB[] {
-        new AxisAlignedBB( 0.125, 0.0, 0.125, 0.875, 0.1875, 0.875 ), // Down
-        new AxisAlignedBB( 0.125, 0.8125, 0.125, 0.875, 1.0, 0.875 ), // Up
-        new AxisAlignedBB( 0.125, 0.125, 0.0, 0.875, 0.875, 0.1875 ), // North
-        new AxisAlignedBB( 0.125, 0.125, 0.8125, 0.875, 0.875, 1.0 ), // South
-        new AxisAlignedBB( 0.0, 0.125, 0.125, 0.1875, 0.875, 0.875 ), // West
-        new AxisAlignedBB( 0.8125, 0.125, 0.125, 1.0, 0.875, 0.875 ), // East
-    };
 
     protected ModemPeripheral m_modem;
 
@@ -32,9 +22,9 @@ public abstract class TileModemBase extends TilePeripheralBase
     {
         m_modem = createPeripheral();
     }
-    
+
     protected abstract ModemPeripheral createPeripheral();
-            
+
     @Override
     public synchronized void destroy()
     {
@@ -60,14 +50,6 @@ public abstract class TileModemBase extends TilePeripheralBase
         }
     }
 
-    @Nonnull
-    @Override
-    public AxisAlignedBB getBounds()
-    {
-        int direction = getDirection().ordinal();
-        return direction >= 0 && direction < BOXES.length ? BOXES[ direction ] : Block.FULL_BLOCK_AABB;
-    }
-
     @Override
     public void update()
     {
@@ -77,16 +59,16 @@ public abstract class TileModemBase extends TilePeripheralBase
             updateAnim();
         }
     }
-    
+
     protected void updateAnim()
     {
         if( m_modem.isActive() )
         {
-            setAnim(1);
+            setAnim( 1 );
         }
         else
         {
-            setAnim(0);
+            setAnim( 0 );
         }
     }
 

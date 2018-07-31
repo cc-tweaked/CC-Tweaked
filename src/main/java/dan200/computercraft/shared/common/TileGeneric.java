@@ -81,12 +81,6 @@ public abstract class TileGeneric extends TileEntity
     {
     }
 
-    @Nonnull
-    public AxisAlignedBB getBounds()
-    {
-        return new AxisAlignedBB( 0.0, 0.0, 0.0, 1.0, 1.0, 1.0 );
-    }
-
     protected double getInteractRange( EntityPlayer player )
     {
         return 8.0;

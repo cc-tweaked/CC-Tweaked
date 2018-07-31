@@ -10,6 +10,7 @@ import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.peripheral.PeripheralType;
 import dan200.computercraft.shared.peripheral.common.BlockPeripheralBase;
 import dan200.computercraft.shared.peripheral.common.TilePeripheralBase;
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockDirectional;
 import net.minecraft.block.properties.PropertyBool;
 import net.minecraft.block.properties.PropertyDirection;
@@ -18,6 +19,7 @@ import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 
@@ -26,6 +28,15 @@ import java.util.function.Supplier;
 
 public class BlockModem extends BlockPeripheralBase
 {
+    public static final AxisAlignedBB[] BOXES = new AxisAlignedBB[]{
+        new AxisAlignedBB( 0.125, 0.0, 0.125, 0.875, 0.1875, 0.875 ), // Down
+        new AxisAlignedBB( 0.125, 0.8125, 0.125, 0.875, 1.0, 0.875 ), // Up
+        new AxisAlignedBB( 0.125, 0.125, 0.0, 0.875, 0.875, 0.1875 ), // North
+        new AxisAlignedBB( 0.125, 0.125, 0.8125, 0.875, 0.875, 1.0 ), // South
+        new AxisAlignedBB( 0.0, 0.125, 0.125, 0.1875, 0.875, 0.875 ), // West
+        new AxisAlignedBB( 0.8125, 0.125, 0.125, 1.0, 0.875, 0.875 ), // East
+    };
+
     public static final PropertyDirection FACING = BlockDirectional.FACING;
     public static final PropertyBool ON = PropertyBool.create( "on" );
 
@@ -87,15 +98,12 @@ public class BlockModem extends BlockPeripheralBase
         {
             TilePeripheralBase peripheral = (TilePeripheralBase) tile;
             anim = peripheral.getAnim();
-            dir = peripheral.getDirection();
         }
         else
         {
             anim = 0;
-            dir = state.getValue( FACING );
         }
 
-        state = state.withProperty( FACING, dir );
         state = state.withProperty( ON, anim > 0 );
         return state;
     }
@@ -105,6 +113,15 @@ public class BlockModem extends BlockPeripheralBase
     {
         EnumFacing dir = placedSide.getOpposite();
         return getDefaultState().withProperty( FACING, dir );
+    }
+
+    @Nonnull
+    @Override
+    @Deprecated
+    public AxisAlignedBB getBoundingBox( IBlockState state, IBlockAccess world, BlockPos pos )
+    {
+        int direction = state.getValue( FACING ).getIndex();
+        return direction >= 0 && direction < BOXES.length ? BOXES[direction] : Block.FULL_BLOCK_AABB;
     }
 
     @Override

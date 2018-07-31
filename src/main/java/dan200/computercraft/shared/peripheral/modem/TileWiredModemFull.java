@@ -12,14 +12,12 @@ import dan200.computercraft.api.network.wired.IWiredElement;
 import dan200.computercraft.api.network.wired.IWiredNode;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.shared.common.TileGeneric;
-import dan200.computercraft.shared.peripheral.common.BlockCable;
 import dan200.computercraft.shared.peripheral.common.IPeripheralTile;
 import dan200.computercraft.shared.wired.CapabilityWiredElement;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ITickable;
-import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.TextComponentTranslation;
@@ -159,13 +157,6 @@ public class TileWiredModemFull extends TileGeneric implements IPeripheralTile, 
                 }
             }
         }
-    }
-
-    @Nonnull
-    @Override
-    public AxisAlignedBB getBounds()
-    {
-        return BlockCable.FULL_BLOCK_AABB;
     }
 
     @Override
