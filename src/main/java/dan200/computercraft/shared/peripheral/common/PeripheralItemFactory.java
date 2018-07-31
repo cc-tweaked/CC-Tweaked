@@ -8,7 +8,6 @@ package dan200.computercraft.shared.peripheral.common;
 
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.peripheral.PeripheralType;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 
 import javax.annotation.Nonnull;
@@ -18,7 +17,6 @@ public class PeripheralItemFactory
     @Nonnull
     public static ItemStack create( PeripheralType type, String label, int quantity )
     {
-        ItemCable cable = ((ItemCable) Item.getItemFromBlock( ComputerCraft.Blocks.cable ));
         switch( type )
         {
             case DiskDrive:
@@ -44,13 +42,14 @@ public class PeripheralItemFactory
             case AdvancedMonitor:
                 return new ItemStack( ComputerCraft.Blocks.monitorAdvanced, quantity );
             case WiredModem:
+                return new ItemStack( ComputerCraft.Items.wiredModem, quantity );
             case Cable:
-            {
-                return cable.create( type, label, quantity );
-            }
+                return new ItemStack( ComputerCraft.Items.cable, quantity );
             case WiredModemFull:
                 return new ItemStack( ComputerCraft.Blocks.wiredModemFull, quantity );
+
+            default:
+                return ItemStack.EMPTY;
         }
-        return ItemStack.EMPTY;
     }
 }

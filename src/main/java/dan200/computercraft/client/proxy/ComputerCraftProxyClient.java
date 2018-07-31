@@ -103,8 +103,8 @@ public class ComputerCraftProxyClient extends ComputerCraftProxyCommon
         registerItemModel( ComputerCraft.Blocks.monitorNormal, 0, "monitor_normal" );
         registerItemModel( ComputerCraft.Blocks.monitorAdvanced, 0, "monitor_advanced" );
 
-        registerItemModel( ComputerCraft.Blocks.cable, 0, "cable" );
-        registerItemModel( ComputerCraft.Blocks.cable, 1, "wired_modem" );
+        registerItemModel( ComputerCraft.Items.cable, 0, "cable" );
+        registerItemModel( ComputerCraft.Items.wiredModem, 0, "wired_modem" );
 
         registerItemModel( ComputerCraft.Blocks.wirelessModem, 0, "wireless_modem" );
         registerItemModel( ComputerCraft.Blocks.advancedModem, 0, "advanced_modem" );

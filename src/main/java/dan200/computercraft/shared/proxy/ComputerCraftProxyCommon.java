@@ -33,10 +33,7 @@ import dan200.computercraft.shared.media.recipes.PrintoutRecipe;
 import dan200.computercraft.shared.network.ComputerCraftPacket;
 import dan200.computercraft.shared.peripheral.PeripheralType;
 import dan200.computercraft.shared.peripheral.commandblock.CommandBlockPeripheralProvider;
-import dan200.computercraft.shared.peripheral.common.BlockCable;
-import dan200.computercraft.shared.peripheral.modem.BlockWiredModemFull;
 import dan200.computercraft.shared.peripheral.common.DefaultPeripheralProvider;
-import dan200.computercraft.shared.peripheral.common.ItemCable;
 import dan200.computercraft.shared.peripheral.diskdrive.BlockDiskDrive;
 import dan200.computercraft.shared.peripheral.diskdrive.ContainerDiskDrive;
 import dan200.computercraft.shared.peripheral.diskdrive.TileDiskDrive;
@@ -316,9 +313,13 @@ public abstract class ComputerCraftProxyCommon implements IComputerCraftProxy
         registry.register( new ItemBlock( ComputerCraft.Blocks.speaker ).setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "speaker" ) ) );
         registry.register( new ItemBlock( ComputerCraft.Blocks.monitorNormal ).setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "monitor_normal" ) ) );
         registry.register( new ItemBlock( ComputerCraft.Blocks.monitorAdvanced ).setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "monitor_advanced" ) ) );
-        
+
         // Cable
-        registry.register( new ItemCable( ComputerCraft.Blocks.cable ).setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "cable" ) ) );
+        ComputerCraft.Items.cable = new ItemCable( ComputerCraft.Blocks.cable );
+        registry.register( ComputerCraft.Items.cable.setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "cable" ) ) );
+
+        ComputerCraft.Items.wiredModem = new ItemWiredModem( ComputerCraft.Blocks.cable );
+        registry.register( ComputerCraft.Items.wiredModem.setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "wired_modem" ) ) );
 
         // Modem
         registry.register( new ItemModem( ComputerCraft.Blocks.wirelessModem ).setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "wireless_modem" ) ) );

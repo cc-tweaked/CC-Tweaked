@@ -1,15 +1,16 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2017. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2018. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 
-package dan200.computercraft.shared.peripheral.common;
+package dan200.computercraft.shared.peripheral.modem;
 
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.peripheral.PeripheralType;
-import dan200.computercraft.shared.peripheral.modem.BlockModem;
-import dan200.computercraft.shared.peripheral.modem.TileCable;
+import dan200.computercraft.shared.peripheral.common.BlockPeripheralBase;
+import dan200.computercraft.shared.peripheral.common.PeripheralItemFactory;
+import dan200.computercraft.shared.peripheral.common.TilePeripheralBase;
 import dan200.computercraft.shared.util.WorldUtil;
 import net.minecraft.block.Block;
 import net.minecraft.block.properties.PropertyBool;
@@ -20,10 +21,10 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
@@ -141,31 +142,29 @@ public class BlockCable extends BlockPeripheralBase
         return meta;
     }
 
+    @Nonnull
     @Override
-    public IBlockState getDefaultBlockState( PeripheralType type, EnumFacing placedSide )
+    public IBlockState getStateForPlacement( @Nonnull World world, @Nonnull BlockPos pos, @Nonnull EnumFacing placedSide, float hitX, float hitY, float hitZ, int meta, @Nonnull EntityLivingBase placer, EnumHand hand )
     {
-        switch( type )
+        // TODO: Shift to the item instead?
+        if( placer.getHeldItem( hand ).getItem() == ComputerCraft.Items.cable )
         {
-            case Cable:
-            {
-                return getDefaultState()
-                    .withProperty( CABLE, BlockCableCableVariant.ANY )
-                    .withProperty( MODEM, BlockCableModemVariant.None );
-            }
-            case WiredModem:
-            default:
-            {
-                return getDefaultState()
-                    .withProperty( CABLE, BlockCableCableVariant.NONE )
-                    .withProperty( MODEM, BlockCableModemVariant.fromFacing( placedSide.getOpposite() ) );
-            }
-            case WiredModemWithCable:
-            {
-                return getDefaultState()
-                    .withProperty( CABLE, BlockCableCableVariant.ANY )
-                    .withProperty( MODEM, BlockCableModemVariant.fromFacing( placedSide.getOpposite() ) );
-            }
+            return getDefaultState()
+                .withProperty( CABLE, BlockCableCableVariant.ANY )
+                .withProperty( MODEM, BlockCableModemVariant.None );
         }
+        else
+        {
+            return getDefaultState()
+                .withProperty( CABLE, BlockCableCableVariant.NONE )
+                .withProperty( MODEM, BlockCableModemVariant.fromFacing( placedSide.getOpposite() ) );
+        }
+    }
+
+    @Override
+    protected IBlockState getDefaultBlockState( int damage, EnumFacing placedSide )
+    {
+        return getDefaultState();
     }
 
     public static boolean canConnectIn( IBlockState state, EnumFacing direction )
@@ -241,12 +240,6 @@ public class BlockCable extends BlockPeripheralBase
     }
 
     @Override
-    public PeripheralType getPeripheralType( int damage )
-    {
-        return ((ItemCable) Item.getItemFromBlock( this )).getPeripheralType( damage );
-    }
-
-    @Override
     public PeripheralType getPeripheralType( IBlockState state )
     {
         boolean cable = state.getValue( CABLE ) != BlockCableCableVariant.NONE;
@@ -265,8 +258,9 @@ public class BlockCable extends BlockPeripheralBase
         }
     }
 
+    @Nullable
     @Override
-    public TilePeripheralBase createTile( PeripheralType type )
+    public TileEntity createTileEntity( @Nonnull World world, @Nonnull IBlockState state )
     {
         return new TileCable();
     }

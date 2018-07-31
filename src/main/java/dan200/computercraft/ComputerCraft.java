@@ -42,12 +42,9 @@ import dan200.computercraft.shared.media.items.ItemPrintout;
 import dan200.computercraft.shared.media.items.ItemTreasureDisk;
 import dan200.computercraft.shared.network.ComputerCraftPacket;
 import dan200.computercraft.shared.network.PacketHandler;
-import dan200.computercraft.shared.peripheral.common.BlockCable;
-import dan200.computercraft.shared.peripheral.modem.BlockWiredModemFull;
+import dan200.computercraft.shared.peripheral.modem.*;
 import dan200.computercraft.shared.peripheral.diskdrive.BlockDiskDrive;
 import dan200.computercraft.shared.peripheral.diskdrive.TileDiskDrive;
-import dan200.computercraft.shared.peripheral.modem.BlockModem;
-import dan200.computercraft.shared.peripheral.modem.WirelessNetwork;
 import dan200.computercraft.shared.peripheral.monitor.BlockMonitor;
 import dan200.computercraft.shared.peripheral.printer.BlockPrinter;
 import dan200.computercraft.shared.peripheral.printer.TilePrinter;
@@ -207,6 +204,9 @@ public class ComputerCraft
         public static ItemTreasureDisk treasureDisk;
         public static ItemPocketComputer pocketComputerNormal;
         public static ItemPocketComputer pocketComputerAdvanced;
+        
+        public static ItemCable cable;
+        public static ItemWiredModem wiredModem;
     }
 
     public static class Upgrades
