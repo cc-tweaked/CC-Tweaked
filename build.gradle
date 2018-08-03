@@ -61,7 +61,7 @@ configurations {
 dependencies {
     deobfProvided "mezz.jei:jei_1.12.2:4.8.5.159:api"
     runtime "mezz.jei:jei_1.12.2:4.8.5.159"
-    shade 'org.squiddev:Cobalt:0.3.1'
+    shade 'org.squiddev:Cobalt:0.3.2'
 
     testCompile 'junit:junit:4.11'
 
