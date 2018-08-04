@@ -12,30 +12,22 @@ import java.util.function.Predicate;
 
 public final class ComputerSelector
 {
-    private static List<ServerComputer> getComputers( Predicate<ServerComputer> predicate, String selector ) throws CommandException
+    private static List<ServerComputer> getComputers( Predicate<ServerComputer> predicate ) throws CommandException
     {
         // We copy it to prevent concurrent modifications.
-        List<ServerComputer> computers = Lists.newArrayList( ComputerCraft.serverComputerRegistry.getComputers() );
-        List<ServerComputer> candidates = Lists.newArrayList();
-        for( ServerComputer searchComputer : computers )
-        {
-            if( predicate.test( searchComputer ) ) candidates.add( searchComputer );
-        }
-
-        if( candidates.isEmpty() )
-        {
-            throw new CommandException( "No computer matching " + selector );
-        }
-        else
-        {
-            return candidates;
-        }
+        ArrayList<ServerComputer> computers = new ArrayList<>( ComputerCraft.serverComputerRegistry.getComputers() );
+        computers.removeIf( predicate.negate() );
+        return computers;
     }
 
     public static ServerComputer getComputer( String selector ) throws CommandException
     {
         List<ServerComputer> computers = getComputers( selector );
-        if( computers.size() == 1 )
+        if( computers.size() == 0 )
+        {
+            throw new CommandException( "No computer matching " + selector );
+        }
+        else if( computers.size() == 1 )
         {
             return computers.get( 0 );
         }
@@ -71,17 +63,17 @@ public final class ComputerSelector
                 throw new CommandException( "'" + selector + "' is not a valid number" );
             }
 
-            return getComputers( x -> x.getID() == id, selector );
+            return getComputers( x -> x.getID() == id );
         }
         else if( selector.length() > 0 && selector.charAt( 0 ) == '@' )
         {
             String label = selector.substring( 1 );
-            return getComputers( x -> Objects.equals( label, x.getLabel() ), selector );
+            return getComputers( x -> Objects.equals( label, x.getLabel() ) );
         }
         else if( selector.length() > 0 && selector.charAt( 0 ) == '~' )
         {
             String familyName = selector.substring( 1 );
-            return getComputers( x -> x.getFamily().name().equalsIgnoreCase( familyName ), selector );
+            return getComputers( x -> x.getFamily().name().equalsIgnoreCase( familyName ) );
         }
         else
         {
@@ -96,14 +88,7 @@ public final class ComputerSelector
             }
 
             ServerComputer computer = ComputerCraft.serverComputerRegistry.get( instance );
-            if( computer == null )
-            {
-                throw new CommandException( "No such computer for instance id " + instance );
-            }
-            else
-            {
-                return Collections.singletonList( computer );
-            }
+            return computer == null ? Collections.emptyList() : Collections.singletonList( computer );
         }
     }
 
