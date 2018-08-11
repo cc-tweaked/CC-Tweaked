@@ -4,15 +4,16 @@
  * Send enquiries to dratcliffe@gmail.com
  */
 
-package dan200.computercraft.shared.peripheral.modem;
+package dan200.computercraft.shared.peripheral.modem.wired;
 
 import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.shared.common.BlockGeneric;
 import dan200.computercraft.shared.peripheral.PeripheralType;
-import dan200.computercraft.shared.peripheral.common.BlockPeripheralBase;
 import dan200.computercraft.shared.peripheral.common.PeripheralItemFactory;
-import dan200.computercraft.shared.peripheral.common.TilePeripheralBase;
+import dan200.computercraft.shared.peripheral.modem.wireless.BlockWirelessModem;
 import dan200.computercraft.shared.util.WorldUtil;
 import net.minecraft.block.Block;
+import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.PropertyBool;
 import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.state.BlockFaceShape;
@@ -38,7 +39,7 @@ import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BlockCable extends BlockPeripheralBase
+public class BlockCable extends BlockGeneric
 {
     public static final PropertyEnum<BlockCableModemVariant> MODEM = PropertyEnum.create( "modem", BlockCableModemVariant.class );
     public static final PropertyEnum<BlockCableCableVariant> CABLE = PropertyEnum.create( "cable", BlockCableCableVariant.class );
@@ -66,6 +67,8 @@ public class BlockCable extends BlockPeripheralBase
 
     public BlockCable()
     {
+        super( Material.ROCK );
+
         setHardness( 1.5f );
         setTranslationKey( "computercraft:cable" );
         setCreativeTab( ComputerCraft.mainCreativeTab );
@@ -211,22 +214,18 @@ public class BlockCable extends BlockPeripheralBase
             state = state.withProperty( CABLE, direction == null ? BlockCableCableVariant.Z_AXIS : direction );
         }
 
-        int anim;
+        int onState = 0;
         TileEntity tile = world.getTileEntity( pos );
-        if( tile instanceof TilePeripheralBase )
+        if( tile instanceof TileCable )
         {
-            TilePeripheralBase peripheral = (TilePeripheralBase) tile;
-            anim = peripheral.getAnim();
-        }
-        else
-        {
-            anim = 0;
+            TileCable cable = (TileCable) tile;
+            onState = (cable.isModemOn() ? 1 : 0) | (cable.isPeripheralOn() ? 2 : 0);
         }
 
         BlockCableModemVariant modem = state.getValue( MODEM );
         if( modem != BlockCableModemVariant.None )
         {
-            state = state.withProperty( MODEM, BlockCableModemVariant.values()[1 + 6 * anim + modem.getFacing().getIndex()] );
+            state = state.withProperty( MODEM, BlockCableModemVariant.VALUES[1 + 6 * onState + modem.getFacing().getIndex()] );
         }
 
         return state;
@@ -239,8 +238,7 @@ public class BlockCable extends BlockPeripheralBase
         return true;
     }
 
-    @Override
-    public PeripheralType getPeripheralType( IBlockState state )
+    public static PeripheralType getPeripheralType( IBlockState state )
     {
         boolean cable = state.getValue( CABLE ) != BlockCableCableVariant.NONE;
         BlockCableModemVariant modem = state.getValue( MODEM );
@@ -331,7 +329,7 @@ public class BlockCable extends BlockPeripheralBase
     @Override
     public boolean removedByPlayer( @Nonnull IBlockState state, World world, @Nonnull BlockPos pos, @Nonnull EntityPlayer player, boolean willHarvest )
     {
-        PeripheralType type = getPeripheralType( world, pos );
+        PeripheralType type = getPeripheralType( state );
         if( type == PeripheralType.WiredModemWithCable )
         {
             RayTraceResult hit = state.collisionRayTrace( world, pos, WorldUtil.getRayStart( player ), WorldUtil.getRayEnd( player ) );
@@ -427,10 +425,7 @@ public class BlockCable extends BlockPeripheralBase
         if( tile instanceof TileCable )
         {
             TileCable cable = (TileCable) tile;
-            if( cable.getPeripheralType() != PeripheralType.WiredModem )
-            {
-                cable.connectionsChanged();
-            }
+            if( getPeripheralType( state ) != PeripheralType.WiredModem ) cable.connectionsChanged();
         }
 
         super.onBlockPlacedBy( world, pos, state, placer, stack );
@@ -439,7 +434,7 @@ public class BlockCable extends BlockPeripheralBase
     public AxisAlignedBB getModemBounds( @Nonnull IBlockState state )
     {
         EnumFacing direction = state.getValue( MODEM ).getFacing();
-        return direction != null ? BlockModem.BOXES[direction.getIndex()] : FULL_BLOCK_AABB;
+        return direction != null ? BlockWirelessModem.BOXES[direction.getIndex()] : FULL_BLOCK_AABB;
     }
 
     public AxisAlignedBB getCableBounds( IBlockState state )

@@ -2,8 +2,7 @@ package dan200.computercraft.client.render;
 
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.peripheral.PeripheralType;
-import dan200.computercraft.shared.peripheral.modem.BlockCable;
-import dan200.computercraft.shared.peripheral.modem.TileCable;
+import dan200.computercraft.shared.peripheral.modem.wired.BlockCable;
 import dan200.computercraft.shared.util.WorldUtil;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.BufferBuilder;
@@ -12,7 +11,6 @@ import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
@@ -39,14 +37,9 @@ public class RenderOverlayCable
         IBlockState state = world.getBlockState( pos );
         if( state.getBlock() != ComputerCraft.Blocks.cable ) return;
         state = state.getActualState( world, pos );
-
-        TileEntity tile = world.getTileEntity( pos );
-        if( !(tile instanceof TileCable) ) return;
+        PeripheralType type = BlockCable.getPeripheralType( state );
 
         event.setCanceled( true );
-        TileCable cable = (TileCable) tile;
-
-        PeripheralType type = cable.getPeripheralType();
 
         GlStateManager.enableBlend();
         GlStateManager.tryBlendFuncSeparate( GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0 );
@@ -82,7 +75,7 @@ public class RenderOverlayCable
                 if( state.getValue( BlockCable.FACINGS[facing.getIndex()] ) )
                 {
                     flags |= 1 << facing.ordinal();
-                    
+
                     switch( facing.getAxis() )
                     {
                         case X:

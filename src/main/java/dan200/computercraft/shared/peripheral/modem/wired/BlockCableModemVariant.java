@@ -4,7 +4,7 @@
  * Send enquiries to dratcliffe@gmail.com
  */
 
-package dan200.computercraft.shared.peripheral.modem;
+package dan200.computercraft.shared.peripheral.modem.wired;
 
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.IStringSerializable;
@@ -39,16 +39,24 @@ public enum BlockCableModemVariant implements IStringSerializable
     WestOnPeripheral( "west_on_peripheral", EnumFacing.WEST ),
     EastOnPeripheral( "east_on_peripheral", EnumFacing.EAST );
 
+    public static final BlockCableModemVariant[] VALUES = values();
+
     public static BlockCableModemVariant fromFacing( EnumFacing facing )
     {
         switch( facing )
         {
-            case DOWN: return DownOff;
-            case UP: return UpOff;
-            case NORTH: return NorthOff;
-            case SOUTH: return SouthOff;
-            case WEST: return WestOff;
-            case EAST: return EastOff;
+            case DOWN:
+                return DownOff;
+            case UP:
+                return UpOff;
+            case NORTH:
+                return NorthOff;
+            case SOUTH:
+                return SouthOff;
+            case WEST:
+                return WestOff;
+            case EAST:
+                return EastOff;
         }
         return NorthOff;
     }

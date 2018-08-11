@@ -4,7 +4,7 @@
  * Send enquiries to dratcliffe@gmail.com
  */
 
-package dan200.computercraft.shared.peripheral.modem;
+package dan200.computercraft.shared.peripheral.modem.wired;
 
 import net.minecraft.util.IStringSerializable;
 

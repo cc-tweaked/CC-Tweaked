@@ -1,4 +1,10 @@
-package dan200.computercraft.shared.peripheral.modem;
+/*
+ * This file is part of ComputerCraft - http://www.computercraft.info
+ * Copyright Daniel Ratcliffe, 2011-2018. Do not distribute without permission.
+ * Send enquiries to dratcliffe@gmail.com
+ */
+
+package dan200.computercraft.shared.peripheral.modem.wireless;
 
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
@@ -10,9 +16,9 @@ import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
 
-public class ItemModem extends ItemBlock
+public class ItemWirelessModem extends ItemBlock
 {
-    public ItemModem( Block block )
+    public ItemWirelessModem( Block block )
     {
         super( block );
     }

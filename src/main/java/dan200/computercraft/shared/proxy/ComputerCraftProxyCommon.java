@@ -31,13 +31,15 @@ import dan200.computercraft.shared.media.items.ItemTreasureDisk;
 import dan200.computercraft.shared.media.recipes.DiskRecipe;
 import dan200.computercraft.shared.media.recipes.PrintoutRecipe;
 import dan200.computercraft.shared.network.ComputerCraftPacket;
-import dan200.computercraft.shared.peripheral.PeripheralType;
 import dan200.computercraft.shared.peripheral.commandblock.CommandBlockPeripheralProvider;
 import dan200.computercraft.shared.peripheral.common.DefaultPeripheralProvider;
 import dan200.computercraft.shared.peripheral.diskdrive.BlockDiskDrive;
 import dan200.computercraft.shared.peripheral.diskdrive.ContainerDiskDrive;
 import dan200.computercraft.shared.peripheral.diskdrive.TileDiskDrive;
-import dan200.computercraft.shared.peripheral.modem.*;
+import dan200.computercraft.shared.peripheral.modem.wired.*;
+import dan200.computercraft.shared.peripheral.modem.wireless.BlockWirelessModem;
+import dan200.computercraft.shared.peripheral.modem.wireless.ItemWirelessModem;
+import dan200.computercraft.shared.peripheral.modem.wireless.TileWirelessModem;
 import dan200.computercraft.shared.peripheral.monitor.BlockMonitor;
 import dan200.computercraft.shared.peripheral.monitor.TileMonitor;
 import dan200.computercraft.shared.peripheral.printer.BlockPrinter;
@@ -286,10 +288,10 @@ public abstract class ComputerCraftProxyCommon implements IComputerCraftProxy
         registry.register( ComputerCraft.Blocks.cable.setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "cable" ) ) );
 
         // Modems
-        ComputerCraft.Blocks.wirelessModem = new BlockModem( PeripheralType.WirelessModem, TileWirelessModemBase.TileWirelessModem::new );
+        ComputerCraft.Blocks.wirelessModem = new BlockWirelessModem( TileWirelessModem.TileNormalWirelessModem::new );
         registry.register( ComputerCraft.Blocks.wirelessModem.setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "wireless_modem" ) ) );
 
-        ComputerCraft.Blocks.advancedModem = new BlockModem( PeripheralType.WirelessModem, TileWirelessModemBase.TileAdvancedModem::new );
+        ComputerCraft.Blocks.advancedModem = new BlockWirelessModem( TileWirelessModem.TileAdvancedWirelessModem::new );
         registry.register( ComputerCraft.Blocks.advancedModem.setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "advanced_modem" ) ) );
 
         // Full block modem
@@ -322,8 +324,8 @@ public abstract class ComputerCraftProxyCommon implements IComputerCraftProxy
         registry.register( ComputerCraft.Items.wiredModem.setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "wired_modem" ) ) );
 
         // Modem
-        registry.register( new ItemModem( ComputerCraft.Blocks.wirelessModem ).setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "wireless_modem" ) ) );
-        registry.register( new ItemModem( ComputerCraft.Blocks.advancedModem ).setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "advanced_modem" ) ) );
+        registry.register( new ItemWirelessModem( ComputerCraft.Blocks.wirelessModem ).setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "wireless_modem" ) ) );
+        registry.register( new ItemWirelessModem( ComputerCraft.Blocks.advancedModem ).setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "advanced_modem" ) ) );
         
         // Full block modem
         registry.register( new ItemBlock( ComputerCraft.Blocks.wiredModemFull ).setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "wired_modem_full" ) ) );
@@ -446,8 +448,8 @@ public abstract class ComputerCraftProxyCommon implements IComputerCraftProxy
         GameRegistry.registerTileEntity( TileMonitor.TileMonitorAdvanced.class, ComputerCraft.LOWER_ID + ":monitor_advanced" );
         GameRegistry.registerTileEntity( TilePrinter.class, ComputerCraft.LOWER_ID + ":printer" );
         GameRegistry.registerTileEntity( TileSpeaker.class, ComputerCraft.LOWER_ID + ":speaker" );
-        GameRegistry.registerTileEntity( TileWirelessModemBase.TileWirelessModem.class, ComputerCraft.LOWER_ID + ":wireless_modem" );
-        GameRegistry.registerTileEntity( TileWirelessModemBase.TileAdvancedModem.class, ComputerCraft.LOWER_ID + ":advanced_modem" );
+        GameRegistry.registerTileEntity( TileWirelessModem.TileNormalWirelessModem.class, ComputerCraft.LOWER_ID + ":wireless_modem" );
+        GameRegistry.registerTileEntity( TileWirelessModem.TileAdvancedWirelessModem.class, ComputerCraft.LOWER_ID + ":advanced_modem" );
 
         GameRegistry.registerTileEntity( TileCable.class, ComputerCraft.LOWER_ID + ":wired_modem" );
         GameRegistry.registerTileEntity( TileWiredModemFull.class, ComputerCraft.LOWER_ID + ":wired_modem_full" );

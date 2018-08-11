@@ -1,10 +1,10 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2017. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2018. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 
-package dan200.computercraft.shared.peripheral.modem;
+package dan200.computercraft.shared.peripheral.modem.wired;
 
 import com.google.common.base.Objects;
 import dan200.computercraft.ComputerCraft;
@@ -218,7 +218,7 @@ public class TileWiredModemFull extends TileGeneric implements IPeripheralTile, 
         return tag;
     }
 
-    protected void updateAnim()
+    protected void updateVisualState()
     {
         boolean modemOn = false, peripheralOn = m_peripheralAccessAllowed;
         for( WiredModemPeripheral modem : m_modems )
@@ -276,7 +276,7 @@ public class TileWiredModemFull extends TileGeneric implements IPeripheralTile, 
             {
                 if( peripheral != null && peripheral.pollChanged() ) changed = true;
             }
-            if( changed ) updateAnim();
+            if( changed ) updateVisualState();
 
             if( !m_connectionsFormed )
             {
@@ -340,7 +340,7 @@ public class TileWiredModemFull extends TileGeneric implements IPeripheralTile, 
             m_node.updatePeripherals( Collections.emptyMap() );
         }
 
-        updateAnim();
+        updateVisualState();
     }
 
     private Set<String> getConnectedPeripheralNames()
@@ -372,7 +372,7 @@ public class TileWiredModemFull extends TileGeneric implements IPeripheralTile, 
         {
             // If there are no peripherals then disable access and update the display state.
             m_peripheralAccessAllowed = false;
-            updateAnim();
+            updateVisualState();
         }
 
         m_node.updatePeripherals( peripherals );

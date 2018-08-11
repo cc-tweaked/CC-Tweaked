@@ -4,7 +4,7 @@
  * Send enquiries to dratcliffe@gmail.com
  */
 
-package dan200.computercraft.shared.peripheral.modem;
+package dan200.computercraft.shared.peripheral.modem.wired;
 
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.peripheral.PeripheralType;
@@ -22,12 +22,12 @@ import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
 
-public class ItemWiredModem extends ItemBlock
+public class ItemCable extends ItemBlock
 {
-    public ItemWiredModem( Block block )
+    public ItemCable( Block block )
     {
         super( block );
-        setTranslationKey( "computercraft:wired_modem" );
+        setTranslationKey( "computercraft:cable" );
         setCreativeTab( ComputerCraft.mainCreativeTab );
     }
 
@@ -44,23 +44,45 @@ public class ItemWiredModem extends ItemBlock
     {
         ItemStack stack = player.getHeldItem( hand );
         if( stack.isEmpty() ) return EnumActionResult.FAIL;
-        if( !canPlaceBlockOnSide( world, pos, side, player, stack ) ) return EnumActionResult.FAIL;
 
         IBlockState existingState = world.getBlockState( pos );
         Block existing = existingState.getBlock();
 
-        // Try to add a modem to a cable
-        if( !existing.isAir( existingState, world, pos ) && existingState.isSideSolid( world, pos, side ) )
+        // Try to add a cable to a modem (clicking within the block)
+        if( existing == ComputerCraft.Blocks.cable )
+        {
+            PeripheralType existingType = BlockCable.getPeripheralType( existingState );
+            if( existingType == PeripheralType.WiredModem )
+            {
+                IBlockState newState = existingState.withProperty( BlockCable.CABLE, BlockCableCableVariant.ANY );
+                world.setBlockState( pos, newState, 3 );
+                SoundType soundType = newState.getBlock().getSoundType( newState, world, pos, player );
+                world.playSound( null, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, soundType.getPlaceSound(), SoundCategory.BLOCKS, (soundType.getVolume() + 1.0F) / 2.0F, soundType.getPitch() * 0.8F );
+                stack.shrink( 1 );
+
+                TileEntity tile = world.getTileEntity( pos );
+                if( tile instanceof TileCable )
+                {
+                    TileCable cable = (TileCable) tile;
+                    cable.connectionsChanged();
+                }
+
+                return EnumActionResult.SUCCESS;
+            }
+        }
+
+        // Try to add a cable to a modem (clicking an adjacent block)
+        if( !existing.isAir( existingState, world, pos ) )
         {
             BlockPos offset = pos.offset( side );
             IBlockState offsetExistingState = world.getBlockState( offset );
             Block offsetExisting = offsetExistingState.getBlock();
             if( offsetExisting == ComputerCraft.Blocks.cable )
             {
-                PeripheralType offsetExistingType = ComputerCraft.Blocks.cable.getPeripheralType( offsetExistingState );
-                if( offsetExistingType == PeripheralType.Cable )
+                PeripheralType offsetExistingType = BlockCable.getPeripheralType( offsetExistingState );
+                if( offsetExistingType == PeripheralType.WiredModem )
                 {
-                    IBlockState newState = offsetExistingState.withProperty( BlockCable.MODEM, BlockCableModemVariant.fromFacing( side.getOpposite() ) );
+                    IBlockState newState = offsetExistingState.withProperty( BlockCable.CABLE, BlockCableCableVariant.ANY );
                     world.setBlockState( offset, newState, 3 );
                     SoundType soundType = newState.getBlock().getSoundType( newState, world, offset, player );
                     world.playSound( null, offset.getX() + 0.5, offset.getY() + 0.5, offset.getZ() + 0.5, soundType.getPlaceSound(), SoundCategory.BLOCKS, (soundType.getVolume() + 1.0F) / 2.0F, soundType.getPitch() * 0.8F );
@@ -79,5 +101,11 @@ public class ItemWiredModem extends ItemBlock
         }
 
         return super.onItemUse( player, world, pos, hand, side, fx, fy, fz );
+    }
+
+    @Override
+    public boolean canPlaceBlockOnSide( World world, @Nonnull BlockPos pos, @Nonnull EnumFacing side, EntityPlayer player, ItemStack stack )
+    {
+        return world.isSideSolid( pos, side );
     }
 }

@@ -1,17 +1,16 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2017. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2018. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 
-package dan200.computercraft.shared.peripheral.modem;
+package dan200.computercraft.shared.peripheral.modem.wireless;
 
 import dan200.computercraft.ComputerCraft;
-import dan200.computercraft.shared.peripheral.PeripheralType;
-import dan200.computercraft.shared.peripheral.common.BlockPeripheralBase;
-import dan200.computercraft.shared.peripheral.common.TilePeripheralBase;
+import dan200.computercraft.shared.common.BlockGeneric;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockDirectional;
+import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.PropertyBool;
 import net.minecraft.block.properties.PropertyDirection;
 import net.minecraft.block.state.BlockFaceShape;
@@ -28,7 +27,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.function.Supplier;
 
-public class BlockModem extends BlockPeripheralBase
+public class BlockWirelessModem extends BlockGeneric
 {
     public static final AxisAlignedBB[] BOXES = new AxisAlignedBB[]{
         new AxisAlignedBB( 0.125, 0.0, 0.125, 0.875, 0.1875, 0.875 ), // Down
@@ -42,12 +41,12 @@ public class BlockModem extends BlockPeripheralBase
     public static final PropertyDirection FACING = BlockDirectional.FACING;
     public static final PropertyBool ON = PropertyBool.create( "on" );
 
-    private final PeripheralType type;
-    private final Supplier<TileModemBase> modem;
+    private final Supplier<TileWirelessModem> modem;
 
-    public BlockModem( PeripheralType type, Supplier<TileModemBase> modem )
+    public BlockWirelessModem( Supplier<TileWirelessModem> modem )
     {
-        this.type = type;
+        super( Material.ROCK );
+
         this.modem = modem;
 
         setHardness( 2.0f );
@@ -93,21 +92,8 @@ public class BlockModem extends BlockPeripheralBase
     @Deprecated
     public IBlockState getActualState( @Nonnull IBlockState state, IBlockAccess world, BlockPos pos )
     {
-        int anim;
-        EnumFacing dir;
         TileEntity tile = world.getTileEntity( pos );
-        if( tile instanceof TilePeripheralBase )
-        {
-            TilePeripheralBase peripheral = (TilePeripheralBase) tile;
-            anim = peripheral.getAnim();
-        }
-        else
-        {
-            anim = 0;
-        }
-
-        state = state.withProperty( ON, anim > 0 );
-        return state;
+        return state.withProperty( ON, tile instanceof TileWirelessModem && ((TileWirelessModem) tile).isModemOn() );
     }
 
     @Override
@@ -124,12 +110,6 @@ public class BlockModem extends BlockPeripheralBase
     {
         int direction = state.getValue( FACING ).getIndex();
         return direction >= 0 && direction < BOXES.length ? BOXES[direction] : Block.FULL_BLOCK_AABB;
-    }
-
-    @Override
-    public PeripheralType getPeripheralType( IBlockState state )
-    {
-        return type;
     }
 
     @Nullable
