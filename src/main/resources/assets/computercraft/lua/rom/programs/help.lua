@@ -13,18 +13,14 @@ if sTopic == "index" then
     return
 end
     
-local w,h = term.getSize()
 local sFile = help.lookup( sTopic )
 local file = ((sFile ~= nil) and io.open( sFile )) or nil
-local nLinesPrinted = 0
 if file then
-    local sLine = file:read()
-    local nLines = 0
-    while sLine do
-        nLines = nLines + textutils.pagedPrint( sLine, (h-3) - nLines )
-        sLine = file:read()
-    end
+    local sContents = file:read("*a")
     file:close()
+
+    local _, nHeight = term.getSize()
+    textutils.pagedPrint( sContents, nHeight - 3 )
 else
     print( "No help available" )
 end

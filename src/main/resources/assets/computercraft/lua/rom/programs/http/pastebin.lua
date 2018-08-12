@@ -113,7 +113,7 @@ elseif sCommand == "run" then
             printError( err )
             return
         end
-        local success, msg = pcall(func, table.unpack(tArgs, 3))
+        local success, msg = pcall(func, select(3, ...))
         if not success then
             printError( msg )
         end
