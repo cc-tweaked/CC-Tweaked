@@ -26,7 +26,6 @@ import javax.vecmath.Matrix4f;
 public class TurtleCraftingTable implements ITurtleUpgrade
 {
     private ResourceLocation m_id;
-    private int m_legacyID;
     private ItemStack m_item;
 
     @SideOnly( Side.CLIENT )
@@ -35,10 +34,9 @@ public class TurtleCraftingTable implements ITurtleUpgrade
     @SideOnly( Side.CLIENT )
     private ModelResourceLocation m_rightModel;
 
-    public TurtleCraftingTable( int legacyId )
+    public TurtleCraftingTable()
     {
         m_id = new ResourceLocation( "minecraft", "crafting_table" );
-        m_legacyID = legacyId;
         m_item = new ItemStack( Blocks.CRAFTING_TABLE, 1, 0 );
     }
 

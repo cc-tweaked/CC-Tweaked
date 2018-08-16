@@ -16,7 +16,7 @@ import net.minecraft.world.World;
 
 public class TurtleSword extends TurtleTool
 {
-    public TurtleSword( ResourceLocation id, int legacyId, String adjective, Item item )
+    public TurtleSword( ResourceLocation id, String adjective, Item item )
     {
         super( id, adjective, item );
     }

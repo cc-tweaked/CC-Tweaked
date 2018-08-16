@@ -73,7 +73,6 @@ public class TurtleSpeaker implements ITurtleUpgrade
 
     // Members
     private ResourceLocation m_id;
-    private int m_legacyID;
 
     @SideOnly( Side.CLIENT )
     private ModelResourceLocation m_leftModel;
@@ -81,10 +80,9 @@ public class TurtleSpeaker implements ITurtleUpgrade
     @SideOnly( Side.CLIENT )
     private ModelResourceLocation m_rightModel;
 
-    public TurtleSpeaker( ResourceLocation id, int legacyId )
+    public TurtleSpeaker( ResourceLocation id )
     {
         m_id = id;
-        m_legacyID = legacyId;
     }
 
     @Nonnull

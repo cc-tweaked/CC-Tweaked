@@ -69,8 +69,6 @@ public abstract class TileTurtle extends TileComputerBase implements ITurtleTile
     private final IItemHandlerModifiable m_itemHandler = new InvWrapper( this );
     private boolean m_inventoryChanged;
     private TurtleBrain m_brain;
-    private EnumFacing m_cachedDirection;
-    private boolean m_hasDirection;
     private MoveState m_moveState;
     private ComputerFamily m_family;
 
@@ -128,13 +126,6 @@ public abstract class TileTurtle extends TileComputerBase implements ITurtleTile
     {
         super.onLoad();
         getDirection();
-    }
-
-    @Override
-    public void updateContainingBlockInfo()
-    {
-        super.updateContainingBlockInfo();
-        m_hasDirection = false;
     }
 
     @Override
@@ -250,7 +241,7 @@ public abstract class TileTurtle extends TileComputerBase implements ITurtleTile
     public void update()
     {
         super.update();
-        getDirection();
+        getBlockState();
         m_brain.update();
         synchronized( m_inventory )
         {
@@ -367,23 +358,18 @@ public abstract class TileTurtle extends TileComputerBase implements ITurtleTile
     @Override
     public EnumFacing getDirection()
     {
-        if( !m_hasDirection )
-        {
-            m_hasDirection = true;
-            return m_cachedDirection = getBlockState().getValue( FACING );
-        }
-        return m_cachedDirection;
+        return getBlockState().getValue( BlockTurtle.FACING );
     }
 
     public EnumFacing getCachedDirection()
     {
-        return m_cachedDirection;
+        return getBlockStateSafe().getValue( BlockTurtle.FACING );
     }
 
     public void setDirection( @Nonnull EnumFacing direction )
     {
         if( direction.getAxis() == EnumFacing.Axis.Y ) direction = EnumFacing.NORTH;
-        if(direction != m_cachedDirection )
+        if(direction != getDirection() )
         {
             getWorld().setBlockState( getPos(), getBlockState().withProperty( FACING, direction ) );
             updateOutput();

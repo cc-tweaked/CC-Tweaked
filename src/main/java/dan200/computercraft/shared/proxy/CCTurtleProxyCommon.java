@@ -300,28 +300,28 @@ public abstract class CCTurtleProxyCommon implements ICCTurtleProxy
         ComputerCraft.Upgrades.wirelessModem = new TurtleModem( false, new ResourceLocation( "computercraft", "wireless_modem" ) );
         registerTurtleUpgradeInternal( ComputerCraft.Upgrades.wirelessModem );
 
-        ComputerCraft.Upgrades.craftingTable = new TurtleCraftingTable( 2 );
+        ComputerCraft.Upgrades.craftingTable = new TurtleCraftingTable();
         registerTurtleUpgradeInternal( ComputerCraft.Upgrades.craftingTable );
 
-        ComputerCraft.Upgrades.diamondSword = new TurtleSword( new ResourceLocation( "minecraft", "diamond_sword" ), 3, "upgrade.minecraft:diamond_sword.adjective", Items.DIAMOND_SWORD );
+        ComputerCraft.Upgrades.diamondSword = new TurtleSword( new ResourceLocation( "minecraft", "diamond_sword" ), "upgrade.minecraft:diamond_sword.adjective", Items.DIAMOND_SWORD );
         registerTurtleUpgradeInternal( ComputerCraft.Upgrades.diamondSword );
 
-        ComputerCraft.Upgrades.diamondShovel = new TurtleShovel( new ResourceLocation( "minecraft", "diamond_shovel" ), 4, "upgrade.minecraft:diamond_shovel.adjective", Items.DIAMOND_SHOVEL );
+        ComputerCraft.Upgrades.diamondShovel = new TurtleShovel( new ResourceLocation( "minecraft", "diamond_shovel" ), "upgrade.minecraft:diamond_shovel.adjective", Items.DIAMOND_SHOVEL );
         registerTurtleUpgradeInternal( ComputerCraft.Upgrades.diamondShovel );
 
         ComputerCraft.Upgrades.diamondPickaxe = new TurtleTool( new ResourceLocation( "minecraft", "diamond_pickaxe" ), "upgrade.minecraft:diamond_pickaxe.adjective", Items.DIAMOND_PICKAXE );
         registerTurtleUpgradeInternal( ComputerCraft.Upgrades.diamondPickaxe );
 
-        ComputerCraft.Upgrades.diamondAxe = new TurtleAxe( new ResourceLocation( "minecraft", "diamond_axe" ), 6, "upgrade.minecraft:diamond_axe.adjective", Items.DIAMOND_AXE );
+        ComputerCraft.Upgrades.diamondAxe = new TurtleAxe( new ResourceLocation( "minecraft", "diamond_axe" ), "upgrade.minecraft:diamond_axe.adjective", Items.DIAMOND_AXE );
         registerTurtleUpgradeInternal( ComputerCraft.Upgrades.diamondAxe );
 
-        ComputerCraft.Upgrades.diamondHoe = new TurtleHoe( new ResourceLocation( "minecraft", "diamond_hoe" ), 7, "upgrade.minecraft:diamond_hoe.adjective", Items.DIAMOND_HOE );
+        ComputerCraft.Upgrades.diamondHoe = new TurtleHoe( new ResourceLocation( "minecraft", "diamond_hoe" ), "upgrade.minecraft:diamond_hoe.adjective", Items.DIAMOND_HOE );
         registerTurtleUpgradeInternal( ComputerCraft.Upgrades.diamondHoe );
 
         ComputerCraft.Upgrades.advancedModem = new TurtleModem( true, new ResourceLocation( "computercraft", "advanced_modem" ) );
         registerTurtleUpgradeInternal( ComputerCraft.Upgrades.advancedModem );
 
-        ComputerCraft.Upgrades.turtleSpeaker = new TurtleSpeaker( new ResourceLocation( "computercraft", "speaker" ), 8 );
+        ComputerCraft.Upgrades.turtleSpeaker = new TurtleSpeaker( new ResourceLocation( "computercraft", "speaker" ) );
         registerTurtleUpgradeInternal( ComputerCraft.Upgrades.turtleSpeaker );
     }
 
