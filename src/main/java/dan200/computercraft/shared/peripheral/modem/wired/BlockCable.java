@@ -165,7 +165,7 @@ public class BlockCable extends BlockGeneric
     }
 
     @Override
-    protected IBlockState getDefaultBlockState( int damage, EnumFacing placedSide )
+    protected IBlockState getDefaultBlockState( EnumFacing placedSide )
     {
         return getDefaultState();
     }

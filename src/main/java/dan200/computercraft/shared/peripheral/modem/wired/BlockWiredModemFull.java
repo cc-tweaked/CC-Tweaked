@@ -39,7 +39,7 @@ public class BlockWiredModemFull extends BlockGeneric
     }
 
     @Override
-    protected IBlockState getDefaultBlockState( int damage, EnumFacing placedSide )
+    protected IBlockState getDefaultBlockState( EnumFacing placedSide )
     {
         return getDefaultState();
     }

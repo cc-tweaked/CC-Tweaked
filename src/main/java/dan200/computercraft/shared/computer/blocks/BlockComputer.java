@@ -27,6 +27,7 @@ import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.function.Supplier;
 
 public class BlockComputer extends BlockComputerBase
@@ -113,8 +114,9 @@ public class BlockComputer extends BlockComputerBase
         return state.withProperty( STATE, ComputerState.Off );
     }
 
+    @Nullable
     @Override
-    protected TileComputerBase createTile()
+    public TileEntity createTileEntity( @Nonnull World world, @Nonnull IBlockState state )
     {
         return factory.get();
     }

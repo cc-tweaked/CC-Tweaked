@@ -97,7 +97,7 @@ public class BlockWirelessModem extends BlockGeneric
     }
 
     @Override
-    public IBlockState getDefaultBlockState( int damage, EnumFacing placedSide )
+    public IBlockState getDefaultBlockState( EnumFacing placedSide )
     {
         EnumFacing dir = placedSide.getOpposite();
         return getDefaultState().withProperty( FACING, dir );

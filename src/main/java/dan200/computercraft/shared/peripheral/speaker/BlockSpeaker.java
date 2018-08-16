@@ -54,7 +54,7 @@ public class BlockSpeaker extends BlockGeneric
     }
 
     @Override
-    protected IBlockState getDefaultBlockState( int damage, EnumFacing placedSide )
+    protected IBlockState getDefaultBlockState( EnumFacing placedSide )
     {
         IBlockState state = getDefaultState();
         if( placedSide.getAxis() != EnumFacing.Axis.Y ) state = state.withProperty( FACING, placedSide );

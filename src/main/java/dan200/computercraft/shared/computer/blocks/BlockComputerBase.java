@@ -23,7 +23,6 @@ import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 public abstract class BlockComputerBase extends BlockGeneric implements IBundledRedstoneBlock
 {
@@ -46,31 +45,9 @@ public abstract class BlockComputerBase extends BlockGeneric implements IBundled
         updateInput( world, pos );
     }
 
-//    @Override
-//    public void setDirection( World world, BlockPos pos, EnumFacing dir )
-//    {
-//        super.setDirection( world, pos, dir );
-//        TODO: updateInput( world, pos );
-//    }
-
     protected abstract IBlockState getDefaultBlockState( EnumFacing placedSide );
 
-    protected abstract TileComputerBase createTile();
-
     protected abstract ComputerFamily getFamily();
-
-    @Override
-    protected final IBlockState getDefaultBlockState( int damage, EnumFacing placedSide )
-    {
-        return getDefaultBlockState( placedSide );
-    }
-
-    @Nullable
-    @Override
-    public final TileComputerBase createTileEntity( @Nonnull World world, @Nonnull IBlockState state )
-    {
-        return createTile();
-    }
 
     @Override
     @Deprecated

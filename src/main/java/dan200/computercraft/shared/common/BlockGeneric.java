@@ -30,14 +30,14 @@ public abstract class BlockGeneric extends Block implements ITileEntityProvider
         this.hasTileEntity = true;
     }
 
-    protected abstract IBlockState getDefaultBlockState( int damage, EnumFacing placedSide );
+    protected abstract IBlockState getDefaultBlockState( EnumFacing placedSide );
 
     @Nonnull
     @Override
     @Deprecated
     public final IBlockState getStateForPlacement( World world, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ, int damage, EntityLivingBase placer )
     {
-        return getDefaultBlockState( damage, side );
+        return getDefaultBlockState( side );
     }
 
     @Override

@@ -142,8 +142,9 @@ public class BlockTurtle extends BlockComputerBase
         return family;
     }
 
+    @Nullable
     @Override
-    protected TileComputerBase createTile()
+    public TileEntity createTileEntity( @Nonnull World world, @Nonnull IBlockState state )
     {
         return factory.get();
     }
