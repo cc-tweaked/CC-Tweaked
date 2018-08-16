@@ -10,7 +10,6 @@ import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.shared.common.TileGeneric;
 import dan200.computercraft.shared.peripheral.common.IPeripheralTile;
 import dan200.computercraft.shared.peripheral.modem.ModemPeripheral;
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ITickable;
@@ -59,7 +58,6 @@ public abstract class TileWirelessModem extends TileGeneric implements IPeripher
         }
     }
 
-    private EnumFacing cachedSide = null;
     private ModemPeripheral modem;
     private boolean modemOn = false;
 
@@ -72,32 +70,17 @@ public abstract class TileWirelessModem extends TileGeneric implements IPeripher
     public void onLoad()
     {
         super.onLoad();
-        fetchBlockInfo();
-    }
-
-    @Override
-    public void updateContainingBlockInfo()
-    {
-        super.updateContainingBlockInfo();
-        cachedSide = null;
+        getBlockState();
     }
 
     protected EnumFacing getSide()
     {
-        if( cachedSide == null ) fetchBlockInfo();
-        return cachedSide;
+        return getBlockState().getValue( BlockWirelessModem.FACING );
     }
 
     private EnumFacing getCachedSide()
     {
-        return cachedSide == null ? EnumFacing.NORTH : cachedSide;
-    }
-
-    private void fetchBlockInfo()
-    {
-        IBlockState state = getBlockState();
-        blockType = state.getBlock();
-        cachedSide = state.getValue( BlockWirelessModem.FACING );
+        return getBlockStateSafe().getValue( BlockWirelessModem.FACING );
     }
 
     @Override
@@ -125,7 +108,7 @@ public abstract class TileWirelessModem extends TileGeneric implements IPeripher
     @Override
     public void update()
     {
-        if( cachedSide == null ) fetchBlockInfo();
+        if( !getWorld().isRemote ) getBlockState();
         if( !getWorld().isRemote && modem.pollChanged() ) updateVisualState();
     }
 

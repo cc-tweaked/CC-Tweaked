@@ -79,8 +79,6 @@ public class TileCable extends TileGeneric implements IPeripheralTile, ITickable
 
     private boolean m_destroyed = false;
 
-    private EnumFacing cachedSide = null;
-    private PeripheralType peripheralType = null;
     private boolean m_connectionsFormed = false;
 
     private boolean modemOn = false;
@@ -144,42 +142,22 @@ public class TileCable extends TileGeneric implements IPeripheralTile, ITickable
     public void onLoad()
     {
         super.onLoad();
-        fetchBlockInfo();
-    }
-
-    @Override
-    public void updateContainingBlockInfo()
-    {
-        super.updateContainingBlockInfo();
-        cachedSide = null;
+        getBlockState();
     }
 
     protected EnumFacing getSide()
     {
-        if( cachedSide == null ) fetchBlockInfo();
-        return cachedSide;
+        return getBlockState().getValue( BlockCable.MODEM ).getFacing();
     }
 
     private EnumFacing getCachedSide()
     {
-        return cachedSide == null ? EnumFacing.NORTH : cachedSide;
+        return getBlockStateSafe().getValue( BlockCable.MODEM ).getFacing();
     }
 
     private PeripheralType getPeripheralType()
     {
-        if( peripheralType == null ) fetchBlockInfo();
-        return peripheralType;
-    }
-
-    private void fetchBlockInfo()
-    {
-        IBlockState state = getBlockState();
-        BlockCableModemVariant modem = state.getValue( BlockCable.MODEM );
-        boolean cable = state.getValue( BlockCable.CABLE ) != BlockCableCableVariant.NONE;
-
-        blockType = state.getBlock();
-        cachedSide = modem != BlockCableModemVariant.None ? modem.getFacing() : EnumFacing.NORTH;
-        peripheralType = BlockCable.getPeripheralType( state );
+        return BlockCable.getPeripheralType( getBlockState() );
     }
 
     @Override
@@ -325,9 +303,9 @@ public class TileCable extends TileGeneric implements IPeripheralTile, ITickable
     @Override
     public void update()
     {
-        if( cachedSide == null ) fetchBlockInfo();
         if( !getWorld().isRemote )
         {
+            getBlockState(); // Ensure the block state is up-to-date for modems
             if( !m_connectionsFormed )
             {
                 m_connectionsFormed = true;
@@ -335,7 +313,7 @@ public class TileCable extends TileGeneric implements IPeripheralTile, ITickable
                 connectionsChanged();
                 if( m_peripheralAccessAllowed )
                 {
-                    m_peripheral.attach( world, pos, cachedSide );
+                    m_peripheral.attach( world, pos, getSide() );
                     updateConnectedPeripherals();
                 }
             }

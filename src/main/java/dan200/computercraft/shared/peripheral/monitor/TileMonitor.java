@@ -12,7 +12,6 @@ import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.shared.common.ServerTerminal;
 import dan200.computercraft.shared.common.TileGeneric;
 import dan200.computercraft.shared.peripheral.common.IPeripheralTile;
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
@@ -50,22 +49,11 @@ public abstract class TileMonitor extends TileGeneric implements ITickable, IPer
     private int m_xIndex = 0;
     private int m_yIndex = 0;
 
-    private EnumFacing cachedFacing;
-    private EnumFacing cachedOrientation;
-
     private final boolean advanced;
 
     public TileMonitor( boolean advanced )
     {
         this.advanced = advanced;
-    }
-
-    @Override
-    public void updateContainingBlockInfo()
-    {
-        super.updateContainingBlockInfo();
-        cachedFacing = null;
-        cachedOrientation = null;
     }
 
     @Override
@@ -300,27 +288,14 @@ public abstract class TileMonitor extends TileGeneric implements ITickable, IPer
 
     // Sizing and placement stuff
 
-    private void fetchBlockInfo()
-    {
-        if( cachedOrientation == null )
-        {
-            IBlockState state = getBlockState();
-            blockType = state.getBlock();
-            cachedOrientation = state.getValue( BlockMonitor.ORIENTATION );
-            cachedFacing = state.getValue( BlockMonitor.FACING );
-        }
-    }
-
     public EnumFacing getFacing()
     {
-        fetchBlockInfo();
-        return cachedFacing;
+        return getBlockState().getValue( BlockMonitor.FACING );
     }
 
     private EnumFacing getOrientation()
     {
-        fetchBlockInfo();
-        return cachedOrientation;
+        return getBlockState().getValue( BlockMonitor.ORIENTATION );
     }
 
     public EnumFacing getFront()

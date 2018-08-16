@@ -16,7 +16,6 @@ import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
@@ -25,6 +24,9 @@ import javax.annotation.Nullable;
 
 public abstract class TileGeneric extends TileEntity
 {
+    private IBlockState blockState;
+    private IBlockState blockStateLatest;
+
     public void requestTileEntityUpdate()
     {
         if( getWorld().isRemote )
@@ -45,13 +47,51 @@ public abstract class TileGeneric extends TileEntity
     @Nullable
     public BlockGeneric getBlock()
     {
-        Block block = getBlockType();
+        Block block = getBlockState().getBlock();
         return block instanceof BlockGeneric ? (BlockGeneric) block : null;
+    }
+
+    @Nonnull
+    @Override
+    @SuppressWarnings( "ConstantConditions" )
+    public Block getBlockType()
+    {
+        if( blockType == null && world != null )
+        {
+            blockState = blockStateLatest = world.getBlockState( pos );
+            blockType = blockState.getBlock();
+        }
+
+        return blockType;
     }
 
     protected final IBlockState getBlockState()
     {
-        return getWorld().getBlockState( getPos() );
+        if( blockState == null && world != null )
+        {
+            blockState = blockStateLatest = world.getBlockState( pos );
+            blockType = blockState.getBlock();
+        }
+
+        return blockState;
+    }
+
+    /**
+     * A thread-safe variant of {@link #getBlockState()}, which will only fetch the cached version.
+     *
+     * This is not always guaranteed to be up-to-date.
+     *
+     * @return The cached block state
+     */
+    protected final IBlockState getBlockStateSafe()
+    {
+        return blockStateLatest;
+    }
+
+    public void updateContainingBlockInfo()
+    {
+        super.updateContainingBlockInfo();
+        blockState = null;
     }
 
     public final void updateBlock()
