@@ -6,12 +6,10 @@
 
 package dan200.computercraft.shared.pocket.peripherals;
 
+import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.pocket.IPocketAccess;
 import dan200.computercraft.api.pocket.IPocketUpgrade;
-import dan200.computercraft.shared.peripheral.PeripheralType;
-import dan200.computercraft.shared.peripheral.common.PeripheralItemFactory;
-import dan200.computercraft.shared.util.Colour;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.item.ItemStack;
@@ -44,7 +42,7 @@ public class PocketSpeaker implements IPocketUpgrade
     @Override
     public ItemStack getCraftingItem()
     {
-        return PeripheralItemFactory.create(PeripheralType.Speaker, null, 1);
+        return new ItemStack( ComputerCraft.Blocks.speaker );
     }
 
     @Nullable

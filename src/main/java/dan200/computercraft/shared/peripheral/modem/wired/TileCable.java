@@ -12,13 +12,12 @@ import dan200.computercraft.api.network.wired.IWiredElement;
 import dan200.computercraft.api.network.wired.IWiredNode;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.shared.common.TileGeneric;
-import dan200.computercraft.shared.peripheral.PeripheralType;
 import dan200.computercraft.shared.peripheral.common.IPeripheralTile;
-import dan200.computercraft.shared.peripheral.common.PeripheralItemFactory;
 import dan200.computercraft.shared.wired.CapabilityWiredElement;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ITickable;
@@ -32,6 +31,10 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.Map;
+
+import static dan200.computercraft.shared.peripheral.modem.wired.BlockCable.canConnectIn;
+import static dan200.computercraft.shared.peripheral.modem.wired.BlockCable.isCable;
+import static dan200.computercraft.shared.peripheral.modem.wired.BlockCable.isModem;
 
 public class TileCable extends TileGeneric implements IPeripheralTile, ITickable
 {
@@ -155,38 +158,32 @@ public class TileCable extends TileGeneric implements IPeripheralTile, ITickable
         return getBlockStateSafe().getValue( BlockCable.MODEM ).getFacing();
     }
 
-    private PeripheralType getPeripheralType()
-    {
-        return BlockCable.getPeripheralType( getBlockState() );
-    }
-
     @Override
     public void onNeighbourChange()
     {
         EnumFacing side = getSide();
         if( !getWorld().isSideSolid( getPos().offset( side ), side.getOpposite() ) )
         {
-            switch( getPeripheralType() )
+            IBlockState state = getBlockState();
+            if( isModem( state ) )
             {
-                case WiredModem:
-                {
-                    // Drop everything and remove block
-                    getBlock().dropBlockAsItem( getWorld(), getPos(), getBlockState(), 1 );
-                    getWorld().setBlockToAir( getPos() );
-
-                    // This'll call #destroy(), so we don't need to reset the network here.
-                    return;
-                }
-                case WiredModemWithCable:
+                if( isCable( state ) )
                 {
                     // Drop the modem and convert to cable
-                    Block.spawnAsEntity( getWorld(), getPos(), PeripheralItemFactory.create( PeripheralType.WiredModem, null, 1 ) );
-                    setBlockState( getBlockState().withProperty( BlockCable.MODEM, BlockCableModemVariant.None ) );
+                    Block.spawnAsEntity( getWorld(), getPos(), new ItemStack( ComputerCraft.Items.wiredModem ) );
+                    setBlockState( state.withProperty( BlockCable.MODEM, BlockCableModemVariant.None ) );
                     modemChanged();
                     connectionsChanged();
-
-                    return;
                 }
+                else
+                {
+                    // Drop everything and remove block
+                    // This'll call #destroy(), so we don't need to reset the network here.
+                    state.getBlock().dropBlockAsItem( getWorld(), getPos(), state, 1 );
+                    getWorld().setBlockToAir( getPos() );
+                }
+
+                return;
             }
         }
 
@@ -213,7 +210,8 @@ public class TileCable extends TileGeneric implements IPeripheralTile, ITickable
     @Override
     public boolean onActivate( EntityPlayer player, EnumFacing side, float hitX, float hitY, float hitZ )
     {
-        if( getPeripheralType() == PeripheralType.WiredModemWithCable && !player.isSneaking() )
+        IBlockState state = getBlockState();
+        if( isCable( state ) && isModem( state ) && !player.isSneaking() )
         {
             if( !getWorld().isRemote )
             {
@@ -335,7 +333,7 @@ public class TileCable extends TileGeneric implements IPeripheralTile, ITickable
             IWiredElement element = ComputerCraft.getWiredElementAt( world, offset, facing.getOpposite() );
             if( element == null ) continue;
 
-            if( BlockCable.canConnectIn( state, facing ) )
+            if( canConnectIn( state, facing ) )
             {
                 // If we can connect to it then do so
                 node.connectTo( element.getNode() );
@@ -352,8 +350,8 @@ public class TileCable extends TileGeneric implements IPeripheralTile, ITickable
     {
         if( getWorld().isRemote ) return;
 
-        PeripheralType type = getPeripheralType();
-        if( type != PeripheralType.WiredModemWithCable && m_peripheralAccessAllowed )
+        IBlockState state = getBlockState();
+        if( m_peripheralAccessAllowed && (!isModem( state ) || !isCable( state )) )
         {
             m_peripheralAccessAllowed = false;
             m_peripheral.detach();
@@ -419,7 +417,7 @@ public class TileCable extends TileGeneric implements IPeripheralTile, ITickable
     @Override
     public boolean hasCapability( @Nonnull Capability<?> capability, @Nullable EnumFacing facing )
     {
-        if( capability == CapabilityWiredElement.CAPABILITY ) return BlockCable.canConnectIn( getBlockState(), facing );
+        if( capability == CapabilityWiredElement.CAPABILITY ) return canConnectIn( getBlockState(), facing );
         return super.hasCapability( capability, facing );
     }
 
@@ -429,7 +427,7 @@ public class TileCable extends TileGeneric implements IPeripheralTile, ITickable
     {
         if( capability == CapabilityWiredElement.CAPABILITY )
         {
-            return BlockCable.canConnectIn( getBlockState(), facing ) ? CapabilityWiredElement.CAPABILITY.cast( cable ) : null;
+            return canConnectIn( getBlockState(), facing ) ? CapabilityWiredElement.CAPABILITY.cast( cable ) : null;
         }
 
         return super.getCapability( capability, facing );
@@ -440,6 +438,6 @@ public class TileCable extends TileGeneric implements IPeripheralTile, ITickable
     @Override
     public IPeripheral getPeripheral( EnumFacing side )
     {
-        return getPeripheralType() != PeripheralType.Cable ? side == getSide() ? modem : null : null;
+        return isModem( getBlockState() ) ? side == getSide() ? modem : null : null;
     }
 }

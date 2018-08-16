@@ -1,7 +1,6 @@
 package dan200.computercraft.client.render;
 
 import dan200.computercraft.ComputerCraft;
-import dan200.computercraft.shared.peripheral.PeripheralType;
 import dan200.computercraft.shared.peripheral.modem.wired.BlockCable;
 import dan200.computercraft.shared.peripheral.modem.wired.BlockCableModemVariant;
 import dan200.computercraft.shared.peripheral.modem.wired.TileCable;
@@ -26,6 +25,8 @@ import net.minecraftforge.client.MinecraftForgeClient;
 import org.lwjgl.opengl.GL11;
 
 import javax.annotation.Nonnull;
+
+import static dan200.computercraft.shared.peripheral.modem.wired.BlockCable.isModem;
 
 /**
  * Render breaking animation only over part of a {@link TileCable}.
@@ -52,7 +53,7 @@ public class TileEntityCableRenderer extends TileEntitySpecialRenderer<TileCable
         if( block != ComputerCraft.Blocks.cable ) return;
 
         state = state.getActualState( world, pos );
-        if( BlockCable.getPeripheralType( state ) != PeripheralType.Cable && WorldUtil.isVecInsideInclusive( ComputerCraft.Blocks.cable.getModemBounds( state ), hit.hitVec.subtract( pos.getX(), pos.getY(), pos.getZ() ) ) )
+        if( isModem( state ) && WorldUtil.isVecInsideInclusive( ComputerCraft.Blocks.cable.getModemBounds( state ), hit.hitVec.subtract( pos.getX(), pos.getY(), pos.getZ() ) ) )
         {
             state = block.getDefaultState().withProperty( BlockCable.MODEM, state.getValue( BlockCable.MODEM ) );
         }

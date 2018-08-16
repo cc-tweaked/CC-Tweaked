@@ -4,13 +4,11 @@
  * Send enquiries to dratcliffe@gmail.com
  */
 
-
 package dan200.computercraft.shared.turtle.upgrades;
 
+import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.turtle.*;
-import dan200.computercraft.shared.peripheral.PeripheralType;
-import dan200.computercraft.shared.peripheral.common.PeripheralItemFactory;
 import dan200.computercraft.shared.peripheral.speaker.SpeakerPeripheral;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.IBakedModel;
@@ -24,6 +22,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.apache.commons.lang3.tuple.Pair;
+
 import javax.annotation.Nonnull;
 import javax.vecmath.Matrix4f;
 
@@ -34,7 +33,7 @@ public class TurtleSpeaker implements ITurtleUpgrade
         // Members
         ITurtleAccess m_turtle;
 
-        public Peripheral(ITurtleAccess turtle)
+        public Peripheral( ITurtleAccess turtle )
         {
             super();
             m_turtle = turtle;
@@ -59,9 +58,9 @@ public class TurtleSpeaker implements ITurtleUpgrade
         }
 
         @Override
-        public boolean equals(IPeripheral other)
+        public boolean equals( IPeripheral other )
         {
-            if (other instanceof Peripheral)
+            if( other instanceof Peripheral )
             {
                 Peripheral otherPeripheral = (Peripheral) other;
                 return otherPeripheral.m_turtle == m_turtle;
@@ -110,13 +109,13 @@ public class TurtleSpeaker implements ITurtleUpgrade
     @Override
     public ItemStack getCraftingItem()
     {
-        return PeripheralItemFactory.create( PeripheralType.Speaker, null, 1 );
+        return new ItemStack( ComputerCraft.Blocks.speaker );
     }
 
     @Override
     public IPeripheral createPeripheral( @Nonnull ITurtleAccess turtle, @Nonnull TurtleSide side )
     {
-        return new TurtleSpeaker.Peripheral(turtle);
+        return new TurtleSpeaker.Peripheral( turtle );
     }
 
     @Nonnull
@@ -158,7 +157,7 @@ public class TurtleSpeaker implements ITurtleUpgrade
     public void update( @Nonnull ITurtleAccess turtle, @Nonnull TurtleSide turtleSide )
     {
         IPeripheral turtlePeripheral = turtle.getPeripheral( turtleSide );
-        if ( turtlePeripheral instanceof Peripheral )
+        if( turtlePeripheral instanceof Peripheral )
         {
             Peripheral peripheral = (Peripheral) turtlePeripheral;
             peripheral.update();

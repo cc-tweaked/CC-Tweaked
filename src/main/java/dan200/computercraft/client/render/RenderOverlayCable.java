@@ -1,7 +1,6 @@
 package dan200.computercraft.client.render;
 
 import dan200.computercraft.ComputerCraft;
-import dan200.computercraft.shared.peripheral.PeripheralType;
 import dan200.computercraft.shared.peripheral.modem.wired.BlockCable;
 import dan200.computercraft.shared.util.WorldUtil;
 import net.minecraft.block.state.IBlockState;
@@ -20,6 +19,8 @@ import net.minecraftforge.client.event.DrawBlockHighlightEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.opengl.GL11;
 
+import static dan200.computercraft.shared.peripheral.modem.wired.BlockCable.isModem;
+
 public class RenderOverlayCable
 {
     private static final float EXPAND = 0.002f;
@@ -37,7 +38,6 @@ public class RenderOverlayCable
         IBlockState state = world.getBlockState( pos );
         if( state.getBlock() != ComputerCraft.Blocks.cable ) return;
         state = state.getActualState( world, pos );
-        PeripheralType type = BlockCable.getPeripheralType( state );
 
         event.setCanceled( true );
 
@@ -59,7 +59,7 @@ public class RenderOverlayCable
         }
 
         AxisAlignedBB modemBounds = ComputerCraft.Blocks.cable.getModemBounds( state );
-        if( type != PeripheralType.Cable && WorldUtil.isVecInsideInclusive( modemBounds, event.getTarget().hitVec.subtract( pos.getX(), pos.getY(), pos.getZ() ) ) )
+        if( isModem( state ) && WorldUtil.isVecInsideInclusive( modemBounds, event.getTarget().hitVec.subtract( pos.getX(), pos.getY(), pos.getZ() ) ) )
         {
             RenderGlobal.drawSelectionBoundingBox( modemBounds, 0, 0, 0, 0.4f );
         }

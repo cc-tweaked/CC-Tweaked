@@ -105,7 +105,10 @@ public abstract class TileGeneric extends TileEntity
 
     protected final void setBlockState( IBlockState newState )
     {
-        getWorld().setBlockState( getPos(), newState, 3 );
+        if( getWorld().setBlockState( getPos(), newState, 3 ) )
+        {
+            blockState = blockStateLatest = newState;
+        }
     }
 
     public boolean onActivate( EntityPlayer player, EnumFacing side, float hitX, float hitY, float hitZ )

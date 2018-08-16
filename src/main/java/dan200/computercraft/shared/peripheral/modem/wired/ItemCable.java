@@ -7,7 +7,6 @@
 package dan200.computercraft.shared.peripheral.modem.wired;
 
 import dan200.computercraft.ComputerCraft;
-import dan200.computercraft.shared.peripheral.PeripheralType;
 import net.minecraft.block.Block;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.state.IBlockState;
@@ -21,6 +20,8 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
+
+import static dan200.computercraft.shared.peripheral.modem.wired.BlockCable.isCable;
 
 public class ItemCable extends ItemBlock
 {
@@ -49,26 +50,22 @@ public class ItemCable extends ItemBlock
         Block existing = existingState.getBlock();
 
         // Try to add a cable to a modem (clicking within the block)
-        if( existing == ComputerCraft.Blocks.cable )
+        if( existing == ComputerCraft.Blocks.cable && !isCable( existingState ) )
         {
-            PeripheralType existingType = BlockCable.getPeripheralType( existingState );
-            if( existingType == PeripheralType.WiredModem )
+            IBlockState newState = existingState.withProperty( BlockCable.CABLE, BlockCableCableVariant.ANY );
+            world.setBlockState( pos, newState, 3 );
+            SoundType soundType = newState.getBlock().getSoundType( newState, world, pos, player );
+            world.playSound( null, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, soundType.getPlaceSound(), SoundCategory.BLOCKS, (soundType.getVolume() + 1.0F) / 2.0F, soundType.getPitch() * 0.8F );
+            stack.shrink( 1 );
+
+            TileEntity tile = world.getTileEntity( pos );
+            if( tile instanceof TileCable )
             {
-                IBlockState newState = existingState.withProperty( BlockCable.CABLE, BlockCableCableVariant.ANY );
-                world.setBlockState( pos, newState, 3 );
-                SoundType soundType = newState.getBlock().getSoundType( newState, world, pos, player );
-                world.playSound( null, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, soundType.getPlaceSound(), SoundCategory.BLOCKS, (soundType.getVolume() + 1.0F) / 2.0F, soundType.getPitch() * 0.8F );
-                stack.shrink( 1 );
-
-                TileEntity tile = world.getTileEntity( pos );
-                if( tile instanceof TileCable )
-                {
-                    TileCable cable = (TileCable) tile;
-                    cable.connectionsChanged();
-                }
-
-                return EnumActionResult.SUCCESS;
+                TileCable cable = (TileCable) tile;
+                cable.connectionsChanged();
             }
+
+            return EnumActionResult.SUCCESS;
         }
 
         // Try to add a cable to a modem (clicking an adjacent block)
@@ -77,26 +74,22 @@ public class ItemCable extends ItemBlock
             BlockPos offset = pos.offset( side );
             IBlockState offsetExistingState = world.getBlockState( offset );
             Block offsetExisting = offsetExistingState.getBlock();
-            if( offsetExisting == ComputerCraft.Blocks.cable )
+            if( offsetExisting == ComputerCraft.Blocks.cable && !isCable( offsetExistingState ) )
             {
-                PeripheralType offsetExistingType = BlockCable.getPeripheralType( offsetExistingState );
-                if( offsetExistingType == PeripheralType.WiredModem )
-                {
-                    IBlockState newState = offsetExistingState.withProperty( BlockCable.CABLE, BlockCableCableVariant.ANY );
-                    world.setBlockState( offset, newState, 3 );
-                    SoundType soundType = newState.getBlock().getSoundType( newState, world, offset, player );
-                    world.playSound( null, offset.getX() + 0.5, offset.getY() + 0.5, offset.getZ() + 0.5, soundType.getPlaceSound(), SoundCategory.BLOCKS, (soundType.getVolume() + 1.0F) / 2.0F, soundType.getPitch() * 0.8F );
-                    stack.shrink( 1 );
+                IBlockState newState = offsetExistingState.withProperty( BlockCable.CABLE, BlockCableCableVariant.ANY );
+                world.setBlockState( offset, newState, 3 );
+                SoundType soundType = newState.getBlock().getSoundType( newState, world, offset, player );
+                world.playSound( null, offset.getX() + 0.5, offset.getY() + 0.5, offset.getZ() + 0.5, soundType.getPlaceSound(), SoundCategory.BLOCKS, (soundType.getVolume() + 1.0F) / 2.0F, soundType.getPitch() * 0.8F );
+                stack.shrink( 1 );
 
-                    TileEntity tile = world.getTileEntity( offset );
-                    if( tile instanceof TileCable )
-                    {
-                        TileCable cable = (TileCable) tile;
-                        cable.modemChanged();
-                        cable.connectionsChanged();
-                    }
-                    return EnumActionResult.SUCCESS;
+                TileEntity tile = world.getTileEntity( offset );
+                if( tile instanceof TileCable )
+                {
+                    TileCable cable = (TileCable) tile;
+                    cable.modemChanged();
+                    cable.connectionsChanged();
                 }
+                return EnumActionResult.SUCCESS;
             }
         }
 

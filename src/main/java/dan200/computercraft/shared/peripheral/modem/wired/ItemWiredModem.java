@@ -7,7 +7,6 @@
 package dan200.computercraft.shared.peripheral.modem.wired;
 
 import dan200.computercraft.ComputerCraft;
-import dan200.computercraft.shared.peripheral.PeripheralType;
 import net.minecraft.block.Block;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.state.IBlockState;
@@ -21,6 +20,8 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
+
+import static dan200.computercraft.shared.peripheral.modem.wired.BlockCable.isModem;
 
 public class ItemWiredModem extends ItemBlock
 {
@@ -55,26 +56,22 @@ public class ItemWiredModem extends ItemBlock
             BlockPos offset = pos.offset( side );
             IBlockState offsetExistingState = world.getBlockState( offset );
             Block offsetExisting = offsetExistingState.getBlock();
-            if( offsetExisting == ComputerCraft.Blocks.cable )
+            if( offsetExisting == ComputerCraft.Blocks.cable && !isModem( offsetExistingState ) )
             {
-                PeripheralType offsetExistingType = ComputerCraft.Blocks.cable.getPeripheralType( offsetExistingState );
-                if( offsetExistingType == PeripheralType.Cable )
-                {
-                    IBlockState newState = offsetExistingState.withProperty( BlockCable.MODEM, BlockCableModemVariant.fromFacing( side.getOpposite() ) );
-                    world.setBlockState( offset, newState, 3 );
-                    SoundType soundType = newState.getBlock().getSoundType( newState, world, offset, player );
-                    world.playSound( null, offset.getX() + 0.5, offset.getY() + 0.5, offset.getZ() + 0.5, soundType.getPlaceSound(), SoundCategory.BLOCKS, (soundType.getVolume() + 1.0F) / 2.0F, soundType.getPitch() * 0.8F );
-                    stack.shrink( 1 );
+                IBlockState newState = offsetExistingState.withProperty( BlockCable.MODEM, BlockCableModemVariant.fromFacing( side.getOpposite() ) );
+                world.setBlockState( offset, newState, 3 );
+                SoundType soundType = newState.getBlock().getSoundType( newState, world, offset, player );
+                world.playSound( null, offset.getX() + 0.5, offset.getY() + 0.5, offset.getZ() + 0.5, soundType.getPlaceSound(), SoundCategory.BLOCKS, (soundType.getVolume() + 1.0F) / 2.0F, soundType.getPitch() * 0.8F );
+                stack.shrink( 1 );
 
-                    TileEntity tile = world.getTileEntity( offset );
-                    if( tile instanceof TileCable )
-                    {
-                        TileCable cable = (TileCable) tile;
-                        cable.modemChanged();
-                        cable.connectionsChanged();
-                    }
-                    return EnumActionResult.SUCCESS;
+                TileEntity tile = world.getTileEntity( offset );
+                if( tile instanceof TileCable )
+                {
+                    TileCable cable = (TileCable) tile;
+                    cable.modemChanged();
+                    cable.connectionsChanged();
                 }
+                return EnumActionResult.SUCCESS;
             }
         }
 
@@ -82,7 +79,7 @@ public class ItemWiredModem extends ItemBlock
     }
 
     @Override
-    public boolean canPlaceBlockOnSide( World world, BlockPos pos, EnumFacing side, EntityPlayer player, ItemStack stack )
+    public boolean canPlaceBlockOnSide( World world, @Nonnull BlockPos pos, @Nonnull EnumFacing side, EntityPlayer player, ItemStack stack )
     {
         return world.isSideSolid( pos, side );
     }

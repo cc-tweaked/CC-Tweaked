@@ -8,8 +8,6 @@ package dan200.computercraft.shared.peripheral.modem.wired;
 
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.common.BlockGeneric;
-import dan200.computercraft.shared.peripheral.PeripheralType;
-import dan200.computercraft.shared.peripheral.common.PeripheralItemFactory;
 import dan200.computercraft.shared.peripheral.modem.wireless.BlockWirelessModem;
 import dan200.computercraft.shared.util.WorldUtil;
 import net.minecraft.block.Block;
@@ -238,22 +236,14 @@ public class BlockCable extends BlockGeneric
         return true;
     }
 
-    public static PeripheralType getPeripheralType( IBlockState state )
+    public static boolean isCable( @Nonnull IBlockState state )
     {
-        boolean cable = state.getValue( CABLE ) != BlockCableCableVariant.NONE;
-        BlockCableModemVariant modem = state.getValue( MODEM );
-        if( cable && modem != BlockCableModemVariant.None )
-        {
-            return PeripheralType.WiredModemWithCable;
-        }
-        else if( modem != BlockCableModemVariant.None )
-        {
-            return PeripheralType.WiredModem;
-        }
-        else
-        {
-            return PeripheralType.Cable;
-        }
+        return state.getValue( CABLE ) != BlockCableCableVariant.NONE;
+    }
+
+    public static boolean isModem( @Nonnull IBlockState state )
+    {
+        return state.getValue( MODEM ) != BlockCableModemVariant.None;
     }
 
     @Nullable
@@ -307,13 +297,12 @@ public class BlockCable extends BlockGeneric
     private List<AxisAlignedBB> getCollisionBounds( IBlockState state )
     {
         List<AxisAlignedBB> bounds = new ArrayList<>( 1 );
-        PeripheralType type = getPeripheralType( state );
-        if( type == PeripheralType.WiredModem || type == PeripheralType.WiredModemWithCable )
+        if( isModem( state ) )
         {
             bounds.add( getModemBounds( state ) );
         }
 
-        if( type == PeripheralType.Cable || type == PeripheralType.WiredModemWithCable )
+        if( isCable( state ) )
         {
             bounds.add( BOX_CENTRE );
 
@@ -329,38 +318,35 @@ public class BlockCable extends BlockGeneric
     @Override
     public boolean removedByPlayer( @Nonnull IBlockState state, World world, @Nonnull BlockPos pos, @Nonnull EntityPlayer player, boolean willHarvest )
     {
-        PeripheralType type = getPeripheralType( state );
-        if( type == PeripheralType.WiredModemWithCable )
+        if( isModem( state ) && isCable( state ) )
         {
             RayTraceResult hit = state.collisionRayTrace( world, pos, WorldUtil.getRayStart( player ), WorldUtil.getRayEnd( player ) );
             if( hit != null )
             {
+                ItemStack item;
+
+                AxisAlignedBB bb = getModemBounds( state );
+                if( WorldUtil.isVecInsideInclusive( bb, hit.hitVec.subtract( pos.getX(), pos.getY(), pos.getZ() ) ) )
+                {
+                    world.setBlockState( pos, state.withProperty( MODEM, BlockCableModemVariant.None ), 3 );
+                    item = new ItemStack( ComputerCraft.Items.wiredModem );
+                }
+                else
+                {
+                    world.setBlockState( pos, state.withProperty( CABLE, BlockCableCableVariant.NONE ), 3 );
+                    item = new ItemStack( ComputerCraft.Items.cable );
+                }
+                    
                 TileEntity tile = world.getTileEntity( pos );
                 if( tile instanceof TileCable && tile.hasWorld() )
                 {
                     TileCable cable = (TileCable) tile;
-
-                    ItemStack item;
-
-                    AxisAlignedBB bb = getModemBounds( state );
-                    if( WorldUtil.isVecInsideInclusive( bb, hit.hitVec.subtract( pos.getX(), pos.getY(), pos.getZ() ) ) )
-                    {
-                        world.setBlockState( pos, state.withProperty( MODEM, BlockCableModemVariant.None ), 3 );
-                        item = PeripheralItemFactory.create( PeripheralType.WiredModem, null, 1 );
-                    }
-                    else
-                    {
-                        world.setBlockState( pos, state.withProperty( CABLE, BlockCableCableVariant.NONE ), 3 );
-                        item = PeripheralItemFactory.create( PeripheralType.Cable, null, 1 );
-                    }
-
                     cable.modemChanged();
                     cable.connectionsChanged();
-                    if( !world.isRemote && !player.capabilities.isCreativeMode )
-                        Block.spawnAsEntity( world, pos, item );
-
-                    return false;
                 }
+
+                if( !world.isRemote && !player.capabilities.isCreativeMode ) Block.spawnAsEntity( world, pos, item );
+                return false;
             }
         }
 
@@ -371,61 +357,37 @@ public class BlockCable extends BlockGeneric
     @Override
     public ItemStack getPickBlock( @Nonnull IBlockState state, RayTraceResult hit, @Nonnull World world, @Nonnull BlockPos pos, EntityPlayer player )
     {
-        TileEntity tile = world.getTileEntity( pos );
-        if( tile instanceof TileCable && tile.hasWorld() )
+        if( isCable( state ) && isModem( state ) )
         {
-            TileCable cable = (TileCable) tile;
-            PeripheralType type = getPeripheralType( state );
-
-            if( type == PeripheralType.WiredModemWithCable )
+            if( hit == null || WorldUtil.isVecInsideInclusive( getModemBounds( state ), hit.hitVec.subtract( pos.getX(), pos.getY(), pos.getZ() ) ) )
             {
-                if( hit == null || WorldUtil.isVecInsideInclusive( getModemBounds( state ), hit.hitVec.subtract( pos.getX(), pos.getY(), pos.getZ() ) ) )
-                {
-                    return PeripheralItemFactory.create( PeripheralType.WiredModem, null, 1 );
-                }
-                else
-                {
-                    return PeripheralItemFactory.create( PeripheralType.Cable, null, 1 );
-                }
+                return new ItemStack( ComputerCraft.Items.wiredModem );
             }
             else
             {
-                return PeripheralItemFactory.create( type, null, 1 );
+                return new ItemStack( ComputerCraft.Items.cable );
             }
         }
-
-        return PeripheralItemFactory.create( PeripheralType.Cable, null, 1 );
+        else
+        {
+            return new ItemStack( isCable( state ) ? ComputerCraft.Items.cable : ComputerCraft.Items.wiredModem );
+        }
     }
 
     @Override
     public void getDrops( @Nonnull NonNullList<ItemStack> drops, IBlockAccess world, BlockPos pos, @Nonnull IBlockState state, int fortune )
     {
-        PeripheralType type = getPeripheralType( state );
-        switch( type )
-        {
-            case Cable:
-            case WiredModem:
-            {
-                drops.add( PeripheralItemFactory.create( type, null, 1 ) );
-                break;
-            }
-            case WiredModemWithCable:
-            {
-                drops.add( PeripheralItemFactory.create( PeripheralType.WiredModem, null, 1 ) );
-                drops.add( PeripheralItemFactory.create( PeripheralType.Cable, null, 1 ) );
-                break;
-            }
-        }
+        if( isCable( state ) ) drops.add( new ItemStack( ComputerCraft.Items.cable ));
+        if( isModem( state ) ) drops.add( new ItemStack( ComputerCraft.Items.wiredModem ) );
     }
 
     @Override
     public void onBlockPlacedBy( World world, BlockPos pos, IBlockState state, EntityLivingBase placer, ItemStack stack )
     {
-        TileEntity tile = world.getTileEntity( pos );
-        if( tile instanceof TileCable )
+        if( isCable( state ) )
         {
-            TileCable cable = (TileCable) tile;
-            if( getPeripheralType( state ) != PeripheralType.WiredModem ) cable.connectionsChanged();
+            TileEntity tile = world.getTileEntity( pos );
+            if( tile instanceof TileCable ) ((TileCable) tile).connectionsChanged();
         }
 
         super.onBlockPlacedBy( world, pos, state, placer, stack );
@@ -460,24 +422,20 @@ public class BlockCable extends BlockGeneric
     @Deprecated
     public AxisAlignedBB getBoundingBox( IBlockState state, IBlockAccess world, BlockPos pos )
     {
-        PeripheralType type = getPeripheralType( state );
-        switch( type )
+        boolean isCable = isCable( state ), isModem = isModem( state );
+        if( isCable && isModem )
         {
-            case WiredModem:
-            default:
-            {
-                return getModemBounds( state );
-            }
-            case Cable:
-            {
-                return getCableBounds( state );
-            }
-            case WiredModemWithCable:
-            {
-                AxisAlignedBB modem = getModemBounds( state );
-                AxisAlignedBB cable = getCableBounds( state );
-                return modem.union( cable );
-            }
+            AxisAlignedBB modem = getModemBounds( state );
+            AxisAlignedBB cable = getCableBounds( state );
+            return modem.union( cable );
+        }
+        else if( isCable )
+        {
+            return getCableBounds( state );
+        }
+        else
+        {
+            return getModemBounds( state );
         }
     }
 

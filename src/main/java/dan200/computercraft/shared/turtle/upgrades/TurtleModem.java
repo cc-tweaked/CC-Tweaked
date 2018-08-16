@@ -6,10 +6,9 @@
 
 package dan200.computercraft.shared.turtle.upgrades;
 
+import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.turtle.*;
-import dan200.computercraft.shared.peripheral.PeripheralType;
-import dan200.computercraft.shared.peripheral.common.PeripheralItemFactory;
 import dan200.computercraft.shared.peripheral.modem.wireless.WirelessModemPeripheral;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.IBakedModel;
@@ -17,9 +16,9 @@ import net.minecraft.client.renderer.block.model.ModelManager;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
@@ -65,7 +64,7 @@ public class TurtleModem implements ITurtleUpgrade
         {
             if( other instanceof Peripheral )
             {
-                Peripheral otherModem = (Peripheral)other;
+                Peripheral otherModem = (Peripheral) other;
                 return otherModem.m_turtle == m_turtle;
             }
             return false;
@@ -113,25 +112,25 @@ public class TurtleModem implements ITurtleUpgrade
             return "upgrade.computercraft:wireless_modem.adjective";
         }
     }
-    
+
     @Nonnull
     @Override
     public TurtleUpgradeType getType()
     {
         return TurtleUpgradeType.Peripheral;
     }
-    
+
     @Nonnull
     @Override
     public ItemStack getCraftingItem()
     {
         if( m_advanced )
         {
-            return PeripheralItemFactory.create( PeripheralType.AdvancedModem, null, 1 );
+            return new ItemStack( ComputerCraft.Blocks.advancedModem );
         }
         else
         {
-            return PeripheralItemFactory.create( PeripheralType.WirelessModem, null, 1 );
+            return new ItemStack( ComputerCraft.Blocks.wirelessModem );
         }
     }
 
@@ -215,7 +214,7 @@ public class TurtleModem implements ITurtleUpgrade
             IPeripheral peripheral = turtle.getPeripheral( side );
             if( peripheral instanceof Peripheral )
             {
-                Peripheral modemPeripheral = (Peripheral)peripheral;
+                Peripheral modemPeripheral = (Peripheral) peripheral;
                 if( modemPeripheral.pollChanged() )
                 {
                     turtle.getUpgradeNBTData( side ).setBoolean( "active", modemPeripheral.isActive() );
