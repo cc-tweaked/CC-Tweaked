@@ -6,7 +6,6 @@
 
 package dan200.computercraft.shared.util;
 
-import dan200.computercraft.shared.common.IDirectionalTile;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.MathHelper;
@@ -49,9 +48,8 @@ public class DirectionUtil
         }
     }
 
-    public static int toLocal( IDirectionalTile directional, EnumFacing dir )
+    public static int toLocal( EnumFacing front, EnumFacing dir )
     {
-        EnumFacing front = directional.getDirection();
         if( front.getAxis() == EnumFacing.Axis.Y )
         {
             front = EnumFacing.NORTH;

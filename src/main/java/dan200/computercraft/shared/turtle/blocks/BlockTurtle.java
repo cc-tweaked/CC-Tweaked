@@ -108,14 +108,6 @@ public class BlockTurtle extends BlockComputerBase
         return 0;
     }
 
-    @Nonnull
-    @Override
-    @Deprecated
-    public IBlockState getActualState( @Nonnull IBlockState state, IBlockAccess world, BlockPos pos )
-    {
-        return state.withProperty( FACING, getDirection( world, pos ) );
-    }
-
     @Override
     protected IBlockState getDefaultBlockState( EnumFacing placedSide )
     {
@@ -180,20 +172,20 @@ public class BlockTurtle extends BlockComputerBase
     @Override
     public void onBlockPlacedBy( World world, BlockPos pos, IBlockState state, EntityLivingBase player, @Nonnull ItemStack itemstack )
     {
-        // Not sure why this is necessary
+        // Set direction
+        EnumFacing dir = DirectionUtil.fromEntityRot( player );
+        world.setBlockState( pos, state.withProperty( FACING, dir ) );
+
         TileEntity tile = world.getTileEntity( pos );
         if( tile instanceof TileTurtle )
         {
-            tile.setWorld( world ); // Not sure why this is necessary
-            tile.setPos( pos ); // Not sure why this is necessary
+            TileTurtle turtle = (TileTurtle) tile;
+
+            turtle.updateInput();
             if( player instanceof EntityPlayer )
             {
-                ((TileTurtle) tile).setOwningPlayer( ((EntityPlayer) player).getGameProfile() );
+                turtle.setOwningPlayer( ((EntityPlayer) player).getGameProfile() );
             }
         }
-
-        // Set direction
-        EnumFacing dir = DirectionUtil.fromEntityRot( player );
-        setDirection( world, pos, dir.getOpposite() );
     }
 }

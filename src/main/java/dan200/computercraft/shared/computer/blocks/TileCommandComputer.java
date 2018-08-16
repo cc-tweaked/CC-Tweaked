@@ -149,17 +149,6 @@ public class TileCommandComputer extends TileComputer
         return state.getValue( BlockCommandComputer.FACING );
     }
 
-    @Override
-    public void setDirection( EnumFacing dir )
-    {
-        if( dir.getAxis() == EnumFacing.Axis.Y )
-        {
-            dir = EnumFacing.NORTH;
-        }
-        setBlockState( getBlockState().withProperty( BlockCommandComputer.FACING, dir ) );
-        updateInput();
-    }
-
     public CommandSender getCommandSender()
     {
         return m_commandSender;

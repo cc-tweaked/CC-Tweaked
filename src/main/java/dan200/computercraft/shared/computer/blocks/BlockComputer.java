@@ -143,16 +143,12 @@ public class BlockComputer extends BlockComputerBase
     @Override
     public void onBlockPlacedBy( World world, BlockPos pos, IBlockState state, EntityLivingBase player, @Nonnull ItemStack stack )
     {
-        // Not sure why this is necessary
-        TileEntity tile = world.getTileEntity( pos );
-        if( tile instanceof TileComputer )
-        {
-            tile.setWorld( world ); // Not sure why this is necessary
-            tile.setPos( pos ); // Not sure why this is necessary
-        }
-
         // Set direction
         EnumFacing dir = DirectionUtil.fromEntityRot( player );
-        setDirection( world, pos, dir );
+        world.setBlockState( pos, state.withProperty( FACING, dir ) );
+
+        // Trigger an update due to direction changing
+        TileEntity tile = world.getTileEntity( pos );
+        if( tile instanceof TileComputer ) ((TileComputer) tile).updateInput();
     }
 }

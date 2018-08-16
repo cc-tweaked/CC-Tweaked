@@ -31,7 +31,6 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.ITextComponent;
@@ -45,6 +44,7 @@ import net.minecraftforge.items.wrapper.InvWrapper;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import static dan200.computercraft.shared.turtle.blocks.BlockTurtle.FACING;
 import static net.minecraftforge.items.CapabilityItemHandler.ITEM_HANDLER_CAPABILITY;
 
 public abstract class TileTurtle extends TileComputerBase implements ITurtleTile, IDefaultInventory
@@ -69,6 +69,8 @@ public abstract class TileTurtle extends TileComputerBase implements ITurtleTile
     private final IItemHandlerModifiable m_itemHandler = new InvWrapper( this );
     private boolean m_inventoryChanged;
     private TurtleBrain m_brain;
+    private EnumFacing m_cachedDirection;
+    private boolean m_hasDirection;
     private MoveState m_moveState;
     private ComputerFamily m_family;
 
@@ -119,6 +121,20 @@ public abstract class TileTurtle extends TileComputerBase implements ITurtleTile
     public ComputerProxy createProxy()
     {
         return m_brain.getProxy();
+    }
+
+    @Override
+    public void onLoad()
+    {
+        super.onLoad();
+        getDirection();
+    }
+
+    @Override
+    public void updateContainingBlockInfo()
+    {
+        super.updateContainingBlockInfo();
+        m_hasDirection = false;
     }
 
     @Override
@@ -234,6 +250,7 @@ public abstract class TileTurtle extends TileComputerBase implements ITurtleTile
     public void update()
     {
         super.update();
+        getDirection();
         m_brain.update();
         synchronized( m_inventory )
         {
@@ -350,13 +367,29 @@ public abstract class TileTurtle extends TileComputerBase implements ITurtleTile
     @Override
     public EnumFacing getDirection()
     {
-        return m_brain.getDirection();
+        if( !m_hasDirection )
+        {
+            m_hasDirection = true;
+            return m_cachedDirection = getBlockState().getValue( FACING );
+        }
+        return m_cachedDirection;
     }
 
-    @Override
-    public void setDirection( EnumFacing dir )
+    public EnumFacing getCachedDirection()
     {
-        m_brain.setDirection( dir );
+        return m_cachedDirection;
+    }
+
+    public void setDirection( @Nonnull EnumFacing direction )
+    {
+        if( direction.getAxis() == EnumFacing.Axis.Y ) direction = EnumFacing.NORTH;
+        if(direction != m_cachedDirection )
+        {
+            getWorld().setBlockState( getPos(), getBlockState().withProperty( FACING, direction ) );
+            updateOutput();
+            updateInput();
+            onTileEntityChange();
+        }
     }
 
     // ITurtleTile

@@ -110,47 +110,28 @@ public class TurtleBrain implements ITurtleAccess
     private ComputerProxy m_proxy;
     private GameProfile m_owningPlayer;
 
-    private LinkedList<TurtleCommandQueueEntry> m_commandQueue;
-    private int m_commandsIssued;
+    private LinkedList<TurtleCommandQueueEntry> m_commandQueue = new LinkedList<>();
+    private int m_commandsIssued = 0;
 
-    private Map<TurtleSide, ITurtleUpgrade> m_upgrades;
-    private Map<TurtleSide, IPeripheral> m_peripherals;
-    private Map<TurtleSide, NBTTagCompound> m_upgradeNBTData;
+    private Map<TurtleSide, ITurtleUpgrade> m_upgrades = new HashMap<>();
+    private Map<TurtleSide, IPeripheral> m_peripherals = new HashMap<>();
+    private Map<TurtleSide, NBTTagCompound> m_upgradeNBTData = new HashMap<>();
 
-    private int m_selectedSlot;
-    private int m_fuelLevel;
-    private int m_colourHex;
-    private ResourceLocation m_overlay;
+    private int m_selectedSlot = 0;
+    private int m_fuelLevel = 0;
+    private int m_colourHex = -1;
+    private ResourceLocation m_overlay = null;
 
-    private int m_instanceID;
-    private EnumFacing m_direction;
-    private TurtleAnimation m_animation;
-    private int m_animationProgress;
-    private int m_lastAnimationProgress;
+    private int m_instanceID = -1;
+    private TurtleAnimation m_animation = TurtleAnimation.None;
+    private int m_animationProgress = 0;
+    private int m_lastAnimationProgress = 0;
     
     TurtlePlayer m_cachedPlayer;
 
     public TurtleBrain( TileTurtle turtle )
     {
         m_owner = turtle;
-
-        m_commandQueue = new LinkedList<>();
-        m_commandsIssued = 0;
-
-        m_upgrades = new HashMap<>();
-        m_peripherals = new HashMap<>();
-        m_upgradeNBTData = new HashMap<>();
-
-        m_selectedSlot = 0;
-        m_fuelLevel = 0;
-        m_colourHex = -1;
-        m_overlay = null;
-
-        m_instanceID = -1;
-        m_direction = EnumFacing.NORTH;
-        m_animation = TurtleAnimation.None;
-        m_animationProgress = 0;
-        m_lastAnimationProgress = 0;
     }
 
     public TurtleBrain getFutureSelf()
@@ -226,7 +207,6 @@ public class TurtleBrain implements ITurtleAccess
     public void readFromNBT( NBTTagCompound nbttagcompound )
     {
         // Read state
-        m_direction = EnumFacing.byIndex( nbttagcompound.getInteger( "dir" ) );
         m_selectedSlot = nbttagcompound.getInteger( "selectedSlot" );
         if( nbttagcompound.hasKey( "fuelLevel" ) )
         {
@@ -304,7 +284,6 @@ public class TurtleBrain implements ITurtleAccess
     public NBTTagCompound writeToNBT( NBTTagCompound nbttagcompound )
     {
         // Write state
-        nbttagcompound.setInteger( "dir", m_direction.getIndex() );
         nbttagcompound.setInteger( "selectedSlot", m_selectedSlot );
         nbttagcompound.setInteger( "fuelLevel", m_fuelLevel );
 
@@ -410,7 +389,6 @@ public class TurtleBrain implements ITurtleAccess
         }
         nbttagcompound.setInteger( "brainInstanceID", m_instanceID );
         nbttagcompound.setInteger( "animation", m_animation.ordinal() );
-        nbttagcompound.setInteger( "direction", m_direction.getIndex() );
         nbttagcompound.setInteger( "fuelLevel", m_fuelLevel );
     }
 
@@ -475,7 +453,6 @@ public class TurtleBrain implements ITurtleAccess
             m_lastAnimationProgress = 0;
         }
 
-        m_direction = EnumFacing.byIndex( nbttagcompound.getInteger( "direction" ) );
         m_fuelLevel = nbttagcompound.getInteger( "fuelLevel" );
     }
 
@@ -609,20 +586,13 @@ public class TurtleBrain implements ITurtleAccess
     @Override
     public EnumFacing getDirection()
     {
-        return m_direction;
+        return m_owner.getCachedDirection();
     }
 
     @Override
     public void setDirection( @Nonnull EnumFacing dir )
     {
-        if( dir.getAxis() == EnumFacing.Axis.Y )
-        {
-            dir = EnumFacing.NORTH;
-        }
-        m_direction = dir;
-        m_owner.updateOutput();
-        m_owner.updateInput();
-        m_owner.onTileEntityChange();
+        m_owner.setDirection( dir );
     }
 
     @Override
@@ -1125,12 +1095,12 @@ public class TurtleBrain implements ITurtleAccess
                         case MoveForward:
                         default:
                         {
-                            moveDir = m_direction;
+                            moveDir = getDirection();
                             break;
                         }
                         case MoveBack:
                         {
-                            moveDir = m_direction.getOpposite();
+                            moveDir = getDirection().getOpposite();
                             break;
                         }
                         case MoveUp:

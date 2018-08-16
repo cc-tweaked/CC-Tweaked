@@ -88,17 +88,6 @@ public class TileComputer extends TileComputerBase
         return state.getValue( BlockComputer.FACING );
     }
 
-    @Override
-    public void setDirection( EnumFacing dir )
-    {
-        if( dir.getAxis() == EnumFacing.Axis.Y )
-        {
-            dir = EnumFacing.NORTH;
-        }
-        setBlockState( getBlockState().withProperty( BlockComputer.FACING, dir ) );
-        updateInput();
-    }
-
     // For legacy reasons, computers invert the meaning of "left" and "right"
     private static final int[] s_remapSide = { 0, 1, 2, 3, 5, 4 };
 

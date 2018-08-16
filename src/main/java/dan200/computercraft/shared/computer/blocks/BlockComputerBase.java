@@ -6,7 +6,7 @@
 
 package dan200.computercraft.shared.computer.blocks;
 
-import dan200.computercraft.shared.common.BlockDirectional;
+import dan200.computercraft.shared.common.BlockGeneric;
 import dan200.computercraft.shared.common.IBundledRedstoneBlock;
 import dan200.computercraft.shared.common.TileGeneric;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
@@ -25,7 +25,7 @@ import net.minecraft.world.World;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public abstract class BlockComputerBase extends BlockDirectional implements IBundledRedstoneBlock
+public abstract class BlockComputerBase extends BlockGeneric implements IBundledRedstoneBlock
 {
     public BlockComputerBase( Material material )
     {
@@ -46,12 +46,12 @@ public abstract class BlockComputerBase extends BlockDirectional implements IBun
         updateInput( world, pos );
     }
 
-    @Override
-    public void setDirection( World world, BlockPos pos, EnumFacing dir )
-    {
-        super.setDirection( world, pos, dir );
-        updateInput( world, pos );
-    }
+//    @Override
+//    public void setDirection( World world, BlockPos pos, EnumFacing dir )
+//    {
+//        super.setDirection( world, pos, dir );
+//        TODO: updateInput( world, pos );
+//    }
 
     protected abstract IBlockState getDefaultBlockState( EnumFacing placedSide );
 

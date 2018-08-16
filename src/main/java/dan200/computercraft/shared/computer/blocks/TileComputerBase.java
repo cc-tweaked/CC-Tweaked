@@ -7,7 +7,6 @@
 package dan200.computercraft.shared.computer.blocks;
 
 import dan200.computercraft.ComputerCraft;
-import dan200.computercraft.shared.common.IDirectionalTile;
 import dan200.computercraft.shared.common.ITerminal;
 import dan200.computercraft.shared.common.TileGeneric;
 import dan200.computercraft.shared.computer.core.ClientComputer;
@@ -29,8 +28,7 @@ import net.minecraft.util.math.BlockPos;
 
 import javax.annotation.Nonnull;
 
-public abstract class TileComputerBase extends TileGeneric
-    implements IComputerTile, IDirectionalTile, ITickable
+public abstract class TileComputerBase extends TileGeneric implements IComputerTile, ITickable
 {
     protected int m_instanceID;
     protected int m_computerID;
@@ -143,10 +141,12 @@ public abstract class TileComputerBase extends TileGeneric
         }
         return false;
     }
+    
+    protected abstract EnumFacing getDirection();
 
     public int getRedstoneOutput( @Nonnull EnumFacing side )
     {
-        int localDir = remapLocalSide( DirectionUtil.toLocal( this, side ) );
+        int localDir = remapLocalSide( DirectionUtil.toLocal( getDirection(), side ) );
         if( !getWorld().isRemote )
         {
             ServerComputer computer = getServerComputer();
@@ -157,7 +157,7 @@ public abstract class TileComputerBase extends TileGeneric
 
     public int getBundledRedstoneOutput( @Nonnull EnumFacing side )
     {
-        int localDir = remapLocalSide( DirectionUtil.toLocal( this, side ) );
+        int localDir = remapLocalSide( DirectionUtil.toLocal( getDirection(), side ) );
         if( !getWorld().isRemote )
         {
             ServerComputer computer = getServerComputer();
@@ -289,7 +289,7 @@ public abstract class TileComputerBase extends TileGeneric
     private void updateSideInput( ServerComputer computer, EnumFacing dir, BlockPos offset )
     {
         EnumFacing offsetSide = dir.getOpposite();
-        int localDir = remapLocalSide( DirectionUtil.toLocal( this, dir ) );
+        int localDir = remapLocalSide( DirectionUtil.toLocal( getDirection(), dir ) );
 
         computer.setRedstoneInput( localDir, RedstoneUtil.getRedstoneOutput( getWorld(), offset, offsetSide ) );
         computer.setBundledRedstoneInput( localDir, RedstoneUtil.getBundledRedstoneOutput( getWorld(), offset, offsetSide ) );
