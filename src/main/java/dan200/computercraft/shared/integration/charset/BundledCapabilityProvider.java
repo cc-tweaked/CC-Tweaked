@@ -6,8 +6,12 @@
 
 package dan200.computercraft.shared.integration.charset;
 
+import dan200.computercraft.shared.common.IBundledRedstoneBlock;
 import dan200.computercraft.shared.common.TileGeneric;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import pl.asie.charset.api.wires.IBundledEmitter;
@@ -21,12 +25,14 @@ import static dan200.computercraft.shared.integration.charset.IntegrationCharset
 
 final class BundledCapabilityProvider implements ICapabilityProvider
 {
+    private final IBundledRedstoneBlock block;
     private final TileGeneric tile;
     private IBundledReceiver receiver;
     private IBundledEmitter[] emitters;
 
-    BundledCapabilityProvider( TileGeneric tile )
+    BundledCapabilityProvider( IBundledRedstoneBlock block, TileGeneric tile )
     {
+        this.block = block;
         this.tile = tile;
     }
 
@@ -59,14 +65,29 @@ final class BundledCapabilityProvider implements ICapabilityProvider
                 if( side == null )
                 {
                     emitter = emitters[index] = () -> {
+                        World world = tile.getWorld();
+                        BlockPos pos = tile.getPos();
+                        IBlockState state = world.getBlockState( pos );
+                        if( state.getBlock() != block ) return null;
+
                         int flags = 0;
-                        for( EnumFacing facing : EnumFacing.VALUES ) flags |= tile.getBundledRedstoneOutput( facing );
+                        for( EnumFacing facing : EnumFacing.VALUES )
+                        {
+                            flags |= block.getBundledRedstoneOutput( state, world, pos, facing );
+                        }
                         return toBytes( flags );
                     };
                 }
                 else
                 {
-                    emitter = emitters[index] = () -> toBytes( tile.getBundledRedstoneOutput( side ) );
+                    emitter = emitters[index] = () -> {
+                        World world = tile.getWorld();
+                        BlockPos pos = tile.getPos();
+                        IBlockState state = world.getBlockState( pos );
+                        if( state.getBlock() != block ) return null;
+
+                        return toBytes( block.getBundledRedstoneOutput( state, world, pos, side ) );
+                    };
                 }
             }
             ;

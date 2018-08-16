@@ -8,6 +8,7 @@ package dan200.computercraft.shared.integration.charset;
 
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.ComputerCraftAPI;
+import dan200.computercraft.shared.common.IBundledRedstoneBlock;
 import dan200.computercraft.shared.common.TileGeneric;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
@@ -45,9 +46,9 @@ public final class IntegrationCharset
     public void attachGenericCapabilities( AttachCapabilitiesEvent<TileEntity> event)
     {
         TileEntity tile = event.getObject();
-        if(tile instanceof TileGeneric)
+        if( tile instanceof TileGeneric && tile.getBlockType() instanceof IBundledRedstoneBlock )
         {
-            event.addCapability( CAPABILITY_KEY, new BundledCapabilityProvider( (TileGeneric) tile ) );
+            event.addCapability( CAPABILITY_KEY, new BundledCapabilityProvider( (IBundledRedstoneBlock) tile.getBlockType(), (TileGeneric) tile ) );
         }
     }
 }
