@@ -23,6 +23,7 @@ import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
 import java.util.*;
+import java.util.function.Consumer;
 
 import static dan200.computercraft.shared.command.framework.ChatHelpers.*;
 
@@ -147,26 +148,15 @@ public final class CommandComputerCraft extends CommandDelegate
             @Override
             public void execute( @Nonnull CommandContext context, @Nonnull List<String> arguments ) throws CommandException
             {
-                Set<ServerComputer> computers = Sets.newHashSet();
-                if( arguments.size() > 0 )
-                {
-                    for( String arg : arguments )
+                withComputers( arguments, computers -> {
+                    int shutdown = 0;
+                    for( ServerComputer computer : computers )
                     {
-                        computers.addAll( ComputerSelector.getComputers( arg ) );
+                        if( computer.isOn() ) shutdown++;
+                        computer.unload();
                     }
-                }
-                else
-                {
-                    computers.addAll( ComputerCraft.serverComputerRegistry.getComputers() );
-                }
-
-                int shutdown = 0;
-                for( ServerComputer computer : computers )
-                {
-                    if( computer.isOn() ) shutdown++;
-                    computer.unload();
-                }
-                context.getSender().sendMessage( text( "Shutdown " + shutdown + " / " + computers.size() + " computers" ) );
+                    context.getSender().sendMessage( text( "Shutdown " + shutdown + " / " + computers.size() + " computers" ) );
+                } );
             }
 
             @Nonnull
@@ -188,26 +178,15 @@ public final class CommandComputerCraft extends CommandDelegate
             @Override
             public void execute( @Nonnull CommandContext context, @Nonnull List<String> arguments ) throws CommandException
             {
-                Set<ServerComputer> computers = Sets.newHashSet();
-                if( arguments.size() > 0 )
-                {
-                    for( String arg : arguments )
+                withComputers( arguments, computers -> {
+                    int on = 0;
+                    for( ServerComputer computer : computers )
                     {
-                        computers.addAll( ComputerSelector.getComputers( arg ) );
+                        if( !computer.isOn() ) on++;
+                        computer.turnOn();
                     }
-                }
-                else
-                {
-                    computers.addAll( ComputerCraft.serverComputerRegistry.getComputers() );
-                }
-
-                int on = 0;
-                for( ServerComputer computer : computers )
-                {
-                    if( !computer.isOn() ) on++;
-                    computer.turnOn();
-                }
-                context.getSender().sendMessage( text( "Turned on " + on + " / " + computers.size() + " computers" ) );
+                    context.getSender().sendMessage( text( "Turned on " + on + " / " + computers.size() + " computers" ) );
+                } );
             }
 
             @Nonnull
@@ -489,8 +468,6 @@ public final class CommandComputerCraft extends CommandDelegate
             if( server.getID() > maxId ) maxId = server.getID();
         }
 
-        ICommandSender sender = context.getSender();
-
         timings.sort( Comparator.<ComputerTracker, Long>comparing( x -> x.get( field ) ).reversed() );
 
         boolean defaultLayout = field == TrackingField.TASKS || field == TrackingField.TOTAL_TIME
@@ -525,5 +502,31 @@ public final class CommandComputerCraft extends CommandDelegate
         }
 
         table.displayTo( context.getSender() );
+    }
+
+    private static void withComputers( List<String> selectors, Consumer<Collection<ServerComputer>> action ) throws CommandException
+    {
+        Set<ServerComputer> computers = Sets.newHashSet();
+        List<String> failed = new ArrayList<>();
+        if( selectors.isEmpty() )
+        {
+            computers.addAll( ComputerCraft.serverComputerRegistry.getComputers() );
+        }
+        else
+        {
+            for( String selector : selectors )
+            {
+                List<ServerComputer> selected = ComputerSelector.getComputers( selector );
+                computers.addAll( selected );
+                if( selected.isEmpty() ) failed.add( selector );
+            }
+        }
+
+        action.accept( computers );
+
+        if( !failed.isEmpty() )
+        {
+            throw new CommandException( "Could not find computers matching " + String.join( ", ", failed ) );
+        }
     }
 }

@@ -28,7 +28,7 @@ group = "org.squiddev"
 archivesBaseName = "cc-tweaked"
 
 minecraft {
-    version = "1.12.2-14.23.2.2634"
+    version = "1.12.2-14.23.4.2749"
     runDir = "run"
     replace '${version}', project.version
 
@@ -50,6 +50,8 @@ repositories {
         name = "squiddev"
         url = "https://dl.bintray.com/squiddev/maven"
     }
+
+    ivy { artifactPattern "https://asie.pl/files/mods/Charset/LibOnly/[module]-[revision](-[classifier]).[ext]" }
 }
 
 configurations {
@@ -60,8 +62,11 @@ configurations {
 
 dependencies {
     deobfProvided "mezz.jei:jei_1.12.2:4.8.5.159:api"
+    deobfProvided "pl.asie:Charset-Lib:0.5.4.6"
+
     runtime "mezz.jei:jei_1.12.2:4.8.5.159"
-    shade 'org.squiddev:Cobalt:0.3.1'
+
+    shade 'org.squiddev:Cobalt:0.3.2'
 
     testCompile 'junit:junit:4.11'
 

@@ -23,6 +23,7 @@ import dan200.computercraft.shared.computer.blocks.TileComputer;
 import dan200.computercraft.shared.computer.core.*;
 import dan200.computercraft.shared.computer.inventory.ContainerComputer;
 import dan200.computercraft.shared.computer.items.ItemComputer;
+import dan200.computercraft.shared.integration.charset.IntegrationCharset;
 import dan200.computercraft.shared.media.common.DefaultMediaProvider;
 import dan200.computercraft.shared.media.inventory.ContainerHeldItem;
 import dan200.computercraft.shared.media.items.ItemDisk;
@@ -82,6 +83,7 @@ import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.event.entity.player.PlayerContainerEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent;
+import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.common.network.FMLNetworkEvent;
@@ -89,6 +91,7 @@ import net.minecraftforge.fml.common.network.IGuiHandler;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.registries.IForgeRegistry;
+import pl.asie.charset.ModCharset;
 
 import javax.annotation.Nonnull;
 import java.io.File;
@@ -115,6 +118,8 @@ public abstract class ComputerCraftProxyCommon implements IComputerCraftProxy
     {
         registerTileEntities();
         registerForgeHandlers();
+
+        if( Loader.isModLoaded( ModCharset.MODID ) ) IntegrationCharset.register();
     }
 
     @Override

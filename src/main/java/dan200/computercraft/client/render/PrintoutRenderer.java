@@ -65,6 +65,10 @@ public class PrintoutRenderer
 
     public static void drawText( int x, int y, int start, String[] text, String[] colours )
     {
+        GlStateManager.color( 1.0f, 1.0f, 1.0f, 1.0f );
+        GlStateManager.enableBlend();
+        GlStateManager.enableTexture2D();
+
         FixedWidthFontRenderer fontRenderer = (FixedWidthFontRenderer) ComputerCraft.getFixedWidthFontRenderer();
 
         for( int line = 0; line < LINES_PER_PAGE && line < text.length; ++line )
@@ -76,6 +80,9 @@ public class PrintoutRenderer
     public static void drawBorder( double x, double y, double z, int page, int pages, boolean isBook )
     {
         GlStateManager.color( 1.0f, 1.0f, 1.0f, 1.0f );
+        GlStateManager.enableBlend();
+        GlStateManager.enableTexture2D();
+
         Minecraft.getMinecraft().getTextureManager().bindTexture( BG );
 
         Tessellator tessellator = Tessellator.getInstance();
