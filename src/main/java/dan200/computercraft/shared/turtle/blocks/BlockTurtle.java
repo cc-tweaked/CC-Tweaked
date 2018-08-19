@@ -8,7 +8,6 @@ package dan200.computercraft.shared.turtle.blocks;
 
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.computer.blocks.BlockComputerBase;
-import dan200.computercraft.shared.computer.blocks.TileComputerBase;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.turtle.items.TurtleItemFactory;
 import dan200.computercraft.shared.util.DirectionUtil;
@@ -99,19 +98,24 @@ public class BlockTurtle extends BlockComputerBase
     @Deprecated
     public IBlockState getStateFromMeta( int meta )
     {
-        return getDefaultState();
+        EnumFacing dir = EnumFacing.byIndex( meta & 0x7 );
+        if( dir.getAxis() == EnumFacing.Axis.Y ) dir = EnumFacing.NORTH;
+
+        return getDefaultState().withProperty( FACING, dir );
     }
 
     @Override
     public int getMetaFromState( IBlockState state )
     {
-        return 0;
+        return state.getValue( FACING ).getIndex();
     }
 
     @Override
     protected IBlockState getDefaultBlockState( EnumFacing placedSide )
     {
-        return getDefaultState();
+        IBlockState state = getDefaultState();
+        if( placedSide.getAxis() != EnumFacing.Axis.Y ) state = state.withProperty( FACING, placedSide.getOpposite() );
+        return state;
     }
 
     @Override
@@ -175,14 +179,14 @@ public class BlockTurtle extends BlockComputerBase
     {
         // Set direction
         EnumFacing dir = DirectionUtil.fromEntityRot( player );
-        world.setBlockState( pos, state.withProperty( FACING, dir ) );
+        world.setBlockState( pos, state.withProperty( FACING, dir.getOpposite() ) );
 
         TileEntity tile = world.getTileEntity( pos );
         if( tile instanceof TileTurtle )
         {
             TileTurtle turtle = (TileTurtle) tile;
 
-            turtle.updateInput();
+            // turtle.updateInput();
             if( player instanceof EntityPlayer )
             {
                 turtle.setOwningPlayer( ((EntityPlayer) player).getGameProfile() );

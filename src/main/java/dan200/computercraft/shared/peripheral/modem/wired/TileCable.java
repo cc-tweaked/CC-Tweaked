@@ -32,9 +32,7 @@ import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.Map;
 
-import static dan200.computercraft.shared.peripheral.modem.wired.BlockCable.canConnectIn;
-import static dan200.computercraft.shared.peripheral.modem.wired.BlockCable.isCable;
-import static dan200.computercraft.shared.peripheral.modem.wired.BlockCable.isModem;
+import static dan200.computercraft.shared.peripheral.modem.wired.BlockCable.*;
 
 public class TileCable extends TileGeneric implements IPeripheralTile, ITickable
 {
@@ -150,7 +148,8 @@ public class TileCable extends TileGeneric implements IPeripheralTile, ITickable
 
     protected EnumFacing getSide()
     {
-        return getBlockState().getValue( BlockCable.MODEM ).getFacing();
+        EnumFacing side = getBlockState().getValue( BlockCable.MODEM ).getFacing();
+        return side == null ? EnumFacing.NORTH : side;
     }
 
     private EnumFacing getCachedSide()
@@ -161,30 +160,27 @@ public class TileCable extends TileGeneric implements IPeripheralTile, ITickable
     @Override
     public void onNeighbourChange()
     {
+        IBlockState state = getBlockState();
         EnumFacing side = getSide();
-        if( !getWorld().isSideSolid( getPos().offset( side ), side.getOpposite() ) )
+        if( isModem( state ) && !getWorld().isSideSolid( getPos().offset( side ), side.getOpposite() ) )
         {
-            IBlockState state = getBlockState();
-            if( isModem( state ) )
+            if( isCable( state ) )
             {
-                if( isCable( state ) )
-                {
-                    // Drop the modem and convert to cable
-                    Block.spawnAsEntity( getWorld(), getPos(), new ItemStack( ComputerCraft.Items.wiredModem ) );
-                    setBlockState( state.withProperty( BlockCable.MODEM, BlockCableModemVariant.None ) );
-                    modemChanged();
-                    connectionsChanged();
-                }
-                else
-                {
-                    // Drop everything and remove block
-                    // This'll call #destroy(), so we don't need to reset the network here.
-                    state.getBlock().dropBlockAsItem( getWorld(), getPos(), state, 1 );
-                    getWorld().setBlockToAir( getPos() );
-                }
-
-                return;
+                // Drop the modem and convert to cable
+                Block.spawnAsEntity( getWorld(), getPos(), new ItemStack( ComputerCraft.Items.wiredModem ) );
+                setBlockState( state.withProperty( BlockCable.MODEM, BlockCableModemVariant.None ) );
+                modemChanged();
+                connectionsChanged();
             }
+            else
+            {
+                // Drop everything and remove block
+                // This'll call #destroy(), so we don't need to reset the network here.
+                state.getBlock().dropBlockAsItem( getWorld(), getPos(), state, 1 );
+                getWorld().setBlockToAir( getPos() );
+            }
+
+            return;
         }
 
         if( !world.isRemote && m_peripheralAccessAllowed )

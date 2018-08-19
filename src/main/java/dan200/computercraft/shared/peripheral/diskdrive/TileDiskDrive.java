@@ -334,7 +334,7 @@ public class TileDiskDrive extends TileGeneric implements IDefaultInventory, IPe
         }
         else
         {
-            return "tile.computercraft:drive.name";
+            return "tile.computercraft:disk_drive.name";
         }
     }
 

@@ -65,7 +65,7 @@ public abstract class TileGeneric extends TileEntity
         return blockType;
     }
 
-    protected final IBlockState getBlockState()
+    public final IBlockState getBlockState()
     {
         if( blockState == null && world != null )
         {

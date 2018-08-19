@@ -40,6 +40,20 @@ public class ItemWiredModem extends ItemBlock
     }
 
     @Nonnull
+    public String getTranslationKey( ItemStack stack )
+    {
+        // Avoid ItemBlock logic
+        return getTranslationKey();
+    }
+
+    @Nonnull
+    public String getTranslationKey()
+    {
+        // Avoid ItemBlock logic
+        return "tile." + getRegistryName();
+    }
+
+    @Nonnull
     @Override
     public EnumActionResult onItemUse( @Nonnull EntityPlayer player, World world, @Nonnull BlockPos pos, @Nonnull EnumHand hand, @Nonnull EnumFacing side, float fx, float fy, float fz )
     {

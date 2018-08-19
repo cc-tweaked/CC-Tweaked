@@ -482,7 +482,7 @@ public class TurtleBrain implements ITurtleAccess
         World oldWorld = getWorld();
         TileTurtle oldOwner = m_owner;
         BlockPos oldPos = m_owner.getPos();
-        Block oldBlock = m_owner.getBlock();
+        IBlockState oldState = m_owner.getBlockState();
 
         if( oldWorld == world && oldPos.equals( pos ) )
         {
@@ -501,10 +501,10 @@ public class TurtleBrain implements ITurtleAccess
         try
         {
             // Create a new turtle
-            if( world.setBlockState( pos, oldBlock.getDefaultState(), 0 ) )
+            if( world.setBlockState( pos, oldState, 0 ) )
             {
                 Block block = world.getBlockState( pos ).getBlock();
-                if( block == oldBlock )
+                if( block == oldState.getBlock() )
                 {
                     TileEntity newTile = world.getTileEntity( pos );
                     if( newTile instanceof TileTurtle )

@@ -28,7 +28,6 @@ public class ItemCable extends ItemBlock
     public ItemCable( Block block )
     {
         super( block );
-        setTranslationKey( "computercraft:cable" );
         setCreativeTab( ComputerCraft.mainCreativeTab );
     }
 
@@ -37,6 +36,20 @@ public class ItemCable extends ItemBlock
     {
         // Avoid ItemBlock logic
         if( isInCreativeTab( tab ) ) items.add( new ItemStack( this ) );
+    }
+
+    @Nonnull
+    public String getTranslationKey( ItemStack stack )
+    {
+        // Avoid ItemBlock logic
+        return getTranslationKey();
+    }
+
+    @Nonnull
+    public String getTranslationKey()
+    {
+        // Avoid ItemBlock logic
+        return "tile." + getRegistryName();
     }
 
     @Nonnull
@@ -99,6 +112,6 @@ public class ItemCable extends ItemBlock
     @Override
     public boolean canPlaceBlockOnSide( World world, @Nonnull BlockPos pos, @Nonnull EnumFacing side, EntityPlayer player, ItemStack stack )
     {
-        return world.isSideSolid( pos, side );
+        return true;
     }
 }
