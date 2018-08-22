@@ -42,9 +42,8 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nonnull;
 import javax.vecmath.Matrix4f;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
+import java.util.function.Function;
 
 public class TurtleTool implements ITurtleUpgrade
 {
@@ -187,8 +186,7 @@ public class TurtleTool implements ITurtleUpgrade
             }
 
             // Start claiming entity drops
-            List<ItemStack> extra = new ArrayList<>();
-            ComputerCraft.setDropConsumer( hitEntity, turtleDropConsumer( turtle, extra ) );
+            ComputerCraft.setDropConsumer( hitEntity, turtleDropConsumer( turtle ) );
 
             // Attack the entity
             boolean attacked = false;
@@ -220,7 +218,7 @@ public class TurtleTool implements ITurtleUpgrade
             }
 
             // Stop claiming drops
-            stopConsuming( turtle, extra );
+            stopConsuming( turtle );
 
             // Put everything we collected into the turtles inventory, then return
             if( attacked )
@@ -277,8 +275,7 @@ public class TurtleTool implements ITurtleUpgrade
             }
 
             // Consume the items the block drops
-            List<ItemStack> extra = new ArrayList<>();
-            ComputerCraft.setDropConsumer( world, blockPosition, turtleDropConsumer( turtle, extra ) );
+            ComputerCraft.setDropConsumer( world, blockPosition, turtleDropConsumer( turtle ) );
 
             TileEntity tile = world.getTileEntity( blockPosition );
 
@@ -297,7 +294,7 @@ public class TurtleTool implements ITurtleUpgrade
                 state.getBlock().harvestBlock( world, turtlePlayer, blockPosition, state, tile, turtlePlayer.getHeldItemMainhand() );
             }
 
-            stopConsuming( turtle, extra );
+            stopConsuming( turtle );
 
             // Remember the previous block
             if( turtle instanceof TurtleBrain )
@@ -312,18 +309,14 @@ public class TurtleTool implements ITurtleUpgrade
         return TurtleCommandResult.failure( "Nothing to dig here" );
     }
 
-    private Consumer<ItemStack> turtleDropConsumer( ITurtleAccess turtle, List<ItemStack> extra )
+    private Function<ItemStack, ItemStack> turtleDropConsumer( ITurtleAccess turtle )
     {
-        return ( drop ) ->
-        {
-            ItemStack remainder = InventoryUtil.storeItems( drop, turtle.getItemHandler(), turtle.getSelectedSlot() );
-            if( !remainder.isEmpty() ) extra.add( remainder );
-        };
+        return drop -> InventoryUtil.storeItems( drop, turtle.getItemHandler(), turtle.getSelectedSlot() );
     }
 
-    private void stopConsuming( ITurtleAccess turtle, List<ItemStack> extra )
+    private void stopConsuming( ITurtleAccess turtle )
     {
-        ComputerCraft.clearDropConsumer();
+        List<ItemStack> extra = ComputerCraft.clearDropConsumer();
         for( ItemStack remainder : extra )
         {
             WorldUtil.dropItemStack( remainder, turtle.getWorld(), turtle.getPosition(), turtle.getDirection().getOpposite() );

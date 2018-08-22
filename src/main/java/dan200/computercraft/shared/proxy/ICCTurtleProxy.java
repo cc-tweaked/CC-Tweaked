@@ -14,7 +14,9 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
+import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 public interface ICCTurtleProxy
 {
@@ -27,7 +29,7 @@ public interface ICCTurtleProxy
     ITurtleUpgrade getTurtleUpgrade( @Nonnull ItemStack item );
     void addAllUpgradedTurtles( NonNullList<ItemStack> list );
 
-    void setDropConsumer( Entity entity, Consumer<ItemStack> consumer );
-    void setDropConsumer( World world, BlockPos pos, Consumer<ItemStack> consumer );
-    void clearDropConsumer();
+    void setDropConsumer( Entity entity, Function<ItemStack, ItemStack> consumer );
+    void setDropConsumer( World world, BlockPos pos, Function<ItemStack, ItemStack> consumer );
+    List<ItemStack> clearDropConsumer();
 }

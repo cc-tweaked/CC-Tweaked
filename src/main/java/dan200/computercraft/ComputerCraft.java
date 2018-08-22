@@ -98,7 +98,7 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.*;
-import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -1125,18 +1125,18 @@ public class ComputerCraft
         turtleProxy.addAllUpgradedTurtles( list );
     }
 
-    public static void setDropConsumer( Entity entity, Consumer<ItemStack> consumer )
+    public static void setDropConsumer( Entity entity, Function<ItemStack, ItemStack> consumer )
     {
         turtleProxy.setDropConsumer( entity, consumer );
     }
 
-    public static void setDropConsumer( World world, BlockPos pos, Consumer<ItemStack> consumer )
+    public static void setDropConsumer( World world, BlockPos pos, Function<ItemStack, ItemStack> consumer )
     {
         turtleProxy.setDropConsumer( world, pos, consumer );
     }
 
-    public static void clearDropConsumer( )
+    public static List<ItemStack> clearDropConsumer( )
     {
-        turtleProxy.clearDropConsumer();
+        return turtleProxy.clearDropConsumer();
     }
 }
