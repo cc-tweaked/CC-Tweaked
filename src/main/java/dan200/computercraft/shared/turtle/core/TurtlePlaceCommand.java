@@ -30,7 +30,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
-import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
@@ -38,6 +37,7 @@ import net.minecraftforge.fml.common.eventhandler.Event;
 import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nonnull;
+import java.util.List;
 
 public class TurtlePlaceCommand implements ITurtleCommand
 {
@@ -241,14 +241,10 @@ public class TurtlePlaceCommand implements ITurtleCommand
         // Start claiming entity drops
         Entity hitEntity = hit.getKey();
         Vec3d hitPos = hit.getValue();
-        ComputerCraft.setDropConsumer( hitEntity, ( drop ) ->
-        {
-            ItemStack remainder = InventoryUtil.storeItems( drop, turtle.getItemHandler(), turtle.getSelectedSlot() );
-            if( !remainder.isEmpty() )
-            {
-                WorldUtil.dropItemStack( remainder, world, position, turtle.getDirection().getOpposite() );
-            }
-        } );
+        ComputerCraft.setDropConsumer(
+            hitEntity,
+            drop -> InventoryUtil.storeItems( drop, turtle.getItemHandler(), turtle.getSelectedSlot() )
+        );
 
         // Place on the entity
         boolean placed = false;
@@ -285,7 +281,11 @@ public class TurtlePlaceCommand implements ITurtleCommand
         }
 
         // Stop claiming drops
-        ComputerCraft.clearDropConsumer();
+        List<ItemStack> remainingDrops = ComputerCraft.clearDropConsumer();
+        for( ItemStack remaining : remainingDrops )
+        {
+            WorldUtil.dropItemStack( remaining, world, position, turtle.getDirection().getOpposite() );
+        }
 
         // Put everything we collected into the turtles inventory, then return
         ItemStack remainder = turtlePlayer.unloadInventory( turtle );

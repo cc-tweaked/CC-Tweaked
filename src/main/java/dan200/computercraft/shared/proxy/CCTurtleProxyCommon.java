@@ -48,17 +48,19 @@ import net.minecraftforge.registries.IForgeRegistry;
 
 import javax.annotation.Nonnull;
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Consumer;
+import java.util.function.Function;
 
 public abstract class CCTurtleProxyCommon implements ICCTurtleProxy
 {
     private Map<Integer, ITurtleUpgrade> m_legacyTurtleUpgrades;
     private Map<String, ITurtleUpgrade> m_turtleUpgrades;
 
-    private Consumer<ItemStack> dropConsumer;
+    private Function<ItemStack, ItemStack> dropConsumer;
+    private List<ItemStack> remainingDrops;
     private WeakReference<World> dropWorld;
     private BlockPos dropPos;
     private AxisAlignedBB dropBounds;
@@ -200,9 +202,10 @@ public abstract class CCTurtleProxyCommon implements ICCTurtleProxy
     }
 
     @Override
-    public void setDropConsumer( Entity entity, Consumer<ItemStack> consumer )
+    public void setDropConsumer( Entity entity, Function<ItemStack, ItemStack> consumer )
     {
         dropConsumer = consumer;
+        remainingDrops = new ArrayList<>();
         dropEntity = new WeakReference<>( entity );
         dropWorld = new WeakReference<>( entity.world );
         dropPos = null;
@@ -212,9 +215,10 @@ public abstract class CCTurtleProxyCommon implements ICCTurtleProxy
     }
 
     @Override
-    public void setDropConsumer( World world, BlockPos pos, Consumer<ItemStack> consumer )
+    public void setDropConsumer( World world, BlockPos pos, Function<ItemStack, ItemStack> consumer )
     {
         dropConsumer = consumer;
+        remainingDrops = new ArrayList<>();
         dropEntity = null;
         dropWorld = new WeakReference<>( world );
         dropPos = pos;
@@ -222,7 +226,7 @@ public abstract class CCTurtleProxyCommon implements ICCTurtleProxy
     }
 
     @Override
-    public void clearDropConsumer()
+    public List<ItemStack> clearDropConsumer()
     {
         if( dropEntity != null )
         {
@@ -232,17 +236,22 @@ public abstract class CCTurtleProxyCommon implements ICCTurtleProxy
                 entity.captureDrops = false;
                 if( entity.capturedDrops != null )
                 {
-                    for( EntityItem entityItem : entity.capturedDrops ) dropConsumer.accept( entityItem.getItem() );
+                    for( EntityItem entityItem : entity.capturedDrops ) handleDrops( entityItem.getItem() );
                     entity.capturedDrops.clear();
                 }
             }
         }
 
+        List<ItemStack> remainingStacks = remainingDrops;
+
         dropConsumer = null;
+        remainingDrops = null;
         dropEntity = null;
         dropWorld = null;
         dropPos = null;
         dropBounds = null;
+
+        return remainingStacks;
     }
 
     private void registerTurtleUpgradeInternal( ITurtleUpgrade upgrade )
@@ -471,6 +480,12 @@ public abstract class CCTurtleProxyCommon implements ICCTurtleProxy
         MinecraftForge.EVENT_BUS.register( handlers );
     }
 
+    private void handleDrops(ItemStack stack)
+    {
+        ItemStack remaining = dropConsumer.apply(stack);
+        if (!remaining.isEmpty()) remainingDrops.add(remaining);
+    }
+
     private class ForgeHandlers
     {
         @SubscribeEvent(priority = EventPriority.LOWEST)
@@ -480,7 +495,7 @@ public abstract class CCTurtleProxyCommon implements ICCTurtleProxy
             if( dropEntity != null && event.getEntity() == dropEntity.get() )
             {
                 List<EntityItem> drops = event.getDrops();
-                for( EntityItem entityItem : drops ) dropConsumer.accept( entityItem.getItem() );
+                for( EntityItem entityItem : drops ) handleDrops( entityItem.getItem() );
                 drops.clear();
             }
         }
@@ -494,7 +509,7 @@ public abstract class CCTurtleProxyCommon implements ICCTurtleProxy
             {
                 for( ItemStack item : event.getDrops() )
                 {
-                    if( event.getWorld().rand.nextFloat() < event.getDropChance() ) dropConsumer.accept( item );
+                    if( event.getWorld().rand.nextFloat() < event.getDropChance() ) handleDrops( item );
                 }
                 event.getDrops().clear();
             }
@@ -507,7 +522,7 @@ public abstract class CCTurtleProxyCommon implements ICCTurtleProxy
             if( dropWorld != null && dropWorld.get() == event.getWorld() && event.getEntity() instanceof EntityItem
                 && dropBounds.contains( event.getEntity().getPositionVector() ) )
             {
-                dropConsumer.accept( ((EntityItem) event.getEntity()).getItem() );
+                handleDrops( ((EntityItem) event.getEntity()).getItem() );
                 event.setCanceled( true );
             }
         }
