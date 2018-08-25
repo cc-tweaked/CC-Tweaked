@@ -80,12 +80,9 @@ public class TileDiskDrive extends TilePeripheralBase
     public void destroy()
     {
         ejectContents( true );
-        synchronized( this )
+        if( m_recordPlaying )
         {
-            if( m_recordPlaying )
-            {
-                stopRecord();
-            }
+            stopRecord();
         }
     }
 
@@ -170,13 +167,10 @@ public class TileDiskDrive extends TilePeripheralBase
         super.update();
 
         // Ejection
-        synchronized( this )
+        if( m_ejectQueued )
         {
-            if( m_ejectQueued )
-            {
-                ejectContents( false );
-                m_ejectQueued = false;
-            }
+            ejectContents( false );
+            m_ejectQueued = false;
         }
         
         // Music
@@ -391,10 +385,7 @@ public class TileDiskDrive extends TilePeripheralBase
     @Override
     public void clear()
     {
-        synchronized( this )
-        {
-            setInventorySlotContents( 0, ItemStack.EMPTY );
-        }
+        setInventorySlotContents( 0, ItemStack.EMPTY );
     }
 
     @Override
@@ -425,18 +416,12 @@ public class TileDiskDrive extends TilePeripheralBase
     @Nonnull
     public ItemStack getDiskStack()
     {
-        synchronized( this )
-        {
-            return getStackInSlot( 0 );
-        }
+        return getStackInSlot( 0 );
     }
 
     public void setDiskStack( @Nonnull ItemStack stack )
     {
-        synchronized( this )
-        {
-            setInventorySlotContents( 0, stack );
-        }
+        setInventorySlotContents( 0, stack );
     }
 
     public IMedia getDiskMedia()
@@ -569,7 +554,7 @@ public class TileDiskDrive extends TilePeripheralBase
         }
     }
 
-    private synchronized void updateAnim()
+    private void updateAnim()
     {            
         if( !m_diskStack.isEmpty() )
         {

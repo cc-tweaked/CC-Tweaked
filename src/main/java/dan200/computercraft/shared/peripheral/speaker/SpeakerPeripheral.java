@@ -20,6 +20,7 @@ import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static dan200.computercraft.core.apis.ArgumentHelper.getString;
 import static dan200.computercraft.core.apis.ArgumentHelper.optReal;
@@ -28,13 +29,13 @@ public class SpeakerPeripheral implements IPeripheral {
     private TileSpeaker m_speaker;
     private long m_clock;
     private long m_lastPlayTime;
-    private int m_notesThisTick;
+    private final AtomicInteger m_notesThisTick;
 
     public SpeakerPeripheral()
     {
         m_clock = 0;
         m_lastPlayTime = 0;
-        m_notesThisTick = 0;
+        m_notesThisTick = new AtomicInteger(  );
     }
 
     SpeakerPeripheral(TileSpeaker speaker)
@@ -43,10 +44,10 @@ public class SpeakerPeripheral implements IPeripheral {
         m_speaker = speaker;
     }
 
-    public synchronized void update()
+    public void update()
     {
         m_clock++;
-        m_notesThisTick = 0;
+        m_notesThisTick.set( 0 );
     }
 
     public World getWorld()
@@ -59,9 +60,9 @@ public class SpeakerPeripheral implements IPeripheral {
         return m_speaker.getPos();
     }
 
-    public synchronized boolean madeSound(long ticks)
+    public boolean madeSound(long ticks)
     {
-        return (m_clock - m_lastPlayTime <= ticks) ;
+        return m_clock - m_lastPlayTime <= ticks;
     }
 
     /* IPeripheral implementation */
@@ -146,7 +147,7 @@ public class SpeakerPeripheral implements IPeripheral {
 
         if( returnValue[0] instanceof Boolean && (Boolean) returnValue[0] )
         {
-            m_notesThisTick++;
+            m_notesThisTick.incrementAndGet();
         }
 
         return returnValue;
@@ -161,7 +162,7 @@ public class SpeakerPeripheral implements IPeripheral {
 
         ResourceLocation resourceName = new ResourceLocation( name );
 
-        if( m_clock - m_lastPlayTime >= TileSpeaker.MIN_TICKS_BETWEEN_SOUNDS || ( ( m_clock - m_lastPlayTime == 0 ) && ( m_notesThisTick < ComputerCraft.maxNotesPerTick ) && isNote ) )
+        if( m_clock - m_lastPlayTime >= TileSpeaker.MIN_TICKS_BETWEEN_SOUNDS || (isNote && m_clock - m_lastPlayTime == 0 && m_notesThisTick.get() < ComputerCraft.maxNotesPerTick) )
         {
             if( SoundEvent.REGISTRY.containsKey(resourceName) )
             {

@@ -190,10 +190,7 @@ public class TilePrinter extends TilePeripheralBase
     @Override    
     public ItemStack getStackInSlot(int i)
     {
-        synchronized( m_inventory )
-        {
-            return m_inventory.get( i );
-        }
+        return m_inventory.get( i );
     }
 
     @Nonnull

@@ -37,7 +37,7 @@ public abstract class TileModemBase extends TilePeripheralBase
     protected abstract ModemPeripheral createPeripheral();
             
     @Override
-    public synchronized void destroy()
+    public void destroy()
     {
         if( m_modem != null )
         {

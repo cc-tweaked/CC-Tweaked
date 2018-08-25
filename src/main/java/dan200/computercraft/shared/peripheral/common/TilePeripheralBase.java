@@ -112,12 +112,12 @@ public abstract class TilePeripheralBase extends TileGeneric
         }
     }
 
-    public synchronized int getAnim()
+    public int getAnim()
     {
         return m_anim;
     }
     
-    public synchronized void setAnim( int anim )
+    public void setAnim( int anim )
     {
         if( anim != m_anim )
         {
@@ -127,12 +127,12 @@ public abstract class TilePeripheralBase extends TileGeneric
     }
 
     @Override    
-    public synchronized void update()
+    public void update()
     {
         if( m_changed )
         {
-            updateBlock();
             m_changed = false;
+            updateBlock();
         }
     }
             

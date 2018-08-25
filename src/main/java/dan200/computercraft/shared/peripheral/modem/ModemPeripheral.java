@@ -75,7 +75,7 @@ public abstract class ModemPeripheral
         m_open = false;
     }
     
-    public synchronized boolean pollChanged()
+    public boolean pollChanged()
     {
         if( m_changed )
         {
@@ -85,9 +85,9 @@ public abstract class ModemPeripheral
         return false;
     }
 
-    public synchronized boolean isActive()
+    public boolean isActive()
     {
-        return (m_computer != null) && m_open;
+        return m_computer != null && m_open;
     }
 
     @Override
