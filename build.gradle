@@ -42,6 +42,7 @@ minecraft {
 }
 
 repositories {
+    mavenLocal()
     maven {
         name = "JEI"
         url  = "http://dvs1.progwml6.com/files/maven"
@@ -66,7 +67,7 @@ dependencies {
 
     runtime "mezz.jei:jei_1.12.2:4.8.5.159"
 
-    shade 'org.squiddev:Cobalt:0.3.2'
+    shade 'org.squiddev:Cobalt:0.3.2-nothread'
 
     testCompile 'junit:junit:4.11'
 

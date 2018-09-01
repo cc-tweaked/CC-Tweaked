@@ -70,7 +70,7 @@ public class CobaltLuaMachine implements ILuaMachine
                 int count = ++this.count;
                 if( count > 100000 )
                 {
-                    if( m_hardAbortMessage != null ) LuaThread.yield( state, NONE );
+                    if( m_hardAbortMessage != null ) throw new LuaError( m_hardAbortMessage );
                     this.count = 0;
                 }
                 else
@@ -84,7 +84,7 @@ public class CobaltLuaMachine implements ILuaMachine
             @Override
             public void poll() throws LuaError
             {
-                if( m_hardAbortMessage != null ) LuaThread.yield( state, NONE );
+                if( m_hardAbortMessage != null ) throw new LuaError( m_hardAbortMessage );
                 handleSoftAbort();
             }
 
@@ -119,7 +119,7 @@ public class CobaltLuaMachine implements ILuaMachine
         if( ComputerCraft.debug_enable ) m_globals.load( state, new DebugLib() );
 
         // Register custom load/loadstring provider which automatically adds prefixes.
-        LibFunction.bind( state, m_globals, PrefixLoader.class, new String[]{ "load", "loadstring" } );
+        LibFunction.bind( m_globals, PrefixLoader.class, new String[]{ "load", "loadstring" } );
 
         // Remove globals we don't want to expose
         m_globals.rawset( "collectgarbage", Constants.NIL );
@@ -210,18 +210,13 @@ public class CobaltLuaMachine implements ILuaMachine
                 resumeArgs = varargsOf( valueOf( eventName ), toValues( arguments ) );
             }
 
-            Varargs results = m_mainRoutine.resume( resumeArgs );
+            LuaValue filter = LuaThread.run( m_mainRoutine, resumeArgs ).first();
             if( m_hardAbortMessage != null )
             {
                 throw new LuaError( m_hardAbortMessage );
             }
-            else if( !results.first().checkBoolean() )
-            {
-                throw new LuaError( results.arg( 2 ).checkString() );
-            }
             else
             {
-                LuaValue filter = results.arg( 2 );
                 if( filter.isString() )
                 {
                     m_eventFilter = filter.toString();
@@ -530,12 +525,22 @@ public class CobaltLuaMachine implements ILuaMachine
             if( remaining <= 0 )
             {
                 LuaValue s;
+                state.getCurrentThread().disableYield();
                 try
                 {
                     s = OperationHelper.call( state, func );
-                } catch (LuaError e)
+                }
+                catch( UnwindThrowable e )
+                {
+                    throw new IOException( "Impossible yield within load" );
+                }
+                catch( LuaError e )
                 {
                     throw new IOException( e );
+                }
+                finally
+                {
+                    state.getCurrentThread().enableYield();
                 }
 
                 if( s.isNil() )

@@ -10,14 +10,32 @@ import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.lua.ILuaObject;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.core.computer.Computer;
-import org.squiddev.cobalt.LuaError;
-import org.squiddev.cobalt.LuaState;
-import org.squiddev.cobalt.OrphanedThread;
-import org.squiddev.cobalt.Varargs;
+import org.squiddev.cobalt.*;
+import org.squiddev.cobalt.debug.DebugFrame;
+import org.squiddev.cobalt.debug.DebugHandler;
+import org.squiddev.cobalt.debug.DebugState;
 import org.squiddev.cobalt.function.VarArgFunction;
 
-class CobaltWrapperFunction extends VarArgFunction
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+
+class CobaltWrapperFunction extends VarArgFunction implements Resumable<CobaltLuaContext>
 {
+    private static final ThreadGroup group = new ThreadGroup( "ComputerCraft-Lua" );
+    private static final AtomicInteger threadCounter = new AtomicInteger();
+    private static final ExecutorService threads = new ThreadPoolExecutor(
+        4, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS, new SynchronousQueue<>(),
+        task -> {
+            Thread thread = new Thread( group, task, group.getName() + "-" + threadCounter.incrementAndGet() );
+            if( !thread.isDaemon() ) thread.setDaemon( true );
+            if( thread.getPriority() != Thread.NORM_PRIORITY ) thread.setPriority( Thread.NORM_PRIORITY );
+            return thread;
+        }
+    );
+
     private final CobaltLuaMachine machine;
     private final Computer computer;
 
@@ -25,7 +43,7 @@ class CobaltWrapperFunction extends VarArgFunction
     private final int method;
     private final String methodName;
 
-    public CobaltWrapperFunction( CobaltLuaMachine machine, Computer computer, ILuaObject delegate, int method, String methodName )
+    CobaltWrapperFunction( CobaltLuaMachine machine, Computer computer, ILuaObject delegate, int method, String methodName )
     {
         this.machine = machine;
         this.computer = computer;
@@ -35,30 +53,96 @@ class CobaltWrapperFunction extends VarArgFunction
     }
 
     @Override
-    public Varargs invoke( final LuaState state, Varargs _args ) throws LuaError
+    public Varargs invoke( final LuaState state, Varargs args ) throws LuaError, UnwindThrowable
     {
-        Object[] arguments = CobaltLuaMachine.toObjects( _args, 1 );
-        Object[] results;
+        Object[] arguments = CobaltLuaMachine.toObjects( args, 1 );
+        CobaltLuaContext context = new CobaltLuaContext( computer, state );
+
+        DebugHandler handler = state.debug;
+        DebugState ds = handler.getDebugState();
+        DebugFrame di = handler.onCall( ds, this );
+        di.state = context;
+
+        threads.submit( () -> {
+            try
+            {
+                context.values = delegate.callMethod( context, method, arguments );
+            }
+            catch( LuaException e )
+            {
+                context.exception = new LuaError( e );
+            }
+            catch( InterruptedException e )
+            {
+                if( ComputerCraft.logPeripheralErrors )
+                {
+                    ComputerCraft.log.error( "Error calling " + methodName + " on " + delegate, e );
+                }
+                context.exception = new LuaError( "Java Exception Thrown: " + e.toString(), 0 );
+            }
+            finally
+            {
+                context.done = true;
+                context.yield.signal();
+            }
+        } );
+
         try
         {
-            results = delegate.callMethod( new CobaltLuaContext( machine, computer, state ), method, arguments );
+            return handleResult( state, context );
         }
         catch( InterruptedException e )
         {
-            throw new OrphanedThread();
+            throw new LuaError( e );
         }
-        catch( LuaException e )
+    }
+
+    @Override
+    public Varargs resume( LuaState state, CobaltLuaContext context, Varargs value ) throws LuaError, UnwindThrowable
+    {
+        context.values = CobaltLuaMachine.toObjects( value, 0 );
+        context.resume.signal();
+        try
         {
-            throw new LuaError( e.getMessage(), e.getLevel() );
+            return handleResult( state, context );
         }
-        catch( Throwable t )
+        catch( InterruptedException e )
         {
-            if( ComputerCraft.logPeripheralErrors )
+            throw new LuaError( e );
+        }
+    }
+
+    @Override
+    public Varargs resumeError( LuaState state, CobaltLuaContext context, LuaError error ) throws LuaError
+    {
+        DebugHandler handler = state.debug;
+        handler.onReturn( handler.getDebugState() );
+        throw error;
+    }
+
+    private Varargs handleResult( LuaState state, CobaltLuaContext context ) throws InterruptedException, LuaError, UnwindThrowable
+    {
+        // We may be done if we yield when handling errors
+        if( !context.done ) context.yield.await();
+
+        if( context.done )
+        {
+            if( context.exception != null )
             {
-                ComputerCraft.log.error( "Error calling " + methodName + " on " + delegate, t );
+                context.exception.fillTraceback( state );
+                state.debug.onReturn();
+                throw context.exception;
             }
-            throw new LuaError( "Java Exception Thrown: " + t.toString(), 0 );
+            else
+            {
+                state.debug.onReturn();
+                return machine.toValues( context.values );
+            }
         }
-        return machine.toValues( results );
+        else
+        {
+            LuaThread.yield( state, machine.toValues( context.values ) );
+            throw new AssertionError( "Unreachable code" );
+        }
     }
 }

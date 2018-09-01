@@ -13,24 +13,28 @@ import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.core.computer.Computer;
 import dan200.computercraft.core.computer.ITask;
 import dan200.computercraft.core.computer.MainThread;
+import org.squiddev.cobalt.LuaError;
 import org.squiddev.cobalt.LuaState;
 import org.squiddev.cobalt.LuaThread;
-import org.squiddev.cobalt.OrphanedThread;
-import org.squiddev.cobalt.Varargs;
 
 import javax.annotation.Nonnull;
+import java.lang.ref.WeakReference;
 
 class CobaltLuaContext implements ILuaContext
 {
-    private CobaltLuaMachine machine;
     private final Computer computer;
-    private final LuaState state;
 
-    public CobaltLuaContext( CobaltLuaMachine machine, Computer computer, LuaState state )
+    boolean done = false;
+    Object[] values;
+    LuaError exception;
+    final Semaphore yield = new Semaphore();
+    final Semaphore resume = new Semaphore();
+    private WeakReference<LuaThread> thread;
+
+    public CobaltLuaContext( Computer computer, LuaState state )
     {
-        this.machine = machine;
         this.computer = computer;
-        this.state = state;
+        this.thread = state.getCurrentThread().getReference();
     }
 
     @Nonnull
@@ -56,19 +60,19 @@ class CobaltLuaContext implements ILuaContext
     @Override
     public Object[] yield( Object[] yieldArgs ) throws InterruptedException
     {
-        try
+        if( done ) throw new IllegalStateException( "Cannot yield when complete" );
+
+        values = yieldArgs;
+        yield.signal();
+
+        // Every 30 seconds check to see if the coroutine has been GCed
+        // if so then abort this task.
+        while( !resume.await( 30000 ) )
         {
-            Varargs results = LuaThread.yield( state, machine.toValues( yieldArgs ) );
-            return CobaltLuaMachine.toObjects( results, 1 );
+            if( thread.get() == null ) throw new InterruptedException( "Orphaned async task" );
         }
-        catch( OrphanedThread e )
-        {
-            throw new InterruptedException();
-        }
-        catch( Throwable e )
-        {
-            throw new RuntimeException( e );
-        }
+
+        return values;
     }
 
     @Override
@@ -167,6 +171,5 @@ class CobaltLuaContext implements ILuaContext
                 }
             }
         }
-
     }
 }
