@@ -7,14 +7,9 @@
 package dan200.computercraft.core.lua;
 
 import dan200.computercraft.ComputerCraft;
-import dan200.computercraft.api.lua.ILuaContext;
-import dan200.computercraft.api.lua.ILuaObject;
-import dan200.computercraft.api.lua.ILuaTask;
-import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.ILuaAPI;
+import dan200.computercraft.api.lua.ILuaObject;
 import dan200.computercraft.core.computer.Computer;
-import dan200.computercraft.core.computer.ITask;
-import dan200.computercraft.core.computer.MainThread;
 import org.squiddev.cobalt.*;
 import org.squiddev.cobalt.compiler.CompileException;
 import org.squiddev.cobalt.compiler.LoadState;
@@ -27,7 +22,6 @@ import org.squiddev.cobalt.function.VarArgFunction;
 import org.squiddev.cobalt.lib.*;
 import org.squiddev.cobalt.lib.platform.AbstractResourceManipulator;
 
-import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -309,180 +303,13 @@ public class CobaltLuaMachine implements ILuaMachine
                 final int method = i;
                 final ILuaObject apiObject = object;
                 final String methodName = methods[ i ];
-                table.rawset( methodName, new VarArgFunction()
-                {
-                    @Override
-                    public Varargs invoke( final LuaState state, Varargs _args ) throws LuaError
-                    {
-                        Object[] arguments = toObjects( _args, 1 );
-                        Object[] results;
-                        try
-                        {
-                            results = apiObject.callMethod( new ILuaContext()
-                            {
-                                @Nonnull
-                                @Override
-                                public Object[] pullEvent( String filter ) throws LuaException, InterruptedException
-                                {
-                                    Object[] results = pullEventRaw( filter );
-                                    if( results.length >= 1 && results[ 0 ].equals( "terminate" ) )
-                                    {
-                                        throw new LuaException( "Terminated", 0 );
-                                    }
-                                    return results;
-                                }
-
-                                @Nonnull
-                                @Override
-                                public Object[] pullEventRaw( String filter ) throws InterruptedException
-                                {
-                                    return yield( new Object[] { filter } );
-                                }
-
-                                @Nonnull
-                                @Override
-                                public Object[] yield( Object[] yieldArgs ) throws InterruptedException
-                                {
-                                    try
-                                    {
-                                        Varargs results = LuaThread.yield( state, toValues( yieldArgs ) );
-                                        return toObjects( results, 1 );
-                                    }
-                                    catch( OrphanedThread e )
-                                    {
-                                        throw new InterruptedException();
-                                    }
-                                    catch( Throwable e )
-                                    {
-                                        throw new RuntimeException( e );
-                                    }
-                                }
-
-                                @Override
-                                public long issueMainThreadTask( @Nonnull final ILuaTask task ) throws LuaException
-                                {
-                                    // Issue command
-                                    final long taskID = MainThread.getUniqueTaskID();
-                                    final ITask iTask = new ITask()
-                                    {
-                                        @Override
-                                        public Computer getOwner()
-                                        {
-                                            return m_computer;
-                                        }
-
-                                        @Override
-                                        public void execute()
-                                        {
-                                            try
-                                            {
-                                                Object[] results = task.execute();
-                                                if( results != null )
-                                                {
-                                                    Object[] eventArguments = new Object[ results.length + 2 ];
-                                                    eventArguments[ 0 ] = taskID;
-                                                    eventArguments[ 1 ] = true;
-                                                    System.arraycopy( results, 0, eventArguments, 2, results.length );
-                                                    m_computer.queueEvent( "task_complete", eventArguments );
-                                                }
-                                                else
-                                                {
-                                                    m_computer.queueEvent( "task_complete", new Object[] { taskID, true } );
-                                                }
-                                            }
-                                            catch( LuaException e )
-                                            {
-                                                m_computer.queueEvent( "task_complete", new Object[] {
-                                                    taskID, false, e.getMessage()
-                                                } );
-                                            }
-                                            catch( Throwable t )
-                                            {
-                                                if( ComputerCraft.logPeripheralErrors )
-                                                {
-                                                    ComputerCraft.log.error( "Error running task", t );
-                                                }
-                                                m_computer.queueEvent( "task_complete", new Object[] {
-                                                    taskID, false, "Java Exception Thrown: " + t.toString()
-                                                } );
-                                            }
-                                        }
-                                    };
-                                    if( MainThread.queueTask( iTask ) )
-                                    {
-                                        return taskID;
-                                    }
-                                    else
-                                    {
-                                        throw new LuaException( "Task limit exceeded" );
-                                    }
-                                }
-
-                                @Override
-                                public Object[] executeMainThreadTask( @Nonnull final ILuaTask task ) throws LuaException, InterruptedException
-                                {
-                                    // Issue task
-                                    final long taskID = issueMainThreadTask( task );
-
-                                    // Wait for response
-                                    while( true )
-                                    {
-                                        Object[] response = pullEvent( "task_complete" );
-                                        if( response.length >= 3 && response[ 1 ] instanceof Number && response[ 2 ] instanceof Boolean )
-                                        {
-                                            if( ((Number) response[ 1 ]).intValue() == taskID )
-                                            {
-                                                Object[] returnValues = new Object[ response.length - 3 ];
-                                                if( (Boolean) response[ 2 ] )
-                                                {
-                                                    // Extract the return values from the event and return them
-                                                    System.arraycopy( response, 3, returnValues, 0, returnValues.length );
-                                                    return returnValues;
-                                                }
-                                                else
-                                                {
-                                                    // Extract the error message from the event and raise it
-                                                    if( response.length >= 4 && response[ 3 ] instanceof String )
-                                                    {
-                                                        throw new LuaException( (String) response[ 3 ] );
-                                                    }
-                                                    else
-                                                    {
-                                                        throw new LuaException();
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-
-                                }
-                            }, method, arguments );
-                        }
-                        catch( InterruptedException e )
-                        {
-                            throw new OrphanedThread();
-                        }
-                        catch( LuaException e )
-                        {
-                            throw new LuaError( e.getMessage(), e.getLevel() );
-                        }
-                        catch( Throwable t )
-                        {
-                            if( ComputerCraft.logPeripheralErrors )
-                            {
-                                ComputerCraft.log.error( "Error calling " + methodName + " on " + apiObject, t );
-                            }
-                            throw new LuaError( "Java Exception Thrown: " + t.toString(), 0 );
-                        }
-                        return toValues( results );
-                    }
-                } );
+                table.rawset( methodName, new CobaltWrapperFunction( this, m_computer, apiObject, method, methodName ) );
             }
         }
         return table;
     }
 
-    private LuaValue toValue( Object object, Map<Object, LuaValue> values )
+    LuaValue toValue( Object object, Map<Object, LuaValue> values )
     {
         if( object == null )
         {
@@ -544,7 +371,7 @@ public class CobaltLuaMachine implements ILuaMachine
         }
     }
 
-    private Varargs toValues( Object[] objects )
+    Varargs toValues( Object[] objects )
     {
         if( objects == null || objects.length == 0 )
         {
@@ -560,7 +387,7 @@ public class CobaltLuaMachine implements ILuaMachine
         return varargsOf( values );
     }
 
-    private static Object toObject( LuaValue value, Map<LuaValue, Object> objects )
+    static Object toObject( LuaValue value, Map<LuaValue, Object> objects )
     {
         switch( value.type() )
         {
@@ -635,7 +462,7 @@ public class CobaltLuaMachine implements ILuaMachine
         }
     }
 
-    private static Object[] toObjects( Varargs values, int startIdx )
+    static Object[] toObjects( Varargs values, int startIdx )
     {
         int count = values.count();
         Object[] objects = new Object[ count - startIdx + 1 ];
@@ -735,4 +562,5 @@ public class CobaltLuaMachine implements ILuaMachine
             return bytes[offset++];
         }
     }
+
 }
