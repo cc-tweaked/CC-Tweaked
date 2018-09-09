@@ -6,12 +6,12 @@
 
 package dan200.computercraft.core.apis;
 
+import dan200.computercraft.api.lua.*;
 import dan200.computercraft.api.lua.ILuaAPI;
-import dan200.computercraft.api.lua.ILuaContext;
-import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.core.computer.Computer;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -56,8 +56,9 @@ public class RedstoneAPI implements ILuaAPI
         };
     }
 
+    @Nonnull
     @Override
-    public Object[] callMethod( @Nonnull ILuaContext context, int method, @Nonnull Object[] args ) throws LuaException
+    public MethodResult callMethod( @Nonnull ICallContext context, int method, @Nonnull Object[] args ) throws LuaException
     {
         switch( method )
         {
@@ -69,7 +70,7 @@ public class RedstoneAPI implements ILuaAPI
                 {
                     table.put( i+1, Computer.s_sideNames[i] );
                 }
-                return new Object[] { table };
+                return MethodResult.of( table );
             }
             case 1:
             {
@@ -77,19 +78,19 @@ public class RedstoneAPI implements ILuaAPI
                 int side = parseSide( args );
                 boolean output = getBoolean( args, 1 );
                 m_environment.setOutput( side, output ? 15 : 0 );
-                return null;
+                return MethodResult.empty();
             }
             case 2:
             {
                 // getOutput
                 int side = parseSide( args );
-                return new Object[] { m_environment.getOutput( side ) > 0 };
+                return MethodResult.of( m_environment.getOutput( side ) > 0 );
             }
             case 3:
             {
                 // getInput
                 int side = parseSide( args );
-                return new Object[] { m_environment.getInput( side ) > 0 };
+                return MethodResult.of( m_environment.getInput( side ) > 0 );
             }
             case 4:
             {
@@ -97,19 +98,19 @@ public class RedstoneAPI implements ILuaAPI
                 int side = parseSide( args );
                 int output = getInt( args, 1 );
                 m_environment.setBundledOutput( side, output );
-                return null;
+                return MethodResult.empty();
             }
             case 5:
             {
                 // getBundledOutput
                 int side = parseSide( args );
-                return new Object[] { m_environment.getBundledOutput( side ) };
+                return MethodResult.of( m_environment.getBundledOutput( side ) );
             }
             case 6:
             {
                 // getBundledInput
                 int side = parseSide( args );
-                return new Object[] { m_environment.getBundledInput( side ) };
+                return MethodResult.of( m_environment.getBundledInput( side ) );
             }
             case 7:
             {
@@ -117,7 +118,7 @@ public class RedstoneAPI implements ILuaAPI
                 int side = parseSide( args );
                 int mask = getInt( args, 1 );
                 int input = m_environment.getBundledInput( side );
-                return new Object[] { ((input & mask) == mask) };
+                return MethodResult.of( ((input & mask) == mask) );
             }
             case 8:
             case 9:
@@ -130,27 +131,35 @@ public class RedstoneAPI implements ILuaAPI
                     throw new LuaException( "Expected number in range 0-15" );
                 }
                 m_environment.setOutput( side, output );
-                return null;
+                return MethodResult.empty();
             }
             case 10:
             case 11:
             {
                 // getAnalogOutput/getAnalogueOutput
                 int side = parseSide( args );
-                return new Object[] { m_environment.getOutput( side ) };
+                return MethodResult.of( m_environment.getOutput( side ) );
             }
             case 12:
             case 13:
             {
                 // getAnalogInput/getAnalogueInput
                 int side = parseSide( args );
-                return new Object[] { m_environment.getInput( side ) };
+                return MethodResult.of( m_environment.getInput( side ) );
             }
             default:
             {
-                return null;
+                return MethodResult.empty();
             }
         }
+    }
+
+    @Nullable
+    @Override
+    @Deprecated
+    public Object[] callMethod( @Nonnull ILuaContext context, int method, @Nonnull Object[] arguments ) throws LuaException, InterruptedException
+    {
+        return callMethod( (ICallContext) context, method, arguments ).evaluate( context );
     }
     
     private int parseSide( Object[] args ) throws LuaException

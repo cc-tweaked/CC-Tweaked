@@ -1,6 +1,6 @@
 /*
  * This file is part of the public ComputerCraft API - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2017. This API may be redistributed unmodified and in full only.
+ * Copyright Daniel Ratcliffe, 2011-2018. This API may be redistributed unmodified and in full only.
  * For help using the API, and posting your mods, visit the forums at computercraft.info.
  */
 
@@ -13,8 +13,11 @@ import javax.annotation.Nullable;
  * An interface passed to peripherals and {@link ILuaObject}s by computers or turtles, providing methods
  * that allow the peripheral call to wait for events before returning, just like in lua. This is very useful if you need
  * to signal work to be performed on the main thread, and don't want to return until the work has been completed.
+ *
+ * This interface mostly exists for integrating with older code. One should use {@link MethodResult} instead, as this
+ * encourages an asynchronous way of interacting with Lua coroutines.
  */
-public interface ILuaContext
+public interface ILuaContext extends ICallContext
 {
     /**
      * Wait for an event to occur on the computer, suspending the thread until it arises. This method is exactly
@@ -30,8 +33,10 @@ public interface ILuaContext
      * @throws InterruptedException If the user shuts down or reboots the computer while pullEvent() is waiting for an
      *                              event, InterruptedException will be thrown. This exception must not be caught or
      *                              intercepted, or the computer will leak memory and end up in a broken state.
+     * @deprecated Use {@link MethodResult#pullEvent(String, ILuaFunction)}
      */
     @Nonnull
+    @Deprecated
     Object[] pullEvent( @Nullable String filter ) throws LuaException, InterruptedException;
 
     /**
@@ -45,8 +50,10 @@ public interface ILuaContext
      *                              an event, InterruptedException will be thrown. This exception must not be caught or
      *                              intercepted, or the computer will leak memory and end up in a broken state.
      * @see #pullEvent(String)
+     * @deprecated Use {@link MethodResult#pullEventRaw(String, ILuaFunction)}
      */
     @Nonnull
+    @Deprecated
     Object[] pullEventRaw( @Nullable String filter ) throws InterruptedException;
 
     /**
@@ -59,8 +66,10 @@ public interface ILuaContext
      *                              InterruptedException will be thrown. This exception must not be caught or
      *                              intercepted, or the computer will leak memory and end up in a broken state.
      * @see #pullEvent(String)
+     * @deprecated Use {@link MethodResult#pullEventRaw(ILuaFunction)}
      */
     @Nonnull
+    @Deprecated
     Object[] yield( @Nullable Object[] arguments ) throws InterruptedException;
 
     /**
@@ -76,22 +85,9 @@ public interface ILuaContext
      * @throws InterruptedException If the user shuts down or reboots the computer the coroutine is suspended,
      *                              InterruptedException will be thrown. This exception must not be caught or
      *                              intercepted, or the computer will leak memory and end up in a broken state.
+     * @deprecated Use {@link MethodResult#onMainThread(ILuaCallable)}
      */
     @Nullable
+    @Deprecated
     Object[] executeMainThreadTask( @Nonnull ILuaTask task ) throws LuaException, InterruptedException;
-
-    /**
-     * Queue a task to be executed on the main server thread at the beginning of next tick, but do not wait for it to
-     * complete. This should be used when you need to interact with the world in a thread-safe manner but do not care
-     * about the result or you wish to run asynchronously.
-     *
-     * When the task has finished, it will enqueue a {@code task_completed} event, which takes the task id, a success
-     * value and the return values, or an error message if it failed. If you need to wait on this event, it may be
-     * better to use {@link #executeMainThreadTask(ILuaTask)}.
-     *
-     * @param task The task to execute on the main thread.
-     * @return The "id" of the task. This will be the first argument to the {@code task_completed} event.
-     * @throws LuaException If the task could not be queued.
-     */
-    long issueMainThreadTask( @Nonnull ILuaTask task ) throws LuaException;
 }

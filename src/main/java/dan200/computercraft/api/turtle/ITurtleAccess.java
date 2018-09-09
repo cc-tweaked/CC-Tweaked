@@ -9,6 +9,7 @@ package dan200.computercraft.api.turtle;
 import com.mojang.authlib.GameProfile;
 import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
+import dan200.computercraft.api.lua.MethodResult;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.nbt.NBTTagCompound;
@@ -238,9 +239,29 @@ public interface ITurtleAccess
      *                                       intercepted, or the computer will leak memory and end up in a broken state.
      * @see ITurtleCommand
      * @see ILuaContext#pullEvent(String)
+     * @deprecated Use {@link #executeCommand(ITurtleCommand)} instead.
      */
     @Nonnull
+    @Deprecated
     Object[] executeCommand( @Nonnull ILuaContext context, @Nonnull ITurtleCommand command ) throws LuaException, InterruptedException;
+
+    /**
+     * Adds a custom command to the turtles command queue. Unlike peripheral methods, these custom commands will be
+     * executed on the main thread, so are guaranteed to be able to access Minecraft objects safely, and will be queued
+     * up with the turtles standard movement and tool commands.
+     *
+     * An issued command will return an unique integer, which will be supplied as a parameter to a "turtle_response"
+     * event issued to the turtle after the command has completed. Look at the Lua source code for "rom/apis/turtle" for
+     * how to build a Lua wrapper around this functionality.
+     *
+     * @param command An object which will execute the custom command when its point in the queue is reached
+     * @return The constructed method result. This evaluates to the result of the provided {@code command}.
+     * @throws UnsupportedOperationException When attempting to execute a command on the client side.
+     * @see ITurtleCommand
+     * @see MethodResult#pullEvent(String)
+     */
+    @Nonnull
+    MethodResult executeCommand( @Nonnull ITurtleCommand command );
 
     /**
      * Start playing a specific animation. This will prevent other turtle commands from executing until

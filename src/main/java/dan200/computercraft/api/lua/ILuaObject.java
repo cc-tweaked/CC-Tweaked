@@ -1,6 +1,6 @@
 /*
  * This file is part of the public ComputerCraft API - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2017. This API may be redistributed unmodified and in full only.
+ * Copyright Daniel Ratcliffe, 2011-2018. This API may be redistributed unmodified and in full only.
  * For help using the API, and posting your mods, visit the forums at computercraft.info.
  */
 
@@ -41,16 +41,41 @@ public interface ILuaObject
      *                  wishes to call. The integer indicates the index into the getMethodNames() table
      *                  that corresponds to the string passed into peripheral.call()
      * @param arguments The arguments for this method. See {@link IPeripheral#callMethod(IComputerAccess, ILuaContext, int, Object[])}
-     *                  the possible values and conversion rules.
-     * @return An array of objects, representing the values you wish to return to the Lua program.
-     * See {@link IPeripheral#callMethod(IComputerAccess, ILuaContext, int, Object[])} for the valid values and
-     * conversion rules.
+     *                  for the possible values and conversion rules.
+     * @return An array of objects, representing the values you wish to return to the Lua program. See
+     * {@link MethodResult#of(Object...)}  for the valid values and conversion rules.
      * @throws LuaException         If the task could not be queued, or if the task threw an exception.
      * @throws InterruptedException If the user shuts down or reboots the computer the coroutine is suspended,
      *                              InterruptedException will be thrown. This exception must not be caught or
      *                              intercepted, or the computer will leak memory and end up in a broken state.w
      * @see IPeripheral#callMethod(IComputerAccess, ILuaContext, int, Object[])
+     * @deprecated Use {@link #callMethod(ICallContext, int, Object[])} instead.
      */
     @Nullable
+    @Deprecated
     Object[] callMethod( @Nonnull ILuaContext context, int method, @Nonnull Object[] arguments ) throws LuaException, InterruptedException;
+
+    /**
+     * Called when a user calls one of the methods that this object implements. This works the same as
+     * {@link IPeripheral#callMethod(IComputerAccess, ICallContext, int, Object[])}}. See that method for detailed
+     * documentation.
+     *
+     * @param context   The context of the current call.
+     * @param method    An integer identifying which of the methods from getMethodNames() the computercraft
+     *                  wishes to call. The integer indicates the index into the getMethodNames() table
+     *                  that corresponds to the string passed into peripheral.call()
+     * @param arguments The arguments for this method. See {@link IPeripheral#callMethod(IComputerAccess, ICallContext, int, Object[])}
+     *                  for the possible values and conversion rules.
+     * @return The result of calling this method. Use {@link MethodResult#empty()} to return nothing or
+     * {@link MethodResult#of(Object...)} to return several values.
+     * @throws LuaException If the task could not be queued, or if the task threw an exception.
+     * @see IPeripheral#callMethod(IComputerAccess, ICallContext, int, Object[])
+     * @see MethodResult
+     */
+    @Nonnull
+    @SuppressWarnings({ "deprecation" })
+    default MethodResult callMethod( @Nonnull ICallContext context, int method, @Nonnull Object[] arguments ) throws LuaException
+    {
+        return MethodResult.withLuaContext( lua -> callMethod( lua, method, arguments ) );
+    }
 }

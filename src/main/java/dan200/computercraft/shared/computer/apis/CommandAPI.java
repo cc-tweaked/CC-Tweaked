@@ -8,9 +8,7 @@ package dan200.computercraft.shared.computer.apis;
 
 import com.google.common.collect.ImmutableMap;
 import dan200.computercraft.ComputerCraft;
-import dan200.computercraft.api.lua.ILuaAPI;
-import dan200.computercraft.api.lua.ILuaContext;
-import dan200.computercraft.api.lua.LuaException;
+import dan200.computercraft.api.lua.*;
 import dan200.computercraft.shared.computer.blocks.TileCommandComputer;
 import dan200.computercraft.shared.util.WorldUtil;
 import net.minecraft.block.Block;
@@ -24,6 +22,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -82,7 +81,7 @@ public class CommandAPI implements ILuaAPI
                 sender.clearOutput();
 
                 int result = commandManager.executeCommand( sender, command );
-                return new Object[]{ (result > 0), sender.copyOutput() };
+                return new Object[] { (result > 0), sender.copyOutput() };
             }
             catch( Throwable t )
             {
@@ -90,7 +89,7 @@ public class CommandAPI implements ILuaAPI
                 {
                     ComputerCraft.log.error( "Error running command.", t );
                 }
-                return new Object[]{ false, createOutput( "Java Exception Thrown: " + t.toString() ) };
+                return new Object[] { false, createOutput( "Java Exception Thrown: " + t.toString() ) };
             }
         }
         else
@@ -131,7 +130,8 @@ public class CommandAPI implements ILuaAPI
     }
 
     @Override
-    public Object[] callMethod( @Nonnull ILuaContext context, int method, @Nonnull Object[] arguments ) throws LuaException, InterruptedException
+    @Nonnull
+    public MethodResult callMethod( @Nonnull ICallContext context, int method, @Nonnull Object[] arguments ) throws LuaException
     {
         switch( method )
         {
@@ -139,19 +139,19 @@ public class CommandAPI implements ILuaAPI
             {
                 // exec
                 final String command = getString( arguments, 0 );
-                return context.executeMainThreadTask( () -> doCommand( command ) );
+                return MethodResult.onMainThread( () -> MethodResult.of( doCommand( command ) ) );
             }
             case 1:
             {
                 // execAsync
                 final String command = getString( arguments, 0 );
                 long taskID = context.issueMainThreadTask( () -> doCommand( command ) );
-                return new Object[] { taskID };
+                return MethodResult.of( taskID );
             }
             case 2:
             {
                 // list
-                return context.executeMainThreadTask( () ->
+                return MethodResult.onMainThread( () ->
                 {
                     int i = 1;
                     Map<Object, Object> result = new HashMap<>();
@@ -182,7 +182,7 @@ public class CommandAPI implements ILuaAPI
                             }
                         }
                     }
-                    return new Object[]{ result };
+                    return MethodResult.of( result );
                 } );
             }
             case 3:
@@ -190,7 +190,7 @@ public class CommandAPI implements ILuaAPI
                 // getBlockPosition
                 // This is probably safe to do on the Lua thread. Probably.
                 BlockPos pos = m_computer.getPos();
-                return new Object[] { pos.getX(), pos.getY(), pos.getZ() };
+                return MethodResult.of( pos.getX(), pos.getY(), pos.getZ() );
             }
             case 4:
             {
@@ -201,7 +201,7 @@ public class CommandAPI implements ILuaAPI
                 final int maxx = getInt( arguments, 3 );
                 final int maxy = getInt( arguments, 4 );
                 final int maxz = getInt( arguments, 5 );
-                return context.executeMainThreadTask( () ->
+                return MethodResult.onMainThread( () ->
                 {
                     // Get the details of the block
                     World world = m_computer.getWorld();
@@ -236,7 +236,7 @@ public class CommandAPI implements ILuaAPI
                             }
                         }
                     }
-                    return new Object[]{ results };
+                    return MethodResult.of( results );
                 } );
             }
             case 5:
@@ -245,14 +245,14 @@ public class CommandAPI implements ILuaAPI
                 final int x = getInt( arguments, 0 );
                 final int y = getInt( arguments, 1 );
                 final int z = getInt( arguments, 2 );
-                return context.executeMainThreadTask( () ->
+                return MethodResult.onMainThread( () ->
                 {
                     // Get the details of the block
                     World world = m_computer.getWorld();
                     BlockPos position = new BlockPos( x, y, z );
                     if( WorldUtil.isBlockInWorld( world, position ) )
                     {
-                        return new Object[]{ getBlockInfo( world, position ) };
+                        return MethodResult.of( getBlockInfo( world, position ) );
                     }
                     else
                     {
@@ -262,8 +262,16 @@ public class CommandAPI implements ILuaAPI
             }
             default:
             {
-                return null;
+                return MethodResult.empty();
             }
         }
+    }
+
+    @Nullable
+    @Override
+    @Deprecated
+    public Object[] callMethod( @Nonnull ILuaContext context, int method, @Nonnull Object[] arguments ) throws LuaException, InterruptedException
+    {
+        return callMethod( (ICallContext) context, method, arguments ).evaluate( context );
     }
 }

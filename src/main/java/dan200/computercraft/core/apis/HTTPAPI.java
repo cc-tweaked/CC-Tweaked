@@ -8,12 +8,12 @@ package dan200.computercraft.core.apis;
 
 import com.google.common.collect.ImmutableSet;
 import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.api.lua.*;
 import dan200.computercraft.api.lua.ILuaAPI;
-import dan200.computercraft.api.lua.ILuaContext;
-import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.core.apis.http.*;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.Closeable;
 import java.io.IOException;
 import java.net.URI;
@@ -102,8 +102,9 @@ public class HTTPAPI implements ILuaAPI
         };
     }
 
+    @Nonnull
     @Override
-    public Object[] callMethod( @Nonnull ILuaContext context, int method, @Nonnull Object[] args ) throws LuaException
+    public MethodResult callMethod( @Nonnull ICallContext context, int method, @Nonnull Object[] args ) throws LuaException
     {
         switch( method )
         {
@@ -164,11 +165,11 @@ public class HTTPAPI implements ILuaAPI
                     {
                         m_httpTasks.add( HTTPExecutor.EXECUTOR.submit( request ) );
                     }
-                    return new Object[]{ true };
+                    return MethodResult.of(true);
                 }
                 catch( HTTPRequestException e )
                 {
-                    return new Object[]{ false, e.getMessage() };
+                    return MethodResult.of( false, e.getMessage() );
                 }
             }
             case 1:
@@ -186,11 +187,11 @@ public class HTTPAPI implements ILuaAPI
                     {
                         m_httpTasks.add( HTTPExecutor.EXECUTOR.submit( check ) );
                     }
-                    return new Object[]{ true };
+                    return MethodResult.of( true );
                 }
                 catch( HTTPRequestException e )
                 {
-                    return new Object[]{ false, e.getMessage() };
+                    return MethodResult.of( false, e.getMessage() );
                 }
             }
             case 2: // websocket
@@ -223,18 +224,26 @@ public class HTTPAPI implements ILuaAPI
                     {
                         m_httpTasks.add( connector );
                     }
-                    return new Object[]{ true };
+                    return MethodResult.of(true);
                 }
                 catch( HTTPRequestException e )
                 {
-                    return new Object[]{ false, e.getMessage() };
+                    return MethodResult.of( false, e.getMessage() );
                 }
             }
             default:
             {
-                return null;
+                return MethodResult.empty();
             }
         }
+    }
+
+    @Nullable
+    @Override
+    @Deprecated
+    public Object[] callMethod( @Nonnull ILuaContext context, int method, @Nonnull Object[] arguments ) throws LuaException, InterruptedException
+    {
+        return callMethod( (ICallContext) context, method, arguments ).evaluate( context );
     }
 
     public void addCloseable( Closeable closeable )

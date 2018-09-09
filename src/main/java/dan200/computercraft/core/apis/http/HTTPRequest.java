@@ -9,15 +9,14 @@ package dan200.computercraft.core.apis.http;
 import com.google.common.base.Joiner;
 import com.google.common.io.ByteStreams;
 import dan200.computercraft.ComputerCraft;
-import dan200.computercraft.api.lua.ILuaContext;
-import dan200.computercraft.api.lua.ILuaObject;
-import dan200.computercraft.api.lua.LuaException;
+import dan200.computercraft.api.lua.*;
 import dan200.computercraft.core.apis.IAPIEnvironment;
 import dan200.computercraft.core.apis.handles.BinaryInputHandle;
 import dan200.computercraft.core.apis.handles.EncodedInputHandle;
 import dan200.computercraft.core.tracking.TrackingField;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.*;
 import java.net.*;
 import java.util.Arrays;
@@ -236,8 +235,9 @@ public class HTTPRequest implements Runnable
                 return newMethods;
             }
 
+            @Nonnull
             @Override
-            public Object[] callMethod( @Nonnull ILuaContext context, int method, @Nonnull Object[] args ) throws LuaException, InterruptedException
+            public MethodResult callMethod( @Nonnull ICallContext context, int method, @Nonnull Object[] args ) throws LuaException
             {
                 if( method < methodOffset )
                 {
@@ -248,18 +248,26 @@ public class HTTPRequest implements Runnable
                     case 0:
                     {
                         // getResponseCode
-                        return new Object[]{ responseCode };
+                        return MethodResult.of( responseCode );
                     }
                     case 1:
                     {
                         // getResponseHeaders
-                        return new Object[]{ responseHeaders };
+                        return MethodResult.of( responseHeaders );
                     }
                     default:
                     {
-                        return null;
+                        return MethodResult.empty();
                     }
                 }
+            }
+
+            @Nullable
+            @Override
+            @Deprecated
+            public Object[] callMethod( @Nonnull ILuaContext context, int method, @Nonnull Object[] arguments ) throws LuaException, InterruptedException
+            {
+                return callMethod( (ICallContext) context, method, arguments ).evaluate( context );
             }
         };
     }

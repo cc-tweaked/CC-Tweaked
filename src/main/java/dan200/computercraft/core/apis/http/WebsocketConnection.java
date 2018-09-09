@@ -7,9 +7,7 @@
 package dan200.computercraft.core.apis.http;
 
 import com.google.common.base.Objects;
-import dan200.computercraft.api.lua.ILuaContext;
-import dan200.computercraft.api.lua.ILuaObject;
-import dan200.computercraft.api.lua.LuaException;
+import dan200.computercraft.api.lua.*;
 import dan200.computercraft.core.apis.HTTPAPI;
 import dan200.computercraft.core.apis.IAPIEnvironment;
 import dan200.computercraft.core.tracking.TrackingField;
@@ -156,33 +154,48 @@ public class WebsocketConnection extends SimpleChannelInboundHandler<Object> imp
 
     @Nullable
     @Override
+    @Deprecated
     public Object[] callMethod( @Nonnull ILuaContext context, int method, @Nonnull Object[] arguments ) throws LuaException, InterruptedException
+    {
+        return callMethod( (ICallContext) context, method, arguments ).evaluate( context );
+    }
+
+    @Nonnull
+    @Override
+    public MethodResult callMethod( @Nonnull ICallContext context, int method, @Nonnull Object[] arguments ) throws LuaException
     {
         switch( method )
         {
             case 0:
-                while( true )
+                checkOpen();
+                return MethodResult.pullEvent( MESSAGE_EVENT, new ILuaFunction()
                 {
-                    checkOpen();
-                    Object[] event = context.pullEvent( MESSAGE_EVENT );
-                    if( event.length >= 3 && Objects.equal( event[1], url ) )
+                    @Nonnull
+                    @Override
+                    public MethodResult call( @Nullable Object[] event ) throws LuaException
                     {
-                        return new Object[]{ event[2] };
+                        if( event != null && event.length >= 3 && Objects.equal( event[1], url ) )
+                        {
+                            return MethodResult.of( event[2] );
+                        }
+
+                        checkOpen();
+                        return MethodResult.pullEvent( MESSAGE_EVENT, this );
                     }
-                }
+                } );
             case 1:
             {
                 checkOpen();
                 String text = arguments.length > 0 && arguments[0] != null ? arguments[0].toString() : "";
                 computer.addTrackingChange( TrackingField.WEBSOCKET_OUTGOING, text.length() );
                 channel.writeAndFlush( new TextWebSocketFrame( text ) );
-                return null;
+                return MethodResult.empty();
             }
             case 2:
                 close( true );
-                return null;
+                return MethodResult.empty();
             default:
-                return null;
+                return MethodResult.empty();
         }
     }
 

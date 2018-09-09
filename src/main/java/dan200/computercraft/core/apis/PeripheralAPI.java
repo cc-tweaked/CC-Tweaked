@@ -8,9 +8,8 @@ package dan200.computercraft.core.apis;
 
 import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.api.filesystem.IWritableMount;
+import dan200.computercraft.api.lua.*;
 import dan200.computercraft.api.lua.ILuaAPI;
-import dan200.computercraft.api.lua.ILuaContext;
-import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.core.computer.Computer;
 import dan200.computercraft.core.computer.ComputerThread;
@@ -98,7 +97,7 @@ public class PeripheralAPI implements ILuaAPI, IAPIEnvironment.IPeripheralChange
             m_attached = false;
         }
 
-        public Object[] call( ILuaContext context, String methodName, Object[] arguments ) throws LuaException, InterruptedException
+        public MethodResult call( ICallContext context, String methodName, Object[] arguments ) throws LuaException
         {
             int method = -1;
             synchronized( this )
@@ -368,8 +367,9 @@ public class PeripheralAPI implements ILuaAPI, IAPIEnvironment.IPeripheralChange
         };
     }
 
+    @Nonnull
     @Override
-    public Object[] callMethod( @Nonnull ILuaContext context, int method, @Nonnull Object[] args ) throws LuaException, InterruptedException
+    public MethodResult callMethod( @Nonnull ICallContext context, int method, @Nonnull Object[] args ) throws LuaException
     {
         switch( method )
         {
@@ -389,7 +389,7 @@ public class PeripheralAPI implements ILuaAPI, IAPIEnvironment.IPeripheralChange
                         }
                     }
                 }
-                return new Object[] { present };
+                return MethodResult.of( present );
             }
             case 1:
             {
@@ -408,10 +408,10 @@ public class PeripheralAPI implements ILuaAPI, IAPIEnvironment.IPeripheralChange
                     }
                     if( type != null )
                     {
-                        return new Object[] { type };
+                        return MethodResult.of( type );
                     }
                 }
-                return null;
+                return MethodResult.empty();
             }
             case 2:
             {
@@ -435,9 +435,9 @@ public class PeripheralAPI implements ILuaAPI, IAPIEnvironment.IPeripheralChange
                     for(int i=0; i<methods.length; ++i ) {
                         table.put( i+1, methods[i] );
                     }
-                    return new Object[] { table };
+                    return MethodResult.of( table );
                 }
-                return null;
+                return MethodResult.empty();
             }
             case 3:
             {
@@ -462,11 +462,19 @@ public class PeripheralAPI implements ILuaAPI, IAPIEnvironment.IPeripheralChange
             }
             default:
             {
-                return null;
+                return MethodResult.empty();
             }
         }
     }
 
+    @Nullable
+    @Override
+    @Deprecated
+    public Object[] callMethod( @Nonnull ILuaContext context, int method, @Nonnull Object[] arguments ) throws LuaException, InterruptedException
+    {
+        return callMethod( (ICallContext) context, method, arguments ).evaluate( context );
+    }
+    
     // Privates
 
     private int parseSide( Object[] args ) throws LuaException

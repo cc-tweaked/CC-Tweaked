@@ -1,8 +1,9 @@
 package dan200.computercraft.core.apis.handles;
 
 import com.google.common.io.ByteStreams;
-import dan200.computercraft.api.lua.ILuaContext;
+import dan200.computercraft.api.lua.ICallContext;
 import dan200.computercraft.api.lua.LuaException;
+import dan200.computercraft.api.lua.MethodResult;
 
 import javax.annotation.Nonnull;
 import java.io.ByteArrayOutputStream;
@@ -35,8 +36,9 @@ public class BinaryInputHandle extends HandleGeneric
         };
     }
 
+    @Nonnull
     @Override
-    public Object[] callMethod( @Nonnull ILuaContext context, int method, @Nonnull Object[] args ) throws LuaException
+    public MethodResult callMethod( @Nonnull ICallContext context, int method, @Nonnull Object[] args ) throws LuaException
     {
         switch( method )
         {
@@ -60,9 +62,9 @@ public class BinaryInputHandle extends HandleGeneric
                             byte[] bytes = new byte[ count ];
                             int read = m_stream.read( bytes );
 
-                            if( read < 0 ) return null;
+                            if( read < 0 ) return MethodResult.empty();
                             if( read < count ) bytes = Arrays.copyOf( bytes, read );
-                            return new Object[] { bytes };
+                            return MethodResult.of( bytes );
                         }
                         else
                         {
@@ -86,18 +88,18 @@ public class BinaryInputHandle extends HandleGeneric
                                 out.write( buffer, 0, read );
                             }
 
-                            return new Object[] { out.toByteArray() };
+                            return MethodResult.of( new Object[]{ out.toByteArray() } );
                         }
                     }
                     else
                     {
                         int b = m_stream.read();
-                        return b == -1 ? null : new Object[] { b };
+                        return b == -1 ? MethodResult.empty() : MethodResult.of( b );
                     }
                 }
                 catch( IOException e )
                 {
-                    return null;
+                    return MethodResult.empty();
                 }
             case 1:
                 // readAll
@@ -105,18 +107,18 @@ public class BinaryInputHandle extends HandleGeneric
                 try
                 {
                     byte[] out = ByteStreams.toByteArray( m_stream );
-                    return out == null ? null : new Object[] { out };
+                    return out == null ? MethodResult.empty() : MethodResult.of( out );
                 }
                 catch( IOException e )
                 {
-                    return null;
+                    return MethodResult.empty();
                 }
             case 2:
                 //close
                 close();
-                return null;
+                return MethodResult.empty();
             default:
-                return null;
+                return MethodResult.empty();
         }
     }
 }

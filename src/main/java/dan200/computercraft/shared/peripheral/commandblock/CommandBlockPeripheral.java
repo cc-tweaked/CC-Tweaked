@@ -6,14 +6,17 @@
 
 package dan200.computercraft.shared.peripheral.commandblock;
 
+import dan200.computercraft.api.lua.ICallContext;
 import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
+import dan200.computercraft.api.lua.MethodResult;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import net.minecraft.tileentity.TileEntityCommandBlock;
 import net.minecraft.util.math.BlockPos;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import static dan200.computercraft.core.apis.ArgumentHelper.getString;
 
@@ -46,17 +49,18 @@ public class CommandBlockPeripheral implements IPeripheral
         };
     }
 
+    @Nonnull
     @Override
-    public Object[] callMethod( @Nonnull IComputerAccess computer, @Nonnull ILuaContext context, int method, @Nonnull final Object[] arguments ) throws LuaException, InterruptedException
+    public MethodResult callMethod( @Nonnull IComputerAccess computer, @Nonnull ICallContext context, int method, @Nonnull final Object[] arguments ) throws LuaException
     {
-        switch (method)
+        switch( method )
         {
             case 0:
             {
                 // getCommand
-                return context.executeMainThreadTask( () -> new Object[] {
-                    m_commandBlock.getCommandBlockLogic().getCommand()
-                } );
+                return MethodResult.onMainThread( () ->
+                    MethodResult.of( m_commandBlock.getCommandBlockLogic().getCommand() )
+                );
             }
             case 1:
             {
@@ -69,27 +73,35 @@ public class CommandBlockPeripheral implements IPeripheral
                     m_commandBlock.getWorld().markBlockRangeForRenderUpdate( pos, pos );
                     return null;
                 } );
-                return null;
+                return MethodResult.empty();
             }
             case 2:
             {
                 // runCommand
-                return context.executeMainThreadTask( () ->
+                return MethodResult.onMainThread( () ->
                 {
                     m_commandBlock.getCommandBlockLogic().trigger( m_commandBlock.getWorld() );
                     int result = m_commandBlock.getCommandBlockLogic().getSuccessCount();
                     if( result > 0 )
                     {
-                        return new Object[] { true };
+                        return MethodResult.of( true );
                     }
                     else
                     {
-                        return new Object[] { false, "Command failed" };
+                        return MethodResult.of( false, "Command failed" );
                     }
                 } );
             }
         }
-        return null;
+        return MethodResult.empty();
+    }
+
+    @Nullable
+    @Override
+    @Deprecated
+    public Object[] callMethod( @Nonnull IComputerAccess access, @Nonnull ILuaContext context, int method, @Nonnull Object[] arguments ) throws LuaException, InterruptedException
+    {
+        return callMethod( access, (ICallContext) context, method, arguments ).evaluate( context );
     }
 
     @Override

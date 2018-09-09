@@ -7,9 +7,7 @@
 package dan200.computercraft.shared.peripheral.speaker;
 
 import dan200.computercraft.ComputerCraft;
-import dan200.computercraft.api.lua.ILuaContext;
-import dan200.computercraft.api.lua.ILuaTask;
-import dan200.computercraft.api.lua.LuaException;
+import dan200.computercraft.api.lua.*;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import net.minecraft.util.ResourceLocation;
@@ -98,21 +96,22 @@ public class SpeakerPeripheral implements IPeripheral {
         };
     }
 
+    @Nonnull
     @Override
-    public Object[] callMethod( @Nonnull IComputerAccess computerAccess, @Nonnull ILuaContext context, int methodIndex, @Nonnull Object[] args ) throws LuaException
+    public MethodResult callMethod( @Nonnull IComputerAccess computer, @Nonnull ICallContext context, int methodIndex, @Nonnull Object[] args ) throws LuaException
     {
         switch( methodIndex )
         {
             // playSound
             case 0:
             {
-                return playSound(args, context, false);
+                return MethodResult.of( playSound( args, context, false ) );
             }
 
             // playNote
             case 1:
             {
-                return playNote(args, context);
+                return MethodResult.of( playNote( args, context ) );
             }
 
             default:
@@ -123,8 +122,16 @@ public class SpeakerPeripheral implements IPeripheral {
         }
     }
 
-    @Nonnull
-    private synchronized Object[] playNote( Object[] arguments, ILuaContext context ) throws LuaException
+    @Nullable
+    @Override
+    @Deprecated
+    public Object[] callMethod( @Nonnull IComputerAccess access, @Nonnull ILuaContext context, int method, @Nonnull Object[] arguments ) throws LuaException, InterruptedException
+    {
+        return callMethod( access, (ICallContext) context, method, arguments ).evaluate( context );
+    }
+
+
+    private synchronized boolean playNote( Object[] arguments, ICallContext context ) throws LuaException
     {
         String name = getString(arguments, 0);
         float volume = (float) optReal( arguments, 1, 1.0 );
@@ -137,7 +144,7 @@ public class SpeakerPeripheral implements IPeripheral {
         }
 
         // If the resource location for note block notes changes, this method call will need to be updated
-        Object[] returnValue = playSound(
+        boolean success = playSound(
             new Object[] {
                 "block.note." + name,
                 (double)Math.min( volume, 3f ),
@@ -145,16 +152,15 @@ public class SpeakerPeripheral implements IPeripheral {
             }, context, true
         );
 
-        if( returnValue[0] instanceof Boolean && (Boolean) returnValue[0] )
+        if( success )
         {
             m_notesThisTick.incrementAndGet();
         }
 
-        return returnValue;
+        return success;
     }
 
-    @Nonnull
-    private synchronized Object[] playSound( Object[] arguments, ILuaContext context, boolean isNote ) throws LuaException
+    private synchronized boolean playSound( Object[] arguments, ICallContext context, boolean isNote ) throws LuaException
     {
         String name = getString(arguments, 0);
         float volume = (float) optReal( arguments, 1, 1.0 );
@@ -184,16 +190,16 @@ public class SpeakerPeripheral implements IPeripheral {
                 });
 
                 m_lastPlayTime = m_clock;
-                return new Object[]{true}; // Success, return true
+                return true; // Success, return true
             }
             else
             {
-                return new Object[]{false}; // Failed - sound not existent, return false
+                return false; // Failed - sound not existent, return false
             }
         }
         else
         {
-            return new Object[]{false}; // Failed - rate limited, return false
+            return false; // Failed - rate limited, return false
         }
     }
 }

@@ -265,7 +265,15 @@ public class Computer
 
         @Nullable
         @Override
+        @Deprecated
         public Object[] callMethod( @Nonnull ILuaContext context, int method, @Nonnull Object[] arguments ) throws LuaException, InterruptedException
+        {
+            return delegate.callMethod( context, method, arguments );
+        }
+
+        @Nonnull
+        @Override
+        public MethodResult callMethod( @Nonnull ICallContext context, int method, @Nonnull Object[] arguments ) throws LuaException
         {
             return delegate.callMethod( context, method, arguments );
         }

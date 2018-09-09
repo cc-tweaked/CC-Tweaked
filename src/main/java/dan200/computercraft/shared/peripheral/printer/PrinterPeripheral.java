@@ -6,13 +6,16 @@
 
 package dan200.computercraft.shared.peripheral.printer;
 
+import dan200.computercraft.api.lua.ICallContext;
 import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
+import dan200.computercraft.api.lua.MethodResult;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.core.terminal.Terminal;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import static dan200.computercraft.core.apis.ArgumentHelper.getInt;
 import static dan200.computercraft.core.apis.ArgumentHelper.optString;
@@ -50,8 +53,9 @@ public class PrinterPeripheral implements IPeripheral
         };
     }
 
+    @Nonnull
     @Override
-    public Object[] callMethod( @Nonnull IComputerAccess computer, @Nonnull ILuaContext context, int method, @Nonnull Object[] args ) throws LuaException
+    public MethodResult callMethod( @Nonnull IComputerAccess computer, @Nonnull ICallContext context, int method, @Nonnull Object[] args ) throws LuaException
     {
         switch( method )
         {
@@ -68,7 +72,7 @@ public class PrinterPeripheral implements IPeripheral
                 Terminal page = getCurrentPage();
                 page.write( text );
                 page.setCursorPos( page.getCursorX() + text.length(), page.getCursorY() );
-                return null;
+                return MethodResult.empty();
             }
             case 1:
             {
@@ -77,7 +81,7 @@ public class PrinterPeripheral implements IPeripheral
                 int y = getInt( args, 1 ) - 1;
                 Terminal page = getCurrentPage();
                 page.setCursorPos( x, y );
-                return null;
+                return MethodResult.empty();
             }
             case 2:
             {
@@ -85,7 +89,7 @@ public class PrinterPeripheral implements IPeripheral
                 Terminal page = getCurrentPage();
                 int x = page.getCursorX();
                 int y = page.getCursorY();
-                return new Object[] { x + 1, y + 1 };
+                return MethodResult.of( x + 1, y + 1 );
             }
             case 3:
             {
@@ -93,23 +97,23 @@ public class PrinterPeripheral implements IPeripheral
                 Terminal page = getCurrentPage();
                 int width = page.getWidth();
                 int height = page.getHeight();
-                return new Object[] { width, height };
+                return MethodResult.of( width, height );
             }
             case 4:
             {
                 // newPage
-                return new Object[] { m_printer.startNewPage() };
+                return MethodResult.of( m_printer.startNewPage() );
             }
             case 5:
             {
                 // endPage
                 getCurrentPage();
-                return new Object[] { m_printer.endCurrentPage() };
+                return MethodResult.of( m_printer.endCurrentPage() );
             }
             case 6:
             {
                 // getInkLevel
-                return new Object[] { m_printer.getInkLevel() };
+                return MethodResult.of( m_printer.getInkLevel() );
             }
             case 7:
             {
@@ -117,18 +121,26 @@ public class PrinterPeripheral implements IPeripheral
                 String title = optString( args, 0, "" );
                 getCurrentPage();
                 m_printer.setPageTitle( title );
-                return null;
+                return MethodResult.empty();
             }
             case 8:
             {
                 // getPaperLevel
-                return new Object[] { m_printer.getPaperLevel() };
+                return MethodResult.of( m_printer.getPaperLevel() );
             }
             default:
             {
-                return null;
+                return MethodResult.empty();
             }
         }
+    }
+
+    @Nullable
+    @Override
+    @Deprecated
+    public Object[] callMethod( @Nonnull IComputerAccess access, @Nonnull ILuaContext context, int method, @Nonnull Object[] arguments ) throws LuaException, InterruptedException
+    {
+        return callMethod( access, (ICallContext) context, method, arguments ).evaluate( context );
     }
 
     @Override

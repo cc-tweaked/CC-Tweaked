@@ -6,8 +6,10 @@
 
 package dan200.computercraft.shared.peripheral.modem;
 
+import dan200.computercraft.api.lua.ICallContext;
 import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
+import dan200.computercraft.api.lua.MethodResult;
 import dan200.computercraft.api.network.IPacketNetwork;
 import dan200.computercraft.api.network.IPacketReceiver;
 import dan200.computercraft.api.network.IPacketSender;
@@ -20,6 +22,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import static dan200.computercraft.core.apis.ArgumentHelper.getInt;
 
@@ -157,8 +160,9 @@ public abstract class ModemPeripheral
         return channel;
     }
     
+    @Nonnull
     @Override
-    public Object[] callMethod( @Nonnull IComputerAccess computer, @Nonnull ILuaContext context, int method, @Nonnull Object[] arguments ) throws LuaException, InterruptedException
+    public MethodResult callMethod( @Nonnull IComputerAccess computer, @Nonnull ICallContext context, int method, @Nonnull Object[] arguments ) throws LuaException
     {
         switch( method )
         {
@@ -183,7 +187,7 @@ public abstract class ModemPeripheral
                         }
                     }
                 }
-                return null;
+                return MethodResult.empty();
             }
             case 1:
             {
@@ -192,7 +196,7 @@ public abstract class ModemPeripheral
                 synchronized( this )
                 {
                     boolean open = m_channels.contains( channel );
-                    return new Object[] { open };
+                    return MethodResult.of( open );
                 }
             }
             case 2:
@@ -210,7 +214,7 @@ public abstract class ModemPeripheral
                         }
                     }
                 }
-                return null;
+                return MethodResult.empty();
             }
             case 3:
             {
@@ -228,7 +232,7 @@ public abstract class ModemPeripheral
                         }
                     }
                 }
-                return null;
+                return MethodResult.empty();
             }
             case 4:
             {
@@ -253,7 +257,7 @@ public abstract class ModemPeripheral
                         }
                     }
                 }
-                return null;
+                return MethodResult.empty();
             }
             case 5:
             {
@@ -262,18 +266,26 @@ public abstract class ModemPeripheral
                 {
                     if( m_network != null )
                     {
-                        return new Object[] { m_network.isWireless() };
+                        return MethodResult.of( m_network.isWireless() );
                     }
                 }
-                return new Object[] { false };
+                return MethodResult.of(false);
             }
             default:
             {
-                return null;
+                return MethodResult.empty();
             }
         }
     }
-    
+
+    @Nullable
+    @Override
+    @Deprecated
+    public Object[] callMethod( @Nonnull IComputerAccess computer, @Nonnull ILuaContext context, int method, @Nonnull Object[] arguments ) throws LuaException, InterruptedException
+    {
+        return callMethod( computer, (ICallContext) context, method, arguments ).evaluate( context );
+    }
+
     @Override
     public synchronized void attach( @Nonnull IComputerAccess computer )
     {

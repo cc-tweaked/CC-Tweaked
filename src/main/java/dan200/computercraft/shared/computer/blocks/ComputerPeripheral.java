@@ -6,11 +6,15 @@
 
 package dan200.computercraft.shared.computer.blocks;
 
+import dan200.computercraft.api.lua.ICallContext;
 import dan200.computercraft.api.lua.ILuaContext;
+import dan200.computercraft.api.lua.LuaException;
+import dan200.computercraft.api.lua.MethodResult;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class ComputerPeripheral
     implements IPeripheral
@@ -23,7 +27,7 @@ public class ComputerPeripheral
         m_type = type;
         m_computer = computer;
     }
-        
+
     // IPeripheral implementation
 
     @Nonnull
@@ -47,8 +51,9 @@ public class ComputerPeripheral
         };
     }
 
+    @Nonnull
     @Override
-    public Object[] callMethod( @Nonnull IComputerAccess computer, @Nonnull ILuaContext context, int method, @Nonnull Object[] arguments )
+    public MethodResult callMethod( @Nonnull IComputerAccess computer, @Nonnull ICallContext context, int method, @Nonnull Object[] arguments )
     {
         switch( method )
         {
@@ -56,40 +61,46 @@ public class ComputerPeripheral
             {
                 // turnOn
                 m_computer.turnOn();
-                return null;
+                return MethodResult.empty();
             }
             case 1:
             {
                 // shutdown
                 m_computer.shutdown();
-                return null;
+                return MethodResult.empty();
             }
             case 2:
             {
                 // reboot
                 m_computer.reboot();
-                return null;
+                return MethodResult.empty();
             }
             case 3:
             {
                 // getID
-                return new Object[] {
-                    m_computer.assignID()
-                };
+                return MethodResult.of( m_computer.assignID() );
             }
             case 4:
             {
                 // isOn
-                return new Object[] { m_computer.isOn() };
+                return MethodResult.of( m_computer.isOn() );
             }
             case 5:
                 // getLabel
-                return new Object[] { m_computer.getLabel() };
+                return MethodResult.of( m_computer.getLabel() );
             default:
             {
-                return null;
+                return MethodResult.empty();
             }
         }
+    }
+
+    @Nullable
+    @Override
+    @Deprecated
+    public Object[] callMethod( @Nonnull IComputerAccess access, @Nonnull ILuaContext context, int method, @Nonnull Object[] arguments ) throws LuaException, InterruptedException
+    {
+        return callMethod( access, (ICallContext) context, method, arguments ).evaluate( context );
     }
 
     @Override

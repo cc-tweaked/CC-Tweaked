@@ -6,8 +6,10 @@
 
 package dan200.computercraft.shared.peripheral.diskdrive;
 
+import dan200.computercraft.api.lua.ICallContext;
 import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
+import dan200.computercraft.api.lua.MethodResult;
 import dan200.computercraft.api.media.IMedia;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
@@ -17,6 +19,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import static dan200.computercraft.core.apis.ArgumentHelper.optString;
 
@@ -55,17 +58,18 @@ public class DiskDrivePeripheral implements IPeripheral
         };
     }
 
+    @Nonnull
     @Override
-    public Object[] callMethod( @Nonnull IComputerAccess computer, @Nonnull ILuaContext context, int method, @Nonnull Object[] arguments ) throws LuaException
+    public MethodResult callMethod( @Nonnull IComputerAccess computer, @Nonnull ICallContext context, int method, @Nonnull Object[] arguments ) throws LuaException
     {
         switch( method )
         {
             case 0:
             {
                 // isDiskPresent
-                return new Object[] {
+                return MethodResult.of(
                     !m_diskDrive.getDiskStack().isEmpty()
-                };
+                );
             }
             case 1:
             {
@@ -73,9 +77,9 @@ public class DiskDrivePeripheral implements IPeripheral
                 IMedia media = m_diskDrive.getDiskMedia();
                 if( media != null )
                 {
-                    return new Object[] { media.getLabel( m_diskDrive.getDiskStack() ) };
+                    return MethodResult.of( media.getLabel( m_diskDrive.getDiskStack() ) );
                 }
-                return null;
+                return MethodResult.empty();
             }
             case 2:
             {
@@ -96,21 +100,21 @@ public class DiskDrivePeripheral implements IPeripheral
                         throw new LuaException( "Disk label cannot be changed" );
                     }
                 }
-                return null;
+                return MethodResult.empty();
             }
             case 3:
             {
                 // hasData
-                return new Object[] {
+                return MethodResult.of(
                     m_diskDrive.getDiskMountPath( computer ) != null
-                };
+                );
             }
             case 4:
             {
                 // getMountPath
-                return new Object[] {
+                return MethodResult.of(
                     m_diskDrive.getDiskMountPath( computer )
-                };
+                );
             }
             case 5:
             {
@@ -118,9 +122,9 @@ public class DiskDrivePeripheral implements IPeripheral
                 IMedia media = m_diskDrive.getDiskMedia();
                 if( media != null )
                 {
-                    return new Object[] { media.getAudio( m_diskDrive.getDiskStack() ) != null };
+                    return MethodResult.of( media.getAudio( m_diskDrive.getDiskStack() ) != null );
                 }
-                return new Object[] { false };
+                return MethodResult.of( false );
             }
             case 6:
             {
@@ -128,27 +132,27 @@ public class DiskDrivePeripheral implements IPeripheral
                 IMedia media = m_diskDrive.getDiskMedia();
                 if( media != null )
                 {
-                    return new Object[] { media.getAudioTitle( m_diskDrive.getDiskStack() ) };
+                    return MethodResult.of( media.getAudioTitle( m_diskDrive.getDiskStack() ) );
                 }
-                return new Object[] { false };
+                return MethodResult.of( false );
             }
             case 7:
             {
                 // playAudio
                 m_diskDrive.playDiskAudio();
-                return null;
+                return MethodResult.empty();
             }
             case 8:
             {
                 // stopAudio
                 m_diskDrive.stopDiskAudio();
-                return null;
+                return MethodResult.empty();
             }
             case 9:
             {
                 // eject
                 m_diskDrive.ejectDisk();
-                return null;
+                return MethodResult.empty();
             }
             case 10:
             {
@@ -159,17 +163,26 @@ public class DiskDrivePeripheral implements IPeripheral
                     Item item = disk.getItem();
                     if( item instanceof ItemDiskLegacy )
                     {
-                        return new Object[] { ((ItemDiskLegacy)item).getDiskID( disk ) };
+                        return MethodResult.of( ((ItemDiskLegacy)item).getDiskID( disk ) );
                     }
                 }
-                return null;
+                return MethodResult.empty();
             }
             default:
             {
-                return null;
+                return MethodResult.empty();
             }
         }
     }
+
+    @Nullable
+    @Override
+    @Deprecated
+    public Object[] callMethod( @Nonnull IComputerAccess access, @Nonnull ILuaContext context, int method, @Nonnull Object[] arguments ) throws LuaException, InterruptedException
+    {
+        return callMethod( access, (ICallContext) context, method, arguments ).evaluate( context );
+    }
+
 
     @Override
     public void attach( @Nonnull IComputerAccess computer )

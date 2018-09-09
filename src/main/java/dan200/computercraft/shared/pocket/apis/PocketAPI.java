@@ -7,9 +7,7 @@
 package dan200.computercraft.shared.pocket.apis;
 
 import dan200.computercraft.ComputerCraft;
-import dan200.computercraft.api.lua.ILuaAPI;
-import dan200.computercraft.api.lua.ILuaContext;
-import dan200.computercraft.api.lua.LuaException;
+import dan200.computercraft.api.lua.*;
 import dan200.computercraft.api.pocket.IPocketUpgrade;
 import dan200.computercraft.shared.pocket.core.PocketServerComputer;
 import dan200.computercraft.shared.util.InventoryUtil;
@@ -21,6 +19,7 @@ import net.minecraft.util.NonNullList;
 import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class PocketAPI implements ILuaAPI
 {
@@ -49,14 +48,15 @@ public class PocketAPI implements ILuaAPI
         };
     }
 
+    @Nonnull
     @Override
-    public Object[] callMethod( @Nonnull ILuaContext context, int method, @Nonnull Object[] arguments ) throws LuaException, InterruptedException
+    public MethodResult callMethod( @Nonnull ICallContext context, int method, @Nonnull Object[] arguments ) throws LuaException
     {
         switch( method )
         {
             case 0:
                 // equipBack
-                return context.executeMainThreadTask( () ->
+                return MethodResult.onMainThread( () ->
                 {
                     if( !(m_computer.getEntity() instanceof EntityPlayer) )
                     {
@@ -94,12 +94,12 @@ public class PocketAPI implements ILuaAPI
                     // Set the new upgrade
                     m_computer.setUpgrade( newUpgrade );
 
-                    return null;
+                    return MethodResult.empty();
                 } );
 
             case 1:
                 // unequipBack
-                return context.executeMainThreadTask( () ->
+                return MethodResult.onMainThread( () ->
                 {
                     if( !(m_computer.getEntity() instanceof EntityPlayer) )
                     {
@@ -125,11 +125,19 @@ public class PocketAPI implements ILuaAPI
                         }
                     }
 
-                    return null;
+                    return MethodResult.empty();
                 } );
             default:
-                return null;
+                return MethodResult.empty();
         }
+    }
+
+    @Override
+    @Nullable
+    @Deprecated
+    public Object[] callMethod( @Nonnull ILuaContext context, int method, @Nonnull Object[] arguments ) throws LuaException, InterruptedException
+    {
+        return callMethod( (ICallContext) context, method, arguments ).evaluate( context );
     }
 
     private static IPocketUpgrade findUpgrade( NonNullList<ItemStack> inv, int start, IPocketUpgrade previous )

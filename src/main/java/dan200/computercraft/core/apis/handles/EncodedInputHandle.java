@@ -1,7 +1,8 @@
 package dan200.computercraft.core.apis.handles;
 
-import dan200.computercraft.api.lua.ILuaContext;
+import dan200.computercraft.api.lua.ICallContext;
 import dan200.computercraft.api.lua.LuaException;
+import dan200.computercraft.api.lua.MethodResult;
 
 import javax.annotation.Nonnull;
 import java.io.*;
@@ -57,8 +58,9 @@ public class EncodedInputHandle extends HandleGeneric
         };
     }
 
+    @Nonnull
     @Override
-    public Object[] callMethod( @Nonnull ILuaContext context, int method, @Nonnull Object[] args ) throws LuaException
+    public MethodResult callMethod( @Nonnull ICallContext context, int method, @Nonnull Object[] args ) throws LuaException
     {
         switch( method )
         {
@@ -70,16 +72,16 @@ public class EncodedInputHandle extends HandleGeneric
                     String line = m_reader.readLine();
                     if( line != null )
                     {
-                        return new Object[] { line };
+                        return MethodResult.of( line );
                     }
                     else
                     {
-                        return null;
+                        return MethodResult.empty();
                     }
                 }
                 catch( IOException e )
                 {
-                    return null;
+                    return MethodResult.empty();
                 }
             case 1:
                 // readAll
@@ -97,16 +99,16 @@ public class EncodedInputHandle extends HandleGeneric
                             result.append( "\n" );
                         }
                     }
-                    return new Object[] { result.toString() };
+                    return MethodResult.of( result.toString() );
                 }
                 catch( IOException e )
                 {
-                    return null;
+                    return MethodResult.empty();
                 }
             case 2:
                 // close
                 close();
-                return null;
+                return MethodResult.empty();
             case 3:
                 // read
                 checkOpen();
@@ -125,7 +127,7 @@ public class EncodedInputHandle extends HandleGeneric
                         char[] chars = new char[ count ];
                         int read = m_reader.read( chars );
 
-                        return read < 0 ? null : new Object[] { new String( chars, 0, read ) };
+                        return read < 0 ? MethodResult.empty() : MethodResult.of( new String( chars, 0, read ) );
                     }
                     else
                     {
@@ -150,15 +152,15 @@ public class EncodedInputHandle extends HandleGeneric
                             out.append( buffer, 0, read );
                         }
 
-                        return new Object[] { out.toString() };
+                        return MethodResult.of( out.toString() );
                     }
                 }
                 catch( IOException e )
                 {
-                    return null;
+                    return MethodResult.empty();
                 }
             default:
-                return null;
+                return MethodResult.empty();
         }
     }
 }

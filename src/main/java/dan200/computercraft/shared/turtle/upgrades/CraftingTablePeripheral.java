@@ -6,19 +6,21 @@
 
 package dan200.computercraft.shared.turtle.upgrades;
 
+import dan200.computercraft.api.lua.ICallContext;
 import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
+import dan200.computercraft.api.lua.MethodResult;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.shared.turtle.core.TurtleCraftCommand;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import static dan200.computercraft.core.apis.ArgumentHelper.optInt;
 
-public class CraftingTablePeripheral
-    implements IPeripheral
+public class CraftingTablePeripheral implements IPeripheral
 {
     private final ITurtleAccess m_turtle;
 
@@ -26,7 +28,7 @@ public class CraftingTablePeripheral
     {
         m_turtle = turtle;
     }
-            
+
     // IPeripheral implementation
 
     @Nonnull
@@ -35,7 +37,7 @@ public class CraftingTablePeripheral
     {
         return "workbench";
     }
-       
+
     @Nonnull
     @Override
     public String[] getMethodNames()
@@ -44,7 +46,7 @@ public class CraftingTablePeripheral
             "craft",
         };
     }
-        
+
     private int parseCount( Object[] arguments ) throws LuaException
     {
         int count = optInt( arguments, 0, 64 );
@@ -54,9 +56,10 @@ public class CraftingTablePeripheral
         }
         return count;
     }
-    
+
     @Override
-    public Object[] callMethod( @Nonnull IComputerAccess computer, @Nonnull ILuaContext context, int method, @Nonnull Object[] arguments ) throws LuaException, InterruptedException
+    @Nonnull
+    public MethodResult callMethod( @Nonnull IComputerAccess computer, @Nonnull ICallContext context, int method, @Nonnull Object[] arguments ) throws LuaException
     {
         switch( method )
         {
@@ -64,13 +67,22 @@ public class CraftingTablePeripheral
             {
                 // craft
                 final int limit = parseCount( arguments );
-                return m_turtle.executeCommand( context, new TurtleCraftCommand( limit ) );
+                return m_turtle.executeCommand( new TurtleCraftCommand( limit ) );
             }
             default:
             {
-                return null;
+                return MethodResult.empty();
             }
         }
+    }
+
+
+    @Nullable
+    @Override
+    @Deprecated
+    public Object[] callMethod( @Nonnull IComputerAccess access, @Nonnull ILuaContext context, int method, @Nonnull Object[] arguments ) throws LuaException, InterruptedException
+    {
+        return callMethod( access, (ICallContext) context, method, arguments ).evaluate( context );
     }
 
     @Override

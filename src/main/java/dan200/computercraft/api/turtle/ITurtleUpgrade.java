@@ -133,7 +133,7 @@ public interface ITurtleUpgrade
      * @return The model that you wish to be used to render your upgrade, and a transformation to apply to it. Returning
      * a transformation of {@code null} has the same effect as the identify matrix.
      */
-    @SideOnly(Side.CLIENT)
+    @SideOnly( Side.CLIENT )
     @Nonnull
     Pair<IBakedModel, Matrix4f> getModel( @Nullable ITurtleAccess turtle, @Nonnull TurtleSide side );
 

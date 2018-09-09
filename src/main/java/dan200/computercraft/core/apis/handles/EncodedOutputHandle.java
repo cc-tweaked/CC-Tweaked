@@ -1,7 +1,8 @@
 package dan200.computercraft.core.apis.handles;
 
-import dan200.computercraft.api.lua.ILuaContext;
+import dan200.computercraft.api.lua.ICallContext;
 import dan200.computercraft.api.lua.LuaException;
+import dan200.computercraft.api.lua.MethodResult;
 
 import javax.annotation.Nonnull;
 import java.io.*;
@@ -53,8 +54,9 @@ public class EncodedOutputHandle extends HandleGeneric
         };
     }
 
+    @Nonnull
     @Override
-    public Object[] callMethod( @Nonnull ILuaContext context, int method, @Nonnull Object[] args ) throws LuaException
+    public MethodResult callMethod( @Nonnull ICallContext context, int method, @Nonnull Object[] args ) throws LuaException
     {
         switch( method )
         {
@@ -74,7 +76,7 @@ public class EncodedOutputHandle extends HandleGeneric
                 try
                 {
                     m_writer.write( text, 0, text.length() );
-                    return null;
+                    return MethodResult.empty();
                 }
                 catch( IOException e )
                 {
@@ -98,7 +100,7 @@ public class EncodedOutputHandle extends HandleGeneric
                 {
                     m_writer.write( text, 0, text.length() );
                     m_writer.newLine();
-                    return null;
+                    return MethodResult.empty();
                 }
                 catch( IOException e )
                 {
@@ -111,18 +113,18 @@ public class EncodedOutputHandle extends HandleGeneric
                 try
                 {
                     m_writer.flush();
-                    return null;
+                    return MethodResult.empty();
                 }
                 catch( IOException e )
                 {
-                    return null;
+                    return MethodResult.empty();
                 }
             case 3:
                 // close
                 close();
-                return null;
+                return MethodResult.empty();
             default:
-                return null;
+                return MethodResult.empty();
         }
     }
 }

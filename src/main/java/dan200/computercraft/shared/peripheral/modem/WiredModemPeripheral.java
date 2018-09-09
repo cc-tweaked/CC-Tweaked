@@ -3,8 +3,9 @@ package dan200.computercraft.shared.peripheral.modem;
 import com.google.common.collect.ImmutableMap;
 import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.api.filesystem.IWritableMount;
-import dan200.computercraft.api.lua.ILuaContext;
+import dan200.computercraft.api.lua.ICallContext;
 import dan200.computercraft.api.lua.LuaException;
+import dan200.computercraft.api.lua.MethodResult;
 import dan200.computercraft.api.network.IPacketNetwork;
 import dan200.computercraft.api.network.wired.IWiredNode;
 import dan200.computercraft.api.network.wired.IWiredSender;
@@ -79,8 +80,9 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements IW
         return newMethods;
     }
 
+    @Nonnull
     @Override
-    public Object[] callMethod( @Nonnull IComputerAccess computer, @Nonnull ILuaContext context, int method, @Nonnull Object[] arguments ) throws LuaException, InterruptedException
+    public MethodResult callMethod( @Nonnull IComputerAccess computer, @Nonnull ICallContext context, int method, @Nonnull Object[] arguments ) throws LuaException
     {
         String[] methods = super.getMethodNames();
         switch( method - methods.length )
@@ -96,14 +98,14 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements IW
                     {
                         table.put( idx++, name );
                     }
-                    return new Object[]{ table };
+                    return MethodResult.of( table );
                 }
             }
             case 1:
             {
                 // isPresentRemote
                 String type = getTypeRemote( getString( arguments, 0 ) );
-                return new Object[]{ type != null };
+                return MethodResult.of( type != null );
             }
             case 2:
             {
@@ -111,9 +113,9 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements IW
                 String type = getTypeRemote( getString( arguments, 0 ) );
                 if( type != null )
                 {
-                    return new Object[]{ type };
+                    return MethodResult.of( type );
                 }
-                return null;
+                return MethodResult.empty();
             }
             case 3:
             {
@@ -126,9 +128,9 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements IW
                     {
                         table.put( i + 1, methodNames[i] );
                     }
-                    return new Object[]{ table };
+                    return MethodResult.of( table );
                 }
-                return null;
+                return MethodResult.empty();
             }
             case 4:
             {
@@ -143,7 +145,7 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements IW
             {
                 // getNameLocal
                 String local = getLocalPeripheral().getConnectedName();
-                return local == null ? null : new Object[]{ local };
+                return local == null ? MethodResult.empty() : MethodResult.of( local );
             }
             default:
             {
@@ -261,7 +263,7 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements IW
         return null;
     }
 
-    private Object[] callMethodRemote( String remoteName, ILuaContext context, String method, Object[] arguments ) throws LuaException, InterruptedException
+    private MethodResult callMethodRemote( String remoteName, ICallContext context, String method, Object[] arguments ) throws LuaException
     {
         RemotePeripheralWrapper wrapper;
         synchronized( peripheralWrappers )
@@ -330,7 +332,7 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements IW
             return m_methods;
         }
 
-        public Object[] callMethod( ILuaContext context, String methodName, Object[] arguments ) throws LuaException, InterruptedException
+        public MethodResult callMethod( ICallContext context, String methodName, Object[] arguments ) throws LuaException
         {
             if( m_methodMap.containsKey( methodName ) )
             {

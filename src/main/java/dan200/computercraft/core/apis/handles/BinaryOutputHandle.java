@@ -1,7 +1,8 @@
 package dan200.computercraft.core.apis.handles;
 
-import dan200.computercraft.api.lua.ILuaContext;
+import dan200.computercraft.api.lua.ICallContext;
 import dan200.computercraft.api.lua.LuaException;
+import dan200.computercraft.api.lua.MethodResult;
 import dan200.computercraft.core.apis.ArgumentHelper;
 import dan200.computercraft.shared.util.StringUtil;
 
@@ -30,8 +31,9 @@ public class BinaryOutputHandle extends HandleGeneric
         };
     }
 
+    @Nonnull
     @Override
-    public Object[] callMethod( @Nonnull ILuaContext context, int method, @Nonnull Object[] args ) throws LuaException
+    public MethodResult callMethod( @Nonnull ICallContext context, int method, @Nonnull Object[] args ) throws LuaException
     {
         switch( method )
         {
@@ -54,7 +56,7 @@ public class BinaryOutputHandle extends HandleGeneric
                     {
                         throw ArgumentHelper.badArgument( 0, "string or number", args.length > 0 ? args[ 0 ] : null );
                     }
-                    return null;
+                    return MethodResult.empty();
                 }
                 catch( IOException e )
                 {
@@ -66,18 +68,18 @@ public class BinaryOutputHandle extends HandleGeneric
                 try
                 {
                     m_writer.flush();
-                    return null;
+                    return MethodResult.empty();
                 }
                 catch( IOException e )
                 {
-                    return null;
+                    return MethodResult.empty();
                 }
             case 2:
                 //close
                 close();
-                return null;
+                return MethodResult.empty();
             default:
-                return null;
+                return MethodResult.empty();
         }
     }
 }
