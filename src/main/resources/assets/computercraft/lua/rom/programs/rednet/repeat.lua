@@ -44,7 +44,7 @@ local ok, error = pcall( function()
         if sEvent == "modem_message" then
             -- Got a modem message, rebroadcast it if it's a rednet thing
             if nChannel == rednet.CHANNEL_REPEAT then
-                if type( tMessage ) == "table" and tMessage.nMessageID and tMessage.nRecipient then
+                if type( tMessage ) == "table" and tMessage.nMessageID and tMessage.nRecipient and type(tMessage.nRecipient) == "number" then
                     if not tReceivedMessages[ tMessage.nMessageID ] then
                         -- Ensure we only repeat a message once
                         tReceivedMessages[ tMessage.nMessageID ] = true
