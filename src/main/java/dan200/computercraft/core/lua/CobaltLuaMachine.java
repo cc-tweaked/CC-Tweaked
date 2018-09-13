@@ -291,20 +291,18 @@ public class CobaltLuaMachine implements ILuaMachine
     {
         LuaTable table = new LuaTable();
         String[] methods = object.getMethodNames();
-        for( int i = 0; i < methods.length; ++i )
+        for( int method = 0; method < methods.length; method++ )
         {
-            if( methods[ i ] != null )
+            if( methods[method] != null )
             {
-                final int method = i;
-                final ILuaObject apiObject = object;
-                final String methodName = methods[ i ];
-                table.rawset( methodName, new CobaltWrapperFunction( this, m_computer, apiObject, method, methodName ) );
+                final String methodName = methods[method];
+                table.rawset( methodName, new CobaltWrapperFunction( this, m_computer, object, method, methodName ) );
             }
         }
         return table;
     }
 
-    LuaValue toValue( Object object, Map<Object, LuaValue> values )
+    private LuaValue toValue( Object object, Map<Object, LuaValue> values )
     {
         if( object == null )
         {
@@ -382,7 +380,7 @@ public class CobaltLuaMachine implements ILuaMachine
         return varargsOf( values );
     }
 
-    static Object toObject( LuaValue value, Map<LuaValue, Object> objects )
+    private static Object toObject( LuaValue value, Map<LuaValue, Object> objects )
     {
         switch( value.type() )
         {

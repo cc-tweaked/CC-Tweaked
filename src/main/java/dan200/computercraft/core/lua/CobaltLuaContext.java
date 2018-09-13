@@ -6,39 +6,57 @@
 
 package dan200.computercraft.core.lua;
 
-import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.lua.ILuaContext;
+import dan200.computercraft.api.lua.ILuaContextTask;
 import dan200.computercraft.api.lua.ILuaTask;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.core.computer.Computer;
-import dan200.computercraft.core.computer.ITask;
-import dan200.computercraft.core.computer.MainThread;
 import org.squiddev.cobalt.LuaError;
 import org.squiddev.cobalt.LuaState;
 import org.squiddev.cobalt.LuaThread;
+import org.squiddev.cobalt.UnwindThrowable;
 
 import javax.annotation.Nonnull;
 import java.lang.ref.WeakReference;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
-class CobaltLuaContext implements ILuaContext
+/**
+ * An ugly wrapper for {@link ILuaContext} style calls, which executes them on a separate thread.
+ */
+class CobaltLuaContext extends CobaltCallContext implements ILuaContext
 {
-    private final Computer computer;
+    private static final ThreadGroup group = new ThreadGroup( "ComputerCraft-Lua" );
+    private static final AtomicInteger threadCounter = new AtomicInteger();
+    private static final ExecutorService threads = new ThreadPoolExecutor(
+        4, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS, new SynchronousQueue<>(),
+        task -> {
+            Thread thread = new Thread( group, task, group.getName() + "-" + threadCounter.incrementAndGet() );
+            if( !thread.isDaemon() ) thread.setDaemon( true );
+            if( thread.getPriority() != Thread.NORM_PRIORITY ) thread.setPriority( Thread.NORM_PRIORITY );
+            return thread;
+        }
+    );
 
-    boolean done = false;
-    Object[] values;
-    LuaError exception;
-    final Semaphore yield = new Semaphore();
-    final Semaphore resume = new Semaphore();
+    private boolean done = false;
+    private Object[] values;
+    private LuaError exception;
+    private final Semaphore yield = new Semaphore();
+    private final Semaphore resume = new Semaphore();
     private WeakReference<LuaThread> thread;
 
-    public CobaltLuaContext( Computer computer, LuaState state )
+    CobaltLuaContext( Computer computer, LuaState state )
     {
-        this.computer = computer;
+        super( computer );
         this.thread = state.getCurrentThread().getReference();
     }
 
     @Nonnull
     @Override
+    @Deprecated
     public Object[] pullEvent( String filter ) throws LuaException, InterruptedException
     {
         Object[] results = pullEventRaw( filter );
@@ -51,6 +69,7 @@ class CobaltLuaContext implements ILuaContext
 
     @Nonnull
     @Override
+    @Deprecated
     public Object[] pullEventRaw( String filter ) throws InterruptedException
     {
         return yield( new Object[]{ filter } );
@@ -58,6 +77,7 @@ class CobaltLuaContext implements ILuaContext
 
     @Nonnull
     @Override
+    @Deprecated
     public Object[] yield( Object[] yieldArgs ) throws InterruptedException
     {
         if( done ) throw new IllegalStateException( "Cannot yield when complete" );
@@ -76,66 +96,7 @@ class CobaltLuaContext implements ILuaContext
     }
 
     @Override
-    public long issueMainThreadTask( @Nonnull final ILuaTask task ) throws LuaException
-    {
-        // Issue command
-        final long taskID = MainThread.getUniqueTaskID();
-        final ITask iTask = new ITask()
-        {
-            @Override
-            public Computer getOwner()
-            {
-                return computer;
-            }
-
-            @Override
-            public void execute()
-            {
-                try
-                {
-                    Object[] results = task.execute();
-                    if( results != null )
-                    {
-                        Object[] eventArguments = new Object[results.length + 2];
-                        eventArguments[0] = taskID;
-                        eventArguments[1] = true;
-                        System.arraycopy( results, 0, eventArguments, 2, results.length );
-                        computer.queueEvent( "task_complete", eventArguments );
-                    }
-                    else
-                    {
-                        computer.queueEvent( "task_complete", new Object[]{ taskID, true } );
-                    }
-                }
-                catch( LuaException e )
-                {
-                    computer.queueEvent( "task_complete", new Object[]{
-                        taskID, false, e.getMessage()
-                    } );
-                }
-                catch( Throwable t )
-                {
-                    if( ComputerCraft.logPeripheralErrors )
-                    {
-                        ComputerCraft.log.error( "Error running task", t );
-                    }
-                    computer.queueEvent( "task_complete", new Object[]{
-                        taskID, false, "Java Exception Thrown: " + t.toString()
-                    } );
-                }
-            }
-        };
-        if( MainThread.queueTask( iTask ) )
-        {
-            return taskID;
-        }
-        else
-        {
-            throw new LuaException( "Task limit exceeded" );
-        }
-    }
-
-    @Override
+    @Deprecated
     public Object[] executeMainThreadTask( @Nonnull final ILuaTask task ) throws LuaException, InterruptedException
     {
         // Issue task
@@ -170,6 +131,60 @@ class CobaltLuaContext implements ILuaContext
                     }
                 }
             }
+        }
+    }
+
+    void execute( ILuaContextTask task )
+    {
+        threads.submit( () -> {
+            try
+            {
+                values = task.execute( this );
+            }
+            catch( LuaException e )
+            {
+                exception = new LuaError( e.getMessage(), e.getLevel() );
+            }
+            catch( InterruptedException e )
+            {
+                exception = new LuaError( "Java Exception Thrown: " + e.toString(), 0 );
+            }
+            finally
+            {
+                done = true;
+                yield.signal();
+            }
+        } );
+    }
+
+    Object[] resume( LuaState state, CobaltLuaMachine machine, Object[] args ) throws LuaError, UnwindThrowable
+    {
+        values = args;
+        resume.signal();
+
+        if( !done )
+        {
+            try
+            {
+                yield.await();
+            }
+            catch( InterruptedException e )
+            {
+                state.debug.onReturn();
+                throw new LuaError( "Java Exception Thrown: " + e.toString(), 0 );
+            }
+        }
+
+        if( done )
+        {
+            state.debug.onReturn();
+            if( exception != null ) throw exception;
+            return values;
+        }
+        else
+        {
+            LuaThread.yield( state, machine.toValues( values ) );
+            throw new IllegalStateException( "Unreachable" );
         }
     }
 }
