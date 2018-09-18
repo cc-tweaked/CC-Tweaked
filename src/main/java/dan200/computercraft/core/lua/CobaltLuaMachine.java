@@ -235,6 +235,7 @@ public class CobaltLuaMachine implements ILuaMachine
         }
         catch( LuaError e )
         {
+            if( ComputerCraft.logPeripheralErrors ) ComputerCraft.log.error( "Main thread crashed", e );
             m_mainRoutine.abandon();
             m_mainRoutine = null;
         }

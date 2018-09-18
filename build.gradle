@@ -197,3 +197,9 @@ gradle.projectsEvaluated {
 
 runClient.outputs.upToDateWhen { false }
 runServer.outputs.upToDateWhen { false }
+
+test {
+    testLogging {
+        events "failed", "standardOut", "standardError"
+    }
+}

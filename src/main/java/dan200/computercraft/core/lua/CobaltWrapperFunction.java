@@ -13,8 +13,6 @@ import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.MethodResult;
 import dan200.computercraft.core.computer.Computer;
 import org.squiddev.cobalt.*;
-import org.squiddev.cobalt.debug.DebugFrame;
-import org.squiddev.cobalt.debug.DebugHandler;
 import org.squiddev.cobalt.debug.DebugState;
 import org.squiddev.cobalt.function.VarArgFunction;
 
@@ -62,10 +60,17 @@ class CobaltWrapperFunction extends VarArgFunction implements Resumable<CobaltWr
             throw new LuaError( "Java Exception Thrown: " + e.toString(), 0 );
         }
 
+        // Verify we've a "well formed" future
         if( future == null )
         {
             ComputerCraft.log.error( "Null result from " + delegate );
             throw new LuaError( "Java Exception Thrown: Null result" );
+        }
+
+        // Fast path for immediate results
+        if( future instanceof MethodResult.Immediate )
+        {
+            return machine.toValues( ((MethodResult.Immediate) future).getResult() );
         }
 
         State context = new State();
@@ -75,12 +80,11 @@ class CobaltWrapperFunction extends VarArgFunction implements Resumable<CobaltWr
         }
         catch( UnwindThrowable e )
         {
-            // Push our state onto the stack if need-be.
-            DebugHandler handler = state.debug;
-            DebugState ds = handler.getDebugState();
-            DebugFrame di = handler.onCall( ds, this );
-            di.state = context;
-
+            // Push our state onto the stack if need-be. Normally this wouldn't be safe and we 
+            // should do this at the very beginning, but we know that we won't be calling anything 
+            // else which will push to the resume stack.
+            DebugState ds = state.debug.getDebugState();
+            state.debug.onCall( ds, this, context );
             throw e;
         }
     }
@@ -88,11 +92,10 @@ class CobaltWrapperFunction extends VarArgFunction implements Resumable<CobaltWr
     @Override
     public Varargs resume( LuaState state, State context, Varargs args ) throws LuaError, UnwindThrowable
     {
+        Varargs result;
         try
         {
-            Varargs result = doResume( state, context, args );
-            state.debug.onReturn();
-            return result;
+            result = doResume( state, context, args );
         }
         catch( LuaError e )
         {
@@ -104,6 +107,9 @@ class CobaltWrapperFunction extends VarArgFunction implements Resumable<CobaltWr
             state.debug.onReturn();
             throw new LuaError( e );
         }
+
+        state.debug.onReturn();
+        return result;
     }
 
     private Varargs doResume( LuaState state, State context, Varargs args ) throws LuaError, UnwindThrowable
@@ -126,7 +132,7 @@ class CobaltWrapperFunction extends VarArgFunction implements Resumable<CobaltWr
                 if( args.arg( 3 ).toBoolean() )
                 {
                     // Extract the return values from the event and return them
-                    return runCallback( state, context, CobaltLuaMachine.toObjects( args, 4 ) );
+                    return runFuture( state, context, context.taskResult );
                 }
                 else
                 {
@@ -142,7 +148,8 @@ class CobaltWrapperFunction extends VarArgFunction implements Resumable<CobaltWr
         }
         else if( future instanceof MethodResult.WithLuaContext )
         {
-            return runCallback( state, context, context.luaContext.resume( state, machine, CobaltLuaMachine.toObjects( args, 1 ) ) );
+            context.luaContext.resume( CobaltLuaMachine.toObjects( args, 1 ) );
+            return runCallback( state, context, context.luaContext.await( state, machine ) );
         }
         else
         {
@@ -223,6 +230,7 @@ class CobaltWrapperFunction extends VarArgFunction implements Resumable<CobaltWr
                 context.pending = future;
                 CobaltLuaContext luaContext = context.luaContext = new CobaltLuaContext( computer, state );
                 luaContext.execute( withContext.getConsumer() );
+                return runCallback( state, context, luaContext.await( state, machine ) );
             }
             else
             {

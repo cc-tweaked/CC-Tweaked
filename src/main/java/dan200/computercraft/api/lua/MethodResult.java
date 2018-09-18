@@ -89,16 +89,17 @@ public abstract class MethodResult
      * Normally you'll wish to consume the event using {@link #then(ILuaFunction)}. This can be done slightly more
      * easily with {@link #pullEvent(String, ILuaFunction)}.
      *
+     * @param filter The event name to filter on.
      * @return The constructed method result. This evaluates to the name of the event that occurred, and any event
      * parameters.
      * @see #pullEvent(String, ILuaFunction)
      * @see #pullEvent()
      */
     @Nonnull
-    public static MethodResult pullEvent( @Nonnull String event )
+    public static MethodResult pullEvent( @Nonnull String filter )
     {
-        Preconditions.checkNotNull( event, "event cannot be null" );
-        return new OnEvent( false, event );
+        Preconditions.checkNotNull( filter, "event cannot be null" );
+        return new OnEvent( false, filter );
     }
 
     /**
@@ -108,6 +109,7 @@ public abstract class MethodResult
      * If you want to listen to a specific event, it's easier to use {@link #pullEvent(String, ILuaFunction)} rather
      * than running until the desired event is found.
      *
+     * @param callback The function to call when the event is received.
      * @return The constructed method result. This evaluates to the result of the {@code callback}.
      * @see #pullEvent()
      * @see #pullEvent(String, ILuaFunction)
@@ -123,6 +125,8 @@ public abstract class MethodResult
      * Wait for the specified event to occur on the computer, suspending the coroutine until it arises. This method to
      * {@link #pullEvent(String)} and {@link #then(ILuaFunction)}.
      *
+     * @param filter   The event name to filter on.
+     * @param callback The function to call when the event is received.
      * @return The constructed method result. This evaluates to the result of the {@code callback}.
      * @see #pullEvent(String)
      * @see #pullEvent(ILuaFunction)
@@ -151,19 +155,21 @@ public abstract class MethodResult
      * The same as {@link #pullEvent(String)}, except {@code terminated} events are also passed to the callback, instead
      * of throwing an error. Only use this if you want to prevent program termination, which is not recommended.
      *
+     * @param filter The event name to filter on.
      * @return The constructed method result. This evaluates to the name of the event that occurred, and any event
      * parameters.
      */
     @Nonnull
-    public static MethodResult pullEventRaw( @Nonnull String event )
+    public static MethodResult pullEventRaw( @Nonnull String filter )
     {
-        return new OnEvent( true, event );
+        return new OnEvent( true, filter );
     }
 
     /**
      * The same as {@link #pullEvent(ILuaFunction)}, except {@code terminated} events are also passed to the callback,
      * instead of throwing an error. Only use this if you want to prevent program termination, which is not recommended.
      *
+     * @param callback The function to call when the event is received.
      * @return The constructed method result. This evaluates to the result of the {@code callback}.
      */
     @Nonnull
@@ -178,6 +184,8 @@ public abstract class MethodResult
      * callback, instead of throwing an error. Only use this if you want to prevent program termination, which is not
      * recommended.
      *
+     * @param filter   The event name to filter on.
+     * @param callback The function to call when the event is received.
      * @return The constructed method result. This evaluates to the result of the {@code callback}.
      */
     @Nonnull
@@ -237,6 +245,8 @@ public abstract class MethodResult
      *
      * @param context The context to execute with.
      * @return The resulting values.
+     * @throws LuaException         If an error was thrown while executing one of the methods within this future.
+     * @throws InterruptedException If the user shuts down or reboots the computer while the coroutine is suspended.
      * @see #withLuaContext(ILuaContextTask)
      * @deprecated This should not be used except to interface between the two call systems.
      */

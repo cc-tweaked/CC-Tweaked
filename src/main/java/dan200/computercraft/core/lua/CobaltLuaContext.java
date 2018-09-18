@@ -157,11 +157,14 @@ class CobaltLuaContext extends CobaltCallContext implements ILuaContext
         } );
     }
 
-    Object[] resume( LuaState state, CobaltLuaMachine machine, Object[] args ) throws LuaError, UnwindThrowable
+    void resume( Object[] args )
     {
         values = args;
         resume.signal();
+    }
 
+    Object[] await( LuaState state, CobaltLuaMachine machine ) throws LuaError, UnwindThrowable
+    {
         if( !done )
         {
             try
@@ -170,14 +173,12 @@ class CobaltLuaContext extends CobaltCallContext implements ILuaContext
             }
             catch( InterruptedException e )
             {
-                state.debug.onReturn();
                 throw new LuaError( "Java Exception Thrown: " + e.toString(), 0 );
             }
         }
 
         if( done )
         {
-            state.debug.onReturn();
             if( exception != null ) throw exception;
             return values;
         }

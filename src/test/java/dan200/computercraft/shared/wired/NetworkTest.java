@@ -4,8 +4,9 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.ComputerCraftAPI;
+import dan200.computercraft.api.lua.ICallContext;
 import dan200.computercraft.api.lua.ILuaContext;
-import dan200.computercraft.api.lua.LuaException;
+import dan200.computercraft.api.lua.MethodResult;
 import dan200.computercraft.api.network.wired.IWiredElement;
 import dan200.computercraft.api.network.wired.IWiredNetwork;
 import dan200.computercraft.api.network.wired.IWiredNetworkChange;
@@ -249,7 +250,7 @@ public class NetworkTest
     }
 
     @Test
-    @Ignore("Takes a long time to run, mostly for stress testing")
+    @Ignore( "Takes a long time to run, mostly for stress testing" )
     public void testLarge()
     {
         final int BRUTE_SIZE = 16;
@@ -410,9 +411,17 @@ public class NetworkTest
 
         @Nullable
         @Override
-        public Object[] callMethod( @Nonnull IComputerAccess computer, @Nonnull ILuaContext context, int method, @Nonnull Object[] arguments ) throws LuaException, InterruptedException
+        @Deprecated
+        public Object[] callMethod( @Nonnull IComputerAccess computer, @Nonnull ILuaContext context, int method, @Nonnull Object[] arguments )
         {
             return new Object[0];
+        }
+
+        @Nonnull
+        @Override
+        public MethodResult callMethod( @Nonnull IComputerAccess computer, @Nonnull ICallContext context, int method, @Nonnull Object[] arguments )
+        {
+            return MethodResult.empty();
         }
 
         @Override
@@ -427,7 +436,7 @@ public class NetworkTest
         private final int size;
         private final T[] box;
 
-        @SuppressWarnings("unchecked")
+        @SuppressWarnings( "unchecked" )
         public Grid( int size )
         {
             this.size = size;

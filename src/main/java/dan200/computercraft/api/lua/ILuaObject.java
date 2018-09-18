@@ -44,10 +44,12 @@ public interface ILuaObject
      *                  for the possible values and conversion rules.
      * @return An array of objects, representing the values you wish to return to the Lua program. See
      * {@link MethodResult#of(Object...)}  for the valid values and conversion rules.
-     * @throws LuaException         If the task could not be queued, or if the task threw an exception.
+     * @throws LuaException         If you throw any exception from this function, a lua error will be raised with the
+     *                              same message as your exception. Use this to throw appropriate errors if the wrong
+     *                              arguments are supplied to your method.
      * @throws InterruptedException If the user shuts down or reboots the computer the coroutine is suspended,
      *                              InterruptedException will be thrown. This exception must not be caught or
-     *                              intercepted, or the computer will leak memory and end up in a broken state.w
+     *                              intercepted, or the computer will leak memory and end up in a broken state.
      * @see IPeripheral#callMethod(IComputerAccess, ILuaContext, int, Object[])
      * @deprecated Use {@link #callMethod(ICallContext, int, Object[])} instead.
      */
@@ -68,12 +70,14 @@ public interface ILuaObject
      *                  for the possible values and conversion rules.
      * @return The result of calling this method. Use {@link MethodResult#empty()} to return nothing or
      * {@link MethodResult#of(Object...)} to return several values.
-     * @throws LuaException If the task could not be queued, or if the task threw an exception.
+     * @throws LuaException         If you throw any exception from this function, a lua error will be raised with the
+     *                              same message as your exception. Use this to throw appropriate errors if the wrong
+     *                              arguments are supplied to your method.
      * @see IPeripheral#callMethod(IComputerAccess, ICallContext, int, Object[])
      * @see MethodResult
      */
     @Nonnull
-    @SuppressWarnings({ "deprecation" })
+    @SuppressWarnings( { "deprecation" } )
     default MethodResult callMethod( @Nonnull ICallContext context, int method, @Nonnull Object[] arguments ) throws LuaException
     {
         return MethodResult.withLuaContext( lua -> callMethod( lua, method, arguments ) );
