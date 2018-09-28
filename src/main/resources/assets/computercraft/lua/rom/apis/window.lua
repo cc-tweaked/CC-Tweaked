@@ -258,6 +258,10 @@ function create( parent, nX, nY, nWidth, nHeight, bStartVisible )
         end
     end
 
+    function window.getCursorBlink()
+        return bCursorBlink
+    end
+
     local function isColor()
         return parent.isColor()
     end

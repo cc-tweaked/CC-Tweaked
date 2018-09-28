@@ -66,7 +66,8 @@ public class MonitorPeripheral implements IPeripheral
             "setPaletteColor",
             "getPaletteColour",
             "getPaletteColor",
-            "getTextScale"
+            "getTextScale",
+            "getCursorBlink",
         };
     }
 
@@ -245,8 +246,12 @@ public class MonitorPeripheral implements IPeripheral
                 // getTextScale
                 return new Object[] { monitor.getTextScale() / 2.0 };
             }
+            case 25:
+                // getCursorBlink
+                return new Object[] { terminal.getCursorBlink() };
+            default:
+                return null;
         }
-        return null;
     }
 
     @Override
