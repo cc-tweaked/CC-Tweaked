@@ -1,0 +1,67 @@
+tile.computercraft:computer.name=Computer
+tile.computercraft:advanced_computer.name=Erweiterter Computer
+tile.computercraft:drive.name=Diskettenlaufwerk
+tile.computercraft:printer.name=Drucker
+tile.computercraft:monitor.name=Monitor
+tile.computercraft:advanced_monitor.name=Erweiterter Monitor
+tile.computercraft:wireless_modem.name=Kabelloses Modem
+tile.computercraft:wired_modem.name=Kabelmodem
+tile.computercraft:cable.name=Netzwerkkabel
+tile.computercraft:command_computer.name=Befehlscomputer
+tile.computercraft:advanced_modem.name=Endermodem
+tile.computercraft:speaker.name=Lautsprecher
+
+tile.computercraft:turtle.name=Turtle
+tile.computercraft:turtle.upgraded.name=Turtle (%s)
+tile.computercraft:turtle.upgraded_twice.name=Turtle (%s, %s)
+tile.computercraft:advanced_turtle.name=Erweiterte Turtle
+tile.computercraft:advanced_turtle.upgraded.name=Erweiterte Turtle (%s)
+tile.computercraft:advanced_turtle.upgraded_twice.name=Erweiterte Turtle (%s, %s)
+
+item.computercraft:disk.name=Diskette
+item.computercraft:treasure_disk.name=Diskette
+item.computercraft:page.name=Gedruckte Seite
+item.computercraft:pages.name=Gedruckte Seiten
+item.computercraft:book.name=Gedrucktes Buch
+
+item.computercraft:pocket_computer.name=Taschencomputer
+item.computercraft:pocket_computer.upgraded.name=Taschencomputer (%s)
+item.computercraft:advanced_pocket_computer.name=Erweiterter Taschencomputer
+item.computercraft:advanced_pocket_computer.upgraded.name=Erweiterter Taschencomputer (%s)
+
+upgrade.minecraft:diamond_sword.adjective=Nahkampf
+upgrade.minecraft:diamond_shovel.adjective=Graben
+upgrade.minecraft:diamond_pickaxe.adjective=Bergbau
+upgrade.minecraft:diamond_axe.adjective=Holzfällen
+upgrade.minecraft:diamond_hoe.adjective=Ackerbau
+upgrade.computercraft:wireless_modem.adjective=Kabellos
+upgrade.minecraft:crafting_table.adjective=Fabrizierung
+upgrade.computercraft:advanced_modem.adjective=Ender
+upgrade.computercraft:speaker.adjective=Laut
+
+gui.computercraft:wired_modem.peripheral_connected=Peripheriegerät "%s" mit dem Netzwerk verbunden
+gui.computercraft:wired_modem.peripheral_disconnected=Peripheriegerät "%s" vom Netzwerk getrennt
+
+gui.computercraft:config.http_enable=HTTP-API aktivieren
+gui.computercraft:config.http_websocket_enable=HTTP-Websockets aktivieren
+gui.computercraft:config.http_whitelist=HTTP-Whitelist
+gui.computercraft:config.http_blacklist=HTTP-Blacklist
+gui.computercraft:config.disable_lua51_features=Lua 5.1-Funktionen deaktivieren
+gui.computercraft:config.default_computer_settings=Computer-Standardeinstellungen
+gui.computercraft:config.debug_enable=Debug-Library aktivieren
+gui.computercraft:config.log_peripheral_errors=Peripheriefehler loggen
+gui.computercraft:config.enable_command_block=Befehlsblöcke als Peripheriegerät erlauben
+gui.computercraft:config.modem_range=Modemreichweite (normal)
+gui.computercraft:config.modem_high_altitude_range=Modemreichweite (in großer Höhe)
+gui.computercraft:config.modem_range_during_storm=Modemreichweite (bei schlechtem Wetter)
+gui.computercraft:config.modem_high_altitude_range_during_storm=Modemreichweite (in großer Höhe bei schlechtem Wetter)
+gui.computercraft:config.computer_space_limit=Speicherplatz von Computern (bytes)
+gui.computercraft:config.floppy_space_limit=Speicherplatz von Disketten (bytes)
+gui.computercraft:config.turtles_need_fuel=Treibstoffverbrauch aktivieren
+gui.computercraft:config.turtle_fuel_limit=Treibstofflimit von Turtles
+gui.computercraft:config.advanced_turtle_fuel_limit=Treibstofflimit von Erweiterten Turtles
+gui.computercraft:config.turtles_obey_block_protection=Turtles unterliegen Blockschutzrichtlinien
+gui.computercraft:config.turtles_can_push=Turtles können Entities bewegen
+gui.computercraft:config.turtle_disabled_actions=Deaktivierte Turtle-Aktionen
+gui.computercraft:config.maximum_files_open=Maximalanzahl an gleichzeitig offenen Dateien je Computer
+gui.computercraft:config.max_notes_per_tick=Maximalanzahl an Noten, die ein Computer gleichzeitig spielen kann
