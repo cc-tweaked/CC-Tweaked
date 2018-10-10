@@ -8,10 +8,11 @@ package dan200.computercraft.shared.peripheral.speaker;
 
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.lua.ILuaContext;
-import dan200.computercraft.api.lua.ILuaTask;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
+import net.minecraft.network.play.server.SPacketCustomSound;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvent;
@@ -25,22 +26,23 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static dan200.computercraft.core.apis.ArgumentHelper.getString;
 import static dan200.computercraft.core.apis.ArgumentHelper.optReal;
 
-public class SpeakerPeripheral implements IPeripheral {
-    private TileSpeaker m_speaker;
+public class SpeakerPeripheral implements IPeripheral
+{
+    private final TileSpeaker m_speaker;
     private long m_clock;
     private long m_lastPlayTime;
     private final AtomicInteger m_notesThisTick;
 
     public SpeakerPeripheral()
     {
+        this( null );
+    }
+
+    SpeakerPeripheral( TileSpeaker speaker )
+    {
         m_clock = 0;
         m_lastPlayTime = 0;
         m_notesThisTick = new AtomicInteger(  );
-    }
-
-    SpeakerPeripheral(TileSpeaker speaker)
-    {
-        this();
         m_speaker = speaker;
     }
 
@@ -70,15 +72,9 @@ public class SpeakerPeripheral implements IPeripheral {
     @Override
     public boolean equals( IPeripheral other )
     {
-        if( other != null && other instanceof SpeakerPeripheral )
-        {
-            SpeakerPeripheral otherSpeaker = (SpeakerPeripheral) other;
-            return otherSpeaker.m_speaker == m_speaker;
-        }
-        else
-        {
-            return false;
-        }
+        if( other == this ) return true;
+        if( !(other instanceof SpeakerPeripheral) ) return false;
+        return m_speaker == ((SpeakerPeripheral) other).m_speaker;
     }
 
     @Nonnull
@@ -93,8 +89,8 @@ public class SpeakerPeripheral implements IPeripheral {
     public String[] getMethodNames()
     {
         return new String[] {
-                "playSound", // Plays sound at resourceLocator
-                "playNote" // Plays note
+            "playSound", // Plays sound at resourceLocator
+            "playNote" // Plays note
         };
     }
 
@@ -106,18 +102,22 @@ public class SpeakerPeripheral implements IPeripheral {
             // playSound
             case 0:
             {
-                return playSound(args, context, false);
+                String name = getString( args, 0 );
+                float volume = (float) optReal( args, 1, 1.0 );
+                float pitch = (float) optReal( args, 2, 1.0 );
+
+                return new Object[] { playSound( context, name, volume, pitch, false ) };
             }
 
             // playNote
             case 1:
             {
-                return playNote(args, context);
+                return playNote( args, context );
             }
 
             default:
             {
-                throw new LuaException("Method index out of range!");
+                throw new LuaException( "Method index out of range!" );
             }
 
         }
@@ -126,75 +126,55 @@ public class SpeakerPeripheral implements IPeripheral {
     @Nonnull
     private synchronized Object[] playNote( Object[] arguments, ILuaContext context ) throws LuaException
     {
-        String name = getString(arguments, 0);
+        String name = getString( arguments, 0 );
         float volume = (float) optReal( arguments, 1, 1.0 );
         float pitch = (float) optReal( arguments, 2, 1.0 );
+        
+        String noteName = "block.note." + name;
 
-        // Check if sound exists
-        if ( !SoundEvent.REGISTRY.containsKey( new ResourceLocation( "block.note." + name ) ) )
+        // Check if the note exists
+        if( !SoundEvent.REGISTRY.containsKey( new ResourceLocation( noteName ) ) )
         {
-            throw new LuaException("Invalid instrument, \"" + arguments[0] + "\"!");
+            throw new LuaException( "Invalid instrument, \"" + name + "\"!" );
         }
 
         // If the resource location for note block notes changes, this method call will need to be updated
-        Object[] returnValue = playSound(
-            new Object[] {
-                "block.note." + name,
-                (double)Math.min( volume, 3f ),
-                Math.pow( 2.0f, ( pitch - 12.0f ) / 12.0f)
-            }, context, true
+        boolean success = playSound( context, noteName,
+            Math.min( volume, 3f ),
+            (float) Math.pow( 2.0, (pitch - 12.0) / 12.0 ), true
         );
 
-        if( returnValue[0] instanceof Boolean && (Boolean) returnValue[0] )
-        {
-            m_notesThisTick.incrementAndGet();
-        }
-
-        return returnValue;
+        if( success ) m_notesThisTick.incrementAndGet();
+        return new Object[] { success };
     }
 
-    @Nonnull
-    private synchronized Object[] playSound( Object[] arguments, ILuaContext context, boolean isNote ) throws LuaException
+    private synchronized boolean playSound( ILuaContext context, String name, float volume, float pitch, boolean isNote ) throws LuaException
     {
-        String name = getString(arguments, 0);
-        float volume = (float) optReal( arguments, 1, 1.0 );
-        float pitch = (float) optReal( arguments, 2, 1.0 );
-
-        ResourceLocation resourceName = new ResourceLocation( name );
-
-        if( m_clock - m_lastPlayTime >= TileSpeaker.MIN_TICKS_BETWEEN_SOUNDS || (isNote && m_clock - m_lastPlayTime == 0 && m_notesThisTick.get() < ComputerCraft.maxNotesPerTick) )
+        if( m_clock - m_lastPlayTime < TileSpeaker.MIN_TICKS_BETWEEN_SOUNDS &&
+            (!isNote || m_clock - m_lastPlayTime != 0 || m_notesThisTick.get() >= ComputerCraft.maxNotesPerTick) )
         {
-            if( SoundEvent.REGISTRY.containsKey(resourceName) )
-            {
-                final World world = getWorld();
-                final BlockPos pos = getPos();
-                final ResourceLocation resource = resourceName;
-                final float vol = volume;
-                final float soundPitch = pitch;
-
-                context.issueMainThreadTask(new ILuaTask()
-                {
-                    @Nullable
-                    @Override
-                    public Object[] execute()
-                    {
-                        world.playSound( null, pos, SoundEvent.REGISTRY.getObject( resource ), SoundCategory.RECORDS, Math.min( vol, 3f ), soundPitch );
-                        return null;
-                    }
-                });
-
-                m_lastPlayTime = m_clock;
-                return new Object[]{true}; // Success, return true
-            }
-            else
-            {
-                return new Object[]{false}; // Failed - sound not existent, return false
-            }
+            // Rate limiting occurs when we've already played a sound within the last tick, or we've
+            // played more notes than allowable within the current tick.
+            return false;
         }
-        else
-        {
-            return new Object[]{false}; // Failed - rate limited, return false
-        }
+
+        final World world = getWorld();
+        final BlockPos pos = getPos();
+
+        context.issueMainThreadTask( () -> {
+            MinecraftServer server = world.getMinecraftServer();
+            if( server == null ) return null;
+
+            double x = pos.getX() + 0.5, y = pos.getY() + 0.5, z = pos.getZ() + 0.5;
+            server.getPlayerList().sendToAllNearExcept(
+                null, x, y, z, volume > 1.0f ? 16 * volume : 16.0, world.provider.getDimension(),
+                new SPacketCustomSound( name, SoundCategory.RECORDS, x, y, z, volume, pitch )
+            );
+            return null;
+        } );
+
+        m_lastPlayTime = m_clock;
+        return true;
     }
 }
 
