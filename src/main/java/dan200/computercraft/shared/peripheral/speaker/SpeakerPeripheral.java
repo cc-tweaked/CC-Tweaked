@@ -139,10 +139,7 @@ public class SpeakerPeripheral implements IPeripheral
         }
 
         // If the resource location for note block notes changes, this method call will need to be updated
-        boolean success = playSound( context, noteName,
-            Math.min( volume, 3f ),
-            (float) Math.pow( 2.0, (pitch - 12.0) / 12.0 ), true
-        );
+        boolean success = playSound( context, noteName, volume, (float) Math.pow( 2.0, (pitch - 12.0) / 12.0 ), true );
 
         if( success ) m_notesThisTick.incrementAndGet();
         return new Object[] { success };
@@ -158,17 +155,18 @@ public class SpeakerPeripheral implements IPeripheral
             return false;
         }
 
-        final World world = getWorld();
-        final BlockPos pos = getPos();
+        World world = getWorld();
+        BlockPos pos = getPos();
 
         context.issueMainThreadTask( () -> {
             MinecraftServer server = world.getMinecraftServer();
             if( server == null ) return null;
 
             double x = pos.getX() + 0.5, y = pos.getY() + 0.5, z = pos.getZ() + 0.5;
+            float adjVolume = Math.min( volume, 3.0f );
             server.getPlayerList().sendToAllNearExcept(
-                null, x, y, z, volume > 1.0f ? 16 * volume : 16.0, world.provider.getDimension(),
-                new SPacketCustomSound( name, SoundCategory.RECORDS, x, y, z, volume, pitch )
+                null, x, y, z, adjVolume > 1.0f ? 16 * adjVolume : 16.0, world.provider.getDimension(),
+                new SPacketCustomSound( name, SoundCategory.RECORDS, x, y, z, adjVolume, pitch )
             );
             return null;
         } );
