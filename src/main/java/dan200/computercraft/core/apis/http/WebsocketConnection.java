@@ -13,7 +13,9 @@ import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.core.apis.HTTPAPI;
 import dan200.computercraft.core.apis.IAPIEnvironment;
 import dan200.computercraft.core.tracking.TrackingField;
+import dan200.computercraft.shared.util.StringUtil;
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -25,6 +27,8 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.Closeable;
 import java.io.IOException;
+
+import static dan200.computercraft.core.apis.ArgumentHelper.optBoolean;
 
 public class WebsocketConnection extends SimpleChannelInboundHandler<Object> implements ILuaObject, Closeable
 {
@@ -174,8 +178,11 @@ public class WebsocketConnection extends SimpleChannelInboundHandler<Object> imp
             {
                 checkOpen();
                 String text = arguments.length > 0 && arguments[0] != null ? arguments[0].toString() : "";
+                boolean binary = optBoolean(arguments, 1, false);
                 computer.addTrackingChange( TrackingField.WEBSOCKET_OUTGOING, text.length() );
-                channel.writeAndFlush( new TextWebSocketFrame( text ) );
+                channel.writeAndFlush( binary
+                    ? new BinaryWebSocketFrame( Unpooled.wrappedBuffer( StringUtil.encodeString( text ) ) )
+                    : new TextWebSocketFrame( text ) );
                 return null;
             }
             case 2:
