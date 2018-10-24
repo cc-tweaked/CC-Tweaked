@@ -28,6 +28,8 @@ to see the full changes, but here's a couple of the more interesting changes:
    computers remotely.
  - Add full-block wired modems, allowing one to wrap non-solid peripherals (such as turtles, or chests if Plethora is
    installed).
+ - Extended binary file handles. They support file seeking, and reading new lines, allowing full (and accurate)
+   emulation of the standard Lua `io` library.
 
 ## Relation to CCTweaks?
 This mod has nothing to do with CCTweaks, though there is no denying the name is a throwback to it. That being said,
@@ -36,7 +38,7 @@ computers.
 
 ## Contributing
 Any contribution is welcome, be that using the mod, reporting bugs or contributing code. If you do wish to contribute
-code, do consider submitting it to the ComputerCraft repository instead.
+code, do consider submitting it to the ComputerCraft repository first.
 
 That being said, in order to start helping develop CC:T, you'll need to follow these steps:
 
