@@ -4,45 +4,32 @@ import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
 
 import javax.annotation.Nonnull;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.Closeable;
+import java.io.IOException;
+import java.nio.channels.Channels;
+import java.nio.channels.ReadableByteChannel;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
+import static dan200.computercraft.core.apis.ArgumentHelper.optBoolean;
 import static dan200.computercraft.core.apis.ArgumentHelper.optInt;
 
-public class EncodedInputHandle extends HandleGeneric
+public class EncodedReadableHandle extends HandleGeneric
 {
     private static final int BUFFER_SIZE = 8192;
 
-    private final BufferedReader m_reader;
+    private BufferedReader m_reader;
 
-    public EncodedInputHandle( BufferedReader reader )
+    public EncodedReadableHandle( @Nonnull BufferedReader reader, @Nonnull Closeable closable )
     {
-        super( reader );
+        super( closable );
         this.m_reader = reader;
     }
 
-    public EncodedInputHandle( InputStream stream )
+    public EncodedReadableHandle( @Nonnull BufferedReader reader )
     {
-        this( stream, "UTF-8" );
-    }
-
-    public EncodedInputHandle( InputStream stream, String encoding )
-    {
-        this( makeReader( stream, encoding ) );
-    }
-
-    private static BufferedReader makeReader( InputStream stream, String encoding )
-    {
-        if( encoding == null ) encoding = "UTF-8";
-        InputStreamReader streamReader;
-        try
-        {
-            streamReader = new InputStreamReader( stream, encoding );
-        }
-        catch( UnsupportedEncodingException e )
-        {
-            streamReader = new InputStreamReader( stream );
-        }
-        return new BufferedReader( streamReader );
+        this( reader, reader );
     }
 
     @Nonnull
@@ -63,13 +50,17 @@ public class EncodedInputHandle extends HandleGeneric
         switch( method )
         {
             case 0:
+            {
                 // readLine
                 checkOpen();
+                boolean withTrailing = optBoolean( args, 0, false );
                 try
                 {
                     String line = m_reader.readLine();
                     if( line != null )
                     {
+                        // While this is technically inaccurate, it's better than nothing
+                        if( withTrailing ) line += "\n";
                         return new Object[] { line };
                     }
                     else
@@ -81,6 +72,7 @@ public class EncodedInputHandle extends HandleGeneric
                 {
                     return null;
                 }
+            }
             case 1:
                 // readAll
                 checkOpen();
@@ -108,7 +100,6 @@ public class EncodedInputHandle extends HandleGeneric
                 close();
                 return null;
             case 3:
-                // read
                 checkOpen();
                 try
                 {
@@ -160,5 +151,15 @@ public class EncodedInputHandle extends HandleGeneric
             default:
                 return null;
         }
+    }
+
+    public static BufferedReader openUtf8( ReadableByteChannel channel )
+    {
+        return open( channel, StandardCharsets.UTF_8 );
+    }
+
+    public static BufferedReader open( ReadableByteChannel channel, Charset charset )
+    {
+        return new BufferedReader( Channels.newReader( channel, charset.newDecoder(), -1 ) );
     }
 }

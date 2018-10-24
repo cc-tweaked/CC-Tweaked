@@ -4,41 +4,27 @@ import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
 
 import javax.annotation.Nonnull;
-import java.io.*;
+import java.io.BufferedWriter;
+import java.io.Closeable;
+import java.io.IOException;
+import java.nio.channels.Channels;
+import java.nio.channels.WritableByteChannel;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
-public class EncodedOutputHandle extends HandleGeneric
+public class EncodedWritableHandle extends HandleGeneric
 {
-    private final BufferedWriter m_writer;
+    private BufferedWriter m_writer;
 
-    public EncodedOutputHandle( BufferedWriter writer )
+    public EncodedWritableHandle( @Nonnull BufferedWriter writer, @Nonnull Closeable closable )
     {
-        super( writer );
+        super( closable );
         this.m_writer = writer;
     }
 
-    public EncodedOutputHandle( OutputStream stream )
+    public EncodedWritableHandle( @Nonnull BufferedWriter writer )
     {
-        this( stream, "UTF-8" );
-    }
-
-    public EncodedOutputHandle( OutputStream stream, String encoding )
-    {
-        this( makeWriter( stream, encoding ) );
-    }
-
-    private static BufferedWriter makeWriter( OutputStream stream, String encoding )
-    {
-        if( encoding == null ) encoding = "UTF-8";
-        OutputStreamWriter streamWriter;
-        try
-        {
-            streamWriter = new OutputStreamWriter( stream, encoding );
-        }
-        catch( UnsupportedEncodingException e )
-        {
-            streamWriter = new OutputStreamWriter( stream );
-        }
-        return new BufferedWriter( streamWriter );
+        this( writer, writer );
     }
 
     @Nonnull
@@ -124,5 +110,16 @@ public class EncodedOutputHandle extends HandleGeneric
             default:
                 return null;
         }
+    }
+
+
+    public static BufferedWriter openUtf8( WritableByteChannel channel )
+    {
+        return open( channel, StandardCharsets.UTF_8 );
+    }
+
+    public static BufferedWriter open( WritableByteChannel channel, Charset charset )
+    {
+        return new BufferedWriter( Channels.newWriter( channel, charset.newEncoder(), -1 ) );
     }
 }

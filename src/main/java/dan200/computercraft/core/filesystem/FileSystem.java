@@ -6,13 +6,23 @@
 
 package dan200.computercraft.core.filesystem;
 
+import com.google.common.io.ByteStreams;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.filesystem.IFileSystem;
 import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.api.filesystem.IWritableMount;
 
-import java.io.*;
+import javax.annotation.Nonnull;
+import java.io.Closeable;
+import java.io.IOException;
+import java.lang.ref.Reference;
+import java.lang.ref.ReferenceQueue;
+import java.lang.ref.WeakReference;
+import java.nio.channels.ReadableByteChannel;
+import java.nio.channels.WritableByteChannel;
+import java.nio.file.AccessDeniedException;
 import java.util.*;
+import java.util.function.Function;
 import java.util.regex.Pattern;
 
 public class FileSystem
@@ -146,14 +156,14 @@ public class FileSystem
             }
         }
     
-        public InputStream openForRead( String path ) throws FileSystemException
+        public ReadableByteChannel openForRead( String path ) throws FileSystemException
         {
             path = toLocal( path );
             try
             {
                 if( m_mount.exists( path ) && !m_mount.isDirectory( path ) )
                 {
-                    return m_mount.openForRead( path );
+                    return m_mount.openChannelForRead( path );
                 }
                 else
                 {
@@ -209,13 +219,17 @@ public class FileSystem
                     m_writableMount.delete( path );
                 }
             }
+            catch( AccessDeniedException e )
+            {
+                throw new FileSystemException( "Access denied" );
+            }
             catch( IOException e )
             {
                 throw new FileSystemException( e.getMessage() );
             }
         }
     
-        public OutputStream openForWrite( String path ) throws FileSystemException
+        public WritableByteChannel openForWrite( String path ) throws FileSystemException
         {
             if( m_writableMount == null )
             {
@@ -238,8 +252,12 @@ public class FileSystem
                             m_writableMount.makeDirectory( dir );
                         }
                     }
-                    return m_writableMount.openForWrite( path );
+                    return m_writableMount.openStreamForWrite( path );
                 }
+            }
+            catch( AccessDeniedException e )
+            {
+                throw new FileSystemException( "Access denied" );
             }
             catch( IOException e )
             {
@@ -247,7 +265,7 @@ public class FileSystem
             }
         }
         
-        public OutputStream openForAppend( String path ) throws FileSystemException
+        public WritableByteChannel openForAppend( String path ) throws FileSystemException
         {
             if( m_writableMount == null )
             {
@@ -266,7 +284,7 @@ public class FileSystem
                             m_writableMount.makeDirectory( dir );
                         }
                     }
-                    return m_writableMount.openForWrite( path );
+                    return m_writableMount.openStreamForWrite( path );
                 }
                 else if( m_mount.isDirectory( path ) )
                 {
@@ -274,8 +292,12 @@ public class FileSystem
                 }
                 else
                 {
-                    return m_writableMount.openForAppend( path );
+                    return m_writableMount.openStreamForAppend( path );
                 }
+            }
+            catch( AccessDeniedException e )
+            {
+                throw new FileSystemException( "Access denied" );
             }
             catch( IOException e )
             {
@@ -291,10 +313,12 @@ public class FileSystem
         }
     }
 
-    private final FileSystemMount m_wrapper = new FileSystemMount( this );
+    private final FileSystemWrapperMount m_wrapper = new FileSystemWrapperMount( this );
     private final Map<String, MountWrapper> m_mounts = new HashMap<>();
-    private final Set<Closeable> m_openFiles = Collections.newSetFromMap( new WeakHashMap<Closeable, Boolean>() );
-    
+
+    private final HashMap<WeakReference<FileSystemWrapper<?>>, Closeable> m_openFiles = new HashMap<>();
+    private final ReferenceQueue<FileSystemWrapper<?>> m_openFileQueue = new ReferenceQueue<>();
+
     public FileSystem( String rootLabel, IMount rootMount ) throws FileSystemException
     {
         mount( rootLabel, "", rootMount );
@@ -310,24 +334,15 @@ public class FileSystem
         // Close all dangling open files
         synchronized( m_openFiles )
         {
-            for( Closeable file : m_openFiles )
-            {
-                try {
-                    file.close();
-                } catch (IOException e) {
-                    // Ignore
-                }
-            }
+            for( Closeable file : m_openFiles.values() ) closeQuietly( file );
             m_openFiles.clear();
+            while( m_openFileQueue.poll() != null ) ;
         }
     }
     
     public synchronized void mount( String label, String location, IMount mount ) throws FileSystemException
     {
-        if( mount == null )
-        {
-            throw new NullPointerException();
-        }
+        if( mount == null ) throw new NullPointerException();
         location = sanitizePath( location );
         if( location.contains( ".." ) ) {
             throw new FileSystemException( "Cannot mount below the root" );
@@ -348,24 +363,18 @@ public class FileSystem
         }                    
         mount( new MountWrapper( label, location, mount ) );
     }
-    
+
     private synchronized void mount( MountWrapper wrapper )
     {
         String location = wrapper.getLocation();
-        if( m_mounts.containsKey( location ) )
-        {
-            m_mounts.remove( location );
-        }
+        m_mounts.remove( location );
         m_mounts.put( location, wrapper );
     }
         
     public synchronized void unmount( String path )
     {
         path = sanitizePath( path );
-        if( m_mounts.containsKey( path ) )
-        {
-            m_mounts.remove( path );
-        }
+        m_mounts.remove( path );
     }
         
     public synchronized String combine( String path, String childPath )
@@ -599,108 +608,85 @@ public class FileSystem
         else
         {
             // Copy a file:
-            InputStream source = null;
-            OutputStream destination = null;
-            try
+            try( ReadableByteChannel source = sourceMount.openForRead( sourcePath );
+                 WritableByteChannel destination = destinationMount.openForWrite( destinationPath ) )
             {
-                // Open both files
-                source = sourceMount.openForRead( sourcePath );
-                destination = destinationMount.openForWrite( destinationPath );
-            
                 // Copy bytes as fast as we can
-                byte[] buffer = new byte[1024];
-                while( true )
-                {
-                    int bytesRead = source.read( buffer );
-                    if( bytesRead >= 0 )
-                    {
-                        destination.write( buffer, 0, bytesRead );
-                    }
-                    else
-                    {
-                        break;
-                    }
-                }
+                ByteStreams.copy( source, destination );
+            }
+            catch( AccessDeniedException e )
+            {
+                throw new FileSystemException( "Access denied" );
             }
             catch( IOException e )
             {
                 throw new FileSystemException( e.getMessage() );
             }
-            finally
+        }
+    }
+
+    private void cleanup()
+    {
+        synchronized( m_openFiles )
+        {
+            Reference<?> ref;
+            while( (ref = m_openFileQueue.poll()) != null )
             {
-                // Close both files
-                if( source != null )
-                {
-                    try {
-                        source.close();
-                    } catch( IOException e ) {
-                        // nobody cares
-                    }
-                }
-                if( destination != null )
-                {
-                    try {
-                        destination.close();
-                    } catch( IOException e ) {
-                        // nobody cares
-                    }
-                }
+                Closeable file = m_openFiles.remove( ref );
+                if( file != null ) closeQuietly( file );
             }
         }
     }
 
-    private synchronized <T> T openFile( T file, Closeable handle ) throws FileSystemException
+    private synchronized <T extends Closeable> FileSystemWrapper<T> openFile( @Nonnull T file ) throws FileSystemException
     {
         synchronized( m_openFiles )
         {
             if( ComputerCraft.maximumFilesOpen > 0 &&
                 m_openFiles.size() >= ComputerCraft.maximumFilesOpen )
             {
-                if( handle != null )
-                {
-                    try {
-                        handle.close();
-                    } catch ( IOException ignored ) {
-                        // shrug
-                    }
-                }
-                throw new FileSystemException("Too many files already open");
+                closeQuietly( file );
+                throw new FileSystemException( "Too many files already open" );
             }
 
-            m_openFiles.add( handle );
-            return file;
+            FileSystemWrapper<T> wrapper = new FileSystemWrapper<>( this, file, m_openFileQueue );
+            m_openFiles.put( wrapper.self, file );
+            return wrapper;
         }
     }
 
-    private synchronized void closeFile( Closeable handle ) throws IOException
+    synchronized void removeFile( FileSystemWrapper<?> handle ) 
     {
         synchronized( m_openFiles )
         {
-            m_openFiles.remove( handle );
-            handle.close();
+            m_openFiles.remove( handle.self );
         }
     }
-    
-    public synchronized InputStream openForRead( String path ) throws FileSystemException
+
+    public synchronized <T extends Closeable> FileSystemWrapper<T> openForRead( String path, Function<ReadableByteChannel, T> open ) throws FileSystemException
     {
-        path = sanitizePath ( path );
+        cleanup();
+
+        path = sanitizePath( path );
         MountWrapper mount = getMount( path );
-        InputStream stream = mount.openForRead( path );
+        ReadableByteChannel stream = mount.openForRead( path );
         if( stream != null )
         {
-            return openFile( new ClosingInputStream( stream ), stream );
+            return openFile( open.apply( stream ) );
         }
         return null;
     }
 
-    public synchronized OutputStream openForWrite( String path, boolean append ) throws FileSystemException
+    public synchronized <T extends Closeable> FileSystemWrapper<T> openForWrite( String path, boolean append, Function<WritableByteChannel, T> open ) throws FileSystemException
     {
-        path = sanitizePath ( path );
+        cleanup();
+
+        path = sanitizePath( path );
         MountWrapper mount = getMount( path );
-        OutputStream stream = append ? mount.openForAppend( path ) : mount.openForWrite( path );
+        WritableByteChannel stream = append ? mount.openForAppend( path ) : mount.openForWrite( path );
         if( stream != null )
         {
-            return openFile( new ClosingOutputStream( stream ), stream );
+            return openFile( open.apply( stream ) );
         }
         return null;
     }
@@ -865,33 +851,14 @@ public class FileSystem
         }
     }
 
-    private class ClosingInputStream extends FilterInputStream
+    private static void closeQuietly( Closeable c )
     {
-        protected ClosingInputStream( InputStream in )
+        try
         {
-            super( in );
+            c.close();
         }
-
-        @Override
-        public void close() throws IOException
+        catch( IOException ignored )
         {
-            super.close();
-            closeFile( in );
-        }
-    }
-
-    private class ClosingOutputStream extends FilterOutputStream
-    {
-        protected ClosingOutputStream( OutputStream out )
-        {
-            super( out );
-        }
-
-        @Override
-        public void close() throws IOException
-        {
-            super.close();
-            closeFile( out );
         }
     }
 }

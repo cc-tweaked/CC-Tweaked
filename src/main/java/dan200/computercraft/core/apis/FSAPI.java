@@ -9,19 +9,23 @@ package dan200.computercraft.core.apis;
 import dan200.computercraft.api.lua.ILuaAPI;
 import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
-import dan200.computercraft.core.apis.handles.BinaryInputHandle;
-import dan200.computercraft.core.apis.handles.BinaryOutputHandle;
-import dan200.computercraft.core.apis.handles.EncodedInputHandle;
-import dan200.computercraft.core.apis.handles.EncodedOutputHandle;
+import dan200.computercraft.core.apis.handles.BinaryReadableHandle;
+import dan200.computercraft.core.apis.handles.BinaryWritableHandle;
+import dan200.computercraft.core.apis.handles.EncodedReadableHandle;
+import dan200.computercraft.core.apis.handles.EncodedWritableHandle;
 import dan200.computercraft.core.filesystem.FileSystem;
 import dan200.computercraft.core.filesystem.FileSystemException;
+import dan200.computercraft.core.filesystem.FileSystemWrapper;
 import dan200.computercraft.core.tracking.TrackingField;
 
 import javax.annotation.Nonnull;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.nio.channels.ReadableByteChannel;
+import java.nio.channels.WritableByteChannel;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
 
 import static dan200.computercraft.core.apis.ArgumentHelper.getString;
 
@@ -221,38 +225,38 @@ public class FSAPI implements ILuaAPI
                         case "r":
                         {
                             // Open the file for reading, then create a wrapper around the reader
-                            InputStream reader = m_fileSystem.openForRead( path );
-                            return new Object[] { new EncodedInputHandle( reader ) };
+                            FileSystemWrapper<BufferedReader> reader = m_fileSystem.openForRead( path, EncodedReadableHandle::openUtf8 );
+                            return new Object[] { new EncodedReadableHandle( reader.get(), reader ) };
                         }
                         case "w":
                         {
                             // Open the file for writing, then create a wrapper around the writer
-                            OutputStream writer = m_fileSystem.openForWrite( path, false );
-                            return new Object[] { new EncodedOutputHandle( writer ) };
+                            FileSystemWrapper<BufferedWriter> writer = m_fileSystem.openForWrite( path, false, EncodedWritableHandle::openUtf8 );
+                            return new Object[] { new EncodedWritableHandle( writer.get(), writer ) };
                         }
                         case "a":
                         {
                             // Open the file for appending, then create a wrapper around the writer
-                            OutputStream writer = m_fileSystem.openForWrite( path, true );
-                            return new Object[] { new EncodedOutputHandle( writer ) };
+                            FileSystemWrapper<BufferedWriter> writer = m_fileSystem.openForWrite( path, true, EncodedWritableHandle::openUtf8 );
+                            return new Object[] { new EncodedWritableHandle( writer.get(), writer ) };
                         }
                         case "rb":
                         {
                             // Open the file for binary reading, then create a wrapper around the reader
-                            InputStream reader = m_fileSystem.openForRead( path );
-                            return new Object[] { new BinaryInputHandle( reader ) };
+                            FileSystemWrapper<ReadableByteChannel> reader = m_fileSystem.openForRead( path, Function.identity() );
+                            return new Object[] { new BinaryReadableHandle( reader.get(), reader ) };
                         }
                         case "wb":
                         {
                             // Open the file for binary writing, then create a wrapper around the writer
-                            OutputStream writer = m_fileSystem.openForWrite( path, false );
-                            return new Object[] { new BinaryOutputHandle( writer ) };
+                            FileSystemWrapper<WritableByteChannel> writer = m_fileSystem.openForWrite( path, false, Function.identity() );
+                            return new Object[] { new BinaryWritableHandle( writer.get(), writer ) };
                         }
                         case "ab":
                         {
                             // Open the file for binary appending, then create a wrapper around the reader
-                            OutputStream writer = m_fileSystem.openForWrite( path, true );
-                            return new Object[] { new BinaryOutputHandle( writer ) };
+                            FileSystemWrapper<WritableByteChannel> writer = m_fileSystem.openForWrite( path, true, Function.identity() );
+                            return new Object[] { new BinaryWritableHandle( writer.get(), writer ) };
                         }
                         default:
                             throw new LuaException( "Unsupported mode" );

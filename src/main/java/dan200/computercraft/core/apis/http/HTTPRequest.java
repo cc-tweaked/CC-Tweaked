@@ -13,13 +13,17 @@ import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.ILuaObject;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.core.apis.IAPIEnvironment;
-import dan200.computercraft.core.apis.handles.BinaryInputHandle;
-import dan200.computercraft.core.apis.handles.EncodedInputHandle;
+import dan200.computercraft.core.apis.handles.ArrayByteChannel;
+import dan200.computercraft.core.apis.handles.BinaryReadableHandle;
+import dan200.computercraft.core.apis.handles.EncodedReadableHandle;
 import dan200.computercraft.core.tracking.TrackingField;
 
 import javax.annotation.Nonnull;
 import java.io.*;
 import java.net.*;
+import java.nio.channels.SeekableByteChannel;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -182,6 +186,10 @@ public class HTTPRequest implements Runnable
             byte[] result = ByteStreams.toByteArray( is );
             is.close();
 
+            String encoding = connection.getContentEncoding();
+            Charset charset = encoding != null && Charset.isSupported( encoding )
+                ? Charset.forName( encoding ) : StandardCharsets.UTF_8;
+
             // We've got some sort of response, so let's build a resulting object.
             Joiner joiner = Joiner.on( ',' );
             Map<String, String> headers = new HashMap<>();
@@ -193,9 +201,11 @@ public class HTTPRequest implements Runnable
             m_environment.addTrackingChange( TrackingField.HTTP_DOWNLOAD,
                 getHeaderSize( connection.getHeaderFields() ) + result.length );
 
-            InputStream contents = new ByteArrayInputStream( result );
+            SeekableByteChannel contents = new ArrayByteChannel( result );
             ILuaObject stream = wrapStream(
-                m_binary ? new BinaryInputHandle( contents ) : new EncodedInputHandle( contents, connection.getContentEncoding() ),
+                m_binary
+                    ? new BinaryReadableHandle( contents )
+                    : new EncodedReadableHandle( EncodedReadableHandle.open( contents, charset ) ),
                 connection.getResponseCode(), headers
             );
 

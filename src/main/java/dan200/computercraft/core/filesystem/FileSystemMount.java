@@ -1,185 +1,132 @@
 package dan200.computercraft.core.filesystem;
 
-import dan200.computercraft.api.filesystem.IFileSystem;
+import dan200.computercraft.api.filesystem.IMount;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.Collections;
-import java.util.List;
+import java.nio.channels.ReadableByteChannel;
+import java.nio.file.FileSystem;
+import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.util.*;
+import java.util.stream.Stream;
 
-public class FileSystemMount implements IFileSystem
+public class FileSystemMount implements IMount
 {
-    private final FileSystem m_filesystem;
+    private final Entry rootEntry;
 
-    public FileSystemMount( FileSystem m_filesystem )
+    public FileSystemMount( FileSystem fileSystem, String root ) throws IOException
     {
-        this.m_filesystem = m_filesystem;
-    }
+        Path rootPath = fileSystem.getPath( root );
+        rootEntry = new Entry( "", rootPath );
 
-    @Override
-    public void makeDirectory( @Nonnull String path ) throws IOException
-    {
-        try
+        Queue<Entry> entries = new ArrayDeque<>();
+        entries.add( rootEntry );
+        while( !entries.isEmpty() )
         {
-            m_filesystem.makeDir( path );
-        }
-        catch( FileSystemException e )
-        {
-            throw new IOException( e.getMessage() );
-        }
-    }
-
-    @Override
-    public void delete( @Nonnull String path ) throws IOException
-    {
-        try
-        {
-            m_filesystem.delete( path );
-        }
-        catch( FileSystemException e )
-        {
-            throw new IOException( e.getMessage() );
-        }
-    }
-
-    @Nonnull
-    @Override
-    public OutputStream openForWrite( @Nonnull String path ) throws IOException
-    {
-        try
-        {
-            return m_filesystem.openForWrite( path, false );
-        }
-        catch( FileSystemException e )
-        {
-            throw new IOException( e.getMessage() );
-        }
-    }
-
-    @Nonnull
-    @Override
-    public OutputStream openForAppend( @Nonnull String path ) throws IOException
-    {
-        try
-        {
-            return m_filesystem.openForWrite( path, true );
-        }
-        catch( FileSystemException e )
-        {
-            throw new IOException( e.getMessage() );
+            Entry entry = entries.remove();
+            try( Stream<Path> childStream = Files.list( entry.path ) )
+            {
+                Iterator<Path> children = childStream.iterator();
+                while( children.hasNext() )
+                {
+                    Path childPath = children.next();
+                    Entry child = new Entry( childPath.getFileName().toString(), childPath );
+                    entry.children.put( child.name, child );
+                    if( child.directory ) entries.add( child );
+                }
+            }
         }
     }
 
     @Override
-    public long getRemainingSpace() throws IOException
+    public boolean exists( @Nonnull String path )
     {
-        try
-        {
-            return m_filesystem.getFreeSpace( "/" );
-        }
-        catch( FileSystemException e )
-        {
-            throw new IOException( e.getMessage() );
-        }
+        return getFile( path ) != null;
     }
 
     @Override
-    public boolean exists( @Nonnull String path ) throws IOException
+    public boolean isDirectory( @Nonnull String path )
     {
-        try
-        {
-            return m_filesystem.exists( path );
-        }
-        catch( FileSystemException e )
-        {
-            throw new IOException( e.getMessage() );
-        }
-    }
-
-    @Override
-    public boolean isDirectory( @Nonnull String path ) throws IOException
-    {
-        try
-        {
-            return m_filesystem.exists( path );
-        }
-        catch( FileSystemException e )
-        {
-            throw new IOException( e.getMessage() );
-        }
+        Entry entry = getFile( path );
+        return entry != null && entry.directory;
     }
 
     @Override
     public void list( @Nonnull String path, @Nonnull List<String> contents ) throws IOException
     {
-        try
-        {
-            Collections.addAll( contents, m_filesystem.list( path ) );
-        }
-        catch( FileSystemException e )
-        {
-            throw new IOException( e.getMessage() );
-        }
+        Entry entry = getFile( path );
+        if( entry == null || !entry.directory ) throw new IOException( "/" + path + ": Not a directory" );
+
+        contents.addAll( entry.children.keySet() );
     }
 
     @Override
     public long getSize( @Nonnull String path ) throws IOException
     {
-        try
-        {
-            return m_filesystem.getSize( path );
-        }
-        catch( FileSystemException e )
-        {
-            throw new IOException( e.getMessage() );
-        }
+        Entry file = getFile( path );
+        if( file == null ) throw new IOException( "/" + path + ": No such file" );
+        return file.size;
     }
 
     @Nonnull
     @Override
+    @Deprecated
     public InputStream openForRead( @Nonnull String path ) throws IOException
     {
-        try
-        {
-            return m_filesystem.openForRead( path );
-        }
-        catch( FileSystemException e )
-        {
-            throw new IOException( e.getMessage() );
-        }
+        Entry file = getFile( path );
+        if( file == null || file.directory ) throw new IOException( "/" + path + ": No such file" );
+
+        return Files.newInputStream( file.path, StandardOpenOption.READ );
     }
 
+    @Nonnull
     @Override
-    public String combine( String path, String child )
+    public ReadableByteChannel openChannelForRead( @Nonnull String path ) throws IOException
     {
-        return m_filesystem.combine( path, child );
+        Entry file = getFile( path );
+        if( file == null || file.directory ) throw new IOException( "/" + path + ": No such file" );
+
+        return Files.newByteChannel( file.path, StandardOpenOption.READ );
     }
 
-    @Override
-    public void copy( String from, String to ) throws IOException
+    private Entry getFile( String path )
     {
-        try
+        if( path.equals( "" ) ) return rootEntry;
+        if( !path.contains( "/" ) ) return rootEntry.children.get( path );
+
+        String[] components = path.split( "/" );
+        Entry entry = rootEntry;
+        for( String component : components )
         {
-            m_filesystem.copy( from, to );
+            if( entry == null || entry.children == null ) return null;
+            entry = entry.children.get( component );
         }
-        catch( FileSystemException e )
-        {
-            throw new IOException( e.getMessage() );
-        }
+
+        return entry;
     }
 
-    @Override
-    public void move( String from, String to ) throws IOException
+    private static class Entry
     {
-        try
+        final String name;
+        final Path path;
+
+        final boolean directory;
+        final long size;
+        final Map<String, Entry> children;
+
+        private Entry( String name, Path path ) throws IOException
         {
-            m_filesystem.move( from, to );
-        }
-        catch( FileSystemException e )
-        {
-            throw new IOException( e.getMessage() );
+            if( name.endsWith( "/" ) || name.endsWith( "\\" ) ) name = name.substring( 0, name.length() - 1 );
+
+            this.name = name;
+            this.path = path;
+
+            BasicFileAttributes attributes = Files.readAttributes( path, BasicFileAttributes.class, LinkOption.NOFOLLOW_LINKS );
+            this.directory = attributes.isDirectory();
+            this.size = directory ? 0 : attributes.size();
+            this.children = directory ? new HashMap<>() : null;
         }
     }
 }

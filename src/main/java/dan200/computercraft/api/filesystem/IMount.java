@@ -13,6 +13,8 @@ import net.minecraft.world.World;
 import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.channels.Channels;
+import java.nio.channels.ReadableByteChannel;
 import java.util.List;
 
 /**
@@ -72,7 +74,25 @@ public interface IMount
      * @param path A file path in normalised format, relative to the mount location. ie: "programs/myprogram".
      * @return A stream representing the contents of the file.
      * @throws IOException If the file does not exist, or could not be opened.
+     * @deprecated Use {@link #openChannelForRead(String)} instead
      */
     @Nonnull
+    @Deprecated
     InputStream openForRead( @Nonnull String path ) throws IOException;
+
+    /**
+     * Opens a file with a given path, and returns an {@link ReadableByteChannel} representing its contents.
+     *
+     * @param path A file path in normalised format, relative to the mount location. ie: "programs/myprogram".
+     * @return A channel representing the contents of the file. If the channel implements
+     * {@link java.nio.channels.SeekableByteChannel}, one will be able to seek to arbitrary positions when using binary
+     * mode.
+     * @throws IOException If the file does not exist, or could not be opened.
+     */
+    @Nonnull
+    @SuppressWarnings("deprecation")
+    default ReadableByteChannel openChannelForRead( @Nonnull String path ) throws IOException
+    {
+        return Channels.newChannel( openForRead( path ) );
+    }
 }

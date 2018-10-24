@@ -1,33 +1,45 @@
 package dan200.computercraft.core.apis.handles;
 
+import com.google.common.collect.ObjectArrays;
 import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.core.apis.ArgumentHelper;
 import dan200.computercraft.shared.util.StringUtil;
 
 import javax.annotation.Nonnull;
+import java.io.Closeable;
 import java.io.IOException;
-import java.io.OutputStream;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
+import java.nio.channels.SeekableByteChannel;
+import java.nio.channels.WritableByteChannel;
 
-public class BinaryOutputHandle extends HandleGeneric
+public class BinaryWritableHandle extends HandleGeneric
 {
-    private final OutputStream m_writer;
+    private static final String[] METHOD_NAMES = new String[] { "write", "flush", "close" };
+    private static final String[] METHOD_SEEK_NAMES = ObjectArrays.concat( METHOD_NAMES, new String[] { "seek" }, String.class );
 
-    public BinaryOutputHandle( OutputStream writer )
+    private final WritableByteChannel m_writer;
+    private final SeekableByteChannel m_seekable;
+    private final ByteBuffer single = ByteBuffer.allocate( 1 );
+
+    public BinaryWritableHandle( WritableByteChannel channel, Closeable closeable )
     {
-        super( writer );
-        this.m_writer = writer;
+        super( closeable );
+        this.m_writer = channel;
+        this.m_seekable = channel instanceof SeekableByteChannel ? (SeekableByteChannel) channel : null;
+    }
+
+    public BinaryWritableHandle( WritableByteChannel channel )
+    {
+        this( channel, channel );
     }
 
     @Nonnull
     @Override
     public String[] getMethodNames()
     {
-        return new String[] {
-            "write",
-            "flush",
-            "close",
-        };
+        return m_seekable == null ? METHOD_NAMES : METHOD_SEEK_NAMES;
     }
 
     @Override
@@ -43,12 +55,16 @@ public class BinaryOutputHandle extends HandleGeneric
                     if( args.length > 0 && args[ 0 ] instanceof Number )
                     {
                         int number = ((Number) args[ 0 ]).intValue();
-                        m_writer.write( number );
+                        single.clear();
+                        single.put( (byte) number );
+                        single.flip();
+
+                        m_writer.write( single );
                     }
                     else if( args.length > 0 && args[ 0 ] instanceof String )
                     {
                         String value = (String) args[ 0 ];
-                        m_writer.write( StringUtil.encodeString( value ) );
+                        m_writer.write( ByteBuffer.wrap( StringUtil.encodeString( value ) ) );
                     }
                     else
                     {
@@ -65,7 +81,9 @@ public class BinaryOutputHandle extends HandleGeneric
                 checkOpen();
                 try
                 {
-                    m_writer.flush();
+                    // Technically this is not needed
+                    if( m_writer instanceof FileChannel ) ((FileChannel) m_writer).force( false );
+
                     return null;
                 }
                 catch( IOException e )
@@ -76,6 +94,10 @@ public class BinaryOutputHandle extends HandleGeneric
                 //close
                 close();
                 return null;
+            case 3:
+                // seek
+                checkOpen();
+                return handleSeek( m_seekable, args );
             default:
                 return null;
         }

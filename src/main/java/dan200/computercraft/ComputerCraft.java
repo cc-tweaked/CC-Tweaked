@@ -26,7 +26,7 @@ import dan200.computercraft.api.turtle.event.TurtleAction;
 import dan200.computercraft.core.apis.AddressPredicate;
 import dan200.computercraft.core.filesystem.ComboMount;
 import dan200.computercraft.core.filesystem.FileMount;
-import dan200.computercraft.core.filesystem.JarMount;
+import dan200.computercraft.core.filesystem.FileSystemMount;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.core.tracking.Tracking;
 import dan200.computercraft.shared.command.CommandComputer;
@@ -97,6 +97,9 @@ import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
+import java.nio.file.ProviderNotFoundException;
 import java.util.*;
 import java.util.function.Function;
 import java.util.zip.ZipEntry;
@@ -922,11 +925,12 @@ public class ComputerCraft
         {
             try
             {
-                IMount jarMount = new JarMount( modJar, subPath );
-                mounts.add( jarMount );
+                FileSystem fs = FileSystems.newFileSystem( modJar.toPath(), ComputerCraft.class.getClassLoader() );
+                mounts.add( new FileSystemMount( fs, subPath ) );
             }
-            catch( IOException e )
+            catch( IOException | ProviderNotFoundException | ServiceConfigurationError e )
             {
+                ComputerCraft.log.error( "Could not load mount from mod jar", e );
                 // Ignore
             }
         }
@@ -944,7 +948,7 @@ public class ComputerCraft
                     if( !resourcePack.isDirectory() )
                     {
                         // Mount a resource pack from a jar
-                        IMount resourcePackMount = new JarMount( resourcePack, subPath );
+                        IMount resourcePackMount = new FileSystemMount( FileSystems.getFileSystem( resourcePack.toURI() ), subPath );
                         mounts.add( resourcePackMount );
                     }
                     else
@@ -960,7 +964,7 @@ public class ComputerCraft
                 }
                 catch( IOException e )
                 {
-                    // Ignore
+                    ComputerCraft.log.error( "Could not load resource pack '" + resourcePack1 + "'", e );
                 }
             }
         }
@@ -1109,7 +1113,7 @@ public class ComputerCraft
     {
         return turtleProxy.getTurtleUpgrade( id );
     }
-
+    
     public static ITurtleUpgrade getTurtleUpgrade( int legacyID )
     {
         return turtleProxy.getTurtleUpgrade( legacyID );
