@@ -252,7 +252,7 @@ public class FileSystem
                             m_writableMount.makeDirectory( dir );
                         }
                     }
-                    return m_writableMount.openStreamForWrite( path );
+                    return m_writableMount.openChannelForWrite( path );
                 }
             }
             catch( AccessDeniedException e )
@@ -284,7 +284,7 @@ public class FileSystem
                             m_writableMount.makeDirectory( dir );
                         }
                     }
-                    return m_writableMount.openStreamForWrite( path );
+                    return m_writableMount.openChannelForWrite( path );
                 }
                 else if( m_mount.isDirectory( path ) )
                 {
@@ -292,7 +292,7 @@ public class FileSystem
                 }
                 else
                 {
-                    return m_writableMount.openStreamForAppend( path );
+                    return m_writableMount.openChannelForAppend( path );
                 }
             }
             catch( AccessDeniedException e )
@@ -669,10 +669,10 @@ public class FileSystem
 
         path = sanitizePath( path );
         MountWrapper mount = getMount( path );
-        ReadableByteChannel stream = mount.openForRead( path );
-        if( stream != null )
+        ReadableByteChannel channel = mount.openForRead( path );
+        if( channel != null )
         {
-            return openFile( open.apply( stream ) );
+            return openFile( open.apply( channel ) );
         }
         return null;
     }
@@ -683,10 +683,10 @@ public class FileSystem
 
         path = sanitizePath( path );
         MountWrapper mount = getMount( path );
-        WritableByteChannel stream = append ? mount.openForAppend( path ) : mount.openForWrite( path );
-        if( stream != null )
+        WritableByteChannel channel = append ? mount.openForAppend( path ) : mount.openForWrite( path );
+        if( channel != null )
         {
-            return openFile( open.apply( stream ) );
+            return openFile( open.apply( channel ) );
         }
         return null;
     }

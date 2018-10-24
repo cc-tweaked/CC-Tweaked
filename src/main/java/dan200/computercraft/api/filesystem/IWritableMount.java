@@ -52,7 +52,7 @@ public interface IWritableMount extends IMount
      * @param path A file path in normalised format, relative to the mount location. ie: "programs/myprogram".
      * @return A stream for writing to
      * @throws IOException If the file could not be opened for writing.
-     * @deprecated Use {@link #openStreamForWrite(String)} instead.
+     * @deprecated Use {@link #openChannelForWrite(String)} instead.
      */
     @Nonnull
     @Deprecated
@@ -68,7 +68,7 @@ public interface IWritableMount extends IMount
      */
     @Nonnull
     @SuppressWarnings("deprecation")
-    default WritableByteChannel openStreamForWrite( @Nonnull String path ) throws IOException
+    default WritableByteChannel openChannelForWrite( @Nonnull String path ) throws IOException
     {
         return Channels.newChannel( openForWrite( path ) );
     }
@@ -79,7 +79,7 @@ public interface IWritableMount extends IMount
      * @param path A file path in normalised format, relative to the mount location. ie: "programs/myprogram".
      * @return A stream for writing to.
      * @throws IOException If the file could not be opened for writing.
-     * @deprecated Use {@link #openStreamForAppend(String)} instead.
+     * @deprecated Use {@link #openChannelForAppend(String)} instead.
      */
     @Nonnull
     @Deprecated
@@ -95,7 +95,7 @@ public interface IWritableMount extends IMount
      */
     @Nonnull
     @SuppressWarnings("deprecation")
-    default WritableByteChannel openStreamForAppend( @Nonnull String path ) throws IOException
+    default WritableByteChannel openChannelForAppend( @Nonnull String path ) throws IOException
     {
         return Channels.newChannel( openForAppend( path ) );
     }

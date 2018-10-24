@@ -48,7 +48,7 @@ public class ArrayByteChannel implements SeekableByteChannel
     public long position() throws IOException
     {
         if( closed ) throw new ClosedChannelException();
-        return 0;
+        return position;
     }
 
     @Override

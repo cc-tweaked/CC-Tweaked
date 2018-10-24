@@ -347,7 +347,7 @@ public class FileMount implements IWritableMount
     @Deprecated
     public OutputStream openForWrite( @Nonnull String path ) throws IOException
     {
-        return Channels.newOutputStream( openStreamForWrite( path ) );
+        return Channels.newOutputStream( openChannelForWrite( path ) );
     }
 
     @Nonnull
@@ -355,12 +355,12 @@ public class FileMount implements IWritableMount
     @Deprecated
     public OutputStream openForAppend( @Nonnull String path ) throws IOException
     {
-        return Channels.newOutputStream( openStreamForAppend( path ) );
+        return Channels.newOutputStream( openChannelForAppend( path ) );
     }
 
     @Nonnull
     @Override
-    public WritableByteChannel openStreamForWrite( @Nonnull String path ) throws IOException
+    public WritableByteChannel openChannelForWrite( @Nonnull String path ) throws IOException
     {
         create();
         File file = getRealPath( path );
@@ -393,7 +393,7 @@ public class FileMount implements IWritableMount
 
     @Nonnull
     @Override
-    public WritableByteChannel openStreamForAppend( @Nonnull String path ) throws IOException
+    public WritableByteChannel openChannelForAppend( @Nonnull String path ) throws IOException
     {
         if( created() )
         {
