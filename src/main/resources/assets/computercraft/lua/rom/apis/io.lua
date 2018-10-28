@@ -63,7 +63,7 @@ handleMetatable = {
             if self._closed then error("attempt to use a closed file", 2) end
 
             local handle = self._handle
-            if not handle.read then return nil, "Not opened for reading" end
+            if not handle.read and not handle.readLine then return nil, "Not opened for reading" end
 
             local n = select('#', ...)
             local output = {}

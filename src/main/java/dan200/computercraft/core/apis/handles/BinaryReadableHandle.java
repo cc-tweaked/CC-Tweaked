@@ -118,7 +118,7 @@ public class BinaryReadableHandle extends HandleGeneric
                     {
                         single.clear();
                         int b = m_reader.read( single );
-                        return b == -1 ? null : new Object[] { single.get( 0 ) };
+                        return b == -1 ? null : new Object[] { single.get( 0 ) & 0xFF };
                     }
                 }
                 catch( IOException e )
