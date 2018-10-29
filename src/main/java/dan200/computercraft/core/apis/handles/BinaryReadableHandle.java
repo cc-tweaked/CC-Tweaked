@@ -33,7 +33,7 @@ public class BinaryReadableHandle extends HandleGeneric
     {
         super( closeable );
         this.m_reader = channel;
-        this.m_seekable = channel instanceof SeekableByteChannel ? (SeekableByteChannel) channel : null;
+        this.m_seekable = asSeekable( channel );
     }
 
     public BinaryReadableHandle( ReadableByteChannel channel )

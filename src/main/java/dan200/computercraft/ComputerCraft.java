@@ -928,7 +928,7 @@ public class ComputerCraft
                 FileSystem fs = FileSystems.newFileSystem( modJar.toPath(), ComputerCraft.class.getClassLoader() );
                 mounts.add( new FileSystemMount( fs, subPath ) );
             }
-            catch( IOException | ProviderNotFoundException | ServiceConfigurationError e )
+            catch( IOException | RuntimeException | ServiceConfigurationError e )
             {
                 ComputerCraft.log.error( "Could not load mount from mod jar", e );
                 // Ignore
@@ -940,16 +940,16 @@ public class ComputerCraft
         if( resourcePackDir.exists() && resourcePackDir.isDirectory() )
         {
             String[] resourcePacks = resourcePackDir.list();
-            for( String resourcePack1 : resourcePacks )
+            for( String resourcePackName : resourcePacks )
             {
                 try
                 {
-                    File resourcePack = new File( resourcePackDir, resourcePack1 );
+                    File resourcePack = new File( resourcePackDir, resourcePackName );
                     if( !resourcePack.isDirectory() )
                     {
                         // Mount a resource pack from a jar
-                        IMount resourcePackMount = new FileSystemMount( FileSystems.getFileSystem( resourcePack.toURI() ), subPath );
-                        mounts.add( resourcePackMount );
+                        FileSystem fs = FileSystems.newFileSystem( resourcePack.toPath(), ComputerCraft.class.getClassLoader() );
+                        mounts.add( new FileSystemMount( fs, subPath ) );
                     }
                     else
                     {
@@ -962,9 +962,9 @@ public class ComputerCraft
                         }
                     }
                 }
-                catch( IOException e )
+                catch( IOException | RuntimeException | ServiceConfigurationError e )
                 {
-                    ComputerCraft.log.error( "Could not load resource pack '" + resourcePack1 + "'", e );
+                    ComputerCraft.log.error( "Could not load resource pack '" + resourcePackName + "'", e );
                 }
             }
         }

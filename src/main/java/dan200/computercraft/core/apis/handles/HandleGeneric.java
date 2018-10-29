@@ -6,6 +6,7 @@ import dan200.computercraft.api.lua.LuaException;
 import javax.annotation.Nonnull;
 import java.io.Closeable;
 import java.io.IOException;
+import java.nio.channels.Channel;
 import java.nio.channels.SeekableByteChannel;
 
 import static dan200.computercraft.core.apis.ArgumentHelper.optInt;
@@ -69,13 +70,29 @@ public abstract class HandleGeneric implements ILuaObject
                     throw new LuaException( "bad argument #1 to 'seek' (invalid option '" + whence + "'" );
             }
 
-            return new Object[] { channel.position() };
+            return new Object[]{ channel.position() };
         }
         catch( IllegalArgumentException e )
         {
-            return new Object[] { false, "Position is negative" };
+            return new Object[]{ false, "Position is negative" };
         }
         catch( IOException e )
+        {
+            return null;
+        }
+    }
+
+    protected static SeekableByteChannel asSeekable( Channel channel )
+    {
+        if( !(channel instanceof SeekableByteChannel) ) return null;
+
+        SeekableByteChannel seekable = (SeekableByteChannel) channel;
+        try
+        {
+            seekable.position( seekable.position() );
+            return seekable;
+        }
+        catch( IOException | UnsupportedOperationException e )
         {
             return null;
         }
