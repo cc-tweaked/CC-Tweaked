@@ -469,9 +469,9 @@ public abstract class CCTurtleProxyCommon implements ICCTurtleProxy
     private void registerTileEntities()
     {
         // TileEntities
-        GameRegistry.registerTileEntity( TileTurtle.class, ComputerCraft.LOWER_ID + " : " + "turtle" );
-        GameRegistry.registerTileEntity( TileTurtleExpanded.class, ComputerCraft.LOWER_ID + " : " + "turtleex" );
-        GameRegistry.registerTileEntity( TileTurtleAdvanced.class, ComputerCraft.LOWER_ID + " : " + "turtleadv" );
+        GameRegistry.registerTileEntity( TileTurtle.class, new ResourceLocation( ComputerCraft.MOD_ID, "turtle" ) );
+        GameRegistry.registerTileEntity( TileTurtleExpanded.class, new ResourceLocation( ComputerCraft.MOD_ID, "turtleex" ) );
+        GameRegistry.registerTileEntity( TileTurtleAdvanced.class, new ResourceLocation( ComputerCraft.MOD_ID, "turtleadv" ) );
     }
 
     private void registerForgeHandlers()

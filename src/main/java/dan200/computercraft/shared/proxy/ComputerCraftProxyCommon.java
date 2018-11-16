@@ -24,6 +24,7 @@ import dan200.computercraft.shared.computer.core.*;
 import dan200.computercraft.shared.computer.inventory.ContainerComputer;
 import dan200.computercraft.shared.computer.items.ItemCommandComputer;
 import dan200.computercraft.shared.computer.items.ItemComputer;
+import dan200.computercraft.shared.datafix.Fixes;
 import dan200.computercraft.shared.integration.charset.IntegrationCharset;
 import dan200.computercraft.shared.media.common.DefaultMediaProvider;
 import dan200.computercraft.shared.media.inventory.ContainerHeldItem;
@@ -77,6 +78,7 @@ import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.event.entity.player.PlayerContainerEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
@@ -121,6 +123,7 @@ public abstract class ComputerCraftProxyCommon implements IComputerCraftProxy
         registerTileEntities();
         registerForgeHandlers();
 
+        Fixes.register( FMLCommonHandler.instance().getDataFixer() );
         if( Loader.isModLoaded( ModCharset.MODID ) ) IntegrationCharset.register();
     }
 
@@ -478,16 +481,16 @@ public abstract class ComputerCraftProxyCommon implements IComputerCraftProxy
     private void registerTileEntities()
     {
         // Tile Entities
-        GameRegistry.registerTileEntity( TileComputer.class, ComputerCraft.LOWER_ID + " : " + "computer" );
-        GameRegistry.registerTileEntity( TileDiskDrive.class, ComputerCraft.LOWER_ID + " : " + "diskdrive" );
-        GameRegistry.registerTileEntity( TileWirelessModem.class, ComputerCraft.LOWER_ID + " : " + "wirelessmodem" );
-        GameRegistry.registerTileEntity( TileMonitor.class, ComputerCraft.LOWER_ID + " : " + "monitor" );
-        GameRegistry.registerTileEntity( TilePrinter.class, ComputerCraft.LOWER_ID + " : " + "ccprinter" );
-        GameRegistry.registerTileEntity( TileCable.class, ComputerCraft.LOWER_ID + " : " + "wiredmodem" );
-        GameRegistry.registerTileEntity( TileCommandComputer.class, ComputerCraft.LOWER_ID + " : " + "command_computer" );
-        GameRegistry.registerTileEntity( TileAdvancedModem.class, ComputerCraft.LOWER_ID + " : " + "advanced_modem" );
-        GameRegistry.registerTileEntity( TileSpeaker.class, ComputerCraft.LOWER_ID + " : " + "speaker" );
-        GameRegistry.registerTileEntity( TileWiredModemFull.class, ComputerCraft.LOWER_ID + " : " + "wired_modem_full" );
+        GameRegistry.registerTileEntity( TileComputer.class, new ResourceLocation( ComputerCraft.MOD_ID, "computer" ) );
+        GameRegistry.registerTileEntity( TileDiskDrive.class, new ResourceLocation( ComputerCraft.MOD_ID, "diskdrive" ) );
+        GameRegistry.registerTileEntity( TileWirelessModem.class, new ResourceLocation( ComputerCraft.MOD_ID, "wirelessmodem" ) );
+        GameRegistry.registerTileEntity( TileMonitor.class, new ResourceLocation( ComputerCraft.MOD_ID, "monitor" ) );
+        GameRegistry.registerTileEntity( TilePrinter.class, new ResourceLocation( ComputerCraft.MOD_ID, "ccprinter" ) );
+        GameRegistry.registerTileEntity( TileCable.class, new ResourceLocation( ComputerCraft.MOD_ID, "wiredmodem" ) );
+        GameRegistry.registerTileEntity( TileCommandComputer.class, new ResourceLocation( ComputerCraft.MOD_ID, "command_computer" ) );
+        GameRegistry.registerTileEntity( TileAdvancedModem.class, new ResourceLocation( ComputerCraft.MOD_ID, "advanced_modem" ) );
+        GameRegistry.registerTileEntity( TileSpeaker.class, new ResourceLocation( ComputerCraft.MOD_ID, "speaker" ) );
+        GameRegistry.registerTileEntity( TileWiredModemFull.class, new ResourceLocation( ComputerCraft.MOD_ID, "wired_modem_full" ) );
 
         // Register peripheral providers
         ComputerCraftAPI.registerPeripheralProvider( new DefaultPeripheralProvider() );

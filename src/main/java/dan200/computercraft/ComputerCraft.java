@@ -29,8 +29,6 @@ import dan200.computercraft.core.filesystem.FileMount;
 import dan200.computercraft.core.filesystem.FileSystemMount;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.core.tracking.Tracking;
-import dan200.computercraft.shared.command.CommandComputer;
-import dan200.computercraft.shared.command.CommandComputerCraft;
 import dan200.computercraft.shared.common.DefaultBundledRedstoneProvider;
 import dan200.computercraft.shared.computer.blocks.BlockCommandComputer;
 import dan200.computercraft.shared.computer.blocks.BlockComputer;
@@ -60,7 +58,10 @@ import dan200.computercraft.shared.proxy.IComputerCraftProxy;
 import dan200.computercraft.shared.turtle.blocks.BlockTurtle;
 import dan200.computercraft.shared.turtle.blocks.TileTurtle;
 import dan200.computercraft.shared.turtle.upgrades.*;
-import dan200.computercraft.shared.util.*;
+import dan200.computercraft.shared.util.CreativeTabMain;
+import dan200.computercraft.shared.util.IDAssigner;
+import dan200.computercraft.shared.util.InventoryUtil;
+import dan200.computercraft.shared.util.WorldUtil;
 import dan200.computercraft.shared.wired.CapabilityWiredElement;
 import dan200.computercraft.shared.wired.WiredNode;
 import io.netty.buffer.Unpooled;
@@ -99,7 +100,6 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
-import java.nio.file.ProviderNotFoundException;
 import java.util.*;
 import java.util.function.Function;
 import java.util.zip.ZipEntry;
@@ -116,7 +116,6 @@ import java.util.zip.ZipFile;
 public class ComputerCraft
 {
     public static final String MOD_ID = "computercraft";
-    public static final String LOWER_ID = "computercraft";
 
     // GUI IDs
     public static final int diskDriveGUIID = 100;
