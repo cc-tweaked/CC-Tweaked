@@ -10,6 +10,8 @@ import java.io.IOException;
 import java.nio.channels.Channels;
 import java.nio.channels.WritableByteChannel;
 import java.nio.charset.Charset;
+import java.nio.charset.CharsetEncoder;
+import java.nio.charset.CodingErrorAction;
 import java.nio.charset.StandardCharsets;
 
 public class EncodedWritableHandle extends HandleGeneric
@@ -120,6 +122,11 @@ public class EncodedWritableHandle extends HandleGeneric
 
     public static BufferedWriter open( WritableByteChannel channel, Charset charset )
     {
-        return new BufferedWriter( Channels.newWriter( channel, charset.newEncoder(), -1 ) );
+        // Create a charset encoder with the same properties as StreamEncoder does for 
+        // OutputStreams: namely, replace everything instead of erroring.
+        CharsetEncoder encoder = charset.newEncoder()
+            .onMalformedInput( CodingErrorAction.REPLACE)
+            .onUnmappableCharacter(CodingErrorAction.REPLACE);
+        return new BufferedWriter( Channels.newWriter( channel, encoder, -1 ) );
     }
 }

@@ -10,6 +10,8 @@ import java.io.IOException;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
+import java.nio.charset.CharsetDecoder;
+import java.nio.charset.CodingErrorAction;
 import java.nio.charset.StandardCharsets;
 
 import static dan200.computercraft.core.apis.ArgumentHelper.optBoolean;
@@ -35,7 +37,7 @@ public class EncodedReadableHandle extends HandleGeneric
     @Nonnull
     @Override
     public String[] getMethodNames()
-    {
+    {   
         return new String[] {
             "readLine",
             "readAll",
@@ -160,6 +162,11 @@ public class EncodedReadableHandle extends HandleGeneric
 
     public static BufferedReader open( ReadableByteChannel channel, Charset charset )
     {
-        return new BufferedReader( Channels.newReader( channel, charset.newDecoder(), -1 ) );
+        // Create a charset decoder with the same properties as StreamDecoder does for 
+        // InputStreams: namely, replace everything instead of erroring.
+        CharsetDecoder decoder = charset.newDecoder()
+            .onMalformedInput( CodingErrorAction.REPLACE )
+            .onUnmappableCharacter( CodingErrorAction.REPLACE );
+        return new BufferedReader( Channels.newReader( channel, decoder, -1 ) );
     }
 }
