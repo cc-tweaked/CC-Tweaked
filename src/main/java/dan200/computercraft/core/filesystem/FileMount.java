@@ -6,6 +6,7 @@
 
 package dan200.computercraft.core.filesystem;
 
+import com.google.common.collect.Sets;
 import dan200.computercraft.api.filesystem.IWritableMount;
 
 import javax.annotation.Nonnull;
@@ -13,12 +14,18 @@ import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.channels.*;
 import java.nio.file.Files;
+import java.nio.file.OpenOption;
 import java.nio.file.StandardOpenOption;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 public class FileMount implements IWritableMount
 {
     private static final int MINIMUM_FILE_SIZE = 500;
+    private static final Set<OpenOption> READ_OPTIONS = Collections.singleton( StandardOpenOption.READ );
+    private static final Set<OpenOption> WRITE_OPTIONS = Sets.newHashSet( StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING );
+    private static final Set<OpenOption> APPEND_OPTIONS = Sets.newHashSet( StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.APPEND );
 
     private class WritableCountingChannel implements WritableByteChannel
     {
@@ -252,7 +259,7 @@ public class FileMount implements IWritableMount
             File file = getRealPath( path );
             if( file.exists() && !file.isDirectory() )
             {
-                return FileChannel.open( file.toPath(), StandardOpenOption.READ );
+                return FileChannel.open( file.toPath(), READ_OPTIONS );
             }
         }
         throw new IOException( "/" + path + ": No such file" );
@@ -386,8 +393,7 @@ public class FileMount implements IWritableMount
                 m_usedSpace -= Math.max( file.length(), MINIMUM_FILE_SIZE );
                 m_usedSpace += MINIMUM_FILE_SIZE;
             }
-            return new SeekableCountingChannel( Files.newByteChannel( file.toPath(), StandardOpenOption.WRITE, StandardOpenOption.CREATE ),
-                MINIMUM_FILE_SIZE );
+            return new SeekableCountingChannel( Files.newByteChannel( file.toPath(), WRITE_OPTIONS ), MINIMUM_FILE_SIZE );
         }
     }
 
@@ -409,8 +415,10 @@ public class FileMount implements IWritableMount
             else
             {
                 // Allowing seeking when appending is not recommended, so we use a separate channel.
-                return new WritableCountingChannel( Files.newByteChannel( file.toPath(), StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.APPEND ),
-                    Math.max( MINIMUM_FILE_SIZE - file.length(), 0 ) );
+                return new WritableCountingChannel(
+                    Files.newByteChannel( file.toPath(), APPEND_OPTIONS ),
+                    Math.max( MINIMUM_FILE_SIZE - file.length(), 0 )
+                );
             }
         }
         else
