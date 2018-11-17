@@ -10,6 +10,7 @@ import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.turtle.*;
 import dan200.computercraft.shared.peripheral.PeripheralType;
 import dan200.computercraft.shared.peripheral.common.PeripheralItemFactory;
+import dan200.computercraft.shared.peripheral.modem.ModemState;
 import dan200.computercraft.shared.peripheral.modem.WirelessModemPeripheral;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.IBakedModel;
@@ -17,9 +18,9 @@ import net.minecraft.client.renderer.block.model.ModelManager;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
@@ -37,7 +38,7 @@ public class TurtleModem implements ITurtleUpgrade
 
         public Peripheral( ITurtleAccess turtle, boolean advanced )
         {
-            super( advanced );
+            super( new ModemState(), advanced );
             m_turtle = turtle;
         }
 
@@ -221,12 +222,12 @@ public class TurtleModem implements ITurtleUpgrade
         if( !turtle.getWorld().isRemote )
         {
             IPeripheral peripheral = turtle.getPeripheral( side );
-            if( peripheral != null && peripheral instanceof Peripheral )
+            if( peripheral instanceof Peripheral )
             {
-                Peripheral modemPeripheral = (Peripheral)peripheral;
-                if( modemPeripheral.pollChanged() )
+                ModemState state = ((Peripheral) peripheral).getModemState();
+                if( state.pollChanged() )
                 {
-                    turtle.getUpgradeNBTData( side ).setBoolean( "active", modemPeripheral.isActive() );
+                    turtle.getUpgradeNBTData( side ).setBoolean( "active", state.isOpen() );
                     turtle.updateUpgradeNBTData( side );
                 }
             }

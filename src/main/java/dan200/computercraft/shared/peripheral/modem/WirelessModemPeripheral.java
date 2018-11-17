@@ -15,8 +15,9 @@ public abstract class WirelessModemPeripheral extends ModemPeripheral
 {
     private boolean m_advanced;
 
-    public WirelessModemPeripheral( boolean advanced )
+    public WirelessModemPeripheral( ModemState state, boolean advanced )
     {
+        super( state );
         m_advanced = advanced;
     }
 

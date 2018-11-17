@@ -14,53 +14,43 @@ import dan200.computercraft.api.network.IPacketSender;
 import dan200.computercraft.api.network.Packet;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
-import gnu.trove.set.TIntSet;
-import gnu.trove.set.hash.TIntHashSet;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
+import java.util.HashSet;
+import java.util.Set;
 
 import static dan200.computercraft.core.apis.ArgumentHelper.getInt;
 
-public abstract class ModemPeripheral
-    implements IPeripheral, IPacketSender, IPacketReceiver
+public abstract class ModemPeripheral implements IPeripheral, IPacketSender, IPacketReceiver
 {
     private IPacketNetwork m_network;
-    private IComputerAccess m_computer;
-    private final TIntSet m_channels;
+    private Set<IComputerAccess> m_computers = new HashSet<>( 1 );
+    private final ModemState m_state;
 
-    private boolean m_open;
-    private boolean m_changed;
-
-    public ModemPeripheral()
+    protected ModemPeripheral( ModemState state )
     {
-        m_network = null;
-        m_computer = null;
-        m_channels = new TIntHashSet();
-        m_open = false;
-        m_changed = true;
+        this.m_state = state;
+    }
+
+    public ModemState getModemState()
+    {
+        return m_state;
     }
 
     private synchronized void setNetwork( IPacketNetwork network )
     {
-        if( m_network != network )
-        {
-            // Leave old network
-            if( m_network != null )
-            {
-                m_network.removeReceiver( this );
-            }
+        if( m_network == network ) return;
 
-            // Set new network
-            m_network = network;
+        // Leave old network
+        if( m_network != null ) m_network.removeReceiver( this );
 
-            // Join new network
-            if( m_network != null )
-            {
-                m_network.addReceiver( this );
-            }
-        }
+        // Set new network
+        m_network = network;
+
+        // Join new network
+        if( m_network != null ) m_network.addReceiver( this );
     }
 
     protected void switchNetwork()
@@ -71,36 +61,19 @@ public abstract class ModemPeripheral
     public synchronized void destroy()
     {
         setNetwork( null );
-        m_channels.clear();
-        m_open = false;
-    }
-    
-    public boolean pollChanged()
-    {
-        if( m_changed )
-        {
-            m_changed = false;
-            return true;
-        }
-        return false;
-    }
-
-    public boolean isActive()
-    {
-        return m_computer != null && m_open;
     }
 
     @Override
     public void receiveSameDimension( @Nonnull Packet packet, double distance )
     {
-        if( packet.getSender() == this ) return;
+        if( packet.getSender() == this || !m_state.isOpen( packet.getChannel() ) ) return;
 
-        synchronized (m_channels)
+        synchronized( this )
         {
-            if( m_computer != null && m_channels.contains( packet.getChannel() ) )
+            for( IComputerAccess computer : m_computers )
             {
-                m_computer.queueEvent( "modem_message", new Object[] {
-                    m_computer.getAttachmentName(), packet.getChannel(), packet.getReplyChannel(), packet.getPayload(), distance
+                computer.queueEvent( "modem_message", new Object[]{
+                    computer.getAttachmentName(), packet.getChannel(), packet.getReplyChannel(), packet.getPayload(), distance
                 } );
             }
         }
@@ -109,21 +82,21 @@ public abstract class ModemPeripheral
     @Override
     public void receiveDifferentDimension( @Nonnull Packet packet )
     {
-        if( packet.getSender() == this ) return;
+        if( packet.getSender() == this || !m_state.isOpen( packet.getChannel() ) ) return;
 
-        synchronized (m_channels)
+        synchronized( this )
         {
-            if( m_computer != null && m_channels.contains( packet.getChannel() ) )
+            for( IComputerAccess computer : m_computers )
             {
-                m_computer.queueEvent( "modem_message", new Object[] {
-                    m_computer.getAttachmentName(), packet.getChannel(), packet.getReplyChannel(), packet.getPayload()
+                computer.queueEvent( "modem_message", new Object[]{
+                    computer.getAttachmentName(), packet.getChannel(), packet.getReplyChannel(), packet.getPayload()
                 } );
             }
         }
     }
 
     protected abstract IPacketNetwork getNetwork();
-    
+
     // IPeripheral implementation
 
     @Nonnull
@@ -132,12 +105,12 @@ public abstract class ModemPeripheral
     {
         return "modem";
     }
-       
+
     @Nonnull
     @Override
     public String[] getMethodNames()
     {
-        return new String[] {
+        return new String[]{
             "open",
             "isOpen",
             "close",
@@ -146,7 +119,7 @@ public abstract class ModemPeripheral
             "isWireless",
         };
     }
-    
+
     private static int parseChannel( Object[] arguments, int index ) throws LuaException
     {
         int channel = getInt( arguments, index );
@@ -156,7 +129,7 @@ public abstract class ModemPeripheral
         }
         return channel;
     }
-    
+
     @Override
     public Object[] callMethod( @Nonnull IComputerAccess computer, @Nonnull ILuaContext context, int method, @Nonnull Object[] arguments ) throws LuaException, InterruptedException
     {
@@ -166,68 +139,26 @@ public abstract class ModemPeripheral
             {
                 // open
                 int channel = parseChannel( arguments, 0 );
-                synchronized( this )
-                {
-                    if( !m_channels.contains( channel ) )
-                    {
-                        if( m_channels.size() >= 128 )
-                        {
-                            throw new LuaException( "Too many open channels" );
-                        }
-
-                        m_channels.add( channel );
-                        if( !m_open )
-                        {
-                            m_open = true;
-                            m_changed = true;
-                        }
-                    }
-                }
+                m_state.open( channel );
                 return null;
             }
             case 1:
             {
                 // isOpen
                 int channel = parseChannel( arguments, 0 );
-                synchronized( this )
-                {
-                    boolean open = m_channels.contains( channel );
-                    return new Object[] { open };
-                }
+                return new Object[]{ m_state.isOpen( channel ) };
             }
             case 2:
             {
                 // close
                 int channel = parseChannel( arguments, 0 );
-                synchronized( this )
-                {
-                    if( m_channels.remove( channel ) )
-                    {
-                        if( m_channels.size() == 0 )
-                        {
-                            m_open = false;
-                            m_changed = true;
-                        }
-                    }
-                }
+                m_state.close( channel );
                 return null;
             }
             case 3:
             {
                 // closeAll
-                synchronized( this )
-                {
-                    if( m_channels.size() > 0 )
-                    {
-                        m_channels.clear();
-                        
-                        if( m_open )
-                        {
-                            m_open = false;
-                            m_changed = true;
-                        }
-                    }
-                }
+                m_state.closeAll();
                 return null;
             }
             case 4:
@@ -235,12 +166,12 @@ public abstract class ModemPeripheral
                 // transmit
                 int channel = parseChannel( arguments, 0 );
                 int replyChannel = parseChannel( arguments, 1 );
-                Object payload = (arguments.length >= 3) ? arguments[2] : null;
+                Object payload = arguments.length > 2 ? arguments[2] : null;
                 synchronized( this )
                 {
                     World world = getWorld();
                     Vec3d position = getPosition();
-                    if( world != null && position != null && m_network != null)
+                    if( world != null && position != null && m_network != null )
                     {
                         Packet packet = new Packet( channel, replyChannel, payload, this );
                         if( isInterdimensional() )
@@ -258,14 +189,8 @@ public abstract class ModemPeripheral
             case 5:
             {
                 // isWireless
-                synchronized( this )
-                {
-                    if( m_network != null )
-                    {
-                        return new Object[] { m_network.isWireless() };
-                    }
-                }
-                return new Object[] { false };
+                IPacketNetwork network = m_network;
+                return new Object[]{ network != null && network.isWireless() };
             }
             default:
             {
@@ -273,50 +198,33 @@ public abstract class ModemPeripheral
             }
         }
     }
-    
+
     @Override
     public synchronized void attach( @Nonnull IComputerAccess computer )
     {
-        m_computer = computer;
+        m_computers.add( computer );
         setNetwork( getNetwork() );
-        m_open = !m_channels.isEmpty();
     }
-    
+
     @Override
     public synchronized void detach( @Nonnull IComputerAccess computer )
     {
-        if( m_network != null )
-        {
-            m_network.removeReceiver( this );
-            m_channels.clear();
-            m_network = null;
-        }
-
-        m_computer = null;
-            
-        if( m_open )
-        {
-            m_open = false;        
-            m_changed = true;
-        }
-    }
-
-    public IComputerAccess getComputer()
-    {
-        return m_computer;
+        m_computers.remove( computer );
+        if( m_computers.isEmpty() ) setNetwork( null );
     }
 
     @Nonnull
     @Override
-    public String getSenderID()
+    public synchronized String getSenderID()
     {
-        if( m_computer == null )
+        if( m_computers.size() != 1 )
         {
             return "unknown";
         }
         else
         {
-            return m_computer.getID() + "_" + m_computer.getAttachmentName();
+            IComputerAccess computer = m_computers.iterator().next();
+            return computer.getID() + "_" + computer.getAttachmentName();
         }
     }
 }

@@ -1,0 +1,77 @@
+/*
+ * This file is part of ComputerCraft - http://www.computercraft.info
+ * Copyright Daniel Ratcliffe, 2011-2018. Do not distribute without permission.
+ * Send enquiries to dratcliffe@gmail.com
+ */
+
+package dan200.computercraft.shared.peripheral.modem;
+
+import dan200.computercraft.api.lua.LuaException;
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
+import it.unimi.dsi.fastutil.ints.IntSet;
+
+import java.util.concurrent.atomic.AtomicBoolean;
+
+public class ModemState
+{
+    private boolean open = false;
+    private AtomicBoolean changed = new AtomicBoolean( true );
+
+    private final IntSet channels = new IntOpenHashSet();
+
+    private void setOpen( boolean open )
+    {
+        if( this.open == open ) return;
+        this.open = open;
+        this.changed.set( true );
+    }
+
+    public boolean pollChanged()
+    {
+        return changed.getAndSet( false );
+    }
+
+    public boolean isOpen()
+    {
+        return open;
+    }
+
+    public boolean isOpen( int channel )
+    {
+        synchronized( channels )
+        {
+            return channels.contains( channel );
+        }
+    }
+
+    public void open( int channel ) throws LuaException
+    {
+        synchronized( channels )
+        {
+            if( !channels.contains( channel ) )
+            {
+                if( channels.size() >= 128 ) throw new LuaException( "Too many open channels" );
+                channels.add( channel );
+                setOpen( true );
+            }
+        }
+    }
+
+    public void close( int channel )
+    {
+        synchronized( channels )
+        {
+            channels.remove( channel );
+            if( channels.isEmpty() ) setOpen( false );
+        }
+    }
+
+    public void closeAll()
+    {
+        synchronized( channels )
+        {
+            channels.clear();
+            setOpen( false );
+        }
+    }
+}

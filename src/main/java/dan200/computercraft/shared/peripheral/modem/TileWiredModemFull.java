@@ -83,6 +83,7 @@ public class TileWiredModemFull extends TilePeripheralBase
     private boolean m_destroyed = false;
     private boolean m_connectionsFormed = false;
 
+    private final ModemState m_modemState = new ModemState();
     private final WiredModemElement m_element = new FullElement( this );
     private final IWiredNode m_node = m_element.getNode();
 
@@ -236,19 +237,8 @@ public class TileWiredModemFull extends TilePeripheralBase
     protected void updateAnim()
     {
         int anim = 0;
-        for( WiredModemPeripheral modem : m_modems )
-        {
-            if( modem != null && modem.isActive() )
-            {
-                anim += 1;
-                break;
-            }
-        }
-
-        if( m_peripheralAccessAllowed )
-        {
-            anim += 2;
-        }
+        if( m_modemState.isOpen() ) anim |= 1;
+        if( m_peripheralAccessAllowed ) anim |= 2;
         setAnim( anim );
     }
 
@@ -264,12 +254,7 @@ public class TileWiredModemFull extends TilePeripheralBase
     {
         if( !getWorld().isRemote )
         {
-            boolean changed = false;
-            for( WiredModemPeripheral peripheral : m_modems )
-            {
-                if( peripheral != null && peripheral.pollChanged() ) changed = true;
-            }
-            if( changed ) updateAnim();
+            if( m_modemState.pollChanged() ) updateAnim();
 
             if( !m_connectionsFormed )
             {
@@ -402,7 +387,7 @@ public class TileWiredModemFull extends TilePeripheralBase
         if( peripheral == null )
         {
             WiredModemLocalPeripheral localPeripheral = m_peripherals[side.ordinal()];
-            peripheral = m_modems[side.ordinal()] = new WiredModemPeripheral( m_element )
+            peripheral = m_modems[side.ordinal()] = new WiredModemPeripheral( m_modemState, m_element )
             {
                 @Nonnull
                 @Override

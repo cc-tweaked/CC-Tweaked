@@ -6,6 +6,7 @@
 package dan200.computercraft.shared.pocket.peripherals;
 
 import dan200.computercraft.api.peripheral.IPeripheral;
+import dan200.computercraft.shared.peripheral.modem.ModemState;
 import dan200.computercraft.shared.peripheral.modem.WirelessModemPeripheral;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -19,7 +20,7 @@ public class PocketModemPeripheral extends WirelessModemPeripheral
 
     public PocketModemPeripheral( boolean advanced )
     {
-        super( advanced );
+        super( new ModemState(), advanced );
         m_world = null;
         m_position = new Vec3d( 0.0, 0.0, 0.0 );
     }

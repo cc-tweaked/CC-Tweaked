@@ -25,7 +25,7 @@ public class TileAdvancedModem extends TileModemBase
 
         public Peripheral( TileModemBase entity )
         {
-            super( true );
+            super( new ModemState(), true );
             m_entity = entity;
         }
 

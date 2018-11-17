@@ -97,7 +97,7 @@ public class TileCable extends TileModemBase
 
     private boolean m_hasDirection = false;
     private boolean m_connectionsFormed = false;
-
+    
     private WiredModemElement m_cable;
     private IWiredNode m_node;
 
@@ -106,7 +106,7 @@ public class TileCable extends TileModemBase
     {
         m_cable = new CableElement( this );
         m_node = m_cable.getNode();
-        return new WiredModemPeripheral( m_cable )
+        return new WiredModemPeripheral( new ModemState(), m_cable )
         {
             @Nonnull
             @Override
@@ -453,14 +453,8 @@ public class TileCable extends TileModemBase
     protected void updateAnim()
     {
         int anim = 0;
-        if( m_modem.isActive() )
-        {
-            anim += 1;
-        }
-        if( m_peripheralAccessAllowed )
-        {
-            anim += 2;
-        }
+        if( m_modem.getModemState().isOpen() ) anim |= 1;
+        if( m_peripheralAccessAllowed ) anim |= 2;
         setAnim( anim );
     }
 

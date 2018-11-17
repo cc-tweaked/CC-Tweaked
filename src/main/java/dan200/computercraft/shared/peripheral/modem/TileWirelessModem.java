@@ -29,7 +29,7 @@ public class TileWirelessModem extends TileModemBase
 
         public Peripheral( TileModemBase entity )
         {
-            super( false );
+            super( new ModemState(), false );
             m_entity = entity;
         }
 
