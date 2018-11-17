@@ -18,12 +18,14 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.*;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.IResourceManager;
-import net.minecraft.client.resources.IResourceManagerReloadListener;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
+import net.minecraftforge.client.resource.IResourceType;
+import net.minecraftforge.client.resource.ISelectiveResourceReloadListener;
+import net.minecraftforge.client.resource.VanillaResourceType;
 import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nonnull;
@@ -32,8 +34,9 @@ import javax.vecmath.Matrix4f;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.function.Predicate;
 
-public class TurtleSmartItemModel implements IBakedModel, IResourceManagerReloadListener
+public class TurtleSmartItemModel implements IBakedModel, ISelectiveResourceReloadListener
 {
     private static final Matrix4f s_identity, s_flip;
 
@@ -155,9 +158,9 @@ public class TurtleSmartItemModel implements IBakedModel, IResourceManagerReload
     }
 
     @Override
-    public void onResourceManagerReload( @Nonnull IResourceManager resourceManager )
+    public void onResourceManagerReload( @Nonnull IResourceManager resourceManager, @Nonnull Predicate<IResourceType> resourcePredicate )
     {
-        m_cachedModels.clear();
+        if( resourcePredicate.test( VanillaResourceType.MODELS ) ) m_cachedModels.clear();
     }
 
     private IBakedModel buildModel( TurtleModelCombination combo )

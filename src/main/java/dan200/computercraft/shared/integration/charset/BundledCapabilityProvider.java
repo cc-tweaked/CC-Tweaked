@@ -69,7 +69,6 @@ final class BundledCapabilityProvider implements ICapabilityProvider
                     emitter = emitters[index] = () -> toBytes( tile.getBundledRedstoneOutput( side ) );
                 }
             }
-            ;
 
             return CAPABILITY_EMITTER.cast( emitter );
         }
