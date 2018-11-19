@@ -26,7 +26,7 @@ import static dan200.computercraft.core.apis.ArgumentHelper.getInt;
 public abstract class ModemPeripheral implements IPeripheral, IPacketSender, IPacketReceiver
 {
     private IPacketNetwork m_network;
-    private Set<IComputerAccess> m_computers = new HashSet<>( 1 );
+    private final Set<IComputerAccess> m_computers = new HashSet<>( 1 );
     private final ModemState m_state;
 
     protected ModemPeripheral( ModemState state )
@@ -58,7 +58,7 @@ public abstract class ModemPeripheral implements IPeripheral, IPacketSender, IPa
         setNetwork( getNetwork() );
     }
 
-    public synchronized void destroy()
+    public void destroy()
     {
         setNetwork( null );
     }
@@ -68,7 +68,7 @@ public abstract class ModemPeripheral implements IPeripheral, IPacketSender, IPa
     {
         if( packet.getSender() == this || !m_state.isOpen( packet.getChannel() ) ) return;
 
-        synchronized( this )
+        synchronized( m_computers )
         {
             for( IComputerAccess computer : m_computers )
             {
@@ -84,7 +84,7 @@ public abstract class ModemPeripheral implements IPeripheral, IPacketSender, IPa
     {
         if( packet.getSender() == this || !m_state.isOpen( packet.getChannel() ) ) return;
 
-        synchronized( this )
+        synchronized( m_computers )
         {
             for( IComputerAccess computer : m_computers )
             {
@@ -202,29 +202,42 @@ public abstract class ModemPeripheral implements IPeripheral, IPacketSender, IPa
     @Override
     public synchronized void attach( @Nonnull IComputerAccess computer )
     {
-        m_computers.add( computer );
+        synchronized( m_computers )
+        {
+            m_computers.add( computer );
+        }
+
         setNetwork( getNetwork() );
     }
 
     @Override
     public synchronized void detach( @Nonnull IComputerAccess computer )
     {
-        m_computers.remove( computer );
-        if( m_computers.isEmpty() ) setNetwork( null );
+        boolean empty;
+        synchronized( m_computers )
+        {
+            m_computers.remove( computer );
+            empty = m_computers.isEmpty();
+        }
+
+        if( empty ) setNetwork( null );
     }
 
     @Nonnull
     @Override
-    public synchronized String getSenderID()
+    public String getSenderID()
     {
-        if( m_computers.size() != 1 )
+        synchronized( m_computers )
         {
-            return "unknown";
-        }
-        else
-        {
-            IComputerAccess computer = m_computers.iterator().next();
-            return computer.getID() + "_" + computer.getAttachmentName();
+            if( m_computers.size() != 1 )
+            {
+                return "unknown";
+            }
+            else
+            {
+                IComputerAccess computer = m_computers.iterator().next();
+                return computer.getID() + "_" + computer.getAttachmentName();
+            }
         }
     }
 }

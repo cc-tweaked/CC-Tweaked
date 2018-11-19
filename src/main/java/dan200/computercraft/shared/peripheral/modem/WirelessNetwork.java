@@ -13,8 +13,9 @@ import dan200.computercraft.api.network.IPacketSender;
 import dan200.computercraft.api.network.Packet;
 
 import javax.annotation.Nonnull;
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class WirelessNetwork implements IPacketNetwork
 {
@@ -34,45 +35,34 @@ public class WirelessNetwork implements IPacketNetwork
         s_universalNetwork = null;
     }
 
-    private final Set<IPacketReceiver> m_receivers;
-
-    private WirelessNetwork()
-    {
-        m_receivers = new HashSet<>();
-    }
+    private final Set<IPacketReceiver> m_receivers = Collections.newSetFromMap( new ConcurrentHashMap<>() );
 
     @Override
-    public synchronized void addReceiver( @Nonnull IPacketReceiver receiver )
+    public void addReceiver( @Nonnull IPacketReceiver receiver )
     {
         Preconditions.checkNotNull( receiver, "device cannot be null" );
         m_receivers.add( receiver );
     }
 
     @Override
-    public synchronized void removeReceiver( @Nonnull IPacketReceiver receiver )
+    public void removeReceiver( @Nonnull IPacketReceiver receiver )
     {
         Preconditions.checkNotNull( receiver, "device cannot be null" );
         m_receivers.remove( receiver );
     }
 
     @Override
-    public synchronized void transmitSameDimension( @Nonnull Packet packet, double range )
+    public void transmitSameDimension( @Nonnull Packet packet, double range )
     {
         Preconditions.checkNotNull( packet, "packet cannot be null" );
-        for( IPacketReceiver device : m_receivers )
-        {
-            tryTransmit( device, packet, range, false );
-        }
+        for( IPacketReceiver device : m_receivers ) tryTransmit( device, packet, range, false );
     }
 
     @Override
-    public synchronized void transmitInterdimensional( @Nonnull Packet packet )
+    public void transmitInterdimensional( @Nonnull Packet packet )
     {
         Preconditions.checkNotNull( packet, "packet cannot be null" );
-        for (IPacketReceiver device : m_receivers)
-        {
-            tryTransmit( device, packet, 0, true );
-        }
+        for( IPacketReceiver device : m_receivers ) tryTransmit( device, packet, 0, true );
     }
 
     private void tryTransmit( IPacketReceiver receiver, Packet packet, double range, boolean interdimensional )

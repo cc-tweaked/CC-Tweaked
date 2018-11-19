@@ -21,6 +21,12 @@ public abstract class WirelessModemPeripheral extends ModemPeripheral
         m_advanced = advanced;
     }
 
+    @Deprecated
+    public WirelessModemPeripheral( boolean advanced )
+    {
+        this( new ModemState(), advanced );
+    }
+
     @Override
     public boolean isInterdimensional()
     {
