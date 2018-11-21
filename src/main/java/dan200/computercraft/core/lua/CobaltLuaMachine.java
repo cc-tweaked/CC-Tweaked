@@ -6,15 +6,14 @@
 
 package dan200.computercraft.core.lua;
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import dan200.computercraft.ComputerCraft;
-import dan200.computercraft.api.lua.ILuaContext;
-import dan200.computercraft.api.lua.ILuaObject;
-import dan200.computercraft.api.lua.ILuaTask;
-import dan200.computercraft.api.lua.LuaException;
-import dan200.computercraft.api.lua.ILuaAPI;
+import dan200.computercraft.api.lua.*;
 import dan200.computercraft.core.computer.Computer;
 import dan200.computercraft.core.computer.ITask;
 import dan200.computercraft.core.computer.MainThread;
+import dan200.computercraft.core.tracking.Tracking;
+import dan200.computercraft.core.tracking.TrackingField;
 import org.squiddev.cobalt.*;
 import org.squiddev.cobalt.compiler.CompileException;
 import org.squiddev.cobalt.compiler.LoadState;
@@ -25,7 +24,7 @@ import org.squiddev.cobalt.function.LibFunction;
 import org.squiddev.cobalt.function.LuaFunction;
 import org.squiddev.cobalt.function.VarArgFunction;
 import org.squiddev.cobalt.lib.*;
-import org.squiddev.cobalt.lib.platform.AbstractResourceManipulator;
+import org.squiddev.cobalt.lib.platform.VoidResourceManipulator;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;
@@ -35,6 +34,9 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.Map;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import static org.squiddev.cobalt.Constants.NONE;
 import static org.squiddev.cobalt.ValueFactory.valueOf;
@@ -42,6 +44,16 @@ import static org.squiddev.cobalt.ValueFactory.varargsOf;
 
 public class CobaltLuaMachine implements ILuaMachine
 {
+    private static final ThreadPoolExecutor coroutines = new ThreadPoolExecutor(
+        0, Integer.MAX_VALUE,
+        60L, TimeUnit.SECONDS,
+        new SynchronousQueue<>(),
+        new ThreadFactoryBuilder()
+            .setDaemon( true )
+            .setNameFormat( "ComputerCraft-Coroutine-%d" )
+            .build()
+    );
+
     private final Computer m_computer;
 
     private final LuaState m_state;
@@ -57,60 +69,71 @@ public class CobaltLuaMachine implements ILuaMachine
         m_computer = computer;
 
         // Create an environment to run in
-        final LuaState state = this.m_state = new LuaState( new AbstractResourceManipulator()
-        {
-            @Override
-            public InputStream findResource( String filename )
+        LuaState state = this.m_state = LuaState.builder()
+            .resourceManipulator( new VoidResourceManipulator() )
+            .debug( new DebugHandler()
             {
-                return null;
-            }
-        } );
-        state.debug = new DebugHandler( state )
-        {
-            private int count = 0;
-            private boolean hasSoftAbort;
+                private int count = 0;
+                private boolean hasSoftAbort;
 
-            @Override
-            public void onInstruction( DebugState ds, DebugFrame di, int pc, Varargs extras, int top ) throws LuaError
-            {
-                int count = ++this.count;
-                if( count > 100000 )
+                @Override
+                public void onInstruction( DebugState ds, DebugFrame di, int pc, Varargs extras, int top ) throws LuaError
                 {
-                    if( m_hardAbortMessage != null ) LuaThread.yield( state, NONE );
-                    this.count = 0;
+                    int count = ++this.count;
+                    if( count > 100000 )
+                    {
+                        if( m_hardAbortMessage != null ) LuaThread.yield( m_state, NONE );
+                        this.count = 0;
+                    }
+                    else
+                    {
+                        handleSoftAbort();
+                    }
+
+                    super.onInstruction( ds, di, pc, extras, top );
                 }
-                else
+
+                @Override
+                public void poll() throws LuaError
                 {
+                    if( m_hardAbortMessage != null ) LuaThread.yield( m_state, NONE );
                     handleSoftAbort();
                 }
 
-                super.onInstruction( ds, di, pc, extras, top );
-            }
+                private void handleSoftAbort() throws LuaError
+                {
+                    // If the soft abort has been cleared then we can reset our flags and continue.
+                    String message = m_softAbortMessage;
+                    if( message == null )
+                    {
+                        hasSoftAbort = false;
+                        return;
+                    }
 
-            @Override
-            public void poll() throws LuaError
-            {
-                if( m_hardAbortMessage != null ) LuaThread.yield( state, NONE );
-                handleSoftAbort();
-            }
+                    if( hasSoftAbort && m_hardAbortMessage == null )
+                    {
+                        // If we have fired our soft abort, but we haven't been hard aborted then everything is OK.
+                        return;
+                    }
 
-            private void handleSoftAbort() throws LuaError {
-                // If the soft abort has been cleared then we can reset our flags and continue.
-                String message = m_softAbortMessage;
-                if (message == null) {
-                    hasSoftAbort = false;
-                    return;
+                    hasSoftAbort = true;
+                    throw new LuaError( message );
                 }
-
-                if (hasSoftAbort && m_hardAbortMessage == null) {
-                    // If we have fired our soft abort, but we haven't been hard aborted then everything is OK.
-                    return;
-                }
-
-                hasSoftAbort = true;
-                throw new LuaError(message);
-            }
-        };
+            } )
+            .coroutineFactory( command -> {
+                Tracking.addValue( m_computer, TrackingField.COROUTINES_CREATED, 1 );
+                coroutines.execute( () -> {
+                    try
+                    {
+                        command.run();
+                    }
+                    finally
+                    {
+                        Tracking.addValue( m_computer, TrackingField.COROUTINES_DISPOSED, 1 );
+                    }
+                } );
+            } )
+            .build();
 
         m_globals = new LuaTable();
         state.setupThread( m_globals );

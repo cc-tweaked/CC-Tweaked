@@ -28,6 +28,9 @@ public class TrackingField
     public static final TrackingField WEBSOCKET_INCOMING = TrackingField.of( "websocket_incoming", "Websocket incoming", TrackingField::formatBytes );
     public static final TrackingField WEBSOCKET_OUTGOING = TrackingField.of( "websocket_outgoing", "Websocket outgoing", TrackingField::formatBytes );
 
+    public static final TrackingField COROUTINES_CREATED = TrackingField.of( "coroutines_created", "Coroutines created", x -> String.format( "%4d", x ) );
+    public static final TrackingField COROUTINES_DISPOSED = TrackingField.of( "coroutines_dead", "Coroutines disposed", x -> String.format( "%4d", x ) );
+
     private final String id;
     private final String displayName;
     private final LongFunction<String> format;

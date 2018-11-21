@@ -66,7 +66,7 @@ dependencies {
 
     runtime "mezz.jei:jei_1.12.2:4.8.5.159"
 
-    shade 'org.squiddev:Cobalt:0.3.2'
+    shade 'org.squiddev:Cobalt:0.4.0'
 
     testCompile 'junit:junit:4.11'
 

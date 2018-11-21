@@ -24,7 +24,7 @@ public final class HTTPExecutor
     public static final ListeningExecutorService EXECUTOR = MoreExecutors.listeningDecorator( new ThreadPoolExecutor(
         4, Integer.MAX_VALUE,
         60L, TimeUnit.SECONDS,
-        new SynchronousQueue<Runnable>(),
+        new SynchronousQueue<>(),
         new ThreadFactoryBuilder()
             .setDaemon( true )
             .setPriority( Thread.MIN_PRIORITY + (Thread.NORM_PRIORITY - Thread.MIN_PRIORITY) / 2 )
