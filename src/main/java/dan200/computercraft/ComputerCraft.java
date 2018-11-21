@@ -111,7 +111,8 @@ import java.util.zip.ZipFile;
 
 @Mod(
     modid = ComputerCraft.MOD_ID, name = "CC: Tweaked", version = "${version}",
-    guiFactory = "dan200.computercraft.client.gui.GuiConfigCC$Factory"
+    guiFactory = "dan200.computercraft.client.gui.GuiConfigCC$Factory",
+    dependencies = "required:forge@[14.23.4.2746,)"
 )
 public class ComputerCraft
 {
@@ -569,7 +570,7 @@ public class ComputerCraft
             width = terminal.getWidth();
             height = terminal.getHeight();
         }
-        
+
         // Pack useful terminal information into the various coordinate bits.
         // These are extracted in ComputerCraftProxyCommon.getClientGuiElement
         player.openGui( ComputerCraft.instance, ComputerCraft.viewComputerGUIID, player.getEntityWorld(),
@@ -1112,7 +1113,7 @@ public class ComputerCraft
     {
         return turtleProxy.getTurtleUpgrade( id );
     }
-    
+
     public static ITurtleUpgrade getTurtleUpgrade( int legacyID )
     {
         return turtleProxy.getTurtleUpgrade( legacyID );
