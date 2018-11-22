@@ -106,7 +106,7 @@ public class ComputerTracker
 
         synchronized( fields )
         {
-            return fields.get( field );
+            return fields.getLong( field );
         }
     }
 

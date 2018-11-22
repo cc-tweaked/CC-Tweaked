@@ -129,7 +129,6 @@ public class CobaltLuaMachine implements ILuaMachine
                         Tracking.addValue( m_computer, TrackingField.COROUTINES_DISPOSED, 1 );
                     }
                 } );
-                ComputerCraft.log.info( "Thread pool: " + coroutines );
             } )
             .build();
 

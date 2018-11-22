@@ -22,6 +22,16 @@ public final class ThreadUtils
     }
 
     /**
+     * Get the base thread group, that all off-thread ComputerCraft activities are run on.
+     *
+     * @return The ComputerCraft group.
+     */
+    public static ThreadGroup group()
+    {
+        return baseGroup;
+    }
+
+    /**
      * Construct a group under ComputerCraft's shared group
      *
      * @param name The group's name. This will be prefixed with "ComputerCraft-".
