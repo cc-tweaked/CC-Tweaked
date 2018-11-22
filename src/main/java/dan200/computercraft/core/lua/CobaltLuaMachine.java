@@ -6,7 +6,6 @@
 
 package dan200.computercraft.core.lua;
 
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.lua.*;
 import dan200.computercraft.core.computer.Computer;
@@ -14,6 +13,7 @@ import dan200.computercraft.core.computer.ITask;
 import dan200.computercraft.core.computer.MainThread;
 import dan200.computercraft.core.tracking.Tracking;
 import dan200.computercraft.core.tracking.TrackingField;
+import dan200.computercraft.shared.util.ThreadUtils;
 import org.squiddev.cobalt.*;
 import org.squiddev.cobalt.compiler.CompileException;
 import org.squiddev.cobalt.compiler.LoadState;
@@ -48,18 +48,15 @@ public class CobaltLuaMachine implements ILuaMachine
         0, Integer.MAX_VALUE,
         60L, TimeUnit.SECONDS,
         new SynchronousQueue<>(),
-        new ThreadFactoryBuilder()
-            .setDaemon( true )
-            .setNameFormat( "ComputerCraft-Coroutine-%d" )
-            .build()
+        ThreadUtils.factory( "Coroutine" )
     );
 
     private final Computer m_computer;
 
-    private final LuaState m_state;
-    private final LuaTable m_globals;
-
+    private LuaState m_state;
+    private LuaTable m_globals;
     private LuaThread m_mainRoutine;
+
     private String m_eventFilter;
     private String m_softAbortMessage;
     private String m_hardAbortMessage;
@@ -132,6 +129,7 @@ public class CobaltLuaMachine implements ILuaMachine
                         Tracking.addValue( m_computer, TrackingField.COROUTINES_DISPOSED, 1 );
                     }
                 } );
+                ComputerCraft.log.info( "Thread pool: " + coroutines );
             } )
             .build();
 
@@ -189,10 +187,7 @@ public class CobaltLuaMachine implements ILuaMachine
     public void loadBios( InputStream bios )
     {
         // Begin executing a file (ie, the bios)
-        if( m_mainRoutine != null )
-        {
-            return;
-        }
+        if( m_mainRoutine != null ) return;
 
         try
         {
@@ -201,30 +196,19 @@ public class CobaltLuaMachine implements ILuaMachine
         }
         catch( CompileException e )
         {
-            if( m_mainRoutine != null )
-            {
-                m_mainRoutine.abandon();
-                m_mainRoutine = null;
-            }
+            unload();
         }
         catch( IOException e )
         {
             ComputerCraft.log.warn( "Could not load bios.lua ", e );
-            if( m_mainRoutine != null )
-            {
-                m_mainRoutine.abandon();
-                m_mainRoutine = null;
-            }
+            unload();
         }
     }
 
     @Override
     public void handleEvent( String eventName, Object[] arguments )
     {
-        if( m_mainRoutine == null )
-        {
-            return;
-        }
+        if( m_mainRoutine == null ) return;
 
         if( m_eventFilter != null && eventName != null && !eventName.equals( m_eventFilter ) && !eventName.equals( "terminate" ) )
         {
@@ -251,26 +235,14 @@ public class CobaltLuaMachine implements ILuaMachine
             else
             {
                 LuaValue filter = results.arg( 2 );
-                if( filter.isString() )
-                {
-                    m_eventFilter = filter.toString();
-                }
-                else
-                {
-                    m_eventFilter = null;
-                }
+                m_eventFilter = filter.isString() ? filter.toString() : null;
             }
 
-            LuaThread mainThread = m_mainRoutine;
-            if( mainThread.getStatus().equals( "dead" ) )
-            {
-                m_mainRoutine = null;
-            }
+            if( m_mainRoutine.getStatus().equals( "dead" ) ) unload();
         }
         catch( LuaError e )
         {
-            m_mainRoutine.abandon();
-            m_mainRoutine = null;
+            unload();
         }
         finally
         {
@@ -307,18 +279,18 @@ public class CobaltLuaMachine implements ILuaMachine
     @Override
     public boolean isFinished()
     {
-        return (m_mainRoutine == null);
+        return m_mainRoutine == null;
     }
 
     @Override
     public void unload()
     {
-        if( m_mainRoutine != null )
-        {
-            LuaThread mainThread = m_mainRoutine;
-            mainThread.abandon();
-            m_mainRoutine = null;
-        }
+        if( m_state == null ) return;
+
+        m_state.abandon();
+        m_mainRoutine = null;
+        m_state = null;
+        m_globals = null;
     }
 
     private LuaTable wrapLuaObject( ILuaObject object )
@@ -714,7 +686,7 @@ public class CobaltLuaMachine implements ILuaMachine
         private byte[] bytes;
         private int offset, remaining = 0;
 
-        public StringInputStream( LuaState state, LuaValue func )
+        StringInputStream( LuaState state, LuaValue func )
         {
             this.state = state;
             this.func = func;

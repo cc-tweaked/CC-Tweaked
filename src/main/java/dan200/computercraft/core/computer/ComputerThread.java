@@ -8,13 +8,14 @@ package dan200.computercraft.core.computer;
 
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.core.tracking.Tracking;
+import dan200.computercraft.shared.util.ThreadUtils;
 
 import java.util.HashSet;
 import java.util.Set;
 import java.util.WeakHashMap;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.ThreadFactory;
 
 public class ComputerThread
 {
@@ -56,8 +57,8 @@ public class ComputerThread
      */
     private static Thread[] s_threads = null;
 
-    private static final AtomicInteger s_ManagerCounter = new AtomicInteger( 1 );
-    private static final AtomicInteger s_DelegateCounter = new AtomicInteger( 1 );
+    private static final ThreadFactory s_ManagerFactory = ThreadUtils.factory( "Computer-Manager" );
+    private static final ThreadFactory s_RunnerFactory = ThreadUtils.factory( "Computer-Runner" );
 
     /**
      * Start the computer thread
@@ -72,16 +73,12 @@ public class ComputerThread
                 s_threads = new Thread[ComputerCraft.computer_threads];
             }
 
-            SecurityManager manager = System.getSecurityManager();
-            final ThreadGroup group = manager == null ? Thread.currentThread().getThreadGroup() : manager.getThreadGroup();
             for( int i = 0; i < s_threads.length; i++ )
             {
                 Thread thread = s_threads[i];
                 if( thread == null || !thread.isAlive() )
                 {
-                    thread = s_threads[i] = new Thread( group, new TaskExecutor(), "ComputerCraft-Computer-Manager-" + s_ManagerCounter.getAndIncrement() );
-                    thread.setDaemon( true );
-                    thread.start();
+                    (s_threads[i] = s_ManagerFactory.newThread( new TaskExecutor() )).start();
                 }
             }
         }
@@ -188,12 +185,7 @@ public class ComputerThread
             if( thread == null || !thread.isAlive() )
             {
                 runner = new TaskRunner();
-
-                SecurityManager manager = System.getSecurityManager();
-                final ThreadGroup group = manager == null ? Thread.currentThread().getThreadGroup() : manager.getThreadGroup();
-                Thread thread = this.thread = new Thread( group, runner, "ComputerCraft-Computer-Runner" + s_DelegateCounter.getAndIncrement() );
-                thread.setDaemon( true );
-                thread.start();
+                (thread = s_RunnerFactory.newThread( runner )).start();
             }
 
             long start = System.nanoTime();
