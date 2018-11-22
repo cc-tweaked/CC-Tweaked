@@ -8,11 +8,7 @@ package dan200.computercraft.client.proxy;
 
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.client.gui.*;
-import dan200.computercraft.client.render.ItemPocketRenderer;
-import dan200.computercraft.client.render.ItemPrintoutRenderer;
-import dan200.computercraft.client.render.RenderOverlayCable;
-import dan200.computercraft.client.render.TileEntityCableRenderer;
-import dan200.computercraft.client.render.TileEntityMonitorRenderer;
+import dan200.computercraft.client.render.*;
 import dan200.computercraft.shared.command.ContainerViewComputer;
 import dan200.computercraft.shared.computer.blocks.ComputerState;
 import dan200.computercraft.shared.computer.blocks.TileComputer;
@@ -35,7 +31,7 @@ import dan200.computercraft.shared.proxy.ComputerCraftProxyCommon;
 import dan200.computercraft.shared.turtle.blocks.TileTurtle;
 import dan200.computercraft.shared.turtle.entity.TurtleVisionCamera;
 import dan200.computercraft.shared.util.Colour;
-import gnu.trove.map.hash.TIntIntHashMap;
+import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiNewChat;
@@ -75,7 +71,7 @@ import java.util.List;
 
 public class ComputerCraftProxyClient extends ComputerCraftProxyCommon
 {
-    private static TIntIntHashMap lastCounts = new TIntIntHashMap();
+    private static Int2IntOpenHashMap lastCounts = new Int2IntOpenHashMap();
 
     private long m_tick;
     private long m_renderFrame;

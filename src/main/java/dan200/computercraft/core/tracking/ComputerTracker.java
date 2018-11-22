@@ -1,7 +1,7 @@
 package dan200.computercraft.core.tracking;
 
 import dan200.computercraft.core.computer.Computer;
-import gnu.trove.map.hash.TObjectLongHashMap;
+import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap;
 
 import javax.annotation.Nullable;
 import java.lang.ref.WeakReference;
@@ -18,13 +18,13 @@ public class ComputerTracker
     private long serverCount;
     private long serverTime;
 
-    private final TObjectLongHashMap<TrackingField> fields;
+    private final Object2LongOpenHashMap<TrackingField> fields;
 
     public ComputerTracker( Computer computer )
     {
         this.computer = new WeakReference<>( computer );
         this.computerId = computer.getID();
-        this.fields = new TObjectLongHashMap<>();
+        this.fields = new Object2LongOpenHashMap<>();
     }
 
     ComputerTracker( ComputerTracker timings )
@@ -39,7 +39,7 @@ public class ComputerTracker
         this.serverCount = timings.serverCount;
         this.serverTime = timings.serverTime;
 
-        this.fields = new TObjectLongHashMap<>( timings.fields );
+        this.fields = new Object2LongOpenHashMap<>( timings.fields );
     }
 
     @Nullable
@@ -90,7 +90,7 @@ public class ComputerTracker
     {
         synchronized( fields )
         {
-            fields.adjustOrPutValue( field, change, change );
+            fields.addTo( field, change );
         }
     }
 
