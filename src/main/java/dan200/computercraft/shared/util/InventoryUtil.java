@@ -96,121 +96,76 @@ public class InventoryUtil
     // Methods for placing into inventories:
 
     @Nonnull
-    public static ItemStack storeItems( @Nonnull ItemStack itemstack, IItemHandler inventory, int start, int range, int begin )
-    {
-        int[] slots = makeSlotList( start, range, begin );
-        return storeItems( itemstack, inventory, slots );
-    }
-
-    @Nonnull
     public static ItemStack storeItems( @Nonnull ItemStack itemstack, IItemHandler inventory, int begin )
     {
-        int[] slots = makeSlotList( 0, inventory.getSlots(), begin );
-        return storeItems( itemstack, inventory, slots );
+        return storeItems( itemstack, inventory, 0, inventory.getSlots(), begin );
     }
 
     @Nonnull
     public static ItemStack storeItems( @Nonnull ItemStack itemstack, IItemHandler inventory )
     {
-        int[] slots = makeSlotList( 0, inventory.getSlots(), 0 ); // TODO: optimise this out?
-        return storeItems( itemstack, inventory, slots );
-    }
-
-    // Methods for taking out of inventories
-
-    @Nonnull
-    public static ItemStack takeItems( int count, IItemHandler inventory, int start, int range, int begin )
-    {
-        int[] slots = makeSlotList( start, range, begin );
-        return takeItems( count, inventory, slots );
+        return storeItems( itemstack, inventory, 0, inventory.getSlots(), 0 );
     }
 
     @Nonnull
-    public static ItemStack takeItems( int count, IItemHandler inventory, int begin )
+    public static ItemStack storeItems( @Nonnull ItemStack stack, IItemHandler inventory, int start, int range, int begin )
     {
-        int[] slots = makeSlotList( 0, inventory.getSlots(), begin );
-        return takeItems( count, inventory, slots );
-    }
-
-    @Nonnull
-    public static ItemStack takeItems( int count, IItemHandler inventory )
-    {
-        int[] slots = makeSlotList( 0, inventory.getSlots(), 0 );
-        return takeItems( count, inventory, slots );
-    }
-
-    // Private methods
-
-    private static int[] makeSlotList( int start, int range, int begin )
-    {
-        if( start < 0 || range == 0 )
-        {
-            return null;
-        }
-
-        int[] slots = new int[ range ];
-        for( int n = 0; n < slots.length; ++n )
-        {
-            slots[ n ] = start + ((n + (begin - start)) % range);
-        }
-        return slots;
-    }
-
-    @Nonnull
-    private static ItemStack storeItems( @Nonnull ItemStack stack, IItemHandler inventory, int[] slots )
-    {
-        if( slots == null || slots.length == 0 )
-        {
-            return stack;
-        }
-        if( stack.isEmpty() )
-        {
-            return ItemStack.EMPTY;
-        }
+        if( stack.isEmpty() ) return ItemStack.EMPTY;
 
         // Inspect the slots in order and try to find empty or stackable slots
         ItemStack remainder = stack.copy();
-        for( int slot : slots )
+        for( int i = 0; i < range; i++ )
         {
+            int slot = start + ((i + (begin - start)) % range);
             if( remainder.isEmpty() ) break;
             remainder = inventory.insertItem( slot, remainder, false );
         }
         return areItemsEqual( stack, remainder ) ? stack : remainder;
     }
 
-    @Nonnull
-    private static ItemStack takeItems( int count, IItemHandler inventory, int[] slots )
-    {
-        if( slots == null )
-        {
-            return ItemStack.EMPTY;
-        }
+    // Methods for taking out of inventories
 
+    @Nonnull
+    public static ItemStack takeItems( int count, IItemHandler inventory, int begin )
+    {
+        return takeItems( count, inventory, 0, inventory.getSlots(), begin );
+    }
+
+    @Nonnull
+    public static ItemStack takeItems( int count, IItemHandler inventory )
+    {
+        return takeItems( count, inventory, 0, inventory.getSlots(), 0 );
+    }
+
+    @Nonnull
+    public static ItemStack takeItems( int count, IItemHandler inventory, int start, int range, int begin )
+    {
         // Combine multiple stacks from inventory into one if necessary
         ItemStack partialStack = ItemStack.EMPTY;
-        int countRemaining = count;
-        for( int slot : slots )
+        for( int i = 0; i < range; i++ )
         {
-            if( countRemaining <= 0 ) break;
+            int slot = start + ((i + (begin - start)) % range);
+
+            if( count <= 0 ) break;
 
             ItemStack stack = inventory.getStackInSlot( slot );
-            if( !stack.isEmpty() )
+            if( !stack.isEmpty() && (partialStack.isEmpty() || areItemsStackable( stack, partialStack )) )
             {
-                if( partialStack.isEmpty() || areItemsStackable( stack, partialStack ) )
+                ItemStack extracted = inventory.extractItem( slot, count, false );
+                if( !extracted.isEmpty() )
                 {
-                    ItemStack extracted = inventory.extractItem( slot, countRemaining, false );
-                    if( !extracted.isEmpty() )
+                    if( partialStack.isEmpty() )
                     {
-                        countRemaining -= extracted.getCount();
-                        if( partialStack.isEmpty() )
-                        {
-                            partialStack = extracted;
-                        }
-                        else
-                        {
-                            partialStack.grow( extracted.getCount() );
-                        }
+                        // If we've extracted for this first time, then limit the count to the maximum stack size.
+                        partialStack = extracted;
+                        count = Math.min( count, extracted.getMaxStackSize() );
                     }
+                    else
+                    {
+                        partialStack.grow( extracted.getCount() );
+                    }
+
+                    count -= extracted.getCount();
                 }
             }
         }
