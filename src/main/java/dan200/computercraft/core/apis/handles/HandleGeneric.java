@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.nio.channels.Channel;
 import java.nio.channels.SeekableByteChannel;
 
-import static dan200.computercraft.core.apis.ArgumentHelper.optInt;
+import static dan200.computercraft.core.apis.ArgumentHelper.optLong;
 import static dan200.computercraft.core.apis.ArgumentHelper.optString;
 
 public abstract class HandleGeneric implements ILuaObject
@@ -54,7 +54,7 @@ public abstract class HandleGeneric implements ILuaObject
         try
         {
             String whence = optString( args, 0, "cur" );
-            long offset = optInt( args, 1, 0 );
+            long offset = optLong( args, 1, 0 );
             switch( whence )
             {
                 case "set":

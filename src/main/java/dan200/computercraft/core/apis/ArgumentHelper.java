@@ -71,11 +71,16 @@ public final class ArgumentHelper
 
     public static int getInt( @Nonnull Object[] args, int index ) throws LuaException
     {
+        return (int) getLong( args, index );
+    }
+
+    public static long getLong( @Nonnull Object[] args, int index ) throws LuaException
+    {
         if( index >= args.length ) throw badArgument( index, "number", "nil" );
         Object value = args[ index ];
         if( value instanceof Number )
         {
-            return (int) ((Number) value).longValue();
+            return checkReal( index, (Number) value ).longValue();
         }
         else
         {
@@ -152,6 +157,11 @@ public final class ArgumentHelper
 
     public static int optInt( @Nonnull Object[] args, int index, int def ) throws LuaException
     {
+        return (int) optLong( args, index, def );
+    }
+
+    public static long optLong( @Nonnull Object[] args, int index, long def ) throws LuaException
+    {
         Object value = index < args.length ? args[ index ] : null;
         if( value == null )
         {
@@ -159,7 +169,7 @@ public final class ArgumentHelper
         }
         else if( value instanceof Number )
         {
-            return (int) ((Number) value).longValue();
+            return checkReal( index, (Number) value ).longValue();
         }
         else
         {
@@ -222,6 +232,12 @@ public final class ArgumentHelper
         {
             throw badArgument( index, "table", value );
         }
+    }
+
+    private static Number checkReal( int index, Number value ) throws LuaException
+    {
+        checkReal( index, value.doubleValue() );
+        return value;
     }
 
     private static double checkReal( int index, double value ) throws LuaException
