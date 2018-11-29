@@ -9,6 +9,7 @@ import dan200.computercraft.core.tracking.Tracking;
 import dan200.computercraft.core.tracking.TrackingContext;
 import dan200.computercraft.core.tracking.TrackingField;
 import dan200.computercraft.shared.command.framework.*;
+import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
@@ -379,6 +380,35 @@ public final class CommandComputerCraft extends CommandDelegate
             }
         } );
 
+        root.register( new SubCommandBase(
+            "queue", "<id> [args...]", "Send a computer_command event to a command computer", UserLevel.ANYONE,
+            "Send a computer_command event to a command computer, passing through the additional arguments. " +
+                "This is mostly designed for map makers, acting as a more computer-friendly version of /trigger. Any " +
+                "player can run the command, which would most likely be done through a text component's click event."
+        )
+        {
+            @Override
+            public void execute( @Nonnull CommandContext context, @Nonnull List<String> arguments ) throws CommandException
+            {
+                if( arguments.size() < 1 ) throw new CommandException( context.getFullUsage() );
+
+                String selector = arguments.get( 0 );
+                Object[] rest = arguments.subList( 1, arguments.size() ).toArray();
+
+                boolean found = false;
+                for( ServerComputer computer : ComputerSelector.getComputers( selector ) )
+                {
+                    if( computer.getFamily() != ComputerFamily.Command || !computer.isOn() ) continue;
+                    found = true;
+                    computer.queueEvent( "computer_command", rest );
+                }
+
+                if( !found )
+                {
+                    throw new CommandException( "Could not find any command computers matching " + selector );
+                }
+            }
+        } );
 
         return root;
     }

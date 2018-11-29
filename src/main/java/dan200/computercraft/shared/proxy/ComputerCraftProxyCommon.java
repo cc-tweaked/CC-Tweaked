@@ -10,7 +10,6 @@ import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.pocket.IPocketUpgrade;
 import dan200.computercraft.core.computer.MainThread;
-import dan200.computercraft.shared.command.CommandComputer;
 import dan200.computercraft.shared.command.CommandComputerCraft;
 import dan200.computercraft.shared.command.ContainerViewComputer;
 import dan200.computercraft.shared.common.ColourableRecipe;
@@ -131,7 +130,6 @@ public abstract class ComputerCraftProxyCommon implements IComputerCraftProxy
     public void initServer( MinecraftServer server )
     {
         CommandHandler handler = (CommandHandler) server.getCommandManager();
-        handler.registerCommand( new CommandComputer() );
         handler.registerCommand( new CommandComputerCraft() );
     }
 
