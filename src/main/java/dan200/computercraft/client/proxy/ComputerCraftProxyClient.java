@@ -9,6 +9,7 @@ package dan200.computercraft.client.proxy;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.client.gui.*;
 import dan200.computercraft.client.render.*;
+import dan200.computercraft.shared.command.CommandCopy;
 import dan200.computercraft.shared.command.ContainerViewComputer;
 import dan200.computercraft.shared.computer.blocks.ComputerState;
 import dan200.computercraft.shared.computer.blocks.TileComputer;
@@ -51,6 +52,7 @@ import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.World;
+import net.minecraftforge.client.ClientCommandHandler;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderHandEvent;
@@ -88,6 +90,9 @@ public class ComputerCraftProxyClient extends ComputerCraftProxyCommon
 
         // Setup client forge handlers
         registerForgeHandlers();
+
+        // Register any client-specific commands
+        ClientCommandHandler.instance.registerCommand( CommandCopy.INSTANCE );
     }
 
     @SubscribeEvent

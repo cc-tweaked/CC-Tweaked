@@ -11,6 +11,7 @@ import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.network.wired.IWiredElement;
 import dan200.computercraft.api.network.wired.IWiredNode;
 import dan200.computercraft.api.peripheral.IPeripheral;
+import dan200.computercraft.shared.command.CommandCopy;
 import dan200.computercraft.shared.peripheral.common.BlockCable;
 import dan200.computercraft.shared.peripheral.common.TilePeripheralBase;
 import dan200.computercraft.shared.wired.CapabilityWiredElement;
@@ -20,6 +21,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
@@ -181,29 +183,14 @@ public class TileWiredModemFull extends TilePeripheralBase
         if( !getWorld().isRemote )
         {
             // On server, we interacted if a peripheral was found
-            Set<String> oldPeriphName = getConnectedPeripheralNames();
+            Set<String> oldPeriphNames = getConnectedPeripheralNames();
             togglePeripheralAccess();
-            Set<String> periphName = getConnectedPeripheralNames();
+            Set<String> periphNames = getConnectedPeripheralNames();
 
-            if( !Objects.equal( periphName, oldPeriphName ) )
+            if( !Objects.equal( periphNames, oldPeriphNames ) )
             {
-                if( !oldPeriphName.isEmpty() )
-                {
-                    List<String> names = new ArrayList<>( oldPeriphName );
-                    names.sort( Comparator.naturalOrder() );
-
-                    player.sendMessage(
-                        new TextComponentTranslation( "gui.computercraft:wired_modem.peripheral_disconnected", String.join( ", ", names ) )
-                    );
-                }
-                if( !periphName.isEmpty() )
-                {
-                    List<String> names = new ArrayList<>( periphName );
-                    names.sort( Comparator.naturalOrder() );
-                    player.sendMessage(
-                        new TextComponentTranslation( "gui.computercraft:wired_modem.peripheral_connected", String.join( ", ", names ) )
-                    );
-                }
+                sendPeripheralChanges( player, "gui.computercraft:wired_modem.peripheral_disconnected", oldPeriphNames );
+                sendPeripheralChanges( player, "gui.computercraft:wired_modem.peripheral_connected", periphNames );
             }
 
             return true;
@@ -214,6 +201,23 @@ public class TileWiredModemFull extends TilePeripheralBase
             // The server will correct us if we're wrong
             return true;
         }
+    }
+
+    private static void sendPeripheralChanges( EntityPlayer player, String kind, Collection<String> peripherals )
+    {
+        if( peripherals.isEmpty() ) return;
+
+        List<String> names = new ArrayList<>( peripherals );
+        names.sort( Comparator.naturalOrder() );
+
+        TextComponentString base = new TextComponentString( "" );
+        for( int i = 0; i < names.size(); i++ )
+        {
+            if( i > 0 ) base.appendText( ", " );
+            base.appendSibling( CommandCopy.createCopyText( names.get( i ) ) );
+        }
+
+        player.sendMessage( new TextComponentTranslation( kind, base ) );
     }
 
     @Override

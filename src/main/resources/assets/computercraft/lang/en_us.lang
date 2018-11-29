@@ -42,6 +42,8 @@ upgrade.computercraft:speaker.adjective=Noisy
 gui.computercraft:wired_modem.peripheral_connected=Peripheral "%s" connected to network
 gui.computercraft:wired_modem.peripheral_disconnected=Peripheral "%s" disconnected from network
 
+gui.computercraft:tooltip.copy=Copy to clipboard
+
 gui.computercraft:config.http_enable=Enable HTTP API
 gui.computercraft:config.http_websocket_enable=Enable HTTP websockets
 gui.computercraft:config.http_whitelist=HTTP whitelist
