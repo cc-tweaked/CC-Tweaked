@@ -1,0 +1,75 @@
+{
+    "block.computercraft.computer_normal": "Computer",
+    "block.computercraft.computer_advanced": "Advanced Computer",
+    "block.computercraft.computer_command": "Command Computer",
+
+    "block.computercraft.drive": "Disk Drive",
+    "block.computercraft.printer": "Printer",
+    "block.computercraft.speaker": "Speaker",
+
+    "block.computercraft.monitor_normal": "Monitor",
+    "block.computercraft.monitor_advanced": "Advanced Monitor",
+
+    "block.computercraft.wireless_modem_normal": "Wireless Modem",
+    "block.computercraft.wireless_modem_advanced": "Ender Modem",
+
+    "block.computercraft.wired_modem": "Wired Modem",
+    "block.computercraft.cable": "Networking Cable",
+
+    "block.computercraft.turtle_normal": "Turtle",
+    "block.computercraft.turtle_normal.upgraded": "%s Turtle",
+    "block.computercraft.turtle_normal.upgraded_twice": "%s %s Turtle",
+
+    "block.computercraft.turtle_advanced": "Advanced Turtle",
+    "block.computercraft.turtle_advanced.upgraded": "Advanced %s Turtle",
+    "block.computercraft.turtle_advanced.upgraded_twice": "Advanced %s %s Turtle",
+
+    "item.computercraft.disk": "Floppy Disk",
+    "item.computercraft.treasure_disk": "Floppy Disk",
+    "item.computercraft.page": "Printed Page",
+    "item.computercraft.pages": "Printed Pages",
+    "item.computercraft.book": "Printed Book",
+
+    "item.computercraft.pocket_computer_normal": "Pocket Computer",
+    "item.computercraft.pocket_computer_normal.upgraded": "%s Pocket Computer",
+    "item.computercraft.pocket_computer_advanced": "Advanced Pocket Computer",
+    "item.computercraft.pocket_computer_advanced.upgraded": "Advanced %s Pocket Computer",
+
+    "upgrade.minecraft.diamond_sword.adjective": "Melee",
+    "upgrade.minecraft.diamond_shovel.adjective": "Digging",
+    "upgrade.minecraft.diamond_pickaxe.adjective": "Mining",
+    "upgrade.minecraft.diamond_axe.adjective": "Felling",
+    "upgrade.minecraft.diamond_hoe.adjective": "Farming",
+    "upgrade.minecraft.crafting_table.adjective": "Crafty",
+    "upgrade.computercraft.wireless_modem_normal.adjective": "Wireless",
+    "upgrade.computercraft.modem_advanced_advanced.adjective": "Ender",
+    "upgrade.computercraft.speaker.adjective": "Noisy",
+
+    "gui.computercraft.wired_modem.peripheral_connected": "Peripheral %s connected to network",
+    "gui.computercraft.wired_modem.peripheral_disconnected": "Peripheral %s disconnected from network",
+    "gui.computercraft.tooltip.copy": "Copy to clipboard",
+
+    "gui.computercraft.config.http_enable": "Enable HTTP API",
+    "gui.computercraft.config.http_websocket_enable": "Enable HTTP websockets",
+    "gui.computercraft.config.http_whitelist": "HTTP whitelist",
+    "gui.computercraft.config.http_blacklist": "HTTP blacklist",
+    "gui.computercraft.config.disable_lua51_features": "Disable Lua 5.1 features",
+    "gui.computercraft.config.default_computer_settings": "Default Computer settings",
+    "gui.computercraft.config.debug_enable": "Enable debug library",
+    "gui.computercraft.config.log_peripheral_errors": "Log peripheral errors",
+    "gui.computercraft.config.enable_command_block": "Enable command block peripheral",
+    "gui.computercraft.config.modem_range": "Modem range (default)",
+    "gui.computercraft.config.modem_high_altitude_range": "Modem range (high-altitude)",
+    "gui.computercraft.config.modem_range_during_storm": "Modem range (bad weather)",
+    "gui.computercraft.config.modem_high_altitude_range_during_storm": "Modem range (high-altitude, bad weather)",
+    "gui.computercraft.config.computer_space_limit": "Computer space limit (bytes)",
+    "gui.computercraft.config.floppy_space_limit": "Floppy Disk space limit (bytes)",
+    "gui.computercraft.config.turtle_normals_need_fuel": "Enable fuel",
+    "gui.computercraft.config.turtle_normal_fuel_limit": "Turtle fuel limit",
+    "gui.computercraft.config.turtle_advanced_fuel_limit": "Advanced Turtle fuel limit",
+    "gui.computercraft.config.turtle_normals_obey_block_protection": "Turtles obey block protection",
+    "gui.computercraft.config.turtle_normals_can_push": "Turtles can push entities",
+    "gui.computercraft.config.turtle_normal_disabled_actions": "Disabled turtle_normal actions",
+    "gui.computercraft.config.maximum_files_open": "Maximum files open per computer",
+    "gui.computercraft.config.max_notes_per_tick": "Maximum notes that a computer can play at once"
+}

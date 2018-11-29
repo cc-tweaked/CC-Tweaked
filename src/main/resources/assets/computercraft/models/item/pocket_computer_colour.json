@@ -1,7 +1,17 @@
 {
     "parent": "item/generated",
     "textures": {
-        "layer0": "computercraft:items/pocket_computer_frame",
-        "layer1": "computercraft:items/pocket_computer_colour"
-    }
+        "layer0": "computercraft:item/pocket_computer_frame",
+        "layer1": "computercraft:item/pocket_computer_colour"
+    },
+    "overrides": [
+        {
+            "predicate": { "computercraft:computer_state": 1 },
+            "model": "computercraft:item/pocket_computer_colour_on"
+        },
+        {
+            "predicate": { "computercraft:computer_state": 2 },
+            "model": "computercraft:item/pocket_computer_colour_blinking"
+        }
+    ]
 }

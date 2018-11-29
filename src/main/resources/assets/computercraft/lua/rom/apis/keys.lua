@@ -48,6 +48,11 @@ local tKeys = {
     "delete"														-- 211
 }
 
+
+tKeys[257] = "enter"
+tKeys[258] = "tab"
+tKeys[259] = "backspace"
+
 local keys = _ENV
 for nKey, sKey in pairs( tKeys ) do
     keys[sKey] = nKey
