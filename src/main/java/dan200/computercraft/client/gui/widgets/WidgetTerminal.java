@@ -27,7 +27,7 @@ import java.util.ArrayList;
 public class WidgetTerminal extends Widget
 {
     private static final ResourceLocation background = new ResourceLocation( "computercraft", "textures/gui/term_background.png" );
-    private static float TERMINATE_TIME = 0.5f;
+    private static final float TERMINATE_TIME = 0.5f;
 
     private final IComputerContainer m_computer;
 
@@ -41,7 +41,6 @@ public class WidgetTerminal extends Widget
 
     private boolean m_focus;
     private boolean m_allowFocusLoss;
-    private boolean m_locked;
 
     private int m_leftMargin;
     private int m_rightMargin;
@@ -69,7 +68,6 @@ public class WidgetTerminal extends Widget
 
         m_focus = false;
         m_allowFocusLoss = true;
-        m_locked = false;
 
         m_leftMargin = leftMargin;
         m_rightMargin = rightMargin;
@@ -85,15 +83,10 @@ public class WidgetTerminal extends Widget
         m_focus = m_focus || !allowFocusLoss;
     }
 
-    public void setLocked( boolean locked )
-    {
-        m_locked = locked;
-    }
-
     @Override
-    public void keyTyped( char ch, int key )
+    public boolean keyTyped( char ch, int key )
     {
-        if( m_focus && !m_locked )
+        if( m_focus )
         {
             // Ctrl+V for paste
             if( ch == 22 )
@@ -134,13 +127,14 @@ public class WidgetTerminal extends Widget
                         } );
                     }
                 }
-                return;
+                return true;
             }
 
             // Regular keys normally
             if( m_terminateTimer <= 0.0f && m_rebootTimer <= 0.0f && m_shutdownTimer <= 0.0f )
             {
                 boolean repeat = Keyboard.isRepeatEvent();
+                boolean handled = false;
                 if( key > 0 )
                 {
                     if( !repeat )
@@ -152,6 +146,7 @@ public class WidgetTerminal extends Widget
                     queueEvent( "key", new Object[]{
                         key, repeat
                     } );
+                    handled = true;
                 }
 
                 if( (ch >= 32 && ch <= 126) || (ch >= 160 && ch <= 255) ) // printable chars in byte range
@@ -160,9 +155,14 @@ public class WidgetTerminal extends Widget
                     queueEvent( "char", new Object[]{
                         Character.toString( ch )
                     } );
+                    handled = true;
                 }
+
+                return handled;
             }
         }
+        
+        return false;
     }
 
     @Override
@@ -179,7 +179,7 @@ public class WidgetTerminal extends Widget
             if( m_focus )
             {
                 IComputer computer = m_computer.getComputer();
-                if( !m_locked && computer != null && computer.isColour() && button >= 0 && button <= 2 )
+                if( computer != null && computer.isColour() && button >= 0 && button <= 2 )
                 {
                     Terminal term = computer.getTerminal();
                     if( term != null )
@@ -210,23 +210,27 @@ public class WidgetTerminal extends Widget
     }
 
     @Override
-    public void handleKeyboardInput()
+    public boolean handleKeyboardInput()
     {
-        for( int i=m_keysDown.size()-1; i>=0; --i )
+        boolean handled = false;
+        for( int i = m_keysDown.size() - 1; i >= 0; --i )
         {
             int key = m_keysDown.get( i );
             if( !Keyboard.isKeyDown( key ) )
             {
                 m_keysDown.remove( i );
-                if( m_focus && !m_locked )
+                if( m_focus )
                 {
                     // Queue the "key_up" event
                     queueEvent( "key_up", new Object[]{
                         key
                     } );
+                    handled = true;
                 }
             }
         }
+
+        return handled;
     }
 
     @Override
@@ -247,7 +251,7 @@ public class WidgetTerminal extends Widget
 
                 if( m_lastClickButton >= 0 && !Mouse.isButtonDown( m_lastClickButton ) )
                 {
-                    if( m_focus && !m_locked )
+                    if( m_focus )
                     {
                         computer.queueEvent( "mouse_up", new Object[]{
                             m_lastClickButton + 1, charX + 1, charY + 1
@@ -262,7 +266,7 @@ public class WidgetTerminal extends Widget
                     return;
                 }
 
-                if( m_focus && !m_locked )
+                if( m_focus )
                 {
                     if( wheelChange < 0 )
                     {
@@ -294,7 +298,7 @@ public class WidgetTerminal extends Widget
     public void update()
     {                
         // Handle special keys
-        if( m_focus && !m_locked && (Keyboard.isKeyDown( 29 ) || Keyboard.isKeyDown( 157 )) )
+        if( m_focus && (Keyboard.isKeyDown( 29 ) || Keyboard.isKeyDown( 157 )) )
         {            
             // Ctrl+T for terminate
             if( Keyboard.isKeyDown( 20 ) )
@@ -443,19 +447,6 @@ public class WidgetTerminal extends Widget
                     GlStateManager.color( 1.0f, 1.0f, 1.0f, 1.0f );
                 }
             }
-        }
-    }
-
-    @Override
-    public boolean suppressKeyPress( char c, int k )
-    {
-        if( m_focus )
-        {
-            return k != 1; // escape
-        }
-        else
-        {
-            return false;
         }
     }
 

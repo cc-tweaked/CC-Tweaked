@@ -95,7 +95,7 @@ public class GuiComputer extends GuiContainer
         }
         else
         {
-            m_terminal.keyTyped( c, k );
+            if( m_terminal.keyTyped( c, k ) ) keyHandled = true;
         }
     }
 
@@ -123,7 +123,7 @@ public class GuiComputer extends GuiContainer
     public void handleKeyboardInput() throws IOException
     {
         super.handleKeyboardInput();
-        m_terminal.handleKeyboardInput();
+        if( m_terminal.handleKeyboardInput() ) keyHandled = true;
     }
 
     @Override

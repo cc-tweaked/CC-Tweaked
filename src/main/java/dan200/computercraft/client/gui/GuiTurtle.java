@@ -95,7 +95,7 @@ public class GuiTurtle extends GuiContainer
         }
         else
         {
-            m_terminalGui.keyTyped( c, k );
+            if( m_terminalGui.keyTyped( c, k ) ) keyHandled = true;
         }
     }
     
@@ -119,7 +119,7 @@ public class GuiTurtle extends GuiContainer
     public void handleKeyboardInput() throws IOException
     {
         super.handleKeyboardInput();
-        m_terminalGui.handleKeyboardInput();
+        if( m_terminalGui.handleKeyboardInput() ) keyHandled = true;
     }
 
     protected void drawSelectionSlot( boolean advanced )
