@@ -123,7 +123,7 @@ public class ItemDiskLegacy extends Item
         int diskID = getDiskID( stack );
         if( diskID < 0 )
         {
-            diskID = ComputerCraft.createUniqueNumberedSaveDir( world, "computer/disk" );
+            diskID = ComputerCraftAPI.createUniqueNumberedSaveDir( world, "computer/disk" );
             setDiskID( stack, diskID );
         }
         return ComputerCraftAPI.createSaveDirMount( world, "computer/disk/" + diskID, ComputerCraft.floppySpaceLimit );

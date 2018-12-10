@@ -10,6 +10,7 @@ import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.pocket.IPocketUpgrade;
 import dan200.computercraft.core.computer.MainThread;
+import dan200.computercraft.shared.PocketUpgrades;
 import dan200.computercraft.shared.command.CommandComputerCraft;
 import dan200.computercraft.shared.command.ContainerViewComputer;
 import dan200.computercraft.shared.common.DefaultBundledRedstoneProvider;
@@ -30,7 +31,6 @@ import dan200.computercraft.shared.media.items.ItemDiskExpanded;
 import dan200.computercraft.shared.media.items.ItemDiskLegacy;
 import dan200.computercraft.shared.media.items.ItemPrintout;
 import dan200.computercraft.shared.media.items.ItemTreasureDisk;
-import dan200.computercraft.shared.media.recipes.PrintoutRecipe;
 import dan200.computercraft.shared.network.ComputerCraftPacket;
 import dan200.computercraft.shared.peripheral.commandblock.CommandBlockPeripheralProvider;
 import dan200.computercraft.shared.peripheral.common.BlockPeripheral;
@@ -52,7 +52,6 @@ import dan200.computercraft.shared.pocket.items.ItemPocketComputer;
 import dan200.computercraft.shared.pocket.items.PocketComputerItemFactory;
 import dan200.computercraft.shared.pocket.peripherals.PocketModem;
 import dan200.computercraft.shared.pocket.peripherals.PocketSpeaker;
-import dan200.computercraft.shared.pocket.recipes.PocketComputerUpgradeRecipe;
 import dan200.computercraft.shared.turtle.blocks.TileTurtle;
 import dan200.computercraft.shared.turtle.inventory.ContainerTurtle;
 import dan200.computercraft.shared.util.Colour;
@@ -300,7 +299,7 @@ public abstract class ComputerCraftProxyCommon implements IComputerCraftProxy
         // Impostor Pocket Computer recipes (to fool NEI)
         ItemStack pocketComputer = PocketComputerItemFactory.create( -1, null, -1, ComputerFamily.Normal, null );
         ItemStack advancedPocketComputer = PocketComputerItemFactory.create( -1, null, -1, ComputerFamily.Advanced, null );
-        for( IPocketUpgrade upgrade : ComputerCraft.getVanillaPocketUpgrades() )
+        for( IPocketUpgrade upgrade : PocketUpgrades.getVanillaUpgrades() )
         {
             registry.register( new ImpostorRecipe(
                     "computercraft:normal_pocket_upgrade",

@@ -11,6 +11,7 @@ import dan200.computercraft.api.lua.ILuaAPI;
 import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.pocket.IPocketUpgrade;
+import dan200.computercraft.shared.PocketUpgrades;
 import dan200.computercraft.shared.pocket.core.PocketServerComputer;
 import dan200.computercraft.shared.util.InventoryUtil;
 import dan200.computercraft.shared.util.WorldUtil;
@@ -139,7 +140,7 @@ public class PocketAPI implements ILuaAPI
             ItemStack invStack = inv.get( (i + start) % inv.size() );
             if( !invStack.isEmpty() )
             {
-                IPocketUpgrade newUpgrade = ComputerCraft.getPocketUpgrade( invStack );
+                IPocketUpgrade newUpgrade = PocketUpgrades.get( invStack );
 
                 if( newUpgrade != null && newUpgrade != previous )
                 {

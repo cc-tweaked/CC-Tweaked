@@ -7,6 +7,8 @@
 package dan200.computercraft.shared.computer.blocks;
 
 import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.shared.BundledRedstone;
+import dan200.computercraft.shared.Peripherals;
 import dan200.computercraft.shared.common.IDirectionalTile;
 import dan200.computercraft.shared.common.ITerminal;
 import dan200.computercraft.shared.common.TileGeneric;
@@ -15,7 +17,6 @@ import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.IComputer;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.util.DirectionUtil;
-import dan200.computercraft.shared.util.PeripheralUtil;
 import dan200.computercraft.shared.util.RedstoneUtil;
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
@@ -320,11 +321,11 @@ public abstract class TileComputerBase extends TileGeneric
         if( !isRedstoneBlockedOnSide( localDir ) )
         {
             computer.setRedstoneInput( localDir, getWorld().getRedstonePower( offset, offsetSide ) );
-            computer.setBundledRedstoneInput( localDir, RedstoneUtil.getBundledRedstoneOutput( getWorld(), offset, offsetSide ) );
+            computer.setBundledRedstoneInput( localDir, BundledRedstone.getOutput( getWorld(), offset, offsetSide ) );
         }
         if( !isPeripheralBlockedOnSide( localDir ) )
         {
-            computer.setPeripheral( localDir, PeripheralUtil.getPeripheral( getWorld(), offset, offsetSide ) );
+            computer.setPeripheral( localDir, Peripherals.getPeripheral( getWorld(), offset, offsetSide ) );
         }
     }
 

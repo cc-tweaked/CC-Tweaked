@@ -16,21 +16,20 @@ import dan200.computercraft.api.media.IMediaProvider;
 import dan200.computercraft.api.network.IPacketNetwork;
 import dan200.computercraft.api.network.wired.IWiredElement;
 import dan200.computercraft.api.network.wired.IWiredNode;
-import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.peripheral.IPeripheralProvider;
 import dan200.computercraft.api.permissions.ITurtlePermissionProvider;
 import dan200.computercraft.api.pocket.IPocketUpgrade;
 import dan200.computercraft.api.redstone.IBundledRedstoneProvider;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.event.TurtleAction;
-import dan200.computercraft.client.FrameInfo;
 import dan200.computercraft.core.apis.AddressPredicate;
+import dan200.computercraft.core.apis.ApiFactories;
 import dan200.computercraft.core.filesystem.ComboMount;
 import dan200.computercraft.core.filesystem.FileMount;
 import dan200.computercraft.core.filesystem.FileSystemMount;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.core.tracking.Tracking;
-import dan200.computercraft.shared.common.DefaultBundledRedstoneProvider;
+import dan200.computercraft.shared.*;
 import dan200.computercraft.shared.computer.blocks.BlockCommandComputer;
 import dan200.computercraft.shared.computer.blocks.BlockComputer;
 import dan200.computercraft.shared.computer.blocks.TileComputer;
@@ -61,8 +60,6 @@ import dan200.computercraft.shared.turtle.blocks.TileTurtle;
 import dan200.computercraft.shared.turtle.upgrades.*;
 import dan200.computercraft.shared.util.CreativeTabMain;
 import dan200.computercraft.shared.util.IDAssigner;
-import dan200.computercraft.shared.util.InventoryUtil;
-import dan200.computercraft.shared.util.RecordUtil;
 import dan200.computercraft.shared.wired.CapabilityWiredElement;
 import dan200.computercraft.shared.wired.WiredNode;
 import io.netty.buffer.Unpooled;
@@ -75,8 +72,6 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
-import net.minecraft.util.NonNullList;
-import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
@@ -94,7 +89,6 @@ import net.minecraftforge.fml.relauncher.Side;
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.Logger;
 
-import javax.annotation.Nonnull;
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
@@ -102,14 +96,13 @@ import java.net.URL;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.ServiceConfigurationError;
 import java.util.function.Function;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
-
-///////////////
-// UNIVERSAL //
-///////////////
 
 @Mod(
     modid = ComputerCraft.MOD_ID, name = "CC: Tweaked", version = "${version}",
@@ -268,13 +261,8 @@ public class ComputerCraft
     // Logging
     public static Logger log;
 
-    // API users
-    private static List<IPeripheralProvider> peripheralProviders = new ArrayList<>();
-    private static List<IBundledRedstoneProvider> bundledRedstoneProviders = new ArrayList<>();
-    private static List<IMediaProvider> mediaProviders = new ArrayList<>();
-    private static List<ITurtlePermissionProvider> permissionProviders = new ArrayList<>();
-    private static final Map<String, IPocketUpgrade> pocketUpgrades = new HashMap<>();
-    private static final Set<ILuaAPIFactory> apiFactories = new LinkedHashSet<>();
+    // Peripheral providers. This is still here to ensure compatibility with Plethora and Computronics
+    public static List<IPeripheralProvider> peripheralProviders = new ArrayList<>();
 
     // Implementation
     @Mod.Instance( value = ComputerCraft.MOD_ID )
@@ -552,12 +540,12 @@ public class ComputerCraft
         );
     }
 
-    public static File getBaseDir()
+    private static File getBaseDir()
     {
-        return FMLCommonHandler.instance().getMinecraftServerInstance().getFile( "." );
+        return FMLCommonHandler.instance().getMinecraftServerInstance().getDataDirectory();
     }
 
-    public static File getResourcePackDir()
+    private static File getResourcePackDir()
     {
         return new File( getBaseDir(), "resourcepacks" );
     }
@@ -609,136 +597,49 @@ public class ComputerCraft
         return false;
     }
 
-    public static boolean isPlayerOpped( EntityPlayer player )
-    {
-        MinecraftServer server = player.getServer();
-        if( server != null )
-        {
-            return server.getPlayerList().getOppedPlayers().getEntry( player.getGameProfile() ) != null;
-        }
-        return false;
-    }
-
+    @Deprecated
     public static void registerPermissionProvider( ITurtlePermissionProvider provider )
     {
-        if( provider != null && !permissionProviders.contains( provider ) )
-        {
-            permissionProviders.add( provider );
-        }
+        TurtlePermissions.register( provider );
     }
 
-    public static boolean isBlockEnterable( World world, BlockPos pos, EntityPlayer player )
-    {
-        MinecraftServer server = player.getServer();
-        if( server != null && !world.isRemote )
-        {
-            if( server.isBlockProtected( world, pos, player ) )
-            {
-                return false;
-            }
-        }
-
-        for( ITurtlePermissionProvider provider : permissionProviders )
-        {
-            if( !provider.isBlockEnterable( world, pos ) )
-            {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    public static boolean isBlockEditable( World world, BlockPos pos, EntityPlayer player )
-    {
-        MinecraftServer server = player.getServer();
-        if( server != null && !world.isRemote )
-        {
-            if( server.isBlockProtected( world, pos, player ) )
-            {
-                return false;
-            }
-        }
-
-        for( ITurtlePermissionProvider provider : permissionProviders )
-        {
-            if( !provider.isBlockEditable( world, pos ) )
-            {
-                return false;
-            }
-        }
-        return true;
-    }
-
+    @Deprecated
     public static void registerPocketUpgrade( IPocketUpgrade upgrade )
     {
-        String id = upgrade.getUpgradeID().toString();
-        IPocketUpgrade existing = pocketUpgrades.get( id );
-        if( existing != null )
-        {
-            throw new RuntimeException( "Error registering '" + upgrade.getUnlocalisedAdjective() + " pocket computer'. UpgradeID '" + id + "' is already registered by '" + existing.getUnlocalisedAdjective() + " pocket computer'" );
-        }
-
-        pocketUpgrades.put( id, upgrade );
+        dan200.computercraft.shared.PocketUpgrades.register( upgrade );
     }
 
+    @Deprecated
     public static void registerPeripheralProvider( IPeripheralProvider provider )
     {
-        if( provider != null && !peripheralProviders.contains( provider ) )
-        {
-            peripheralProviders.add( provider );
-        }
+        Peripherals.register( provider );
     }
 
+    @Deprecated
     public static void registerBundledRedstoneProvider( IBundledRedstoneProvider provider )
     {
-        if( provider != null && !bundledRedstoneProviders.contains( provider ) )
-        {
-            bundledRedstoneProviders.add( provider );
-        }
+        BundledRedstone.register( provider );
     }
 
+    @Deprecated
     public static void registerMediaProvider( IMediaProvider provider )
     {
-        if( provider != null && !mediaProviders.contains( provider ) )
-        {
-            mediaProviders.add( provider );
-        }
+        MediaProviders.register( provider );
     }
 
-    public static void registerAPIFactory( ILuaAPIFactory provider )
+    @Deprecated
+    public static void registerAPIFactory( ILuaAPIFactory factory )
     {
-        if( provider != null )
-        {
-            apiFactories.add( provider );
-        }
+        ApiFactories.register( factory );
     }
 
+    @Deprecated
     public static IWiredNode createWiredNodeForElement( IWiredElement element )
     {
         return new WiredNode( element );
     }
 
-    public static IPeripheral getPeripheralAt( World world, BlockPos pos, EnumFacing side )
-    {
-        // Try the handlers in order:
-        for( IPeripheralProvider peripheralProvider : peripheralProviders )
-        {
-            try
-            {
-                IPeripheral peripheral = peripheralProvider.getPeripheral( world, pos, side );
-                if( peripheral != null )
-                {
-                    return peripheral;
-                }
-            }
-            catch( Exception e )
-            {
-                ComputerCraft.log.error( "Peripheral provider " + peripheralProvider + " errored.", e );
-            }
-        }
-        return null;
-    }
-
+    @Deprecated
     public static IWiredElement getWiredElementAt( IBlockAccess world, BlockPos pos, EnumFacing side )
     {
         TileEntity tile = world.getTileEntity( pos );
@@ -747,118 +648,25 @@ public class ComputerCraft
             : null;
     }
 
+    @Deprecated
     public static int getDefaultBundledRedstoneOutput( World world, BlockPos pos, EnumFacing side )
     {
-        return world.isValid( pos ) ? DefaultBundledRedstoneProvider.getDefaultBundledRedstoneOutput( world, pos, side ) : -1;
+        return BundledRedstone.getDefaultOutput( world, pos, side );
     }
 
-    public static int getBundledRedstoneOutput( World world, BlockPos pos, EnumFacing side )
-    {
-        if( !world.isValid( pos ) ) return -1;
-
-        // Try the handlers in order:
-        int combinedSignal = -1;
-        for( IBundledRedstoneProvider bundledRedstoneProvider : bundledRedstoneProviders )
-        {
-            try
-            {
-                int signal = bundledRedstoneProvider.getBundledRedstoneOutput( world, pos, side );
-                if( signal >= 0 )
-                {
-                    if( combinedSignal < 0 )
-                    {
-                        combinedSignal = (signal & 0xffff);
-                    }
-                    else
-                    {
-                        combinedSignal = combinedSignal | (signal & 0xffff);
-                    }
-                }
-            }
-            catch( Exception e )
-            {
-                ComputerCraft.log.error( "Bundled redstone provider " + bundledRedstoneProvider + " errored.", e );
-            }
-        }
-        return combinedSignal;
-    }
-
-    public static IMedia getMedia( @Nonnull ItemStack stack )
-    {
-        if( !stack.isEmpty() )
-        {
-            // Try the handlers in order:
-            for( IMediaProvider mediaProvider : mediaProviders )
-            {
-                try
-                {
-                    IMedia media = mediaProvider.getMedia( stack );
-                    if( media != null )
-                    {
-                        return media;
-                    }
-                }
-                catch( Exception e )
-                {
-                    // mod misbehaved, ignore it
-                    ComputerCraft.log.error( "Media provider " + mediaProvider + " errored.", e );
-                }
-            }
-            return null;
-        }
-        return null;
-    }
-
-    public static IPocketUpgrade getPocketUpgrade( String id )
-    {
-        return pocketUpgrades.get( id );
-    }
-
-    public static IPocketUpgrade getPocketUpgrade( @Nonnull ItemStack stack )
-    {
-        if( stack.isEmpty() ) return null;
-
-        for( IPocketUpgrade upgrade : pocketUpgrades.values() )
-        {
-            ItemStack craftingStack = upgrade.getCraftingItem();
-            if( !craftingStack.isEmpty() && InventoryUtil.areItemsStackable( stack, craftingStack ) )
-            {
-                return upgrade;
-            }
-        }
-
-        return null;
-    }
-
-    public static Iterable<IPocketUpgrade> getVanillaPocketUpgrades()
-    {
-        List<IPocketUpgrade> upgrades = new ArrayList<>();
-        for( IPocketUpgrade upgrade : pocketUpgrades.values() )
-        {
-            if( upgrade instanceof PocketModem || upgrade instanceof PocketSpeaker )
-            {
-                upgrades.add( upgrade );
-            }
-        }
-
-        return upgrades;
-    }
-
+    @Deprecated
     public static IPacketNetwork getWirelessNetwork()
     {
         return WirelessNetwork.getUniversal();
     }
 
-    public static Iterable<ILuaAPIFactory> getAPIFactories()
-    {
-        return apiFactories;
-    }
-
+    @Deprecated
     public static int createUniqueNumberedSaveDir( World world, String parentSubPath )
     {
         return IDAssigner.getNextIDFromDirectory( new File( getWorldDir( world ), parentSubPath ) );
     }
 
+    @Deprecated
     public static IWritableMount createSaveDirMount( World world, String subPath, long capacity )
     {
         try
@@ -871,6 +679,7 @@ public class ComputerCraft
         }
     }
 
+    @Deprecated
     public static IMount createResourceMount( Class<?> modClass, String domain, String subPath )
     {
         // Start building list of mounts
@@ -1073,36 +882,13 @@ public class ComputerCraft
     {
         String path = modClass.getProtectionDomain().getCodeSource().getLocation().getPath();
         int bangIndex = path.indexOf( "!" );
-        if( bangIndex >= 0 )
-        {
-            return null;
-        }
-        return new File( new File( path ).getParentFile(), "../.." );
+        return bangIndex >= 0 ? null : new File( new File( path ).getParentFile(), "../.." );
     }
 
+    @Deprecated
     public static void registerTurtleUpgrade( ITurtleUpgrade upgrade )
     {
-        turtleProxy.registerTurtleUpgrade( upgrade );
-    }
-
-    public static ITurtleUpgrade getTurtleUpgrade( String id )
-    {
-        return turtleProxy.getTurtleUpgrade( id );
-    }
-
-    public static ITurtleUpgrade getTurtleUpgrade( int legacyID )
-    {
-        return turtleProxy.getTurtleUpgrade( legacyID );
-    }
-
-    public static ITurtleUpgrade getTurtleUpgrade( @Nonnull ItemStack item )
-    {
-        return turtleProxy.getTurtleUpgrade( item );
-    }
-
-    public static void addAllUpgradedTurtles( NonNullList<ItemStack> list )
-    {
-        turtleProxy.addAllUpgradedTurtles( list );
+        TurtleUpgrades.register( upgrade );
     }
 
     public static void setDropConsumer( Entity entity, Function<ItemStack, ItemStack> consumer )
@@ -1119,4 +905,24 @@ public class ComputerCraft
     {
         return turtleProxy.clearDropConsumer();
     }
+
+    //region Compatibility
+    @Deprecated
+    public static IMedia getMedia( ItemStack stack )
+    {
+        return MediaProviders.get( stack );
+    }
+
+    @Deprecated
+    public static IPocketUpgrade getPocketUpgrade( ItemStack stack )
+    {
+        return dan200.computercraft.shared.PocketUpgrades.get( stack );
+    }
+
+    @Deprecated
+    public static ITurtleUpgrade getTurtleUpgrade( ItemStack stack )
+    {
+        return TurtleUpgrades.get( stack );
+    }
+    //endregion
 }

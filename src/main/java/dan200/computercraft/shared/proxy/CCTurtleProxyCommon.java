@@ -9,6 +9,7 @@ package dan200.computercraft.shared.proxy;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.event.TurtleActionEvent;
+import dan200.computercraft.shared.TurtleUpgrades;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.turtle.blocks.BlockTurtle;
 import dan200.computercraft.shared.turtle.blocks.TileTurtle;
@@ -19,10 +20,8 @@ import dan200.computercraft.shared.turtle.items.ItemTurtleAdvanced;
 import dan200.computercraft.shared.turtle.items.ItemTurtleLegacy;
 import dan200.computercraft.shared.turtle.items.ItemTurtleNormal;
 import dan200.computercraft.shared.turtle.items.TurtleItemFactory;
-import dan200.computercraft.shared.turtle.recipes.TurtleUpgradeRecipe;
 import dan200.computercraft.shared.turtle.upgrades.*;
 import dan200.computercraft.shared.util.ImpostorRecipe;
-import dan200.computercraft.shared.util.InventoryUtil;
 import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityItem;
@@ -30,7 +29,6 @@ import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
-import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
@@ -46,33 +44,19 @@ import net.minecraftforge.fml.common.registry.EntityRegistry;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.registries.IForgeRegistry;
 
-import javax.annotation.Nonnull;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Function;
 
 public abstract class CCTurtleProxyCommon implements ICCTurtleProxy
 {
-    private Map<Integer, ITurtleUpgrade> m_legacyTurtleUpgrades;
-    private Map<String, ITurtleUpgrade> m_turtleUpgrades;
-
     private Function<ItemStack, ItemStack> dropConsumer;
     private List<ItemStack> remainingDrops;
     private WeakReference<World> dropWorld;
     private BlockPos dropPos;
     private AxisAlignedBB dropBounds;
     private WeakReference<Entity> dropEntity;
-
-    public CCTurtleProxyCommon()
-    {
-        m_legacyTurtleUpgrades = new HashMap<>();
-        m_turtleUpgrades = new HashMap<>();
-    }
-
-    // ICCTurtleProxy implementation
 
     @Override
     public void preInit()
@@ -90,102 +74,6 @@ public abstract class CCTurtleProxyCommon implements ICCTurtleProxy
     {
         registerForgeHandlers();
         registerTileEntities();
-    }
-
-    @Override
-    public void registerTurtleUpgrade( ITurtleUpgrade upgrade )
-    {
-        // Check conditions
-        int id = upgrade.getLegacyUpgradeID();
-        if( id >= 0 && id < 64 )
-        {
-            String message = "Error registering '" + upgrade.getUnlocalisedAdjective() + " Turtle'. Legacy UpgradeID '" + id + "' is reserved by ComputerCraft";
-            ComputerCraft.log.error( message );
-            throw new RuntimeException( message );
-        }
-
-        // Register
-        registerTurtleUpgradeInternal( upgrade );
-    }
-
-    @Override
-    public ITurtleUpgrade getTurtleUpgrade( String id )
-    {
-        return m_turtleUpgrades.get( id );
-    }
-
-    @Override
-    public ITurtleUpgrade getTurtleUpgrade( int legacyId )
-    {
-        return m_legacyTurtleUpgrades.get( legacyId );
-    }
-
-    @Override
-    public ITurtleUpgrade getTurtleUpgrade( @Nonnull ItemStack stack )
-    {
-        for( ITurtleUpgrade upgrade : m_turtleUpgrades.values() )
-        {
-            try
-            {
-                ItemStack upgradeStack = upgrade.getCraftingItem();
-                if( InventoryUtil.areItemsStackable( upgradeStack, stack ) )
-                {
-                    return upgrade;
-                }
-            }
-            catch( Exception e )
-            {
-                ComputerCraft.log.error( "Error getting computer upgrade item", e );
-            }
-        }
-        return null;
-    }
-
-    public static boolean isUpgradeVanilla( ITurtleUpgrade upgrade )
-    {
-        return upgrade instanceof TurtleTool || upgrade instanceof TurtleModem || upgrade instanceof TurtleCraftingTable || upgrade instanceof TurtleSpeaker;
-    }
-
-    public static boolean isUpgradeSuitableForFamily( ComputerFamily family, ITurtleUpgrade upgrade )
-    {
-        return true;
-    }
-
-    private void addAllUpgradedTurtles( ComputerFamily family, NonNullList<ItemStack> list )
-    {
-        ItemStack basicStack = TurtleItemFactory.create( -1, null, -1, family, null, null, 0, null );
-        if( !basicStack.isEmpty() )
-        {
-            list.add( basicStack );
-        }
-        addUpgradedTurtle( family, ComputerCraft.Upgrades.diamondPickaxe, list );
-        addUpgradedTurtle( family, ComputerCraft.Upgrades.diamondAxe, list );
-        addUpgradedTurtle( family, ComputerCraft.Upgrades.diamondSword, list );
-        addUpgradedTurtle( family, ComputerCraft.Upgrades.diamondShovel, list );
-        addUpgradedTurtle( family, ComputerCraft.Upgrades.diamondHoe, list );
-        addUpgradedTurtle( family, ComputerCraft.Upgrades.craftingTable, list );
-        addUpgradedTurtle( family, ComputerCraft.Upgrades.wirelessModem, list );
-        addUpgradedTurtle( family, ComputerCraft.Upgrades.advancedModem, list );
-        addUpgradedTurtle( family, ComputerCraft.Upgrades.turtleSpeaker, list );
-    }
-
-    private void addUpgradedTurtle( ComputerFamily family, ITurtleUpgrade upgrade, List<ItemStack> list )
-    {
-        if( isUpgradeSuitableForFamily( family, upgrade ) )
-        {
-            ItemStack stack = TurtleItemFactory.create( -1, null, -1, family, upgrade, null, 0, null );
-            if( !stack.isEmpty() )
-            {
-                list.add( stack );
-            }
-        }
-    }
-
-    @Override
-    public void addAllUpgradedTurtles( NonNullList<ItemStack> list )
-    {
-        addAllUpgradedTurtles( ComputerFamily.Normal, list );
-        addAllUpgradedTurtles( ComputerFamily.Advanced, list );
     }
 
     @Override
@@ -241,45 +129,6 @@ public abstract class CCTurtleProxyCommon implements ICCTurtleProxy
         return remainingStacks;
     }
 
-    private void registerTurtleUpgradeInternal( ITurtleUpgrade upgrade )
-    {
-        // Check conditions
-        int legacyID = upgrade.getLegacyUpgradeID();
-        if( legacyID >= 0 )
-        {
-            if( legacyID >= Short.MAX_VALUE )
-            {
-                String message = "Error registering '" + upgrade.getUnlocalisedAdjective() + " Turtle'. UpgradeID '" + legacyID + "' is out of range";
-                ComputerCraft.log.error( message );
-                throw new RuntimeException( message );
-            }
-
-            ITurtleUpgrade existing = m_legacyTurtleUpgrades.get( legacyID );
-            if( existing != null )
-            {
-                String message = "Error registering '" + upgrade.getUnlocalisedAdjective() + " Turtle'. UpgradeID '" + legacyID + "' is already registered by '" + existing.getUnlocalisedAdjective() + " Turtle'";
-                ComputerCraft.log.error( message );
-                throw new RuntimeException( message );
-            }
-        }
-
-        String id = upgrade.getUpgradeID().toString();
-        ITurtleUpgrade existing = m_turtleUpgrades.get( id );
-        if( existing != null )
-        {
-            String message = "Error registering '" + upgrade.getUnlocalisedAdjective() + " Turtle'. UpgradeID '" + id + "' is already registered by '" + existing.getUnlocalisedAdjective() + " Turtle'";
-            ComputerCraft.log.error( message );
-            throw new RuntimeException( message );
-        }
-
-        // Register
-        if( legacyID >= 0 )
-        {
-            m_legacyTurtleUpgrades.put( legacyID, upgrade );
-        }
-        m_turtleUpgrades.put( id, upgrade );
-    }
-
     @SubscribeEvent
     public void registerBlocks( RegistryEvent.Register<Block> event )
     {
@@ -316,20 +165,15 @@ public abstract class CCTurtleProxyCommon implements ICCTurtleProxy
 
         // Add a bunch of impostor recipes
         // TODO: Figure out a way to do this in a "nice" way.
-        for( ITurtleUpgrade upgrade : m_turtleUpgrades.values() )
+        for( ITurtleUpgrade upgrade : TurtleUpgrades.getVanillaUpgrades() )
         {
-            if( !isUpgradeVanilla( upgrade ) ) continue;
-
             // Add fake recipes to fool NEI
             ItemStack craftingItem = upgrade.getCraftingItem();
 
             // A turtle just containing this upgrade
             for( ComputerFamily family : ComputerFamily.values() )
             {
-                if( !isUpgradeSuitableForFamily( family, upgrade ) )
-                {
-                    continue;
-                }
+                if( !TurtleUpgrades.suitableForFamily( family, upgrade ) ) continue;
 
                 ItemStack baseTurtle = TurtleItemFactory.create( -1, null, -1, family, null, null, 0, null );
                 if( !baseTurtle.isEmpty() )
@@ -377,31 +221,31 @@ public abstract class CCTurtleProxyCommon implements ICCTurtleProxy
     {
         // Upgrades
         ComputerCraft.Upgrades.wirelessModem = new TurtleModem( false, new ResourceLocation( "computercraft", "wireless_modem" ), 1 );
-        registerTurtleUpgradeInternal( ComputerCraft.Upgrades.wirelessModem );
+        TurtleUpgrades.registerInternal( ComputerCraft.Upgrades.wirelessModem );
 
         ComputerCraft.Upgrades.craftingTable = new TurtleCraftingTable( 2 );
-        registerTurtleUpgradeInternal( ComputerCraft.Upgrades.craftingTable );
+        TurtleUpgrades.registerInternal( ComputerCraft.Upgrades.craftingTable );
 
         ComputerCraft.Upgrades.diamondSword = new TurtleSword( new ResourceLocation( "minecraft", "diamond_sword" ), 3, "upgrade.minecraft:diamond_sword.adjective", Items.DIAMOND_SWORD );
-        registerTurtleUpgradeInternal( ComputerCraft.Upgrades.diamondSword );
+        TurtleUpgrades.registerInternal( ComputerCraft.Upgrades.diamondSword );
 
         ComputerCraft.Upgrades.diamondShovel = new TurtleShovel( new ResourceLocation( "minecraft", "diamond_shovel" ), 4, "upgrade.minecraft:diamond_shovel.adjective", Items.DIAMOND_SHOVEL );
-        registerTurtleUpgradeInternal( ComputerCraft.Upgrades.diamondShovel );
+        TurtleUpgrades.registerInternal( ComputerCraft.Upgrades.diamondShovel );
 
         ComputerCraft.Upgrades.diamondPickaxe = new TurtleTool( new ResourceLocation( "minecraft", "diamond_pickaxe" ), 5, "upgrade.minecraft:diamond_pickaxe.adjective", Items.DIAMOND_PICKAXE );
-        registerTurtleUpgradeInternal( ComputerCraft.Upgrades.diamondPickaxe );
+        TurtleUpgrades.registerInternal( ComputerCraft.Upgrades.diamondPickaxe );
 
         ComputerCraft.Upgrades.diamondAxe = new TurtleAxe( new ResourceLocation( "minecraft", "diamond_axe" ), 6, "upgrade.minecraft:diamond_axe.adjective", Items.DIAMOND_AXE );
-        registerTurtleUpgradeInternal( ComputerCraft.Upgrades.diamondAxe );
+        TurtleUpgrades.registerInternal( ComputerCraft.Upgrades.diamondAxe );
 
         ComputerCraft.Upgrades.diamondHoe = new TurtleHoe( new ResourceLocation( "minecraft", "diamond_hoe" ), 7, "upgrade.minecraft:diamond_hoe.adjective", Items.DIAMOND_HOE );
-        registerTurtleUpgradeInternal( ComputerCraft.Upgrades.diamondHoe );
+        TurtleUpgrades.registerInternal( ComputerCraft.Upgrades.diamondHoe );
 
         ComputerCraft.Upgrades.advancedModem = new TurtleModem( true, new ResourceLocation( "computercraft", "advanced_modem" ), -1 );
-        registerTurtleUpgradeInternal( ComputerCraft.Upgrades.advancedModem );
+        TurtleUpgrades.registerInternal( ComputerCraft.Upgrades.advancedModem );
 
         ComputerCraft.Upgrades.turtleSpeaker = new TurtleSpeaker( new ResourceLocation( "computercraft", "speaker" ), 8 );
-        registerTurtleUpgradeInternal( ComputerCraft.Upgrades.turtleSpeaker );
+        TurtleUpgrades.registerInternal( ComputerCraft.Upgrades.turtleSpeaker );
     }
 
     @SubscribeEvent

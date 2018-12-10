@@ -7,11 +7,10 @@
 package dan200.computercraft.shared.turtle.recipes;
 
 import com.google.gson.JsonObject;
-import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
+import dan200.computercraft.shared.TurtleUpgrades;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
-import dan200.computercraft.shared.proxy.CCTurtleProxyCommon;
 import dan200.computercraft.shared.turtle.items.ITurtleItem;
 import dan200.computercraft.shared.turtle.items.TurtleItemFactory;
 import net.minecraft.inventory.InventoryCrafting;
@@ -157,7 +156,7 @@ public class TurtleUpgradeRecipe extends IForgeRegistryEntry.Impl<IRecipe> imple
         {
             if( !items[i].isEmpty() )
             {
-                ITurtleUpgrade itemUpgrade = ComputerCraft.getTurtleUpgrade( items[i] );
+                ITurtleUpgrade itemUpgrade = TurtleUpgrades.get( items[i] );
                 if( itemUpgrade == null )
                 {
                     return ItemStack.EMPTY;
@@ -166,7 +165,7 @@ public class TurtleUpgradeRecipe extends IForgeRegistryEntry.Impl<IRecipe> imple
                 {
                     return ItemStack.EMPTY;
                 }
-                if( !CCTurtleProxyCommon.isUpgradeSuitableForFamily( family, itemUpgrade ) )
+                if( !TurtleUpgrades.suitableForFamily( family, itemUpgrade ) )
                 {
                     return ItemStack.EMPTY;
                 }

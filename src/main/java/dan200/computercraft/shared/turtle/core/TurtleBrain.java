@@ -13,6 +13,7 @@ import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.turtle.*;
+import dan200.computercraft.shared.TurtleUpgrades;
 import dan200.computercraft.shared.computer.blocks.ComputerProxy;
 import dan200.computercraft.shared.computer.blocks.TileComputerBase;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
@@ -132,14 +133,14 @@ public class TurtleBrain implements ITurtleAccess
         }
     }
 
-    public void readFromNBT( NBTTagCompound nbttagcompound )
+    public void readFromNBT( NBTTagCompound tag )
     {
         // Read state
-        m_direction = EnumFacing.byIndex( nbttagcompound.getInteger( "dir" ) );
-        m_selectedSlot = nbttagcompound.getInteger( "selectedSlot" );
-        if( nbttagcompound.hasKey( "fuelLevel" ) )
+        m_direction = EnumFacing.byIndex( tag.getInteger( "dir" ) );
+        m_selectedSlot = tag.getInteger( "selectedSlot" );
+        if( tag.hasKey( "fuelLevel" ) )
         {
-            m_fuelLevel = nbttagcompound.getInteger( "fuelLevel" );
+            m_fuelLevel = tag.getInteger( "fuelLevel" );
         }
         else
         {
@@ -147,9 +148,9 @@ public class TurtleBrain implements ITurtleAccess
         }
 
         // Read owner
-        if( nbttagcompound.hasKey( "owner", Constants.NBT.TAG_COMPOUND ) )
+        if( tag.hasKey( "owner", Constants.NBT.TAG_COMPOUND ) )
         {
-            NBTTagCompound owner = nbttagcompound.getCompoundTag( "owner" );
+            NBTTagCompound owner = tag.getCompoundTag( "owner" );
             m_owningPlayer = new GameProfile(
                 new UUID( owner.getLong( "upper_id" ), owner.getLong( "lower_id" ) ),
                 owner.getString( "name" )
@@ -161,15 +162,15 @@ public class TurtleBrain implements ITurtleAccess
         }
 
         // Read colour
-        m_colourHex = ColourUtils.getHexColour( nbttagcompound );
+        m_colourHex = ColourUtils.getHexColour( tag );
 
         // Read overlay
-        if( nbttagcompound.hasKey( "overlay_mod" ) )
+        if( tag.hasKey( "overlay_mod" ) )
         {
-            String overlay_mod = nbttagcompound.getString( "overlay_mod" );
-            if( nbttagcompound.hasKey( "overlay_path" ) )
+            String overlay_mod = tag.getString( "overlay_mod" );
+            if( tag.hasKey( "overlay_path" ) )
             {
-                String overlay_path = nbttagcompound.getString( "overlay_path" );
+                String overlay_path = tag.getString( "overlay_path" );
                 m_overlay = new ResourceLocation( overlay_mod, overlay_path );
             }
             else
@@ -186,10 +187,10 @@ public class TurtleBrain implements ITurtleAccess
         // (pre-1.4 turtles will have a "subType" variable, newer things will have "leftUpgrade" and "rightUpgrade")
         ITurtleUpgrade leftUpgrade = null;
         ITurtleUpgrade rightUpgrade = null;
-        if( nbttagcompound.hasKey( "subType" ) )
+        if( tag.hasKey( "subType" ) )
         {
             // Loading a pre-1.4 world
-            int subType = nbttagcompound.getInteger( "subType" );
+            int subType = tag.getInteger( "subType" );
             if( (subType & 0x1) > 0 )
             {
                 leftUpgrade = ComputerCraft.Upgrades.diamondPickaxe;
@@ -202,26 +203,26 @@ public class TurtleBrain implements ITurtleAccess
         else
         {
             // Loading a post-1.4 world
-            if( nbttagcompound.hasKey( "leftUpgrade" ) )
+            if( tag.hasKey( "leftUpgrade" ) )
             {
-                if( nbttagcompound.getTagId( "leftUpgrade" ) == Constants.NBT.TAG_STRING )
+                if( tag.getTagId( "leftUpgrade" ) == Constants.NBT.TAG_STRING )
                 {
-                    leftUpgrade = ComputerCraft.getTurtleUpgrade( nbttagcompound.getString( "leftUpgrade" ) );
+                    leftUpgrade = TurtleUpgrades.get( tag.getString( "leftUpgrade" ) );
                 }
                 else
                 {
-                    leftUpgrade = ComputerCraft.getTurtleUpgrade( nbttagcompound.getShort( "leftUpgrade" ) );
+                    leftUpgrade = TurtleUpgrades.get( tag.getShort( "leftUpgrade" ) );
                 }
             }
-            if( nbttagcompound.hasKey( "rightUpgrade" ) )
+            if( tag.hasKey( "rightUpgrade" ) )
             {
-                if( nbttagcompound.getTagId( "rightUpgrade" ) == Constants.NBT.TAG_STRING )
+                if( tag.getTagId( "rightUpgrade" ) == Constants.NBT.TAG_STRING )
                 {
-                    rightUpgrade = ComputerCraft.getTurtleUpgrade( nbttagcompound.getString( "rightUpgrade" ) );
+                    rightUpgrade = TurtleUpgrades.get( tag.getString( "rightUpgrade" ) );
                 }
                 else
                 {
-                    rightUpgrade = ComputerCraft.getTurtleUpgrade( nbttagcompound.getShort( "rightUpgrade" ) );
+                    rightUpgrade = TurtleUpgrades.get( tag.getShort( "rightUpgrade" ) );
                 }
             }
         }
@@ -230,13 +231,13 @@ public class TurtleBrain implements ITurtleAccess
 
         // NBT
         m_upgradeNBTData.clear();
-        if( nbttagcompound.hasKey( "leftUpgradeNBT" ) )
+        if( tag.hasKey( "leftUpgradeNBT" ) )
         {
-            m_upgradeNBTData.put( TurtleSide.Left, nbttagcompound.getCompoundTag( "leftUpgradeNBT" ).copy() );
+            m_upgradeNBTData.put( TurtleSide.Left, tag.getCompoundTag( "leftUpgradeNBT" ).copy() );
         }
-        if( nbttagcompound.hasKey( "rightUpgradeNBT" ) )
+        if( tag.hasKey( "rightUpgradeNBT" ) )
         {
-            m_upgradeNBTData.put( TurtleSide.Right, nbttagcompound.getCompoundTag( "rightUpgradeNBT" ).copy() );
+            m_upgradeNBTData.put( TurtleSide.Right, tag.getCompoundTag( "rightUpgradeNBT" ).copy() );
         }
     }
 
@@ -353,7 +354,7 @@ public class TurtleBrain implements ITurtleAccess
         // Upgrades
         if( nbttagcompound.hasKey( "leftUpgrade" ) )
         {
-            setUpgrade( TurtleSide.Left, ComputerCraft.getTurtleUpgrade( nbttagcompound.getString( "leftUpgrade" ) ) );
+            setUpgrade( TurtleSide.Left, TurtleUpgrades.get( nbttagcompound.getString( "leftUpgrade" ) ) );
         }
         else
         {
@@ -361,7 +362,7 @@ public class TurtleBrain implements ITurtleAccess
         }
         if( nbttagcompound.hasKey( "rightUpgrade" ) )
         {
-            setUpgrade( TurtleSide.Right, ComputerCraft.getTurtleUpgrade( nbttagcompound.getString( "rightUpgrade" ) ) );
+            setUpgrade( TurtleSide.Right, TurtleUpgrades.get( nbttagcompound.getString( "rightUpgrade" ) ) );
         }
         else
         {

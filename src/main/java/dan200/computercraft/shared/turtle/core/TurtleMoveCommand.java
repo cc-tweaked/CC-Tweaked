@@ -12,6 +12,7 @@ import dan200.computercraft.api.turtle.ITurtleCommand;
 import dan200.computercraft.api.turtle.TurtleAnimation;
 import dan200.computercraft.api.turtle.TurtleCommandResult;
 import dan200.computercraft.api.turtle.event.TurtleBlockEvent;
+import dan200.computercraft.shared.TurtlePermissions;
 import dan200.computercraft.shared.util.WorldUtil;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
@@ -172,7 +173,7 @@ public class TurtleMoveCommand implements ITurtleCommand
         if( ComputerCraft.turtlesObeyBlockProtection )
         {
             // Check spawn protection
-            if( !ComputerCraft.isBlockEnterable( world, position, turtlePlayer ) )
+            if( !TurtlePermissions.isBlockEnterable( world, position, turtlePlayer ) )
             {
                 return TurtleCommandResult.failure( "Cannot enter protected area" );
             }

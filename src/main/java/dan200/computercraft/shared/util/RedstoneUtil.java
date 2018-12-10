@@ -6,7 +6,7 @@
 
 package dan200.computercraft.shared.util;
 
-import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.shared.BundledRedstone;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.EnumFacing;
@@ -15,10 +15,10 @@ import net.minecraft.world.World;
 
 public class RedstoneUtil
 {
+    @Deprecated
     public static int getBundledRedstoneOutput( World world, BlockPos pos, EnumFacing side )
     {
-        int signal = ComputerCraft.getBundledRedstoneOutput( world, pos, side );
-        return signal >= 0 ? signal : 0;
+        return BundledRedstone.getOutput( world, pos, side );
     }
 
     public static void propagateRedstoneOutput( World world, BlockPos pos, EnumFacing side )

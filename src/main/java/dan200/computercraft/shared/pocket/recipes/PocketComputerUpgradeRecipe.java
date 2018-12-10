@@ -9,6 +9,7 @@ package dan200.computercraft.shared.pocket.recipes;
 import com.google.gson.JsonObject;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.pocket.IPocketUpgrade;
+import dan200.computercraft.shared.PocketUpgrades;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.pocket.items.ItemPocketComputer;
 import dan200.computercraft.shared.pocket.items.PocketComputerItemFactory;
@@ -104,7 +105,7 @@ public class PocketComputerUpgradeRecipe extends IForgeRegistryEntry.Impl<IRecip
                 }
                 else if( x == computerX && y == computerY - 1 )
                 {
-                    upgrade = ComputerCraft.getPocketUpgrade( item );
+                    upgrade = PocketUpgrades.get( item );
                     if( upgrade == null ) return ItemStack.EMPTY;
                 }
                 else if( !item.isEmpty() )

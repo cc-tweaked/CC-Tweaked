@@ -719,14 +719,11 @@ public class Computer
             m_apis.add( new HTTPAPI( m_apiEnvironment ) );
         }
 
-        for( ILuaAPIFactory factory : ComputerCraft.getAPIFactories() )
+        for( ILuaAPIFactory factory : ApiFactories.getAll() )
         {
             ComputerSystem system = new ComputerSystem( m_apiEnvironment );
             ILuaAPI api = factory.create( system );
-            if( api != null )
-            {
-                m_apis.add( api );
-            }
+            if( api != null ) m_apis.add( api );
         }
     }
 

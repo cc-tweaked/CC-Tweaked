@@ -6,14 +6,11 @@
 
 package dan200.computercraft.shared.proxy;
 
-import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
-import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.function.Function;
 
@@ -22,16 +19,6 @@ public interface ICCTurtleProxy
     void preInit();
 
     void init();
-
-    void registerTurtleUpgrade( ITurtleUpgrade upgrade );
-
-    ITurtleUpgrade getTurtleUpgrade( String id );
-
-    ITurtleUpgrade getTurtleUpgrade( int legacyId );
-
-    ITurtleUpgrade getTurtleUpgrade( @Nonnull ItemStack item );
-
-    void addAllUpgradedTurtles( NonNullList<ItemStack> list );
 
     void setDropConsumer( Entity entity, Function<ItemStack, ItemStack> consumer );
 

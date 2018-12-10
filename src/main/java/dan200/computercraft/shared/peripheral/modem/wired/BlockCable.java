@@ -8,6 +8,7 @@ package dan200.computercraft.shared.peripheral.modem.wired;
 
 import com.google.common.collect.ImmutableMap;
 import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.shared.peripheral.PeripheralType;
 import dan200.computercraft.shared.peripheral.common.BlockPeripheralBase;
 import dan200.computercraft.shared.peripheral.common.PeripheralItemFactory;
@@ -172,7 +173,7 @@ public class BlockCable extends BlockPeripheralBase
     {
         if( !state.getValue( Properties.CABLE ) ) return false;
         if( state.getValue( Properties.MODEM ).getFacing() == direction ) return true;
-        return ComputerCraft.getWiredElementAt( world, pos.offset( direction ), direction.getOpposite() ) != null;
+        return ComputerCraftAPI.getWiredElementAt( world, pos.offset( direction ), direction.getOpposite() ) != null;
     }
 
     @Nonnull

@@ -6,9 +6,9 @@
 
 package dan200.computercraft.shared.turtle.items;
 
-import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
+import dan200.computercraft.shared.TurtleUpgrades;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.items.ItemComputerBase;
 import dan200.computercraft.shared.turtle.blocks.ITurtleTile;
@@ -40,18 +40,26 @@ public abstract class ItemTurtleBase extends ItemComputerBase implements ITurtle
 
     public abstract ItemStack create( int id, String label, int colour, ITurtleUpgrade leftUpgrade, ITurtleUpgrade rightUpgrade, int fuelLevel, ResourceLocation overlay );
 
+    public abstract ComputerFamily getFamily();
+
+    @Override
+    public ComputerFamily getFamily( int damage )
+    {
+        return getFamily();
+    }
+
     @Override
     public void getSubItems( @Nullable CreativeTabs tabs, @Nonnull NonNullList<ItemStack> list )
     {
         if( !isInCreativeTab( tabs ) ) return;
-        NonNullList<ItemStack> all = NonNullList.create();
-        ComputerCraft.addAllUpgradedTurtles( all );
-        for( ItemStack stack : all )
+
+        ComputerFamily family = getFamily();
+        for( ITurtleUpgrade upgrade : TurtleUpgrades.getVanillaUpgrades() )
         {
-            if( stack.getItem() == this )
-            {
-                list.add( stack );
-            }
+            if( !TurtleUpgrades.suitableForFamily( family, upgrade ) ) continue;
+
+            ItemStack stack = TurtleItemFactory.create( -1, null, -1, family, upgrade, null, 0, null );
+            if( !stack.isEmpty() && stack.getItem() == this ) list.add( stack );
         }
     }
 
@@ -61,7 +69,7 @@ public abstract class ItemTurtleBase extends ItemComputerBase implements ITurtle
         if( super.placeBlockAt( stack, player, world, pos, side, hitX, hitY, hitZ, newState ) )
         {
             TileEntity tile = world.getTileEntity( pos );
-            if( tile != null && tile instanceof ITurtleTile )
+            if( tile instanceof ITurtleTile )
             {
                 ITurtleTile turtle = (ITurtleTile) tile;
                 setupTurtleAfterPlacement( stack, turtle );

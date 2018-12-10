@@ -494,11 +494,7 @@ public final class ComputerCraftAPI
     {
         try
         {
-            if( computerCraft != null )
-            {
-                return computerCraft.getMethod( name, args );
-            }
-            return null;
+            return computerCraft != null ? computerCraft.getMethod( name, args ) : null;
         }
         catch( NoSuchMethodException e )
         {

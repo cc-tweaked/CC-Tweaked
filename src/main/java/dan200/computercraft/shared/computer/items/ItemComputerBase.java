@@ -7,6 +7,7 @@
 package dan200.computercraft.shared.computer.items;
 
 import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.api.media.IMedia;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
@@ -95,7 +96,7 @@ public abstract class ItemComputerBase extends ItemBlock implements IComputerIte
             int id = getComputerID( stack );
             if( id >= 0 )
             {
-                return ComputerCraft.createSaveDirMount( world, "computer/" + id, ComputerCraft.computerSpaceLimit );
+                return ComputerCraftAPI.createSaveDirMount( world, "computer/" + id, ComputerCraft.computerSpaceLimit );
             }
         }
         return null;

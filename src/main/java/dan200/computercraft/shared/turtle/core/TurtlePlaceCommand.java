@@ -12,6 +12,8 @@ import dan200.computercraft.api.turtle.ITurtleCommand;
 import dan200.computercraft.api.turtle.TurtleAnimation;
 import dan200.computercraft.api.turtle.TurtleCommandResult;
 import dan200.computercraft.api.turtle.event.TurtleBlockEvent;
+import dan200.computercraft.shared.TurtlePermissions;
+import dan200.computercraft.shared.TurtleUpgrades;
 import dan200.computercraft.shared.util.DirectionUtil;
 import dan200.computercraft.shared.util.InventoryUtil;
 import dan200.computercraft.shared.util.WorldUtil;
@@ -303,8 +305,8 @@ public class TurtlePlaceCommand implements ITurtleCommand
                 {
                     // Check spawn protection
                     boolean editable = replaceable
-                        ? ComputerCraft.isBlockEditable( world, position, player )
-                        : ComputerCraft.isBlockEditable( world, position.offset( side ), player );
+                        ? TurtlePermissions.isBlockEditable( world, position, player )
+                        : TurtlePermissions.isBlockEditable( world, position.offset( side ), player );
                     if( !editable )
                     {
                         if( o_errorMessage != null )

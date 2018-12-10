@@ -12,6 +12,7 @@ import dan200.computercraft.api.filesystem.IWritableMount;
 import dan200.computercraft.api.media.IMedia;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
+import dan200.computercraft.shared.MediaProviders;
 import dan200.computercraft.shared.peripheral.PeripheralType;
 import dan200.computercraft.shared.peripheral.common.BlockPeripheral;
 import dan200.computercraft.shared.peripheral.common.TilePeripheralBase;
@@ -97,7 +98,7 @@ public class TileDiskDrive extends TilePeripheralBase implements DefaultInventor
                 ItemStack disk = player.getHeldItem( hand );
                 if( !disk.isEmpty() && getStackInSlot( 0 ).isEmpty() )
                 {
-                    if( ComputerCraft.getMedia( disk ) != null )
+                    if( MediaProviders.get( disk ) != null )
                     {
                         setInventorySlotContents( 0, disk );
                         player.setHeldItem( hand, ItemStack.EMPTY );
@@ -387,7 +388,7 @@ public class TileDiskDrive extends TilePeripheralBase implements DefaultInventor
 
     public IMedia getDiskMedia()
     {
-        return ComputerCraft.getMedia( getDiskStack() );
+        return MediaProviders.get( getDiskStack() );
     }
 
     public String getDiskMountPath( IComputerAccess computer )

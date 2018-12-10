@@ -8,6 +8,7 @@ package dan200.computercraft.shared.peripheral.modem.wired;
 
 import com.google.common.base.Objects;
 import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.network.wired.IWiredElement;
 import dan200.computercraft.api.network.wired.IWiredNode;
 import dan200.computercraft.api.peripheral.IPeripheral;
@@ -369,7 +370,7 @@ public class TileCable extends TileModemBase
             BlockPos offset = current.offset( facing );
             if( !world.isBlockLoaded( offset ) ) continue;
 
-            IWiredElement element = ComputerCraft.getWiredElementAt( world, offset, facing.getOpposite() );
+            IWiredElement element = ComputerCraftAPI.getWiredElementAt( world, offset, facing.getOpposite() );
             if( element == null ) continue;
 
             if( BlockCable.canConnectIn( state, facing ) )

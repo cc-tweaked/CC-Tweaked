@@ -22,7 +22,7 @@ public class ItemTurtleAdvanced extends ItemTurtleNormal
     // IComputerItem implementation
 
     @Override
-    public ComputerFamily getFamily( int damage )
+    public ComputerFamily getFamily()
     {
         return ComputerFamily.Advanced;
     }

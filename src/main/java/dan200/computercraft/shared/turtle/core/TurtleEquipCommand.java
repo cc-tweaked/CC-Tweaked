@@ -6,11 +6,10 @@
 
 package dan200.computercraft.shared.turtle.core;
 
-import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.turtle.*;
 import dan200.computercraft.api.turtle.event.TurtleAction;
 import dan200.computercraft.api.turtle.event.TurtleActionEvent;
-import dan200.computercraft.shared.proxy.CCTurtleProxyCommon;
+import dan200.computercraft.shared.TurtleUpgrades;
 import dan200.computercraft.shared.util.InventoryUtil;
 import dan200.computercraft.shared.util.WorldUtil;
 import net.minecraft.item.ItemStack;
@@ -41,8 +40,8 @@ public class TurtleEquipCommand implements ITurtleCommand
         if( !selectedStack.isEmpty() )
         {
             newUpgradeStack = selectedStack.copy();
-            newUpgrade = ComputerCraft.getTurtleUpgrade( newUpgradeStack );
-            if( newUpgrade == null || !CCTurtleProxyCommon.isUpgradeSuitableForFamily( ((TurtleBrain) turtle).getFamily(), newUpgrade ) )
+            newUpgrade = TurtleUpgrades.get( newUpgradeStack );
+            if( newUpgrade == null || !TurtleUpgrades.suitableForFamily( ((TurtleBrain) turtle).getFamily(), newUpgrade ) )
             {
                 return TurtleCommandResult.failure( "Not a valid upgrade" );
             }

@@ -141,6 +141,7 @@ public class BlockAdvancedModem extends BlockPeripheralBase
     }
 
     @Override
+    @Deprecated
     public AxisAlignedBB getBoundingBox( IBlockState state, IBlockAccess source, BlockPos pos )
     {
         return ModemBounds.getBounds( state.getValue( Properties.FACING ) );

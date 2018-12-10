@@ -9,6 +9,7 @@ package dan200.computercraft.shared.turtle.items;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
+import dan200.computercraft.shared.TurtleUpgrades;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.util.ColourUtils;
 import net.minecraft.block.Block;
@@ -102,7 +103,7 @@ public class ItemTurtleNormal extends ItemTurtleBase
     }
 
     @Override
-    public ComputerFamily getFamily( int damage )
+    public ComputerFamily getFamily()
     {
         return ComputerFamily.Normal;
     }
@@ -123,11 +124,11 @@ public class ItemTurtleNormal extends ItemTurtleBase
                     {
                         if( nbt.getTagId( "leftUpgrade" ) == Constants.NBT.TAG_STRING )
                         {
-                            return ComputerCraft.getTurtleUpgrade( nbt.getString( "leftUpgrade" ) );
+                            return TurtleUpgrades.get( nbt.getString( "leftUpgrade" ) );
                         }
                         else
                         {
-                            return ComputerCraft.getTurtleUpgrade( nbt.getShort( "leftUpgrade" ) );
+                            return TurtleUpgrades.get( nbt.getShort( "leftUpgrade" ) );
                         }
                     }
                     break;
@@ -138,11 +139,11 @@ public class ItemTurtleNormal extends ItemTurtleBase
                     {
                         if( nbt.getTagId( "rightUpgrade" ) == Constants.NBT.TAG_STRING )
                         {
-                            return ComputerCraft.getTurtleUpgrade( nbt.getString( "rightUpgrade" ) );
+                            return TurtleUpgrades.get( nbt.getString( "rightUpgrade" ) );
                         }
                         else
                         {
-                            return ComputerCraft.getTurtleUpgrade( nbt.getShort( "rightUpgrade" ) );
+                            return TurtleUpgrades.get( nbt.getShort( "rightUpgrade" ) );
                         }
                     }
                     break;

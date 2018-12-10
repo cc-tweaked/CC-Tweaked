@@ -10,6 +10,7 @@ import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.turtle.*;
 import dan200.computercraft.api.turtle.event.TurtleAttackEvent;
 import dan200.computercraft.api.turtle.event.TurtleBlockEvent;
+import dan200.computercraft.shared.TurtlePermissions;
 import dan200.computercraft.shared.turtle.core.TurtlePlaceCommand;
 import dan200.computercraft.shared.turtle.core.TurtlePlayer;
 import dan200.computercraft.shared.util.InventoryUtil;
@@ -203,7 +204,7 @@ public class TurtleTool extends AbstractTurtleUpgrade
                 return TurtleCommandResult.failure( "Cannot break protected block" );
             }
 
-            if( !ComputerCraft.isBlockEditable( world, blockPosition, turtlePlayer ) )
+            if( !TurtlePermissions.isBlockEditable( world, blockPosition, turtlePlayer ) )
             {
                 return TurtleCommandResult.failure( "Cannot break protected block" );
             }

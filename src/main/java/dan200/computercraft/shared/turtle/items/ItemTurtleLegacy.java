@@ -97,7 +97,7 @@ public class ItemTurtleLegacy extends ItemTurtleBase
     }
 
     @Override
-    public ComputerFamily getFamily( int damage )
+    public ComputerFamily getFamily()
     {
         return ComputerFamily.Normal;
     }

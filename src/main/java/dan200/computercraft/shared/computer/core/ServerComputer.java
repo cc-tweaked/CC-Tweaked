@@ -388,7 +388,7 @@ public class ServerComputer extends ServerTerminal
     @Override
     public int assignNewID()
     {
-        return ComputerCraft.createUniqueNumberedSaveDir( m_world, "computer" );
+        return ComputerCraftAPI.createUniqueNumberedSaveDir( m_world, "computer" );
     }
 
     // Networking stuff

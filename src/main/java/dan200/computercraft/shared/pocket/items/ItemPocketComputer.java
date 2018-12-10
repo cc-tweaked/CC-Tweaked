@@ -8,9 +8,11 @@ package dan200.computercraft.shared.pocket.items;
 
 import com.google.common.base.Objects;
 import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.api.media.IMedia;
 import dan200.computercraft.api.pocket.IPocketUpgrade;
+import dan200.computercraft.shared.PocketUpgrades;
 import dan200.computercraft.shared.common.IColouredItem;
 import dan200.computercraft.shared.computer.blocks.ComputerState;
 import dan200.computercraft.shared.computer.core.ClientComputer;
@@ -100,7 +102,7 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
     private void getSubItems( NonNullList<ItemStack> list, ComputerFamily family )
     {
         list.add( PocketComputerItemFactory.create( -1, null, -1, family, null ) );
-        for( IPocketUpgrade upgrade : ComputerCraft.getVanillaPocketUpgrades() )
+        for( IPocketUpgrade upgrade : PocketUpgrades.getVanillaUpgrades() )
         {
             list.add( PocketComputerItemFactory.create( -1, null, -1, family, upgrade ) );
         }
@@ -268,7 +270,7 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
             int computerID = getComputerID( stack );
             if( computerID < 0 )
             {
-                computerID = ComputerCraft.createUniqueNumberedSaveDir( world, "computer" );
+                computerID = ComputerCraftAPI.createUniqueNumberedSaveDir( world, "computer" );
                 setComputerID( stack, computerID );
             }
             computer = new PocketServerComputer(
@@ -405,7 +407,7 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
         int id = getComputerID( stack );
         if( id >= 0 )
         {
-            return ComputerCraft.createSaveDirMount( world, "computer/" + id, ComputerCraft.computerSpaceLimit );
+            return ComputerCraftAPI.createSaveDirMount( world, "computer/" + id, ComputerCraft.computerSpaceLimit );
         }
         return null;
     }
@@ -482,15 +484,12 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
             if( compound.hasKey( "upgrade", Constants.NBT.TAG_STRING ) )
             {
                 String name = compound.getString( "upgrade" );
-                return ComputerCraft.getPocketUpgrade( name );
+                return PocketUpgrades.get( name );
             }
             else if( compound.hasKey( "upgrade", Constants.NBT.TAG_ANY_NUMERIC ) )
             {
                 int id = compound.getInteger( "upgrade" );
-                if( id == 1 )
-                {
-                    return ComputerCraft.getPocketUpgrade( "computercraft:wireless_modem" );
-                }
+                if( id == 1 ) return ComputerCraft.PocketUpgrades.wirelessModem;
             }
         }
 

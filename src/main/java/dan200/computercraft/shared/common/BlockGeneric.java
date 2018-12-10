@@ -225,6 +225,7 @@ public abstract class BlockGeneric extends Block implements ITileEntityProvider
     }
 
     @Override
+    @Deprecated
     public boolean isSideSolid( IBlockState state, @Nonnull IBlockAccess world, @Nonnull BlockPos pos, EnumFacing side )
     {
         // We need to override this as the default implementation uses isNormalCube, which returns false if

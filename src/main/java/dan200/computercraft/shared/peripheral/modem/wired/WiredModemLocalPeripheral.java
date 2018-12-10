@@ -8,8 +8,8 @@ package dan200.computercraft.shared.peripheral.modem.wired;
 
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.peripheral.IPeripheral;
+import dan200.computercraft.shared.Peripherals;
 import dan200.computercraft.shared.util.IDAssigner;
-import dan200.computercraft.shared.util.PeripheralUtil;
 import net.minecraft.block.Block;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
@@ -139,7 +139,7 @@ public final class WiredModemLocalPeripheral
         Block block = world.getBlockState( offset ).getBlock();
         if( block == ComputerCraft.Blocks.wiredModemFull || block == ComputerCraft.Blocks.cable ) return null;
 
-        IPeripheral peripheral = PeripheralUtil.getPeripheral( world, offset, direction.getOpposite() );
+        IPeripheral peripheral = Peripherals.getPeripheral( world, offset, direction.getOpposite() );
         return peripheral instanceof WiredModemPeripheral ? null : peripheral;
     }
 }
