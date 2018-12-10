@@ -24,6 +24,7 @@ public abstract class WirelessModemPeripheral extends ModemPeripheral
     @Deprecated
     public WirelessModemPeripheral( boolean advanced )
     {
+        // Only for backwards compatibiliy
         this( new ModemState(), advanced );
     }
 
@@ -32,7 +33,7 @@ public abstract class WirelessModemPeripheral extends ModemPeripheral
     {
         return m_advanced;
     }
-    
+
     @Override
     public double getRange()
     {
@@ -62,7 +63,7 @@ public abstract class WirelessModemPeripheral extends ModemPeripheral
             return 0.0;
         }
     }
-    
+
     @Override
     protected IPacketNetwork getNetwork()
     {
