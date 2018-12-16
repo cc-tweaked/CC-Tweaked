@@ -14,7 +14,7 @@ CC:T also includes many pull requests from the community which have not yet been
 of additional bug fixes and features over the original mod.
 
 ## Features
-CC: Tweaked contains the all features of the latest alpha, as well as numerous fixes, performance improvements and
+CC: Tweaked contains all the features of the latest alpha, as well as numerous fixes, performance improvements and
 several additional features. I'd recommend checking out [the releases page](https://github.com/SquidDev-CC/CC-Tweaked/releases)
 to see the full changes, but here's a couple of the more interesting changes:
 
