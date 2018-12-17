@@ -77,7 +77,7 @@ local function load( _sPath )
         end
         file:close()
     end
-    
+
     if #tLines == 0 then
         table.insert( tLines, "" )
     end
@@ -91,7 +91,7 @@ local function save( _sPath )
     end
 
     -- Save
-    local file = nil
+    local file, fileerr
     local function innerSave()
         file, fileerr = fs.open( _sPath, "w" )
         if file then
@@ -102,9 +102,9 @@ local function save( _sPath )
             error( "Failed to open ".._sPath )
         end
     end
-    
+
     local ok, err = pcall( innerSave )
-    if file then 
+    if file then
         file.close()
     end
     return ok, err, fileerr
@@ -150,8 +150,8 @@ local function tryWrite( sLine, regex, colour )
 end
 
 local function writeHighlighted( sLine )
-    while string.len(sLine) > 0 do    
-        sLine = 
+    while string.len(sLine) > 0 do
+        sLine =
             tryWrite( sLine, "^%-%-%[%[.-%]%]", commentColour ) or
             tryWrite( sLine, "^%-%-.*", commentColour ) or
             tryWrite( sLine, "^\"\"", stringColour ) or
@@ -282,7 +282,7 @@ local function redrawMenu()
     term.setCursorPos( x - scrollX, y - scrollY )
 end
 
-local tMenuFuncs = { 
+local tMenuFuncs = {
     Save = function()
         if bReadOnly then
             sStatus = "Access denied"
@@ -326,9 +326,9 @@ local tMenuFuncs = {
         }
         printerTerminal.scroll = function()
             if nPage == 1 then
-                printer.setPageTitle( sName.." (page "..nPage..")" )            
+                printer.setPageTitle( sName.." (page "..nPage..")" )
             end
-            
+
             while not printer.newPage()    do
                 if printer.getInkLevel() < 1 then
                     sStatus = "Printer out of ink, please refill"
@@ -337,11 +337,11 @@ local tMenuFuncs = {
                 else
                     sStatus = "Printer output tray full, please empty"
                 end
-    
+
                 term.redirect( screenTerminal )
                 redrawMenu()
                 term.redirect( printerTerminal )
-                
+
                 local timer = os.startTimer(0.5)
                 sleep(0.5)
             end
@@ -353,7 +353,7 @@ local tMenuFuncs = {
                 printer.setPageTitle( sName.." (page "..nPage..")" )
             end
         end
-        
+
         bMenu = false
         term.redirect( printerTerminal )
         local ok, error = pcall( function()
@@ -366,14 +366,14 @@ local tMenuFuncs = {
         if not ok then
             print( error )
         end
-        
+
         while not printer.endPage() do
             sStatus = "Printer output tray full, please empty"
             redrawMenu()
             sleep( 0.5 )
         end
         bMenu = true
-            
+
         if nPage > 1 then
             sStatus = "Printed "..nPage.." Pages"
         else
@@ -416,7 +416,7 @@ local function setCursor( newX, newY )
     x, y = newX, newY
     local screenX = x - scrollX
     local screenY = y - scrollY
-    
+
     local bRedraw = false
     if screenX < 1 then
         scrollX = x - 1
@@ -427,7 +427,7 @@ local function setCursor( newX, newY )
         screenX = w
         bRedraw = true
     end
-    
+
     if screenY < 1 then
         scrollY = y - 1
         screenY = 1
@@ -694,7 +694,7 @@ while bRunning do
             redrawMenu()
 
         end
-        
+
     elseif sEvent == "char" then
         if not bMenu and not bReadOnly then
             -- Input text
@@ -725,7 +725,7 @@ while bRunning do
             tLines[y] = string.sub(sLine,1,x-1) .. param .. string.sub(sLine,x)
             setCursor( x + string.len( param ), y )
         end
-        
+
     elseif sEvent == "mouse_click" then
         if not bMenu then
             if param == 1 then
@@ -738,7 +738,7 @@ while bRunning do
                 end
             end
         end
-        
+
     elseif sEvent == "mouse_scroll" then
         if not bMenu then
             if param == -1 then
@@ -748,7 +748,7 @@ while bRunning do
                     scrollY = scrollY - 1
                     redrawText()
                 end
-            
+
             elseif param == 1 then
                 -- Scroll down
                 local nMaxScroll = #tLines - (h-1)
@@ -757,7 +757,7 @@ while bRunning do
                     scrollY = scrollY + 1
                     redrawText()
                 end
-                
+
             end
         end
 
@@ -774,4 +774,3 @@ end
 term.clear()
 term.setCursorBlink( false )
 term.setCursorPos( 1, 1 )
-

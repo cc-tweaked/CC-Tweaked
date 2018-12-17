@@ -47,7 +47,7 @@ while bRunning do
     if s:match("%S") and tCommandHistory[#tCommandHistory] ~= s then
         table.insert( tCommandHistory, s )
     end
-    
+
     local nForcePrint = 0
     local func, e = load( s, "lua", "t", tEnv )
     local func2, e2 = load( "return _echo("..s..");", "lua", "t", tEnv )
@@ -62,7 +62,7 @@ while bRunning do
             func = func2
         end
     end
-    
+
     if func then
         local tResults = table.pack( pcall( func ) )
         if tResults[1] then
@@ -92,5 +92,5 @@ while bRunning do
     else
         printError( e )
     end
-    
+
 end

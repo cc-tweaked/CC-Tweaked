@@ -266,7 +266,7 @@ end
 local function drawMap()
     for x=1,SizeW do
         for y=1,SizeH do
-          
+
             local obj = tScreen[x][y]
             if obj.ground == true then
                 paintutils.drawPixel(XOrgin+x,YOrgin+y+1,cG)
@@ -274,7 +274,7 @@ local function drawMap()
             if obj.wall == true then
                 paintutils.drawPixel(XOrgin+x,YOrgin+y+1,cW)
             end
-         
+
          local ex = tostring(tScreen[x][y].exit)
             if not(ex == "zz" or ex == "nil") then
                 if ex == "a" then
@@ -293,7 +293,7 @@ local function drawMap()
                 term.setCursorPos(XOrgin+x,YOrgin+y+1)
                 print("X")
             end
-         
+
          local st = tostring(tScreen[x][y].start)
             if not(st == "zz" or st == "nil") then
                 local Cr = string.sub(st,2,2)
@@ -308,11 +308,11 @@ local function drawMap()
                 else
                     return error("Start Color Out")
                 end
-            
+
                 term.setTextColor(Cr)
             term.setBackgroundColor(cG)
                 term.setCursorPos(XOrgin+x,YOrgin+y+1)
-            
+
                 local sSide = string.sub(st,1,1)
                 if sSide == "a" then
                     print("^")
@@ -326,11 +326,11 @@ local function drawMap()
                     print("@")
                 end
             end
-            
+
             if obj.space == true then
                 paintutils.drawPixel(XOrgin+x,YOrgin+y+1,cS)
             end
-            
+
             local rb = tostring(tScreen[x][y].robot)
             if not(rb == "zz" or rb == "nil") then
                 local Cr = string.sub(rb,2,2)
@@ -516,13 +516,13 @@ function InterFace.drawBar()
     term.setBackgroundColor( colors.black )
     term.setTextColor( InterFace.cTitle )
     printCentred( 1, "  "..sLevelTitle.."  " )
-    
+
     term.setCursorPos(1,1)
     term.setBackgroundColor( cW )
     write( " " )
     term.setBackgroundColor( colors.black )
     write( " x "..tostring(Blocks).." " )
-    
+
     term.setCursorPos( TermW-8,TermH )
     term.setBackgroundColor( colors.black )
     term.setTextColour(InterFace.cSpeedD)
@@ -601,12 +601,12 @@ local function startG(LevelN)
     InterFace.drawBar()
     gRender("start")
     drawMap()
-    
+
     local NExit = true
     if aExits == 0 then
         NExit = false
     end
-    
+
     while true do
         local isExit = InterFace.render()
         if isExit == "end" then

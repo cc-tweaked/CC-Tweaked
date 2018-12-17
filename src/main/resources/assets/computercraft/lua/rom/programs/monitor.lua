@@ -1,4 +1,3 @@
-
 local function printUsage()
     print( "Usage: monitor <name> <program> <arguments>" )
     return
@@ -64,4 +63,3 @@ term.redirect( previousTerm )
 if not ok then
     printError( param )
 end
-    

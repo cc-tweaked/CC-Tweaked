@@ -191,7 +191,7 @@ function lines(_sFileName)
         local ok, err = open(_sFileName, "rb")
         if not ok then error(err, 2) end
 
-        -- We set this magic flag to mark this file as being opened by io.lines and so should be 
+        -- We set this magic flag to mark this file as being opened by io.lines and so should be
         -- closed automatically
         ok._autoclose = true
         return ok:lines()

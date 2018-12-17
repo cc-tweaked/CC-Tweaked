@@ -34,7 +34,7 @@
         "facing=south,variant=printer_both_full": { "model": "computercraft:printer_both_full", "y": 180 },
         "facing=west,variant=printer_both_full": { "model": "computercraft:printer_both_full", "y": 270 },
         "facing=east,variant=printer_both_full": { "model": "computercraft:printer_both_full", "y": 90 },
-        
+
         "facing=north,variant=wireless_modem_off": { "model": "computercraft:wireless_modem_off" },
         "facing=south,variant=wireless_modem_off": { "model": "computercraft:wireless_modem_off", "y": 180 },
         "facing=west,variant=wireless_modem_off": { "model": "computercraft:wireless_modem_off", "y": 270 },
@@ -256,7 +256,7 @@
         "facing=south,variant=monitor_down_lu": { "model": "computercraft:monitor_lu", "y": 180, "x": 90 },
         "facing=west,variant=monitor_down_lu": { "model": "computercraft:monitor_lu", "y": 270, "x": 90 },
         "facing=east,variant=monitor_down_lu": { "model": "computercraft:monitor_lu", "y": 90, "x": 90 },
-        
+
         "facing=north,variant=advanced_monitor": { "model": "computercraft:advanced_monitor" },
         "facing=south,variant=advanced_monitor": { "model": "computercraft:advanced_monitor", "y": 180 },
         "facing=west,variant=advanced_monitor": { "model": "computercraft:advanced_monitor", "y": 270 },

@@ -4,8 +4,8 @@
         "particle": "#texture"
     },
     "elements": [
-        {   
-        	"from": [ 14, 4.5, 3.5 ],
+        {
+            "from": [ 14, 4.5, 3.5 ],
             "to": [ 15.5, 12.5, 11.5 ],
             "faces": {
                 "down":  { "uv": [ 0, 2, 3, 14 ], "texture": "#texture" },

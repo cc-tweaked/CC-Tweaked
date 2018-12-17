@@ -6,6 +6,6 @@
         "computer_upgrade" : "dan200.computercraft.shared.computer.recipe.ComputerFamilyRecipe$Factory"
     },
     "ingredients": {
-        "computer":  "dan200.computercraft.shared.computer.recipe.ComputerIngredient$Factory"   
+        "computer":  "dan200.computercraft.shared.computer.recipe.ComputerIngredient$Factory"
     }
 }

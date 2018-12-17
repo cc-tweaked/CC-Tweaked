@@ -12,7 +12,7 @@ if sTopic == "index" then
     textutils.pagedTabulate( tTopics )
     return
 end
-    
+
 local sFile = help.lookup( sTopic )
 local file = ((sFile ~= nil) and io.open( sFile )) or nil
 if file then

@@ -3,13 +3,13 @@ local function printUsage()
     print( "Usage:" )
     print( "wget <url> [filename]" )
 end
- 
+
 local tArgs = { ... }
 if #tArgs < 1 then
     printUsage()
     return
 end
- 
+
 if not http then
     printError( "wget requires http API" )
     printError( "Set http_enable to true in ComputerCraft.cfg" )

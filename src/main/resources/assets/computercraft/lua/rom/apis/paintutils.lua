@@ -58,7 +58,7 @@ function drawLine( startX, startY, endX, endY, nColour )
     if type( endX ) ~= "number" then error( "bad argument #3 (expected number, got " .. type( endX ) .. ")", 2 ) end
     if type( endY ) ~= "number" then error( "bad argument #4 (expected number, got " .. type( endY ) .. ")", 2 ) end
     if nColour ~= nil and type( nColour ) ~= "number" then error( "bad argument #5 (expected number, got " .. type( nColour ) .. ")", 2 ) end
-    
+
     startX = math.floor(startX)
     startY = math.floor(startY)
     endX = math.floor(endX)
@@ -71,7 +71,7 @@ function drawLine( startX, startY, endX, endY, nColour )
         drawPixelInternal( startX, startY )
         return
     end
-    
+
     local minX = math.min( startX, endX )
     local maxX, minY, maxY
     if minX == startX then
@@ -85,10 +85,10 @@ function drawLine( startX, startY, endX, endY, nColour )
     end
 
     -- TODO: clip to screen rectangle?
-        
+
     local xDiff = maxX - minX
     local yDiff = maxY - minY
-            
+
     if xDiff > math.abs(yDiff) then
         local y = minY
         local dy = yDiff / xDiff
@@ -134,7 +134,7 @@ function drawBox( startX, startY, endX, endY, nColour )
     end
 
     local minX = math.min( startX, endX )
-    local maxX, minY, maxY 
+    local maxX, minY, maxY
     if minX == startX then
         minY = startY
         maxX = endX

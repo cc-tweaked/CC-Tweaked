@@ -8,11 +8,11 @@ function slowWrite( sText, nRate )
         error( "Rate must be positive", 2 )
     end
     local nSleep = 1 / nRate
-        
+
     sText = tostring( sText )
     local x,y = term.getCursorPos()
     local len = string.len( sText )
-    
+
     for n=1,len do
         term.setCursorPos( x, y )
         sleep( nSleep )
@@ -32,7 +32,7 @@ function formatTime( nTime, bTwentyFourHour )
         error( "bad argument #1 (expected number, got " .. type( nTime ) .. ")", 2 )
     end
     if bTwentyFourHour ~= nil and type( bTwentyFourHour ) ~= "boolean" then
-        error( "bad argument #2 (expected boolean, got " .. type( bTwentyFourHour ) .. ")", 2 ) 
+        error( "bad argument #2 (expected boolean, got " .. type( bTwentyFourHour ) .. ")", 2 )
     end
     local sTOD = nil
     if not bTwentyFourHour then
@@ -61,7 +61,7 @@ local function makePagedScroll( _term, _nFreeLines )
     return function( _n )
         for n=1,_n do
             nativeScroll( 1 )
-            
+
             if nFreeLines <= 0 then
                 local w,h = _term.getSize()
                 _term.setCursorPos( 1, h )
@@ -78,7 +78,7 @@ end
 
 function pagedPrint( _sText, _nFreeLines )
     if _nFreeLines ~= nil and type( _nFreeLines ) ~= "number" then
-        error( "bad argument #2 (expected number, got " .. type( _nFreeLines ) .. ")", 2 ) 
+        error( "bad argument #2 (expected number, got " .. type( _nFreeLines ) .. ")", 2 )
     end
     -- Setup a redirector
     local oldTerm = term.current()
@@ -113,17 +113,17 @@ local function tabulateCommon( bPaged, ... )
     local tAll = { ... }
     for k,v in ipairs( tAll ) do
         if type( v ) ~= "number" and type( v ) ~= "table" then
-            error( "bad argument #"..k.." (expected number or table, got " .. type( v ) .. ")", 3 ) 
+            error( "bad argument #"..k.." (expected number or table, got " .. type( v ) .. ")", 3 )
         end
     end
-    
+
     local w,h = term.getSize()
     local nMaxLen = w / 8
     for n, t in ipairs( tAll ) do
         if type(t) == "table" then
             for nu, sItem in pairs(t) do
                 if type( sItem ) ~= "string" then
-                    error( "bad argument #"..n.."."..nu.." (expected string, got " .. type( sItem ) .. ")", 3 ) 
+                    error( "bad argument #"..n.."."..nu.." (expected string, got " .. type( sItem ) .. ")", 3 )
                 end
                 nMaxLen = math.max( string.len( sItem ) + 1, nMaxLen )
             end
@@ -139,7 +139,7 @@ local function tabulateCommon( bPaged, ... )
         end
         nLines = nLines + 1
     end
-    
+
     local function drawCols( _t )
         local nCol = 1
         for n, s in ipairs( _t ) do
@@ -153,7 +153,7 @@ local function tabulateCommon( bPaged, ... )
             term.setCursorPos( cx, cy )
             term.write( s )
 
-            nCol = nCol + 1      
+            nCol = nCol + 1
         end
         print()
     end
@@ -165,7 +165,7 @@ local function tabulateCommon( bPaged, ... )
         elseif type(t) == "number" then
             term.setTextColor( t )
         end
-    end    
+    end
 end
 
 function tabulate( ... )
@@ -234,16 +234,16 @@ local function serializeImpl( t, tTracking, sIndent )
             sResult = sResult .. sIndent .. "}"
             return sResult
         end
-        
+
     elseif sType == "string" then
         return string.format( "%q", t )
-    
+
     elseif sType == "number" or sType == "boolean" or sType == "nil" then
         return tostring(t)
-        
+
     else
         error( "Cannot serialize type "..sType, 0 )
-        
+
     end
 end
 
@@ -365,7 +365,7 @@ function urlEncode( str )
         end )
         str = string.gsub(str, " ", "+")
     end
-    return str    
+    return str
 end
 
 local tEmpty = {}
@@ -403,7 +403,7 @@ function complete( sSearchText, tSearchTable )
             return tEmpty
         end
     end
-    
+
     local sPart = string.sub( sSearchText, nStart )
     local nPartLength = string.len( sPart )
 

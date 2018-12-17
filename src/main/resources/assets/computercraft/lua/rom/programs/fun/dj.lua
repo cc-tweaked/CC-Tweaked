@@ -43,8 +43,8 @@ elseif sCommand == "play" or sCommand == nil then
         print( "No Music Disc in disk drive: "..sName )
         return
     end
-    
+
 else
     printUsage()
-    
+
 end

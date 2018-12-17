@@ -4,8 +4,8 @@
         "particle": "#texture"
     },
     "elements": [
-        {   
-        	"from": [ 2, 2, 2 ],
+        {
+            "from": [ 2, 2, 2 ],
             "to": [ 14, 14, 13 ],
             "faces": {
                 "down":  { "uv": [ 2.75, 0, 5.75, 2.75 ], "texture": "#texture" },
@@ -16,7 +16,7 @@
                 "east":  { "uv": [ 5.75, 5.75, 8.5, 2.75 ], "texture": "#texture" }
             }
         },
-        {   
+        {
             "from": [ 3, 6, 13 ],
             "to": [ 13, 13, 15 ],
             "faces": {

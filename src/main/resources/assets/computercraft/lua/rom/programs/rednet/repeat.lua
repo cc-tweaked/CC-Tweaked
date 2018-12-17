@@ -15,14 +15,14 @@ else
     print( #tModems .. " modems found." )
 end
 
-function open( nChannel )
+local function open( nChannel )
     for n=1,#tModems do
         local sModem = tModems[n]
         peripheral.call( sModem, "open", nChannel )
     end
 end
 
-function close( nChannel )
+local function close( nChannel )
     for n=1,#tModems do
         local sModem = tModems[n]
         peripheral.call( sModem, "close", nChannel )

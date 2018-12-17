@@ -5,7 +5,7 @@
         "side": "computercraft:blocks/cable_side"
     },
     "elements": [
-        {   
+        {
             "from": [ 6, 6, 10 ],
             "to": [ 10, 10, 16 ],
             "faces": {

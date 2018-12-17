@@ -1,6 +1,6 @@
 
 if not turtle then
-	error( "Cannot load turtle API on computer", 2 )
+    error( "Cannot load turtle API on computer", 2 )
 end
 native = turtle.native or turtle
 
@@ -28,7 +28,7 @@ for k,v in pairs( native ) do
             return result, err
         end
     else
-    	env[k] = v
+        env[k] = v
     end
 end
 addCraftMethod( env )

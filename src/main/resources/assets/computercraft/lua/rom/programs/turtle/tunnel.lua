@@ -11,7 +11,7 @@ if length < 1 then
     print( "Tunnel length must be positive" )
     return
 end
-    
+
 local depth = 0
 local collected = 0
 
@@ -63,7 +63,7 @@ local function refuel()
     if fuelLevel == "unlimited" or fuelLevel > 0 then
         return
     end
-    
+
     local function tryRefuel()
         for n=1,16 do
             if turtle.getItemCount(n) > 0 then
@@ -77,7 +77,7 @@ local function refuel()
         turtle.select(1)
         return false
     end
-    
+
     if not tryRefuel() then
         print( "Add more fuel to continue." )
         while not tryRefuel() do
@@ -150,7 +150,7 @@ for n=1,length do
     tryDown()
     tryDig()
     turtle.turnLeft()
-    
+
     if n<length then
         tryDig()
         if not tryForward() then

@@ -24,4 +24,3 @@ else
     table.sort( tList )
     textutils.pagedTabulate( tList )
 end
-    

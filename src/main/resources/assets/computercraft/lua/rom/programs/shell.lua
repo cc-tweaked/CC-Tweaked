@@ -254,7 +254,7 @@ function shell.resolveProgram( _sCommand )
         end
         return nil
     end
-    
+
      -- Otherwise, look on the path variable
     for sPath in string.gmatch(sPath, "[^:]+") do
         sPath = fs.combine( shell.resolve( sPath ), _sCommand )
@@ -267,14 +267,14 @@ function shell.resolveProgram( _sCommand )
             end
         end
     end
-    
+
     -- Not found
     return nil
 end
 
 function shell.programs( _bIncludeHidden )
     local tItems = {}
-    
+
     -- Add programs from the path
     for sPath in string.gmatch(sPath, "[^:]+") do
         sPath = shell.resolve( sPath )
@@ -291,7 +291,7 @@ function shell.programs( _bIncludeHidden )
                 end
             end
         end
-    end    
+    end
 
     -- Sort and return
     local tItemList = {}

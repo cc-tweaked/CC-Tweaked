@@ -168,7 +168,7 @@ local function completeSet( shell, nIndex, sText, tPreviousText )
         return completeMultipleChoice( sText, settings.getNames(), true )
     end
 end
-local tCommands 
+local tCommands
 if commands then
     tCommands = commands.list()
 end

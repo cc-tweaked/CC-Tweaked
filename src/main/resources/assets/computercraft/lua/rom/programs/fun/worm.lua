@@ -75,7 +75,7 @@ local function addFruit()
             break
         end
     end
-    
+
     nFruit = nFruit + 1
     if nFruit > #tFruits then
         nFruit = 1
@@ -86,7 +86,7 @@ local function drawMenu()
     term.setTextColour( headingColour )
     term.setCursorPos(1,1)
     term.write( "SCORE " )
-    
+
     term.setTextColour( textColour )
     term.setCursorPos(7,1)
     term.write( tostring(nScore) )
@@ -97,7 +97,7 @@ local function drawMenu()
 
     term.setTextColour( textColour )
     term.setCursorPos(w,1)
-    term.write( tostring(nDifficulty or "?") ) 
+    term.write( tostring(nDifficulty or "?") )
 
     term.setTextColour( colours.white )
 end
@@ -120,7 +120,7 @@ local function update( )
     else
         nExtraLength = nExtraLength - 1
     end
-    
+
     -- Update the head
     local head = screen[xPos][yPos]
     local newXPos = xPos + xVel
@@ -135,11 +135,11 @@ local function update( )
     elseif newYPos > h then
         newYPos = 2
     end
-    
+
     local newHead = screen[newXPos][newYPos]
     if newHead.snake == true or newHead.wall == true then
         bRunning = false
-        
+
     else
         if newHead.fruit == true then
             nScore = nScore + 10
@@ -151,9 +151,9 @@ local function update( )
         head.nextX = newXPos
         head.nextY = newYPos
         screen[newXPos][newYPos] = { snake = true }
-        
+
     end
-    
+
     term.setCursorPos(xPos,yPos)
     term.setBackgroundColour( wormColour )
     term.write(" ")
@@ -172,7 +172,7 @@ local function drawFrontend()
     printCentred( math.floor(h/2) - 3, "" )
     printCentred( math.floor(h/2) - 2, " SELECT DIFFICULTY " )
     printCentred( math.floor(h/2) - 1, "" )
-    
+
     printCentred( math.floor(h/2) + 0, "            " )
     printCentred( math.floor(h/2) + 1, "            " )
     printCentred( math.floor(h/2) + 2, "            " )
@@ -232,7 +232,7 @@ while bRunning do
     if event == "timer" and p1 == timer then
         timer = os.startTimer(nInterval)
         update( false )
-    
+
     elseif event == "key" then
         local key = p1
         if key == keys.up or key == keys.w then
@@ -250,14 +250,14 @@ while bRunning do
             if xVel == 0 then
                 pxVel,pyVel = -1,0
             end
-        
+
         elseif key == keys.right or key == keys.d then
             -- Right
             if xVel == 0 then
                 pxVel,pyVel = 1,0
             end
-        
-        end    
+
+        end
     end
 end
 
@@ -285,5 +285,3 @@ until e == "char"
 
 term.clear()
 term.setCursorPos(1,1)
-
-        

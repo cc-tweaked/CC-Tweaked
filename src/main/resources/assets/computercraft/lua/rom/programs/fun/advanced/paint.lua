@@ -78,7 +78,7 @@ local function getCharOf( colour )
         end
     end
     return " "
-end    
+end
 
 --[[
     Converts a text character to colour value
@@ -94,7 +94,7 @@ local function getColourOf( char )
     return tColourLookup[char]
 end
 
---[[ 
+--[[
     Loads the file into the canvas
     params: path = the path of the file to open
     returns: nil
@@ -116,8 +116,8 @@ local function load(path)
     end
 end
 
---[[  
-    Saves the current canvas to file  
+--[[
+    Saves the current canvas to file
     params: path = the path of the file to save
     returns: true if save was successful, false otherwise
 ]]
@@ -161,7 +161,7 @@ local function save(path)
     return true
 end
 
---[[  
+--[[
     Draws colour picker sidebar, the pallette and the footer
     returns: nil
 ]]
@@ -172,7 +172,7 @@ local function drawInterface()
     term.setTextColour(colours.yellow)
     term.clearLine()
     term.write(fMessage)
-    
+
     -- Colour Picker
     for i=1,16 do
         term.setCursorPos(w-1, i)
@@ -184,7 +184,7 @@ local function drawInterface()
     term.setBackgroundColour( canvasColour )
     term.setTextColour( colours.grey )
     term.write("\127\127")
-            
+
     -- Left and Right Selected Colours
     for i=18,18 do
         term.setCursorPos(w-1, i)
@@ -214,7 +214,7 @@ local function drawInterface()
     end
 end
 
---[[  
+--[[
     Converts a single pixel of a single line of the canvas and draws it
     returns: nil
 ]]
@@ -232,7 +232,7 @@ local function drawCanvasPixel( x, y )
     end
 end
 
---[[  
+--[[
     Converts each colour in a single line of the canvas and draws it
     returns: nil
 ]]
@@ -242,7 +242,7 @@ local function drawCanvasLine( y )
     end
 end
 
---[[  
+--[[
     Converts each colour in the canvas and draws it
     returns: nil
 ]]
@@ -259,7 +259,7 @@ end
 local function accessMenu()
     -- Selected menu option
     local selection = 1
-    
+
     term.setBackgroundColour(colours.black)
     while true do
         -- Draw the menu
@@ -267,7 +267,7 @@ local function accessMenu()
         term.clearLine()
         term.setTextColour(colours.white)
         for k,v in pairs(mChoices) do
-            if selection==k then 
+            if selection==k then
                 term.setTextColour(colours.yellow)
                 local ox,_ = term.getCursorPos()
                 term.write("["..string.rep(" ",#v).."]")
@@ -279,7 +279,7 @@ local function accessMenu()
                 term.write(" "..v.." ")
             end
         end
-        
+
         -- Handle input in the menu
         local id,key = os.pullEvent("key")
         if id == "key" then
@@ -291,25 +291,25 @@ local function accessMenu()
                 selection = 2
                 key = keys.enter
             end
-        
+
             if key == keys.right then
                 -- Move right
                 selection = selection + 1
                 if selection > #mChoices then
                     selection = 1
                 end
-                
+
             elseif key == keys.left and selection > 1 then
                 -- Move left
                 selection = selection - 1
                 if selection < 1 then
                     selection = #mChoices
                 end
-                
+
             elseif key == keys.enter then
                 -- Select an option
-                if mChoices[selection]=="Save" then 
-                    if bReadOnly then 
+                if mChoices[selection]=="Save" then
+                    if bReadOnly then
                         fMessage = "Access denied"
                         return false
                     end
@@ -324,18 +324,18 @@ local function accessMenu()
                         end
                     end
                     return false
-                elseif mChoices[selection]=="Exit" then 
+                elseif mChoices[selection]=="Exit" then
                     return true
                 end
             elseif key == keys.leftCtrl or keys == keys.rightCtrl then
                 -- Cancel the menu
-                return false 
+                return false
             end
         end
     end
 end
 
---[[  
+--[[
     Runs the main thread of execution. Draws the canvas and interface, and handles
     mouse and key events.
     returns: nil
@@ -405,4 +405,3 @@ term.setBackgroundColour(colours.black)
 term.setTextColour(colours.white)
 term.clear()
 term.setCursorPos(1,1)
-

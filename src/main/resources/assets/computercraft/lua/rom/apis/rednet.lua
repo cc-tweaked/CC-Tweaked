@@ -10,7 +10,7 @@ function open( sModem )
     if type( sModem ) ~= "string" then
         error( "bad argument #1 (expected string, got " .. type( sModem ) .. ")", 2 )
     end
-    if peripheral.getType( sModem ) ~= "modem" then 
+    if peripheral.getType( sModem ) ~= "modem" then
         error( "No such modem: "..sModem, 2 )
     end
     peripheral.call( sModem, "open", os.getComputerID() )
@@ -244,7 +244,7 @@ function run()
         error( "rednet is already running", 2 )
     end
     bRunning = true
-    
+
     while bRunning do
         local sEvent, p1, p2, p3, p4 = os.pullEventRaw()
         if sEvent == "modem_message" then

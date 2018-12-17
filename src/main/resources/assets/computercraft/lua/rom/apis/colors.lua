@@ -57,7 +57,7 @@ function rgb8( r, g, b )
     elseif type(r) == "number" and g == nil and b == nil then
         return bit32.band( bit32.rshift( r, 16 ), 0xFF ) / 255, bit32.band( bit32.rshift( r, 8 ), 0xFF ) / 255, bit32.band( r, 0xFF ) / 255
     elseif type(r) == "number" and type(g) == "number" and type(b) == "number" then
-        return 
+        return
             bit32.lshift( bit32.band(r * 255, 0xFF), 16 ) +
             bit32.lshift( bit32.band(g * 255, 0xFF), 8 ) +
             bit32.band(b * 255, 0xFF)

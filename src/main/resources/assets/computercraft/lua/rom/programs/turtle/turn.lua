@@ -34,5 +34,4 @@ while nArg <= #tArgs do
         print( "Try: left, right" )
         return
     end
-    
 end

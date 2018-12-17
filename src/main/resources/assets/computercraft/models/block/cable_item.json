@@ -6,8 +6,8 @@
         "end": "computercraft:blocks/cable_core"
     },
     "elements": [
-        {   
-        	"from": [ 6, 6, 2 ],
+        {
+            "from": [ 6, 6, 2 ],
             "to": [ 10, 10, 14 ],
             "faces": {
                 "down":  { "uv": [ 6, 2, 10, 14 ], "texture": "#side" },

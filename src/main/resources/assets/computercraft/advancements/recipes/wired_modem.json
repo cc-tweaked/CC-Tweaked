@@ -1,8 +1,8 @@
 {
     "parent": "minecraft:recipes/root",
     "rewards": {
-        "recipes": [ 
-            "computercraft:wired_modem", 
+        "recipes": [
+            "computercraft:wired_modem",
             "computercraft:wired_modem_full_to",
             "computercraft:wired_modem_full_from"
         ]

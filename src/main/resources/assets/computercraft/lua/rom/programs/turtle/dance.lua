@@ -96,7 +96,7 @@ parallel.waitForAny(
             if key ~= keys.escape then
                 return
             end
-        end        
+        end
     end,
     function()
         while true do
