@@ -30,7 +30,7 @@ public enum TurtleUpgradeType
      * your upgrade to also provide methods. For example, a pickaxe could provide methods
      * determining whether it can break the given block or not.
      */
-    Both,;
+    Both;
 
     public boolean isTool()
     {

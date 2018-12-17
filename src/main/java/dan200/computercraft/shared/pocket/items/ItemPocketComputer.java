@@ -28,7 +28,10 @@ import net.minecraft.inventory.IInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.*;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.EnumActionResult;
+import net.minecraft.util.EnumHand;
+import net.minecraft.util.NonNullList;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fml.relauncher.Side;
@@ -82,7 +85,7 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
             if( tag == null ) result.setTagCompound( tag = new NBTTagCompound() );
             tag.setInteger( "colour", colour );
         }
-        
+
         return result;
     }
 
@@ -374,7 +377,7 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
     @Override
     public ItemStack withFamily( @Nonnull ItemStack stack, @Nonnull ComputerFamily family )
     {
-        return PocketComputerItemFactory.create( 
+        return PocketComputerItemFactory.create(
             getComputerID( stack ), getLabel( stack ), getColour( stack ),
             family, getUpgrade( stack )
         );
@@ -394,18 +397,6 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
             stack.clearCustomName();
         }
         return true;
-    }
-
-    @Override
-    public String getAudioTitle( @Nonnull ItemStack stack )
-    {
-        return null;
-    }
-
-    @Override
-    public SoundEvent getAudio( @Nonnull ItemStack stack )
-    {
-        return null;
     }
 
     @Override
@@ -457,7 +448,7 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
         stack.getTagCompound().setInteger( "sessionID", sessionID );
     }
 
-    @SideOnly(Side.CLIENT)
+    @SideOnly( Side.CLIENT )
     public ComputerState getState( @Nonnull ItemStack stack )
     {
         ClientComputer computer = getClientComputer( stack );
@@ -468,7 +459,7 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
         return ComputerState.Off;
     }
 
-    @SideOnly(Side.CLIENT)
+    @SideOnly( Side.CLIENT )
     public int getLightState( @Nonnull ItemStack stack )
     {
         ClientComputer computer = getClientComputer( stack );

@@ -1,6 +1,5 @@
 package dan200.computercraft.api.turtle.event;
 
-import com.google.common.base.Preconditions;
 import dan200.computercraft.api.turtle.ITurtleAccess;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
@@ -11,6 +10,7 @@ import net.minecraftforge.items.IItemHandler;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Objects;
 
 /**
  * Fired when a turtle attempts to interact with an inventory.
@@ -65,7 +65,7 @@ public abstract class TurtleInventoryEvent extends TurtleBlockEvent
         {
             super( turtle, TurtleAction.DROP, player, world, pos, handler );
 
-            Preconditions.checkNotNull( stack, "stack cannot be null" );
+            Objects.requireNonNull( stack, "stack cannot be null" );
             this.stack = stack;
         }
 

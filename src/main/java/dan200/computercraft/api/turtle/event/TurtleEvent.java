@@ -6,11 +6,11 @@
 
 package dan200.computercraft.api.turtle.event;
 
-import com.google.common.base.Preconditions;
 import dan200.computercraft.api.turtle.ITurtleAccess;
 import net.minecraftforge.fml.common.eventhandler.Event;
 
 import javax.annotation.Nonnull;
+import java.util.Objects;
 
 /**
  * A base class for all events concerning a turtle. This will only ever constructed and fired on the server side,
@@ -26,7 +26,7 @@ public abstract class TurtleEvent extends Event
 
     protected TurtleEvent( @Nonnull ITurtleAccess turtle )
     {
-        Preconditions.checkNotNull( turtle, "turtle cannot be null" );
+        Objects.requireNonNull( turtle, "turtle cannot be null" );
         this.turtle = turtle;
     }
 

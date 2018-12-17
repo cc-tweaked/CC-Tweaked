@@ -7,50 +7,40 @@
 package dan200.computercraft.shared.media.items;
 
 import dan200.computercraft.ComputerCraft;
-import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.api.media.IMedia;
 import net.minecraft.item.ItemRecord;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.SoundEvent;
-import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
 
-// An implementation of IMedia for ItemRecord's
+/**
+ * An implementation of IMedia for ItemRecord's
+ */
 public class RecordMedia implements IMedia
 {
-    public RecordMedia()
+    public static final RecordMedia INSTANCE = new RecordMedia();
+
+    private RecordMedia()
     {
     }
-     
+
     @Override
     public String getLabel( @Nonnull ItemStack stack )
     {
         return getAudioTitle( stack );
     }
-    
-    @Override
-    public boolean setLabel( @Nonnull ItemStack stack, String label )
-    {
-        return false;
-    }
-    
+
     @Override
     public String getAudioTitle( @Nonnull ItemStack stack )
     {
         return ComputerCraft.getRecordInfo( stack );
     }
-    
+
     @Override
     public SoundEvent getAudio( @Nonnull ItemStack stack )
     {
-        ItemRecord itemRecord = (ItemRecord)stack.getItem();
+        ItemRecord itemRecord = (ItemRecord) stack.getItem();
         return itemRecord.sound;
-    }
-    
-    @Override
-    public IMount createDataMount( @Nonnull ItemStack stack, @Nonnull World world )
-    {
-        return null;
     }
 }

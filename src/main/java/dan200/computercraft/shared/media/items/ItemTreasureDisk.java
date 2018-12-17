@@ -18,7 +18,6 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.NonNullList;
-import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
@@ -29,19 +28,19 @@ import java.util.List;
 
 public class ItemTreasureDisk extends Item
     implements IMedia
-{    
+{
     public ItemTreasureDisk()
     {
         setMaxStackSize( 1 );
         setHasSubtypes( true );
         setTranslationKey( "computercraft:treasure_disk" );
     }
-    
+
     @Override
     public void getSubItems( @Nonnull CreativeTabs tabs, @Nonnull NonNullList<ItemStack> list )
     {
     }
-    
+
     @Override
     public void addInformation( @Nonnull ItemStack stack, World world, List<String> list, ITooltipFlag flag )
     {
@@ -57,7 +56,7 @@ public class ItemTreasureDisk extends Item
     {
         return true;
     }
-    
+
     // IMedia implementation
 
     @Override
@@ -65,25 +64,7 @@ public class ItemTreasureDisk extends Item
     {
         return getTitle( stack );
     }
-    
-    @Override
-    public boolean setLabel( @Nonnull ItemStack stack, String label )
-    {
-        return false;
-    }
-    
-    @Override
-    public String getAudioTitle( @Nonnull ItemStack stack )
-    {
-        return null;
-    }
-    
-    @Override
-    public SoundEvent getAudio( @Nonnull ItemStack stack )
-    {
-        return null;
-    }
-    
+
     @Override
     public IMount createDataMount( @Nonnull ItemStack stack, @Nonnull World world )
     {
@@ -109,12 +90,12 @@ public class ItemTreasureDisk extends Item
             return null;
         }
     }
-    
+
     public static ItemStack create( String subPath, int colourIndex )
-    {    
+    {
         NBTTagCompound nbt = new NBTTagCompound();
         nbt.setString( "subPath", subPath );
-        
+
         int slash = subPath.indexOf( "/" );
         if( slash >= 0 )
         {
@@ -126,8 +107,8 @@ public class ItemTreasureDisk extends Item
         {
             nbt.setString( "title", "untitled" );
         }
-        nbt.setInteger( "colour", Colour.values()[ colourIndex ].getHex() );
-        
+        nbt.setInteger( "colour", Colour.values()[colourIndex].getHex() );
+
         ItemStack result = new ItemStack( ComputerCraft.Items.treasureDisk, 1, 0 );
         result.setTagCompound( nbt );
         return result;
@@ -139,7 +120,7 @@ public class ItemTreasureDisk extends Item
     }
 
     // private stuff
-    
+
     public String getTitle( @Nonnull ItemStack stack )
     {
         NBTTagCompound nbt = stack.getTagCompound();
@@ -149,7 +130,7 @@ public class ItemTreasureDisk extends Item
         }
         return "'alongtimeago' by dan200";
     }
-    
+
     public String getSubPath( @Nonnull ItemStack stack )
     {
         NBTTagCompound nbt = stack.getTagCompound();
@@ -159,7 +140,7 @@ public class ItemTreasureDisk extends Item
         }
         return "dan200/alongtimeago";
     }
-    
+
     public int getColour( @Nonnull ItemStack stack )
     {
         NBTTagCompound nbt = stack.getTagCompound();

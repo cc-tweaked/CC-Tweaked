@@ -18,7 +18,6 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.NonNullList;
-import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
@@ -34,16 +33,16 @@ public class ItemDiskLegacy extends Item
         setMaxStackSize( 1 );
         setHasSubtypes( true );
         setTranslationKey( "computercraft:disk" );
-        setCreativeTab( ComputerCraft.mainCreativeTab  );
+        setCreativeTab( ComputerCraft.mainCreativeTab );
     }
-    
+
     @Override
     public void getSubItems( @Nonnull CreativeTabs tabs, @Nonnull NonNullList<ItemStack> list )
     {
         if( !isInCreativeTab( tabs ) ) return;
-        for( int colour=0; colour<16; ++colour )
+        for( int colour = 0; colour < 16; ++colour )
         {
-            ItemStack stack = createFromIDAndColour( -1, null, Colour.values()[ colour ].getHex() );
+            ItemStack stack = createFromIDAndColour( -1, null, Colour.values()[colour].getHex() );
             if( stack.getItem() == this )
             {
                 list.add( stack );
@@ -56,7 +55,7 @@ public class ItemDiskLegacy extends Item
     {
         return ItemDiskExpanded.createFromIDAndColour( id, label, colour );
     }
-    
+
     public int getDiskID( @Nonnull ItemStack stack )
     {
         int damage = stack.getItemDamage();
@@ -69,9 +68,12 @@ public class ItemDiskLegacy extends Item
 
     protected void setDiskID( @Nonnull ItemStack stack, int id )
     {
-        if( id > 0 ) {
+        if( id > 0 )
+        {
             stack.setItemDamage( id );
-        } else {
+        }
+        else
+        {
             stack.setItemDamage( 0 );
         }
     }
@@ -100,7 +102,7 @@ public class ItemDiskLegacy extends Item
         }
         return null;
     }
-    
+
     @Override
     public boolean setLabel( @Nonnull ItemStack stack, String label )
     {
@@ -114,19 +116,7 @@ public class ItemDiskLegacy extends Item
         }
         return true;
     }
-    
-    @Override
-    public String getAudioTitle( @Nonnull ItemStack stack )
-    {
-        return null;
-    }
-    
-    @Override
-    public SoundEvent getAudio( @Nonnull ItemStack stack )
-    {
-        return null;
-    }
-    
+
     @Override
     public IMount createDataMount( @Nonnull ItemStack stack, @Nonnull World world )
     {

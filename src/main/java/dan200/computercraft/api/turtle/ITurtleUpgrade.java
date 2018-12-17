@@ -25,7 +25,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.vecmath.Matrix4f;
 
-
 /**
  * The primary interface for defining an update for Turtles. A turtle update
  * can either be a new tool, or a new peripheral.
@@ -98,7 +97,10 @@ public interface ITurtleUpgrade
      * and this method is not expected to be called.
      */
     @Nullable
-    IPeripheral createPeripheral( @Nonnull ITurtleAccess turtle, @Nonnull TurtleSide side );
+    default IPeripheral createPeripheral( @Nonnull ITurtleAccess turtle, @Nonnull TurtleSide side )
+    {
+        return null;
+    }
 
     /**
      * Will only be called for Tool turtle. Called when turtle.dig() or turtle.attack() is called
@@ -119,7 +121,10 @@ public interface ITurtleUpgrade
      * to be called.
      */
     @Nonnull
-    TurtleCommandResult useTool( @Nonnull ITurtleAccess turtle, @Nonnull TurtleSide side, @Nonnull TurtleVerb verb, @Nonnull EnumFacing direction );
+    default TurtleCommandResult useTool( @Nonnull ITurtleAccess turtle, @Nonnull TurtleSide side, @Nonnull TurtleVerb verb, @Nonnull EnumFacing direction )
+    {
+        return TurtleCommandResult.failure();
+    }
 
     /**
      * Called to obtain the model to be used when rendering a turtle peripheral.
@@ -133,8 +138,8 @@ public interface ITurtleUpgrade
      * @return The model that you wish to be used to render your upgrade, and a transformation to apply to it. Returning
      * a transformation of {@code null} has the same effect as the identify matrix.
      */
-    @SideOnly(Side.CLIENT)
     @Nonnull
+    @SideOnly( Side.CLIENT )
     Pair<IBakedModel, Matrix4f> getModel( @Nullable ITurtleAccess turtle, @Nonnull TurtleSide side );
 
     /**

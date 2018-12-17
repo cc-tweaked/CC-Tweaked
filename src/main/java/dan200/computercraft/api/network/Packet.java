@@ -5,10 +5,9 @@
  */
 package dan200.computercraft.api.network;
 
-import com.google.common.base.Preconditions;
-
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Objects;
 
 /**
  * Represents a packet which may be sent across a {@link IPacketNetwork}.
@@ -21,11 +20,11 @@ import javax.annotation.Nullable;
  */
 public class Packet
 {
-    private final int m_channel;
-    private final int m_replyChannel;
-    private final Object m_payload;
+    private final int channel;
+    private final int replyChannel;
+    private final Object payload;
 
-    private final IPacketSender m_sender;
+    private final IPacketSender sender;
 
     /**
      * Create a new packet, ready for transmitting across the network.
@@ -39,12 +38,12 @@ public class Packet
      */
     public Packet( int channel, int replyChannel, @Nullable Object payload, @Nonnull IPacketSender sender )
     {
-        Preconditions.checkNotNull( sender, "sender cannot be null" );
+        Objects.requireNonNull( sender, "sender cannot be null" );
 
-        m_channel = channel;
-        m_replyChannel = replyChannel;
-        m_payload = payload;
-        m_sender = sender;
+        this.channel = channel;
+        this.replyChannel = replyChannel;
+        this.payload = payload;
+        this.sender = sender;
     }
 
     /**
@@ -55,7 +54,7 @@ public class Packet
      */
     public int getChannel()
     {
-        return m_channel;
+        return channel;
     }
 
     /**
@@ -65,7 +64,7 @@ public class Packet
      */
     public int getReplyChannel()
     {
-        return m_replyChannel;
+        return replyChannel;
     }
 
     /**
@@ -77,7 +76,7 @@ public class Packet
     @Nullable
     public Object getPayload()
     {
-        return m_payload;
+        return payload;
     }
 
     /**
@@ -88,7 +87,7 @@ public class Packet
     @Nonnull
     public IPacketSender getSender()
     {
-        return m_sender;
+        return sender;
     }
 
     @Override
@@ -99,20 +98,20 @@ public class Packet
 
         Packet packet = (Packet) o;
 
-        if( m_channel != packet.m_channel ) return false;
-        if( m_replyChannel != packet.m_replyChannel ) return false;
-        if( m_payload != null ? !m_payload.equals( packet.m_payload ) : packet.m_payload != null ) return false;
-        return m_sender.equals( packet.m_sender );
+        if( channel != packet.channel ) return false;
+        if( replyChannel != packet.replyChannel ) return false;
+        if( !Objects.equals( payload, packet.payload ) ) return false;
+        return sender.equals( packet.sender );
     }
 
     @Override
     public int hashCode()
     {
         int result;
-        result = m_channel;
-        result = 31 * result + m_replyChannel;
-        result = 31 * result + (m_payload != null ? m_payload.hashCode() : 0);
-        result = 31 * result + m_sender.hashCode();
+        result = channel;
+        result = 31 * result + replyChannel;
+        result = 31 * result + (payload != null ? payload.hashCode() : 0);
+        result = 31 * result + sender.hashCode();
         return result;
     }
 }

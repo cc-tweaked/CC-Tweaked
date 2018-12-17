@@ -53,7 +53,7 @@ public interface IPacketReceiver
      * @return Whether this receiver receives packets from other dimensions.
      * @see #getRange()
      * @see #receiveDifferentDimension(Packet)
-     * @see IPacketNetwork#transmitInterdimensional(Packet) 
+     * @see IPacketNetwork#transmitInterdimensional(Packet)
      */
     boolean isInterdimensional();
 

@@ -4,7 +4,7 @@
  * For help using the API, and posting your mods, visit the forums at computercraft.info.
  */
 
-@API( owner="ComputerCraft", provides="ComputerCraft|API|Permissions", apiVersion="${version}" )
+@API( owner = "ComputerCraft", provides = "ComputerCraft|API|Permissions", apiVersion = "${version}" )
 package dan200.computercraft.api.permissions;
 
 import net.minecraftforge.fml.common.API;

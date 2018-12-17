@@ -31,17 +31,23 @@ public interface ILuaAPI extends ILuaObject
      *
      * One should only interact with the file system.
      */
-    default void startup() { }
+    default void startup()
+    {
+    }
 
     /**
      * Called every time the computer is ticked. This can be used to process various.
      */
-    default void update() { }
+    default void update()
+    {
+    }
 
     /**
      * Called when the computer is turned off or unloaded.
      *
      * This should reset the state of the object, disposing any remaining file handles, or other resources.
      */
-    default void shutdown() { }
+    default void shutdown()
+    {
+    }
 }

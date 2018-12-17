@@ -7,14 +7,16 @@
 package dan200.computercraft.shared.turtle.upgrades;
 
 import dan200.computercraft.api.peripheral.IPeripheral;
-import dan200.computercraft.api.turtle.*;
+import dan200.computercraft.api.turtle.ITurtleAccess;
+import dan200.computercraft.api.turtle.ITurtleUpgrade;
+import dan200.computercraft.api.turtle.TurtleSide;
+import dan200.computercraft.api.turtle.TurtleUpgradeType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.block.model.ModelManager;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -61,14 +63,14 @@ public class TurtleCraftingTable implements ITurtleUpgrade
     {
         return "upgrade.minecraft:crafting_table.adjective";
     }
-    
+
     @Nonnull
     @Override
     public TurtleUpgradeType getType()
     {
         return TurtleUpgradeType.Peripheral;
     }
-    
+
     @Nonnull
     @Override
     public ItemStack getCraftingItem()
@@ -80,13 +82,6 @@ public class TurtleCraftingTable implements ITurtleUpgrade
     public IPeripheral createPeripheral( @Nonnull ITurtleAccess turtle, @Nonnull TurtleSide side )
     {
         return new CraftingTablePeripheral( turtle );
-    }
-
-    @Nonnull
-    @Override
-    public TurtleCommandResult useTool( @Nonnull ITurtleAccess turtle, @Nonnull TurtleSide side, @Nonnull TurtleVerb verb, @Nonnull EnumFacing dir )
-    {
-        return TurtleCommandResult.failure();
     }
 
     @SideOnly( Side.CLIENT )

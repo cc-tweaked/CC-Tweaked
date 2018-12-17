@@ -7,7 +7,6 @@
 package dan200.computercraft.shared.turtle.upgrades;
 
 import dan200.computercraft.ComputerCraft;
-import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.turtle.*;
 import dan200.computercraft.api.turtle.event.TurtleAttackEvent;
 import dan200.computercraft.api.turtle.event.TurtleBlockEvent;
@@ -92,12 +91,6 @@ public class TurtleTool implements ITurtleUpgrade
     public ItemStack getCraftingItem()
     {
         return m_item.copy();
-    }
-
-    @Override
-    public IPeripheral createPeripheral( @Nonnull ITurtleAccess turtle, @Nonnull TurtleSide side )
-    {
-        return null;
     }
 
     @Nonnull

@@ -4,7 +4,7 @@
  * For help using the API, and posting your mods, visit the forums at computercraft.info.
  */
 
-@API(owner = "ComputerCraft", provides = "ComputerCraft|API|Turtle|Event", apiVersion = "${version}")
+@API( owner = "ComputerCraft", provides = "ComputerCraft|API|Turtle|Event", apiVersion = "${version}" )
 package dan200.computercraft.api.turtle.event;
 
 import net.minecraftforge.fml.common.API;

@@ -6,7 +6,6 @@
 
 package dan200.computercraft.api.turtle.event;
 
-import com.google.common.base.Preconditions;
 import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.turtle.ITurtleAccess;
@@ -24,6 +23,7 @@ import net.minecraftforge.fml.common.eventhandler.Cancelable;
 
 import javax.annotation.Nonnull;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * A general event for when a turtle interacts with a block or region.
@@ -47,8 +47,8 @@ public abstract class TurtleBlockEvent extends TurtlePlayerEvent
     {
         super( turtle, action, player );
 
-        Preconditions.checkNotNull( world, "world cannot be null" );
-        Preconditions.checkNotNull( pos, "pos cannot be null" );
+        Objects.requireNonNull( world, "world cannot be null" );
+        Objects.requireNonNull( pos, "pos cannot be null" );
         this.world = world;
         this.pos = pos;
     }
@@ -95,9 +95,9 @@ public abstract class TurtleBlockEvent extends TurtlePlayerEvent
         {
             super( turtle, TurtleAction.DIG, player, world, pos );
 
-            Preconditions.checkNotNull( block, "block cannot be null" );
-            Preconditions.checkNotNull( upgrade, "upgrade cannot be null" );
-            Preconditions.checkNotNull( side, "side cannot be null" );
+            Objects.requireNonNull( block, "block cannot be null" );
+            Objects.requireNonNull( upgrade, "upgrade cannot be null" );
+            Objects.requireNonNull( side, "side cannot be null" );
             this.block = block;
             this.upgrade = upgrade;
             this.side = side;
@@ -165,7 +165,7 @@ public abstract class TurtleBlockEvent extends TurtlePlayerEvent
         {
             super( turtle, TurtleAction.PLACE, player, world, pos );
 
-            Preconditions.checkNotNull( stack, "stack cannot be null" );
+            Objects.requireNonNull( stack, "stack cannot be null" );
             this.stack = stack;
         }
 
@@ -198,8 +198,8 @@ public abstract class TurtleBlockEvent extends TurtlePlayerEvent
         {
             super( turtle, TurtleAction.INSPECT, player, world, pos );
 
-            Preconditions.checkNotNull( state, "state cannot be null" );
-            Preconditions.checkNotNull( data, "data cannot be null" );
+            Objects.requireNonNull( state, "state cannot be null" );
+            Objects.requireNonNull( data, "data cannot be null" );
             this.data = data;
             this.state = state;
         }
@@ -234,7 +234,7 @@ public abstract class TurtleBlockEvent extends TurtlePlayerEvent
          */
         public void addData( @Nonnull Map<String, ?> newData )
         {
-            Preconditions.checkNotNull( newData, "newData cannot be null" );
+            Objects.requireNonNull( newData, "newData cannot be null" );
             data.putAll( newData );
         }
     }

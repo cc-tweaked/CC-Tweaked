@@ -11,22 +11,12 @@ import javax.annotation.Nonnull;
 
 public class DefaultMediaProvider implements IMediaProvider
 {
-    public DefaultMediaProvider()
-    {
-    }
-
     @Override
     public IMedia getMedia( @Nonnull ItemStack stack )
     {
         Item item = stack.getItem();
-        if( item instanceof IMedia )
-        {
-            return (IMedia)item;
-        }
-        else if( item instanceof ItemRecord )
-        {
-            return new RecordMedia();
-        }
+        if( item instanceof IMedia ) return (IMedia) item;
+        if( item instanceof ItemRecord ) return RecordMedia.INSTANCE;
         return null;
     }
 }

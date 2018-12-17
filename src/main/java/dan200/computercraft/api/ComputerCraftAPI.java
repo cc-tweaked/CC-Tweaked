@@ -268,7 +268,9 @@ public final class ComputerCraftAPI
      *
      * @param handler The turtle permission provider to register.
      * @see dan200.computercraft.api.permissions.ITurtlePermissionProvider
+     * @deprecated Prefer using {@link dan200.computercraft.api.turtle.event.TurtleBlockEvent} or the standard Forge events.
      */
+    @Deprecated
     public static void registerPermissionProvider( @Nonnull ITurtlePermissionProvider handler )
     {
         findCC();
@@ -382,7 +384,7 @@ public final class ComputerCraftAPI
             {
             }
         }
-        
+
         return null;
     }
 

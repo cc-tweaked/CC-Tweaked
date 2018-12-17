@@ -6,11 +6,11 @@
 
 package dan200.computercraft.api.turtle.event;
 
-import com.google.common.base.Preconditions;
 import dan200.computercraft.api.turtle.ITurtleAccess;
 import net.minecraftforge.common.util.FakePlayer;
 
 import javax.annotation.Nonnull;
+import java.util.Objects;
 
 /**
  * An action done by a turtle which is normally done by a player.
@@ -25,7 +25,7 @@ public abstract class TurtlePlayerEvent extends TurtleActionEvent
     {
         super( turtle, action );
 
-        Preconditions.checkNotNull( player, "player cannot be null" );
+        Objects.requireNonNull( player, "player cannot be null" );
         this.player = player;
     }
 

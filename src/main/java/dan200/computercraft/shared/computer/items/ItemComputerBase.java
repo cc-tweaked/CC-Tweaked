@@ -88,18 +88,6 @@ public abstract class ItemComputerBase extends ItemBlock implements IComputerIte
     }
 
     @Override
-    public String getAudioTitle( @Nonnull ItemStack stack )
-    {
-        return null;
-    }
-
-    @Override
-    public SoundEvent getAudio( @Nonnull ItemStack stack )
-    {
-        return null;
-    }
-
-    @Override
     public IMount createDataMount( @Nonnull ItemStack stack, @Nonnull World world )
     {
         ComputerFamily family = getFamily( stack );

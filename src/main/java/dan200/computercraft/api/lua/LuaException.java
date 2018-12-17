@@ -14,7 +14,7 @@ import javax.annotation.Nullable;
 public class LuaException extends Exception
 {
     private static final long serialVersionUID = -6136063076818512651L;
-    private final int m_level;
+    private final int level;
 
     public LuaException()
     {
@@ -29,7 +29,7 @@ public class LuaException extends Exception
     public LuaException( @Nullable String message, int level )
     {
         super( message );
-        m_level = level;
+        this.level = level;
     }
 
     /**
@@ -40,6 +40,6 @@ public class LuaException extends Exception
      */
     public int getLevel()
     {
-        return m_level;
+        return level;
     }
 }

@@ -1,12 +1,12 @@
 package dan200.computercraft.api.turtle.event;
 
-import com.google.common.base.Preconditions;
 import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.TurtleCommandResult;
 import net.minecraftforge.fml.common.eventhandler.Cancelable;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Objects;
 
 /**
  * An event fired when a turtle is performing a known action.
@@ -21,7 +21,7 @@ public class TurtleActionEvent extends TurtleEvent
     {
         super( turtle );
 
-        Preconditions.checkNotNull( action, "action cannot be null" );
+        Objects.requireNonNull( action, "action cannot be null" );
         this.action = action;
     }
 

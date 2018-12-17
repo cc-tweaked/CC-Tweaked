@@ -6,7 +6,6 @@
 
 package dan200.computercraft.api.turtle.event;
 
-import com.google.common.base.Preconditions;
 import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
@@ -17,6 +16,7 @@ import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.event.entity.player.AttackEntityEvent;
 
 import javax.annotation.Nonnull;
+import java.util.Objects;
 
 /**
  * Fired when a turtle attempts to attack an entity.
@@ -37,9 +37,9 @@ public class TurtleAttackEvent extends TurtlePlayerEvent
     public TurtleAttackEvent( @Nonnull ITurtleAccess turtle, @Nonnull FakePlayer player, @Nonnull Entity target, @Nonnull ITurtleUpgrade upgrade, @Nonnull TurtleSide side )
     {
         super( turtle, TurtleAction.ATTACK, player );
-        Preconditions.checkNotNull( target, "target cannot be null" );
-        Preconditions.checkNotNull( upgrade, "upgrade cannot be null" );
-        Preconditions.checkNotNull( side, "side cannot be null" );
+        Objects.requireNonNull( target, "target cannot be null" );
+        Objects.requireNonNull( upgrade, "upgrade cannot be null" );
+        Objects.requireNonNull( side, "side cannot be null" );
         this.target = target;
         this.upgrade = upgrade;
         this.side = side;
