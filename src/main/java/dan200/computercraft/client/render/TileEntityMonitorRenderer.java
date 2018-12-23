@@ -51,7 +51,7 @@ public class TileEntityMonitorRenderer extends TileEntitySpecialRenderer<TileMon
         BlockPos monitorPos = monitor.getPos();
 
         // Ensure each monitor terminal is rendered only once. We allow rendering a specific tile
-        // multiple times in a single frame to ensure compatibility with shaders which may run a 
+        // multiple times in a single frame to ensure compatibility with shaders which may run a
         // pass multiple times.
         long renderFrame = ComputerCraft.getRenderFrame();
         if( originTerminal.lastRenderFrame == renderFrame && !monitorPos.equals( originTerminal.lastRenderPos ) )
@@ -85,8 +85,8 @@ public class TileEntityMonitorRenderer extends TileEntitySpecialRenderer<TileMon
                 (origin.getHeight() - 0.5) - (TileMonitor.RENDER_BORDER + TileMonitor.RENDER_MARGIN),
                 0.5
             );
-            double xSize = origin.getWidth() - 2.0 * ( TileMonitor.RENDER_MARGIN + TileMonitor.RENDER_BORDER );
-            double ySize = origin.getHeight() - 2.0 * ( TileMonitor.RENDER_MARGIN + TileMonitor.RENDER_BORDER );
+            double xSize = origin.getWidth() - 2.0 * (TileMonitor.RENDER_MARGIN + TileMonitor.RENDER_BORDER);
+            double ySize = origin.getHeight() - 2.0 * (TileMonitor.RENDER_MARGIN + TileMonitor.RENDER_BORDER);
 
             // Get renderers
             Minecraft mc = Minecraft.getMinecraft();
@@ -126,8 +126,8 @@ public class TileEntityMonitorRenderer extends TileEntitySpecialRenderer<TileMon
                     GlStateManager.pushMatrix();
                     try
                     {
-                        double xScale = xSize / ( width * FixedWidthFontRenderer.FONT_WIDTH );
-                        double yScale = ySize / ( height * FixedWidthFontRenderer.FONT_HEIGHT );
+                        double xScale = xSize / (width * FixedWidthFontRenderer.FONT_WIDTH);
+                        double yScale = ySize / (height * FixedWidthFontRenderer.FONT_HEIGHT);
                         GlStateManager.scale( xScale, -yScale, 1.0 );
 
                         // Draw background
@@ -158,14 +158,14 @@ public class TileEntityMonitorRenderer extends TileEntitySpecialRenderer<TileMon
                                 }
 
                                 // Backgrounds
-                                for( int y = 0; y < height; ++y )
+                                for( int y = 0; y < height; y++ )
                                 {
                                     fontRenderer.drawStringBackgroundPart(
-                                            0, FixedWidthFontRenderer.FONT_HEIGHT * y,
-                                            terminal.getBackgroundColourLine( y ),
-                                            marginXSize, marginXSize,
-                                            greyscale,
-                                            palette
+                                        0, FixedWidthFontRenderer.FONT_HEIGHT * y,
+                                        terminal.getBackgroundColourLine( y ),
+                                        marginXSize, marginXSize,
+                                        greyscale,
+                                        palette
                                     );
                                 }
                             }
@@ -186,14 +186,14 @@ public class TileEntityMonitorRenderer extends TileEntitySpecialRenderer<TileMon
                             try
                             {
                                 // Lines
-                                for( int y = 0; y < height; ++y )
+                                for( int y = 0; y < height; y++ )
                                 {
                                     fontRenderer.drawStringTextPart(
-                                            0, FixedWidthFontRenderer.FONT_HEIGHT * y,
-                                            terminal.getLine( y ),
-                                            terminal.getTextColourLine( y ),
-                                            greyscale,
-                                            palette
+                                        0, FixedWidthFontRenderer.FONT_HEIGHT * y,
+                                        terminal.getLine( y ),
+                                        terminal.getTextColourLine( y ),
+                                        greyscale,
+                                        palette
                                     );
                                 }
                             }
@@ -219,13 +219,13 @@ public class TileEntityMonitorRenderer extends TileEntitySpecialRenderer<TileMon
                                     TextBuffer cursor = new TextBuffer( "_" );
                                     TextBuffer cursorColour = new TextBuffer( "0123456789abcdef".charAt( terminal.getTextColour() ), 1 );
                                     fontRenderer.drawString(
-                                            cursor,
-                                            FixedWidthFontRenderer.FONT_WIDTH * cursorX,
-                                            FixedWidthFontRenderer.FONT_HEIGHT * cursorY,
-                                            cursorColour, null,
-                                            0, 0,
-                                            greyscale,
-                                            palette
+                                        cursor,
+                                        FixedWidthFontRenderer.FONT_WIDTH * cursorX,
+                                        FixedWidthFontRenderer.FONT_HEIGHT * cursorY,
+                                        cursorColour, null,
+                                        0, 0,
+                                        greyscale,
+                                        palette
                                     );
                                 }
                             }

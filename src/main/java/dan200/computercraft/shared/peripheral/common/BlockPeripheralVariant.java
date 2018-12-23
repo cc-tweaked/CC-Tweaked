@@ -139,7 +139,7 @@ public enum BlockPeripheralVariant implements IStringSerializable
     {
         return m_name;
     }
-    
+
     public PeripheralType getPeripheralType()
     {
         return m_peripheralType;

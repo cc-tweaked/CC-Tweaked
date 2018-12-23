@@ -33,13 +33,13 @@ public class BlockComputer extends BlockComputerBase
     // Statics
     public static class Properties
     {
-        public static final PropertyDirection FACING = PropertyDirection.create("facing", EnumFacing.Plane.HORIZONTAL);
-        public static final PropertyBool ADVANCED = PropertyBool.create("advanced");
-        public static final PropertyEnum<ComputerState> STATE = PropertyEnum.create("state", ComputerState.class);
+        public static final PropertyDirection FACING = PropertyDirection.create( "facing", EnumFacing.Plane.HORIZONTAL );
+        public static final PropertyBool ADVANCED = PropertyBool.create( "advanced" );
+        public static final PropertyEnum<ComputerState> STATE = PropertyEnum.create( "state", ComputerState.class );
     }
 
     // Members
-    
+
     public BlockComputer()
     {
         super( Material.ROCK );
@@ -125,7 +125,7 @@ public class BlockComputer extends BlockComputerBase
         TileEntity tile = world.getTileEntity( pos );
         if( tile != null && tile instanceof IComputerTile )
         {
-            IComputer computer = ((IComputerTile)tile).getComputer();
+            IComputer computer = ((IComputerTile) tile).getComputer();
             if( computer != null && computer.isOn() )
             {
                 if( computer.isCursorDisplayed() )
@@ -144,15 +144,18 @@ public class BlockComputer extends BlockComputerBase
     @Override
     public ComputerFamily getFamily( int damage )
     {
-        return ((ItemComputer) Item.getItemFromBlock(this)).getFamily( damage );
+        return ((ItemComputer) Item.getItemFromBlock( this )).getFamily( damage );
     }
 
     @Override
     public ComputerFamily getFamily( IBlockState state )
     {
-        if( state.getValue( Properties.ADVANCED ) ) {
+        if( state.getValue( Properties.ADVANCED ) )
+        {
             return ComputerFamily.Advanced;
-        } else {
+        }
+        else
+        {
             return ComputerFamily.Normal;
         }
     }

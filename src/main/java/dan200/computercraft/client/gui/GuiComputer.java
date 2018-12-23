@@ -87,7 +87,7 @@ public class GuiComputer extends GuiContainer
     }
 
     @Override
-    protected void keyTyped(char c, int k) throws IOException
+    protected void keyTyped( char c, int k ) throws IOException
     {
         if( k == 1 )
         {
@@ -127,7 +127,7 @@ public class GuiComputer extends GuiContainer
     }
 
     @Override
-    protected void drawGuiContainerForegroundLayer(int par1, int par2)
+    protected void drawGuiContainerForegroundLayer( int par1, int par2 )
     {
     }
 
@@ -148,7 +148,7 @@ public class GuiComputer extends GuiContainer
         // Draw background
         drawDefaultBackground();
 
-           // Draw terminal
+        // Draw terminal
         m_terminal.draw( this.mc, startX, startY, mouseX, mouseY );
 
         // Draw a border around the terminal
@@ -173,15 +173,15 @@ public class GuiComputer extends GuiContainer
             }
         }
 
-        drawTexturedModalRect(startX - 12, startY - 12, 12, 28, 12, 12);
-        drawTexturedModalRect(startX - 12, endY, 12, 40, 12, 16);
-        drawTexturedModalRect(endX, startY - 12, 24, 28, 12, 12);
-        drawTexturedModalRect(endX, endY, 24, 40, 12, 16);
+        drawTexturedModalRect( startX - 12, startY - 12, 12, 28, 12, 12 );
+        drawTexturedModalRect( startX - 12, endY, 12, 40, 12, 16 );
+        drawTexturedModalRect( endX, startY - 12, 24, 28, 12, 12 );
+        drawTexturedModalRect( endX, endY, 24, 40, 12, 16 );
 
-        drawTexturedModalRect(startX, startY-12, 0, 0, endX - startX, 12);
-        drawTexturedModalRect(startX, endY, 0, 12, endX - startX, 16);
+        drawTexturedModalRect( startX, startY - 12, 0, 0, endX - startX, 12 );
+        drawTexturedModalRect( startX, endY, 0, 12, endX - startX, 16 );
 
-        drawTexturedModalRect(startX-12, startY, 0, 28, 12, endY - startY);
-        drawTexturedModalRect(endX, startY, 36, 28, 12, endY - startY);
+        drawTexturedModalRect( startX - 12, startY, 0, 28, 12, endY - startY );
+        drawTexturedModalRect( endX, startY, 36, 28, 12, endY - startY );
     }
 }

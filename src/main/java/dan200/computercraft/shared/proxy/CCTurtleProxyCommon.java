@@ -364,13 +364,13 @@ public abstract class CCTurtleProxyCommon implements ICCTurtleProxy
                         if( isUpgradeVanilla( otherUpgrade ) && isUpgradeSuitableForFamily( family, otherUpgrade ) )
                         {
                             ItemStack otherCraftingItem = otherUpgrade.getCraftingItem();
-    
+
                             ItemStack otherCraftedTurtle = TurtleItemFactory.create( -1, null, -1, family, null, otherUpgrade, 0, null );
                             ItemStack comboCraftedTurtle = TurtleItemFactory.create( -1, null, -1, family, upgrade, otherUpgrade, 0, null );
-    
+
                             ItemStack otherCraftedTurtleFlipped = TurtleItemFactory.create( -1, null, -1, family, otherUpgrade, null, 0, null );
                             ItemStack comboCraftedTurtleFlipped = TurtleItemFactory.create( -1, null, -1, family, otherUpgrade, upgrade, 0, null );
-    
+
                             recipeList.add( new ImpostorRecipe( 2, 1, new ItemStack[] { otherCraftingItem, craftedTurtle }, comboCraftedTurtle ) );
                             recipeList.add( new ImpostorRecipe( 2, 1, new ItemStack[] { otherCraftedTurtle, craftingItem }, comboCraftedTurtle ) );
                             recipeList.add( new ImpostorRecipe( 2, 1, new ItemStack[] { craftedTurtleFlipped, otherCraftingItem }, comboCraftedTurtleFlipped ) );
@@ -480,15 +480,15 @@ public abstract class CCTurtleProxyCommon implements ICCTurtleProxy
         MinecraftForge.EVENT_BUS.register( handlers );
     }
 
-    private void handleDrops(ItemStack stack)
+    private void handleDrops( ItemStack stack )
     {
-        ItemStack remaining = dropConsumer.apply(stack);
-        if (!remaining.isEmpty()) remainingDrops.add(remaining);
+        ItemStack remaining = dropConsumer.apply( stack );
+        if( !remaining.isEmpty() ) remainingDrops.add( remaining );
     }
 
     private class ForgeHandlers
     {
-        @SubscribeEvent(priority = EventPriority.LOWEST)
+        @SubscribeEvent( priority = EventPriority.LOWEST )
         public void onEntityLivingDrops( LivingDropsEvent event )
         {
             // Capture any mob drops for the current entity
@@ -500,7 +500,7 @@ public abstract class CCTurtleProxyCommon implements ICCTurtleProxy
             }
         }
 
-        @SubscribeEvent(priority = EventPriority.LOWEST)
+        @SubscribeEvent( priority = EventPriority.LOWEST )
         public void onHarvestDrops( BlockEvent.HarvestDropsEvent event )
         {
             // Capture block drops for the current entity
@@ -515,7 +515,7 @@ public abstract class CCTurtleProxyCommon implements ICCTurtleProxy
             }
         }
 
-        @SubscribeEvent(priority = EventPriority.LOWEST)
+        @SubscribeEvent( priority = EventPriority.LOWEST )
         public void onEntitySpawn( EntityJoinWorldEvent event )
         {
             // Capture any nearby item spawns
@@ -528,7 +528,8 @@ public abstract class CCTurtleProxyCommon implements ICCTurtleProxy
         }
 
         @SubscribeEvent
-        public void onTurtleAction( TurtleActionEvent event) {
+        public void onTurtleAction( TurtleActionEvent event )
+        {
             if( ComputerCraft.turtleDisabledActions.contains( event.getAction() ) )
             {
                 event.setCanceled( true, "Action has been disabled" );

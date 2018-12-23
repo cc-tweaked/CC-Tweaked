@@ -1,11 +1,11 @@
 {
-    "recipes" : {
-        "impostor_shaped" : "dan200.computercraft.shared.util.ImpostorRecipe$Factory",
-        "impostor_shapeless" : "dan200.computercraft.shared.util.ImpostorShapelessRecipe$Factory",
-        "turtle" : "dan200.computercraft.shared.turtle.recipes.TurtleRecipe$Factory",
-        "computer_upgrade" : "dan200.computercraft.shared.computer.recipe.ComputerFamilyRecipe$Factory"
+    "recipes": {
+        "impostor_shaped": "dan200.computercraft.shared.util.ImpostorRecipe$Factory",
+        "impostor_shapeless": "dan200.computercraft.shared.util.ImpostorShapelessRecipe$Factory",
+        "turtle": "dan200.computercraft.shared.turtle.recipes.TurtleRecipe$Factory",
+        "computer_upgrade": "dan200.computercraft.shared.computer.recipe.ComputerFamilyRecipe$Factory"
     },
     "ingredients": {
-        "computer":  "dan200.computercraft.shared.computer.recipe.ComputerIngredient$Factory"
+        "computer": "dan200.computercraft.shared.computer.recipe.ComputerIngredient$Factory"
     }
 }

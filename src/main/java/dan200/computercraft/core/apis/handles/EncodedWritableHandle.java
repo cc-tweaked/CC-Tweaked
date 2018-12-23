@@ -51,9 +51,9 @@ public class EncodedWritableHandle extends HandleGeneric
                 // write
                 checkOpen();
                 String text;
-                if( args.length > 0 && args[ 0 ] != null )
+                if( args.length > 0 && args[0] != null )
                 {
-                    text = args[ 0 ].toString();
+                    text = args[0].toString();
                 }
                 else
                 {
@@ -74,9 +74,9 @@ public class EncodedWritableHandle extends HandleGeneric
                 // writeLine
                 checkOpen();
                 String text;
-                if( args.length > 0 && args[ 0 ] != null )
+                if( args.length > 0 && args[0] != null )
                 {
-                    text = args[ 0 ].toString();
+                    text = args[0].toString();
                 }
                 else
                 {
@@ -122,11 +122,11 @@ public class EncodedWritableHandle extends HandleGeneric
 
     public static BufferedWriter open( WritableByteChannel channel, Charset charset )
     {
-        // Create a charset encoder with the same properties as StreamEncoder does for 
+        // Create a charset encoder with the same properties as StreamEncoder does for
         // OutputStreams: namely, replace everything instead of erroring.
         CharsetEncoder encoder = charset.newEncoder()
-            .onMalformedInput( CodingErrorAction.REPLACE)
-            .onUnmappableCharacter(CodingErrorAction.REPLACE);
+            .onMalformedInput( CodingErrorAction.REPLACE )
+            .onUnmappableCharacter( CodingErrorAction.REPLACE );
         return new BufferedWriter( Channels.newWriter( channel, encoder, -1 ) );
     }
 }

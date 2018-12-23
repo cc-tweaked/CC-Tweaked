@@ -34,7 +34,7 @@ import static dan200.computercraft.client.gui.FixedWidthFontRenderer.FONT_WIDTH;
 /**
  * Emulates map rendering for pocket computers
  */
-@SideOnly(Side.CLIENT)
+@SideOnly( Side.CLIENT )
 public class ItemPocketRenderer
 {
     @SubscribeEvent
@@ -89,8 +89,8 @@ public class ItemPocketRenderer
         ClientComputer computer = pocketComputer.createClientComputer( stack );
 
         {
-            // First render the background item. We use the item's model rather than a direct texture as this ensures 
-            // we display the pocket light and other such decorations. 
+            // First render the background item. We use the item's model rather than a direct texture as this ensures
+            // we display the pocket light and other such decorations.
             GlStateManager.pushMatrix();
 
             GlStateManager.scale( 1.0f, -1.0f, 1.0f );
@@ -215,7 +215,7 @@ public class ItemPocketRenderer
         }
 
         // Setup the appropriate transformations. This is just copied from the
-        // corresponding method in ItemRenderer. 
+        // corresponding method in ItemRenderer.
         GlStateManager.pushMatrix();
         GlStateManager.translate( offset * 0.51f, -0.08f + equipProgress * -1.2f, -0.75f );
         float f1 = MathHelper.sqrt( swingProgress );

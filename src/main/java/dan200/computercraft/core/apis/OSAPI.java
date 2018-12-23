@@ -28,7 +28,7 @@ public class OSAPI implements ILuaAPI
 
     private int m_nextTimerToken;
     private int m_nextAlarmToken;
-    
+
     private static class Timer
     {
         public int m_ticksLeft;
@@ -38,7 +38,7 @@ public class OSAPI implements ILuaAPI
             m_ticksLeft = ticksLeft;
         }
     }
-    
+
     private class Alarm implements Comparable<Alarm>
     {
         public final double m_time;
@@ -55,16 +55,21 @@ public class OSAPI implements ILuaAPI
         {
             double t = m_day * 24.0 + m_time;
             double ot = m_day * 24.0 + m_time;
-            if( t < ot ) {
+            if( t < ot )
+            {
                 return -1;
-            } else if( t > ot ) {
+            }
+            else if( t > ot )
+            {
                 return 1;
-            } else {
+            }
+            else
+            {
                 return 0;
             }
         }
     }
-    
+
     public OSAPI( IAPIEnvironment environment )
     {
         m_apiEnvironment = environment;
@@ -73,9 +78,9 @@ public class OSAPI implements ILuaAPI
         m_timers = new HashMap<>();
         m_alarms = new HashMap<>();
     }
-    
+
     // ILuaAPI implementation
-    
+
     @Override
     public String[] getNames()
     {
@@ -83,7 +88,7 @@ public class OSAPI implements ILuaAPI
             "os"
         };
     }
-    
+
     @Override
     public void startup()
     {
@@ -101,7 +106,7 @@ public class OSAPI implements ILuaAPI
             m_alarms.clear();
         }
     }
-    
+
     @Override
     public void update()
     {
@@ -109,7 +114,7 @@ public class OSAPI implements ILuaAPI
         {
             // Update the clock
             m_clock++;
-            
+
             // Countdown all of our active timers
             Iterator<Map.Entry<Integer, Timer>> it = m_timers.entrySet().iterator();
             while( it.hasNext() )
@@ -125,15 +130,15 @@ public class OSAPI implements ILuaAPI
                 }
             }
         }
-        
+
         // Wait for all of our alarms
         synchronized( m_alarms )
         {
             double previousTime = m_time;
             int previousDay = m_day;
             double time = m_apiEnvironment.getComputerEnvironment().getTimeOfDay();
-            int day =  m_apiEnvironment.getComputerEnvironment().getDay();
-            
+            int day = m_apiEnvironment.getComputerEnvironment().getDay();
+
             if( time > previousTime || day > previousDay )
             {
                 double now = m_day * 24.0 + m_time;
@@ -145,7 +150,7 @@ public class OSAPI implements ILuaAPI
                     double t = alarm.m_day * 24.0 + alarm.m_time;
                     if( now >= t )
                     {
-                        queueLuaEvent( "alarm", new Object[]{ entry.getKey() } );
+                        queueLuaEvent( "alarm", new Object[] { entry.getKey() } );
                         it.remove();
                     }
                 }
@@ -155,15 +160,15 @@ public class OSAPI implements ILuaAPI
             m_day = day;
         }
     }
-    
+
     @Override
-    public void shutdown( )
+    public void shutdown()
     {
         synchronized( m_timers )
         {
             m_timers.clear();
         }
-        
+
         synchronized( m_alarms )
         {
             m_alarms.clear();
@@ -194,28 +199,28 @@ public class OSAPI implements ILuaAPI
         };
     }
 
-    private float getTimeForCalendar(Calendar c)
+    private float getTimeForCalendar( Calendar c )
     {
-        float time = c.get(Calendar.HOUR_OF_DAY);
-        time += c.get(Calendar.MINUTE) / 60.0f;
-        time += c.get(Calendar.SECOND) / (60.0f * 60.0f);
+        float time = c.get( Calendar.HOUR_OF_DAY );
+        time += c.get( Calendar.MINUTE ) / 60.0f;
+        time += c.get( Calendar.SECOND ) / (60.0f * 60.0f);
         return time;
     }
 
-    private int getDayForCalendar(Calendar c)
+    private int getDayForCalendar( Calendar c )
     {
-        GregorianCalendar g = (c instanceof GregorianCalendar) ? (GregorianCalendar)c : new GregorianCalendar();
-        int year = c.get(Calendar.YEAR);
+        GregorianCalendar g = (c instanceof GregorianCalendar) ? (GregorianCalendar) c : new GregorianCalendar();
+        int year = c.get( Calendar.YEAR );
         int day = 0;
-        for( int y=1970; y<year; ++y )
+        for( int y = 1970; y < year; y++ )
         {
-            day += g.isLeapYear(y) ? 366 : 365;
+            day += g.isLeapYear( y ) ? 366 : 365;
         }
-        day += c.get(Calendar.DAY_OF_YEAR);
+        day += c.get( Calendar.DAY_OF_YEAR );
         return day;
     }
 
-    private long getEpochForCalendar(Calendar c)
+    private long getEpochForCalendar( Calendar c )
     {
         return c.getTime().getTime();
     }
@@ -237,7 +242,7 @@ public class OSAPI implements ILuaAPI
                 double timer = getReal( args, 0 );
                 synchronized( m_timers )
                 {
-                    m_timers.put( m_nextTimerToken, new Timer( (int)Math.round( timer / 0.05 ) ) );
+                    m_timers.put( m_nextTimerToken, new Timer( (int) Math.round( timer / 0.05 ) ) );
                     return new Object[] { m_nextTimerToken++ };
                 }
             }
@@ -248,7 +253,7 @@ public class OSAPI implements ILuaAPI
                 if( time < 0.0 || time >= 24.0 )
                 {
                     throw new LuaException( "Number out of range" );
-                }                
+                }
                 synchronized( m_alarms )
                 {
                     int day = (time > m_time) ? m_day : (m_day + 1);
@@ -425,12 +430,12 @@ public class OSAPI implements ILuaAPI
     {
         m_apiEnvironment.queueEvent( event, args );
     }
-    
+
     private Object[] trimArray( Object[] array, int skip )
     {
         return Arrays.copyOfRange( array, skip, array.length );
     }
-    
+
     private int getComputerID()
     {
         return m_apiEnvironment.getComputerID();

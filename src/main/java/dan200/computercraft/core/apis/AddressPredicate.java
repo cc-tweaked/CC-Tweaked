@@ -32,8 +32,8 @@ public class AddressPredicate
 
             for( int i = 0; i < entry.length; i++ )
             {
-                int value = 0xFF & entry[ i ];
-                if( value < (0xFF & min[ i ]) || value > (0xFF & max[ i ]) ) return false;
+                int value = 0xFF & entry[i];
+                if( value < (0xFF & min[i]) || value > (0xFF & max[i]) ) return false;
             }
 
             return true;
@@ -85,13 +85,13 @@ public class AddressPredicate
                 {
                     if( size <= 0 )
                     {
-                        minBytes[ i ] &= 0;
-                        maxBytes[ i ] |= 0xFF;
+                        minBytes[i] &= 0;
+                        maxBytes[i] |= 0xFF;
                     }
                     else if( size < 8 )
                     {
-                        minBytes[ i ] &= 0xFF << (8 - size);
-                        maxBytes[ i ] |= ~(0xFF << (8 - size));
+                        minBytes[i] &= 0xFF << (8 - size);
+                        maxBytes[i] |= ~(0xFF << (8 - size));
                     }
 
                     size -= 8;

@@ -66,7 +66,7 @@ public class TurtleSuckCommand implements ITurtleCommand
         {
             return TurtleCommandResult.failure( event.getFailureMessage() );
         }
-        
+
         if( inventory != null )
         {
             // Take from inventory of thing in front

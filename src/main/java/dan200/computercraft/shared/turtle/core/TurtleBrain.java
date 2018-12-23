@@ -127,7 +127,7 @@ public class TurtleBrain implements ITurtleAccess
     private TurtleAnimation m_animation;
     private int m_animationProgress;
     private int m_lastAnimationProgress;
-    
+
     TurtlePlayer m_cachedPlayer;
 
     public TurtleBrain( TileTurtle turtle )
@@ -178,7 +178,8 @@ public class TurtleBrain implements ITurtleAccess
 
     public ComputerProxy getProxy()
     {
-        if(m_proxy == null) {
+        if( m_proxy == null )
+        {
             m_proxy = new ComputerProxy()
             {
                 @Override
@@ -494,13 +495,13 @@ public class TurtleBrain implements ITurtleAccess
         m_instanceID = nbttagcompound.getInteger( "brainInstanceID" );
         setClientBrain( m_instanceID, this );
 
-        TurtleAnimation anim = TurtleAnimation.values()[ nbttagcompound.getInteger( "animation" ) ];
+        TurtleAnimation anim = TurtleAnimation.values()[nbttagcompound.getInteger( "animation" )];
         if( anim != m_animation &&
             anim != TurtleAnimation.Wait &&
             anim != TurtleAnimation.ShortWait &&
             anim != TurtleAnimation.None )
         {
-            m_animation = TurtleAnimation.values()[ nbttagcompound.getInteger( "animation" ) ];
+            m_animation = TurtleAnimation.values()[nbttagcompound.getInteger( "animation" )];
             m_animationProgress = 0;
             m_lastAnimationProgress = 0;
         }
@@ -563,7 +564,7 @@ public class TurtleBrain implements ITurtleAccess
                     if( newTile != null && newTile instanceof TileTurtle )
                     {
                         // Copy the old turtle state into the new turtle
-                        TileTurtle newTurtle = (TileTurtle)newTile;
+                        TileTurtle newTurtle = (TileTurtle) newTile;
                         newTurtle.setWorld( world );
                         newTurtle.setPos( pos );
                         newTurtle.transferStateFrom( oldOwner );
@@ -775,11 +776,11 @@ public class TurtleBrain implements ITurtleAccess
         while( true )
         {
             Object[] response = context.pullEvent( "turtle_response" );
-            if( response.length >= 3 && response[ 1 ] instanceof Number && response[ 2 ] instanceof Boolean )
+            if( response.length >= 3 && response[1] instanceof Number && response[2] instanceof Boolean )
             {
-                if( ( (Number) response[ 1 ] ).intValue() == commandID )
+                if( ((Number) response[1]).intValue() == commandID )
                 {
-                    Object[] returnValues = new Object[ response.length - 2 ];
+                    Object[] returnValues = new Object[response.length - 2];
                     System.arraycopy( response, 2, returnValues, 0, returnValues.length );
                     return returnValues;
                 }
@@ -815,7 +816,7 @@ public class TurtleBrain implements ITurtleAccess
 
     public void setOverlay( ResourceLocation overlay )
     {
-        if( !Objects.equal(m_overlay, overlay) )
+        if( !Objects.equal( m_overlay, overlay ) )
         {
             m_overlay = overlay;
             m_owner.updateBlock();
@@ -834,7 +835,7 @@ public class TurtleBrain implements ITurtleAccess
         int newColour = -1;
         if( dyeColour >= 0 && dyeColour < 16 )
         {
-            newColour = Colour.values()[ dyeColour ].getHex();
+            newColour = Colour.values()[dyeColour].getHex();
         }
         if( m_colourHex != newColour )
         {
@@ -1015,7 +1016,7 @@ public class TurtleBrain implements ITurtleAccess
         if( (side == TurtleSide.Left && m_animation == TurtleAnimation.SwingLeftTool) ||
             (side == TurtleSide.Right && m_animation == TurtleAnimation.SwingRightTool) )
         {
-            return 45.0f * (float)Math.sin( getAnimationFraction( f ) * Math.PI );
+            return 45.0f * (float) Math.sin( getAnimationFraction( f ) * Math.PI );
         }
         return 0.0f;
     }
@@ -1105,7 +1106,7 @@ public class TurtleBrain implements ITurtleAccess
                             Object[] results = result.getResults();
                             if( results != null )
                             {
-                                Object[] arguments = new Object[ results.length + 2 ];
+                                Object[] arguments = new Object[results.length + 2];
                                 arguments[0] = callbackID;
                                 arguments[1] = true;
                                 System.arraycopy( results, 0, arguments, 2, results.length );
@@ -1125,7 +1126,7 @@ public class TurtleBrain implements ITurtleAccess
                         if( computer != null )
                         {
                             computer.queueEvent( "turtle_response", new Object[] {
-                                callbackID, false, ( result != null ) ? result.getErrorMessage() : null
+                                callbackID, false, (result != null) ? result.getErrorMessage() : null
                             } );
                         }
                     }
@@ -1182,9 +1183,9 @@ public class TurtleBrain implements ITurtleAccess
                     double maxY = minY + 1.0;
                     double maxZ = minZ + 1.0;
 
-                    float pushFrac = 1.0f - ((float)(m_animationProgress + 1) / (float)ANIM_DURATION);
+                    float pushFrac = 1.0f - ((float) (m_animationProgress + 1) / (float) ANIM_DURATION);
                     float push = Math.max( pushFrac + 0.0125f, 0.0f );
-                    if (moveDir.getXOffset() < 0)
+                    if( moveDir.getXOffset() < 0 )
                     {
                         minX += moveDir.getXOffset() * push;
                     }
@@ -1193,7 +1194,7 @@ public class TurtleBrain implements ITurtleAccess
                         maxX -= moveDir.getXOffset() * push;
                     }
 
-                    if (moveDir.getYOffset() < 0)
+                    if( moveDir.getYOffset() < 0 )
                     {
                         minY += moveDir.getYOffset() * push;
                     }
@@ -1202,7 +1203,7 @@ public class TurtleBrain implements ITurtleAccess
                         maxY -= moveDir.getYOffset() * push;
                     }
 
-                    if (moveDir.getZOffset() < 0)
+                    if( moveDir.getZOffset() < 0 )
                     {
                         minZ += moveDir.getZOffset() * push;
                     }
@@ -1219,7 +1220,7 @@ public class TurtleBrain implements ITurtleAccess
                         double pushStepX = moveDir.getXOffset() * pushStep;
                         double pushStepY = moveDir.getYOffset() * pushStep;
                         double pushStepZ = moveDir.getZOffset() * pushStep;
-                        for (Entity entity : list)
+                        for( Entity entity : list )
                         {
                             entity.move( MoverType.PISTON, pushStepX, pushStepY, pushStepZ );
                         }
@@ -1241,10 +1242,10 @@ public class TurtleBrain implements ITurtleAccess
                         double y = position.y + 0.5 + world.rand.nextGaussian() * 0.1;
                         double z = position.z + world.rand.nextGaussian() * 0.1;
                         world.spawnParticle(
-                                EnumParticleTypes.HEART, x, y, z,
-                                world.rand.nextGaussian() * 0.02,
-                                world.rand.nextGaussian() * 0.02,
-                                world.rand.nextGaussian() * 0.02
+                            EnumParticleTypes.HEART, x, y, z,
+                            world.rand.nextGaussian() * 0.02,
+                            world.rand.nextGaussian() * 0.02,
+                            world.rand.nextGaussian() * 0.02
                         );
                     }
                 }
@@ -1263,8 +1264,8 @@ public class TurtleBrain implements ITurtleAccess
 
     private float getAnimationFraction( float f )
     {
-        float next = (float)m_animationProgress / ANIM_DURATION;
-        float previous = (float)m_lastAnimationProgress / ANIM_DURATION;
+        float next = (float) m_animationProgress / ANIM_DURATION;
+        float previous = (float) m_lastAnimationProgress / ANIM_DURATION;
         return previous + (next - previous) * f;
     }
 }

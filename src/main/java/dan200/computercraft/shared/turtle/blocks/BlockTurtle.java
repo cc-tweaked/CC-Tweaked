@@ -89,7 +89,7 @@ public class BlockTurtle extends BlockComputerBase
     @Override
     protected BlockStateContainer createBlockState()
     {
-        return new BlockStateContainer(this, Properties.FACING );
+        return new BlockStateContainer( this, Properties.FACING );
     }
 
     @Nonnull

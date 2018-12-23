@@ -26,7 +26,7 @@ public class CraftingTablePeripheral
     {
         m_turtle = turtle;
     }
-            
+
     // IPeripheral implementation
 
     @Nonnull
@@ -35,7 +35,7 @@ public class CraftingTablePeripheral
     {
         return "workbench";
     }
-       
+
     @Nonnull
     @Override
     public String[] getMethodNames()
@@ -44,7 +44,7 @@ public class CraftingTablePeripheral
             "craft",
         };
     }
-        
+
     private int parseCount( Object[] arguments ) throws LuaException
     {
         int count = optInt( arguments, 0, 64 );
@@ -54,7 +54,7 @@ public class CraftingTablePeripheral
         }
         return count;
     }
-    
+
     @Override
     public Object[] callMethod( @Nonnull IComputerAccess computer, @Nonnull ILuaContext context, int method, @Nonnull Object[] arguments ) throws LuaException, InterruptedException
     {

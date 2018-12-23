@@ -56,14 +56,14 @@ public class TurtleItemFactory
         {
             case Normal:
             {
-                ItemTurtleBase legacy = ((ItemTurtleBase)Item.getItemFromBlock( ComputerCraft.Blocks.turtle ));
-                ItemTurtleBase normal = ((ItemTurtleBase)Item.getItemFromBlock( ComputerCraft.Blocks.turtleExpanded ));
+                ItemTurtleBase legacy = ((ItemTurtleBase) Item.getItemFromBlock( ComputerCraft.Blocks.turtle ));
+                ItemTurtleBase normal = ((ItemTurtleBase) Item.getItemFromBlock( ComputerCraft.Blocks.turtleExpanded ));
                 ItemStack legacyStack = legacy.create( id, label, colour, leftUpgrade, rightUpgrade, fuelLevel, overlay );
                 return (legacyStack != null) ? legacyStack : normal.create( id, label, colour, leftUpgrade, rightUpgrade, fuelLevel, overlay );
             }
             case Advanced:
             {
-                ItemTurtleBase advanced = ((ItemTurtleBase)Item.getItemFromBlock( ComputerCraft.Blocks.turtleAdvanced ));
+                ItemTurtleBase advanced = ((ItemTurtleBase) Item.getItemFromBlock( ComputerCraft.Blocks.turtleAdvanced ));
                 return advanced.create( id, label, colour, leftUpgrade, rightUpgrade, fuelLevel, overlay );
             }
             case Beginners:
@@ -81,7 +81,7 @@ public class TurtleItemFactory
                 );
                 if( beginnersBlock != null )
                 {
-                    ItemTurtleBase beginnersItem = ((ItemTurtleBase)Item.getItemFromBlock( beginnersBlock ));
+                    ItemTurtleBase beginnersItem = ((ItemTurtleBase) Item.getItemFromBlock( beginnersBlock ));
                     return beginnersItem.create( id, label, colour, leftUpgrade, rightUpgrade, fuelLevel, overlay );
                 }
                 return ItemStack.EMPTY;

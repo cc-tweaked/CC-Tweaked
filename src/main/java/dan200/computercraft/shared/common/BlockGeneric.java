@@ -40,7 +40,9 @@ public abstract class BlockGeneric extends Block implements
     }
 
     protected abstract IBlockState getDefaultBlockState( int damage, EnumFacing placedSide );
+
     protected abstract TileGeneric createTile( IBlockState state );
+
     protected abstract TileGeneric createTile( int damage );
 
     @Override
@@ -95,7 +97,7 @@ public abstract class BlockGeneric extends Block implements
         // Drop items
         if( drops.size() > 0 )
         {
-            for (ItemStack item : drops)
+            for( ItemStack item : drops )
             {
                 dropItem( world, pos, item );
             }
@@ -115,7 +117,7 @@ public abstract class BlockGeneric extends Block implements
         world.removeTileEntity( pos );
         if( tile != null && tile instanceof TileGeneric )
         {
-            TileGeneric generic = (TileGeneric)tile;
+            TileGeneric generic = (TileGeneric) tile;
             generic.destroy();
         }
     }
@@ -127,7 +129,7 @@ public abstract class BlockGeneric extends Block implements
         TileEntity tile = world.getTileEntity( pos );
         if( tile != null && tile instanceof TileGeneric )
         {
-            TileGeneric generic = (TileGeneric)tile;
+            TileGeneric generic = (TileGeneric) tile;
             return generic.getPickedItem();
         }
         return ItemStack.EMPTY;
@@ -139,7 +141,7 @@ public abstract class BlockGeneric extends Block implements
         TileEntity tile = world.getTileEntity( pos );
         if( tile != null && tile instanceof TileGeneric )
         {
-            TileGeneric generic = (TileGeneric)tile;
+            TileGeneric generic = (TileGeneric) tile;
             return generic.onActivate( player, side, hitX, hitY, hitZ );
         }
         return false;
@@ -152,7 +154,7 @@ public abstract class BlockGeneric extends Block implements
         TileEntity tile = world.getTileEntity( pos );
         if( tile != null && tile instanceof TileGeneric )
         {
-            TileGeneric generic = (TileGeneric)tile;
+            TileGeneric generic = (TileGeneric) tile;
             generic.onNeighbourChange();
         }
     }
@@ -163,7 +165,7 @@ public abstract class BlockGeneric extends Block implements
         TileEntity tile = world.getTileEntity( pos );
         if( tile instanceof TileGeneric )
         {
-            TileGeneric generic = (TileGeneric)tile;
+            TileGeneric generic = (TileGeneric) tile;
             generic.onNeighbourTileEntityChange( neighbour );
         }
     }
@@ -175,7 +177,7 @@ public abstract class BlockGeneric extends Block implements
         TileEntity tile = world.getTileEntity( pos );
         if( tile != null && tile instanceof TileGeneric )
         {
-            TileGeneric generic = (TileGeneric)tile;
+            TileGeneric generic = (TileGeneric) tile;
             return generic.isSolidOnSide( side.ordinal() );
         }
         return false;
@@ -193,7 +195,7 @@ public abstract class BlockGeneric extends Block implements
         TileEntity tile = world.getTileEntity( pos );
         if( tile != null && tile instanceof TileGeneric && tile.hasWorld() )
         {
-            TileGeneric generic = (TileGeneric)tile;
+            TileGeneric generic = (TileGeneric) tile;
             if( generic.isImmuneToExplosion( exploder ) )
             {
                 return 2000.0f;
@@ -210,7 +212,7 @@ public abstract class BlockGeneric extends Block implements
         TileEntity tile = world.getTileEntity( pos );
         if( tile != null && tile instanceof TileGeneric && tile.hasWorld() )
         {
-            TileGeneric generic = (TileGeneric)tile;
+            TileGeneric generic = (TileGeneric) tile;
             return generic.getBounds();
         }
         return FULL_BLOCK_AABB;
@@ -231,7 +233,7 @@ public abstract class BlockGeneric extends Block implements
         TileEntity tile = world.getTileEntity( pos );
         if( tile != null && tile instanceof TileGeneric && tile.hasWorld() )
         {
-            TileGeneric generic = (TileGeneric)tile;
+            TileGeneric generic = (TileGeneric) tile;
 
             // Get collision bounds
             List<AxisAlignedBB> collision = new ArrayList<>( 1 );
@@ -258,7 +260,7 @@ public abstract class BlockGeneric extends Block implements
         TileEntity tile = world.getTileEntity( pos );
         if( tile != null && tile instanceof TileGeneric && tile.hasWorld() )
         {
-            TileGeneric generic = (TileGeneric)tile;
+            TileGeneric generic = (TileGeneric) tile;
 
             // Get collision bounds
             List<AxisAlignedBB> collision = new ArrayList<>( 1 );
@@ -267,7 +269,7 @@ public abstract class BlockGeneric extends Block implements
             // Add collision bounds to list
             if( collision.size() > 0 )
             {
-                for (AxisAlignedBB localBounds : collision)
+                for( AxisAlignedBB localBounds : collision )
                 {
                     addCollisionBoxToList( pos, bigBox, list, localBounds );
                 }
@@ -288,7 +290,7 @@ public abstract class BlockGeneric extends Block implements
         TileEntity tile = world.getTileEntity( pos );
         if( tile != null && tile instanceof TileGeneric )
         {
-            TileGeneric generic = (TileGeneric)tile;
+            TileGeneric generic = (TileGeneric) tile;
             return generic.getRedstoneConnectivity( side );
         }
         return false;
@@ -301,7 +303,7 @@ public abstract class BlockGeneric extends Block implements
         TileEntity tile = world.getTileEntity( pos );
         if( tile != null && tile instanceof TileGeneric && tile.hasWorld() )
         {
-            TileGeneric generic = (TileGeneric)tile;
+            TileGeneric generic = (TileGeneric) tile;
             return generic.getRedstoneOutput( oppositeSide.getOpposite() );
         }
         return 0;
@@ -319,7 +321,7 @@ public abstract class BlockGeneric extends Block implements
         TileEntity tile = world.getTileEntity( pos );
         if( tile != null && tile instanceof TileGeneric )
         {
-            TileGeneric generic = (TileGeneric)tile;
+            TileGeneric generic = (TileGeneric) tile;
             return generic.getBundledRedstoneConnectivity( side );
         }
         return false;
@@ -330,7 +332,7 @@ public abstract class BlockGeneric extends Block implements
         TileEntity tile = world.getTileEntity( pos );
         if( tile != null && tile instanceof TileGeneric && tile.hasWorld() )
         {
-            TileGeneric generic = (TileGeneric)tile;
+            TileGeneric generic = (TileGeneric) tile;
             return generic.getBundledRedstoneOutput( side );
         }
         return 0;

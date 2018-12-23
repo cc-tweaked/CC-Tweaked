@@ -59,7 +59,7 @@ public class PrintoutRenderer
 
         for( int line = 0; line < LINES_PER_PAGE && line < text.length; ++line )
         {
-            fontRenderer.drawString( text[ start + line ], x, y + line * FONT_HEIGHT, colours[ start + line ], null, 0, 0, false, Palette.DEFAULT );
+            fontRenderer.drawString( text[start + line], x, y + line * FONT_HEIGHT, colours[start + line], null, 0, 0, false, Palette.DEFAULT );
         }
     }
 
@@ -73,7 +73,7 @@ public class PrintoutRenderer
 
         for( int line = 0; line < LINES_PER_PAGE && line < text.length; ++line )
         {
-            fontRenderer.drawString( new TextBuffer( text[ start + line ] ), x, y + line * FONT_HEIGHT, new TextBuffer( colours[ start + line ] ), null, 0, 0, false, Palette.DEFAULT );
+            fontRenderer.drawString( new TextBuffer( text[start + line] ), x, y + line * FONT_HEIGHT, new TextBuffer( colours[start + line] ), null, 0, 0, false, Palette.DEFAULT );
         }
     }
 

@@ -18,14 +18,14 @@ public class CreativeTabTreasure extends CreativeTabs
     {
         super( i, "Treasure Disks" );
     }
-    
+
     @Nonnull
     @Override
     public ItemStack createIcon()
     {
         return new ItemStack( ComputerCraft.Items.treasureDisk );
     }
-    
+
     @Nonnull
     @Override
     public String getTranslationKey()

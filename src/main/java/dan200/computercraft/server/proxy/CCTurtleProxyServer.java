@@ -13,9 +13,9 @@ public class CCTurtleProxyServer extends CCTurtleProxyCommon
     public CCTurtleProxyServer()
     {
     }
-    
+
     // ICCTurtleProxy implementation
-    
+
     @Override
     public void init()
     {

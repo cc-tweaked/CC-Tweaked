@@ -31,7 +31,7 @@ public class ItemTurtleLegacy extends ItemTurtleBase
     public ItemStack create( int id, String label, int colour, ITurtleUpgrade leftUpgrade, ITurtleUpgrade rightUpgrade, int fuelLevel, ResourceLocation overlay )
     {
         // Legacy turtles only support pickaxes and modems
-        if( (leftUpgrade != null && leftUpgrade != ComputerCraft.Upgrades.diamondPickaxe ) ||
+        if( (leftUpgrade != null && leftUpgrade != ComputerCraft.Upgrades.diamondPickaxe) ||
             (rightUpgrade != null && rightUpgrade != ComputerCraft.Upgrades.wirelessModem) ||
             (colour != -1) || (overlay != null) )
         {
@@ -87,12 +87,12 @@ public class ItemTurtleLegacy extends ItemTurtleBase
     {
         if( stack.hasTagCompound() && stack.getTagCompound().hasKey( "computerID" ) )
         {
-            return  stack.getTagCompound().getInteger( "computerID" );
+            return stack.getTagCompound().getInteger( "computerID" );
         }
         else
         {
             int damage = stack.getItemDamage();
-            return ( ( damage & 0xfffc ) >> 2 ) - 1;
+            return ((damage & 0xfffc) >> 2) - 1;
         }
     }
 
@@ -145,7 +145,7 @@ public class ItemTurtleLegacy extends ItemTurtleBase
         if( stack.hasTagCompound() )
         {
             NBTTagCompound nbt = stack.getTagCompound();
-            return nbt.getInteger("fuelLevel");
+            return nbt.getInteger( "fuelLevel" );
         }
         return 0;
     }

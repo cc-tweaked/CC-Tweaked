@@ -192,7 +192,7 @@ public class TileEntityTurtleRenderer extends TileEntitySpecialRenderer<TileTurt
                 GlStateManager.rotate( -toolAngle, 1.0f, 0.0f, 0.0f );
                 GlStateManager.translate( 0.0f, -0.5f, -0.5f );
 
-                Pair<IBakedModel, Matrix4f> pair  = upgrade.getModel( turtle.getAccess(), side );
+                Pair<IBakedModel, Matrix4f> pair = upgrade.getModel( turtle.getAccess(), side );
                 if( pair != null )
                 {
                     if( pair.getRight() != null )
@@ -236,7 +236,7 @@ public class TileEntityTurtleRenderer extends TileEntitySpecialRenderer<TileTurt
         BufferBuilder buffer = tessellator.getBuffer();
         VertexFormat format = DefaultVertexFormats.ITEM;
         buffer.begin( GL11.GL_QUADS, format );
-        for (BakedQuad quad : quads)
+        for( BakedQuad quad : quads )
         {
             VertexFormat quadFormat = quad.getFormat();
             if( quadFormat != format )
@@ -250,7 +250,7 @@ public class TileEntityTurtleRenderer extends TileEntitySpecialRenderer<TileTurt
             if( quad.hasTintIndex() && tints != null )
             {
                 int index = quad.getTintIndex();
-                if( index >= 0 && index < tints.length ) colour = tints[ index ] | 0xFF000000;
+                if( index >= 0 && index < tints.length ) colour = tints[index] | 0xFF000000;
             }
 
             LightUtil.renderQuadColor( buffer, quad, colour );

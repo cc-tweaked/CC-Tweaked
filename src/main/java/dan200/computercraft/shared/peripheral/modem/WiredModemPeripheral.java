@@ -98,20 +98,20 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements IW
                     int idx = 1;
                     for( String name : wrappers.keySet() ) table.put( idx++, name );
                 }
-                return new Object[]{ table };
+                return new Object[] { table };
             }
             case 1:
             {
                 // isPresentRemote
                 String name = getString( arguments, 0 );
-                return new Object[]{ getWrapper( computer, name ) != null };
+                return new Object[] { getWrapper( computer, name ) != null };
             }
             case 2:
             {
                 // getTypeRemote
                 String name = getString( arguments, 0 );
                 RemotePeripheralWrapper wrapper = getWrapper( computer, name );
-                return wrapper != null ? new Object[]{ wrapper.getType() } : null;
+                return wrapper != null ? new Object[] { wrapper.getType() } : null;
             }
             case 3:
             {
@@ -122,11 +122,11 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements IW
 
                 String[] methodNames = wrapper.getMethodNames();
                 Map<Object, Object> table = new HashMap<>();
-                for( int i = 0; i < methodNames.length; ++i )
+                for( int i = 0; i < methodNames.length; i++ )
                 {
                     table.put( i + 1, methodNames[i] );
                 }
-                return new Object[]{ table };
+                return new Object[] { table };
             }
             case 4:
             {
@@ -144,7 +144,7 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements IW
             {
                 // getNameLocal
                 String local = getLocalPeripheral().getConnectedName();
-                return local == null ? null : new Object[]{ local };
+                return local == null ? null : new Object[] { local };
             }
             default:
             {
@@ -163,9 +163,9 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements IW
         synchronized( peripheralWrappers )
         {
             wrappers = peripheralWrappers.get( computer );
-            if( wrappers == null ) peripheralWrappers.put( computer, wrappers = new ConcurrentHashMap<>() ); 
+            if( wrappers == null ) peripheralWrappers.put( computer, wrappers = new ConcurrentHashMap<>() );
         }
-        
+
         synchronized( modem.getRemotePeripherals() )
         {
             for( Map.Entry<String, IPeripheral> entry : modem.getRemotePeripherals().entrySet() )
@@ -226,11 +226,12 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements IW
     {
         synchronized( peripheralWrappers )
         {
-            for(ConcurrentMap<String, RemotePeripheralWrapper> wrappers : peripheralWrappers.values()) {
+            for( ConcurrentMap<String, RemotePeripheralWrapper> wrappers : peripheralWrappers.values() )
+            {
                 RemotePeripheralWrapper wrapper = wrappers.remove( name );
                 if( wrapper != null ) wrapper.detach();
             }
-            
+
         }
     }
 
@@ -243,8 +244,9 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements IW
             wrapper.attach();
         }
     }
-    
-    private ConcurrentMap<String, RemotePeripheralWrapper> getWrappers( IComputerAccess computer ) {
+
+    private ConcurrentMap<String, RemotePeripheralWrapper> getWrappers( IComputerAccess computer )
+    {
         synchronized( peripheralWrappers )
         {
             return peripheralWrappers.get( computer );
@@ -281,7 +283,7 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements IW
             assert (m_methods != null);
 
             m_methodMap = new HashMap<>();
-            for( int i = 0; i < m_methods.length; ++i )
+            for( int i = 0; i < m_methods.length; i++ )
             {
                 if( m_methods[i] != null )
                 {
@@ -293,13 +295,13 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements IW
         public void attach()
         {
             m_peripheral.attach( this );
-            m_computer.queueEvent( "peripheral", new Object[]{ getAttachmentName() } );
+            m_computer.queueEvent( "peripheral", new Object[] { getAttachmentName() } );
         }
 
         public void detach()
         {
             m_peripheral.detach( this );
-            m_computer.queueEvent( "peripheral_detach", new Object[]{ getAttachmentName() } );
+            m_computer.queueEvent( "peripheral_detach", new Object[] { getAttachmentName() } );
         }
 
         public String getType()

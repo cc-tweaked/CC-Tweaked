@@ -23,7 +23,7 @@ public class PocketSpeakerPeripheral extends SpeakerPeripheral
         m_position = new BlockPos( 0.0, 0.0, 0.0 );
     }
 
-    void setLocation(World world, double x, double y, double z)
+    void setLocation( World world, double x, double y, double z )
     {
         m_position = new BlockPos( x, y, z );
 

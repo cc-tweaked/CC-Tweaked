@@ -60,9 +60,9 @@ public class PocketComputerUpgradeRecipe extends IForgeRegistryEntry.Impl<IRecip
         ItemStack computer = ItemStack.EMPTY;
         int computerX = -1;
         int computerY = -1;
-        for (int y = 0; y < inventory.getHeight(); ++y)
+        for( int y = 0; y < inventory.getHeight(); y++ )
         {
-            for (int x = 0; x < inventory.getWidth(); ++x)
+            for( int x = 0; x < inventory.getWidth(); x++ )
             {
                 ItemStack item = inventory.getStackInRowAndColumn( x, y );
                 if( !item.isEmpty() && item.getItem() instanceof ItemPocketComputer )
@@ -84,7 +84,7 @@ public class PocketComputerUpgradeRecipe extends IForgeRegistryEntry.Impl<IRecip
             return ItemStack.EMPTY;
         }
 
-        ItemPocketComputer itemComputer = (ItemPocketComputer)computer.getItem();
+        ItemPocketComputer itemComputer = (ItemPocketComputer) computer.getItem();
         if( itemComputer.getUpgrade( computer ) != null )
         {
             return ItemStack.EMPTY;
@@ -92,9 +92,9 @@ public class PocketComputerUpgradeRecipe extends IForgeRegistryEntry.Impl<IRecip
 
         // Check for upgrades around the item
         IPocketUpgrade upgrade = null;
-        for (int y = 0; y < inventory.getHeight(); ++y)
+        for( int y = 0; y < inventory.getHeight(); y++ )
         {
-            for (int x = 0; x < inventory.getWidth(); ++x)
+            for( int x = 0; x < inventory.getWidth(); x++ )
             {
                 ItemStack item = inventory.getStackInRowAndColumn( x, y );
                 if( x == computerX && y == computerY )
@@ -131,7 +131,7 @@ public class PocketComputerUpgradeRecipe extends IForgeRegistryEntry.Impl<IRecip
     public NonNullList<ItemStack> getRemainingItems( @Nonnull InventoryCrafting inventoryCrafting )
     {
         NonNullList<ItemStack> results = NonNullList.withSize( inventoryCrafting.getSizeInventory(), ItemStack.EMPTY );
-        for( int i = 0; i < results.size(); ++i )
+        for( int i = 0; i < results.size(); i++ )
         {
             ItemStack stack = inventoryCrafting.getStackInSlot( i );
             results.set( i, ForgeHooks.getContainerItem( stack ) );

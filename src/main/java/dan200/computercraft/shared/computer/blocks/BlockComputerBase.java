@@ -13,8 +13,8 @@ import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.item.Item;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
@@ -40,14 +40,17 @@ public abstract class BlockComputerBase extends BlockDirectional
     }
 
     protected abstract IBlockState getDefaultBlockState( ComputerFamily family, EnumFacing placedSide );
+
     protected abstract ComputerFamily getFamily( int damage );
+
     protected abstract ComputerFamily getFamily( IBlockState state );
+
     protected abstract TileComputerBase createTile( ComputerFamily family );
 
     @Override
     protected final IBlockState getDefaultBlockState( int damage, EnumFacing placedSide )
     {
-        ItemComputerBase item = (ItemComputerBase)Item.getItemFromBlock( this );
+        ItemComputerBase item = (ItemComputerBase) Item.getItemFromBlock( this );
         return getDefaultBlockState( item.getFamily( damage ), placedSide );
     }
 
@@ -73,7 +76,7 @@ public abstract class BlockComputerBase extends BlockDirectional
         TileEntity tile = world.getTileEntity( pos );
         if( tile != null && tile instanceof TileComputerBase )
         {
-            TileComputerBase computer = (TileComputerBase)tile;
+            TileComputerBase computer = (TileComputerBase) tile;
             computer.updateInput();
         }
     }

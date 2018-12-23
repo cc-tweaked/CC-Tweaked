@@ -14,6 +14,8 @@ import net.minecraft.util.EnumFacing;
 public interface IPeripheralTile extends IDirectionalTile
 {
     PeripheralType getPeripheralType();
+
     IPeripheral getPeripheral( EnumFacing side );
+
     String getLabel();
 }

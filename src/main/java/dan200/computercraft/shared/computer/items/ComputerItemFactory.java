@@ -36,8 +36,8 @@ public class ComputerItemFactory
     @Nonnull
     public static ItemStack create( int id, String label, ComputerFamily family )
     {
-        ItemComputer computer = ((ItemComputer)Item.getItemFromBlock( ComputerCraft.Blocks.computer ));
-        ItemCommandComputer commandComputer = ((ItemCommandComputer)Item.getItemFromBlock( ComputerCraft.Blocks.commandComputer ));
+        ItemComputer computer = ((ItemComputer) Item.getItemFromBlock( ComputerCraft.Blocks.computer ));
+        ItemCommandComputer commandComputer = ((ItemCommandComputer) Item.getItemFromBlock( ComputerCraft.Blocks.commandComputer ));
         switch( family )
         {
             case Normal:

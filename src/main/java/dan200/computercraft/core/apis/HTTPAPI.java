@@ -44,7 +44,7 @@ public class HTTPAPI implements ILuaAPI
     @Override
     public String[] getNames()
     {
-        return new String[]{
+        return new String[] {
             "http"
         };
     }
@@ -95,7 +95,7 @@ public class HTTPAPI implements ILuaAPI
     @Override
     public String[] getMethodNames()
     {
-        return new String[]{
+        return new String[] {
             "request",
             "checkURL",
             "websocket",
@@ -164,11 +164,11 @@ public class HTTPAPI implements ILuaAPI
                     {
                         m_httpTasks.add( HTTPExecutor.EXECUTOR.submit( request ) );
                     }
-                    return new Object[]{ true };
+                    return new Object[] { true };
                 }
                 catch( HTTPRequestException e )
                 {
-                    return new Object[]{ false, e.getMessage() };
+                    return new Object[] { false, e.getMessage() };
                 }
             }
             case 1:
@@ -186,11 +186,11 @@ public class HTTPAPI implements ILuaAPI
                     {
                         m_httpTasks.add( HTTPExecutor.EXECUTOR.submit( check ) );
                     }
-                    return new Object[]{ true };
+                    return new Object[] { true };
                 }
                 catch( HTTPRequestException e )
                 {
-                    return new Object[]{ false, e.getMessage() };
+                    return new Object[] { false, e.getMessage() };
                 }
             }
             case 2: // websocket
@@ -223,11 +223,11 @@ public class HTTPAPI implements ILuaAPI
                     {
                         m_httpTasks.add( connector );
                     }
-                    return new Object[]{ true };
+                    return new Object[] { true };
                 }
                 catch( HTTPRequestException e )
                 {
-                    return new Object[]{ false, e.getMessage() };
+                    return new Object[] { false, e.getMessage() };
                 }
             }
             default:

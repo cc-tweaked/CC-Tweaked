@@ -20,7 +20,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static dan200.computercraft.core.apis.ArgumentHelper.getString;
@@ -42,7 +41,7 @@ public class SpeakerPeripheral implements IPeripheral
     {
         m_clock = 0;
         m_lastPlayTime = 0;
-        m_notesThisTick = new AtomicInteger(  );
+        m_notesThisTick = new AtomicInteger();
         m_speaker = speaker;
     }
 
@@ -62,7 +61,7 @@ public class SpeakerPeripheral implements IPeripheral
         return m_speaker.getPos();
     }
 
-    public boolean madeSound(long ticks)
+    public boolean madeSound( long ticks )
     {
         return m_clock - m_lastPlayTime <= ticks;
     }
@@ -129,7 +128,7 @@ public class SpeakerPeripheral implements IPeripheral
         String name = getString( arguments, 0 );
         float volume = (float) optReal( arguments, 1, 1.0 );
         float pitch = (float) optReal( arguments, 2, 1.0 );
-        
+
         String noteName = "block.note." + name;
 
         // Check if the note exists

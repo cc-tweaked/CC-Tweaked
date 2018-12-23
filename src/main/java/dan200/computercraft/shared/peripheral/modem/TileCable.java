@@ -43,7 +43,7 @@ public class TileCable extends TileModemBase
     public static final double MAX = 1 - MIN;
 
     private static final AxisAlignedBB BOX_CENTRE = new AxisAlignedBB( MIN, MIN, MIN, MAX, MAX, MAX );
-    private static final AxisAlignedBB[] BOXES = new AxisAlignedBB[]{
+    private static final AxisAlignedBB[] BOXES = new AxisAlignedBB[] {
         new AxisAlignedBB( MIN, 0, MIN, MAX, MIN, MAX ),   // Down
         new AxisAlignedBB( MIN, MAX, MIN, MAX, 1, MAX ),   // Up
         new AxisAlignedBB( MIN, MIN, 0, MAX, MAX, MIN ),   // North
@@ -98,7 +98,7 @@ public class TileCable extends TileModemBase
 
     private boolean m_hasDirection = false;
     private boolean m_connectionsFormed = false;
-    
+
     private WiredModemElement m_cable;
     private IWiredNode m_node;
 
@@ -415,7 +415,7 @@ public class TileCable extends TileModemBase
                     if( periphName != null )
                     {
                         player.sendMessage(
-                            new TextComponentTranslation( "gui.computercraft:wired_modem.peripheral_connected", 
+                            new TextComponentTranslation( "gui.computercraft:wired_modem.peripheral_connected",
                                 CommandCopy.createCopyText( periphName ) )
                         );
                     }

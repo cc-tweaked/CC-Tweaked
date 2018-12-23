@@ -60,10 +60,10 @@ public class GuiTurtle extends GuiContainer
     public void initGui()
     {
         super.initGui();
-        Keyboard.enableRepeatEvents(true);
+        Keyboard.enableRepeatEvents( true );
         m_terminalGui = new WidgetTerminal(
-            ( width - xSize ) / 2 + 8,
-            ( height - ySize ) / 2 + 8,
+            (width - xSize) / 2 + 8,
+            (height - ySize) / 2 + 8,
             ComputerCraft.terminalWidth_turtle,
             ComputerCraft.terminalHeight_turtle,
             () -> m_computer,
@@ -76,7 +76,7 @@ public class GuiTurtle extends GuiContainer
     public void onGuiClosed()
     {
         super.onGuiClosed();
-        Keyboard.enableRepeatEvents(false);
+        Keyboard.enableRepeatEvents( false );
     }
 
     @Override
@@ -87,7 +87,7 @@ public class GuiTurtle extends GuiContainer
     }
 
     @Override
-    protected void keyTyped(char c, int k) throws IOException
+    protected void keyTyped( char c, int k ) throws IOException
     {
         if( k == 1 )
         {
@@ -100,7 +100,7 @@ public class GuiTurtle extends GuiContainer
     }
 
     @Override
-    protected void mouseClicked(int x, int y, int button) throws IOException
+    protected void mouseClicked( int x, int y, int button ) throws IOException
     {
         super.mouseClicked( x, y, button );
         m_terminalGui.mouseClicked( x, y, button );
@@ -132,10 +132,10 @@ public class GuiTurtle extends GuiContainer
         if( slot >= 0 )
         {
             GlStateManager.color( 1.0F, 1.0F, 1.0F, 1.0F );
-            int slotX = (slot%4);
-            int slotY = (slot/4);
+            int slotX = (slot % 4);
+            int slotY = (slot / 4);
             this.mc.getTextureManager().bindTexture( advanced ? backgroundAdvanced : background );
-            drawTexturedModalRect(x + m_container.m_turtleInvStartX - 2 + slotX * 18, y + m_container.m_playerInvStartY - 2 + slotY * 18, 0, 217, 24, 24);
+            drawTexturedModalRect( x + m_container.m_turtleInvStartX - 2 + slotX * 18, y + m_container.m_playerInvStartY - 2 + slotY * 18, 0, 217, 24, 24 );
         }
     }
 
@@ -151,16 +151,16 @@ public class GuiTurtle extends GuiContainer
         this.mc.getTextureManager().bindTexture( advanced ? backgroundAdvanced : background );
         int x = (width - xSize) / 2;
         int y = (height - ySize) / 2;
-        drawTexturedModalRect(x, y, 0, 0, xSize, ySize);
+        drawTexturedModalRect( x, y, 0, 0, xSize, ySize );
 
         drawSelectionSlot( advanced );
     }
 
     @Override
-    public void drawScreen( int mouseX, int mouseY, float partialTicks)
+    public void drawScreen( int mouseX, int mouseY, float partialTicks )
     {
         drawDefaultBackground();
-        super.drawScreen(mouseX, mouseY, partialTicks);
-        renderHoveredToolTip(mouseX, mouseY);
+        super.drawScreen( mouseX, mouseY, partialTicks );
+        renderHoveredToolTip( mouseX, mouseY );
     }
 }

@@ -31,12 +31,13 @@ public enum Colour
     {
         if( colour >= 0 && colour < 16 )
         {
-            return Colour.VALUES[ colour ];
+            return Colour.VALUES[colour];
         }
         return null;
     }
-    
-    public static Colour fromHex(int colour) {
+
+    public static Colour fromHex( int colour )
+    {
         for( Colour entry : VALUES )
         {
             if( entry.getHex() == colour ) return entry;
@@ -53,19 +54,19 @@ public enum Colour
         m_hex = hex;
         m_rgb = new float[] {
             ((hex >> 16) & 0xFF) / 255.0f,
-            ((hex >> 8 ) & 0xFF) / 255.0f,
-            ((hex      ) & 0xFF) / 255.0f,
+            ((hex >> 8) & 0xFF) / 255.0f,
+            ((hex) & 0xFF) / 255.0f,
         };
     }
 
     public Colour getNext()
     {
-        return Colour.VALUES[ (ordinal() + 1) % 16 ];
+        return Colour.VALUES[(ordinal() + 1) % 16];
     }
 
     public Colour getPrevious()
     {
-        return Colour.VALUES[ (ordinal() + 15) % 16 ];
+        return Colour.VALUES[(ordinal() + 15) % 16];
     }
 
     public int getHex()

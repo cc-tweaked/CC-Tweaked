@@ -28,25 +28,38 @@ import java.io.File;
 public interface IComputerCraftProxy
 {
     void preInit();
+
     void init();
+
     void initServer( MinecraftServer server );
+
     boolean isClient();
 
     boolean getGlobalCursorBlink();
+
     long getRenderFrame();
+
     Object getFixedWidthFontRenderer();
 
     String getRecordInfo( @Nonnull ItemStack item );
+
     void playRecord( SoundEvent record, String recordInfo, World world, BlockPos pos );
 
     Object getDiskDriveGUI( InventoryPlayer inventory, TileDiskDrive drive );
+
     Object getComputerGUI( TileComputer computer );
+
     Object getPrinterGUI( InventoryPlayer inventory, TilePrinter printer );
+
     Object getTurtleGUI( InventoryPlayer inventory, TileTurtle turtle );
+
     Object getPrintoutGUI( EntityPlayer player, EnumHand hand );
+
     Object getPocketComputerGUI( EntityPlayer player, EnumHand hand );
+
     Object getComputerGUI( IComputer computer, int width, int height, ComputerFamily family );
 
     File getWorldDir( World world );
+
     void handlePacket( ComputerCraftPacket packet, EntityPlayer player );
 }

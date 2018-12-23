@@ -75,7 +75,7 @@ public class TurtleCompareCommand implements ITurtleCommand
 
                     // See if the block drops anything with the same ID as itself
                     // (try 5 times to try and beat random number generators)
-                    for( int i=0; (i<5) && lookAtStack.isEmpty(); ++i )
+                    for( int i = 0; (i < 5) && lookAtStack.isEmpty(); i++ )
                     {
                         NonNullList<ItemStack> drops = NonNullList.create();
                         lookAtBlock.getDrops( drops, world, newPosition, lookAtState, 0 );

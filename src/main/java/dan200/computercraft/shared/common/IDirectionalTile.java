@@ -11,5 +11,6 @@ import net.minecraft.util.EnumFacing;
 public interface IDirectionalTile
 {
     EnumFacing getDirection();
+
     void setDirection( EnumFacing dir );
 }

@@ -42,10 +42,10 @@ public final class IntegrationCharset
     }
 
     @SubscribeEvent
-    public void attachGenericCapabilities( AttachCapabilitiesEvent<TileEntity> event)
+    public void attachGenericCapabilities( AttachCapabilitiesEvent<TileEntity> event )
     {
         TileEntity tile = event.getObject();
-        if(tile instanceof TileGeneric)
+        if( tile instanceof TileGeneric )
         {
             event.addCapability( CAPABILITY_KEY, new BundledCapabilityProvider( (TileGeneric) tile ) );
         }

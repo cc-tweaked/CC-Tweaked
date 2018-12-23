@@ -40,19 +40,21 @@ public class PeripheralAPI implements ILuaAPI, IAPIEnvironment.IPeripheralChange
 
         public PeripheralWrapper( IPeripheral peripheral, String side )
         {
-            super(m_environment);
+            super( m_environment );
             m_side = side;
             m_peripheral = peripheral;
             m_attached = false;
 
             m_type = peripheral.getType();
             m_methods = peripheral.getMethodNames();
-            assert( m_type != null );
-            assert( m_methods != null );
+            assert (m_type != null);
+            assert (m_methods != null);
 
             m_methodMap = new HashMap<>();
-            for(int i=0; i<m_methods.length; ++i ) {
-                if( m_methods[i] != null ) {
+            for( int i = 0; i < m_methods.length; i++ )
+            {
+                if( m_methods[i] != null )
+                {
                     m_methodMap.put( m_methods[i], i );
                 }
             }
@@ -235,7 +237,7 @@ public class PeripheralAPI implements ILuaAPI, IAPIEnvironment.IPeripheralChange
         m_environment.setPeripheralChangeListener( this );
 
         m_peripherals = new PeripheralWrapper[6];
-        for(int i=0; i<6; ++i)
+        for( int i = 0; i < 6; i++ )
         {
             m_peripherals[i] = null;
         }
@@ -254,21 +256,26 @@ public class PeripheralAPI implements ILuaAPI, IAPIEnvironment.IPeripheralChange
             {
                 // Queue a detachment
                 final PeripheralWrapper wrapper = m_peripherals[side];
-                ComputerThread.queueTask(new ITask() {
+                ComputerThread.queueTask( new ITask()
+                {
                     @Override
-                    public Computer getOwner() {
+                    public Computer getOwner()
+                    {
                         return m_environment.getComputer();
                     }
 
                     @Override
-                    public void execute() {
-                        synchronized (m_peripherals) {
-                            if (wrapper.isAttached()) {
+                    public void execute()
+                    {
+                        synchronized( m_peripherals )
+                        {
+                            if( wrapper.isAttached() )
+                            {
                                 wrapper.detach();
                             }
                         }
                     }
-                }, null);
+                }, null );
 
                 // Queue a detachment event
                 m_environment.queueEvent( "peripheral_detach", new Object[] { Computer.s_sideNames[side] } );
@@ -288,14 +295,17 @@ public class PeripheralAPI implements ILuaAPI, IAPIEnvironment.IPeripheralChange
             {
                 // Queue an attachment
                 final PeripheralWrapper wrapper = m_peripherals[side];
-                ComputerThread.queueTask( new ITask() {
+                ComputerThread.queueTask( new ITask()
+                {
                     @Override
-                    public Computer getOwner() {
+                    public Computer getOwner()
+                    {
                         return m_environment.getComputer();
                     }
 
                     @Override
-                    public void execute() {
+                    public void execute()
+                    {
                         synchronized( m_peripherals )
                         {
                             if( m_running && !wrapper.isAttached() )
@@ -323,12 +333,12 @@ public class PeripheralAPI implements ILuaAPI, IAPIEnvironment.IPeripheralChange
     }
 
     @Override
-    public void startup( )
+    public void startup()
     {
         synchronized( m_peripherals )
         {
             m_running = true;
-            for( int i=0; i<6; ++i )
+            for( int i = 0; i < 6; i++ )
             {
                 PeripheralWrapper wrapper = m_peripherals[i];
                 if( wrapper != null && !wrapper.isAttached() )
@@ -340,12 +350,12 @@ public class PeripheralAPI implements ILuaAPI, IAPIEnvironment.IPeripheralChange
     }
 
     @Override
-    public void shutdown( )
+    public void shutdown()
     {
         synchronized( m_peripherals )
         {
             m_running = false;
-            for( int i=0; i<6; ++i )
+            for( int i = 0; i < 6; i++ )
             {
                 PeripheralWrapper wrapper = m_peripherals[i];
                 if( wrapper != null && wrapper.isAttached() )
@@ -382,7 +392,7 @@ public class PeripheralAPI implements ILuaAPI, IAPIEnvironment.IPeripheralChange
                 {
                     synchronized( m_peripherals )
                     {
-                        PeripheralWrapper p = m_peripherals[ side ];
+                        PeripheralWrapper p = m_peripherals[side];
                         if( p != null )
                         {
                             present = true;
@@ -400,7 +410,7 @@ public class PeripheralAPI implements ILuaAPI, IAPIEnvironment.IPeripheralChange
                 {
                     synchronized( m_peripherals )
                     {
-                        PeripheralWrapper p = m_peripherals[ side ];
+                        PeripheralWrapper p = m_peripherals[side];
                         if( p != null )
                         {
                             type = p.getType();
@@ -422,7 +432,7 @@ public class PeripheralAPI implements ILuaAPI, IAPIEnvironment.IPeripheralChange
                 {
                     synchronized( m_peripherals )
                     {
-                        PeripheralWrapper p = m_peripherals[ side ];
+                        PeripheralWrapper p = m_peripherals[side];
                         if( p != null )
                         {
                             methods = p.getMethods();
@@ -431,9 +441,10 @@ public class PeripheralAPI implements ILuaAPI, IAPIEnvironment.IPeripheralChange
                 }
                 if( methods != null )
                 {
-                    Map<Object,Object> table = new HashMap<>();
-                    for(int i=0; i<methods.length; ++i ) {
-                        table.put( i+1, methods[i] );
+                    Map<Object, Object> table = new HashMap<>();
+                    for( int i = 0; i < methods.length; i++ )
+                    {
+                        table.put( i + 1, methods[i] );
                     }
                     return new Object[] { table };
                 }
@@ -451,7 +462,7 @@ public class PeripheralAPI implements ILuaAPI, IAPIEnvironment.IPeripheralChange
                     PeripheralWrapper p;
                     synchronized( m_peripherals )
                     {
-                        p = m_peripherals[ side ];
+                        p = m_peripherals[side];
                     }
                     if( p != null )
                     {
@@ -472,7 +483,7 @@ public class PeripheralAPI implements ILuaAPI, IAPIEnvironment.IPeripheralChange
     private int parseSide( Object[] args ) throws LuaException
     {
         String side = getString( args, 0 );
-        for( int n=0; n<Computer.s_sideNames.length; ++n )
+        for( int n = 0; n < Computer.s_sideNames.length; n++ )
         {
             if( side.equals( Computer.s_sideNames[n] ) )
             {

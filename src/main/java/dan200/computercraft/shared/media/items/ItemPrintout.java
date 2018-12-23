@@ -47,9 +47,9 @@ public class ItemPrintout extends Item
     public void getSubItems( @Nonnull CreativeTabs tabs, @Nonnull NonNullList<ItemStack> list )
     {
         if( !isInCreativeTab( tabs ) ) return;
-        list.add( createSingleFromTitleAndText( null, new String[ LINES_PER_PAGE ], new String[ LINES_PER_PAGE ] ) );
-        list.add( createMultipleFromTitleAndText( null, new String[ 2*LINES_PER_PAGE ], new String[ 2*LINES_PER_PAGE ] ) );
-        list.add( createBookFromTitleAndText( null, new String[ 2*LINES_PER_PAGE ], new String[ 2*LINES_PER_PAGE ] ) );
+        list.add( createSingleFromTitleAndText( null, new String[LINES_PER_PAGE], new String[LINES_PER_PAGE] ) );
+        list.add( createMultipleFromTitleAndText( null, new String[2 * LINES_PER_PAGE], new String[2 * LINES_PER_PAGE] ) );
+        list.add( createBookFromTitleAndText( null, new String[2 * LINES_PER_PAGE], new String[2 * LINES_PER_PAGE] ) );
     }
 
     @Override
@@ -133,21 +133,21 @@ public class ItemPrintout extends Item
         if( text != null )
         {
             nbt.setInteger( "pages", text.length / LINES_PER_PAGE );
-            for(int i=0; i<text.length; ++i)
+            for( int i = 0; i < text.length; i++ )
             {
                 if( text[i] != null )
                 {
-                    nbt.setString( "line"+i, text[i] );
+                    nbt.setString( "line" + i, text[i] );
                 }
             }
         }
         if( colours != null )
         {
-            for(int i=0; i<colours.length; ++i)
+            for( int i = 0; i < colours.length; i++ )
             {
                 if( colours[i] != null )
                 {
-                    nbt.setString( "colour"+i, colours[i] );
+                    nbt.setString( "colour" + i, colours[i] );
                 }
             }
         }
@@ -221,11 +221,11 @@ public class ItemPrintout extends Item
         NBTTagCompound nbt = stack.getTagCompound();
         int numLines = getPageCount( stack ) * LINES_PER_PAGE;
         String[] lines = new String[numLines];
-        for( int i=0; i<lines.length; ++i )
+        for( int i = 0; i < lines.length; i++ )
         {
             if( nbt != null )
             {
-                lines[i] = nbt.getString( "line"+i );
+                lines[i] = nbt.getString( "line" + i );
             }
             else
             {
@@ -240,11 +240,11 @@ public class ItemPrintout extends Item
         NBTTagCompound nbt = stack.getTagCompound();
         int numLines = getPageCount( stack ) * LINES_PER_PAGE;
         String[] lines = new String[numLines];
-        for( int i=0; i<lines.length; ++i )
+        for( int i = 0; i < lines.length; i++ )
         {
             if( nbt != null )
             {
-                lines[i] = nbt.getString( "colour"+i );
+                lines[i] = nbt.getString( "colour" + i );
             }
             else
             {

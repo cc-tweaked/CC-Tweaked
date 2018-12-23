@@ -122,8 +122,8 @@ public class WidgetTerminal extends Widget
                         }
 
                         // Queue the "paste" event
-                        queueEvent( "paste", new Object[]{
-                                clipboard
+                        queueEvent( "paste", new Object[] {
+                            clipboard
                         } );
                     }
                 }
@@ -143,7 +143,7 @@ public class WidgetTerminal extends Widget
                     }
 
                     // Queue the "key" event
-                    queueEvent( "key", new Object[]{
+                    queueEvent( "key", new Object[] {
                         key, repeat
                     } );
                     handled = true;
@@ -152,7 +152,7 @@ public class WidgetTerminal extends Widget
                 if( (ch >= 32 && ch <= 126) || (ch >= 160 && ch <= 255) ) // printable chars in byte range
                 {
                     // Queue the "char" event
-                    queueEvent( "char", new Object[]{
+                    queueEvent( "char", new Object[] {
                         Character.toString( ch )
                     } );
                     handled = true;
@@ -171,7 +171,7 @@ public class WidgetTerminal extends Widget
         if( mouseX >= getXPosition() && mouseX < getXPosition() + getWidth() &&
             mouseY >= getYPosition() && mouseY < getYPosition() + getHeight() )
         {
-            if( !m_focus && button == 0)
+            if( !m_focus && button == 0 )
             {
                 m_focus = true;
             }
@@ -184,12 +184,12 @@ public class WidgetTerminal extends Widget
                     Terminal term = computer.getTerminal();
                     if( term != null )
                     {
-                        int charX = ( mouseX - ( getXPosition() + m_leftMargin ) ) / FixedWidthFontRenderer.FONT_WIDTH;
-                        int charY = ( mouseY - ( getYPosition() + m_topMargin ) ) / FixedWidthFontRenderer.FONT_HEIGHT;
+                        int charX = (mouseX - (getXPosition() + m_leftMargin)) / FixedWidthFontRenderer.FONT_WIDTH;
+                        int charY = (mouseY - (getYPosition() + m_topMargin)) / FixedWidthFontRenderer.FONT_HEIGHT;
                         charX = Math.min( Math.max( charX, 0 ), term.getWidth() - 1 );
                         charY = Math.min( Math.max( charY, 0 ), term.getHeight() - 1 );
 
-                        computer.queueEvent( "mouse_click", new Object[]{
+                        computer.queueEvent( "mouse_click", new Object[] {
                             button + 1, charX + 1, charY + 1
                         } );
 
@@ -222,7 +222,7 @@ public class WidgetTerminal extends Widget
                 if( m_focus )
                 {
                     // Queue the "key_up" event
-                    queueEvent( "key_up", new Object[]{
+                    queueEvent( "key_up", new Object[] {
                         key
                     } );
                     handled = true;
@@ -244,8 +244,8 @@ public class WidgetTerminal extends Widget
             Terminal term = computer.getTerminal();
             if( term != null )
             {
-                int charX = ( mouseX - (getXPosition() + m_leftMargin)) / FixedWidthFontRenderer.FONT_WIDTH;
-                int charY = ( mouseY - (getYPosition() + m_topMargin)) / FixedWidthFontRenderer.FONT_HEIGHT;
+                int charX = (mouseX - (getXPosition() + m_leftMargin)) / FixedWidthFontRenderer.FONT_WIDTH;
+                int charY = (mouseY - (getYPosition() + m_topMargin)) / FixedWidthFontRenderer.FONT_HEIGHT;
                 charX = Math.min( Math.max( charX, 0 ), term.getWidth() - 1 );
                 charY = Math.min( Math.max( charY, 0 ), term.getHeight() - 1 );
 
@@ -253,7 +253,7 @@ public class WidgetTerminal extends Widget
                 {
                     if( m_focus )
                     {
-                        computer.queueEvent( "mouse_up", new Object[]{
+                        computer.queueEvent( "mouse_up", new Object[] {
                             m_lastClickButton + 1, charX + 1, charY + 1
                         } );
                     }
@@ -270,20 +270,20 @@ public class WidgetTerminal extends Widget
                 {
                     if( wheelChange < 0 )
                     {
-                        computer.queueEvent( "mouse_scroll", new Object[]{
-                                1, charX + 1, charY + 1
+                        computer.queueEvent( "mouse_scroll", new Object[] {
+                            1, charX + 1, charY + 1
                         } );
                     }
                     else if( wheelChange > 0 )
                     {
-                        computer.queueEvent( "mouse_scroll", new Object[]{
-                                -1, charX + 1, charY + 1
+                        computer.queueEvent( "mouse_scroll", new Object[] {
+                            -1, charX + 1, charY + 1
                         } );
                     }
 
-                    if( m_lastClickButton >= 0 && ( charX != m_lastClickX || charY != m_lastClickY ) )
+                    if( m_lastClickButton >= 0 && (charX != m_lastClickX || charY != m_lastClickY) )
                     {
-                        computer.queueEvent( "mouse_drag", new Object[]{
+                        computer.queueEvent( "mouse_drag", new Object[] {
                             m_lastClickButton + 1, charX + 1, charY + 1
                         } );
                         m_lastClickX = charX;
@@ -318,7 +318,7 @@ public class WidgetTerminal extends Widget
             }
 
             // Ctrl+R for reboot
-            if( Keyboard.isKeyDown(19) )
+            if( Keyboard.isKeyDown( 19 ) )
             {
                 if( m_rebootTimer < TERMINATE_TIME )
                 {
@@ -339,7 +339,7 @@ public class WidgetTerminal extends Widget
             }
 
             // Ctrl+S for shutdown
-            if( Keyboard.isKeyDown(31) )
+            if( Keyboard.isKeyDown( 31 ) )
             {
                 if( m_shutdownTimer < TERMINATE_TIME )
                 {
@@ -377,7 +377,7 @@ public class WidgetTerminal extends Widget
         {
             // Draw the screen contents
             IComputer computer = m_computer.getComputer();
-            Terminal terminal = ( computer != null ) ? computer.getTerminal() : null;
+            Terminal terminal = (computer != null) ? computer.getTerminal() : null;
             if( terminal != null )
             {
                 // Draw the terminal
@@ -405,7 +405,7 @@ public class WidgetTerminal extends Widget
                 }
                 if( m_bottomMargin > 0 )
                 {
-                    fontRenderer.drawString( emptyLine, x, startY + 2 * m_bottomMargin + ( th - 1 ) * FixedWidthFontRenderer.FONT_HEIGHT, terminal.getTextColourLine( th - 1 ), terminal.getBackgroundColourLine( th - 1 ), m_leftMargin, m_rightMargin, greyscale, palette );
+                    fontRenderer.drawString( emptyLine, x, startY + 2 * m_bottomMargin + (th - 1) * FixedWidthFontRenderer.FONT_HEIGHT, terminal.getTextColourLine( th - 1 ), terminal.getBackgroundColourLine( th - 1 ), m_leftMargin, m_rightMargin, greyscale, palette );
                 }
 
                 // Draw lines
@@ -424,16 +424,17 @@ public class WidgetTerminal extends Widget
                     TextBuffer cursorColour = new TextBuffer( "0123456789abcdef".charAt( terminal.getTextColour() ), 1 );
 
                     fontRenderer.drawString(
-                            cursor,
-                            x + FixedWidthFontRenderer.FONT_WIDTH * tx,
-                            startY + m_topMargin + FixedWidthFontRenderer.FONT_HEIGHT * ty,
-                            cursorColour, null,
-                            0, 0,
-                            greyscale,
-                            palette
+                        cursor,
+                        x + FixedWidthFontRenderer.FONT_WIDTH * tx,
+                        startY + m_topMargin + FixedWidthFontRenderer.FONT_HEIGHT * ty,
+                        cursorColour, null,
+                        0, 0,
+                        greyscale,
+                        palette
                     );
                 }
-            } else
+            }
+            else
             {
                 // Draw a black background
                 mc.getTextureManager().bindTexture( background );
@@ -442,7 +443,8 @@ public class WidgetTerminal extends Widget
                 try
                 {
                     drawTexturedModalRect( startX, startY, 0, 0, getWidth(), getHeight() );
-                } finally
+                }
+                finally
                 {
                     GlStateManager.color( 1.0f, 1.0f, 1.0f, 1.0f );
                 }

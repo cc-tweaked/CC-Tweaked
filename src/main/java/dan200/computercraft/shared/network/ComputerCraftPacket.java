@@ -15,7 +15,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
- 
+
 public class ComputerCraftPacket
 {
     // Packet types
@@ -158,7 +158,7 @@ public class ComputerCraftPacket
         }
         else
         {
-            m_dataString = new String[ nString ];
+            m_dataString = new String[nString];
             for( int k = 0; k < nString; k++ )
             {
                 if( buffer.readBoolean() )
@@ -168,11 +168,11 @@ public class ComputerCraftPacket
                     buffer.readBytes( b );
                     try
                     {
-                        m_dataString[ k ] = new String( b, "UTF-8" );
+                        m_dataString[k] = new String( b, "UTF-8" );
                     }
                     catch( UnsupportedEncodingException e )
                     {
-                        m_dataString[ k ] = null;
+                        m_dataString[k] = null;
                     }
                 }
             }
@@ -183,10 +183,10 @@ public class ComputerCraftPacket
         }
         else
         {
-            m_dataInt = new int[ nInt ];
+            m_dataInt = new int[nInt];
             for( int k = 0; k < nInt; k++ )
             {
-                m_dataInt[ k ] = buffer.readInt();
+                m_dataInt[k] = buffer.readInt();
             }
         }
         if( nByte == 0 )
@@ -195,14 +195,14 @@ public class ComputerCraftPacket
         }
         else
         {
-            m_dataByte = new byte[ nByte ][];
+            m_dataByte = new byte[nByte][];
             for( int k = 0; k < nByte; k++ )
             {
                 int length = buffer.readInt();
                 if( length > 0 )
                 {
-                    m_dataByte[ k ] = new byte[ length ];
-                    buffer.getBytes( buffer.readerIndex(), m_dataByte[ k ] );
+                    m_dataByte[k] = new byte[length];
+                    buffer.getBytes( buffer.readerIndex(), m_dataByte[k] );
                 }
             }
         }
@@ -214,7 +214,7 @@ public class ComputerCraftPacket
         else
         {
             int byteLength = buffer.readInt();
-            byte[] bytes = new byte[ byteLength ];
+            byte[] bytes = new byte[byteLength];
             buffer.getBytes( buffer.readerIndex(), bytes );
             try
             {
@@ -232,7 +232,8 @@ public class ComputerCraftPacket
      * Determine whether this packet requires the player to be interacting with the
      * target.
      */
-    public boolean requiresContainer() {
+    public boolean requiresContainer()
+    {
         return m_packetType != RequestComputerUpdate && m_packetType != RequestTileEntityUpdate;
     }
 }

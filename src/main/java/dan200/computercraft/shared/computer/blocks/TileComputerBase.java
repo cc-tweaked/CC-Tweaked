@@ -55,7 +55,7 @@ public abstract class TileComputerBase extends TileGeneric
         Block block = super.getBlock();
         if( block != null && block instanceof BlockComputerBase )
         {
-            return (BlockComputerBase)block;
+            return (BlockComputerBase) block;
         }
         return null;
     }
@@ -368,7 +368,7 @@ public abstract class TileComputerBase extends TileGeneric
             for( EnumFacing dir : EnumFacing.VALUES )
             {
                 BlockPos offset = pos.offset( dir );
-                if ( offset.equals( neighbour ) )
+                if( offset.equals( neighbour ) )
                 {
                     updateSideInput( computer, dir, offset );
                     break;

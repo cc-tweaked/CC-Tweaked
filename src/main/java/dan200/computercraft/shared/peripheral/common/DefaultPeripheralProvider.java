@@ -12,8 +12,8 @@ import dan200.computercraft.shared.computer.blocks.ComputerPeripheral;
 import dan200.computercraft.shared.computer.blocks.TileComputerBase;
 import dan200.computercraft.shared.turtle.blocks.TileTurtle;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
@@ -33,17 +33,17 @@ public class DefaultPeripheralProvider implements IPeripheralProvider
             // Handle our peripherals
             if( tile instanceof IPeripheralTile )
             {
-                IPeripheralTile peripheralTile = (IPeripheralTile)tile;
+                IPeripheralTile peripheralTile = (IPeripheralTile) tile;
                 return peripheralTile.getPeripheral( side );
             }
 
             // Handle our computers
             if( tile instanceof TileComputerBase )
             {
-                TileComputerBase computerTile = (TileComputerBase)tile;
+                TileComputerBase computerTile = (TileComputerBase) tile;
                 if( tile instanceof TileTurtle )
                 {
-                    if( !((TileTurtle)tile).hasMoved() )
+                    if( !((TileTurtle) tile).hasMoved() )
                     {
                         return new ComputerPeripheral( "turtle", computerTile.createProxy() );
                     }

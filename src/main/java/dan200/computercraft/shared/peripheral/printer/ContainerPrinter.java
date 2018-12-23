@@ -25,38 +25,38 @@ public class ContainerPrinter extends Container
     {
         m_printer = printer;
         m_lastPrinting = false;
-        
+
         // Ink slot
-        addSlotToContainer(new Slot( m_printer, 0, 13, 35));
-        
+        addSlotToContainer( new Slot( m_printer, 0, 13, 35 ) );
+
         // In-tray
-        for( int i = 0; i < 6; ++i )
+        for( int i = 0; i < 6; i++ )
         {
-            addSlotToContainer(new Slot( m_printer, i + 1, 61 + i * 18, 22));
+            addSlotToContainer( new Slot( m_printer, i + 1, 61 + i * 18, 22 ) );
         }
-        
+
         // Out-tray
-        for( int i = 0; i < 6; ++i )
+        for( int i = 0; i < 6; i++ )
         {
-            addSlotToContainer(new Slot( m_printer, i + 7, 61 + i * 18, 49));
+            addSlotToContainer( new Slot( m_printer, i + 7, 61 + i * 18, 49 ) );
         }
-        
+
         // Player inv
-        for(int j = 0; j < 3; j++)
+        for( int j = 0; j < 3; j++ )
         {
-            for(int i1 = 0; i1 < 9; i1++)
+            for( int i1 = 0; i1 < 9; i1++ )
             {
-                addSlotToContainer(new Slot(playerInventory, i1 + j * 9 + 9, 8 + i1 * 18, 84 + j * 18));
+                addSlotToContainer( new Slot( playerInventory, i1 + j * 9 + 9, 8 + i1 * 18, 84 + j * 18 ) );
             }
         }
-        
+
         // Player hotbar
-        for(int k = 0; k < 9; k++)
+        for( int k = 0; k < 9; k++ )
         {
-            addSlotToContainer(new Slot(playerInventory, k, 8 + k * 18, 142));
+            addSlotToContainer( new Slot( playerInventory, k, 8 + k * 18, 142 ) );
         }
     }
-    
+
     public boolean isPrinting()
     {
         return m_lastPrinting;
@@ -68,12 +68,12 @@ public class ContainerPrinter extends Container
         super.addListener( crafting );
         crafting.sendWindowProperty( this, 0, m_printer.isPrinting() ? 1 : 0 );
     }
-    
+
     @Override
     public void detectAndSendChanges()
     {
         super.detectAndSendChanges();
-        
+
         if( !m_printer.getWorld().isRemote )
         {
             boolean printing = m_printer.isPrinting();
@@ -87,9 +87,9 @@ public class ContainerPrinter extends Container
             m_lastPrinting = printing;
         }
     }
-    
+
     @Override
-    public void updateProgressBar(int i, int j)
+    public void updateProgressBar( int i, int j )
     {
         if( m_printer.getWorld().isRemote )
         {
@@ -105,10 +105,10 @@ public class ContainerPrinter extends Container
 
     @Nonnull
     @Override
-    public ItemStack transferStackInSlot(EntityPlayer par1EntityPlayer, int i)
+    public ItemStack transferStackInSlot( EntityPlayer par1EntityPlayer, int i )
     {
         ItemStack itemstack = ItemStack.EMPTY;
-        Slot slot = inventorySlots.get(i);
+        Slot slot = inventorySlots.get( i );
         if( slot != null && slot.getHasStack() )
         {
             ItemStack itemstack1 = slot.getStack();
@@ -116,42 +116,42 @@ public class ContainerPrinter extends Container
             if( i < 13 )
             {
                 // Transfer from printer to inventory
-                if(!mergeItemStack(itemstack1, 13, 49, true))
+                if( !mergeItemStack( itemstack1, 13, 49, true ) )
                 {
                     return ItemStack.EMPTY;
                 }
             }
-            else 
+            else
             {
                 // Transfer from inventory to printer
                 if( itemstack1.getItem() == Items.DYE )
                 {
-                    if( !mergeItemStack(itemstack1, 0, 1, false) )
+                    if( !mergeItemStack( itemstack1, 0, 1, false ) )
                     {
                         return ItemStack.EMPTY;
                     }
                 }
                 else //if is paper
                 {
-                    if( !mergeItemStack(itemstack1, 1, 13, false) )
+                    if( !mergeItemStack( itemstack1, 1, 13, false ) )
                     {
                         return ItemStack.EMPTY;
                     }
                 }
             }
-            
-            if(itemstack1.isEmpty())
+
+            if( itemstack1.isEmpty() )
             {
-                slot.putStack(ItemStack.EMPTY);
+                slot.putStack( ItemStack.EMPTY );
             }
             else
             {
                 slot.onSlotChanged();
             }
-            
-            if(itemstack1.getCount() != itemstack.getCount())
+
+            if( itemstack1.getCount() != itemstack.getCount() )
             {
-                slot.onTake(par1EntityPlayer, itemstack1);
+                slot.onTake( par1EntityPlayer, itemstack1 );
             }
             else
             {

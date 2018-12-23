@@ -130,7 +130,7 @@ public class ItemCable extends ItemPeripheralBase
                         TileEntity tile = world.getTileEntity( offset );
                         if( tile != null && tile instanceof TileCable )
                         {
-                            TileCable cable = (TileCable)tile;
+                            TileCable cable = (TileCable) tile;
                             cable.modemChanged();
                             cable.connectionsChanged();
                         }
@@ -153,7 +153,7 @@ public class ItemCable extends ItemPeripheralBase
                         TileEntity tile = world.getTileEntity( offset );
                         if( tile != null && tile instanceof TileCable )
                         {
-                            TileCable cable = (TileCable)tile;
+                            TileCable cable = (TileCable) tile;
                             cable.modemChanged();
                             cable.connectionsChanged();
                         }
@@ -163,7 +163,7 @@ public class ItemCable extends ItemPeripheralBase
                 }
             }
         }
-        
+
         return super.onItemUse( player, world, pos, hand, side, fx, fy, fz );
     }
 

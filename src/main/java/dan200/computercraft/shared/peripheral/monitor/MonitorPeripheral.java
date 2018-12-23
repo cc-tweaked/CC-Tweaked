@@ -86,9 +86,12 @@ public class MonitorPeripheral implements IPeripheral
             {
                 // write
                 String text;
-                if( args.length > 0 && args[0] != null ) {
+                if( args.length > 0 && args[0] != null )
+                {
                     text = args[0].toString();
-                } else {
+                }
+                else
+                {
                     text = "";
                 }
                 terminal.write( text );
@@ -216,7 +219,7 @@ public class MonitorPeripheral implements IPeripheral
                 {
                     int hex = getInt( args, 1 );
                     double[] rgb = Palette.decodeRGB8( hex );
-                    TermAPI.setColour( terminal, colour, rgb[ 0 ], rgb[ 1 ], rgb[ 2 ] );
+                    TermAPI.setColour( terminal, colour, rgb[0], rgb[1], rgb[2] );
                 }
                 else
                 {
@@ -271,7 +274,7 @@ public class MonitorPeripheral implements IPeripheral
     {
         if( other != null && other instanceof MonitorPeripheral )
         {
-            MonitorPeripheral otherMonitor = (MonitorPeripheral)other;
+            MonitorPeripheral otherMonitor = (MonitorPeripheral) other;
             if( otherMonitor.m_monitor == this.m_monitor )
             {
                 return true;

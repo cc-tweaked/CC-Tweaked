@@ -82,7 +82,7 @@ public class CommandAPI implements ILuaAPI
                 sender.clearOutput();
 
                 int result = commandManager.executeCommand( sender, command );
-                return new Object[]{ (result > 0), sender.copyOutput() };
+                return new Object[] { (result > 0), sender.copyOutput() };
             }
             catch( Throwable t )
             {
@@ -90,7 +90,7 @@ public class CommandAPI implements ILuaAPI
                 {
                     ComputerCraft.log.error( "Error running command.", t );
                 }
-                return new Object[]{ false, createOutput( "Java Exception Thrown: " + t.toString() ) };
+                return new Object[] { false, createOutput( "Java Exception Thrown: " + t.toString() ) };
             }
         }
         else
@@ -182,7 +182,7 @@ public class CommandAPI implements ILuaAPI
                             }
                         }
                     }
-                    return new Object[]{ result };
+                    return new Object[] { result };
                 } );
             }
             case 3:
@@ -206,37 +206,37 @@ public class CommandAPI implements ILuaAPI
                     // Get the details of the block
                     World world = m_computer.getWorld();
                     BlockPos min = new BlockPos(
-                            Math.min( minx, maxx ),
-                            Math.min( miny, maxy ),
-                            Math.min( minz, maxz )
+                        Math.min( minx, maxx ),
+                        Math.min( miny, maxy ),
+                        Math.min( minz, maxz )
                     );
                     BlockPos max = new BlockPos(
-                            Math.max( minx, maxx ),
-                            Math.max( miny, maxy ),
-                            Math.max( minz, maxz )
+                        Math.max( minx, maxx ),
+                        Math.max( miny, maxy ),
+                        Math.max( minz, maxz )
                     );
                     if( !WorldUtil.isBlockInWorld( world, min ) || !WorldUtil.isBlockInWorld( world, max ) )
                     {
                         throw new LuaException( "Co-ordinates out or range" );
                     }
-                    if( ( max.getX() - min.getX() + 1 ) * ( max.getY() - min.getY() + 1 ) * ( max.getZ() - min.getZ() + 1 ) > 4096 )
+                    if( (max.getX() - min.getX() + 1) * (max.getY() - min.getY() + 1) * (max.getZ() - min.getZ() + 1) > 4096 )
                     {
                         throw new LuaException( "Too many blocks" );
                     }
-                    int i=1;
+                    int i = 1;
                     Map<Object, Object> results = new HashMap<>();
-                    for( int y=min.getY(); y<= max.getY(); ++y )
+                    for( int y = min.getY(); y <= max.getY(); y++ )
                     {
-                        for( int z = min.getZ(); z <= max.getZ(); ++z )
+                        for( int z = min.getZ(); z <= max.getZ(); z++ )
                         {
-                            for( int x = min.getX(); x <= max.getX(); ++x )
+                            for( int x = min.getX(); x <= max.getX(); x++ )
                             {
                                 BlockPos pos = new BlockPos( x, y, z );
                                 results.put( i++, getBlockInfo( world, pos ) );
                             }
                         }
                     }
-                    return new Object[]{ results };
+                    return new Object[] { results };
                 } );
             }
             case 5:
@@ -252,7 +252,7 @@ public class CommandAPI implements ILuaAPI
                     BlockPos position = new BlockPos( x, y, z );
                     if( WorldUtil.isBlockInWorld( world, position ) )
                     {
-                        return new Object[]{ getBlockInfo( world, position ) };
+                        return new Object[] { getBlockInfo( world, position ) };
                     }
                     else
                     {

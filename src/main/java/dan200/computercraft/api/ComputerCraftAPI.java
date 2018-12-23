@@ -49,9 +49,12 @@ public final class ComputerCraftAPI
         findCC();
         if( computerCraft_getVersion != null )
         {
-            try {
-                return (String)computerCraft_getVersion.invoke( null );
-            } catch (Exception e) {
+            try
+            {
+                return (String) computerCraft_getVersion.invoke( null );
+            }
+            catch( Exception e )
+            {
                 // It failed
             }
         }
@@ -82,9 +85,12 @@ public final class ComputerCraftAPI
         findCC();
         if( computerCraft_createUniqueNumberedSaveDir != null )
         {
-            try {
-                return (Integer)computerCraft_createUniqueNumberedSaveDir.invoke( null, world, parentSubPath );
-            } catch (Exception e) {
+            try
+            {
+                return (Integer) computerCraft_createUniqueNumberedSaveDir.invoke( null, world, parentSubPath );
+            }
+            catch( Exception e )
+            {
                 // It failed
             }
         }
@@ -115,9 +121,12 @@ public final class ComputerCraftAPI
         findCC();
         if( computerCraft_createSaveDirMount != null )
         {
-            try {
-                return (IWritableMount)computerCraft_createSaveDirMount.invoke( null, world, subPath, capacity );
-            } catch (Exception e){
+            try
+            {
+                return (IWritableMount) computerCraft_createSaveDirMount.invoke( null, world, subPath, capacity );
+            }
+            catch( Exception e )
+            {
                 // It failed
             }
         }
@@ -148,9 +157,12 @@ public final class ComputerCraftAPI
         findCC();
         if( computerCraft_createResourceMount != null )
         {
-            try {
-                return (IMount)computerCraft_createResourceMount.invoke( null, modClass, domain, subPath );
-            } catch (Exception e){
+            try
+            {
+                return (IMount) computerCraft_createResourceMount.invoke( null, modClass, domain, subPath );
+            }
+            catch( Exception e )
+            {
                 // It failed
             }
         }
@@ -167,11 +179,14 @@ public final class ComputerCraftAPI
     public static void registerPeripheralProvider( @Nonnull IPeripheralProvider handler )
     {
         findCC();
-        if ( computerCraft_registerPeripheralProvider != null)
+        if( computerCraft_registerPeripheralProvider != null )
         {
-            try {
+            try
+            {
                 computerCraft_registerPeripheralProvider.invoke( null, handler );
-            } catch (Exception e){
+            }
+            catch( Exception e )
+            {
                 // It failed
             }
         }
@@ -192,9 +207,12 @@ public final class ComputerCraftAPI
             findCC();
             if( computerCraft_registerTurtleUpgrade != null )
             {
-                try {
+                try
+                {
                     computerCraft_registerTurtleUpgrade.invoke( null, upgrade );
-                } catch( Exception e ) {
+                }
+                catch( Exception e )
+                {
                     // It failed
                 }
             }
@@ -212,9 +230,12 @@ public final class ComputerCraftAPI
         findCC();
         if( computerCraft_registerBundledRedstoneProvider != null )
         {
-            try {
+            try
+            {
                 computerCraft_registerBundledRedstoneProvider.invoke( null, handler );
-            } catch (Exception e) {
+            }
+            catch( Exception e )
+            {
                 // It failed
             }
         }
@@ -235,9 +256,12 @@ public final class ComputerCraftAPI
         findCC();
         if( computerCraft_getDefaultBundledRedstoneOutput != null )
         {
-            try {
-                return (Integer)computerCraft_getDefaultBundledRedstoneOutput.invoke( null, world, pos, side );
-            } catch (Exception e){
+            try
+            {
+                return (Integer) computerCraft_getDefaultBundledRedstoneOutput.invoke( null, world, pos, side );
+            }
+            catch( Exception e )
+            {
                 // It failed
             }
         }
@@ -255,9 +279,12 @@ public final class ComputerCraftAPI
         findCC();
         if( computerCraft_registerMediaProvider != null )
         {
-            try {
+            try
+            {
                 computerCraft_registerMediaProvider.invoke( null, handler );
-            } catch (Exception e){
+            }
+            catch( Exception e )
+            {
                 // It failed
             }
         }
@@ -276,9 +303,12 @@ public final class ComputerCraftAPI
         findCC();
         if( computerCraft_registerPermissionProvider != null )
         {
-            try {
+            try
+            {
                 computerCraft_registerPermissionProvider.invoke( null, handler );
-            } catch (Exception e) {
+            }
+            catch( Exception e )
+            {
                 // It failed
             }
         }
@@ -287,10 +317,14 @@ public final class ComputerCraftAPI
     public static void registerPocketUpgrade( @Nonnull IPocketUpgrade upgrade )
     {
         findCC();
-        if(computerCraft_registerPocketUpgrade != null) {
-            try {
+        if( computerCraft_registerPocketUpgrade != null )
+        {
+            try
+            {
                 computerCraft_registerPocketUpgrade.invoke( null, upgrade );
-            } catch (Exception e) {
+            }
+            catch( Exception e )
+            {
                 // It failed
             }
         }
@@ -309,7 +343,9 @@ public final class ComputerCraftAPI
             try
             {
                 return (IPacketNetwork) computerCraft_getWirelessNetwork.invoke( null );
-            } catch (Exception e) {
+            }
+            catch( Exception e )
+            {
                 // It failed;
             }
         }
@@ -394,12 +430,14 @@ public final class ComputerCraftAPI
 
     private static void findCC()
     {
-        if( !ccSearched ) {
-            try {
+        if( !ccSearched )
+        {
+            try
+            {
                 computerCraft = Class.forName( "dan200.computercraft.ComputerCraft" );
-                computerCraft_getVersion = findCCMethod( "getVersion", new Class<?>[]{
+                computerCraft_getVersion = findCCMethod( "getVersion", new Class<?>[] {
                 } );
-                computerCraft_createUniqueNumberedSaveDir = findCCMethod( "createUniqueNumberedSaveDir", new Class<?>[]{
+                computerCraft_createUniqueNumberedSaveDir = findCCMethod( "createUniqueNumberedSaveDir", new Class<?>[] {
                     World.class, String.class
                 } );
                 computerCraft_createSaveDirMount = findCCMethod( "createSaveDirMount", new Class<?>[] {
@@ -437,12 +475,16 @@ public final class ComputerCraftAPI
                 computerCraft_createWiredNodeForElement = findCCMethod( "createWiredNodeForElement", new Class<?>[] {
                     IWiredElement.class
                 } );
-                computerCraft_getWiredElementAt = findCCMethod( "getWiredElementAt", new Class<?>[]{
+                computerCraft_getWiredElementAt = findCCMethod( "getWiredElementAt", new Class<?>[] {
                     IBlockAccess.class, BlockPos.class, EnumFacing.class
                 } );
-            } catch( Exception e ) {
+            }
+            catch( Exception e )
+            {
                 System.out.println( "ComputerCraftAPI: ComputerCraft not found." );
-            } finally {
+            }
+            finally
+            {
                 ccSearched = true;
             }
         }
@@ -450,13 +492,16 @@ public final class ComputerCraftAPI
 
     private static Method findCCMethod( String name, Class<?>[] args )
     {
-        try {
+        try
+        {
             if( computerCraft != null )
             {
                 return computerCraft.getMethod( name, args );
             }
             return null;
-        } catch( NoSuchMethodException e ) {
+        }
+        catch( NoSuchMethodException e )
+        {
             System.out.println( "ComputerCraftAPI: ComputerCraft method " + name + " not found." );
             return null;
         }

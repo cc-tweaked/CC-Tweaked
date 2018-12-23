@@ -149,7 +149,7 @@ public abstract class ComputerCraftProxyCommon implements IComputerCraftProxy
     public String getRecordInfo( @Nonnull ItemStack recordStack )
     {
         Item item = recordStack.getItem();
-        if (item instanceof ItemRecord)
+        if( item instanceof ItemRecord )
         {
             ItemRecord record = (ItemRecord) item;
             return StringUtil.translateToLocal( record.displayName );
@@ -204,12 +204,13 @@ public abstract class ComputerCraftProxyCommon implements IComputerCraftProxy
     public void handlePacket( final ComputerCraftPacket packet, final EntityPlayer player )
     {
         IThreadListener listener = player.getServer();
-        if (listener != null)
+        if( listener != null )
         {
-            if (listener.isCallingFromMinecraftThread())
+            if( listener.isCallingFromMinecraftThread() )
             {
                 processPacket( packet, player );
-            } else
+            }
+            else
             {
                 listener.addScheduledTask( () -> processPacket( packet, player ) );
             }
@@ -218,7 +219,7 @@ public abstract class ComputerCraftProxyCommon implements IComputerCraftProxy
 
     private void processPacket( ComputerCraftPacket packet, EntityPlayer player )
     {
-        switch (packet.m_packetType)
+        switch( packet.m_packetType )
         {
             ///////////////////////////////////
             // Packets from Client to Server //
@@ -232,7 +233,7 @@ public abstract class ComputerCraftProxyCommon implements IComputerCraftProxy
             {
                 int instance = packet.m_dataInt[0];
                 ServerComputer computer = ComputerCraft.serverComputerRegistry.get( instance );
-                if (computer != null)
+                if( computer != null )
                 {
                     computer.handlePacket( packet, player );
                 }
@@ -246,11 +247,11 @@ public abstract class ComputerCraftProxyCommon implements IComputerCraftProxy
                 BlockPos pos = new BlockPos( x, y, z );
                 World world = player.getEntityWorld();
                 TileEntity tileEntity = world.getTileEntity( pos );
-                if (tileEntity != null && tileEntity instanceof TileGeneric)
+                if( tileEntity != null && tileEntity instanceof TileGeneric )
                 {
                     TileGeneric generic = (TileGeneric) tileEntity;
                     SPacketUpdateTileEntity description = generic.getUpdatePacket();
-                    if (description != null)
+                    if( description != null )
                     {
                         ((EntityPlayerMP) player).connection.sendPacket( description );
                     }
@@ -309,10 +310,10 @@ public abstract class ComputerCraftProxyCommon implements IComputerCraftProxy
 
         // Advanced modem
         registry.register( new ItemAdvancedModem( ComputerCraft.Blocks.advancedModem ).setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "advanced_modem" ) ) );
-        
+
         // Full block modem
         registry.register( new ItemWiredModemFull( ComputerCraft.Blocks.wiredModemFull ).setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "wired_modem_full" ) ) );
-        
+
         // Items
         // Floppy Disk
         ComputerCraft.Items.disk = new ItemDiskLegacy();
@@ -350,16 +351,16 @@ public abstract class ComputerCraftProxyCommon implements IComputerCraftProxy
         ItemStack redstone = new ItemStack( Items.REDSTONE, 1 );
         for( int colour = 0; colour < 16; ++colour )
         {
-            ItemStack disk = ItemDiskLegacy.createFromIDAndColour( -1, null, Colour.values()[ colour ].getHex() );
+            ItemStack disk = ItemDiskLegacy.createFromIDAndColour( -1, null, Colour.values()[colour].getHex() );
             ItemStack dye = new ItemStack( Items.DYE, 1, colour );
 
             int diskIdx = 0;
-            ItemStack[] disks = new ItemStack[ 15 ];
+            ItemStack[] disks = new ItemStack[15];
             for( int otherColour = 0; otherColour < 16; ++otherColour )
             {
                 if( colour != otherColour )
                 {
-                    disks[ diskIdx++ ] = ItemDiskLegacy.createFromIDAndColour( -1, null, Colour.values()[ otherColour ].getHex() );
+                    disks[diskIdx++] = ItemDiskLegacy.createFromIDAndColour( -1, null, Colour.values()[otherColour].getHex() );
                 }
             }
 
@@ -492,7 +493,7 @@ public abstract class ComputerCraftProxyCommon implements IComputerCraftProxy
 
         // Register peripheral providers
         ComputerCraftAPI.registerPeripheralProvider( new DefaultPeripheralProvider() );
-        if (ComputerCraft.enableCommandBlock)
+        if( ComputerCraft.enableCommandBlock )
         {
             ComputerCraftAPI.registerPeripheralProvider( new CommandBlockPeripheralProvider() );
         }
@@ -515,7 +516,7 @@ public abstract class ComputerCraftProxyCommon implements IComputerCraftProxy
     }
 
     public class ForgeHandlers implements
-            IGuiHandler
+        IGuiHandler
     {
         private ForgeHandlers()
         {
@@ -527,12 +528,12 @@ public abstract class ComputerCraftProxyCommon implements IComputerCraftProxy
         public Object getServerGuiElement( int id, EntityPlayer player, World world, int x, int y, int z )
         {
             BlockPos pos = new BlockPos( x, y, z );
-            switch (id)
+            switch( id )
             {
                 case ComputerCraft.diskDriveGUIID:
                 {
                     TileEntity tile = world.getTileEntity( pos );
-                    if (tile != null && tile instanceof TileDiskDrive)
+                    if( tile != null && tile instanceof TileDiskDrive )
                     {
                         TileDiskDrive drive = (TileDiskDrive) tile;
                         return new ContainerDiskDrive( player.inventory, drive );
@@ -542,7 +543,7 @@ public abstract class ComputerCraftProxyCommon implements IComputerCraftProxy
                 case ComputerCraft.computerGUIID:
                 {
                     TileEntity tile = world.getTileEntity( pos );
-                    if (tile != null && tile instanceof TileComputer)
+                    if( tile != null && tile instanceof TileComputer )
                     {
                         TileComputer computer = (TileComputer) tile;
                         return new ContainerComputer( computer );
@@ -552,7 +553,7 @@ public abstract class ComputerCraftProxyCommon implements IComputerCraftProxy
                 case ComputerCraft.printerGUIID:
                 {
                     TileEntity tile = world.getTileEntity( pos );
-                    if (tile != null && tile instanceof TilePrinter)
+                    if( tile != null && tile instanceof TilePrinter )
                     {
                         TilePrinter printer = (TilePrinter) tile;
                         return new ContainerPrinter( player.inventory, printer );
@@ -562,7 +563,7 @@ public abstract class ComputerCraftProxyCommon implements IComputerCraftProxy
                 case ComputerCraft.turtleGUIID:
                 {
                     TileEntity tile = world.getTileEntity( pos );
-                    if (tile != null && tile instanceof TileTurtle)
+                    if( tile != null && tile instanceof TileTurtle )
                     {
                         TileTurtle turtle = (TileTurtle) tile;
                         return new ContainerTurtle( player.inventory, turtle.getAccess(), turtle.getServerComputer() );
@@ -590,12 +591,12 @@ public abstract class ComputerCraftProxyCommon implements IComputerCraftProxy
         public Object getClientGuiElement( int id, EntityPlayer player, World world, int x, int y, int z )
         {
             BlockPos pos = new BlockPos( x, y, z );
-            switch (id)
+            switch( id )
             {
                 case ComputerCraft.diskDriveGUIID:
                 {
                     TileEntity tile = world.getTileEntity( pos );
-                    if (tile != null && tile instanceof TileDiskDrive)
+                    if( tile != null && tile instanceof TileDiskDrive )
                     {
                         TileDiskDrive drive = (TileDiskDrive) tile;
                         return getDiskDriveGUI( player.inventory, drive );
@@ -605,7 +606,7 @@ public abstract class ComputerCraftProxyCommon implements IComputerCraftProxy
                 case ComputerCraft.computerGUIID:
                 {
                     TileEntity tile = world.getTileEntity( pos );
-                    if (tile != null && tile instanceof TileComputer)
+                    if( tile != null && tile instanceof TileComputer )
                     {
                         TileComputer computer = (TileComputer) tile;
                         return getComputerGUI( computer );
@@ -615,7 +616,7 @@ public abstract class ComputerCraftProxyCommon implements IComputerCraftProxy
                 case ComputerCraft.printerGUIID:
                 {
                     TileEntity tile = world.getTileEntity( pos );
-                    if (tile != null && tile instanceof TilePrinter)
+                    if( tile != null && tile instanceof TilePrinter )
                     {
                         TilePrinter printer = (TilePrinter) tile;
                         return getPrinterGUI( player.inventory, printer );
@@ -625,7 +626,7 @@ public abstract class ComputerCraftProxyCommon implements IComputerCraftProxy
                 case ComputerCraft.turtleGUIID:
                 {
                     TileEntity tile = world.getTileEntity( pos );
-                    if (tile != null && tile instanceof TileTurtle)
+                    if( tile != null && tile instanceof TileTurtle )
                     {
                         TileTurtle turtle = (TileTurtle) tile;
                         return getTurtleGUI( player.inventory, turtle );
@@ -643,10 +644,10 @@ public abstract class ComputerCraftProxyCommon implements IComputerCraftProxy
                 case ComputerCraft.viewComputerGUIID:
                 {
                     ClientComputer computer = ComputerCraft.clientComputerRegistry.get( x );
-                    
+
                     // We extract some terminal information from the various coordinate flags.
-                    // See ComputerCraft.openComputerGUI for how they are packed. 
-                    ComputerFamily family = ComputerFamily.values()[ y ];
+                    // See ComputerCraft.openComputerGUI for how they are packed.
+                    ComputerFamily family = ComputerFamily.values()[y];
                     int width = (z >> 16) & 0xFFFF, height = z & 0xFF;
 
                     if( computer == null )
@@ -660,7 +661,7 @@ public abstract class ComputerCraftProxyCommon implements IComputerCraftProxy
                         height = computer.getTerminal().getHeight();
                     }
                     return getComputerGUI( computer, width, height, family );
-                }  
+                }
             }
             return null;
         }
@@ -682,7 +683,7 @@ public abstract class ComputerCraftProxyCommon implements IComputerCraftProxy
         @SubscribeEvent
         public void onClientTick( TickEvent.ClientTickEvent event )
         {
-            if (event.phase == TickEvent.Phase.START)
+            if( event.phase == TickEvent.Phase.START )
             {
                 ComputerCraft.clientComputerRegistry.update();
             }
@@ -691,7 +692,7 @@ public abstract class ComputerCraftProxyCommon implements IComputerCraftProxy
         @SubscribeEvent
         public void onServerTick( TickEvent.ServerTickEvent event )
         {
-            if (event.phase == TickEvent.Phase.START)
+            if( event.phase == TickEvent.Phase.START )
             {
                 MainThread.executePendingTasks();
                 ComputerCraft.serverComputerRegistry.update();
@@ -709,7 +710,8 @@ public abstract class ComputerCraftProxyCommon implements IComputerCraftProxy
         }
 
         @SubscribeEvent
-        public void onConfigChanged( ConfigChangedEvent.OnConfigChangedEvent event) {
+        public void onConfigChanged( ConfigChangedEvent.OnConfigChangedEvent event )
+        {
             if( event.getModID().equals( ComputerCraft.MOD_ID ) )
             {
                 ComputerCraft.syncConfig();

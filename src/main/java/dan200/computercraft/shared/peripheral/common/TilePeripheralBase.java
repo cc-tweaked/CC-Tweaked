@@ -11,12 +11,11 @@ import dan200.computercraft.shared.common.TileGeneric;
 import dan200.computercraft.shared.peripheral.PeripheralType;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.ITickable;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.ITickable;
 import net.minecraft.util.NonNullList;
 
 import javax.annotation.Nonnull;
-import java.util.List;
 
 public abstract class TilePeripheralBase extends TileGeneric
     implements IPeripheralTile, ITickable
@@ -42,7 +41,7 @@ public abstract class TilePeripheralBase extends TileGeneric
     @Override
     public BlockPeripheralBase getBlock()
     {
-        return (BlockPeripheralBase)super.getBlock();
+        return (BlockPeripheralBase) super.getBlock();
     }
 
     @Override
@@ -116,7 +115,7 @@ public abstract class TilePeripheralBase extends TileGeneric
     {
         return m_anim;
     }
-    
+
     public void setAnim( int anim )
     {
         if( anim != m_anim )
@@ -126,7 +125,7 @@ public abstract class TilePeripheralBase extends TileGeneric
         }
     }
 
-    @Override    
+    @Override
     public void update()
     {
         if( m_changed )
@@ -135,12 +134,12 @@ public abstract class TilePeripheralBase extends TileGeneric
             updateBlock();
         }
     }
-            
-    @Override    
+
+    @Override
     public void readFromNBT( NBTTagCompound nbttagcompound )
     {
         // Read properties
-        super.readFromNBT(nbttagcompound);
+        super.readFromNBT( nbttagcompound );
         if( nbttagcompound.hasKey( "dir" ) )
         {
             m_dir = EnumFacing.byIndex( nbttagcompound.getInteger( "dir" ) );

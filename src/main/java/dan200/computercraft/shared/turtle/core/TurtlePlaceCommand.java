@@ -87,7 +87,7 @@ public class TurtlePlaceCommand implements ITurtleCommand
         }
 
         // Do the deploying
-        String[] errorMessage = new String[ 1 ];
+        String[] errorMessage = new String[1];
         ItemStack remainder = deploy( stack, turtle, turtlePlayer, direction, m_extraArguments, errorMessage );
         if( remainder != stack )
         {
@@ -98,7 +98,7 @@ public class TurtlePlaceCommand implements ITurtleCommand
             // Remember the old block
             if( turtle instanceof TurtleBrain && previousState != null )
             {
-                TurtleBrain brain = (TurtleBrain)turtle;
+                TurtleBrain brain = (TurtleBrain) turtle;
                 brain.saveBlockChange( coordinates, previousState );
             }
 
@@ -433,20 +433,20 @@ public class TurtlePlaceCommand implements ITurtleCommand
                 if( tile instanceof TileEntitySign )
                 {
                     TileEntitySign signTile = (TileEntitySign) tile;
-                    String s = (String)extraArguments[0];
-                    String[] split = s.split("\n");
+                    String s = (String) extraArguments[0];
+                    String[] split = s.split( "\n" );
                     int firstLine = (split.length <= 2) ? 1 : 0;
-                    for (int i = 0; i < signTile.signText.length; i++)
+                    for( int i = 0; i < signTile.signText.length; i++ )
                     {
                         if( i >= firstLine && i < firstLine + split.length )
                         {
-                            if( split[ i - firstLine ].length() > 15 )
+                            if( split[i - firstLine].length() > 15 )
                             {
-                                signTile.signText[ i ] = new TextComponentString( split[ i - firstLine ].substring( 0, 15 ) );
+                                signTile.signText[i] = new TextComponentString( split[i - firstLine].substring( 0, 15 ) );
                             }
                             else
                             {
-                                signTile.signText[ i ] = new TextComponentString( split[ i - firstLine ] );
+                                signTile.signText[i] = new TextComponentString( split[i - firstLine] );
                             }
                         }
                         else

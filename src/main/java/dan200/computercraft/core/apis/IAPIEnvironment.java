@@ -23,27 +23,39 @@ public interface IAPIEnvironment extends IComputerOwned
 
     @Override
     Computer getComputer();
+
     int getComputerID();
+
     IComputerEnvironment getComputerEnvironment();
+
     Terminal getTerminal();
+
     FileSystem getFileSystem();
-    
+
     void shutdown();
+
     void reboot();
+
     void queueEvent( String event, Object[] args );
 
     void setOutput( int side, int output );
+
     int getOutput( int side );
+
     int getInput( int side );
 
     void setBundledOutput( int side, int output );
+
     int getBundledOutput( int side );
+
     int getBundledInput( int side );
-    
+
     void setPeripheralChangeListener( IPeripheralChangeListener listener );
+
     IPeripheral getPeripheral( int side );
 
     String getLabel();
+
     void setLabel( String label );
 
     void addTrackingChange( TrackingField field, long change );

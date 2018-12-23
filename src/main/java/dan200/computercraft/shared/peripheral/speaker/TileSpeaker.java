@@ -21,7 +21,7 @@ public class TileSpeaker extends TilePeripheralBase
     public TileSpeaker()
     {
         super();
-        m_peripheral = new SpeakerPeripheral(this);
+        m_peripheral = new SpeakerPeripheral( this );
     }
 
     @Override

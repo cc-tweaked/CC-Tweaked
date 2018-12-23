@@ -58,7 +58,7 @@ public final class ArgumentHelper
     public static double getNumber( @Nonnull Object[] args, int index ) throws LuaException
     {
         if( index >= args.length ) throw badArgument( index, "number", "nil" );
-        Object value = args[ index ];
+        Object value = args[index];
         if( value instanceof Number )
         {
             return ((Number) value).doubleValue();
@@ -77,7 +77,7 @@ public final class ArgumentHelper
     public static long getLong( @Nonnull Object[] args, int index ) throws LuaException
     {
         if( index >= args.length ) throw badArgument( index, "number", "nil" );
-        Object value = args[ index ];
+        Object value = args[index];
         if( value instanceof Number )
         {
             return checkReal( index, (Number) value ).longValue();
@@ -96,7 +96,7 @@ public final class ArgumentHelper
     public static boolean getBoolean( @Nonnull Object[] args, int index ) throws LuaException
     {
         if( index >= args.length ) throw badArgument( index, "boolean", "nil" );
-        Object value = args[ index ];
+        Object value = args[index];
         if( value instanceof Boolean )
         {
             return (Boolean) value;
@@ -111,7 +111,7 @@ public final class ArgumentHelper
     public static String getString( @Nonnull Object[] args, int index ) throws LuaException
     {
         if( index >= args.length ) throw badArgument( index, "string", "nil" );
-        Object value = args[ index ];
+        Object value = args[index];
         if( value instanceof String )
         {
             return (String) value;
@@ -122,12 +122,12 @@ public final class ArgumentHelper
         }
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings( "unchecked" )
     @Nonnull
     public static Map<Object, Object> getTable( @Nonnull Object[] args, int index ) throws LuaException
     {
         if( index >= args.length ) throw badArgument( index, "table", "nil" );
-        Object value = args[ index ];
+        Object value = args[index];
         if( value instanceof Map )
         {
             return (Map<Object, Object>) value;
@@ -140,7 +140,7 @@ public final class ArgumentHelper
 
     public static double optNumber( @Nonnull Object[] args, int index, double def ) throws LuaException
     {
-        Object value = index < args.length ? args[ index ] : null;
+        Object value = index < args.length ? args[index] : null;
         if( value == null )
         {
             return def;
@@ -162,7 +162,7 @@ public final class ArgumentHelper
 
     public static long optLong( @Nonnull Object[] args, int index, long def ) throws LuaException
     {
-        Object value = index < args.length ? args[ index ] : null;
+        Object value = index < args.length ? args[index] : null;
         if( value == null )
         {
             return def;
@@ -184,7 +184,7 @@ public final class ArgumentHelper
 
     public static boolean optBoolean( @Nonnull Object[] args, int index, boolean def ) throws LuaException
     {
-        Object value = index < args.length ? args[ index ] : null;
+        Object value = index < args.length ? args[index] : null;
         if( value == null )
         {
             return def;
@@ -201,7 +201,7 @@ public final class ArgumentHelper
 
     public static String optString( @Nonnull Object[] args, int index, String def ) throws LuaException
     {
-        Object value = index < args.length ? args[ index ] : null;
+        Object value = index < args.length ? args[index] : null;
         if( value == null )
         {
             return def;
@@ -216,10 +216,10 @@ public final class ArgumentHelper
         }
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings( "unchecked" )
     public static Map<Object, Object> optTable( @Nonnull Object[] args, int index, Map<Object, Object> def ) throws LuaException
     {
-        Object value = index < args.length ? args[ index ] : null;
+        Object value = index < args.length ? args[index] : null;
         if( value == null )
         {
             return def;

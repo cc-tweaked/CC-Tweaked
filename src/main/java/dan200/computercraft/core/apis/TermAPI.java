@@ -28,7 +28,7 @@ public class TermAPI implements ILuaAPI
         m_terminal = _environment.getTerminal();
         m_environment = _environment.getComputerEnvironment();
     }
-    
+
     @Override
     public String[] getNames()
     {
@@ -68,7 +68,7 @@ public class TermAPI implements ILuaAPI
             "getCursorBlink",
         };
     }
-    
+
     public static int parseColour( Object[] args ) throws LuaException
     {
         int colour = getInt( args, 0 );
@@ -109,12 +109,15 @@ public class TermAPI implements ILuaAPI
             {
                 // write
                 String text;
-                if( args.length > 0 && args[0] != null ) {
+                if( args.length > 0 && args[0] != null )
+                {
                     text = args[0].toString();
-                } else {
+                }
+                else
+                {
                     text = "";
                 }
-                
+
                 synchronized( m_terminal )
                 {
                     m_terminal.write( text );
@@ -128,7 +131,7 @@ public class TermAPI implements ILuaAPI
                 int y = getInt( args, 0 );
                 synchronized( m_terminal )
                 {
-                    m_terminal.scroll(y);
+                    m_terminal.scroll( y );
                 }
                 return null;
             }
@@ -172,7 +175,7 @@ public class TermAPI implements ILuaAPI
                 {
                     width = m_terminal.getWidth();
                     height = m_terminal.getHeight();
-                }                
+                }
                 return new Object[] { width, height };
             }
             case 6:
@@ -260,7 +263,7 @@ public class TermAPI implements ILuaAPI
                 {
                     int hex = getInt( args, 1 );
                     double[] rgb = Palette.decodeRGB8( hex );
-                    setColour( m_terminal, colour, rgb[ 0 ], rgb[ 1 ], rgb[ 2 ] );
+                    setColour( m_terminal, colour, rgb[0], rgb[1], rgb[2] );
                 }
                 else
                 {
@@ -278,7 +281,7 @@ public class TermAPI implements ILuaAPI
                 int colour = 15 - parseColour( args );
                 synchronized( m_terminal )
                 {
-                    if ( m_terminal.getPalette() != null )
+                    if( m_terminal.getPalette() != null )
                     {
                         return ArrayUtils.toObject( m_terminal.getPalette().getColour( colour ) );
                     }
@@ -294,7 +297,7 @@ public class TermAPI implements ILuaAPI
             }
         }
     }
-    
+
     private static int getHighestBit( int group )
     {
         int bit = 0;

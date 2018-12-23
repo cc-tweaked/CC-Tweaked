@@ -8,8 +8,8 @@ package dan200.computercraft.shared.common;
 
 import dan200.computercraft.api.redstone.IBundledRedstoneProvider;
 import net.minecraft.block.Block;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
@@ -31,7 +31,7 @@ public class DefaultBundledRedstoneProvider implements IBundledRedstoneProvider
         Block block = world.getBlockState( pos ).getBlock();
         if( block != null && block instanceof BlockGeneric )
         {
-            BlockGeneric generic = (BlockGeneric)block;
+            BlockGeneric generic = (BlockGeneric) block;
             if( generic.getBundledRedstoneConnectivity( world, pos, side ) )
             {
                 return generic.getBundledRedstoneOutput( world, pos, side );

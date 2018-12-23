@@ -159,7 +159,7 @@ public class DiskDrivePeripheral implements IPeripheral
                     Item item = disk.getItem();
                     if( item instanceof ItemDiskLegacy )
                     {
-                        return new Object[] { ((ItemDiskLegacy)item).getDiskID( disk ) };
+                        return new Object[] { ((ItemDiskLegacy) item).getDiskID( disk ) };
                     }
                 }
                 return null;
@@ -188,7 +188,7 @@ public class DiskDrivePeripheral implements IPeripheral
     {
         if( other instanceof DiskDrivePeripheral )
         {
-            DiskDrivePeripheral otherDiskDrive = (DiskDrivePeripheral)other;
+            DiskDrivePeripheral otherDiskDrive = (DiskDrivePeripheral) other;
             if( otherDiskDrive.m_diskDrive == this.m_diskDrive )
             {
                 return true;

@@ -28,9 +28,9 @@ public abstract class ComputerConvertRecipe extends ShapedRecipes
     {
         // See if we match the recipe, and extract the input computercraft ID
         ItemStack computerStack = null;
-        for( int y = 0; y < 3; ++y )
+        for( int y = 0; y < 3; y++ )
         {
-            for( int x = 0; x < 3; ++x )
+            for( int x = 0; x < 3; x++ )
             {
                 ItemStack stack = inventory.getStackInRowAndColumn( x, y );
                 Ingredient target = getIngredients().get( x + y * 3 );
@@ -50,9 +50,9 @@ public abstract class ComputerConvertRecipe extends ShapedRecipes
     @Override
     public ItemStack getCraftingResult( @Nonnull InventoryCrafting inventory )
     {
-        for( int y = 0; y < 3; ++y )
+        for( int y = 0; y < 3; y++ )
         {
-            for( int x = 0; x < 3; ++x )
+            for( int x = 0; x < 3; x++ )
             {
                 ItemStack item = inventory.getStackInRowAndColumn( x, y );
 

@@ -11,8 +11,8 @@ import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.filesystem.IFileSystem;
 import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.api.filesystem.IWritableMount;
-import dan200.computercraft.api.lua.*;
 import dan200.computercraft.api.lua.ILuaAPI;
+import dan200.computercraft.api.lua.*;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.core.apis.*;
 import dan200.computercraft.core.filesystem.FileSystem;
@@ -31,11 +31,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Computer
-{    
+{
     public static final String[] s_sideNames = new String[] {
         "bottom", "top", "back", "front", "right", "left",
     };
-    
+
     private enum State
     {
         Off,
@@ -43,18 +43,18 @@ public class Computer
         Running,
         Stopping,
     }
-    
+
     private static class APIEnvironment implements IAPIEnvironment
     {
         private Computer m_computer;
         private IAPIEnvironment.IPeripheralChangeListener m_peripheralListener;
-        
+
         public APIEnvironment( Computer computer )
         {
             m_computer = computer;
             m_peripheralListener = null;
         }
-        
+
         @Override
         public Computer getComputer()
         {
@@ -66,19 +66,19 @@ public class Computer
         {
             return m_computer.assignID();
         }
-        
+
         @Override
         public IComputerEnvironment getComputerEnvironment()
         {
             return m_computer.m_environment;
         }
-        
+
         @Override
         public Terminal getTerminal()
         {
             return m_computer.m_terminal;
         }
-        
+
         @Override
         public FileSystem getFileSystem()
         {
@@ -108,19 +108,19 @@ public class Computer
         {
             m_computer.setRedstoneOutput( side, output );
         }
-        
+
         @Override
         public int getOutput( int side )
         {
             return m_computer.getInternalRedstoneOutput( side );
         }
-        
+
         @Override
         public int getInput( int side )
         {
             return m_computer.getRedstoneInput( side );
         }
-    
+
         @Override
         public void setBundledOutput( int side, int output )
         {
@@ -132,22 +132,22 @@ public class Computer
         {
             return m_computer.getInternalBundledRedstoneOutput( side );
         }
-        
+
         @Override
         public int getBundledInput( int side )
         {
             return m_computer.getBundledRedstoneInput( side );
         }
-        
+
         @Override
         public IPeripheral getPeripheral( int side )
         {
             synchronized( m_computer.m_peripherals )
             {
-                return m_computer.m_peripherals[ side ];
+                return m_computer.m_peripherals[side];
             }
         }
-        
+
         @Override
         public void setPeripheralChangeListener( IPeripheralChangeListener listener )
         {
@@ -285,7 +285,7 @@ public class Computer
     private ILuaMachine m_machine;
     private final List<ILuaAPI> m_apis;
     private final APIEnvironment m_apiEnvironment;
-    
+
     private final Terminal m_terminal;
     private FileSystem m_fileSystem;
     private IWritableMount m_rootMount;
@@ -301,7 +301,7 @@ public class Computer
     private final int[] m_input;
     private final int[] m_bundledInput;
     private boolean m_inputChanged;
-        
+
     private final IPeripheral[] m_peripherals;
 
     public Computer( IComputerEnvironment environment, Terminal terminal, int id )
@@ -335,9 +335,9 @@ public class Computer
         m_input = new int[6];
         m_bundledInput = new int[6];
         m_inputChanged = false;
-        
+
         m_peripherals = new IPeripheral[6];
-        for( int i=0; i<6; ++i )
+        for( int i = 0; i < 6; i++ )
         {
             m_peripherals[i] = null;
         }
@@ -345,12 +345,12 @@ public class Computer
         m_rootMount = null;
         createAPIs();
     }
-    
+
     public IAPIEnvironment getAPIEnvironment()
     {
         return m_apiEnvironment;
     }
-    
+
     public void turnOn()
     {
         if( m_state == State.Off )
@@ -358,17 +358,17 @@ public class Computer
             m_startRequested = true;
         }
     }
-    
+
     public void shutdown()
     {
         stopComputer( false );
     }
-    
+
     public void reboot()
     {
         stopComputer( true );
     }
-    
+
     public boolean isOn()
     {
         synchronized( this )
@@ -376,14 +376,14 @@ public class Computer
             return m_state == State.Running;
         }
     }
-    
+
     public void abort( boolean hard )
     {
         synchronized( this )
         {
             if( m_state != State.Off && m_machine != null )
             {
-                if( hard ) 
+                if( hard )
                 {
                     m_machine.hardAbort( "Too long without yielding" );
                 }
@@ -394,7 +394,7 @@ public class Computer
             }
         }
     }
-    
+
     public void unload()
     {
         synchronized( this )
@@ -437,9 +437,9 @@ public class Computer
     }
 
     public void advance( double _dt )
-    {        
+    {
         synchronized( this )
-        {    
+        {
             // Start after a number of ticks
             if( m_ticksSinceStart >= 0 )
             {
@@ -450,11 +450,11 @@ public class Computer
                 startComputer();
                 m_startRequested = false;
             }
-            
+
             if( m_state == State.Running )
-            {        
+            {
                 // Fire the redstone event if our redstone input has changed
-                synchronized( m_input ) 
+                synchronized( m_input )
                 {
                     if( m_inputChanged )
                     {
@@ -466,7 +466,7 @@ public class Computer
                 // Advance our APIs
                 synchronized( m_apis )
                 {
-                    for(ILuaAPI api : m_apis)
+                    for( ILuaAPI api : m_apis )
                     {
                         api.update();
                     }
@@ -480,16 +480,16 @@ public class Computer
             if( m_internalOutputChanged )
             {
                 boolean changed = false;
-                for( int i=0; i<6; ++i )
+                for( int i = 0; i < 6; i++ )
                 {
                     if( m_externalOutput[i] != m_internalOutput[i] )
                     {
-                        m_externalOutput[ i ] = m_internalOutput[ i ];
+                        m_externalOutput[i] = m_internalOutput[i];
                         changed = true;
                     }
                     if( m_externalBundledOutput[i] != m_internalBundledOutput[i] )
                     {
-                        m_externalBundledOutput[ i ] = m_internalBundledOutput[ i ];
+                        m_externalBundledOutput[i] = m_internalBundledOutput[i];
                         changed = true;
                     }
                 }
@@ -500,14 +500,14 @@ public class Computer
                 }
             }
         }
-        
+
         // Set outputchanged if the terminal has changed from blinking to not
         synchronized( m_terminal )
         {
             boolean blinking =
                 m_terminal.getCursorBlink() &&
-                m_terminal.getCursorX() >= 0 && m_terminal.getCursorX() < m_terminal.getWidth() &&
-                m_terminal.getCursorY() >= 0 && m_terminal.getCursorY() < m_terminal.getHeight();
+                    m_terminal.getCursorX() >= 0 && m_terminal.getCursorX() < m_terminal.getWidth() &&
+                    m_terminal.getCursorY() >= 0 && m_terminal.getCursorY() < m_terminal.getHeight();
 
             if( blinking != m_blinking )
             {
@@ -516,10 +516,11 @@ public class Computer
             }
         }
     }
-    
+
     public boolean pollAndResetChanged()
     {
-        synchronized(this) {
+        synchronized( this )
+        {
             boolean changed = m_externalOutputChanged;
             m_externalOutputChanged = false;
             return changed;
@@ -542,9 +543,9 @@ public class Computer
         }
         return m_rootMount;
     }
-    
+
     // FileSystem
-            
+
     private boolean initFileSystem()
     {
         // Create the file system
@@ -569,7 +570,7 @@ public class Computer
             return false;
         }
     }
-            
+
     // Redstone
 
     public int getRedstoneOutput( int side )
@@ -648,7 +649,7 @@ public class Computer
         }
     }
 
-     public void setBundledRedstoneInput( int side, int combination )
+    public void setBundledRedstoneInput( int side, int combination )
     {
         synchronized( m_input )
         {
@@ -659,7 +660,7 @@ public class Computer
             }
         }
     }
-            
+
     private int getBundledRedstoneInput( int side )
     {
         synchronized( m_input )
@@ -669,7 +670,7 @@ public class Computer
     }
 
     // Peripherals
-    
+
     public void addAPI( ILuaAPI api )
     {
         m_apis.add( api );
@@ -679,7 +680,7 @@ public class Computer
     {
         addAPI( (ILuaAPI) api );
     }
-    
+
     public void setPeripheral( int side, IPeripheral peripheral )
     {
         synchronized( m_peripherals )
@@ -702,9 +703,9 @@ public class Computer
             return m_peripherals[side];
         }
     }
-        
+
     // Lua
-        
+
     private void createAPIs()
     {
         m_apis.add( new TermAPI( m_apiEnvironment ) );
@@ -728,19 +729,19 @@ public class Computer
             }
         }
     }
-    
+
     private void initLua()
     {
         // Create the lua machine
         ILuaMachine machine = new CobaltLuaMachine( this );
-        
+
         // Add the APIs
-        for(ILuaAPI api : m_apis)
+        for( ILuaAPI api : m_apis )
         {
             machine.addAPI( api );
             api.startup();
         }
-                        
+
         // Load the bios resource
         InputStream biosStream;
         try
@@ -751,21 +752,24 @@ public class Computer
         {
             biosStream = null;
         }
-        
+
         // Start the machine running the bios resource
         if( biosStream != null )
         {
             machine.loadBios( biosStream );
-            try {
+            try
+            {
                 biosStream.close();
-            } catch( IOException e ) {
+            }
+            catch( IOException e )
+            {
                 // meh
             }
-            
+
             if( machine.isFinished() )
             {
                 m_terminal.reset();
-                m_terminal.write("Error starting bios.lua" );
+                m_terminal.write( "Error starting bios.lua" );
                 m_terminal.setCursorPos( 0, 1 );
                 m_terminal.write( "ComputerCraft may be installed incorrectly" );
 
@@ -780,7 +784,7 @@ public class Computer
         else
         {
             m_terminal.reset();
-            m_terminal.write("Error loading bios.lua" );
+            m_terminal.write( "Error loading bios.lua" );
             m_terminal.setCursorPos( 0, 1 );
             m_terminal.write( "ComputerCraft may be installed incorrectly" );
 
@@ -788,7 +792,7 @@ public class Computer
             m_machine = null;
         }
     }
-                                
+
     private void startComputer()
     {
         synchronized( this )
@@ -801,10 +805,11 @@ public class Computer
             m_externalOutputChanged = true;
             m_ticksSinceStart = 0;
         }
-        
+
         // Turn the computercraft on
         final Computer computer = this;
-        ComputerThread.queueTask( new ITask() {
+        ComputerThread.queueTask( new ITask()
+        {
             @Override
             public Computer getOwner()
             {
@@ -820,14 +825,14 @@ public class Computer
                     {
                         return;
                     }
-                    
-                    // Init terminal                                        
+
+                    // Init terminal
                     synchronized( m_terminal )
                     {
                         m_terminal.reset();
                     }
-                    
-                    // Init filesystem                    
+
+                    // Init filesystem
                     if( !initFileSystem() )
                     {
                         // Init failed, so shutdown
@@ -840,7 +845,7 @@ public class Computer
                         stopComputer( false );
                         return;
                     }
-                        
+
                     // Init lua
                     initLua();
                     if( m_machine == null )
@@ -855,7 +860,7 @@ public class Computer
                         stopComputer( false );
                         return;
                     }
-                    
+
                     // Start a new state
                     m_state = State.Running;
                     m_externalOutputChanged = true;
@@ -867,7 +872,7 @@ public class Computer
             }
         }, computer );
     }
-        
+
     private void stopComputer( final boolean reboot )
     {
         synchronized( this )
@@ -879,10 +884,11 @@ public class Computer
             m_state = State.Stopping;
             m_externalOutputChanged = true;
         }
-        
+
         // Turn the computercraft off
         final Computer computer = this;
-        ComputerThread.queueTask( new ITask() {
+        ComputerThread.queueTask( new ITask()
+        {
             @Override
             public Computer getOwner()
             {
@@ -893,12 +899,12 @@ public class Computer
             public void execute()
             {
                 synchronized( this )
-                {        
+                {
                     if( m_state != State.Stopping )
                     {
                         return;
                     }
-                                
+
                     // Shutdown our APIs
                     synchronized( m_apis )
                     {
@@ -907,14 +913,14 @@ public class Computer
                             api.shutdown();
                         }
                     }
-                                    
+
                     // Shutdown terminal and filesystem
                     if( m_fileSystem != null )
                     {
                         m_fileSystem.unload();
                         m_fileSystem = null;
                     }
-                    
+
                     if( m_machine != null )
                     {
                         synchronized( m_terminal )
@@ -928,11 +934,11 @@ public class Computer
                             m_machine = null;
                         }
                     }
-                                                    
+
                     // Reset redstone output
                     synchronized( m_internalOutput )
                     {
-                        for( int i=0; i<6; ++i )
+                        for( int i = 0; i < 6; i++ )
                         {
                             m_internalOutput[i] = 0;
                             m_internalBundledOutput[i] = 0;
@@ -950,7 +956,7 @@ public class Computer
             }
         }, computer );
     }
-    
+
     public void queueEvent( final String event, final Object[] arguments )
     {
         synchronized( this )
@@ -960,9 +966,10 @@ public class Computer
                 return;
             }
         }
-            
+
         final Computer computer = this;
-        ITask task = new ITask() {
+        ITask task = new ITask()
+        {
             @Override
             public Computer getOwner()
             {
@@ -979,7 +986,7 @@ public class Computer
                         return;
                     }
                 }
-                
+
                 synchronized( m_machine )
                 {
                     m_machine.handleEvent( event, arguments );
@@ -995,7 +1002,7 @@ public class Computer
                 }
             }
         };
-        
+
         ComputerThread.queueTask( task, computer );
     }
 }

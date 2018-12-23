@@ -63,7 +63,7 @@ public abstract class ItemTurtleBase extends ItemComputerBase implements ITurtle
             TileEntity tile = world.getTileEntity( pos );
             if( tile != null && tile instanceof ITurtleTile )
             {
-                ITurtleTile turtle = (ITurtleTile)tile;
+                ITurtleTile turtle = (ITurtleTile) tile;
                 setupTurtleAfterPlacement( stack, turtle );
             }
             return true;
@@ -108,7 +108,7 @@ public abstract class ItemTurtleBase extends ItemComputerBase implements ITurtle
         ResourceLocation overlay = getOverlay( stack );
         if( overlay != null )
         {
-            ((TurtleBrain)turtle.getAccess()).setOverlay( overlay );
+            ((TurtleBrain) turtle.getAccess()).setOverlay( overlay );
         }
     }
 
@@ -180,7 +180,7 @@ public abstract class ItemTurtleBase extends ItemComputerBase implements ITurtle
             getFuelLevel( stack ), getOverlay( stack )
         );
     }
-    
+
     @Override
     public ItemStack setColour( ItemStack stack, int colour )
     {

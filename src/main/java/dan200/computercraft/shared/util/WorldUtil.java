@@ -6,12 +6,10 @@
 
 package dan200.computercraft.shared.util;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -54,16 +52,16 @@ public class WorldUtil
         }
 
         // Check for entities
-        float xStretch = Math.abs(vecDir.x) > 0.25f ? 0.0f : 1.0f;
-        float yStretch = Math.abs(vecDir.y) > 0.25f ? 0.0f : 1.0f;
-        float zStretch = Math.abs(vecDir.z) > 0.25f ? 0.0f : 1.0f;
+        float xStretch = Math.abs( vecDir.x ) > 0.25f ? 0.0f : 1.0f;
+        float yStretch = Math.abs( vecDir.y ) > 0.25f ? 0.0f : 1.0f;
+        float zStretch = Math.abs( vecDir.z ) > 0.25f ? 0.0f : 1.0f;
         AxisAlignedBB bigBox = new AxisAlignedBB(
-            Math.min(vecStart.x, vecEnd.x) - 0.375f * xStretch,
-            Math.min(vecStart.y, vecEnd.y) - 0.375f * yStretch,
-            Math.min(vecStart.z, vecEnd.z) - 0.375f * zStretch,
-            Math.max(vecStart.x, vecEnd.x) + 0.375f * xStretch,
-            Math.max(vecStart.y, vecEnd.y) + 0.375f * yStretch,
-            Math.max(vecStart.z, vecEnd.z) + 0.375f * zStretch
+            Math.min( vecStart.x, vecEnd.x ) - 0.375f * xStretch,
+            Math.min( vecStart.y, vecEnd.y ) - 0.375f * yStretch,
+            Math.min( vecStart.z, vecEnd.z ) - 0.375f * zStretch,
+            Math.max( vecStart.x, vecEnd.x ) + 0.375f * xStretch,
+            Math.max( vecStart.y, vecEnd.y ) + 0.375f * yStretch,
+            Math.max( vecStart.z, vecEnd.z ) + 0.375f * zStretch
         );
 
         Entity closest = null;
@@ -124,14 +122,16 @@ public class WorldUtil
     {
         return new Vec3d( entity.posX, entity.posY + entity.getEyeHeight(), entity.posZ );
     }
-    
-    public static Vec3d getRayEnd( EntityPlayer player) {
-        double reach = player.getEntityAttribute(EntityPlayer.REACH_DISTANCE).getAttributeValue();
+
+    public static Vec3d getRayEnd( EntityPlayer player )
+    {
+        double reach = player.getEntityAttribute( EntityPlayer.REACH_DISTANCE ).getAttributeValue();
         Vec3d look = player.getLookVec();
         return getRayStart( player ).add( look.x * reach, look.y * reach, look.z * reach );
     }
-    
-    public static boolean isVecInsideInclusive(AxisAlignedBB bb , Vec3d vec) {
+
+    public static boolean isVecInsideInclusive( AxisAlignedBB bb, Vec3d vec )
+    {
         return vec.x >= bb.minX && vec.x <= bb.maxX && vec.y >= bb.minY && vec.y <= bb.maxY && vec.z >= bb.minZ && vec.z <= bb.maxZ;
     }
 

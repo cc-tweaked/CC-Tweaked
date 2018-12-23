@@ -57,7 +57,7 @@ public class ItemPeripheral extends ItemPeripheralBase
             }
             case Speaker:
             {
-                stack = new ItemStack(this, quantity, 5);
+                stack = new ItemStack( this, quantity, 5 );
                 break;
             }
 
@@ -83,7 +83,7 @@ public class ItemPeripheral extends ItemPeripheralBase
         list.add( PeripheralItemFactory.create( PeripheralType.Monitor, null, 1 ) );
         list.add( PeripheralItemFactory.create( PeripheralType.AdvancedMonitor, null, 1 ) );
         list.add( PeripheralItemFactory.create( PeripheralType.WirelessModem, null, 1 ) );
-        list.add( PeripheralItemFactory.create( PeripheralType.Speaker, null, 1) );
+        list.add( PeripheralItemFactory.create( PeripheralType.Speaker, null, 1 ) );
     }
 
     @Override

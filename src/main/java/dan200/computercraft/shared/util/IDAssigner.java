@@ -9,17 +9,17 @@ public class IDAssigner
     private IDAssigner()
     {
     }
-    
+
     public static int getNextIDFromDirectory( File dir )
     {
         return getNextID( dir, true );
     }
-    
+
     public static int getNextIDFromFile( File file )
     {
         return getNextID( file, false );
     }
-    
+
     private static int getNextID( File location, boolean directory )
     {
         // Determine where to locate ID file
@@ -34,7 +34,7 @@ public class IDAssigner
             location.getParentFile().mkdirs();
             lastidFile = location;
         }
-        
+
         // Try to determine the id
         int id = 0;
         if( !lastidFile.exists() )
@@ -94,7 +94,7 @@ public class IDAssigner
                 return 0;
             }
         }
-        
+
         // Write the lastID file out with the new value
         try
         {
@@ -107,7 +107,7 @@ public class IDAssigner
         {
             ComputerCraft.log.error( "An error occured while trying to create the computer folder. Please check you have relevant permissions.", e );
         }
-        
+
         return id;
     }
 }

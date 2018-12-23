@@ -26,14 +26,14 @@ public class DiskRecipe extends IForgeRegistryEntry.Impl<IRecipe> implements IRe
 {
     private final Ingredient paper = new OreIngredient( "paper" );
     private final Ingredient redstone = new OreIngredient( "dustRedstone" );
-    
+
     @Override
     public boolean matches( @Nonnull InventoryCrafting inv, @Nonnull World world )
     {
         boolean paperFound = false;
         boolean redstoneFound = false;
 
-        for( int i = 0; i < inv.getSizeInventory(); ++i )
+        for( int i = 0; i < inv.getSizeInventory(); i++ )
         {
             ItemStack stack = inv.getStackInSlot( i );
 
@@ -65,7 +65,7 @@ public class DiskRecipe extends IForgeRegistryEntry.Impl<IRecipe> implements IRe
     {
         ColourTracker tracker = new ColourTracker();
 
-        for( int i = 0; i < inv.getSizeInventory(); ++i )
+        for( int i = 0; i < inv.getSizeInventory(); i++ )
         {
             ItemStack stack = inv.getStackInSlot( i );
 
@@ -76,7 +76,7 @@ public class DiskRecipe extends IForgeRegistryEntry.Impl<IRecipe> implements IRe
                 int index = ColourUtils.getStackColour( stack );
                 if( index < 0 ) continue;
 
-                Colour colour = Colour.values()[ index ];
+                Colour colour = Colour.values()[index];
                 tracker.addColour( colour.getR(), colour.getG(), colour.getB() );
             }
         }
@@ -108,7 +108,7 @@ public class DiskRecipe extends IForgeRegistryEntry.Impl<IRecipe> implements IRe
     public NonNullList<ItemStack> getRemainingItems( @Nonnull InventoryCrafting inventoryCrafting )
     {
         NonNullList<ItemStack> results = NonNullList.withSize( inventoryCrafting.getSizeInventory(), ItemStack.EMPTY );
-        for( int i = 0; i < results.size(); ++i )
+        for( int i = 0; i < results.size(); i++ )
         {
             ItemStack stack = inventoryCrafting.getStackInSlot( i );
             results.set( i, ForgeHooks.getContainerItem( stack ) );

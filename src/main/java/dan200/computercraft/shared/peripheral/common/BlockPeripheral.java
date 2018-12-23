@@ -54,7 +54,7 @@ public class BlockPeripheral extends BlockPeripheralBase
 
     @Override
     @Nonnull
-    @SideOnly( Side.CLIENT)
+    @SideOnly( Side.CLIENT )
     public BlockRenderLayer getRenderLayer()
     {
         return BlockRenderLayer.CUTOUT;
@@ -108,9 +108,9 @@ public class BlockPeripheral extends BlockPeripheralBase
         {
             state = state.withProperty( Properties.VARIANT, BlockPeripheralVariant.AdvancedMonitor );
         }
-        else if (meta == 13)
+        else if( meta == 13 )
         {
-            state = state.withProperty( Properties.VARIANT, BlockPeripheralVariant.Speaker);
+            state = state.withProperty( Properties.VARIANT, BlockPeripheralVariant.Speaker );
         }
         return state;
     }
@@ -125,7 +125,8 @@ public class BlockPeripheral extends BlockPeripheralBase
             case DiskDrive:
             {
                 EnumFacing dir = state.getValue( Properties.FACING );
-                if( dir.getAxis() == EnumFacing.Axis.Y ) {
+                if( dir.getAxis() == EnumFacing.Axis.Y )
+                {
                     dir = EnumFacing.NORTH;
                 }
                 meta = dir.getIndex();
@@ -190,7 +191,7 @@ public class BlockPeripheral extends BlockPeripheralBase
         TileEntity tile = world.getTileEntity( pos );
         if( tile != null && tile instanceof TilePeripheralBase )
         {
-            TilePeripheralBase peripheral = (TilePeripheralBase)tile;
+            TilePeripheralBase peripheral = (TilePeripheralBase) tile;
             anim = peripheral.getAnim();
             dir = peripheral.getDirection();
         }
@@ -347,7 +348,7 @@ public class BlockPeripheral extends BlockPeripheralBase
                 int xIndex, yIndex, width, height;
                 if( tile != null && tile instanceof TileMonitor )
                 {
-                    TileMonitor monitor = (TileMonitor)tile;
+                    TileMonitor monitor = (TileMonitor) tile;
                     dir = monitor.getDirection();
                     front = monitor.getFront();
                     xIndex = monitor.getXIndex();
@@ -446,7 +447,7 @@ public class BlockPeripheral extends BlockPeripheralBase
 
                 state = state.withProperty( Properties.FACING, dir );
                 state = state.withProperty( Properties.VARIANT,
-                    BlockPeripheralVariant.values()[ baseVariant.ordinal() + subType ]
+                    BlockPeripheralVariant.values()[baseVariant.ordinal() + subType]
                 );
                 break;
             }
@@ -516,7 +517,7 @@ public class BlockPeripheral extends BlockPeripheralBase
     @Override
     public PeripheralType getPeripheralType( int damage )
     {
-        return ((ItemPeripheral)Item.getItemFromBlock(this)).getPeripheralType( damage );
+        return ((ItemPeripheral) Item.getItemFromBlock( this )).getPeripheralType( damage );
     }
 
     @Override
@@ -576,7 +577,7 @@ public class BlockPeripheral extends BlockPeripheralBase
                 setDirection( world, pos, dir );
                 if( stack.hasDisplayName() && tile != null && tile instanceof TilePeripheralBase )
                 {
-                    TilePeripheralBase peripheral = (TilePeripheralBase)tile;
+                    TilePeripheralBase peripheral = (TilePeripheralBase) tile;
                     peripheral.setLabel( stack.getDisplayName() );
                 }
                 break;
@@ -596,7 +597,7 @@ public class BlockPeripheral extends BlockPeripheralBase
                         direction += 6;
                     }
 
-                    TileMonitor monitor = (TileMonitor)tile;
+                    TileMonitor monitor = (TileMonitor) tile;
                     if( world.isRemote )
                     {
                         monitor.setDir( direction );
@@ -648,9 +649,9 @@ public class BlockPeripheral extends BlockPeripheralBase
 
     @Override
     @Deprecated
-    public boolean causesSuffocation(IBlockState state)
+    public boolean causesSuffocation( IBlockState state )
     {
-        // This normally uses the default state 
+        // This normally uses the default state
         return material.blocksMovement() && state.isOpaqueCube();
     }
 

@@ -37,7 +37,7 @@ public class EncodedReadableHandle extends HandleGeneric
     @Nonnull
     @Override
     public String[] getMethodNames()
-    {   
+    {
         return new String[] {
             "readLine",
             "readAll",
@@ -108,14 +108,14 @@ public class EncodedReadableHandle extends HandleGeneric
                     int count = optInt( args, 0, 1 );
                     if( count < 0 )
                     {
-                        // Whilst this may seem absurd to allow reading 0 characters, PUC Lua it so 
+                        // Whilst this may seem absurd to allow reading 0 characters, PUC Lua it so
                         // it seems best to remain somewhat consistent.
                         throw new LuaException( "Cannot read a negative number of characters" );
                     }
                     else if( count <= BUFFER_SIZE )
                     {
                         // If we've got a small count, then allocate that and read it.
-                        char[] chars = new char[ count ];
+                        char[] chars = new char[count];
                         int read = m_reader.read( chars );
 
                         return read < 0 ? null : new Object[] { new String( chars, 0, read ) };
@@ -123,7 +123,7 @@ public class EncodedReadableHandle extends HandleGeneric
                     else
                     {
                         // If we've got a large count, read in bunches of 8192.
-                        char[] buffer = new char[ BUFFER_SIZE ];
+                        char[] buffer = new char[BUFFER_SIZE];
 
                         // Read the initial set of characters, failing if none are read.
                         int read = m_reader.read( buffer, 0, Math.min( buffer.length, count ) );
@@ -162,7 +162,7 @@ public class EncodedReadableHandle extends HandleGeneric
 
     public static BufferedReader open( ReadableByteChannel channel, Charset charset )
     {
-        // Create a charset decoder with the same properties as StreamDecoder does for 
+        // Create a charset decoder with the same properties as StreamDecoder does for
         // InputStreams: namely, replace everything instead of erroring.
         CharsetDecoder decoder = charset.newDecoder()
             .onMalformedInput( CodingErrorAction.REPLACE )

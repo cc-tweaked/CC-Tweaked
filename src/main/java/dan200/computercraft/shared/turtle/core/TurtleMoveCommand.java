@@ -63,7 +63,7 @@ public class TurtleMoveCommand implements ITurtleCommand
         }
 
         // Check there isn't anything in the way
-        AxisAlignedBB aabb = ((TurtleBrain)turtle).getOwner().getBounds();
+        AxisAlignedBB aabb = ((TurtleBrain) turtle).getOwner().getBounds();
         aabb = aabb.offset(
             newPosition.getX(),
             newPosition.getY(),

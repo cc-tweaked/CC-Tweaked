@@ -39,7 +39,7 @@ public class ItemTurtleNormal extends ItemTurtleBase
             int leftUpgradeLegacyID = leftUpgrade.getLegacyUpgradeID();
             if( leftUpgradeLegacyID >= 0 )
             {
-                nbt.setShort( "leftUpgrade", (short)leftUpgradeLegacyID );
+                nbt.setShort( "leftUpgrade", (short) leftUpgradeLegacyID );
             }
             else
             {
@@ -51,7 +51,7 @@ public class ItemTurtleNormal extends ItemTurtleBase
             int rightUpgradeLegacyID = rightUpgrade.getLegacyUpgradeID();
             if( rightUpgradeLegacyID >= 0 )
             {
-                nbt.setShort( "rightUpgrade", (short)rightUpgradeLegacyID );
+                nbt.setShort( "rightUpgrade", (short) rightUpgradeLegacyID );
             }
             else
             {

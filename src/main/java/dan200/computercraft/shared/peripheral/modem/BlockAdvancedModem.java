@@ -45,7 +45,7 @@ public class BlockAdvancedModem extends BlockPeripheralBase
     @Override
     protected BlockStateContainer createBlockState()
     {
-        return new BlockStateContainer(this, Properties.FACING, Properties.ON );
+        return new BlockStateContainer( this, Properties.FACING, Properties.ON );
     }
 
     @Nonnull

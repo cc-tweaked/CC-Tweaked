@@ -15,21 +15,27 @@ import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
 import java.util.List;
-import java.util.function.Consumer;
 import java.util.function.Function;
 
 public interface ICCTurtleProxy
 {
     void preInit();
+
     void init();
 
     void registerTurtleUpgrade( ITurtleUpgrade upgrade );
+
     ITurtleUpgrade getTurtleUpgrade( String id );
+
     ITurtleUpgrade getTurtleUpgrade( int legacyId );
+
     ITurtleUpgrade getTurtleUpgrade( @Nonnull ItemStack item );
+
     void addAllUpgradedTurtles( NonNullList<ItemStack> list );
 
     void setDropConsumer( Entity entity, Function<ItemStack, ItemStack> consumer );
+
     void setDropConsumer( World world, BlockPos pos, Function<ItemStack, ItemStack> consumer );
+
     List<ItemStack> clearDropConsumer();
 }

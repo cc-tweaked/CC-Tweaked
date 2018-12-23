@@ -70,11 +70,11 @@ public abstract class HandleGeneric implements ILuaObject
                     throw new LuaException( "bad argument #1 to 'seek' (invalid option '" + whence + "'" );
             }
 
-            return new Object[]{ channel.position() };
+            return new Object[] { channel.position() };
         }
         catch( IllegalArgumentException e )
         {
-            return new Object[]{ false, "Position is negative" };
+            return new Object[] { false, "Position is negative" };
         }
         catch( IOException e )
         {

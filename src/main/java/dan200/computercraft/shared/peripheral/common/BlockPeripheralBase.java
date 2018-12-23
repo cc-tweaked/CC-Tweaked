@@ -12,8 +12,8 @@ import dan200.computercraft.shared.peripheral.PeripheralType;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.item.Item;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
@@ -27,8 +27,11 @@ public abstract class BlockPeripheralBase extends BlockDirectional
     }
 
     protected abstract IBlockState getDefaultBlockState( PeripheralType type, EnumFacing placedSide );
+
     protected abstract PeripheralType getPeripheralType( int damage );
+
     protected abstract PeripheralType getPeripheralType( IBlockState state );
+
     protected abstract TilePeripheralBase createTile( PeripheralType type );
 
     @Override
@@ -40,7 +43,7 @@ public abstract class BlockPeripheralBase extends BlockDirectional
     @Override
     protected final IBlockState getDefaultBlockState( int damage, EnumFacing placedSide )
     {
-        ItemPeripheralBase item = (ItemPeripheralBase)Item.getItemFromBlock( this );
+        ItemPeripheralBase item = (ItemPeripheralBase) Item.getItemFromBlock( this );
         return getDefaultBlockState( item.getPeripheralType( damage ), placedSide );
     }
 

@@ -59,9 +59,12 @@ public class PrinterPeripheral implements IPeripheral
             {
                 // write
                 String text;
-                if( args.length > 0 && args[0] != null ) {
+                if( args.length > 0 && args[0] != null )
+                {
                     text = args[0].toString();
-                } else {
+                }
+                else
+                {
                     text = "";
                 }
 
@@ -136,7 +139,7 @@ public class PrinterPeripheral implements IPeripheral
     {
         if( other instanceof PrinterPeripheral )
         {
-            PrinterPeripheral otherPrinter = (PrinterPeripheral)other;
+            PrinterPeripheral otherPrinter = (PrinterPeripheral) other;
             if( otherPrinter.m_printer == this.m_printer )
             {
                 return true;

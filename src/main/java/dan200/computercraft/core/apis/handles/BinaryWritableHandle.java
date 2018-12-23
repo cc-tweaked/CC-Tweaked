@@ -52,23 +52,23 @@ public class BinaryWritableHandle extends HandleGeneric
                 checkOpen();
                 try
                 {
-                    if( args.length > 0 && args[ 0 ] instanceof Number )
+                    if( args.length > 0 && args[0] instanceof Number )
                     {
-                        int number = ((Number) args[ 0 ]).intValue();
+                        int number = ((Number) args[0]).intValue();
                         single.clear();
                         single.put( (byte) number );
                         single.flip();
 
                         m_writer.write( single );
                     }
-                    else if( args.length > 0 && args[ 0 ] instanceof String )
+                    else if( args.length > 0 && args[0] instanceof String )
                     {
-                        String value = (String) args[ 0 ];
+                        String value = (String) args[0];
                         m_writer.write( ByteBuffer.wrap( StringUtil.encodeString( value ) ) );
                     }
                     else
                     {
-                        throw ArgumentHelper.badArgument( 0, "string or number", args.length > 0 ? args[ 0 ] : null );
+                        throw ArgumentHelper.badArgument( 0, "string or number", args.length > 0 ? args[0] : null );
                     }
                     return null;
                 }

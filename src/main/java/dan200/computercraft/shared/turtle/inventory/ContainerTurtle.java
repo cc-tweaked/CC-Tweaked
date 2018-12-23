@@ -53,12 +53,12 @@ public class ContainerTurtle extends Container
         {
             for( int x = 0; x < 4; x++ )
             {
-                addSlotToContainer( new Slot( m_turtle.getInventory(), x + y * 4, turtleInvStartX + 1 + x * 18, playerInvStartY + 1 + y * 18) );
+                addSlotToContainer( new Slot( m_turtle.getInventory(), x + y * 4, turtleInvStartX + 1 + x * 18, playerInvStartY + 1 + y * 18 ) );
             }
         }
 
         // Player inventory
-        for( int y = 0; y < 3; y++)
+        for( int y = 0; y < 3; y++ )
         {
             for( int x = 0; x < 9; x++ )
             {
@@ -69,7 +69,7 @@ public class ContainerTurtle extends Container
         // Player hotbar
         for( int x = 0; x < 9; x++ )
         {
-            addSlotToContainer( new Slot( playerInventory, x, 8 + x * 18, playerInvStartY + 3 * 18 + 5  ) );
+            addSlotToContainer( new Slot( playerInventory, x, 8 + x * 18, playerInvStartY + 3 * 18 + 5 ) );
         }
     }
 
@@ -88,25 +88,25 @@ public class ContainerTurtle extends Container
     {
         return m_selectedSlot;
     }
-    
+
     private void sendStateToPlayer( IContainerListener icrafting )
     {
         int selectedSlot = m_turtle.getSelectedSlot();
         icrafting.sendWindowProperty( this, PROGRESS_ID_SELECTED_SLOT, selectedSlot );
     }
-                        
+
     @Override
     public void addListener( IContainerListener crafting )
     {
         super.addListener( crafting );
         sendStateToPlayer( crafting );
     }
-    
+
     @Override
     public void detectAndSendChanges()
     {
         super.detectAndSendChanges();
-        
+
         int selectedSlot = m_turtle.getSelectedSlot();
         for( IContainerListener listener : listeners )
         {
@@ -117,11 +117,11 @@ public class ContainerTurtle extends Container
         }
         m_selectedSlot = selectedSlot;
     }
-    
+
     @Override
     public void updateProgressBar( int id, int value )
     {
-        super.updateProgressBar( id, value);
+        super.updateProgressBar( id, value );
         switch( id )
         {
             case PROGRESS_ID_SELECTED_SLOT:
@@ -131,11 +131,11 @@ public class ContainerTurtle extends Container
             }
         }
     }
-    
+
     @Override
     public boolean canInteractWith( @Nonnull EntityPlayer player )
     {
-        TileTurtle turtle = ((TurtleBrain)m_turtle).getOwner();
+        TileTurtle turtle = ((TurtleBrain) m_turtle).getOwner();
         if( turtle != null )
         {
             return turtle.isUsableByPlayer( player );

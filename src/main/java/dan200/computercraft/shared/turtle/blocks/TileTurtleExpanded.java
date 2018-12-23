@@ -12,6 +12,6 @@ public class TileTurtleExpanded extends TileTurtle
 {
     public TileTurtleExpanded()
     {
-        super( ComputerFamily.Normal);
+        super( ComputerFamily.Normal );
     }
 }

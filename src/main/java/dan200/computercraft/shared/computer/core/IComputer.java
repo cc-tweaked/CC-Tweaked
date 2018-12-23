@@ -11,15 +11,22 @@ import dan200.computercraft.shared.common.ITerminal;
 public interface IComputer extends ITerminal
 {
     int getInstanceID();
+
     int getID();
+
     String getLabel();
 
     boolean isOn();
+
     boolean isCursorDisplayed();
+
     void turnOn();
+
     void shutdown();
+
     void reboot();
 
     void queueEvent( String event );
+
     void queueEvent( String event, Object[] arguments );
 }

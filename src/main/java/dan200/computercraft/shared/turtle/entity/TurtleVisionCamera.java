@@ -53,7 +53,7 @@ public class TurtleVisionCamera extends EntityLivingBase
     @Override
     public void onUpdate()
     {
-        m_turtle = ((TurtleBrain)m_turtle).getFutureSelf();
+        m_turtle = ((TurtleBrain) m_turtle).getFutureSelf();
         applyPos();
     }
 

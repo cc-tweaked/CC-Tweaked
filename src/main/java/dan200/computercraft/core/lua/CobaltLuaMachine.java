@@ -145,7 +145,7 @@ public class CobaltLuaMachine implements ILuaMachine
         if( ComputerCraft.debug_enable ) m_globals.load( state, new DebugLib() );
 
         // Register custom load/loadstring provider which automatically adds prefixes.
-        LibFunction.bind( state, m_globals, PrefixLoader.class, new String[]{ "load", "loadstring" } );
+        LibFunction.bind( state, m_globals, PrefixLoader.class, new String[] { "load", "loadstring" } );
 
         // Remove globals we don't want to expose
         // m_globals.rawset( "collectgarbage", Constants.NIL );
@@ -296,13 +296,13 @@ public class CobaltLuaMachine implements ILuaMachine
     {
         LuaTable table = new LuaTable();
         String[] methods = object.getMethodNames();
-        for( int i = 0; i < methods.length; ++i )
+        for( int i = 0; i < methods.length; i++ )
         {
-            if( methods[ i ] != null )
+            if( methods[i] != null )
             {
                 final int method = i;
                 final ILuaObject apiObject = object;
-                final String methodName = methods[ i ];
+                final String methodName = methods[i];
                 table.rawset( methodName, new VarArgFunction()
                 {
                     @Override
@@ -319,7 +319,7 @@ public class CobaltLuaMachine implements ILuaMachine
                                 public Object[] pullEvent( String filter ) throws LuaException, InterruptedException
                                 {
                                     Object[] results = pullEventRaw( filter );
-                                    if( results.length >= 1 && results[ 0 ].equals( "terminate" ) )
+                                    if( results.length >= 1 && results[0].equals( "terminate" ) )
                                     {
                                         throw new LuaException( "Terminated", 0 );
                                     }
@@ -373,9 +373,9 @@ public class CobaltLuaMachine implements ILuaMachine
                                                 Object[] results = task.execute();
                                                 if( results != null )
                                                 {
-                                                    Object[] eventArguments = new Object[ results.length + 2 ];
-                                                    eventArguments[ 0 ] = taskID;
-                                                    eventArguments[ 1 ] = true;
+                                                    Object[] eventArguments = new Object[results.length + 2];
+                                                    eventArguments[0] = taskID;
+                                                    eventArguments[1] = true;
                                                     System.arraycopy( results, 0, eventArguments, 2, results.length );
                                                     m_computer.queueEvent( "task_complete", eventArguments );
                                                 }
@@ -422,12 +422,12 @@ public class CobaltLuaMachine implements ILuaMachine
                                     while( true )
                                     {
                                         Object[] response = pullEvent( "task_complete" );
-                                        if( response.length >= 3 && response[ 1 ] instanceof Number && response[ 2 ] instanceof Boolean )
+                                        if( response.length >= 3 && response[1] instanceof Number && response[2] instanceof Boolean )
                                         {
-                                            if( ((Number) response[ 1 ]).intValue() == taskID )
+                                            if( ((Number) response[1]).intValue() == taskID )
                                             {
-                                                Object[] returnValues = new Object[ response.length - 3 ];
-                                                if( (Boolean) response[ 2 ] )
+                                                Object[] returnValues = new Object[response.length - 3];
+                                                if( (Boolean) response[2] )
                                                 {
                                                     // Extract the return values from the event and return them
                                                     System.arraycopy( response, 3, returnValues, 0, returnValues.length );
@@ -436,9 +436,9 @@ public class CobaltLuaMachine implements ILuaMachine
                                                 else
                                                 {
                                                     // Extract the error message from the event and raise it
-                                                    if( response.length >= 4 && response[ 3 ] instanceof String )
+                                                    if( response.length >= 4 && response[3] instanceof String )
                                                     {
-                                                        throw new LuaException( (String) response[ 3 ] );
+                                                        throw new LuaException( (String) response[3] );
                                                     }
                                                     else
                                                     {
@@ -545,11 +545,11 @@ public class CobaltLuaMachine implements ILuaMachine
             return Constants.NONE;
         }
 
-        LuaValue[] values = new LuaValue[ objects.length ];
-        for( int i = 0; i < values.length; ++i )
+        LuaValue[] values = new LuaValue[objects.length];
+        for( int i = 0; i < values.length; i++ )
         {
-            Object object = objects[ i ];
-            values[ i ] = toValue( object, null );
+            Object object = objects[i];
+            values[i] = toValue( object, null );
         }
         return varargsOf( values );
     }
@@ -632,12 +632,12 @@ public class CobaltLuaMachine implements ILuaMachine
     private static Object[] toObjects( Varargs values, int startIdx )
     {
         int count = values.count();
-        Object[] objects = new Object[ count - startIdx + 1 ];
-        for( int n = startIdx; n <= count; ++n )
+        Object[] objects = new Object[count - startIdx + 1];
+        for( int n = startIdx; n <= count; n++ )
         {
             int i = n - startIdx;
             LuaValue value = values.arg( n );
-            objects[ i ] = toObject( value, null );
+            objects[i] = toObject( value, null );
         }
         return objects;
     }
@@ -650,7 +650,7 @@ public class CobaltLuaMachine implements ILuaMachine
         @Override
         public Varargs invoke( LuaState state, Varargs args ) throws LuaError
         {
-            switch (opcode)
+            switch( opcode )
             {
                 case 0: // "load", // ( func [,chunkname] ) -> chunk | nil, msg
                 {
@@ -700,7 +700,8 @@ public class CobaltLuaMachine implements ILuaMachine
                 try
                 {
                     s = OperationHelper.call( state, func );
-                } catch (LuaError e)
+                }
+                catch( LuaError e )
                 {
                     throw new IOException( e );
                 }
@@ -713,7 +714,8 @@ public class CobaltLuaMachine implements ILuaMachine
                 try
                 {
                     ls = s.strvalue();
-                } catch (LuaError e)
+                }
+                catch( LuaError e )
                 {
                     throw new IOException( e );
                 }

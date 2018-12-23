@@ -110,7 +110,7 @@ public class HTTPRequest implements Runnable
         {
             // Queue the failure event if not.
             String error = e.getMessage();
-            m_environment.queueEvent( "http_failure", new Object[]{ m_urlString, error == null ? "Could not connect" : error, null } );
+            m_environment.queueEvent( "http_failure", new Object[] { m_urlString, error == null ? "Could not connect" : error, null } );
             return;
         }
 
@@ -214,17 +214,17 @@ public class HTTPRequest implements Runnable
             // Queue the appropriate event.
             if( responseSuccess )
             {
-                m_environment.queueEvent( "http_success", new Object[]{ m_urlString, stream } );
+                m_environment.queueEvent( "http_success", new Object[] { m_urlString, stream } );
             }
             else
             {
-                m_environment.queueEvent( "http_failure", new Object[]{ m_urlString, "Could not connect", stream } );
+                m_environment.queueEvent( "http_failure", new Object[] { m_urlString, "Could not connect", stream } );
             }
         }
         catch( IOException e )
         {
             // There was an error
-            m_environment.queueEvent( "http_failure", new Object[]{ m_urlString, "Could not connect", null } );
+            m_environment.queueEvent( "http_failure", new Object[] { m_urlString, "Could not connect", null } );
         }
     }
 
@@ -258,12 +258,12 @@ public class HTTPRequest implements Runnable
                     case 0:
                     {
                         // getResponseCode
-                        return new Object[]{ responseCode };
+                        return new Object[] { responseCode };
                     }
                     case 1:
                     {
                         // getResponseHeaders
-                        return new Object[]{ responseHeaders };
+                        return new Object[] { responseHeaders };
                     }
                     default:
                     {

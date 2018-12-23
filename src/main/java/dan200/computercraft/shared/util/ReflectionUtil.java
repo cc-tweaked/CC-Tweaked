@@ -158,7 +158,7 @@ public class ReflectionUtil
         }
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings( "unchecked" )
     public static <T> T safeInvoke( Method method, Object object, Object[] arguments, Class<T> resultClass )
     {
         if( method != null )
@@ -171,7 +171,7 @@ public class ReflectionUtil
                     Object result = method.invoke( object, arguments );
                     if( result != null && resultClass.isInstance( result ) )
                     {
-                        return (T)result;
+                        return (T) result;
                     }
                 }
             }
@@ -183,7 +183,7 @@ public class ReflectionUtil
         return null;
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings( "unchecked" )
     public static <T> T safeGet( Field field, Object object, Class<T> resultClass )
     {
         if( field != null )
@@ -196,7 +196,7 @@ public class ReflectionUtil
                     Object result = field.get( object );
                     if( result != null && resultClass.isInstance( result ) )
                     {
-                        return (T)result;
+                        return (T) result;
                     }
                 }
             }

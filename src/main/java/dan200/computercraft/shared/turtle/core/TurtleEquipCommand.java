@@ -42,7 +42,7 @@ public class TurtleEquipCommand implements ITurtleCommand
         {
             newUpgradeStack = selectedStack.copy();
             newUpgrade = ComputerCraft.getTurtleUpgrade( newUpgradeStack );
-            if( newUpgrade == null || !CCTurtleProxyCommon.isUpgradeSuitableForFamily( ((TurtleBrain)turtle).getFamily(), newUpgrade ) )
+            if( newUpgrade == null || !CCTurtleProxyCommon.isUpgradeSuitableForFamily( ((TurtleBrain) turtle).getFamily(), newUpgrade ) )
             {
                 return TurtleCommandResult.failure( "Not a valid upgrade" );
             }

@@ -48,7 +48,7 @@ public class TurtleAPI implements ILuaAPI
             "turtle"
         };
     }
-       
+
     @Nonnull
     @Override
     public String[] getMethodNames()
@@ -98,7 +98,7 @@ public class TurtleAPI implements ILuaAPI
             "getItemDetail",
         };
     }
-    
+
     private Object[] tryCommand( ILuaContext context, ITurtleCommand command ) throws LuaException, InterruptedException
     {
         return m_turtle.executeCommand( context, command );
@@ -113,13 +113,13 @@ public class TurtleAPI implements ILuaAPI
 
     private int parseOptionalSlotNumber( Object[] arguments, int index, int fallback ) throws LuaException
     {
-        if( index >= arguments.length || arguments[ index ] == null ) return fallback;
+        if( index >= arguments.length || arguments[index] == null ) return fallback;
 
         int slot = getInt( arguments, index );
         if( slot < 1 || slot > 16 ) throw new LuaException( "Slot number " + slot + " out of range" );
         return slot - 1;
     }
-    
+
     private int parseCount( Object[] arguments, int index ) throws LuaException
     {
         int count = optInt( arguments, index, 64 );

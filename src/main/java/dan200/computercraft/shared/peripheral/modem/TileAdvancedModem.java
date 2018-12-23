@@ -49,7 +49,7 @@ public class TileAdvancedModem extends TileModemBase
         {
             if( other instanceof Peripheral )
             {
-                Peripheral otherModem = (Peripheral)other;
+                Peripheral otherModem = (Peripheral) other;
                 return otherModem.m_entity == m_entity;
             }
             return false;

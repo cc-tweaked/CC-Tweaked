@@ -219,7 +219,8 @@ public class ComputerCraft
         public static PocketSpeaker pocketSpeaker;
     }
 
-    public static class Config {
+    public static class Config
+    {
         public static Configuration config;
 
         public static Property http_enable;
@@ -379,7 +380,7 @@ public class ComputerCraft
         Config.turtlesNeedFuel = Config.config.get( Configuration.CATEGORY_GENERAL, "turtlesNeedFuel", turtlesNeedFuel );
         Config.turtlesNeedFuel.setComment( "Set whether Turtles require fuel to move" );
 
-        Config.maximumFilesOpen = Config.config.get(Configuration.CATEGORY_GENERAL, "maximumFilesOpen", maximumFilesOpen);
+        Config.maximumFilesOpen = Config.config.get( Configuration.CATEGORY_GENERAL, "maximumFilesOpen", maximumFilesOpen );
         Config.maximumFilesOpen.setComment( "Set how many files a computer can have open at the same time. Set to 0 for unlimited." );
 
         Config.turtleFuelLimit = Config.config.get( Configuration.CATEGORY_GENERAL, "turtleFuelLimit", turtleFuelLimit );
@@ -394,13 +395,13 @@ public class ComputerCraft
         Config.turtlesCanPush = Config.config.get( Configuration.CATEGORY_GENERAL, "turtlesCanPush", turtlesCanPush );
         Config.turtlesCanPush.setComment( "If set to true, Turtles will push entities out of the way instead of stopping if there is space to do so" );
 
-        Config.turtleDisabledActions = Config.config.get( Configuration.CATEGORY_GENERAL, "turtle_disabled_actions", new String[ 0 ] );
+        Config.turtleDisabledActions = Config.config.get( Configuration.CATEGORY_GENERAL, "turtle_disabled_actions", new String[0] );
         Config.turtleDisabledActions.setComment( "A list of turtle actions which are disabled." );
 
         Config.maxNotesPerTick = Config.config.get( Configuration.CATEGORY_GENERAL, "maxNotesPerTick", maxNotesPerTick );
         Config.maxNotesPerTick.setComment( "Maximum amount of notes a speaker can play at once" );
 
-        for (Property property : Config.config.getCategory( Configuration.CATEGORY_GENERAL ).getOrderedValues())
+        for( Property property : Config.config.getCategory( Configuration.CATEGORY_GENERAL ).getOrderedValues() )
         {
             property.setLanguageKey( "gui.computercraft:config." + CaseFormat.LOWER_CAMEL.to( CaseFormat.LOWER_UNDERSCORE, property.getName() ) );
         }
@@ -408,7 +409,8 @@ public class ComputerCraft
         syncConfig();
     }
 
-    public static void syncConfig() {
+    public static void syncConfig()
+    {
 
         http_enable = Config.http_enable.getBoolean();
         http_websocket_enable = Config.http_websocket_enable.getBoolean();
@@ -451,7 +453,7 @@ public class ComputerCraft
             }
         }
 
-        maxNotesPerTick = Math.max(1, Config.maxNotesPerTick.getInt());
+        maxNotesPerTick = Math.max( 1, Config.maxNotesPerTick.getInt() );
 
         Config.config.save();
     }
@@ -580,7 +582,7 @@ public class ComputerCraft
 
     public static File getBaseDir()
     {
-        return FMLCommonHandler.instance().getMinecraftServerInstance().getFile(".");
+        return FMLCommonHandler.instance().getMinecraftServerInstance().getFile( "." );
     }
 
     public static File getResourcePackDir()
@@ -602,7 +604,7 @@ public class ComputerCraft
 
     public static void sendToPlayer( EntityPlayer player, ComputerCraftPacket packet )
     {
-        networkEventChannel.sendTo( encode( packet ), (EntityPlayerMP)player );
+        networkEventChannel.sendTo( encode( packet ), (EntityPlayerMP) player );
     }
 
     public static void sendToAllPlayers( ComputerCraftPacket packet )
@@ -843,7 +845,8 @@ public class ComputerCraft
         return null;
     }
 
-    public static IPocketUpgrade getPocketUpgrade(String id) {
+    public static IPocketUpgrade getPocketUpgrade( String id )
+    {
         return pocketUpgrades.get( id );
     }
 
@@ -851,7 +854,7 @@ public class ComputerCraft
     {
         if( stack.isEmpty() ) return null;
 
-        for (IPocketUpgrade upgrade : pocketUpgrades.values())
+        for( IPocketUpgrade upgrade : pocketUpgrades.values() )
         {
             ItemStack craftingStack = upgrade.getCraftingItem();
             if( !craftingStack.isEmpty() && InventoryUtil.areItemsStackable( stack, craftingStack ) )
@@ -863,10 +866,13 @@ public class ComputerCraft
         return null;
     }
 
-    public static Iterable<IPocketUpgrade> getVanillaPocketUpgrades() {
+    public static Iterable<IPocketUpgrade> getVanillaPocketUpgrades()
+    {
         List<IPocketUpgrade> upgrades = new ArrayList<>();
-        for(IPocketUpgrade upgrade : pocketUpgrades.values()) {
-            if(upgrade instanceof PocketModem || upgrade instanceof PocketSpeaker) {
+        for( IPocketUpgrade upgrade : pocketUpgrades.values() )
+        {
+            if( upgrade instanceof PocketModem || upgrade instanceof PocketSpeaker )
+            {
                 upgrades.add( upgrade );
             }
         }
@@ -886,7 +892,7 @@ public class ComputerCraft
 
     public static int createUniqueNumberedSaveDir( World world, String parentSubPath )
     {
-        return IDAssigner.getNextIDFromDirectory(new File(getWorldDir(world), parentSubPath));
+        return IDAssigner.getNextIDFromDirectory( new File( getWorldDir( world ), parentSubPath ) );
     }
 
     public static IWritableMount createSaveDirMount( World world, String subPath, long capacity )
@@ -972,7 +978,7 @@ public class ComputerCraft
         // Return the combination of all the mounts found
         if( mounts.size() >= 2 )
         {
-            IMount[] mountArray = new IMount[ mounts.size() ];
+            IMount[] mountArray = new IMount[mounts.size()];
             mounts.toArray( mountArray );
             return new ComboMount( mountArray );
         }
@@ -1078,16 +1084,22 @@ public class ComputerCraft
         }
 
         URL url;
-        try {
+        try
+        {
             url = new URL( path );
-        } catch (MalformedURLException e1) {
+        }
+        catch( MalformedURLException e1 )
+        {
             return null;
         }
 
         File file;
-        try {
+        try
+        {
             file = new File( url.toURI() );
-        } catch(URISyntaxException e) {
+        }
+        catch( URISyntaxException e )
+        {
             file = new File( url.getPath() );
         }
         return file;
@@ -1096,7 +1108,7 @@ public class ComputerCraft
     private static File getDebugCodeDir( Class<?> modClass )
     {
         String path = modClass.getProtectionDomain().getCodeSource().getLocation().getPath();
-        int bangIndex = path.indexOf("!");
+        int bangIndex = path.indexOf( "!" );
         if( bangIndex >= 0 )
         {
             return null;
@@ -1139,7 +1151,7 @@ public class ComputerCraft
         turtleProxy.setDropConsumer( world, pos, consumer );
     }
 
-    public static List<ItemStack> clearDropConsumer( )
+    public static List<ItemStack> clearDropConsumer()
     {
         return turtleProxy.clearDropConsumer();
     }

@@ -33,9 +33,9 @@ public abstract class TileModemBase extends TilePeripheralBase
     {
         m_modem = createPeripheral();
     }
-    
+
     protected abstract ModemPeripheral createPeripheral();
-            
+
     @Override
     public void destroy()
     {
@@ -59,7 +59,7 @@ public abstract class TileModemBase extends TilePeripheralBase
         if( !getWorld().isSideSolid( getPos().offset( dir ), dir.getOpposite() ) )
         {
             // Drop everything and remove block
-            ((BlockGeneric)getBlockType()).dropAllItems( getWorld(), getPos(), false );
+            ((BlockGeneric) getBlockType()).dropAllItems( getWorld(), getPos(), false );
             getWorld().setBlockToAir( getPos() );
         }
     }
@@ -69,7 +69,7 @@ public abstract class TileModemBase extends TilePeripheralBase
     public AxisAlignedBB getBounds()
     {
         int direction = getDirection().ordinal();
-        return direction >= 0 && direction < BOXES.length ? BOXES[ direction ] : Block.FULL_BLOCK_AABB;
+        return direction >= 0 && direction < BOXES.length ? BOXES[direction] : Block.FULL_BLOCK_AABB;
     }
 
     @Override

@@ -49,7 +49,7 @@ public class CommandBlockPeripheral implements IPeripheral
     @Override
     public Object[] callMethod( @Nonnull IComputerAccess computer, @Nonnull ILuaContext context, int method, @Nonnull final Object[] arguments ) throws LuaException, InterruptedException
     {
-        switch (method)
+        switch( method )
         {
             case 0:
             {

@@ -58,7 +58,7 @@ public class BinaryReadableHandle extends HandleGeneric
                 checkOpen();
                 try
                 {
-                    if( args.length > 0 && args[ 0 ] != null )
+                    if( args.length > 0 && args[0] != null )
                     {
                         int count = getInt( args, 0 );
                         if( count < 0 )
@@ -73,7 +73,7 @@ public class BinaryReadableHandle extends HandleGeneric
                         if( count <= BUFFER_SIZE )
                         {
                             ByteBuffer buffer = ByteBuffer.allocate( count );
-                            
+
                             int read = m_reader.read( buffer );
                             if( read < 0 ) return null;
                             return new Object[] { read < count ? Arrays.copyOf( buffer.array(), read ) : buffer.array() };
@@ -92,7 +92,7 @@ public class BinaryReadableHandle extends HandleGeneric
                                 return new Object[] { Arrays.copyOf( buffer.array(), read ) };
                             }
 
-                            // Build up an array of ByteBuffers. Hopefully this means we can perform less allocation 
+                            // Build up an array of ByteBuffers. Hopefully this means we can perform less allocation
                             // than doubling up the buffer each time.
                             List<ByteBuffer> parts = new ArrayList<>( 4 );
                             parts.add( buffer );
@@ -104,7 +104,7 @@ public class BinaryReadableHandle extends HandleGeneric
                             }
 
                             // Now just copy all the bytes across!
-                            byte[] bytes = new byte[ totalRead ];
+                            byte[] bytes = new byte[totalRead];
                             int pos = 0;
                             for( ByteBuffer part : parts )
                             {

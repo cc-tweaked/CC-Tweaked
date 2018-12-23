@@ -11,7 +11,6 @@ import dan200.computercraft.api.pocket.IPocketAccess;
 import dan200.computercraft.api.pocket.IPocketUpgrade;
 import dan200.computercraft.shared.peripheral.PeripheralType;
 import dan200.computercraft.shared.peripheral.common.PeripheralItemFactory;
-import dan200.computercraft.shared.util.Colour;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.item.ItemStack;
@@ -44,7 +43,7 @@ public class PocketSpeaker implements IPocketUpgrade
     @Override
     public ItemStack getCraftingItem()
     {
-        return PeripheralItemFactory.create(PeripheralType.Speaker, null, 1);
+        return PeripheralItemFactory.create( PeripheralType.Speaker, null, 1 );
     }
 
     @Nullable
@@ -57,24 +56,24 @@ public class PocketSpeaker implements IPocketUpgrade
     @Override
     public void update( @Nonnull IPocketAccess access, @Nullable IPeripheral peripheral )
     {
-        if ( peripheral instanceof PocketSpeakerPeripheral )
+        if( peripheral instanceof PocketSpeakerPeripheral )
         {
             Entity entity = access.getEntity();
 
             PocketSpeakerPeripheral speaker = (PocketSpeakerPeripheral) peripheral;
 
-            if ( entity instanceof EntityLivingBase)
+            if( entity instanceof EntityLivingBase )
             {
                 EntityLivingBase player = (EntityLivingBase) entity;
                 speaker.setLocation( entity.getEntityWorld(), player.posX, player.posY + player.getEyeHeight(), player.posZ );
             }
 
-            else if ( entity != null )
+            else if( entity != null )
             {
                 speaker.setLocation( entity.getEntityWorld(), entity.posX, entity.posY, entity.posZ );
             }
             speaker.update();
-            access.setLight( speaker.madeSound(20) ? 0x3320fc : -1 );
+            access.setLight( speaker.madeSound( 20 ) ? 0x3320fc : -1 );
         }
     }
 }

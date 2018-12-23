@@ -107,7 +107,7 @@ public class TurtlePlayer extends FakePlayer
         // Store (or drop) anything else we found
         BlockPos dropPosition = turtle.getPosition();
         EnumFacing dropDirection = turtle.getDirection().getOpposite();
-        for( int i = 0; i < inventory.getSizeInventory(); ++i )
+        for( int i = 0; i < inventory.getSizeInventory(); i++ )
         {
             ItemStack stack = inventory.getStackInSlot( i );
             if( !stack.isEmpty() )

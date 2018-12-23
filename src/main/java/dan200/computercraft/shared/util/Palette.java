@@ -15,7 +15,7 @@ public class Palette
         resetColours();
     }
 
-    public void setColour(int i, double r, double g, double b)
+    public void setColour( int i, double r, double g, double b )
     {
         if( i >= 0 && i < colours.length )
         {
@@ -25,7 +25,7 @@ public class Palette
         }
     }
 
-    public void setColour(int i, Colour colour)
+    public void setColour( int i, Colour colour )
     {
         setColour( i, colour.getR(), colour.getG(), colour.getB() );
     }
@@ -49,7 +49,7 @@ public class Palette
 
     public void resetColours()
     {
-        for(int i = 0; i < Colour.values().length; ++i)
+        for( int i = 0; i < Colour.values().length; i++ )
         {
             resetColour( i );
         }
@@ -57,28 +57,28 @@ public class Palette
 
     public static int encodeRGB8( double[] rgb )
     {
-        int r = (int)( rgb[0] * 255 ) & 0xFF;
-        int g = (int)( rgb[1] * 255 ) & 0xFF;
-        int b = (int)( rgb[2] * 255 ) & 0xFF;
+        int r = (int) (rgb[0] * 255) & 0xFF;
+        int g = (int) (rgb[1] * 255) & 0xFF;
+        int b = (int) (rgb[2] * 255) & 0xFF;
 
-        return ( r << 16 ) | ( g << 8 ) | b;
+        return (r << 16) | (g << 8) | b;
     }
 
     public static double[] decodeRGB8( int rgb )
     {
         return new double[]
-        {
-            (( rgb >> 16 ) & 0xFF) / 255.0f,
-            (( rgb >> 8 ) & 0xFF) / 255.0f,
-            ( rgb & 0xFF ) / 255.0f
-        };
+            {
+                ((rgb >> 16) & 0xFF) / 255.0f,
+                ((rgb >> 8) & 0xFF) / 255.0f,
+                (rgb & 0xFF) / 255.0f
+            };
     }
 
     public NBTTagCompound writeToNBT( NBTTagCompound nbt )
     {
         int[] rgb8 = new int[colours.length];
 
-        for(int i = 0; i < colours.length; ++i)
+        for( int i = 0; i < colours.length; i++ )
         {
             rgb8[i] = encodeRGB8( colours[i] );
         }
@@ -94,7 +94,7 @@ public class Palette
 
         if( rgb8.length != colours.length ) return;
 
-        for(int i = 0; i < colours.length; ++i)
+        for( int i = 0; i < colours.length; i++ )
         {
             colours[i] = decodeRGB8( rgb8[i] );
         }

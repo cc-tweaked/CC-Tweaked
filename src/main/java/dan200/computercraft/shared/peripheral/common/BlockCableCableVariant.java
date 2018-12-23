@@ -10,7 +10,8 @@ public enum BlockCableCableVariant implements IStringSerializable
     ANY( "any" ),
     X_AXIS( "x" ),
     Y_AXIS( "y" ),
-    Z_AXIS( "z" ),;
+    Z_AXIS( "z" ),
+    ;
 
     private final String m_name;
 

@@ -35,7 +35,7 @@ public class PacketHandler
         {
             ComputerCraftPacket packet = new ComputerCraftPacket();
             packet.fromBytes( event.getPacket().payload() );
-            ComputerCraft.handlePacket( packet, ((NetHandlerPlayServer)event.getHandler()).player );
+            ComputerCraft.handlePacket( packet, ((NetHandlerPlayServer) event.getHandler()).player );
         }
         catch( Exception e )
         {

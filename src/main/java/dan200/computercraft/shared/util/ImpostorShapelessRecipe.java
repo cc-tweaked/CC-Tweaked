@@ -36,7 +36,7 @@ public class ImpostorShapelessRecipe extends ShapelessRecipes
     private static NonNullList<Ingredient> convert( ItemStack[] items )
     {
         NonNullList<Ingredient> ingredients = NonNullList.withSize( items.length, Ingredient.EMPTY );
-        for( int i = 0; i < items.length; i++ ) ingredients.set( i, Ingredient.fromStacks( items[ i ] ) );
+        for( int i = 0; i < items.length; i++ ) ingredients.set( i, Ingredient.fromStacks( items[i] ) );
         return ingredients;
     }
 

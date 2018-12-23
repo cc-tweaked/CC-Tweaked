@@ -26,7 +26,7 @@ public class TileComputer extends TileComputerBase
 
     // Members
     private ComputerProxy m_proxy;
-    
+
     public TileComputer()
     {
     }
@@ -125,6 +125,6 @@ public class TileComputer extends TileComputerBase
     @Override
     protected int remapLocalSide( int localSide )
     {
-        return s_remapSide[ localSide ];
+        return s_remapSide[localSide];
     }
 }

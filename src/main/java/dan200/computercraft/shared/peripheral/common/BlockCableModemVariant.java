@@ -43,12 +43,18 @@ public enum BlockCableModemVariant implements IStringSerializable
     {
         switch( facing )
         {
-            case DOWN: return DownOff;
-            case UP: return UpOff;
-            case NORTH: return NorthOff;
-            case SOUTH: return SouthOff;
-            case WEST: return WestOff;
-            case EAST: return EastOff;
+            case DOWN:
+                return DownOff;
+            case UP:
+                return UpOff;
+            case NORTH:
+                return NorthOff;
+            case SOUTH:
+                return SouthOff;
+            case WEST:
+                return WestOff;
+            case EAST:
+                return EastOff;
         }
         return NorthOff;
     }

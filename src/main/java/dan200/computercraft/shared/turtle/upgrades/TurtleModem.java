@@ -66,7 +66,7 @@ public class TurtleModem implements ITurtleUpgrade
         {
             if( other instanceof Peripheral )
             {
-                Peripheral otherModem = (Peripheral)other;
+                Peripheral otherModem = (Peripheral) other;
                 return otherModem.m_turtle == m_turtle;
             }
             return false;
@@ -108,7 +108,7 @@ public class TurtleModem implements ITurtleUpgrade
     {
         return m_legacyID;
     }
-    
+
     @Nonnull
     @Override
     public String getUnlocalisedAdjective()
@@ -122,14 +122,14 @@ public class TurtleModem implements ITurtleUpgrade
             return "upgrade.computercraft:wireless_modem.adjective";
         }
     }
-    
+
     @Nonnull
     @Override
     public TurtleUpgradeType getType()
     {
         return TurtleUpgradeType.Peripheral;
     }
-    
+
     @Nonnull
     @Override
     public ItemStack getCraftingItem()

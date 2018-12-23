@@ -43,10 +43,10 @@ import javax.annotation.Nonnull;
 public class CCTurtleProxyClient extends CCTurtleProxyCommon
 {
     // IComputerCraftProxy implementation
-    
-    @Override        
+
+    @Override
     public void preInit()
-    {    
+    {
         super.preInit();
 
         // Setup client forge handlers
@@ -102,7 +102,7 @@ public class CCTurtleProxyClient extends CCTurtleProxyCommon
     private void registerItemModel( Item item, ItemMeshDefinition definition, String[] names )
     {
         ResourceLocation[] resources = new ResourceLocation[names.length];
-        for( int i=0; i<names.length; ++i )
+        for( int i = 0; i < names.length; i++ )
         {
             resources[i] = new ResourceLocation( "computercraft:" + names[i] );
         }
@@ -141,7 +141,7 @@ public class CCTurtleProxyClient extends CCTurtleProxyCommon
             IResourceManager resourceManager = Minecraft.getMinecraft().getResourceManager();
             if( resourceManager instanceof SimpleReloadableResourceManager )
             {
-                SimpleReloadableResourceManager reloadableResourceManager = (SimpleReloadableResourceManager)resourceManager;
+                SimpleReloadableResourceManager reloadableResourceManager = (SimpleReloadableResourceManager) resourceManager;
                 reloadableResourceManager.registerReloadListener( m_turtleSmartItemModel );
             }
         }

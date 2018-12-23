@@ -5,6 +5,7 @@
  */
 
 package dan200.computercraft.shared.network;
+
 import net.minecraft.entity.player.EntityPlayer;
 
 public interface INetworkedThing

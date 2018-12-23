@@ -35,7 +35,7 @@ public class FixedWidthFontRenderer
 
     private static void greyscaleify( double[] rgb )
     {
-        Arrays.fill( rgb, ( rgb[0] + rgb[1] + rgb[2] ) / 3.0f );
+        Arrays.fill( rgb, (rgb[0] + rgb[1] + rgb[2]) / 3.0f );
     }
 
     private void drawChar( BufferBuilder renderer, double x, double y, int index, int color, Palette p, boolean greyscale )
@@ -44,13 +44,13 @@ public class FixedWidthFontRenderer
         int row = index / 16;
 
         double[] colour = p.getColour( 15 - color );
-        if(greyscale)
+        if( greyscale )
         {
             greyscaleify( colour );
         }
-        float r = (float)colour[0];
-        float g = (float)colour[1];
-        float b = (float)colour[2];
+        float r = (float) colour[0];
+        float g = (float) colour[1];
+        float b = (float) colour[2];
 
         int xStart = 1 + column * (FONT_WIDTH + 2);
         int yStart = 1 + row * (FONT_HEIGHT + 2);
@@ -66,13 +66,13 @@ public class FixedWidthFontRenderer
     private void drawQuad( BufferBuilder renderer, double x, double y, int color, double width, Palette p, boolean greyscale )
     {
         double[] colour = p.getColour( 15 - color );
-        if(greyscale)
+        if( greyscale )
         {
             greyscaleify( colour );
         }
-        float r = (float)colour[0];
-        float g = (float)colour[1];
-        float b = (float)colour[2];
+        float r = (float) colour[0];
+        float g = (float) colour[1];
+        float b = (float) colour[2];
 
         renderer.pos( x, y, 0.0 ).color( r, g, b, 1.0f ).endVertex();
         renderer.pos( x, y + FONT_HEIGHT, 0.0 ).color( r, g, b, 1.0f ).endVertex();
@@ -96,7 +96,7 @@ public class FixedWidthFontRenderer
         if( leftMarginSize > 0.0 )
         {
             int colour1 = "0123456789abcdef".indexOf( backgroundColour.charAt( 0 ) );
-            if( colour1 < 0 || (greyScale && !isGreyScale(colour1)) )
+            if( colour1 < 0 || (greyScale && !isGreyScale( colour1 )) )
             {
                 colour1 = 15;
             }
@@ -105,7 +105,7 @@ public class FixedWidthFontRenderer
         if( rightMarginSize > 0.0 )
         {
             int colour2 = "0123456789abcdef".indexOf( backgroundColour.charAt( backgroundColour.length() - 1 ) );
-            if( colour2 < 0 || (greyScale && !isGreyScale(colour2)) )
+            if( colour2 < 0 || (greyScale && !isGreyScale( colour2 )) )
             {
                 colour2 = 15;
             }
@@ -114,7 +114,7 @@ public class FixedWidthFontRenderer
         for( int i = 0; i < backgroundColour.length(); i++ )
         {
             int colour = "0123456789abcdef".indexOf( backgroundColour.charAt( i ) );
-            if( colour < 0 || ( greyScale && !isGreyScale( colour ) ) )
+            if( colour < 0 || (greyScale && !isGreyScale( colour )) )
             {
                 colour = 15;
             }
@@ -135,7 +135,7 @@ public class FixedWidthFontRenderer
         {
             // Switch colour
             int colour = "0123456789abcdef".indexOf( textColour.charAt( i ) );
-            if( colour < 0 || ( greyScale && !isGreyScale( colour ) ) )
+            if( colour < 0 || (greyScale && !isGreyScale( colour )) )
             {
                 colour = 0;
             }
@@ -162,21 +162,21 @@ public class FixedWidthFontRenderer
             // Draw the quads
             drawStringBackgroundPart( x, y, backgroundColour, leftMarginSize, rightMarginSize, greyScale, p );
         }
-    
+
         // Draw text
         if( s != null && textColour != null )
         {
             // Bind the font texture
             bindFont();
-            
+
             // Draw the quads
             drawStringTextPart( x, y, s, textColour, greyScale, p );
         }
     }
 
-    public int getStringWidth(String s)
+    public int getStringWidth( String s )
     {
-        if(s == null)
+        if( s == null )
         {
             return 0;
         }

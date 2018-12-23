@@ -51,7 +51,7 @@ public class ColourableRecipe extends IForgeRegistryEntry.Impl<IRecipe> implemen
 
         ColourTracker tracker = new ColourTracker();
 
-        for( int i = 0; i < inv.getSizeInventory(); ++i )
+        for( int i = 0; i < inv.getSizeInventory(); i++ )
         {
             ItemStack stack = inv.getStackInSlot( i );
 
@@ -66,7 +66,7 @@ public class ColourableRecipe extends IForgeRegistryEntry.Impl<IRecipe> implemen
                 int index = ColourUtils.getStackColour( stack );
                 if( index < 0 ) continue;
 
-                Colour colour = Colour.values()[ index ];
+                Colour colour = Colour.values()[index];
                 tracker.addColour( colour.getR(), colour.getG(), colour.getB() );
             }
         }
@@ -103,7 +103,7 @@ public class ColourableRecipe extends IForgeRegistryEntry.Impl<IRecipe> implemen
     public NonNullList<ItemStack> getRemainingItems( @Nonnull InventoryCrafting inventoryCrafting )
     {
         NonNullList<ItemStack> results = NonNullList.withSize( inventoryCrafting.getSizeInventory(), ItemStack.EMPTY );
-        for( int i = 0; i < results.size(); ++i )
+        for( int i = 0; i < results.size(); i++ )
         {
             ItemStack stack = inventoryCrafting.getStackInSlot( i );
             results.set( i, ForgeHooks.getContainerItem( stack ) );

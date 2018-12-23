@@ -33,13 +33,13 @@ public class FSAPI implements ILuaAPI
 {
     private IAPIEnvironment m_env;
     private FileSystem m_fileSystem;
-    
+
     public FSAPI( IAPIEnvironment _env )
     {
         m_env = _env;
         m_fileSystem = null;
     }
-    
+
     @Override
     public String[] getNames()
     {
@@ -49,13 +49,13 @@ public class FSAPI implements ILuaAPI
     }
 
     @Override
-    public void startup( )
+    public void startup()
     {
         m_fileSystem = m_env.getFileSystem();
     }
 
     @Override
-    public void shutdown( )
+    public void shutdown()
     {
         m_fileSystem = null;
     }
@@ -94,11 +94,13 @@ public class FSAPI implements ILuaAPI
                 // list
                 String path = getString( args, 0 );
                 m_env.addTrackingChange( TrackingField.FS_OPS );
-                try {
+                try
+                {
                     String[] results = m_fileSystem.list( path );
-                    Map<Object,Object> table = new HashMap<>();
-                    for(int i=0; i<results.length; ++i ) {
-                        table.put( i+1, results[i] );
+                    Map<Object, Object> table = new HashMap<>();
+                    for( int i = 0; i < results.length; i++ )
+                    {
+                        table.put( i + 1, results[i] );
                     }
                     return new Object[] { table };
                 }
@@ -118,7 +120,7 @@ public class FSAPI implements ILuaAPI
             {
                 // getName
                 String path = getString( args, 0 );
-                return new Object[]{ FileSystem.getName( path ) };
+                return new Object[] { FileSystem.getName( path ) };
             }
             case 3:
             {
@@ -126,7 +128,7 @@ public class FSAPI implements ILuaAPI
                 String path = getString( args, 0 );
                 try
                 {
-                    return new Object[]{ m_fileSystem.getSize( path ) };
+                    return new Object[] { m_fileSystem.getSize( path ) };
                 }
                 catch( FileSystemException e )
                 {
@@ -137,41 +139,53 @@ public class FSAPI implements ILuaAPI
             {
                 // exists
                 String path = getString( args, 0 );
-                try {
-                    return new Object[]{ m_fileSystem.exists( path ) };
-                } catch( FileSystemException e ) {
-                    return new Object[]{ false };
+                try
+                {
+                    return new Object[] { m_fileSystem.exists( path ) };
+                }
+                catch( FileSystemException e )
+                {
+                    return new Object[] { false };
                 }
             }
             case 5:
             {
                 // isDir
                 String path = getString( args, 0 );
-                try {
-                    return new Object[]{ m_fileSystem.isDir( path ) };
-                } catch( FileSystemException e ) {
-                    return new Object[]{ false };
+                try
+                {
+                    return new Object[] { m_fileSystem.isDir( path ) };
+                }
+                catch( FileSystemException e )
+                {
+                    return new Object[] { false };
                 }
             }
             case 6:
             {
                 // isReadOnly
                 String path = getString( args, 0 );
-                try {
-                    return new Object[]{ m_fileSystem.isReadOnly( path ) };
-                } catch( FileSystemException e ) {
-                    return new Object[]{ false };
+                try
+                {
+                    return new Object[] { m_fileSystem.isReadOnly( path ) };
+                }
+                catch( FileSystemException e )
+                {
+                    return new Object[] { false };
                 }
             }
             case 7:
             {
                 // makeDir
                 String path = getString( args, 0 );
-                try {
+                try
+                {
                     m_env.addTrackingChange( TrackingField.FS_OPS );
                     m_fileSystem.makeDir( path );
                     return null;
-                } catch( FileSystemException e ) {
+                }
+                catch( FileSystemException e )
+                {
                     throw new LuaException( e.getMessage() );
                 }
             }
@@ -180,11 +194,14 @@ public class FSAPI implements ILuaAPI
                 // move
                 String path = getString( args, 0 );
                 String dest = getString( args, 1 );
-                try {
+                try
+                {
                     m_env.addTrackingChange( TrackingField.FS_OPS );
                     m_fileSystem.move( path, dest );
                     return null;
-                } catch( FileSystemException e ) {
+                }
+                catch( FileSystemException e )
+                {
                     throw new LuaException( e.getMessage() );
                 }
             }
@@ -193,11 +210,14 @@ public class FSAPI implements ILuaAPI
                 // copy
                 String path = getString( args, 0 );
                 String dest = getString( args, 1 );
-                try {
+                try
+                {
                     m_env.addTrackingChange( TrackingField.FS_OPS );
                     m_fileSystem.copy( path, dest );
                     return null;
-                } catch( FileSystemException e ) {
+                }
+                catch( FileSystemException e )
+                {
                     throw new LuaException( e.getMessage() );
                 }
             }
@@ -205,11 +225,14 @@ public class FSAPI implements ILuaAPI
             {
                 // delete
                 String path = getString( args, 0 );
-                try {
+                try
+                {
                     m_env.addTrackingChange( TrackingField.FS_OPS );
                     m_fileSystem.delete( path );
                     return null;
-                } catch( FileSystemException e ) {
+                }
+                catch( FileSystemException e )
+                {
                     throw new LuaException( e.getMessage() );
                 }
             }
@@ -219,7 +242,8 @@ public class FSAPI implements ILuaAPI
                 String path = getString( args, 0 );
                 String mode = getString( args, 1 );
                 m_env.addTrackingChange( TrackingField.FS_OPS );
-                try {
+                try
+                {
                     switch( mode )
                     {
                         case "r":
@@ -261,7 +285,9 @@ public class FSAPI implements ILuaAPI
                         default:
                             throw new LuaException( "Unsupported mode" );
                     }
-                } catch( FileSystemException e ) {
+                }
+                catch( FileSystemException e )
+                {
                     return new Object[] { null, e.getMessage() };
                 }
             }
@@ -269,13 +295,16 @@ public class FSAPI implements ILuaAPI
             {
                 // getDrive
                 String path = getString( args, 0 );
-                try {
+                try
+                {
                     if( !m_fileSystem.exists( path ) )
                     {
                         return null;
                     }
-                    return new Object[]{ m_fileSystem.getMountLabel( path ) };
-                } catch( FileSystemException e ) {
+                    return new Object[] { m_fileSystem.getMountLabel( path ) };
+                }
+                catch( FileSystemException e )
+                {
                     throw new LuaException( e.getMessage() );
                 }
             }
@@ -283,14 +312,17 @@ public class FSAPI implements ILuaAPI
             {
                 // getFreeSpace
                 String path = getString( args, 0 );
-                try {
+                try
+                {
                     long freeSpace = m_fileSystem.getFreeSpace( path );
                     if( freeSpace >= 0 )
                     {
-                        return new Object[]{ freeSpace };
+                        return new Object[] { freeSpace };
                     }
-                    return new Object[]{ "unlimited" };
-                } catch( FileSystemException e ) {
+                    return new Object[] { "unlimited" };
+                }
+                catch( FileSystemException e )
+                {
                     throw new LuaException( e.getMessage() );
                 }
             }
@@ -298,15 +330,19 @@ public class FSAPI implements ILuaAPI
             {
                 // find
                 String path = getString( args, 0 );
-                try {
+                try
+                {
                     m_env.addTrackingChange( TrackingField.FS_OPS );
                     String[] results = m_fileSystem.find( path );
-                    Map<Object,Object> table = new HashMap<>();
-                    for(int i=0; i<results.length; ++i ) {
-                        table.put( i+1, results[i] );
+                    Map<Object, Object> table = new HashMap<>();
+                    for( int i = 0; i < results.length; i++ )
+                    {
+                        table.put( i + 1, results[i] );
                     }
                     return new Object[] { table };
-                } catch( FileSystemException e ) {
+                }
+                catch( FileSystemException e )
+                {
                     throw new LuaException( e.getMessage() );
                 }
             }
@@ -314,11 +350,11 @@ public class FSAPI implements ILuaAPI
             {
                 // getDir
                 String path = getString( args, 0 );
-                return new Object[]{ FileSystem.getDirectory( path ) };
+                return new Object[] { FileSystem.getDirectory( path ) };
             }
             default:
             {
-                assert( false );
+                assert (false);
                 return null;
             }
         }

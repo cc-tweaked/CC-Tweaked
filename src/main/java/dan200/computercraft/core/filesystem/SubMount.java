@@ -15,36 +15,36 @@ import java.nio.channels.ReadableByteChannel;
 import java.util.List;
 
 public class SubMount implements IMount
-{    
+{
     private IMount m_parent;
     private String m_subPath;
-    
+
     public SubMount( IMount parent, String subPath )
     {
         m_parent = parent;
         m_subPath = subPath;
     }
-    
+
     // IMount implementation
-    
+
     @Override
     public boolean exists( @Nonnull String path ) throws IOException
     {
         return m_parent.exists( getFullPath( path ) );
     }
-    
+
     @Override
     public boolean isDirectory( @Nonnull String path ) throws IOException
     {
         return m_parent.isDirectory( getFullPath( path ) );
     }
-    
+
     @Override
     public void list( @Nonnull String path, @Nonnull List<String> contents ) throws IOException
     {
         m_parent.list( getFullPath( path ), contents );
     }
-    
+
     @Override
     public long getSize( @Nonnull String path ) throws IOException
     {

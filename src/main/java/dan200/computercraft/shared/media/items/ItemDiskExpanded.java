@@ -14,7 +14,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import javax.annotation.Nonnull;
 
 public class ItemDiskExpanded extends ItemDiskLegacy
-{    
+{
     public ItemDiskExpanded()
     {
     }
@@ -23,20 +23,20 @@ public class ItemDiskExpanded extends ItemDiskLegacy
     public static ItemStack createFromIDAndColour( int id, String label, int colour )
     {
         ItemStack stack = new ItemStack( ComputerCraft.Items.diskExpanded, 1, 0 );
-        
+
         NBTTagCompound nbt = stack.getTagCompound();
         if( nbt == null )
         {
             nbt = new NBTTagCompound();
-            stack.setTagCompound(nbt);
+            stack.setTagCompound( nbt );
         }
         nbt.setInteger( "color", colour );
         ComputerCraft.Items.diskExpanded.setDiskID( stack, id );
         ComputerCraft.Items.diskExpanded.setLabel( stack, label );
         return stack;
     }
-    
-    @Override    
+
+    @Override
     public int getDiskID( @Nonnull ItemStack stack )
     {
         NBTTagCompound nbt = stack.getTagCompound();
@@ -72,7 +72,7 @@ public class ItemDiskExpanded extends ItemDiskLegacy
         }
         else
         {
-            return Colour.values()[ Math.min( 15, stack.getItemDamage() ) ].getHex();
+            return Colour.values()[Math.min( 15, stack.getItemDamage() )].getHex();
         }
     }
 }

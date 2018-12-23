@@ -6,11 +6,9 @@
 
 package dan200.computercraft.server.proxy;
 
-import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.computer.blocks.TileComputer;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.IComputer;
-import dan200.computercraft.shared.network.ComputerCraftPacket;
 import dan200.computercraft.shared.peripheral.diskdrive.TileDiskDrive;
 import dan200.computercraft.shared.peripheral.printer.TilePrinter;
 import dan200.computercraft.shared.proxy.ComputerCraftProxyCommon;
@@ -18,8 +16,6 @@ import dan200.computercraft.shared.turtle.blocks.TileTurtle;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.util.EnumHand;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.DimensionManager;
 
@@ -30,9 +26,9 @@ public class ComputerCraftProxyServer extends ComputerCraftProxyCommon
     public ComputerCraftProxyServer()
     {
     }
-    
+
     // IComputerCraftProxy implementation
-    
+
     @Override
     public void init()
     {
@@ -74,7 +70,7 @@ public class ComputerCraftProxyServer extends ComputerCraftProxyCommon
     {
         return null;
     }
-    
+
     @Override
     public Object getComputerGUI( TileComputer computer )
     {

@@ -65,7 +65,8 @@ public class ServerComputer extends ServerTerminal
         m_ticksSincePing = 0;
     }
 
-    public ComputerFamily getFamily(){
+    public ComputerFamily getFamily()
+    {
         return m_family;
     }
 
@@ -144,8 +145,9 @@ public class ServerComputer extends ServerTerminal
     {
         m_changed = true;
     }
-    
-    private ComputerCraftPacket createComputerPacket() {
+
+    private ComputerCraftPacket createComputerPacket()
+    {
         ComputerCraftPacket packet = new ComputerCraftPacket();
         packet.m_packetType = ComputerCraftPacket.ComputerChanged;
         packet.m_dataInt = new int[] { getInstanceID() };
@@ -154,7 +156,8 @@ public class ServerComputer extends ServerTerminal
         return packet;
     }
 
-    protected ComputerCraftPacket createTerminalPacket() {
+    protected ComputerCraftPacket createTerminalPacket()
+    {
         ComputerCraftPacket packet = new ComputerCraftPacket();
         packet.m_packetType = ComputerCraftPacket.ComputerTerminalChanged;
         packet.m_dataInt = new int[] { getInstanceID() };
@@ -163,9 +166,9 @@ public class ServerComputer extends ServerTerminal
         return packet;
     }
 
-    public void broadcastState(boolean force)
+    public void broadcastState( boolean force )
     {
-        if(hasOutputChanged() || force)
+        if( hasOutputChanged() || force )
         {
             // Send computer state to all clients
             ComputerCraft.sendToAllPlayers( createComputerPacket() );
@@ -349,7 +352,7 @@ public class ServerComputer extends ServerTerminal
     @Override
     public int getDay()
     {
-        return (int)((m_world.getWorldTime() + 6000) / 24000) + 1;
+        return (int) ((m_world.getWorldTime() + 6000) / 24000) + 1;
     }
 
     @Override

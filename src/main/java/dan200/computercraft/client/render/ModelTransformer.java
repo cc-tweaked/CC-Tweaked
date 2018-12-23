@@ -85,8 +85,8 @@ public final class ModelTransformer
         private final Matrix4f normalMatrix;
 
         private int vertexIndex = 0, elementIndex = 0;
-        private final Point3f[] before = new Point3f[ 4 ];
-        private final Point3f[] after = new Point3f[ 4 ];
+        private final Point3f[] before = new Point3f[4];
+        private final Point3f[] after = new Point3f[4];
 
         public NormalAwareTransformer( IVertexConsumer parent, Matrix4f positionMatrix, Matrix4f normalMatrix )
         {
@@ -112,13 +112,13 @@ public final class ModelTransformer
                     Point3f newVec = new Point3f();
                     positionMatrix.transform( vec, newVec );
 
-                    float[] newData = new float[ 4 ];
+                    float[] newData = new float[4];
                     newVec.get( newData );
                     super.put( element, newData );
 
 
-                    before[ vertexIndex ] = vec;
-                    after[ vertexIndex ] = newVec;
+                    before[vertexIndex] = vec;
+                    after[vertexIndex] = newVec;
                     break;
                 }
                 case NORMAL:
@@ -126,7 +126,7 @@ public final class ModelTransformer
                     Vector3f vec = new Vector3f( data );
                     normalMatrix.transform( vec );
 
-                    float[] newData = new float[ 4 ];
+                    float[] newData = new float[4];
                     vec.get( newData );
                     super.put( element, newData );
                     break;
@@ -150,17 +150,17 @@ public final class ModelTransformer
             Vector3f crossBefore = new Vector3f(), crossAfter = new Vector3f();
 
             // Determine what cross product we expect to have
-            temp1.sub( before[ 1 ], before[ 0 ] );
-            temp2.sub( before[ 1 ], before[ 2 ] );
+            temp1.sub( before[1], before[0] );
+            temp2.sub( before[1], before[2] );
             crossBefore.cross( temp1, temp2 );
             normalMatrix.transform( crossBefore );
 
             // And determine what cross product we actually have
-            temp1.sub( after[ 1 ], after[ 0 ] );
-            temp2.sub( after[ 1 ], after[ 2 ] );
+            temp1.sub( after[1], after[0] );
+            temp2.sub( after[1], after[2] );
             crossAfter.cross( temp1, temp2 );
 
-            // If the angle between expected and actual cross product is greater than 
+            // If the angle between expected and actual cross product is greater than
             // pi/2 radians then we will need to reorder our quads.
             return Math.abs( crossBefore.angle( crossAfter ) ) >= Math.PI / 2;
         }
@@ -189,7 +189,7 @@ public final class ModelTransformer
         private BakedQuadBuilder( VertexFormat format )
         {
             this.format = format;
-            this.vertexData = new int[ format.getSize() ];
+            this.vertexData = new int[format.getSize()];
         }
 
         @Nonnull
@@ -241,9 +241,9 @@ public final class ModelTransformer
             int length = vertexData.length / 4;
             for( int i = 0; i < length; i++ )
             {
-                int temp = vertexData[ a * length + i ];
-                vertexData[ a * length + i ] = vertexData[ b * length + i ];
-                vertexData[ b * length + i ] = temp;
+                int temp = vertexData[a * length + i];
+                vertexData[a * length + i] = vertexData[b * length + i];
+                vertexData[b * length + i] = temp;
             }
         }
 

@@ -76,7 +76,7 @@ public class WebsocketConnection extends SimpleChannelInboundHandler<Object> imp
     private void onClosed()
     {
         close( true );
-        computer.queueEvent( CLOSE_EVENT, new Object[]{ url } );
+        computer.queueEvent( CLOSE_EVENT, new Object[] { url } );
     }
 
     @Override
@@ -107,7 +107,7 @@ public class WebsocketConnection extends SimpleChannelInboundHandler<Object> imp
         if( !handshaker.isHandshakeComplete() )
         {
             handshaker.finishHandshake( ch, (FullHttpResponse) msg );
-            computer.queueEvent( SUCCESS_EVENT, new Object[]{ url, this } );
+            computer.queueEvent( SUCCESS_EVENT, new Object[] { url, this } );
             return;
         }
 
@@ -123,7 +123,7 @@ public class WebsocketConnection extends SimpleChannelInboundHandler<Object> imp
             String data = ((TextWebSocketFrame) frame).text();
 
             computer.addTrackingChange( TrackingField.WEBSOCKET_INCOMING, data.length() );
-            computer.queueEvent( MESSAGE_EVENT, new Object[]{ url, data } );
+            computer.queueEvent( MESSAGE_EVENT, new Object[] { url, data } );
         }
         else if( frame instanceof BinaryWebSocketFrame )
         {
@@ -132,7 +132,7 @@ public class WebsocketConnection extends SimpleChannelInboundHandler<Object> imp
             data.readBytes( converted );
 
             computer.addTrackingChange( TrackingField.WEBSOCKET_INCOMING, converted.length );
-            computer.queueEvent( MESSAGE_EVENT, new Object[]{ url, converted } );
+            computer.queueEvent( MESSAGE_EVENT, new Object[] { url, converted } );
         }
         else if( frame instanceof CloseWebSocketFrame )
         {
@@ -145,7 +145,7 @@ public class WebsocketConnection extends SimpleChannelInboundHandler<Object> imp
     public void exceptionCaught( ChannelHandlerContext ctx, Throwable cause )
     {
         ctx.close();
-        computer.queueEvent( FAILURE_EVENT, new Object[]{
+        computer.queueEvent( FAILURE_EVENT, new Object[] {
             url,
             cause instanceof WebSocketHandshakeException ? cause.getMessage() : "Could not connect"
         } );
@@ -155,7 +155,7 @@ public class WebsocketConnection extends SimpleChannelInboundHandler<Object> imp
     @Override
     public String[] getMethodNames()
     {
-        return new String[]{ "receive", "send", "close" };
+        return new String[] { "receive", "send", "close" };
     }
 
     @Nullable
@@ -171,14 +171,14 @@ public class WebsocketConnection extends SimpleChannelInboundHandler<Object> imp
                     Object[] event = context.pullEvent( MESSAGE_EVENT );
                     if( event.length >= 3 && Objects.equal( event[1], url ) )
                     {
-                        return new Object[]{ event[2] };
+                        return new Object[] { event[2] };
                     }
                 }
             case 1:
             {
                 checkOpen();
                 String text = arguments.length > 0 && arguments[0] != null ? arguments[0].toString() : "";
-                boolean binary = optBoolean(arguments, 1, false);
+                boolean binary = optBoolean( arguments, 1, false );
                 computer.addTrackingChange( TrackingField.WEBSOCKET_OUTGOING, text.length() );
                 channel.writeAndFlush( binary
                     ? new BinaryWebSocketFrame( Unpooled.wrappedBuffer( StringUtil.encodeString( text ) ) )

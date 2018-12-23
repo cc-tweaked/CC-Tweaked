@@ -23,10 +23,10 @@ public final class ColourUtils
     {
         if( ids == null )
         {
-            int ids[] = ColourUtils.ids = new int[ DYES.length ];
+            int ids[] = ColourUtils.ids = new int[DYES.length];
             for( int i = 0; i < DYES.length; i++ )
             {
-                ids[ i ] = OreDictionary.getOreID( DYES[ i ] );
+                ids[i] = OreDictionary.getOreID( DYES[i] );
             }
         }
 
@@ -43,7 +43,7 @@ public final class ColourUtils
     {
         if( tag.hasKey( "colourIndex", Constants.NBT.TAG_ANY_NUMERIC ) )
         {
-            return Colour.VALUES[ tag.getInteger( "colourIndex" ) & 0xF ].getHex();
+            return Colour.VALUES[tag.getInteger( "colourIndex" ) & 0xF].getHex();
         }
         else if( tag.hasKey( "colour", Constants.NBT.TAG_ANY_NUMERIC ) )
         {

@@ -43,21 +43,23 @@ public class RecipeUtil
         JsonArray patternJ = JsonUtils.getJsonArray( json, "pattern" );
 
         if( patternJ.size() == 0 )
+        {
             throw new JsonSyntaxException( "Invalid pattern: empty pattern not allowed" );
+        }
 
-        String[] pattern = new String[ patternJ.size() ];
-        for( int x = 0; x < pattern.length; ++x )
+        String[] pattern = new String[patternJ.size()];
+        for( int x = 0; x < pattern.length; x++ )
         {
             String line = JsonUtils.getString( patternJ.get( x ), "pattern[" + x + "]" );
-            if( x > 0 && pattern[ 0 ].length() != line.length() )
+            if( x > 0 && pattern[0].length() != line.length() )
             {
                 throw new JsonSyntaxException( "Invalid pattern: each row must  be the same width" );
             }
-            pattern[ x ] = line;
+            pattern[x] = line;
         }
 
         CraftingHelper.ShapedPrimer primer = new CraftingHelper.ShapedPrimer();
-        primer.width = pattern[ 0 ].length();
+        primer.width = pattern[0].length();
         primer.height = pattern.length;
         primer.mirrored = false;
         primer.input = NonNullList.withSize( primer.width * primer.height, Ingredient.EMPTY );

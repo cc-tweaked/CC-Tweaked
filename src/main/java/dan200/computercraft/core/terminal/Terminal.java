@@ -5,11 +5,12 @@
  */
 
 package dan200.computercraft.core.terminal;
+
 import dan200.computercraft.shared.util.Palette;
 import net.minecraft.nbt.NBTTagCompound;
 
 public class Terminal
-{    
+{
     private static final String base16 = "0123456789abcdef";
 
     private int m_cursorX;
@@ -33,24 +34,24 @@ public class Terminal
     {
         m_width = width;
         m_height = height;
-        
+
         m_cursorColour = 0;
         m_cursorBackgroundColour = 15;
 
-        m_text = new TextBuffer[ m_height ];
-        m_textColour = new TextBuffer[ m_height ];
-        m_backgroundColour = new TextBuffer[ m_height ];
-        for( int i=0; i<m_height; ++i )
+        m_text = new TextBuffer[m_height];
+        m_textColour = new TextBuffer[m_height];
+        m_backgroundColour = new TextBuffer[m_height];
+        for( int i = 0; i < m_height; i++ )
         {
             m_text[i] = new TextBuffer( ' ', m_width );
             m_textColour[i] = new TextBuffer( base16.charAt( m_cursorColour ), m_width );
             m_backgroundColour[i] = new TextBuffer( base16.charAt( m_cursorBackgroundColour ), m_width );
         }
-                
+
         m_cursorX = 0;
         m_cursorY = 0;
         m_cursorBlink = false;
-        
+
         m_changed = false;
 
         m_palette = new Palette();
@@ -67,22 +68,24 @@ public class Terminal
         m_changed = true;
         m_palette.resetColours();
     }
-    
-    public int getWidth() {
+
+    public int getWidth()
+    {
         return m_width;
     }
-    
-    public int getHeight() {
+
+    public int getHeight()
+    {
         return m_height;
     }
-    
+
     public synchronized void resize( int width, int height )
     {
-        if( width == m_width && height == m_height ) 
+        if( width == m_width && height == m_height )
         {
             return;
         }
-        
+
         int oldHeight = m_height;
         int oldWidth = m_width;
         TextBuffer[] oldText = m_text;
@@ -92,36 +95,36 @@ public class Terminal
         m_width = width;
         m_height = height;
 
-        m_text = new TextBuffer[ m_height ];
-        m_textColour = new TextBuffer[ m_height ];
-        m_backgroundColour = new TextBuffer[ m_height ];
-        for( int i=0; i<m_height; ++i )
+        m_text = new TextBuffer[m_height];
+        m_textColour = new TextBuffer[m_height];
+        m_backgroundColour = new TextBuffer[m_height];
+        for( int i = 0; i < m_height; i++ )
         {
             if( i >= oldHeight )
             {
-                m_text[ i ] = new TextBuffer( ' ', m_width );
-                m_textColour[ i ] = new TextBuffer( base16.charAt( m_cursorColour ), m_width );
-                m_backgroundColour[ i ] = new TextBuffer( base16.charAt( m_cursorBackgroundColour ), m_width );
+                m_text[i] = new TextBuffer( ' ', m_width );
+                m_textColour[i] = new TextBuffer( base16.charAt( m_cursorColour ), m_width );
+                m_backgroundColour[i] = new TextBuffer( base16.charAt( m_cursorBackgroundColour ), m_width );
             }
             else if( m_width == oldWidth )
             {
-                m_text[ i ] = oldText[ i ];
-                m_textColour[ i ] = oldTextColour[ i ];
-                m_backgroundColour[ i ] = oldBackgroundColour[ i ];
+                m_text[i] = oldText[i];
+                m_textColour[i] = oldTextColour[i];
+                m_backgroundColour[i] = oldBackgroundColour[i];
             }
             else
             {
-                m_text[ i ] = new TextBuffer( ' ', m_width );
-                m_textColour[ i ] = new TextBuffer( base16.charAt( m_cursorColour ), m_width );
-                m_backgroundColour[ i ] = new TextBuffer( base16.charAt( m_cursorBackgroundColour ), m_width );
-                m_text[ i ].write( oldText[ i ] );
-                m_textColour[ i ].write( oldTextColour[ i ] );
-                m_backgroundColour[ i ].write( oldBackgroundColour[ i ] );
+                m_text[i] = new TextBuffer( ' ', m_width );
+                m_textColour[i] = new TextBuffer( base16.charAt( m_cursorColour ), m_width );
+                m_backgroundColour[i] = new TextBuffer( base16.charAt( m_cursorBackgroundColour ), m_width );
+                m_text[i].write( oldText[i] );
+                m_textColour[i].write( oldTextColour[i] );
+                m_backgroundColour[i].write( oldBackgroundColour[i] );
             }
         }
         m_changed = true;
     }
-    
+
     public void setCursorPos( int x, int y )
     {
         if( m_cursorX != x || m_cursorY != y )
@@ -131,7 +134,7 @@ public class Terminal
             m_changed = true;
         }
     }
-    
+
     public void setCursorBlink( boolean blink )
     {
         if( m_cursorBlink != blink )
@@ -140,7 +143,7 @@ public class Terminal
             m_changed = true;
         }
     }
-    
+
     public void setTextColour( int colour )
     {
         if( m_cursorColour != colour )
@@ -149,7 +152,7 @@ public class Terminal
             m_changed = true;
         }
     }
-    
+
     public void setBackgroundColour( int colour )
     {
         if( m_cursorBackgroundColour != colour )
@@ -158,27 +161,27 @@ public class Terminal
             m_changed = true;
         }
     }
-    
+
     public int getCursorX()
     {
         return m_cursorX;
     }
-    
+
     public int getCursorY()
     {
         return m_cursorY;
     }
-    
+
     public boolean getCursorBlink()
     {
         return m_cursorBlink;
     }
-    
+
     public int getTextColour()
     {
         return m_cursorColour;
     }
-    
+
     public int getBackgroundColour()
     {
         return m_cursorBackgroundColour;
@@ -195,9 +198,9 @@ public class Terminal
         int y = m_cursorY;
         if( y >= 0 && y < m_height )
         {
-            m_text[ y ].write( text, x );
-            m_textColour[ y ].write( textColour, x );
-            m_backgroundColour[ y ].write( backgroundColour, x );
+            m_text[y].write( text, x );
+            m_textColour[y].write( textColour, x );
+            m_backgroundColour[y].write( backgroundColour, x );
             m_changed = true;
         }
     }
@@ -208,34 +211,34 @@ public class Terminal
         int y = m_cursorY;
         if( y >= 0 && y < m_height )
         {
-            m_text[ y ].write( text, x );
-            m_textColour[ y ].fill( base16.charAt( m_cursorColour ), x, x + text.length() );
-            m_backgroundColour[ y ].fill( base16.charAt( m_cursorBackgroundColour ), x, x + text.length() );
+            m_text[y].write( text, x );
+            m_textColour[y].fill( base16.charAt( m_cursorColour ), x, x + text.length() );
+            m_backgroundColour[y].fill( base16.charAt( m_cursorBackgroundColour ), x, x + text.length() );
             m_changed = true;
         }
     }
-    
+
     public synchronized void scroll( int yDiff )
     {
         if( yDiff != 0 )
         {
-            TextBuffer[] newText = new TextBuffer[ m_height ];
-            TextBuffer[] newTextColour = new TextBuffer[ m_height ];
-            TextBuffer[] newBackgroundColour = new TextBuffer[ m_height ];
-            for( int y = 0; y < m_height; ++y )
+            TextBuffer[] newText = new TextBuffer[m_height];
+            TextBuffer[] newTextColour = new TextBuffer[m_height];
+            TextBuffer[] newBackgroundColour = new TextBuffer[m_height];
+            for( int y = 0; y < m_height; y++ )
             {
                 int oldY = y + yDiff;
                 if( oldY >= 0 && oldY < m_height )
                 {
-                    newText[ y ] = m_text[ oldY ];
-                    newTextColour[ y ] = m_textColour[ oldY ];
-                    newBackgroundColour[ y ] = m_backgroundColour[ oldY ];
+                    newText[y] = m_text[oldY];
+                    newTextColour[y] = m_textColour[oldY];
+                    newBackgroundColour[y] = m_backgroundColour[oldY];
                 }
                 else
                 {
-                    newText[ y ] = new TextBuffer( ' ', m_width );
-                    newTextColour[ y ] = new TextBuffer( base16.charAt( m_cursorColour ), m_width );
-                    newBackgroundColour[ y ] = new TextBuffer( base16.charAt( m_cursorBackgroundColour ), m_width );
+                    newText[y] = new TextBuffer( ' ', m_width );
+                    newTextColour[y] = new TextBuffer( base16.charAt( m_cursorColour ), m_width );
+                    newBackgroundColour[y] = new TextBuffer( base16.charAt( m_cursorBackgroundColour ), m_width );
                 }
             }
             m_text = newText;
@@ -244,14 +247,14 @@ public class Terminal
             m_changed = true;
         }
     }
-    
+
     public synchronized void clear()
     {
-        for( int y = 0; y < m_height; ++y )
+        for( int y = 0; y < m_height; y++ )
         {
-            m_text[ y ].fill( ' ' );
-            m_textColour[ y ].fill( base16.charAt( m_cursorColour ) );
-            m_backgroundColour[ y ].fill( base16.charAt( m_cursorBackgroundColour ) );
+            m_text[y].fill( ' ' );
+            m_textColour[y].fill( base16.charAt( m_cursorColour ) );
+            m_backgroundColour[y].fill( base16.charAt( m_cursorBackgroundColour ) );
         }
         m_changed = true;
     }
@@ -261,18 +264,18 @@ public class Terminal
         int y = m_cursorY;
         if( y >= 0 && y < m_height )
         {
-            m_text[ y ].fill( ' ' );
-            m_textColour[ y ].fill( base16.charAt( m_cursorColour ) );
-            m_backgroundColour[ y ].fill( base16.charAt( m_cursorBackgroundColour ) );
+            m_text[y].fill( ' ' );
+            m_textColour[y].fill( base16.charAt( m_cursorColour ) );
+            m_backgroundColour[y].fill( base16.charAt( m_cursorBackgroundColour ) );
             m_changed = true;
         }
     }
-        
+
     public synchronized TextBuffer getLine( int y )
     {
         if( y >= 0 && y < m_height )
         {
-            return m_text[ y ];
+            return m_text[y];
         }
         return null;
     }
@@ -284,21 +287,21 @@ public class Terminal
         m_backgroundColour[y].write( backgroundColour );
         m_changed = true;
     }
-    
+
     public synchronized TextBuffer getTextColourLine( int y )
     {
-        if( y>=0 && y<m_height )
+        if( y >= 0 && y < m_height )
         {
-            return m_textColour[ y ];
+            return m_textColour[y];
         }
         return null;
     }
 
     public synchronized TextBuffer getBackgroundColourLine( int y )
     {
-        if( y>=0 && y<m_height )
+        if( y >= 0 && y < m_height )
         {
-            return m_backgroundColour[ y ];
+            return m_backgroundColour[y];
         }
         return null;
     }
@@ -325,13 +328,13 @@ public class Terminal
         nbttagcompound.setBoolean( "term_cursorBlink", m_cursorBlink );
         nbttagcompound.setInteger( "term_textColour", m_cursorColour );
         nbttagcompound.setInteger( "term_bgColour", m_cursorBackgroundColour );
-        for( int n=0; n<m_height; ++n )
+        for( int n = 0; n < m_height; n++ )
         {
             nbttagcompound.setString( "term_text_" + n, m_text[n].toString() );
             nbttagcompound.setString( "term_textColour_" + n, m_textColour[n].toString() );
-            nbttagcompound.setString( "term_textBgColour_" + n, m_backgroundColour[ n ].toString() );
+            nbttagcompound.setString( "term_textBgColour_" + n, m_backgroundColour[n].toString() );
         }
-        if(m_palette != null)
+        if( m_palette != null )
         {
             m_palette.writeToNBT( nbttagcompound );
         }
@@ -346,7 +349,7 @@ public class Terminal
         m_cursorColour = nbttagcompound.getInteger( "term_textColour" );
         m_cursorBackgroundColour = nbttagcompound.getInteger( "term_bgColour" );
 
-        for( int n=0; n<m_height; ++n )
+        for( int n = 0; n < m_height; n++ )
         {
             m_text[n].fill( ' ' );
             if( nbttagcompound.hasKey( "term_text_" + n ) )
@@ -364,7 +367,7 @@ public class Terminal
                 m_backgroundColour[n].write( nbttagcompound.getString( "term_textBgColour_" + n ) );
             }
         }
-        if (m_palette != null)
+        if( m_palette != null )
         {
             m_palette.readFromNBT( nbttagcompound );
         }

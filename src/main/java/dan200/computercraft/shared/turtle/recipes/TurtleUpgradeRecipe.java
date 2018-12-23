@@ -41,7 +41,7 @@ public class TurtleUpgradeRecipe extends IForgeRegistryEntry.Impl<IRecipe> imple
     {
         return true;
     }
-    
+
     @Nonnull
     @Override
     public ItemStack getRecipeOutput()
@@ -64,45 +64,61 @@ public class TurtleUpgradeRecipe extends IForgeRegistryEntry.Impl<IRecipe> imple
         ItemStack turtle = ItemStack.EMPTY;
         ItemStack rightItem = ItemStack.EMPTY;
 
-        for( int y=0; y<inventory.getHeight(); ++y )
+        for( int y = 0; y < inventory.getHeight(); y++ )
         {
             if( turtle.isEmpty() )
             {
                 // Search this row for potential turtles
                 boolean finishedRow = false;
-                for( int x=0; x<inventory.getWidth(); ++x )
+                for( int x = 0; x < inventory.getWidth(); x++ )
                 {
-                    ItemStack item = inventory.getStackInRowAndColumn(x, y);
-                    if( !item.isEmpty() ) {
-                        if( finishedRow ) {
+                    ItemStack item = inventory.getStackInRowAndColumn( x, y );
+                    if( !item.isEmpty() )
+                    {
+                        if( finishedRow )
+                        {
                             return ItemStack.EMPTY;
                         }
-                        
-                        if( item.getItem() instanceof ITurtleItem ) {
+
+                        if( item.getItem() instanceof ITurtleItem )
+                        {
                             // Item is a turtle
-                            if( turtle.isEmpty() ) {
+                            if( turtle.isEmpty() )
+                            {
                                 turtle = item;
-                            } else {
-                                return ItemStack.EMPTY;
                             }
-                        } else {
-                            // Item is not a turtle
-                            if( turtle.isEmpty() && leftItem.isEmpty() ) {
-                                leftItem = item;
-                            } else if( !turtle.isEmpty() && rightItem.isEmpty() ) {
-                                rightItem = item;
-                            } else {
+                            else
+                            {
                                 return ItemStack.EMPTY;
                             }
                         }
-                    } else {
+                        else
+                        {
+                            // Item is not a turtle
+                            if( turtle.isEmpty() && leftItem.isEmpty() )
+                            {
+                                leftItem = item;
+                            }
+                            else if( !turtle.isEmpty() && rightItem.isEmpty() )
+                            {
+                                rightItem = item;
+                            }
+                            else
+                            {
+                                return ItemStack.EMPTY;
+                            }
+                        }
+                    }
+                    else
+                    {
                         // Item is empty
-                        if( !leftItem.isEmpty() || !turtle.isEmpty() ) {
+                        if( !leftItem.isEmpty() || !turtle.isEmpty() )
+                        {
                             finishedRow = true;
                         }
                     }
                 }
-                
+
                 // If we found anything, check we found a turtle too
                 if( turtle.isEmpty() && (!leftItem.isEmpty() || !rightItem.isEmpty()) )
                 {
@@ -112,16 +128,17 @@ public class TurtleUpgradeRecipe extends IForgeRegistryEntry.Impl<IRecipe> imple
             else
             {
                 // Turtle is already found, just check this row is empty
-                for( int x=0; x<inventory.getWidth(); ++x )
+                for( int x = 0; x < inventory.getWidth(); x++ )
                 {
-                    ItemStack item = inventory.getStackInRowAndColumn(x, y);
-                    if( !item.isEmpty() ) {
+                    ItemStack item = inventory.getStackInRowAndColumn( x, y );
+                    if( !item.isEmpty() )
+                    {
                         return ItemStack.EMPTY;
                     }
                 }
             }
         }
-        
+
         // See if we found a turtle + one or more items
         if( turtle.isEmpty() || (leftItem.isEmpty() && rightItem.isEmpty()) )
         {
@@ -130,7 +147,7 @@ public class TurtleUpgradeRecipe extends IForgeRegistryEntry.Impl<IRecipe> imple
 
         // At this point we have a turtle + 1 or 2 items
         // Get the turtle we already have
-        ITurtleItem itemTurtle = (ITurtleItem)turtle.getItem();
+        ITurtleItem itemTurtle = (ITurtleItem) turtle.getItem();
         ComputerFamily family = itemTurtle.getFamily( turtle );
         ITurtleUpgrade[] upgrades = {
             itemTurtle.getUpgrade( turtle, TurtleSide.Left ),
@@ -138,12 +155,12 @@ public class TurtleUpgradeRecipe extends IForgeRegistryEntry.Impl<IRecipe> imple
         };
 
         // Get the upgrades for the new items
-        ItemStack[] items = new ItemStack[]{ rightItem, leftItem };
-        for( int i=0; i<2; ++i )
+        ItemStack[] items = new ItemStack[] { rightItem, leftItem };
+        for( int i = 0; i < 2; i++ )
         {
             if( !items[i].isEmpty() )
             {
-                ITurtleUpgrade itemUpgrade = ComputerCraft.getTurtleUpgrade( items[ i ] );
+                ITurtleUpgrade itemUpgrade = ComputerCraft.getTurtleUpgrade( items[i] );
                 if( itemUpgrade == null )
                 {
                     return ItemStack.EMPTY;
@@ -174,7 +191,7 @@ public class TurtleUpgradeRecipe extends IForgeRegistryEntry.Impl<IRecipe> imple
     public NonNullList<ItemStack> getRemainingItems( @Nonnull InventoryCrafting inventoryCrafting )
     {
         NonNullList<ItemStack> results = NonNullList.withSize( inventoryCrafting.getSizeInventory(), ItemStack.EMPTY );
-        for( int i = 0; i < results.size(); ++i )
+        for( int i = 0; i < results.size(); i++ )
         {
             ItemStack stack = inventoryCrafting.getStackInSlot( i );
             results.set( i, ForgeHooks.getContainerItem( stack ) );

@@ -10,8 +10,8 @@ import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.peripheral.IPeripheralProvider;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityCommandBlock;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
@@ -24,7 +24,7 @@ public class CommandBlockPeripheralProvider implements IPeripheralProvider
         TileEntity tile = world.getTileEntity( pos );
         if( tile != null && tile instanceof TileEntityCommandBlock )
         {
-            TileEntityCommandBlock commandBlock = (TileEntityCommandBlock)tile;
+            TileEntityCommandBlock commandBlock = (TileEntityCommandBlock) tile;
             return new CommandBlockPeripheral( commandBlock );
         }
         return null;

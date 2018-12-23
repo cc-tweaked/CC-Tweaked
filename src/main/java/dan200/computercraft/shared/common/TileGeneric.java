@@ -17,10 +17,10 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
@@ -41,7 +41,7 @@ public abstract class TileGeneric extends TileEntity
             packet.m_packetType = ComputerCraftPacket.RequestTileEntityUpdate;
 
             BlockPos pos = getPos();
-            packet.m_dataInt = new int[]{ pos.getX(), pos.getY(), pos.getZ() };
+            packet.m_dataInt = new int[] { pos.getX(), pos.getY(), pos.getZ() };
             ComputerCraft.sendToServer( packet );
         }
     }
@@ -56,7 +56,7 @@ public abstract class TileGeneric extends TileEntity
         Block block = getWorld().getBlockState( getPos() ).getBlock();
         if( block != null && block instanceof BlockGeneric )
         {
-            return (BlockGeneric)block;
+            return (BlockGeneric) block;
         }
         return null;
     }
@@ -159,7 +159,7 @@ public abstract class TileGeneric extends TileEntity
                     double range = getInteractRange( player );
                     BlockPos pos = getPos();
                     return player.getEntityWorld() == getWorld() &&
-                           player.getDistanceSq( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5 ) <= ( range * range );
+                        player.getDistanceSq( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5 ) <= (range * range);
                 }
                 return true;
             }
@@ -207,7 +207,7 @@ public abstract class TileGeneric extends TileEntity
 
     @Nonnull
     @Override
-    public NBTTagCompound getUpdateTag ()
+    public NBTTagCompound getUpdateTag()
     {
         NBTTagCompound tag = super.getUpdateTag();
         writeDescription( tag );
@@ -215,9 +215,9 @@ public abstract class TileGeneric extends TileEntity
     }
 
     @Override
-    public void handleUpdateTag ( @Nonnull NBTTagCompound tag)
+    public void handleUpdateTag( @Nonnull NBTTagCompound tag )
     {
-        super.handleUpdateTag(tag);
+        super.handleUpdateTag( tag );
         readDescription( tag );
     }
 }

@@ -19,12 +19,12 @@ public class ContainerComputer extends Container
     implements IContainerComputer
 {
     private TileComputer m_computer;
-    
+
     public ContainerComputer( TileComputer computer )
     {
         m_computer = computer;
     }
-    
+
     @Override
     public boolean canInteractWith( @Nonnull EntityPlayer player )
     {

@@ -146,7 +146,7 @@ public class TextTable
         {
             ComputerCraftPacket packet = new ComputerCraftPacket();
             packet.m_packetType = ComputerCraftPacket.PostChat;
-            packet.m_dataInt = new int[]{ id };
+            packet.m_dataInt = new int[] { id };
 
             String[] lines = packet.m_dataString = new String[out.size()];
             for( int i = 0; i < out.size(); i++ )

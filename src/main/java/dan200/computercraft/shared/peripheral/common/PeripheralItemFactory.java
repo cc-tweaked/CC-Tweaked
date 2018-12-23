@@ -24,9 +24,9 @@ public class PeripheralItemFactory
     @Nonnull
     public static ItemStack create( PeripheralType type, String label, int quantity )
     {
-        ItemPeripheral peripheral = ((ItemPeripheral)Item.getItemFromBlock( ComputerCraft.Blocks.peripheral ));
-        ItemCable cable = ((ItemCable)Item.getItemFromBlock( ComputerCraft.Blocks.cable ));
-        ItemAdvancedModem advancedModem = ((ItemAdvancedModem)Item.getItemFromBlock( ComputerCraft.Blocks.advancedModem ));
+        ItemPeripheral peripheral = ((ItemPeripheral) Item.getItemFromBlock( ComputerCraft.Blocks.peripheral ));
+        ItemCable cable = ((ItemCable) Item.getItemFromBlock( ComputerCraft.Blocks.cable ));
+        ItemAdvancedModem advancedModem = ((ItemAdvancedModem) Item.getItemFromBlock( ComputerCraft.Blocks.advancedModem ));
         switch( type )
         {
             case Speaker:

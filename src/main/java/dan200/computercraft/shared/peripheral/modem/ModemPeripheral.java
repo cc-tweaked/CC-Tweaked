@@ -86,7 +86,7 @@ public abstract class ModemPeripheral implements IPeripheral, IPacketSender, IPa
         {
             for( IComputerAccess computer : m_computers )
             {
-                computer.queueEvent( "modem_message", new Object[]{
+                computer.queueEvent( "modem_message", new Object[] {
                     computer.getAttachmentName(), packet.getChannel(), packet.getReplyChannel(), packet.getPayload(), distance
                 } );
             }
@@ -102,7 +102,7 @@ public abstract class ModemPeripheral implements IPeripheral, IPacketSender, IPa
         {
             for( IComputerAccess computer : m_computers )
             {
-                computer.queueEvent( "modem_message", new Object[]{
+                computer.queueEvent( "modem_message", new Object[] {
                     computer.getAttachmentName(), packet.getChannel(), packet.getReplyChannel(), packet.getPayload()
                 } );
             }
@@ -124,7 +124,7 @@ public abstract class ModemPeripheral implements IPeripheral, IPacketSender, IPa
     @Override
     public String[] getMethodNames()
     {
-        return new String[]{
+        return new String[] {
             "open",
             "isOpen",
             "close",
@@ -160,7 +160,7 @@ public abstract class ModemPeripheral implements IPeripheral, IPacketSender, IPa
             {
                 // isOpen
                 int channel = parseChannel( arguments, 0 );
-                return new Object[]{ m_state.isOpen( channel ) };
+                return new Object[] { m_state.isOpen( channel ) };
             }
             case 2:
             {
@@ -204,7 +204,7 @@ public abstract class ModemPeripheral implements IPeripheral, IPacketSender, IPa
             {
                 // isWireless
                 IPacketNetwork network = m_network;
-                return new Object[]{ network != null && network.isWireless() };
+                return new Object[] { network != null && network.isWireless() };
             }
             default:
             {

@@ -30,12 +30,12 @@ public class GuiPrintout extends GuiContainer
         super( container );
 
         String[] text = ItemPrintout.getText( container.getStack() );
-        m_text = new TextBuffer[ text.length ];
-        for( int i = 0; i < m_text.length; ++i ) m_text[ i ] = new TextBuffer( text[ i ] );
+        m_text = new TextBuffer[text.length];
+        for( int i = 0; i < m_text.length; i++ ) m_text[i] = new TextBuffer( text[i] );
 
         String[] colours = ItemPrintout.getColours( container.getStack() );
-        m_colours = new TextBuffer[ colours.length ];
-        for( int i = 0; i < m_colours.length; ++i ) m_colours[ i ] = new TextBuffer( colours[ i ] );
+        m_colours = new TextBuffer[colours.length];
+        for( int i = 0; i < m_colours.length; i++ ) m_colours[i] = new TextBuffer( colours[i] );
 
         m_page = 0;
         m_pages = Math.max( m_text.length / ItemPrintout.LINES_PER_PAGE, 1 );

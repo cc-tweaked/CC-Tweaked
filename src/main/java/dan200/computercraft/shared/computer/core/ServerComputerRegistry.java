@@ -33,7 +33,7 @@ public class ServerComputerRegistry extends ComputerRegistry<ServerComputer>
                 computer.update();
                 if( computer.hasTerminalChanged() || computer.hasOutputChanged() )
                 {
-                    computer.broadcastState(false);
+                    computer.broadcastState( false );
                 }
             }
         }
@@ -44,7 +44,7 @@ public class ServerComputerRegistry extends ComputerRegistry<ServerComputer>
     {
         //System.out.println( "ADD SERVER COMPUTER " + instanceID );
         super.add( instanceID, computer );
-        computer.broadcastState(true);
+        computer.broadcastState( true );
         //System.out.println( getComputers().size() + " SERVER COMPUTERS" );
     }
 

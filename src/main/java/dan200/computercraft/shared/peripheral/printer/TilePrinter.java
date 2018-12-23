@@ -54,7 +54,7 @@ public class TilePrinter extends TilePeripheralBase
     private final NonNullList<ItemStack> m_inventory;
     private final IItemHandlerModifiable m_itemHandlerAll = new InvWrapper( this );
     private IItemHandlerModifiable[] m_itemHandlerSides;
-    
+
     private final Terminal m_page;
     private String m_pageTitle;
     private boolean m_printing;
@@ -88,10 +88,10 @@ public class TilePrinter extends TilePeripheralBase
     }
 
     @Override
-    public void readFromNBT(NBTTagCompound nbttagcompound)
+    public void readFromNBT( NBTTagCompound nbttagcompound )
     {
-        super.readFromNBT(nbttagcompound);
-            
+        super.readFromNBT( nbttagcompound );
+
         // Read page
         synchronized( m_page )
         {
@@ -99,16 +99,16 @@ public class TilePrinter extends TilePeripheralBase
             m_pageTitle = nbttagcompound.getString( "pageTitle" );
             m_page.readFromNBT( nbttagcompound );
         }
-        
+
         // Read inventory
         synchronized( m_inventory )
         {
             NBTTagList nbttaglist = nbttagcompound.getTagList( "Items", Constants.NBT.TAG_COMPOUND );
-            for( int i=0; i<nbttaglist.tagCount(); ++i )
+            for( int i = 0; i < nbttaglist.tagCount(); i++ )
             {
                 NBTTagCompound itemTag = nbttaglist.getCompoundTagAt( i );
-                int j = itemTag.getByte("Slot") & 0xff;
-                if (j >= 0 && j < m_inventory.size())
+                int j = itemTag.getByte( "Slot" ) & 0xff;
+                if( j >= 0 && j < m_inventory.size() )
                 {
                     m_inventory.set( j, new ItemStack( itemTag ) );
                 }
@@ -118,9 +118,9 @@ public class TilePrinter extends TilePeripheralBase
 
     @Nonnull
     @Override
-    public NBTTagCompound writeToNBT(NBTTagCompound nbttagcompound)
+    public NBTTagCompound writeToNBT( NBTTagCompound nbttagcompound )
     {
-        nbttagcompound = super.writeToNBT(nbttagcompound);
+        nbttagcompound = super.writeToNBT( nbttagcompound );
 
         // Write page
         synchronized( m_page )
@@ -129,22 +129,22 @@ public class TilePrinter extends TilePeripheralBase
             nbttagcompound.setString( "pageTitle", m_pageTitle );
             m_page.writeToNBT( nbttagcompound );
         }
-        
+
         // Write inventory
         synchronized( m_inventory )
         {
             NBTTagList nbttaglist = new NBTTagList();
-            for(int i=0; i<m_inventory.size(); ++i)
+            for( int i = 0; i < m_inventory.size(); i++ )
             {
                 if( !m_inventory.get( i ).isEmpty() )
                 {
                     NBTTagCompound itemtag = new NBTTagCompound();
-                    itemtag.setByte("Slot", (byte)i);
+                    itemtag.setByte( "Slot", (byte) i );
                     m_inventory.get( i ).writeToNBT( itemtag );
-                    nbttaglist.appendTag(itemtag);
+                    nbttaglist.appendTag( itemtag );
                 }
             }
-            nbttagcompound.setTag("Items", nbttaglist);
+            nbttagcompound.setTag( "Items", nbttaglist );
         }
 
         return nbttagcompound;
@@ -169,8 +169,8 @@ public class TilePrinter extends TilePeripheralBase
     }
 
     // IInventory implementation
-    
-    @Override    
+
+    @Override
     public int getSizeInventory()
     {
         return m_inventory.size();
@@ -187,15 +187,15 @@ public class TilePrinter extends TilePeripheralBase
     }
 
     @Nonnull
-    @Override    
-    public ItemStack getStackInSlot(int i)
+    @Override
+    public ItemStack getStackInSlot( int i )
     {
         return m_inventory.get( i );
     }
 
     @Nonnull
-    @Override    
-    public ItemStack removeStackFromSlot(int i)
+    @Override
+    public ItemStack removeStackFromSlot( int i )
     {
         synchronized( m_inventory )
         {
@@ -205,10 +205,10 @@ public class TilePrinter extends TilePeripheralBase
             return result;
         }
     }
-    
+
     @Nonnull
-    @Override    
-    public ItemStack decrStackSize(int i, int j)
+    @Override
+    public ItemStack decrStackSize( int i, int j )
     {
         synchronized( m_inventory )
         {
@@ -216,7 +216,7 @@ public class TilePrinter extends TilePeripheralBase
             {
                 return ItemStack.EMPTY;
             }
-            
+
             if( m_inventory.get( i ).getCount() <= j )
             {
                 ItemStack itemstack = m_inventory.get( i );
@@ -225,8 +225,8 @@ public class TilePrinter extends TilePeripheralBase
                 updateAnim();
                 return itemstack;
             }
-            
-            ItemStack part = m_inventory.get( i ).splitStack(j);
+
+            ItemStack part = m_inventory.get( i ).splitStack( j );
             if( m_inventory.get( i ).isEmpty() )
             {
                 m_inventory.set( i, ItemStack.EMPTY );
@@ -237,9 +237,9 @@ public class TilePrinter extends TilePeripheralBase
         }
     }
 
-    @Override    
+    @Override
     public void setInventorySlotContents( int i, @Nonnull ItemStack stack )
-    {                    
+    {
         synchronized( m_inventory )
         {
             m_inventory.set( i, stack );
@@ -253,7 +253,7 @@ public class TilePrinter extends TilePeripheralBase
     {
         synchronized( m_inventory )
         {
-            for( int i=0; i<m_inventory.size(); ++i )
+            for( int i = 0; i < m_inventory.size(); i++ )
             {
                 m_inventory.set( i, ItemStack.EMPTY );
             }
@@ -297,18 +297,18 @@ public class TilePrinter extends TilePeripheralBase
         }
     }
 
-    @Override    
+    @Override
     public int getInventoryStackLimit()
     {
         return 64;
     }
 
-    @Override    
+    @Override
     public void openInventory( @Nonnull EntityPlayer player )
     {
     }
-    
-    @Override    
+
+    @Override
     public void closeInventory( @Nonnull EntityPlayer player )
     {
     }
@@ -332,30 +332,33 @@ public class TilePrinter extends TilePeripheralBase
     }
 
     @Override
-    public int getField(int id)
+    public int getField( int id )
     {
         return 0;
     }
 
     @Override
-    public void setField(int id, int value)
+    public void setField( int id, int value )
     {
     }
 
     // ISidedInventory implementation
-    
+
     @Nonnull
     @Override
     public int[] getSlotsForFace( @Nonnull EnumFacing side )
     {
         switch( side )
         {
-            case DOWN:    return bottomSlots;    // Bottom (Out tray)
-            case UP:    return topSlots; // Top (In tray)
-            default: return sideSlots;     // Sides (Ink)
+            case DOWN:
+                return bottomSlots;    // Bottom (Out tray)
+            case UP:
+                return topSlots; // Top (In tray)
+            default:
+                return sideSlots;     // Sides (Ink)
         }
     }
-    
+
     @Override
     public boolean canInsertItem( int slot, @Nonnull ItemStack itemstack, @Nonnull EnumFacing face )
     {
@@ -421,7 +424,7 @@ public class TilePrinter extends TilePeripheralBase
         synchronized( m_inventory )
         {
             ItemStack inkStack = m_inventory.get( 0 );
-            if( !inkStack.isEmpty() && isInk(inkStack) )
+            if( !inkStack.isEmpty() && isInk( inkStack ) )
             {
                 return inkStack.getCount();
             }
@@ -434,10 +437,10 @@ public class TilePrinter extends TilePeripheralBase
         int count = 0;
         synchronized( m_inventory )
         {
-            for( int i=1; i<7; ++i )
+            for( int i = 1; i < 7; i++ )
             {
                 ItemStack paperStack = m_inventory.get( i );
-                if( !paperStack.isEmpty() && isPaper(paperStack) )
+                if( !paperStack.isEmpty() && isPaper( paperStack ) )
                 {
                     count += paperStack.getCount();
                 }
@@ -453,7 +456,7 @@ public class TilePrinter extends TilePeripheralBase
             m_pageTitle = title;
         }
     }
-    
+
     private boolean isInk( @Nonnull ItemStack stack )
     {
         return (stack.getItem() == Items.DYE);
@@ -462,7 +465,7 @@ public class TilePrinter extends TilePeripheralBase
     private boolean isPaper( @Nonnull ItemStack stack )
     {
         Item item = stack.getItem();
-        return ( item == Items.PAPER || (item instanceof ItemPrintout && ItemPrintout.getType( stack ) == ItemPrintout.Type.Single) );
+        return (item == Items.PAPER || (item instanceof ItemPrintout && ItemPrintout.getType( stack ) == ItemPrintout.Type.Single));
     }
 
     private boolean canInputPage()
@@ -473,37 +476,40 @@ public class TilePrinter extends TilePeripheralBase
             return !inkStack.isEmpty() && isInk( inkStack ) && getPaperLevel() > 0;
         }
     }
-    
+
     private boolean inputPage()
-    {        
+    {
         synchronized( m_inventory )
         {
             ItemStack inkStack = m_inventory.get( 0 );
-            if( inkStack.isEmpty() || !isInk(inkStack) )
+            if( inkStack.isEmpty() || !isInk( inkStack ) )
             {
                 return false;
             }
-            
-            for( int i=1; i<7; ++i )
+
+            for( int i = 1; i < 7; i++ )
             {
                 ItemStack paperStack = m_inventory.get( i );
-                if( !paperStack.isEmpty() && isPaper(paperStack) )
+                if( !paperStack.isEmpty() && isPaper( paperStack ) )
                 {
                     // Setup the new page
                     int colour = inkStack.getItemDamage();
-                    if( colour >= 0 && colour < 16 ) {
+                    if( colour >= 0 && colour < 16 )
+                    {
                         m_page.setTextColour( 15 - colour );
-                    } else {
+                    }
+                    else
+                    {
                         m_page.setTextColour( 15 );
                     }
-                    
+
                     m_page.clear();
                     if( paperStack.getItem() instanceof ItemPrintout )
                     {
                         m_pageTitle = ItemPrintout.getTitle( paperStack );
                         String[] text = ItemPrintout.getText( paperStack );
                         String[] textColour = ItemPrintout.getColours( paperStack );
-                        for( int y=0; y<m_page.getHeight(); ++y )
+                        for( int y = 0; y < m_page.getHeight(); y++ )
                         {
                             m_page.setLine( y, text[y], textColour[y], "" );
                         }
@@ -528,7 +534,7 @@ public class TilePrinter extends TilePeripheralBase
                         m_inventory.set( i, ItemStack.EMPTY );
                         updateAnim();
                     }
-                    
+
                     markDirty();
                     m_printing = true;
                     return true;
@@ -537,20 +543,20 @@ public class TilePrinter extends TilePeripheralBase
             return false;
         }
     }
-    
+
     private boolean outputPage()
-    {        
+    {
         synchronized( m_page )
         {
             int height = m_page.getHeight();
             String[] lines = new String[height];
             String[] colours = new String[height];
-            for( int i=0; i<height; ++i )
+            for( int i = 0; i < height; i++ )
             {
-                lines[i] = m_page.getLine(i).toString();
-                colours[i] = m_page.getTextColourLine(i).toString();
+                lines[i] = m_page.getLine( i ).toString();
+                colours[i] = m_page.getTextColourLine( i ).toString();
             }
-            
+
             ItemStack stack = ItemPrintout.createSingleFromTitleAndText( m_pageTitle, lines, colours );
             synchronized( m_inventory )
             {
@@ -569,14 +575,14 @@ public class TilePrinter extends TilePeripheralBase
     {
         synchronized( m_inventory )
         {
-            for( int i=0; i<13; ++i ) 
+            for( int i = 0; i < 13; i++ )
             {
                 ItemStack stack = m_inventory.get( i );
                 if( !stack.isEmpty() )
                 {
                     // Remove the stack from the inventory
                     setInventorySlotContents( i, ItemStack.EMPTY );
-        
+
                     // Spawn the item in the world
                     BlockPos pos = getPos();
                     double x = pos.getX() + 0.5;
@@ -586,30 +592,30 @@ public class TilePrinter extends TilePeripheralBase
                     entityitem.motionX = getWorld().rand.nextFloat() * 0.2 - 0.1;
                     entityitem.motionY = getWorld().rand.nextFloat() * 0.2 - 0.1;
                     entityitem.motionZ = getWorld().rand.nextFloat() * 0.2 - 0.1;
-                    getWorld().spawnEntity(entityitem);
+                    getWorld().spawnEntity( entityitem );
                 }
             }
         }
     }
-    
+
     private void updateAnim()
     {
         synchronized( m_inventory )
         {
             int anim = 0;
-            for( int i=1;i<7;++i )
+            for( int i = 1; i < 7; i++ )
             {
                 ItemStack stack = m_inventory.get( i );
-                if( !stack.isEmpty() && isPaper(stack) )
+                if( !stack.isEmpty() && isPaper( stack ) )
                 {
                     anim += 1;
                     break;
                 }
             }
-            for( int i=7;i<13;++i )
+            for( int i = 7; i < 13; i++ )
             {
                 ItemStack stack = m_inventory.get( i );
-                if( !stack.isEmpty() && isPaper(stack) )
+                if( !stack.isEmpty() && isPaper( stack ) )
                 {
                     anim += 2;
                     break;
@@ -638,11 +644,11 @@ public class TilePrinter extends TilePeripheralBase
             else
             {
                 IItemHandlerModifiable[] handlers = m_itemHandlerSides;
-                if( handlers == null ) handlers = m_itemHandlerSides = new IItemHandlerModifiable[ 6 ];
+                if( handlers == null ) handlers = m_itemHandlerSides = new IItemHandlerModifiable[6];
 
                 int i = facing.ordinal();
-                IItemHandlerModifiable handler = handlers[ i ];
-                if( handler == null ) handler = handlers[ i ] = new SidedInvWrapper( this, facing );
+                IItemHandlerModifiable handler = handlers[i];
+                if( handler == null ) handler = handlers[i] = new SidedInvWrapper( this, facing );
 
                 return ITEM_HANDLER_CAPABILITY.cast( handler );
             }

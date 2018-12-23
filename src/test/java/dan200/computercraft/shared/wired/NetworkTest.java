@@ -249,7 +249,7 @@ public class NetworkTest
     }
 
     @Test
-    @Ignore("Takes a long time to run, mostly for stress testing")
+    @Ignore( "Takes a long time to run, mostly for stress testing" )
     public void testLarge()
     {
         final int BRUTE_SIZE = 16;
@@ -427,7 +427,7 @@ public class NetworkTest
         private final int size;
         private final T[] box;
 
-        @SuppressWarnings("unchecked")
+        @SuppressWarnings( "unchecked" )
         public Grid( int size )
         {
             this.size = size;

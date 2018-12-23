@@ -23,7 +23,7 @@ public class CreativeTabMain extends CreativeTabs
 
     @Nonnull
     @Override
-    @SideOnly(Side.CLIENT)
+    @SideOnly( Side.CLIENT )
     public ItemStack createIcon()
     {
         return new ItemStack( ComputerCraft.Blocks.computer );
@@ -31,7 +31,7 @@ public class CreativeTabMain extends CreativeTabs
 
     @Nonnull
     @Override
-    @SideOnly(Side.CLIENT)
+    @SideOnly( Side.CLIENT )
     public String getTranslationKey()
     {
         return getTabLabel();

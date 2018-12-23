@@ -88,12 +88,17 @@ public class DirectionUtil
 
     public static EnumFacing fromEntityRot( EntityLivingBase player )
     {
-        int rot = MathHelper.floor( ( player.rotationYaw / 90.0f ) + 0.5f ) & 0x3;
-        switch( rot ) {
-            case 0: return EnumFacing.NORTH;
-            case 1: return EnumFacing.EAST;
-            case 2: return EnumFacing.SOUTH;
-            case 3: return EnumFacing.WEST;
+        int rot = MathHelper.floor( (player.rotationYaw / 90.0f) + 0.5f ) & 0x3;
+        switch( rot )
+        {
+            case 0:
+                return EnumFacing.NORTH;
+            case 1:
+                return EnumFacing.EAST;
+            case 2:
+                return EnumFacing.SOUTH;
+            case 3:
+                return EnumFacing.WEST;
         }
         return EnumFacing.NORTH;
     }
@@ -102,11 +107,16 @@ public class DirectionUtil
     {
         switch( dir )
         {
-            case NORTH: return 180.0f;
-            case SOUTH: return 0.0f;
-            case WEST: return 90.0f;
-            case EAST: return 270.0f;
-            default: return 0.0f;
+            case NORTH:
+                return 180.0f;
+            case SOUTH:
+                return 0.0f;
+            case WEST:
+                return 90.0f;
+            case EAST:
+                return 270.0f;
+            default:
+                return 0.0f;
         }
     }
 
@@ -114,9 +124,12 @@ public class DirectionUtil
     {
         switch( dir )
         {
-            case DOWN: return 90.0f;
-            case UP: return 270.0f;
-            default: return 0.0f;
+            case DOWN:
+                return 90.0f;
+            case UP:
+                return 270.0f;
+            default:
+                return 0.0f;
         }
     }
 }

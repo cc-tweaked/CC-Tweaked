@@ -19,8 +19,8 @@ import javax.annotation.Nullable;
 
 /**
  * Represents an ingredient which requires an item to have a specific
- * computer family. This allows us to have operations which only work 
- * on normal or 
+ * computer family. This allows us to have operations which only work
+ * on normal or
  */
 public class ComputerIngredient extends Ingredient
 {

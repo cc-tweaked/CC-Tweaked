@@ -18,8 +18,11 @@ import javax.annotation.Nonnull;
 public interface ITurtleItem extends IComputerItem, IColouredItem
 {
     ITurtleUpgrade getUpgrade( ItemStack stack, TurtleSide side );
+
     int getFuelLevel( ItemStack stack );
+
     ResourceLocation getOverlay( ItemStack stack );
+
     @Override
     int getColour( @Nonnull ItemStack stack );
 }
