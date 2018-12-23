@@ -28,7 +28,7 @@ public class GuiTurtle extends GuiContainer
 {
     private static final ResourceLocation background = new ResourceLocation( "computercraft", "textures/gui/turtle.png" );
     private static final ResourceLocation backgroundAdvanced = new ResourceLocation( "computercraft", "textures/gui/turtle_advanced.png" );
-    
+
     protected World m_world;
     protected ContainerTurtle m_container;
 
@@ -36,7 +36,7 @@ public class GuiTurtle extends GuiContainer
     protected final ITurtleAccess m_turtle;
     protected final IComputer m_computer;
     protected WidgetTerminal m_terminalGui;
-    
+
     public GuiTurtle( World world, InventoryPlayer inventoryplayer, TileTurtle turtle )
     {
         this( world, turtle, new ContainerTurtle( inventoryplayer, turtle.getAccess() ) );
@@ -51,7 +51,7 @@ public class GuiTurtle extends GuiContainer
         m_family = turtle.getFamily();
         m_turtle = turtle.getAccess();
         m_computer = turtle.createComputer();
-        
+
         xSize = 254;
         ySize = 217;
     }
@@ -95,17 +95,17 @@ public class GuiTurtle extends GuiContainer
         }
         else
         {
-            if( m_terminalGui.keyTyped( c, k ) ) keyHandled = true;
+            if( m_terminalGui.onKeyTyped( c, k ) ) keyHandled = true;
         }
     }
-    
+
     @Override
     protected void mouseClicked(int x, int y, int button) throws IOException
     {
         super.mouseClicked( x, y, button );
         m_terminalGui.mouseClicked( x, y, button );
     }
-    
+
     @Override
     public void handleMouseInput() throws IOException
     {
@@ -119,14 +119,14 @@ public class GuiTurtle extends GuiContainer
     public void handleKeyboardInput() throws IOException
     {
         super.handleKeyboardInput();
-        if( m_terminalGui.handleKeyboardInput() ) keyHandled = true;
+        if( m_terminalGui.onKeyboardInput() ) keyHandled = true;
     }
 
     protected void drawSelectionSlot( boolean advanced )
     {
         int x = (width - xSize) / 2;
         int y = (height - ySize) / 2;
-        
+
         // Draw selection slot
         int slot = m_container.getSelectedSlot();
         if( slot >= 0 )
@@ -145,14 +145,14 @@ public class GuiTurtle extends GuiContainer
         // Draw term
         boolean advanced = (m_family == ComputerFamily.Advanced);
         m_terminalGui.draw( Minecraft.getMinecraft(), 0, 0, mouseX, mouseY );
-        
+
         // Draw border/inventory
         GlStateManager.color( 1.0F, 1.0F, 1.0F, 1.0F );
         this.mc.getTextureManager().bindTexture( advanced ? backgroundAdvanced : background );
         int x = (width - xSize) / 2;
         int y = (height - ySize) / 2;
         drawTexturedModalRect(x, y, 0, 0, xSize, ySize);
-        
+
         drawSelectionSlot( advanced );
     }
 

@@ -95,7 +95,7 @@ public class GuiComputer extends GuiContainer
         }
         else
         {
-            if( m_terminal.keyTyped( c, k ) ) keyHandled = true;
+            if( m_terminal.onKeyTyped( c, k ) ) keyHandled = true;
         }
     }
 
@@ -123,7 +123,7 @@ public class GuiComputer extends GuiContainer
     public void handleKeyboardInput() throws IOException
     {
         super.handleKeyboardInput();
-        if( m_terminal.handleKeyboardInput() ) keyHandled = true;
+        if( m_terminal.onKeyboardInput() ) keyHandled = true;
     }
 
     @Override
@@ -150,7 +150,7 @@ public class GuiComputer extends GuiContainer
 
            // Draw terminal
         m_terminal.draw( this.mc, startX, startY, mouseX, mouseY );
-        
+
         // Draw a border around the terminal
         GlStateManager.color( 1.0f, 1.0f, 1.0f, 1.0f );
         switch( m_family )

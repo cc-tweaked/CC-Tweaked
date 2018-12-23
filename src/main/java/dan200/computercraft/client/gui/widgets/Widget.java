@@ -7,16 +7,7 @@
 package dan200.computercraft.client.gui.widgets;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.audio.PositionedSoundRecord;
-import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.Gui;
-import net.minecraft.client.renderer.*;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.init.SoundEvents;
-import net.minecraft.item.ItemStack;
-import org.lwjgl.opengl.GL11;
-
-import javax.annotation.Nonnull;
 
 public abstract class Widget extends Gui
 {
@@ -65,17 +56,29 @@ public abstract class Widget extends Gui
     {
     }
 
-    public boolean handleKeyboardInput()
+    public boolean onKeyboardInput()
     {
         return false;
+    }
+
+    @Deprecated
+    public void handleKeyboardInput()
+    {
+        onKeyboardInput();
     }
 
     public void mouseClicked( int mouseX, int mouseY, int mouseButton )
     {
     }
 
-    public boolean keyTyped( char c, int k )
+    public boolean onKeyTyped( char c, int k )
     {
         return false;
+    }
+
+    @Deprecated
+    public void keyTyped( char c, int k )
+    {
+        onKeyTyped( c, k );
     }
 }

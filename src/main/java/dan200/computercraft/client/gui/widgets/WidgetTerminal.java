@@ -84,7 +84,7 @@ public class WidgetTerminal extends Widget
     }
 
     @Override
-    public boolean keyTyped( char ch, int key )
+    public boolean onKeyTyped( char ch, int key )
     {
         if( m_focus )
         {
@@ -161,7 +161,7 @@ public class WidgetTerminal extends Widget
                 return handled;
             }
         }
-        
+
         return false;
     }
 
@@ -210,7 +210,7 @@ public class WidgetTerminal extends Widget
     }
 
     @Override
-    public boolean handleKeyboardInput()
+    public boolean onKeyboardInput()
     {
         boolean handled = false;
         for( int i = m_keysDown.size() - 1; i >= 0; --i )
@@ -296,10 +296,10 @@ public class WidgetTerminal extends Widget
 
     @Override
     public void update()
-    {                
+    {
         // Handle special keys
         if( m_focus && (Keyboard.isKeyDown( 29 ) || Keyboard.isKeyDown( 157 )) )
-        {            
+        {
             // Ctrl+T for terminate
             if( Keyboard.isKeyDown( 20 ) )
             {
@@ -316,7 +316,7 @@ public class WidgetTerminal extends Widget
             {
                 m_terminateTimer = 0.0f;
             }
-            
+
             // Ctrl+R for reboot
             if( Keyboard.isKeyDown(19) )
             {
