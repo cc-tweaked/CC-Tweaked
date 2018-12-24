@@ -4,17 +4,13 @@
  * Send enquiries to dratcliffe@gmail.com
  */
 
-package dan200.computercraft.core;
+package dan200.computercraft.core.filesystem;
 
 import com.google.common.io.Files;
 import dan200.computercraft.api.filesystem.IWritableMount;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.core.apis.ObjectWrapper;
 import dan200.computercraft.core.apis.handles.EncodedWritableHandle;
-import dan200.computercraft.core.filesystem.FileMount;
-import dan200.computercraft.core.filesystem.FileSystem;
-import dan200.computercraft.core.filesystem.FileSystemException;
-import dan200.computercraft.core.filesystem.FileSystemWrapper;
 import org.junit.Test;
 
 import java.io.BufferedWriter;

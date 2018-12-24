@@ -100,6 +100,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
+import java.nio.file.Files;
 import java.util.*;
 import java.util.function.Function;
 import java.util.zip.ZipEntry;
@@ -955,7 +956,7 @@ public class ComputerCraft
                     {
                         // Mount a resource pack from a jar
                         FileSystem fs = FileSystems.newFileSystem( resourcePack.toPath(), ComputerCraft.class.getClassLoader() );
-                        mounts.add( new FileSystemMount( fs, subPath ) );
+                        if( Files.exists( fs.getPath( subPath ) ) ) mounts.add( new FileSystemMount( fs, subPath ) );
                     }
                     else
                     {

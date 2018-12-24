@@ -1,5 +1,6 @@
 package dan200.computercraft.core.apis;
 
+import com.google.common.base.Preconditions;
 import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.api.filesystem.IWritableMount;
 import dan200.computercraft.api.peripheral.IComputerAccess;
@@ -11,6 +12,7 @@ import dan200.computercraft.core.filesystem.FileSystemException;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 public abstract class ComputerAccess implements IComputerAccess, IComputerOwned
@@ -34,21 +36,16 @@ public abstract class ComputerAccess implements IComputerAccess, IComputerOwned
     }
 
     @Override
-    public String mount( @Nonnull String desiredLoc, @Nonnull IMount mount )
-    {
-        return mount( desiredLoc, mount, getAttachmentName() );
-    }
-
-    @Override
     public synchronized String mount( @Nonnull String desiredLoc, @Nonnull IMount mount, @Nonnull String driveName )
     {
+        Objects.requireNonNull( desiredLoc, "desiredLocation cannot be null" );
+        Objects.requireNonNull( mount, "mount cannot be null" );
+        Objects.requireNonNull( driveName, "driveName cannot be null" );
+
         // Mount the location
         String location;
         FileSystem fileSystem = m_environment.getFileSystem();
-        if( fileSystem == null )
-        {
-            throw new IllegalStateException( "File system has not been created" );
-        }
+        if( fileSystem == null ) throw new IllegalStateException( "File system has not been created" );
 
         synchronized( fileSystem )
         {
@@ -64,29 +61,22 @@ public abstract class ComputerAccess implements IComputerAccess, IComputerOwned
                 }
             }
         }
-        if( location != null )
-        {
-            m_mounts.add( location );
-        }
-        return location;
-    }
 
-    @Override
-    public String mountWritable( @Nonnull String desiredLoc, @Nonnull IWritableMount mount )
-    {
-        return mountWritable( desiredLoc, mount, getAttachmentName() );
+        if( location != null ) m_mounts.add( location );
+        return location;
     }
 
     @Override
     public synchronized String mountWritable( @Nonnull String desiredLoc, @Nonnull IWritableMount mount, @Nonnull String driveName )
     {
+        Objects.requireNonNull( desiredLoc, "desiredLocation cannot be null" );
+        Objects.requireNonNull( mount, "mount cannot be null" );
+        Objects.requireNonNull( driveName, "driveName cannot be null" );
+
         // Mount the location
         String location;
         FileSystem fileSystem = m_environment.getFileSystem();
-        if( fileSystem == null )
-        {
-            throw new IllegalStateException( "File system has not been created" );
-        }
+        if( fileSystem == null ) throw new IllegalStateException( "File system has not been created" );
 
         synchronized( fileSystem )
         {
@@ -102,26 +92,19 @@ public abstract class ComputerAccess implements IComputerAccess, IComputerOwned
                 }
             }
         }
-        if( location != null )
-        {
-            m_mounts.add( location );
-        }
+
+        if( location != null ) m_mounts.add( location );
         return location;
     }
 
     @Override
     public void unmount( String location )
     {
-        if( location != null )
-        {
-            if( !m_mounts.contains( location ) )
-            {
-                throw new RuntimeException( "You didn't mount this location" );
-            }
+        if( location == null ) return;
+        if( !m_mounts.contains( location ) ) throw new IllegalStateException( "You didn't mount this location" );
 
-            m_environment.getFileSystem().unmount( location );
-            m_mounts.remove( location );
-        }
+        m_environment.getFileSystem().unmount( location );
+        m_mounts.remove( location );
     }
 
     @Override
@@ -133,6 +116,7 @@ public abstract class ComputerAccess implements IComputerAccess, IComputerOwned
     @Override
     public void queueEvent( @Nonnull final String event, final Object[] arguments )
     {
+        Preconditions.checkNotNull( event, "event cannot be null" );
         m_environment.queueEvent( event, arguments );
     }
 
@@ -148,13 +132,9 @@ public abstract class ComputerAccess implements IComputerAccess, IComputerOwned
         try
         {
             FileSystem fileSystem = m_environment.getFileSystem();
-            if( !fileSystem.exists( desiredLoc ) )
-            {
-                return desiredLoc;
-            }
+            if( !fileSystem.exists( desiredLoc ) ) return desiredLoc;
 
-            // We used to check foo2,foo3,foo4,etc here
-            // but the disk drive does this itself now
+            // We used to check foo2, foo3, foo4, etc here but the disk drive does this itself now
             return null;
         }
         catch( FileSystemException e )

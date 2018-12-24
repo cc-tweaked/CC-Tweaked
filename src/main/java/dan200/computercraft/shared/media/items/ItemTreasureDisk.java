@@ -7,6 +7,7 @@
 package dan200.computercraft.shared.media.items;
 
 import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.api.media.IMedia;
 import dan200.computercraft.core.filesystem.SubMount;
@@ -116,7 +117,7 @@ public class ItemTreasureDisk extends Item
 
     private static IMount getTreasureMount()
     {
-        return ComputerCraft.createResourceMount( ComputerCraft.class, "computercraft", "lua/treasure" );
+        return ComputerCraftAPI.createResourceMount( ComputerCraft.class, "computercraft", "lua/treasure" );
     }
 
     // private stuff

@@ -20,9 +20,15 @@ public class FileSystemMount implements IMount
     {
         Path rootPath = fileSystem.getPath( root );
         rootEntry = new Entry( "", rootPath );
+        populate( rootEntry );
+    }
+
+    private void populate( Entry root ) throws IOException
+    {
+        if( !root.directory ) return;
 
         Queue<Entry> entries = new ArrayDeque<>();
-        entries.add( rootEntry );
+        entries.add( root );
         while( !entries.isEmpty() )
         {
             Entry entry = entries.remove();

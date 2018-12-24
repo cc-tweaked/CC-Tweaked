@@ -149,10 +149,7 @@ public class JarMount implements IMount
                     {
                         m_root = new FileInZip( entryName, entry.isDirectory(), entry.getSize() );
                         m_rootPath = subPath;
-                        if( !m_root.isDirectory() )
-                        {
-                            break;
-                        }
+                        if( !m_root.isDirectory() ) break;
                     }
                     else
                     {

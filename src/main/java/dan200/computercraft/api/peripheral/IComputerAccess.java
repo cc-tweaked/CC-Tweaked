@@ -39,7 +39,10 @@ public interface IComputerAccess
      * @see IMount
      */
     @Nullable
-    String mount( @Nonnull String desiredLocation, @Nonnull IMount mount );
+    default String mount( @Nonnull String desiredLocation, @Nonnull IMount mount )
+    {
+        return mount( desiredLocation, mount, getAttachmentName() );
+    }
 
     /**
      * Mount a mount onto the computer's file system in a read only mode.
@@ -75,7 +78,10 @@ public interface IComputerAccess
      * @see IMount
      */
     @Nullable
-    String mountWritable( @Nonnull String desiredLocation, @Nonnull IWritableMount mount );
+    default String mountWritable( @Nonnull String desiredLocation, @Nonnull IWritableMount mount )
+    {
+        return mountWritable( desiredLocation, mount, getAttachmentName() );
+    }
 
     /**
      * Mount a mount onto the computer's file system in a writable mode.
