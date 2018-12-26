@@ -83,12 +83,6 @@ public abstract class CCTurtleProxyCommon implements ICCTurtleProxy
             new ResourceLocation( ComputerCraft.MOD_ID, "turtle_player" ), TurtlePlayer.class, "turtle_player",
             0, ComputerCraft.instance, Integer.MAX_VALUE, Integer.MAX_VALUE, false
         );
-
-        registerUpgrades();
-
-        // Recipe types
-        // RecipeSorter.register( "computercraft:turtle", TurtleRecipe.class, RecipeSorter.Category.SHAPED, "after:minecraft:shapeless" );
-        // RecipeSorter.register( "computercraft:turtle_upgrade", TurtleUpgradeRecipe.class, RecipeSorter.Category.SHAPED, "after:minecraft:shapeless" );
     }
 
     @Override
@@ -318,6 +312,8 @@ public abstract class CCTurtleProxyCommon implements ICCTurtleProxy
         registry.register( new ItemTurtleLegacy( ComputerCraft.Blocks.turtle ).setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "turtle" ) ) );
         registry.register( new ItemTurtleNormal( ComputerCraft.Blocks.turtleExpanded ).setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "turtle_expanded" ) ) );
         registry.register( new ItemTurtleAdvanced( ComputerCraft.Blocks.turtleAdvanced ).setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "turtle_advanced" ) ) );
+
+        registerUpgrades();
     }
 
     @SubscribeEvent

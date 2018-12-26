@@ -333,6 +333,8 @@ public abstract class ComputerCraftProxyCommon implements IComputerCraftProxy
         // Pocket computer
         ComputerCraft.Items.pocketComputer = new ItemPocketComputer();
         registry.register( ComputerCraft.Items.pocketComputer.setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "pocket_computer" ) ) );
+
+        registerUpgrades();
     }
 
     @SubscribeEvent
@@ -380,15 +382,6 @@ public abstract class ComputerCraftProxyCommon implements IComputerCraftProxy
         // Printout
         registry.register( new PrintoutRecipe().setRegistryName( new ResourceLocation( "computercraft:printout" ) ) );
 
-        // Register pocket upgrades
-        ComputerCraft.PocketUpgrades.wirelessModem = new PocketModem( false );
-        ComputerCraftAPI.registerPocketUpgrade( ComputerCraft.PocketUpgrades.wirelessModem );
-        ComputerCraft.PocketUpgrades.advancedModem = new PocketModem( true );
-        ComputerCraftAPI.registerPocketUpgrade( ComputerCraft.PocketUpgrades.advancedModem );
-
-        ComputerCraft.PocketUpgrades.pocketSpeaker = new PocketSpeaker();
-        ComputerCraftAPI.registerPocketUpgrade( ComputerCraft.PocketUpgrades.pocketSpeaker );
-
         // Wireless Pocket Computer
         registry.register( new PocketComputerUpgradeRecipe().setRegistryName( new ResourceLocation( "computercraft:pocket_computer_upgrade" ) ) );
 
@@ -413,6 +406,18 @@ public abstract class ComputerCraftProxyCommon implements IComputerCraftProxy
                 ).setRegistryName( new ResourceLocation( "computercraft:advanced_pocket_upgrade_" + upgrade.getUpgradeID().toString().replace( ':', '_' ) ) )
             );
         }
+    }
+
+    private void registerUpgrades()
+    {
+        // Register pocket upgrades
+        ComputerCraft.PocketUpgrades.wirelessModem = new PocketModem( false );
+        ComputerCraftAPI.registerPocketUpgrade( ComputerCraft.PocketUpgrades.wirelessModem );
+        ComputerCraft.PocketUpgrades.advancedModem = new PocketModem( true );
+        ComputerCraftAPI.registerPocketUpgrade( ComputerCraft.PocketUpgrades.advancedModem );
+
+        ComputerCraft.PocketUpgrades.pocketSpeaker = new PocketSpeaker();
+        ComputerCraftAPI.registerPocketUpgrade( ComputerCraft.PocketUpgrades.pocketSpeaker );
     }
 
     @SubscribeEvent

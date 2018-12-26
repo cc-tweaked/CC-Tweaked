@@ -9,7 +9,6 @@ package dan200.computercraft.shared.turtle.upgrades;
 
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.turtle.ITurtleAccess;
-import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.api.turtle.TurtleUpgradeType;
 import dan200.computercraft.shared.peripheral.PeripheralType;
@@ -19,7 +18,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.block.model.ModelManager;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
-import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -30,17 +28,16 @@ import org.apache.commons.lang3.tuple.Pair;
 import javax.annotation.Nonnull;
 import javax.vecmath.Matrix4f;
 
-public class TurtleSpeaker implements ITurtleUpgrade
+public class TurtleSpeaker extends AbstractTurtleUpgrade
 {
     private static class Peripheral extends SpeakerPeripheral
     {
-        // Members
-        ITurtleAccess m_turtle;
+        ITurtleAccess turtle;
 
-        public Peripheral( ITurtleAccess turtle )
+        Peripheral( ITurtleAccess turtle )
         {
             super();
-            m_turtle = turtle;
+            this.turtle = turtle;
         }
 
         @Override
@@ -52,13 +49,13 @@ public class TurtleSpeaker implements ITurtleUpgrade
         @Override
         public World getWorld()
         {
-            return m_turtle.getWorld();
+            return turtle.getWorld();
         }
 
         @Override
         public BlockPos getPos()
         {
-            return m_turtle.getPosition();
+            return turtle.getPosition();
         }
 
         @Override
@@ -67,16 +64,12 @@ public class TurtleSpeaker implements ITurtleUpgrade
             if( other instanceof Peripheral )
             {
                 Peripheral otherPeripheral = (Peripheral) other;
-                return otherPeripheral.m_turtle == m_turtle;
+                return otherPeripheral.turtle == turtle;
             }
 
             return false;
         }
     }
-
-    // Members
-    private ResourceLocation m_id;
-    private int m_legacyID;
 
     @SideOnly( Side.CLIENT )
     private ModelResourceLocation m_leftModel;
@@ -86,42 +79,10 @@ public class TurtleSpeaker implements ITurtleUpgrade
 
     public TurtleSpeaker( ResourceLocation id, int legacyId )
     {
-        m_id = id;
-        m_legacyID = legacyId;
-    }
-
-    @Nonnull
-    @Override
-    public ResourceLocation getUpgradeID()
-    {
-        return m_id;
-    }
-
-    @Override
-    public int getLegacyUpgradeID()
-    {
-        return m_legacyID;
-    }
-
-    @Nonnull
-    @Override
-    public String getUnlocalisedAdjective()
-    {
-        return "upgrade.computercraft:speaker.adjective";
-    }
-
-    @Nonnull
-    @Override
-    public TurtleUpgradeType getType()
-    {
-        return TurtleUpgradeType.Peripheral;
-    }
-
-    @Nonnull
-    @Override
-    public ItemStack getCraftingItem()
-    {
-        return PeripheralItemFactory.create( PeripheralType.Speaker, null, 1 );
+        super( id, legacyId, TurtleUpgradeType.Peripheral,
+            "upgrade.computercraft:speaker.adjective",
+            PeripheralItemFactory.create( PeripheralType.Speaker, null, 1 )
+        );
     }
 
     @Override

@@ -17,17 +17,14 @@ import javax.annotation.Nonnull;
 
 import static dan200.computercraft.core.apis.ArgumentHelper.optInt;
 
-public class CraftingTablePeripheral
-    implements IPeripheral
+public class CraftingTablePeripheral implements IPeripheral
 {
-    private final ITurtleAccess m_turtle;
+    private final ITurtleAccess turtle;
 
     public CraftingTablePeripheral( ITurtleAccess turtle )
     {
-        m_turtle = turtle;
+        this.turtle = turtle;
     }
-
-    // IPeripheral implementation
 
     @Nonnull
     @Override
@@ -48,10 +45,7 @@ public class CraftingTablePeripheral
     private int parseCount( Object[] arguments ) throws LuaException
     {
         int count = optInt( arguments, 0, 64 );
-        if( count < 0 || count > 64 )
-        {
-            throw new LuaException( "Crafting count " + count + " out of range" );
-        }
+        if( count < 0 || count > 64 ) throw new LuaException( "Crafting count " + count + " out of range" );
         return count;
     }
 
@@ -64,7 +58,7 @@ public class CraftingTablePeripheral
             {
                 // craft
                 final int limit = parseCount( arguments );
-                return m_turtle.executeCommand( context, new TurtleCraftCommand( limit ) );
+                return turtle.executeCommand( context, new TurtleCraftCommand( limit ) );
             }
             default:
             {
@@ -76,6 +70,6 @@ public class CraftingTablePeripheral
     @Override
     public boolean equals( IPeripheral other )
     {
-        return (other != null && other.getClass() == this.getClass());
+        return this == other || other instanceof CraftingTablePeripheral;
     }
 }

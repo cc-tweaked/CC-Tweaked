@@ -44,53 +44,14 @@ import javax.vecmath.Matrix4f;
 import java.util.List;
 import java.util.function.Function;
 
-public class TurtleTool implements ITurtleUpgrade
+public class TurtleTool extends AbstractTurtleUpgrade
 {
-    private ResourceLocation m_id;
-    private int m_legacyId;
-    private String m_adjective;
     protected ItemStack m_item;
 
     public TurtleTool( ResourceLocation id, int legacyID, String adjective, Item item )
     {
-        m_id = id;
-        m_legacyId = legacyID;
-        m_adjective = adjective;
+        super( id, legacyID, TurtleUpgradeType.Tool, adjective, item );
         m_item = new ItemStack( item, 1, 0 );
-    }
-
-    @Nonnull
-    @Override
-    public ResourceLocation getUpgradeID()
-    {
-        return m_id;
-    }
-
-    @Override
-    public int getLegacyUpgradeID()
-    {
-        return m_legacyId;
-    }
-
-    @Nonnull
-    @Override
-    public String getUnlocalisedAdjective()
-    {
-        return m_adjective;
-    }
-
-    @Nonnull
-    @Override
-    public TurtleUpgradeType getType()
-    {
-        return TurtleUpgradeType.Tool;
-    }
-
-    @Nonnull
-    @Override
-    public ItemStack getCraftingItem()
-    {
-        return m_item.copy();
     }
 
     @Nonnull
@@ -119,17 +80,11 @@ public class TurtleTool implements ITurtleUpgrade
         switch( verb )
         {
             case Attack:
-            {
                 return attack( turtle, direction, side );
-            }
             case Dig:
-            {
                 return dig( turtle, direction, side );
-            }
             default:
-            {
                 return TurtleCommandResult.failure( "Unsupported action" );
-            }
         }
     }
 
@@ -229,77 +184,76 @@ public class TurtleTool implements ITurtleUpgrade
         // Get ready to dig
         World world = turtle.getWorld();
         BlockPos turtlePosition = turtle.getPosition();
-        BlockPos blockPosition = WorldUtil.moveCoords( turtlePosition, direction );
+        BlockPos blockPosition = turtlePosition.offset( direction );
 
-        if( WorldUtil.isBlockInWorld( world, blockPosition ) &&
-            !world.isAirBlock( blockPosition ) &&
-            !WorldUtil.isLiquidBlock( world, blockPosition ) )
+        if( world.isAirBlock( blockPosition ) || WorldUtil.isLiquidBlock( world, blockPosition ) )
         {
-            IBlockState state = world.getBlockState( blockPosition );
-
-            TurtlePlayer turtlePlayer = TurtlePlaceCommand.createPlayer( turtle, turtlePosition, direction );
-            turtlePlayer.loadInventory( m_item.copy() );
-
-            if( ComputerCraft.turtlesObeyBlockProtection )
-            {
-                // Check spawn protection
-                if( MinecraftForge.EVENT_BUS.post( new BlockEvent.BreakEvent( world, blockPosition, state, turtlePlayer ) ) )
-                {
-                    return TurtleCommandResult.failure( "Cannot break protected block" );
-                }
-
-                if( !ComputerCraft.isBlockEditable( world, blockPosition, turtlePlayer ) )
-                {
-                    return TurtleCommandResult.failure( "Cannot break protected block" );
-                }
-            }
-
-            // Check if we can break the block
-            if( !canBreakBlock( state, world, blockPosition, turtlePlayer ) )
-            {
-                return TurtleCommandResult.failure( "Unbreakable block detected" );
-            }
-
-            // Fire the dig event, checking whether it was cancelled.
-            TurtleBlockEvent.Dig digEvent = new TurtleBlockEvent.Dig( turtle, turtlePlayer, world, blockPosition, state, this, side );
-            if( MinecraftForge.EVENT_BUS.post( digEvent ) )
-            {
-                return TurtleCommandResult.failure( digEvent.getFailureMessage() );
-            }
-
-            // Consume the items the block drops
-            ComputerCraft.setDropConsumer( world, blockPosition, turtleDropConsumer( turtle ) );
-
-            TileEntity tile = world.getTileEntity( blockPosition );
-
-            // Much of this logic comes from PlayerInteractionManager#tryHarvestBlock, so it's a good idea
-            // to consult there before making any changes.
-
-            // Play the destruction sound
-            world.playEvent( 2001, blockPosition, Block.getStateId( state ) );
-
-            // Destroy the block
-            boolean canHarvest = state.getBlock().canHarvestBlock( world, blockPosition, turtlePlayer );
-            boolean canBreak = state.getBlock().removedByPlayer( state, world, blockPosition, turtlePlayer, canHarvest );
-            if( canBreak ) state.getBlock().onPlayerDestroy( world, blockPosition, state );
-            if( canHarvest )
-            {
-                state.getBlock().harvestBlock( world, turtlePlayer, blockPosition, state, tile, turtlePlayer.getHeldItemMainhand() );
-            }
-
-            stopConsuming( turtle );
-
-            // Remember the previous block
-            if( turtle instanceof TurtleBrain )
-            {
-                TurtleBrain brain = (TurtleBrain) turtle;
-                brain.saveBlockChange( blockPosition, state );
-            }
-
-            return TurtleCommandResult.success();
+            return TurtleCommandResult.failure( "Nothing to dig here" );
         }
 
-        return TurtleCommandResult.failure( "Nothing to dig here" );
+        IBlockState state = world.getBlockState( blockPosition );
+
+        TurtlePlayer turtlePlayer = TurtlePlaceCommand.createPlayer( turtle, turtlePosition, direction );
+        turtlePlayer.loadInventory( m_item.copy() );
+
+        if( ComputerCraft.turtlesObeyBlockProtection )
+        {
+            // Check spawn protection
+            if( MinecraftForge.EVENT_BUS.post( new BlockEvent.BreakEvent( world, blockPosition, state, turtlePlayer ) ) )
+            {
+                return TurtleCommandResult.failure( "Cannot break protected block" );
+            }
+
+            if( !ComputerCraft.isBlockEditable( world, blockPosition, turtlePlayer ) )
+            {
+                return TurtleCommandResult.failure( "Cannot break protected block" );
+            }
+        }
+
+        // Check if we can break the block
+        if( !canBreakBlock( state, world, blockPosition, turtlePlayer ) )
+        {
+            return TurtleCommandResult.failure( "Unbreakable block detected" );
+        }
+
+        // Fire the dig event, checking whether it was cancelled.
+        TurtleBlockEvent.Dig digEvent = new TurtleBlockEvent.Dig( turtle, turtlePlayer, world, blockPosition, state, this, side );
+        if( MinecraftForge.EVENT_BUS.post( digEvent ) )
+        {
+            return TurtleCommandResult.failure( digEvent.getFailureMessage() );
+        }
+
+        // Consume the items the block drops
+        ComputerCraft.setDropConsumer( world, blockPosition, turtleDropConsumer( turtle ) );
+
+        TileEntity tile = world.getTileEntity( blockPosition );
+
+        // Much of this logic comes from PlayerInteractionManager#tryHarvestBlock, so it's a good idea
+        // to consult there before making any changes.
+
+        // Play the destruction sound
+        world.playEvent( 2001, blockPosition, Block.getStateId( state ) );
+
+        // Destroy the block
+        boolean canHarvest = state.getBlock().canHarvestBlock( world, blockPosition, turtlePlayer );
+        boolean canBreak = state.getBlock().removedByPlayer( state, world, blockPosition, turtlePlayer, canHarvest );
+        if( canBreak ) state.getBlock().onPlayerDestroy( world, blockPosition, state );
+        if( canHarvest )
+        {
+            state.getBlock().harvestBlock( world, turtlePlayer, blockPosition, state, tile, turtlePlayer.getHeldItemMainhand() );
+        }
+
+        stopConsuming( turtle );
+
+        // Remember the previous block
+        if( turtle instanceof TurtleBrain )
+        {
+            TurtleBrain brain = (TurtleBrain) turtle;
+            brain.saveBlockChange( blockPosition, state );
+        }
+
+        return TurtleCommandResult.success();
+
     }
 
     private Function<ItemStack, ItemStack> turtleDropConsumer( ITurtleAccess turtle )
