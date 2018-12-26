@@ -30,6 +30,7 @@ public class FilesystemMountTest
     public static void before() throws IOException
     {
         if( ZIP_FILE.exists() ) return;
+        ZIP_FILE.getParentFile().mkdirs();
 
         try( ZipOutputStream stream = new ZipOutputStream( new FileOutputStream( ZIP_FILE ) ) )
         {
