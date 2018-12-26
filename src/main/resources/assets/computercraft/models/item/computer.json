@@ -1,3 +1,13 @@
 {
-    "parent": "computercraft:block/computer_blinking"
+    "parent": "computercraft:block/computer_blinking",
+    "overrides": [
+        {
+            "model": "computercraft:item/computer",
+            "predicate": { "computercraft:family": 0 }
+        },
+        {
+            "model": "computercraft:item/advanced_computer",
+            "predicate": { "computercraft:family": 1 }
+        }
+    ]
 }

@@ -11,12 +11,10 @@ import dan200.computercraft.client.gui.*;
 import dan200.computercraft.client.render.*;
 import dan200.computercraft.shared.command.CommandCopy;
 import dan200.computercraft.shared.command.ContainerViewComputer;
-import dan200.computercraft.shared.computer.blocks.ComputerState;
 import dan200.computercraft.shared.computer.blocks.TileComputer;
 import dan200.computercraft.shared.computer.core.ClientComputer;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.IComputer;
-import dan200.computercraft.shared.computer.items.ItemComputer;
 import dan200.computercraft.shared.media.inventory.ContainerHeldItem;
 import dan200.computercraft.shared.media.items.ItemDiskLegacy;
 import dan200.computercraft.shared.media.items.ItemPrintout;
@@ -99,20 +97,7 @@ public class ComputerCraftProxyClient extends ComputerCraftProxyCommon
     public void registerModels( ModelRegistryEvent event )
     {
         // Register item models
-        registerItemModel( ComputerCraft.Blocks.computer, new ItemMeshDefinition()
-        {
-            private ModelResourceLocation computer = new ModelResourceLocation( "computercraft:computer", "inventory" );
-            private ModelResourceLocation advanced_computer = new ModelResourceLocation( "computercraft:advanced_computer", "inventory" );
-
-            @Nonnull
-            @Override
-            public ModelResourceLocation getModelLocation( @Nonnull ItemStack stack )
-            {
-                ItemComputer itemComputer = (ItemComputer) stack.getItem();
-                ComputerFamily family = itemComputer.getFamily( stack.getItemDamage() );
-                return (family == ComputerFamily.Advanced) ? advanced_computer : computer;
-            }
-        }, new String[] { "computer", "advanced_computer" } );
+        registerItemModel( ComputerCraft.Blocks.computer, "computer" );
         registerItemModel( ComputerCraft.Blocks.peripheral, 0, "peripheral" );
         registerItemModel( ComputerCraft.Blocks.peripheral, 1, "wireless_modem" );
         registerItemModel( ComputerCraft.Blocks.peripheral, 2, "monitor" );
@@ -131,72 +116,7 @@ public class ComputerCraftProxyClient extends ComputerCraftProxyCommon
         registerItemModel( ComputerCraft.Items.printout, 0, "printout" );
         registerItemModel( ComputerCraft.Items.printout, 1, "pages" );
         registerItemModel( ComputerCraft.Items.printout, 2, "book" );
-        registerItemModel( ComputerCraft.Items.pocketComputer, new ItemMeshDefinition()
-        {
-            private ModelResourceLocation pocket_computer_off = new ModelResourceLocation( "computercraft:pocket_computer", "inventory" );
-            private ModelResourceLocation pocket_computer_on = new ModelResourceLocation( "computercraft:pocket_computer_on", "inventory" );
-            private ModelResourceLocation pocket_computer_blinking = new ModelResourceLocation( "computercraft:pocket_computer_blinking", "inventory" );
-            private ModelResourceLocation advanced_pocket_computer_off = new ModelResourceLocation( "computercraft:advanced_pocket_computer", "inventory" );
-            private ModelResourceLocation advanced_pocket_computer_on = new ModelResourceLocation( "computercraft:advanced_pocket_computer_on", "inventory" );
-            private ModelResourceLocation advanced_pocket_computer_blinking = new ModelResourceLocation( "computercraft:advanced_pocket_computer_blinking", "inventory" );
-            private ModelResourceLocation colour_pocket_computer_off = new ModelResourceLocation( "computercraft:pocket_computer_colour", "inventory" );
-            private ModelResourceLocation colour_pocket_computer_on = new ModelResourceLocation( "computercraft:pocket_computer_colour_on", "inventory" );
-            private ModelResourceLocation colour_pocket_computer_blinking = new ModelResourceLocation( "computercraft:pocket_computer_colour_blinking", "inventory" );
-
-            @Nonnull
-            @Override
-            public ModelResourceLocation getModelLocation( @Nonnull ItemStack stack )
-            {
-                ItemPocketComputer itemPocketComputer = (ItemPocketComputer) stack.getItem();
-                ComputerState state = itemPocketComputer.getState( stack );
-                if( itemPocketComputer.getColour( stack ) == -1 )
-                {
-                    switch( itemPocketComputer.getFamily( stack ) )
-                    {
-                        case Advanced:
-                            switch( state )
-                            {
-                                case Off:
-                                default:
-                                    return advanced_pocket_computer_off;
-                                case On:
-                                    return advanced_pocket_computer_on;
-                                case Blinking:
-                                    return advanced_pocket_computer_blinking;
-                            }
-                        case Normal:
-                        default:
-                            switch( state )
-                            {
-                                case Off:
-                                default:
-                                    return pocket_computer_off;
-                                case On:
-                                    return pocket_computer_on;
-                                case Blinking:
-                                    return pocket_computer_blinking;
-                            }
-                    }
-                }
-                else
-                {
-                    switch( state )
-                    {
-                        case Off:
-                        default:
-                            return colour_pocket_computer_off;
-                        case On:
-                            return colour_pocket_computer_on;
-                        case Blinking:
-                            return colour_pocket_computer_blinking;
-                    }
-                }
-            }
-        }, new String[] {
-            "pocket_computer", "pocket_computer_on", "pocket_computer_blinking",
-            "advanced_pocket_computer", "advanced_pocket_computer_on", "advanced_pocket_computer_blinking",
-            "pocket_computer_colour", "pocket_computer_colour_on", "pocket_computer_colour_blinking",
-        } );
+        registerItemModel( ComputerCraft.Items.pocketComputer, "pocket_computer" );
     }
 
     @Override
@@ -269,22 +189,6 @@ public class ComputerCraftProxyClient extends ComputerCraftProxyCommon
                 return res;
             }
         } );
-    }
-
-    private void registerItemModel( Block block, ItemMeshDefinition definition, String[] names )
-    {
-        registerItemModel( Item.getItemFromBlock( block ), definition, names );
-    }
-
-    private void registerItemModel( Item item, ItemMeshDefinition definition, String[] names )
-    {
-        ResourceLocation[] resources = new ResourceLocation[names.length];
-        for( int i = 0; i < resources.length; i++ )
-        {
-            resources[i] = new ResourceLocation( "computercraft", names[i] );
-        }
-        ModelBakery.registerItemVariants( item, resources );
-        ModelLoader.setCustomMeshDefinition( item, definition );
     }
 
     @Override

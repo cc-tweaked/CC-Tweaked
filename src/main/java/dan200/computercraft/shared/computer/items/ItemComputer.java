@@ -18,6 +18,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.NonNullList;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
@@ -26,7 +27,7 @@ import javax.annotation.Nullable;
 
 public class ItemComputer extends ItemComputerBase
 {
-    public static int HIGHEST_DAMAGE_VALUE_ID = 16382;
+    public static final int HIGHEST_DAMAGE_VALUE_ID = 16382;
 
     public ItemComputer( Block block )
     {
@@ -35,6 +36,8 @@ public class ItemComputer extends ItemComputerBase
         setHasSubtypes( true );
         setTranslationKey( "computercraft:computer" );
         setCreativeTab( ComputerCraft.mainCreativeTab );
+        addPropertyOverride( new ResourceLocation( ComputerCraft.MOD_ID, "family" ), ( stack, world, player ) ->
+            getFamily( stack ) == ComputerFamily.Advanced ? 1 : 0 );
     }
 
     public ItemStack create( int id, String label, ComputerFamily family )
