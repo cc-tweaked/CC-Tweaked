@@ -12,7 +12,6 @@ import dan200.computercraft.api.turtle.TurtleAnimation;
 import dan200.computercraft.api.turtle.TurtleCommandResult;
 import dan200.computercraft.api.turtle.event.TurtleAction;
 import dan200.computercraft.api.turtle.event.TurtleActionEvent;
-import dan200.computercraft.shared.util.DirectionUtil;
 import net.minecraftforge.common.MinecraftForge;
 
 import javax.annotation.Nonnull;
@@ -40,13 +39,13 @@ public class TurtleTurnCommand implements ITurtleCommand
         {
             case Left:
             {
-                turtle.setDirection( DirectionUtil.rotateLeft( turtle.getDirection() ) );
+                turtle.setDirection( turtle.getDirection().rotateYCCW() );
                 turtle.playAnimation( TurtleAnimation.TurnLeft );
                 return TurtleCommandResult.success();
             }
             case Right:
             {
-                turtle.setDirection( DirectionUtil.rotateRight( turtle.getDirection() ) );
+                turtle.setDirection( turtle.getDirection().rotateY() );
                 turtle.playAnimation( TurtleAnimation.TurnRight );
                 return TurtleCommandResult.success();
             }

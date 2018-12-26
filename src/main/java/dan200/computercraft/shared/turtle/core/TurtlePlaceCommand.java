@@ -194,12 +194,12 @@ public class TurtlePlaceCommand implements ITurtleCommand
 
         if( direction.getAxis() != EnumFacing.Axis.Y )
         {
-            turtlePlayer.rotationYaw = DirectionUtil.toYawAngle( direction );
+            turtlePlayer.rotationYaw = direction.getHorizontalAngle();
             turtlePlayer.rotationPitch = 0.0f;
         }
         else
         {
-            turtlePlayer.rotationYaw = DirectionUtil.toYawAngle( turtle.getDirection() );
+            turtlePlayer.rotationYaw = turtle.getDirection().getHorizontalAngle();
             turtlePlayer.rotationPitch = DirectionUtil.toPitchAngle( direction );
         }
 

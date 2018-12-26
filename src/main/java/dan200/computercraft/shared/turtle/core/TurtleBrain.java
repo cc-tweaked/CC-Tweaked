@@ -610,7 +610,7 @@ public class TurtleBrain implements ITurtleAccess
     @Override
     public float getVisualYaw( float f )
     {
-        float yaw = DirectionUtil.toYawAngle( getDirection() );
+        float yaw = getDirection().getHorizontalAngle();
         switch( m_animation )
         {
             case TurnLeft:
