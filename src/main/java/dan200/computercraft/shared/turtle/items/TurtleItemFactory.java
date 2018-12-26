@@ -12,8 +12,6 @@ import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.IComputer;
 import dan200.computercraft.shared.turtle.blocks.ITurtleTile;
-import dan200.computercraft.shared.util.ReflectionUtil;
-import net.minecraft.block.Block;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
@@ -34,16 +32,9 @@ public class TurtleItemFactory
             String label = computer.getLabel();
             if( label != null )
             {
-                if( turtle.getFamily() != ComputerFamily.Beginners )
-                {
-                    int id = computer.getID();
-                    int fuelLevel = turtle.getAccess().getFuelLevel();
-                    return create( id, label, turtle.getColour(), turtle.getFamily(), leftUpgrade, rightUpgrade, fuelLevel, turtle.getOverlay() );
-                }
-                else
-                {
-                    return create( -1, label, turtle.getColour(), turtle.getFamily(), leftUpgrade, rightUpgrade, 0, turtle.getOverlay() );
-                }
+                int id = computer.getID();
+                int fuelLevel = turtle.getAccess().getFuelLevel();
+                return create( id, label, turtle.getColour(), turtle.getFamily(), leftUpgrade, rightUpgrade, fuelLevel, turtle.getOverlay() );
             }
         }
         return create( -1, null, turtle.getColour(), turtle.getFamily(), leftUpgrade, rightUpgrade, 0, turtle.getOverlay() );
@@ -66,27 +57,8 @@ public class TurtleItemFactory
                 ItemTurtleBase advanced = ((ItemTurtleBase) Item.getItemFromBlock( ComputerCraft.Blocks.turtleAdvanced ));
                 return advanced.create( id, label, colour, leftUpgrade, rightUpgrade, fuelLevel, overlay );
             }
-            case Beginners:
-            {
-                Block beginnersBlock = ReflectionUtil.safeGet(
-                    ReflectionUtil.getOptionalField(
-                        ReflectionUtil.getOptionalInnerClass(
-                            ReflectionUtil.getOptionalClass( "dan200.computercraftedu.ComputerCraftEdu" ),
-                            "Blocks"
-                        ),
-                        "turtleJunior"
-                    ),
-                    null,
-                    Block.class
-                );
-                if( beginnersBlock != null )
-                {
-                    ItemTurtleBase beginnersItem = ((ItemTurtleBase) Item.getItemFromBlock( beginnersBlock ));
-                    return beginnersItem.create( id, label, colour, leftUpgrade, rightUpgrade, fuelLevel, overlay );
-                }
+            default:
                 return ItemStack.EMPTY;
-            }
         }
-        return ItemStack.EMPTY;
     }
 }

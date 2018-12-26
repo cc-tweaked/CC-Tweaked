@@ -10,7 +10,6 @@ import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.turtle.*;
 import dan200.computercraft.api.turtle.event.TurtleAttackEvent;
 import dan200.computercraft.api.turtle.event.TurtleBlockEvent;
-import dan200.computercraft.shared.turtle.core.TurtleBrain;
 import dan200.computercraft.shared.turtle.core.TurtlePlaceCommand;
 import dan200.computercraft.shared.turtle.core.TurtlePlayer;
 import dan200.computercraft.shared.util.InventoryUtil;
@@ -244,13 +243,6 @@ public class TurtleTool extends AbstractTurtleUpgrade
         }
 
         stopConsuming( turtle );
-
-        // Remember the previous block
-        if( turtle instanceof TurtleBrain )
-        {
-            TurtleBrain brain = (TurtleBrain) turtle;
-            brain.saveBlockChange( blockPosition, state );
-        }
 
         return TurtleCommandResult.success();
 

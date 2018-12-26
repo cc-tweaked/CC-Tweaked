@@ -121,17 +121,9 @@ public abstract class ItemTurtleBase extends ItemComputerBase implements ITurtle
         {
             case Normal:
             default:
-            {
                 return "tile.computercraft:turtle";
-            }
             case Advanced:
-            {
                 return "tile.computercraft:advanced_turtle";
-            }
-            case Beginners:
-            {
-                return "tile.computercraftedu:beginner_turtle";
-            }
         }
     }
 

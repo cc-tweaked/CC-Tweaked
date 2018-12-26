@@ -44,12 +44,10 @@ import java.util.List;
 
 public class TileEntityTurtleRenderer extends TileEntitySpecialRenderer<TileTurtle>
 {
-    private static ModelResourceLocation NORMAL_TURTLE_MODEL = new ModelResourceLocation( "computercraft:turtle", "inventory" );
-    private static ModelResourceLocation ADVANCED_TURTLE_MODEL = new ModelResourceLocation( "computercraft:turtle_advanced", "inventory" );
-    private static ModelResourceLocation COLOUR_TURTLE_MODEL = new ModelResourceLocation( "computercraft:turtle_white", "inventory" );
-    private static ModelResourceLocation BEGINNER_TURTLE_MODEL = new ModelResourceLocation( "computercraftedu:CC-TurtleJunior", "inventory" );
-    private static ModelResourceLocation BEGINNER_TURTLE_COLOUR_MODEL = new ModelResourceLocation( "computercraftedu:turtleJunior_white", "inventory" );
-    private static ModelResourceLocation ELF_OVERLAY_MODEL = new ModelResourceLocation( "computercraft:turtle_elf_overlay", "inventory" );
+    private static final ModelResourceLocation NORMAL_TURTLE_MODEL = new ModelResourceLocation( "computercraft:turtle", "inventory" );
+    private static final ModelResourceLocation ADVANCED_TURTLE_MODEL = new ModelResourceLocation( "computercraft:turtle_advanced", "inventory" );
+    private static final ModelResourceLocation COLOUR_TURTLE_MODEL = new ModelResourceLocation( "computercraft:turtle_white", "inventory" );
+    private static final ModelResourceLocation ELF_OVERLAY_MODEL = new ModelResourceLocation( "computercraft:turtle_elf_overlay", "inventory" );
 
     public TileEntityTurtleRenderer()
     {
@@ -85,8 +83,6 @@ public class TileEntityTurtleRenderer extends TileEntitySpecialRenderer<TileTurt
                 return coloured ? COLOUR_TURTLE_MODEL : NORMAL_TURTLE_MODEL;
             case Advanced:
                 return coloured ? COLOUR_TURTLE_MODEL : ADVANCED_TURTLE_MODEL;
-            case Beginners:
-                return coloured ? BEGINNER_TURTLE_COLOUR_MODEL : BEGINNER_TURTLE_MODEL;
         }
     }
 
@@ -96,7 +92,7 @@ public class TileEntityTurtleRenderer extends TileEntitySpecialRenderer<TileTurt
         {
             return new ModelResourceLocation( overlay, "inventory" );
         }
-        else if( christmas && family != ComputerFamily.Beginners )
+        else if( christmas )
         {
             return ELF_OVERLAY_MODEL;
         }

@@ -10,6 +10,6 @@ public enum ComputerFamily
 {
     Normal,
     Advanced,
-    Beginners,
+    @Deprecated Beginners,
     Command
 }

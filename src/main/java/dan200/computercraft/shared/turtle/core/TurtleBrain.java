@@ -21,7 +21,6 @@ import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.turtle.blocks.TileTurtle;
 import dan200.computercraft.shared.util.*;
 import net.minecraft.block.Block;
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.MoverType;
 import net.minecraft.inventory.IInventory;
@@ -953,12 +952,6 @@ public class TurtleBrain implements ITurtleAccess
     public void updateUpgradeNBTData( @Nonnull TurtleSide side )
     {
         m_owner.updateBlock();
-    }
-
-    public boolean saveBlockChange( BlockPos coordinates, IBlockState previousState )
-    {
-        // Overriden by CCEdu
-        return false;
     }
 
     public Vec3d getRenderOffset( float f )

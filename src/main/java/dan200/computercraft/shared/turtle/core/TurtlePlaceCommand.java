@@ -95,13 +95,6 @@ public class TurtlePlaceCommand implements ITurtleCommand
             turtle.getInventory().setInventorySlotContents( turtle.getSelectedSlot(), remainder );
             turtle.getInventory().markDirty();
 
-            // Remember the old block
-            if( turtle instanceof TurtleBrain && previousState != null )
-            {
-                TurtleBrain brain = (TurtleBrain) turtle;
-                brain.saveBlockChange( coordinates, previousState );
-            }
-
             // Animate and return success
             turtle.playAnimation( TurtleAnimation.Wait );
             return TurtleCommandResult.success();

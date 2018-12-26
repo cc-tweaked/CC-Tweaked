@@ -148,14 +148,7 @@ public abstract class CCTurtleProxyCommon implements ICCTurtleProxy
 
     public static boolean isUpgradeSuitableForFamily( ComputerFamily family, ITurtleUpgrade upgrade )
     {
-        if( family == ComputerFamily.Beginners )
-        {
-            return upgrade.getType().isTool();
-        }
-        else
-        {
-            return true;
-        }
+        return true;
     }
 
     private void addAllUpgradedTurtles( ComputerFamily family, NonNullList<ItemStack> list )

@@ -39,8 +39,6 @@ public class TurtleRecipe extends ComputerConvertRecipe
         int computerID = item.getComputerID( stack );
         String label = item.getLabel( stack );
 
-        if( family == ComputerFamily.Beginners ) computerID = -1;
-
         return TurtleItemFactory.create( computerID, label, -1, family, null, null, 0, null );
     }
 
