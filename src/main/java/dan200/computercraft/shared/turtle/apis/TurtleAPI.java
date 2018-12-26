@@ -11,6 +11,7 @@ import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.ITurtleCommand;
+import dan200.computercraft.api.turtle.TurtleCommandResult;
 import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.api.turtle.event.TurtleAction;
 import dan200.computercraft.api.turtle.event.TurtleActionEvent;
@@ -22,9 +23,9 @@ import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 import static dan200.computercraft.core.apis.ArgumentHelper.*;
 
@@ -114,39 +115,31 @@ public class TurtleAPI implements ILuaAPI
     private int parseOptionalSlotNumber( Object[] arguments, int index, int fallback ) throws LuaException
     {
         if( index >= arguments.length || arguments[index] == null ) return fallback;
-
-        int slot = getInt( arguments, index );
-        if( slot < 1 || slot > 16 ) throw new LuaException( "Slot number " + slot + " out of range" );
-        return slot - 1;
+        return parseSlotNumber( arguments, index );
     }
 
     private int parseCount( Object[] arguments, int index ) throws LuaException
     {
         int count = optInt( arguments, index, 64 );
-        if( count >= 0 && count <= 64 )
-        {
-            return count;
-        }
-        else
-        {
-            throw new LuaException( "Item count " + count + " out of range" );
-        }
+        if( count < 0 || count > 64 ) throw new LuaException( "Item count " + count + " out of range" );
+        return count;
     }
 
-    private Optional<TurtleSide> parseSide( Object[] arguments, int index ) throws LuaException
+    @Nullable
+    private TurtleSide parseSide( Object[] arguments, int index ) throws LuaException
     {
         String side = optString( arguments, index, null );
         if( side == null )
         {
-            return Optional.empty();
+            return null;
         }
         else if( side.equalsIgnoreCase( "left" ) )
         {
-            return Optional.of( TurtleSide.Left );
+            return TurtleSide.Left;
         }
         else if( side.equalsIgnoreCase( "right" ) )
         {
-            return Optional.of( TurtleSide.Right );
+            return TurtleSide.Right;
         }
         else
         {
@@ -198,23 +191,23 @@ public class TurtleAPI implements ILuaAPI
             case 6:
             {
                 // dig
-                Optional<TurtleSide> side = parseSide( args, 0 );
+                TurtleSide side = parseSide( args, 0 );
                 m_environment.addTrackingChange( TrackingField.TURTLE_OPS );
-                return tryCommand( context, new TurtleDigCommand( InteractDirection.Forward, side ) );
+                return tryCommand( context, TurtleToolCommand.dig( InteractDirection.Forward, side ) );
             }
             case 7:
             {
                 // digUp
-                Optional<TurtleSide> side = parseSide( args, 0 );
+                TurtleSide side = parseSide( args, 0 );
                 m_environment.addTrackingChange( TrackingField.TURTLE_OPS );
-                return tryCommand( context, new TurtleDigCommand( InteractDirection.Up, side ) );
+                return tryCommand( context, TurtleToolCommand.dig( InteractDirection.Up, side ) );
             }
             case 8:
             {
                 // digDown
-                Optional<TurtleSide> side = parseSide( args, 0 );
+                TurtleSide side = parseSide( args, 0 );
                 m_environment.addTrackingChange( TrackingField.TURTLE_OPS );
-                return tryCommand( context, new TurtleDigCommand( InteractDirection.Down, side ) );
+                return tryCommand( context, TurtleToolCommand.dig( InteractDirection.Down, side ) );
             }
             case 9:
             {
@@ -245,7 +238,10 @@ public class TurtleAPI implements ILuaAPI
             {
                 // select
                 int slot = parseSlotNumber( args, 0 );
-                return tryCommand( context, new TurtleSelectCommand( slot ) );
+                return tryCommand( context, turtle -> {
+                    turtle.setSelectedSlot( slot );
+                    return TurtleCommandResult.success();
+                } );
             }
             case 14:
             {
@@ -307,23 +303,23 @@ public class TurtleAPI implements ILuaAPI
             case 22:
             {
                 // attack
-                Optional<TurtleSide> side = parseSide( args, 0 );
+                TurtleSide side = parseSide( args, 0 );
                 m_environment.addTrackingChange( TrackingField.TURTLE_OPS );
-                return tryCommand( context, new TurtleAttackCommand( InteractDirection.Forward, side ) );
+                return tryCommand( context, TurtleToolCommand.attack( InteractDirection.Forward, side ) );
             }
             case 23:
             {
                 // attackUp
-                Optional<TurtleSide> side = parseSide( args, 0 );
+                TurtleSide side = parseSide( args, 0 );
                 m_environment.addTrackingChange( TrackingField.TURTLE_OPS );
-                return tryCommand( context, new TurtleAttackCommand( InteractDirection.Up, side ) );
+                return tryCommand( context, TurtleToolCommand.attack( InteractDirection.Up, side ) );
             }
             case 24:
             {
                 // attackDown
-                Optional<TurtleSide> side = parseSide( args, 0 );
+                TurtleSide side = parseSide( args, 0 );
                 m_environment.addTrackingChange( TrackingField.TURTLE_OPS );
-                return tryCommand( context, new TurtleAttackCommand( InteractDirection.Down, side ) );
+                return tryCommand( context, TurtleToolCommand.attack( InteractDirection.Down, side ) );
             }
             case 25:
             {

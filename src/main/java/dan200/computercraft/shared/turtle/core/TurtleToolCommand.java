@@ -9,19 +9,20 @@ package dan200.computercraft.shared.turtle.core;
 import dan200.computercraft.api.turtle.*;
 
 import javax.annotation.Nonnull;
-import java.util.Optional;
+import javax.annotation.Nullable;
+import java.util.Locale;
 
 public class TurtleToolCommand implements ITurtleCommand
 {
-    private final TurtleVerb m_verb;
-    private final InteractDirection m_direction;
-    private final Optional<TurtleSide> m_side;
+    private final TurtleVerb verb;
+    private final InteractDirection direction;
+    private final TurtleSide side;
 
-    public TurtleToolCommand( TurtleVerb verb, InteractDirection direction, Optional<TurtleSide> side )
+    public TurtleToolCommand( TurtleVerb verb, InteractDirection direction, TurtleSide side )
     {
-        m_verb = verb;
-        m_direction = direction;
-        m_side = side;
+        this.verb = verb;
+        this.direction = direction;
+        this.side = side;
     }
 
     @Nonnull
@@ -31,48 +32,44 @@ public class TurtleToolCommand implements ITurtleCommand
         TurtleCommandResult firstFailure = null;
         for( TurtleSide side : TurtleSide.values() )
         {
-            if( !m_side.isPresent() || m_side.get() == side )
+            if( this.side != null && this.side != side ) continue;
+
+            ITurtleUpgrade upgrade = turtle.getUpgrade( side );
+            if( upgrade == null || !upgrade.getType().isTool() ) continue;
+
+            TurtleCommandResult result = upgrade.useTool( turtle, side, verb, direction.toWorldDir( turtle ) );
+            if( result.isSuccess() )
             {
-                ITurtleUpgrade upgrade = turtle.getUpgrade( side );
-                if( upgrade != null && upgrade.getType().isTool() )
+                switch( side )
                 {
-                    TurtleCommandResult result = upgrade.useTool( turtle, side, m_verb, m_direction.toWorldDir( turtle ) );
-                    if( result.isSuccess() )
-                    {
-                        switch( side )
-                        {
-                            case Left:
-                            {
-                                turtle.playAnimation( TurtleAnimation.SwingLeftTool );
-                                break;
-                            }
-                            case Right:
-                            {
-                                turtle.playAnimation( TurtleAnimation.SwingRightTool );
-                                break;
-                            }
-                            default:
-                            {
-                                turtle.playAnimation( TurtleAnimation.Wait );
-                                break;
-                            }
-                        }
-                        return result;
-                    }
-                    else if( firstFailure == null )
-                    {
-                        firstFailure = result;
-                    }
+                    case Left:
+                        turtle.playAnimation( TurtleAnimation.SwingLeftTool );
+                        break;
+                    case Right:
+                        turtle.playAnimation( TurtleAnimation.SwingRightTool );
+                        break;
+                    default:
+                        turtle.playAnimation( TurtleAnimation.Wait );
+                        break;
                 }
+                return result;
+            }
+            else if( firstFailure == null )
+            {
+                firstFailure = result;
             }
         }
-        if( firstFailure != null )
-        {
-            return firstFailure;
-        }
-        else
-        {
-            return TurtleCommandResult.failure( "No tool to " + m_verb.toString().toLowerCase() + " with" );
-        }
+        return firstFailure != null ? firstFailure
+            : TurtleCommandResult.failure( "No tool to " + verb.name().toLowerCase( Locale.ROOT ) + " with" );
+    }
+
+    public static TurtleToolCommand attack( InteractDirection direction, @Nullable TurtleSide side )
+    {
+        return new TurtleToolCommand( TurtleVerb.Attack, direction, side );
+    }
+
+    public static TurtleToolCommand dig( InteractDirection direction, @Nullable TurtleSide side )
+    {
+        return new TurtleToolCommand( TurtleVerb.Dig, direction, side );
     }
 }
