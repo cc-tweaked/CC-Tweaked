@@ -15,11 +15,6 @@ import net.minecraft.world.World;
 
 public class RedstoneUtil
 {
-    public static int getRedstoneOutput( World world, BlockPos pos, EnumFacing side )
-    {
-        return world.getRedstonePower( pos, side );
-    }
-
     public static int getBundledRedstoneOutput( World world, BlockPos pos, EnumFacing side )
     {
         int signal = ComputerCraft.getBundledRedstoneOutput( world, pos, side );

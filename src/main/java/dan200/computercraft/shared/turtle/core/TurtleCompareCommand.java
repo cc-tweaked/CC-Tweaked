@@ -9,7 +9,6 @@ package dan200.computercraft.shared.turtle.core;
 import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.ITurtleCommand;
 import dan200.computercraft.api.turtle.TurtleCommandResult;
-import dan200.computercraft.shared.util.WorldUtil;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.item.Item;
@@ -48,62 +47,59 @@ public class TurtleCompareCommand implements ITurtleCommand
         BlockPos newPosition = oldPosition.offset( direction );
 
         ItemStack lookAtStack = ItemStack.EMPTY;
-        if( WorldUtil.isBlockInWorld( world, newPosition ) )
+        if( !world.isAirBlock( newPosition ) )
         {
-            if( !world.isAirBlock( newPosition ) )
+            IBlockState lookAtState = world.getBlockState( newPosition );
+            Block lookAtBlock = lookAtState.getBlock();
+            if( !lookAtBlock.isAir( lookAtState, world, newPosition ) )
             {
-                IBlockState lookAtState = world.getBlockState( newPosition );
-                Block lookAtBlock = lookAtState.getBlock();
-                if( !lookAtBlock.isAir( lookAtState, world, newPosition ) )
+                // Try createStackedBlock first
+                if( !lookAtBlock.hasTileEntity( lookAtState ) )
                 {
-                    // Try createStackedBlock first
-                    if( !lookAtBlock.hasTileEntity( lookAtState ) )
+                    try
                     {
-                        try
-                        {
-                            Method method = ReflectionHelper.findMethod(
-                                Block.class,
-                                "func_180643_i", "getSilkTouchDrop",
-                                IBlockState.class
-                            );
-                            lookAtStack = (ItemStack) method.invoke( lookAtBlock, lookAtState );
-                        }
-                        catch( Exception e )
-                        {
-                        }
+                        Method method = ReflectionHelper.findMethod(
+                            Block.class,
+                            "func_180643_i", "getSilkTouchDrop",
+                            IBlockState.class
+                        );
+                        lookAtStack = (ItemStack) method.invoke( lookAtBlock, lookAtState );
                     }
-
-                    // See if the block drops anything with the same ID as itself
-                    // (try 5 times to try and beat random number generators)
-                    for( int i = 0; (i < 5) && lookAtStack.isEmpty(); i++ )
+                    catch( Exception e )
                     {
-                        NonNullList<ItemStack> drops = NonNullList.create();
-                        lookAtBlock.getDrops( drops, world, newPosition, lookAtState, 0 );
-                        if( drops.size() > 0 )
+                    }
+                }
+
+                // See if the block drops anything with the same ID as itself
+                // (try 5 times to try and beat random number generators)
+                for( int i = 0; (i < 5) && lookAtStack.isEmpty(); i++ )
+                {
+                    NonNullList<ItemStack> drops = NonNullList.create();
+                    lookAtBlock.getDrops( drops, world, newPosition, lookAtState, 0 );
+                    if( drops.size() > 0 )
+                    {
+                        for( ItemStack drop : drops )
                         {
-                            for( ItemStack drop : drops )
+                            if( drop.getItem() == Item.getItemFromBlock( lookAtBlock ) )
                             {
-                                if( drop.getItem() == Item.getItemFromBlock( lookAtBlock ) )
-                                {
-                                    lookAtStack = drop;
-                                    break;
-                                }
+                                lookAtStack = drop;
+                                break;
                             }
                         }
                     }
+                }
 
-                    // Last resort: roll our own (which will probably be wrong)
-                    if( lookAtStack.isEmpty() )
+                // Last resort: roll our own (which will probably be wrong)
+                if( lookAtStack.isEmpty() )
+                {
+                    Item item = Item.getItemFromBlock( lookAtBlock );
+                    if( item != null && item.getHasSubtypes() )
                     {
-                        Item item = Item.getItemFromBlock( lookAtBlock );
-                        if( item != null && item.getHasSubtypes() )
-                        {
-                            lookAtStack = new ItemStack( item, 1, lookAtBlock.getMetaFromState( lookAtState ) );
-                        }
-                        else
-                        {
-                            lookAtStack = new ItemStack( item, 1, 0 );
-                        }
+                        lookAtStack = new ItemStack( item, 1, lookAtBlock.getMetaFromState( lookAtState ) );
+                    }
+                    else
+                    {
+                        lookAtStack = new ItemStack( item, 1, 0 );
                     }
                 }
             }

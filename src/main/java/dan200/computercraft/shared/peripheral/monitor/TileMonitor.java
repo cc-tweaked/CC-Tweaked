@@ -420,29 +420,21 @@ public class TileMonitor extends TilePeripheralBase
 
     private TileMonitor getSimilarMonitorAt( BlockPos pos )
     {
-        if( pos.equals( getPos() ) )
-        {
-            return this;
-        }
+        if( pos.equals( getPos() ) ) return this;
 
-        int y = pos.getY();
         World world = getWorld();
-        if( world != null && y >= 0 && y < world.getHeight() )
+        if( world != null && world.isBlockLoaded( pos ) )
         {
-            if( world.isBlockLoaded( pos ) )
+            TileEntity tile = world.getTileEntity( pos );
+            if( tile != null && tile instanceof TileMonitor )
             {
-                TileEntity tile = world.getTileEntity( pos );
-                if( tile != null && tile instanceof TileMonitor )
+                TileMonitor monitor = (TileMonitor) tile;
+                if( monitor.getDir() == getDir() && monitor.m_advanced == m_advanced &&
+                    !monitor.m_destroyed && !monitor.m_ignoreMe )
                 {
-                    TileMonitor monitor = (TileMonitor) tile;
-                    if( monitor.getDir() == getDir() && monitor.m_advanced == m_advanced &&
-                        !monitor.m_destroyed && !monitor.m_ignoreMe )
-                    {
-                        return monitor;
-                    }
+                    return monitor;
                 }
             }
-
         }
         return null;
     }

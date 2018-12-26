@@ -61,7 +61,6 @@ import dan200.computercraft.shared.turtle.upgrades.*;
 import dan200.computercraft.shared.util.CreativeTabMain;
 import dan200.computercraft.shared.util.IDAssigner;
 import dan200.computercraft.shared.util.InventoryUtil;
-import dan200.computercraft.shared.util.WorldUtil;
 import dan200.computercraft.shared.wired.CapabilityWiredElement;
 import dan200.computercraft.shared.wired.WiredNode;
 import io.netty.buffer.Unpooled;
@@ -778,20 +777,12 @@ public class ComputerCraft
 
     public static int getDefaultBundledRedstoneOutput( World world, BlockPos pos, EnumFacing side )
     {
-        if( WorldUtil.isBlockInWorld( world, pos ) )
-        {
-            return DefaultBundledRedstoneProvider.getDefaultBundledRedstoneOutput( world, pos, side );
-        }
-        return -1;
+        return world.isValid( pos ) ? DefaultBundledRedstoneProvider.getDefaultBundledRedstoneOutput( world, pos, side ) : -1;
     }
 
     public static int getBundledRedstoneOutput( World world, BlockPos pos, EnumFacing side )
     {
-        int y = pos.getY();
-        if( y < 0 || y >= world.getHeight() )
-        {
-            return -1;
-        }
+        if( !world.isValid( pos ) ) return -1;
 
         // Try the handlers in order:
         int combinedSignal = -1;

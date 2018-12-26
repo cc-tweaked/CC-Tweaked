@@ -37,13 +37,9 @@ public class TurtleDetectCommand implements ITurtleCommand
         BlockPos oldPosition = turtle.getPosition();
         BlockPos newPosition = oldPosition.offset( direction );
 
-        if( WorldUtil.isBlockInWorld( world, newPosition ) )
+        if( !WorldUtil.isLiquidBlock( world, newPosition ) && !world.isAirBlock( newPosition ) )
         {
-            if( !WorldUtil.isLiquidBlock( world, newPosition ) &&
-                !world.isAirBlock( newPosition ) )
-            {
-                return TurtleCommandResult.success();
-            }
+            return TurtleCommandResult.success();
         }
 
         return TurtleCommandResult.failure();

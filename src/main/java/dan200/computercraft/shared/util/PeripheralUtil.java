@@ -10,11 +10,6 @@ public class PeripheralUtil
 {
     public static IPeripheral getPeripheral( World world, BlockPos pos, EnumFacing side )
     {
-        int y = pos.getY();
-        if( y >= 0 && y < world.getHeight() && !world.isRemote )
-        {
-            return ComputerCraft.getPeripheralAt( world, pos, side );
-        }
-        return null;
+        return world.isValid( pos ) && !world.isRemote ? ComputerCraft.getPeripheralAt( world, pos, side ) : null;
     }
 }

@@ -12,7 +12,6 @@ import dan200.computercraft.api.lua.ILuaAPI;
 import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.shared.computer.blocks.TileCommandComputer;
-import dan200.computercraft.shared.util.WorldUtil;
 import net.minecraft.block.Block;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.IBlockState;
@@ -215,7 +214,7 @@ public class CommandAPI implements ILuaAPI
                         Math.max( miny, maxy ),
                         Math.max( minz, maxz )
                     );
-                    if( !WorldUtil.isBlockInWorld( world, min ) || !WorldUtil.isBlockInWorld( world, max ) )
+                    if( !world.isValid( min ) || !world.isValid( max ) )
                     {
                         throw new LuaException( "Co-ordinates out or range" );
                     }
@@ -250,7 +249,7 @@ public class CommandAPI implements ILuaAPI
                     // Get the details of the block
                     World world = m_computer.getWorld();
                     BlockPos position = new BlockPos( x, y, z );
-                    if( WorldUtil.isBlockInWorld( world, position ) )
+                    if( world.isValid( position ) )
                     {
                         return new Object[] { getBlockInfo( world, position ) };
                     }

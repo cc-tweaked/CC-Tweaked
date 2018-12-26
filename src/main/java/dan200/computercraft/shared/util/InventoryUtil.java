@@ -49,25 +49,21 @@ public class InventoryUtil
     public static IItemHandler getInventory( World world, BlockPos pos, EnumFacing side )
     {
         // Look for tile with inventory
-        int y = pos.getY();
-        if( y >= 0 && y < world.getHeight() )
+        TileEntity tileEntity = world.getTileEntity( pos );
+        if( tileEntity != null )
         {
-            TileEntity tileEntity = world.getTileEntity( pos );
-            if( tileEntity != null )
+            IItemHandler itemHandler = tileEntity.getCapability( CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side );
+            if( itemHandler != null )
             {
-                IItemHandler itemHandler = tileEntity.getCapability( CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side );
-                if( itemHandler != null )
-                {
-                    return itemHandler;
-                }
-                else if( side != null && tileEntity instanceof ISidedInventory )
-                {
-                    return new SidedInvWrapper( (ISidedInventory) tileEntity, side );
-                }
-                else if( tileEntity instanceof IInventory )
-                {
-                    return new InvWrapper( (IInventory) tileEntity );
-                }
+                return itemHandler;
+            }
+            else if( side != null && tileEntity instanceof ISidedInventory )
+            {
+                return new SidedInvWrapper( (ISidedInventory) tileEntity, side );
+            }
+            else if( tileEntity instanceof IInventory )
+            {
+                return new InvWrapper( (IInventory) tileEntity );
             }
         }
 

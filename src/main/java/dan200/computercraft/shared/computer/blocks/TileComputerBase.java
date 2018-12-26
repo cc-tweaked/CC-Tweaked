@@ -326,7 +326,7 @@ public abstract class TileComputerBase extends TileGeneric
         int localDir = remapLocalSide( DirectionUtil.toLocal( this, dir ) );
         if( !isRedstoneBlockedOnSide( localDir ) )
         {
-            computer.setRedstoneInput( localDir, RedstoneUtil.getRedstoneOutput( getWorld(), offset, offsetSide ) );
+            computer.setRedstoneInput( localDir, getWorld().getRedstonePower( offset, offsetSide ) );
             computer.setBundledRedstoneInput( localDir, RedstoneUtil.getBundledRedstoneOutput( getWorld(), offset, offsetSide ) );
         }
         if( !isPeripheralBlockedOnSide( localDir ) )

@@ -12,7 +12,6 @@ import dan200.computercraft.api.turtle.TurtleAnimation;
 import dan200.computercraft.api.turtle.TurtleCommandResult;
 import dan200.computercraft.api.turtle.event.TurtleInventoryEvent;
 import dan200.computercraft.shared.util.InventoryUtil;
-import dan200.computercraft.shared.util.WorldUtil;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.item.ItemStack;
@@ -54,7 +53,7 @@ public class TurtleSuckCommand implements ITurtleCommand
         // Get inventory for thing in front
         World world = turtle.getWorld();
         BlockPos oldPosition = turtle.getPosition();
-        BlockPos newPosition = WorldUtil.moveCoords( oldPosition, direction );
+        BlockPos newPosition = oldPosition.offset( direction );
         EnumFacing side = direction.getOpposite();
 
         IItemHandler inventory = InventoryUtil.getInventory( world, newPosition, side );

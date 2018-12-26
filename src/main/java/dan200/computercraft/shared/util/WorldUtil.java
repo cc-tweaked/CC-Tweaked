@@ -24,19 +24,9 @@ import java.util.List;
 
 public class WorldUtil
 {
-    public static boolean isBlockInWorld( World world, BlockPos pos )
-    {
-        return pos.getY() >= 0 && pos.getY() < world.getHeight();
-    }
-
     public static boolean isLiquidBlock( World world, BlockPos pos )
     {
-        return isBlockInWorld( world, pos ) && world.getBlockState( pos ).getMaterial().isLiquid();
-    }
-
-    public static BlockPos moveCoords( BlockPos pos, EnumFacing dir )
-    {
-        return pos.offset( dir );
+        return world.getBlockState( pos ).getMaterial().isLiquid();
     }
 
     public static Pair<Entity, Vec3d> rayTraceEntities( World world, Vec3d vecStart, Vec3d vecDir, double distance )

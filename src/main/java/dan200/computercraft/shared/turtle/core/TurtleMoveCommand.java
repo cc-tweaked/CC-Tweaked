@@ -43,7 +43,7 @@ public class TurtleMoveCommand implements ITurtleCommand
         // Check if we can move
         World oldWorld = turtle.getWorld();
         BlockPos oldPosition = turtle.getPosition();
-        BlockPos newPosition = WorldUtil.moveCoords( oldPosition, direction );
+        BlockPos newPosition = oldPosition.offset( direction );
 
         TurtlePlayer turtlePlayer = TurtlePlaceCommand.createPlayer( turtle, oldPosition, direction );
         TurtleCommandResult canEnterResult = canEnter( turtlePlayer, oldWorld, newPosition );
@@ -158,14 +158,15 @@ public class TurtleMoveCommand implements ITurtleCommand
 
     private TurtleCommandResult canEnter( TurtlePlayer turtlePlayer, World world, BlockPos position )
     {
-        if( position.getY() < 0 )
+        if( world.isOutsideBuildHeight( position ) )
         {
-            return TurtleCommandResult.failure( "Too low to move" );
+            return TurtleCommandResult.failure( position.getY() < 0 ? "Too low to move" : "Too high to move" );
         }
-        else if( position.getY() > world.getHeight() - 1 )
+        else if( !world.isValid( position ) )
         {
-            return TurtleCommandResult.failure( "Too high to move" );
+            return TurtleCommandResult.failure( "Cannot leave the world" );
         }
+
         if( ComputerCraft.turtlesObeyBlockProtection )
         {
             // Check spawn protection

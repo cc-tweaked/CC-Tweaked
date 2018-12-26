@@ -64,26 +64,16 @@ public class TurtlePlaceCommand implements ITurtleCommand
         // Remember old block
         EnumFacing direction = m_direction.toWorldDir( turtle );
         World world = turtle.getWorld();
-        BlockPos coordinates = WorldUtil.moveCoords( turtle.getPosition(), direction );
+        BlockPos coordinates = turtle.getPosition().offset( direction );
 
         // Create a fake player, and orient it appropriately
-        BlockPos playerPosition = WorldUtil.moveCoords( turtle.getPosition(), direction );
+        BlockPos playerPosition = turtle.getPosition().offset( direction );
         TurtlePlayer turtlePlayer = createPlayer( turtle, playerPosition, direction );
 
         TurtleBlockEvent.Place place = new TurtleBlockEvent.Place( turtle, turtlePlayer, turtle.getWorld(), coordinates, stack );
         if( MinecraftForge.EVENT_BUS.post( place ) )
         {
             return TurtleCommandResult.failure( place.getFailureMessage() );
-        }
-
-        IBlockState previousState;
-        if( WorldUtil.isBlockInWorld( world, coordinates ) )
-        {
-            previousState = world.getBlockState( coordinates );
-        }
-        else
-        {
-            previousState = null;
         }
 
         // Do the deploying
@@ -119,7 +109,7 @@ public class TurtlePlaceCommand implements ITurtleCommand
     public static ItemStack deploy( @Nonnull ItemStack stack, ITurtleAccess turtle, EnumFacing direction, Object[] extraArguments, String[] o_errorMessage )
     {
         // Create a fake player, and orient it appropriately
-        BlockPos playerPosition = WorldUtil.moveCoords( turtle.getPosition(), direction );
+        BlockPos playerPosition = turtle.getPosition().offset( direction );
         TurtlePlayer turtlePlayer = createPlayer( turtle, playerPosition, direction );
 
         return deploy( stack, turtle, turtlePlayer, direction, extraArguments, o_errorMessage );
@@ -136,7 +126,7 @@ public class TurtlePlaceCommand implements ITurtleCommand
 
         // Deploy on the block immediately in front
         BlockPos position = turtle.getPosition();
-        BlockPos newPosition = WorldUtil.moveCoords( position, direction );
+        BlockPos newPosition = position.offset( direction );
         remainder = deployOnBlock( stack, turtle, turtlePlayer, newPosition, direction.getOpposite(), extraArguments, true, o_errorMessage );
         if( remainder != stack )
         {
@@ -144,7 +134,7 @@ public class TurtlePlaceCommand implements ITurtleCommand
         }
 
         // Deploy on the block one block away
-        remainder = deployOnBlock( stack, turtle, turtlePlayer, WorldUtil.moveCoords( newPosition, direction ), direction.getOpposite(), extraArguments, false, o_errorMessage );
+        remainder = deployOnBlock( stack, turtle, turtlePlayer, newPosition.offset( direction ), direction.getOpposite(), extraArguments, false, o_errorMessage );
         if( remainder != stack )
         {
             return remainder;
@@ -299,7 +289,7 @@ public class TurtlePlaceCommand implements ITurtleCommand
     private static boolean canDeployOnBlock( @Nonnull ItemStack stack, ITurtleAccess turtle, TurtlePlayer player, BlockPos position, EnumFacing side, boolean allowReplaceable, String[] o_errorMessage )
     {
         World world = turtle.getWorld();
-        if( WorldUtil.isBlockInWorld( world, position ) &&
+        if( world.isValid( position ) &&
             !world.isAirBlock( position ) &&
             !(stack.getItem() instanceof ItemBlock && WorldUtil.isLiquidBlock( world, position )) )
         {
@@ -312,19 +302,9 @@ public class TurtlePlaceCommand implements ITurtleCommand
                 if( ComputerCraft.turtlesObeyBlockProtection )
                 {
                     // Check spawn protection
-                    boolean editable = true;
-                    if( replaceable )
-                    {
-                        editable = ComputerCraft.isBlockEditable( world, position, player );
-                    }
-                    else
-                    {
-                        BlockPos shiftedPos = WorldUtil.moveCoords( position, side );
-                        if( WorldUtil.isBlockInWorld( world, shiftedPos ) )
-                        {
-                            editable = ComputerCraft.isBlockEditable( world, shiftedPos, player );
-                        }
-                    }
+                    boolean editable = replaceable
+                        ? ComputerCraft.isBlockEditable( world, position, player )
+                        : ComputerCraft.isBlockEditable( world, position.offset( side ), player );
                     if( !editable )
                     {
                         if( o_errorMessage != null )
@@ -356,7 +336,7 @@ public class TurtlePlaceCommand implements ITurtleCommand
 
         // Re-orient the fake player
         EnumFacing playerDir = side.getOpposite();
-        BlockPos playerPosition = WorldUtil.moveCoords( position, side );
+        BlockPos playerPosition = position.offset( side );
         orientPlayer( turtle, turtlePlayer, playerPosition, playerDir );
 
         // Calculate where the turtle would hit the block
@@ -421,7 +401,7 @@ public class TurtlePlaceCommand implements ITurtleCommand
                 TileEntity tile = world.getTileEntity( position );
                 if( tile == null || tile == existingTile )
                 {
-                    tile = world.getTileEntity( WorldUtil.moveCoords( position, side ) );
+                    tile = world.getTileEntity( position.offset( side ) );
                 }
                 if( tile instanceof TileEntitySign )
                 {
