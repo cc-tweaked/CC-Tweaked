@@ -87,20 +87,20 @@ public class TileDiskDrive extends TilePeripheralBase
     }
 
     @Override
-    public boolean onActivate( EntityPlayer player, EnumFacing side, float hitX, float hitY, float hitZ )
+    public boolean onActivate( EntityPlayer player, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ )
     {
         if( player.isSneaking() )
         {
             // Try to put a disk into the drive
             if( !getWorld().isRemote )
             {
-                ItemStack disk = player.getHeldItem( EnumHand.MAIN_HAND );
+                ItemStack disk = player.getHeldItem( hand );
                 if( !disk.isEmpty() && getStackInSlot( 0 ).isEmpty() )
                 {
                     if( ComputerCraft.getMedia( disk ) != null )
                     {
                         setInventorySlotContents( 0, disk );
-                        player.setHeldItem( EnumHand.MAIN_HAND, ItemStack.EMPTY );
+                        player.setHeldItem( hand, ItemStack.EMPTY );
                         return true;
                     }
                 }

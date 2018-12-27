@@ -53,12 +53,6 @@ public abstract class TilePeripheralBase extends TileGeneric
         }
     }
 
-    @Override
-    public ItemStack getPickedItem()
-    {
-        return PeripheralItemFactory.create( this );
-    }
-
     // IPeripheralTile implementation
 
     @Override

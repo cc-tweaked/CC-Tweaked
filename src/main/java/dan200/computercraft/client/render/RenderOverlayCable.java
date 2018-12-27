@@ -3,7 +3,7 @@ package dan200.computercraft.client.render;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.peripheral.PeripheralType;
 import dan200.computercraft.shared.peripheral.modem.wired.BlockCable;
-import dan200.computercraft.shared.peripheral.modem.wired.TileCable;
+import dan200.computercraft.shared.peripheral.modem.wired.CableBounds;
 import dan200.computercraft.shared.util.WorldUtil;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.BufferBuilder;
@@ -12,7 +12,6 @@ import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
@@ -24,8 +23,8 @@ import org.lwjgl.opengl.GL11;
 public class RenderOverlayCable
 {
     private static final float EXPAND = 0.002f;
-    private static final double MIN = TileCable.MIN - EXPAND;
-    private static final double MAX = TileCable.MAX + EXPAND;
+    private static final double MIN = CableBounds.MIN - EXPAND;
+    private static final double MAX = CableBounds.MAX + EXPAND;
 
     @SubscribeEvent
     public void drawHighlight( DrawBlockHighlightEvent event )
@@ -38,13 +37,10 @@ public class RenderOverlayCable
         IBlockState state = world.getBlockState( pos );
         if( state.getBlock() != ComputerCraft.Blocks.cable ) return;
 
-        TileEntity tile = world.getTileEntity( pos );
-        if( tile == null || !(tile instanceof TileCable) ) return;
+        state = state.getActualState( world, pos );
 
         event.setCanceled( true );
-        TileCable cable = (TileCable) tile;
-
-        PeripheralType type = cable.getPeripheralType();
+        PeripheralType type = ComputerCraft.Blocks.cable.getPeripheralType( state );
 
         GlStateManager.enableBlend();
         GlStateManager.tryBlendFuncSeparate( GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0 );
@@ -63,9 +59,9 @@ public class RenderOverlayCable
             GlStateManager.translate( -x + pos.getX(), -y + pos.getY(), -z + pos.getZ() );
         }
 
-        if( type != PeripheralType.Cable && WorldUtil.isVecInsideInclusive( cable.getModemBounds(), event.getTarget().hitVec.subtract( pos.getX(), pos.getY(), pos.getZ() ) ) )
+        if( type != PeripheralType.Cable && WorldUtil.isVecInsideInclusive( CableBounds.getModemBounds( state ), event.getTarget().hitVec.subtract( pos.getX(), pos.getY(), pos.getZ() ) ) )
         {
-            RenderGlobal.drawSelectionBoundingBox( cable.getModemBounds(), 0, 0, 0, 0.4f );
+            RenderGlobal.drawSelectionBoundingBox( CableBounds.getModemBounds( state ), 0, 0, 0, 0.4f );
         }
         else
         {

@@ -4,6 +4,7 @@ import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.peripheral.PeripheralType;
 import dan200.computercraft.shared.peripheral.modem.wired.BlockCable;
 import dan200.computercraft.shared.peripheral.modem.wired.BlockCableModemVariant;
+import dan200.computercraft.shared.peripheral.modem.wired.CableBounds;
 import dan200.computercraft.shared.peripheral.modem.wired.TileCable;
 import dan200.computercraft.shared.util.WorldUtil;
 import net.minecraft.block.Block;
@@ -52,7 +53,7 @@ public class TileEntityCableRenderer extends TileEntitySpecialRenderer<TileCable
         if( block != ComputerCraft.Blocks.cable ) return;
 
         state = state.getActualState( world, pos );
-        if( te.getPeripheralType() != PeripheralType.Cable && WorldUtil.isVecInsideInclusive( te.getModemBounds(), hit.hitVec.subtract( pos.getX(), pos.getY(), pos.getZ() ) ) )
+        if( te.getPeripheralType() != PeripheralType.Cable && WorldUtil.isVecInsideInclusive( CableBounds.getModemBounds( state ), hit.hitVec.subtract( pos.getX(), pos.getY(), pos.getZ() ) ) )
         {
             state = block.getDefaultState().withProperty( BlockCable.Properties.MODEM, state.getValue( BlockCable.Properties.MODEM ) );
         }

@@ -22,10 +22,7 @@ import dan200.computercraft.shared.turtle.items.TurtleItemFactory;
 import dan200.computercraft.shared.util.InventoryUtil;
 import dan200.computercraft.shared.util.RedstoneUtil;
 import dan200.computercraft.shared.util.WorldUtil;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.projectile.EntityFireball;
 import net.minecraft.init.Items;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
@@ -35,7 +32,6 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.ITextComponent;
@@ -183,19 +179,13 @@ public class TileTurtle extends TileComputerBase
     }
 
     @Override
-    public ItemStack getPickedItem()
-    {
-        return TurtleItemFactory.create( this );
-    }
-
-    @Override
-    public boolean onActivate( EntityPlayer player, EnumFacing side, float hitX, float hitY, float hitZ )
+    public boolean onActivate( EntityPlayer player, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ )
     {
         // Request description from server
         requestTileEntityUpdate();
 
         // Apply dye
-        ItemStack currentItem = player.getHeldItem( EnumHand.MAIN_HAND );
+        ItemStack currentItem = player.getHeldItem( hand );
         if( !currentItem.isEmpty() )
         {
             if( currentItem.getItem() == Items.DYE )
@@ -225,7 +215,7 @@ public class TileTurtle extends TileComputerBase
                         m_brain.setColour( -1 );
                         if( !player.capabilities.isCreativeMode )
                         {
-                            player.setHeldItem( EnumHand.MAIN_HAND, new ItemStack( Items.BUCKET ) );
+                            player.setHeldItem( hand, new ItemStack( Items.BUCKET ) );
                             player.inventory.markDirty();
                         }
                     }
@@ -235,7 +225,7 @@ public class TileTurtle extends TileComputerBase
         }
 
         // Open GUI or whatever
-        return super.onActivate( player, side, hitX, hitY, hitZ );
+        return super.onActivate( player, hand, side, hitX, hitY, hitZ );
     }
 
     @Override
@@ -248,36 +238,6 @@ public class TileTurtle extends TileComputerBase
     public void openGUI( EntityPlayer player )
     {
         ComputerCraft.openTurtleGUI( player, this );
-    }
-
-    @Override
-    public boolean isSolidOnSide( int side )
-    {
-        return false;
-    }
-
-    @Override
-    public boolean isImmuneToExplosion( Entity exploder )
-    {
-        if( getFamily() == ComputerFamily.Advanced )
-        {
-            return true;
-        }
-        else
-        {
-            return exploder != null && (exploder instanceof EntityLivingBase || exploder instanceof EntityFireball);
-        }
-    }
-
-    @Nonnull
-    @Override
-    public AxisAlignedBB getBounds()
-    {
-        Vec3d offset = getRenderOffset( 1.0f );
-        return new AxisAlignedBB(
-            offset.x + 0.125, offset.y + 0.125, offset.z + 0.125,
-            offset.x + 0.875, offset.y + 0.875, offset.z + 0.875
-        );
     }
 
     @Override

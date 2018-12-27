@@ -10,7 +10,6 @@ import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.network.ComputerCraftPacket;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -18,21 +17,16 @@ import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.NonNullList;
-import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.List;
 
 public abstract class TileGeneric extends TileEntity
 {
-    public TileGeneric()
-    {
-    }
-
     public void requestTileEntityUpdate()
     {
         if( getWorld().isRemote )
@@ -54,11 +48,7 @@ public abstract class TileGeneric extends TileEntity
     public BlockGeneric getBlock()
     {
         Block block = getWorld().getBlockState( getPos() ).getBlock();
-        if( block != null && block instanceof BlockGeneric )
-        {
-            return (BlockGeneric) block;
-        }
-        return null;
+        return block instanceof BlockGeneric ? (BlockGeneric) block : null;
     }
 
     protected final IBlockState getBlockState()
@@ -84,12 +74,7 @@ public abstract class TileGeneric extends TileEntity
     {
     }
 
-    public ItemStack getPickedItem()
-    {
-        return null;
-    }
-
-    public boolean onActivate( EntityPlayer player, EnumFacing side, float hitX, float hitY, float hitZ )
+    public boolean onActivate( EntityPlayer player, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ )
     {
         return false;
     }
@@ -100,27 +85,6 @@ public abstract class TileGeneric extends TileEntity
 
     public void onNeighbourTileEntityChange( @Nonnull BlockPos neighbour )
     {
-    }
-
-    public boolean isSolidOnSide( int side )
-    {
-        return true;
-    }
-
-    public boolean isImmuneToExplosion( Entity exploder )
-    {
-        return false;
-    }
-
-    @Nonnull
-    public AxisAlignedBB getBounds()
-    {
-        return new AxisAlignedBB( 0.0, 0.0, 0.0, 1.0, 1.0, 1.0 );
-    }
-
-    public void getCollisionBounds( @Nonnull List<AxisAlignedBB> bounds )
-    {
-        bounds.add( getBounds() );
     }
 
     public boolean getRedstoneConnectivity( EnumFacing side )
@@ -150,21 +114,13 @@ public abstract class TileGeneric extends TileEntity
 
     public boolean isUsable( EntityPlayer player, boolean ignoreRange )
     {
-        if( player != null && player.isEntityAlive() )
-        {
-            if( getWorld().getTileEntity( getPos() ) == this )
-            {
-                if( !ignoreRange )
-                {
-                    double range = getInteractRange( player );
-                    BlockPos pos = getPos();
-                    return player.getEntityWorld() == getWorld() &&
-                        player.getDistanceSq( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5 ) <= (range * range);
-                }
-                return true;
-            }
-        }
-        return false;
+        if( player == null || !player.isEntityAlive() || getWorld().getTileEntity( getPos() ) != this ) return false;
+        if( ignoreRange ) return true;
+
+        double range = getInteractRange( player );
+        BlockPos pos = getPos();
+        return player.getEntityWorld() == getWorld() &&
+            player.getDistanceSq( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5 ) <= (range * range);
     }
 
     protected void writeDescription( @Nonnull NBTTagCompound nbttagcompound )

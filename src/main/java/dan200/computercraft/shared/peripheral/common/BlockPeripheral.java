@@ -9,6 +9,7 @@ package dan200.computercraft.shared.peripheral.common;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.peripheral.PeripheralType;
 import dan200.computercraft.shared.peripheral.diskdrive.TileDiskDrive;
+import dan200.computercraft.shared.peripheral.modem.ModemBounds;
 import dan200.computercraft.shared.peripheral.modem.wireless.TileWirelessModem;
 import dan200.computercraft.shared.peripheral.monitor.TileMonitor;
 import dan200.computercraft.shared.peripheral.printer.TilePrinter;
@@ -25,6 +26,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
@@ -661,5 +663,17 @@ public class BlockPeripheral extends BlockPeripheralBase
     {
         // This normally uses the default state
         return isOpaqueCube( state ) ? 255 : 0;
+    }
+
+    @Override
+    @Deprecated
+    public AxisAlignedBB getBoundingBox( IBlockState state, IBlockAccess source, BlockPos pos )
+    {
+        if( getPeripheralType( state ) == PeripheralType.WirelessModem )
+        {
+            return ModemBounds.getBounds( getDirection( source, pos ) );
+        }
+
+        return super.getBoundingBox( state, source, pos );
     }
 }

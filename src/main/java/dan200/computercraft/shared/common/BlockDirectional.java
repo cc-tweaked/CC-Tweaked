@@ -23,7 +23,7 @@ public abstract class BlockDirectional extends BlockGeneric
     public EnumFacing getDirection( IBlockAccess world, BlockPos pos )
     {
         TileEntity tile = world.getTileEntity( pos );
-        if( tile != null && tile instanceof IDirectionalTile )
+        if( tile instanceof IDirectionalTile )
         {
             IDirectionalTile directional = (IDirectionalTile) tile;
             return directional.getDirection();
@@ -34,7 +34,7 @@ public abstract class BlockDirectional extends BlockGeneric
     public void setDirection( World world, BlockPos pos, EnumFacing dir )
     {
         TileEntity tile = world.getTileEntity( pos );
-        if( tile != null && tile instanceof IDirectionalTile )
+        if( tile instanceof IDirectionalTile )
         {
             IDirectionalTile directional = (IDirectionalTile) tile;
             directional.setDirection( dir );

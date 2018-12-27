@@ -18,7 +18,7 @@ import dan200.computercraft.shared.wired.CapabilityWiredElement;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.TextComponentString;
@@ -170,15 +170,8 @@ public class TileWiredModemFull extends TilePeripheralBase
         }
     }
 
-    @Nonnull
     @Override
-    public AxisAlignedBB getBounds()
-    {
-        return BlockCable.FULL_BLOCK_AABB;
-    }
-
-    @Override
-    public boolean onActivate( EntityPlayer player, EnumFacing side, float hitX, float hitY, float hitZ )
+    public boolean onActivate( EntityPlayer player, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ )
     {
         if( !getWorld().isRemote )
         {

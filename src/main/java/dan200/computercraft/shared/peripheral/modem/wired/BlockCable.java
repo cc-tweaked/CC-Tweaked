@@ -6,8 +6,8 @@
 
 package dan200.computercraft.shared.peripheral.modem.wired;
 
+import com.google.common.collect.ImmutableMap;
 import dan200.computercraft.ComputerCraft;
-import dan200.computercraft.shared.common.TileGeneric;
 import dan200.computercraft.shared.peripheral.PeripheralType;
 import dan200.computercraft.shared.peripheral.common.BlockPeripheralBase;
 import dan200.computercraft.shared.peripheral.common.PeripheralItemFactory;
@@ -18,6 +18,7 @@ import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.state.BlockFaceShape;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
@@ -34,6 +35,7 @@ import net.minecraft.world.World;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.List;
 
 public class BlockCable extends BlockPeripheralBase
@@ -50,6 +52,13 @@ public class BlockCable extends BlockPeripheralBase
         public static final PropertyBool WEST = PropertyBool.create( "west" );
         public static final PropertyBool UP = PropertyBool.create( "up" );
         public static final PropertyBool DOWN = PropertyBool.create( "down" );
+
+        static final EnumMap<EnumFacing, PropertyBool> CONNECTIONS =
+            new EnumMap<>( new ImmutableMap.Builder<EnumFacing, PropertyBool>()
+                .put( EnumFacing.DOWN, DOWN ).put( EnumFacing.UP, UP )
+                .put( EnumFacing.NORTH, NORTH ).put( EnumFacing.SOUTH, SOUTH )
+                .put( EnumFacing.WEST, WEST ).put( EnumFacing.EAST, EAST )
+                .build() );
     }
 
     // Members
@@ -230,51 +239,60 @@ public class BlockCable extends BlockPeripheralBase
         return new TileCable();
     }
 
+    @Override
+    @Deprecated
+    public AxisAlignedBB getBoundingBox( IBlockState state, IBlockAccess source, BlockPos pos )
+    {
+        return CableBounds.getBounds( state.getActualState( source, pos ) );
+    }
+
+    @Override
+    @Deprecated
+    public void addCollisionBoxToList( IBlockState state, @Nonnull World world, @Nonnull BlockPos pos, @Nonnull AxisAlignedBB bigBox, @Nonnull List<AxisAlignedBB> list, Entity entity, boolean isActualState )
+    {
+        if( !isActualState ) state = state.getActualState( world, pos );
+
+        // Get collision bounds
+        List<AxisAlignedBB> collision = new ArrayList<>( 1 );
+        CableBounds.getBounds( state, collision );
+        for( AxisAlignedBB localBounds : collision ) addCollisionBoxToList( pos, bigBox, list, localBounds );
+    }
+
     @Nullable
     @Override
     @Deprecated
-    public RayTraceResult collisionRayTrace( IBlockState blockState, @Nonnull World world, @Nonnull BlockPos pos, @Nonnull Vec3d start, @Nonnull Vec3d end )
+    public RayTraceResult collisionRayTrace( IBlockState state, @Nonnull World world, @Nonnull BlockPos pos, @Nonnull Vec3d start, @Nonnull Vec3d end )
     {
-        TileEntity tile = world.getTileEntity( pos );
-        if( tile instanceof TileGeneric && tile.hasWorld() )
+        double distance = Double.POSITIVE_INFINITY;
+        RayTraceResult result = null;
+
+        List<AxisAlignedBB> bounds = new ArrayList<AxisAlignedBB>( 7 );
+        CableBounds.getBounds( state.getActualState( world, pos ), bounds );
+
+        Vec3d startOff = start.subtract( pos.getX(), pos.getY(), pos.getZ() );
+        Vec3d endOff = end.subtract( pos.getX(), pos.getY(), pos.getZ() );
+
+        for( AxisAlignedBB bb : bounds )
         {
-            TileGeneric generic = (TileGeneric) tile;
-
-            double distance = Double.POSITIVE_INFINITY;
-            RayTraceResult result = null;
-
-            List<AxisAlignedBB> bounds = new ArrayList<AxisAlignedBB>( 7 );
-            generic.getCollisionBounds( bounds );
-
-            Vec3d startOff = start.subtract( pos.getX(), pos.getY(), pos.getZ() );
-            Vec3d endOff = end.subtract( pos.getX(), pos.getY(), pos.getZ() );
-
-            for( AxisAlignedBB bb : bounds )
+            RayTraceResult hit = bb.calculateIntercept( startOff, endOff );
+            if( hit != null )
             {
-                RayTraceResult hit = bb.calculateIntercept( startOff, endOff );
-                if( hit != null )
+                double newDistance = hit.hitVec.squareDistanceTo( startOff );
+                if( newDistance <= distance )
                 {
-                    double newDistance = hit.hitVec.squareDistanceTo( startOff );
-                    if( newDistance <= distance )
-                    {
-                        distance = newDistance;
-                        result = hit;
-                    }
+                    distance = newDistance;
+                    result = hit;
                 }
             }
+        }
 
-            return result == null ? null : new RayTraceResult( result.hitVec.add( pos.getX(), pos.getY(), pos.getZ() ), result.sideHit, pos );
-        }
-        else
-        {
-            return super.collisionRayTrace( blockState, world, pos, start, end );
-        }
+        return result == null ? null : new RayTraceResult( result.hitVec.add( pos.getX(), pos.getY(), pos.getZ() ), result.sideHit, pos );
     }
 
     @Override
     public boolean removedByPlayer( @Nonnull IBlockState state, World world, @Nonnull BlockPos pos, @Nonnull EntityPlayer player, boolean willHarvest )
     {
-        PeripheralType type = getPeripheralType( world, pos );
+        PeripheralType type = getPeripheralType( state );
         if( type == PeripheralType.WiredModemWithCable )
         {
             RayTraceResult hit = state.collisionRayTrace( world, pos, WorldUtil.getRayStart( player ), WorldUtil.getRayEnd( player ) );
@@ -287,7 +305,7 @@ public class BlockCable extends BlockPeripheralBase
 
                     ItemStack item;
 
-                    AxisAlignedBB bb = cable.getModemBounds();
+                    AxisAlignedBB bb = CableBounds.getModemBounds( state );
                     if( WorldUtil.isVecInsideInclusive( bb, hit.hitVec.subtract( pos.getX(), pos.getY(), pos.getZ() ) ) )
                     {
                         world.setBlockState( pos, state.withProperty( Properties.MODEM, BlockCableModemVariant.None ), 3 );
@@ -315,30 +333,14 @@ public class BlockCable extends BlockPeripheralBase
     @Override
     public ItemStack getPickBlock( @Nonnull IBlockState state, RayTraceResult hit, @Nonnull World world, @Nonnull BlockPos pos, EntityPlayer player )
     {
-        TileEntity tile = world.getTileEntity( pos );
-        if( tile instanceof TileCable && tile.hasWorld() )
+        PeripheralType type = getPeripheralType( state );
+        if( type == PeripheralType.WiredModemWithCable )
         {
-            TileCable cable = (TileCable) tile;
-            PeripheralType type = getPeripheralType( state );
-
-            if( type == PeripheralType.WiredModemWithCable )
-            {
-                if( hit == null || WorldUtil.isVecInsideInclusive( cable.getModemBounds(), hit.hitVec.subtract( pos.getX(), pos.getY(), pos.getZ() ) ) )
-                {
-                    return PeripheralItemFactory.create( PeripheralType.WiredModem, null, 1 );
-                }
-                else
-                {
-                    return PeripheralItemFactory.create( PeripheralType.Cable, null, 1 );
-                }
-            }
-            else
-            {
-                return PeripheralItemFactory.create( type, null, 1 );
-            }
+            type = hit == null || WorldUtil.isVecInsideInclusive( CableBounds.getModemBounds( state ), hit.hitVec.subtract( pos.getX(), pos.getY(), pos.getZ() ) )
+                ? PeripheralType.WiredModem : PeripheralType.Cable;
         }
 
-        return PeripheralItemFactory.create( PeripheralType.Cable, null, 1 );
+        return PeripheralItemFactory.create( type, null, 1 );
     }
 
     @Override

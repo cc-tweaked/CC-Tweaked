@@ -24,8 +24,8 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.NonNullList;
-import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.TextComponentTranslation;
@@ -35,24 +35,10 @@ import net.minecraftforge.common.capabilities.Capability;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 
 public class TileCable extends TileModemBase
 {
-    public static final double MIN = 0.375;
-    public static final double MAX = 1 - MIN;
-
-    private static final AxisAlignedBB BOX_CENTRE = new AxisAlignedBB( MIN, MIN, MIN, MAX, MAX, MAX );
-    private static final AxisAlignedBB[] BOXES = new AxisAlignedBB[] {
-        new AxisAlignedBB( MIN, 0, MIN, MAX, MIN, MAX ),   // Down
-        new AxisAlignedBB( MIN, MAX, MIN, MAX, 1, MAX ),   // Up
-        new AxisAlignedBB( MIN, MIN, 0, MAX, MAX, MIN ),   // North
-        new AxisAlignedBB( MIN, MIN, MAX, MAX, MAX, 1 ),   // South
-        new AxisAlignedBB( 0, MIN, MIN, MIN, MAX, MAX ),   // West
-        new AxisAlignedBB( MAX, MIN, MIN, 1, MAX, MAX ),   // East
-    };
-
     private static class CableElement extends WiredModemElement
     {
         private final TileCable m_entity;
@@ -187,15 +173,8 @@ public class TileCable extends TileModemBase
     public EnumFacing getDirection()
     {
         IBlockState state = getBlockState();
-        BlockCableModemVariant modem = state.getValue( BlockCable.Properties.MODEM );
-        if( modem != BlockCableModemVariant.None )
-        {
-            return modem.getFacing();
-        }
-        else
-        {
-            return EnumFacing.NORTH;
-        }
+        EnumFacing facing = state.getValue( BlockCable.Properties.MODEM ).getFacing();
+        return facing != null ? facing : EnumFacing.NORTH;
     }
 
     @Override
@@ -230,19 +209,6 @@ public class TileCable extends TileModemBase
                     break;
                 }
             }
-        }
-    }
-
-    @Override
-    public ItemStack getPickedItem()
-    {
-        if( getPeripheralType() == PeripheralType.WiredModemWithCable )
-        {
-            return PeripheralItemFactory.create( PeripheralType.WiredModem, getLabel(), 1 );
-        }
-        else
-        {
-            return super.getPickedItem();
         }
     }
 
@@ -300,100 +266,8 @@ public class TileCable extends TileModemBase
         }
     }
 
-    public AxisAlignedBB getModemBounds()
-    {
-        return super.getBounds();
-    }
-
-    private AxisAlignedBB getCableBounds()
-    {
-        double xMin = 0.375;
-        double yMin = 0.375;
-        double zMin = 0.375;
-        double xMax = 0.625;
-        double yMax = 0.625;
-        double zMax = 0.625;
-        BlockPos pos = getPos();
-        World world = getWorld();
-
-        IBlockState state = getBlockState();
-        if( BlockCable.doesConnectVisually( state, world, pos, EnumFacing.WEST ) )
-        {
-            xMin = 0.0;
-        }
-        if( BlockCable.doesConnectVisually( state, world, pos, EnumFacing.EAST ) )
-        {
-            xMax = 1.0;
-        }
-        if( BlockCable.doesConnectVisually( state, world, pos, EnumFacing.DOWN ) )
-        {
-            yMin = 0.0;
-        }
-        if( BlockCable.doesConnectVisually( state, world, pos, EnumFacing.UP ) )
-        {
-            yMax = 1.0;
-        }
-        if( BlockCable.doesConnectVisually( state, world, pos, EnumFacing.NORTH ) )
-        {
-            zMin = 0.0;
-        }
-        if( BlockCable.doesConnectVisually( state, world, pos, EnumFacing.SOUTH ) )
-        {
-            zMax = 1.0;
-        }
-        return new AxisAlignedBB( xMin, yMin, zMin, xMax, yMax, zMax );
-    }
-
-    @Nonnull
     @Override
-    public AxisAlignedBB getBounds()
-    {
-        PeripheralType type = getPeripheralType();
-        switch( type )
-        {
-            case WiredModem:
-            default:
-            {
-                return getModemBounds();
-            }
-            case Cable:
-            {
-                return getCableBounds();
-            }
-            case WiredModemWithCable:
-            {
-                AxisAlignedBB modem = getModemBounds();
-                AxisAlignedBB cable = getCableBounds();
-                return modem.union( cable );
-            }
-        }
-    }
-
-    @Override
-    public void getCollisionBounds( @Nonnull List<AxisAlignedBB> bounds )
-    {
-        PeripheralType type = getPeripheralType();
-        if( type == PeripheralType.WiredModem || type == PeripheralType.WiredModemWithCable )
-        {
-            bounds.add( getModemBounds() );
-        }
-        if( type == PeripheralType.Cable || type == PeripheralType.WiredModemWithCable )
-        {
-            bounds.add( BOX_CENTRE );
-
-            IBlockState state = getBlockState();
-            for( EnumFacing facing : EnumFacing.VALUES )
-            {
-                if( BlockCable.doesConnectVisually( state, world, pos, facing ) )
-                {
-                    bounds.add( BOXES[facing.ordinal()] );
-                }
-            }
-        }
-    }
-
-    @Override
-    public boolean onActivate( EntityPlayer player, EnumFacing side, float hitX, float hitY, float hitZ )
+    public boolean onActivate( EntityPlayer player, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ )
     {
         if( getPeripheralType() == PeripheralType.WiredModemWithCable && !player.isSneaking() )
         {

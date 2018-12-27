@@ -19,7 +19,10 @@ import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.IComputer;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.turtle.blocks.TileTurtle;
-import dan200.computercraft.shared.util.*;
+import dan200.computercraft.shared.util.Colour;
+import dan200.computercraft.shared.util.ColourUtils;
+import dan200.computercraft.shared.util.Holiday;
+import dan200.computercraft.shared.util.HolidayUtil;
 import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.MoverType;
@@ -999,7 +1002,7 @@ public class TurtleBrain implements ITurtleAccess
             }
             default:
             {
-                return new Vec3d( 0.0, 0.0, 0.0 );
+                return Vec3d.ZERO;
             }
         }
     }

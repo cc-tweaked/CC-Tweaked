@@ -76,12 +76,6 @@ public class TileComputer extends TileComputerBase
     }
 
     @Override
-    public ItemStack getPickedItem()
-    {
-        return ComputerItemFactory.create( this );
-    }
-
-    @Override
     public void openGUI( EntityPlayer player )
     {
         ComputerCraft.openComputerGUI( player, this );
