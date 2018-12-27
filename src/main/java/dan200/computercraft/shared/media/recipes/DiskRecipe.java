@@ -6,6 +6,7 @@
 
 package dan200.computercraft.shared.media.recipes;
 
+import com.google.gson.JsonObject;
 import dan200.computercraft.shared.media.items.ItemDiskLegacy;
 import dan200.computercraft.shared.util.Colour;
 import dan200.computercraft.shared.util.ColourTracker;
@@ -14,9 +15,9 @@ import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.item.crafting.Ingredient;
-import net.minecraft.util.NonNullList;
 import net.minecraft.world.World;
-import net.minecraftforge.common.ForgeHooks;
+import net.minecraftforge.common.crafting.IRecipeFactory;
+import net.minecraftforge.common.crafting.JsonContext;
 import net.minecraftforge.oredict.OreIngredient;
 import net.minecraftforge.registries.IForgeRegistryEntry;
 
@@ -103,16 +104,12 @@ public class DiskRecipe extends IForgeRegistryEntry.Impl<IRecipe> implements IRe
         return ItemDiskLegacy.createFromIDAndColour( -1, null, Colour.Blue.getHex() );
     }
 
-    @Nonnull
-    @Override
-    public NonNullList<ItemStack> getRemainingItems( @Nonnull InventoryCrafting inventoryCrafting )
+    public static class Factory implements IRecipeFactory
     {
-        NonNullList<ItemStack> results = NonNullList.withSize( inventoryCrafting.getSizeInventory(), ItemStack.EMPTY );
-        for( int i = 0; i < results.size(); i++ )
+        @Override
+        public IRecipe parse( JsonContext jsonContext, JsonObject jsonObject )
         {
-            ItemStack stack = inventoryCrafting.getStackInSlot( i );
-            results.set( i, ForgeHooks.getContainerItem( stack ) );
+            return new DiskRecipe();
         }
-        return results;
     }
 }

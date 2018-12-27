@@ -2,8 +2,14 @@
     "recipes": {
         "impostor_shaped": "dan200.computercraft.shared.util.ImpostorRecipe$Factory",
         "impostor_shapeless": "dan200.computercraft.shared.util.ImpostorShapelessRecipe$Factory",
+
+        "colour": "dan200.computercraft.shared.common.ColourableRecipe$Factory",
+        "computer_upgrade": "dan200.computercraft.shared.computer.recipe.ComputerFamilyRecipe$Factory",
+        "disk": "dan200.computercraft.shared.media.recipes.DiskRecipe$Factory",
+        "pocket_computer_upgrade": "dan200.computercraft.shared.pocket.recipes.PocketComputerUpgradeRecipe$Factory",
+        "printout": "dan200.computercraft.shared.media.recipes.PrintoutRecipe$Factory",
         "turtle": "dan200.computercraft.shared.turtle.recipes.TurtleRecipe$Factory",
-        "computer_upgrade": "dan200.computercraft.shared.computer.recipe.ComputerFamilyRecipe$Factory"
+        "turtle_upgrade": "dan200.computercraft.shared.turtle.recipes.TurtleUpgradeRecipe$Factory"
     },
     "ingredients": {
         "computer": "dan200.computercraft.shared.computer.recipe.ComputerIngredient$Factory"

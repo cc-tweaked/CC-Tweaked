@@ -12,7 +12,6 @@ import dan200.computercraft.api.pocket.IPocketUpgrade;
 import dan200.computercraft.core.computer.MainThread;
 import dan200.computercraft.shared.command.CommandComputerCraft;
 import dan200.computercraft.shared.command.ContainerViewComputer;
-import dan200.computercraft.shared.common.ColourableRecipe;
 import dan200.computercraft.shared.common.DefaultBundledRedstoneProvider;
 import dan200.computercraft.shared.common.TileGeneric;
 import dan200.computercraft.shared.computer.blocks.BlockCommandComputer;
@@ -31,7 +30,6 @@ import dan200.computercraft.shared.media.items.ItemDiskExpanded;
 import dan200.computercraft.shared.media.items.ItemDiskLegacy;
 import dan200.computercraft.shared.media.items.ItemPrintout;
 import dan200.computercraft.shared.media.items.ItemTreasureDisk;
-import dan200.computercraft.shared.media.recipes.DiskRecipe;
 import dan200.computercraft.shared.media.recipes.PrintoutRecipe;
 import dan200.computercraft.shared.network.ComputerCraftPacket;
 import dan200.computercraft.shared.peripheral.commandblock.CommandBlockPeripheralProvider;
@@ -57,7 +55,10 @@ import dan200.computercraft.shared.pocket.peripherals.PocketSpeaker;
 import dan200.computercraft.shared.pocket.recipes.PocketComputerUpgradeRecipe;
 import dan200.computercraft.shared.turtle.blocks.TileTurtle;
 import dan200.computercraft.shared.turtle.inventory.ContainerTurtle;
-import dan200.computercraft.shared.util.*;
+import dan200.computercraft.shared.util.Colour;
+import dan200.computercraft.shared.util.CreativeTabMain;
+import dan200.computercraft.shared.util.ImpostorRecipe;
+import dan200.computercraft.shared.util.ImpostorShapelessRecipe;
 import dan200.computercraft.shared.wired.CapabilityWiredElement;
 import net.minecraft.block.Block;
 import net.minecraft.command.CommandHandler;
@@ -67,7 +68,6 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Items;
 import net.minecraft.inventory.Container;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemRecord;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.item.crafting.Ingredient;
@@ -95,8 +95,6 @@ import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.registries.IForgeRegistry;
 import pl.asie.charset.ModCharset;
-
-import javax.annotation.Nonnull;
 
 public abstract class ComputerCraftProxyCommon implements IComputerCraftProxy
 {
@@ -268,12 +266,6 @@ public abstract class ComputerCraftProxyCommon implements IComputerCraftProxy
     {
         IForgeRegistry<IRecipe> registry = event.getRegistry();
 
-        // Disk
-        registry.register( new DiskRecipe().setRegistryName( new ResourceLocation( "computercraft:disk" ) ) );
-
-        // Colourable items (turtles, disks)
-        registry.register( new ColourableRecipe().setRegistryName( new ResourceLocation( "computercraft:colour" ) ) );
-
         // Impostor Disk recipes (to fool NEI)
         ItemStack paper = new ItemStack( Items.PAPER, 1 );
         ItemStack redstone = new ItemStack( Items.REDSTONE, 1 );
@@ -304,12 +296,6 @@ public abstract class ComputerCraftProxyCommon implements IComputerCraftProxy
                     .setRegistryName( new ResourceLocation( "computercraft:disk_imposter_convert_" + colour ) )
             );
         }
-
-        // Printout
-        registry.register( new PrintoutRecipe().setRegistryName( new ResourceLocation( "computercraft:printout" ) ) );
-
-        // Wireless Pocket Computer
-        registry.register( new PocketComputerUpgradeRecipe().setRegistryName( new ResourceLocation( "computercraft:pocket_computer_upgrade" ) ) );
 
         // Impostor Pocket Computer recipes (to fool NEI)
         ItemStack pocketComputer = PocketComputerItemFactory.create( -1, null, -1, ComputerFamily.Normal, null );

@@ -6,6 +6,7 @@
 
 package dan200.computercraft.shared.turtle.recipes;
 
+import com.google.gson.JsonObject;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
@@ -16,20 +17,16 @@ import dan200.computercraft.shared.turtle.items.TurtleItemFactory;
 import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
-import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
-import net.minecraftforge.common.ForgeHooks;
+import net.minecraftforge.common.crafting.IRecipeFactory;
+import net.minecraftforge.common.crafting.JsonContext;
 import net.minecraftforge.registries.IForgeRegistryEntry;
 
 import javax.annotation.Nonnull;
 
 public class TurtleUpgradeRecipe extends IForgeRegistryEntry.Impl<IRecipe> implements IRecipe
 {
-    public TurtleUpgradeRecipe()
-    {
-    }
-
     @Override
     public boolean canFit( int x, int y )
     {
@@ -186,16 +183,12 @@ public class TurtleUpgradeRecipe extends IForgeRegistryEntry.Impl<IRecipe> imple
         return TurtleItemFactory.create( computerID, label, colour, family, upgrades[0], upgrades[1], fuelLevel, overlay );
     }
 
-    @Nonnull
-    @Override
-    public NonNullList<ItemStack> getRemainingItems( @Nonnull InventoryCrafting inventoryCrafting )
+    public static class Factory implements IRecipeFactory
     {
-        NonNullList<ItemStack> results = NonNullList.withSize( inventoryCrafting.getSizeInventory(), ItemStack.EMPTY );
-        for( int i = 0; i < results.size(); i++ )
+        @Override
+        public IRecipe parse( JsonContext jsonContext, JsonObject jsonObject )
         {
-            ItemStack stack = inventoryCrafting.getStackInSlot( i );
-            results.set( i, ForgeHooks.getContainerItem( stack ) );
+            return new TurtleUpgradeRecipe();
         }
-        return results;
     }
 }

@@ -313,7 +313,6 @@ public abstract class CCTurtleProxyCommon implements ICCTurtleProxy
     public void registerRecipes( RegistryEvent.Register<IRecipe> event )
     {
         IForgeRegistry<IRecipe> registry = event.getRegistry();
-        registry.register( new TurtleUpgradeRecipe().setRegistryName( new ResourceLocation( "computercraft:turtle" ) ) );
 
         // Add a bunch of impostor recipes
         // TODO: Figure out a way to do this in a "nice" way.

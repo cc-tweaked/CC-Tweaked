@@ -1,14 +1,15 @@
 package dan200.computercraft.shared.common;
 
+import com.google.gson.JsonObject;
 import dan200.computercraft.shared.util.Colour;
 import dan200.computercraft.shared.util.ColourTracker;
 import dan200.computercraft.shared.util.ColourUtils;
 import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
-import net.minecraft.util.NonNullList;
 import net.minecraft.world.World;
-import net.minecraftforge.common.ForgeHooks;
+import net.minecraftforge.common.crafting.IRecipeFactory;
+import net.minecraftforge.common.crafting.JsonContext;
 import net.minecraftforge.registries.IForgeRegistryEntry;
 
 import javax.annotation.Nonnull;
@@ -98,16 +99,12 @@ public class ColourableRecipe extends IForgeRegistryEntry.Impl<IRecipe> implemen
         return ItemStack.EMPTY;
     }
 
-    @Nonnull
-    @Override
-    public NonNullList<ItemStack> getRemainingItems( @Nonnull InventoryCrafting inventoryCrafting )
+    public static class Factory implements IRecipeFactory
     {
-        NonNullList<ItemStack> results = NonNullList.withSize( inventoryCrafting.getSizeInventory(), ItemStack.EMPTY );
-        for( int i = 0; i < results.size(); i++ )
+        @Override
+        public IRecipe parse( JsonContext jsonContext, JsonObject jsonObject )
         {
-            ItemStack stack = inventoryCrafting.getStackInSlot( i );
-            results.set( i, ForgeHooks.getContainerItem( stack ) );
+            return new ColourableRecipe();
         }
-        return results;
     }
 }
