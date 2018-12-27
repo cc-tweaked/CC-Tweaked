@@ -425,7 +425,7 @@ function create( parent, nX, nY, nWidth, nHeight, bStartVisible )
     function window.reposition( nNewX, nNewY, nNewWidth, nNewHeight )
         if type( nNewX ) ~= "number" then error( "bad argument #1 (expected number, got " .. type( nNewX ) .. ")", 2 ) end
         if type( nNewY ) ~= "number" then error( "bad argument #2 (expected number, got " .. type( nNewY ) .. ")", 2 ) end
-        if nNewWidth ~= nil or nNewWidth ~= nil  then
+        if nNewWidth ~= nil or nNewHeight ~= nil  then
             if type( nNewWidth ) ~= "number" then error( "bad argument #3 (expected number, got " .. type( nNewWidth ) .. ")", 2 ) end
             if type( nNewHeight ) ~= "number" then error( "bad argument #4 (expected number, got " .. type( nNewHeight ) .. ")", 2 ) end
         end
