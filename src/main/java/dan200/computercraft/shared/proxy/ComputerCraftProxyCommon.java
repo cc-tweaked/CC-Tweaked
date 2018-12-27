@@ -64,7 +64,6 @@ import net.minecraft.command.CommandHandler;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.inventory.Container;
 import net.minecraft.item.Item;
@@ -75,7 +74,10 @@ import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.*;
+import net.minecraft.util.EnumHand;
+import net.minecraft.util.IThreadListener;
+import net.minecraft.util.NonNullList;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
@@ -95,16 +97,9 @@ import net.minecraftforge.registries.IForgeRegistry;
 import pl.asie.charset.ModCharset;
 
 import javax.annotation.Nonnull;
-import java.io.File;
 
 public abstract class ComputerCraftProxyCommon implements IComputerCraftProxy
 {
-    public ComputerCraftProxyCommon()
-    {
-    }
-
-    // IComputerCraftProxy implementation
-
     @Override
     public void preInit()
     {
@@ -112,14 +107,6 @@ public abstract class ComputerCraftProxyCommon implements IComputerCraftProxy
 
         // Creative tab
         ComputerCraft.mainCreativeTab = new CreativeTabMain( CreativeTabs.getNextID() );
-
-        // Recipe types
-        // RecipeSorter.register( "computercraft:impostor", ImpostorRecipe.class, RecipeSorter.Category.SHAPED, "after:minecraft:shapeless" );
-        // RecipeSorter.register( "computercraft:impostor_shapeless", ImpostorShapelessRecipe.class, RecipeSorter.Category.SHAPELESS, "after:minecraft:shapeless" );
-        // RecipeSorter.register( "computercraft:disk", DiskRecipe.class, RecipeSorter.Category.SHAPELESS, "after:minecraft:shapeless" );
-        // RecipeSorter.register( "computercraft:colour", ColourableRecipe.class, RecipeSorter.Category.SHAPELESS, "after:minecraft:shapeless" );
-        // RecipeSorter.register( "computercraft:printout", PrintoutRecipe.class, RecipeSorter.Category.SHAPELESS, "after:minecraft:shapeless" );
-        // RecipeSorter.register( "computercraft:pocket_computer_upgrade", PocketComputerUpgradeRecipe.class, RecipeSorter.Category.SHAPELESS, "after:minecraft:shapeless" );
     }
 
     @Override
@@ -138,73 +125,6 @@ public abstract class ComputerCraftProxyCommon implements IComputerCraftProxy
         CommandHandler handler = (CommandHandler) server.getCommandManager();
         handler.registerCommand( new CommandComputerCraft() );
     }
-
-    @Override
-    public abstract boolean isClient();
-
-    @Override
-    public abstract boolean getGlobalCursorBlink();
-
-    @Override
-    public abstract long getRenderFrame();
-
-    @Override
-    public abstract Object getFixedWidthFontRenderer();
-
-    @Override
-    public String getRecordInfo( @Nonnull ItemStack recordStack )
-    {
-        Item item = recordStack.getItem();
-        if( item instanceof ItemRecord )
-        {
-            ItemRecord record = (ItemRecord) item;
-            return StringUtil.translateToLocal( record.displayName );
-        }
-        return null;
-    }
-
-    @Override
-    public void playRecord( SoundEvent record, String recordInfo, World world, BlockPos pos )
-    {
-        ComputerCraftPacket packet = new ComputerCraftPacket();
-        packet.m_packetType = ComputerCraftPacket.PlayRecord;
-        if( record != null )
-        {
-            packet.m_dataInt = new int[] { pos.getX(), pos.getY(), pos.getZ(), SoundEvent.REGISTRY.getIDForObject( record ) };
-            packet.m_dataString = new String[] { recordInfo };
-        }
-        else
-        {
-            packet.m_dataInt = new int[] { pos.getX(), pos.getY(), pos.getZ() };
-        }
-
-        NetworkRegistry.TargetPoint point = new NetworkRegistry.TargetPoint( world.provider.getDimension(), pos.getX(), pos.getY(), pos.getZ(), 64 );
-        ComputerCraft.sendToAllAround( packet, point );
-    }
-
-    @Override
-    public abstract Object getDiskDriveGUI( InventoryPlayer inventory, TileDiskDrive drive );
-
-    @Override
-    public abstract Object getComputerGUI( TileComputer computer );
-
-    @Override
-    public abstract Object getPrinterGUI( InventoryPlayer inventory, TilePrinter printer );
-
-    @Override
-    public abstract Object getTurtleGUI( InventoryPlayer inventory, TileTurtle turtle );
-
-    @Override
-    public abstract Object getPrintoutGUI( EntityPlayer player, EnumHand hand );
-
-    @Override
-    public abstract Object getPocketComputerGUI( EntityPlayer player, EnumHand hand );
-
-    @Override
-    public abstract Object getComputerGUI( IComputer computer, int width, int height, ComputerFamily family );
-
-    @Override
-    public abstract File getWorldDir( World world );
 
     @Override
     public void handlePacket( final ComputerCraftPacket packet, final EntityPlayer player )

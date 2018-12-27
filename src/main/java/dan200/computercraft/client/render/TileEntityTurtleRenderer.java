@@ -10,7 +10,6 @@ import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.turtle.blocks.TileTurtle;
-import dan200.computercraft.shared.turtle.entity.TurtleVisionCamera;
 import dan200.computercraft.shared.util.Holiday;
 import dan200.computercraft.shared.util.HolidayUtil;
 import net.minecraft.block.state.IBlockState;
@@ -28,7 +27,6 @@ import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexFormat;
-import net.minecraft.entity.Entity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
@@ -56,22 +54,7 @@ public class TileEntityTurtleRenderer extends TileEntitySpecialRenderer<TileTurt
     @Override
     public void render( TileTurtle tileEntity, double posX, double posY, double posZ, float f, int i, float f2 )
     {
-        if( tileEntity != null )
-        {
-            // Check the turtle isn't first person
-            Entity viewEntity = Minecraft.getMinecraft().getRenderViewEntity();
-            if( viewEntity != null && viewEntity instanceof TurtleVisionCamera )
-            {
-                TurtleVisionCamera camera = (TurtleVisionCamera) viewEntity;
-                if( camera.getTurtle() == tileEntity.getAccess() )
-                {
-                    return;
-                }
-            }
-
-            // Render the turtle
-            renderTurtleAt( tileEntity, posX, posY, posZ, f, i );
-        }
+        if( tileEntity != null ) renderTurtleAt( tileEntity, posX, posY, posZ, f, i );
     }
 
     public static ModelResourceLocation getTurtleModel( ComputerFamily family, boolean coloured )

@@ -23,6 +23,7 @@ import dan200.computercraft.api.pocket.IPocketUpgrade;
 import dan200.computercraft.api.redstone.IBundledRedstoneProvider;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.event.TurtleAction;
+import dan200.computercraft.client.FrameInfo;
 import dan200.computercraft.core.apis.AddressPredicate;
 import dan200.computercraft.core.filesystem.ComboMount;
 import dan200.computercraft.core.filesystem.FileMount;
@@ -61,6 +62,7 @@ import dan200.computercraft.shared.turtle.upgrades.*;
 import dan200.computercraft.shared.util.CreativeTabMain;
 import dan200.computercraft.shared.util.IDAssigner;
 import dan200.computercraft.shared.util.InventoryUtil;
+import dan200.computercraft.shared.util.RecordUtil;
 import dan200.computercraft.shared.wired.CapabilityWiredElement;
 import dan200.computercraft.shared.wired.WiredNode;
 import io.netty.buffer.Unpooled;
@@ -496,36 +498,6 @@ public class ComputerCraft
     public static String getVersion()
     {
         return "${version}";
-    }
-
-    public static boolean isClient()
-    {
-        return proxy.isClient();
-    }
-
-    public static boolean getGlobalCursorBlink()
-    {
-        return proxy.getGlobalCursorBlink();
-    }
-
-    public static long getRenderFrame()
-    {
-        return proxy.getRenderFrame();
-    }
-
-    public static Object getFixedWidthFontRenderer()
-    {
-        return proxy.getFixedWidthFontRenderer();
-    }
-
-    public static void playRecord( SoundEvent record, String recordInfo, World world, BlockPos pos )
-    {
-        proxy.playRecord( record, recordInfo, world, pos );
-    }
-
-    public static String getRecordInfo( @Nonnull ItemStack recordStack )
-    {
-        return proxy.getRecordInfo( recordStack );
     }
 
     public static void openDiskDriveGUI( EntityPlayer player, TileDiskDrive drive )

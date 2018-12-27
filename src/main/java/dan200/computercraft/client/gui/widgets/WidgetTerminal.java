@@ -6,7 +6,7 @@
 
 package dan200.computercraft.client.gui.widgets;
 
-import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.client.FrameInfo;
 import dan200.computercraft.client.gui.FixedWidthFontRenderer;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.core.terminal.TextBuffer;
@@ -387,8 +387,8 @@ public class WidgetTerminal extends Widget
 
                 // Get the data from the terminal first
                 // Unfortunately we have to keep the lock for the whole of drawing, so the text doesn't change under us.
-                FixedWidthFontRenderer fontRenderer = (FixedWidthFontRenderer) ComputerCraft.getFixedWidthFontRenderer();
-                boolean tblink = m_focus && terminal.getCursorBlink() && ComputerCraft.getGlobalCursorBlink();
+                FixedWidthFontRenderer fontRenderer = FixedWidthFontRenderer.instance();
+                boolean tblink = m_focus && terminal.getCursorBlink() && FrameInfo.instance().getGlobalCursorBlink();
                 int tw = terminal.getWidth();
                 int th = terminal.getHeight();
                 int tx = terminal.getCursorX();

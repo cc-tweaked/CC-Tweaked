@@ -6,8 +6,8 @@
 
 package dan200.computercraft.shared.media.items;
 
-import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.media.IMedia;
+import dan200.computercraft.shared.util.RecordUtil;
 import net.minecraft.item.ItemRecord;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.SoundEvent;
@@ -34,7 +34,7 @@ public class RecordMedia implements IMedia
     @Override
     public String getAudioTitle( @Nonnull ItemStack stack )
     {
-        return ComputerCraft.getRecordInfo( stack );
+        return RecordUtil.getRecordInfo( stack );
     }
 
     @Override

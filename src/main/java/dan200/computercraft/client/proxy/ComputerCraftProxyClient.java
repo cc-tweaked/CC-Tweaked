@@ -7,6 +7,7 @@
 package dan200.computercraft.client.proxy;
 
 import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.client.FrameInfo;
 import dan200.computercraft.client.gui.*;
 import dan200.computercraft.client.render.*;
 import dan200.computercraft.shared.command.CommandCopy;
@@ -28,7 +29,6 @@ import dan200.computercraft.shared.pocket.inventory.ContainerPocketComputer;
 import dan200.computercraft.shared.pocket.items.ItemPocketComputer;
 import dan200.computercraft.shared.proxy.ComputerCraftProxyCommon;
 import dan200.computercraft.shared.turtle.blocks.TileTurtle;
-import dan200.computercraft.shared.turtle.entity.TurtleVisionCamera;
 import dan200.computercraft.shared.util.Colour;
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 import net.minecraft.block.Block;
@@ -52,15 +52,11 @@ import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.World;
 import net.minecraftforge.client.ClientCommandHandler;
 import net.minecraftforge.client.event.ModelRegistryEvent;
-import net.minecraftforge.client.event.RenderGameOverlayEvent;
-import net.minecraftforge.client.event.RenderHandEvent;
-import net.minecraftforge.client.event.RenderPlayerEvent;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -73,18 +69,12 @@ public class ComputerCraftProxyClient extends ComputerCraftProxyCommon
 {
     private static Int2IntOpenHashMap lastCounts = new Int2IntOpenHashMap();
 
-    private long m_tick;
-    private long m_renderFrame;
-    private FixedWidthFontRenderer m_fixedWidthFontRenderer;
-
     // IComputerCraftProxy implementation
 
     @Override
     public void preInit()
     {
         super.preInit();
-        m_tick = 0;
-        m_renderFrame = 0;
 
         // Setup client forge handlers
         registerForgeHandlers();
@@ -126,7 +116,6 @@ public class ComputerCraftProxyClient extends ComputerCraftProxyCommon
 
         // Load textures
         Minecraft mc = Minecraft.getMinecraft();
-        m_fixedWidthFontRenderer = new FixedWidthFontRenderer( mc.getTextureManager() );
 
         // Setup
         mc.getItemColors().registerItemColorHandler( new DiskColorHandler( ComputerCraft.Items.disk ), ComputerCraft.Items.disk );
@@ -189,45 +178,6 @@ public class ComputerCraftProxyClient extends ComputerCraftProxyCommon
                 return res;
             }
         } );
-    }
-
-    @Override
-    public boolean isClient()
-    {
-        return true;
-    }
-
-    @Override
-    public boolean getGlobalCursorBlink()
-    {
-        return (m_tick / 8) % 2 == 0;
-    }
-
-    @Override
-    public long getRenderFrame()
-    {
-        return m_renderFrame;
-    }
-
-    @Override
-    public Object getFixedWidthFontRenderer()
-    {
-        return m_fixedWidthFontRenderer;
-    }
-
-    @Override
-    public String getRecordInfo( @Nonnull ItemStack recordStack )
-    {
-        List<String> info = new ArrayList<>( 1 );
-        recordStack.getItem().addInformation( recordStack, null, info, ITooltipFlag.TooltipFlags.NORMAL );
-        if( info.size() > 0 )
-        {
-            return info.get( 0 );
-        }
-        else
-        {
-            return super.getRecordInfo( recordStack );
-        }
     }
 
     @Override
@@ -402,98 +352,15 @@ public class ComputerCraftProxyClient extends ComputerCraftProxyCommon
 
     private void registerForgeHandlers()
     {
-        ForgeHandlers handlers = new ForgeHandlers();
-        MinecraftForge.EVENT_BUS.register( handlers );
+        MinecraftForge.EVENT_BUS.register( new ForgeHandlers() );
         MinecraftForge.EVENT_BUS.register( new RenderOverlayCable() );
         MinecraftForge.EVENT_BUS.register( new ItemPocketRenderer() );
         MinecraftForge.EVENT_BUS.register( new ItemPrintoutRenderer() );
+        MinecraftForge.EVENT_BUS.register( FrameInfo.instance() );
     }
 
     public class ForgeHandlers
     {
-        public ForgeHandlers()
-        {
-        }
-
-        @SubscribeEvent
-        public void onRenderHand( RenderHandEvent event )
-        {
-            // Don't draw the player arm when in turtle vision
-            Minecraft mc = Minecraft.getMinecraft();
-            if( mc.getRenderViewEntity() instanceof TurtleVisionCamera )
-            {
-                event.setCanceled( true );
-            }
-        }
-
-        @SubscribeEvent
-        public void onRenderPlayer( RenderPlayerEvent.Pre event )
-        {
-            Minecraft mc = Minecraft.getMinecraft();
-            if( event.getEntityPlayer().isUser() && mc.getRenderViewEntity() instanceof TurtleVisionCamera )
-            {
-                // HACK: Force the 'livingPlayer' variable to the player, this ensures the entity is drawn
-                //event.getRenderer().getRenderManager().livingPlayer = event.getEntityPlayer();
-            }
-        }
-
-        @SubscribeEvent
-        public void onRenderPlayer( RenderPlayerEvent.Post event )
-        {
-            Minecraft mc = Minecraft.getMinecraft();
-            if( event.getEntityPlayer().isUser() && mc.getRenderViewEntity() instanceof TurtleVisionCamera )
-            {
-                // HACK: Restore the 'livingPlayer' variable to what it was before the RenderPlayerEvent.Pre hack
-                //event.getRenderer().getRenderManager().livingPlayer = mc.getRenderViewEntity();
-            }
-        }
-
-        @SubscribeEvent
-        public void onPreRenderGameOverlay( RenderGameOverlayEvent.Pre event )
-        {
-            Minecraft mc = Minecraft.getMinecraft();
-            if( mc.getRenderViewEntity() instanceof TurtleVisionCamera )
-            {
-                switch( event.getType() )
-                {
-                    case HELMET:
-                    case PORTAL:
-                        //case CROSSHAIRS:
-                    case BOSSHEALTH:
-                    case ARMOR:
-                    case HEALTH:
-                    case FOOD:
-                    case AIR:
-                    case HOTBAR:
-                    case EXPERIENCE:
-                    case HEALTHMOUNT:
-                    case JUMPBAR:
-                    {
-                        event.setCanceled( true );
-                        break;
-                    }
-                }
-            }
-        }
-
-        @SubscribeEvent
-        public void onTick( TickEvent.ClientTickEvent event )
-        {
-            if( event.phase == TickEvent.Phase.START )
-            {
-                m_tick++;
-            }
-        }
-
-        @SubscribeEvent
-        public void onRenderTick( TickEvent.RenderTickEvent event )
-        {
-            if( event.phase == TickEvent.Phase.START )
-            {
-                m_renderFrame++;
-            }
-        }
-
         @SubscribeEvent
         public void onWorldUnload( WorldEvent.Unload event )
         {

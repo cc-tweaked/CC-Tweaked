@@ -8,6 +8,7 @@ package dan200.computercraft.client.gui;
 
 import dan200.computercraft.core.terminal.TextBuffer;
 import dan200.computercraft.shared.util.Palette;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
@@ -20,17 +21,25 @@ import java.util.Arrays;
 
 public class FixedWidthFontRenderer
 {
-    private static ResourceLocation font = new ResourceLocation( "computercraft", "textures/gui/term_font.png" );
-    public static ResourceLocation background = new ResourceLocation( "computercraft", "textures/gui/term_background.png" );
+    private static final ResourceLocation FONT = new ResourceLocation( "computercraft", "textures/gui/term_font.png" );
+    public static final ResourceLocation BACKGROUND = new ResourceLocation( "computercraft", "textures/gui/term_background.png" );
 
-    public static int FONT_HEIGHT = 9;
-    public static int FONT_WIDTH = 6;
+    public static final int FONT_HEIGHT = 9;
+    public static final int FONT_WIDTH = 6;
+
+    private static FixedWidthFontRenderer instance;
+
+    public static FixedWidthFontRenderer instance()
+    {
+        if( instance != null ) return instance;
+        return instance = new FixedWidthFontRenderer();
+    }
 
     private TextureManager m_textureManager;
 
-    public FixedWidthFontRenderer( TextureManager textureManager )
+    private FixedWidthFontRenderer()
     {
-        m_textureManager = textureManager;
+        m_textureManager = Minecraft.getMinecraft().getTextureManager();
     }
 
     private static void greyscaleify( double[] rgb )
@@ -157,7 +166,7 @@ public class FixedWidthFontRenderer
         if( backgroundColour != null )
         {
             // Bind the background texture
-            m_textureManager.bindTexture( background );
+            m_textureManager.bindTexture( BACKGROUND );
 
             // Draw the quads
             drawStringBackgroundPart( x, y, backgroundColour, leftMarginSize, rightMarginSize, greyScale, p );
@@ -185,7 +194,7 @@ public class FixedWidthFontRenderer
 
     public void bindFont()
     {
-        m_textureManager.bindTexture( font );
+        m_textureManager.bindTexture( FONT );
         GlStateManager.glTexParameteri( GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL11.GL_CLAMP );
     }
 }

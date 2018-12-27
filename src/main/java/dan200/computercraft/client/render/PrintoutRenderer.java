@@ -55,7 +55,7 @@ public class PrintoutRenderer
 
     public static void drawText( int x, int y, int start, TextBuffer[] text, TextBuffer[] colours )
     {
-        FixedWidthFontRenderer fontRenderer = (FixedWidthFontRenderer) ComputerCraft.getFixedWidthFontRenderer();
+        FixedWidthFontRenderer fontRenderer = FixedWidthFontRenderer.instance();
 
         for( int line = 0; line < LINES_PER_PAGE && line < text.length; ++line )
         {
@@ -69,7 +69,7 @@ public class PrintoutRenderer
         GlStateManager.enableBlend();
         GlStateManager.enableTexture2D();
 
-        FixedWidthFontRenderer fontRenderer = (FixedWidthFontRenderer) ComputerCraft.getFixedWidthFontRenderer();
+        FixedWidthFontRenderer fontRenderer = FixedWidthFontRenderer.instance();
 
         for( int line = 0; line < LINES_PER_PAGE && line < text.length; ++line )
         {

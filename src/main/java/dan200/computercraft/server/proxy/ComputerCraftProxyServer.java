@@ -23,44 +23,8 @@ import java.io.File;
 
 public class ComputerCraftProxyServer extends ComputerCraftProxyCommon
 {
-    public ComputerCraftProxyServer()
-    {
-    }
-
-    // IComputerCraftProxy implementation
-
-    @Override
-    public void init()
-    {
-        super.init();
-    }
-
     @Override
     public Object getTurtleGUI( InventoryPlayer inventory, TileTurtle turtle )
-    {
-        return null;
-    }
-
-    @Override
-    public boolean isClient()
-    {
-        return false;
-    }
-
-    @Override
-    public boolean getGlobalCursorBlink()
-    {
-        return false;
-    }
-
-    @Override
-    public long getRenderFrame()
-    {
-        return 0;
-    }
-
-    @Override
-    public Object getFixedWidthFontRenderer()
     {
         return null;
     }

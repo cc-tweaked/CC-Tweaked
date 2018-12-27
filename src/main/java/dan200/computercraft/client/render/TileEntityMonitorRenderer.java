@@ -6,7 +6,7 @@
 
 package dan200.computercraft.client.render;
 
-import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.client.FrameInfo;
 import dan200.computercraft.client.gui.FixedWidthFontRenderer;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.core.terminal.TextBuffer;
@@ -53,7 +53,7 @@ public class TileEntityMonitorRenderer extends TileEntitySpecialRenderer<TileMon
         // Ensure each monitor terminal is rendered only once. We allow rendering a specific tile
         // multiple times in a single frame to ensure compatibility with shaders which may run a
         // pass multiple times.
-        long renderFrame = ComputerCraft.getRenderFrame();
+        long renderFrame = FrameInfo.instance().getRenderFrame();
         if( originTerminal.lastRenderFrame == renderFrame && !monitorPos.equals( originTerminal.lastRenderPos ) )
         {
             return;
@@ -121,7 +121,7 @@ public class TileEntityMonitorRenderer extends TileEntitySpecialRenderer<TileMon
                     int height = terminal.getHeight();
                     int cursorX = terminal.getCursorX();
                     int cursorY = terminal.getCursorY();
-                    FixedWidthFontRenderer fontRenderer = (FixedWidthFontRenderer) ComputerCraft.getFixedWidthFontRenderer();
+                    FixedWidthFontRenderer fontRenderer = FixedWidthFontRenderer.instance();
 
                     GlStateManager.pushMatrix();
                     try
@@ -131,7 +131,7 @@ public class TileEntityMonitorRenderer extends TileEntitySpecialRenderer<TileMon
                         GlStateManager.scale( xScale, -yScale, 1.0 );
 
                         // Draw background
-                        mc.getTextureManager().bindTexture( FixedWidthFontRenderer.background );
+                        mc.getTextureManager().bindTexture( FixedWidthFontRenderer.BACKGROUND );
                         if( redraw )
                         {
                             // Build background display list
@@ -234,7 +234,7 @@ public class TileEntityMonitorRenderer extends TileEntitySpecialRenderer<TileMon
                                 GlStateManager.glEndList();
                             }
                         }
-                        if( ComputerCraft.getGlobalCursorBlink() )
+                        if( FrameInfo.instance().getGlobalCursorBlink() )
                         {
                             GlStateManager.callList( originTerminal.renderDisplayLists[2] );
                             GlStateManager.resetColor();
@@ -248,7 +248,7 @@ public class TileEntityMonitorRenderer extends TileEntitySpecialRenderer<TileMon
                 else
                 {
                     // Draw a big black quad
-                    mc.getTextureManager().bindTexture( FixedWidthFontRenderer.background );
+                    mc.getTextureManager().bindTexture( FixedWidthFontRenderer.BACKGROUND );
                     final Colour colour = Colour.Black;
 
                     final float r = colour.getR();
@@ -274,7 +274,7 @@ public class TileEntityMonitorRenderer extends TileEntitySpecialRenderer<TileMon
             GlStateManager.colorMask( false, false, false, false );
             try
             {
-                mc.getTextureManager().bindTexture( FixedWidthFontRenderer.background );
+                mc.getTextureManager().bindTexture( FixedWidthFontRenderer.BACKGROUND );
                 renderer.begin( GL11.GL_TRIANGLE_STRIP, DefaultVertexFormats.POSITION );
                 renderer.pos( -TileMonitor.RENDER_MARGIN, TileMonitor.RENDER_MARGIN, 0.0 ).endVertex();
                 renderer.pos( -TileMonitor.RENDER_MARGIN, -ySize - TileMonitor.RENDER_MARGIN, 0.0 ).endVertex();

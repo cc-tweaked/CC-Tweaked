@@ -16,6 +16,7 @@ import dan200.computercraft.shared.peripheral.PeripheralType;
 import dan200.computercraft.shared.peripheral.common.BlockPeripheral;
 import dan200.computercraft.shared.peripheral.common.TilePeripheralBase;
 import dan200.computercraft.shared.util.InventoryUtil;
+import dan200.computercraft.shared.util.RecordUtil;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
@@ -655,17 +656,17 @@ public class TileDiskDrive extends TilePeripheralBase
         SoundEvent record = (contents != null) ? contents.getAudio( m_diskStack ) : null;
         if( record != null )
         {
-            ComputerCraft.playRecord( record, contents.getAudioTitle( m_diskStack ), getWorld(), getPos() );
+            RecordUtil.playRecord( record, contents.getAudioTitle( m_diskStack ), getWorld(), getPos() );
         }
         else
         {
-            ComputerCraft.playRecord( null, null, getWorld(), getPos() );
+            RecordUtil.playRecord( null, null, getWorld(), getPos() );
         }
     }
 
     private void stopRecord()
     {
-        ComputerCraft.playRecord( null, null, getWorld(), getPos() );
+        RecordUtil.playRecord( null, null, getWorld(), getPos() );
     }
 
     @Override

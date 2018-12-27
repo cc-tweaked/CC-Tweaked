@@ -2,6 +2,7 @@ package dan200.computercraft.client.render;
 
 
 import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.client.FrameInfo;
 import dan200.computercraft.client.gui.FixedWidthFontRenderer;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.core.terminal.TextBuffer;
@@ -153,7 +154,7 @@ public class ItemPocketRenderer
                     int startX = (max - width) / 2 + margin;
                     int startY = (max - height) / 2 + margin;
 
-                    FixedWidthFontRenderer fontRenderer = (FixedWidthFontRenderer) ComputerCraft.getFixedWidthFontRenderer();
+                    FixedWidthFontRenderer fontRenderer = FixedWidthFontRenderer.instance();
                     boolean greyscale = !computer.isColour();
                     Palette palette = terminal.getPalette();
 
@@ -171,7 +172,7 @@ public class ItemPocketRenderer
 
                     // And render the cursor;
                     int tx = terminal.getCursorX(), ty = terminal.getCursorY();
-                    if( terminal.getCursorBlink() && ComputerCraft.getGlobalCursorBlink() &&
+                    if( terminal.getCursorBlink() && FrameInfo.instance().getGlobalCursorBlink() &&
                         tx >= 0 && ty >= 0 && tx < tw && ty < th )
                     {
                         TextBuffer cursorColour = new TextBuffer( "0123456789abcdef".charAt( terminal.getTextColour() ), 1 );

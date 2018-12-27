@@ -15,14 +15,10 @@ import dan200.computercraft.shared.peripheral.printer.TilePrinter;
 import dan200.computercraft.shared.turtle.blocks.TileTurtle;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
-import net.minecraft.item.ItemStack;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.EnumHand;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
-import javax.annotation.Nonnull;
 import java.io.File;
 
 public interface IComputerCraftProxy
@@ -32,18 +28,6 @@ public interface IComputerCraftProxy
     void init();
 
     void initServer( MinecraftServer server );
-
-    boolean isClient();
-
-    boolean getGlobalCursorBlink();
-
-    long getRenderFrame();
-
-    Object getFixedWidthFontRenderer();
-
-    String getRecordInfo( @Nonnull ItemStack item );
-
-    void playRecord( SoundEvent record, String recordInfo, World world, BlockPos pos );
 
     Object getDiskDriveGUI( InventoryPlayer inventory, TileDiskDrive drive );
 
