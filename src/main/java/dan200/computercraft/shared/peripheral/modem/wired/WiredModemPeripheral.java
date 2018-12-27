@@ -1,4 +1,10 @@
-package dan200.computercraft.shared.peripheral.modem;
+/*
+ * This file is part of ComputerCraft - http://www.computercraft.info
+ * Copyright Daniel Ratcliffe, 2011-2018. Do not distribute without permission.
+ * Send enquiries to dratcliffe@gmail.com
+ */
+
+package dan200.computercraft.shared.peripheral.modem.wired;
 
 import com.google.common.collect.ImmutableMap;
 import dan200.computercraft.api.filesystem.IMount;
@@ -12,6 +18,8 @@ import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.core.computer.Computer;
 import dan200.computercraft.core.computer.IComputerOwned;
+import dan200.computercraft.shared.peripheral.modem.ModemPeripheral;
+import dan200.computercraft.shared.peripheral.modem.ModemState;
 import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;

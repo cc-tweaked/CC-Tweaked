@@ -2,9 +2,9 @@ package dan200.computercraft.client.render;
 
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.peripheral.PeripheralType;
-import dan200.computercraft.shared.peripheral.common.BlockCable;
-import dan200.computercraft.shared.peripheral.common.BlockCableModemVariant;
-import dan200.computercraft.shared.peripheral.modem.TileCable;
+import dan200.computercraft.shared.peripheral.modem.wired.BlockCable;
+import dan200.computercraft.shared.peripheral.modem.wired.BlockCableModemVariant;
+import dan200.computercraft.shared.peripheral.modem.wired.TileCable;
 import dan200.computercraft.shared.util.WorldUtil;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;

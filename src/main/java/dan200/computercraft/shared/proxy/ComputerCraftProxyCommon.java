@@ -38,7 +38,11 @@ import dan200.computercraft.shared.peripheral.commandblock.CommandBlockPeriphera
 import dan200.computercraft.shared.peripheral.common.*;
 import dan200.computercraft.shared.peripheral.diskdrive.ContainerDiskDrive;
 import dan200.computercraft.shared.peripheral.diskdrive.TileDiskDrive;
-import dan200.computercraft.shared.peripheral.modem.*;
+import dan200.computercraft.shared.peripheral.modem.wired.*;
+import dan200.computercraft.shared.peripheral.modem.wireless.BlockAdvancedModem;
+import dan200.computercraft.shared.peripheral.modem.wireless.ItemAdvancedModem;
+import dan200.computercraft.shared.peripheral.modem.wireless.TileAdvancedModem;
+import dan200.computercraft.shared.peripheral.modem.wireless.TileWirelessModem;
 import dan200.computercraft.shared.peripheral.monitor.TileMonitor;
 import dan200.computercraft.shared.peripheral.printer.ContainerPrinter;
 import dan200.computercraft.shared.peripheral.printer.TilePrinter;

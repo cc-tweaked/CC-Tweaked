@@ -8,6 +8,8 @@ package dan200.computercraft.shared.peripheral.common;
 
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.peripheral.PeripheralType;
+import dan200.computercraft.shared.peripheral.modem.wired.ItemCable;
+import dan200.computercraft.shared.peripheral.modem.wireless.ItemAdvancedModem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 
