@@ -40,132 +40,38 @@ import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.items.IItemHandlerModifiable;
 
 import javax.annotation.Nonnull;
-import java.lang.ref.WeakReference;
 import java.util.*;
 
 public class TurtleBrain implements ITurtleAccess
 {
-    private static int s_nextInstanceID = 0;
-    private static Map<Integer, WeakReference<TurtleBrain>> s_allClientBrains = new HashMap<>();
-
-    public static int assignInstanceID()
-    {
-        return s_nextInstanceID++;
-    }
-
-    public static TurtleBrain getClientBrain( int instanceID )
-    {
-        if( instanceID >= 0 )
-        {
-            WeakReference<TurtleBrain> ref = s_allClientBrains.get( instanceID );
-            if( ref != null )
-            {
-                TurtleBrain brain = ref.get();
-                if( brain != null )
-                {
-                    return brain;
-                }
-                else
-                {
-                    s_allClientBrains.remove( instanceID );
-                }
-            }
-        }
-        return null;
-    }
-
-    public static void setClientBrain( int instanceID, TurtleBrain brain )
-    {
-        if( instanceID >= 0 )
-        {
-            if( getClientBrain( instanceID ) != brain )
-            {
-                s_allClientBrains.put( instanceID, new WeakReference<>( brain ) );
-            }
-        }
-    }
-
-    public static void cleanupBrains()
-    {
-        if( s_allClientBrains.size() > 0 )
-        {
-            Iterator<Map.Entry<Integer, WeakReference<TurtleBrain>>> it = s_allClientBrains.entrySet().iterator();
-            while( it.hasNext() )
-            {
-                Map.Entry<Integer, WeakReference<TurtleBrain>> entry = it.next();
-                WeakReference<TurtleBrain> ref = entry.getValue();
-                if( ref != null )
-                {
-                    TurtleBrain brain = ref.get();
-                    if( brain == null )
-                    {
-                        it.remove();
-                    }
-                }
-            }
-        }
-    }
-
     private static final int ANIM_DURATION = 8;
 
     private TileTurtle m_owner;
     private ComputerProxy m_proxy;
     private GameProfile m_owningPlayer;
 
-    private LinkedList<TurtleCommandQueueEntry> m_commandQueue;
-    private int m_commandsIssued;
+    private Queue<TurtleCommandQueueEntry> m_commandQueue = new ArrayDeque<>();
+    private int m_commandsIssued = 0;
 
-    private Map<TurtleSide, ITurtleUpgrade> m_upgrades;
-    private Map<TurtleSide, IPeripheral> m_peripherals;
-    private Map<TurtleSide, NBTTagCompound> m_upgradeNBTData;
+    private Map<TurtleSide, ITurtleUpgrade> m_upgrades = new EnumMap<>( TurtleSide.class );
+    private Map<TurtleSide, IPeripheral> m_peripherals = new EnumMap<>( TurtleSide.class );
+    private Map<TurtleSide, NBTTagCompound> m_upgradeNBTData = new EnumMap<>( TurtleSide.class );
 
-    private int m_selectedSlot;
-    private int m_fuelLevel;
-    private int m_colourHex;
-    private ResourceLocation m_overlay;
+    private int m_selectedSlot = 0;
+    private int m_fuelLevel = 0;
+    private int m_colourHex = -1;
+    private ResourceLocation m_overlay = null;
 
-    private int m_instanceID;
-    private EnumFacing m_direction;
-    private TurtleAnimation m_animation;
-    private int m_animationProgress;
-    private int m_lastAnimationProgress;
+    private EnumFacing m_direction = EnumFacing.NORTH;
+    private TurtleAnimation m_animation = TurtleAnimation.None;
+    private int m_animationProgress = 0;
+    private int m_lastAnimationProgress = 0;
 
     TurtlePlayer m_cachedPlayer;
 
     public TurtleBrain( TileTurtle turtle )
     {
         m_owner = turtle;
-
-        m_commandQueue = new LinkedList<>();
-        m_commandsIssued = 0;
-
-        m_upgrades = new HashMap<>();
-        m_peripherals = new HashMap<>();
-        m_upgradeNBTData = new HashMap<>();
-
-        m_selectedSlot = 0;
-        m_fuelLevel = 0;
-        m_colourHex = -1;
-        m_overlay = null;
-
-        m_instanceID = -1;
-        m_direction = EnumFacing.NORTH;
-        m_animation = TurtleAnimation.None;
-        m_animationProgress = 0;
-        m_lastAnimationProgress = 0;
-    }
-
-    public TurtleBrain getFutureSelf()
-    {
-        if( getOwner().getWorld().isRemote )
-        {
-            TurtleBrain futureSelf = getClientBrain( m_instanceID );
-            if( futureSelf != null )
-            {
-                return futureSelf;
-            }
-        }
-        return this;
     }
 
     public void setOwner( TileTurtle owner )
@@ -437,11 +343,6 @@ public class TurtleBrain implements ITurtleAccess
         }
 
         // Animation
-        if( m_instanceID < 0 )
-        {
-            m_instanceID = assignInstanceID();
-        }
-        nbttagcompound.setInteger( "brainInstanceID", m_instanceID );
         nbttagcompound.setInteger( "animation", m_animation.ordinal() );
         nbttagcompound.setInteger( "direction", m_direction.getIndex() );
         nbttagcompound.setInteger( "fuelLevel", m_fuelLevel );
@@ -494,9 +395,6 @@ public class TurtleBrain implements ITurtleAccess
         }
 
         // Animation
-        m_instanceID = nbttagcompound.getInteger( "brainInstanceID" );
-        setClientBrain( m_instanceID, this );
-
         TurtleAnimation anim = TurtleAnimation.values()[nbttagcompound.getInteger( "animation" )];
         if( anim != m_animation &&
             anim != TurtleAnimation.Wait &&
@@ -1079,12 +977,7 @@ public class TurtleBrain implements ITurtleAccess
         if( m_animation == TurtleAnimation.None )
         {
             // Pull a new command
-            TurtleCommandQueueEntry nextCommand = null;
-            if( m_commandQueue.peek() != null )
-            {
-                nextCommand = m_commandQueue.remove();
-            }
-
+            TurtleCommandQueueEntry nextCommand = m_commandQueue.poll();
             if( nextCommand != null )
             {
                 // Execute the command

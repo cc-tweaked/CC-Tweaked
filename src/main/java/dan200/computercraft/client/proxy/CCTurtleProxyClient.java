@@ -11,7 +11,6 @@ import dan200.computercraft.client.render.TileEntityTurtleRenderer;
 import dan200.computercraft.client.render.TurtleSmartItemModel;
 import dan200.computercraft.shared.proxy.CCTurtleProxyCommon;
 import dan200.computercraft.shared.turtle.blocks.TileTurtle;
-import dan200.computercraft.shared.turtle.core.TurtleBrain;
 import dan200.computercraft.shared.turtle.items.ItemTurtleBase;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
@@ -36,7 +35,6 @@ import net.minecraftforge.client.model.ModelLoaderRegistry;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent;
 
 import javax.annotation.Nonnull;
 
@@ -143,15 +141,6 @@ public class CCTurtleProxyClient extends CCTurtleProxyCommon
             {
                 SimpleReloadableResourceManager reloadableResourceManager = (SimpleReloadableResourceManager) resourceManager;
                 reloadableResourceManager.registerReloadListener( m_turtleSmartItemModel );
-            }
-        }
-
-        @SubscribeEvent
-        public void onTick( TickEvent.ClientTickEvent event )
-        {
-            if( event.phase == TickEvent.Phase.END )
-            {
-                TurtleBrain.cleanupBrains();
             }
         }
 
