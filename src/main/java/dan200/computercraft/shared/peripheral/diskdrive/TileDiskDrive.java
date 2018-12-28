@@ -15,12 +15,12 @@ import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.shared.peripheral.PeripheralType;
 import dan200.computercraft.shared.peripheral.common.BlockPeripheral;
 import dan200.computercraft.shared.peripheral.common.TilePeripheralBase;
+import dan200.computercraft.shared.util.DefaultInventory;
 import dan200.computercraft.shared.util.InventoryUtil;
 import dan200.computercraft.shared.util.RecordUtil;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
@@ -43,8 +43,7 @@ import java.util.Set;
 
 import static net.minecraftforge.items.CapabilityItemHandler.ITEM_HANDLER_CAPABILITY;
 
-public class TileDiskDrive extends TilePeripheralBase
-    implements IInventory
+public class TileDiskDrive extends TilePeripheralBase implements DefaultInventory
 {
     private static class MountInfo
     {
@@ -356,28 +355,6 @@ public class TileDiskDrive extends TilePeripheralBase
     }
 
     @Override
-    public int getInventoryStackLimit()
-    {
-        return 64;
-    }
-
-    @Override
-    public void openInventory( @Nonnull EntityPlayer player )
-    {
-    }
-
-    @Override
-    public void closeInventory( @Nonnull EntityPlayer player )
-    {
-    }
-
-    @Override
-    public boolean isItemValidForSlot( int i, @Nonnull ItemStack itemstack )
-    {
-        return true;
-    }
-
-    @Override
     public boolean isUsableByPlayer( @Nonnull EntityPlayer player )
     {
         return isUsable( player, false );
@@ -387,23 +364,6 @@ public class TileDiskDrive extends TilePeripheralBase
     public void clear()
     {
         setInventorySlotContents( 0, ItemStack.EMPTY );
-    }
-
-    @Override
-    public int getFieldCount()
-    {
-        return 0;
-    }
-
-    @Override
-    public int getField( int id )
-    {
-        return 0;
-    }
-
-    @Override
-    public void setField( int id, int value )
-    {
     }
 
     // IPeripheralTile implementation

@@ -19,12 +19,12 @@ import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.turtle.apis.TurtleAPI;
 import dan200.computercraft.shared.turtle.core.TurtleBrain;
 import dan200.computercraft.shared.turtle.items.TurtleItemFactory;
+import dan200.computercraft.shared.util.DefaultInventory;
 import dan200.computercraft.shared.util.InventoryUtil;
 import dan200.computercraft.shared.util.RedstoneUtil;
 import dan200.computercraft.shared.util.WorldUtil;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
-import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
@@ -32,7 +32,6 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.ITextComponent;
@@ -48,8 +47,7 @@ import javax.annotation.Nullable;
 
 import static net.minecraftforge.items.CapabilityItemHandler.ITEM_HANDLER_CAPABILITY;
 
-public class TileTurtle extends TileComputerBase
-    implements ITurtleTile, IInventory
+public class TileTurtle extends TileComputerBase implements ITurtleTile, DefaultInventory
 {
     // Statics
 
@@ -595,28 +593,6 @@ public class TileTurtle extends TileComputerBase
     }
 
     @Override
-    public int getInventoryStackLimit()
-    {
-        return 64;
-    }
-
-    @Override
-    public void openInventory( @Nonnull EntityPlayer player )
-    {
-    }
-
-    @Override
-    public void closeInventory( @Nonnull EntityPlayer player )
-    {
-    }
-
-    @Override
-    public boolean isItemValidForSlot( int slot, @Nonnull ItemStack stack )
-    {
-        return true;
-    }
-
-    @Override
     public void markDirty()
     {
         super.markDirty();
@@ -640,28 +616,6 @@ public class TileTurtle extends TileComputerBase
     public boolean isUsableByPlayer( @Nonnull EntityPlayer player )
     {
         return isUsable( player, false );
-    }
-
-    @Override
-    public int getFieldCount()
-    {
-        return 0;
-    }
-
-    @Override
-    public int getField( int id )
-    {
-        return 0;
-    }
-
-    @Override
-    public void setField( int id, int value )
-    {
-    }
-
-    public boolean isUseableByRemote( EntityPlayer player )
-    {
-        return isUsable( player, true );
     }
 
     public void onInventoryDefinitelyChanged()

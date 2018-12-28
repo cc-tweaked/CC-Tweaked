@@ -12,12 +12,12 @@ import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.shared.media.items.ItemPrintout;
 import dan200.computercraft.shared.peripheral.PeripheralType;
 import dan200.computercraft.shared.peripheral.common.TilePeripheralBase;
+import dan200.computercraft.shared.util.DefaultSidedInventory;
 import dan200.computercraft.shared.util.InventoryUtil;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
-import net.minecraft.inventory.ISidedInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -41,8 +41,7 @@ import javax.annotation.Nullable;
 
 import static net.minecraftforge.items.CapabilityItemHandler.ITEM_HANDLER_CAPABILITY;
 
-public class TilePrinter extends TilePeripheralBase
-    implements ISidedInventory
+public class TilePrinter extends TilePeripheralBase implements DefaultSidedInventory
 {
     // Statics
 
@@ -299,48 +298,9 @@ public class TilePrinter extends TilePeripheralBase
     }
 
     @Override
-    public int getInventoryStackLimit()
-    {
-        return 64;
-    }
-
-    @Override
-    public void openInventory( @Nonnull EntityPlayer player )
-    {
-    }
-
-    @Override
-    public void closeInventory( @Nonnull EntityPlayer player )
-    {
-    }
-
-    @Override
-    public boolean isItemValidForSlot( int slot, @Nonnull ItemStack itemstack )
-    {
-        return true;
-    }
-
-    @Override
     public boolean isUsableByPlayer( @Nonnull EntityPlayer player )
     {
         return isUsable( player, false );
-    }
-
-    @Override
-    public int getFieldCount()
-    {
-        return 0;
-    }
-
-    @Override
-    public int getField( int id )
-    {
-        return 0;
-    }
-
-    @Override
-    public void setField( int id, int value )
-    {
     }
 
     // ISidedInventory implementation
@@ -358,18 +318,6 @@ public class TilePrinter extends TilePeripheralBase
             default:
                 return sideSlots;     // Sides (Ink)
         }
-    }
-
-    @Override
-    public boolean canInsertItem( int slot, @Nonnull ItemStack itemstack, @Nonnull EnumFacing face )
-    {
-        return isItemValidForSlot( slot, itemstack );
-    }
-
-    @Override
-    public boolean canExtractItem( int slot, @Nonnull ItemStack itemstack, @Nonnull EnumFacing face )
-    {
-        return true;
     }
 
     // IPeripheralTile implementation
