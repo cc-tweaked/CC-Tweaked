@@ -21,10 +21,10 @@ import dan200.computercraft.shared.turtle.items.ItemTurtleLegacy;
 import dan200.computercraft.shared.turtle.items.ItemTurtleNormal;
 import dan200.computercraft.shared.turtle.items.TurtleItemFactory;
 import dan200.computercraft.shared.turtle.upgrades.*;
+import dan200.computercraft.shared.util.DropConsumer;
 import dan200.computercraft.shared.util.ImpostorRecipe;
 import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.item.EntityItem;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -35,17 +35,12 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegistryEvent;
-import net.minecraftforge.event.entity.EntityJoinWorldEvent;
-import net.minecraftforge.event.entity.living.LivingDropsEvent;
-import net.minecraftforge.event.world.BlockEvent;
-import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.registry.EntityRegistry;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.registries.IForgeRegistry;
 
 import java.lang.ref.WeakReference;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
@@ -74,59 +69,6 @@ public abstract class CCTurtleProxyCommon implements ICCTurtleProxy
     {
         registerForgeHandlers();
         registerTileEntities();
-    }
-
-    @Override
-    public void setDropConsumer( Entity entity, Function<ItemStack, ItemStack> consumer )
-    {
-        dropConsumer = consumer;
-        remainingDrops = new ArrayList<>();
-        dropEntity = new WeakReference<>( entity );
-        dropWorld = new WeakReference<>( entity.world );
-        dropPos = null;
-        dropBounds = new AxisAlignedBB( entity.getPosition() ).grow( 2, 2, 2 );
-
-        entity.captureDrops = true;
-    }
-
-    @Override
-    public void setDropConsumer( World world, BlockPos pos, Function<ItemStack, ItemStack> consumer )
-    {
-        dropConsumer = consumer;
-        remainingDrops = new ArrayList<>();
-        dropEntity = null;
-        dropWorld = new WeakReference<>( world );
-        dropPos = pos;
-        dropBounds = new AxisAlignedBB( pos ).grow( 2, 2, 2 );
-    }
-
-    @Override
-    public List<ItemStack> clearDropConsumer()
-    {
-        if( dropEntity != null )
-        {
-            Entity entity = dropEntity.get();
-            if( entity != null )
-            {
-                entity.captureDrops = false;
-                if( entity.capturedDrops != null )
-                {
-                    for( EntityItem entityItem : entity.capturedDrops ) handleDrops( entityItem.getItem() );
-                    entity.capturedDrops.clear();
-                }
-            }
-        }
-
-        List<ItemStack> remainingStacks = remainingDrops;
-
-        dropConsumer = null;
-        remainingDrops = null;
-        dropEntity = null;
-        dropWorld = null;
-        dropPos = null;
-        dropBounds = null;
-
-        return remainingStacks;
     }
 
     @SubscribeEvent
@@ -308,57 +250,12 @@ public abstract class CCTurtleProxyCommon implements ICCTurtleProxy
 
     private void registerForgeHandlers()
     {
-        ForgeHandlers handlers = new ForgeHandlers();
-        MinecraftForge.EVENT_BUS.register( handlers );
-    }
-
-    private void handleDrops( ItemStack stack )
-    {
-        ItemStack remaining = dropConsumer.apply( stack );
-        if( !remaining.isEmpty() ) remainingDrops.add( remaining );
+        MinecraftForge.EVENT_BUS.register( new ForgeHandlers() );
+        MinecraftForge.EVENT_BUS.register( DropConsumer.instance() );
     }
 
     private class ForgeHandlers
     {
-        @SubscribeEvent( priority = EventPriority.LOWEST )
-        public void onEntityLivingDrops( LivingDropsEvent event )
-        {
-            // Capture any mob drops for the current entity
-            if( dropEntity != null && event.getEntity() == dropEntity.get() )
-            {
-                List<EntityItem> drops = event.getDrops();
-                for( EntityItem entityItem : drops ) handleDrops( entityItem.getItem() );
-                drops.clear();
-            }
-        }
-
-        @SubscribeEvent( priority = EventPriority.LOWEST )
-        public void onHarvestDrops( BlockEvent.HarvestDropsEvent event )
-        {
-            // Capture block drops for the current entity
-            if( dropWorld != null && dropWorld.get() == event.getWorld()
-                && dropPos != null && dropPos.equals( event.getPos() ) )
-            {
-                for( ItemStack item : event.getDrops() )
-                {
-                    if( event.getWorld().rand.nextFloat() < event.getDropChance() ) handleDrops( item );
-                }
-                event.getDrops().clear();
-            }
-        }
-
-        @SubscribeEvent( priority = EventPriority.LOWEST )
-        public void onEntitySpawn( EntityJoinWorldEvent event )
-        {
-            // Capture any nearby item spawns
-            if( dropWorld != null && dropWorld.get() == event.getWorld() && event.getEntity() instanceof EntityItem
-                && dropBounds.contains( event.getEntity().getPositionVector() ) )
-            {
-                handleDrops( ((EntityItem) event.getEntity()).getItem() );
-                event.setCanceled( true );
-            }
-        }
-
         @SubscribeEvent
         public void onTurtleAction( TurtleActionEvent event )
         {

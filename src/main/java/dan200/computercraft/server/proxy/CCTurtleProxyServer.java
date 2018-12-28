@@ -10,15 +10,4 @@ import dan200.computercraft.shared.proxy.CCTurtleProxyCommon;
 
 public class CCTurtleProxyServer extends CCTurtleProxyCommon
 {
-    public CCTurtleProxyServer()
-    {
-    }
-
-    // ICCTurtleProxy implementation
-
-    @Override
-    public void init()
-    {
-        super.init();
-    }
 }

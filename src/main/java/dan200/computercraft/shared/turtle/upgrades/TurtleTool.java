@@ -13,6 +13,7 @@ import dan200.computercraft.api.turtle.event.TurtleBlockEvent;
 import dan200.computercraft.shared.TurtlePermissions;
 import dan200.computercraft.shared.turtle.core.TurtlePlaceCommand;
 import dan200.computercraft.shared.turtle.core.TurtlePlayer;
+import dan200.computercraft.shared.util.DropConsumer;
 import dan200.computercraft.shared.util.InventoryUtil;
 import dan200.computercraft.shared.util.WorldUtil;
 import net.minecraft.block.Block;
@@ -134,7 +135,7 @@ public class TurtleTool extends AbstractTurtleUpgrade
             }
 
             // Start claiming entity drops
-            ComputerCraft.setDropConsumer( hitEntity, turtleDropConsumer( turtle ) );
+            DropConsumer.instance().set( hitEntity, turtleDropConsumer( turtle ) );
 
             // Attack the entity
             boolean attacked = false;
@@ -224,7 +225,7 @@ public class TurtleTool extends AbstractTurtleUpgrade
         }
 
         // Consume the items the block drops
-        ComputerCraft.setDropConsumer( world, blockPosition, turtleDropConsumer( turtle ) );
+        DropConsumer.instance().set( world, blockPosition, turtleDropConsumer( turtle ) );
 
         TileEntity tile = world.getTileEntity( blockPosition );
 
@@ -256,7 +257,7 @@ public class TurtleTool extends AbstractTurtleUpgrade
 
     private void stopConsuming( ITurtleAccess turtle )
     {
-        List<ItemStack> extra = ComputerCraft.clearDropConsumer();
+        List<ItemStack> extra = DropConsumer.instance().clear();
         for( ItemStack remainder : extra )
         {
             WorldUtil.dropItemStack( remainder, turtle.getWorld(), turtle.getPosition(), turtle.getDirection().getOpposite() );

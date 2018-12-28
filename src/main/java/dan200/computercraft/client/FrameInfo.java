@@ -11,12 +11,11 @@ import net.minecraftforge.fml.common.gameevent.TickEvent;
 
 public class FrameInfo
 {
-    private static FrameInfo instance;
+    private static final FrameInfo instance = new FrameInfo();
 
     public static FrameInfo instance()
     {
-        if( instance != null ) return instance;
-        return instance = new FrameInfo();
+        return instance;
     }
 
     private int tick;

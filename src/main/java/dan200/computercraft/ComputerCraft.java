@@ -891,21 +891,6 @@ public class ComputerCraft
         TurtleUpgrades.register( upgrade );
     }
 
-    public static void setDropConsumer( Entity entity, Function<ItemStack, ItemStack> consumer )
-    {
-        turtleProxy.setDropConsumer( entity, consumer );
-    }
-
-    public static void setDropConsumer( World world, BlockPos pos, Function<ItemStack, ItemStack> consumer )
-    {
-        turtleProxy.setDropConsumer( world, pos, consumer );
-    }
-
-    public static List<ItemStack> clearDropConsumer()
-    {
-        return turtleProxy.clearDropConsumer();
-    }
-
     //region Compatibility
     @Deprecated
     public static IMedia getMedia( ItemStack stack )

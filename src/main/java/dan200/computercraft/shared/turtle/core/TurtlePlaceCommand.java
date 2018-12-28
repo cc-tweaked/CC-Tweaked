@@ -13,8 +13,8 @@ import dan200.computercraft.api.turtle.TurtleAnimation;
 import dan200.computercraft.api.turtle.TurtleCommandResult;
 import dan200.computercraft.api.turtle.event.TurtleBlockEvent;
 import dan200.computercraft.shared.TurtlePermissions;
-import dan200.computercraft.shared.TurtleUpgrades;
 import dan200.computercraft.shared.util.DirectionUtil;
+import dan200.computercraft.shared.util.DropConsumer;
 import dan200.computercraft.shared.util.InventoryUtil;
 import dan200.computercraft.shared.util.WorldUtil;
 import net.minecraft.block.Block;
@@ -226,7 +226,7 @@ public class TurtlePlaceCommand implements ITurtleCommand
         // Start claiming entity drops
         Entity hitEntity = hit.getKey();
         Vec3d hitPos = hit.getValue();
-        ComputerCraft.setDropConsumer(
+        DropConsumer.instance().set(
             hitEntity,
             drop -> InventoryUtil.storeItems( drop, turtle.getItemHandler(), turtle.getSelectedSlot() )
         );
@@ -266,7 +266,7 @@ public class TurtlePlaceCommand implements ITurtleCommand
         }
 
         // Stop claiming drops
-        List<ItemStack> remainingDrops = ComputerCraft.clearDropConsumer();
+        List<ItemStack> remainingDrops = DropConsumer.instance().clear();
         for( ItemStack remaining : remainingDrops )
         {
             WorldUtil.dropItemStack( remaining, world, position, turtle.getDirection().getOpposite() );
