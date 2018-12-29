@@ -272,7 +272,7 @@ public class MonitorPeripheral implements IPeripheral
     @Override
     public boolean equals( IPeripheral other )
     {
-        if( other != null && other instanceof MonitorPeripheral )
+        if( other instanceof MonitorPeripheral )
         {
             MonitorPeripheral otherMonitor = (MonitorPeripheral) other;
             if( otherMonitor.m_monitor == this.m_monitor )

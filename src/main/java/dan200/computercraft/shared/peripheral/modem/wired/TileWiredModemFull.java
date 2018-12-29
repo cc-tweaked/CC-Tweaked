@@ -214,21 +214,21 @@ public class TileWiredModemFull extends TilePeripheralBase
     }
 
     @Override
-    public void readFromNBT( NBTTagCompound tag )
+    public void readFromNBT( NBTTagCompound nbt )
     {
-        super.readFromNBT( tag );
-        m_peripheralAccessAllowed = tag.getBoolean( "peripheralAccess" );
-        for( int i = 0; i < m_peripherals.length; i++ ) m_peripherals[i].readNBT( tag, "_" + i );
+        super.readFromNBT( nbt );
+        m_peripheralAccessAllowed = nbt.getBoolean( "peripheralAccess" );
+        for( int i = 0; i < m_peripherals.length; i++ ) m_peripherals[i].readNBT( nbt, "_" + i );
     }
 
     @Nonnull
     @Override
-    public NBTTagCompound writeToNBT( NBTTagCompound tag )
+    public NBTTagCompound writeToNBT( NBTTagCompound nbt )
     {
-        tag = super.writeToNBT( tag );
-        tag.setBoolean( "peripheralAccess", m_peripheralAccessAllowed );
-        for( int i = 0; i < m_peripherals.length; i++ ) m_peripherals[i].writeNBT( tag, "_" + i );
-        return tag;
+        nbt = super.writeToNBT( nbt );
+        nbt.setBoolean( "peripheralAccess", m_peripheralAccessAllowed );
+        for( int i = 0; i < m_peripherals.length; i++ ) m_peripherals[i].writeNBT( nbt, "_" + i );
+        return nbt;
     }
 
     protected void updateAnim()
@@ -240,9 +240,9 @@ public class TileWiredModemFull extends TilePeripheralBase
     }
 
     @Override
-    public final void readDescription( @Nonnull NBTTagCompound tag )
+    public final void readDescription( @Nonnull NBTTagCompound nbt )
     {
-        super.readDescription( tag );
+        super.readDescription( nbt );
         updateBlock();
     }
 

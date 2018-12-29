@@ -301,6 +301,7 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
         m_computer.addAPI( api );
     }
 
+    @SuppressWarnings( "deprecation" )
     public void addAPI( dan200.computercraft.core.apis.ILuaAPI api )
     {
         m_computer.addAPI( api );
@@ -369,23 +370,6 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
     public int assignNewID()
     {
         return ComputerCraftAPI.createUniqueNumberedSaveDir( m_world, "computer" );
-    }
-
-    // Networking stuff
-    public void writeComputerDescription( NBTTagCompound nbttagcompound )
-    {
-        nbttagcompound.setInteger( "id", m_computer.getID() );
-        String label = m_computer.getLabel();
-        if( label != null )
-        {
-            nbttagcompound.setString( "label", label );
-        }
-        nbttagcompound.setBoolean( "on", m_computer.isOn() );
-        nbttagcompound.setBoolean( "blinking", m_computer.isBlinking() );
-        if( m_userData != null )
-        {
-            nbttagcompound.setTag( "userData", m_userData.copy() );
-        }
     }
 
     public boolean isInteracting( EntityPlayer player )

@@ -64,9 +64,9 @@ public abstract class TileModemBase extends TilePeripheralBase
     }
 
     @Override
-    public final void readDescription( @Nonnull NBTTagCompound nbttagcompound )
+    public final void readDescription( @Nonnull NBTTagCompound nbt )
     {
-        super.readDescription( nbttagcompound );
+        super.readDescription( nbt );
         updateBlock();
     }
 

@@ -137,12 +137,12 @@ public class TileDiskDrive extends TilePeripheralBase implements DefaultInventor
     }
 
     @Override
-    public void readFromNBT( NBTTagCompound nbttagcompound )
+    public void readFromNBT( NBTTagCompound nbt )
     {
-        super.readFromNBT( nbttagcompound );
-        if( nbttagcompound.hasKey( "item" ) )
+        super.readFromNBT( nbt );
+        if( nbt.hasKey( "item" ) )
         {
-            NBTTagCompound item = nbttagcompound.getCompoundTag( "item" );
+            NBTTagCompound item = nbt.getCompoundTag( "item" );
             m_diskStack = new ItemStack( item );
             m_diskMount = null;
         }
@@ -150,16 +150,16 @@ public class TileDiskDrive extends TilePeripheralBase implements DefaultInventor
 
     @Nonnull
     @Override
-    public NBTTagCompound writeToNBT( NBTTagCompound nbttagcompound )
+    public NBTTagCompound writeToNBT( NBTTagCompound nbt )
     {
-        nbttagcompound = super.writeToNBT( nbttagcompound );
+        nbt = super.writeToNBT( nbt );
         if( !m_diskStack.isEmpty() )
         {
             NBTTagCompound item = new NBTTagCompound();
             m_diskStack.writeToNBT( item );
-            nbttagcompound.setTag( "item", item );
+            nbt.setTag( "item", item );
         }
-        return nbttagcompound;
+        return nbt;
     }
 
     @Override
@@ -577,12 +577,12 @@ public class TileDiskDrive extends TilePeripheralBase implements DefaultInventor
     }
 
     @Override
-    public final void readDescription( @Nonnull NBTTagCompound nbttagcompound )
+    public final void readDescription( @Nonnull NBTTagCompound nbt )
     {
-        super.readDescription( nbttagcompound );
-        if( nbttagcompound.hasKey( "item" ) )
+        super.readDescription( nbt );
+        if( nbt.hasKey( "item" ) )
         {
-            m_diskStack = new ItemStack( nbttagcompound.getCompoundTag( "item" ) );
+            m_diskStack = new ItemStack( nbt.getCompoundTag( "item" ) );
         }
         else
         {
@@ -592,14 +592,14 @@ public class TileDiskDrive extends TilePeripheralBase implements DefaultInventor
     }
 
     @Override
-    public void writeDescription( @Nonnull NBTTagCompound nbttagcompound )
+    public void writeDescription( @Nonnull NBTTagCompound nbt )
     {
-        super.writeDescription( nbttagcompound );
+        super.writeDescription( nbt );
         if( !m_diskStack.isEmpty() )
         {
             NBTTagCompound item = new NBTTagCompound();
             m_diskStack.writeToNBT( item );
-            nbttagcompound.setTag( "item", item );
+            nbt.setTag( "item", item );
         }
     }
 

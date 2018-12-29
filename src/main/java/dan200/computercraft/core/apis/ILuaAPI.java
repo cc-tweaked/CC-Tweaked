@@ -5,6 +5,7 @@ package dan200.computercraft.core.apis;
  *
  * @see dan200.computercraft.api.lua.ILuaAPI
  */
+@Deprecated
 public interface ILuaAPI extends dan200.computercraft.api.lua.ILuaAPI
 {
     void advance( double v );

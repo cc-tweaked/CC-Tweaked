@@ -297,12 +297,12 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
     }
 
     @Override
-    public void readFromNBT( NBTTagCompound nbttagcompound )
+    public void readFromNBT( NBTTagCompound nbt )
     {
-        super.readFromNBT( nbttagcompound );
+        super.readFromNBT( nbt );
 
         // Read inventory
-        NBTTagList nbttaglist = nbttagcompound.getTagList( "Items", Constants.NBT.TAG_COMPOUND );
+        NBTTagList nbttaglist = nbt.getTagList( "Items", Constants.NBT.TAG_COMPOUND );
         m_inventory = NonNullList.withSize( INVENTORY_SIZE, ItemStack.EMPTY );
         m_previousInventory = NonNullList.withSize( INVENTORY_SIZE, ItemStack.EMPTY );
         for( int i = 0; i < nbttaglist.tagCount(); i++ )
@@ -317,14 +317,14 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
         }
 
         // Read state
-        m_brain.readFromNBT( nbttagcompound );
+        m_brain.readFromNBT( nbt );
     }
 
     @Nonnull
     @Override
-    public NBTTagCompound writeToNBT( NBTTagCompound nbttagcompound )
+    public NBTTagCompound writeToNBT( NBTTagCompound nbt )
     {
-        nbttagcompound = super.writeToNBT( nbttagcompound );
+        nbt = super.writeToNBT( nbt );
 
         // Write inventory
         NBTTagList nbttaglist = new NBTTagList();
@@ -338,12 +338,12 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
                 nbttaglist.appendTag( itemtag );
             }
         }
-        nbttagcompound.setTag( "Items", nbttaglist );
+        nbt.setTag( "Items", nbttaglist );
 
         // Write brain
-        nbttagcompound = m_brain.writeToNBT( nbttagcompound );
+        nbt = m_brain.writeToNBT( nbt );
 
-        return nbttagcompound;
+        return nbt;
     }
 
     @Override
@@ -608,17 +608,17 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
     // Networking stuff
 
     @Override
-    public void writeDescription( @Nonnull NBTTagCompound nbttagcompound )
+    public void writeDescription( @Nonnull NBTTagCompound nbt )
     {
-        super.writeDescription( nbttagcompound );
-        m_brain.writeDescription( nbttagcompound );
+        super.writeDescription( nbt );
+        m_brain.writeDescription( nbt );
     }
 
     @Override
-    public void readDescription( @Nonnull NBTTagCompound nbttagcompound )
+    public void readDescription( @Nonnull NBTTagCompound nbt )
     {
-        super.readDescription( nbttagcompound );
-        m_brain.readDescription( nbttagcompound );
+        super.readDescription( nbt );
+        m_brain.readDescription( nbt );
         updateBlock();
     }
 

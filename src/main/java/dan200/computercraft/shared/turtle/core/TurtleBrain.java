@@ -132,24 +132,17 @@ public class TurtleBrain implements ITurtleAccess
         }
     }
 
-    public void readFromNBT( NBTTagCompound tag )
+    public void readFromNBT( NBTTagCompound nbt )
     {
         // Read state
-        m_direction = EnumFacing.byIndex( tag.getInteger( "dir" ) );
-        m_selectedSlot = tag.getInteger( "selectedSlot" );
-        if( tag.hasKey( "fuelLevel" ) )
-        {
-            m_fuelLevel = tag.getInteger( "fuelLevel" );
-        }
-        else
-        {
-            m_fuelLevel = 0;
-        }
+        m_direction = EnumFacing.byIndex( nbt.getInteger( "dir" ) );
+        m_selectedSlot = nbt.getInteger( "selectedSlot" );
+        m_fuelLevel = nbt.hasKey( "fuelLevel" ) ? nbt.getInteger( "fuelLevel" ) : 0;
 
         // Read owner
-        if( tag.hasKey( "owner", Constants.NBT.TAG_COMPOUND ) )
+        if( nbt.hasKey( "owner", Constants.NBT.TAG_COMPOUND ) )
         {
-            NBTTagCompound owner = tag.getCompoundTag( "owner" );
+            NBTTagCompound owner = nbt.getCompoundTag( "owner" );
             m_owningPlayer = new GameProfile(
                 new UUID( owner.getLong( "upper_id" ), owner.getLong( "lower_id" ) ),
                 owner.getString( "name" )
@@ -161,15 +154,15 @@ public class TurtleBrain implements ITurtleAccess
         }
 
         // Read colour
-        m_colourHex = ColourUtils.getHexColour( tag );
+        m_colourHex = ColourUtils.getHexColour( nbt );
 
         // Read overlay
-        if( tag.hasKey( "overlay_mod" ) )
+        if( nbt.hasKey( "overlay_mod" ) )
         {
-            String overlay_mod = tag.getString( "overlay_mod" );
-            if( tag.hasKey( "overlay_path" ) )
+            String overlay_mod = nbt.getString( "overlay_mod" );
+            if( nbt.hasKey( "overlay_path" ) )
             {
-                String overlay_path = tag.getString( "overlay_path" );
+                String overlay_path = nbt.getString( "overlay_path" );
                 m_overlay = new ResourceLocation( overlay_mod, overlay_path );
             }
             else
@@ -186,10 +179,10 @@ public class TurtleBrain implements ITurtleAccess
         // (pre-1.4 turtles will have a "subType" variable, newer things will have "leftUpgrade" and "rightUpgrade")
         ITurtleUpgrade leftUpgrade = null;
         ITurtleUpgrade rightUpgrade = null;
-        if( tag.hasKey( "subType" ) )
+        if( nbt.hasKey( "subType" ) )
         {
             // Loading a pre-1.4 world
-            int subType = tag.getInteger( "subType" );
+            int subType = nbt.getInteger( "subType" );
             if( (subType & 0x1) > 0 )
             {
                 leftUpgrade = ComputerCraft.Upgrades.diamondPickaxe;
@@ -202,26 +195,26 @@ public class TurtleBrain implements ITurtleAccess
         else
         {
             // Loading a post-1.4 world
-            if( tag.hasKey( "leftUpgrade" ) )
+            if( nbt.hasKey( "leftUpgrade" ) )
             {
-                if( tag.getTagId( "leftUpgrade" ) == Constants.NBT.TAG_STRING )
+                if( nbt.getTagId( "leftUpgrade" ) == Constants.NBT.TAG_STRING )
                 {
-                    leftUpgrade = TurtleUpgrades.get( tag.getString( "leftUpgrade" ) );
+                    leftUpgrade = TurtleUpgrades.get( nbt.getString( "leftUpgrade" ) );
                 }
                 else
                 {
-                    leftUpgrade = TurtleUpgrades.get( tag.getShort( "leftUpgrade" ) );
+                    leftUpgrade = TurtleUpgrades.get( nbt.getShort( "leftUpgrade" ) );
                 }
             }
-            if( tag.hasKey( "rightUpgrade" ) )
+            if( nbt.hasKey( "rightUpgrade" ) )
             {
-                if( tag.getTagId( "rightUpgrade" ) == Constants.NBT.TAG_STRING )
+                if( nbt.getTagId( "rightUpgrade" ) == Constants.NBT.TAG_STRING )
                 {
-                    rightUpgrade = TurtleUpgrades.get( tag.getString( "rightUpgrade" ) );
+                    rightUpgrade = TurtleUpgrades.get( nbt.getString( "rightUpgrade" ) );
                 }
                 else
                 {
-                    rightUpgrade = TurtleUpgrades.get( tag.getShort( "rightUpgrade" ) );
+                    rightUpgrade = TurtleUpgrades.get( nbt.getShort( "rightUpgrade" ) );
                 }
             }
         }
@@ -230,28 +223,28 @@ public class TurtleBrain implements ITurtleAccess
 
         // NBT
         m_upgradeNBTData.clear();
-        if( tag.hasKey( "leftUpgradeNBT" ) )
+        if( nbt.hasKey( "leftUpgradeNBT" ) )
         {
-            m_upgradeNBTData.put( TurtleSide.Left, tag.getCompoundTag( "leftUpgradeNBT" ).copy() );
+            m_upgradeNBTData.put( TurtleSide.Left, nbt.getCompoundTag( "leftUpgradeNBT" ).copy() );
         }
-        if( tag.hasKey( "rightUpgradeNBT" ) )
+        if( nbt.hasKey( "rightUpgradeNBT" ) )
         {
-            m_upgradeNBTData.put( TurtleSide.Right, tag.getCompoundTag( "rightUpgradeNBT" ).copy() );
+            m_upgradeNBTData.put( TurtleSide.Right, nbt.getCompoundTag( "rightUpgradeNBT" ).copy() );
         }
     }
 
-    public NBTTagCompound writeToNBT( NBTTagCompound nbttagcompound )
+    public NBTTagCompound writeToNBT( NBTTagCompound nbt )
     {
         // Write state
-        nbttagcompound.setInteger( "dir", m_direction.getIndex() );
-        nbttagcompound.setInteger( "selectedSlot", m_selectedSlot );
-        nbttagcompound.setInteger( "fuelLevel", m_fuelLevel );
+        nbt.setInteger( "dir", m_direction.getIndex() );
+        nbt.setInteger( "selectedSlot", m_selectedSlot );
+        nbt.setInteger( "fuelLevel", m_fuelLevel );
 
         // Write owner
         if( m_owningPlayer != null )
         {
             NBTTagCompound owner = new NBTTagCompound();
-            nbttagcompound.setTag( "owner", owner );
+            nbt.setTag( "owner", owner );
 
             owner.setLong( "upper_id", m_owningPlayer.getId().getMostSignificantBits() );
             owner.setLong( "lower_id", m_owningPlayer.getId().getLeastSignificantBits() );
@@ -262,38 +255,38 @@ public class TurtleBrain implements ITurtleAccess
         String leftUpgradeID = getUpgradeID( getUpgrade( TurtleSide.Left ) );
         if( leftUpgradeID != null )
         {
-            nbttagcompound.setString( "leftUpgrade", leftUpgradeID );
+            nbt.setString( "leftUpgrade", leftUpgradeID );
         }
         String rightUpgradeID = getUpgradeID( getUpgrade( TurtleSide.Right ) );
         if( rightUpgradeID != null )
         {
-            nbttagcompound.setString( "rightUpgrade", rightUpgradeID );
+            nbt.setString( "rightUpgrade", rightUpgradeID );
         }
 
         // Write colour
         if( m_colourHex != -1 )
         {
-            nbttagcompound.setInteger( "colour", m_colourHex );
+            nbt.setInteger( "colour", m_colourHex );
         }
 
         // Write overlay
         if( m_overlay != null )
         {
-            nbttagcompound.setString( "overlay_mod", m_overlay.getNamespace() );
-            nbttagcompound.setString( "overlay_path", m_overlay.getPath() );
+            nbt.setString( "overlay_mod", m_overlay.getNamespace() );
+            nbt.setString( "overlay_path", m_overlay.getPath() );
         }
 
         // Write NBT
         if( m_upgradeNBTData.containsKey( TurtleSide.Left ) )
         {
-            nbttagcompound.setTag( "leftUpgradeNBT", getUpgradeNBTData( TurtleSide.Left ).copy() );
+            nbt.setTag( "leftUpgradeNBT", getUpgradeNBTData( TurtleSide.Left ).copy() );
         }
         if( m_upgradeNBTData.containsKey( TurtleSide.Right ) )
         {
-            nbttagcompound.setTag( "rightUpgradeNBT", getUpgradeNBTData( TurtleSide.Right ).copy() );
+            nbt.setTag( "rightUpgradeNBT", getUpgradeNBTData( TurtleSide.Right ).copy() );
         }
 
-        return nbttagcompound;
+        return nbt;
     }
 
     private String getUpgradeID( ITurtleUpgrade upgrade )
@@ -305,63 +298,63 @@ public class TurtleBrain implements ITurtleAccess
         return null;
     }
 
-    public void writeDescription( NBTTagCompound nbttagcompound )
+    public void writeDescription( NBTTagCompound nbt )
     {
         // Upgrades
         String leftUpgradeID = getUpgradeID( getUpgrade( TurtleSide.Left ) );
         if( leftUpgradeID != null )
         {
-            nbttagcompound.setString( "leftUpgrade", leftUpgradeID );
+            nbt.setString( "leftUpgrade", leftUpgradeID );
         }
         String rightUpgradeID = getUpgradeID( getUpgrade( TurtleSide.Right ) );
         if( rightUpgradeID != null )
         {
-            nbttagcompound.setString( "rightUpgrade", rightUpgradeID );
+            nbt.setString( "rightUpgrade", rightUpgradeID );
         }
 
         // NBT
         if( m_upgradeNBTData.containsKey( TurtleSide.Left ) )
         {
-            nbttagcompound.setTag( "leftUpgradeNBT", getUpgradeNBTData( TurtleSide.Left ).copy() );
+            nbt.setTag( "leftUpgradeNBT", getUpgradeNBTData( TurtleSide.Left ).copy() );
         }
         if( m_upgradeNBTData.containsKey( TurtleSide.Right ) )
         {
-            nbttagcompound.setTag( "rightUpgradeNBT", getUpgradeNBTData( TurtleSide.Right ).copy() );
+            nbt.setTag( "rightUpgradeNBT", getUpgradeNBTData( TurtleSide.Right ).copy() );
         }
 
         // Colour
         if( m_colourHex != -1 )
         {
-            nbttagcompound.setInteger( "colour", m_colourHex );
+            nbt.setInteger( "colour", m_colourHex );
         }
 
         // Overlay
         if( m_overlay != null )
         {
-            nbttagcompound.setString( "overlay_mod", m_overlay.getNamespace() );
-            nbttagcompound.setString( "overlay_path", m_overlay.getPath() );
+            nbt.setString( "overlay_mod", m_overlay.getNamespace() );
+            nbt.setString( "overlay_path", m_overlay.getPath() );
         }
 
         // Animation
-        nbttagcompound.setInteger( "animation", m_animation.ordinal() );
-        nbttagcompound.setInteger( "direction", m_direction.getIndex() );
-        nbttagcompound.setInteger( "fuelLevel", m_fuelLevel );
+        nbt.setInteger( "animation", m_animation.ordinal() );
+        nbt.setInteger( "direction", m_direction.getIndex() );
+        nbt.setInteger( "fuelLevel", m_fuelLevel );
     }
 
-    public void readDescription( NBTTagCompound nbttagcompound )
+    public void readDescription( NBTTagCompound nbt )
     {
         // Upgrades
-        if( nbttagcompound.hasKey( "leftUpgrade" ) )
+        if( nbt.hasKey( "leftUpgrade" ) )
         {
-            setUpgrade( TurtleSide.Left, TurtleUpgrades.get( nbttagcompound.getString( "leftUpgrade" ) ) );
+            setUpgrade( TurtleSide.Left, TurtleUpgrades.get( nbt.getString( "leftUpgrade" ) ) );
         }
         else
         {
             setUpgrade( TurtleSide.Left, null );
         }
-        if( nbttagcompound.hasKey( "rightUpgrade" ) )
+        if( nbt.hasKey( "rightUpgrade" ) )
         {
-            setUpgrade( TurtleSide.Right, TurtleUpgrades.get( nbttagcompound.getString( "rightUpgrade" ) ) );
+            setUpgrade( TurtleSide.Right, TurtleUpgrades.get( nbt.getString( "rightUpgrade" ) ) );
         }
         else
         {
@@ -370,23 +363,23 @@ public class TurtleBrain implements ITurtleAccess
 
         // NBT
         m_upgradeNBTData.clear();
-        if( nbttagcompound.hasKey( "leftUpgradeNBT" ) )
+        if( nbt.hasKey( "leftUpgradeNBT" ) )
         {
-            m_upgradeNBTData.put( TurtleSide.Left, nbttagcompound.getCompoundTag( "leftUpgradeNBT" ).copy() );
+            m_upgradeNBTData.put( TurtleSide.Left, nbt.getCompoundTag( "leftUpgradeNBT" ).copy() );
         }
-        if( nbttagcompound.hasKey( "rightUpgradeNBT" ) )
+        if( nbt.hasKey( "rightUpgradeNBT" ) )
         {
-            m_upgradeNBTData.put( TurtleSide.Right, nbttagcompound.getCompoundTag( "rightUpgradeNBT" ).copy() );
+            m_upgradeNBTData.put( TurtleSide.Right, nbt.getCompoundTag( "rightUpgradeNBT" ).copy() );
         }
 
         // Colour
-        m_colourHex = ColourUtils.getHexColour( nbttagcompound );
+        m_colourHex = ColourUtils.getHexColour( nbt );
 
         // Overlay
-        if( nbttagcompound.hasKey( "overlay_mod" ) && nbttagcompound.hasKey( "overlay_path" ) )
+        if( nbt.hasKey( "overlay_mod" ) && nbt.hasKey( "overlay_path" ) )
         {
-            String overlay_mod = nbttagcompound.getString( "overlay_mod" );
-            String overlay_path = nbttagcompound.getString( "overlay_path" );
+            String overlay_mod = nbt.getString( "overlay_mod" );
+            String overlay_path = nbt.getString( "overlay_path" );
             m_overlay = new ResourceLocation( overlay_mod, overlay_path );
         }
         else
@@ -395,19 +388,19 @@ public class TurtleBrain implements ITurtleAccess
         }
 
         // Animation
-        TurtleAnimation anim = TurtleAnimation.values()[nbttagcompound.getInteger( "animation" )];
+        TurtleAnimation anim = TurtleAnimation.values()[nbt.getInteger( "animation" )];
         if( anim != m_animation &&
             anim != TurtleAnimation.Wait &&
             anim != TurtleAnimation.ShortWait &&
             anim != TurtleAnimation.None )
         {
-            m_animation = TurtleAnimation.values()[nbttagcompound.getInteger( "animation" )];
+            m_animation = TurtleAnimation.values()[nbt.getInteger( "animation" )];
             m_animationProgress = 0;
             m_lastAnimationProgress = 0;
         }
 
-        m_direction = EnumFacing.byIndex( nbttagcompound.getInteger( "direction" ) );
-        m_fuelLevel = nbttagcompound.getInteger( "fuelLevel" );
+        m_direction = EnumFacing.byIndex( nbt.getInteger( "direction" ) );
+        m_fuelLevel = nbt.getInteger( "fuelLevel" );
     }
 
     @Nonnull
@@ -461,7 +454,7 @@ public class TurtleBrain implements ITurtleAccess
                 if( block == oldBlock )
                 {
                     TileEntity newTile = world.getTileEntity( pos );
-                    if( newTile != null && newTile instanceof TileTurtle )
+                    if( newTile instanceof TileTurtle )
                     {
                         // Copy the old turtle state into the new turtle
                         TileTurtle newTurtle = (TileTurtle) newTile;

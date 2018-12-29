@@ -130,48 +130,45 @@ public abstract class TilePeripheralBase extends TileGeneric
     }
 
     @Override
-    public void readFromNBT( NBTTagCompound nbttagcompound )
+    public void readFromNBT( NBTTagCompound nbt )
     {
         // Read properties
-        super.readFromNBT( nbttagcompound );
-        if( nbttagcompound.hasKey( "dir" ) )
+        super.readFromNBT( nbt );
+        if( nbt.hasKey( "dir" ) )
         {
-            m_dir = EnumFacing.byIndex( nbttagcompound.getInteger( "dir" ) );
+            m_dir = EnumFacing.byIndex( nbt.getInteger( "dir" ) );
         }
-        if( nbttagcompound.hasKey( "anim" ) )
+        if( nbt.hasKey( "anim" ) )
         {
-            m_anim = nbttagcompound.getInteger( "anim" );
+            m_anim = nbt.getInteger( "anim" );
         }
-        if( nbttagcompound.hasKey( "label" ) )
+        if( nbt.hasKey( "label" ) )
         {
-            m_label = nbttagcompound.getString( "label" );
+            m_label = nbt.getString( "label" );
         }
     }
 
     @Nonnull
     @Override
-    public NBTTagCompound writeToNBT( NBTTagCompound nbttagcompound )
+    public NBTTagCompound writeToNBT( NBTTagCompound nbt )
     {
         // Write properties
-        nbttagcompound = super.writeToNBT( nbttagcompound );
-        nbttagcompound.setInteger( "dir", m_dir.getIndex() );
-        nbttagcompound.setInteger( "anim", m_anim );
-        if( m_label != null )
-        {
-            nbttagcompound.setString( "label", m_label );
-        }
-        return nbttagcompound;
+        nbt = super.writeToNBT( nbt );
+        nbt.setInteger( "dir", m_dir.getIndex() );
+        nbt.setInteger( "anim", m_anim );
+        if( m_label != null ) nbt.setString( "label", m_label );
+        return nbt;
     }
 
     @Override
-    public void readDescription( @Nonnull NBTTagCompound nbttagcompound )
+    public void readDescription( @Nonnull NBTTagCompound nbt )
     {
-        super.readDescription( nbttagcompound );
-        m_dir = EnumFacing.byIndex( nbttagcompound.getInteger( "dir" ) );
-        m_anim = nbttagcompound.getInteger( "anim" );
-        if( nbttagcompound.hasKey( "label" ) )
+        super.readDescription( nbt );
+        m_dir = EnumFacing.byIndex( nbt.getInteger( "dir" ) );
+        m_anim = nbt.getInteger( "anim" );
+        if( nbt.hasKey( "label" ) )
         {
-            m_label = nbttagcompound.getString( "label" );
+            m_label = nbt.getString( "label" );
         }
         else
         {
@@ -180,14 +177,14 @@ public abstract class TilePeripheralBase extends TileGeneric
     }
 
     @Override
-    public void writeDescription( @Nonnull NBTTagCompound nbttagcompound )
+    public void writeDescription( @Nonnull NBTTagCompound nbt )
     {
-        super.writeDescription( nbttagcompound );
-        nbttagcompound.setInteger( "dir", m_dir.getIndex() );
-        nbttagcompound.setInteger( "anim", m_anim );
+        super.writeDescription( nbt );
+        nbt.setInteger( "dir", m_dir.getIndex() );
+        nbt.setInteger( "anim", m_anim );
         if( m_label != null )
         {
-            nbttagcompound.setString( "label", m_label );
+            nbt.setString( "label", m_label );
         }
     }
 }

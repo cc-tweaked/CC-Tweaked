@@ -74,17 +74,17 @@ public class TileComputer extends TileComputerBase
     }
 
     @Override
-    public void writeDescription( @Nonnull NBTTagCompound tag )
+    public void writeDescription( @Nonnull NBTTagCompound nbt )
     {
-        super.writeDescription( tag );
-        tag.setInteger( TAG_STATE, state.ordinal() );
+        super.writeDescription( nbt );
+        nbt.setInteger( TAG_STATE, state.ordinal() );
     }
 
     @Override
-    public final void readDescription( @Nonnull NBTTagCompound tag )
+    public final void readDescription( @Nonnull NBTTagCompound nbt )
     {
-        super.readDescription( tag );
-        state = ComputerState.valueOf( tag.getInteger( TAG_STATE ) );
+        super.readDescription( nbt );
+        state = ComputerState.valueOf( nbt.getInteger( TAG_STATE ) );
         updateBlock();
     }
 

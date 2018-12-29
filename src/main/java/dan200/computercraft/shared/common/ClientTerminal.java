@@ -52,12 +52,12 @@ public class ClientTerminal implements ITerminal
         return m_colour;
     }
 
-    public void readDescription( NBTTagCompound nbttagcompound )
+    public void readDescription( NBTTagCompound nbt )
     {
-        m_colour = nbttagcompound.getBoolean( "colour" );
-        if( nbttagcompound.hasKey( "terminal" ) )
+        m_colour = nbt.getBoolean( "colour" );
+        if( nbt.hasKey( "terminal" ) )
         {
-            NBTTagCompound terminal = nbttagcompound.getCompoundTag( "terminal" );
+            NBTTagCompound terminal = nbt.getCompoundTag( "terminal" );
             resizeTerminal( terminal.getInteger( "term_width" ), terminal.getInteger( "term_height" ) );
             m_terminal.readFromNBT( terminal );
         }

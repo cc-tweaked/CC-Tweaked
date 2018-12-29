@@ -90,16 +90,16 @@ public class ServerTerminal implements ITerminal
 
     // Networking stuff
 
-    public void writeDescription( NBTTagCompound nbttagcompound )
+    public void writeDescription( NBTTagCompound nbt )
     {
-        nbttagcompound.setBoolean( "colour", m_colour );
+        nbt.setBoolean( "colour", m_colour );
         if( m_terminal != null )
         {
             NBTTagCompound terminal = new NBTTagCompound();
             terminal.setInteger( "term_width", m_terminal.getWidth() );
             terminal.setInteger( "term_height", m_terminal.getHeight() );
             m_terminal.writeToNBT( terminal );
-            nbttagcompound.setTag( "terminal", terminal );
+            nbt.setTag( "terminal", terminal );
         }
     }
 }

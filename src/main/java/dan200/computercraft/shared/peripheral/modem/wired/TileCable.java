@@ -308,23 +308,23 @@ public class TileCable extends TileModemBase
     }
 
     @Override
-    public void readFromNBT( NBTTagCompound nbttagcompound )
+    public void readFromNBT( NBTTagCompound nbt )
     {
         // Read properties
-        super.readFromNBT( nbttagcompound );
-        m_peripheralAccessAllowed = nbttagcompound.getBoolean( "peripheralAccess" );
-        m_peripheral.readNBT( nbttagcompound, "" );
+        super.readFromNBT( nbt );
+        m_peripheralAccessAllowed = nbt.getBoolean( "peripheralAccess" );
+        m_peripheral.readNBT( nbt, "" );
     }
 
     @Nonnull
     @Override
-    public NBTTagCompound writeToNBT( NBTTagCompound nbttagcompound )
+    public NBTTagCompound writeToNBT( NBTTagCompound nbt )
     {
         // Write properties
-        nbttagcompound = super.writeToNBT( nbttagcompound );
-        nbttagcompound.setBoolean( "peripheralAccess", m_peripheralAccessAllowed );
-        m_peripheral.writeNBT( nbttagcompound, "" );
-        return nbttagcompound;
+        nbt = super.writeToNBT( nbt );
+        nbt.setBoolean( "peripheralAccess", m_peripheralAccessAllowed );
+        m_peripheral.writeNBT( nbt, "" );
+        return nbt;
     }
 
     @Override

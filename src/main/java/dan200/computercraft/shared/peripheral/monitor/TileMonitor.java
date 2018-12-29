@@ -123,26 +123,26 @@ public class TileMonitor extends TilePeripheralBase
 
     @Nonnull
     @Override
-    public NBTTagCompound writeToNBT( NBTTagCompound nbttagcompound )
+    public NBTTagCompound writeToNBT( NBTTagCompound nbt )
     {
-        nbttagcompound = super.writeToNBT( nbttagcompound );
-        nbttagcompound.setInteger( "xIndex", m_xIndex );
-        nbttagcompound.setInteger( "yIndex", m_yIndex );
-        nbttagcompound.setInteger( "width", m_width );
-        nbttagcompound.setInteger( "height", m_height );
-        nbttagcompound.setInteger( "dir", m_dir );
-        return nbttagcompound;
+        nbt = super.writeToNBT( nbt );
+        nbt.setInteger( "xIndex", m_xIndex );
+        nbt.setInteger( "yIndex", m_yIndex );
+        nbt.setInteger( "width", m_width );
+        nbt.setInteger( "height", m_height );
+        nbt.setInteger( "dir", m_dir );
+        return nbt;
     }
 
     @Override
-    public void readFromNBT( NBTTagCompound nbttagcompound )
+    public void readFromNBT( NBTTagCompound nbt )
     {
-        super.readFromNBT( nbttagcompound );
-        m_xIndex = nbttagcompound.getInteger( "xIndex" );
-        m_yIndex = nbttagcompound.getInteger( "yIndex" );
-        m_width = nbttagcompound.getInteger( "width" );
-        m_height = nbttagcompound.getInteger( "height" );
-        m_dir = nbttagcompound.getInteger( "dir" );
+        super.readFromNBT( nbt );
+        m_xIndex = nbt.getInteger( "xIndex" );
+        m_yIndex = nbt.getInteger( "yIndex" );
+        m_width = nbt.getInteger( "width" );
+        m_height = nbt.getInteger( "height" );
+        m_dir = nbt.getInteger( "dir" );
     }
 
     @Override
@@ -262,25 +262,25 @@ public class TileMonitor extends TilePeripheralBase
     // Networking stuff
 
     @Override
-    public void writeDescription( @Nonnull NBTTagCompound nbttagcompound )
+    public void writeDescription( @Nonnull NBTTagCompound nbt )
     {
-        super.writeDescription( nbttagcompound );
-        nbttagcompound.setInteger( "xIndex", m_xIndex );
-        nbttagcompound.setInteger( "yIndex", m_yIndex );
-        nbttagcompound.setInteger( "width", m_width );
-        nbttagcompound.setInteger( "height", m_height );
-        nbttagcompound.setInteger( "monitorDir", m_dir );
+        super.writeDescription( nbt );
+        nbt.setInteger( "xIndex", m_xIndex );
+        nbt.setInteger( "yIndex", m_yIndex );
+        nbt.setInteger( "width", m_width );
+        nbt.setInteger( "height", m_height );
+        nbt.setInteger( "monitorDir", m_dir );
 
         if( m_xIndex == 0 && m_yIndex == 0 && m_serverMonitor != null )
         {
-            m_serverMonitor.writeDescription( nbttagcompound );
+            m_serverMonitor.writeDescription( nbt );
         }
     }
 
     @Override
-    public final void readDescription( @Nonnull NBTTagCompound nbttagcompound )
+    public final void readDescription( @Nonnull NBTTagCompound nbt )
     {
-        super.readDescription( nbttagcompound );
+        super.readDescription( nbt );
 
         int oldXIndex = m_xIndex;
         int oldYIndex = m_yIndex;
@@ -288,11 +288,11 @@ public class TileMonitor extends TilePeripheralBase
         int oldHeight = m_height;
         int oldDir = m_dir;
 
-        m_xIndex = nbttagcompound.getInteger( "xIndex" );
-        m_yIndex = nbttagcompound.getInteger( "yIndex" );
-        m_width = nbttagcompound.getInteger( "width" );
-        m_height = nbttagcompound.getInteger( "height" );
-        m_dir = nbttagcompound.getInteger( "monitorDir" );
+        m_xIndex = nbt.getInteger( "xIndex" );
+        m_yIndex = nbt.getInteger( "yIndex" );
+        m_width = nbt.getInteger( "width" );
+        m_height = nbt.getInteger( "height" );
+        m_dir = nbt.getInteger( "monitorDir" );
 
         if( oldXIndex != m_xIndex || oldYIndex != m_yIndex )
         {
@@ -306,7 +306,7 @@ public class TileMonitor extends TilePeripheralBase
         {
             // If we're the origin terminal then read the description
             if( m_clientMonitor == null ) m_clientMonitor = new ClientMonitor( m_advanced, this );
-            m_clientMonitor.readDescription( nbttagcompound );
+            m_clientMonitor.readDescription( nbt );
         }
 
         if( oldXIndex != m_xIndex || oldYIndex != m_yIndex ||
@@ -427,7 +427,7 @@ public class TileMonitor extends TilePeripheralBase
         if( world != null && world.isBlockLoaded( pos ) )
         {
             TileEntity tile = world.getTileEntity( pos );
-            if( tile != null && tile instanceof TileMonitor )
+            if( tile instanceof TileMonitor )
             {
                 TileMonitor monitor = (TileMonitor) tile;
                 if( monitor.getDir() == getDir() && monitor.m_advanced == m_advanced &&

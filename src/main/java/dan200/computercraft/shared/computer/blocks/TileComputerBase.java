@@ -42,7 +42,7 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
     public BlockComputerBase getBlock()
     {
         Block block = super.getBlock();
-        if( block != null && block instanceof BlockComputerBase )
+        if( block instanceof BlockComputerBase )
         {
             return (BlockComputerBase) block;
         }
@@ -228,39 +228,39 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
 
     @Nonnull
     @Override
-    public NBTTagCompound writeToNBT( NBTTagCompound nbttagcompound )
+    public NBTTagCompound writeToNBT( NBTTagCompound nbt )
     {
-        nbttagcompound = super.writeToNBT( nbttagcompound );
+        nbt = super.writeToNBT( nbt );
 
         // Save ID, label and power state
         if( m_computerID >= 0 )
         {
-            nbttagcompound.setInteger( "computerID", m_computerID );
+            nbt.setInteger( "computerID", m_computerID );
         }
         if( m_label != null )
         {
-            nbttagcompound.setString( "label", m_label );
+            nbt.setString( "label", m_label );
         }
-        nbttagcompound.setBoolean( "on", m_on );
-        return nbttagcompound;
+        nbt.setBoolean( "on", m_on );
+        return nbt;
     }
 
     @Override
-    public void readFromNBT( NBTTagCompound nbttagcompound )
+    public void readFromNBT( NBTTagCompound nbt )
     {
-        super.readFromNBT( nbttagcompound );
+        super.readFromNBT( nbt );
 
         // Load ID
         int id = -1;
-        if( nbttagcompound.hasKey( "computerID" ) )
+        if( nbt.hasKey( "computerID" ) )
         {
             // Post-1.6 computers
-            id = nbttagcompound.getInteger( "computerID" );
+            id = nbt.getInteger( "computerID" );
         }
-        else if( nbttagcompound.hasKey( "userDir" ) )
+        else if( nbt.hasKey( "userDir" ) )
         {
             // Pre-1.6 computers
-            String userDir = nbttagcompound.getString( "userDir" );
+            String userDir = nbt.getString( "userDir" );
             try
             {
                 id = Integer.parseInt( userDir );
@@ -273,17 +273,10 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
         m_computerID = id;
 
         // Load label
-        if( nbttagcompound.hasKey( "label" ) )
-        {
-            m_label = nbttagcompound.getString( "label" );
-        }
-        else
-        {
-            m_label = null;
-        }
+        m_label = nbt.hasKey( "label" ) ? nbt.getString( "label" ) : null;
 
         // Load power state
-        m_startOn = nbttagcompound.getBoolean( "on" );
+        m_startOn = nbt.getBoolean( "on" );
         m_on = m_startOn;
     }
 
@@ -489,21 +482,21 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
     // Networking stuff
 
     @Override
-    public void writeDescription( @Nonnull NBTTagCompound tag )
+    public void writeDescription( @Nonnull NBTTagCompound nbt )
     {
-        super.writeDescription( tag );
-        tag.setInteger( "instanceID", createServerComputer().getInstanceID() );
-        if( m_label != null ) tag.setString( "label", m_label );
-        if( m_computerID >= 0 ) tag.setInteger( "computerID", m_computerID );
+        super.writeDescription( nbt );
+        nbt.setInteger( "instanceID", createServerComputer().getInstanceID() );
+        if( m_label != null ) nbt.setString( "label", m_label );
+        if( m_computerID >= 0 ) nbt.setInteger( "computerID", m_computerID );
     }
 
     @Override
-    public void readDescription( @Nonnull NBTTagCompound tag )
+    public void readDescription( @Nonnull NBTTagCompound nbt )
     {
-        super.readDescription( tag );
-        m_instanceID = tag.getInteger( "instanceID" );
-        m_label = tag.hasKey( "label" ) ? tag.getString( "label" ) : null;
-        m_computerID = tag.hasKey( "computerID" ) ? tag.getInteger( "computerID" ) : -1;
+        super.readDescription( nbt );
+        m_instanceID = nbt.getInteger( "instanceID" );
+        m_label = nbt.hasKey( "label" ) ? nbt.getString( "label" ) : null;
+        m_computerID = nbt.hasKey( "computerID" ) ? nbt.getInteger( "computerID" ) : -1;
     }
 
     protected void transferStateFrom( TileComputerBase copy )

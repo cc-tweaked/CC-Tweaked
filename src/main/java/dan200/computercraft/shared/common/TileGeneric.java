@@ -108,11 +108,11 @@ public abstract class TileGeneric extends TileEntity
             player.getDistanceSq( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5 ) <= (range * range);
     }
 
-    protected void writeDescription( @Nonnull NBTTagCompound nbttagcompound )
+    protected void writeDescription( @Nonnull NBTTagCompound nbt )
     {
     }
 
-    protected void readDescription( @Nonnull NBTTagCompound nbttagcompound )
+    protected void readDescription( @Nonnull NBTTagCompound nbt )
     {
     }
 
@@ -126,24 +126,15 @@ public abstract class TileGeneric extends TileEntity
     public final SPacketUpdateTileEntity getUpdatePacket()
     {
         // Communicate properties
-        NBTTagCompound nbttagcompound = new NBTTagCompound();
-        writeDescription( nbttagcompound );
-        return new SPacketUpdateTileEntity( getPos(), 0, nbttagcompound );
+        NBTTagCompound nbt = new NBTTagCompound();
+        writeDescription( nbt );
+        return new SPacketUpdateTileEntity( getPos(), 0, nbt );
     }
 
     @Override
     public final void onDataPacket( NetworkManager net, SPacketUpdateTileEntity packet )
     {
-        switch( packet.getTileEntityType() )
-        {
-            case 0:
-            {
-                // Receive properties
-                NBTTagCompound nbttagcompound = packet.getNbtCompound();
-                readDescription( nbttagcompound );
-                break;
-            }
-        }
+        if( packet.getTileEntityType() == 0 ) readDescription( packet.getNbtCompound() );
     }
 
     @Nonnull

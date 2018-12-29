@@ -29,7 +29,7 @@ public class DefaultBundledRedstoneProvider implements IBundledRedstoneProvider
     public static int getDefaultBundledRedstoneOutput( World world, BlockPos pos, EnumFacing side )
     {
         Block block = world.getBlockState( pos ).getBlock();
-        if( block != null && block instanceof BlockGeneric )
+        if( block instanceof BlockGeneric )
         {
             BlockGeneric generic = (BlockGeneric) block;
             if( generic.getBundledRedstoneConnectivity( world, pos, side ) )

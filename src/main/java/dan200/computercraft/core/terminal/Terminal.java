@@ -321,55 +321,55 @@ public class Terminal
         m_changed = false;
     }
 
-    public synchronized NBTTagCompound writeToNBT( NBTTagCompound nbttagcompound )
+    public synchronized NBTTagCompound writeToNBT( NBTTagCompound nbt )
     {
-        nbttagcompound.setInteger( "term_cursorX", m_cursorX );
-        nbttagcompound.setInteger( "term_cursorY", m_cursorY );
-        nbttagcompound.setBoolean( "term_cursorBlink", m_cursorBlink );
-        nbttagcompound.setInteger( "term_textColour", m_cursorColour );
-        nbttagcompound.setInteger( "term_bgColour", m_cursorBackgroundColour );
+        nbt.setInteger( "term_cursorX", m_cursorX );
+        nbt.setInteger( "term_cursorY", m_cursorY );
+        nbt.setBoolean( "term_cursorBlink", m_cursorBlink );
+        nbt.setInteger( "term_textColour", m_cursorColour );
+        nbt.setInteger( "term_bgColour", m_cursorBackgroundColour );
         for( int n = 0; n < m_height; n++ )
         {
-            nbttagcompound.setString( "term_text_" + n, m_text[n].toString() );
-            nbttagcompound.setString( "term_textColour_" + n, m_textColour[n].toString() );
-            nbttagcompound.setString( "term_textBgColour_" + n, m_backgroundColour[n].toString() );
+            nbt.setString( "term_text_" + n, m_text[n].toString() );
+            nbt.setString( "term_textColour_" + n, m_textColour[n].toString() );
+            nbt.setString( "term_textBgColour_" + n, m_backgroundColour[n].toString() );
         }
         if( m_palette != null )
         {
-            m_palette.writeToNBT( nbttagcompound );
+            m_palette.writeToNBT( nbt );
         }
-        return nbttagcompound;
+        return nbt;
     }
 
-    public synchronized void readFromNBT( NBTTagCompound nbttagcompound )
+    public synchronized void readFromNBT( NBTTagCompound nbt )
     {
-        m_cursorX = nbttagcompound.getInteger( "term_cursorX" );
-        m_cursorY = nbttagcompound.getInteger( "term_cursorY" );
-        m_cursorBlink = nbttagcompound.getBoolean( "term_cursorBlink" );
-        m_cursorColour = nbttagcompound.getInteger( "term_textColour" );
-        m_cursorBackgroundColour = nbttagcompound.getInteger( "term_bgColour" );
+        m_cursorX = nbt.getInteger( "term_cursorX" );
+        m_cursorY = nbt.getInteger( "term_cursorY" );
+        m_cursorBlink = nbt.getBoolean( "term_cursorBlink" );
+        m_cursorColour = nbt.getInteger( "term_textColour" );
+        m_cursorBackgroundColour = nbt.getInteger( "term_bgColour" );
 
         for( int n = 0; n < m_height; n++ )
         {
             m_text[n].fill( ' ' );
-            if( nbttagcompound.hasKey( "term_text_" + n ) )
+            if( nbt.hasKey( "term_text_" + n ) )
             {
-                m_text[n].write( nbttagcompound.getString( "term_text_" + n ) );
+                m_text[n].write( nbt.getString( "term_text_" + n ) );
             }
             m_textColour[n].fill( base16.charAt( m_cursorColour ) );
-            if( nbttagcompound.hasKey( "term_textColour_" + n ) )
+            if( nbt.hasKey( "term_textColour_" + n ) )
             {
-                m_textColour[n].write( nbttagcompound.getString( "term_textColour_" + n ) );
+                m_textColour[n].write( nbt.getString( "term_textColour_" + n ) );
             }
             m_backgroundColour[n].fill( base16.charAt( m_cursorBackgroundColour ) );
-            if( nbttagcompound.hasKey( "term_textBgColour_" + n ) )
+            if( nbt.hasKey( "term_textBgColour_" + n ) )
             {
-                m_backgroundColour[n].write( nbttagcompound.getString( "term_textBgColour_" + n ) );
+                m_backgroundColour[n].write( nbt.getString( "term_textBgColour_" + n ) );
             }
         }
         if( m_palette != null )
         {
-            m_palette.readFromNBT( nbttagcompound );
+            m_palette.readFromNBT( nbt );
         }
         m_changed = true;
     }

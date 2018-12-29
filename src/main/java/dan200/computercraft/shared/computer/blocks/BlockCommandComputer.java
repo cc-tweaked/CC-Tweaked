@@ -121,7 +121,7 @@ public class BlockCommandComputer extends BlockComputerBase
     {
         // Not sure why this is necessary
         TileEntity tile = world.getTileEntity( pos );
-        if( tile != null && tile instanceof TileCommandComputer )
+        if( tile instanceof TileCommandComputer )
         {
             tile.setWorld( world ); // Not sure why this is necessary
             tile.setPos( pos ); // Not sure why this is necessary

@@ -74,7 +74,7 @@ public abstract class BlockComputerBase extends BlockDirectional
     protected void updateInput( IBlockAccess world, BlockPos pos )
     {
         TileEntity tile = world.getTileEntity( pos );
-        if( tile != null && tile instanceof TileComputerBase )
+        if( tile instanceof TileComputerBase )
         {
             TileComputerBase computer = (TileComputerBase) tile;
             computer.updateInput();

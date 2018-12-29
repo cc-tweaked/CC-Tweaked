@@ -436,7 +436,7 @@ public abstract class ComputerCraftProxyCommon implements IComputerCraftProxy
                 case ComputerCraft.diskDriveGUIID:
                 {
                     TileEntity tile = world.getTileEntity( pos );
-                    if( tile != null && tile instanceof TileDiskDrive )
+                    if( tile instanceof TileDiskDrive )
                     {
                         TileDiskDrive drive = (TileDiskDrive) tile;
                         return new ContainerDiskDrive( player.inventory, drive );
@@ -446,7 +446,7 @@ public abstract class ComputerCraftProxyCommon implements IComputerCraftProxy
                 case ComputerCraft.computerGUIID:
                 {
                     TileEntity tile = world.getTileEntity( pos );
-                    if( tile != null && tile instanceof TileComputer )
+                    if( tile instanceof TileComputer )
                     {
                         TileComputer computer = (TileComputer) tile;
                         return new ContainerComputer( computer );
@@ -456,7 +456,7 @@ public abstract class ComputerCraftProxyCommon implements IComputerCraftProxy
                 case ComputerCraft.printerGUIID:
                 {
                     TileEntity tile = world.getTileEntity( pos );
-                    if( tile != null && tile instanceof TilePrinter )
+                    if( tile instanceof TilePrinter )
                     {
                         TilePrinter printer = (TilePrinter) tile;
                         return new ContainerPrinter( player.inventory, printer );
@@ -466,7 +466,7 @@ public abstract class ComputerCraftProxyCommon implements IComputerCraftProxy
                 case ComputerCraft.turtleGUIID:
                 {
                     TileEntity tile = world.getTileEntity( pos );
-                    if( tile != null && tile instanceof TileTurtle )
+                    if( tile instanceof TileTurtle )
                     {
                         TileTurtle turtle = (TileTurtle) tile;
                         return new ContainerTurtle( player.inventory, turtle.getAccess(), turtle.getServerComputer() );
@@ -499,7 +499,7 @@ public abstract class ComputerCraftProxyCommon implements IComputerCraftProxy
                 case ComputerCraft.diskDriveGUIID:
                 {
                     TileEntity tile = world.getTileEntity( pos );
-                    if( tile != null && tile instanceof TileDiskDrive )
+                    if( tile instanceof TileDiskDrive )
                     {
                         TileDiskDrive drive = (TileDiskDrive) tile;
                         return getDiskDriveGUI( player.inventory, drive );
@@ -509,7 +509,7 @@ public abstract class ComputerCraftProxyCommon implements IComputerCraftProxy
                 case ComputerCraft.computerGUIID:
                 {
                     TileEntity tile = world.getTileEntity( pos );
-                    if( tile != null && tile instanceof TileComputer )
+                    if( tile instanceof TileComputer )
                     {
                         TileComputer computer = (TileComputer) tile;
                         return getComputerGUI( computer );
@@ -519,7 +519,7 @@ public abstract class ComputerCraftProxyCommon implements IComputerCraftProxy
                 case ComputerCraft.printerGUIID:
                 {
                     TileEntity tile = world.getTileEntity( pos );
-                    if( tile != null && tile instanceof TilePrinter )
+                    if( tile instanceof TilePrinter )
                     {
                         TilePrinter printer = (TilePrinter) tile;
                         return getPrinterGUI( player.inventory, printer );
@@ -529,7 +529,7 @@ public abstract class ComputerCraftProxyCommon implements IComputerCraftProxy
                 case ComputerCraft.turtleGUIID:
                 {
                     TileEntity tile = world.getTileEntity( pos );
-                    if( tile != null && tile instanceof TileTurtle )
+                    if( tile instanceof TileTurtle )
                     {
                         TileTurtle turtle = (TileTurtle) tile;
                         return getTurtleGUI( player.inventory, turtle );

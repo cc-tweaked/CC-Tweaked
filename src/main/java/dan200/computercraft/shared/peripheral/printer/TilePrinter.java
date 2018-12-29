@@ -88,22 +88,22 @@ public class TilePrinter extends TilePeripheralBase implements DefaultSidedInven
     }
 
     @Override
-    public void readFromNBT( NBTTagCompound nbttagcompound )
+    public void readFromNBT( NBTTagCompound nbt )
     {
-        super.readFromNBT( nbttagcompound );
+        super.readFromNBT( nbt );
 
         // Read page
         synchronized( m_page )
         {
-            m_printing = nbttagcompound.getBoolean( "printing" );
-            m_pageTitle = nbttagcompound.getString( "pageTitle" );
-            m_page.readFromNBT( nbttagcompound );
+            m_printing = nbt.getBoolean( "printing" );
+            m_pageTitle = nbt.getString( "pageTitle" );
+            m_page.readFromNBT( nbt );
         }
 
         // Read inventory
         synchronized( m_inventory )
         {
-            NBTTagList nbttaglist = nbttagcompound.getTagList( "Items", Constants.NBT.TAG_COMPOUND );
+            NBTTagList nbttaglist = nbt.getTagList( "Items", Constants.NBT.TAG_COMPOUND );
             for( int i = 0; i < nbttaglist.tagCount(); i++ )
             {
                 NBTTagCompound itemTag = nbttaglist.getCompoundTagAt( i );
@@ -118,16 +118,16 @@ public class TilePrinter extends TilePeripheralBase implements DefaultSidedInven
 
     @Nonnull
     @Override
-    public NBTTagCompound writeToNBT( NBTTagCompound nbttagcompound )
+    public NBTTagCompound writeToNBT( NBTTagCompound nbt )
     {
-        nbttagcompound = super.writeToNBT( nbttagcompound );
+        nbt = super.writeToNBT( nbt );
 
         // Write page
         synchronized( m_page )
         {
-            nbttagcompound.setBoolean( "printing", m_printing );
-            nbttagcompound.setString( "pageTitle", m_pageTitle );
-            m_page.writeToNBT( nbttagcompound );
+            nbt.setBoolean( "printing", m_printing );
+            nbt.setString( "pageTitle", m_pageTitle );
+            m_page.writeToNBT( nbt );
         }
 
         // Write inventory
@@ -144,16 +144,16 @@ public class TilePrinter extends TilePeripheralBase implements DefaultSidedInven
                     nbttaglist.appendTag( itemtag );
                 }
             }
-            nbttagcompound.setTag( "Items", nbttaglist );
+            nbt.setTag( "Items", nbttaglist );
         }
 
-        return nbttagcompound;
+        return nbt;
     }
 
     @Override
-    public final void readDescription( @Nonnull NBTTagCompound nbttagcompound )
+    public final void readDescription( @Nonnull NBTTagCompound nbt )
     {
-        super.readDescription( nbttagcompound );
+        super.readDescription( nbt );
         updateBlock();
     }
 
