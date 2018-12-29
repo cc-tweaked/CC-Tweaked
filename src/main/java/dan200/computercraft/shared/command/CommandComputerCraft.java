@@ -9,6 +9,7 @@ import dan200.computercraft.core.tracking.Tracking;
 import dan200.computercraft.core.tracking.TrackingContext;
 import dan200.computercraft.core.tracking.TrackingField;
 import dan200.computercraft.shared.command.framework.*;
+import dan200.computercraft.shared.command.text.TableBuilder;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import net.minecraft.command.CommandBase;
@@ -26,7 +27,7 @@ import javax.annotation.Nonnull;
 import java.util.*;
 import java.util.function.Consumer;
 
-import static dan200.computercraft.shared.command.framework.ChatHelpers.*;
+import static dan200.computercraft.shared.command.text.ChatHelpers.*;
 
 public final class CommandComputerCraft extends CommandDelegate
 {
@@ -60,7 +61,7 @@ public final class CommandComputerCraft extends CommandDelegate
             {
                 if( arguments.size() == 0 )
                 {
-                    TextTable table = new TextTable( DUMP_LIST_ID, "Computer", "On", "Position" );
+                    TableBuilder table = new TableBuilder( DUMP_LIST_ID, "Computer", "On", "Position" );
 
                     List<ServerComputer> computers = new ArrayList<>( ComputerCraft.serverComputerRegistry.getComputers() );
 
@@ -92,37 +93,37 @@ public final class CommandComputerCraft extends CommandDelegate
 
                     for( ServerComputer computer : computers )
                     {
-                        table.addRow(
+                        table.row(
                             linkComputer( context, computer, computer.getID() ),
                             bool( computer.isOn() ),
                             linkPosition( context, computer )
                         );
                     }
 
-                    table.displayTo( context.getSender() );
+                    table.display( context.getSender() );
                 }
                 else if( arguments.size() == 1 )
                 {
                     ServerComputer computer = ComputerSelector.getComputer( arguments.get( 0 ) );
 
-                    TextTable table = new TextTable( DUMP_SINGLE_ID );
-                    table.addRow( header( "Instance" ), text( Integer.toString( computer.getInstanceID() ) ) );
-                    table.addRow( header( "Id" ), text( Integer.toString( computer.getID() ) ) );
-                    table.addRow( header( "Label" ), text( computer.getLabel() ) );
-                    table.addRow( header( "On" ), bool( computer.isOn() ) );
-                    table.addRow( header( "Position" ), linkPosition( context, computer ) );
-                    table.addRow( header( "Family" ), text( computer.getFamily().toString() ) );
+                    TableBuilder table = new TableBuilder( DUMP_SINGLE_ID );
+                    table.row( header( "Instance" ), text( Integer.toString( computer.getInstanceID() ) ) );
+                    table.row( header( "Id" ), text( Integer.toString( computer.getID() ) ) );
+                    table.row( header( "Label" ), text( computer.getLabel() ) );
+                    table.row( header( "On" ), bool( computer.isOn() ) );
+                    table.row( header( "Position" ), linkPosition( context, computer ) );
+                    table.row( header( "Family" ), text( computer.getFamily().toString() ) );
 
                     for( int i = 0; i < 6; i++ )
                     {
                         IPeripheral peripheral = computer.getPeripheral( i );
                         if( peripheral != null )
                         {
-                            table.addRow( header( "Peripheral " + Computer.s_sideNames[i] ), text( peripheral.getType() ) );
+                            table.row( header( "Peripheral " + Computer.s_sideNames[i] ), text( peripheral.getType() ) );
                         }
                     }
 
-                    table.displayTo( context.getSender() );
+                    table.display( context.getSender() );
                 }
                 else
                 {
@@ -504,9 +505,9 @@ public final class CommandComputerCraft extends CommandDelegate
             || field == TrackingField.AVERAGE_TIME || field == TrackingField.MAX_TIME;
 
 
-        TextTable table = defaultLayout
-            ? new TextTable( TRACK_ID, "Computer", "Tasks", "Total", "Average", "Maximum" )
-            : new TextTable( TRACK_ID, "Computer", field.displayName() );
+        TableBuilder table = defaultLayout
+            ? new TableBuilder( TRACK_ID, "Computer", "Tasks", "Total", "Average", "Maximum" )
+            : new TableBuilder( TRACK_ID, "Computer", field.displayName() );
 
         for( ComputerTracker entry : timings )
         {
@@ -517,7 +518,7 @@ public final class CommandComputerCraft extends CommandDelegate
 
             if( defaultLayout )
             {
-                table.addRow(
+                table.row(
                     computerComponent,
                     text( entry.getFormatted( TrackingField.TASKS ) ),
                     text( entry.getFormatted( TrackingField.TOTAL_TIME ) ),
@@ -527,11 +528,11 @@ public final class CommandComputerCraft extends CommandDelegate
             }
             else
             {
-                table.addRow( computerComponent, text( entry.getFormatted( field ) ) );
+                table.row( computerComponent, text( entry.getFormatted( field ) ) );
             }
         }
 
-        table.displayTo( context.getSender() );
+        table.display( context.getSender() );
     }
 
     private static void withComputers( List<String> selectors, Consumer<Collection<ServerComputer>> action ) throws CommandException

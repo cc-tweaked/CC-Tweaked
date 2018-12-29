@@ -7,7 +7,7 @@
 package dan200.computercraft.shared.util;
 
 import dan200.computercraft.ComputerCraft;
-import dan200.computercraft.shared.network.ComputerCraftPacket;
+import dan200.computercraft.shared.network.client.PlayRecordClientMessage;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemRecord;
 import net.minecraft.item.ItemStack;
@@ -15,6 +15,7 @@ import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
+import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 
 import javax.annotation.Nonnull;
 
@@ -22,17 +23,7 @@ public class RecordUtil
 {
     public static void playRecord( SoundEvent record, String recordInfo, World world, BlockPos pos )
     {
-        ComputerCraftPacket packet = new ComputerCraftPacket();
-        packet.m_packetType = ComputerCraftPacket.PlayRecord;
-        if( record != null )
-        {
-            packet.m_dataInt = new int[] { pos.getX(), pos.getY(), pos.getZ(), SoundEvent.REGISTRY.getIDForObject( record ) };
-            packet.m_dataString = new String[] { recordInfo };
-        }
-        else
-        {
-            packet.m_dataInt = new int[] { pos.getX(), pos.getY(), pos.getZ() };
-        }
+        IMessage packet = record != null ? new PlayRecordClientMessage( pos, record, recordInfo ) : new PlayRecordClientMessage( pos );
 
         NetworkRegistry.TargetPoint point = new NetworkRegistry.TargetPoint( world.provider.getDimension(), pos.getX(), pos.getY(), pos.getZ(), 64 );
         ComputerCraft.sendToAllAround( packet, point );

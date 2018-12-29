@@ -8,6 +8,7 @@ package dan200.computercraft.shared.computer.blocks;
 
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
+import dan200.computercraft.shared.computer.core.ComputerState;
 import dan200.computercraft.shared.computer.core.IComputer;
 import dan200.computercraft.shared.util.DirectionUtil;
 import net.minecraft.block.material.Material;
@@ -46,7 +47,7 @@ public class BlockCommandComputer extends BlockComputerBase
         setCreativeTab( ComputerCraft.mainCreativeTab );
         setDefaultState( this.blockState.getBaseState()
             .withProperty( Properties.FACING, EnumFacing.NORTH )
-            .withProperty( Properties.STATE, ComputerState.Off )
+            .withProperty( Properties.STATE, ComputerState.OFF )
         );
     }
 
@@ -82,22 +83,12 @@ public class BlockCommandComputer extends BlockComputerBase
     public IBlockState getActualState( @Nonnull IBlockState state, IBlockAccess world, BlockPos pos )
     {
         TileEntity tile = world.getTileEntity( pos );
-        if( tile != null && tile instanceof IComputerTile )
+        if( tile instanceof IComputerTile )
         {
             IComputer computer = ((IComputerTile) tile).getComputer();
-            if( computer != null && computer.isOn() )
-            {
-                if( computer.isCursorDisplayed() )
-                {
-                    return state.withProperty( Properties.STATE, ComputerState.Blinking );
-                }
-                else
-                {
-                    return state.withProperty( Properties.STATE, ComputerState.On );
-                }
-            }
+            if( computer != null ) return state.withProperty( Properties.STATE, computer.getState() );
         }
-        return state.withProperty( Properties.STATE, ComputerState.Off );
+        return state.withProperty( Properties.STATE, ComputerState.OFF );
     }
 
     @Override

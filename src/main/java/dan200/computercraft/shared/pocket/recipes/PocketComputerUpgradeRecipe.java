@@ -7,7 +7,6 @@
 package dan200.computercraft.shared.pocket.recipes;
 
 import com.google.gson.JsonObject;
-import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.pocket.IPocketUpgrade;
 import dan200.computercraft.shared.PocketUpgrades;
 import dan200.computercraft.shared.computer.core.ComputerFamily;

@@ -6,7 +6,6 @@
 
 package dan200.computercraft.shared.pocket.apis;
 
-import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.lua.ILuaAPI;
 import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;

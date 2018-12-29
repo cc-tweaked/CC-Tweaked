@@ -1,6 +1,15 @@
-package dan200.computercraft.shared.command.framework;
+/*
+ * This file is part of ComputerCraft - http://www.computercraft.info
+ * Copyright Daniel Ratcliffe, 2011-2018. Do not distribute without permission.
+ * Send enquiries to dratcliffe@gmail.com
+ */
+
+package dan200.computercraft.shared.command.text;
 
 import com.google.common.base.Strings;
+import dan200.computercraft.shared.command.framework.CommandContext;
+import dan200.computercraft.shared.command.framework.CommandRoot;
+import dan200.computercraft.shared.command.framework.ISubCommand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.Style;

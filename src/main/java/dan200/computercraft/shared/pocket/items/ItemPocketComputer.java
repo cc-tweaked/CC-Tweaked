@@ -14,9 +14,9 @@ import dan200.computercraft.api.media.IMedia;
 import dan200.computercraft.api.pocket.IPocketUpgrade;
 import dan200.computercraft.shared.PocketUpgrades;
 import dan200.computercraft.shared.common.IColouredItem;
-import dan200.computercraft.shared.computer.blocks.ComputerState;
 import dan200.computercraft.shared.computer.core.ClientComputer;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
+import dan200.computercraft.shared.computer.core.ComputerState;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.computer.items.IComputerItem;
 import dan200.computercraft.shared.pocket.apis.PocketAPI;
@@ -454,11 +454,7 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
     public ComputerState getState( @Nonnull ItemStack stack )
     {
         ClientComputer computer = getClientComputer( stack );
-        if( computer != null && computer.isOn() )
-        {
-            return computer.isCursorDisplayed() ? ComputerState.Blinking : ComputerState.On;
-        }
-        return ComputerState.Off;
+        return computer == null ? ComputerState.OFF : computer.getState();
     }
 
     @SideOnly( Side.CLIENT )

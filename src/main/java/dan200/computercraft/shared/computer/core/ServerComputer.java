@@ -16,9 +16,9 @@ import dan200.computercraft.core.apis.IAPIEnvironment;
 import dan200.computercraft.core.computer.Computer;
 import dan200.computercraft.core.computer.IComputerEnvironment;
 import dan200.computercraft.shared.common.ServerTerminal;
-import dan200.computercraft.shared.network.ComputerCraftPacket;
-import dan200.computercraft.shared.network.INetworkedThing;
-import dan200.computercraft.shared.util.NBTUtil;
+import dan200.computercraft.shared.network.client.ComputerDataClientMessage;
+import dan200.computercraft.shared.network.client.ComputerDeletedClientMessage;
+import dan200.computercraft.shared.network.client.ComputerTerminalClientMessage;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.Container;
@@ -28,11 +28,11 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Loader;
+import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 
 import java.io.InputStream;
 
-public class ServerComputer extends ServerTerminal
-    implements IComputer, IComputerEnvironment, INetworkedThing
+public class ServerComputer extends ServerTerminal implements IComputer, IComputerEnvironment
 {
     private final int m_instanceID;
 
@@ -146,24 +146,16 @@ public class ServerComputer extends ServerTerminal
         m_changed = true;
     }
 
-    private ComputerCraftPacket createComputerPacket()
+    private IMessage createComputerPacket()
     {
-        ComputerCraftPacket packet = new ComputerCraftPacket();
-        packet.m_packetType = ComputerCraftPacket.ComputerChanged;
-        packet.m_dataInt = new int[] { getInstanceID() };
-        packet.m_dataNBT = new NBTTagCompound();
-        writeComputerDescription( packet.m_dataNBT );
-        return packet;
+        return new ComputerDataClientMessage( this );
     }
 
-    protected ComputerCraftPacket createTerminalPacket()
+    protected IMessage createTerminalPacket()
     {
-        ComputerCraftPacket packet = new ComputerCraftPacket();
-        packet.m_packetType = ComputerCraftPacket.ComputerTerminalChanged;
-        packet.m_dataInt = new int[] { getInstanceID() };
-        packet.m_dataNBT = new NBTTagCompound();
-        writeDescription( packet.m_dataNBT );
-        return packet;
+        NBTTagCompound tagCompound = new NBTTagCompound();
+        writeDescription( tagCompound );
+        return new ComputerTerminalClientMessage( getInstanceID(), tagCompound );
     }
 
     public void broadcastState( boolean force )
@@ -180,7 +172,7 @@ public class ServerComputer extends ServerTerminal
             FMLCommonHandler handler = FMLCommonHandler.instance();
             if( handler != null )
             {
-                ComputerCraftPacket packet = createTerminalPacket();
+                IMessage packet = createTerminalPacket();
                 MinecraftServer server = handler.getMinecraftServerInstance();
                 for( EntityPlayerMP player : server.getPlayerList().getPlayers() )
                 {
@@ -208,10 +200,7 @@ public class ServerComputer extends ServerTerminal
     public void broadcastDelete()
     {
         // Send deletion to client
-        ComputerCraftPacket packet = new ComputerCraftPacket();
-        packet.m_packetType = ComputerCraftPacket.ComputerDeleted;
-        packet.m_dataInt = new int[] { getInstanceID() };
-        ComputerCraft.sendToAllPlayers( packet );
+        ComputerCraft.sendToAllPlayers( new ComputerDeletedClientMessage( getInstanceID() ) );
     }
 
     public IWritableMount getRootMount()
@@ -280,13 +269,6 @@ public class ServerComputer extends ServerTerminal
     {
         // Reboot
         m_computer.reboot();
-    }
-
-    @Override
-    public void queueEvent( String event )
-    {
-        // Queue event
-        queueEvent( event, null );
     }
 
     @Override
@@ -408,67 +390,7 @@ public class ServerComputer extends ServerTerminal
         }
     }
 
-    // INetworkedThing
-
-    @Override
-    public void handlePacket( ComputerCraftPacket packet, EntityPlayer sender )
-    {
-        // Allow Computer/Tile updates as they may happen at any time.
-        if( packet.requiresContainer() && !isInteracting( sender ) )
-        {
-            return;
-        }
-
-        // Receive packets sent from the client to the server
-        switch( packet.m_packetType )
-        {
-            case ComputerCraftPacket.TurnOn:
-            {
-                // A player has turned the computer on
-                turnOn();
-                break;
-            }
-            case ComputerCraftPacket.Reboot:
-            {
-                // A player has held down ctrl+r
-                reboot();
-                break;
-            }
-            case ComputerCraftPacket.Shutdown:
-            {
-                // A player has held down ctrl+s
-                shutdown();
-                break;
-            }
-            case ComputerCraftPacket.QueueEvent:
-            {
-                // A player has caused a UI event to be fired
-                String event = packet.m_dataString[0];
-                Object[] arguments = null;
-                if( packet.m_dataNBT != null )
-                {
-                    arguments = NBTUtil.decodeObjects( packet.m_dataNBT );
-                }
-                queueEvent( event, arguments );
-                break;
-            }
-            case ComputerCraftPacket.SetLabel:
-            {
-                // A player wants to relabel a computer
-                String label = (packet.m_dataString != null && packet.m_dataString.length >= 1) ? packet.m_dataString[0] : null;
-                setLabel( label );
-                break;
-            }
-            case ComputerCraftPacket.RequestComputerUpdate:
-            {
-                // A player asked for an update on the state of the terminal
-                sendComputerState( sender );
-                break;
-            }
-        }
-    }
-
-    protected boolean isInteracting( EntityPlayer player )
+    public boolean isInteracting( EntityPlayer player )
     {
         if( player == null ) return false;
 

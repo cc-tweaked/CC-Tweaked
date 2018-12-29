@@ -26,7 +26,16 @@ public interface IComputer extends ITerminal
 
     void reboot();
 
-    void queueEvent( String event );
+    default void queueEvent( String event )
+    {
+        queueEvent( event, null );
+    }
 
     void queueEvent( String event, Object[] arguments );
+
+    default ComputerState getState()
+    {
+        if( !isOn() ) return ComputerState.OFF;
+        return isCursorDisplayed() ? ComputerState.BLINKING : ComputerState.ON;
+    }
 }

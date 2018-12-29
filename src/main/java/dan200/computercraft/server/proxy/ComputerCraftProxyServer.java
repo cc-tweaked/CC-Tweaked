@@ -6,6 +6,7 @@
 
 package dan200.computercraft.server.proxy;
 
+import dan200.computercraft.shared.command.text.TableBuilder;
 import dan200.computercraft.shared.computer.blocks.TileComputer;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.IComputer;
@@ -16,6 +17,8 @@ import dan200.computercraft.shared.turtle.blocks.TileTurtle;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.SoundEvent;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.DimensionManager;
 
@@ -69,5 +72,15 @@ public class ComputerCraftProxyServer extends ComputerCraftProxyCommon
     public File getWorldDir( World world )
     {
         return DimensionManager.getWorld( 0 ).getSaveHandler().getWorldDirectory();
+    }
+
+    @Override
+    public void playRecordClient( BlockPos pos, SoundEvent record, String info )
+    {
+    }
+
+    @Override
+    public void showTableClient( TableBuilder table )
+    {
     }
 }

@@ -6,8 +6,6 @@
 
 package dan200.computercraft.shared.common;
 
-import dan200.computercraft.ComputerCraft;
-import dan200.computercraft.shared.network.ComputerCraftPacket;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
@@ -27,19 +25,6 @@ import javax.annotation.Nullable;
 
 public abstract class TileGeneric extends TileEntity
 {
-    public void requestTileEntityUpdate()
-    {
-        if( getWorld().isRemote )
-        {
-            ComputerCraftPacket packet = new ComputerCraftPacket();
-            packet.m_packetType = ComputerCraftPacket.RequestTileEntityUpdate;
-
-            BlockPos pos = getPos();
-            packet.m_dataInt = new int[] { pos.getX(), pos.getY(), pos.getZ() };
-            ComputerCraft.sendToServer( packet );
-        }
-    }
-
     public void destroy()
     {
     }

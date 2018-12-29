@@ -2,6 +2,7 @@ package dan200.computercraft.shared.command.framework;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import dan200.computercraft.shared.command.text.ChatHelpers;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 

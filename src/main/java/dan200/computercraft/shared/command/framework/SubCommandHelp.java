@@ -1,6 +1,7 @@
 package dan200.computercraft.shared.command.framework;
 
 import com.google.common.collect.Lists;
+import dan200.computercraft.shared.command.text.ChatHelpers;
 import joptsimple.internal.Strings;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;

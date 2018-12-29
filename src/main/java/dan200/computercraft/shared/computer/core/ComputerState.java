@@ -1,10 +1,10 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2017. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2018. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 
-package dan200.computercraft.shared.computer.blocks;
+package dan200.computercraft.shared.computer.core;
 
 import net.minecraft.util.IStringSerializable;
 
@@ -12,9 +12,9 @@ import javax.annotation.Nonnull;
 
 public enum ComputerState implements IStringSerializable
 {
-    Off( "off" ),
-    On( "on" ),
-    Blinking( "blinking" );
+    OFF( "off" ),
+    ON( "on" ),
+    BLINKING( "blinking" );
 
     private String m_name;
 

@@ -9,8 +9,6 @@ package dan200.computercraft.shared;
 import com.google.common.base.Preconditions;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.pocket.IPocketUpgrade;
-import dan200.computercraft.api.turtle.ITurtleUpgrade;
-import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.util.InventoryUtil;
 import net.minecraft.item.ItemStack;
 

@@ -41,8 +41,6 @@ import dan200.computercraft.shared.media.items.ItemDiskExpanded;
 import dan200.computercraft.shared.media.items.ItemDiskLegacy;
 import dan200.computercraft.shared.media.items.ItemPrintout;
 import dan200.computercraft.shared.media.items.ItemTreasureDisk;
-import dan200.computercraft.shared.network.ComputerCraftPacket;
-import dan200.computercraft.shared.network.PacketHandler;
 import dan200.computercraft.shared.peripheral.common.BlockPeripheral;
 import dan200.computercraft.shared.peripheral.diskdrive.TileDiskDrive;
 import dan200.computercraft.shared.peripheral.modem.wired.BlockCable;
@@ -62,12 +60,9 @@ import dan200.computercraft.shared.util.CreativeTabMain;
 import dan200.computercraft.shared.util.IDAssigner;
 import dan200.computercraft.shared.wired.CapabilityWiredElement;
 import dan200.computercraft.shared.wired.WiredNode;
-import io.netty.buffer.Unpooled;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
-import net.minecraft.network.PacketBuffer;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
@@ -82,9 +77,9 @@ import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.*;
-import net.minecraftforge.fml.common.network.FMLEventChannel;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
-import net.minecraftforge.fml.common.network.internal.FMLProxyPacket;
+import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
+import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import net.minecraftforge.fml.relauncher.Side;
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.Logger;
@@ -100,7 +95,6 @@ import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.ServiceConfigurationError;
-import java.util.function.Function;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -253,7 +247,7 @@ public class ComputerCraft
     public static ServerComputerRegistry serverComputerRegistry = new ServerComputerRegistry();
 
     // Networking
-    public static FMLEventChannel networkEventChannel;
+    public static SimpleNetworkWrapper networkWrapper;
 
     // Creative
     public static CreativeTabMain mainCreativeTab;
@@ -288,8 +282,7 @@ public class ComputerCraft
         loadConfig();
 
         // Setup network
-        networkEventChannel = NetworkRegistry.INSTANCE.newEventDrivenChannel( "CC" );
-        networkEventChannel.register( new PacketHandler() );
+        networkWrapper = NetworkRegistry.INSTANCE.newSimpleChannel( ComputerCraft.MOD_ID );
 
         proxy.preInit();
         turtleProxy.preInit();
@@ -555,36 +548,24 @@ public class ComputerCraft
         return proxy.getWorldDir( world );
     }
 
-    private static FMLProxyPacket encode( ComputerCraftPacket packet )
+    public static void sendToPlayer( EntityPlayer player, IMessage packet )
     {
-        PacketBuffer buffer = new PacketBuffer( Unpooled.buffer() );
-        packet.toBytes( buffer );
-        return new FMLProxyPacket( buffer, "CC" );
+        networkWrapper.sendTo( packet, (EntityPlayerMP) player );
     }
 
-    public static void sendToPlayer( EntityPlayer player, ComputerCraftPacket packet )
+    public static void sendToAllPlayers( IMessage packet )
     {
-        networkEventChannel.sendTo( encode( packet ), (EntityPlayerMP) player );
+        networkWrapper.sendToAll( packet );
     }
 
-    public static void sendToAllPlayers( ComputerCraftPacket packet )
+    public static void sendToServer( IMessage packet )
     {
-        networkEventChannel.sendToAll( encode( packet ) );
+        networkWrapper.sendToServer( packet );
     }
 
-    public static void sendToServer( ComputerCraftPacket packet )
+    public static void sendToAllAround( IMessage packet, NetworkRegistry.TargetPoint point )
     {
-        networkEventChannel.sendToServer( encode( packet ) );
-    }
-
-    public static void sendToAllAround( ComputerCraftPacket packet, NetworkRegistry.TargetPoint point )
-    {
-        networkEventChannel.sendToAllAround( encode( packet ), point );
-    }
-
-    public static void handlePacket( ComputerCraftPacket packet, EntityPlayer player )
-    {
-        proxy.handlePacket( packet, player );
+        networkWrapper.sendToAllAround( packet, point );
     }
 
     public static boolean canPlayerUseCommands( EntityPlayer player )
