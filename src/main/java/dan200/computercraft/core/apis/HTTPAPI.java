@@ -198,7 +198,7 @@ public class HTTPAPI implements ILuaAPI
                 String address = getString( args, 0 );
                 Map<Object, Object> headerTbl = optTable( args, 1, Collections.emptyMap() );
 
-                HashMap<String, String> headers = new HashMap<String, String>( headerTbl.size() );
+                HashMap<String, String> headers = new HashMap<>( headerTbl.size() );
                 for( Object key : headerTbl.keySet() )
                 {
                     Object value = headerTbl.get( key );

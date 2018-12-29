@@ -96,7 +96,7 @@ public final class ModelTransformer
         }
 
         @Override
-        public void setQuadOrientation( EnumFacing orientation )
+        public void setQuadOrientation( @Nonnull EnumFacing orientation )
         {
             super.setQuadOrientation( orientation == null ? orientation : TRSRTransformation.rotate( positionMatrix, orientation ) );
         }

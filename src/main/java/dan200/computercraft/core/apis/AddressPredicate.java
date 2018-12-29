@@ -157,12 +157,8 @@ public class AddressPredicate
         if( matchesAddress( address ) ) return true;
 
         // If we're an IPv4 address in disguise then let's check that.
-        if( address instanceof Inet6Address && InetAddresses.is6to4Address( (Inet6Address) address )
-            && matchesAddress( InetAddresses.get6to4IPv4Address( (Inet6Address) address ) ) )
-        {
-            return true;
-        }
+        return address instanceof Inet6Address && InetAddresses.is6to4Address( (Inet6Address) address )
+            && matchesAddress( InetAddresses.get6to4IPv4Address( (Inet6Address) address ) );
 
-        return false;
     }
 }

@@ -105,7 +105,7 @@ public class PrintoutRenderer
             // Draw centre panel (just stretched texture, sorry).
             drawTexture( buffer,
                 x - offset, y, z - 0.02, X_SIZE + offset * 2, Y_SIZE,
-                COVER_X + COVER_SIZE / 2, COVER_SIZE, COVER_SIZE, Y_SIZE
+                COVER_X + COVER_SIZE / 2.0f, COVER_SIZE, COVER_SIZE, Y_SIZE
             );
 
             double borderX = left;
@@ -119,7 +119,7 @@ public class PrintoutRenderer
         }
 
         // Left half
-        drawTexture( buffer, x, y, z, X_FOLD_SIZE * 2, 0, X_SIZE / 2, Y_SIZE );
+        drawTexture( buffer, x, y, z, X_FOLD_SIZE * 2, 0, X_SIZE / 2.0f, Y_SIZE );
         for( int n = 0; n <= leftPages; n++ )
         {
             drawTexture( buffer,
@@ -131,7 +131,7 @@ public class PrintoutRenderer
         }
 
         // Right half
-        drawTexture( buffer, x + X_SIZE / 2, y, z, X_FOLD_SIZE * 2 + X_SIZE / 2, 0, X_SIZE / 2, Y_SIZE );
+        drawTexture( buffer, x + X_SIZE / 2.0f, y, z, X_FOLD_SIZE * 2 + X_SIZE / 2.0f, 0, X_SIZE / 2.0f, Y_SIZE );
         for( int n = 0; n <= rightPages; n++ )
         {
             drawTexture( buffer,

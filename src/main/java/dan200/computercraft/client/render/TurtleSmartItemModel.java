@@ -75,25 +75,17 @@ public class TurtleSmartItemModel implements IBakedModel, ISelectiveResourceRelo
         @Override
         public boolean equals( Object other )
         {
-            if( other == this )
-            {
-                return true;
-            }
-            if( other instanceof TurtleModelCombination )
-            {
-                TurtleModelCombination otherCombo = (TurtleModelCombination) other;
-                if( otherCombo.m_family == m_family &&
-                    otherCombo.m_colour == m_colour &&
-                    otherCombo.m_leftUpgrade == m_leftUpgrade &&
-                    otherCombo.m_rightUpgrade == m_rightUpgrade &&
-                    Objects.equal( otherCombo.m_overlay, m_overlay ) &&
-                    otherCombo.m_christmas == m_christmas &&
-                    otherCombo.m_flip == m_flip )
-                {
-                    return true;
-                }
-            }
-            return false;
+            if( other == this ) return true;
+            if( !(other instanceof TurtleModelCombination) ) return false;
+
+            TurtleModelCombination otherCombo = (TurtleModelCombination) other;
+            return otherCombo.m_family == m_family &&
+                otherCombo.m_colour == m_colour &&
+                otherCombo.m_leftUpgrade == m_leftUpgrade &&
+                otherCombo.m_rightUpgrade == m_rightUpgrade &&
+                Objects.equal( otherCombo.m_overlay, m_overlay ) &&
+                otherCombo.m_christmas == m_christmas &&
+                otherCombo.m_flip == m_flip;
         }
 
         @Override

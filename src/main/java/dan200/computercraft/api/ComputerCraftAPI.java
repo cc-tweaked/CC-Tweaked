@@ -170,20 +170,20 @@ public final class ComputerCraftAPI
     }
 
     /**
-     * Registers a peripheral handler to convert blocks into {@link IPeripheral} implementations.
+     * Registers a peripheral provider to convert blocks into {@link IPeripheral} implementations.
      *
-     * @param handler The peripheral provider to register.
+     * @param provider The peripheral provider to register.
      * @see dan200.computercraft.api.peripheral.IPeripheral
      * @see dan200.computercraft.api.peripheral.IPeripheralProvider
      */
-    public static void registerPeripheralProvider( @Nonnull IPeripheralProvider handler )
+    public static void registerPeripheralProvider( @Nonnull IPeripheralProvider provider )
     {
         findCC();
         if( computerCraft_registerPeripheralProvider != null )
         {
             try
             {
-                computerCraft_registerPeripheralProvider.invoke( null, handler );
+                computerCraft_registerPeripheralProvider.invoke( null, provider );
             }
             catch( Exception e )
             {
@@ -220,19 +220,19 @@ public final class ComputerCraftAPI
     }
 
     /**
-     * Registers a bundled redstone handler to provide bundled redstone output for blocks.
+     * Registers a bundled redstone provider to provide bundled redstone output for blocks.
      *
-     * @param handler The bundled redstone provider to register.
+     * @param provider The bundled redstone provider to register.
      * @see dan200.computercraft.api.redstone.IBundledRedstoneProvider
      */
-    public static void registerBundledRedstoneProvider( @Nonnull IBundledRedstoneProvider handler )
+    public static void registerBundledRedstoneProvider( @Nonnull IBundledRedstoneProvider provider )
     {
         findCC();
         if( computerCraft_registerBundledRedstoneProvider != null )
         {
             try
             {
-                computerCraft_registerBundledRedstoneProvider.invoke( null, handler );
+                computerCraft_registerBundledRedstoneProvider.invoke( null, provider );
             }
             catch( Exception e )
             {
@@ -269,19 +269,19 @@ public final class ComputerCraftAPI
     }
 
     /**
-     * Registers a media handler to provide {@link IMedia} implementations for Items
+     * Registers a media provider to provide {@link IMedia} implementations for Items
      *
-     * @param handler The media provider to register.
+     * @param provider The media provider to register.
      * @see dan200.computercraft.api.media.IMediaProvider
      */
-    public static void registerMediaProvider( @Nonnull IMediaProvider handler )
+    public static void registerMediaProvider( @Nonnull IMediaProvider provider )
     {
         findCC();
         if( computerCraft_registerMediaProvider != null )
         {
             try
             {
-                computerCraft_registerMediaProvider.invoke( null, handler );
+                computerCraft_registerMediaProvider.invoke( null, provider );
             }
             catch( Exception e )
             {
@@ -291,21 +291,21 @@ public final class ComputerCraftAPI
     }
 
     /**
-     * Registers a permission handler to restrict where turtles can move or build.
+     * Registers a permission provider to restrict where turtles can move or build.
      *
-     * @param handler The turtle permission provider to register.
+     * @param provider The turtle permission provider to register.
      * @see dan200.computercraft.api.permissions.ITurtlePermissionProvider
      * @deprecated Prefer using {@link dan200.computercraft.api.turtle.event.TurtleBlockEvent} or the standard Forge events.
      */
     @Deprecated
-    public static void registerPermissionProvider( @Nonnull ITurtlePermissionProvider handler )
+    public static void registerPermissionProvider( @Nonnull ITurtlePermissionProvider provider )
     {
         findCC();
         if( computerCraft_registerPermissionProvider != null )
         {
             try
             {
-                computerCraft_registerPermissionProvider.invoke( null, handler );
+                computerCraft_registerPermissionProvider.invoke( null, provider );
             }
             catch( Exception e )
             {

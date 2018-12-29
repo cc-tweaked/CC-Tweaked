@@ -55,18 +55,7 @@ public class OSAPI implements ILuaAPI
         {
             double t = m_day * 24.0 + m_time;
             double ot = m_day * 24.0 + m_time;
-            if( t < ot )
-            {
-                return -1;
-            }
-            else if( t > ot )
-            {
-                return 1;
-            }
-            else
-            {
-                return 0;
-            }
+            return Double.compare( t, ot );
         }
     }
 

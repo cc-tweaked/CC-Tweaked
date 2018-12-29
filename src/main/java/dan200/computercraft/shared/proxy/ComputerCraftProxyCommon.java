@@ -402,9 +402,8 @@ public abstract class ComputerCraftProxyCommon implements IComputerCraftProxy
 
         // Client messages
 
-        NetworkMessage.registerMainThread( Side.CLIENT, PlayRecordClientMessage::new, ( computer, packet ) -> {
-            playRecordClient( packet.getPos(), packet.getSoundEvent(), packet.getName() );
-        } );
+        NetworkMessage.registerMainThread( Side.CLIENT, PlayRecordClientMessage::new, ( computer, packet ) ->
+            playRecordClient( packet.getPos(), packet.getSoundEvent(), packet.getName() ) );
 
         ComputerClientMessage.register( ComputerDataClientMessage::new, ( computer, packet ) ->
             computer.setState( packet.getState(), packet.getUserData() ) );
