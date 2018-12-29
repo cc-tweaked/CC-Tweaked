@@ -6,7 +6,7 @@
 
 package dan200.computercraft.shared.network.client;
 
-import dan200.computercraft.shared.computer.core.ComputerState;
+import dan200.computercraft.shared.computer.blocks.ComputerState;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.network.NetworkMessages;
 import net.minecraft.nbt.NBTTagCompound;

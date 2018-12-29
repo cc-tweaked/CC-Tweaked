@@ -8,7 +8,6 @@ package dan200.computercraft.shared.computer.blocks;
 
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
-import dan200.computercraft.shared.computer.core.ComputerState;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.computer.items.ComputerItemFactory;
 import net.minecraft.block.state.IBlockState;
@@ -25,7 +24,7 @@ public class TileComputer extends TileComputerBase
     private static final String TAG_STATE = "state";
 
     private ComputerProxy m_proxy;
-    private ComputerState state = ComputerState.OFF;
+    private ComputerState state = ComputerState.Off;
 
     @Override
     protected ServerComputer createComputer( int instanceID, int id )
@@ -100,7 +99,7 @@ public class TileComputer extends TileComputerBase
         if( !world.isRemote )
         {
             ServerComputer computer = getServerComputer();
-            state = computer == null ? ComputerState.OFF : computer.getState();
+            state = computer == null ? ComputerState.Off : computer.getState();
         }
     }
 

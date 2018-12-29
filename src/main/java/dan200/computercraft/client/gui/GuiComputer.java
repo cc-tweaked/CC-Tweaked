@@ -11,6 +11,7 @@ import dan200.computercraft.client.gui.widgets.WidgetTerminal;
 import dan200.computercraft.shared.computer.blocks.TileComputer;
 import dan200.computercraft.shared.computer.core.ClientComputer;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
+import dan200.computercraft.shared.computer.core.IComputer;
 import dan200.computercraft.shared.computer.inventory.ContainerComputer;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.GlStateManager;
@@ -41,6 +42,12 @@ public class GuiComputer extends GuiContainer
         m_termWidth = termWidth;
         m_termHeight = termHeight;
         m_terminal = null;
+    }
+
+    @Deprecated
+    public GuiComputer( Container container, ComputerFamily family, IComputer computer, int termWidth, int termHeight )
+    {
+        this( container, family, (ClientComputer) computer, termWidth, termHeight );
     }
 
     public GuiComputer( TileComputer computer )

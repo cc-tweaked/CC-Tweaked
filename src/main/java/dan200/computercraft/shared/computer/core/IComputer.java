@@ -7,6 +7,7 @@
 package dan200.computercraft.shared.computer.core;
 
 import dan200.computercraft.shared.common.ITerminal;
+import dan200.computercraft.shared.computer.blocks.ComputerState;
 
 public interface IComputer extends ITerminal
 {
@@ -31,7 +32,7 @@ public interface IComputer extends ITerminal
 
     default ComputerState getState()
     {
-        if( !isOn() ) return ComputerState.OFF;
-        return isCursorDisplayed() ? ComputerState.BLINKING : ComputerState.ON;
+        if( !isOn() ) return ComputerState.Off;
+        return isCursorDisplayed() ? ComputerState.Blinking : ComputerState.On;
     }
 }

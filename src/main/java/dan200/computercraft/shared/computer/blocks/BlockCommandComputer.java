@@ -8,7 +8,6 @@ package dan200.computercraft.shared.computer.blocks;
 
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
-import dan200.computercraft.shared.computer.core.ComputerState;
 import dan200.computercraft.shared.util.DirectionUtil;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.PropertyDirection;
@@ -46,7 +45,7 @@ public class BlockCommandComputer extends BlockComputerBase
         setCreativeTab( ComputerCraft.mainCreativeTab );
         setDefaultState( this.blockState.getBaseState()
             .withProperty( Properties.FACING, EnumFacing.NORTH )
-            .withProperty( Properties.STATE, ComputerState.OFF )
+            .withProperty( Properties.STATE, ComputerState.Off )
         );
     }
 
@@ -82,7 +81,7 @@ public class BlockCommandComputer extends BlockComputerBase
     public IBlockState getActualState( @Nonnull IBlockState state, IBlockAccess world, BlockPos pos )
     {
         TileEntity tile = world.getTileEntity( pos );
-        return state.withProperty( Properties.STATE, tile instanceof TileComputer ? ((TileComputer) tile).getState() : ComputerState.OFF );
+        return state.withProperty( Properties.STATE, tile instanceof TileComputer ? ((TileComputer) tile).getState() : ComputerState.Off );
     }
 
     @Override
