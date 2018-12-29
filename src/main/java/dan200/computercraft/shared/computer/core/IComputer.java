@@ -12,10 +12,6 @@ public interface IComputer extends ITerminal
 {
     int getInstanceID();
 
-    int getID();
-
-    String getLabel();
-
     boolean isOn();
 
     boolean isCursorDisplayed();

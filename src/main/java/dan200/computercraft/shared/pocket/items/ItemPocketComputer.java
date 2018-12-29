@@ -562,7 +562,6 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
     private static final IItemPropertyGetter COMPUTER_STATE = ( stack, world, player ) -> {
         ItemPocketComputer itemPocketComputer = (ItemPocketComputer) stack.getItem();
         ComputerState state = itemPocketComputer.getState( stack );
-
         return state.ordinal();
     };
 

@@ -50,21 +50,6 @@ public class ComputerRegistry<TComputer extends IComputer>
         return null;
     }
 
-    public TComputer lookup( int computerID )
-    {
-        if( computerID >= 0 )
-        {
-            for( TComputer computer : getComputers() )
-            {
-                if( computer.getID() == computerID )
-                {
-                    return computer;
-                }
-            }
-        }
-        return null;
-    }
-
     public boolean contains( int instanceID )
     {
         return m_computers.containsKey( instanceID );
@@ -82,10 +67,7 @@ public class ComputerRegistry<TComputer extends IComputer>
 
     public void remove( int instanceID )
     {
-        if( m_computers.containsKey( instanceID ) )
-        {
-            m_computers.remove( instanceID );
-        }
+        m_computers.remove( instanceID );
     }
 
     public void reset()

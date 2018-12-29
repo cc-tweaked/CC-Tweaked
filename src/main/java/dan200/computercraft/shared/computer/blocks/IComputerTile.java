@@ -6,19 +6,17 @@
 
 package dan200.computercraft.shared.computer.blocks;
 
-import dan200.computercraft.shared.common.ITerminalTile;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
-import dan200.computercraft.shared.computer.core.IComputer;
 
-public interface IComputerTile extends ITerminalTile
+public interface IComputerTile
 {
+    int getComputerID();
+
     void setComputerID( int id );
 
+    String getLabel();
+
     void setLabel( String label );
-
-    IComputer getComputer();
-
-    IComputer createComputer();
 
     ComputerFamily getFamily();
 }

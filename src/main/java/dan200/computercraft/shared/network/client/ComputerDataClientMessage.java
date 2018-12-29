@@ -21,17 +21,13 @@ import java.io.UncheckedIOException;
  */
 public class ComputerDataClientMessage extends ComputerClientMessage
 {
-    private int computerId;
     private ComputerState state;
-    private String label;
     private NBTTagCompound userData;
 
     public ComputerDataClientMessage( ServerComputer computer )
     {
         super( computer.getInstanceID() );
-        this.computerId = computer.getID();
         this.state = computer.getState();
-        this.label = computer.getLabel();
         this.userData = computer.getUserData();
     }
 
@@ -45,19 +41,9 @@ public class ComputerDataClientMessage extends ComputerClientMessage
         return NetworkMessages.COMPUTER_DATA_CLIENT_MESSAGE;
     }
 
-    public int getComputerId()
-    {
-        return computerId;
-    }
-
     public ComputerState getState()
     {
         return state;
-    }
-
-    public String getLabel()
-    {
-        return label;
     }
 
     public NBTTagCompound getUserData()
@@ -69,10 +55,7 @@ public class ComputerDataClientMessage extends ComputerClientMessage
     public void toBytes( @Nonnull PacketBuffer buf )
     {
         super.toBytes( buf );
-        buf.writeVarInt( computerId );
         buf.writeEnumValue( state );
-        buf.writeBoolean( label != null );
-        if( label != null ) buf.writeString( label );
         buf.writeCompoundTag( userData );
     }
 
@@ -80,9 +63,7 @@ public class ComputerDataClientMessage extends ComputerClientMessage
     public void fromBytes( @Nonnull PacketBuffer buf )
     {
         super.fromBytes( buf );
-        computerId = buf.readVarInt();
         state = buf.readEnumValue( ComputerState.class );
-        if( buf.readBoolean() ) label = buf.readString( Short.MAX_VALUE );
         try
         {
             userData = buf.readCompoundTag();

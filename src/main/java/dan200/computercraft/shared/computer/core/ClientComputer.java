@@ -18,27 +18,17 @@ public class ClientComputer extends ClientTerminal implements IComputer
 {
     private final int m_instanceID;
 
-    private int m_computerID;
-    private String m_label;
-    private boolean m_on;
-    private boolean m_blinking;
-    private boolean m_changed;
-    private NBTTagCompound m_userData;
+    private boolean m_on = false;
+    private boolean m_blinking = false;
+    private boolean m_changed = true;
+    private NBTTagCompound m_userData = null;
 
-    private boolean m_changedLastFrame;
+    private boolean m_changedLastFrame = false;
 
     public ClientComputer( int instanceID )
     {
         super( false );
         m_instanceID = instanceID;
-
-        m_computerID = -1;
-        m_label = null;
-        m_on = false;
-        m_blinking = false;
-        m_changed = true;
-        m_userData = null;
-        m_changedLastFrame = false;
     }
 
     @Override
@@ -71,18 +61,6 @@ public class ClientComputer extends ClientTerminal implements IComputer
     public int getInstanceID()
     {
         return m_instanceID;
-    }
-
-    @Override
-    public int getID()
-    {
-        return m_computerID;
-    }
-
-    @Override
-    public String getLabel()
-    {
-        return m_label;
     }
 
     @Override
@@ -125,21 +103,16 @@ public class ClientComputer extends ClientTerminal implements IComputer
         ComputerCraft.sendToServer( new QueueEventServerMessage( m_instanceID, event, arguments ) );
     }
 
-    public void setState( int id, String label, ComputerState state, NBTTagCompound userData )
+    public void setState( ComputerState state, NBTTagCompound userData )
     {
-        int oldID = m_computerID;
-        String oldLabel = m_label;
         boolean oldOn = m_on;
         boolean oldBlinking = m_blinking;
         NBTTagCompound oldUserData = m_userData;
 
-        m_computerID = id;
-        m_label = label;
         m_on = state != ComputerState.OFF;
         m_blinking = state == ComputerState.BLINKING;
         m_userData = userData;
 
-        m_changed |= m_computerID != oldID || m_on != oldOn || m_blinking != oldBlinking
-            || !Objects.equal( m_label, oldLabel ) || !Objects.equal( m_userData, oldUserData );
+        m_changed |= m_on != oldOn || m_blinking != oldBlinking || !Objects.equal( m_userData, oldUserData );
     }
 }

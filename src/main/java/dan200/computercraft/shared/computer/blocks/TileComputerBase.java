@@ -10,11 +10,9 @@ import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.BundledRedstone;
 import dan200.computercraft.shared.Peripherals;
 import dan200.computercraft.shared.common.IDirectionalTile;
-import dan200.computercraft.shared.common.ITerminal;
 import dan200.computercraft.shared.common.TileGeneric;
 import dan200.computercraft.shared.computer.core.ClientComputer;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
-import dan200.computercraft.shared.computer.core.IComputer;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.util.DirectionUtil;
 import dan200.computercraft.shared.util.RedstoneUtil;
@@ -29,26 +27,16 @@ import net.minecraft.util.ITickable;
 import net.minecraft.util.math.BlockPos;
 
 import javax.annotation.Nonnull;
+import java.util.Objects;
 
-public abstract class TileComputerBase extends TileGeneric
-    implements IComputerTile, IDirectionalTile, ITickable
+public abstract class TileComputerBase extends TileGeneric implements IComputerTile, IDirectionalTile, ITickable
 {
-    protected int m_instanceID;
-    protected int m_computerID;
-    protected String m_label;
-    protected boolean m_on;
-    protected boolean m_startOn;
-    protected boolean m_fresh;
-
-    protected TileComputerBase()
-    {
-        m_instanceID = -1;
-        m_computerID = -1;
-        m_label = null;
-        m_on = false;
-        m_startOn = false;
-        m_fresh = false;
-    }
+    private int m_instanceID = -1;
+    protected int m_computerID = -1;
+    protected String m_label = null;
+    private boolean m_on = false;
+    protected boolean m_startOn = false;
+    private boolean m_fresh = false;
 
     @Override
     public BlockComputerBase getBlock()
@@ -385,15 +373,19 @@ public abstract class TileComputerBase extends TileGeneric
 
     public abstract ComputerProxy createProxy();
 
-    // ITerminalTile
+    // IComputerTile
 
     @Override
-    public ITerminal getTerminal()
+    public int getComputerID()
     {
-        return getComputer();
+        return m_computerID;
     }
 
-    // IComputerTile
+    @Override
+    public String getLabel()
+    {
+        return m_label;
+    }
 
     @Override
     public void setComputerID( int id )
@@ -413,35 +405,12 @@ public abstract class TileComputerBase extends TileGeneric
     @Override
     public void setLabel( String label )
     {
-        if( !getWorld().isRemote )
+        if( !getWorld().isRemote && !Objects.equals( m_label, label ) )
         {
-            createServerComputer().setLabel( label );
-        }
-    }
-
-    @Override
-    public IComputer createComputer()
-    {
-        if( getWorld().isRemote )
-        {
-            return createClientComputer();
-        }
-        else
-        {
-            return createServerComputer();
-        }
-    }
-
-    @Override
-    public IComputer getComputer()
-    {
-        if( getWorld().isRemote )
-        {
-            return getClientComputer();
-        }
-        else
-        {
-            return getServerComputer();
+            m_label = label;
+            ServerComputer computer = getServerComputer();
+            if( computer != null ) computer.setLabel( label );
+            markDirty();
         }
     }
 
@@ -520,17 +489,21 @@ public abstract class TileComputerBase extends TileGeneric
     // Networking stuff
 
     @Override
-    public void writeDescription( @Nonnull NBTTagCompound nbttagcompound )
+    public void writeDescription( @Nonnull NBTTagCompound tag )
     {
-        super.writeDescription( nbttagcompound );
-        nbttagcompound.setInteger( "instanceID", createServerComputer().getInstanceID() );
+        super.writeDescription( tag );
+        tag.setInteger( "instanceID", createServerComputer().getInstanceID() );
+        if( m_label != null ) tag.setString( "label", m_label );
+        if( m_computerID >= 0 ) tag.setInteger( "computerID", m_computerID );
     }
 
     @Override
-    public void readDescription( @Nonnull NBTTagCompound nbttagcompound )
+    public void readDescription( @Nonnull NBTTagCompound tag )
     {
-        super.readDescription( nbttagcompound );
-        m_instanceID = nbttagcompound.getInteger( "instanceID" );
+        super.readDescription( tag );
+        m_instanceID = tag.getInteger( "instanceID" );
+        m_label = tag.hasKey( "label" ) ? tag.getString( "label" ) : null;
+        m_computerID = tag.hasKey( "computerID" ) ? tag.getInteger( "computerID" ) : -1;
     }
 
     protected void transferStateFrom( TileComputerBase copy )

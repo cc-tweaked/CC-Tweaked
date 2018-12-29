@@ -226,13 +226,11 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
         return m_instanceID;
     }
 
-    @Override
     public int getID()
     {
         return m_computer.getID();
     }
 
-    @Override
     public String getLabel()
     {
         return m_computer.getLabel();

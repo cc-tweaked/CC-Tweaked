@@ -9,8 +9,8 @@ package dan200.computercraft.client.gui;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.client.gui.widgets.WidgetTerminal;
+import dan200.computercraft.shared.computer.core.ClientComputer;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
-import dan200.computercraft.shared.computer.core.IComputer;
 import dan200.computercraft.shared.turtle.blocks.TileTurtle;
 import dan200.computercraft.shared.turtle.inventory.ContainerTurtle;
 import net.minecraft.client.Minecraft;
@@ -34,7 +34,7 @@ public class GuiTurtle extends GuiContainer
 
     protected final ComputerFamily m_family;
     protected final ITurtleAccess m_turtle;
-    protected final IComputer m_computer;
+    protected final ClientComputer m_computer;
     protected WidgetTerminal m_terminalGui;
 
     public GuiTurtle( World world, InventoryPlayer inventoryplayer, TileTurtle turtle )
@@ -50,7 +50,7 @@ public class GuiTurtle extends GuiContainer
         m_container = container;
         m_family = turtle.getFamily();
         m_turtle = turtle.getAccess();
-        m_computer = turtle.createComputer();
+        m_computer = turtle.getClientComputer();
 
         xSize = 254;
         ySize = 217;

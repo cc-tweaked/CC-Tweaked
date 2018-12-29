@@ -407,7 +407,7 @@ public abstract class ComputerCraftProxyCommon implements IComputerCraftProxy
         } );
 
         ComputerClientMessage.register( ComputerDataClientMessage::new, ( computer, packet ) ->
-            computer.setState( packet.getComputerId(), packet.getLabel(), packet.getState(), packet.getUserData() ) );
+            computer.setState( packet.getState(), packet.getUserData() ) );
 
         ComputerClientMessage.register( ComputerTerminalClientMessage::new, ( computer, packet ) ->
             computer.readDescription( packet.getTag() ) );

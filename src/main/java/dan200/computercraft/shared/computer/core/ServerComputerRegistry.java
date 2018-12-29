@@ -10,10 +10,6 @@ import java.util.Iterator;
 
 public class ServerComputerRegistry extends ComputerRegistry<ServerComputer>
 {
-    public ServerComputerRegistry()
-    {
-    }
-
     public void update()
     {
         Iterator<ServerComputer> it = getComputers().iterator();
@@ -72,5 +68,16 @@ public class ServerComputerRegistry extends ComputerRegistry<ServerComputer>
         }
         super.reset();
         //System.out.println( getComputers().size() + " SERVER COMPUTERS" );
+    }
+
+    public ServerComputer lookup( int computerID )
+    {
+        if( computerID < 0 ) return null;
+
+        for( ServerComputer computer : getComputers() )
+        {
+            if( computer.getID() == computerID ) return computer;
+        }
+        return null;
     }
 }

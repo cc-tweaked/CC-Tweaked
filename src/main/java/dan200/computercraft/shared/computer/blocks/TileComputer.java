@@ -8,7 +8,7 @@ package dan200.computercraft.shared.computer.blocks;
 
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
-import dan200.computercraft.shared.computer.core.IComputer;
+import dan200.computercraft.shared.computer.core.ComputerState;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.computer.items.ComputerItemFactory;
 import net.minecraft.block.state.IBlockState;
@@ -22,14 +22,10 @@ import javax.annotation.Nonnull;
 
 public class TileComputer extends TileComputerBase
 {
-    // Statics
+    private static final String TAG_STATE = "state";
 
-    // Members
     private ComputerProxy m_proxy;
-
-    public TileComputer()
-    {
-    }
+    private ComputerState state = ComputerState.OFF;
 
     @Override
     protected ServerComputer createComputer( int instanceID, int id )
@@ -68,11 +64,7 @@ public class TileComputer extends TileComputerBase
     @Override
     public void getDroppedItems( @Nonnull NonNullList<ItemStack> drops, boolean creative )
     {
-        IComputer computer = getComputer();
-        if( !creative || (computer != null && computer.getLabel() != null) )
-        {
-            drops.add( ComputerItemFactory.create( this ) );
-        }
+        if( !creative || getLabel() != null ) drops.add( ComputerItemFactory.create( this ) );
     }
 
     @Override
@@ -82,15 +74,34 @@ public class TileComputer extends TileComputerBase
     }
 
     @Override
-    public final void readDescription( @Nonnull NBTTagCompound nbttagcompound )
+    public void writeDescription( @Nonnull NBTTagCompound tag )
     {
-        super.readDescription( nbttagcompound );
+        super.writeDescription( tag );
+        tag.setInteger( TAG_STATE, state.ordinal() );
+    }
+
+    @Override
+    public final void readDescription( @Nonnull NBTTagCompound tag )
+    {
+        super.readDescription( tag );
+        state = ComputerState.valueOf( tag.getInteger( TAG_STATE ) );
         updateBlock();
     }
 
     public boolean isUseableByPlayer( EntityPlayer player )
     {
         return isUsable( player, false );
+    }
+
+    @Override
+    public void update()
+    {
+        super.update();
+        if( !world.isRemote )
+        {
+            ServerComputer computer = getServerComputer();
+            state = computer == null ? ComputerState.OFF : computer.getState();
+        }
     }
 
     // IDirectionalTile
@@ -105,10 +116,7 @@ public class TileComputer extends TileComputerBase
     @Override
     public void setDirection( EnumFacing dir )
     {
-        if( dir.getAxis() == EnumFacing.Axis.Y )
-        {
-            dir = EnumFacing.NORTH;
-        }
+        if( dir.getAxis() == EnumFacing.Axis.Y ) dir = EnumFacing.NORTH;
         setBlockState( getBlockState().withProperty( BlockComputer.Properties.FACING, dir ) );
         updateInput();
     }
@@ -120,5 +128,10 @@ public class TileComputer extends TileComputerBase
     protected int remapLocalSide( int localSide )
     {
         return s_remapSide[localSide];
+    }
+
+    public ComputerState getState()
+    {
+        return state;
     }
 }

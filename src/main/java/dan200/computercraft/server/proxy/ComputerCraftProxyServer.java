@@ -8,8 +8,8 @@ package dan200.computercraft.server.proxy;
 
 import dan200.computercraft.shared.command.text.TableBuilder;
 import dan200.computercraft.shared.computer.blocks.TileComputer;
+import dan200.computercraft.shared.computer.core.ClientComputer;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
-import dan200.computercraft.shared.computer.core.IComputer;
 import dan200.computercraft.shared.peripheral.diskdrive.TileDiskDrive;
 import dan200.computercraft.shared.peripheral.printer.TilePrinter;
 import dan200.computercraft.shared.proxy.ComputerCraftProxyCommon;
@@ -63,7 +63,7 @@ public class ComputerCraftProxyServer extends ComputerCraftProxyCommon
     }
 
     @Override
-    public Object getComputerGUI( IComputer computer, int width, int height, ComputerFamily family )
+    public Object getComputerGUI( ClientComputer computer, int width, int height, ComputerFamily family )
     {
         return null;
     }

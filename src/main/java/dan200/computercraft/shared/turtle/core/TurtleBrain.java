@@ -17,7 +17,6 @@ import dan200.computercraft.shared.TurtleUpgrades;
 import dan200.computercraft.shared.computer.blocks.ComputerProxy;
 import dan200.computercraft.shared.computer.blocks.TileComputerBase;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
-import dan200.computercraft.shared.computer.core.IComputer;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.turtle.blocks.TileTurtle;
 import dan200.computercraft.shared.util.Colour;
@@ -990,7 +989,7 @@ public class TurtleBrain implements ITurtleAccess
                 {
                     if( result != null && result.isSuccess() )
                     {
-                        IComputer computer = m_owner.getComputer();
+                        ServerComputer computer = m_owner.getServerComputer();
                         if( computer != null )
                         {
                             Object[] results = result.getResults();
@@ -1012,11 +1011,11 @@ public class TurtleBrain implements ITurtleAccess
                     }
                     else
                     {
-                        IComputer computer = m_owner.getComputer();
+                        ServerComputer computer = m_owner.getServerComputer();
                         if( computer != null )
                         {
                             computer.queueEvent( "turtle_response", new Object[] {
-                                callbackID, false, (result != null) ? result.getErrorMessage() : null
+                                callbackID, false, result != null ? result.getErrorMessage() : null
                             } );
                         }
                     }

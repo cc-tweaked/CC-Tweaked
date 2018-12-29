@@ -16,6 +16,8 @@ public enum ComputerState implements IStringSerializable
     ON( "on" ),
     BLINKING( "blinking" );
 
+    private static final ComputerState[] VALUES = ComputerState.values();
+
     private String m_name;
 
     ComputerState( String name )
@@ -34,6 +36,11 @@ public enum ComputerState implements IStringSerializable
     public String toString()
     {
         return getName();
+    }
+
+    public static ComputerState valueOf( int ordinal )
+    {
+        return ordinal < 0 || ordinal >= VALUES.length ? ComputerState.OFF : VALUES[ordinal];
     }
 }
 

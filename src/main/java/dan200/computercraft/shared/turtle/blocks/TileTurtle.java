@@ -14,7 +14,6 @@ import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.shared.computer.blocks.ComputerProxy;
 import dan200.computercraft.shared.computer.blocks.TileComputerBase;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
-import dan200.computercraft.shared.computer.core.IComputer;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.turtle.apis.TurtleAPI;
 import dan200.computercraft.shared.turtle.core.TurtleBrain;
@@ -170,11 +169,7 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
     @Override
     public void getDroppedItems( @Nonnull NonNullList<ItemStack> drops, boolean creative )
     {
-        IComputer computer = getComputer();
-        if( !creative || (computer != null && computer.getLabel() != null) )
-        {
-            drops.add( TurtleItemFactory.create( this ) );
-        }
+        if( !creative || getLabel() != null ) drops.add( TurtleItemFactory.create( this ) );
     }
 
     @Override
@@ -254,11 +249,8 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
         {
             if( !getWorld().isRemote && m_inventoryChanged )
             {
-                IComputer computer = getComputer();
-                if( computer != null )
-                {
-                    computer.queueEvent( "turtle_inventory" );
-                }
+                ServerComputer computer = getServerComputer();
+                if( computer != null ) computer.queueEvent( "turtle_inventory" );
 
                 m_inventoryChanged = false;
                 for( int n = 0; n < getSizeInventory(); n++ )
@@ -551,31 +543,15 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
     @Override
     public String getName()
     {
-        IComputer computer = getComputer();
-        if( computer != null )
-        {
-            String label = computer.getLabel();
-            if( label != null && label.length() > 0 )
-            {
-                return label;
-            }
-        }
-        return "tile.computercraft:turtle.name";
+        String label = getLabel();
+        return label == null || label.isEmpty() ? "tile.computercraft:turtle.name" : label;
     }
 
     @Override
     public boolean hasCustomName()
     {
-        IComputer computer = getComputer();
-        if( computer != null )
-        {
-            String label = computer.getLabel();
-            if( label != null && label.length() > 0 )
-            {
-                return true;
-            }
-        }
-        return false;
+        String label = getLabel();
+        return label != null && !label.isEmpty();
     }
 
     @Nonnull

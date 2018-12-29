@@ -9,8 +9,8 @@ package dan200.computercraft.client.gui;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.client.gui.widgets.WidgetTerminal;
 import dan200.computercraft.shared.computer.blocks.TileComputer;
+import dan200.computercraft.shared.computer.core.ClientComputer;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
-import dan200.computercraft.shared.computer.core.IComputer;
 import dan200.computercraft.shared.computer.inventory.ContainerComputer;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.GlStateManager;
@@ -28,12 +28,12 @@ public class GuiComputer extends GuiContainer
     private static final ResourceLocation backgroundCommand = new ResourceLocation( "computercraft", "textures/gui/corners_command.png" );
 
     private final ComputerFamily m_family;
-    private final IComputer m_computer;
+    private final ClientComputer m_computer;
     private final int m_termWidth;
     private final int m_termHeight;
     private WidgetTerminal m_terminal;
 
-    public GuiComputer( Container container, ComputerFamily family, IComputer computer, int termWidth, int termHeight )
+    public GuiComputer( Container container, ComputerFamily family, ClientComputer computer, int termWidth, int termHeight )
     {
         super( container );
         m_family = family;
@@ -48,7 +48,7 @@ public class GuiComputer extends GuiContainer
         this(
             new ContainerComputer( computer ),
             computer.getFamily(),
-            computer.createComputer(),
+            computer.createClientComputer(),
             ComputerCraft.terminalWidth_computer,
             ComputerCraft.terminalHeight_computer
         );

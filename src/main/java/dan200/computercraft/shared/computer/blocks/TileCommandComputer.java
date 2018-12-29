@@ -8,7 +8,6 @@ package dan200.computercraft.shared.computer.blocks;
 
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.computer.apis.CommandAPI;
-import dan200.computercraft.shared.computer.core.IComputer;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.block.state.IBlockState;
@@ -60,16 +59,8 @@ public class TileCommandComputer extends TileComputer
         @Override
         public ITextComponent getDisplayName()
         {
-            IComputer computer = TileCommandComputer.this.getComputer();
-            if( computer != null )
-            {
-                String label = computer.getLabel();
-                if( label != null )
-                {
-                    return new TextComponentString( computer.getLabel() );
-                }
-            }
-            return new TextComponentString( "@" );
+            String label = getLabel();
+            return new TextComponentString( label != null ? label : "@" );
         }
 
         @Override

@@ -10,7 +10,6 @@ import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
-import dan200.computercraft.shared.computer.core.IComputer;
 import dan200.computercraft.shared.turtle.blocks.ITurtleTile;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -26,18 +25,15 @@ public class TurtleItemFactory
         ITurtleUpgrade leftUpgrade = turtle.getAccess().getUpgrade( TurtleSide.Left );
         ITurtleUpgrade rightUpgrade = turtle.getAccess().getUpgrade( TurtleSide.Right );
 
-        IComputer computer = turtle.getComputer();
-        if( computer != null )
+        String label = turtle.getLabel();
+        if( label == null )
         {
-            String label = computer.getLabel();
-            if( label != null )
-            {
-                int id = computer.getID();
-                int fuelLevel = turtle.getAccess().getFuelLevel();
-                return create( id, label, turtle.getColour(), turtle.getFamily(), leftUpgrade, rightUpgrade, fuelLevel, turtle.getOverlay() );
-            }
+            return create( -1, null, turtle.getColour(), turtle.getFamily(), leftUpgrade, rightUpgrade, 0, turtle.getOverlay() );
         }
-        return create( -1, null, turtle.getColour(), turtle.getFamily(), leftUpgrade, rightUpgrade, 0, turtle.getOverlay() );
+
+        int id = turtle.getComputerID();
+        int fuelLevel = turtle.getAccess().getFuelLevel();
+        return create( id, label, turtle.getColour(), turtle.getFamily(), leftUpgrade, rightUpgrade, fuelLevel, turtle.getOverlay() );
     }
 
     @Nonnull

@@ -9,7 +9,6 @@ package dan200.computercraft.shared.computer.blocks;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ComputerState;
-import dan200.computercraft.shared.computer.core.IComputer;
 import dan200.computercraft.shared.util.DirectionUtil;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.PropertyDirection;
@@ -83,12 +82,7 @@ public class BlockCommandComputer extends BlockComputerBase
     public IBlockState getActualState( @Nonnull IBlockState state, IBlockAccess world, BlockPos pos )
     {
         TileEntity tile = world.getTileEntity( pos );
-        if( tile instanceof IComputerTile )
-        {
-            IComputer computer = ((IComputerTile) tile).getComputer();
-            if( computer != null ) return state.withProperty( Properties.STATE, computer.getState() );
-        }
-        return state.withProperty( Properties.STATE, ComputerState.OFF );
+        return state.withProperty( Properties.STATE, tile instanceof TileComputer ? ((TileComputer) tile).getState() : ComputerState.OFF );
     }
 
     @Override

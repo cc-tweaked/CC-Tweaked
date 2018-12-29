@@ -1,6 +1,7 @@
 package dan200.computercraft.shared.computer.blocks;
 
 import dan200.computercraft.shared.computer.core.IComputer;
+import dan200.computercraft.shared.computer.core.ServerComputer;
 
 /**
  * A proxy object for computer objects, delegating to {@link IComputer} or {@link TileComputer} where appropriate.
@@ -12,7 +13,7 @@ public abstract class ComputerProxy
     public void turnOn()
     {
         TileComputerBase tile = getTile();
-        IComputer computer = tile.getComputer();
+        ServerComputer computer = tile.getServerComputer();
         if( computer == null )
         {
             tile.m_startOn = true;
@@ -26,7 +27,7 @@ public abstract class ComputerProxy
     public void shutdown()
     {
         TileComputerBase tile = getTile();
-        IComputer computer = tile.getComputer();
+        ServerComputer computer = tile.getServerComputer();
         if( computer == null )
         {
             tile.m_startOn = false;
@@ -40,7 +41,7 @@ public abstract class ComputerProxy
     public void reboot()
     {
         TileComputerBase tile = getTile();
-        IComputer computer = tile.getComputer();
+        ServerComputer computer = tile.getServerComputer();
         if( computer == null )
         {
             tile.m_startOn = true;
@@ -54,7 +55,7 @@ public abstract class ComputerProxy
     public int assignID()
     {
         TileComputerBase tile = getTile();
-        IComputer computer = tile.getComputer();
+        ServerComputer computer = tile.getServerComputer();
         if( computer == null )
         {
             return tile.m_computerID;
@@ -67,21 +68,14 @@ public abstract class ComputerProxy
 
     public boolean isOn()
     {
-        IComputer computer = getTile().getComputer();
+        ServerComputer computer = getTile().getServerComputer();
         return computer != null && computer.isOn();
     }
 
     public String getLabel()
     {
         TileComputerBase tile = getTile();
-        IComputer computer = tile.getComputer();
-        if( computer == null )
-        {
-            return tile.m_label;
-        }
-        else
-        {
-            return computer.getLabel();
-        }
+        ServerComputer computer = tile.getServerComputer();
+        return computer == null ? tile.m_label : computer.getLabel();
     }
 }

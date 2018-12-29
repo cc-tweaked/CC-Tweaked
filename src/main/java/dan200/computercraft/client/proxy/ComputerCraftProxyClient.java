@@ -15,8 +15,8 @@ import dan200.computercraft.shared.command.CommandCopy;
 import dan200.computercraft.shared.command.ContainerViewComputer;
 import dan200.computercraft.shared.command.text.TableBuilder;
 import dan200.computercraft.shared.computer.blocks.TileComputer;
+import dan200.computercraft.shared.computer.core.ClientComputer;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
-import dan200.computercraft.shared.computer.core.IComputer;
 import dan200.computercraft.shared.media.inventory.ContainerHeldItem;
 import dan200.computercraft.shared.media.items.ItemDiskLegacy;
 import dan200.computercraft.shared.media.items.ItemPrintout;
@@ -216,7 +216,7 @@ public class ComputerCraftProxyClient extends ComputerCraftProxyCommon
     }
 
     @Override
-    public Object getComputerGUI( IComputer computer, int width, int height, ComputerFamily family )
+    public Object getComputerGUI( ClientComputer computer, int width, int height, ComputerFamily family )
     {
         ContainerViewComputer container = new ContainerViewComputer( computer );
         return new GuiComputer( container, family, computer, width, height );
