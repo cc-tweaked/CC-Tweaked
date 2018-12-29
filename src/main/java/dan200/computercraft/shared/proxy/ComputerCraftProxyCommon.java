@@ -9,6 +9,7 @@ package dan200.computercraft.shared.proxy;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.pocket.IPocketUpgrade;
+import dan200.computercraft.client.gui.*;
 import dan200.computercraft.core.computer.MainThread;
 import dan200.computercraft.shared.PocketUpgrades;
 import dan200.computercraft.shared.command.CommandComputerCraft;
@@ -94,6 +95,7 @@ import net.minecraftforge.fml.common.network.IGuiHandler;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.registries.IForgeRegistry;
 import pl.asie.charset.ModCharset;
 
@@ -490,6 +492,7 @@ public abstract class ComputerCraftProxyCommon implements IComputerCraftProxy
         }
 
         @Override
+        @SideOnly( Side.CLIENT )
         public Object getClientGuiElement( int id, EntityPlayer player, World world, int x, int y, int z )
         {
             BlockPos pos = new BlockPos( x, y, z );
@@ -498,32 +501,17 @@ public abstract class ComputerCraftProxyCommon implements IComputerCraftProxy
                 case ComputerCraft.diskDriveGUIID:
                 {
                     TileEntity tile = world.getTileEntity( pos );
-                    if( tile instanceof TileDiskDrive )
-                    {
-                        TileDiskDrive drive = (TileDiskDrive) tile;
-                        return getDiskDriveGUI( player.inventory, drive );
-                    }
-                    break;
+                    return tile instanceof TileDiskDrive ? new GuiDiskDrive( new ContainerDiskDrive( player.inventory, (TileDiskDrive) tile ) ) : null;
                 }
                 case ComputerCraft.computerGUIID:
                 {
                     TileEntity tile = world.getTileEntity( pos );
-                    if( tile instanceof TileComputer )
-                    {
-                        TileComputer computer = (TileComputer) tile;
-                        return getComputerGUI( computer );
-                    }
-                    break;
+                    return tile instanceof TileComputer ? new GuiComputer( (TileComputer) tile ) : null;
                 }
                 case ComputerCraft.printerGUIID:
                 {
                     TileEntity tile = world.getTileEntity( pos );
-                    if( tile instanceof TilePrinter )
-                    {
-                        TilePrinter printer = (TilePrinter) tile;
-                        return getPrinterGUI( player.inventory, printer );
-                    }
-                    break;
+                    return tile instanceof TilePrinter ? new GuiPrinter( new ContainerPrinter( player.inventory, (TilePrinter) tile ) ) : null;
                 }
                 case ComputerCraft.turtleGUIID:
                 {
@@ -531,17 +519,19 @@ public abstract class ComputerCraftProxyCommon implements IComputerCraftProxy
                     if( tile instanceof TileTurtle )
                     {
                         TileTurtle turtle = (TileTurtle) tile;
-                        return getTurtleGUI( player.inventory, turtle );
+                        return new GuiTurtle( turtle, new ContainerTurtle( player.inventory, turtle.getAccess() ) );
                     }
-                    break;
+                    return null;
                 }
                 case ComputerCraft.printoutGUIID:
                 {
-                    return getPrintoutGUI( player, x == 0 ? EnumHand.MAIN_HAND : EnumHand.OFF_HAND );
+                    ContainerHeldItem container = new ContainerHeldItem( player, x == 0 ? EnumHand.MAIN_HAND : EnumHand.OFF_HAND );
+                    return container.getStack().getItem() instanceof ItemPrintout ? new GuiPrintout( container ) : null;
                 }
                 case ComputerCraft.pocketComputerGUIID:
                 {
-                    return getPocketComputerGUI( player, x == 0 ? EnumHand.MAIN_HAND : EnumHand.OFF_HAND );
+                    ContainerPocketComputer container = new ContainerPocketComputer( player, x == 0 ? EnumHand.MAIN_HAND : EnumHand.OFF_HAND );
+                    return container.getStack().getItem() instanceof ItemPocketComputer ? new GuiPocketComputer( container ) : null;
                 }
                 case ComputerCraft.viewComputerGUIID:
                 {
@@ -562,10 +552,13 @@ public abstract class ComputerCraftProxyCommon implements IComputerCraftProxy
                         width = computer.getTerminal().getWidth();
                         height = computer.getTerminal().getHeight();
                     }
-                    return getComputerGUI( computer, width, height, family );
+
+                    ContainerViewComputer container = new ContainerViewComputer( computer );
+                    return new GuiComputer( container, family, computer, width, height );
                 }
+                default:
+                    return null;
             }
-            return null;
         }
 
         // Event handlers

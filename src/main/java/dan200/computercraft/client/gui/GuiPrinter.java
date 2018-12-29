@@ -7,31 +7,27 @@
 package dan200.computercraft.client.gui;
 
 import dan200.computercraft.shared.peripheral.printer.ContainerPrinter;
-import dan200.computercraft.shared.peripheral.printer.TilePrinter;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.resources.I18n;
-import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.util.ResourceLocation;
 
 public class GuiPrinter extends GuiContainer
 {
     private static final ResourceLocation background = new ResourceLocation( "computercraft", "textures/gui/printer.png" );
 
-    private TilePrinter m_printer;
-    private ContainerPrinter m_container;
+    private final ContainerPrinter m_container;
 
-    public GuiPrinter( InventoryPlayer inventoryplayer, TilePrinter printer )
+    public GuiPrinter( ContainerPrinter container )
     {
-        super( new ContainerPrinter( inventoryplayer, printer ) );
-        m_printer = printer;
-        m_container = (ContainerPrinter) inventorySlots;
+        super( container );
+        m_container = container;
     }
 
     @Override
     protected void drawGuiContainerForegroundLayer( int par1, int par2 )
     {
-        String title = m_printer.getDisplayName().getUnformattedText();
+        String title = m_container.getPrinter().getDisplayName().getUnformattedText();
         fontRenderer.drawString( title, (xSize - fontRenderer.getStringWidth( title )) / 2, 6, 0x404040 );
         fontRenderer.drawString( I18n.format( "container.inventory" ), 8, (ySize - 96) + 2, 0x404040 );
     }

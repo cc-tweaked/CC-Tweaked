@@ -37,6 +37,11 @@ public class ContainerDiskDrive extends Container
         }
     }
 
+    public TileDiskDrive getDiskDrive()
+    {
+        return m_diskDrive;
+    }
+
     @Override
     public boolean canInteractWith( @Nonnull EntityPlayer player )
     {

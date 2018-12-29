@@ -1,6 +1,7 @@
 /build
 /out
 /run
+/run-*
 *.ipr
 *.iws
 *.iml

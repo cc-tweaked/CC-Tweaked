@@ -7,29 +7,27 @@
 package dan200.computercraft.client.gui;
 
 import dan200.computercraft.shared.peripheral.diskdrive.ContainerDiskDrive;
-import dan200.computercraft.shared.peripheral.diskdrive.TileDiskDrive;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.resources.I18n;
-import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.util.ResourceLocation;
 
 public class GuiDiskDrive extends GuiContainer
 {
     private static final ResourceLocation background = new ResourceLocation( "computercraft", "textures/gui/diskdrive.png" );
 
-    private TileDiskDrive m_diskDrive;
+    private final ContainerDiskDrive m_container;
 
-    public GuiDiskDrive( InventoryPlayer inventoryplayer, TileDiskDrive diskDrive )
+    public GuiDiskDrive( ContainerDiskDrive container )
     {
-        super( new ContainerDiskDrive( inventoryplayer, diskDrive ) );
-        m_diskDrive = diskDrive;
+        super( container );
+        m_container = container;
     }
 
     @Override
     protected void drawGuiContainerForegroundLayer( int par1, int par2 )
     {
-        String title = m_diskDrive.getDisplayName().getUnformattedText();
+        String title = m_container.getDiskDrive().getDisplayName().getUnformattedText();
         fontRenderer.drawString( title, (xSize - fontRenderer.getStringWidth( title )) / 2, 6, 0x404040 );
         fontRenderer.drawString( I18n.format( "container.inventory" ), 8, (ySize - 96) + 2, 0x404040 );
     }

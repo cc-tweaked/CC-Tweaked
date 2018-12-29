@@ -7,7 +7,6 @@
 package dan200.computercraft.client.gui;
 
 import dan200.computercraft.ComputerCraft;
-import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.client.gui.widgets.WidgetTerminal;
 import dan200.computercraft.shared.computer.core.ClientComputer;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
@@ -16,9 +15,7 @@ import dan200.computercraft.shared.turtle.inventory.ContainerTurtle;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.world.World;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 
@@ -29,27 +26,18 @@ public class GuiTurtle extends GuiContainer
     private static final ResourceLocation background = new ResourceLocation( "computercraft", "textures/gui/turtle.png" );
     private static final ResourceLocation backgroundAdvanced = new ResourceLocation( "computercraft", "textures/gui/turtle_advanced.png" );
 
-    protected World m_world;
-    protected ContainerTurtle m_container;
+    private ContainerTurtle m_container;
 
-    protected final ComputerFamily m_family;
-    protected final ITurtleAccess m_turtle;
-    protected final ClientComputer m_computer;
-    protected WidgetTerminal m_terminalGui;
+    private final ComputerFamily m_family;
+    private final ClientComputer m_computer;
+    private WidgetTerminal m_terminalGui;
 
-    public GuiTurtle( World world, InventoryPlayer inventoryplayer, TileTurtle turtle )
-    {
-        this( world, turtle, new ContainerTurtle( inventoryplayer, turtle.getAccess() ) );
-    }
-
-    protected GuiTurtle( World world, TileTurtle turtle, ContainerTurtle container )
+    public GuiTurtle( TileTurtle turtle, ContainerTurtle container )
     {
         super( container );
 
-        m_world = world;
         m_container = container;
         m_family = turtle.getFamily();
-        m_turtle = turtle.getAccess();
         m_computer = turtle.getClientComputer();
 
         xSize = 254;

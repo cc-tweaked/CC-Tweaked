@@ -9,26 +9,14 @@ package dan200.computercraft.client.proxy;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.client.ClientTableFormatter;
 import dan200.computercraft.client.FrameInfo;
-import dan200.computercraft.client.gui.*;
 import dan200.computercraft.client.render.*;
 import dan200.computercraft.shared.command.CommandCopy;
-import dan200.computercraft.shared.command.ContainerViewComputer;
 import dan200.computercraft.shared.command.text.TableBuilder;
-import dan200.computercraft.shared.computer.blocks.TileComputer;
-import dan200.computercraft.shared.computer.core.ClientComputer;
-import dan200.computercraft.shared.computer.core.ComputerFamily;
-import dan200.computercraft.shared.media.inventory.ContainerHeldItem;
 import dan200.computercraft.shared.media.items.ItemDiskLegacy;
-import dan200.computercraft.shared.media.items.ItemPrintout;
-import dan200.computercraft.shared.peripheral.diskdrive.TileDiskDrive;
 import dan200.computercraft.shared.peripheral.modem.wired.TileCable;
 import dan200.computercraft.shared.peripheral.monitor.ClientMonitor;
 import dan200.computercraft.shared.peripheral.monitor.TileMonitor;
-import dan200.computercraft.shared.peripheral.printer.TilePrinter;
-import dan200.computercraft.shared.pocket.inventory.ContainerPocketComputer;
-import dan200.computercraft.shared.pocket.items.ItemPocketComputer;
 import dan200.computercraft.shared.proxy.ComputerCraftProxyCommon;
-import dan200.computercraft.shared.turtle.blocks.TileTurtle;
 import dan200.computercraft.shared.util.Colour;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
@@ -36,11 +24,8 @@ import net.minecraft.client.renderer.ItemMeshDefinition;
 import net.minecraft.client.renderer.block.model.ModelBakery;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.client.renderer.color.IItemColor;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.BlockPos;
@@ -167,59 +152,6 @@ public class ComputerCraftProxyClient extends ComputerCraftProxyCommon
                 return res;
             }
         } );
-    }
-
-    @Override
-    public Object getDiskDriveGUI( InventoryPlayer inventory, TileDiskDrive drive )
-    {
-        return new GuiDiskDrive( inventory, drive );
-    }
-
-    @Override
-    public Object getComputerGUI( TileComputer computer )
-    {
-        return new GuiComputer( computer );
-    }
-
-    @Override
-    public Object getPrinterGUI( InventoryPlayer inventory, TilePrinter printer )
-    {
-        return new GuiPrinter( inventory, printer );
-    }
-
-    @Override
-    public Object getTurtleGUI( InventoryPlayer inventory, TileTurtle turtle )
-    {
-        return new GuiTurtle( turtle.getWorld(), inventory, turtle );
-    }
-
-    @Override
-    public Object getPrintoutGUI( EntityPlayer player, EnumHand hand )
-    {
-        ContainerHeldItem container = new ContainerHeldItem( player, hand );
-        if( container.getStack().getItem() instanceof ItemPrintout )
-        {
-            return new GuiPrintout( container );
-        }
-        return null;
-    }
-
-    @Override
-    public Object getPocketComputerGUI( EntityPlayer player, EnumHand hand )
-    {
-        ContainerPocketComputer container = new ContainerPocketComputer( player, hand );
-        if( container.getStack().getItem() instanceof ItemPocketComputer )
-        {
-            return new GuiPocketComputer( container );
-        }
-        return null;
-    }
-
-    @Override
-    public Object getComputerGUI( ClientComputer computer, int width, int height, ComputerFamily family )
-    {
-        ContainerViewComputer container = new ContainerViewComputer( computer );
-        return new GuiComputer( container, family, computer, width, height );
     }
 
     @Override

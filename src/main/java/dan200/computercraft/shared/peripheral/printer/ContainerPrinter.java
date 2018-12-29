@@ -62,6 +62,11 @@ public class ContainerPrinter extends Container
         return m_lastPrinting;
     }
 
+    public TilePrinter getPrinter()
+    {
+        return m_printer;
+    }
+
     @Override
     public void addListener( IContainerListener crafting )
     {
