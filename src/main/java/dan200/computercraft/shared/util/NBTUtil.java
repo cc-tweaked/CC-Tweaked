@@ -7,8 +7,12 @@
 package dan200.computercraft.shared.util;
 
 import net.minecraft.nbt.*;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraftforge.common.util.Constants;
 
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -134,5 +138,29 @@ public class NBTUtil
             return objects;
         }
         return null;
+    }
+
+    public static NBTTagCompound readCompoundTag( PacketBuffer buf )
+    {
+        try
+        {
+            return buf.readCompoundTag();
+        }
+        catch( IOException e )
+        {
+            throw new UncheckedIOException( e );
+        }
+    }
+
+    public static ITextComponent readTextComponent( PacketBuffer buf )
+    {
+        try
+        {
+            return buf.readTextComponent();
+        }
+        catch( IOException e )
+        {
+            throw new UncheckedIOException( e );
+        }
     }
 }

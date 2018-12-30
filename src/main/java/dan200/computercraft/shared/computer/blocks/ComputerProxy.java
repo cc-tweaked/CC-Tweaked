@@ -56,14 +56,7 @@ public abstract class ComputerProxy
     {
         TileComputerBase tile = getTile();
         ServerComputer computer = tile.getServerComputer();
-        if( computer == null )
-        {
-            return tile.m_computerID;
-        }
-        else
-        {
-            return computer.getID();
-        }
+        return computer == null ? tile.getComputerID() : computer.getID();
     }
 
     public boolean isOn()
@@ -76,6 +69,6 @@ public abstract class ComputerProxy
     {
         TileComputerBase tile = getTile();
         ServerComputer computer = tile.getServerComputer();
-        return computer == null ? tile.m_label : computer.getLabel();
+        return computer == null ? tile.getLabel() : computer.getLabel();
     }
 }

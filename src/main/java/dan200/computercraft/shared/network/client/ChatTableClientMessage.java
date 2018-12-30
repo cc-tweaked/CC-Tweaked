@@ -9,12 +9,11 @@ package dan200.computercraft.shared.network.client;
 import dan200.computercraft.shared.command.text.TableBuilder;
 import dan200.computercraft.shared.network.NetworkMessage;
 import dan200.computercraft.shared.network.NetworkMessages;
+import dan200.computercraft.shared.util.NBTUtil;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.text.ITextComponent;
 
 import javax.annotation.Nonnull;
-import java.io.IOException;
-import java.io.UncheckedIOException;
 
 public class ChatTableClientMessage implements NetworkMessage
 {
@@ -62,34 +61,27 @@ public class ChatTableClientMessage implements NetworkMessage
     @Override
     public void fromBytes( @Nonnull PacketBuffer buf )
     {
-        try
+        int id = buf.readVarInt();
+        int columns = buf.readVarInt();
+        TableBuilder table;
+        if( buf.readBoolean() )
         {
-            int id = buf.readVarInt();
-            int columns = buf.readVarInt();
-            TableBuilder table;
-            if( buf.readBoolean() )
-            {
-                ITextComponent[] headers = new ITextComponent[columns];
-                for( int i = 0; i < columns; i++ ) headers[i] = buf.readTextComponent();
-                table = new TableBuilder( id, headers );
-            }
-            else
-            {
-                table = new TableBuilder( id );
-            }
+            ITextComponent[] headers = new ITextComponent[columns];
+            for( int i = 0; i < columns; i++ ) headers[i] = NBTUtil.readTextComponent( buf );
+            table = new TableBuilder( id, headers );
+        }
+        else
+        {
+            table = new TableBuilder( id );
+        }
 
-            int rows = buf.readVarInt();
-            for( int i = 0; i < rows; i++ )
-            {
-                ITextComponent[] row = new ITextComponent[columns];
-                for( int j = 0; j < columns; j++ ) row[j] = buf.readTextComponent();
-                table.row( row );
-            }
-            this.table = table;
-        }
-        catch( IOException e )
+        int rows = buf.readVarInt();
+        for( int i = 0; i < rows; i++ )
         {
-            throw new UncheckedIOException( e );
+            ITextComponent[] row = new ITextComponent[columns];
+            for( int j = 0; j < columns; j++ ) row[j] = NBTUtil.readTextComponent( buf );
+            table.row( row );
         }
+        this.table = table;
     }
 }

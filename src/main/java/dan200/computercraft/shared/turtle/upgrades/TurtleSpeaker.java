@@ -41,12 +41,6 @@ public class TurtleSpeaker extends AbstractTurtleUpgrade
         }
 
         @Override
-        public void update()
-        {
-            super.update();
-        }
-
-        @Override
         public World getWorld()
         {
             return turtle.getWorld();

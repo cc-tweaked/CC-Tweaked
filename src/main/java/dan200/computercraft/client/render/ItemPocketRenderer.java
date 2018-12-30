@@ -1,5 +1,10 @@
-package dan200.computercraft.client.render;
+/*
+ * This file is part of ComputerCraft - http://www.computercraft.info
+ * Copyright Daniel Ratcliffe, 2011-2018. Do not distribute without permission.
+ * Send enquiries to dratcliffe@gmail.com
+ */
 
+package dan200.computercraft.client.render;
 
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.client.FrameInfo;
@@ -127,7 +132,7 @@ public class ItemPocketRenderer extends ItemMapLikeRenderer
                     Palette palette = terminal.getPalette();
 
                     // Render the actual text
-                    for( int line = 0; line < th; ++line )
+                    for( int line = 0; line < th; line++ )
                     {
                         TextBuffer text = terminal.getLine( line );
                         TextBuffer colour = terminal.getTextColourLine( line );

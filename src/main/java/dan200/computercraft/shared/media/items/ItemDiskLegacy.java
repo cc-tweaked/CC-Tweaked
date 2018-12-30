@@ -40,7 +40,7 @@ public class ItemDiskLegacy extends Item
     public void getSubItems( @Nonnull CreativeTabs tabs, @Nonnull NonNullList<ItemStack> list )
     {
         if( !isInCreativeTab( tabs ) ) return;
-        for( int colour = 0; colour < 16; ++colour )
+        for( int colour = 0; colour < 16; colour++ )
         {
             ItemStack stack = createFromIDAndColour( -1, null, Colour.values()[colour].getHex() );
             if( stack.getItem() == this )
@@ -142,7 +142,7 @@ public class ItemDiskLegacy extends Item
     }
 
     @Override
-    public ItemStack setColour( ItemStack stack, int colour )
+    public ItemStack withColour( ItemStack stack, int colour )
     {
         return ItemDiskExpanded.createFromIDAndColour( getDiskID( stack ), getLabel( stack ), colour );
     }

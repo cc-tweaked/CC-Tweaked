@@ -16,10 +16,6 @@ import javax.annotation.Nonnull;
 
 public class DefaultBundledRedstoneProvider implements IBundledRedstoneProvider
 {
-    public DefaultBundledRedstoneProvider()
-    {
-    }
-
     @Override
     public int getBundledRedstoneOutput( @Nonnull World world, @Nonnull BlockPos pos, @Nonnull EnumFacing side )
     {

@@ -268,10 +268,6 @@ public class ComputerCraft
     @SidedProxy( clientSide = "dan200.computercraft.client.proxy.CCTurtleProxyClient", serverSide = "dan200.computercraft.server.proxy.CCTurtleProxyServer" )
     public static ICCTurtleProxy turtleProxy;
 
-    public ComputerCraft()
-    {
-    }
-
     @Mod.EventHandler
     public void preInit( FMLPreInitializationEvent event )
     {

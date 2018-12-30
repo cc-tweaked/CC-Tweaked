@@ -538,7 +538,7 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
     }
 
     @Override
-    public ItemStack setColour( ItemStack stack, int colour )
+    public ItemStack withColour( ItemStack stack, int colour )
     {
         ItemStack copy = stack.copy();
         setColourDirect( copy, colour );

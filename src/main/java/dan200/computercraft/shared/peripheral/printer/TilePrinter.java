@@ -341,18 +341,9 @@ public class TilePrinter extends TilePeripheralBase implements DefaultSidedInven
     {
         synchronized( m_inventory )
         {
-            if( canInputPage() )
-            {
-                if( m_printing && !outputPage() )
-                {
-                    return false;
-                }
-                if( inputPage() )
-                {
-                    return true;
-                }
-            }
-            return false;
+            if( !canInputPage() ) return false;
+            if( m_printing && !outputPage() ) return false;
+            return inputPage();
         }
     }
 
@@ -373,12 +364,8 @@ public class TilePrinter extends TilePeripheralBase implements DefaultSidedInven
         synchronized( m_inventory )
         {
             ItemStack inkStack = m_inventory.get( 0 );
-            if( !inkStack.isEmpty() && isInk( inkStack ) )
-            {
-                return inkStack.getCount();
-            }
+            return isInk( inkStack ) ? inkStack.getCount() : 0;
         }
-        return 0;
     }
 
     public int getPaperLevel()
@@ -431,10 +418,7 @@ public class TilePrinter extends TilePeripheralBase implements DefaultSidedInven
         synchronized( m_inventory )
         {
             ItemStack inkStack = m_inventory.get( 0 );
-            if( inkStack.isEmpty() || !isInk( inkStack ) )
-            {
-                return false;
-            }
+            if( !isInk( inkStack ) ) return false;
 
             for( int i = 1; i < 7; i++ )
             {

@@ -25,9 +25,9 @@ public class ComputerFamilyRecipe extends ComputerConvertRecipe
 
     @Nonnull
     @Override
-    protected ItemStack convert( @Nonnull ItemStack stack )
+    protected ItemStack convert( IComputerItem item, @Nonnull ItemStack stack )
     {
-        return ((IComputerItem) stack.getItem()).withFamily( stack, family );
+        return item.withFamily( stack, family );
     }
 
     public static class Factory implements IRecipeFactory

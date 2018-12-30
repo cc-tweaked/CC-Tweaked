@@ -16,12 +16,6 @@ import java.util.List;
 
 public class EmptyMount implements IMount
 {
-    public EmptyMount()
-    {
-    }
-
-    // IMount implementation
-
     @Override
     public boolean exists( @Nonnull String path )
     {

@@ -13,8 +13,6 @@ import net.minecraft.network.PacketBuffer;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.io.IOException;
-import java.io.UncheckedIOException;
 
 /**
  * Queue an event on a {@link dan200.computercraft.shared.computer.core.ServerComputer}.
@@ -70,14 +68,7 @@ public class QueueEventServerMessage extends ComputerServerMessage
         super.fromBytes( buf );
         event = buf.readString( Short.MAX_VALUE );
 
-        try
-        {
-            NBTTagCompound args = buf.readCompoundTag();
-            this.args = args == null ? null : NBTUtil.decodeObjects( args );
-        }
-        catch( IOException e )
-        {
-            throw new UncheckedIOException( e );
-        }
+        NBTTagCompound args = NBTUtil.readCompoundTag( buf );
+        this.args = args == null ? null : NBTUtil.decodeObjects( args );
     }
 }

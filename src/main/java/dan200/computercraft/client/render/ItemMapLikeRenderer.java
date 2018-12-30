@@ -32,7 +32,7 @@ public abstract class ItemMapLikeRenderer
         GlStateManager.pushMatrix();
         if( hand == EnumHand.MAIN_HAND && player.getHeldItemOffhand().isEmpty() )
         {
-            renderItemFirstCentre( pitch, equipProgress, swingProgress, stack );
+            renderItemFirstPersonCenter( pitch, equipProgress, swingProgress, stack );
         }
         else
         {
@@ -95,7 +95,7 @@ public abstract class ItemMapLikeRenderer
      * @param stack         The stack to render
      * @see ItemRenderer#renderMapFirstPerson(float, float, float)
      */
-    private void renderItemFirstCentre( float pitch, float equipProgress, float swingProgress, ItemStack stack )
+    private void renderItemFirstPersonCenter( float pitch, float equipProgress, float swingProgress, ItemStack stack )
     {
         ItemRenderer itemRenderer = Minecraft.getMinecraft().getItemRenderer();
 

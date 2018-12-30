@@ -32,10 +32,10 @@ import java.util.Objects;
 public abstract class TileComputerBase extends TileGeneric implements IComputerTile, IDirectionalTile, ITickable
 {
     private int m_instanceID = -1;
-    protected int m_computerID = -1;
+    private int m_computerID = -1;
     protected String m_label = null;
     private boolean m_on = false;
-    protected boolean m_startOn = false;
+    boolean m_startOn = false;
     private boolean m_fresh = false;
 
     @Override
@@ -138,16 +138,10 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
     public int getRedstoneOutput( EnumFacing side )
     {
         int localDir = remapLocalSide( DirectionUtil.toLocal( this, side ) );
-        if( !isRedstoneBlockedOnSide( localDir ) )
+        if( !isRedstoneBlockedOnSide( localDir ) && getWorld() != null && !getWorld().isRemote )
         {
-            if( getWorld() != null && !getWorld().isRemote )
-            {
-                ServerComputer computer = getServerComputer();
-                if( computer != null )
-                {
-                    return computer.getRedstoneOutput( localDir );
-                }
-            }
+            ServerComputer computer = getServerComputer();
+            if( computer != null ) return computer.getRedstoneOutput( localDir );
         }
         return 0;
     }
@@ -383,28 +377,23 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
     @Override
     public void setComputerID( int id )
     {
-        if( !getWorld().isRemote && m_computerID != id )
-        {
-            m_computerID = id;
-            ServerComputer computer = getServerComputer();
-            if( computer != null )
-            {
-                computer.setID( m_computerID );
-            }
-            markDirty();
-        }
+        if( getWorld().isRemote || m_computerID == id ) return;
+
+        m_computerID = id;
+        ServerComputer computer = getServerComputer();
+        if( computer != null ) computer.setID( m_computerID );
+        markDirty();
     }
 
     @Override
     public void setLabel( String label )
     {
-        if( !getWorld().isRemote && !Objects.equals( m_label, label ) )
-        {
-            m_label = label;
-            ServerComputer computer = getServerComputer();
-            if( computer != null ) computer.setLabel( label );
-            markDirty();
-        }
+        if( getWorld().isRemote || Objects.equals( m_label, label ) ) return;
+
+        m_label = label;
+        ServerComputer computer = getServerComputer();
+        if( computer != null ) computer.setLabel( label );
+        markDirty();
     }
 
     @Override
@@ -420,63 +409,48 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
 
     public ServerComputer createServerComputer()
     {
-        if( !getWorld().isRemote )
+        if( getWorld().isRemote ) return null;
+
+        boolean changed = false;
+        if( m_instanceID < 0 )
         {
-            boolean changed = false;
-            if( m_instanceID < 0 )
-            {
-                m_instanceID = ComputerCraft.serverComputerRegistry.getUnusedInstanceID();
-                changed = true;
-            }
-            if( !ComputerCraft.serverComputerRegistry.contains( m_instanceID ) )
-            {
-                ServerComputer computer = createComputer( m_instanceID, m_computerID );
-                ComputerCraft.serverComputerRegistry.add( m_instanceID, computer );
-                m_fresh = true;
-                changed = true;
-            }
-            if( changed )
-            {
-                updateBlock();
-                updateInput();
-            }
-            return ComputerCraft.serverComputerRegistry.get( m_instanceID );
+            m_instanceID = ComputerCraft.serverComputerRegistry.getUnusedInstanceID();
+            changed = true;
         }
-        return null;
+        if( !ComputerCraft.serverComputerRegistry.contains( m_instanceID ) )
+        {
+            ServerComputer computer = createComputer( m_instanceID, m_computerID );
+            ComputerCraft.serverComputerRegistry.add( m_instanceID, computer );
+            m_fresh = true;
+            changed = true;
+        }
+        if( changed )
+        {
+            updateBlock();
+            updateInput();
+        }
+        return ComputerCraft.serverComputerRegistry.get( m_instanceID );
     }
 
     public ServerComputer getServerComputer()
     {
-        if( !getWorld().isRemote )
-        {
-            return ComputerCraft.serverComputerRegistry.get( m_instanceID );
-        }
-        return null;
+        return getWorld().isRemote ? null : ComputerCraft.serverComputerRegistry.get( m_instanceID );
     }
 
     public ClientComputer createClientComputer()
     {
-        if( getWorld().isRemote )
+        if( !getWorld().isRemote || m_instanceID < 0 ) return null;
+
+        if( !ComputerCraft.clientComputerRegistry.contains( m_instanceID ) )
         {
-            if( m_instanceID >= 0 )
-            {
-                if( !ComputerCraft.clientComputerRegistry.contains( m_instanceID ) )
-                {
-                    ComputerCraft.clientComputerRegistry.add( m_instanceID, new ClientComputer( m_instanceID ) );
-                }
-                return ComputerCraft.clientComputerRegistry.get( m_instanceID );
-            }
+            ComputerCraft.clientComputerRegistry.add( m_instanceID, new ClientComputer( m_instanceID ) );
         }
-        return null;
+        return ComputerCraft.clientComputerRegistry.get( m_instanceID );
     }
 
     public ClientComputer getClientComputer()
     {
-        if( getWorld().isRemote )
-        {
-            return ComputerCraft.clientComputerRegistry.get( m_instanceID );
-        }
-        return null;
+        return getWorld().isRemote ? ComputerCraft.clientComputerRegistry.get( m_instanceID ) : null;
     }
 
     // Networking stuff

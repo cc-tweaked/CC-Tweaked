@@ -23,17 +23,17 @@ public class ContainerDiskDrive extends Container
         m_diskDrive = diskDrive;
         addSlotToContainer( new Slot( m_diskDrive, 0, 8 + 4 * 18, 35 ) );
 
-        for( int j = 0; j < 3; j++ )
+        for( int y = 0; y < 3; y++ )
         {
-            for( int i1 = 0; i1 < 9; i1++ )
+            for( int x = 0; x < 9; x++ )
             {
-                addSlotToContainer( new Slot( playerInventory, i1 + j * 9 + 9, 8 + i1 * 18, 84 + j * 18 ) );
+                addSlotToContainer( new Slot( playerInventory, x + y * 9 + 9, 8 + x * 18, 84 + y * 18 ) );
             }
         }
 
-        for( int k = 0; k < 9; k++ )
+        for( int x = 0; x < 9; x++ )
         {
-            addSlotToContainer( new Slot( playerInventory, k, 8 + k * 18, 142 ) );
+            addSlotToContainer( new Slot( playerInventory, x, 8 + x * 18, 142 ) );
         }
     }
 
@@ -50,44 +50,38 @@ public class ContainerDiskDrive extends Container
 
     @Nonnull
     @Override
-    public ItemStack transferStackInSlot( EntityPlayer player, int i )
+    public ItemStack transferStackInSlot( EntityPlayer player, int slotIndex )
     {
-        ItemStack itemstack = ItemStack.EMPTY;
-        Slot slot = inventorySlots.get( i );
-        if( slot != null && slot.getHasStack() )
+        ItemStack extract = ItemStack.EMPTY;
+        Slot slot = inventorySlots.get( slotIndex );
+        if( slot == null || !slot.getHasStack() ) return extract;
+
+        ItemStack existing = slot.getStack().copy();
+        extract = existing.copy();
+        if( slotIndex == 0 )
         {
-            ItemStack itemstack1 = slot.getStack().copy();
-            itemstack = itemstack1.copy();
-            if( i == 0 )
-            {
-                if( !mergeItemStack( itemstack1, 1, 37, true ) )
-                {
-                    return ItemStack.EMPTY;
-                }
-            }
-            else if( !mergeItemStack( itemstack1, 0, 1, false ) )
-            {
-                return ItemStack.EMPTY;
-            }
-
-            if( itemstack1.isEmpty() )
-            {
-                slot.putStack( ItemStack.EMPTY );
-            }
-            else
-            {
-                slot.onSlotChanged();
-            }
-
-            if( itemstack1.getCount() != itemstack.getCount() )
-            {
-                slot.onTake( player, itemstack1 );
-            }
-            else
+            if( !mergeItemStack( existing, 1, 37, true ) )
             {
                 return ItemStack.EMPTY;
             }
         }
-        return itemstack;
+        else if( !mergeItemStack( existing, 0, 1, false ) )
+        {
+            return ItemStack.EMPTY;
+        }
+
+        if( existing.isEmpty() )
+        {
+            slot.putStack( ItemStack.EMPTY );
+        }
+        else
+        {
+            slot.onSlotChanged();
+        }
+
+        if( existing.getCount() == extract.getCount() ) return ItemStack.EMPTY;
+
+        slot.onTake( player, existing );
+        return extract;
     }
 }

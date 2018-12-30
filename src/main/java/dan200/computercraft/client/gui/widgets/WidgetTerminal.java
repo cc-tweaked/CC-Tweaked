@@ -18,15 +18,15 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.ChatAllowedCharacters;
-import net.minecraft.util.ResourceLocation;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 
 import java.util.ArrayList;
 
+import static dan200.computercraft.client.gui.FixedWidthFontRenderer.BACKGROUND;
+
 public class WidgetTerminal extends Widget
 {
-    private static final ResourceLocation background = new ResourceLocation( "computercraft", "textures/gui/term_background.png" );
     private static final float TERMINATE_TIME = 0.5f;
 
     private final IComputerContainer m_computer;
@@ -409,7 +409,7 @@ public class WidgetTerminal extends Widget
                 }
 
                 // Draw lines
-                for( int line = 0; line < th; ++line )
+                for( int line = 0; line < th; line++ )
                 {
                     TextBuffer text = terminal.getLine( line );
                     TextBuffer colour = terminal.getTextColourLine( line );
@@ -437,7 +437,7 @@ public class WidgetTerminal extends Widget
             else
             {
                 // Draw a black background
-                mc.getTextureManager().bindTexture( background );
+                mc.getTextureManager().bindTexture( BACKGROUND );
                 Colour black = Colour.Black;
                 GlStateManager.color( black.getR(), black.getG(), black.getB(), 1.0f );
                 try

@@ -113,7 +113,7 @@ public class PrintoutRecipe extends IForgeRegistryEntry.Impl<IRecipe> implements
             String[] colours = new String[numPages * ItemPrintout.LINES_PER_PAGE];
             int line = 0;
 
-            for( int printout = 0; printout < numPrintouts; ++printout )
+            for( int printout = 0; printout < numPrintouts; printout++ )
             {
                 ItemStack stack = printouts[printout];
                 if( stack.getItem() instanceof ItemPrintout )
@@ -121,7 +121,7 @@ public class PrintoutRecipe extends IForgeRegistryEntry.Impl<IRecipe> implements
                     // Add a printout
                     String[] pageText = ItemPrintout.getText( printouts[printout] );
                     String[] pageColours = ItemPrintout.getColours( printouts[printout] );
-                    for( int pageLine = 0; pageLine < pageText.length; ++pageLine )
+                    for( int pageLine = 0; pageLine < pageText.length; pageLine++ )
                     {
                         text[line] = pageText[pageLine];
                         colours[line] = pageColours[pageLine];
@@ -131,7 +131,7 @@ public class PrintoutRecipe extends IForgeRegistryEntry.Impl<IRecipe> implements
                 else
                 {
                     // Add a blank page
-                    for( int pageLine = 0; pageLine < ItemPrintout.LINES_PER_PAGE; ++pageLine )
+                    for( int pageLine = 0; pageLine < ItemPrintout.LINES_PER_PAGE; pageLine++ )
                     {
                         text[line] = "";
                         colours[line] = "";

@@ -14,7 +14,7 @@ import net.minecraft.util.ResourceLocation;
 
 public class GuiDiskDrive extends GuiContainer
 {
-    private static final ResourceLocation background = new ResourceLocation( "computercraft", "textures/gui/diskdrive.png" );
+    private static final ResourceLocation BACKGROUND = new ResourceLocation( "computercraft", "textures/gui/diskdrive.png" );
 
     private final ContainerDiskDrive m_container;
 
@@ -36,7 +36,7 @@ public class GuiDiskDrive extends GuiContainer
     protected void drawGuiContainerBackgroundLayer( float f, int i, int j )
     {
         GlStateManager.color( 1.0F, 1.0F, 1.0F, 1.0F );
-        this.mc.getTextureManager().bindTexture( background );
+        this.mc.getTextureManager().bindTexture( BACKGROUND );
         int l = (width - xSize) / 2;
         int i1 = (height - ySize) / 2;
         drawTexturedModalRect( l, i1, 0, 0, xSize, ySize );

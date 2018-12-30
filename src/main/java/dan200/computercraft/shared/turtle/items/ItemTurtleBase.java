@@ -182,7 +182,7 @@ public abstract class ItemTurtleBase extends ItemComputerBase implements ITurtle
     }
 
     @Override
-    public ItemStack setColour( ItemStack stack, int colour )
+    public ItemStack withColour( ItemStack stack, int colour )
     {
         return TurtleItemFactory.create(
             getComputerID( stack ), getLabel( stack ), colour, getFamily( stack ),

@@ -14,7 +14,7 @@ import net.minecraft.util.ResourceLocation;
 
 public class GuiPrinter extends GuiContainer
 {
-    private static final ResourceLocation background = new ResourceLocation( "computercraft", "textures/gui/printer.png" );
+    private static final ResourceLocation BACKGROUND = new ResourceLocation( "computercraft", "textures/gui/printer.png" );
 
     private final ContainerPrinter m_container;
 
@@ -36,7 +36,7 @@ public class GuiPrinter extends GuiContainer
     protected void drawGuiContainerBackgroundLayer( float f, int i, int j )
     {
         GlStateManager.color( 1.0F, 1.0F, 1.0F, 1.0F );
-        this.mc.getTextureManager().bindTexture( background );
+        this.mc.getTextureManager().bindTexture( BACKGROUND );
         int startX = (width - xSize) / 2;
         int startY = (height - ySize) / 2;
         drawTexturedModalRect( startX, startY, 0, 0, xSize, ySize );

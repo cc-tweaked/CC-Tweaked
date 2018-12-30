@@ -20,10 +20,6 @@ import javax.annotation.Nonnull;
 
 public class DefaultPeripheralProvider implements IPeripheralProvider
 {
-    public DefaultPeripheralProvider()
-    {
-    }
-
     @Override
     public IPeripheral getPeripheral( @Nonnull World world, @Nonnull BlockPos pos, @Nonnull EnumFacing side )
     {

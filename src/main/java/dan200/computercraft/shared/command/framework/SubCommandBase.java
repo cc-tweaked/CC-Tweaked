@@ -1,5 +1,7 @@
 package dan200.computercraft.shared.command.framework;
 
+import dan200.computercraft.shared.command.UserLevel;
+
 import javax.annotation.Nonnull;
 import java.util.Collections;
 import java.util.List;

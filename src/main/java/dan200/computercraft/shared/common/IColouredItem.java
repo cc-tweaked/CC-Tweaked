@@ -6,5 +6,5 @@ public interface IColouredItem
 {
     int getColour( ItemStack stack );
 
-    ItemStack setColour( ItemStack stack, int colour );
+    ItemStack withColour( ItemStack stack, int colour );
 }

@@ -7,12 +7,11 @@
 package dan200.computercraft.shared.network.client;
 
 import dan200.computercraft.shared.network.NetworkMessages;
+import dan200.computercraft.shared.util.NBTUtil;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
 
 import javax.annotation.Nonnull;
-import java.io.IOException;
-import java.io.UncheckedIOException;
 
 public class ComputerTerminalClientMessage extends ComputerClientMessage
 {
@@ -50,13 +49,6 @@ public class ComputerTerminalClientMessage extends ComputerClientMessage
     public void fromBytes( @Nonnull PacketBuffer buf )
     {
         super.fromBytes( buf );
-        try
-        {
-            tag = buf.readCompoundTag();
-        }
-        catch( IOException e )
-        {
-            throw new UncheckedIOException( e );
-        }
+        tag = NBTUtil.readCompoundTag( buf );
     }
 }

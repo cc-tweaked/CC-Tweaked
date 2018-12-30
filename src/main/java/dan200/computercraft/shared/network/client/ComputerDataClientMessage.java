@@ -9,12 +9,11 @@ package dan200.computercraft.shared.network.client;
 import dan200.computercraft.shared.computer.blocks.ComputerState;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.network.NetworkMessages;
+import dan200.computercraft.shared.util.NBTUtil;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
 
 import javax.annotation.Nonnull;
-import java.io.IOException;
-import java.io.UncheckedIOException;
 
 /**
  * Provides additional data about a client computer, such as its ID and current state.
@@ -64,13 +63,6 @@ public class ComputerDataClientMessage extends ComputerClientMessage
     {
         super.fromBytes( buf );
         state = buf.readEnumValue( ComputerState.class );
-        try
-        {
-            userData = buf.readCompoundTag();
-        }
-        catch( IOException e )
-        {
-            throw new UncheckedIOException( e );
-        }
+        userData = NBTUtil.readCompoundTag( buf );
     }
 }

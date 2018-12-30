@@ -24,9 +24,9 @@ import java.io.IOException;
 
 public class GuiComputer extends GuiContainer
 {
-    private static final ResourceLocation background = new ResourceLocation( "computercraft", "textures/gui/corners.png" );
-    private static final ResourceLocation backgroundAdvanced = new ResourceLocation( "computercraft", "textures/gui/corners_advanced.png" );
-    private static final ResourceLocation backgroundCommand = new ResourceLocation( "computercraft", "textures/gui/corners_command.png" );
+    private static final ResourceLocation BACKGROUND = new ResourceLocation( "computercraft", "textures/gui/corners.png" );
+    private static final ResourceLocation BACKGROUND_ADVANCED = new ResourceLocation( "computercraft", "textures/gui/corners_advanced.png" );
+    private static final ResourceLocation BACKGROUND_COMMAND = new ResourceLocation( "computercraft", "textures/gui/corners_command.png" );
 
     private final ComputerFamily m_family;
     private final ClientComputer m_computer;
@@ -165,17 +165,17 @@ public class GuiComputer extends GuiContainer
             case Normal:
             default:
             {
-                this.mc.getTextureManager().bindTexture( background );
+                this.mc.getTextureManager().bindTexture( BACKGROUND );
                 break;
             }
             case Advanced:
             {
-                this.mc.getTextureManager().bindTexture( backgroundAdvanced );
+                this.mc.getTextureManager().bindTexture( BACKGROUND_ADVANCED );
                 break;
             }
             case Command:
             {
-                this.mc.getTextureManager().bindTexture( backgroundCommand );
+                this.mc.getTextureManager().bindTexture( BACKGROUND_COMMAND );
                 break;
             }
         }

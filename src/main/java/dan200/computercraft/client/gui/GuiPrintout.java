@@ -43,27 +43,9 @@ public class GuiPrintout extends GuiContainer
     }
 
     @Override
-    public void initGui()
-    {
-        super.initGui();
-    }
-
-    @Override
-    public void onGuiClosed()
-    {
-        super.onGuiClosed();
-    }
-
-    @Override
     public boolean doesGuiPauseGame()
     {
         return false;
-    }
-
-    @Override
-    public void updateScreen()
-    {
-        super.updateScreen();
     }
 
     @Override

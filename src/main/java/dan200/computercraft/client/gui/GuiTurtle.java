@@ -23,8 +23,8 @@ import java.io.IOException;
 
 public class GuiTurtle extends GuiContainer
 {
-    private static final ResourceLocation background = new ResourceLocation( "computercraft", "textures/gui/turtle.png" );
-    private static final ResourceLocation backgroundAdvanced = new ResourceLocation( "computercraft", "textures/gui/turtle_advanced.png" );
+    private static final ResourceLocation BACKGROUND = new ResourceLocation( "computercraft", "textures/gui/turtle.png" );
+    private static final ResourceLocation BACKGROUND_ADVANCED = new ResourceLocation( "computercraft", "textures/gui/turtle_advanced.png" );
 
     private ContainerTurtle m_container;
 
@@ -122,7 +122,7 @@ public class GuiTurtle extends GuiContainer
             GlStateManager.color( 1.0F, 1.0F, 1.0F, 1.0F );
             int slotX = (slot % 4);
             int slotY = (slot / 4);
-            this.mc.getTextureManager().bindTexture( advanced ? backgroundAdvanced : background );
+            this.mc.getTextureManager().bindTexture( advanced ? BACKGROUND_ADVANCED : BACKGROUND );
             drawTexturedModalRect( x + m_container.m_turtleInvStartX - 2 + slotX * 18, y + m_container.m_playerInvStartY - 2 + slotY * 18, 0, 217, 24, 24 );
         }
     }
@@ -136,7 +136,7 @@ public class GuiTurtle extends GuiContainer
 
         // Draw border/inventory
         GlStateManager.color( 1.0F, 1.0F, 1.0F, 1.0F );
-        this.mc.getTextureManager().bindTexture( advanced ? backgroundAdvanced : background );
+        this.mc.getTextureManager().bindTexture( advanced ? BACKGROUND_ADVANCED : BACKGROUND );
         int x = (width - xSize) / 2;
         int y = (height - ySize) / 2;
         drawTexturedModalRect( x, y, 0, 0, xSize, ySize );

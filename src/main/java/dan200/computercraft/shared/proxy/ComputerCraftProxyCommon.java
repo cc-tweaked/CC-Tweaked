@@ -212,14 +212,14 @@ public abstract class ComputerCraftProxyCommon implements IComputerCraftProxy
         // Impostor Disk recipes (to fool NEI)
         ItemStack paper = new ItemStack( Items.PAPER, 1 );
         ItemStack redstone = new ItemStack( Items.REDSTONE, 1 );
-        for( int colour = 0; colour < 16; ++colour )
+        for( int colour = 0; colour < 16; colour++ )
         {
             ItemStack disk = ItemDiskLegacy.createFromIDAndColour( -1, null, Colour.values()[colour].getHex() );
             ItemStack dye = new ItemStack( Items.DYE, 1, colour );
 
             int diskIdx = 0;
             ItemStack[] disks = new ItemStack[15];
-            for( int otherColour = 0; otherColour < 16; ++otherColour )
+            for( int otherColour = 0; otherColour < 16; otherColour++ )
             {
                 if( colour != otherColour )
                 {

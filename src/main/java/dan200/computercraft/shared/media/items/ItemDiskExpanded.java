@@ -15,10 +15,6 @@ import javax.annotation.Nonnull;
 
 public class ItemDiskExpanded extends ItemDiskLegacy
 {
-    public ItemDiskExpanded()
-    {
-    }
-
     @Nonnull
     public static ItemStack createFromIDAndColour( int id, String label, int colour )
     {

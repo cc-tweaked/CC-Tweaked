@@ -47,10 +47,6 @@ public class TileEntityTurtleRenderer extends TileEntitySpecialRenderer<TileTurt
     private static final ModelResourceLocation COLOUR_TURTLE_MODEL = new ModelResourceLocation( "computercraft:turtle_white", "inventory" );
     private static final ModelResourceLocation ELF_OVERLAY_MODEL = new ModelResourceLocation( "computercraft:turtle_elf_overlay", "inventory" );
 
-    public TileEntityTurtleRenderer()
-    {
-    }
-
     @Override
     public void render( TileTurtle tileEntity, double posX, double posY, double posZ, float f, int i, float f2 )
     {

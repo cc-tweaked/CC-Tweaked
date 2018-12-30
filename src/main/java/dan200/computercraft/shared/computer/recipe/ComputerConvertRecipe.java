@@ -21,7 +21,7 @@ public abstract class ComputerConvertRecipe extends ShapedRecipes
     }
 
     @Nonnull
-    protected abstract ItemStack convert( @Nonnull ItemStack stack );
+    protected abstract ItemStack convert( IComputerItem item, @Nonnull ItemStack stack );
 
     @Override
     public boolean matches( @Nonnull InventoryCrafting inventory, @Nonnull World world )
@@ -54,10 +54,13 @@ public abstract class ComputerConvertRecipe extends ShapedRecipes
         {
             for( int x = 0; x < 3; x++ )
             {
-                ItemStack item = inventory.getStackInRowAndColumn( x, y );
+                ItemStack stack = inventory.getStackInRowAndColumn( x, y );
 
                 // If we're a computer, convert!
-                if( item.getItem() instanceof IComputerItem ) return convert( item );
+                if( stack.getItem() instanceof IComputerItem )
+                {
+                    return convert( ((IComputerItem) stack.getItem()), stack );
+                }
             }
         }
 

@@ -33,9 +33,8 @@ public class TurtleRecipe extends ComputerConvertRecipe
 
     @Nonnull
     @Override
-    protected ItemStack convert( @Nonnull ItemStack stack )
+    protected ItemStack convert( IComputerItem item, @Nonnull ItemStack stack )
     {
-        IComputerItem item = (IComputerItem) stack.getItem();
         int computerID = item.getComputerID( stack );
         String label = item.getLabel( stack );
 

@@ -35,7 +35,7 @@ public class FixedWidthFontRenderer
         return instance = new FixedWidthFontRenderer();
     }
 
-    private TextureManager m_textureManager;
+    private final TextureManager m_textureManager;
 
     private FixedWidthFontRenderer()
     {

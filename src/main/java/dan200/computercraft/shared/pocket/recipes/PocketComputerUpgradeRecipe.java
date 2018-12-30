@@ -24,10 +24,6 @@ import javax.annotation.Nonnull;
 
 public class PocketComputerUpgradeRecipe extends IForgeRegistryEntry.Impl<IRecipe> implements IRecipe
 {
-    public PocketComputerUpgradeRecipe()
-    {
-    }
-
     @Override
     public boolean canFit( int x, int y )
     {

@@ -129,10 +129,7 @@ public class TileDiskDrive extends TilePeripheralBase implements DefaultInventor
     @Override
     public void setDirection( EnumFacing dir )
     {
-        if( dir.getAxis() == EnumFacing.Axis.Y )
-        {
-            dir = EnumFacing.NORTH;
-        }
+        if( dir.getAxis() == EnumFacing.Axis.Y ) dir = EnumFacing.NORTH;
         setBlockState( getBlockState().withProperty( BlockPeripheral.Properties.FACING, dir ) );
     }
 
@@ -239,10 +236,7 @@ public class TileDiskDrive extends TilePeripheralBase implements DefaultInventor
     @Override
     public ItemStack decrStackSize( int i, int j )
     {
-        if( m_diskStack.isEmpty() )
-        {
-            return ItemStack.EMPTY;
-        }
+        if( m_diskStack.isEmpty() ) return ItemStack.EMPTY;
 
         if( m_diskStack.getCount() <= j )
         {
@@ -252,14 +246,7 @@ public class TileDiskDrive extends TilePeripheralBase implements DefaultInventor
         }
 
         ItemStack part = m_diskStack.splitStack( j );
-        if( m_diskStack.isEmpty() )
-        {
-            setInventorySlotContents( 0, ItemStack.EMPTY );
-        }
-        else
-        {
-            setInventorySlotContents( 0, m_diskStack );
-        }
+        setInventorySlotContents( 0, m_diskStack.isEmpty() ? ItemStack.EMPTY : m_diskStack );
         return part;
     }
 
@@ -331,28 +318,14 @@ public class TileDiskDrive extends TilePeripheralBase implements DefaultInventor
     public String getName()
     {
         String label = getLabel();
-        if( label != null )
-        {
-            return label;
-        }
-        else
-        {
-            return "tile.computercraft:drive.name";
-        }
+        return label != null ? label : "tile.computercraft:drive.name";
     }
 
     @Nonnull
     @Override
     public ITextComponent getDisplayName()
     {
-        if( hasCustomName() )
-        {
-            return new TextComponentString( getName() );
-        }
-        else
-        {
-            return new TextComponentTranslation( getName() );
-        }
+        return hasCustomName() ? new TextComponentString( getName() ) : new TextComponentTranslation( getName() );
     }
 
     @Override
@@ -448,10 +421,7 @@ public class TileDiskDrive extends TilePeripheralBase implements DefaultInventor
     {
         synchronized( this )
         {
-            if( !m_ejectQueued )
-            {
-                m_ejectQueued = true;
-            }
+            m_ejectQueued = true;
         }
     }
 
@@ -521,14 +491,7 @@ public class TileDiskDrive extends TilePeripheralBase implements DefaultInventor
         if( !m_diskStack.isEmpty() )
         {
             IMedia contents = getDiskMedia();
-            if( contents != null )
-            {
-                setAnim( 2 );
-            }
-            else
-            {
-                setAnim( 1 );
-            }
+            setAnim( contents != null ? 2 : 1 );
         }
         else
         {
