@@ -1,3 +1,9 @@
+/*
+ * This file is part of ComputerCraft - http://www.computercraft.info
+ * Copyright Daniel Ratcliffe, 2011-2018. Do not distribute without permission.
+ * Send enquiries to dratcliffe@gmail.com
+ */
+
 package dan200.computercraft.core.apis.handles;
 
 import com.google.common.collect.ObjectArrays;
@@ -80,26 +86,29 @@ public class BinaryReadableHandle extends HandleGeneric
                         }
                         else
                         {
+                            // Read the initial set of characters, failing if none are read.
                             ByteBuffer buffer = ByteBuffer.allocate( BUFFER_SIZE );
-
                             int read = m_reader.read( buffer );
                             if( read < 0 ) return null;
-                            int totalRead = read;
 
                             // If we failed to read "enough" here, let's just abort
-                            if( totalRead >= count || read < BUFFER_SIZE )
+                            if( read >= count || read < BUFFER_SIZE )
                             {
                                 return new Object[] { Arrays.copyOf( buffer.array(), read ) };
                             }
 
                             // Build up an array of ByteBuffers. Hopefully this means we can perform less allocation
                             // than doubling up the buffer each time.
+                            int totalRead = read;
                             List<ByteBuffer> parts = new ArrayList<>( 4 );
                             parts.add( buffer );
-                            while( totalRead < count && read >= BUFFER_SIZE )
+                            while( read >= BUFFER_SIZE && totalRead < count )
                             {
-                                buffer = ByteBuffer.allocate( BUFFER_SIZE );
-                                totalRead += read = m_reader.read( buffer );
+                                buffer = ByteBuffer.allocate( Math.min( BUFFER_SIZE, count - totalRead ) );
+                                read = m_reader.read( buffer );
+                                if( read < 0 ) break;
+
+                                totalRead += read;
                                 parts.add( buffer );
                             }
 

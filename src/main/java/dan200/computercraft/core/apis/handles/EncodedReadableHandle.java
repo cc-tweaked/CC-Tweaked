@@ -1,3 +1,9 @@
+/*
+ * This file is part of ComputerCraft - http://www.computercraft.info
+ * Copyright Daniel Ratcliffe, 2011-2018. Do not distribute without permission.
+ * Send enquiries to dratcliffe@gmail.com
+ */
+
 package dan200.computercraft.core.apis.handles;
 
 import dan200.computercraft.api.lua.ILuaContext;
@@ -102,6 +108,7 @@ public class EncodedReadableHandle extends HandleGeneric
                 close();
                 return null;
             case 3:
+                // read
                 checkOpen();
                 try
                 {
@@ -127,19 +134,20 @@ public class EncodedReadableHandle extends HandleGeneric
 
                         // Read the initial set of characters, failing if none are read.
                         int read = m_reader.read( buffer, 0, Math.min( buffer.length, count ) );
-                        if( read == -1 ) return null;
+                        if( read < 0 ) return null;
 
                         StringBuilder out = new StringBuilder( read );
-                        count -= read;
+                        int totalRead = read;
                         out.append( buffer, 0, read );
 
                         // Otherwise read until we either reach the limit or we no longer consume
                         // the full buffer.
-                        while( read >= BUFFER_SIZE && count > 0 )
+                        while( read >= BUFFER_SIZE && totalRead < count )
                         {
-                            read = m_reader.read( buffer, 0, Math.min( BUFFER_SIZE, count ) );
-                            if( read == -1 ) break;
-                            count -= read;
+                            read = m_reader.read( buffer, 0, Math.min( BUFFER_SIZE, count - totalRead ) );
+                            if( read < 0 ) break;
+
+                            totalRead += read;
                             out.append( buffer, 0, read );
                         }
 

@@ -54,6 +54,17 @@ public class ObjectWrapper implements ILuaContext
         }
     }
 
+    @SuppressWarnings( "unchecked" )
+    public <T> T callOf( String name, Object... args ) throws LuaException
+    {
+        return (T) call( name, args )[0];
+    }
+
+    public <T> T callOf( Class<T> klass, String name, Object... args ) throws LuaException
+    {
+        return klass.cast( call( name, args )[0] );
+    }
+
     @Nonnull
     @Override
     public Object[] pullEvent( @Nullable String filter )
