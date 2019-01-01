@@ -1,3 +1,9 @@
+/*
+ * This file is part of ComputerCraft - http://www.computercraft.info
+ * Copyright Daniel Ratcliffe, 2011-2019. Do not distribute without permission.
+ * Send enquiries to dratcliffe@gmail.com
+ */
+
 package dan200.computercraft.shared.wired;
 
 import com.google.common.base.Preconditions;
@@ -66,7 +72,7 @@ public final class WiredNetwork implements IWiredNetwork
                     for( WiredNode node : otherNodes ) node.network = this;
                     other.nodes = null;
 
-                    // Move all peripherals across, 
+                    // Move all peripherals across,
                     other.peripherals = null;
                     peripherals.putAll( otherPeripherals );
 
@@ -133,7 +139,7 @@ public final class WiredNetwork implements IWiredNetwork
                 WiredNode node = enqueued.remove();
                 for( WiredNode neighbour : node.neighbours )
                 {
-                    // If we can reach wiredV from wiredU then abort. 
+                    // If we can reach wiredV from wiredU then abort.
                     if( neighbour == wiredV ) return true;
 
                     // Otherwise attempt to enqueue this neighbour as well.
@@ -204,7 +210,7 @@ public final class WiredNetwork implements IWiredNetwork
 
             WiredNetwork wiredNetwork = new WiredNetwork( wired );
 
-            // If we're a leaf node in the graph (only one neighbour) then we don't need to 
+            // If we're a leaf node in the graph (only one neighbour) then we don't need to
             // check for network splitting
             if( neighbours.size() == 1 )
             {
@@ -227,7 +233,7 @@ public final class WiredNetwork implements IWiredNetwork
                 return true;
             }
 
-            // A split may cause 2..neighbours.size() separate networks, so we 
+            // A split may cause 2..neighbours.size() separate networks, so we
             // iterate through our neighbour list, generating child networks.
             neighbours.removeAll( reachable );
             ArrayList<WiredNetwork> maximals = new ArrayList<>( neighbours.size() + 1 );
@@ -245,7 +251,7 @@ public final class WiredNetwork implements IWiredNetwork
 
             try
             {
-                // We special case the original node: detaching all peripherals when needed. 
+                // We special case the original node: detaching all peripherals when needed.
                 wired.network = wiredNetwork;
                 wired.peripherals = Collections.emptyMap();
 
