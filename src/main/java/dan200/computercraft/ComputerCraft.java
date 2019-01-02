@@ -16,6 +16,7 @@ import dan200.computercraft.api.media.IMediaProvider;
 import dan200.computercraft.api.network.IPacketNetwork;
 import dan200.computercraft.api.network.wired.IWiredElement;
 import dan200.computercraft.api.network.wired.IWiredNode;
+import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.peripheral.IPeripheralProvider;
 import dan200.computercraft.api.permissions.ITurtlePermissionProvider;
 import dan200.computercraft.api.pocket.IPocketUpgrade;
@@ -885,6 +886,12 @@ public class ComputerCraft
     public static ITurtleUpgrade getTurtleUpgrade( ItemStack stack )
     {
         return TurtleUpgrades.get( stack );
+    }
+
+    @Deprecated
+    public static IPeripheral getPeripheralAt( World world, BlockPos pos, EnumFacing side )
+    {
+        return Peripherals.getPeripheral( world, pos, side );
     }
     //endregion
 }
