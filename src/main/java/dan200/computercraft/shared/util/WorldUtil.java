@@ -6,6 +6,7 @@
 
 package dan200.computercraft.shared.util;
 
+import com.google.common.base.Predicate;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
@@ -24,6 +25,8 @@ import java.util.List;
 
 public class WorldUtil
 {
+    private static final Predicate<Entity> CAN_COLLIDE = x -> x != null && !x.isDead && x.canBeCollidedWith();
+
     public static boolean isLiquidBlock( World world, BlockPos pos )
     {
         return world.getBlockState( pos ).getMaterial().isLiquid();
@@ -56,14 +59,9 @@ public class WorldUtil
 
         Entity closest = null;
         double closestDist = 99.0;
-        List<Entity> list = world.getEntitiesWithinAABBExcludingEntity( null, bigBox );
+        List<Entity> list = world.getEntitiesWithinAABB( Entity.class, bigBox, CAN_COLLIDE );
         for( Entity entity : list )
         {
-            if( entity.isDead || !entity.canBeCollidedWith() )
-            {
-                continue;
-            }
-
             AxisAlignedBB littleBox = entity.getEntityBoundingBox();
             if( littleBox == null )
             {

@@ -57,8 +57,7 @@ public class TurtleMoveCommand implements ITurtleCommand
         // Check existing block is air or replaceable
         IBlockState state = oldWorld.getBlockState( newPosition );
         Block block = state.getBlock();
-        if( block != null &&
-            !oldWorld.isAirBlock( newPosition ) &&
+        if( !oldWorld.isAirBlock( newPosition ) &&
             !WorldUtil.isLiquidBlock( oldWorld, newPosition ) &&
             !block.isReplaceable( oldWorld, newPosition ) )
         {
@@ -72,39 +71,31 @@ public class TurtleMoveCommand implements ITurtleCommand
             newPosition.getY(),
             newPosition.getZ()
         );
+
         if( !oldWorld.checkNoEntityCollision( aabb ) )
         {
-            if( ComputerCraft.turtlesCanPush && m_direction != MoveDirection.Up && m_direction != MoveDirection.Down )
-            {
-                // Check there is space for all the pushable entities to be pushed
-                List<Entity> list = oldWorld.getEntitiesWithinAABBExcludingEntity( null, aabb );
-                for( Entity entity : list )
-                {
-                    if( !entity.isDead && entity.preventEntitySpawning )
-                    {
-                        AxisAlignedBB entityBB = entity.getEntityBoundingBox();
-                        if( entityBB == null )
-                        {
-                            entityBB = entity.getCollisionBoundingBox();
-                        }
-                        if( entityBB != null )
-                        {
-                            AxisAlignedBB pushedBB = entityBB.offset(
-                                direction.getXOffset(),
-                                direction.getYOffset(),
-                                direction.getZOffset()
-                            );
-                            if( !oldWorld.getCollisionBoxes( null, pushedBB ).isEmpty() )
-                            {
-                                return TurtleCommandResult.failure( "Movement obstructed" );
-                            }
-                        }
-                    }
-                }
-            }
-            else
+            if( !ComputerCraft.turtlesCanPush || m_direction == MoveDirection.Up || m_direction == MoveDirection.Down )
             {
                 return TurtleCommandResult.failure( "Movement obstructed" );
+            }
+
+            // Check there is space for all the pushable entities to be pushed
+            List<Entity> list = oldWorld.getEntitiesWithinAABB( Entity.class, aabb, x -> x != null && !x.isDead && x.preventEntitySpawning );
+            for( Entity entity : list )
+            {
+                AxisAlignedBB entityBB = entity.getEntityBoundingBox();
+                if( entityBB == null ) entityBB = entity.getCollisionBoundingBox();
+                if( entityBB == null ) continue;
+
+                AxisAlignedBB pushedBB = entityBB.offset(
+                    direction.getXOffset(),
+                    direction.getYOffset(),
+                    direction.getZOffset()
+                );
+                if( !oldWorld.getCollisionBoxes( null, pushedBB ).isEmpty() )
+                {
+                    return TurtleCommandResult.failure( "Movement obstructed" );
+                }
             }
         }
 
@@ -121,42 +112,29 @@ public class TurtleMoveCommand implements ITurtleCommand
         }
 
         // Move
-        if( turtle.teleportTo( oldWorld, newPosition ) )
-        {
-            // Consume fuel
-            turtle.consumeFuel( 1 );
+        if( !turtle.teleportTo( oldWorld, newPosition ) ) return TurtleCommandResult.failure( "Movement failed" );
 
-            // Animate
-            switch( m_direction )
-            {
-                case Forward:
-                default:
-                {
-                    turtle.playAnimation( TurtleAnimation.MoveForward );
-                    break;
-                }
-                case Back:
-                {
-                    turtle.playAnimation( TurtleAnimation.MoveBack );
-                    break;
-                }
-                case Up:
-                {
-                    turtle.playAnimation( TurtleAnimation.MoveUp );
-                    break;
-                }
-                case Down:
-                {
-                    turtle.playAnimation( TurtleAnimation.MoveDown );
-                    break;
-                }
-            }
-            return TurtleCommandResult.success();
-        }
-        else
+        // Consume fuel
+        turtle.consumeFuel( 1 );
+
+        // Animate
+        switch( m_direction )
         {
-            return TurtleCommandResult.failure( "Movement failed" );
+            case Forward:
+            default:
+                turtle.playAnimation( TurtleAnimation.MoveForward );
+                break;
+            case Back:
+                turtle.playAnimation( TurtleAnimation.MoveBack );
+                break;
+            case Up:
+                turtle.playAnimation( TurtleAnimation.MoveUp );
+                break;
+            case Down:
+                turtle.playAnimation( TurtleAnimation.MoveDown );
+                break;
         }
+        return TurtleCommandResult.success();
     }
 
     private TurtleCommandResult canEnter( TurtlePlayer turtlePlayer, World world, BlockPos position )
