@@ -93,7 +93,7 @@ public class Config
             defaultComputerSettings.setComment( "A comma seperated list of default system settings to set on new computers. Example: \"shell.autocomplete=false,lua.autocomplete=false,edit.autocomplete=false\" will disable all autocompletion" );
 
             debugEnabled = config.get( CATEGORY_GENERAL, "debug_enabled", ComputerCraft.debug_enable );
-            debugEnabled.setComment( "Enable Lua's debug library. Whilst this should be safe for general use, it may allow players to interact with other computers. Enable at your own risk." );
+            debugEnabled.setComment( "Enable Lua's debug library. This is sandboxed to each computer, so is generally safe to be used by players." );
 
             computerThreads = config.get( CATEGORY_GENERAL, "computer_threads", ComputerCraft.computer_threads );
             computerThreads
