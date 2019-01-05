@@ -231,6 +231,8 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
         return m_computer.getID();
     }
 
+    @Override
+    @SuppressWarnings( "deprecation" )
     public String getLabel()
     {
         return m_computer.getLabel();

@@ -13,6 +13,9 @@ public interface IComputer extends ITerminal
 {
     int getInstanceID();
 
+    @Deprecated
+    String getLabel();
+
     boolean isOn();
 
     boolean isCursorDisplayed();

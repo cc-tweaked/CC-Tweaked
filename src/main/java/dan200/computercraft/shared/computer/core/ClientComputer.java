@@ -65,6 +65,13 @@ public class ClientComputer extends ClientTerminal implements IComputer
     }
 
     @Override
+    @Deprecated
+    public String getLabel()
+    {
+        return null;
+    }
+
+    @Override
     public boolean isOn()
     {
         return m_on;

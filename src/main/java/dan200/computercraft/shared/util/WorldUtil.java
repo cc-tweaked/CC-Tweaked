@@ -25,7 +25,14 @@ import java.util.List;
 
 public class WorldUtil
 {
+    @SuppressWarnings( "Guava" )
     private static final Predicate<Entity> CAN_COLLIDE = x -> x != null && !x.isDead && x.canBeCollidedWith();
+
+    @Deprecated
+    public static boolean isBlockInWorld( World world, BlockPos pos )
+    {
+        return world.isValid( pos );
+    }
 
     public static boolean isLiquidBlock( World world, BlockPos pos )
     {

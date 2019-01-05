@@ -16,6 +16,12 @@ import net.minecraft.world.World;
 public class RedstoneUtil
 {
     @Deprecated
+    public static int getRedstoneOutput( World world, BlockPos pos, EnumFacing side )
+    {
+        return world.getRedstonePower( pos, side );
+    }
+
+    @Deprecated
     public static int getBundledRedstoneOutput( World world, BlockPos pos, EnumFacing side )
     {
         return BundledRedstone.getOutput( world, pos, side );

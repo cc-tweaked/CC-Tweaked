@@ -13,6 +13,7 @@ import dan200.computercraft.shared.common.IDirectionalTile;
 import dan200.computercraft.shared.common.TileGeneric;
 import dan200.computercraft.shared.computer.core.ClientComputer;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
+import dan200.computercraft.shared.computer.core.IComputer;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.util.DirectionUtil;
 import dan200.computercraft.shared.util.RedstoneUtil;
@@ -405,6 +406,13 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
             return block.getFamily( getWorld(), getPos() );
         }
         return ComputerFamily.Normal;
+    }
+
+    @Override
+    @Deprecated
+    public IComputer getComputer()
+    {
+        return getWorld().isRemote ? getClientComputer() : getServerComputer();
     }
 
     public ServerComputer createServerComputer()

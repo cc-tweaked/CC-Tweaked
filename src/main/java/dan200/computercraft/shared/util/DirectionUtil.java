@@ -63,4 +63,10 @@ public class DirectionUtil
                 return 0.0f;
         }
     }
+
+    @Deprecated
+    public static float toYawAngle( EnumFacing dir )
+    {
+        return dir.getHorizontalAngle();
+    }
 }
