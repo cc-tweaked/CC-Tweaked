@@ -6,8 +6,6 @@
 
 package dan200.computercraft;
 
-import com.google.common.base.CaseFormat;
-import com.google.common.base.Converter;
 import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.api.filesystem.IWritableMount;
 import dan200.computercraft.api.lua.ILuaAPIFactory;
@@ -71,9 +69,6 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import net.minecraftforge.common.config.ConfigCategory;
-import net.minecraftforge.common.config.Configuration;
-import net.minecraftforge.common.config.Property;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
@@ -119,8 +114,8 @@ public class ComputerCraft
     public static final int viewComputerGUIID = 110;
 
     // Configuration options
-    private static final String[] DEFAULT_HTTP_WHITELIST = new String[] { "*" };
-    private static final String[] DEFAULT_HTTP_BLACKLIST = new String[] {
+    public static final String[] DEFAULT_HTTP_WHITELIST = new String[] { "*" };
+    public static final String[] DEFAULT_HTTP_BLACKLIST = new String[] {
         "127.0.0.0/8",
         "10.0.0.0/8",
         "172.16.0.0/12",
@@ -128,17 +123,27 @@ public class ComputerCraft
         "fd00::/8",
     };
 
+    public static int computerSpaceLimit = 1000 * 1000;
+    public static int floppySpaceLimit = 125 * 1000;
+    public static int maximumFilesOpen = 128;
+    public static boolean disable_lua51_features = false;
+    public static String default_computer_settings = "";
+    public static boolean debug_enable = true;
+    public static int computer_threads = 1;
+    public static boolean logPeripheralErrors = false;
+
     public static boolean http_enable = true;
     public static boolean http_websocket_enable = true;
     public static AddressPredicate http_whitelist = new AddressPredicate( DEFAULT_HTTP_WHITELIST );
     public static AddressPredicate http_blacklist = new AddressPredicate( DEFAULT_HTTP_BLACKLIST );
-    public static boolean disable_lua51_features = false;
-    public static String default_computer_settings = "";
-    public static boolean debug_enable = false;
-    public static int computer_threads = 1;
-    public static boolean logPeripheralErrors = false;
 
     public static boolean enableCommandBlock = false;
+    public static int modem_range = 64;
+    public static int modem_highAltitudeRange = 384;
+    public static int modem_rangeDuringStorm = 64;
+    public static int modem_highAltitudeRangeDuringStorm = 384;
+    public static int maxNotesPerTick = 8;
+
     public static boolean turtlesNeedFuel = true;
     public static int turtleFuelLimit = 20000;
     public static int advancedTurtleFuelLimit = 100000;
@@ -154,17 +159,6 @@ public class ComputerCraft
 
     public static final int terminalWidth_pocketComputer = 26;
     public static final int terminalHeight_pocketComputer = 20;
-
-    public static int modem_range = 64;
-    public static int modem_highAltitudeRange = 384;
-    public static int modem_rangeDuringStorm = 64;
-    public static int modem_highAltitudeRangeDuringStorm = 384;
-
-    public static int computerSpaceLimit = 1000 * 1000;
-    public static int floppySpaceLimit = 125 * 1000;
-    public static int maximumFilesOpen = 128;
-
-    public static int maxNotesPerTick = 8;
 
     // Blocks and Items
     public static class Blocks
@@ -209,40 +203,6 @@ public class ComputerCraft
         public static PocketSpeaker pocketSpeaker;
     }
 
-    public static class Config
-    {
-        public static Configuration config;
-
-        public static Property http_enable;
-        public static Property http_websocket_enable;
-        public static Property http_whitelist;
-        public static Property http_blacklist;
-        public static Property disable_lua51_features;
-        public static Property default_computer_settings;
-        public static Property debug_enable;
-        public static Property computer_threads;
-        public static Property logPeripheralErrors;
-
-        public static Property enableCommandBlock;
-        public static Property turtlesNeedFuel;
-        public static Property turtleFuelLimit;
-        public static Property advancedTurtleFuelLimit;
-        public static Property turtlesObeyBlockProtection;
-        public static Property turtlesCanPush;
-        public static Property turtleDisabledActions;
-
-        public static Property modem_range;
-        public static Property modem_highAltitudeRange;
-        public static Property modem_rangeDuringStorm;
-        public static Property modem_highAltitudeRangeDuringStorm;
-
-        public static Property computerSpaceLimit;
-        public static Property floppySpaceLimit;
-        public static Property maximumFilesOpen;
-        public static Property maxNotesPerTick;
-
-    }
-
     // Registries
     public static ClientComputerRegistry clientComputerRegistry = new ClientComputerRegistry();
     public static ServerComputerRegistry serverComputerRegistry = new ServerComputerRegistry();
@@ -275,167 +235,13 @@ public class ComputerCraft
         log = event.getModLog();
 
         // Load config
-        Config.config = new Configuration( event.getSuggestedConfigurationFile() );
-        loadConfig();
+        Config.load( event.getSuggestedConfigurationFile() );
 
         // Setup network
         networkWrapper = NetworkRegistry.INSTANCE.newSimpleChannel( ComputerCraft.MOD_ID );
 
         proxy.preInit();
         turtleProxy.preInit();
-    }
-
-    public static void loadConfig()
-    {
-        Config.config.load();
-
-        Config.http_enable = Config.config.get( Configuration.CATEGORY_GENERAL, "http_enable", http_enable );
-        Config.http_enable.setComment( "Enable the \"http\" API on Computers (see \"http_whitelist\" and \"http_blacklist\" for more fine grained control than this)" );
-
-        Config.http_websocket_enable = Config.config.get( Configuration.CATEGORY_GENERAL, "http_websocket_enable", http_websocket_enable );
-        Config.http_websocket_enable.setComment( "Enable use of http websockets. This requires the \"http_enable\" option to also be true." );
-
-        {
-            ConfigCategory category = Config.config.getCategory( Configuration.CATEGORY_GENERAL );
-            Property currentProperty = category.get( "http_whitelist" );
-            if( currentProperty != null && !currentProperty.isList() ) category.remove( "http_whitelist" );
-
-            Config.http_whitelist = Config.config.get( Configuration.CATEGORY_GENERAL, "http_whitelist", DEFAULT_HTTP_WHITELIST );
-
-            if( currentProperty != null && !currentProperty.isList() )
-            {
-                Config.http_whitelist.setValues( currentProperty.getString().split( ";" ) );
-            }
-        }
-        Config.http_whitelist.setComment( "A list of wildcards for domains or IP ranges that can be accessed through the \"http\" API on Computers.\n" +
-            "Set this to \"*\" to access to the entire internet. Example: \"*.pastebin.com\" will restrict access to just subdomains of pastebin.com.\n" +
-            "You can use domain names (\"pastebin.com\"), wilcards (\"*.pastebin.com\") or CIDR notation (\"127.0.0.0/8\")." );
-
-        Config.http_blacklist = Config.config.get( Configuration.CATEGORY_GENERAL, "http_blacklist", DEFAULT_HTTP_BLACKLIST );
-        Config.http_blacklist.setComment( "A list of wildcards for domains or IP ranges that cannot be accessed through the \"http\" API on Computers.\n" +
-            "If this is empty then all whitelisted domains will be accessible. Example: \"*.github.com\" will block access to all subdomains of github.com.\n" +
-            "You can use domain names (\"pastebin.com\"), wilcards (\"*.pastebin.com\") or CIDR notation (\"127.0.0.0/8\")." );
-
-        Config.disable_lua51_features = Config.config.get( Configuration.CATEGORY_GENERAL, "disable_lua51_features", disable_lua51_features );
-        Config.disable_lua51_features.setComment( "Set this to true to disable Lua 5.1 functions that will be removed in a future update. Useful for ensuring forward compatibility of your programs now." );
-
-        Config.default_computer_settings = Config.config.get( Configuration.CATEGORY_GENERAL, "default_computer_settings", default_computer_settings );
-        Config.default_computer_settings.setComment( "A comma seperated list of default system settings to set on new computers. Example: \"shell.autocomplete=false,lua.autocomplete=false,edit.autocomplete=false\" will disable all autocompletion" );
-
-        Config.debug_enable = Config.config.get( Configuration.CATEGORY_GENERAL, "debug_enable", debug_enable );
-        Config.debug_enable.setComment( "Enable Lua's debug library. Whilst this should be safe for general use, it may allow players to interact with other computers. Enable at your own risk." );
-
-        Config.computer_threads = Config.config.get( Configuration.CATEGORY_GENERAL, "computer_threads", computer_threads );
-        Config.computer_threads
-            .setMinValue( 1 )
-            .setRequiresWorldRestart( true )
-            .setComment( "Set the number of threads computers can run on. A higher number means more computers can run at once, but may induce lag.\n" +
-                "Please note that some mods may not work with a thread count higher than 1. Use with caution." );
-
-        Config.logPeripheralErrors = Config.config.get( Configuration.CATEGORY_GENERAL, "logPeripheralErrors", logPeripheralErrors );
-        Config.logPeripheralErrors.setComment( "Log exceptions thrown by peripherals and other Lua objects.\n" +
-            "This makes it easier for mod authors to debug problems, but may result in log spam should people use buggy methods." );
-
-        Config.enableCommandBlock = Config.config.get( Configuration.CATEGORY_GENERAL, "enableCommandBlock", enableCommandBlock );
-        Config.enableCommandBlock.setComment( "Enable Command Block peripheral support" );
-
-        Config.modem_range = Config.config.get( Configuration.CATEGORY_GENERAL, "modem_range", modem_range );
-        Config.modem_range.setComment( "The range of Wireless Modems at low altitude in clear weather, in meters" );
-
-        Config.modem_highAltitudeRange = Config.config.get( Configuration.CATEGORY_GENERAL, "modem_highAltitudeRange", modem_highAltitudeRange );
-        Config.modem_highAltitudeRange.setComment( "The range of Wireless Modems at maximum altitude in clear weather, in meters" );
-
-        Config.modem_rangeDuringStorm = Config.config.get( Configuration.CATEGORY_GENERAL, "modem_rangeDuringStorm", modem_rangeDuringStorm );
-        Config.modem_rangeDuringStorm.setComment( "The range of Wireless Modems at low altitude in stormy weather, in meters" );
-
-        Config.modem_highAltitudeRangeDuringStorm = Config.config.get( Configuration.CATEGORY_GENERAL, "modem_highAltitudeRangeDuringStorm", modem_highAltitudeRangeDuringStorm );
-        Config.modem_highAltitudeRangeDuringStorm.setComment( "The range of Wireless Modems at maximum altitude in stormy weather, in meters" );
-
-        Config.computerSpaceLimit = Config.config.get( Configuration.CATEGORY_GENERAL, "computerSpaceLimit", computerSpaceLimit );
-        Config.computerSpaceLimit.setComment( "The disk space limit for computers and turtles, in bytes" );
-
-        Config.floppySpaceLimit = Config.config.get( Configuration.CATEGORY_GENERAL, "floppySpaceLimit", floppySpaceLimit );
-        Config.floppySpaceLimit.setComment( "The disk space limit for floppy disks, in bytes" );
-
-        Config.turtlesNeedFuel = Config.config.get( Configuration.CATEGORY_GENERAL, "turtlesNeedFuel", turtlesNeedFuel );
-        Config.turtlesNeedFuel.setComment( "Set whether Turtles require fuel to move" );
-
-        Config.maximumFilesOpen = Config.config.get( Configuration.CATEGORY_GENERAL, "maximumFilesOpen", maximumFilesOpen );
-        Config.maximumFilesOpen.setComment( "Set how many files a computer can have open at the same time. Set to 0 for unlimited." );
-
-        Config.turtleFuelLimit = Config.config.get( Configuration.CATEGORY_GENERAL, "turtleFuelLimit", turtleFuelLimit );
-        Config.turtleFuelLimit.setComment( "The fuel limit for Turtles" );
-
-        Config.advancedTurtleFuelLimit = Config.config.get( Configuration.CATEGORY_GENERAL, "advancedTurtleFuelLimit", advancedTurtleFuelLimit );
-        Config.advancedTurtleFuelLimit.setComment( "The fuel limit for Advanced Turtles" );
-
-        Config.turtlesObeyBlockProtection = Config.config.get( Configuration.CATEGORY_GENERAL, "turtlesObeyBlockProtection", turtlesObeyBlockProtection );
-        Config.turtlesObeyBlockProtection.setComment( "If set to true, Turtles will be unable to build, dig, or enter protected areas (such as near the server spawn point)" );
-
-        Config.turtlesCanPush = Config.config.get( Configuration.CATEGORY_GENERAL, "turtlesCanPush", turtlesCanPush );
-        Config.turtlesCanPush.setComment( "If set to true, Turtles will push entities out of the way instead of stopping if there is space to do so" );
-
-        Config.turtleDisabledActions = Config.config.get( Configuration.CATEGORY_GENERAL, "turtle_disabled_actions", new String[0] );
-        Config.turtleDisabledActions.setComment( "A list of turtle actions which are disabled." );
-
-        Config.maxNotesPerTick = Config.config.get( Configuration.CATEGORY_GENERAL, "maxNotesPerTick", maxNotesPerTick );
-        Config.maxNotesPerTick.setComment( "Maximum amount of notes a speaker can play at once" );
-
-        for( Property property : Config.config.getCategory( Configuration.CATEGORY_GENERAL ).getOrderedValues() )
-        {
-            property.setLanguageKey( "gui.computercraft:config." + CaseFormat.LOWER_CAMEL.to( CaseFormat.LOWER_UNDERSCORE, property.getName() ) );
-        }
-
-        syncConfig();
-    }
-
-    public static void syncConfig()
-    {
-
-        http_enable = Config.http_enable.getBoolean();
-        http_websocket_enable = Config.http_websocket_enable.getBoolean();
-        http_whitelist = new AddressPredicate( Config.http_whitelist.getStringList() );
-        http_blacklist = new AddressPredicate( Config.http_blacklist.getStringList() );
-        disable_lua51_features = Config.disable_lua51_features.getBoolean();
-        default_computer_settings = Config.default_computer_settings.getString();
-        debug_enable = Config.debug_enable.getBoolean();
-        computer_threads = Config.computer_threads.getInt();
-        logPeripheralErrors = Config.logPeripheralErrors.getBoolean();
-
-        enableCommandBlock = Config.enableCommandBlock.getBoolean();
-
-        modem_range = Math.min( Config.modem_range.getInt(), 100000 );
-        modem_highAltitudeRange = Math.min( Config.modem_highAltitudeRange.getInt(), 100000 );
-        modem_rangeDuringStorm = Math.min( Config.modem_rangeDuringStorm.getInt(), 100000 );
-        modem_highAltitudeRangeDuringStorm = Math.min( Config.modem_highAltitudeRangeDuringStorm.getInt(), 100000 );
-
-        computerSpaceLimit = Config.computerSpaceLimit.getInt();
-        floppySpaceLimit = Config.floppySpaceLimit.getInt();
-        maximumFilesOpen = Math.max( 0, Config.maximumFilesOpen.getInt() );
-
-        turtlesNeedFuel = Config.turtlesNeedFuel.getBoolean();
-        turtleFuelLimit = Config.turtleFuelLimit.getInt();
-        advancedTurtleFuelLimit = Config.advancedTurtleFuelLimit.getInt();
-        turtlesObeyBlockProtection = Config.turtlesObeyBlockProtection.getBoolean();
-        turtlesCanPush = Config.turtlesCanPush.getBoolean();
-
-        turtleDisabledActions.clear();
-        Converter<String, String> converter = CaseFormat.LOWER_CAMEL.converterTo( CaseFormat.UPPER_UNDERSCORE );
-        for( String value : Config.turtleDisabledActions.getStringList() )
-        {
-            try
-            {
-                turtleDisabledActions.add( TurtleAction.valueOf( converter.convert( value ) ) );
-            }
-            catch( IllegalArgumentException e )
-            {
-                ComputerCraft.log.error( "Unknown turtle action " + value );
-            }
-        }
-
-        maxNotesPerTick = Math.max( 1, Config.maxNotesPerTick.getInt() );
-
-        Config.config.save();
     }
 
     @Mod.EventHandler

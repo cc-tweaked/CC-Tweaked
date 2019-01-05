@@ -44,26 +44,33 @@ gui.computercraft:wired_modem.peripheral_disconnected=Peripheral "%s" disconnect
 
 gui.computercraft:tooltip.copy=Copy to clipboard
 
-gui.computercraft:config.http_enable=Enable HTTP API
-gui.computercraft:config.http_websocket_enable=Enable HTTP websockets
-gui.computercraft:config.http_whitelist=HTTP whitelist
-gui.computercraft:config.http_blacklist=HTTP blacklist
-gui.computercraft:config.disable_lua51_features=Disable Lua 5.1 features
-gui.computercraft:config.default_computer_settings=Default Computer settings
-gui.computercraft:config.debug_enable=Enable debug library
-gui.computercraft:config.log_peripheral_errors=Log peripheral errors
-gui.computercraft:config.enable_command_block=Enable command block peripheral
-gui.computercraft:config.modem_range=Modem range (default)
-gui.computercraft:config.modem_high_altitude_range=Modem range (high-altitude)
-gui.computercraft:config.modem_range_during_storm=Modem range (bad weather)
-gui.computercraft:config.modem_high_altitude_range_during_storm=Modem range (high-altitude, bad weather)
 gui.computercraft:config.computer_space_limit=Computer space limit (bytes)
 gui.computercraft:config.floppy_space_limit=Floppy Disk space limit (bytes)
-gui.computercraft:config.turtles_need_fuel=Enable fuel
-gui.computercraft:config.turtle_fuel_limit=Turtle fuel limit
-gui.computercraft:config.advanced_turtle_fuel_limit=Advanced Turtle fuel limit
-gui.computercraft:config.turtles_obey_block_protection=Turtles obey block protection
-gui.computercraft:config.turtles_can_push=Turtles can push entities
-gui.computercraft:config.turtle_disabled_actions=Disabled turtle actions
-gui.computercraft:config.maximum_files_open=Maximum files open per computer
-gui.computercraft:config.max_notes_per_tick=Maximum notes that a computer can play at once
+gui.computercraft:config.maximum_open_files=Maximum files open per computer
+gui.computercraft:config.disable_lua51_features=Disable Lua 5.1 features
+gui.computercraft:config.default_computer_settings=Default Computer settings
+gui.computercraft:config.debug_enabled=Enable debug library
+gui.computercraft:config.computer_threads=Computer threads
+gui.computercraft:config.log_computer_errors=Log computer errors
+
+gui.computercraft:config.http=HTTP
+gui.computercraft:config.http.enabled=Enable the HTTP API
+gui.computercraft:config.http.websocket_enabled=Enable websockets
+gui.computercraft:config.http.whitelist=HTTP whitelist
+gui.computercraft:config.http.blacklist=HTTP blacklist
+
+gui.computercraft:config.peripheral=Peripherals
+gui.computercraft:config.peripheral.command_block_enabled=Enable command block peripheral
+gui.computercraft:config.peripheral.modem_range=Modem range (default)
+gui.computercraft:config.peripheral.modem_high_altitude_range=Modem range (high-altitude)
+gui.computercraft:config.peripheral.modem_range_during_storm=Modem range (bad weather)
+gui.computercraft:config.peripheral.modem_high_altitude_range_during_storm=Modem range (high-altitude, bad weather)
+gui.computercraft:config.peripheral.max_notes_per_tick=Maximum notes that a computer can play at once
+
+gui.computercraft:config.turtle=Turtles
+gui.computercraft:config.turtle.need_fuel=Enable fuel
+gui.computercraft:config.turtle.normal_fuel_limit=Turtle fuel limit
+gui.computercraft:config.turtle.advanced_fuel_limit=Advanced Turtle fuel limit
+gui.computercraft:config.turtle.obey_block_protection=Turtles obey block protection
+gui.computercraft:config.turtle.can_push=Turtles can push entities
+gui.computercraft:config.turtle.disabled_actions=Disabled turtle actions

@@ -11,6 +11,7 @@ import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.pocket.IPocketUpgrade;
 import dan200.computercraft.client.gui.*;
 import dan200.computercraft.core.computer.MainThread;
+import dan200.computercraft.shared.Config;
 import dan200.computercraft.shared.PocketUpgrades;
 import dan200.computercraft.shared.command.CommandComputerCraft;
 import dan200.computercraft.shared.command.ContainerViewComputer;
@@ -607,10 +608,7 @@ public abstract class ComputerCraftProxyCommon implements IComputerCraftProxy
         @SubscribeEvent
         public void onConfigChanged( ConfigChangedEvent.OnConfigChangedEvent event )
         {
-            if( event.getModID().equals( ComputerCraft.MOD_ID ) )
-            {
-                ComputerCraft.syncConfig();
-            }
+            if( event.getModID().equals( ComputerCraft.MOD_ID ) ) Config.sync();
         }
 
         @SubscribeEvent

@@ -14,6 +14,7 @@ import dan200.computercraft.core.tracking.ComputerTracker;
 import dan200.computercraft.core.tracking.Tracking;
 import dan200.computercraft.core.tracking.TrackingContext;
 import dan200.computercraft.core.tracking.TrackingField;
+import dan200.computercraft.shared.Config;
 import dan200.computercraft.shared.command.framework.*;
 import dan200.computercraft.shared.command.text.TableBuilder;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
@@ -381,8 +382,7 @@ public final class CommandComputerCraft extends CommandDelegate
             @Override
             public void execute( @Nonnull CommandContext context, @Nonnull List<String> arguments )
             {
-                ComputerCraft.loadConfig();
-                ComputerCraft.syncConfig();
+                Config.reload();
                 context.getSender().sendMessage( new TextComponentString( "Reloaded config" ) );
             }
         } );
