@@ -53,8 +53,7 @@ public class BinaryWritableHandle extends HandleGeneric
     {
         switch( method )
         {
-            case 0:
-                // write
+            case 0: // write
                 checkOpen();
                 try
                 {
@@ -82,8 +81,7 @@ public class BinaryWritableHandle extends HandleGeneric
                 {
                     throw new LuaException( e.getMessage() );
                 }
-            case 1:
-                // flush
+            case 1: // flush
                 checkOpen();
                 try
                 {
@@ -96,12 +94,10 @@ public class BinaryWritableHandle extends HandleGeneric
                 {
                     return null;
                 }
-            case 2:
-                //close
+            case 2: // close
                 close();
                 return null;
-            case 3:
-                // seek
+            case 3: // seek
                 checkOpen();
                 return handleSeek( m_seekable, args );
             default:

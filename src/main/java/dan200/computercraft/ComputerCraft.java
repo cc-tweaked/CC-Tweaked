@@ -889,6 +889,18 @@ public class ComputerCraft
     }
 
     @Deprecated
+    public static IPocketUpgrade getPocketUpgrade( String id )
+    {
+        return dan200.computercraft.shared.PocketUpgrades.get( id );
+    }
+
+    @Deprecated
+    public static ITurtleUpgrade getTurtleUpgrade( String id )
+    {
+        return TurtleUpgrades.get( id );
+    }
+
+    @Deprecated
     public static IPeripheral getPeripheralAt( World world, BlockPos pos, EnumFacing side )
     {
         return Peripherals.getPeripheral( world, pos, side );

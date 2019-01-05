@@ -59,8 +59,7 @@ public class BinaryReadableHandle extends HandleGeneric
     {
         switch( method )
         {
-            case 0:
-                // read
+            case 0: // read
                 checkOpen();
                 try
                 {
@@ -134,8 +133,7 @@ public class BinaryReadableHandle extends HandleGeneric
                 {
                     return null;
                 }
-            case 1:
-                // readAll
+            case 1: // readAll
                 checkOpen();
                 try
                 {
@@ -163,9 +161,8 @@ public class BinaryReadableHandle extends HandleGeneric
                 {
                     return null;
                 }
-            case 2:
+            case 2: // readLine
             {
-                // readLine
                 checkOpen();
                 boolean withTrailing = optBoolean( args, 0, false );
                 try
@@ -199,12 +196,10 @@ public class BinaryReadableHandle extends HandleGeneric
                     return null;
                 }
             }
-            case 3:
-                //close
+            case 3: // close
                 close();
                 return null;
-            case 4:
-                // seek
+            case 4: // seek
                 checkOpen();
                 return handleSeek( m_seekable, args );
             default:

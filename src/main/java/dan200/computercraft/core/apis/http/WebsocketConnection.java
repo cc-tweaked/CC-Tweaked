@@ -7,6 +7,7 @@
 package dan200.computercraft.core.apis.http;
 
 import com.google.common.base.Objects;
+import com.google.common.base.Strings;
 import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.ILuaObject;
 import dan200.computercraft.api.lua.LuaException;
@@ -26,7 +27,7 @@ import io.netty.util.CharsetUtil;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.Closeable;
-import java.io.IOException;
+import java.util.Arrays;
 
 import static dan200.computercraft.core.apis.ArgumentHelper.optBoolean;
 
@@ -68,15 +69,20 @@ public class WebsocketConnection extends SimpleChannelInboundHandler<Object> imp
     }
 
     @Override
-    public void close() throws IOException
+    public void close()
     {
         close( false );
     }
 
-    private void onClosed()
+    private void onClosed( int status, String reason )
     {
         close( true );
-        computer.queueEvent( CLOSE_EVENT, new Object[] { url } );
+
+        computer.queueEvent( CLOSE_EVENT, new Object[] {
+            url,
+            Strings.isNullOrEmpty( reason ) ? null : reason,
+            status < 0 ? null : status,
+        } );
     }
 
     @Override
@@ -96,12 +102,12 @@ public class WebsocketConnection extends SimpleChannelInboundHandler<Object> imp
     @Override
     public void channelInactive( ChannelHandlerContext ctx ) throws Exception
     {
-        onClosed();
+        onClosed( -1, "Websocket is inactive" );
         super.channelInactive( ctx );
     }
 
     @Override
-    public void channelRead0( ChannelHandlerContext ctx, Object msg ) throws Exception
+    public void channelRead0( ChannelHandlerContext ctx, Object msg )
     {
         Channel ch = ctx.channel();
         if( !handshaker.isHandshakeComplete() )
@@ -123,7 +129,7 @@ public class WebsocketConnection extends SimpleChannelInboundHandler<Object> imp
             String data = ((TextWebSocketFrame) frame).text();
 
             computer.addTrackingChange( TrackingField.WEBSOCKET_INCOMING, data.length() );
-            computer.queueEvent( MESSAGE_EVENT, new Object[] { url, data } );
+            computer.queueEvent( MESSAGE_EVENT, new Object[] { url, data, false } );
         }
         else if( frame instanceof BinaryWebSocketFrame )
         {
@@ -132,12 +138,13 @@ public class WebsocketConnection extends SimpleChannelInboundHandler<Object> imp
             data.readBytes( converted );
 
             computer.addTrackingChange( TrackingField.WEBSOCKET_INCOMING, converted.length );
-            computer.queueEvent( MESSAGE_EVENT, new Object[] { url, converted } );
+            computer.queueEvent( MESSAGE_EVENT, new Object[] { url, converted, true } );
         }
         else if( frame instanceof CloseWebSocketFrame )
         {
+            CloseWebSocketFrame closeFrame = (CloseWebSocketFrame) frame;
             ch.close();
-            onClosed();
+            onClosed( closeFrame.statusCode(), closeFrame.reasonText() );
         }
     }
 
@@ -164,17 +171,17 @@ public class WebsocketConnection extends SimpleChannelInboundHandler<Object> imp
     {
         switch( method )
         {
-            case 0:
+            case 0: // receive
                 while( true )
                 {
                     checkOpen();
                     Object[] event = context.pullEvent( MESSAGE_EVENT );
                     if( event.length >= 3 && Objects.equal( event[1], url ) )
                     {
-                        return new Object[] { event[2] };
+                        return Arrays.copyOfRange( event, 2, event.length );
                     }
                 }
-            case 1:
+            case 1: // send
             {
                 checkOpen();
                 String text = arguments.length > 0 && arguments[0] != null ? arguments[0].toString() : "";

@@ -52,19 +52,10 @@ public class EncodedWritableHandle extends HandleGeneric
     {
         switch( method )
         {
-            case 0:
+            case 0: // write
             {
-                // write
                 checkOpen();
-                String text;
-                if( args.length > 0 && args[0] != null )
-                {
-                    text = args[0].toString();
-                }
-                else
-                {
-                    text = "";
-                }
+                String text = args.length > 0 && args[0] != null ? args[0].toString() : "";
                 try
                 {
                     m_writer.write( text, 0, text.length() );
@@ -75,19 +66,10 @@ public class EncodedWritableHandle extends HandleGeneric
                     throw new LuaException( e.getMessage() );
                 }
             }
-            case 1:
+            case 1: // writeLine
             {
-                // writeLine
                 checkOpen();
-                String text;
-                if( args.length > 0 && args[0] != null )
-                {
-                    text = args[0].toString();
-                }
-                else
-                {
-                    text = "";
-                }
+                String text = args.length > 0 && args[0] != null ? args[0].toString() : "";
                 try
                 {
                     m_writer.write( text, 0, text.length() );
@@ -99,8 +81,7 @@ public class EncodedWritableHandle extends HandleGeneric
                     throw new LuaException( e.getMessage() );
                 }
             }
-            case 2:
-                // flush
+            case 2: // flush
                 checkOpen();
                 try
                 {
@@ -111,8 +92,7 @@ public class EncodedWritableHandle extends HandleGeneric
                 {
                     return null;
                 }
-            case 3:
-                // close
+            case 3: // close
                 close();
                 return null;
             default:

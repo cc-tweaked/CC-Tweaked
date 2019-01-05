@@ -47,8 +47,8 @@ public class EncodedReadableHandle extends HandleGeneric
         return new String[] {
             "readLine",
             "readAll",
-            "close",
             "read",
+            "close",
         };
     }
 
@@ -57,9 +57,8 @@ public class EncodedReadableHandle extends HandleGeneric
     {
         switch( method )
         {
-            case 0:
+            case 0: // readLine
             {
-                // readLine
                 checkOpen();
                 boolean withTrailing = optBoolean( args, 0, false );
                 try
@@ -81,8 +80,7 @@ public class EncodedReadableHandle extends HandleGeneric
                     return null;
                 }
             }
-            case 1:
-                // readAll
+            case 1: // readAll
                 checkOpen();
                 try
                 {
@@ -103,12 +101,7 @@ public class EncodedReadableHandle extends HandleGeneric
                 {
                     return null;
                 }
-            case 2:
-                // close
-                close();
-                return null;
-            case 3:
-                // read
+            case 2: // read
                 checkOpen();
                 try
                 {
@@ -158,6 +151,9 @@ public class EncodedReadableHandle extends HandleGeneric
                 {
                     return null;
                 }
+            case 3: // close
+                close();
+                return null;
             default:
                 return null;
         }
