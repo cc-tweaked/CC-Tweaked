@@ -14,4 +14,10 @@ public class HTTPRequestException extends Exception
     {
         super( s );
     }
+
+    @Override
+    public Throwable fillInStackTrace()
+    {
+        return this;
+    }
 }

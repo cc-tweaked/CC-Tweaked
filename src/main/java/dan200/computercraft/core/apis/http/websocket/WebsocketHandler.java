@@ -4,18 +4,15 @@
  * Send enquiries to dratcliffe@gmail.com
  */
 
-package dan200.computercraft.core.apis.http;
+package dan200.computercraft.core.apis.http.websocket;
 
 import com.google.common.base.Objects;
-import com.google.common.base.Strings;
 import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.ILuaObject;
 import dan200.computercraft.api.lua.LuaException;
-import dan200.computercraft.core.apis.HTTPAPI;
-import dan200.computercraft.core.apis.IAPIEnvironment;
+import dan200.computercraft.core.apis.http.NetworkUtils;
 import dan200.computercraft.core.tracking.TrackingField;
 import dan200.computercraft.shared.util.StringUtil;
-import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
@@ -30,59 +27,43 @@ import java.io.Closeable;
 import java.util.Arrays;
 
 import static dan200.computercraft.core.apis.ArgumentHelper.optBoolean;
+import static dan200.computercraft.core.apis.http.websocket.Websocket.MESSAGE_EVENT;
+import static dan200.computercraft.core.apis.http.websocket.Websocket.SUCCESS_EVENT;
 
-public class WebsocketConnection extends SimpleChannelInboundHandler<Object> implements ILuaObject, Closeable
+public class WebsocketHandler extends SimpleChannelInboundHandler<Object> implements ILuaObject, Closeable
 {
-    public static final String SUCCESS_EVENT = "websocket_success";
-    public static final String FAILURE_EVENT = "websocket_failure";
-    public static final String CLOSE_EVENT = "websocket_closed";
-    public static final String MESSAGE_EVENT = "websocket_message";
+    private final Websocket parent;
+    private boolean closed = false;
 
     private final String url;
-    private final IAPIEnvironment computer;
-    private final HTTPAPI api;
-    private boolean open = true;
-
-    private Channel channel;
     private final WebSocketClientHandshaker handshaker;
 
-    public WebsocketConnection( IAPIEnvironment computer, HTTPAPI api, WebSocketClientHandshaker handshaker, String url )
+    private Channel channel;
+
+    public WebsocketHandler( Websocket parent, WebSocketClientHandshaker handshaker, String url )
     {
-        this.computer = computer;
-        this.api = api;
         this.handshaker = handshaker;
         this.url = url;
-
-        api.addCloseable( this );
-    }
-
-    private void close( boolean remove )
-    {
-        open = false;
-        if( remove ) api.removeCloseable( this );
-
-        if( channel != null )
-        {
-            channel.close();
-            channel = null;
-        }
+        this.parent = parent;
     }
 
     @Override
     public void close()
     {
-        close( false );
+        closed = true;
+
+        Channel channel = this.channel;
+        if( channel != null )
+        {
+            channel.close();
+            this.channel = null;
+        }
     }
 
     private void onClosed( int status, String reason )
     {
-        close( true );
-
-        computer.queueEvent( CLOSE_EVENT, new Object[] {
-            url,
-            Strings.isNullOrEmpty( reason ) ? null : reason,
-            status < 0 ? null : status,
-        } );
+        parent.close( status, reason );
+        close();
     }
 
     @Override
@@ -102,18 +83,19 @@ public class WebsocketConnection extends SimpleChannelInboundHandler<Object> imp
     @Override
     public void channelInactive( ChannelHandlerContext ctx ) throws Exception
     {
-        onClosed( -1, "Websocket is inactive" );
+        if( !closed ) onClosed( -1, "Websocket is inactive" );
         super.channelInactive( ctx );
     }
 
     @Override
     public void channelRead0( ChannelHandlerContext ctx, Object msg )
     {
-        Channel ch = ctx.channel();
+        if( parent.checkClosed() ) return;
+
         if( !handshaker.isHandshakeComplete() )
         {
-            handshaker.finishHandshake( ch, (FullHttpResponse) msg );
-            computer.queueEvent( SUCCESS_EVENT, new Object[] { url, this } );
+            handshaker.finishHandshake( ctx.channel(), (FullHttpResponse) msg );
+            parent.environment().queueEvent( SUCCESS_EVENT, new Object[] { url, this } );
             return;
         }
 
@@ -128,22 +110,19 @@ public class WebsocketConnection extends SimpleChannelInboundHandler<Object> imp
         {
             String data = ((TextWebSocketFrame) frame).text();
 
-            computer.addTrackingChange( TrackingField.WEBSOCKET_INCOMING, data.length() );
-            computer.queueEvent( MESSAGE_EVENT, new Object[] { url, data, false } );
+            parent.environment().addTrackingChange( TrackingField.WEBSOCKET_INCOMING, data.length() );
+            parent.environment().queueEvent( MESSAGE_EVENT, new Object[] { url, data, false } );
         }
         else if( frame instanceof BinaryWebSocketFrame )
         {
-            ByteBuf data = frame.content();
-            byte[] converted = new byte[data.readableBytes()];
-            data.readBytes( converted );
+            byte[] converted = NetworkUtils.toBytes( frame.content() );
 
-            computer.addTrackingChange( TrackingField.WEBSOCKET_INCOMING, converted.length );
-            computer.queueEvent( MESSAGE_EVENT, new Object[] { url, converted, true } );
+            parent.environment().addTrackingChange( TrackingField.WEBSOCKET_INCOMING, converted.length );
+            parent.environment().queueEvent( MESSAGE_EVENT, new Object[] { url, converted, true } );
         }
         else if( frame instanceof CloseWebSocketFrame )
         {
             CloseWebSocketFrame closeFrame = (CloseWebSocketFrame) frame;
-            ch.close();
             onClosed( closeFrame.statusCode(), closeFrame.reasonText() );
         }
     }
@@ -152,10 +131,7 @@ public class WebsocketConnection extends SimpleChannelInboundHandler<Object> imp
     public void exceptionCaught( ChannelHandlerContext ctx, Throwable cause )
     {
         ctx.close();
-        computer.queueEvent( FAILURE_EVENT, new Object[] {
-            url,
-            cause instanceof WebSocketHandshakeException ? cause.getMessage() : "Could not connect"
-        } );
+        parent.failure( cause instanceof WebSocketHandshakeException ? cause.getMessage() : "Could not connect" );
     }
 
     @Nonnull
@@ -181,19 +157,27 @@ public class WebsocketConnection extends SimpleChannelInboundHandler<Object> imp
                         return Arrays.copyOfRange( event, 2, event.length );
                     }
                 }
+
             case 1: // send
             {
                 checkOpen();
                 String text = arguments.length > 0 && arguments[0] != null ? arguments[0].toString() : "";
                 boolean binary = optBoolean( arguments, 1, false );
-                computer.addTrackingChange( TrackingField.WEBSOCKET_OUTGOING, text.length() );
-                channel.writeAndFlush( binary
-                    ? new BinaryWebSocketFrame( Unpooled.wrappedBuffer( StringUtil.encodeString( text ) ) )
-                    : new TextWebSocketFrame( text ) );
+                parent.environment().addTrackingChange( TrackingField.WEBSOCKET_OUTGOING, text.length() );
+
+                Channel channel = this.channel;
+                if( channel != null )
+                {
+                    channel.writeAndFlush( binary
+                        ? new BinaryWebSocketFrame( Unpooled.wrappedBuffer( StringUtil.encodeString( text ) ) )
+                        : new TextWebSocketFrame( text ) );
+                }
+
                 return null;
             }
             case 2:
-                close( true );
+                parent.close();
+                close();
                 return null;
             default:
                 return null;
@@ -202,6 +186,6 @@ public class WebsocketConnection extends SimpleChannelInboundHandler<Object> imp
 
     private void checkOpen() throws LuaException
     {
-        if( !open ) throw new LuaException( "attempt to use a closed file" );
+        if( closed ) throw new LuaException( "attempt to use a closed file" );
     }
 }
