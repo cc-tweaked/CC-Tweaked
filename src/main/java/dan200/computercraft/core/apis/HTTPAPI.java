@@ -12,6 +12,7 @@ import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.core.apis.http.CheckUrl;
 import dan200.computercraft.core.apis.http.HTTPRequestException;
+import dan200.computercraft.core.apis.http.Resource;
 import dan200.computercraft.core.apis.http.ResourceQueue;
 import dan200.computercraft.core.apis.http.request.HttpRequest;
 import dan200.computercraft.core.apis.http.websocket.Websocket;
@@ -70,7 +71,7 @@ public class HTTPAPI implements ILuaAPI
     {
         // It's rather ugly to run this here, but we need to clean up
         // resources as often as possible to reduce blocking.
-        ResourceQueue.cleanup();
+        Resource.cleanup();
     }
 
     @Nonnull
@@ -133,12 +134,21 @@ public class HTTPAPI implements ILuaAPI
                         throw new LuaException( "Unsupported HTTP method" );
                     }
                 }
-                // Make the request
+
                 try
                 {
                     URI uri = HttpRequest.checkUri( address );
-                    new HttpRequest( requests, m_apiEnvironment, address, postString, headers, binary, redirect )
-                        .queue( request -> request.request( uri, httpMethod ) );
+
+                    HttpRequest request = new HttpRequest( requests, m_apiEnvironment, address, postString, headers, binary, redirect );
+
+                    long requestBody = request.body().readableBytes() + HttpRequest.getHeaderSize( headers );
+                    if( ComputerCraft.httpMaxUpload != 0 && requestBody > ComputerCraft.httpMaxUpload )
+                    {
+                        throw new HTTPRequestException( "Request body is too large" );
+                    }
+
+                    // Make the request
+                    request.queue( r -> r.request( uri, httpMethod ) );
 
                     return new Object[] { true };
                 }

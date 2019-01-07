@@ -241,7 +241,7 @@ public class HttpRequest extends Resource<HttpRequest>
         currentRequest = closeCloseable( currentRequest );
     }
 
-    static long getHeaderSize( HttpHeaders headers )
+    public static long getHeaderSize( HttpHeaders headers )
     {
         long size = 0;
         for( Map.Entry<String, String> header : headers )

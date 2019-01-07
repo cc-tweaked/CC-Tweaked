@@ -59,6 +59,12 @@ gui.computercraft:config.http.websocket_enabled=Enable websockets
 gui.computercraft:config.http.whitelist=HTTP whitelist
 gui.computercraft:config.http.blacklist=HTTP blacklist
 
+gui.computercraft:config.http.max_requests=Maximum concurrent requests
+gui.computercraft:config.http.max_download=Maximum response size
+gui.computercraft:config.http.max_upload=Maximum request
+gui.computercraft:config.http.max_websockets=Maximum concurrent websockets
+gui.computercraft:config.http.max_websocket_message=Maximum websocket message size
+
 gui.computercraft:config.peripheral=Peripherals
 gui.computercraft:config.peripheral.command_block_enabled=Enable command block peripheral
 gui.computercraft:config.peripheral.modem_range=Modem range (default)

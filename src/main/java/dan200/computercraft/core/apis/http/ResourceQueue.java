@@ -6,9 +6,6 @@
 
 package dan200.computercraft.core.apis.http;
 
-import java.lang.ref.Reference;
-import java.lang.ref.ReferenceQueue;
-import java.lang.ref.WeakReference;
 import java.util.ArrayDeque;
 import java.util.HashSet;
 import java.util.Set;
@@ -52,7 +49,7 @@ public class ResourceQueue<T extends Resource>
         for( T resource : resources ) resource.close();
         resources.clear();
 
-        cleanup();
+        Resource.cleanup();
     }
 
     public void queue( T resource, Runnable setup )
@@ -65,7 +62,7 @@ public class ResourceQueue<T extends Resource>
 
     public synchronized void queue( Supplier<T> resource )
     {
-        cleanup();
+        Resource.cleanup();
         if( !active ) return;
 
         int limit = this.limit.getAsInt();
@@ -91,29 +88,5 @@ public class ResourceQueue<T extends Resource>
             Supplier<T> next = pending.poll();
             if( next != null ) resources.add( next.get() );
         }
-    }
-
-    private static final ReferenceQueue<Object> QUEUE = new ReferenceQueue<>();
-
-    static class CloseReference<T> extends WeakReference<T>
-    {
-        private final Resource<?> resource;
-
-        public CloseReference( Resource<?> resource, T referent )
-        {
-            super( referent, QUEUE );
-            this.resource = resource;
-        }
-
-        public Resource<?> resource()
-        {
-            return resource;
-        }
-    }
-
-    public static void cleanup()
-    {
-        Reference<?> reference;
-        while( (reference = QUEUE.poll()) != null ) ((CloseReference) reference).resource().close();
     }
 }

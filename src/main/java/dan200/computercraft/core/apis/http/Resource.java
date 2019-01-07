@@ -11,6 +11,8 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 
 import java.io.Closeable;
+import java.lang.ref.Reference;
+import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -82,7 +84,7 @@ public abstract class Resource<T extends Resource<T>> implements Closeable
      */
     protected <R> WeakReference<R> createOwnerReference( R object )
     {
-        return new ResourceQueue.CloseReference<>( this, object );
+        return new CloseReference<>( this, object );
     }
 
     @Override
@@ -119,5 +121,25 @@ public abstract class Resource<T extends Resource<T>> implements Closeable
     {
         if( future != null ) future.cancel( true );
         return null;
+    }
+
+
+    private static final ReferenceQueue<Object> QUEUE = new ReferenceQueue<>();
+
+    private static class CloseReference<T> extends WeakReference<T>
+    {
+        final Resource<?> resource;
+
+        CloseReference( Resource<?> resource, T referent )
+        {
+            super( referent, QUEUE );
+            this.resource = resource;
+        }
+    }
+
+    public static void cleanup()
+    {
+        Reference<?> reference;
+        while( (reference = QUEUE.poll()) != null ) ((CloseReference) reference).resource.close();
     }
 }
