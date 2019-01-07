@@ -15,7 +15,7 @@ import java.util.function.Supplier;
 /**
  * A queue for {@link Resource}s, with built-in rate-limiting.
  */
-public class ResourceQueue<T extends Resource>
+public class ResourceQueue<T extends Resource<T>>
 {
     private static final IntSupplier ZERO = () -> 0;
 
