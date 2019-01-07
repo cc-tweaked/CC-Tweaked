@@ -6,7 +6,6 @@
 
 package dan200.computercraft.core.apis.http;
 
-import dan200.computercraft.core.apis.HTTPAPI;
 import dan200.computercraft.core.apis.IAPIEnvironment;
 
 import java.net.URI;
@@ -17,21 +16,20 @@ import java.util.concurrent.Future;
  *
  * This requires a DNS lookup, and so needs to occur off-thread.
  */
-public class CheckUrl extends MonitorerdResource
+public class CheckUrl extends Resource<CheckUrl>
 {
     private static final String EVENT = "http_check";
 
     private Future<?> future;
 
     private final IAPIEnvironment environment;
-    private final HTTPAPI api;
     private final String address;
     private final String host;
 
-    public CheckUrl( IAPIEnvironment environment, HTTPAPI api, String address, URI uri )
+    public CheckUrl( ResourceQueue<CheckUrl> limiter, IAPIEnvironment environment, String address, URI uri )
     {
+        super( limiter );
         this.environment = environment;
-        this.api = api;
         this.address = address;
         this.host = uri.getHost();
     }
@@ -40,6 +38,7 @@ public class CheckUrl extends MonitorerdResource
     {
         if( isClosed() ) return;
         future = NetworkUtils.EXECUTOR.submit( this::doRun );
+        checkClosed();
     }
 
     private void doRun()
@@ -60,8 +59,7 @@ public class CheckUrl extends MonitorerdResource
     @Override
     protected void dispose()
     {
-        api.removeCloseable( this );
-
+        super.dispose();
         future = closeFuture( future );
     }
 }

@@ -8,6 +8,7 @@ package dan200.computercraft.core.apis.handles;
 
 import dan200.computercraft.api.lua.ILuaObject;
 import dan200.computercraft.api.lua.LuaException;
+import dan200.computercraft.shared.util.IoUtil;
 
 import javax.annotation.Nonnull;
 import java.io.Closeable;
@@ -35,14 +36,8 @@ public abstract class HandleGeneric implements ILuaObject
 
     protected final void close()
     {
-        try
-        {
-            m_closable.close();
-            m_open = false;
-        }
-        catch( IOException ignored )
-        {
-        }
+        m_open = false;
+        IoUtil.closeQuietly( m_closable );
         m_closable = null;
     }
 

@@ -8,12 +8,14 @@ package dan200.computercraft.core.apis.http.websocket;
 
 import com.google.common.base.Strings;
 import dan200.computercraft.ComputerCraft;
-import dan200.computercraft.core.apis.HTTPAPI;
 import dan200.computercraft.core.apis.IAPIEnvironment;
 import dan200.computercraft.core.apis.http.HTTPRequestException;
-import dan200.computercraft.core.apis.http.MonitorerdResource;
 import dan200.computercraft.core.apis.http.NetworkUtils;
+import dan200.computercraft.core.apis.http.Resource;
+import dan200.computercraft.core.apis.http.ResourceQueue;
+import dan200.computercraft.shared.util.IoUtil;
 import io.netty.bootstrap.Bootstrap;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
@@ -28,6 +30,7 @@ import io.netty.handler.codec.http.websocketx.WebSocketVersion;
 import io.netty.handler.codec.http.websocketx.extensions.compression.WebSocketClientCompressionHandler;
 import io.netty.handler.ssl.SslContext;
 
+import java.lang.ref.WeakReference;
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -36,8 +39,10 @@ import java.util.concurrent.Future;
 /**
  * Provides functionality to verify and connect to a remote websocket.
  */
-public class Websocket extends MonitorerdResource
+public class Websocket extends Resource<Websocket>
 {
+    public static final int MAX_MESSAGE_SIZE = 64 * 1024;
+
     static final String SUCCESS_EVENT = "websocket_success";
     static final String FAILURE_EVENT = "websocket_failure";
     static final String CLOSE_EVENT = "websocket_closed";
@@ -45,18 +50,17 @@ public class Websocket extends MonitorerdResource
 
     private Future<?> executorFuture;
     private ChannelFuture connectFuture;
-    private WebsocketHandler websocketHandler;
+    private WeakReference<WebsocketHandle> websocketHandle;
 
     private final IAPIEnvironment environment;
-    private final HTTPAPI api;
     private final URI uri;
     private final String address;
     private final HttpHeaders headers;
 
-    public Websocket( IAPIEnvironment environment, HTTPAPI api, URI uri, String address, HttpHeaders headers )
+    public Websocket( ResourceQueue<Websocket> limiter, IAPIEnvironment environment, URI uri, String address, HttpHeaders headers )
     {
+        super( limiter );
         this.environment = environment;
-        this.api = api;
         this.uri = uri;
         this.address = address;
         this.headers = headers;
@@ -111,6 +115,7 @@ public class Websocket extends MonitorerdResource
     {
         if( isClosed() ) return;
         executorFuture = NetworkUtils.EXECUTOR.submit( this::doConnect );
+        checkClosed();
     }
 
     private void doConnect()
@@ -128,9 +133,6 @@ public class Websocket extends MonitorerdResource
             // getAddress may have a slight delay, so let's perform another cancellation check.
             if( isClosed() ) return;
 
-            WebSocketClientHandshaker handshaker = WebSocketClientHandshakerFactory.newHandshaker( uri, WebSocketVersion.V13, null, true, headers );
-            WebsocketHandler handler = websocketHandler = new WebsocketHandler( this, handshaker, address );
-
             connectFuture = new Bootstrap()
                 .group( NetworkUtils.LOOP_GROUP )
                 .channel( NioSocketChannel.class )
@@ -144,11 +146,17 @@ public class Websocket extends MonitorerdResource
                         {
                             p.addLast( sslContext.newHandler( ch.alloc(), uri.getHost(), socketAddress.getPort() ) );
                         }
+
+                        WebSocketClientHandshaker handshaker = WebSocketClientHandshakerFactory.newHandshaker(
+                            uri, WebSocketVersion.V13, null, true, headers,
+                            ComputerCraft.httpMaxWebsocketMessage == 0 ? MAX_MESSAGE_SIZE : ComputerCraft.httpMaxWebsocketMessage
+                        );
+
                         p.addLast(
                             new HttpClientCodec(),
                             new HttpObjectAggregator( 8192 ),
                             WebSocketClientCompressionHandler.INSTANCE,
-                            handler
+                            new WebsocketHandler( Websocket.this, handshaker )
                         );
                     }
                 } )
@@ -165,8 +173,19 @@ public class Websocket extends MonitorerdResource
         catch( Exception e )
         {
             failure( "Could not connect" );
-            if( ComputerCraft.logPeripheralErrors ) ComputerCraft.log.error( "Error in HTTP request", e );
+            if( ComputerCraft.logPeripheralErrors ) ComputerCraft.log.error( "Error in websocket", e );
         }
+    }
+
+    void success( Channel channel )
+    {
+        if( isClosed() ) return;
+
+        WebsocketHandle handle = new WebsocketHandle( this, channel );
+        environment().queueEvent( SUCCESS_EVENT, new Object[] { address, handle } );
+        this.websocketHandle = createOwnerReference( handle );
+
+        checkClosed();
     }
 
     void failure( String message )
@@ -189,15 +208,24 @@ public class Websocket extends MonitorerdResource
     @Override
     protected void dispose()
     {
-        api.removeCloseable( this );
+        super.dispose();
 
         executorFuture = closeFuture( executorFuture );
         connectFuture = closeChannel( connectFuture );
-        websocketHandler = closeCloseable( websocketHandler );
+
+        WeakReference<WebsocketHandle> websocketHandleRef = this.websocketHandle;
+        WebsocketHandle websocketHandle = websocketHandleRef == null ? null : websocketHandleRef.get();
+        if( websocketHandle != null ) IoUtil.closeQuietly( websocketHandle );
+        this.websocketHandle = null;
     }
 
     public IAPIEnvironment environment()
     {
         return environment;
+    }
+
+    public String address()
+    {
+        return address;
     }
 }

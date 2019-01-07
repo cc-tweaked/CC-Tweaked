@@ -12,6 +12,7 @@ import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.core.apis.http.CheckUrl;
 import dan200.computercraft.core.apis.http.HTTPRequestException;
+import dan200.computercraft.core.apis.http.ResourceQueue;
 import dan200.computercraft.core.apis.http.request.HttpRequest;
 import dan200.computercraft.core.apis.http.websocket.Websocket;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
@@ -19,14 +20,10 @@ import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMethod;
 
 import javax.annotation.Nonnull;
-import java.io.Closeable;
-import java.io.IOException;
 import java.net.URI;
 import java.util.Collections;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 import static dan200.computercraft.core.apis.ArgumentHelper.*;
 import static dan200.computercraft.core.apis.TableHelper.*;
@@ -35,7 +32,9 @@ public class HTTPAPI implements ILuaAPI
 {
     private final IAPIEnvironment m_apiEnvironment;
 
-    private final Set<Closeable> tasks = Collections.newSetFromMap( new ConcurrentHashMap<>() );
+    private final ResourceQueue<CheckUrl> checkUrls = new ResourceQueue<>();
+    private final ResourceQueue<HttpRequest> requests = new ResourceQueue<>( () -> ComputerCraft.httpMaxRequests );
+    private final ResourceQueue<Websocket> websockets = new ResourceQueue<>( () -> ComputerCraft.httpMaxWebsockets );
 
     public HTTPAPI( IAPIEnvironment environment )
     {
@@ -51,19 +50,27 @@ public class HTTPAPI implements ILuaAPI
     }
 
     @Override
+    public void startup()
+    {
+        checkUrls.startup();
+        requests.startup();
+        websockets.startup();
+    }
+
+    @Override
     public void shutdown()
     {
-        for( Closeable task : tasks )
-        {
-            try
-            {
-                task.close();
-            }
-            catch( IOException ignored )
-            {
-            }
-        }
-        tasks.clear();
+        checkUrls.shutdown();
+        requests.shutdown();
+        websockets.shutdown();
+    }
+
+    @Override
+    public void update()
+    {
+        // It's rather ugly to run this here, but we need to clean up
+        // resources as often as possible to reduce blocking.
+        ResourceQueue.cleanup();
     }
 
     @Nonnull
@@ -130,9 +137,8 @@ public class HTTPAPI implements ILuaAPI
                 try
                 {
                     URI uri = HttpRequest.checkUri( address );
-                    HttpRequest connector = new HttpRequest( m_apiEnvironment, this, address, postString, headers, binary, redirect );
-                    tasks.add( connector );
-                    connector.request( uri, httpMethod );
+                    new HttpRequest( requests, m_apiEnvironment, address, postString, headers, binary, redirect )
+                        .queue( request -> request.request( uri, httpMethod ) );
 
                     return new Object[] { true };
                 }
@@ -149,9 +155,7 @@ public class HTTPAPI implements ILuaAPI
                 try
                 {
                     URI uri = HttpRequest.checkUri( address );
-                    CheckUrl check = new CheckUrl( m_apiEnvironment, this, address, uri );
-                    tasks.add( check );
-                    check.run();
+                    new CheckUrl( checkUrls, m_apiEnvironment, address, uri ).queue( CheckUrl::run );
 
                     return new Object[] { true };
                 }
@@ -175,9 +179,7 @@ public class HTTPAPI implements ILuaAPI
                 try
                 {
                     URI uri = Websocket.checkUri( address );
-                    Websocket connector = new Websocket( m_apiEnvironment, this, uri, address, headers );
-                    tasks.add( connector );
-                    connector.connect();
+                    new Websocket( websockets, m_apiEnvironment, uri, address, headers ).queue( Websocket::connect );
 
                     return new Object[] { true };
                 }
@@ -191,11 +193,6 @@ public class HTTPAPI implements ILuaAPI
                 return null;
             }
         }
-    }
-
-    public void removeCloseable( Closeable closeable )
-    {
-        tasks.remove( closeable );
     }
 
     @Nonnull

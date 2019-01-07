@@ -11,6 +11,7 @@ import com.google.common.base.Converter;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.turtle.event.TurtleAction;
 import dan200.computercraft.core.apis.AddressPredicate;
+import dan200.computercraft.core.apis.http.websocket.Websocket;
 import net.minecraftforge.common.config.ConfigCategory;
 import net.minecraftforge.common.config.ConfigElement;
 import net.minecraftforge.common.config.Configuration;
@@ -35,11 +36,6 @@ public class Config
 
     private static Configuration config;
 
-    private static Property httpEnable;
-    private static Property httpWebsocketEnable;
-    private static Property httpWhitelist;
-    private static Property httpBlacklist;
-
     private static Property computerSpaceLimit;
     private static Property floppySpaceLimit;
     private static Property maximumFilesOpen;
@@ -49,12 +45,16 @@ public class Config
     private static Property computerThreads;
     private static Property logComputerErrors;
 
-    private static Property turtlesNeedFuel;
-    private static Property turtleFuelLimit;
-    private static Property advancedTurtleFuelLimit;
-    private static Property turtlesObeyBlockProtection;
-    private static Property turtlesCanPush;
-    private static Property turtleDisabledActions;
+    private static Property httpEnable;
+    private static Property httpWebsocketEnable;
+    private static Property httpWhitelist;
+    private static Property httpBlacklist;
+
+    private static Property httpMaxRequests;
+    private static Property httpMaxDownload;
+    private static Property httpMaxUpload;
+    private static Property httpMaxWebsockets;
+    private static Property httpMaxWebsocketMessage;
 
     private static Property commandBlockEnabled;
     private static Property modemRange;
@@ -62,6 +62,13 @@ public class Config
     private static Property modemRangeDuringStorm;
     private static Property modemHighAltitudeRangeDuringStorm;
     private static Property maxNotesPerTick;
+
+    private static Property turtlesNeedFuel;
+    private static Property turtleFuelLimit;
+    private static Property advancedTurtleFuelLimit;
+    private static Property turtlesObeyBlockProtection;
+    private static Property turtlesCanPush;
+    private static Property turtleDisabledActions;
 
     public static void load( File configFile )
     {
@@ -135,9 +142,31 @@ public class Config
                 "If this is empty then all whitelisted domains will be accessible. Example: \"*.github.com\" will block access to all subdomains of github.com.\n" +
                 "You can use domain names (\"pastebin.com\"), wilcards (\"*.pastebin.com\") or CIDR notation (\"127.0.0.0/8\")." );
 
+            httpMaxRequests = config.get( CATEGORY_HTTP, "max_requests", ComputerCraft.httpMaxRequests );
+            httpMaxRequests.setComment( "The number of http requests a computer can make at one time. Additional requests will be queued, and sent when the running requests have finished. Set to 0 for unlimited." );
+            httpMaxRequests.setMinValue( 0 );
+
+            httpMaxDownload = config.get( CATEGORY_HTTP, "max_download", (int) ComputerCraft.httpMaxDownload );
+            httpMaxDownload.setComment( "The maximum size (in bytes) that a computer can download in a single request. Note that responses may receive more data than allowed, but this data will not be returned to the client." );
+            httpMaxDownload.setMinValue( 0 );
+
+            httpMaxUpload = config.get( CATEGORY_HTTP, "max_upload", (int) ComputerCraft.httpMaxUpload );
+            httpMaxUpload.setComment( "The maximum size (in bytes) that a computer can upload in a single request. This includes headers and POST text." );
+            httpMaxUpload.setMinValue( 0 );
+
+            httpMaxWebsockets = config.get( CATEGORY_HTTP, "max_websockets", ComputerCraft.httpMaxWebsockets );
+            httpMaxWebsockets.setComment( "The number of websockets a computer can have open at one time. Set to 0 for unlimited." );
+            httpMaxWebsockets.setMinValue( 1 );
+
+            httpMaxWebsocketMessage = config.get( CATEGORY_HTTP, "max_websocket_message", ComputerCraft.httpMaxWebsocketMessage );
+            httpMaxWebsocketMessage.setComment( "The maximum size (in bytes) that a computer can send or receive in one websocket packet." );
+            httpMaxWebsocketMessage.setMinValue( 0 );
+            httpMaxWebsocketMessage.setMaxValue( Websocket.MAX_MESSAGE_SIZE );
+
             setOrder(
                 CATEGORY_HTTP,
-                httpEnable, httpWebsocketEnable, httpWhitelist, httpBlacklist
+                httpEnable, httpWebsocketEnable, httpWhitelist, httpBlacklist,
+                httpMaxRequests, httpMaxDownload, httpMaxUpload, httpMaxWebsockets, httpMaxWebsocketMessage
             );
         }
 
@@ -285,6 +314,12 @@ public class Config
         ComputerCraft.http_websocket_enable = httpWebsocketEnable.getBoolean();
         ComputerCraft.http_whitelist = new AddressPredicate( httpWhitelist.getStringList() );
         ComputerCraft.http_blacklist = new AddressPredicate( httpBlacklist.getStringList() );
+
+        ComputerCraft.httpMaxRequests = Math.max( 1, httpMaxRequests.getInt() );
+        ComputerCraft.httpMaxDownload = Math.max( 0, httpMaxDownload.getLong() );
+        ComputerCraft.httpMaxUpload = Math.max( 0, httpMaxUpload.getLong() );
+        ComputerCraft.httpMaxWebsockets = Math.max( 1, httpMaxWebsockets.getInt() );
+        ComputerCraft.httpMaxWebsocketMessage = Math.max( 0, httpMaxWebsocketMessage.getInt() );
 
         // Peripheral
         ComputerCraft.enableCommandBlock = commandBlockEnabled.getBoolean();

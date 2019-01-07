@@ -41,7 +41,7 @@ public final class HttpRequestHandler extends SimpleChannelInboundHandler<HttpOb
 
     private static final byte[] EMPTY_BYTES = new byte[0];
 
-    private final HttpRequest context;
+    private final HttpRequest request;
     private boolean closed = false;
 
     private final URI uri;
@@ -52,9 +52,9 @@ public final class HttpRequestHandler extends SimpleChannelInboundHandler<HttpOb
     private HttpResponseStatus responseStatus;
     private CompositeByteBuf responseBody;
 
-    HttpRequestHandler( HttpRequest context, URI uri, HttpMethod method )
+    HttpRequestHandler( HttpRequest request, URI uri, HttpMethod method )
     {
-        this.context = context;
+        this.request = request;
 
         this.uri = uri;
         this.method = method;
@@ -63,9 +63,9 @@ public final class HttpRequestHandler extends SimpleChannelInboundHandler<HttpOb
     @Override
     public void channelActive( ChannelHandlerContext ctx ) throws Exception
     {
-        if( context.checkClosed() ) return;
+        if( request.checkClosed() ) return;
 
-        ByteBuf body = context.body();
+        ByteBuf body = request.body();
         body.resetReaderIndex().retain();
 
         String requestUri = uri.getRawPath();
@@ -73,11 +73,17 @@ public final class HttpRequestHandler extends SimpleChannelInboundHandler<HttpOb
 
         FullHttpRequest request = new DefaultFullHttpRequest( HttpVersion.HTTP_1_1, HttpMethod.GET, requestUri, body );
         request.setMethod( method );
-        request.headers().set( HttpHeaderNames.ACCEPT_CHARSET, "UTF-8" );
-        request.headers().set( HttpHeaderNames.USER_AGENT, context.environment().getComputerEnvironment().getHostString() );
-        request.headers().set( context.headers() );
+        request.headers().set( this.request.headers() );
 
         // We force some headers to be always applied
+        if( !request.headers().contains( HttpHeaderNames.ACCEPT_CHARSET ) )
+        {
+            request.headers().set( HttpHeaderNames.ACCEPT_CHARSET, "UTF-8" );
+        }
+        if( !request.headers().contains( HttpHeaderNames.USER_AGENT ) )
+        {
+            request.headers().set( HttpHeaderNames.USER_AGENT, ComputerCraft.MOD_ID + "/" + ComputerCraft.getVersion() );
+        }
         request.headers().set( HttpHeaderNames.HOST, uri.getHost() );
         request.headers().set( HttpHeaderNames.CONNECTION, HttpHeaderValues.CLOSE );
 
@@ -89,23 +95,23 @@ public final class HttpRequestHandler extends SimpleChannelInboundHandler<HttpOb
     @Override
     public void channelInactive( ChannelHandlerContext ctx ) throws Exception
     {
-        if( !closed ) context.failure( "Could not connect" );
+        if( !closed ) request.failure( "Could not connect" );
         super.channelInactive( ctx );
     }
 
     @Override
     public void channelRead0( ChannelHandlerContext ctx, HttpObject message )
     {
-        if( closed || context.checkClosed() ) return;
+        if( closed || request.checkClosed() ) return;
 
         if( message instanceof HttpResponse )
         {
             HttpResponse response = (HttpResponse) message;
 
-            if( context.redirects.get() > 0 )
+            if( request.redirects.get() > 0 )
             {
                 URI redirect = getRedirect( response.status(), response.headers() );
-                if( redirect != null && !uri.equals( redirect ) && context.redirects.getAndDecrement() > 0 )
+                if( redirect != null && !uri.equals( redirect ) && request.redirects.getAndDecrement() > 0 )
                 {
                     // If we have a redirect, and don't end up at the same place, then follow it.
 
@@ -121,11 +127,11 @@ public final class HttpRequestHandler extends SimpleChannelInboundHandler<HttpOb
                     catch( HTTPRequestException e )
                     {
                         // If we cannot visit this uri, then fail.
-                        context.failure( e.getMessage() );
+                        request.failure( e.getMessage() );
                         return;
                     }
 
-                    context.request( redirect, response.status().code() == 303 ? HttpMethod.GET : method );
+                    request.request( redirect, response.status().code() == 303 ? HttpMethod.GET : method );
                     return;
                 }
             }
@@ -145,7 +151,20 @@ public final class HttpRequestHandler extends SimpleChannelInboundHandler<HttpOb
             }
 
             ByteBuf partial = content.content();
-            if( partial.isReadable() ) responseBody.addComponent( true, partial.retain() );
+            if( partial.isReadable() )
+            {
+                // If we've read more than we're allowed to handle, abort as soon as possible.
+                if( ComputerCraft.httpMaxDownload != 0 && responseBody.readableBytes() + partial.readableBytes() > ComputerCraft.httpMaxDownload )
+                {
+                    closed = true;
+                    ctx.close();
+
+                    request.failure( "Response is too large" );
+                    return;
+                }
+
+                responseBody.addComponent( true, partial.retain() );
+            }
 
             if( message instanceof LastHttpContent )
             {
@@ -168,7 +187,7 @@ public final class HttpRequestHandler extends SimpleChannelInboundHandler<HttpOb
     public void exceptionCaught( ChannelHandlerContext ctx, Throwable cause )
     {
         if( ComputerCraft.logPeripheralErrors ) ComputerCraft.log.error( "Error handling HTTP response", cause );
-        context.failure( cause );
+        request.failure( cause );
     }
 
     private void sendResponse()
@@ -187,22 +206,22 @@ public final class HttpRequestHandler extends SimpleChannelInboundHandler<HttpOb
         }
 
         // Fire off a stats event
-        context.environment().addTrackingChange( TrackingField.HTTP_DOWNLOAD, getHeaderSize( responseHeaders ) + bytes.length );
+        request.environment().addTrackingChange( TrackingField.HTTP_DOWNLOAD, getHeaderSize( responseHeaders ) + bytes.length );
 
         // Prepare to queue an event
         ArrayByteChannel contents = new ArrayByteChannel( bytes );
-        final ILuaObject reader = context.isBinary()
+        final ILuaObject reader = request.isBinary()
             ? new BinaryReadableHandle( contents )
             : new EncodedReadableHandle( EncodedReadableHandle.open( contents, responseCharset ) );
         ILuaObject stream = new HttpResponseHandle( reader, status.code(), headers );
 
         if( status.code() >= 200 && status.code() < 400 )
         {
-            context.success( stream );
+            request.success( stream );
         }
         else
         {
-            context.failure( status.reasonPhrase(), stream );
+            request.failure( status.reasonPhrase(), stream );
         }
     }
 

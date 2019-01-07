@@ -8,11 +8,11 @@ package dan200.computercraft.core.apis.http.request;
 
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.lua.ILuaObject;
-import dan200.computercraft.core.apis.HTTPAPI;
 import dan200.computercraft.core.apis.IAPIEnvironment;
 import dan200.computercraft.core.apis.http.HTTPRequestException;
-import dan200.computercraft.core.apis.http.MonitorerdResource;
 import dan200.computercraft.core.apis.http.NetworkUtils;
+import dan200.computercraft.core.apis.http.Resource;
+import dan200.computercraft.core.apis.http.ResourceQueue;
 import dan200.computercraft.core.tracking.TrackingField;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
@@ -42,7 +42,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * Represents one or more
  */
-public class HttpRequest extends MonitorerdResource
+public class HttpRequest extends Resource<HttpRequest>
 {
     private static final String SUCCESS_EVENT = "http_success";
     private static final String FAILURE_EVENT = "http_failure";
@@ -56,7 +56,6 @@ public class HttpRequest extends MonitorerdResource
     private HttpRequestHandler currentRequest;
 
     private final IAPIEnvironment environment;
-    private final HTTPAPI api;
 
     private final String address;
     private final ByteBuf postBuffer;
@@ -65,10 +64,10 @@ public class HttpRequest extends MonitorerdResource
 
     final AtomicInteger redirects;
 
-    public HttpRequest( IAPIEnvironment environment, HTTPAPI api, String address, String postText, HttpHeaders headers, boolean binary, boolean followRedirects )
+    public HttpRequest( ResourceQueue<HttpRequest> limiter, IAPIEnvironment environment, String address, String postText, HttpHeaders headers, boolean binary, boolean followRedirects )
     {
+        super( limiter );
         this.environment = environment;
-        this.api = api;
         this.address = address;
         this.postBuffer = postText != null
             ? Unpooled.wrappedBuffer( postText.getBytes( StandardCharsets.UTF_8 ) )
@@ -130,6 +129,7 @@ public class HttpRequest extends MonitorerdResource
     {
         if( isClosed() ) return;
         executorFuture = NetworkUtils.EXECUTOR.submit( () -> doRequest( uri, method ) );
+        checkClosed();
     }
 
     private void doRequest( URI uri, HttpMethod method )
@@ -234,7 +234,7 @@ public class HttpRequest extends MonitorerdResource
 
     protected void dispose()
     {
-        api.removeCloseable( this );
+        super.dispose();
 
         executorFuture = closeFuture( executorFuture );
         connectFuture = closeChannel( connectFuture );

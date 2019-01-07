@@ -11,6 +11,7 @@ import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.filesystem.IFileSystem;
 import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.api.filesystem.IWritableMount;
+import dan200.computercraft.shared.util.IoUtil;
 
 import javax.annotation.Nonnull;
 import java.io.Closeable;
@@ -334,7 +335,7 @@ public class FileSystem
         // Close all dangling open files
         synchronized( m_openFiles )
         {
-            for( Closeable file : m_openFiles.values() ) closeQuietly( file );
+            for( Closeable file : m_openFiles.values() ) IoUtil.closeQuietly( file );
             m_openFiles.clear();
             while( m_openFileQueue.poll() != null ) ;
         }
@@ -655,7 +656,7 @@ public class FileSystem
             while( (ref = m_openFileQueue.poll()) != null )
             {
                 Closeable file = m_openFiles.remove( ref );
-                if( file != null ) closeQuietly( file );
+                if( file != null ) IoUtil.closeQuietly( file );
             }
         }
     }
@@ -667,7 +668,7 @@ public class FileSystem
             if( ComputerCraft.maximumFilesOpen > 0 &&
                 m_openFiles.size() >= ComputerCraft.maximumFilesOpen )
             {
-                closeQuietly( file );
+                IoUtil.closeQuietly( file );
                 throw new FileSystemException( "Too many files already open" );
             }
 
@@ -879,17 +880,6 @@ public class FileSystem
         else
         {
             return local;
-        }
-    }
-
-    private static void closeQuietly( Closeable c )
-    {
-        try
-        {
-            c.close();
-        }
-        catch( IOException ignored )
-        {
         }
     }
 }

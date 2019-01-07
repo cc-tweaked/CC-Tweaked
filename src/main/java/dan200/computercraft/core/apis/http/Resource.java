@@ -6,17 +6,28 @@
 
 package dan200.computercraft.core.apis.http;
 
+import dan200.computercraft.shared.util.IoUtil;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 
 import java.io.Closeable;
-import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
 
-public abstract class MonitorerdResource implements Closeable
+/**
+ * A holder for one or more resources, with a lifetime.
+ */
+public abstract class Resource<T extends Resource<T>> implements Closeable
 {
     private final AtomicBoolean closed = new AtomicBoolean( false );
+    private final ResourceQueue<T> limiter;
+
+    protected Resource( ResourceQueue<T> limiter )
+    {
+        this.limiter = limiter;
+    }
 
     /**
      * Whether this resource is closed.
@@ -42,9 +53,9 @@ public abstract class MonitorerdResource implements Closeable
     /**
      * Try to close the current resource.
      *
-     * @return Whether this has not been closed before.
+     * @return Whether this was successfully closed, or {@code false} if it has already been closed.
      */
-    public final boolean tryClose()
+    protected final boolean tryClose()
     {
         if( closed.getAndSet( true ) ) return false;
         dispose();
@@ -57,7 +68,22 @@ public abstract class MonitorerdResource implements Closeable
      * Note, this may be called multiple times, and so should be thread-safe and
      * avoid any major side effects.
      */
-    protected abstract void dispose();
+    protected void dispose()
+    {
+        @SuppressWarnings( "unchecked" ) T thisT = (T) this;
+        limiter.release( thisT );
+    }
+
+    /**
+     * Create a {@link WeakReference} which will close {@code this} when collected.
+     *
+     * @param object The object to reference to
+     * @return The weak reference.
+     */
+    protected <R> WeakReference<R> createOwnerReference( R object )
+    {
+        return new ResourceQueue.CloseReference<>( this, object );
+    }
 
     @Override
     public final void close()
@@ -65,19 +91,15 @@ public abstract class MonitorerdResource implements Closeable
         tryClose();
     }
 
+    public void queue( Consumer<T> task )
+    {
+        @SuppressWarnings( "unchecked" ) T thisT = (T) this;
+        limiter.queue( thisT, () -> task.accept( thisT ) );
+    }
+
     protected static <T extends Closeable> T closeCloseable( T closeable )
     {
-        if( closeable != null )
-        {
-            try
-            {
-                closeable.close();
-            }
-            catch( IOException ignored )
-            {
-            }
-        }
-
+        if( closeable != null ) IoUtil.closeQuietly( closeable );
         return null;
     }
 
