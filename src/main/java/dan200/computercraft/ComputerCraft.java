@@ -138,6 +138,7 @@ public class ComputerCraft
     public static AddressPredicate http_whitelist = new AddressPredicate( DEFAULT_HTTP_WHITELIST );
     public static AddressPredicate http_blacklist = new AddressPredicate( DEFAULT_HTTP_BLACKLIST );
 
+    public static int httpTimeout = 30000;
     public static int httpMaxRequests = 16;
     public static long httpMaxDownload = 16 * 1024 * 1024;
     public static long httpMaxUpload = 4 * 1024 * 1024;

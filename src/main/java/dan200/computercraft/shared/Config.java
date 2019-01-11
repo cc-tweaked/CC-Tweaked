@@ -50,6 +50,7 @@ public class Config
     private static Property httpWhitelist;
     private static Property httpBlacklist;
 
+    private static Property httpTimeout;
     private static Property httpMaxRequests;
     private static Property httpMaxDownload;
     private static Property httpMaxUpload;
@@ -142,6 +143,10 @@ public class Config
                 "If this is empty then all whitelisted domains will be accessible. Example: \"*.github.com\" will block access to all subdomains of github.com.\n" +
                 "You can use domain names (\"pastebin.com\"), wilcards (\"*.pastebin.com\") or CIDR notation (\"127.0.0.0/8\")." );
 
+            httpTimeout = config.get( CATEGORY_HTTP, "timeout", ComputerCraft.httpTimeout );
+            httpTimeout.setComment( "The period of time (in milliseconds) to wait before a HTTP request times out. Set to 0 for unlimited." );
+            httpTimeout.setMinValue( 0 );
+
             httpMaxRequests = config.get( CATEGORY_HTTP, "max_requests", ComputerCraft.httpMaxRequests );
             httpMaxRequests.setComment( "The number of http requests a computer can make at one time. Additional requests will be queued, and sent when the running requests have finished. Set to 0 for unlimited." );
             httpMaxRequests.setMinValue( 0 );
@@ -166,7 +171,7 @@ public class Config
             setOrder(
                 CATEGORY_HTTP,
                 httpEnable, httpWebsocketEnable, httpWhitelist, httpBlacklist,
-                httpMaxRequests, httpMaxDownload, httpMaxUpload, httpMaxWebsockets, httpMaxWebsocketMessage
+                httpTimeout, httpMaxRequests, httpMaxDownload, httpMaxUpload, httpMaxWebsockets, httpMaxWebsocketMessage
             );
         }
 
@@ -282,7 +287,7 @@ public class Config
         category.setLanguageKey( key );
         for( Property property : category.getOrderedValues() )
         {
-            property.setLanguageKey( key + "." + CaseFormat.LOWER_CAMEL.to( CaseFormat.LOWER_UNDERSCORE, property.getName() ) );
+            property.setLanguageKey( key + "." + property.getName() );
         }
 
         for( ConfigCategory child : category.getChildren() )
@@ -315,6 +320,7 @@ public class Config
         ComputerCraft.http_whitelist = new AddressPredicate( httpWhitelist.getStringList() );
         ComputerCraft.http_blacklist = new AddressPredicate( httpBlacklist.getStringList() );
 
+        ComputerCraft.httpTimeout = Math.max( 0, httpTimeout.getInt() );
         ComputerCraft.httpMaxRequests = Math.max( 1, httpMaxRequests.getInt() );
         ComputerCraft.httpMaxDownload = Math.max( 0, httpMaxDownload.getLong() );
         ComputerCraft.httpMaxUpload = Math.max( 0, httpMaxUpload.getLong() );

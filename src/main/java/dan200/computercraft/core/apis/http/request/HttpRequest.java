@@ -49,8 +49,6 @@ public class HttpRequest extends Resource<HttpRequest>
 
     private static final int MAX_REDIRECTS = 16;
 
-    private static final int TIMEOUT = 30000;
-
     private Future<?> executorFuture;
     private ChannelFuture connectFuture;
     private HttpRequestHandler currentRequest;
@@ -160,15 +158,23 @@ public class HttpRequest extends Resource<HttpRequest>
                     protected void initChannel( SocketChannel ch )
                     {
 
-                        ch.config().setConnectTimeoutMillis( TIMEOUT );
+                        if( ComputerCraft.httpTimeout > 0 )
+                        {
+                            ch.config().setConnectTimeoutMillis( ComputerCraft.httpTimeout );
+                        }
 
                         ChannelPipeline p = ch.pipeline();
                         if( sslContext != null )
                         {
                             p.addLast( sslContext.newHandler( ch.alloc(), uri.getHost(), socketAddress.getPort() ) );
                         }
+
+                        if( ComputerCraft.httpTimeout > 0 )
+                        {
+                            p.addLast( new ReadTimeoutHandler( ComputerCraft.httpTimeout, TimeUnit.MILLISECONDS ) );
+                        }
+
                         p.addLast(
-                            new ReadTimeoutHandler( TIMEOUT, TimeUnit.MILLISECONDS ),
                             new HttpClientCodec(),
                             new HttpContentDecompressor(),
                             handler
