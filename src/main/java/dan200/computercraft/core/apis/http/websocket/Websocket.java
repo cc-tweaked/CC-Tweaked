@@ -12,7 +12,7 @@ import dan200.computercraft.core.apis.IAPIEnvironment;
 import dan200.computercraft.core.apis.http.HTTPRequestException;
 import dan200.computercraft.core.apis.http.NetworkUtils;
 import dan200.computercraft.core.apis.http.Resource;
-import dan200.computercraft.core.apis.http.ResourceQueue;
+import dan200.computercraft.core.apis.http.ResourceGroup;
 import dan200.computercraft.shared.util.IoUtil;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
@@ -57,7 +57,7 @@ public class Websocket extends Resource<Websocket>
     private final String address;
     private final HttpHeaders headers;
 
-    public Websocket( ResourceQueue<Websocket> limiter, IAPIEnvironment environment, URI uri, String address, HttpHeaders headers )
+    public Websocket( ResourceGroup<Websocket> limiter, IAPIEnvironment environment, URI uri, String address, HttpHeaders headers )
     {
         super( limiter );
         this.environment = environment;

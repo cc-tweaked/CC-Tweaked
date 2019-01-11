@@ -26,7 +26,7 @@ public class CheckUrl extends Resource<CheckUrl>
     private final String address;
     private final String host;
 
-    public CheckUrl( ResourceQueue<CheckUrl> limiter, IAPIEnvironment environment, String address, URI uri )
+    public CheckUrl( ResourceGroup<CheckUrl> limiter, IAPIEnvironment environment, String address, URI uri )
     {
         super( limiter );
         this.environment = environment;

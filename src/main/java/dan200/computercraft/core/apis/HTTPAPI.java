@@ -10,10 +10,7 @@ import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.lua.ILuaAPI;
 import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
-import dan200.computercraft.core.apis.http.CheckUrl;
-import dan200.computercraft.core.apis.http.HTTPRequestException;
-import dan200.computercraft.core.apis.http.Resource;
-import dan200.computercraft.core.apis.http.ResourceQueue;
+import dan200.computercraft.core.apis.http.*;
 import dan200.computercraft.core.apis.http.request.HttpRequest;
 import dan200.computercraft.core.apis.http.websocket.Websocket;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
@@ -33,9 +30,9 @@ public class HTTPAPI implements ILuaAPI
 {
     private final IAPIEnvironment m_apiEnvironment;
 
-    private final ResourceQueue<CheckUrl> checkUrls = new ResourceQueue<>();
-    private final ResourceQueue<HttpRequest> requests = new ResourceQueue<>( () -> ComputerCraft.httpMaxRequests );
-    private final ResourceQueue<Websocket> websockets = new ResourceQueue<>( () -> ComputerCraft.httpMaxWebsockets );
+    private final ResourceGroup<CheckUrl> checkUrls = new ResourceGroup<>();
+    private final ResourceGroup<HttpRequest> requests = new ResourceQueue<>( () -> ComputerCraft.httpMaxRequests );
+    private final ResourceGroup<Websocket> websockets = new ResourceGroup<>( () -> ComputerCraft.httpMaxWebsockets );
 
     public HTTPAPI( IAPIEnvironment environment )
     {
@@ -189,7 +186,10 @@ public class HTTPAPI implements ILuaAPI
                 try
                 {
                     URI uri = Websocket.checkUri( address );
-                    new Websocket( websockets, m_apiEnvironment, uri, address, headers ).queue( Websocket::connect );
+                    if( !new Websocket( websockets, m_apiEnvironment, uri, address, headers ).queue( Websocket::connect ) )
+                    {
+                        throw new LuaException( "Too many websockets already open" );
+                    }
 
                     return new Object[] { true };
                 }

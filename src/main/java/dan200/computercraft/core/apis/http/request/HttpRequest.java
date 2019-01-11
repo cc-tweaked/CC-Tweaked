@@ -12,7 +12,7 @@ import dan200.computercraft.core.apis.IAPIEnvironment;
 import dan200.computercraft.core.apis.http.HTTPRequestException;
 import dan200.computercraft.core.apis.http.NetworkUtils;
 import dan200.computercraft.core.apis.http.Resource;
-import dan200.computercraft.core.apis.http.ResourceQueue;
+import dan200.computercraft.core.apis.http.ResourceGroup;
 import dan200.computercraft.core.tracking.TrackingField;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
@@ -64,7 +64,7 @@ public class HttpRequest extends Resource<HttpRequest>
 
     final AtomicInteger redirects;
 
-    public HttpRequest( ResourceQueue<HttpRequest> limiter, IAPIEnvironment environment, String address, String postText, HttpHeaders headers, boolean binary, boolean followRedirects )
+    public HttpRequest( ResourceGroup<HttpRequest> limiter, IAPIEnvironment environment, String address, String postText, HttpHeaders headers, boolean binary, boolean followRedirects )
     {
         super( limiter );
         this.environment = environment;

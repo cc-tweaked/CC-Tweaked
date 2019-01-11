@@ -27,7 +27,7 @@ public class HttpResponseHandle implements ILuaObject
     private final String responseStatus;
     private final Map<String, String> responseHeaders;
 
-    public HttpResponseHandle(@Nonnull ILuaObject reader, int responseCode, String responseStatus, @Nonnull Map<String, String> responseHeaders)
+    public HttpResponseHandle( @Nonnull ILuaObject reader, int responseCode, String responseStatus, @Nonnull Map<String, String> responseHeaders )
     {
         this.reader = reader;
         this.responseCode = responseCode;

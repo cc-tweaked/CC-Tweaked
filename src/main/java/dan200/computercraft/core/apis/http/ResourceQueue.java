@@ -7,80 +7,44 @@
 package dan200.computercraft.core.apis.http;
 
 import java.util.ArrayDeque;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.function.IntSupplier;
 import java.util.function.Supplier;
 
 /**
- * A queue for {@link Resource}s, with built-in rate-limiting.
+ * A {@link ResourceGroup} which will queue items when the group at capacity.
  */
-public class ResourceQueue<T extends Resource<T>>
+public class ResourceQueue<T extends Resource<T>> extends ResourceGroup<T>
 {
-    private static final IntSupplier ZERO = () -> 0;
-
-    private final IntSupplier limit;
-
-    private boolean active = false;
-
-    private final Set<T> resources = new HashSet<>();
     private final ArrayDeque<Supplier<T>> pending = new ArrayDeque<>();
 
     public ResourceQueue( IntSupplier limit )
     {
-        this.limit = limit;
+        super( limit );
     }
 
     public ResourceQueue()
     {
-        this.limit = ZERO;
-    }
-
-    public void startup()
-    {
-        active = true;
     }
 
     public synchronized void shutdown()
     {
-        active = false;
-
+        super.shutdown();
         pending.clear();
-        for( T resource : resources ) resource.close();
-        resources.clear();
-
-        Resource.cleanup();
     }
 
-    public void queue( T resource, Runnable setup )
+    public synchronized boolean queue( Supplier<T> resource )
     {
-        queue( () -> {
-            setup.run();
-            return resource;
-        } );
-    }
+        if( !active ) return false;
 
-    public synchronized void queue( Supplier<T> resource )
-    {
-        Resource.cleanup();
-        if( !active ) return;
-
-        int limit = this.limit.getAsInt();
-        if( limit <= 0 || resources.size() < limit )
-        {
-            resources.add( resource.get() );
-        }
-        else
-        {
-            pending.add( resource );
-        }
+        if( !super.queue( resource ) ) pending.add( resource );
+        return true;
     }
 
     public synchronized void release( T resource )
     {
-        if( !active ) return;
+        super.release( resource );
 
-        resources.remove( resource );
+        if( !active ) return;
 
         int limit = this.limit.getAsInt();
         if( limit <= 0 || resources.size() < limit )

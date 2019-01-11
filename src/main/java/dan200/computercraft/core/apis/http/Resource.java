@@ -24,9 +24,9 @@ import java.util.function.Consumer;
 public abstract class Resource<T extends Resource<T>> implements Closeable
 {
     private final AtomicBoolean closed = new AtomicBoolean( false );
-    private final ResourceQueue<T> limiter;
+    private final ResourceGroup<T> limiter;
 
-    protected Resource( ResourceQueue<T> limiter )
+    protected Resource( ResourceGroup<T> limiter )
     {
         this.limiter = limiter;
     }
@@ -93,10 +93,10 @@ public abstract class Resource<T extends Resource<T>> implements Closeable
         tryClose();
     }
 
-    public void queue( Consumer<T> task )
+    public boolean queue( Consumer<T> task )
     {
         @SuppressWarnings( "unchecked" ) T thisT = (T) this;
-        limiter.queue( thisT, () -> task.accept( thisT ) );
+        return limiter.queue( thisT, () -> task.accept( thisT ) );
     }
 
     protected static <T extends Closeable> T closeCloseable( T closeable )
