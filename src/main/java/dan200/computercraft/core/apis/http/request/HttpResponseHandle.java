@@ -24,12 +24,14 @@ public class HttpResponseHandle implements ILuaObject
     private final int methodOffset;
     private final ILuaObject reader;
     private final int responseCode;
+    private final String responseStatus;
     private final Map<String, String> responseHeaders;
 
-    public HttpResponseHandle( @Nonnull ILuaObject reader, int responseCode, @Nonnull Map<String, String> responseHeaders )
+    public HttpResponseHandle(@Nonnull ILuaObject reader, int responseCode, String responseStatus, @Nonnull Map<String, String> responseHeaders)
     {
         this.reader = reader;
         this.responseCode = responseCode;
+        this.responseStatus = responseStatus;
         this.responseHeaders = responseHeaders;
 
         String[] oldMethods = reader.getMethodNames();
@@ -55,7 +57,7 @@ public class HttpResponseHandle implements ILuaObject
         switch( method - methodOffset )
         {
             case 0: // getResponseCode
-                return new Object[] { responseCode };
+                return new Object[] { responseCode, responseStatus };
             case 1: // getResponseHeaders
                 return new Object[] { responseHeaders };
             default:

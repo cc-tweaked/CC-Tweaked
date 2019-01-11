@@ -1,13 +1,17 @@
+# Build directories
+/classes
+/logs
 /build
 /out
+
+# Runtime directories
 /run
 /run-*
+/test-files
+
 *.ipr
 *.iws
 *.iml
 .idea
 .gradle
-/luaj-2.0.3/lib
-/luaj-2.0.3/*.jar
 *.DS_Store
-/test-files

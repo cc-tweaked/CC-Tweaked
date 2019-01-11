@@ -213,7 +213,7 @@ public final class HttpRequestHandler extends SimpleChannelInboundHandler<HttpOb
         final ILuaObject reader = request.isBinary()
             ? new BinaryReadableHandle( contents )
             : new EncodedReadableHandle( EncodedReadableHandle.open( contents, responseCharset ) );
-        ILuaObject stream = new HttpResponseHandle( reader, status.code(), headers );
+        ILuaObject stream = new HttpResponseHandle( reader, status.code(), status.reasonPhrase(), headers );
 
         if( status.code() >= 200 && status.code() < 400 )
         {

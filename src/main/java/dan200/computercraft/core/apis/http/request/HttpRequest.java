@@ -147,6 +147,7 @@ public class HttpRequest extends Resource<HttpRequest>
             if( isClosed() ) return;
 
             // Add request size to the tracker before opening the connection
+            environment.addTrackingChange( TrackingField.HTTP_REQUESTS, 1 );
             environment.addTrackingChange( TrackingField.HTTP_UPLOAD, getHeaderSize( headers ) + postBuffer.capacity() );
 
             HttpRequestHandler handler = currentRequest = new HttpRequestHandler( this, uri, method );
