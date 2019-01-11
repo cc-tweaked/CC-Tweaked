@@ -226,6 +226,8 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
         return m_instanceID;
     }
 
+    @Override
+    @SuppressWarnings( "deprecation" )
     public int getID()
     {
         return m_computer.getID();

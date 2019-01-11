@@ -66,6 +66,13 @@ public class ClientComputer extends ClientTerminal implements IComputer
 
     @Override
     @Deprecated
+    public int getID()
+    {
+        return -1;
+    }
+
+    @Override
+    @Deprecated
     public String getLabel()
     {
         return null;

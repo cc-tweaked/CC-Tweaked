@@ -14,6 +14,9 @@ public interface IComputer extends ITerminal
     int getInstanceID();
 
     @Deprecated
+    int getID();
+
+    @Deprecated
     String getLabel();
 
     boolean isOn();

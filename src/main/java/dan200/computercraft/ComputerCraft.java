@@ -23,6 +23,7 @@ import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.event.TurtleAction;
 import dan200.computercraft.core.apis.AddressPredicate;
 import dan200.computercraft.core.apis.ApiFactories;
+import dan200.computercraft.core.apis.http.websocket.Websocket;
 import dan200.computercraft.core.filesystem.ComboMount;
 import dan200.computercraft.core.filesystem.FileMount;
 import dan200.computercraft.core.filesystem.FileSystemMount;
@@ -57,6 +58,7 @@ import dan200.computercraft.shared.turtle.blocks.TileTurtle;
 import dan200.computercraft.shared.turtle.upgrades.*;
 import dan200.computercraft.shared.util.CreativeTabMain;
 import dan200.computercraft.shared.util.IDAssigner;
+import dan200.computercraft.shared.util.IoUtil;
 import dan200.computercraft.shared.wired.CapabilityWiredElement;
 import dan200.computercraft.shared.wired.WiredNode;
 import net.minecraft.entity.player.EntityPlayer;
@@ -77,7 +79,6 @@ import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import net.minecraftforge.fml.relauncher.Side;
-import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.Logger;
 
 import java.io.*;
@@ -136,6 +137,12 @@ public class ComputerCraft
     public static boolean http_websocket_enable = true;
     public static AddressPredicate http_whitelist = new AddressPredicate( DEFAULT_HTTP_WHITELIST );
     public static AddressPredicate http_blacklist = new AddressPredicate( DEFAULT_HTTP_BLACKLIST );
+
+    public static int httpMaxRequests = 16;
+    public static long httpMaxDownload = 16 * 1024 * 1024;
+    public static long httpMaxUpload = 4 * 1024 * 1024;
+    public static int httpMaxWebsockets = 4;
+    public static int httpMaxWebsocketMessage = Websocket.MAX_MESSAGE_SIZE;
 
     public static boolean enableCommandBlock = false;
     public static int modem_range = 64;
@@ -599,12 +606,12 @@ public class ComputerCraft
                         }
                         else
                         {
-                            IOUtils.closeQuietly( zipFile );
+                            IoUtil.closeQuietly( zipFile );
                         }
                     }
                     catch( IOException e )
                     {
-                        if( zipFile != null ) IOUtils.closeQuietly( zipFile );
+                        if( zipFile != null ) IoUtil.closeQuietly( zipFile );
                     }
                 }
             }
