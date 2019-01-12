@@ -14,8 +14,8 @@ import dan200.computercraft.shared.peripheral.PeripheralType;
 import dan200.computercraft.shared.peripheral.common.TilePeripheralBase;
 import dan200.computercraft.shared.util.DefaultSidedInventory;
 import dan200.computercraft.shared.util.InventoryUtil;
+import dan200.computercraft.shared.util.WorldUtil;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
@@ -521,11 +521,7 @@ public class TilePrinter extends TilePeripheralBase implements DefaultSidedInven
                     double x = pos.getX() + 0.5;
                     double y = pos.getY() + 0.75;
                     double z = pos.getZ() + 0.5;
-                    EntityItem entityitem = new EntityItem( getWorld(), x, y, z, stack );
-                    entityitem.motionX = getWorld().rand.nextFloat() * 0.2 - 0.1;
-                    entityitem.motionY = getWorld().rand.nextFloat() * 0.2 - 0.1;
-                    entityitem.motionZ = getWorld().rand.nextFloat() * 0.2 - 0.1;
-                    getWorld().spawnEntity( entityitem );
+                    WorldUtil.dropItemStack( stack, getWorld(), x, y, z );
                 }
             }
         }

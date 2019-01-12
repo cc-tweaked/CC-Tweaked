@@ -15,24 +15,18 @@ import javax.annotation.Nonnull;
 
 public class PocketModemPeripheral extends WirelessModemPeripheral
 {
-    private World world;
-    private Vec3d position;
+    private World world = null;
+    private Vec3d position = Vec3d.ZERO;
 
     public PocketModemPeripheral( boolean advanced )
     {
         super( new ModemState(), advanced );
-        world = null;
-        position = new Vec3d( 0.0, 0.0, 0.0 );
     }
 
-    public void setLocation( World world, double x, double y, double z )
+    void setLocation( World world, Vec3d position )
     {
-        position = new Vec3d( x, y, z );
-        if( this.world != world )
-        {
-            this.world = world;
-            switchNetwork();
-        }
+        this.position = position;
+        this.world = world;
     }
 
     @Nonnull
@@ -46,7 +40,7 @@ public class PocketModemPeripheral extends WirelessModemPeripheral
     @Override
     public Vec3d getPosition()
     {
-        return world != null ? position : null;
+        return position;
     }
 
     @Override

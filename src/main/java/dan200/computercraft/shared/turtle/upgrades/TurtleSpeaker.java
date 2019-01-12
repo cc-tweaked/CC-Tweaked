@@ -20,6 +20,7 @@ import net.minecraft.client.renderer.block.model.ModelManager;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -47,21 +48,16 @@ public class TurtleSpeaker extends AbstractTurtleUpgrade
         }
 
         @Override
-        public BlockPos getPos()
+        public Vec3d getPos()
         {
-            return turtle.getPosition();
+            BlockPos pos = turtle.getPosition();
+            return new Vec3d( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5 );
         }
 
         @Override
         public boolean equals( IPeripheral other )
         {
-            if( other instanceof Peripheral )
-            {
-                Peripheral otherPeripheral = (Peripheral) other;
-                return otherPeripheral.turtle == turtle;
-            }
-
-            return false;
+            return this == other || (other instanceof Peripheral && turtle == ((Peripheral) other).turtle);
         }
     }
 

@@ -181,21 +181,19 @@ public abstract class ModemPeripheral implements IPeripheral, IPacketSender, IPa
                 int channel = parseChannel( arguments, 0 );
                 int replyChannel = parseChannel( arguments, 1 );
                 Object payload = arguments.length > 2 ? arguments[2] : null;
-                synchronized( this )
+                World world = getWorld();
+                Vec3d position = getPosition();
+                IPacketNetwork network = m_network;
+                if( world != null && position != null && network != null )
                 {
-                    World world = getWorld();
-                    Vec3d position = getPosition();
-                    if( world != null && position != null && m_network != null )
+                    Packet packet = new Packet( channel, replyChannel, payload, this );
+                    if( isInterdimensional() )
                     {
-                        Packet packet = new Packet( channel, replyChannel, payload, this );
-                        if( isInterdimensional() )
-                        {
-                            m_network.transmitInterdimensional( packet );
-                        }
-                        else
-                        {
-                            m_network.transmitSameDimension( packet, getRange() );
-                        }
+                        network.transmitInterdimensional( packet );
+                    }
+                    else
+                    {
+                        network.transmitSameDimension( packet, getRange() );
                     }
                 }
                 return null;

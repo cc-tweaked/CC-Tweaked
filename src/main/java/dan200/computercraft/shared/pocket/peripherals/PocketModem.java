@@ -12,7 +12,6 @@ import dan200.computercraft.shared.peripheral.PeripheralType;
 import dan200.computercraft.shared.peripheral.common.PeripheralItemFactory;
 import dan200.computercraft.shared.peripheral.modem.ModemState;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.ResourceLocation;
 
 import javax.annotation.Nonnull;
@@ -54,15 +53,8 @@ public class PocketModem extends AbstractPocketUpgrade
         Entity entity = access.getEntity();
 
         PocketModemPeripheral modem = (PocketModemPeripheral) peripheral;
-        if( entity instanceof EntityLivingBase )
-        {
-            EntityLivingBase player = (EntityLivingBase) entity;
-            modem.setLocation( entity.getEntityWorld(), player.posX, player.posY + player.getEyeHeight(), player.posZ );
-        }
-        else if( entity != null )
-        {
-            modem.setLocation( entity.getEntityWorld(), entity.posX, entity.posY, entity.posZ );
-        }
+
+        if( entity != null ) modem.setLocation( entity.getEntityWorld(), entity.getPositionEyes( 1 ) );
 
         ModemState state = modem.getModemState();
         if( state.pollChanged() ) access.setLight( state.isOpen() ? 0xBA0000 : -1 );

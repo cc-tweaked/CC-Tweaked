@@ -9,6 +9,11 @@ package dan200.computercraft.shared.peripheral.speaker;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.shared.peripheral.common.TilePeripheralBase;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.World;
+
+import javax.annotation.Nullable;
 
 public class TileSpeaker extends TilePeripheralBase
 {
@@ -21,7 +26,7 @@ public class TileSpeaker extends TilePeripheralBase
     public TileSpeaker()
     {
         super();
-        m_peripheral = new SpeakerPeripheral( this );
+        m_peripheral = new Peripheral( this );
     }
 
     @Override
@@ -36,5 +41,34 @@ public class TileSpeaker extends TilePeripheralBase
     public IPeripheral getPeripheral( EnumFacing side )
     {
         return m_peripheral;
+    }
+
+    private static class Peripheral extends SpeakerPeripheral
+    {
+        private final TileSpeaker speaker;
+
+        private Peripheral( TileSpeaker speaker )
+        {
+            this.speaker = speaker;
+        }
+
+        @Override
+        public World getWorld()
+        {
+            return speaker.getWorld();
+        }
+
+        @Override
+        public Vec3d getPos()
+        {
+            BlockPos pos = speaker.getPos();
+            return new Vec3d( pos.getX(), pos.getY(), pos.getZ() );
+        }
+
+        @Override
+        public boolean equals( @Nullable IPeripheral other )
+        {
+            return this == other || (other instanceof Peripheral && speaker == ((Peripheral) other).speaker);
+        }
     }
 }

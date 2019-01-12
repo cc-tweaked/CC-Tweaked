@@ -16,7 +16,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvent;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
@@ -25,25 +25,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static dan200.computercraft.core.apis.ArgumentHelper.getString;
 import static dan200.computercraft.core.apis.ArgumentHelper.optReal;
 
-public class SpeakerPeripheral implements IPeripheral
+public abstract class SpeakerPeripheral implements IPeripheral
 {
-    private final TileSpeaker m_speaker;
-    private long m_clock;
-    private long m_lastPlayTime;
-    private final AtomicInteger m_notesThisTick;
-
-    public SpeakerPeripheral()
-    {
-        this( null );
-    }
-
-    SpeakerPeripheral( TileSpeaker speaker )
-    {
-        m_clock = 0;
-        m_lastPlayTime = 0;
-        m_notesThisTick = new AtomicInteger();
-        m_speaker = speaker;
-    }
+    private long m_clock = 0;
+    private long m_lastPlayTime = 0;
+    private final AtomicInteger m_notesThisTick = new AtomicInteger();
 
     public void update()
     {
@@ -51,29 +37,13 @@ public class SpeakerPeripheral implements IPeripheral
         m_notesThisTick.set( 0 );
     }
 
-    public World getWorld()
-    {
-        return m_speaker.getWorld();
-    }
+    public abstract World getWorld();
 
-    public BlockPos getPos()
-    {
-        return m_speaker.getPos();
-    }
+    public abstract Vec3d getPos();
 
     public boolean madeSound( long ticks )
     {
         return m_clock - m_lastPlayTime <= ticks;
-    }
-
-    /* IPeripheral implementation */
-
-    @Override
-    public boolean equals( IPeripheral other )
-    {
-        if( other == this ) return true;
-        if( !(other instanceof SpeakerPeripheral) ) return false;
-        return m_speaker == ((SpeakerPeripheral) other).m_speaker;
     }
 
     @Nonnull
@@ -155,17 +125,16 @@ public class SpeakerPeripheral implements IPeripheral
         }
 
         World world = getWorld();
-        BlockPos pos = getPos();
+        Vec3d pos = getPos();
 
         context.issueMainThreadTask( () -> {
             MinecraftServer server = world.getMinecraftServer();
             if( server == null ) return null;
 
-            double x = pos.getX() + 0.5, y = pos.getY() + 0.5, z = pos.getZ() + 0.5;
             float adjVolume = Math.min( volume, 3.0f );
             server.getPlayerList().sendToAllNearExcept(
-                null, x, y, z, adjVolume > 1.0f ? 16 * adjVolume : 16.0, world.provider.getDimension(),
-                new SPacketCustomSound( name, SoundCategory.RECORDS, x, y, z, adjVolume, pitch )
+                null, pos.x, pos.y, pos.z, adjVolume > 1.0f ? 16 * adjVolume : 16.0, world.provider.getDimension(),
+                new SPacketCustomSound( name, SoundCategory.RECORDS, pos.x, pos.y, pos.z, adjVolume, pitch )
             );
             return null;
         } );
