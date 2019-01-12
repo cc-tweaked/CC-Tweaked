@@ -381,4 +381,11 @@ public class BlockCable extends BlockPeripheralBase
     {
         return BlockFaceShape.UNDEFINED;
     }
+
+    @Override
+    @Deprecated
+    public boolean hasCustomBreakingProgress( IBlockState state )
+    {
+        return true;
+    }
 }
