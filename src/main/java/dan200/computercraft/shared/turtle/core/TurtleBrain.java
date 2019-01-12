@@ -13,7 +13,6 @@ import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.turtle.*;
-import dan200.computercraft.shared.TurtleUpgrades;
 import dan200.computercraft.shared.computer.blocks.ComputerProxy;
 import dan200.computercraft.shared.computer.blocks.TileComputerBase;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
@@ -185,11 +184,11 @@ public class TurtleBrain implements ITurtleAccess
             int subType = nbt.getInteger( "subType" );
             if( (subType & 0x1) > 0 )
             {
-                leftUpgrade = ComputerCraft.Upgrades.diamondPickaxe;
+                leftUpgrade = ComputerCraft.TurtleUpgrades.diamondPickaxe;
             }
             if( (subType & 0x2) > 0 )
             {
-                rightUpgrade = ComputerCraft.Upgrades.wirelessModem;
+                rightUpgrade = ComputerCraft.TurtleUpgrades.wirelessModem;
             }
         }
         else
@@ -199,22 +198,22 @@ public class TurtleBrain implements ITurtleAccess
             {
                 if( nbt.getTagId( "leftUpgrade" ) == Constants.NBT.TAG_STRING )
                 {
-                    leftUpgrade = TurtleUpgrades.get( nbt.getString( "leftUpgrade" ) );
+                    leftUpgrade = dan200.computercraft.shared.TurtleUpgrades.get( nbt.getString( "leftUpgrade" ) );
                 }
                 else
                 {
-                    leftUpgrade = TurtleUpgrades.get( nbt.getShort( "leftUpgrade" ) );
+                    leftUpgrade = dan200.computercraft.shared.TurtleUpgrades.get( nbt.getShort( "leftUpgrade" ) );
                 }
             }
             if( nbt.hasKey( "rightUpgrade" ) )
             {
                 if( nbt.getTagId( "rightUpgrade" ) == Constants.NBT.TAG_STRING )
                 {
-                    rightUpgrade = TurtleUpgrades.get( nbt.getString( "rightUpgrade" ) );
+                    rightUpgrade = dan200.computercraft.shared.TurtleUpgrades.get( nbt.getString( "rightUpgrade" ) );
                 }
                 else
                 {
-                    rightUpgrade = TurtleUpgrades.get( nbt.getShort( "rightUpgrade" ) );
+                    rightUpgrade = dan200.computercraft.shared.TurtleUpgrades.get( nbt.getShort( "rightUpgrade" ) );
                 }
             }
         }
@@ -346,7 +345,7 @@ public class TurtleBrain implements ITurtleAccess
         // Upgrades
         if( nbt.hasKey( "leftUpgrade" ) )
         {
-            setUpgrade( TurtleSide.Left, TurtleUpgrades.get( nbt.getString( "leftUpgrade" ) ) );
+            setUpgrade( TurtleSide.Left, dan200.computercraft.shared.TurtleUpgrades.get( nbt.getString( "leftUpgrade" ) ) );
         }
         else
         {
@@ -354,7 +353,7 @@ public class TurtleBrain implements ITurtleAccess
         }
         if( nbt.hasKey( "rightUpgrade" ) )
         {
-            setUpgrade( TurtleSide.Right, TurtleUpgrades.get( nbt.getString( "rightUpgrade" ) ) );
+            setUpgrade( TurtleSide.Right, dan200.computercraft.shared.TurtleUpgrades.get( nbt.getString( "rightUpgrade" ) ) );
         }
         else
         {

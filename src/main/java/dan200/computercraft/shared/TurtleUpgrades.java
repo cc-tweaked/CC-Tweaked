@@ -113,15 +113,15 @@ public final class TurtleUpgrades
     public static Iterable<ITurtleUpgrade> getVanillaUpgrades()
     {
         List<ITurtleUpgrade> vanilla = new ArrayList<>();
-        vanilla.add( ComputerCraft.Upgrades.diamondPickaxe );
-        vanilla.add( ComputerCraft.Upgrades.diamondAxe );
-        vanilla.add( ComputerCraft.Upgrades.diamondSword );
-        vanilla.add( ComputerCraft.Upgrades.diamondShovel );
-        vanilla.add( ComputerCraft.Upgrades.diamondHoe );
-        vanilla.add( ComputerCraft.Upgrades.craftingTable );
-        vanilla.add( ComputerCraft.Upgrades.wirelessModem );
-        vanilla.add( ComputerCraft.Upgrades.advancedModem );
-        vanilla.add( ComputerCraft.Upgrades.turtleSpeaker );
+        vanilla.add( ComputerCraft.TurtleUpgrades.diamondPickaxe );
+        vanilla.add( ComputerCraft.TurtleUpgrades.diamondAxe );
+        vanilla.add( ComputerCraft.TurtleUpgrades.diamondSword );
+        vanilla.add( ComputerCraft.TurtleUpgrades.diamondShovel );
+        vanilla.add( ComputerCraft.TurtleUpgrades.diamondHoe );
+        vanilla.add( ComputerCraft.TurtleUpgrades.craftingTable );
+        vanilla.add( ComputerCraft.TurtleUpgrades.wirelessModem );
+        vanilla.add( ComputerCraft.TurtleUpgrades.advancedModem );
+        vanilla.add( ComputerCraft.TurtleUpgrades.speaker );
         return vanilla;
     }
 

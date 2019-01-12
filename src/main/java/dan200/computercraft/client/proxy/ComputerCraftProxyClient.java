@@ -18,21 +18,13 @@ import dan200.computercraft.shared.peripheral.monitor.ClientMonitor;
 import dan200.computercraft.shared.peripheral.monitor.TileMonitor;
 import dan200.computercraft.shared.proxy.ComputerCraftProxyCommon;
 import dan200.computercraft.shared.util.Colour;
-import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.ItemMeshDefinition;
-import net.minecraft.client.renderer.block.model.ModelBakery;
-import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.client.renderer.color.IItemColor;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.client.ClientCommandHandler;
-import net.minecraftforge.client.event.ModelRegistryEvent;
-import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.Mod;
@@ -54,38 +46,11 @@ public class ComputerCraftProxyClient extends ComputerCraftProxyCommon
         ClientCommandHandler.instance.registerCommand( CommandCopy.INSTANCE );
     }
 
-    @SubscribeEvent
-    public void registerModels( ModelRegistryEvent event )
-    {
-        // Register item models
-        registerItemModel( ComputerCraft.Blocks.computer, "computer" );
-        registerItemModel( ComputerCraft.Blocks.peripheral, 0, "peripheral" );
-        registerItemModel( ComputerCraft.Blocks.peripheral, 1, "wireless_modem" );
-        registerItemModel( ComputerCraft.Blocks.peripheral, 2, "monitor" );
-        registerItemModel( ComputerCraft.Blocks.peripheral, 3, "printer" );
-        registerItemModel( ComputerCraft.Blocks.peripheral, 4, "advanced_monitor" );
-        registerItemModel( ComputerCraft.Blocks.cable, 0, "cable" );
-        registerItemModel( ComputerCraft.Blocks.cable, 1, "wired_modem" );
-        registerItemModel( ComputerCraft.Blocks.commandComputer, "command_computer" );
-        registerItemModel( ComputerCraft.Blocks.advancedModem, "advanced_modem" );
-        registerItemModel( ComputerCraft.Blocks.peripheral, 5, "speaker" );
-        registerItemModel( ComputerCraft.Blocks.wiredModemFull, "wired_modem_full" );
-
-        registerItemModel( ComputerCraft.Items.disk, "disk" );
-        registerItemModel( ComputerCraft.Items.diskExpanded, "disk_expanded" );
-        registerItemModel( ComputerCraft.Items.treasureDisk, "treasure_disk" );
-        registerItemModel( ComputerCraft.Items.printout, 0, "printout" );
-        registerItemModel( ComputerCraft.Items.printout, 1, "pages" );
-        registerItemModel( ComputerCraft.Items.printout, 2, "book" );
-        registerItemModel( ComputerCraft.Items.pocketComputer, "pocket_computer" );
-    }
-
     @Override
     public void init()
     {
         super.init();
 
-        // Load textures
         Minecraft mc = Minecraft.getMinecraft();
 
         // Setup
@@ -116,38 +81,6 @@ public class ComputerCraftProxyClient extends ComputerCraftProxyCommon
         // Setup renderers
         ClientRegistry.bindTileEntitySpecialRenderer( TileMonitor.class, new TileEntityMonitorRenderer() );
         ClientRegistry.bindTileEntitySpecialRenderer( TileCable.class, new TileEntityCableRenderer() );
-    }
-
-    private void registerItemModel( Block block, int damage, String name )
-    {
-        registerItemModel( Item.getItemFromBlock( block ), damage, name );
-    }
-
-    private void registerItemModel( Item item, int damage, String name )
-    {
-        ModelResourceLocation res = new ModelResourceLocation( "computercraft:" + name, "inventory" );
-        ModelBakery.registerItemVariants( item, new ResourceLocation( "computercraft", name ) );
-        ModelLoader.setCustomModelResourceLocation( item, damage, res );
-    }
-
-    private void registerItemModel( Block block, String name )
-    {
-        registerItemModel( Item.getItemFromBlock( block ), name );
-    }
-
-    private void registerItemModel( Item item, String name )
-    {
-        final ModelResourceLocation res = new ModelResourceLocation( "computercraft:" + name, "inventory" );
-        ModelBakery.registerItemVariants( item, new ResourceLocation( "computercraft", name ) );
-        ModelLoader.setCustomMeshDefinition( item, new ItemMeshDefinition()
-        {
-            @Nonnull
-            @Override
-            public ModelResourceLocation getModelLocation( @Nonnull ItemStack stack )
-            {
-                return res;
-            }
-        } );
     }
 
     @Override

@@ -172,48 +172,53 @@ public class ComputerCraft
     public static class Blocks
     {
         public static BlockComputer computer;
-        public static BlockPeripheral peripheral;
-        public static BlockCable cable;
+        public static BlockCommandComputer commandComputer;
+
         public static BlockTurtle turtle;
         public static BlockTurtle turtleExpanded;
         public static BlockTurtle turtleAdvanced;
-        public static BlockCommandComputer commandComputer;
+
+        public static BlockPeripheral peripheral;
+        public static BlockCable cable;
         public static BlockAdvancedModem advancedModem;
         public static BlockWiredModemFull wiredModemFull;
     }
 
     public static class Items
     {
+        public static ItemPocketComputer pocketComputer;
+
         public static ItemDiskLegacy disk;
         public static ItemDiskExpanded diskExpanded;
-        public static ItemPrintout printout;
         public static ItemTreasureDisk treasureDisk;
-        public static ItemPocketComputer pocketComputer;
+
+        public static ItemPrintout printout;
     }
 
-    public static class Upgrades
+    public static class TurtleUpgrades
     {
         public static TurtleModem wirelessModem;
+        public static TurtleModem advancedModem;
+        public static TurtleSpeaker speaker;
+
         public static TurtleCraftingTable craftingTable;
         public static TurtleSword diamondSword;
         public static TurtleShovel diamondShovel;
         public static TurtleTool diamondPickaxe;
         public static TurtleAxe diamondAxe;
         public static TurtleHoe diamondHoe;
-        public static TurtleModem advancedModem;
-        public static TurtleSpeaker turtleSpeaker;
     }
 
     public static class PocketUpgrades
     {
         public static PocketModem wirelessModem;
         public static PocketModem advancedModem;
-        public static PocketSpeaker pocketSpeaker;
+        public static PocketSpeaker speaker;
     }
 
     // Registries
-    public static ClientComputerRegistry clientComputerRegistry = new ClientComputerRegistry();
-    public static ServerComputerRegistry serverComputerRegistry = new ServerComputerRegistry();
+    public static final ClientComputerRegistry clientComputerRegistry = new ClientComputerRegistry();
+    public static final ServerComputerRegistry serverComputerRegistry = new ServerComputerRegistry();
 
     // Networking
     public static SimpleNetworkWrapper networkWrapper;
@@ -680,7 +685,7 @@ public class ComputerCraft
     @Deprecated
     public static void registerTurtleUpgrade( ITurtleUpgrade upgrade )
     {
-        TurtleUpgrades.register( upgrade );
+        dan200.computercraft.shared.TurtleUpgrades.register( upgrade );
     }
 
     //region Compatibility
@@ -699,7 +704,7 @@ public class ComputerCraft
     @Deprecated
     public static ITurtleUpgrade getTurtleUpgrade( ItemStack stack )
     {
-        return TurtleUpgrades.get( stack );
+        return dan200.computercraft.shared.TurtleUpgrades.get( stack );
     }
 
     @Deprecated
@@ -711,7 +716,7 @@ public class ComputerCraft
     @Deprecated
     public static ITurtleUpgrade getTurtleUpgrade( String id )
     {
-        return TurtleUpgrades.get( id );
+        return dan200.computercraft.shared.TurtleUpgrades.get( id );
     }
 
     @Deprecated

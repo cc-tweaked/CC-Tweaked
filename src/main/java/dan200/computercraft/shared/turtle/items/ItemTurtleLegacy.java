@@ -31,8 +31,8 @@ public class ItemTurtleLegacy extends ItemTurtleBase
     public ItemStack create( int id, String label, int colour, ITurtleUpgrade leftUpgrade, ITurtleUpgrade rightUpgrade, int fuelLevel, ResourceLocation overlay )
     {
         // Legacy turtles only support pickaxes and modems
-        if( (leftUpgrade != null && leftUpgrade != ComputerCraft.Upgrades.diamondPickaxe) ||
-            (rightUpgrade != null && rightUpgrade != ComputerCraft.Upgrades.wirelessModem) ||
+        if( (leftUpgrade != null && leftUpgrade != ComputerCraft.TurtleUpgrades.diamondPickaxe) ||
+            (rightUpgrade != null && rightUpgrade != ComputerCraft.TurtleUpgrades.wirelessModem) ||
             (colour != -1) || (overlay != null) )
         {
             return null;
@@ -114,7 +114,7 @@ public class ItemTurtleLegacy extends ItemTurtleBase
             {
                 if( (damage & 0x1) > 0 )
                 {
-                    return ComputerCraft.Upgrades.diamondPickaxe;
+                    return ComputerCraft.TurtleUpgrades.diamondPickaxe;
                 }
                 break;
             }
@@ -122,7 +122,7 @@ public class ItemTurtleLegacy extends ItemTurtleBase
             {
                 if( (damage & 0x2) > 0 )
                 {
-                    return ComputerCraft.Upgrades.wirelessModem;
+                    return ComputerCraft.TurtleUpgrades.wirelessModem;
                 }
                 break;
             }

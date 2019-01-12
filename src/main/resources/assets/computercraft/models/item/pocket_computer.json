@@ -7,41 +7,28 @@
     "overrides": [
         {
             "model": "computercraft:item/pocket_computer",
-            "predicate": { "computercraft:state": 0, "computercraft:type": 0 }
+            "predicate": { "computercraft:state": 0, "computercraft:coloured": 0 }
         },
         {
             "model": "computercraft:item/pocket_computer_on",
-            "predicate": { "computercraft:state": 1, "computercraft:type": 0 }
+            "predicate": { "computercraft:state": 1, "computercraft:coloured": 0 }
         },
         {
             "model": "computercraft:item/pocket_computer_blinking",
-            "predicate": { "computercraft:state": 2, "computercraft:type": 0 }
-        },
-
-        {
-            "model": "computercraft:item/advanced_pocket_computer",
-            "predicate": { "computercraft:state": 0, "computercraft:type": 1 }
-        },
-        {
-            "model": "computercraft:item/advanced_pocket_computer_on",
-            "predicate": { "computercraft:state": 1, "computercraft:type": 1 }
-        },
-        {
-            "model": "computercraft:item/advanced_pocket_computer_blinking",
-            "predicate": { "computercraft:state": 2, "computercraft:type": 1 }
+            "predicate": { "computercraft:state": 2, "computercraft:coloured": 0 }
         },
 
         {
             "model": "computercraft:item/pocket_computer_colour",
-            "predicate": { "computercraft:state": 0, "computercraft:type": 2 }
+            "predicate": { "computercraft:state": 0, "computercraft:coloured": 1 }
         },
         {
             "model": "computercraft:item/pocket_computer_colour_on",
-            "predicate": { "computercraft:state": 1, "computercraft:type": 2 }
+            "predicate": { "computercraft:state": 1, "computercraft:coloured": 1 }
         },
         {
             "model": "computercraft:item/pocket_computer_colour_blinking",
-            "predicate": { "computercraft:state": 2, "computercraft:type": 2 }
+            "predicate": { "computercraft:state": 2, "computercraft:coloured": 1 }
         }
     ]
 }

@@ -7,19 +7,28 @@
 package dan200.computercraft.shared;
 
 import com.google.common.base.Preconditions;
+import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.permissions.ITurtlePermissionProvider;
+import dan200.computercraft.api.turtle.event.TurtleActionEvent;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import javax.annotation.Nonnull;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 
+@Mod.EventBusSubscriber( modid = ComputerCraft.MOD_ID )
 public final class TurtlePermissions
 {
     private static final Collection<ITurtlePermissionProvider> providers = new LinkedHashSet<>();
+
+    private TurtlePermissions()
+    {
+    }
 
     public static void register( @Nonnull ITurtlePermissionProvider upgrade )
     {
@@ -56,5 +65,14 @@ public final class TurtlePermissions
             if( !provider.isBlockEditable( world, pos ) ) return false;
         }
         return true;
+    }
+
+    @SubscribeEvent
+    public static void onTurtleAction( TurtleActionEvent event )
+    {
+        if( ComputerCraft.turtleDisabledActions.contains( event.getAction() ) )
+        {
+            event.setCanceled( true, "Action has been disabled" );
+        }
     }
 }

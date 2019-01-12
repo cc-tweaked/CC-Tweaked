@@ -63,7 +63,7 @@ public final class PocketUpgrades
         List<IPocketUpgrade> vanilla = new ArrayList<>();
         vanilla.add( ComputerCraft.PocketUpgrades.wirelessModem );
         vanilla.add( ComputerCraft.PocketUpgrades.advancedModem );
-        vanilla.add( ComputerCraft.PocketUpgrades.pocketSpeaker );
+        vanilla.add( ComputerCraft.PocketUpgrades.speaker );
         return vanilla;
     }
 }

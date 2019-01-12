@@ -49,7 +49,7 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
         setTranslationKey( "computercraft:pocket_computer" );
         setCreativeTab( ComputerCraft.mainCreativeTab );
         addPropertyOverride( new ResourceLocation( ComputerCraft.MOD_ID, "state" ), COMPUTER_STATE );
-        addPropertyOverride( new ResourceLocation( ComputerCraft.MOD_ID, "type" ), COMPUTER_TYPE );
+        addPropertyOverride( new ResourceLocation( ComputerCraft.MOD_ID, "coloured" ), COMPUTER_COLOURED );
     }
 
     public ItemStack create( int id, String label, int colour, ComputerFamily family, IPocketUpgrade upgrade )
@@ -565,9 +565,8 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
         return state.ordinal();
     };
 
-    private static final IItemPropertyGetter COMPUTER_TYPE = ( stack, world, player ) -> {
+    private static final IItemPropertyGetter COMPUTER_COLOURED = ( stack, world, player ) -> {
         ItemPocketComputer item = (ItemPocketComputer) stack.getItem();
-        if( item.getColour( stack ) != -1 ) return 2;
-        return item.getFamily( stack ) == ComputerFamily.Advanced ? 1 : 0;
+        return item.getColour( stack ) != -1 ? 1 : 0;
     };
 }
