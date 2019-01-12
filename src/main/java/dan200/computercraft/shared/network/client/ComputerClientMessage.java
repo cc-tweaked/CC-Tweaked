@@ -10,11 +10,8 @@ import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.computer.core.ClientComputer;
 import dan200.computercraft.shared.network.NetworkMessage;
 import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.relauncher.Side;
 
 import javax.annotation.Nonnull;
-import java.util.function.BiConsumer;
-import java.util.function.Supplier;
 
 /**
  * A packet, which performs an action on a {@link ClientComputer}.
@@ -57,13 +54,5 @@ public abstract class ComputerClientMessage implements NetworkMessage
             ComputerCraft.clientComputerRegistry.add( instanceId, computer = new ClientComputer( instanceId ) );
         }
         return computer;
-    }
-
-    public static <T extends ComputerClientMessage> void register( Supplier<T> factory, BiConsumer<ClientComputer, T> handler )
-    {
-        NetworkMessage.registerMainThread( Side.CLIENT, factory, ( context, packet ) -> {
-            ClientComputer computer = packet.getComputer();
-            if( computer != null ) handler.accept( computer, packet );
-        } );
     }
 }

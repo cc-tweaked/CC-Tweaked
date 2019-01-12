@@ -22,12 +22,6 @@ import dan200.computercraft.shared.integration.charset.IntegrationCharset;
 import dan200.computercraft.shared.media.common.DefaultMediaProvider;
 import dan200.computercraft.shared.media.inventory.ContainerHeldItem;
 import dan200.computercraft.shared.media.items.ItemPrintout;
-import dan200.computercraft.shared.network.NetworkMessage;
-import dan200.computercraft.shared.network.client.*;
-import dan200.computercraft.shared.network.server.ComputerActionServerMessage;
-import dan200.computercraft.shared.network.server.ComputerServerMessage;
-import dan200.computercraft.shared.network.server.QueueEventServerMessage;
-import dan200.computercraft.shared.network.server.RequestComputerMessage;
 import dan200.computercraft.shared.peripheral.commandblock.CommandBlockPeripheralProvider;
 import dan200.computercraft.shared.peripheral.common.DefaultPeripheralProvider;
 import dan200.computercraft.shared.peripheral.diskdrive.ContainerDiskDrive;
@@ -77,7 +71,6 @@ public class ComputerCraftProxyCommon implements IComputerCraftProxy
     {
         registerProviders();
         NetworkRegistry.INSTANCE.registerGuiHandler( ComputerCraft.instance, new GuiHandler() );
-        registerNetwork();
 
         Fixes.register( FMLCommonHandler.instance().getDataFixer() );
         if( Loader.isModLoaded( ModCharset.MODID ) ) IntegrationCharset.register();
@@ -107,51 +100,6 @@ public class ComputerCraftProxyCommon implements IComputerCraftProxy
 
         // Register network providers
         CapabilityWiredElement.register();
-    }
-
-    private void registerNetwork()
-    {
-        // Server messages
-
-        ComputerServerMessage.register( ComputerActionServerMessage::new, ( computer, packet ) -> {
-            switch( packet.getAction() )
-            {
-                case TURN_ON:
-                    computer.turnOn();
-                    break;
-                case REBOOT:
-                    computer.reboot();
-                    break;
-                case SHUTDOWN:
-                    computer.shutdown();
-                    break;
-            }
-        } );
-
-        ComputerServerMessage.register( QueueEventServerMessage::new, ( computer, packet ) ->
-            computer.queueEvent( packet.getEvent(), packet.getArgs() ) );
-
-        NetworkMessage.registerMainThread( Side.SERVER, RequestComputerMessage::new, ( context, packet ) -> {
-            ServerComputer computer = ComputerCraft.serverComputerRegistry.get( packet.getInstance() );
-            if( computer != null ) computer.sendComputerState( context.getServerHandler().player );
-        } );
-
-        // Client messages
-
-        NetworkMessage.registerMainThread( Side.CLIENT, PlayRecordClientMessage::new, ( computer, packet ) ->
-            playRecordClient( packet.getPos(), packet.getSoundEvent(), packet.getName() ) );
-
-        ComputerClientMessage.register( ComputerDataClientMessage::new, ( computer, packet ) ->
-            computer.setState( packet.getState(), packet.getUserData() ) );
-
-        ComputerClientMessage.register( ComputerTerminalClientMessage::new, ( computer, packet ) ->
-            computer.readDescription( packet.getTag() ) );
-
-        NetworkMessage.registerMainThread( Side.CLIENT, ComputerDeletedClientMessage::new, ( context, packet ) ->
-            ComputerCraft.clientComputerRegistry.remove( packet.getInstanceId() ) );
-
-        NetworkMessage.registerMainThread( Side.CLIENT, ChatTableClientMessage::new, ( context, packet ) ->
-            showTableClient( packet.getTable() ) );
     }
 
     public class GuiHandler implements IGuiHandler

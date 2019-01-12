@@ -6,7 +6,7 @@
 
 package dan200.computercraft.shared.network.server;
 
-import dan200.computercraft.shared.network.NetworkMessages;
+import dan200.computercraft.shared.computer.core.ServerComputer;
 import net.minecraft.network.PacketBuffer;
 
 import javax.annotation.Nonnull;
@@ -26,12 +26,6 @@ public class ComputerActionServerMessage extends ComputerServerMessage
     }
 
     @Override
-    public int getId()
-    {
-        return NetworkMessages.COMPUTER_ACTION_SERVER_MESSAGE;
-    }
-
-    @Override
     public void toBytes( @Nonnull PacketBuffer buf )
     {
         super.toBytes( buf );
@@ -45,9 +39,21 @@ public class ComputerActionServerMessage extends ComputerServerMessage
         action = buf.readEnumValue( Action.class );
     }
 
-    public Action getAction()
+    @Override
+    protected void handle( ServerComputer computer )
     {
-        return action;
+        switch( action )
+        {
+            case TURN_ON:
+                computer.turnOn();
+                break;
+            case REBOOT:
+                computer.reboot();
+                break;
+            case SHUTDOWN:
+                computer.shutdown();
+                break;
+        }
     }
 
     public enum Action

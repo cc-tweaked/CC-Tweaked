@@ -8,10 +8,10 @@ package dan200.computercraft.shared.network.client;
 
 import dan200.computercraft.shared.computer.blocks.ComputerState;
 import dan200.computercraft.shared.computer.core.ServerComputer;
-import dan200.computercraft.shared.network.NetworkMessages;
 import dan200.computercraft.shared.util.NBTUtil;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
+import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
 import javax.annotation.Nonnull;
 
@@ -35,22 +35,6 @@ public class ComputerDataClientMessage extends ComputerClientMessage
     }
 
     @Override
-    public int getId()
-    {
-        return NetworkMessages.COMPUTER_DATA_CLIENT_MESSAGE;
-    }
-
-    public ComputerState getState()
-    {
-        return state;
-    }
-
-    public NBTTagCompound getUserData()
-    {
-        return userData;
-    }
-
-    @Override
     public void toBytes( @Nonnull PacketBuffer buf )
     {
         super.toBytes( buf );
@@ -64,5 +48,11 @@ public class ComputerDataClientMessage extends ComputerClientMessage
         super.fromBytes( buf );
         state = buf.readEnumValue( ComputerState.class );
         userData = NBTUtil.readCompoundTag( buf );
+    }
+
+    @Override
+    public void handle( MessageContext context )
+    {
+        getComputer().setState( state, userData );
     }
 }

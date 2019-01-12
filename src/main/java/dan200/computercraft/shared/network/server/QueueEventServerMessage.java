@@ -6,7 +6,7 @@
 
 package dan200.computercraft.shared.network.server;
 
-import dan200.computercraft.shared.network.NetworkMessages;
+import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.util.NBTUtil;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
@@ -37,24 +37,6 @@ public class QueueEventServerMessage extends ComputerServerMessage
     }
 
     @Override
-    public int getId()
-    {
-        return NetworkMessages.QUEUE_EVENT_SERVER_MESSAGE;
-    }
-
-    @Nonnull
-    public String getEvent()
-    {
-        return event;
-    }
-
-    @Nullable
-    public Object[] getArgs()
-    {
-        return args;
-    }
-
-    @Override
     public void toBytes( @Nonnull PacketBuffer buf )
     {
         super.toBytes( buf );
@@ -70,5 +52,11 @@ public class QueueEventServerMessage extends ComputerServerMessage
 
         NBTTagCompound args = NBTUtil.readCompoundTag( buf );
         this.args = args == null ? null : NBTUtil.decodeObjects( args );
+    }
+
+    @Override
+    protected void handle( ServerComputer computer )
+    {
+        computer.queueEvent( event, args );
     }
 }

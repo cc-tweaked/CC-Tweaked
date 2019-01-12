@@ -6,12 +6,15 @@
 
 package dan200.computercraft.shared.network.client;
 
+import dan200.computercraft.client.ClientTableFormatter;
 import dan200.computercraft.shared.command.text.TableBuilder;
 import dan200.computercraft.shared.network.NetworkMessage;
-import dan200.computercraft.shared.network.NetworkMessages;
 import dan200.computercraft.shared.util.NBTUtil;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 import javax.annotation.Nonnull;
 
@@ -27,17 +30,6 @@ public class ChatTableClientMessage implements NetworkMessage
 
     public ChatTableClientMessage()
     {
-    }
-
-    @Override
-    public int getId()
-    {
-        return NetworkMessages.CHAT_TABLE_CLIENT_MESSAGE;
-    }
-
-    public TableBuilder getTable()
-    {
-        return table;
     }
 
     @Override
@@ -83,5 +75,12 @@ public class ChatTableClientMessage implements NetworkMessage
             table.row( row );
         }
         this.table = table;
+    }
+
+    @Override
+    @SideOnly( Side.CLIENT )
+    public void handle( MessageContext context )
+    {
+        ClientTableFormatter.INSTANCE.display( table );
     }
 }

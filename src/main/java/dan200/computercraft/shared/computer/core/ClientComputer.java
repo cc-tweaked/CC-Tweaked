@@ -7,9 +7,9 @@
 package dan200.computercraft.shared.computer.core;
 
 import com.google.common.base.Objects;
-import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.common.ClientTerminal;
 import dan200.computercraft.shared.computer.blocks.ComputerState;
+import dan200.computercraft.shared.network.NetworkHandler;
 import dan200.computercraft.shared.network.server.ComputerActionServerMessage;
 import dan200.computercraft.shared.network.server.QueueEventServerMessage;
 import dan200.computercraft.shared.network.server.RequestComputerMessage;
@@ -53,7 +53,7 @@ public class ClientComputer extends ClientTerminal implements IComputer
     public void requestState()
     {
         // Request state from server
-        ComputerCraft.sendToServer( new RequestComputerMessage( getInstanceID() ) );
+        NetworkHandler.sendToServer( new RequestComputerMessage( getInstanceID() ) );
     }
 
     // IComputer
@@ -94,28 +94,28 @@ public class ClientComputer extends ClientTerminal implements IComputer
     public void turnOn()
     {
         // Send turnOn to server
-        ComputerCraft.sendToServer( new ComputerActionServerMessage( m_instanceID, ComputerActionServerMessage.Action.TURN_ON ) );
+        NetworkHandler.sendToServer( new ComputerActionServerMessage( m_instanceID, ComputerActionServerMessage.Action.TURN_ON ) );
     }
 
     @Override
     public void shutdown()
     {
         // Send shutdown to server
-        ComputerCraft.sendToServer( new ComputerActionServerMessage( m_instanceID, ComputerActionServerMessage.Action.SHUTDOWN ) );
+        NetworkHandler.sendToServer( new ComputerActionServerMessage( m_instanceID, ComputerActionServerMessage.Action.SHUTDOWN ) );
     }
 
     @Override
     public void reboot()
     {
         // Send reboot to server
-        ComputerCraft.sendToServer( new ComputerActionServerMessage( m_instanceID, ComputerActionServerMessage.Action.REBOOT ) );
+        NetworkHandler.sendToServer( new ComputerActionServerMessage( m_instanceID, ComputerActionServerMessage.Action.REBOOT ) );
     }
 
     @Override
     public void queueEvent( String event, Object[] arguments )
     {
         // Send event to server
-        ComputerCraft.sendToServer( new QueueEventServerMessage( m_instanceID, event, arguments ) );
+        NetworkHandler.sendToServer( new QueueEventServerMessage( m_instanceID, event, arguments ) );
     }
 
     public void setState( ComputerState state, NBTTagCompound userData )

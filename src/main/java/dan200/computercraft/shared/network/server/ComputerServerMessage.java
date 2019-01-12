@@ -12,11 +12,8 @@ import dan200.computercraft.shared.network.NetworkMessage;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
-import net.minecraftforge.fml.relauncher.Side;
 
 import javax.annotation.Nonnull;
-import java.util.function.BiConsumer;
-import java.util.function.Supplier;
 
 /**
  * A packet, which performs an action on a {@link ServerComputer}.
@@ -61,11 +58,12 @@ public abstract class ComputerServerMessage implements NetworkMessage
         return computer;
     }
 
-    public static <T extends ComputerServerMessage> void register( Supplier<T> factory, BiConsumer<ServerComputer, T> handler )
+    @Override
+    public void handle( MessageContext context )
     {
-        NetworkMessage.registerMainThread( Side.SERVER, factory, ( context, packet ) -> {
-            ServerComputer computer = packet.getComputer( context );
-            if( computer != null ) handler.accept( computer, packet );
-        } );
+        ServerComputer computer = getComputer( context );
+        if( computer != null ) handle( computer );
     }
+
+    protected abstract void handle( ServerComputer computer );
 }

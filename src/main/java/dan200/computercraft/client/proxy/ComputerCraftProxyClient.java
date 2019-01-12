@@ -7,11 +7,9 @@
 package dan200.computercraft.client.proxy;
 
 import dan200.computercraft.ComputerCraft;
-import dan200.computercraft.client.ClientTableFormatter;
 import dan200.computercraft.client.render.TileEntityCableRenderer;
 import dan200.computercraft.client.render.TileEntityMonitorRenderer;
 import dan200.computercraft.shared.command.CommandCopy;
-import dan200.computercraft.shared.command.text.TableBuilder;
 import dan200.computercraft.shared.media.items.ItemDiskLegacy;
 import dan200.computercraft.shared.peripheral.modem.wired.TileCable;
 import dan200.computercraft.shared.peripheral.monitor.ClientMonitor;
@@ -21,8 +19,6 @@ import dan200.computercraft.shared.util.Colour;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.color.IItemColor;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.client.ClientCommandHandler;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
@@ -79,20 +75,6 @@ public class ComputerCraftProxyClient extends ComputerCraftProxyCommon
         // Setup renderers
         ClientRegistry.bindTileEntitySpecialRenderer( TileMonitor.class, new TileEntityMonitorRenderer() );
         ClientRegistry.bindTileEntitySpecialRenderer( TileCable.class, new TileEntityCableRenderer() );
-    }
-
-    @Override
-    public void playRecordClient( BlockPos pos, SoundEvent record, String info )
-    {
-        Minecraft mc = Minecraft.getMinecraft();
-        mc.world.playRecord( pos, record );
-        if( info != null ) mc.ingameGUI.setRecordPlayingMessage( info );
-    }
-
-    @Override
-    public void showTableClient( TableBuilder table )
-    {
-        ClientTableFormatter.INSTANCE.display( table );
     }
 
     @Mod.EventBusSubscriber( modid = ComputerCraft.MOD_ID, value = Side.CLIENT )

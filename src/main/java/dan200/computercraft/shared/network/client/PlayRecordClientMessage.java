@@ -7,10 +7,13 @@
 package dan200.computercraft.shared.network.client;
 
 import dan200.computercraft.shared.network.NetworkMessage;
-import dan200.computercraft.shared.network.NetworkMessages;
+import net.minecraft.client.Minecraft;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.BlockPos;
+import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 import javax.annotation.Nonnull;
 
@@ -44,27 +47,6 @@ public class PlayRecordClientMessage implements NetworkMessage
     }
 
     @Override
-    public int getId()
-    {
-        return NetworkMessages.PLAY_RECORD_CLIENT_MESSAGE;
-    }
-
-    public BlockPos getPos()
-    {
-        return pos;
-    }
-
-    public String getName()
-    {
-        return name;
-    }
-
-    public SoundEvent getSoundEvent()
-    {
-        return soundEvent;
-    }
-
-    @Override
     public void toBytes( @Nonnull PacketBuffer buf )
     {
         buf.writeBlockPos( pos );
@@ -89,5 +71,14 @@ public class PlayRecordClientMessage implements NetworkMessage
             name = buf.readString( Short.MAX_VALUE );
             soundEvent = SoundEvent.REGISTRY.getObjectById( buf.readInt() );
         }
+    }
+
+    @Override
+    @SideOnly( Side.CLIENT )
+    public void handle( MessageContext context )
+    {
+        Minecraft mc = Minecraft.getMinecraft();
+        mc.world.playRecord( pos, soundEvent );
+        if( name != null ) mc.ingameGUI.setRecordPlayingMessage( name );
     }
 }

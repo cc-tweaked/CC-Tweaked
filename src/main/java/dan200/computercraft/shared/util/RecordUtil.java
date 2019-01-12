@@ -6,7 +6,7 @@
 
 package dan200.computercraft.shared.util;
 
-import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.shared.network.NetworkHandler;
 import dan200.computercraft.shared.network.client.PlayRecordClientMessage;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemRecord;
@@ -26,7 +26,7 @@ public class RecordUtil
         IMessage packet = record != null ? new PlayRecordClientMessage( pos, record, recordInfo ) : new PlayRecordClientMessage( pos );
 
         NetworkRegistry.TargetPoint point = new NetworkRegistry.TargetPoint( world.provider.getDimension(), pos.getX(), pos.getY(), pos.getZ(), 64 );
-        ComputerCraft.sendToAllAround( packet, point );
+        NetworkHandler.sendToAllAround( packet, point );
     }
 
     public static String getRecordInfo( @Nonnull ItemStack recordStack )

@@ -6,10 +6,7 @@
 
 package dan200.computercraft.shared.proxy;
 
-import dan200.computercraft.shared.command.text.TableBuilder;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.math.BlockPos;
 
 public interface IComputerCraftProxy
 {
@@ -18,12 +15,4 @@ public interface IComputerCraftProxy
     void init();
 
     void initServer( MinecraftServer server );
-
-    default void playRecordClient( BlockPos pos, SoundEvent record, String info )
-    {
-    }
-
-    default void showTableClient( TableBuilder table )
-    {
-    }
 }

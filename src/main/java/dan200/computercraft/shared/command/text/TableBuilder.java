@@ -6,8 +6,8 @@
 
 package dan200.computercraft.shared.command.text;
 
-import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.command.CommandUtils;
+import dan200.computercraft.shared.network.NetworkHandler;
 import dan200.computercraft.shared.network.client.ChatTableClientMessage;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -120,7 +120,7 @@ public class TableBuilder
         if( CommandUtils.isPlayer( source ) )
         {
             trim( 18 );
-            ComputerCraft.sendToPlayer( (EntityPlayerMP) source, new ChatTableClientMessage( this ) );
+            NetworkHandler.sendToPlayer( (EntityPlayerMP) source, new ChatTableClientMessage( this ) );
         }
         else
         {

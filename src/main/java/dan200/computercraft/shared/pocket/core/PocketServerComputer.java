@@ -12,6 +12,7 @@ import dan200.computercraft.api.pocket.IPocketAccess;
 import dan200.computercraft.api.pocket.IPocketUpgrade;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ServerComputer;
+import dan200.computercraft.shared.network.NetworkHandler;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -186,7 +187,7 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
             EntityPlayerMP player = (EntityPlayerMP) m_entity;
             if( player.connection != null && !isInteracting( player ) )
             {
-                ComputerCraft.sendToPlayer( player, createTerminalPacket() );
+                NetworkHandler.sendToPlayer( player, createTerminalPacket() );
             }
         }
     }

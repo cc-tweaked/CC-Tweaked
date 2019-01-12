@@ -6,9 +6,11 @@
 
 package dan200.computercraft.shared.network.server;
 
+import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.network.NetworkMessage;
-import dan200.computercraft.shared.network.NetworkMessages;
 import net.minecraft.network.PacketBuffer;
+import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
 import javax.annotation.Nonnull;
 
@@ -26,17 +28,6 @@ public class RequestComputerMessage implements NetworkMessage
     }
 
     @Override
-    public int getId()
-    {
-        return NetworkMessages.REQUEST_COMPUTER_SERVER_MESSAGE;
-    }
-
-    public int getInstance()
-    {
-        return instance;
-    }
-
-    @Override
     public void toBytes( @Nonnull PacketBuffer buf )
     {
         buf.writeVarInt( instance );
@@ -46,5 +37,12 @@ public class RequestComputerMessage implements NetworkMessage
     public void fromBytes( @Nonnull PacketBuffer buf )
     {
         instance = buf.readVarInt();
+    }
+
+    @Override
+    public void handle( MessageContext context )
+    {
+        ServerComputer computer = ComputerCraft.serverComputerRegistry.get( instance );
+        if( computer != null ) computer.sendComputerState( context.getServerHandler().player );
     }
 }

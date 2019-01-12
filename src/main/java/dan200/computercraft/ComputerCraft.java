@@ -43,6 +43,7 @@ import dan200.computercraft.shared.media.items.ItemDiskExpanded;
 import dan200.computercraft.shared.media.items.ItemDiskLegacy;
 import dan200.computercraft.shared.media.items.ItemPrintout;
 import dan200.computercraft.shared.media.items.ItemTreasureDisk;
+import dan200.computercraft.shared.network.NetworkHandler;
 import dan200.computercraft.shared.peripheral.common.BlockPeripheral;
 import dan200.computercraft.shared.peripheral.common.ItemPeripheral;
 import dan200.computercraft.shared.peripheral.diskdrive.TileDiskDrive;
@@ -70,7 +71,6 @@ import dan200.computercraft.shared.util.IoUtil;
 import dan200.computercraft.shared.wired.CapabilityWiredElement;
 import dan200.computercraft.shared.wired.WiredNode;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.MinecraftServer;
@@ -85,9 +85,6 @@ import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.*;
-import net.minecraftforge.fml.common.network.NetworkRegistry;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
-import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import net.minecraftforge.fml.relauncher.Side;
 import org.apache.logging.log4j.Logger;
 
@@ -242,9 +239,6 @@ public class ComputerCraft
     public static final ClientComputerRegistry clientComputerRegistry = new ClientComputerRegistry();
     public static final ServerComputerRegistry serverComputerRegistry = new ServerComputerRegistry();
 
-    // Networking
-    public static SimpleNetworkWrapper networkWrapper;
-
     // Creative
     public static CreativeTabMain mainCreativeTab;
 
@@ -279,7 +273,7 @@ public class ComputerCraft
         Config.load( event.getSuggestedConfigurationFile() );
 
         // Setup network
-        networkWrapper = NetworkRegistry.INSTANCE.newSimpleChannel( ComputerCraft.MOD_ID );
+        NetworkHandler.setup();
 
         proxy.preInit();
         turtleProxy.preInit();
@@ -385,26 +379,6 @@ public class ComputerCraft
     private static File getResourcePackDir()
     {
         return new File( getBaseDir(), "resourcepacks" );
-    }
-
-    public static void sendToPlayer( EntityPlayer player, IMessage packet )
-    {
-        networkWrapper.sendTo( packet, (EntityPlayerMP) player );
-    }
-
-    public static void sendToAllPlayers( IMessage packet )
-    {
-        networkWrapper.sendToAll( packet );
-    }
-
-    public static void sendToServer( IMessage packet )
-    {
-        networkWrapper.sendToServer( packet );
-    }
-
-    public static void sendToAllAround( IMessage packet, NetworkRegistry.TargetPoint point )
-    {
-        networkWrapper.sendToAllAround( packet, point );
     }
 
     public static boolean canPlayerUseCommands( EntityPlayer player )

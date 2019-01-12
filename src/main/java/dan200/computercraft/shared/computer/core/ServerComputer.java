@@ -16,6 +16,7 @@ import dan200.computercraft.core.apis.IAPIEnvironment;
 import dan200.computercraft.core.computer.Computer;
 import dan200.computercraft.core.computer.IComputerEnvironment;
 import dan200.computercraft.shared.common.ServerTerminal;
+import dan200.computercraft.shared.network.NetworkHandler;
 import dan200.computercraft.shared.network.client.ComputerDataClientMessage;
 import dan200.computercraft.shared.network.client.ComputerDeletedClientMessage;
 import dan200.computercraft.shared.network.client.ComputerTerminalClientMessage;
@@ -163,7 +164,7 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
         if( hasOutputChanged() || force )
         {
             // Send computer state to all clients
-            ComputerCraft.sendToAllPlayers( createComputerPacket() );
+            NetworkHandler.sendToAllPlayers( createComputerPacket() );
         }
 
         if( hasTerminalChanged() || force )
@@ -178,7 +179,7 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
                 {
                     if( isInteracting( player ) )
                     {
-                        ComputerCraft.sendToPlayer( player, packet );
+                        NetworkHandler.sendToPlayer( player, packet );
                     }
                 }
             }
@@ -188,19 +189,19 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
     public void sendComputerState( EntityPlayer player )
     {
         // Send state to client
-        ComputerCraft.sendToPlayer( player, createComputerPacket() );
+        NetworkHandler.sendToPlayer( player, createComputerPacket() );
     }
 
     public void sendTerminalState( EntityPlayer player )
     {
         // Send terminal state to client
-        ComputerCraft.sendToPlayer( player, createTerminalPacket() );
+        NetworkHandler.sendToPlayer( player, createTerminalPacket() );
     }
 
     public void broadcastDelete()
     {
         // Send deletion to client
-        ComputerCraft.sendToAllPlayers( new ComputerDeletedClientMessage( getInstanceID() ) );
+        NetworkHandler.sendToAllPlayers( new ComputerDeletedClientMessage( getInstanceID() ) );
     }
 
     public IWritableMount getRootMount()
