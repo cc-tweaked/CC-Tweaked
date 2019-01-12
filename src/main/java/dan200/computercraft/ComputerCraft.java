@@ -37,15 +37,20 @@ import dan200.computercraft.shared.computer.core.ClientComputerRegistry;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.computer.core.ServerComputerRegistry;
+import dan200.computercraft.shared.computer.items.ItemCommandComputer;
+import dan200.computercraft.shared.computer.items.ItemComputer;
 import dan200.computercraft.shared.media.items.ItemDiskExpanded;
 import dan200.computercraft.shared.media.items.ItemDiskLegacy;
 import dan200.computercraft.shared.media.items.ItemPrintout;
 import dan200.computercraft.shared.media.items.ItemTreasureDisk;
 import dan200.computercraft.shared.peripheral.common.BlockPeripheral;
+import dan200.computercraft.shared.peripheral.common.ItemPeripheral;
 import dan200.computercraft.shared.peripheral.diskdrive.TileDiskDrive;
 import dan200.computercraft.shared.peripheral.modem.wired.BlockCable;
 import dan200.computercraft.shared.peripheral.modem.wired.BlockWiredModemFull;
+import dan200.computercraft.shared.peripheral.modem.wired.ItemCable;
 import dan200.computercraft.shared.peripheral.modem.wireless.BlockAdvancedModem;
+import dan200.computercraft.shared.peripheral.modem.wireless.ItemAdvancedModem;
 import dan200.computercraft.shared.peripheral.modem.wireless.WirelessNetwork;
 import dan200.computercraft.shared.peripheral.printer.TilePrinter;
 import dan200.computercraft.shared.pocket.items.ItemPocketComputer;
@@ -55,6 +60,9 @@ import dan200.computercraft.shared.proxy.ICCTurtleProxy;
 import dan200.computercraft.shared.proxy.IComputerCraftProxy;
 import dan200.computercraft.shared.turtle.blocks.BlockTurtle;
 import dan200.computercraft.shared.turtle.blocks.TileTurtle;
+import dan200.computercraft.shared.turtle.items.ItemTurtleAdvanced;
+import dan200.computercraft.shared.turtle.items.ItemTurtleLegacy;
+import dan200.computercraft.shared.turtle.items.ItemTurtleNormal;
 import dan200.computercraft.shared.turtle.upgrades.*;
 import dan200.computercraft.shared.util.CreativeTabMain;
 import dan200.computercraft.shared.util.IDAssigner;
@@ -63,6 +71,7 @@ import dan200.computercraft.shared.wired.CapabilityWiredElement;
 import dan200.computercraft.shared.wired.WiredNode;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntity;
@@ -187,6 +196,13 @@ public class ComputerCraft
 
     public static class Items
     {
+        public static ItemComputer computer;
+        public static ItemCommandComputer commandComputer;
+
+        public static ItemTurtleLegacy turtle;
+        public static ItemTurtleNormal turtleExpanded;
+        public static ItemTurtleAdvanced turtleAdvanced;
+
         public static ItemPocketComputer pocketComputer;
 
         public static ItemDiskLegacy disk;
@@ -194,6 +210,11 @@ public class ComputerCraft
         public static ItemTreasureDisk treasureDisk;
 
         public static ItemPrintout printout;
+
+        public static ItemPeripheral peripheral;
+        public static ItemAdvancedModem advancedModem;
+        public static ItemCable cable;
+        public static ItemBlock wiredModemFull;
     }
 
     public static class TurtleUpgrades

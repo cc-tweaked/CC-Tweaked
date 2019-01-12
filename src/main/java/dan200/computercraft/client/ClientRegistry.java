@@ -7,7 +7,6 @@
 package dan200.computercraft.client;
 
 import dan200.computercraft.ComputerCraft;
-import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ItemMeshDefinition;
 import net.minecraft.client.renderer.block.model.IBakedModel;
@@ -55,22 +54,22 @@ public class ClientRegistry
     public static void registerModels( ModelRegistryEvent event )
     {
         // Register item models
-        registerUniversalItemModel( ComputerCraft.Blocks.computer, "computer" );
-        registerItemModel( ComputerCraft.Blocks.commandComputer, 0, "command_computer" );
+        registerUniversalItemModel( ComputerCraft.Items.computer, "computer" );
+        registerItemModel( ComputerCraft.Items.commandComputer, 0, "command_computer" );
 
         registerItemModel( ComputerCraft.Items.pocketComputer, 0, "pocket_computer" );
         registerItemModel( ComputerCraft.Items.pocketComputer, 1, "advanced_pocket_computer" );
 
-        registerItemModel( ComputerCraft.Blocks.peripheral, 0, "peripheral" );
-        registerItemModel( ComputerCraft.Blocks.peripheral, 1, "wireless_modem" );
-        registerItemModel( ComputerCraft.Blocks.peripheral, 2, "monitor" );
-        registerItemModel( ComputerCraft.Blocks.peripheral, 3, "printer" );
-        registerItemModel( ComputerCraft.Blocks.peripheral, 4, "advanced_monitor" );
-        registerItemModel( ComputerCraft.Blocks.cable, 0, "cable" );
-        registerItemModel( ComputerCraft.Blocks.cable, 1, "wired_modem" );
-        registerItemModel( ComputerCraft.Blocks.advancedModem, 0, "advanced_modem" );
-        registerItemModel( ComputerCraft.Blocks.peripheral, 5, "speaker" );
-        registerItemModel( ComputerCraft.Blocks.wiredModemFull, 0, "wired_modem_full" );
+        registerItemModel( ComputerCraft.Items.peripheral, 0, "peripheral" );
+        registerItemModel( ComputerCraft.Items.peripheral, 1, "wireless_modem" );
+        registerItemModel( ComputerCraft.Items.peripheral, 2, "monitor" );
+        registerItemModel( ComputerCraft.Items.peripheral, 3, "printer" );
+        registerItemModel( ComputerCraft.Items.peripheral, 4, "advanced_monitor" );
+        registerItemModel( ComputerCraft.Items.cable, 0, "cable" );
+        registerItemModel( ComputerCraft.Items.cable, 1, "wired_modem" );
+        registerItemModel( ComputerCraft.Items.advancedModem, 0, "advanced_modem" );
+        registerItemModel( ComputerCraft.Items.peripheral, 5, "speaker" );
+        registerItemModel( ComputerCraft.Items.wiredModemFull, 0, "wired_modem_full" );
 
         registerUniversalItemModel( ComputerCraft.Items.disk, "disk" );
         registerItemModel( ComputerCraft.Items.diskExpanded, 0, "disk_expanded" );
@@ -80,26 +79,10 @@ public class ClientRegistry
         registerItemModel( ComputerCraft.Items.printout, 1, "pages" );
         registerItemModel( ComputerCraft.Items.printout, 2, "book" );
 
-        ItemMeshDefinition turtleMeshDefinition = new ItemMeshDefinition()
-        {
-            private ModelResourceLocation turtle_dynamic = new ModelResourceLocation( "computercraft:turtle_dynamic", "inventory" );
-
-            @Nonnull
-            @Override
-            public ModelResourceLocation getModelLocation( @Nonnull ItemStack stack )
-            {
-                return turtle_dynamic;
-            }
-        };
-        String[] turtleModelNames = new String[] {
-            "turtle_dynamic",
-            "turtle", "turtle_advanced", "turtle_white",
-            "turtle_elf_overlay"
-        };
-
-        registerUniversalItemModel( ComputerCraft.Blocks.turtle, turtleMeshDefinition, turtleModelNames );
-        registerUniversalItemModel( ComputerCraft.Blocks.turtleExpanded, turtleMeshDefinition, turtleModelNames );
-        registerUniversalItemModel( ComputerCraft.Blocks.turtleAdvanced, turtleMeshDefinition, turtleModelNames );
+        String[] extraTurtleModels = new String[] { "turtle", "turtle_advanced", "turtle_white", "turtle_elf_overlay" };
+        registerUniversalItemModel( ComputerCraft.Items.turtle, "turtle_dynamic", extraTurtleModels );
+        registerUniversalItemModel( ComputerCraft.Items.turtleExpanded, "turtle_dynamic", extraTurtleModels );
+        registerUniversalItemModel( ComputerCraft.Items.turtleAdvanced, "turtle_dynamic", extraTurtleModels );
     }
 
     @SubscribeEvent
@@ -127,11 +110,6 @@ public class ClientRegistry
         }
     }
 
-    private static void registerItemModel( Block block, int damage, String name )
-    {
-        registerItemModel( Item.getItemFromBlock( block ), damage, name );
-    }
-
     private static void registerItemModel( Item item, int damage, String name )
     {
         ResourceLocation location = new ResourceLocation( ComputerCraft.MOD_ID, name );
@@ -140,39 +118,27 @@ public class ClientRegistry
         ModelLoader.setCustomModelResourceLocation( item, damage, res );
     }
 
-    private static void registerUniversalItemModel( Block block, ItemMeshDefinition definition, String[] names )
+    private static void registerUniversalItemModel( Item item, String mainModel, String... extraModels )
     {
-        registerUniversalItemModel( Item.getItemFromBlock( block ), definition, names );
-    }
+        ResourceLocation mainLocation = new ResourceLocation( ComputerCraft.MOD_ID, mainModel );
 
-    private static void registerUniversalItemModel( Item item, ItemMeshDefinition definition, String[] names )
-    {
-        ResourceLocation[] resources = new ResourceLocation[names.length];
-        for( int i = 0; i < names.length; i++ )
+        ResourceLocation[] modelLocations = new ResourceLocation[extraModels.length + 1];
+        modelLocations[0] = mainLocation;
+        for( int i = 0; i < extraModels.length; i++ )
         {
-            resources[i] = new ResourceLocation( ComputerCraft.MOD_ID, names[i] );
+            modelLocations[i + 1] = new ResourceLocation( ComputerCraft.MOD_ID, extraModels[i] );
         }
-        ModelBakery.registerItemVariants( item, resources );
-        ModelLoader.setCustomMeshDefinition( item, definition );
-    }
 
-    private static void registerUniversalItemModel( Block block, String name )
-    {
-        registerUniversalItemModel( Item.getItemFromBlock( block ), name );
-    }
+        ModelBakery.registerItemVariants( item, modelLocations );
 
-    private static void registerUniversalItemModel( Item item, String name )
-    {
-        ResourceLocation location = new ResourceLocation( ComputerCraft.MOD_ID, name );
-        final ModelResourceLocation res = new ModelResourceLocation( location, "inventory" );
-        ModelBakery.registerItemVariants( item, location );
+        final ModelResourceLocation mainModelLocation = new ModelResourceLocation( mainLocation, "inventory" );
         ModelLoader.setCustomMeshDefinition( item, new ItemMeshDefinition()
         {
             @Nonnull
             @Override
             public ModelResourceLocation getModelLocation( @Nonnull ItemStack stack )
             {
-                return res;
+                return mainModelLocation;
             }
         } );
     }

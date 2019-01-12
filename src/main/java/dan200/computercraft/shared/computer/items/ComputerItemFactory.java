@@ -9,7 +9,6 @@ package dan200.computercraft.shared.computer.items;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.computer.blocks.TileComputer;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 
 import javax.annotation.Nonnull;
@@ -31,15 +30,9 @@ public class ComputerItemFactory
         {
             case Normal:
             case Advanced:
-            {
-                ItemComputer computer = ((ItemComputer) Item.getItemFromBlock( ComputerCraft.Blocks.computer ));
-                return computer.create( id, label, family );
-            }
+                return ComputerCraft.Items.computer.create( id, label, family );
             case Command:
-            {
-                ItemCommandComputer commandComputer = ((ItemCommandComputer) Item.getItemFromBlock( ComputerCraft.Blocks.commandComputer ));
-                return commandComputer.create( id, label, family );
-            }
+                return ComputerCraft.Items.commandComputer.create( id, label, family );
             default:
                 return ItemStack.EMPTY;
         }

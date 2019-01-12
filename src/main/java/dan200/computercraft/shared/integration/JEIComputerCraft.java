@@ -22,9 +22,9 @@ public class JEIComputerCraft implements IModPlugin
     @Override
     public void registerItemSubtypes( ISubtypeRegistry subtypeRegistry )
     {
-        subtypeRegistry.registerSubtypeInterpreter( Item.getItemFromBlock( ComputerCraft.Blocks.turtle ), turtleSubtype );
-        subtypeRegistry.registerSubtypeInterpreter( Item.getItemFromBlock( ComputerCraft.Blocks.turtleExpanded ), turtleSubtype );
-        subtypeRegistry.registerSubtypeInterpreter( Item.getItemFromBlock( ComputerCraft.Blocks.turtleAdvanced ), turtleSubtype );
+        subtypeRegistry.registerSubtypeInterpreter( ComputerCraft.Items.turtle, turtleSubtype );
+        subtypeRegistry.registerSubtypeInterpreter( ComputerCraft.Items.turtleExpanded, turtleSubtype );
+        subtypeRegistry.registerSubtypeInterpreter( ComputerCraft.Items.turtleAdvanced, turtleSubtype );
 
         subtypeRegistry.registerSubtypeInterpreter( ComputerCraft.Items.pocketComputer, pocketSubtype );
 

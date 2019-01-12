@@ -43,11 +43,6 @@ public class BlockTurtle extends BlockComputerBase
         public static final PropertyDirection FACING = PropertyDirection.create( "facing", EnumFacing.Plane.HORIZONTAL );
     }
 
-    public static BlockTurtle createTurtleBlock()
-    {
-        return new BlockTurtle();
-    }
-
     // Members
 
     public BlockTurtle()

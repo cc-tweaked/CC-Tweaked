@@ -27,30 +27,6 @@ public class ItemAdvancedModem extends ItemPeripheralBase
         setCreativeTab( ComputerCraft.mainCreativeTab );
     }
 
-    @Nonnull
-    public ItemStack create( PeripheralType type, String label, int quantity )
-    {
-        ItemStack stack;
-        switch( type )
-        {
-            case AdvancedModem:
-            {
-                stack = new ItemStack( this, quantity, 0 );
-                break;
-            }
-            default:
-            {
-                // Ignore types we can't handle
-                return ItemStack.EMPTY;
-            }
-        }
-        if( label != null )
-        {
-            stack.setStackDisplayName( label );
-        }
-        return stack;
-    }
-
     @Override
     public void getSubItems( @Nullable CreativeTabs tabs, @Nonnull NonNullList<ItemStack> list )
     {

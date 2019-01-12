@@ -8,9 +8,6 @@ package dan200.computercraft.shared.peripheral.common;
 
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.peripheral.PeripheralType;
-import dan200.computercraft.shared.peripheral.modem.wired.ItemCable;
-import dan200.computercraft.shared.peripheral.modem.wireless.ItemAdvancedModem;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 
 import javax.annotation.Nonnull;
@@ -26,9 +23,6 @@ public class PeripheralItemFactory
     @Nonnull
     public static ItemStack create( PeripheralType type, String label, int quantity )
     {
-        ItemPeripheral peripheral = ((ItemPeripheral) Item.getItemFromBlock( ComputerCraft.Blocks.peripheral ));
-        ItemCable cable = ((ItemCable) Item.getItemFromBlock( ComputerCraft.Blocks.cable ));
-        ItemAdvancedModem advancedModem = ((ItemAdvancedModem) Item.getItemFromBlock( ComputerCraft.Blocks.advancedModem ));
         switch( type )
         {
             case Speaker:
@@ -37,18 +31,12 @@ public class PeripheralItemFactory
             case Monitor:
             case AdvancedMonitor:
             case WirelessModem:
-            {
-                return peripheral.create( type, label, quantity );
-            }
+                return ComputerCraft.Items.peripheral.create( type, label, quantity );
             case WiredModem:
             case Cable:
-            {
-                return cable.create( type, label, quantity );
-            }
+                return ComputerCraft.Items.cable.create( type, label, quantity );
             case AdvancedModem:
-            {
-                return advancedModem.create( type, label, quantity );
-            }
+                return new ItemStack( ComputerCraft.Blocks.advancedModem, quantity );
             case WiredModemFull:
                 return new ItemStack( ComputerCraft.Blocks.wiredModemFull, quantity );
         }

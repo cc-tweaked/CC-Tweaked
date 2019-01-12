@@ -21,7 +21,6 @@ import net.minecraft.block.state.BlockFaceShape;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockRenderLayer;
@@ -519,7 +518,7 @@ public class BlockPeripheral extends BlockPeripheralBase
     @Override
     public PeripheralType getPeripheralType( int damage )
     {
-        return ((ItemPeripheral) Item.getItemFromBlock( this )).getPeripheralType( damage );
+        return ComputerCraft.Items.peripheral.getPeripheralType( damage );
     }
 
     @Override

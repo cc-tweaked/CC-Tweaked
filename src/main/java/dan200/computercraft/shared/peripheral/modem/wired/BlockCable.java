@@ -22,7 +22,6 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
@@ -212,7 +211,7 @@ public class BlockCable extends BlockPeripheralBase
     @Override
     public PeripheralType getPeripheralType( int damage )
     {
-        return ((ItemCable) Item.getItemFromBlock( this )).getPeripheralType( damage );
+        return ComputerCraft.Items.cable.getPeripheralType( damage );
     }
 
     @Override

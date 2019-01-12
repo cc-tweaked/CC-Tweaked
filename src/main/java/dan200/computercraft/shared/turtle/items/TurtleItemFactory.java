@@ -11,7 +11,6 @@ import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.turtle.blocks.ITurtleTile;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 
@@ -43,14 +42,14 @@ public class TurtleItemFactory
         {
             case Normal:
             {
-                ItemTurtleBase legacy = ((ItemTurtleBase) Item.getItemFromBlock( ComputerCraft.Blocks.turtle ));
-                ItemTurtleBase normal = ((ItemTurtleBase) Item.getItemFromBlock( ComputerCraft.Blocks.turtleExpanded ));
+                ItemTurtleBase legacy = ComputerCraft.Items.turtle;
+                ItemTurtleBase normal = ComputerCraft.Items.turtleExpanded;
                 ItemStack legacyStack = legacy.create( id, label, colour, leftUpgrade, rightUpgrade, fuelLevel, overlay );
-                return (legacyStack != null) ? legacyStack : normal.create( id, label, colour, leftUpgrade, rightUpgrade, fuelLevel, overlay );
+                return legacyStack != null ? legacyStack : normal.create( id, label, colour, leftUpgrade, rightUpgrade, fuelLevel, overlay );
             }
             case Advanced:
             {
-                ItemTurtleBase advanced = ((ItemTurtleBase) Item.getItemFromBlock( ComputerCraft.Blocks.turtleAdvanced ));
+                ItemTurtleBase advanced = ComputerCraft.Items.turtleAdvanced;
                 return advanced.create( id, label, colour, leftUpgrade, rightUpgrade, fuelLevel, overlay );
             }
             default:
