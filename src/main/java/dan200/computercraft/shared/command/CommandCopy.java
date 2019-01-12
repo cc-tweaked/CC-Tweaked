@@ -24,7 +24,11 @@ import javax.annotation.Nonnull;
 public class CommandCopy extends CommandBase implements IClientCommand
 {
     public static final CommandCopy INSTANCE = new CommandCopy();
-    private static final String NAME = "computercraft_copy";
+
+    /**
+     * We start with a "~" so we're less likely to show up on completions.
+     */
+    private static final String NAME = "~computercraft_copy";
 
     private CommandCopy()
     {
@@ -47,7 +51,7 @@ public class CommandCopy extends CommandBase implements IClientCommand
     @Override
     public String getUsage( @Nonnull ICommandSender sender )
     {
-        return "computercraft_copy <text>";
+        return "/" + NAME + " <text>";
     }
 
     @Override
