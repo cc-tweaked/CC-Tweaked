@@ -17,6 +17,16 @@ public class IDAssigner
     {
     }
 
+    public static int getNextIDFromDirectory( String path )
+    {
+        return getNextIDFromDirectory( new File( ComputerCraft.getWorldDir(), path ) );
+    }
+
+    public static int getNextIDFromFile( String path )
+    {
+        return getNextIDFromFile( new File( ComputerCraft.getWorldDir(), path ) );
+    }
+
     public static int getNextIDFromDirectory( File dir )
     {
         return getNextID( dir, true );

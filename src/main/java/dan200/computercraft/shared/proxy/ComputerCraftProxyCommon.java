@@ -63,7 +63,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import pl.asie.charset.ModCharset;
 
-public abstract class ComputerCraftProxyCommon implements IComputerCraftProxy
+public class ComputerCraftProxyCommon implements IComputerCraftProxy
 {
     @Override
     public void preInit()

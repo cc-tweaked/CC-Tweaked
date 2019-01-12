@@ -11,7 +11,7 @@ import dan200.computercraft.shared.turtle.core.TurtlePlayer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.registry.EntityRegistry;
 
-public abstract class CCTurtleProxyCommon implements ICCTurtleProxy
+public class CCTurtleProxyCommon implements ICCTurtleProxy
 {
     @Override
     public void preInit()

@@ -71,6 +71,7 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
@@ -236,11 +237,17 @@ public class ComputerCraft
     @Mod.Instance( value = ComputerCraft.MOD_ID )
     public static ComputerCraft instance;
 
-    @SidedProxy( clientSide = "dan200.computercraft.client.proxy.ComputerCraftProxyClient", serverSide = "dan200.computercraft.server.proxy.ComputerCraftProxyServer" )
-    public static IComputerCraftProxy proxy;
+    @SidedProxy(
+        clientSide = "dan200.computercraft.client.proxy.ComputerCraftProxyClient",
+        serverSide = "dan200.computercraft.shared.proxy.ComputerCraftProxyCommon"
+    )
+    private static IComputerCraftProxy proxy;
 
-    @SidedProxy( clientSide = "dan200.computercraft.client.proxy.CCTurtleProxyClient", serverSide = "dan200.computercraft.server.proxy.CCTurtleProxyServer" )
-    public static ICCTurtleProxy turtleProxy;
+    @SidedProxy(
+        clientSide = "dan200.computercraft.client.proxy.CCTurtleProxyClient",
+        serverSide = "dan200.computercraft.shared.proxy.CCTurtleProxyCommon"
+    )
+    private static ICCTurtleProxy turtleProxy;
 
     @Mod.EventHandler
     public void preInit( FMLPreInitializationEvent event )
@@ -359,11 +366,6 @@ public class ComputerCraft
         return new File( getBaseDir(), "resourcepacks" );
     }
 
-    public static File getWorldDir( World world )
-    {
-        return proxy.getWorldDir( world );
-    }
-
     public static void sendToPlayer( EntityPlayer player, IMessage packet )
     {
         networkWrapper.sendTo( packet, (EntityPlayerMP) player );
@@ -460,7 +462,7 @@ public class ComputerCraft
     @Deprecated
     public static int createUniqueNumberedSaveDir( World world, String parentSubPath )
     {
-        return IDAssigner.getNextIDFromDirectory( new File( getWorldDir( world ), parentSubPath ) );
+        return IDAssigner.getNextIDFromDirectory( parentSubPath );
     }
 
     @Deprecated
@@ -468,7 +470,7 @@ public class ComputerCraft
     {
         try
         {
-            return new FileMount( new File( getWorldDir( world ), subPath ), capacity );
+            return new FileMount( new File( getWorldDir(), subPath ), capacity );
         }
         catch( Exception e )
         {
@@ -688,7 +690,18 @@ public class ComputerCraft
         dan200.computercraft.shared.TurtleUpgrades.register( upgrade );
     }
 
+    public static File getWorldDir()
+    {
+        return DimensionManager.getCurrentSaveRootDirectory();
+    }
+
     //region Compatibility
+    @Deprecated
+    public static File getWorldDir( World world )
+    {
+        return DimensionManager.getCurrentSaveRootDirectory();
+    }
+
     @Deprecated
     public static IMedia getMedia( ItemStack stack )
     {

@@ -84,12 +84,6 @@ public class ComputerCraftProxyClient extends ComputerCraftProxyCommon
     }
 
     @Override
-    public File getWorldDir( World world )
-    {
-        return world.getSaveHandler().getWorldDirectory();
-    }
-
-    @Override
     public void playRecordClient( BlockPos pos, SoundEvent record, String info )
     {
         Minecraft mc = Minecraft.getMinecraft();

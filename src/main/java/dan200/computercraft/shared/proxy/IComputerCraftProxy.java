@@ -10,9 +10,6 @@ import dan200.computercraft.shared.command.text.TableBuilder;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-
-import java.io.File;
 
 public interface IComputerCraftProxy
 {
@@ -21,8 +18,6 @@ public interface IComputerCraftProxy
     void init();
 
     void initServer( MinecraftServer server );
-
-    File getWorldDir( World world );
 
     default void playRecordClient( BlockPos pos, SoundEvent record, String info )
     {

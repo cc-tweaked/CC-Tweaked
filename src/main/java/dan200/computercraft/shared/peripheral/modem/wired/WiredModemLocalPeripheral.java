@@ -19,7 +19,6 @@ import net.minecraftforge.common.util.Constants;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.io.File;
 import java.util.Collections;
 import java.util.Map;
 
@@ -66,10 +65,7 @@ public final class WiredModemLocalPeripheral
             else if( id < 0 || !type.equals( this.type ) )
             {
                 this.type = type;
-                this.id = IDAssigner.getNextIDFromFile( new File(
-                    ComputerCraft.getWorldDir( world ),
-                    "computer/lastid_" + type + ".txt"
-                ) );
+                this.id = IDAssigner.getNextIDFromFile( "computer/lastid_" + type + ".txt" );
             }
 
             return oldPeripheral == null || !oldPeripheral.equals( peripheral );
