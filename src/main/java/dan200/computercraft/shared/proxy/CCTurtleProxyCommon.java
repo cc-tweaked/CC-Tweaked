@@ -21,38 +21,23 @@ import dan200.computercraft.shared.turtle.items.ItemTurtleLegacy;
 import dan200.computercraft.shared.turtle.items.ItemTurtleNormal;
 import dan200.computercraft.shared.turtle.items.TurtleItemFactory;
 import dan200.computercraft.shared.turtle.upgrades.*;
-import dan200.computercraft.shared.util.DropConsumer;
 import dan200.computercraft.shared.util.ImpostorRecipe;
 import net.minecraft.block.Block;
-import net.minecraft.entity.Entity;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegistryEvent;
+import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.registry.EntityRegistry;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.registries.IForgeRegistry;
 
-import java.lang.ref.WeakReference;
-import java.util.List;
-import java.util.function.Function;
-
 public abstract class CCTurtleProxyCommon implements ICCTurtleProxy
 {
-    private Function<ItemStack, ItemStack> dropConsumer;
-    private List<ItemStack> remainingDrops;
-    private WeakReference<World> dropWorld;
-    private BlockPos dropPos;
-    private AxisAlignedBB dropBounds;
-    private WeakReference<Entity> dropEntity;
-
     @Override
     public void preInit()
     {
@@ -67,7 +52,6 @@ public abstract class CCTurtleProxyCommon implements ICCTurtleProxy
     @Override
     public void init()
     {
-        registerForgeHandlers();
         registerTileEntities();
     }
 
@@ -248,16 +232,11 @@ public abstract class CCTurtleProxyCommon implements ICCTurtleProxy
         GameRegistry.registerTileEntity( TileTurtleAdvanced.class, new ResourceLocation( ComputerCraft.MOD_ID, "turtleadv" ) );
     }
 
-    private void registerForgeHandlers()
-    {
-        MinecraftForge.EVENT_BUS.register( new ForgeHandlers() );
-        MinecraftForge.EVENT_BUS.register( DropConsumer.instance() );
-    }
-
-    private class ForgeHandlers
+    @Mod.EventBusSubscriber( modid = ComputerCraft.MOD_ID )
+    public static class ForgeHandlers
     {
         @SubscribeEvent
-        public void onTurtleAction( TurtleActionEvent event )
+        public static void onTurtleAction( TurtleActionEvent event )
         {
             if( ComputerCraft.turtleDisabledActions.contains( event.getAction() ) )
             {

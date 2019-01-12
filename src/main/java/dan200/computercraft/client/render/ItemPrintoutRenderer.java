@@ -12,7 +12,9 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.client.event.RenderItemInFrameEvent;
 import net.minecraftforge.client.event.RenderSpecificHandEvent;
+import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.relauncher.Side;
 
 import static dan200.computercraft.client.gui.FixedWidthFontRenderer.FONT_HEIGHT;
 import static dan200.computercraft.client.gui.FixedWidthFontRenderer.FONT_WIDTH;
@@ -20,17 +22,27 @@ import static dan200.computercraft.client.render.PrintoutRenderer.*;
 import static dan200.computercraft.shared.media.items.ItemPrintout.LINES_PER_PAGE;
 import static dan200.computercraft.shared.media.items.ItemPrintout.LINE_MAX_LENGTH;
 
-public class ItemPrintoutRenderer extends ItemMapLikeRenderer
+/**
+ * Emulates map and item-frame rendering for prinouts
+ */
+@Mod.EventBusSubscriber( modid = ComputerCraft.MOD_ID, value = Side.CLIENT )
+public final class ItemPrintoutRenderer extends ItemMapLikeRenderer
 {
+    private static final ItemPrintoutRenderer INSTANCE = new ItemPrintoutRenderer();
+
+    private ItemPrintoutRenderer()
+    {
+    }
+
     @SubscribeEvent
-    public void onRenderInHand( RenderSpecificHandEvent event )
+    public static void onRenderInHand( RenderSpecificHandEvent event )
     {
         ItemStack stack = event.getItemStack();
         if( stack.getItem() != ComputerCraft.Items.printout ) return;
 
         event.setCanceled( true );
 
-        renderItemFirstPerson( event.getHand(), event.getInterpolatedPitch(), event.getEquipProgress(), event.getSwingProgress(), event.getItemStack() );
+        INSTANCE.renderItemFirstPerson( event.getHand(), event.getInterpolatedPitch(), event.getEquipProgress(), event.getSwingProgress(), event.getItemStack() );
     }
 
     @Override
@@ -51,7 +63,7 @@ public class ItemPrintoutRenderer extends ItemMapLikeRenderer
     }
 
     @SubscribeEvent
-    public void onRenderInFrame( RenderItemInFrameEvent event )
+    public static void onRenderInFrame( RenderItemInFrameEvent event )
     {
         ItemStack stack = event.getItem();
         if( stack.getItem() != ComputerCraft.Items.printout ) return;
@@ -69,6 +81,7 @@ public class ItemPrintoutRenderer extends ItemMapLikeRenderer
         drawPrintout( stack );
 
         GlStateManager.enableLighting();
+        GlStateManager.disableBlend();
     }
 
     private static void drawPrintout( ItemStack stack )

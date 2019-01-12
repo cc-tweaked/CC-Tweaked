@@ -8,8 +8,8 @@ package dan200.computercraft.client.proxy;
 
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.client.ClientTableFormatter;
-import dan200.computercraft.client.FrameInfo;
-import dan200.computercraft.client.render.*;
+import dan200.computercraft.client.render.TileEntityCableRenderer;
+import dan200.computercraft.client.render.TileEntityMonitorRenderer;
 import dan200.computercraft.shared.command.CommandCopy;
 import dan200.computercraft.shared.command.text.TableBuilder;
 import dan200.computercraft.shared.media.items.ItemDiskLegacy;
@@ -33,9 +33,9 @@ import net.minecraft.world.World;
 import net.minecraftforge.client.ClientCommandHandler;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.model.ModelLoader;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
+import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -49,9 +49,6 @@ public class ComputerCraftProxyClient extends ComputerCraftProxyCommon
     public void preInit()
     {
         super.preInit();
-
-        // Setup client forge handlers
-        registerForgeHandlers();
 
         // Register any client-specific commands
         ClientCommandHandler.instance.registerCommand( CommandCopy.INSTANCE );
@@ -95,8 +92,7 @@ public class ComputerCraftProxyClient extends ComputerCraftProxyCommon
         mc.getItemColors().registerItemColorHandler( new DiskColorHandler( ComputerCraft.Items.disk ), ComputerCraft.Items.disk );
         mc.getItemColors().registerItemColorHandler( new DiskColorHandler( ComputerCraft.Items.diskExpanded ), ComputerCraft.Items.diskExpanded );
 
-        mc.getItemColors().registerItemColorHandler( ( stack, layer ) ->
-        {
+        mc.getItemColors().registerItemColorHandler( ( stack, layer ) -> {
             switch( layer )
             {
                 case 0:
@@ -160,15 +156,6 @@ public class ComputerCraftProxyClient extends ComputerCraftProxyCommon
         return world.getSaveHandler().getWorldDirectory();
     }
 
-    private void registerForgeHandlers()
-    {
-        MinecraftForge.EVENT_BUS.register( new ForgeHandlers() );
-        MinecraftForge.EVENT_BUS.register( new RenderOverlayCable() );
-        MinecraftForge.EVENT_BUS.register( new ItemPocketRenderer() );
-        MinecraftForge.EVENT_BUS.register( new ItemPrintoutRenderer() );
-        MinecraftForge.EVENT_BUS.register( FrameInfo.instance() );
-    }
-
     @Override
     public void playRecordClient( BlockPos pos, SoundEvent record, String info )
     {
@@ -183,10 +170,11 @@ public class ComputerCraftProxyClient extends ComputerCraftProxyCommon
         ClientTableFormatter.INSTANCE.display( table );
     }
 
-    public class ForgeHandlers
+    @Mod.EventBusSubscriber( modid = ComputerCraft.MOD_ID, value = Side.CLIENT )
+    public static class ForgeHandlers
     {
         @SubscribeEvent
-        public void onWorldUnload( WorldEvent.Unload event )
+        public static void onWorldUnload( WorldEvent.Unload event )
         {
             if( event.getWorld().isRemote )
             {

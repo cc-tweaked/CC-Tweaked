@@ -49,7 +49,7 @@ public class TileEntityMonitorRenderer extends TileEntitySpecialRenderer<TileMon
         // Ensure each monitor terminal is rendered only once. We allow rendering a specific tile
         // multiple times in a single frame to ensure compatibility with shaders which may run a
         // pass multiple times.
-        long renderFrame = FrameInfo.instance().getRenderFrame();
+        long renderFrame = FrameInfo.getRenderFrame();
         if( originTerminal.lastRenderFrame == renderFrame && !monitorPos.equals( originTerminal.lastRenderPos ) )
         {
             return;
@@ -230,7 +230,7 @@ public class TileEntityMonitorRenderer extends TileEntitySpecialRenderer<TileMon
                                 GlStateManager.glEndList();
                             }
                         }
-                        if( FrameInfo.instance().getGlobalCursorBlink() )
+                        if( FrameInfo.getGlobalCursorBlink() )
                         {
                             GlStateManager.callList( originTerminal.renderDisplayLists[2] );
                             GlStateManager.resetColor();

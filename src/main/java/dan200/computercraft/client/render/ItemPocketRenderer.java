@@ -24,9 +24,9 @@ import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.client.event.RenderSpecificHandEvent;
+import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.opengl.GL11;
 
 import static dan200.computercraft.client.gui.FixedWidthFontRenderer.FONT_HEIGHT;
@@ -35,17 +35,23 @@ import static dan200.computercraft.client.gui.FixedWidthFontRenderer.FONT_WIDTH;
 /**
  * Emulates map rendering for pocket computers
  */
-@SideOnly( Side.CLIENT )
-public class ItemPocketRenderer extends ItemMapLikeRenderer
+@Mod.EventBusSubscriber( modid = ComputerCraft.MOD_ID, value = Side.CLIENT )
+public final class ItemPocketRenderer extends ItemMapLikeRenderer
 {
+    private static final ItemPocketRenderer INSTANCE = new ItemPocketRenderer();
+
+    private ItemPocketRenderer()
+    {
+    }
+
     @SubscribeEvent
-    public void renderItem( RenderSpecificHandEvent event )
+    public static void renderItem( RenderSpecificHandEvent event )
     {
         ItemStack stack = event.getItemStack();
         if( !(stack.getItem() instanceof ItemPocketComputer) ) return;
 
         event.setCanceled( true );
-        renderItemFirstPerson( event.getHand(), event.getInterpolatedPitch(), event.getEquipProgress(), event.getSwingProgress(), event.getItemStack() );
+        INSTANCE.renderItemFirstPerson( event.getHand(), event.getInterpolatedPitch(), event.getEquipProgress(), event.getSwingProgress(), event.getItemStack() );
     }
 
     @Override
@@ -145,7 +151,7 @@ public class ItemPocketRenderer extends ItemMapLikeRenderer
 
                     // And render the cursor;
                     int tx = terminal.getCursorX(), ty = terminal.getCursorY();
-                    if( terminal.getCursorBlink() && FrameInfo.instance().getGlobalCursorBlink() &&
+                    if( terminal.getCursorBlink() && FrameInfo.getGlobalCursorBlink() &&
                         tx >= 0 && ty >= 0 && tx < tw && ty < th )
                     {
                         TextBuffer cursorColour = new TextBuffer( "0123456789abcdef".charAt( terminal.getTextColour() ), 1 );

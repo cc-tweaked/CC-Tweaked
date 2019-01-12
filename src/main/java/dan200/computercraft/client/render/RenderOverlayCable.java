@@ -23,17 +23,24 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.DrawBlockHighlightEvent;
+import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.relauncher.Side;
 import org.lwjgl.opengl.GL11;
 
-public class RenderOverlayCable
+@Mod.EventBusSubscriber( modid = ComputerCraft.MOD_ID, value = Side.CLIENT )
+public final class RenderOverlayCable
 {
     private static final float EXPAND = 0.002f;
     private static final double MIN = CableBounds.MIN - EXPAND;
     private static final double MAX = CableBounds.MAX + EXPAND;
 
+    private RenderOverlayCable()
+    {
+    }
+
     @SubscribeEvent
-    public void drawHighlight( DrawBlockHighlightEvent event )
+    public static void drawHighlight( DrawBlockHighlightEvent event )
     {
         if( event.getTarget().typeOfHit != RayTraceResult.Type.BLOCK ) return;
 

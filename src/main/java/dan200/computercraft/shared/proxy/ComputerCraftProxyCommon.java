@@ -85,10 +85,10 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.event.entity.player.PlayerContainerEvent;
-import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Loader;
+import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.common.network.FMLNetworkEvent;
@@ -371,9 +371,7 @@ public abstract class ComputerCraftProxyCommon implements IComputerCraftProxy
 
     private void registerForgeHandlers()
     {
-        ForgeHandlers handlers = new ForgeHandlers();
-        MinecraftForge.EVENT_BUS.register( handlers );
-        NetworkRegistry.INSTANCE.registerGuiHandler( ComputerCraft.instance, handlers );
+        NetworkRegistry.INSTANCE.registerGuiHandler( ComputerCraft.instance, new GuiHandler() );
     }
 
     private void registerNetwork()
@@ -421,13 +419,11 @@ public abstract class ComputerCraftProxyCommon implements IComputerCraftProxy
             showTableClient( packet.getTable() ) );
     }
 
-    public class ForgeHandlers implements IGuiHandler
+    public class GuiHandler implements IGuiHandler
     {
-        private ForgeHandlers()
+        private GuiHandler()
         {
         }
-
-        // IGuiHandler implementation
 
         @Override
         public Object getServerGuiElement( int id, EntityPlayer player, World world, int x, int y, int z )
@@ -561,23 +557,29 @@ public abstract class ComputerCraftProxyCommon implements IComputerCraftProxy
                     return null;
             }
         }
+    }
 
-        // Event handlers
+    @Mod.EventBusSubscriber( modid = ComputerCraft.MOD_ID )
+    public final static class ForgeHandlers
+    {
+        private ForgeHandlers()
+        {
+        }
 
         @SubscribeEvent
-        public void onConnectionOpened( FMLNetworkEvent.ClientConnectedToServerEvent event )
+        public static void onConnectionOpened( FMLNetworkEvent.ClientConnectedToServerEvent event )
         {
             ComputerCraft.clientComputerRegistry.reset();
         }
 
         @SubscribeEvent
-        public void onConnectionClosed( FMLNetworkEvent.ClientDisconnectionFromServerEvent event )
+        public static void onConnectionClosed( FMLNetworkEvent.ClientDisconnectionFromServerEvent event )
         {
             ComputerCraft.clientComputerRegistry.reset();
         }
 
         @SubscribeEvent
-        public void onClientTick( TickEvent.ClientTickEvent event )
+        public static void onClientTick( TickEvent.ClientTickEvent event )
         {
             if( event.phase == TickEvent.Phase.START )
             {
@@ -586,7 +588,7 @@ public abstract class ComputerCraftProxyCommon implements IComputerCraftProxy
         }
 
         @SubscribeEvent
-        public void onServerTick( TickEvent.ServerTickEvent event )
+        public static void onServerTick( TickEvent.ServerTickEvent event )
         {
             if( event.phase == TickEvent.Phase.START )
             {
@@ -596,23 +598,13 @@ public abstract class ComputerCraftProxyCommon implements IComputerCraftProxy
         }
 
         @SubscribeEvent
-        public void onWorldLoad( WorldEvent.Load event )
-        {
-        }
-
-        @SubscribeEvent
-        public void onWorldUnload( WorldEvent.Unload event )
-        {
-        }
-
-        @SubscribeEvent
-        public void onConfigChanged( ConfigChangedEvent.OnConfigChangedEvent event )
+        public static void onConfigChanged( ConfigChangedEvent.OnConfigChangedEvent event )
         {
             if( event.getModID().equals( ComputerCraft.MOD_ID ) ) Config.sync();
         }
 
         @SubscribeEvent
-        public void onContainerOpen( PlayerContainerEvent.Open event )
+        public static void onContainerOpen( PlayerContainerEvent.Open event )
         {
             // If we're opening a computer container then broadcast the terminal state
             Container container = event.getContainer();

@@ -6,43 +6,40 @@
 
 package dan200.computercraft.client;
 
+import dan200.computercraft.ComputerCraft;
+import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
+import net.minecraftforge.fml.relauncher.Side;
 
-public class FrameInfo
+@Mod.EventBusSubscriber( modid = ComputerCraft.MOD_ID, value = Side.CLIENT )
+public final class FrameInfo
 {
-    private static final FrameInfo instance = new FrameInfo();
-
-    public static FrameInfo instance()
-    {
-        return instance;
-    }
-
-    private int tick;
-    private long renderFrame;
+    private static int tick;
+    private static long renderFrame;
 
     private FrameInfo()
     {
     }
 
-    public boolean getGlobalCursorBlink()
+    public static boolean getGlobalCursorBlink()
     {
         return (tick / 8) % 2 == 0;
     }
 
-    public long getRenderFrame()
+    public static long getRenderFrame()
     {
         return renderFrame;
     }
 
     @SubscribeEvent
-    public void onTick( TickEvent.ClientTickEvent event )
+    public static void onTick( TickEvent.ClientTickEvent event )
     {
         if( event.phase == TickEvent.Phase.START ) tick++;
     }
 
     @SubscribeEvent
-    public void onRenderTick( TickEvent.RenderTickEvent event )
+    public static void onRenderTick( TickEvent.RenderTickEvent event )
     {
         if( event.phase == TickEvent.Phase.START ) renderFrame++;
     }

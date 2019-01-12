@@ -6,6 +6,7 @@
 
 package dan200.computercraft.shared.util;
 
+import dan200.computercraft.ComputerCraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.item.ItemStack;
@@ -15,6 +16,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.entity.living.LivingDropsEvent;
 import net.minecraftforge.event.world.BlockEvent;
+import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
@@ -23,23 +25,21 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
-public class DropConsumer
+@Mod.EventBusSubscriber( modid = ComputerCraft.MOD_ID )
+public final class DropConsumer
 {
-    private static final DropConsumer instance = new DropConsumer();
-
-    public static DropConsumer instance()
+    private DropConsumer()
     {
-        return instance;
     }
 
-    private Function<ItemStack, ItemStack> dropConsumer;
-    private List<ItemStack> remainingDrops;
-    private WeakReference<World> dropWorld;
-    private BlockPos dropPos;
-    private AxisAlignedBB dropBounds;
-    private WeakReference<Entity> dropEntity;
+    private static Function<ItemStack, ItemStack> dropConsumer;
+    private static List<ItemStack> remainingDrops;
+    private static WeakReference<World> dropWorld;
+    private static BlockPos dropPos;
+    private static AxisAlignedBB dropBounds;
+    private static WeakReference<Entity> dropEntity;
 
-    public void set( Entity entity, Function<ItemStack, ItemStack> consumer )
+    public static void set( Entity entity, Function<ItemStack, ItemStack> consumer )
     {
         dropConsumer = consumer;
         remainingDrops = new ArrayList<>();
@@ -51,7 +51,7 @@ public class DropConsumer
         entity.captureDrops = true;
     }
 
-    public void set( World world, BlockPos pos, Function<ItemStack, ItemStack> consumer )
+    public static void set( World world, BlockPos pos, Function<ItemStack, ItemStack> consumer )
     {
         dropConsumer = consumer;
         remainingDrops = new ArrayList<>();
@@ -61,7 +61,7 @@ public class DropConsumer
         dropBounds = new AxisAlignedBB( pos ).grow( 2, 2, 2 );
     }
 
-    public List<ItemStack> clear()
+    public static List<ItemStack> clear()
     {
         if( dropEntity != null )
         {
@@ -89,14 +89,14 @@ public class DropConsumer
         return remainingStacks;
     }
 
-    private void handleDrops( ItemStack stack )
+    private static void handleDrops( ItemStack stack )
     {
         ItemStack remaining = dropConsumer.apply( stack );
         if( !remaining.isEmpty() ) remainingDrops.add( remaining );
     }
 
     @SubscribeEvent( priority = EventPriority.LOWEST )
-    public void onEntityLivingDrops( LivingDropsEvent event )
+    public static void onEntityLivingDrops( LivingDropsEvent event )
     {
         // Capture any mob drops for the current entity
         if( dropEntity != null && event.getEntity() == dropEntity.get() )
@@ -108,7 +108,7 @@ public class DropConsumer
     }
 
     @SubscribeEvent( priority = EventPriority.LOWEST )
-    public void onHarvestDrops( BlockEvent.HarvestDropsEvent event )
+    public static void onHarvestDrops( BlockEvent.HarvestDropsEvent event )
     {
         // Capture block drops for the current entity
         if( dropWorld != null && dropWorld.get() == event.getWorld()
@@ -123,7 +123,7 @@ public class DropConsumer
     }
 
     @SubscribeEvent( priority = EventPriority.LOWEST )
-    public void onEntitySpawn( EntityJoinWorldEvent event )
+    public static void onEntitySpawn( EntityJoinWorldEvent event )
     {
         // Capture any nearby item spawns
         if( dropWorld != null && dropWorld.get() == event.getWorld() && event.getEntity() instanceof EntityItem

@@ -226,7 +226,7 @@ public class TurtlePlaceCommand implements ITurtleCommand
         // Start claiming entity drops
         Entity hitEntity = hit.getKey();
         Vec3d hitPos = hit.getValue();
-        DropConsumer.instance().set(
+        DropConsumer.set(
             hitEntity,
             drop -> InventoryUtil.storeItems( drop, turtle.getItemHandler(), turtle.getSelectedSlot() )
         );
@@ -266,7 +266,7 @@ public class TurtlePlaceCommand implements ITurtleCommand
         }
 
         // Stop claiming drops
-        List<ItemStack> remainingDrops = DropConsumer.instance().clear();
+        List<ItemStack> remainingDrops = DropConsumer.clear();
         for( ItemStack remaining : remainingDrops )
         {
             WorldUtil.dropItemStack( remaining, world, position, turtle.getDirection().getOpposite() );

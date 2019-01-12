@@ -388,7 +388,7 @@ public class WidgetTerminal extends Widget
                 // Get the data from the terminal first
                 // Unfortunately we have to keep the lock for the whole of drawing, so the text doesn't change under us.
                 FixedWidthFontRenderer fontRenderer = FixedWidthFontRenderer.instance();
-                boolean tblink = m_focus && terminal.getCursorBlink() && FrameInfo.instance().getGlobalCursorBlink();
+                boolean tblink = m_focus && terminal.getCursorBlink() && FrameInfo.getGlobalCursorBlink();
                 int tw = terminal.getWidth();
                 int th = terminal.getHeight();
                 int tx = terminal.getCursorX();

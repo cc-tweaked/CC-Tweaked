@@ -135,7 +135,7 @@ public class TurtleTool extends AbstractTurtleUpgrade
             }
 
             // Start claiming entity drops
-            DropConsumer.instance().set( hitEntity, turtleDropConsumer( turtle ) );
+            DropConsumer.set( hitEntity, turtleDropConsumer( turtle ) );
 
             // Attack the entity
             boolean attacked = false;
@@ -225,7 +225,7 @@ public class TurtleTool extends AbstractTurtleUpgrade
         }
 
         // Consume the items the block drops
-        DropConsumer.instance().set( world, blockPosition, turtleDropConsumer( turtle ) );
+        DropConsumer.set( world, blockPosition, turtleDropConsumer( turtle ) );
 
         TileEntity tile = world.getTileEntity( blockPosition );
 
@@ -257,7 +257,7 @@ public class TurtleTool extends AbstractTurtleUpgrade
 
     private void stopConsuming( ITurtleAccess turtle )
     {
-        List<ItemStack> extra = DropConsumer.instance().clear();
+        List<ItemStack> extra = DropConsumer.clear();
         for( ItemStack remainder : extra )
         {
             WorldUtil.dropItemStack( remainder, turtle.getWorld(), turtle.getPosition(), turtle.getDirection().getOpposite() );

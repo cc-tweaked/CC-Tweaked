@@ -18,7 +18,6 @@ import net.minecraft.client.renderer.ItemMeshDefinition;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.block.model.ModelBakery;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
-import net.minecraft.client.renderer.color.IItemColor;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.resources.IResourceManager;
@@ -83,10 +82,16 @@ public class CCTurtleProxyClient extends CCTurtleProxyCommon
         super.init();
 
         // Setup turtle colours
-        Minecraft.getMinecraft().getItemColors().registerItemColorHandler(
-            new TurtleItemColour(),
-            ComputerCraft.Blocks.turtle, ComputerCraft.Blocks.turtleExpanded, ComputerCraft.Blocks.turtleAdvanced
-        );
+        Minecraft.getMinecraft().getItemColors().registerItemColorHandler( ( stack, tintIndex ) -> {
+            if( tintIndex == 0 )
+            {
+                ItemTurtleBase turtle = (ItemTurtleBase) stack.getItem();
+                int colour = turtle.getColour( stack );
+                if( colour != -1 ) return colour;
+            }
+
+            return 0xFFFFFF;
+        }, ComputerCraft.Blocks.turtle, ComputerCraft.Blocks.turtleExpanded, ComputerCraft.Blocks.turtleAdvanced );
 
         // Setup renderers
         ClientRegistry.bindTileEntitySpecialRenderer( TileTurtle.class, new TileEntityTurtleRenderer() );
@@ -110,8 +115,7 @@ public class CCTurtleProxyClient extends CCTurtleProxyCommon
 
     private void registerForgeHandlers()
     {
-        ForgeHandlers handlers = new ForgeHandlers();
-        MinecraftForge.EVENT_BUS.register( handlers );
+        MinecraftForge.EVENT_BUS.register( new ForgeHandlers() );
     }
 
     public static class ForgeHandlers
@@ -196,19 +200,4 @@ public class CCTurtleProxyClient extends CCTurtleProxyCommon
         }
     }
 
-    private static class TurtleItemColour implements IItemColor
-    {
-        @Override
-        public int colorMultiplier( @Nonnull ItemStack stack, int tintIndex )
-        {
-            if( tintIndex == 0 )
-            {
-                ItemTurtleBase turtle = (ItemTurtleBase) stack.getItem();
-                int colour = turtle.getColour( stack );
-                if( colour != -1 ) return colour;
-            }
-
-            return 0xFFFFFF;
-        }
-    }
 }
