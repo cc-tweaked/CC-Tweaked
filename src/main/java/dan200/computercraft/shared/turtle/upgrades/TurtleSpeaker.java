@@ -69,8 +69,8 @@ public class TurtleSpeaker extends AbstractTurtleUpgrade
 
     public TurtleSpeaker( ResourceLocation id, int legacyId )
     {
-        super( id, legacyId, TurtleUpgradeType.Peripheral,
-            "upgrade.computercraft:speaker.adjective",
+        super(
+            id, legacyId, TurtleUpgradeType.Peripheral,
             PeripheralItemFactory.create( PeripheralType.Speaker, null, 1 )
         );
     }

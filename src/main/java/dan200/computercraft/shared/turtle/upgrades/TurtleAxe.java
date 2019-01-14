@@ -16,6 +16,11 @@ public class TurtleAxe extends TurtleTool
         super( id, legacyId, adjective, item );
     }
 
+    public TurtleAxe( ResourceLocation id, int legacyId, Item item )
+    {
+        super( id, legacyId, item );
+    }
+
     @Override
     protected float getDamageMultiplier()
     {

@@ -31,12 +31,9 @@ public class TurtleCraftingTable extends AbstractTurtleUpgrade
     @SideOnly( Side.CLIENT )
     private ModelResourceLocation m_rightModel;
 
-    public TurtleCraftingTable( int legacyId )
+    public TurtleCraftingTable( ResourceLocation id, int legacyId )
     {
-        super(
-            new ResourceLocation( "minecraft", "crafting_table" ), legacyId, TurtleUpgradeType.Peripheral,
-            "upgrade.minecraft:crafting_table.adjective", Blocks.CRAFTING_TABLE
-        );
+        super( id, legacyId, TurtleUpgradeType.Peripheral, Blocks.CRAFTING_TABLE );
     }
 
     @Override

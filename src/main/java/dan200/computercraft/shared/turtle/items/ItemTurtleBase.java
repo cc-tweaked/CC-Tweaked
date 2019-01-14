@@ -54,6 +54,10 @@ public abstract class ItemTurtleBase extends ItemComputerBase implements ITurtle
         if( !isInCreativeTab( tabs ) ) return;
 
         ComputerFamily family = getFamily();
+
+        ItemStack normalStack = TurtleItemFactory.create( -1, null, -1, family, null, null, 0, null );
+        if( !normalStack.isEmpty() && normalStack.getItem() == this ) list.add( normalStack );
+
         for( ITurtleUpgrade upgrade : TurtleUpgrades.getVanillaUpgrades() )
         {
             if( !TurtleUpgrades.suitableForFamily( family, upgrade ) ) continue;

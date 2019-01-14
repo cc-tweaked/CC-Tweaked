@@ -42,6 +42,21 @@ public abstract class AbstractTurtleUpgrade implements ITurtleUpgrade
         this( id, legacyId, type, adjective, new ItemStack( block ) );
     }
 
+    public AbstractTurtleUpgrade( ResourceLocation id, int legacyId, TurtleUpgradeType type, ItemStack stack )
+    {
+        this( id, legacyId, type, "upgrade." + id + ".adjective", stack );
+    }
+
+    public AbstractTurtleUpgrade( ResourceLocation id, int legacyId, TurtleUpgradeType type, Item item )
+    {
+        this( id, legacyId, type, new ItemStack( item ) );
+    }
+
+    public AbstractTurtleUpgrade( ResourceLocation id, int legacyId, TurtleUpgradeType type, Block block )
+    {
+        this( id, legacyId, type, new ItemStack( block ) );
+    }
+
     @Nonnull
     @Override
     public final ResourceLocation getUpgradeID()

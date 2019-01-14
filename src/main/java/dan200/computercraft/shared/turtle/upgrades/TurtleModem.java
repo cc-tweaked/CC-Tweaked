@@ -85,9 +85,7 @@ public class TurtleModem extends AbstractTurtleUpgrade
     {
         super(
             id, legacyId, TurtleUpgradeType.Peripheral,
-            advanced ? "upgrade.computercraft:advanced_modem.adjective" : "upgrade.computercraft:wireless_modem.adjective",
             advanced ? PeripheralItemFactory.create( PeripheralType.AdvancedModem, null, 1 ) : PeripheralItemFactory.create( PeripheralType.WirelessModem, null, 1 )
-
         );
         this.advanced = advanced;
     }

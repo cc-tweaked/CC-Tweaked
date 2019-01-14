@@ -299,29 +299,29 @@ public final class Registry
         ComputerCraft.TurtleUpgrades.wirelessModem = new TurtleModem( false, new ResourceLocation( "computercraft", "wireless_modem" ), 1 );
         TurtleUpgrades.registerInternal( ComputerCraft.TurtleUpgrades.wirelessModem );
 
-        ComputerCraft.TurtleUpgrades.craftingTable = new TurtleCraftingTable( 2 );
-        TurtleUpgrades.registerInternal( ComputerCraft.TurtleUpgrades.craftingTable );
-
-        ComputerCraft.TurtleUpgrades.diamondSword = new TurtleSword( new ResourceLocation( "minecraft", "diamond_sword" ), 3, "upgrade.minecraft:diamond_sword.adjective", Items.DIAMOND_SWORD );
-        TurtleUpgrades.registerInternal( ComputerCraft.TurtleUpgrades.diamondSword );
-
-        ComputerCraft.TurtleUpgrades.diamondShovel = new TurtleShovel( new ResourceLocation( "minecraft", "diamond_shovel" ), 4, "upgrade.minecraft:diamond_shovel.adjective", Items.DIAMOND_SHOVEL );
-        TurtleUpgrades.registerInternal( ComputerCraft.TurtleUpgrades.diamondShovel );
-
-        ComputerCraft.TurtleUpgrades.diamondPickaxe = new TurtleTool( new ResourceLocation( "minecraft", "diamond_pickaxe" ), 5, "upgrade.minecraft:diamond_pickaxe.adjective", Items.DIAMOND_PICKAXE );
-        TurtleUpgrades.registerInternal( ComputerCraft.TurtleUpgrades.diamondPickaxe );
-
-        ComputerCraft.TurtleUpgrades.diamondAxe = new TurtleAxe( new ResourceLocation( "minecraft", "diamond_axe" ), 6, "upgrade.minecraft:diamond_axe.adjective", Items.DIAMOND_AXE );
-        TurtleUpgrades.registerInternal( ComputerCraft.TurtleUpgrades.diamondAxe );
-
-        ComputerCraft.TurtleUpgrades.diamondHoe = new TurtleHoe( new ResourceLocation( "minecraft", "diamond_hoe" ), 7, "upgrade.minecraft:diamond_hoe.adjective", Items.DIAMOND_HOE );
-        TurtleUpgrades.registerInternal( ComputerCraft.TurtleUpgrades.diamondHoe );
-
         ComputerCraft.TurtleUpgrades.advancedModem = new TurtleModem( true, new ResourceLocation( "computercraft", "advanced_modem" ), -1 );
         TurtleUpgrades.registerInternal( ComputerCraft.TurtleUpgrades.advancedModem );
 
         ComputerCraft.TurtleUpgrades.speaker = new TurtleSpeaker( new ResourceLocation( "computercraft", "speaker" ), 8 );
         TurtleUpgrades.registerInternal( ComputerCraft.TurtleUpgrades.speaker );
+
+        ComputerCraft.TurtleUpgrades.craftingTable = new TurtleCraftingTable( new ResourceLocation( "minecraft", "crafting_table" ), 2 );
+        TurtleUpgrades.registerInternal( ComputerCraft.TurtleUpgrades.craftingTable );
+
+        ComputerCraft.TurtleUpgrades.diamondSword = new TurtleSword( new ResourceLocation( "minecraft", "diamond_sword" ), 3, Items.DIAMOND_SWORD );
+        TurtleUpgrades.registerInternal( ComputerCraft.TurtleUpgrades.diamondSword );
+
+        ComputerCraft.TurtleUpgrades.diamondShovel = new TurtleShovel( new ResourceLocation( "minecraft", "diamond_shovel" ), 4, Items.DIAMOND_SHOVEL );
+        TurtleUpgrades.registerInternal( ComputerCraft.TurtleUpgrades.diamondShovel );
+
+        ComputerCraft.TurtleUpgrades.diamondPickaxe = new TurtleTool( new ResourceLocation( "minecraft", "diamond_pickaxe" ), 5, Items.DIAMOND_PICKAXE );
+        TurtleUpgrades.registerInternal( ComputerCraft.TurtleUpgrades.diamondPickaxe );
+
+        ComputerCraft.TurtleUpgrades.diamondAxe = new TurtleAxe( new ResourceLocation( "minecraft", "diamond_axe" ), 6, Items.DIAMOND_AXE );
+        TurtleUpgrades.registerInternal( ComputerCraft.TurtleUpgrades.diamondAxe );
+
+        ComputerCraft.TurtleUpgrades.diamondHoe = new TurtleHoe( new ResourceLocation( "minecraft", "diamond_hoe" ), 7, Items.DIAMOND_HOE );
+        TurtleUpgrades.registerInternal( ComputerCraft.TurtleUpgrades.diamondHoe );
     }
 
     public static void registerPocketUpgrades()

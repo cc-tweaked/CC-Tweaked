@@ -25,6 +25,11 @@ public abstract class AbstractPocketUpgrade implements IPocketUpgrade
         this.stack = stack;
     }
 
+    protected AbstractPocketUpgrade( ResourceLocation id, ItemStack stack )
+    {
+        this( id, "upgrade." + id + ".adjective", stack );
+    }
+
     @Nonnull
     @Override
     public final ResourceLocation getUpgradeID()

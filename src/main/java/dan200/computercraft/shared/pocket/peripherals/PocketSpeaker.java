@@ -23,7 +23,6 @@ public class PocketSpeaker extends AbstractPocketUpgrade
     {
         super(
             new ResourceLocation( "computercraft", "speaker" ),
-            "upgrade.computercraft:speaker.adjective",
             PeripheralItemFactory.create( PeripheralType.Speaker, null, 1 )
         );
     }

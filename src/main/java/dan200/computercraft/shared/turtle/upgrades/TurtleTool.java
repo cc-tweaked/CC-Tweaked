@@ -55,6 +55,12 @@ public class TurtleTool extends AbstractTurtleUpgrade
         m_item = new ItemStack( item, 1, 0 );
     }
 
+    public TurtleTool( ResourceLocation id, int legacyID, Item item )
+    {
+        super( id, legacyID, TurtleUpgradeType.Tool, item );
+        m_item = new ItemStack( item, 1, 0 );
+    }
+
     @Nonnull
     @Override
     @SideOnly( Side.CLIENT )

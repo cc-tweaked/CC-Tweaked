@@ -30,6 +30,11 @@ public class TurtleShovel extends TurtleTool
         super( id, legacyId, adjective, item );
     }
 
+    public TurtleShovel( ResourceLocation id, int legacyId, Item item )
+    {
+        super( id, legacyId, item );
+    }
+
     @Override
     protected boolean canBreakBlock( IBlockState state, World world, BlockPos pos, TurtlePlayer player )
     {
