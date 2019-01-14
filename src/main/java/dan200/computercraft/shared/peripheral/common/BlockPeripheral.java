@@ -560,14 +560,7 @@ public class BlockPeripheral extends BlockPeripheralBase
     @Override
     public void onBlockPlacedBy( World world, BlockPos pos, IBlockState state, EntityLivingBase player, @Nonnull ItemStack stack )
     {
-        // Not sure why this is necessary
         TileEntity tile = world.getTileEntity( pos );
-        if( tile instanceof TilePeripheralBase )
-        {
-            tile.setWorld( world ); // Not sure why this is necessary
-            tile.setPos( pos ); // Not sure why this is necessary
-        }
-
         switch( getPeripheralType( state ) )
         {
             case Speaker:

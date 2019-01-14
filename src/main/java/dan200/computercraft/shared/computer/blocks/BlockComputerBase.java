@@ -8,15 +8,17 @@ package dan200.computercraft.shared.computer.blocks;
 
 import dan200.computercraft.shared.common.BlockDirectional;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
-import dan200.computercraft.shared.computer.items.ItemComputerBase;
+import dan200.computercraft.shared.util.DirectionUtil;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.item.Item;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+
+import javax.annotation.Nonnull;
 
 public abstract class BlockComputerBase extends BlockDirectional
 {
@@ -47,11 +49,12 @@ public abstract class BlockComputerBase extends BlockDirectional
 
     protected abstract TileComputerBase createTile( ComputerFamily family );
 
+    @Nonnull
     @Override
-    protected final IBlockState getDefaultBlockState( int damage, EnumFacing placedSide )
+    @Deprecated
+    public final IBlockState getStateForPlacement( World world, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ, int damage, EntityLivingBase placer )
     {
-        ItemComputerBase item = (ItemComputerBase) Item.getItemFromBlock( this );
-        return getDefaultBlockState( item.getFamily( damage ), placedSide );
+        return getDefaultBlockState( getFamily( damage ), DirectionUtil.fromEntityRot( placer ) );
     }
 
     @Override

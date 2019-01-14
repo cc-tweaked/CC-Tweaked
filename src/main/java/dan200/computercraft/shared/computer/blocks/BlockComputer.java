@@ -9,14 +9,12 @@ package dan200.computercraft.shared.computer.blocks;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.items.ComputerItemFactory;
-import dan200.computercraft.shared.util.DirectionUtil;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.PropertyBool;
 import net.minecraft.block.properties.PropertyDirection;
 import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
@@ -97,24 +95,9 @@ public class BlockComputer extends BlockComputerBase
     @Override
     protected IBlockState getDefaultBlockState( ComputerFamily family, EnumFacing placedSide )
     {
-        IBlockState state = getDefaultState();
-        if( placedSide.getAxis() != EnumFacing.Axis.Y )
-        {
-            state = state.withProperty( Properties.FACING, placedSide );
-        }
-
-        switch( family )
-        {
-            case Normal:
-            default:
-            {
-                return state.withProperty( Properties.ADVANCED, false );
-            }
-            case Advanced:
-            {
-                return state.withProperty( Properties.ADVANCED, true );
-            }
-        }
+        return getDefaultState()
+            .withProperty( Properties.FACING, placedSide )
+            .withProperty( Properties.ADVANCED, family == ComputerFamily.Advanced );
     }
 
     @Nonnull
@@ -149,22 +132,6 @@ public class BlockComputer extends BlockComputerBase
     protected TileComputer createTile( ComputerFamily family )
     {
         return new TileComputer();
-    }
-
-    @Override
-    public void onBlockPlacedBy( World world, BlockPos pos, IBlockState state, EntityLivingBase player, @Nonnull ItemStack stack )
-    {
-        // Not sure why this is necessary
-        TileEntity tile = world.getTileEntity( pos );
-        if( tile instanceof TileComputer )
-        {
-            tile.setWorld( world ); // Not sure why this is necessary
-            tile.setPos( pos ); // Not sure why this is necessary
-        }
-
-        // Set direction
-        EnumFacing dir = DirectionUtil.fromEntityRot( player );
-        setDirection( world, pos, dir );
     }
 
     @Nonnull

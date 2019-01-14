@@ -11,8 +11,8 @@ import dan200.computercraft.shared.common.TileGeneric;
 import dan200.computercraft.shared.peripheral.PeripheralType;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
@@ -44,11 +44,12 @@ public abstract class BlockPeripheralBase extends BlockDirectional
         return true; // ItemPeripheralBase handles this
     }
 
+    @Nonnull
     @Override
-    protected final IBlockState getDefaultBlockState( int damage, EnumFacing placedSide )
+    @Deprecated
+    public final IBlockState getStateForPlacement( World world, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ, int damage, EntityLivingBase placer )
     {
-        ItemPeripheralBase item = (ItemPeripheralBase) Item.getItemFromBlock( this );
-        return getDefaultBlockState( item.getPeripheralType( damage ), placedSide );
+        return getDefaultBlockState( getPeripheralType( damage ), side );
     }
 
     @Override

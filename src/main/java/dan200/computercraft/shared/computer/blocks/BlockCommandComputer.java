@@ -87,14 +87,7 @@ public class BlockCommandComputer extends BlockComputerBase
     @Override
     protected IBlockState getDefaultBlockState( ComputerFamily family, EnumFacing placedSide )
     {
-        if( placedSide.getAxis() != EnumFacing.Axis.Y )
-        {
-            return getDefaultState().withProperty( Properties.FACING, placedSide );
-        }
-        else
-        {
-            return getDefaultState();
-        }
+        return getDefaultState().withProperty( Properties.FACING, placedSide );
     }
 
     @Override
@@ -113,21 +106,5 @@ public class BlockCommandComputer extends BlockComputerBase
     protected TileComputer createTile( ComputerFamily family )
     {
         return new TileCommandComputer();
-    }
-
-    @Override
-    public void onBlockPlacedBy( World world, BlockPos pos, IBlockState state, EntityLivingBase player, @Nonnull ItemStack itemstack )
-    {
-        // Not sure why this is necessary
-        TileEntity tile = world.getTileEntity( pos );
-        if( tile instanceof TileCommandComputer )
-        {
-            tile.setWorld( world ); // Not sure why this is necessary
-            tile.setPos( pos ); // Not sure why this is necessary
-        }
-
-        // Set direction
-        EnumFacing dir = DirectionUtil.fromEntityRot( player );
-        setDirection( world, pos, dir );
     }
 }

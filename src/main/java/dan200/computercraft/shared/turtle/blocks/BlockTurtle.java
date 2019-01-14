@@ -177,16 +177,10 @@ public class BlockTurtle extends BlockComputerBase
     @Override
     public void onBlockPlacedBy( World world, BlockPos pos, IBlockState state, EntityLivingBase player, @Nonnull ItemStack itemstack )
     {
-        // Not sure why this is necessary
         TileEntity tile = world.getTileEntity( pos );
-        if( tile instanceof TileTurtle )
+        if( tile instanceof TileTurtle && player instanceof EntityPlayer )
         {
-            tile.setWorld( world ); // Not sure why this is necessary
-            tile.setPos( pos ); // Not sure why this is necessary
-            if( player instanceof EntityPlayer )
-            {
-                ((TileTurtle) tile).setOwningPlayer( ((EntityPlayer) player).getGameProfile() );
-            }
+            ((TileTurtle) tile).setOwningPlayer( ((EntityPlayer) player).getGameProfile() );
         }
 
         // Set direction

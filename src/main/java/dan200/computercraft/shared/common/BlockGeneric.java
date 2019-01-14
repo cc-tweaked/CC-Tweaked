@@ -10,7 +10,6 @@ import net.minecraft.block.Block;
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
@@ -31,8 +30,6 @@ public abstract class BlockGeneric extends Block implements ITileEntityProvider
         this.hasTileEntity = true;
     }
 
-    protected abstract IBlockState getDefaultBlockState( int damage, EnumFacing placedSide );
-
     protected abstract TileGeneric createTile( IBlockState state );
 
     protected abstract TileGeneric createTile( int damage );
@@ -51,14 +48,6 @@ public abstract class BlockGeneric extends Block implements ITileEntityProvider
             TileGeneric generic = (TileGeneric) tile;
             generic.getDroppedItems( drops, false );
         }
-    }
-
-    @Nonnull
-    @Override
-    @Deprecated
-    public final IBlockState getStateForPlacement( World world, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ, int damage, EntityLivingBase placer )
-    {
-        return getDefaultBlockState( damage, side );
     }
 
     @Override
