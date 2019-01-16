@@ -26,7 +26,7 @@ import dan200.computercraft.core.apis.ApiFactories;
 import dan200.computercraft.core.apis.http.websocket.Websocket;
 import dan200.computercraft.core.filesystem.ComboMount;
 import dan200.computercraft.core.filesystem.FileMount;
-import dan200.computercraft.core.filesystem.FileSystemMount;
+import dan200.computercraft.core.filesystem.JarMount;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.core.tracking.Tracking;
 import dan200.computercraft.shared.*;
@@ -92,13 +92,9 @@ import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
-import java.util.ServiceConfigurationError;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -498,13 +494,11 @@ public class ComputerCraft
         {
             try
             {
-                FileSystem fs = FileSystems.newFileSystem( modJar.toPath(), ComputerCraft.class.getClassLoader() );
-                mounts.add( new FileSystemMount( fs, subPath ) );
+                mounts.add( new JarMount( modJar, subPath ) );
             }
-            catch( IOException | RuntimeException | ServiceConfigurationError e )
+            catch( IOException | RuntimeException e )
             {
                 ComputerCraft.log.error( "Could not load mount from mod jar", e );
-                // Ignore
             }
         }
 
@@ -521,21 +515,16 @@ public class ComputerCraft
                     if( !resourcePack.isDirectory() )
                     {
                         // Mount a resource pack from a jar
-                        FileSystem fs = FileSystems.newFileSystem( resourcePack.toPath(), ComputerCraft.class.getClassLoader() );
-                        if( Files.exists( fs.getPath( subPath ) ) ) mounts.add( new FileSystemMount( fs, subPath ) );
+                        mounts.add( new JarMount( resourcePack, subPath ) );
                     }
                     else
                     {
                         // Mount a resource pack from a folder
                         File subResource = new File( resourcePack, subPath );
-                        if( subResource.exists() )
-                        {
-                            IMount resourcePackMount = new FileMount( subResource, 0 );
-                            mounts.add( resourcePackMount );
-                        }
+                        if( subResource.exists() ) mounts.add( new FileMount( subResource, 0 ) );
                     }
                 }
-                catch( IOException | RuntimeException | ServiceConfigurationError e )
+                catch( IOException | RuntimeException e )
                 {
                     ComputerCraft.log.error( "Could not load resource pack '" + resourcePackName + "'", e );
                 }

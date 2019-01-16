@@ -6,6 +6,7 @@
 
 package dan200.computercraft.core.filesystem;
 
+import com.google.common.io.ByteStreams;
 import dan200.computercraft.api.filesystem.IMount;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -13,12 +14,12 @@ import org.junit.Test;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 @SuppressWarnings( "deprecation" )
 public class JarMountTest
@@ -56,5 +57,31 @@ public class JarMountTest
         IMount mount = new JarMount( ZIP_FILE, "dir/file.lua" );
         assertTrue( "Root should exist", mount.exists( "" ) );
         assertFalse( "Root should be a file", mount.isDirectory( "" ) );
+    }
+
+    @Test
+    public void opensFileFromFile() throws IOException
+    {
+        IMount mount = new JarMount( ZIP_FILE, "dir/file.lua" );
+        byte[] contents;
+        try( InputStream stream = mount.openForRead( "" ) )
+        {
+            contents = ByteStreams.toByteArray( stream );
+        }
+
+        assertEquals( "print('testing')", new String( contents, StandardCharsets.UTF_8 ) );
+    }
+
+    @Test
+    public void opensFileFromDir() throws IOException
+    {
+        IMount mount = new JarMount( ZIP_FILE, "dir" );
+        byte[] contents;
+        try( InputStream stream = mount.openForRead( "file.lua" ) )
+        {
+            contents = ByteStreams.toByteArray( stream );
+        }
+
+        assertEquals( "print('testing')", new String( contents, StandardCharsets.UTF_8 ) );
     }
 }

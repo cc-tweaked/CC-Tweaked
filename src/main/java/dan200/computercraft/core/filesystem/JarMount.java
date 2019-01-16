@@ -6,242 +6,266 @@
 
 package dan200.computercraft.core.filesystem;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.io.ByteStreams;
 import dan200.computercraft.api.filesystem.IMount;
+import dan200.computercraft.core.apis.handles.ArrayByteChannel;
+import dan200.computercraft.shared.util.IoUtil;
 
 import javax.annotation.Nonnull;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.ref.Reference;
+import java.lang.ref.ReferenceQueue;
+import java.lang.ref.WeakReference;
+import java.nio.channels.Channels;
+import java.nio.channels.ReadableByteChannel;
 import java.util.Enumeration;
-import java.util.LinkedHashMap;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-@Deprecated
 public class JarMount implements IMount
 {
-    private static class FileInZip
-    {
-        private String m_path;
-        private boolean m_directory;
-        private long m_size;
-        private Map<String, FileInZip> m_children;
+    /**
+     * Only cache files smaller than 1MiB.
+     */
+    private static final int MAX_CACHED_SIZE = 1 << 20;
 
-        public FileInZip( String path, boolean directory, long size )
-        {
-            m_path = path;
-            m_directory = directory;
-            m_size = m_directory ? 0 : size;
-            m_children = new LinkedHashMap<>();
-        }
+    /**
+     * Limit the entire cache to 64MiB.
+     */
+    private static final int MAX_CACHE_SIZE = 64 << 20;
 
-        public String getPath()
-        {
-            return m_path;
-        }
+    /**
+     * We maintain a cache of the contents of all files in the mount. This allows us to allow
+     * seeking within ROM files, and reduces the amount we need to access disk for computer startup.
+     */
+    private static final Cache<FileEntry, byte[]> CONTENTS_CACHE = CacheBuilder.newBuilder()
+        .concurrencyLevel( 4 )
+        .expireAfterAccess( 60, TimeUnit.SECONDS )
+        .maximumWeight( MAX_CACHE_SIZE )
+        .weakKeys()
+        .<FileEntry, byte[]>weigher( ( k, v ) -> v.length )
+        .build();
 
-        public boolean isDirectory()
-        {
-            return m_directory;
-        }
+    /**
+     * We have a {@link ReferenceQueue} of all mounts, a long with their corresponding {@link ZipFile}. If
+     * the mount has been destroyed, we clean up after it.
+     */
+    private static final ReferenceQueue<JarMount> MOUNT_QUEUE = new ReferenceQueue<>();
 
-        public long getSize()
-        {
-            return m_size;
-        }
+    private final ZipFile zip;
+    private final FileEntry root;
 
-        public void list( List<String> contents )
-        {
-            contents.addAll( m_children.keySet() );
-        }
-
-        public void insertChild( FileInZip child )
-        {
-            String localPath = FileSystem.toLocal( child.getPath(), m_path );
-            m_children.put( localPath, child );
-        }
-
-        public FileInZip getFile( String path )
-        {
-            // If we've reached the target, return this
-            if( path.equals( m_path ) )
-            {
-                return this;
-            }
-
-            // Otherwise, get the next component of the path
-            String localPath = FileSystem.toLocal( path, m_path );
-            int slash = localPath.indexOf( "/" );
-            if( slash >= 0 )
-            {
-                localPath = localPath.substring( 0, slash );
-            }
-
-            // And recurse down using it
-            FileInZip subFile = m_children.get( localPath );
-            if( subFile != null )
-            {
-                return subFile.getFile( path );
-            }
-
-            return null;
-        }
-
-        public FileInZip getParent( String path )
-        {
-            if( path.length() == 0 )
-            {
-                return null;
-            }
-
-            FileInZip file = getFile( FileSystem.getDirectory( path ) );
-            if( file.isDirectory() )
-            {
-                return file;
-            }
-            return null;
-        }
-    }
-
-    private ZipFile m_zipFile;
-    private FileInZip m_root;
-    private String m_rootPath;
-
-    @Deprecated
     public JarMount( File jarFile, String subPath ) throws IOException
     {
-        if( !jarFile.exists() || jarFile.isDirectory() )
-        {
-            throw new FileNotFoundException();
-        }
+        // Cleanup any old mounts. It's unlikely that there will be any, but it's best to be safe.
+        cleanup();
+
+        if( !jarFile.exists() || jarFile.isDirectory() ) throw new FileNotFoundException();
 
         // Open the zip file
         try
         {
-            m_zipFile = new ZipFile( jarFile );
+            zip = new ZipFile( jarFile );
         }
         catch( Exception e )
         {
             throw new IOException( "Error loading zip file" );
         }
 
-        if( m_zipFile.getEntry( subPath ) == null )
+        // Ensure the root entry exists.
+        if( zip.getEntry( subPath ) == null )
         {
-            m_zipFile.close();
+            zip.close();
             throw new IOException( "Zip does not contain path" );
         }
 
+        // We now create a weak reference to this mount. This is automatically added to the appropriate queue.
+        new MountReference( this );
+
         // Read in all the entries
-        Enumeration<? extends ZipEntry> zipEntries = m_zipFile.entries();
+        root = new FileEntry( "" );
+        Enumeration<? extends ZipEntry> zipEntries = zip.entries();
         while( zipEntries.hasMoreElements() )
         {
             ZipEntry entry = zipEntries.nextElement();
-            String entryName = entry.getName();
-            if( entryName.startsWith( subPath ) )
-            {
-                entryName = FileSystem.toLocal( entryName, subPath );
-                if( m_root == null )
-                {
-                    if( entryName.equals( "" ) )
-                    {
-                        m_root = new FileInZip( entryName, entry.isDirectory(), entry.getSize() );
-                        m_rootPath = subPath;
-                        if( !m_root.isDirectory() ) break;
-                    }
-                    else
-                    {
-                        // TODO: handle this case. The code currently assumes we find the root before anything else
-                    }
-                }
-                else
-                {
-                    FileInZip parent = m_root.getParent( entryName );
-                    if( parent != null )
-                    {
-                        parent.insertChild( new FileInZip( entryName, entry.isDirectory(), entry.getSize() ) );
-                    }
-                    else
-                    {
-                        // TODO: handle this case. The code currently assumes we find folders before their contents
-                    }
-                }
-            }
+
+            String entryPath = entry.getName();
+            if( !entryPath.startsWith( subPath ) ) continue;
+
+            String localPath = FileSystem.toLocal( entryPath, subPath );
+            create( entry, localPath );
         }
     }
 
-    // IMount implementation
+    private FileEntry get( String path )
+    {
+        FileEntry lastEntry = root;
+        int lastIndex = 0;
+
+        while( lastEntry != null && lastIndex < path.length() )
+        {
+            int nextIndex = path.indexOf( '/', lastIndex );
+            if( nextIndex < 0 ) nextIndex = path.length();
+
+            lastEntry = lastEntry.children == null ? null : lastEntry.children.get( path.substring( lastIndex, nextIndex ) );
+            lastIndex = nextIndex + 1;
+        }
+
+        return lastEntry;
+    }
+
+    private void create( ZipEntry entry, String localPath )
+    {
+        FileEntry lastEntry = root;
+
+        int lastIndex = 0;
+        while( lastIndex < localPath.length() )
+        {
+            int nextIndex = localPath.indexOf( '/', lastIndex );
+            if( nextIndex < 0 ) nextIndex = localPath.length();
+
+            String part = localPath.substring( lastIndex, nextIndex );
+            if( lastEntry.children == null ) lastEntry.children = new HashMap<>( 0 );
+
+            FileEntry nextEntry = lastEntry.children.get( part );
+            if( nextEntry == null || !nextEntry.isDirectory() )
+            {
+                lastEntry.children.put( part, nextEntry = new FileEntry( part ) );
+            }
+
+            lastEntry = nextEntry;
+            lastIndex = nextIndex + 1;
+        }
+
+        lastEntry.setup( entry );
+    }
 
     @Override
     public boolean exists( @Nonnull String path )
     {
-        FileInZip file = m_root.getFile( path );
-        return file != null;
+        return get( path ) != null;
     }
 
     @Override
     public boolean isDirectory( @Nonnull String path )
     {
-        FileInZip file = m_root.getFile( path );
-        if( file != null )
-        {
-            return file.isDirectory();
-        }
-        return false;
+        FileEntry file = get( path );
+        return file != null && file.isDirectory();
     }
 
     @Override
     public void list( @Nonnull String path, @Nonnull List<String> contents ) throws IOException
     {
-        FileInZip file = m_root.getFile( path );
-        if( file != null && file.isDirectory() )
-        {
-            file.list( contents );
-        }
-        else
-        {
-            throw new IOException( "/" + path + ": Not a directory" );
-        }
+        FileEntry file = get( path );
+        if( file == null || !file.isDirectory() ) throw new IOException( "/" + path + ": Not a directory" );
+
+        file.list( contents );
     }
 
     @Override
     public long getSize( @Nonnull String path ) throws IOException
     {
-        FileInZip file = m_root.getFile( path );
-        if( file != null )
-        {
-            return file.getSize();
-        }
+        FileEntry file = get( path );
+        if( file != null ) return file.size;
         throw new IOException( "/" + path + ": No such file" );
     }
 
     @Nonnull
     @Override
+    @Deprecated
     public InputStream openForRead( @Nonnull String path ) throws IOException
     {
-        FileInZip file = m_root.getFile( path );
+        return Channels.newInputStream( openChannelForRead( path ) );
+    }
+
+    @Nonnull
+    @Override
+    public ReadableByteChannel openChannelForRead( @Nonnull String path ) throws IOException
+    {
+        FileEntry file = get( path );
         if( file != null && !file.isDirectory() )
         {
+            byte[] contents = CONTENTS_CACHE.getIfPresent( file );
+            if( contents != null ) return new ArrayByteChannel( contents );
+
             try
             {
-                String fullPath = m_rootPath;
-                if( path.length() > 0 )
-                {
-                    fullPath = fullPath + "/" + path;
-                }
-                ZipEntry entry = m_zipFile.getEntry( fullPath );
+                ZipEntry entry = zip.getEntry( file.path );
                 if( entry != null )
                 {
-                    return m_zipFile.getInputStream( entry );
+                    try( InputStream stream = zip.getInputStream( entry ) )
+                    {
+                        if( stream.available() > MAX_CACHED_SIZE ) return Channels.newChannel( stream );
+
+                        contents = ByteStreams.toByteArray( stream );
+                        CONTENTS_CACHE.put( file, contents );
+                        return new ArrayByteChannel( contents );
+                    }
                 }
             }
             catch( Exception e )
             {
-                // treat errors as non-existance of file
+                // Treat errors as non-existence of file
             }
         }
+
         throw new IOException( "/" + path + ": No such file" );
+    }
+
+    private static class FileEntry
+    {
+        final String name;
+
+        String path;
+        long size;
+        Map<String, FileEntry> children;
+
+        FileEntry( String name )
+        {
+            this.name = name;
+        }
+
+        void setup( ZipEntry entry )
+        {
+            path = entry.getName();
+            size = entry.getSize();
+            if( children == null && entry.isDirectory() ) children = new HashMap<>( 0 );
+        }
+
+        boolean isDirectory()
+        {
+            return children != null;
+        }
+
+        void list( List<String> contents )
+        {
+            if( children != null ) contents.addAll( children.keySet() );
+        }
+    }
+
+    private static class MountReference extends WeakReference<JarMount>
+    {
+        final ZipFile file;
+
+        MountReference( JarMount file )
+        {
+            super( file, MOUNT_QUEUE );
+            this.file = file.zip;
+        }
+    }
+
+    private static void cleanup()
+    {
+        Reference<? extends JarMount> next;
+        while( (next = MOUNT_QUEUE.poll()) != null ) IoUtil.closeQuietly( ((MountReference) next).file );
     }
 }
