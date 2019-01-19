@@ -38,6 +38,27 @@ public class InventoryUtil
         return a == b || ItemHandlerHelper.canItemStacksStack( a, b );
     }
 
+    /**
+     * Determines if two items are "mostly" equivalent. Namely, they have the same item and damage, and identical
+     * share stacks.
+     *
+     * This is largely based on {@link net.minecraftforge.common.crafting.IngredientNBT#apply(ItemStack)}. It is
+     * sufficient to ensure basic information (such as enchantments) are the same, while not having to worry about
+     * capabilities.
+     *
+     * @param a The first stack to check
+     * @param b The second stack to check
+     * @return If these items are largely the same.
+     */
+    public static boolean areItemsSimilar( @Nonnull ItemStack a, @Nonnull ItemStack b )
+    {
+        if( a == b ) return true;
+        if( a.isEmpty() ) return !b.isEmpty();
+        return a.getItem() == b.getItem()
+            && a.getItemDamage() == b.getItemDamage()
+            && ItemStack.areItemStackShareTagsEqual( a, b );
+    }
+
     @Nonnull
     public static ItemStack copyItem( @Nonnull ItemStack a )
     {

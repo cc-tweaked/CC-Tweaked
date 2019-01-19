@@ -49,7 +49,7 @@ public final class PocketUpgrades
         for( IPocketUpgrade upgrade : upgrades.values() )
         {
             ItemStack craftingStack = upgrade.getCraftingItem();
-            if( !craftingStack.isEmpty() && InventoryUtil.areItemsStackable( stack, craftingStack ) )
+            if( !craftingStack.isEmpty() && InventoryUtil.areItemsSimilar( stack, craftingStack ) )
             {
                 return upgrade;
             }
