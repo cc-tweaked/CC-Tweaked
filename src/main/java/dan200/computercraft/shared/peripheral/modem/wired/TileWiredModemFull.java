@@ -12,8 +12,11 @@ import dan200.computercraft.api.network.wired.IWiredElement;
 import dan200.computercraft.api.network.wired.IWiredNode;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.shared.command.CommandCopy;
-import dan200.computercraft.shared.peripheral.common.TilePeripheralBase;
+import dan200.computercraft.shared.common.TileGeneric;
+import dan200.computercraft.shared.peripheral.PeripheralType;
+import dan200.computercraft.shared.peripheral.common.IPeripheralTile;
 import dan200.computercraft.shared.peripheral.modem.ModemState;
+import dan200.computercraft.shared.util.TickScheduler;
 import dan200.computercraft.shared.wired.CapabilityWiredElement;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
@@ -30,7 +33,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
 
-public class TileWiredModemFull extends TilePeripheralBase
+public class TileWiredModemFull extends TileGeneric implements IPeripheralTile
 {
     private static class FullElement extends WiredModemElement
     {
@@ -85,9 +88,11 @@ public class TileWiredModemFull extends TilePeripheralBase
     private boolean m_destroyed = false;
     private boolean m_connectionsFormed = false;
 
-    private final ModemState m_modemState = new ModemState();
+    private final ModemState m_modemState = new ModemState( () -> TickScheduler.schedule( this ) );
     private final WiredModemElement m_element = new FullElement( this );
     private final IWiredNode m_node = m_element.getNode();
+
+    private int m_state = 0;
 
     public TileWiredModemFull()
     {
@@ -126,17 +131,6 @@ public class TileWiredModemFull extends TilePeripheralBase
     {
         super.invalidate();
         remove();
-    }
-
-    @Override
-    public EnumFacing getDirection()
-    {
-        return EnumFacing.NORTH;
-    }
-
-    @Override
-    public void setDirection( EnumFacing dir )
-    {
     }
 
     @Override
@@ -231,27 +225,50 @@ public class TileWiredModemFull extends TilePeripheralBase
         return nbt;
     }
 
-    protected void updateAnim()
+    public int getState()
     {
-        int anim = 0;
-        if( m_modemState.isOpen() ) anim |= 1;
-        if( m_peripheralAccessAllowed ) anim |= 2;
-        setAnim( anim );
+        return m_state;
+    }
+
+    private void updateState()
+    {
+        int state = 0;
+        if( m_modemState.isOpen() ) state |= 1;
+        if( m_peripheralAccessAllowed ) state |= 2;
+        if( state != m_state )
+        {
+            m_state = state;
+            updateBlock();
+        }
+    }
+
+    @Override
+    protected void writeDescription( @Nonnull NBTTagCompound nbt )
+    {
+        super.writeDescription( nbt );
+        nbt.setInteger( "state", m_state );
     }
 
     @Override
     public final void readDescription( @Nonnull NBTTagCompound nbt )
     {
         super.readDescription( nbt );
+        m_state = nbt.getInteger( "state" );
         updateBlock();
     }
 
     @Override
-    public void update()
+    public void onLoad()
+    {
+        super.onLoad();
+        if( !world.isRemote ) world.scheduleUpdate( pos, getBlockType(), 0 );
+    }
+
+    protected void updateTick()
     {
         if( !getWorld().isRemote )
         {
-            if( m_modemState.pollChanged() ) updateAnim();
+            if( m_modemState.pollChanged() ) updateState();
 
             if( !m_connectionsFormed )
             {
@@ -268,8 +285,6 @@ public class TileWiredModemFull extends TilePeripheralBase
                 }
             }
         }
-
-        super.update();
     }
 
     private void connectionsChanged()
@@ -291,7 +306,6 @@ public class TileWiredModemFull extends TilePeripheralBase
         }
     }
 
-    // private stuff
     private void togglePeripheralAccess()
     {
         if( !m_peripheralAccessAllowed )
@@ -317,7 +331,7 @@ public class TileWiredModemFull extends TilePeripheralBase
             m_node.updatePeripherals( Collections.emptyMap() );
         }
 
-        updateAnim();
+        updateState();
     }
 
     private Set<String> getConnectedPeripheralNames()
@@ -349,7 +363,7 @@ public class TileWiredModemFull extends TilePeripheralBase
         {
             // If there are no peripherals then disable access and update the display state.
             m_peripheralAccessAllowed = false;
-            updateAnim();
+            updateState();
         }
 
         m_node.updatePeripherals( peripherals );
@@ -360,7 +374,8 @@ public class TileWiredModemFull extends TilePeripheralBase
     @Override
     public boolean hasCapability( @Nonnull Capability<?> capability, @Nullable EnumFacing facing )
     {
-        return capability == CapabilityWiredElement.CAPABILITY || super.hasCapability( capability, facing );
+        if( capability == CapabilityWiredElement.CAPABILITY ) return !m_destroyed;
+        return super.hasCapability( capability, facing );
     }
 
     @Nullable
@@ -369,6 +384,7 @@ public class TileWiredModemFull extends TilePeripheralBase
     {
         if( capability == CapabilityWiredElement.CAPABILITY )
         {
+            if( m_destroyed ) return null;
             return CapabilityWiredElement.CAPABILITY.cast( m_element );
         }
 
@@ -378,8 +394,16 @@ public class TileWiredModemFull extends TilePeripheralBase
     // IPeripheralTile
 
     @Override
+    public PeripheralType getPeripheralType()
+    {
+        return PeripheralType.WiredModemFull;
+    }
+
+    @Override
     public IPeripheral getPeripheral( EnumFacing side )
     {
+        if( m_destroyed ) return null;
+
         WiredModemPeripheral peripheral = m_modems[side.ordinal()];
         if( peripheral == null )
         {
