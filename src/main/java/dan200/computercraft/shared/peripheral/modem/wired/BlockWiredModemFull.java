@@ -16,10 +16,8 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
-import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
-import java.util.Random;
 
 public class BlockWiredModemFull extends BlockGeneric
 {
@@ -77,13 +75,6 @@ public class BlockWiredModemFull extends BlockGeneric
         }
 
         return state;
-    }
-
-    @Override
-    public void updateTick( World world, BlockPos pos, IBlockState state, Random rand )
-    {
-        TileEntity te = world.getTileEntity( pos );
-        if( te instanceof TileWiredModemFull ) ((TileWiredModemFull) te).updateTick();
     }
 
     @Override

@@ -264,6 +264,7 @@ public class TileWiredModemFull extends TileGeneric implements IPeripheralTile
         if( !world.isRemote ) world.scheduleUpdate( pos, getBlockType(), 0 );
     }
 
+    @Override
     protected void updateTick()
     {
         if( !getWorld().isRemote )

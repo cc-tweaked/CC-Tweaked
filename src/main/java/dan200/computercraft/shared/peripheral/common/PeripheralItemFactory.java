@@ -34,7 +34,7 @@ public class PeripheralItemFactory
                 return ComputerCraft.Items.peripheral.create( type, label, quantity );
             case WiredModem:
             case Cable:
-                return ComputerCraft.Items.cable.create( type, label, quantity );
+                return ComputerCraft.Items.cable.create( type, quantity );
             case AdvancedModem:
                 return new ItemStack( ComputerCraft.Blocks.advancedModem, quantity );
             case WiredModemFull:

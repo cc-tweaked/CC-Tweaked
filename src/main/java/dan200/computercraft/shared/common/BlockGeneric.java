@@ -21,6 +21,7 @@ import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
+import java.util.Random;
 
 public abstract class BlockGeneric extends Block implements ITileEntityProvider
 {
@@ -136,6 +137,13 @@ public abstract class BlockGeneric extends Block implements ITileEntityProvider
             TileGeneric generic = (TileGeneric) tile;
             generic.onNeighbourTileEntityChange( neighbour );
         }
+    }
+
+    @Override
+    public void updateTick( World world, BlockPos pos, IBlockState state, Random rand )
+    {
+        TileEntity te = world.getTileEntity( pos );
+        if( te instanceof TileGeneric ) ((TileGeneric) te).updateTick();
     }
 
     @Override

@@ -7,17 +7,19 @@
 package dan200.computercraft.shared.peripheral.modem.wired;
 
 import com.google.common.base.Objects;
+import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.network.wired.IWiredElement;
 import dan200.computercraft.api.network.wired.IWiredNode;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.shared.command.CommandCopy;
 import dan200.computercraft.shared.common.BlockGeneric;
+import dan200.computercraft.shared.common.TileGeneric;
 import dan200.computercraft.shared.peripheral.PeripheralType;
+import dan200.computercraft.shared.peripheral.common.IPeripheralTile;
 import dan200.computercraft.shared.peripheral.common.PeripheralItemFactory;
-import dan200.computercraft.shared.peripheral.modem.ModemPeripheral;
 import dan200.computercraft.shared.peripheral.modem.ModemState;
-import dan200.computercraft.shared.peripheral.modem.TileModemBase;
+import dan200.computercraft.shared.util.TickScheduler;
 import dan200.computercraft.shared.wired.CapabilityWiredElement;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
@@ -37,42 +39,35 @@ import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.Map;
 
-public class TileCable extends TileModemBase
+public class TileCable extends TileGeneric implements IPeripheralTile
 {
-    private static class CableElement extends WiredModemElement
+    private class CableElement extends WiredModemElement
     {
-        private final TileCable m_entity;
-
-        private CableElement( TileCable m_entity )
-        {
-            this.m_entity = m_entity;
-        }
-
         @Nonnull
         @Override
         public World getWorld()
         {
-            return m_entity.getWorld();
+            return TileCable.this.getWorld();
         }
 
         @Nonnull
         @Override
         public Vec3d getPosition()
         {
-            BlockPos pos = m_entity.getPos();
+            BlockPos pos = TileCable.this.getPos();
             return new Vec3d( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5 );
         }
 
         @Override
         protected void attachPeripheral( String name, IPeripheral peripheral )
         {
-            ((WiredModemPeripheral) m_entity.m_modem).attachPeripheral( name, peripheral );
+            m_modem.attachPeripheral( name, peripheral );
         }
 
         @Override
         protected void detachPeripheral( String name )
         {
-            ((WiredModemPeripheral) m_entity.m_modem).detachPeripheral( name );
+            m_modem.detachPeripheral( name );
         }
     }
 
@@ -83,35 +78,35 @@ public class TileCable extends TileModemBase
 
     private boolean m_destroyed = false;
 
-    private boolean m_hasDirection = false;
+    private EnumFacing modemDirection;
+    private boolean hasModemDirection = false;
+
     private boolean m_connectionsFormed = false;
 
-    private WiredModemElement m_cable;
-    private IWiredNode m_node;
-
-    @Override
-    protected ModemPeripheral createPeripheral()
+    private final WiredModemElement m_cable = new CableElement();
+    private final IWiredNode m_node = m_cable.getNode();
+    private final WiredModemPeripheral m_modem = new WiredModemPeripheral(
+        new ModemState( () -> TickScheduler.schedule( this ) ),
+        m_cable
+    )
     {
-        m_cable = new CableElement( this );
-        m_node = m_cable.getNode();
-        return new WiredModemPeripheral( new ModemState(), m_cable )
+        @Nonnull
+        @Override
+        protected WiredModemLocalPeripheral getLocalPeripheral()
         {
-            @Nonnull
-            @Override
-            protected WiredModemLocalPeripheral getLocalPeripheral()
-            {
-                return m_peripheral;
-            }
+            return m_peripheral;
+        }
 
-            @Nonnull
-            @Override
-            public Vec3d getPosition()
-            {
-                BlockPos pos = getPos().offset( getCachedDirection() );
-                return new Vec3d( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5 );
-            }
-        };
-    }
+        @Nonnull
+        @Override
+        public Vec3d getPosition()
+        {
+            BlockPos pos = getPos().offset( modemDirection );
+            return new Vec3d( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5 );
+        }
+    };
+
+    private int m_state = 0;
 
     private void remove()
     {
@@ -151,41 +146,34 @@ public class TileCable extends TileModemBase
     public void onLoad()
     {
         super.onLoad();
-        updateDirection();
+        if( !world.isRemote )
+        {
+            updateDirection();
+            world.scheduleUpdate( pos, getBlockType(), 0 );
+        }
     }
 
     @Override
     public void updateContainingBlockInfo()
     {
-        m_hasDirection = false;
+        hasModemDirection = false;
+        if( !world.isRemote ) world.scheduleUpdate( pos, getBlockType(), 0 );
     }
 
     private void updateDirection()
     {
-        if( !m_hasDirection )
+        if( !hasModemDirection )
         {
-            m_hasDirection = true;
-            m_dir = getDirection();
+            hasModemDirection = true;
+            modemDirection = getDirection();
         }
     }
 
-    @Override
-    public EnumFacing getDirection()
+    private EnumFacing getDirection()
     {
         IBlockState state = getBlockState();
         EnumFacing facing = state.getValue( BlockCable.Properties.MODEM ).getFacing();
         return facing != null ? facing : EnumFacing.NORTH;
-    }
-
-    @Override
-    public void setDirection( EnumFacing dir )
-    {
-        IBlockState state = getBlockState();
-        BlockCableModemVariant modem = state.getValue( BlockCable.Properties.MODEM );
-        if( modem != BlockCableModemVariant.None )
-        {
-            setBlockState( state.withProperty( BlockCable.Properties.MODEM, BlockCableModemVariant.fromFacing( dir ) ) );
-        }
     }
 
     @Override
@@ -199,12 +187,12 @@ public class TileCable extends TileModemBase
                 case Cable:
                 case WiredModem:
                 {
-                    drops.add( PeripheralItemFactory.create( type, getLabel(), 1 ) );
+                    drops.add( PeripheralItemFactory.create( type, null, 1 ) );
                     break;
                 }
                 case WiredModemWithCable:
                 {
-                    drops.add( PeripheralItemFactory.create( PeripheralType.WiredModem, getLabel(), 1 ) );
+                    drops.add( PeripheralItemFactory.create( PeripheralType.WiredModem, null, 1 ) );
                     drops.add( PeripheralItemFactory.create( PeripheralType.Cable, null, 1 ) );
                     break;
                 }
@@ -236,7 +224,6 @@ public class TileCable extends TileModemBase
                 {
                     // Drop the modem and convert to cable
                     ((BlockGeneric) getBlockType()).dropItem( getWorld(), getPos(), PeripheralItemFactory.create( PeripheralType.WiredModem, getLabel(), 1 ) );
-                    setLabel( null );
                     setBlockState( getBlockState().withProperty( BlockCable.Properties.MODEM, BlockCableModemVariant.None ) );
                     modemChanged();
                     connectionsChanged();
@@ -328,21 +315,46 @@ public class TileCable extends TileModemBase
     }
 
     @Override
-    protected void updateAnim()
+    protected void writeDescription( @Nonnull NBTTagCompound nbt )
     {
-        int anim = 0;
-        if( m_modem.getModemState().isOpen() ) anim |= 1;
-        if( m_peripheralAccessAllowed ) anim |= 2;
-        setAnim( anim );
+        super.writeDescription( nbt );
+        nbt.setInteger( "state", m_state );
     }
 
     @Override
-    public void update()
+    public final void readDescription( @Nonnull NBTTagCompound nbt )
     {
-        super.update();
-        updateDirection();
+        super.readDescription( nbt );
+        m_state = nbt.getInteger( "state" );
+        updateBlock();
+    }
+
+    public int getState()
+    {
+        return m_state;
+    }
+
+    private void updateState()
+    {
+        int state = 0;
+        if( m_modem.getModemState().isOpen() ) state |= 1;
+        if( m_peripheralAccessAllowed ) state |= 2;
+        if( state != m_state )
+        {
+            m_state = state;
+            updateBlock();
+        }
+    }
+
+    @Override
+    protected void updateTick()
+    {
         if( !getWorld().isRemote )
         {
+            updateDirection();
+
+            if( m_modem.getModemState().pollChanged() ) updateState();
+
             if( !m_connectionsFormed )
             {
                 m_connectionsFormed = true;
@@ -350,7 +362,7 @@ public class TileCable extends TileModemBase
                 connectionsChanged();
                 if( m_peripheralAccessAllowed )
                 {
-                    m_peripheral.attach( world, pos, m_dir );
+                    m_peripheral.attach( world, pos, modemDirection );
                     updateConnectedPeripherals();
                 }
             }
@@ -396,7 +408,7 @@ public class TileCable extends TileModemBase
             m_peripheral.detach();
             m_node.updatePeripherals( Collections.emptyMap() );
             markDirty();
-            updateAnim();
+            updateState();
         }
     }
 
@@ -419,7 +431,7 @@ public class TileCable extends TileModemBase
             m_node.updatePeripherals( Collections.emptyMap() );
         }
 
-        updateAnim();
+        updateState();
     }
 
     private void updateConnectedPeripherals()
@@ -429,7 +441,7 @@ public class TileCable extends TileModemBase
         {
             // If there are no peripherals then disable access and update the display state.
             m_peripheralAccessAllowed = false;
-            updateAnim();
+            updateState();
         }
 
         m_node.updatePeripherals( peripherals );
@@ -441,12 +453,14 @@ public class TileCable extends TileModemBase
         return true;
     }
 
-    // IWiredElement capability
-
     @Override
     public boolean hasCapability( @Nonnull Capability<?> capability, @Nullable EnumFacing facing )
     {
-        if( capability == CapabilityWiredElement.CAPABILITY ) return BlockCable.canConnectIn( getBlockState(), facing );
+        if( capability == CapabilityWiredElement.CAPABILITY )
+        {
+            return !m_destroyed && BlockCable.canConnectIn( getBlockState(), facing );
+        }
+
         return super.hasCapability( capability, facing );
     }
 
@@ -456,21 +470,24 @@ public class TileCable extends TileModemBase
     {
         if( capability == CapabilityWiredElement.CAPABILITY )
         {
-            return BlockCable.canConnectIn( getBlockState(), facing ) ? CapabilityWiredElement.CAPABILITY.cast( m_cable ) : null;
+            return !m_destroyed && BlockCable.canConnectIn( getBlockState(), facing )
+                ? CapabilityWiredElement.CAPABILITY.cast( m_cable )
+                : null;
         }
 
         return super.getCapability( capability, facing );
     }
 
-    // IPeripheralTile
-
     @Override
     public IPeripheral getPeripheral( EnumFacing side )
     {
-        if( getPeripheralType() != PeripheralType.Cable )
-        {
-            return super.getPeripheral( side );
-        }
-        return null;
+        return !m_destroyed && getPeripheralType() != PeripheralType.Cable && side == getDirection() ? m_modem : null;
+    }
+
+    @Override
+    public PeripheralType getPeripheralType()
+    {
+        IBlockState state = getBlockState();
+        return ComputerCraft.Blocks.cable.getPeripheralType( state );
     }
 }
