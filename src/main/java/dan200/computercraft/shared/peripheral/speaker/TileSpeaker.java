@@ -59,7 +59,7 @@ public class TileSpeaker extends TilePeripheralBase
         }
 
         @Override
-        public Vec3d getPos()
+        public Vec3d getPosition()
         {
             BlockPos pos = speaker.getPos();
             return new Vec3d( pos.getX(), pos.getY(), pos.getZ() );

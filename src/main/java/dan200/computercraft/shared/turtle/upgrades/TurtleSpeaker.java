@@ -48,7 +48,7 @@ public class TurtleSpeaker extends AbstractTurtleUpgrade
         }
 
         @Override
-        public Vec3d getPos()
+        public Vec3d getPosition()
         {
             BlockPos pos = turtle.getPosition();
             return new Vec3d( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5 );

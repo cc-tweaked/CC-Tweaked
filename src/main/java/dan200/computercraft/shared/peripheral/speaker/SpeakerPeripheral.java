@@ -16,6 +16,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvent;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
@@ -39,7 +40,13 @@ public abstract class SpeakerPeripheral implements IPeripheral
 
     public abstract World getWorld();
 
-    public abstract Vec3d getPos();
+    public abstract Vec3d getPosition();
+
+    @Deprecated
+    public BlockPos getPos()
+    {
+        return new BlockPos( getPosition() );
+    }
 
     public boolean madeSound( long ticks )
     {
@@ -125,7 +132,7 @@ public abstract class SpeakerPeripheral implements IPeripheral
         }
 
         World world = getWorld();
-        Vec3d pos = getPos();
+        Vec3d pos = getPosition();
 
         context.issueMainThreadTask( () -> {
             MinecraftServer server = world.getMinecraftServer();

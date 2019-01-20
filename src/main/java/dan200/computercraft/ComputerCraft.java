@@ -229,6 +229,14 @@ public class ComputerCraft
         public static PocketModem wirelessModem;
         public static PocketModem advancedModem;
         public static PocketSpeaker speaker;
+
+        @Deprecated
+        public static PocketSpeaker pocketSpeaker;
+    }
+
+    @Deprecated
+    public static class Upgrades {
+        public static TurtleModem advancedModem;
     }
 
     // Registries
