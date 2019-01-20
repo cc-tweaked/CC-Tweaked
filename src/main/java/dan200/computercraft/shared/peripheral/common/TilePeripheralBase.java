@@ -18,11 +18,9 @@ import net.minecraft.util.NonNullList;
 
 import javax.annotation.Nonnull;
 
-public abstract class TilePeripheralBase extends TileGeneric implements IPeripheralTile, ITickable, IDirectionalTile
+public abstract class TilePeripheralBase extends TileGeneric implements IPeripheralTile, ITickable, IDirectionalTile, ITilePeripheral
 {
-    // Statics
-
-    protected EnumFacing m_dir;
+    private EnumFacing m_dir;
     private int m_anim;
     private boolean m_changed;
 
@@ -39,9 +37,9 @@ public abstract class TilePeripheralBase extends TileGeneric implements IPeriphe
 
 
     @Override
-    public BlockPeripheralBase getBlock()
+    public BlockPeripheral getBlock()
     {
-        return (BlockPeripheralBase) super.getBlock();
+        return (BlockPeripheral) super.getBlock();
     }
 
     @Override
@@ -53,6 +51,7 @@ public abstract class TilePeripheralBase extends TileGeneric implements IPeriphe
         }
     }
 
+    @Override
     public final PeripheralType getPeripheralType()
     {
         return getBlock().getPeripheralType( getBlockState() );
@@ -64,6 +63,7 @@ public abstract class TilePeripheralBase extends TileGeneric implements IPeriphe
         return null;
     }
 
+    @Override
     public String getLabel()
     {
         if( m_label != null && m_label.length() > 0 )
@@ -86,11 +86,6 @@ public abstract class TilePeripheralBase extends TileGeneric implements IPeriphe
         return m_dir;
     }
 
-    public EnumFacing getCachedDirection()
-    {
-        return m_dir;
-    }
-
     @Override
     public void setDirection( EnumFacing dir )
     {
@@ -106,7 +101,7 @@ public abstract class TilePeripheralBase extends TileGeneric implements IPeriphe
         return m_anim;
     }
 
-    public void setAnim( int anim )
+    protected void setAnim( int anim )
     {
         if( anim != m_anim )
         {

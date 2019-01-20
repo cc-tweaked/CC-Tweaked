@@ -13,7 +13,6 @@ import dan200.computercraft.api.network.wired.IWiredElement;
 import dan200.computercraft.api.network.wired.IWiredNode;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.shared.command.CommandCopy;
-import dan200.computercraft.shared.common.BlockGeneric;
 import dan200.computercraft.shared.common.TileGeneric;
 import dan200.computercraft.shared.peripheral.PeripheralType;
 import dan200.computercraft.shared.peripheral.common.IPeripheralTile;
@@ -215,7 +214,7 @@ public class TileCable extends TileGeneric implements IPeripheralTile
                 case WiredModem:
                 {
                     // Drop everything and remove block
-                    ((BlockGeneric) getBlockType()).dropAllItems( getWorld(), getPos(), false );
+                    getBlock().dropAllItems( getWorld(), getPos(), false );
                     getWorld().setBlockToAir( getPos() );
 
                     // This'll call #destroy(), so we don't need to reset the network here.
@@ -224,7 +223,7 @@ public class TileCable extends TileGeneric implements IPeripheralTile
                 case WiredModemWithCable:
                 {
                     // Drop the modem and convert to cable
-                    ((BlockGeneric) getBlockType()).dropItem( getWorld(), getPos(), PeripheralItemFactory.create( PeripheralType.WiredModem, null, 1 ) );
+                    getBlock().dropItem( getWorld(), getPos(), PeripheralItemFactory.create( PeripheralType.WiredModem, null, 1 ) );
                     setBlockState( getBlockState().withProperty( BlockCable.Properties.MODEM, BlockCableModemVariant.None ) );
                     modemChanged();
                     connectionsChanged();

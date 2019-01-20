@@ -7,100 +7,23 @@
 package dan200.computercraft.shared.peripheral.modem.wireless;
 
 import dan200.computercraft.ComputerCraft;
-import dan200.computercraft.api.peripheral.IPeripheral;
+import dan200.computercraft.shared.common.IDirectionalTile;
 import dan200.computercraft.shared.peripheral.PeripheralType;
 import dan200.computercraft.shared.peripheral.common.BlockPeripheral;
 import dan200.computercraft.shared.peripheral.common.BlockPeripheralVariant;
-import dan200.computercraft.shared.peripheral.modem.ModemPeripheral;
-import dan200.computercraft.shared.peripheral.modem.ModemState;
-import dan200.computercraft.shared.peripheral.modem.TileModemBase;
+import dan200.computercraft.shared.peripheral.common.ITilePeripheral;
+import dan200.computercraft.shared.peripheral.common.PeripheralItemFactory;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
 
-public class TileWirelessModem extends TileModemBase
+public class TileWirelessModem extends TileWirelessModemBase implements IDirectionalTile, ITilePeripheral
 {
-    // Statics
-
-    private static class Peripheral extends WirelessModemPeripheral
-    {
-        private TileModemBase m_entity;
-
-        public Peripheral( TileModemBase entity )
-        {
-            super( new ModemState(), false );
-            m_entity = entity;
-        }
-
-        @Nonnull
-        @Override
-        public World getWorld()
-        {
-            return m_entity.getWorld();
-        }
-
-        @Nonnull
-        @Override
-        public Vec3d getPosition()
-        {
-            BlockPos pos = m_entity.getPos().offset( m_entity.getCachedDirection() );
-            return new Vec3d( pos.getX(), pos.getY(), pos.getZ() );
-        }
-
-        @Override
-        public boolean equals( IPeripheral other )
-        {
-            if( other instanceof Peripheral )
-            {
-                Peripheral otherModem = (Peripheral) other;
-                return otherModem.m_entity == m_entity;
-            }
-            return false;
-        }
-    }
-
-    // Members
-
-    private boolean m_hasDirection = false;
-
-    public TileWirelessModem()
-    {
-        m_dir = EnumFacing.DOWN;
-    }
-
-    @Override
-    public void onLoad()
-    {
-        super.onLoad();
-        updateDirection();
-    }
-
-    @Override
-    public void updateContainingBlockInfo()
-    {
-        m_hasDirection = false;
-    }
-
-    @Override
-    public void update()
-    {
-        super.update();
-        updateDirection();
-    }
-
-    private void updateDirection()
-    {
-        if( !m_hasDirection )
-        {
-            m_hasDirection = true;
-            m_dir = getDirection();
-        }
-    }
-
     @Override
     public EnumFacing getDirection()
     {
@@ -110,18 +33,12 @@ public class TileWirelessModem extends TileModemBase
         {
             case WirelessModemDownOff:
             case WirelessModemDownOn:
-            {
                 return EnumFacing.DOWN;
-            }
             case WirelessModemUpOff:
             case WirelessModemUpOn:
-            {
                 return EnumFacing.UP;
-            }
             default:
-            {
                 return state.getValue( BlockPeripheral.Properties.FACING );
-            }
         }
     }
 
@@ -153,14 +70,20 @@ public class TileWirelessModem extends TileModemBase
     }
 
     @Override
-    protected ModemPeripheral createPeripheral()
-    {
-        return new Peripheral( this );
-    }
-
-    @Override
     public boolean shouldRefresh( World world, BlockPos pos, @Nonnull IBlockState oldState, @Nonnull IBlockState newState )
     {
         return super.shouldRefresh( world, pos, oldState, newState ) || ComputerCraft.Blocks.peripheral.getPeripheralType( newState ) != PeripheralType.WirelessModem;
+    }
+
+    @Override
+    public void getDroppedItems( @Nonnull NonNullList<ItemStack> drops, boolean creative )
+    {
+        if( !creative ) drops.add( PeripheralItemFactory.create( PeripheralType.WirelessModem, null, 1 ) );
+    }
+
+    @Override
+    public PeripheralType getPeripheralType()
+    {
+        return PeripheralType.WirelessModem;
     }
 }

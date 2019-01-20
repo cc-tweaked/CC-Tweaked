@@ -7,6 +7,7 @@
 package dan200.computercraft.shared.peripheral.modem.wired;
 
 import com.google.common.base.Objects;
+import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.network.wired.IWiredElement;
 import dan200.computercraft.api.network.wired.IWiredNode;
@@ -18,9 +19,11 @@ import dan200.computercraft.shared.peripheral.modem.ModemState;
 import dan200.computercraft.shared.util.TickScheduler;
 import dan200.computercraft.shared.wired.CapabilityWiredElement;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.TextComponentString;
@@ -130,6 +133,12 @@ public class TileWiredModemFull extends TileGeneric implements IPeripheralTile
     {
         super.invalidate();
         remove();
+    }
+
+    @Override
+    public void getDroppedItems( @Nonnull NonNullList<ItemStack> drops, boolean creative )
+    {
+        drops.add( new ItemStack( ComputerCraft.Items.wiredModemFull ) );
     }
 
     @Override
