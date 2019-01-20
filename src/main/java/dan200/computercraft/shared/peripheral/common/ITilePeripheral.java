@@ -6,13 +6,12 @@
 
 package dan200.computercraft.shared.peripheral.common;
 
-import dan200.computercraft.shared.common.IDirectionalTile;
 import dan200.computercraft.shared.peripheral.PeripheralType;
 
 /**
  * The tile for {@link BlockPeripheral}.
  */
-public interface ITilePeripheral extends IDirectionalTile
+public interface ITilePeripheral
 {
     PeripheralType getPeripheralType();
 

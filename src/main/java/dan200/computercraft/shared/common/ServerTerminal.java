@@ -9,35 +9,33 @@ package dan200.computercraft.shared.common;
 import dan200.computercraft.core.terminal.Terminal;
 import net.minecraft.nbt.NBTTagCompound;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 public class ServerTerminal implements ITerminal
 {
     private final boolean m_colour;
     private Terminal m_terminal;
-    private boolean m_terminalChanged;
-    private boolean m_terminalChangedLastFrame;
+    private final AtomicBoolean m_terminalChanged = new AtomicBoolean( false );
+    private boolean m_terminalChangedLastFrame = false;
 
     public ServerTerminal( boolean colour )
     {
         m_colour = colour;
         m_terminal = null;
-        m_terminalChanged = false;
-        m_terminalChangedLastFrame = false;
     }
 
     public ServerTerminal( boolean colour, int terminalWidth, int terminalHeight )
     {
         m_colour = colour;
-        m_terminal = new Terminal( terminalWidth, terminalHeight );
-        m_terminalChanged = false;
-        m_terminalChangedLastFrame = false;
+        m_terminal = new Terminal( terminalWidth, terminalHeight, this::markTerminalChanged );
     }
 
-    public void resize( int width, int height )
+    protected void resize( int width, int height )
     {
         if( m_terminal == null )
         {
-            m_terminal = new Terminal( width, height );
-            m_terminalChanged = true;
+            m_terminal = new Terminal( width, height, this::markTerminalChanged );
+            markTerminalChanged();
         }
         else
         {
@@ -50,23 +48,21 @@ public class ServerTerminal implements ITerminal
         if( m_terminal != null )
         {
             m_terminal = null;
-            m_terminalChanged = true;
+            markTerminalChanged();
         }
     }
 
     protected void markTerminalChanged()
     {
-        m_terminalChanged = true;
+        m_terminalChanged.set( true );
     }
 
     public void update()
     {
-        m_terminalChangedLastFrame = m_terminalChanged || (m_terminal != null && m_terminal.getChanged());
-        if( m_terminal != null )
-        {
-            m_terminal.clearChanged();
-        }
-        m_terminalChanged = false;
+        Terminal terminal = m_terminal;
+        if( terminal != null ) terminal.clearChanged();
+
+        m_terminalChangedLastFrame = m_terminalChanged.getAndSet( false );
     }
 
     public boolean hasTerminalChanged()

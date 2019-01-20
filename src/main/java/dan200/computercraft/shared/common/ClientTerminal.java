@@ -22,19 +22,14 @@ public class ClientTerminal implements ITerminal
         m_terminalChanged = false;
     }
 
-    public void update()
-    {
-        if( m_terminal != null )
-        {
-            m_terminalChanged |= m_terminal.getChanged();
-            m_terminal.clearChanged();
-        }
-    }
-
     public boolean pollTerminalChanged()
     {
         boolean changed = m_terminalChanged;
         m_terminalChanged = false;
+
+        Terminal terminal = m_terminal;
+        if( terminal != null ) terminal.clearChanged();
+
         return changed;
     }
 
@@ -71,7 +66,7 @@ public class ClientTerminal implements ITerminal
     {
         if( m_terminal == null )
         {
-            m_terminal = new Terminal( width, height );
+            m_terminal = new Terminal( width, height, () -> m_terminalChanged = true );
             m_terminalChanged = true;
         }
         else

@@ -73,6 +73,7 @@ public abstract class TilePeripheralBase extends TileGeneric implements IPeriphe
         return null;
     }
 
+    @Override
     public void setLabel( String label )
     {
         m_label = label;

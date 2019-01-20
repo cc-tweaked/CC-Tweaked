@@ -7,7 +7,7 @@
 package dan200.computercraft.shared.peripheral.common;
 
 import dan200.computercraft.ComputerCraft;
-import dan200.computercraft.shared.common.BlockDirectional;
+import dan200.computercraft.shared.common.BlockGeneric;
 import dan200.computercraft.shared.common.TileGeneric;
 import dan200.computercraft.shared.peripheral.PeripheralType;
 import dan200.computercraft.shared.peripheral.diskdrive.TileDiskDrive;
@@ -39,7 +39,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 import javax.annotation.Nonnull;
 
-public class BlockPeripheral extends BlockDirectional
+public class BlockPeripheral extends BlockGeneric
 {
     public static class Properties
     {
@@ -466,11 +466,12 @@ public class BlockPeripheral extends BlockDirectional
             case DiskDrive:
             case Printer:
             {
-                if( stack.hasDisplayName() && tile instanceof ITilePeripheral )
+                EnumFacing dir = DirectionUtil.fromEntityRot( player );
+                if( stack.hasDisplayName() && tile instanceof TilePeripheralBase )
                 {
-                    ITilePeripheral peripheral = (ITilePeripheral) tile;
+                    TilePeripheralBase peripheral = (TilePeripheralBase) tile;
                     peripheral.setLabel( stack.getDisplayName() );
-                    peripheral.setDirection( DirectionUtil.fromEntityRot( player ) );
+                    peripheral.setDirection( dir );
                 }
                 break;
             }
@@ -558,14 +559,18 @@ public class BlockPeripheral extends BlockDirectional
     @Override
     @Deprecated
     @Nonnull
-    public AxisAlignedBB getBoundingBox( IBlockState state, IBlockAccess source, BlockPos pos )
+    public AxisAlignedBB getBoundingBox( IBlockState state, IBlockAccess world, BlockPos pos )
     {
         if( getPeripheralType( state ) == PeripheralType.WirelessModem )
         {
-            return ModemBounds.getBounds( getDirection( source, pos ) );
+            TileEntity tile = world.getTileEntity( pos );
+            if( tile instanceof TileWirelessModem )
+            {
+                return ModemBounds.getBounds( ((TileWirelessModem) tile).getDirection() );
+            }
         }
 
-        return super.getBoundingBox( state, source, pos );
+        return super.getBoundingBox( state, world, pos );
     }
 
     @Override
