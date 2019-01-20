@@ -7,33 +7,37 @@
 package dan200.computercraft.shared.peripheral.modem.wireless;
 
 import dan200.computercraft.ComputerCraft;
-import dan200.computercraft.shared.peripheral.PeripheralType;
-import dan200.computercraft.shared.peripheral.common.BlockPeripheralBase;
-import dan200.computercraft.shared.peripheral.common.TilePeripheralBase;
+import dan200.computercraft.shared.common.BlockGeneric;
+import dan200.computercraft.shared.common.TileGeneric;
 import dan200.computercraft.shared.peripheral.modem.ModemBounds;
+import net.minecraft.block.BlockDirectional;
+import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.PropertyBool;
 import net.minecraft.block.properties.PropertyDirection;
 import net.minecraft.block.state.BlockFaceShape;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
+import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
 
-public class BlockAdvancedModem extends BlockPeripheralBase
+public class BlockAdvancedModem extends BlockGeneric
 {
     public static class Properties
     {
-        public static final PropertyDirection FACING = PropertyDirection.create( "facing" );
+        public static final PropertyDirection FACING = BlockDirectional.FACING;
         public static final PropertyBool ON = PropertyBool.create( "on" );
     }
 
     public BlockAdvancedModem()
     {
+        super( Material.ROCK );
         setHardness( 2.0f );
         setTranslationKey( "computercraft:advanced_modem" );
         setCreativeTab( ComputerCraft.mainCreativeTab );
@@ -55,17 +59,13 @@ public class BlockAdvancedModem extends BlockPeripheralBase
     @Deprecated
     public IBlockState getStateFromMeta( int meta )
     {
-        IBlockState state = getDefaultState();
-        state = state.withProperty( Properties.FACING, EnumFacing.byIndex( meta ) );
-        state = state.withProperty( Properties.ON, false );
-        return state;
+        return getDefaultState().withProperty( Properties.FACING, EnumFacing.byIndex( meta ) );
     }
 
     @Override
     public int getMetaFromState( IBlockState state )
     {
-        EnumFacing dir = state.getValue( Properties.FACING );
-        return dir.getIndex();
+        return state.getValue( Properties.FACING ).getIndex();
     }
 
     @Nonnull
@@ -73,47 +73,26 @@ public class BlockAdvancedModem extends BlockPeripheralBase
     @Deprecated
     public IBlockState getActualState( @Nonnull IBlockState state, IBlockAccess world, BlockPos pos )
     {
-        int anim;
-        EnumFacing dir;
         TileEntity tile = world.getTileEntity( pos );
-        if( tile instanceof TilePeripheralBase )
-        {
-            TilePeripheralBase peripheral = (TilePeripheralBase) tile;
-            anim = peripheral.getAnim();
-            dir = peripheral.getDirection();
-        }
-        else
-        {
-            anim = 0;
-            dir = state.getValue( Properties.FACING );
-        }
-
-        state = state.withProperty( Properties.FACING, dir );
-        state = state.withProperty( Properties.ON, anim > 0 );
-        return state;
+        return state.withProperty( Properties.ON, tile instanceof TileAdvancedModem && ((TileAdvancedModem) tile).isOn() );
     }
 
+    @Nonnull
     @Override
-    public IBlockState getDefaultBlockState( PeripheralType type, EnumFacing placedSide )
+    @Deprecated
+    public IBlockState getStateForPlacement( World worldIn, BlockPos pos, EnumFacing facing, float hitX, float hitY, float hitZ, int meta, EntityLivingBase placer )
     {
-        EnumFacing dir = placedSide.getOpposite();
-        return getDefaultState().withProperty( Properties.FACING, dir );
+        return getDefaultState().withProperty( Properties.FACING, facing.getOpposite() );
     }
 
     @Override
-    public PeripheralType getPeripheralType( int damage )
+    protected TileGeneric createTile( IBlockState state )
     {
-        return PeripheralType.AdvancedModem;
+        return new TileAdvancedModem();
     }
 
     @Override
-    public PeripheralType getPeripheralType( IBlockState state )
-    {
-        return PeripheralType.AdvancedModem;
-    }
-
-    @Override
-    public TilePeripheralBase createTile( PeripheralType type )
+    protected TileGeneric createTile( int damage )
     {
         return new TileAdvancedModem();
     }
@@ -140,6 +119,7 @@ public class BlockAdvancedModem extends BlockPeripheralBase
         return BlockFaceShape.UNDEFINED;
     }
 
+    @Nonnull
     @Override
     @Deprecated
     public AxisAlignedBB getBoundingBox( IBlockState state, IBlockAccess source, BlockPos pos )

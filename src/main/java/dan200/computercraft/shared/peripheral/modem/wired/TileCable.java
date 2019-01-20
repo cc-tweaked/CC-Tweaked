@@ -123,9 +123,9 @@ public class TileCable extends TileGeneric implements IPeripheralTile
         if( !m_destroyed )
         {
             m_destroyed = true;
+            m_modem.destroy();
             remove();
         }
-        super.destroy();
     }
 
     @Override
@@ -156,6 +156,7 @@ public class TileCable extends TileGeneric implements IPeripheralTile
     @Override
     public void updateContainingBlockInfo()
     {
+        super.updateContainingBlockInfo();
         hasModemDirection = false;
         if( !world.isRemote ) world.scheduleUpdate( pos, getBlockType(), 0 );
     }
@@ -223,7 +224,7 @@ public class TileCable extends TileGeneric implements IPeripheralTile
                 case WiredModemWithCable:
                 {
                     // Drop the modem and convert to cable
-                    ((BlockGeneric) getBlockType()).dropItem( getWorld(), getPos(), PeripheralItemFactory.create( PeripheralType.WiredModem, getLabel(), 1 ) );
+                    ((BlockGeneric) getBlockType()).dropItem( getWorld(), getPos(), PeripheralItemFactory.create( PeripheralType.WiredModem, null, 1 ) );
                     setBlockState( getBlockState().withProperty( BlockCable.Properties.MODEM, BlockCableModemVariant.None ) );
                     modemChanged();
                     connectionsChanged();
@@ -484,7 +485,6 @@ public class TileCable extends TileGeneric implements IPeripheralTile
         return !m_destroyed && getPeripheralType() != PeripheralType.Cable && side == getDirection() ? m_modem : null;
     }
 
-    @Override
     public PeripheralType getPeripheralType()
     {
         IBlockState state = getBlockState();

@@ -6,11 +6,14 @@
 
 package dan200.computercraft.shared.peripheral.modem.wireless;
 
+import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.peripheral.IPeripheral;
+import dan200.computercraft.shared.common.TileGeneric;
+import dan200.computercraft.shared.peripheral.common.IPeripheralTile;
 import dan200.computercraft.shared.peripheral.modem.ModemPeripheral;
 import dan200.computercraft.shared.peripheral.modem.ModemState;
-import dan200.computercraft.shared.peripheral.modem.TileModemBase;
-import net.minecraft.block.state.IBlockState;
+import dan200.computercraft.shared.util.TickScheduler;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
@@ -18,54 +21,46 @@ import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
 
-public class TileAdvancedModem extends TileModemBase
+public class TileAdvancedModem extends TileGeneric implements IPeripheralTile
 {
-    // Statics
-
     private static class Peripheral extends WirelessModemPeripheral
     {
-        private TileModemBase m_entity;
+        private TileAdvancedModem tile;
 
-        public Peripheral( TileModemBase entity )
+        Peripheral( TileAdvancedModem entity )
         {
-            super( new ModemState(), true );
-            m_entity = entity;
+            super( new ModemState( () -> TickScheduler.schedule( entity ) ), true );
+            tile = entity;
         }
 
         @Nonnull
         @Override
         public World getWorld()
         {
-            return m_entity.getWorld();
+            return tile.getWorld();
         }
 
         @Nonnull
         @Override
         public Vec3d getPosition()
         {
-            BlockPos pos = m_entity.getPos().offset( m_entity.getCachedDirection() );
+            BlockPos pos = tile.getPos().offset( tile.modemDirection );
             return new Vec3d( pos.getX(), pos.getY(), pos.getZ() );
         }
 
         @Override
         public boolean equals( IPeripheral other )
         {
-            if( other instanceof Peripheral )
-            {
-                Peripheral otherModem = (Peripheral) other;
-                return otherModem.m_entity == m_entity;
-            }
-            return false;
+            return this == other;
         }
     }
 
-    // Members
-    private boolean m_hasDirection = false;
+    private boolean hasModemDirection = false;
+    private EnumFacing modemDirection = EnumFacing.DOWN;
+    private final ModemPeripheral modem = new Peripheral( this );
+    private boolean destroyed = false;
 
-    public TileAdvancedModem()
-    {
-        m_dir = EnumFacing.DOWN;
-    }
+    private boolean on = false;
 
     @Override
     public void onLoad()
@@ -75,47 +70,77 @@ public class TileAdvancedModem extends TileModemBase
     }
 
     @Override
-    public void updateContainingBlockInfo()
+    public void destroy()
     {
-        m_hasDirection = false;
-    }
-
-    @Override
-    public void update()
-    {
-        super.update();
-        updateDirection();
-    }
-
-    private void updateDirection()
-    {
-        if( !m_hasDirection )
+        if( !destroyed )
         {
-            m_hasDirection = true;
-            m_dir = getDirection();
+            modem.destroy();
+            destroyed = true;
         }
     }
 
     @Override
-    public EnumFacing getDirection()
+    public void updateContainingBlockInfo()
     {
-        // Wireless Modem
-        IBlockState state = getBlockState();
-        return state.getValue( BlockAdvancedModem.Properties.FACING );
+        hasModemDirection = false;
+        super.updateContainingBlockInfo();
+        world.scheduleUpdate( getPos(), ComputerCraft.Blocks.advancedModem, 0 );
     }
 
     @Override
-    public void setDirection( EnumFacing dir )
+    public void updateTick()
     {
-        // Wireless Modem
-        setBlockState( getBlockState()
-            .withProperty( BlockAdvancedModem.Properties.FACING, dir )
-        );
+        updateDirection();
+
+        if( modem.getModemState().pollChanged() )
+        {
+            boolean newOn = modem.getModemState().isOpen();
+            if( newOn != on )
+            {
+                on = newOn;
+                updateBlock();
+            }
+        }
+    }
+
+    private void updateDirection()
+    {
+        if( !hasModemDirection )
+        {
+            hasModemDirection = true;
+            modemDirection = getDirection();
+        }
+    }
+
+
+    private EnumFacing getDirection()
+    {
+        return getBlockState().getValue( BlockAdvancedModem.Properties.FACING );
     }
 
     @Override
-    protected ModemPeripheral createPeripheral()
+    protected void writeDescription( @Nonnull NBTTagCompound nbt )
     {
-        return new Peripheral( this );
+        super.writeDescription( nbt );
+        nbt.setBoolean( "on", on );
+    }
+
+    @Override
+    public final void readDescription( @Nonnull NBTTagCompound nbt )
+    {
+        super.readDescription( nbt );
+        on = nbt.getBoolean( "on" );
+        updateBlock();
+    }
+
+    public boolean isOn()
+    {
+        return on;
+    }
+
+    @Override
+    public IPeripheral getPeripheral( EnumFacing side )
+    {
+        return !destroyed && side == getDirection() ? modem : null;
     }
 }

@@ -74,6 +74,8 @@ public abstract class BlockPeripheralBase extends BlockDirectional
     public ItemStack getPickBlock( @Nonnull IBlockState state, RayTraceResult target, @Nonnull World world, @Nonnull BlockPos pos, EntityPlayer player )
     {
         TileEntity tile = world.getTileEntity( pos );
-        return tile instanceof IPeripheralTile ? PeripheralItemFactory.create( (IPeripheralTile) tile ) : super.getPickBlock( state, target, world, pos, player );
+        return tile instanceof TilePeripheralBase
+            ? PeripheralItemFactory.create( (TilePeripheralBase) tile )
+            : super.getPickBlock( state, target, world, pos, player );
     }
 }

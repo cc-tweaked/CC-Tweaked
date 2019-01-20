@@ -53,9 +53,6 @@ public abstract class TilePeripheralBase extends TileGeneric implements IPeriphe
         }
     }
 
-    // IPeripheralTile implementation
-
-    @Override
     public final PeripheralType getPeripheralType()
     {
         return getBlock().getPeripheralType( getBlockState() );
@@ -67,7 +64,6 @@ public abstract class TilePeripheralBase extends TileGeneric implements IPeriphe
         return null;
     }
 
-    @Override
     public String getLabel()
     {
         if( m_label != null && m_label.length() > 0 )

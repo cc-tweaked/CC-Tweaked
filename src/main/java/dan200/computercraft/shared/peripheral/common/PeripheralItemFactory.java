@@ -15,7 +15,7 @@ import javax.annotation.Nonnull;
 public class PeripheralItemFactory
 {
     @Nonnull
-    public static ItemStack create( IPeripheralTile tile )
+    public static ItemStack create( TilePeripheralBase tile )
     {
         return create( tile.getPeripheralType(), tile.getLabel(), 1 );
     }
