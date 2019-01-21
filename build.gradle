@@ -23,7 +23,7 @@ apply plugin: 'org.ajoberstar.grgit'
 apply plugin: 'maven-publish'
 apply plugin: 'maven'
 
-version = "1.80pr1.13"
+version = "1.80pr1.14"
 group = "org.squiddev"
 archivesBaseName = "cc-tweaked"
 
