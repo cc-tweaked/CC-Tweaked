@@ -72,6 +72,10 @@ public abstract class TileGeneric extends TileEntity
     {
     }
 
+    protected void updateTick()
+    {
+    }
+
     public boolean getRedstoneConnectivity( EnumFacing side )
     {
         return false;

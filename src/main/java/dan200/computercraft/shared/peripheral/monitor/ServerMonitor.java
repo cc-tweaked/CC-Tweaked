@@ -8,12 +8,16 @@ package dan200.computercraft.shared.peripheral.monitor;
 
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.shared.common.ServerTerminal;
+import dan200.computercraft.shared.util.TickScheduler;
+
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ServerMonitor extends ServerTerminal
 {
     private final TileMonitor origin;
     private int textScale = 2;
-    private boolean resized;
+    private final AtomicBoolean resized = new AtomicBoolean( false );
+    private final AtomicBoolean changed = new AtomicBoolean( false );
 
     public ServerMonitor( boolean colour, TileMonitor origin )
     {
@@ -41,8 +45,26 @@ public class ServerMonitor extends ServerTerminal
         if( oldWidth != termWidth || oldHeight != termHeight )
         {
             getTerminal().clear();
-            resized = true;
+            resized.set( true );
+            markChanged();
         }
+    }
+
+    @Override
+    protected void markTerminalChanged()
+    {
+        super.markTerminalChanged();
+        markChanged();
+    }
+
+    private void markChanged()
+    {
+        if( !changed.getAndSet( true ) ) TickScheduler.schedule( origin );
+    }
+
+    protected void clearChanged()
+    {
+        changed.set( false );
     }
 
     public int getTextScale()
@@ -57,14 +79,14 @@ public class ServerMonitor extends ServerTerminal
         rebuild();
     }
 
-    public synchronized boolean pollResized()
+    public boolean pollResized()
     {
-        if( resized )
-        {
-            resized = false;
-            return true;
-        }
+        return resized.getAndSet( false );
+    }
 
-        return false;
+    public boolean pollTerminalChanged()
+    {
+        update();
+        return hasTerminalChanged();
     }
 }

@@ -9,11 +9,12 @@ package dan200.computercraft.shared.peripheral.modem.wired;
 import com.google.common.collect.ImmutableMap;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.ComputerCraftAPI;
+import dan200.computercraft.shared.common.BlockGeneric;
+import dan200.computercraft.shared.common.TileGeneric;
 import dan200.computercraft.shared.peripheral.PeripheralType;
-import dan200.computercraft.shared.peripheral.common.BlockPeripheralBase;
 import dan200.computercraft.shared.peripheral.common.PeripheralItemFactory;
-import dan200.computercraft.shared.peripheral.common.TilePeripheralBase;
 import dan200.computercraft.shared.util.WorldUtil;
+import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.PropertyBool;
 import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.state.BlockFaceShape;
@@ -38,7 +39,7 @@ import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
 
-public class BlockCable extends BlockPeripheralBase
+public class BlockCable extends BlockGeneric
 {
     // Statics
 
@@ -65,6 +66,7 @@ public class BlockCable extends BlockPeripheralBase
 
     public BlockCable()
     {
+        super( Material.ROCK );
         setHardness( 1.5f );
         setTranslationKey( "computercraft:cable" );
         setCreativeTab( ComputerCraft.mainCreativeTab );
@@ -141,10 +143,12 @@ public class BlockCable extends BlockPeripheralBase
         return meta;
     }
 
+
     @Override
-    public IBlockState getDefaultBlockState( PeripheralType type, EnumFacing placedSide )
+    @Deprecated
+    public final IBlockState getStateForPlacement( World world, BlockPos pos, EnumFacing placedSide, float hitX, float hitY, float hitZ, int damage, EntityLivingBase placer )
     {
-        switch( type )
+        switch( ComputerCraft.Items.cable.getPeripheralType( damage ) )
         {
             case Cable:
                 return getDefaultState()
@@ -189,7 +193,7 @@ public class BlockCable extends BlockPeripheralBase
             .withProperty( Properties.DOWN, doesConnectVisually( state, world, pos, EnumFacing.DOWN ) );
 
         TileEntity tile = world.getTileEntity( pos );
-        int anim = tile instanceof TilePeripheralBase ? ((TilePeripheralBase) tile).getAnim() : 0;
+        int anim = tile instanceof TileCable ? ((TileCable) tile).getState() : 0;
 
         BlockCableModemVariant modem = state.getValue( Properties.MODEM );
         if( modem != BlockCableModemVariant.None )
@@ -208,13 +212,6 @@ public class BlockCable extends BlockPeripheralBase
         return true;
     }
 
-    @Override
-    public PeripheralType getPeripheralType( int damage )
-    {
-        return ComputerCraft.Items.cable.getPeripheralType( damage );
-    }
-
-    @Override
     public PeripheralType getPeripheralType( IBlockState state )
     {
         boolean cable = state.getValue( Properties.CABLE );
@@ -234,7 +231,13 @@ public class BlockCable extends BlockPeripheralBase
     }
 
     @Override
-    public TilePeripheralBase createTile( PeripheralType type )
+    protected TileGeneric createTile( IBlockState state )
+    {
+        return new TileCable();
+    }
+
+    @Override
+    protected TileGeneric createTile( int damage )
     {
         return new TileCable();
     }

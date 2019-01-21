@@ -16,6 +16,7 @@ public interface ILuaAPI extends dan200.computercraft.api.lua.ILuaAPI
 {
     void advance( double v );
 
+    @Override
     default void update()
     {
         advance( 0.05 );

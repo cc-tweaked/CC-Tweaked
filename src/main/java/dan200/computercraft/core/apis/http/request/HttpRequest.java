@@ -239,6 +239,7 @@ public class HttpRequest extends Resource<HttpRequest>
         if( tryClose() ) environment.queueEvent( SUCCESS_EVENT, new Object[] { address, object } );
     }
 
+    @Override
     protected void dispose()
     {
         super.dispose();

@@ -26,12 +26,14 @@ public class ResourceQueue<T extends Resource<T>> extends ResourceGroup<T>
     {
     }
 
+    @Override
     public synchronized void shutdown()
     {
         super.shutdown();
         pending.clear();
     }
 
+    @Override
     public synchronized boolean queue( Supplier<T> resource )
     {
         if( !active ) return false;
@@ -40,6 +42,7 @@ public class ResourceQueue<T extends Resource<T>> extends ResourceGroup<T>
         return true;
     }
 
+    @Override
     public synchronized void release( T resource )
     {
         super.release( resource );

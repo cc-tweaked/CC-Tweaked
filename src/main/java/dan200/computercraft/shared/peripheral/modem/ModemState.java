@@ -14,16 +14,27 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ModemState
 {
-    private boolean open = false;
-    private AtomicBoolean changed = new AtomicBoolean( true );
+    private final Runnable onChanged;
+    private final AtomicBoolean changed = new AtomicBoolean( true );
 
+    private boolean open = false;
     private final IntSet channels = new IntOpenHashSet();
+
+    public ModemState()
+    {
+        this.onChanged = null;
+    }
+
+    public ModemState( Runnable onChanged )
+    {
+        this.onChanged = onChanged;
+    }
 
     private void setOpen( boolean open )
     {
         if( this.open == open ) return;
         this.open = open;
-        this.changed.set( true );
+        if( !changed.getAndSet( true ) && onChanged != null ) onChanged.run();
     }
 
     public boolean pollChanged()

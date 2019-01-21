@@ -11,15 +11,20 @@ import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.shared.common.ServerTerminal;
+import dan200.computercraft.shared.common.TileGeneric;
 import dan200.computercraft.shared.peripheral.PeripheralType;
 import dan200.computercraft.shared.peripheral.common.BlockPeripheral;
-import dan200.computercraft.shared.peripheral.common.TilePeripheralBase;
+import dan200.computercraft.shared.peripheral.common.IPeripheralTile;
+import dan200.computercraft.shared.peripheral.common.ITilePeripheral;
+import dan200.computercraft.shared.peripheral.common.PeripheralItemFactory;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -28,7 +33,7 @@ import javax.annotation.Nonnull;
 import java.util.HashSet;
 import java.util.Set;
 
-public class TileMonitor extends TilePeripheralBase
+public class TileMonitor extends TileGeneric implements ITilePeripheral, IPeripheralTile
 {
     // Statics
 
@@ -78,6 +83,7 @@ public class TileMonitor extends TilePeripheralBase
         super.onLoad();
         m_advanced = getBlockState().getValue( BlockPeripheral.Properties.VARIANT )
             .getPeripheralType() == PeripheralType.AdvancedMonitor;
+        world.scheduleUpdate( getPos(), getBlockType(), 0 );
     }
 
     @Override
@@ -146,44 +152,32 @@ public class TileMonitor extends TilePeripheralBase
     }
 
     @Override
-    public void update()
+    public void updateTick()
     {
-        super.update();
+        if( m_xIndex != 0 || m_yIndex != 0 || m_serverMonitor == null ) return;
 
-        if( !getWorld().isRemote )
+        m_serverMonitor.clearChanged();
+
+        if( m_serverMonitor.pollResized() )
         {
-            if( m_xIndex == 0 && m_yIndex == 0 && m_serverMonitor != null )
+            for( int x = 0; x < m_width; x++ )
             {
-                if( m_serverMonitor.pollResized() )
+                for( int y = 0; y < m_height; y++ )
                 {
-                    for( int x = 0; x < m_width; x++ )
-                    {
-                        for( int y = 0; y < m_height; y++ )
-                        {
-                            TileMonitor monitor = getNeighbour( x, y );
-                            if( monitor == null ) continue;
+                    TileMonitor monitor = getNeighbour( x, y );
+                    if( monitor == null ) continue;
 
-                            for( IComputerAccess computer : monitor.m_computers )
-                            {
-                                computer.queueEvent( "monitor_resize", new Object[] {
-                                    computer.getAttachmentName()
-                                } );
-                            }
-                        }
+                    for( IComputerAccess computer : monitor.m_computers )
+                    {
+                        computer.queueEvent( "monitor_resize", new Object[] {
+                            computer.getAttachmentName()
+                        } );
                     }
                 }
+            }
+        }
 
-                m_serverMonitor.update();
-                if( m_serverMonitor.hasTerminalChanged() ) updateBlock();
-            }
-        }
-        else
-        {
-            if( m_xIndex == 0 && m_yIndex == 0 && m_clientMonitor != null )
-            {
-                m_clientMonitor.update();
-            }
-        }
+        if( m_serverMonitor.pollTerminalChanged() ) updateBlock();
     }
 
     // IPeripheralTile implementation
@@ -195,6 +189,12 @@ public class TileMonitor extends TilePeripheralBase
 
         if( m_peripheral == null ) m_peripheral = new MonitorPeripheral( this );
         return m_peripheral;
+    }
+
+    @Override
+    public PeripheralType getPeripheralType()
+    {
+        return m_advanced ? PeripheralType.AdvancedMonitor : PeripheralType.Monitor;
     }
 
     public ServerMonitor getCachedServerMonitor()
@@ -319,7 +319,6 @@ public class TileMonitor extends TilePeripheralBase
     }
     // Sizing and placement stuff
 
-    @Override
     public EnumFacing getDirection()
     {
         int dir = getDir() % 6;
@@ -444,7 +443,7 @@ public class TileMonitor extends TilePeripheralBase
         return getSimilarMonitorAt( pos.offset( right, xOffset ).offset( down, yOffset ) );
     }
 
-    public TileMonitor getOrigin()
+    private TileMonitor getOrigin()
     {
         return getNeighbour( 0, 0 );
     }
@@ -752,15 +751,16 @@ public class TileMonitor extends TilePeripheralBase
             {
                 case Monitor:
                 case AdvancedMonitor:
-                {
                     return false;
-                }
                 default:
-                {
                     return true;
-                }
             }
         }
     }
 
+    @Override
+    public void getDroppedItems( @Nonnull NonNullList<ItemStack> drops, boolean creative )
+    {
+        if( !creative ) drops.add( PeripheralItemFactory.create( this ) );
+    }
 }

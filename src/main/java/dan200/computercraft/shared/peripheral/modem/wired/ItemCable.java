@@ -34,7 +34,7 @@ public class ItemCable extends ItemPeripheralBase
     }
 
     @Nonnull
-    public ItemStack create( PeripheralType type, String label, int quantity )
+    public ItemStack create( PeripheralType type, int quantity )
     {
         ItemStack stack;
         switch( type )
@@ -54,10 +54,7 @@ public class ItemCable extends ItemPeripheralBase
                 return ItemStack.EMPTY;
             }
         }
-        if( label != null )
-        {
-            stack.setStackDisplayName( label );
-        }
+
         return stack;
     }
 
@@ -81,11 +78,11 @@ public class ItemCable extends ItemPeripheralBase
 
         // Try to add a cable to a modem
         PeripheralType type = getPeripheralType( stack );
-        Block existing = world.getBlockState( pos ).getBlock();
         IBlockState existingState = world.getBlockState( pos );
+        Block existing = existingState.getBlock();
         if( existing == ComputerCraft.Blocks.cable )
         {
-            PeripheralType existingType = ComputerCraft.Blocks.cable.getPeripheralType( world, pos );
+            PeripheralType existingType = ComputerCraft.Blocks.cable.getPeripheralType( existingState );
             if( existingType == PeripheralType.WiredModem && type == PeripheralType.Cable )
             {
                 if( !stack.isEmpty() )
@@ -112,12 +109,12 @@ public class ItemCable extends ItemPeripheralBase
         if( !existing.isAir( existingState, world, pos ) && (type == PeripheralType.Cable || existingState.isSideSolid( world, pos, side )) )
         {
             BlockPos offset = pos.offset( side );
-            Block offsetExisting = world.getBlockState( offset ).getBlock();
             IBlockState offsetExistingState = world.getBlockState( offset );
+            Block offsetExisting = offsetExistingState.getBlock();
             if( offsetExisting == ComputerCraft.Blocks.cable )
             {
                 // Try to add a modem to a cable
-                PeripheralType offsetExistingType = ComputerCraft.Blocks.cable.getPeripheralType( world, offset );
+                PeripheralType offsetExistingType = ComputerCraft.Blocks.cable.getPeripheralType( offsetExistingState );
                 if( offsetExistingType == PeripheralType.Cable && type == PeripheralType.WiredModem )
                 {
                     if( !stack.isEmpty() )

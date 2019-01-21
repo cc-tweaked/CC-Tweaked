@@ -32,10 +32,8 @@ public class ClientComputer extends ClientTerminal implements IComputer
         m_instanceID = instanceID;
     }
 
-    @Override
     public void update()
     {
-        super.update();
         m_changedLastFrame = m_changed;
         m_changed = false;
     }

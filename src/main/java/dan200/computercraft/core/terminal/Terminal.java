@@ -29,11 +29,18 @@ public class Terminal
     private final Palette m_palette;
 
     private boolean m_changed;
+    private final Runnable onChanged;
 
     public Terminal( int width, int height )
     {
+        this( width, height, null );
+    }
+
+    public Terminal( int width, int height, Runnable changedCallback )
+    {
         m_width = width;
         m_height = height;
+        this.onChanged = changedCallback;
 
         m_cursorColour = 0;
         m_cursorBackgroundColour = 15;
@@ -65,7 +72,7 @@ public class Terminal
         m_cursorY = 0;
         m_cursorBlink = false;
         clear();
-        m_changed = true;
+        setChanged();
         m_palette.resetColours();
     }
 
@@ -122,7 +129,7 @@ public class Terminal
                 m_backgroundColour[i].write( oldBackgroundColour[i] );
             }
         }
-        m_changed = true;
+        setChanged();
     }
 
     public void setCursorPos( int x, int y )
@@ -131,7 +138,7 @@ public class Terminal
         {
             m_cursorX = x;
             m_cursorY = y;
-            m_changed = true;
+            setChanged();
         }
     }
 
@@ -140,7 +147,7 @@ public class Terminal
         if( m_cursorBlink != blink )
         {
             m_cursorBlink = blink;
-            m_changed = true;
+            setChanged();
         }
     }
 
@@ -149,7 +156,7 @@ public class Terminal
         if( m_cursorColour != colour )
         {
             m_cursorColour = colour;
-            m_changed = true;
+            setChanged();
         }
     }
 
@@ -158,7 +165,7 @@ public class Terminal
         if( m_cursorBackgroundColour != colour )
         {
             m_cursorBackgroundColour = colour;
-            m_changed = true;
+            setChanged();
         }
     }
 
@@ -201,7 +208,7 @@ public class Terminal
             m_text[y].write( text, x );
             m_textColour[y].write( textColour, x );
             m_backgroundColour[y].write( backgroundColour, x );
-            m_changed = true;
+            setChanged();
         }
     }
 
@@ -214,7 +221,7 @@ public class Terminal
             m_text[y].write( text, x );
             m_textColour[y].fill( base16.charAt( m_cursorColour ), x, x + text.length() );
             m_backgroundColour[y].fill( base16.charAt( m_cursorBackgroundColour ), x, x + text.length() );
-            m_changed = true;
+            setChanged();
         }
     }
 
@@ -244,7 +251,7 @@ public class Terminal
             m_text = newText;
             m_textColour = newTextColour;
             m_backgroundColour = newBackgroundColour;
-            m_changed = true;
+            setChanged();
         }
     }
 
@@ -256,7 +263,7 @@ public class Terminal
             m_textColour[y].fill( base16.charAt( m_cursorColour ) );
             m_backgroundColour[y].fill( base16.charAt( m_cursorBackgroundColour ) );
         }
-        m_changed = true;
+        setChanged();
     }
 
     public synchronized void clearLine()
@@ -267,7 +274,7 @@ public class Terminal
             m_text[y].fill( ' ' );
             m_textColour[y].fill( base16.charAt( m_cursorColour ) );
             m_backgroundColour[y].fill( base16.charAt( m_cursorBackgroundColour ) );
-            m_changed = true;
+            setChanged();
         }
     }
 
@@ -285,7 +292,7 @@ public class Terminal
         m_text[y].write( text );
         m_textColour[y].write( textColour );
         m_backgroundColour[y].write( backgroundColour );
-        m_changed = true;
+        setChanged();
     }
 
     public synchronized TextBuffer getTextColourLine( int y )
@@ -306,17 +313,23 @@ public class Terminal
         return null;
     }
 
-    public boolean getChanged()
+    /**
+     * @deprecated All {@code *Changed()} methods are deprecated: one should pass in a callback
+     * instead.
+     */
+    @Deprecated
+    public final boolean getChanged()
     {
         return m_changed;
     }
 
-    public void setChanged()
+    public final void setChanged()
     {
         m_changed = true;
+        if( onChanged != null ) onChanged.run();
     }
 
-    public void clearChanged()
+    public final void clearChanged()
     {
         m_changed = false;
     }
@@ -371,6 +384,6 @@ public class Terminal
         {
             m_palette.readFromNBT( nbt );
         }
-        m_changed = true;
+        setChanged();
     }
 }

@@ -7,6 +7,7 @@
 package dan200.computercraft.shared.peripheral.common;
 
 import dan200.computercraft.api.peripheral.IPeripheral;
+import dan200.computercraft.shared.common.IDirectionalTile;
 import dan200.computercraft.shared.common.TileGeneric;
 import dan200.computercraft.shared.peripheral.PeripheralType;
 import net.minecraft.item.ItemStack;
@@ -17,12 +18,9 @@ import net.minecraft.util.NonNullList;
 
 import javax.annotation.Nonnull;
 
-public abstract class TilePeripheralBase extends TileGeneric
-    implements IPeripheralTile, ITickable
+public abstract class TilePeripheralBase extends TileGeneric implements IPeripheralTile, ITickable, IDirectionalTile, ITilePeripheral
 {
-    // Statics
-
-    protected EnumFacing m_dir;
+    private EnumFacing m_dir;
     private int m_anim;
     private boolean m_changed;
 
@@ -39,9 +37,9 @@ public abstract class TilePeripheralBase extends TileGeneric
 
 
     @Override
-    public BlockPeripheralBase getBlock()
+    public BlockPeripheral getBlock()
     {
-        return (BlockPeripheralBase) super.getBlock();
+        return (BlockPeripheral) super.getBlock();
     }
 
     @Override
@@ -52,8 +50,6 @@ public abstract class TilePeripheralBase extends TileGeneric
             drops.add( PeripheralItemFactory.create( this ) );
         }
     }
-
-    // IPeripheralTile implementation
 
     @Override
     public final PeripheralType getPeripheralType()
@@ -77,6 +73,7 @@ public abstract class TilePeripheralBase extends TileGeneric
         return null;
     }
 
+    @Override
     public void setLabel( String label )
     {
         m_label = label;
@@ -86,11 +83,6 @@ public abstract class TilePeripheralBase extends TileGeneric
 
     @Override
     public EnumFacing getDirection()
-    {
-        return m_dir;
-    }
-
-    public EnumFacing getCachedDirection()
     {
         return m_dir;
     }
@@ -110,7 +102,7 @@ public abstract class TilePeripheralBase extends TileGeneric
         return m_anim;
     }
 
-    public void setAnim( int anim )
+    protected void setAnim( int anim )
     {
         if( anim != m_anim )
         {

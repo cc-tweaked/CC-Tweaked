@@ -200,6 +200,7 @@ public final class Registry
 
         registerTurtleUpgrades();
         registerPocketUpgrades();
+        registerLegacyUpgrades();
     }
 
     @SubscribeEvent
@@ -334,6 +335,13 @@ public final class Registry
 
         ComputerCraft.PocketUpgrades.speaker = new PocketSpeaker();
         ComputerCraftAPI.registerPocketUpgrade( ComputerCraft.PocketUpgrades.speaker );
+    }
+
+    @SuppressWarnings( "deprecation" )
+    private static void registerLegacyUpgrades()
+    {
+        ComputerCraft.PocketUpgrades.pocketSpeaker = ComputerCraft.PocketUpgrades.speaker;
+        ComputerCraft.Upgrades.advancedModem = ComputerCraft.TurtleUpgrades.advancedModem;
     }
 
     @SubscribeEvent
