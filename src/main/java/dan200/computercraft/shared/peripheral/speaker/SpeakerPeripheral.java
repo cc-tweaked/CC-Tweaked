@@ -40,7 +40,13 @@ public abstract class SpeakerPeripheral implements IPeripheral
 
     public abstract World getWorld();
 
-    public abstract Vec3d getPosition();
+    public Vec3d getPosition()
+    {
+        // FIXME: Should be abstract, but we need this for Plethora compat. We'll
+        //  be able to change this in a few versions as we implement both there.
+        @SuppressWarnings( "deprecation" ) BlockPos pos = getPos();
+        return new Vec3d( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5 );
+    }
 
     @Deprecated
     public BlockPos getPos()
