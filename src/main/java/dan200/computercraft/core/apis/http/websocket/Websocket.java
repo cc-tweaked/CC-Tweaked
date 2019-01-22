@@ -161,7 +161,10 @@ public class Websocket extends Resource<Websocket>
                     }
                 } )
                 .remoteAddress( socketAddress )
-                .connect();
+                .connect()
+                .addListener( c -> {
+                    if( !c.isSuccess() ) failure( c.cause().getMessage() );
+                } );
 
             // Do an additional check for cancellation
             checkClosed();
