@@ -63,7 +63,7 @@ local function createShellEnv( sDir )
                     end
                 else
                     if #sError > 0 then
-                        sError = sError .. "\n"
+                        sError = sError .. "\n  "
                     end
                     sError = sError .. "no file '" .. sPath .. "'"
                 end
@@ -78,27 +78,24 @@ local function createShellEnv( sDir )
             error( "bad argument #1 (expected string, got " .. type( name ) .. ")", 2 )
         end
         if package.loaded[name] == sentinel then
-            error("Loop detected requiring '" .. name .. "'", 0)
+            error("loop or previous error loading module '" .. name .. "'", 0)
         end
         if package.loaded[name] then
             return package.loaded[name]
         end
 
-        local sError = "Error loading module '" .. name .. "':"
-        for n,searcher in ipairs(package.loaders) do
-            local loader, err = searcher(name)
-            if loader then
+        local sError = "module '" .. name .. "' not found:"
+        for _, searcher in ipairs(package.loaders) do
+            local loader = table.pack(searcher(name))
+            if loader[1] then
                 package.loaded[name] = sentinel
-                local result = loader( err )
-                if result ~= nil then
-                    package.loaded[name] = result
-                    return result
-                else
-                    package.loaded[name] = true
-                    return true
-                end
+                local result = loader[1](name, table.unpack(loader, 2, loader.n))
+                if result == nil then result = true end
+
+                package.loaded[name] = result
+                return result
             else
-                sError = sError .. "\n" .. err
+                sError = sError .. "\n  " .. loader[2]
             end
         end
         error(sError, 2)
