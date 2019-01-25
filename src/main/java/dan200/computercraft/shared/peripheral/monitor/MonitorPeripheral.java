@@ -28,8 +28,6 @@ public class MonitorPeripheral implements IPeripheral
         m_monitor = monitor;
     }
 
-    // IPeripheral implementation
-
     @Nonnull
     @Override
     public String getType()

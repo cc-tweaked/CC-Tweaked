@@ -27,13 +27,12 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class TileMonitor extends TileGeneric implements ITilePeripheral, IPeripheralTile
 {
-    // Statics
-
     public static final double RENDER_BORDER = (2.0 / 16.0);
     public static final double RENDER_MARGIN = (0.5 / 16.0);
     public static final double RENDER_PIXEL_SCALE = (1.0 / 64.0);
@@ -41,38 +40,22 @@ public class TileMonitor extends TileGeneric implements ITilePeripheral, IPeriph
     private static final int MAX_WIDTH = 8;
     private static final int MAX_HEIGHT = 6;
 
-    // Members
     private ServerMonitor m_serverMonitor;
     private ClientMonitor m_clientMonitor;
     private MonitorPeripheral m_peripheral;
-    private final Set<IComputerAccess> m_computers;
+    private final Set<IComputerAccess> m_computers = Collections.newSetFromMap( new ConcurrentHashMap<>() );
 
-    private boolean m_destroyed;
-    private boolean m_ignoreMe;
+    private boolean m_destroyed = false;
+    private boolean m_ignoreMe = false;
 
-    private int m_width;
-    private int m_height;
-    private int m_xIndex;
-    private int m_yIndex;
+    private int m_width = 1;
+    private int m_height = 1;
+    private int m_xIndex = 0;
+    private int m_yIndex = 0;
 
-    private int m_dir;
+    private int m_dir = 2;
 
     private boolean m_advanced;
-
-    public TileMonitor()
-    {
-        m_computers = new HashSet<>();
-
-        m_destroyed = false;
-        m_ignoreMe = false;
-
-        m_width = 1;
-        m_height = 1;
-        m_xIndex = 0;
-        m_yIndex = 0;
-
-        m_dir = 2;
-    }
 
     @Override
     public void onLoad()
@@ -694,20 +677,14 @@ public class TileMonitor extends TileGeneric implements ITilePeripheral, IPeriph
         }
     }
 
-    public void addComputer( IComputerAccess computer )
+    void addComputer( IComputerAccess computer )
     {
-        synchronized( this )
-        {
-            m_computers.add( computer );
-        }
+        m_computers.add( computer );
     }
 
-    public void removeComputer( IComputerAccess computer )
+    void removeComputer( IComputerAccess computer )
     {
-        synchronized( this )
-        {
-            m_computers.remove( computer );
-        }
+        m_computers.remove( computer );
     }
 
     @Nonnull
