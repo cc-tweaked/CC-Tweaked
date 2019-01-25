@@ -15,6 +15,11 @@ import javax.annotation.Nonnull;
 
 public class TileAdvancedModem extends TileWirelessModemBase
 {
+    public TileAdvancedModem()
+    {
+        super( true );
+    }
+
     @Override
     protected EnumFacing getDirection()
     {

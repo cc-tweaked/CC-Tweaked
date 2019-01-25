@@ -22,13 +22,18 @@ import javax.annotation.Nonnull;
 
 public abstract class TileWirelessModemBase extends TileGeneric implements IPeripheralTile
 {
+    protected TileWirelessModemBase( boolean advanced )
+    {
+        this.advanced = advanced;
+    }
+
     private static class Peripheral extends WirelessModemPeripheral
     {
         private final TileWirelessModemBase entity;
 
         Peripheral( TileWirelessModemBase entity )
         {
-            super( new ModemState( () -> TickScheduler.schedule( entity ) ), true );
+            super( new ModemState( () -> TickScheduler.schedule( entity ) ), entity.advanced );
             this.entity = entity;
         }
 
@@ -54,6 +59,7 @@ public abstract class TileWirelessModemBase extends TileGeneric implements IPeri
         }
     }
 
+    private final boolean advanced;
     private boolean hasModemDirection = false;
     private EnumFacing modemDirection = EnumFacing.DOWN;
     private final ModemPeripheral modem = new Peripheral( this );

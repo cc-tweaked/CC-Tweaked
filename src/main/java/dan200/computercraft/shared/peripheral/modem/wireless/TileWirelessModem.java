@@ -24,6 +24,11 @@ import javax.annotation.Nonnull;
 
 public class TileWirelessModem extends TileWirelessModemBase implements IDirectionalTile, ITilePeripheral
 {
+    public TileWirelessModem()
+    {
+        super( false );
+    }
+
     @Override
     public EnumFacing getDirection()
     {
