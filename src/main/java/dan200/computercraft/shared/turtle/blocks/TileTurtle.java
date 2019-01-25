@@ -17,7 +17,6 @@ import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.turtle.apis.TurtleAPI;
 import dan200.computercraft.shared.turtle.core.TurtleBrain;
-import dan200.computercraft.shared.turtle.items.TurtleItemFactory;
 import dan200.computercraft.shared.util.DefaultInventory;
 import dan200.computercraft.shared.util.InventoryUtil;
 import dan200.computercraft.shared.util.RedstoneUtil;
@@ -167,12 +166,6 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
     }
 
     @Override
-    public void getDroppedItems( @Nonnull NonNullList<ItemStack> drops, boolean creative )
-    {
-        if( !creative || getLabel() != null ) drops.add( TurtleItemFactory.create( this ) );
-    }
-
-    @Override
     public boolean onActivate( EntityPlayer player, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ )
     {
         // Request description from server
@@ -262,38 +255,26 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
     }
 
     @Override
-    public void onNeighbourChange()
+    public void onNeighbourChange( @Nonnull BlockPos neighbour )
     {
-        if( m_moveState == MoveState.NOT_MOVED )
-        {
-            super.onNeighbourChange();
-        }
+        if( m_moveState == MoveState.NOT_MOVED ) super.onNeighbourChange( neighbour );
     }
 
     @Override
     public void onNeighbourTileEntityChange( @Nonnull BlockPos neighbour )
     {
-        if( m_moveState == MoveState.NOT_MOVED )
-        {
-            super.onNeighbourTileEntityChange( neighbour );
-        }
+        if( m_moveState == MoveState.NOT_MOVED ) super.onNeighbourTileEntityChange( neighbour );
     }
 
     public void notifyMoveStart()
     {
-        if( m_moveState == MoveState.NOT_MOVED )
-        {
-            m_moveState = MoveState.IN_PROGRESS;
-        }
+        if( m_moveState == MoveState.NOT_MOVED ) m_moveState = MoveState.IN_PROGRESS;
     }
 
     public void notifyMoveEnd()
     {
         // MoveState.MOVED is final
-        if( m_moveState == MoveState.IN_PROGRESS )
-        {
-            m_moveState = MoveState.NOT_MOVED;
-        }
+        if( m_moveState == MoveState.IN_PROGRESS ) m_moveState = MoveState.NOT_MOVED;
     }
 
     @Override

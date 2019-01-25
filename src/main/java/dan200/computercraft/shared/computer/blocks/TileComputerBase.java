@@ -173,9 +173,9 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
     }
 
     @Override
-    public void onNeighbourChange()
+    public void onNeighbourChange( @Nonnull BlockPos neighbour )
     {
-        updateInput();
+        updateInput( neighbour );
     }
 
     @Override
@@ -296,7 +296,7 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
         int localDir = remapLocalSide( DirectionUtil.toLocal( this, dir ) );
         if( !isRedstoneBlockedOnSide( localDir ) )
         {
-            computer.setRedstoneInput( localDir, getWorld().getRedstonePower( offset, offsetSide ) );
+            computer.setRedstoneInput( localDir, getWorld().getRedstonePower( offset, dir ) );
             computer.setBundledRedstoneInput( localDir, BundledRedstone.getOutput( getWorld(), offset, offsetSide ) );
         }
         if( !isPeripheralBlockedOnSide( localDir ) )

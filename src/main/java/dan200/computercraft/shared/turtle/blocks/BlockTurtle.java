@@ -27,7 +27,6 @@ import net.minecraft.util.EnumBlockRenderType;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
@@ -200,11 +199,10 @@ public class BlockTurtle extends BlockComputerBase
         return super.getExplosionResistance( exploder );
     }
 
-    @Override
     @Nonnull
-    public ItemStack getPickBlock( @Nonnull IBlockState state, RayTraceResult target, @Nonnull World world, @Nonnull BlockPos pos, EntityPlayer player )
+    @Override
+    protected ItemStack getItem( TileComputerBase tile )
     {
-        TileEntity tile = world.getTileEntity( pos );
-        return tile instanceof TileTurtle ? TurtleItemFactory.create( (TileTurtle) tile ) : super.getPickBlock( state, target, world, pos, player );
+        return tile instanceof TileTurtle ? TurtleItemFactory.create( (TileTurtle) tile ) : ItemStack.EMPTY;
     }
 }

@@ -9,13 +9,10 @@ package dan200.computercraft.shared.computer.blocks;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ServerComputer;
-import dan200.computercraft.shared.computer.items.ComputerItemFactory;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.NonNullList;
 
 import javax.annotation.Nonnull;
 
@@ -58,12 +55,6 @@ public class TileComputer extends TileComputerBase
             };
         }
         return m_proxy;
-    }
-
-    @Override
-    public void getDroppedItems( @Nonnull NonNullList<ItemStack> drops, boolean creative )
-    {
-        if( !creative || getLabel() != null ) drops.add( ComputerItemFactory.create( this ) );
     }
 
     @Override

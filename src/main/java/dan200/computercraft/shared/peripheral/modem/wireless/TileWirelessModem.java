@@ -12,11 +12,8 @@ import dan200.computercraft.shared.peripheral.PeripheralType;
 import dan200.computercraft.shared.peripheral.common.BlockPeripheral;
 import dan200.computercraft.shared.peripheral.common.BlockPeripheralVariant;
 import dan200.computercraft.shared.peripheral.common.ITilePeripheral;
-import dan200.computercraft.shared.peripheral.common.PeripheralItemFactory;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
@@ -78,12 +75,6 @@ public class TileWirelessModem extends TileWirelessModemBase implements IDirecti
     public boolean shouldRefresh( World world, BlockPos pos, @Nonnull IBlockState oldState, @Nonnull IBlockState newState )
     {
         return super.shouldRefresh( world, pos, oldState, newState ) || ComputerCraft.Blocks.peripheral.getPeripheralType( newState ) != PeripheralType.WirelessModem;
-    }
-
-    @Override
-    public void getDroppedItems( @Nonnull NonNullList<ItemStack> drops, boolean creative )
-    {
-        if( !creative ) drops.add( PeripheralItemFactory.create( PeripheralType.WirelessModem, null, 1 ) );
     }
 
     @Override

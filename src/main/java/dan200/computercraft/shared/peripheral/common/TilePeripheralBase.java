@@ -10,11 +10,9 @@ import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.shared.common.IDirectionalTile;
 import dan200.computercraft.shared.common.TileGeneric;
 import dan200.computercraft.shared.peripheral.PeripheralType;
-import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ITickable;
-import net.minecraft.util.NonNullList;
 
 import javax.annotation.Nonnull;
 
@@ -40,15 +38,6 @@ public abstract class TilePeripheralBase extends TileGeneric implements IPeriphe
     public BlockPeripheral getBlock()
     {
         return (BlockPeripheral) super.getBlock();
-    }
-
-    @Override
-    public void getDroppedItems( @Nonnull NonNullList<ItemStack> drops, boolean creative )
-    {
-        if( !creative )
-        {
-            drops.add( PeripheralItemFactory.create( this ) );
-        }
     }
 
     @Override

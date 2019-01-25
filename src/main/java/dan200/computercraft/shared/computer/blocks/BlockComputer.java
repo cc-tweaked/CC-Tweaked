@@ -15,14 +15,11 @@ import net.minecraft.block.properties.PropertyDirection;
 import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.IBlockAccess;
-import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
 
@@ -136,9 +133,8 @@ public class BlockComputer extends BlockComputerBase
 
     @Nonnull
     @Override
-    public ItemStack getPickBlock( @Nonnull IBlockState state, RayTraceResult target, @Nonnull World world, @Nonnull BlockPos pos, EntityPlayer player )
+    protected ItemStack getItem( TileComputerBase tile )
     {
-        TileEntity tile = world.getTileEntity( pos );
-        return tile instanceof TileComputer ? ComputerItemFactory.create( (TileComputer) tile ) : super.getPickBlock( state, target, world, pos, player );
+        return tile instanceof TileComputer ? ComputerItemFactory.create( (TileComputer) tile ) : ItemStack.EMPTY;
     }
 }

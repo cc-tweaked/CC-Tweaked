@@ -29,6 +29,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
@@ -599,5 +600,11 @@ public class BlockPeripheral extends BlockGeneric
         return tile instanceof ITilePeripheral
             ? PeripheralItemFactory.create( (ITilePeripheral) tile )
             : super.getPickBlock( state, target, world, pos, player );
+    }
+
+    @Override
+    public void getDrops( @Nonnull NonNullList<ItemStack> drops, IBlockAccess world, BlockPos pos, @Nonnull IBlockState state, int fortune )
+    {
+        drops.add( PeripheralItemFactory.create( getPeripheralType( state ), null, 1 ) );
     }
 }

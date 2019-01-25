@@ -11,11 +11,9 @@ import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
-import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
@@ -36,95 +34,31 @@ public abstract class BlockGeneric extends Block implements ITileEntityProvider
     protected abstract TileGeneric createTile( int damage );
 
     @Override
-    public final void dropBlockAsItemWithChance( World world, @Nonnull BlockPos pos, @Nonnull IBlockState state, float chance, int fortune )
-    {
-    }
-
-    @Override
-    public final void getDrops( @Nonnull NonNullList<ItemStack> drops, IBlockAccess world, BlockPos pos, @Nonnull IBlockState state, int fortune )
-    {
-        TileEntity tile = world.getTileEntity( pos );
-        if( tile instanceof TileGeneric )
-        {
-            TileGeneric generic = (TileGeneric) tile;
-            generic.getDroppedItems( drops, false );
-        }
-    }
-
-    @Override
-    public boolean removedByPlayer( @Nonnull IBlockState state, World world, @Nonnull BlockPos pos, @Nonnull EntityPlayer player, boolean willHarvest )
-    {
-        if( !world.isRemote )
-        {
-            // Drop items
-            boolean creative = player.capabilities.isCreativeMode;
-            dropAllItems( world, pos, creative );
-        }
-
-        // Remove block
-        return super.removedByPlayer( state, world, pos, player, willHarvest );
-    }
-
-    public final void dropAllItems( World world, BlockPos pos, boolean creative )
-    {
-        // Get items to drop
-        NonNullList<ItemStack> drops = NonNullList.create();
-        TileEntity tile = world.getTileEntity( pos );
-        if( tile instanceof TileGeneric )
-        {
-            TileGeneric generic = (TileGeneric) tile;
-            generic.getDroppedItems( drops, creative );
-        }
-
-        // Drop items
-        if( drops.size() > 0 )
-        {
-            for( ItemStack item : drops )
-            {
-                dropItem( world, pos, item );
-            }
-        }
-    }
-
-    public final void dropItem( World world, BlockPos pos, @Nonnull ItemStack stack )
-    {
-        Block.spawnAsEntity( world, pos, stack );
-    }
-
-    @Override
     public final void breakBlock( @Nonnull World world, @Nonnull BlockPos pos, @Nonnull IBlockState newState )
     {
         TileEntity tile = world.getTileEntity( pos );
         super.breakBlock( world, pos, newState );
         world.removeTileEntity( pos );
-        if( tile instanceof TileGeneric )
-        {
-            TileGeneric generic = (TileGeneric) tile;
-            generic.destroy();
-        }
+        if( tile instanceof TileGeneric ) ((TileGeneric) tile).destroy();
     }
 
     @Override
     public final boolean onBlockActivated( World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ )
     {
         TileEntity tile = world.getTileEntity( pos );
-        if( tile instanceof TileGeneric )
-        {
-            TileGeneric generic = (TileGeneric) tile;
-            return generic.onActivate( player, hand, side, hitX, hitY, hitZ );
-        }
-        return false;
+        return tile instanceof TileGeneric && ((TileGeneric) tile).onActivate( player, hand, side, hitX, hitY, hitZ );
     }
 
     @Override
     @Deprecated
-    public final void neighborChanged( IBlockState state, World world, BlockPos pos, Block block, BlockPos neighorPos )
+    public final void neighborChanged( IBlockState state, World world, BlockPos pos, Block block, BlockPos neighbour )
     {
         TileEntity tile = world.getTileEntity( pos );
         if( tile instanceof TileGeneric )
         {
             TileGeneric generic = (TileGeneric) tile;
             generic.onNeighbourChange();
+            generic.onNeighbourChange( neighbour );
         }
     }
 
@@ -132,11 +66,7 @@ public abstract class BlockGeneric extends Block implements ITileEntityProvider
     public final void onNeighborChange( IBlockAccess world, BlockPos pos, BlockPos neighbour )
     {
         TileEntity tile = world.getTileEntity( pos );
-        if( tile instanceof TileGeneric )
-        {
-            TileGeneric generic = (TileGeneric) tile;
-            generic.onNeighbourTileEntityChange( neighbour );
-        }
+        if( tile instanceof TileGeneric ) ((TileGeneric) tile).onNeighbourTileEntityChange( neighbour );
     }
 
     @Override
@@ -157,12 +87,7 @@ public abstract class BlockGeneric extends Block implements ITileEntityProvider
     public final boolean canConnectRedstone( IBlockState state, IBlockAccess world, BlockPos pos, EnumFacing side )
     {
         TileEntity tile = world.getTileEntity( pos );
-        if( tile instanceof TileGeneric )
-        {
-            TileGeneric generic = (TileGeneric) tile;
-            return generic.getRedstoneConnectivity( side );
-        }
-        return false;
+        return tile instanceof TileGeneric && ((TileGeneric) tile).getRedstoneConnectivity( side );
     }
 
     @Override
@@ -172,8 +97,7 @@ public abstract class BlockGeneric extends Block implements ITileEntityProvider
         TileEntity tile = world.getTileEntity( pos );
         if( tile instanceof TileGeneric && tile.hasWorld() )
         {
-            TileGeneric generic = (TileGeneric) tile;
-            return generic.getRedstoneOutput( oppositeSide.getOpposite() );
+            return ((TileGeneric) tile).getRedstoneOutput( oppositeSide.getOpposite() );
         }
         return 0;
     }
@@ -190,8 +114,7 @@ public abstract class BlockGeneric extends Block implements ITileEntityProvider
         TileEntity tile = world.getTileEntity( pos );
         if( tile instanceof TileGeneric )
         {
-            TileGeneric generic = (TileGeneric) tile;
-            return generic.getBundledRedstoneConnectivity( side );
+            return ((TileGeneric) tile).getBundledRedstoneConnectivity( side );
         }
         return false;
     }
@@ -201,8 +124,7 @@ public abstract class BlockGeneric extends Block implements ITileEntityProvider
         TileEntity tile = world.getTileEntity( pos );
         if( tile instanceof TileGeneric && tile.hasWorld() )
         {
-            TileGeneric generic = (TileGeneric) tile;
-            return generic.getBundledRedstoneOutput( side );
+            return ((TileGeneric) tile).getBundledRedstoneOutput( side );
         }
         return 0;
     }

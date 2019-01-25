@@ -6,12 +6,7 @@
 
 package dan200.computercraft.shared.peripheral.modem.wireless;
 
-import dan200.computercraft.ComputerCraft;
-import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.NonNullList;
-
-import javax.annotation.Nonnull;
 
 public class TileAdvancedModem extends TileWirelessModemBase
 {
@@ -24,11 +19,5 @@ public class TileAdvancedModem extends TileWirelessModemBase
     protected EnumFacing getDirection()
     {
         return getBlockState().getValue( BlockAdvancedModem.Properties.FACING );
-    }
-
-    @Override
-    public void getDroppedItems( @Nonnull NonNullList<ItemStack> drops, boolean creative )
-    {
-        if( !creative ) drops.add( new ItemStack( ComputerCraft.Items.advancedModem ) );
     }
 }

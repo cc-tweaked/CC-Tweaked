@@ -18,7 +18,7 @@ public class RedstoneUtil
     @Deprecated
     public static int getRedstoneOutput( World world, BlockPos pos, EnumFacing side )
     {
-        return world.getRedstonePower( pos, side );
+        return world.getRedstonePower( pos, side.getOpposite() );
     }
 
     @Deprecated

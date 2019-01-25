@@ -12,9 +12,13 @@ import dan200.computercraft.shared.util.DirectionUtil;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
@@ -50,6 +54,9 @@ public abstract class BlockComputerBase extends BlockDirectional
     protected abstract TileComputerBase createTile( ComputerFamily family );
 
     @Nonnull
+    protected abstract ItemStack getItem( TileComputerBase tile );
+
+    @Nonnull
     @Override
     @Deprecated
     public final IBlockState getStateForPlacement( World world, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ, int damage, EntityLivingBase placer )
@@ -82,5 +89,56 @@ public abstract class BlockComputerBase extends BlockDirectional
             TileComputerBase computer = (TileComputerBase) tile;
             computer.updateInput();
         }
+    }
+
+    @Override
+    @Nonnull
+    public ItemStack getPickBlock( @Nonnull IBlockState state, RayTraceResult target, @Nonnull World world, @Nonnull BlockPos pos, EntityPlayer player )
+    {
+        TileEntity tile = world.getTileEntity( pos );
+        if( tile instanceof TileComputerBase )
+        {
+            ItemStack result = getItem( (TileComputerBase) tile );
+            if( !result.isEmpty() ) return result;
+        }
+
+        return super.getPickBlock( state, target, world, pos, player );
+    }
+
+    @Override
+    public final void dropBlockAsItemWithChance( World world, @Nonnull BlockPos pos, @Nonnull IBlockState state, float chance, int fortune )
+    {
+    }
+
+    @Override
+    public final void getDrops( @Nonnull NonNullList<ItemStack> drops, IBlockAccess world, BlockPos pos, @Nonnull IBlockState state, int fortune )
+    {
+        TileEntity tile = world.getTileEntity( pos );
+        if( tile instanceof TileComputerBase )
+        {
+            ItemStack stack = getItem( (TileComputerBase) tile );
+            if( !stack.isEmpty() ) drops.add( stack );
+        }
+    }
+
+    @Override
+    public boolean removedByPlayer( @Nonnull IBlockState state, World world, @Nonnull BlockPos pos, @Nonnull EntityPlayer player, boolean willHarvest )
+    {
+        if( !world.isRemote )
+        {
+            // We drop the item here instead of doing it in the harvest method, as we
+            // need to drop it for creative players too.
+            TileEntity tile = world.getTileEntity( pos );
+            if( tile instanceof TileComputerBase )
+            {
+                TileComputerBase computer = (TileComputerBase) tile;
+                if( !player.capabilities.isCreativeMode || computer.getLabel() != null )
+                {
+                    spawnAsEntity( world, pos, getItem( computer ) );
+                }
+            }
+        }
+
+        return super.removedByPlayer( state, world, pos, player, willHarvest );
     }
 }

@@ -121,13 +121,13 @@ public abstract class TileWirelessModemBase extends TileGeneric implements IPeri
     protected abstract EnumFacing getDirection();
 
     @Override
-    public void onNeighbourChange()
+    public void onNeighbourChange( @Nonnull BlockPos neighbour )
     {
         EnumFacing dir = getDirection();
-        if( !getWorld().isSideSolid( getPos().offset( dir ), dir.getOpposite() ) )
+        if( neighbour.equals( getPos().offset( dir ) ) && !getWorld().isSideSolid( neighbour, dir.getOpposite() ) )
         {
             // Drop everything and remove block
-            getBlock().dropAllItems( getWorld(), getPos(), false );
+            getBlock().dropBlockAsItem( getWorld(), getPos(), getBlockState(), 0 );
             getWorld().setBlockToAir( getPos() );
         }
     }

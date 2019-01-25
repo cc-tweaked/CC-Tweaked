@@ -8,11 +8,13 @@ package dan200.computercraft.shared.computer.blocks;
 
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
+import dan200.computercraft.shared.computer.items.ComputerItemFactory;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.PropertyDirection;
 import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
@@ -102,5 +104,12 @@ public class BlockCommandComputer extends BlockComputerBase
     protected TileComputer createTile( ComputerFamily family )
     {
         return new TileCommandComputer();
+    }
+
+    @Nonnull
+    @Override
+    protected ItemStack getItem( TileComputerBase tile )
+    {
+        return tile instanceof TileCommandComputer ? ComputerItemFactory.create( (TileComputer) tile ) : ItemStack.EMPTY;
     }
 }

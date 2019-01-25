@@ -235,7 +235,8 @@ public class ComputerCraft
     }
 
     @Deprecated
-    public static class Upgrades {
+    public static class Upgrades
+    {
         public static TurtleModem advancedModem;
     }
 

@@ -20,13 +20,12 @@ import dan200.computercraft.shared.peripheral.common.PeripheralItemFactory;
 import dan200.computercraft.shared.peripheral.modem.ModemState;
 import dan200.computercraft.shared.util.TickScheduler;
 import dan200.computercraft.shared.wired.CapabilityWiredElement;
+import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
-import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.TextComponentTranslation;
@@ -177,44 +176,17 @@ public class TileCable extends TileGeneric implements IPeripheralTile
     }
 
     @Override
-    public void getDroppedItems( @Nonnull NonNullList<ItemStack> drops, boolean creative )
-    {
-        if( !creative )
-        {
-            PeripheralType type = getPeripheralType();
-            switch( type )
-            {
-                case Cable:
-                case WiredModem:
-                {
-                    drops.add( PeripheralItemFactory.create( type, null, 1 ) );
-                    break;
-                }
-                case WiredModemWithCable:
-                {
-                    drops.add( PeripheralItemFactory.create( PeripheralType.WiredModem, null, 1 ) );
-                    drops.add( PeripheralItemFactory.create( PeripheralType.Cable, null, 1 ) );
-                    break;
-                }
-            }
-        }
-    }
-
-    @Override
-    public void onNeighbourChange()
+    public void onNeighbourChange( @Nonnull BlockPos neighbour )
     {
         EnumFacing dir = getDirection();
-        if( !getWorld().isSideSolid(
-            getPos().offset( dir ),
-            dir.getOpposite()
-        ) )
+        if( neighbour.equals( getPos().offset( dir ) ) && !getWorld().isSideSolid( neighbour, dir.getOpposite() ) )
         {
             switch( getPeripheralType() )
             {
                 case WiredModem:
                 {
                     // Drop everything and remove block
-                    getBlock().dropAllItems( getWorld(), getPos(), false );
+                    getBlock().dropBlockAsItem( getWorld(), getPos(), getBlockState(), 0 );
                     getWorld().setBlockToAir( getPos() );
 
                     // This'll call #destroy(), so we don't need to reset the network here.
@@ -223,7 +195,7 @@ public class TileCable extends TileGeneric implements IPeripheralTile
                 case WiredModemWithCable:
                 {
                     // Drop the modem and convert to cable
-                    getBlock().dropItem( getWorld(), getPos(), PeripheralItemFactory.create( PeripheralType.WiredModem, null, 1 ) );
+                    Block.spawnAsEntity( getWorld(), getPos(), PeripheralItemFactory.create( PeripheralType.WiredModem, null, 1 ) );
                     setBlockState( getBlockState().withProperty( BlockCable.Properties.MODEM, BlockCableModemVariant.None ) );
                     modemChanged();
                     connectionsChanged();
