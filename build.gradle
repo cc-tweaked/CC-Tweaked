@@ -10,7 +10,7 @@ buildscript {
     }
     dependencies {
         classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
-        classpath 'org.ajoberstar:gradle-git:1.6.0'
+        classpath 'org.ajoberstar.grgit:grgit-gradle:3.0.0'
     }
 }
 
@@ -99,16 +99,20 @@ processResources {
     inputs.property "version", project.version
     inputs.property "mcversion", project.minecraft.version
 
-    def grgit = Grgit.open(dir: '.')
-    inputs.property "commithash", grgit.head().id
-
-    def blacklist = ['GitHub', 'dan200', 'Daniel Ratcliffe']
+    def hash = 'none'
     Set<String> contributors = []
+    try {
+        def grgit = Grgit.open(dir: '.')
+        hash = grgit.head().id
 
-    grgit.log().each {
-        if (!blacklist.contains(it.author.name)) contributors.add(it.author.name)
-        if (!blacklist.contains(it.committer.name)) contributors.add(it.committer.name)
-    }
+        def blacklist = ['GitHub', 'dan200', 'Daniel Ratcliffe']
+        grgit.log().each {
+            if (!blacklist.contains(it.author.name)) contributors.add(it.author.name)
+            if (!blacklist.contains(it.committer.name)) contributors.add(it.committer.name)
+        }
+    } catch(Exception ignored) { }
+
+    inputs.property "commithash", hash
 
     from(sourceSets.main.resources.srcDirs) {
         include 'mcmod.info'
