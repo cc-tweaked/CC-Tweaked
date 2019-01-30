@@ -13,6 +13,7 @@ import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.turtle.*;
+import dan200.computercraft.core.tracking.Tracking;
 import dan200.computercraft.shared.computer.blocks.ComputerProxy;
 import dan200.computercraft.shared.computer.blocks.TileComputerBase;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
@@ -972,17 +973,21 @@ public class TurtleBrain implements ITurtleAccess
             TurtleCommandQueueEntry nextCommand = m_commandQueue.poll();
             if( nextCommand != null )
             {
+                ServerComputer computer = m_owner.getServerComputer();
+
                 // Execute the command
+                long start = System.nanoTime();
                 TurtleCommandResult result = nextCommand.command.execute( this );
+                long end = System.nanoTime();
 
                 // Dispatch the callback
-                int callbackID = nextCommand.callbackID;
-                if( callbackID >= 0 )
+                if( computer != null )
                 {
-                    if( result != null && result.isSuccess() )
+                    Tracking.addServerTiming( computer.getComputer(), end - start );
+                    int callbackID = nextCommand.callbackID;
+                    if( callbackID >= 0 )
                     {
-                        ServerComputer computer = m_owner.getServerComputer();
-                        if( computer != null )
+                        if( result != null && result.isSuccess() )
                         {
                             Object[] results = result.getResults();
                             if( results != null )
@@ -1000,11 +1005,7 @@ public class TurtleBrain implements ITurtleAccess
                                 } );
                             }
                         }
-                    }
-                    else
-                    {
-                        ServerComputer computer = m_owner.getServerComputer();
-                        if( computer != null )
+                        else
                         {
                             computer.queueEvent( "turtle_response", new Object[] {
                                 callbackID, false, result != null ? result.getErrorMessage() : null
