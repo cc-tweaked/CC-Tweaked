@@ -148,7 +148,7 @@ public class CobaltLuaMachine implements ILuaMachine
         LibFunction.bind( state, m_globals, PrefixLoader.class, new String[] { "load", "loadstring" } );
 
         // Remove globals we don't want to expose
-        // m_globals.rawset( "collectgarbage", Constants.NIL );
+        m_globals.rawset( "collectgarbage", Constants.NIL );
         m_globals.rawset( "dofile", Constants.NIL );
         m_globals.rawset( "loadfile", Constants.NIL );
         m_globals.rawset( "print", Constants.NIL );
