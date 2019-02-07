@@ -376,17 +376,9 @@ public class BlockPeripheral extends BlockGeneric
         {
             case DiskDrive:
             default:
-            {
-                IBlockState state = getDefaultState().withProperty( Properties.VARIANT, BlockPeripheralVariant.DiskDriveEmpty );
-                if( placedSide.getAxis() != EnumFacing.Axis.Y )
-                {
-                    return state.withProperty( Properties.FACING, placedSide );
-                }
-                else
-                {
-                    return state.withProperty( Properties.FACING, EnumFacing.NORTH );
-                }
-            }
+                return getDefaultState()
+                    .withProperty( Properties.VARIANT, BlockPeripheralVariant.DiskDriveEmpty )
+                    .withProperty( Properties.FACING, placedSide.getAxis() == EnumFacing.Axis.Y ? EnumFacing.NORTH : placedSide );
             case WirelessModem:
             {
                 EnumFacing dir = placedSide.getOpposite();
@@ -410,21 +402,13 @@ public class BlockPeripheral extends BlockGeneric
                 }
             }
             case Monitor:
-            {
                 return getDefaultState().withProperty( Properties.VARIANT, BlockPeripheralVariant.Monitor );
-            }
             case Printer:
-            {
                 return getDefaultState().withProperty( Properties.VARIANT, BlockPeripheralVariant.PrinterEmpty );
-            }
             case AdvancedMonitor:
-            {
                 return getDefaultState().withProperty( Properties.VARIANT, BlockPeripheralVariant.AdvancedMonitor );
-            }
             case Speaker:
-            {
                 return getDefaultState().withProperty( Properties.VARIANT, BlockPeripheralVariant.Speaker );
-            }
         }
     }
 
@@ -466,19 +450,15 @@ public class BlockPeripheral extends BlockGeneric
             case Speaker:
             case DiskDrive:
             case Printer:
-            {
-                EnumFacing dir = DirectionUtil.fromEntityRot( player );
-                if( stack.hasDisplayName() && tile instanceof TilePeripheralBase )
+                if( tile instanceof TilePeripheralBase )
                 {
                     TilePeripheralBase peripheral = (TilePeripheralBase) tile;
-                    peripheral.setLabel( stack.getDisplayName() );
-                    peripheral.setDirection( dir );
+                    peripheral.setDirection( DirectionUtil.fromEntityRot( player ) );
+                    if( stack.hasDisplayName() ) peripheral.setLabel( stack.getDisplayName() );
                 }
                 break;
-            }
             case Monitor:
             case AdvancedMonitor:
-            {
                 if( tile instanceof TileMonitor )
                 {
                     int direction = DirectionUtil.fromEntityRot( player ).getIndex();
@@ -505,7 +485,6 @@ public class BlockPeripheral extends BlockGeneric
                     }
                 }
                 break;
-            }
         }
     }
 
