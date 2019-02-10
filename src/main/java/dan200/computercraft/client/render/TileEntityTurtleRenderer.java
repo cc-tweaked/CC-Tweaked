@@ -14,23 +14,20 @@ import dan200.computercraft.shared.util.Holiday;
 import dan200.computercraft.shared.util.HolidayUtil;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.BufferBuilder;
+import net.minecraft.client.renderer.EntityRenderer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.block.model.ModelManager;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
-import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.client.model.pipeline.LightUtil;
@@ -43,7 +40,7 @@ import java.util.List;
 public class TileEntityTurtleRenderer extends TileEntitySpecialRenderer<TileTurtle>
 {
     private static final ModelResourceLocation NORMAL_TURTLE_MODEL = new ModelResourceLocation( "computercraft:turtle", "inventory" );
-    private static final ModelResourceLocation ADVANCED_TURTLE_MODEL = new ModelResourceLocation( "computercraft:turtle_advanced", "inventory" );
+    private static final ModelResourceLocation ADVANCED_TURTLE_MODEL = new ModelResourceLocation( "computercraft:advanced_turtle", "inventory" );
     private static final ModelResourceLocation COLOUR_TURTLE_MODEL = new ModelResourceLocation( "computercraft:turtle_white", "inventory" );
     private static final ModelResourceLocation ELF_OVERLAY_MODEL = new ModelResourceLocation( "computercraft:turtle_elf_overlay", "inventory" );
 
@@ -65,7 +62,7 @@ public class TileEntityTurtleRenderer extends TileEntitySpecialRenderer<TileTurt
         }
     }
 
-    public static ModelResourceLocation getTurtleOverlayModel( ComputerFamily family, ResourceLocation overlay, boolean christmas )
+    public static ModelResourceLocation getTurtleOverlayModel( ResourceLocation overlay, boolean christmas )
     {
         if( overlay != null )
         {
@@ -83,6 +80,19 @@ public class TileEntityTurtleRenderer extends TileEntitySpecialRenderer<TileTurt
 
     private void renderTurtleAt( TileTurtle turtle, double posX, double posY, double posZ, float f, int i )
     {
+        // Render the label
+        String label = turtle.createProxy().getLabel();
+        if( label != null && rendererDispatcher.cameraHitResult != null && turtle.getPos().equals( rendererDispatcher.cameraHitResult.getBlockPos() ) )
+        {
+            setLightmapDisabled( true );
+            EntityRenderer.drawNameplate(
+                getFontRenderer(), label,
+                (float) posX + 0.5F, (float) posY + 1.2F, (float) posZ + 0.5F, 0,
+                rendererDispatcher.entityYaw, rendererDispatcher.entityPitch, false, false
+            );
+            setLightmapDisabled( false );
+        }
+
         IBlockState state = turtle.getWorld().getBlockState( turtle.getPos() );
         GlStateManager.pushMatrix();
         try
@@ -93,13 +103,6 @@ public class TileEntityTurtleRenderer extends TileEntitySpecialRenderer<TileTurt
             offset = turtle.getRenderOffset( f );
             yaw = turtle.getRenderYaw( f );
             GlStateManager.translate( posX + offset.x, posY + offset.y, posZ + offset.z );
-
-            // Render the label
-            String label = turtle.createProxy().getLabel();
-            if( label != null )
-            {
-                renderLabel( turtle.getAccess().getPosition(), label );
-            }
 
             // Render the turtle
             GlStateManager.translate( 0.5f, 0.5f, 0.5f );
@@ -123,7 +126,6 @@ public class TileEntityTurtleRenderer extends TileEntitySpecialRenderer<TileTurt
 
             // Render the overlay
             ModelResourceLocation overlayModel = getTurtleOverlayModel(
-                family,
                 overlay,
                 HolidayUtil.getCurrentHoliday() == Holiday.Christmas
             );
@@ -231,73 +233,5 @@ public class TileEntityTurtleRenderer extends TileEntitySpecialRenderer<TileTurt
             LightUtil.renderQuadColor( buffer, quad, colour );
         }
         tessellator.draw();
-    }
-
-    private void renderLabel( BlockPos position, String label )
-    {
-        Minecraft mc = Minecraft.getMinecraft();
-        RayTraceResult mop = mc.objectMouseOver;
-        if( mop != null && mop.typeOfHit == RayTraceResult.Type.BLOCK && mop.getBlockPos().equals( position ) )
-        {
-            RenderManager renderManager = mc.getRenderManager();
-            FontRenderer fontrenderer = renderManager.getFontRenderer();
-            float scale = 0.016666668F * 1.6f;
-
-            GlStateManager.pushMatrix();
-            GlStateManager.disableLighting();
-            GlStateManager.enableBlend();
-            GlStateManager.blendFunc( GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA );
-            try
-            {
-                GlStateManager.translate( 0.5f, 1.25f, 0.5f );
-                GlStateManager.rotate( -renderManager.playerViewY, 0.0F, 1.0F, 0.0F );
-                GlStateManager.rotate( renderManager.playerViewX, 1.0F, 0.0F, 0.0F );
-                GlStateManager.scale( -scale, -scale, scale );
-
-                int yOffset = 0;
-                int xOffset = fontrenderer.getStringWidth( label ) / 2;
-
-                // Draw background
-                GlStateManager.depthMask( false );
-                GlStateManager.disableDepth();
-                try
-                {
-                    // Quad
-                    GlStateManager.disableTexture2D();
-                    try
-                    {
-                        Tessellator tessellator = Tessellator.getInstance();
-                        BufferBuilder renderer = tessellator.getBuffer();
-                        renderer.begin( GL11.GL_QUADS, DefaultVertexFormats.POSITION_COLOR );
-                        renderer.pos( -xOffset - 1, -1 + yOffset, 0.0D ).color( 0.0F, 0.0F, 0.0F, 0.25F ).endVertex();
-                        renderer.pos( -xOffset - 1, 8 + yOffset, 0.0D ).color( 0.0F, 0.0F, 0.0F, 0.25F ).endVertex();
-                        renderer.pos( xOffset + 1, 8 + yOffset, 0.0D ).color( 0.0F, 0.0F, 0.0F, 0.25F ).endVertex();
-                        renderer.pos( xOffset + 1, -1 + yOffset, 0.0D ).color( 0.0F, 0.0F, 0.0F, 0.25F ).endVertex();
-                        tessellator.draw();
-                    }
-                    finally
-                    {
-                        GlStateManager.enableTexture2D();
-                    }
-
-                    // Text
-                    fontrenderer.drawString( label, -fontrenderer.getStringWidth( label ) / 2, yOffset, 0x20ffffff );
-                }
-                finally
-                {
-                    GlStateManager.enableDepth();
-                    GlStateManager.depthMask( true );
-                }
-
-                // Draw foreground text
-                fontrenderer.drawString( label, -fontrenderer.getStringWidth( label ) / 2, yOffset, -1 );
-            }
-            finally
-            {
-                GlStateManager.disableBlend();
-                GlStateManager.enableLighting();
-                GlStateManager.popMatrix();
-            }
-        }
     }
 }

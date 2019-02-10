@@ -9,7 +9,6 @@ package dan200.computercraft.client.render;
 import com.google.common.base.Objects;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
-import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.turtle.items.ItemTurtleBase;
 import dan200.computercraft.shared.util.Holiday;
 import dan200.computercraft.shared.util.HolidayUtil;
@@ -17,15 +16,11 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.*;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.resources.IResourceManager;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
-import net.minecraftforge.client.resource.IResourceType;
-import net.minecraftforge.client.resource.ISelectiveResourceReloadListener;
-import net.minecraftforge.client.resource.VanillaResourceType;
 import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nonnull;
@@ -34,9 +29,8 @@ import javax.vecmath.Matrix4f;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.function.Predicate;
 
-public class TurtleSmartItemModel implements IBakedModel, ISelectiveResourceReloadListener
+public class TurtleSmartItemModel implements IBakedModel
 {
     private static final Matrix4f s_identity, s_flip;
 
@@ -53,17 +47,15 @@ public class TurtleSmartItemModel implements IBakedModel, ISelectiveResourceRelo
 
     private static class TurtleModelCombination
     {
-        public final ComputerFamily m_family;
-        public final boolean m_colour;
-        public final ITurtleUpgrade m_leftUpgrade;
-        public final ITurtleUpgrade m_rightUpgrade;
-        public final ResourceLocation m_overlay;
-        public final boolean m_christmas;
-        public final boolean m_flip;
+        final boolean m_colour;
+        final ITurtleUpgrade m_leftUpgrade;
+        final ITurtleUpgrade m_rightUpgrade;
+        final ResourceLocation m_overlay;
+        final boolean m_christmas;
+        final boolean m_flip;
 
-        public TurtleModelCombination( ComputerFamily family, boolean colour, ITurtleUpgrade leftUpgrade, ITurtleUpgrade rightUpgrade, ResourceLocation overlay, boolean christmas, boolean flip )
+        TurtleModelCombination( boolean colour, ITurtleUpgrade leftUpgrade, ITurtleUpgrade rightUpgrade, ResourceLocation overlay, boolean christmas, boolean flip )
         {
-            m_family = family;
             m_colour = colour;
             m_leftUpgrade = leftUpgrade;
             m_rightUpgrade = rightUpgrade;
@@ -79,8 +71,7 @@ public class TurtleSmartItemModel implements IBakedModel, ISelectiveResourceRelo
             if( !(other instanceof TurtleModelCombination) ) return false;
 
             TurtleModelCombination otherCombo = (TurtleModelCombination) other;
-            return otherCombo.m_family == m_family &&
-                otherCombo.m_colour == m_colour &&
+            return otherCombo.m_colour == m_colour &&
                 otherCombo.m_leftUpgrade == m_leftUpgrade &&
                 otherCombo.m_rightUpgrade == m_rightUpgrade &&
                 Objects.equal( otherCombo.m_overlay, m_overlay ) &&
@@ -92,8 +83,7 @@ public class TurtleSmartItemModel implements IBakedModel, ISelectiveResourceRelo
         public int hashCode()
         {
             final int prime = 31;
-            int result = 1;
-            result = prime * result + m_family.hashCode();
+            int result = 0;
             result = prime * result + (m_colour ? 1 : 0);
             result = prime * result + (m_leftUpgrade != null ? m_leftUpgrade.hashCode() : 0);
             result = prime * result + (m_rightUpgrade != null ? m_rightUpgrade.hashCode() : 0);
@@ -104,14 +94,18 @@ public class TurtleSmartItemModel implements IBakedModel, ISelectiveResourceRelo
         }
     }
 
+    private final IBakedModel familyModel;
+    private final IBakedModel colourModel;
+
     private HashMap<TurtleModelCombination, IBakedModel> m_cachedModels;
     private ItemOverrideList m_overrides;
-    private final TurtleModelCombination m_defaultCombination;
 
-    public TurtleSmartItemModel()
+    public TurtleSmartItemModel( IBakedModel familyModel, IBakedModel colourModel )
     {
+        this.familyModel = familyModel;
+        this.colourModel = colourModel;
+
         m_cachedModels = new HashMap<>();
-        m_defaultCombination = new TurtleModelCombination( ComputerFamily.Normal, false, null, null, null, false, false );
         m_overrides = new ItemOverrideList( new ArrayList<>() )
         {
             @Nonnull
@@ -119,7 +113,6 @@ public class TurtleSmartItemModel implements IBakedModel, ISelectiveResourceRelo
             public IBakedModel handleItemState( @Nonnull IBakedModel originalModel, @Nonnull ItemStack stack, @Nullable World world, @Nullable EntityLivingBase entity )
             {
                 ItemTurtleBase turtle = (ItemTurtleBase) stack.getItem();
-                ComputerFamily family = turtle.getFamily( stack );
                 int colour = turtle.getColour( stack );
                 ITurtleUpgrade leftUpgrade = turtle.getUpgrade( stack, TurtleSide.Left );
                 ITurtleUpgrade rightUpgrade = turtle.getUpgrade( stack, TurtleSide.Right );
@@ -127,17 +120,11 @@ public class TurtleSmartItemModel implements IBakedModel, ISelectiveResourceRelo
                 boolean christmas = HolidayUtil.getCurrentHoliday() == Holiday.Christmas;
                 String label = turtle.getLabel( stack );
                 boolean flip = label != null && (label.equals( "Dinnerbone" ) || label.equals( "Grumm" ));
-                TurtleModelCombination combo = new TurtleModelCombination( family, colour != -1, leftUpgrade, rightUpgrade, overlay, christmas, flip );
-                if( m_cachedModels.containsKey( combo ) )
-                {
-                    return m_cachedModels.get( combo );
-                }
-                else
-                {
-                    IBakedModel model = buildModel( combo );
-                    m_cachedModels.put( combo, model );
-                    return model;
-                }
+                TurtleModelCombination combo = new TurtleModelCombination( colour != -1, leftUpgrade, rightUpgrade, overlay, christmas, flip );
+
+                IBakedModel model = m_cachedModels.get( combo );
+                if( model == null ) m_cachedModels.put( combo, model = buildModel( combo ) );
+                return model;
             }
         };
     }
@@ -149,19 +136,13 @@ public class TurtleSmartItemModel implements IBakedModel, ISelectiveResourceRelo
         return m_overrides;
     }
 
-    @Override
-    public void onResourceManagerReload( @Nonnull IResourceManager resourceManager, @Nonnull Predicate<IResourceType> resourcePredicate )
-    {
-        if( resourcePredicate.test( VanillaResourceType.MODELS ) ) m_cachedModels.clear();
-    }
-
     private IBakedModel buildModel( TurtleModelCombination combo )
     {
         Minecraft mc = Minecraft.getMinecraft();
         ModelManager modelManager = mc.getRenderItem().getItemModelMesher().getModelManager();
-        ModelResourceLocation baseModelLocation = TileEntityTurtleRenderer.getTurtleModel( combo.m_family, combo.m_colour );
-        ModelResourceLocation overlayModelLocation = TileEntityTurtleRenderer.getTurtleOverlayModel( combo.m_family, combo.m_overlay, combo.m_christmas );
-        IBakedModel baseModel = modelManager.getModel( baseModelLocation );
+        ModelResourceLocation overlayModelLocation = TileEntityTurtleRenderer.getTurtleOverlayModel( combo.m_overlay, combo.m_christmas );
+
+        IBakedModel baseModel = combo.m_colour ? colourModel : familyModel;
         IBakedModel overlayModel = (overlayModelLocation != null) ? modelManager.getModel( overlayModelLocation ) : null;
         Matrix4f transform = combo.m_flip ? s_flip : s_identity;
         Pair<IBakedModel, Matrix4f> leftModel = (combo.m_leftUpgrade != null) ? combo.m_leftUpgrade.getModel( null, TurtleSide.Left ) : null;
@@ -184,38 +165,36 @@ public class TurtleSmartItemModel implements IBakedModel, ISelectiveResourceRelo
         }
     }
 
-    // These should not be called:
-
     @Nonnull
     @Override
     public List<BakedQuad> getQuads( IBlockState state, EnumFacing facing, long rand )
     {
-        return getDefaultModel().getQuads( state, facing, rand );
+        return familyModel.getQuads( state, facing, rand );
     }
 
     @Override
     public boolean isAmbientOcclusion()
     {
-        return getDefaultModel().isAmbientOcclusion();
+        return familyModel.isAmbientOcclusion();
     }
 
     @Override
     public boolean isGui3d()
     {
-        return getDefaultModel().isGui3d();
+        return familyModel.isGui3d();
     }
 
     @Override
     public boolean isBuiltInRenderer()
     {
-        return getDefaultModel().isBuiltInRenderer();
+        return familyModel.isBuiltInRenderer();
     }
 
     @Nonnull
     @Override
     public TextureAtlasSprite getParticleTexture()
     {
-        return getDefaultModel().getParticleTexture();
+        return familyModel.getParticleTexture();
     }
 
     @Nonnull
@@ -223,18 +202,7 @@ public class TurtleSmartItemModel implements IBakedModel, ISelectiveResourceRelo
     @Deprecated
     public ItemCameraTransforms getItemCameraTransforms()
     {
-        return getDefaultModel().getItemCameraTransforms();
+        return familyModel.getItemCameraTransforms();
     }
 
-    private IBakedModel getDefaultModel()
-    {
-        IBakedModel model = m_cachedModels.get( m_defaultCombination );
-        if( model == null )
-        {
-            model = buildModel( m_defaultCombination );
-            m_cachedModels.put( m_defaultCombination, model );
-        }
-
-        return model;
-    }
 }

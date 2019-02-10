@@ -7,6 +7,7 @@
 package dan200.computercraft.client;
 
 import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.client.render.TurtleModelLoader;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ItemMeshDefinition;
 import net.minecraft.client.renderer.block.model.IBakedModel;
@@ -35,7 +36,7 @@ import javax.annotation.Nonnull;
 @Mod.EventBusSubscriber( modid = ComputerCraft.MOD_ID, value = Side.CLIENT )
 public class ClientRegistry
 {
-    private static final String[] TURTLE_UPGRADES = {
+    private static final String[] EXTRA_MODELS = {
         "turtle_modem_off_left",
         "turtle_modem_on_left",
         "turtle_modem_off_right",
@@ -48,11 +49,16 @@ public class ClientRegistry
         "advanced_turtle_modem_on_right",
         "turtle_speaker_upgrade_left",
         "turtle_speaker_upgrade_right",
+
+        "turtle_white",
+        "turtle_elf_overlay",
     };
 
     @SubscribeEvent
     public static void registerModels( ModelRegistryEvent event )
     {
+        ModelLoaderRegistry.registerLoader( TurtleModelLoader.INSTANCE );
+
         // Register item models
         registerUniversalItemModel( ComputerCraft.Items.computer, "computer" );
         registerItemModel( ComputerCraft.Items.commandComputer, 0, "command_computer" );
@@ -79,35 +85,28 @@ public class ClientRegistry
         registerItemModel( ComputerCraft.Items.printout, 1, "pages" );
         registerItemModel( ComputerCraft.Items.printout, 2, "book" );
 
-        String[] extraTurtleModels = new String[] { "turtle", "turtle_advanced", "turtle_white", "turtle_elf_overlay" };
-        registerUniversalItemModel( ComputerCraft.Items.turtle, "turtle_dynamic", extraTurtleModels );
-        registerUniversalItemModel( ComputerCraft.Items.turtleExpanded, "turtle_dynamic", extraTurtleModels );
-        registerUniversalItemModel( ComputerCraft.Items.turtleAdvanced, "turtle_dynamic", extraTurtleModels );
+        registerUniversalItemModel( ComputerCraft.Items.turtle, "turtle" );
+        registerUniversalItemModel( ComputerCraft.Items.turtleExpanded, "turtle" );
+        registerUniversalItemModel( ComputerCraft.Items.turtleAdvanced, "turtle_advanced" );
     }
 
     @SubscribeEvent
     public static void onTextureStitchEvent( TextureStitchEvent.Pre event )
     {
-        // Load all textures for upgrades
+        // Load all textures for the extra models
         TextureMap map = event.getMap();
-        for( String upgrade : TURTLE_UPGRADES )
+        for( String upgrade : EXTRA_MODELS )
         {
             IModel model = ModelLoaderRegistry.getModelOrMissing( new ResourceLocation( "computercraft", "block/" + upgrade ) );
-            for( ResourceLocation texture : model.getTextures() )
-            {
-                map.registerSprite( texture );
-            }
+            for( ResourceLocation texture : model.getTextures() ) map.registerSprite( texture );
         }
     }
 
     @SubscribeEvent
     public static void onModelBakeEvent( ModelBakeEvent event )
     {
-        // Load all upgrade models
-        for( String upgrade : TURTLE_UPGRADES )
-        {
-            loadBlockModel( event, upgrade );
-        }
+        // Load all extra models
+        for( String model : EXTRA_MODELS ) loadBlockModel( event, model );
     }
 
     private static void registerItemModel( Item item, int damage, String name )
@@ -118,18 +117,10 @@ public class ClientRegistry
         ModelLoader.setCustomModelResourceLocation( item, damage, res );
     }
 
-    private static void registerUniversalItemModel( Item item, String mainModel, String... extraModels )
+    private static void registerUniversalItemModel( Item item, String mainModel )
     {
         ResourceLocation mainLocation = new ResourceLocation( ComputerCraft.MOD_ID, mainModel );
-
-        ResourceLocation[] modelLocations = new ResourceLocation[extraModels.length + 1];
-        modelLocations[0] = mainLocation;
-        for( int i = 0; i < extraModels.length; i++ )
-        {
-            modelLocations[i + 1] = new ResourceLocation( ComputerCraft.MOD_ID, extraModels[i] );
-        }
-
-        ModelBakery.registerItemVariants( item, modelLocations );
+        ModelBakery.registerItemVariants( item, mainLocation );
 
         final ModelResourceLocation mainModelLocation = new ModelResourceLocation( mainLocation, "inventory" );
         ModelLoader.setCustomMeshDefinition( item, new ItemMeshDefinition()
