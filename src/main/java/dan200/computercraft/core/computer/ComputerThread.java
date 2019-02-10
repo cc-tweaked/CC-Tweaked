@@ -16,6 +16,7 @@ import java.util.WeakHashMap;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.locks.LockSupport;
 
 public class ComputerThread
 {
@@ -216,22 +217,37 @@ public class ComputerThread
                     // Interrupt the thread
                     if( !done )
                     {
-                        StringBuilder builder = new StringBuilder( "Terminating " );
-                        if( computer != null )
+                        if( ComputerCraft.logPeripheralErrors )
                         {
-                            builder.append( "computer " ).append( computer.getID() );
-                        }
-                        else
-                        {
-                            builder.append( "unknown computer" );
-                        }
+                            long time = System.nanoTime() - start;
+                            StringBuilder builder = new StringBuilder( "Terminating " );
+                            if( computer != null )
+                            {
+                                builder.append( "computer #" ).append( computer.getID() );
+                            }
+                            else
+                            {
+                                builder.append( "unknown computer" );
+                            }
 
-                        builder.append( ". Thread is currently running" );
-                        for( StackTraceElement element : thread.getStackTrace() )
-                        {
-                            builder.append( "\n  at " ).append( element );
+                            {
+                                builder.append( " due to timeout (running for " )
+                                    .append( time / 1e9 )
+                                    .append( " seconds). This is NOT a bug, but may mean a computer is misbehaving. " )
+                                    .append( thread.getName() )
+                                    .append( " is currently " )
+                                    .append( thread.getState() );
+                                Object blocking = LockSupport.getBlocker( thread );
+                                if( blocking != null ) builder.append( "\n  on " ).append( blocking );
+
+                                for( StackTraceElement element : thread.getStackTrace() )
+                                {
+                                    builder.append( "\n  at " ).append( element );
+                                }
+                            }
+
+                            ComputerCraft.log.warn( builder.toString() );
                         }
-                        ComputerCraft.log.error( builder.toString() );
 
                         thread.interrupt();
                         thread = null;

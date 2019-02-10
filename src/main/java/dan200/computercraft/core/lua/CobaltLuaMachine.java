@@ -46,7 +46,7 @@ public class CobaltLuaMachine implements ILuaMachine
 {
     private static final ThreadPoolExecutor coroutines = new ThreadPoolExecutor(
         0, Integer.MAX_VALUE,
-        60L, TimeUnit.SECONDS,
+        5L, TimeUnit.MINUTES,
         new SynchronousQueue<>(),
         ThreadUtils.factory( "Coroutine" )
     );
@@ -74,12 +74,12 @@ public class CobaltLuaMachine implements ILuaMachine
                 private boolean hasSoftAbort;
 
                 @Override
-                public void onInstruction( DebugState ds, DebugFrame di, int pc, Varargs extras, int top ) throws LuaError
+                public void onInstruction( DebugState ds, DebugFrame di, int pc ) throws LuaError, UnwindThrowable
                 {
                     int count = ++this.count;
                     if( count > 100000 )
                     {
-                        if( m_hardAbortMessage != null ) LuaThread.yield( m_state, NONE );
+                        if( m_hardAbortMessage != null ) throw HardAbortError.INSTANCE;
                         this.count = 0;
                     }
                     else
@@ -87,13 +87,13 @@ public class CobaltLuaMachine implements ILuaMachine
                         handleSoftAbort();
                     }
 
-                    super.onInstruction( ds, di, pc, extras, top );
+                    super.onInstruction( ds, di, pc );
                 }
 
                 @Override
                 public void poll() throws LuaError
                 {
-                    if( m_hardAbortMessage != null ) LuaThread.yield( m_state, NONE );
+                    if( m_hardAbortMessage != null ) throw HardAbortError.INSTANCE;
                     handleSoftAbort();
                 }
 
@@ -117,7 +117,7 @@ public class CobaltLuaMachine implements ILuaMachine
                     throw new LuaError( message );
                 }
             } )
-            .coroutineFactory( command -> {
+            .yieldThreader( command -> {
                 Tracking.addValue( m_computer, TrackingField.COROUTINES_CREATED, 1 );
                 coroutines.execute( () -> {
                     try
@@ -145,7 +145,7 @@ public class CobaltLuaMachine implements ILuaMachine
         if( ComputerCraft.debug_enable ) m_globals.load( state, new DebugLib() );
 
         // Register custom load/loadstring provider which automatically adds prefixes.
-        LibFunction.bind( state, m_globals, PrefixLoader.class, new String[] { "load", "loadstring" } );
+        LibFunction.bind( m_globals, PrefixLoader.class, new String[] { "load", "loadstring" } );
 
         // Remove globals we don't want to expose
         m_globals.rawset( "collectgarbage", Constants.NIL );
@@ -222,26 +222,18 @@ public class CobaltLuaMachine implements ILuaMachine
                 resumeArgs = varargsOf( valueOf( eventName ), toValues( arguments ) );
             }
 
-            Varargs results = m_mainRoutine.resume( resumeArgs );
-            if( m_hardAbortMessage != null )
-            {
-                throw new LuaError( m_hardAbortMessage );
-            }
-            else if( !results.first().checkBoolean() )
-            {
-                throw new LuaError( results.arg( 2 ).checkString() );
-            }
-            else
-            {
-                LuaValue filter = results.arg( 2 );
-                m_eventFilter = filter.isString() ? filter.toString() : null;
-            }
+            Varargs results = LuaThread.run( m_mainRoutine, resumeArgs );
+            if( m_hardAbortMessage != null ) throw new LuaError( m_hardAbortMessage );
+
+            LuaValue filter = results.first();
+            m_eventFilter = filter.isString() ? filter.toString() : null;
 
             if( m_mainRoutine.getStatus().equals( "dead" ) ) unload();
         }
-        catch( LuaError e )
+        catch( LuaError | HardAbortError e )
         {
             unload();
+            ComputerCraft.log.warn( "Top level coroutine errored", e );
         }
         finally
         {
@@ -339,16 +331,12 @@ public class CobaltLuaMachine implements ILuaMachine
                                 {
                                     try
                                     {
-                                        Varargs results = LuaThread.yield( state, toValues( yieldArgs ) );
+                                        Varargs results = LuaThread.yieldBlocking( state, toValues( yieldArgs ) );
                                         return toObjects( results, 1 );
                                     }
-                                    catch( OrphanedThread e )
+                                    catch( LuaError e )
                                     {
-                                        throw new InterruptedException();
-                                    }
-                                    catch( Throwable e )
-                                    {
-                                        throw new RuntimeException( e );
+                                        throw new IllegalStateException( e );
                                     }
                                 }
 
@@ -699,7 +687,7 @@ public class CobaltLuaMachine implements ILuaMachine
                 LuaValue s;
                 try
                 {
-                    s = OperationHelper.call( state, func );
+                    s = OperationHelper.noYield( state, () -> OperationHelper.call( state, func ) );
                 }
                 catch( LuaError e )
                 {
@@ -729,6 +717,18 @@ public class CobaltLuaMachine implements ILuaMachine
             }
             --remaining;
             return bytes[offset++];
+        }
+    }
+
+    private static class HardAbortError extends Error
+    {
+        private static final long serialVersionUID = 7954092008586367501L;
+
+        public static final HardAbortError INSTANCE = new HardAbortError();
+
+        private HardAbortError()
+        {
+            super( "Hard Abort", null, true, false );
         }
     }
 }
