@@ -51,6 +51,7 @@ public abstract class BlockGeneric extends Block implements ITileEntityProvider
 
     @Override
     @Deprecated
+    @SuppressWarnings( "deprecation" )
     public final void neighborChanged( IBlockState state, World world, BlockPos pos, Block block, BlockPos neighbour )
     {
         TileEntity tile = world.getTileEntity( pos );

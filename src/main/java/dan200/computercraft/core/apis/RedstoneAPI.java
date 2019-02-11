@@ -9,7 +9,6 @@ package dan200.computercraft.core.apis;
 import dan200.computercraft.api.lua.ILuaAPI;
 import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
-import dan200.computercraft.core.computer.Computer;
 
 import javax.annotation.Nonnull;
 import java.util.HashMap;
@@ -65,9 +64,9 @@ public class RedstoneAPI implements ILuaAPI
             {
                 // getSides
                 Map<Object, Object> table = new HashMap<>();
-                for( int i = 0; i < Computer.s_sideNames.length; i++ )
+                for( int i = 0; i < IAPIEnvironment.SIDE_NAMES.length; i++ )
                 {
-                    table.put( i + 1, Computer.s_sideNames[i] );
+                    table.put( i + 1, IAPIEnvironment.SIDE_NAMES[i] );
                 }
                 return new Object[] { table };
             }
@@ -156,9 +155,9 @@ public class RedstoneAPI implements ILuaAPI
     private int parseSide( Object[] args ) throws LuaException
     {
         String side = getString( args, 0 );
-        for( int n = 0; n < Computer.s_sideNames.length; n++ )
+        for( int n = 0; n < IAPIEnvironment.SIDE_NAMES.length; n++ )
         {
-            if( side.equals( Computer.s_sideNames[n] ) )
+            if( side.equals( IAPIEnvironment.SIDE_NAMES[n] ) )
             {
                 return n;
             }

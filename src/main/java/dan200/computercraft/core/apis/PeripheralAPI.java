@@ -278,13 +278,13 @@ public class PeripheralAPI implements ILuaAPI, IAPIEnvironment.IPeripheralChange
                 }, null );
 
                 // Queue a detachment event
-                m_environment.queueEvent( "peripheral_detach", new Object[] { Computer.s_sideNames[side] } );
+                m_environment.queueEvent( "peripheral_detach", new Object[] { IAPIEnvironment.SIDE_NAMES[side] } );
             }
 
             // Assign the new peripheral
             if( newPeripheral != null )
             {
-                m_peripherals[side] = new PeripheralWrapper( newPeripheral, Computer.s_sideNames[side] );
+                m_peripherals[side] = new PeripheralWrapper( newPeripheral, IAPIEnvironment.SIDE_NAMES[side] );
             }
             else
             {
@@ -317,7 +317,7 @@ public class PeripheralAPI implements ILuaAPI, IAPIEnvironment.IPeripheralChange
                 }, null );
 
                 // Queue an attachment event
-                m_environment.queueEvent( "peripheral", new Object[] { Computer.s_sideNames[side] } );
+                m_environment.queueEvent( "peripheral", new Object[] { IAPIEnvironment.SIDE_NAMES[side] } );
             }
         }
     }
@@ -483,9 +483,9 @@ public class PeripheralAPI implements ILuaAPI, IAPIEnvironment.IPeripheralChange
     private int parseSide( Object[] args ) throws LuaException
     {
         String side = getString( args, 0 );
-        for( int n = 0; n < Computer.s_sideNames.length; n++ )
+        for( int n = 0; n < IAPIEnvironment.SIDE_NAMES.length; n++ )
         {
-            if( side.equals( Computer.s_sideNames[n] ) )
+            if( side.equals( IAPIEnvironment.SIDE_NAMES[n] ) )
             {
                 return n;
             }

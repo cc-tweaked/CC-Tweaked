@@ -9,6 +9,7 @@ package dan200.computercraft.shared.command;
 import com.google.common.collect.Sets;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.peripheral.IPeripheral;
+import dan200.computercraft.core.apis.IAPIEnvironment;
 import dan200.computercraft.core.computer.Computer;
 import dan200.computercraft.core.tracking.ComputerTracker;
 import dan200.computercraft.core.tracking.Tracking;
@@ -126,7 +127,7 @@ public final class CommandComputerCraft extends CommandDelegate
                         IPeripheral peripheral = computer.getPeripheral( i );
                         if( peripheral != null )
                         {
-                            table.row( header( "Peripheral " + Computer.s_sideNames[i] ), text( peripheral.getType() ) );
+                            table.row( header( "Peripheral " + IAPIEnvironment.SIDE_NAMES[i] ), text( peripheral.getType() ) );
                         }
                     }
 

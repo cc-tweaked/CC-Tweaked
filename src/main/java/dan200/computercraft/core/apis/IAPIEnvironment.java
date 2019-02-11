@@ -14,20 +14,32 @@ import dan200.computercraft.core.filesystem.FileSystem;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.core.tracking.TrackingField;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 public interface IAPIEnvironment extends IComputerOwned
 {
+    String[] SIDE_NAMES = new String[] {
+        "bottom", "top", "back", "front", "right", "left",
+    };
+
+    int SIDE_COUNT = 6;
+
     interface IPeripheralChangeListener
     {
-        void onPeripheralChanged( int side, IPeripheral newPeripheral );
+        void onPeripheralChanged( int side, @Nullable IPeripheral newPeripheral );
     }
 
+    @Nonnull
     @Override
     Computer getComputer();
 
     int getComputerID();
 
+    @Nonnull
     IComputerEnvironment getComputerEnvironment();
 
+    @Nonnull
     Terminal getTerminal();
 
     FileSystem getFileSystem();
@@ -50,17 +62,18 @@ public interface IAPIEnvironment extends IComputerOwned
 
     int getBundledInput( int side );
 
-    void setPeripheralChangeListener( IPeripheralChangeListener listener );
+    void setPeripheralChangeListener( @Nullable IPeripheralChangeListener listener );
 
+    @Nullable
     IPeripheral getPeripheral( int side );
 
     String getLabel();
 
-    void setLabel( String label );
+    void setLabel( @Nullable String label );
 
-    void addTrackingChange( TrackingField field, long change );
+    void addTrackingChange( @Nonnull TrackingField field, long change );
 
-    default void addTrackingChange( TrackingField field )
+    default void addTrackingChange( @Nonnull TrackingField field )
     {
         addTrackingChange( field, 1 );
     }

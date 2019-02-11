@@ -8,11 +8,10 @@ package dan200.computercraft.core.computer;
 
 import com.google.common.base.Objects;
 import dan200.computercraft.ComputerCraft;
-import dan200.computercraft.api.filesystem.IFileSystem;
 import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.api.filesystem.IWritableMount;
 import dan200.computercraft.api.lua.ILuaAPI;
-import dan200.computercraft.api.lua.*;
+import dan200.computercraft.api.lua.ILuaAPIFactory;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.core.apis.*;
 import dan200.computercraft.core.filesystem.FileSystem;
@@ -20,11 +19,7 @@ import dan200.computercraft.core.filesystem.FileSystemException;
 import dan200.computercraft.core.lua.CobaltLuaMachine;
 import dan200.computercraft.core.lua.ILuaMachine;
 import dan200.computercraft.core.terminal.Terminal;
-import dan200.computercraft.core.tracking.Tracking;
-import dan200.computercraft.core.tracking.TrackingField;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -32,10 +27,6 @@ import java.util.List;
 
 public class Computer
 {
-    public static final String[] s_sideNames = new String[] {
-        "bottom", "top", "back", "front", "right", "left",
-    };
-
     private enum State
     {
         Off,
@@ -44,319 +35,81 @@ public class Computer
         Stopping,
     }
 
-    private static class APIEnvironment implements IAPIEnvironment
-    {
-        private Computer m_computer;
-        private IAPIEnvironment.IPeripheralChangeListener m_peripheralListener;
-
-        public APIEnvironment( Computer computer )
-        {
-            m_computer = computer;
-            m_peripheralListener = null;
-        }
-
-        @Override
-        public Computer getComputer()
-        {
-            return m_computer;
-        }
-
-        @Override
-        public int getComputerID()
-        {
-            return m_computer.assignID();
-        }
-
-        @Override
-        public IComputerEnvironment getComputerEnvironment()
-        {
-            return m_computer.m_environment;
-        }
-
-        @Override
-        public Terminal getTerminal()
-        {
-            return m_computer.m_terminal;
-        }
-
-        @Override
-        public FileSystem getFileSystem()
-        {
-            return m_computer.m_fileSystem;
-        }
-
-        @Override
-        public void shutdown()
-        {
-            m_computer.shutdown();
-        }
-
-        @Override
-        public void reboot()
-        {
-            m_computer.reboot();
-        }
-
-        @Override
-        public void queueEvent( String event, Object[] args )
-        {
-            m_computer.queueEvent( event, args );
-        }
-
-        @Override
-        public void setOutput( int side, int output )
-        {
-            m_computer.setRedstoneOutput( side, output );
-        }
-
-        @Override
-        public int getOutput( int side )
-        {
-            return m_computer.getInternalRedstoneOutput( side );
-        }
-
-        @Override
-        public int getInput( int side )
-        {
-            return m_computer.getRedstoneInput( side );
-        }
-
-        @Override
-        public void setBundledOutput( int side, int output )
-        {
-            m_computer.setBundledRedstoneOutput( side, output );
-        }
-
-        @Override
-        public int getBundledOutput( int side )
-        {
-            return m_computer.getInternalBundledRedstoneOutput( side );
-        }
-
-        @Override
-        public int getBundledInput( int side )
-        {
-            return m_computer.getBundledRedstoneInput( side );
-        }
-
-        @Override
-        public IPeripheral getPeripheral( int side )
-        {
-            synchronized( m_computer.m_peripherals )
-            {
-                return m_computer.m_peripherals[side];
-            }
-        }
-
-        @Override
-        public void setPeripheralChangeListener( IPeripheralChangeListener listener )
-        {
-            synchronized( m_computer.m_peripherals )
-            {
-                m_peripheralListener = listener;
-            }
-        }
-
-        @Override
-        public String getLabel()
-        {
-            return m_computer.getLabel();
-        }
-
-        @Override
-        public void setLabel( String label )
-        {
-            m_computer.setLabel( label );
-        }
-
-        @Override
-        public void addTrackingChange( TrackingField field, long change )
-        {
-            Tracking.addValue( m_computer, field, change );
-        }
-
-        public void onPeripheralChanged( int side, IPeripheral peripheral )
-        {
-            synchronized( m_computer.m_peripherals )
-            {
-                if( m_peripheralListener != null )
-                {
-                    m_peripheralListener.onPeripheralChanged( side, peripheral );
-                }
-            }
-        }
-    }
-
-    private static class ComputerSystem extends ComputerAccess implements IComputerSystem
-    {
-        private final IAPIEnvironment m_environment;
-
-        private ComputerSystem( IAPIEnvironment m_environment )
-        {
-            super( m_environment );
-            this.m_environment = m_environment;
-        }
-
-        @Nonnull
-        @Override
-        public String getAttachmentName()
-        {
-            return "computer";
-        }
-
-        @Nullable
-        @Override
-        public IFileSystem getFileSystem()
-        {
-            FileSystem fs = m_environment.getFileSystem();
-            return fs == null ? null : fs.getMountWrapper();
-        }
-
-        @Nullable
-        @Override
-        public String getLabel()
-        {
-            return m_environment.getLabel();
-        }
-    }
-
-    private static class APIWrapper implements ILuaAPI
-    {
-        private final ILuaAPI delegate;
-        private final ComputerSystem system;
-
-        private APIWrapper( ILuaAPI delegate, ComputerSystem system )
-        {
-            this.delegate = delegate;
-            this.system = system;
-        }
-
-        @Override
-        public String[] getNames()
-        {
-            return delegate.getNames();
-        }
-
-        @Override
-        public void startup()
-        {
-            delegate.startup();
-        }
-
-        @Override
-        public void update()
-        {
-            delegate.update();
-        }
-
-        @Override
-        public void shutdown()
-        {
-            delegate.shutdown();
-            system.unmountAll();
-        }
-
-        @Nonnull
-        @Override
-        public String[] getMethodNames()
-        {
-            return delegate.getMethodNames();
-        }
-
-        @Nullable
-        @Override
-        public Object[] callMethod( @Nonnull ILuaContext context, int method, @Nonnull Object[] arguments ) throws LuaException, InterruptedException
-        {
-            return delegate.callMethod( context, method, arguments );
-        }
-    }
-
     private static IMount s_romMount = null;
 
     private int m_id;
-    private String m_label;
+    private String m_label = null;
     private final IComputerEnvironment m_environment;
 
-    private int m_ticksSinceStart;
-    private boolean m_startRequested;
-    private State m_state;
-    private boolean m_blinking;
+    private int m_ticksSinceStart = -1;
+    private boolean m_startRequested = false;
+    private State m_state = State.Off;
+    private boolean m_blinking = false;
 
-    private ILuaMachine m_machine;
-    private final List<ILuaAPI> m_apis;
-    private final APIEnvironment m_apiEnvironment;
+    private ILuaMachine m_machine = null;
+    private final List<ILuaAPI> m_apis = new ArrayList<>();
+    private final Environment m_internalEnvironment = new Environment( this );
 
     private final Terminal m_terminal;
-    private FileSystem m_fileSystem;
-    private IWritableMount m_rootMount;
+    private FileSystem m_fileSystem = null;
+    private IWritableMount m_rootMount = null;
 
-    private final int[] m_internalOutput;
-    private final int[] m_internalBundledOutput;
-    private boolean m_internalOutputChanged;
-
-    private final int[] m_externalOutput;
-    private final int[] m_externalBundledOutput;
     private boolean m_externalOutputChanged;
-
-    private final int[] m_input;
-    private final int[] m_bundledInput;
-    private boolean m_inputChanged;
-
-    private final IPeripheral[] m_peripherals;
 
     public Computer( IComputerEnvironment environment, Terminal terminal, int id )
     {
+        m_id = id;
+        m_environment = environment;
+        m_terminal = terminal;
+
+        // Ensure the computer thread is running as required.
         ComputerThread.start();
 
-        m_id = id;
-        m_label = null;
-        m_environment = environment;
+        // Add all default APIs to the loaded list.
+        m_apis.add( new TermAPI( m_internalEnvironment ) );
+        m_apis.add( new RedstoneAPI( m_internalEnvironment ) );
+        m_apis.add( new FSAPI( m_internalEnvironment ) );
+        m_apis.add( new PeripheralAPI( m_internalEnvironment ) );
+        m_apis.add( new OSAPI( m_internalEnvironment ) );
+        if( ComputerCraft.http_enable ) m_apis.add( new HTTPAPI( m_internalEnvironment ) );
 
-        m_ticksSinceStart = -1;
-        m_startRequested = false;
-        m_state = State.Off;
-        m_blinking = false;
-
-        m_terminal = terminal;
-        m_fileSystem = null;
-
-        m_machine = null;
-        m_apis = new ArrayList<>();
-        m_apiEnvironment = new APIEnvironment( this );
-
-        m_internalOutput = new int[6];
-        m_internalBundledOutput = new int[6];
-        m_internalOutputChanged = true;
-
-        m_externalOutput = new int[6];
-        m_externalBundledOutput = new int[6];
-        m_externalOutputChanged = true;
-
-        m_input = new int[6];
-        m_bundledInput = new int[6];
-        m_inputChanged = false;
-
-        m_peripherals = new IPeripheral[6];
-        for( int i = 0; i < 6; i++ )
+        // Load in the API registered APIs.
+        for( ILuaAPIFactory factory : ApiFactories.getAll() )
         {
-            m_peripherals[i] = null;
+            ComputerSystem system = new ComputerSystem( m_internalEnvironment );
+            ILuaAPI api = factory.create( system );
+            if( api != null ) m_apis.add( new ApiWrapper( api, system ) );
         }
+    }
 
-        m_rootMount = null;
-        createAPIs();
+    IComputerEnvironment getComputerEnvironment()
+    {
+        return m_environment;
+    }
+
+    FileSystem getFileSystem()
+    {
+        return m_fileSystem;
+    }
+
+    Terminal getTerminal()
+    {
+        return m_terminal;
+    }
+
+    public Environment getEnvironment()
+    {
+        return m_internalEnvironment;
     }
 
     public IAPIEnvironment getAPIEnvironment()
     {
-        return m_apiEnvironment;
+        return m_internalEnvironment;
     }
 
     public void turnOn()
     {
-        if( m_state == State.Off )
-        {
-            m_startRequested = true;
-        }
+        if( m_state == State.Off ) m_startRequested = true;
     }
 
     public void shutdown()
@@ -397,10 +150,7 @@ public class Computer
 
     public void unload()
     {
-        synchronized( this )
-        {
-            stopComputer( false );
-        }
+        stopComputer( false );
     }
 
     public int getID()
@@ -436,7 +186,7 @@ public class Computer
         }
     }
 
-    public void advance( double _dt )
+    public void advance()
     {
         synchronized( this )
         {
@@ -453,67 +203,27 @@ public class Computer
 
             if( m_state == State.Running )
             {
-                // Fire the redstone event if our redstone input has changed
-                synchronized( m_input )
-                {
-                    if( m_inputChanged )
-                    {
-                        queueEvent( "redstone", null );
-                        m_inputChanged = false;
-                    }
-                }
+                // Update the environment's internal state.
+                m_internalEnvironment.update();
 
                 // Advance our APIs
-                synchronized( m_apis )
-                {
-                    for( ILuaAPI api : m_apis )
-                    {
-                        api.update();
-                    }
-                }
+                for( ILuaAPI api : m_apis ) api.update();
             }
         }
 
-        // Set outputchanged if the internal redstone has changed
-        synchronized( m_internalOutput )
-        {
-            if( m_internalOutputChanged )
-            {
-                boolean changed = false;
-                for( int i = 0; i < 6; i++ )
-                {
-                    if( m_externalOutput[i] != m_internalOutput[i] )
-                    {
-                        m_externalOutput[i] = m_internalOutput[i];
-                        changed = true;
-                    }
-                    if( m_externalBundledOutput[i] != m_internalBundledOutput[i] )
-                    {
-                        m_externalBundledOutput[i] = m_internalBundledOutput[i];
-                        changed = true;
-                    }
-                }
-                m_internalOutputChanged = false;
-                if( changed )
-                {
-                    m_externalOutputChanged = true;
-                }
-            }
-        }
+        // Prepare to propagate the environment's output to the world.
+        if( m_internalEnvironment.updateOutput() ) m_externalOutputChanged = true;
 
-        // Set outputchanged if the terminal has changed from blinking to not
-        synchronized( m_terminal )
-        {
-            boolean blinking =
-                m_terminal.getCursorBlink() &&
-                    m_terminal.getCursorX() >= 0 && m_terminal.getCursorX() < m_terminal.getWidth() &&
-                    m_terminal.getCursorY() >= 0 && m_terminal.getCursorY() < m_terminal.getHeight();
+        // Set output changed if the terminal has changed from blinking to not
+        boolean blinking =
+            m_terminal.getCursorBlink() &&
+                m_terminal.getCursorX() >= 0 && m_terminal.getCursorX() < m_terminal.getWidth() &&
+                m_terminal.getCursorY() >= 0 && m_terminal.getCursorY() < m_terminal.getHeight();
 
-            if( blinking != m_blinking )
-            {
-                m_blinking = blinking;
-                m_externalOutputChanged = true;
-            }
+        if( blinking != m_blinking )
+        {
+            m_blinking = blinking;
+            m_externalOutputChanged = true;
         }
     }
 
@@ -529,10 +239,7 @@ public class Computer
 
     public boolean isBlinking()
     {
-        synchronized( m_terminal )
-        {
-            return isOn() && m_blinking;
-        }
+        return isOn() && m_blinking;
     }
 
     public IWritableMount getRootMount()
@@ -553,10 +260,7 @@ public class Computer
         try
         {
             m_fileSystem = new FileSystem( "hdd", getRootMount() );
-            if( s_romMount == null )
-            {
-                s_romMount = m_environment.createResourceMount( "computercraft", "lua/rom" );
-            }
+            if( s_romMount == null ) s_romMount = m_environment.createResourceMount( "computercraft", "lua/rom" );
             if( s_romMount != null )
             {
                 m_fileSystem.mount( "rom", "rom", s_romMount );
@@ -571,104 +275,6 @@ public class Computer
         }
     }
 
-    // Redstone
-
-    public int getRedstoneOutput( int side )
-    {
-        synchronized( m_internalOutput )
-        {
-            return isOn() ? m_externalOutput[side] : 0;
-        }
-    }
-
-    private int getInternalRedstoneOutput( int side )
-    {
-        synchronized( m_internalOutput )
-        {
-            return isOn() ? m_internalOutput[side] : 0;
-        }
-    }
-
-    private void setRedstoneOutput( int side, int level )
-    {
-        synchronized( m_internalOutput )
-        {
-            if( m_internalOutput[side] != level )
-            {
-                m_internalOutput[side] = level;
-                m_internalOutputChanged = true;
-            }
-        }
-    }
-
-    public void setRedstoneInput( int side, int level )
-    {
-        synchronized( m_input )
-        {
-            if( m_input[side] != level )
-            {
-                m_input[side] = level;
-                m_inputChanged = true;
-            }
-        }
-    }
-
-    private int getRedstoneInput( int side )
-    {
-        synchronized( m_input )
-        {
-            return m_input[side];
-        }
-    }
-
-    public int getBundledRedstoneOutput( int side )
-    {
-        synchronized( m_internalOutput )
-        {
-            return isOn() ? m_externalBundledOutput[side] : 0;
-        }
-    }
-
-    private int getInternalBundledRedstoneOutput( int side )
-    {
-        synchronized( m_internalOutput )
-        {
-            return isOn() ? m_internalBundledOutput[side] : 0;
-        }
-    }
-
-    private void setBundledRedstoneOutput( int side, int combination )
-    {
-        synchronized( m_internalOutput )
-        {
-            if( m_internalBundledOutput[side] != combination )
-            {
-                m_internalBundledOutput[side] = combination;
-                m_internalOutputChanged = true;
-            }
-        }
-    }
-
-    public void setBundledRedstoneInput( int side, int combination )
-    {
-        synchronized( m_input )
-        {
-            if( m_bundledInput[side] != combination )
-            {
-                m_bundledInput[side] = combination;
-                m_inputChanged = true;
-            }
-        }
-    }
-
-    private int getBundledRedstoneInput( int side )
-    {
-        synchronized( m_input )
-        {
-            return m_bundledInput[side];
-        }
-    }
-
     // Peripherals
 
     public void addAPI( ILuaAPI api )
@@ -676,56 +282,7 @@ public class Computer
         m_apis.add( api );
     }
 
-    @SuppressWarnings( "deprecation" )
-    public void addAPI( dan200.computercraft.core.apis.ILuaAPI api )
-    {
-        addAPI( (ILuaAPI) api );
-    }
-
-    public void setPeripheral( int side, IPeripheral peripheral )
-    {
-        synchronized( m_peripherals )
-        {
-            IPeripheral existing = m_peripherals[side];
-            if( (existing == null && peripheral != null) ||
-                (existing != null && peripheral == null) ||
-                (existing != null && !existing.equals( peripheral )) )
-            {
-                m_peripherals[side] = peripheral;
-                m_apiEnvironment.onPeripheralChanged( side, peripheral );
-            }
-        }
-    }
-
-    public IPeripheral getPeripheral( int side )
-    {
-        synchronized( m_peripherals )
-        {
-            return m_peripherals[side];
-        }
-    }
-
     // Lua
-
-    private void createAPIs()
-    {
-        m_apis.add( new TermAPI( m_apiEnvironment ) );
-        m_apis.add( new RedstoneAPI( m_apiEnvironment ) );
-        m_apis.add( new FSAPI( m_apiEnvironment ) );
-        m_apis.add( new PeripheralAPI( m_apiEnvironment ) );
-        m_apis.add( new OSAPI( m_apiEnvironment ) );
-        if( ComputerCraft.http_enable )
-        {
-            m_apis.add( new HTTPAPI( m_apiEnvironment ) );
-        }
-
-        for( ILuaAPIFactory factory : ApiFactories.getAll() )
-        {
-            ComputerSystem system = new ComputerSystem( m_apiEnvironment );
-            ILuaAPI api = factory.create( system );
-            if( api != null ) m_apis.add( api );
-        }
-    }
 
     private void initLua()
     {
@@ -824,10 +381,7 @@ public class Computer
                     }
 
                     // Init terminal
-                    synchronized( m_terminal )
-                    {
-                        m_terminal.reset();
-                    }
+                    m_terminal.reset();
 
                     // Init filesystem
                     if( !initFileSystem() )
@@ -920,10 +474,7 @@ public class Computer
 
                     if( m_machine != null )
                     {
-                        synchronized( m_terminal )
-                        {
-                            m_terminal.reset();
-                        }
+                        m_terminal.reset();
 
                         synchronized( m_machine )
                         {
@@ -933,15 +484,7 @@ public class Computer
                     }
 
                     // Reset redstone output
-                    synchronized( m_internalOutput )
-                    {
-                        for( int i = 0; i < 6; i++ )
-                        {
-                            m_internalOutput[i] = 0;
-                            m_internalBundledOutput[i] = 0;
-                        }
-                        m_internalOutputChanged = true;
-                    }
+                    m_internalEnvironment.resetOutput();
 
                     m_state = State.Off;
                     m_externalOutputChanged = true;
@@ -1001,5 +544,24 @@ public class Computer
         };
 
         ComputerThread.queueTask( task, computer );
+    }
+
+    @Deprecated
+    public void setPeripheral( int side, IPeripheral peripheral )
+    {
+        m_internalEnvironment.setPeripheral( side, peripheral );
+    }
+
+    @Deprecated
+    public void addAPI( dan200.computercraft.core.apis.ILuaAPI api )
+    {
+        addAPI( (ILuaAPI) api );
+    }
+
+    @Deprecated
+    @SuppressWarnings( "unused" )
+    public void advance( double dt )
+    {
+        advance();
     }
 }

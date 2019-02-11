@@ -105,7 +105,7 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
     public void update()
     {
         super.update();
-        m_computer.advance( 0.05 );
+        m_computer.advance();
 
         m_changedLastFrame = m_computer.pollAndResetChanged() || m_changed;
         m_changed = false;
@@ -283,22 +283,22 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
 
     public int getRedstoneOutput( int side )
     {
-        return m_computer.getRedstoneOutput( side );
+        return m_computer.getEnvironment().getExternalRedstoneOutput( side );
     }
 
     public void setRedstoneInput( int side, int level )
     {
-        m_computer.setRedstoneInput( side, level );
+        m_computer.getEnvironment().setRedstoneInput( side, level );
     }
 
     public int getBundledRedstoneOutput( int side )
     {
-        return m_computer.getBundledRedstoneOutput( side );
+        return m_computer.getEnvironment().getExternalBundledRedstoneOutput( side );
     }
 
     public void setBundledRedstoneInput( int side, int combination )
     {
-        m_computer.setBundledRedstoneInput( side, combination );
+        m_computer.getEnvironment().setBundledRedstoneInput( side, combination );
     }
 
     public void addAPI( ILuaAPI api )
@@ -306,7 +306,7 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
         m_computer.addAPI( api );
     }
 
-    @SuppressWarnings( "deprecation" )
+    @Deprecated
     public void addAPI( dan200.computercraft.core.apis.ILuaAPI api )
     {
         m_computer.addAPI( api );
@@ -314,12 +314,12 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
 
     public void setPeripheral( int side, IPeripheral peripheral )
     {
-        m_computer.setPeripheral( side, peripheral );
+        m_computer.getEnvironment().setPeripheral( side, peripheral );
     }
 
     public IPeripheral getPeripheral( int side )
     {
-        return m_computer.getPeripheral( side );
+        return m_computer.getEnvironment().getPeripheral( side );
     }
 
     public void setLabel( String label )
