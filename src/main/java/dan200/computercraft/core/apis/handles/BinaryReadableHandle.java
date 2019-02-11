@@ -169,27 +169,42 @@ public class BinaryReadableHandle extends HandleGeneric
                 {
                     ByteArrayOutputStream stream = new ByteArrayOutputStream();
 
-                    boolean readAnything = false;
+                    boolean readAnything = false, readRc = false;
                     while( true )
                     {
                         single.clear();
-                        int r = m_reader.read( single );
-                        if( r == -1 ) break;
+                        int read = m_reader.read( single );
+                        if( read <= 0 )
+                        {
+                            // Nothing else to read, and we saw no \n. Return the array. If we saw a \r, then add it
+                            // back.
+                            if( readRc ) stream.write( '\r' );
+                            return readAnything ? new Object[] { stream.toByteArray() } : null;
+                        }
 
                         readAnything = true;
-                        byte b = single.get( 0 );
-                        if( b == '\n' )
+
+                        byte chr = single.get( 0 );
+                        if( chr == '\n' )
                         {
-                            if( withTrailing ) stream.write( b );
-                            break;
+                            if( withTrailing )
+                            {
+                                if( readRc ) stream.write( '\r' );
+                                stream.write( chr );
+                            }
+                            return new Object[] { stream.toByteArray() };
                         }
                         else
                         {
-                            stream.write( b );
+                            // We want to skip \r\n, but obviously need to include cases where \r is not followed by \n.
+                            // Note, this behaviour is non-standard compliant (strictly speaking we should have no
+                            // special logic for \r), but we preserve compatibility with EncodedReadableHandle and
+                            // previous behaviour of the io library.
+                            if( readRc ) stream.write( '\r' );
+                            readRc = chr == '\r';
+                            if( !readRc ) stream.write( chr );
                         }
                     }
-
-                    return readAnything ? new Object[] { stream.toByteArray() } : null;
                 }
                 catch( IOException e )
                 {

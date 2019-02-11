@@ -10,9 +10,10 @@ import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.core.apis.ObjectWrapper;
 import org.junit.Test;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 public class BinaryReadableHandleTest
 {
@@ -57,6 +58,24 @@ public class BinaryReadableHandleTest
     {
         ObjectWrapper wrapper = fromLength( 1000 );
         assertEquals( 1000, wrapper.<byte[]>callOf( "read", 11000 ).length );
+    }
+
+    @Test
+    public void testReadLine() throws LuaException
+    {
+        ObjectWrapper wrapper = new ObjectWrapper( new BinaryReadableHandle( new ArrayByteChannel( "hello\r\nworld\r!".getBytes( StandardCharsets.UTF_8 ) ) ) );
+        assertArrayEquals( "hello".getBytes( StandardCharsets.UTF_8 ), wrapper.callOf( "readLine" ) );
+        assertArrayEquals( "world\r!".getBytes( StandardCharsets.UTF_8 ), wrapper.callOf( "readLine" ) );
+        assertNull( wrapper.call( "readLine" ) );
+    }
+
+    @Test
+    public void testReadLineTrailing() throws LuaException
+    {
+        ObjectWrapper wrapper = new ObjectWrapper( new BinaryReadableHandle( new ArrayByteChannel( "hello\r\nworld\r!".getBytes( StandardCharsets.UTF_8 ) ) ) );
+        assertArrayEquals( "hello\r\n".getBytes( StandardCharsets.UTF_8 ), wrapper.callOf( "readLine", true ) );
+        assertArrayEquals( "world\r!".getBytes( StandardCharsets.UTF_8 ), wrapper.callOf( "readLine", true ) );
+        assertNull( wrapper.call( "readLine", true ) );
     }
 
     private static ObjectWrapper fromLength( int length )
