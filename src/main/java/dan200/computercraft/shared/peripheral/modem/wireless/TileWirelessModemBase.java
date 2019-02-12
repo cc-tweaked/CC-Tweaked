@@ -25,6 +25,7 @@ public abstract class TileWirelessModemBase extends TileGeneric implements IPeri
     protected TileWirelessModemBase( boolean advanced )
     {
         this.advanced = advanced;
+        this.modem = new Peripheral( this ); // Needs to be initialised after advanced
     }
 
     private static class Peripheral extends WirelessModemPeripheral
@@ -62,7 +63,7 @@ public abstract class TileWirelessModemBase extends TileGeneric implements IPeri
     private final boolean advanced;
     private boolean hasModemDirection = false;
     private EnumFacing modemDirection = EnumFacing.DOWN;
-    private final ModemPeripheral modem = new Peripheral( this );
+    private final ModemPeripheral modem;
     private boolean destroyed = false;
 
     private boolean on = false;
