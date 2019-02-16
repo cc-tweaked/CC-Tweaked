@@ -106,9 +106,18 @@ import proguard.gradle.ProGuardTask
 
 task proguard(type: ProGuardTask, dependsOn: jar) {
     description "Removes unused shadowed classes from the jar"
+    group "compact"
 
     injars jar.archivePath
     outjars "${jar.archivePath.absolutePath.replace(".jar", "")}-min.jar"
+
+    // Add the main runtime jar and all non-shadowed dependencies
+    libraryjars "${System.getProperty('java.home')}/lib/rt.jar"
+    doFirst {
+        sourceSets.main.compileClasspath
+            .filter { !it.name.contains("Cobalt") }
+            .each { libraryjars it }
+    }
 
     // We want to avoid as much obfuscation as possible. We're only doing this to shrink code size.
     dontobfuscate; dontoptimize; keepattributes; keepparameternames
@@ -121,18 +130,6 @@ task proguard(type: ProGuardTask, dependsOn: jar) {
 
     // Preserve the constructors in Cobalt library class, as we init them via reflection
     keepclassmembers 'class org.squiddev.cobalt.lib.** { <init>(...); }'
-}
-
-gradle.projectsEvaluated {
-    tasks.withType(ProGuardTask) {
-        group "compact"
-
-        // Add the main runtime jar and all non-shadowed dependencies
-        libraryjars "${System.getProperty('java.home')}/lib/rt.jar"
-        sourceSets.main.compileClasspath
-            .filter { !it.name.contains("Cobalt") }
-            .each { libraryjars it }
-    }
 }
 
 task proguardMove(dependsOn: proguard) {
