@@ -83,6 +83,11 @@ public class WebsocketHandler extends SimpleChannelInboundHandler<Object>
             CloseWebSocketFrame closeFrame = (CloseWebSocketFrame) frame;
             websocket.close( closeFrame.statusCode(), closeFrame.reasonText() );
         }
+        else if( frame instanceof PingWebSocketFrame )
+        {
+            frame.content().retain();
+            ctx.channel().writeAndFlush( new PongWebSocketFrame( frame.content() ) );
+        }
     }
 
     @Override
@@ -108,6 +113,13 @@ public class WebsocketHandler extends SimpleChannelInboundHandler<Object>
             message = "Could not connect";
         }
 
-        websocket.failure( message );
+        if( handshaker.isHandshakeComplete() )
+        {
+            websocket.close( -1, message );
+        }
+        else
+        {
+            websocket.failure( message );
+        }
     }
 }
