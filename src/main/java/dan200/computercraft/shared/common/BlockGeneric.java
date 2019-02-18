@@ -55,12 +55,7 @@ public abstract class BlockGeneric extends Block implements ITileEntityProvider
     public final void neighborChanged( IBlockState state, World world, BlockPos pos, Block block, BlockPos neighbour )
     {
         TileEntity tile = world.getTileEntity( pos );
-        if( tile instanceof TileGeneric )
-        {
-            TileGeneric generic = (TileGeneric) tile;
-            generic.onNeighbourChange();
-            generic.onNeighbourChange( neighbour );
-        }
+        if( tile instanceof TileGeneric ) ((TileGeneric) tile).onNeighbourChange( neighbour );
     }
 
     @Override

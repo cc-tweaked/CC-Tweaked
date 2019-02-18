@@ -54,7 +54,7 @@ public class TurtleBrain implements ITurtleAccess
     private int m_commandsIssued = 0;
 
     private Map<TurtleSide, ITurtleUpgrade> m_upgrades = new EnumMap<>( TurtleSide.class );
-    private Map<TurtleSide, IPeripheral> m_peripherals = new EnumMap<>( TurtleSide.class );
+    private Map<TurtleSide, IPeripheral> peripherals = new EnumMap<>( TurtleSide.class );
     private Map<TurtleSide, NBTTagCompound> m_upgradeNBTData = new EnumMap<>( TurtleSide.class );
 
     private int m_selectedSlot = 0;
@@ -824,9 +824,9 @@ public class TurtleBrain implements ITurtleAccess
     @Override
     public IPeripheral getPeripheral( @Nonnull TurtleSide side )
     {
-        if( m_peripherals.containsKey( side ) )
+        if( peripherals.containsKey( side ) )
         {
-            return m_peripherals.get( side );
+            return peripherals.get( side );
         }
         return null;
     }
@@ -924,13 +924,9 @@ public class TurtleBrain implements ITurtleAccess
         }
     }
 
-    public void updatePeripherals( ServerComputer serverComputer )
+    private void updatePeripherals( ServerComputer serverComputer )
     {
-        if( serverComputer == null )
-        {
-            // Nothing to do
-            return;
-        }
+        if( serverComputer == null ) return;
 
         // Update peripherals
         for( TurtleSide side : TurtleSide.values() )
@@ -942,26 +938,20 @@ public class TurtleBrain implements ITurtleAccess
                 peripheral = upgrade.createPeripheral( this, side );
             }
 
-            int dir = toDirection( side );
-            if( peripheral != null )
+            IPeripheral existing = peripherals.get( side );
+            if( existing == peripheral || (existing != null && peripheral != null && existing.equals( peripheral )) )
             {
-                if( !m_peripherals.containsKey( side ) )
-                {
-                    serverComputer.setPeripheral( dir, peripheral );
-                    m_peripherals.put( side, peripheral );
-                }
-                else if( !m_peripherals.get( side ).equals( peripheral ) )
-                {
-                    serverComputer.setPeripheral( dir, peripheral );
-                    m_peripherals.remove( side );
-                    m_peripherals.put( side, peripheral );
-                }
+                // If the peripheral is the same, just use that.
+                peripheral = existing;
             }
-            else if( m_peripherals.containsKey( side ) )
+            else
             {
-                serverComputer.setPeripheral( dir, null );
-                m_peripherals.remove( side );
+                // Otherwise update our map
+                peripherals.put( side, peripheral );
             }
+
+            // Always update the computer: it may not be the same computer as before!
+            serverComputer.setPeripheral( toDirection( side ), peripheral );
         }
     }
 

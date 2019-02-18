@@ -63,8 +63,10 @@ public abstract class TileGeneric extends TileEntity
     {
     }
 
+    @SuppressWarnings( "deprecation" )
     public void onNeighbourChange( @Nonnull BlockPos neighbour )
     {
+        onNeighbourChange();
     }
 
     public void onNeighbourTileEntityChange( @Nonnull BlockPos neighbour )

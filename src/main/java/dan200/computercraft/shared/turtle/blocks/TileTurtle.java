@@ -80,7 +80,7 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
         m_inventory = NonNullList.withSize( INVENTORY_SIZE, ItemStack.EMPTY );
         m_previousInventory = NonNullList.withSize( INVENTORY_SIZE, ItemStack.EMPTY );
         m_inventoryChanged = false;
-        m_brain = createBrain();
+        m_brain = new TurtleBrain( this );
         m_moveState = MoveState.NOT_MOVED;
         m_family = family;
     }
@@ -90,32 +90,17 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
         return m_moveState == MoveState.MOVED;
     }
 
-    protected TurtleBrain createBrain()
-    {
-        return new TurtleBrain( this );
-    }
-
-    protected final ServerComputer createComputer( int instanceID, int id, int termWidth, int termHeight )
+    @Override
+    protected ServerComputer createComputer( int instanceID, int id )
     {
         ServerComputer computer = new ServerComputer(
-            getWorld(),
-            id,
-            m_label,
-            instanceID,
-            getFamily(),
-            termWidth,
-            termHeight
+            getWorld(), id, m_label, instanceID, getFamily(),
+            ComputerCraft.terminalWidth_turtle, ComputerCraft.terminalHeight_turtle
         );
         computer.setPosition( getPos() );
         computer.addAPI( new TurtleAPI( computer.getAPIEnvironment(), getAccess() ) );
         m_brain.setupComputer( computer );
         return computer;
-    }
-
-    @Override
-    protected ServerComputer createComputer( int instanceID, int id )
-    {
-        return createComputer( instanceID, id, ComputerCraft.terminalWidth_turtle, ComputerCraft.terminalHeight_turtle );
     }
 
     @Override
