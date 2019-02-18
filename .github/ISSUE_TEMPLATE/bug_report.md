@@ -6,11 +6,10 @@ about: Report some misbehaviour in the mod
 
 <!--
 ## Before reporting
- - Search for the bug both here and [on the ComputerCraft issues page](https://github.com/dan200/ComputerCraft/issues?utf8=%E2%9C%93&q=is%3Aissue+)
- - If possible, try to reproduce on vanilla ComputerCraft. If it still occurs, [report on the ComputerCraft repo](https://github.com/dan200/ComputerCraft/issues/new) instead.
+ - Search for the bug on the issue tracker. Make sure to look at closed issues too!
 -->
 
 ## Useful information to include:
  - Minecraft version
  - CC: Tweaked version
- - Detailed reproduction steps!** Sometimes I can spot a bug pretty easily, but often it's much more obscure. Anything you can give which will help reproduce it means it'll get fixed quicker.
+ - Detailed reproduction steps: sometimes I can spot a bug pretty easily, but often it's much more obscure. The more information I have to help reproduce it, the quicker it'll get fixed.
