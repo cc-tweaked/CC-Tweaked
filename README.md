@@ -1,35 +1,35 @@
 # ![CC: Tweaked](logo.png)
 [![Build Status](https://travis-ci.org/SquidDev-CC/CC-Tweaked.svg?branch=master)](https://travis-ci.org/SquidDev-CC/CC-Tweaked)
 
-CC: Tweaked is a fork of ComputerCraft which aims to provide earlier access to the more experimental and in-development
-features of the mod. For a more stable experience, I recommend checking out the
-[original mod](https://github.com/dan200/ComputerCraft).
+CC: Tweaked is a fork of [ComputerCraft](https://github.com/dan200/ComputerCraft), adding programmable computers,
+turtles and more to Minecraft.
 
 ## What?
-CC: Tweaked (or CC:T for short) does not aim to create a competing fork of ComputerCraft, nor am I planning to take it
-in in a vastly different direction to the original mod. In fact, CC:T aims to be a nurturing ground for various
-features, with a pull request against the original mod being the end goal.
+ComputerCraft has always held a fond place in my heart: it's the mod which really got me into Minecraft, and it's the
+mod which has kept me playing it for many years. However, development of the original mod has slowed in recent years,
+as the original developers have had less time to work on the mod, and moved onto other projects and commitments 
 
-CC:T also includes many pull requests from the community which have not yet been merged, offering a large number
-of additional bug fixes and features over the original mod.
+CC:Tweaked (or CC:T for short) is an attempt to continue ComputerCraft's legacy. It's not intended to be a competitor
+to CC, nor do I want to take it in a vastly different direction to the original mod. Instead, CC:T focuses on making the
+ComputerCraft experience as _solid_ as possible, ironing out any wrinkles that may have developed over time.
 
 ## Features
-CC: Tweaked contains all the features of the latest alpha, as well as numerous fixes, performance improvements and
-several additional features. I'd recommend checking out [the releases page](https://github.com/SquidDev-CC/CC-Tweaked/releases)
+CC: Tweaked contains all the features of the latest version of ComputerCraft, as well as numerous fixes, performance 
+improvements and several nifty additions. I'd recommend checking out [the releases page](https://github.com/SquidDev-CC/CC-Tweaked/releases)
 to see the full changes, but here's a couple of the more interesting changes:
 
- - Replace LuaJ with Cobalt.
- - Allow running multiple computers at the same time.
- - Websocket support in the HTTP library.
- - Wired modems and cables act more like multiparts.
- - Add map-like rendering for pocket computers and printed pages/books.
- - Adds the `/computercraft` command, offering various diagnostic tools for server owners. This allows operators to
-   track which computers are hogging resources, turn on and shutdown multiple computers at once and interact with
+ - Improvements to the `http` library, including websockets, support for other HTTP methods (`PUT`, `DELETE`, etc...) 
+   and configurable limits on HTTP usage.
+ - Full-block wired modems, allowing one to wrap non-solid peripherals (such as turtles, or chests if Plethora is
+   installed).   
+ - Pocket computers can be held like maps, allowing you to view the screen without entering a GUI.
+ - Printed pages and books can be placed in item frames and held like maps.
+ - Several profiling and administration tools for server owners, via the `/computercraft` command. This allows operators 
+   to track which computers are hogging resources, turn on and shutdown multiple computers at once and interact with
    computers remotely.
- - Add full-block wired modems, allowing one to wrap non-solid peripherals (such as turtles, or chests if Plethora is
-   installed).
- - Extended binary file handles. They support file seeking, and reading new lines, allowing full (and accurate)
-   emulation of the standard Lua `io` library.
+ - Closer emulation of standard Lua, adding the `debug` and `io` libraries. This also enables seeking within binary
+   files, meaning you don't need to read large files into memory.
+ - Allow running multiple computers on multiple threads, reducing latency on worlds with many computers.
 
 ## Relation to CCTweaks?
 This mod has nothing to do with CCTweaks, though there is no denying the name is a throwback to it. That being said,
@@ -37,10 +37,8 @@ several features have been included, such as full block modems, the Cobalt runti
 computers.
 
 ## Contributing
-Any contribution is welcome, be that using the mod, reporting bugs or contributing code. If you do wish to contribute
-code, do consider submitting it to the ComputerCraft repository first.
-
-That being said, in order to start helping develop CC:T, you'll need to follow these steps:
+Any contribution is welcome, be that using the mod, reporting bugs or contributing code. In order to start helping
+develop CC:T, you'll need to follow these steps:
 
  - **Clone the repository:** `git clone https://github.com/SquidDev-CC/CC-Tweaked.git && cd CC-Tweaked`
  - **Setup Forge:** `./gradlew setupDecompWorkspace`
