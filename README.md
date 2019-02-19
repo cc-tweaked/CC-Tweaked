@@ -6,8 +6,8 @@ turtles and more to Minecraft.
 
 ## What?
 ComputerCraft has always held a fond place in my heart: it's the mod which really got me into Minecraft, and it's the
-mod which has kept me playing it for many years. However, development of the original mod has slowed in recent years,
-as the original developers have had less time to work on the mod, and moved onto other projects and commitments 
+mod which has kept me playing it for many years. However, development of the original mod has slowed, as the original 
+developers have had less time to work on the mod, and moved onto other projects and commitments. 
 
 CC:Tweaked (or CC:T for short) is an attempt to continue ComputerCraft's legacy. It's not intended to be a competitor
 to CC, nor do I want to take it in a vastly different direction to the original mod. Instead, CC:T focuses on making the
@@ -16,7 +16,7 @@ ComputerCraft experience as _solid_ as possible, ironing out any wrinkles that m
 ## Features
 CC: Tweaked contains all the features of the latest version of ComputerCraft, as well as numerous fixes, performance 
 improvements and several nifty additions. I'd recommend checking out [the releases page](https://github.com/SquidDev-CC/CC-Tweaked/releases)
-to see the full changes, but here's a couple of the more interesting changes:
+to see the full set of changes, but here's a couple of the more interesting additions:
 
  - Improvements to the `http` library, including websockets, support for other HTTP methods (`PUT`, `DELETE`, etc...) 
    and configurable limits on HTTP usage.
