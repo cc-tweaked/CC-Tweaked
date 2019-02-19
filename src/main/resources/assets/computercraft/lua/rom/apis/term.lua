@@ -42,11 +42,16 @@ term.native = function()
     return native
 end
 
+-- Some methods shouldn't go through redirects, so we move them to the main
+-- term API.
+for _, method in ipairs { "nativePaletteColor", "nativePaletteColour"} do
+    term[method] = native[method]
+    native[method] = nil
+end
+
 for k,v in pairs( native ) do
-    if type( k ) == "string" and type( v ) == "function" then
-        if term[k] == nil then
-            term[k] = wrap( k )
-        end
+    if type( k ) == "string" and type( v ) == "function" and term[k] == nil then
+        term[k] = wrap( k )
     end
 end
 
