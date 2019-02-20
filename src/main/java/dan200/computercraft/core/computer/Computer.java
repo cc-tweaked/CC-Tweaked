@@ -20,10 +20,12 @@ import dan200.computercraft.core.lua.CobaltLuaMachine;
 import dan200.computercraft.core.lua.ILuaMachine;
 import dan200.computercraft.core.terminal.Terminal;
 
+import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Computer
 {
@@ -48,13 +50,14 @@ public class Computer
 
     private ILuaMachine m_machine = null;
     private final List<ILuaAPI> m_apis = new ArrayList<>();
+    final TimeoutFlags timeout = new TimeoutFlags();
     private final Environment m_internalEnvironment = new Environment( this );
 
     private final Terminal m_terminal;
     private FileSystem m_fileSystem = null;
     private IWritableMount m_rootMount = null;
 
-    private boolean m_externalOutputChanged;
+    private final AtomicBoolean externalOutputChanged = new AtomicBoolean();
 
     public Computer( IComputerEnvironment environment, Terminal terminal, int id )
     {
@@ -130,24 +133,6 @@ public class Computer
         }
     }
 
-    public void abort( boolean hard )
-    {
-        synchronized( this )
-        {
-            if( m_state != State.Off && m_machine != null )
-            {
-                if( hard )
-                {
-                    m_machine.hardAbort( "Too long without yielding" );
-                }
-                else
-                {
-                    m_machine.softAbort( "Too long without yielding" );
-                }
-            }
-        }
-    }
-
     public void unload()
     {
         stopComputer( false );
@@ -182,11 +167,11 @@ public class Computer
         if( !Objects.equal( label, m_label ) )
         {
             m_label = label;
-            m_externalOutputChanged = true;
+            externalOutputChanged.set( true );
         }
     }
 
-    public void advance()
+    public void tick()
     {
         synchronized( this )
         {
@@ -212,7 +197,7 @@ public class Computer
         }
 
         // Prepare to propagate the environment's output to the world.
-        if( m_internalEnvironment.updateOutput() ) m_externalOutputChanged = true;
+        if( m_internalEnvironment.updateOutput() ) externalOutputChanged.set( true );
 
         // Set output changed if the terminal has changed from blinking to not
         boolean blinking =
@@ -223,18 +208,13 @@ public class Computer
         if( blinking != m_blinking )
         {
             m_blinking = blinking;
-            m_externalOutputChanged = true;
+            externalOutputChanged.set( true );
         }
     }
 
     public boolean pollAndResetChanged()
     {
-        synchronized( this )
-        {
-            boolean changed = m_externalOutputChanged;
-            m_externalOutputChanged = false;
-            return changed;
-        }
+        return externalOutputChanged.getAndSet( false );
     }
 
     public boolean isBlinking()
@@ -287,7 +267,7 @@ public class Computer
     private void initLua()
     {
         // Create the lua machine
-        ILuaMachine machine = new CobaltLuaMachine( this );
+        ILuaMachine machine = new CobaltLuaMachine( this, timeout );
 
         // Add the APIs
         for( ILuaAPI api : m_apis )
@@ -327,7 +307,7 @@ public class Computer
                 m_terminal.setCursorPos( 0, 1 );
                 m_terminal.write( "ComputerCraft may be installed incorrectly" );
 
-                machine.unload();
+                machine.close();
                 m_machine = null;
             }
             else
@@ -342,7 +322,7 @@ public class Computer
             m_terminal.setCursorPos( 0, 1 );
             m_terminal.write( "ComputerCraft may be installed incorrectly" );
 
-            machine.unload();
+            machine.close();
             m_machine = null;
         }
     }
@@ -356,18 +336,18 @@ public class Computer
                 return;
             }
             m_state = State.Starting;
-            m_externalOutputChanged = true;
+            externalOutputChanged.set( true );
             m_ticksSinceStart = 0;
         }
 
         // Turn the computercraft on
-        final Computer computer = this;
         ComputerThread.queueTask( new ITask()
         {
+            @Nonnull
             @Override
             public Computer getOwner()
             {
-                return computer;
+                return Computer.this;
             }
 
             @Override
@@ -414,14 +394,14 @@ public class Computer
 
                     // Start a new state
                     m_state = State.Running;
-                    m_externalOutputChanged = true;
+                    externalOutputChanged.set( true );
                     synchronized( m_machine )
                     {
                         m_machine.handleEvent( null, null );
                     }
                 }
             }
-        }, computer );
+        }, this );
     }
 
     private void stopComputer( final boolean reboot )
@@ -433,17 +413,17 @@ public class Computer
                 return;
             }
             m_state = State.Stopping;
-            m_externalOutputChanged = true;
+            externalOutputChanged.set( true );
         }
 
         // Turn the computercraft off
-        final Computer computer = this;
         ComputerThread.queueTask( new ITask()
         {
+            @Nonnull
             @Override
             public Computer getOwner()
             {
-                return computer;
+                return Computer.this;
             }
 
             @Override
@@ -478,7 +458,7 @@ public class Computer
 
                         synchronized( m_machine )
                         {
-                            m_machine.unload();
+                            m_machine.close();
                             m_machine = null;
                         }
                     }
@@ -487,14 +467,14 @@ public class Computer
                     m_internalEnvironment.resetOutput();
 
                     m_state = State.Off;
-                    m_externalOutputChanged = true;
+                    externalOutputChanged.set( true );
                     if( reboot )
                     {
                         m_startRequested = true;
                     }
                 }
             }
-        }, computer );
+        }, this );
     }
 
     public void queueEvent( final String event, final Object[] arguments )
@@ -507,13 +487,13 @@ public class Computer
             }
         }
 
-        final Computer computer = this;
-        ITask task = new ITask()
+        ComputerThread.queueTask( new ITask()
         {
+            @Nonnull
             @Override
             public Computer getOwner()
             {
-                return computer;
+                return Computer.this;
             }
 
             @Override
@@ -541,9 +521,7 @@ public class Computer
                     }
                 }
             }
-        };
-
-        ComputerThread.queueTask( task, computer );
+        }, this );
     }
 
     @Deprecated
@@ -568,7 +546,7 @@ public class Computer
     @SuppressWarnings( "unused" )
     public void advance( double dt )
     {
-        advance();
+        tick();
     }
 
     public static final String[] s_sideNames = IAPIEnvironment.SIDE_NAMES;

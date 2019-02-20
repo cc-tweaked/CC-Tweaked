@@ -196,70 +196,52 @@ public class ComputerThread
 
             try
             {
-                // If we timed out rather than exiting:
-                boolean done = runner.await( 7000 );
-                if( !done )
+                // If we ran within our time period, then just exit
+                if( runner.await( 7000 ) ) return;
+
+                Computer computer = task.getOwner();
+
+                // Attempt to soft then hard abort
+                computer.timeout.softAbort();
+                if( runner.await( 1500 ) ) return;
+
+                computer.timeout.hardAbort();
+                if( runner.await( 1500 ) ) return;
+
+                if( ComputerCraft.logPeripheralErrors )
                 {
-                    // Attempt to soft then hard abort
-                    Computer computer = task.getOwner();
-                    if( computer != null )
-                    {
-                        computer.abort( false );
+                    long time = System.nanoTime() - start;
+                    StringBuilder builder = new StringBuilder()
+                        .append( "Terminating computer #" ).append( computer.getID() )
+                        .append( " due to timeout (running for " ).append( time / 1e9 )
+                        .append( " seconds). This is NOT a bug, but may mean a computer is misbehaving. " )
+                        .append( thread.getName() )
+                        .append( " is currently " )
+                        .append( thread.getState() );
+                    Object blocking = LockSupport.getBlocker( thread );
+                    if( blocking != null ) builder.append( "\n  on " ).append( blocking );
 
-                        done = runner.await( 1500 );
-                        if( !done )
-                        {
-                            computer.abort( true );
-                            done = runner.await( 1500 );
-                        }
+                    for( StackTraceElement element : thread.getStackTrace() )
+                    {
+                        builder.append( "\n  at " ).append( element );
                     }
 
-                    // Interrupt the thread
-                    if( !done )
-                    {
-                        if( ComputerCraft.logPeripheralErrors )
-                        {
-                            long time = System.nanoTime() - start;
-                            StringBuilder builder = new StringBuilder( "Terminating " );
-                            if( computer != null )
-                            {
-                                builder.append( "computer #" ).append( computer.getID() );
-                            }
-                            else
-                            {
-                                builder.append( "unknown computer" );
-                            }
-
-                            {
-                                builder.append( " due to timeout (running for " )
-                                    .append( time / 1e9 )
-                                    .append( " seconds). This is NOT a bug, but may mean a computer is misbehaving. " )
-                                    .append( thread.getName() )
-                                    .append( " is currently " )
-                                    .append( thread.getState() );
-                                Object blocking = LockSupport.getBlocker( thread );
-                                if( blocking != null ) builder.append( "\n  on " ).append( blocking );
-
-                                for( StackTraceElement element : thread.getStackTrace() )
-                                {
-                                    builder.append( "\n  at " ).append( element );
-                                }
-                            }
-
-                            ComputerCraft.log.warn( builder.toString() );
-                        }
-
-                        thread.interrupt();
-                        thread = null;
-                        runner = null;
-                    }
+                    ComputerCraft.log.warn( builder.toString() );
                 }
+
+                // Interrupt the thread
+                thread.interrupt();
+                thread = null;
+                runner = null;
             }
             finally
             {
                 long stop = System.nanoTime();
+
                 Computer computer = task.getOwner();
-                if( computer != null ) Tracking.addTaskTiming( computer, stop - start );
+                Tracking.addTaskTiming( computer, stop - start );
+
+                computer.timeout.resetAbort();
 
                 // Re-add it back onto the queue or remove it
                 synchronized( s_taskLock )

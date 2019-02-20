@@ -6,8 +6,11 @@
 
 package dan200.computercraft.core.computer;
 
+import javax.annotation.Nonnull;
+
 public interface ITask
 {
+    @Nonnull
     Computer getOwner();
 
     void execute();

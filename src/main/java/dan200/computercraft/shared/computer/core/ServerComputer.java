@@ -105,7 +105,7 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
     public void update()
     {
         super.update();
-        m_computer.advance();
+        m_computer.tick();
 
         m_changedLastFrame = m_computer.pollAndResetChanged() || m_changed;
         m_changed = false;
