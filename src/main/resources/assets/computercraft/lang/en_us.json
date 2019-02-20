@@ -1,9 +1,11 @@
 {
+    "itemGroup.computercraft": "ComputerCraft",
+
     "block.computercraft.computer_normal": "Computer",
     "block.computercraft.computer_advanced": "Advanced Computer",
     "block.computercraft.computer_command": "Command Computer",
 
-    "block.computercraft.drive": "Disk Drive",
+    "block.computercraft.disk_drive": "Disk Drive",
     "block.computercraft.printer": "Printer",
     "block.computercraft.speaker": "Speaker",
 
@@ -15,6 +17,7 @@
 
     "block.computercraft.wired_modem": "Wired Modem",
     "block.computercraft.cable": "Networking Cable",
+    "block.computercraft.wired_modem_full": "Wired Modem",
 
     "block.computercraft.turtle_normal": "Turtle",
     "block.computercraft.turtle_normal.upgraded": "%s Turtle",
@@ -26,9 +29,9 @@
 
     "item.computercraft.disk": "Floppy Disk",
     "item.computercraft.treasure_disk": "Floppy Disk",
-    "item.computercraft.page": "Printed Page",
-    "item.computercraft.pages": "Printed Pages",
-    "item.computercraft.book": "Printed Book",
+    "item.computercraft.printed_page": "Printed Page",
+    "item.computercraft.printed_pages": "Printed Pages",
+    "item.computercraft.printed_book": "Printed Book",
 
     "item.computercraft.pocket_computer_normal": "Pocket Computer",
     "item.computercraft.pocket_computer_normal.upgraded": "%s Pocket Computer",
@@ -42,12 +45,24 @@
     "upgrade.minecraft.diamond_hoe.adjective": "Farming",
     "upgrade.minecraft.crafting_table.adjective": "Crafty",
     "upgrade.computercraft.wireless_modem_normal.adjective": "Wireless",
-    "upgrade.computercraft.modem_advanced_advanced.adjective": "Ender",
+    "upgrade.computercraft.wireless_modem_advanced.adjective": "Ender",
     "upgrade.computercraft.speaker.adjective": "Noisy",
+
+    "command.computercraft.computer_selector_none": "No computer matching %s",
+    "command.computercraft.computer_selector_many": "Multiple computers matching %s",
+
+    "command.computercraft.not_tracking": "Not currently tracking computers",
+    "command.computercraft.no_timings": "No timings available",
+    "command.computercraft.no_tracking_field": "%s is not a tracking field",
+
+    "command.computercraft.unlocated_computer": "Could not locate computer",
 
     "gui.computercraft.wired_modem.peripheral_connected": "Peripheral %s connected to network",
     "gui.computercraft.wired_modem.peripheral_disconnected": "Peripheral %s disconnected from network",
     "gui.computercraft.tooltip.copy": "Copy to clipboard",
+
+    "gui.computercraft.tooltip.computer_id": "(Computer ID: %s)",
+    "gui.computercraft.tooltip.disk_id": "(Disk ID: %s)",
 
     "gui.computercraft.config.http_enable": "Enable HTTP API",
     "gui.computercraft.config.http_websocket_enable": "Enable HTTP websockets",

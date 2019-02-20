@@ -6,13 +6,10 @@
         " B "
     ],
     "key": {
-        "#": { "type": "forge:ore_dict", "ore": "ingotGold" },
-        "B": { "type": "forge:ore_dict", "ore": "blockGold" },
-        "C": [
-            { "type": "computercraft:computer", "item": "computercraft:turtle_normal", "family": "Normal" },
-            { "item": "computercraft:turtle_normal_expanded", "data": 0 }
-        ]
+        "#": { "tag": "forge:ingots/gold" },
+        "B": { "tag": "forge:storage_blocks/gold" },
+        "C": { "item": "computercraft:turtle_normal" }
     },
     "family": "Advanced",
-    "result": { "item": "computercraft:turtle_advanced", "data": 0 }
+    "result": { "item": "computercraft:turtle_advanced" }
 }

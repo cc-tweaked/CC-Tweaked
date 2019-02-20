@@ -22,7 +22,7 @@ public final class BundledRedstone
 {
     private static final Set<IBundledRedstoneProvider> providers = new LinkedHashSet<>();
 
-    public static void register( @Nonnull IBundledRedstoneProvider provider )
+    public static synchronized void register( @Nonnull IBundledRedstoneProvider provider )
     {
         Preconditions.checkNotNull( provider, "provider cannot be null" );
         providers.add( provider );
@@ -30,12 +30,12 @@ public final class BundledRedstone
 
     public static int getDefaultOutput( @Nonnull World world, @Nonnull BlockPos pos, @Nonnull EnumFacing side )
     {
-        return world.isValid( pos ) ? DefaultBundledRedstoneProvider.getDefaultBundledRedstoneOutput( world, pos, side ) : -1;
+        return World.isValid( pos ) ? DefaultBundledRedstoneProvider.getDefaultBundledRedstoneOutput( world, pos, side ) : -1;
     }
 
     private static int getUnmaskedOutput( World world, BlockPos pos, EnumFacing side )
     {
-        if( !world.isValid( pos ) ) return -1;
+        if( !World.isValid( pos ) ) return -1;
 
         // Try the providers in order:
         int combinedSignal = -1;

@@ -7,10 +7,40 @@
 package dan200.computercraft.shared.common;
 
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 
 public interface IColouredItem
 {
-    int getColour( ItemStack stack );
+    String NBT_COLOUR = "Color";
 
-    ItemStack withColour( ItemStack stack, int colour );
+    default int getColour( ItemStack stack )
+    {
+        return getColourBasic( stack );
+    }
+
+    default ItemStack withColour( ItemStack stack, int colour )
+    {
+        ItemStack copy = stack.copy();
+        setColourBasic( copy, colour );
+        return copy;
+    }
+
+    static int getColourBasic( ItemStack stack )
+    {
+        NBTTagCompound tag = stack.getTag();
+        return tag != null && tag.contains( NBT_COLOUR ) ? tag.getInt( NBT_COLOUR ) : -1;
+    }
+
+    static void setColourBasic( ItemStack stack, int colour )
+    {
+        if( colour == -1 )
+        {
+            NBTTagCompound tag = stack.getTag();
+            if( tag != null ) tag.remove( NBT_COLOUR );
+        }
+        else
+        {
+            stack.getOrCreateTag().putInt( NBT_COLOUR, colour );
+        }
+    }
 }

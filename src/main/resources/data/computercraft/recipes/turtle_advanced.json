@@ -1,14 +1,15 @@
 {
-    "type": "computercraft:turtle_normal",
+    "type": "computercraft:turtle",
     "pattern": [
         "###",
         "#C#",
         "#I#"
     ],
     "key": {
-        "#": { "type": "forge:ore_dict", "ore": "ingotGold" },
-        "C": { "type": "computercraft:computer", "item": "computercraft:computer", "data": 16384, "family": "Advanced" },
-        "I": { "type": "forge:ore_dict", "ore": "chestWood" }
+        "#": { "tag": "forge:ingots/gold" },
+        "C": { "item": "computercraft:computer_advanced" },
+        "I": { "tag": "forge:chests/wooden" }
     },
-    "family": "Advanced"
+    "family": "Advanced",
+    "result": { "item": "computercraft:turtle_advanced" }
 }

@@ -20,7 +20,7 @@ public final class MediaProviders
 {
     private static final Set<IMediaProvider> providers = new LinkedHashSet<>();
 
-    public static void register( @Nonnull IMediaProvider provider )
+    public static synchronized void register( @Nonnull IMediaProvider provider )
     {
         Preconditions.checkNotNull( provider, "provider cannot be null" );
         providers.add( provider );

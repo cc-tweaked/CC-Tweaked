@@ -1,14 +1,14 @@
 {
-    "type": "minecraft:crafting_shaped",
+    "type": "crafting_shaped",
     "pattern": [
         "###",
         "#R#",
         "#D#"
     ],
     "key": {
-        "#": { "type": "forge:ore_dict", "ore": "stone" },
-        "R": { "type": "forge:ore_dict", "ore": "paneGlass" },
-        "D": { "type": "forge:ore_dict", "ore": "dye" }
+        "#": { "tag": "forge:stone" },
+        "R": { "item": "minecraft:glass_pane" },
+        "D": { "tag": "forge:dyes" }
     },
-    "result": { "item": "computercraft:peripheral", "data": 3 }
+    "result": { "item": "computercraft:printer" }
 }

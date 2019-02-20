@@ -8,66 +8,48 @@ package dan200.computercraft.shared.turtle.upgrades;
 
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleUpgradeType;
-import net.minecraft.block.Block;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.IItemProvider;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.Util;
 
 import javax.annotation.Nonnull;
 
 public abstract class AbstractTurtleUpgrade implements ITurtleUpgrade
 {
     private final ResourceLocation id;
-    private final int legacyId;
     private final TurtleUpgradeType type;
     private final String adjective;
     private final ItemStack stack;
 
-    public AbstractTurtleUpgrade( ResourceLocation id, int legacyId, TurtleUpgradeType type, String adjective, ItemStack stack )
+    public AbstractTurtleUpgrade( ResourceLocation id, TurtleUpgradeType type, String adjective, ItemStack stack )
     {
         this.id = id;
-        this.legacyId = legacyId;
         this.type = type;
         this.adjective = adjective;
         this.stack = stack;
     }
 
-    public AbstractTurtleUpgrade( ResourceLocation id, int legacyId, TurtleUpgradeType type, String adjective, Item item )
+    public AbstractTurtleUpgrade( ResourceLocation id, TurtleUpgradeType type, String adjective, IItemProvider item )
     {
-        this( id, legacyId, type, adjective, new ItemStack( item ) );
+        this( id, type, adjective, new ItemStack( item ) );
     }
 
-    public AbstractTurtleUpgrade( ResourceLocation id, int legacyId, TurtleUpgradeType type, String adjective, Block block )
+    public AbstractTurtleUpgrade( ResourceLocation id, TurtleUpgradeType type, ItemStack stack )
     {
-        this( id, legacyId, type, adjective, new ItemStack( block ) );
+        this( id, type, Util.makeTranslationKey( "upgrade", id ) + ".adjective", stack );
     }
 
-    public AbstractTurtleUpgrade( ResourceLocation id, int legacyId, TurtleUpgradeType type, ItemStack stack )
+    public AbstractTurtleUpgrade( ResourceLocation id, TurtleUpgradeType type, IItemProvider item )
     {
-        this( id, legacyId, type, "upgrade." + id + ".adjective", stack );
-    }
-
-    public AbstractTurtleUpgrade( ResourceLocation id, int legacyId, TurtleUpgradeType type, Item item )
-    {
-        this( id, legacyId, type, new ItemStack( item ) );
-    }
-
-    public AbstractTurtleUpgrade( ResourceLocation id, int legacyId, TurtleUpgradeType type, Block block )
-    {
-        this( id, legacyId, type, new ItemStack( block ) );
+        this( id, type, new ItemStack( item ) );
     }
 
     @Nonnull
     @Override
-    public final ResourceLocation getUpgradeID()
+    public final ResourceLocation getUpgradeId()
     {
         return id;
-    }
-
-    @Override
-    public final int getLegacyUpgradeID()
-    {
-        return legacyId;
     }
 
     @Nonnull

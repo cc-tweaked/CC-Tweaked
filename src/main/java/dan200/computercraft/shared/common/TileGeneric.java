@@ -6,51 +6,38 @@
 
 package dan200.computercraft.shared.common;
 
-import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public abstract class TileGeneric extends TileEntity
 {
+    public TileGeneric( TileEntityType<? extends TileGeneric> type )
+    {
+        super( type );
+    }
+
     public void destroy()
     {
-    }
-
-    @Nullable
-    public BlockGeneric getBlock()
-    {
-        Block block = getWorld().getBlockState( getPos() ).getBlock();
-        return block instanceof BlockGeneric ? (BlockGeneric) block : null;
-    }
-
-    protected final IBlockState getBlockState()
-    {
-        return getWorld().getBlockState( getPos() );
     }
 
     public final void updateBlock()
     {
         markDirty();
         BlockPos pos = getPos();
-        IBlockState state = getWorld().getBlockState( pos );
+        IBlockState state = getBlockState();
         getWorld().markBlockRangeForRenderUpdate( pos, pos );
-        getWorld().notifyBlockUpdate( getPos(), state, state, 3 );
-    }
-
-    protected final void setBlockState( IBlockState newState )
-    {
-        getWorld().setBlockState( getPos(), newState, 3 );
+        getWorld().notifyBlockUpdate( pos, state, state, 3 );
     }
 
     public boolean onActivate( EntityPlayer player, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ )
@@ -58,43 +45,16 @@ public abstract class TileGeneric extends TileEntity
         return false;
     }
 
-    @Deprecated
-    public void onNeighbourChange()
-    {
-    }
-
-    @SuppressWarnings( "deprecation" )
     public void onNeighbourChange( @Nonnull BlockPos neighbour )
     {
-        onNeighbourChange();
     }
 
     public void onNeighbourTileEntityChange( @Nonnull BlockPos neighbour )
     {
     }
 
-    protected void updateTick()
+    protected void blockTick()
     {
-    }
-
-    public boolean getRedstoneConnectivity( EnumFacing side )
-    {
-        return false;
-    }
-
-    public int getRedstoneOutput( EnumFacing side )
-    {
-        return 0;
-    }
-
-    public boolean getBundledRedstoneConnectivity( @Nonnull EnumFacing side )
-    {
-        return false;
-    }
-
-    public int getBundledRedstoneOutput( @Nonnull EnumFacing side )
-    {
-        return 0;
     }
 
     protected double getInteractRange( EntityPlayer player )
@@ -104,13 +64,13 @@ public abstract class TileGeneric extends TileEntity
 
     public boolean isUsable( EntityPlayer player, boolean ignoreRange )
     {
-        if( player == null || !player.isEntityAlive() || getWorld().getTileEntity( getPos() ) != this ) return false;
+        if( player == null || !player.isAlive() || getWorld().getTileEntity( getPos() ) != this ) return false;
         if( ignoreRange ) return true;
 
         double range = getInteractRange( player );
         BlockPos pos = getPos();
         return player.getEntityWorld() == getWorld() &&
-            player.getDistanceSq( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5 ) <= (range * range);
+            player.getDistanceSq( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5 ) <= range * range;
     }
 
     protected void writeDescription( @Nonnull NBTTagCompound nbt )
@@ -121,19 +81,13 @@ public abstract class TileGeneric extends TileEntity
     {
     }
 
+    @Nullable
     @Override
-    public boolean shouldRefresh( World world, BlockPos pos, @Nonnull IBlockState oldState, @Nonnull IBlockState newState )
+    public SPacketUpdateTileEntity getUpdatePacket()
     {
-        return newState.getBlock() != oldState.getBlock();
-    }
-
-    @Override
-    public final SPacketUpdateTileEntity getUpdatePacket()
-    {
-        // Communicate properties
-        NBTTagCompound nbt = new NBTTagCompound();
-        writeDescription( nbt );
-        return new SPacketUpdateTileEntity( getPos(), 0, nbt );
+        NBTTagCompound tag = new NBTTagCompound();
+        writeDescription( tag );
+        return new SPacketUpdateTileEntity( pos, 0, tag );
     }
 
     @Override

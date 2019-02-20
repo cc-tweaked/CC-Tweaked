@@ -15,8 +15,7 @@ import net.minecraft.inventory.Container;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public class ContainerComputer extends Container
-    implements IContainerComputer
+public class ContainerComputer extends Container implements IContainerComputer
 {
     private TileComputer m_computer;
 
@@ -28,7 +27,7 @@ public class ContainerComputer extends Container
     @Override
     public boolean canInteractWith( @Nonnull EntityPlayer player )
     {
-        return m_computer.isUseableByPlayer( player );
+        return m_computer.isUsableByPlayer( player );
     }
 
     @Nullable

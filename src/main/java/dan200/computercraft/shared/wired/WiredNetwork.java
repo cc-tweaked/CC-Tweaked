@@ -26,7 +26,7 @@ public final class WiredNetwork implements IWiredNetwork
     HashSet<WiredNode> nodes;
     private HashMap<String, IPeripheral> peripherals = new HashMap<>();
 
-    public WiredNetwork( WiredNode node )
+    WiredNetwork( WiredNode node )
     {
         nodes = new HashSet<>( 1 );
         nodes.add( node );

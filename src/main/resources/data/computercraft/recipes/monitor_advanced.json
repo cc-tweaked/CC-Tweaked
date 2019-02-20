@@ -1,13 +1,13 @@
 {
-    "type": "minecraft:crafting_shaped",
+    "type": "crafting_shaped",
     "pattern": [
         "###",
         "#G#",
         "###"
     ],
     "key": {
-        "#": { "type": "forge:ore_dict", "ore": "ingotGold" },
-        "G": { "type": "forge:ore_dict", "ore": "paneGlass" }
+        "#": { "tag": "forge:ingots/gold" },
+        "G": { "item": "minecraft:glass_pane" }
     },
-    "result": { "item": "computercraft:peripheral", "data": 4, "count": 4 }
+    "result": { "item": "computercraft:monitor_advanced", "count": 4 }
 }

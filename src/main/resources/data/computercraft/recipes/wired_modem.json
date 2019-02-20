@@ -1,13 +1,13 @@
 {
-    "type": "minecraft:crafting_shaped",
+    "type": "crafting_shaped",
     "pattern": [
         "###",
         "#R#",
         "###"
     ],
     "key": {
-        "#": { "type": "forge:ore_dict", "ore": "stone" },
-        "R": { "type": "forge:ore_dict", "ore": "dustRedstone" }
+        "#": { "tag": "forge:stone" },
+        "R": { "tag": "forge:dusts/redstone" }
     },
-    "result": { "item": "computercraft:cable", "data": 1 }
+    "result": { "item": "computercraft:wired_modem" }
 }

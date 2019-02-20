@@ -7,18 +7,28 @@
 package dan200.computercraft.client.gui;
 
 import dan200.computercraft.ComputerCraft;
-import dan200.computercraft.shared.media.inventory.ContainerHeldItem;
+import dan200.computercraft.shared.computer.core.ComputerFamily;
+import dan200.computercraft.shared.pocket.inventory.ContainerPocketComputer;
+import dan200.computercraft.shared.pocket.items.ItemPocketComputer;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 
 public class GuiPocketComputer extends GuiComputer
 {
-    public GuiPocketComputer( ContainerHeldItem container )
+    public GuiPocketComputer( ContainerPocketComputer container )
     {
         super(
             container,
-            ComputerCraft.Items.pocketComputer.getFamily( container.getStack() ),
-            ComputerCraft.Items.pocketComputer.createClientComputer( container.getStack() ),
+            getFamily( container.getStack() ),
+            ItemPocketComputer.createClientComputer( container.getStack() ),
             ComputerCraft.terminalWidth_pocketComputer,
             ComputerCraft.terminalHeight_pocketComputer
         );
+    }
+
+    private static ComputerFamily getFamily( ItemStack stack )
+    {
+        Item item = stack.getItem();
+        return item instanceof ItemPocketComputer ? ((ItemPocketComputer) item).getFamily() : ComputerFamily.Normal;
     }
 }

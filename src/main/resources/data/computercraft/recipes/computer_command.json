@@ -1,14 +1,14 @@
 {
-    "type": "minecraft:crafting_shaped",
+    "type": "crafting_shaped",
     "pattern": [
         "###",
-        "#C#",
+        "#R#",
         "#G#"
     ],
     "key": {
-        "#": { "type": "forge:ore_dict", "ore": "stone" },
-        "C": { "item": "minecraft:command_block" },
-        "G": { "type": "forge:ore_dict", "ore": "paneGlass" }
+        "#": { "tag": "forge:stone" },
+        "R": { "item": "minecraft:command_block" },
+        "G": { "item": "minecraft:glass_pane" }
     },
-    "result": { "item": "computercraft:command_computer", "data": 0 }
+    "result": { "item": "computercraft:computer_command" }
 }

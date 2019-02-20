@@ -6,9 +6,9 @@
         "# #"
     ],
     "key": {
-        "#": { "type": "forge:ore_dict", "ore": "ingotGold" },
-        "C": { "type": "computercraft:computer", "item": "computercraft:computer", "family": "Normal" }
+        "#": { "tag": "forge:ingots/gold" },
+        "C": { "item": "computercraft:computer_normal" }
     },
     "family": "Advanced",
-    "result": { "item": "computercraft:computer", "data": 16384 }
+    "result": { "item": "computercraft:computer_advanced" }
 }

@@ -10,20 +10,21 @@ import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.turtle.blocks.TileTurtle;
+import dan200.computercraft.shared.util.DirectionUtil;
 import dan200.computercraft.shared.util.Holiday;
 import dan200.computercraft.shared.util.HolidayUtil;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.EntityRenderer;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.client.renderer.block.model.IBakedModel;
-import net.minecraft.client.renderer.block.model.ModelManager;
-import net.minecraft.client.renderer.block.model.ModelResourceLocation;
+import net.minecraft.client.renderer.model.BakedQuad;
+import net.minecraft.client.renderer.model.IBakedModel;
+import net.minecraft.client.renderer.model.ModelManager;
+import net.minecraft.client.renderer.model.ModelResourceLocation;
 import net.minecraft.client.renderer.texture.TextureMap;
-import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
+import net.minecraft.client.renderer.tileentity.TileEntityRenderer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.util.EnumFacing;
@@ -36,18 +37,19 @@ import org.lwjgl.opengl.GL11;
 
 import javax.vecmath.Matrix4f;
 import java.util.List;
+import java.util.Random;
 
-public class TileEntityTurtleRenderer extends TileEntitySpecialRenderer<TileTurtle>
+public class TileEntityTurtleRenderer extends TileEntityRenderer<TileTurtle>
 {
-    private static final ModelResourceLocation NORMAL_TURTLE_MODEL = new ModelResourceLocation( "computercraft:turtle", "inventory" );
+    private static final ModelResourceLocation NORMAL_TURTLE_MODEL = new ModelResourceLocation( "computercraft:turtle_normal", "inventory" );
     private static final ModelResourceLocation ADVANCED_TURTLE_MODEL = new ModelResourceLocation( "computercraft:turtle_advanced", "inventory" );
-    private static final ModelResourceLocation COLOUR_TURTLE_MODEL = new ModelResourceLocation( "computercraft:turtle_white", "inventory" );
+    private static final ModelResourceLocation COLOUR_TURTLE_MODEL = new ModelResourceLocation( "computercraft:turtle_colour", "inventory" );
     private static final ModelResourceLocation ELF_OVERLAY_MODEL = new ModelResourceLocation( "computercraft:turtle_elf_overlay", "inventory" );
 
     @Override
-    public void render( TileTurtle tileEntity, double posX, double posY, double posZ, float f, int i, float f2 )
+    public void render( TileTurtle tileEntity, double posX, double posY, double posZ, float partial, int breaking )
     {
-        if( tileEntity != null ) renderTurtleAt( tileEntity, posX, posY, posZ, f, i );
+        if( tileEntity != null ) renderTurtleAt( tileEntity, posX, posY, posZ, partial, breaking );
     }
 
     public static ModelResourceLocation getTurtleModel( ComputerFamily family, boolean coloured )
@@ -78,14 +80,14 @@ public class TileEntityTurtleRenderer extends TileEntitySpecialRenderer<TileTurt
         }
     }
 
-    private void renderTurtleAt( TileTurtle turtle, double posX, double posY, double posZ, float f, int i )
+    private void renderTurtleAt( TileTurtle turtle, double posX, double posY, double posZ, float partialTicks, int breaking )
     {
         // Render the label
         String label = turtle.createProxy().getLabel();
         if( label != null && rendererDispatcher.cameraHitResult != null && turtle.getPos().equals( rendererDispatcher.cameraHitResult.getBlockPos() ) )
         {
             setLightmapDisabled( true );
-            EntityRenderer.drawNameplate(
+            GameRenderer.drawNameplate(
                 getFontRenderer(), label,
                 (float) posX + 0.5F, (float) posY + 1.2F, (float) posZ + 0.5F, 0,
                 rendererDispatcher.entityYaw, rendererDispatcher.entityPitch, false, false
@@ -93,27 +95,25 @@ public class TileEntityTurtleRenderer extends TileEntitySpecialRenderer<TileTurt
             setLightmapDisabled( false );
         }
 
-        IBlockState state = turtle.getWorld().getBlockState( turtle.getPos() );
         GlStateManager.pushMatrix();
         try
         {
-            // Setup the transform
-            Vec3d offset;
-            float yaw;
-            offset = turtle.getRenderOffset( f );
-            yaw = turtle.getRenderYaw( f );
-            GlStateManager.translate( posX + offset.x, posY + offset.y, posZ + offset.z );
+            IBlockState state = turtle.getBlockState();
 
+            // Setup the transform
+            Vec3d offset = turtle.getRenderOffset( partialTicks );
+            float yaw = turtle.getRenderYaw( partialTicks );
+            GlStateManager.translated( posX + offset.x, posY + offset.y, posZ + offset.z );
             // Render the turtle
-            GlStateManager.translate( 0.5f, 0.5f, 0.5f );
-            GlStateManager.rotate( 180.0f - yaw, 0.0f, 1.0f, 0.0f );
+            GlStateManager.translatef( 0.5f, 0.5f, 0.5f );
+            GlStateManager.rotatef( 180.0f - yaw, 0.0f, 1.0f, 0.0f );
             if( label != null && (label.equals( "Dinnerbone" ) || label.equals( "Grumm" )) )
             {
                 // Flip the model and swap the cull face as winding order will have changed.
-                GlStateManager.scale( 1.0f, -1.0f, 1.0f );
+                GlStateManager.scalef( 1.0f, -1.0f, 1.0f );
                 GlStateManager.cullFace( GlStateManager.CullFace.FRONT );
             }
-            GlStateManager.translate( -0.5f, -0.5f, -0.5f );
+            GlStateManager.translatef( -0.5f, -0.5f, -0.5f );
             // Render the turtle
             int colour;
             ComputerFamily family;
@@ -146,8 +146,8 @@ public class TileEntityTurtleRenderer extends TileEntitySpecialRenderer<TileTurt
             }
 
             // Render the upgrades
-            renderUpgrade( state, turtle, TurtleSide.Left, f );
-            renderUpgrade( state, turtle, TurtleSide.Right, f );
+            renderUpgrade( state, turtle, TurtleSide.Left, partialTicks );
+            renderUpgrade( state, turtle, TurtleSide.Right, partialTicks );
         }
         finally
         {
@@ -165,9 +165,9 @@ public class TileEntityTurtleRenderer extends TileEntitySpecialRenderer<TileTurt
             try
             {
                 float toolAngle = turtle.getToolRenderAngle( side, f );
-                GlStateManager.translate( 0.0f, 0.5f, 0.5f );
-                GlStateManager.rotate( -toolAngle, 1.0f, 0.0f, 0.0f );
-                GlStateManager.translate( 0.0f, -0.5f, -0.5f );
+                GlStateManager.translatef( 0.0f, 0.5f, 0.5f );
+                GlStateManager.rotatef( -toolAngle, 1.0f, 0.0f, 0.0f );
+                GlStateManager.translatef( 0.0f, -0.5f, -0.5f );
 
                 Pair<IBakedModel, Matrix4f> pair = upgrade.getModel( turtle.getAccess(), side );
                 if( pair != null )
@@ -191,20 +191,20 @@ public class TileEntityTurtleRenderer extends TileEntitySpecialRenderer<TileTurt
 
     private void renderModel( IBlockState state, ModelResourceLocation modelLocation, int[] tints )
     {
-        Minecraft mc = Minecraft.getMinecraft();
-        ModelManager modelManager = mc.getRenderItem().getItemModelMesher().getModelManager();
+        Minecraft mc = Minecraft.getInstance();
+        ModelManager modelManager = mc.getItemRenderer().getItemModelMesher().getModelManager();
         renderModel( state, modelManager.getModel( modelLocation ), tints );
     }
 
     private void renderModel( IBlockState state, IBakedModel model, int[] tints )
     {
-        Minecraft mc = Minecraft.getMinecraft();
+        Random random = new Random( 0 );
         Tessellator tessellator = Tessellator.getInstance();
-        mc.getTextureManager().bindTexture( TextureMap.LOCATION_BLOCKS_TEXTURE );
-        renderQuads( tessellator, model.getQuads( state, null, 0 ), tints );
-        for( EnumFacing facing : EnumFacing.VALUES )
+        rendererDispatcher.textureManager.bindTexture( TextureMap.LOCATION_BLOCKS_TEXTURE );
+        renderQuads( tessellator, model.getQuads( state, null, random ), tints );
+        for( EnumFacing facing : DirectionUtil.FACINGS )
         {
-            renderQuads( tessellator, model.getQuads( state, facing, 0 ), tints );
+            renderQuads( tessellator, model.getQuads( state, facing, random ), tints );
         }
     }
 

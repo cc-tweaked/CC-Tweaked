@@ -7,160 +7,109 @@
 package dan200.computercraft.shared.util;
 
 import net.minecraft.nbt.*;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraftforge.common.util.Constants;
 
-import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import static net.minecraftforge.common.util.Constants.NBT.*;
+
 public class NBTUtil
 {
-    private static NBTBase toNBTTag( Object object )
+    private static INBTBase toNBTTag( Object object )
     {
-        if( object != null )
+        if( object instanceof Boolean )
         {
-            if( object instanceof Boolean )
-            {
-                boolean b = (Boolean) object;
-                return new NBTTagByte( b ? (byte) 1 : (byte) 0 );
-            }
-            else if( object instanceof Number )
-            {
-                Double d = ((Number) object).doubleValue();
-                return new NBTTagDouble( d );
-            }
-            else if( object instanceof String )
-            {
-                String s = object.toString();
-                return new NBTTagString( s );
-            }
-            else if( object instanceof Map )
-            {
-                Map<?, ?> m = (Map<?, ?>) object;
-                NBTTagCompound nbt = new NBTTagCompound();
-                int i = 0;
-                for( Map.Entry<?, ?> entry : m.entrySet() )
-                {
-                    NBTBase key = toNBTTag( entry.getKey() );
-                    NBTBase value = toNBTTag( entry.getKey() );
-                    if( key != null && value != null )
-                    {
-                        nbt.setTag( "k" + Integer.toString( i ), key );
-                        nbt.setTag( "v" + Integer.toString( i ), value );
-                        i++;
-                    }
-                }
-                nbt.setInteger( "len", m.size() );
-                return nbt;
-            }
+            return new NBTTagByte( (Boolean) object ? (byte) 1 : (byte) 0 );
         }
-        return null;
+        else if( object instanceof Number )
+        {
+            return new NBTTagDouble( ((Number) object).doubleValue() );
+        }
+        else if( object instanceof String )
+        {
+            return new NBTTagString( object.toString() );
+        }
+        else if( object instanceof Map )
+        {
+            Map<?, ?> map = (Map<?, ?>) object;
+            NBTTagCompound tag = new NBTTagCompound();
+            tag.putInt( "len", map.size() );
+            int i = 0;
+            for( Map.Entry<?, ?> entry : map.entrySet() )
+            {
+                INBTBase key = toNBTTag( entry.getKey() );
+                INBTBase value = toNBTTag( entry.getKey() );
+                if( key != null && value != null )
+                {
+                    tag.put( "k" + i, key );
+                    tag.put( "v" + i, value );
+                    i++;
+                }
+            }
+            return tag;
+        }
+        else
+        {
+            return null;
+        }
     }
 
     public static NBTTagCompound encodeObjects( Object[] objects )
     {
-        if( objects != null && objects.length > 0 )
+        if( objects == null || objects.length <= 0 ) return null;
+
+        NBTTagCompound tag = new NBTTagCompound();
+        tag.putInt( "len", objects.length );
+        for( int i = 0; i < objects.length; i++ )
         {
-            NBTTagCompound nbt = new NBTTagCompound();
-            nbt.setInteger( "len", objects.length );
-            for( int i = 0; i < objects.length; i++ )
-            {
-                Object object = objects[i];
-                NBTBase tag = toNBTTag( object );
-                if( tag != null )
-                {
-                    nbt.setTag( Integer.toString( i ), tag );
-                }
-            }
-            return nbt;
+            INBTBase child = toNBTTag( objects[i] );
+            if( child != null ) tag.put( Integer.toString( i ), child );
         }
-        return null;
+        return tag;
     }
 
-    private static Object fromNBTTag( NBTBase tag )
+    private static Object fromNBTTag( INBTBase tag )
     {
-        if( tag != null )
+        if( tag == null ) return null;
+        switch( tag.getId() )
         {
-            byte typeID = tag.getId();
-            switch( typeID )
+            case TAG_BYTE:
+                return (((NBTTagByte) tag).getByte() > 0);
+            case TAG_DOUBLE:
+                return ((NBTTagDouble) tag).getDouble();
+            default:
+            case TAG_STRING:
+                return tag.getString();
+            case TAG_COMPOUND:
             {
-                case Constants.NBT.TAG_BYTE: // byte
+                NBTTagCompound c = (NBTTagCompound) tag;
+                int len = c.getInt( "len" );
+                Map<Object, Object> map = new HashMap<>( len );
+                for( int i = 0; i < len; i++ )
                 {
-                    return (((NBTTagByte) tag).getByte() > 0);
+                    Object key = fromNBTTag( c.get( "k" + i ) );
+                    Object value = fromNBTTag( c.get( "v" + i ) );
+                    if( key != null && value != null ) map.put( key, value );
                 }
-                case Constants.NBT.TAG_DOUBLE: // Double
-                {
-                    return ((NBTTagDouble) tag).getDouble();
-                }
-                case Constants.NBT.TAG_STRING: // String
-                {
-                    return ((NBTTagString) tag).getString();
-                }
-                case Constants.NBT.TAG_COMPOUND: // Compound
-                {
-                    NBTTagCompound c = (NBTTagCompound) tag;
-                    int len = c.getInteger( "len" );
-                    Map<Object, Object> map = new HashMap<>( len );
-                    for( int i = 0; i < len; i++ )
-                    {
-                        Object key = fromNBTTag( c.getTag( "k" + Integer.toString( i ) ) );
-                        Object value = fromNBTTag( c.getTag( "v" + Integer.toString( i ) ) );
-                        if( key != null && value != null )
-                        {
-                            map.put( key, value );
-                        }
-                    }
-                    return map;
-                }
+                return map;
             }
         }
-        return null;
     }
 
-    public static Object[] decodeObjects( NBTTagCompound tagCompound )
+    public static Object[] decodeObjects( NBTTagCompound tag )
     {
-        int len = tagCompound.getInteger( "len" );
-        if( len > 0 )
+        int len = tag.getInt( "len" );
+        if( len <= 0 ) return null;
+
+        Object[] objects = new Object[len];
+        for( int i = 0; i < len; i++ )
         {
-            Object[] objects = new Object[len];
-            for( int i = 0; i < len; i++ )
+            String key = Integer.toString( i );
+            if( tag.contains( key ) )
             {
-                String key = Integer.toString( i );
-                if( tagCompound.hasKey( key ) )
-                {
-                    NBTBase tag = tagCompound.getTag( key );
-                    objects[i] = fromNBTTag( tag );
-                }
+                objects[i] = fromNBTTag( tag.get( key ) );
             }
-            return objects;
         }
-        return null;
-    }
-
-    public static NBTTagCompound readCompoundTag( PacketBuffer buf )
-    {
-        try
-        {
-            return buf.readCompoundTag();
-        }
-        catch( IOException e )
-        {
-            throw new UncheckedIOException( e );
-        }
-    }
-
-    public static ITextComponent readTextComponent( PacketBuffer buf )
-    {
-        try
-        {
-            return buf.readTextComponent();
-        }
-        catch( IOException e )
-        {
-            throw new UncheckedIOException( e );
-        }
+        return objects;
     }
 }

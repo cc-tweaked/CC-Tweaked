@@ -7,6 +7,7 @@
 package dan200.computercraft.shared.util;
 
 import com.google.common.base.Predicate;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
@@ -17,6 +18,7 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.world.World;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -26,17 +28,21 @@ import java.util.List;
 public class WorldUtil
 {
     @SuppressWarnings( "Guava" )
-    private static final Predicate<Entity> CAN_COLLIDE = x -> x != null && !x.isDead && x.canBeCollidedWith();
-
-    @Deprecated
-    public static boolean isBlockInWorld( World world, BlockPos pos )
-    {
-        return world.isValid( pos );
-    }
+    private static final Predicate<Entity> CAN_COLLIDE = x -> x != null && x.isAlive() && x.canBeCollidedWith();
 
     public static boolean isLiquidBlock( World world, BlockPos pos )
     {
-        return world.getBlockState( pos ).getMaterial().isLiquid();
+        if( !World.isValid( pos ) ) return false;
+        IBlockState state = world.getBlockState( pos );
+        return !state.getFluidState().isEmpty();
+    }
+
+    public static boolean isVecInside( VoxelShape shape, Vec3d vec )
+    {
+        if( shape.isEmpty() ) return false;
+        // return shape.contains( pos.x, pos.y, pos.z );
+        AxisAlignedBB bb = shape.getBoundingBox();
+        return vec.x >= bb.minX && vec.x <= bb.maxX && vec.y >= bb.minY && vec.y <= bb.maxY && vec.z >= bb.minZ && vec.z <= bb.maxZ;
     }
 
     public static Pair<Entity, Vec3d> rayTraceEntities( World world, Vec3d vecStart, Vec3d vecDir, double distance )
@@ -45,7 +51,7 @@ public class WorldUtil
 
         // Raycast for blocks
         RayTraceResult result = world.rayTraceBlocks( vecStart, vecEnd );
-        if( result != null && result.typeOfHit == RayTraceResult.Type.BLOCK )
+        if( result != null && result.type == RayTraceResult.Type.BLOCK )
         {
             distance = vecStart.distanceTo( result.hitVec );
             vecEnd = vecStart.add( vecDir.x * distance, vecDir.y * distance, vecDir.z * distance );
@@ -69,7 +75,7 @@ public class WorldUtil
         List<Entity> list = world.getEntitiesWithinAABB( Entity.class, bigBox, CAN_COLLIDE );
         for( Entity entity : list )
         {
-            AxisAlignedBB littleBox = entity.getEntityBoundingBox();
+            AxisAlignedBB littleBox = entity.getBoundingBox();
             if( littleBox == null )
             {
                 littleBox = entity.getCollisionBoundingBox();
@@ -115,19 +121,14 @@ public class WorldUtil
 
     public static Vec3d getRayStart( EntityLivingBase entity )
     {
-        return new Vec3d( entity.posX, entity.posY + entity.getEyeHeight(), entity.posZ );
+        return entity.getEyePosition( 1 );
     }
 
     public static Vec3d getRayEnd( EntityPlayer player )
     {
-        double reach = player.getEntityAttribute( EntityPlayer.REACH_DISTANCE ).getAttributeValue();
+        double reach = player.getAttribute( EntityPlayer.REACH_DISTANCE ).getValue();
         Vec3d look = player.getLookVec();
         return getRayStart( player ).add( look.x * reach, look.y * reach, look.z * reach );
-    }
-
-    public static boolean isVecInsideInclusive( AxisAlignedBB bb, Vec3d vec )
-    {
-        return vec.x >= bb.minX && vec.x <= bb.maxX && vec.y >= bb.minY && vec.y <= bb.maxY && vec.z >= bb.minZ && vec.z <= bb.maxZ;
     }
 
     public static void dropItemStack( @Nonnull ItemStack stack, World world, BlockPos pos )
@@ -166,11 +167,11 @@ public class WorldUtil
 
     public static void dropItemStack( @Nonnull ItemStack stack, World world, double xPos, double yPos, double zPos, double xDir, double yDir, double zDir )
     {
-        EntityItem entityItem = new EntityItem( world, xPos, yPos, zPos, stack.copy() );
-        entityItem.motionX = xDir * 0.7 + world.rand.nextFloat() * 0.2 - 0.1;
-        entityItem.motionY = yDir * 0.7 + world.rand.nextFloat() * 0.2 - 0.1;
-        entityItem.motionZ = zDir * 0.7 + world.rand.nextFloat() * 0.2 - 0.1;
-        entityItem.setDefaultPickupDelay();
-        world.spawnEntity( entityItem );
+        EntityItem item = new EntityItem( world, xPos, yPos, zPos, stack.copy() );
+        item.motionX = xDir * 0.7 + world.getRandom().nextFloat() * 0.2 - 0.1;
+        item.motionY = yDir * 0.7 + world.getRandom().nextFloat() * 0.2 - 0.1;
+        item.motionZ = zDir * 0.7 + world.getRandom().nextFloat() * 0.2 - 0.1;
+        item.setDefaultPickupDelay();
+        world.spawnEntity( item );
     }
 }

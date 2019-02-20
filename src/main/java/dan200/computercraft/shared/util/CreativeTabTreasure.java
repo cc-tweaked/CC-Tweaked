@@ -7,12 +7,14 @@
 package dan200.computercraft.shared.util;
 
 import dan200.computercraft.ComputerCraft;
-import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 import javax.annotation.Nonnull;
 
-public class CreativeTabTreasure extends CreativeTabs
+public abstract class CreativeTabTreasure extends ItemGroup
 {
     public CreativeTabTreasure( int i )
     {
@@ -21,15 +23,9 @@ public class CreativeTabTreasure extends CreativeTabs
 
     @Nonnull
     @Override
+    @OnlyIn( Dist.CLIENT )
     public ItemStack createIcon()
     {
         return new ItemStack( ComputerCraft.Items.treasureDisk );
-    }
-
-    @Nonnull
-    @Override
-    public String getTranslationKey()
-    {
-        return getTabLabel();
     }
 }

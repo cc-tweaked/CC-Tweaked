@@ -1,14 +1,14 @@
 {
-    "type": "minecraft:crafting_shaped",
+    "type": "crafting_shaped",
     "pattern": [
         "###",
         "#A#",
         "#G#"
     ],
     "key": {
-        "#": { "type": "forge:ore_dict", "ore": "stone" },
-        "G": { "type": "forge:ore_dict", "ore": "paneGlass" },
-        "A": { "item": "minecraft:golden_apple", "data": 0 }
+        "#": { "tag": "forge:stone" },
+        "G": { "item": "minecraft:glass_pane" },
+        "A": { "item": "minecraft:golden_apple" }
     },
-    "result": { "item": "computercraft:pocket_computer_normal", "data": 0 }
+    "result": { "item": "computercraft:pocket_computer_normal" }
 }

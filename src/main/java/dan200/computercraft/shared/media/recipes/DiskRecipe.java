@@ -6,30 +6,37 @@
 
 package dan200.computercraft.shared.media.recipes;
 
-import com.google.gson.JsonObject;
-import dan200.computercraft.shared.media.items.ItemDiskLegacy;
+import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.shared.media.items.ItemDisk;
+import dan200.computercraft.shared.util.AbstractRecipe;
 import dan200.computercraft.shared.util.Colour;
 import dan200.computercraft.shared.util.ColourTracker;
 import dan200.computercraft.shared.util.ColourUtils;
-import net.minecraft.inventory.InventoryCrafting;
+import net.minecraft.init.Items;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.item.EnumDyeColor;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.IRecipe;
+import net.minecraft.item.crafting.IRecipeSerializer;
 import net.minecraft.item.crafting.Ingredient;
+import net.minecraft.item.crafting.RecipeSerializers;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
-import net.minecraftforge.common.crafting.IRecipeFactory;
-import net.minecraftforge.common.crafting.JsonContext;
-import net.minecraftforge.oredict.OreIngredient;
-import net.minecraftforge.registries.IForgeRegistryEntry;
+import net.minecraftforge.common.Tags;
 
 import javax.annotation.Nonnull;
 
-public class DiskRecipe extends IForgeRegistryEntry.Impl<IRecipe> implements IRecipe
+public class DiskRecipe extends AbstractRecipe
 {
-    private final Ingredient paper = new OreIngredient( "paper" );
-    private final Ingredient redstone = new OreIngredient( "dustRedstone" );
+    private final Ingredient paper = Ingredient.fromItems( Items.PAPER );
+    private final Ingredient redstone = Ingredient.fromTag( Tags.Items.DUSTS_REDSTONE );
+
+    public DiskRecipe( ResourceLocation id )
+    {
+        super( id );
+    }
 
     @Override
-    public boolean matches( @Nonnull InventoryCrafting inv, @Nonnull World world )
+    public boolean matches( @Nonnull IInventory inv, @Nonnull World world )
     {
         boolean paperFound = false;
         boolean redstoneFound = false;
@@ -40,17 +47,17 @@ public class DiskRecipe extends IForgeRegistryEntry.Impl<IRecipe> implements IRe
 
             if( !stack.isEmpty() )
             {
-                if( paper.apply( stack ) )
+                if( paper.test( stack ) )
                 {
                     if( paperFound ) return false;
                     paperFound = true;
                 }
-                else if( redstone.apply( stack ) )
+                else if( redstone.test( stack ) )
                 {
                     if( redstoneFound ) return false;
                     redstoneFound = true;
                 }
-                else if( ColourUtils.getStackColour( stack ) < 0 )
+                else if( ColourUtils.getStackColour( stack ) != null )
                 {
                     return false;
                 }
@@ -62,7 +69,7 @@ public class DiskRecipe extends IForgeRegistryEntry.Impl<IRecipe> implements IRe
 
     @Nonnull
     @Override
-    public ItemStack getCraftingResult( @Nonnull InventoryCrafting inv )
+    public ItemStack getCraftingResult( @Nonnull IInventory inv )
     {
         ColourTracker tracker = new ColourTracker();
 
@@ -72,17 +79,17 @@ public class DiskRecipe extends IForgeRegistryEntry.Impl<IRecipe> implements IRe
 
             if( stack.isEmpty() ) continue;
 
-            if( !paper.apply( stack ) && !redstone.apply( stack ) )
+            if( !paper.test( stack ) && !redstone.test( stack ) )
             {
-                int index = ColourUtils.getStackColour( stack );
-                if( index < 0 ) continue;
+                EnumDyeColor dye = ColourUtils.getStackColour( stack );
+                if( dye == null ) continue;
 
-                Colour colour = Colour.values()[index];
+                Colour colour = Colour.VALUES[dye.getId()];
                 tracker.addColour( colour.getR(), colour.getG(), colour.getB() );
             }
         }
 
-        return ItemDiskLegacy.createFromIDAndColour( -1, null, tracker.hasColour() ? tracker.getColour() : Colour.Blue.getHex() );
+        return ItemDisk.createFromIDAndColour( -1, null, tracker.hasColour() ? tracker.getColour() : Colour.Blue.getHex() );
     }
 
     @Override
@@ -91,25 +98,20 @@ public class DiskRecipe extends IForgeRegistryEntry.Impl<IRecipe> implements IRe
         return x >= 2 && y >= 2;
     }
 
-    @Override
-    public boolean isDynamic()
-    {
-        return true;
-    }
-
     @Nonnull
     @Override
     public ItemStack getRecipeOutput()
     {
-        return ItemDiskLegacy.createFromIDAndColour( -1, null, Colour.Blue.getHex() );
+        return ItemDisk.createFromIDAndColour( -1, null, Colour.Blue.getHex() );
     }
 
-    public static class Factory implements IRecipeFactory
+    @Override
+    public IRecipeSerializer<?> getSerializer()
     {
-        @Override
-        public IRecipe parse( JsonContext jsonContext, JsonObject jsonObject )
-        {
-            return new DiskRecipe();
-        }
+        return SERIALIZER;
     }
+
+    public static final IRecipeSerializer<DiskRecipe> SERIALIZER = new RecipeSerializers.SimpleSerializer<>(
+        ComputerCraft.MOD_ID + ":disk", DiskRecipe::new
+    );
 }

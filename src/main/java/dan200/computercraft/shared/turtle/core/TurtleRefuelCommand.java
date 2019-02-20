@@ -13,9 +13,11 @@ import dan200.computercraft.api.turtle.TurtleCommandResult;
 import dan200.computercraft.api.turtle.event.TurtleAction;
 import dan200.computercraft.api.turtle.event.TurtleActionEvent;
 import dan200.computercraft.shared.util.InventoryUtil;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntityFurnace;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.ForgeEventFactory;
 
 import javax.annotation.Nonnull;
 
@@ -62,7 +64,12 @@ public class TurtleRefuelCommand implements ITurtleCommand
 
     private int getFuelPerItem( @Nonnull ItemStack stack )
     {
-        return (TileEntityFurnace.getItemBurnTime( stack ) * 5) / 100;
+        if( stack.isEmpty() ) return 0;
+
+        // See TileEntityFurnace.getItemBurnTime
+        Item item = stack.getItem();
+        int ret = stack.getBurnTime();
+        return ForgeEventFactory.getItemBurnTime( stack, ret == -1 ? TileEntityFurnace.getBurnTimes().getOrDefault( item, 0 ) : ret );
     }
 
     private TurtleCommandResult refuel( ITurtleAccess turtle, @Nonnull ItemStack stack, boolean testOnly )

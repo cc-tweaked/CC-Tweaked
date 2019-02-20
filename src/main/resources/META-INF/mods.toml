@@ -1,0 +1,25 @@
+modLoader="javafml"
+loaderVersion="[25,)"
+
+# updateJSONURL="http://myurl.me/" #optional
+issueTrackerURL="https://github.com/SquidDev-CC/CC-Tweaked/issues"
+displayURL="https://github.com/SquidDev-CC/CC-Tweaked"
+logoFile="pack.png"
+
+credits="Created by Daniel Ratcliffe (@DanTwoHundred)"
+authors="Daniel Ratcliffe, Aaron Mills, SquidDev"
+
+[[mods]]
+modId="computercraft"
+version="${version}"
+displayName="CC: Tweaked"
+description='''
+CC: Tweaked is a fork of ComputerCraft with a focus on more experimental features.
+'''
+
+[[dependencies.cctweaked]]
+    modId="forge"
+    mandatory=true
+    versionRange="[25,)"
+    ordering="NONE"
+    side="BOTH"

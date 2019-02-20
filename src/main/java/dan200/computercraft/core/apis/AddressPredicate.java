@@ -12,6 +12,7 @@ import dan200.computercraft.ComputerCraft;
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -50,6 +51,11 @@ public class AddressPredicate
     private final List<HostRange> ranges;
 
     public AddressPredicate( String... filters )
+    {
+        this( Arrays.asList( filters ) );
+    }
+
+    public AddressPredicate( Iterable<? extends String> filters )
     {
         List<Pattern> wildcards = this.wildcards = new ArrayList<>();
         List<HostRange> ranges = this.ranges = new ArrayList<>();

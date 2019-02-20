@@ -10,11 +10,15 @@ import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.api.media.IMedia;
+import dan200.computercraft.shared.computer.blocks.BlockComputerBase;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
-import net.minecraft.block.Block;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
@@ -23,28 +27,24 @@ import java.util.List;
 
 public abstract class ItemComputerBase extends ItemBlock implements IComputerItem, IMedia
 {
-    protected ItemComputerBase( Block block )
-    {
-        super( block );
-    }
+    private final ComputerFamily family;
 
-    public abstract ComputerFamily getFamily( int damage );
-
-    @Override
-    public final int getMetadata( int damage )
+    public ItemComputerBase( BlockComputerBase<?> block, Properties settings )
     {
-        return damage;
+        super( block, settings );
+        this.family = block.getFamily();
     }
 
     @Override
-    public void addInformation( @Nonnull ItemStack stack, @Nullable World world, @Nonnull List<String> list, @Nonnull ITooltipFlag flag )
+    public void addInformation( @Nonnull ItemStack stack, @Nullable World world, @Nonnull List<ITextComponent> list, @Nonnull ITooltipFlag options )
     {
-        if( flag.isAdvanced() )
+        if( options.isAdvanced() )
         {
             int id = getComputerID( stack );
             if( id >= 0 )
             {
-                list.add( "(Computer ID: " + id + ")" );
+                list.add( new TextComponentTranslation( "gui.computercraft.tooltip.computer_id", id )
+                    .applyTextStyle( TextFormatting.GRAY ) );
             }
         }
     }
@@ -52,23 +52,15 @@ public abstract class ItemComputerBase extends ItemBlock implements IComputerIte
     // IComputerItem implementation
 
     @Override
-    public abstract int getComputerID( @Nonnull ItemStack stack );
-
-    @Override
     public String getLabel( @Nonnull ItemStack stack )
     {
-        if( stack.hasDisplayName() )
-        {
-            return stack.getDisplayName();
-        }
-        return null;
+        return IComputerItem.super.getLabel( stack );
     }
 
     @Override
-    public final ComputerFamily getFamily( @Nonnull ItemStack stack )
+    public final ComputerFamily getFamily()
     {
-        int damage = stack.getItemDamage();
-        return getFamily( damage );
+        return family;
     }
 
     // IMedia implementation
@@ -78,7 +70,7 @@ public abstract class ItemComputerBase extends ItemBlock implements IComputerIte
     {
         if( label != null )
         {
-            stack.setStackDisplayName( label );
+            stack.setDisplayName( new TextComponentString( label ) );
         }
         else
         {
@@ -90,7 +82,7 @@ public abstract class ItemComputerBase extends ItemBlock implements IComputerIte
     @Override
     public IMount createDataMount( @Nonnull ItemStack stack, @Nonnull World world )
     {
-        ComputerFamily family = getFamily( stack );
+        ComputerFamily family = getFamily();
         if( family != ComputerFamily.Command )
         {
             int id = getComputerID( stack );

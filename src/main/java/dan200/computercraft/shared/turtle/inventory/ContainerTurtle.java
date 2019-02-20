@@ -21,8 +21,7 @@ import net.minecraft.item.ItemStack;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public class ContainerTurtle extends Container
-    implements IContainerComputer
+public class ContainerTurtle extends Container implements IContainerComputer
 {
     private static final int PROGRESS_ID_SELECTED_SLOT = 0;
 
@@ -53,7 +52,7 @@ public class ContainerTurtle extends Container
         {
             for( int x = 0; x < 4; x++ )
             {
-                addSlotToContainer( new Slot( m_turtle.getInventory(), x + y * 4, turtleInvStartX + 1 + x * 18, playerInvStartY + 1 + y * 18 ) );
+                addSlot( new Slot( m_turtle.getInventory(), x + y * 4, turtleInvStartX + 1 + x * 18, playerInvStartY + 1 + y * 18 ) );
             }
         }
 
@@ -62,14 +61,14 @@ public class ContainerTurtle extends Container
         {
             for( int x = 0; x < 9; x++ )
             {
-                addSlotToContainer( new Slot( playerInventory, x + y * 9 + 9, 8 + x * 18, playerInvStartY + 1 + y * 18 ) );
+                addSlot( new Slot( playerInventory, x + y * 9 + 9, 8 + x * 18, playerInvStartY + 1 + y * 18 ) );
             }
         }
 
         // Player hotbar
         for( int x = 0; x < 9; x++ )
         {
-            addSlotToContainer( new Slot( playerInventory, x, 8 + x * 18, playerInvStartY + 3 * 18 + 5 ) );
+            addSlot( new Slot( playerInventory, x, 8 + x * 18, playerInvStartY + 3 * 18 + 5 ) );
         }
     }
 
@@ -89,10 +88,10 @@ public class ContainerTurtle extends Container
         return m_selectedSlot;
     }
 
-    private void sendStateToPlayer( IContainerListener icrafting )
+    private void sendStateToPlayer( IContainerListener listener )
     {
         int selectedSlot = m_turtle.getSelectedSlot();
-        icrafting.sendWindowProperty( this, PROGRESS_ID_SELECTED_SLOT, selectedSlot );
+        listener.sendWindowProperty( this, PROGRESS_ID_SELECTED_SLOT, selectedSlot );
     }
 
     @Override

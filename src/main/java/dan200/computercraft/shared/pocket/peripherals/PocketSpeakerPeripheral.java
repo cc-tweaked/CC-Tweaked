@@ -16,9 +16,9 @@ public class PocketSpeakerPeripheral extends SpeakerPeripheral
     private World world = null;
     private Vec3d position = Vec3d.ZERO;
 
-    void setLocation( World world, double x, double y, double z )
+    void setLocation( World world, Vec3d position )
     {
-        position = new Vec3d( x, y, z );
+        this.position = position;
         this.world = world;
     }
 

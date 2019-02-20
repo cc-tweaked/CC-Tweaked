@@ -6,51 +6,57 @@
 
 package dan200.computercraft.shared.turtle.recipes;
 
-import com.google.gson.JsonObject;
+import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.items.IComputerItem;
-import dan200.computercraft.shared.computer.recipe.ComputerConvertRecipe;
+import dan200.computercraft.shared.computer.recipe.ComputerFamilyRecipe;
 import dan200.computercraft.shared.turtle.items.TurtleItemFactory;
-import dan200.computercraft.shared.util.RecipeUtil;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.IRecipe;
-import net.minecraft.util.JsonUtils;
-import net.minecraftforge.common.crafting.CraftingHelper;
-import net.minecraftforge.common.crafting.IRecipeFactory;
-import net.minecraftforge.common.crafting.JsonContext;
+import net.minecraft.item.crafting.IRecipeSerializer;
+import net.minecraft.item.crafting.Ingredient;
+import net.minecraft.util.NonNullList;
+import net.minecraft.util.ResourceLocation;
 
 import javax.annotation.Nonnull;
 
-public class TurtleRecipe extends ComputerConvertRecipe
+public class TurtleRecipe extends ComputerFamilyRecipe
 {
-    private final ComputerFamily family;
-
-    public TurtleRecipe( String group, @Nonnull CraftingHelper.ShapedPrimer primer, ComputerFamily family )
+    private TurtleRecipe( ResourceLocation identifier, String group, int width, int height, NonNullList<Ingredient> ingredients, ItemStack result, ComputerFamily family )
     {
-        super( group, primer, TurtleItemFactory.create( -1, null, -1, family, null, null, 0, null ) );
-        this.family = family;
+        super( identifier, group, width, height, ingredients, result, family );
     }
 
     @Nonnull
     @Override
-    protected ItemStack convert( IComputerItem item, @Nonnull ItemStack stack )
+    public IRecipeSerializer<?> getSerializer()
+    {
+        return SERIALIZER;
+    }
+
+    @Nonnull
+    @Override
+    protected ItemStack convert( @Nonnull IComputerItem item, @Nonnull ItemStack stack )
     {
         int computerID = item.getComputerID( stack );
         String label = item.getLabel( stack );
 
-        return TurtleItemFactory.create( computerID, label, -1, family, null, null, 0, null );
+        return TurtleItemFactory.create( computerID, label, -1, getFamily(), null, null, 0, null );
     }
 
-    public static class Factory implements IRecipeFactory
+    private static final ResourceLocation ID = new ResourceLocation( ComputerCraft.MOD_ID, "turtle" );
+    public static final IRecipeSerializer<TurtleRecipe> SERIALIZER = new Serializer<TurtleRecipe>()
     {
         @Override
-        public IRecipe parse( JsonContext context, JsonObject json )
+        protected TurtleRecipe create( ResourceLocation identifier, String group, int width, int height, NonNullList<Ingredient> ingredients, ItemStack result, ComputerFamily family )
         {
-            String group = JsonUtils.getString( json, "group", "" );
-            ComputerFamily family = RecipeUtil.getFamily( json, "family" );
-            CraftingHelper.ShapedPrimer primer = RecipeUtil.getPrimer( context, json );
-
-            return new TurtleRecipe( group, primer, family );
+            return new TurtleRecipe( identifier, group, width, height, ingredients, result, family );
         }
-    }
+
+        @Nonnull
+        @Override
+        public ResourceLocation getName()
+        {
+            return ID;
+        }
+    };
 }

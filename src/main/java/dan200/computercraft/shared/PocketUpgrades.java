@@ -22,7 +22,7 @@ public final class PocketUpgrades
 {
     private static final Map<String, IPocketUpgrade> upgrades = new HashMap<>();
 
-    public static void register( @Nonnull IPocketUpgrade upgrade )
+    public static synchronized void register( @Nonnull IPocketUpgrade upgrade )
     {
         Preconditions.checkNotNull( upgrade, "upgrade cannot be null" );
 
@@ -61,8 +61,8 @@ public final class PocketUpgrades
     public static Iterable<IPocketUpgrade> getVanillaUpgrades()
     {
         List<IPocketUpgrade> vanilla = new ArrayList<>();
-        vanilla.add( ComputerCraft.PocketUpgrades.wirelessModem );
-        vanilla.add( ComputerCraft.PocketUpgrades.advancedModem );
+        vanilla.add( ComputerCraft.PocketUpgrades.wirelessModemNormal );
+        vanilla.add( ComputerCraft.PocketUpgrades.wirelessModemAdvanced );
         vanilla.add( ComputerCraft.PocketUpgrades.speaker );
         return vanilla;
     }

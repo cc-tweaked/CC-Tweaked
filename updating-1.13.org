@@ -1,0 +1,93 @@
+* Remaining changes [6/15]
+** TODO [#A] ClientRegistry
+   - Turtle model
+   - loadModel
+
+** TODO [#B] Turtle/pocket computer upgrades recipes and advancements
+   Can we auto-generate these in a folder?
+
+** =/computercraft= command [0/4]
+*** TODO [#B] Client side commands
+    We may need to PR into Forge
+
+*** TODO [#C] Main command documentation
+    It'd be nice to have a better documentation system. Our current "described literal node" implementation will never
+    work without MC support.
+
+*** TODO [#B] Look into threading of the computer commands
+    Are these run on the main thread? If so, we don't need to do any of that copying stuff.
+
+*** TODO [#C] Document our arguments + argument builders a little more
+    It'd be nice to have some rationale for what each one does, why we return suppliers instead, etc...
+
+** DONE [#C] Revert our writeDescription returning an =NBTTagCompound= change.
+   Similarly, go through places where the diff is unreasonably noisy for silly reasons (such as changing method
+   orders). This is especially obvious in =TileGeneric= and =BlockGeneric=.
+
+   Maybe also look into where we've done =m_= removals and =ID= → =Id=. Though at the same time, uppercase naming here
+   is dumb.
+
+** TODO [#B] Command block API
+   How do we integrate command listings with this?
+
+** DONE [#A] Decide on an NBT convention
+   Do we do =PascalCase=, =camelCase= or =snake_case= for fields? We need to decide this soon, while we're still able to
+   break compat.
+
+   Minecraft seems to use =PascalCase=, but I don't think we need to follow that.
+
+   *Update:* We've gone with =PascalCase= for all the persisted NBT fields.
+
+** TODO [#A] Cable neighbour updates
+   Namely, how do we interact with updatePostPlacement.
+
+** DONE [#A] Post placement of computers fires updates
+
+** TODO [#C] Move to =BlockContainer=
+   Means we no longer have to implement =ITileEntityProvider= or all that jazz.
+
+** DONE [#B] Tags for =ColourUtils=
+
+** DONE [#C] Fix issues with the naming process
+   - Computer and monitor recipes not being renamed
+   - Language file being part of the renaming change.
+
+** TODO [#A] Clear =ClientComputerRegistry= on disconnect
+
+** TODO [#A] Check our usage of (inventory) capabilities
+
+** TODO [#B] =doesSneakBypassUse=
+   What does this do, and why do we need it?
+
+   I assume it's to allow shift-sneaking disks into drives.
+
+** TODO [#C] Convert to Forge's container system
+   Also simplify our current implementation.
+
+** DONE [#A] Waterlogging
+   For modems, cables and turtles. This is a high priority, as we need it before
+   anything else to ensure we don't break worlds.
+
+    - [X] Add waterlogging to blockstates
+    - [X] Test placement of waterlogged blocks into water
+    - [X] Test turtle movement in water
+
+** DONE [#B] Disk colours are entirely broken
+
+* Testing [0/5]
+
+** TODO [#A] Breaking blocks
+   Especially peripherals - we need to ensure we break them in the correct order, otherwise we'll be trying to read the
+   block state when its no longer there!
+
+** TODO [#B] Redstone (and peripheral) connectivity
+   Is this behaviour consistent with what was on 1.12?
+
+** TODO [#A] Command computer permissions
+
+** TODO [#C] Are we drawing in the right GUI method?
+
+** TODO [#A] Run on a server
+   We're totally using some client-only methods some place.
+** TODO [#B] Handling of dyes
+   Printers are currently broken.

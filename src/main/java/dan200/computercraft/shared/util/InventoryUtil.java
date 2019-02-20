@@ -15,9 +15,9 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.ItemHandlerHelper;
 import net.minecraftforge.items.wrapper.InvWrapper;
 import net.minecraftforge.items.wrapper.SidedInvWrapper;
 import org.apache.commons.lang3.tuple.Pair;
@@ -35,14 +35,14 @@ public class InventoryUtil
 
     public static boolean areItemsStackable( @Nonnull ItemStack a, @Nonnull ItemStack b )
     {
-        return a == b || ItemHandlerHelper.canItemStacksStack( a, b );
+        return a == b || (a.getItem() == b.getItem() && ItemStack.areItemStackTagsEqual( a, b ));
     }
 
     /**
      * Determines if two items are "mostly" equivalent. Namely, they have the same item and damage, and identical
      * share stacks.
      *
-     * This is largely based on {@link net.minecraftforge.common.crafting.IngredientNBT#apply(ItemStack)}. It is
+     * This is largely based on {@link net.minecraftforge.common.crafting.IngredientNBT#test(ItemStack)}. It is
      * sufficient to ensure basic information (such as enchantments) are the same, while not having to worry about
      * capabilities.
      *
@@ -54,9 +54,7 @@ public class InventoryUtil
     {
         if( a == b ) return true;
         if( a.isEmpty() ) return !b.isEmpty();
-        return a.getItem() == b.getItem()
-            && a.getItemDamage() == b.getItemDamage()
-            && ItemStack.areItemStackShareTagsEqual( a, b );
+        return a.getItem() == b.getItem() && a.areShareTagsEqual( b );
     }
 
     @Nonnull
@@ -73,10 +71,10 @@ public class InventoryUtil
         TileEntity tileEntity = world.getTileEntity( pos );
         if( tileEntity != null )
         {
-            IItemHandler itemHandler = tileEntity.getCapability( CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side );
-            if( itemHandler != null )
+            LazyOptional<IItemHandler> itemHandler = tileEntity.getCapability( CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side );
+            if( itemHandler.isPresent() )
             {
-                return itemHandler;
+                return itemHandler.orElseThrow( NullPointerException::new );
             }
             else if( side != null && tileEntity instanceof ISidedInventory )
             {
@@ -163,14 +161,17 @@ public class InventoryUtil
         {
             int slot = start + ((i + (begin - start)) % range);
 
+            // If we've extracted all items, return
             if( count <= 0 ) break;
 
+            // If this doesn't slot, abort.
             ItemStack stack = inventory.getStackInSlot( slot );
             if( !stack.isEmpty() && (partialStack.isEmpty() || areItemsStackable( stack, partialStack )) )
             {
                 ItemStack extracted = inventory.extractItem( slot, count, false );
                 if( !extracted.isEmpty() )
                 {
+                    count -= extracted.getCount();
                     if( partialStack.isEmpty() )
                     {
                         // If we've extracted for this first time, then limit the count to the maximum stack size.
@@ -181,10 +182,9 @@ public class InventoryUtil
                     {
                         partialStack.grow( extracted.getCount() );
                     }
-
-                    count -= extracted.getCount();
                 }
             }
+
         }
 
         return partialStack;

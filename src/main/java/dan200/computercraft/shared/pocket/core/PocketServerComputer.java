@@ -10,13 +10,14 @@ import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.pocket.IPocketAccess;
 import dan200.computercraft.api.pocket.IPocketUpgrade;
+import dan200.computercraft.shared.common.IColouredItem;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.network.NetworkHandler;
+import dan200.computercraft.shared.pocket.items.ItemPocketComputer;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
@@ -28,10 +29,12 @@ import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.Map;
 
+import static dan200.computercraft.shared.pocket.items.ItemPocketComputer.NBT_LIGHT;
+
 public class PocketServerComputer extends ServerComputer implements IPocketAccess
 {
     private IPocketUpgrade m_upgrade;
-    private Entity m_entity;
+    private Entity entity;
     private ItemStack m_stack;
 
     public PocketServerComputer( World world, int computerID, String label, int instanceID, ComputerFamily family )
@@ -43,19 +46,19 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
     @Override
     public Entity getEntity()
     {
-        return m_entity;
+        return entity;
     }
 
     @Override
     public int getColour()
     {
-        return ComputerCraft.Items.pocketComputer.getColour( m_stack );
+        return IColouredItem.getColourBasic( m_stack );
     }
 
     @Override
     public void setColour( int colour )
     {
-        ComputerCraft.Items.pocketComputer.setColourDirect( m_stack, colour );
+        IColouredItem.setColourBasic( m_stack, colour );
         updateUpgradeNBTData();
     }
 
@@ -63,14 +66,7 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
     public int getLight()
     {
         NBTTagCompound tag = getUserData();
-        if( tag.hasKey( "modemLight", Constants.NBT.TAG_ANY_NUMERIC ) )
-        {
-            return tag.getInteger( "modemLight" );
-        }
-        else
-        {
-            return -1;
-        }
+        return tag.contains( NBT_LIGHT, Constants.NBT.TAG_ANY_NUMERIC ) ? tag.getInt( NBT_LIGHT ) : -1;
     }
 
     @Override
@@ -79,15 +75,15 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
         NBTTagCompound tag = getUserData();
         if( colour >= 0 && colour <= 0xFFFFFF )
         {
-            if( !tag.hasKey( "modemLight", Constants.NBT.TAG_ANY_NUMERIC ) || tag.getInteger( "modemLight" ) != colour )
+            if( !tag.contains( NBT_LIGHT, Constants.NBT.TAG_ANY_NUMERIC ) || tag.getInt( NBT_LIGHT ) != colour )
             {
-                tag.setInteger( "modemLight", colour );
+                tag.putInt( NBT_LIGHT, colour );
                 updateUserData();
             }
         }
-        else if( tag.hasKey( "modemLight", Constants.NBT.TAG_ANY_NUMERIC ) )
+        else if( tag.contains( NBT_LIGHT, Constants.NBT.TAG_ANY_NUMERIC ) )
         {
-            tag.removeTag( "modemLight" );
+            tag.remove( NBT_LIGHT );
             updateUserData();
         }
     }
@@ -96,17 +92,13 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
     @Override
     public NBTTagCompound getUpgradeNBTData()
     {
-        return ComputerCraft.Items.pocketComputer.getUpgradeInfo( m_stack );
+        return ItemPocketComputer.getUpgradeInfo( m_stack );
     }
 
     @Override
     public void updateUpgradeNBTData()
     {
-        InventoryPlayer inventory = m_entity instanceof EntityPlayer ? ((EntityPlayer) m_entity).inventory : null;
-        if( inventory != null )
-        {
-            inventory.markDirty();
-        }
+        if( entity instanceof EntityPlayer ) ((EntityPlayer) entity).inventory.markDirty();
     }
 
     @Override
@@ -148,9 +140,8 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
 
         synchronized( this )
         {
-            ComputerCraft.Items.pocketComputer.setUpgrade( m_stack, upgrade );
-            if( m_entity instanceof EntityPlayer ) ((EntityPlayer) m_entity).inventory.markDirty();
-
+            ItemPocketComputer.setUpgrade( m_stack, upgrade );
+            updateUpgradeNBTData();
             this.m_upgrade = upgrade;
             invalidatePeripheral();
         }
@@ -165,9 +156,9 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
         }
 
         // If a new entity has picked it up then rebroadcast the terminal to them
-        if( entity != m_entity && entity instanceof EntityPlayerMP ) markTerminalChanged();
+        if( entity != this.entity && entity instanceof EntityPlayerMP ) markTerminalChanged();
 
-        m_entity = entity;
+        this.entity = entity;
         m_stack = stack;
 
         if( this.m_upgrade != upgrade )
@@ -182,10 +173,10 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
     {
         super.broadcastState( force );
 
-        if( (hasTerminalChanged() || force) && m_entity instanceof EntityPlayerMP )
+        if( (hasTerminalChanged() || force) && entity instanceof EntityPlayerMP )
         {
             // Broadcast the state to the current entity if they're not already interacting with it.
-            EntityPlayerMP player = (EntityPlayerMP) m_entity;
+            EntityPlayerMP player = (EntityPlayerMP) entity;
             if( player.connection != null && !isInteracting( player ) )
             {
                 NetworkHandler.sendToPlayer( player, createTerminalPacket() );

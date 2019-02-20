@@ -6,26 +6,29 @@
 
 package dan200.computercraft.client.render;
 
-import com.google.common.collect.ImmutableMap;
 import dan200.computercraft.ComputerCraft;
-import net.minecraft.client.renderer.block.model.IBakedModel;
+import net.minecraft.client.renderer.model.IBakedModel;
+import net.minecraft.client.renderer.model.IUnbakedModel;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.VertexFormat;
-import net.minecraft.client.resources.IResourceManager;
+import net.minecraft.resources.IResourceManager;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.model.ICustomModelLoader;
-import net.minecraftforge.client.model.IModel;
-import net.minecraftforge.client.model.ModelLoaderRegistry;
 import net.minecraftforge.common.model.IModelState;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class TurtleModelLoader implements ICustomModelLoader
 {
-    private static final ResourceLocation NORMAL_TURTLE_MODEL = new ResourceLocation( ComputerCraft.MOD_ID, "block/turtle" );
-    private static final ResourceLocation ADVANCED_TURTLE_MODEL = new ResourceLocation( ComputerCraft.MOD_ID, "block/advanced_turtle" );
-    private static final ResourceLocation COLOUR_TURTLE_MODEL = new ResourceLocation( ComputerCraft.MOD_ID, "block/turtle_white" );
+    private static final ResourceLocation NORMAL_TURTLE_MODEL = new ResourceLocation( ComputerCraft.MOD_ID, "models/block/turtle_normal" );
+    private static final ResourceLocation ADVANCED_TURTLE_MODEL = new ResourceLocation( ComputerCraft.MOD_ID, "models/block/turtle_advanced" );
+    private static final ResourceLocation COLOUR_TURTLE_MODEL = new ResourceLocation( ComputerCraft.MOD_ID, "models/block/turtle_colour" );
 
     public static final TurtleModelLoader INSTANCE = new TurtleModelLoader();
 
@@ -41,81 +44,63 @@ public class TurtleModelLoader implements ICustomModelLoader
     @Override
     public boolean accepts( @Nonnull ResourceLocation name )
     {
+        if( name.getNamespace().equals( ComputerCraft.MOD_ID ) )
+        {
+            ComputerCraft.log.info( "Could load", name.getPath() );
+        }
+
         return name.getNamespace().equals( ComputerCraft.MOD_ID )
-            && (name.getPath().equals( "turtle" ) || name.getPath().equals( "turtle_advanced" ));
+            && (name.getPath().equals( "models/item/turtle" ) || name.getPath().equals( "models/item/turtle_advanced" ));
     }
 
     @Nonnull
     @Override
-    public IModel loadModel( @Nonnull ResourceLocation name ) throws Exception
+    public IUnbakedModel loadModel( @Nonnull ResourceLocation name )
     {
         if( name.getNamespace().equals( ComputerCraft.MOD_ID ) )
         {
-            IModel colourModel = ModelLoaderRegistry.getModel( COLOUR_TURTLE_MODEL );
             switch( name.getPath() )
             {
-                case "turtle":
-                    return new TurtleModel( ModelLoaderRegistry.getModel( NORMAL_TURTLE_MODEL ), colourModel );
-                case "turtle_advanced":
-                    return new TurtleModel( ModelLoaderRegistry.getModel( ADVANCED_TURTLE_MODEL ), colourModel );
+                case "models/item/turtle_normal":
+                    return new TurtleModel( NORMAL_TURTLE_MODEL );
+                case "models/item/turtle_advanced":
+                    return new TurtleModel( ADVANCED_TURTLE_MODEL );
             }
         }
 
         throw new IllegalStateException( "Loader does not accept " + name );
     }
 
-    private static class TurtleModel implements IModel
+    private static class TurtleModel implements IUnbakedModel
     {
-        private final IModel family;
-        private final IModel colour;
+        private final ResourceLocation family;
 
-        private TurtleModel( IModel family, IModel colour )
+        private TurtleModel( ResourceLocation family ) {this.family = family;}
+
+        @Nonnull
+        @Override
+        public Collection<ResourceLocation> getDependencies()
         {
-            this.family = family;
-            this.colour = colour;
+            return Arrays.asList( family, COLOUR_TURTLE_MODEL );
         }
 
         @Nonnull
         @Override
-        public IBakedModel bake( @Nonnull IModelState state, @Nonnull VertexFormat format, @Nonnull Function<ResourceLocation, TextureAtlasSprite> function )
+        public Collection<ResourceLocation> getTextures( @Nonnull Function<ResourceLocation, IUnbakedModel> modelGetter, @Nonnull Set<String> missingTextureErrors )
+        {
+            return getDependencies().stream()
+                .flatMap( x -> modelGetter.apply( x ).getTextures( modelGetter, missingTextureErrors ).stream() )
+                .collect( Collectors.toSet() );
+        }
+
+        @Nullable
+        @Override
+        public IBakedModel bake( @Nonnull Function<ResourceLocation, IUnbakedModel> modelGetter, @Nonnull Function<ResourceLocation, TextureAtlasSprite> spriteGetter, @Nonnull IModelState state, boolean uvlock, @Nonnull VertexFormat format )
         {
             return new TurtleSmartItemModel(
-                family.bake( state, format, function ),
-                colour.bake( state, format, function )
+                modelGetter.apply( family ).bake( modelGetter, spriteGetter, state, uvlock, format ),
+                modelGetter.apply( COLOUR_TURTLE_MODEL ).bake( modelGetter, spriteGetter, state, uvlock, format )
             );
-        }
-
-        private TurtleModel copy( IModel family, IModel colour )
-        {
-            return this.family == family && this.colour == colour ? this : new TurtleModel( family, colour );
-        }
-
-        @Nonnull
-        @Override
-        public IModel smoothLighting( boolean value )
-        {
-            return copy( family.smoothLighting( value ), colour.smoothLighting( value ) );
-        }
-
-        @Nonnull
-        @Override
-        public IModel gui3d( boolean value )
-        {
-            return copy( family.gui3d( value ), colour.gui3d( value ) );
-        }
-
-        @Nonnull
-        @Override
-        public IModel uvlock( boolean value )
-        {
-            return copy( family.uvlock( value ), colour.uvlock( value ) );
-        }
-
-        @Nonnull
-        @Override
-        public IModel retexture( ImmutableMap<String, String> textures )
-        {
-            return copy( family.retexture( textures ), colour.retexture( textures ) );
         }
     }
 }

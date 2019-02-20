@@ -8,7 +8,6 @@ package dan200.computercraft.shared.computer.core;
 
 import com.google.common.base.Objects;
 import dan200.computercraft.shared.common.ClientTerminal;
-import dan200.computercraft.shared.computer.blocks.ComputerState;
 import dan200.computercraft.shared.network.NetworkHandler;
 import dan200.computercraft.shared.network.server.ComputerActionServerMessage;
 import dan200.computercraft.shared.network.server.QueueEventServerMessage;
@@ -63,20 +62,6 @@ public class ClientComputer extends ClientTerminal implements IComputer
     }
 
     @Override
-    @Deprecated
-    public int getID()
-    {
-        return -1;
-    }
-
-    @Override
-    @Deprecated
-    public String getLabel()
-    {
-        return null;
-    }
-
-    @Override
     public boolean isOn()
     {
         return m_on;
@@ -122,8 +107,8 @@ public class ClientComputer extends ClientTerminal implements IComputer
         boolean oldBlinking = m_blinking;
         NBTTagCompound oldUserData = m_userData;
 
-        m_on = state != ComputerState.Off;
-        m_blinking = state == ComputerState.Blinking;
+        m_on = state != ComputerState.OFF;
+        m_blinking = state == ComputerState.BLINKING;
         m_userData = userData;
 
         m_changed |= m_on != oldOn || m_blinking != oldBlinking || !Objects.equal( m_userData, oldUserData );

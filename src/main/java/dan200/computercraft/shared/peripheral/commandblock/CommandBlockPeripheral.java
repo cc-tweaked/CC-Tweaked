@@ -11,7 +11,6 @@ import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import net.minecraft.tileentity.TileEntityCommandBlock;
-import net.minecraft.util.math.BlockPos;
 
 import javax.annotation.Nonnull;
 
@@ -64,9 +63,8 @@ public class CommandBlockPeripheral implements IPeripheral
                 final String command = getString( arguments, 0 );
                 context.issueMainThreadTask( () ->
                 {
-                    BlockPos pos = m_commandBlock.getPos();
                     m_commandBlock.getCommandBlockLogic().setCommand( command );
-                    m_commandBlock.getWorld().markBlockRangeForRenderUpdate( pos, pos );
+                    m_commandBlock.getCommandBlockLogic().updateCommand();
                     return null;
                 } );
                 return null;

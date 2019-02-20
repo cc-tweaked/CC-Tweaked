@@ -21,19 +21,19 @@ public class ContainerDiskDrive extends Container
     public ContainerDiskDrive( IInventory playerInventory, TileDiskDrive diskDrive )
     {
         m_diskDrive = diskDrive;
-        addSlotToContainer( new Slot( m_diskDrive, 0, 8 + 4 * 18, 35 ) );
+        addSlot( new Slot( m_diskDrive, 0, 8 + 4 * 18, 35 ) );
 
         for( int y = 0; y < 3; y++ )
         {
             for( int x = 0; x < 9; x++ )
             {
-                addSlotToContainer( new Slot( playerInventory, x + y * 9 + 9, 8 + x * 18, 84 + y * 18 ) );
+                addSlot( new Slot( playerInventory, x + y * 9 + 9, 8 + x * 18, 84 + y * 18 ) );
             }
         }
 
         for( int x = 0; x < 9; x++ )
         {
-            addSlotToContainer( new Slot( playerInventory, x, 8 + x * 18, 142 ) );
+            addSlot( new Slot( playerInventory, x, 8 + x * 18, 142 ) );
         }
     }
 
@@ -50,24 +50,22 @@ public class ContainerDiskDrive extends Container
 
     @Nonnull
     @Override
-    public ItemStack transferStackInSlot( EntityPlayer player, int slotIndex )
+    public ItemStack transferStackInSlot( EntityPlayer payer, int slotIndex )
     {
-        ItemStack extract = ItemStack.EMPTY;
         Slot slot = inventorySlots.get( slotIndex );
-        if( slot == null || !slot.getHasStack() ) return extract;
+        if( slot == null || !slot.getHasStack() ) return ItemStack.EMPTY;
 
-        ItemStack existing = slot.getStack().copy();
-        extract = existing.copy();
+        ItemStack existing = slot.getStack();
+        ItemStack result = existing.copy();
         if( slotIndex == 0 )
         {
-            if( !mergeItemStack( existing, 1, 37, true ) )
-            {
-                return ItemStack.EMPTY;
-            }
+            // Insert into player inventory
+            if( !mergeItemStack( existing, 1, 37, true ) ) return ItemStack.EMPTY;
         }
-        else if( !mergeItemStack( existing, 0, 1, false ) )
+        else
         {
-            return ItemStack.EMPTY;
+            // Insert into disk inventory
+            if( !mergeItemStack( existing, 0, 1, false ) ) return ItemStack.EMPTY;
         }
 
         if( existing.isEmpty() )
@@ -79,9 +77,9 @@ public class ContainerDiskDrive extends Container
             slot.onSlotChanged();
         }
 
-        if( existing.getCount() == extract.getCount() ) return ItemStack.EMPTY;
+        if( existing.getCount() == result.getCount() ) return ItemStack.EMPTY;
 
-        slot.onTake( player, existing );
-        return extract;
+        slot.onTake( payer, existing );
+        return result;
     }
 }

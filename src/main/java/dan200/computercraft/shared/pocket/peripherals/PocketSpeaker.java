@@ -6,12 +6,10 @@
 
 package dan200.computercraft.shared.pocket.peripherals;
 
+import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.pocket.IPocketAccess;
-import dan200.computercraft.shared.peripheral.PeripheralType;
-import dan200.computercraft.shared.peripheral.common.PeripheralItemFactory;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.ResourceLocation;
 
 import javax.annotation.Nonnull;
@@ -21,10 +19,7 @@ public class PocketSpeaker extends AbstractPocketUpgrade
 {
     public PocketSpeaker()
     {
-        super(
-            new ResourceLocation( "computercraft", "speaker" ),
-            PeripheralItemFactory.create( PeripheralType.Speaker, null, 1 )
-        );
+        super( new ResourceLocation( "computercraft", "speaker" ), ComputerCraft.Blocks.speaker );
     }
 
     @Nullable
@@ -42,14 +37,9 @@ public class PocketSpeaker extends AbstractPocketUpgrade
         PocketSpeakerPeripheral speaker = (PocketSpeakerPeripheral) peripheral;
 
         Entity entity = access.getEntity();
-        if( entity instanceof EntityLivingBase )
+        if( entity != null )
         {
-            EntityLivingBase player = (EntityLivingBase) entity;
-            speaker.setLocation( entity.getEntityWorld(), player.posX, player.posY + player.getEyeHeight(), player.posZ );
-        }
-        else if( entity != null )
-        {
-            speaker.setLocation( entity.getEntityWorld(), entity.posX, entity.posY, entity.posZ );
+            speaker.setLocation( entity.getEntityWorld(), entity.getEyePosition( 1 ) );
         }
 
         speaker.update();

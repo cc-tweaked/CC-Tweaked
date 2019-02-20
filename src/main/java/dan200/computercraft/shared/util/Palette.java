@@ -89,13 +89,13 @@ public class Palette
             rgb8[i] = encodeRGB8( colours[i] );
         }
 
-        nbt.setIntArray( "term_palette", rgb8 );
+        nbt.putIntArray( "term_palette", rgb8 );
         return nbt;
     }
 
     public void readFromNBT( NBTTagCompound nbt )
     {
-        if( !nbt.hasKey( "term_palette" ) ) return;
+        if( !nbt.contains( "term_palette" ) ) return;
         int[] rgb8 = nbt.getIntArray( "term_palette" );
 
         if( rgb8.length != colours.length ) return;

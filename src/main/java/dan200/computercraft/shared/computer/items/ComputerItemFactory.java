@@ -29,10 +29,11 @@ public class ComputerItemFactory
         switch( family )
         {
             case Normal:
+                return ComputerCraft.Items.computerNormal.create( id, label );
             case Advanced:
-                return ComputerCraft.Items.computer.create( id, label, family );
+                return ComputerCraft.Items.computerAdvanced.create( id, label );
             case Command:
-                return ComputerCraft.Items.commandComputer.create( id, label, family );
+                return ComputerCraft.Items.computerCommand.create( id, label );
             default:
                 return ItemStack.EMPTY;
         }

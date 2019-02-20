@@ -6,10 +6,9 @@
 
 package dan200.computercraft.shared.network.client;
 
-import dan200.computercraft.shared.util.NBTUtil;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
+import net.minecraftforge.fml.network.NetworkEvent;
 
 import javax.annotation.Nonnull;
 
@@ -38,11 +37,11 @@ public class ComputerTerminalClientMessage extends ComputerClientMessage
     public void fromBytes( @Nonnull PacketBuffer buf )
     {
         super.fromBytes( buf );
-        tag = NBTUtil.readCompoundTag( buf );
+        tag = buf.readCompoundTag();
     }
 
     @Override
-    public void handle( MessageContext context )
+    public void handle( NetworkEvent.Context context )
     {
         getComputer().readDescription( tag );
     }

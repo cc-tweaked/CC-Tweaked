@@ -6,34 +6,33 @@
 
 package dan200.computercraft.shared.pocket.recipes;
 
-import com.google.gson.JsonObject;
+import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.pocket.IPocketUpgrade;
 import dan200.computercraft.shared.PocketUpgrades;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.pocket.items.ItemPocketComputer;
 import dan200.computercraft.shared.pocket.items.PocketComputerItemFactory;
-import net.minecraft.inventory.InventoryCrafting;
+import dan200.computercraft.shared.util.AbstractRecipe;
+import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.IRecipe;
+import net.minecraft.item.crafting.IRecipeSerializer;
+import net.minecraft.item.crafting.RecipeSerializers;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
-import net.minecraftforge.common.crafting.IRecipeFactory;
-import net.minecraftforge.common.crafting.JsonContext;
-import net.minecraftforge.registries.IForgeRegistryEntry;
 
 import javax.annotation.Nonnull;
 
-public class PocketComputerUpgradeRecipe extends IForgeRegistryEntry.Impl<IRecipe> implements IRecipe
+public class PocketComputerUpgradeRecipe extends AbstractRecipe
 {
+    private PocketComputerUpgradeRecipe( ResourceLocation identifier )
+    {
+        super( identifier );
+    }
+
     @Override
     public boolean canFit( int x, int y )
     {
         return x >= 2 && y >= 2;
-    }
-
-    @Override
-    public boolean isDynamic()
-    {
-        return true;
     }
 
     @Nonnull
@@ -44,35 +43,32 @@ public class PocketComputerUpgradeRecipe extends IForgeRegistryEntry.Impl<IRecip
     }
 
     @Override
-    public boolean matches( @Nonnull InventoryCrafting inventory, @Nonnull World world )
+    public boolean matches( @Nonnull IInventory inventory, @Nonnull World world )
     {
         return !getCraftingResult( inventory ).isEmpty();
     }
 
     @Nonnull
     @Override
-    public ItemStack getCraftingResult( @Nonnull InventoryCrafting inventory )
+    public ItemStack getCraftingResult( @Nonnull IInventory inventory )
     {
         // Scan the grid for a pocket computer
         ItemStack computer = ItemStack.EMPTY;
         int computerX = -1;
         int computerY = -1;
-        for( int y = 0; y < inventory.getHeight(); y++ )
+        computer:
+        for( int y = 0; y < inventory.getWidth(); y++ )
         {
-            for( int x = 0; x < inventory.getWidth(); x++ )
+            for( int x = 0; x < inventory.getHeight(); x++ )
             {
-                ItemStack item = inventory.getStackInRowAndColumn( x, y );
+                ItemStack item = inventory.getStackInSlot( x + y * inventory.getWidth() );
                 if( !item.isEmpty() && item.getItem() instanceof ItemPocketComputer )
                 {
                     computer = item;
                     computerX = x;
                     computerY = y;
-                    break;
+                    break computer;
                 }
-            }
-            if( !computer.isEmpty() )
-            {
-                break;
             }
         }
 
@@ -82,10 +78,7 @@ public class PocketComputerUpgradeRecipe extends IForgeRegistryEntry.Impl<IRecip
         }
 
         ItemPocketComputer itemComputer = (ItemPocketComputer) computer.getItem();
-        if( itemComputer.getUpgrade( computer ) != null )
-        {
-            return ItemStack.EMPTY;
-        }
+        if( ItemPocketComputer.getUpgrade( computer ) != null ) return ItemStack.EMPTY;
 
         // Check for upgrades around the item
         IPocketUpgrade upgrade = null;
@@ -93,7 +86,7 @@ public class PocketComputerUpgradeRecipe extends IForgeRegistryEntry.Impl<IRecip
         {
             for( int x = 0; x < inventory.getWidth(); x++ )
             {
-                ItemStack item = inventory.getStackInRowAndColumn( x, y );
+                ItemStack item = inventory.getStackInSlot( x + y * inventory.getWidth() );
                 if( x == computerX && y == computerY )
                 {
                     continue;
@@ -110,25 +103,25 @@ public class PocketComputerUpgradeRecipe extends IForgeRegistryEntry.Impl<IRecip
             }
         }
 
-        if( upgrade == null )
-        {
-            return ItemStack.EMPTY;
-        }
+        if( upgrade == null ) return ItemStack.EMPTY;
 
         // Construct the new stack
-        ComputerFamily family = itemComputer.getFamily( computer );
+        ComputerFamily family = itemComputer.getFamily();
         int computerID = itemComputer.getComputerID( computer );
         String label = itemComputer.getLabel( computer );
         int colour = itemComputer.getColour( computer );
         return PocketComputerItemFactory.create( computerID, label, colour, family, upgrade );
     }
 
-    public static class Factory implements IRecipeFactory
+    @Nonnull
+    @Override
+    public IRecipeSerializer<?> getSerializer()
     {
-        @Override
-        public IRecipe parse( JsonContext jsonContext, JsonObject jsonObject )
-        {
-            return new PocketComputerUpgradeRecipe();
-        }
+        return SERIALIZER;
     }
+
+    public static final IRecipeSerializer<PocketComputerUpgradeRecipe> SERIALIZER = new RecipeSerializers.SimpleSerializer<>(
+        ComputerCraft.MOD_ID + ":pocket_computer_upgrade",
+        PocketComputerUpgradeRecipe::new
+    );
 }

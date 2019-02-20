@@ -8,15 +8,17 @@ package dan200.computercraft.shared.wired;
 
 import dan200.computercraft.api.network.wired.IWiredElement;
 import dan200.computercraft.api.network.wired.IWiredNode;
-import net.minecraft.nbt.NBTBase;
+import net.minecraft.nbt.INBTBase;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityInject;
 import net.minecraftforge.common.capabilities.CapabilityManager;
+import net.minecraftforge.common.util.LazyOptional;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class CapabilityWiredElement
 {
@@ -62,14 +64,23 @@ public class CapabilityWiredElement
     private static class NullStorage implements Capability.IStorage<IWiredElement>
     {
         @Override
-        public NBTBase writeNBT( Capability<IWiredElement> capability, IWiredElement instance, EnumFacing side )
+        public INBTBase writeNBT( Capability<IWiredElement> capability, IWiredElement instance, EnumFacing side )
         {
             return null;
         }
 
         @Override
-        public void readNBT( Capability<IWiredElement> capability, IWiredElement instance, EnumFacing side, NBTBase base )
+        public void readNBT( Capability<IWiredElement> capability, IWiredElement instance, EnumFacing side, INBTBase base )
         {
         }
+    }
+
+    private static final IWiredElement NULL_ELEMENT = new NullElement();
+
+    @Nullable
+    public static IWiredElement unwrap( LazyOptional<IWiredElement> capability )
+    {
+        IWiredElement element = capability.orElse( NULL_ELEMENT );
+        return element == NULL_ELEMENT ? null : element;
     }
 }

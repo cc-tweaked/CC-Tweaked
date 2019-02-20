@@ -6,7 +6,9 @@
 
 package dan200.computercraft.shared.command;
 
-import com.google.common.collect.Sets;
+import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.core.apis.IAPIEnvironment;
@@ -15,29 +17,35 @@ import dan200.computercraft.core.tracking.ComputerTracker;
 import dan200.computercraft.core.tracking.Tracking;
 import dan200.computercraft.core.tracking.TrackingContext;
 import dan200.computercraft.core.tracking.TrackingField;
-import dan200.computercraft.shared.Config;
-import dan200.computercraft.shared.command.framework.*;
 import dan200.computercraft.shared.command.text.TableBuilder;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ServerComputer;
-import net.minecraft.command.CommandBase;
-import net.minecraft.command.CommandException;
-import net.minecraft.command.ICommandSender;
+import net.minecraft.command.CommandSource;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.server.MinecraftServer;
+import net.minecraft.network.play.server.SPacketPlayerPosLook;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
+import net.minecraft.world.WorldServer;
 
 import javax.annotation.Nonnull;
 import java.util.*;
-import java.util.function.Consumer;
 
+import static dan200.computercraft.shared.command.CommandUtils.isPlayer;
+import static dan200.computercraft.shared.command.Exceptions.*;
+import static dan200.computercraft.shared.command.arguments.ComputerArgumentType.getComputerArgument;
+import static dan200.computercraft.shared.command.arguments.ComputerArgumentType.oneComputer;
+import static dan200.computercraft.shared.command.arguments.ComputersArgumentType.*;
+import static dan200.computercraft.shared.command.arguments.TrackingFieldArgumentType.trackingField;
+import static dan200.computercraft.shared.command.builder.CommandBuilder.args;
+import static dan200.computercraft.shared.command.builder.CommandBuilder.command;
+import static dan200.computercraft.shared.command.builder.DescribedArgumentBuilder.literal;
 import static dan200.computercraft.shared.command.text.ChatHelpers.*;
 
-public final class CommandComputerCraft extends CommandDelegate
+public final class CommandComputerCraft
 {
     public static final UUID SYSTEM_UUID = new UUID( 0, 0 );
 
@@ -45,383 +53,229 @@ public final class CommandComputerCraft extends CommandDelegate
     private static final int DUMP_SINGLE_ID = 1844510720;
     private static final int TRACK_ID = 373882880;
 
-    public CommandComputerCraft()
+    private CommandComputerCraft()
     {
-        super( create() );
     }
 
-    private static ISubCommand create()
+    public static void register( CommandDispatcher<CommandSource> dispatcher )
     {
-        CommandRoot root = new CommandRoot(
-            "computercraft", "Various commands for controlling computers.",
-            "The /computercraft command provides various debugging and administrator tools for controlling and " +
-                "interacting with computers."
-        );
-
-        root.register( new SubCommandBase(
-            "dump", "[id]", "Display the status of computers.", UserLevel.OWNER_OP,
-            "Display the status of all computers or specific information about one computer. You can specify the " +
-                "computer's instance id (e.g. 123), computer id (e.g #123) or label (e.g. \"@My Computer\")."
-        )
-        {
-            @Override
-            public void execute( @Nonnull CommandContext context, @Nonnull List<String> arguments ) throws CommandException
-            {
-                if( arguments.size() == 0 )
-                {
+        dispatcher.register( literal( "computercraft",
+            "The /computercraft command provides various debugging and administrator tools for controlling and" +
+                "interacting with computers." )
+            .then( literal( "dump", "Display the status of all computers or specific information about one computer." )
+                .requires( UserLevel.OWNER_OP )
+                .executes( context -> {
                     TableBuilder table = new TableBuilder( DUMP_LIST_ID, "Computer", "On", "Position" );
 
+                    CommandSource source = context.getSource();
                     List<ServerComputer> computers = new ArrayList<>( ComputerCraft.serverComputerRegistry.getComputers() );
 
                     // Unless we're on a server, limit the number of rows we can send.
-                    if( !(context.getSender() instanceof MinecraftServer) )
-                    {
-                        World world = context.getSender().getEntityWorld();
-                        BlockPos pos = context.getSender().getPosition();
+                    World world = source.getWorld();
+                    BlockPos pos = new BlockPos( source.getPos() );
 
-                        computers.sort( ( a, b ) -> {
-                            if( a.getWorld() == b.getWorld() && a.getWorld() == world )
-                            {
-                                return Double.compare( a.getPosition().distanceSq( pos ), b.getPosition().distanceSq( pos ) );
-                            }
-                            else if( a.getWorld() == world )
-                            {
-                                return -1;
-                            }
-                            else if( b.getWorld() == world )
-                            {
-                                return 1;
-                            }
-                            else
-                            {
-                                return Integer.compare( a.getInstanceID(), b.getInstanceID() );
-                            }
-                        } );
-                    }
+                    computers.sort( ( a, b ) -> {
+                        if( a.getWorld() == b.getWorld() && a.getWorld() == world )
+                        {
+                            return Double.compare( a.getPosition().distanceSq( pos ), b.getPosition().distanceSq( pos ) );
+                        }
+                        else if( a.getWorld() == world )
+                        {
+                            return -1;
+                        }
+                        else if( b.getWorld() == world )
+                        {
+                            return 1;
+                        }
+                        else
+                        {
+                            return Integer.compare( a.getInstanceID(), b.getInstanceID() );
+                        }
+                    } );
 
                     for( ServerComputer computer : computers )
                     {
                         table.row(
-                            linkComputer( context, computer, computer.getID() ),
+                            linkComputer( source, computer, computer.getID() ),
                             bool( computer.isOn() ),
-                            linkPosition( context, computer )
+                            linkPosition( source, computer )
                         );
                     }
 
-                    table.display( context.getSender() );
-                }
-                else if( arguments.size() == 1 )
-                {
-                    ServerComputer computer = ComputerSelector.getComputer( arguments.get( 0 ) );
+                    table.display( context.getSource() );
+                    return computers.size();
+                } )
+                .then( args()
+                    .arg( "computer", oneComputer() )
+                    .executes( context -> {
+                        ServerComputer computer = getComputerArgument( context, "computer" );
 
-                    TableBuilder table = new TableBuilder( DUMP_SINGLE_ID );
-                    table.row( header( "Instance" ), text( Integer.toString( computer.getInstanceID() ) ) );
-                    table.row( header( "Id" ), text( Integer.toString( computer.getID() ) ) );
-                    table.row( header( "Label" ), text( computer.getLabel() ) );
-                    table.row( header( "On" ), bool( computer.isOn() ) );
-                    table.row( header( "Position" ), linkPosition( context, computer ) );
-                    table.row( header( "Family" ), text( computer.getFamily().toString() ) );
+                        TableBuilder table = new TableBuilder( DUMP_SINGLE_ID );
+                        table.row( header( "Instance" ), text( Integer.toString( computer.getInstanceID() ) ) );
+                        table.row( header( "Id" ), text( Integer.toString( computer.getID() ) ) );
+                        table.row( header( "Label" ), text( computer.getLabel() ) );
+                        table.row( header( "On" ), bool( computer.isOn() ) );
+                        table.row( header( "Position" ), linkPosition( context.getSource(), computer ) );
+                        table.row( header( "Family" ), text( computer.getFamily().toString() ) );
 
-                    for( int i = 0; i < 6; i++ )
-                    {
-                        IPeripheral peripheral = computer.getPeripheral( i );
-                        if( peripheral != null )
+                        for( int i = 0; i < 6; i++ )
                         {
-                            table.row( header( "Peripheral " + IAPIEnvironment.SIDE_NAMES[i] ), text( peripheral.getType() ) );
+                            IPeripheral peripheral = computer.getPeripheral( i );
+                            if( peripheral != null )
+                            {
+                                table.row( header( "Peripheral " + IAPIEnvironment.SIDE_NAMES[i] ), text( peripheral.getType() ) );
+                            }
                         }
-                    }
 
-                    table.display( context.getSender() );
-                }
-                else
-                {
-                    throw new CommandException( context.getFullUsage() );
-                }
-            }
+                        table.display( context.getSource() );
+                        return 1;
+                    } ) ) )
 
-            @Nonnull
-            @Override
-            public List<String> getCompletion( @Nonnull CommandContext context, @Nonnull List<String> arguments )
-            {
-                return arguments.size() == 1
-                    ? ComputerSelector.completeComputer( arguments.get( 0 ) )
-                    : Collections.emptyList();
-            }
-        } );
-
-        root.register( new SubCommandBase(
-            "shutdown", "[ids...]", "Shutdown computers remotely.", UserLevel.OWNER_OP,
-            "Shutdown the listed computers or all if none are specified. You can specify the computer's instance id " +
-                "(e.g. 123), computer id (e.g #123) or label (e.g. \"@My Computer\")."
-        )
-        {
-            @Override
-            public void execute( @Nonnull CommandContext context, @Nonnull List<String> arguments ) throws CommandException
-            {
-                withComputers( arguments, computers -> {
+            .then( command( "shutdown", "Shutdown the specified computers." )
+                .requires( UserLevel.OWNER_OP )
+                .argManyValue( "computers", manyComputers(), s -> new ArrayList<>( ComputerCraft.serverComputerRegistry.getComputers() ) )
+                .executes( ( context, computers ) -> {
                     int shutdown = 0;
-                    for( ServerComputer computer : computers )
+                    for( ServerComputer computer : unwrap( context.getSource(), computers ) )
                     {
                         if( computer.isOn() ) shutdown++;
                         computer.unload();
                     }
-                    context.getSender().sendMessage( text( "Shutdown " + shutdown + " / " + computers.size() + " computers" ) );
-                } );
-            }
+                    context.getSource().sendFeedback( text( "Shutdown " + shutdown + " / " + computers.size() + " computers" ), false );
+                    return shutdown;
+                } ) )
 
-            @Nonnull
-            @Override
-            public List<String> getCompletion( @Nonnull CommandContext context, @Nonnull List<String> arguments )
-            {
-                return arguments.size() == 0
-                    ? Collections.emptyList()
-                    : ComputerSelector.completeComputer( arguments.get( arguments.size() - 1 ) );
-            }
-        } );
-
-        root.register( new SubCommandBase(
-            "turn-on", "ids...", "Turn computers on remotely.", UserLevel.OWNER_OP,
-            "Turn on the listed computers. You can specify the computer's instance id (e.g. 123), computer id (e.g #123) " +
-                "or label (e.g. \"@My Computer\")."
-        )
-        {
-            @Override
-            public void execute( @Nonnull CommandContext context, @Nonnull List<String> arguments ) throws CommandException
-            {
-                withComputers( arguments, computers -> {
-                    int on = 0;
-                    for( ServerComputer computer : computers )
+            .then( command( "turn-on", "Turn on the specified computers." )
+                .requires( UserLevel.OWNER_OP )
+                .argManyValue( "computers", manyComputers(), s -> new ArrayList<>( ComputerCraft.serverComputerRegistry.getComputers() ) )
+                .executes( ( context, computers ) -> {
+                    int turnedOn = 0;
+                    for( ServerComputer computer : unwrap( context.getSource(), computers ) )
                     {
-                        if( !computer.isOn() ) on++;
+                        if( !computer.isOn() ) turnedOn++;
                         computer.turnOn();
                     }
-                    context.getSender().sendMessage( text( "Turned on " + on + " / " + computers.size() + " computers" ) );
-                } );
-            }
+                    context.getSource().sendFeedback( text( "Turned on " + turnedOn + " / " + computers.size() + " computers" ), false );
+                    return turnedOn;
+                } ) )
 
-            @Nonnull
-            @Override
-            public List<String> getCompletion( @Nonnull CommandContext context, @Nonnull List<String> arguments )
-            {
-                return arguments.size() == 0
-                    ? Collections.emptyList()
-                    : ComputerSelector.completeComputer( arguments.get( arguments.size() - 1 ) );
-            }
-        } );
+            .then( command( "tp", "Teleport to a specific computer." )
+                .requires( UserLevel.OP )
+                .arg( "computer", oneComputer() )
+                .executes( context -> {
+                    ServerComputer computer = getComputerArgument( context, "computer" );
+                    World world = computer.getWorld();
+                    BlockPos pos = computer.getPosition();
 
-        root.register( new SubCommandBase(
-            "tp", "<id>", "Teleport to a specific computer.", UserLevel.OP,
-            "Teleport to the location of a computer. You can either specify the computer's instance " +
-                "id (e.g. 123) or computer id (e.g #123)."
-        )
-        {
-            @Override
-            public void execute( @Nonnull CommandContext context, @Nonnull List<String> arguments ) throws CommandException
-            {
-                if( arguments.size() != 1 ) throw new CommandException( context.getFullUsage() );
+                    if( world == null || pos == null ) throw UNLOCATED_COMPUTER_EXCEPTION.create();
 
-                ServerComputer computer = ComputerSelector.getComputer( arguments.get( 0 ) );
-                World world = computer.getWorld();
-                BlockPos pos = computer.getPosition();
-
-                if( world == null || pos == null ) throw new CommandException( "Cannot locate computer in world" );
-
-                ICommandSender sender = context.getSender();
-                if( !(sender instanceof Entity) ) throw new CommandException( "Sender is not an entity" );
-
-                if( sender instanceof EntityPlayerMP )
-                {
-                    EntityPlayerMP entity = (EntityPlayerMP) sender;
-                    if( entity.getEntityWorld() != world )
+                    Entity entity = context.getSource().assertIsEntity();
+                    if( entity instanceof EntityPlayerMP )
                     {
-                        context.getServer().getPlayerList().changePlayerDimension( entity, world.provider.getDimension() );
+                        EntityPlayerMP player = (EntityPlayerMP) entity;
+                        if( player.getEntityWorld() == world )
+                        {
+                            player.connection.setPlayerLocation( pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, 0, 0, EnumSet.noneOf( SPacketPlayerPosLook.EnumFlags.class ) );
+                        }
+                        else
+                        {
+                            player.teleport( (WorldServer) world, pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, 0, 0 );
+                        }
+                    }
+                    else
+                    {
+                        context.getSource().sendErrorMessage( new TextComponentString( "Cannot teleport non-player to computer" ) );
                     }
 
-                    entity.setPositionAndUpdate( pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5 );
-                }
-                else
-                {
-                    Entity entity = (Entity) sender;
-                    if( entity.getEntityWorld() != world )
+                    return 1;
+                } ) )
+
+            .then( command( "queue",
+                "Send a computer_command event to a command computer, passing through the additional arguments. " +
+                    "This is mostly designed for map makers, acting as a more computer-friendly version of /trigger. " +
+                    "Any player can run the command, which would most likely be done through a text component's " +
+                    "click event." )
+                .requires( UserLevel.ANYONE )
+                .arg( "computer", manyComputers() )
+                .argManyValue( "args", StringArgumentType.string(), Collections.emptyList() )
+                .executes( ( ctx, args ) -> {
+                    Collection<ServerComputer> computers = getComputersArgument( ctx, "computer" );
+                    Object[] rest = args.toArray();
+
+                    int queued = 0;
+                    for( ServerComputer computer : computers )
                     {
-                        entity.changeDimension( world.provider.getDimension() );
+                        if( computer.getFamily() == ComputerFamily.Command && computer.isOn() )
+                        {
+                            computer.queueEvent( "computer_command", rest );
+                            queued++;
+                        }
                     }
 
-                    entity.setLocationAndAngles(
-                        pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5,
-                        entity.rotationYaw, entity.rotationPitch
-                    );
-                }
-            }
+                    return queued;
+                } ) )
 
-            @Nonnull
-            @Override
-            public List<String> getCompletion( @Nonnull CommandContext context, @Nonnull List<String> arguments )
-            {
-                return arguments.size() == 1
-                    ? ComputerSelector.completeComputer( arguments.get( 0 ) )
-                    : Collections.emptyList();
-            }
-        } );
+            .then( command( "view",
+                "Open the terminal of a computer, allowing remote control of a computer. This does not provide " +
+                    "access to a turtle's inventory." )
+                .requires( UserLevel.OP )
+                .arg( "computer", oneComputer() )
+                .executes( context -> {
+                    EntityPlayerMP player = context.getSource().asPlayer();
+                    ServerComputer computer = getComputerArgument( context, "computer" );
+                    ComputerCraft.openComputerGUI( player, computer );
+                    return 1;
+                } ) )
 
-        root.register( new SubCommandBase(
-            "view", "<id>", "View the terminal of a computer.", UserLevel.OP,
-            "Open the terminal of a computer, allowing remote control of a computer. This does not provide access to " +
-                "turtle's inventories. You can either specify the computer's instance id (e.g. 123) or computer id (e.g #123)."
-        )
-        {
-            @Override
-            public void execute( @Nonnull CommandContext context, @Nonnull List<String> arguments ) throws CommandException
-            {
-                if( arguments.size() != 1 ) throw new CommandException( context.getFullUsage() );
+            .then( literal( "track",
+                "Track how long computers execute for, as well as how many events they handle. This presents " +
+                    "information in a similar way to /forge track and can be useful for diagnosing lag." )
+                .then( command( "start",
+                    "Start tracking all computers' execution times and event counts. This will discard the " +
+                        "results of previous runs." )
+                    .requires( UserLevel.OWNER_OP )
+                    .executes( context -> {
+                        getTimingContext( context.getSource() ).start();
 
-                ICommandSender sender = context.getSender();
-                if( !(sender instanceof EntityPlayerMP) )
-                {
-                    throw new CommandException( "Cannot open terminal for non-player" );
-                }
+                        String stopCommand = "/computercraft track stop";
+                        context.getSource().sendFeedback( list(
+                            text( "Run " ),
+                            link( text( stopCommand ), stopCommand, "Click to stop tracking" ),
+                            text( " to stop tracking and view the results" )
+                        ), false );
+                        return 1;
+                    } ) )
 
-                ServerComputer computer = ComputerSelector.getComputer( arguments.get( 0 ) );
-                ComputerCraft.openComputerGUI( (EntityPlayerMP) sender, computer );
-            }
+                .then( command( "stop", "Stop tracking all computers' events and execution times" )
+                    .requires( UserLevel.OWNER_OP )
+                    .executes( context -> {
+                        TrackingContext timings = getTimingContext( context.getSource() );
+                        if( !timings.stop() ) throw NOT_TRACKING_EXCEPTION.create();
+                        displayTimings( context.getSource(), timings.getImmutableTimings(), TrackingField.AVERAGE_TIME, DEFAULT_FIELDS );
+                        return 1;
+                    } ) )
 
-            @Nonnull
-            @Override
-            public List<String> getCompletion( @Nonnull CommandContext context, @Nonnull List<String> arguments )
-            {
-                return arguments.size() == 1
-                    ? ComputerSelector.completeComputer( arguments.get( 0 ) )
-                    : Collections.emptyList();
-            }
-        } );
+                .then( command( "dump", "Dump the latest results of computer tracking." )
+                    .requires( UserLevel.OWNER_OP )
+                    .argManyValue( "fields", trackingField(), DEFAULT_FIELDS )
+                    .executes( ( context, fields ) -> {
+                        TrackingField sort;
+                        if( fields.size() == 1 && DEFAULT_FIELDS.contains( fields.get( 0 ) ) )
+                        {
+                            sort = fields.get( 0 );
+                            fields = DEFAULT_FIELDS;
+                        }
+                        else
+                        {
+                            sort = fields.get( 0 );
+                        }
 
-        CommandRoot track = new CommandRoot( "track", "Track execution times for computers.",
-            "Track how long computers execute for, as well as how many events they handle. This presents information in " +
-                "a similar way to /forge track and can be useful for diagnosing lag." );
-        root.register( track );
-
-        track.register( new SubCommandBase(
-            "start", "Start tracking all computers", UserLevel.OWNER_OP,
-            "Start tracking all computers' execution times and event counts. This will discard the results of previous runs."
-        )
-        {
-            @Override
-            public void execute( @Nonnull CommandContext context, @Nonnull List<String> arguments )
-            {
-                getTimingContext( context ).start();
-
-                String stopCommand = "/" + context.parent().getFullPath() + " stop";
-                context.getSender().sendMessage( list(
-                    text( "Run " ),
-                    link( text( stopCommand ), stopCommand, "Click to stop tracking" ),
-                    text( " to stop tracking and view the results" )
-                ) );
-            }
-        } );
-
-        track.register( new SubCommandBase(
-            "stop", "Stop tracking all computers", UserLevel.OWNER_OP,
-            "Stop tracking all computers' events and execution times"
-        )
-        {
-            @Override
-            public void execute( @Nonnull CommandContext context, @Nonnull List<String> arguments ) throws CommandException
-            {
-                TrackingContext timings = getTimingContext( context );
-                if( !timings.stop() ) throw new CommandException( "Tracking not enabled" );
-                displayTimings( context, timings.getImmutableTimings(), TrackingField.AVERAGE_TIME );
-            }
-        } );
-
-        track.register( new SubCommandBase(
-            "dump", "[kind]", "Dump the latest track results", UserLevel.OWNER_OP,
-            "Dump the latest results of computer tracking."
-        )
-        {
-            @Override
-            public void execute( @Nonnull CommandContext context, @Nonnull List<String> arguments ) throws CommandException
-            {
-                TrackingField field = TrackingField.AVERAGE_TIME;
-                if( arguments.size() >= 1 )
-                {
-                    field = TrackingField.fields().get( arguments.get( 0 ) );
-                    if( field == null ) throw new CommandException( "Unknown field '" + arguments.get( 0 ) + "'" );
-                }
-
-                displayTimings( context, getTimingContext( context ).getImmutableTimings(), field );
-            }
-
-            @Nonnull
-            @Override
-            public List<String> getCompletion( @Nonnull CommandContext context, @Nonnull List<String> arguments )
-            {
-                if( arguments.size() == 1 )
-                {
-                    String match = arguments.get( 0 );
-
-                    List<String> out = new ArrayList<>();
-                    for( String key : TrackingField.fields().keySet() )
-                    {
-                        if( CommandBase.doesStringStartWith( match, key ) ) out.add( key );
-                    }
-
-                    out.sort( Comparator.naturalOrder() );
-                    return out;
-                }
-                else
-                {
-                    return super.getCompletion( context, arguments );
-                }
-            }
-        } );
-
-        root.register( new SubCommandBase(
-            "reload", "Reload the ComputerCraft config file", UserLevel.OWNER_OP,
-            "Reload the ComputerCraft config file"
-        )
-        {
-            @Override
-            public void execute( @Nonnull CommandContext context, @Nonnull List<String> arguments )
-            {
-                Config.reload();
-                context.getSender().sendMessage( new TextComponentString( "Reloaded config" ) );
-            }
-        } );
-
-        root.register( new SubCommandBase(
-            "queue", "<id> [args...]", "Send a computer_command event to a command computer", UserLevel.ANYONE,
-            "Send a computer_command event to a command computer, passing through the additional arguments. " +
-                "This is mostly designed for map makers, acting as a more computer-friendly version of /trigger. Any " +
-                "player can run the command, which would most likely be done through a text component's click event."
-        )
-        {
-            @Override
-            public void execute( @Nonnull CommandContext context, @Nonnull List<String> arguments ) throws CommandException
-            {
-                if( arguments.size() < 1 ) throw new CommandException( context.getFullUsage() );
-
-                String selector = arguments.get( 0 );
-                Object[] rest = arguments.subList( 1, arguments.size() ).toArray();
-
-                boolean found = false;
-                for( ServerComputer computer : ComputerSelector.getComputers( selector ) )
-                {
-                    if( computer.getFamily() != ComputerFamily.Command || !computer.isOn() ) continue;
-                    found = true;
-                    computer.queueEvent( "computer_command", rest );
-                }
-
-                if( !found )
-                {
-                    throw new CommandException( "Could not find any command computers matching " + selector );
-                }
-            }
-        } );
-
-        return root;
+                        return displayTimings( context.getSource(), sort, fields );
+                    } ) ) )
+        );
     }
 
-    private static ITextComponent linkComputer( CommandContext context, ServerComputer serverComputer, int computerId )
+    private static ITextComponent linkComputer( CommandSource source, ServerComputer serverComputer, int computerId )
     {
         ITextComponent out = new TextComponentString( "" );
 
@@ -443,7 +297,7 @@ public final class CommandComputerCraft extends CommandDelegate
         out.appendText( " (id " + computerId + ")" );
 
         // And, if we're a player, some useful links
-        if( serverComputer != null && UserLevel.OP.canExecute( context ) && context.fromPlayer() )
+        if( serverComputer != null && UserLevel.OP.test( source ) && isPlayer( source ) )
         {
             out
                 .appendText( " " )
@@ -463,9 +317,9 @@ public final class CommandComputerCraft extends CommandDelegate
         return out;
     }
 
-    private static ITextComponent linkPosition( CommandContext context, ServerComputer computer )
+    private static ITextComponent linkPosition( CommandSource context, ServerComputer computer )
     {
-        if( UserLevel.OP.canExecute( context ) )
+        if( UserLevel.OP.test( context ) )
         {
             return link(
                 position( computer.getPosition() ),
@@ -479,22 +333,23 @@ public final class CommandComputerCraft extends CommandDelegate
         }
     }
 
-    private static TrackingContext getTimingContext( CommandContext context )
+    @Nonnull
+    private static TrackingContext getTimingContext( CommandSource source )
     {
-        Entity entity = context.getSender().getCommandSenderEntity();
-        if( entity instanceof EntityPlayerMP )
-        {
-            return Tracking.getContext( entity.getUniqueID() );
-        }
-        else
-        {
-            return Tracking.getContext( SYSTEM_UUID );
-        }
+        Entity entity = source.getEntity();
+        return entity instanceof EntityPlayer ? Tracking.getContext( entity.getUniqueID() ) : Tracking.getContext( SYSTEM_UUID );
     }
 
-    private static void displayTimings( CommandContext context, List<ComputerTracker> timings, TrackingField field ) throws CommandException
+    private static final List<TrackingField> DEFAULT_FIELDS = Arrays.asList( TrackingField.TASKS, TrackingField.TOTAL_TIME, TrackingField.AVERAGE_TIME, TrackingField.MAX_TIME );
+
+    private static int displayTimings( CommandSource source, TrackingField sortField, List<TrackingField> fields ) throws CommandSyntaxException
     {
-        if( timings.isEmpty() ) throw new CommandException( "No timings available" );
+        return displayTimings( source, getTimingContext( source ).getTimings(), sortField, fields );
+    }
+
+    private static int displayTimings( CommandSource source, @Nonnull List<ComputerTracker> timings, @Nonnull TrackingField sortField, @Nonnull List<TrackingField> fields ) throws CommandSyntaxException
+    {
+        if( timings.isEmpty() ) throw NO_TIMINGS_EXCEPTION.create();
 
         Map<Computer, ServerComputer> lookup = new HashMap<>();
         int maxId = 0, maxInstance = 0;
@@ -506,65 +361,27 @@ public final class CommandComputerCraft extends CommandDelegate
             if( server.getID() > maxId ) maxId = server.getID();
         }
 
-        timings.sort( Comparator.<ComputerTracker, Long>comparing( x -> x.get( field ) ).reversed() );
+        timings.sort( Comparator.<ComputerTracker, Long>comparing( x -> x.get( sortField ) ).reversed() );
 
-        boolean defaultLayout = field == TrackingField.TASKS || field == TrackingField.TOTAL_TIME
-            || field == TrackingField.AVERAGE_TIME || field == TrackingField.MAX_TIME;
-
-
-        TableBuilder table = defaultLayout
-            ? new TableBuilder( TRACK_ID, "Computer", "Tasks", "Total", "Average", "Maximum" )
-            : new TableBuilder( TRACK_ID, "Computer", field.displayName() );
+        String[] headers = new String[1 + fields.size()];
+        headers[0] = "Computer";
+        for( int i = 0; i < fields.size(); i++ ) headers[i + 1] = fields.get( i ).displayName();
+        TableBuilder table = new TableBuilder( TRACK_ID, headers );
 
         for( ComputerTracker entry : timings )
         {
             Computer computer = entry.getComputer();
             ServerComputer serverComputer = computer == null ? null : lookup.get( computer );
 
-            ITextComponent computerComponent = linkComputer( context, serverComputer, entry.getComputerId() );
+            ITextComponent computerComponent = linkComputer( source, serverComputer, entry.getComputerId() );
 
-            if( defaultLayout )
-            {
-                table.row(
-                    computerComponent,
-                    text( entry.getFormatted( TrackingField.TASKS ) ),
-                    text( entry.getFormatted( TrackingField.TOTAL_TIME ) ),
-                    text( entry.getFormatted( TrackingField.AVERAGE_TIME ) ),
-                    text( entry.getFormatted( TrackingField.MAX_TIME ) )
-                );
-            }
-            else
-            {
-                table.row( computerComponent, text( entry.getFormatted( field ) ) );
-            }
+            ITextComponent[] row = new ITextComponent[1 + fields.size()];
+            row[0] = computerComponent;
+            for( int i = 0; i < fields.size(); i++ ) row[i + 1] = text( entry.getFormatted( fields.get( i ) ) );
+            table.row( row );
         }
 
-        table.display( context.getSender() );
-    }
-
-    private static void withComputers( List<String> selectors, Consumer<Collection<ServerComputer>> action ) throws CommandException
-    {
-        Set<ServerComputer> computers = Sets.newHashSet();
-        List<String> failed = new ArrayList<>();
-        if( selectors.isEmpty() )
-        {
-            computers.addAll( ComputerCraft.serverComputerRegistry.getComputers() );
-        }
-        else
-        {
-            for( String selector : selectors )
-            {
-                List<ServerComputer> selected = ComputerSelector.getComputers( selector );
-                computers.addAll( selected );
-                if( selected.isEmpty() ) failed.add( selector );
-            }
-        }
-
-        action.accept( computers );
-
-        if( !failed.isEmpty() )
-        {
-            throw new CommandException( "Could not find computers matching " + String.join( ", ", failed ) );
-        }
+        table.display( source );
+        return timings.size();
     }
 }

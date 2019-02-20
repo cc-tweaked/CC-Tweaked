@@ -41,17 +41,9 @@ public class TurtleItemFactory
         switch( family )
         {
             case Normal:
-            {
-                ItemTurtleBase legacy = ComputerCraft.Items.turtle;
-                ItemTurtleBase normal = ComputerCraft.Items.turtleExpanded;
-                ItemStack legacyStack = legacy.create( id, label, colour, leftUpgrade, rightUpgrade, fuelLevel, overlay );
-                return legacyStack != null ? legacyStack : normal.create( id, label, colour, leftUpgrade, rightUpgrade, fuelLevel, overlay );
-            }
+                return ComputerCraft.Items.turtleNormal.create( id, label, colour, leftUpgrade, rightUpgrade, fuelLevel, overlay );
             case Advanced:
-            {
-                ItemTurtleBase advanced = ComputerCraft.Items.turtleAdvanced;
-                return advanced.create( id, label, colour, leftUpgrade, rightUpgrade, fuelLevel, overlay );
-            }
+                return ComputerCraft.Items.turtleAdvanced.create( id, label, colour, leftUpgrade, rightUpgrade, fuelLevel, overlay );
             default:
                 return ItemStack.EMPTY;
         }

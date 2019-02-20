@@ -13,10 +13,10 @@ import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import net.minecraft.network.play.server.SPacketCustomSound;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.state.properties.NoteBlockInstrument;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.ResourceLocationException;
 import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
@@ -40,19 +40,7 @@ public abstract class SpeakerPeripheral implements IPeripheral
 
     public abstract World getWorld();
 
-    public Vec3d getPosition()
-    {
-        // FIXME: Should be abstract, but we need this for Plethora compat. We'll
-        //  be able to change this in a few versions as we implement both there.
-        @SuppressWarnings( "deprecation" ) BlockPos pos = getPos();
-        return new Vec3d( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5 );
-    }
-
-    @Deprecated
-    public BlockPos getPos()
-    {
-        return new BlockPos( getPosition() );
-    }
+    public abstract Vec3d getPosition();
 
     public boolean madeSound( long ticks )
     {
@@ -88,7 +76,17 @@ public abstract class SpeakerPeripheral implements IPeripheral
                 float volume = (float) optReal( args, 1, 1.0 );
                 float pitch = (float) optReal( args, 2, 1.0 );
 
-                return new Object[] { playSound( context, name, volume, pitch, false ) };
+                ResourceLocation identifier;
+                try
+                {
+                    identifier = new ResourceLocation( name );
+                }
+                catch( ResourceLocationException e )
+                {
+                    throw new LuaException( "Malformed sound name '" + name + "' " );
+                }
+
+                return new Object[] { playSound( context, identifier, volume, pitch, false ) };
             }
 
             // playNote
@@ -112,22 +110,30 @@ public abstract class SpeakerPeripheral implements IPeripheral
         float volume = (float) optReal( arguments, 1, 1.0 );
         float pitch = (float) optReal( arguments, 2, 1.0 );
 
-        String noteName = "block.note." + name;
+        NoteBlockInstrument instrument = null;
+        for( NoteBlockInstrument testInstrument : NoteBlockInstrument.values() )
+        {
+            if( testInstrument.getName().equalsIgnoreCase( name ) )
+            {
+                instrument = testInstrument;
+                break;
+            }
+        }
 
         // Check if the note exists
-        if( !SoundEvent.REGISTRY.containsKey( new ResourceLocation( noteName ) ) )
+        if( instrument == null )
         {
             throw new LuaException( "Invalid instrument, \"" + name + "\"!" );
         }
 
         // If the resource location for note block notes changes, this method call will need to be updated
-        boolean success = playSound( context, noteName, volume, (float) Math.pow( 2.0, (pitch - 12.0) / 12.0 ), true );
+        boolean success = playSound( context, instrument.getSound().getName(), volume, (float) Math.pow( 2.0, (pitch - 12.0) / 12.0 ), true );
 
         if( success ) m_notesThisTick.incrementAndGet();
         return new Object[] { success };
     }
 
-    private synchronized boolean playSound( ILuaContext context, String name, float volume, float pitch, boolean isNote ) throws LuaException
+    private synchronized boolean playSound( ILuaContext context, ResourceLocation name, float volume, float pitch, boolean isNote ) throws LuaException
     {
         if( m_clock - m_lastPlayTime < TileSpeaker.MIN_TICKS_BETWEEN_SOUNDS &&
             (!isNote || m_clock - m_lastPlayTime != 0 || m_notesThisTick.get() >= ComputerCraft.maxNotesPerTick) )
@@ -141,13 +147,13 @@ public abstract class SpeakerPeripheral implements IPeripheral
         Vec3d pos = getPosition();
 
         context.issueMainThreadTask( () -> {
-            MinecraftServer server = world.getMinecraftServer();
+            MinecraftServer server = world.getServer();
             if( server == null ) return null;
 
             float adjVolume = Math.min( volume, 3.0f );
             server.getPlayerList().sendToAllNearExcept(
-                null, pos.x, pos.y, pos.z, adjVolume > 1.0f ? 16 * adjVolume : 16.0, world.provider.getDimension(),
-                new SPacketCustomSound( name, SoundCategory.RECORDS, pos.x, pos.y, pos.z, adjVolume, pitch )
+                null, pos.x, pos.y, pos.z, adjVolume > 1.0f ? 16 * adjVolume : 16.0, world.dimension.getType(),
+                new SPacketCustomSound( name, SoundCategory.RECORDS, pos, adjVolume, pitch )
             );
             return null;
         } );

@@ -35,7 +35,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
-import net.minecraftforge.fml.common.eventhandler.Event;
+import net.minecraftforge.eventbus.api.Event;
 import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nonnull;
@@ -288,17 +288,17 @@ public class TurtlePlaceCommand implements ITurtleCommand
         }
     }
 
-    private static boolean canDeployOnBlock( @Nonnull ItemStack stack, ITurtleAccess turtle, TurtlePlayer player, BlockPos position, EnumFacing side, boolean allowReplaceable, String[] o_errorMessage )
+    private static boolean canDeployOnBlock( @Nonnull BlockItemUseContext context, ITurtleAccess turtle, TurtlePlayer player, BlockPos position, EnumFacing side, boolean allowReplaceable, String[] o_errorMessage )
     {
         World world = turtle.getWorld();
-        if( world.isValid( position ) &&
+        if( World.isValid( position ) &&
             !world.isAirBlock( position ) &&
-            !(stack.getItem() instanceof ItemBlock && WorldUtil.isLiquidBlock( world, position )) )
+            !(context.getItem().getItem() instanceof ItemBlock && WorldUtil.isLiquidBlock( world, position )) )
         {
-            Block block = world.getBlockState( position ).getBlock();
             IBlockState state = world.getBlockState( position );
+            Block block = state.getBlock();
 
-            boolean replaceable = block.isReplaceable( world, position );
+            boolean replaceable = state.isReplaceable( context );
             if( allowReplaceable || !replaceable )
             {
                 if( ComputerCraft.turtlesObeyBlockProtection )
@@ -318,7 +318,7 @@ public class TurtlePlaceCommand implements ITurtleCommand
                 }
 
                 // Check the block is solid or liquid
-                if( block.canCollideCheck( state, true ) )
+                if( block.isCollidable( state ) )
                 {
                     return true;
                 }
@@ -330,16 +330,13 @@ public class TurtlePlaceCommand implements ITurtleCommand
     @Nonnull
     private static ItemStack deployOnBlock( @Nonnull ItemStack stack, ITurtleAccess turtle, TurtlePlayer turtlePlayer, BlockPos position, EnumFacing side, Object[] extraArguments, boolean allowReplace, String[] o_errorMessage )
     {
-        // Check if there's something suitable to place onto
-        if( !canDeployOnBlock( stack, turtle, turtlePlayer, position, side, allowReplace, o_errorMessage ) )
-        {
-            return stack;
-        }
-
         // Re-orient the fake player
         EnumFacing playerDir = side.getOpposite();
         BlockPos playerPosition = position.offset( side );
         orientPlayer( turtle, turtlePlayer, playerPosition, playerDir );
+
+        ItemStack stackCopy = stack.copy();
+        turtlePlayer.loadInventory( stackCopy );
 
         // Calculate where the turtle would hit the block
         float hitX = 0.5f + side.getXOffset() * 0.5f;
@@ -350,26 +347,32 @@ public class TurtlePlaceCommand implements ITurtleCommand
             hitY = 0.45f;
         }
 
+        // Check if there's something suitable to place onto
+        ItemUseContext context = new ItemUseContext( turtlePlayer, stackCopy, position, side, hitX, hitY, hitZ );
+        if( !canDeployOnBlock( new BlockItemUseContext( context ), turtle, turtlePlayer, position, side, allowReplace, o_errorMessage ) )
+        {
+            return stack;
+        }
+
         // Load up the turtle's inventory
         Item item = stack.getItem();
-        ItemStack stackCopy = stack.copy();
-        turtlePlayer.loadInventory( stackCopy );
 
         // Do the deploying (put everything in the players inventory)
         boolean placed = false;
         TileEntity existingTile = turtle.getWorld().getTileEntity( position );
 
         // See PlayerInteractionManager.processRightClickBlock
+        // TODO: ^ Check we're still consistent.
         PlayerInteractEvent.RightClickBlock event = ForgeHooks.onRightClickBlock( turtlePlayer, EnumHand.MAIN_HAND, position, side, new Vec3d( hitX, hitY, hitZ ) );
         if( !event.isCanceled() )
         {
-            if( item.onItemUseFirst( turtlePlayer, turtle.getWorld(), position, side, hitX, hitY, hitZ, EnumHand.MAIN_HAND ) == EnumActionResult.SUCCESS )
+            if( item.onItemUseFirst( stack, context ) == EnumActionResult.SUCCESS )
             {
                 placed = true;
                 turtlePlayer.loadInventory( stackCopy );
             }
             else if( event.getUseItem() != Event.Result.DENY &&
-                stackCopy.onItemUse( turtlePlayer, turtle.getWorld(), position, EnumHand.MAIN_HAND, side, hitX, hitY, hitZ ) == EnumActionResult.SUCCESS )
+                stackCopy.onItemUse( context ) == EnumActionResult.SUCCESS )
             {
                 placed = true;
                 turtlePlayer.loadInventory( stackCopy );

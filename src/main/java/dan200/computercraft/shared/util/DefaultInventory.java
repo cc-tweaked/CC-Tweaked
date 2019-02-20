@@ -9,8 +9,10 @@ package dan200.computercraft.shared.util;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.text.ITextComponent;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public interface DefaultInventory extends IInventory
 {
@@ -51,5 +53,18 @@ public interface DefaultInventory extends IInventory
     default int getFieldCount()
     {
         return 0;
+    }
+
+    @Override
+    default boolean hasCustomName()
+    {
+        return getCustomName() != null;
+    }
+
+    @Nullable
+    @Override
+    default ITextComponent getCustomName()
+    {
+        return null;
     }
 }

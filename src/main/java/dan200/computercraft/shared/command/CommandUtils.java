@@ -6,16 +6,63 @@
 
 package dan200.computercraft.shared.command;
 
-import net.minecraft.command.ICommandSender;
+import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.suggestion.Suggestions;
+import com.mojang.brigadier.suggestion.SuggestionsBuilder;
+import net.minecraft.command.CommandSource;
+import net.minecraft.command.ISuggestionProvider;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraftforge.common.util.FakePlayer;
 
+import java.util.Arrays;
+import java.util.Locale;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Function;
+
 public class CommandUtils
 {
-    public static boolean isPlayer( ICommandSender sender )
+    public static boolean isPlayer( CommandSource output )
     {
+        Entity sender = output.getEntity();
         return sender instanceof EntityPlayerMP
             && !(sender instanceof FakePlayer)
             && ((EntityPlayerMP) sender).connection != null;
+    }
+
+    @SuppressWarnings( "unchecked" )
+    public static CompletableFuture<Suggestions> suggestOnServer( CommandContext<?> context, SuggestionsBuilder builder, Function<CommandContext<CommandSource>, CompletableFuture<Suggestions>> supplier )
+    {
+        Object source = context.getSource();
+        if( !(source instanceof ISuggestionProvider) )
+        {
+            return Suggestions.empty();
+        }
+        else if( source instanceof CommandSource )
+        {
+            return supplier.apply( (CommandContext<CommandSource>) context );
+        }
+        else
+        {
+            return ((ISuggestionProvider) source).getSuggestionsFromServer( (CommandContext<ISuggestionProvider>) context, builder );
+        }
+    }
+
+    public static <T> CompletableFuture<Suggestions> suggest( SuggestionsBuilder builder, Iterable<T> candidates, Function<T, String> toString )
+    {
+        String remaining = builder.getRemaining().toLowerCase( Locale.ROOT );
+        for( T choice : candidates )
+        {
+            String name = toString.apply( choice );
+            if( !name.toLowerCase( Locale.ROOT ).startsWith( remaining ) ) continue;
+            builder.suggest( name );
+        }
+
+        return builder.buildFuture();
+    }
+
+    public static <T> CompletableFuture<Suggestions> suggest( SuggestionsBuilder builder, T[] candidates, Function<T, String> toString )
+    {
+        return suggest( builder, Arrays.asList( candidates ), toString );
     }
 }

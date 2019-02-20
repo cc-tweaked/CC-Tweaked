@@ -39,20 +39,6 @@ public abstract class ModemPeripheral implements IPeripheral, IPacketSender, IPa
         return m_state;
     }
 
-    @Deprecated
-    public boolean pollChanged()
-    {
-        // Only for backwards compatibiliy
-        return m_state.pollChanged();
-    }
-
-    @Deprecated
-    public boolean isActive()
-    {
-        // Only for backwards compatibiliy
-        return m_state.isOpen();
-    }
-
     private synchronized void setNetwork( IPacketNetwork network )
     {
         if( m_network == network ) return;

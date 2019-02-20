@@ -6,75 +6,45 @@
 
 package dan200.computercraft.shared.util;
 
+import net.minecraft.item.EnumDyeColor;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraftforge.common.util.Constants;
-import net.minecraftforge.oredict.OreDictionary;
-import org.apache.commons.lang3.ArrayUtils;
+import net.minecraft.tags.Tag;
+import net.minecraftforge.common.Tags;
 
-import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public final class ColourUtils
 {
-    private static final String[] DYES = new String[] {
-        "dyeBlack", "dyeRed", "dyeGreen", "dyeBrown",
-        "dyeBlue", "dyePurple", "dyeCyan", "dyeLightGray",
-        "dyeGray", "dyePink", "dyeLime", "dyeYellow",
-        "dyeLightBlue", "dyeMagenta", "dyeOrange", "dyeWhite"
+    @SuppressWarnings( { "unchecked", "rawtypes" } )
+    private static final Tag<Item>[] DYES = new Tag[] {
+        Tags.Items.DYES_WHITE,
+        Tags.Items.DYES_ORANGE,
+        Tags.Items.DYES_MAGENTA,
+        Tags.Items.DYES_LIGHT_BLUE,
+        Tags.Items.DYES_YELLOW,
+        Tags.Items.DYES_LIME,
+        Tags.Items.DYES_PINK,
+        Tags.Items.DYES_GRAY,
+        Tags.Items.DYES_LIGHT_GRAY,
+        Tags.Items.DYES_CYAN,
+        Tags.Items.DYES_PURPLE,
+        Tags.Items.DYES_BLUE,
+        Tags.Items.DYES_BROWN,
+        Tags.Items.DYES_GREEN,
+        Tags.Items.DYES_RED,
+        Tags.Items.DYES_BLACK,
     };
 
-    private static int[] ids;
-
-    public static int getStackColour( ItemStack stack )
+    @Nullable
+    public static EnumDyeColor getStackColour( ItemStack stack )
     {
-        if( ids == null )
+        for( int i = 0; i < DYES.length; i++ )
         {
-            int ids[] = ColourUtils.ids = new int[DYES.length];
-            for( int i = 0; i < DYES.length; i++ )
-            {
-                ids[i] = OreDictionary.getOreID( DYES[i] );
-            }
+            Tag<Item> dye = DYES[i];
+            if( dye.contains( stack.getItem() ) ) return EnumDyeColor.byId( i );
         }
 
-        for( int id : OreDictionary.getOreIDs( stack ) )
-        {
-            int index = ArrayUtils.indexOf( ids, id );
-            if( index >= 0 ) return index;
-        }
-
-        return -1;
+        return null;
     }
-
-    public static int getHexColour( @Nonnull NBTTagCompound tag )
-    {
-        if( tag.hasKey( "colourIndex", Constants.NBT.TAG_ANY_NUMERIC ) )
-        {
-            return Colour.VALUES[tag.getInteger( "colourIndex" ) & 0xF].getHex();
-        }
-        else if( tag.hasKey( "colour", Constants.NBT.TAG_ANY_NUMERIC ) )
-        {
-            return tag.getInteger( "colour" );
-        }
-        else if( tag.hasKey( "color", Constants.NBT.TAG_ANY_NUMERIC ) )
-        {
-            return tag.getInteger( "color" );
-        }
-        else
-        {
-            return -1;
-        }
-    }
-
-    public static Colour getColour( @Nonnull NBTTagCompound tag )
-    {
-        if( tag.hasKey( "colourIndex", Constants.NBT.TAG_ANY_NUMERIC ) )
-        {
-            return Colour.fromInt( tag.getInteger( "colourIndex" ) & 0xF );
-        }
-        else
-        {
-            return null;
-        }
-    }
-
 }

@@ -30,24 +30,6 @@ public class StringUtil
         return builder.toString();
     }
 
-    /**
-     * Translates a Stat name
-     */
-    @SuppressWarnings( "deprecation" )
-    public static String translateToLocal( String key )
-    {
-        return net.minecraft.util.text.translation.I18n.translateToLocal( key );
-    }
-
-    /**
-     * Translates a Stat name with format args
-     */
-    @SuppressWarnings( "deprecation" )
-    public static String translateToLocalFormatted( String key, Object... format )
-    {
-        return net.minecraft.util.text.translation.I18n.translateToLocalFormatted( key, format );
-    }
-
     public static byte[] encodeString( String string )
     {
         byte[] chars = new byte[string.length()];

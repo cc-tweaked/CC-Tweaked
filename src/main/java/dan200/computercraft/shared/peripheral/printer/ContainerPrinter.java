@@ -7,17 +7,19 @@
 package dan200.computercraft.shared.peripheral.printer;
 
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Items;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.IContainerListener;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
+import net.minecraft.item.ItemDye;
 import net.minecraft.item.ItemStack;
 
 import javax.annotation.Nonnull;
 
 public class ContainerPrinter extends Container
 {
+    private static final int PROPERTY_PRINTING = 0;
+
     private TilePrinter m_printer;
     private boolean m_lastPrinting;
 
@@ -27,33 +29,27 @@ public class ContainerPrinter extends Container
         m_lastPrinting = false;
 
         // Ink slot
-        addSlotToContainer( new Slot( m_printer, 0, 13, 35 ) );
+        addSlot( new Slot( printer, 0, 13, 35 ) );
 
         // In-tray
-        for( int i = 0; i < 6; i++ )
-        {
-            addSlotToContainer( new Slot( m_printer, i + 1, 61 + i * 18, 22 ) );
-        }
+        for( int x = 0; x < 6; x++ ) addSlot( new Slot( printer, x + 1, 61 + x * 18, 22 ) );
 
         // Out-tray
-        for( int i = 0; i < 6; i++ )
-        {
-            addSlotToContainer( new Slot( m_printer, i + 7, 61 + i * 18, 49 ) );
-        }
+        for( int x = 0; x < 6; x++ ) addSlot( new Slot( printer, x + 7, 61 + x * 18, 49 ) );
 
         // Player inv
-        for( int j = 0; j < 3; j++ )
+        for( int y = 0; y < 3; y++ )
         {
-            for( int i1 = 0; i1 < 9; i1++ )
+            for( int x = 0; x < 9; x++ )
             {
-                addSlotToContainer( new Slot( playerInventory, i1 + j * 9 + 9, 8 + i1 * 18, 84 + j * 18 ) );
+                addSlot( new Slot( playerInventory, x + y * 9 + 9, 8 + x * 18, 84 + y * 18 ) );
             }
         }
 
         // Player hotbar
-        for( int k = 0; k < 9; k++ )
+        for( int x = 0; x < 9; x++ )
         {
-            addSlotToContainer( new Slot( playerInventory, k, 8 + k * 18, 142 ) );
+            addSlot( new Slot( playerInventory, x, 8 + x * 18, 142 ) );
         }
     }
 
@@ -68,10 +64,10 @@ public class ContainerPrinter extends Container
     }
 
     @Override
-    public void addListener( IContainerListener crafting )
+    public void addListener( IContainerListener listener )
     {
-        super.addListener( crafting );
-        crafting.sendWindowProperty( this, 0, m_printer.isPrinting() ? 1 : 0 );
+        super.addListener( listener );
+        listener.sendWindowProperty( this, PROPERTY_PRINTING, m_printer.isPrinting() ? 1 : 0 );
     }
 
     @Override
@@ -81,24 +77,26 @@ public class ContainerPrinter extends Container
 
         if( !m_printer.getWorld().isRemote )
         {
+            // Push the printing state to the client if needed.
             boolean printing = m_printer.isPrinting();
-            for( IContainerListener listener : listeners )
+            if( printing != m_lastPrinting )
             {
-                if( printing != m_lastPrinting )
+                for( IContainerListener listener : listeners )
                 {
-                    listener.sendWindowProperty( this, 0, printing ? 1 : 0 );
+                    listener.sendWindowProperty( this, PROPERTY_PRINTING, printing ? 1 : 0 );
                 }
+                m_lastPrinting = printing;
             }
-            m_lastPrinting = printing;
         }
     }
 
     @Override
-    public void updateProgressBar( int i, int j )
+    public void updateProgressBar( int property, int value )
     {
+        super.updateProgressBar( property, value );
         if( m_printer.getWorld().isRemote )
         {
-            m_lastPrinting = (j > 0);
+            if( property == PROPERTY_PRINTING ) m_lastPrinting = value != 0;
         }
     }
 
@@ -129,7 +127,7 @@ public class ContainerPrinter extends Container
             else
             {
                 // Transfer from inventory to printer
-                if( itemstack1.getItem() == Items.DYE )
+                if( itemstack1.getItem() instanceof ItemDye )
                 {
                     if( !mergeItemStack( itemstack1, 0, 1, false ) )
                     {

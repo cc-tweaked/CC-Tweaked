@@ -1,13 +1,13 @@
 {
-    "type": "minecraft:crafting_shaped",
+    "type": "crafting_shaped",
     "pattern": [
         "###",
         "#G#",
         "###"
     ],
     "key": {
-        "#": { "type": "forge:ore_dict", "ore": "stone" },
-        "G": { "type": "forge:ore_dict", "ore": "paneGlass" }
+        "#": { "tag": "forge:stone" },
+        "G": { "item": "minecraft:glass_pane" }
     },
-    "result": { "item": "computercraft:peripheral", "data": 2 }
+    "result": { "item": "computercraft:monitor_normal" }
 }

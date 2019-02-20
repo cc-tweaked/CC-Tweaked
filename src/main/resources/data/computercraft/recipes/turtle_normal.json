@@ -1,14 +1,15 @@
 {
-    "type": "computercraft:turtle_normal",
+    "type": "computercraft:turtle",
     "pattern": [
         "###",
         "#C#",
         "#I#"
     ],
     "key": {
-        "#": { "type": "forge:ore_dict", "ore": "ingotIron" },
-        "C": { "type": "computercraft:computer", "item": "computercraft:computer", "family": "Normal" },
-        "I": { "type": "forge:ore_dict", "ore": "chestWood" }
+        "#": { "tag": "forge:ingots/iron" },
+        "C": { "item": "computercraft:computer_normal" },
+        "I": { "tag": "forge:chests/wooden" }
     },
-    "family": "Normal"
+    "family": "Normal",
+    "result": { "item": "computercraft:turtle_normal" }
 }

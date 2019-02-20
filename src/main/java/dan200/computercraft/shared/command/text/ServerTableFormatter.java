@@ -6,7 +6,7 @@
 
 package dan200.computercraft.shared.command.text;
 
-import net.minecraft.command.ICommandSender;
+import net.minecraft.command.CommandSource;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
 import org.apache.commons.lang3.StringUtils;
@@ -15,9 +15,9 @@ import javax.annotation.Nullable;
 
 public class ServerTableFormatter implements TableFormatter
 {
-    private final ICommandSender source;
+    private final CommandSource source;
 
-    public ServerTableFormatter( ICommandSender source )
+    public ServerTableFormatter( CommandSource source )
     {
         this.source = source;
     }
@@ -40,12 +40,12 @@ public class ServerTableFormatter implements TableFormatter
     @Override
     public int getWidth( ITextComponent component )
     {
-        return component.getUnformattedText().length();
+        return component.getUnformattedComponentText().length();
     }
 
     @Override
     public void writeLine( int id, ITextComponent component )
     {
-        source.sendMessage( component );
+        source.sendFeedback( component, false );
     }
 }

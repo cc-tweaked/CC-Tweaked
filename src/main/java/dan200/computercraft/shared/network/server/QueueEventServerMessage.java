@@ -50,7 +50,7 @@ public class QueueEventServerMessage extends ComputerServerMessage
         super.fromBytes( buf );
         event = buf.readString( Short.MAX_VALUE );
 
-        NBTTagCompound args = NBTUtil.readCompoundTag( buf );
+        NBTTagCompound args = buf.readCompoundTag();
         this.args = args == null ? null : NBTUtil.decodeObjects( args );
     }
 

@@ -336,16 +336,16 @@ public class Terminal
 
     public synchronized NBTTagCompound writeToNBT( NBTTagCompound nbt )
     {
-        nbt.setInteger( "term_cursorX", m_cursorX );
-        nbt.setInteger( "term_cursorY", m_cursorY );
-        nbt.setBoolean( "term_cursorBlink", m_cursorBlink );
-        nbt.setInteger( "term_textColour", m_cursorColour );
-        nbt.setInteger( "term_bgColour", m_cursorBackgroundColour );
+        nbt.putInt( "term_cursorX", m_cursorX );
+        nbt.putInt( "term_cursorY", m_cursorY );
+        nbt.putBoolean( "term_cursorBlink", m_cursorBlink );
+        nbt.putInt( "term_textColour", m_cursorColour );
+        nbt.putInt( "term_bgColour", m_cursorBackgroundColour );
         for( int n = 0; n < m_height; n++ )
         {
-            nbt.setString( "term_text_" + n, m_text[n].toString() );
-            nbt.setString( "term_textColour_" + n, m_textColour[n].toString() );
-            nbt.setString( "term_textBgColour_" + n, m_backgroundColour[n].toString() );
+            nbt.putString( "term_text_" + n, m_text[n].toString() );
+            nbt.putString( "term_textColour_" + n, m_textColour[n].toString() );
+            nbt.putString( "term_textBgColour_" + n, m_backgroundColour[n].toString() );
         }
         if( m_palette != null )
         {
@@ -356,26 +356,26 @@ public class Terminal
 
     public synchronized void readFromNBT( NBTTagCompound nbt )
     {
-        m_cursorX = nbt.getInteger( "term_cursorX" );
-        m_cursorY = nbt.getInteger( "term_cursorY" );
+        m_cursorX = nbt.getInt( "term_cursorX" );
+        m_cursorY = nbt.getInt( "term_cursorY" );
         m_cursorBlink = nbt.getBoolean( "term_cursorBlink" );
-        m_cursorColour = nbt.getInteger( "term_textColour" );
-        m_cursorBackgroundColour = nbt.getInteger( "term_bgColour" );
+        m_cursorColour = nbt.getInt( "term_textColour" );
+        m_cursorBackgroundColour = nbt.getInt( "term_bgColour" );
 
         for( int n = 0; n < m_height; n++ )
         {
             m_text[n].fill( ' ' );
-            if( nbt.hasKey( "term_text_" + n ) )
+            if( nbt.contains( "term_text_" + n ) )
             {
                 m_text[n].write( nbt.getString( "term_text_" + n ) );
             }
             m_textColour[n].fill( base16.charAt( m_cursorColour ) );
-            if( nbt.hasKey( "term_textColour_" + n ) )
+            if( nbt.contains( "term_textColour_" + n ) )
             {
                 m_textColour[n].write( nbt.getString( "term_textColour_" + n ) );
             }
             m_backgroundColour[n].fill( base16.charAt( m_cursorBackgroundColour ) );
-            if( nbt.hasKey( "term_textBgColour_" + n ) )
+            if( nbt.contains( "term_textBgColour_" + n ) )
             {
                 m_backgroundColour[n].write( nbt.getString( "term_textBgColour_" + n ) );
             }

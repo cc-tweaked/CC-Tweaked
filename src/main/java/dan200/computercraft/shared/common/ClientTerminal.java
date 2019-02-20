@@ -50,10 +50,10 @@ public class ClientTerminal implements ITerminal
     public void readDescription( NBTTagCompound nbt )
     {
         m_colour = nbt.getBoolean( "colour" );
-        if( nbt.hasKey( "terminal" ) )
+        if( nbt.contains( "terminal" ) )
         {
-            NBTTagCompound terminal = nbt.getCompoundTag( "terminal" );
-            resizeTerminal( terminal.getInteger( "term_width" ), terminal.getInteger( "term_height" ) );
+            NBTTagCompound terminal = nbt.getCompound( "terminal" );
+            resizeTerminal( terminal.getInt( "term_width" ), terminal.getInt( "term_height" ) );
             m_terminal.readFromNBT( terminal );
         }
         else

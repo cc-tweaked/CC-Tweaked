@@ -11,11 +11,12 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public interface DefaultSidedInventory extends DefaultInventory, ISidedInventory
 {
     @Override
-    default boolean canInsertItem( int slot, @Nonnull ItemStack stack, @Nonnull EnumFacing side )
+    default boolean canInsertItem( int slot, @Nonnull ItemStack stack, @Nullable EnumFacing side )
     {
         return isItemValidForSlot( slot, stack );
     }

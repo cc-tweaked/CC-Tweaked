@@ -12,12 +12,13 @@ import dan200.computercraft.shared.turtle.core.TurtlePlayer;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.CraftingManager;
+import net.minecraft.item.crafting.RecipeManager;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
+import net.minecraftforge.common.crafting.VanillaRecipeTypes;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
@@ -59,7 +60,8 @@ public class TurtleInventoryCrafting extends InventoryCrafting
         }
 
         // Check the actual crafting
-        return CraftingManager.findMatchingResult( this, m_turtle.getWorld() );
+        RecipeManager manager = m_turtle.getWorld().getServer().getRecipeManager();
+        return manager.getResult( this, m_turtle.getWorld(), VanillaRecipeTypes.CRAFTING );
     }
 
     public ArrayList<ItemStack> doCrafting( World world, int maxCount )
@@ -123,7 +125,7 @@ public class TurtleInventoryCrafting extends InventoryCrafting
             results.add( result );
 
             // Consume resources from the inventory
-            NonNullList<ItemStack> remainingItems = CraftingManager.getRemainingItems( this, world );
+            NonNullList<ItemStack> remainingItems = world.getRecipeManager().getRemainingItems( this, world, VanillaRecipeTypes.CRAFTING );
             for( int n = 0; n < size; n++ )
             {
                 ItemStack stack = getStackInSlot( n );
@@ -134,7 +136,7 @@ public class TurtleInventoryCrafting extends InventoryCrafting
                     ItemStack replacement = remainingItems.get( n );
                     if( !replacement.isEmpty() )
                     {
-                        if( !(replacement.isItemStackDamageable() && replacement.getItemDamage() >= replacement.getMaxDamage()) )
+                        if( !(replacement.getItem().isDamageable() && replacement.getDamage() >= replacement.getMaxDamage()) )
                         {
                             replacement.setCount( Math.min( numToCraft, replacement.getMaxStackSize() ) );
                             if( getStackInSlot( n ).isEmpty() )
@@ -153,17 +155,6 @@ public class TurtleInventoryCrafting extends InventoryCrafting
         }
 
         return null;
-    }
-
-    @Nonnull
-    @Override
-    public ItemStack getStackInRowAndColumn( int x, int y )
-    {
-        if( x >= 0 && x < getWidth() && y >= 0 && y < getHeight() )
-        {
-            return getStackInSlot( x + y * getWidth() );
-        }
-        return ItemStack.EMPTY;
     }
 
     @Override
@@ -208,22 +199,15 @@ public class TurtleInventoryCrafting extends InventoryCrafting
 
     @Nonnull
     @Override
-    public String getName()
+    public ITextComponent getName()
     {
-        return "";
+        return new TextComponentString( "" );
     }
 
     @Override
     public boolean hasCustomName()
     {
         return false;
-    }
-
-    @Nonnull
-    @Override
-    public ITextComponent getDisplayName()
-    {
-        return new TextComponentString( "" );
     }
 
     @Nonnull
@@ -268,37 +252,10 @@ public class TurtleInventoryCrafting extends InventoryCrafting
     }
 
     @Override
-    public void openInventory( EntityPlayer player )
-    {
-    }
-
-    @Override
-    public void closeInventory( EntityPlayer player )
-    {
-    }
-
-    @Override
     public boolean isItemValidForSlot( int i, @Nonnull ItemStack stack )
     {
         i = modifyIndex( i );
         return m_turtle.getInventory().isItemValidForSlot( i, stack );
-    }
-
-    @Override
-    public int getField( int id )
-    {
-        return 0;
-    }
-
-    @Override
-    public void setField( int id, int value )
-    {
-    }
-
-    @Override
-    public int getFieldCount()
-    {
-        return 0;
     }
 
     @Override

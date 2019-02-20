@@ -30,7 +30,7 @@ public class ClientTableFormatter implements TableFormatter
 
     private FontRenderer renderer()
     {
-        return Minecraft.getMinecraft().fontRenderer;
+        return Minecraft.getInstance().fontRenderer;
     }
 
     @Override
@@ -42,7 +42,7 @@ public class ClientTableFormatter implements TableFormatter
 
         FontRenderer renderer = renderer();
 
-        float spaceWidth = renderer.getCharWidth( ' ' );
+        float spaceWidth = renderer.getStringWidth( " " );
         int spaces = MathHelper.floor( extraWidth / spaceWidth );
         int extra = extraWidth - (int) (spaces * spaceWidth);
 
@@ -64,11 +64,11 @@ public class ClientTableFormatter implements TableFormatter
     @Override
     public void writeLine( int id, ITextComponent component )
     {
-        Minecraft mc = Minecraft.getMinecraft();
+        Minecraft mc = Minecraft.getInstance();
         GuiNewChat chat = mc.ingameGUI.getChatGUI();
 
         // Trim the text if it goes over the allowed length
-        int maxWidth = MathHelper.floor( chat.getChatWidth() / chat.getChatScale() );
+        int maxWidth = MathHelper.floor( chat.getChatWidth() / chat.getScale() );
         List<ITextComponent> list = GuiUtilRenderComponents.splitText( component, maxWidth, mc.fontRenderer, false, false );
         if( !list.isEmpty() ) chat.printChatMessageWithOptionalDeletion( list.get( 0 ), id );
     }
@@ -76,7 +76,7 @@ public class ClientTableFormatter implements TableFormatter
     @Override
     public int display( TableBuilder table )
     {
-        GuiNewChat chat = Minecraft.getMinecraft().ingameGUI.getChatGUI();
+        GuiNewChat chat = Minecraft.getInstance().ingameGUI.getChatGUI();
 
         int lastHeight = lastHeights.get( table.getId() );
 

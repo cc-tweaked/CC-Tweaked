@@ -12,12 +12,13 @@ import dan200.computercraft.api.turtle.ITurtleCommand;
 import dan200.computercraft.api.turtle.TurtleCommandResult;
 import dan200.computercraft.api.turtle.event.TurtleBlockEvent;
 import net.minecraft.block.Block;
-import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.state.IProperty;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nonnull;
 import java.util.HashMap;
@@ -51,15 +52,13 @@ public class TurtleInspectCommand implements ITurtleCommand
         }
 
         Block block = state.getBlock();
-        String name = Block.REGISTRY.getNameForObject( block ).toString();
-        int metadata = block.getMetaFromState( state );
+        String name = ForgeRegistries.BLOCKS.getKey( block ).toString();
 
         Map<String, Object> table = new HashMap<>();
         table.put( "name", name );
-        table.put( "metadata", metadata );
 
         Map<Object, Object> stateTable = new HashMap<>();
-        for( ImmutableMap.Entry<IProperty<?>, ?> entry : state.getActualState( world, newPosition ).getProperties().entrySet() )
+        for( ImmutableMap.Entry<IProperty<?>, ?> entry : state.getValues().entrySet() )
         {
             String propertyName = entry.getKey().getName();
             Object value = entry.getValue();
