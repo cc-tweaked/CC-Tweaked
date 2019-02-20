@@ -16,10 +16,23 @@ import java.util.WeakHashMap;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.LockSupport;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class ComputerThread
 {
+    /**
+     * The total time a task is allowed to run before aborting.
+     */
+    private static final long TIMEOUT = TimeUnit.MILLISECONDS.toNanos( 7000 );
+
+    /**
+     * The time the task is allowed to run after each abort.
+     */
+    private static final long ABORT_TIMEOUT = TimeUnit.MILLISECONDS.toNanos( 1500 );
+
     private static final int QUEUE_LIMIT = 256;
 
     /**
@@ -183,30 +196,33 @@ public class ComputerThread
         {
             ITask task = queue.remove();
 
+            TaskRunner runner = this.runner;
             if( thread == null || !thread.isAlive() )
             {
-                runner = new TaskRunner();
+                runner = this.runner = new TaskRunner();
                 (thread = s_RunnerFactory.newThread( runner )).start();
             }
 
-            long start = System.nanoTime();
 
-            // Execute the task
-            runner.submit( task );
+            runner.lock.lockInterruptibly();
+            long start = System.nanoTime();
 
             try
             {
+                // Execute the task
+                runner.submit( task );
+
                 // If we ran within our time period, then just exit
-                if( runner.await( 7000 ) ) return;
+                if( runner.await( TIMEOUT ) ) return;
 
                 Computer computer = task.getOwner();
 
                 // Attempt to soft then hard abort
                 computer.timeout.softAbort();
-                if( runner.await( 1500 ) ) return;
+                if( runner.await( ABORT_TIMEOUT ) ) return;
 
                 computer.timeout.hardAbort();
-                if( runner.await( 1500 ) ) return;
+                if( runner.await( ABORT_TIMEOUT ) ) return;
 
                 if( ComputerCraft.logPeripheralErrors )
                 {
@@ -232,7 +248,7 @@ public class ComputerThread
                 // Interrupt the thread
                 thread.interrupt();
                 thread = null;
-                runner = null;
+                this.runner = null;
             }
             finally
             {
@@ -242,6 +258,8 @@ public class ComputerThread
                 Tracking.addTaskTiming( computer, stop - start );
 
                 computer.timeout.resetAbort();
+
+                runner.lock.unlock();
 
                 // Re-add it back onto the queue or remove it
                 synchronized( s_taskLock )
@@ -260,14 +278,18 @@ public class ComputerThread
     }
 
     /**
-     * Responsible for the actual running of tasks. It waitin for the {@link TaskRunner#input} semaphore to be
-     * triggered, consumes a task and then triggers {@link TaskRunner#finished}.
+     * Responsible for the actual running of tasks. It waits for the {@link TaskRunner#executorSignal} condition to be
+     * triggered, consumes a task and then triggers {@link TaskRunner#finishedSignal}.
      */
     private static final class TaskRunner implements Runnable
     {
-        private final Semaphore input = new Semaphore();
-        private final Semaphore finished = new Semaphore();
-        private ITask task;
+        private final ReentrantLock lock = new ReentrantLock();
+
+        private volatile ITask task;
+        private final Condition executorSignal = lock.newCondition();
+
+        private volatile boolean finished;
+        private final Condition finishedSignal = lock.newCondition();
 
         @Override
         public void run()
@@ -276,7 +298,18 @@ public class ComputerThread
             {
                 while( true )
                 {
-                    input.await();
+                    // Pull the task from the queue.
+                    lock.lockInterruptibly();
+                    try
+                    {
+                        if( task == null ) executorSignal.await();
+                    }
+                    finally
+                    {
+                        lock.unlock();
+                    }
+
+                    // Execute the task. Note, we must not be holding the lock at this point
                     try
                     {
                         task.execute();
@@ -285,8 +318,20 @@ public class ComputerThread
                     {
                         ComputerCraft.log.error( "Error running task.", e );
                     }
+
                     task = null;
-                    finished.signal();
+
+                    // And mark the task as finished.
+                    lock.lockInterruptibly();
+                    try
+                    {
+                        finished = true;
+                        finishedSignal.signal();
+                    }
+                    finally
+                    {
+                        lock.unlock();
+                    }
                 }
             }
             catch( InterruptedException e )
@@ -299,44 +344,13 @@ public class ComputerThread
         void submit( ITask task )
         {
             this.task = task;
-            input.signal();
+            executorSignal.signal();
         }
 
         boolean await( long timeout ) throws InterruptedException
         {
-            return finished.await( timeout );
-        }
-    }
-
-    /**
-     * A simple method to allow awaiting/providing a signal.
-     *
-     * Java does provide similar classes, but I only needed something simple.
-     */
-    private static final class Semaphore
-    {
-        private volatile boolean state = false;
-
-        synchronized void signal()
-        {
-            state = true;
-            notify();
-        }
-
-        synchronized void await() throws InterruptedException
-        {
-            while( !state ) wait();
-            state = false;
-        }
-
-        synchronized boolean await( long timeout ) throws InterruptedException
-        {
-            if( !state )
-            {
-                wait( timeout );
-                if( !state ) return false;
-            }
-            state = false;
+            if( !finished && finishedSignal.awaitNanos( timeout ) <= 0 ) return false;
+            finished = false;
             return true;
         }
     }
