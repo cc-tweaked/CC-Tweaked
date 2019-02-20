@@ -101,6 +101,11 @@ public class TableBuilder
         return additional;
     }
 
+    public void setAdditional( int additional )
+    {
+        this.additional = additional;
+    }
+
     /**
      * Trim this table to a given height
      *
@@ -110,8 +115,8 @@ public class TableBuilder
     {
         if( rows.size() > height )
         {
-            additional += rows.size() - height;
-            rows.subList( height, rows.size() ).clear();
+            additional += rows.size() - height - 1;
+            rows.subList( height - 1, rows.size() ).clear();
         }
     }
 

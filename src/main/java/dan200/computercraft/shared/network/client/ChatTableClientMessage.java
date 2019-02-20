@@ -48,6 +48,8 @@ public class ChatTableClientMessage implements NetworkMessage
         {
             for( ITextComponent column : row ) buf.writeTextComponent( column );
         }
+
+        buf.writeVarInt( table.getAdditional() );
     }
 
     @Override
@@ -74,6 +76,8 @@ public class ChatTableClientMessage implements NetworkMessage
             for( int j = 0; j < columns; j++ ) row[j] = NBTUtil.readTextComponent( buf );
             table.row( row );
         }
+
+        table.setAdditional( buf.readVarInt() );
         this.table = table;
     }
 

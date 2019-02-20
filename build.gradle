@@ -149,7 +149,7 @@ reobfJar.dependsOn proguardMove
 
 processResources {
     inputs.property "version", project.version
-    inputs.property "mcversion", project.version
+    inputs.property "mcversion", mc_version
 
     def hash = 'none'
     Set<String> contributors = []
@@ -170,9 +170,9 @@ processResources {
         include 'mcmod.info'
         include 'assets/computercraft/lua/rom/help/credits.txt'
 
-        expand 'version':project.version,
-               'mcversion':project.version,
-               'gitcontributors':contributors.sort(false, String.CASE_INSENSITIVE_ORDER).join('\n')
+        expand 'version': project.version,
+               'mcversion': mc_version,
+               'gitcontributors': contributors.sort(false, String.CASE_INSENSITIVE_ORDER).join('\n')
     }
 
     from(sourceSets.main.resources.srcDirs) {

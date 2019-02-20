@@ -13,7 +13,6 @@ import dan200.computercraft.shared.media.items.ItemPrintout;
 import dan200.computercraft.shared.peripheral.PeripheralType;
 import dan200.computercraft.shared.peripheral.common.TilePeripheralBase;
 import dan200.computercraft.shared.util.DefaultSidedInventory;
-import dan200.computercraft.shared.util.InventoryUtil;
 import dan200.computercraft.shared.util.WorldUtil;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
@@ -263,6 +262,23 @@ public class TilePrinter extends TilePeripheralBase implements DefaultSidedInven
     }
 
     @Override
+    public boolean isItemValidForSlot( int slot, @Nonnull ItemStack stack )
+    {
+        if( slot == 0 )
+        {
+            return isInk( stack );
+        }
+        else if( slot >= topSlots[0] && slot <= topSlots[topSlots.length - 1] )
+        {
+            return isPaper( stack );
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    @Override
     public boolean hasCustomName()
     {
         return getLabel() != null;
@@ -393,15 +409,15 @@ public class TilePrinter extends TilePeripheralBase implements DefaultSidedInven
         }
     }
 
-    private boolean isInk( @Nonnull ItemStack stack )
+    private static boolean isInk( @Nonnull ItemStack stack )
     {
-        return (stack.getItem() == Items.DYE);
+        return stack.getItem() == Items.DYE;
     }
 
-    private boolean isPaper( @Nonnull ItemStack stack )
+    private static boolean isPaper( @Nonnull ItemStack stack )
     {
         Item item = stack.getItem();
-        return (item == Items.PAPER || (item instanceof ItemPrintout && ItemPrintout.getType( stack ) == ItemPrintout.Type.Single));
+        return item == Items.PAPER || (item instanceof ItemPrintout && ItemPrintout.getType( stack ) == ItemPrintout.Type.Single);
     }
 
     private boolean canInputPage()
@@ -493,11 +509,14 @@ public class TilePrinter extends TilePeripheralBase implements DefaultSidedInven
             ItemStack stack = ItemPrintout.createSingleFromTitleAndText( m_pageTitle, lines, colours );
             synchronized( m_inventory )
             {
-                ItemStack remainder = InventoryUtil.storeItems( stack, m_itemHandlerAll, 7, 6, 7 );
-                if( remainder.isEmpty() )
+                for( int slot : bottomSlots )
                 {
-                    m_printing = false;
-                    return true;
+                    if( m_inventory.get( slot ).isEmpty() )
+                    {
+                        m_inventory.set( slot, stack );
+                        m_printing = false;
+                        return true;
+                    }
                 }
             }
             return false;

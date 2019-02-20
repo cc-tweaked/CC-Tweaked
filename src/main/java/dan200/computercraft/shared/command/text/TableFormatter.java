@@ -74,8 +74,6 @@ public interface TableFormatter
         int totalWidth = (columns - 1) * getWidth( SEPARATOR );
         for( int x : maxWidths ) totalWidth += x;
 
-        // TODO: Limit the widths of some entries if totalWidth > maxWidth
-
         if( headers != null )
         {
             TextComponentString line = new TextComponentString( "" );

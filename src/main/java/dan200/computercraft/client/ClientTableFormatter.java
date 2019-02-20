@@ -13,12 +13,14 @@ import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiNewChat;
+import net.minecraft.client.gui.GuiUtilRenderComponents;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextFormatting;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.Nullable;
+import java.util.List;
 
 public class ClientTableFormatter implements TableFormatter
 {
@@ -62,7 +64,13 @@ public class ClientTableFormatter implements TableFormatter
     @Override
     public void writeLine( int id, ITextComponent component )
     {
-        Minecraft.getMinecraft().ingameGUI.getChatGUI().printChatMessageWithOptionalDeletion( component, id );
+        Minecraft mc = Minecraft.getMinecraft();
+        GuiNewChat chat = mc.ingameGUI.getChatGUI();
+
+        // Trim the text if it goes over the allowed length
+        int maxWidth = MathHelper.floor( chat.getChatWidth() / chat.getChatScale() );
+        List<ITextComponent> list = GuiUtilRenderComponents.splitText( component, maxWidth, mc.fontRenderer, false, false );
+        if( !list.isEmpty() ) chat.printChatMessageWithOptionalDeletion( list.get( 0 ), id );
     }
 
     @Override
