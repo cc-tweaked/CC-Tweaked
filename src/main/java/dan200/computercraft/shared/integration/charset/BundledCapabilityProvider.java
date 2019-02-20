@@ -43,7 +43,10 @@ final class BundledCapabilityProvider implements ICapabilityProvider
         if( capability == CAPABILITY_RECEIVER )
         {
             IBundledReceiver receiver = this.receiver;
-            if( receiver == null ) receiver = this.receiver = tile::onNeighbourChange;
+            if( receiver == null )
+            {
+                receiver = this.receiver = () -> tile.onNeighbourChange( tile.getPos().offset( side ) );
+            }
 
             return CAPABILITY_RECEIVER.cast( receiver );
         }
