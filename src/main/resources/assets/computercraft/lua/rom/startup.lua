@@ -163,9 +163,14 @@ local function completeChat( shell, nIndex, sText, tPreviousText )
         return completeMultipleChoice( sText, tChatOptions )
     end
 end
+local tBoolean = { "true", "false" }
 local function completeSet( shell, nIndex, sText, tPreviousText )
     if nIndex == 1 then
         return completeMultipleChoice( sText, settings.getNames(), true )
+    elseif nIndex == 2 then
+        if type( settings.get ( tPreviousText[2] ) )== "boolean" then
+            return completeMultipleChoice( sText, tBoolean )
+        end
     end
 end
 local tCommands
