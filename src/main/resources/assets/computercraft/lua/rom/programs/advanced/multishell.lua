@@ -88,8 +88,8 @@ local function cullProcess( nProcess )
                 selectProcess( 1 )
             end
         end
-        if nScrollPos > #tProcesses then
-            nScrollPos = #tProcesses
+        if nScrollPos ~= 1 then
+            nScrollPos = nScrollPos - 1
         end
         return true
     end
