@@ -26,15 +26,16 @@ apply plugin: 'maven-publish'
 apply plugin: 'maven'
 
 def mc_version = "1.12.2"
-version = "1.81.0"
+def main_version = "1.81.0"
+version = "${mc_version}-${main_version}"
 
 group = "org.squiddev"
-archivesBaseName = "cc-tweaked-${mc_version}"
+archivesBaseName = "cc-tweaked"
 
 minecraft {
     version = "${mc_version}-14.23.4.2749"
     runDir = "run"
-    replace '${version}', project.version
+    replace '${version}', main_version
 
     // the mappings can be changed at any time, and must be in the following format.
     // snapshot_YYYYMMDD   snapshot are built nightly.
@@ -148,7 +149,7 @@ task proguardMove(dependsOn: proguard) {
 reobfJar.dependsOn proguardMove
 
 processResources {
-    inputs.property "version", project.version
+    inputs.property "version", main_version
     inputs.property "mcversion", mc_version
 
     def hash = 'none'
@@ -170,7 +171,7 @@ processResources {
         include 'mcmod.info'
         include 'assets/computercraft/lua/rom/help/credits.txt'
 
-        expand 'version': project.version,
+        expand 'version': main_version,
                'mcversion': mc_version,
                'gitcontributors': contributors.sort(false, String.CASE_INSENSITIVE_ORDER).join('\n')
     }

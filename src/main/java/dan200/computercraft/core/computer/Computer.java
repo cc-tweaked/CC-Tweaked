@@ -547,6 +547,12 @@ public class Computer
     }
 
     @Deprecated
+    public IPeripheral getPeripheral( int side )
+    {
+        return m_internalEnvironment.getPeripheral( side );
+    }
+
+    @Deprecated
     public void setPeripheral( int side, IPeripheral peripheral )
     {
         m_internalEnvironment.setPeripheral( side, peripheral );
@@ -564,4 +570,6 @@ public class Computer
     {
         advance();
     }
+
+    public static final String[] s_sideNames = IAPIEnvironment.SIDE_NAMES;
 }
