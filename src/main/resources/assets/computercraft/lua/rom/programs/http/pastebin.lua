@@ -21,8 +21,8 @@ end
 local function get(paste)
     write( "Connecting to pastebin.com... " )
     -- Add a cache buster so that spam protection is re-checked
-    local cacheBuster = tostring(math.random())
-    local response = http.get(
+    local cacheBuster = ("%x"):format(math.random(0, 2^30))
+    local response, err = http.get(
         "https://pastebin.com/raw/"..textutils.urlEncode( paste ).."?cb="..cacheBuster
     )
 
@@ -30,7 +30,8 @@ local function get(paste)
         -- If spam protection is activated, we get redirected to /paste with Content-Type: text/html
         local headers = response.getResponseHeaders()
         if not headers["Content-Type"] or not headers["Content-Type"]:find( "^text/plain" ) then
-            printError( "\nFailed to get paste. Please complete the captcha in a web browser: https://pastebin.com/"..textutils.urlEncode( paste ) )
+            io.stderr:write( "Failed.\n" )
+            print( "Pastebin blocked the download due to spam protection. Please complete the captcha in a web browser: https://pastebin.com/"..textutils.urlEncode( paste ) )
             return
         end
 
@@ -40,7 +41,8 @@ local function get(paste)
         response.close()
         return sResponse
     else
-        print( "Failed." )
+        io.stderr:write( "Failed.\n" )
+        print(err)
     end
 end
 
@@ -75,6 +77,8 @@ if sCommand == "put" then
 
     if response then
         print( "Success." )
+
+        print(response.getResponseHeaders())
 
         local sResponse = response.readAll()
         response.close()
