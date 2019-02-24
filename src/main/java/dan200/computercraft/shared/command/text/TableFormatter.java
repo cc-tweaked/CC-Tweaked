@@ -92,7 +92,7 @@ public interface TableFormatter
             // it a tad prettier.
             int rowCharWidth = getWidth( HEADER );
             int rowWidth = totalWidth / rowCharWidth + (totalWidth % rowCharWidth == 0 ? 0 : 1);
-            writeLine( rowId++, coloured( StringUtils.repeat( HEADER.getUnformattedComponentText(), rowWidth ), TextFormatting.GRAY ) );
+            writeLine( rowId++, coloured( StringUtils.repeat( HEADER.getString(), rowWidth ), TextFormatting.GRAY ) );
         }
 
         for( ITextComponent[] row : table.getRows() )

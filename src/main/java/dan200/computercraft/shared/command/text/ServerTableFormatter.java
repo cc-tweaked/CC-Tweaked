@@ -40,7 +40,7 @@ public class ServerTableFormatter implements TableFormatter
     @Override
     public int getWidth( ITextComponent component )
     {
-        return component.getUnformattedComponentText().length();
+        return component.getString().length();
     }
 
     @Override

@@ -52,7 +52,7 @@ public final class ComputerCraftAPIImpl implements IComputerCraftAPI
     @Override
     public int createUniqueNumberedSaveDir( @Nonnull World world, @Nonnull String parentSubPath )
     {
-        return IDAssigner.getNextIDFromDirectory( parentSubPath );
+        return IDAssigner.getNextId( parentSubPath );
     }
 
     @Override
@@ -60,7 +60,7 @@ public final class ComputerCraftAPIImpl implements IComputerCraftAPI
     {
         try
         {
-            return new FileMount( new File( IDAssigner.getWorldDir(), subPath ), capacity );
+            return new FileMount( new File( IDAssigner.getDir(), subPath ), capacity );
         }
         catch( Exception e )
         {

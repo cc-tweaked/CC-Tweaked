@@ -33,6 +33,6 @@ public class RecordUtil
         Item item = recordStack.getItem();
         if( !(item instanceof ItemRecord) ) return null;
 
-        return new TextComponentTranslation( item.getTranslationKey() + ".desc" ).getUnformattedComponentText();
+        return new TextComponentTranslation( item.getTranslationKey() + ".desc" ).getString();
     }
 }

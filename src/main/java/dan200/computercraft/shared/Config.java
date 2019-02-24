@@ -17,7 +17,6 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -229,10 +228,9 @@ public class Config
         spec = builder.build();
     }
 
-    @SubscribeEvent
-    public static void load( FMLCommonSetupEvent event )
+    public static void load()
     {
-        ModLoadingContext.get().registerConfig( ModConfig.Type.SERVER, spec );
+        ModLoadingContext.get().registerConfig( ModConfig.Type.COMMON, spec );
     }
 
     public static void sync()

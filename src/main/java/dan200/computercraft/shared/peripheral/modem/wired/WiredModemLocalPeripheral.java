@@ -68,7 +68,7 @@ public final class WiredModemLocalPeripheral
             else if( id < 0 || !type.equals( this.type ) )
             {
                 this.type = type;
-                this.id = IDAssigner.getNextIDFromFile( "computer/lastid_" + type + ".txt" );
+                this.id = IDAssigner.getNextId( "peripheral." + type );
             }
 
             return oldPeripheral == null || !oldPeripheral.equals( peripheral );

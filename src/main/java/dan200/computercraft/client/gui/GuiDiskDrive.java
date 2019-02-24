@@ -27,7 +27,7 @@ public class GuiDiskDrive extends GuiContainer
     @Override
     protected void drawGuiContainerForegroundLayer( int mouseX, int mouseY )
     {
-        String title = m_container.getDiskDrive().getDisplayName().getUnformattedComponentText();
+        String title = m_container.getDiskDrive().getDisplayName().getString();
         fontRenderer.drawString( title, (xSize - fontRenderer.getStringWidth( title )) / 2.0f, 6, 0x404040 );
         fontRenderer.drawString( I18n.format( "container.inventory" ), 8, (ySize - 96) + 2, 0x404040 );
     }

@@ -1,4 +1,4 @@
-* Remaining changes [6/15]
+* Remaining changes [7/16]
 ** TODO [#A] ClientRegistry
    - Turtle model
    - loadModel
@@ -61,7 +61,7 @@
 
    I assume it's to allow shift-sneaking disks into drives.
 
-** TODO [#C] Convert to Forge's container system
+** TODO [#C] Convert to Forge's GUI system
    Also simplify our current implementation.
 
 ** DONE [#A] Waterlogging
@@ -91,3 +91,12 @@
    We're totally using some client-only methods some place.
 ** TODO [#B] Handling of dyes
    Printers are currently broken.
+
+* Major rethinks
+** TODO Multi-peripheral
+   It'd be really nice to have native support for Computronics's multi-peripheral system, though worth discussing how we
+   implement it.
+
+** TODO Capabilities
+   =IPeripheral= and =IBundledRedstoneProvider= should ideally be capabilities too. Well, more likely, some
+   =IPeripheralHandler= and =IBundledRedstoneHandler=.

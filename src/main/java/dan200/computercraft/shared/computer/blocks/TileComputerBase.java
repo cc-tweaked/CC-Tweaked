@@ -113,7 +113,7 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
             // Label to rename computer
             if( !getWorld().isRemote && item.hasDisplayName() )
             {
-                setLabel( item.getDisplayName().getUnformattedComponentText() );
+                setLabel( item.getDisplayName().getString() );
                 item.shrink( 1 );
             }
             return true;
