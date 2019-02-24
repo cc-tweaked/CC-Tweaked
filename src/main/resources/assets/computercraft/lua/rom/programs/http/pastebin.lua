@@ -78,8 +78,6 @@ if sCommand == "put" then
     if response then
         print( "Success." )
 
-        print(response.getResponseHeaders())
-
         local sResponse = response.readAll()
         response.close()
 
