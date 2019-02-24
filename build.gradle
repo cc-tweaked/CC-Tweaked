@@ -26,7 +26,7 @@ apply plugin: 'maven-publish'
 apply plugin: 'maven'
 
 def mc_version = "1.12.2"
-def main_version = "1.81.0"
+def main_version = "1.81.1"
 version = "${mc_version}-${main_version}"
 
 group = "org.squiddev"
