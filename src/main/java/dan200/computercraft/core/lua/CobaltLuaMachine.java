@@ -117,7 +117,7 @@ public class CobaltLuaMachine implements ILuaMachine
                     throw new LuaError( message );
                 }
             } )
-            .yieldThreader( command -> {
+            .coroutineExecutor( command -> {
                 Tracking.addValue( m_computer, TrackingField.COROUTINES_CREATED, 1 );
                 coroutines.execute( () -> {
                     try
@@ -145,7 +145,8 @@ public class CobaltLuaMachine implements ILuaMachine
         if( ComputerCraft.debug_enable ) m_globals.load( state, new DebugLib() );
 
         // Register custom load/loadstring provider which automatically adds prefixes.
-        LibFunction.bind( m_globals, PrefixLoader.class, new String[] { "load", "loadstring" } );
+        m_globals.rawset( "load", new PrefixWrapperFunction( m_globals.rawget( "load" ), 0 )) ;
+        m_globals.rawset( "loadstring", new PrefixWrapperFunction( m_globals.rawget( "loadstring" ), 1 ) );
 
         // Remove globals we don't want to expose
         m_globals.rawset( "collectgarbage", Constants.NIL );
@@ -230,7 +231,7 @@ public class CobaltLuaMachine implements ILuaMachine
 
             if( m_mainRoutine.getStatus().equals( "dead" ) ) unload();
         }
-        catch( LuaError | HardAbortError e )
+        catch( LuaError | HardAbortError | InterruptedException e )
         {
             unload();
             ComputerCraft.log.warn( "Top level coroutine errored", e );
@@ -630,13 +631,24 @@ public class CobaltLuaMachine implements ILuaMachine
         return objects;
     }
 
-    private static class PrefixLoader extends VarArgFunction
+    private static class PrefixWrapperFunction extends VarArgFunction
     {
         private static final LuaString FUNCTION_STR = valueOf( "function" );
         private static final LuaString EQ_STR = valueOf( "=" );
 
+        private final LibFunction underlying;
+
+        public PrefixWrapperFunction(LuaValue wrap, int opcode) {
+            LibFunction underlying = (LibFunction)wrap;
+
+            this.underlying = underlying;
+            this.opcode = opcode;
+            this.name = underlying.debugName();
+            this.env = underlying.getfenv();
+        }
+
         @Override
-        public Varargs invoke( LuaState state, Varargs args ) throws LuaError
+        public Varargs invoke( LuaState state, Varargs args ) throws LuaError, UnwindThrowable
         {
             switch( opcode )
             {
@@ -648,7 +660,7 @@ public class CobaltLuaMachine implements ILuaMachine
                     {
                         chunkname = OperationHelper.concat( EQ_STR, chunkname );
                     }
-                    return BaseLib.loadStream( state, new StringInputStream( state, func ), chunkname );
+                    return underlying.invoke(state, varargsOf(func, chunkname));
                 }
                 case 1: // "loadstring", // ( string [,chunkname] ) -> chunk | nil, msg
                 {
@@ -658,65 +670,11 @@ public class CobaltLuaMachine implements ILuaMachine
                     {
                         chunkname = OperationHelper.concat( EQ_STR, chunkname );
                     }
-                    return BaseLib.loadStream( state, script.toInputStream(), chunkname );
+                    return underlying.invoke(state, varargsOf(script, chunkname));
                 }
             }
 
             return NONE;
-        }
-    }
-
-    private static class StringInputStream extends InputStream
-    {
-        private final LuaState state;
-        private final LuaValue func;
-        private byte[] bytes;
-        private int offset, remaining = 0;
-
-        StringInputStream( LuaState state, LuaValue func )
-        {
-            this.state = state;
-            this.func = func;
-        }
-
-        @Override
-        public int read() throws IOException
-        {
-            if( remaining <= 0 )
-            {
-                LuaValue s;
-                try
-                {
-                    s = OperationHelper.noYield( state, () -> OperationHelper.call( state, func ) );
-                }
-                catch( LuaError e )
-                {
-                    throw new IOException( e );
-                }
-
-                if( s.isNil() )
-                {
-                    return -1;
-                }
-                LuaString ls;
-                try
-                {
-                    ls = s.strvalue();
-                }
-                catch( LuaError e )
-                {
-                    throw new IOException( e );
-                }
-                bytes = ls.bytes;
-                offset = ls.offset;
-                remaining = ls.length;
-                if( remaining <= 0 )
-                {
-                    return -1;
-                }
-            }
-            --remaining;
-            return bytes[offset++];
         }
     }
 
