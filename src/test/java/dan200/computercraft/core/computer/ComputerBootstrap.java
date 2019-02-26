@@ -45,7 +45,7 @@ public class ComputerBootstrap
         final Computer computer = new Computer( new BasicEnvironment( mount ), term, 0 );
 
         AssertApi api = new AssertApi();
-        computer.addAPI( api );
+        computer.addApi( api );
 
         try
         {

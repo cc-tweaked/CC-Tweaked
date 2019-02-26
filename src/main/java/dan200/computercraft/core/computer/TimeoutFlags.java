@@ -45,8 +45,6 @@ public final class TimeoutFlags
      */
     void hardAbort()
     {
-        // TODO: Queue a shutdown or something - if we don't halt when hard aborting, we'll never actually shut
-        //  the thing down.
         softAbort = hardAbort = true;
     }
 

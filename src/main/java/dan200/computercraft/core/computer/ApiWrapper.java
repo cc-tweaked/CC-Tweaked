@@ -16,7 +16,7 @@ import javax.annotation.Nullable;
 /**
  * A wrapper for {@link ILuaAPI}s which cleans up after a {@link ComputerSystem} when the computer is shutdown.
  */
-public class ApiWrapper implements ILuaAPI
+final class ApiWrapper implements ILuaAPI
 {
     private final ILuaAPI delegate;
     private final ComputerSystem system;

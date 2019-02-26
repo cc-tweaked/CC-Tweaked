@@ -204,16 +204,6 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
         NetworkHandler.sendToAllPlayers( new ComputerDeletedClientMessage( getInstanceID() ) );
     }
 
-    public IWritableMount getRootMount()
-    {
-        return m_computer.getRootMount();
-    }
-
-    public int assignID()
-    {
-        return m_computer.assignID();
-    }
-
     public void setID( int id )
     {
         m_computer.setID( id );
@@ -303,7 +293,7 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
 
     public void addAPI( ILuaAPI api )
     {
-        m_computer.addAPI( api );
+        m_computer.addApi( api );
     }
 
     @Deprecated
