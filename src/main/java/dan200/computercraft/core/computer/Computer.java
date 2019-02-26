@@ -186,7 +186,7 @@ public class Computer
         }
     }
 
-    public void advance()
+    public void tick()
     {
         synchronized( this )
         {
@@ -568,7 +568,7 @@ public class Computer
     @SuppressWarnings( "unused" )
     public void advance( double dt )
     {
-        advance();
+        tick();
     }
 
     public static final String[] s_sideNames = IAPIEnvironment.SIDE_NAMES;
