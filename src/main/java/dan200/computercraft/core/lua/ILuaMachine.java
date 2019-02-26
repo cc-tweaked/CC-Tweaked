@@ -29,5 +29,5 @@ public interface ILuaMachine
 
     boolean isFinished();
 
-    void unload();
+    void close();
 }

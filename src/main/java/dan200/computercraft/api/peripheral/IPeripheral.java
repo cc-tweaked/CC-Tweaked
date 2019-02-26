@@ -41,8 +41,8 @@ public interface IPeripheral
      * This is called when a lua program on an attached computer calls {@code peripheral.call()} with
      * one of the methods exposed by {@link #getMethodNames()}.
      *
-     * Be aware that this will be called from the ComputerCraft Lua thread, and must be thread-safe
-     * when interacting with Minecraft objects.
+     * Be aware that this will be called from the ComputerCraft Lua thread, and must be thread-safe when interacting
+     * with Minecraft objects.
      *
      * @param computer  The interface to the computer that is making the call. Remember that multiple
      *                  computers can be attached to a peripheral at once.
@@ -75,20 +75,21 @@ public interface IPeripheral
     Object[] callMethod( @Nonnull IComputerAccess computer, @Nonnull ILuaContext context, int method, @Nonnull Object[] arguments ) throws LuaException, InterruptedException;
 
     /**
-     * Is called when canAttachToSide has returned true, and a computer is attaching to the peripheral.
+     * Is called when when a computer is attaching to the peripheral.
      *
      * This will occur when a peripheral is placed next to an active computer, when a computer is turned on next to a
-     * peripheral, or when a turtle travels into a square next to a peripheral.
+     * peripheral, when a turtle travels into a square next to a peripheral, or when a wired modem adjacent to this
+     * peripheral is does any of the above.
      *
-     * Between calls to attach() and detach(), the attached computer can make method calls on the peripheral using
-     * {@code peripheral.call()}. This method can be used to keep track of which computers are attached to the
-     * peripheral, or to take action when attachment occurs.
+     * Between calls to {@link #attach} and {@link #detach}, the attached computer can make method calls on the
+     * peripheral using {@code peripheral.call()}. This method can be used to keep track of which computers are attached
+     * to the peripheral, or to take action when attachment occurs.
      *
-     * Be aware that this will be called from the ComputerCraft Lua thread, and must be thread-safe
-     * when interacting with Minecraft objects.
+     * Be aware that will be called from both the server thread and ComputerCraft Lua thread, and so must be thread-safe
+     * and reentrant.
      *
-     * @param computer The interface to the computer that is being attached. Remember that multiple
-     *                 computers can be attached to a peripheral at once.
+     * @param computer The interface to the computer that is being attached. Remember that multiple computers can be
+     *                 attached to a peripheral at once.
      * @see #detach
      */
     default void attach( @Nonnull IComputerAccess computer )
@@ -96,19 +97,21 @@ public interface IPeripheral
     }
 
     /**
-     * Is called when a computer is detaching from the peripheral.
+     * Called when a computer is detaching from the peripheral.
      *
-     * This will occur when a computer shuts down, when the peripheral is removed while attached to computers,
-     * or when a turtle moves away from a square attached to a peripheral. This method can be used to keep track of
-     * which computers are attached to the peripheral, or to take action when detachment
-     * occurs.
+     * This will occur when a computer shuts down, when the peripheral is removed while attached to computers, when a
+     * turtle moves away from a block attached to a peripheral, or when a wired modem adjacent to this peripheral is
+     * detached.
      *
-     * Be aware that this will be called from the ComputerCraft Lua thread, and must be thread-safe
-     * when interacting with Minecraft objects.
+     * This method can be used to keep track of which computers are attached to the peripheral, or to take action when
+     * detachment occurs.
      *
-     * @param computer The interface to the computer that is being detached. Remember that multiple
-     *                 computers can be attached to a peripheral at once.
-     * @see #detach
+     * Be aware that this will be called from both the server and ComputerCraft Lua thread, and must be thread-safe
+     * and reentrant.
+     *
+     * @param computer The interface to the computer that is being detached. Remember that multiple computers can be
+     *                 attached to a peripheral at once.
+     * @see #attach
      */
     default void detach( @Nonnull IComputerAccess computer )
     {

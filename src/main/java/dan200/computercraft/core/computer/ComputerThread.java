@@ -35,18 +35,13 @@ public class ComputerThread
     /**
      * Map of objects to task list
      */
-    private static final WeakHashMap<Object, BlockingQueue<ITask>> s_computerTaskQueues = new WeakHashMap<>();
+    private static final WeakHashMap<Computer, BlockingQueue<ITask>> s_computerTaskQueues = new WeakHashMap<>();
 
     /**
      * Active queues to execute
      */
     private static final BlockingQueue<BlockingQueue<ITask>> s_computerTasksActive = new LinkedBlockingQueue<>();
     private static final Set<BlockingQueue<ITask>> s_computerTasksActiveSet = new HashSet<>();
-
-    /**
-     * The default object for items which don't have an owner
-     */
-    private static final Object s_defaultOwner = new Object();
 
     /**
      * Whether the thread is stopped or should be stopped
@@ -64,7 +59,7 @@ public class ComputerThread
     /**
      * Start the computer thread
      */
-    public static void start()
+    static void start()
     {
         synchronized( s_stateLock )
         {
@@ -116,20 +111,18 @@ public class ComputerThread
     /**
      * Queue a task to execute on the thread
      *
-     * @param task     The task to execute
-     * @param computer The computer to execute it on, use {@code null} to execute on the default object.
+     * @param task The task to execute
      */
-    public static void queueTask( ITask task, Computer computer )
+    static void queueTask( ITask task )
     {
-        Object queueObject = computer == null ? s_defaultOwner : computer;
-
+        Computer computer = task.getOwner();
         BlockingQueue<ITask> queue;
         synchronized( s_computerTaskQueues )
         {
-            queue = s_computerTaskQueues.get( queueObject );
+            queue = s_computerTaskQueues.get( computer );
             if( queue == null )
             {
-                s_computerTaskQueues.put( queueObject, queue = new LinkedBlockingQueue<>( QUEUE_LIMIT ) );
+                s_computerTaskQueues.put( computer, queue = new LinkedBlockingQueue<>( QUEUE_LIMIT ) );
             }
         }
 

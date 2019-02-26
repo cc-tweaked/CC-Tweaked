@@ -12,9 +12,6 @@ import dan200.computercraft.api.lua.ILuaAPI;
 import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.peripheral.IPeripheral;
-import dan200.computercraft.core.computer.Computer;
-import dan200.computercraft.core.computer.ComputerThread;
-import dan200.computercraft.core.computer.ITask;
 import dan200.computercraft.core.tracking.TrackingField;
 
 import javax.annotation.Nonnull;
@@ -256,65 +253,21 @@ public class PeripheralAPI implements ILuaAPI, IAPIEnvironment.IPeripheralChange
             {
                 // Queue a detachment
                 final PeripheralWrapper wrapper = m_peripherals[side];
-                ComputerThread.queueTask( new ITask()
-                {
-                    @Override
-                    public Computer getOwner()
-                    {
-                        return m_environment.getComputer();
-                    }
-
-                    @Override
-                    public void execute()
-                    {
-                        synchronized( m_peripherals )
-                        {
-                            if( wrapper.isAttached() )
-                            {
-                                wrapper.detach();
-                            }
-                        }
-                    }
-                }, null );
+                if( wrapper.isAttached() ) wrapper.detach();
 
                 // Queue a detachment event
                 m_environment.queueEvent( "peripheral_detach", new Object[] { IAPIEnvironment.SIDE_NAMES[side] } );
             }
 
             // Assign the new peripheral
-            if( newPeripheral != null )
-            {
-                m_peripherals[side] = new PeripheralWrapper( newPeripheral, IAPIEnvironment.SIDE_NAMES[side] );
-            }
-            else
-            {
-                m_peripherals[side] = null;
-            }
+            m_peripherals[side] = newPeripheral == null ? null
+                : new PeripheralWrapper( newPeripheral, IAPIEnvironment.SIDE_NAMES[side] );
 
             if( m_peripherals[side] != null )
             {
                 // Queue an attachment
                 final PeripheralWrapper wrapper = m_peripherals[side];
-                ComputerThread.queueTask( new ITask()
-                {
-                    @Override
-                    public Computer getOwner()
-                    {
-                        return m_environment.getComputer();
-                    }
-
-                    @Override
-                    public void execute()
-                    {
-                        synchronized( m_peripherals )
-                        {
-                            if( m_running && !wrapper.isAttached() )
-                            {
-                                wrapper.attach();
-                            }
-                        }
-                    }
-                }, null );
+                if( m_running && !wrapper.isAttached() ) wrapper.attach();
 
                 // Queue an attachment event
                 m_environment.queueEvent( "peripheral", new Object[] { IAPIEnvironment.SIDE_NAMES[side] } );
@@ -341,10 +294,7 @@ public class PeripheralAPI implements ILuaAPI, IAPIEnvironment.IPeripheralChange
             for( int i = 0; i < 6; i++ )
             {
                 PeripheralWrapper wrapper = m_peripherals[i];
-                if( wrapper != null && !wrapper.isAttached() )
-                {
-                    wrapper.attach();
-                }
+                if( wrapper != null && !wrapper.isAttached() ) wrapper.attach();
             }
         }
     }

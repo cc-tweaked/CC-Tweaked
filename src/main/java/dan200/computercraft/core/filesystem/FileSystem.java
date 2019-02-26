@@ -330,7 +330,7 @@ public class FileSystem
         mountWritable( rootLabel, "", rootMount );
     }
 
-    public void unload()
+    public void close()
     {
         // Close all dangling open files
         synchronized( m_openFiles )
