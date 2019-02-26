@@ -196,12 +196,12 @@ public class CobaltLuaMachine implements ILuaMachine
         }
         catch( CompileException e )
         {
-            unload();
+            close();
         }
         catch( IOException e )
         {
             ComputerCraft.log.warn( "Could not load bios.lua ", e );
-            unload();
+            close();
         }
     }
 
@@ -229,11 +229,11 @@ public class CobaltLuaMachine implements ILuaMachine
             LuaValue filter = results.first();
             m_eventFilter = filter.isString() ? filter.toString() : null;
 
-            if( m_mainRoutine.getStatus().equals( "dead" ) ) unload();
+            if( m_mainRoutine.getStatus().equals( "dead" ) ) close();
         }
         catch( LuaError | HardAbortError | InterruptedException e )
         {
-            unload();
+            close();
             ComputerCraft.log.warn( "Top level coroutine errored", e );
         }
         finally
@@ -275,7 +275,7 @@ public class CobaltLuaMachine implements ILuaMachine
     }
 
     @Override
-    public void unload()
+    public void close()
     {
         if( m_state == null ) return;
 
@@ -348,6 +348,7 @@ public class CobaltLuaMachine implements ILuaMachine
                                     final long taskID = MainThread.getUniqueTaskID();
                                     final ITask iTask = new ITask()
                                     {
+                                        @Nonnull
                                         @Override
                                         public Computer getOwner()
                                         {
