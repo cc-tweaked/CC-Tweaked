@@ -4,17 +4,20 @@ if not commands then
 end
 native = commands.native or commands
 
-local function collapseArgs( errorDepth, bJSONIsNBT, arg1, ... )
-    if arg1 ~= nil then
-        if type(arg1) == "boolean" or type(arg1) == "number" or type(arg1) == "string" then
-            return tostring(arg1) .. " " .. collapseArgs( errorDepth + 1, bJSONIsNBT, ... )
-        elseif type(arg1) == "table" then
-            return textutils.serialiseJSON( arg1, bJSONIsNBT ) .. " " .. collapseArgs( errorDepth + 1, bJSONIsNBT, ... )
+local function collapseArgs( bJSONIsNBT, ... )
+    local args = table.pack(...)
+    for i = 1, #args do
+        local arg = args[i]
+        if type(arg) == "boolean" or type(arg) == "number" or type(arg) == "string" then
+            args[i] = tostring(arg)
+        elseif type(arg) == "table" then
+            args[i] = textutils.serialiseJSON( arg, bJSONIsNBT )
         else
-            error( "Expected string, number, boolean or table", errorDepth )
+            error( "Expected string, number, boolean or table", 3 )
         end
     end
-    return ""
+
+    return table.concat(args, " ")
 end
 
 -- Put native functions into the environment
@@ -34,11 +37,11 @@ for n,sCommandName in ipairs(tCommands) do
     if env[ sCommandName ] == nil then
         local bJSONIsNBT = (tNonNBTJSONCommands[ sCommandName ] == nil)
         env[ sCommandName ] = function( ... )
-            local sCommand = sCommandName .. " " .. collapseArgs( 3, bJSONIsNBT, ... )
+            local sCommand = collapseArgs( bJSONIsNBT, sCommandName, ... )
             return native.exec( sCommand )
         end
         tAsync[ sCommandName ] = function( ... )
-            local sCommand = sCommandName .. " " .. collapseArgs( 3, bJSONIsNBT, ... )
+            local sCommand = collapseArgs( bJSONIsNBT, sCommandName, ... )
             return native.execAsync( sCommand )
         end
     end
