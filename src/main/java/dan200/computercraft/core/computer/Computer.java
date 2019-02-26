@@ -50,6 +50,7 @@ public class Computer
 
     private ILuaMachine m_machine = null;
     private final List<ILuaAPI> m_apis = new ArrayList<>();
+    final TimeoutState timeout = new TimeoutState();
     private final Environment m_internalEnvironment = new Environment( this );
 
     private final Terminal m_terminal;
@@ -129,24 +130,6 @@ public class Computer
         synchronized( this )
         {
             return m_state == State.Running;
-        }
-    }
-
-    public void abort( boolean hard )
-    {
-        synchronized( this )
-        {
-            if( m_state != State.Off && m_machine != null )
-            {
-                if( hard )
-                {
-                    m_machine.hardAbort( "Too long without yielding" );
-                }
-                else
-                {
-                    m_machine.softAbort( "Too long without yielding" );
-                }
-            }
         }
     }
 
@@ -284,7 +267,7 @@ public class Computer
     private void initLua()
     {
         // Create the lua machine
-        ILuaMachine machine = new CobaltLuaMachine( this );
+        ILuaMachine machine = new CobaltLuaMachine( this, timeout );
 
         // Add the APIs
         for( ILuaAPI api : m_apis )
@@ -419,6 +402,18 @@ public class Computer
                 }
             }
         } );
+    }
+
+    /**
+     * Abort this whole computer due to a timeout. This will immediately destroy the Lua machine,
+     * and then schedule a shutdown.
+     */
+    void abort()
+    {
+        // TODO: We need to test this much more thoroughly.
+        ILuaMachine machine = m_machine;
+        if( machine != null ) machine.close();
+        shutdown();
     }
 
     private void stopComputer( final boolean reboot )

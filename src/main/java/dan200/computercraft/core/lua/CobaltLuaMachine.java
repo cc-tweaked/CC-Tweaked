@@ -11,6 +11,7 @@ import dan200.computercraft.api.lua.*;
 import dan200.computercraft.core.computer.Computer;
 import dan200.computercraft.core.computer.ITask;
 import dan200.computercraft.core.computer.MainThread;
+import dan200.computercraft.core.computer.TimeoutState;
 import dan200.computercraft.core.tracking.Tracking;
 import dan200.computercraft.core.tracking.TrackingField;
 import dan200.computercraft.shared.util.ThreadUtils;
@@ -29,7 +30,6 @@ import org.squiddev.cobalt.lib.platform.VoidResourceManipulator;
 import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
@@ -44,7 +44,7 @@ import static org.squiddev.cobalt.ValueFactory.varargsOf;
 
 public class CobaltLuaMachine implements ILuaMachine
 {
-    private static final ThreadPoolExecutor coroutines = new ThreadPoolExecutor(
+    private static final ThreadPoolExecutor COROUTINES = new ThreadPoolExecutor(
         0, Integer.MAX_VALUE,
         5L, TimeUnit.MINUTES,
         new SynchronousQueue<>(),
@@ -52,18 +52,18 @@ public class CobaltLuaMachine implements ILuaMachine
     );
 
     private final Computer m_computer;
+    private final TimeoutState timeout;
 
     private LuaState m_state;
     private LuaTable m_globals;
-    private LuaThread m_mainRoutine;
 
-    private String m_eventFilter;
-    private String m_softAbortMessage;
-    private String m_hardAbortMessage;
+    private LuaThread m_mainRoutine = null;
+    private String m_eventFilter = null;
 
-    public CobaltLuaMachine( Computer computer )
+    public CobaltLuaMachine( Computer computer, TimeoutState timeout )
     {
         m_computer = computer;
+        this.timeout = timeout;
 
         // Create an environment to run in
         LuaState state = this.m_state = LuaState.builder()
@@ -76,50 +76,42 @@ public class CobaltLuaMachine implements ILuaMachine
                 @Override
                 public void onInstruction( DebugState ds, DebugFrame di, int pc ) throws LuaError, UnwindThrowable
                 {
-                    int count = ++this.count;
-                    if( count > 100000 )
-                    {
-                        if( m_hardAbortMessage != null ) throw HardAbortError.INSTANCE;
-                        this.count = 0;
-                    }
-                    else
-                    {
-                        handleSoftAbort();
-                    }
-
+                    // We check our current abort state every so 128 instructions.
+                    if( (count = (count + 1) & 127) == 0 ) handleAbort();
                     super.onInstruction( ds, di, pc );
                 }
 
                 @Override
                 public void poll() throws LuaError
                 {
-                    if( m_hardAbortMessage != null ) throw HardAbortError.INSTANCE;
-                    handleSoftAbort();
+                    handleAbort();
                 }
 
-                private void handleSoftAbort() throws LuaError
+                private void handleAbort() throws LuaError
                 {
+                    // If we've been hard aborted or closed then abort.
+                    if( timeout.isHardAborted() || m_state == null ) throw HardAbortError.INSTANCE;
+
                     // If the soft abort has been cleared then we can reset our flags and continue.
-                    String message = m_softAbortMessage;
-                    if( message == null )
+                    if( !timeout.isSoftAborted() )
                     {
                         hasSoftAbort = false;
                         return;
                     }
 
-                    if( hasSoftAbort && m_hardAbortMessage == null )
+                    if( hasSoftAbort && !timeout.isHardAborted() )
                     {
                         // If we have fired our soft abort, but we haven't been hard aborted then everything is OK.
                         return;
                     }
 
                     hasSoftAbort = true;
-                    throw new LuaError( message );
+                    throw new LuaError( TimeoutState.ABORT_MESSAGE );
                 }
             } )
             .coroutineExecutor( command -> {
                 Tracking.addValue( m_computer, TrackingField.COROUTINES_CREATED, 1 );
-                coroutines.execute( () -> {
+                COROUTINES.execute( () -> {
                     try
                     {
                         command.run();
@@ -145,7 +137,7 @@ public class CobaltLuaMachine implements ILuaMachine
         if( ComputerCraft.debug_enable ) m_globals.load( state, new DebugLib() );
 
         // Register custom load/loadstring provider which automatically adds prefixes.
-        m_globals.rawset( "load", new PrefixWrapperFunction( m_globals.rawget( "load" ), 0 )) ;
+        m_globals.rawset( "load", new PrefixWrapperFunction( m_globals.rawget( "load" ), 0 ) );
         m_globals.rawset( "loadstring", new PrefixWrapperFunction( m_globals.rawget( "loadstring" ), 1 ) );
 
         // Remove globals we don't want to expose
@@ -162,13 +154,6 @@ public class CobaltLuaMachine implements ILuaMachine
         {
             m_globals.rawset( "_CC_DISABLE_LUA51_FEATURES", Constants.TRUE );
         }
-
-        // Our main function will go here
-        m_mainRoutine = null;
-        m_eventFilter = null;
-
-        m_softAbortMessage = null;
-        m_hardAbortMessage = null;
     }
 
     @Override
@@ -224,7 +209,7 @@ public class CobaltLuaMachine implements ILuaMachine
             }
 
             Varargs results = LuaThread.run( m_mainRoutine, resumeArgs );
-            if( m_hardAbortMessage != null ) throw new LuaError( m_hardAbortMessage );
+            if( timeout.isHardAborted() ) throw new LuaError( TimeoutState.ABORT_MESSAGE );
 
             LuaValue filter = results.first();
             m_eventFilter = filter.isString() ? filter.toString() : null;
@@ -236,36 +221,6 @@ public class CobaltLuaMachine implements ILuaMachine
             close();
             ComputerCraft.log.warn( "Top level coroutine errored", e );
         }
-        finally
-        {
-            m_softAbortMessage = null;
-            m_hardAbortMessage = null;
-        }
-    }
-
-    @Override
-    public void softAbort( String abortMessage )
-    {
-        m_softAbortMessage = abortMessage;
-    }
-
-    @Override
-    public void hardAbort( String abortMessage )
-    {
-        m_softAbortMessage = abortMessage;
-        m_hardAbortMessage = abortMessage;
-    }
-
-    @Override
-    public boolean saveState( OutputStream output )
-    {
-        return false;
-    }
-
-    @Override
-    public boolean restoreState( InputStream input )
-    {
-        return false;
     }
 
     @Override
@@ -277,9 +232,10 @@ public class CobaltLuaMachine implements ILuaMachine
     @Override
     public void close()
     {
-        if( m_state == null ) return;
+        LuaState state = m_state;
+        if( state == null ) return;
 
-        m_state.abandon();
+        state.abandon();
         m_mainRoutine = null;
         m_state = null;
         m_globals = null;
@@ -639,8 +595,9 @@ public class CobaltLuaMachine implements ILuaMachine
 
         private final LibFunction underlying;
 
-        public PrefixWrapperFunction(LuaValue wrap, int opcode) {
-            LibFunction underlying = (LibFunction)wrap;
+        public PrefixWrapperFunction( LuaValue wrap, int opcode )
+        {
+            LibFunction underlying = (LibFunction) wrap;
 
             this.underlying = underlying;
             this.opcode = opcode;
@@ -661,7 +618,7 @@ public class CobaltLuaMachine implements ILuaMachine
                     {
                         chunkname = OperationHelper.concat( EQ_STR, chunkname );
                     }
-                    return underlying.invoke(state, varargsOf(func, chunkname));
+                    return underlying.invoke( state, varargsOf( func, chunkname ) );
                 }
                 case 1: // "loadstring", // ( string [,chunkname] ) -> chunk | nil, msg
                 {
@@ -671,7 +628,7 @@ public class CobaltLuaMachine implements ILuaMachine
                     {
                         chunkname = OperationHelper.concat( EQ_STR, chunkname );
                     }
-                    return underlying.invoke(state, varargsOf(script, chunkname));
+                    return underlying.invoke( state, varargsOf( script, chunkname ) );
                 }
             }
 
