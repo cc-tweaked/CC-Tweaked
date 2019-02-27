@@ -163,7 +163,7 @@ public final class CommandComputerCraft extends CommandDelegate
                     for( ServerComputer computer : computers )
                     {
                         if( computer.isOn() ) shutdown++;
-                        computer.unload();
+                        computer.shutdown();
                     }
                     context.getSender().sendMessage( text( "Shutdown " + shutdown + " / " + computers.size() + " computers" ) );
                 } );
