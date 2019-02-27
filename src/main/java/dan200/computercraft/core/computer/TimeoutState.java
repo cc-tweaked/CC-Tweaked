@@ -6,6 +6,8 @@
 
 package dan200.computercraft.core.computer;
 
+import java.util.concurrent.TimeUnit;
+
 /**
  * Used to measure how long a computer has executed for, and thus the relevant timeout states.
  *
@@ -26,27 +28,21 @@ package dan200.computercraft.core.computer;
 public final class TimeoutState
 {
     /**
-     * The total time a task is allowed to run before aborting in milliseconds
+     * The total time a task is allowed to run before aborting in nanoseconds
      */
-    static final long TIMEOUT = 7000;
+    static final long TIMEOUT = TimeUnit.MILLISECONDS.toNanos( 7000 );
 
     /**
-     * The time the task is allowed to run after each abort in milliseconds
+     * The time the task is allowed to run after each abort in nanoseconds
      */
-    static final long ABORT_TIMEOUT = 1500;
+    static final long ABORT_TIMEOUT = TimeUnit.MILLISECONDS.toNanos( 1500 );
 
     public static final String ABORT_MESSAGE = "Too long without yielding";
 
     private volatile boolean softAbort;
     private volatile boolean hardAbort;
 
-    private long milliTime;
     private long nanoTime;
-
-    long milliSinceStart()
-    {
-        return System.currentTimeMillis() - milliTime;
-    }
 
     long nanoSinceStart()
     {
@@ -58,7 +54,7 @@ public final class TimeoutState
      */
     public boolean isSoftAborted()
     {
-        return softAbort || (softAbort = (System.currentTimeMillis() - milliTime) >= TIMEOUT);
+        return softAbort || (softAbort = (System.nanoTime() - nanoTime) >= TIMEOUT);
     }
 
     /**
@@ -83,7 +79,6 @@ public final class TimeoutState
     void reset()
     {
         softAbort = hardAbort = false;
-        milliTime = System.currentTimeMillis();
         nanoTime = System.nanoTime();
     }
 }

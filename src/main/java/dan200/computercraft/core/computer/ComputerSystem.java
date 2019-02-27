@@ -18,7 +18,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
- * Implementation of {@link IComputerAccess}/{@link IComputerSystem} for external APIs.
+ * Implementation of {@link IComputerAccess}/{@link IComputerSystem} for usage by externally registered APIs.
  *
  * @see dan200.computercraft.api.ComputerCraftAPI#registerAPIFactory(ILuaAPIFactory)
  * @see ILuaAPIFactory

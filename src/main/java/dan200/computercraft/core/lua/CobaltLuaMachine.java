@@ -99,11 +99,8 @@ public class CobaltLuaMachine implements ILuaMachine
                         return;
                     }
 
-                    if( hasSoftAbort && !timeout.isHardAborted() )
-                    {
-                        // If we have fired our soft abort, but we haven't been hard aborted then everything is OK.
-                        return;
-                    }
+                    // If we have fired our soft abort, but we haven't been hard aborted then everything is OK.
+                    if( hasSoftAbort ) return;
 
                     hasSoftAbort = true;
                     throw new LuaError( TimeoutState.ABORT_MESSAGE );
@@ -157,7 +154,7 @@ public class CobaltLuaMachine implements ILuaMachine
     }
 
     @Override
-    public void addAPI( ILuaAPI api )
+    public void addAPI( @Nonnull ILuaAPI api )
     {
         // Add the methods of an API to the global table
         LuaTable table = wrapLuaObject( api );
@@ -169,7 +166,7 @@ public class CobaltLuaMachine implements ILuaMachine
     }
 
     @Override
-    public void loadBios( InputStream bios )
+    public void loadBios( @Nonnull InputStream bios )
     {
         // Begin executing a file (ie, the bios)
         if( m_mainRoutine != null ) return;

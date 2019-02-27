@@ -7,6 +7,7 @@
 package dan200.computercraft.shared.util;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import dan200.computercraft.ComputerCraft;
 
 import java.util.concurrent.ThreadFactory;
 
@@ -58,6 +59,7 @@ public final class ThreadUtils
         return new ThreadFactoryBuilder()
             .setDaemon( true )
             .setNameFormat( group.getName().replace( "%", "%%" ) + "-%d" )
+            .setUncaughtExceptionHandler( ( t, e ) -> ComputerCraft.log.error( "Exception in thread " + t.getName(), e ) )
             .setThreadFactory( x -> new Thread( group, x ) );
     }
 

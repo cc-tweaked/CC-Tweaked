@@ -225,7 +225,6 @@ final class ComputerExecutor
      */
     void abort()
     {
-        // TODO: We need to test this much more thoroughly.
         ILuaMachine machine = this.machine;
         if( machine != null ) machine.close();
 

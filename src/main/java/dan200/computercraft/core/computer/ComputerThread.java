@@ -24,8 +24,6 @@ import static dan200.computercraft.core.computer.TimeoutState.TIMEOUT;
  *
  * This is split into two components: the {@link TaskRunner}s, which pull an executor from the queue and execute it, and
  * a single {@link Monitor} which observes all runners and kills them if they are behaving badly.
- *
- * TODO: Flesh out the documentation here.
  */
 public class ComputerThread
 {
@@ -95,7 +93,7 @@ public class ComputerThread
     }
 
     /**
-     * Attempt to stop the computer thread
+     * Attempt to stop the computer thread. This interrupts each runner, and clears the task queue.
      */
     public static void stop()
     {
@@ -160,7 +158,7 @@ public class ComputerThread
 
                             // If we're still within normal execution times (TIMEOUT) or soft abort (ABORT_TIMEOUT),
                             // then we can let the Lua machine do its work.
-                            long afterStart = executor.timeout.milliSinceStart();
+                            long afterStart = executor.timeout.nanoSinceStart();
                             long afterHardAbort = afterStart - TIMEOUT - ABORT_TIMEOUT;
                             if( afterHardAbort < 0 ) continue;
 
@@ -168,7 +166,7 @@ public class ComputerThread
                             executor.timeout.hardAbort();
                             executor.abort();
 
-                            if( afterHardAbort >= ABORT_TIMEOUT + ABORT_TIMEOUT )
+                            if( afterHardAbort >= ABORT_TIMEOUT * 2 )
                             {
                                 // If we've hard aborted and interrupted, and we're still not dead, then mark the runner
                                 // as dead, finish off the task, and spawn a new runner.
@@ -206,6 +204,10 @@ public class ComputerThread
 
     /**
      * Pulls tasks from the {@link #computersActive} queue and runs them.
+     *
+     * This is responsible for running the {@link ComputerExecutor#work()}, {@link ComputerExecutor#beforeWork()} and
+     * {@link ComputerExecutor#afterWork()} functions. Everything else is either handled by the executor, timeout
+     * state or monitor.
      */
     private static final class TaskRunner implements Runnable
     {
