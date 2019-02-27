@@ -86,7 +86,7 @@ public class BasicEnvironment implements IComputerEnvironment
     {
         File file = getContainingFile();
 
-        String path = "assets/" + domain + "/" + subPath;
+        String path = "data/" + domain + "/" + subPath;
 
         if( file.isFile() )
         {
@@ -120,7 +120,7 @@ public class BasicEnvironment implements IComputerEnvironment
     @Override
     public InputStream createResourceFile( String domain, String subPath )
     {
-        return ComputerCraft.class.getClassLoader().getResourceAsStream( "assets/" + domain + "/" + subPath );
+        return ComputerCraft.class.getClassLoader().getResourceAsStream( "data/" + domain + "/" + subPath );
     }
 
     private static File getContainingFile()
