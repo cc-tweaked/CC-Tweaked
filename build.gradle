@@ -80,7 +80,7 @@ configurations {
 }
 
 dependencies {
-    minecraft "net.minecraftforge:forge:${mc_version}-25.0.52"
+    minecraft "net.minecraftforge:forge:${mc_version}-25.0.59"
 
     // deobfProvided "mezz.jei:jei_1.12.2:4.8.5.159:api"
     // deobfProvided "pl.asie:Charset-Lib:0.5.4.6"

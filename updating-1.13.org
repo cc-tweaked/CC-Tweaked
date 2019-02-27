@@ -1,5 +1,5 @@
-* Remaining changes [7/16]
-** TODO [#A] ClientRegistry
+* Remaining changes [8/16]
+** DONE [#A] ClientRegistry
    - Turtle model
    - loadModel
 

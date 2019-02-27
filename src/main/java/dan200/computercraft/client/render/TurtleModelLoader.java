@@ -26,9 +26,9 @@ import java.util.stream.Collectors;
 
 public class TurtleModelLoader implements ICustomModelLoader
 {
-    private static final ResourceLocation NORMAL_TURTLE_MODEL = new ResourceLocation( ComputerCraft.MOD_ID, "models/block/turtle_normal" );
-    private static final ResourceLocation ADVANCED_TURTLE_MODEL = new ResourceLocation( ComputerCraft.MOD_ID, "models/block/turtle_advanced" );
-    private static final ResourceLocation COLOUR_TURTLE_MODEL = new ResourceLocation( ComputerCraft.MOD_ID, "models/block/turtle_colour" );
+    private static final ResourceLocation NORMAL_TURTLE_MODEL = new ResourceLocation( ComputerCraft.MOD_ID, "block/turtle_normal" );
+    private static final ResourceLocation ADVANCED_TURTLE_MODEL = new ResourceLocation( ComputerCraft.MOD_ID, "block/turtle_advanced" );
+    private static final ResourceLocation COLOUR_TURTLE_MODEL = new ResourceLocation( ComputerCraft.MOD_ID, "block/turtle_colour" );
 
     public static final TurtleModelLoader INSTANCE = new TurtleModelLoader();
 
@@ -44,13 +44,8 @@ public class TurtleModelLoader implements ICustomModelLoader
     @Override
     public boolean accepts( @Nonnull ResourceLocation name )
     {
-        if( name.getNamespace().equals( ComputerCraft.MOD_ID ) )
-        {
-            ComputerCraft.log.info( "Could load", name.getPath() );
-        }
-
         return name.getNamespace().equals( ComputerCraft.MOD_ID )
-            && (name.getPath().equals( "models/item/turtle" ) || name.getPath().equals( "models/item/turtle_advanced" ));
+            && (name.getPath().equals( "item/turtle_normal" ) || name.getPath().equals( "item/turtle_advanced" ));
     }
 
     @Nonnull
@@ -61,9 +56,9 @@ public class TurtleModelLoader implements ICustomModelLoader
         {
             switch( name.getPath() )
             {
-                case "models/item/turtle_normal":
+                case "item/turtle_normal":
                     return new TurtleModel( NORMAL_TURTLE_MODEL );
-                case "models/item/turtle_advanced":
+                case "item/turtle_advanced":
                     return new TurtleModel( ADVANCED_TURTLE_MODEL );
             }
         }

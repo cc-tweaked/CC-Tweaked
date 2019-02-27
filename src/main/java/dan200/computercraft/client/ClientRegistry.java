@@ -10,22 +10,26 @@ import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.client.render.TurtleModelLoader;
 import dan200.computercraft.shared.common.IColouredItem;
 import dan200.computercraft.shared.pocket.items.ItemPocketComputer;
-import dan200.computercraft.shared.util.Colour;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.color.IItemColor;
 import net.minecraft.client.renderer.model.IBakedModel;
+import net.minecraft.client.renderer.model.IUnbakedModel;
 import net.minecraft.client.renderer.model.ModelResourceLocation;
 import net.minecraft.client.renderer.model.ModelRotation;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraft.resources.IResourceManager;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.ColorHandlerEvent;
 import net.minecraftforge.client.event.ModelBakeEvent;
 import net.minecraftforge.client.event.ModelRegistryEvent;
+import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.client.model.ModelLoaderRegistry;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+
+import java.util.HashSet;
+import java.util.Map;
 
 /**
  * Registers textures and models for items.
@@ -54,6 +58,14 @@ public class ClientRegistry
         "turtle_elf_overlay",
     };
 
+    private static final String[] EXTRA_TEXTURES = new String[] {
+        // TODO: Gather these automatically from the model when Forge's model loading is less broken.
+        "block/turtle_colour",
+        "block/turtle_elf_overlay",
+        "block/turtle_crafty_face",
+        "block/turtle_speaker_face",
+    };
+
     @SubscribeEvent
     public static void registerModels( ModelRegistryEvent event )
     {
@@ -61,10 +73,45 @@ public class ClientRegistry
     }
 
     @SubscribeEvent
+    public static void onTextureStitchEvent( TextureStitchEvent.Pre event )
+    {
+        IResourceManager manager = Minecraft.getInstance().getResourceManager();
+        for( String extra : EXTRA_TEXTURES )
+        {
+            event.getMap().registerSprite( manager, new ResourceLocation( ComputerCraft.MOD_ID, extra ) );
+        }
+    }
+
+    @SubscribeEvent
     public static void onModelBakeEvent( ModelBakeEvent event )
     {
         // Load all extra models
-        for( String model : EXTRA_MODELS ) loadItemModel( event, model );
+        ModelLoader loader = event.getModelLoader();
+        Map<ModelResourceLocation, IBakedModel> registry = event.getModelRegistry();
+
+        for( String model : EXTRA_MODELS )
+        {
+            IBakedModel bakedModel = bake( loader, loader.getUnbakedModel( new ResourceLocation( ComputerCraft.MOD_ID, "item/" + model ) ) );
+
+            if( bakedModel != null )
+            {
+                registry.put(
+                    new ModelResourceLocation( new ResourceLocation( ComputerCraft.MOD_ID, model ), "inventory" ),
+                    bakedModel
+                );
+            }
+        }
+
+        // And load the custom turtle models in too.
+        registry.put(
+            new ModelResourceLocation( new ResourceLocation( ComputerCraft.MOD_ID, "turtle_normal" ), "inventory" ),
+            bake( loader, TurtleModelLoader.INSTANCE.loadModel( new ResourceLocation( ComputerCraft.MOD_ID, "item/turtle_normal" ) ) )
+        );
+
+        registry.put(
+            new ModelResourceLocation( new ResourceLocation( ComputerCraft.MOD_ID, "turtle_advanced" ), "inventory" ),
+            bake( loader, TurtleModelLoader.INSTANCE.loadModel( new ResourceLocation( ComputerCraft.MOD_ID, "item/turtle_advanced" ) ) )
+        );
     }
 
     @SubscribeEvent
@@ -95,20 +142,14 @@ public class ClientRegistry
         }, ComputerCraft.Blocks.turtleNormal, ComputerCraft.Blocks.turtleAdvanced );
     }
 
-    private static void loadItemModel( ModelBakeEvent event, String name )
+    private static IBakedModel bake( ModelLoader loader, IUnbakedModel model )
     {
-        ModelLoader loader = event.getModelLoader();
-        IBakedModel bakedModel = loader
-            .getUnbakedModel( new ResourceLocation( ComputerCraft.MOD_ID, "item/" + name ) )
-            .bake(
-                loader::getUnbakedModel,
-                Minecraft.getInstance().getTextureMap()::getSprite,
-                ModelRotation.X0_Y0, false, DefaultVertexFormats.BLOCK
-            );
+        model.getTextures( loader::getUnbakedModel, new HashSet<>() );
 
-        if( bakedModel != null )
-        {
-            event.getModelRegistry().put( new ModelResourceLocation( ComputerCraft.MOD_ID + ":" + name, "inventory" ), bakedModel );
-        }
+        return model.bake(
+            loader::getUnbakedModel,
+            ModelLoader.defaultTextureGetter(),
+            ModelRotation.X0_Y0, false, DefaultVertexFormats.BLOCK
+        );
     }
 }

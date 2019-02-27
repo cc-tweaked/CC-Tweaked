@@ -13,7 +13,6 @@ import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.core.apis.ArgumentHelper;
 import dan200.computercraft.core.filesystem.MemoryMount;
 import dan200.computercraft.core.terminal.Terminal;
-import org.apache.logging.log4j.LogManager;
 import org.junit.Assert;
 
 import javax.annotation.Nonnull;
@@ -35,7 +34,6 @@ public class ComputerBootstrap
     public static void run( String program, int shutdownAfter )
     {
         ComputerCraft.logPeripheralErrors = true;
-        ComputerCraft.log = LogManager.getLogger( ComputerCraft.MOD_ID );
 
         MemoryMount mount = new MemoryMount()
             .addFile( "test.lua", program )
