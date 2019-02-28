@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.lang.ref.Reference;
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
+import java.nio.channels.Channel;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
 import java.nio.file.AccessDeniedException;
@@ -317,7 +318,7 @@ public class FileSystem
     private final FileSystemWrapperMount m_wrapper = new FileSystemWrapperMount( this );
     private final Map<String, MountWrapper> m_mounts = new HashMap<>();
 
-    private final HashMap<WeakReference<FileSystemWrapper<?>>, Closeable> m_openFiles = new HashMap<>();
+    private final HashMap<WeakReference<FileSystemWrapper<?>>, ChannelWrapper<?>> m_openFiles = new HashMap<>();
     private final ReferenceQueue<FileSystemWrapper<?>> m_openFileQueue = new ReferenceQueue<>();
 
     public FileSystem( String rootLabel, IMount rootMount ) throws FileSystemException
@@ -661,7 +662,7 @@ public class FileSystem
         }
     }
 
-    private synchronized <T extends Closeable> FileSystemWrapper<T> openFile( @Nonnull T file ) throws FileSystemException
+    private synchronized <T extends Closeable> FileSystemWrapper<T> openFile( @Nonnull Channel channel, @Nonnull T file ) throws FileSystemException
     {
         synchronized( m_openFiles )
         {
@@ -669,12 +670,14 @@ public class FileSystem
                 m_openFiles.size() >= ComputerCraft.maximumFilesOpen )
             {
                 IoUtil.closeQuietly( file );
+                IoUtil.closeQuietly( channel );
                 throw new FileSystemException( "Too many files already open" );
             }
 
-            FileSystemWrapper<T> wrapper = new FileSystemWrapper<>( this, file, m_openFileQueue );
-            m_openFiles.put( wrapper.self, file );
-            return wrapper;
+            ChannelWrapper<T> channelWrapper = new ChannelWrapper<T>( file, channel );
+            FileSystemWrapper<T> fsWrapper = new FileSystemWrapper<>( this, channelWrapper, m_openFileQueue );
+            m_openFiles.put( fsWrapper.self, channelWrapper );
+            return fsWrapper;
         }
     }
 
@@ -695,7 +698,7 @@ public class FileSystem
         ReadableByteChannel channel = mount.openForRead( path );
         if( channel != null )
         {
-            return openFile( open.apply( channel ) );
+            return openFile( channel, open.apply( channel ) );
         }
         return null;
     }
@@ -709,7 +712,7 @@ public class FileSystem
         WritableByteChannel channel = append ? mount.openForAppend( path ) : mount.openForWrite( path );
         if( channel != null )
         {
-            return openFile( open.apply( channel ) );
+            return openFile( channel, open.apply( channel ) );
         }
         return null;
     }

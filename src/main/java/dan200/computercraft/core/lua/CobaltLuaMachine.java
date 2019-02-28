@@ -213,7 +213,11 @@ public class CobaltLuaMachine implements ILuaMachine
 
             if( m_mainRoutine.getStatus().equals( "dead" ) ) close();
         }
-        catch( LuaError | HardAbortError | InterruptedException e )
+        catch( HardAbortError | InterruptedException e )
+        {
+            close();
+        }
+        catch( LuaError e )
         {
             close();
             ComputerCraft.log.warn( "Top level coroutine errored", e );
