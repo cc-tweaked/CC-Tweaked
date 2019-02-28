@@ -38,27 +38,27 @@ public interface ILuaMachine
 
     /**
      * Create a function from the provided program, and set it up to run when {@link #handleEvent(String, Object[])} is
-     * called
+     * called.
+     *
+     * This should destroy the machine if it failed to load the bios.
      *
      * @param bios The stream containing the boot program.
+     * @return The result of loading this machine. Will either be OK, or the error message when loading the bios.
      */
-    void loadBios( @Nonnull InputStream bios );
+    MachineResult loadBios( @Nonnull InputStream bios );
 
     /**
      * Resume the machine, either starting or resuming the coroutine.
      *
+     * This should destroy the machine if it failed to execute successfully.
+     *
      * @param eventName The name of the event. This is {@code null} when first starting the machine. Note, this may
      *                  do nothing if it does not match the event filter.
      * @param arguments The arguments for this event.
+     * @return The result of loading this machine. Will either be OK, or the error message that occurrred when
+     * executing.
      */
-    void handleEvent( @Nullable String eventName, @Nullable Object[] arguments );
-
-    /**
-     * If this machine has finished executing, either due to an error or it just shutting down.
-     *
-     * @return If this machine is finished.
-     */
-    boolean isFinished();
+    MachineResult handleEvent( @Nullable String eventName, @Nullable Object[] arguments );
 
     /**
      * Close the Lua machine, aborting any running functions and deleting the internal state.

@@ -16,8 +16,10 @@ import dan200.computercraft.core.filesystem.FileSystem;
 import dan200.computercraft.core.filesystem.FileSystemException;
 import dan200.computercraft.core.lua.CobaltLuaMachine;
 import dan200.computercraft.core.lua.ILuaMachine;
+import dan200.computercraft.core.lua.MachineResult;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.core.tracking.Tracking;
+import dan200.computercraft.shared.util.Colour;
 import dan200.computercraft.shared.util.IoUtil;
 
 import javax.annotation.Nonnull;
@@ -183,7 +185,7 @@ final class ComputerExecutor
         synchronized( queueLock )
         {
             // We should only schedule a start if we're not currently on and there's turn on.
-            if( closed || isOn || this.command != null ) return;
+            if( closed || isOn || command != null ) return;
 
             command = StateCommand.TURN_ON;
             enqueue();
@@ -327,7 +329,7 @@ final class ComputerExecutor
             IMount romMount = getRomMount();
             if( romMount == null )
             {
-                displayFailure( "Cannot mount rom" );
+                displayFailure( "Cannot mount ROM", null );
                 return null;
             }
 
@@ -339,7 +341,7 @@ final class ComputerExecutor
             if( filesystem != null ) filesystem.close();
             ComputerCraft.log.error( "Cannot mount computer filesystem", e );
 
-            displayFailure( "Cannot mount computer system" );
+            displayFailure( "Cannot mount computer system", null );
             return null;
         }
     }
@@ -358,7 +360,7 @@ final class ComputerExecutor
 
         if( biosStream == null )
         {
-            displayFailure( "Error loading bios.lua" );
+            displayFailure( "Error loading bios.lua", null );
             return null;
         }
 
@@ -369,13 +371,13 @@ final class ComputerExecutor
         for( ILuaAPI api : apis ) machine.addAPI( api );
 
         // Start the machine running the bios resource
-        machine.loadBios( biosStream );
+        MachineResult result = machine.loadBios( biosStream );
         IoUtil.closeQuietly( biosStream );
 
-        if( machine.isFinished() )
+        if( result.isError() )
         {
             machine.close();
-            displayFailure( "Error starting bios.lua" );
+            displayFailure( "Error loading bios.lua", result.getMessage() );
             return null;
         }
 
@@ -421,7 +423,7 @@ final class ComputerExecutor
         }
 
         // Now actually start the computer, now that everything is set up.
-        machine.handleEvent( null, null );
+        resumeMachine( null, null );
     }
 
     private void shutdown() throws InterruptedException
@@ -556,19 +558,14 @@ final class ComputerExecutor
 
                     case ABORT:
                         if( !isOn ) return;
-                        displayFailure( TimeoutState.ABORT_MESSAGE );
+                        displayFailure( "Error running computer", TimeoutState.ABORT_MESSAGE );
                         shutdown();
                         break;
                 }
             }
-            else
+            else if( event != null )
             {
-                machine.handleEvent( event.name, event.args );
-                if( machine.isFinished() )
-                {
-                    displayFailure( "Error resuming bios.lua" );
-                    shutdown();
-                }
+                resumeMachine( event.name, event.args );
             }
         }
         finally
@@ -577,13 +574,37 @@ final class ComputerExecutor
         }
     }
 
-    private void displayFailure( String message )
+    private void displayFailure( String message, String extra )
     {
         Terminal terminal = computer.getTerminal();
+        boolean colour = computer.getComputerEnvironment().isColour();
         terminal.reset();
+
+        // Display our primary error message
+        if( colour ) terminal.setTextColour( 15 - Colour.Red.ordinal() );
         terminal.write( message );
-        terminal.setCursorPos( 0, 1 );
+
+        if( extra != null )
+        {
+            // Display any additional information. This generally comes from the Lua Machine, such as compilation or
+            // runtime errors.
+            terminal.setCursorPos( 0, terminal.getCursorY() + 1 );
+            terminal.write( extra );
+        }
+
+        // And display our generic "CC may be installed incorrectly" message.
+        terminal.setCursorPos( 0, terminal.getCursorY() + 1 );
+        if( colour ) terminal.setTextColour( 15 - Colour.White.ordinal() );
         terminal.write( "ComputerCraft may be installed incorrectly" );
+    }
+
+    private void resumeMachine( String event, Object[] args ) throws InterruptedException
+    {
+        MachineResult result = machine.handleEvent( event, args );
+        if( !result.isError() ) return;
+
+        displayFailure( "Error running computer", result.getMessage() );
+        shutdown();
     }
 
     private enum StateCommand

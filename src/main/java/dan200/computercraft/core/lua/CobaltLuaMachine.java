@@ -28,7 +28,6 @@ import org.squiddev.cobalt.lib.*;
 import org.squiddev.cobalt.lib.platform.VoidResourceManipulator;
 
 import javax.annotation.Nonnull;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -53,6 +52,7 @@ public class CobaltLuaMachine implements ILuaMachine
 
     private final Computer m_computer;
     private final TimeoutState timeout;
+    private final TimeoutDebugHandler debug;
 
     private LuaState m_state;
     private LuaTable m_globals;
@@ -64,48 +64,12 @@ public class CobaltLuaMachine implements ILuaMachine
     {
         m_computer = computer;
         this.timeout = timeout;
+        debug = new TimeoutDebugHandler();
 
         // Create an environment to run in
         LuaState state = this.m_state = LuaState.builder()
             .resourceManipulator( new VoidResourceManipulator() )
-            .debug( new DebugHandler()
-            {
-                private int count = 0;
-                private boolean hasSoftAbort;
-
-                @Override
-                public void onInstruction( DebugState ds, DebugFrame di, int pc ) throws LuaError, UnwindThrowable
-                {
-                    // We check our current abort state every so 128 instructions.
-                    if( (count = (count + 1) & 127) == 0 ) handleAbort();
-                    super.onInstruction( ds, di, pc );
-                }
-
-                @Override
-                public void poll() throws LuaError
-                {
-                    handleAbort();
-                }
-
-                private void handleAbort() throws LuaError
-                {
-                    // If we've been hard aborted or closed then abort.
-                    if( timeout.isHardAborted() || m_state == null ) throw HardAbortError.INSTANCE;
-
-                    // If the soft abort has been cleared then we can reset our flags and continue.
-                    if( !timeout.isSoftAborted() )
-                    {
-                        hasSoftAbort = false;
-                        return;
-                    }
-
-                    // If we have fired our soft abort, but we haven't been hard aborted then everything is OK.
-                    if( hasSoftAbort ) return;
-
-                    hasSoftAbort = true;
-                    throw new LuaError( TimeoutState.ABORT_MESSAGE );
-                }
-            } )
+            .debug( debug )
             .coroutineExecutor( command -> {
                 Tracking.addValue( m_computer, TrackingField.COROUTINES_CREATED, 1 );
                 COROUTINES.execute( () -> {
@@ -166,36 +130,42 @@ public class CobaltLuaMachine implements ILuaMachine
     }
 
     @Override
-    public void loadBios( @Nonnull InputStream bios )
+    public MachineResult loadBios( @Nonnull InputStream bios )
     {
         // Begin executing a file (ie, the bios)
-        if( m_mainRoutine != null ) return;
+        if( m_mainRoutine != null ) return MachineResult.OK;
 
         try
         {
             LuaFunction value = LoadState.load( m_state, bios, "@bios.lua", m_globals );
             m_mainRoutine = new LuaThread( m_state, value, m_globals );
+            return MachineResult.OK;
         }
         catch( CompileException e )
         {
             close();
+            return MachineResult.error( e );
         }
-        catch( IOException e )
+        catch( Exception e )
         {
-            ComputerCraft.log.warn( "Could not load bios.lua ", e );
+            ComputerCraft.log.warn( "Could not load bios.lua", e );
             close();
+            return MachineResult.GENERIC_ERROR;
         }
     }
 
     @Override
-    public void handleEvent( String eventName, Object[] arguments )
+    public MachineResult handleEvent( String eventName, Object[] arguments )
     {
-        if( m_mainRoutine == null ) return;
+        if( m_mainRoutine == null ) return MachineResult.OK;
 
         if( m_eventFilter != null && eventName != null && !eventName.equals( m_eventFilter ) && !eventName.equals( "terminate" ) )
         {
-            return;
+            return MachineResult.OK;
         }
+
+        // If the soft abort has been cleared then we can reset our flag.
+        if( !timeout.isSoftAborted() ) debug.thrownSoftAbort = false;
 
         try
         {
@@ -206,28 +176,32 @@ public class CobaltLuaMachine implements ILuaMachine
             }
 
             Varargs results = LuaThread.run( m_mainRoutine, resumeArgs );
-            if( timeout.isHardAborted() ) throw new LuaError( TimeoutState.ABORT_MESSAGE );
+            if( timeout.isHardAborted() ) throw HardAbortError.INSTANCE;
 
             LuaValue filter = results.first();
             m_eventFilter = filter.isString() ? filter.toString() : null;
 
-            if( m_mainRoutine.getStatus().equals( "dead" ) ) close();
+            if( m_mainRoutine.getStatus().equals( "dead" ) )
+            {
+                close();
+                return MachineResult.GENERIC_ERROR;
+            }
+            else
+            {
+                return MachineResult.OK;
+            }
         }
         catch( HardAbortError | InterruptedException e )
         {
             close();
+            return MachineResult.TIMEOUT;
         }
         catch( LuaError e )
         {
             close();
             ComputerCraft.log.warn( "Top level coroutine errored", e );
+            return MachineResult.error( e );
         }
-    }
-
-    @Override
-    public boolean isFinished()
-    {
-        return m_mainRoutine == null;
     }
 
     @Override
@@ -637,11 +611,53 @@ public class CobaltLuaMachine implements ILuaMachine
         }
     }
 
+    /**
+     * A {@link DebugHandler} which observes the {@link TimeoutState} and responds accordingly.
+     */
+    private class TimeoutDebugHandler extends DebugHandler
+    {
+        private final TimeoutState timeout;
+        private int count = 0;
+        boolean thrownSoftAbort;
+
+        TimeoutDebugHandler()
+        {
+            this.timeout = CobaltLuaMachine.this.timeout;
+        }
+
+        @Override
+        public void onInstruction( DebugState ds, DebugFrame di, int pc ) throws LuaError, UnwindThrowable
+        {
+            // We check our current abort state every 128 instructions.
+            if( (count = (count + 1) & 127) == 0 ) handleAbort();
+
+            super.onInstruction( ds, di, pc );
+        }
+
+        @Override
+        public void poll() throws LuaError
+        {
+            handleAbort();
+        }
+
+        private void handleAbort() throws LuaError
+        {
+            // If we've been hard aborted or closed then abort.
+            if( timeout.isHardAborted() || m_state == null ) throw HardAbortError.INSTANCE;
+
+            // If we already thrown our soft abort error then don't do it again.
+            if( !timeout.isSoftAborted() || thrownSoftAbort ) return;
+
+            thrownSoftAbort = true;
+            throw new LuaError( TimeoutState.ABORT_MESSAGE );
+        }
+    }
+
     private static class HardAbortError extends Error
     {
         private static final long serialVersionUID = 7954092008586367501L;
 
-        public static final HardAbortError INSTANCE = new HardAbortError();
+        static final HardAbortError INSTANCE = new HardAbortError();
 
         private HardAbortError()
         {

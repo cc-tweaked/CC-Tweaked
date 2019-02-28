@@ -150,11 +150,14 @@ public class Computer
         // We keep track of the number of ticks since the last start, only
         if( m_ticksSinceStart >= 0 && m_ticksSinceStart <= START_DELAY ) m_ticksSinceStart++;
 
-        if( startRequested && !executor.isOn() && (m_ticksSinceStart < 0 || m_ticksSinceStart > START_DELAY) )
+        if( startRequested && (m_ticksSinceStart < 0 || m_ticksSinceStart > START_DELAY) )
         {
-            m_ticksSinceStart = 0;
             startRequested = false;
-            executor.queueStart();
+            if( !executor.isOn() )
+            {
+                m_ticksSinceStart = 0;
+                executor.queueStart();
+            }
         }
 
         executor.tick();

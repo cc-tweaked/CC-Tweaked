@@ -102,10 +102,6 @@ public class ComputerBootstrap
         {
             Thread.currentThread().interrupt();
         }
-        finally
-        {
-            ComputerThread.stop();
-        }
     }
 
     private static class AssertApi implements ILuaAPI
