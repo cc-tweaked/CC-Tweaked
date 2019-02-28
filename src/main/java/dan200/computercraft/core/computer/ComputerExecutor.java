@@ -104,6 +104,20 @@ final class ComputerExecutor
     volatile boolean onComputerQueue = false;
 
     /**
+     * The amount of time this computer has used on a theoretical machine which shares work evenly amongst computers.
+     *
+     * @see ComputerThread
+     */
+    long virtualRuntime = 0;
+
+    /**
+     * The last time at which we updated {@link #virtualRuntime}.
+     *
+     * @see ComputerThread
+     */
+    long vRuntimeStart;
+
+    /**
      * The command that {@link #work()} should execute on the computer thread.
      *
      * One sets the command with {@link #queueStart()} and {@link #queueStop(boolean, boolean)}. Neither of these will
@@ -280,9 +294,7 @@ final class ComputerExecutor
     {
         synchronized( queueLock )
         {
-            if( onComputerQueue ) return;
-            onComputerQueue = true;
-            ComputerThread.queue( this );
+            if( !onComputerQueue ) ComputerThread.queue( this );
         }
     }
 
@@ -482,14 +494,16 @@ final class ComputerExecutor
      */
     void beforeWork()
     {
+        vRuntimeStart = System.nanoTime();
         timeout.startTimer();
     }
 
     /**
-     * Called after executing {@link #work()}. Adds this back to the {@link ComputerThread} if we have more work,
-     * otherwise remove it.
+     * Called after executing {@link #work()}.
+     *
+     * @return If we have more work to do.
      */
-    void afterWork()
+    boolean afterWork()
     {
         if( interruptedEvent )
         {
@@ -502,16 +516,12 @@ final class ComputerExecutor
 
         Tracking.addTaskTiming( getComputer(), timeout.nanoCurrent() );
 
+        if( interruptedEvent ) return true;
+
         synchronized( queueLock )
         {
-            if( !interruptedEvent && eventQueue.isEmpty() && command == null )
-            {
-                onComputerQueue = false;
-            }
-            else
-            {
-                ComputerThread.queue( this );
-            }
+            if( eventQueue.isEmpty() && command == null ) return onComputerQueue = false;
+            return true;
         }
     }
 

@@ -28,11 +28,6 @@ import java.util.concurrent.TimeUnit;
 public final class TimeoutState
 {
     /**
-     * The time to run a task before pausing in nanoseconds
-     */
-    private static final long TIMESLICE = TimeUnit.MILLISECONDS.toNanos( 40 );
-
-    /**
      * The total time a task is allowed to run before aborting in nanoseconds
      */
     static final long TIMEOUT = TimeUnit.MILLISECONDS.toNanos( 7000 );
@@ -53,6 +48,7 @@ public final class TimeoutState
 
     private long nanoCumulative;
     private long nanoCurrent;
+    private long nanoDeadline;
 
     long nanoCumulative()
     {
@@ -70,7 +66,7 @@ public final class TimeoutState
     public void refresh()
     {
         long now = System.nanoTime();
-        if( !paused ) paused = (now - nanoCurrent) >= TIMESLICE;
+        if( !paused ) paused = now >= nanoDeadline && ComputerThread.hasPendingWork();
         if( !softAbort ) softAbort = (now - nanoCumulative) >= TIMEOUT;
     }
 
@@ -84,7 +80,7 @@ public final class TimeoutState
      */
     public boolean isPaused()
     {
-        return paused && ComputerThread.hasPendingWork();
+        return paused;
     }
 
     /**
@@ -118,6 +114,7 @@ public final class TimeoutState
     {
         long now = System.nanoTime();
         nanoCurrent = now;
+        nanoDeadline = now + ComputerThread.scaledPeriod();
         // Compute the "nominal start time".
         nanoCumulative = now - nanoCumulative;
     }
