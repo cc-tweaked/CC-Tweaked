@@ -95,7 +95,11 @@ final class ComputerExecutor
     private final Object queueLock = new Object();
 
     /**
-     * Determines if this executer is present within {@link ComputerThread}.
+     * Determines if this executor is present within {@link ComputerThread}.
+     *
+     * @see #queueLock
+     * @see #enqueue()
+     * @see #afterWork()
      */
     volatile boolean onComputerQueue = false;
 
@@ -116,6 +120,14 @@ final class ComputerExecutor
      * Note, this should be empty if this computer is off - it is cleared on shutdown and when turning on again.
      */
     private final Queue<Event> eventQueue = new ArrayDeque<>();
+
+    /**
+     * Whether we interrupted an event and so should resume it instead of executing another task.
+     *
+     * @see #work()
+     * @see #resumeMachine(String, Object[])
+     */
+    private boolean interruptedEvent = false;
 
     /**
      * Whether this executor has been closed, and will no longer accept any incoming commands or events.
@@ -391,6 +403,7 @@ final class ComputerExecutor
         {
             // Reset the terminal and event queue
             computer.getTerminal().reset();
+            interruptedEvent = false;
             synchronized( queueLock )
             {
                 eventQueue.clear();
@@ -432,6 +445,7 @@ final class ComputerExecutor
         try
         {
             isOn = false;
+            interruptedEvent = false;
             synchronized( queueLock )
             {
                 eventQueue.clear();
@@ -468,7 +482,7 @@ final class ComputerExecutor
      */
     void beforeWork()
     {
-        timeout.reset();
+        timeout.startTimer();
     }
 
     /**
@@ -477,11 +491,20 @@ final class ComputerExecutor
      */
     void afterWork()
     {
-        Tracking.addTaskTiming( getComputer(), timeout.nanoSinceStart() );
+        if( interruptedEvent )
+        {
+            timeout.pauseTimer();
+        }
+        else
+        {
+            timeout.stopTimer();
+        }
+
+        Tracking.addTaskTiming( getComputer(), timeout.nanoCurrent() );
 
         synchronized( queueLock )
         {
-            if( eventQueue.isEmpty() && command == null )
+            if( !interruptedEvent && eventQueue.isEmpty() && command == null )
             {
                 onComputerQueue = false;
             }
@@ -510,6 +533,16 @@ final class ComputerExecutor
 
         try
         {
+            if( interruptedEvent )
+            {
+                interruptedEvent = false;
+                if( machine != null )
+                {
+                    resumeMachine( null, null );
+                    return;
+                }
+            }
+
             StateCommand command;
             Event event = null;
             synchronized( queueLock )
@@ -601,6 +634,7 @@ final class ComputerExecutor
     private void resumeMachine( String event, Object[] args ) throws InterruptedException
     {
         MachineResult result = machine.handleEvent( event, args );
+        interruptedEvent = result.isPause();
         if( !result.isError() ) return;
 
         displayFailure( "Error running computer", result.getMessage() );

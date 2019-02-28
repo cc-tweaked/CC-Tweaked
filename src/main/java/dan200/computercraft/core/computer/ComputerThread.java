@@ -127,6 +127,16 @@ public class ComputerThread
     }
 
     /**
+     * Determine if the thread has computers queued up
+     *
+     * @return If we have work queued up.
+     */
+    static boolean hasPendingWork()
+    {
+        return computersActive.size() > 0;
+    }
+
+    /**
      * Observes all currently active {@link TaskRunner}s and terminates their tasks once they have exceeded the hard
      * abort limit.
      *
@@ -158,7 +168,7 @@ public class ComputerThread
 
                             // If we're still within normal execution times (TIMEOUT) or soft abort (ABORT_TIMEOUT),
                             // then we can let the Lua machine do its work.
-                            long afterStart = executor.timeout.nanoSinceStart();
+                            long afterStart = executor.timeout.nanoCumulative();
                             long afterHardAbort = afterStart - TIMEOUT - ABORT_TIMEOUT;
                             if( afterHardAbort < 0 ) continue;
 

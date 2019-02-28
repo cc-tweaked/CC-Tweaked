@@ -28,6 +28,11 @@ import java.util.concurrent.TimeUnit;
 public final class TimeoutState
 {
     /**
+     * The time to run a task before pausing in nanoseconds
+     */
+    private static final long TIMESLICE = TimeUnit.MILLISECONDS.toNanos( 40 );
+
+    /**
      * The total time a task is allowed to run before aborting in nanoseconds
      */
     static final long TIMEOUT = TimeUnit.MILLISECONDS.toNanos( 7000 );
@@ -37,16 +42,49 @@ public final class TimeoutState
      */
     static final long ABORT_TIMEOUT = TimeUnit.MILLISECONDS.toNanos( 1500 );
 
+    /**
+     * The error message to display when we trigger an abort.
+     */
     public static final String ABORT_MESSAGE = "Too long without yielding";
 
-    private volatile boolean softAbort;
+    private boolean paused;
+    private boolean softAbort;
     private volatile boolean hardAbort;
 
-    private long nanoTime;
+    private long nanoCumulative;
+    private long nanoCurrent;
 
-    long nanoSinceStart()
+    long nanoCumulative()
     {
-        return System.nanoTime() - nanoTime;
+        return System.nanoTime() - nanoCumulative;
+    }
+
+    long nanoCurrent()
+    {
+        return System.nanoTime() - nanoCurrent;
+    }
+
+    /**
+     * Recompute the {@link #isSoftAborted()} and {@link #isPaused()} flags.
+     */
+    public void refresh()
+    {
+        long now = System.nanoTime();
+        if( !paused ) paused = (now - nanoCurrent) >= TIMESLICE;
+        if( !softAbort ) softAbort = (now - nanoCumulative) >= TIMEOUT;
+    }
+
+    /**
+     * Whether we should pause execution of this machine.
+     *
+     * This is determined by whether we've consumed our time slice, and if there are other computers waiting to perform
+     * work.
+     *
+     * @return Whether we should pause execution.
+     */
+    public boolean isPaused()
+    {
+        return paused && ComputerThread.hasPendingWork();
     }
 
     /**
@@ -54,7 +92,7 @@ public final class TimeoutState
      */
     public boolean isSoftAborted()
     {
-        return softAbort || (softAbort = (System.nanoTime() - nanoTime) >= TIMEOUT);
+        return softAbort;
     }
 
     /**
@@ -74,11 +112,34 @@ public final class TimeoutState
     }
 
     /**
-     * Reset all abort flags and start the abort timer.
+     * Start the current and cumulative timers again.
      */
-    void reset()
+    void startTimer()
     {
-        softAbort = hardAbort = false;
-        nanoTime = System.nanoTime();
+        long now = System.nanoTime();
+        nanoCurrent = now;
+        // Compute the "nominal start time".
+        nanoCumulative = now - nanoCumulative;
+    }
+
+    /**
+     * Pauses the cumulative time, to be resumed by {@link #startTimer()}
+     *
+     * @see #nanoCumulative()
+     */
+    void pauseTimer()
+    {
+        // We set the cumulative time to difference between current time and "nominal start time".
+        nanoCumulative = System.nanoTime() - nanoCumulative;
+        paused = false;
+    }
+
+    /**
+     * Resets the cumulative time and resets the abort flags.
+     */
+    void stopTimer()
+    {
+        nanoCumulative = 0;
+        paused = softAbort = hardAbort = false;
     }
 }

@@ -84,10 +84,10 @@ public class ComputerBootstrap
 
             if( computer.isOn() || !api.didAssert )
             {
-                StringBuilder builder = new StringBuilder().append( "Did not correctly" );
+                StringBuilder builder = new StringBuilder().append( "Did not correctly [" );
                 if( !api.didAssert ) builder.append( " assert" );
                 if( computer.isOn() ) builder.append( " shutdown" );
-                builder.append( "\n" );
+                builder.append( " ]\n" );
 
                 for( int line = 0; line < 19; line++ )
                 {
