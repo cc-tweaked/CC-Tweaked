@@ -11,14 +11,14 @@ import dan200.computercraft.api.filesystem.IWritableMount;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.core.apis.ObjectWrapper;
 import dan200.computercraft.core.apis.handles.EncodedWritableHandle;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class FileSystemTest
 {

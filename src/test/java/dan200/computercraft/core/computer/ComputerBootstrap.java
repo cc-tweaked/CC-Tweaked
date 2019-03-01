@@ -14,7 +14,7 @@ import dan200.computercraft.core.apis.ArgumentHelper;
 import dan200.computercraft.core.filesystem.MemoryMount;
 import dan200.computercraft.core.terminal.Terminal;
 import org.apache.logging.log4j.LogManager;
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -63,7 +63,7 @@ public class ComputerBootstrap
                 {
                     ComputerCraft.log.debug( "Shutting down due to error" );
                     computer.shutdown();
-                    Assert.fail( api.message );
+                    Assertions.fail( api.message );
                     return;
                 }
 
@@ -95,7 +95,7 @@ public class ComputerBootstrap
                 }
 
                 computer.shutdown();
-                Assert.fail( builder.toString() );
+                Assertions.fail( builder.toString() );
             }
         }
         catch( InterruptedException ignored )

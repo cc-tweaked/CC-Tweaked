@@ -8,8 +8,8 @@ package dan200.computercraft.core.filesystem;
 
 import com.google.common.io.ByteStreams;
 import dan200.computercraft.api.filesystem.IMount;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -19,14 +19,14 @@ import java.nio.charset.StandardCharsets;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SuppressWarnings( "deprecation" )
 public class JarMountTest
 {
     private static final File ZIP_FILE = new File( "test-files/jar-mount.zip" );
 
-    @BeforeClass
+    @BeforeAll
     public static void before() throws IOException
     {
         if( ZIP_FILE.exists() ) return;
@@ -47,16 +47,16 @@ public class JarMountTest
     public void mountsDir() throws IOException
     {
         IMount mount = new JarMount( ZIP_FILE, "dir" );
-        assertTrue( "Root should be directory", mount.isDirectory( "" ) );
-        assertTrue( "File should exist", mount.exists( "file.lua" ) );
+        assertTrue( mount.isDirectory( "" ), "Root should be directory" );
+        assertTrue( mount.exists( "file.lua" ), "File should exist" );
     }
 
     @Test
     public void mountsFile() throws IOException
     {
         IMount mount = new JarMount( ZIP_FILE, "dir/file.lua" );
-        assertTrue( "Root should exist", mount.exists( "" ) );
-        assertFalse( "Root should be a file", mount.isDirectory( "" ) );
+        assertTrue( mount.exists( "" ), "Root should exist" );
+        assertFalse( mount.isDirectory( "" ), "Root should be a file" );
     }
 
     @Test
@@ -69,7 +69,7 @@ public class JarMountTest
             contents = ByteStreams.toByteArray( stream );
         }
 
-        assertEquals( "print('testing')", new String( contents, StandardCharsets.UTF_8 ) );
+        assertEquals( new String( contents, StandardCharsets.UTF_8 ), "print('testing')" );
     }
 
     @Test
@@ -82,6 +82,6 @@ public class JarMountTest
             contents = ByteStreams.toByteArray( stream );
         }
 
-        assertEquals( "print('testing')", new String( contents, StandardCharsets.UTF_8 ) );
+        assertEquals( new String( contents, StandardCharsets.UTF_8 ), "print('testing')" );
     }
 }

@@ -6,24 +6,29 @@
 
 package dan200.computercraft.core.computer;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+
+import static java.time.Duration.ofSeconds;
+import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 
 public class ComputerTest
 {
-    @Test( timeout = 20_000 )
+    @Test
     public void testTimeout()
     {
-        try
-        {
-            ComputerBootstrap.run( "print('Hello') while true do end" );
-        }
-        catch( AssertionError e )
-        {
-            if( e.getMessage().equals( "test.lua:1: Too long without yielding" ) ) return;
-            throw e;
-        }
+        assertTimeoutPreemptively( ofSeconds( 20 ), () -> {
+            try
+            {
+                ComputerBootstrap.run( "print('Hello') while true do end" );
+            }
+            catch( AssertionError e )
+            {
+                if( e.getMessage().equals( "test.lua:1: Too long without yielding" ) ) return;
+                throw e;
+            }
 
-        Assert.fail( "Expected computer to timeout" );
+            Assertions.fail( "Expected computer to timeout" );
+        } );
     }
 }
