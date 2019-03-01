@@ -27,10 +27,12 @@ import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.MoverType;
+import net.minecraft.fluid.IFluidState;
 import net.minecraft.init.Particles;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.EnumDyeColor;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tags.FluidTags;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EntitySelectors;
 import net.minecraft.util.EnumFacing;
@@ -46,6 +48,7 @@ import javax.annotation.Nonnull;
 import java.util.*;
 
 import static dan200.computercraft.shared.common.IColouredItem.NBT_COLOUR;
+import static dan200.computercraft.shared.util.WaterloggableBlock.WATERLOGGED;
 
 public class TurtleBrain implements ITurtleAccess
 {
@@ -307,12 +310,19 @@ public class TurtleBrain implements ITurtleAccess
         // Ensure we're inside the world border
         if( !world.getWorldBorder().contains( pos ) ) return false;
 
+        IFluidState existingFluid = world.getBlockState( pos ).getFluidState();
+        IBlockState newState = oldBlock
+            // We only mark this as waterlogged when travelling into a source block. This prevents us from spreading
+            // fluid by creating a new source when moving into a block, causing the next block to be almost full and
+            // then moving into that.
+            .with( WATERLOGGED, existingFluid.isTagged( FluidTags.WATER ) && existingFluid.isSource() );
+
         oldOwner.notifyMoveStart();
 
         try
         {
             // Create a new turtle
-            if( world.setBlockState( pos, oldBlock, 0 ) )
+            if( world.setBlockState( pos, newState, 0 ) )
             {
                 Block block = world.getBlockState( pos ).getBlock();
                 if( block == oldBlock.getBlock() )
