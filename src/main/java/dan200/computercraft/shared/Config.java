@@ -106,7 +106,7 @@ public class Config
             computerThreads = config.get( CATEGORY_GENERAL, "computer_threads", ComputerCraft.computer_threads );
             computerThreads
                 .setMinValue( 1 )
-                .setRequiresWorldRestart( true )
+                .setRequiresMcRestart( true )
                 .setComment( "Set the number of threads computers can run on. A higher number means more computers can run at once, but may induce lag.\n" +
                     "Please note that some mods may not work with a thread count higher than 1. Use with caution." );
 

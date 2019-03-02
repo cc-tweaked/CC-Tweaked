@@ -10,6 +10,7 @@ import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.util.ThreadUtils;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.TreeSet;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
@@ -113,9 +114,9 @@ public class ComputerThread
             running = true;
             if( monitor == null || !monitor.isAlive() ) (monitor = monitorFactory.newThread( new Monitor() )).start();
 
-            if( runners == null || runners.length != ComputerCraft.computer_threads )
+            if( runners == null )
             {
-                // TODO: Resize this + kill old runners and start new ones.
+                // TODO: Change the runners lenght on config reloads
                 runners = new TaskRunner[ComputerCraft.computer_threads];
 
                 // latency and minPeriod are scaled by 1 + floor(log2(threads)). We can afford to execute tasks for
@@ -159,7 +160,15 @@ public class ComputerThread
             }
         }
 
-        computerQueue.clear();
+        computerLock.lock();
+        try
+        {
+            computerQueue.clear();
+        }
+        finally
+        {
+            computerLock.unlock();
+        }
     }
 
     /**
@@ -175,7 +184,7 @@ public class ComputerThread
             if( executor.onComputerQueue ) throw new IllegalStateException( "Cannot queue already queued executor" );
             executor.onComputerQueue = true;
 
-            updateRuntimes();
+            updateRuntimes( null );
 
             // We're not currently on the queue, so update its current execution time to
             // ensure its at least as high as the minimum.
@@ -209,19 +218,20 @@ public class ComputerThread
      * Update the {@link ComputerExecutor#virtualRuntime}s of all running tasks, and then increment the
      * {@link #minimumVirtualRuntime} of the executor.
      */
-    private static void updateRuntimes()
+    private static void updateRuntimes( @Nullable ComputerExecutor current )
     {
         long minRuntime = Long.MAX_VALUE;
 
         // If we've a task on the queue, use that as our base time.
         if( !computerQueue.isEmpty() ) minRuntime = computerQueue.first().virtualRuntime;
 
+        long now = System.nanoTime();
+        int tasks = 1 + computerQueue.size();
+
         // Update all the currently executing tasks
         TaskRunner[] currentRunners = runners;
         if( currentRunners != null )
         {
-            long now = System.nanoTime();
-            int tasks = 1 + computerQueue.size();
             for( TaskRunner runner : currentRunners )
             {
                 if( runner == null ) continue;
@@ -233,6 +243,12 @@ public class ComputerThread
                 minRuntime = Math.min( minRuntime, executor.virtualRuntime += (now - executor.vRuntimeStart) / tasks );
                 executor.vRuntimeStart = now;
             }
+        }
+
+        // And update the most recently executed one if set.
+        if( current != null )
+        {
+            minRuntime = Math.min( minRuntime, current.virtualRuntime += (now - current.vRuntimeStart) / tasks );
         }
 
         if( minRuntime > minimumVirtualRuntime && minRuntime < Long.MAX_VALUE )
@@ -251,7 +267,7 @@ public class ComputerThread
         computerLock.lock();
         try
         {
-            updateRuntimes();
+            updateRuntimes( executor );
 
             // Add to the queue, and signal the workers.
             if( !executor.afterWork() ) return;
@@ -353,7 +369,7 @@ public class ComputerThread
                             {
                                 // If we've hard aborted but we're still not dead, dump the stack trace and interrupt
                                 // the task.
-                                timeoutTask( executor, runner.owner, afterStart );
+                                timeoutTask( executor, runner.owner );
                                 runner.owner.interrupt();
                             }
                         }
@@ -432,13 +448,13 @@ public class ComputerThread
         }
     }
 
-    private static void timeoutTask( ComputerExecutor executor, Thread thread, long nanotime )
+    private static void timeoutTask( ComputerExecutor executor, Thread thread )
     {
         if( !ComputerCraft.logPeripheralErrors ) return;
 
         StringBuilder builder = new StringBuilder()
             .append( "Terminating computer #" ).append( executor.getComputer().getID() )
-            .append( " due to timeout (running for " ).append( nanotime / 1e9 )
+            .append( " due to timeout (running for " ).append( executor.timeout.nanoCumulative() * 1e-9 )
             .append( " seconds). This is NOT a bug, but may mean a computer is misbehaving. " )
             .append( thread.getName() )
             .append( " is currently " )
