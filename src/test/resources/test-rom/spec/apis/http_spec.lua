@@ -1,0 +1,17 @@
+describe("The http library", function()
+    describe("http.checkURL", function()
+        it("Accepts well formed domains", function()
+            expect({ http.checkURL("https://google.com")}):same({ true })
+        end)
+
+        it("Rejects malformed URLs", function()
+            expect({ http.checkURL("google.com")}):same({ false, "Must specify http or https" })
+            expect({ http.checkURL("wss://google.com")}):same({ false, "Invalid protocol 'wss'" })
+        end)
+
+        it("Rejects local domains", function()
+            expect({ http.checkURL("http://localhost")}):same({ false, "Domain not permitted" })
+            expect({ http.checkURL("http://127.0.0.1")}):same({ false, "Domain not permitted" })
+        end)
+    end)
+end)

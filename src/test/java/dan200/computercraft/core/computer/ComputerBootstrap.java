@@ -7,6 +7,8 @@
 package dan200.computercraft.core.computer;
 
 import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.api.filesystem.IMount;
+import dan200.computercraft.api.filesystem.IWritableMount;
 import dan200.computercraft.api.lua.ILuaAPI;
 import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
@@ -18,6 +20,7 @@ import org.junit.jupiter.api.Assertions;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.function.Consumer;
 
 /**
  * Helper class to run a program on a computer.
@@ -27,25 +30,32 @@ public class ComputerBootstrap
     private static final int TPS = 20;
     private static final int MAX_TIME = 10;
 
-    public static void run( String program )
+    public static void run( IMount mount, Consumer<Computer> setup )
     {
-        run( program, -1 );
+
     }
 
-    public static void run( String program, int shutdownAfter )
+    public static void run( String program )
     {
-        ComputerCraft.logPeripheralErrors = true;
-        ComputerCraft.log = LogManager.getLogger( ComputerCraft.MOD_ID );
-
         MemoryMount mount = new MemoryMount()
             .addFile( "test.lua", program )
             .addFile( "startup", "assertion.assert(pcall(loadfile('test.lua', _ENV))) os.shutdown()" );
+
+        run( mount, x -> {} );
+    }
+
+    public static void run( IWritableMount mount, Consumer<Computer> setup )
+    {
+        ComputerCraft.logPeripheralErrors = true;
+        ComputerCraft.log = LogManager.getLogger( ComputerCraft.MOD_ID );
 
         Terminal term = new Terminal( ComputerCraft.terminalWidth_computer, ComputerCraft.terminalHeight_computer );
         final Computer computer = new Computer( new BasicEnvironment( mount ), term, 0 );
 
         AssertApi api = new AssertApi();
         computer.addApi( api );
+
+        setup.accept( computer );
 
         try
         {
@@ -73,13 +83,6 @@ public class ComputerBootstrap
                 // Break if the computer was once on, and is now off.
                 everOn |= computer.isOn();
                 if( (everOn || tick > TPS) && !computer.isOn() ) break;
-
-                // Shutdown the computer after a period of time
-                if( shutdownAfter > 0 && tick != 0 && tick % shutdownAfter == 0 )
-                {
-                    ComputerCraft.log.info( "Shutting down: shutdown after {}", shutdownAfter );
-                    computer.shutdown();
-                }
             }
 
             if( computer.isOn() || !api.didAssert )
