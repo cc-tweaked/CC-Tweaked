@@ -10,7 +10,6 @@ import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.util.ThreadUtils;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.TreeSet;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
@@ -26,7 +25,26 @@ import static dan200.computercraft.core.computer.TimeoutState.TIMEOUT;
  * Responsible for running all tasks from a {@link Computer}.
  *
  * This is split into two components: the {@link TaskRunner}s, which pull an executor from the queue and execute it, and
- * a single {@link Monitor} which observes all runners and kills them if they are behaving badly.
+ * a single {@link Monitor} which observes all runners and kills them if they have not been terminated by
+ * {@link TimeoutState#isSoftAborted()}.
+ *
+ * Computers are executed using a priority system, with those who have spent less time executing having a higher
+ * priority than those hogging the thread. This, combined with {@link TimeoutState#isPaused()} means we can reduce the
+ * risk of badly behaved computers stalling execution for everyone else.
+ *
+ * This is done using an implementation of Linux's Completely Fair Scheduler. When a computer executes, we compute what
+ * share of execution time it has used (time executed/number of tasks). We then pick the computer who has the least
+ * "virtual execution time" (aka {@link ComputerExecutor#virtualRuntime}).
+ *
+ * When adding a computer to the queue, we make sure its "virtual runtime" is at least as big as the smallest runtime.
+ * This means that adding computers which have slept a lot do not then have massive priority over everyone else. See
+ * {@link #queue(ComputerExecutor)} for how this is implemented.
+ *
+ * In reality, it's unlikely that more than a few computers are waiting to execute at once, so this will not have much
+ * effect unless you have a computer hogging execution time. However, it is pretty effective in those situations.
+ *
+ * @see TimeoutState For how hard timeouts are handled.
+ * @see ComputerExecutor For how computers actually do execution.
  */
 public class ComputerThread
 {
@@ -116,7 +134,7 @@ public class ComputerThread
 
             if( runners == null )
             {
-                // TODO: Change the runners lenght on config reloads
+                // TODO: Change the runners length on config reloads
                 runners = new TaskRunner[ComputerCraft.computer_threads];
 
                 // latency and minPeriod are scaled by 1 + floor(log2(threads)). We can afford to execute tasks for
@@ -172,7 +190,10 @@ public class ComputerThread
     }
 
     /**
-     * Mark a computer as having work, enqueuing it on the thread.
+     * Mark a computer as having work, enqueuing it on the thread
+     *
+     * You must be holding {@link ComputerExecutor}'s {@code queueLock} when calling this method - it should only
+     * be called from {@code enqueue}.
      *
      * @param executor The computer to execute work on.
      */
@@ -184,7 +205,7 @@ public class ComputerThread
             if( executor.onComputerQueue ) throw new IllegalStateException( "Cannot queue already queued executor" );
             executor.onComputerQueue = true;
 
-            updateRuntimes( null );
+            updateRuntimes();
 
             // We're not currently on the queue, so update its current execution time to
             // ensure its at least as high as the minimum.
@@ -215,23 +236,25 @@ public class ComputerThread
 
 
     /**
-     * Update the {@link ComputerExecutor#virtualRuntime}s of all running tasks, and then increment the
-     * {@link #minimumVirtualRuntime} of the executor.
+     * Update the {@link ComputerExecutor#virtualRuntime}s of all running tasks, and then update the
+     * {@link #minimumVirtualRuntime} based on the current tasks.
+     *
+     * This is called before queueing tasks, to ensure that {@link #minimumVirtualRuntime} is up-to-date.
      */
-    private static void updateRuntimes( @Nullable ComputerExecutor current )
+    private static void updateRuntimes()
     {
         long minRuntime = Long.MAX_VALUE;
 
         // If we've a task on the queue, use that as our base time.
         if( !computerQueue.isEmpty() ) minRuntime = computerQueue.first().virtualRuntime;
 
-        long now = System.nanoTime();
-        int tasks = 1 + computerQueue.size();
-
         // Update all the currently executing tasks
         TaskRunner[] currentRunners = runners;
         if( currentRunners != null )
         {
+            long now = System.nanoTime();
+            int tasks = 1 + computerQueue.size();
+
             for( TaskRunner runner : currentRunners )
             {
                 if( runner == null ) continue;
@@ -245,12 +268,6 @@ public class ComputerThread
             }
         }
 
-        // And update the most recently executed one if set.
-        if( current != null )
-        {
-            minRuntime = Math.min( minRuntime, current.virtualRuntime += (now - current.vRuntimeStart) / tasks );
-        }
-
         if( minRuntime > minimumVirtualRuntime && minRuntime < Long.MAX_VALUE )
         {
             minimumVirtualRuntime = minRuntime;
@@ -258,7 +275,8 @@ public class ComputerThread
     }
 
     /**
-     * Re-add this task to the queue
+     * Ensure the "currently working" state of the executor is reset, the timings are updated, and then requeue the
+     * executor if needed.
      *
      * @param runner   The runner this task was on.
      * @param executor The executor to requeue
@@ -278,11 +296,14 @@ public class ComputerThread
         computerLock.lock();
         try
         {
-            updateRuntimes( executor );
+            // Update the virtual runtime of this task.
+            long now = System.nanoTime();
+            executor.virtualRuntime += (now - executor.vRuntimeStart) / (1 + computerQueue.size());
 
-            // Add to the queue, and signal the workers.
+            // If we've no more tasks, just return.
             if( !executor.afterWork() ) return;
 
+            // Otherwise, add to the queue, and signal any waiting workers.
             computerQueue.add( executor );
             hasWork.signal();
         }

@@ -6,6 +6,9 @@
 
 package dan200.computercraft.core.computer;
 
+import dan200.computercraft.core.lua.ILuaMachine;
+import dan200.computercraft.core.lua.MachineResult;
+
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -22,8 +25,13 @@ import java.util.concurrent.TimeUnit;
  * abort ({@link #ABORT_TIMEOUT}), we trigger a hard abort (note, this is done from the computer thread manager). This
  * will destroy the entire Lua runtime and shut the computer down.
  *
+ * The Lua runtime is also allowed to pause execution if there are other computers contesting for work. All computers
+ * are allowed to run for {@link ComputerThread#scaledPeriod()} nanoseconds (see {@link #currentDeadline}). After that
+ * period, if any computers are waiting to be executed then we'll set the paused flag to true ({@link #isPaused()}.
+ *
  * @see ComputerThread
- * @see dan200.computercraft.core.lua.ILuaMachine
+ * @see ILuaMachine
+ * @see MachineResult#isPause()
  */
 public final class TimeoutState
 {
@@ -81,9 +89,11 @@ public final class TimeoutState
      */
     public void refresh()
     {
+        // Important: The weird arithmetic here is important, as nanoTime may return negative values, and so we
+        // need to handle overflow.
         long now = System.nanoTime();
-        if( !paused ) paused = now >= currentDeadline && ComputerThread.hasPendingWork();
-        if( !softAbort ) softAbort = (now - cumulativeStart) >= TIMEOUT;
+        if( !paused ) paused = currentDeadline - now <= 0 && ComputerThread.hasPendingWork(); // now >= currentDeadline
+        if( !softAbort ) softAbort = (now - cumulativeStart - TIMEOUT) >= 0; // now - cumulativeStart >= TIMEOUT
     }
 
     /**
