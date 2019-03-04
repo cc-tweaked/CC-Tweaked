@@ -6,25 +6,25 @@ turtles and more to Minecraft.
 
 ## What?
 ComputerCraft has always held a fond place in my heart: it's the mod which really got me into Minecraft, and it's the
-mod which has kept me playing it for many years. However, development of the original mod has slowed, as the original 
-developers have had less time to work on the mod, and moved onto other projects and commitments. 
+mod which has kept me playing it for many years. However, development of the original mod has slowed, as the original
+developers have had less time to work on the mod, and moved onto other projects and commitments.
 
 CC:Tweaked (or CC:T for short) is an attempt to continue ComputerCraft's legacy. It's not intended to be a competitor
 to CC, nor do I want to take it in a vastly different direction to the original mod. Instead, CC:T focuses on making the
 ComputerCraft experience as _solid_ as possible, ironing out any wrinkles that may have developed over time.
 
 ## Features
-CC: Tweaked contains all the features of the latest version of ComputerCraft, as well as numerous fixes, performance 
+CC: Tweaked contains all the features of the latest version of ComputerCraft, as well as numerous fixes, performance
 improvements and several nifty additions. I'd recommend checking out [the releases page](https://github.com/SquidDev-CC/CC-Tweaked/releases)
 to see the full set of changes, but here's a couple of the more interesting additions:
 
- - Improvements to the `http` library, including websockets, support for other HTTP methods (`PUT`, `DELETE`, etc...) 
+ - Improvements to the `http` library, including websockets, support for other HTTP methods (`PUT`, `DELETE`, etc...)
    and configurable limits on HTTP usage.
  - Full-block wired modems, allowing one to wrap non-solid peripherals (such as turtles, or chests if Plethora is
-   installed).   
+   installed).
  - Pocket computers can be held like maps, allowing you to view the screen without entering a GUI.
  - Printed pages and books can be placed in item frames and held like maps.
- - Several profiling and administration tools for server owners, via the `/computercraft` command. This allows operators 
+ - Several profiling and administration tools for server owners, via the `/computercraft` command. This allows operators
    to track which computers are hogging resources, turn on and shutdown multiple computers at once and interact with
    computers remotely.
  - Closer emulation of standard Lua, adding the `debug` and `io` libraries. This also enables seeking within binary
@@ -45,3 +45,22 @@ develop CC:T, you'll need to follow these steps:
  - **Test your changes:** `./gradlew runClient` (or run the `GradleStart` class from your IDE).
 
 If you want to run CC:T in a normal Minecraft instance, run `./gradlew build` and copy the `.jar` from `build/libs`.
+
+## Using
+If you want to depend on CC:Tweaked, we have a maven repo. However, you should be wary that some functionality is only
+exposed by CC:T's API and not vanilla ComputerCraft. If you wish to support all variations of ComputerCraft, I recommend
+using [cc.crzd.me's maven](https://cc.crzd.me/maven/) instead.
+
+```groovy
+dependencies {
+  maven { url 'https://squiddev.cc/maven/' }
+}
+
+dependencies {
+  implementation "org.squiddev:cc-tweaked:${mc_version}-${cct_version}"
+}
+```
+
+You should also be careful to only use classes within the `dan200.computercraft.api` package. Non-API classes are
+subject to change at any point. If you depend on functionality outside the API, file an issue, and we can look into
+exposing more features.
