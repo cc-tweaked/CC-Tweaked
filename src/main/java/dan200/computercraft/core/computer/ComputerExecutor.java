@@ -29,7 +29,7 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
@@ -95,9 +95,27 @@ final class ComputerExecutor
     private final Object queueLock = new Object();
 
     /**
-     * Determines if this executer is present within {@link ComputerThread}.
+     * Determines if this executor is present within {@link ComputerThread}.
+     *
+     * @see #queueLock
+     * @see #enqueue()
+     * @see #afterWork()
      */
     volatile boolean onComputerQueue = false;
+
+    /**
+     * The amount of time this computer has used on a theoretical machine which shares work evenly amongst computers.
+     *
+     * @see ComputerThread
+     */
+    long virtualRuntime = 0;
+
+    /**
+     * The last time at which we updated {@link #virtualRuntime}.
+     *
+     * @see ComputerThread
+     */
+    long vRuntimeStart;
 
     /**
      * The command that {@link #work()} should execute on the computer thread.
@@ -118,6 +136,14 @@ final class ComputerExecutor
     private final Queue<Event> eventQueue = new ArrayDeque<>();
 
     /**
+     * Whether we interrupted an event and so should resume it instead of executing another task.
+     *
+     * @see #work()
+     * @see #resumeMachine(String, Object[])
+     */
+    private boolean interruptedEvent = false;
+
+    /**
      * Whether this executor has been closed, and will no longer accept any incoming commands or events.
      *
      * @see #queueStop(boolean, boolean)
@@ -127,9 +153,12 @@ final class ComputerExecutor
     private IWritableMount rootMount;
 
     /**
-     * {@code true} when inside {@link #work()}. We use this to ensure we're only doing one bit of work at one time.
+     * The thread the executor is running on. This is non-null when performing work. We use this to ensure we're only
+     * doing one bit of work at one time.
+     *
+     * @see ComputerThread
      */
-    private final AtomicBoolean isExecuting = new AtomicBoolean( false );
+    final AtomicReference<Thread> executingThread = new AtomicReference<>();
 
     ComputerExecutor( Computer computer )
     {
@@ -268,9 +297,7 @@ final class ComputerExecutor
     {
         synchronized( queueLock )
         {
-            if( onComputerQueue ) return;
-            onComputerQueue = true;
-            ComputerThread.queue( this );
+            if( !onComputerQueue ) ComputerThread.queue( this );
         }
     }
 
@@ -391,6 +418,7 @@ final class ComputerExecutor
         {
             // Reset the terminal and event queue
             computer.getTerminal().reset();
+            interruptedEvent = false;
             synchronized( queueLock )
             {
                 eventQueue.clear();
@@ -432,6 +460,7 @@ final class ComputerExecutor
         try
         {
             isOn = false;
+            interruptedEvent = false;
             synchronized( queueLock )
             {
                 eventQueue.clear();
@@ -468,27 +497,34 @@ final class ComputerExecutor
      */
     void beforeWork()
     {
-        timeout.reset();
+        vRuntimeStart = System.nanoTime();
+        timeout.startTimer();
     }
 
     /**
-     * Called after executing {@link #work()}. Adds this back to the {@link ComputerThread} if we have more work,
-     * otherwise remove it.
+     * Called after executing {@link #work()}.
+     *
+     * @return If we have more work to do.
      */
-    void afterWork()
+    boolean afterWork()
     {
-        Tracking.addTaskTiming( getComputer(), timeout.nanoSinceStart() );
+        if( interruptedEvent )
+        {
+            timeout.pauseTimer();
+        }
+        else
+        {
+            timeout.stopTimer();
+        }
+
+        Tracking.addTaskTiming( getComputer(), timeout.nanoCurrent() );
+
+        if( interruptedEvent ) return true;
 
         synchronized( queueLock )
         {
-            if( eventQueue.isEmpty() && command == null )
-            {
-                onComputerQueue = false;
-            }
-            else
-            {
-                ComputerThread.queue( this );
-            }
+            if( eventQueue.isEmpty() && command == null ) return onComputerQueue = false;
+            return true;
         }
     }
 
@@ -503,74 +539,72 @@ final class ComputerExecutor
      */
     void work() throws InterruptedException
     {
-        if( isExecuting.getAndSet( true ) )
+        if( interruptedEvent )
         {
-            throw new IllegalStateException( "Multiple threads running on computer the same time" );
-        }
-
-        try
-        {
-            StateCommand command;
-            Event event = null;
-            synchronized( queueLock )
+            interruptedEvent = false;
+            if( machine != null )
             {
-                command = this.command;
-                this.command = null;
-
-                // If we've no command, pull something from the event queue instead.
-                if( command == null )
-                {
-                    if( !isOn )
-                    {
-                        // We're not on and had no command, but we had work queued. This should never happen, so clear
-                        // the event queue just in case.
-                        eventQueue.clear();
-                        return;
-                    }
-
-                    event = eventQueue.poll();
-                }
-            }
-
-            if( command != null )
-            {
-                switch( command )
-                {
-                    case TURN_ON:
-                        if( isOn ) return;
-                        turnOn();
-                        break;
-
-                    case SHUTDOWN:
-
-                        if( !isOn ) return;
-                        computer.getTerminal().reset();
-                        shutdown();
-                        break;
-
-                    case REBOOT:
-                        if( !isOn ) return;
-                        computer.getTerminal().reset();
-                        shutdown();
-
-                        computer.turnOn();
-                        break;
-
-                    case ABORT:
-                        if( !isOn ) return;
-                        displayFailure( "Error running computer", TimeoutState.ABORT_MESSAGE );
-                        shutdown();
-                        break;
-                }
-            }
-            else if( event != null )
-            {
-                resumeMachine( event.name, event.args );
+                resumeMachine( null, null );
+                return;
             }
         }
-        finally
+
+        StateCommand command;
+        Event event = null;
+        synchronized( queueLock )
         {
-            isExecuting.set( false );
+            command = this.command;
+            this.command = null;
+
+            // If we've no command, pull something from the event queue instead.
+            if( command == null )
+            {
+                if( !isOn )
+                {
+                    // We're not on and had no command, but we had work queued. This should never happen, so clear
+                    // the event queue just in case.
+                    eventQueue.clear();
+                    return;
+                }
+
+                event = eventQueue.poll();
+            }
+        }
+
+        if( command != null )
+        {
+            switch( command )
+            {
+                case TURN_ON:
+                    if( isOn ) return;
+                    turnOn();
+                    break;
+
+                case SHUTDOWN:
+
+                    if( !isOn ) return;
+                    computer.getTerminal().reset();
+                    shutdown();
+                    break;
+
+                case REBOOT:
+                    if( !isOn ) return;
+                    computer.getTerminal().reset();
+                    shutdown();
+
+                    computer.turnOn();
+                    break;
+
+                case ABORT:
+                    if( !isOn ) return;
+                    displayFailure( "Error running computer", TimeoutState.ABORT_MESSAGE );
+                    shutdown();
+                    break;
+            }
+        }
+        else if( event != null )
+        {
+            resumeMachine( event.name, event.args );
         }
     }
 
@@ -601,6 +635,7 @@ final class ComputerExecutor
     private void resumeMachine( String event, Object[] args ) throws InterruptedException
     {
         MachineResult result = machine.handleEvent( event, args );
+        interruptedEvent = result.isPause();
         if( !result.isError() ) return;
 
         displayFailure( "Error running computer", result.getMessage() );

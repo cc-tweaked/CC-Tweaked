@@ -6,6 +6,9 @@
 
 package dan200.computercraft.core.computer;
 
+import dan200.computercraft.core.lua.ILuaMachine;
+import dan200.computercraft.core.lua.MachineResult;
+
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -22,8 +25,13 @@ import java.util.concurrent.TimeUnit;
  * abort ({@link #ABORT_TIMEOUT}), we trigger a hard abort (note, this is done from the computer thread manager). This
  * will destroy the entire Lua runtime and shut the computer down.
  *
+ * The Lua runtime is also allowed to pause execution if there are other computers contesting for work. All computers
+ * are allowed to run for {@link ComputerThread#scaledPeriod()} nanoseconds (see {@link #currentDeadline}). After that
+ * period, if any computers are waiting to be executed then we'll set the paused flag to true ({@link #isPaused()}.
+ *
  * @see ComputerThread
- * @see dan200.computercraft.core.lua.ILuaMachine
+ * @see ILuaMachine
+ * @see MachineResult#isPause()
  */
 public final class TimeoutState
 {
@@ -37,16 +45,68 @@ public final class TimeoutState
      */
     static final long ABORT_TIMEOUT = TimeUnit.MILLISECONDS.toNanos( 1500 );
 
+    /**
+     * The error message to display when we trigger an abort.
+     */
     public static final String ABORT_MESSAGE = "Too long without yielding";
 
-    private volatile boolean softAbort;
+    private boolean paused;
+    private boolean softAbort;
     private volatile boolean hardAbort;
 
-    private long nanoTime;
+    /**
+     * When the cumulative time would have started had the whole event been processed in one go.
+     */
+    private long cumulativeStart;
 
-    long nanoSinceStart()
+    /**
+     * How much cumulative time has elapsed. This is effectively {@code cumulativeStart - currentStart}.
+     */
+    private long cumulativeElapsed;
+
+    /**
+     * When this execution round started.
+     */
+    private long currentStart;
+
+    /**
+     * When this execution round should look potentially be paused.
+     */
+    private long currentDeadline;
+
+    long nanoCumulative()
     {
-        return System.nanoTime() - nanoTime;
+        return System.nanoTime() - cumulativeStart;
+    }
+
+    long nanoCurrent()
+    {
+        return System.nanoTime() - currentStart;
+    }
+
+    /**
+     * Recompute the {@link #isSoftAborted()} and {@link #isPaused()} flags.
+     */
+    public void refresh()
+    {
+        // Important: The weird arithmetic here is important, as nanoTime may return negative values, and so we
+        // need to handle overflow.
+        long now = System.nanoTime();
+        if( !paused ) paused = currentDeadline - now <= 0 && ComputerThread.hasPendingWork(); // now >= currentDeadline
+        if( !softAbort ) softAbort = (now - cumulativeStart - TIMEOUT) >= 0; // now - cumulativeStart >= TIMEOUT
+    }
+
+    /**
+     * Whether we should pause execution of this machine.
+     *
+     * This is determined by whether we've consumed our time slice, and if there are other computers waiting to perform
+     * work.
+     *
+     * @return Whether we should pause execution.
+     */
+    public boolean isPaused()
+    {
+        return paused;
     }
 
     /**
@@ -54,7 +114,7 @@ public final class TimeoutState
      */
     public boolean isSoftAborted()
     {
-        return softAbort || (softAbort = (System.nanoTime() - nanoTime) >= TIMEOUT);
+        return softAbort;
     }
 
     /**
@@ -74,11 +134,35 @@ public final class TimeoutState
     }
 
     /**
-     * Reset all abort flags and start the abort timer.
+     * Start the current and cumulative timers again.
      */
-    void reset()
+    void startTimer()
     {
-        softAbort = hardAbort = false;
-        nanoTime = System.nanoTime();
+        long now = System.nanoTime();
+        currentStart = now;
+        currentDeadline = now + ComputerThread.scaledPeriod();
+        // Compute the "nominal start time".
+        cumulativeStart = now - cumulativeElapsed;
+    }
+
+    /**
+     * Pauses the cumulative time, to be resumed by {@link #startTimer()}
+     *
+     * @see #nanoCumulative()
+     */
+    void pauseTimer()
+    {
+        // We set the cumulative time to difference between current time and "nominal start time".
+        cumulativeElapsed = System.nanoTime() - cumulativeStart;
+        paused = false;
+    }
+
+    /**
+     * Resets the cumulative time and resets the abort flags.
+     */
+    void stopTimer()
+    {
+        cumulativeElapsed = 0;
+        paused = softAbort = hardAbort = false;
     }
 }

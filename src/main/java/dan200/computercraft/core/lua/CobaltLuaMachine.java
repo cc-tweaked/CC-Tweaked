@@ -40,6 +40,8 @@ import java.util.concurrent.TimeUnit;
 import static org.squiddev.cobalt.Constants.NONE;
 import static org.squiddev.cobalt.ValueFactory.valueOf;
 import static org.squiddev.cobalt.ValueFactory.varargsOf;
+import static org.squiddev.cobalt.debug.DebugFrame.FLAG_HOOKED;
+import static org.squiddev.cobalt.debug.DebugFrame.FLAG_HOOKYIELD;
 
 public class CobaltLuaMachine implements ILuaMachine
 {
@@ -165,6 +167,7 @@ public class CobaltLuaMachine implements ILuaMachine
         }
 
         // If the soft abort has been cleared then we can reset our flag.
+        timeout.refresh();
         if( !timeout.isSoftAborted() ) debug.thrownSoftAbort = false;
 
         try
@@ -175,8 +178,13 @@ public class CobaltLuaMachine implements ILuaMachine
                 resumeArgs = varargsOf( valueOf( eventName ), toValues( arguments ) );
             }
 
-            Varargs results = LuaThread.run( m_mainRoutine, resumeArgs );
+            // Resume the current thread, or the main one when first starting off.
+            LuaThread thread = m_state.getCurrentThread();
+            if( thread == null || thread == m_state.getMainThread() ) thread = m_mainRoutine;
+
+            Varargs results = LuaThread.run( thread, resumeArgs );
             if( timeout.isHardAborted() ) throw HardAbortError.INSTANCE;
+            if( results == null ) return MachineResult.PAUSE;
 
             LuaValue filter = results.first();
             m_eventFilter = filter.isString() ? filter.toString() : null;
@@ -620,6 +628,10 @@ public class CobaltLuaMachine implements ILuaMachine
         private int count = 0;
         boolean thrownSoftAbort;
 
+        private boolean isPaused;
+        private int oldFlags;
+        private boolean oldInHook;
+
         TimeoutDebugHandler()
         {
             this.timeout = CobaltLuaMachine.this.timeout;
@@ -628,8 +640,32 @@ public class CobaltLuaMachine implements ILuaMachine
         @Override
         public void onInstruction( DebugState ds, DebugFrame di, int pc ) throws LuaError, UnwindThrowable
         {
-            // We check our current abort state every 128 instructions.
-            if( (count = (count + 1) & 127) == 0 ) handleAbort();
+            di.pc = pc;
+
+            if( isPaused ) resetPaused( ds, di );
+
+            // We check our current pause/abort state every 128 instructions.
+            if( (count = (count + 1) & 127) == 0 )
+            {
+                // If we've been hard aborted or closed then abort.
+                if( timeout.isHardAborted() || m_state == null ) throw HardAbortError.INSTANCE;
+
+                timeout.refresh();
+                if( timeout.isPaused() )
+                {
+                    // Preserve the current state
+                    isPaused = true;
+                    oldInHook = ds.inhook;
+                    oldFlags = di.flags;
+
+                    // Suspend the state. This will probably throw, but we need to handle the case where it won't.
+                    di.flags |= FLAG_HOOKYIELD | FLAG_HOOKED;
+                    LuaThread.suspend( ds.getLuaState() );
+                    resetPaused( ds, di );
+                }
+
+                handleSoftAbort();
+            }
 
             super.onInstruction( ds, di, pc );
         }
@@ -637,14 +673,25 @@ public class CobaltLuaMachine implements ILuaMachine
         @Override
         public void poll() throws LuaError
         {
-            handleAbort();
+            // If we've been hard aborted or closed then abort.
+            LuaState state = m_state;
+            if( timeout.isHardAborted() || state == null ) throw HardAbortError.INSTANCE;
+
+            timeout.refresh();
+            if( timeout.isPaused() ) LuaThread.suspendBlocking( state );
+            handleSoftAbort();
         }
 
-        private void handleAbort() throws LuaError
+        private void resetPaused( DebugState ds, DebugFrame di )
         {
-            // If we've been hard aborted or closed then abort.
-            if( timeout.isHardAborted() || m_state == null ) throw HardAbortError.INSTANCE;
+            // Restore the previous paused state
+            isPaused = false;
+            ds.inhook = oldInHook;
+            di.flags = oldFlags;
+        }
 
+        private void handleSoftAbort() throws LuaError
+        {
             // If we already thrown our soft abort error then don't do it again.
             if( !timeout.isSoftAborted() || thrownSoftAbort ) return;
 
