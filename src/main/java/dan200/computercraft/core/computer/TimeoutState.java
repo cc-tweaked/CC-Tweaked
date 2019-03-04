@@ -46,18 +46,34 @@ public final class TimeoutState
     private boolean softAbort;
     private volatile boolean hardAbort;
 
-    private long nanoCumulative;
-    private long nanoCurrent;
-    private long nanoDeadline;
+    /**
+     * When the cumulative time would have started had the whole event been processed in one go.
+     */
+    private long cumulativeStart;
+
+    /**
+     * How much cumulative time has elapsed. This is effectively {@code cumulativeStart - currentStart}.
+     */
+    private long cumulativeElapsed;
+
+    /**
+     * When this execution round started.
+     */
+    private long currentStart;
+
+    /**
+     * When this execution round should look potentially be paused.
+     */
+    private long currentDeadline;
 
     long nanoCumulative()
     {
-        return System.nanoTime() - nanoCumulative;
+        return System.nanoTime() - cumulativeStart;
     }
 
     long nanoCurrent()
     {
-        return System.nanoTime() - nanoCurrent;
+        return System.nanoTime() - currentStart;
     }
 
     /**
@@ -66,8 +82,8 @@ public final class TimeoutState
     public void refresh()
     {
         long now = System.nanoTime();
-        if( !paused ) paused = now >= nanoDeadline && ComputerThread.hasPendingWork();
-        if( !softAbort ) softAbort = (now - nanoCumulative) >= TIMEOUT;
+        if( !paused ) paused = now >= currentDeadline && ComputerThread.hasPendingWork();
+        if( !softAbort ) softAbort = (now - cumulativeStart) >= TIMEOUT;
     }
 
     /**
@@ -113,10 +129,10 @@ public final class TimeoutState
     void startTimer()
     {
         long now = System.nanoTime();
-        nanoCurrent = now;
-        nanoDeadline = now + ComputerThread.scaledPeriod();
+        currentStart = now;
+        currentDeadline = now + ComputerThread.scaledPeriod();
         // Compute the "nominal start time".
-        nanoCumulative = now - nanoCumulative;
+        cumulativeStart = now - cumulativeElapsed;
     }
 
     /**
@@ -127,7 +143,7 @@ public final class TimeoutState
     void pauseTimer()
     {
         // We set the cumulative time to difference between current time and "nominal start time".
-        nanoCumulative = System.nanoTime() - nanoCumulative;
+        cumulativeElapsed = System.nanoTime() - cumulativeStart;
         paused = false;
     }
 
@@ -136,7 +152,7 @@ public final class TimeoutState
      */
     void stopTimer()
     {
-        nanoCumulative = 0;
+        cumulativeElapsed = 0;
         paused = softAbort = hardAbort = false;
     }
 }

@@ -29,7 +29,7 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
@@ -153,9 +153,12 @@ final class ComputerExecutor
     private IWritableMount rootMount;
 
     /**
-     * {@code true} when inside {@link #work()}. We use this to ensure we're only doing one bit of work at one time.
+     * The thread the executor is running on. This is non-null when performing work. We use this to ensure we're only
+     * doing one bit of work at one time.
+     *
+     * @see ComputerThread
      */
-    private final AtomicBoolean isExecuting = new AtomicBoolean( false );
+    final AtomicReference<Thread> executingThread = new AtomicReference<>();
 
     ComputerExecutor( Computer computer )
     {
@@ -536,84 +539,72 @@ final class ComputerExecutor
      */
     void work() throws InterruptedException
     {
-        if( isExecuting.getAndSet( true ) )
+        if( interruptedEvent )
         {
-            throw new IllegalStateException( "Multiple threads running on computer the same time" );
+            interruptedEvent = false;
+            if( machine != null )
+            {
+                resumeMachine( null, null );
+                return;
+            }
         }
 
-        try
+        StateCommand command;
+        Event event = null;
+        synchronized( queueLock )
         {
-            if( interruptedEvent )
+            command = this.command;
+            this.command = null;
+
+            // If we've no command, pull something from the event queue instead.
+            if( command == null )
             {
-                interruptedEvent = false;
-                if( machine != null )
+                if( !isOn )
                 {
-                    resumeMachine( null, null );
+                    // We're not on and had no command, but we had work queued. This should never happen, so clear
+                    // the event queue just in case.
+                    eventQueue.clear();
                     return;
                 }
-            }
 
-            StateCommand command;
-            Event event = null;
-            synchronized( queueLock )
-            {
-                command = this.command;
-                this.command = null;
-
-                // If we've no command, pull something from the event queue instead.
-                if( command == null )
-                {
-                    if( !isOn )
-                    {
-                        // We're not on and had no command, but we had work queued. This should never happen, so clear
-                        // the event queue just in case.
-                        eventQueue.clear();
-                        return;
-                    }
-
-                    event = eventQueue.poll();
-                }
-            }
-
-            if( command != null )
-            {
-                switch( command )
-                {
-                    case TURN_ON:
-                        if( isOn ) return;
-                        turnOn();
-                        break;
-
-                    case SHUTDOWN:
-
-                        if( !isOn ) return;
-                        computer.getTerminal().reset();
-                        shutdown();
-                        break;
-
-                    case REBOOT:
-                        if( !isOn ) return;
-                        computer.getTerminal().reset();
-                        shutdown();
-
-                        computer.turnOn();
-                        break;
-
-                    case ABORT:
-                        if( !isOn ) return;
-                        displayFailure( "Error running computer", TimeoutState.ABORT_MESSAGE );
-                        shutdown();
-                        break;
-                }
-            }
-            else if( event != null )
-            {
-                resumeMachine( event.name, event.args );
+                event = eventQueue.poll();
             }
         }
-        finally
+
+        if( command != null )
         {
-            isExecuting.set( false );
+            switch( command )
+            {
+                case TURN_ON:
+                    if( isOn ) return;
+                    turnOn();
+                    break;
+
+                case SHUTDOWN:
+
+                    if( !isOn ) return;
+                    computer.getTerminal().reset();
+                    shutdown();
+                    break;
+
+                case REBOOT:
+                    if( !isOn ) return;
+                    computer.getTerminal().reset();
+                    shutdown();
+
+                    computer.turnOn();
+                    break;
+
+                case ABORT:
+                    if( !isOn ) return;
+                    displayFailure( "Error running computer", TimeoutState.ABORT_MESSAGE );
+                    shutdown();
+                    break;
+            }
+        }
+        else if( event != null )
+        {
+            resumeMachine( event.name, event.args );
         }
     }
 

@@ -260,10 +260,21 @@ public class ComputerThread
     /**
      * Re-add this task to the queue
      *
+     * @param runner   The runner this task was on.
      * @param executor The executor to requeue
      */
-    private static void afterWork( ComputerExecutor executor )
+    private static void afterWork( TaskRunner runner, ComputerExecutor executor )
     {
+        // Clear the executor's thread.
+        Thread currentThread = executor.executingThread.getAndSet( null );
+        if( currentThread != runner.owner )
+        {
+            ComputerCraft.log.error(
+                "Expected computer #{} to be running on {}, but already running on {}. This is a SERIOUS bug, please report with your debug.log.",
+                executor.getComputer().getID(), runner.owner.getName(), currentThread == null ? "nothing" : currentThread.getName()
+            );
+        }
+
         computerLock.lock();
         try
         {
@@ -346,15 +357,23 @@ public class ComputerThread
                             executor.timeout.hardAbort();
                             executor.abort();
 
-                            if( afterHardAbort >= ABORT_TIMEOUT * 2 )
+                            if( afterHardAbort >= ABORT_TIMEOUT )
+                            {
+                                // If we've hard aborted but we're still not dead, dump the stack trace and interrupt
+                                // the task.
+                                timeoutTask( executor, runner.owner, afterStart );
+                                runner.owner.interrupt();
+                            }
+                            else if( afterHardAbort >= ABORT_TIMEOUT * 2 )
                             {
                                 // If we've hard aborted and interrupted, and we're still not dead, then mark the runner
                                 // as dead, finish off the task, and spawn a new runner.
-                                // Note, we'll do the actual interruption of the thread in the next block.
+                                timeoutTask( executor, runner.owner, afterStart );
                                 runner.running = false;
+                                runner.owner.interrupt();
 
                                 ComputerExecutor thisExecutor = runner.currentExecutor.getAndSet( null );
-                                if( thisExecutor != null ) afterWork( executor );
+                                if( thisExecutor != null ) afterWork( runner, executor );
 
                                 synchronized( threadLock )
                                 {
@@ -363,14 +382,6 @@ public class ComputerThread
                                         runnerFactory.newThread( currentRunners[i] = new TaskRunner() ).start();
                                     }
                                 }
-                            }
-
-                            if( afterHardAbort >= ABORT_TIMEOUT )
-                            {
-                                // If we've hard aborted but we're still not dead, dump the stack trace and interrupt
-                                // the task.
-                                timeoutTask( executor, runner.owner );
-                                runner.owner.interrupt();
                             }
                         }
                     }
@@ -401,6 +412,7 @@ public class ComputerThread
         {
             owner = Thread.currentThread();
 
+            tasks:
             while( running && ComputerThread.running )
             {
                 // Wait for an active queue to execute
@@ -426,11 +438,29 @@ public class ComputerThread
                     continue;
                 }
 
-                // Pull a task from this queue, and set what we're currently executing.
+                // If we're trying to executing some task on this computer while someone else is doing work, something
+                // is seriously wrong.
+                while( !executor.executingThread.compareAndSet( null, owner ) )
+                {
+                    Thread existing = executor.executingThread.get();
+                    if( existing != null )
+                    {
+                        ComputerCraft.log.error(
+                            "Trying to run computer #{} on thread {}, but already running on {}. This is a SERIOUS bug, please report with your debug.log.",
+                            executor.getComputer().getID(), owner.getName(), existing.getName()
+                        );
+                        continue tasks;
+                    }
+                }
+
+                // Reset the timers
+                executor.beforeWork();
+
+                // And then set the current executor. It's important to do it afterwards, as otherwise we introduce
+                // race conditions with the monitor.
                 currentExecutor.set( executor );
 
                 // Execute the task
-                executor.beforeWork();
                 try
                 {
                     executor.work();
@@ -442,19 +472,19 @@ public class ComputerThread
                 finally
                 {
                     ComputerExecutor thisExecutor = currentExecutor.getAndSet( null );
-                    if( thisExecutor != null ) afterWork( executor );
+                    if( thisExecutor != null ) afterWork( this, executor );
                 }
             }
         }
     }
 
-    private static void timeoutTask( ComputerExecutor executor, Thread thread )
+    private static void timeoutTask( ComputerExecutor executor, Thread thread, long time )
     {
         if( !ComputerCraft.logPeripheralErrors ) return;
 
         StringBuilder builder = new StringBuilder()
             .append( "Terminating computer #" ).append( executor.getComputer().getID() )
-            .append( " due to timeout (running for " ).append( executor.timeout.nanoCumulative() * 1e-9 )
+            .append( " due to timeout (running for " ).append( time * 1e-9 )
             .append( " seconds). This is NOT a bug, but may mean a computer is misbehaving. " )
             .append( thread.getName() )
             .append( " is currently " )
