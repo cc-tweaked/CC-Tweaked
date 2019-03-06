@@ -9,9 +9,9 @@ package dan200.computercraft.shared.network.server;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.network.NetworkMessage;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.fabricmc.fabric.api.network.PacketContext;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.util.PacketByteBuf;
 
 import javax.annotation.Nonnull;
 
@@ -35,31 +35,31 @@ public abstract class ComputerServerMessage implements NetworkMessage
     }
 
     @Override
-    public void toBytes( @Nonnull PacketBuffer buf )
+    public void toBytes( @Nonnull PacketByteBuf buf )
     {
         buf.writeVarInt( instanceId );
     }
 
     @Override
-    public void fromBytes( @Nonnull PacketBuffer buf )
+    public void fromBytes( @Nonnull PacketByteBuf buf )
     {
         instanceId = buf.readVarInt();
     }
 
-    public ServerComputer getComputer( NetworkEvent.Context context )
+    public ServerComputer getComputer( PacketContext context )
     {
         ServerComputer computer = ComputerCraft.serverComputerRegistry.get( instanceId );
         if( computer == null ) return null;
 
         // Verify the player is interacting with a computer.
-        EntityPlayer player = context.getSender();
+        PlayerEntity player = context.getPlayer();
         if( player == null || !computer.isInteracting( player ) ) return null;
 
         return computer;
     }
 
     @Override
-    public void handle( NetworkEvent.Context context )
+    public void handle( PacketContext context )
     {
         ServerComputer computer = getComputer( context );
         if( computer != null ) handle( computer );

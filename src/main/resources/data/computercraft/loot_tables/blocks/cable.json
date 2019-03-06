@@ -1,0 +1,36 @@
+{
+    "type": "minecraft:block",
+    "pools": [
+        {
+            "rolls": 1,
+            "entries": [
+                { "type": "minecraft:item", "name": "computercraft:cable" }
+            ],
+            "conditions": [
+                { "condition": "minecraft:survives_explosion" },
+                {
+                    "condition": "minecraft:block_state_property",
+                    "block": "computercraft:cable",
+                    "properties": { "cable": "true" }
+                }
+            ]
+        },
+        {
+            "rolls": 1,
+            "entries": [
+                { "type": "minecraft:item", "name": "computercraft:wired_modem" }
+            ],
+            "conditions": [
+                { "condition": "minecraft:survives_explosion" },
+                {
+                    "condition": "minecraft:inverted",
+                    "term": {
+                        "condition": "minecraft:block_state_property",
+                        "block": "computercraft:cable",
+                        "properties": { "modem": "none" }
+                    }
+                }
+            ]
+        }
+    ]
+}

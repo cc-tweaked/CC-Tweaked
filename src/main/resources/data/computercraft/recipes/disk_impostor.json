@@ -1,7 +1,7 @@
 {
     "type": "computercraft:impostor_shapeless",
     "ingredients": [
-        { "tag": "forge:dusts/redstone" },
+        { "item": "minecraft:redstone" },
         { "item": "minecraft:paper" }
     ],
     "result": { "item": "computercraft:disk" }

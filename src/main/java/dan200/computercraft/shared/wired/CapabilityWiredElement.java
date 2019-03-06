@@ -6,22 +6,9 @@
 
 package dan200.computercraft.shared.wired;
 
-import dan200.computercraft.api.network.wired.IWiredElement;
-import dan200.computercraft.api.network.wired.IWiredNode;
-import net.minecraft.nbt.INBTBase;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.World;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.CapabilityInject;
-import net.minecraftforge.common.capabilities.CapabilityManager;
-import net.minecraftforge.common.util.LazyOptional;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
 public class CapabilityWiredElement
 {
+    /*
     @CapabilityInject( IWiredElement.class )
     public static Capability<IWiredElement> CAPABILITY = null;
 
@@ -83,4 +70,5 @@ public class CapabilityWiredElement
         IWiredElement element = capability.orElse( NULL_ELEMENT );
         return element == NULL_ELEMENT ? null : element;
     }
+    */
 }

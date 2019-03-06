@@ -8,7 +8,7 @@ package dan200.computercraft.shared.command;
 
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
-import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.text.TranslatableTextComponent;
 
 public class Exceptions
 {
@@ -25,11 +25,11 @@ public class Exceptions
 
     private static SimpleCommandExceptionType translated( String key )
     {
-        return new SimpleCommandExceptionType( new TextComponentTranslation( key ) );
+        return new SimpleCommandExceptionType( new TranslatableTextComponent( key ) );
     }
 
     private static DynamicCommandExceptionType translated1( String key )
     {
-        return new DynamicCommandExceptionType( x -> new TextComponentTranslation( key, x ) );
+        return new DynamicCommandExceptionType( x -> new TranslatableTextComponent( key, x ) );
     }
 }

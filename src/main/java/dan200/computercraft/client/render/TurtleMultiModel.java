@@ -6,31 +6,31 @@
 
 package dan200.computercraft.client.render;
 
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.renderer.model.BakedQuad;
-import net.minecraft.client.renderer.model.IBakedModel;
-import net.minecraft.client.renderer.model.ItemCameraTransforms;
-import net.minecraft.client.renderer.model.ItemOverrideList;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.block.BlockState;
+import net.minecraft.client.render.model.BakedModel;
+import net.minecraft.client.render.model.BakedQuad;
+import net.minecraft.client.render.model.json.ModelItemPropertyOverrideList;
+import net.minecraft.client.render.model.json.ModelTransformation;
+import net.minecraft.client.texture.Sprite;
+import net.minecraft.client.util.math.Matrix4f;
+import net.minecraft.util.math.Direction;
 
 import javax.annotation.Nonnull;
-import javax.vecmath.Matrix4f;
 import java.util.*;
 
-public class TurtleMultiModel implements IBakedModel
+public class TurtleMultiModel implements BakedModel
 {
-    private final IBakedModel m_baseModel;
-    private final IBakedModel m_overlayModel;
+    private final BakedModel m_baseModel;
+    private final BakedModel m_overlayModel;
     private final Matrix4f m_generalTransform;
-    private final IBakedModel m_leftUpgradeModel;
+    private final BakedModel m_leftUpgradeModel;
     private final Matrix4f m_leftUpgradeTransform;
-    private final IBakedModel m_rightUpgradeModel;
+    private final BakedModel m_rightUpgradeModel;
     private final Matrix4f m_rightUpgradeTransform;
     private List<BakedQuad> m_generalQuads;
-    private Map<EnumFacing, List<BakedQuad>> m_faceQuads;
+    private Map<Direction, List<BakedQuad>> m_faceQuads;
 
-    public TurtleMultiModel( IBakedModel baseModel, IBakedModel overlayModel, Matrix4f generalTransform, IBakedModel leftUpgradeModel, Matrix4f leftUpgradeTransform, IBakedModel rightUpgradeModel, Matrix4f rightUpgradeTransform )
+    public TurtleMultiModel( BakedModel baseModel, BakedModel overlayModel, Matrix4f generalTransform, BakedModel leftUpgradeModel, Matrix4f leftUpgradeTransform, BakedModel rightUpgradeModel, Matrix4f rightUpgradeTransform )
     {
         // Get the models
         m_baseModel = baseModel;
@@ -46,7 +46,7 @@ public class TurtleMultiModel implements IBakedModel
 
     @Nonnull
     @Override
-    public List<BakedQuad> getQuads( IBlockState state, EnumFacing side, @Nonnull Random rand )
+    public List<BakedQuad> getQuads( BlockState state, Direction side, Random rand )
     {
         if( side != null )
         {
@@ -60,7 +60,7 @@ public class TurtleMultiModel implements IBakedModel
         }
     }
 
-    private List<BakedQuad> buildQuads( IBlockState state, EnumFacing side, Random rand )
+    private List<BakedQuad> buildQuads( BlockState state, Direction side, Random rand )
     {
         ArrayList<BakedQuad> quads = new ArrayList<>();
         ModelTransformer.transformQuadsTo( quads, m_baseModel.getQuads( state, side, rand ), m_generalTransform );
@@ -78,7 +78,7 @@ public class TurtleMultiModel implements IBakedModel
             if( m_leftUpgradeTransform != null )
             {
                 upgradeTransform = new Matrix4f( m_generalTransform );
-                upgradeTransform.mul( m_leftUpgradeTransform );
+                upgradeTransform.multiply( m_leftUpgradeTransform );
             }
             ModelTransformer.transformQuadsTo( quads, m_leftUpgradeModel.getQuads( state, side, rand ), upgradeTransform );
         }
@@ -88,7 +88,7 @@ public class TurtleMultiModel implements IBakedModel
             if( m_rightUpgradeTransform != null )
             {
                 upgradeTransform = new Matrix4f( m_generalTransform );
-                upgradeTransform.mul( m_rightUpgradeTransform );
+                upgradeTransform.multiply( m_rightUpgradeTransform );
             }
             ModelTransformer.transformQuadsTo( quads, m_rightUpgradeModel.getQuads( state, side, rand ), upgradeTransform );
         }
@@ -97,42 +97,38 @@ public class TurtleMultiModel implements IBakedModel
     }
 
     @Override
-    public boolean isAmbientOcclusion()
+    public boolean useAmbientOcclusion()
     {
-        return m_baseModel.isAmbientOcclusion();
+        return m_baseModel.useAmbientOcclusion();
     }
 
     @Override
-    public boolean isGui3d()
+    public boolean hasDepthInGui()
     {
-        return m_baseModel.isGui3d();
+        return m_baseModel.hasDepthInGui();
     }
 
     @Override
-    public boolean isBuiltInRenderer()
+    public boolean isBuiltin()
     {
-        return m_baseModel.isBuiltInRenderer();
+        return m_baseModel.isBuiltin();
     }
 
-    @Nonnull
     @Override
-    public TextureAtlasSprite getParticleTexture()
+    public Sprite getSprite()
     {
-        return m_baseModel.getParticleTexture();
+        return m_baseModel.getSprite();
     }
 
-    @Nonnull
     @Override
-    @Deprecated
-    public ItemCameraTransforms getItemCameraTransforms()
+    public ModelTransformation getTransformation()
     {
-        return m_baseModel.getItemCameraTransforms();
+        return m_baseModel.getTransformation();
     }
 
-    @Nonnull
     @Override
-    public ItemOverrideList getOverrides()
+    public ModelItemPropertyOverrideList getItemPropertyOverrides()
     {
-        return ItemOverrideList.EMPTY;
+        return ModelItemPropertyOverrideList.EMPTY;
     }
 }

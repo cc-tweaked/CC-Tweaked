@@ -15,13 +15,13 @@ import dan200.computercraft.api.turtle.TurtleCommandResult;
 import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.api.turtle.event.TurtleAction;
 import dan200.computercraft.api.turtle.event.TurtleActionEvent;
+import dan200.computercraft.api.turtle.event.TurtleEvent;
 import dan200.computercraft.core.apis.IAPIEnvironment;
 import dan200.computercraft.core.tracking.TrackingField;
 import dan200.computercraft.shared.turtle.core.*;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraft.util.registry.Registry;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -248,10 +248,10 @@ public class TurtleAPI implements ILuaAPI
             {
                 // getItemCount
                 int slot = parseOptionalSlotNumber( args, 0, m_turtle.getSelectedSlot() );
-                ItemStack stack = m_turtle.getInventory().getStackInSlot( slot );
+                ItemStack stack = m_turtle.getInventory().getInvStack( slot );
                 if( !stack.isEmpty() )
                 {
-                    return new Object[] { stack.getCount() };
+                    return new Object[] { stack.getAmount() };
                 }
                 else
                 {
@@ -262,11 +262,11 @@ public class TurtleAPI implements ILuaAPI
             {
                 // getItemSpace
                 int slot = parseOptionalSlotNumber( args, 0, m_turtle.getSelectedSlot() );
-                ItemStack stack = m_turtle.getInventory().getStackInSlot( slot );
+                ItemStack stack = m_turtle.getInventory().getInvStack( slot );
                 if( !stack.isEmpty() )
                 {
                     return new Object[] {
-                        Math.min( stack.getMaxStackSize(), 64 ) - stack.getCount()
+                        Math.min( stack.getMaxAmount(), 64 ) - stack.getAmount()
                     };
                 }
                 return new Object[] { 64 };
@@ -436,19 +436,19 @@ public class TurtleAPI implements ILuaAPI
             {
                 // getItemDetail
                 int slot = parseOptionalSlotNumber( args, 0, m_turtle.getSelectedSlot() );
-                ItemStack stack = m_turtle.getInventory().getStackInSlot( slot );
+                ItemStack stack = m_turtle.getInventory().getInvStack( slot );
                 if( !stack.isEmpty() )
                 {
                     Item item = stack.getItem();
-                    String name = ForgeRegistries.ITEMS.getKey( item ).toString();
-                    int count = stack.getCount();
+                    String name = Registry.ITEM.getId( item ).toString();
+                    int count = stack.getAmount();
 
                     Map<Object, Object> table = new HashMap<>();
                     table.put( "name", name );
                     table.put( "count", count );
 
                     TurtleActionEvent event = new TurtleActionEvent( m_turtle, TurtleAction.INSPECT_ITEM );
-                    if( MinecraftForge.EVENT_BUS.post( event ) )
+                    if( TurtleEvent.post( event ) )
                     {
                         return new Object[] { false, event.getFailureMessage() };
                     }

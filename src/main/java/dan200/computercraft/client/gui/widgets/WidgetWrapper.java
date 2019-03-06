@@ -6,17 +6,17 @@
 
 package dan200.computercraft.client.gui.widgets;
 
-import net.minecraft.client.gui.IGuiEventListener;
+import net.minecraft.client.gui.InputListener;
 
-public class WidgetWrapper implements IGuiEventListener
+public class WidgetWrapper implements InputListener
 {
-    private final IGuiEventListener listener;
+    private final InputListener listener;
     private final int x;
     private final int y;
     private final int width;
     private final int height;
 
-    public WidgetWrapper( IGuiEventListener listener, int x, int y, int width, int height )
+    public WidgetWrapper( InputListener listener, int x, int y, int width, int height )
     {
         this.listener = listener;
         this.x = x;
@@ -26,15 +26,22 @@ public class WidgetWrapper implements IGuiEventListener
     }
 
     @Override
-    public void focusChanged( boolean b )
+    public void mouseMoved( double x, double y )
     {
-        listener.focusChanged( b );
+        double dx = x - this.x, dy = y - this.y;
+        if( dx >= 0 && dx < width && dy >= 0 && dy < height ) listener.mouseMoved( dx, dy );
     }
 
     @Override
-    public boolean canFocus()
+    public void setHasFocus( boolean b )
     {
-        return listener.canFocus();
+        listener.setHasFocus( b );
+    }
+
+    @Override
+    public boolean hasFocus()
+    {
+        return listener.hasFocus();
     }
 
     @Override

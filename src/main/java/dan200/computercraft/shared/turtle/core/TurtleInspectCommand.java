@@ -11,14 +11,14 @@ import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.ITurtleCommand;
 import dan200.computercraft.api.turtle.TurtleCommandResult;
 import dan200.computercraft.api.turtle.event.TurtleBlockEvent;
+import dan200.computercraft.api.turtle.event.TurtleEvent;
 import net.minecraft.block.Block;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.state.IProperty;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.block.BlockState;
+import net.minecraft.state.property.Property;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
+import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nonnull;
 import java.util.HashMap;
@@ -38,27 +38,27 @@ public class TurtleInspectCommand implements ITurtleCommand
     public TurtleCommandResult execute( @Nonnull ITurtleAccess turtle )
     {
         // Get world direction from direction
-        EnumFacing direction = m_direction.toWorldDir( turtle );
+        Direction direction = m_direction.toWorldDir( turtle );
 
         // Check if thing in front is air or not
         World world = turtle.getWorld();
         BlockPos oldPosition = turtle.getPosition();
         BlockPos newPosition = oldPosition.offset( direction );
 
-        IBlockState state = world.getBlockState( newPosition );
-        if( state.getBlock().isAir( state, world, newPosition ) )
+        BlockState state = world.getBlockState( newPosition );
+        if( state.isAir() )
         {
             return TurtleCommandResult.failure( "No block to inspect" );
         }
 
         Block block = state.getBlock();
-        String name = ForgeRegistries.BLOCKS.getKey( block ).toString();
+        String name = Registry.BLOCK.getId( block ).toString();
 
         Map<String, Object> table = new HashMap<>();
         table.put( "name", name );
 
         Map<Object, Object> stateTable = new HashMap<>();
-        for( ImmutableMap.Entry<IProperty<?>, ?> entry : state.getValues().entrySet() )
+        for( ImmutableMap.Entry<Property<?>, ?> entry : state.getEntries().entrySet() )
         {
             String propertyName = entry.getKey().getName();
             Object value = entry.getValue();
@@ -76,7 +76,7 @@ public class TurtleInspectCommand implements ITurtleCommand
         // Fire the event, exiting if it is cancelled
         TurtlePlayer turtlePlayer = TurtlePlaceCommand.createPlayer( turtle, oldPosition, direction );
         TurtleBlockEvent.Inspect event = new TurtleBlockEvent.Inspect( turtle, turtlePlayer, world, newPosition, state, table );
-        if( MinecraftForge.EVENT_BUS.post( event ) ) return TurtleCommandResult.failure( event.getFailureMessage() );
+        if( TurtleEvent.post( event ) ) return TurtleCommandResult.failure( event.getFailureMessage() );
 
         return TurtleCommandResult.success( new Object[] { table } );
 

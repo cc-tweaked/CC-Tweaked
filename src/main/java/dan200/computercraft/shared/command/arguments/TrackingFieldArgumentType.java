@@ -8,7 +8,7 @@ package dan200.computercraft.shared.command.arguments;
 
 import dan200.computercraft.core.tracking.TrackingField;
 import dan200.computercraft.shared.command.Exceptions;
-import net.minecraft.util.text.TextComponentString;
+import net.minecraft.text.StringTextComponent;
 
 public class TrackingFieldArgumentType extends ChoiceArgumentType<TrackingField>
 {
@@ -16,7 +16,7 @@ public class TrackingFieldArgumentType extends ChoiceArgumentType<TrackingField>
 
     private TrackingFieldArgumentType()
     {
-        super( TrackingField.fields().values(), TrackingField::id, x -> new TextComponentString( x.displayName() ), Exceptions.UNKNOWN_TRACKING_FIELD );
+        super( TrackingField.fields().values(), TrackingField::id, x -> new StringTextComponent( x.displayName() ), Exceptions.UNKNOWN_TRACKING_FIELD );
     }
 
     public static TrackingFieldArgumentType trackingField()

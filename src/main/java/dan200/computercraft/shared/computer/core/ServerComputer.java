@@ -21,15 +21,14 @@ import dan200.computercraft.shared.network.NetworkMessage;
 import dan200.computercraft.shared.network.client.ComputerDataClientMessage;
 import dan200.computercraft.shared.network.client.ComputerDeletedClientMessage;
 import dan200.computercraft.shared.network.client.ComputerTerminalClientMessage;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.Container;
-import net.minecraft.nbt.NBTTagCompound;
+import net.fabricmc.loader.FabricLoader;
+import net.minecraft.SharedConstants;
+import net.minecraft.container.Container;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraftforge.common.DimensionManager;
-import net.minecraftforge.fml.server.ServerLifecycleHooks;
-import net.minecraftforge.versions.mcp.MCPVersion;
 
 import java.io.InputStream;
 
@@ -42,7 +41,7 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
 
     private final ComputerFamily m_family;
     private final Computer m_computer;
-    private NBTTagCompound m_userData;
+    private CompoundTag m_userData;
     private boolean m_changed;
 
     private boolean m_changedLastFrame;
@@ -133,11 +132,11 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
         m_computer.unload();
     }
 
-    public NBTTagCompound getUserData()
+    public CompoundTag getUserData()
     {
         if( m_userData == null )
         {
-            m_userData = new NBTTagCompound();
+            m_userData = new CompoundTag();
         }
         return m_userData;
     }
@@ -154,7 +153,7 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
 
     protected NetworkMessage createTerminalPacket()
     {
-        NBTTagCompound tagCompound = new NBTTagCompound();
+        CompoundTag tagCompound = new CompoundTag();
         writeDescription( tagCompound );
         return new ComputerTerminalClientMessage( getInstanceID(), tagCompound );
     }
@@ -170,23 +169,23 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
         if( hasTerminalChanged() || force )
         {
             // Send terminal state to clients who are currently interacting with the computer.
-            MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
+            MinecraftServer server = FabricLoader.INSTANCE.getEnvironmentHandler().getServerInstance();
 
             NetworkMessage packet = createTerminalPacket();
-            for( EntityPlayer player : server.getPlayerList().getPlayers() )
+            for( PlayerEntity player : server.getPlayerManager().getPlayerList() )
             {
                 if( isInteracting( player ) ) NetworkHandler.sendToPlayer( player, packet );
             }
         }
     }
 
-    public void sendComputerState( EntityPlayer player )
+    public void sendComputerState( PlayerEntity player )
     {
         // Send state to client
         NetworkHandler.sendToPlayer( player, createComputerPacket() );
     }
 
-    public void sendTerminalState( EntityPlayer player )
+    public void sendTerminalState( PlayerEntity player )
     {
         // Send terminal state to client
         NetworkHandler.sendToPlayer( player, createTerminalPacket() );
@@ -322,13 +321,13 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
     @Override
     public double getTimeOfDay()
     {
-        return (m_world.getGameTime() + 6000) % 24000 / 1000.0;
+        return (m_world.getTime() + 6000) % 24000 / 1000.0;
     }
 
     @Override
     public int getDay()
     {
-        return (int) ((m_world.getGameTime() + 6000) / 24000) + 1;
+        return (int) ((m_world.getTime() + 6000) / 24000) + 1;
     }
 
     @Override
@@ -358,7 +357,7 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
     @Override
     public String getHostString()
     {
-        return "ComputerCraft ${version} (Minecraft " + MCPVersion.getMCVersion() + ")";
+        return "ComputerCraft ${version} (Minecraft " + SharedConstants.getGameVersion() + ")";
     }
 
     @Override
@@ -367,11 +366,11 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
         return ComputerCraftAPI.createUniqueNumberedSaveDir( m_world, "computer" );
     }
 
-    public boolean isInteracting( EntityPlayer player )
+    public boolean isInteracting( PlayerEntity player )
     {
         if( player == null ) return false;
 
-        Container container = player.openContainer;
+        Container container = player.container;
         if( !(container instanceof IContainerComputer) ) return false;
 
         IComputer computer = ((IContainerComputer) container).getComputer();

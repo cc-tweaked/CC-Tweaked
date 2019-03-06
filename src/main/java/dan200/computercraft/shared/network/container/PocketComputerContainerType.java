@@ -8,9 +8,9 @@ package dan200.computercraft.shared.network.container;
 
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.pocket.inventory.ContainerPocketComputer;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.EnumHand;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.Hand;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.PacketByteBuf;
 
 import javax.annotation.Nonnull;
 
@@ -21,11 +21,11 @@ import javax.annotation.Nonnull;
  */
 public class PocketComputerContainerType implements ContainerType<ContainerPocketComputer>
 {
-    public static final ResourceLocation ID = new ResourceLocation( ComputerCraft.MOD_ID, "pocket_computer_gui" );
+    public static final Identifier ID = new Identifier( ComputerCraft.MOD_ID, "pocket_computer_gui" );
 
-    public EnumHand hand;
+    public Hand hand;
 
-    public PocketComputerContainerType( EnumHand hand )
+    public PocketComputerContainerType( Hand hand )
     {
         this.hand = hand;
     }
@@ -36,20 +36,20 @@ public class PocketComputerContainerType implements ContainerType<ContainerPocke
 
     @Nonnull
     @Override
-    public ResourceLocation getId()
+    public Identifier getId()
     {
         return ID;
     }
 
     @Override
-    public void toBytes( @Nonnull PacketBuffer buf )
+    public void toBytes( @Nonnull PacketByteBuf buf )
     {
-        buf.writeEnumValue( hand );
+        buf.writeEnumConstant( hand );
     }
 
     @Override
-    public void fromBytes( @Nonnull PacketBuffer buf )
+    public void fromBytes( @Nonnull PacketByteBuf buf )
     {
-        hand = buf.readEnumValue( EnumHand.class );
+        hand = buf.readEnumConstant( Hand.class );
     }
 }

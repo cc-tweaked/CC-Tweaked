@@ -18,8 +18,8 @@ import dan200.computercraft.api.network.wired.IWiredNode;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.shared.util.DirectionUtil;
-import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.junit.Ignore;
@@ -262,7 +262,7 @@ public class NetworkTest
             long start = System.nanoTime();
 
             grid.forEach( ( existing, pos ) -> {
-                for( EnumFacing facing : DirectionUtil.FACINGS )
+                for( Direction facing : DirectionUtil.FACINGS )
                 {
                     BlockPos offset = pos.offset( facing );
                     if( (offset.getX() > BRUTE_SIZE / 2) == (pos.getX() > BRUTE_SIZE / 2) )

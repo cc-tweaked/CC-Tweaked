@@ -10,22 +10,22 @@ import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.shared.common.TileGeneric;
 import dan200.computercraft.shared.peripheral.IPeripheralTile;
-import dan200.computercraft.shared.util.NamedBlockEntityType;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.ITickable;
-import net.minecraft.util.ResourceLocation;
+import dan200.computercraft.shared.util.NamedTileEntityType;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.Tickable;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
 import javax.annotation.Nullable;
 
-public class TileSpeaker extends TileGeneric implements ITickable, IPeripheralTile
+public class TileSpeaker extends TileGeneric implements Tickable, IPeripheralTile
 {
     public static final int MIN_TICKS_BETWEEN_SOUNDS = 1;
 
-    public static final NamedBlockEntityType<TileSpeaker> FACTORY = NamedBlockEntityType.create(
-        new ResourceLocation( ComputerCraft.MOD_ID, "speaker" ),
+    public static final NamedTileEntityType<TileSpeaker> FACTORY = NamedTileEntityType.create(
+        new Identifier( ComputerCraft.MOD_ID, "speaker" ),
         TileSpeaker::new
     );
 
@@ -44,7 +44,7 @@ public class TileSpeaker extends TileGeneric implements ITickable, IPeripheralTi
     }
 
     @Override
-    public IPeripheral getPeripheral( EnumFacing side )
+    public IPeripheral getPeripheral( Direction side )
     {
         return m_peripheral;
     }

@@ -10,17 +10,19 @@ import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.ITurtleCommand;
 import dan200.computercraft.api.turtle.TurtleAnimation;
 import dan200.computercraft.api.turtle.TurtleCommandResult;
+import dan200.computercraft.api.turtle.event.TurtleEvent;
 import dan200.computercraft.api.turtle.event.TurtleInventoryEvent;
 import dan200.computercraft.shared.util.InventoryUtil;
-import net.minecraft.entity.item.EntityItem;
+import dan200.computercraft.shared.util.ItemStorage;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.ItemEntity;
+import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.EntitySelectors;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.predicate.entity.EntityPredicates;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.BoundingBox;
+import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.items.IItemHandler;
 
 import javax.annotation.Nonnull;
 import java.util.List;
@@ -48,108 +50,126 @@ public class TurtleSuckCommand implements ITurtleCommand
         }
 
         // Get world direction from direction
-        EnumFacing direction = m_direction.toWorldDir( turtle );
+        Direction direction = m_direction.toWorldDir( turtle );
 
         // Get inventory for thing in front
         World world = turtle.getWorld();
-        BlockPos turtlePosition = turtle.getPosition();
-        BlockPos blockPosition = turtlePosition.offset( direction );
-        EnumFacing side = direction.getOpposite();
+        BlockPos oldPosition = turtle.getPosition();
+        BlockPos newPosition = oldPosition.offset( direction );
+        Direction side = direction.getOpposite();
 
-        IItemHandler inventory = InventoryUtil.getInventory( world, blockPosition, side );
+        Inventory inventory = InventoryUtil.getInventory( world, newPosition, side );
 
         // Fire the event, exiting if it is cancelled.
-        TurtlePlayer player = TurtlePlaceCommand.createPlayer( turtle, turtlePosition, direction );
-        TurtleInventoryEvent.Suck event = new TurtleInventoryEvent.Suck( turtle, player, world, blockPosition, inventory );
-        if( MinecraftForge.EVENT_BUS.post( event ) )
+        TurtlePlayer player = TurtlePlaceCommand.createPlayer( turtle, oldPosition, direction );
+        TurtleInventoryEvent.Suck event = new TurtleInventoryEvent.Suck( turtle, player, world, newPosition, inventory );
+        if( TurtleEvent.post( event ) )
         {
             return TurtleCommandResult.failure( event.getFailureMessage() );
         }
 
         if( inventory != null )
         {
+            ItemStorage storage = ItemStorage.wrap( inventory, side );
             // Take from inventory of thing in front
-            ItemStack stack = InventoryUtil.takeItems( m_quantity, inventory );
-            if( stack.isEmpty() ) return TurtleCommandResult.failure( "No items to take" );
+            ItemStack stack = InventoryUtil.takeItems( m_quantity, storage );
+            if( !stack.isEmpty() )
+            {
+                // Try to place into the turtle
+                ItemStack remainder = InventoryUtil.storeItems( stack, ItemStorage.wrap( turtle.getInventory() ), turtle.getSelectedSlot() );
+                if( !remainder.isEmpty() )
+                {
+                    // Put the remainder back in the inventory
+                    InventoryUtil.storeItems( remainder, storage );
+                }
 
-            // Try to place into the turtle
-            ItemStack remainder = InventoryUtil.storeItems( stack, turtle.getItemHandler(), turtle.getSelectedSlot() );
-            if( !remainder.isEmpty() )
-            {
-                // Put the remainder back in the inventory
-                InventoryUtil.storeItems( remainder, inventory );
+                // Return true if we consumed anything
+                if( remainder != stack )
+                {
+                    turtle.playAnimation( TurtleAnimation.Wait );
+                    return TurtleCommandResult.success();
+                }
+                else
+                {
+                    return TurtleCommandResult.failure( "No space for items" );
+                }
             }
-
-            // Return true if we consumed anything
-            if( remainder != stack )
-            {
-                turtle.playAnimation( TurtleAnimation.Wait );
-                return TurtleCommandResult.success();
-            }
-            else
-            {
-                return TurtleCommandResult.failure( "No space for items" );
-            }
+            return TurtleCommandResult.failure( "No items to take" );
         }
         else
         {
             // Suck up loose items off the ground
-            AxisAlignedBB aabb = new AxisAlignedBB(
-                blockPosition.getX(), blockPosition.getY(), blockPosition.getZ(),
-                blockPosition.getX() + 1.0, blockPosition.getY() + 1.0, blockPosition.getZ() + 1.0
+            BoundingBox aabb = new BoundingBox(
+                newPosition.getX(), newPosition.getY(), newPosition.getZ(),
+                newPosition.getX() + 1.0, newPosition.getY() + 1.0, newPosition.getZ() + 1.0
             );
-            List<EntityItem> list = world.getEntitiesWithinAABB( EntityItem.class, aabb, EntitySelectors.IS_ALIVE );
-            if( list.isEmpty() ) return TurtleCommandResult.failure( "No items to take" );
-
-            for( EntityItem entity : list )
+            List<Entity> list = world.getEntities( (Entity) null, aabb, EntityPredicates.VALID_ENTITY );
+            if( list.size() > 0 )
             {
-                // Suck up the item
-                ItemStack stack = entity.getItem().copy();
-
-                ItemStack storeStack;
-                ItemStack leaveStack;
-                if( stack.getCount() > m_quantity )
+                boolean foundItems = false;
+                boolean storedItems = false;
+                for( Entity entity : list )
                 {
-                    storeStack = stack.split( m_quantity );
-                    leaveStack = stack;
-                }
-                else
-                {
-                    storeStack = stack;
-                    leaveStack = ItemStack.EMPTY;
-                }
-
-                ItemStack remainder = InventoryUtil.storeItems( storeStack, turtle.getItemHandler(), turtle.getSelectedSlot() );
-
-                if( remainder != storeStack )
-                {
-                    if( remainder.isEmpty() && leaveStack.isEmpty() )
+                    if( entity instanceof ItemEntity && !entity.isValid() )
                     {
-                        entity.remove();
+                        // Suck up the item
+                        foundItems = true;
+                        ItemEntity entityItem = (ItemEntity) entity;
+                        ItemStack stack = entityItem.getStack().copy();
+                        ItemStack storeStack;
+                        ItemStack leaveStack;
+                        if( stack.getAmount() > m_quantity )
+                        {
+                            storeStack = stack.split( m_quantity );
+                            leaveStack = stack;
+                        }
+                        else
+                        {
+                            storeStack = stack;
+                            leaveStack = ItemStack.EMPTY;
+                        }
+                        ItemStack remainder = InventoryUtil.storeItems( storeStack, ItemStorage.wrap( turtle.getInventory() ), turtle.getSelectedSlot() );
+                        if( remainder != storeStack )
+                        {
+                            storedItems = true;
+                            if( remainder.isEmpty() && leaveStack.isEmpty() )
+                            {
+                                entityItem.invalidate();
+                            }
+                            else if( remainder.isEmpty() )
+                            {
+                                entityItem.setStack( leaveStack );
+                            }
+                            else if( leaveStack.isEmpty() )
+                            {
+                                entityItem.setStack( remainder );
+                            }
+                            else
+                            {
+                                leaveStack.addAmount( remainder.getAmount() );
+                                entityItem.setStack( leaveStack );
+                            }
+                            break;
+                        }
                     }
-                    else if( remainder.isEmpty() )
+                }
+
+                if( foundItems )
+                {
+                    if( storedItems )
                     {
-                        entity.setItem( leaveStack );
-                    }
-                    else if( leaveStack.isEmpty() )
-                    {
-                        entity.setItem( remainder );
+                        // Play fx
+                        world.playEvent( 1000, oldPosition, 0 ); // BLOCK_DISPENSER_DISPENSE
+                        turtle.playAnimation( TurtleAnimation.Wait );
+                        return TurtleCommandResult.success();
                     }
                     else
                     {
-                        leaveStack.grow( remainder.getCount() );
-                        entity.setItem( leaveStack );
+                        return TurtleCommandResult.failure( "No space for items" );
                     }
-
-                    // Play fx
-                    world.playBroadcastSound( 1000, turtlePosition, 0 ); // BLOCK_DISPENSER_DISPENSE
-                    turtle.playAnimation( TurtleAnimation.Wait );
-                    return TurtleCommandResult.success();
                 }
             }
-
-
-            return TurtleCommandResult.failure( "No space for items" );
+            return TurtleCommandResult.failure( "No items to take" );
         }
     }
 }

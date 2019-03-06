@@ -6,27 +6,17 @@
 
 package dan200.computercraft.shared.util;
 
-import dan200.computercraft.ComputerCraft;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.item.EntityItem;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.BoundingBox;
 import net.minecraft.world.World;
-import net.minecraftforge.event.entity.EntityJoinWorldEvent;
-import net.minecraftforge.event.entity.living.LivingDropsEvent;
-import net.minecraftforge.event.world.BlockEvent;
-import net.minecraftforge.eventbus.api.EventPriority;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.function.Function;
 
-@Mod.EventBusSubscriber( modid = ComputerCraft.MOD_ID )
 public final class DropConsumer
 {
     private DropConsumer()
@@ -37,7 +27,7 @@ public final class DropConsumer
     private static List<ItemStack> remainingDrops;
     private static WeakReference<World> dropWorld;
     private static BlockPos dropPos;
-    private static AxisAlignedBB dropBounds;
+    private static BoundingBox dropBounds;
     private static WeakReference<Entity> dropEntity;
 
     public static void set( Entity entity, Function<ItemStack, ItemStack> consumer )
@@ -47,9 +37,9 @@ public final class DropConsumer
         dropEntity = new WeakReference<>( entity );
         dropWorld = new WeakReference<>( entity.world );
         dropPos = null;
-        dropBounds = new AxisAlignedBB( entity.getPosition() ).grow( 2, 2, 2 );
+        dropBounds = new BoundingBox( entity.getPos() ).expand( 2, 2, 2 );
 
-        entity.captureDrops( new ArrayList<>() );
+        // entity.captureDrops( new ArrayList<>() );
     }
 
     public static void set( World world, BlockPos pos, Function<ItemStack, ItemStack> consumer )
@@ -59,23 +49,25 @@ public final class DropConsumer
         dropEntity = null;
         dropWorld = new WeakReference<>( world );
         dropPos = pos;
-        dropBounds = new AxisAlignedBB( pos ).expand( 2, 2, 2 );
+        dropBounds = new BoundingBox( pos ).expand( 2, 2, 2 );
     }
 
     public static List<ItemStack> clear()
     {
+        /*
         if( dropEntity != null )
         {
             Entity entity = dropEntity.get();
             if( entity != null )
             {
-                Collection<EntityItem> dropped = entity.captureDrops( null );
+                Collection<ItemEntity> dropped = entity.captureDrops( null );
                 if( dropped != null )
                 {
                     for( EntityItem entityItem : dropped ) handleDrops( entityItem.getItem() );
                 }
             }
         }
+        */
 
         List<ItemStack> remainingStacks = remainingDrops;
 
@@ -95,6 +87,7 @@ public final class DropConsumer
         if( !remaining.isEmpty() ) remainingDrops.add( remaining );
     }
 
+    /*
     @SubscribeEvent( priority = EventPriority.LOWEST )
     public static void onEntityLivingDrops( LivingDropsEvent event )
     {
@@ -133,4 +126,5 @@ public final class DropConsumer
             event.setCanceled( true );
         }
     }
+    */
 }

@@ -6,17 +6,17 @@
 
 package dan200.computercraft.client.render;
 
+import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.platform.GlStateManager.DestFactor;
+import com.mojang.blaze3d.platform.GlStateManager.SourceFactor;
 import dan200.computercraft.client.gui.FixedWidthFontRenderer;
 import dan200.computercraft.core.terminal.TextBuffer;
 import dan200.computercraft.shared.util.Palette;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.GlStateManager.DestFactor;
-import net.minecraft.client.renderer.GlStateManager.SourceFactor;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.render.BufferBuilder;
+import net.minecraft.client.render.Tessellator;
+import net.minecraft.client.render.VertexFormats;
+import net.minecraft.util.Identifier;
 import org.lwjgl.opengl.GL11;
 
 import static dan200.computercraft.client.gui.FixedWidthFontRenderer.FONT_HEIGHT;
@@ -24,7 +24,7 @@ import static dan200.computercraft.shared.media.items.ItemPrintout.LINES_PER_PAG
 
 public class PrintoutRenderer
 {
-    private static final ResourceLocation BG = new ResourceLocation( "computercraft", "textures/gui/printout.png" );
+    private static final Identifier BG = new Identifier( "computercraft", "textures/gui/printout.png" );
     private static final double BG_SIZE = 256.0;
 
     /**
@@ -74,7 +74,7 @@ public class PrintoutRenderer
     {
         GlStateManager.color4f( 1.0f, 1.0f, 1.0f, 1.0f );
         GlStateManager.enableBlend();
-        GlStateManager.enableTexture2D();
+        GlStateManager.enableTexture();
         GlStateManager.blendFuncSeparate( SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA, SourceFactor.ONE, DestFactor.ZERO );
 
         FixedWidthFontRenderer fontRenderer = FixedWidthFontRenderer.instance();
@@ -89,14 +89,14 @@ public class PrintoutRenderer
     {
         GlStateManager.color4f( 1.0f, 1.0f, 1.0f, 1.0f );
         GlStateManager.enableBlend();
-        GlStateManager.enableTexture2D();
+        GlStateManager.enableTexture();
         GlStateManager.blendFuncSeparate( SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA, SourceFactor.ONE, DestFactor.ZERO );
 
-        Minecraft.getInstance().getTextureManager().bindTexture( BG );
+        MinecraftClient.getInstance().getTextureManager().bindTexture( BG );
 
         Tessellator tessellator = Tessellator.getInstance();
-        BufferBuilder buffer = tessellator.getBuffer();
-        buffer.begin( GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX );
+        BufferBuilder buffer = tessellator.getBufferBuilder();
+        buffer.begin( GL11.GL_QUADS, VertexFormats.POSITION_UV );
 
         int leftPages = page;
         int rightPages = pages - page - 1;
@@ -157,18 +157,18 @@ public class PrintoutRenderer
 
     private static void drawTexture( BufferBuilder buffer, double x, double y, double z, double u, double v, double width, double height )
     {
-        buffer.pos( x, y + height, z ).tex( u / BG_SIZE, (v + height) / BG_SIZE ).endVertex();
-        buffer.pos( x + width, y + height, z ).tex( (u + width) / BG_SIZE, (v + height) / BG_SIZE ).endVertex();
-        buffer.pos( x + width, y, z ).tex( (u + width) / BG_SIZE, v / BG_SIZE ).endVertex();
-        buffer.pos( x, y, z ).tex( u / BG_SIZE, v / BG_SIZE ).endVertex();
+        buffer.vertex( x, y + height, z ).texture( u / BG_SIZE, (v + height) / BG_SIZE ).next();
+        buffer.vertex( x + width, y + height, z ).texture( (u + width) / BG_SIZE, (v + height) / BG_SIZE ).next();
+        buffer.vertex( x + width, y, z ).texture( (u + width) / BG_SIZE, v / BG_SIZE ).next();
+        buffer.vertex( x, y, z ).texture( u / BG_SIZE, v / BG_SIZE ).next();
     }
 
     private static void drawTexture( BufferBuilder buffer, double x, double y, double z, double width, double height, double u, double v, double tWidth, double tHeight )
     {
-        buffer.pos( x, y + height, z ).tex( u / BG_SIZE, (v + tHeight) / BG_SIZE ).endVertex();
-        buffer.pos( x + width, y + height, z ).tex( (u + tWidth) / BG_SIZE, (v + tHeight) / BG_SIZE ).endVertex();
-        buffer.pos( x + width, y, z ).tex( (u + tWidth) / BG_SIZE, v / BG_SIZE ).endVertex();
-        buffer.pos( x, y, z ).tex( u / BG_SIZE, v / BG_SIZE ).endVertex();
+        buffer.vertex( x, y + height, z ).texture( u / BG_SIZE, (v + tHeight) / BG_SIZE ).next();
+        buffer.vertex( x + width, y + height, z ).texture( (u + tWidth) / BG_SIZE, (v + tHeight) / BG_SIZE ).next();
+        buffer.vertex( x + width, y, z ).texture( (u + tWidth) / BG_SIZE, v / BG_SIZE ).next();
+        buffer.vertex( x, y, z ).texture( u / BG_SIZE, v / BG_SIZE ).next();
     }
 
     public static double offsetAt( int page )

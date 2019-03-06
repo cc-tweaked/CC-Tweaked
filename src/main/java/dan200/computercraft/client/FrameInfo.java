@@ -6,13 +6,6 @@
 
 package dan200.computercraft.client;
 
-import dan200.computercraft.ComputerCraft;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.gameevent.TickEvent;
-
-@Mod.EventBusSubscriber( modid = ComputerCraft.MOD_ID, value = Dist.CLIENT )
 public final class FrameInfo
 {
     private static int tick;
@@ -32,15 +25,13 @@ public final class FrameInfo
         return renderFrame;
     }
 
-    @SubscribeEvent
-    public static void onTick( TickEvent.ClientTickEvent event )
+    public static void onTick()
     {
-        if( event.phase == TickEvent.Phase.START ) tick++;
+        tick++;
     }
 
-    @SubscribeEvent
-    public static void onRenderTick( TickEvent.RenderTickEvent event )
+    public static void onRenderFrame()
     {
-        if( event.phase == TickEvent.Phase.START ) renderFrame++;
+        renderFrame++;
     }
 }

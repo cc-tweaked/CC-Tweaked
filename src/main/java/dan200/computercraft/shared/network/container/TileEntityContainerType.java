@@ -11,17 +11,17 @@ import dan200.computercraft.shared.computer.inventory.ContainerComputer;
 import dan200.computercraft.shared.peripheral.diskdrive.ContainerDiskDrive;
 import dan200.computercraft.shared.peripheral.printer.ContainerPrinter;
 import dan200.computercraft.shared.turtle.inventory.ContainerTurtle;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.Container;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.container.Container;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.PacketByteBuf;
 import net.minecraft.util.math.BlockPos;
 
 import javax.annotation.Nonnull;
 
 /**
- * Opens a GUI on a specific ComputerCraft TileEntity
+ * Opens a GUI on a specific ComputerCraft BlockEntity
  *
  * @see dan200.computercraft.shared.peripheral.diskdrive.TileDiskDrive
  * @see dan200.computercraft.shared.peripheral.printer.TilePrinter
@@ -29,47 +29,47 @@ import javax.annotation.Nonnull;
  */
 public class TileEntityContainerType<T extends Container> implements ContainerType<T>
 {
-    private static final ResourceLocation DISK_DRIVE = new ResourceLocation( ComputerCraft.MOD_ID, "disk_drive" );
-    private static final ResourceLocation PRINTER = new ResourceLocation( ComputerCraft.MOD_ID, "printer" );
-    private static final ResourceLocation COMPUTER = new ResourceLocation( ComputerCraft.MOD_ID, "computer" );
-    private static final ResourceLocation TURTLE = new ResourceLocation( ComputerCraft.MOD_ID, "turtle" );
+    private static final Identifier DISK_DRIVE = new Identifier( ComputerCraft.MOD_ID, "disk_drive" );
+    private static final Identifier PRINTER = new Identifier( ComputerCraft.MOD_ID, "printer" );
+    private static final Identifier COMPUTER = new Identifier( ComputerCraft.MOD_ID, "computer" );
+    private static final Identifier TURTLE = new Identifier( ComputerCraft.MOD_ID, "turtle" );
 
     public BlockPos pos;
-    private final ResourceLocation id;
+    private final Identifier id;
 
-    private TileEntityContainerType( ResourceLocation id, BlockPos pos )
+    private TileEntityContainerType( Identifier id, BlockPos pos )
     {
         this.id = id;
         this.pos = pos;
     }
 
-    private TileEntityContainerType( ResourceLocation id )
+    private TileEntityContainerType( Identifier id )
     {
         this.id = id;
     }
 
     @Nonnull
     @Override
-    public ResourceLocation getId()
+    public Identifier getId()
     {
         return id;
     }
 
     @Override
-    public void toBytes( PacketBuffer buf )
+    public void toBytes( PacketByteBuf buf )
     {
         buf.writeBlockPos( pos );
     }
 
     @Override
-    public void fromBytes( PacketBuffer buf )
+    public void fromBytes( PacketByteBuf buf )
     {
         pos = buf.readBlockPos();
     }
 
-    public TileEntity getTileEntity( EntityPlayer entity )
+    public BlockEntity getTileEntity( PlayerEntity entity )
     {
-        return entity.world.getTileEntity( pos );
+        return entity.world.getBlockEntity( pos );
     }
 
     public static TileEntityContainerType<ContainerDiskDrive> diskDrive()

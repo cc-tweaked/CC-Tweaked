@@ -1,0 +1,14 @@
+{
+    "type": "minecraft:block",
+    "pools": [
+        {
+            "rolls": 1,
+            "entries": [ { "type": "minecraft:dynamic", "name": "computercraft:computer" } ]
+        },
+        {
+            "rolls": 1,
+            "entries": [ { "type": "minecraft:dynamic", "name": "computercraft:contents" } ],
+            "conditions": [ { "condition": "minecraft:survives_explosion" } ]
+        }
+    ]
+}

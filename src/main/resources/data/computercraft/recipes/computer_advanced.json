@@ -6,8 +6,8 @@
         "#G#"
     ],
     "key": {
-        "#": { "tag": "forge:ingots/gold" },
-        "R": { "tag": "forge:dusts/redstone" },
+        "#": { "item": "minecraft:gold_ingot" },
+        "R": { "item": "minecraft:redstone" },
         "G": { "item": "minecraft:glass_pane" }
     },
     "result": { "item": "computercraft:computer_advanced" }

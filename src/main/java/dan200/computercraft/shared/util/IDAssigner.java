@@ -11,8 +11,8 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import dan200.computercraft.ComputerCraft;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
-import net.minecraftforge.fml.server.ServerLifecycleHooks;
 
 import java.io.File;
 import java.io.Reader;
@@ -38,33 +38,33 @@ public class IDAssigner
     private static WeakReference<MinecraftServer> server;
     private static Path idFile;
 
-    public static File getDir()
+    public static File getDir( World world )
     {
-        MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
-        File worldDirectory = server.getWorld( DimensionType.OVERWORLD ).getSaveHandler().getWorldDirectory();
+        MinecraftServer server = world.getServer();
+        File worldDirectory = server.getWorld( DimensionType.OVERWORLD ).getSaveHandler().getWorldDir();
         return new File( worldDirectory, ComputerCraft.MOD_ID );
     }
 
-    private static MinecraftServer getCachedServer()
+    private static MinecraftServer getCachedServer( World world )
     {
         if( server == null ) return null;
 
         MinecraftServer currentServer = server.get();
         if( currentServer == null ) return null;
 
-        if( currentServer != ServerLifecycleHooks.getCurrentServer() ) return null;
+        if( currentServer != world.getServer() ) return null;
         return currentServer;
     }
 
-    public static synchronized int getNextId( String kind )
+    public static synchronized int getNextId( World world, String kind )
     {
-        MinecraftServer currentServer = getCachedServer();
+        MinecraftServer currentServer = getCachedServer( world );
         if( currentServer == null )
         {
             // The server has changed, refetch our ID map
-            server = new WeakReference<>( ServerLifecycleHooks.getCurrentServer() );
+            server = new WeakReference<>( world.getServer() );
 
-            File dir = getDir();
+            File dir = getDir( world );
             dir.mkdirs();
 
             // Load our ID file from disk

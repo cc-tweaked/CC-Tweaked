@@ -6,27 +6,41 @@
 
 package dan200.computercraft.shared.peripheral.printer;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.Container;
-import net.minecraft.inventory.IContainerListener;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.Slot;
-import net.minecraft.item.ItemDye;
+import net.minecraft.container.ArrayPropertyDelegate;
+import net.minecraft.container.Container;
+import net.minecraft.container.PropertyDelegate;
+import net.minecraft.container.Slot;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.inventory.BasicInventory;
+import net.minecraft.inventory.Inventory;
+import net.minecraft.item.DyeItem;
 import net.minecraft.item.ItemStack;
 
 import javax.annotation.Nonnull;
 
+import static dan200.computercraft.shared.peripheral.printer.TilePrinter.PROPERTY_PRINTING;
+
 public class ContainerPrinter extends Container
 {
-    private static final int PROPERTY_PRINTING = 0;
+    private final Inventory m_printer;
+    private final PropertyDelegate properties;
 
-    private TilePrinter m_printer;
-    private boolean m_lastPrinting;
-
-    public ContainerPrinter( IInventory playerInventory, TilePrinter printer )
+    public ContainerPrinter( int id, PlayerInventory player, TilePrinter printer )
     {
+        this( id, player, printer, printer );
+    }
+
+    public ContainerPrinter( int id, PlayerInventory player )
+    {
+        this( id, player, new BasicInventory( TilePrinter.INVENTORY_SIZE ), new ArrayPropertyDelegate( TilePrinter.PROPERTY_SIZE ) );
+    }
+
+    public ContainerPrinter( int id, PlayerInventory playerInventory, Inventory printer, PropertyDelegate printerInfo )
+    {
+        super( null, id );
         m_printer = printer;
-        m_lastPrinting = false;
+        properties = printerInfo;
 
         // Ink slot
         addSlot( new Slot( printer, 0, 13, 35 ) );
@@ -51,116 +65,62 @@ public class ContainerPrinter extends Container
         {
             addSlot( new Slot( playerInventory, x, 8 + x * 18, 142 ) );
         }
+
+        addProperties( printerInfo );
     }
 
     public boolean isPrinting()
     {
-        return m_lastPrinting;
-    }
-
-    public TilePrinter getPrinter()
-    {
-        return m_printer;
+        return properties.get( PROPERTY_PRINTING ) != 0;
     }
 
     @Override
-    public void addListener( IContainerListener listener )
+    public boolean canUse( @Nonnull PlayerEntity player )
     {
-        super.addListener( listener );
-        listener.sendWindowProperty( this, PROPERTY_PRINTING, m_printer.isPrinting() ? 1 : 0 );
-    }
-
-    @Override
-    public void detectAndSendChanges()
-    {
-        super.detectAndSendChanges();
-
-        if( !m_printer.getWorld().isRemote )
-        {
-            // Push the printing state to the client if needed.
-            boolean printing = m_printer.isPrinting();
-            if( printing != m_lastPrinting )
-            {
-                for( IContainerListener listener : listeners )
-                {
-                    listener.sendWindowProperty( this, PROPERTY_PRINTING, printing ? 1 : 0 );
-                }
-                m_lastPrinting = printing;
-            }
-        }
-    }
-
-    @Override
-    public void updateProgressBar( int property, int value )
-    {
-        super.updateProgressBar( property, value );
-        if( m_printer.getWorld().isRemote )
-        {
-            if( property == PROPERTY_PRINTING ) m_lastPrinting = value != 0;
-        }
-    }
-
-    @Override
-    public boolean canInteractWith( @Nonnull EntityPlayer player )
-    {
-        return m_printer.isUsableByPlayer( player );
+        return m_printer.canPlayerUseInv( player );
     }
 
     @Nonnull
     @Override
-    public ItemStack transferStackInSlot( EntityPlayer par1EntityPlayer, int i )
+    public ItemStack transferSlot( PlayerEntity par1EntityPlayer, int slotIndex )
     {
-        ItemStack itemstack = ItemStack.EMPTY;
-        Slot slot = inventorySlots.get( i );
-        if( slot != null && slot.getHasStack() )
+        Slot slot = slotList.get( slotIndex );
+        if( slot == null || !slot.hasStack() ) return ItemStack.EMPTY;
+
+        ItemStack slotStack = slot.getStack();
+        ItemStack result = slotStack.copy();
+        if( slotIndex < 13 )
         {
-            ItemStack itemstack1 = slot.getStack();
-            itemstack = itemstack1.copy();
-            if( i < 13 )
+            // Transfer from printer to inventory
+            if( !insertItem( slotStack, 13, 49, true ) ) return ItemStack.EMPTY;
+        }
+        else
+        {
+            // Transfer from inventory to printer
+            if( slotStack.getItem() instanceof DyeItem )
             {
-                // Transfer from printer to inventory
-                if( !mergeItemStack( itemstack1, 13, 49, true ) )
-                {
-                    return ItemStack.EMPTY;
-                }
+                // Dyes go in the first slot
+                if( !insertItem( slotStack, 0, 1, false ) ) return ItemStack.EMPTY;
             }
             else
             {
-                // Transfer from inventory to printer
-                if( itemstack1.getItem() instanceof ItemDye )
-                {
-                    if( !mergeItemStack( itemstack1, 0, 1, false ) )
-                    {
-                        return ItemStack.EMPTY;
-                    }
-                }
-                else //if is paper
-                {
-                    if( !mergeItemStack( itemstack1, 1, 13, false ) )
-                    {
-                        return ItemStack.EMPTY;
-                    }
-                }
-            }
-
-            if( itemstack1.isEmpty() )
-            {
-                slot.putStack( ItemStack.EMPTY );
-            }
-            else
-            {
-                slot.onSlotChanged();
-            }
-
-            if( itemstack1.getCount() != itemstack.getCount() )
-            {
-                slot.onTake( par1EntityPlayer, itemstack1 );
-            }
-            else
-            {
-                return ItemStack.EMPTY;
+                // Paper goes into 1 to 12.
+                if( !insertItem( slotStack, 1, 13, false ) ) return ItemStack.EMPTY;
             }
         }
-        return itemstack;
+
+        if( slotStack.isEmpty() )
+        {
+            slot.setStack( ItemStack.EMPTY );
+        }
+        else
+        {
+            slot.markDirty();
+        }
+
+        if( slotStack.getAmount() == result.getAmount() ) return ItemStack.EMPTY;
+
+        slot.onTakeItem( par1EntityPlayer, slotStack );
+        return result;
     }
 }

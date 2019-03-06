@@ -6,13 +6,14 @@
 
 package dan200.computercraft.client.render;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.FirstPersonRenderer;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.entity.player.EntityPlayer;
+import com.mojang.blaze3d.platform.GlStateManager;
+import dan200.computercraft.shared.mixed.MixedFirstPersonRenderer;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.render.FirstPersonRenderer;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumHand;
-import net.minecraft.util.EnumHandSide;
+import net.minecraft.sortme.OptionMainHand;
+import net.minecraft.util.Hand;
 import net.minecraft.util.math.MathHelper;
 
 public abstract class ItemMapLikeRenderer
@@ -21,23 +22,23 @@ public abstract class ItemMapLikeRenderer
      * The main rendering method for the item
      *
      * @param stack The stack to render
-     * @see FirstPersonRenderer#renderMapFirstPerson(ItemStack)
+     * @see FirstPersonRenderer#renderFirstPersonMap(ItemStack)
      */
     protected abstract void renderItem( ItemStack stack );
 
-    public void renderItemFirstPerson( EnumHand hand, float pitch, float equipProgress, float swingProgress, ItemStack stack )
+    public void renderItemFirstPerson( Hand hand, float pitch, float equipProgress, float swingProgress, ItemStack stack )
     {
-        EntityPlayer player = Minecraft.getInstance().player;
+        PlayerEntity player = MinecraftClient.getInstance().player;
 
         GlStateManager.pushMatrix();
-        if( hand == EnumHand.MAIN_HAND && player.getHeldItemOffhand().isEmpty() )
+        if( hand == Hand.MAIN && player.getOffHandStack().isEmpty() )
         {
             renderItemFirstPersonCenter( pitch, equipProgress, swingProgress, stack );
         }
         else
         {
             renderItemFirstPersonSide(
-                hand == EnumHand.MAIN_HAND ? player.getPrimaryHand() : player.getPrimaryHand().opposite(),
+                hand == Hand.MAIN ? player.getMainHand() : player.getMainHand().getOpposite(),
                 equipProgress, swingProgress, stack
             );
         }
@@ -51,12 +52,12 @@ public abstract class ItemMapLikeRenderer
      * @param equipProgress The equip progress of this item
      * @param swingProgress The swing progress of this item
      * @param stack         The stack to render
-     * @see FirstPersonRenderer#renderMapFirstPersonSide(float, EnumHandSide, float, ItemStack)
+     * @see FirstPersonRenderer#method_3222(float, OptionMainHand, float, ItemStack) // renderMapFirstPersonSide
      */
-    private void renderItemFirstPersonSide( EnumHandSide side, float equipProgress, float swingProgress, ItemStack stack )
+    private void renderItemFirstPersonSide( OptionMainHand side, float equipProgress, float swingProgress, ItemStack stack )
     {
-        Minecraft minecraft = Minecraft.getInstance();
-        float offset = side == EnumHandSide.RIGHT ? 1f : -1f;
+        MinecraftClient minecraft = MinecraftClient.getInstance();
+        float offset = side == OptionMainHand.RIGHT ? 1f : -1f;
         GlStateManager.translatef( offset * 0.125f, -0.125f, 0f );
 
         // If the player is not invisible then render a single arm
@@ -64,7 +65,7 @@ public abstract class ItemMapLikeRenderer
         {
             GlStateManager.pushMatrix();
             GlStateManager.rotatef( offset * 10f, 0f, 0f, 1f );
-            minecraft.getFirstPersonRenderer().renderArmFirstPerson( equipProgress, swingProgress, side );
+            ((MixedFirstPersonRenderer) minecraft.getFirstPersonRenderer()).renderArmFirstPerson_CC( equipProgress, swingProgress, side );
             GlStateManager.popMatrix();
         }
 
@@ -93,11 +94,11 @@ public abstract class ItemMapLikeRenderer
      * @param equipProgress The equip progress of this item
      * @param swingProgress The swing progress of this item
      * @param stack         The stack to render
-     * @see FirstPersonRenderer#renderMapFirstPerson(float, float, float)
+     * @see FirstPersonRenderer#renderFirstPersonMap(float, float, float)
      */
     private void renderItemFirstPersonCenter( float pitch, float equipProgress, float swingProgress, ItemStack stack )
     {
-        FirstPersonRenderer renderer = Minecraft.getInstance().getFirstPersonRenderer();
+        MixedFirstPersonRenderer renderer = (MixedFirstPersonRenderer) MinecraftClient.getInstance().getFirstPersonRenderer();
 
         // Setup the appropriate transformations. This is just copied from the
         // corresponding method in ItemRenderer.
@@ -105,10 +106,10 @@ public abstract class ItemMapLikeRenderer
         float tX = -0.2f * MathHelper.sin( swingProgress * (float) Math.PI );
         float tZ = -0.4f * MathHelper.sin( swingRt * (float) Math.PI );
         GlStateManager.translatef( 0f, -tX / 2f, tZ );
-        float pitchAngle = renderer.getMapAngleFromPitch( pitch );
+        float pitchAngle = renderer.getMapAngleFromPitch_CC( pitch );
         GlStateManager.translatef( 0f, 0.04f + equipProgress * -1.2f + pitchAngle * -0.5f, -0.72f );
         GlStateManager.rotatef( pitchAngle * -85f, 1f, 0f, 0f );
-        renderer.renderArms();
+        renderer.renderArms_CC();
         float rX = MathHelper.sin( swingRt * (float) Math.PI );
         GlStateManager.rotatef( rX * 20f, 1f, 0f, 0f );
         GlStateManager.scalef( 2f, 2f, 2f );

@@ -12,7 +12,7 @@ import dan200.computercraft.api.turtle.TurtleAnimation;
 import dan200.computercraft.api.turtle.TurtleCommandResult;
 import dan200.computercraft.api.turtle.event.TurtleAction;
 import dan200.computercraft.api.turtle.event.TurtleActionEvent;
-import net.minecraftforge.common.MinecraftForge;
+import dan200.computercraft.api.turtle.event.TurtleEvent;
 
 import javax.annotation.Nonnull;
 
@@ -30,7 +30,7 @@ public class TurtleTurnCommand implements ITurtleCommand
     public TurtleCommandResult execute( @Nonnull ITurtleAccess turtle )
     {
         TurtleActionEvent event = new TurtleActionEvent( turtle, TurtleAction.TURN );
-        if( MinecraftForge.EVENT_BUS.post( event ) )
+        if( TurtleEvent.post( event ) )
         {
             return TurtleCommandResult.failure( event.getFailureMessage() );
         }
@@ -39,13 +39,13 @@ public class TurtleTurnCommand implements ITurtleCommand
         {
             case Left:
             {
-                turtle.setDirection( turtle.getDirection().rotateYCCW() );
+                turtle.setDirection( turtle.getDirection().rotateYCounterclockwise() );
                 turtle.playAnimation( TurtleAnimation.TurnLeft );
                 return TurtleCommandResult.success();
             }
             case Right:
             {
-                turtle.setDirection( turtle.getDirection().rotateY() );
+                turtle.setDirection( turtle.getDirection().rotateYClockwise() );
                 turtle.playAnimation( TurtleAnimation.TurnRight );
                 return TurtleCommandResult.success();
             }

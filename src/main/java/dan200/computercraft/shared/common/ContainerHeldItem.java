@@ -7,22 +7,23 @@
 package dan200.computercraft.shared.common;
 
 import dan200.computercraft.shared.util.InventoryUtil;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.Container;
+import net.minecraft.container.Container;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumHand;
+import net.minecraft.util.Hand;
 
 import javax.annotation.Nonnull;
 
 public class ContainerHeldItem extends Container
 {
     private final ItemStack m_stack;
-    private final EnumHand m_hand;
+    private final Hand m_hand;
 
-    public ContainerHeldItem( EntityPlayer player, EnumHand hand )
+    public ContainerHeldItem( int id, PlayerEntity player, Hand hand )
     {
+        super( null, id );
         m_hand = hand;
-        m_stack = InventoryUtil.copyItem( player.getHeldItem( hand ) );
+        m_stack = InventoryUtil.copyItem( player.getStackInHand( hand ) );
     }
 
     @Nonnull
@@ -32,11 +33,11 @@ public class ContainerHeldItem extends Container
     }
 
     @Override
-    public boolean canInteractWith( @Nonnull EntityPlayer player )
+    public boolean canUse( @Nonnull PlayerEntity player )
     {
-        if( !player.isAlive() ) return false;
+        if( !player.isValid() ) return false;
 
-        ItemStack stack = player.getHeldItem( m_hand );
+        ItemStack stack = player.getStackInHand( m_hand );
         return stack == m_stack || (!stack.isEmpty() && !m_stack.isEmpty() && stack.getItem() == m_stack.getItem());
     }
 }

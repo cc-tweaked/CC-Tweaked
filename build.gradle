@@ -1,27 +1,21 @@
 buildscript {
-    repositories {
-        maven { url = 'https://files.minecraftforge.net/maven' }
-        jcenter()
-        mavenCentral()
-    }
     dependencies {
         classpath 'com.google.code.gson:gson:2.8.1'
-        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '3.+', changing: true
-        classpath 'net.sf.proguard:proguard-gradle:6.1.0beta2'
         classpath 'org.ajoberstar.grgit:grgit-gradle:3.0.0'
+        classpath 'net.sf.proguard:proguard-gradle:6.1.0beta2'
     }
 }
 
 plugins {
+    id 'fabric-loom' version '0.2.0-SNAPSHOT'
     // id 'com.matthewprenger.cursegradle' version '1.1.2'
 }
 
-apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'org.ajoberstar.grgit'
 apply plugin: 'maven-publish'
 apply plugin: 'maven'
 
-def mc_version = "1.13.2"
+def mc_version = "19w09a"
 def main_version = "1.81.1"
 version = "${mc_version}-${main_version}"
 
@@ -29,35 +23,6 @@ group = "org.squiddev"
 archivesBaseName = "cc-tweaked"
 
 minecraft {
-    runs {
-        client {
-            workingDirectory project.file('run')
-            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
-            property 'forge.logging.console.level', 'debug'
-
-            mods {
-                computercraft {
-                    source sourceSets.main
-                }
-            }
-        }
-
-        server {
-            workingDirectory project.file('run')
-            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
-            property 'forge.logging.console.level', 'debug'
-
-            mods {
-                computercraft {
-                    source sourceSets.main
-                }
-            }
-        }
-    }
-
-    mappings channel: 'snapshot', version: '20190220-1.13.1'
-
-    accessTransformer file('src/main/resources/META-INF/accesstransformer.cfg')
 }
 
 repositories {
@@ -80,10 +45,16 @@ configurations {
 }
 
 dependencies {
-    minecraft "net.minecraftforge:forge:${mc_version}-25.0.59"
+    minecraft "com.mojang:minecraft:${mc_version}"
+    mappings "net.fabricmc:yarn:${mc_version}.4"
+    modCompile "net.fabricmc:fabric-loader:0.3.7.109"
+    modCompile "net.fabricmc:fabric:0.2.3.108"
 
     // deobfProvided "mezz.jei:jei_1.12.2:4.8.5.159:api"
     // deobfProvided "pl.asie:Charset-Lib:0.5.4.6"
+
+    compileOnly 'edu.washington.cs.types.checker:checker-framework:1.7.5'
+    testCompileOnly 'edu.washington.cs.types.checker:checker-framework:1.7.5'
 
     shade 'org.squiddev:Cobalt:0.5.0-SNAPSHOT'
 
@@ -95,6 +66,7 @@ dependencies {
 sourceSets {
     main {
         java {
+            exclude 'dan200/computercraft/client/render_old'
             exclude 'dan200/computercraft/shared/integration'
         }
     }
@@ -201,7 +173,7 @@ processResources {
     inputs.property "commithash", hash
 
     from(sourceSets.main.resources.srcDirs) {
-        include 'META-INF/mods.toml'
+        include 'mods.json'
         include 'data/computercraft/lua/rom/help/credits.txt'
 
         expand 'version': main_version,
@@ -210,7 +182,7 @@ processResources {
     }
 
     from(sourceSets.main.resources.srcDirs) {
-        exclude 'META-INF/mods.toml'
+        exclude 'mods.json'
         exclude 'data/computercraft/lua/rom/help/credits.txt'
     }
 }
@@ -322,7 +294,7 @@ uploadArchives {
 }
 
 gradle.projectsEvaluated {
-    reobfJar.dependsOn proguardMove
+    // reobfJar.dependsOn proguardMove
 
     tasks.withType(JavaCompile) {
         options.compilerArgs << "-Xlint"

@@ -7,7 +7,7 @@
 package dan200.computercraft.shared.network.server;
 
 import dan200.computercraft.shared.computer.core.ServerComputer;
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.PacketByteBuf;
 
 import javax.annotation.Nonnull;
 
@@ -26,17 +26,17 @@ public class ComputerActionServerMessage extends ComputerServerMessage
     }
 
     @Override
-    public void toBytes( @Nonnull PacketBuffer buf )
+    public void toBytes( @Nonnull PacketByteBuf buf )
     {
         super.toBytes( buf );
-        buf.writeEnumValue( action );
+        buf.writeEnumConstant( action );
     }
 
     @Override
-    public void fromBytes( @Nonnull PacketBuffer buf )
+    public void fromBytes( @Nonnull PacketByteBuf buf )
     {
         super.fromBytes( buf );
-        action = buf.readEnumValue( Action.class );
+        action = buf.readEnumConstant( Action.class );
     }
 
     @Override

@@ -8,7 +8,7 @@ package dan200.computercraft.shared.computer.items;
 
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundTag;
 
 import javax.annotation.Nonnull;
 
@@ -18,8 +18,8 @@ public interface IComputerItem
 
     default int getComputerID( @Nonnull ItemStack stack )
     {
-        NBTTagCompound tag = stack.getTag();
-        return tag != null && tag.contains( NBT_ID ) ? tag.getInt( NBT_ID ) : -1;
+        CompoundTag tag = stack.getTag();
+        return tag != null && tag.containsKey( NBT_ID ) ? tag.getInt( NBT_ID ) : -1;
     }
 
     default String getLabel( @Nonnull ItemStack stack )

@@ -10,20 +10,18 @@ import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.turtle.event.TurtleAttackEvent;
 import dan200.computercraft.api.turtle.event.TurtleBlockEvent;
-import net.minecraft.client.renderer.model.IBakedModel;
-import net.minecraft.client.renderer.model.ModelResourceLocation;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.minecraft.client.render.model.BakedModel;
+import net.minecraft.client.util.ModelIdentifier;
+import net.minecraft.client.util.math.Matrix4f;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.event.entity.player.AttackEntityEvent;
-import net.minecraftforge.event.world.BlockEvent;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.math.Direction;
 import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.vecmath.Matrix4f;
 
 /**
  * The primary interface for defining an update for Turtles. A turtle update
@@ -42,7 +40,7 @@ public interface ITurtleUpgrade
      * @see ComputerCraftAPI#registerTurtleUpgrade(ITurtleUpgrade)
      */
     @Nonnull
-    ResourceLocation getUpgradeId();
+    Identifier getUpgradeId();
 
     /**
      * Return an unlocalised string to describe this type of turtle in turtle item names.
@@ -95,8 +93,8 @@ public interface ITurtleUpgrade
      * Will only be called for Tool turtle. Called when turtle.dig() or turtle.attack() is called
      * by the turtle, and the tool is required to do some work.
      *
-     * Conforming implementations should fire {@link BlockEvent.BreakEvent} and {@link TurtleBlockEvent.Dig}for digging,
-     * {@link AttackEntityEvent} and {@link TurtleAttackEvent} for attacking.
+     * Conforming implementations should fire {@code BlockEvent.BreakEvent} and {@link TurtleBlockEvent.Dig}for digging,
+     * {@code AttackEntityEvent} and {@link TurtleAttackEvent} for attacking.
      *
      * @param turtle    Access to the turtle that the tool resides on.
      * @param side      Which side of the turtle (left or right) the tool resides on.
@@ -110,7 +108,7 @@ public interface ITurtleUpgrade
      * to be called.
      */
     @Nonnull
-    default TurtleCommandResult useTool( @Nonnull ITurtleAccess turtle, @Nonnull TurtleSide side, @Nonnull TurtleVerb verb, @Nonnull EnumFacing direction )
+    default TurtleCommandResult useTool( @Nonnull ITurtleAccess turtle, @Nonnull TurtleSide side, @Nonnull TurtleVerb verb, @Nonnull Direction direction )
     {
         return TurtleCommandResult.failure();
     }
@@ -118,8 +116,8 @@ public interface ITurtleUpgrade
     /**
      * Called to obtain the model to be used when rendering a turtle peripheral.
      *
-     * This can be obtained from {@link net.minecraft.client.renderer.ItemModelMesher#getItemModel(ItemStack)},
-     * {@link net.minecraft.client.renderer.model.ModelManager#getModel(ModelResourceLocation)} or any other
+     * This can be obtained from {@link net.minecraft.client.render.item.ItemModels#getModel(ItemStack)},
+     * {@link net.minecraft.client.render.model.BakedModelManager#getModel(ModelIdentifier)} or any other
      * source.
      *
      * @param turtle Access to the turtle that the upgrade resides on. This will be null when getting item models!
@@ -128,8 +126,8 @@ public interface ITurtleUpgrade
      * a transformation of {@code null} has the same effect as the identify matrix.
      */
     @Nonnull
-    @OnlyIn( Dist.CLIENT )
-    Pair<IBakedModel, Matrix4f> getModel( @Nullable ITurtleAccess turtle, @Nonnull TurtleSide side );
+    @Environment( EnvType.CLIENT )
+    Pair<BakedModel, Matrix4f> getModel( @Nullable ITurtleAccess turtle, @Nonnull TurtleSide side );
 
     /**
      * Called once per tick for each turtle which has the upgrade equipped.

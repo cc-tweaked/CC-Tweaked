@@ -6,9 +6,9 @@
 
 package dan200.computercraft.shared.command.text;
 
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextComponentString;
-import net.minecraft.util.text.TextFormatting;
+import net.minecraft.text.StringTextComponent;
+import net.minecraft.text.TextComponent;
+import net.minecraft.text.TextFormat;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.Nullable;
@@ -17,8 +17,8 @@ import static dan200.computercraft.shared.command.text.ChatHelpers.coloured;
 
 public interface TableFormatter
 {
-    ITextComponent SEPARATOR = coloured( "| ", TextFormatting.GRAY );
-    ITextComponent HEADER = coloured( "=", TextFormatting.GRAY );
+    TextComponent SEPARATOR = coloured( "| ", TextFormat.GRAY );
+    TextComponent HEADER = coloured( "=", TextFormat.GRAY );
 
     /**
      * Get additional padding for the component
@@ -28,7 +28,7 @@ public interface TableFormatter
      * @return The padding for this component, or {@code null} if none is needed.
      */
     @Nullable
-    ITextComponent getPadding( ITextComponent component, int width );
+    TextComponent getPadding( TextComponent component, int width );
 
     /**
      * Get the minimum padding between each column
@@ -37,9 +37,9 @@ public interface TableFormatter
      */
     int getColumnPadding();
 
-    int getWidth( ITextComponent component );
+    int getWidth( TextComponent component );
 
-    void writeLine( int id, ITextComponent component );
+    void writeLine( int id, TextComponent component );
 
     default int display( TableBuilder table )
     {
@@ -49,13 +49,13 @@ public interface TableFormatter
         int columns = table.getColumns();
         int[] maxWidths = new int[columns];
 
-        ITextComponent[] headers = table.getHeaders();
+        TextComponent[] headers = table.getHeaders();
         if( headers != null )
         {
             for( int i = 0; i < columns; i++ ) maxWidths[i] = getWidth( headers[i] );
         }
 
-        for( ITextComponent[] row : table.getRows() )
+        for( TextComponent[] row : table.getRows() )
         {
             for( int i = 0; i < row.length; i++ )
             {
@@ -76,15 +76,15 @@ public interface TableFormatter
 
         if( headers != null )
         {
-            TextComponentString line = new TextComponentString( "" );
+            StringTextComponent line = new StringTextComponent( "" );
             for( int i = 0; i < columns - 1; i++ )
             {
-                line.appendSibling( headers[i] );
-                ITextComponent padding = getPadding( headers[i], maxWidths[i] );
-                if( padding != null ) line.appendSibling( padding );
-                line.appendSibling( SEPARATOR );
+                line.append( headers[i] );
+                TextComponent padding = getPadding( headers[i], maxWidths[i] );
+                if( padding != null ) line.append( padding );
+                line.append( SEPARATOR );
             }
-            line.appendSibling( headers[columns - 1] );
+            line.append( headers[columns - 1] );
 
             writeLine( rowId++, line );
 
@@ -92,26 +92,26 @@ public interface TableFormatter
             // it a tad prettier.
             int rowCharWidth = getWidth( HEADER );
             int rowWidth = totalWidth / rowCharWidth + (totalWidth % rowCharWidth == 0 ? 0 : 1);
-            writeLine( rowId++, coloured( StringUtils.repeat( HEADER.getString(), rowWidth ), TextFormatting.GRAY ) );
+            writeLine( rowId++, coloured( StringUtils.repeat( HEADER.getText(), rowWidth ), TextFormat.GRAY ) );
         }
 
-        for( ITextComponent[] row : table.getRows() )
+        for( TextComponent[] row : table.getRows() )
         {
-            TextComponentString line = new TextComponentString( "" );
+            StringTextComponent line = new StringTextComponent( "" );
             for( int i = 0; i < columns - 1; i++ )
             {
-                line.appendSibling( row[i] );
-                ITextComponent padding = getPadding( row[i], maxWidths[i] );
-                if( padding != null ) line.appendSibling( padding );
-                line.appendSibling( SEPARATOR );
+                line.append( row[i] );
+                TextComponent padding = getPadding( row[i], maxWidths[i] );
+                if( padding != null ) line.append( padding );
+                line.append( SEPARATOR );
             }
-            line.appendSibling( row[columns - 1] );
+            line.append( row[columns - 1] );
             writeLine( rowId++, line );
         }
 
         if( table.getAdditional() > 0 )
         {
-            writeLine( rowId++, coloured( table.getAdditional() + " additional rows...", TextFormatting.AQUA ) );
+            writeLine( rowId++, coloured( table.getAdditional() + " additional rows...", TextFormat.AQUA ) );
         }
 
         return rowId - table.getId();

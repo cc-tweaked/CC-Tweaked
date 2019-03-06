@@ -10,15 +10,16 @@ import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.pocket.inventory.ContainerPocketComputer;
 import dan200.computercraft.shared.pocket.items.ItemPocketComputer;
+import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 
-public class GuiPocketComputer extends GuiComputer
+public class GuiPocketComputer extends GuiComputer<ContainerPocketComputer>
 {
-    public GuiPocketComputer( ContainerPocketComputer container )
+    public GuiPocketComputer( ContainerPocketComputer container, PlayerInventory player )
     {
         super(
-            container,
+            container, player,
             getFamily( container.getStack() ),
             ItemPocketComputer.createClientComputer( container.getStack() ),
             ComputerCraft.terminalWidth_pocketComputer,

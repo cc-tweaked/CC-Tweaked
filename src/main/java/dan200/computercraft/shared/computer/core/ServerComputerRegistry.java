@@ -40,7 +40,7 @@ public class ServerComputerRegistry extends ComputerRegistry<ServerComputer>
     {
         //System.out.println( "ADD SERVER COMPUTER " + instanceID );
         super.add( instanceID, computer );
-        if( computer.getWorld() != null ) computer.broadcastState( true );
+        computer.broadcastState( true );
         //System.out.println( getComputers().size() + " SERVER COMPUTERS" );
     }
 

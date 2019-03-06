@@ -10,15 +10,16 @@ import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.ITurtleCommand;
 import dan200.computercraft.api.turtle.TurtleAnimation;
 import dan200.computercraft.api.turtle.TurtleCommandResult;
+import dan200.computercraft.api.turtle.event.TurtleEvent;
 import dan200.computercraft.api.turtle.event.TurtleInventoryEvent;
 import dan200.computercraft.shared.util.InventoryUtil;
+import dan200.computercraft.shared.util.ItemStorage;
 import dan200.computercraft.shared.util.WorldUtil;
+import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.items.IItemHandler;
 
 import javax.annotation.Nonnull;
 
@@ -45,10 +46,11 @@ public class TurtleDropCommand implements ITurtleCommand
         }
 
         // Get world direction from direction
-        EnumFacing direction = m_direction.toWorldDir( turtle );
+        Direction direction = m_direction.toWorldDir( turtle );
+        ItemStorage storage = ItemStorage.wrap( turtle.getInventory() );
 
         // Get things to drop
-        ItemStack stack = InventoryUtil.takeItems( m_quantity, turtle.getItemHandler(), turtle.getSelectedSlot(), 1, turtle.getSelectedSlot() );
+        ItemStack stack = InventoryUtil.takeItems( m_quantity, storage, turtle.getSelectedSlot(), 1, turtle.getSelectedSlot() );
         if( stack.isEmpty() )
         {
             return TurtleCommandResult.failure( "No items to drop" );
@@ -58,27 +60,27 @@ public class TurtleDropCommand implements ITurtleCommand
         World world = turtle.getWorld();
         BlockPos oldPosition = turtle.getPosition();
         BlockPos newPosition = oldPosition.offset( direction );
-        EnumFacing side = direction.getOpposite();
+        Direction side = direction.getOpposite();
 
-        IItemHandler inventory = InventoryUtil.getInventory( world, newPosition, side );
+        Inventory inventory = InventoryUtil.getInventory( world, newPosition, side );
 
         // Fire the event, restoring the inventory and exiting if it is cancelled.
         TurtlePlayer player = TurtlePlaceCommand.createPlayer( turtle, oldPosition, direction );
         TurtleInventoryEvent.Drop event = new TurtleInventoryEvent.Drop( turtle, player, world, newPosition, inventory, stack );
-        if( MinecraftForge.EVENT_BUS.post( event ) )
+        if( TurtleEvent.post( event ) )
         {
-            InventoryUtil.storeItems( stack, turtle.getItemHandler(), turtle.getSelectedSlot() );
+            InventoryUtil.storeItems( stack, storage, turtle.getSelectedSlot() );
             return TurtleCommandResult.failure( event.getFailureMessage() );
         }
 
         if( inventory != null )
         {
             // Drop the item into the inventory
-            ItemStack remainder = InventoryUtil.storeItems( stack, inventory );
+            ItemStack remainder = InventoryUtil.storeItems( stack, ItemStorage.wrap( inventory, side ) );
             if( !remainder.isEmpty() )
             {
                 // Put the remainder back in the turtle
-                InventoryUtil.storeItems( remainder, turtle.getItemHandler(), turtle.getSelectedSlot() );
+                InventoryUtil.storeItems( remainder, storage, turtle.getSelectedSlot() );
             }
 
             // Return true if we stored anything
@@ -96,7 +98,7 @@ public class TurtleDropCommand implements ITurtleCommand
         {
             // Drop the item into the world
             WorldUtil.dropItemStack( stack, world, oldPosition, direction );
-            world.playBroadcastSound( 1000, newPosition, 0 );
+            world.playEvent( 1000, newPosition, 0 ); // BLOCK_DISPENSER_DISPENSE
             turtle.playAnimation( TurtleAnimation.Wait );
             return TurtleCommandResult.success();
         }

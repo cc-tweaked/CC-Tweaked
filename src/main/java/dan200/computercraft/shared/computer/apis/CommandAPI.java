@@ -16,14 +16,15 @@ import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.shared.computer.blocks.TileCommandComputer;
 import net.minecraft.block.Block;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.command.CommandSource;
-import net.minecraft.command.Commands;
+import net.minecraft.block.BlockState;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.state.IProperty;
+import net.minecraft.server.command.CommandSource;
+import net.minecraft.server.command.ServerCommandManager;
+import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.state.property.Property;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
-import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nonnull;
 import java.util.HashMap;
@@ -75,14 +76,14 @@ public class CommandAPI implements ILuaAPI
     private Object[] doCommand( String command )
     {
         MinecraftServer server = m_computer.getWorld().getServer();
-        if( server != null && server.isCommandBlockEnabled() )
+        if( server != null && server.areCommandBlocksEnabled() )
         {
-            Commands commandManager = server.getCommandManager();
+            ServerCommandManager commandManager = server.getCommandManager();
             TileCommandComputer.CommandReceiver receiver = m_computer.getReceiver();
             try
             {
                 receiver.clearOutput();
-                int result = commandManager.handleCommand( m_computer.getSource(), command );
+                int result = commandManager.execute( m_computer.getSource(), command );
                 return new Object[] { (result > 0), receiver.copyOutput() };
             }
             catch( Throwable t )
@@ -100,15 +101,15 @@ public class CommandAPI implements ILuaAPI
     private Object getBlockInfo( World world, BlockPos pos )
     {
         // Get the details of the block
-        IBlockState state = world.getBlockState( pos );
+        BlockState state = world.getBlockState( pos );
         Block block = state.getBlock();
-        String name = ForgeRegistries.BLOCKS.getKey( block ).toString();
+        String name = Registry.BLOCK.getId( block ).toString();
 
         Map<Object, Object> table = new HashMap<>();
         table.put( "name", name );
 
         Map<Object, Object> stateTable = new HashMap<>();
-        for( ImmutableMap.Entry<IProperty<?>, Comparable<?>> entry : state.getValues().entrySet() )
+        for( ImmutableMap.Entry<Property<?>, Comparable<?>> entry : state.getEntries().entrySet() )
         {
             String propertyName = entry.getKey().getName();
             Object value = entry.getValue();
@@ -154,7 +155,7 @@ public class CommandAPI implements ILuaAPI
                     MinecraftServer server = m_computer.getWorld().getServer();
                     if( server != null )
                     {
-                        CommandDispatcher<CommandSource> dispatcher = server.getCommandManager().getDispatcher();
+                        CommandDispatcher<ServerCommandSource> dispatcher = server.getCommandManager().getDispatcher();
                         // TODO: How can we better integrate with the new command system?
                         for( CommandNode<?> node : dispatcher.getRoot().getChildren() )
                         {

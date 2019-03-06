@@ -6,7 +6,7 @@
         "#G#"
     ],
     "key": {
-        "#": { "tag": "forge:stone" },
+        "#": { "item": "minecraft:stone" },
         "R": { "item": "minecraft:command_block" },
         "G": { "item": "minecraft:glass_pane" }
     },

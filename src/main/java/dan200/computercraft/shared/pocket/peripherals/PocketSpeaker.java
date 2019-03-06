@@ -10,7 +10,7 @@ import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.pocket.IPocketAccess;
 import net.minecraft.entity.Entity;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.Identifier;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -19,7 +19,7 @@ public class PocketSpeaker extends AbstractPocketUpgrade
 {
     public PocketSpeaker()
     {
-        super( new ResourceLocation( "computercraft", "speaker" ), ComputerCraft.Blocks.speaker );
+        super( new Identifier( "computercraft", "speaker" ), ComputerCraft.Blocks.speaker );
     }
 
     @Nullable
@@ -39,7 +39,7 @@ public class PocketSpeaker extends AbstractPocketUpgrade
         Entity entity = access.getEntity();
         if( entity != null )
         {
-            speaker.setLocation( entity.getEntityWorld(), entity.getEyePosition( 1 ) );
+            speaker.setLocation( entity.getEntityWorld(), entity.getCameraPosVec( 1 ) );
         }
 
         speaker.update();

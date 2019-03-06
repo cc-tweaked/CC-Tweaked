@@ -11,10 +11,10 @@ import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.IComputer;
 import dan200.computercraft.shared.computer.core.IContainerComputer;
 import dan200.computercraft.shared.computer.core.ServerComputer;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.Container;
+import net.minecraft.container.Container;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.text.TranslatableTextComponent;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -23,8 +23,9 @@ public class ContainerViewComputer extends Container implements IContainerComput
 {
     private final IComputer computer;
 
-    public ContainerViewComputer( IComputer computer )
+    public ContainerViewComputer( int id, IComputer computer )
     {
+        super( null, id );
         this.computer = computer;
     }
 
@@ -36,7 +37,7 @@ public class ContainerViewComputer extends Container implements IContainerComput
     }
 
     @Override
-    public boolean canInteractWith( @Nonnull EntityPlayer player )
+    public boolean canUse( @Nonnull PlayerEntity player )
     {
         if( computer instanceof ServerComputer )
         {
@@ -52,14 +53,14 @@ public class ContainerViewComputer extends Container implements IContainerComput
             if( serverComputer.getFamily() == ComputerFamily.Command )
             {
                 MinecraftServer server = player.getServer();
-                if( server == null || !server.isCommandBlockEnabled() )
+                if( server == null || !server.areCommandBlocksEnabled() )
                 {
-                    player.sendStatusMessage( new TextComponentTranslation( "advMode.notEnabled" ), false );
+                    player.addChatMessage( new TranslatableTextComponent( "advMode.notEnabled" ), false );
                     return false;
                 }
-                else if( !player.canUseCommandBlock() )
+                else if( !player.isCreativeLevelTwoOp() )
                 {
-                    player.sendStatusMessage( new TextComponentTranslation( "advMode.notAllowed" ), false );
+                    player.addChatMessage( new TranslatableTextComponent( "advMode.notAllowed" ), false );
                     return false;
                 }
             }

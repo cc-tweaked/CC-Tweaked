@@ -10,16 +10,12 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.gson.*;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.Ingredient;
-import net.minecraft.item.crafting.ShapedRecipe;
-import net.minecraft.util.JsonUtils;
-import net.minecraft.util.NonNullList;
+import net.minecraft.recipe.Ingredient;
+import net.minecraft.util.DefaultedList;
+import net.minecraft.util.JsonHelper;
 
 import java.util.Map;
 import java.util.Set;
-
-// TODO: Replace some things with Forge??
 
 public class RecipeUtil
 {
@@ -27,9 +23,9 @@ public class RecipeUtil
     {
         public final int width;
         public final int height;
-        public final NonNullList<Ingredient> ingredients;
+        public final DefaultedList<Ingredient> ingredients;
 
-        public ShapedTemplate( int width, int height, NonNullList<Ingredient> ingredients )
+        public ShapedTemplate( int width, int height, DefaultedList<Ingredient> ingredients )
         {
             this.width = width;
             this.height = height;
@@ -40,7 +36,7 @@ public class RecipeUtil
     public static ShapedTemplate getTemplate( JsonObject json )
     {
         Map<Character, Ingredient> ingMap = Maps.newHashMap();
-        for( Map.Entry<String, JsonElement> entry : JsonUtils.getJsonObject( json, "key" ).entrySet() )
+        for( Map.Entry<String, JsonElement> entry : JsonHelper.getObject( json, "key" ).entrySet() )
         {
             if( entry.getKey().length() != 1 )
             {
@@ -51,12 +47,12 @@ public class RecipeUtil
                 throw new JsonSyntaxException( "Invalid key entry: ' ' is a reserved symbol." );
             }
 
-            ingMap.put( entry.getKey().charAt( 0 ), Ingredient.deserialize( entry.getValue() ) );
+            ingMap.put( entry.getKey().charAt( 0 ), Ingredient.fromJson( entry.getValue() ) );
         }
 
         ingMap.put( ' ', Ingredient.EMPTY );
 
-        JsonArray patternJ = JsonUtils.getJsonArray( json, "pattern" );
+        JsonArray patternJ = JsonHelper.getArray( json, "pattern" );
 
         if( patternJ.size() == 0 )
         {
@@ -66,7 +62,7 @@ public class RecipeUtil
         String[] pattern = new String[patternJ.size()];
         for( int x = 0; x < pattern.length; x++ )
         {
-            String line = JsonUtils.getString( patternJ.get( x ), "pattern[" + x + "]" );
+            String line = JsonHelper.asString( patternJ.get( x ), "pattern[" + x + "]" );
             if( x > 0 && pattern[0].length() != line.length() )
             {
                 throw new JsonSyntaxException( "Invalid pattern: each row must  be the same width" );
@@ -76,7 +72,7 @@ public class RecipeUtil
 
         int width = pattern[0].length();
         int height = pattern.length;
-        NonNullList<Ingredient> ingredients = NonNullList.withSize( width * height, Ingredient.EMPTY );
+        DefaultedList<Ingredient> ingredients = DefaultedList.create( width * height, Ingredient.EMPTY );
 
         Set<Character> missingKeys = Sets.newHashSet( ingMap.keySet() );
         missingKeys.remove( ' ' );
@@ -104,12 +100,12 @@ public class RecipeUtil
         return new ShapedTemplate( width, height, ingredients );
     }
 
-    public static NonNullList<Ingredient> getIngredients( JsonObject json )
+    public static DefaultedList<Ingredient> getIngredients( JsonObject json )
     {
-        NonNullList<Ingredient> ings = NonNullList.create();
-        for( JsonElement ele : JsonUtils.getJsonArray( json, "ingredients" ) )
+        DefaultedList<Ingredient> ings = DefaultedList.create();
+        for( JsonElement ele : JsonHelper.getArray( json, "ingredients" ) )
         {
-            ings.add( Ingredient.deserialize( ele ) );
+            ings.add( Ingredient.fromJson( ele ) );
         }
 
         if( ings.isEmpty() )
@@ -122,7 +118,7 @@ public class RecipeUtil
 
     public static ComputerFamily getFamily( JsonObject json, String name )
     {
-        String familyName = JsonUtils.getString( json, name );
+        String familyName = JsonHelper.getString( json, name );
         try
         {
             return ComputerFamily.valueOf( familyName );

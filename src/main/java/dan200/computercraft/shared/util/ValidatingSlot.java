@@ -6,20 +6,23 @@
 
 package dan200.computercraft.shared.util;
 
-import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.Slot;
+import net.minecraft.container.Slot;
+import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
 
 public class ValidatingSlot extends Slot
 {
-    public ValidatingSlot( IInventory inventoryIn, int index, int xPosition, int yPosition )
+    private final int invSlot;
+
+    public ValidatingSlot( Inventory inventoryIn, int index, int xPosition, int yPosition )
     {
         super( inventoryIn, index, xPosition, yPosition );
+        this.invSlot = index;
     }
 
     @Override
-    public boolean isItemValid( ItemStack stack )
+    public boolean canInsert( ItemStack stack )
     {
-        return true; // inventory.isItemValidForSlot( slotNumber, stack );
+        return inventory.isValidInvStack( invSlot, stack );
     }
 }

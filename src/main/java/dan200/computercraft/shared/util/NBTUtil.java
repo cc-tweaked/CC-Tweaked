@@ -11,34 +11,47 @@ import net.minecraft.nbt.*;
 import java.util.HashMap;
 import java.util.Map;
 
-import static net.minecraftforge.common.util.Constants.NBT.*;
-
 public class NBTUtil
 {
-    private static INBTBase toNBTTag( Object object )
+    public static final int TAG_END = 0;
+    public static final int TAG_BYTE = 1;
+    public static final int TAG_SHORT = 2;
+    public static final int TAG_INT = 3;
+    public static final int TAG_LONG = 4;
+    public static final int TAG_FLOAT = 5;
+    public static final int TAG_DOUBLE = 6;
+    public static final int TAG_BYTE_ARRAY = 7;
+    public static final int TAG_STRING = 8;
+    public static final int TAG_LIST = 9;
+    public static final int TAG_COMPOUND = 10;
+    public static final int TAG_INT_ARRAY = 11;
+    public static final int TAG_LONG_ARRAY = 12;
+    public static final int TAG_ANY_NUMERIC = 99;
+
+    private static Tag toNBTTag( Object object )
     {
         if( object instanceof Boolean )
         {
-            return new NBTTagByte( (Boolean) object ? (byte) 1 : (byte) 0 );
+            return new ByteTag( (Boolean) object ? (byte) 1 : (byte) 0 );
         }
         else if( object instanceof Number )
         {
-            return new NBTTagDouble( ((Number) object).doubleValue() );
+            return new DoubleTag( ((Number) object).doubleValue() );
         }
         else if( object instanceof String )
         {
-            return new NBTTagString( object.toString() );
+            return new StringTag( object.toString() );
         }
         else if( object instanceof Map )
         {
             Map<?, ?> map = (Map<?, ?>) object;
-            NBTTagCompound tag = new NBTTagCompound();
+            CompoundTag tag = new CompoundTag();
             tag.putInt( "len", map.size() );
             int i = 0;
             for( Map.Entry<?, ?> entry : map.entrySet() )
             {
-                INBTBase key = toNBTTag( entry.getKey() );
-                INBTBase value = toNBTTag( entry.getKey() );
+                Tag key = toNBTTag( entry.getKey() );
+                Tag value = toNBTTag( entry.getKey() );
                 if( key != null && value != null )
                 {
                     tag.put( "k" + i, key );
@@ -54,41 +67,41 @@ public class NBTUtil
         }
     }
 
-    public static NBTTagCompound encodeObjects( Object[] objects )
+    public static CompoundTag encodeObjects( Object[] objects )
     {
         if( objects == null || objects.length <= 0 ) return null;
 
-        NBTTagCompound tag = new NBTTagCompound();
+        CompoundTag tag = new CompoundTag();
         tag.putInt( "len", objects.length );
         for( int i = 0; i < objects.length; i++ )
         {
-            INBTBase child = toNBTTag( objects[i] );
+            Tag child = toNBTTag( objects[i] );
             if( child != null ) tag.put( Integer.toString( i ), child );
         }
         return tag;
     }
 
-    private static Object fromNBTTag( INBTBase tag )
+    private static Object fromNBTTag( Tag tag )
     {
         if( tag == null ) return null;
-        switch( tag.getId() )
+        switch( tag.getType() )
         {
             case TAG_BYTE:
-                return (((NBTTagByte) tag).getByte() > 0);
+                return (((ByteTag) tag).getByte() > 0);
             case TAG_DOUBLE:
-                return ((NBTTagDouble) tag).getDouble();
+                return ((DoubleTag) tag).getDouble();
             default:
             case TAG_STRING:
-                return tag.getString();
+                return tag.asString();
             case TAG_COMPOUND:
             {
-                NBTTagCompound c = (NBTTagCompound) tag;
+                CompoundTag c = (CompoundTag) tag;
                 int len = c.getInt( "len" );
                 Map<Object, Object> map = new HashMap<>( len );
                 for( int i = 0; i < len; i++ )
                 {
-                    Object key = fromNBTTag( c.get( "k" + i ) );
-                    Object value = fromNBTTag( c.get( "v" + i ) );
+                    Object key = fromNBTTag( c.getTag( "k" + i ) );
+                    Object value = fromNBTTag( c.getTag( "v" + i ) );
                     if( key != null && value != null ) map.put( key, value );
                 }
                 return map;
@@ -96,7 +109,7 @@ public class NBTUtil
         }
     }
 
-    public static Object[] decodeObjects( NBTTagCompound tag )
+    public static Object[] decodeObjects( CompoundTag tag )
     {
         int len = tag.getInt( "len" );
         if( len <= 0 ) return null;
@@ -105,9 +118,9 @@ public class NBTUtil
         for( int i = 0; i < len; i++ )
         {
             String key = Integer.toString( i );
-            if( tag.contains( key ) )
+            if( tag.containsKey( key ) )
             {
-                objects[i] = fromNBTTag( tag.get( key ) );
+                objects[i] = fromNBTTag( tag.getTag( key ) );
             }
         }
         return objects;

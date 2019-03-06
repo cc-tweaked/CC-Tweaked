@@ -10,8 +10,8 @@ import dan200.computercraft.api.media.IMedia;
 import dan200.computercraft.api.media.IMediaProvider;
 import dan200.computercraft.shared.media.items.RecordMedia;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemRecord;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.RecordItem;
 
 import javax.annotation.Nonnull;
 
@@ -22,7 +22,7 @@ public class DefaultMediaProvider implements IMediaProvider
     {
         Item item = stack.getItem();
         if( item instanceof IMedia ) return (IMedia) item;
-        if( item instanceof ItemRecord ) return RecordMedia.INSTANCE;
+        if( item instanceof RecordItem ) return RecordMedia.INSTANCE;
         return null;
     }
 }

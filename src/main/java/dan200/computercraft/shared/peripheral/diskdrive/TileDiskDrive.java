@@ -17,36 +17,36 @@ import dan200.computercraft.shared.common.TileGeneric;
 import dan200.computercraft.shared.peripheral.IPeripheralTile;
 import dan200.computercraft.shared.util.DefaultInventory;
 import dan200.computercraft.shared.util.InventoryUtil;
-import dan200.computercraft.shared.util.NamedBlockEntityType;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.item.EntityItem;
-import net.minecraft.entity.player.EntityPlayer;
+import dan200.computercraft.shared.util.NamedTileEntityType;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.entity.BlockEntityType;
+import net.minecraft.entity.ItemEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.*;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.sound.SoundEvent;
+import net.minecraft.util.Hand;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.Tickable;
+import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.items.IItemHandlerModifiable;
-import net.minecraftforge.items.wrapper.InvWrapper;
+import net.minecraft.util.math.Direction;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import static net.minecraftforge.items.CapabilityItemHandler.ITEM_HANDLER_CAPABILITY;
-
-public class TileDiskDrive extends TileGeneric implements DefaultInventory, ITickable, IPeripheralTile
+public class TileDiskDrive extends TileGeneric implements DefaultInventory, Tickable, IPeripheralTile
 {
     private static final String NBT_ITEM = "Item";
 
-    public static final NamedBlockEntityType<TileDiskDrive> FACTORY = NamedBlockEntityType.create(
-        new ResourceLocation( ComputerCraft.MOD_ID, "disk_drive" ),
+    public static final NamedTileEntityType<TileDiskDrive> FACTORY = NamedTileEntityType.create(
+        new Identifier( ComputerCraft.MOD_ID, "disk_drive" ),
         TileDiskDrive::new
     );
+
+    public static final int INVENTORY_SIZE = 1;
 
     private static class MountInfo
     {
@@ -57,7 +57,6 @@ public class TileDiskDrive extends TileGeneric implements DefaultInventory, ITic
 
     @Nonnull
     private ItemStack m_diskStack = ItemStack.EMPTY;
-    private final LazyOptional<IItemHandlerModifiable> m_itemCap = LazyOptional.of( () -> new InvWrapper( this ) );
     private IMount m_diskMount;
 
     private boolean m_recordQueued;
@@ -65,31 +64,30 @@ public class TileDiskDrive extends TileGeneric implements DefaultInventory, ITic
     private boolean m_restartRecord;
     private boolean m_ejectQueued;
 
-    public TileDiskDrive()
+    public TileDiskDrive( BlockEntityType<? extends TileDiskDrive> type )
     {
-        super( FACTORY );
+        super( type );
     }
 
     @Override
     public void destroy()
     {
-        ejectContents( true );
         if( m_recordPlaying ) stopRecord();
     }
 
     @Override
-    public boolean onActivate( EntityPlayer player, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ )
+    public boolean onActivate( PlayerEntity player, Hand hand, BlockHitResult hit )
     {
         if( player.isSneaking() )
         {
             // Try to put a disk into the drive
-            if( !getWorld().isRemote )
+            if( !getWorld().isClient )
             {
-                ItemStack disk = player.getHeldItem( hand );
+                ItemStack disk = player.getStackInHand( hand );
                 if( !disk.isEmpty() && getDiskStack().isEmpty() && MediaProviders.get( disk ) != null )
                 {
                     setDiskStack( disk );
-                    player.setHeldItem( hand, ItemStack.EMPTY );
+                    player.setStackInHand( hand, ItemStack.EMPTY );
                     return true;
                 }
             }
@@ -97,38 +95,38 @@ public class TileDiskDrive extends TileGeneric implements DefaultInventory, ITic
         else
         {
             // Open the GUI
-            if( !getWorld().isRemote ) ComputerCraft.openDiskDriveGUI( player, this );
+            if( !getWorld().isClient ) ComputerCraft.openDiskDriveGUI( player, this );
             return true;
         }
         return false;
     }
 
-    public EnumFacing getDirection()
+    public Direction getDirection()
     {
-        return getBlockState().get( BlockDiskDrive.FACING );
+        return getCachedState().get( BlockDiskDrive.FACING );
     }
 
     @Override
-    public void read( NBTTagCompound nbt )
+    public void fromTag( CompoundTag nbt )
     {
-        super.read( nbt );
-        if( nbt.contains( NBT_ITEM ) )
+        super.fromTag( nbt );
+        if( nbt.containsKey( NBT_ITEM ) )
         {
-            NBTTagCompound item = nbt.getCompound( NBT_ITEM );
-            m_diskStack = ItemStack.read( item );
+            CompoundTag item = nbt.getCompound( NBT_ITEM );
+            m_diskStack = ItemStack.fromTag( item );
             m_diskMount = null;
         }
     }
 
     @Nonnull
     @Override
-    public NBTTagCompound write( NBTTagCompound nbt )
+    public CompoundTag toTag( CompoundTag nbt )
     {
-        nbt = super.write( nbt );
+        nbt = super.toTag( nbt );
         if( !m_diskStack.isEmpty() )
         {
-            NBTTagCompound item = new NBTTagCompound();
-            m_diskStack.write( item );
+            CompoundTag item = new CompoundTag();
+            m_diskStack.toTag( item );
             nbt.put( NBT_ITEM, item );
         }
         return nbt;
@@ -147,7 +145,7 @@ public class TileDiskDrive extends TileGeneric implements DefaultInventory, ITic
         // Music
         synchronized( this )
         {
-            if( !world.isRemote && m_recordPlaying != m_recordQueued || m_restartRecord )
+            if( !world.isClient && m_recordPlaying != m_recordQueued || m_restartRecord )
             {
                 m_restartRecord = false;
                 if( m_recordQueued )
@@ -173,30 +171,29 @@ public class TileDiskDrive extends TileGeneric implements DefaultInventory, ITic
         }
     }
 
-    // IInventory implementation
+    // Inventory implementation
 
     @Override
-    public int getSizeInventory()
+    public int getInvSize()
     {
-        return 1;
+        return INVENTORY_SIZE;
     }
 
     @Override
-    public boolean isEmpty()
+    public boolean isInvEmpty()
     {
         return m_diskStack.isEmpty();
     }
 
-    @Nonnull
     @Override
-    public ItemStack getStackInSlot( int slot )
+    public ItemStack getInvStack( int slot )
     {
         return m_diskStack;
     }
 
     @Nonnull
     @Override
-    public ItemStack removeStackFromSlot( int i )
+    public ItemStack removeInvStack( int i )
     {
         ItemStack result = m_diskStack;
         m_diskStack = ItemStack.EMPTY;
@@ -207,26 +204,26 @@ public class TileDiskDrive extends TileGeneric implements DefaultInventory, ITic
 
     @Nonnull
     @Override
-    public ItemStack decrStackSize( int i, int j )
+    public ItemStack takeInvStack( int i, int j )
     {
         if( m_diskStack.isEmpty() ) return ItemStack.EMPTY;
 
-        if( m_diskStack.getCount() <= j )
+        if( m_diskStack.getAmount() <= j )
         {
             ItemStack disk = m_diskStack;
-            setInventorySlotContents( 0, ItemStack.EMPTY );
+            setInvStack( 0, ItemStack.EMPTY );
             return disk;
         }
 
         ItemStack part = m_diskStack.split( j );
-        setInventorySlotContents( 0, m_diskStack.isEmpty() ? ItemStack.EMPTY : m_diskStack );
+        setInvStack( 0, m_diskStack.isEmpty() ? ItemStack.EMPTY : m_diskStack );
         return part;
     }
 
     @Override
-    public void setInventorySlotContents( int slot, ItemStack itemStack )
+    public void setInvStack( int slot, ItemStack itemStack )
     {
-        if( getWorld().isRemote )
+        if( getWorld().isClient )
         {
             m_diskStack = itemStack;
             m_diskMount = null;
@@ -275,19 +272,12 @@ public class TileDiskDrive extends TileGeneric implements DefaultInventory, ITic
     @Override
     public void markDirty()
     {
-        if( !world.isRemote ) updateBlockState();
+        if( !world.isClient ) updateBlockState();
         super.markDirty();
     }
 
-    @Nonnull
     @Override
-    public ITextComponent getName()
-    {
-        return getBlockState().getBlock().getNameTextComponent();
-    }
-
-    @Override
-    public boolean isUsableByPlayer( @Nonnull EntityPlayer player )
+    public boolean canPlayerUseInv( PlayerEntity player )
     {
         return isUsable( player, false );
     }
@@ -295,12 +285,13 @@ public class TileDiskDrive extends TileGeneric implements DefaultInventory, ITic
     @Override
     public void clear()
     {
-        setInventorySlotContents( 0, ItemStack.EMPTY );
+        setInvStack( 0, ItemStack.EMPTY );
     }
+
     // IPeripheralTile implementation
 
     @Override
-    public IPeripheral getPeripheral( EnumFacing side )
+    public IPeripheral getPeripheral( Direction side )
     {
         return new DiskDrivePeripheral( this );
     }
@@ -308,12 +299,12 @@ public class TileDiskDrive extends TileGeneric implements DefaultInventory, ITic
     @Nonnull
     public ItemStack getDiskStack()
     {
-        return getStackInSlot( 0 );
+        return getInvStack( 0 );
     }
 
     public void setDiskStack( @Nonnull ItemStack stack )
     {
-        setInventorySlotContents( 0, stack );
+        setInvStack( 0, stack );
     }
 
     public IMedia getDiskMedia()
@@ -458,7 +449,7 @@ public class TileDiskDrive extends TileGeneric implements DefaultInventory, ITic
 
     private void updateBlockState( DiskDriveState state )
     {
-        IBlockState blockState = getBlockState();
+        BlockState blockState = getCachedState();
         if( blockState.get( BlockDiskDrive.STATE ) == state ) return;
 
         getWorld().setBlockState( getPos(), blockState.with( BlockDiskDrive.STATE, state ) );
@@ -466,7 +457,7 @@ public class TileDiskDrive extends TileGeneric implements DefaultInventory, ITic
 
     private synchronized void ejectContents( boolean destroyed )
     {
-        if( getWorld().isRemote )
+        if( getWorld().isClient )
         {
             return;
         }
@@ -482,44 +473,42 @@ public class TileDiskDrive extends TileGeneric implements DefaultInventory, ITic
             int zOff = 0;
             if( !destroyed )
             {
-                EnumFacing dir = getDirection();
-                xOff = dir.getXOffset();
-                zOff = dir.getZOffset();
+                Direction dir = getDirection();
+                xOff = dir.getOffsetX();
+                zOff = dir.getOffsetZ();
             }
 
             BlockPos pos = getPos();
             double x = pos.getX() + 0.5 + xOff * 0.5;
             double y = pos.getY() + 0.75;
             double z = pos.getZ() + 0.5 + zOff * 0.5;
-            EntityItem entityitem = new EntityItem( getWorld(), x, y, z, disks );
-            entityitem.motionX = xOff * 0.15;
-            entityitem.motionY = 0.0;
-            entityitem.motionZ = zOff * 0.15;
+            ItemEntity entityitem = new ItemEntity( getWorld(), x, y, z, disks );
+            entityitem.setVelocity( xOff * 0.15, 0.0, zOff * 0.15 );
 
             getWorld().spawnEntity( entityitem );
             if( !destroyed )
             {
-                getWorld().playBroadcastSound( 1000, getPos(), 0 ); // BLOCK_DISPENSER_DISPENSE (See Renderer)
+                getWorld().playEvent( 1000, getPos(), 0 ); // BLOCK_DISPENSER_DISPENSE (See Renderer)
             }
         }
     }
 
     @Override
-    public final void readDescription( @Nonnull NBTTagCompound nbt )
+    public final void readDescription( @Nonnull CompoundTag nbt )
     {
         super.readDescription( nbt );
-        m_diskStack = nbt.contains( NBT_ITEM ) ? ItemStack.read( nbt.getCompound( NBT_ITEM ) ) : ItemStack.EMPTY;
+        m_diskStack = nbt.containsKey( NBT_ITEM ) ? ItemStack.fromTag( nbt.getCompound( NBT_ITEM ) ) : ItemStack.EMPTY;
         updateBlock();
     }
 
     @Override
-    public void writeDescription( @Nonnull NBTTagCompound nbt )
+    public void writeDescription( @Nonnull CompoundTag nbt )
     {
         super.writeDescription( nbt );
         if( !m_diskStack.isEmpty() )
         {
-            NBTTagCompound item = new NBTTagCompound();
-            m_diskStack.write( item );
+            CompoundTag item = new CompoundTag();
+            m_diskStack.toTag( item );
             nbt.put( NBT_ITEM, item );
         }
     }
@@ -543,13 +532,5 @@ public class TileDiskDrive extends TileGeneric implements DefaultInventory, ITic
     private void stopRecord()
     {
         ComputerCraft.playRecord( null, null, getWorld(), getPos() );
-    }
-
-    @Nonnull
-    @Override
-    public <T> LazyOptional<T> getCapability( @Nonnull Capability<T> cap, final @Nullable EnumFacing side )
-    {
-        if( cap == ITEM_HANDLER_CAPABILITY ) return m_itemCap.cast();
-        return super.getCapability( cap, side );
     }
 }

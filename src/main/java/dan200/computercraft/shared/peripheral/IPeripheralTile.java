@@ -7,9 +7,9 @@
 package dan200.computercraft.shared.peripheral;
 
 import dan200.computercraft.api.peripheral.IPeripheral;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.Direction;
 
 public interface IPeripheralTile
 {
-    IPeripheral getPeripheral( EnumFacing side );
+    IPeripheral getPeripheral( Direction side );
 }

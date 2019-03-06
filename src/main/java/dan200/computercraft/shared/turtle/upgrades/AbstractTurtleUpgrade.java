@@ -8,21 +8,21 @@ package dan200.computercraft.shared.turtle.upgrades;
 
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleUpgradeType;
+import net.minecraft.item.ItemProvider;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.IItemProvider;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.Util;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.SystemUtil;
 
 import javax.annotation.Nonnull;
 
 public abstract class AbstractTurtleUpgrade implements ITurtleUpgrade
 {
-    private final ResourceLocation id;
+    private final Identifier id;
     private final TurtleUpgradeType type;
     private final String adjective;
     private final ItemStack stack;
 
-    public AbstractTurtleUpgrade( ResourceLocation id, TurtleUpgradeType type, String adjective, ItemStack stack )
+    public AbstractTurtleUpgrade( Identifier id, TurtleUpgradeType type, String adjective, ItemStack stack )
     {
         this.id = id;
         this.type = type;
@@ -30,24 +30,24 @@ public abstract class AbstractTurtleUpgrade implements ITurtleUpgrade
         this.stack = stack;
     }
 
-    public AbstractTurtleUpgrade( ResourceLocation id, TurtleUpgradeType type, String adjective, IItemProvider item )
+    public AbstractTurtleUpgrade( Identifier id, TurtleUpgradeType type, String adjective, ItemProvider item )
     {
         this( id, type, adjective, new ItemStack( item ) );
     }
 
-    public AbstractTurtleUpgrade( ResourceLocation id, TurtleUpgradeType type, ItemStack stack )
+    public AbstractTurtleUpgrade( Identifier id, TurtleUpgradeType type, ItemStack stack )
     {
-        this( id, type, Util.makeTranslationKey( "upgrade", id ) + ".adjective", stack );
+        this( id, type, SystemUtil.createTranslationKey( "upgrade", id ) + ".adjective", stack );
     }
 
-    public AbstractTurtleUpgrade( ResourceLocation id, TurtleUpgradeType type, IItemProvider item )
+    public AbstractTurtleUpgrade( Identifier id, TurtleUpgradeType type, ItemProvider item )
     {
         this( id, type, new ItemStack( item ) );
     }
 
     @Nonnull
     @Override
-    public final ResourceLocation getUpgradeId()
+    public final Identifier getUpgradeId()
     {
         return id;
     }

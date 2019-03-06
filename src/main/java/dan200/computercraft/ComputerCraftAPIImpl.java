@@ -21,16 +21,16 @@ import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.core.apis.ApiFactories;
 import dan200.computercraft.core.filesystem.FileMount;
 import dan200.computercraft.shared.*;
+import dan200.computercraft.shared.peripheral.modem.wired.TileCable;
+import dan200.computercraft.shared.peripheral.modem.wired.TileWiredModemFull;
 import dan200.computercraft.shared.peripheral.modem.wireless.WirelessNetwork;
 import dan200.computercraft.shared.util.IDAssigner;
-import dan200.computercraft.shared.wired.CapabilityWiredElement;
 import dan200.computercraft.shared.wired.WiredNode;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IBlockReader;
+import net.minecraft.util.math.Direction;
+import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
-import net.minecraftforge.common.util.LazyOptional;
 
 import javax.annotation.Nonnull;
 import java.io.File;
@@ -52,7 +52,7 @@ public final class ComputerCraftAPIImpl implements IComputerCraftAPI
     @Override
     public int createUniqueNumberedSaveDir( @Nonnull World world, @Nonnull String parentSubPath )
     {
-        return IDAssigner.getNextId( parentSubPath );
+        return IDAssigner.getNextId( world, parentSubPath );
     }
 
     @Override
@@ -60,7 +60,7 @@ public final class ComputerCraftAPIImpl implements IComputerCraftAPI
     {
         try
         {
-            return new FileMount( new File( IDAssigner.getDir(), subPath ), capacity );
+            return new FileMount( new File( IDAssigner.getDir(world), subPath ), capacity );
         }
         catch( Exception e )
         {
@@ -93,7 +93,7 @@ public final class ComputerCraftAPIImpl implements IComputerCraftAPI
     }
 
     @Override
-    public int getBundledRedstoneOutput( @Nonnull World world, @Nonnull BlockPos pos, @Nonnull EnumFacing side )
+    public int getBundledRedstoneOutput( @Nonnull World world, @Nonnull BlockPos pos, @Nonnull Direction side )
     {
         return BundledRedstone.getDefaultOutput( world, pos, side );
     }
@@ -129,13 +129,17 @@ public final class ComputerCraftAPIImpl implements IComputerCraftAPI
     }
 
     @Override
-    public IWiredElement getWiredElementAt( @Nonnull IBlockReader world, @Nonnull BlockPos pos, @Nonnull EnumFacing side )
+    public IWiredElement getWiredElementAt( @Nonnull BlockView world, @Nonnull BlockPos pos, @Nonnull Direction side )
     {
-        TileEntity tile = world.getTileEntity( pos );
-        if( tile == null ) return null;
-
-        // TODO: Work out how we want the API to function in the future.
-        LazyOptional<IWiredElement> element = tile.getCapability( CapabilityWiredElement.CAPABILITY, side );
-        return CapabilityWiredElement.unwrap( element );
+        BlockEntity tile = world.getBlockEntity( pos );
+        if( tile instanceof TileCable )
+        {
+            return ((TileCable) tile).getElement( side );
+        }
+        else if( tile instanceof TileWiredModemFull )
+        {
+            return ((TileWiredModemFull) tile).getElement();
+        }
+        return null;
     }
 }

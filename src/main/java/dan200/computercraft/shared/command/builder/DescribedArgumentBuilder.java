@@ -13,8 +13,8 @@ import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import com.mojang.brigadier.tree.CommandNode;
 import com.mojang.brigadier.tree.LiteralCommandNode;
-import net.minecraft.command.CommandSource;
-import net.minecraft.util.text.TextComponentString;
+import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.text.StringTextComponent;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -34,14 +34,14 @@ public class DescribedArgumentBuilder<S> extends LiteralArgumentBuilder<S>
         this.tooltip = tooltip;
     }
 
-    public static DescribedArgumentBuilder<CommandSource> literal( String literal, Message tooltip )
+    public static DescribedArgumentBuilder<ServerCommandSource> literal( String literal, Message tooltip )
     {
         return new DescribedArgumentBuilder<>( literal, tooltip );
     }
 
-    public static DescribedArgumentBuilder<CommandSource> literal( String literal, String tooltip )
+    public static DescribedArgumentBuilder<ServerCommandSource> literal( String literal, String tooltip )
     {
-        return new DescribedArgumentBuilder<>( literal, new TextComponentString( tooltip ) );
+        return new DescribedArgumentBuilder<>( literal, new StringTextComponent( tooltip ) );
     }
 
     @Override

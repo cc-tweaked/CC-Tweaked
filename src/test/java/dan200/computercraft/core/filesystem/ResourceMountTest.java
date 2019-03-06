@@ -7,9 +7,10 @@
 package dan200.computercraft.core.filesystem;
 
 import dan200.computercraft.api.filesystem.IMount;
-import net.minecraft.resources.FolderPack;
-import net.minecraft.resources.ResourcePackType;
-import net.minecraft.resources.SimpleReloadableResourceManager;
+import net.minecraft.resource.DirectoryResourcePack;
+import net.minecraft.resource.ReloadableResourceManager;
+import net.minecraft.resource.ReloadableResourceManagerImpl;
+import net.minecraft.resource.ResourceType;
 import org.junit.Before;
 import org.junit.Test;
 

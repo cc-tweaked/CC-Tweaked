@@ -7,15 +7,11 @@
 package dan200.computercraft.shared.util;
 
 import com.google.common.collect.MapMaker;
-import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.common.TileGeneric;
 import net.minecraft.block.Block;
-import net.minecraft.tileentity.TileEntity;
+import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.gameevent.TickEvent;
 
 import java.util.Collections;
 import java.util.Iterator;
@@ -26,14 +22,13 @@ import java.util.Set;
  *
  * We use this when modems and other peripherals change a block in a different thread.
  */
-@Mod.EventBusSubscriber( modid = ComputerCraft.MOD_ID )
 public final class TickScheduler
 {
     private TickScheduler()
     {
     }
 
-    private static final Set<TileEntity> toTick = Collections.newSetFromMap(
+    private static final Set<BlockEntity> toTick = Collections.newSetFromMap(
         new MapMaker()
             .weakKeys()
             .makeMap()
@@ -42,26 +37,23 @@ public final class TickScheduler
     public static void schedule( TileGeneric tile )
     {
         World world = tile.getWorld();
-        if( world != null && !world.isRemote ) toTick.add( tile );
+        if( world != null && !world.isClient ) toTick.add( tile );
     }
 
-    @SubscribeEvent
-    public static void tick( TickEvent.ServerTickEvent event )
+    public static void tick()
     {
-        if( event.phase != TickEvent.Phase.START ) return;
-
-        Iterator<TileEntity> iterator = toTick.iterator();
+        Iterator<BlockEntity> iterator = toTick.iterator();
         while( iterator.hasNext() )
         {
-            TileEntity tile = iterator.next();
+            BlockEntity tile = iterator.next();
             iterator.remove();
 
             World world = tile.getWorld();
             BlockPos pos = tile.getPos();
 
-            if( world != null && pos != null && world.isBlockLoaded( pos ) && world.getTileEntity( pos ) == tile )
+            if( world != null && pos != null && world.isBlockLoaded( pos ) && world.getBlockEntity( pos ) == tile )
             {
-                world.getPendingBlockTicks().scheduleTick( pos, tile.getBlockState().getBlock(), 0 );
+                world.getBlockTickScheduler().schedule( pos, tile.getCachedState().getBlock(), 0 );
             }
         }
     }

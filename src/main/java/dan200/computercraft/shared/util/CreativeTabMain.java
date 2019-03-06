@@ -7,23 +7,23 @@
 package dan200.computercraft.shared.util;
 
 import dan200.computercraft.ComputerCraft;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 import javax.annotation.Nonnull;
 
 public class CreativeTabMain extends ItemGroup
 {
-    public CreativeTabMain()
+    public CreativeTabMain( int i )
     {
-        super( ComputerCraft.MOD_ID );
+        super( i, ComputerCraft.MOD_ID );
     }
 
     @Nonnull
     @Override
-    @OnlyIn( Dist.CLIENT )
+    @Environment( EnvType.CLIENT )
     public ItemStack createIcon()
     {
         return new ItemStack( ComputerCraft.Blocks.computerNormal );

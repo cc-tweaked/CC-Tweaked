@@ -11,7 +11,7 @@ import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.shared.common.IColouredItem;
 import dan200.computercraft.shared.computer.items.IComputerItem;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.Identifier;
 
 public interface ITurtleItem extends IComputerItem, IColouredItem
 {
@@ -19,5 +19,5 @@ public interface ITurtleItem extends IComputerItem, IColouredItem
 
     int getFuelLevel( ItemStack stack );
 
-    ResourceLocation getOverlay( ItemStack stack );
+    Identifier getOverlay( ItemStack stack );
 }

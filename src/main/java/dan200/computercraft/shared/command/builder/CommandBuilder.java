@@ -13,7 +13,7 @@ import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.tree.CommandNode;
 import dan200.computercraft.shared.command.arguments.RepeatArgumentType;
-import net.minecraft.command.CommandSource;
+import net.minecraft.server.command.ServerCommandSource;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -33,14 +33,14 @@ public class CommandBuilder<S> implements CommandNodeBuilder<S, Command<S>>
     private List<ArgumentBuilder<S, ?>> args = new ArrayList<>();
     private Predicate<S> requires;
 
-    public static CommandBuilder<CommandSource> args()
+    public static CommandBuilder<ServerCommandSource> args()
     {
         return new CommandBuilder<>();
     }
 
-    public static CommandBuilder<CommandSource> command( String literal, String tooltip )
+    public static CommandBuilder<ServerCommandSource> command( String literal, String tooltip )
     {
-        CommandBuilder<CommandSource> builder = new CommandBuilder<>();
+        CommandBuilder<ServerCommandSource> builder = new CommandBuilder<>();
         builder.args.add( literal( literal, tooltip ) );
         return builder;
     }

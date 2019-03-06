@@ -7,41 +7,59 @@
 package dan200.computercraft.shared.peripheral.diskdrive;
 
 import dan200.computercraft.shared.common.BlockGeneric;
+import dan200.computercraft.shared.util.InventoryUtil;
 import net.minecraft.block.Block;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.item.BlockItemUseContext;
-import net.minecraft.state.DirectionProperty;
-import net.minecraft.state.EnumProperty;
-import net.minecraft.state.StateContainer;
-import net.minecraft.state.properties.BlockStateProperties;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.item.ItemPlacementContext;
+import net.minecraft.item.ItemStack;
+import net.minecraft.state.StateFactory;
+import net.minecraft.state.property.DirectionProperty;
+import net.minecraft.state.property.EnumProperty;
+import net.minecraft.state.property.Properties;
+import net.minecraft.util.math.Direction;
+import net.minecraft.world.loot.context.LootContext;
+import net.minecraft.world.loot.context.LootContextParameters;
 
 import javax.annotation.Nullable;
+import java.util.List;
 
 public class BlockDiskDrive extends BlockGeneric
 {
-    static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
+    static final DirectionProperty FACING = Properties.FACING_HORIZONTAL;
     static final EnumProperty<DiskDriveState> STATE = EnumProperty.create( "state", DiskDriveState.class );
 
-    public BlockDiskDrive( Properties settings )
+    public BlockDiskDrive( Settings settings )
     {
         super( settings, TileDiskDrive.FACTORY );
-        setDefaultState( getStateContainer().getBaseState()
-            .with( FACING, EnumFacing.NORTH )
+        setDefaultState( getStateFactory().getDefaultState()
+            .with( FACING, Direction.NORTH )
             .with( STATE, DiskDriveState.EMPTY ) );
     }
 
-
     @Override
-    protected void fillStateContainer( StateContainer.Builder<Block, IBlockState> properties )
+    protected void appendProperties( StateFactory.Builder<Block, BlockState> properties )
     {
-        properties.add( FACING, STATE );
+        properties.with( FACING, STATE );
     }
 
     @Nullable
     @Override
-    public IBlockState getStateForPlacement( BlockItemUseContext placement )
+    public BlockState getPlacementState( ItemPlacementContext placement )
     {
-        return getDefaultState().with( FACING, placement.getPlacementHorizontalFacing().getOpposite() );
+        return getDefaultState().with( FACING, placement.getPlayerHorizontalFacing().getOpposite() );
+    }
+
+    @Deprecated
+    @Override
+    public List<ItemStack> getDroppedStacks( BlockState state, LootContext.Builder context )
+    {
+        BlockEntity entity = context.getNullable( LootContextParameters.BLOCK_ENTITY );
+        if( entity instanceof TileDiskDrive )
+        {
+            InventoryUtil.dropContents( (TileDiskDrive) entity, context );
+        }
+
+        return super.getDroppedStacks( state, context );
     }
 }

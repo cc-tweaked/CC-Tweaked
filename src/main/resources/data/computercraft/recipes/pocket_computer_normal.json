@@ -6,7 +6,7 @@
         "#G#"
     ],
     "key": {
-        "#": { "tag": "forge:stone" },
+        "#": { "item": "minecraft:stone" },
         "G": { "item": "minecraft:glass_pane" },
         "A": { "item": "minecraft:golden_apple" }
     },

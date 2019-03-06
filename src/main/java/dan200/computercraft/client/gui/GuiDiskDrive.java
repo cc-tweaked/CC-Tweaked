@@ -6,45 +6,44 @@
 
 package dan200.computercraft.client.gui;
 
+import com.mojang.blaze3d.platform.GlStateManager;
+import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.peripheral.diskdrive.ContainerDiskDrive;
-import net.minecraft.client.gui.inventory.GuiContainer;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.resources.I18n;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.client.gui.ContainerScreen;
+import net.minecraft.client.resource.language.I18n;
+import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.util.Identifier;
 
-public class GuiDiskDrive extends GuiContainer
+public class GuiDiskDrive extends ContainerScreen<ContainerDiskDrive>
 {
-    private static final ResourceLocation BACKGROUND = new ResourceLocation( "computercraft", "textures/gui/disk_drive.png" );
+    private static final Identifier BACKGROUND = new Identifier( "computercraft", "textures/gui/disk_drive.png" );
 
-    private final ContainerDiskDrive m_container;
-
-    public GuiDiskDrive( ContainerDiskDrive container )
+    public GuiDiskDrive( ContainerDiskDrive container, PlayerInventory inventory )
     {
-        super( container );
-        m_container = container;
+        super( container, inventory, ComputerCraft.Blocks.diskDrive.getTextComponent() );
     }
 
     @Override
-    protected void drawGuiContainerForegroundLayer( int mouseX, int mouseY )
+    protected void drawForeground( int par1, int par2 )
     {
-        String title = m_container.getDiskDrive().getDisplayName().getString();
-        fontRenderer.drawString( title, (xSize - fontRenderer.getStringWidth( title )) / 2.0f, 6, 0x404040 );
-        fontRenderer.drawString( I18n.format( "container.inventory" ), 8, (ySize - 96) + 2, 0x404040 );
+        String title = name.getFormattedText();
+        fontRenderer.draw( title, (width - fontRenderer.getStringWidth( title )) / 2.0f, 6, 0x404040 );
+        fontRenderer.draw( I18n.translate( "container.inventory" ), 8, (height - 96) + 2, 0x404040 );
     }
 
     @Override
-    protected void drawGuiContainerBackgroundLayer( float partialTicks, int mouseX, int mouseY )
+    protected void drawBackground( float f, int i, int j )
     {
         GlStateManager.color4f( 1.0F, 1.0F, 1.0F, 1.0F );
-        mc.getTextureManager().bindTexture( BACKGROUND );
-        drawTexturedModalRect( guiLeft, guiTop, 0, 0, xSize, ySize );
+        client.getTextureManager().bindTexture( BACKGROUND );
+        drawTexturedRect( left, top, 0, 0, width, height );
     }
 
     @Override
-    public void render( int mouseX, int mouseY, float partialTicks )
+    public void draw( int mouseX, int mouseY, float partialTicks )
     {
-        drawDefaultBackground();
-        super.render( mouseX, mouseY, partialTicks );
-        renderHoveredToolTip( mouseX, mouseY );
+        drawBackground();
+        super.draw( mouseX, mouseY, partialTicks );
+        drawMouseoverTooltip( mouseX, mouseY );
     }
 }

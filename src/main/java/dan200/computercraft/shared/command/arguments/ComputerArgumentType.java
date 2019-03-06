@@ -14,7 +14,7 @@ import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import dan200.computercraft.shared.command.arguments.ComputersArgumentType.ComputersSupplier;
 import dan200.computercraft.shared.computer.core.ServerComputer;
-import net.minecraft.command.CommandSource;
+import net.minecraft.server.command.ServerCommandSource;
 
 import java.util.Collection;
 import java.util.concurrent.CompletableFuture;
@@ -30,7 +30,7 @@ public class ComputerArgumentType implements ArgumentType<ComputerArgumentType.C
         return INSTANCE;
     }
 
-    public static ServerComputer getComputerArgument( CommandContext<CommandSource> context, String name ) throws CommandSyntaxException
+    public static ServerComputer getComputerArgument( CommandContext<ServerCommandSource> context, String name ) throws CommandSyntaxException
     {
         return context.getArgument( name, ComputerSupplier.class ).unwrap( context.getSource() );
     }
@@ -72,6 +72,6 @@ public class ComputerArgumentType implements ArgumentType<ComputerArgumentType.C
     @FunctionalInterface
     public interface ComputerSupplier
     {
-        ServerComputer unwrap( CommandSource source ) throws CommandSyntaxException;
+        ServerComputer unwrap( ServerCommandSource source ) throws CommandSyntaxException;
     }
 }

@@ -12,16 +12,16 @@ import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.api.media.IMedia;
 import dan200.computercraft.shared.common.IColouredItem;
 import dan200.computercraft.shared.util.Colour;
-import net.minecraft.client.util.ITooltipFlag;
+import net.minecraft.client.item.TooltipContext;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.NonNullList;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextComponentString;
-import net.minecraft.util.text.TextComponentTranslation;
-import net.minecraft.util.text.TextFormatting;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.text.StringTextComponent;
+import net.minecraft.text.TextComponent;
+import net.minecraft.text.TextFormat;
+import net.minecraft.text.TranslatableTextComponent;
+import net.minecraft.util.DefaultedList;
 import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
@@ -32,7 +32,7 @@ public class ItemDisk extends Item implements IMedia, IColouredItem
 {
     private static final String NBT_ID = "DiskId";
 
-    public ItemDisk( Properties settings )
+    public ItemDisk( Settings settings )
     {
         super( settings );
     }
@@ -48,9 +48,9 @@ public class ItemDisk extends Item implements IMedia, IColouredItem
     }
 
     @Override
-    public void fillItemGroup( @Nonnull ItemGroup tabs, @Nonnull NonNullList<ItemStack> list )
+    public void appendItemsForGroup( @Nonnull ItemGroup tabs, @Nonnull DefaultedList<ItemStack> list )
     {
-        if( !isInGroup( tabs ) ) return;
+        if( !isInItemGroup( tabs ) ) return;
         for( int colour = 0; colour < 16; colour++ )
         {
             list.add( createFromIDAndColour( -1, null, Colour.VALUES[colour].getHex() ) );
@@ -58,15 +58,15 @@ public class ItemDisk extends Item implements IMedia, IColouredItem
     }
 
     @Override
-    public void addInformation( ItemStack stack, @Nullable World world, List<ITextComponent> list, ITooltipFlag options )
+    public void buildTooltip( ItemStack stack, @Nullable World world, List<TextComponent> list, TooltipContext options )
     {
         if( options.isAdvanced() )
         {
             int id = getDiskID( stack );
             if( id >= 0 )
             {
-                list.add( new TextComponentTranslation( "gui.computercraft.tooltip.disk_id", id )
-                    .applyTextStyle( TextFormatting.GRAY ) );
+                list.add( new TranslatableTextComponent( "gui.computercraft.tooltip.disk_id", id )
+                    .applyFormat( TextFormat.GRAY ) );
             }
         }
     }
@@ -82,11 +82,11 @@ public class ItemDisk extends Item implements IMedia, IColouredItem
     {
         if( label != null )
         {
-            stack.setDisplayName( new TextComponentString( label ) );
+            stack.setDisplayName( new StringTextComponent( label ) );
         }
         else
         {
-            stack.clearCustomName();
+            stack.removeDisplayName();
         }
         return true;
     }
@@ -105,8 +105,8 @@ public class ItemDisk extends Item implements IMedia, IColouredItem
 
     public static int getDiskID( @Nonnull ItemStack stack )
     {
-        NBTTagCompound nbt = stack.getTag();
-        return nbt != null && nbt.contains( NBT_ID ) ? nbt.getInt( NBT_ID ) : -1;
+        CompoundTag nbt = stack.getTag();
+        return nbt != null && nbt.containsKey( NBT_ID ) ? nbt.getInt( NBT_ID ) : -1;
     }
 
     private static void setDiskID( @Nonnull ItemStack stack, int id )
@@ -118,6 +118,6 @@ public class ItemDisk extends Item implements IMedia, IColouredItem
     public int getColour( @Nonnull ItemStack stack )
     {
         int colour = IColouredItem.getColourBasic( stack );
-        return colour == -1 ? Colour.White.getHex() : colour;
+        return colour == -1 ? 0xFFFFFF : colour;
     }
 }
