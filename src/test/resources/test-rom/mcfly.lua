@@ -137,7 +137,7 @@ function expect_mt:type(exp_type)
     return self
 end
 
-local function are_same(eq, left, right)
+local function matches(eq, exact, left, right)
     if left == right then return true end
 
     local ty = type(left)
@@ -150,12 +150,14 @@ local function are_same(eq, left, right)
 
     -- Verify all pairs in left are equal to those in right
     for k, v in pairs(left) do
-        if not are_same(eq, v, right[k]) then return false end
+        if not matches(eq, exact, v, right[k]) then return false end
     end
 
-    -- And verify all pairs in right are present in left
-    for k in pairs(right) do
-        if left[k] == nil then return false end
+    if exact then
+        -- And verify all pairs in right are present in left
+        for k in pairs(right) do
+            if left[k] == nil then return false end
+        end
     end
 
     return true
@@ -167,8 +169,21 @@ end
 -- @param value The value to check for structural equivalence
 -- @raises If they are not equivalent
 function expect_mt:same(value)
-    if not are_same({}, self.value, value) then
+    if not matches({}, true, self.value, value) then
         fail(("Expected %s\n but got %s"):format(format(value), format(self.value)))
+    end
+
+    return self
+end
+
+--- Assert that this expectation contains all fields mentioned
+-- in the provided object.
+--
+-- @param value The value to check against
+-- @raises If this does not match the provided value
+function expect_mt:matches(value)
+    if not matches({}, false, value, self.value) then
+        fail(("Expected %s\nto match %s"):format(format(self.value), format(value)))
     end
 
     return self
