@@ -113,6 +113,7 @@ public class HttpRequest extends Resource<HttpRequest>
     {
         // Validate the URL
         if( url.getScheme() == null ) throw new HTTPRequestException( "Must specify http or https" );
+        if( url.getHost() == null ) throw new HTTPRequestException( "URL malformed" );
 
         String scheme = url.getScheme().toLowerCase( Locale.ROOT );
         if( !scheme.equalsIgnoreCase( "http" ) && !scheme.equalsIgnoreCase( "https" ) )

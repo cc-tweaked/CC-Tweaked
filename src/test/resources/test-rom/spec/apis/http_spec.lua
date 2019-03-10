@@ -6,6 +6,8 @@ describe("The http library", function()
 
         it("Rejects malformed URLs", function()
             expect({ http.checkURL("google.com")}):same({ false, "Must specify http or https" })
+            expect({ http.checkURL("https:google.com")}):same({ false, "URL malformed" })
+            expect({ http.checkURL("https:/google.com")}):same({ false, "URL malformed" })
             expect({ http.checkURL("wss://google.com")}):same({ false, "Invalid protocol 'wss'" })
         end)
 
