@@ -1,0 +1,65 @@
+tile.computercraft:computer.name=Dator
+tile.computercraft:advanced_computer.name=Avancerad Dator
+tile.computercraft:drive.name=Diskettläsare
+tile.computercraft:printer.name=Skrivare
+tile.computercraft:monitor.name=Skärm
+tile.computercraft:advanced_monitor.name=Avancerad Skärm
+tile.computercraft:wireless_modem.name=Trådlöst Modem
+tile.computercraft:wired_modem.name=Trådat Modem
+tile.computercraft:cable.name=Nätverkskabel
+tile.computercraft:command_computer.name=Kommando Dator
+tile.computercraft:advanced_modem.name=Ender Modem
+tile.computercraft:speaker.name=Högtalare
+
+tile.computercraft:turtle.name=Turtle
+tile.computercraft:turtle.upgraded.name=%s Turtle
+tile.computercraft:turtle.upgraded_twice.name=%s %s Turtle
+tile.computercraft:advanced_turtle.name=Avancerad Turtle
+tile.computercraft:advanced_turtle.upgraded.name=Avancerad %s Turtle
+tile.computercraft:advanced_turtle.upgraded_twice.name=Avancerad %s %s Turtle
+
+item.computercraft:disk.name=Diskett
+item.computercraft:treasure_disk.name=Diskett
+item.computercraft:page.name=Utskriven Sida
+item.computercraft:pages.name=Utskrivna Sidor
+item.computercraft:book.name=Utskriven Bok
+
+item.computercraft:pocket_computer.name=Fickdator
+item.computercraft:pocket_computer.upgraded.name=%s Fickdator
+item.computercraft:advanced_pocket_computer.name=Avancerad Fickdator
+item.computercraft:advanced_pocket_computer.upgraded.name=Avancerad %s Fickdator
+
+upgrade.minecraft:diamond_sword.adjective=Stridande
+upgrade.minecraft:diamond_shovel.adjective=Grävande
+upgrade.minecraft:diamond_pickaxe.adjective=Bergbrukande
+upgrade.minecraft:diamond_axe.adjective=Fällande
+upgrade.minecraft:diamond_hoe.adjective=Jordbrukande
+upgrade.computercraft:wireless_modem.adjective=Trådlöst
+upgrade.minecraft:crafting_table.adjective=Crafty
+upgrade.computercraft:advanced_modem.adjective=Ender
+upgrade.computercraft:speaker.adjective=Bullrig
+
+gui.computercraft:wired_modem.peripheral_connected=Kringutrustningen "%s" kopplad till nätverket
+gui.computercraft:wired_modem.peripheral_disconnected=Kringutrustningen "%s" frånkopplad från nätverket
+
+gui.computercraft:config.http_enable=Tillåt HTTP API
+gui.computercraft:config.http_whitelist=HTTP vitlista
+gui.computercraft:config.http_blacklist=HTTP svartlista
+gui.computercraft:config.disable_lua51_features=Inaktivera Lua 5.1 funktioner
+gui.computercraft:config.default_computer_settings=Förinställda Dator inställningar
+gui.computercraft:config.log_peripheral_errors=Logga kringutrustnings-fel
+gui.computercraft:config.enable_command_block=Aktivera kommandoblock som kringutrustning
+gui.computercraft:config.modem_range=Modem räckvidd (standard)
+gui.computercraft:config.modem_high_altitude_range=Modem räckvidd (hög-altitud)
+gui.computercraft:config.modem_range_during_storm=Modem räckvidd (dåligt väder)
+gui.computercraft:config.modem_high_altitude_range_during_storm=Modem räckvidd (hög-altitud, dåligt väder)
+gui.computercraft:config.computer_space_limit=Lagringsutrymme för Dator (byte)
+gui.computercraft:config.floppy_space_limit=Lagringsutrymme för diskett (byte)
+gui.computercraft:config.turtles_need_fuel=Aktivera bränsle
+gui.computercraft:config.turtle_fuel_limit=Turtle bränslegräns
+gui.computercraft:config.advanced_turtle_fuel_limit=Avancerad Turtle bränslegräns
+gui.computercraft:config.turtles_obey_block_protection=Turtle följer blockskydd
+gui.computercraft:config.turtles_can_push=Turtle kan putta entiteter
+gui.computercraft:config.maximum_files_open=Max antal filer en dator kan ha öppna
+gui.computercraft:config.max_notes_per_tick=Max antal noter en dator kan spela på samma gång
+
