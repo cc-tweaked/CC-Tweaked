@@ -1,0 +1,83 @@
+tile.computercraft:computer.name=Computer
+tile.computercraft:advanced_computer.name=Computer Avanzato
+tile.computercraft:drive.name=Lettore disco
+tile.computercraft:printer.name=Stampante
+tile.computercraft:monitor.name=Monitor
+tile.computercraft:advanced_monitor.name=Monitor Avanzato
+tile.computercraft:wireless_modem.name=Modem Wireless
+tile.computercraft:wired_modem.name=Modem Cablato
+tile.computercraft:cable.name=Cavo Di Rete
+tile.computercraft:command_computer.name=Computer Commando
+tile.computercraft:advanced_modem.name=Modem di Ender
+tile.computercraft:speaker.name=Altoparlante
+
+tile.computercraft:turtle.name=Tartaruga
+tile.computercraft:turtle.upgraded.name=Tartaruga %s
+tile.computercraft:turtle.upgraded_twice.name=Tartaruga %s %s
+tile.computercraft:advanced_turtle.name=Tartaruga Avanzata
+tile.computercraft:advanced_turtle.upgraded.name=Tartaruga %s Avanzata
+tile.computercraft:advanced_turtle.upgraded_twice.name=Tartaruga %s %s Avanzata
+
+item.computercraft:disk.name=Disco Floppy
+item.computercraft:treasure_disk.name=Disco Floppy
+item.computercraft:page.name=Pagina Stampata
+item.computercraft:pages.name=Pagine Stampate
+item.computercraft:book.name=Libro Stampato
+
+item.computercraft:pocket_computer.name=Computer Tascabile
+item.computercraft:pocket_computer.upgraded.name=Computer Tascabile %s
+item.computercraft:advanced_pocket_computer.name=Computer Tascabile Avanzato
+item.computercraft:advanced_pocket_computer.upgraded.name=Computer Tascabile %s Avanzato
+
+upgrade.minecraft:diamond_sword.adjective=Da Combattimento
+upgrade.minecraft:diamond_shovel.adjective=Scavatrice
+upgrade.minecraft:diamond_pickaxe.adjective=Minatrice
+upgrade.minecraft:diamond_axe.adjective=Taglialegna
+upgrade.minecraft:diamond_hoe.adjective=Contadina
+upgrade.computercraft:wireless_modem.adjective=Wireless
+upgrade.minecraft:crafting_table.adjective=Artigiano
+upgrade.computercraft:advanced_modem.adjective=Ender
+upgrade.computercraft:speaker.adjective=Rumoroso
+
+gui.computercraft:wired_modem.peripheral_connected=Periferica "%s" connessa alla rete
+gui.computercraft:wired_modem.peripheral_disconnected=Periferica "%s" disconessa dalla rete
+
+gui.computercraft:tooltip.copy=Copia negli appunti
+
+gui.computercraft:config.computer_space_limit=Limite spazio Computer (bytes)
+gui.computercraft:config.floppy_space_limit=Limite spazio Disco Floppy (bytes)
+gui.computercraft:config.maximum_open_files=Massimo file aperti per computer
+gui.computercraft:config.disable_lua51_features=Disattiva features Lua 5.1
+gui.computercraft:config.default_computer_settings=Impostazioni Computer predefinite
+gui.computercraft:config.debug_enabled=Attiva libreria di debug
+gui.computercraft:config.computer_threads=Threads computer
+gui.computercraft:config.log_computer_errors=Salva errori computer
+
+gui.computercraft:config.http=HTTP
+gui.computercraft:config.http.enabled=Attiva l'API HTTP
+gui.computercraft:config.http.websocket_enabled=Attiva websocket
+gui.computercraft:config.http.whitelist=Lista bianca HTTP
+gui.computercraft:config.http.blacklist=Lista nera HTTP
+
+gui.computercraft:config.http.timeout=Tempo di scadenza
+gui.computercraft:config.http.max_requests=Richieste correnti massime
+gui.computercraft:config.http.max_download=Massimo grandezza risposte
+gui.computercraft:config.http.max_upload=Massimo grandezza richieste
+gui.computercraft:config.http.max_websockets=Connessioni websocket massime
+gui.computercraft:config.http.max_websocket_message=Massimo grandezza messaggi websocket
+
+gui.computercraft:config.peripheral=Periferiche
+gui.computercraft:config.peripheral.command_block_enabled=Attiva periferica blocco comandi
+gui.computercraft:config.peripheral.modem_range=Raggio Modem (default)
+gui.computercraft:config.peripheral.modem_high_altitude_range=Raggio Modem (alta quota)
+gui.computercraft:config.peripheral.modem_range_during_storm=Raggio Modem (brutto tempo)
+gui.computercraft:config.peripheral.modem_high_altitude_range_during_storm=Raggio Modem (alta quota, brutto tempo)
+gui.computercraft:config.peripheral.max_notes_per_tick=Note massime alla volta
+
+gui.computercraft:config.turtle=Tartarughe
+gui.computercraft:config.turtle.need_fuel=Attiva carburante
+gui.computercraft:config.turtle.normal_fuel_limit=Limite carburante tartarughe
+gui.computercraft:config.turtle.advanced_fuel_limit=Limite carburante tartarughe avanzate
+gui.computercraft:config.turtle.obey_block_protection=Tartarughe rispettano le protezioni
+gui.computercraft:config.turtle.can_push=Le tartarughe possono spingere le entità
+gui.computercraft:config.turtle.disabled_actions=Disattiva azioni tartarughe
