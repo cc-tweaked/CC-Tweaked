@@ -7,11 +7,18 @@
 package dan200.computercraft.shared.peripheral.common;
 
 import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.shared.integration.mcmp.MCMPHooks;
 import dan200.computercraft.shared.peripheral.PeripheralType;
 import net.minecraft.block.Block;
 import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.EnumActionResult;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.NonNullList;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
 
@@ -31,41 +38,27 @@ public class ItemPeripheral extends ItemPeripheralBase
         switch( type )
         {
             case DiskDrive:
-            {
                 stack = new ItemStack( this, quantity, 0 );
                 break;
-            }
             case WirelessModem:
-            {
                 stack = new ItemStack( this, quantity, 1 );
                 break;
-            }
             case Monitor:
-            {
                 stack = new ItemStack( this, quantity, 2 );
                 break;
-            }
             case Printer:
-            {
                 stack = new ItemStack( this, quantity, 3 );
                 break;
-            }
             case AdvancedMonitor:
-            {
                 stack = new ItemStack( this, quantity, 4 );
                 break;
-            }
             case Speaker:
-            {
                 stack = new ItemStack( this, quantity, 5 );
                 break;
-            }
 
             default:
-            {
                 // Ignore types we can't handle
                 return ItemStack.EMPTY;
-            }
         }
         if( label != null )
         {
@@ -93,29 +86,30 @@ public class ItemPeripheral extends ItemPeripheralBase
         {
             case 0:
             default:
-            {
                 return PeripheralType.DiskDrive;
-            }
             case 1:
-            {
                 return PeripheralType.WirelessModem;
-            }
             case 2:
-            {
                 return PeripheralType.Monitor;
-            }
             case 3:
-            {
                 return PeripheralType.Printer;
-            }
             case 4:
-            {
                 return PeripheralType.AdvancedMonitor;
-            }
             case 5:
-            {
                 return PeripheralType.Speaker;
-            }
         }
+    }
+
+    @Nonnull
+    @Override
+    public EnumActionResult onItemUse( EntityPlayer player, World world, @Nonnull BlockPos pos, @Nonnull EnumHand hand, @Nonnull EnumFacing facing, float hitX, float hitY, float hitZ )
+    {
+        if( getPeripheralType( player.getHeldItem( hand ) ) == PeripheralType.WirelessModem )
+        {
+            EnumActionResult result = MCMPHooks.onItemUse( this, player, world, pos, hand, facing, hitX, hitY, hitZ );
+            if( result != EnumActionResult.PASS ) return result;
+        }
+
+        return super.onItemUse( player, world, pos, hand, facing, hitX, hitY, hitZ );
     }
 }

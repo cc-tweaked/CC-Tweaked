@@ -24,10 +24,10 @@ public final class IntegrationCharset
     private static final ResourceLocation CAPABILITY_KEY = new ResourceLocation( ComputerCraft.MOD_ID, "charset" );
 
     @CapabilityInject( IBundledEmitter.class )
-    public static final Capability<IBundledEmitter> CAPABILITY_EMITTER = null;
+    static Capability<IBundledEmitter> CAPABILITY_EMITTER = null;
 
     @CapabilityInject( IBundledReceiver.class )
-    public static final Capability<IBundledReceiver> CAPABILITY_RECEIVER = null;
+    static Capability<IBundledReceiver> CAPABILITY_RECEIVER = null;
 
     private IntegrationCharset()
     {
@@ -37,12 +37,12 @@ public final class IntegrationCharset
     {
         if( CAPABILITY_EMITTER == null || CAPABILITY_RECEIVER == null ) return;
 
-        MinecraftForge.EVENT_BUS.register( new IntegrationCharset() );
+        MinecraftForge.EVENT_BUS.register( IntegrationCharset.class );
         ComputerCraftAPI.registerBundledRedstoneProvider( new BundledRedstoneProvider() );
     }
 
     @SubscribeEvent
-    public void attachGenericCapabilities( AttachCapabilitiesEvent<TileEntity> event )
+    public static void attachGenericCapabilities( AttachCapabilitiesEvent<TileEntity> event )
     {
         TileEntity tile = event.getObject();
         if( tile instanceof TileGeneric )
