@@ -62,7 +62,7 @@ gui.computercraft:config.http.blacklist=HTTP blacklist
 gui.computercraft:config.http.timeout=Timeout
 gui.computercraft:config.http.max_requests=Maximum concurrent requests
 gui.computercraft:config.http.max_download=Maximum response size
-gui.computercraft:config.http.max_upload=Maximum request
+gui.computercraft:config.http.max_upload=Maximum request size
 gui.computercraft:config.http.max_websockets=Maximum concurrent websockets
 gui.computercraft:config.http.max_websocket_message=Maximum websocket message size
 
