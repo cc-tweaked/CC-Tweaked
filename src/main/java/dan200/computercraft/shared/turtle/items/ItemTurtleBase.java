@@ -38,8 +38,6 @@ public abstract class ItemTurtleBase extends ItemComputerBase implements ITurtle
         setHasSubtypes( true );
     }
 
-    public abstract ItemStack create( int id, String label, int colour, ITurtleUpgrade leftUpgrade, ITurtleUpgrade rightUpgrade, int fuelLevel, ResourceLocation overlay );
-
     public abstract ComputerFamily getFamily();
 
     @Override
@@ -62,7 +60,7 @@ public abstract class ItemTurtleBase extends ItemComputerBase implements ITurtle
         {
             if( !TurtleUpgrades.suitableForFamily( family, upgrade ) ) continue;
 
-            ItemStack stack = TurtleItemFactory.create( -1, null, -1, family, upgrade, null, 0, null );
+            ItemStack stack = TurtleItemFactory.create( -1, null, -1, family, null, upgrade, 0, null );
             if( !stack.isEmpty() && stack.getItem() == this ) list.add( stack );
         }
     }

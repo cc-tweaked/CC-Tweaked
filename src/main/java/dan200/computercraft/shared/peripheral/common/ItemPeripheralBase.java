@@ -23,7 +23,6 @@ public abstract class ItemPeripheralBase extends ItemBlock implements IPeriphera
     {
         super( block );
         setMaxStackSize( 64 );
-        setHasSubtypes( true );
     }
 
     public abstract PeripheralType getPeripheralType( int damage );

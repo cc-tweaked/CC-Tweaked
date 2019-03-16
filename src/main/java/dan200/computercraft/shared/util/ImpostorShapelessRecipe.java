@@ -11,11 +11,11 @@ import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.item.crafting.Ingredient;
-import net.minecraft.item.crafting.ShapedRecipes;
 import net.minecraft.item.crafting.ShapelessRecipes;
 import net.minecraft.util.JsonUtils;
 import net.minecraft.util.NonNullList;
 import net.minecraft.world.World;
+import net.minecraftforge.common.crafting.CraftingHelper;
 import net.minecraftforge.common.crafting.IRecipeFactory;
 import net.minecraftforge.common.crafting.JsonContext;
 
@@ -60,7 +60,7 @@ public class ImpostorShapelessRecipe extends ShapelessRecipes
         {
             String group = JsonUtils.getString( json, "group", "" );
             NonNullList<Ingredient> ings = RecipeUtil.getIngredients( context, json );
-            ItemStack itemstack = ShapedRecipes.deserializeItem( JsonUtils.getJsonObject( json, "result" ), true );
+            ItemStack itemstack = CraftingHelper.getItemStack( JsonUtils.getJsonObject( json, "result" ), context );
             return new ImpostorShapelessRecipe( group, itemstack, ings );
         }
     }

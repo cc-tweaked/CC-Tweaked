@@ -39,6 +39,9 @@ public final class PocketUpgrades
 
     public static IPocketUpgrade get( String id )
     {
+        // Fix a typo in the advanced modem upgrade's name. I'm sorry, I realise this is horrible.
+        if( id.equals( "computercraft:advanved_modem" ) ) id = "computercraft:advanced_modem";
+
         return upgrades.get( id );
     }
 

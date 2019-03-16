@@ -1,0 +1,22 @@
+{
+    "parent": "minecraft:recipes/root",
+    "rewards": {
+        "recipes": [ "computercraft:generated/turtle_advanced/computercraft_speaker" ]
+    },
+    "criteria": {
+        "has_items": {
+            "trigger": "minecraft:inventory_changed",
+            "conditions": {
+                "items": [
+                    { "item": "computercraft:turtle_advanced", "data": 0 },
+                    { "item": "computercraft:peripheral", "data": 5 }
+                ]
+            }
+        },
+        "has_the_recipe": {
+            "trigger": "minecraft:recipe_unlocked",
+            "conditions": { "recipe": "computercraft:generated/turtle_advanced/computercraft_speaker" }
+        }
+    },
+    "requirements": [ [ "has_items", "has_the_recipe" ] ]
+}

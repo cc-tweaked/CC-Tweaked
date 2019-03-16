@@ -1,8 +1,0 @@
-{
-    "type": "computercraft:impostor_shapeless",
-    "ingredients": [
-        { "type": "forge:ore_dict", "ore": "dustRedstone" },
-        { "type": "forge:ore_dict", "ore": "paper" }
-    ],
-    "result": { "item": "computercraft:disk", "data": 0 }
-}

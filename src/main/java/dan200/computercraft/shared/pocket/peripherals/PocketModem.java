@@ -25,11 +25,8 @@ public class PocketModem extends AbstractPocketUpgrade
     {
         super(
             advanced
-                ? new ResourceLocation( "computercraft", "advanved_modem" )
+                ? new ResourceLocation( "computercraft", "advanced_modem" )
                 : new ResourceLocation( "computercraft", "wireless_modem" ),
-            advanced
-                ? "upgrade.computercraft:advanced_modem.adjective"
-                : "upgrade.computercraft:wireless_modem.adjective",
             PeripheralItemFactory.create(
                 advanced ? PeripheralType.AdvancedModem : PeripheralType.WirelessModem,
                 null, 1

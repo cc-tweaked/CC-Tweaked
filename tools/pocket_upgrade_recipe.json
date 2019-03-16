@@ -1,0 +1,13 @@
+{
+    "type": "computercraft:impostor_shaped",
+    "group": "computercraft:upgrade_pocket_${pocket_family}",
+    "pattern": [
+        "#",
+        "T"
+    ],
+    "key": {
+        "#": { "item": ${upgrade_item} },
+        "T": { "item": "computercraft:pocket_computer", "data": ${pocket_data} }
+    },
+    "result": { "item": "computercraft:pocket_computer", "data": ${pocket_data}, "nbt": { "upgrade": "${upgrade_id}" } }
+}

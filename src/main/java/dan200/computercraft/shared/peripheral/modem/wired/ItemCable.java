@@ -31,6 +31,7 @@ public class ItemCable extends ItemPeripheralBase
         super( block );
         setTranslationKey( "computercraft:cable" );
         setCreativeTab( ComputerCraft.mainCreativeTab );
+        setHasSubtypes( true );
     }
 
     @Nonnull

@@ -10,7 +10,6 @@ import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
-import dan200.computercraft.shared.computer.items.ItemComputer;
 import net.minecraft.block.Block;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -25,59 +24,6 @@ public class ItemTurtleLegacy extends ItemTurtleBase
         super( block );
         setTranslationKey( "computercraft:turtle" );
         setCreativeTab( ComputerCraft.mainCreativeTab );
-    }
-
-    @Override
-    public ItemStack create( int id, String label, int colour, ITurtleUpgrade leftUpgrade, ITurtleUpgrade rightUpgrade, int fuelLevel, ResourceLocation overlay )
-    {
-        // Legacy turtles only support pickaxes and modems
-        if( (leftUpgrade != null && leftUpgrade != ComputerCraft.TurtleUpgrades.diamondPickaxe) ||
-            (rightUpgrade != null && rightUpgrade != ComputerCraft.TurtleUpgrades.wirelessModem) ||
-            (colour != -1) || (overlay != null) )
-        {
-            return null;
-        }
-
-        // Build the subtype
-        int subType = 0;
-        if( leftUpgrade != null )
-        {
-            subType = subType + 1;
-        }
-        if( rightUpgrade != null )
-        {
-            subType = subType + 2;
-        }
-
-        // Build the ID
-        int damage = subType;
-        if( id >= 0 && id <= ItemComputer.HIGHEST_DAMAGE_VALUE_ID )
-        {
-            damage += ((id + 1) << 2);
-        }
-
-        // Build the stack
-        ItemStack stack = new ItemStack( this, 1, damage );
-        if( fuelLevel > 0 || id > ItemComputer.HIGHEST_DAMAGE_VALUE_ID )
-        {
-            NBTTagCompound nbt = new NBTTagCompound();
-            if( fuelLevel > 0 )
-            {
-                nbt.setInteger( "fuelLevel", fuelLevel );
-            }
-            if( id > ItemComputer.HIGHEST_DAMAGE_VALUE_ID )
-            {
-                nbt.setInteger( "computerID", id );
-            }
-            stack.setTagCompound( nbt );
-        }
-        if( label != null )
-        {
-            stack.setStackDisplayName( label );
-        }
-
-        // Return the stack
-        return stack;
     }
 
     // IComputerItem implementation

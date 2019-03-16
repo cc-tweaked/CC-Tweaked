@@ -8,13 +8,10 @@ package dan200.computercraft.shared;
 
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.ComputerCraftAPI;
-import dan200.computercraft.api.pocket.IPocketUpgrade;
-import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.shared.computer.blocks.BlockCommandComputer;
 import dan200.computercraft.shared.computer.blocks.BlockComputer;
 import dan200.computercraft.shared.computer.blocks.TileCommandComputer;
 import dan200.computercraft.shared.computer.blocks.TileComputer;
-import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.items.ItemCommandComputer;
 import dan200.computercraft.shared.computer.items.ItemComputer;
 import dan200.computercraft.shared.media.items.ItemDiskExpanded;
@@ -33,7 +30,6 @@ import dan200.computercraft.shared.peripheral.monitor.TileMonitor;
 import dan200.computercraft.shared.peripheral.printer.TilePrinter;
 import dan200.computercraft.shared.peripheral.speaker.TileSpeaker;
 import dan200.computercraft.shared.pocket.items.ItemPocketComputer;
-import dan200.computercraft.shared.pocket.items.PocketComputerItemFactory;
 import dan200.computercraft.shared.pocket.peripherals.PocketModem;
 import dan200.computercraft.shared.pocket.peripherals.PocketSpeaker;
 import dan200.computercraft.shared.turtle.blocks.BlockTurtle;
@@ -43,19 +39,11 @@ import dan200.computercraft.shared.turtle.blocks.TileTurtleExpanded;
 import dan200.computercraft.shared.turtle.items.ItemTurtleAdvanced;
 import dan200.computercraft.shared.turtle.items.ItemTurtleLegacy;
 import dan200.computercraft.shared.turtle.items.ItemTurtleNormal;
-import dan200.computercraft.shared.turtle.items.TurtleItemFactory;
 import dan200.computercraft.shared.turtle.upgrades.*;
-import dan200.computercraft.shared.util.Colour;
-import dan200.computercraft.shared.util.ImpostorRecipe;
-import dan200.computercraft.shared.util.ImpostorShapelessRecipe;
 import net.minecraft.block.Block;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.IRecipe;
-import net.minecraft.item.crafting.Ingredient;
-import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -203,98 +191,7 @@ public final class Registry
         registerLegacyUpgrades();
     }
 
-    @SubscribeEvent
-    public static void registerRecipes( RegistryEvent.Register<IRecipe> event )
-    {
-        IForgeRegistry<IRecipe> registry = event.getRegistry();
-
-        // Register fake recipes for the recipe book and JEI. We have several dynamic recipes,
-        // and we'd like people to be able to see them.
-
-        // Turtle upgrades
-        // TODO: Figure out a way to do this in a "nice" way.
-        for( ITurtleUpgrade upgrade : TurtleUpgrades.getVanillaUpgrades() )
-        {
-            ItemStack craftingItem = upgrade.getCraftingItem();
-
-            // A turtle just containing this upgrade
-            for( ComputerFamily family : ComputerFamily.values() )
-            {
-                if( !TurtleUpgrades.suitableForFamily( family, upgrade ) ) continue;
-
-                ItemStack baseTurtle = TurtleItemFactory.create( -1, null, -1, family, null, null, 0, null );
-                if( !baseTurtle.isEmpty() )
-                {
-                    ItemStack craftedTurtle = TurtleItemFactory.create( -1, null, -1, family, upgrade, null, 0, null );
-                    ItemStack craftedTurtleFlipped = TurtleItemFactory.create( -1, null, -1, family, null, upgrade, 0, null );
-                    registry.register(
-                        new ImpostorRecipe( "computercraft:" + family.toString() + "_turtle_upgrade", 2, 1, new ItemStack[] { baseTurtle, craftingItem }, craftedTurtle )
-                            .setRegistryName( new ResourceLocation( "computercraft:" + family + "_turtle_upgrade_" + upgrade.getUpgradeID().toString().replace( ':', '_' ) + "_1" ) )
-                    );
-                    registry.register(
-                        new ImpostorRecipe( "computercraft:" + family.toString() + "_turtle_upgrade", 2, 1, new ItemStack[] { craftingItem, baseTurtle }, craftedTurtleFlipped )
-                            .setRegistryName( new ResourceLocation( "computercraft:" + family + "_turtle_upgrade_" + upgrade.getUpgradeID().toString().replace( ':', '_' ) + "_2" ) )
-                    );
-                }
-            }
-        }
-
-        // Coloured disks
-        ItemStack paper = new ItemStack( Items.PAPER, 1 );
-        ItemStack redstone = new ItemStack( Items.REDSTONE, 1 );
-        for( int colour = 0; colour < 16; colour++ )
-        {
-            ItemStack disk = ItemDiskLegacy.createFromIDAndColour( -1, null, Colour.values()[colour].getHex() );
-            ItemStack dye = new ItemStack( Items.DYE, 1, colour );
-
-            int diskIdx = 0;
-            ItemStack[] disks = new ItemStack[15];
-            for( int otherColour = 0; otherColour < 16; otherColour++ )
-            {
-                if( colour != otherColour )
-                {
-                    disks[diskIdx++] = ItemDiskLegacy.createFromIDAndColour( -1, null, Colour.values()[otherColour].getHex() );
-                }
-            }
-
-            // Normal recipe
-            registry.register(
-                new ImpostorShapelessRecipe( "computercraft:disk", disk, new ItemStack[] { redstone, paper, dye } )
-                    .setRegistryName( new ResourceLocation( "computercraft:disk_imposter_" + colour ) )
-            );
-
-            // Conversion recipe
-            registry.register(
-                new ImpostorShapelessRecipe( "computercraft:disk", disk, NonNullList.from( Ingredient.EMPTY, Ingredient.fromStacks( disks ), Ingredient.fromStacks( dye ) ) )
-                    .setRegistryName( new ResourceLocation( "computercraft:disk_imposter_convert_" + colour ) )
-            );
-        }
-
-        // Pocket computer upgrades
-        ItemStack pocketComputer = PocketComputerItemFactory.create( -1, null, -1, ComputerFamily.Normal, null );
-        ItemStack advancedPocketComputer = PocketComputerItemFactory.create( -1, null, -1, ComputerFamily.Advanced, null );
-        for( IPocketUpgrade upgrade : PocketUpgrades.getVanillaUpgrades() )
-        {
-            registry.register( new ImpostorRecipe(
-                    "computercraft:normal_pocket_upgrade",
-                    1, 2,
-                    new ItemStack[] { upgrade.getCraftingItem(), pocketComputer },
-                    PocketComputerItemFactory.create( -1, null, -1, ComputerFamily.Normal, upgrade )
-                ).setRegistryName( new ResourceLocation( "computercraft:normal_pocket_upgrade_" + upgrade.getUpgradeID().toString().replace( ':', '_' ) ) )
-            );
-
-            registry.register(
-                new ImpostorRecipe( "computercraft:advanced_pocket_upgrade",
-                    1, 2,
-                    new ItemStack[] { upgrade.getCraftingItem(), advancedPocketComputer },
-                    PocketComputerItemFactory.create( -1, null, -1, ComputerFamily.Advanced, upgrade )
-                ).setRegistryName( new ResourceLocation( "computercraft:advanced_pocket_upgrade_" + upgrade.getUpgradeID().toString().replace( ':', '_' ) ) )
-            );
-        }
-    }
-
-
-    public static void registerTurtleUpgrades()
+    private static void registerTurtleUpgrades()
     {
         // Upgrades
         ComputerCraft.TurtleUpgrades.wirelessModem = new TurtleModem( false, new ResourceLocation( "computercraft", "wireless_modem" ), 1 );
@@ -325,7 +222,7 @@ public final class Registry
         TurtleUpgrades.registerInternal( ComputerCraft.TurtleUpgrades.diamondHoe );
     }
 
-    public static void registerPocketUpgrades()
+    private static void registerPocketUpgrades()
     {
         // Register pocket upgrades
         ComputerCraft.PocketUpgrades.wirelessModem = new PocketModem( false );

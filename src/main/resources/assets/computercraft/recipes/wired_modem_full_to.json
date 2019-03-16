@@ -3,5 +3,5 @@
     "ingredients": [
         { "item": "computercraft:cable", "data": 1 }
     ],
-    "result": { "item": "computercraft:wired_modem_full", "data": 0 }
+    "result": { "item": "computercraft:wired_modem_full" }
 }

@@ -1,0 +1,12 @@
+{
+    "type": "computercraft:impostor_shaped",
+    "group": "computercraft:upgrade_turtle_normal",
+    "pattern": [
+        "T#"
+    ],
+    "key": {
+        "#": { "item": "minecraft:crafting_table" },
+        "T": { "item": "computercraft:turtle_expanded", "data": 0 }
+    },
+    "result": { "item": "computercraft:turtle_expanded", "data": 0, "nbt": { "rightUpgrade": "minecraft:crafting_table" } }
+}
