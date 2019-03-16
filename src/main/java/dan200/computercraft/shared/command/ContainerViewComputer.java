@@ -57,7 +57,7 @@ public class ContainerViewComputer extends Container implements IContainerComput
                     player.sendMessage( new TextComponentTranslation( "advMode.notEnabled" ) );
                     return false;
                 }
-                else if( !ComputerCraft.canPlayerUseCommands( player ) || !player.capabilities.isCreativeMode )
+                else if( !player.canUseCommandBlock() )
                 {
                     player.sendMessage( new TextComponentTranslation( "advMode.notAllowed" ) );
                     return false;

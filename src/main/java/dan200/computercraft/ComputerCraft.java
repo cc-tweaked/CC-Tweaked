@@ -386,16 +386,6 @@ public class ComputerCraft
         return new File( getBaseDir(), "resourcepacks" );
     }
 
-    public static boolean canPlayerUseCommands( EntityPlayer player )
-    {
-        MinecraftServer server = player.getServer();
-        if( server != null )
-        {
-            return server.getPlayerList().canSendCommands( player.getGameProfile() );
-        }
-        return false;
-    }
-
     @Deprecated
     public static void registerPermissionProvider( ITurtlePermissionProvider provider )
     {
@@ -729,6 +719,13 @@ public class ComputerCraft
     public static IPeripheral getPeripheralAt( World world, BlockPos pos, EnumFacing side )
     {
         return Peripherals.getPeripheral( world, pos, side );
+    }
+
+    @Deprecated
+    public static boolean canPlayerUseCommands( EntityPlayer player )
+    {
+        MinecraftServer server = player.getServer();
+        return server != null && server.getPlayerList().canSendCommands( player.getGameProfile() );
     }
     //endregion
 }

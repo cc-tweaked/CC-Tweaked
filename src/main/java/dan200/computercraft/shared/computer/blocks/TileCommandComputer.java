@@ -176,14 +176,14 @@ public class TileCommandComputer extends TileComputer
             player.sendMessage( new TextComponentTranslation( "advMode.notEnabled" ) );
             return false;
         }
-        else if( ComputerCraft.canPlayerUseCommands( player ) && player.capabilities.isCreativeMode )
-        {
-            return super.isUsable( player, ignoreRange );
-        }
-        else
+        else if( !player.canUseCommandBlock() )
         {
             player.sendMessage( new TextComponentTranslation( "advMode.notAllowed" ) );
             return false;
+        }
+        else
+        {
+            return super.isUsable( player, ignoreRange );
         }
     }
 }
