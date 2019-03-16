@@ -38,6 +38,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.List;
 
 public class ItemPocketComputer extends Item implements IComputerItem, IMedia, IColouredItem
@@ -240,6 +241,22 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
                 list.add( "(Computer ID: " + id + ")" );
             }
         }
+    }
+
+    @Nullable
+    @Override
+    public String getCreatorModId( ItemStack stack )
+    {
+        IPocketUpgrade upgrade = getUpgrade( stack );
+        if( upgrade != null )
+        {
+            // If we're a non-vanilla, non-CC upgrade then return whichever mod this upgrade
+            // belongs to.
+            String mod = PocketUpgrades.getOwner( upgrade );
+            if( mod != null && !mod.equals( ComputerCraft.MOD_ID ) ) return mod;
+        }
+
+        return super.getCreatorModId( stack );
     }
 
     private PocketServerComputer createServerComputer( final World world, IInventory inventory, Entity entity, @Nonnull ItemStack stack )

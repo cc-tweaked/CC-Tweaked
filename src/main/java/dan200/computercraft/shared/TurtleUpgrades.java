@@ -14,17 +14,18 @@ import dan200.computercraft.shared.util.InventoryUtil;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import net.minecraft.item.ItemStack;
+import net.minecraftforge.fml.common.Loader;
+import net.minecraftforge.fml.common.ModContainer;
 
 import javax.annotation.Nonnull;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import javax.annotation.Nullable;
+import java.util.*;
 
 public final class TurtleUpgrades
 {
     private static final Map<String, ITurtleUpgrade> upgrades = new HashMap<>();
     private static final Int2ObjectMap<ITurtleUpgrade> legacyUpgrades = new Int2ObjectOpenHashMap<>();
+    private static final IdentityHashMap<ITurtleUpgrade, String> upgradeOwners = new IdentityHashMap<>();
 
     public static void register( @Nonnull ITurtleUpgrade upgrade )
     {
@@ -41,7 +42,7 @@ public final class TurtleUpgrades
         registerInternal( upgrade );
     }
 
-    public static void registerInternal( ITurtleUpgrade upgrade )
+    static void registerInternal( ITurtleUpgrade upgrade )
     {
         Preconditions.checkNotNull( upgrade, "upgrade cannot be null" );
 
@@ -77,6 +78,9 @@ public final class TurtleUpgrades
         // Register
         if( legacyId >= 0 ) legacyUpgrades.put( legacyId, upgrade );
         upgrades.put( id, upgrade );
+
+        ModContainer mc = Loader.instance().activeModContainer();
+        if( mc != null && mc.getModId() != null ) upgradeOwners.put( upgrade, mc.getModId() );
     }
 
     private static String getMessage( ITurtleUpgrade upgrade, String rest )
@@ -123,6 +127,17 @@ public final class TurtleUpgrades
         vanilla.add( ComputerCraft.TurtleUpgrades.advancedModem );
         vanilla.add( ComputerCraft.TurtleUpgrades.speaker );
         return vanilla;
+    }
+
+    @Nullable
+    public static String getOwner( @Nonnull ITurtleUpgrade upgrade )
+    {
+        return upgradeOwners.get( upgrade );
+    }
+
+    public static Iterable<ITurtleUpgrade> getUpgrades()
+    {
+        return Collections.unmodifiableCollection( upgrades.values() );
     }
 
     public static boolean suitableForFamily( ComputerFamily family, ITurtleUpgrade upgrade )

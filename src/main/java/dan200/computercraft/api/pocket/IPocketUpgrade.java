@@ -54,6 +54,9 @@ public interface IPocketUpgrade
      * pocket computer which holds this upgrade. This item stack is also used to determine the upgrade given by
      * {@code pocket.equip()}/{@code pocket.unequip()}.
      *
+     * Ideally this should be constant over a session. It is recommended that you cache
+     * the item too, in order to prevent constructing it every time the method is called.
+     *
      * @return The item stack used for crafting. This can be {@link ItemStack#EMPTY} if crafting is disabled.
      */
     @Nonnull

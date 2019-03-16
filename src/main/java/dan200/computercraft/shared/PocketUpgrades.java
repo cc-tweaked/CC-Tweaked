@@ -11,16 +11,17 @@ import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.pocket.IPocketUpgrade;
 import dan200.computercraft.shared.util.InventoryUtil;
 import net.minecraft.item.ItemStack;
+import net.minecraftforge.fml.common.Loader;
+import net.minecraftforge.fml.common.ModContainer;
 
 import javax.annotation.Nonnull;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import javax.annotation.Nullable;
+import java.util.*;
 
 public final class PocketUpgrades
 {
     private static final Map<String, IPocketUpgrade> upgrades = new HashMap<>();
+    private static final IdentityHashMap<IPocketUpgrade, String> upgradeOwners = new IdentityHashMap<>();
 
     public static void register( @Nonnull IPocketUpgrade upgrade )
     {
@@ -34,8 +35,10 @@ public final class PocketUpgrades
         }
 
         upgrades.put( id, upgrade );
-    }
 
+        ModContainer mc = Loader.instance().activeModContainer();
+        if( mc != null && mc.getModId() != null ) upgradeOwners.put( upgrade, mc.getModId() );
+    }
 
     public static IPocketUpgrade get( String id )
     {
@@ -61,6 +64,12 @@ public final class PocketUpgrades
         return null;
     }
 
+    @Nullable
+    public static String getOwner( IPocketUpgrade upgrade )
+    {
+        return upgradeOwners.get( upgrade );
+    }
+
     public static Iterable<IPocketUpgrade> getVanillaUpgrades()
     {
         List<IPocketUpgrade> vanilla = new ArrayList<>();
@@ -68,5 +77,10 @@ public final class PocketUpgrades
         vanilla.add( ComputerCraft.PocketUpgrades.advancedModem );
         vanilla.add( ComputerCraft.PocketUpgrades.speaker );
         return vanilla;
+    }
+
+    public static Iterable<IPocketUpgrade> getUpgrades()
+    {
+        return Collections.unmodifiableCollection( upgrades.values() );
     }
 }
