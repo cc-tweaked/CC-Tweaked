@@ -66,9 +66,15 @@ public class TilePrinter extends TileGeneric implements DefaultSidedInventory, I
     private String m_pageTitle = "";
     private boolean m_printing = false;
 
-    public TilePrinter()
+    private TilePrinter()
     {
         super( FACTORY );
+    }
+
+    @Override
+    public void destroy()
+    {
+        ejectContents();
     }
 
     @Override
@@ -497,6 +503,8 @@ public class TilePrinter extends TileGeneric implements DefaultSidedInventory, I
 
     private void updateBlockState( boolean top, boolean bottom )
     {
+        if( removed ) return;
+
         IBlockState state = getBlockState();
         if( state.get( BlockPrinter.TOP ) == top & state.get( BlockPrinter.BOTTOM ) == bottom ) return;
 

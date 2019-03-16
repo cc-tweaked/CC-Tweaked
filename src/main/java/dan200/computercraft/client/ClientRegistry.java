@@ -59,7 +59,8 @@ public class ClientRegistry
     };
 
     private static final String[] EXTRA_TEXTURES = new String[] {
-        // TODO: Gather these automatically from the model when Forge's model loading is less broken.
+        // TODO: Gather these automatically from the model. I'm unable to get this working with Forge's current
+        //  model loading code.
         "block/turtle_colour",
         "block/turtle_elf_overlay",
         "block/turtle_crafty_face",

@@ -62,7 +62,6 @@ public final class NetworkHandler
 
     public static void sendToAllPlayers( NetworkMessage packet )
     {
-        // TODO: Replace with a built-in alternative when available.
         for( EntityPlayerMP player : ServerLifecycleHooks.getCurrentServer().getPlayerList().getPlayers() )
         {
             sendToPlayer( player, packet );
@@ -76,7 +75,6 @@ public final class NetworkHandler
 
     public static void sendToAllAround( NetworkMessage packet, World world, Vec3d pos, double range )
     {
-        // TODO: Replace with a built-in alternative when available.
         for( EntityPlayerMP player : ServerLifecycleHooks.getCurrentServer().getPlayerList().getPlayers() )
         {
             if( player.getEntityWorld() != world ) continue;

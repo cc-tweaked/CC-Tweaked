@@ -134,7 +134,6 @@ public final class ComputerCraftAPIImpl implements IComputerCraftAPI
         TileEntity tile = world.getTileEntity( pos );
         if( tile == null ) return null;
 
-        // TODO: Work out how we want the API to function in the future.
         LazyOptional<IWiredElement> element = tile.getCapability( CapabilityWiredElement.CAPABILITY, side );
         return CapabilityWiredElement.unwrap( element );
     }

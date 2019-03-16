@@ -13,15 +13,18 @@ import dan200.computercraft.api.media.IMedia;
 import dan200.computercraft.shared.common.IColouredItem;
 import dan200.computercraft.shared.util.Colour;
 import net.minecraft.client.util.ITooltipFlag;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.NonNullList;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
+import net.minecraft.world.IWorldReader;
 import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
@@ -69,6 +72,12 @@ public class ItemDisk extends Item implements IMedia, IColouredItem
                     .applyTextStyle( TextFormatting.GRAY ) );
             }
         }
+    }
+
+    @Override
+    public boolean doesSneakBypassUse( ItemStack stack, IWorldReader world, BlockPos pos, EntityPlayer player )
+    {
+        return true;
     }
 
     @Override

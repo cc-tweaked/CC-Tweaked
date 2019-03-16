@@ -14,6 +14,7 @@ import dan200.computercraft.core.apis.handles.ArrayByteChannel;
 import net.minecraft.resources.IReloadableResourceManager;
 import net.minecraft.resources.IResource;
 import net.minecraft.resources.IResourceManager;
+import net.minecraft.resources.IResourceManagerReloadListener;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.resource.IResourceType;
 import net.minecraftforge.resource.ISelectiveResourceReloadListener;
@@ -23,12 +24,9 @@ import javax.annotation.Nullable;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.ref.WeakReference;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 
@@ -71,7 +69,8 @@ public class ResourceMount implements IMount
         this.subPath = subPath;
         this.manager = manager;
 
-        this.manager.addReloadListener( new Listener( this ) );
+        Listener.INSTANCE.add( manager, this );
+        if( root == null ) load();
     }
 
     private void load()
@@ -242,27 +241,35 @@ public class ResourceMount implements IMount
     }
 
     /**
-     * A {@link ISelectiveResourceReloadListener} which refers to the {@link ResourceMount} weakly.
+     * A {@link IResourceManagerReloadListener} which reloads any associated mounts.
      *
      * While people should really be keeping a permanent reference to this, some people construct it every
      * method call, so let's make this as small as possible.
-     *
-     * TODO: Make this a shared one instead, which reloads all mounts.
      */
     static class Listener implements ISelectiveResourceReloadListener
     {
-        private final WeakReference<ResourceMount> ref;
+        private static final Listener INSTANCE = new Listener();
 
-        Listener( ResourceMount mount )
+        private final Set<ResourceMount> mounts = Collections.newSetFromMap( new WeakHashMap<>() );
+        private final Set<IReloadableResourceManager> managers = Collections.newSetFromMap( new WeakHashMap<>() );
+
+        @Override
+        public void onResourceManagerReload( @Nonnull IResourceManager manager )
         {
-            this.ref = new WeakReference<>( mount );
+            // FIXME: Remove this. We need this patch in order to prevent trying to load ReloadRequirements.
+            onResourceManagerReload( manager, x -> true );
         }
 
         @Override
-        public void onResourceManagerReload( @Nonnull IResourceManager manager, Predicate<IResourceType> predicate )
+        public synchronized void onResourceManagerReload( @Nonnull IResourceManager manager, @Nonnull Predicate<IResourceType> predicate )
         {
-            ResourceMount mount = ref.get();
-            if( mount != null ) mount.load();
+            for( ResourceMount mount : mounts ) mount.load();
+        }
+
+        synchronized void add( IReloadableResourceManager manager, ResourceMount mount )
+        {
+            if( managers.add( manager ) ) manager.addReloadListener( this );
+            mounts.add( mount );
         }
     }
 }

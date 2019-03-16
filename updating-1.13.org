@@ -1,9 +1,9 @@
-* Remaining changes [8/16]
+* Remaining changes [11/17]
 ** DONE [#A] ClientRegistry
    - Turtle model
    - loadModel
 
-** TODO [#B] Turtle/pocket computer upgrades recipes and advancements
+** DONE [#B] Turtle/pocket computer upgrades recipes and advancements
    Can we auto-generate these in a folder?
 
 ** =/computercraft= command [3/4]
@@ -56,12 +56,12 @@
 
 ** TODO [#A] Check our usage of (inventory) capabilities
 
-** TODO [#B] =doesSneakBypassUse=
+** DONE [#B] =doesSneakBypassUse=
    What does this do, and why do we need it?
 
    I assume it's to allow shift-sneaking disks into drives.
 
-** TODO [#C] Convert to Forge's GUI system
+** DONE [#C] Convert to Forge's GUI system
    Also simplify our current implementation.
 
 ** DONE [#A] Waterlogging
@@ -74,6 +74,7 @@
 
 ** DONE [#B] Disk colours are entirely broken
 
+** TODO [#B] Printer item validation in the container
 * Testing [0/5]
 
 ** TODO [#A] Breaking blocks
@@ -106,3 +107,5 @@
 
    *Update 2018-03-16:* So I had a play with this, and I'm really not sure how worth it it all is. I think I need to
     establish how capabilities are meant to work under the new system first.
+
+    That said, we do need to think about how we handle capabilities given that wired nodes are exposed as them.

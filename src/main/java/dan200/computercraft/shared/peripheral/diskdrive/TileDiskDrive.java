@@ -65,7 +65,7 @@ public class TileDiskDrive extends TileGeneric implements DefaultInventory, ITic
     private boolean m_restartRecord;
     private boolean m_ejectQueued;
 
-    public TileDiskDrive()
+    private TileDiskDrive()
     {
         super( FACTORY );
     }
@@ -445,6 +445,8 @@ public class TileDiskDrive extends TileGeneric implements DefaultInventory, ITic
 
     private void updateBlockState()
     {
+        if( removed ) return;
+
         if( !m_diskStack.isEmpty() )
         {
             IMedia contents = getDiskMedia();

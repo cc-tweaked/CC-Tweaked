@@ -316,7 +316,6 @@ public class TileMonitor extends TileGeneric implements IPeripheralTile
 
     public EnumFacing getRight()
     {
-        // TODO: Verify this is what is expected.
         return getDirection().rotateYCCW();
     }
 
