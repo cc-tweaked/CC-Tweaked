@@ -268,7 +268,7 @@ public final class Registry
         registerPocketUpgrades();
     }
 
-    public static void registerTurtleUpgrades()
+    private static void registerTurtleUpgrades()
     {
         // Upgrades
         ComputerCraft.TurtleUpgrades.wirelessModemNormal = new TurtleModem( false, new ResourceLocation( ComputerCraft.MOD_ID, "wireless_modem_normal" ) );
@@ -299,7 +299,7 @@ public final class Registry
         ComputerCraftAPI.registerTurtleUpgrade( ComputerCraft.TurtleUpgrades.diamondHoe );
     }
 
-    public static void registerPocketUpgrades()
+    private static void registerPocketUpgrades()
     {
         ComputerCraftAPI.registerPocketUpgrade( ComputerCraft.PocketUpgrades.wirelessModemNormal = new PocketModem( false ) );
         ComputerCraftAPI.registerPocketUpgrade( ComputerCraft.PocketUpgrades.wirelessModemAdvanced = new PocketModem( true ) );

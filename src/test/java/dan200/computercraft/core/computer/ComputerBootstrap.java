@@ -7,16 +7,19 @@
 package dan200.computercraft.core.computer;
 
 import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.api.filesystem.IMount;
+import dan200.computercraft.api.filesystem.IWritableMount;
 import dan200.computercraft.api.lua.ILuaAPI;
 import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.core.apis.ArgumentHelper;
 import dan200.computercraft.core.filesystem.MemoryMount;
 import dan200.computercraft.core.terminal.Terminal;
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.function.Consumer;
 
 /**
  * Helper class to run a program on a computer.
@@ -28,22 +31,24 @@ public class ComputerBootstrap
 
     public static void run( String program )
     {
-        run( program, -1 );
-    }
-
-    public static void run( String program, int shutdownAfter )
-    {
-        ComputerCraft.logPeripheralErrors = true;
-
         MemoryMount mount = new MemoryMount()
             .addFile( "test.lua", program )
             .addFile( "startup", "assertion.assert(pcall(loadfile('test.lua', _ENV))) os.shutdown()" );
+
+        run( mount, x -> {} );
+    }
+
+    public static void run( IWritableMount mount, Consumer<Computer> setup )
+    {
+        ComputerCraft.logPeripheralErrors = true;
 
         Terminal term = new Terminal( ComputerCraft.terminalWidth_computer, ComputerCraft.terminalHeight_computer );
         final Computer computer = new Computer( new BasicEnvironment( mount ), term, 0 );
 
         AssertApi api = new AssertApi();
-        computer.addAPI( api );
+        computer.addApi( api );
+
+        setup.accept( computer );
 
         try
         {
@@ -61,7 +66,7 @@ public class ComputerBootstrap
                 {
                     ComputerCraft.log.debug( "Shutting down due to error" );
                     computer.shutdown();
-                    Assert.fail( api.message );
+                    Assertions.fail( api.message );
                     return;
                 }
 
@@ -71,21 +76,14 @@ public class ComputerBootstrap
                 // Break if the computer was once on, and is now off.
                 everOn |= computer.isOn();
                 if( (everOn || tick > TPS) && !computer.isOn() ) break;
-
-                // Shutdown the computer after a period of time
-                if( shutdownAfter > 0 && tick != 0 && tick % shutdownAfter == 0 )
-                {
-                    ComputerCraft.log.info( "Shutting down: shutdown after {}", shutdownAfter );
-                    computer.shutdown();
-                }
             }
 
             if( computer.isOn() || !api.didAssert )
             {
-                StringBuilder builder = new StringBuilder().append( "Did not correctly" );
+                StringBuilder builder = new StringBuilder().append( "Did not correctly [" );
                 if( !api.didAssert ) builder.append( " assert" );
                 if( computer.isOn() ) builder.append( " shutdown" );
-                builder.append( "\n" );
+                builder.append( " ]\n" );
 
                 for( int line = 0; line < 19; line++ )
                 {
@@ -93,16 +91,12 @@ public class ComputerBootstrap
                 }
 
                 computer.shutdown();
-                Assert.fail( builder.toString() );
+                Assertions.fail( builder.toString() );
             }
         }
         catch( InterruptedException ignored )
         {
             Thread.currentThread().interrupt();
-        }
-        finally
-        {
-            ComputerThread.stop();
         }
     }
 

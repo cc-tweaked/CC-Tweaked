@@ -1,6 +1,6 @@
-local ok, err = pcall( pocket.unequipBack )
+local ok, err = pocket.unequipBack()
 if not ok then
-    printError( "Nothing to unequip" )
+    printError( err )
 else
     print( "Item unequipped" )
 end

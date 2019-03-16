@@ -2,9 +2,23 @@
 local nativegetfenv = getfenv
 if _VERSION == "Lua 5.1" then
     -- If we're on Lua 5.1, install parts of the Lua 5.2/5.3 API so that programs can be written against it
+    local type = type
     local nativeload = load
     local nativeloadstring = loadstring
     local nativesetfenv = setfenv
+
+    --- Historically load/loadstring would handle the chunk name as if it has
+    -- been prefixed with "=". We emulate that behaviour here.
+    local function prefix(chunkname)
+        if type(chunkname) ~= "string" then return chunkname end
+        local head = chunkname:sub(1, 1)
+        if head == "=" or head == "@" then
+            return chunkname
+        else
+            return "=" .. chunkname
+        end
+    end
+
     function load( x, name, mode, env )
         if type( x ) ~= "string" and type( x ) ~= "function" then
             error( "bad argument #1 (expected string or function, got " .. type( x ) .. ")", 2 )
@@ -62,7 +76,10 @@ if _VERSION == "Lua 5.1" then
         math.log10 = nil
         table.maxn = nil
     else
+        loadstring = function(string, chunkname) return nativeloadstring(string, prefix( chunkname ))
+
         -- Inject a stub for the old bit library
+        end
         _G.bit = {
             bnot = bit32.bnot,
             band = bit32.band,

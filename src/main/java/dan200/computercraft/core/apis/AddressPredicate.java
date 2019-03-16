@@ -75,7 +75,10 @@ public class AddressPredicate
                 }
                 catch( NumberFormatException e )
                 {
-                    ComputerCraft.log.warn( "Cannot parse CIDR size from {} ({})", filter, prefixSizeStr );
+                    ComputerCraft.log.error(
+                        "Malformed http whitelist/blacklist entry '{}': Cannot extract size of CIDR mask from '{}'.",
+                        filter, prefixSizeStr
+                    );
                     continue;
                 }
 
@@ -86,7 +89,10 @@ public class AddressPredicate
                 }
                 catch( IllegalArgumentException e )
                 {
-                    ComputerCraft.log.warn( "Cannot parse IP address from {} ({})", filter, addressStr );
+                    ComputerCraft.log.error(
+                        "Malformed http whitelist/blacklist entry '{}': Cannot extract IP address from '{}'.",
+                        filter, prefixSizeStr
+                    );
                     continue;
                 }
 

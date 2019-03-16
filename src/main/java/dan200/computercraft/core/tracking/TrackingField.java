@@ -38,7 +38,7 @@ public class TrackingField
     public static final TrackingField COROUTINES_DISPOSED = TrackingField.of( "coroutines_dead", "Coroutines disposed", x -> String.format( "%4d", x ) );
 
     private final String id;
-    private final String displayName;
+    private final String translationKey;
     private final LongFunction<String> format;
 
     public String id()
@@ -46,15 +46,15 @@ public class TrackingField
         return id;
     }
 
-    public String displayName()
+    public String translationKey()
     {
-        return displayName;
+        return translationKey;
     }
 
-    private TrackingField( String id, String displayName, LongFunction<String> format )
+    private TrackingField( String id, LongFunction<String> format )
     {
         this.id = id;
-        this.displayName = displayName;
+        this.translationKey = "tracking_field.computercraft." + id + ".name";
         this.format = format;
     }
 
@@ -65,7 +65,7 @@ public class TrackingField
 
     public static TrackingField of( String id, String displayName, LongFunction<String> format )
     {
-        TrackingField field = new TrackingField( id, displayName, format );
+        TrackingField field = new TrackingField( id, format );
         fields.put( id, field );
         return field;
     }

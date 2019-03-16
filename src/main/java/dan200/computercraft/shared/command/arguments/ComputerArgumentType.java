@@ -19,7 +19,7 @@ import net.minecraft.command.CommandSource;
 import java.util.Collection;
 import java.util.concurrent.CompletableFuture;
 
-import static dan200.computercraft.shared.command.Exceptions.COMPUTER_SELECTOR_MANY;
+import static dan200.computercraft.shared.command.Exceptions.COMPUTER_ARG_MANY;
 
 public class ComputerArgumentType implements ArgumentType<ComputerArgumentType.ComputerSupplier>
 {
@@ -51,9 +51,26 @@ public class ComputerArgumentType implements ArgumentType<ComputerArgumentType.C
 
             if( computers.size() == 1 ) return computers.iterator().next();
 
+            StringBuilder builder = new StringBuilder();
+            boolean first = true;
+            for( ServerComputer computer : computers )
+            {
+                if( first )
+                {
+                    first = false;
+                }
+                else
+                {
+                    builder.append( ", " );
+                }
+
+                builder.append( computer.getInstanceID() );
+            }
+
+
             // We have an incorrect number of computers: reset and throw an error
             reader.setCursor( start );
-            throw COMPUTER_SELECTOR_MANY.createWithContext( reader, selector );
+            throw COMPUTER_ARG_MANY.createWithContext( reader, selector, builder.toString() );
         };
     }
 

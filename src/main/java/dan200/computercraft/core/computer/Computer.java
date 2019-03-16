@@ -7,56 +7,46 @@
 package dan200.computercraft.core.computer;
 
 import com.google.common.base.Objects;
-import dan200.computercraft.ComputerCraft;
-import dan200.computercraft.api.filesystem.IMount;
-import dan200.computercraft.api.filesystem.IWritableMount;
 import dan200.computercraft.api.lua.ILuaAPI;
-import dan200.computercraft.api.lua.ILuaAPIFactory;
 import dan200.computercraft.api.peripheral.IPeripheral;
-import dan200.computercraft.core.apis.*;
+import dan200.computercraft.core.apis.IAPIEnvironment;
 import dan200.computercraft.core.filesystem.FileSystem;
-import dan200.computercraft.core.filesystem.FileSystemException;
-import dan200.computercraft.core.lua.CobaltLuaMachine;
-import dan200.computercraft.core.lua.ILuaMachine;
 import dan200.computercraft.core.terminal.Terminal;
 
-import javax.annotation.Nonnull;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+/**
+ * Represents a computer which may exist in-world or elsewhere.
+ *
+ * Note, this class has several (read: far, far too many) responsibilities, so can get a little unwieldy at times.
+ *
+ * <ul>
+ * <li>Updates the {@link Environment}.</li>
+ * <li>Keeps track of whether the computer is on and blinking.</li>
+ * <li>Monitors whether the computer's visible state (redstone, on/off/blinking) has changed.</li>
+ * <li>Passes commands and events to the {@link ComputerExecutor}.</li>
+ * </ul>
+ */
 public class Computer
 {
-    private enum State
-    {
-        Off,
-        Starting,
-        Running,
-        Stopping,
-    }
+    private static final int START_DELAY = 50;
 
-    private static IMount s_romMount = null;
-
+    // Various properties of the computer
     private int m_id;
     private String m_label = null;
+
+    // Read-only fields about the computer
     private final IComputerEnvironment m_environment;
-
-    private int m_ticksSinceStart = -1;
-    private boolean m_startRequested = false;
-    private State m_state = State.Off;
-    private boolean m_blinking = false;
-
-    private ILuaMachine m_machine = null;
-    private final List<ILuaAPI> m_apis = new ArrayList<>();
-    private final Environment m_internalEnvironment = new Environment( this );
-
     private final Terminal m_terminal;
-    private FileSystem m_fileSystem = null;
-    private IWritableMount m_rootMount = null;
+    private final ComputerExecutor executor;
 
-    private final AtomicBoolean externalOutputChanged = new AtomicBoolean();
+    // Additional state about the computer and its environment.
+    private boolean m_blinking = false;
+    private final Environment internalEnvironment = new Environment( this );
+    private AtomicBoolean externalOutputChanged = new AtomicBoolean();
+
+    private boolean startRequested;
+    private int m_ticksSinceStart = -1;
 
     public Computer( IComputerEnvironment environment, Terminal terminal, int id )
     {
@@ -64,24 +54,7 @@ public class Computer
         m_environment = environment;
         m_terminal = terminal;
 
-        // Ensure the computer thread is running as required.
-        ComputerThread.start();
-
-        // Add all default APIs to the loaded list.
-        m_apis.add( new TermAPI( m_internalEnvironment ) );
-        m_apis.add( new RedstoneAPI( m_internalEnvironment ) );
-        m_apis.add( new FSAPI( m_internalEnvironment ) );
-        m_apis.add( new PeripheralAPI( m_internalEnvironment ) );
-        m_apis.add( new OSAPI( m_internalEnvironment ) );
-        if( ComputerCraft.http_enable ) m_apis.add( new HTTPAPI( m_internalEnvironment ) );
-
-        // Load in the API registered APIs.
-        for( ILuaAPIFactory factory : ApiFactories.getAll() )
-        {
-            ComputerSystem system = new ComputerSystem( m_internalEnvironment );
-            ILuaAPI api = factory.create( system );
-            if( api != null ) m_apis.add( new ApiWrapper( api, system ) );
-        }
+        executor = new ComputerExecutor( this );
     }
 
     IComputerEnvironment getComputerEnvironment()
@@ -91,7 +64,7 @@ public class Computer
 
     FileSystem getFileSystem()
     {
-        return m_fileSystem;
+        return executor.getFileSystem();
     }
 
     Terminal getTerminal()
@@ -101,58 +74,42 @@ public class Computer
 
     public Environment getEnvironment()
     {
-        return m_internalEnvironment;
+        return internalEnvironment;
     }
 
     public IAPIEnvironment getAPIEnvironment()
     {
-        return m_internalEnvironment;
-    }
-
-    public void turnOn()
-    {
-        if( m_state == State.Off ) m_startRequested = true;
-    }
-
-    public void shutdown()
-    {
-        stopComputer( false );
-    }
-
-    public void reboot()
-    {
-        stopComputer( true );
+        return internalEnvironment;
     }
 
     public boolean isOn()
     {
-        synchronized( this )
-        {
-            return m_state == State.Running;
-        }
+        return executor.isOn();
     }
 
-    public void abort( boolean hard )
+    public void turnOn()
     {
-        synchronized( this )
-        {
-            if( m_state != State.Off && m_machine != null )
-            {
-                if( hard )
-                {
-                    m_machine.hardAbort( "Too long without yielding" );
-                }
-                else
-                {
-                    m_machine.softAbort( "Too long without yielding" );
-                }
-            }
-        }
+        startRequested = true;
+    }
+
+    public void shutdown()
+    {
+        executor.queueStop( false, false );
+    }
+
+    public void reboot()
+    {
+        executor.queueStop( true, false );
     }
 
     public void unload()
     {
-        stopComputer( false );
+        executor.queueStop( false, true );
+    }
+
+    public void queueEvent( String event, Object[] args )
+    {
+        executor.queueEvent( event, args );
     }
 
     public int getID()
@@ -190,43 +147,41 @@ public class Computer
 
     public void tick()
     {
-        synchronized( this )
+        // We keep track of the number of ticks since the last start, only
+        if( m_ticksSinceStart >= 0 && m_ticksSinceStart <= START_DELAY ) m_ticksSinceStart++;
+
+        if( startRequested && (m_ticksSinceStart < 0 || m_ticksSinceStart > START_DELAY) )
         {
-            // Start after a number of ticks
-            if( m_ticksSinceStart >= 0 )
+            startRequested = false;
+            if( !executor.isOn() )
             {
-                m_ticksSinceStart++;
-            }
-            if( m_startRequested && (m_ticksSinceStart < 0 || m_ticksSinceStart > 50) )
-            {
-                startComputer();
-                m_startRequested = false;
-            }
-
-            if( m_state == State.Running )
-            {
-                // Update the environment's internal state.
-                m_internalEnvironment.update();
-
-                // Advance our APIs
-                for( ILuaAPI api : m_apis ) api.update();
+                m_ticksSinceStart = 0;
+                executor.queueStart();
             }
         }
 
-        // Prepare to propagate the environment's output to the world.
-        if( m_internalEnvironment.updateOutput() ) externalOutputChanged.set( true );
+        executor.tick();
+
+        // Update the environment's internal state.
+        internalEnvironment.update();
+
+        // Propagate the environment's output to the world.
+        if( internalEnvironment.updateOutput() ) externalOutputChanged.set( true );
 
         // Set output changed if the terminal has changed from blinking to not
-        boolean blinking =
-            m_terminal.getCursorBlink() &&
-                m_terminal.getCursorX() >= 0 && m_terminal.getCursorX() < m_terminal.getWidth() &&
-                m_terminal.getCursorY() >= 0 && m_terminal.getCursorY() < m_terminal.getHeight();
-
+        boolean blinking = m_terminal.getCursorBlink() &&
+            m_terminal.getCursorX() >= 0 && m_terminal.getCursorX() < m_terminal.getWidth() &&
+            m_terminal.getCursorY() >= 0 && m_terminal.getCursorY() < m_terminal.getHeight();
         if( blinking != m_blinking )
         {
             m_blinking = blinking;
             externalOutputChanged.set( true );
         }
+    }
+
+    void markChanged()
+    {
+        externalOutputChanged.set( true );
     }
 
     public boolean pollAndResetChanged()
@@ -239,324 +194,27 @@ public class Computer
         return isOn() && m_blinking;
     }
 
-    public IWritableMount getRootMount()
+    public void addApi( ILuaAPI api )
     {
-        if( m_rootMount == null )
-        {
-            m_rootMount = m_environment.createSaveDirMount( "computer/" + assignID(), m_environment.getComputerSpaceLimit() );
-        }
-        return m_rootMount;
-    }
-
-    // FileSystem
-
-    private boolean initFileSystem()
-    {
-        // Create the file system
-        assignID();
-        try
-        {
-            m_fileSystem = new FileSystem( "hdd", getRootMount() );
-            if( s_romMount == null ) s_romMount = m_environment.createResourceMount( "computercraft", "lua/rom" );
-            if( s_romMount != null )
-            {
-                m_fileSystem.mount( "rom", "rom", s_romMount );
-                return true;
-            }
-            return false;
-        }
-        catch( FileSystemException e )
-        {
-            ComputerCraft.log.error( "Cannot mount rom", e );
-            return false;
-        }
-    }
-
-    // Peripherals
-
-    public void addAPI( ILuaAPI api )
-    {
-        m_apis.add( api );
-    }
-
-    // Lua
-
-    private void initLua()
-    {
-        // Create the lua machine
-        ILuaMachine machine = new CobaltLuaMachine( this );
-
-        // Add the APIs
-        for( ILuaAPI api : m_apis )
-        {
-            machine.addAPI( api );
-            api.startup();
-        }
-
-        // Load the bios resource
-        InputStream biosStream;
-        try
-        {
-            biosStream = m_environment.createResourceFile( "computercraft", "lua/bios.lua" );
-        }
-        catch( Exception e )
-        {
-            biosStream = null;
-        }
-
-        // Start the machine running the bios resource
-        if( biosStream != null )
-        {
-            machine.loadBios( biosStream );
-            try
-            {
-                biosStream.close();
-            }
-            catch( IOException e )
-            {
-                // meh
-            }
-
-            if( machine.isFinished() )
-            {
-                m_terminal.reset();
-                m_terminal.write( "Error starting bios.lua" );
-                m_terminal.setCursorPos( 0, 1 );
-                m_terminal.write( "ComputerCraft may be installed incorrectly" );
-
-                machine.close();
-                m_machine = null;
-            }
-            else
-            {
-                m_machine = machine;
-            }
-        }
-        else
-        {
-            m_terminal.reset();
-            m_terminal.write( "Error loading bios.lua" );
-            m_terminal.setCursorPos( 0, 1 );
-            m_terminal.write( "ComputerCraft may be installed incorrectly" );
-
-            machine.close();
-            m_machine = null;
-        }
-    }
-
-    private void startComputer()
-    {
-        synchronized( this )
-        {
-            if( m_state != State.Off )
-            {
-                return;
-            }
-            m_state = State.Starting;
-            externalOutputChanged.set( true );
-            m_ticksSinceStart = 0;
-        }
-
-        // Turn the computer on
-        ComputerThread.queueTask( new ITask()
-        {
-            @Nonnull
-            @Override
-            public Computer getOwner()
-            {
-                return Computer.this;
-            }
-
-            @Override
-            public void execute()
-            {
-                synchronized( this )
-                {
-                    if( m_state != State.Starting )
-                    {
-                        return;
-                    }
-
-                    // Init terminal
-                    m_terminal.reset();
-
-                    // Init filesystem
-                    if( !initFileSystem() )
-                    {
-                        // Init failed, so shutdown
-                        m_terminal.reset();
-                        m_terminal.write( "Error mounting lua/rom" );
-                        m_terminal.setCursorPos( 0, 1 );
-                        m_terminal.write( "ComputerCraft may be installed incorrectly" );
-
-                        m_state = State.Running;
-                        stopComputer( false );
-                        return;
-                    }
-
-                    // Init lua
-                    initLua();
-                    if( m_machine == null )
-                    {
-                        m_terminal.reset();
-                        m_terminal.write( "Error loading bios.lua" );
-                        m_terminal.setCursorPos( 0, 1 );
-                        m_terminal.write( "ComputerCraft may be installed incorrectly" );
-
-                        // Init failed, so shutdown
-                        m_state = State.Running;
-                        stopComputer( false );
-                        return;
-                    }
-
-                    // Start a new state
-                    m_state = State.Running;
-                    externalOutputChanged.set( true );
-                    synchronized( m_machine )
-                    {
-                        m_machine.handleEvent( null, null );
-                    }
-                }
-            }
-        } );
-    }
-
-    private void stopComputer( final boolean reboot )
-    {
-        synchronized( this )
-        {
-            if( m_state != State.Running )
-            {
-                return;
-            }
-            m_state = State.Stopping;
-            externalOutputChanged.set( true );
-        }
-
-        // Turn the computercraft off
-        ComputerThread.queueTask( new ITask()
-        {
-            @Nonnull
-            @Override
-            public Computer getOwner()
-            {
-                return Computer.this;
-            }
-
-            @Override
-            public void execute()
-            {
-                synchronized( this )
-                {
-                    if( m_state != State.Stopping )
-                    {
-                        return;
-                    }
-
-                    // Shutdown our APIs
-                    synchronized( m_apis )
-                    {
-                        for( ILuaAPI api : m_apis )
-                        {
-                            api.shutdown();
-                        }
-                    }
-
-                    // Shutdown terminal and filesystem
-                    if( m_fileSystem != null )
-                    {
-                        m_fileSystem.close();
-                        m_fileSystem = null;
-                    }
-
-                    if( m_machine != null )
-                    {
-                        m_terminal.reset();
-
-                        synchronized( m_machine )
-                        {
-                            m_machine.close();
-                            m_machine = null;
-                        }
-                    }
-
-                    // Reset redstone output
-                    m_internalEnvironment.resetOutput();
-
-                    m_state = State.Off;
-                    externalOutputChanged.set( true );
-                    if( reboot )
-                    {
-                        m_startRequested = true;
-                    }
-                }
-            }
-        } );
-    }
-
-    public void queueEvent( final String event, final Object[] arguments )
-    {
-        synchronized( this )
-        {
-            if( m_state != State.Running )
-            {
-                return;
-            }
-        }
-
-        ComputerThread.queueTask( new ITask()
-        {
-            @Nonnull
-            @Override
-            public Computer getOwner()
-            {
-                return Computer.this;
-            }
-
-            @Override
-            public void execute()
-            {
-                synchronized( this )
-                {
-                    if( m_state != State.Running )
-                    {
-                        return;
-                    }
-                }
-
-                synchronized( m_machine )
-                {
-                    m_machine.handleEvent( event, arguments );
-                    if( m_machine.isFinished() )
-                    {
-                        m_terminal.reset();
-                        m_terminal.write( "Error resuming bios.lua" );
-                        m_terminal.setCursorPos( 0, 1 );
-                        m_terminal.write( "ComputerCraft may be installed incorrectly" );
-
-                        stopComputer( false );
-                    }
-                }
-            }
-        } );
+        executor.addApi( api );
     }
 
     @Deprecated
     public IPeripheral getPeripheral( int side )
     {
-        return m_internalEnvironment.getPeripheral( side );
+        return internalEnvironment.getPeripheral( side );
     }
 
     @Deprecated
     public void setPeripheral( int side, IPeripheral peripheral )
     {
-        m_internalEnvironment.setPeripheral( side, peripheral );
+        internalEnvironment.setPeripheral( side, peripheral );
     }
 
     @Deprecated
     public void addAPI( dan200.computercraft.core.apis.ILuaAPI api )
     {
-        addAPI( (ILuaAPI) api );
+        addApi( api );
     }
 
     @Deprecated
@@ -566,5 +224,6 @@ public class Computer
         tick();
     }
 
+    @Deprecated
     public static final String[] s_sideNames = IAPIEnvironment.SIDE_NAMES;
 }

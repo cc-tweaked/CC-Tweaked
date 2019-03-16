@@ -28,7 +28,7 @@ import java.util.function.Predicate;
 
 import static dan200.computercraft.shared.command.CommandUtils.suggest;
 import static dan200.computercraft.shared.command.CommandUtils.suggestOnServer;
-import static dan200.computercraft.shared.command.Exceptions.COMPUTER_SELECTOR_NONE;
+import static dan200.computercraft.shared.command.Exceptions.COMPUTER_ARG_NONE;
 
 public class ComputersArgumentType implements ArgumentType<ComputersArgumentType.ComputersSupplier>
 {
@@ -99,7 +99,7 @@ public class ComputersArgumentType implements ArgumentType<ComputersArgumentType
             String selector = reader.getString().substring( start, reader.getCursor() );
             return source -> {
                 Collection<ServerComputer> matched = computers.unwrap( source );
-                if( matched.isEmpty() ) throw COMPUTER_SELECTOR_NONE.create( selector );
+                if( matched.isEmpty() ) throw COMPUTER_ARG_NONE.create( selector );
                 return matched;
             };
         }

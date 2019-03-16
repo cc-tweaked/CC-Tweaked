@@ -14,6 +14,7 @@ import dan200.computercraft.shared.PocketUpgrades;
 import dan200.computercraft.shared.pocket.core.PocketServerComputer;
 import dan200.computercraft.shared.util.InventoryUtil;
 import dan200.computercraft.shared.util.WorldUtil;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.ItemStack;
@@ -58,14 +59,10 @@ public class PocketAPI implements ILuaAPI
                 // equipBack
                 return context.executeMainThreadTask( () ->
                 {
-                    if( !(m_computer.getEntity() instanceof EntityPlayer) )
-                    {
-                        throw new LuaException( "Cannot find player" );
-                    }
-
-                    EntityPlayer player = (EntityPlayer) m_computer.getEntity();
+                    Entity entity = m_computer.getEntity();
+                    if( !(entity instanceof EntityPlayer) ) return new Object[] { false, "Cannot find player" };
+                    EntityPlayer player = (EntityPlayer) entity;
                     InventoryPlayer inventory = player.inventory;
-
                     IPocketUpgrade previousUpgrade = m_computer.getUpgrade();
 
                     // Attempt to find the upgrade, starting in the main segment, and then looking in the opposite
@@ -75,7 +72,7 @@ public class PocketAPI implements ILuaAPI
                     {
                         newUpgrade = findUpgrade( inventory.offHandInventory, 0, previousUpgrade );
                     }
-                    if( newUpgrade == null ) throw new LuaException( "Cannot find a valid upgrade" );
+                    if( newUpgrade == null ) return new Object[] { false, "Cannot find a valid upgrade" };
 
                     // Remove the current upgrade
                     if( previousUpgrade != null )
@@ -94,24 +91,20 @@ public class PocketAPI implements ILuaAPI
                     // Set the new upgrade
                     m_computer.setUpgrade( newUpgrade );
 
-                    return null;
+                    return new Object[] { true };
                 } );
 
             case 1:
                 // unequipBack
                 return context.executeMainThreadTask( () ->
                 {
-                    if( !(m_computer.getEntity() instanceof EntityPlayer) )
-                    {
-                        throw new LuaException( "Cannot find player" );
-                    }
-
-                    EntityPlayer player = (EntityPlayer) m_computer.getEntity();
+                    Entity entity = m_computer.getEntity();
+                    if( !(entity instanceof EntityPlayer) ) return new Object[] { false, "Cannot find player" };
+                    EntityPlayer player = (EntityPlayer) entity;
                     InventoryPlayer inventory = player.inventory;
-
                     IPocketUpgrade previousUpgrade = m_computer.getUpgrade();
 
-                    if( previousUpgrade == null ) throw new LuaException( "Nothing to unequip" );
+                    if( previousUpgrade == null ) return new Object[] { false, "Nothing to unequip" };
 
                     m_computer.setUpgrade( null );
 
@@ -125,7 +118,7 @@ public class PocketAPI implements ILuaAPI
                         }
                     }
 
-                    return null;
+                    return new Object[] { true };
                 } );
             default:
                 return null;

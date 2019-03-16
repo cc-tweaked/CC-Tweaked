@@ -6,6 +6,7 @@
 
 package dan200.computercraft.shared.turtle.items;
 
+import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.shared.TurtleUpgrades;
@@ -76,7 +77,7 @@ public class ItemTurtle extends ItemComputerBase implements ITurtleItem
         {
             if( !TurtleUpgrades.suitableForFamily( family, upgrade ) ) continue;
 
-            list.add( create( -1, null, -1, upgrade, null, 0, null ) );
+            list.add( create( -1, null, -1, null, upgrade, 0, null ) );
         }
     }
 
@@ -137,6 +138,7 @@ public class ItemTurtle extends ItemComputerBase implements ITurtleItem
         }
     }
 
+    @Nonnull
     @Override
     public ITextComponent getDisplayName( @Nonnull ItemStack stack )
     {
@@ -166,6 +168,30 @@ public class ItemTurtle extends ItemComputerBase implements ITurtleItem
         {
             return new TextComponentTranslation( baseString );
         }
+    }
+
+    @Nullable
+    @Override
+    public String getCreatorModId( ItemStack stack )
+    {
+        // Determine our "creator mod" from the upgrades. We attempt to find the first non-vanilla/non-CC
+        // upgrade (starting from the left).
+
+        ITurtleUpgrade left = getUpgrade( stack, TurtleSide.Left );
+        if( left != null )
+        {
+            String mod = TurtleUpgrades.getOwner( left );
+            if( mod != null && !mod.equals( ComputerCraft.MOD_ID ) ) return mod;
+        }
+
+        ITurtleUpgrade right = getUpgrade( stack, TurtleSide.Right );
+        if( right != null )
+        {
+            String mod = TurtleUpgrades.getOwner( right );
+            if( mod != null && !mod.equals( ComputerCraft.MOD_ID ) ) return mod;
+        }
+
+        return super.getCreatorModId( stack );
     }
 
     @Override

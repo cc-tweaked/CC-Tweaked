@@ -38,10 +38,10 @@ public class CommandBuilder<S> implements CommandNodeBuilder<S, Command<S>>
         return new CommandBuilder<>();
     }
 
-    public static CommandBuilder<CommandSource> command( String literal, String tooltip )
+    public static CommandBuilder<CommandSource> command( String literal )
     {
         CommandBuilder<CommandSource> builder = new CommandBuilder<>();
-        builder.args.add( literal( literal, tooltip ) );
+        builder.args.add( literal( literal ) );
         return builder;
     }
 

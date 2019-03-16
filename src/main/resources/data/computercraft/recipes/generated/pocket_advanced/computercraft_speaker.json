@@ -1,0 +1,13 @@
+{
+    "type": "computercraft:impostor_shaped",
+    "group": "computercraft:upgrade_pocket_advanced",
+    "pattern": [
+        "#",
+        "T"
+    ],
+    "key": {
+        "#": { "item": "computercraft:speaker" },
+        "T": { "item": "computercraft:pocket_computer_advanced" }
+    },
+    "result": { "item": "computercraft:pocket_computer_advanced", "nbt": { "Upgrade": "computercraft:speaker" } }
+}

@@ -6,22 +6,25 @@
 
 package dan200.computercraft.shared.command;
 
+import com.mojang.brigadier.exceptions.Dynamic2CommandExceptionType;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import net.minecraft.util.text.TextComponentTranslation;
 
 public class Exceptions
 {
-    public static final DynamicCommandExceptionType COMPUTER_SELECTOR_NONE = translated1( "command.computercraft.computer_selector_none" );
-    public static final DynamicCommandExceptionType COMPUTER_SELECTOR_MANY = translated1( "command.computercraft.computer_selector_many" );
+    public static final DynamicCommandExceptionType COMPUTER_ARG_NONE = translated1( "argument.computercraft.computer.no_matching" );
+    public static final Dynamic2CommandExceptionType COMPUTER_ARG_MANY = translated2( "argument.computercraft.computer.many_matching" );
 
-    public static final SimpleCommandExceptionType NOT_TRACKING_EXCEPTION = translated( "command.computercraft.not_tracking" );
-    public static final SimpleCommandExceptionType NO_TIMINGS_EXCEPTION = translated( "command.computercraft.no_timings" );
-    public static final DynamicCommandExceptionType UNKNOWN_TRACKING_FIELD = translated1( "command.computercraft.unknown_tracking_field" );
+    public static final DynamicCommandExceptionType TRACKING_FIELD_ARG_NONE = translated1( "argument.computercraft.tacking_field.no_field" );
 
-    public static final SimpleCommandExceptionType UNLOCATED_COMPUTER_EXCEPTION = translated( "command.computercraft.unlocated_computer" );
+    static final SimpleCommandExceptionType NOT_TRACKING_EXCEPTION = translated( "commands.computercraft.track.stop.not_enabled" );
+    static final SimpleCommandExceptionType NO_TIMINGS_EXCEPTION = translated( "commands.computercraft.track.dump.no_timings" );
 
-    public static final SimpleCommandExceptionType ARGUMENT_EXPECTED = translated( "command.computercraft.argument_expected" );
+    static final SimpleCommandExceptionType TP_NOT_THERE = translated( "commands.computercraft.tp.not_there" );
+    static final SimpleCommandExceptionType TP_NOT_PLAYER = translated( "commands.computercraft.tp.not_entity" );
+
+    public static final SimpleCommandExceptionType ARGUMENT_EXPECTED = translated( "command.computercraft.generic.argument_expected" );
 
     private static SimpleCommandExceptionType translated( String key )
     {
@@ -31,5 +34,10 @@ public class Exceptions
     private static DynamicCommandExceptionType translated1( String key )
     {
         return new DynamicCommandExceptionType( x -> new TextComponentTranslation( key, x ) );
+    }
+
+    private static Dynamic2CommandExceptionType translated2( String key )
+    {
+        return new Dynamic2CommandExceptionType( ( x, y ) -> new TextComponentTranslation( key, x, y ) );
     }
 }

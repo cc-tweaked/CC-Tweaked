@@ -184,8 +184,8 @@ public class TileWiredModemFull extends TileGeneric implements IPeripheralTile
 
         if( !Objects.equal( periphNames, oldPeriphNames ) )
         {
-            sendPeripheralChanges( player, "gui.computercraft.wired_modem.peripheral_disconnected", oldPeriphNames );
-            sendPeripheralChanges( player, "gui.computercraft.wired_modem.peripheral_connected", periphNames );
+            sendPeripheralChanges( player, "chat.computercraft.wired_modem.peripheral_disconnected", oldPeriphNames );
+            sendPeripheralChanges( player, "chat.computercraft.wired_modem.peripheral_connected", periphNames );
         }
 
         return true;

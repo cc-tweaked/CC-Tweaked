@@ -23,7 +23,9 @@ public interface IPocketAccess
     /**
      * Gets the entity holding this item.
      *
-     * @return The holding entity. This may be {@code null}.
+     * This must be called on the server thread.
+     *
+     * @return The holding entity, or {@code null} if none exists.
      */
     @Nullable
     Entity getEntity();

@@ -48,7 +48,7 @@ local function resumeProcess( nProcess, sEvent, ... )
     end
 end
 
-local function launchProcess( tProgramEnv, sProgramPath, ... )
+local function launchProcess( bFocus, tProgramEnv, sProgramPath, ... )
     local tProgramArgs = table.pack( ... )
     local nProcess = #tProcesses + 1
     local tProcess = {}
@@ -70,6 +70,9 @@ local function launchProcess( tProgramEnv, sProgramPath, ... )
     tProcess.terminal = tProcess.window
     tProcess.bInteracted = false
     tProcesses[ nProcess ] = tProcess
+    if bFocus then
+        selectProcess( nProcess )
+    end
     resumeProcess( nProcess )
     return nProcess
 end
@@ -241,7 +244,7 @@ function multishell.launch( tProgramEnv, sProgramPath, ... )
     end
     local previousTerm = term.current()
     setMenuVisible( (#tProcesses + 1) >= 2 )
-    local nResult = launchProcess( tProgramEnv, sProgramPath, ... )
+    local nResult = launchProcess( false, tProgramEnv, sProgramPath, ... )
     redrawMenu()
     term.redirect( previousTerm )
     return nResult
@@ -254,11 +257,10 @@ end
 -- Begin
 parentTerm.clear()
 setMenuVisible( false )
-selectProcess( launchProcess( {
+launchProcess( true, {
     ["shell"] = shell,
     ["multishell"] = multishell,
-}, "/rom/programs/shell.lua" ) )
-redrawMenu()
+}, "/rom/programs/shell.lua" )
 
 -- Run processes
 while #tProcesses > 0 do

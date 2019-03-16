@@ -68,6 +68,9 @@ public interface ITurtleUpgrade
      * with to create a turtle which holds this upgrade. This item stack is also used
      * to determine the upgrade given by {@code turtle.equip()}
      *
+     * Ideally this should be constant over a session. It is recommended that you cache
+     * the item too, in order to prevent constructing it every time the method is called.
+     *
      * @return The item stack to craft with, or {@link ItemStack#EMPTY} if it cannot be crafted.
      */
     @Nonnull

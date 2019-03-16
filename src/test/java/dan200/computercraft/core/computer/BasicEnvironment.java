@@ -81,12 +81,21 @@ public class BasicEnvironment implements IComputerEnvironment
     }
 
     @Override
-    @Deprecated
     public IMount createResourceMount( String domain, String subPath )
     {
-        File file = getContainingFile();
+        return createMount( ComputerCraft.class, "data/" + domain + "/" + subPath, "main" );
+    }
 
-        String path = "data/" + domain + "/" + subPath;
+    @Override
+    public InputStream createResourceFile( String domain, String subPath )
+    {
+        return ComputerCraft.class.getClassLoader().getResourceAsStream( "data/" + domain + "/" + subPath );
+    }
+
+
+    public static IMount createMount( Class<?> klass, String path, String fallback )
+    {
+        File file = getContainingFile(klass);
 
         if( file.isFile() )
         {
@@ -108,7 +117,7 @@ public class BasicEnvironment implements IComputerEnvironment
             while( baseFile != null && !wholeFile.exists() )
             {
                 baseFile = baseFile.getParentFile();
-                wholeFile = new File( baseFile, "resources/main/" + path );
+                wholeFile = new File( baseFile, "resources/" + fallback + "/" + path );
             }
 
             if( !wholeFile.exists() ) throw new IllegalStateException( "Cannot find ROM mount at " + file );
@@ -117,15 +126,10 @@ public class BasicEnvironment implements IComputerEnvironment
         }
     }
 
-    @Override
-    public InputStream createResourceFile( String domain, String subPath )
-    {
-        return ComputerCraft.class.getClassLoader().getResourceAsStream( "data/" + domain + "/" + subPath );
-    }
 
-    private static File getContainingFile()
+    private static File getContainingFile(Class<?> klass)
     {
-        String path = ComputerCraft.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+        String path = klass.getProtectionDomain().getCodeSource().getLocation().getPath();
         int bangIndex = path.indexOf( "!" );
 
         // Plain old file, so step up from dan200.computercraft.

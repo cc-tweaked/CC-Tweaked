@@ -1,0 +1,12 @@
+{
+    "type": "computercraft:impostor_shaped",
+    "group": "computercraft:upgrade_turtle_normal",
+    "pattern": [
+        "T#"
+    ],
+    "key": {
+        "#": { "item": "minecraft:diamond_axe" },
+        "T": { "item": "computercraft:turtle_normal" }
+    },
+    "result": { "item": "computercraft:turtle_normal", "nbt": { "RightUpgrade": "minecraft:diamond_axe" } }
+}

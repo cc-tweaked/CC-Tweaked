@@ -127,14 +127,14 @@ public class TileCommandComputer extends TileComputer
             player.sendStatusMessage( new TextComponentTranslation( "advMode.notEnabled" ), true );
             return false;
         }
-        else if( player.canUseCommandBlock() )
-        {
-            return super.isUsable( player, ignoreRange );
-        }
-        else
+        else if( !player.canUseCommandBlock() )
         {
             player.sendStatusMessage( new TextComponentTranslation( "advMode.notAllowed" ), true );
             return false;
+        }
+        else
+        {
+            return super.isUsable( player, ignoreRange );
         }
     }
 }

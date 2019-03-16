@@ -10,9 +10,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.gson.*;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
-import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.Ingredient;
-import net.minecraft.item.crafting.ShapedRecipe;
 import net.minecraft.util.JsonUtils;
 import net.minecraft.util.NonNullList;
 

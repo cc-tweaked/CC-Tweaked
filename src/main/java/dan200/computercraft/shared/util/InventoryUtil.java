@@ -10,6 +10,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.ISidedInventory;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
@@ -54,7 +55,17 @@ public class InventoryUtil
     {
         if( a == b ) return true;
         if( a.isEmpty() ) return !b.isEmpty();
-        return a.getItem() == b.getItem() && a.areShareTagsEqual( b );
+
+        if( a.getItem() != b.getItem() ) return false;
+
+        // A more expanded form of ItemStack.areShareTagsEqual, but allowing an empty tag to be equal to a
+        // null one.
+        NBTTagCompound shareTagA = a.getItem().getShareTag( a );
+        NBTTagCompound shareTagB = b.getItem().getShareTag( b );
+        if( shareTagA == shareTagB ) return true;
+        if( shareTagA == null ) return shareTagB.isEmpty();
+        if( shareTagB == null ) return shareTagA.isEmpty();
+        return shareTagA.equals( shareTagB );
     }
 
     @Nonnull

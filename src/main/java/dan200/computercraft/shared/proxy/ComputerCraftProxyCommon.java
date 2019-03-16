@@ -41,6 +41,7 @@ import dan200.computercraft.shared.turtle.blocks.TileTurtle;
 import dan200.computercraft.shared.turtle.inventory.ContainerTurtle;
 import dan200.computercraft.shared.turtle.recipes.TurtleRecipe;
 import dan200.computercraft.shared.turtle.recipes.TurtleUpgradeRecipe;
+import dan200.computercraft.shared.util.ImpostorRecipe;
 import dan200.computercraft.shared.util.ImpostorShapelessRecipe;
 import dan200.computercraft.shared.wired.CapabilityWiredElement;
 import net.minecraft.inventory.Container;
@@ -64,8 +65,6 @@ public class ComputerCraftProxyCommon
     {
         NetworkHandler.setup();
 
-        // NetworkRegistry.INSTANCE.registerGuiHandler( ComputerCraft.instance, new GuiHandler() );
-
         // TODO: Make this thread-safe
         registerProviders();
         registerContainers();
@@ -78,6 +77,7 @@ public class ComputerCraftProxyCommon
         RecipeSerializers.register( TurtleRecipe.SERIALIZER );
         RecipeSerializers.register( TurtleUpgradeRecipe.SERIALIZER );
         RecipeSerializers.register( ImpostorShapelessRecipe.SERIALIZER );
+        RecipeSerializers.register( ImpostorRecipe.SERIALIZER );
 
         ArgumentSerializers.register();
 
@@ -164,7 +164,6 @@ public class ComputerCraftProxyCommon
         @SubscribeEvent
         public static void onConfigChanged( ConfigChangedEvent.OnConfigChangedEvent event )
         {
-            // TODO: Is this even fired any more?
             if( event.getModID().equals( ComputerCraft.MOD_ID ) ) Config.sync();
         }
 

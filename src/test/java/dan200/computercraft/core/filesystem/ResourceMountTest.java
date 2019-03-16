@@ -10,8 +10,8 @@ import dan200.computercraft.api.filesystem.IMount;
 import net.minecraft.resources.FolderPack;
 import net.minecraft.resources.ResourcePackType;
 import net.minecraft.resources.SimpleReloadableResourceManager;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.IOException;
@@ -20,13 +20,13 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class ResourceMountTest
 {
     private IMount mount;
 
-    @Before
+    @BeforeEach
     public void before()
     {
         SimpleReloadableResourceManager manager = new SimpleReloadableResourceManager( ResourcePackType.SERVER_DATA );

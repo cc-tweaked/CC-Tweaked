@@ -42,8 +42,8 @@ import static dan200.computercraft.shared.command.arguments.ComputersArgumentTyp
 import static dan200.computercraft.shared.command.arguments.TrackingFieldArgumentType.trackingField;
 import static dan200.computercraft.shared.command.builder.CommandBuilder.args;
 import static dan200.computercraft.shared.command.builder.CommandBuilder.command;
-import static dan200.computercraft.shared.command.builder.DescribedArgumentBuilder.literal;
 import static dan200.computercraft.shared.command.text.ChatHelpers.*;
+import static net.minecraft.command.Commands.literal;
 
 public final class CommandComputerCraft
 {
@@ -59,10 +59,8 @@ public final class CommandComputerCraft
 
     public static void register( CommandDispatcher<CommandSource> dispatcher )
     {
-        dispatcher.register( literal( "computercraft",
-            "The /computercraft command provides various debugging and administrator tools for controlling and" +
-                "interacting with computers." )
-            .then( literal( "dump", "Display the status of all computers or specific information about one computer." )
+        dispatcher.register( literal( "computercraft" )
+            .then( literal( "dump" )
                 .requires( UserLevel.OWNER_OP )
                 .executes( context -> {
                     TableBuilder table = new TableBuilder( DUMP_LIST_ID, "Computer", "On", "Position" );
@@ -131,7 +129,7 @@ public final class CommandComputerCraft
                         return 1;
                     } ) ) )
 
-            .then( command( "shutdown", "Shutdown the specified computers." )
+            .then( command( "shutdown" )
                 .requires( UserLevel.OWNER_OP )
                 .argManyValue( "computers", manyComputers(), s -> new ArrayList<>( ComputerCraft.serverComputerRegistry.getComputers() ) )
                 .executes( ( context, computers ) -> {
@@ -139,27 +137,27 @@ public final class CommandComputerCraft
                     for( ServerComputer computer : unwrap( context.getSource(), computers ) )
                     {
                         if( computer.isOn() ) shutdown++;
-                        computer.unload();
+                        computer.shutdown();
                     }
-                    context.getSource().sendFeedback( text( "Shutdown " + shutdown + " / " + computers.size() + " computers" ), false );
+                    context.getSource().sendFeedback( translate( "commands.computercraft.shutdown.done", shutdown, computers.size() ), false );
                     return shutdown;
                 } ) )
 
-            .then( command( "turn-on", "Turn on the specified computers." )
+            .then( command( "turn-on" )
                 .requires( UserLevel.OWNER_OP )
                 .argManyValue( "computers", manyComputers(), s -> new ArrayList<>( ComputerCraft.serverComputerRegistry.getComputers() ) )
                 .executes( ( context, computers ) -> {
-                    int turnedOn = 0;
+                    int on = 0;
                     for( ServerComputer computer : unwrap( context.getSource(), computers ) )
                     {
-                        if( !computer.isOn() ) turnedOn++;
+                        if( !computer.isOn() ) on++;
                         computer.turnOn();
                     }
-                    context.getSource().sendFeedback( text( "Turned on " + turnedOn + " / " + computers.size() + " computers" ), false );
-                    return turnedOn;
+                    context.getSource().sendFeedback( translate( "commands.computercraft.turn_on.done", on, computers.size() ), false );
+                    return on;
                 } ) )
 
-            .then( command( "tp", "Teleport to a specific computer." )
+            .then( command( "tp" )
                 .requires( UserLevel.OP )
                 .arg( "computer", oneComputer() )
                 .executes( context -> {
@@ -167,34 +165,25 @@ public final class CommandComputerCraft
                     World world = computer.getWorld();
                     BlockPos pos = computer.getPosition();
 
-                    if( world == null || pos == null ) throw UNLOCATED_COMPUTER_EXCEPTION.create();
+                    if( world == null || pos == null ) throw TP_NOT_THERE.create();
 
                     Entity entity = context.getSource().assertIsEntity();
-                    if( entity instanceof EntityPlayerMP )
+                    if( !(entity instanceof EntityPlayerMP) ) throw TP_NOT_PLAYER.create();
+
+                    EntityPlayerMP player = (EntityPlayerMP) entity;
+                    if( player.getEntityWorld() == world )
                     {
-                        EntityPlayerMP player = (EntityPlayerMP) entity;
-                        if( player.getEntityWorld() == world )
-                        {
-                            player.connection.setPlayerLocation( pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, 0, 0, EnumSet.noneOf( SPacketPlayerPosLook.EnumFlags.class ) );
-                        }
-                        else
-                        {
-                            player.teleport( (WorldServer) world, pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, 0, 0 );
-                        }
+                        player.connection.setPlayerLocation( pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, 0, 0, EnumSet.noneOf( SPacketPlayerPosLook.EnumFlags.class ) );
                     }
                     else
                     {
-                        context.getSource().sendErrorMessage( new TextComponentString( "Cannot teleport non-player to computer" ) );
+                        player.teleport( (WorldServer) world, pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, 0, 0 );
                     }
 
                     return 1;
                 } ) )
 
-            .then( command( "queue",
-                "Send a computer_command event to a command computer, passing through the additional arguments. " +
-                    "This is mostly designed for map makers, acting as a more computer-friendly version of /trigger. " +
-                    "Any player can run the command, which would most likely be done through a text component's " +
-                    "click event." )
+            .then( command( "queue" )
                 .requires( UserLevel.ANYONE )
                 .arg( "computer", manyComputers() )
                 .argManyValue( "args", StringArgumentType.string(), Collections.emptyList() )
@@ -215,9 +204,7 @@ public final class CommandComputerCraft
                     return queued;
                 } ) )
 
-            .then( command( "view",
-                "Open the terminal of a computer, allowing remote control of a computer. This does not provide " +
-                    "access to a turtle's inventory." )
+            .then( command( "view" )
                 .requires( UserLevel.OP )
                 .arg( "computer", oneComputer() )
                 .executes( context -> {
@@ -227,26 +214,19 @@ public final class CommandComputerCraft
                     return 1;
                 } ) )
 
-            .then( literal( "track",
-                "Track how long computers execute for, as well as how many events they handle. This presents " +
-                    "information in a similar way to /forge track and can be useful for diagnosing lag." )
-                .then( command( "start",
-                    "Start tracking all computers' execution times and event counts. This will discard the " +
-                        "results of previous runs." )
+            .then( literal( "track" )
+                .then( command( "start" )
                     .requires( UserLevel.OWNER_OP )
                     .executes( context -> {
                         getTimingContext( context.getSource() ).start();
 
                         String stopCommand = "/computercraft track stop";
-                        context.getSource().sendFeedback( list(
-                            text( "Run " ),
-                            link( text( stopCommand ), stopCommand, "Click to stop tracking" ),
-                            text( " to stop tracking and view the results" )
-                        ), false );
+                        context.getSource().sendFeedback( translate( "commands.computercraft.track.start.stop",
+                            link( text( stopCommand ), stopCommand, translate( "commands.computercraft.track.stop.action" ) ) ), false );
                         return 1;
                     } ) )
 
-                .then( command( "stop", "Stop tracking all computers' events and execution times" )
+                .then( command( "stop" )
                     .requires( UserLevel.OWNER_OP )
                     .executes( context -> {
                         TrackingContext timings = getTimingContext( context.getSource() );
@@ -255,7 +235,7 @@ public final class CommandComputerCraft
                         return 1;
                     } ) )
 
-                .then( command( "dump", "Dump the latest results of computer tracking." )
+                .then( command( "dump" )
                     .requires( UserLevel.OWNER_OP )
                     .argManyValue( "fields", trackingField(), DEFAULT_FIELDS )
                     .executes( ( context, fields ) -> {
@@ -289,7 +269,7 @@ public final class CommandComputerCraft
             out.appendSibling( link(
                 text( Integer.toString( serverComputer.getInstanceID() ) ),
                 "/computercraft dump " + serverComputer.getInstanceID(),
-                "View more info about this computer"
+                translate( "commands.computercraft.dump.action" )
             ) );
         }
 
@@ -304,13 +284,13 @@ public final class CommandComputerCraft
                 .appendSibling( link(
                     text( "\u261b" ),
                     "/computercraft tp " + serverComputer.getInstanceID(),
-                    "Teleport to this computer"
+                    translate( "commands.computercraft.tp.action" )
                 ) )
                 .appendText( " " )
                 .appendSibling( link(
                     text( "\u20e2" ),
                     "/computercraft view " + serverComputer.getInstanceID(),
-                    "View this computer"
+                    translate( "commands.computercraft.view.action" )
                 ) );
         }
 
@@ -324,7 +304,7 @@ public final class CommandComputerCraft
             return link(
                 position( computer.getPosition() ),
                 "/computercraft tp " + computer.getInstanceID(),
-                "Teleport to this computer"
+                translate( "commands.computercraft.tp.action" )
             );
         }
         else
@@ -363,9 +343,9 @@ public final class CommandComputerCraft
 
         timings.sort( Comparator.<ComputerTracker, Long>comparing( x -> x.get( sortField ) ).reversed() );
 
-        String[] headers = new String[1 + fields.size()];
-        headers[0] = "Computer";
-        for( int i = 0; i < fields.size(); i++ ) headers[i + 1] = fields.get( i ).displayName();
+        ITextComponent[] headers = new ITextComponent[1 + fields.size()];
+        headers[0] = translate( "commands.computercraft.track.dump.computer" );
+        for( int i = 0; i < fields.size(); i++ ) headers[i + 1] = translate( fields.get( i ).translationKey() );
         TableBuilder table = new TableBuilder( TRACK_ID, headers );
 
         for( ComputerTracker entry : timings )

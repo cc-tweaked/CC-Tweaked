@@ -1,0 +1,10 @@
+{
+    "type": "computercraft:impostor_shapeless",
+    "group": "computercraft:disk",
+    "ingredients": [
+        { "tag": "forge:dusts/redstone" },
+        { "item": "minecraft:paper" },
+        { "item": "minecraft:dandelion_yellow" }
+    ],
+    "result": { "item": "computercraft:disk", "nbt": { "color": 14605932 } }
+}

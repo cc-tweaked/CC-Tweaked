@@ -71,6 +71,7 @@ repositories {
     }
 
     ivy { artifactPattern "https://asie.pl/files/mods/Charset/LibOnly/[module]-[revision](-[classifier]).[ext]" }
+    maven { url "http://maven.amadornes.com/" }
 }
 
 configurations {
@@ -82,12 +83,16 @@ configurations {
 dependencies {
     minecraft "net.minecraftforge:forge:${mc_version}-25.0.59"
 
-    // deobfProvided "mezz.jei:jei_1.12.2:4.8.5.159:api"
+    // deobfProvided "mezz.jei:jei_1.12.2:4.15.0.269:api"
     // deobfProvided "pl.asie:Charset-Lib:0.5.4.6"
+    // deobfProvided "MCMultiPart2:MCMultiPart:2.5.3"
+
+    // runtime "mezz.jei:jei_1.12.2:4.15.0.269"
 
     shade 'org.squiddev:Cobalt:0.5.0-SNAPSHOT'
 
-    testCompile 'junit:junit:4.11'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.1.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.1.0'
 
     deployerJars "org.apache.maven.wagon:wagon-ssh:3.0.0"
 }
@@ -318,6 +323,13 @@ uploadArchives {
                 }
             }
         }
+    }
+}
+
+test {
+    useJUnitPlatform()
+    testLogging {
+        events "passed", "skipped", "failed"
     }
 }
 

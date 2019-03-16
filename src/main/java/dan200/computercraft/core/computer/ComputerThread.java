@@ -7,146 +7,345 @@
 package dan200.computercraft.core.computer;
 
 import dan200.computercraft.ComputerCraft;
-import dan200.computercraft.core.tracking.Tracking;
 import dan200.computercraft.shared.util.ThreadUtils;
 
-import java.util.HashSet;
-import java.util.Set;
-import java.util.WeakHashMap;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
+import javax.annotation.Nonnull;
+import java.util.TreeSet;
 import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.LockSupport;
+import java.util.concurrent.locks.ReentrantLock;
 
+import static dan200.computercraft.core.computer.TimeoutState.ABORT_TIMEOUT;
+import static dan200.computercraft.core.computer.TimeoutState.TIMEOUT;
+
+/**
+ * Responsible for running all tasks from a {@link Computer}.
+ *
+ * This is split into two components: the {@link TaskRunner}s, which pull an executor from the queue and execute it, and
+ * a single {@link Monitor} which observes all runners and kills them if they have not been terminated by
+ * {@link TimeoutState#isSoftAborted()}.
+ *
+ * Computers are executed using a priority system, with those who have spent less time executing having a higher
+ * priority than those hogging the thread. This, combined with {@link TimeoutState#isPaused()} means we can reduce the
+ * risk of badly behaved computers stalling execution for everyone else.
+ *
+ * This is done using an implementation of Linux's Completely Fair Scheduler. When a computer executes, we compute what
+ * share of execution time it has used (time executed/number of tasks). We then pick the computer who has the least
+ * "virtual execution time" (aka {@link ComputerExecutor#virtualRuntime}).
+ *
+ * When adding a computer to the queue, we make sure its "virtual runtime" is at least as big as the smallest runtime.
+ * This means that adding computers which have slept a lot do not then have massive priority over everyone else. See
+ * {@link #queue(ComputerExecutor)} for how this is implemented.
+ *
+ * In reality, it's unlikely that more than a few computers are waiting to execute at once, so this will not have much
+ * effect unless you have a computer hogging execution time. However, it is pretty effective in those situations.
+ *
+ * @see TimeoutState For how hard timeouts are handled.
+ * @see ComputerExecutor For how computers actually do execution.
+ */
 public class ComputerThread
 {
-    private static final int QUEUE_LIMIT = 256;
+    /**
+     * How often the computer thread monitor should run, in milliseconds
+     *
+     * @see Monitor
+     */
+    private static final int MONITOR_WAKEUP = 100;
 
     /**
-     * Lock used for modifications to the object
+     * The target latency between executing two tasks on a single machine.
+     *
+     * An average tick takes 50ms, and so we ideally need to have handled a couple of events within that window in order
+     * to have a perceived low latency.
      */
-    private static final Object s_stateLock = new Object();
+    private static final long DEFAULT_LATENCY = TimeUnit.MILLISECONDS.toNanos( 50 );
 
     /**
-     * Lock for various task operations
+     * The minimum value that {@link #DEFAULT_LATENCY} can have when scaled.
+     *
+     * From statistics gathered on SwitchCraft, almost all machines will execute under 15ms, 75% under 1.5ms, with the
+     * mean being about 3ms. Most computers shouldn't be too impacted with having such a short period to execute in.
      */
-    private static final Object s_taskLock = new Object();
+    private static final long DEFAULT_MIN_PERIOD = TimeUnit.MILLISECONDS.toNanos( 5 );
 
     /**
-     * Map of objects to task list
+     * The maximum number of tasks before we have to start scaling latency linearly.
      */
-    private static final WeakHashMap<Computer, BlockingQueue<ITask>> s_computerTaskQueues = new WeakHashMap<>();
+    private static final long LATENCY_MAX_TASKS = DEFAULT_LATENCY / DEFAULT_MIN_PERIOD;
+
+    /**
+     * Lock used for modifications to the array of current threads.
+     */
+    private static final Object threadLock = new Object();
+
+    /**
+     * Whether the computer thread system is currently running
+     */
+    private static volatile boolean running = false;
+
+    /**
+     * The current task manager.
+     */
+    private static Thread monitor;
+
+    /**
+     * The array of current runners, and their owning threads.
+     */
+    private static TaskRunner[] runners;
+
+    private static long latency;
+    private static long minPeriod;
+
+    private static final ReentrantLock computerLock = new ReentrantLock();
+
+    private static final Condition hasWork = computerLock.newCondition();
 
     /**
      * Active queues to execute
      */
-    private static final BlockingQueue<BlockingQueue<ITask>> s_computerTasksActive = new LinkedBlockingQueue<>();
-    private static final Set<BlockingQueue<ITask>> s_computerTasksActiveSet = new HashSet<>();
+    private static final TreeSet<ComputerExecutor> computerQueue = new TreeSet<>( ( a, b ) -> {
+        if( a == b ) return 0; // Should never happen, but let's be consistent here
+
+        long at = a.virtualRuntime, bt = b.virtualRuntime;
+        if( at == bt ) return Integer.compare( a.hashCode(), b.hashCode() );
+        return Long.compare( at, bt );
+    } );
 
     /**
-     * Whether the thread is stopped or should be stopped
+     * The minimum {@link ComputerExecutor#virtualRuntime} time on the tree.
      */
-    private static boolean s_stopped = false;
+    private static long minimumVirtualRuntime = 0;
 
-    /**
-     * The thread tasks execute on
-     */
-    private static Thread[] s_threads = null;
-
-    private static final ThreadFactory s_ManagerFactory = ThreadUtils.factory( "Computer-Manager" );
-    private static final ThreadFactory s_RunnerFactory = ThreadUtils.factory( "Computer-Runner" );
+    private static final ThreadFactory monitorFactory = ThreadUtils.factory( "Computer-Monitor" );
+    private static final ThreadFactory runnerFactory = ThreadUtils.factory( "Computer-Runner" );
 
     /**
      * Start the computer thread
      */
     static void start()
     {
-        synchronized( s_stateLock )
+        synchronized( threadLock )
         {
-            s_stopped = false;
-            if( s_threads == null || s_threads.length != ComputerCraft.computer_threads )
+            running = true;
+            if( monitor == null || !monitor.isAlive() ) (monitor = monitorFactory.newThread( new Monitor() )).start();
+
+            if( runners == null )
             {
-                s_threads = new Thread[ComputerCraft.computer_threads];
+                // TODO: Change the runners length on config reloads
+                runners = new TaskRunner[ComputerCraft.computer_threads];
+
+                // latency and minPeriod are scaled by 1 + floor(log2(threads)). We can afford to execute tasks for
+                // longer when executing on more than one thread.
+                long factor = 64 - Long.numberOfLeadingZeros( runners.length );
+                latency = DEFAULT_LATENCY * factor;
+                minPeriod = DEFAULT_MIN_PERIOD * factor;
             }
 
-            for( int i = 0; i < s_threads.length; i++ )
+            for( int i = 0; i < runners.length; i++ )
             {
-                Thread thread = s_threads[i];
-                if( thread == null || !thread.isAlive() )
+                TaskRunner runner = runners[i];
+                if( runner == null || runner.owner == null || !runner.owner.isAlive() )
                 {
-                    (s_threads[i] = s_ManagerFactory.newThread( new TaskExecutor() )).start();
+                    // Mark the old runner as dead, just in case.
+                    if( runner != null ) runner.running = false;
+                    // And start a new runner
+                    runnerFactory.newThread( runners[i] = new TaskRunner() ).start();
                 }
             }
         }
     }
 
     /**
-     * Attempt to stop the computer thread
+     * Attempt to stop the computer thread. This interrupts each runner, and clears the task queue.
      */
     public static void stop()
     {
-        synchronized( s_stateLock )
+        synchronized( threadLock )
         {
-            if( s_threads != null )
+            running = false;
+            if( runners != null )
             {
-                s_stopped = true;
-                for( Thread thread : s_threads )
+                for( TaskRunner runner : runners )
                 {
-                    if( thread != null && thread.isAlive() )
-                    {
-                        thread.interrupt();
-                    }
+                    if( runner == null ) continue;
+
+                    runner.running = false;
+                    if( runner.owner != null ) runner.owner.interrupt();
                 }
             }
         }
 
-        synchronized( s_taskLock )
+        computerLock.lock();
+        try
         {
-            s_computerTaskQueues.clear();
-            s_computerTasksActive.clear();
-            s_computerTasksActiveSet.clear();
+            computerQueue.clear();
+        }
+        finally
+        {
+            computerLock.unlock();
         }
     }
 
     /**
-     * Queue a task to execute on the thread
+     * Mark a computer as having work, enqueuing it on the thread
      *
-     * @param task The task to execute
+     * You must be holding {@link ComputerExecutor}'s {@code queueLock} when calling this method - it should only
+     * be called from {@code enqueue}.
+     *
+     * @param executor The computer to execute work on.
      */
-    static void queueTask( ITask task )
+    static void queue( @Nonnull ComputerExecutor executor )
     {
-        Computer computer = task.getOwner();
-        BlockingQueue<ITask> queue;
-        synchronized( s_computerTaskQueues )
+        computerLock.lock();
+        try
         {
-            queue = s_computerTaskQueues.get( computer );
-            if( queue == null )
+            if( executor.onComputerQueue ) throw new IllegalStateException( "Cannot queue already queued executor" );
+            executor.onComputerQueue = true;
+
+            updateRuntimes();
+
+            // We're not currently on the queue, so update its current execution time to
+            // ensure its at least as high as the minimum.
+            long newRuntime = minimumVirtualRuntime;
+
+            if( executor.virtualRuntime == 0 )
             {
-                s_computerTaskQueues.put( computer, queue = new LinkedBlockingQueue<>( QUEUE_LIMIT ) );
+                // Slow down new computers a little bit.
+                newRuntime += scaledPeriod();
+            }
+            else
+            {
+                // Give a small boost to computers which have slept a little.
+                newRuntime -= latency / 2;
+            }
+
+            executor.virtualRuntime = Math.max( newRuntime, executor.virtualRuntime );
+
+            // Add to the queue, and signal the workers.
+            computerQueue.add( executor );
+            hasWork.signal();
+        }
+        finally
+        {
+            computerLock.unlock();
+        }
+    }
+
+
+    /**
+     * Update the {@link ComputerExecutor#virtualRuntime}s of all running tasks, and then update the
+     * {@link #minimumVirtualRuntime} based on the current tasks.
+     *
+     * This is called before queueing tasks, to ensure that {@link #minimumVirtualRuntime} is up-to-date.
+     */
+    private static void updateRuntimes()
+    {
+        long minRuntime = Long.MAX_VALUE;
+
+        // If we've a task on the queue, use that as our base time.
+        if( !computerQueue.isEmpty() ) minRuntime = computerQueue.first().virtualRuntime;
+
+        // Update all the currently executing tasks
+        TaskRunner[] currentRunners = runners;
+        if( currentRunners != null )
+        {
+            long now = System.nanoTime();
+            int tasks = 1 + computerQueue.size();
+
+            for( TaskRunner runner : currentRunners )
+            {
+                if( runner == null ) continue;
+                ComputerExecutor executor = runner.currentExecutor.get();
+                if( executor == null ) continue;
+
+                // We do two things here: first we update the task's virtual runtime based on when we
+                // last checked, and then we check the minimum.
+                minRuntime = Math.min( minRuntime, executor.virtualRuntime += (now - executor.vRuntimeStart) / tasks );
+                executor.vRuntimeStart = now;
             }
         }
 
-        synchronized( s_taskLock )
+        if( minRuntime > minimumVirtualRuntime && minRuntime < Long.MAX_VALUE )
         {
-            if( queue.offer( task ) && !s_computerTasksActiveSet.contains( queue ) )
-            {
-                s_computerTasksActive.add( queue );
-                s_computerTasksActiveSet.add( queue );
-            }
+            minimumVirtualRuntime = minRuntime;
         }
     }
 
     /**
-     * Responsible for pulling and managing computer tasks. This pulls a task from {@link #s_computerTasksActive},
-     * creates a new thread using {@link TaskRunner} or reuses a previous one and uses that to execute the task.
+     * Ensure the "currently working" state of the executor is reset, the timings are updated, and then requeue the
+     * executor if needed.
      *
-     * If the task times out, then it will attempt to interrupt the {@link TaskRunner} instance.
+     * @param runner   The runner this task was on.
+     * @param executor The executor to requeue
      */
-    private static final class TaskExecutor implements Runnable
+    private static void afterWork( TaskRunner runner, ComputerExecutor executor )
     {
-        private TaskRunner runner;
-        private Thread thread;
+        // Clear the executor's thread.
+        Thread currentThread = executor.executingThread.getAndSet( null );
+        if( currentThread != runner.owner )
+        {
+            ComputerCraft.log.error(
+                "Expected computer #{} to be running on {}, but already running on {}. This is a SERIOUS bug, please report with your debug.log.",
+                executor.getComputer().getID(), runner.owner.getName(), currentThread == null ? "nothing" : currentThread.getName()
+            );
+        }
 
+        computerLock.lock();
+        try
+        {
+            // Update the virtual runtime of this task.
+            long now = System.nanoTime();
+            executor.virtualRuntime += (now - executor.vRuntimeStart) / (1 + computerQueue.size());
+
+            // If we've no more tasks, just return.
+            if( !executor.afterWork() ) return;
+
+            // Otherwise, add to the queue, and signal any waiting workers.
+            computerQueue.add( executor );
+            hasWork.signal();
+        }
+        finally
+        {
+            computerLock.unlock();
+        }
+    }
+
+    /**
+     * The scaled period for a single task
+     *
+     * @return The scaled period for the task
+     * @see #DEFAULT_LATENCY
+     * @see #DEFAULT_MIN_PERIOD
+     * @see #LATENCY_MAX_TASKS
+     */
+    static long scaledPeriod()
+    {
+        // +1 to include the current task
+        int count = 1 + computerQueue.size();
+        return count < LATENCY_MAX_TASKS ? latency / count : minPeriod;
+    }
+
+    /**
+     * Determine if the thread has computers queued up
+     *
+     * @return If we have work queued up.
+     */
+    static boolean hasPendingWork()
+    {
+        return computerQueue.size() > 0;
+    }
+
+    /**
+     * Observes all currently active {@link TaskRunner}s and terminates their tasks once they have exceeded the hard
+     * abort limit.
+     *
+     * @see TimeoutState
+     */
+    private static final class Monitor implements Runnable
+    {
         @Override
         public void run()
         {
@@ -154,201 +353,171 @@ public class ComputerThread
             {
                 while( true )
                 {
-                    // Wait for an active queue to execute
-                    BlockingQueue<ITask> queue = s_computerTasksActive.take();
+                    Thread.sleep( MONITOR_WAKEUP );
 
-                    // If threads should be stopped then return
-                    synchronized( s_stateLock )
+                    TaskRunner[] currentRunners = ComputerThread.runners;
+                    if( currentRunners != null )
                     {
-                        if( s_stopped ) return;
-                    }
+                        for( int i = 0; i < currentRunners.length; i++ )
+                        {
+                            TaskRunner runner = currentRunners[i];
+                            // If we've no runner, skip.
+                            if( runner == null ) continue;
 
-                    execute( queue );
+                            // If the runner has no work, skip
+                            ComputerExecutor executor = runner.currentExecutor.get();
+                            if( executor == null ) continue;
+
+                            // If we're still within normal execution times (TIMEOUT) or soft abort (ABORT_TIMEOUT),
+                            // then we can let the Lua machine do its work.
+                            long afterStart = executor.timeout.nanoCumulative();
+                            long afterHardAbort = afterStart - TIMEOUT - ABORT_TIMEOUT;
+                            if( afterHardAbort < 0 ) continue;
+
+                            // Set the hard abort flag.
+                            executor.timeout.hardAbort();
+                            executor.abort();
+
+                            if( afterHardAbort >= ABORT_TIMEOUT )
+                            {
+                                // If we've hard aborted but we're still not dead, dump the stack trace and interrupt
+                                // the task.
+                                timeoutTask( executor, runner.owner, afterStart );
+                                runner.owner.interrupt();
+                            }
+                            else if( afterHardAbort >= ABORT_TIMEOUT * 2 )
+                            {
+                                // If we've hard aborted and interrupted, and we're still not dead, then mark the runner
+                                // as dead, finish off the task, and spawn a new runner.
+                                timeoutTask( executor, runner.owner, afterStart );
+                                runner.running = false;
+                                runner.owner.interrupt();
+
+                                ComputerExecutor thisExecutor = runner.currentExecutor.getAndSet( null );
+                                if( thisExecutor != null ) afterWork( runner, executor );
+
+                                synchronized( threadLock )
+                                {
+                                    if( running && runners.length > i && runners[i] == runner )
+                                    {
+                                        runnerFactory.newThread( currentRunners[i] = new TaskRunner() ).start();
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
             catch( InterruptedException ignored )
             {
-                Thread.currentThread().interrupt();
-            }
-        }
-
-        private void execute( BlockingQueue<ITask> queue ) throws InterruptedException
-        {
-            ITask task = queue.remove();
-
-            if( thread == null || !thread.isAlive() )
-            {
-                runner = new TaskRunner();
-                (thread = s_RunnerFactory.newThread( runner )).start();
-            }
-
-            long start = System.nanoTime();
-
-            // Execute the task
-            runner.submit( task );
-
-            try
-            {
-                // If we timed out rather than exiting:
-                boolean done = runner.await( 7000 );
-                if( !done )
-                {
-                    // Attempt to soft then hard abort
-                    Computer computer = task.getOwner();
-                    if( computer != null )
-                    {
-                        computer.abort( false );
-
-                        done = runner.await( 1500 );
-                        if( !done )
-                        {
-                            computer.abort( true );
-                            done = runner.await( 1500 );
-                        }
-                    }
-
-                    // Interrupt the thread
-                    if( !done )
-                    {
-                        if( ComputerCraft.logPeripheralErrors )
-                        {
-                            long time = System.nanoTime() - start;
-                            StringBuilder builder = new StringBuilder( "Terminating " );
-                            if( computer != null )
-                            {
-                                builder.append( "computer #" ).append( computer.getID() );
-                            }
-                            else
-                            {
-                                builder.append( "unknown computer" );
-                            }
-
-                            {
-                                builder.append( " due to timeout (running for " )
-                                    .append( time / 1e9 )
-                                    .append( " seconds). This is NOT a bug, but may mean a computer is misbehaving. " )
-                                    .append( thread.getName() )
-                                    .append( " is currently " )
-                                    .append( thread.getState() );
-                                Object blocking = LockSupport.getBlocker( thread );
-                                if( blocking != null ) builder.append( "\n  on " ).append( blocking );
-
-                                for( StackTraceElement element : thread.getStackTrace() )
-                                {
-                                    builder.append( "\n  at " ).append( element );
-                                }
-                            }
-
-                            ComputerCraft.log.warn( builder.toString() );
-                        }
-
-                        thread.interrupt();
-                        thread = null;
-                        runner = null;
-                    }
-                }
-            }
-            finally
-            {
-                long stop = System.nanoTime();
-                Computer computer = task.getOwner();
-                if( computer != null ) Tracking.addTaskTiming( computer, stop - start );
-
-                // Re-add it back onto the queue or remove it
-                synchronized( s_taskLock )
-                {
-                    if( queue.isEmpty() )
-                    {
-                        s_computerTasksActiveSet.remove( queue );
-                    }
-                    else
-                    {
-                        s_computerTasksActive.add( queue );
-                    }
-                }
             }
         }
     }
 
     /**
-     * Responsible for the actual running of tasks. It waitin for the {@link TaskRunner#input} semaphore to be
-     * triggered, consumes a task and then triggers {@link TaskRunner#finished}.
+     * Pulls tasks from the {@link #computerQueue} queue and runs them.
+     *
+     * This is responsible for running the {@link ComputerExecutor#work()}, {@link ComputerExecutor#beforeWork()} and
+     * {@link ComputerExecutor#afterWork()} functions. Everything else is either handled by the executor, timeout
+     * state or monitor.
      */
     private static final class TaskRunner implements Runnable
     {
-        private final Semaphore input = new Semaphore();
-        private final Semaphore finished = new Semaphore();
-        private ITask task;
+        Thread owner;
+        volatile boolean running = true;
+
+        final AtomicReference<ComputerExecutor> currentExecutor = new AtomicReference<>();
 
         @Override
         public void run()
         {
-            try
+            owner = Thread.currentThread();
+
+            tasks:
+            while( running && ComputerThread.running )
             {
-                while( true )
+                // Wait for an active queue to execute
+                ComputerExecutor executor;
+                try
                 {
-                    input.await();
+                    computerLock.lockInterruptibly();
                     try
                     {
-                        task.execute();
+                        while( computerQueue.isEmpty() ) hasWork.await();
+                        executor = computerQueue.pollFirst();
+                        assert executor != null : "hasWork should ensure we never receive null work";
                     }
-                    catch( RuntimeException e )
+                    finally
                     {
-                        ComputerCraft.log.error( "Error running task.", e );
+                        computerLock.unlock();
                     }
-                    task = null;
-                    finished.signal();
+                }
+                catch( InterruptedException ignored )
+                {
+                    // If we've been interrupted, our running flag has probably been reset, so we'll
+                    // just jump into the next iteration.
+                    continue;
+                }
+
+                // If we're trying to executing some task on this computer while someone else is doing work, something
+                // is seriously wrong.
+                while( !executor.executingThread.compareAndSet( null, owner ) )
+                {
+                    Thread existing = executor.executingThread.get();
+                    if( existing != null )
+                    {
+                        ComputerCraft.log.error(
+                            "Trying to run computer #{} on thread {}, but already running on {}. This is a SERIOUS bug, please report with your debug.log.",
+                            executor.getComputer().getID(), owner.getName(), existing.getName()
+                        );
+                        continue tasks;
+                    }
+                }
+
+                // Reset the timers
+                executor.beforeWork();
+
+                // And then set the current executor. It's important to do it afterwards, as otherwise we introduce
+                // race conditions with the monitor.
+                currentExecutor.set( executor );
+
+                // Execute the task
+                try
+                {
+                    executor.work();
+                }
+                catch( Exception e )
+                {
+                    ComputerCraft.log.error( "Error running task on computer #" + executor.getComputer().getID(), e );
+                }
+                finally
+                {
+                    ComputerExecutor thisExecutor = currentExecutor.getAndSet( null );
+                    if( thisExecutor != null ) afterWork( this, executor );
                 }
             }
-            catch( InterruptedException e )
-            {
-                ComputerCraft.log.error( "Error running task.", e );
-                Thread.currentThread().interrupt();
-            }
-        }
-
-        void submit( ITask task )
-        {
-            this.task = task;
-            input.signal();
-        }
-
-        boolean await( long timeout ) throws InterruptedException
-        {
-            return finished.await( timeout );
         }
     }
 
-    /**
-     * A simple method to allow awaiting/providing a signal.
-     *
-     * Java does provide similar classes, but I only needed something simple.
-     */
-    private static final class Semaphore
+    private static void timeoutTask( ComputerExecutor executor, Thread thread, long time )
     {
-        private volatile boolean state = false;
+        if( !ComputerCraft.logPeripheralErrors ) return;
 
-        synchronized void signal()
+        StringBuilder builder = new StringBuilder()
+            .append( "Terminating computer #" ).append( executor.getComputer().getID() )
+            .append( " due to timeout (running for " ).append( time * 1e-9 )
+            .append( " seconds). This is NOT a bug, but may mean a computer is misbehaving. " )
+            .append( thread.getName() )
+            .append( " is currently " )
+            .append( thread.getState() );
+        Object blocking = LockSupport.getBlocker( thread );
+        if( blocking != null ) builder.append( "\n  on " ).append( blocking );
+
+        for( StackTraceElement element : thread.getStackTrace() )
         {
-            state = true;
-            notify();
+            builder.append( "\n  at " ).append( element );
         }
 
-        synchronized void await() throws InterruptedException
-        {
-            while( !state ) wait();
-            state = false;
-        }
-
-        synchronized boolean await( long timeout ) throws InterruptedException
-        {
-            if( !state )
-            {
-                wait( timeout );
-                if( !state ) return false;
-            }
-            state = false;
-            return true;
-        }
+        ComputerCraft.log.warn( builder.toString() );
     }
 }

@@ -27,7 +27,6 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.fml.server.ServerLifecycleHooks;
 import net.minecraftforge.versions.mcp.MCPVersion;
 
@@ -198,16 +197,6 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
         NetworkHandler.sendToAllPlayers( new ComputerDeletedClientMessage( getInstanceID() ) );
     }
 
-    public IWritableMount getRootMount()
-    {
-        return m_computer.getRootMount();
-    }
-
-    public int assignID()
-    {
-        return m_computer.assignID();
-    }
-
     public void setID( int id )
     {
         m_computer.setID( id );
@@ -293,7 +282,7 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
 
     public void addAPI( ILuaAPI api )
     {
-        m_computer.addAPI( api );
+        m_computer.addApi( api );
     }
 
     @Deprecated

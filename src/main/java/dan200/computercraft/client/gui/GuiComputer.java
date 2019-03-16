@@ -93,7 +93,7 @@ public class GuiComputer extends GuiContainer
     public void drawGuiContainerBackgroundLayer( float partialTicks, int mouseX, int mouseY )
     {
         // Work out where to draw
-        int startX =  terminalWrapper.getX() - 2;
+        int startX = terminalWrapper.getX() - 2;
         int startY = terminalWrapper.getY() - 2;
         int endX = startX + terminalWrapper.getWidth() + 4;
         int endY = startY + terminalWrapper.getHeight() + 4;

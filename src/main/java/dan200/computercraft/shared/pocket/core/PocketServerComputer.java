@@ -16,8 +16,10 @@ import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.network.NetworkHandler;
 import dan200.computercraft.shared.pocket.items.ItemPocketComputer;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
@@ -46,7 +48,23 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
     @Override
     public Entity getEntity()
     {
-        return entity;
+        Entity entity = this.entity;
+        if( entity == null || m_stack == null || entity.removed ) return null;
+
+        if( entity instanceof EntityPlayer )
+        {
+            InventoryPlayer inventory = ((EntityPlayer) entity).inventory;
+            return inventory.mainInventory.contains( m_stack ) || inventory.offHandInventory.contains( m_stack ) ? entity : null;
+        }
+        else if( entity instanceof EntityLivingBase )
+        {
+            EntityLivingBase living = (EntityLivingBase) entity;
+            return living.getHeldItemMainhand() == m_stack || living.getHeldItemOffhand() == m_stack ? entity : null;
+        }
+        else
+        {
+            return null;
+        }
     }
 
     @Override
