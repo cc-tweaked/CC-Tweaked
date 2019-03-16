@@ -47,7 +47,7 @@ public class PocketModem extends AbstractPocketUpgrade
     {
         if( !(peripheral instanceof PocketModemPeripheral) ) return;
 
-        Entity entity = access.getEntity();
+        Entity entity = access.getValidEntity();
 
         PocketModemPeripheral modem = (PocketModemPeripheral) peripheral;
 

@@ -41,7 +41,7 @@ public class PocketSpeaker extends AbstractPocketUpgrade
 
         PocketSpeakerPeripheral speaker = (PocketSpeakerPeripheral) peripheral;
 
-        Entity entity = access.getEntity();
+        Entity entity = access.getValidEntity();
         if( entity instanceof EntityLivingBase )
         {
             EntityLivingBase player = (EntityLivingBase) entity;
