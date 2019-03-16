@@ -39,11 +39,17 @@ upgrade.minecraft:crafting_table.adjective=Artigiano
 upgrade.computercraft:advanced_modem.adjective=Ender
 upgrade.computercraft:speaker.adjective=Rumoroso
 
-gui.computercraft.wired_modem.peripheral_connected=Periferica "%s" connessa alla rete
-gui.computercraft.wired_modem.peripheral_disconnected=Periferica "%s" disconessa dalla rete
+chat.computercraft.wired_modem.peripheral_connected=Periferica "%s" connessa alla rete
+chat.computercraft.wired_modem.peripheral_disconnected=Periferica "%s" disconessa dalla rete
 
+# Command descriptions, usage and any additional messages.
+
+# Names for the various tracking fields.
+
+# Misc tooltips
 gui.computercraft.tooltip.copy=Copia negli appunti
 
+# Config options
 gui.computercraft:config.computer_space_limit=Limite spazio Computer (bytes)
 gui.computercraft:config.floppy_space_limit=Limite spazio Disco Floppy (bytes)
 gui.computercraft:config.maximum_open_files=Massimo file aperti per computer

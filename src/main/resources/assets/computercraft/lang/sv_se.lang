@@ -42,8 +42,14 @@ upgrade.computercraft:speaker.adjective=Högljudd
 chat.computercraft.wired_modem.peripheral_connected=Kringutrustning "%s" är kopplad till nätverket
 chat.computercraft.wired_modem.peripheral_disconnected=Kringutrustning "%s" är frånkopplad från nätverket
 
+# Command descriptions, usage and any additional messages.
+
+# Names for the various tracking fields.
+
+# Misc tooltips
 gui.computercraft.tooltip.copy=Kopiera till urklipp
 
+# Config options
 gui.computercraft:config.computer_space_limit=Dator maximalt utrymme (bytes)
 gui.computercraft:config.floppy_space_limit=Diskett maximalt utrymme (bytes)
 gui.computercraft:config.maximum_open_files=Max antal filer öppna per dator

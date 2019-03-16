@@ -42,8 +42,14 @@ upgrade.computercraft:speaker.adjective=(Alto-Falante)
 chat.computercraft.wired_modem.peripheral_connected=Periférico "%s" conectado à rede
 chat.computercraft.wired_modem.peripheral_disconnected=Periférico "%s" desconectado da rede
 
+# Command descriptions, usage and any additional messages.
+
+# Names for the various tracking fields.
+
+# Misc tooltips
 gui.computercraft.tooltip.copy=Copiar para a área de transferência
 
+# Config options
 gui.computercraft:config.computer_space_limit=Limite de espaço dos Computadores (bytes)
 gui.computercraft:config.floppy_space_limit=Limite de espaço dos Disquetes (bytes)
 gui.computercraft:config.maximum_open_files=Número máximo de arquivos em um computador

@@ -42,26 +42,36 @@ upgrade.computercraft:speaker.adjective=Laut
 chat.computercraft.wired_modem.peripheral_connected=Peripheriegerät "%s" mit dem Netzwerk verbunden
 chat.computercraft.wired_modem.peripheral_disconnected=Peripheriegerät "%s" vom Netzwerk getrennt
 
-gui.computercraft:config.http_enable=HTTP-API aktivieren
-gui.computercraft:config.http_websocket_enable=HTTP-Websockets aktivieren
-gui.computercraft:config.http_whitelist=HTTP-Whitelist
-gui.computercraft:config.http_blacklist=HTTP-Blacklist
-gui.computercraft:config.disable_lua51_features=Lua 5.1-Funktionen deaktivieren
-gui.computercraft:config.default_computer_settings=Computer-Standardeinstellungen
-gui.computercraft:config.debug_enable=Debug-Library aktivieren
-gui.computercraft:config.log_peripheral_errors=Peripheriefehler loggen
-gui.computercraft:config.enable_command_block=Befehlsblöcke als Peripheriegerät erlauben
-gui.computercraft:config.modem_range=Modemreichweite (normal)
-gui.computercraft:config.modem_high_altitude_range=Modemreichweite (in großer Höhe)
-gui.computercraft:config.modem_range_during_storm=Modemreichweite (bei schlechtem Wetter)
-gui.computercraft:config.modem_high_altitude_range_during_storm=Modemreichweite (in großer Höhe bei schlechtem Wetter)
+# Command descriptions, usage and any additional messages.
+
+# Names for the various tracking fields.
+
+# Misc tooltips
+
+# Config options
 gui.computercraft:config.computer_space_limit=Speicherplatz von Computern (bytes)
 gui.computercraft:config.floppy_space_limit=Speicherplatz von Disketten (bytes)
-gui.computercraft:config.turtles_need_fuel=Treibstoffverbrauch aktivieren
-gui.computercraft:config.turtle_fuel_limit=Treibstofflimit von Turtles
-gui.computercraft:config.advanced_turtle_fuel_limit=Treibstofflimit von Erweiterten Turtles
-gui.computercraft:config.turtles_obey_block_protection=Turtles unterliegen Blockschutzrichtlinien
-gui.computercraft:config.turtles_can_push=Turtles können Entities bewegen
-gui.computercraft:config.turtle_disabled_actions=Deaktivierte Turtle-Aktionen
-gui.computercraft:config.maximum_files_open=Maximalanzahl an gleichzeitig offenen Dateien je Computer
-gui.computercraft:config.max_notes_per_tick=Maximalanzahl an Noten, die ein Computer gleichzeitig spielen kann
+gui.computercraft:config.maximum_open_files=Maximalanzahl an gleichzeitig offenen Dateien je Computer
+gui.computercraft:config.disable_lua51_features=Lua 5.1-Funktionen deaktivieren
+gui.computercraft:config.default_computer_settings=Computer-Standardeinstellungen
+gui.computercraft:config.debug_enabled=Debug-Library aktivieren
+gui.computercraft:config.log_computer_errors=Peripheriefehler loggen
+
+gui.computercraft:config.http.enabled=HTTP-API aktivieren
+gui.computercraft:config.http.websocket_enabled=HTTP-Websockets aktivieren
+gui.computercraft:config.http.whitelist=HTTP-Whitelist
+gui.computercraft:config.http.blacklist=HTTP-Blacklist
+
+gui.computercraft:config.peripheral.command_block_enabled=Befehlsblöcke als Peripheriegerät erlauben
+gui.computercraft:config.peripheral.modem_range=Modemreichweite (normal)
+gui.computercraft:config.peripheral.modem_high_altitude_range=Modemreichweite (in großer Höhe)
+gui.computercraft:config.peripheral.modem_range_during_storm=Modemreichweite (bei schlechtem Wetter)
+gui.computercraft:config.peripheral.modem_high_altitude_range_during_storm=Modemreichweite (in großer Höhe bei schlechtem Wetter)
+gui.computercraft:config.peripheral.max_notes_per_tick=Maximalanzahl an Noten, die ein Computer gleichzeitig spielen kann
+
+gui.computercraft:config.turtle.need_fuel=Treibstoffverbrauch aktivieren
+gui.computercraft:config.turtle.normal_fuel_limit=Treibstofflimit von Turtles
+gui.computercraft:config.turtle.advanced_fuel_limit=Treibstofflimit von Erweiterten Turtles
+gui.computercraft:config.turtle.obey_block_protection=Turtles unterliegen Blockschutzrichtlinien
+gui.computercraft:config.turtle.can_push=Turtles können Entities bewegen
+gui.computercraft:config.turtle.disabled_actions=Deaktivierte Turtle-Aktionen
