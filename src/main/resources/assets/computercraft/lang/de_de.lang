@@ -39,8 +39,8 @@ upgrade.minecraft:crafting_table.adjective=Fabrizierung
 upgrade.computercraft:advanced_modem.adjective=Ender
 upgrade.computercraft:speaker.adjective=Laut
 
-gui.computercraft:wired_modem.peripheral_connected=Peripheriegerät "%s" mit dem Netzwerk verbunden
-gui.computercraft:wired_modem.peripheral_disconnected=Peripheriegerät "%s" vom Netzwerk getrennt
+chat.computercraft.wired_modem.peripheral_connected=Peripheriegerät "%s" mit dem Netzwerk verbunden
+chat.computercraft.wired_modem.peripheral_disconnected=Peripheriegerät "%s" vom Netzwerk getrennt
 
 gui.computercraft:config.http_enable=HTTP-API aktivieren
 gui.computercraft:config.http_websocket_enable=HTTP-Websockets aktivieren

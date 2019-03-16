@@ -242,14 +242,14 @@ public class TileCable extends TileGeneric implements IPeripheralTile
                     if( oldPeriphName != null )
                     {
                         player.sendMessage(
-                            new TextComponentTranslation( "gui.computercraft:wired_modem.peripheral_disconnected",
+                            new TextComponentTranslation( "chat.computercraft.wired_modem.peripheral_disconnected",
                                 CommandCopy.createCopyText( oldPeriphName ) )
                         );
                     }
                     if( periphName != null )
                     {
                         player.sendMessage(
-                            new TextComponentTranslation( "gui.computercraft:wired_modem.peripheral_connected",
+                            new TextComponentTranslation( "chat.computercraft.wired_modem.peripheral_connected",
                                 CommandCopy.createCopyText( periphName ) )
                         );
                     }

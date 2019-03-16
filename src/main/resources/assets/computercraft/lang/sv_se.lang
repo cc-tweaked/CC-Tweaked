@@ -39,10 +39,10 @@ upgrade.minecraft:crafting_table.adjective=Händig
 upgrade.computercraft:advanced_modem.adjective=Ender
 upgrade.computercraft:speaker.adjective=Högljudd
 
-gui.computercraft:wired_modem.peripheral_connected=Kringutrustning "%s" är kopplad till nätverket
-gui.computercraft:wired_modem.peripheral_disconnected=Kringutrustning "%s" är frånkopplad från nätverket
+chat.computercraft.wired_modem.peripheral_connected=Kringutrustning "%s" är kopplad till nätverket
+chat.computercraft.wired_modem.peripheral_disconnected=Kringutrustning "%s" är frånkopplad från nätverket
 
-gui.computercraft:tooltip.copy=Kopiera till urklipp
+gui.computercraft.tooltip.copy=Kopiera till urklipp
 
 gui.computercraft:config.computer_space_limit=Dator maximalt utrymme (bytes)
 gui.computercraft:config.floppy_space_limit=Diskett maximalt utrymme (bytes)

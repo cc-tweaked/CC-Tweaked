@@ -32,7 +32,8 @@ public interface ILuaContext
      *                              intercepted, or the computer will leak memory and end up in a broken state.
      */
     @Nonnull
-    default Object[] pullEvent( @Nullable String filter ) throws LuaException, InterruptedException {
+    default Object[] pullEvent( @Nullable String filter ) throws LuaException, InterruptedException
+    {
         Object[] results = pullEventRaw( filter );
         if( results.length >= 1 && results[0].equals( "terminate" ) ) throw new LuaException( "Terminated", 0 );
         return results;
@@ -51,7 +52,8 @@ public interface ILuaContext
      * @see #pullEvent(String)
      */
     @Nonnull
-    default Object[] pullEventRaw( @Nullable String filter ) throws InterruptedException {
+    default Object[] pullEventRaw( @Nullable String filter ) throws InterruptedException
+    {
         return yield( new Object[] { filter } );
     }
 

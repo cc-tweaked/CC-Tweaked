@@ -73,7 +73,7 @@ public class CommandCopy extends CommandBase implements IClientCommand
         TextComponentString name = new TextComponentString( text );
         name.getStyle()
             .setClickEvent( new ClickEvent( ClickEvent.Action.RUN_COMMAND, "/" + NAME + " " + text ) )
-            .setHoverEvent( new HoverEvent( HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation( "gui.computercraft:tooltip.copy" ) ) );
+            .setHoverEvent( new HoverEvent( HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation( "gui.computercraft.tooltip.copy" ) ) );
         return name;
     }
 }

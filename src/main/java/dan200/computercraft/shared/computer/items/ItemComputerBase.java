@@ -11,6 +11,7 @@ import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.api.media.IMedia;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
+import dan200.computercraft.shared.util.StringUtil;
 import net.minecraft.block.Block;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.item.ItemBlock;
@@ -42,10 +43,7 @@ public abstract class ItemComputerBase extends ItemBlock implements IComputerIte
         if( flag.isAdvanced() )
         {
             int id = getComputerID( stack );
-            if( id >= 0 )
-            {
-                list.add( "(Computer ID: " + id + ")" );
-            }
+            if( id >= 0 ) list.add( StringUtil.translateFormatted( "gui.computercraft.tooltip.computer_id", id ) );
         }
     }
 

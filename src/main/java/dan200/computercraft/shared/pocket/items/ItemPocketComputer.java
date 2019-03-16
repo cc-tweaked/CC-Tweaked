@@ -219,14 +219,14 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
         IPocketUpgrade upgrade = getUpgrade( stack );
         if( upgrade != null )
         {
-            return StringUtil.translateToLocalFormatted(
+            return StringUtil.translateFormatted(
                 baseString + ".upgraded.name",
-                StringUtil.translateToLocal( upgrade.getUnlocalisedAdjective() )
+                StringUtil.translate( upgrade.getUnlocalisedAdjective() )
             );
         }
         else
         {
-            return StringUtil.translateToLocal( baseString + ".name" );
+            return StringUtil.translate( baseString + ".name" );
         }
     }
 
@@ -236,10 +236,7 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
         if( flag.isAdvanced() )
         {
             int id = getComputerID( stack );
-            if( id >= 0 )
-            {
-                list.add( "(Computer ID: " + id + ")" );
-            }
+            if( id >= 0 ) list.add( StringUtil.translateFormatted( "gui.computercraft.tooltip.computer_id", id ) );
         }
     }
 

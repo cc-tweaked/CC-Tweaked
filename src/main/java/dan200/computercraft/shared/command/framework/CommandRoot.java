@@ -23,22 +23,28 @@ import java.util.Map;
 public class CommandRoot implements ISubCommand
 {
     private final String name;
-    private final String synopsis;
-    private final String description;
+    private ISubCommand parent;
     private final Map<String, ISubCommand> subCommands = Maps.newHashMap();
 
-    public CommandRoot( String name, String synopsis, String description )
+    public CommandRoot( String name )
     {
         this.name = name;
-        this.synopsis = synopsis;
-        this.description = description;
-
         register( new SubCommandHelp( this ) );
     }
 
-    public void register( ISubCommand command )
+    public CommandRoot register( ISubCommand command )
     {
         subCommands.put( command.getName(), command );
+        if( command instanceof SubCommandBase )
+        {
+            ((SubCommandBase) command).setParent( this );
+        }
+        else if( command instanceof CommandRoot )
+        {
+            ((CommandRoot) command).setParent( this );
+        }
+
+        return this;
     }
 
     @Nonnull
@@ -46,6 +52,13 @@ public class CommandRoot implements ISubCommand
     public String getName()
     {
         return name;
+    }
+
+    @Nonnull
+    @Override
+    public String getFullName()
+    {
+        return parent == null ? name : parent.getFullName() + "." + name;
     }
 
     @Nonnull
@@ -72,20 +85,6 @@ public class CommandRoot implements ISubCommand
         }
 
         return out.append( ">" ).toString();
-    }
-
-    @Nonnull
-    @Override
-    public String getSynopsis()
-    {
-        return synopsis;
-    }
-
-    @Nonnull
-    @Override
-    public String getDescription()
-    {
-        return description;
     }
 
     @Override
@@ -152,5 +151,11 @@ public class CommandRoot implements ISubCommand
 
             return command.getCompletion( context, arguments.subList( 1, arguments.size() ) );
         }
+    }
+
+    void setParent( @Nonnull ISubCommand parent )
+    {
+        if( this.parent != null ) throw new IllegalStateException( "Cannot have multiple parents" );
+        this.parent = parent;
     }
 }

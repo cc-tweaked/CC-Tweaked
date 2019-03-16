@@ -35,6 +35,6 @@ public class RecordUtil
         if( !(item instanceof ItemRecord) ) return null;
 
         ItemRecord record = (ItemRecord) item;
-        return StringUtil.translateToLocal( record.displayName );
+        return StringUtil.translate( record.displayName );
     }
 }

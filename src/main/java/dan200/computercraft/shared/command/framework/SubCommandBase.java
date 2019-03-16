@@ -9,29 +9,19 @@ package dan200.computercraft.shared.command.framework;
 import dan200.computercraft.shared.command.UserLevel;
 
 import javax.annotation.Nonnull;
-import java.util.Collections;
-import java.util.List;
 
 public abstract class SubCommandBase implements ISubCommand
 {
     private final String name;
-    private final String usage;
-    private final String synopsis;
-    private final String description;
+    private final String id;
     private final UserLevel level;
+    private ISubCommand parent;
 
-    public SubCommandBase( String name, String usage, String synopsis, UserLevel level, String description )
+    protected SubCommandBase( String name, UserLevel level )
     {
         this.name = name;
-        this.usage = usage;
-        this.synopsis = synopsis;
-        this.description = description;
+        this.id = name.replace( '-', '_' );
         this.level = level;
-    }
-
-    public SubCommandBase( String name, String synopsis, UserLevel level, String description )
-    {
-        this( name, "", synopsis, level, description );
     }
 
     @Nonnull
@@ -43,23 +33,9 @@ public abstract class SubCommandBase implements ISubCommand
 
     @Nonnull
     @Override
-    public String getUsage( CommandContext context )
+    public String getFullName()
     {
-        return usage;
-    }
-
-    @Nonnull
-    @Override
-    public String getSynopsis()
-    {
-        return synopsis;
-    }
-
-    @Nonnull
-    @Override
-    public String getDescription()
-    {
-        return description;
+        return parent == null ? id : parent.getFullName() + "." + id;
     }
 
     @Override
@@ -68,10 +44,9 @@ public abstract class SubCommandBase implements ISubCommand
         return level.canExecute( context );
     }
 
-    @Nonnull
-    @Override
-    public List<String> getCompletion( @Nonnull CommandContext context, @Nonnull List<String> arguments )
+    void setParent( ISubCommand parent )
     {
-        return Collections.emptyList();
+        if( this.parent != null ) throw new IllegalStateException( "Cannot have multiple parents" );
+        this.parent = parent;
     }
 }

@@ -13,6 +13,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
 
 import javax.annotation.Nonnull;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -30,6 +31,15 @@ public interface ISubCommand
     String getName();
 
     /**
+     * Get the full name of this command. This is equal to the command parent's full name, plus this command's name.
+     *
+     * @return The full name of this command
+     * @see ISubCommand#getName()
+     */
+    @Nonnull
+    String getFullName();
+
+    /**
      * Get the usage of this command
      *
      * @param context The context this command is executed in
@@ -37,23 +47,10 @@ public interface ISubCommand
      * @see ICommand#getUsage(ICommandSender)
      */
     @Nonnull
-    String getUsage( CommandContext context );
-
-    /**
-     * Get a short description of this command, including its usage.
-     *
-     * @return The command's synopsis
-     */
-    @Nonnull
-    String getSynopsis();
-
-    /**
-     * Get the lengthy description of this command. This synopsis is prepended to this.
-     *
-     * @return The command's description
-     */
-    @Nonnull
-    String getDescription();
+    default String getUsage( CommandContext context )
+    {
+        return "commands." + getFullName() + ".usage";
+    }
 
     /**
      * Determine whether a given command sender has permission to execute this command.
@@ -82,5 +79,8 @@ public interface ISubCommand
      * @see ICommand#getTabCompletions(MinecraftServer, ICommandSender, String[], BlockPos)
      */
     @Nonnull
-    List<String> getCompletion( @Nonnull CommandContext context, @Nonnull List<String> arguments );
+    default List<String> getCompletion( @Nonnull CommandContext context, @Nonnull List<String> arguments )
+    {
+        return Collections.emptyList();
+    }
 }

@@ -52,17 +52,9 @@ public final class CommandComputerCraft extends CommandDelegate
 
     private static ISubCommand create()
     {
-        CommandRoot root = new CommandRoot(
-            "computercraft", "Various commands for controlling computers.",
-            "The /computercraft command provides various debugging and administrator tools for controlling and " +
-                "interacting with computers."
-        );
+        CommandRoot root = new CommandRoot( "computercraft" );
 
-        root.register( new SubCommandBase(
-            "dump", "[id]", "Display the status of computers.", UserLevel.OWNER_OP,
-            "Display the status of all computers or specific information about one computer. You can specify the " +
-                "computer's instance id (e.g. 123), computer id (e.g #123) or label (e.g. \"@My Computer\")."
-        )
+        root.register( new SubCommandBase( "dump", UserLevel.OWNER_OP )
         {
             @Override
             public void execute( @Nonnull CommandContext context, @Nonnull List<String> arguments ) throws CommandException
@@ -149,11 +141,7 @@ public final class CommandComputerCraft extends CommandDelegate
             }
         } );
 
-        root.register( new SubCommandBase(
-            "shutdown", "[ids...]", "Shutdown computers remotely.", UserLevel.OWNER_OP,
-            "Shutdown the listed computers or all if none are specified. You can specify the computer's instance id " +
-                "(e.g. 123), computer id (e.g #123) or label (e.g. \"@My Computer\")."
-        )
+        root.register( new SubCommandBase( "shutdown", UserLevel.OWNER_OP )
         {
             @Override
             public void execute( @Nonnull CommandContext context, @Nonnull List<String> arguments ) throws CommandException
@@ -165,7 +153,7 @@ public final class CommandComputerCraft extends CommandDelegate
                         if( computer.isOn() ) shutdown++;
                         computer.shutdown();
                     }
-                    context.getSender().sendMessage( text( "Shutdown " + shutdown + " / " + computers.size() + " computers" ) );
+                    context.getSender().sendMessage( translate( "commands.computercraft.shutdown.done", shutdown, computers.size() ) );
                 } );
             }
 
@@ -179,11 +167,7 @@ public final class CommandComputerCraft extends CommandDelegate
             }
         } );
 
-        root.register( new SubCommandBase(
-            "turn-on", "ids...", "Turn computers on remotely.", UserLevel.OWNER_OP,
-            "Turn on the listed computers. You can specify the computer's instance id (e.g. 123), computer id (e.g #123) " +
-                "or label (e.g. \"@My Computer\")."
-        )
+        root.register( new SubCommandBase( "turn-on", UserLevel.OWNER_OP )
         {
             @Override
             public void execute( @Nonnull CommandContext context, @Nonnull List<String> arguments ) throws CommandException
@@ -195,7 +179,7 @@ public final class CommandComputerCraft extends CommandDelegate
                         if( !computer.isOn() ) on++;
                         computer.turnOn();
                     }
-                    context.getSender().sendMessage( text( "Turned on " + on + " / " + computers.size() + " computers" ) );
+                    context.getSender().sendMessage( translate( "commands.computercraft.turn_on.done", on, computers.size() ) );
                 } );
             }
 
@@ -209,11 +193,7 @@ public final class CommandComputerCraft extends CommandDelegate
             }
         } );
 
-        root.register( new SubCommandBase(
-            "tp", "<id>", "Teleport to a specific computer.", UserLevel.OP,
-            "Teleport to the location of a computer. You can either specify the computer's instance " +
-                "id (e.g. 123) or computer id (e.g #123)."
-        )
+        root.register( new SubCommandBase( "tp", UserLevel.OP )
         {
             @Override
             public void execute( @Nonnull CommandContext context, @Nonnull List<String> arguments ) throws CommandException
@@ -224,10 +204,10 @@ public final class CommandComputerCraft extends CommandDelegate
                 World world = computer.getWorld();
                 BlockPos pos = computer.getPosition();
 
-                if( world == null || pos == null ) throw new CommandException( "Cannot locate computer in world" );
+                if( world == null || pos == null ) throw new CommandException( "commands.computercraft.tp.not_there" );
 
                 ICommandSender sender = context.getSender();
-                if( !(sender instanceof Entity) ) throw new CommandException( "Sender is not an entity" );
+                if( !(sender instanceof Entity) ) throw new CommandException( "commands.computercraft.tp.not_entity" );
 
                 if( sender instanceof EntityPlayerMP )
                 {
@@ -264,11 +244,7 @@ public final class CommandComputerCraft extends CommandDelegate
             }
         } );
 
-        root.register( new SubCommandBase(
-            "view", "<id>", "View the terminal of a computer.", UserLevel.OP,
-            "Open the terminal of a computer, allowing remote control of a computer. This does not provide access to " +
-                "turtle's inventories. You can either specify the computer's instance id (e.g. 123) or computer id (e.g #123)."
-        )
+        root.register( new SubCommandBase( "view", UserLevel.OP )
         {
             @Override
             public void execute( @Nonnull CommandContext context, @Nonnull List<String> arguments ) throws CommandException
@@ -278,7 +254,7 @@ public final class CommandComputerCraft extends CommandDelegate
                 ICommandSender sender = context.getSender();
                 if( !(sender instanceof EntityPlayerMP) )
                 {
-                    throw new CommandException( "Cannot open terminal for non-player" );
+                    throw new CommandException( "commands.computercraft.view.not_player" );
                 }
 
                 ServerComputer computer = ComputerSelector.getComputer( arguments.get( 0 ) );
@@ -295,15 +271,7 @@ public final class CommandComputerCraft extends CommandDelegate
             }
         } );
 
-        CommandRoot track = new CommandRoot( "track", "Track execution times for computers.",
-            "Track how long computers execute for, as well as how many events they handle. This presents information in " +
-                "a similar way to /forge track and can be useful for diagnosing lag." );
-        root.register( track );
-
-        track.register( new SubCommandBase(
-            "start", "Start tracking all computers", UserLevel.OWNER_OP,
-            "Start tracking all computers' execution times and event counts. This will discard the results of previous runs."
-        )
+        root.register( new CommandRoot( "track" ).register( new SubCommandBase( "start", UserLevel.OWNER_OP )
         {
             @Override
             public void execute( @Nonnull CommandContext context, @Nonnull List<String> arguments )
@@ -312,31 +280,20 @@ public final class CommandComputerCraft extends CommandDelegate
 
                 String stopCommand = "/" + context.parent().getFullPath() + " stop";
                 context.getSender().sendMessage( list(
-                    text( "Run " ),
-                    link( text( stopCommand ), stopCommand, "Click to stop tracking" ),
-                    text( " to stop tracking and view the results" )
+                    translate( "commands.computercraft.track.start.stop",
+                        link( text( stopCommand ), stopCommand, translate( "commands.computercraft.track.stop.action" ) ) )
                 ) );
             }
-        } );
-
-        track.register( new SubCommandBase(
-            "stop", "Stop tracking all computers", UserLevel.OWNER_OP,
-            "Stop tracking all computers' events and execution times"
-        )
+        } ).register( new SubCommandBase( "stop", UserLevel.OWNER_OP )
         {
             @Override
             public void execute( @Nonnull CommandContext context, @Nonnull List<String> arguments ) throws CommandException
             {
                 TrackingContext timings = getTimingContext( context );
-                if( !timings.stop() ) throw new CommandException( "Tracking not enabled" );
+                if( !timings.stop() ) throw new CommandException( "commands.computercraft.track.stop.not_enabled" );
                 displayTimings( context, timings.getImmutableTimings(), TrackingField.AVERAGE_TIME );
             }
-        } );
-
-        track.register( new SubCommandBase(
-            "dump", "[kind]", "Dump the latest track results", UserLevel.OWNER_OP,
-            "Dump the latest results of computer tracking."
-        )
+        } ).register( new SubCommandBase( "dump", UserLevel.OWNER_OP )
         {
             @Override
             public void execute( @Nonnull CommandContext context, @Nonnull List<String> arguments ) throws CommandException
@@ -345,7 +302,10 @@ public final class CommandComputerCraft extends CommandDelegate
                 if( arguments.size() >= 1 )
                 {
                     field = TrackingField.fields().get( arguments.get( 0 ) );
-                    if( field == null ) throw new CommandException( "Unknown field '" + arguments.get( 0 ) + "'" );
+                    if( field == null )
+                    {
+                        throw new CommandException( "commands.computercraft.track.dump.no_field", arguments.get( 0 ) );
+                    }
                 }
 
                 displayTimings( context, getTimingContext( context ).getImmutableTimings(), field );
@@ -373,27 +333,19 @@ public final class CommandComputerCraft extends CommandDelegate
                     return super.getCompletion( context, arguments );
                 }
             }
-        } );
+        } ) );
 
-        root.register( new SubCommandBase(
-            "reload", "Reload the ComputerCraft config file", UserLevel.OWNER_OP,
-            "Reload the ComputerCraft config file"
-        )
+        root.register( new SubCommandBase( "reload", UserLevel.OWNER_OP )
         {
             @Override
             public void execute( @Nonnull CommandContext context, @Nonnull List<String> arguments )
             {
                 Config.reload();
-                context.getSender().sendMessage( new TextComponentString( "Reloaded config" ) );
+                context.getSender().sendMessage( translate( "commands.computercraft.reload.done" ) );
             }
         } );
 
-        root.register( new SubCommandBase(
-            "queue", "<id> [args...]", "Send a computer_command event to a command computer", UserLevel.ANYONE,
-            "Send a computer_command event to a command computer, passing through the additional arguments. " +
-                "This is mostly designed for map makers, acting as a more computer-friendly version of /trigger. Any " +
-                "player can run the command, which would most likely be done through a text component's click event."
-        )
+        root.register( new SubCommandBase( "queue", UserLevel.ANYONE )
         {
             @Override
             public void execute( @Nonnull CommandContext context, @Nonnull List<String> arguments ) throws CommandException
@@ -413,7 +365,7 @@ public final class CommandComputerCraft extends CommandDelegate
 
                 if( !found )
                 {
-                    throw new CommandException( "Could not find any command computers matching " + selector );
+                    throw new CommandException( "commands.computercraft.argument.no_matching", selector );
                 }
             }
         } );
@@ -435,7 +387,7 @@ public final class CommandComputerCraft extends CommandDelegate
             out.appendSibling( link(
                 text( Integer.toString( serverComputer.getInstanceID() ) ),
                 "/computercraft dump " + serverComputer.getInstanceID(),
-                "View more info about this computer"
+                translate( "commands.computercraft.dump.action" )
             ) );
         }
 
@@ -450,13 +402,13 @@ public final class CommandComputerCraft extends CommandDelegate
                 .appendSibling( link(
                     text( "\u261b" ),
                     "/computercraft tp " + serverComputer.getInstanceID(),
-                    "Teleport to this computer"
+                    translate( "commands.computercraft.tp.action" )
                 ) )
                 .appendText( " " )
                 .appendSibling( link(
                     text( "\u20e2" ),
                     "/computercraft view " + serverComputer.getInstanceID(),
-                    "View this computer"
+                    translate( "commands.computercraft.view.action" )
                 ) );
         }
 
@@ -470,7 +422,7 @@ public final class CommandComputerCraft extends CommandDelegate
             return link(
                 position( computer.getPosition() ),
                 "/computercraft tp " + computer.getInstanceID(),
-                "Teleport to this computer"
+                translate( "commands.computercraft.tp.action" )
             );
         }
         else
@@ -494,7 +446,7 @@ public final class CommandComputerCraft extends CommandDelegate
 
     private static void displayTimings( CommandContext context, List<ComputerTracker> timings, TrackingField field ) throws CommandException
     {
-        if( timings.isEmpty() ) throw new CommandException( "No timings available" );
+        if( timings.isEmpty() ) throw new CommandException( "commands.computercraft.track.dump.no_timings" );
 
         Map<Computer, ServerComputer> lookup = new HashMap<>();
         int maxId = 0, maxInstance = 0;
@@ -512,9 +464,18 @@ public final class CommandComputerCraft extends CommandDelegate
             || field == TrackingField.AVERAGE_TIME || field == TrackingField.MAX_TIME;
 
 
-        TableBuilder table = defaultLayout
-            ? new TableBuilder( TRACK_ID, "Computer", "Tasks", "Total", "Average", "Maximum" )
-            : new TableBuilder( TRACK_ID, "Computer", field.displayName() );
+        TableBuilder table = defaultLayout ? new TableBuilder(
+            TRACK_ID,
+            translate( "commands.computercraft.track.dump.computer" ),
+            translate( TrackingField.TASKS.translationKey() ),
+            translate( TrackingField.TOTAL_TIME.translationKey() ),
+            translate( TrackingField.AVERAGE_TIME.translationKey() ),
+            translate( TrackingField.MAX_TIME.translationKey() )
+        ) : new TableBuilder(
+            TRACK_ID,
+            translate( "commands.computercraft.track.dump.computer" ),
+            translate( field.translationKey() )
+        );
 
         for( ComputerTracker entry : timings )
         {
@@ -564,7 +525,7 @@ public final class CommandComputerCraft extends CommandDelegate
 
         if( !failed.isEmpty() )
         {
-            throw new CommandException( "Could not find computers matching " + String.join( ", ", failed ) );
+            throw new CommandException( "commands.computercraft.argument.no_matching", String.join( ", ", failed ) );
         }
     }
 }

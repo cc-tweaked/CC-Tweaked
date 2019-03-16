@@ -16,11 +16,11 @@ import javax.annotation.Nonnull;
 import java.util.Collections;
 import java.util.List;
 
-public class SubCommandHelp implements ISubCommand
+class SubCommandHelp implements ISubCommand
 {
     private final CommandRoot branchCommand;
 
-    public SubCommandHelp( CommandRoot branchCommand )
+    SubCommandHelp( CommandRoot branchCommand )
     {
         this.branchCommand = branchCommand;
     }
@@ -34,23 +34,9 @@ public class SubCommandHelp implements ISubCommand
 
     @Nonnull
     @Override
-    public String getUsage( CommandContext context )
+    public String getFullName()
     {
-        return "[command]";
-    }
-
-    @Nonnull
-    @Override
-    public String getSynopsis()
-    {
-        return "Provide help for a specific command";
-    }
-
-    @Nonnull
-    @Override
-    public String getDescription()
-    {
-        return "";
+        return "computercraft.help";
     }
 
     @Override
@@ -73,12 +59,12 @@ public class SubCommandHelp implements ISubCommand
             }
             else
             {
-                throw new CommandException( Strings.join( arguments.subList( 0, i ), " " ) + " has no sub-commands" );
+                throw new CommandException( "commands.computercraft.help.no_children", Strings.join( arguments.subList( 0, i ), " " ) );
             }
 
             if( command == null )
             {
-                throw new CommandException( "No such command " + Strings.join( arguments.subList( 0, i + 1 ), "  " ) );
+                throw new CommandException( "commands.computercraft.help.no_command", Strings.join( arguments.subList( 0, i + 1 ), "  " ) );
             }
         }
 

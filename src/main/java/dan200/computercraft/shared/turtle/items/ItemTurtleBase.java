@@ -147,29 +147,29 @@ public abstract class ItemTurtleBase extends ItemComputerBase implements ITurtle
         ITurtleUpgrade right = getUpgrade( stack, TurtleSide.Right );
         if( left != null && right != null )
         {
-            return StringUtil.translateToLocalFormatted(
+            return StringUtil.translateFormatted(
                 baseString + ".upgraded_twice.name",
-                StringUtil.translateToLocal( right.getUnlocalisedAdjective() ),
-                StringUtil.translateToLocal( left.getUnlocalisedAdjective() )
+                StringUtil.translate( right.getUnlocalisedAdjective() ),
+                StringUtil.translate( left.getUnlocalisedAdjective() )
             );
         }
         else if( left != null )
         {
-            return StringUtil.translateToLocalFormatted(
+            return StringUtil.translateFormatted(
                 baseString + ".upgraded.name",
-                StringUtil.translateToLocal( left.getUnlocalisedAdjective() )
+                StringUtil.translate( left.getUnlocalisedAdjective() )
             );
         }
         else if( right != null )
         {
-            return StringUtil.translateToLocalFormatted(
+            return StringUtil.translateFormatted(
                 baseString + ".upgraded.name",
-                StringUtil.translateToLocal( right.getUnlocalisedAdjective() )
+                StringUtil.translate( right.getUnlocalisedAdjective() )
             );
         }
         else
         {
-            return StringUtil.translateToLocal( baseString + ".name" );
+            return StringUtil.translate( baseString + ".name" );
         }
     }
 

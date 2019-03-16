@@ -14,6 +14,7 @@ import org.apache.commons.lang3.StringUtils;
 import javax.annotation.Nullable;
 
 import static dan200.computercraft.shared.command.text.ChatHelpers.coloured;
+import static dan200.computercraft.shared.command.text.ChatHelpers.translate;
 
 public interface TableFormatter
 {
@@ -111,7 +112,7 @@ public interface TableFormatter
 
         if( table.getAdditional() > 0 )
         {
-            writeLine( rowId++, coloured( table.getAdditional() + " additional rows...", TextFormatting.AQUA ) );
+            writeLine( rowId++, coloured( translate( "commands.computercraft.generic.additional_rows", table.getAdditional() ), TextFormatting.AQUA ) );
         }
 
         return rowId - table.getId();

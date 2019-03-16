@@ -6,7 +6,6 @@
 
 package dan200.computercraft.shared.computer.blocks;
 
-import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.computer.apis.CommandAPI;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import io.netty.buffer.ByteBuf;

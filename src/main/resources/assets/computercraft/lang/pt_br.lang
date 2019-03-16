@@ -39,10 +39,10 @@ upgrade.minecraft:crafting_table.adjective=Artesã
 upgrade.computercraft:advanced_modem.adjective=Ender
 upgrade.computercraft:speaker.adjective=(Alto-Falante)
 
-gui.computercraft:wired_modem.peripheral_connected=Periférico "%s" conectado à rede
-gui.computercraft:wired_modem.peripheral_disconnected=Periférico "%s" desconectado da rede
+chat.computercraft.wired_modem.peripheral_connected=Periférico "%s" conectado à rede
+chat.computercraft.wired_modem.peripheral_disconnected=Periférico "%s" desconectado da rede
 
-gui.computercraft:tooltip.copy=Copiar para a área de transferência
+gui.computercraft.tooltip.copy=Copiar para a área de transferência
 
 gui.computercraft:config.computer_space_limit=Limite de espaço dos Computadores (bytes)
 gui.computercraft:config.floppy_space_limit=Limite de espaço dos Disquetes (bytes)

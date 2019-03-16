@@ -7,6 +7,7 @@
 package dan200.computercraft.shared.command.framework;
 
 import com.google.common.collect.Lists;
+import dan200.computercraft.shared.util.StringUtil;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
@@ -76,7 +77,7 @@ public final class CommandContext
 
     public String getFullUsage()
     {
-        return "/" + getFullPath() + " " + path.get( path.size() - 1 ).getUsage( this );
+        return "/" + getFullPath() + " " + StringUtil.translate( path.get( path.size() - 1 ).getUsage( this ) );
     }
 
     public List<ISubCommand> getPath()

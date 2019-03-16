@@ -66,7 +66,7 @@ public class CommandDelegate implements ICommand
         catch( Throwable e )
         {
             ComputerCraft.log.error( "Unhandled exception in command", e );
-            throw new CommandException( "Unhandled exception: " + e.toString() );
+            throw new CommandException( "commands.computercraft.generic.exception", e.toString() );
         }
     }
 

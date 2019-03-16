@@ -12,6 +12,7 @@ import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.api.media.IMedia;
 import dan200.computercraft.shared.common.IColouredItem;
 import dan200.computercraft.shared.util.Colour;
+import dan200.computercraft.shared.util.StringUtil;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
@@ -84,10 +85,7 @@ public class ItemDiskLegacy extends Item
         if( flag.isAdvanced() )
         {
             int id = getDiskID( stack );
-            if( id >= 0 )
-            {
-                list.add( "(Disk ID: " + id + ")" );
-            }
+            if( id >= 0 ) list.add( StringUtil.translateFormatted( "gui.computercraft.tooltip.disk_id", id ) );
         }
     }
 
