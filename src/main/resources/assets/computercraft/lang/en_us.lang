@@ -60,7 +60,7 @@ commands.computercraft.dump.action=View more info about this computer
 commands.computercraft.shutdown.synopsis=Shutdown computers remotely.
 commands.computercraft.shutdown.desc=Shutdown the listed computers or all if none are specified. You can specify the computer's instance id (e.g. 123), computer id (e.g #123) or label (e.g. "@My Computer").
 commands.computercraft.shutdown.usage=[ids...]
-commands.computercraft.turn_on.done=Shutdown %s/%s computers
+commands.computercraft.shutdown.done=Shutdown %s/%s computers
 
 commands.computercraft.turn_on.synopsis=Turn computers on remotely.
 commands.computercraft.turn_on.desc=Turn on the listed computers. You can specify the computer's instance id (e.g. 123), computer id (e.g #123) or label (e.g. "@My Computer").
