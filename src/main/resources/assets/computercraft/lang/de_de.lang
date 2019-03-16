@@ -43,25 +43,136 @@ chat.computercraft.wired_modem.peripheral_connected=Peripheriegerät "%s" mit de
 chat.computercraft.wired_modem.peripheral_disconnected=Peripheriegerät "%s" vom Netzwerk getrennt
 
 # Command descriptions, usage and any additional messages.
+commands.computercraft.synopsis=Verschiedene Befehle um Computer zu kontrollieren.
+commands.computercraft.desc=Der /computercraft Befehl enthält verschiedene Werkzeuge um Computer zu debuggen, kontrollieren oder mit ihnen zu interagieren.
+
+commands.computercraft.help.synopsis=Zeigt die Hilfe für den angegebenen Befehl
+commands.computercraft.help.desc=
+commands.computercraft.help.usage=[command]
+commands.computercraft.help.no_children=%s hat keine Unterbefehle
+commands.computercraft.help.no_command=Unbekannter Befehl '%s'
+
+commands.computercraft.dump.synopsis=Zeigt den Status eines Computers.
+commands.computercraft.dump.desc=Zeigt den Status aller Computer oder genauere Informationen über einen angegebenen Computer. Du kannst den Computer entweder über seine Instanz ID (z.B. 123), seine Computer ID (z.B. #123) der seinen Namen (z.B. "@Mein Computer") angeben.
+commands.computercraft.dump.usage=[ID]
+commands.computercraft.dump.action=Zeigt mehr Informationen über einen Computer
+
+commands.computercraft.shutdown.synopsis=Fährt den Computer aus der Ferne herunter.
+commands.computercraft.shutdown.desc=Fährt die angegebenen Computer herunter. Falls keine Computer angeben sind, werden alle heruntergefahren. Du kannst den Computer entweder über seine Instanz ID (z.B. 123), seine Computer ID (z.B. #123) der seinen Namen (z.B. "@Mein Computer") angeben. 
+commands.computercraft.shutdown.usage=[IDs...]
+commands.computercraft.shutdown.done=Fährt die Computer %s/%s herunter
+
+commands.computercraft.turn_on.synopsis=Fährt einen Computer aus der Ferne hoch.
+commands.computercraft.turn_on.desc=Fährt die angegebenen Computer hoch. Du kannst den Computer entweder über seine Instanz ID (z.B. 123), seine Computer ID (z.B. #123) der seinen Namen (z.B. "@Mein Computer") angeben.
+commands.computercraft.turn_on.usage=[IDs...]
+commands.computercraft.turn_on.done=Fährt die Computer %s/%s hoch
+
+commands.computercraft.tp.synopsis=Teleportiert dich zum angegebenen Computer.
+commands.computercraft.tp.desc=Teleportiert dich zum Standort eines Computers. Du kannst den Computer entweder über seine Instanz ID (z.B. 123), seine Computer ID (z.B. #123) der seinen Namen (z.B. "@Mein Computer") angeben.
+commands.computercraft.tp.usage=<ID>
+commands.computercraft.tp.action=Teleportiert dich zum Computer
+commands.computercraft.tp.not_entity=Konnte Terminal für Nicht-Spieler nicht öffnen
+commands.computercraft.tp.not_there=Konnte Computer in der Welt nicht finden
+
+commands.computercraft.view.synopsis=Zeigt das Terminal eines Computers.
+commands.computercraft.view.desc=Zeigt das Terminal eines Computers. Dies ermöglicht, den Computer aus der Ferne zu steuern. Ein Zugriff auf das Inventar eines Turtles ist dadurch allerdings nicht möglich. Du kannst den Computer entweder über seine Instanz ID (z.B. 123), seine Computer ID (z.B. #123) der seinen Namen (z.B. "@Mein Computer") angeben.
+commands.computercraft.view.usage=<ID>
+commands.computercraft.view.action=Zeigt den Computer
+commands.computercraft.view.not_player=Konnte Terminal für Nicht-Spieler nicht öffnen
+
+commands.computercraft.track.synopsis=Zeichnet die Laufzeiten von computern auf.
+commands.computercraft.track.desc=Zeichnet die Laufzeiten von Computern und wie viele Events ausgelöst werden auf. Die Ausgabe der Informationen ist ähnlich zu /forge track, was beim aufspüren von Lags sehr hilfreich sein kann.
+
+commands.computercraft.track.start.synopsis=Startet die Aufzeichnung von Computern
+commands.computercraft.track.start.desc=Startet die Aufzeichnung der Laufzeiten und Anzahl der Events aller Computer. Dadurch werden die Ergebnisse der letzten Male verworfen.
+commands.computercraft.track.start.usage=
+commands.computercraft.track.start.stop=Führe %s aus um die Aufzeichnung zu stoppen und die Ergebnisse anzusehen
+
+commands.computercraft.track.stop.synopsis=Stoppt die Aufzeichnung aller Computer
+commands.computercraft.track.stop.desc=Stopt die Aufzeichnung aller Computer Events und Laufzeiten
+commands.computercraft.track.stop.usage=
+commands.computercraft.track.stop.action=Klicke um die Aufzeichnung zu stoppen
+commands.computercraft.track.stop.not_enabled=Momentan werden keine Computer aufgezeichnet
+
+commands.computercraft.track.dump.synopsis=Gibt die aktuellen Ergebnisse der Aufzeichnung aus
+commands.computercraft.track.dump.desc=Gibt die aktuellen Ergebnisse der Aufzeichnung aus.
+commands.computercraft.track.dump.usage=[Art]
+commands.computercraft.track.dump.no_timings=Keine Zeitangaben verfügbar
+commands.computercraft.track.dump.no_field=Unbekanntes Feld '%s'
+commands.computercraft.track.dump.computer=Computer
+
+commands.computercraft.reload.synopsis=List die Konfigurationsdatei von ComputerCraft neu ein
+commands.computercraft.reload.desc=List die Konfigurationsdatei von ComputerCraft neu ein
+commands.computercraft.reload.usage=
+commands.computercraft.reload.done=Die Konfigurationsdatei wurde erfolgreich neu eingelesen
+
+commands.computercraft.queue.synopsis=Sendet ein computer_command Event an einen Befehlscomputer
+commands.computercraft.queue.desc=Sendet ein computer_command Event zusammen mit optionalen Argumenten an einen Befehlscomputer. Dieser Befehl wurde als eine Computerfreundliche Version von /trigger für Mapdesigner designed. Jeder Spieler kann diesen Befehl ausführen, weshalb er sich perfekt für ein Klickevent von z.B. Schildern oder Büchern eignet.
+commands.computercraft.queue.usage=<ID> [Argumente...]
+
+commands.computercraft.generic.no_position=<Keine Position>
+commands.computercraft.generic.position=%s, %s, %s
+commands.computercraft.generic.yes=J
+commands.computercraft.generic.no=N
+commands.computercraft.generic.exception=Unbehandelte Ausnahme (%s)
+commands.computercraft.generic.additional_rows=%d zusätzliche Zeilen…
+
+commands.computercraft.argument.no_matching=kein Computer passt auf '%s'
+commands.computercraft.argument.many_matching=Mehre Computer passen auf '%s' (Instanzen %s)
+commands.computercraft.argument.not_number='%s' ist keine Zahl
 
 # Names for the various tracking fields.
+tracking_field.computercraft.tasks.name=Aufgaben
+tracking_field.computercraft.total.name=Gesamtzeit
+tracking_field.computercraft.average.name=Durchschnittliche Zeit
+tracking_field.computercraft.max.name=Maximale Zeit
+
+tracking_field.computercraft.server_count.name=Anzahl der Server-Tasks
+tracking_field.computercraft.server_time.name=Server-Task-Zeit
+
+tracking_field.computercraft.peripheral.name=Peripheriegeräte Aufrufe
+tracking_field.computercraft.fs.name=Dateisystem Operationen
+tracking_field.computercraft.turtle.name=Turtle Operationen
+
+tracking_field.computercraft.http.name=HTTP-Requests
+tracking_field.computercraft.http_upload.name=HTTP Upload
+tracking_field.computercraft.http_download.name=HTTT Download
+
+tracking_field.computercraft.websocket_incoming.name=Websocket eingehend
+tracking_field.computercraft.websocket_outgoing.name=Websocket ausgehend
+
+tracking_field.computercraft.coroutines_created.name=Coroutines erstellt
+tracking_field.computercraft.coroutines_dead.name=Coroutines gelöscht
 
 # Misc tooltips
+gui.computercraft.tooltip.copy=In die Zwischenablage kopieren
+gui.computercraft.tooltip.computer_id=(Computer ID: %s)
+gui.computercraft.tooltip.disk_id=(Disketten ID: %s)
 
 # Config options
-gui.computercraft:config.computer_space_limit=Speicherplatz von Computern (bytes)
-gui.computercraft:config.floppy_space_limit=Speicherplatz von Disketten (bytes)
+gui.computercraft:config.computer_space_limit=Speicherplatz von Computern (Bytes)
+gui.computercraft:config.floppy_space_limit=Speicherplatz von Disketten (Bytes)
 gui.computercraft:config.maximum_open_files=Maximalanzahl an gleichzeitig offenen Dateien je Computer
 gui.computercraft:config.disable_lua51_features=Lua 5.1-Funktionen deaktivieren
 gui.computercraft:config.default_computer_settings=Computer-Standardeinstellungen
 gui.computercraft:config.debug_enabled=Debug-Library aktivieren
-gui.computercraft:config.log_computer_errors=Peripheriefehler loggen
+gui.computercraft:config.computer_threads=Computer Threads
+gui.computercraft:config.log_computer_errors=Computerfehler loggen
 
+gui.computercraft:config.http=HTTP
 gui.computercraft:config.http.enabled=HTTP-API aktivieren
-gui.computercraft:config.http.websocket_enabled=HTTP-Websockets aktivieren
+gui.computercraft:config.http.websocket_enabled=Websockets aktivieren
 gui.computercraft:config.http.whitelist=HTTP-Whitelist
 gui.computercraft:config.http.blacklist=HTTP-Blacklist
 
+gui.computercraft:config.http.timeout=Zeitüberschreitung
+gui.computercraft:config.http.max_requests=Maximale Anzahl gleichzeitiger Anfragen
+gui.computercraft:config.http.max_download=Maximale Antwortgröße
+gui.computercraft:config.http.max_upload=Maximale Anfragegröße
+gui.computercraft:config.http.max_websockets=Maximale Anzahl gleichzeitiger Websockets
+gui.computercraft:config.http.max_websocket_message=Maximale Größe der Websocket-Nachricht
+
+gui.computercraft:config.peripheral=Peripheriegeräte
 gui.computercraft:config.peripheral.command_block_enabled=Befehlsblöcke als Peripheriegerät erlauben
 gui.computercraft:config.peripheral.modem_range=Modemreichweite (normal)
 gui.computercraft:config.peripheral.modem_high_altitude_range=Modemreichweite (in großer Höhe)
@@ -69,6 +180,7 @@ gui.computercraft:config.peripheral.modem_range_during_storm=Modemreichweite (be
 gui.computercraft:config.peripheral.modem_high_altitude_range_during_storm=Modemreichweite (in großer Höhe bei schlechtem Wetter)
 gui.computercraft:config.peripheral.max_notes_per_tick=Maximalanzahl an Noten, die ein Computer gleichzeitig spielen kann
 
+gui.computercraft:config.turtle=Turtles
 gui.computercraft:config.turtle.need_fuel=Treibstoffverbrauch aktivieren
 gui.computercraft:config.turtle.normal_fuel_limit=Treibstofflimit von Turtles
 gui.computercraft:config.turtle.advanced_fuel_limit=Treibstofflimit von Erweiterten Turtles
