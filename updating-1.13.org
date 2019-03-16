@@ -6,15 +6,15 @@
 ** TODO [#B] Turtle/pocket computer upgrades recipes and advancements
    Can we auto-generate these in a folder?
 
-** =/computercraft= command [0/4]
-*** TODO [#B] Client side commands
+** =/computercraft= command [3/4]
+*** DONE [#B] Client side commands
     We may need to PR into Forge
 
-*** TODO [#C] Main command documentation
+*** DONE [#C] Main command documentation
     It'd be nice to have a better documentation system. Our current "described literal node" implementation will never
     work without MC support.
 
-*** TODO [#B] Look into threading of the computer commands
+*** DONE [#B] Look into threading of the computer commands
     Are these run on the main thread? If so, we don't need to do any of that copying stuff.
 
 *** TODO [#C] Document our arguments + argument builders a little more
@@ -92,6 +92,9 @@
 ** TODO [#B] Handling of dyes
    Printers are currently broken.
 
+** TODO [#A] Block drops
+   I've totally broken this as part of 1.14
+
 * Major rethinks
 ** TODO Multi-peripheral
    It'd be really nice to have native support for Computronics's multi-peripheral system, though worth discussing how we
@@ -100,3 +103,6 @@
 ** TODO Capabilities
    =IPeripheral= and =IBundledRedstoneProvider= should ideally be capabilities too. Well, more likely, some
    =IPeripheralHandler= and =IBundledRedstoneHandler=.
+
+   *Update 2018-03-16:* So I had a play with this, and I'm really not sure how worth it it all is. I think I need to
+    establish how capabilities are meant to work under the new system first.

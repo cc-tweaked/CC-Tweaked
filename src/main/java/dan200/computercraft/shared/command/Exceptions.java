@@ -22,9 +22,9 @@ public class Exceptions
     static final SimpleCommandExceptionType NO_TIMINGS_EXCEPTION = translated( "commands.computercraft.track.dump.no_timings" );
 
     static final SimpleCommandExceptionType TP_NOT_THERE = translated( "commands.computercraft.tp.not_there" );
-    static final SimpleCommandExceptionType TP_NOT_PLAYER = translated( "commands.computercraft.tp.not_entity" );
+    static final SimpleCommandExceptionType TP_NOT_PLAYER = translated( "commands.computercraft.tp.not_player" );
 
-    public static final SimpleCommandExceptionType ARGUMENT_EXPECTED = translated( "command.computercraft.generic.argument_expected" );
+    public static final SimpleCommandExceptionType ARGUMENT_EXPECTED = translated( "argument.computercraft.argument_expected" );
 
     private static SimpleCommandExceptionType translated( String key )
     {

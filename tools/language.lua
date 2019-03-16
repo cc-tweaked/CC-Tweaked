@@ -28,7 +28,7 @@ local secondary = {
 
 local verbose = false
 
-local path = "src/main/resources/assets/computercraft/lang/%s.lang"
+local path = "src/main/resources/assets/computercraft/lang/%s.json"
 
 local args = { ... }
 for i = #args, 1, -1 do
@@ -44,10 +44,10 @@ end
 -- Read the contents of the primary language file
 local primary_contents, n = {}, 1
 for line in io.lines(path:format(primary)) do
-    local key = line:match("^([^=]+)=.*$")
+    local key = line:match('^%s*"([^"]+)":.*$')
     if key then
         primary_contents[n], n = key, n + 1
-    elseif line == "" or line:sub(1, 1) == "#" then
+    elseif line == "" or line == "{" or line == "}" then
         primary_contents[n], n = line, n + 1
     else
         io.stderr:write(("Unknown line %q in %s\n"):format(line, primary))
@@ -59,7 +59,7 @@ for _, language in ipairs(secondary) do
     local keys = {}
 
     for line in io.lines(path:format(language)) do
-        local key, value = line:match("^([^=]+)=(.*)$")
+        local key, value = line:match('^%s*"([^"]+)":%s*(.-),?$')
         if key then
             if keys[key] then
                 io.stderr:write(("Duplicate keys for %q in %q\n"):format(key, language))
@@ -67,29 +67,28 @@ for _, language in ipairs(secondary) do
             end
 
             keys[key] = value
-        elseif line ~= "" and line:sub(1, 1) ~= "#" then
+        elseif line ~= "" and line ~= "{" and line ~= "}" then
             io.stderr:write(("Unknown line %q in %s\n"):format(line, language))
             os.exit(1)
         end
     end
 
     local h = io.open(path:format(language), "wb")
-    local previous_blank = flase
+    h:write("{")
+    local has_blank, has_any = false, false
     for _, line in ipairs(primary_contents) do
-        if line == "" then
-            if not previous_blank then
-                previous_blank = true
-                h:write("\n")
-            end
-        elseif line:sub(1, 1) == "#" then
-            h:write(line .. "\n")
-            previous_blank = false
+        if line == "{" or line == "}" then
+            -- Skip
+        elseif line == "" then
+            has_blank = true
         else
             local translated = keys[line]
             if translated then
-                h:write(("%s=%s\n"):format(line, translated))
+                if has_any then h:write(",") else has_any = true end
+                if has_blank then h:write("\n") has_blank = false end
+
+                h:write(("\n    %q: %s"):format(line, translated))
                 keys[line] = nil
-                previous_blank = false
             elseif verbose then
                 io.stderr:write(("Missing translation %q for %q\n"):format(line, language))
             end
@@ -99,20 +98,21 @@ for _, language in ipairs(secondary) do
     if next(keys) ~= nil then
         local extra = {}
         for k, v in pairs(keys) do
-            extra[#extra + 1] = ("%s=%s\n"):format(k, v)
+            extra[#extra + 1] = ("\n    %q: %s"):format(k, v)
         end
         table.sort(extra)
 
         io.stderr:write(("%d additional unknown translation keys or %q\n"):format(#extra, language))
 
-        if not previous_blank then
-            h:write("\n")
-        end
-        h:write("#Unknown translations\n")
+        has_blank = true
+
         for _, line in ipairs(extra) do
+            if has_any then h:write(",") else has_any = true end
+            if has_blank then h:write("\n") has_blank = false end
             h:write(line)
         end
     end
 
+    h:write("\n}\n")
     h:close()
 end

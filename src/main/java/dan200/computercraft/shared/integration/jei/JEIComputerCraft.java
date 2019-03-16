@@ -13,63 +13,65 @@ import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.shared.PocketUpgrades;
 import dan200.computercraft.shared.TurtleUpgrades;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
-import dan200.computercraft.shared.media.items.ItemDiskLegacy;
+import dan200.computercraft.shared.media.items.ItemDisk;
 import dan200.computercraft.shared.pocket.items.ItemPocketComputer;
 import dan200.computercraft.shared.pocket.items.PocketComputerItemFactory;
 import dan200.computercraft.shared.turtle.items.ITurtleItem;
 import dan200.computercraft.shared.turtle.items.TurtleItemFactory;
-import mezz.jei.api.*;
-import mezz.jei.api.ISubtypeRegistry.ISubtypeInterpreter;
-import mezz.jei.api.ingredients.IIngredientRegistry;
-import mezz.jei.api.ingredients.VanillaTypes;
-import mezz.jei.api.recipe.IRecipeCategory;
-import mezz.jei.api.recipe.IRecipeWrapper;
-import mezz.jei.api.recipe.VanillaRecipeCategoryUid;
-import mezz.jei.api.recipe.wrapper.ICraftingRecipeWrapper;
+import mezz.jei.api.IModPlugin;
+import mezz.jei.api.JeiPlugin;
+import mezz.jei.api.constants.VanillaRecipeCategoryUid;
+import mezz.jei.api.constants.VanillaTypes;
+import mezz.jei.api.ingredients.subtypes.ISubtypeInterpreter;
+import mezz.jei.api.recipe.IRecipeManager;
+import mezz.jei.api.recipe.category.IRecipeCategory;
+import mezz.jei.api.recipe.category.extensions.vanilla.crafting.ICraftingCategoryExtension;
+import mezz.jei.api.registration.IAdvancedRegistration;
+import mezz.jei.api.registration.ISubtypeRegistration;
+import mezz.jei.api.runtime.IJeiRuntime;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.oredict.OreDictionary;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static dan200.computercraft.shared.integration.jei.RecipeResolver.MAIN_FAMILIES;
 
-@JEIPlugin
+@JeiPlugin
 public class JEIComputerCraft implements IModPlugin
 {
-    private IIngredientRegistry ingredients;
-
+    @Nonnull
     @Override
-    public void registerItemSubtypes( ISubtypeRegistry subtypeRegistry )
+    public ResourceLocation getPluginUid()
     {
-        subtypeRegistry.registerSubtypeInterpreter( ComputerCraft.Items.turtle, turtleSubtype );
-        subtypeRegistry.registerSubtypeInterpreter( ComputerCraft.Items.turtleExpanded, turtleSubtype );
-        subtypeRegistry.registerSubtypeInterpreter( ComputerCraft.Items.turtleAdvanced, turtleSubtype );
-
-        subtypeRegistry.registerSubtypeInterpreter( ComputerCraft.Items.pocketComputer, pocketSubtype );
-
-        subtypeRegistry.registerSubtypeInterpreter( ComputerCraft.Items.disk, diskSubtype );
-        subtypeRegistry.registerSubtypeInterpreter( ComputerCraft.Items.diskExpanded, diskSubtype );
+        return new ResourceLocation( ComputerCraft.MOD_ID, "jei" );
     }
 
     @Override
-    public void register( IModRegistry registry )
+    public void registerItemSubtypes( ISubtypeRegistration subtypeRegistry )
     {
-        ingredients = registry.getIngredientRegistry();
+        subtypeRegistry.registerSubtypeInterpreter( ComputerCraft.Items.turtleNormal, turtleSubtype );
+        subtypeRegistry.registerSubtypeInterpreter( ComputerCraft.Items.turtleAdvanced, turtleSubtype );
 
-        // Hide treasure disks from the ingredient list
-        registry.getJeiHelpers().getIngredientBlacklist()
-            .addIngredientToBlacklist( new ItemStack( ComputerCraft.Items.treasureDisk, OreDictionary.WILDCARD_VALUE ) );
+        subtypeRegistry.registerSubtypeInterpreter( ComputerCraft.Items.pocketComputerNormal, pocketSubtype );
+        subtypeRegistry.registerSubtypeInterpreter( ComputerCraft.Items.pocketComputerAdvanced, pocketSubtype );
 
-        registry.addRecipeRegistryPlugin( new RecipeResolver() );
+        subtypeRegistry.registerSubtypeInterpreter( ComputerCraft.Items.disk, diskSubtype );
+    }
+
+    @Override
+    public void registerAdvanced( IAdvancedRegistration registry )
+    {
+        registry.addRecipeManagerPlugin( new RecipeResolver() );
     }
 
     @Override
     public void onRuntimeAvailable( IJeiRuntime runtime )
     {
-        IRecipeRegistry registry = runtime.getRecipeRegistry();
+        IRecipeManager registry = runtime.getRecipeManager();
 
         // Register all turtles/pocket computers (not just vanilla upgrades) as upgrades on JEI.
         List<ItemStack> upgradeItems = new ArrayList<>();
@@ -87,16 +89,21 @@ public class JEIComputerCraft implements IModPlugin
                 upgradeItems.add( PocketComputerItemFactory.create( -1, null, -1, family, upgrade ) );
             }
         }
-        ingredients.addIngredientsAtRuntime( VanillaTypes.ITEM, upgradeItems );
+
+        runtime.getIngredientManager().addIngredientsAtRuntime( VanillaTypes.ITEM, upgradeItems );
+
+        // Hide treasure disks
+        runtime.getIngredientManager().removeIngredientsAtRuntime( VanillaTypes.ITEM,
+            Collections.singletonList( new ItemStack( ComputerCraft.Items.treasureDisk ) ) );
 
         // Hide all upgrade recipes
-        IRecipeCategory<? extends IRecipeWrapper> category = (IRecipeCategory<? extends IRecipeWrapper>) registry.getRecipeCategory( VanillaRecipeCategoryUid.CRAFTING );
+        IRecipeCategory<?> category = (IRecipeCategory<?>) registry.getRecipeCategory( VanillaRecipeCategoryUid.CRAFTING );
         if( category != null )
         {
-            for( IRecipeWrapper wrapper : registry.getRecipeWrappers( category ) )
+            for( Object wrapper : registry.getRecipes( category ) )
             {
-                if( !(wrapper instanceof ICraftingRecipeWrapper) ) continue;
-                ResourceLocation id = ((ICraftingRecipeWrapper) wrapper).getRegistryName();
+                if( !(wrapper instanceof ICraftingCategoryExtension) ) continue;
+                ResourceLocation id = ((ICraftingCategoryExtension) wrapper).getRegistryName();
                 if( id != null && id.getNamespace().equals( ComputerCraft.MOD_ID )
                     && (id.getPath().startsWith( "generated/turtle_" ) || id.getPath().startsWith( "generated/pocket_" )) )
                 {
@@ -116,16 +123,12 @@ public class JEIComputerCraft implements IModPlugin
         ITurtleItem turtle = (ITurtleItem) item;
         StringBuilder name = new StringBuilder();
 
-        name.append( turtle.getFamily( stack ).toString() );
-
         // Add left and right upgrades to the identifier
         ITurtleUpgrade left = turtle.getUpgrade( stack, TurtleSide.Left );
-        name.append( '|' );
-        if( left != null ) name.append( left.getUpgradeID() );
-
         ITurtleUpgrade right = turtle.getUpgrade( stack, TurtleSide.Right );
-        name.append( '|' );
-        if( right != null ) name.append( '|' ).append( right.getUpgradeID() );
+        if( left != null ) name.append( left.getUpgradeId() );
+        if( left != null && right != null ) name.append( '|' );
+        if( right != null ) name.append( right.getUpgradeId() );
 
         return name.toString();
     };
@@ -137,14 +140,10 @@ public class JEIComputerCraft implements IModPlugin
         Item item = stack.getItem();
         if( !(item instanceof ItemPocketComputer) ) return "";
 
-        ItemPocketComputer pocket = (ItemPocketComputer) item;
         StringBuilder name = new StringBuilder();
 
-        name.append( pocket.getFamily( stack ).toString() );
-
         // Add the upgrade to the identifier
-        IPocketUpgrade upgrade = pocket.getUpgrade( stack );
-        name.append( '|' );
+        IPocketUpgrade upgrade = ItemPocketComputer.getUpgrade( stack );
         if( upgrade != null ) name.append( upgrade.getUpgradeID() );
 
         return name.toString();
@@ -155,9 +154,9 @@ public class JEIComputerCraft implements IModPlugin
      */
     private static final ISubtypeInterpreter diskSubtype = stack -> {
         Item item = stack.getItem();
-        if( !(item instanceof ItemDiskLegacy) ) return "";
+        if( !(item instanceof ItemDisk) ) return "";
 
-        ItemDiskLegacy disk = (ItemDiskLegacy) item;
+        ItemDisk disk = (ItemDisk) item;
 
         int colour = disk.getColour( stack );
         return colour == -1 ? "" : String.format( "%06x", colour );

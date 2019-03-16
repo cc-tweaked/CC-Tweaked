@@ -40,6 +40,7 @@ import static dan200.computercraft.shared.command.arguments.ComputerArgumentType
 import static dan200.computercraft.shared.command.arguments.ComputerArgumentType.oneComputer;
 import static dan200.computercraft.shared.command.arguments.ComputersArgumentType.*;
 import static dan200.computercraft.shared.command.arguments.TrackingFieldArgumentType.trackingField;
+import static dan200.computercraft.shared.command.builder.HelpingArgumentBuilder.choice;
 import static dan200.computercraft.shared.command.builder.CommandBuilder.args;
 import static dan200.computercraft.shared.command.builder.CommandBuilder.command;
 import static dan200.computercraft.shared.command.text.ChatHelpers.*;
@@ -59,7 +60,7 @@ public final class CommandComputerCraft
 
     public static void register( CommandDispatcher<CommandSource> dispatcher )
     {
-        dispatcher.register( literal( "computercraft" )
+        dispatcher.register( choice( "computercraft" )
             .then( literal( "dump" )
                 .requires( UserLevel.OWNER_OP )
                 .executes( context -> {
@@ -131,7 +132,7 @@ public final class CommandComputerCraft
 
             .then( command( "shutdown" )
                 .requires( UserLevel.OWNER_OP )
-                .argManyValue( "computers", manyComputers(), s -> new ArrayList<>( ComputerCraft.serverComputerRegistry.getComputers() ) )
+                .argManyValue( "computers", manyComputers(), s -> ComputerCraft.serverComputerRegistry.getComputers() )
                 .executes( ( context, computers ) -> {
                     int shutdown = 0;
                     for( ServerComputer computer : unwrap( context.getSource(), computers ) )
@@ -145,7 +146,7 @@ public final class CommandComputerCraft
 
             .then( command( "turn-on" )
                 .requires( UserLevel.OWNER_OP )
-                .argManyValue( "computers", manyComputers(), s -> new ArrayList<>( ComputerCraft.serverComputerRegistry.getComputers() ) )
+                .argManyValue( "computers", manyComputers(), s -> ComputerCraft.serverComputerRegistry.getComputers() )
                 .executes( ( context, computers ) -> {
                     int on = 0;
                     for( ServerComputer computer : unwrap( context.getSource(), computers ) )
@@ -214,7 +215,7 @@ public final class CommandComputerCraft
                     return 1;
                 } ) )
 
-            .then( literal( "track" )
+            .then( choice( "track" )
                 .then( command( "start" )
                     .requires( UserLevel.OWNER_OP )
                     .executes( context -> {

@@ -22,7 +22,7 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 import static dan200.computercraft.shared.command.Exceptions.ARGUMENT_EXPECTED;
-import static dan200.computercraft.shared.command.builder.DescribedArgumentBuilder.literal;
+import static dan200.computercraft.shared.command.builder.HelpingArgumentBuilder.literal;
 
 /**
  * An alternative way of building command nodes, so one does not have to nest
@@ -62,9 +62,9 @@ public class CommandBuilder<S> implements CommandNodeBuilder<S, Command<S>>
         return argMany( name, type, () -> empty );
     }
 
-    public <T> CommandNodeBuilder<S, ArgCommand<S, List<T>>> argManyValue( String name, ArgumentType<T> type, T value )
+    public <T> CommandNodeBuilder<S, ArgCommand<S, List<T>>> argManyValue( String name, ArgumentType<T> type, T defaultValue )
     {
-        return argManyValue( name, type, Collections.singletonList( value ) );
+        return argManyValue( name, type, Collections.singletonList( defaultValue ) );
     }
 
     public <T> CommandNodeBuilder<S, ArgCommand<S, List<T>>> argMany( String name, ArgumentType<T> type, Supplier<List<T>> empty )

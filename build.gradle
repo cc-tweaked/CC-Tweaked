@@ -6,14 +6,14 @@ buildscript {
     }
     dependencies {
         classpath 'com.google.code.gson:gson:2.8.1'
-        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '3.+', changing: true
+        classpath 'net.minecraftforge.gradle:ForgeGradle:3.0.114'
         classpath 'net.sf.proguard:proguard-gradle:6.1.0beta2'
         classpath 'org.ajoberstar.grgit:grgit-gradle:3.0.0'
     }
 }
 
 plugins {
-    // id 'com.matthewprenger.cursegradle' version '1.1.2'
+    id 'com.matthewprenger.cursegradle' version '1.2.0'
 }
 
 apply plugin: 'net.minecraftforge.gradle'
@@ -55,7 +55,7 @@ minecraft {
         }
     }
 
-    mappings channel: 'snapshot', version: '20190220-1.13.1'
+    mappings channel: 'snapshot', version: '20190315-1.13.2'
 
     accessTransformer file('src/main/resources/META-INF/accesstransformer.cfg')
 }
@@ -81,13 +81,13 @@ configurations {
 }
 
 dependencies {
-    minecraft "net.minecraftforge:forge:${mc_version}-25.0.59"
+    minecraft "net.minecraftforge:forge:${mc_version}-25.0.85"
 
-    // deobfProvided "mezz.jei:jei_1.12.2:4.15.0.269:api"
+    compileOnly "mezz.jei:jei-1.13.2:4.15.0.3:api"
     // deobfProvided "pl.asie:Charset-Lib:0.5.4.6"
     // deobfProvided "MCMultiPart2:MCMultiPart:2.5.3"
 
-    // runtime "mezz.jei:jei_1.12.2:4.15.0.269"
+    // deobf "mezz.jei:jei-1.13.2:4.15.0.3"
 
     shade 'org.squiddev:Cobalt:0.5.0-SNAPSHOT'
 
@@ -100,7 +100,8 @@ dependencies {
 sourceSets {
     main {
         java {
-            exclude 'dan200/computercraft/shared/integration'
+            exclude 'dan200/computercraft/shared/integration/mcmp'
+            exclude 'dan200/computercraft/shared/integration/charset'
         }
     }
 }

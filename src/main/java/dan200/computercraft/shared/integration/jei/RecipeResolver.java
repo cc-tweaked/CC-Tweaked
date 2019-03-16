@@ -17,12 +17,16 @@ import dan200.computercraft.shared.pocket.items.PocketComputerItemFactory;
 import dan200.computercraft.shared.turtle.items.ITurtleItem;
 import dan200.computercraft.shared.turtle.items.TurtleItemFactory;
 import dan200.computercraft.shared.util.InventoryUtil;
+import mezz.jei.api.constants.VanillaRecipeCategoryUid;
+import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.ingredients.IIngredients;
-import mezz.jei.api.ingredients.VanillaTypes;
-import mezz.jei.api.recipe.*;
-import mezz.jei.api.recipe.wrapper.IShapedCraftingRecipeWrapper;
+import mezz.jei.api.recipe.IFocus;
+import mezz.jei.api.recipe.advanced.IRecipeManagerPlugin;
+import mezz.jei.api.recipe.category.IRecipeCategory;
+import mezz.jei.api.recipe.category.extensions.vanilla.crafting.IShapedCraftingCategoryExtension;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.ResourceLocation;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -30,7 +34,7 @@ import java.util.*;
 
 import static java.util.Arrays.asList;
 
-class RecipeResolver implements IRecipeRegistryPlugin
+class RecipeResolver implements IRecipeManagerPlugin
 {
     static final ComputerFamily[] MAIN_FAMILIES = new ComputerFamily[] { ComputerFamily.Normal, ComputerFamily.Advanced };
 
@@ -99,7 +103,7 @@ class RecipeResolver implements IRecipeRegistryPlugin
 
     @Nonnull
     @Override
-    public <V> List<String> getRecipeCategoryUids( @Nonnull IFocus<V> focus )
+    public <V> List<ResourceLocation> getRecipeCategoryUids( @Nonnull IFocus<V> focus )
     {
         V value = focus.getValue();
         if( !(value instanceof ItemStack) ) return Collections.emptyList();
@@ -123,7 +127,7 @@ class RecipeResolver implements IRecipeRegistryPlugin
 
     @Nonnull
     @Override
-    public <T extends IRecipeWrapper, V> List<T> getRecipeWrappers( @Nonnull IRecipeCategory<T> recipeCategory, @Nonnull IFocus<V> focus )
+    public <T, V> List<T> getRecipes( @Nonnull IRecipeCategory<T> recipeCategory, @Nonnull IFocus<V> focus )
     {
         if( !(focus.getValue() instanceof ItemStack) || !recipeCategory.getUid().equals( VanillaRecipeCategoryUid.CRAFTING ) )
         {
@@ -144,7 +148,7 @@ class RecipeResolver implements IRecipeRegistryPlugin
 
     @Nonnull
     @Override
-    public <T extends IRecipeWrapper> List<T> getRecipeWrappers( @Nonnull IRecipeCategory<T> recipeCategory )
+    public <T> List<T> getRecipes( @Nonnull IRecipeCategory<T> recipeCategory )
     {
         return Collections.emptyList();
     }
@@ -179,8 +183,7 @@ class RecipeResolver implements IRecipeRegistryPlugin
         else if( stack.getItem() instanceof ItemPocketComputer )
         {
             // Suggest possible upgrades which can be applied to this turtle
-            ItemPocketComputer item = (ItemPocketComputer) stack.getItem();
-            IPocketUpgrade back = item.getUpgrade( stack );
+            IPocketUpgrade back = ItemPocketComputer.getUpgrade( stack );
             if( back != null ) return Collections.emptyList();
 
             List<Shaped> recipes = new ArrayList<>();
@@ -228,7 +231,7 @@ class RecipeResolver implements IRecipeRegistryPlugin
         if( stack.getItem() instanceof ITurtleItem )
         {
             ITurtleItem item = (ITurtleItem) stack.getItem();
-            List<IRecipeWrapper> recipes = new ArrayList<>( 0 );
+            List<Shaped> recipes = new ArrayList<>( 0 );
 
             ITurtleUpgrade left = item.getUpgrade( stack, TurtleSide.Left );
             ITurtleUpgrade right = item.getUpgrade( stack, TurtleSide.Right );
@@ -247,10 +250,9 @@ class RecipeResolver implements IRecipeRegistryPlugin
         }
         else if( stack.getItem() instanceof ItemPocketComputer )
         {
-            ItemPocketComputer item = (ItemPocketComputer) stack.getItem();
-            List<IRecipeWrapper> recipes = new ArrayList<>( 0 );
+            List<Shaped> recipes = new ArrayList<>( 0 );
 
-            IPocketUpgrade back = item.getUpgrade( stack );
+            IPocketUpgrade back = ItemPocketComputer.getUpgrade( stack );
             if( back != null )
             {
                 recipes.add( vertical( asList( back.getCraftingItem(), pocketWith( stack, null ) ), stack ) );
@@ -265,7 +267,7 @@ class RecipeResolver implements IRecipeRegistryPlugin
     }
 
     @SuppressWarnings( "unchecked" )
-    private static <T extends IRecipeWrapper, U extends IRecipeWrapper> List<T> cast( List<U> from )
+    private static <T, U> List<T> cast( List<U> from )
     {
         return (List) from;
     }
@@ -274,7 +276,7 @@ class RecipeResolver implements IRecipeRegistryPlugin
     {
         ITurtleItem item = (ITurtleItem) stack.getItem();
         return TurtleItemFactory.create(
-            item.getComputerID( stack ), item.getLabel( stack ), item.getColour( stack ), item.getFamily( stack ),
+            item.getComputerID( stack ), item.getLabel( stack ), item.getColour( stack ), item.getFamily(),
             left, right, item.getFuelLevel( stack ), item.getOverlay( stack )
         );
     }
@@ -283,7 +285,7 @@ class RecipeResolver implements IRecipeRegistryPlugin
     {
         ItemPocketComputer item = (ItemPocketComputer) stack.getItem();
         return PocketComputerItemFactory.create(
-            item.getComputerID( stack ), item.getLabel( stack ), item.getColour( stack ), item.getFamily( stack ),
+            item.getComputerID( stack ), item.getLabel( stack ), item.getColour( stack ), item.getFamily(),
             back
         );
     }
@@ -298,7 +300,7 @@ class RecipeResolver implements IRecipeRegistryPlugin
         return new Shaped( input.size(), 1, input, result );
     }
 
-    static class Shaped implements IShapedCraftingRecipeWrapper
+    static class Shaped implements IShapedCraftingCategoryExtension
     {
         private final int width;
         private final int height;
@@ -326,7 +328,7 @@ class RecipeResolver implements IRecipeRegistryPlugin
         }
 
         @Override
-        public void getIngredients( @Nonnull IIngredients ingredients )
+        public void setIngredients( @Nonnull IIngredients ingredients )
         {
             ingredients.setInputs( VanillaTypes.ITEM, input );
             ingredients.setOutput( VanillaTypes.ITEM, output );

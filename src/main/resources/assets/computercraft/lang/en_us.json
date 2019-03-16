@@ -48,43 +48,139 @@
     "upgrade.computercraft.wireless_modem_advanced.adjective": "Ender",
     "upgrade.computercraft.speaker.adjective": "Noisy",
 
-    "command.computercraft.computer_selector_none": "No computer matching %s",
-    "command.computercraft.computer_selector_many": "Multiple computers matching %s",
+    "chat.computercraft.wired_modem.peripheral_connected": "Peripheral \"%s\" connected to network",
+    "chat.computercraft.wired_modem.peripheral_disconnected": "Peripheral \"%s\" disconnected from network",
 
-    "command.computercraft.not_tracking": "Not currently tracking computers",
-    "command.computercraft.no_timings": "No timings available",
-    "command.computercraft.no_tracking_field": "%s is not a tracking field",
+    "commands.computercraft.synopsis": "Various commands for controlling computers.",
+    "commands.computercraft.desc": "The /computercraft command provides various debugging and administrator tools for controlling and  interacting with computers.",
 
-    "command.computercraft.unlocated_computer": "Could not locate computer",
+    "commands.computercraft.help.synopsis": "Provide help for a specific command",
+    "commands.computercraft.help.desc": "",
+    "commands.computercraft.help.no_children": "%s has no sub-commands",
+    "commands.computercraft.help.no_command": "No such command '%s'",
 
-    "gui.computercraft.wired_modem.peripheral_connected": "Peripheral %s connected to network",
-    "gui.computercraft.wired_modem.peripheral_disconnected": "Peripheral %s disconnected from network",
+    "commands.computercraft.dump.synopsis": "Display the status of computers.",
+    "commands.computercraft.dump.desc": "Display the status of all computers or specific information about one computer. You can specify the computer's instance id (e.g. 123), computer id (e.g #123) or label (e.g. \"@My Computer\").",
+    "commands.computercraft.dump.action": "View more info about this computer",
+
+    "commands.computercraft.shutdown.synopsis": "Shutdown computers remotely.",
+    "commands.computercraft.shutdown.desc": "Shutdown the listed computers or all if none are specified. You can specify the computer's instance id (e.g. 123), computer id (e.g #123) or label (e.g. \"@My Computer\").",
+    "commands.computercraft.shutdown.done": "Shutdown %s/%s computers",
+
+    "commands.computercraft.turn_on.synopsis": "Turn computers on remotely.",
+    "commands.computercraft.turn_on.desc": "Turn on the listed computers. You can specify the computer's instance id (e.g. 123), computer id (e.g #123) or label (e.g. \"@My Computer\").",
+    "commands.computercraft.turn_on.done": "Turned on %s/%s computers",
+
+    "commands.computercraft.tp.synopsis": "Teleport to a specific computer.",
+    "commands.computercraft.tp.desc": "Teleport to the location of a computer. You can either specify the computer's instance id (e.g. 123) or computer id (e.g #123).",
+    "commands.computercraft.tp.action": "Teleport to this computer",
+    "commands.computercraft.tp.not_player": "Cannot open terminal for non-player",
+    "commands.computercraft.tp.not_there": "Cannot locate computer in the world",
+
+    "commands.computercraft.view.synopsis": "View the terminal of a computer.",
+    "commands.computercraft.view.desc": "Open the terminal of a computer, allowing remote control of a computer. This does not provide access to turtle's inventories. You can either specify the computer's instance id (e.g. 123) or computer id (e.g #123).",
+    "commands.computercraft.view.action": "View this computer",
+    "commands.computercraft.view.not_player": "Cannot open terminal for non-player",
+
+    "commands.computercraft.track.synopsis": "Track execution times for computers.",
+    "commands.computercraft.track.desc": "Track how long computers execute for, as well as how many events they handle. This presents information in a similar way to /forge track and can be useful for diagnosing lag.",
+
+    "commands.computercraft.track.start.synopsis": "Start tracking all computers",
+    "commands.computercraft.track.start.desc": "Start tracking all computers' execution times and event counts. This will discard the results of previous runs.",
+    "commands.computercraft.track.start.stop": "Run %s to stop tracking and view the results",
+
+    "commands.computercraft.track.stop.synopsis": "Stop tracking all computers",
+    "commands.computercraft.track.stop.desc": "Stop tracking all computers' events and execution times",
+    "commands.computercraft.track.stop.action": "Click to stop tracking",
+    "commands.computercraft.track.stop.not_enabled": "Not currently tracking computers",
+
+    "commands.computercraft.track.dump.synopsis": "Dump the latest track results",
+    "commands.computercraft.track.dump.desc": "Dump the latest results of computer tracking.",
+    "commands.computercraft.track.dump.no_timings": "No timings available",
+    "commands.computercraft.track.dump.computer": "Computer",
+
+    "commands.computercraft.reload.synopsis": "Reload the ComputerCraft config file",
+    "commands.computercraft.reload.desc": "Reload the ComputerCraft config file",
+    "commands.computercraft.reload.done": "Reloaded config",
+
+    "commands.computercraft.queue.synopsis": "Send a computer_command event to a command computer",
+    "commands.computercraft.queue.desc": "Send a computer_command event to a command computer, passing through the additional arguments. This is mostly designed for map makers, acting as a more computer-friendly version of /trigger. Any player can run the command, which would most likely be done through a text component's click event.",
+
+    "commands.computercraft.generic.no_position": "<no pos>",
+    "commands.computercraft.generic.position": "%s, %s, %s",
+    "commands.computercraft.generic.yes": "Y",
+    "commands.computercraft.generic.no": "N",
+    "commands.computercraft.generic.exception": "Unhandled exception (%s)",
+    "commands.computercraft.generic.additional_rows": "%d additional rows…",
+
+    "argument.computercraft.computer.no_matching": "No computers matching '%s'",
+    "argument.computercraft.computer.many_matching": "Multiple computers matching '%s' (instances %s)",
+
+    "argument.computercraft.tacking_field.no_field": "Unknown field '%s'",
+
+    "argument.computercraft.argument_expected": "Argument expected",
+
+    "tracking_field.computercraft.tasks.name": "Tasks",
+    "tracking_field.computercraft.total.name": "Total time",
+    "tracking_field.computercraft.average.name": "Average time",
+    "tracking_field.computercraft.max.name": "Max time",
+
+    "tracking_field.computercraft.server_count.name": "Server task count",
+    "tracking_field.computercraft.server_time.name": "Server task time",
+
+    "tracking_field.computercraft.peripheral.name": "Peripheral calls",
+    "tracking_field.computercraft.fs.name": "Filesystem operations",
+    "tracking_field.computercraft.turtle.name": "Turtle operations",
+
+    "tracking_field.computercraft.http.name": "HTTP requests",
+    "tracking_field.computercraft.http_upload.name": "HTTP upload",
+    "tracking_field.computercraft.http_download.name": "HTTT download",
+
+    "tracking_field.computercraft.websocket_incoming.name": "Websocket incoming",
+    "tracking_field.computercraft.websocket_outgoing.name": "Websocket outgoing",
+
+    "tracking_field.computercraft.coroutines_created.name": "Coroutines created",
+    "tracking_field.computercraft.coroutines_dead.name": "Coroutines disposed",
+
     "gui.computercraft.tooltip.copy": "Copy to clipboard",
-
     "gui.computercraft.tooltip.computer_id": "(Computer ID: %s)",
     "gui.computercraft.tooltip.disk_id": "(Disk ID: %s)",
 
-    "gui.computercraft.config.http_enable": "Enable HTTP API",
-    "gui.computercraft.config.http_websocket_enable": "Enable HTTP websockets",
-    "gui.computercraft.config.http_whitelist": "HTTP whitelist",
-    "gui.computercraft.config.http_blacklist": "HTTP blacklist",
-    "gui.computercraft.config.disable_lua51_features": "Disable Lua 5.1 features",
-    "gui.computercraft.config.default_computer_settings": "Default Computer settings",
-    "gui.computercraft.config.debug_enable": "Enable debug library",
-    "gui.computercraft.config.log_peripheral_errors": "Log peripheral errors",
-    "gui.computercraft.config.enable_command_block": "Enable command block peripheral",
-    "gui.computercraft.config.modem_range": "Modem range (default)",
-    "gui.computercraft.config.modem_high_altitude_range": "Modem range (high-altitude)",
-    "gui.computercraft.config.modem_range_during_storm": "Modem range (bad weather)",
-    "gui.computercraft.config.modem_high_altitude_range_during_storm": "Modem range (high-altitude, bad weather)",
     "gui.computercraft.config.computer_space_limit": "Computer space limit (bytes)",
     "gui.computercraft.config.floppy_space_limit": "Floppy Disk space limit (bytes)",
-    "gui.computercraft.config.turtle_normals_need_fuel": "Enable fuel",
-    "gui.computercraft.config.turtle_normal_fuel_limit": "Turtle fuel limit",
-    "gui.computercraft.config.turtle_advanced_fuel_limit": "Advanced Turtle fuel limit",
-    "gui.computercraft.config.turtle_normals_obey_block_protection": "Turtles obey block protection",
-    "gui.computercraft.config.turtle_normals_can_push": "Turtles can push entities",
-    "gui.computercraft.config.turtle_normal_disabled_actions": "Disabled turtle_normal actions",
-    "gui.computercraft.config.maximum_files_open": "Maximum files open per computer",
-    "gui.computercraft.config.max_notes_per_tick": "Maximum notes that a computer can play at once"
+    "gui.computercraft.config.maximum_open_files": "Maximum files open per computer",
+    "gui.computercraft.config.disable_lua51_features": "Disable Lua 5.1 features",
+    "gui.computercraft.config.default_computer_settings": "Default Computer settings",
+    "gui.computercraft.config.debug_enabled": "Enable debug library",
+    "gui.computercraft.config.computer_threads": "Computer threads",
+    "gui.computercraft.config.log_computer_errors": "Log computer errors",
+
+    "gui.computercraft.config.http": "HTTP",
+    "gui.computercraft.config.http.enabled": "Enable the HTTP API",
+    "gui.computercraft.config.http.websocket_enabled": "Enable websockets",
+    "gui.computercraft.config.http.whitelist": "HTTP whitelist",
+    "gui.computercraft.config.http.blacklist": "HTTP blacklist",
+
+    "gui.computercraft.config.http.timeout": "Timeout",
+    "gui.computercraft.config.http.max_requests": "Maximum concurrent requests",
+    "gui.computercraft.config.http.max_download": "Maximum response size",
+    "gui.computercraft.config.http.max_upload": "Maximum request size",
+    "gui.computercraft.config.http.max_websockets": "Maximum concurrent websockets",
+    "gui.computercraft.config.http.max_websocket_message": "Maximum websocket message size",
+
+    "gui.computercraft.config.peripheral": "Peripherals",
+    "gui.computercraft.config.peripheral.command_block_enabled": "Enable command block peripheral",
+    "gui.computercraft.config.peripheral.modem_range": "Modem range (default)",
+    "gui.computercraft.config.peripheral.modem_high_altitude_range": "Modem range (high-altitude)",
+    "gui.computercraft.config.peripheral.modem_range_during_storm": "Modem range (bad weather)",
+    "gui.computercraft.config.peripheral.modem_high_altitude_range_during_storm": "Modem range (high-altitude, bad weather)",
+    "gui.computercraft.config.peripheral.max_notes_per_tick": "Maximum notes that a computer can play at once",
+
+    "gui.computercraft.config.turtle": "Turtles",
+    "gui.computercraft.config.turtle.need_fuel": "Enable fuel",
+    "gui.computercraft.config.turtle.normal_fuel_limit": "Turtle fuel limit",
+    "gui.computercraft.config.turtle.advanced_fuel_limit": "Advanced Turtle fuel limit",
+    "gui.computercraft.config.turtle.obey_block_protection": "Turtles obey block protection",
+    "gui.computercraft.config.turtle.can_push": "Turtles can push entities",
+    "gui.computercraft.config.turtle.disabled_actions": "Disabled turtle actions"
 }

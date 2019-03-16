@@ -1,0 +1,79 @@
+{
+
+    "block.computercraft.computer_normal": "Computer",
+    "block.computercraft.computer_advanced": "Erweiterter Computer",
+    "block.computercraft.computer_command": "Befehlscomputer",
+
+    "block.computercraft.disk_drive": "Diskettenlaufwerk",
+    "block.computercraft.printer": "Drucker",
+    "block.computercraft.speaker": "Lautsprecher",
+
+    "block.computercraft.monitor_normal": "Monitor",
+    "block.computercraft.monitor_advanced": "Erweiterter Monitor",
+
+    "block.computercraft.wireless_modem_normal": "Kabelloses Modem",
+    "block.computercraft.wireless_modem_advanced": "Endermodem",
+
+    "block.computercraft.wired_modem": "Kabelmodem",
+    "block.computercraft.cable": "Netzwerkkabel",
+    "block.computercraft.wired_modem_full": "Kabelmodem",
+
+    "block.computercraft.turtle_normal": "Turtle",
+    "block.computercraft.turtle_normal.upgraded": "Turtle (%s)",
+    "block.computercraft.turtle_normal.upgraded_twice": "Turtle (%s, %s)",
+
+    "block.computercraft.turtle_advanced": "Erweiterte Turtle",
+    "block.computercraft.turtle_advanced.upgraded": "Erweiterte Turtle (%s)",
+    "block.computercraft.turtle_advanced.upgraded_twice": "Erweiterte Turtle (%s, %s)",
+
+    "item.computercraft.disk": "Diskette",
+    "item.computercraft.treasure_disk": "Diskette",
+    "item.computercraft.printed_page": "Gedruckte Seite",
+    "item.computercraft.printed_pages": "Gedruckte Seiten",
+    "item.computercraft.printed_book": "Gedrucktes Buch",
+
+    "item.computercraft.pocket_computer_normal": "Taschencomputer",
+    "item.computercraft.pocket_computer_normal.upgraded": "Taschencomputer (%s)",
+    "item.computercraft.pocket_computer_advanced": "Erweiterter Taschencomputer",
+    "item.computercraft.pocket_computer_advanced.upgraded": "Erweiterter Taschencomputer (%s)",
+
+    "upgrade.minecraft.diamond_sword.adjective": "Nahkampf",
+    "upgrade.minecraft.diamond_shovel.adjective": "Graben",
+    "upgrade.minecraft.diamond_pickaxe.adjective": "Bergbau",
+    "upgrade.minecraft.diamond_axe.adjective": "Holzfällen",
+    "upgrade.minecraft.diamond_hoe.adjective": "Ackerbau",
+    "upgrade.minecraft.crafting_table.adjective": "Fabrizierung",
+    "upgrade.computercraft.wireless_modem_normal.adjective": "Ender",
+    "upgrade.computercraft.wireless_modem_advanced.adjective": "Kabellos",
+    "upgrade.computercraft.speaker.adjective": "Laut",
+
+    "chat.computercraft.wired_modem.peripheral_connected": "Peripheriegerät \"%s\" mit dem Netzwerk verbunden",
+    "chat.computercraft.wired_modem.peripheral_disconnected": "Peripheriegerät \"%s\" vom Netzwerk getrennt",
+
+    "gui.computercraft.config.computer_space_limit": "Speicherplatz von Computern (bytes)",
+    "gui.computercraft.config.floppy_space_limit": "Speicherplatz von Disketten (bytes)",
+    "gui.computercraft.config.maximum_open_files": "Maximalanzahl an gleichzeitig offenen Dateien je Computer",
+    "gui.computercraft.config.disable_lua51_features": "Lua 5.1-Funktionen deaktivieren",
+    "gui.computercraft.config.default_computer_settings": "Computer-Standardeinstellungen",
+    "gui.computercraft.config.debug_enabled": "Debug-Library aktivieren",
+    "gui.computercraft.config.log_computer_errors": "Peripheriefehler loggen",
+
+    "gui.computercraft.config.http.enabled": "HTTP-API aktivieren",
+    "gui.computercraft.config.http.websocket_enabled": "HTTP-Websockets aktivieren",
+    "gui.computercraft.config.http.whitelist": "HTTP-Whitelist",
+    "gui.computercraft.config.http.blacklist": "HTTP-Blacklist",
+
+    "gui.computercraft.config.peripheral.command_block_enabled": "Befehlsblöcke als Peripheriegerät erlauben",
+    "gui.computercraft.config.peripheral.modem_range": "Modemreichweite (normal)",
+    "gui.computercraft.config.peripheral.modem_high_altitude_range": "Modemreichweite (in großer Höhe)",
+    "gui.computercraft.config.peripheral.modem_range_during_storm": "Modemreichweite (bei schlechtem Wetter)",
+    "gui.computercraft.config.peripheral.modem_high_altitude_range_during_storm": "Modemreichweite (in großer Höhe bei schlechtem Wetter)",
+    "gui.computercraft.config.peripheral.max_notes_per_tick": "Maximalanzahl an Noten, die ein Computer gleichzeitig spielen kann",
+
+    "gui.computercraft.config.turtle.need_fuel": "Treibstoffverbrauch aktivieren",
+    "gui.computercraft.config.turtle.normal_fuel_limit": "Treibstofflimit von Turtles",
+    "gui.computercraft.config.turtle.advanced_fuel_limit": "Treibstofflimit von Erweiterten Turtles",
+    "gui.computercraft.config.turtle.obey_block_protection": "Turtles unterliegen Blockschutzrichtlinien",
+    "gui.computercraft.config.turtle.can_push": "Turtles können Entities bewegen",
+    "gui.computercraft.config.turtle.disabled_actions": "Deaktivierte Turtle-Aktionen"
+}
