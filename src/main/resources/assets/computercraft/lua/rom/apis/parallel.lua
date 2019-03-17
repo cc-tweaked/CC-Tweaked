@@ -1,3 +1,7 @@
+--- Provides helpers for running multiple tasks in tandem, using
+-- @{coroutine|coroutines}.
+--
+-- @module parallel
 
 local function create( ... )
     local tFns = table.pack(...)
@@ -55,12 +59,24 @@ local function runUntilLimit( _routines, _limit )
     end
 end
 
+--- Switches between execution of the functions, until any of them
+--- finishes. If any of the functions errors, the message is propagated
+--- upwards from the `parallel.waitForAny` call.
+--
+-- @tparam function ... The functions this task will run
+-- @treturn nil
 function waitForAny( ... )
     local routines = create( ... )
     return runUntilLimit( routines, #routines - 1 )
 end
 
+--- Switches between execution of the functions, until all of them are
+--- finished. If any of the functions errors, the message is propagated
+--- upwards from the `parallel.waitForAll` call.
+--
+-- @tparam function ... The functions this task will run
+-- @treturn nil
 function waitForAll( ... )
     local routines = create( ... )
-    runUntilLimit( routines, 0 )
+    return runUntilLimit( routines, 0 )
 end

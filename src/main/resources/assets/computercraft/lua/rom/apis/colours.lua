@@ -1,4 +1,8 @@
--- Colours (for lovers of british spelling)
+--- Colours (for lovers of British spelling)
+--
+-- @see colors
+-- @module colours
+
 local colours = _ENV
 for k,v in pairs(colors) do
 	colours[k] = v

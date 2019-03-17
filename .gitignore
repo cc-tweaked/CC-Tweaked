@@ -3,6 +3,7 @@
 /logs
 /build
 /out
+/build-doc
 
 # Runtime directories
 /run

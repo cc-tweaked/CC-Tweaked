@@ -1,4 +1,6 @@
--- Definition for the IO API
+--- Emulates Lua's standard `io` library
+--
+-- @module io
 local typeOf = _G.type
 
 --- If we return nil then close the file, as we've reached the end.
