@@ -7,7 +7,6 @@
 package dan200.computercraft.shared.computer.apis;
 
 import com.google.common.collect.ImmutableMap;
-import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.tree.CommandNode;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import dan200.computercraft.ComputerCraft;
@@ -26,6 +25,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nonnull;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -145,25 +145,28 @@ public class CommandAPI implements ILuaAPI
                 return new Object[] { taskID };
             }
             case 2:
-            {
                 // list
                 return context.executeMainThreadTask( () ->
                 {
+                    MinecraftServer server = m_computer.getWorld().getServer();
+
+                    if( server == null ) return new Object[] { Collections.emptyMap() };
+                    CommandNode<CommandSource> node = server.getCommandManager().getDispatcher().getRoot();
+                    for( int j = 0; j < arguments.length; j++ )
+                    {
+                        String name = getString( arguments, j );
+                        node = node.getChild( name );
+                        if( !(node instanceof LiteralCommandNode) ) return new Object[] { Collections.emptyMap() };
+                    }
+
                     int i = 1;
                     Map<Object, Object> result = new HashMap<>();
-                    MinecraftServer server = m_computer.getWorld().getServer();
-                    if( server != null )
+                    for( CommandNode<?> child : node.getChildren() )
                     {
-                        CommandDispatcher<CommandSource> dispatcher = server.getCommandManager().getDispatcher();
-                        // TODO: How can we better integrate with the new command system?
-                        for( CommandNode<?> node : dispatcher.getRoot().getChildren() )
-                        {
-                            if( node instanceof LiteralCommandNode<?> ) result.put( i++, node.getName() );
-                        }
+                        if( child instanceof LiteralCommandNode<?> ) result.put( i++, child.getName() );
                     }
                     return new Object[] { result };
                 } );
-            }
             case 3:
             {
                 // getBlockPosition
