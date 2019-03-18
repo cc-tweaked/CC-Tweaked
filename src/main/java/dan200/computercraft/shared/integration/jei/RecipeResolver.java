@@ -6,6 +6,7 @@
 
 package dan200.computercraft.shared.integration.jei;
 
+import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.pocket.IPocketUpgrade;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
@@ -18,28 +19,33 @@ import dan200.computercraft.shared.turtle.items.ITurtleItem;
 import dan200.computercraft.shared.turtle.items.TurtleItemFactory;
 import dan200.computercraft.shared.util.InventoryUtil;
 import mezz.jei.api.constants.VanillaRecipeCategoryUid;
-import mezz.jei.api.constants.VanillaTypes;
-import mezz.jei.api.ingredients.IIngredients;
 import mezz.jei.api.recipe.IFocus;
 import mezz.jei.api.recipe.advanced.IRecipeManagerPlugin;
 import mezz.jei.api.recipe.category.IRecipeCategory;
-import mezz.jei.api.recipe.category.extensions.vanilla.crafting.IShapedCraftingCategoryExtension;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.crafting.IRecipeSerializer;
+import net.minecraft.item.crafting.Ingredient;
+import net.minecraft.item.crafting.ShapedRecipe;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
 
-import static java.util.Arrays.asList;
+import static net.minecraft.item.crafting.Ingredient.fromStacks;
+import static net.minecraft.util.NonNullList.from;
 
 class RecipeResolver implements IRecipeManagerPlugin
 {
     static final ComputerFamily[] MAIN_FAMILIES = new ComputerFamily[] { ComputerFamily.Normal, ComputerFamily.Advanced };
 
-    private final Map<Item, List<ITurtleUpgrade>> turtleUpgrades = new HashMap<>();
-    private final Map<Item, List<IPocketUpgrade>> pocketUpgrades = new HashMap<>();
+    private final Map<Item, List<Upgrade<ITurtleUpgrade>>> turtleUpgradeLookup = new HashMap<>();
+    private final List<Upgrade<ITurtleUpgrade>> turtleUpgrades = new ArrayList<>();
+    private final Map<Item, List<Upgrade<IPocketUpgrade>>> pocketUpgradesLookup = new HashMap<>();
+    private final List<Upgrade<IPocketUpgrade>> pocketUpgrades = new ArrayList<>();
+
     private boolean initialised = false;
 
     /**
@@ -54,29 +60,35 @@ class RecipeResolver implements IRecipeManagerPlugin
         {
             ItemStack stack = upgrade.getCraftingItem();
             if( stack.isEmpty() ) continue;
-            turtleUpgrades.computeIfAbsent( stack.getItem(), k -> new ArrayList<>( 1 ) ).add( upgrade );
+
+            Upgrade<ITurtleUpgrade> wrapped = new Upgrade<>( upgrade, stack );
+            turtleUpgrades.add( wrapped );
+            turtleUpgradeLookup.computeIfAbsent( stack.getItem(), k -> new ArrayList<>( 1 ) ).add( wrapped );
         }
 
         for( IPocketUpgrade upgrade : PocketUpgrades.getUpgrades() )
         {
             ItemStack stack = upgrade.getCraftingItem();
             if( stack.isEmpty() ) continue;
-            pocketUpgrades.computeIfAbsent( stack.getItem(), k -> new ArrayList<>( 1 ) ).add( upgrade );
+
+            Upgrade<IPocketUpgrade> wrapped = new Upgrade<>( upgrade, stack );
+            pocketUpgrades.add( wrapped );
+            pocketUpgradesLookup.computeIfAbsent( stack.getItem(), k -> new ArrayList<>( 1 ) ).add( wrapped );
         }
     }
 
     @Nullable
-    private ITurtleUpgrade getTurtleUpgrade( @Nonnull ItemStack stack )
+    private Upgrade<ITurtleUpgrade> getTurtleUpgrade( @Nonnull ItemStack stack )
     {
         if( stack.isEmpty() ) return null;
 
         setupCache();
-        List<ITurtleUpgrade> upgrades = turtleUpgrades.get( stack.getItem() );
+        List<Upgrade<ITurtleUpgrade>> upgrades = turtleUpgradeLookup.get( stack.getItem() );
         if( upgrades == null ) return null;
 
-        for( ITurtleUpgrade upgrade : upgrades )
+        for( Upgrade<ITurtleUpgrade> upgrade : upgrades )
         {
-            ItemStack craftingStack = upgrade.getCraftingItem();
+            ItemStack craftingStack = upgrade.stack;
             if( !craftingStack.isEmpty() && InventoryUtil.areItemsSimilar( stack, craftingStack ) ) return upgrade;
         }
 
@@ -84,17 +96,17 @@ class RecipeResolver implements IRecipeManagerPlugin
     }
 
     @Nullable
-    private IPocketUpgrade getPocketUpgrade( @Nonnull ItemStack stack )
+    private Upgrade<IPocketUpgrade> getPocketUpgrade( @Nonnull ItemStack stack )
     {
         if( stack.isEmpty() ) return null;
 
         setupCache();
-        List<IPocketUpgrade> upgrades = pocketUpgrades.get( stack.getItem() );
+        List<Upgrade<IPocketUpgrade>> upgrades = pocketUpgradesLookup.get( stack.getItem() );
         if( upgrades == null ) return null;
 
-        for( IPocketUpgrade upgrade : upgrades )
+        for( Upgrade<IPocketUpgrade> upgrade : upgrades )
         {
-            ItemStack craftingStack = upgrade.getCraftingItem();
+            ItemStack craftingStack = upgrade.stack;
             if( !craftingStack.isEmpty() && InventoryUtil.areItemsSimilar( stack, craftingStack ) ) return upgrade;
         }
 
@@ -165,16 +177,17 @@ class RecipeResolver implements IRecipeManagerPlugin
             if( left != null && right != null ) return Collections.emptyList();
 
             List<Shaped> recipes = new ArrayList<>();
-            for( ITurtleUpgrade upgrade : TurtleUpgrades.getUpgrades() )
+            Ingredient ingredient = fromStacks( stack );
+            for( Upgrade<ITurtleUpgrade> upgrade : turtleUpgrades )
             {
                 if( left == null )
                 {
-                    recipes.add( horizontal( asList( stack, upgrade.getCraftingItem() ), turtleWith( stack, upgrade, right ) ) );
+                    recipes.add( horizontal( from( Ingredient.EMPTY, ingredient, upgrade.ingredient ), turtleWith( stack, upgrade.upgrade, right ) ) );
                 }
 
                 if( right == null )
                 {
-                    recipes.add( horizontal( asList( stack, upgrade.getCraftingItem() ), turtleWith( stack, left, upgrade ) ) );
+                    recipes.add( horizontal( from( Ingredient.EMPTY, upgrade.ingredient, ingredient ), turtleWith( stack, left, upgrade.upgrade ) ) );
                 }
             }
 
@@ -187,9 +200,10 @@ class RecipeResolver implements IRecipeManagerPlugin
             if( back != null ) return Collections.emptyList();
 
             List<Shaped> recipes = new ArrayList<>();
-            for( IPocketUpgrade upgrade : PocketUpgrades.getUpgrades() )
+            Ingredient ingredient = fromStacks( stack );
+            for( Upgrade<IPocketUpgrade> upgrade : pocketUpgrades )
             {
-                recipes.add( vertical( asList( stack, upgrade.getCraftingItem() ), pocketWith( stack, upgrade ) ) );
+                recipes.add( vertical( from( Ingredient.EMPTY, ingredient, upgrade.ingredient ), pocketWith( stack, upgrade.upgrade ) ) );
             }
 
             return recipes;
@@ -197,26 +211,27 @@ class RecipeResolver implements IRecipeManagerPlugin
         else
         {
             // Find places this may be used as an upgrade.
-            ITurtleUpgrade turtle = getTurtleUpgrade( stack );
-            IPocketUpgrade pocket = getPocketUpgrade( stack );
+            Upgrade<ITurtleUpgrade> turtle = getTurtleUpgrade( stack );
+            Upgrade<IPocketUpgrade> pocket = getPocketUpgrade( stack );
             if( turtle == null && pocket == null ) return Collections.emptyList();
 
             List<Shaped> recipes = new ArrayList<>( 1 );
+            Ingredient ingredient = fromStacks( stack );
             for( ComputerFamily family : MAIN_FAMILIES )
             {
-                if( turtle != null && TurtleUpgrades.suitableForFamily( family, turtle ) )
+                if( turtle != null && TurtleUpgrades.suitableForFamily( family, turtle.upgrade ) )
                 {
                     recipes.add( horizontal(
-                        asList( stack, TurtleItemFactory.create( -1, null, -1, family, null, null, 0, null ) ),
-                        TurtleItemFactory.create( -1, null, -1, family, turtle, null, 0, null )
+                        from( Ingredient.EMPTY, fromStacks( TurtleItemFactory.create( -1, null, -1, family, null, null, 0, null ) ), ingredient ),
+                        TurtleItemFactory.create( -1, null, -1, family, null, turtle.upgrade, 0, null )
                     ) );
                 }
 
                 if( pocket != null )
                 {
                     recipes.add( vertical(
-                        asList( stack, PocketComputerItemFactory.create( -1, null, -1, family, null ) ),
-                        PocketComputerItemFactory.create( -1, null, -1, family, pocket )
+                        from( Ingredient.EMPTY, ingredient, fromStacks( PocketComputerItemFactory.create( -1, null, -1, family, null ) ) ),
+                        PocketComputerItemFactory.create( -1, null, -1, family, pocket.upgrade )
                     ) );
                 }
             }
@@ -238,12 +253,18 @@ class RecipeResolver implements IRecipeManagerPlugin
 
             if( left != null )
             {
-                recipes.add( horizontal( asList( left.getCraftingItem(), turtleWith( stack, null, right ) ), stack ) );
+                recipes.add( horizontal(
+                    from( Ingredient.EMPTY, fromStacks( left.getCraftingItem() ), fromStacks( turtleWith( stack, null, right ) ) ),
+                    stack
+                ) );
             }
 
             if( right != null )
             {
-                recipes.add( horizontal( asList( turtleWith( stack, left, null ), right.getCraftingItem() ), stack ) );
+                recipes.add( horizontal(
+                    from( Ingredient.EMPTY, fromStacks( turtleWith( stack, left, null ) ), fromStacks( right.getCraftingItem() ) ),
+                    stack )
+                );
             }
 
             return cast( recipes );
@@ -255,7 +276,10 @@ class RecipeResolver implements IRecipeManagerPlugin
             IPocketUpgrade back = ItemPocketComputer.getUpgrade( stack );
             if( back != null )
             {
-                recipes.add( vertical( asList( back.getCraftingItem(), pocketWith( stack, null ) ), stack ) );
+                recipes.add( vertical(
+                    from( Ingredient.EMPTY, fromStacks( back.getCraftingItem() ), fromStacks( pocketWith( stack, null ) ) ),
+                    stack
+                ) );
             }
 
             return cast( recipes );
@@ -290,48 +314,51 @@ class RecipeResolver implements IRecipeManagerPlugin
         );
     }
 
-    private static Shaped vertical( List<ItemStack> input, ItemStack result )
+    private static Shaped vertical( NonNullList<Ingredient> input, ItemStack result )
     {
         return new Shaped( 1, input.size(), input, result );
     }
 
-    private static Shaped horizontal( List<ItemStack> input, ItemStack result )
+    private static Shaped horizontal( NonNullList<Ingredient> input, ItemStack result )
     {
         return new Shaped( input.size(), 1, input, result );
     }
 
-    static class Shaped implements IShapedCraftingCategoryExtension
+    static class Shaped extends ShapedRecipe
     {
-        private final int width;
-        private final int height;
-        private final List<ItemStack> input;
-        private final ItemStack output;
+        private static final ResourceLocation ID = new ResourceLocation( ComputerCraft.MOD_ID, "impostor" );
 
-        Shaped( int width, int height, List<ItemStack> input, ItemStack output )
+        Shaped( int width, int height, NonNullList<Ingredient> input, ItemStack output )
         {
-            this.width = width;
-            this.height = height;
-            this.input = input;
-            this.output = output;
+            super( ID, null, width, height, input, output );
         }
 
+        @Nonnull
         @Override
-        public int getWidth()
+        public ResourceLocation getId()
         {
-            return width;
+            return null;
         }
 
+        @Nonnull
         @Override
-        public int getHeight()
+        public IRecipeSerializer<?> getSerializer()
         {
-            return height;
+            throw new IllegalStateException( "Should not serialise the JEI recipe" );
         }
+    }
 
-        @Override
-        public void setIngredients( @Nonnull IIngredients ingredients )
+    private static class Upgrade<T>
+    {
+        final T upgrade;
+        final ItemStack stack;
+        final Ingredient ingredient;
+
+        private Upgrade( T upgrade, ItemStack stack )
         {
-            ingredients.setInputs( VanillaTypes.ITEM, input );
-            ingredients.setOutput( VanillaTypes.ITEM, output );
+            this.upgrade = upgrade;
+            this.stack = stack;
+            this.ingredient = fromStacks( stack );
         }
     }
 }

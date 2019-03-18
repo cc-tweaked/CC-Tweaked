@@ -25,12 +25,12 @@ import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.ingredients.subtypes.ISubtypeInterpreter;
 import mezz.jei.api.recipe.IRecipeManager;
 import mezz.jei.api.recipe.category.IRecipeCategory;
-import mezz.jei.api.recipe.category.extensions.vanilla.crafting.ICraftingCategoryExtension;
 import mezz.jei.api.registration.IAdvancedRegistration;
 import mezz.jei.api.registration.ISubtypeRegistration;
 import mezz.jei.api.runtime.IJeiRuntime;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.util.ResourceLocation;
 
 import javax.annotation.Nonnull;
@@ -102,9 +102,9 @@ public class JEIComputerCraft implements IModPlugin
         {
             for( Object wrapper : registry.getRecipes( category ) )
             {
-                if( !(wrapper instanceof ICraftingCategoryExtension) ) continue;
-                ResourceLocation id = ((ICraftingCategoryExtension) wrapper).getRegistryName();
-                if( id != null && id.getNamespace().equals( ComputerCraft.MOD_ID )
+                if( !(wrapper instanceof IRecipe) ) continue;
+                ResourceLocation id = ((IRecipe) wrapper).getId();
+                if( id.getNamespace().equals( ComputerCraft.MOD_ID )
                     && (id.getPath().startsWith( "generated/turtle_" ) || id.getPath().startsWith( "generated/pocket_" )) )
                 {
                     registry.hideRecipe( wrapper, VanillaRecipeCategoryUid.CRAFTING );

@@ -94,7 +94,7 @@ public final class Registry
 
         ComputerCraft.Blocks.turtleAdvanced = new BlockTurtle(
             Block.Properties.create( Material.ROCK ).hardnessAndResistance( 2.5f ),
-            ComputerFamily.Normal, TileTurtle.FACTORY_ADVANCED
+            ComputerFamily.Advanced, TileTurtle.FACTORY_ADVANCED
         );
 
         registry.registerAll(

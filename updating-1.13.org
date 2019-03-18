@@ -75,6 +75,13 @@
 ** DONE [#B] Disk colours are entirely broken
 
 ** TODO [#B] Printer item validation in the container
+
+** TODO [#C] Allow labelling printers/disk drives again
+   Yes, it's a pretty pointless feature, but we should keep it non-the-less.
+
+** TODO [#C] JEI integration is a little borked
+   Subtype interpreters (or something) are not hiding the turtle crafting recipe for upgraded turtles.
+
 * Testing [0/5]
 
 ** TODO [#A] Breaking blocks

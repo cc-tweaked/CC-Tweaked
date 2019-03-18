@@ -68,7 +68,7 @@ public class ImpostorRecipe extends ShapedRecipe
         {
             String group = JsonUtils.getString( json, "group", "" );
             ShapedRecipe recipe = RecipeSerializers.CRAFTING_SHAPED.read( identifier, json );
-            ItemStack result = CraftingHelper.getItemStack( JsonUtils.getJsonObject( json, "result" ), false );
+            ItemStack result = CraftingHelper.getItemStack( JsonUtils.getJsonObject( json, "result" ), true );
             return new ImpostorRecipe( identifier, group, recipe.getWidth(), recipe.getHeight(), recipe.getIngredients(), result );
         }
 
