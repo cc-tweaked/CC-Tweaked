@@ -53,34 +53,34 @@ commands.computercraft.help.no_children=%s hat keine Unterbefehle
 commands.computercraft.help.no_command=Unbekannter Befehl '%s'
 
 commands.computercraft.dump.synopsis=Zeigt den Status eines Computers.
-commands.computercraft.dump.desc=Zeigt den Status aller Computer oder genauere Informationen über einen angegebenen Computer. Du kannst den Computer entweder über seine Instanz ID (z.B. 123), seine Computer ID (z.B. #123) der seinen Namen (z.B. "@Mein Computer") angeben.
+commands.computercraft.dump.desc=Zeigt den Status aller Computer oder genauere Informationen über einen angegebenen Computer. Der Computer kann entweder über seine Instanz ID (z.B. 123), seine Computer ID (z.B. #123) oder seinen Namen (z.B. "@Mein Computer") angegeben werden.
 commands.computercraft.dump.usage=[ID]
 commands.computercraft.dump.action=Zeigt mehr Informationen über einen Computer
 
 commands.computercraft.shutdown.synopsis=Fährt den Computer aus der Ferne herunter.
-commands.computercraft.shutdown.desc=Fährt die angegebenen Computer herunter. Falls keine Computer angeben sind, werden alle heruntergefahren. Du kannst den Computer entweder über seine Instanz ID (z.B. 123), seine Computer ID (z.B. #123) der seinen Namen (z.B. "@Mein Computer") angeben. 
+commands.computercraft.shutdown.desc=Fährt die angegebenen Computer herunter. Falls keine Computer angeben sind, werden alle heruntergefahren. Der Computer kann entweder über seine Instanz ID (z.B. 123), seine Computer ID (z.B. #123) oder seinen Namen (z.B. "@Mein Computer") angegeben werden. 
 commands.computercraft.shutdown.usage=[IDs...]
 commands.computercraft.shutdown.done=Fährt die Computer %s/%s herunter
 
 commands.computercraft.turn_on.synopsis=Fährt einen Computer aus der Ferne hoch.
-commands.computercraft.turn_on.desc=Fährt die angegebenen Computer hoch. Du kannst den Computer entweder über seine Instanz ID (z.B. 123), seine Computer ID (z.B. #123) der seinen Namen (z.B. "@Mein Computer") angeben.
+commands.computercraft.turn_on.desc=Fährt die angegebenen Computer hoch. Der Computer kann entweder über seine Instanz ID (z.B. 123), seine Computer ID (z.B. #123) oder seinen Namen (z.B. "@Mein Computer") angegeben werden.
 commands.computercraft.turn_on.usage=[IDs...]
 commands.computercraft.turn_on.done=Fährt die Computer %s/%s hoch
 
 commands.computercraft.tp.synopsis=Teleportiert dich zum angegebenen Computer.
-commands.computercraft.tp.desc=Teleportiert dich zum Standort eines Computers. Du kannst den Computer entweder über seine Instanz ID (z.B. 123), seine Computer ID (z.B. #123) der seinen Namen (z.B. "@Mein Computer") angeben.
+commands.computercraft.tp.desc=Teleportiert dich zum Standort eines Computers. Der Computer kann entweder über seine Instanz ID (z.B. 123), seine Computer ID (z.B. #123) oder seinen Namen (z.B. "@Mein Computer") angegeben werden.
 commands.computercraft.tp.usage=<ID>
 commands.computercraft.tp.action=Teleportiert dich zum Computer
 commands.computercraft.tp.not_entity=Konnte Terminal für Nicht-Spieler nicht öffnen
 commands.computercraft.tp.not_there=Konnte Computer in der Welt nicht finden
 
 commands.computercraft.view.synopsis=Zeigt das Terminal eines Computers.
-commands.computercraft.view.desc=Zeigt das Terminal eines Computers. Dies ermöglicht, den Computer aus der Ferne zu steuern. Ein Zugriff auf das Inventar eines Turtles ist dadurch allerdings nicht möglich. Du kannst den Computer entweder über seine Instanz ID (z.B. 123), seine Computer ID (z.B. #123) der seinen Namen (z.B. "@Mein Computer") angeben.
+commands.computercraft.view.desc=Zeigt das Terminal eines Computers. Dies ermöglicht, den Computer aus der Ferne zu steuern. Ein Zugriff auf das Inventar eines Turtles ist dadurch allerdings nicht möglich. Der Computer kann entweder über seine Instanz ID (z.B. 123), seine Computer ID (z.B. #123) oder seinen Namen (z.B. "@Mein Computer") angegeben werden.
 commands.computercraft.view.usage=<ID>
 commands.computercraft.view.action=Zeigt den Computer
 commands.computercraft.view.not_player=Konnte Terminal für Nicht-Spieler nicht öffnen
 
-commands.computercraft.track.synopsis=Zeichnet die Laufzeiten von computern auf.
+commands.computercraft.track.synopsis=Zeichnet die Laufzeiten von Computern auf.
 commands.computercraft.track.desc=Zeichnet die Laufzeiten von Computern und wie viele Events ausgelöst werden auf. Die Ausgabe der Informationen ist ähnlich zu /forge track, was beim aufspüren von Lags sehr hilfreich sein kann.
 
 commands.computercraft.track.start.synopsis=Startet die Aufzeichnung von Computern
@@ -101,8 +101,8 @@ commands.computercraft.track.dump.no_timings=Keine Zeitangaben verfügbar
 commands.computercraft.track.dump.no_field=Unbekanntes Feld '%s'
 commands.computercraft.track.dump.computer=Computer
 
-commands.computercraft.reload.synopsis=List die Konfigurationsdatei von ComputerCraft neu ein
-commands.computercraft.reload.desc=List die Konfigurationsdatei von ComputerCraft neu ein
+commands.computercraft.reload.synopsis=Liest die Konfigurationsdatei von ComputerCraft neu ein
+commands.computercraft.reload.desc=Liest die Konfigurationsdatei von ComputerCraft neu ein
 commands.computercraft.reload.usage=
 commands.computercraft.reload.done=Die Konfigurationsdatei wurde erfolgreich neu eingelesen
 
@@ -117,8 +117,8 @@ commands.computercraft.generic.no=N
 commands.computercraft.generic.exception=Unbehandelte Ausnahme (%s)
 commands.computercraft.generic.additional_rows=%d zusätzliche Zeilen…
 
-commands.computercraft.argument.no_matching=kein Computer passt auf '%s'
-commands.computercraft.argument.many_matching=Mehre Computer passen auf '%s' (Instanzen %s)
+commands.computercraft.argument.no_matching=Kein Computer passt auf '%s'
+commands.computercraft.argument.many_matching=Mehrere Computer passen auf '%s' (Instanzen %s)
 commands.computercraft.argument.not_number='%s' ist keine Zahl
 
 # Names for the various tracking fields.
