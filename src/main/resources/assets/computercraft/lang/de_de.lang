@@ -58,7 +58,7 @@ commands.computercraft.dump.usage=[ID]
 commands.computercraft.dump.action=Zeigt mehr Informationen über einen Computer
 
 commands.computercraft.shutdown.synopsis=Fährt den Computer aus der Ferne herunter.
-commands.computercraft.shutdown.desc=Fährt die angegebenen Computer herunter. Falls keine Computer angeben sind, werden alle heruntergefahren. Der Computer kann entweder über seine Instanz ID (z.B. 123), seine Computer ID (z.B. #123) oder seinen Namen (z.B. "@Mein Computer") angegeben werden. 
+commands.computercraft.shutdown.desc=Fährt die angegebenen Computer herunter. Falls keine Computer angegeben sind, werden alle heruntergefahren. Der Computer kann entweder über seine Instanz ID (z.B. 123), seine Computer ID (z.B. #123) oder seinen Namen (z.B. "@Mein Computer") angegeben werden. 
 commands.computercraft.shutdown.usage=[IDs...]
 commands.computercraft.shutdown.done=Fährt die Computer %s/%s herunter
 
@@ -141,8 +141,8 @@ tracking_field.computercraft.http_download.name=HTTT Download
 tracking_field.computercraft.websocket_incoming.name=Websocket eingehend
 tracking_field.computercraft.websocket_outgoing.name=Websocket ausgehend
 
-tracking_field.computercraft.coroutines_created.name=Coroutines erstellt
-tracking_field.computercraft.coroutines_dead.name=Coroutines gelöscht
+tracking_field.computercraft.coroutines_created.name=Koroutinen erstellt
+tracking_field.computercraft.coroutines_dead.name=Koroutinen gelöscht
 
 # Misc tooltips
 gui.computercraft.tooltip.copy=In die Zwischenablage kopieren
