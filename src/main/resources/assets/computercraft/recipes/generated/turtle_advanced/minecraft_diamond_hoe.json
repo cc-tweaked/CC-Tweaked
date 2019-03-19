@@ -2,7 +2,7 @@
     "type": "computercraft:impostor_shaped",
     "group": "computercraft:upgrade_turtle_advanced",
     "pattern": [
-        "T#"
+        "#T"
     ],
     "key": {
         "#": { "item": "minecraft:diamond_hoe" },

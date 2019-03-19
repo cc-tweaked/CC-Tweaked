@@ -2,7 +2,7 @@
     "type": "computercraft:impostor_shaped",
     "group": "computercraft:upgrade_turtle_normal",
     "pattern": [
-        "T#"
+        "#T"
     ],
     "key": {
         "#": { "item": "computercraft:peripheral", "data": 5 },

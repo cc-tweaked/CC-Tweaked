@@ -25,39 +25,37 @@ apply plugin: 'org.ajoberstar.grgit'
 apply plugin: 'maven-publish'
 apply plugin: 'maven'
 
-def mc_version = "1.12.2"
-def main_version = "1.81.1"
-version = "${mc_version}-${main_version}"
+version = mod_version
 
 group = "org.squiddev"
-archivesBaseName = "cc-tweaked"
+archivesBaseName = "cc-tweaked-${mc_version}"
 
 minecraft {
-    version = "${mc_version}-14.23.4.2749"
+    version = "${mc_version}-${forge_version}"
     runDir = "run"
-    replace '${version}', main_version
+    replace '${version}', mod_version
 
-    // the mappings can be changed at any time, and must be in the following format.
-    // snapshot_YYYYMMDD   snapshot are built nightly.
-    // stable_#            stables are built at the discretion of the MCP team.
-    // Use non-default mappings at your own risk. they may not allways work.
-    // simply re-run your setup task after changing the mappings to update your workspace.
-    mappings = "snapshot_20180724"
-    // makeObfSourceJar = false // an Srg named sources jar is made by default. uncomment this to disable.
+    mappings = mappings_version
+    makeObfSourceJar = false
 }
 
 repositories {
     maven {
-        name = "JEI"
-        url  = "http://dvs1.progwml6.com/files/maven"
+        name "JEI"
+        url "http://dvs1.progwml6.com/files/maven"
     }
     maven {
-        name = "squiddev"
-        url = "https://squiddev.cc/maven"
+        name "SquidDev"
+        url "https://squiddev.cc/maven"
     }
-
-    ivy { artifactPattern "https://asie.pl/files/mods/Charset/LibOnly/[module]-[revision](-[classifier]).[ext]" }
-    maven { url "http://maven.amadornes.com/" }
+    ivy {
+        name "Charset"
+        artifactPattern "https://asie.pl/files/mods/Charset/LibOnly/[module]-[revision](-[classifier]).[ext]"
+    }
+    maven {
+        name "Amadornes"
+        url "http://maven.amadornes.com/"
+    }
 }
 
 configurations {
@@ -152,7 +150,7 @@ task proguardMove(dependsOn: proguard) {
 reobfJar.dependsOn proguardMove
 
 processResources {
-    inputs.property "version", main_version
+    inputs.property "version", mod_version
     inputs.property "mcversion", mc_version
 
     def hash = 'none'
@@ -174,7 +172,7 @@ processResources {
         include 'mcmod.info'
         include 'assets/computercraft/lua/rom/help/credits.txt'
 
-        expand 'version': main_version,
+        expand 'version': mod_version,
                'mcversion': mc_version,
                'gitcontributors': contributors.sort(false, String.CASE_INSENSITIVE_ORDER).join('\n')
     }
@@ -260,22 +258,22 @@ uploadArchives {
                 pom.project {
                     name 'CC: Tweaked'
                     packaging 'jar'
-                    description 'A fork of ComputerCraft which aims to provide earlier access to the more experimental and in-development features of the mod.'
+                    description 'CC: Tweaked is a fork of ComputerCraft, adding programmable computers, turtles and more to Minecraft.'
                     url 'https://github.com/SquidDev-CC/CC-Tweaked'
 
                     scm {
-                        url 'https://github.com/dan200/ComputerCraft.git'
+                        url 'https://github.com/SquidDev-CC/CC-Tweaked.git'
                     }
 
                     issueManagement {
                         system 'github'
-                        url 'https://github.com/dan200/ComputerCraft/issues'
+                        url 'https://github.com/SquidDev-CC/CC-Tweaked/issues'
                     }
 
                     licenses {
                         license {
                             name 'ComputerCraft Public License, Version 1.0'
-                            url 'https://github.com/dan200/ComputerCraft/blob/master/LICENSE'
+                            url 'https://github.com/SquidDev-CC/CC-Tweaked/blob/master/LICENSE'
                             distribution 'repo'
                         }
                     }
@@ -298,7 +296,7 @@ test {
 
 gradle.projectsEvaluated {
     tasks.withType(JavaCompile) {
-        options.compilerArgs << "-Xlint"
+        options.compilerArgs << "-Xlint" << "-Xlint:-processing" << "-Werror"
     }
 }
 

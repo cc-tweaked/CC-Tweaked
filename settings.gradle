@@ -1,1 +1,1 @@
-rootProject.name = 'cc-tweaked'
+rootProject.name = "cc-tweaked-${mc_version}"

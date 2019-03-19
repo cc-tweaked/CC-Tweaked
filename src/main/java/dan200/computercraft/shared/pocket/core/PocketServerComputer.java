@@ -42,6 +42,7 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
 
     @Nullable
     @Override
+    @Deprecated
     public Entity getEntity()
     {
         return m_entity;
