@@ -20,6 +20,7 @@ local primary = "en_us"
 
 local secondary = {
     "de_de",
+    "es_es",
     "fr_fr",
     "it_it",
     "pt_br",
@@ -100,7 +101,7 @@ for _, language in ipairs(secondary) do
         for k, v in pairs(keys) do extra[#extra + 1] = ("%s=%s\n"):format(k, v) end
         table.sort(extra)
 
-        io.stderr:write(("%d additional unknown translation keys or %q\n"):format(#extra, language))
+        io.stderr:write(("%d additional unknown translation keys in %q\n"):format(#extra, language))
 
         if not previous_blank then h:write("\n") end
         h:write("#Unknown translations\n")
