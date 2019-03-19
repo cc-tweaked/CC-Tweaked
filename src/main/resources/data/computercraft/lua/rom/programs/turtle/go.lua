@@ -5,18 +5,18 @@ if #tArgs < 1 then
 end
 
 local tHandlers = {
-    ["fd"] = turtle.forward,
-    ["forward"] = turtle.forward,
-    ["forwards"] = turtle.forward,
-    ["bk"] = turtle.back,
-    ["back"] = turtle.back,
-    ["up"] = turtle.up,
-    ["dn"] = turtle.down,
-    ["down"] = turtle.down,
-    ["lt"] = turtle.turnLeft,
-    ["left"] = turtle.turnLeft,
-    ["rt"] = turtle.turnRight,
-    ["right"] = turtle.turnRight,
+    fd       = turtle.forward,
+    forward  = turtle.forward,
+    forwards = turtle.forward,
+    bk       = turtle.back,
+    back     = turtle.back,
+    up       = turtle.up,
+    dn       = turtle.down,
+    down     = turtle.down,
+    lt       = turtle.turnLeft,
+    left     = turtle.turnLeft,
+    rt       = turtle.turnRight,
+    right    = turtle.turnRight,
 }
 
 local nArg = 1
@@ -49,5 +49,4 @@ while nArg <= #tArgs do
         print( "Try: forward, back, up, down" )
         return
     end
-
 end
