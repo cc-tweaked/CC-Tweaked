@@ -25,6 +25,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * <li>Keeps track of whether the computer is on and blinking.</li>
  * <li>Monitors whether the computer's visible state (redstone, on/off/blinking) has changed.</li>
  * <li>Passes commands and events to the {@link ComputerExecutor}.</li>
+ * <li>Passes main thread tasks to the {@link MainThreadExecutor}.</li>
  * </ul>
  */
 public class Computer
@@ -39,6 +40,7 @@ public class Computer
     private final IComputerEnvironment m_environment;
     private final Terminal m_terminal;
     private final ComputerExecutor executor;
+    private final MainThreadExecutor serverExecutor;
 
     // Additional state about the computer and its environment.
     private boolean m_blinking = false;
@@ -55,6 +57,7 @@ public class Computer
         m_terminal = terminal;
 
         executor = new ComputerExecutor( this );
+        serverExecutor = new MainThreadExecutor( this );
     }
 
     IComputerEnvironment getComputerEnvironment()
@@ -110,6 +113,43 @@ public class Computer
     public void queueEvent( String event, Object[] args )
     {
         executor.queueEvent( event, args );
+    }
+
+    /**
+     * Queue a task to be run on the main thread, using {@link MainThread}.
+     *
+     * @param runnable The task to run
+     * @return If the task was successfully queued (namely, whether there is space on it).
+     */
+    public boolean queueMainThread( Runnable runnable )
+    {
+        return serverExecutor.enqueue( runnable );
+    }
+
+    /**
+     * If this computer is allowed to execute work on the main thread.
+     *
+     * One only needs to use this if executing work outside of {@link #queueMainThread(Runnable)}.
+     *
+     * @return If we can execute work on the main thread this tick.
+     * @see #afterExecuteMainThread(long)
+     */
+    public boolean canExecuteMainThread()
+    {
+        return MainThread.canExecute() && serverExecutor.canExecuteExternal();
+    }
+
+    /**
+     * Increment the time taken to execute work this tick.
+     *
+     * One only needs to use this if executing work outside of {@link #queueMainThread(Runnable)}.
+     *
+     * @param time The time, in nanoseconds.
+     * @see #canExecuteMainThread()
+     */
+    public void afterExecuteMainThread( long time )
+    {
+        serverExecutor.afterExecuteExternal( time );
     }
 
     public int getID()

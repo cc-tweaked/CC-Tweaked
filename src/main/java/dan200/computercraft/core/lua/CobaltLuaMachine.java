@@ -9,7 +9,6 @@ package dan200.computercraft.core.lua;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.lua.*;
 import dan200.computercraft.core.computer.Computer;
-import dan200.computercraft.core.computer.ITask;
 import dan200.computercraft.core.computer.MainThread;
 import dan200.computercraft.core.computer.TimeoutState;
 import dan200.computercraft.core.tracking.Tracking;
@@ -536,53 +535,36 @@ public class CobaltLuaMachine implements ILuaMachine
         {
             // Issue command
             final long taskID = MainThread.getUniqueTaskID();
-            final ITask iTask = new ITask()
-            {
-                @Nonnull
-                @Override
-                public Computer getOwner()
+            final Runnable iTask = () -> {
+                try
                 {
-                    return m_computer;
+                    Object[] results = task.execute();
+                    if( results != null )
+                    {
+                        Object[] eventArguments = new Object[results.length + 2];
+                        eventArguments[0] = taskID;
+                        eventArguments[1] = true;
+                        System.arraycopy( results, 0, eventArguments, 2, results.length );
+                        m_computer.queueEvent( "task_complete", eventArguments );
+                    }
+                    else
+                    {
+                        m_computer.queueEvent( "task_complete", new Object[] { taskID, true } );
+                    }
                 }
-
-                @Override
-                public void execute()
+                catch( LuaException e )
                 {
-                    try
-                    {
-                        Object[] results = task.execute();
-                        if( results != null )
-                        {
-                            Object[] eventArguments = new Object[results.length + 2];
-                            eventArguments[0] = taskID;
-                            eventArguments[1] = true;
-                            System.arraycopy( results, 0, eventArguments, 2, results.length );
-                            m_computer.queueEvent( "task_complete", eventArguments );
-                        }
-                        else
-                        {
-                            m_computer.queueEvent( "task_complete", new Object[] { taskID, true } );
-                        }
-                    }
-                    catch( LuaException e )
-                    {
-                        m_computer.queueEvent( "task_complete", new Object[] {
-                            taskID, false, e.getMessage()
-                        } );
-                    }
-                    catch( Throwable t )
-                    {
-                        if( ComputerCraft.logPeripheralErrors )
-                        {
-                            ComputerCraft.log.error( "Error running task", t );
-                        }
-                        m_computer.queueEvent( "task_complete", new Object[] {
-                            taskID, false, "Java Exception Thrown: " + t.toString()
-                        } );
-                    }
+                    m_computer.queueEvent( "task_complete", new Object[] { taskID, false, e.getMessage() } );
+                }
+                catch( Throwable t )
+                {
+                    if( ComputerCraft.logPeripheralErrors ) ComputerCraft.log.error( "Error running task", t );
+                    m_computer.queueEvent( "task_complete", new Object[] {
+                        taskID, false, "Java Exception Thrown: " + t.toString()
+                    } );
                 }
             };
-            if( MainThread.queueTask( iTask ) )
+            if( m_computer.queueMainThread( iTask ) )
             {
                 return taskID;
             }

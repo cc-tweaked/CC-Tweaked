@@ -24,6 +24,7 @@ import dan200.computercraft.api.turtle.event.TurtleAction;
 import dan200.computercraft.core.apis.AddressPredicate;
 import dan200.computercraft.core.apis.ApiFactories;
 import dan200.computercraft.core.apis.http.websocket.Websocket;
+import dan200.computercraft.core.computer.MainThread;
 import dan200.computercraft.core.filesystem.ComboMount;
 import dan200.computercraft.core.filesystem.FileMount;
 import dan200.computercraft.core.filesystem.JarMount;
@@ -304,6 +305,7 @@ public class ComputerCraft
         {
             ComputerCraft.serverComputerRegistry.reset();
             WirelessNetwork.resetNetworks();
+            MainThread.reset();
             Tracking.reset();
         }
     }
@@ -315,6 +317,7 @@ public class ComputerCraft
         {
             ComputerCraft.serverComputerRegistry.reset();
             WirelessNetwork.resetNetworks();
+            MainThread.reset();
             Tracking.reset();
         }
     }

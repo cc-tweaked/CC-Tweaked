@@ -133,7 +133,7 @@ final class ComputerExecutor
      *
      * Note, this should be empty if this computer is off - it is cleared on shutdown and when turning on again.
      */
-    private final Queue<Event> eventQueue = new ArrayDeque<>();
+    private final Queue<Event> eventQueue = new ArrayDeque<>( 4 );
 
     /**
      * Whether we interrupted an event and so should resume it instead of executing another task.

@@ -112,7 +112,7 @@ public class ComputerThread
 
         long at = a.virtualRuntime, bt = b.virtualRuntime;
         if( at == bt ) return Integer.compare( a.hashCode(), b.hashCode() );
-        return Long.compare( at, bt );
+        return at < bt ? -1 : 1;
     } );
 
     /**

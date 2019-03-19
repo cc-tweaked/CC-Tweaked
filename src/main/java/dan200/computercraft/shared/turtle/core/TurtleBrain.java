@@ -13,7 +13,6 @@ import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.turtle.*;
-import dan200.computercraft.core.tracking.Tracking;
 import dan200.computercraft.shared.computer.blocks.ComputerProxy;
 import dan200.computercraft.shared.computer.blocks.TileComputerBase;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
@@ -957,53 +956,50 @@ public class TurtleBrain implements ITurtleAccess
 
     private void updateCommands()
     {
-        if( m_animation == TurtleAnimation.None )
+        if( m_animation != TurtleAnimation.None || m_commandQueue.isEmpty() ) return;
+
+        // If we've got a computer, ensure that we're allowed to perform work.
+        ServerComputer computer = m_owner.getServerComputer();
+        if( computer != null && !computer.getComputer().canExecuteMainThread() ) return;
+
+        // Pull a new command
+        TurtleCommandQueueEntry nextCommand = m_commandQueue.poll();
+        if( nextCommand == null ) return;
+
+        // Execute the command
+        long start = System.nanoTime();
+        TurtleCommandResult result = nextCommand.command.execute( this );
+        long end = System.nanoTime();
+
+        // Dispatch the callback
+        if( computer == null ) return;
+        computer.getComputer().afterExecuteMainThread( end - start );
+        int callbackID = nextCommand.callbackID;
+        if( callbackID < 0 ) return;
+
+        if( result != null && result.isSuccess() )
         {
-            // Pull a new command
-            TurtleCommandQueueEntry nextCommand = m_commandQueue.poll();
-            if( nextCommand != null )
+            Object[] results = result.getResults();
+            if( results != null )
             {
-                ServerComputer computer = m_owner.getServerComputer();
-
-                // Execute the command
-                long start = System.nanoTime();
-                TurtleCommandResult result = nextCommand.command.execute( this );
-                long end = System.nanoTime();
-
-                // Dispatch the callback
-                if( computer != null )
-                {
-                    Tracking.addServerTiming( computer.getComputer(), end - start );
-                    int callbackID = nextCommand.callbackID;
-                    if( callbackID >= 0 )
-                    {
-                        if( result != null && result.isSuccess() )
-                        {
-                            Object[] results = result.getResults();
-                            if( results != null )
-                            {
-                                Object[] arguments = new Object[results.length + 2];
-                                arguments[0] = callbackID;
-                                arguments[1] = true;
-                                System.arraycopy( results, 0, arguments, 2, results.length );
-                                computer.queueEvent( "turtle_response", arguments );
-                            }
-                            else
-                            {
-                                computer.queueEvent( "turtle_response", new Object[] {
-                                    callbackID, true
-                                } );
-                            }
-                        }
-                        else
-                        {
-                            computer.queueEvent( "turtle_response", new Object[] {
-                                callbackID, false, result != null ? result.getErrorMessage() : null
-                            } );
-                        }
-                    }
-                }
+                Object[] arguments = new Object[results.length + 2];
+                arguments[0] = callbackID;
+                arguments[1] = true;
+                System.arraycopy( results, 0, arguments, 2, results.length );
+                computer.queueEvent( "turtle_response", arguments );
             }
+            else
+            {
+                computer.queueEvent( "turtle_response", new Object[] {
+                    callbackID, true
+                } );
+            }
+        }
+        else
+        {
+            computer.queueEvent( "turtle_response", new Object[] {
+                callbackID, false, result != null ? result.getErrorMessage() : null
+            } );
         }
     }
 
