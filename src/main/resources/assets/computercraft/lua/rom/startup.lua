@@ -1,6 +1,6 @@
 
 -- Setup paths
-local sPath = ".:/rom/programs"
+local sPath = ".:/rom/programs:/programs"
 if term.isColor() then
     sPath = sPath..":/rom/programs/advanced"
 end
@@ -22,7 +22,7 @@ if http then
     sPath = sPath..":/rom/programs/http"
 end
 shell.setPath( sPath )
-help.setPath( "/rom/help" )
+help.setPath( "/rom/help:/help" )
 
 -- Setup aliases
 shell.setAlias( "ls", "list" )
