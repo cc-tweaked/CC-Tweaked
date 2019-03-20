@@ -7,9 +7,8 @@
 package dan200.computercraft.core.apis;
 
 import dan200.computercraft.api.peripheral.IPeripheral;
-import dan200.computercraft.core.computer.Computer;
+import dan200.computercraft.api.peripheral.IWorkMonitor;
 import dan200.computercraft.core.computer.IComputerEnvironment;
-import dan200.computercraft.core.computer.IComputerOwned;
 import dan200.computercraft.core.filesystem.FileSystem;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.core.tracking.TrackingField;
@@ -17,7 +16,7 @@ import dan200.computercraft.core.tracking.TrackingField;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public interface IAPIEnvironment extends IComputerOwned
+public interface IAPIEnvironment
 {
     String[] SIDE_NAMES = new String[] {
         "bottom", "top", "back", "front", "right", "left",
@@ -30,14 +29,13 @@ public interface IAPIEnvironment extends IComputerOwned
         void onPeripheralChanged( int side, @Nullable IPeripheral newPeripheral );
     }
 
-    @Nonnull
-    @Override
-    Computer getComputer();
-
     int getComputerID();
 
     @Nonnull
     IComputerEnvironment getComputerEnvironment();
+
+    @Nonnull
+    IWorkMonitor getMainThreadMonitor();
 
     @Nonnull
     Terminal getTerminal();

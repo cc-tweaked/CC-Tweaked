@@ -6,12 +6,15 @@
 
 package dan200.computercraft.core.computer;
 
+import dan200.computercraft.api.peripheral.IWorkMonitor;
 import dan200.computercraft.core.tracking.Tracking;
 import dan200.computercraft.shared.turtle.core.TurtleBrain;
 import net.minecraft.tileentity.TileEntity;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayDeque;
 import java.util.Queue;
+import java.util.concurrent.TimeUnit;
 
 import static dan200.computercraft.core.computer.MainThread.MAX_COMPUTER_TIME;
 
@@ -48,7 +51,7 @@ import static dan200.computercraft.core.computer.MainThread.MAX_COMPUTER_TIME;
  * @see Computer#queueMainThread(Runnable)
  * @see Computer#afterExecuteMainThread(long)
  */
-final class MainThreadExecutor
+final class MainThreadExecutor implements IWorkMonitor
 {
     /**
      * The maximum number of {@link MainThread} tasks allowed on the queue.
@@ -100,7 +103,7 @@ final class MainThreadExecutor
     /**
      * The current state of this executor.
      *
-     * @see #canExecuteExternal()
+     * @see #canWork()
      */
     private State state = State.COOL;
 
@@ -156,25 +159,22 @@ final class MainThreadExecutor
     }
 
     /**
-     * Update the time taken to run an external task (one not part of {@link #tasks}), incrementing the appropriate
-     * statistics.
-     *
-     * @param time The time some task took to run
-     */
-    void afterExecuteExternal( long time )
-    {
-        consumeTime( time );
-        MainThread.consumeTime( time );
-    }
-
-    /**
      * Whether we should execute "external" tasks (ones not part of {@link #tasks}).
      *
      * @return Whether we can execute external tasks.
      */
-    boolean canExecuteExternal()
+    @Override
+    public boolean canWork()
     {
-        return state != State.COOLING;
+        return state != State.COOLING && MainThread.canExecute();
+    }
+
+    @Override
+    public void trackWork( long time, @Nonnull TimeUnit unit )
+    {
+        long nanoTime = unit.toNanos( time );
+        consumeTime( nanoTime );
+        MainThread.consumeTime( nanoTime );
     }
 
     private void consumeTime( long time )

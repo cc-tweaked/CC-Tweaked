@@ -9,6 +9,8 @@ package dan200.computercraft.api.peripheral;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.api.filesystem.IWritableMount;
+import dan200.computercraft.api.lua.ILuaContext;
+import dan200.computercraft.api.lua.ILuaTask;
 import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
@@ -179,7 +181,7 @@ public interface IComputerAccess
     }
 
     /**
-     * Get a reachable peripheral with the given attachement name. This is a equivalent to
+     * Get a reachable peripheral with the given attachment name. This is a equivalent to
      * {@link #getAvailablePeripherals()}{@code .get(name)}, though may be more performant.
      *
      * @param name The peripheral's attached name
@@ -188,6 +190,25 @@ public interface IComputerAccess
      */
     @Nullable
     default IPeripheral getAvailablePeripheral( @Nonnull String name )
+    {
+        return null;
+    }
+
+    /**
+     * Get a {@link IWorkMonitor} for tasks your peripheral might execute on the main (server) thread.
+     *
+     * This should be used to ensure your peripheral integrates with ComputerCraft's monitoring and limiting of how much
+     * server time each computer consumes. You should not need to use this if you use
+     * {@link ILuaContext#issueMainThreadTask(ILuaTask)} - this is intended for mods with their own system for running
+     * work on the main thread.
+     *
+     * Please note that the returned implementation is <em>not</em> thread-safe, and should only be used from the main
+     * thread.
+     *
+     * @return The work monitor for the main thread, or {@code null} if this computer does not have one.
+     */
+    @Nullable
+    default IWorkMonitor getMainThreadMonitor()
     {
         return null;
     }

@@ -40,6 +40,7 @@ import net.minecraftforge.items.IItemHandlerModifiable;
 
 import javax.annotation.Nonnull;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 public class TurtleBrain implements ITurtleAccess
 {
@@ -960,7 +961,7 @@ public class TurtleBrain implements ITurtleAccess
 
         // If we've got a computer, ensure that we're allowed to perform work.
         ServerComputer computer = m_owner.getServerComputer();
-        if( computer != null && !computer.getComputer().canExecuteMainThread() ) return;
+        if( computer != null && !computer.getComputer().getMainThreadMonitor().canWork() ) return;
 
         // Pull a new command
         TurtleCommandQueueEntry nextCommand = m_commandQueue.poll();
@@ -973,7 +974,7 @@ public class TurtleBrain implements ITurtleAccess
 
         // Dispatch the callback
         if( computer == null ) return;
-        computer.getComputer().afterExecuteMainThread( end - start );
+        computer.getComputer().getMainThreadMonitor().trackWork( end - start, TimeUnit.NANOSECONDS );
         int callbackID = nextCommand.callbackID;
         if( callbackID < 0 ) return;
 

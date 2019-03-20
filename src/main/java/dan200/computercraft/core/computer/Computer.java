@@ -9,6 +9,7 @@ package dan200.computercraft.core.computer;
 import com.google.common.base.Objects;
 import dan200.computercraft.api.lua.ILuaAPI;
 import dan200.computercraft.api.peripheral.IPeripheral;
+import dan200.computercraft.api.peripheral.IWorkMonitor;
 import dan200.computercraft.core.apis.IAPIEnvironment;
 import dan200.computercraft.core.filesystem.FileSystem;
 import dan200.computercraft.core.terminal.Terminal;
@@ -126,30 +127,9 @@ public class Computer
         return serverExecutor.enqueue( runnable );
     }
 
-    /**
-     * If this computer is allowed to execute work on the main thread.
-     *
-     * One only needs to use this if executing work outside of {@link #queueMainThread(Runnable)}.
-     *
-     * @return If we can execute work on the main thread this tick.
-     * @see #afterExecuteMainThread(long)
-     */
-    public boolean canExecuteMainThread()
+    public IWorkMonitor getMainThreadMonitor()
     {
-        return MainThread.canExecute() && serverExecutor.canExecuteExternal();
-    }
-
-    /**
-     * Increment the time taken to execute work this tick.
-     *
-     * One only needs to use this if executing work outside of {@link #queueMainThread(Runnable)}.
-     *
-     * @param time The time, in nanoseconds.
-     * @see #canExecuteMainThread()
-     */
-    public void afterExecuteMainThread( long time )
-    {
-        serverExecutor.afterExecuteExternal( time );
+        return serverExecutor;
     }
 
     public int getID()
