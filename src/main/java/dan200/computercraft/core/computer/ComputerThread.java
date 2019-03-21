@@ -10,6 +10,7 @@ import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.util.ThreadUtils;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.TreeSet;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
@@ -205,7 +206,7 @@ public class ComputerThread
             if( executor.onComputerQueue ) throw new IllegalStateException( "Cannot queue already queued executor" );
             executor.onComputerQueue = true;
 
-            updateRuntimes();
+            updateRuntimes( null );
 
             // We're not currently on the queue, so update its current execution time to
             // ensure its at least as high as the minimum.
@@ -241,7 +242,7 @@ public class ComputerThread
      *
      * This is called before queueing tasks, to ensure that {@link #minimumVirtualRuntime} is up-to-date.
      */
-    private static void updateRuntimes()
+    private static void updateRuntimes( @Nullable ComputerExecutor current )
     {
         long minRuntime = Long.MAX_VALUE;
 
@@ -249,12 +250,11 @@ public class ComputerThread
         if( !computerQueue.isEmpty() ) minRuntime = computerQueue.first().virtualRuntime;
 
         // Update all the currently executing tasks
+        long now = System.nanoTime();
+        int tasks = 1 + computerQueue.size();
         TaskRunner[] currentRunners = runners;
         if( currentRunners != null )
         {
-            long now = System.nanoTime();
-            int tasks = 1 + computerQueue.size();
-
             for( TaskRunner runner : currentRunners )
             {
                 if( runner == null ) continue;
@@ -266,6 +266,12 @@ public class ComputerThread
                 minRuntime = Math.min( minRuntime, executor.virtualRuntime += (now - executor.vRuntimeStart) / tasks );
                 executor.vRuntimeStart = now;
             }
+        }
+
+        // And update the most recently executed one (if set).
+        if( current != null )
+        {
+            minRuntime = Math.min( minRuntime, current.virtualRuntime += (now - current.vRuntimeStart) / tasks );
         }
 
         if( minRuntime > minimumVirtualRuntime && minRuntime < Long.MAX_VALUE )
@@ -296,9 +302,7 @@ public class ComputerThread
         computerLock.lock();
         try
         {
-            // Update the virtual runtime of this task.
-            long now = System.nanoTime();
-            executor.virtualRuntime += (now - executor.vRuntimeStart) / (1 + computerQueue.size());
+            updateRuntimes( executor );
 
             // If we've no more tasks, just return.
             if( !executor.afterWork() ) return;
