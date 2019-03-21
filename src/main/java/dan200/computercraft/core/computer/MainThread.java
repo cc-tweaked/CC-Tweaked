@@ -6,13 +6,13 @@
 
 package dan200.computercraft.core.computer;
 
+import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.lua.ILuaTask;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayDeque;
 import java.util.HashSet;
 import java.util.Queue;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -25,29 +25,11 @@ import java.util.concurrent.atomic.AtomicLong;
  * {@link MainThread} starts cool, and runs as many tasks as it can in the current {@link #budget}ns. Any external tasks
  * (those run by tile entities, etc...) will also consume the budget
  *
- * Next tick, we put {@link #MAX_TICK_TIME} into our budget (and clamp it to that value to). If we're still over budget,
- * then we should not execute <em>any</em> work (either as part of {@link MainThread} or externally).
+ * Next tick, we put {@link ComputerCraft#maxMainGlobalTime} into our budget (and clamp it to that value to). If we're
+ * still over budget, then we should not execute <em>any</em> work (either as part of {@link MainThread} or externally).
  */
 public class MainThread
 {
-    /**
-     * The maximum time that can be spent executing tasks in a single tick.
-     *
-     * Note, we will quite possibly go over this limit, as there's no way to tell how long a will take - this aims
-     * to be the upper bound of the <em>average</em> time.
-     *
-     * @see #budget
-     */
-    private static final long MAX_TICK_TIME = TimeUnit.MILLISECONDS.toNanos( 10 );
-
-    /**
-     * The ideal maximum time a computer can execute for in a tick.
-     *
-     * Note, we will quite possibly go over this limit, as there's no way to tell how long a task will take - this aims
-     * to be the upper bound of the <em>average</em> time.
-     */
-    static final long MAX_COMPUTER_TIME = TimeUnit.MILLISECONDS.toNanos( 5 );
-
     /**
      * An internal counter for {@link ILuaTask} ids.
      *
@@ -133,7 +115,7 @@ public class MainThread
         // Of course, we'll go over the MAX_TICK_TIME most of the time, but eventually that overrun will accumulate
         // and we'll skip a whole tick - bringing the average back down again.
         currentTick++;
-        budget += Math.min( budget + MAX_TICK_TIME, MAX_TICK_TIME );
+        budget += Math.min( budget + ComputerCraft.maxMainGlobalTime, ComputerCraft.maxMainGlobalTime );
         canExecute = budget > 0;
 
         // Cool down any warm computers.

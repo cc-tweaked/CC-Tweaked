@@ -96,6 +96,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -134,8 +135,11 @@ public class ComputerCraft
     public static boolean disable_lua51_features = false;
     public static String default_computer_settings = "";
     public static boolean debug_enable = true;
-    public static int computer_threads = 1;
     public static boolean logPeripheralErrors = false;
+
+    public static int computer_threads = 1;
+    public static long maxMainGlobalTime = TimeUnit.MILLISECONDS.toNanos( 10 );
+    public static long maxMainComputerTime = TimeUnit.MILLISECONDS.toNanos( 5 );
 
     public static boolean http_enable = true;
     public static boolean http_websocket_enable = true;

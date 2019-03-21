@@ -56,8 +56,9 @@ gui.computercraft:config.maximum_open_files=Número máximo de arquivos em um co
 gui.computercraft:config.disable_lua51_features=Desabilitar funcionalidade da Lua 5.1
 gui.computercraft:config.default_computer_settings=Configurações padrão para Computadores
 gui.computercraft:config.debug_enabled=Habilitar biblioteca de debug
-gui.computercraft:config.computer_threads=Threads por computador
 gui.computercraft:config.log_computer_errors=Registrar erros de computadores
+
+gui.computercraft:config.execution.computer_threads=Threads por computador
 
 gui.computercraft:config.http=HTTP
 gui.computercraft:config.http.enabled=Habilitar a biblioteca de HTTP

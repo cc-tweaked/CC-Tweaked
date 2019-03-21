@@ -56,8 +56,9 @@ gui.computercraft:config.maximum_open_files=Max antal filer öppna per dator
 gui.computercraft:config.disable_lua51_features=Avaktivera Lua 5.1 funktioner
 gui.computercraft:config.default_computer_settings=Standard Datorinställningar
 gui.computercraft:config.debug_enabled=Aktivera debug bibliotek
-gui.computercraft:config.computer_threads=Dator trådar
 gui.computercraft:config.log_computer_errors=Logga datorfel
+
+gui.computercraft:config.execution.computer_threads=Dator trådar
 
 gui.computercraft:config.http=HTTP
 gui.computercraft:config.http.enabled=Aktivera HTTP API

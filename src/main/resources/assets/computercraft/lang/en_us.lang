@@ -156,8 +156,12 @@ gui.computercraft:config.maximum_open_files=Maximum files open per computer
 gui.computercraft:config.disable_lua51_features=Disable Lua 5.1 features
 gui.computercraft:config.default_computer_settings=Default Computer settings
 gui.computercraft:config.debug_enabled=Enable debug library
-gui.computercraft:config.computer_threads=Computer threads
 gui.computercraft:config.log_computer_errors=Log computer errors
+
+gui.computercraft:config.execution=Execution
+gui.computercraft:config.execution.computer_threads=Computer threads
+gui.computercraft:config.execution.max_main_global_time=Server tick global time limit
+gui.computercraft:config.execution.max_main_computer_time=Server tick computer time limit
 
 gui.computercraft:config.http=HTTP
 gui.computercraft:config.http.enabled=Enable the HTTP API
