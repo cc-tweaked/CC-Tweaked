@@ -36,11 +36,11 @@ public class InputState implements InputHandler
     }
 
     @Override
-    public void keyDown( int key, boolean repeat )
+    public void keyDown( int key, boolean repeat, int modifiers )
     {
         keysDown.add( key );
         IComputer computer = owner.getComputer();
-        if( computer != null ) computer.keyDown( key, repeat );
+        if( computer != null ) computer.keyDown( key, repeat, modifiers );
     }
 
     @Override

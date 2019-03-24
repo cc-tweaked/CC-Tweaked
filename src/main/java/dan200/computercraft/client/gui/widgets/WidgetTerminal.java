@@ -12,6 +12,7 @@ import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.core.terminal.TextBuffer;
 import dan200.computercraft.shared.computer.core.IComputer;
 import dan200.computercraft.shared.computer.core.IComputerContainer;
+import dan200.computercraft.shared.computer.core.InputHandler;
 import dan200.computercraft.shared.util.Colour;
 import dan200.computercraft.shared.util.Palette;
 import net.minecraft.client.Minecraft;
@@ -130,7 +131,14 @@ public class WidgetTerminal extends Widget
 
                     // Queue the "key" event
                     IComputer computer = m_computer.getComputer();
-                    if( computer != null ) computer.keyDown( key, repeat );
+                    if( computer != null )
+                    {
+                        computer.keyDown( key, repeat,
+                            (Keyboard.isKeyDown( Keyboard.KEY_LCONTROL ) || Keyboard.isKeyDown( Keyboard.KEY_RCONTROL ) ? InputHandler.MODIFIER_CTRL : 0) |
+                                (Keyboard.isKeyDown( Keyboard.KEY_LMENU ) || Keyboard.isKeyDown( Keyboard.KEY_RMENU ) ? InputHandler.MODIFIER_ALT : 0) |
+                                (Keyboard.isKeyDown( Keyboard.KEY_LSHIFT ) || Keyboard.isKeyDown( Keyboard.KEY_RSHIFT ) ? InputHandler.MODIFIER_SHIFT : 0)
+                        );
+                    }
                     handled = true;
                 }
 

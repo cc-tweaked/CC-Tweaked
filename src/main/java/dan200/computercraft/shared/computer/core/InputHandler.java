@@ -6,6 +6,9 @@
 
 package dan200.computercraft.shared.computer.core;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Receives some input and forwards it to a computer
  *
@@ -14,11 +17,19 @@ package dan200.computercraft.shared.computer.core;
  */
 public interface InputHandler
 {
+    int MODIFIER_CTRL = 1;
+    int MODIFIER_ALT = 2;
+    int MODIFIER_SHIFT = 4;
+
     void queueEvent( String event, Object[] arguments );
 
-    default void keyDown( int key, boolean repeat )
+    default void keyDown( int key, boolean repeat, int modifiers )
     {
-        queueEvent( "key", new Object[] { key, repeat } );
+        Map<String, Boolean> modifierTable = new HashMap<>( 3 );
+        modifierTable.put( "ctrl", (modifiers & MODIFIER_CTRL) != 0 );
+        modifierTable.put( "alt", (modifiers & MODIFIER_ALT) != 0 );
+        modifierTable.put( "shift", (modifiers & MODIFIER_SHIFT) != 0 );
+        queueEvent( "key", new Object[] { key, repeat, modifierTable } );
     }
 
     default void keyUp( int key )

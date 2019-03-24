@@ -115,15 +115,15 @@ public class ClientComputer extends ClientTerminal implements IComputer
     }
 
     @Override
-    public void keyDown( int key, boolean repeat )
+    public void keyDown( int key, boolean repeat, int modifiers )
     {
-        NetworkHandler.sendToServer( new KeyEventServerMessage( m_instanceID, repeat ? KeyEventServerMessage.TYPE_REPEAT : KeyEventServerMessage.TYPE_DOWN, key ) );
+        NetworkHandler.sendToServer( new KeyEventServerMessage( m_instanceID, repeat ? KeyEventServerMessage.TYPE_REPEAT : KeyEventServerMessage.TYPE_DOWN, key, modifiers ) );
     }
 
     @Override
     public void keyUp( int key )
     {
-        NetworkHandler.sendToServer( new KeyEventServerMessage( m_instanceID, KeyEventServerMessage.TYPE_UP, key ) );
+        NetworkHandler.sendToServer( new KeyEventServerMessage( m_instanceID, KeyEventServerMessage.TYPE_UP, key, 0 ) );
     }
 
     @Override

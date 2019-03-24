@@ -21,12 +21,14 @@ public class KeyEventServerMessage extends ComputerServerMessage
 
     private int type;
     private int key;
+    private int modifiers;
 
-    public KeyEventServerMessage( int instanceId, int type, int key )
+    public KeyEventServerMessage( int instanceId, int type, int key, int modifiers )
     {
         super( instanceId );
         this.type = type;
         this.key = key;
+        this.modifiers = modifiers;
     }
 
     public KeyEventServerMessage()
@@ -39,6 +41,7 @@ public class KeyEventServerMessage extends ComputerServerMessage
         super.toBytes( buf );
         buf.writeByte( type );
         buf.writeVarInt( key );
+        buf.writeByte( modifiers );
     }
 
     @Override
@@ -47,6 +50,7 @@ public class KeyEventServerMessage extends ComputerServerMessage
         super.fromBytes( buf );
         type = buf.readByte();
         key = buf.readVarInt();
+        modifiers = buf.readByte();
     }
 
     @Override
@@ -59,7 +63,7 @@ public class KeyEventServerMessage extends ComputerServerMessage
         }
         else
         {
-            input.keyDown( key, type == TYPE_REPEAT );
+            input.keyDown( key, type == TYPE_REPEAT, modifiers );
         }
     }
 }
