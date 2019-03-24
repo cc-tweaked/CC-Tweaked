@@ -9,6 +9,7 @@ package dan200.computercraft.shared.turtle.inventory;
 import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.shared.computer.core.IComputer;
 import dan200.computercraft.shared.computer.core.IContainerComputer;
+import dan200.computercraft.shared.computer.core.InputState;
 import dan200.computercraft.shared.turtle.blocks.TileTurtle;
 import dan200.computercraft.shared.turtle.core.TurtleBrain;
 import net.minecraft.entity.player.EntityPlayer;
@@ -21,16 +22,16 @@ import net.minecraft.item.ItemStack;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public class ContainerTurtle extends Container
-    implements IContainerComputer
+public class ContainerTurtle extends Container implements IContainerComputer
 {
     private static final int PROGRESS_ID_SELECTED_SLOT = 0;
 
     public final int m_playerInvStartY;
     public final int m_turtleInvStartX;
 
-    protected ITurtleAccess m_turtle;
+    private final ITurtleAccess m_turtle;
     private IComputer m_computer;
+    private final InputState input = new InputState( this );
     private int m_selectedSlot;
 
     protected ContainerTurtle( IInventory playerInventory, ITurtleAccess turtle, int playerInvStartY, int turtleInvStartX )
@@ -198,5 +199,19 @@ public class ContainerTurtle extends Container
     public IComputer getComputer()
     {
         return m_computer;
+    }
+
+    @Nonnull
+    @Override
+    public InputState getInput()
+    {
+        return input;
+    }
+
+    @Override
+    public void onContainerClosed( EntityPlayer player )
+    {
+        super.onContainerClosed( player );
+        input.close();
     }
 }

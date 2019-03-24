@@ -10,9 +10,7 @@ import com.google.common.base.Objects;
 import dan200.computercraft.shared.common.ClientTerminal;
 import dan200.computercraft.shared.computer.blocks.ComputerState;
 import dan200.computercraft.shared.network.NetworkHandler;
-import dan200.computercraft.shared.network.server.ComputerActionServerMessage;
-import dan200.computercraft.shared.network.server.QueueEventServerMessage;
-import dan200.computercraft.shared.network.server.RequestComputerMessage;
+import dan200.computercraft.shared.network.server.*;
 import net.minecraft.nbt.NBTTagCompound;
 
 public class ClientComputer extends ClientTerminal implements IComputer
@@ -114,6 +112,42 @@ public class ClientComputer extends ClientTerminal implements IComputer
     {
         // Send event to server
         NetworkHandler.sendToServer( new QueueEventServerMessage( m_instanceID, event, arguments ) );
+    }
+
+    @Override
+    public void keyDown( int key, boolean repeat )
+    {
+        NetworkHandler.sendToServer( new KeyEventServerMessage( m_instanceID, repeat ? KeyEventServerMessage.TYPE_REPEAT : KeyEventServerMessage.TYPE_DOWN, key ) );
+    }
+
+    @Override
+    public void keyUp( int key )
+    {
+        NetworkHandler.sendToServer( new KeyEventServerMessage( m_instanceID, KeyEventServerMessage.TYPE_UP, key ) );
+    }
+
+    @Override
+    public void mouseClick( int button, int x, int y )
+    {
+        NetworkHandler.sendToServer( new MouseEventServerMessage( m_instanceID, MouseEventServerMessage.TYPE_CLICK, button, x, y ) );
+    }
+
+    @Override
+    public void mouseUp( int button, int x, int y )
+    {
+        NetworkHandler.sendToServer( new MouseEventServerMessage( m_instanceID, MouseEventServerMessage.TYPE_UP, button, x, y ) );
+    }
+
+    @Override
+    public void mouseDrag( int button, int x, int y )
+    {
+        NetworkHandler.sendToServer( new MouseEventServerMessage( m_instanceID, MouseEventServerMessage.TYPE_DRAG, button, x, y ) );
+    }
+
+    @Override
+    public void mouseScroll( int direction, int x, int y )
+    {
+        NetworkHandler.sendToServer( new MouseEventServerMessage( m_instanceID, MouseEventServerMessage.TYPE_SCROLL, direction, x, y ) );
     }
 
     public void setState( ComputerState state, NBTTagCompound userData )

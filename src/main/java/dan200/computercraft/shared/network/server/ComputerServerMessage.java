@@ -7,9 +7,9 @@
 package dan200.computercraft.shared.network.server;
 
 import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.shared.computer.core.IContainerComputer;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.network.NetworkMessage;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
@@ -46,24 +46,17 @@ public abstract class ComputerServerMessage implements NetworkMessage
         instanceId = buf.readVarInt();
     }
 
-    public ServerComputer getComputer( MessageContext context )
-    {
-        ServerComputer computer = ComputerCraft.serverComputerRegistry.get( instanceId );
-        if( computer == null ) return null;
-
-        // Verify the player is interacting with a computer.
-        EntityPlayer player = context.getServerHandler().player;
-        if( player == null || !computer.isInteracting( player ) ) return null;
-
-        return computer;
-    }
-
     @Override
     public void handle( MessageContext context )
     {
-        ServerComputer computer = getComputer( context );
-        if( computer != null ) handle( computer );
+        ServerComputer computer = ComputerCraft.serverComputerRegistry.get( instanceId );
+        if( computer == null ) return;
+
+        IContainerComputer container = computer.getContainer( context.getServerHandler().player );
+        if( container == null ) return;
+
+        handle( computer, container );
     }
 
-    protected abstract void handle( ServerComputer computer );
+    protected abstract void handle( @Nonnull ServerComputer computer, @Nonnull IContainerComputer container );
 }

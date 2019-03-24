@@ -7,22 +7,29 @@
 package dan200.computercraft.shared.network.server;
 
 import dan200.computercraft.shared.computer.core.IContainerComputer;
+import dan200.computercraft.shared.computer.core.InputState;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import net.minecraft.network.PacketBuffer;
 
 import javax.annotation.Nonnull;
 
-public class ComputerActionServerMessage extends ComputerServerMessage
+public class KeyEventServerMessage extends ComputerServerMessage
 {
-    private Action action;
+    public static final int TYPE_DOWN = 0;
+    public static final int TYPE_REPEAT = 1;
+    public static final int TYPE_UP = 2;
 
-    public ComputerActionServerMessage( int instanceId, Action action )
+    private int type;
+    private int key;
+
+    public KeyEventServerMessage( int instanceId, int type, int key )
     {
         super( instanceId );
-        this.action = action;
+        this.type = type;
+        this.key = key;
     }
 
-    public ComputerActionServerMessage()
+    public KeyEventServerMessage()
     {
     }
 
@@ -30,37 +37,29 @@ public class ComputerActionServerMessage extends ComputerServerMessage
     public void toBytes( @Nonnull PacketBuffer buf )
     {
         super.toBytes( buf );
-        buf.writeEnumValue( action );
+        buf.writeByte( type );
+        buf.writeVarInt( key );
     }
 
     @Override
     public void fromBytes( @Nonnull PacketBuffer buf )
     {
         super.fromBytes( buf );
-        action = buf.readEnumValue( Action.class );
+        type = buf.readByte();
+        key = buf.readVarInt();
     }
 
     @Override
     protected void handle( @Nonnull ServerComputer computer, @Nonnull IContainerComputer container )
     {
-        switch( action )
+        InputState input = container.getInput();
+        if( type == TYPE_UP )
         {
-            case TURN_ON:
-                computer.turnOn();
-                break;
-            case REBOOT:
-                computer.reboot();
-                break;
-            case SHUTDOWN:
-                computer.shutdown();
-                break;
+            input.keyUp( key );
         }
-    }
-
-    public enum Action
-    {
-        TURN_ON,
-        SHUTDOWN,
-        REBOOT
+        else
+        {
+            input.keyDown( key, type == TYPE_REPEAT );
+        }
     }
 }

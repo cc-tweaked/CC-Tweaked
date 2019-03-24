@@ -6,6 +6,7 @@
 
 package dan200.computercraft.shared.computer.core;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
@@ -23,4 +24,15 @@ public interface IContainerComputer
      */
     @Nullable
     IComputer getComputer();
+
+    /**
+     * Get the input controller for this container.
+     *
+     * @return This container's input.
+     */
+    @Nonnull
+    default InputState getInput()
+    {
+        return new InputState( this );
+    }
 }

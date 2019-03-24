@@ -7,10 +7,7 @@
 package dan200.computercraft.shared.command;
 
 import dan200.computercraft.ComputerCraft;
-import dan200.computercraft.shared.computer.core.ComputerFamily;
-import dan200.computercraft.shared.computer.core.IComputer;
-import dan200.computercraft.shared.computer.core.IContainerComputer;
-import dan200.computercraft.shared.computer.core.ServerComputer;
+import dan200.computercraft.shared.computer.core.*;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Container;
 import net.minecraft.server.MinecraftServer;
@@ -22,6 +19,7 @@ import javax.annotation.Nullable;
 public class ContainerViewComputer extends Container implements IContainerComputer
 {
     private final IComputer computer;
+    private final InputState input = new InputState( this );
 
     public ContainerViewComputer( IComputer computer )
     {
@@ -66,5 +64,19 @@ public class ContainerViewComputer extends Container implements IContainerComput
         }
 
         return true;
+    }
+
+    @Nonnull
+    @Override
+    public InputState getInput()
+    {
+        return input;
+    }
+
+    @Override
+    public void onContainerClosed( EntityPlayer player )
+    {
+        super.onContainerClosed( player );
+        input.close();
     }
 }

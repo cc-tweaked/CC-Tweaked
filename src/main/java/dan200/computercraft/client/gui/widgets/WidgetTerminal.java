@@ -31,23 +31,23 @@ public class WidgetTerminal extends Widget
 
     private final IComputerContainer m_computer;
 
-    private float m_terminateTimer;
-    private float m_rebootTimer;
-    private float m_shutdownTimer;
+    private float m_terminateTimer = 0.0f;
+    private float m_rebootTimer = 0.0f;
+    private float m_shutdownTimer = 0.0f;
 
-    private int m_lastClickButton;
-    private int m_lastClickX;
-    private int m_lastClickY;
+    private int m_lastClickButton = -1;
+    private int m_lastClickX = -1;
+    private int m_lastClickY = -1;
 
-    private boolean m_focus;
-    private boolean m_allowFocusLoss;
+    private boolean m_focus = false;
+    private boolean m_allowFocusLoss = true;
 
     private int m_leftMargin;
     private int m_rightMargin;
     private int m_topMargin;
     private int m_bottomMargin;
 
-    private ArrayList<Integer> m_keysDown;
+    private final ArrayList<Integer> m_keysDown = new ArrayList<>();
 
     public WidgetTerminal( int x, int y, int termWidth, int termHeight, IComputerContainer computer, int leftMargin, int rightMargin, int topMargin, int bottomMargin )
     {
@@ -58,23 +58,11 @@ public class WidgetTerminal extends Widget
         );
 
         m_computer = computer;
-        m_terminateTimer = 0.0f;
-        m_rebootTimer = 0.0f;
-        m_shutdownTimer = 0.0f;
-
-        m_lastClickButton = -1;
-        m_lastClickX = -1;
-        m_lastClickY = -1;
-
-        m_focus = false;
-        m_allowFocusLoss = true;
 
         m_leftMargin = leftMargin;
         m_rightMargin = rightMargin;
         m_topMargin = topMargin;
         m_bottomMargin = bottomMargin;
-
-        m_keysDown = new ArrayList<>();
     }
 
     public void setAllowFocusLoss( boolean allowFocusLoss )
@@ -122,9 +110,7 @@ public class WidgetTerminal extends Widget
                         }
 
                         // Queue the "paste" event
-                        queueEvent( "paste", new Object[] {
-                            clipboard
-                        } );
+                        queueEvent( "paste", new Object[] { clipboard } );
                     }
                 }
                 return true;
@@ -143,18 +129,15 @@ public class WidgetTerminal extends Widget
                     }
 
                     // Queue the "key" event
-                    queueEvent( "key", new Object[] {
-                        key, repeat
-                    } );
+                    IComputer computer = m_computer.getComputer();
+                    if( computer != null ) computer.keyDown( key, repeat );
                     handled = true;
                 }
 
                 if( (ch >= 32 && ch <= 126) || (ch >= 160 && ch <= 255) ) // printable chars in byte range
                 {
                     // Queue the "char" event
-                    queueEvent( "char", new Object[] {
-                        Character.toString( ch )
-                    } );
+                    queueEvent( "char", new Object[] { Character.toString( ch ) } );
                     handled = true;
                 }
 
@@ -189,9 +172,7 @@ public class WidgetTerminal extends Widget
                         charX = Math.min( Math.max( charX, 0 ), term.getWidth() - 1 );
                         charY = Math.min( Math.max( charY, 0 ), term.getHeight() - 1 );
 
-                        computer.queueEvent( "mouse_click", new Object[] {
-                            button + 1, charX + 1, charY + 1
-                        } );
+                        computer.mouseClick( button + 1, charX + 1, charY + 1 );
 
                         m_lastClickButton = button;
                         m_lastClickX = charX;
@@ -222,9 +203,8 @@ public class WidgetTerminal extends Widget
                 if( m_focus )
                 {
                     // Queue the "key_up" event
-                    queueEvent( "key_up", new Object[] {
-                        key
-                    } );
+                    IComputer computer = m_computer.getComputer();
+                    if( computer != null ) computer.keyUp( key );
                     handled = true;
                 }
             }
@@ -251,12 +231,7 @@ public class WidgetTerminal extends Widget
 
                 if( m_lastClickButton >= 0 && !Mouse.isButtonDown( m_lastClickButton ) )
                 {
-                    if( m_focus )
-                    {
-                        computer.queueEvent( "mouse_up", new Object[] {
-                            m_lastClickButton + 1, charX + 1, charY + 1
-                        } );
-                    }
+                    if( m_focus ) computer.mouseUp( m_lastClickButton + 1, charX + 1, charY + 1 );
                     m_lastClickButton = -1;
                 }
 
@@ -270,22 +245,16 @@ public class WidgetTerminal extends Widget
                 {
                     if( wheelChange < 0 )
                     {
-                        computer.queueEvent( "mouse_scroll", new Object[] {
-                            1, charX + 1, charY + 1
-                        } );
+                        computer.mouseScroll( 1, charX + 1, charY + 1 );
                     }
                     else if( wheelChange > 0 )
                     {
-                        computer.queueEvent( "mouse_scroll", new Object[] {
-                            -1, charX + 1, charY + 1
-                        } );
+                        computer.mouseScroll( -1, charX + 1, charY + 1 );
                     }
 
                     if( m_lastClickButton >= 0 && (charX != m_lastClickX || charY != m_lastClickY) )
                     {
-                        computer.queueEvent( "mouse_drag", new Object[] {
-                            m_lastClickButton + 1, charX + 1, charY + 1
-                        } );
+                        computer.mouseDrag( m_lastClickButton + 1, charX + 1, charY + 1 );
                         m_lastClickX = charX;
                         m_lastClickY = charY;
                     }
@@ -455,18 +424,12 @@ public class WidgetTerminal extends Widget
     private void queueEvent( String event )
     {
         IComputer computer = m_computer.getComputer();
-        if( computer != null )
-        {
-            computer.queueEvent( event );
-        }
+        if( computer != null ) computer.queueEvent( event );
     }
 
     private void queueEvent( String event, Object[] args )
     {
         IComputer computer = m_computer.getComputer();
-        if( computer != null )
-        {
-            computer.queueEvent( event, args );
-        }
+        if( computer != null ) computer.queueEvent( event, args );
     }
 }

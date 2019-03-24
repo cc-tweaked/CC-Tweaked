@@ -31,6 +31,7 @@ import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 
+import javax.annotation.Nullable;
 import java.io.InputStream;
 
 public class ServerComputer extends ServerTerminal implements IComputer, IComputerEnvironment
@@ -367,14 +368,19 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
         return ComputerCraftAPI.createUniqueNumberedSaveDir( m_world, "computer" );
     }
 
-    public boolean isInteracting( EntityPlayer player )
+    @Nullable
+    public IContainerComputer getContainer( EntityPlayer player )
     {
-        if( player == null ) return false;
+        if( player == null ) return null;
 
         Container container = player.openContainer;
-        if( !(container instanceof IContainerComputer) ) return false;
+        if( !(container instanceof IContainerComputer) ) return null;
 
-        IComputer computer = ((IContainerComputer) container).getComputer();
-        return computer == this;
+        return (IContainerComputer) container;
+    }
+
+    protected boolean isInteracting( EntityPlayer player )
+    {
+        return getContainer( player ) != null;
     }
 }

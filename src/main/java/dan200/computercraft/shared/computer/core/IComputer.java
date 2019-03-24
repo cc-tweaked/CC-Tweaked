@@ -9,7 +9,7 @@ package dan200.computercraft.shared.computer.core;
 import dan200.computercraft.shared.common.ITerminal;
 import dan200.computercraft.shared.computer.blocks.ComputerState;
 
-public interface IComputer extends ITerminal
+public interface IComputer extends ITerminal, InputHandler
 {
     int getInstanceID();
 
@@ -29,12 +29,13 @@ public interface IComputer extends ITerminal
 
     void reboot();
 
+    @Override
+    void queueEvent( String event, Object[] arguments );
+
     default void queueEvent( String event )
     {
         queueEvent( event, null );
     }
-
-    void queueEvent( String event, Object[] arguments );
 
     default ComputerState getState()
     {

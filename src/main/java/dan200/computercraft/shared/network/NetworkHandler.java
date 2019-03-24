@@ -8,9 +8,7 @@ package dan200.computercraft.shared.network;
 
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.network.client.*;
-import dan200.computercraft.shared.network.server.ComputerActionServerMessage;
-import dan200.computercraft.shared.network.server.QueueEventServerMessage;
-import dan200.computercraft.shared.network.server.RequestComputerMessage;
+import dan200.computercraft.shared.network.server.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -34,6 +32,8 @@ public final class NetworkHandler
     private static final int COMPUTER_ACTION_SERVER_MESSAGE = 0;
     private static final int QUEUE_EVENT_SERVER_MESSAGE = 1;
     private static final int REQUEST_COMPUTER_SERVER_MESSAGE = 2;
+    private static final int KEY_EVENT_SERVER_MESSAGE = 3;
+    private static final int MOUSE_EVENT_SERVER_MESSAGE = 4;
 
     private static final int CHAT_TABLE_CLIENT_MESSAGE = 10;
     private static final int COMPUTER_DATA_CLIENT_MESSAGE = 11;
@@ -49,6 +49,8 @@ public final class NetworkHandler
         registerMainThread( NetworkHandler.COMPUTER_ACTION_SERVER_MESSAGE, Side.SERVER, ComputerActionServerMessage::new );
         registerMainThread( NetworkHandler.QUEUE_EVENT_SERVER_MESSAGE, Side.SERVER, QueueEventServerMessage::new );
         registerMainThread( NetworkHandler.REQUEST_COMPUTER_SERVER_MESSAGE, Side.SERVER, RequestComputerMessage::new );
+        registerMainThread( NetworkHandler.KEY_EVENT_SERVER_MESSAGE, Side.SERVER, KeyEventServerMessage::new );
+        registerMainThread( NetworkHandler.MOUSE_EVENT_SERVER_MESSAGE, Side.SERVER, MouseEventServerMessage::new );
 
         // Client messages
         registerMainThread( NetworkHandler.PLAY_RECORD_CLIENT_MESSAGE, Side.CLIENT, PlayRecordClientMessage::new );

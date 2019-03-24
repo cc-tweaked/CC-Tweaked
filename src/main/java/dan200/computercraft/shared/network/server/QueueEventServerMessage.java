@@ -6,6 +6,7 @@
 
 package dan200.computercraft.shared.network.server;
 
+import dan200.computercraft.shared.computer.core.IContainerComputer;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.util.NBTUtil;
 import net.minecraft.nbt.NBTTagCompound;
@@ -55,7 +56,7 @@ public class QueueEventServerMessage extends ComputerServerMessage
     }
 
     @Override
-    protected void handle( ServerComputer computer )
+    protected void handle( @Nonnull ServerComputer computer, @Nonnull IContainerComputer container )
     {
         computer.queueEvent( event, args );
     }
