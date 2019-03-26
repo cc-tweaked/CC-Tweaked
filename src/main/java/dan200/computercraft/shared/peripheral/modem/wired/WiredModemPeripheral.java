@@ -16,8 +16,7 @@ import dan200.computercraft.api.network.wired.IWiredNode;
 import dan200.computercraft.api.network.wired.IWiredSender;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
-import dan200.computercraft.core.computer.Computer;
-import dan200.computercraft.core.computer.IComputerOwned;
+import dan200.computercraft.api.peripheral.IWorkMonitor;
 import dan200.computercraft.shared.peripheral.modem.ModemPeripheral;
 import dan200.computercraft.shared.peripheral.modem.ModemState;
 import net.minecraft.world.World;
@@ -267,7 +266,7 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements IW
         return wrappers == null ? null : wrappers.get( remoteName );
     }
 
-    private static class RemotePeripheralWrapper implements IComputerAccess, IComputerOwned
+    private static class RemotePeripheralWrapper implements IComputerAccess
     {
         private final WiredModemElement m_element;
         private final IPeripheral m_peripheral;
@@ -376,6 +375,13 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements IW
             m_computer.queueEvent( event, arguments );
         }
 
+        @Nullable
+        @Override
+        public IWorkMonitor getMainThreadMonitor()
+        {
+            return m_computer.getMainThreadMonitor();
+        }
+
         @Nonnull
         @Override
         public String getAttachmentName()
@@ -401,13 +407,6 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements IW
             {
                 return m_element.getRemotePeripherals().get( name );
             }
-        }
-
-        @Nullable
-        @Override
-        public Computer getComputer()
-        {
-            return m_computer instanceof IComputerOwned ? ((IComputerOwned) m_computer).getComputer() : null;
         }
     }
 }

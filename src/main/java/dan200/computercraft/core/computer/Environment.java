@@ -7,6 +7,7 @@
 package dan200.computercraft.core.computer;
 
 import dan200.computercraft.api.peripheral.IPeripheral;
+import dan200.computercraft.api.peripheral.IWorkMonitor;
 import dan200.computercraft.core.apis.IAPIEnvironment;
 import dan200.computercraft.core.filesystem.FileSystem;
 import dan200.computercraft.core.terminal.Terminal;
@@ -58,13 +59,6 @@ public final class Environment implements IAPIEnvironment
         this.computer = computer;
     }
 
-    @Nonnull
-    @Override
-    public Computer getComputer()
-    {
-        return computer;
-    }
-
     @Override
     public int getComputerID()
     {
@@ -76,6 +70,13 @@ public final class Environment implements IAPIEnvironment
     public IComputerEnvironment getComputerEnvironment()
     {
         return computer.getComputerEnvironment();
+    }
+
+    @Nonnull
+    @Override
+    public IWorkMonitor getMainThreadMonitor()
+    {
+        return computer.getMainThreadMonitor();
     }
 
     @Nonnull

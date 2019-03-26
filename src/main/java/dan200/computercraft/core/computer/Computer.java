@@ -9,6 +9,7 @@ package dan200.computercraft.core.computer;
 import com.google.common.base.Objects;
 import dan200.computercraft.api.lua.ILuaAPI;
 import dan200.computercraft.api.peripheral.IPeripheral;
+import dan200.computercraft.api.peripheral.IWorkMonitor;
 import dan200.computercraft.core.apis.IAPIEnvironment;
 import dan200.computercraft.core.filesystem.FileSystem;
 import dan200.computercraft.core.terminal.Terminal;
@@ -25,6 +26,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * <li>Keeps track of whether the computer is on and blinking.</li>
  * <li>Monitors whether the computer's visible state (redstone, on/off/blinking) has changed.</li>
  * <li>Passes commands and events to the {@link ComputerExecutor}.</li>
+ * <li>Passes main thread tasks to the {@link MainThreadExecutor}.</li>
  * </ul>
  */
 public class Computer
@@ -39,6 +41,7 @@ public class Computer
     private final IComputerEnvironment m_environment;
     private final Terminal m_terminal;
     private final ComputerExecutor executor;
+    private final MainThreadExecutor serverExecutor;
 
     // Additional state about the computer and its environment.
     private boolean m_blinking = false;
@@ -55,6 +58,7 @@ public class Computer
         m_terminal = terminal;
 
         executor = new ComputerExecutor( this );
+        serverExecutor = new MainThreadExecutor( this );
     }
 
     IComputerEnvironment getComputerEnvironment()
@@ -110,6 +114,22 @@ public class Computer
     public void queueEvent( String event, Object[] args )
     {
         executor.queueEvent( event, args );
+    }
+
+    /**
+     * Queue a task to be run on the main thread, using {@link MainThread}.
+     *
+     * @param runnable The task to run
+     * @return If the task was successfully queued (namely, whether there is space on it).
+     */
+    public boolean queueMainThread( Runnable runnable )
+    {
+        return serverExecutor.enqueue( runnable );
+    }
+
+    public IWorkMonitor getMainThreadMonitor()
+    {
+        return serverExecutor;
     }
 
     public int getID()

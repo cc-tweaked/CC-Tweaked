@@ -58,7 +58,7 @@ commands.computercraft.dump.usage=[ID]
 commands.computercraft.dump.action=Zeigt mehr Informationen über einen Computer
 
 commands.computercraft.shutdown.synopsis=Fährt den Computer aus der Ferne herunter.
-commands.computercraft.shutdown.desc=Fährt die angegebenen Computer herunter. Falls keine Computer angegeben sind, werden alle heruntergefahren. Der Computer kann entweder über seine Instanz ID (z.B. 123), seine Computer ID (z.B. #123) oder seinen Namen (z.B. "@Mein Computer") angegeben werden. 
+commands.computercraft.shutdown.desc=Fährt die angegebenen Computer herunter. Falls keine Computer angegeben sind, werden alle heruntergefahren. Der Computer kann entweder über seine Instanz ID (z.B. 123), seine Computer ID (z.B. #123) oder seinen Namen (z.B. "@Mein Computer") angegeben werden.
 commands.computercraft.shutdown.usage=[IDs...]
 commands.computercraft.shutdown.done=Fährt die Computer %s/%s herunter
 
@@ -156,8 +156,9 @@ gui.computercraft:config.maximum_open_files=Maximalanzahl an gleichzeitig offene
 gui.computercraft:config.disable_lua51_features=Lua 5.1-Funktionen deaktivieren
 gui.computercraft:config.default_computer_settings=Computer-Standardeinstellungen
 gui.computercraft:config.debug_enabled=Debug-Library aktivieren
-gui.computercraft:config.computer_threads=Computer Threads
 gui.computercraft:config.log_computer_errors=Computerfehler loggen
+
+gui.computercraft:config.execution.computer_threads=Computer Threads
 
 gui.computercraft:config.http=HTTP
 gui.computercraft:config.http.enabled=HTTP-API aktivieren

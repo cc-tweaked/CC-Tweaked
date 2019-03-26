@@ -10,8 +10,7 @@ import com.google.common.base.Preconditions;
 import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.api.filesystem.IWritableMount;
 import dan200.computercraft.api.peripheral.IComputerAccess;
-import dan200.computercraft.core.computer.Computer;
-import dan200.computercraft.core.computer.IComputerOwned;
+import dan200.computercraft.api.peripheral.IWorkMonitor;
 import dan200.computercraft.core.filesystem.FileSystem;
 import dan200.computercraft.core.filesystem.FileSystemException;
 
@@ -21,7 +20,7 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
-public abstract class ComputerAccess implements IComputerAccess, IComputerOwned
+public abstract class ComputerAccess implements IComputerAccess
 {
     private final IAPIEnvironment m_environment;
     private final Set<String> m_mounts = new HashSet<>();
@@ -128,9 +127,9 @@ public abstract class ComputerAccess implements IComputerAccess, IComputerOwned
 
     @Nullable
     @Override
-    public Computer getComputer()
+    public IWorkMonitor getMainThreadMonitor()
     {
-        return m_environment.getComputer();
+        return m_environment.getMainThreadMonitor();
     }
 
     private String findFreeLocation( String desiredLoc )

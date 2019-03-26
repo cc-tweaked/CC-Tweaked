@@ -24,6 +24,7 @@ import dan200.computercraft.api.turtle.event.TurtleAction;
 import dan200.computercraft.core.apis.AddressPredicate;
 import dan200.computercraft.core.apis.ApiFactories;
 import dan200.computercraft.core.apis.http.websocket.Websocket;
+import dan200.computercraft.core.computer.MainThread;
 import dan200.computercraft.core.filesystem.ComboMount;
 import dan200.computercraft.core.filesystem.FileMount;
 import dan200.computercraft.core.filesystem.JarMount;
@@ -95,6 +96,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -133,8 +135,11 @@ public class ComputerCraft
     public static boolean disable_lua51_features = false;
     public static String default_computer_settings = "";
     public static boolean debug_enable = true;
-    public static int computer_threads = 1;
     public static boolean logPeripheralErrors = false;
+
+    public static int computer_threads = 1;
+    public static long maxMainGlobalTime = TimeUnit.MILLISECONDS.toNanos( 10 );
+    public static long maxMainComputerTime = TimeUnit.MILLISECONDS.toNanos( 5 );
 
     public static boolean http_enable = true;
     public static boolean http_websocket_enable = true;
@@ -304,6 +309,7 @@ public class ComputerCraft
         {
             ComputerCraft.serverComputerRegistry.reset();
             WirelessNetwork.resetNetworks();
+            MainThread.reset();
             Tracking.reset();
         }
     }
@@ -315,6 +321,7 @@ public class ComputerCraft
         {
             ComputerCraft.serverComputerRegistry.reset();
             WirelessNetwork.resetNetworks();
+            MainThread.reset();
             Tracking.reset();
         }
     }
