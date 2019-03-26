@@ -21,6 +21,8 @@ import net.minecraftforge.fml.client.config.IConfigElement;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static dan200.computercraft.ComputerCraft.DEFAULT_HTTP_BLACKLIST;
 import static dan200.computercraft.ComputerCraft.DEFAULT_HTTP_WHITELIST;
@@ -73,7 +75,7 @@ public class Config
 
     public static void load( File configFile )
     {
-        config = new Configuration( configFile );
+        config = new Configuration( configFile, ComputerCraft.getVersion() );
 
         config.load();
 
@@ -298,8 +300,69 @@ public class Config
 
     public static void reload()
     {
-        config.load();
+        Configuration newConfig = new Configuration( config.getConfigFile(), ComputerCraft.getVersion() );
+        Set<String> oldCategories = config.getCategoryNames(), newCategories = newConfig.getCategoryNames();
+
+        // Sync any categories on the original config
+        for( String category : oldCategories )
+        {
+            if( newCategories.contains( category ) )
+            {
+                reloadCategory( config.getCategory( category ), newConfig.getCategory( category ) );
+            }
+            else
+            {
+                for( Property property : config.getCategory( category ).getValues().values() ) property.setToDefault();
+            }
+        }
+
+        // And drop any unexpected ones.
+        for( String category : newCategories )
+        {
+            if( !oldCategories.contains( category ) )
+            {
+                ComputerCraft.log.warn( "Cannot sync unknown config category {}", category );
+            }
+        }
+
         sync();
+    }
+
+    private static void reloadCategory( ConfigCategory oldCat, ConfigCategory newCat )
+    {
+        // Copy the config values across to the original config.
+        for( Map.Entry<String, Property> child : newCat.getValues().entrySet() )
+        {
+            Property oldProperty = oldCat.get( child.getKey() ), newProperty = child.getValue();
+            if( oldProperty.getType() != newProperty.getType() || oldProperty.isList() != newProperty.isList() )
+            {
+                ComputerCraft.log.warn(
+                    "Cannot sync config property {} (type changed from {} to {})",
+                    child.getKey(), getType( oldProperty ), getType( newProperty )
+                );
+                continue;
+            }
+
+            if( oldProperty.isList() )
+            {
+                oldProperty.setValues( oldProperty.getStringList() );
+            }
+            else
+            {
+                oldProperty.setValue( newProperty.getString() );
+            }
+        }
+
+        // Reset any missing properties.
+        for( Map.Entry<String, Property> child : oldCat.getValues().entrySet() )
+        {
+            if( !newCat.containsKey( child.getKey() ) ) child.getValue().setToDefault();
+        }
+    }
+
+    private static String getType( Property property )
+    {
+        return property.getType() + (property.isList() ? " list" : "");
     }
 
     public static void sync()
