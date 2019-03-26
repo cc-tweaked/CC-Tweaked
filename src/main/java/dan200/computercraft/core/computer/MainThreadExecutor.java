@@ -106,6 +106,10 @@ final class MainThreadExecutor implements IWorkMonitor
      */
     private State state = State.COOL;
 
+    private long pendingTime;
+
+    long virtualTime;
+
     MainThreadExecutor( Computer computer )
     {
         this.computer = computer;
@@ -122,7 +126,7 @@ final class MainThreadExecutor implements IWorkMonitor
         synchronized( queueLock )
         {
             if( tasks.size() >= MAX_TASKS || !tasks.offer( runnable ) ) return false;
-            if( !onQueue && state == State.COOL ) MainThread.queue( this );
+            if( !onQueue && state == State.COOL ) MainThread.queue( this, true );
             return true;
         }
     }
@@ -152,6 +156,8 @@ final class MainThreadExecutor implements IWorkMonitor
 
         synchronized( queueLock )
         {
+            virtualTime += time;
+            updateTime();
             if( state != State.COOL || tasks.isEmpty() ) return onQueue = false;
             return true;
         }
@@ -169,9 +175,20 @@ final class MainThreadExecutor implements IWorkMonitor
     }
 
     @Override
+    public boolean shouldWork()
+    {
+        return state == State.COOL && MainThread.canExecute();
+    }
+
+    @Override
     public void trackWork( long time, @Nonnull TimeUnit unit )
     {
         long nanoTime = unit.toNanos( time );
+        synchronized( queueLock )
+        {
+            pendingTime += nanoTime;
+        }
+
         consumeTime( nanoTime );
         MainThread.consumeTime( nanoTime );
     }
@@ -213,9 +230,15 @@ final class MainThreadExecutor implements IWorkMonitor
         state = State.COOL;
         synchronized( queueLock )
         {
-            if( !tasks.isEmpty() && !onQueue ) MainThread.queue( this );
+            if( !tasks.isEmpty() && !onQueue ) MainThread.queue( this, false );
         }
         return true;
+    }
+
+    void updateTime()
+    {
+        virtualTime += pendingTime;
+        pendingTime = 0;
     }
 
     private enum State

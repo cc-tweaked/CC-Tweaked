@@ -35,6 +35,17 @@ public interface IWorkMonitor
     boolean canWork();
 
     /**
+     * If the owning computer is currently allowed to execute work, and has ample time to do so.
+     *
+     * This is effectively a more restrictive form of {@link #canWork()}. One should use that in order to determine if
+     * you may do an initial piece of work, and {@link #shouldWork()} to determine if any additional task may be
+     * performed.
+     *
+     * @return If we should execute work right now.
+     */
+    boolean shouldWork();
+
+    /**
      * Inform the monitor how long some piece of work took to execute.
      *
      * @param time The time some task took to run

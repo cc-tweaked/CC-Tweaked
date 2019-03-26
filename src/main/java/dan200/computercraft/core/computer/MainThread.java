@@ -10,9 +10,8 @@ import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.lua.ILuaTask;
 
 import javax.annotation.Nonnull;
-import java.util.ArrayDeque;
 import java.util.HashSet;
-import java.util.Queue;
+import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -41,7 +40,14 @@ public class MainThread
     /**
      * The queue of {@link MainThreadExecutor}s with tasks to perform.
      */
-    private static final Queue<MainThreadExecutor> executors = new ArrayDeque<>();
+    private static final TreeSet<MainThreadExecutor> executors = new TreeSet<>( ( a, b ) -> {
+        if( a == b ) return 0; // Should never happen, but let's be consistent here
+
+        long at = a.virtualTime, bt = b.virtualTime;
+        if( at == bt ) return Integer.compare( a.hashCode(), b.hashCode() );
+        return at < bt ? -1 : 1;
+    } );
+    ;
 
     /**
      * The set of executors which went over budget in a previous tick, and are waiting for their time to run down.
@@ -71,17 +77,29 @@ public class MainThread
      */
     private static boolean canExecute = true;
 
+    private static long minimumTime = 0;
+
     public static long getUniqueTaskID()
     {
         return lastTaskId.incrementAndGet();
     }
 
-    static void queue( @Nonnull MainThreadExecutor executor )
+    static void queue( @Nonnull MainThreadExecutor executor, boolean sleeper )
     {
         synchronized( executors )
         {
             if( executor.onQueue ) throw new IllegalStateException( "Cannot queue already queued executor" );
             executor.onQueue = true;
+            executor.updateTime();
+
+            // We're not currently on the queue, so update its current execution time to
+            // ensure its at least as high as the minimum.
+            long newRuntime = minimumTime;
+
+            // Slow down new computers a little bit.
+            if( executor.virtualTime == 0 ) newRuntime += ComputerCraft.maxMainComputerTime;
+
+            executor.virtualTime = Math.max( newRuntime, executor.virtualTime );
 
             executors.add( executor );
         }
@@ -131,7 +149,7 @@ public class MainThread
             MainThreadExecutor executor;
             synchronized( executors )
             {
-                executor = executors.poll();
+                executor = executors.pollFirst();
             }
             if( executor == null ) break;
 
@@ -139,12 +157,19 @@ public class MainThread
             executor.execute();
 
             long taskStop = System.nanoTime();
-            if( executor.afterExecute( taskStop - taskStart ) )
+            synchronized( executors )
             {
-                synchronized( executors )
+                if( executor.afterExecute( taskStop - taskStart ) ) executors.add( executor );
+
+                // Compute the new minimum time (including the next task on the queue too). Note that this may also include
+                // time spent in external tasks.
+                long newMinimum = executor.virtualTime;
+                if( !executors.isEmpty() )
                 {
-                    executors.add( executor );
+                    MainThreadExecutor next = executors.first();
+                    if( next.virtualTime < newMinimum ) newMinimum = next.virtualTime;
                 }
+                minimumTime = Math.max( minimumTime, newMinimum );
             }
 
             if( taskStop >= deadline ) break;
@@ -158,6 +183,7 @@ public class MainThread
         currentTick = 0;
         budget = 0;
         canExecute = true;
+        minimumTime = 0;
         lastTaskId.set( 0 );
         cooling.clear();
         synchronized( executors )
