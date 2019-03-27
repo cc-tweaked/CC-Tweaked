@@ -20,6 +20,7 @@ import dan200.computercraft.shared.command.framework.*;
 import dan200.computercraft.shared.command.text.TableBuilder;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ServerComputer;
+import dan200.computercraft.shared.network.Containers;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
@@ -258,7 +259,7 @@ public final class CommandComputerCraft extends CommandDelegate
                 }
 
                 ServerComputer computer = ComputerSelector.getComputer( arguments.get( 0 ) );
-                ComputerCraft.openComputerGUI( (EntityPlayerMP) sender, computer );
+                Containers.openComputerGUI( (EntityPlayerMP) sender, computer );
             }
 
             @Nonnull

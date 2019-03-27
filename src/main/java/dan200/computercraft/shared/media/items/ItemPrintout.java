@@ -7,6 +7,7 @@
 package dan200.computercraft.shared.media.items;
 
 import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.shared.network.Containers;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
@@ -91,7 +92,7 @@ public class ItemPrintout extends Item
     {
         if( !world.isRemote )
         {
-            ComputerCraft.openPrintoutGUI( player, hand );
+            Containers.openPrintoutGUI( player, hand );
         }
         return new ActionResult<>( EnumActionResult.SUCCESS, player.getHeldItem( hand ) );
     }

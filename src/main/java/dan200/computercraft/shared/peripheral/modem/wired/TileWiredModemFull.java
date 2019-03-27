@@ -11,9 +11,9 @@ import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.network.wired.IWiredElement;
 import dan200.computercraft.api.network.wired.IWiredNode;
 import dan200.computercraft.api.peripheral.IPeripheral;
+import dan200.computercraft.api.peripheral.IPeripheralTile;
 import dan200.computercraft.shared.command.CommandCopy;
 import dan200.computercraft.shared.common.TileGeneric;
-import dan200.computercraft.shared.peripheral.common.IPeripheralTile;
 import dan200.computercraft.shared.peripheral.modem.ModemState;
 import dan200.computercraft.shared.util.TickScheduler;
 import dan200.computercraft.shared.wired.CapabilityWiredElement;
@@ -383,7 +383,7 @@ public class TileWiredModemFull extends TileGeneric implements IPeripheralTile
     }
 
     @Override
-    public IPeripheral getPeripheral( EnumFacing side )
+    public IPeripheral getPeripheral( @Nonnull EnumFacing side )
     {
         if( m_destroyed ) return null;
 

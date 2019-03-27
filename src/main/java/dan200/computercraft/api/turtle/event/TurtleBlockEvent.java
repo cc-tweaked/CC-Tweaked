@@ -19,7 +19,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.event.world.BlockEvent;
-import net.minecraftforge.fml.common.eventhandler.Cancelable;
 
 import javax.annotation.Nonnull;
 import java.util.Map;
@@ -37,7 +36,6 @@ import java.util.Objects;
  * Be aware that some events (such as {@link TurtleInventoryEvent}) do not necessarily interact
  * with a block, simply objects within that block space.
  */
-@Cancelable
 public abstract class TurtleBlockEvent extends TurtlePlayerEvent
 {
     private final World world;
@@ -84,7 +82,6 @@ public abstract class TurtleBlockEvent extends TurtlePlayerEvent
      *
      * @see TurtleAction#DIG
      */
-    @Cancelable
     public static class Dig extends TurtleBlockEvent
     {
         private final IBlockState block;
@@ -142,7 +139,6 @@ public abstract class TurtleBlockEvent extends TurtlePlayerEvent
      *
      * @see TurtleAction#MOVE
      */
-    @Cancelable
     public static class Move extends TurtleBlockEvent
     {
         public Move( @Nonnull ITurtleAccess turtle, @Nonnull FakePlayer player, @Nonnull World world, @Nonnull BlockPos pos )
@@ -156,7 +152,6 @@ public abstract class TurtleBlockEvent extends TurtlePlayerEvent
      *
      * @see TurtleAction#PLACE
      */
-    @Cancelable
     public static class Place extends TurtleBlockEvent
     {
         private final ItemStack stack;
@@ -188,7 +183,6 @@ public abstract class TurtleBlockEvent extends TurtlePlayerEvent
      *
      * @see TurtleAction#INSPECT
      */
-    @Cancelable
     public static class Inspect extends TurtleBlockEvent
     {
         private final IBlockState state;
@@ -229,7 +223,7 @@ public abstract class TurtleBlockEvent extends TurtlePlayerEvent
         /**
          * Add new information to the inspection result. Note this will override fields with the same name.
          *
-         * @param newData The data to add. Note all values should be convertable to Lua (see
+         * @param newData The data to add. Note all values should be convertible to Lua (see
          *                {@link dan200.computercraft.api.peripheral.IPeripheral#callMethod(IComputerAccess, ILuaContext, int, Object[])}).
          */
         public void addData( @Nonnull Map<String, ?> newData )

@@ -17,7 +17,7 @@ import javax.annotation.Nonnull;
 /**
  * An implementation of IMedia for ItemRecord's
  */
-public class RecordMedia implements IMedia
+public final class RecordMedia implements IMedia
 {
     public static final RecordMedia INSTANCE = new RecordMedia();
 

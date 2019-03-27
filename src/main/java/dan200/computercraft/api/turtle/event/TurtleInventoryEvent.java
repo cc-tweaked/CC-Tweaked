@@ -48,7 +48,6 @@ public abstract class TurtleInventoryEvent extends TurtleBlockEvent
      *
      * @see TurtleAction#SUCK
      */
-    @Cancelable
     public static class Suck extends TurtleInventoryEvent
     {
         public Suck( @Nonnull ITurtleAccess turtle, @Nonnull FakePlayer player, @Nonnull World world, @Nonnull BlockPos pos, @Nullable IItemHandler handler )
@@ -62,7 +61,6 @@ public abstract class TurtleInventoryEvent extends TurtleBlockEvent
      *
      * @see TurtleAction#DROP
      */
-    @Cancelable
     public static class Drop extends TurtleInventoryEvent
     {
         private final ItemStack stack;

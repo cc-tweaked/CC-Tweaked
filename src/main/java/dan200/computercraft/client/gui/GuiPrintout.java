@@ -29,6 +29,8 @@ public class GuiPrintout extends GuiContainer
     {
         super( container );
 
+        ySize = Y_SIZE;
+
         String[] text = ItemPrintout.getText( container.getStack() );
         m_text = new TextBuffer[text.length];
         for( int i = 0; i < m_text.length; i++ ) m_text[i] = new TextBuffer( text[i] );
@@ -73,41 +75,35 @@ public class GuiPrintout extends GuiContainer
         int mouseWheelChange = Mouse.getEventDWheel();
         if( mouseWheelChange < 0 )
         {
-            // Up
+            // Scroll up goes to the next page
             if( m_page < m_pages - 1 ) m_page++;
         }
         else if( mouseWheelChange > 0 )
         {
-            // Down
+            // Scroll down goes to the next page
             if( m_page > 0 ) m_page--;
         }
     }
 
     @Override
-    protected void drawGuiContainerForegroundLayer( int par1, int par2 )
+    protected void drawGuiContainerBackgroundLayer( float partialTicks, int mouseX, int mouseY )
     {
+        // Draw the printout
+        GlStateManager.color( 1.0f, 1.0f, 1.0f, 1.0f );
+
+        drawBorder( guiLeft, guiTop, zLevel, m_page, m_pages, m_book );
+        drawText( guiLeft + X_TEXT_MARGIN, guiTop + Y_TEXT_MARGIN, ItemPrintout.LINES_PER_PAGE * m_page, m_text, m_colours );
     }
 
     @Override
-    protected void drawGuiContainerBackgroundLayer( float var1, int var2, int var3 )
+    public void drawScreen( int mouseX, int mouseY, float partialTicks )
     {
-    }
-
-    @Override
-    public void drawScreen( int mouseX, int mouseY, float f )
-    {
-        // Draw background
+        // We must take the background further back in order to not overlap with our printed pages.
         zLevel = zLevel - 1;
         drawDefaultBackground();
         zLevel = zLevel + 1;
 
-        // Draw the printout
-        GlStateManager.color( 1.0f, 1.0f, 1.0f, 1.0f );
-
-        int startY = (height - Y_SIZE) / 2;
-        int startX = (width - X_SIZE) / 2;
-
-        drawBorder( startX, startY, zLevel, m_page, m_pages, m_book );
-        drawText( startX + X_TEXT_MARGIN, startY + Y_TEXT_MARGIN, ItemPrintout.LINES_PER_PAGE * m_page, m_text, m_colours );
+        super.drawScreen( mouseX, mouseY, partialTicks );
+        renderHoveredToolTip( mouseX, mouseY );
     }
 }

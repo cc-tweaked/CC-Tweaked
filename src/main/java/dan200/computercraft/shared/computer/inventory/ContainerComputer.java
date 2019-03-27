@@ -29,7 +29,7 @@ public class ContainerComputer extends Container implements IContainerComputer
     @Override
     public boolean canInteractWith( @Nonnull EntityPlayer player )
     {
-        return computer.isUseableByPlayer( player );
+        return computer.isUsableByPlayer( player );
     }
 
     @Nullable

@@ -9,12 +9,12 @@ package dan200.computercraft.shared.peripheral.monitor;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
+import dan200.computercraft.api.peripheral.IPeripheralTile;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.shared.common.ServerTerminal;
 import dan200.computercraft.shared.common.TileGeneric;
 import dan200.computercraft.shared.peripheral.PeripheralType;
 import dan200.computercraft.shared.peripheral.common.BlockPeripheral;
-import dan200.computercraft.shared.peripheral.common.IPeripheralTile;
 import dan200.computercraft.shared.peripheral.common.ITilePeripheral;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
@@ -163,7 +163,7 @@ public class TileMonitor extends TileGeneric implements ITilePeripheral, IPeriph
     // IPeripheralTile implementation
 
     @Override
-    public IPeripheral getPeripheral( EnumFacing side )
+    public IPeripheral getPeripheral( @Nonnull EnumFacing side )
     {
         createServerMonitor(); // Ensure the monitor is created before doing anything else.
 

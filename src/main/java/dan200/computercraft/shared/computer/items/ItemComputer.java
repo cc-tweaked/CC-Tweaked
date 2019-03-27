@@ -7,20 +7,13 @@
 package dan200.computercraft.shared.computer.items;
 
 import dan200.computercraft.ComputerCraft;
-import dan200.computercraft.shared.computer.blocks.IComputerTile;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import net.minecraft.block.Block;
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -82,39 +75,6 @@ public class ItemComputer extends ItemComputerBase
         list.add( ComputerItemFactory.create( -1, null, ComputerFamily.Advanced ) );
     }
 
-    @Override
-    public boolean placeBlockAt( @Nonnull ItemStack stack, @Nonnull EntityPlayer player, World world, @Nonnull BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ, @Nonnull IBlockState newState )
-    {
-        if( super.placeBlockAt( stack, player, world, pos, side, hitX, hitY, hitZ, newState ) )
-        {
-            TileEntity tile = world.getTileEntity( pos );
-            if( tile instanceof IComputerTile )
-            {
-                IComputerTile computer = (IComputerTile) tile;
-                setupComputerAfterPlacement( stack, computer );
-            }
-            return true;
-        }
-        return false;
-    }
-
-    private void setupComputerAfterPlacement( @Nonnull ItemStack stack, IComputerTile computer )
-    {
-        // Set ID
-        int id = getComputerID( stack );
-        if( id >= 0 )
-        {
-            computer.setComputerID( id );
-        }
-
-        // Set Label
-        String label = getLabel( stack );
-        if( label != null )
-        {
-            computer.setLabel( label );
-        }
-    }
-
     @Nonnull
     @Override
     public String getTranslationKey( @Nonnull ItemStack stack )
@@ -123,17 +83,11 @@ public class ItemComputer extends ItemComputerBase
         {
             case Normal:
             default:
-            {
                 return "tile.computercraft:computer";
-            }
             case Advanced:
-            {
                 return "tile.computercraft:advanced_computer";
-            }
             case Command:
-            {
                 return "tile.computercraft:command_computer";
-            }
         }
     }
 
@@ -162,10 +116,6 @@ public class ItemComputer extends ItemComputerBase
     @Override
     public ComputerFamily getFamily( int damage )
     {
-        if( (damage & 0x4000) != 0 )
-        {
-            return ComputerFamily.Advanced;
-        }
-        return ComputerFamily.Normal;
+        return (damage & 0x4000) == 0 ? ComputerFamily.Normal : ComputerFamily.Advanced;
     }
 }

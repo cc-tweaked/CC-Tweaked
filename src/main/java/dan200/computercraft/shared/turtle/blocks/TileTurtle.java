@@ -8,13 +8,16 @@ package dan200.computercraft.shared.turtle.blocks;
 
 import com.mojang.authlib.GameProfile;
 import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
+import dan200.computercraft.shared.computer.blocks.ComputerPeripheral;
 import dan200.computercraft.shared.computer.blocks.ComputerProxy;
 import dan200.computercraft.shared.computer.blocks.TileComputerBase;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ServerComputer;
+import dan200.computercraft.shared.network.Containers;
 import dan200.computercraft.shared.turtle.apis.TurtleAPI;
 import dan200.computercraft.shared.turtle.core.TurtleBrain;
 import dan200.computercraft.shared.util.DefaultInventory;
@@ -209,7 +212,7 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
     @Override
     public void openGUI( EntityPlayer player )
     {
-        ComputerCraft.openTurtleGUI( player, this );
+        Containers.openTurtleGUI( player, this );
     }
 
     @Override
@@ -560,7 +563,7 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
         return isUsable( player, false );
     }
 
-    public void onInventoryDefinitelyChanged()
+    private void onInventoryDefinitelyChanged()
     {
         super.markDirty();
         m_inventoryChanged = true;
@@ -616,6 +619,13 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
         m_brain = copy.m_brain;
         m_brain.setOwner( this );
         copy.m_moveState = MoveState.MOVED;
+    }
+
+    @Nullable
+    @Override
+    public IPeripheral getPeripheral( @Nonnull EnumFacing side )
+    {
+        return hasMoved() ? null : new ComputerPeripheral( "turtle", createProxy() );
     }
 
     public IItemHandlerModifiable getItemHandler()

@@ -9,7 +9,7 @@ package dan200.computercraft.shared.integration.mcmp;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.peripheral.IPeripheral;
-import dan200.computercraft.shared.peripheral.common.IPeripheralTile;
+import dan200.computercraft.api.peripheral.IPeripheralTile;
 import dan200.computercraft.shared.peripheral.modem.wireless.TileAdvancedModem;
 import dan200.computercraft.shared.peripheral.modem.wireless.TileWirelessModem;
 import mcmultipart.api.addon.IMCMPAddon;

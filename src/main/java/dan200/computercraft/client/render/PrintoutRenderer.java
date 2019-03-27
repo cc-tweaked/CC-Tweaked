@@ -12,6 +12,8 @@ import dan200.computercraft.shared.util.Palette;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.GlStateManager.DestFactor;
+import net.minecraft.client.renderer.GlStateManager.SourceFactor;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.ResourceLocation;
@@ -73,6 +75,7 @@ public class PrintoutRenderer
         GlStateManager.color( 1.0f, 1.0f, 1.0f, 1.0f );
         GlStateManager.enableBlend();
         GlStateManager.enableTexture2D();
+        GlStateManager.tryBlendFuncSeparate( SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA, SourceFactor.ONE, DestFactor.ZERO );
 
         FixedWidthFontRenderer fontRenderer = FixedWidthFontRenderer.instance();
 
@@ -87,6 +90,7 @@ public class PrintoutRenderer
         GlStateManager.color( 1.0f, 1.0f, 1.0f, 1.0f );
         GlStateManager.enableBlend();
         GlStateManager.enableTexture2D();
+        GlStateManager.tryBlendFuncSeparate( SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA, SourceFactor.ONE, DestFactor.ZERO );
 
         Minecraft.getMinecraft().getTextureManager().bindTexture( BG );
 

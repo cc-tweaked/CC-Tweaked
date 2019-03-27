@@ -28,15 +28,11 @@ import dan200.computercraft.core.computer.MainThread;
 import dan200.computercraft.core.filesystem.ComboMount;
 import dan200.computercraft.core.filesystem.FileMount;
 import dan200.computercraft.core.filesystem.JarMount;
-import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.core.tracking.Tracking;
 import dan200.computercraft.shared.*;
 import dan200.computercraft.shared.computer.blocks.BlockCommandComputer;
 import dan200.computercraft.shared.computer.blocks.BlockComputer;
-import dan200.computercraft.shared.computer.blocks.TileComputer;
 import dan200.computercraft.shared.computer.core.ClientComputerRegistry;
-import dan200.computercraft.shared.computer.core.ComputerFamily;
-import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.computer.core.ServerComputerRegistry;
 import dan200.computercraft.shared.computer.items.ItemCommandComputer;
 import dan200.computercraft.shared.computer.items.ItemComputer;
@@ -44,24 +40,19 @@ import dan200.computercraft.shared.media.items.ItemDiskExpanded;
 import dan200.computercraft.shared.media.items.ItemDiskLegacy;
 import dan200.computercraft.shared.media.items.ItemPrintout;
 import dan200.computercraft.shared.media.items.ItemTreasureDisk;
-import dan200.computercraft.shared.network.NetworkHandler;
 import dan200.computercraft.shared.peripheral.common.BlockPeripheral;
 import dan200.computercraft.shared.peripheral.common.ItemPeripheral;
-import dan200.computercraft.shared.peripheral.diskdrive.TileDiskDrive;
 import dan200.computercraft.shared.peripheral.modem.wired.BlockCable;
 import dan200.computercraft.shared.peripheral.modem.wired.BlockWiredModemFull;
 import dan200.computercraft.shared.peripheral.modem.wired.ItemCable;
 import dan200.computercraft.shared.peripheral.modem.wireless.BlockAdvancedModem;
 import dan200.computercraft.shared.peripheral.modem.wireless.ItemAdvancedModem;
 import dan200.computercraft.shared.peripheral.modem.wireless.WirelessNetwork;
-import dan200.computercraft.shared.peripheral.printer.TilePrinter;
 import dan200.computercraft.shared.pocket.items.ItemPocketComputer;
 import dan200.computercraft.shared.pocket.peripherals.PocketModem;
 import dan200.computercraft.shared.pocket.peripherals.PocketSpeaker;
-import dan200.computercraft.shared.proxy.ICCTurtleProxy;
 import dan200.computercraft.shared.proxy.IComputerCraftProxy;
 import dan200.computercraft.shared.turtle.blocks.BlockTurtle;
-import dan200.computercraft.shared.turtle.blocks.TileTurtle;
 import dan200.computercraft.shared.turtle.items.ItemTurtleAdvanced;
 import dan200.computercraft.shared.turtle.items.ItemTurtleLegacy;
 import dan200.computercraft.shared.turtle.items.ItemTurtleNormal;
@@ -77,7 +68,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
@@ -108,16 +98,6 @@ import java.util.zip.ZipFile;
 public class ComputerCraft
 {
     public static final String MOD_ID = "computercraft";
-
-    // GUI IDs
-    public static final int diskDriveGUIID = 100;
-    public static final int computerGUIID = 101;
-    public static final int printerGUIID = 102;
-    public static final int turtleGUIID = 103;
-    // ComputerCraftEdu uses ID 104
-    public static final int printoutGUIID = 105;
-    public static final int pocketComputerGUIID = 106;
-    public static final int viewComputerGUIID = 110;
 
     // Configuration options
     public static final String[] DEFAULT_HTTP_WHITELIST = new String[] { "*" };
@@ -268,12 +248,6 @@ public class ComputerCraft
     )
     private static IComputerCraftProxy proxy;
 
-    @SidedProxy(
-        clientSide = "dan200.computercraft.client.proxy.CCTurtleProxyClient",
-        serverSide = "dan200.computercraft.shared.proxy.CCTurtleProxyCommon"
-    )
-    private static ICCTurtleProxy turtleProxy;
-
     @Mod.EventHandler
     public void preInit( FMLPreInitializationEvent event )
     {
@@ -282,18 +256,13 @@ public class ComputerCraft
         // Load config
         Config.load( event.getSuggestedConfigurationFile() );
 
-        // Setup network
-        NetworkHandler.setup();
-
         proxy.preInit();
-        turtleProxy.preInit();
     }
 
     @Mod.EventHandler
     public void init( FMLInitializationEvent event )
     {
         proxy.init();
-        turtleProxy.init();
     }
 
     @Mod.EventHandler
@@ -329,58 +298,6 @@ public class ComputerCraft
     public static String getVersion()
     {
         return "${version}";
-    }
-
-    public static void openDiskDriveGUI( EntityPlayer player, TileDiskDrive drive )
-    {
-        BlockPos pos = drive.getPos();
-        player.openGui( ComputerCraft.instance, ComputerCraft.diskDriveGUIID, player.getEntityWorld(), pos.getX(), pos.getY(), pos.getZ() );
-    }
-
-    public static void openComputerGUI( EntityPlayer player, TileComputer computer )
-    {
-        BlockPos pos = computer.getPos();
-        player.openGui( ComputerCraft.instance, ComputerCraft.computerGUIID, player.getEntityWorld(), pos.getX(), pos.getY(), pos.getZ() );
-    }
-
-    public static void openPrinterGUI( EntityPlayer player, TilePrinter printer )
-    {
-        BlockPos pos = printer.getPos();
-        player.openGui( ComputerCraft.instance, ComputerCraft.printerGUIID, player.getEntityWorld(), pos.getX(), pos.getY(), pos.getZ() );
-    }
-
-    public static void openTurtleGUI( EntityPlayer player, TileTurtle turtle )
-    {
-        BlockPos pos = turtle.getPos();
-        player.openGui( instance, ComputerCraft.turtleGUIID, player.getEntityWorld(), pos.getX(), pos.getY(), pos.getZ() );
-    }
-
-    public static void openPrintoutGUI( EntityPlayer player, EnumHand hand )
-    {
-        player.openGui( ComputerCraft.instance, ComputerCraft.printoutGUIID, player.getEntityWorld(), hand.ordinal(), 0, 0 );
-    }
-
-    public static void openPocketComputerGUI( EntityPlayer player, EnumHand hand )
-    {
-        player.openGui( ComputerCraft.instance, ComputerCraft.pocketComputerGUIID, player.getEntityWorld(), hand.ordinal(), 0, 0 );
-    }
-
-    public static void openComputerGUI( EntityPlayer player, ServerComputer computer )
-    {
-        ComputerFamily family = computer.getFamily();
-        int width = 0, height = 0;
-        Terminal terminal = computer.getTerminal();
-        if( terminal != null )
-        {
-            width = terminal.getWidth();
-            height = terminal.getHeight();
-        }
-
-        // Pack useful terminal information into the various coordinate bits.
-        // These are extracted in ComputerCraftProxyCommon.getClientGuiElement
-        player.openGui( ComputerCraft.instance, ComputerCraft.viewComputerGUIID, player.getEntityWorld(),
-            computer.getInstanceID(), family.ordinal(), (width & 0xFFFF) << 16 | (height & 0xFFFF)
-        );
     }
 
     private static File getBaseDir()

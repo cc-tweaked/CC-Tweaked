@@ -10,7 +10,6 @@ import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.client.render.TurtleModelLoader;
 import dan200.computercraft.shared.media.items.ItemDiskLegacy;
 import dan200.computercraft.shared.turtle.items.ItemTurtleBase;
-import dan200.computercraft.shared.util.Colour;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ItemMeshDefinition;
 import net.minecraft.client.renderer.block.model.IBakedModel;
@@ -117,7 +116,7 @@ public class ClientRegistry
     public static void onItemColours( ColorHandlerEvent.Item event )
     {
         event.getItemColors().registerItemColorHandler(
-            ( stack, layer ) -> layer == 0 ? 0xFFFFFF : ((ItemDiskLegacy) stack.getItem()).getColour( stack ),
+            ( stack, layer ) -> layer == 1 ? ((ItemDiskLegacy) stack.getItem()).getColour( stack ) : 0xFFFFFF,
             ComputerCraft.Items.disk, ComputerCraft.Items.diskExpanded
         );
 
@@ -127,32 +126,18 @@ public class ClientRegistry
                 case 0:
                 default:
                     return 0xFFFFFF;
-                case 1:
-                {
-                    // Frame colour
-                    int colour = ComputerCraft.Items.pocketComputer.getColour( stack );
-                    return colour == -1 ? 0xFFFFFF : colour;
-                }
-                case 2:
-                {
-                    // Light colour
-                    int colour = ComputerCraft.Items.pocketComputer.getLightState( stack );
-                    return colour == -1 ? Colour.Black.getHex() : colour;
-                }
+                case 1: // Frame colour
+                    return ComputerCraft.Items.pocketComputer.getColour( stack );
+                case 2: // Light colour
+                    return ComputerCraft.Items.pocketComputer.getLightState( stack );
             }
         }, ComputerCraft.Items.pocketComputer );
 
         // Setup turtle colours
-        event.getItemColors().registerItemColorHandler( ( stack, tintIndex ) -> {
-            if( tintIndex == 0 )
-            {
-                ItemTurtleBase turtle = (ItemTurtleBase) stack.getItem();
-                int colour = turtle.getColour( stack );
-                if( colour != -1 ) return colour;
-            }
-
-            return 0xFFFFFF;
-        }, ComputerCraft.Blocks.turtle, ComputerCraft.Blocks.turtleExpanded, ComputerCraft.Blocks.turtleAdvanced );
+        event.getItemColors().registerItemColorHandler(
+            ( stack, tintIndex ) -> tintIndex == 0 ? ((ItemTurtleBase) stack.getItem()).getColour( stack ) : 0xFFFFFF,
+            ComputerCraft.Blocks.turtle, ComputerCraft.Blocks.turtleExpanded, ComputerCraft.Blocks.turtleAdvanced
+        );
     }
 
     private static void registerItemModel( Item item, int damage, String name )

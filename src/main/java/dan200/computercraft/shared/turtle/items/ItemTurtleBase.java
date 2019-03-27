@@ -12,20 +12,11 @@ import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.shared.TurtleUpgrades;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.items.ItemComputerBase;
-import dan200.computercraft.shared.turtle.blocks.ITurtleTile;
-import dan200.computercraft.shared.turtle.core.TurtleBrain;
 import dan200.computercraft.shared.util.StringUtil;
 import net.minecraft.block.Block;
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
 import net.minecraft.util.NonNullList;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -63,63 +54,6 @@ public abstract class ItemTurtleBase extends ItemComputerBase implements ITurtle
 
             ItemStack stack = TurtleItemFactory.create( -1, null, -1, family, null, upgrade, 0, null );
             if( !stack.isEmpty() && stack.getItem() == this ) list.add( stack );
-        }
-    }
-
-    @Override
-    public boolean placeBlockAt( @Nonnull ItemStack stack, @Nonnull EntityPlayer player, World world, @Nonnull BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ, @Nonnull IBlockState newState )
-    {
-        if( super.placeBlockAt( stack, player, world, pos, side, hitX, hitY, hitZ, newState ) )
-        {
-            TileEntity tile = world.getTileEntity( pos );
-            if( tile instanceof ITurtleTile )
-            {
-                ITurtleTile turtle = (ITurtleTile) tile;
-                setupTurtleAfterPlacement( stack, turtle );
-            }
-            return true;
-        }
-        return false;
-    }
-
-    public void setupTurtleAfterPlacement( @Nonnull ItemStack stack, ITurtleTile turtle )
-    {
-        // Set ID
-        int id = getComputerID( stack );
-        if( id >= 0 )
-        {
-            turtle.setComputerID( id );
-        }
-
-        // Set Label
-        String label = getLabel( stack );
-        if( label != null )
-        {
-            turtle.setLabel( label );
-        }
-
-        // Set Upgrades
-        for( TurtleSide side : TurtleSide.values() )
-        {
-            turtle.getAccess().setUpgrade( side, getUpgrade( stack, side ) );
-        }
-
-        // Set Fuel level
-        int fuelLevel = getFuelLevel( stack );
-        turtle.getAccess().setFuelLevel( fuelLevel );
-
-        // Set colour
-        int colour = getColour( stack );
-        if( colour != -1 )
-        {
-            turtle.getAccess().setColour( colour );
-        }
-
-        // Set overlay
-        ResourceLocation overlay = getOverlay( stack );
-        if( overlay != null )
-        {
-            ((TurtleBrain) turtle.getAccess()).setOverlay( overlay );
         }
     }
 

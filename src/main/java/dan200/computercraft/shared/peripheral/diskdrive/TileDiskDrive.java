@@ -13,6 +13,7 @@ import dan200.computercraft.api.media.IMedia;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.shared.MediaProviders;
+import dan200.computercraft.shared.network.Containers;
 import dan200.computercraft.shared.peripheral.PeripheralType;
 import dan200.computercraft.shared.peripheral.common.BlockPeripheral;
 import dan200.computercraft.shared.peripheral.common.TilePeripheralBase;
@@ -112,7 +113,7 @@ public class TileDiskDrive extends TilePeripheralBase implements DefaultInventor
             // Open the GUI
             if( !getWorld().isRemote )
             {
-                ComputerCraft.openDiskDriveGUI( player, this );
+                Containers.openDiskDriveGUI( player, this );
             }
             return true;
         }
@@ -343,7 +344,7 @@ public class TileDiskDrive extends TilePeripheralBase implements DefaultInventor
     // IPeripheralTile implementation
 
     @Override
-    public IPeripheral getPeripheral( EnumFacing side )
+    public IPeripheral getPeripheral( @Nonnull EnumFacing side )
     {
         return new DiskDrivePeripheral( this );
     }

@@ -10,6 +10,7 @@ import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.shared.media.items.ItemPrintout;
+import dan200.computercraft.shared.network.Containers;
 import dan200.computercraft.shared.peripheral.PeripheralType;
 import dan200.computercraft.shared.peripheral.common.TilePeripheralBase;
 import dan200.computercraft.shared.util.DefaultSidedInventory;
@@ -79,7 +80,7 @@ public class TilePrinter extends TilePeripheralBase implements DefaultSidedInven
         {
             if( !getWorld().isRemote )
             {
-                ComputerCraft.openPrinterGUI( player, this );
+                Containers.openPrinterGUI( player, this );
             }
             return true;
         }
@@ -339,7 +340,7 @@ public class TilePrinter extends TilePeripheralBase implements DefaultSidedInven
     // IPeripheralTile implementation
 
     @Override
-    public IPeripheral getPeripheral( EnumFacing side )
+    public IPeripheral getPeripheral( @Nonnull EnumFacing side )
     {
         return new PrinterPeripheral( this );
     }

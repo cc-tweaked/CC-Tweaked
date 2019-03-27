@@ -7,6 +7,7 @@
 package dan200.computercraft.api.media;
 
 import dan200.computercraft.api.filesystem.IMount;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.world.World;
@@ -16,7 +17,9 @@ import javax.annotation.Nullable;
 
 /**
  * Represents an item that can be placed in a disk drive and used by a Computer.
- * Implement this interface on your Item class to allow it to be used in the drive.
+ *
+ * Implement this interface on your {@link Item} class to allow it to be used in the drive. Alternatively, register
+ * a {@link IMediaProvider}.
  */
 public interface IMedia
 {

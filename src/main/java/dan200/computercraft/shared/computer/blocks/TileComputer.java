@@ -9,6 +9,7 @@ package dan200.computercraft.shared.computer.blocks;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ServerComputer;
+import dan200.computercraft.shared.network.Containers;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
@@ -60,7 +61,7 @@ public class TileComputer extends TileComputerBase
     @Override
     public void openGUI( EntityPlayer player )
     {
-        ComputerCraft.openComputerGUI( player, this );
+        Containers.openComputerGUI( player, this );
     }
 
     @Override
@@ -78,7 +79,7 @@ public class TileComputer extends TileComputerBase
         updateBlock();
     }
 
-    public boolean isUseableByPlayer( EntityPlayer player )
+    public boolean isUsableByPlayer( EntityPlayer player )
     {
         return isUsable( player, false );
     }

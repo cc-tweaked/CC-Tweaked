@@ -8,41 +8,33 @@ package dan200.computercraft.shared.proxy;
 
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.ComputerCraftAPI;
-import dan200.computercraft.client.gui.*;
+import dan200.computercraft.api.media.IMedia;
+import dan200.computercraft.api.peripheral.IPeripheralTile;
 import dan200.computercraft.core.computer.MainThread;
 import dan200.computercraft.shared.Config;
 import dan200.computercraft.shared.command.CommandComputerCraft;
-import dan200.computercraft.shared.command.ContainerViewComputer;
 import dan200.computercraft.shared.common.DefaultBundledRedstoneProvider;
-import dan200.computercraft.shared.computer.blocks.TileComputer;
-import dan200.computercraft.shared.computer.core.*;
-import dan200.computercraft.shared.computer.inventory.ContainerComputer;
+import dan200.computercraft.shared.computer.core.IComputer;
+import dan200.computercraft.shared.computer.core.IContainerComputer;
+import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.datafix.Fixes;
 import dan200.computercraft.shared.integration.charset.IntegrationCharset;
-import dan200.computercraft.shared.media.common.DefaultMediaProvider;
-import dan200.computercraft.shared.media.inventory.ContainerHeldItem;
-import dan200.computercraft.shared.media.items.ItemPrintout;
-import dan200.computercraft.shared.peripheral.commandblock.CommandBlockPeripheralProvider;
-import dan200.computercraft.shared.peripheral.common.DefaultPeripheralProvider;
-import dan200.computercraft.shared.peripheral.diskdrive.ContainerDiskDrive;
-import dan200.computercraft.shared.peripheral.diskdrive.TileDiskDrive;
-import dan200.computercraft.shared.peripheral.printer.ContainerPrinter;
-import dan200.computercraft.shared.peripheral.printer.TilePrinter;
-import dan200.computercraft.shared.pocket.inventory.ContainerPocketComputer;
-import dan200.computercraft.shared.pocket.items.ItemPocketComputer;
-import dan200.computercraft.shared.turtle.blocks.TileTurtle;
-import dan200.computercraft.shared.turtle.inventory.ContainerTurtle;
+import dan200.computercraft.shared.media.items.RecordMedia;
+import dan200.computercraft.shared.network.Containers;
+import dan200.computercraft.shared.network.NetworkHandler;
+import dan200.computercraft.shared.peripheral.commandblock.CommandBlockPeripheral;
+import dan200.computercraft.shared.turtle.core.TurtlePlayer;
 import dan200.computercraft.shared.util.CreativeTabMain;
 import dan200.computercraft.shared.wired.CapabilityWiredElement;
 import net.minecraft.command.CommandHandler;
 import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Container;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemRecord;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumHand;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.tileentity.TileEntityCommandBlock;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.event.entity.player.PlayerContainerEvent;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent;
 import net.minecraftforge.fml.common.FMLCommonHandler;
@@ -51,10 +43,8 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.common.network.FMLNetworkEvent;
-import net.minecraftforge.fml.common.network.IGuiHandler;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.fml.common.registry.EntityRegistry;
 import pl.asie.charset.ModCharset;
 
 public class ComputerCraftProxyCommon implements IComputerCraftProxy
@@ -62,15 +52,21 @@ public class ComputerCraftProxyCommon implements IComputerCraftProxy
     @Override
     public void preInit()
     {
-        // Creative tab
+        NetworkHandler.setup();
+
         ComputerCraft.mainCreativeTab = new CreativeTabMain( CreativeTabs.getNextID() );
+
+        EntityRegistry.registerModEntity(
+            new ResourceLocation( ComputerCraft.MOD_ID, "turtle_player" ), TurtlePlayer.class, "turtle_player",
+            0, ComputerCraft.instance, Integer.MAX_VALUE, Integer.MAX_VALUE, false
+        );
     }
 
     @Override
     public void init()
     {
         registerProviders();
-        NetworkRegistry.INSTANCE.registerGuiHandler( ComputerCraft.instance, new GuiHandler() );
+        NetworkRegistry.INSTANCE.registerGuiHandler( ComputerCraft.instance, Containers.INSTANCE );
 
         Fixes.register( FMLCommonHandler.instance().getDataFixer() );
         if( Loader.isModLoaded( ModCharset.MODID ) ) IntegrationCharset.register();
@@ -86,160 +82,29 @@ public class ComputerCraftProxyCommon implements IComputerCraftProxy
     private void registerProviders()
     {
         // Register peripheral providers
-        ComputerCraftAPI.registerPeripheralProvider( new DefaultPeripheralProvider() );
-        if( ComputerCraft.enableCommandBlock )
-        {
-            ComputerCraftAPI.registerPeripheralProvider( new CommandBlockPeripheralProvider() );
-        }
+        ComputerCraftAPI.registerPeripheralProvider( ( world, pos, side ) -> {
+            TileEntity tile = world.getTileEntity( pos );
+            return tile instanceof IPeripheralTile ? ((IPeripheralTile) tile).getPeripheral( side ) : null;
+        } );
+
+        ComputerCraftAPI.registerPeripheralProvider( ( world, pos, side ) -> {
+            TileEntity tile = world.getTileEntity( pos );
+            return ComputerCraft.enableCommandBlock && tile instanceof TileEntityCommandBlock ? new CommandBlockPeripheral( (TileEntityCommandBlock) tile ) : null;
+        } );
 
         // Register bundled power providers
         ComputerCraftAPI.registerBundledRedstoneProvider( new DefaultBundledRedstoneProvider() );
 
         // Register media providers
-        ComputerCraftAPI.registerMediaProvider( new DefaultMediaProvider() );
+        ComputerCraftAPI.registerMediaProvider( stack -> {
+            Item item = stack.getItem();
+            if( item instanceof IMedia ) return (IMedia) item;
+            if( item instanceof ItemRecord ) return RecordMedia.INSTANCE;
+            return null;
+        } );
 
         // Register network providers
         CapabilityWiredElement.register();
-    }
-
-    public class GuiHandler implements IGuiHandler
-    {
-        private GuiHandler()
-        {
-        }
-
-        @Override
-        public Object getServerGuiElement( int id, EntityPlayer player, World world, int x, int y, int z )
-        {
-            BlockPos pos = new BlockPos( x, y, z );
-            switch( id )
-            {
-                case ComputerCraft.diskDriveGUIID:
-                {
-                    TileEntity tile = world.getTileEntity( pos );
-                    if( tile instanceof TileDiskDrive )
-                    {
-                        TileDiskDrive drive = (TileDiskDrive) tile;
-                        return new ContainerDiskDrive( player.inventory, drive );
-                    }
-                    break;
-                }
-                case ComputerCraft.computerGUIID:
-                {
-                    TileEntity tile = world.getTileEntity( pos );
-                    if( tile instanceof TileComputer )
-                    {
-                        TileComputer computer = (TileComputer) tile;
-                        return new ContainerComputer( computer );
-                    }
-                    break;
-                }
-                case ComputerCraft.printerGUIID:
-                {
-                    TileEntity tile = world.getTileEntity( pos );
-                    if( tile instanceof TilePrinter )
-                    {
-                        TilePrinter printer = (TilePrinter) tile;
-                        return new ContainerPrinter( player.inventory, printer );
-                    }
-                    break;
-                }
-                case ComputerCraft.turtleGUIID:
-                {
-                    TileEntity tile = world.getTileEntity( pos );
-                    if( tile instanceof TileTurtle )
-                    {
-                        TileTurtle turtle = (TileTurtle) tile;
-                        return new ContainerTurtle( player.inventory, turtle.getAccess(), turtle.getServerComputer() );
-                    }
-                    break;
-                }
-                case ComputerCraft.printoutGUIID:
-                {
-                    return new ContainerHeldItem( player, x == 0 ? EnumHand.MAIN_HAND : EnumHand.MAIN_HAND );
-                }
-                case ComputerCraft.pocketComputerGUIID:
-                {
-                    return new ContainerPocketComputer( player, x == 0 ? EnumHand.MAIN_HAND : EnumHand.OFF_HAND );
-                }
-                case ComputerCraft.viewComputerGUIID:
-                {
-                    ServerComputer computer = ComputerCraft.serverComputerRegistry.get( x );
-                    return computer == null ? null : new ContainerViewComputer( computer );
-                }
-            }
-            return null;
-        }
-
-        @Override
-        @SideOnly( Side.CLIENT )
-        public Object getClientGuiElement( int id, EntityPlayer player, World world, int x, int y, int z )
-        {
-            BlockPos pos = new BlockPos( x, y, z );
-            switch( id )
-            {
-                case ComputerCraft.diskDriveGUIID:
-                {
-                    TileEntity tile = world.getTileEntity( pos );
-                    return tile instanceof TileDiskDrive ? new GuiDiskDrive( new ContainerDiskDrive( player.inventory, (TileDiskDrive) tile ) ) : null;
-                }
-                case ComputerCraft.computerGUIID:
-                {
-                    TileEntity tile = world.getTileEntity( pos );
-                    return tile instanceof TileComputer ? new GuiComputer( (TileComputer) tile ) : null;
-                }
-                case ComputerCraft.printerGUIID:
-                {
-                    TileEntity tile = world.getTileEntity( pos );
-                    return tile instanceof TilePrinter ? new GuiPrinter( new ContainerPrinter( player.inventory, (TilePrinter) tile ) ) : null;
-                }
-                case ComputerCraft.turtleGUIID:
-                {
-                    TileEntity tile = world.getTileEntity( pos );
-                    if( tile instanceof TileTurtle )
-                    {
-                        TileTurtle turtle = (TileTurtle) tile;
-                        return new GuiTurtle( turtle, new ContainerTurtle( player.inventory, turtle.getAccess() ) );
-                    }
-                    return null;
-                }
-                case ComputerCraft.printoutGUIID:
-                {
-                    ContainerHeldItem container = new ContainerHeldItem( player, x == 0 ? EnumHand.MAIN_HAND : EnumHand.OFF_HAND );
-                    return container.getStack().getItem() instanceof ItemPrintout ? new GuiPrintout( container ) : null;
-                }
-                case ComputerCraft.pocketComputerGUIID:
-                {
-                    ContainerPocketComputer container = new ContainerPocketComputer( player, x == 0 ? EnumHand.MAIN_HAND : EnumHand.OFF_HAND );
-                    return container.getStack().getItem() instanceof ItemPocketComputer ? new GuiPocketComputer( container ) : null;
-                }
-                case ComputerCraft.viewComputerGUIID:
-                {
-                    ClientComputer computer = ComputerCraft.clientComputerRegistry.get( x );
-
-                    // We extract some terminal information from the various coordinate flags.
-                    // See ComputerCraft.openComputerGUI for how they are packed.
-                    ComputerFamily family = ComputerFamily.values()[y];
-                    int width = (z >> 16) & 0xFFFF, height = z & 0xFF;
-
-                    if( computer == null )
-                    {
-                        computer = new ClientComputer( x );
-                        ComputerCraft.clientComputerRegistry.add( x, computer );
-                    }
-                    else if( computer.getTerminal() != null )
-                    {
-                        width = computer.getTerminal().getWidth();
-                        height = computer.getTerminal().getHeight();
-                    }
-
-                    ContainerViewComputer container = new ContainerViewComputer( computer );
-                    return new GuiComputer( container, family, computer, width, height );
-                }
-                default:
-                    return null;
-            }
-        }
     }
 
     @Mod.EventBusSubscriber( modid = ComputerCraft.MOD_ID )

@@ -144,7 +144,7 @@ public class GuiComputer extends GuiContainer
     }
 
     @Override
-    public void drawScreen( int mouseX, int mouseY, float f )
+    public void drawScreen( int mouseX, int mouseY, float partialTicks )
     {
         // Work out where to draw
         int startX = (width - m_terminal.getWidth()) / 2;
@@ -156,7 +156,7 @@ public class GuiComputer extends GuiContainer
         drawDefaultBackground();
 
         // Draw terminal
-        m_terminal.draw( this.mc, startX, startY, mouseX, mouseY );
+        m_terminal.draw( mc, startX, startY, mouseX, mouseY );
 
         // Draw a border around the terminal
         GlStateManager.color( 1.0f, 1.0f, 1.0f, 1.0f );
@@ -164,20 +164,14 @@ public class GuiComputer extends GuiContainer
         {
             case Normal:
             default:
-            {
-                this.mc.getTextureManager().bindTexture( BACKGROUND );
+                mc.getTextureManager().bindTexture( BACKGROUND );
                 break;
-            }
             case Advanced:
-            {
-                this.mc.getTextureManager().bindTexture( BACKGROUND_ADVANCED );
+                mc.getTextureManager().bindTexture( BACKGROUND_ADVANCED );
                 break;
-            }
             case Command:
-            {
-                this.mc.getTextureManager().bindTexture( BACKGROUND_COMMAND );
+                mc.getTextureManager().bindTexture( BACKGROUND_COMMAND );
                 break;
-            }
         }
 
         drawTexturedModalRect( startX - 12, startY - 12, 12, 28, 12, 12 );

@@ -6,10 +6,7 @@
 
 package dan200.computercraft.shared.peripheral.common;
 
-import dan200.computercraft.api.peripheral.IPeripheral;
-import net.minecraft.util.EnumFacing;
-
-public interface IPeripheralTile
+@Deprecated
+public interface IPeripheralTile extends dan200.computercraft.api.peripheral.IPeripheralTile
 {
-    IPeripheral getPeripheral( EnumFacing side );
 }

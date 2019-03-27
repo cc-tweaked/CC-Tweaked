@@ -6,7 +6,7 @@
 
 package dan200.computercraft.shared.peripheral.common;
 
-import dan200.computercraft.api.peripheral.IPeripheral;
+import dan200.computercraft.api.peripheral.IPeripheralTile;
 import dan200.computercraft.shared.common.IDirectionalTile;
 import dan200.computercraft.shared.common.TileGeneric;
 import dan200.computercraft.shared.peripheral.PeripheralType;
@@ -44,12 +44,6 @@ public abstract class TilePeripheralBase extends TileGeneric implements IPeriphe
     public final PeripheralType getPeripheralType()
     {
         return getBlock().getPeripheralType( getBlockState() );
-    }
-
-    @Override
-    public IPeripheral getPeripheral( EnumFacing side )
-    {
-        return null;
     }
 
     @Override

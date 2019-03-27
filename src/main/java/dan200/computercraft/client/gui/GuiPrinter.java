@@ -16,36 +16,30 @@ public class GuiPrinter extends GuiContainer
 {
     private static final ResourceLocation BACKGROUND = new ResourceLocation( "computercraft", "textures/gui/printer.png" );
 
-    private final ContainerPrinter m_container;
+    private final ContainerPrinter container;
 
     public GuiPrinter( ContainerPrinter container )
     {
         super( container );
-        m_container = container;
+        this.container = container;
     }
 
     @Override
-    protected void drawGuiContainerForegroundLayer( int par1, int par2 )
+    protected void drawGuiContainerForegroundLayer( int mouseX, int mouseY )
     {
-        String title = m_container.getPrinter().getDisplayName().getUnformattedText();
+        String title = container.getPrinter().getDisplayName().getUnformattedText();
         fontRenderer.drawString( title, (xSize - fontRenderer.getStringWidth( title )) / 2, 6, 0x404040 );
         fontRenderer.drawString( I18n.format( "container.inventory" ), 8, (ySize - 96) + 2, 0x404040 );
     }
 
     @Override
-    protected void drawGuiContainerBackgroundLayer( float f, int i, int j )
+    protected void drawGuiContainerBackgroundLayer( float partialTicks, int mouseX, int mouseY )
     {
         GlStateManager.color( 1.0F, 1.0F, 1.0F, 1.0F );
-        this.mc.getTextureManager().bindTexture( BACKGROUND );
-        int startX = (width - xSize) / 2;
-        int startY = (height - ySize) / 2;
-        drawTexturedModalRect( startX, startY, 0, 0, xSize, ySize );
+        mc.getTextureManager().bindTexture( BACKGROUND );
+        drawTexturedModalRect( guiLeft, guiTop, 0, 0, xSize, ySize );
 
-        boolean printing = m_container.isPrinting();
-        if( printing )
-        {
-            drawTexturedModalRect( startX + 34, startY + 21, 176, 0, 25, 45 );
-        }
+        if( container.isPrinting() ) drawTexturedModalRect( guiLeft + 34, guiTop + 21, 176, 0, 25, 45 );
     }
 
     @Override

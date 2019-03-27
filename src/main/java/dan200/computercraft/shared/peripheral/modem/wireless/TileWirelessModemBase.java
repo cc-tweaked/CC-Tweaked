@@ -7,8 +7,8 @@
 package dan200.computercraft.shared.peripheral.modem.wireless;
 
 import dan200.computercraft.api.peripheral.IPeripheral;
+import dan200.computercraft.api.peripheral.IPeripheralTile;
 import dan200.computercraft.shared.common.TileGeneric;
-import dan200.computercraft.shared.peripheral.common.IPeripheralTile;
 import dan200.computercraft.shared.peripheral.modem.ModemPeripheral;
 import dan200.computercraft.shared.peripheral.modem.ModemState;
 import dan200.computercraft.shared.util.TickScheduler;
@@ -154,7 +154,7 @@ public abstract class TileWirelessModemBase extends TileGeneric implements IPeri
     }
 
     @Override
-    public IPeripheral getPeripheral( EnumFacing side )
+    public IPeripheral getPeripheral( @Nonnull EnumFacing side )
     {
         return !destroyed && side == getDirection() ? modem : null;
     }

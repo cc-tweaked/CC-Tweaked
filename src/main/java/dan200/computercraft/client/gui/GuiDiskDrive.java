@@ -25,7 +25,7 @@ public class GuiDiskDrive extends GuiContainer
     }
 
     @Override
-    protected void drawGuiContainerForegroundLayer( int par1, int par2 )
+    protected void drawGuiContainerForegroundLayer( int mouseX, int mouseY )
     {
         String title = m_container.getDiskDrive().getDisplayName().getUnformattedText();
         fontRenderer.drawString( title, (xSize - fontRenderer.getStringWidth( title )) / 2, 6, 0x404040 );
@@ -33,13 +33,11 @@ public class GuiDiskDrive extends GuiContainer
     }
 
     @Override
-    protected void drawGuiContainerBackgroundLayer( float f, int i, int j )
+    protected void drawGuiContainerBackgroundLayer( float partialTicks, int mouseX, int mouseY )
     {
         GlStateManager.color( 1.0F, 1.0F, 1.0F, 1.0F );
-        this.mc.getTextureManager().bindTexture( BACKGROUND );
-        int l = (width - xSize) / 2;
-        int i1 = (height - ySize) / 2;
-        drawTexturedModalRect( l, i1, 0, 0, xSize, ySize );
+        mc.getTextureManager().bindTexture( BACKGROUND );
+        drawTexturedModalRect( guiLeft, guiTop, 0, 0, xSize, ySize );
     }
 
     @Override

@@ -8,6 +8,7 @@ package dan200.computercraft.shared.computer.blocks;
 
 import dan200.computercraft.shared.common.BlockDirectional;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
+import dan200.computercraft.shared.computer.items.IComputerItem;
 import dan200.computercraft.shared.util.DirectionUtil;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
@@ -140,5 +141,24 @@ public abstract class BlockComputerBase extends BlockDirectional
         }
 
         return super.removedByPlayer( state, world, pos, player, willHarvest );
+    }
+
+    @Override
+    public void onBlockPlacedBy( World world, BlockPos pos, IBlockState state, EntityLivingBase placer, ItemStack stack )
+    {
+        super.onBlockPlacedBy( world, pos, state, placer, stack );
+
+        TileEntity tile = world.getTileEntity( pos );
+        if( !world.isRemote && tile instanceof IComputerTile && stack.getItem() instanceof IComputerItem )
+        {
+            IComputerTile computer = (IComputerTile) tile;
+            IComputerItem item = (IComputerItem) stack.getItem();
+
+            int id = item.getComputerID( stack );
+            if( id != -1 ) computer.setComputerID( id );
+
+            String label = item.getLabel( stack );
+            if( label != null ) computer.setLabel( label );
+        }
     }
 }

@@ -7,9 +7,12 @@
 package dan200.computercraft.shared.turtle.blocks;
 
 import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.shared.computer.blocks.BlockComputerBase;
 import dan200.computercraft.shared.computer.blocks.TileComputerBase;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
+import dan200.computercraft.shared.turtle.core.TurtleBrain;
+import dan200.computercraft.shared.turtle.items.ITurtleItem;
 import dan200.computercraft.shared.turtle.items.TurtleItemFactory;
 import dan200.computercraft.shared.util.DirectionUtil;
 import net.minecraft.block.material.Material;
@@ -25,6 +28,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumBlockRenderType;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
@@ -174,12 +178,40 @@ public class BlockTurtle extends BlockComputerBase
     }
 
     @Override
-    public void onBlockPlacedBy( World world, BlockPos pos, IBlockState state, EntityLivingBase player, @Nonnull ItemStack itemstack )
+    public void onBlockPlacedBy( World world, BlockPos pos, IBlockState state, EntityLivingBase player, @Nonnull ItemStack stack )
     {
+        super.onBlockPlacedBy( world, pos, state, player, stack );
+
         TileEntity tile = world.getTileEntity( pos );
-        if( tile instanceof TileTurtle && player instanceof EntityPlayer )
+        if( !world.isRemote && tile instanceof TileTurtle )
         {
-            ((TileTurtle) tile).setOwningPlayer( ((EntityPlayer) player).getGameProfile() );
+            TileTurtle turtle = (TileTurtle) tile;
+
+            if( player instanceof EntityPlayer )
+            {
+                ((TileTurtle) tile).setOwningPlayer( ((EntityPlayer) player).getGameProfile() );
+            }
+
+            if( stack.getItem() instanceof ITurtleItem )
+            {
+                ITurtleItem item = (ITurtleItem) stack.getItem();
+
+                // Set Upgrades
+                for( TurtleSide side : TurtleSide.values() )
+                {
+                    turtle.getAccess().setUpgrade( side, item.getUpgrade( stack, side ) );
+                }
+
+                turtle.getAccess().setFuelLevel( item.getFuelLevel( stack ) );
+
+                // Set colour
+                int colour = item.getColour( stack );
+                if( colour != -1 ) turtle.getAccess().setColour( colour );
+
+                // Set overlay
+                ResourceLocation overlay = item.getOverlay( stack );
+                if( overlay != null ) ((TurtleBrain) turtle.getAccess()).setOverlay( overlay );
+            }
         }
 
         // Set direction

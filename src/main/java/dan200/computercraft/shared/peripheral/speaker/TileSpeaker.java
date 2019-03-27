@@ -13,6 +13,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class TileSpeaker extends TilePeripheralBase
@@ -38,7 +39,7 @@ public class TileSpeaker extends TilePeripheralBase
     // IPeripheralTile implementation
 
     @Override
-    public IPeripheral getPeripheral( EnumFacing side )
+    public IPeripheral getPeripheral( @Nonnull EnumFacing side )
     {
         return m_peripheral;
     }

@@ -78,7 +78,7 @@ public class TileEntityTurtleRenderer extends TileEntitySpecialRenderer<TileTurt
         }
     }
 
-    private void renderTurtleAt( TileTurtle turtle, double posX, double posY, double posZ, float f, int i )
+    private void renderTurtleAt( TileTurtle turtle, double posX, double posY, double posZ, float partialTicks, int i )
     {
         // Render the label
         String label = turtle.createProxy().getLabel();
@@ -93,15 +93,13 @@ public class TileEntityTurtleRenderer extends TileEntitySpecialRenderer<TileTurt
             setLightmapDisabled( false );
         }
 
-        IBlockState state = turtle.getWorld().getBlockState( turtle.getPos() );
         GlStateManager.pushMatrix();
         try
         {
+            IBlockState state = turtle.getWorld().getBlockState( turtle.getPos() );
             // Setup the transform
-            Vec3d offset;
-            float yaw;
-            offset = turtle.getRenderOffset( f );
-            yaw = turtle.getRenderYaw( f );
+            Vec3d offset = turtle.getRenderOffset( partialTicks );
+            float yaw = turtle.getRenderYaw( partialTicks );
             GlStateManager.translate( posX + offset.x, posY + offset.y, posZ + offset.z );
 
             // Render the turtle
@@ -146,8 +144,8 @@ public class TileEntityTurtleRenderer extends TileEntitySpecialRenderer<TileTurt
             }
 
             // Render the upgrades
-            renderUpgrade( state, turtle, TurtleSide.Left, f );
-            renderUpgrade( state, turtle, TurtleSide.Right, f );
+            renderUpgrade( state, turtle, TurtleSide.Left, partialTicks );
+            renderUpgrade( state, turtle, TurtleSide.Right, partialTicks );
         }
         finally
         {

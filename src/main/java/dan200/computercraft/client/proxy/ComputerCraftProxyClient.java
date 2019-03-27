@@ -9,11 +9,13 @@ package dan200.computercraft.client.proxy;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.client.render.TileEntityCableRenderer;
 import dan200.computercraft.client.render.TileEntityMonitorRenderer;
+import dan200.computercraft.client.render.TileEntityTurtleRenderer;
 import dan200.computercraft.shared.command.CommandCopy;
 import dan200.computercraft.shared.peripheral.modem.wired.TileCable;
 import dan200.computercraft.shared.peripheral.monitor.ClientMonitor;
 import dan200.computercraft.shared.peripheral.monitor.TileMonitor;
 import dan200.computercraft.shared.proxy.ComputerCraftProxyCommon;
+import dan200.computercraft.shared.turtle.blocks.TileTurtle;
 import net.minecraftforge.client.ClientCommandHandler;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
@@ -40,6 +42,7 @@ public class ComputerCraftProxyClient extends ComputerCraftProxyCommon
         // Setup renderers
         ClientRegistry.bindTileEntitySpecialRenderer( TileMonitor.class, new TileEntityMonitorRenderer() );
         ClientRegistry.bindTileEntitySpecialRenderer( TileCable.class, new TileEntityCableRenderer() );
+        ClientRegistry.bindTileEntitySpecialRenderer( TileTurtle.class, new TileEntityTurtleRenderer() );
     }
 
     @Mod.EventBusSubscriber( modid = ComputerCraft.MOD_ID, value = Side.CLIENT )

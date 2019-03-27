@@ -19,6 +19,7 @@ import dan200.computercraft.shared.computer.core.ClientComputer;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.computer.items.IComputerItem;
+import dan200.computercraft.shared.network.Containers;
 import dan200.computercraft.shared.pocket.apis.PocketAPI;
 import dan200.computercraft.shared.pocket.core.PocketServerComputer;
 import dan200.computercraft.shared.util.StringUtil;
@@ -188,7 +189,7 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
                 }
             }
 
-            if( !stop ) ComputerCraft.openPocketComputerGUI( player, hand );
+            if( !stop ) Containers.openPocketComputerGUI( player, hand );
         }
         return new ActionResult<>( EnumActionResult.SUCCESS, stack );
     }

@@ -7,6 +7,8 @@
 package dan200.computercraft.shared.computer.blocks;
 
 import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.api.peripheral.IPeripheral;
+import dan200.computercraft.api.peripheral.IPeripheralTile;
 import dan200.computercraft.shared.BundledRedstone;
 import dan200.computercraft.shared.Peripherals;
 import dan200.computercraft.shared.common.IDirectionalTile;
@@ -28,9 +30,10 @@ import net.minecraft.util.ITickable;
 import net.minecraft.util.math.BlockPos;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Objects;
 
-public abstract class TileComputerBase extends TileGeneric implements IComputerTile, IDirectionalTile, ITickable
+public abstract class TileComputerBase extends TileGeneric implements IComputerTile, IDirectionalTile, ITickable, IPeripheralTile
 {
     private int m_instanceID = -1;
     private int m_computerID = -1;
@@ -494,5 +497,12 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
             updateBlock();
         }
         copy.m_instanceID = -1;
+    }
+
+    @Nullable
+    @Override
+    public IPeripheral getPeripheral( @Nonnull EnumFacing side )
+    {
+        return new ComputerPeripheral( "computer", createProxy() );
     }
 }
