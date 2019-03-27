@@ -76,13 +76,12 @@ public abstract class TurtleInventoryEvent extends TurtleBlockEvent
         /**
          * The item which will be inserted into the inventory/dropped on the ground.
          *
-         * Note that this is a copy of the original stack, and so should not be modified, as that will have no effect.
-         *
-         * @return The item stack which will be dropped.
+         * @return The item stack which will be dropped. This should <b>not</b> be modified.
          */
+        @Nonnull
         public ItemStack getStack()
         {
-            return stack.copy();
+            return stack;
         }
     }
 }

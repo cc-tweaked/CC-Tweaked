@@ -25,11 +25,11 @@ import java.util.Map;
 
 public class TurtleInspectCommand implements ITurtleCommand
 {
-    private final InteractDirection m_direction;
+    private final InteractDirection direction;
 
     public TurtleInspectCommand( InteractDirection direction )
     {
-        m_direction = direction;
+        this.direction = direction;
     }
 
     @Nonnull
@@ -37,7 +37,7 @@ public class TurtleInspectCommand implements ITurtleCommand
     public TurtleCommandResult execute( @Nonnull ITurtleAccess turtle )
     {
         // Get world direction from direction
-        EnumFacing direction = m_direction.toWorldDir( turtle );
+        EnumFacing direction = this.direction.toWorldDir( turtle );
 
         // Check if thing in front is air or not
         World world = turtle.getWorld();
@@ -59,18 +59,15 @@ public class TurtleInspectCommand implements ITurtleCommand
         table.put( "metadata", metadata );
 
         Map<Object, Object> stateTable = new HashMap<>();
-        for( ImmutableMap.Entry<IProperty<?>, ?> entry : state.getActualState( world, newPosition ).getProperties().entrySet() )
+        for( ImmutableMap.Entry<IProperty<?>, ? extends Comparable<?>> entry : state.getActualState( world, newPosition ).getProperties().entrySet() )
         {
-            String propertyName = entry.getKey().getName();
-            Object value = entry.getValue();
-            if( value instanceof String || value instanceof Number || value instanceof Boolean )
-            {
-                stateTable.put( propertyName, value );
-            }
-            else
-            {
-                stateTable.put( propertyName, value.toString() );
-            }
+            IProperty property = entry.getKey();
+
+            Comparable value = entry.getValue();
+            @SuppressWarnings( "unchecked" )
+            Object valueName = value instanceof String || value instanceof Number || value instanceof Boolean
+                ? value : property.getName( value );
+            stateTable.put( property.getName(), valueName );
         }
         table.put( "state", stateTable );
 
