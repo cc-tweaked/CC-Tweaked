@@ -29,23 +29,23 @@ public class ComputerTracker
     public ComputerTracker( Computer computer )
     {
         this.computer = new WeakReference<>( computer );
-        this.computerId = computer.getID();
-        this.fields = new Object2LongOpenHashMap<>();
+        computerId = computer.getID();
+        fields = new Object2LongOpenHashMap<>();
     }
 
     ComputerTracker( ComputerTracker timings )
     {
-        this.computer = timings.computer;
-        this.computerId = timings.computerId;
+        computer = timings.computer;
+        computerId = timings.computerId;
 
-        this.tasks = timings.tasks;
-        this.totalTime = timings.totalTime;
-        this.maxTime = timings.maxTime;
+        tasks = timings.tasks;
+        totalTime = timings.totalTime;
+        maxTime = timings.maxTime;
 
-        this.serverCount = timings.serverCount;
-        this.serverTime = timings.serverTime;
+        serverCount = timings.serverCount;
+        serverTime = timings.serverTime;
 
-        this.fields = new Object2LongOpenHashMap<>( timings.fields );
+        fields = new Object2LongOpenHashMap<>( timings.fields );
     }
 
     @Nullable

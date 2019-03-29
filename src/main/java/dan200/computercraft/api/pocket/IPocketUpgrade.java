@@ -19,7 +19,7 @@ import javax.annotation.Nullable;
 /**
  * Additional peripherals for pocket computers.
  *
- * This is similar to {@link dan200.computercraft.api.turtle.ITurtleUpgrade}.
+ * This is similar to {@link ITurtleUpgrade}.
  */
 public interface IPocketUpgrade
 {

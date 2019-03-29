@@ -67,7 +67,7 @@ public class CobaltLuaMachine implements ILuaMachine
         debug = new TimeoutDebugHandler();
 
         // Create an environment to run in
-        LuaState state = this.m_state = LuaState.builder()
+        LuaState state = m_state = LuaState.builder()
             .resourceManipulator( new VoidResourceManipulator() )
             .debug( debug )
             .coroutineExecutor( command -> {
@@ -254,7 +254,7 @@ public class CobaltLuaMachine implements ILuaMachine
                             {
                                 ComputerCraft.log.error( "Error calling " + methodName + " on " + apiObject, t );
                             }
-                            throw new LuaError( "Java Exception Thrown: " + t.toString(), 0 );
+                            throw new LuaError( "Java Exception Thrown: " + t, 0 );
                         }
                         return toValues( results );
                     }
@@ -348,22 +348,14 @@ public class CobaltLuaMachine implements ILuaMachine
         {
             case Constants.TNIL:
             case Constants.TNONE:
-            {
                 return null;
-            }
             case Constants.TINT:
             case Constants.TNUMBER:
-            {
                 return value.toDouble();
-            }
             case Constants.TBOOLEAN:
-            {
                 return value.toBoolean();
-            }
             case Constants.TSTRING:
-            {
                 return value.toString();
-            }
             case Constants.TTABLE:
             {
                 // Table:
@@ -411,9 +403,7 @@ public class CobaltLuaMachine implements ILuaMachine
                 return table;
             }
             default:
-            {
                 return null;
-            }
         }
     }
 
@@ -445,7 +435,7 @@ public class CobaltLuaMachine implements ILuaMachine
 
         TimeoutDebugHandler()
         {
-            this.timeout = CobaltLuaMachine.this.timeout;
+            timeout = CobaltLuaMachine.this.timeout;
         }
 
         @Override
@@ -560,7 +550,7 @@ public class CobaltLuaMachine implements ILuaMachine
                 {
                     if( ComputerCraft.logPeripheralErrors ) ComputerCraft.log.error( "Error running task", t );
                     m_computer.queueEvent( "task_complete", new Object[] {
-                        taskID, false, "Java Exception Thrown: " + t.toString()
+                        taskID, false, "Java Exception Thrown: " + t
                     } );
                 }
             };
@@ -614,7 +604,7 @@ public class CobaltLuaMachine implements ILuaMachine
         }
     }
 
-    private static class HardAbortError extends Error
+    private static final class HardAbortError extends Error
     {
         private static final long serialVersionUID = 7954092008586367501L;
 

@@ -46,7 +46,7 @@ public class ComputerCraftProxyClient extends ComputerCraftProxyCommon
     }
 
     @Mod.EventBusSubscriber( modid = ComputerCraft.MOD_ID, value = Side.CLIENT )
-    public static class ForgeHandlers
+    public static final class ForgeHandlers
     {
         @SubscribeEvent
         public static void onWorldUnload( WorldEvent.Unload event )

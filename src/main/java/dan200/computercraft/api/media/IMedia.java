@@ -77,7 +77,7 @@ public interface IMedia
      * @param world The world in which the item and disk drive reside.
      * @return The mount, or null if this item does not represent an item with data. If the mount returned also
      * implements {@link dan200.computercraft.api.filesystem.IWritableMount}, it will mounted using mountWritable()
-     * @see dan200.computercraft.api.filesystem.IMount
+     * @see IMount
      * @see dan200.computercraft.api.filesystem.IWritableMount
      * @see dan200.computercraft.api.ComputerCraftAPI#createSaveDirMount(World, String, long)
      * @see dan200.computercraft.api.ComputerCraftAPI#createResourceMount(Class, String, String)

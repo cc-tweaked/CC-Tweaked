@@ -27,7 +27,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * Next tick, we put {@link ComputerCraft#maxMainGlobalTime} into our budget (and clamp it to that value to). If we're
  * still over budget, then we should not execute <em>any</em> work (either as part of {@link MainThread} or externally).
  */
-public class MainThread
+public final class MainThread
 {
     /**
      * An internal counter for {@link ILuaTask} ids.
@@ -47,7 +47,6 @@ public class MainThread
         if( at == bt ) return Integer.compare( a.hashCode(), b.hashCode() );
         return at < bt ? -1 : 1;
     } );
-    ;
 
     /**
      * The set of executors which went over budget in a previous tick, and are waiting for their time to run down.
@@ -78,6 +77,8 @@ public class MainThread
     private static boolean canExecute = true;
 
     private static long minimumTime = 0;
+
+    private MainThread() {}
 
     public static long getUniqueTaskID()
     {

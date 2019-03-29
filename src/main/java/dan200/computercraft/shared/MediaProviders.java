@@ -6,7 +6,6 @@
 
 package dan200.computercraft.shared;
 
-import com.google.common.base.Preconditions;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.media.IMedia;
 import dan200.computercraft.api.media.IMediaProvider;
@@ -14,15 +13,18 @@ import net.minecraft.item.ItemStack;
 
 import javax.annotation.Nonnull;
 import java.util.LinkedHashSet;
+import java.util.Objects;
 import java.util.Set;
 
 public final class MediaProviders
 {
     private static final Set<IMediaProvider> providers = new LinkedHashSet<>();
 
+    private MediaProviders() {}
+
     public static void register( @Nonnull IMediaProvider provider )
     {
-        Preconditions.checkNotNull( provider, "provider cannot be null" );
+        Objects.requireNonNull( provider, "provider cannot be null" );
         providers.add( provider );
     }
 

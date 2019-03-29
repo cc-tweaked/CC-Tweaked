@@ -7,7 +7,6 @@
 package dan200.computercraft.shared.peripheral.modem.wired;
 
 import com.google.common.base.Objects;
-import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.network.wired.IWiredElement;
 import dan200.computercraft.api.network.wired.IWiredNode;
@@ -52,7 +51,7 @@ public class TileCable extends TileGeneric implements IPeripheralTile
         @Override
         public Vec3d getPosition()
         {
-            BlockPos pos = TileCable.this.getPos();
+            BlockPos pos = getPos();
             return new Vec3d( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5 );
         }
 
@@ -459,6 +458,6 @@ public class TileCable extends TileGeneric implements IPeripheralTile
     public PeripheralType getPeripheralType()
     {
         IBlockState state = getBlockState();
-        return ComputerCraft.Blocks.cable.getPeripheralType( state );
+        return BlockCable.getPeripheralType( state );
     }
 }

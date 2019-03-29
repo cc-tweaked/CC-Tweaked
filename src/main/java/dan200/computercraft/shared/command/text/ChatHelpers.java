@@ -23,6 +23,8 @@ public final class ChatHelpers
     private static final TextFormatting SYNOPSIS = TextFormatting.AQUA;
     private static final TextFormatting NAME = TextFormatting.GREEN;
 
+    private ChatHelpers() {}
+
     public static ITextComponent coloured( String text, TextFormatting colour )
     {
         ITextComponent component = new TextComponentString( text == null ? "" : text );

@@ -9,8 +9,10 @@ package dan200.computercraft.shared.util;
 import java.io.Closeable;
 import java.io.IOException;
 
-public class IoUtil
+public final class IoUtil
 {
+    private IoUtil() {}
+
     public static void closeQuietly( Closeable closeable )
     {
         try

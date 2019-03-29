@@ -82,9 +82,9 @@ public class WidgetTerminal extends Widget
                 String clipboard = GuiScreen.getClipboardString();
                 if( clipboard != null )
                 {
-                    // Clip to the first occurance of \r or \n
-                    int newLineIndex1 = clipboard.indexOf( "\r" );
-                    int newLineIndex2 = clipboard.indexOf( "\n" );
+                    // Clip to the first occurrence of \r or \n
+                    int newLineIndex1 = clipboard.indexOf( '\r' );
+                    int newLineIndex2 = clipboard.indexOf( '\n' );
                     if( newLineIndex1 >= 0 && newLineIndex2 >= 0 )
                     {
                         clipboard = clipboard.substring( 0, Math.min( newLineIndex1, newLineIndex2 ) );
@@ -274,11 +274,8 @@ public class WidgetTerminal extends Widget
             {
                 if( m_terminateTimer < TERMINATE_TIME )
                 {
-                    m_terminateTimer = m_terminateTimer + 0.05f;
-                    if( m_terminateTimer >= TERMINATE_TIME )
-                    {
-                        queueEvent( "terminate" );
-                    }
+                    m_terminateTimer += 0.05f;
+                    if( m_terminateTimer >= TERMINATE_TIME ) queueEvent( "terminate" );
                 }
             }
             else
@@ -291,14 +288,11 @@ public class WidgetTerminal extends Widget
             {
                 if( m_rebootTimer < TERMINATE_TIME )
                 {
-                    m_rebootTimer = m_rebootTimer + 0.05f;
+                    m_rebootTimer += 0.05f;
                     if( m_rebootTimer >= TERMINATE_TIME )
                     {
                         IComputer computer = m_computer.getComputer();
-                        if( computer != null )
-                        {
-                            computer.reboot();
-                        }
+                        if( computer != null ) computer.reboot();
                     }
                 }
             }
@@ -312,14 +306,11 @@ public class WidgetTerminal extends Widget
             {
                 if( m_shutdownTimer < TERMINATE_TIME )
                 {
-                    m_shutdownTimer = m_shutdownTimer + 0.05f;
+                    m_shutdownTimer += 0.05f;
                     if( m_shutdownTimer >= TERMINATE_TIME )
                     {
                         IComputer computer = m_computer.getComputer();
-                        if( computer != null )
-                        {
-                            computer.shutdown();
-                        }
+                        if( computer != null ) computer.shutdown();
                     }
                 }
             }
@@ -346,7 +337,7 @@ public class WidgetTerminal extends Widget
         {
             // Draw the screen contents
             IComputer computer = m_computer.getComputer();
-            Terminal terminal = (computer != null) ? computer.getTerminal() : null;
+            Terminal terminal = computer != null ? computer.getTerminal() : null;
             if( terminal != null )
             {
                 // Draw the terminal

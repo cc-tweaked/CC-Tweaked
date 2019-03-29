@@ -55,19 +55,9 @@ public class PrinterPeripheral implements IPeripheral
     {
         switch( method )
         {
-            case 0:
+            case 0: // write
             {
-                // write
-                String text;
-                if( args.length > 0 && args[0] != null )
-                {
-                    text = args[0].toString();
-                }
-                else
-                {
-                    text = "";
-                }
-
+                String text = args.length > 0 && args[0] != null ? args[0].toString() : "";
                 Terminal page = getCurrentPage();
                 page.write( text );
                 page.setCursorPos( page.getCursorX() + text.length(), page.getCursorY() );
@@ -98,22 +88,13 @@ public class PrinterPeripheral implements IPeripheral
                 int height = page.getHeight();
                 return new Object[] { width, height };
             }
-            case 4:
-            {
-                // newPage
+            case 4: // newPage
                 return new Object[] { m_printer.startNewPage() };
-            }
-            case 5:
-            {
-                // endPage
+            case 5: // endPage
                 getCurrentPage();
                 return new Object[] { m_printer.endCurrentPage() };
-            }
-            case 6:
-            {
-                // getInkLevel
+            case 6: // getInkLevel
                 return new Object[] { m_printer.getInkLevel() };
-            }
             case 7:
             {
                 // setPageTitle
@@ -122,30 +103,17 @@ public class PrinterPeripheral implements IPeripheral
                 m_printer.setPageTitle( title );
                 return null;
             }
-            case 8:
-            {
-                // getPaperLevel
+            case 8: // getPaperLevel
                 return new Object[] { m_printer.getPaperLevel() };
-            }
             default:
-            {
                 return null;
-            }
         }
     }
 
     @Override
     public boolean equals( IPeripheral other )
     {
-        if( other instanceof PrinterPeripheral )
-        {
-            PrinterPeripheral otherPrinter = (PrinterPeripheral) other;
-            if( otherPrinter.m_printer == this.m_printer )
-            {
-                return true;
-            }
-        }
-        return false;
+        return other instanceof PrinterPeripheral && ((PrinterPeripheral) other).m_printer == m_printer;
     }
 
     @Nonnull

@@ -18,6 +18,8 @@ import java.util.function.Predicate;
 
 final class ComputerSelector
 {
+    private ComputerSelector() {}
+
     private static List<ServerComputer> getComputers( Predicate<ServerComputer> predicate )
     {
         // We copy it to prevent concurrent modifications.
@@ -29,7 +31,7 @@ final class ComputerSelector
     static ServerComputer getComputer( String selector ) throws CommandException
     {
         List<ServerComputer> computers = getComputers( selector );
-        if( computers.size() == 0 )
+        if( computers.isEmpty() )
         {
             throw new CommandException( "commands.computercraft.argument.no_matching", selector );
         }
@@ -53,7 +55,7 @@ final class ComputerSelector
 
     static List<ServerComputer> getComputers( String selector ) throws CommandException
     {
-        if( selector.length() > 0 && selector.charAt( 0 ) == '#' )
+        if( !selector.isEmpty() && selector.charAt( 0 ) == '#' )
         {
             selector = selector.substring( 1 );
 
@@ -69,12 +71,12 @@ final class ComputerSelector
 
             return getComputers( x -> x.getID() == id );
         }
-        else if( selector.length() > 0 && selector.charAt( 0 ) == '@' )
+        else if( !selector.isEmpty() && selector.charAt( 0 ) == '@' )
         {
             String label = selector.substring( 1 );
             return getComputers( x -> Objects.equals( label, x.getLabel() ) );
         }
-        else if( selector.length() > 0 && selector.charAt( 0 ) == '~' )
+        else if( !selector.isEmpty() && selector.charAt( 0 ) == '~' )
         {
             String familyName = selector.substring( 1 );
             return getComputers( x -> x.getFamily().name().equalsIgnoreCase( familyName ) );
@@ -103,7 +105,7 @@ final class ComputerSelector
         // We copy it to prevent concurrent modifications.
         List<ServerComputer> computers = Lists.newArrayList( ComputerCraft.serverComputerRegistry.getComputers() );
 
-        if( selector.length() > 0 && selector.charAt( 0 ) == '#' )
+        if( !selector.isEmpty() && selector.charAt( 0 ) == '#' )
         {
             selector = selector.substring( 1 );
 
@@ -113,7 +115,7 @@ final class ComputerSelector
                 if( id.startsWith( selector ) ) options.add( "#" + id );
             }
         }
-        else if( selector.length() > 0 && selector.charAt( 0 ) == '@' )
+        else if( !selector.isEmpty() && selector.charAt( 0 ) == '@' )
         {
             String label = selector.substring( 1 );
             for( ServerComputer computer : computers )
@@ -122,7 +124,7 @@ final class ComputerSelector
                 if( thisLabel != null && thisLabel.startsWith( label ) ) options.add( "@" + thisLabel );
             }
         }
-        else if( selector.length() > 0 && selector.charAt( 0 ) == '~' )
+        else if( !selector.isEmpty() && selector.charAt( 0 ) == '~' )
         {
             String familyName = selector.substring( 1 ).toLowerCase( Locale.ENGLISH );
             for( ComputerFamily family : ComputerFamily.values() )

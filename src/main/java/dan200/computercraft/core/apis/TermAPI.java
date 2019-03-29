@@ -111,16 +111,7 @@ public class TermAPI implements ILuaAPI
             case 0:
             {
                 // write
-                String text;
-                if( args.length > 0 && args[0] != null )
-                {
-                    text = args[0].toString();
-                }
-                else
-                {
-                    text = "";
-                }
-
+                String text = args.length > 0 && args[0] != null ? args[0].toString() : "";
                 synchronized( m_terminal )
                 {
                     m_terminal.write( text );
@@ -181,24 +172,18 @@ public class TermAPI implements ILuaAPI
                 }
                 return new Object[] { width, height };
             }
-            case 6:
-            {
-                // clear
+            case 6: // clear
                 synchronized( m_terminal )
                 {
                     m_terminal.clear();
                 }
                 return null;
-            }
-            case 7:
-            {
-                // clearLine
+            case 7: // clearLine
                 synchronized( m_terminal )
                 {
                     m_terminal.clearLine();
                 }
                 return null;
-            }
             case 8:
             case 9:
             {
@@ -222,23 +207,14 @@ public class TermAPI implements ILuaAPI
                 return null;
             }
             case 12:
-            case 13:
-            {
-                // isColour/isColor
+            case 13: // isColour/isColor
                 return new Object[] { m_environment.isColour() };
-            }
             case 14:
-            case 15:
-            {
-                // getTextColour/getTextColor
+            case 15: // getTextColour/getTextColor
                 return encodeColour( m_terminal.getTextColour() );
-            }
             case 16:
-            case 17:
-            {
-                // getBackgroundColour/getBackgroundColor
+            case 17: // getBackgroundColour/getBackgroundColor
                 return encodeColour( m_terminal.getBackgroundColour() );
-            }
             case 18:
             {
                 // blit
@@ -308,9 +284,7 @@ public class TermAPI implements ILuaAPI
                 // getCursorBlink
                 return new Object[] { m_terminal.getCursorBlink() };
             default:
-            {
                 return null;
-            }
         }
     }
 

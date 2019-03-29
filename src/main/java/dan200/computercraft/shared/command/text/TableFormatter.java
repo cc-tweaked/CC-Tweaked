@@ -71,7 +71,7 @@ public interface TableFormatter
             for( int i = 0; i < maxWidths.length - 1; i++ ) maxWidths[i] += padding;
         }
 
-        // And comput the total width
+        // And compute the total width
         int totalWidth = (columns - 1) * getWidth( SEPARATOR );
         for( int x : maxWidths ) totalWidth += x;
 

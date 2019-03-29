@@ -81,12 +81,6 @@ public class GuiComputer extends GuiContainer
     }
 
     @Override
-    public boolean doesGuiPauseGame()
-    {
-        return false;
-    }
-
-    @Override
     public void updateScreen()
     {
         super.updateScreen();

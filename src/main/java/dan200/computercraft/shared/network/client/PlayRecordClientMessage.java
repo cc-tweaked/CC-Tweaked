@@ -18,7 +18,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import javax.annotation.Nonnull;
 
 /**
- * Starts or stops a record on the client, depending on if {@link #getSoundEvent()} is {@code null}.
+ * Starts or stops a record on the client, depending on if {@link #soundEvent} is {@code null}.
  *
  * Used by disk drives to play record items.
  *
@@ -34,7 +34,7 @@ public class PlayRecordClientMessage implements NetworkMessage
     {
         this.pos = pos;
         this.name = name;
-        this.soundEvent = event;
+        soundEvent = event;
     }
 
     public PlayRecordClientMessage( BlockPos pos )

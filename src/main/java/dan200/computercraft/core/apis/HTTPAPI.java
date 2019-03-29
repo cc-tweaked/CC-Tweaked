@@ -199,9 +199,7 @@ public class HTTPAPI implements ILuaAPI
                 }
             }
             default:
-            {
                 return null;
-            }
         }
     }
 
@@ -209,14 +207,14 @@ public class HTTPAPI implements ILuaAPI
     private static HttpHeaders getHeaders( @Nonnull Map<?, ?> headerTable ) throws LuaException
     {
         HttpHeaders headers = new DefaultHttpHeaders();
-        for( Object key : headerTable.keySet() )
+        for( Map.Entry<?, ?> entry : headerTable.entrySet() )
         {
-            Object value = headerTable.get( key );
-            if( key instanceof String && value instanceof String )
+            Object value = entry.getValue();
+            if( entry.getKey() instanceof String && value instanceof String )
             {
                 try
                 {
-                    headers.add( (String) key, value );
+                    headers.add( (String) entry.getKey(), value );
                 }
                 catch( IllegalArgumentException e )
                 {

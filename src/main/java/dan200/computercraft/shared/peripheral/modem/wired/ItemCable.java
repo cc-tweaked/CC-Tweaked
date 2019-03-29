@@ -37,26 +37,15 @@ public class ItemCable extends ItemPeripheralBase
     @Nonnull
     public ItemStack create( PeripheralType type, int quantity )
     {
-        ItemStack stack;
         switch( type )
         {
             case Cable:
-            {
-                stack = new ItemStack( this, quantity, 0 );
-                break;
-            }
+                return new ItemStack( this, quantity, 0 );
             case WiredModem:
-            {
-                stack = new ItemStack( this, quantity, 1 );
-                break;
-            }
+                return new ItemStack( this, quantity, 1 );
             default:
-            {
                 return ItemStack.EMPTY;
-            }
         }
-
-        return stack;
     }
 
     @Override
@@ -72,10 +61,7 @@ public class ItemCable extends ItemPeripheralBase
     public EnumActionResult onItemUse( @Nonnull EntityPlayer player, World world, @Nonnull BlockPos pos, @Nonnull EnumHand hand, @Nonnull EnumFacing side, float fx, float fy, float fz )
     {
         ItemStack stack = player.getHeldItem( hand );
-        if( !canPlaceBlockOnSide( world, pos, side, player, stack ) )
-        {
-            return EnumActionResult.FAIL;
-        }
+        if( !canPlaceBlockOnSide( world, pos, side, player, stack ) ) return EnumActionResult.FAIL;
 
         // Try to add a cable to a modem
         PeripheralType type = getPeripheralType( stack );
@@ -83,7 +69,7 @@ public class ItemCable extends ItemPeripheralBase
         Block existing = existingState.getBlock();
         if( existing == ComputerCraft.Blocks.cable )
         {
-            PeripheralType existingType = ComputerCraft.Blocks.cable.getPeripheralType( existingState );
+            PeripheralType existingType = BlockCable.getPeripheralType( existingState );
             if( existingType == PeripheralType.WiredModem && type == PeripheralType.Cable )
             {
                 if( !stack.isEmpty() )
@@ -115,7 +101,7 @@ public class ItemCable extends ItemPeripheralBase
             if( offsetExisting == ComputerCraft.Blocks.cable )
             {
                 // Try to add a modem to a cable
-                PeripheralType offsetExistingType = ComputerCraft.Blocks.cable.getPeripheralType( offsetExistingState );
+                PeripheralType offsetExistingType = BlockCable.getPeripheralType( offsetExistingState );
                 if( offsetExistingType == PeripheralType.Cable && type == PeripheralType.WiredModem )
                 {
                     if( !stack.isEmpty() )
@@ -169,17 +155,6 @@ public class ItemCable extends ItemPeripheralBase
     @Override
     public PeripheralType getPeripheralType( int damage )
     {
-        switch( damage )
-        {
-            case 0:
-            default:
-            {
-                return PeripheralType.Cable;
-            }
-            case 1:
-            {
-                return PeripheralType.WiredModem;
-            }
-        }
+        return damage == 1 ? PeripheralType.WiredModem : PeripheralType.Cable;
     }
 }

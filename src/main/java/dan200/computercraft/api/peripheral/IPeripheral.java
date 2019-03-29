@@ -81,9 +81,9 @@ public interface IPeripheral
      * peripheral, when a turtle travels into a square next to a peripheral, or when a wired modem adjacent to this
      * peripheral is does any of the above.
      *
-     * Between calls to {@link #attach} and {@link #detach}, the attached computer can make method calls on the
-     * peripheral using {@code peripheral.call()}. This method can be used to keep track of which computers are attached
-     * to the peripheral, or to take action when attachment occurs.
+     * Between calls to attach and {@link #detach}, the attached computer can make method calls on the peripheral using
+     * {@code peripheral.call()}. This method can be used to keep track of which computers are attached to the
+     * peripheral, or to take action when attachment occurs.
      *
      * Be aware that will be called from both the server thread and ComputerCraft Lua thread, and so must be thread-safe
      * and reentrant.

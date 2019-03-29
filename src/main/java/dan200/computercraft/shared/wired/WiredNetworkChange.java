@@ -14,7 +14,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-public class WiredNetworkChange implements IWiredNetworkChange
+public final class WiredNetworkChange implements IWiredNetworkChange
 {
     private static final WiredNetworkChange EMPTY = new WiredNetworkChange( Collections.emptyMap(), Collections.emptyMap() );
 

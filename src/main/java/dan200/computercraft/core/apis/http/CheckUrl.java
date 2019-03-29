@@ -31,7 +31,7 @@ public class CheckUrl extends Resource<CheckUrl>
         super( limiter );
         this.environment = environment;
         this.address = address;
-        this.host = uri.getHost();
+        host = uri.getHost();
     }
 
     public void run()

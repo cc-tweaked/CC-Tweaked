@@ -26,8 +26,7 @@ import net.minecraft.world.World;
 import javax.annotation.Nonnull;
 import java.util.List;
 
-public class ItemDiskLegacy extends Item
-    implements IMedia, IColouredItem
+public class ItemDiskLegacy extends Item implements IMedia, IColouredItem
 {
     public ItemDiskLegacy()
     {

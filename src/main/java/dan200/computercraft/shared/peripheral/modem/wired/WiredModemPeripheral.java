@@ -286,8 +286,8 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements IW
 
             m_type = peripheral.getType();
             m_methods = peripheral.getMethodNames();
-            assert (m_type != null);
-            assert (m_methods != null);
+            assert m_type != null;
+            assert m_methods != null;
 
             m_methodMap = new HashMap<>();
             for( int i = 0; i < m_methods.length; i++ )

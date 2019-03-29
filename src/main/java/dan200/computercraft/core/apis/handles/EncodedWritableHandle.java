@@ -27,7 +27,7 @@ public class EncodedWritableHandle extends HandleGeneric
     public EncodedWritableHandle( @Nonnull BufferedWriter writer, @Nonnull Closeable closable )
     {
         super( closable );
-        this.m_writer = writer;
+        m_writer = writer;
     }
 
     public EncodedWritableHandle( @Nonnull BufferedWriter writer )

@@ -19,7 +19,7 @@ import org.lwjgl.opengl.GL11;
 
 import java.util.Arrays;
 
-public class FixedWidthFontRenderer
+public final class FixedWidthFontRenderer
 {
     private static final ResourceLocation FONT = new ResourceLocation( "computercraft", "textures/gui/term_font.png" );
     public static final ResourceLocation BACKGROUND = new ResourceLocation( "computercraft", "textures/gui/term_background.png" );
@@ -93,7 +93,7 @@ public class FixedWidthFontRenderer
 
     private boolean isGreyScale( int colour )
     {
-        return (colour == 0 || colour == 15 || colour == 7 || colour == 8);
+        return colour == 0 || colour == 15 || colour == 7 || colour == 8;
     }
 
     public void drawStringBackgroundPart( int x, int y, TextBuffer backgroundColour, double leftMarginSize, double rightMarginSize, boolean greyScale, Palette p )

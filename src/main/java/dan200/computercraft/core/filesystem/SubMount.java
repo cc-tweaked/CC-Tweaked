@@ -68,7 +68,7 @@ public class SubMount implements IMount
 
     private String getFullPath( String path )
     {
-        if( path.length() == 0 )
+        if( path.isEmpty() )
         {
             return m_subPath;
         }

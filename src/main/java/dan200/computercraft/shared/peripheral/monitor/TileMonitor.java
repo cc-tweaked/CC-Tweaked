@@ -6,7 +6,6 @@
 
 package dan200.computercraft.shared.peripheral.monitor;
 
-import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.peripheral.IPeripheralTile;
@@ -33,9 +32,9 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class TileMonitor extends TileGeneric implements ITilePeripheral, IPeripheralTile
 {
-    public static final double RENDER_BORDER = (2.0 / 16.0);
-    public static final double RENDER_MARGIN = (0.5 / 16.0);
-    public static final double RENDER_PIXEL_SCALE = (1.0 / 64.0);
+    public static final double RENDER_BORDER = 2.0 / 16.0;
+    public static final double RENDER_MARGIN = 0.5 / 16.0;
+    public static final double RENDER_PIXEL_SCALE = 1.0 / 64.0;
 
     private static final int MAX_WIDTH = 8;
     private static final int MAX_HEIGHT = 6;
@@ -329,7 +328,7 @@ public class TileMonitor extends TileGeneric implements ITilePeripheral, IPeriph
 
     public EnumFacing getFront()
     {
-        return m_dir <= 5 ? EnumFacing.byIndex( m_dir ) : (m_dir <= 11 ? EnumFacing.DOWN : EnumFacing.UP);
+        return m_dir <= 5 ? EnumFacing.byIndex( m_dir ) : m_dir <= 11 ? EnumFacing.DOWN : EnumFacing.UP;
     }
 
     public EnumFacing getRight()
@@ -643,7 +642,7 @@ public class TileMonitor extends TileGeneric implements ITilePeripheral, IPeriph
         XYPair pair = XYPair.of( xPos, yPos, zPos, side );
         pair = new XYPair( pair.x + m_xIndex, pair.y + m_height - m_yIndex - 1 );
 
-        if( pair.x > (m_width - RENDER_BORDER) || pair.y > (m_height - RENDER_BORDER) || pair.x < (RENDER_BORDER) || pair.y < (RENDER_BORDER) )
+        if( pair.x > m_width - RENDER_BORDER || pair.y > m_height - RENDER_BORDER || pair.x < RENDER_BORDER || pair.y < RENDER_BORDER )
         {
             return;
         }
@@ -654,11 +653,11 @@ public class TileMonitor extends TileGeneric implements ITilePeripheral, IPeriph
         Terminal originTerminal = serverTerminal.getTerminal();
         if( originTerminal == null ) return;
 
-        double xCharWidth = (m_width - ((RENDER_BORDER + RENDER_MARGIN) * 2.0)) / originTerminal.getWidth();
-        double yCharHeight = (m_height - ((RENDER_BORDER + RENDER_MARGIN) * 2.0)) / originTerminal.getHeight();
+        double xCharWidth = (m_width - (RENDER_BORDER + RENDER_MARGIN) * 2.0) / originTerminal.getWidth();
+        double yCharHeight = (m_height - (RENDER_BORDER + RENDER_MARGIN) * 2.0) / originTerminal.getHeight();
 
-        int xCharPos = (int) Math.min( originTerminal.getWidth(), Math.max( ((pair.x - RENDER_BORDER - RENDER_MARGIN) / xCharWidth) + 1.0, 1.0 ) );
-        int yCharPos = (int) Math.min( originTerminal.getHeight(), Math.max( ((pair.y - RENDER_BORDER - RENDER_MARGIN) / yCharHeight) + 1.0, 1.0 ) );
+        int xCharPos = (int) Math.min( originTerminal.getWidth(), Math.max( (pair.x - RENDER_BORDER - RENDER_MARGIN) / xCharWidth + 1.0, 1.0 ) );
+        int yCharPos = (int) Math.min( originTerminal.getHeight(), Math.max( (pair.y - RENDER_BORDER - RENDER_MARGIN) / yCharHeight + 1.0, 1.0 ) );
 
         for( int y = 0; y < m_height; y++ )
         {
@@ -707,7 +706,7 @@ public class TileMonitor extends TileGeneric implements ITilePeripheral, IPeriph
         }
         else
         {
-            BlockPos pos = this.getPos();
+            BlockPos pos = getPos();
             return new AxisAlignedBB( pos.getX(), pos.getY(), pos.getZ(), pos.getX() + 1, pos.getY() + 1, pos.getZ() + 1 );
         }
     }
@@ -721,7 +720,7 @@ public class TileMonitor extends TileGeneric implements ITilePeripheral, IPeriph
         }
         else
         {
-            switch( ComputerCraft.Blocks.peripheral.getPeripheralType( newState ) )
+            switch( BlockPeripheral.getPeripheralType( newState ) )
             {
                 case Monitor:
                 case AdvancedMonitor:

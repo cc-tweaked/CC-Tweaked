@@ -90,17 +90,17 @@ public class ContainerTurtle extends Container implements IContainerComputer
         return m_selectedSlot;
     }
 
-    private void sendStateToPlayer( IContainerListener icrafting )
+    private void sendStateToPlayer( IContainerListener listener )
     {
         int selectedSlot = m_turtle.getSelectedSlot();
-        icrafting.sendWindowProperty( this, PROGRESS_ID_SELECTED_SLOT, selectedSlot );
+        listener.sendWindowProperty( this, PROGRESS_ID_SELECTED_SLOT, selectedSlot );
     }
 
     @Override
-    public void addListener( IContainerListener crafting )
+    public void addListener( IContainerListener listener )
     {
-        super.addListener( crafting );
-        sendStateToPlayer( crafting );
+        super.addListener( listener );
+        sendStateToPlayer( listener );
     }
 
     @Override
@@ -126,10 +126,8 @@ public class ContainerTurtle extends Container implements IContainerComputer
         switch( id )
         {
             case PROGRESS_ID_SELECTED_SLOT:
-            {
                 m_selectedSlot = value;
                 break;
-            }
         }
     }
 
@@ -137,11 +135,7 @@ public class ContainerTurtle extends Container implements IContainerComputer
     public boolean canInteractWith( @Nonnull EntityPlayer player )
     {
         TileTurtle turtle = ((TurtleBrain) m_turtle).getOwner();
-        if( turtle != null )
-        {
-            return turtle.isUsableByPlayer( player );
-        }
-        return false;
+        return turtle != null && turtle.isUsableByPlayer( player );
     }
 
     @Nonnull

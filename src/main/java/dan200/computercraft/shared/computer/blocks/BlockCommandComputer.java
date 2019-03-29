@@ -26,7 +26,7 @@ public class BlockCommandComputer extends BlockComputerBase
 {
     // Statics
 
-    public static class Properties
+    public static final class Properties
     {
         public static final PropertyDirection FACING = PropertyDirection.create( "facing", EnumFacing.Plane.HORIZONTAL );
         public static final PropertyEnum<ComputerState> STATE = PropertyEnum.create( "state", ComputerState.class );
@@ -41,7 +41,7 @@ public class BlockCommandComputer extends BlockComputerBase
         setResistance( 6000000.0F );
         setTranslationKey( "computercraft:command_computer" );
         setCreativeTab( ComputerCraft.mainCreativeTab );
-        setDefaultState( this.blockState.getBaseState()
+        setDefaultState( blockState.getBaseState()
             .withProperty( Properties.FACING, EnumFacing.NORTH )
             .withProperty( Properties.STATE, ComputerState.Off )
         );

@@ -291,40 +291,33 @@ public class TurtlePlaceCommand implements ITurtleCommand
     private static boolean canDeployOnBlock( @Nonnull ItemStack stack, ITurtleAccess turtle, TurtlePlayer player, BlockPos position, EnumFacing side, boolean allowReplaceable, String[] o_errorMessage )
     {
         World world = turtle.getWorld();
-        if( world.isValid( position ) &&
-            !world.isAirBlock( position ) &&
-            !(stack.getItem() instanceof ItemBlock && WorldUtil.isLiquidBlock( world, position )) )
+        if( !world.isValid( position ) || world.isAirBlock( position ) ||
+            (stack.getItem() instanceof ItemBlock && WorldUtil.isLiquidBlock( world, position )) )
         {
-            Block block = world.getBlockState( position ).getBlock();
-            IBlockState state = world.getBlockState( position );
+            return false;
+        }
 
-            boolean replaceable = block.isReplaceable( world, position );
-            if( allowReplaceable || !replaceable )
+        Block block = world.getBlockState( position ).getBlock();
+        IBlockState state = world.getBlockState( position );
+
+        boolean replaceable = block.isReplaceable( world, position );
+        if( !allowReplaceable && replaceable ) return false;
+
+        if( ComputerCraft.turtlesObeyBlockProtection )
+        {
+            // Check spawn protection
+            boolean editable = replaceable
+                ? TurtlePermissions.isBlockEditable( world, position, player )
+                : TurtlePermissions.isBlockEditable( world, position.offset( side ), player );
+            if( !editable )
             {
-                if( ComputerCraft.turtlesObeyBlockProtection )
-                {
-                    // Check spawn protection
-                    boolean editable = replaceable
-                        ? TurtlePermissions.isBlockEditable( world, position, player )
-                        : TurtlePermissions.isBlockEditable( world, position.offset( side ), player );
-                    if( !editable )
-                    {
-                        if( o_errorMessage != null )
-                        {
-                            o_errorMessage[0] = "Cannot place in protected area";
-                        }
-                        return false;
-                    }
-                }
-
-                // Check the block is solid or liquid
-                if( block.canCollideCheck( state, true ) )
-                {
-                    return true;
-                }
+                if( o_errorMessage != null ) o_errorMessage[0] = "Cannot place in protected area";
+                return false;
             }
         }
-        return false;
+
+        // Check the block is solid or liquid
+        return block.canCollideCheck( state, true );
     }
 
     @Nonnull
@@ -410,7 +403,7 @@ public class TurtlePlaceCommand implements ITurtleCommand
                     TileEntitySign signTile = (TileEntitySign) tile;
                     String s = (String) extraArguments[0];
                     String[] split = s.split( "\n" );
-                    int firstLine = (split.length <= 2) ? 1 : 0;
+                    int firstLine = split.length <= 2 ? 1 : 0;
                     for( int i = 0; i < signTile.signText.length; i++ )
                     {
                         if( i >= firstLine && i < firstLine + split.length )

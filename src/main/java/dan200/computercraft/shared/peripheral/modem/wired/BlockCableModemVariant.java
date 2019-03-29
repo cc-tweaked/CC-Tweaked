@@ -59,30 +59,30 @@ public enum BlockCableModemVariant implements IStringSerializable
         return NorthOff;
     }
 
-    private String m_name;
-    private EnumFacing m_facing;
+    private final String name;
+    private final EnumFacing facing;
 
     BlockCableModemVariant( String name, EnumFacing facing )
     {
-        m_name = name;
-        m_facing = facing;
+        this.name = name;
+        this.facing = facing;
     }
 
     @Nonnull
     @Override
     public String getName()
     {
-        return m_name;
+        return name;
     }
 
     public EnumFacing getFacing()
     {
-        return m_facing;
+        return facing;
     }
 
     @Override
     public String toString()
     {
-        return getName();
+        return name;
     }
 }

@@ -34,7 +34,7 @@ import java.util.*;
 
 public class TileWiredModemFull extends TileGeneric implements IPeripheralTile
 {
-    private static class FullElement extends WiredModemElement
+    private static final class FullElement extends WiredModemElement
     {
         private final TileWiredModemFull m_entity;
 

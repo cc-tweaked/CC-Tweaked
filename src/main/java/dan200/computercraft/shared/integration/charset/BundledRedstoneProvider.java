@@ -28,7 +28,7 @@ public class BundledRedstoneProvider implements IBundledRedstoneProvider
         if( signal == null ) return -1;
 
         int flag = 0;
-        for( int i = 0; i < signal.length; i++ ) flag |= signal[i] > 0 ? (1 << i) : 0;
+        for( int i = 0; i < signal.length; i++ ) flag |= signal[i] > 0 ? 1 << i : 0;
         return flag;
     }
 }

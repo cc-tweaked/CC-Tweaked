@@ -65,7 +65,7 @@ public abstract class ComputerConvertRecipe extends ShapedRecipes
                 // If we're a computer, convert!
                 if( stack.getItem() instanceof IComputerItem )
                 {
-                    return convert( ((IComputerItem) stack.getItem()), stack );
+                    return convert( (IComputerItem) stack.getItem(), stack );
                 }
             }
         }

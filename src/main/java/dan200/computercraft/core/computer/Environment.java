@@ -22,7 +22,7 @@ import java.util.Arrays;
  *
  * This handles storing and updating of peripherals and redstone.
  *
- * <h2>Redstone</h2>
+ * <h1>Redstone</h1>
  * We holds three kinds of arrays for redstone, in normal and bundled versions:
  * <ul>
  * <li>{@link #internalOutput} is the redstone output which the computer has currently set. This is read on both
@@ -33,7 +33,7 @@ import java.util.Arrays;
  * thread.</li>
  * </ul>
  *
- * <h2>Peripheral</h2>
+ * <h1>Peripheral</h1>
  * We also keep track of peripherals. These are read on both threads, and only written on the main thread.
  */
 public final class Environment implements IAPIEnvironment
@@ -215,7 +215,7 @@ public final class Environment implements IAPIEnvironment
      */
     boolean updateOutput()
     {
-        // Set outputchanged if the internal redstone has changed
+        // Mark output as changed if the internal redstone has changed
         synchronized( internalOutput )
         {
             if( !internalOutputChanged ) return false;

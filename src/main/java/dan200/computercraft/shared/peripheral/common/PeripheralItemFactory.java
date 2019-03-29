@@ -12,8 +12,10 @@ import net.minecraft.item.ItemStack;
 
 import javax.annotation.Nonnull;
 
-public class PeripheralItemFactory
+public final class PeripheralItemFactory
 {
+    private PeripheralItemFactory() {}
+
     @Nonnull
     public static ItemStack create( ITilePeripheral tile )
     {

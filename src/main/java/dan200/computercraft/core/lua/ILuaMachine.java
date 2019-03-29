@@ -55,7 +55,7 @@ public interface ILuaMachine
      * @param eventName The name of the event. This is {@code null} when first starting the machine. Note, this may
      *                  do nothing if it does not match the event filter.
      * @param arguments The arguments for this event.
-     * @return The result of loading this machine. Will either be OK, or the error message that occurrred when
+     * @return The result of loading this machine. Will either be OK, or the error message that occurred when
      * executing.
      */
     MachineResult handleEvent( @Nullable String eventName, @Nullable Object[] arguments );

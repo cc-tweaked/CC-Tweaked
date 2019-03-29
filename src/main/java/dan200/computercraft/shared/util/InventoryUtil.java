@@ -25,8 +25,9 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nonnull;
 
-public class InventoryUtil
+public final class InventoryUtil
 {
+    private InventoryUtil() {}
     // Methods for comparing things:
 
     public static boolean areItemsEqual( @Nonnull ItemStack a, @Nonnull ItemStack b )
@@ -142,7 +143,7 @@ public class InventoryUtil
         ItemStack remainder = stack.copy();
         for( int i = 0; i < range; i++ )
         {
-            int slot = start + ((i + (begin - start)) % range);
+            int slot = start + (i + begin - start) % range;
             if( remainder.isEmpty() ) break;
             remainder = inventory.insertItem( slot, remainder, false );
         }
@@ -170,7 +171,7 @@ public class InventoryUtil
         ItemStack partialStack = ItemStack.EMPTY;
         for( int i = 0; i < range; i++ )
         {
-            int slot = start + ((i + (begin - start)) % range);
+            int slot = start + (i + begin - start) % range;
 
             if( count <= 0 ) break;
 

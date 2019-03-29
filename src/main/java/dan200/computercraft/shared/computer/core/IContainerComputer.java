@@ -13,6 +13,7 @@ import javax.annotation.Nullable;
  * An instance of {@link net.minecraft.inventory.Container} which provides a computer. You should implement this
  * if you provide custom computers/GUIs to interact with them.
  */
+@FunctionalInterface
 public interface IContainerComputer
 {
     /**

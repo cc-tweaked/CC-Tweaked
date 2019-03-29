@@ -45,9 +45,9 @@ public class TileEntityTurtleRenderer extends TileEntitySpecialRenderer<TileTurt
     private static final ModelResourceLocation ELF_OVERLAY_MODEL = new ModelResourceLocation( "computercraft:turtle_elf_overlay", "inventory" );
 
     @Override
-    public void render( TileTurtle tileEntity, double posX, double posY, double posZ, float f, int i, float f2 )
+    public void render( TileTurtle tileEntity, double posX, double posY, double posZ, float partialTicks, int breaking, float f2 )
     {
-        if( tileEntity != null ) renderTurtleAt( tileEntity, posX, posY, posZ, f, i );
+        if( tileEntity != null ) renderTurtleAt( tileEntity, posX, posY, posZ, partialTicks );
     }
 
     public static ModelResourceLocation getTurtleModel( ComputerFamily family, boolean coloured )
@@ -78,7 +78,7 @@ public class TileEntityTurtleRenderer extends TileEntitySpecialRenderer<TileTurt
         }
     }
 
-    private void renderTurtleAt( TileTurtle turtle, double posX, double posY, double posZ, float partialTicks, int i )
+    private void renderTurtleAt( TileTurtle turtle, double posX, double posY, double posZ, float partialTicks )
     {
         // Render the label
         String label = turtle.createProxy().getLabel();
@@ -113,12 +113,9 @@ public class TileEntityTurtleRenderer extends TileEntitySpecialRenderer<TileTurt
             }
             GlStateManager.translate( -0.5f, -0.5f, -0.5f );
             // Render the turtle
-            int colour;
-            ComputerFamily family;
-            ResourceLocation overlay;
-            colour = turtle.getColour();
-            family = turtle.getFamily();
-            overlay = turtle.getOverlay();
+            int colour = turtle.getColour();
+            ComputerFamily family = turtle.getFamily();
+            ResourceLocation overlay = turtle.getOverlay();
 
             renderModel( state, getTurtleModel( family, colour != -1 ), colour == -1 ? null : new int[] { colour } );
 
@@ -154,7 +151,7 @@ public class TileEntityTurtleRenderer extends TileEntitySpecialRenderer<TileTurt
         }
     }
 
-    private void renderUpgrade( IBlockState state, TileTurtle turtle, TurtleSide side, float f )
+    private static void renderUpgrade( IBlockState state, TileTurtle turtle, TurtleSide side, float f )
     {
         ITurtleUpgrade upgrade = turtle.getUpgrade( side );
         if( upgrade != null )
@@ -187,14 +184,14 @@ public class TileEntityTurtleRenderer extends TileEntitySpecialRenderer<TileTurt
         }
     }
 
-    private void renderModel( IBlockState state, ModelResourceLocation modelLocation, int[] tints )
+    private static void renderModel( IBlockState state, ModelResourceLocation modelLocation, int[] tints )
     {
         Minecraft mc = Minecraft.getMinecraft();
         ModelManager modelManager = mc.getRenderItem().getItemModelMesher().getModelManager();
         renderModel( state, modelManager.getModel( modelLocation ), tints );
     }
 
-    private void renderModel( IBlockState state, IBakedModel model, int[] tints )
+    private static void renderModel( IBlockState state, IBakedModel model, int[] tints )
     {
         Minecraft mc = Minecraft.getMinecraft();
         Tessellator tessellator = Tessellator.getInstance();
@@ -206,7 +203,7 @@ public class TileEntityTurtleRenderer extends TileEntitySpecialRenderer<TileTurt
         }
     }
 
-    private void renderQuads( Tessellator tessellator, List<BakedQuad> quads, int[] tints )
+    private static void renderQuads( Tessellator tessellator, List<BakedQuad> quads, int[] tints )
     {
         BufferBuilder buffer = tessellator.getBuffer();
         VertexFormat format = DefaultVertexFormats.ITEM;

@@ -39,7 +39,7 @@ public class OSAPI implements ILuaAPI
         }
     }
 
-    private class Alarm implements Comparable<Alarm>
+    private static class Alarm implements Comparable<Alarm>
     {
         public final double m_time;
         public final int m_day;
@@ -110,7 +110,7 @@ public class OSAPI implements ILuaAPI
             {
                 Map.Entry<Integer, Timer> entry = it.next();
                 Timer timer = entry.getValue();
-                timer.m_ticksLeft = timer.m_ticksLeft - 1;
+                timer.m_ticksLeft--;
                 if( timer.m_ticksLeft <= 0 )
                 {
                     // Queue the "timer" event
@@ -198,7 +198,7 @@ public class OSAPI implements ILuaAPI
 
     private int getDayForCalendar( Calendar c )
     {
-        GregorianCalendar g = (c instanceof GregorianCalendar) ? (GregorianCalendar) c : new GregorianCalendar();
+        GregorianCalendar g = c instanceof GregorianCalendar ? (GregorianCalendar) c : new GregorianCalendar();
         int year = c.get( Calendar.YEAR );
         int day = 0;
         for( int y = 1970; y < year; y++ )
@@ -219,12 +219,9 @@ public class OSAPI implements ILuaAPI
     {
         switch( method )
         {
-            case 0:
-            {
-                // queueEvent
+            case 0: // queueEvent
                 queueLuaEvent( getString( args, 0 ), trimArray( args, 1 ) );
                 return null;
-            }
             case 1:
             {
                 // startTimer
@@ -245,29 +242,20 @@ public class OSAPI implements ILuaAPI
                 }
                 synchronized( m_alarms )
                 {
-                    int day = (time > m_time) ? m_day : (m_day + 1);
+                    int day = time > m_time ? m_day : m_day + 1;
                     m_alarms.put( m_nextAlarmToken, new Alarm( time, day ) );
                     return new Object[] { m_nextAlarmToken++ };
                 }
             }
-            case 3:
-            {
-                // shutdown
+            case 3: // shutdown
                 m_apiEnvironment.shutdown();
                 return null;
-            }
-            case 4:
-            {
-                // reboot
+            case 4: // reboot
                 m_apiEnvironment.reboot();
                 return null;
-            }
             case 5:
-            case 6:
-            {
-                // computerID/getComputerID
+            case 6: // computerID/getComputerID
                 return new Object[] { getComputerID() };
-            }
             case 7:
             {
                 // setComputerLabel
@@ -286,14 +274,11 @@ public class OSAPI implements ILuaAPI
                 }
                 return null;
             }
-            case 10:
-            {
-                // clock
+            case 10: // clock
                 synchronized( m_timers )
                 {
                     return new Object[] { m_clock * 0.05 };
                 }
-            }
             case 11:
             {
                 // time
@@ -356,10 +341,7 @@ public class OSAPI implements ILuaAPI
                 int token = getInt( args, 0 );
                 synchronized( m_timers )
                 {
-                    if( m_timers.containsKey( token ) )
-                    {
-                        m_timers.remove( token );
-                    }
+                    m_timers.remove( token );
                 }
                 return null;
             }
@@ -369,10 +351,7 @@ public class OSAPI implements ILuaAPI
                 int token = getInt( args, 0 );
                 synchronized( m_alarms )
                 {
-                    if( m_alarms.containsKey( token ) )
-                    {
-                        m_alarms.remove( token );
-                    }
+                    m_alarms.remove( token );
                 }
                 return null;
             }
@@ -407,9 +386,7 @@ public class OSAPI implements ILuaAPI
                 }
             }
             default:
-            {
                 return null;
-            }
         }
     }
 

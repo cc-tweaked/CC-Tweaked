@@ -6,7 +6,6 @@
 
 package dan200.computercraft.shared.peripheral.diskdrive;
 
-import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.api.filesystem.IWritableMount;
 import dan200.computercraft.api.media.IMedia;
@@ -181,7 +180,7 @@ public class TileDiskDrive extends TilePeripheralBase implements DefaultInventor
                 if( m_recordQueued )
                 {
                     IMedia contents = getDiskMedia();
-                    SoundEvent record = (contents != null) ? contents.getAudio( m_diskStack ) : null;
+                    SoundEvent record = contents != null ? contents.getAudio( m_diskStack ) : null;
                     if( record != null )
                     {
                         m_recordPlaying = true;
@@ -217,14 +216,14 @@ public class TileDiskDrive extends TilePeripheralBase implements DefaultInventor
 
     @Nonnull
     @Override
-    public ItemStack getStackInSlot( int i )
+    public ItemStack getStackInSlot( int slot )
     {
         return m_diskStack;
     }
 
     @Nonnull
     @Override
-    public ItemStack removeStackFromSlot( int i )
+    public ItemStack removeStackFromSlot( int slot )
     {
         ItemStack result = m_diskStack;
         m_diskStack = ItemStack.EMPTY;
@@ -235,28 +234,28 @@ public class TileDiskDrive extends TilePeripheralBase implements DefaultInventor
 
     @Nonnull
     @Override
-    public ItemStack decrStackSize( int i, int j )
+    public ItemStack decrStackSize( int slot, int count )
     {
         if( m_diskStack.isEmpty() ) return ItemStack.EMPTY;
 
-        if( m_diskStack.getCount() <= j )
+        if( m_diskStack.getCount() <= count )
         {
             ItemStack disk = m_diskStack;
             setInventorySlotContents( 0, ItemStack.EMPTY );
             return disk;
         }
 
-        ItemStack part = m_diskStack.splitStack( j );
+        ItemStack part = m_diskStack.splitStack( count );
         setInventorySlotContents( 0, m_diskStack.isEmpty() ? ItemStack.EMPTY : m_diskStack );
         return part;
     }
 
     @Override
-    public void setInventorySlotContents( int i, @Nonnull ItemStack itemStack )
+    public void setInventorySlotContents( int slot, @Nonnull ItemStack stack )
     {
         if( getWorld().isRemote )
         {
-            m_diskStack = itemStack;
+            m_diskStack = stack;
             m_diskMount = null;
             markDirty();
             return;
@@ -264,9 +263,9 @@ public class TileDiskDrive extends TilePeripheralBase implements DefaultInventor
 
         synchronized( this )
         {
-            if( InventoryUtil.areItemsStackable( itemStack, m_diskStack ) )
+            if( InventoryUtil.areItemsStackable( stack, m_diskStack ) )
             {
-                m_diskStack = itemStack;
+                m_diskStack = stack;
                 return;
             }
 
@@ -289,7 +288,7 @@ public class TileDiskDrive extends TilePeripheralBase implements DefaultInventor
             }
 
             // Swap disk over
-            m_diskStack = itemStack;
+            m_diskStack = stack;
             m_diskMount = null;
             markDirty();
 
@@ -448,7 +447,7 @@ public class TileDiskDrive extends TilePeripheralBase implements DefaultInventor
                         int n = 1;
                         while( info.mountPath == null )
                         {
-                            info.mountPath = computer.mountWritable( (n == 1) ? "disk" : ("disk" + n), (IWritableMount) m_diskMount );
+                            info.mountPath = computer.mountWritable( n == 1 ? "disk" : "disk" + n, (IWritableMount) m_diskMount );
                             n++;
                         }
                     }
@@ -458,7 +457,7 @@ public class TileDiskDrive extends TilePeripheralBase implements DefaultInventor
                         int n = 1;
                         while( info.mountPath == null )
                         {
-                            info.mountPath = computer.mount( (n == 1) ? "disk" : ("disk" + n), m_diskMount );
+                            info.mountPath = computer.mount( n == 1 ? "disk" : "disk" + n, m_diskMount );
                             n++;
                         }
                     }
@@ -477,7 +476,7 @@ public class TileDiskDrive extends TilePeripheralBase implements DefaultInventor
         if( !m_diskStack.isEmpty() )
         {
             MountInfo info = m_computers.get( computer );
-            assert (info != null);
+            assert info != null;
             if( info.mountPath != null )
             {
                 computer.unmount( info.mountPath );
@@ -524,9 +523,9 @@ public class TileDiskDrive extends TilePeripheralBase implements DefaultInventor
             }
 
             BlockPos pos = getPos();
-            double x = pos.getX() + 0.5 + (xOff * 0.5);
+            double x = pos.getX() + 0.5 + xOff * 0.5;
             double y = pos.getY() + 0.75;
-            double z = pos.getZ() + 0.5 + (zOff * 0.5);
+            double z = pos.getZ() + 0.5 + zOff * 0.5;
             EntityItem entityitem = new EntityItem( getWorld(), x, y, z, disks );
             entityitem.motionX = xOff * 0.15;
             entityitem.motionY = 0.0;
@@ -570,7 +569,7 @@ public class TileDiskDrive extends TilePeripheralBase implements DefaultInventor
     @Override
     public boolean shouldRefresh( World world, BlockPos pos, @Nonnull IBlockState oldState, @Nonnull IBlockState newState )
     {
-        return super.shouldRefresh( world, pos, oldState, newState ) || ComputerCraft.Blocks.peripheral.getPeripheralType( newState ) != PeripheralType.DiskDrive;
+        return super.shouldRefresh( world, pos, oldState, newState ) || BlockPeripheral.getPeripheralType( newState ) != PeripheralType.DiskDrive;
     }
 
     // Private methods
@@ -578,7 +577,7 @@ public class TileDiskDrive extends TilePeripheralBase implements DefaultInventor
     private void playRecord()
     {
         IMedia contents = getDiskMedia();
-        SoundEvent record = (contents != null) ? contents.getAudio( m_diskStack ) : null;
+        SoundEvent record = contents != null ? contents.getAudio( m_diskStack ) : null;
         if( record != null )
         {
             RecordUtil.playRecord( record, contents.getAudioTitle( m_diskStack ), getWorld(), getPos() );

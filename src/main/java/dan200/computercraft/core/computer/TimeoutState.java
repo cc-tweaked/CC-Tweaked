@@ -93,7 +93,7 @@ public final class TimeoutState
         // need to handle overflow.
         long now = System.nanoTime();
         if( !paused ) paused = currentDeadline - now <= 0 && ComputerThread.hasPendingWork(); // now >= currentDeadline
-        if( !softAbort ) softAbort = (now - cumulativeStart - TIMEOUT) >= 0; // now - cumulativeStart >= TIMEOUT
+        if( !softAbort ) softAbort = now - cumulativeStart - TIMEOUT >= 0; // now - cumulativeStart >= TIMEOUT
     }
 
     /**

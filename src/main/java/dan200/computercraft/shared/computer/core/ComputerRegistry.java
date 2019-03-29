@@ -74,6 +74,6 @@ public class ComputerRegistry<TComputer extends IComputer>
     {
         m_computers.clear();
         m_nextUnusedInstanceID = 0;
-        m_sessionID = (new Random().nextInt());
+        m_sessionID = new Random().nextInt();
     }
 }

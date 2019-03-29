@@ -57,7 +57,7 @@ public final class ItemPocketRenderer extends ItemMapLikeRenderer
     @Override
     protected void renderItem( ItemStack stack )
     {
-        // Setup various transformations. Note that these are partially adapated from the corresponding method
+        // Setup various transformations. Note that these are partially adapted from the corresponding method
         // in ItemRenderer
         GlStateManager.disableLighting();
 
@@ -65,8 +65,7 @@ public final class ItemPocketRenderer extends ItemMapLikeRenderer
         GlStateManager.rotate( 180f, 0f, 0f, 1f );
         GlStateManager.scale( 0.5, 0.5, 0.5 );
 
-        ItemPocketComputer pocketComputer = ComputerCraft.Items.pocketComputer;
-        ClientComputer computer = pocketComputer.createClientComputer( stack );
+        ClientComputer computer = ItemPocketComputer.createClientComputer( stack );
 
         {
             // First render the background item. We use the item's model rather than a direct texture as this ensures
@@ -90,9 +89,9 @@ public final class ItemPocketRenderer extends ItemMapLikeRenderer
             GlStateManager.blendFunc( GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA );
             GlStateManager.color( 1.0F, 1.0F, 1.0F, 1.0F );
 
-            IBakedModel bakedmodel = renderItem.getItemModelWithOverrides( stack, null, null );
-            bakedmodel = ForgeHooksClient.handleCameraTransforms( bakedmodel, ItemCameraTransforms.TransformType.GUI, false );
-            renderItem.renderItem( stack, bakedmodel );
+            IBakedModel baked = renderItem.getItemModelWithOverrides( stack, null, null );
+            baked = ForgeHooksClient.handleCameraTransforms( baked, ItemCameraTransforms.TransformType.GUI, false );
+            renderItem.renderItem( stack, baked );
 
             GlStateManager.disableAlpha();
             GlStateManager.disableRescaleNormal();

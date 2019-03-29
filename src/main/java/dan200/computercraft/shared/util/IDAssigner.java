@@ -11,7 +11,7 @@ import dan200.computercraft.ComputerCraft;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 
-public class IDAssigner
+public final class IDAssigner
 {
     private IDAssigner()
     {
@@ -40,21 +40,21 @@ public class IDAssigner
     private static int getNextID( File location, boolean directory )
     {
         // Determine where to locate ID file
-        File lastidFile;
+        File lastIdFile;
         if( directory )
         {
             location.mkdirs();
-            lastidFile = new File( location, "lastid.txt" );
+            lastIdFile = new File( location, "lastid.txt" );
         }
         else
         {
             location.getParentFile().mkdirs();
-            lastidFile = location;
+            lastIdFile = location;
         }
 
         // Try to determine the id
         int id = 0;
-        if( !lastidFile.exists() )
+        if( !lastIdFile.exists() )
         {
             // If an ID file doesn't exist, determine it from the file structure
             if( directory && location.exists() && location.isDirectory() )
@@ -80,9 +80,8 @@ public class IDAssigner
             String idString;
             try
             {
-                FileInputStream in = new FileInputStream( lastidFile );
-                InputStreamReader isr;
-                isr = new InputStreamReader( in, StandardCharsets.UTF_8 );
+                FileInputStream in = new FileInputStream( lastIdFile );
+                InputStreamReader isr = new InputStreamReader( in, StandardCharsets.UTF_8 );
                 try( BufferedReader br = new BufferedReader( isr ) )
                 {
                     idString = br.readLine();
@@ -90,7 +89,7 @@ public class IDAssigner
             }
             catch( IOException e )
             {
-                ComputerCraft.log.error( "Cannot open ID file '" + lastidFile + "'", e );
+                ComputerCraft.log.error( "Cannot open ID file '" + lastIdFile + "'", e );
                 return 0;
             }
 
@@ -100,7 +99,7 @@ public class IDAssigner
             }
             catch( NumberFormatException e )
             {
-                ComputerCraft.log.error( "Cannot parse ID file '" + lastidFile + "', perhaps it is corrupt?", e );
+                ComputerCraft.log.error( "Cannot parse ID file '" + lastIdFile + "', perhaps it is corrupt?", e );
                 return 0;
             }
         }
@@ -108,14 +107,15 @@ public class IDAssigner
         // Write the lastID file out with the new value
         try
         {
-            BufferedWriter out = new BufferedWriter( new FileWriter( lastidFile, false ) );
-            out.write( Integer.toString( id ) );
-            out.newLine();
-            out.close();
+            try( BufferedWriter out = new BufferedWriter( new FileWriter( lastIdFile, false ) ) )
+            {
+                out.write( Integer.toString( id ) );
+                out.newLine();
+            }
         }
         catch( IOException e )
         {
-            ComputerCraft.log.error( "An error occured while trying to create the computer folder. Please check you have relevant permissions.", e );
+            ComputerCraft.log.error( "An error occurred while trying to create the computer folder. Please check you have relevant permissions.", e );
         }
 
         return id;

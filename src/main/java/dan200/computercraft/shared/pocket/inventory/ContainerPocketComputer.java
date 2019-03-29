@@ -32,14 +32,8 @@ public class ContainerPocketComputer extends ContainerHeldItem implements IConta
     public IComputer getComputer()
     {
         ItemStack stack = getStack();
-        if( !stack.isEmpty() && stack.getItem() instanceof ItemPocketComputer )
-        {
-            return ((ItemPocketComputer) stack.getItem()).getServerComputer( stack );
-        }
-        else
-        {
-            return null;
-        }
+        return !stack.isEmpty() && stack.getItem() instanceof ItemPocketComputer
+            ? ItemPocketComputer.getServerComputer( stack ) : null;
     }
 
     @Nonnull

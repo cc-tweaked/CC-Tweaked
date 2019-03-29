@@ -50,7 +50,7 @@ public final class FurnaceRefuelHandler implements TurtleRefuelEvent.Handler
 
     private static int getFuelPerItem( @Nonnull ItemStack stack )
     {
-        return (TileEntityFurnace.getItemBurnTime( stack ) * 5) / 100;
+        return TileEntityFurnace.getItemBurnTime( stack ) * 5 / 100;
     }
 
     @SubscribeEvent

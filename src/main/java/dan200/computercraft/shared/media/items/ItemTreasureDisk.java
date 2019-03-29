@@ -27,8 +27,7 @@ import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.util.List;
 
-public class ItemTreasureDisk extends Item
-    implements IMedia
+public class ItemTreasureDisk extends Item implements IMedia
 {
     public ItemTreasureDisk()
     {
@@ -46,10 +45,7 @@ public class ItemTreasureDisk extends Item
     public void addInformation( @Nonnull ItemStack stack, World world, List<String> list, ITooltipFlag flag )
     {
         String label = getTitle( stack );
-        if( label != null && label.length() > 0 )
-        {
-            list.add( label );
-        }
+        if( !label.isEmpty() ) list.add( label );
     }
 
     @Override
@@ -57,8 +53,6 @@ public class ItemTreasureDisk extends Item
     {
         return true;
     }
-
-    // IMedia implementation
 
     @Override
     public String getLabel( @Nonnull ItemStack stack )
@@ -97,7 +91,7 @@ public class ItemTreasureDisk extends Item
         NBTTagCompound nbt = new NBTTagCompound();
         nbt.setString( "subPath", subPath );
 
-        int slash = subPath.indexOf( "/" );
+        int slash = subPath.indexOf( '/' );
         if( slash >= 0 )
         {
             String author = subPath.substring( 0, slash );
@@ -122,33 +116,23 @@ public class ItemTreasureDisk extends Item
 
     // private stuff
 
-    public String getTitle( @Nonnull ItemStack stack )
+    @Nonnull
+    private static String getTitle( @Nonnull ItemStack stack )
     {
         NBTTagCompound nbt = stack.getTagCompound();
-        if( nbt != null && nbt.hasKey( "title" ) )
-        {
-            return nbt.getString( "title" );
-        }
-        return "'alongtimeago' by dan200";
+        return nbt != null && nbt.hasKey( "title" ) ? nbt.getString( "title" ) : "'alongtimeago' by dan200";
     }
 
-    public String getSubPath( @Nonnull ItemStack stack )
+    @Nonnull
+    private static String getSubPath( @Nonnull ItemStack stack )
     {
         NBTTagCompound nbt = stack.getTagCompound();
-        if( nbt != null && nbt.hasKey( "subPath" ) )
-        {
-            return nbt.getString( "subPath" );
-        }
-        return "dan200/alongtimeago";
+        return nbt != null && nbt.hasKey( "subPath" ) ? nbt.getString( "subPath" ) : "dan200/alongtimeago";
     }
 
-    public int getColour( @Nonnull ItemStack stack )
+    public static int getColour( @Nonnull ItemStack stack )
     {
         NBTTagCompound nbt = stack.getTagCompound();
-        if( nbt != null && nbt.hasKey( "colour" ) )
-        {
-            return nbt.getInteger( "colour" );
-        }
-        return Colour.Blue.getHex();
+        return nbt != null && nbt.hasKey( "colour" ) ? nbt.getInteger( "colour" ) : Colour.Blue.getHex();
     }
 }

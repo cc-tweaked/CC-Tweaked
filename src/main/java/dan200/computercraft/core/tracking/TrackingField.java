@@ -13,7 +13,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.LongFunction;
 
-public class TrackingField
+public final class TrackingField
 {
     public static final String TRANSLATE_PREFIX = "tracking_field.computercraft.";
 
@@ -33,7 +33,7 @@ public class TrackingField
 
     public static final TrackingField HTTP_REQUESTS = TrackingField.of( "http", "HTTP requests", TrackingField::formatDefault );
     public static final TrackingField HTTP_UPLOAD = TrackingField.of( "http_upload", "HTTP upload", TrackingField::formatBytes );
-    public static final TrackingField HTTP_DOWNLOAD = TrackingField.of( "http_download", "HTTT download", TrackingField::formatBytes );
+    public static final TrackingField HTTP_DOWNLOAD = TrackingField.of( "http_download", "HTTP download", TrackingField::formatBytes );
 
     public static final TrackingField WEBSOCKET_INCOMING = TrackingField.of( "websocket_incoming", "Websocket incoming", TrackingField::formatBytes );
     public static final TrackingField WEBSOCKET_OUTGOING = TrackingField.of( "websocket_outgoing", "Websocket outgoing", TrackingField::formatBytes );
@@ -64,7 +64,7 @@ public class TrackingField
     private TrackingField( String id, LongFunction<String> format )
     {
         this.id = id;
-        this.translationKey = "tracking_field.computercraft." + id + ".name";
+        translationKey = "tracking_field.computercraft." + id + ".name";
         this.format = format;
     }
 

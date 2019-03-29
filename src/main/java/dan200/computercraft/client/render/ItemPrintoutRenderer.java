@@ -23,7 +23,7 @@ import static dan200.computercraft.shared.media.items.ItemPrintout.LINES_PER_PAG
 import static dan200.computercraft.shared.media.items.ItemPrintout.LINE_MAX_LENGTH;
 
 /**
- * Emulates map and item-frame rendering for prinouts
+ * Emulates map and item-frame rendering for printouts
  */
 @Mod.EventBusSubscriber( modid = ComputerCraft.MOD_ID, value = Side.CLIENT )
 public final class ItemPrintoutRenderer extends ItemMapLikeRenderer

@@ -29,7 +29,7 @@ import javax.annotation.Nonnull;
 
 public class BlockAdvancedModem extends BlockGeneric
 {
-    public static class Properties
+    public static final class Properties
     {
         public static final PropertyDirection FACING = BlockDirectional.FACING;
         public static final PropertyBool ON = PropertyBool.create( "on" );
@@ -41,7 +41,7 @@ public class BlockAdvancedModem extends BlockGeneric
         setHardness( 2.0f );
         setTranslationKey( "computercraft:advanced_modem" );
         setCreativeTab( ComputerCraft.mainCreativeTab );
-        setDefaultState( this.blockState.getBaseState()
+        setDefaultState( blockState.getBaseState()
             .withProperty( Properties.FACING, EnumFacing.NORTH )
             .withProperty( Properties.ON, false )
         );

@@ -17,6 +17,7 @@ import javax.annotation.Nullable;
  * @see ILuaAPI
  * @see ComputerCraftAPI#registerAPIFactory(ILuaAPIFactory)
  */
+@FunctionalInterface
 public interface ILuaAPIFactory
 {
     /**

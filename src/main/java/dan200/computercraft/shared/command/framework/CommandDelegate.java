@@ -20,7 +20,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * {@link net.minecraft.command.ICommand} which delegates to a {@link ISubCommand}.
+ * {@link ICommand} which delegates to a {@link ISubCommand}.
  */
 public class CommandDelegate implements ICommand
 {

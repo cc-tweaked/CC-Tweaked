@@ -60,7 +60,7 @@ public final class CommandComputerCraft extends CommandDelegate
             @Override
             public void execute( @Nonnull CommandContext context, @Nonnull List<String> arguments ) throws CommandException
             {
-                if( arguments.size() == 0 )
+                if( arguments.isEmpty() )
                 {
                     TableBuilder table = new TableBuilder( DUMP_LIST_ID, "Computer", "On", "Position" );
 
@@ -162,7 +162,7 @@ public final class CommandComputerCraft extends CommandDelegate
             @Override
             public List<String> getCompletion( @Nonnull CommandContext context, @Nonnull List<String> arguments )
             {
-                return arguments.size() == 0
+                return arguments.isEmpty()
                     ? Collections.emptyList()
                     : ComputerSelector.completeComputer( arguments.get( arguments.size() - 1 ) );
             }
@@ -188,7 +188,7 @@ public final class CommandComputerCraft extends CommandDelegate
             @Override
             public List<String> getCompletion( @Nonnull CommandContext context, @Nonnull List<String> arguments )
             {
-                return arguments.size() == 0
+                return arguments.isEmpty()
                     ? Collections.emptyList()
                     : ComputerSelector.completeComputer( arguments.get( arguments.size() - 1 ) );
             }

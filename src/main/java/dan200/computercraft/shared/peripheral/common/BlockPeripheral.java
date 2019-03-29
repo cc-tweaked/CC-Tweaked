@@ -42,7 +42,7 @@ import javax.annotation.Nonnull;
 
 public class BlockPeripheral extends BlockGeneric
 {
-    public static class Properties
+    public static final class Properties
     {
         public static final PropertyDirection FACING = PropertyDirection.create( "facing", EnumFacing.Plane.HORIZONTAL );
         public static final PropertyEnum<BlockPeripheralVariant> VARIANT = PropertyEnum.create( "variant", BlockPeripheralVariant.class );
@@ -54,7 +54,7 @@ public class BlockPeripheral extends BlockGeneric
         setHardness( 2.0f );
         setTranslationKey( "computercraft:peripheral" );
         setCreativeTab( ComputerCraft.mainCreativeTab );
-        setDefaultState( this.blockState.getBaseState()
+        setDefaultState( blockState.getBaseState()
             .withProperty( Properties.FACING, EnumFacing.NORTH )
             .withProperty( Properties.VARIANT, BlockPeripheralVariant.DiskDriveEmpty )
         );
@@ -141,21 +141,16 @@ public class BlockPeripheral extends BlockGeneric
                 break;
             }
             case WirelessModem:
-            {
                 switch( variant )
                 {
                     case WirelessModemDownOff:
                     case WirelessModemDownOn:
-                    {
                         meta = 0;
                         break;
-                    }
                     case WirelessModemUpOff:
                     case WirelessModemUpOn:
-                    {
                         meta = 1;
                         break;
-                    }
                     default:
                     {
                         EnumFacing dir = state.getValue( Properties.FACING );
@@ -164,27 +159,18 @@ public class BlockPeripheral extends BlockGeneric
                     }
                 }
                 break;
-            }
             case Monitor:
-            {
                 meta = 10;
                 break;
-            }
             case Printer:
-            {
                 meta = 11;
                 break;
-            }
             case AdvancedMonitor:
-            {
                 meta = 12;
                 break;
-            }
             case Speaker:
-            {
                 meta = 13;
                 break;
-            }
         }
         return meta;
     }
@@ -417,7 +403,7 @@ public class BlockPeripheral extends BlockGeneric
         return ComputerCraft.Items.peripheral.getPeripheralType( damage );
     }
 
-    public PeripheralType getPeripheralType( IBlockState state )
+    public static PeripheralType getPeripheralType( IBlockState state )
     {
         return state.getValue( Properties.VARIANT ).getPeripheralType();
     }

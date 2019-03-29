@@ -9,12 +9,12 @@ package dan200.computercraft.shared.network;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.client.gui.*;
 import dan200.computercraft.core.terminal.Terminal;
-import dan200.computercraft.shared.command.ContainerViewComputer;
 import dan200.computercraft.shared.computer.blocks.TileComputer;
 import dan200.computercraft.shared.computer.core.ClientComputer;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.computer.inventory.ContainerComputer;
+import dan200.computercraft.shared.computer.inventory.ContainerViewComputer;
 import dan200.computercraft.shared.media.inventory.ContainerHeldItem;
 import dan200.computercraft.shared.media.items.ItemPrintout;
 import dan200.computercraft.shared.peripheral.diskdrive.ContainerDiskDrive;
@@ -34,7 +34,7 @@ import net.minecraftforge.fml.common.network.IGuiHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class Containers implements IGuiHandler
+public final class Containers implements IGuiHandler
 {
     public static final Containers INSTANCE = new Containers();
 

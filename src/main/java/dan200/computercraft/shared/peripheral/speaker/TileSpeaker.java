@@ -26,7 +26,6 @@ public class TileSpeaker extends TilePeripheralBase
 
     public TileSpeaker()
     {
-        super();
         m_peripheral = new Peripheral( this );
     }
 
@@ -44,7 +43,7 @@ public class TileSpeaker extends TilePeripheralBase
         return m_peripheral;
     }
 
-    private static class Peripheral extends SpeakerPeripheral
+    private static final class Peripheral extends SpeakerPeripheral
     {
         private final TileSpeaker speaker;
 

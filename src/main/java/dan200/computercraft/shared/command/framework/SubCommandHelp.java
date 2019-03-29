@@ -97,7 +97,7 @@ class SubCommandHelp implements ISubCommand
             }
         }
 
-        if( arguments.size() == 0 )
+        if( arguments.isEmpty() )
         {
             return Lists.newArrayList( command.getSubCommands().keySet() );
         }

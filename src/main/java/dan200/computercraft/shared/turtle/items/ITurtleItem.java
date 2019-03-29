@@ -14,15 +14,15 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public interface ITurtleItem extends IComputerItem, IColouredItem
 {
-    ITurtleUpgrade getUpgrade( ItemStack stack, TurtleSide side );
+    @Nullable
+    ITurtleUpgrade getUpgrade( @Nonnull ItemStack stack, @Nonnull TurtleSide side );
 
-    int getFuelLevel( ItemStack stack );
+    int getFuelLevel( @Nonnull ItemStack stack );
 
-    ResourceLocation getOverlay( ItemStack stack );
-
-    @Override
-    int getColour( @Nonnull ItemStack stack );
+    @Nullable
+    ResourceLocation getOverlay( @Nonnull ItemStack stack );
 }

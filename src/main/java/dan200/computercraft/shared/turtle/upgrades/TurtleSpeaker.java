@@ -37,7 +37,6 @@ public class TurtleSpeaker extends AbstractTurtleUpgrade
 
         Peripheral( ITurtleAccess turtle )
         {
-            super();
             this.turtle = turtle;
         }
 

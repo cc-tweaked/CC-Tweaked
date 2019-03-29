@@ -21,7 +21,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 import javax.annotation.Nonnull;
 
-public class CommandCopy extends CommandBase implements IClientCommand
+public final class CommandCopy extends CommandBase implements IClientCommand
 {
     public static final CommandCopy INSTANCE = new CommandCopy();
 

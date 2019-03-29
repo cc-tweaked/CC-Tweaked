@@ -52,22 +52,20 @@ public class ContainerDiskDrive extends Container
     @Override
     public ItemStack transferStackInSlot( EntityPlayer player, int slotIndex )
     {
-        ItemStack extract = ItemStack.EMPTY;
         Slot slot = inventorySlots.get( slotIndex );
-        if( slot == null || !slot.getHasStack() ) return extract;
+        if( slot == null || !slot.getHasStack() ) return ItemStack.EMPTY;
 
         ItemStack existing = slot.getStack().copy();
-        extract = existing.copy();
+        ItemStack result = existing.copy();
         if( slotIndex == 0 )
         {
-            if( !mergeItemStack( existing, 1, 37, true ) )
-            {
-                return ItemStack.EMPTY;
-            }
+            // Insert into player inventory
+            if( !mergeItemStack( existing, 1, 37, true ) ) return ItemStack.EMPTY;
         }
-        else if( !mergeItemStack( existing, 0, 1, false ) )
+        else
         {
-            return ItemStack.EMPTY;
+            // Insert into drive inventory
+            if( !mergeItemStack( existing, 0, 1, false ) ) return ItemStack.EMPTY;
         }
 
         if( existing.isEmpty() )
@@ -79,9 +77,9 @@ public class ContainerDiskDrive extends Container
             slot.onSlotChanged();
         }
 
-        if( existing.getCount() == extract.getCount() ) return ItemStack.EMPTY;
+        if( existing.getCount() == result.getCount() ) return ItemStack.EMPTY;
 
         slot.onTake( player, existing );
-        return extract;
+        return result;
     }
 }

@@ -20,7 +20,7 @@ import java.util.regex.Pattern;
  */
 public class AddressPredicate
 {
-    private static class HostRange
+    private static final class HostRange
     {
         private final byte[] min;
         private final byte[] max;

@@ -21,24 +21,24 @@ public enum ComputerState implements IStringSerializable
     // TODO: Move to dan200.computercraft.shared.computer.core in the future. We can't do it now
     //  as Plethora depends on it.
 
-    private String m_name;
+    private final String name;
 
     ComputerState( String name )
     {
-        m_name = name;
+        this.name = name;
     }
 
     @Nonnull
     @Override
     public String getName()
     {
-        return m_name;
+        return name;
     }
 
     @Override
     public String toString()
     {
-        return getName();
+        return name;
     }
 
     public static ComputerState valueOf( int ordinal )

@@ -22,10 +22,8 @@ public class GuiConfigCC extends GuiConfig
         super( parentScreen, Config.getConfigElements(), ComputerCraft.MOD_ID, false, false, "CC: Tweaked" );
     }
 
-    public static class Factory
-        implements IModGuiFactory
+    public static class Factory implements IModGuiFactory
     {
-
         @Override
         public void initialize( Minecraft minecraft )
         {

@@ -10,8 +10,10 @@ import dan200.computercraft.shared.common.IDirectionalTile;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.EnumFacing;
 
-public class DirectionUtil
+public final class DirectionUtil
 {
+    private DirectionUtil() {}
+
     public static int toLocal( IDirectionalTile directional, EnumFacing dir )
     {
         EnumFacing front = directional.getDirection();

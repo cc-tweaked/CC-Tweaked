@@ -6,7 +6,6 @@
 
 package dan200.computercraft.shared;
 
-import com.google.common.base.Preconditions;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.pocket.IPocketUpgrade;
 import dan200.computercraft.shared.util.InventoryUtil;
@@ -23,9 +22,11 @@ public final class PocketUpgrades
     private static final Map<String, IPocketUpgrade> upgrades = new HashMap<>();
     private static final IdentityHashMap<IPocketUpgrade, String> upgradeOwners = new IdentityHashMap<>();
 
+    private PocketUpgrades() {}
+
     public static void register( @Nonnull IPocketUpgrade upgrade )
     {
-        Preconditions.checkNotNull( upgrade, "upgrade cannot be null" );
+        Objects.requireNonNull( upgrade, "upgrade cannot be null" );
 
         String id = upgrade.getUpgradeID().toString();
         IPocketUpgrade existing = upgrades.get( id );

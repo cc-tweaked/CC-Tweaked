@@ -19,7 +19,7 @@ import javax.annotation.Nonnull;
  * A packet, which performs an action on a {@link ServerComputer}.
  *
  * This requires that the sending player is interacting with that computer via a
- * {@link dan200.computercraft.shared.computer.core.IContainerComputer}.
+ * {@link IContainerComputer}.
  */
 public abstract class ComputerServerMessage implements NetworkMessage
 {

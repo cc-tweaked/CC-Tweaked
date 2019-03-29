@@ -81,8 +81,7 @@ public abstract class SpeakerPeripheral implements IPeripheral
     {
         switch( methodIndex )
         {
-            // playSound
-            case 0:
+            case 0: // playSound
             {
                 String name = getString( args, 0 );
                 float volume = (float) optReal( args, 1, 1.0 );
@@ -91,17 +90,11 @@ public abstract class SpeakerPeripheral implements IPeripheral
                 return new Object[] { playSound( context, name, volume, pitch, false ) };
             }
 
-            // playNote
-            case 1:
-            {
+            case 1: // playNote
                 return playNote( args, context );
-            }
 
             default:
-            {
-                throw new LuaException( "Method index out of range!" );
-            }
-
+                throw new IllegalStateException( "Method index out of range!" );
         }
     }
 

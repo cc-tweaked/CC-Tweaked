@@ -38,8 +38,7 @@ public interface IWorkMonitor
      * If the owning computer is currently allowed to execute work, and has ample time to do so.
      *
      * This is effectively a more restrictive form of {@link #canWork()}. One should use that in order to determine if
-     * you may do an initial piece of work, and {@link #shouldWork()} to determine if any additional task may be
-     * performed.
+     * you may do an initial piece of work, and shouldWork to determine if any additional task may be performed.
      *
      * @return If we should execute work right now.
      */

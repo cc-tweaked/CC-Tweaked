@@ -95,7 +95,7 @@ public class Websocket extends Resource<Websocket>
         {
             try
             {
-                uri = new URI( "ws://" + uri.toString() );
+                uri = new URI( "ws://" + uri );
             }
             catch( URISyntaxException e )
             {
@@ -186,7 +186,7 @@ public class Websocket extends Resource<Websocket>
 
         WebsocketHandle handle = new WebsocketHandle( this, channel );
         environment().queueEvent( SUCCESS_EVENT, new Object[] { address, handle } );
-        this.websocketHandle = createOwnerReference( handle );
+        websocketHandle = createOwnerReference( handle );
 
         checkClosed();
     }
@@ -216,7 +216,7 @@ public class Websocket extends Resource<Websocket>
         executorFuture = closeFuture( executorFuture );
         connectFuture = closeChannel( connectFuture );
 
-        WeakReference<WebsocketHandle> websocketHandleRef = this.websocketHandle;
+        WeakReference<WebsocketHandle> websocketHandleRef = websocketHandle;
         WebsocketHandle websocketHandle = websocketHandleRef == null ? null : websocketHandleRef.get();
         if( websocketHandle != null ) IoUtil.closeQuietly( websocketHandle );
         this.websocketHandle = null;

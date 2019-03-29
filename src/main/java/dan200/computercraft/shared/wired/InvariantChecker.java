@@ -14,9 +14,11 @@ import dan200.computercraft.ComputerCraft;
  * This adds substantial overhead to network modification, and so should only be enabled
  * in a development environment.
  */
-public class InvariantChecker
+public final class InvariantChecker
 {
     private static final boolean ENABLED = false;
+
+    private InvariantChecker() {}
 
     public static void checkNode( WiredNode node )
     {

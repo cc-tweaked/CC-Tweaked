@@ -42,17 +42,11 @@ public abstract class ItemPeripheralBase extends ItemBlock implements IPeriphera
             case WirelessModem:
             case WiredModem:
             case AdvancedModem:
-            {
                 return world.isSideSolid( pos, side );
-            }
             case Cable:
-            {
                 return true;
-            }
             default:
-            {
                 return super.canPlaceBlockOnSide( world, pos, side, player, stack );
-            }
         }
     }
 
@@ -65,48 +59,28 @@ public abstract class ItemPeripheralBase extends ItemBlock implements IPeriphera
         {
             case DiskDrive:
             default:
-            {
                 return "tile.computercraft:drive";
-            }
             case Printer:
-            {
                 return "tile.computercraft:printer";
-            }
             case Monitor:
-            {
                 return "tile.computercraft:monitor";
-            }
             case AdvancedMonitor:
-            {
                 return "tile.computercraft:advanced_monitor";
-            }
             case WirelessModem:
-            {
                 return "tile.computercraft:wireless_modem";
-            }
             case WiredModem:
             case WiredModemWithCable:
-            {
                 return "tile.computercraft:wired_modem";
-            }
             case Cable:
-            {
                 return "tile.computercraft:cable";
-            }
             case AdvancedModem:
-            {
                 return "tile.computercraft:advanced_modem";
-            }
             case Speaker:
-            {
                 return "tile.computercraft:speaker";
-            }
             case WiredModemFull:
                 return "tile.computercraft:wired_modem";
         }
     }
-
-    // IPeripheralItem implementation
 
     @Override
     public final PeripheralType getPeripheralType( @Nonnull ItemStack stack )

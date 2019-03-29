@@ -105,7 +105,7 @@ public class CommandRoot implements ISubCommand
     @Override
     public void execute( @Nonnull CommandContext context, @Nonnull List<String> arguments ) throws CommandException
     {
-        if( arguments.size() == 0 )
+        if( arguments.isEmpty() )
         {
             context.getSender().sendMessage( ChatHelpers.getHelp( context, this, context.getFullPath() ) );
         }
@@ -125,7 +125,7 @@ public class CommandRoot implements ISubCommand
     @Override
     public List<String> getCompletion( @Nonnull CommandContext context, @Nonnull List<String> arguments )
     {
-        if( arguments.size() == 0 )
+        if( arguments.isEmpty() )
         {
             return Lists.newArrayList( subCommands.keySet() );
         }

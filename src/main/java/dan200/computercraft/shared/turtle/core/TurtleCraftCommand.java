@@ -49,7 +49,7 @@ public class TurtleCraftCommand implements ITurtleCommand
                 }
             }
 
-            if( results.size() > 0 )
+            if( !results.isEmpty() )
             {
                 // Animate
                 turtle.playAnimation( TurtleAnimation.Wait );

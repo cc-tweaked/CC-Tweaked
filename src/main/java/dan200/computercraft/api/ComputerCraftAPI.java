@@ -173,8 +173,8 @@ public final class ComputerCraftAPI
      * Registers a peripheral provider to convert blocks into {@link IPeripheral} implementations.
      *
      * @param provider The peripheral provider to register.
-     * @see dan200.computercraft.api.peripheral.IPeripheral
-     * @see dan200.computercraft.api.peripheral.IPeripheralProvider
+     * @see IPeripheral
+     * @see IPeripheralProvider
      */
     public static void registerPeripheralProvider( @Nonnull IPeripheralProvider provider )
     {
@@ -198,7 +198,7 @@ public final class ComputerCraftAPI
      * this during the load() method of your mod.
      *
      * @param upgrade The turtle upgrade to register.
-     * @see dan200.computercraft.api.turtle.ITurtleUpgrade
+     * @see ITurtleUpgrade
      */
     public static void registerTurtleUpgrade( @Nonnull ITurtleUpgrade upgrade )
     {
@@ -223,7 +223,7 @@ public final class ComputerCraftAPI
      * Registers a bundled redstone provider to provide bundled redstone output for blocks.
      *
      * @param provider The bundled redstone provider to register.
-     * @see dan200.computercraft.api.redstone.IBundledRedstoneProvider
+     * @see IBundledRedstoneProvider
      */
     public static void registerBundledRedstoneProvider( @Nonnull IBundledRedstoneProvider provider )
     {
@@ -249,7 +249,7 @@ public final class ComputerCraftAPI
      * @param side  The side to extract the bundled redstone output from.
      * @return If there is a block capable of emitting bundled redstone at the location, it's signal (0-65535) will be returned.
      * If there is no block capable of emitting bundled redstone at the location, -1 will be returned.
-     * @see dan200.computercraft.api.redstone.IBundledRedstoneProvider
+     * @see IBundledRedstoneProvider
      */
     public static int getBundledRedstoneOutput( @Nonnull World world, @Nonnull BlockPos pos, @Nonnull EnumFacing side )
     {
@@ -272,7 +272,7 @@ public final class ComputerCraftAPI
      * Registers a media provider to provide {@link IMedia} implementations for Items
      *
      * @param provider The media provider to register.
-     * @see dan200.computercraft.api.media.IMediaProvider
+     * @see IMediaProvider
      */
     public static void registerMediaProvider( @Nonnull IMediaProvider provider )
     {
@@ -294,7 +294,7 @@ public final class ComputerCraftAPI
      * Registers a permission provider to restrict where turtles can move or build.
      *
      * @param provider The turtle permission provider to register.
-     * @see dan200.computercraft.api.permissions.ITurtlePermissionProvider
+     * @see ITurtlePermissionProvider
      * @deprecated Prefer using {@link dan200.computercraft.api.turtle.event.TurtleBlockEvent} or the standard Forge events.
      */
     @Deprecated
@@ -481,7 +481,7 @@ public final class ComputerCraftAPI
             }
             catch( Exception e )
             {
-                System.out.println( "ComputerCraftAPI: ComputerCraft not found." );
+                System.err.println( "ComputerCraftAPI: ComputerCraft not found." );
             }
             finally
             {
@@ -498,7 +498,7 @@ public final class ComputerCraftAPI
         }
         catch( NoSuchMethodException e )
         {
-            System.out.println( "ComputerCraftAPI: ComputerCraft method " + name + " not found." );
+            System.err.println( "ComputerCraftAPI: ComputerCraft method " + name + " not found." );
             return null;
         }
     }

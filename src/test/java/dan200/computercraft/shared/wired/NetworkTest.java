@@ -273,7 +273,7 @@ public class NetworkTest
                 for( EnumFacing facing : EnumFacing.VALUES )
                 {
                     BlockPos offset = pos.offset( facing );
-                    if( (offset.getX() > BRUTE_SIZE / 2) == (pos.getX() > BRUTE_SIZE / 2) )
+                    if( offset.getX() > BRUTE_SIZE / 2 == pos.getX() > BRUTE_SIZE / 2 )
                     {
                         IWiredNode other = grid.get( offset );
                         if( other != null ) existing.getNetwork().connect( existing, other );

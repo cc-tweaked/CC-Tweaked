@@ -16,8 +16,10 @@ import net.minecraft.util.ResourceLocation;
 
 import javax.annotation.Nonnull;
 
-public class TurtleItemFactory
+public final class TurtleItemFactory
 {
+    private TurtleItemFactory() {}
+
     @Nonnull
     public static ItemStack create( ITurtleTile turtle )
     {

@@ -19,8 +19,10 @@ import net.minecraftforge.common.crafting.JsonContext;
 import java.util.Map;
 import java.util.Set;
 
-public class RecipeUtil
+public final class RecipeUtil
 {
+    private RecipeUtil() {}
+
     public static CraftingHelper.ShapedPrimer getPrimer( JsonContext context, JsonObject json )
     {
         Map<Character, Ingredient> ingMap = Maps.newHashMap();
@@ -92,18 +94,14 @@ public class RecipeUtil
 
     public static NonNullList<Ingredient> getIngredients( JsonContext context, JsonObject json )
     {
-        NonNullList<Ingredient> ings = NonNullList.create();
+        NonNullList<Ingredient> ingredients = NonNullList.create();
         for( JsonElement ele : JsonUtils.getJsonArray( json, "ingredients" ) )
         {
-            ings.add( CraftingHelper.getIngredient( ele, context ) );
+            ingredients.add( CraftingHelper.getIngredient( ele, context ) );
         }
 
-        if( ings.isEmpty() )
-        {
-            throw new JsonParseException( "No ingredients for recipe" );
-        }
-
-        return ings;
+        if( ingredients.isEmpty() ) throw new JsonParseException( "No ingredients for recipe" );
+        return ingredients;
     }
 
     public static ComputerFamily getFamily( JsonObject json, String name )

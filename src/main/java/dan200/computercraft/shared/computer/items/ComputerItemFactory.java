@@ -13,8 +13,10 @@ import net.minecraft.item.ItemStack;
 
 import javax.annotation.Nonnull;
 
-public class ComputerItemFactory
+public final class ComputerItemFactory
 {
+    private ComputerItemFactory() {}
+
     @Nonnull
     public static ItemStack create( TileComputer tile )
     {

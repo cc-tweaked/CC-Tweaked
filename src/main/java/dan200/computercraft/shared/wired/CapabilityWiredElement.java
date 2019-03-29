@@ -18,10 +18,12 @@ import net.minecraftforge.common.capabilities.CapabilityManager;
 
 import javax.annotation.Nonnull;
 
-public class CapabilityWiredElement
+public final class CapabilityWiredElement
 {
     @CapabilityInject( IWiredElement.class )
     public static Capability<IWiredElement> CAPABILITY = null;
+
+    private CapabilityWiredElement() {}
 
     public static void register()
     {

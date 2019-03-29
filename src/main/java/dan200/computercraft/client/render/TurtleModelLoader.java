@@ -21,7 +21,7 @@ import net.minecraftforge.common.model.IModelState;
 import javax.annotation.Nonnull;
 import java.util.function.Function;
 
-public class TurtleModelLoader implements ICustomModelLoader
+public final class TurtleModelLoader implements ICustomModelLoader
 {
     private static final ResourceLocation NORMAL_TURTLE_MODEL = new ResourceLocation( ComputerCraft.MOD_ID, "block/turtle" );
     private static final ResourceLocation ADVANCED_TURTLE_MODEL = new ResourceLocation( ComputerCraft.MOD_ID, "block/advanced_turtle" );
@@ -64,7 +64,7 @@ public class TurtleModelLoader implements ICustomModelLoader
         throw new IllegalStateException( "Loader does not accept " + name );
     }
 
-    private static class TurtleModel implements IModel
+    private static final class TurtleModel implements IModel
     {
         private final IModel family;
         private final IModel colour;

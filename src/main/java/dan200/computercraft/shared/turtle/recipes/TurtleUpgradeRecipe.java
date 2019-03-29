@@ -136,7 +136,7 @@ public class TurtleUpgradeRecipe extends IForgeRegistryEntry.Impl<IRecipe> imple
         }
 
         // See if we found a turtle + one or more items
-        if( turtle.isEmpty() || (leftItem.isEmpty() && rightItem.isEmpty()) )
+        if( turtle.isEmpty() || leftItem.isEmpty() && rightItem.isEmpty() )
         {
             return ItemStack.EMPTY;
         }
@@ -145,7 +145,7 @@ public class TurtleUpgradeRecipe extends IForgeRegistryEntry.Impl<IRecipe> imple
         // Get the turtle we already have
         ITurtleItem itemTurtle = (ITurtleItem) turtle.getItem();
         ComputerFamily family = itemTurtle.getFamily( turtle );
-        ITurtleUpgrade[] upgrades = {
+        ITurtleUpgrade[] upgrades = new ITurtleUpgrade[] {
             itemTurtle.getUpgrade( turtle, TurtleSide.Left ),
             itemTurtle.getUpgrade( turtle, TurtleSide.Right ),
         };

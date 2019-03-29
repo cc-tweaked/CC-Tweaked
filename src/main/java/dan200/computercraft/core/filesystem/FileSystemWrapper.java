@@ -35,7 +35,7 @@ public class FileSystemWrapper<T extends Closeable> implements Closeable
     {
         this.fileSystem = fileSystem;
         this.closeable = closeable;
-        this.self = new WeakReference<>( this, queue );
+        self = new WeakReference<>( this, queue );
     }
 
     @Override

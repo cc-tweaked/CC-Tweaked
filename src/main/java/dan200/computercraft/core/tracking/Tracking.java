@@ -14,13 +14,15 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class Tracking
+public final class Tracking
 {
     static final AtomicInteger tracking = new AtomicInteger( 0 );
 
     private static final Object lock = new Object();
     private static final HashMap<UUID, TrackingContext> contexts = new HashMap<>();
     private static final List<Tracker> trackers = new ArrayList<>();
+
+    private Tracking() {}
 
     public static TrackingContext getContext( UUID uuid )
     {

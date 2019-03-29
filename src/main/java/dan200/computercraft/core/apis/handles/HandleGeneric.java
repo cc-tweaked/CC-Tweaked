@@ -26,7 +26,7 @@ public abstract class HandleGeneric implements ILuaObject
 
     protected HandleGeneric( @Nonnull Closeable closable )
     {
-        this.m_closable = closable;
+        m_closable = closable;
     }
 
     protected void checkOpen() throws LuaException
@@ -46,7 +46,7 @@ public abstract class HandleGeneric implements ILuaObject
      *
      * @param channel The channel to seek in
      * @param args    The Lua arguments to process, like Lua's {@code file:seek}.
-     * @return The new position of the file, or null if some error occured.
+     * @return The new position of the file, or null if some error occurred.
      * @throws LuaException If the arguments were invalid
      * @see <a href="https://www.lua.org/manual/5.1/manual.html#pdf-file:seek">{@code file:seek} in the Lua manual.</a>
      */

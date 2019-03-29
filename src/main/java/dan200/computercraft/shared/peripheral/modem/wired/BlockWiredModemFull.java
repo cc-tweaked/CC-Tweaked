@@ -23,7 +23,7 @@ public class BlockWiredModemFull extends BlockGeneric
 {
     // Statics
 
-    public static class Properties
+    public static final class Properties
     {
         public static final PropertyBool MODEM_ON = PropertyBool.create( "modem" );
         public static final PropertyBool PERIPHERAL_ON = PropertyBool.create( "peripheral" );

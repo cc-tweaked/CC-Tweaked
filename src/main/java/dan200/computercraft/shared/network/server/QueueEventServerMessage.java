@@ -16,10 +16,10 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
- * Queue an event on a {@link dan200.computercraft.shared.computer.core.ServerComputer}.
+ * Queue an event on a {@link ServerComputer}.
  *
  * @see dan200.computercraft.shared.computer.core.ClientComputer#queueEvent(String)
- * @see dan200.computercraft.shared.computer.core.ServerComputer#queueEvent(String)
+ * @see ServerComputer#queueEvent(String)
  */
 public class QueueEventServerMessage extends ComputerServerMessage
 {

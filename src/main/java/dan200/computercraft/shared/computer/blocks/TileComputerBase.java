@@ -28,12 +28,16 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ITickable;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.world.IWorldNameable;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Objects;
 
-public abstract class TileComputerBase extends TileGeneric implements IComputerTile, IDirectionalTile, ITickable, IPeripheralTile
+public abstract class TileComputerBase extends TileGeneric implements IComputerTile, IDirectionalTile, ITickable, IPeripheralTile, IWorldNameable
 {
     private int m_instanceID = -1;
     private int m_computerID = -1;
@@ -46,11 +50,7 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
     public BlockComputerBase getBlock()
     {
         Block block = super.getBlock();
-        if( block instanceof BlockComputerBase )
-        {
-            return (BlockComputerBase) block;
-        }
-        return null;
+        return block instanceof BlockComputerBase ? (BlockComputerBase) block : null;
     }
 
     protected void unload()
@@ -95,29 +95,16 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
         return false;
     }
 
-    protected boolean onDefaultComputerInteract( EntityPlayer player )
-    {
-        if( !getWorld().isRemote )
-        {
-            if( isUsable( player, false ) )
-            {
-                createServerComputer().turnOn();
-                openGUI( player );
-            }
-        }
-        return true;
-    }
-
     @Override
     public boolean onActivate( EntityPlayer player, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ )
     {
         ItemStack currentItem = player.getHeldItem( hand );
-        if( !currentItem.isEmpty() && currentItem.getItem() == Items.NAME_TAG && canNameWithTag( player ) )
+        if( !currentItem.isEmpty() && currentItem.getItem() == Items.NAME_TAG && canNameWithTag( player ) && currentItem.hasDisplayName() )
         {
             // Label to rename computer
             if( !getWorld().isRemote )
             {
-                setLabel( currentItem.hasDisplayName() ? currentItem.getDisplayName() : null );
+                setLabel( currentItem.getDisplayName() );
                 currentItem.shrink( 1 );
             }
             return true;
@@ -125,7 +112,12 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
         else if( !player.isSneaking() )
         {
             // Regular right click to activate computer
-            return onDefaultComputerInteract( player );
+            if( !getWorld().isRemote && isUsable( player, false ) )
+            {
+                createServerComputer().turnOn();
+                openGUI( player );
+            }
+            return true;
         }
         return false;
     }
@@ -201,10 +193,7 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
                     m_startOn = false;
                 }
                 computer.keepAlive();
-                if( computer.hasOutputChanged() )
-                {
-                    updateOutput();
-                }
+                if( computer.hasOutputChanged() ) updateOutput();
                 m_fresh = false;
                 m_computerID = computer.getID();
                 m_label = computer.getLabel();
@@ -214,13 +203,7 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
         else
         {
             ClientComputer computer = createClientComputer();
-            if( computer != null )
-            {
-                if( computer.hasOutputChanged() )
-                {
-                    updateBlock();
-                }
-            }
+            if( computer != null && computer.hasOutputChanged() ) updateBlock();
         }
     }
 
@@ -310,10 +293,7 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
 
     public void updateInput()
     {
-        if( getWorld() == null || getWorld().isRemote )
-        {
-            return;
-        }
+        if( getWorld() == null || getWorld().isRemote ) return;
 
         // Update redstone and peripherals
         ServerComputer computer = getServerComputer();
@@ -329,10 +309,7 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
 
     public void updateInput( BlockPos neighbour )
     {
-        if( getWorld() == null || getWorld().isRemote )
-        {
-            return;
-        }
+        if( getWorld() == null || getWorld().isRemote ) return;
 
         ServerComputer computer = getServerComputer();
         if( computer != null )
@@ -504,5 +481,26 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
     public IPeripheral getPeripheral( @Nonnull EnumFacing side )
     {
         return new ComputerPeripheral( "computer", createProxy() );
+    }
+
+    @Nonnull
+    @Override
+    public String getName()
+    {
+        String label = getLabel();
+        return label != null && !label.isEmpty() ? label : getBlockType().getTranslationKey();
+    }
+
+    @Override
+    public boolean hasCustomName()
+    {
+        return getLabel() != null;
+    }
+
+    @Nonnull
+    @Override
+    public ITextComponent getDisplayName()
+    {
+        return hasCustomName() ? new TextComponentString( getName() ) : new TextComponentTranslation( getName() );
     }
 }

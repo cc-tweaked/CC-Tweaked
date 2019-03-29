@@ -13,6 +13,7 @@ import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.turtle.*;
+import dan200.computercraft.shared.TurtleUpgrades;
 import dan200.computercraft.shared.computer.blocks.ComputerProxy;
 import dan200.computercraft.shared.computer.blocks.TileComputerBase;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
@@ -197,25 +198,15 @@ public class TurtleBrain implements ITurtleAccess
             // Loading a post-1.4 world
             if( nbt.hasKey( "leftUpgrade" ) )
             {
-                if( nbt.getTagId( "leftUpgrade" ) == Constants.NBT.TAG_STRING )
-                {
-                    leftUpgrade = dan200.computercraft.shared.TurtleUpgrades.get( nbt.getString( "leftUpgrade" ) );
-                }
-                else
-                {
-                    leftUpgrade = dan200.computercraft.shared.TurtleUpgrades.get( nbt.getShort( "leftUpgrade" ) );
-                }
+                leftUpgrade = nbt.getTagId( "leftUpgrade" ) == Constants.NBT.TAG_STRING
+                    ? TurtleUpgrades.get( nbt.getString( "leftUpgrade" ) )
+                    : TurtleUpgrades.get( nbt.getShort( "leftUpgrade" ) );
             }
             if( nbt.hasKey( "rightUpgrade" ) )
             {
-                if( nbt.getTagId( "rightUpgrade" ) == Constants.NBT.TAG_STRING )
-                {
-                    rightUpgrade = dan200.computercraft.shared.TurtleUpgrades.get( nbt.getString( "rightUpgrade" ) );
-                }
-                else
-                {
-                    rightUpgrade = dan200.computercraft.shared.TurtleUpgrades.get( nbt.getShort( "rightUpgrade" ) );
-                }
+                rightUpgrade = nbt.getTagId( "rightUpgrade" ) == Constants.NBT.TAG_STRING
+                    ? TurtleUpgrades.get( nbt.getString( "rightUpgrade" ) )
+                    : TurtleUpgrades.get( nbt.getShort( "rightUpgrade" ) );
             }
         }
         setUpgrade( TurtleSide.Left, leftUpgrade );
@@ -253,21 +244,12 @@ public class TurtleBrain implements ITurtleAccess
 
         // Write upgrades
         String leftUpgradeID = getUpgradeID( getUpgrade( TurtleSide.Left ) );
-        if( leftUpgradeID != null )
-        {
-            nbt.setString( "leftUpgrade", leftUpgradeID );
-        }
+        if( leftUpgradeID != null ) nbt.setString( "leftUpgrade", leftUpgradeID );
         String rightUpgradeID = getUpgradeID( getUpgrade( TurtleSide.Right ) );
-        if( rightUpgradeID != null )
-        {
-            nbt.setString( "rightUpgrade", rightUpgradeID );
-        }
+        if( rightUpgradeID != null ) nbt.setString( "rightUpgrade", rightUpgradeID );
 
         // Write colour
-        if( m_colourHex != -1 )
-        {
-            nbt.setInteger( "colour", m_colourHex );
-        }
+        if( m_colourHex != -1 ) nbt.setInteger( "colour", m_colourHex );
 
         // Write overlay
         if( m_overlay != null )
@@ -289,28 +271,18 @@ public class TurtleBrain implements ITurtleAccess
         return nbt;
     }
 
-    private String getUpgradeID( ITurtleUpgrade upgrade )
+    private static String getUpgradeID( ITurtleUpgrade upgrade )
     {
-        if( upgrade != null )
-        {
-            return upgrade.getUpgradeID().toString();
-        }
-        return null;
+        return upgrade != null ? upgrade.getUpgradeID().toString() : null;
     }
 
     public void writeDescription( NBTTagCompound nbt )
     {
         // Upgrades
         String leftUpgradeID = getUpgradeID( getUpgrade( TurtleSide.Left ) );
-        if( leftUpgradeID != null )
-        {
-            nbt.setString( "leftUpgrade", leftUpgradeID );
-        }
+        if( leftUpgradeID != null ) nbt.setString( "leftUpgrade", leftUpgradeID );
         String rightUpgradeID = getUpgradeID( getUpgrade( TurtleSide.Right ) );
-        if( rightUpgradeID != null )
-        {
-            nbt.setString( "rightUpgrade", rightUpgradeID );
-        }
+        if( rightUpgradeID != null ) nbt.setString( "rightUpgrade", rightUpgradeID );
 
         // NBT
         if( m_upgradeNBTData.containsKey( TurtleSide.Left ) )
@@ -344,22 +316,8 @@ public class TurtleBrain implements ITurtleAccess
     public void readDescription( NBTTagCompound nbt )
     {
         // Upgrades
-        if( nbt.hasKey( "leftUpgrade" ) )
-        {
-            setUpgrade( TurtleSide.Left, dan200.computercraft.shared.TurtleUpgrades.get( nbt.getString( "leftUpgrade" ) ) );
-        }
-        else
-        {
-            setUpgrade( TurtleSide.Left, null );
-        }
-        if( nbt.hasKey( "rightUpgrade" ) )
-        {
-            setUpgrade( TurtleSide.Right, dan200.computercraft.shared.TurtleUpgrades.get( nbt.getString( "rightUpgrade" ) ) );
-        }
-        else
-        {
-            setUpgrade( TurtleSide.Right, null );
-        }
+        setUpgrade( TurtleSide.Left, nbt.hasKey( "leftUpgrade" ) ? TurtleUpgrades.get( nbt.getString( "leftUpgrade" ) ) : null );
+        setUpgrade( TurtleSide.Right, nbt.hasKey( "rightUpgrade" ) ? TurtleUpgrades.get( nbt.getString( "rightUpgrade" ) ) : null );
 
         // NBT
         m_upgradeNBTData.clear();
@@ -422,7 +380,7 @@ public class TurtleBrain implements ITurtleAccess
     {
         if( world.isRemote || getWorld().isRemote )
         {
-            throw new UnsupportedOperationException();
+            throw new UnsupportedOperationException( "Cannot teleport on the client" );
         }
 
         // Cache info about the old turtle (so we don't access this after we delete ourselves)
@@ -558,10 +516,8 @@ public class TurtleBrain implements ITurtleAccess
     @Override
     public void setSelectedSlot( int slot )
     {
-        if( getWorld().isRemote )
-        {
-            throw new UnsupportedOperationException();
-        }
+        if( getWorld().isRemote ) throw new UnsupportedOperationException( "Cannot set the slot on the client" );
+
         if( slot >= 0 && slot < m_owner.getSizeInventory() )
         {
             m_selectedSlot = slot;
@@ -618,14 +574,9 @@ public class TurtleBrain implements ITurtleAccess
     @Override
     public boolean consumeFuel( int fuel )
     {
-        if( getWorld().isRemote )
-        {
-            throw new UnsupportedOperationException();
-        }
-        if( !isFuelNeeded() )
-        {
-            return true;
-        }
+        if( getWorld().isRemote ) throw new UnsupportedOperationException( "Cannot consume fuel on the client" );
+
+        if( !isFuelNeeded() ) return true;
 
         int consumption = Math.max( fuel, 0 );
         if( getFuelLevel() >= consumption )
@@ -639,10 +590,8 @@ public class TurtleBrain implements ITurtleAccess
     @Override
     public void addFuel( int fuel )
     {
-        if( getWorld().isRemote )
-        {
-            throw new UnsupportedOperationException();
-        }
+        if( getWorld().isRemote ) throw new UnsupportedOperationException( "Cannot add fuel on the client" );
+
         int addition = Math.max( fuel, 0 );
         setFuelLevel( getFuelLevel() + addition );
     }
@@ -657,10 +606,7 @@ public class TurtleBrain implements ITurtleAccess
     @Override
     public Object[] executeCommand( @Nonnull ILuaContext context, @Nonnull ITurtleCommand command ) throws LuaException, InterruptedException
     {
-        if( getWorld().isRemote )
-        {
-            throw new UnsupportedOperationException();
-        }
+        if( getWorld().isRemote ) throw new UnsupportedOperationException( "Cannot run commands on the client" );
 
         // Issue command
         int commandID = issueCommand( command );
@@ -684,10 +630,8 @@ public class TurtleBrain implements ITurtleAccess
     @Override
     public void playAnimation( @Nonnull TurtleAnimation animation )
     {
-        if( getWorld().isRemote )
-        {
-            throw new UnsupportedOperationException();
-        }
+        if( getWorld().isRemote ) throw new UnsupportedOperationException( "Cannot play animations on the client" );
+
         m_animation = animation;
         if( m_animation == TurtleAnimation.ShortWait )
         {
@@ -789,29 +733,17 @@ public class TurtleBrain implements ITurtleAccess
         // Remove old upgrade
         if( m_upgrades.containsKey( side ) )
         {
-            if( m_upgrades.get( side ) == upgrade )
-            {
-                return;
-            }
+            if( m_upgrades.get( side ) == upgrade ) return;
             m_upgrades.remove( side );
         }
         else
         {
-            if( upgrade == null )
-            {
-                return;
-            }
+            if( upgrade == null ) return;
         }
-        if( m_upgradeNBTData.containsKey( side ) )
-        {
-            m_upgradeNBTData.remove( side );
-        }
+        m_upgradeNBTData.remove( side );
 
         // Set new upgrade
-        if( upgrade != null )
-        {
-            m_upgrades.put( side, upgrade );
-        }
+        if( upgrade != null ) m_upgrades.put( side, upgrade );
 
         // Notify clients and create peripherals
         if( m_owner.getWorld() != null )
@@ -824,11 +756,7 @@ public class TurtleBrain implements ITurtleAccess
     @Override
     public IPeripheral getPeripheral( @Nonnull TurtleSide side )
     {
-        if( peripherals.containsKey( side ) )
-        {
-            return peripherals.get( side );
-        }
-        return null;
+        return peripherals.get( side );
     }
 
     @Nonnull
@@ -863,25 +791,17 @@ public class TurtleBrain implements ITurtleAccess
                 {
                     case MoveForward:
                     default:
-                    {
                         dir = getDirection();
                         break;
-                    }
                     case MoveBack:
-                    {
                         dir = getDirection().getOpposite();
                         break;
-                    }
                     case MoveUp:
-                    {
                         dir = EnumFacing.UP;
                         break;
-                    }
                     case MoveDown:
-                    {
                         dir = EnumFacing.DOWN;
                         break;
-                    }
                 }
 
                 double distance = -1.0 + getAnimationFraction( f );
@@ -900,27 +820,21 @@ public class TurtleBrain implements ITurtleAccess
 
     public float getToolRenderAngle( TurtleSide side, float f )
     {
-        if( (side == TurtleSide.Left && m_animation == TurtleAnimation.SwingLeftTool) ||
-            (side == TurtleSide.Right && m_animation == TurtleAnimation.SwingRightTool) )
-        {
-            return 45.0f * (float) Math.sin( getAnimationFraction( f ) * Math.PI );
-        }
-        return 0.0f;
+        return (side == TurtleSide.Left && m_animation == TurtleAnimation.SwingLeftTool) ||
+            (side == TurtleSide.Right && m_animation == TurtleAnimation.SwingRightTool)
+            ? 45.0f * (float) Math.sin( getAnimationFraction( f ) * Math.PI )
+            : 0.0f;
     }
 
-    private int toDirection( TurtleSide side )
+    private static int toDirection( TurtleSide side )
     {
         switch( side )
         {
             case Left:
-            {
                 return 5;
-            }
             case Right:
             default:
-            {
                 return 4;
-            }
         }
     }
 
@@ -1008,7 +922,7 @@ public class TurtleBrain implements ITurtleAccess
     {
         if( m_animation != TurtleAnimation.None )
         {
-            World world = this.getWorld();
+            World world = getWorld();
 
             if( ComputerCraft.turtlesCanPush )
             {
@@ -1024,25 +938,17 @@ public class TurtleBrain implements ITurtleAccess
                     {
                         case MoveForward:
                         default:
-                        {
                             moveDir = m_direction;
                             break;
-                        }
                         case MoveBack:
-                        {
                             moveDir = m_direction.getOpposite();
                             break;
-                        }
                         case MoveUp:
-                        {
                             moveDir = EnumFacing.UP;
                             break;
-                        }
                         case MoveDown:
-                        {
                             moveDir = EnumFacing.DOWN;
                             break;
-                        }
                     }
 
                     double minX = pos.getX();
@@ -1052,7 +958,7 @@ public class TurtleBrain implements ITurtleAccess
                     double maxY = minY + 1.0;
                     double maxZ = minZ + 1.0;
 
-                    float pushFrac = 1.0f - ((float) (m_animationProgress + 1) / (float) ANIM_DURATION);
+                    float pushFrac = 1.0f - (float) (m_animationProgress + 1) / ANIM_DURATION;
                     float push = Math.max( pushFrac + 0.0125f, 0.0f );
                     if( moveDir.getXOffset() < 0 )
                     {

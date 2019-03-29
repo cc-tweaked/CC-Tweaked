@@ -42,7 +42,7 @@ public class CraftingTablePeripheral implements IPeripheral
         };
     }
 
-    private int parseCount( Object[] arguments ) throws LuaException
+    private static int parseCount( Object[] arguments ) throws LuaException
     {
         int count = optInt( arguments, 0, 64 );
         if( count < 0 || count > 64 ) throw new LuaException( "Crafting count " + count + " out of range" );
@@ -61,9 +61,7 @@ public class CraftingTablePeripheral implements IPeripheral
                 return turtle.executeCommand( context, new TurtleCraftCommand( limit ) );
             }
             default:
-            {
                 return null;
-            }
         }
     }
 

@@ -6,7 +6,6 @@
 
 package dan200.computercraft.shared.wired;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import dan200.computercraft.api.network.Packet;
 import dan200.computercraft.api.network.wired.IWiredNetwork;
@@ -64,7 +63,7 @@ public final class WiredNetwork implements IWiredNetwork
                     Map<String, IPeripheral> otherPeripherals = other.peripherals;
                     Map<String, IPeripheral> thisPeripherals = otherPeripherals.isEmpty() ? peripherals : new HashMap<>( peripherals );
 
-                    Collection<WiredNode> thisNodes = otherPeripherals.isEmpty() ? nodes : new ArrayList<>( this.nodes );
+                    Collection<WiredNode> thisNodes = otherPeripherals.isEmpty() ? nodes : new ArrayList<>( nodes );
                     Collection<WiredNode> otherNodes = other.nodes;
 
                     // Move all nodes across into this network, destroying the original nodes.
@@ -165,8 +164,8 @@ public final class WiredNetwork implements IWiredNetwork
                 }
 
                 // Broadcast changes
-                if( peripherals.size() != 0 ) WiredNetworkChange.removed( peripherals ).broadcast( networkU.nodes );
-                if( networkU.peripherals.size() != 0 )
+                if( !peripherals.isEmpty() ) WiredNetworkChange.removed( peripherals ).broadcast( networkU.nodes );
+                if( !networkU.peripherals.isEmpty() )
                 {
                     WiredNetworkChange.removed( networkU.peripherals ).broadcast( nodes );
                 }
@@ -240,7 +239,7 @@ public final class WiredNetwork implements IWiredNetwork
             maximals.add( wiredNetwork );
             maximals.add( new WiredNetwork( reachable ) );
 
-            while( neighbours.size() > 0 )
+            while( !neighbours.isEmpty() )
             {
                 reachable = reachableNodes( neighbours.iterator().next() );
                 neighbours.removeAll( reachable );
@@ -294,7 +293,7 @@ public final class WiredNetwork implements IWiredNetwork
     public void updatePeripherals( @Nonnull IWiredNode node, @Nonnull Map<String, IPeripheral> newPeripherals )
     {
         WiredNode wired = checkNode( node );
-        Preconditions.checkNotNull( peripherals, "peripherals cannot be null" );
+        Objects.requireNonNull( peripherals, "peripherals cannot be null" );
 
         lock.writeLock().lock();
         try
@@ -321,7 +320,7 @@ public final class WiredNetwork implements IWiredNetwork
         }
     }
 
-    void transmitPacket( WiredNode start, Packet packet, double range, boolean interdimensional )
+    static void transmitPacket( WiredNode start, Packet packet, double range, boolean interdimensional )
     {
         Map<WiredNode, TransmitPoint> points = new HashMap<>();
         TreeSet<TransmitPoint> transmitTo = new TreeSet<>();

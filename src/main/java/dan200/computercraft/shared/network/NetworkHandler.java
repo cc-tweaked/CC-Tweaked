@@ -41,11 +41,11 @@ public final class NetworkHandler
         registerMainThread( 4, Side.SERVER, MouseEventServerMessage::new );
 
         // Client messages
-        registerMainThread( 14, Side.CLIENT, PlayRecordClientMessage::new );
-        registerMainThread( 11, Side.CLIENT, ComputerDataClientMessage::new );
-        registerMainThread( 13, Side.CLIENT, ComputerTerminalClientMessage::new );
-        registerMainThread( 12, Side.CLIENT, ComputerDeletedClientMessage::new );
         registerMainThread( 10, Side.CLIENT, ChatTableClientMessage::new );
+        registerMainThread( 11, Side.CLIENT, ComputerDataClientMessage::new );
+        registerMainThread( 12, Side.CLIENT, ComputerDeletedClientMessage::new );
+        registerMainThread( 13, Side.CLIENT, ComputerTerminalClientMessage::new );
+        registerMainThread( 14, Side.CLIENT, PlayRecordClientMessage::new );
     }
 
     public static void sendToPlayer( EntityPlayer player, IMessage packet )

@@ -76,9 +76,9 @@ public class JarMount implements IMount
         {
             zip = new ZipFile( jarFile );
         }
-        catch( Exception e )
+        catch( IOException e )
         {
-            throw new IOException( "Error loading zip file" );
+            throw new IOException( "Error loading zip file", e );
         }
 
         // Ensure the root entry exists.
@@ -212,7 +212,7 @@ public class JarMount implements IMount
                     }
                 }
             }
-            catch( Exception e )
+            catch( IOException e )
             {
                 // Treat errors as non-existence of file
             }

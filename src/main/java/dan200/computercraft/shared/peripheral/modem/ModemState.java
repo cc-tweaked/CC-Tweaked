@@ -22,7 +22,7 @@ public class ModemState
 
     public ModemState()
     {
-        this.onChanged = null;
+        onChanged = null;
     }
 
     public ModemState( Runnable onChanged )

@@ -137,33 +137,26 @@ public class TurtleMoveCommand implements ITurtleCommand
         return TurtleCommandResult.success();
     }
 
-    private TurtleCommandResult canEnter( TurtlePlayer turtlePlayer, World world, BlockPos position )
+    private static TurtleCommandResult canEnter( TurtlePlayer turtlePlayer, World world, BlockPos position )
     {
         if( world.isOutsideBuildHeight( position ) )
         {
             return TurtleCommandResult.failure( position.getY() < 0 ? "Too low to move" : "Too high to move" );
         }
-        else if( !world.isValid( position ) )
+        if( !world.isValid( position ) ) return TurtleCommandResult.failure( "Cannot leave the world" );
+
+        // Check spawn protection
+        if( ComputerCraft.turtlesObeyBlockProtection && !TurtlePermissions.isBlockEnterable( world, position, turtlePlayer ) )
         {
-            return TurtleCommandResult.failure( "Cannot leave the world" );
+            return TurtleCommandResult.failure( "Cannot enter protected area" );
         }
 
-        if( ComputerCraft.turtlesObeyBlockProtection )
-        {
-            // Check spawn protection
-            if( !TurtlePermissions.isBlockEnterable( world, position, turtlePlayer ) )
-            {
-                return TurtleCommandResult.failure( "Cannot enter protected area" );
-            }
-        }
-        if( !world.isBlockLoaded( position ) )
-        {
-            return TurtleCommandResult.failure( "Cannot leave loaded world" );
-        }
+        if( !world.isBlockLoaded( position ) ) return TurtleCommandResult.failure( "Cannot leave loaded world" );
         if( !world.getWorldBorder().contains( position ) )
         {
             return TurtleCommandResult.failure( "Cannot pass the world border" );
         }
+
         return TurtleCommandResult.success();
     }
 }

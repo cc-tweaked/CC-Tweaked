@@ -28,7 +28,7 @@ public class ClientTableFormatter implements TableFormatter
 
     private static Int2IntOpenHashMap lastHeights = new Int2IntOpenHashMap();
 
-    private FontRenderer renderer()
+    private static FontRenderer renderer()
     {
         return Minecraft.getMinecraft().fontRenderer;
     }

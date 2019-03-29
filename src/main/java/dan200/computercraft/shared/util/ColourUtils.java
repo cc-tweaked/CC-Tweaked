@@ -25,11 +25,13 @@ public final class ColourUtils
 
     private static int[] ids;
 
+    private ColourUtils() {}
+
     public static int getStackColour( ItemStack stack )
     {
         if( ids == null )
         {
-            int ids[] = ColourUtils.ids = new int[DYES.length];
+            int[] ids = ColourUtils.ids = new int[DYES.length];
             for( int i = 0; i < DYES.length; i++ )
             {
                 ids[i] = OreDictionary.getOreID( DYES[i] );

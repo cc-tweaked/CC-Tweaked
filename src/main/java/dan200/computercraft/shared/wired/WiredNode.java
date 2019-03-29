@@ -6,7 +6,6 @@
 
 package dan200.computercraft.shared.wired;
 
-import com.google.common.base.Preconditions;
 import dan200.computercraft.api.network.IPacketReceiver;
 import dan200.computercraft.api.network.Packet;
 import dan200.computercraft.api.network.wired.IWiredElement;
@@ -16,10 +15,7 @@ import dan200.computercraft.api.network.wired.IWiredSender;
 import dan200.computercraft.api.peripheral.IPeripheral;
 
 import javax.annotation.Nonnull;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.locks.Lock;
 
 public final class WiredNode implements IWiredNode
@@ -35,7 +31,7 @@ public final class WiredNode implements IWiredNode
     public WiredNode( IWiredElement element )
     {
         this.element = element;
-        this.network = new WiredNetwork( this );
+        network = new WiredNetwork( this );
     }
 
     @Override
@@ -84,7 +80,7 @@ public final class WiredNode implements IWiredNode
     @Override
     public void transmitSameDimension( @Nonnull Packet packet, double range )
     {
-        Preconditions.checkNotNull( packet, "packet cannot be null" );
+        Objects.requireNonNull( packet, "packet cannot be null" );
         if( !(packet.getSender() instanceof IWiredSender) || ((IWiredSender) packet.getSender()).getNode() != this )
         {
             throw new IllegalArgumentException( "Sender is not in the network" );
@@ -93,7 +89,7 @@ public final class WiredNode implements IWiredNode
         acquireReadLock();
         try
         {
-            network.transmitPacket( this, packet, range, false );
+            WiredNetwork.transmitPacket( this, packet, range, false );
         }
         finally
         {
@@ -104,7 +100,7 @@ public final class WiredNode implements IWiredNode
     @Override
     public void transmitInterdimensional( @Nonnull Packet packet )
     {
-        Preconditions.checkNotNull( packet, "packet cannot be null" );
+        Objects.requireNonNull( packet, "packet cannot be null" );
         if( !(packet.getSender() instanceof IWiredSender) || ((IWiredSender) packet.getSender()).getNode() != this )
         {
             throw new IllegalArgumentException( "Sender is not in the network" );
@@ -113,7 +109,7 @@ public final class WiredNode implements IWiredNode
         acquireReadLock();
         try
         {
-            network.transmitPacket( this, packet, 0, true );
+            WiredNetwork.transmitPacket( this, packet, 0, true );
         }
         finally
         {

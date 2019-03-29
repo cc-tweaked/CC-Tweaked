@@ -60,18 +60,15 @@ public class DiskDrivePeripheral implements IPeripheral
     {
         switch( method )
         {
-            case 0:
-                // isDiskPresent
+            case 0: // isDiskPresent
                 return new Object[] { !m_diskDrive.getDiskStack().isEmpty() };
-            case 1:
+            case 1: // getDiskLabel
             {
-                // getDiskLabel
                 IMedia media = m_diskDrive.getDiskMedia();
                 return media == null ? null : new Object[] { media.getLabel( m_diskDrive.getDiskStack() ) };
             }
-            case 2:
+            case 2: // setDiskLabel
             {
-                // setDiskLabel
                 String label = optString( arguments, 0, null );
 
                 IMedia media = m_diskDrive.getDiskMedia();
@@ -83,14 +80,10 @@ public class DiskDrivePeripheral implements IPeripheral
                 m_diskDrive.setDiskStack( disk );
                 return null;
             }
-            case 3:
-                // hasData
+            case 3: // hasData
                 return new Object[] { m_diskDrive.getDiskMountPath( computer ) != null };
-            case 4:
-            {
-                // getMountPath
+            case 4: // getMountPath
                 return new Object[] { m_diskDrive.getDiskMountPath( computer ) };
-            }
             case 5:
             {
                 // hasAudio
@@ -103,21 +96,17 @@ public class DiskDrivePeripheral implements IPeripheral
                 IMedia media = m_diskDrive.getDiskMedia();
                 return new Object[] { media != null ? media.getAudioTitle( m_diskDrive.getDiskStack() ) : false };
             }
-            case 7:
-                // playAudio
+            case 7: // playAudio
                 m_diskDrive.playDiskAudio();
                 return null;
-            case 8:
-                // stopAudio
+            case 8: // stopAudio
                 m_diskDrive.stopDiskAudio();
                 return null;
-            case 9:
-                // eject
+            case 9: // eject
                 m_diskDrive.ejectDisk();
                 return null;
-            case 10:
+            case 10: // getDiskID
             {
-                // getDiskID
                 ItemStack disk = m_diskDrive.getDiskStack();
                 Item item = disk.getItem();
                 return item instanceof ItemDiskLegacy ? new Object[] { ((ItemDiskLegacy) item).getDiskID( disk ) } : null;
@@ -143,8 +132,7 @@ public class DiskDrivePeripheral implements IPeripheral
     public boolean equals( IPeripheral other )
     {
         if( this == other ) return true;
-        if( !(other instanceof DiskDrivePeripheral) ) return false;
-        return ((DiskDrivePeripheral) other).m_diskDrive == this.m_diskDrive;
+        return other instanceof DiskDrivePeripheral && ((DiskDrivePeripheral) other).m_diskDrive == m_diskDrive;
     }
 
     @Nonnull

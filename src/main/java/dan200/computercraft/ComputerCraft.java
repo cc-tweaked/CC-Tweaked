@@ -157,7 +157,7 @@ public class ComputerCraft
     public static final int terminalHeight_pocketComputer = 20;
 
     // Blocks and Items
-    public static class Blocks
+    public static final class Blocks
     {
         public static BlockComputer computer;
         public static BlockCommandComputer commandComputer;
@@ -172,7 +172,7 @@ public class ComputerCraft
         public static BlockWiredModemFull wiredModemFull;
     }
 
-    public static class Items
+    public static final class Items
     {
         public static ItemComputer computer;
         public static ItemCommandComputer commandComputer;
@@ -195,7 +195,7 @@ public class ComputerCraft
         public static ItemBlock wiredModemFull;
     }
 
-    public static class TurtleUpgrades
+    public static final class TurtleUpgrades
     {
         public static TurtleModem wirelessModem;
         public static TurtleModem advancedModem;
@@ -209,7 +209,7 @@ public class ComputerCraft
         public static TurtleHoe diamondHoe;
     }
 
-    public static class PocketUpgrades
+    public static final class PocketUpgrades
     {
         public static PocketModem wirelessModem;
         public static PocketModem advancedModem;
@@ -220,7 +220,7 @@ public class ComputerCraft
     }
 
     @Deprecated
-    public static class Upgrades
+    public static final class Upgrades
     {
         public static TurtleModem advancedModem;
     }
@@ -239,7 +239,7 @@ public class ComputerCraft
     public static List<IPeripheralProvider> peripheralProviders = new ArrayList<>();
 
     // Implementation
-    @Mod.Instance( value = ComputerCraft.MOD_ID )
+    @Mod.Instance( ComputerCraft.MOD_ID )
     public static ComputerCraft instance;
 
     @SidedProxy(
@@ -556,7 +556,7 @@ public class ComputerCraft
     private static File getContainingJar( Class<?> modClass )
     {
         String path = modClass.getProtectionDomain().getCodeSource().getLocation().getPath();
-        int bangIndex = path.indexOf( "!" );
+        int bangIndex = path.indexOf( '!' );
         if( bangIndex >= 0 )
         {
             path = path.substring( 0, bangIndex );
@@ -587,7 +587,7 @@ public class ComputerCraft
     private static File getDebugCodeDir( Class<?> modClass )
     {
         String path = modClass.getProtectionDomain().getCodeSource().getLocation().getPath();
-        int bangIndex = path.indexOf( "!" );
+        int bangIndex = path.indexOf( '!' );
         return bangIndex >= 0 ? null : new File( new File( path ).getParentFile(), "../.." );
     }
 

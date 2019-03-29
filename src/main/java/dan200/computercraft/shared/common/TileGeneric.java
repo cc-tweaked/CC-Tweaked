@@ -30,7 +30,7 @@ public abstract class TileGeneric extends TileEntity
     @Nullable
     public BlockGeneric getBlock()
     {
-        Block block = getWorld().getBlockState( getPos() ).getBlock();
+        Block block = getBlockType();
         return block instanceof BlockGeneric ? (BlockGeneric) block : null;
     }
 
@@ -110,7 +110,7 @@ public abstract class TileGeneric extends TileEntity
         double range = getInteractRange( player );
         BlockPos pos = getPos();
         return player.getEntityWorld() == getWorld() &&
-            player.getDistanceSq( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5 ) <= (range * range);
+            player.getDistanceSq( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5 ) <= range * range;
     }
 
     protected void writeDescription( @Nonnull NBTTagCompound nbt )

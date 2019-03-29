@@ -6,7 +6,6 @@
 
 package dan200.computercraft.shared.peripheral.modem.wireless;
 
-import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.common.IDirectionalTile;
 import dan200.computercraft.shared.peripheral.PeripheralType;
 import dan200.computercraft.shared.peripheral.common.BlockPeripheral;
@@ -74,7 +73,7 @@ public class TileWirelessModem extends TileWirelessModemBase implements IDirecti
     @Override
     public boolean shouldRefresh( World world, BlockPos pos, @Nonnull IBlockState oldState, @Nonnull IBlockState newState )
     {
-        return super.shouldRefresh( world, pos, oldState, newState ) || ComputerCraft.Blocks.peripheral.getPeripheralType( newState ) != PeripheralType.WirelessModem;
+        return super.shouldRefresh( world, pos, oldState, newState ) || BlockPeripheral.getPeripheralType( newState ) != PeripheralType.WirelessModem;
     }
 
     @Override

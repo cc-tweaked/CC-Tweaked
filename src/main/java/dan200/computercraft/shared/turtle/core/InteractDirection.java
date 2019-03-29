@@ -21,17 +21,11 @@ public enum InteractDirection
         {
             case Forward:
             default:
-            {
                 return turtle.getDirection();
-            }
             case Up:
-            {
                 return EnumFacing.UP;
-            }
             case Down:
-            {
                 return EnumFacing.DOWN;
-            }
         }
     }
 }

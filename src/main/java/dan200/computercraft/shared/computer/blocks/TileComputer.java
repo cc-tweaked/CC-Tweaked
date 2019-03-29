@@ -113,7 +113,7 @@ public class TileComputer extends TileComputerBase
     }
 
     // For legacy reasons, computers invert the meaning of "left" and "right"
-    private static final int[] s_remapSide = { 0, 1, 2, 3, 5, 4 };
+    private static final int[] s_remapSide = new int[] { 0, 1, 2, 3, 5, 4 };
 
     @Override
     protected int remapLocalSide( int localSide )

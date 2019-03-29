@@ -29,7 +29,7 @@ import java.util.regex.Pattern;
 
 public class FileSystem
 {
-    private class MountWrapper
+    private static class MountWrapper
     {
         private String m_label;
         private String m_location;
@@ -37,7 +37,7 @@ public class FileSystem
         private IMount m_mount;
         private IWritableMount m_writableMount;
 
-        public MountWrapper( String label, String location, IMount mount )
+        MountWrapper( String label, String location, IMount mount )
         {
             m_label = label;
             m_location = location;
@@ -80,7 +80,7 @@ public class FileSystem
 
         public boolean isReadOnly( String path )
         {
-            return (m_writableMount == null);
+            return m_writableMount == null;
         }
 
         // IMount forwarders:
@@ -474,7 +474,7 @@ public class FileSystem
         String[] list = list( dir );
         for( String entry : list )
         {
-            String entryPath = dir.isEmpty() ? entry : (dir + "/" + entry);
+            String entryPath = dir.isEmpty() ? entry : dir + "/" + entry;
             if( wildPattern.matcher( entryPath ).matches() )
             {
                 matches.add( entryPath );
@@ -674,7 +674,7 @@ public class FileSystem
                 throw new FileSystemException( "Too many files already open" );
             }
 
-            ChannelWrapper<T> channelWrapper = new ChannelWrapper<T>( file, channel );
+            ChannelWrapper<T> channelWrapper = new ChannelWrapper<>( file, channel );
             FileSystemWrapper<T> fsWrapper = new FileSystemWrapper<>( this, channelWrapper, m_openFileQueue );
             m_openFiles.put( fsWrapper.self, channelWrapper );
             return fsWrapper;
@@ -768,7 +768,7 @@ public class FileSystem
         path = path.replace( '\\', '/' );
 
         // Clean the path or illegal characters.
-        final char[] specialChars = {
+        final char[] specialChars = new char[] {
             '"', ':', '<', '>', '?', '|' // Sorted by ascii value (important)
         };
 
@@ -788,13 +788,14 @@ public class FileSystem
         Stack<String> outputParts = new Stack<>();
         for( String part : parts )
         {
-            if( part.length() == 0 || part.equals( "." ) || threeDotsPattern.matcher( part ).matches() )
+            if( part.isEmpty() || part.equals( "." ) || threeDotsPattern.matcher( part ).matches() )
             {
                 // . is redundant
                 // ... and more are treated as .
                 continue;
             }
-            else if( part.equals( ".." ) )
+
+            if( part.equals( ".." ) )
             {
                 // .. can cancel out the last folder entered
                 if( !outputParts.empty() )
@@ -827,7 +828,7 @@ public class FileSystem
         }
 
         // Recombine the output parts into a new string
-        StringBuilder result = new StringBuilder( "" );
+        StringBuilder result = new StringBuilder();
         Iterator<String> it = outputParts.iterator();
         while( it.hasNext() )
         {
@@ -874,7 +875,7 @@ public class FileSystem
         path = sanitizePath( path );
         location = sanitizePath( location );
 
-        assert (contains( location, path ));
+        assert contains( location, path );
         String local = path.substring( location.length() );
         if( local.startsWith( "/" ) )
         {

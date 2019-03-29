@@ -50,13 +50,10 @@ public class CommandBlockPeripheral implements IPeripheral
     {
         switch( method )
         {
-            case 0:
-            {
-                // getCommand
+            case 0: // getCommand
                 return context.executeMainThreadTask( () -> new Object[] {
                     m_commandBlock.getCommandBlockLogic().getCommand()
                 } );
-            }
             case 1:
             {
                 // setCommand
@@ -69,9 +66,7 @@ public class CommandBlockPeripheral implements IPeripheral
                 } );
                 return null;
             }
-            case 2:
-            {
-                // runCommand
+            case 2: // runCommand
                 return context.executeMainThreadTask( () ->
                 {
                     m_commandBlock.getCommandBlockLogic().trigger( m_commandBlock.getWorld() );
@@ -85,7 +80,6 @@ public class CommandBlockPeripheral implements IPeripheral
                         return new Object[] { false, "Command failed" };
                     }
                 } );
-            }
         }
         return null;
     }
@@ -93,6 +87,6 @@ public class CommandBlockPeripheral implements IPeripheral
     @Override
     public boolean equals( IPeripheral other )
     {
-        return (other != null && other.getClass() == this.getClass());
+        return other != null && other.getClass() == getClass();
     }
 }

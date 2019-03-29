@@ -6,7 +6,6 @@
 
 package dan200.computercraft.shared;
 
-import com.google.common.base.Preconditions;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.peripheral.IPeripheralProvider;
@@ -16,14 +15,17 @@ import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
 import java.util.Collection;
+import java.util.Objects;
 
 public final class Peripherals
 {
     private static final Collection<IPeripheralProvider> providers = ComputerCraft.peripheralProviders;
 
+    private Peripherals() {}
+
     public static void register( @Nonnull IPeripheralProvider provider )
     {
-        Preconditions.checkNotNull( provider, "provider cannot be null" );
+        Objects.requireNonNull( provider, "provider cannot be null" );
         if( !providers.contains( provider ) ) providers.add( provider );
     }
 

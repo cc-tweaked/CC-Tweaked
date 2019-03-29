@@ -45,7 +45,7 @@ public class BlockCable extends BlockGeneric
 {
     // Statics
 
-    public static class Properties
+    public static final class Properties
     {
         public static final PropertyEnum<BlockCableModemVariant> MODEM = PropertyEnum.create( "modem", BlockCableModemVariant.class );
         public static final PropertyBool CABLE = PropertyBool.create( "cable" );
@@ -72,7 +72,7 @@ public class BlockCable extends BlockGeneric
         setHardness( 1.5f );
         setTranslationKey( "computercraft:cable" );
         setCreativeTab( ComputerCraft.mainCreativeTab );
-        setDefaultState( this.blockState.getBaseState()
+        setDefaultState( blockState.getBaseState()
             .withProperty( Properties.MODEM, BlockCableModemVariant.None )
             .withProperty( Properties.CABLE, false )
             .withProperty( Properties.NORTH, false )
@@ -214,7 +214,7 @@ public class BlockCable extends BlockGeneric
         return true;
     }
 
-    public PeripheralType getPeripheralType( IBlockState state )
+    public static PeripheralType getPeripheralType( IBlockState state )
     {
         boolean cable = state.getValue( Properties.CABLE );
         BlockCableModemVariant modem = state.getValue( Properties.MODEM );
@@ -244,6 +244,7 @@ public class BlockCable extends BlockGeneric
         return new TileCable();
     }
 
+    @Nonnull
     @Override
     @Deprecated
     public AxisAlignedBB getBoundingBox( IBlockState state, IBlockAccess source, BlockPos pos )
@@ -271,7 +272,7 @@ public class BlockCable extends BlockGeneric
         double distance = Double.POSITIVE_INFINITY;
         RayTraceResult result = null;
 
-        List<AxisAlignedBB> bounds = new ArrayList<AxisAlignedBB>( 7 );
+        List<AxisAlignedBB> bounds = new ArrayList<>( 7 );
         CableBounds.getBounds( state.getActualState( world, pos ), bounds );
 
         Vec3d startOff = start.subtract( pos.getX(), pos.getY(), pos.getZ() );

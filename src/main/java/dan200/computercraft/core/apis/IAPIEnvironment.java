@@ -24,6 +24,7 @@ public interface IAPIEnvironment
 
     int SIDE_COUNT = 6;
 
+    @FunctionalInterface
     interface IPeripheralChangeListener
     {
         void onPeripheralChanged( int side, @Nullable IPeripheral newPeripheral );

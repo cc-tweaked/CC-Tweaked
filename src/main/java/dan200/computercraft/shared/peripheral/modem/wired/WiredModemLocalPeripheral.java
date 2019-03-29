@@ -45,7 +45,7 @@ public final class WiredModemLocalPeripheral
      */
     public boolean attach( @Nonnull World world, @Nonnull BlockPos origin, @Nonnull EnumFacing direction )
     {
-        IPeripheral oldPeripheral = this.peripheral;
+        IPeripheral oldPeripheral = peripheral;
         IPeripheral peripheral = this.peripheral = getPeripheralFrom( world, origin, direction );
 
         if( peripheral == null )

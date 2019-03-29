@@ -11,9 +11,11 @@ import net.minecraft.util.datafix.FixTypes;
 import net.minecraftforge.common.util.CompoundDataFixer;
 import net.minecraftforge.common.util.ModFixs;
 
-public class Fixes
+public final class Fixes
 {
     public static final int VERSION = 1;
+
+    private Fixes() {}
 
     public static void register( CompoundDataFixer fixer )
     {

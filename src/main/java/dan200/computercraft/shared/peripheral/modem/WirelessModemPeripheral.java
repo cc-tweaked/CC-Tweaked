@@ -7,7 +7,7 @@
 package dan200.computercraft.shared.peripheral.modem;
 
 /**
- * This only exists for backwards compatiblity
+ * This only exists for backwards compatibility
  */
 public abstract class WirelessModemPeripheral extends dan200.computercraft.shared.peripheral.modem.wireless.WirelessModemPeripheral
 {

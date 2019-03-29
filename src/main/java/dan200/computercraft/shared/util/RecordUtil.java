@@ -19,8 +19,10 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 
 import javax.annotation.Nonnull;
 
-public class RecordUtil
+public final class RecordUtil
 {
+    private RecordUtil() {}
+
     public static void playRecord( SoundEvent record, String recordInfo, World world, BlockPos pos )
     {
         IMessage packet = record != null ? new PlayRecordClientMessage( pos, record, recordInfo ) : new PlayRecordClientMessage( pos );

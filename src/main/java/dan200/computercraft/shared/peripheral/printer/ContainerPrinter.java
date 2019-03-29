@@ -98,7 +98,7 @@ public class ContainerPrinter extends Container
     {
         if( m_printer.getWorld().isRemote )
         {
-            m_lastPrinting = (j > 0);
+            m_lastPrinting = j > 0;
         }
     }
 
@@ -110,59 +110,42 @@ public class ContainerPrinter extends Container
 
     @Nonnull
     @Override
-    public ItemStack transferStackInSlot( EntityPlayer par1EntityPlayer, int i )
+    public ItemStack transferStackInSlot( EntityPlayer player, int index )
     {
-        ItemStack itemstack = ItemStack.EMPTY;
-        Slot slot = inventorySlots.get( i );
-        if( slot != null && slot.getHasStack() )
+        Slot slot = inventorySlots.get( index );
+        if( slot == null || !slot.getHasStack() ) return ItemStack.EMPTY;
+        ItemStack stack = slot.getStack();
+        ItemStack result = stack.copy();
+        if( index < 13 )
         {
-            ItemStack itemstack1 = slot.getStack();
-            itemstack = itemstack1.copy();
-            if( i < 13 )
+            // Transfer from printer to inventory
+            if( !mergeItemStack( stack, 13, 49, true ) ) return ItemStack.EMPTY;
+        }
+        else
+        {
+            // Transfer from inventory to printer
+            if( stack.getItem() == Items.DYE )
             {
-                // Transfer from printer to inventory
-                if( !mergeItemStack( itemstack1, 13, 49, true ) )
-                {
-                    return ItemStack.EMPTY;
-                }
+                if( !mergeItemStack( stack, 0, 1, false ) ) return ItemStack.EMPTY;
             }
-            else
+            else //if is paper
             {
-                // Transfer from inventory to printer
-                if( itemstack1.getItem() == Items.DYE )
-                {
-                    if( !mergeItemStack( itemstack1, 0, 1, false ) )
-                    {
-                        return ItemStack.EMPTY;
-                    }
-                }
-                else //if is paper
-                {
-                    if( !mergeItemStack( itemstack1, 1, 13, false ) )
-                    {
-                        return ItemStack.EMPTY;
-                    }
-                }
-            }
-
-            if( itemstack1.isEmpty() )
-            {
-                slot.putStack( ItemStack.EMPTY );
-            }
-            else
-            {
-                slot.onSlotChanged();
-            }
-
-            if( itemstack1.getCount() != itemstack.getCount() )
-            {
-                slot.onTake( par1EntityPlayer, itemstack1 );
-            }
-            else
-            {
-                return ItemStack.EMPTY;
+                if( !mergeItemStack( stack, 1, 13, false ) ) return ItemStack.EMPTY;
             }
         }
-        return itemstack;
+
+        if( stack.isEmpty() )
+        {
+            slot.putStack( ItemStack.EMPTY );
+        }
+        else
+        {
+            slot.onSlotChanged();
+        }
+
+        if( stack.getCount() == result.getCount() ) return ItemStack.EMPTY;
+
+        slot.onTake( player, stack );
+        return result;
     }
 }

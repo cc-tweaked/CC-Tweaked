@@ -103,7 +103,7 @@ public class ItemComputer extends ItemComputerBase
         else
         {
             int damage = stack.getItemDamage() & 0x3fff;
-            return (damage - 1);
+            return damage - 1;
         }
     }
 

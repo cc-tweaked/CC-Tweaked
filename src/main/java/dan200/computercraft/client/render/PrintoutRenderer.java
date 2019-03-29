@@ -22,7 +22,7 @@ import org.lwjgl.opengl.GL11;
 import static dan200.computercraft.client.gui.FixedWidthFontRenderer.FONT_HEIGHT;
 import static dan200.computercraft.shared.media.items.ItemPrintout.LINES_PER_PAGE;
 
-public class PrintoutRenderer
+public final class PrintoutRenderer
 {
     private static final ResourceLocation BG = new ResourceLocation( "computercraft", "textures/gui/printout.png" );
     private static final double BG_SIZE = 256.0;
@@ -59,6 +59,8 @@ public class PrintoutRenderer
 
     private static final int COVER_Y = Y_SIZE;
     private static final int COVER_X = X_SIZE + 4 * X_FOLD_SIZE;
+
+    private PrintoutRenderer() {}
 
     public static void drawText( int x, int y, int start, TextBuffer[] text, TextBuffer[] colours )
     {

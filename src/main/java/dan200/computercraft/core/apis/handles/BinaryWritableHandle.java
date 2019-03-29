@@ -32,8 +32,8 @@ public class BinaryWritableHandle extends HandleGeneric
     public BinaryWritableHandle( WritableByteChannel channel, Closeable closeable )
     {
         super( closeable );
-        this.m_writer = channel;
-        this.m_seekable = asSeekable( channel );
+        m_writer = channel;
+        m_seekable = asSeekable( channel );
     }
 
     public BinaryWritableHandle( WritableByteChannel channel )

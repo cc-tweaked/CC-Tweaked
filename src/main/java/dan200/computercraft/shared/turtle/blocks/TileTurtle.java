@@ -35,9 +35,6 @@ import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextComponentString;
-import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.items.IItemHandlerModifiable;
@@ -168,7 +165,7 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
                 // Dye to change turtle colour
                 if( !getWorld().isRemote )
                 {
-                    int dye = (currentItem.getItemDamage() & 0xf);
+                    int dye = currentItem.getItemDamage() & 0xf;
                     if( m_brain.getDyeColour() != dye )
                     {
                         m_brain.setDyeColour( dye );
@@ -276,11 +273,11 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
         m_previousInventory = NonNullList.withSize( INVENTORY_SIZE, ItemStack.EMPTY );
         for( int i = 0; i < nbttaglist.tagCount(); i++ )
         {
-            NBTTagCompound itemtag = nbttaglist.getCompoundTagAt( i );
-            int slot = itemtag.getByte( "Slot" ) & 0xff;
-            if( slot >= 0 && slot < getSizeInventory() )
+            NBTTagCompound tag = nbttaglist.getCompoundTagAt( i );
+            int slot = tag.getByte( "Slot" ) & 0xff;
+            if( slot < getSizeInventory() )
             {
-                m_inventory.set( slot, new ItemStack( itemtag ) );
+                m_inventory.set( slot, new ItemStack( tag ) );
                 m_previousInventory.set( slot, InventoryUtil.copyItem( m_inventory.get( slot ) ) );
             }
         }
@@ -301,10 +298,10 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
         {
             if( !m_inventory.get( i ).isEmpty() )
             {
-                NBTTagCompound itemtag = new NBTTagCompound();
-                itemtag.setByte( "Slot", (byte) i );
-                m_inventory.get( i ).writeToNBT( itemtag );
-                nbttaglist.appendTag( itemtag );
+                NBTTagCompound tag = new NBTTagCompound();
+                tag.setByte( "Slot", (byte) i );
+                m_inventory.get( i ).writeToNBT( tag );
+                nbttaglist.appendTag( tag );
             }
         }
         nbt.setTag( "Items", nbttaglist );
@@ -505,35 +502,6 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
             {
                 onInventoryDefinitelyChanged();
             }
-        }
-    }
-
-    @Nonnull
-    @Override
-    public String getName()
-    {
-        String label = getLabel();
-        return label == null || label.isEmpty() ? "tile.computercraft:turtle.name" : label;
-    }
-
-    @Override
-    public boolean hasCustomName()
-    {
-        String label = getLabel();
-        return label != null && !label.isEmpty();
-    }
-
-    @Nonnull
-    @Override
-    public ITextComponent getDisplayName()
-    {
-        if( hasCustomName() )
-        {
-            return new TextComponentString( getName() );
-        }
-        else
-        {
-            return new TextComponentTranslation( getName() );
         }
     }
 

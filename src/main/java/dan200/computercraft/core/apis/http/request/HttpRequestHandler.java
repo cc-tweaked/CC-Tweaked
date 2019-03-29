@@ -37,7 +37,7 @@ public final class HttpRequestHandler extends SimpleChannelInboundHandler<HttpOb
     /**
      * Same as {@link io.netty.handler.codec.MessageAggregator}.
      */
-    private static final int DEFAULT_MAX_COMPOSITEBUFFER_COMPONENTS = 1024;
+    private static final int DEFAULT_MAX_COMPOSITE_BUFFER_COMPONENTS = 1024;
 
     private static final byte[] EMPTY_BYTES = new byte[0];
 
@@ -147,7 +147,7 @@ public final class HttpRequestHandler extends SimpleChannelInboundHandler<HttpOb
 
             if( responseBody == null )
             {
-                responseBody = ctx.alloc().compositeBuffer( DEFAULT_MAX_COMPOSITEBUFFER_COMPONENTS );
+                responseBody = ctx.alloc().compositeBuffer( DEFAULT_MAX_COMPOSITE_BUFFER_COMPONENTS );
             }
 
             ByteBuf partial = content.content();

@@ -22,21 +22,13 @@ public enum MoveDirection
         {
             case Forward:
             default:
-            {
                 return turtle.getDirection();
-            }
             case Back:
-            {
                 return turtle.getDirection().getOpposite();
-            }
             case Up:
-            {
                 return EnumFacing.UP;
-            }
             case Down:
-            {
                 return EnumFacing.DOWN;
-            }
         }
     }
 }

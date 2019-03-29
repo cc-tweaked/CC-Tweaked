@@ -6,7 +6,6 @@
 
 package dan200.computercraft.shared;
 
-import com.google.common.base.Preconditions;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
@@ -27,9 +26,11 @@ public final class TurtleUpgrades
     private static final Int2ObjectMap<ITurtleUpgrade> legacyUpgrades = new Int2ObjectOpenHashMap<>();
     private static final IdentityHashMap<ITurtleUpgrade, String> upgradeOwners = new IdentityHashMap<>();
 
+    private TurtleUpgrades() {}
+
     public static void register( @Nonnull ITurtleUpgrade upgrade )
     {
-        Preconditions.checkNotNull( upgrade, "upgrade cannot be null" );
+        Objects.requireNonNull( upgrade, "upgrade cannot be null" );
 
         int id = upgrade.getLegacyUpgradeID();
         if( id >= 0 && id < 64 )
@@ -44,7 +45,7 @@ public final class TurtleUpgrades
 
     static void registerInternal( ITurtleUpgrade upgrade )
     {
-        Preconditions.checkNotNull( upgrade, "upgrade cannot be null" );
+        Objects.requireNonNull( upgrade, "upgrade cannot be null" );
 
         // Check conditions
         int legacyId = upgrade.getLegacyUpgradeID();

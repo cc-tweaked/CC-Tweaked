@@ -17,7 +17,7 @@ import net.minecraft.util.EnumFacing;
 import javax.annotation.Nonnull;
 import javax.vecmath.Matrix4f;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
@@ -30,8 +30,8 @@ public class TurtleMultiModel implements IBakedModel
     private final Matrix4f m_leftUpgradeTransform;
     private final IBakedModel m_rightUpgradeModel;
     private final Matrix4f m_rightUpgradeTransform;
-    private List<BakedQuad> m_generalQuads;
-    private Map<EnumFacing, List<BakedQuad>> m_faceQuads;
+    private List<BakedQuad> m_generalQuads = null;
+    private Map<EnumFacing, List<BakedQuad>> m_faceQuads = new EnumMap<>( EnumFacing.class );
 
     public TurtleMultiModel( IBakedModel baseModel, IBakedModel overlayModel, Matrix4f generalTransform, IBakedModel leftUpgradeModel, Matrix4f leftUpgradeTransform, IBakedModel rightUpgradeModel, Matrix4f rightUpgradeTransform )
     {
@@ -43,8 +43,6 @@ public class TurtleMultiModel implements IBakedModel
         m_rightUpgradeModel = rightUpgradeModel;
         m_rightUpgradeTransform = rightUpgradeTransform;
         m_generalTransform = generalTransform;
-        m_generalQuads = null;
-        m_faceQuads = new HashMap<>();
     }
 
     @Nonnull

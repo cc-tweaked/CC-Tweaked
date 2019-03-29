@@ -6,8 +6,10 @@
 
 package dan200.computercraft.shared.util;
 
-public class StringUtil
+public final class StringUtil
 {
+    private StringUtil() {}
+
     public static String normaliseLabel( String label )
     {
         if( label == null ) return null;

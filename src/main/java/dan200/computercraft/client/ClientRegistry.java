@@ -9,6 +9,7 @@ package dan200.computercraft.client;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.client.render.TurtleModelLoader;
 import dan200.computercraft.shared.media.items.ItemDiskLegacy;
+import dan200.computercraft.shared.pocket.items.ItemPocketComputer;
 import dan200.computercraft.shared.turtle.items.ItemTurtleBase;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ItemMeshDefinition;
@@ -37,9 +38,9 @@ import javax.annotation.Nonnull;
  * Registers textures and models for items.
  */
 @Mod.EventBusSubscriber( modid = ComputerCraft.MOD_ID, value = Side.CLIENT )
-public class ClientRegistry
+public final class ClientRegistry
 {
-    private static final String[] EXTRA_MODELS = {
+    private static final String[] EXTRA_MODELS = new String[] {
         "turtle_modem_off_left",
         "turtle_modem_on_left",
         "turtle_modem_off_right",
@@ -56,6 +57,8 @@ public class ClientRegistry
         "turtle_white",
         "turtle_elf_overlay",
     };
+
+    private ClientRegistry() {}
 
     @SubscribeEvent
     public static void registerModels( ModelRegistryEvent event )
@@ -129,7 +132,7 @@ public class ClientRegistry
                 case 1: // Frame colour
                     return ComputerCraft.Items.pocketComputer.getColour( stack );
                 case 2: // Light colour
-                    return ComputerCraft.Items.pocketComputer.getLightState( stack );
+                    return ItemPocketComputer.getLightState( stack );
             }
         }, ComputerCraft.Items.pocketComputer );
 

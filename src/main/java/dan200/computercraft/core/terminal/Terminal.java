@@ -22,9 +22,9 @@ public class Terminal
     private int m_width;
     private int m_height;
 
-    private TextBuffer m_text[];
-    private TextBuffer m_textColour[];
-    private TextBuffer m_backgroundColour[];
+    private TextBuffer[] m_text;
+    private TextBuffer[] m_textColour;
+    private TextBuffer[] m_backgroundColour;
 
     private final Palette m_palette;
 
@@ -40,7 +40,7 @@ public class Terminal
     {
         m_width = width;
         m_height = height;
-        this.onChanged = changedCallback;
+        onChanged = changedCallback;
 
         m_cursorColour = 0;
         m_cursorBackgroundColour = 15;

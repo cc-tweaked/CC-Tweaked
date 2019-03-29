@@ -38,8 +38,8 @@ public class BinaryReadableHandle extends HandleGeneric
     public BinaryReadableHandle( ReadableByteChannel channel, Closeable closeable )
     {
         super( closeable );
-        this.m_reader = channel;
-        this.m_seekable = asSeekable( channel );
+        m_reader = channel;
+        m_seekable = asSeekable( channel );
     }
 
     public BinaryReadableHandle( ReadableByteChannel channel )

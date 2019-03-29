@@ -73,6 +73,7 @@ public class TurtleRefuelEvent extends TurtleActionEvent
     /**
      * Handles refuelling a turtle from a specific item.
      */
+    @FunctionalInterface
     public interface Handler
     {
         /**

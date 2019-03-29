@@ -180,8 +180,8 @@ public class TurtleInventoryCrafting extends InventoryCrafting
 
     private int modifyIndex( int index )
     {
-        int x = m_xStart + (index % getWidth());
-        int y = m_yStart + (index / getHeight());
+        int x = m_xStart + index % getWidth();
+        int y = m_yStart + index / getHeight();
         if( x >= 0 && x < TileTurtle.INVENTORY_WIDTH &&
             y >= 0 && y < TileTurtle.INVENTORY_HEIGHT )
         {

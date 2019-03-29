@@ -148,7 +148,7 @@ public interface IComputerAccess
      *
      *                  You may supply {@code null} to indicate that no arguments are to be supplied.
      * @throws RuntimeException If the peripheral has been detached.
-     * @see dan200.computercraft.api.peripheral.IPeripheral#callMethod
+     * @see IPeripheral#callMethod
      */
     void queueEvent( @Nonnull String event, @Nullable Object[] arguments );
 
@@ -182,7 +182,7 @@ public interface IComputerAccess
 
     /**
      * Get a reachable peripheral with the given attachment name. This is a equivalent to
-     * {@link #getAvailablePeripherals()}{@code .get(name)}, though may be more performant.
+     * {@link #getAvailablePeripherals()}{@code .get(name)}, though may be more efficient.
      *
      * @param name The peripheral's attached name
      * @return The reachable peripheral, or {@code null} if none can be found.

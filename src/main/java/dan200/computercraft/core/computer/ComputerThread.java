@@ -47,7 +47,7 @@ import static dan200.computercraft.core.computer.TimeoutState.TIMEOUT;
  * @see TimeoutState For how hard timeouts are handled.
  * @see ComputerExecutor For how computers actually do execution.
  */
-public class ComputerThread
+public final class ComputerThread
 {
     /**
      * How often the computer thread monitor should run, in milliseconds
@@ -122,6 +122,8 @@ public class ComputerThread
 
     private static final ThreadFactory monitorFactory = ThreadUtils.factory( "Computer-Monitor" );
     private static final ThreadFactory runnerFactory = ThreadUtils.factory( "Computer-Runner" );
+
+    private ComputerThread() {}
 
     /**
      * Start the computer thread
@@ -339,7 +341,7 @@ public class ComputerThread
      */
     static boolean hasPendingWork()
     {
-        return computerQueue.size() > 0;
+        return !computerQueue.isEmpty();
     }
 
     /**

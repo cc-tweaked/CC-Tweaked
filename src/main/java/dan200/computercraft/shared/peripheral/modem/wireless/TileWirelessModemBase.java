@@ -25,7 +25,7 @@ public abstract class TileWirelessModemBase extends TileGeneric implements IPeri
     protected TileWirelessModemBase( boolean advanced )
     {
         this.advanced = advanced;
-        this.modem = new Peripheral( this ); // Needs to be initialised after advanced
+        modem = new Peripheral( this ); // Needs to be initialised after advanced
     }
 
     private static class Peripheral extends WirelessModemPeripheral

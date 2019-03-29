@@ -31,7 +31,7 @@ public abstract class ModemPeripheral implements IPeripheral, IPacketSender, IPa
 
     protected ModemPeripheral( ModemState state )
     {
-        this.m_state = state;
+        m_state = state;
     }
 
     public ModemState getModemState()
@@ -42,14 +42,14 @@ public abstract class ModemPeripheral implements IPeripheral, IPacketSender, IPa
     @Deprecated
     public boolean pollChanged()
     {
-        // Only for backwards compatibiliy
+        // Only for backwards compatibility
         return m_state.pollChanged();
     }
 
     @Deprecated
     public boolean isActive()
     {
-        // Only for backwards compatibiliy
+        // Only for backwards compatibility
         return m_state.isOpen();
     }
 
@@ -169,12 +169,9 @@ public abstract class ModemPeripheral implements IPeripheral, IPacketSender, IPa
                 m_state.close( channel );
                 return null;
             }
-            case 3:
-            {
-                // closeAll
+            case 3: // closeAll
                 m_state.closeAll();
                 return null;
-            }
             case 4:
             {
                 // transmit
@@ -205,9 +202,7 @@ public abstract class ModemPeripheral implements IPeripheral, IPacketSender, IPa
                 return new Object[] { network != null && network.isWireless() };
             }
             default:
-            {
                 return null;
-            }
         }
     }
 

@@ -124,30 +124,30 @@ public enum BlockPeripheralVariant implements IStringSerializable
     AdvancedMonitorDownLU( "advanced_monitor_down_lu", PeripheralType.AdvancedMonitor ),
     Speaker( "speaker", PeripheralType.Speaker );
 
-    private String m_name;
-    private PeripheralType m_peripheralType;
+    private final String name;
+    private final PeripheralType peripheralType;
 
     BlockPeripheralVariant( String name, PeripheralType peripheralType )
     {
-        m_name = name;
-        m_peripheralType = peripheralType;
+        this.name = name;
+        this.peripheralType = peripheralType;
     }
 
     @Nonnull
     @Override
     public String getName()
     {
-        return m_name;
+        return name;
     }
 
     public PeripheralType getPeripheralType()
     {
-        return m_peripheralType;
+        return peripheralType;
     }
 
     @Override
     public String toString()
     {
-        return getName();
+        return name;
     }
 }

@@ -41,7 +41,7 @@ public class BlockTurtle extends BlockComputerBase
 {
     // Statics
 
-    public static class Properties
+    public static final class Properties
     {
         public static final PropertyDirection FACING = PropertyDirection.create( "facing", EnumFacing.Plane.HORIZONTAL );
     }
@@ -54,7 +54,7 @@ public class BlockTurtle extends BlockComputerBase
         setHardness( 2.5f );
         setTranslationKey( "computercraft:turtle" );
         setCreativeTab( ComputerCraft.mainCreativeTab );
-        setDefaultState( this.blockState.getBaseState()
+        setDefaultState( blockState.getBaseState()
             .withProperty( Properties.FACING, EnumFacing.NORTH )
         );
     }
@@ -124,6 +124,7 @@ public class BlockTurtle extends BlockComputerBase
         return getDefaultState();
     }
 
+    @Nonnull
     @Override
     @Deprecated
     public AxisAlignedBB getBoundingBox( IBlockState state, IBlockAccess world, BlockPos pos )

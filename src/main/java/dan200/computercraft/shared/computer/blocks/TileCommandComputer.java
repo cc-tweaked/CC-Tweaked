@@ -78,7 +78,7 @@ public class TileCommandComputer extends TileComputer
         @Override
         public BlockPos getPosition()
         {
-            return TileCommandComputer.this.getPos();
+            return getPos();
         }
 
         @Nonnull
@@ -93,13 +93,13 @@ public class TileCommandComputer extends TileComputer
         @Override
         public World getEntityWorld()
         {
-            return TileCommandComputer.this.getWorld();
+            return getWorld();
         }
 
         @Override
         public MinecraftServer getServer()
         {
-            return TileCommandComputer.this.getWorld().getMinecraftServer();
+            return getWorld().getMinecraftServer();
         }
 
         @Override

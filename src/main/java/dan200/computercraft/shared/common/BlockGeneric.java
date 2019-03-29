@@ -26,7 +26,7 @@ public abstract class BlockGeneric extends Block implements ITileEntityProvider
     protected BlockGeneric( Material material )
     {
         super( material );
-        this.hasTileEntity = true;
+        hasTileEntity = true;
     }
 
     protected abstract TileGeneric createTile( IBlockState state );
@@ -108,11 +108,7 @@ public abstract class BlockGeneric extends Block implements ITileEntityProvider
     public boolean getBundledRedstoneConnectivity( World world, BlockPos pos, EnumFacing side )
     {
         TileEntity tile = world.getTileEntity( pos );
-        if( tile instanceof TileGeneric )
-        {
-            return ((TileGeneric) tile).getBundledRedstoneConnectivity( side );
-        }
-        return false;
+        return tile instanceof TileGeneric && ((TileGeneric) tile).getBundledRedstoneConnectivity( side );
     }
 
     public int getBundledRedstoneOutput( World world, BlockPos pos, EnumFacing side )

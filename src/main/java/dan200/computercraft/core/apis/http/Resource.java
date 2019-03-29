@@ -140,6 +140,6 @@ public abstract class Resource<T extends Resource<T>> implements Closeable
     public static void cleanup()
     {
         Reference<?> reference;
-        while( (reference = QUEUE.poll()) != null ) ((CloseReference) reference).resource.close();
+        while( (reference = QUEUE.poll()) != null ) ((CloseReference<?>) reference).resource.close();
     }
 }

@@ -233,7 +233,7 @@ final class ComputerExecutor
         synchronized( queueLock )
         {
             if( closed ) return;
-            this.closed = close;
+            closed = close;
 
             StateCommand newCommand = reboot ? StateCommand.REBOOT : StateCommand.SHUTDOWN;
 
@@ -425,7 +425,7 @@ final class ComputerExecutor
             }
 
             // Init filesystem
-            if( (this.fileSystem = createFileSystem()) == null )
+            if( (fileSystem = createFileSystem()) == null )
             {
                 shutdown();
                 return;
@@ -435,7 +435,7 @@ final class ComputerExecutor
             for( ILuaAPI api : apis ) api.startup();
 
             // Init lua
-            if( (this.machine = createLuaMachine()) == null )
+            if( (machine = createLuaMachine()) == null )
             {
                 shutdown();
                 return;
@@ -650,7 +650,7 @@ final class ComputerExecutor
         ABORT,
     }
 
-    private static class Event
+    private static final class Event
     {
         final String name;
         final Object[] args;

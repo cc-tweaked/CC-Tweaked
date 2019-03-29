@@ -29,7 +29,7 @@ public class GuiDiskDrive extends GuiContainer
     {
         String title = m_container.getDiskDrive().getDisplayName().getUnformattedText();
         fontRenderer.drawString( title, (xSize - fontRenderer.getStringWidth( title )) / 2, 6, 0x404040 );
-        fontRenderer.drawString( I18n.format( "container.inventory" ), 8, (ySize - 96) + 2, 0x404040 );
+        fontRenderer.drawString( I18n.format( "container.inventory" ), 8, ySize - 96 + 2, 0x404040 );
     }
 
     @Override

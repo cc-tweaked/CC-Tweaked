@@ -53,7 +53,7 @@ public final class RenderOverlayCable
         state = state.getActualState( world, pos );
 
         event.setCanceled( true );
-        PeripheralType type = ComputerCraft.Blocks.cable.getPeripheralType( state );
+        PeripheralType type = BlockCable.getPeripheralType( state );
 
         GlStateManager.enableBlend();
         GlStateManager.tryBlendFuncSeparate( GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0 );

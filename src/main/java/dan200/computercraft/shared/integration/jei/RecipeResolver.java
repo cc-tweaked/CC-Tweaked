@@ -216,7 +216,7 @@ class RecipeResolver implements IRecipeRegistryPlugin
     }
 
     @Nonnull
-    private List<Shaped> findRecipesWithOutput( @Nonnull ItemStack stack )
+    private static List<Shaped> findRecipesWithOutput( @Nonnull ItemStack stack )
     {
         // Find which upgrade this item currently has, an so how we could build it.
         if( stack.getItem() instanceof ITurtleItem )
@@ -259,7 +259,7 @@ class RecipeResolver implements IRecipeRegistryPlugin
         }
     }
 
-    @SuppressWarnings( "unchecked" )
+    @SuppressWarnings( { "unchecked", "rawtypes" } )
     private static <T extends IRecipeWrapper, U extends IRecipeWrapper> List<T> cast( List<U> from )
     {
         return (List) from;
@@ -339,13 +339,13 @@ class RecipeResolver implements IRecipeRegistryPlugin
         {
             this.stack = stack;
             this.turtle = turtle;
-            this.pocket = null;
+            pocket = null;
         }
 
         UpgradeInfo( ItemStack stack, IPocketUpgrade pocket )
         {
             this.stack = stack;
-            this.turtle = null;
+            turtle = null;
             this.pocket = pocket;
         }
 

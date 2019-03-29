@@ -118,7 +118,7 @@ public class TurtleAPI implements ILuaAPI
         return parseSlotNumber( arguments, index );
     }
 
-    private int parseCount( Object[] arguments, int index ) throws LuaException
+    private static int parseCount( Object[] arguments, int index ) throws LuaException
     {
         int count = optInt( arguments, index, 64 );
         if( count < 0 || count > 64 ) throw new LuaException( "Item count " + count + " out of range" );
@@ -126,7 +126,7 @@ public class TurtleAPI implements ILuaAPI
     }
 
     @Nullable
-    private TurtleSide parseSide( Object[] arguments, int index ) throws LuaException
+    private static TurtleSide parseSide( Object[] arguments, int index ) throws LuaException
     {
         String side = optString( arguments, index, null );
         if( side == null )

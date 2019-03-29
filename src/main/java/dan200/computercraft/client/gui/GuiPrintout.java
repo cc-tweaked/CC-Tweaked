@@ -45,12 +45,6 @@ public class GuiPrintout extends GuiContainer
     }
 
     @Override
-    public boolean doesGuiPauseGame()
-    {
-        return false;
-    }
-
-    @Override
     protected void keyTyped( char c, int k ) throws IOException
     {
         super.keyTyped( c, k );
@@ -80,7 +74,7 @@ public class GuiPrintout extends GuiContainer
         }
         else if( mouseWheelChange > 0 )
         {
-            // Scroll down goes to the next page
+            // Scroll down goes to the previous page
             if( m_page > 0 ) m_page--;
         }
     }
@@ -99,9 +93,9 @@ public class GuiPrintout extends GuiContainer
     public void drawScreen( int mouseX, int mouseY, float partialTicks )
     {
         // We must take the background further back in order to not overlap with our printed pages.
-        zLevel = zLevel - 1;
+        zLevel--;
         drawDefaultBackground();
-        zLevel = zLevel + 1;
+        zLevel++;
 
         super.drawScreen( mouseX, mouseY, partialTicks );
         renderHoveredToolTip( mouseX, mouseY );

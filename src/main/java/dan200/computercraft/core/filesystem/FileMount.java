@@ -55,14 +55,8 @@ public class FileMount implements IWritableMount
                 m_ignoredBytesLeft = 0;
 
                 long bytesLeft = m_capacity - m_usedSpace;
-                if( newBytes > bytesLeft )
-                {
-                    throw new IOException( "Out of space" );
-                }
-                else
-                {
-                    m_usedSpace += newBytes;
-                }
+                if( newBytes > bytesLeft ) throw new IOException( "Out of space" );
+                m_usedSpace += newBytes;
             }
         }
 
@@ -86,14 +80,17 @@ public class FileMount implements IWritableMount
         SeekableCountingChannel( SeekableByteChannel inner, long bytesToIgnore )
         {
             super( inner, bytesToIgnore );
-            this.m_inner = inner;
+            m_inner = inner;
         }
 
         @Override
         public SeekableByteChannel position( long newPosition ) throws IOException
         {
             if( !isOpen() ) throw new ClosedChannelException();
-            if( newPosition < 0 ) throw new IllegalArgumentException();
+            if( newPosition < 0 )
+            {
+                throw new IllegalArgumentException( "Cannot seek before the beginning of the stream" );
+            }
 
             long delta = newPosition - m_inner.position();
             if( delta < 0 )
@@ -115,7 +112,7 @@ public class FileMount implements IWritableMount
         }
 
         @Override
-        public int read( ByteBuffer dst ) throws IOException
+        public int read( ByteBuffer dst ) throws ClosedChannelException
         {
             if( !m_inner.isOpen() ) throw new ClosedChannelException();
             throw new NonReadableChannelException();
@@ -150,29 +147,19 @@ public class FileMount implements IWritableMount
     @Override
     public boolean exists( @Nonnull String path )
     {
-        if( !created() )
-        {
-            return path.length() == 0;
-        }
-        else
-        {
-            File file = getRealPath( path );
-            return file.exists();
-        }
+        if( !created() ) return path.isEmpty();
+
+        File file = getRealPath( path );
+        return file.exists();
     }
 
     @Override
     public boolean isDirectory( @Nonnull String path )
     {
-        if( !created() )
-        {
-            return path.length() == 0;
-        }
-        else
-        {
-            File file = getRealPath( path );
-            return file.exists() && file.isDirectory();
-        }
+        if( !created() ) return path.isEmpty();
+
+        File file = getRealPath( path );
+        return file.exists() && file.isDirectory();
     }
 
     @Override
@@ -180,29 +167,17 @@ public class FileMount implements IWritableMount
     {
         if( !created() )
         {
-            if( path.length() != 0 )
-            {
-                throw new IOException( "/" + path + ": Not a directory" );
-            }
+            if( !path.isEmpty() ) throw new IOException( "/" + path + ": Not a directory" );
+            return;
         }
-        else
+
+        File file = getRealPath( path );
+        if( !file.exists() || !file.isDirectory() ) throw new IOException( "/" + path + ": Not a directory" );
+
+        String[] paths = file.list();
+        for( String subPath : paths )
         {
-            File file = getRealPath( path );
-            if( file.exists() && file.isDirectory() )
-            {
-                String[] paths = file.list();
-                for( String subPath : paths )
-                {
-                    if( new File( file, subPath ).exists() )
-                    {
-                        contents.add( subPath );
-                    }
-                }
-            }
-            else
-            {
-                throw new IOException( "/" + path + ": Not a directory" );
-            }
+            if( new File( file, subPath ).exists() ) contents.add( subPath );
         }
     }
 
@@ -211,26 +186,14 @@ public class FileMount implements IWritableMount
     {
         if( !created() )
         {
-            if( path.length() == 0 )
-            {
-                return 0;
-            }
+            if( path.isEmpty() ) return 0;
         }
         else
         {
             File file = getRealPath( path );
-            if( file.exists() )
-            {
-                if( file.isDirectory() )
-                {
-                    return 0;
-                }
-                else
-                {
-                    return file.length();
-                }
-            }
+            if( file.exists() ) return file.isDirectory() ? 0 : file.length();
         }
+
         throw new IOException( "/" + path + ": No such file" );
     }
 
@@ -242,11 +205,9 @@ public class FileMount implements IWritableMount
         if( created() )
         {
             File file = getRealPath( path );
-            if( file.exists() && !file.isDirectory() )
-            {
-                return new FileInputStream( file );
-            }
+            if( file.exists() && !file.isDirectory() ) return new FileInputStream( file );
         }
+
         throw new IOException( "/" + path + ": No such file" );
     }
 
@@ -257,11 +218,9 @@ public class FileMount implements IWritableMount
         if( created() )
         {
             File file = getRealPath( path );
-            if( file.exists() && !file.isDirectory() )
-            {
-                return FileChannel.open( file.toPath(), READ_OPTIONS );
-            }
+            if( file.exists() && !file.isDirectory() ) return FileChannel.open( file.toPath(), READ_OPTIONS );
         }
+
         throw new IOException( "/" + path + ": No such file" );
     }
 
@@ -274,53 +233,42 @@ public class FileMount implements IWritableMount
         File file = getRealPath( path );
         if( file.exists() )
         {
-            if( !file.isDirectory() )
-            {
-                throw new IOException( "/" + path + ": File exists" );
-            }
+            if( !file.isDirectory() ) throw new IOException( "/" + path + ": File exists" );
+            return;
+        }
+
+        int dirsToCreate = 1;
+        File parent = file.getParentFile();
+        while( !parent.exists() )
+        {
+            ++dirsToCreate;
+            parent = parent.getParentFile();
+        }
+
+        if( getRemainingSpace() < dirsToCreate * MINIMUM_FILE_SIZE )
+        {
+            throw new IOException( "/" + path + ": Out of space" );
+        }
+
+        if( file.mkdirs() )
+        {
+            m_usedSpace += dirsToCreate * MINIMUM_FILE_SIZE;
         }
         else
         {
-            int dirsToCreate = 1;
-            File parent = file.getParentFile();
-            while( !parent.exists() )
-            {
-                ++dirsToCreate;
-                parent = parent.getParentFile();
-            }
-
-            if( getRemainingSpace() < dirsToCreate * MINIMUM_FILE_SIZE )
-            {
-                throw new IOException( "/" + path + ": Out of space" );
-            }
-
-            boolean success = file.mkdirs();
-            if( success )
-            {
-                m_usedSpace += dirsToCreate * MINIMUM_FILE_SIZE;
-            }
-            else
-            {
-                throw new IOException( "/" + path + ": Access denied" );
-            }
+            throw new IOException( "/" + path + ": Access denied" );
         }
     }
 
     @Override
     public void delete( @Nonnull String path ) throws IOException
     {
-        if( path.length() == 0 )
-        {
-            throw new IOException( "/" + path + ": Access denied" );
-        }
+        if( path.isEmpty() ) throw new IOException( "/" + path + ": Access denied" );
 
         if( created() )
         {
             File file = getRealPath( path );
-            if( file.exists() )
-            {
-                deleteRecursively( file );
-            }
+            if( file.exists() ) deleteRecursively( file );
         }
     }
 
@@ -371,60 +319,39 @@ public class FileMount implements IWritableMount
     {
         create();
         File file = getRealPath( path );
-        if( file.exists() && file.isDirectory() )
+        if( file.exists() && file.isDirectory() ) throw new IOException( "/" + path + ": Cannot write to directory" );
+
+        if( file.exists() )
         {
-            throw new IOException( "/" + path + ": Cannot write to directory" );
+            m_usedSpace -= Math.max( file.length(), MINIMUM_FILE_SIZE );
         }
-        else
+        else if( getRemainingSpace() < MINIMUM_FILE_SIZE )
         {
-            if( !file.exists() )
-            {
-                if( getRemainingSpace() < MINIMUM_FILE_SIZE )
-                {
-                    throw new IOException( "/" + path + ": Out of space" );
-                }
-                else
-                {
-                    m_usedSpace += MINIMUM_FILE_SIZE;
-                }
-            }
-            else
-            {
-                m_usedSpace -= Math.max( file.length(), MINIMUM_FILE_SIZE );
-                m_usedSpace += MINIMUM_FILE_SIZE;
-            }
-            return new SeekableCountingChannel( Files.newByteChannel( file.toPath(), WRITE_OPTIONS ), MINIMUM_FILE_SIZE );
+            throw new IOException( "/" + path + ": Out of space" );
         }
+        m_usedSpace += MINIMUM_FILE_SIZE;
+
+        return new SeekableCountingChannel( Files.newByteChannel( file.toPath(), WRITE_OPTIONS ), MINIMUM_FILE_SIZE );
     }
 
     @Nonnull
     @Override
     public WritableByteChannel openChannelForAppend( @Nonnull String path ) throws IOException
     {
-        if( created() )
-        {
-            File file = getRealPath( path );
-            if( !file.exists() )
-            {
-                throw new IOException( "/" + path + ": No such file" );
-            }
-            else if( file.isDirectory() )
-            {
-                throw new IOException( "/" + path + ": Cannot write to directory" );
-            }
-            else
-            {
-                // Allowing seeking when appending is not recommended, so we use a separate channel.
-                return new WritableCountingChannel(
-                    Files.newByteChannel( file.toPath(), APPEND_OPTIONS ),
-                    Math.max( MINIMUM_FILE_SIZE - file.length(), 0 )
-                );
-            }
-        }
-        else
+        if( !created() )
         {
             throw new IOException( "/" + path + ": No such file" );
         }
+
+        File file = getRealPath( path );
+        if( !file.exists() ) throw new IOException( "/" + path + ": No such file" );
+        if( file.isDirectory() ) throw new IOException( "/" + path + ": Cannot write to directory" );
+
+        // Allowing seeking when appending is not recommended, so we use a separate channel.
+        return new WritableCountingChannel(
+            Files.newByteChannel( file.toPath(), APPEND_OPTIONS ),
+            Math.max( MINIMUM_FILE_SIZE - file.length(), 0 )
+        );
     }
 
     @Override
@@ -433,7 +360,7 @@ public class FileMount implements IWritableMount
         return Math.max( m_capacity - m_usedSpace, 0 );
     }
 
-    public File getRealPath( String path )
+    private File getRealPath( String path )
     {
         return new File( m_rootPath, path );
     }
@@ -455,12 +382,10 @@ public class FileMount implements IWritableMount
         }
     }
 
-    private long measureUsedSpace( File file )
+    private static long measureUsedSpace( File file )
     {
-        if( !file.exists() )
-        {
-            return 0;
-        }
+        if( !file.exists() ) return 0;
+
         if( file.isDirectory() )
         {
             long size = MINIMUM_FILE_SIZE;

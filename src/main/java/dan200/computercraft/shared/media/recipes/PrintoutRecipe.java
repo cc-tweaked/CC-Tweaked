@@ -76,7 +76,7 @@ public class PrintoutRecipe extends IForgeRegistryEntry.Impl<IRecipe> implements
                             printouts = new ItemStack[9];
                         }
                         printouts[numPrintouts] = stack;
-                        numPages = numPages + ItemPrintout.getPageCount( stack );
+                        numPages += ItemPrintout.getPageCount( stack );
                         numPrintouts++;
                         printoutFound = true;
                     }

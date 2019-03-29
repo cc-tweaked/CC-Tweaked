@@ -31,14 +31,14 @@ public class TableBuilder
         if( id < 0 ) throw new IllegalArgumentException( "ID must be positive" );
         this.id = id;
         this.headers = headers;
-        this.columns = headers.length;
+        columns = headers.length;
     }
 
     public TableBuilder( int id )
     {
         if( id < 0 ) throw new IllegalArgumentException( "ID must be positive" );
         this.id = id;
-        this.headers = null;
+        headers = null;
     }
 
     public TableBuilder( int id, @Nonnull String... headers )
@@ -46,7 +46,7 @@ public class TableBuilder
         if( id < 0 ) throw new IllegalArgumentException( "ID must be positive" );
         this.id = id;
         this.headers = new ITextComponent[headers.length];
-        this.columns = headers.length;
+        columns = headers.length;
 
         for( int i = 0; i < headers.length; i++ ) this.headers[i] = ChatHelpers.header( headers[i] );
     }

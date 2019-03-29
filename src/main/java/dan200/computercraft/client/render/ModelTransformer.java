@@ -180,7 +180,7 @@ public final class ModelTransformer
      *
      * This also provides the ability to swap vertices through {@link #swap(int, int)} to allow reordering.
      */
-    private static class BakedQuadBuilder implements IVertexConsumer
+    private static final class BakedQuadBuilder implements IVertexConsumer
     {
         private final VertexFormat format;
 
@@ -195,7 +195,7 @@ public final class ModelTransformer
         private BakedQuadBuilder( VertexFormat format )
         {
             this.format = format;
-            this.vertexData = new int[format.getSize()];
+            vertexData = new int[format.getSize()];
         }
 
         @Nonnull
@@ -208,7 +208,7 @@ public final class ModelTransformer
         @Override
         public void setQuadTint( int tint )
         {
-            this.quadTint = tint;
+            quadTint = tint;
         }
 
         @Override

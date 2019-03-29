@@ -26,7 +26,7 @@ import javax.annotation.Nonnull;
 public class BlockComputer extends BlockComputerBase
 {
     // Statics
-    public static class Properties
+    public static final class Properties
     {
         public static final PropertyDirection FACING = PropertyDirection.create( "facing", EnumFacing.Plane.HORIZONTAL );
         public static final PropertyBool ADVANCED = PropertyBool.create( "advanced" );
@@ -41,7 +41,7 @@ public class BlockComputer extends BlockComputerBase
         setHardness( 2.0f );
         setTranslationKey( "computercraft:computer" );
         setCreativeTab( ComputerCraft.mainCreativeTab );
-        setDefaultState( this.blockState.getBaseState()
+        setDefaultState( blockState.getBaseState()
             .withProperty( Properties.FACING, EnumFacing.NORTH )
             .withProperty( Properties.ADVANCED, false )
             .withProperty( Properties.STATE, ComputerState.Off )

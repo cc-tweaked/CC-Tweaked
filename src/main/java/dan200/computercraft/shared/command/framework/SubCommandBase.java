@@ -20,7 +20,7 @@ public abstract class SubCommandBase implements ISubCommand
     protected SubCommandBase( String name, UserLevel level )
     {
         this.name = name;
-        this.id = name.replace( '-', '_' );
+        id = name.replace( '-', '_' );
         this.level = level;
     }
 

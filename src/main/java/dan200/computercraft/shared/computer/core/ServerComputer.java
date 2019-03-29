@@ -376,7 +376,8 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
         Container container = player.openContainer;
         if( !(container instanceof IContainerComputer) ) return null;
 
-        return (IContainerComputer) container;
+        IContainerComputer computerContainer = (IContainerComputer) container;
+        return computerContainer.getComputer() != this ? null : computerContainer;
     }
 
     protected boolean isInteracting( EntityPlayer player )

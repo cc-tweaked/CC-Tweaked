@@ -6,12 +6,12 @@
 
 package dan200.computercraft.shared.peripheral.printer;
 
-import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.shared.media.items.ItemPrintout;
 import dan200.computercraft.shared.network.Containers;
 import dan200.computercraft.shared.peripheral.PeripheralType;
+import dan200.computercraft.shared.peripheral.common.BlockPeripheral;
 import dan200.computercraft.shared.peripheral.common.TilePeripheralBase;
 import dan200.computercraft.shared.util.DefaultSidedInventory;
 import dan200.computercraft.shared.util.WorldUtil;
@@ -45,9 +45,9 @@ public class TilePrinter extends TilePeripheralBase implements DefaultSidedInven
 {
     // Statics
 
-    private static final int[] bottomSlots = { 7, 8, 9, 10, 11, 12 };
-    private static final int[] topSlots = { 1, 2, 3, 4, 5, 6 };
-    private static final int[] sideSlots = { 0 };
+    private static final int[] bottomSlots = new int[] { 7, 8, 9, 10, 11, 12 };
+    private static final int[] topSlots = new int[] { 1, 2, 3, 4, 5, 6 };
+    private static final int[] sideSlots = new int[] { 0 };
 
     // Members
 
@@ -138,10 +138,10 @@ public class TilePrinter extends TilePeripheralBase implements DefaultSidedInven
             {
                 if( !m_inventory.get( i ).isEmpty() )
                 {
-                    NBTTagCompound itemtag = new NBTTagCompound();
-                    itemtag.setByte( "Slot", (byte) i );
-                    m_inventory.get( i ).writeToNBT( itemtag );
-                    nbttaglist.appendTag( itemtag );
+                    NBTTagCompound tag = new NBTTagCompound();
+                    tag.setByte( "Slot", (byte) i );
+                    m_inventory.get( i ).writeToNBT( tag );
+                    nbttaglist.appendTag( tag );
                 }
             }
             nbt.setTag( "Items", nbttaglist );
@@ -160,7 +160,7 @@ public class TilePrinter extends TilePeripheralBase implements DefaultSidedInven
     @Override
     public boolean shouldRefresh( World world, BlockPos pos, @Nonnull IBlockState oldState, @Nonnull IBlockState newState )
     {
-        return super.shouldRefresh( world, pos, oldState, newState ) || ComputerCraft.Blocks.peripheral.getPeripheralType( newState ) != PeripheralType.Printer;
+        return super.shouldRefresh( world, pos, oldState, newState ) || BlockPeripheral.getPeripheralType( newState ) != PeripheralType.Printer;
     }
 
     public boolean isPrinting()
@@ -290,28 +290,14 @@ public class TilePrinter extends TilePeripheralBase implements DefaultSidedInven
     public String getName()
     {
         String label = getLabel();
-        if( label != null )
-        {
-            return label;
-        }
-        else
-        {
-            return "tile.computercraft:printer.name";
-        }
+        return label != null ? label : "tile.computercraft:printer.name";
     }
 
     @Nonnull
     @Override
     public ITextComponent getDisplayName()
     {
-        if( hasCustomName() )
-        {
-            return new TextComponentString( getName() );
-        }
-        else
-        {
-            return new TextComponentTranslation( getName() );
-        }
+        return hasCustomName() ? new TextComponentString( getName() ) : new TextComponentTranslation( getName() );
     }
 
     @Override
@@ -418,7 +404,7 @@ public class TilePrinter extends TilePeripheralBase implements DefaultSidedInven
     private static boolean isPaper( @Nonnull ItemStack stack )
     {
         Item item = stack.getItem();
-        return item == Items.PAPER || (item instanceof ItemPrintout && ItemPrintout.getType( stack ) == ItemPrintout.Type.Single);
+        return item == Items.PAPER || item instanceof ItemPrintout && ItemPrintout.getType( stack ) == ItemPrintout.Type.Single;
     }
 
     private boolean canInputPage()

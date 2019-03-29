@@ -30,7 +30,7 @@ public final class CommandContext
     {
         this.server = server;
         this.sender = sender;
-        this.path = Collections.singletonList( initial );
+        path = Collections.singletonList( initial );
     }
 
     private CommandContext( MinecraftServer server, ICommandSender sender, List<ISubCommand> path )

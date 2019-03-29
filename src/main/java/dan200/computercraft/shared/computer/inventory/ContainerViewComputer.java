@@ -4,7 +4,7 @@
  * Send enquiries to dratcliffe@gmail.com
  */
 
-package dan200.computercraft.shared.command;
+package dan200.computercraft.shared.computer.inventory;
 
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.computer.core.*;

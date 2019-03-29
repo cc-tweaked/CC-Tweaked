@@ -12,13 +12,16 @@ import dan200.computercraft.api.lua.ILuaAPI;
 import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.shared.computer.blocks.TileCommandComputer;
+import dan200.computercraft.shared.util.NBTUtil;
 import net.minecraft.block.Block;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.command.ICommand;
 import net.minecraft.command.ICommandManager;
 import net.minecraft.command.ICommandSender;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
@@ -62,7 +65,7 @@ public class CommandAPI implements ILuaAPI
         };
     }
 
-    private Map<Object, Object> createOutput( String output )
+    private static Map<Object, Object> createOutput( String output )
     {
         Map<Object, Object> result = new HashMap<>( 1 );
         result.put( 1, output );
@@ -81,7 +84,7 @@ public class CommandAPI implements ILuaAPI
                 sender.clearOutput();
 
                 int result = commandManager.executeCommand( sender, command );
-                return new Object[] { (result > 0), sender.copyOutput() };
+                return new Object[] { result > 0, sender.copyOutput() };
             }
             catch( Throwable t )
             {
@@ -89,7 +92,7 @@ public class CommandAPI implements ILuaAPI
                 {
                     ComputerCraft.log.error( "Error running command.", t );
                 }
-                return new Object[] { false, createOutput( "Java Exception Thrown: " + t.toString() ) };
+                return new Object[] { false, createOutput( "Java Exception Thrown: " + t ) };
             }
         }
         else
@@ -98,35 +101,35 @@ public class CommandAPI implements ILuaAPI
         }
     }
 
-    private Object getBlockInfo( World world, BlockPos pos )
+    private static Object getBlockInfo( World world, BlockPos pos )
     {
         // Get the details of the block
         IBlockState state = world.getBlockState( pos );
         Block block = state.getBlock();
-        String name = Block.REGISTRY.getNameForObject( block ).toString();
-        int metadata = block.getMetaFromState( state );
 
-        Map<Object, Object> table = new HashMap<>();
-        table.put( "name", name );
-        table.put( "metadata", metadata );
+        Map<Object, Object> table = new HashMap<>( 3 );
+        table.put( "name", Block.REGISTRY.getNameForObject( block ).toString() );
+        table.put( "metadata", block.getMetaFromState( state ) );
 
         Map<Object, Object> stateTable = new HashMap<>();
         for( ImmutableMap.Entry<IProperty<?>, Comparable<?>> entry : state.getActualState( world, pos ).getProperties().entrySet() )
         {
-            String propertyName = entry.getKey().getName();
-            Object value = entry.getValue();
-            if( value instanceof String || value instanceof Number || value instanceof Boolean )
-            {
-                stateTable.put( propertyName, value );
-            }
-            else
-            {
-                stateTable.put( propertyName, value.toString() );
-            }
+            IProperty<?> property = entry.getKey();
+            stateTable.put( property.getName(), getPropertyValue( property, entry.getValue() ) );
         }
         table.put( "state", stateTable );
-        // TODO: NBT data?
+
+        TileEntity tile = world.getTileEntity( pos );
+        if( tile != null ) table.put( "nbt", NBTUtil.toLua( tile.writeToNBT( new NBTTagCompound() ).copy() ) );
+
         return table;
+    }
+
+    @SuppressWarnings( { "unchecked", "rawtypes" } )
+    private static Object getPropertyValue( IProperty property, Comparable value )
+    {
+        if( value instanceof String || value instanceof Number || value instanceof Boolean ) return value;
+        return property.getName( value );
     }
 
     @Override
@@ -134,22 +137,18 @@ public class CommandAPI implements ILuaAPI
     {
         switch( method )
         {
-            case 0:
+            case 0: // exec
             {
-                // exec
                 final String command = getString( arguments, 0 );
                 return context.executeMainThreadTask( () -> doCommand( command ) );
             }
-            case 1:
+            case 1: // execAsync
             {
-                // execAsync
                 final String command = getString( arguments, 0 );
                 long taskID = context.issueMainThreadTask( () -> doCommand( command ) );
                 return new Object[] { taskID };
             }
-            case 2:
-            {
-                // list
+            case 2: // list
                 return context.executeMainThreadTask( () ->
                 {
                     int i = 1;
@@ -158,7 +157,7 @@ public class CommandAPI implements ILuaAPI
                     if( server != null )
                     {
                         ICommandManager commandManager = server.getCommandManager();
-                        ICommandSender commmandSender = m_computer.getCommandSender();
+                        ICommandSender commandSender = m_computer.getCommandSender();
                         Map<String, ICommand> commands = commandManager.getCommands();
                         for( Map.Entry<String, ICommand> entry : commands.entrySet() )
                         {
@@ -166,7 +165,7 @@ public class CommandAPI implements ILuaAPI
                             ICommand command = entry.getValue();
                             try
                             {
-                                if( command.checkPermission( server, commmandSender ) )
+                                if( command.checkPermission( server, commandSender ) )
                                 {
                                     result.put( i++, name );
                                 }
@@ -183,10 +182,8 @@ public class CommandAPI implements ILuaAPI
                     }
                     return new Object[] { result };
                 } );
-            }
-            case 3:
+            case 3: // getBlockPosition
             {
-                // getBlockPosition
                 // This is probably safe to do on the Lua thread. Probably.
                 BlockPos pos = m_computer.getPos();
                 return new Object[] { pos.getX(), pos.getY(), pos.getZ() };
@@ -194,25 +191,25 @@ public class CommandAPI implements ILuaAPI
             case 4:
             {
                 // getBlockInfos
-                final int minx = getInt( arguments, 0 );
-                final int miny = getInt( arguments, 1 );
-                final int minz = getInt( arguments, 2 );
-                final int maxx = getInt( arguments, 3 );
-                final int maxy = getInt( arguments, 4 );
-                final int maxz = getInt( arguments, 5 );
+                final int minX = getInt( arguments, 0 );
+                final int minY = getInt( arguments, 1 );
+                final int minZ = getInt( arguments, 2 );
+                final int maxX = getInt( arguments, 3 );
+                final int maxY = getInt( arguments, 4 );
+                final int maxZ = getInt( arguments, 5 );
                 return context.executeMainThreadTask( () ->
                 {
                     // Get the details of the block
                     World world = m_computer.getWorld();
                     BlockPos min = new BlockPos(
-                        Math.min( minx, maxx ),
-                        Math.min( miny, maxy ),
-                        Math.min( minz, maxz )
+                        Math.min( minX, maxX ),
+                        Math.min( minY, maxY ),
+                        Math.min( minZ, maxZ )
                     );
                     BlockPos max = new BlockPos(
-                        Math.max( minx, maxx ),
-                        Math.max( miny, maxy ),
-                        Math.max( minz, maxz )
+                        Math.max( minX, maxX ),
+                        Math.max( minY, maxY ),
+                        Math.max( minZ, maxZ )
                     );
                     if( !world.isValid( min ) || !world.isValid( max ) )
                     {

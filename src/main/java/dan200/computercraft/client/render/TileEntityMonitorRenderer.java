@@ -37,7 +37,7 @@ public class TileEntityMonitorRenderer extends TileEntitySpecialRenderer<TileMon
         }
     }
 
-    private void renderMonitorAt( TileMonitor monitor, double posX, double posY, double posZ, float f, int i )
+    private static void renderMonitorAt( TileMonitor monitor, double posX, double posY, double posZ, float f, int i )
     {
         // Render from the origin monitor
         ClientMonitor originTerminal = monitor.getClientMonitor();
@@ -78,7 +78,7 @@ public class TileEntityMonitorRenderer extends TileEntitySpecialRenderer<TileMon
             GlStateManager.rotate( pitch, 1.0f, 0.0f, 0.0f );
             GlStateManager.translate(
                 -0.5 + TileMonitor.RENDER_BORDER + TileMonitor.RENDER_MARGIN,
-                (origin.getHeight() - 0.5) - (TileMonitor.RENDER_BORDER + TileMonitor.RENDER_MARGIN),
+                origin.getHeight() - 0.5 - (TileMonitor.RENDER_BORDER + TileMonitor.RENDER_MARGIN),
                 0.5
             );
             double xSize = origin.getWidth() - 2.0 * (TileMonitor.RENDER_MARGIN + TileMonitor.RENDER_BORDER);

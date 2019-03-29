@@ -66,7 +66,7 @@ public class TurtleTool extends AbstractTurtleUpgrade
     @SideOnly( Side.CLIENT )
     public Pair<IBakedModel, Matrix4f> getModel( ITurtleAccess turtle, @Nonnull TurtleSide side )
     {
-        float xOffset = (side == TurtleSide.Left) ? -0.40625f : 0.40625f;
+        float xOffset = side == TurtleSide.Left ? -0.40625f : 0.40625f;
         Matrix4f transform = new Matrix4f(
             0.0f, 0.0f, -1.0f, 1.0f + xOffset,
             1.0f, 0.0f, 0.0f, 0.0f,
@@ -256,12 +256,12 @@ public class TurtleTool extends AbstractTurtleUpgrade
 
     }
 
-    private Function<ItemStack, ItemStack> turtleDropConsumer( ITurtleAccess turtle )
+    private static Function<ItemStack, ItemStack> turtleDropConsumer( ITurtleAccess turtle )
     {
         return drop -> InventoryUtil.storeItems( drop, turtle.getItemHandler(), turtle.getSelectedSlot() );
     }
 
-    private void stopConsuming( ITurtleAccess turtle )
+    private static void stopConsuming( ITurtleAccess turtle )
     {
         List<ItemStack> extra = DropConsumer.clear();
         for( ItemStack remainder : extra )

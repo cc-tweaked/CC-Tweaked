@@ -51,23 +51,16 @@ public class TurtleInspectCommand implements ITurtleCommand
         }
 
         Block block = state.getBlock();
-        String name = Block.REGISTRY.getNameForObject( block ).toString();
-        int metadata = block.getMetaFromState( state );
 
-        Map<String, Object> table = new HashMap<>();
-        table.put( "name", name );
-        table.put( "metadata", metadata );
+        Map<String, Object> table = new HashMap<>( 3 );
+        table.put( "name", Block.REGISTRY.getNameForObject( block ).toString() );
+        table.put( "metadata", block.getMetaFromState( state ) );
 
         Map<Object, Object> stateTable = new HashMap<>();
         for( ImmutableMap.Entry<IProperty<?>, ? extends Comparable<?>> entry : state.getActualState( world, newPosition ).getProperties().entrySet() )
         {
-            IProperty property = entry.getKey();
-
-            Comparable value = entry.getValue();
-            @SuppressWarnings( "unchecked" )
-            Object valueName = value instanceof String || value instanceof Number || value instanceof Boolean
-                ? value : property.getName( value );
-            stateTable.put( property.getName(), valueName );
+            IProperty<?> property = entry.getKey();
+            stateTable.put( property.getName(), getPropertyValue( property, entry.getValue() ) );
         }
         table.put( "state", stateTable );
 
@@ -78,5 +71,12 @@ public class TurtleInspectCommand implements ITurtleCommand
 
         return TurtleCommandResult.success( new Object[] { table } );
 
+    }
+
+    @SuppressWarnings( { "unchecked", "rawtypes" } )
+    private static Object getPropertyValue( IProperty property, Comparable value )
+    {
+        if( value instanceof String || value instanceof Number || value instanceof Boolean ) return value;
+        return property.getName( value );
     }
 }

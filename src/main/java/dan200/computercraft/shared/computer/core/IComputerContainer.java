@@ -6,6 +6,7 @@
 
 package dan200.computercraft.shared.computer.core;
 
+@FunctionalInterface
 public interface IComputerContainer
 {
     IComputer getComputer();

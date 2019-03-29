@@ -10,8 +10,10 @@ import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraftforge.common.util.FakePlayer;
 
-public class CommandUtils
+public final class CommandUtils
 {
+    private CommandUtils() {}
+
     public static boolean isPlayer( ICommandSender sender )
     {
         return sender instanceof EntityPlayerMP

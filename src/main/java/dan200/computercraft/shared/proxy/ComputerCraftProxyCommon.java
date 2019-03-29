@@ -79,7 +79,7 @@ public class ComputerCraftProxyCommon implements IComputerCraftProxy
         handler.registerCommand( new CommandComputerCraft() );
     }
 
-    private void registerProviders()
+    private static void registerProviders()
     {
         // Register peripheral providers
         ComputerCraftAPI.registerPeripheralProvider( ( world, pos, side ) -> {
@@ -108,7 +108,7 @@ public class ComputerCraftProxyCommon implements IComputerCraftProxy
     }
 
     @Mod.EventBusSubscriber( modid = ComputerCraft.MOD_ID )
-    public final static class ForgeHandlers
+    public static final class ForgeHandlers
     {
         private ForgeHandlers()
         {

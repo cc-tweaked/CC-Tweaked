@@ -32,7 +32,7 @@ public class ResourceGroup<T extends Resource<T>>
 
     public ResourceGroup()
     {
-        this.limit = ZERO;
+        limit = ZERO;
     }
 
     public void startup()

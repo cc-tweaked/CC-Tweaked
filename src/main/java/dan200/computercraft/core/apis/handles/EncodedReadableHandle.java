@@ -32,7 +32,7 @@ public class EncodedReadableHandle extends HandleGeneric
     public EncodedReadableHandle( @Nonnull BufferedReader reader, @Nonnull Closeable closable )
     {
         super( closable );
-        this.m_reader = reader;
+        m_reader = reader;
     }
 
     public EncodedReadableHandle( @Nonnull BufferedReader reader )
@@ -84,7 +84,7 @@ public class EncodedReadableHandle extends HandleGeneric
                 checkOpen();
                 try
                 {
-                    StringBuilder result = new StringBuilder( "" );
+                    StringBuilder result = new StringBuilder();
                     String line = m_reader.readLine();
                     while( line != null )
                     {

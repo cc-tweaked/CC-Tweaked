@@ -24,20 +24,20 @@ public enum PeripheralType implements IStringSerializable
     Speaker( "speaker" ),
     WiredModemFull( "wired_modem_full" );
 
-    private String m_name;
+    private final String name;
 
     PeripheralType( String name )
     {
-        m_name = name;
+        this.name = name;
     }
 
     @Nonnull
     @Override
     public String getName()
     {
-        return m_name;
+        return name;
     }
 
     @Override
-    public String toString() { return getName(); }
+    public String toString() { return name; }
 }

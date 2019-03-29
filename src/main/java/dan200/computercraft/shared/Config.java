@@ -28,7 +28,7 @@ import java.util.concurrent.TimeUnit;
 import static dan200.computercraft.ComputerCraft.DEFAULT_HTTP_BLACKLIST;
 import static dan200.computercraft.ComputerCraft.DEFAULT_HTTP_WHITELIST;
 
-public class Config
+public final class Config
 {
     private static final int MODEM_MAX_RANGE = 100000;
 
@@ -78,6 +78,8 @@ public class Config
     private static Property turtlesCanPush;
     private static Property turtleDisabledActions;
 
+    private Config() {}
+
     public static void load( File configFile )
     {
         config = new Configuration( configFile, ComputerCraft.getVersion() );
@@ -106,7 +108,7 @@ public class Config
                 "update. Useful for ensuring forward compatibility of your programs now." );
 
             defaultComputerSettings = config.get( CATEGORY_GENERAL, "default_computer_settings", ComputerCraft.default_computer_settings );
-            defaultComputerSettings.setComment( "A comma seperated list of default system settings to set on new computers. Example: " +
+            defaultComputerSettings.setComment( "A comma separated list of default system settings to set on new computers. Example: " +
                 "\"shell.autocomplete=false,lua.autocomplete=false,edit.autocomplete=false\" will disable all autocompletion" );
 
             debugEnabled = config.get( CATEGORY_GENERAL, "debug_enabled", ComputerCraft.debug_enable );

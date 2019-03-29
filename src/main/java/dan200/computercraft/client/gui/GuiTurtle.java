@@ -98,8 +98,8 @@ public class GuiTurtle extends GuiContainer
     public void handleMouseInput() throws IOException
     {
         super.handleMouseInput();
-        int x = Mouse.getEventX() * this.width / mc.displayWidth;
-        int y = this.height - Mouse.getEventY() * this.height / mc.displayHeight - 1;
+        int x = Mouse.getEventX() * width / mc.displayWidth;
+        int y = height - Mouse.getEventY() * height / mc.displayHeight - 1;
         m_terminalGui.handleMouseInput( x, y );
     }
 
@@ -117,8 +117,8 @@ public class GuiTurtle extends GuiContainer
         if( slot >= 0 )
         {
             GlStateManager.color( 1.0F, 1.0F, 1.0F, 1.0F );
-            int slotX = (slot % 4);
-            int slotY = (slot / 4);
+            int slotX = slot % 4;
+            int slotY = slot / 4;
             mc.getTextureManager().bindTexture( advanced ? BACKGROUND_ADVANCED : BACKGROUND_NORMAL );
             drawTexturedModalRect( guiLeft + m_container.m_turtleInvStartX - 2 + slotX * 18, guiTop + m_container.m_playerInvStartY - 2 + slotY * 18, 0, 217, 24, 24 );
         }
@@ -128,7 +128,7 @@ public class GuiTurtle extends GuiContainer
     protected void drawGuiContainerBackgroundLayer( float partialTicks, int mouseX, int mouseY )
     {
         // Draw term
-        boolean advanced = (m_family == ComputerFamily.Advanced);
+        boolean advanced = m_family == ComputerFamily.Advanced;
         m_terminalGui.draw( Minecraft.getMinecraft(), 0, 0, mouseX, mouseY );
 
         // Draw border/inventory

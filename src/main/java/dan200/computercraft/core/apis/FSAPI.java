@@ -353,10 +353,8 @@ public class FSAPI implements ILuaAPI
                 return new Object[] { FileSystem.getDirectory( path ) };
             }
             default:
-            {
-                assert (false);
+                assert false;
                 return null;
-            }
         }
     }
 }

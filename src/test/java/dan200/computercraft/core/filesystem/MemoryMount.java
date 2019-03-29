@@ -60,6 +60,7 @@ public class MemoryMount implements IWritableMount
         }
     }
 
+    @Nonnull
     @Override
     @Deprecated
     public OutputStream openForWrite( @Nonnull final String path )
@@ -75,6 +76,7 @@ public class MemoryMount implements IWritableMount
         };
     }
 
+    @Nonnull
     @Override
     @Deprecated
     public OutputStream openForAppend( @Nonnull final String path ) throws IOException
@@ -123,14 +125,15 @@ public class MemoryMount implements IWritableMount
     }
 
     @Override
-    public long getSize( String path )
+    public long getSize( @Nonnull String path )
     {
         throw new RuntimeException( "Not implemented" );
     }
 
+    @Nonnull
     @Override
     @Deprecated
-    public InputStream openForRead( String path )
+    public InputStream openForRead( @Nonnull String path )
     {
         return new ByteArrayInputStream( files.get( path ) );
     }

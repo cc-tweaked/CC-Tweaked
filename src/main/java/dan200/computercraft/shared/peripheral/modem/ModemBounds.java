@@ -12,7 +12,7 @@ import net.minecraft.util.math.AxisAlignedBB;
 
 import javax.annotation.Nonnull;
 
-public class ModemBounds
+public final class ModemBounds
 {
     private static final AxisAlignedBB[] BOXES = new AxisAlignedBB[] {
         new AxisAlignedBB( 0.125, 0.0, 0.125, 0.875, 0.1875, 0.875 ), // Down
@@ -22,6 +22,8 @@ public class ModemBounds
         new AxisAlignedBB( 0.0, 0.125, 0.125, 0.1875, 0.875, 0.875 ), // West
         new AxisAlignedBB( 0.8125, 0.125, 0.125, 1.0, 0.875, 0.875 ), // East
     };
+
+    private ModemBounds() {}
 
     @Nonnull
     public static AxisAlignedBB getBounds( EnumFacing facing )

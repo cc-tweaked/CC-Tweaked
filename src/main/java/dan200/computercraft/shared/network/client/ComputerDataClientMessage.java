@@ -26,8 +26,8 @@ public class ComputerDataClientMessage extends ComputerClientMessage
     public ComputerDataClientMessage( ServerComputer computer )
     {
         super( computer.getInstanceID() );
-        this.state = computer.getState();
-        this.userData = computer.getUserData();
+        state = computer.getState();
+        userData = computer.getUserData();
     }
 
     public ComputerDataClientMessage()

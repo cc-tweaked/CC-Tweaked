@@ -116,7 +116,7 @@ public class RedstoneAPI implements ILuaAPI
                 int side = parseSide( args );
                 int mask = getInt( args, 1 );
                 int input = m_environment.getBundledInput( side );
-                return new Object[] { ((input & mask) == mask) };
+                return new Object[] { (input & mask) == mask };
             }
             case 8:
             case 9:
@@ -146,13 +146,11 @@ public class RedstoneAPI implements ILuaAPI
                 return new Object[] { m_environment.getInput( side ) };
             }
             default:
-            {
                 return null;
-            }
         }
     }
 
-    private int parseSide( Object[] args ) throws LuaException
+    private static int parseSide( Object[] args ) throws LuaException
     {
         String side = getString( args, 0 );
         for( int n = 0; n < IAPIEnvironment.SIDE_NAMES.length; n++ )

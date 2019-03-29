@@ -59,9 +59,9 @@ public class ImpostorShapelessRecipe extends ShapelessRecipes
         public IRecipe parse( JsonContext context, JsonObject json )
         {
             String group = JsonUtils.getString( json, "group", "" );
-            NonNullList<Ingredient> ings = RecipeUtil.getIngredients( context, json );
+            NonNullList<Ingredient> ingredients = RecipeUtil.getIngredients( context, json );
             ItemStack itemstack = CraftingHelper.getItemStack( JsonUtils.getJsonObject( json, "result" ), context );
-            return new ImpostorShapelessRecipe( group, itemstack, ings );
+            return new ImpostorShapelessRecipe( group, itemstack, ingredients );
         }
     }
 }

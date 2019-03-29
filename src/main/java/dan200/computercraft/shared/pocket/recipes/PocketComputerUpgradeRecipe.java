@@ -94,11 +94,9 @@ public class PocketComputerUpgradeRecipe extends IForgeRegistryEntry.Impl<IRecip
             for( int x = 0; x < inventory.getWidth(); x++ )
             {
                 ItemStack item = inventory.getStackInRowAndColumn( x, y );
-                if( x == computerX && y == computerY )
-                {
-                    continue;
-                }
-                else if( x == computerX && y == computerY - 1 )
+                if( x == computerX && y == computerY ) continue;
+
+                if( x == computerX && y == computerY - 1 )
                 {
                     upgrade = PocketUpgrades.get( item );
                     if( upgrade == null ) return ItemStack.EMPTY;

@@ -51,27 +51,17 @@ public class ItemTurtleLegacy extends ItemTurtleBase
     // ITurtleItem implementation
 
     @Override
-    public ITurtleUpgrade getUpgrade( @Nonnull ItemStack stack, TurtleSide side )
+    public ITurtleUpgrade getUpgrade( @Nonnull ItemStack stack, @Nonnull TurtleSide side )
     {
         int damage = stack.getItemDamage();
         switch( side )
         {
             case Left:
-            {
-                if( (damage & 0x1) > 0 )
-                {
-                    return ComputerCraft.TurtleUpgrades.diamondPickaxe;
-                }
+                if( (damage & 0x1) > 0 ) return ComputerCraft.TurtleUpgrades.diamondPickaxe;
                 break;
-            }
             case Right:
-            {
-                if( (damage & 0x2) > 0 )
-                {
-                    return ComputerCraft.TurtleUpgrades.wirelessModem;
-                }
+                if( (damage & 0x2) > 0 ) return ComputerCraft.TurtleUpgrades.wirelessModem;
                 break;
-            }
         }
         return null;
     }

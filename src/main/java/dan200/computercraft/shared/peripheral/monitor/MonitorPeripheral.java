@@ -70,28 +70,20 @@ public class MonitorPeripheral implements IPeripheral
     }
 
     @Override
-    public Object[] callMethod( @Nonnull IComputerAccess computer, @Nonnull ILuaContext context, int method, @Nonnull Object args[] ) throws LuaException
+    public Object[] callMethod( @Nonnull IComputerAccess computer, @Nonnull ILuaContext context, int method, @Nonnull Object[] args ) throws LuaException
     {
         ServerMonitor monitor = m_monitor.getCachedServerMonitor();
-        if( monitor == null ) throw new LuaException( "Monitor has been detatched" );
+        if( monitor == null ) throw new LuaException( "Monitor has been detached" );
 
         Terminal terminal = monitor.getTerminal();
-        if( terminal == null ) throw new LuaException( "Monitor has been detatched" );
+        if( terminal == null ) throw new LuaException( "Monitor has been detached" );
 
         switch( method )
         {
             case 0:
             {
                 // write
-                String text;
-                if( args.length > 0 && args[0] != null )
-                {
-                    text = args[0].toString();
-                }
-                else
-                {
-                    text = "";
-                }
+                String text = args.length > 0 && args[0] != null ? args[0].toString() : "";
                 terminal.write( text );
                 terminal.setCursorPos( terminal.getCursorX() + text.length(), terminal.getCursorY() );
                 return null;
@@ -118,34 +110,16 @@ public class MonitorPeripheral implements IPeripheral
                 terminal.setCursorBlink( blink );
                 return null;
             }
-            case 4:
-            {
-                // getCursorPos
-                return new Object[] {
-                    terminal.getCursorX() + 1,
-                    terminal.getCursorY() + 1
-                };
-            }
-            case 5:
-            {
-                // getSize
-                return new Object[] {
-                    terminal.getWidth(),
-                    terminal.getHeight()
-                };
-            }
-            case 6:
-            {
-                // clear
+            case 4: // getCursorPos
+                return new Object[] { terminal.getCursorX() + 1, terminal.getCursorY() + 1 };
+            case 5: // getSize
+                return new Object[] { terminal.getWidth(), terminal.getHeight() };
+            case 6: // clear
                 terminal.clear();
                 return null;
-            }
-            case 7:
-            {
-                // clearLine
+            case 7: // clearLine
                 terminal.clearLine();
                 return null;
-            }
             case 8:
             {
                 // setTextScale
@@ -174,25 +148,14 @@ public class MonitorPeripheral implements IPeripheral
                 return null;
             }
             case 13:
-            case 14:
-            {
-                // isColour/isColor
-                return new Object[] {
-                    monitor.isColour()
-                };
-            }
+            case 14: // isColour/isColor
+                return new Object[] { monitor.isColour() };
             case 15:
-            case 16:
-            {
-                // getTextColour/getTextColor
+            case 16: // getTextColour/getTextColor
                 return TermAPI.encodeColour( terminal.getTextColour() );
-            }
             case 17:
-            case 18:
-            {
-                // getBackgroundColour/getBackgroundColor
+            case 18: // getBackgroundColour/getBackgroundColor
                 return TermAPI.encodeColour( terminal.getBackgroundColour() );
-            }
             case 19:
             {
                 // blit
@@ -242,11 +205,8 @@ public class MonitorPeripheral implements IPeripheral
                 }
                 return null;
             }
-            case 24:
-            {
-                // getTextScale
+            case 24: // getTextScale
                 return new Object[] { monitor.getTextScale() / 2.0 };
-            }
             case 25:
                 // getCursorBlink
                 return new Object[] { terminal.getCursorBlink() };
@@ -270,14 +230,6 @@ public class MonitorPeripheral implements IPeripheral
     @Override
     public boolean equals( IPeripheral other )
     {
-        if( other instanceof MonitorPeripheral )
-        {
-            MonitorPeripheral otherMonitor = (MonitorPeripheral) other;
-            if( otherMonitor.m_monitor == this.m_monitor )
-            {
-                return true;
-            }
-        }
-        return false;
+        return other instanceof MonitorPeripheral && m_monitor == ((MonitorPeripheral) other).m_monitor;
     }
 }

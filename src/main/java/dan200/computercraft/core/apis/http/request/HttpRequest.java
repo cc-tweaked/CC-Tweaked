@@ -67,12 +67,12 @@ public class HttpRequest extends Resource<HttpRequest>
         super( limiter );
         this.environment = environment;
         this.address = address;
-        this.postBuffer = postText != null
+        postBuffer = postText != null
             ? Unpooled.wrappedBuffer( postText.getBytes( StandardCharsets.UTF_8 ) )
             : Unpooled.buffer( 0 );
         this.headers = headers;
         this.binary = binary;
-        this.redirects = new AtomicInteger( followRedirects ? MAX_REDIRECTS : 0 );
+        redirects = new AtomicInteger( followRedirects ? MAX_REDIRECTS : 0 );
 
         if( postText != null )
         {

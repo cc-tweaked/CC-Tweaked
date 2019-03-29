@@ -29,7 +29,7 @@ public class PocketAPI implements ILuaAPI
 
     public PocketAPI( PocketServerComputer computer )
     {
-        this.m_computer = computer;
+        m_computer = computer;
     }
 
     @Override

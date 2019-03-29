@@ -23,10 +23,12 @@ import org.apache.commons.lang3.tuple.Pair;
 import javax.annotation.Nonnull;
 import java.util.List;
 
-public class WorldUtil
+public final class WorldUtil
 {
     @SuppressWarnings( "Guava" )
     private static final Predicate<Entity> CAN_COLLIDE = x -> x != null && !x.isDead && x.canBeCollidedWith();
+
+    private WorldUtil() {}
 
     @Deprecated
     public static boolean isBlockInWorld( World world, BlockPos pos )
