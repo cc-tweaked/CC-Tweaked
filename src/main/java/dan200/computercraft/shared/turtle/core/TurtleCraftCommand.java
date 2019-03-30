@@ -14,18 +14,17 @@ import dan200.computercraft.shared.turtle.upgrades.TurtleInventoryCrafting;
 import dan200.computercraft.shared.util.InventoryUtil;
 import dan200.computercraft.shared.util.WorldUtil;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.math.BlockPos;
 
 import javax.annotation.Nonnull;
-import java.util.ArrayList;
+import java.util.List;
 
 public class TurtleCraftCommand implements ITurtleCommand
 {
-    private final int m_limit;
+    private final int limit;
 
     public TurtleCraftCommand( int limit )
     {
-        m_limit = limit;
+        this.limit = limit;
     }
 
     @Nonnull
@@ -34,32 +33,20 @@ public class TurtleCraftCommand implements ITurtleCommand
     {
         // Craft the item
         TurtleInventoryCrafting crafting = new TurtleInventoryCrafting( turtle );
-        ArrayList<ItemStack> results = crafting.doCrafting( turtle.getWorld(), m_limit );
-        if( results != null )
+        List<ItemStack> results = crafting.doCrafting( turtle.getWorld(), limit );
+        if( results == null ) return TurtleCommandResult.failure( "No matching recipes" );
+
+        // Store or drop any remainders
+        for( ItemStack stack : results )
         {
-            // Store the results
-            for( ItemStack stack : results )
+            ItemStack remainder = InventoryUtil.storeItems( stack, turtle.getItemHandler(), turtle.getSelectedSlot() );
+            if( !remainder.isEmpty() )
             {
-                ItemStack remainder = InventoryUtil.storeItems( stack, turtle.getItemHandler(), turtle.getSelectedSlot() );
-                if( !remainder.isEmpty() )
-                {
-                    // Drop the remainder
-                    BlockPos position = turtle.getPosition();
-                    WorldUtil.dropItemStack( remainder, turtle.getWorld(), position, turtle.getDirection() );
-                }
+                WorldUtil.dropItemStack( remainder, turtle.getWorld(), turtle.getPosition(), turtle.getDirection() );
             }
-
-            if( !results.isEmpty() )
-            {
-                // Animate
-                turtle.playAnimation( TurtleAnimation.Wait );
-            }
-
-            // Succeed
-            return TurtleCommandResult.success();
         }
 
-        // Fail
-        return TurtleCommandResult.failure( "No matching recipes" );
+        if( !results.isEmpty() ) turtle.playAnimation( TurtleAnimation.Wait );
+        return TurtleCommandResult.success();
     }
 }
