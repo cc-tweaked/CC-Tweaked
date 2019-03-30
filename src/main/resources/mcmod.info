@@ -5,17 +5,19 @@
         "version" : "${version}",
         "mcversion" : "${mcversion}",
         "url" : "https://github.com/SquidDev-CC/CC-Tweaked",
-        "credits" : "Created by Daniel Ratcliffe (@DanTwoHundred)",
+        "credits" : "Initially created by Daniel Ratcliffe (@DanTwoHundred)",
         "authorList" : [
             "Daniel Ratcliffe",
             "Aaron Mills",
             "SquidDev"
         ],
-        "description" : "CC: Tweaked is a fork of ComputerCraft with a focus on more experimental features.",
-        "logoFile" : "pack.png",
-        "updateUrl" : "https://github.com/SquidDev-CC/CC-Tweaked",
-        "parent" : "",
-        "screenshots": [
-        ]
+        "description" : "CC: Tweaked is a fork of ComputerCraft, adding programmable computers, turtles and more to Minecraft.",
+        "logoFile" : "pack.png"
+    },
+    {
+        "modid" : "cctweaked",
+        "name" : "CC: Tweaked",
+        "version" : "${version}",
+        "parent" : "computercraft"
     }
 ]

@@ -91,13 +91,15 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 @Mod(
-    modid = ComputerCraft.MOD_ID, name = "CC: Tweaked", version = "${version}",
+    modid = ComputerCraft.MOD_ID, name = ComputerCraft.NAME, version = ComputerCraft.VERSION,
     guiFactory = "dan200.computercraft.client.gui.GuiConfigCC$Factory",
     dependencies = "required:forge@[14.23.4.2746,)"
 )
 public class ComputerCraft
 {
     public static final String MOD_ID = "computercraft";
+    static final String VERSION = "${version}";
+    static final String NAME = "CC: Tweaked";
 
     // Configuration options
     public static final String[] DEFAULT_HTTP_WHITELIST = new String[] { "*" };
@@ -297,7 +299,7 @@ public class ComputerCraft
 
     public static String getVersion()
     {
-        return "${version}";
+        return VERSION;
     }
 
     private static File getBaseDir()
