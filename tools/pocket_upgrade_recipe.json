@@ -6,8 +6,8 @@
         "T"
     ],
     "key": {
-        "#": { "item": ${upgrade_item} },
-        "T": { "item": "computercraft:pocket_computer", "data": ${pocket_data} }
+        "#": { "item": "${upgrade_item}" },
+        "T": { "item": "computercraft:pocket_computer_${pocket_family}" }
     },
-    "result": { "item": "computercraft:pocket_computer", "data": ${pocket_data}, "nbt": { "upgrade": "${upgrade_id}" } }
+    "result": { "item": "computercraft:pocket_computer_${pocket_family}", "nbt": { "Upgrade": "${upgrade_id}" } }
 }

@@ -1,0 +1,92 @@
+{
+
+    "block.computercraft.computer_normal": "Computer",
+    "block.computercraft.computer_advanced": "Computer Avanzato",
+    "block.computercraft.computer_command": "Computer Commando",
+
+    "block.computercraft.disk_drive": "Lettore disco",
+    "block.computercraft.printer": "Stampante",
+    "block.computercraft.speaker": "Altoparlante",
+
+    "block.computercraft.monitor_normal": "Monitor",
+    "block.computercraft.monitor_advanced": "Monitor Avanzato",
+
+    "block.computercraft.wireless_modem_normal": "Modem Wireless",
+    "block.computercraft.wireless_modem_advanced": "Modem di Ender",
+
+    "block.computercraft.wired_modem": "Modem Cablato",
+    "block.computercraft.cable": "Cavo Di Rete",
+
+    "block.computercraft.turtle_normal": "Tartaruga",
+    "block.computercraft.turtle_normal.upgraded": "Tartaruga %s",
+    "block.computercraft.turtle_normal.upgraded_twice": "Tartaruga %s %s",
+
+    "block.computercraft.turtle_advanced": "Tartaruga Avanzata",
+    "block.computercraft.turtle_advanced.upgraded": "Tartaruga %s Avanzata",
+    "block.computercraft.turtle_advanced.upgraded_twice": "Tartaruga %s %s Avanzata",
+
+    "item.computercraft.disk": "Disco Floppy",
+    "item.computercraft.treasure_disk": "Disco Floppy",
+    "item.computercraft.printed_page": "Pagina Stampata",
+    "item.computercraft.printed_pages": "Pagine Stampate",
+    "item.computercraft.printed_book": "Libro Stampato",
+
+    "item.computercraft.pocket_computer_normal": "Computer Tascabile",
+    "item.computercraft.pocket_computer_normal.upgraded": "Computer Tascabile %s",
+    "item.computercraft.pocket_computer_advanced": "Computer Tascabile Avanzato",
+    "item.computercraft.pocket_computer_advanced.upgraded": "Computer Tascabile %s Avanzato",
+
+    "upgrade.minecraft.diamond_sword.adjective": "Da Combattimento",
+    "upgrade.minecraft.diamond_shovel.adjective": "Scavatrice",
+    "upgrade.minecraft.diamond_pickaxe.adjective": "Minatrice",
+    "upgrade.minecraft.diamond_axe.adjective": "Taglialegna",
+    "upgrade.minecraft.diamond_hoe.adjective": "Contadina",
+    "upgrade.minecraft.crafting_table.adjective": "Artigiano",
+    "upgrade.computercraft.wireless_modem_normal.adjective": "Wireless",
+    "upgrade.computercraft.wireless_modem_advanced.adjective": "Ender",
+    "upgrade.computercraft.speaker.adjective": "Rumoroso",
+
+    "chat.computercraft.wired_modem.peripheral_connected": "Periferica \"%s\" connessa alla rete",
+    "chat.computercraft.wired_modem.peripheral_disconnected": "Periferica \"%s\" disconessa dalla rete",
+
+    "gui.computercraft.tooltip.copy": "Copia negli appunti",
+
+    "gui.computercraft.config.computer_space_limit": "Limite spazio Computer (bytes)",
+    "gui.computercraft.config.floppy_space_limit": "Limite spazio Disco Floppy (bytes)",
+    "gui.computercraft.config.maximum_open_files": "Massimo file aperti per computer",
+    "gui.computercraft.config.disable_lua51_features": "Disattiva features Lua 5.1",
+    "gui.computercraft.config.default_computer_settings": "Impostazioni Computer predefinite",
+    "gui.computercraft.config.debug_enabled": "Attiva libreria di debug",
+    "gui.computercraft.config.log_computer_errors": "Salva errori computer",
+
+    "gui.computercraft.config.execution.computer_threads": "Threads computer",
+
+    "gui.computercraft.config.http": "HTTP",
+    "gui.computercraft.config.http.enabled": "Attiva l'API HTTP",
+    "gui.computercraft.config.http.websocket_enabled": "Attiva websocket",
+    "gui.computercraft.config.http.whitelist": "Lista bianca HTTP",
+    "gui.computercraft.config.http.blacklist": "Lista nera HTTP",
+
+    "gui.computercraft.config.http.timeout": "Tempo di scadenza",
+    "gui.computercraft.config.http.max_requests": "Richieste correnti massime",
+    "gui.computercraft.config.http.max_download": "Massimo grandezza risposte",
+    "gui.computercraft.config.http.max_upload": "Massimo grandezza richieste",
+    "gui.computercraft.config.http.max_websockets": "Connessioni websocket massime",
+    "gui.computercraft.config.http.max_websocket_message": "Massimo grandezza messaggi websocket",
+
+    "gui.computercraft.config.peripheral": "Periferiche",
+    "gui.computercraft.config.peripheral.command_block_enabled": "Attiva periferica blocco comandi",
+    "gui.computercraft.config.peripheral.modem_range": "Raggio Modem (default)",
+    "gui.computercraft.config.peripheral.modem_high_altitude_range": "Raggio Modem (alta quota)",
+    "gui.computercraft.config.peripheral.modem_range_during_storm": "Raggio Modem (brutto tempo)",
+    "gui.computercraft.config.peripheral.modem_high_altitude_range_during_storm": "Raggio Modem (alta quota, brutto tempo)",
+    "gui.computercraft.config.peripheral.max_notes_per_tick": "Note massime alla volta",
+
+    "gui.computercraft.config.turtle": "Tartarughe",
+    "gui.computercraft.config.turtle.need_fuel": "Attiva carburante",
+    "gui.computercraft.config.turtle.normal_fuel_limit": "Limite carburante tartarughe",
+    "gui.computercraft.config.turtle.advanced_fuel_limit": "Limite carburante tartarughe avanzate",
+    "gui.computercraft.config.turtle.obey_block_protection": "Tartarughe rispettano le protezioni",
+    "gui.computercraft.config.turtle.can_push": "Le tartarughe possono spingere le entità",
+    "gui.computercraft.config.turtle.disabled_actions": "Disattiva azioni tartarughe"
+}

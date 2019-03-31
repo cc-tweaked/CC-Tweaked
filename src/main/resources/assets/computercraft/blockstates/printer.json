@@ -1,0 +1,20 @@
+{
+    "variants": {
+        "facing=north,bottom=false,top=false": { "model": "computercraft:block/printer_empty" },
+        "facing=south,bottom=false,top=false": { "model": "computercraft:block/printer_empty", "y": 180 },
+        "facing=west,bottom=false,top=false": { "model": "computercraft:block/printer_empty", "y": 270 },
+        "facing=east,bottom=false,top=false": { "model": "computercraft:block/printer_empty", "y": 90 },
+        "facing=north,bottom=false,top=true": { "model": "computercraft:block/printer_top_full" },
+        "facing=south,bottom=false,top=true": { "model": "computercraft:block/printer_top_full", "y": 180 },
+        "facing=west,bottom=false,top=true": { "model": "computercraft:block/printer_top_full", "y": 270 },
+        "facing=east,bottom=false,top=true": { "model": "computercraft:block/printer_top_full", "y": 90 },
+        "facing=north,bottom=true,top=false": { "model": "computercraft:block/printer_bottom_full" },
+        "facing=south,bottom=true,top=false": { "model": "computercraft:block/printer_bottom_full", "y": 180 },
+        "facing=west,bottom=true,top=false": { "model": "computercraft:block/printer_bottom_full", "y": 270 },
+        "facing=east,bottom=true,top=false": { "model": "computercraft:block/printer_bottom_full", "y": 90 },
+        "facing=north,bottom=true,top=true": { "model": "computercraft:block/printer_both_full" },
+        "facing=south,bottom=true,top=true": { "model": "computercraft:block/printer_both_full", "y": 180 },
+        "facing=west,bottom=true,top=true": { "model": "computercraft:block/printer_both_full", "y": 270 },
+        "facing=east,bottom=true,top=true": { "model": "computercraft:block/printer_both_full", "y": 90 }
+    }
+}

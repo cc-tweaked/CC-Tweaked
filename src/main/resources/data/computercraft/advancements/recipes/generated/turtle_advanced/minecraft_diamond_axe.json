@@ -8,7 +8,7 @@
             "trigger": "minecraft:inventory_changed",
             "conditions": {
                 "items": [
-                    { "item": "computercraft:turtle_advanced", "data": 0 },
+                    { "item": "computercraft:turtle_advanced" },
                     { "item": "minecraft:diamond_axe" }
                 ]
             }

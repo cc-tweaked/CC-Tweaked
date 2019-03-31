@@ -10,9 +10,9 @@
 
 --- All turtle upgrades, and an optional item for this upgrade.
 local turtle_upgrades = {
-    { "computercraft:wireless_modem", '"computercraft:peripheral", "data": 1' },
-    { "computercraft:advanced_modem" },
-    { "computercraft:speaker", '"computercraft:peripheral", "data": 5' },
+    { "computercraft:wireless_modem_normal" },
+    { "computercraft:wireless_modem_advanced" },
+    { "computercraft:speaker" },
     { "minecraft:crafting_table" },
     { "minecraft:diamond_sword" },
     { "minecraft:diamond_shovel" },
@@ -23,29 +23,29 @@ local turtle_upgrades = {
 
 --- All pocket upgrades, and an optional item for this upgrade.
 local pocket_upgrades = {
-    { "computercraft:wireless_modem", '"computercraft:peripheral", "data": 1' },
-    { "computercraft:advanced_modem" },
-    { "computercraft:speaker", '"computercraft:peripheral", "data": 5' },
+    { "computercraft:wireless_modem_normal" },
+    { "computercraft:wireless_modem_advanced" },
+    { "computercraft:speaker" },
 }
 
 --- All dye/disk colours
 local colours = {
-    0x111111,
-    0xcc4c4c,
-    0x57A64E,
-    0x7f664c,
-    0x3366cc,
-    0xb266e5,
-    0x4c99b2,
-    0x999999,
-    0x4c4c4c,
-    0xf2b2cc,
-    0x7fcc19,
-    0xdede6c,
-    0x99b2f2,
-    0xe57fd8,
-    0xf2b233,
-    0xf0f0f0;
+    { 0x111111, "minecraft:ink_sac" },
+    { 0xcc4c4c, "minecraft:rose_red" },
+    { 0x57A64E, "minecraft:cactus_green" },
+    { 0x7f664c, "minecraft:cocoa_beans" },
+    { 0x3366cc, "minecraft:lapis_lazuli" },
+    { 0xb266e5, "minecraft:purple_dye" },
+    { 0x4c99b2, "minecraft:cyan_dye" },
+    { 0x999999, "minecraft:light_gray_dye" },
+    { 0x4c4c4c, "minecraft:gray_dye" },
+    { 0xf2b2cc, "minecraft:pink_dye" },
+    { 0x7fcc19, "minecraft:lime_dye" },
+    { 0xdede6c, "minecraft:dandelion_yellow" },
+    { 0x99b2f2, "minecraft:light_blue_dye" },
+    { 0xe57fd8, "minecraft:magenta_dye" },
+    { 0xf2b233, "minecraft:orange_dye" },
+    { 0xf0f0f0, "minecraft:bone_meal" },
 }
 
 --- Read the provided file into a string, exiting the program if not found.
@@ -82,44 +82,44 @@ end
 --- Format template strings of the form `${key}` using the given substituion
 -- table.
 local function template(str, subs)
-    return str:gsub("%$%{([^}]+)%}", function(k) return subs[k] or error("Unknown key " .. k) end)
+    return str:gsub("%$%{([^}]+)%}", function(k)
+        return subs[k] or error("Unknown key " .. k)
+    end)
 end
 
 -- Write turtle upgrades
 local turtle_recipe = read_all "tools/turtle_upgrade_recipe.json"
 local turtle_advance = read_all "tools/turtle_upgrade_advancement.json"
-for _, turtle in ipairs { { "normal", "computercraft:turtle_expanded" }, { "advanced", "computercraft:turtle_advanced" } } do
-    local turtle_family, turtle_item = turtle[1], turtle[2]
+for _, turtle_family in ipairs { "normal", "advanced" } do
     for _, upgrade in ipairs(turtle_upgrades) do
-        local upgrade_id, upgrade_item = upgrade[1], upgrade[2] or ('"%s"'):format(upgrade[1])
+        local upgrade_id, upgrade_item = upgrade[1], upgrade[2] or upgrade[1]
         local path = ("generated/turtle_%s/%s"):format(turtle_family, (upgrade_id:gsub(":", "_")))
         local keys = {
             upgrade_id = upgrade_id, upgrade_item = upgrade_item,
-            turtle_family = turtle_family, turtle_item = turtle_item,
+            turtle_family = turtle_family,
             path = path,
         }
 
-        write_all("src/main/resources/assets/computercraft/recipes/" .. path .. ".json", template(turtle_recipe, keys))
-        write_all("src/main/resources/assets/computercraft/advancements/recipes/" .. path .. ".json", template(turtle_advance, keys))
+        write_all("src/main/resources/data/computercraft/recipes/" .. path .. ".json", template(turtle_recipe, keys))
+        write_all("src/main/resources/data/computercraft/advancements/recipes/" .. path .. ".json", template(turtle_advance, keys))
     end
 end
 
 -- Write pocket upgrades
 local pocket_recipe = read_all "tools/pocket_upgrade_recipe.json"
 local pocket_advance = read_all "tools/pocket_upgrade_advancement.json"
-for _, pocket in ipairs { { "normal", "0" }, { "advanced", "1" } } do
-    local pocket_family, pocket_data = pocket[1], pocket[2]
+for _, pocket_family in ipairs { "normal", "advanced" } do
     for _, upgrade in ipairs(pocket_upgrades) do
-        local upgrade_id, upgrade_item = upgrade[1], upgrade[2] or ('"%s"'):format(upgrade[1])
+        local upgrade_id, upgrade_item = upgrade[1], upgrade[2] or upgrade[1]
         local path = ("generated/pocket_%s/%s"):format(pocket_family, (upgrade_id:gsub(":", "_")))
         local keys = {
             upgrade_id = upgrade_id, upgrade_item = upgrade_item,
-            pocket_family = pocket_family, pocket_data = pocket_data,
+            pocket_family = pocket_family,
             path = path,
         }
 
-        write_all("src/main/resources/assets/computercraft/recipes/" .. path .. ".json", template(pocket_recipe, keys))
-        write_all("src/main/resources/assets/computercraft/advancements/recipes/" .. path .. ".json", template(pocket_advance, keys))
+        write_all("src/main/resources/data/computercraft/recipes/" .. path .. ".json", template(pocket_recipe, keys))
+        write_all("src/main/resources/data/computercraft/advancements/recipes/" .. path .. ".json", template(pocket_advance, keys))
     end
 end
 
@@ -128,9 +128,9 @@ local disk_recipe = read_all "tools/disk_recipe.json"
 for i, colour in ipairs(colours) do
     local path = ("generated/disk/disk_%s"):format(i)
     local keys = {
-            dye = i - 1, colour = colour,
-            path = path,
-        }
+        dye = colour[2], colour = colour[1],
+        path = path,
+    }
 
-        write_all("src/main/resources/assets/computercraft/recipes/" .. path .. ".json", template(disk_recipe, keys))
+    write_all("src/main/resources/data/computercraft/recipes/" .. path .. ".json", template(disk_recipe, keys))
 end

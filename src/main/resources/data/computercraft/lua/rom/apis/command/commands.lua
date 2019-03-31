@@ -1,8 +1,9 @@
 
 if not commands then
-	error( "Cannot load command API on normal computer", 2 )
+    error( "Cannot load command API on normal computer", 2 )
 end
-native = commands.native or commands
+
+local native = commands.native or commands
 
 local function collapseArgs( bJSONIsNBT, ... )
     local args = table.pack(...)
@@ -22,6 +23,7 @@ end
 
 -- Put native functions into the environment
 local env = _ENV
+env.native = native
 for k,v in pairs( native ) do
     env[k] = v
 end
@@ -32,18 +34,53 @@ local tNonNBTJSONCommands = {
     [ "tellraw" ] = true,
     [ "title" ] = true
 }
-local tCommands = native.list()
-for n,sCommandName in ipairs(tCommands) do
+
+local command_mt = {}
+function command_mt.__call(self, ...)
+    local meta = self[command_mt]
+    local sCommand = collapseArgs( meta.json, table.concat(meta.name, " "), ... )
+    return meta.func( sCommand )
+end
+
+function command_mt.__tostring(self)
+    local meta = self[command_mt]
+    return ("command %q"):format("/" .. table.concat(meta.name, " "))
+end
+
+function command_mt.__index(self, key)
+    local meta = self[command_mt]
+    if meta.children then return nil end
+    meta.children = true
+
+    local name = meta.name
+    for _, child in ipairs(native.list(table.unpack(name))) do
+        local child_name = { table.unpack(name) }
+        child_name[#child_name + 1] = child
+
+        self[child] = setmetatable({ [command_mt] = {
+            name = child_name,
+            func = meta.func,
+            json = meta.json
+        } }, command_mt)
+    end
+
+    return self[key]
+end
+
+for _, sCommandName in ipairs(native.list()) do
     if env[ sCommandName ] == nil then
-        local bJSONIsNBT = (tNonNBTJSONCommands[ sCommandName ] == nil)
-        env[ sCommandName ] = function( ... )
-            local sCommand = collapseArgs( bJSONIsNBT, sCommandName, ... )
-            return native.exec( sCommand )
-        end
-        tAsync[ sCommandName ] = function( ... )
-            local sCommand = collapseArgs( bJSONIsNBT, sCommandName, ... )
-            return native.execAsync( sCommand )
-        end
+        local bJSONIsNBT = tNonNBTJSONCommands[ sCommandName ] == nil
+        env[ sCommandName ] = setmetatable({ [command_mt] = {
+            name = { sCommandName },
+            func = native.exec,
+            json = bJSONIsNBT
+        } }, command_mt)
+
+        tAsync[ sCommandName ] = setmetatable({ [command_mt] = {
+            name = { sCommandName },
+            func = native.execAsync,
+            json = bJSONIsNBT
+        } }, command_mt)
     end
 end
 env.async = tAsync

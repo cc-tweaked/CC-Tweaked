@@ -1,0 +1,76 @@
+{
+
+    "block.computercraft.computer_normal": "Ordinateur",
+    "block.computercraft.computer_advanced": "Ordinateur avancé",
+    "block.computercraft.computer_command": "Ordinateur de commande",
+
+    "block.computercraft.disk_drive": "Lecteur disque",
+    "block.computercraft.printer": "Imprimante",
+    "block.computercraft.speaker": "Haut-parleur",
+
+    "block.computercraft.monitor_normal": "Moniteur",
+    "block.computercraft.monitor_advanced": "Moniteur avancé",
+
+    "block.computercraft.wireless_modem_normal": "Modem sans fil",
+    "block.computercraft.wireless_modem_advanced": "Modem de l'Ender",
+
+    "block.computercraft.wired_modem": "Modem filaire",
+    "block.computercraft.cable": "Câble réseau",
+    "block.computercraft.wired_modem_full": "Modem filaire",
+
+    "block.computercraft.turtle_normal": "Tortue",
+    "block.computercraft.turtle_normal.upgraded": "Tortue %s",
+    "block.computercraft.turtle_normal.upgraded_twice": "Tortue %s %s",
+
+    "block.computercraft.turtle_advanced": "Tortue avancée",
+    "block.computercraft.turtle_advanced.upgraded": "Tortue %s avancée",
+    "block.computercraft.turtle_advanced.upgraded_twice": "Tortue %s %s avancée",
+
+    "item.computercraft.disk": "Disquette",
+    "item.computercraft.treasure_disk": "Disquette",
+    "item.computercraft.printed_page": "Imprimé",
+    "item.computercraft.printed_pages": "Imprimés",
+    "item.computercraft.printed_book": "Livre imprimé",
+
+    "item.computercraft.pocket_computer_normal": "Ordinateur de poche",
+    "item.computercraft.pocket_computer_normal.upgraded": "Ordinateur de poche %s",
+    "item.computercraft.pocket_computer_advanced": "Ordinateur de poche avancé",
+    "item.computercraft.pocket_computer_advanced.upgraded": "Ordinateur de poche %s avancé",
+
+    "upgrade.minecraft.diamond_sword.adjective": "combattante",
+    "upgrade.minecraft.diamond_shovel.adjective": "excavatrice",
+    "upgrade.minecraft.diamond_pickaxe.adjective": "minière",
+    "upgrade.minecraft.diamond_axe.adjective": "forestière",
+    "upgrade.minecraft.diamond_hoe.adjective": "agricole",
+    "upgrade.minecraft.crafting_table.adjective": "ouvrière",
+    "upgrade.computercraft.wireless_modem_normal.adjective": "sans fil",
+    "upgrade.computercraft.wireless_modem_advanced.adjective": "de l'Ender",
+    "upgrade.computercraft.speaker.adjective": "parlante",
+
+    "chat.computercraft.wired_modem.peripheral_connected": "Le periphérique \"%s\" est connecté au réseau",
+    "chat.computercraft.wired_modem.peripheral_disconnected": "Le periphérique \"%s\" est déconnecté du réseau",
+
+    "gui.computercraft.config.computer_space_limit": "Espace disque d'un Ordinateur (octets)",
+    "gui.computercraft.config.floppy_space_limit": "Espace disque d'une Disquette (octets)",
+    "gui.computercraft.config.maximum_open_files": "Maximum de fichier ouvert par Ordinateur",
+    "gui.computercraft.config.disable_lua51_features": "Désactiver les particularités de Lua 5.1",
+    "gui.computercraft.config.default_computer_settings": "Configuration d'Ordinateur par défaut",
+    "gui.computercraft.config.log_computer_errors": "Journal d'erreur périphériques",
+
+    "gui.computercraft.config.http.enabled": "Permettre l'API HTTP",
+    "gui.computercraft.config.http.whitelist": "HTTP liste blanche",
+    "gui.computercraft.config.http.blacklist": "HTTP liste noire",
+
+    "gui.computercraft.config.peripheral.command_block_enabled": "Permettre l'accès d'un Bloc de Commande par périphérique",
+    "gui.computercraft.config.peripheral.modem_range": "Portée d'un Modem (par défaut)",
+    "gui.computercraft.config.peripheral.modem_high_altitude_range": "Portée d'un Modem (en haute altitude)",
+    "gui.computercraft.config.peripheral.modem_range_during_storm": "Portée d'un Modem (par mauvais temps)",
+    "gui.computercraft.config.peripheral.modem_high_altitude_range_during_storm": "Portée d'un Modem (en haute altitude, par mauvais temps)",
+    "gui.computercraft.config.peripheral.max_notes_per_tick": "Maximum de notes simultanées jouées par Ordinateur",
+
+    "gui.computercraft.config.turtle.need_fuel": "Activer la nécessité de carburant au mouvement des Tortues",
+    "gui.computercraft.config.turtle.normal_fuel_limit": "Limite de carburant par Tortue",
+    "gui.computercraft.config.turtle.advanced_fuel_limit": "Limite de carburant par Tortue avancée",
+    "gui.computercraft.config.turtle.obey_block_protection": "Les Tortues respectent les protections de blocs",
+    "gui.computercraft.config.turtle.can_push": "Les Tortues peuvent pousser les entitées"
+}

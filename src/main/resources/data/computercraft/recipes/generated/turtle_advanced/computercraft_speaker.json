@@ -5,8 +5,8 @@
         "#T"
     ],
     "key": {
-        "#": { "item": "computercraft:peripheral", "data": 5 },
-        "T": { "item": "computercraft:turtle_advanced", "data": 0 }
+        "#": { "item": "computercraft:speaker" },
+        "T": { "item": "computercraft:turtle_advanced" }
     },
-    "result": { "item": "computercraft:turtle_advanced", "data": 0, "nbt": { "rightUpgrade": "computercraft:speaker" } }
+    "result": { "item": "computercraft:turtle_advanced", "nbt": { "RightUpgrade": "computercraft:speaker" } }
 }

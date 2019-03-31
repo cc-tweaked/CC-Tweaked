@@ -1,12 +1,11 @@
 {
-    "type": "minecraft:crafting_shapeless",
+    "type": "crafting_shapeless",
     "ingredients": [
-        { "item": "minecraft:skull", "data": 32767 },
-        { "item": "computercraft:computer", "data": 0 }
+        { "item": "minecraft:wither_skeleton_skull" },
+        { "item": "computercraft:computer_normal" }
     ],
     "result": {
-        "item": "minecraft:skull",
-        "data": 3,
-        "nbt": { "SkullOwner": "dan200" }
+        "item": "minecraft:player_head",
+        "nbt": { "SkullOwner": { "Name": "dan200", "Id": "f3c8d69b-0776-4512-8434-d1b2165909eb" } }
     }
 }

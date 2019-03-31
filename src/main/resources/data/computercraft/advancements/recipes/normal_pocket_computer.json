@@ -1,7 +1,7 @@
 {
     "parent": "minecraft:recipes/root",
     "rewards": {
-        "recipes": [ "computercraft:normal_pocket_computer" ]
+        "recipes": [ "computercraft:normal_pocket_computer_normal" ]
     },
     "criteria": {
         "has_normal": {
@@ -24,7 +24,7 @@
         },
         "has_the_recipe": {
             "trigger": "minecraft:recipe_unlocked",
-            "conditions": { "recipe": "computercraft:normal_pocket_computer" }
+            "conditions": { "recipe": "computercraft:normal_pocket_computer_normal" }
         }
     },
     "requirements": [

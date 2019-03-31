@@ -8,8 +8,8 @@
             "trigger": "minecraft:inventory_changed",
             "conditions": {
                 "items": [
-                    { "item": "computercraft:turtle_advanced", "data": 0 },
-                    { "item": "computercraft:peripheral", "data": 5 }
+                    { "item": "computercraft:turtle_advanced" },
+                    { "item": "computercraft:speaker" }
                 ]
             }
         },

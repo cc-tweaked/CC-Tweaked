@@ -1,0 +1,12 @@
+{
+    "type": "computercraft:impostor_shaped",
+    "group": "computercraft:upgrade_turtle_advanced",
+    "pattern": [
+        "#T"
+    ],
+    "key": {
+        "#": { "item": "computercraft:wireless_modem_normal" },
+        "T": { "item": "computercraft:turtle_advanced" }
+    },
+    "result": { "item": "computercraft:turtle_advanced", "nbt": { "RightUpgrade": "computercraft:wireless_modem_normal" } }
+}

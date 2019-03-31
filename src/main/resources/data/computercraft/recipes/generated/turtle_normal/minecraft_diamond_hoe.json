@@ -6,7 +6,7 @@
     ],
     "key": {
         "#": { "item": "minecraft:diamond_hoe" },
-        "T": { "item": "computercraft:turtle_expanded", "data": 0 }
+        "T": { "item": "computercraft:turtle_normal" }
     },
-    "result": { "item": "computercraft:turtle_expanded", "data": 0, "nbt": { "rightUpgrade": "minecraft:diamond_hoe" } }
+    "result": { "item": "computercraft:turtle_normal", "nbt": { "RightUpgrade": "minecraft:diamond_hoe" } }
 }

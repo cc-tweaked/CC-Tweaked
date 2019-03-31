@@ -8,8 +8,8 @@
             "trigger": "minecraft:inventory_changed",
             "conditions": {
                 "items": [
-                    { "item": "computercraft:pocket_computer", "data": 1 },
-                    { "item": "computercraft:peripheral", "data": 5 }
+                    { "item": "computercraft:pocket_computer_advanced" },
+                    { "item": "computercraft:speaker" }
                 ]
             }
         },

@@ -5,8 +5,8 @@
         "#T"
     ],
     "key": {
-        "#": { "item": ${upgrade_item} },
-        "T": { "item": "${turtle_item}", "data": 0 }
+        "#": { "item": "${upgrade_item}" },
+        "T": { "item": "computercraft:turtle_${turtle_family}" }
     },
-    "result": { "item": "${turtle_item}", "data": 0, "nbt": { "rightUpgrade": "${upgrade_id}" } }
+    "result": { "item": "computercraft:turtle_${turtle_family}", "nbt": { "RightUpgrade": "${upgrade_id}" } }
 }

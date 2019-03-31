@@ -1,0 +1,13 @@
+{
+    "type": "crafting_shaped",
+    "pattern": [
+        "###",
+        "#G#",
+        "###"
+    ],
+    "key": {
+        "#": { "tag": "forge:ingots/gold" },
+        "G": { "item": "minecraft:glass_pane" }
+    },
+    "result": { "item": "computercraft:monitor_advanced", "count": 4 }
+}

@@ -1,8 +1,0 @@
-{
-    "parent": "item/generated",
-    "textures": {
-        "layer0": "computercraft:items/pocket_computer_blink",
-        "layer1": "computercraft:items/pocket_computer",
-        "layer2": "computercraft:items/pocket_computer_light"
-    }
-}

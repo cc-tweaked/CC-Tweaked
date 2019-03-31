@@ -21,10 +21,10 @@
         ]
     },
     "criteria": {
-        "has_printer": {
+        "has_drive": {
             "trigger": "minecraft:inventory_changed",
             "conditions": {
-                "items": [ { "item": "computercraft:peripheral", "data": 0 } ]
+                "items": [ { "item": "computercraft:disk_drive" } ]
             }
         },
         "has_recipe_1": {
@@ -94,7 +94,7 @@
     },
     "requirements": [
         [
-            "has_printer",
+            "has_drive",
             "has_recipe_1",
             "has_recipe_2",
             "has_recipe_3",

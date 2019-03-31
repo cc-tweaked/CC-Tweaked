@@ -1,0 +1,13 @@
+{
+    "type": "computercraft:impostor_shaped",
+    "group": "computercraft:upgrade_pocket_normal",
+    "pattern": [
+        "#",
+        "T"
+    ],
+    "key": {
+        "#": { "item": "computercraft:wireless_modem_advanced" },
+        "T": { "item": "computercraft:pocket_computer_normal" }
+    },
+    "result": { "item": "computercraft:pocket_computer_normal", "nbt": { "Upgrade": "computercraft:wireless_modem_advanced" } }
+}

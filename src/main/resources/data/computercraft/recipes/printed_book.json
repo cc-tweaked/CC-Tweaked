@@ -1,9 +1,9 @@
 {
     "type": "computercraft:impostor_shapeless",
     "ingredients": [
-        { "type": "forge:ore_dict", "ore": "leather" },
-        { "item": "computercraft:printout", "data": 0 },
-        { "type": "forge:ore_dict", "ore": "string" }
+        { "item": "minecraft:leather" },
+        { "item": "computercraft:printed_page" },
+        { "item": "minecraft:string" }
     ],
-    "result": { "item": "computercraft:printout", "data": 2 }
+    "result": { "item": "computercraft:printed_book" }
 }

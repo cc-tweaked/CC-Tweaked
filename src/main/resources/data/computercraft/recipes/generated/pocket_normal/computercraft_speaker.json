@@ -6,8 +6,8 @@
         "T"
     ],
     "key": {
-        "#": { "item": "computercraft:peripheral", "data": 5 },
-        "T": { "item": "computercraft:pocket_computer", "data": 0 }
+        "#": { "item": "computercraft:speaker" },
+        "T": { "item": "computercraft:pocket_computer_normal" }
     },
-    "result": { "item": "computercraft:pocket_computer", "data": 0, "nbt": { "upgrade": "computercraft:speaker" } }
+    "result": { "item": "computercraft:pocket_computer_normal", "nbt": { "Upgrade": "computercraft:speaker" } }
 }

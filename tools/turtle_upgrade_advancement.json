@@ -8,8 +8,8 @@
             "trigger": "minecraft:inventory_changed",
             "conditions": {
                 "items": [
-                    { "item": "${turtle_item}", "data": 0 },
-                    { "item": ${upgrade_item} }
+                    { "item": "computercraft:turtle_${turtle_family}" },
+                    { "item": "${upgrade_item}" }
                 ]
             }
         },

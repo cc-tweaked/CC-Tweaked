@@ -1,6 +1,6 @@
 {
     "parent": "block/cube_all",
     "textures": {
-        "all": "computercraft:blocks/wired_modem_face_peripheral"
+        "all": "computercraft:block/wired_modem_face_peripheral"
     }
 }

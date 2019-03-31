@@ -6,7 +6,7 @@
     ],
     "key": {
         "#": { "item": "minecraft:diamond_shovel" },
-        "T": { "item": "computercraft:turtle_advanced", "data": 0 }
+        "T": { "item": "computercraft:turtle_advanced" }
     },
-    "result": { "item": "computercraft:turtle_advanced", "data": 0, "nbt": { "rightUpgrade": "minecraft:diamond_shovel" } }
+    "result": { "item": "computercraft:turtle_advanced", "nbt": { "RightUpgrade": "minecraft:diamond_shovel" } }
 }
