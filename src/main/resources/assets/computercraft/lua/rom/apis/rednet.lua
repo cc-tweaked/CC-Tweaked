@@ -81,13 +81,13 @@ function send( nRecipient, message, sProtocol )
         sProtocol = sProtocol,
     }
 
+    local sent = false
     if nRecipient == os.getComputerID() then
         -- Loopback to ourselves
         os.queueEvent( "rednet_message", nReplyChannel, message, sProtocol )
-
+        sent = true
     else
         -- Send on all open modems, to the target and to repeaters
-        local sent = false
         for n,sModem in ipairs( peripheral.getNames() ) do
             if isOpen( sModem ) then
                 peripheral.call( sModem, "transmit", nRecipient, nReplyChannel, tMessage );
@@ -96,6 +96,8 @@ function send( nRecipient, message, sProtocol )
             end
         end
     end
+    
+    return sent
 end
 
 function broadcast( message, sProtocol )
