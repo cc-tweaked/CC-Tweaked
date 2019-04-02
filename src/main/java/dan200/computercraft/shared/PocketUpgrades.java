@@ -10,8 +10,8 @@ import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.pocket.IPocketUpgrade;
 import dan200.computercraft.shared.util.InventoryUtil;
 import net.minecraft.item.ItemStack;
-import net.minecraftforge.fml.common.Loader;
-import net.minecraftforge.fml.common.ModContainer;
+import net.minecraftforge.fml.ModContainer;
+import net.minecraftforge.fml.ModLoadingContext;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -24,7 +24,7 @@ public final class PocketUpgrades
 
     private PocketUpgrades() {}
 
-    public static void register( @Nonnull IPocketUpgrade upgrade )
+    public static synchronized void register( @Nonnull IPocketUpgrade upgrade )
     {
         Objects.requireNonNull( upgrade, "upgrade cannot be null" );
 
@@ -37,7 +37,7 @@ public final class PocketUpgrades
 
         upgrades.put( id, upgrade );
 
-        ModContainer mc = Loader.instance().activeModContainer();
+        ModContainer mc = ModLoadingContext.get().getActiveContainer();
         if( mc != null && mc.getModId() != null ) upgradeOwners.put( upgrade, mc.getModId() );
     }
 
@@ -74,8 +74,8 @@ public final class PocketUpgrades
     public static Iterable<IPocketUpgrade> getVanillaUpgrades()
     {
         List<IPocketUpgrade> vanilla = new ArrayList<>();
-        vanilla.add( ComputerCraft.PocketUpgrades.wirelessModem );
-        vanilla.add( ComputerCraft.PocketUpgrades.advancedModem );
+        vanilla.add( ComputerCraft.PocketUpgrades.wirelessModemNormal );
+        vanilla.add( ComputerCraft.PocketUpgrades.wirelessModemAdvanced );
         vanilla.add( ComputerCraft.PocketUpgrades.speaker );
         return vanilla;
     }

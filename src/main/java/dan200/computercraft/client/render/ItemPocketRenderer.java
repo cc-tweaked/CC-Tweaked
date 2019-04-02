@@ -16,17 +16,17 @@ import dan200.computercraft.shared.pocket.items.ItemPocketComputer;
 import dan200.computercraft.shared.util.Palette;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.RenderItem;
-import net.minecraft.client.renderer.block.model.IBakedModel;
-import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
+import net.minecraft.client.renderer.ItemRenderer;
+import net.minecraft.client.renderer.model.IBakedModel;
+import net.minecraft.client.renderer.model.ItemCameraTransforms.TransformType;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.item.ItemStack;
+import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.client.event.RenderSpecificHandEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.relauncher.Side;
 import org.lwjgl.opengl.GL11;
 
 import static dan200.computercraft.client.gui.FixedWidthFontRenderer.FONT_HEIGHT;
@@ -35,7 +35,7 @@ import static dan200.computercraft.client.gui.FixedWidthFontRenderer.FONT_WIDTH;
 /**
  * Emulates map rendering for pocket computers
  */
-@Mod.EventBusSubscriber( modid = ComputerCraft.MOD_ID, value = Side.CLIENT )
+@Mod.EventBusSubscriber( modid = ComputerCraft.MOD_ID, value = Dist.CLIENT )
 public final class ItemPocketRenderer extends ItemMapLikeRenderer
 {
     private static final ItemPocketRenderer INSTANCE = new ItemPocketRenderer();
@@ -61,9 +61,9 @@ public final class ItemPocketRenderer extends ItemMapLikeRenderer
         // in ItemRenderer
         GlStateManager.disableLighting();
 
-        GlStateManager.rotate( 180f, 0f, 1f, 0f );
-        GlStateManager.rotate( 180f, 0f, 0f, 1f );
-        GlStateManager.scale( 0.5, 0.5, 0.5 );
+        GlStateManager.rotatef( 180f, 0f, 1f, 0f );
+        GlStateManager.rotatef( 180f, 0f, 0f, 1f );
+        GlStateManager.scalef( 0.5f, 0.5f, 0.5f );
 
         ClientComputer computer = ItemPocketComputer.createClientComputer( stack );
 
@@ -72,28 +72,28 @@ public final class ItemPocketRenderer extends ItemMapLikeRenderer
             // we display the pocket light and other such decorations.
             GlStateManager.pushMatrix();
 
-            GlStateManager.scale( 1.0f, -1.0f, 1.0f );
+            GlStateManager.scalef( 1.0f, -1.0f, 1.0f );
 
-            Minecraft minecraft = Minecraft.getMinecraft();
+            Minecraft minecraft = Minecraft.getInstance();
             TextureManager textureManager = minecraft.getTextureManager();
-            RenderItem renderItem = minecraft.getRenderItem();
+            ItemRenderer renderItem = minecraft.getItemRenderer();
 
             // Copy of RenderItem#renderItemModelIntoGUI but without the translation or scaling
             textureManager.bindTexture( TextureMap.LOCATION_BLOCKS_TEXTURE );
             textureManager.getTexture( TextureMap.LOCATION_BLOCKS_TEXTURE ).setBlurMipmap( false, false );
 
             GlStateManager.enableRescaleNormal();
-            GlStateManager.enableAlpha();
+            GlStateManager.enableAlphaTest();
             GlStateManager.alphaFunc( GL11.GL_GREATER, 0.1F );
             GlStateManager.enableBlend();
             GlStateManager.blendFunc( GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA );
-            GlStateManager.color( 1.0F, 1.0F, 1.0F, 1.0F );
+            GlStateManager.color4f( 1.0F, 1.0F, 1.0F, 1.0F );
 
             IBakedModel baked = renderItem.getItemModelWithOverrides( stack, null, null );
-            baked = ForgeHooksClient.handleCameraTransforms( baked, ItemCameraTransforms.TransformType.GUI, false );
+            baked = ForgeHooksClient.handleCameraTransforms( baked, TransformType.GUI, false );
             renderItem.renderItem( stack, baked );
 
-            GlStateManager.disableAlpha();
+            GlStateManager.disableAlphaTest();
             GlStateManager.disableRescaleNormal();
 
             GlStateManager.popMatrix();
@@ -108,13 +108,13 @@ public final class ItemPocketRenderer extends ItemMapLikeRenderer
                 synchronized( terminal )
                 {
                     GlStateManager.pushMatrix();
-                    GlStateManager.disableDepth();
+                    GlStateManager.disableDepthTest();
 
                     // Reset the position to be at the top left corner of the pocket computer
                     // Note we translate towards the screen slightly too.
-                    GlStateManager.translate( -8 / 16.0, -8 / 16.0, 0.5 / 16.0 );
+                    GlStateManager.translated( -8 / 16.0, -8 / 16.0, 0.5 / 16.0 );
                     // Translate to the top left of the screen.
-                    GlStateManager.translate( 4 / 16.0, 3 / 16.0, 0 );
+                    GlStateManager.translated( 4 / 16.0, 3 / 16.0, 0 );
 
                     // Work out the scaling required to resize the terminal in order to fit on the computer
                     final int margin = 2;
@@ -126,7 +126,7 @@ public final class ItemPocketRenderer extends ItemMapLikeRenderer
 
                     // The grid is 8 * 8 wide, so we start with a base of 1/2 (8 / 16).
                     double scale = 1.0 / 2.0 / max;
-                    GlStateManager.scale( scale, scale, scale );
+                    GlStateManager.scaled( scale, scale, scale );
 
                     // The margin/start positions are determined in order for the terminal to be centred.
                     int startX = (max - width) / 2 + margin;
@@ -160,7 +160,7 @@ public final class ItemPocketRenderer extends ItemMapLikeRenderer
                         );
                     }
 
-                    GlStateManager.enableDepth();
+                    GlStateManager.enableDepthTest();
                     GlStateManager.popMatrix();
                 }
             }

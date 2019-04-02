@@ -22,7 +22,7 @@ public final class MediaProviders
 
     private MediaProviders() {}
 
-    public static void register( @Nonnull IMediaProvider provider )
+    public static synchronized void register( @Nonnull IMediaProvider provider )
     {
         Objects.requireNonNull( provider, "provider cannot be null" );
         providers.add( provider );

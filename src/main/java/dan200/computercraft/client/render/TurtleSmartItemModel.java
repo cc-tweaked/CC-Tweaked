@@ -9,12 +9,12 @@ package dan200.computercraft.client.render;
 import com.google.common.base.Objects;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
-import dan200.computercraft.shared.turtle.items.ItemTurtleBase;
+import dan200.computercraft.shared.turtle.items.ItemTurtle;
 import dan200.computercraft.shared.util.Holiday;
 import dan200.computercraft.shared.util.HolidayUtil;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.block.model.*;
+import net.minecraft.client.renderer.model.*;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.item.ItemStack;
@@ -26,9 +26,9 @@ import org.apache.commons.lang3.tuple.Pair;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.vecmath.Matrix4f;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Random;
 
 public class TurtleSmartItemModel implements IBakedModel
 {
@@ -106,13 +106,13 @@ public class TurtleSmartItemModel implements IBakedModel
         this.colourModel = colourModel;
 
         m_cachedModels = new HashMap<>();
-        m_overrides = new ItemOverrideList( new ArrayList<>() )
+        m_overrides = new ItemOverrideList()
         {
             @Nonnull
             @Override
-            public IBakedModel handleItemState( @Nonnull IBakedModel originalModel, @Nonnull ItemStack stack, @Nullable World world, @Nullable EntityLivingBase entity )
+            public IBakedModel getModelWithOverrides( @Nonnull IBakedModel originalModel, @Nonnull ItemStack stack, @Nullable World world, @Nullable EntityLivingBase entity )
             {
-                ItemTurtleBase turtle = (ItemTurtleBase) stack.getItem();
+                ItemTurtle turtle = (ItemTurtle) stack.getItem();
                 int colour = turtle.getColour( stack );
                 ITurtleUpgrade leftUpgrade = turtle.getUpgrade( stack, TurtleSide.Left );
                 ITurtleUpgrade rightUpgrade = turtle.getUpgrade( stack, TurtleSide.Right );
@@ -138,8 +138,8 @@ public class TurtleSmartItemModel implements IBakedModel
 
     private IBakedModel buildModel( TurtleModelCombination combo )
     {
-        Minecraft mc = Minecraft.getMinecraft();
-        ModelManager modelManager = mc.getRenderItem().getItemModelMesher().getModelManager();
+        Minecraft mc = Minecraft.getInstance();
+        ModelManager modelManager = mc.getItemRenderer().getItemModelMesher().getModelManager();
         ModelResourceLocation overlayModelLocation = TileEntityTurtleRenderer.getTurtleOverlayModel( combo.m_overlay, combo.m_christmas );
 
         IBakedModel baseModel = combo.m_colour ? colourModel : familyModel;
@@ -167,7 +167,7 @@ public class TurtleSmartItemModel implements IBakedModel
 
     @Nonnull
     @Override
-    public List<BakedQuad> getQuads( IBlockState state, EnumFacing facing, long rand )
+    public List<BakedQuad> getQuads( IBlockState state, EnumFacing facing, @Nonnull Random rand )
     {
         return familyModel.getQuads( state, facing, rand );
     }

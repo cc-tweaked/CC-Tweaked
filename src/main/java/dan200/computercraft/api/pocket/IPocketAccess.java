@@ -23,22 +23,12 @@ public interface IPocketAccess
     /**
      * Gets the entity holding this item.
      *
-     * @return The holding entity. This may be {@code null}.
-     * @deprecated Use {@link #getValidEntity()} where possible.
-     */
-    @Nullable
-    @Deprecated
-    Entity getEntity();
-
-    /**
-     * Gets the entity holding this item with additional safety checks.
-     *
      * This must be called on the server thread.
      *
      * @return The holding entity, or {@code null} if none exists.
      */
     @Nullable
-    Entity getValidEntity();
+    Entity getEntity();
 
     /**
      * Get the colour of this pocket computer as a RGB number.

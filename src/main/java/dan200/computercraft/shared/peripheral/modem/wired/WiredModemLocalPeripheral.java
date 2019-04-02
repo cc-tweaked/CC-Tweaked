@@ -30,8 +30,8 @@ import java.util.Map;
  */
 public final class WiredModemLocalPeripheral
 {
-    private static final String NBT_PERIPHERAL_TYPE = "peripheralType";
-    private static final String NBT_PERIPHERAL_ID = "peripheralID";
+    private static final String NBT_PERIPHERAL_TYPE = "PeripheralType";
+    private static final String NBT_PERIPHERAL_ID = "PeripheralId";
 
     private int id;
     private String type;
@@ -68,7 +68,7 @@ public final class WiredModemLocalPeripheral
             else if( id < 0 || !type.equals( this.type ) )
             {
                 this.type = type;
-                this.id = IDAssigner.getNextIDFromFile( "computer/lastid_" + type + ".txt" );
+                this.id = IDAssigner.getNextId( "peripheral." + type );
             }
 
             return oldPeripheral == null || !oldPeripheral.equals( peripheral );
@@ -116,18 +116,18 @@ public final class WiredModemLocalPeripheral
             : Collections.singletonMap( type + "_" + id, peripheral );
     }
 
-    public void writeNBT( @Nonnull NBTTagCompound tag, @Nonnull String suffix )
+    public void write( @Nonnull NBTTagCompound tag, @Nonnull String suffix )
     {
-        if( id >= 0 ) tag.setInteger( NBT_PERIPHERAL_TYPE + suffix, id );
-        if( type != null ) tag.setString( NBT_PERIPHERAL_TYPE + suffix, type );
+        if( id >= 0 ) tag.putInt( NBT_PERIPHERAL_ID + suffix, id );
+        if( type != null ) tag.putString( NBT_PERIPHERAL_TYPE + suffix, type );
     }
 
-    public void readNBT( @Nonnull NBTTagCompound tag, @Nonnull String suffix )
+    public void read( @Nonnull NBTTagCompound tag, @Nonnull String suffix )
     {
-        id = tag.hasKey( NBT_PERIPHERAL_ID + suffix, Constants.NBT.TAG_ANY_NUMERIC )
-            ? tag.getInteger( NBT_PERIPHERAL_ID + suffix ) : -1;
+        id = tag.contains( NBT_PERIPHERAL_ID + suffix, Constants.NBT.TAG_ANY_NUMERIC )
+            ? tag.getInt( NBT_PERIPHERAL_ID + suffix ) : -1;
 
-        type = tag.hasKey( NBT_PERIPHERAL_TYPE + suffix, Constants.NBT.TAG_STRING )
+        type = tag.contains( NBT_PERIPHERAL_TYPE + suffix, Constants.NBT.TAG_STRING )
             ? tag.getString( NBT_PERIPHERAL_TYPE + suffix ) : null;
     }
 

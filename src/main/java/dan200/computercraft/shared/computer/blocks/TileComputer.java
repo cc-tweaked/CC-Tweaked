@@ -8,32 +8,41 @@ package dan200.computercraft.shared.computer.blocks;
 
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
+import dan200.computercraft.shared.computer.core.ComputerState;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.network.Containers;
+import dan200.computercraft.shared.util.NamedBlockEntityType;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.EnumFacing;
-
-import javax.annotation.Nonnull;
+import net.minecraft.util.ResourceLocation;
 
 public class TileComputer extends TileComputerBase
 {
-    private static final String TAG_STATE = "state";
+    public static final NamedBlockEntityType<TileComputer> FACTORY_NORMAL = NamedBlockEntityType.create(
+        new ResourceLocation( ComputerCraft.MOD_ID, "computer_normal" ),
+        f -> new TileComputer( ComputerFamily.Normal, f )
+    );
+
+    public static final NamedBlockEntityType<TileComputer> FACTORY_ADVANCED = NamedBlockEntityType.create(
+        new ResourceLocation( ComputerCraft.MOD_ID, "computer_advanced" ),
+        f -> new TileComputer( ComputerFamily.Advanced, f )
+    );
 
     private ComputerProxy m_proxy;
-    private ComputerState state = ComputerState.Off;
+
+    public TileComputer( ComputerFamily family, TileEntityType<? extends TileComputer> type )
+    {
+        super( type, family );
+    }
 
     @Override
     protected ServerComputer createComputer( int instanceID, int id )
     {
         ComputerFamily family = getFamily();
         ServerComputer computer = new ServerComputer(
-            getWorld(),
-            id,
-            m_label,
-            instanceID,
-            family,
+            getWorld(), id, m_label, instanceID, family,
             ComputerCraft.terminalWidth_computer,
             ComputerCraft.terminalHeight_computer
         );
@@ -64,65 +73,30 @@ public class TileComputer extends TileComputerBase
         Containers.openComputerGUI( player, this );
     }
 
-    @Override
-    protected void writeDescription( @Nonnull NBTTagCompound nbt )
-    {
-        super.writeDescription( nbt );
-        nbt.setInteger( TAG_STATE, state.ordinal() );
-    }
-
-    @Override
-    protected final void readDescription( @Nonnull NBTTagCompound nbt )
-    {
-        super.readDescription( nbt );
-        state = ComputerState.valueOf( nbt.getInteger( TAG_STATE ) );
-        updateBlock();
-    }
-
     public boolean isUsableByPlayer( EntityPlayer player )
     {
         return isUsable( player, false );
     }
 
     @Override
-    public void update()
+    public EnumFacing getDirection()
     {
-        super.update();
-        if( !world.isRemote )
+        return getBlockState().get( BlockComputer.FACING );
+    }
+
+    @Override
+    protected void updateBlockState( ComputerState newState )
+    {
+        IBlockState existing = getBlockState();
+        if( existing.get( BlockComputer.STATE ) != newState )
         {
-            ServerComputer computer = getServerComputer();
-            state = computer == null ? ComputerState.Off : computer.getState();
+            getWorld().setBlockState( getPos(), existing.with( BlockComputer.STATE, newState ), 3 );
         }
     }
 
-    // IDirectionalTile
-
     @Override
-    public EnumFacing getDirection()
+    protected EnumFacing remapLocalSide( EnumFacing localSide )
     {
-        IBlockState state = getBlockState();
-        return state.getValue( BlockComputer.Properties.FACING );
-    }
-
-    @Override
-    public void setDirection( EnumFacing dir )
-    {
-        if( dir.getAxis() == EnumFacing.Axis.Y ) dir = EnumFacing.NORTH;
-        setBlockState( getBlockState().withProperty( BlockComputer.Properties.FACING, dir ) );
-        updateInput();
-    }
-
-    // For legacy reasons, computers invert the meaning of "left" and "right"
-    private static final int[] s_remapSide = new int[] { 0, 1, 2, 3, 5, 4 };
-
-    @Override
-    protected int remapLocalSide( int localSide )
-    {
-        return s_remapSide[localSide];
-    }
-
-    public ComputerState getState()
-    {
-        return state;
+        return localSide.getAxis() == EnumFacing.Axis.X ? localSide.getOpposite() : localSide;
     }
 }

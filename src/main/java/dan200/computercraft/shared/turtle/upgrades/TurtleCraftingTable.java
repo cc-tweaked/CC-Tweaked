@@ -12,13 +12,13 @@ import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.api.turtle.TurtleUpgradeType;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.block.model.IBakedModel;
-import net.minecraft.client.renderer.block.model.ModelManager;
-import net.minecraft.client.renderer.block.model.ModelResourceLocation;
+import net.minecraft.client.renderer.model.IBakedModel;
+import net.minecraft.client.renderer.model.ModelManager;
+import net.minecraft.client.renderer.model.ModelResourceLocation;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nonnull;
@@ -26,15 +26,15 @@ import javax.vecmath.Matrix4f;
 
 public class TurtleCraftingTable extends AbstractTurtleUpgrade
 {
-    @SideOnly( Side.CLIENT )
+    @OnlyIn( Dist.CLIENT )
     private ModelResourceLocation m_leftModel;
 
-    @SideOnly( Side.CLIENT )
+    @OnlyIn( Dist.CLIENT )
     private ModelResourceLocation m_rightModel;
 
-    public TurtleCraftingTable( ResourceLocation id, int legacyId )
+    public TurtleCraftingTable( ResourceLocation id )
     {
-        super( id, legacyId, TurtleUpgradeType.Peripheral, Blocks.CRAFTING_TABLE );
+        super( id, TurtleUpgradeType.Peripheral, Blocks.CRAFTING_TABLE );
     }
 
     @Override
@@ -43,7 +43,7 @@ public class TurtleCraftingTable extends AbstractTurtleUpgrade
         return new CraftingTablePeripheral( turtle );
     }
 
-    @SideOnly( Side.CLIENT )
+    @OnlyIn( Dist.CLIENT )
     private void loadModelLocations()
     {
         if( m_leftModel == null )
@@ -55,14 +55,13 @@ public class TurtleCraftingTable extends AbstractTurtleUpgrade
 
     @Nonnull
     @Override
-    @SideOnly( Side.CLIENT )
+    @OnlyIn( Dist.CLIENT )
     public Pair<IBakedModel, Matrix4f> getModel( ITurtleAccess turtle, @Nonnull TurtleSide side )
     {
         loadModelLocations();
 
         Matrix4f transform = null;
-        Minecraft mc = Minecraft.getMinecraft();
-        ModelManager modelManager = mc.getRenderItem().getItemModelMesher().getModelManager();
+        ModelManager modelManager = Minecraft.getInstance().getItemRenderer().getItemModelMesher().getModelManager();
         if( side == TurtleSide.Left )
         {
             return Pair.of( modelManager.getModel( m_leftModel ), transform );

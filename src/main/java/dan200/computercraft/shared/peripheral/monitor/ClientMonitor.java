@@ -9,8 +9,8 @@ package dan200.computercraft.shared.peripheral.monitor;
 import dan200.computercraft.shared.common.ClientTerminal;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 import java.util.HashSet;
 import java.util.Iterator;
@@ -37,7 +37,7 @@ public class ClientMonitor extends ClientTerminal
         return origin;
     }
 
-    @SideOnly( Side.CLIENT )
+    @OnlyIn( Dist.CLIENT )
     public void createLists()
     {
         if( renderDisplayLists == null )
@@ -46,7 +46,7 @@ public class ClientMonitor extends ClientTerminal
 
             for( int i = 0; i < renderDisplayLists.length; i++ )
             {
-                renderDisplayLists[i] = GlStateManager.glGenLists( 1 );
+                renderDisplayLists[i] = GlStateManager.genLists( 1 );
             }
 
             synchronized( allMonitors )
@@ -56,7 +56,7 @@ public class ClientMonitor extends ClientTerminal
         }
     }
 
-    @SideOnly( Side.CLIENT )
+    @OnlyIn( Dist.CLIENT )
     public void destroy()
     {
         if( renderDisplayLists != null )
@@ -68,14 +68,14 @@ public class ClientMonitor extends ClientTerminal
 
             for( int list : renderDisplayLists )
             {
-                GlStateManager.glDeleteLists( list, 1 );
+                GlStateManager.deleteLists( list, 1 );
             }
 
             renderDisplayLists = null;
         }
     }
 
-    @SideOnly( Side.CLIENT )
+    @OnlyIn( Dist.CLIENT )
     public static void destroyAll()
     {
         synchronized( allMonitors )
@@ -87,7 +87,7 @@ public class ClientMonitor extends ClientTerminal
                 {
                     for( int list : monitor.renderDisplayLists )
                     {
-                        GlStateManager.glDeleteLists( list, 1 );
+                        GlStateManager.deleteLists( list, 1 );
                     }
                     monitor.renderDisplayLists = null;
                 }

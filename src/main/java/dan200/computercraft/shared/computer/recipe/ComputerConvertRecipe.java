@@ -7,29 +7,34 @@
 package dan200.computercraft.shared.computer.recipe;
 
 import dan200.computercraft.shared.computer.items.IComputerItem;
-import net.minecraft.inventory.InventoryCrafting;
+import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.ShapedRecipes;
+import net.minecraft.item.crafting.Ingredient;
+import net.minecraft.item.crafting.ShapedRecipe;
+import net.minecraft.util.NonNullList;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
-import net.minecraftforge.common.crafting.CraftingHelper;
 
 import javax.annotation.Nonnull;
 
 /**
  * Represents a recipe which converts a computer from one form into another.
  */
-public abstract class ComputerConvertRecipe extends ShapedRecipes
+public abstract class ComputerConvertRecipe extends ShapedRecipe
 {
-    public ComputerConvertRecipe( String group, @Nonnull CraftingHelper.ShapedPrimer primer, @Nonnull ItemStack result )
+    private final String group;
+
+    public ComputerConvertRecipe( ResourceLocation identifier, String group, int width, int height, NonNullList<Ingredient> ingredients, ItemStack result )
     {
-        super( group, primer.width, primer.height, primer.input, result );
+        super( identifier, group, width, height, ingredients, result );
+        this.group = group;
     }
 
     @Nonnull
     protected abstract ItemStack convert( @Nonnull IComputerItem item, @Nonnull ItemStack stack );
 
     @Override
-    public boolean matches( @Nonnull InventoryCrafting inventory, @Nonnull World world )
+    public boolean matches( @Nonnull IInventory inventory, @Nonnull World world )
     {
         if( !super.matches( inventory, world ) ) return false;
 
@@ -43,7 +48,7 @@ public abstract class ComputerConvertRecipe extends ShapedRecipes
 
     @Nonnull
     @Override
-    public ItemStack getCraftingResult( @Nonnull InventoryCrafting inventory )
+    public ItemStack getCraftingResult( @Nonnull IInventory inventory )
     {
         // Find our computer item and convert it.
         for( int i = 0; i < inventory.getSizeInventory(); i++ )
@@ -53,5 +58,12 @@ public abstract class ComputerConvertRecipe extends ShapedRecipes
         }
 
         return ItemStack.EMPTY;
+    }
+
+    @Nonnull
+    @Override
+    public String getGroup()
+    {
+        return group;
     }
 }

@@ -1,8 +1,7 @@
-
-// For those who want the bleeding edge
 buildscript {
     repositories {
         jcenter()
+        mavenCentral()
         maven {
             name = "forge"
             url = "http://files.minecraftforge.net/maven"
@@ -10,17 +9,17 @@ buildscript {
     }
     dependencies {
         classpath 'com.google.code.gson:gson:2.8.1'
-        classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
-        classpath 'net.sf.proguard:proguard-gradle:6.1.0beta1'
+        classpath 'net.minecraftforge.gradle:ForgeGradle:3.0.115'
+        classpath 'net.sf.proguard:proguard-gradle:6.1.0beta2'
         classpath 'org.ajoberstar.grgit:grgit-gradle:3.0.0'
     }
 }
 
 plugins {
-    id 'com.matthewprenger.cursegradle' version '1.0.10'
+    id 'com.matthewprenger.cursegradle' version '1.2.0'
 }
 
-apply plugin: 'net.minecraftforge.gradle.forge'
+apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'org.ajoberstar.grgit'
 apply plugin: 'maven-publish'
 apply plugin: 'maven'
@@ -31,18 +30,41 @@ group = "org.squiddev"
 archivesBaseName = "cc-tweaked-${mc_version}"
 
 minecraft {
-    version = "${mc_version}-${forge_version}"
-    runDir = "run"
-    replace '${version}', mod_version
+    runs {
+        client {
+            workingDirectory project.file('run')
+            property 'forge.logging.markers', 'REGISTRIES'
+            property 'forge.logging.console.level', 'debug'
 
-    mappings = mappings_version
-    makeObfSourceJar = false
+            mods {
+                computercraft {
+                    source sourceSets.main
+                }
+            }
+        }
+
+        server {
+            workingDirectory project.file('run')
+            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
+            property 'forge.logging.console.level', 'debug'
+
+            mods {
+                computercraft {
+                    source sourceSets.main
+                }
+            }
+        }
+    }
+
+    mappings channel: 'snapshot', version: "${mappings_version}".toString()
+
+    accessTransformer file('src/main/resources/META-INF/accesstransformer.cfg')
 }
 
 repositories {
     maven {
         name "JEI"
-        url "http://dvs1.progwml6.com/files/maven"
+        url  "http://dvs1.progwml6.com/files/maven"
     }
     maven {
         name "SquidDev"
@@ -65,11 +87,13 @@ configurations {
 }
 
 dependencies {
-    deobfProvided "mezz.jei:jei_1.12.2:4.15.0.269:api"
-    deobfProvided "pl.asie:Charset-Lib:0.5.4.6"
-    deobfProvided "MCMultiPart2:MCMultiPart:2.5.3"
+    minecraft "net.minecraftforge:forge:${mc_version}-${forge_version}"
 
-    runtime "mezz.jei:jei_1.12.2:4.15.0.269"
+    compileOnly "mezz.jei:jei-1.13.2:5.0.0.8:api"
+    // deobfProvided "pl.asie:Charset-Lib:0.5.4.6"
+    // deobfProvided "MCMultiPart2:MCMultiPart:2.5.3"
+
+    deobf "mezz.jei:jei-1.13.2:5.0.0.8"
 
     shade 'org.squiddev:Cobalt:0.5.0-SNAPSHOT'
 
@@ -77,6 +101,15 @@ dependencies {
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.1.0'
 
     deployerJars "org.apache.maven.wagon:wagon-ssh:3.0.0"
+}
+
+sourceSets {
+    main {
+        java {
+            exclude 'dan200/computercraft/shared/integration/mcmp'
+            exclude 'dan200/computercraft/shared/integration/charset'
+        }
+    }
 }
 
 javadoc {
@@ -87,7 +120,13 @@ jar {
     dependsOn javadoc
 
     manifest {
-        attributes('FMLAT': 'computercraft_at.cfg')
+        attributes(["Specification-Title": "computercraft",
+                    "Specification-Vendor": "SquidDev",
+                    "Specification-Version": "25.0",
+                    "Implementation-Title": "CC: Tweaked",
+                    "Implementation-Version": "${mod_version}",
+                    "Implementation-Vendor" :"SquidDev",
+                    "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")])
     }
 
     from (sourceSets.main.allSource) {
@@ -132,6 +171,10 @@ task proguard(type: ProGuardTask, dependsOn: jar) {
 
     // Preserve the constructors in Cobalt library class, as we init them via reflection
     keepclassmembers 'class org.squiddev.cobalt.lib.** { <init>(...); }'
+
+    // LWJGL and Apache bundle Java 9 versions, which is great, but rather breaks Proguard
+    dontwarn 'module-info'
+    dontwarn 'org.apache.**,org.lwjgl.**'
 }
 
 task proguardMove(dependsOn: proguard) {
@@ -147,7 +190,7 @@ task proguardMove(dependsOn: proguard) {
     }
 }
 
-reobfJar.dependsOn proguardMove
+
 
 processResources {
     inputs.property "version", mod_version
@@ -169,8 +212,8 @@ processResources {
     inputs.property "commithash", hash
 
     from(sourceSets.main.resources.srcDirs) {
-        include 'mcmod.info'
-        include 'assets/computercraft/lua/rom/help/credits.txt'
+        include 'META-INF/mods.toml'
+        include 'data/computercraft/lua/rom/help/credits.txt'
 
         expand 'version': mod_version,
                'mcversion': mc_version,
@@ -178,12 +221,12 @@ processResources {
     }
 
     from(sourceSets.main.resources.srcDirs) {
-        exclude 'mcmod.info'
-        exclude 'assets/computercraft/lua/rom/help/credits.txt'
+        exclude 'META-INF/mods.toml'
+        exclude 'data/computercraft/lua/rom/help/credits.txt'
     }
 }
 
-task compressJson(dependsOn: extractAnnotationsJar) {
+task compressJson(dependsOn: jar) {
     group "compact"
     description "Minifies all JSON files, stripping whitespace"
 
@@ -225,6 +268,7 @@ task compressJson(dependsOn: extractAnnotationsJar) {
 
 assemble.dependsOn compressJson
 
+/*
 curseforge {
     apiKey = project.hasProperty('curseForgeApiKey') ? project.curseForgeApiKey : ''
     project {
@@ -233,12 +277,13 @@ curseforge {
         changelog = "Release notes can be found on the GitHub repository (https://github.com/SquidDev-CC/CC-Tweaked/releases/tag/v${project.version})."
     }
 }
+*/
 
 publishing {
     publications {
         mavenJava(MavenPublication) {
             from components.java
-            artifact sourceJar
+            // artifact sourceJar
         }
     }
 }
@@ -295,10 +340,10 @@ test {
 }
 
 gradle.projectsEvaluated {
+    reobfJar.dependsOn proguardMove
+
     tasks.withType(JavaCompile) {
-        options.compilerArgs << "-Xlint" << "-Xlint:-processing" << "-Werror"
+        options.compilerArgs << "-Xlint" << "-Xlint:-processing" // Causes Forge build to fail << "-Werror"
     }
 }
 
-runClient.outputs.upToDateWhen { false }
-runServer.outputs.upToDateWhen { false }

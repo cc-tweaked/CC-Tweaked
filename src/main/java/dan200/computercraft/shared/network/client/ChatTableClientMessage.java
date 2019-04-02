@@ -9,12 +9,11 @@ package dan200.computercraft.shared.network.client;
 import dan200.computercraft.client.ClientTableFormatter;
 import dan200.computercraft.shared.command.text.TableBuilder;
 import dan200.computercraft.shared.network.NetworkMessage;
-import dan200.computercraft.shared.util.NBTUtil;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.text.ITextComponent;
-import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.fml.network.NetworkEvent;
 
 import javax.annotation.Nonnull;
 
@@ -61,7 +60,7 @@ public class ChatTableClientMessage implements NetworkMessage
         if( buf.readBoolean() )
         {
             ITextComponent[] headers = new ITextComponent[columns];
-            for( int i = 0; i < columns; i++ ) headers[i] = NBTUtil.readTextComponent( buf );
+            for( int i = 0; i < columns; i++ ) headers[i] = buf.readTextComponent();
             table = new TableBuilder( id, headers );
         }
         else
@@ -73,7 +72,7 @@ public class ChatTableClientMessage implements NetworkMessage
         for( int i = 0; i < rows; i++ )
         {
             ITextComponent[] row = new ITextComponent[columns];
-            for( int j = 0; j < columns; j++ ) row[j] = NBTUtil.readTextComponent( buf );
+            for( int j = 0; j < columns; j++ ) row[j] = buf.readTextComponent();
             table.row( row );
         }
 
@@ -82,8 +81,8 @@ public class ChatTableClientMessage implements NetworkMessage
     }
 
     @Override
-    @SideOnly( Side.CLIENT )
-    public void handle( MessageContext context )
+    @OnlyIn( Dist.CLIENT )
+    public void handle( NetworkEvent.Context context )
     {
         ClientTableFormatter.INSTANCE.display( table );
     }

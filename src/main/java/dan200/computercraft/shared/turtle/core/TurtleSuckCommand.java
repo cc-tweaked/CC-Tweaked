@@ -110,7 +110,7 @@ public class TurtleSuckCommand implements ITurtleCommand
                 ItemStack leaveStack;
                 if( stack.getCount() > m_quantity )
                 {
-                    storeStack = stack.splitStack( m_quantity );
+                    storeStack = stack.split( m_quantity );
                     leaveStack = stack;
                 }
                 else
@@ -125,7 +125,7 @@ public class TurtleSuckCommand implements ITurtleCommand
                 {
                     if( remainder.isEmpty() && leaveStack.isEmpty() )
                     {
-                        entity.setDead();
+                        entity.remove();
                     }
                     else if( remainder.isEmpty() )
                     {

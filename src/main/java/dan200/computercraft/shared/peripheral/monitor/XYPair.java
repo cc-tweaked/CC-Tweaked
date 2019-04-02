@@ -6,6 +6,8 @@
 
 package dan200.computercraft.shared.peripheral.monitor;
 
+import net.minecraft.util.EnumFacing;
+
 public class XYPair
 {
     public final float x;
@@ -22,36 +24,51 @@ public class XYPair
         return new XYPair( this.x + x, this.y + y );
     }
 
-    public static XYPair of( float xPos, float yPos, float zPos, int side )
+    public static XYPair of( float xPos, float yPos, float zPos, EnumFacing facing, EnumFacing orientation )
     {
-        switch( side )
+        switch( orientation )
         {
-            case 2:
-                return new XYPair( 1 - xPos, 1 - yPos );
-            case 3:
-                return new XYPair( xPos, 1 - yPos );
-            case 4:
-                return new XYPair( zPos, 1 - yPos );
-            case 5:
-                return new XYPair( 1 - zPos, 1 - yPos );
-            case 8:
-                return new XYPair( 1 - xPos, zPos );
-            case 9:
-                return new XYPair( xPos, 1 - zPos );
-            case 10:
-                return new XYPair( zPos, xPos );
-            case 11:
-                return new XYPair( 1 - zPos, 1 - xPos );
-            case 14:
-                return new XYPair( 1 - xPos, 1 - zPos );
-            case 15:
-                return new XYPair( xPos, zPos );
-            case 16:
-                return new XYPair( zPos, 1 - xPos );
-            case 17:
-                return new XYPair( 1 - zPos, xPos );
-            default:
-                return new XYPair( xPos, zPos );
+            case NORTH:
+                switch( facing )
+                {
+                    case NORTH:
+                        return new XYPair( 1 - xPos, 1 - yPos );
+                    case SOUTH:
+                        return new XYPair( xPos, 1 - yPos );
+                    case WEST:
+                        return new XYPair( zPos, 1 - yPos );
+                    case EAST:
+                        return new XYPair( 1 - zPos, 1 - yPos );
+                }
+                break;
+            case DOWN:
+                switch( facing )
+                {
+                    case NORTH:
+                        return new XYPair( 1 - xPos, zPos );
+                    case SOUTH:
+                        return new XYPair( xPos, 1 - zPos );
+                    case WEST:
+                        return new XYPair( zPos, xPos );
+                    case EAST:
+                        return new XYPair( 1 - zPos, 1 - xPos );
+                }
+                break;
+            case UP:
+                switch( facing )
+                {
+                    case NORTH:
+                        return new XYPair( 1 - xPos, 1 - zPos );
+                    case SOUTH:
+                        return new XYPair( xPos, zPos );
+                    case WEST:
+                        return new XYPair( zPos, 1 - xPos );
+                    case EAST:
+                        return new XYPair( 1 - zPos, xPos );
+                }
+                break;
         }
+
+        return new XYPair( xPos, zPos );
     }
 }

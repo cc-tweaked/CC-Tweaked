@@ -15,23 +15,24 @@ import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
 import java.util.Collection;
+import java.util.LinkedHashSet;
 import java.util.Objects;
 
 public final class Peripherals
 {
-    private static final Collection<IPeripheralProvider> providers = ComputerCraft.peripheralProviders;
+    private static final Collection<IPeripheralProvider> providers = new LinkedHashSet<>();
 
     private Peripherals() {}
 
-    public static void register( @Nonnull IPeripheralProvider provider )
+    public static synchronized void register( @Nonnull IPeripheralProvider provider )
     {
         Objects.requireNonNull( provider, "provider cannot be null" );
-        if( !providers.contains( provider ) ) providers.add( provider );
+        providers.add( provider );
     }
 
     public static IPeripheral getPeripheral( World world, BlockPos pos, EnumFacing side )
     {
-        return world.isValid( pos ) && !world.isRemote ? getPeripheralAt( world, pos, side ) : null;
+        return World.isValid( pos ) && !world.isRemote ? getPeripheralAt( world, pos, side ) : null;
     }
 
     private static IPeripheral getPeripheralAt( World world, BlockPos pos, EnumFacing side )

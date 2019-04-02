@@ -39,7 +39,7 @@ public final class FixedWidthFontRenderer
 
     private FixedWidthFontRenderer()
     {
-        m_textureManager = Minecraft.getMinecraft().getTextureManager();
+        m_textureManager = Minecraft.getInstance().getTextureManager();
     }
 
     private static void greyscaleify( double[] rgb )
@@ -195,6 +195,6 @@ public final class FixedWidthFontRenderer
     public void bindFont()
     {
         m_textureManager.bindTexture( FONT );
-        GlStateManager.glTexParameteri( GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL11.GL_CLAMP );
+        GlStateManager.texParameteri( GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL11.GL_CLAMP );
     }
 }

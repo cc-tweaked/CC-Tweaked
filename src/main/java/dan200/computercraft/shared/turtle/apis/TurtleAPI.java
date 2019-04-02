@@ -21,6 +21,7 @@ import dan200.computercraft.shared.turtle.core.*;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -343,13 +344,11 @@ public class TurtleAPI implements ILuaAPI
                 if( stack.isEmpty() ) return new Object[] { null };
 
                 Item item = stack.getItem();
-                String name = Item.REGISTRY.getNameForObject( item ).toString();
-                int damage = stack.getItemDamage();
+                String name = ForgeRegistries.ITEMS.getKey( item ).toString();
                 int count = stack.getCount();
 
                 Map<String, Object> table = new HashMap<>();
                 table.put( "name", name );
-                table.put( "damage", damage );
                 table.put( "count", count );
 
                 TurtleActionEvent event = new TurtleInspectItemEvent( m_turtle, stack, table );

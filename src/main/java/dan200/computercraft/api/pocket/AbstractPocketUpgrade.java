@@ -7,7 +7,9 @@
 package dan200.computercraft.api.pocket;
 
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.IItemProvider;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.Util;
 
 import javax.annotation.Nonnull;
 
@@ -29,9 +31,14 @@ public abstract class AbstractPocketUpgrade implements IPocketUpgrade
         this.stack = stack;
     }
 
-    protected AbstractPocketUpgrade( ResourceLocation id, ItemStack stack )
+    protected AbstractPocketUpgrade( ResourceLocation id, String adjective, IItemProvider item )
     {
-        this( id, "upgrade." + id + ".adjective", stack );
+        this( id, adjective, new ItemStack( item ) );
+    }
+
+    protected AbstractPocketUpgrade( ResourceLocation id, IItemProvider item )
+    {
+        this( id, Util.makeTranslationKey( "upgrade", id ) + ".adjective", new ItemStack( item ) );
     }
 
     @Nonnull

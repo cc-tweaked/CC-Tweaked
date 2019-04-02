@@ -25,14 +25,14 @@ import javax.annotation.Nonnull;
 
 public class TurtleShovel extends TurtleTool
 {
-    public TurtleShovel( ResourceLocation id, int legacyId, String adjective, Item item )
+    public TurtleShovel( ResourceLocation id, String adjective, Item item )
     {
-        super( id, legacyId, adjective, item );
+        super( id, adjective, item );
     }
 
-    public TurtleShovel( ResourceLocation id, int legacyId, Item item )
+    public TurtleShovel( ResourceLocation id, Item item )
     {
-        super( id, legacyId, item );
+        super( id, item );
     }
 
     @Override

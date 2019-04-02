@@ -52,12 +52,12 @@ public class ContainerViewComputer extends Container implements IContainerComput
                 MinecraftServer server = player.getServer();
                 if( server == null || !server.isCommandBlockEnabled() )
                 {
-                    player.sendMessage( new TextComponentTranslation( "advMode.notEnabled" ) );
+                    player.sendStatusMessage( new TextComponentTranslation( "advMode.notEnabled" ), false );
                     return false;
                 }
                 else if( !player.canUseCommandBlock() )
                 {
-                    player.sendMessage( new TextComponentTranslation( "advMode.notAllowed" ) );
+                    player.sendStatusMessage( new TextComponentTranslation( "advMode.notAllowed" ), false );
                     return false;
                 }
             }

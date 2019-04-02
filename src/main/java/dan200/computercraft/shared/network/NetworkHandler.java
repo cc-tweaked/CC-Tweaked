@@ -9,21 +9,24 @@ package dan200.computercraft.shared.network;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.network.client.*;
 import dan200.computercraft.shared.network.server.*;
-import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.util.IThreadListener;
-import net.minecraftforge.fml.common.network.NetworkRegistry;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
-import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
-import net.minecraftforge.fml.relauncher.Side;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.World;
+import net.minecraftforge.fml.network.NetworkDirection;
+import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraftforge.fml.network.NetworkRegistry;
+import net.minecraftforge.fml.network.simple.SimpleChannel;
+import net.minecraftforge.fml.server.ServerLifecycleHooks;
 
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 public final class NetworkHandler
 {
-    public static SimpleNetworkWrapper network;
+    public static SimpleChannel network;
 
     private NetworkHandler()
     {
@@ -31,41 +34,56 @@ public final class NetworkHandler
 
     public static void setup()
     {
-        network = NetworkRegistry.INSTANCE.newSimpleChannel( ComputerCraft.MOD_ID );
+        String version = ComputerCraft.getVersion();
+        network = NetworkRegistry.ChannelBuilder.named( new ResourceLocation( ComputerCraft.MOD_ID, "network" ) )
+            .networkProtocolVersion( () -> version )
+            .clientAcceptedVersions( version::equals ).serverAcceptedVersions( version::equals )
+            .simpleChannel();
 
         // Server messages
-        registerMainThread( 0, Side.SERVER, ComputerActionServerMessage::new );
-        registerMainThread( 1, Side.SERVER, QueueEventServerMessage::new );
-        registerMainThread( 2, Side.SERVER, RequestComputerMessage::new );
-        registerMainThread( 3, Side.SERVER, KeyEventServerMessage::new );
-        registerMainThread( 4, Side.SERVER, MouseEventServerMessage::new );
+        registerMainThread( 0, ComputerActionServerMessage::new );
+        registerMainThread( 1, QueueEventServerMessage::new );
+        registerMainThread( 2, RequestComputerMessage::new );
+        registerMainThread( 3, KeyEventServerMessage::new );
+        registerMainThread( 4, MouseEventServerMessage::new );
 
         // Client messages
-        registerMainThread( 10, Side.CLIENT, ChatTableClientMessage::new );
-        registerMainThread( 11, Side.CLIENT, ComputerDataClientMessage::new );
-        registerMainThread( 12, Side.CLIENT, ComputerDeletedClientMessage::new );
-        registerMainThread( 13, Side.CLIENT, ComputerTerminalClientMessage::new );
-        registerMainThread( 14, Side.CLIENT, PlayRecordClientMessage::new );
+        registerMainThread( 10, ChatTableClientMessage::new );
+        registerMainThread( 11, ComputerDataClientMessage::new );
+        registerMainThread( 12, ComputerDeletedClientMessage::new );
+        registerMainThread( 13, ComputerTerminalClientMessage::new );
+        registerMainThread( 14, PlayRecordClientMessage.class, PlayRecordClientMessage::new );
     }
 
-    public static void sendToPlayer( EntityPlayer player, IMessage packet )
+    public static void sendToPlayer( EntityPlayer player, NetworkMessage packet )
     {
-        network.sendTo( packet, (EntityPlayerMP) player );
+        network.sendTo( packet, ((EntityPlayerMP) player).connection.netManager, NetworkDirection.PLAY_TO_CLIENT );
     }
 
-    public static void sendToAllPlayers( IMessage packet )
+    public static void sendToAllPlayers( NetworkMessage packet )
     {
-        network.sendToAll( packet );
+        for( EntityPlayerMP player : ServerLifecycleHooks.getCurrentServer().getPlayerList().getPlayers() )
+        {
+            sendToPlayer( player, packet );
+        }
     }
 
-    public static void sendToServer( IMessage packet )
+    public static void sendToServer( NetworkMessage packet )
     {
         network.sendToServer( packet );
     }
 
-    public static void sendToAllAround( IMessage packet, NetworkRegistry.TargetPoint point )
+    public static void sendToAllAround( NetworkMessage packet, World world, Vec3d pos, double range )
     {
-        network.sendToAllAround( packet, point );
+        for( EntityPlayerMP player : ServerLifecycleHooks.getCurrentServer().getPlayerList().getPlayers() )
+        {
+            if( player.getEntityWorld() != world ) continue;
+
+            double x = pos.x - player.posX;
+            double y = pos.y - player.posY;
+            double z = pos.z - player.posZ;
+            if( x * x + y * y + z * z < range * range ) sendToPlayer( player, packet );
+        }
     }
 
     /**
@@ -73,24 +91,40 @@ public final class NetworkHandler
      * Register packet, and a thread-unsafe handler for it.
      *
      * @param id      The identifier for this packet type
-     * @param side    The side to register this packet handler under
      * @param factory The factory for this type of packet.
      */
-    private static <T extends NetworkMessage> void registerMainThread( int id, Side side, Supplier<T> factory )
+    private static <T extends NetworkMessage> void registerMainThread( int id, Supplier<T> factory )
     {
-        network.registerMessage( MAIN_THREAD_HANDLER, factory.get().getClass(), id, side );
+        registerMainThread( id, getType( factory ), buf -> {
+            T instance = factory.get();
+            instance.fromBytes( buf );
+            return instance;
+        } );
     }
 
-    private static final IMessageHandler<NetworkMessage, IMessage> MAIN_THREAD_HANDLER = ( packet, context ) -> {
-        IThreadListener listener = context.side == Side.CLIENT ? Minecraft.getMinecraft() : context.getServerHandler().player.server;
-        if( listener.isCallingFromMinecraftThread() )
-        {
-            packet.handle( context );
-        }
-        else
-        {
-            listener.addScheduledTask( () -> packet.handle( context ) );
-        }
-        return null;
-    };
+    /**
+     * /**
+     * Register packet, and a thread-unsafe handler for it.
+     *
+     * @param id      The identifier for this packet type
+     * @param decoder The factory for this type of packet.
+     */
+    private static <T extends NetworkMessage> void registerMainThread( int id, Class<T> type, Function<PacketBuffer, T> decoder )
+    {
+        network.messageBuilder( type, id )
+            .encoder( NetworkMessage::toBytes )
+            .decoder( decoder )
+            .consumer( ( packet, contextSup ) -> {
+                NetworkEvent.Context context = contextSup.get();
+                context.enqueueWork( () -> packet.handle( context ) );
+                context.setPacketHandled( true );
+            } )
+            .add();
+    }
+
+    @SuppressWarnings( "unchecked" )
+    private static <T> Class<T> getType( Supplier<T> supplier )
+    {
+        return (Class<T>) supplier.get().getClass();
+    }
 }

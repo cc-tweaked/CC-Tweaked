@@ -6,10 +6,8 @@
 
 package dan200.computercraft.shared.network;
 
-import io.netty.buffer.ByteBuf;
 import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
-import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
+import net.minecraftforge.fml.network.NetworkEvent;
 
 import javax.annotation.Nonnull;
 
@@ -19,7 +17,7 @@ import javax.annotation.Nonnull;
  * @see dan200.computercraft.shared.network.client
  * @see dan200.computercraft.shared.network.server
  */
-public interface NetworkMessage extends IMessage
+public interface NetworkMessage
 {
     /**
      * Write this packet to a buffer.
@@ -37,24 +35,15 @@ public interface NetworkMessage extends IMessage
      *
      * @param buf The buffer to read data from.
      */
-    void fromBytes( @Nonnull PacketBuffer buf );
+    default void fromBytes( @Nonnull PacketBuffer buf )
+    {
+        throw new IllegalStateException( "Should have been registered using a \"from bytes\" method" );
+    }
 
     /**
      * Handle this {@link NetworkMessage}.
      *
      * @param context The context with which to handle this message
      */
-    void handle( MessageContext context );
-
-    @Override
-    default void fromBytes( ByteBuf buf )
-    {
-        fromBytes( new PacketBuffer( buf ) );
-    }
-
-    @Override
-    default void toBytes( ByteBuf buf )
-    {
-        toBytes( new PacketBuffer( buf ) );
-    }
+    void handle( NetworkEvent.Context context );
 }

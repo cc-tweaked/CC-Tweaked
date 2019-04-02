@@ -13,17 +13,31 @@ import dan200.computercraft.shared.computer.core.ComputerFamily;
 import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.util.JsonUtils;
 import net.minecraft.util.NonNullList;
-import net.minecraftforge.common.crafting.CraftingHelper;
-import net.minecraftforge.common.crafting.JsonContext;
 
 import java.util.Map;
 import java.util.Set;
+
+// TODO: Replace some things with Forge??
 
 public final class RecipeUtil
 {
     private RecipeUtil() {}
 
-    public static CraftingHelper.ShapedPrimer getPrimer( JsonContext context, JsonObject json )
+    public static class ShapedTemplate
+    {
+        public final int width;
+        public final int height;
+        public final NonNullList<Ingredient> ingredients;
+
+        public ShapedTemplate( int width, int height, NonNullList<Ingredient> ingredients )
+        {
+            this.width = width;
+            this.height = height;
+            this.ingredients = ingredients;
+        }
+    }
+
+    public static ShapedTemplate getTemplate( JsonObject json )
     {
         Map<Character, Ingredient> ingMap = Maps.newHashMap();
         for( Map.Entry<String, JsonElement> entry : JsonUtils.getJsonObject( json, "key" ).entrySet() )
@@ -37,7 +51,7 @@ public final class RecipeUtil
                 throw new JsonSyntaxException( "Invalid key entry: ' ' is a reserved symbol." );
             }
 
-            ingMap.put( entry.getKey().charAt( 0 ), CraftingHelper.getIngredient( entry.getValue(), context ) );
+            ingMap.put( entry.getKey().charAt( 0 ), Ingredient.deserialize( entry.getValue() ) );
         }
 
         ingMap.put( ' ', Ingredient.EMPTY );
@@ -60,16 +74,14 @@ public final class RecipeUtil
             pattern[x] = line;
         }
 
-        CraftingHelper.ShapedPrimer primer = new CraftingHelper.ShapedPrimer();
-        primer.width = pattern[0].length();
-        primer.height = pattern.length;
-        primer.mirrored = false;
-        primer.input = NonNullList.withSize( primer.width * primer.height, Ingredient.EMPTY );
+        int width = pattern[0].length();
+        int height = pattern.length;
+        NonNullList<Ingredient> ingredients = NonNullList.withSize( width * height, Ingredient.EMPTY );
 
-        Set<Character> keys = Sets.newHashSet( ingMap.keySet() );
-        keys.remove( ' ' );
+        Set<Character> missingKeys = Sets.newHashSet( ingMap.keySet() );
+        missingKeys.remove( ' ' );
 
-        int x = 0;
+        int i = 0;
         for( String line : pattern )
         {
             for( char chr : line.toCharArray() )
@@ -79,25 +91,25 @@ public final class RecipeUtil
                 {
                     throw new JsonSyntaxException( "Pattern references symbol '" + chr + "' but it's not defined in the key" );
                 }
-                primer.input.set( x++, ing );
-                keys.remove( chr );
+                ingredients.set( i++, ing );
+                missingKeys.remove( chr );
             }
         }
 
-        if( !keys.isEmpty() )
+        if( !missingKeys.isEmpty() )
         {
-            throw new JsonSyntaxException( "Key defines symbols that aren't used in pattern: " + keys );
+            throw new JsonSyntaxException( "Key defines symbols that aren't used in pattern: " + missingKeys );
         }
 
-        return primer;
+        return new ShapedTemplate( width, height, ingredients );
     }
 
-    public static NonNullList<Ingredient> getIngredients( JsonContext context, JsonObject json )
+    public static NonNullList<Ingredient> getIngredients( JsonObject json )
     {
         NonNullList<Ingredient> ingredients = NonNullList.create();
         for( JsonElement ele : JsonUtils.getJsonArray( json, "ingredients" ) )
         {
-            ingredients.add( CraftingHelper.getIngredient( ele, context ) );
+            ingredients.add( Ingredient.deserialize( ele ) );
         }
 
         if( ingredients.isEmpty() ) throw new JsonParseException( "No ingredients for recipe" );

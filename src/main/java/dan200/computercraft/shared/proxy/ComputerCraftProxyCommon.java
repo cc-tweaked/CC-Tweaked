@@ -11,69 +11,69 @@ import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.media.IMedia;
 import dan200.computercraft.api.peripheral.IPeripheralTile;
 import dan200.computercraft.core.computer.MainThread;
+import dan200.computercraft.core.tracking.Tracking;
 import dan200.computercraft.shared.Config;
 import dan200.computercraft.shared.command.CommandComputerCraft;
+import dan200.computercraft.shared.command.arguments.ArgumentSerializers;
+import dan200.computercraft.shared.common.ColourableRecipe;
 import dan200.computercraft.shared.common.DefaultBundledRedstoneProvider;
 import dan200.computercraft.shared.computer.core.IComputer;
 import dan200.computercraft.shared.computer.core.IContainerComputer;
 import dan200.computercraft.shared.computer.core.ServerComputer;
-import dan200.computercraft.shared.datafix.Fixes;
-import dan200.computercraft.shared.integration.charset.IntegrationCharset;
+import dan200.computercraft.shared.computer.recipe.ComputerUpgradeRecipe;
 import dan200.computercraft.shared.media.items.RecordMedia;
+import dan200.computercraft.shared.media.recipes.DiskRecipe;
+import dan200.computercraft.shared.media.recipes.PrintoutRecipe;
 import dan200.computercraft.shared.network.Containers;
 import dan200.computercraft.shared.network.NetworkHandler;
 import dan200.computercraft.shared.peripheral.commandblock.CommandBlockPeripheral;
-import dan200.computercraft.shared.turtle.core.TurtlePlayer;
-import dan200.computercraft.shared.util.CreativeTabMain;
+import dan200.computercraft.shared.peripheral.modem.wireless.WirelessNetwork;
+import dan200.computercraft.shared.pocket.recipes.PocketComputerUpgradeRecipe;
+import dan200.computercraft.shared.turtle.recipes.TurtleRecipe;
+import dan200.computercraft.shared.turtle.recipes.TurtleUpgradeRecipe;
+import dan200.computercraft.shared.util.ImpostorRecipe;
+import dan200.computercraft.shared.util.ImpostorShapelessRecipe;
 import dan200.computercraft.shared.wired.CapabilityWiredElement;
-import net.minecraft.command.CommandHandler;
-import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.inventory.Container;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemRecord;
-import net.minecraft.server.MinecraftServer;
+import net.minecraft.item.crafting.RecipeSerializers;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityCommandBlock;
-import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.event.entity.player.PlayerContainerEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent;
-import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
-import net.minecraftforge.fml.common.network.FMLNetworkEvent;
-import net.minecraftforge.fml.common.network.NetworkRegistry;
-import net.minecraftforge.fml.common.registry.EntityRegistry;
-import pl.asie.charset.ModCharset;
+import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.minecraftforge.fml.event.server.FMLServerStartedEvent;
+import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
+import net.minecraftforge.fml.event.server.FMLServerStoppedEvent;
 
-public class ComputerCraftProxyCommon
+@Mod.EventBusSubscriber( modid = ComputerCraft.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD )
+public final class ComputerCraftProxyCommon
 {
-    public void preInit()
+    @SubscribeEvent
+    public static void init( FMLCommonSetupEvent event )
     {
         NetworkHandler.setup();
+        Containers.setup();
 
-        ComputerCraft.mainCreativeTab = new CreativeTabMain( CreativeTabs.getNextID() );
-
-        EntityRegistry.registerModEntity(
-            new ResourceLocation( ComputerCraft.MOD_ID, "turtle_player" ), TurtlePlayer.class, "turtle_player",
-            0, ComputerCraft.instance, Integer.MAX_VALUE, Integer.MAX_VALUE, false
-        );
-    }
-
-    public void init()
-    {
         registerProviders();
-        NetworkRegistry.INSTANCE.registerGuiHandler( ComputerCraft.instance, Containers.INSTANCE );
 
-        Fixes.register( FMLCommonHandler.instance().getDataFixer() );
-        if( Loader.isModLoaded( ModCharset.MODID ) ) IntegrationCharset.register();
-    }
+        RecipeSerializers.register( ColourableRecipe.SERIALIZER );
+        RecipeSerializers.register( ComputerUpgradeRecipe.SERIALIZER );
+        RecipeSerializers.register( PocketComputerUpgradeRecipe.SERIALIZER );
+        RecipeSerializers.register( DiskRecipe.SERIALIZER );
+        RecipeSerializers.register( PrintoutRecipe.SERIALIZER );
+        RecipeSerializers.register( TurtleRecipe.SERIALIZER );
+        RecipeSerializers.register( TurtleUpgradeRecipe.SERIALIZER );
+        RecipeSerializers.register( ImpostorShapelessRecipe.SERIALIZER );
+        RecipeSerializers.register( ImpostorRecipe.SERIALIZER );
 
-    public static void initServer( MinecraftServer server )
-    {
-        CommandHandler handler = (CommandHandler) server.getCommandManager();
-        handler.registerCommand( new CommandComputerCraft() );
+        ArgumentSerializers.register();
+
+        // if( Loader.isModLoaded( ModCharset.MODID ) ) IntegrationCharset.register();
     }
 
     private static void registerProviders()
@@ -111,6 +111,7 @@ public class ComputerCraftProxyCommon
         {
         }
 
+        /*
         @SubscribeEvent
         public static void onConnectionOpened( FMLNetworkEvent.ClientConnectedToServerEvent event )
         {
@@ -122,6 +123,7 @@ public class ComputerCraftProxyCommon
         {
             ComputerCraft.clientComputerRegistry.reset();
         }
+        */
 
         @SubscribeEvent
         public static void onClientTick( TickEvent.ClientTickEvent event )
@@ -161,6 +163,28 @@ public class ComputerCraftProxyCommon
                     ((ServerComputer) computer).sendTerminalState( event.getEntityPlayer() );
                 }
             }
+        }
+
+        @SubscribeEvent
+        public static void onServerStarting( FMLServerStartingEvent event )
+        {
+            CommandComputerCraft.register( event.getCommandDispatcher() );
+        }
+
+        @SubscribeEvent
+        public static void onServerStarted( FMLServerStartedEvent event )
+        {
+            ComputerCraft.serverComputerRegistry.reset();
+            WirelessNetwork.resetNetworks();
+            Tracking.reset();
+        }
+
+        @SubscribeEvent
+        public static void onServerStopped( FMLServerStoppedEvent event )
+        {
+            ComputerCraft.serverComputerRegistry.reset();
+            WirelessNetwork.resetNetworks();
+            Tracking.reset();
         }
     }
 }

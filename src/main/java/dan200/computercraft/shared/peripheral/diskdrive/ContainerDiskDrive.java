@@ -21,19 +21,19 @@ public class ContainerDiskDrive extends Container
     public ContainerDiskDrive( IInventory playerInventory, TileDiskDrive diskDrive )
     {
         m_diskDrive = diskDrive;
-        addSlotToContainer( new Slot( m_diskDrive, 0, 8 + 4 * 18, 35 ) );
+        addSlot( new Slot( m_diskDrive, 0, 8 + 4 * 18, 35 ) );
 
         for( int y = 0; y < 3; y++ )
         {
             for( int x = 0; x < 9; x++ )
             {
-                addSlotToContainer( new Slot( playerInventory, x + y * 9 + 9, 8 + x * 18, 84 + y * 18 ) );
+                addSlot( new Slot( playerInventory, x + y * 9 + 9, 8 + x * 18, 84 + y * 18 ) );
             }
         }
 
         for( int x = 0; x < 9; x++ )
         {
-            addSlotToContainer( new Slot( playerInventory, x, 8 + x * 18, 142 ) );
+            addSlot( new Slot( playerInventory, x, 8 + x * 18, 142 ) );
         }
     }
 
@@ -55,7 +55,7 @@ public class ContainerDiskDrive extends Container
         Slot slot = inventorySlots.get( slotIndex );
         if( slot == null || !slot.getHasStack() ) return ItemStack.EMPTY;
 
-        ItemStack existing = slot.getStack().copy();
+        ItemStack existing = slot.getStack();
         ItemStack result = existing.copy();
         if( slotIndex == 0 )
         {

@@ -7,25 +7,25 @@
 package dan200.computercraft.shared.util;
 
 import dan200.computercraft.ComputerCraft;
-import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 import javax.annotation.Nonnull;
 
-public class CreativeTabMain extends CreativeTabs
+public class CreativeTabMain extends ItemGroup
 {
-    public CreativeTabMain( int i )
+    public CreativeTabMain()
     {
-        super( i, ComputerCraft.MOD_ID );
+        super( ComputerCraft.MOD_ID );
     }
 
     @Nonnull
     @Override
-    @SideOnly( Side.CLIENT )
+    @OnlyIn( Dist.CLIENT )
     public ItemStack createIcon()
     {
-        return new ItemStack( ComputerCraft.Blocks.computer );
+        return new ItemStack( ComputerCraft.Blocks.computerNormal );
     }
 }

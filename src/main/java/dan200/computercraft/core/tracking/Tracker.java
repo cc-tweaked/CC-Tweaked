@@ -10,11 +10,6 @@ import dan200.computercraft.core.computer.Computer;
 
 public interface Tracker
 {
-    @Deprecated
-    default void addTiming( Computer computer, long time )
-    {
-    }
-
     /**
      * Report how long a task executed on the computer thread took.
      *
@@ -25,8 +20,6 @@ public interface Tracker
      */
     default void addTaskTiming( Computer computer, long time )
     {
-        //noinspection deprecation
-        addTiming( computer, time );
     }
 
     /**

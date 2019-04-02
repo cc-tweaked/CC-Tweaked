@@ -6,118 +6,101 @@
 
 package dan200.computercraft.shared.util;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 import dan200.computercraft.ComputerCraft;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.world.dimension.DimensionType;
+import net.minecraftforge.fml.server.ServerLifecycleHooks;
 
-import java.io.*;
+import java.io.File;
+import java.io.Reader;
+import java.io.Writer;
+import java.lang.ref.WeakReference;
+import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.Map;
 
 public final class IDAssigner
 {
+    private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
+    private static final Type ID_TOKEN = new TypeToken<Map<String, Integer>>() {}.getType();
+
     private IDAssigner()
     {
     }
 
-    public static int getNextIDFromDirectory( String path )
+    private static Map<String, Integer> ids;
+    private static WeakReference<MinecraftServer> server;
+    private static Path idFile;
+
+    public static File getDir()
     {
-        return getNextIDFromDirectory( new File( ComputerCraft.getWorldDir(), path ) );
+        MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
+        File worldDirectory = server.getWorld( DimensionType.OVERWORLD ).getSaveHandler().getWorldDirectory();
+        return new File( worldDirectory, ComputerCraft.MOD_ID );
     }
 
-    public static int getNextIDFromFile( String path )
+    private static MinecraftServer getCachedServer()
     {
-        return getNextIDFromFile( new File( ComputerCraft.getWorldDir(), path ) );
+        if( server == null ) return null;
+
+        MinecraftServer currentServer = server.get();
+        if( currentServer == null ) return null;
+
+        if( currentServer != ServerLifecycleHooks.getCurrentServer() ) return null;
+        return currentServer;
     }
 
-    public static int getNextIDFromDirectory( File dir )
+    public static synchronized int getNextId( String kind )
     {
-        return getNextID( dir, true );
-    }
-
-    public static int getNextIDFromFile( File file )
-    {
-        return getNextID( file, false );
-    }
-
-    private static int getNextID( File location, boolean directory )
-    {
-        // Determine where to locate ID file
-        File lastIdFile;
-        if( directory )
+        MinecraftServer currentServer = getCachedServer();
+        if( currentServer == null )
         {
-            location.mkdirs();
-            lastIdFile = new File( location, "lastid.txt" );
-        }
-        else
-        {
-            location.getParentFile().mkdirs();
-            lastIdFile = location;
-        }
+            // The server has changed, refetch our ID map
+            server = new WeakReference<>( ServerLifecycleHooks.getCurrentServer() );
 
-        // Try to determine the id
-        int id = 0;
-        if( !lastIdFile.exists() )
-        {
-            // If an ID file doesn't exist, determine it from the file structure
-            if( directory && location.exists() && location.isDirectory() )
+            File dir = getDir();
+            dir.mkdirs();
+
+            // Load our ID file from disk
+            idFile = new File( dir, "ids.json" ).toPath();
+            if( Files.isRegularFile( idFile ) )
             {
-                String[] contents = location.list();
-                for( String content : contents )
+                try( Reader reader = Files.newBufferedReader( idFile, StandardCharsets.UTF_8 ) )
                 {
-                    try
-                    {
-                        int number = Integer.parseInt( content );
-                        id = Math.max( number + 1, id );
-                    }
-                    catch( NumberFormatException e )
-                    {
-                        ComputerCraft.log.error( "Unexpected file '" + content + "' in '" + location.getAbsolutePath() + "'", e );
-                    }
+                    ids = GSON.fromJson( reader, ID_TOKEN );
+                }
+                catch( Exception e )
+                {
+                    ComputerCraft.log.error( "Cannot load id file '" + idFile + "'", e );
+                    ids = new HashMap<>();
                 }
             }
-        }
-        else
-        {
-            // If an ID file does exist, parse the file to get the ID string
-            String idString;
-            try
+            else
             {
-                FileInputStream in = new FileInputStream( lastIdFile );
-                InputStreamReader isr = new InputStreamReader( in, StandardCharsets.UTF_8 );
-                try( BufferedReader br = new BufferedReader( isr ) )
-                {
-                    idString = br.readLine();
-                }
-            }
-            catch( IOException e )
-            {
-                ComputerCraft.log.error( "Cannot open ID file '" + lastIdFile + "'", e );
-                return 0;
-            }
-
-            try
-            {
-                id = Integer.parseInt( idString ) + 1;
-            }
-            catch( NumberFormatException e )
-            {
-                ComputerCraft.log.error( "Cannot parse ID file '" + lastIdFile + "', perhaps it is corrupt?", e );
-                return 0;
+                ids = new HashMap<>();
             }
         }
 
-        // Write the lastID file out with the new value
-        try
+        Integer existing = ids.get( kind );
+        int next = existing == null ? 0 : existing + 1;
+        ids.put( kind, next );
+
+        // We've changed the ID file, so save it back again.
+        try( Writer writer = Files.newBufferedWriter( idFile, StandardCharsets.UTF_8 ) )
         {
-            try( BufferedWriter out = new BufferedWriter( new FileWriter( lastIdFile, false ) ) )
-            {
-                out.write( Integer.toString( id ) );
-                out.newLine();
-            }
+            GSON.toJson( ids, writer );
         }
-        catch( IOException e )
+        catch( Exception e )
         {
-            ComputerCraft.log.error( "An error occurred while trying to create the computer folder. Please check you have relevant permissions.", e );
+            ComputerCraft.log.error( "Cannot update ID file '" + idFile + "'", e );
         }
 
-        return id;
+        return next;
     }
 }

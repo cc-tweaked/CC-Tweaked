@@ -11,9 +11,8 @@ import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.media.IMedia;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
-import dan200.computercraft.shared.media.items.ItemDiskLegacy;
+import dan200.computercraft.shared.media.items.ItemDisk;
 import dan200.computercraft.shared.util.StringUtil;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 
 import javax.annotation.Nonnull;
@@ -108,8 +107,7 @@ public class DiskDrivePeripheral implements IPeripheral
             case 10: // getDiskID
             {
                 ItemStack disk = m_diskDrive.getDiskStack();
-                Item item = disk.getItem();
-                return item instanceof ItemDiskLegacy ? new Object[] { ((ItemDiskLegacy) item).getDiskID( disk ) } : null;
+                return disk.getItem() instanceof ItemDisk ? new Object[] { ItemDisk.getDiskID( disk ) } : null;
             }
             default:
                 return null;

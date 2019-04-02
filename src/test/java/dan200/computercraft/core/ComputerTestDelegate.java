@@ -73,7 +73,6 @@ public class ComputerTestDelegate
     public void before()
     {
         ComputerCraft.logPeripheralErrors = true;
-        ComputerCraft.log = LogManager.getLogger( ComputerCraft.MOD_ID );
 
         Terminal term = new Terminal( 78, 20 );
         IWritableMount mount = new MemoryMount()

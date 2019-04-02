@@ -17,19 +17,18 @@ import dan200.computercraft.core.computer.Computer;
 import dan200.computercraft.core.computer.IComputerEnvironment;
 import dan200.computercraft.shared.common.ServerTerminal;
 import dan200.computercraft.shared.network.NetworkHandler;
+import dan200.computercraft.shared.network.NetworkMessage;
 import dan200.computercraft.shared.network.client.ComputerDataClientMessage;
 import dan200.computercraft.shared.network.client.ComputerDeletedClientMessage;
 import dan200.computercraft.shared.network.client.ComputerTerminalClientMessage;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.Container;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.fml.common.Loader;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
+import net.minecraftforge.fml.server.ServerLifecycleHooks;
+import net.minecraftforge.versions.mcp.MCPVersion;
 
 import javax.annotation.Nullable;
 import java.io.InputStream;
@@ -148,12 +147,12 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
         m_changed = true;
     }
 
-    private IMessage createComputerPacket()
+    private NetworkMessage createComputerPacket()
     {
         return new ComputerDataClientMessage( this );
     }
 
-    protected IMessage createTerminalPacket()
+    protected NetworkMessage createTerminalPacket()
     {
         NBTTagCompound tagCompound = new NBTTagCompound();
         writeDescription( tagCompound );
@@ -171,18 +170,12 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
         if( hasTerminalChanged() || force )
         {
             // Send terminal state to clients who are currently interacting with the computer.
-            FMLCommonHandler handler = FMLCommonHandler.instance();
-            if( handler != null )
+            MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
+
+            NetworkMessage packet = createTerminalPacket();
+            for( EntityPlayer player : server.getPlayerList().getPlayers() )
             {
-                IMessage packet = createTerminalPacket();
-                MinecraftServer server = handler.getMinecraftServerInstance();
-                for( EntityPlayerMP player : server.getPlayerList().getPlayers() )
-                {
-                    if( isInteracting( player ) )
-                    {
-                        NetworkHandler.sendToPlayer( player, packet );
-                    }
-                }
+                if( isInteracting( player ) ) NetworkHandler.sendToPlayer( player, packet );
             }
         }
     }
@@ -218,15 +211,11 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
         return m_instanceID;
     }
 
-    @Override
-    @SuppressWarnings( "deprecation" )
     public int getID()
     {
         return m_computer.getID();
     }
 
-    @Override
-    @SuppressWarnings( "deprecation" )
     public String getLabel()
     {
         return m_computer.getLabel();
@@ -297,12 +286,6 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
         m_computer.addApi( api );
     }
 
-    @Deprecated
-    public void addAPI( dan200.computercraft.core.apis.ILuaAPI api )
-    {
-        m_computer.addAPI( api );
-    }
-
     public void setPeripheral( int side, IPeripheral peripheral )
     {
         m_computer.getEnvironment().setPeripheral( side, peripheral );
@@ -323,13 +306,13 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
     @Override
     public double getTimeOfDay()
     {
-        return (m_world.getWorldTime() + 6000) % 24000 / 1000.0;
+        return (m_world.getGameTime() + 6000) % 24000 / 1000.0;
     }
 
     @Override
     public int getDay()
     {
-        return (int) ((m_world.getWorldTime() + 6000) / 24000) + 1;
+        return (int) ((m_world.getGameTime() + 6000) / 24000) + 1;
     }
 
     @Override
@@ -341,13 +324,13 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
     @Override
     public IMount createResourceMount( String domain, String subPath )
     {
-        return ComputerCraftAPI.createResourceMount( ComputerCraft.class, domain, subPath );
+        return ComputerCraftAPI.createResourceMount( domain, subPath );
     }
 
     @Override
     public InputStream createResourceFile( String domain, String subPath )
     {
-        return ComputerCraft.getResourceFile( ComputerCraft.class, domain, subPath );
+        return ComputerCraft.getResourceFile( domain, subPath );
     }
 
     @Override
@@ -359,7 +342,7 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
     @Override
     public String getHostString()
     {
-        return "ComputerCraft ${version} (Minecraft " + Loader.MC_VERSION + ")";
+        return "ComputerCraft ${version} (Minecraft " + MCPVersion.getMCVersion() + ")";
     }
 
     @Override

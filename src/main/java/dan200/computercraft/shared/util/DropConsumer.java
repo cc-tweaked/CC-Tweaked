@@ -16,12 +16,13 @@ import net.minecraft.world.World;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.entity.living.LivingDropsEvent;
 import net.minecraftforge.event.world.BlockEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.eventhandler.EventPriority;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.function.Function;
 
@@ -48,7 +49,7 @@ public final class DropConsumer
         dropPos = null;
         dropBounds = new AxisAlignedBB( entity.getPosition() ).grow( 2, 2, 2 );
 
-        entity.captureDrops = true;
+        entity.captureDrops( new ArrayList<>() );
     }
 
     public static void set( World world, BlockPos pos, Function<ItemStack, ItemStack> consumer )
@@ -68,11 +69,10 @@ public final class DropConsumer
             Entity entity = dropEntity.get();
             if( entity != null )
             {
-                entity.captureDrops = false;
-                if( entity.capturedDrops != null )
+                Collection<EntityItem> dropped = entity.captureDrops( null );
+                if( dropped != null )
                 {
-                    for( EntityItem entityItem : entity.capturedDrops ) handleDrops( entityItem.getItem() );
-                    entity.capturedDrops.clear();
+                    for( EntityItem entityItem : dropped ) handleDrops( entityItem.getItem() );
                 }
             }
         }
@@ -101,7 +101,7 @@ public final class DropConsumer
         // Capture any mob drops for the current entity
         if( dropEntity != null && event.getEntity() == dropEntity.get() )
         {
-            List<EntityItem> drops = event.getDrops();
+            Collection<EntityItem> drops = event.getDrops();
             for( EntityItem entityItem : drops ) handleDrops( entityItem.getItem() );
             drops.clear();
         }
@@ -116,7 +116,7 @@ public final class DropConsumer
         {
             for( ItemStack item : event.getDrops() )
             {
-                if( event.getWorld().rand.nextFloat() < event.getDropChance() ) handleDrops( item );
+                if( event.getWorld().getRandom().nextFloat() < event.getDropChance() ) handleDrops( item );
             }
             event.getDrops().clear();
         }

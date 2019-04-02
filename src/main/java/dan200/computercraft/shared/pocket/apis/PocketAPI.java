@@ -59,7 +59,7 @@ public class PocketAPI implements ILuaAPI
                 // equipBack
                 return context.executeMainThreadTask( () ->
                 {
-                    Entity entity = m_computer.getValidEntity();
+                    Entity entity = m_computer.getEntity();
                     if( !(entity instanceof EntityPlayer) ) return new Object[] { false, "Cannot find player" };
                     EntityPlayer player = (EntityPlayer) entity;
                     InventoryPlayer inventory = player.inventory;
@@ -98,7 +98,7 @@ public class PocketAPI implements ILuaAPI
                 // unequipBack
                 return context.executeMainThreadTask( () ->
                 {
-                    Entity entity = m_computer.getValidEntity();
+                    Entity entity = m_computer.getEntity();
                     if( !(entity instanceof EntityPlayer) ) return new Object[] { false, "Cannot find player" };
                     EntityPlayer player = (EntityPlayer) entity;
                     InventoryPlayer inventory = player.inventory;

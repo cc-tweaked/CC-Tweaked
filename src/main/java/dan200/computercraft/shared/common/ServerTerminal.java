@@ -88,14 +88,14 @@ public class ServerTerminal implements ITerminal
 
     public void writeDescription( NBTTagCompound nbt )
     {
-        nbt.setBoolean( "colour", m_colour );
+        nbt.putBoolean( "colour", m_colour );
         if( m_terminal != null )
         {
             NBTTagCompound terminal = new NBTTagCompound();
-            terminal.setInteger( "term_width", m_terminal.getWidth() );
-            terminal.setInteger( "term_height", m_terminal.getHeight() );
+            terminal.putInt( "term_width", m_terminal.getWidth() );
+            terminal.putInt( "term_height", m_terminal.getHeight() );
             m_terminal.writeToNBT( terminal );
-            nbt.setTag( "terminal", terminal );
+            nbt.put( "terminal", terminal );
         }
     }
 }

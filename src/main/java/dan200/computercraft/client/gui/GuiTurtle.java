@@ -8,29 +8,27 @@ package dan200.computercraft.client.gui;
 
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.client.gui.widgets.WidgetTerminal;
+import dan200.computercraft.client.gui.widgets.WidgetWrapper;
 import dan200.computercraft.shared.computer.core.ClientComputer;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.turtle.blocks.TileTurtle;
 import dan200.computercraft.shared.turtle.inventory.ContainerTurtle;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.ResourceLocation;
-import org.lwjgl.input.Keyboard;
-import org.lwjgl.input.Mouse;
-
-import java.io.IOException;
 
 public class GuiTurtle extends GuiContainer
 {
-    private static final ResourceLocation BACKGROUND_NORMAL = new ResourceLocation( "computercraft", "textures/gui/turtle.png" );
+    private static final ResourceLocation BACKGROUND_NORMAL = new ResourceLocation( "computercraft", "textures/gui/turtle_normal.png" );
     private static final ResourceLocation BACKGROUND_ADVANCED = new ResourceLocation( "computercraft", "textures/gui/turtle_advanced.png" );
 
     private ContainerTurtle m_container;
 
     private final ComputerFamily m_family;
     private final ClientComputer m_computer;
-    private WidgetTerminal m_terminalGui;
+
+    private WidgetTerminal terminal;
+    private WidgetWrapper terminalWrapper;
 
     public GuiTurtle( TileTurtle turtle, ContainerTurtle container )
     {
@@ -45,78 +43,48 @@ public class GuiTurtle extends GuiContainer
     }
 
     @Override
-    public void initGui()
+    protected void initGui()
     {
         super.initGui();
-        Keyboard.enableRepeatEvents( true );
-        m_terminalGui = new WidgetTerminal(
-            guiLeft + 8,
-            guiTop + 8,
+        mc.keyboardListener.enableRepeatEvents( true );
+
+        int termPxWidth = ComputerCraft.terminalWidth_turtle * FixedWidthFontRenderer.FONT_WIDTH;
+        int termPxHeight = ComputerCraft.terminalHeight_turtle * FixedWidthFontRenderer.FONT_HEIGHT;
+
+        terminal = new WidgetTerminal(
+            mc, () -> m_computer,
             ComputerCraft.terminalWidth_turtle,
             ComputerCraft.terminalHeight_turtle,
-            () -> m_computer,
             2, 2, 2, 2
         );
-        m_terminalGui.setAllowFocusLoss( false );
+        terminalWrapper = new WidgetWrapper( terminal, 2 + 8 + guiLeft, 2 + 8 + guiTop, termPxWidth, termPxHeight );
+
+        children.add( terminalWrapper );
+        setFocused( terminalWrapper );
     }
 
     @Override
     public void onGuiClosed()
     {
-        super.onGuiClosed();
-        Keyboard.enableRepeatEvents( false );
+        children.remove( terminal );
+        terminal = null;
+        mc.keyboardListener.enableRepeatEvents( false );
     }
 
     @Override
-    public void updateScreen()
+    public void tick()
     {
-        super.updateScreen();
-        m_terminalGui.update();
+        super.tick();
+        terminal.update();
     }
 
-    @Override
-    protected void keyTyped( char c, int k ) throws IOException
-    {
-        if( k == 1 )
-        {
-            super.keyTyped( c, k );
-        }
-        else
-        {
-            if( m_terminalGui.onKeyTyped( c, k ) ) keyHandled = true;
-        }
-    }
-
-    @Override
-    protected void mouseClicked( int x, int y, int button ) throws IOException
-    {
-        super.mouseClicked( x, y, button );
-        m_terminalGui.mouseClicked( x, y, button );
-    }
-
-    @Override
-    public void handleMouseInput() throws IOException
-    {
-        super.handleMouseInput();
-        int x = Mouse.getEventX() * width / mc.displayWidth;
-        int y = height - Mouse.getEventY() * height / mc.displayHeight - 1;
-        m_terminalGui.handleMouseInput( x, y );
-    }
-
-    @Override
-    public void handleKeyboardInput() throws IOException
-    {
-        super.handleKeyboardInput();
-        if( m_terminalGui.onKeyboardInput() ) keyHandled = true;
-    }
-
-    protected void drawSelectionSlot( boolean advanced )
+    private void drawSelectionSlot( boolean advanced )
     {
         // Draw selection slot
         int slot = m_container.getSelectedSlot();
         if( slot >= 0 )
         {
-            GlStateManager.color( 1.0F, 1.0F, 1.0F, 1.0F );
+            GlStateManager.color4f( 1.0F, 1.0F, 1.0F, 1.0F );
             int slotX = slot % 4;
             int slotY = slot / 4;
             mc.getTextureManager().bindTexture( advanced ? BACKGROUND_ADVANCED : BACKGROUND_NORMAL );
@@ -129,10 +97,10 @@ public class GuiTurtle extends GuiContainer
     {
         // Draw term
         boolean advanced = m_family == ComputerFamily.Advanced;
-        m_terminalGui.draw( Minecraft.getMinecraft(), 0, 0, mouseX, mouseY );
+        terminal.draw( terminalWrapper.getX(), terminalWrapper.getY() );
 
         // Draw border/inventory
-        GlStateManager.color( 1.0F, 1.0F, 1.0F, 1.0F );
+        GlStateManager.color4f( 1.0F, 1.0F, 1.0F, 1.0F );
         mc.getTextureManager().bindTexture( advanced ? BACKGROUND_ADVANCED : BACKGROUND_NORMAL );
         drawTexturedModalRect( guiLeft, guiTop, 0, 0, xSize, ySize );
 
@@ -140,10 +108,10 @@ public class GuiTurtle extends GuiContainer
     }
 
     @Override
-    public void drawScreen( int mouseX, int mouseY, float partialTicks )
+    public void render( int mouseX, int mouseY, float partialTicks )
     {
         drawDefaultBackground();
-        super.drawScreen( mouseX, mouseY, partialTicks );
+        super.render( mouseX, mouseY, partialTicks );
         renderHoveredToolTip( mouseX, mouseY );
     }
 }

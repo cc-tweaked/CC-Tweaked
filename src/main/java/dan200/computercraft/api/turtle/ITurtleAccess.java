@@ -54,8 +54,7 @@ public interface ITurtleAccess
      * @param world The new world to move it to
      * @param pos   The new position to move it to.
      * @return Whether the movement was successful. It may fail if the block was not loaded or the block placement
-     * was cancelled. Note this will not check
-     * {@link dan200.computercraft.api.permissions.ITurtlePermissionProvider#isBlockEnterable(World, BlockPos)}.
+     * was cancelled.
      * @throws UnsupportedOperationException When attempting to teleport on the client side.
      */
     boolean teleportTo( @Nonnull World world, @Nonnull BlockPos pos );

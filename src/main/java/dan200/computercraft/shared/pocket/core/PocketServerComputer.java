@@ -31,6 +31,8 @@ import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.Map;
 
+import static dan200.computercraft.shared.pocket.items.ItemPocketComputer.NBT_LIGHT;
+
 public class PocketServerComputer extends ServerComputer implements IPocketAccess
 {
     private IPocketUpgrade m_upgrade;
@@ -47,24 +49,17 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
     @Deprecated
     public Entity getEntity()
     {
-        return m_entity;
-    }
-
-    @Nullable
-    @Override
-    public Entity getValidEntity()
-    {
         Entity entity = m_entity;
-        if( entity == null || m_stack == null || entity.isDead ) return null;
+        if( entity == null || m_stack == null || entity.removed ) return null;
 
-        if( m_entity instanceof EntityPlayer )
+        if( entity instanceof EntityPlayer )
         {
-            InventoryPlayer inventory = ((EntityPlayer) m_entity).inventory;
+            InventoryPlayer inventory = ((EntityPlayer) entity).inventory;
             return inventory.mainInventory.contains( m_stack ) || inventory.offHandInventory.contains( m_stack ) ? entity : null;
         }
-        else if( m_entity instanceof EntityLivingBase )
+        else if( entity instanceof EntityLivingBase )
         {
-            EntityLivingBase living = (EntityLivingBase) m_entity;
+            EntityLivingBase living = (EntityLivingBase) entity;
             return living.getHeldItemMainhand() == m_stack || living.getHeldItemOffhand() == m_stack ? entity : null;
         }
         else
@@ -76,7 +71,7 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
     @Override
     public int getColour()
     {
-        return ComputerCraft.Items.pocketComputer.getColour( m_stack );
+        return IColouredItem.getColourBasic( m_stack );
     }
 
     @Override
@@ -90,8 +85,7 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
     public int getLight()
     {
         NBTTagCompound tag = getUserData();
-        return tag.hasKey( ItemPocketComputer.NBT_LIGHT, Constants.NBT.TAG_ANY_NUMERIC )
-            ? tag.getInteger( ItemPocketComputer.NBT_LIGHT ) : -1;
+        return tag.contains( NBT_LIGHT, Constants.NBT.TAG_ANY_NUMERIC ) ? tag.getInt( NBT_LIGHT ) : -1;
     }
 
     @Override
@@ -100,15 +94,15 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
         NBTTagCompound tag = getUserData();
         if( colour >= 0 && colour <= 0xFFFFFF )
         {
-            if( !tag.hasKey( ItemPocketComputer.NBT_LIGHT, Constants.NBT.TAG_ANY_NUMERIC ) || tag.getInteger( ItemPocketComputer.NBT_LIGHT ) != colour )
+            if( !tag.contains( NBT_LIGHT, Constants.NBT.TAG_ANY_NUMERIC ) || tag.getInt( NBT_LIGHT ) != colour )
             {
-                tag.setInteger( ItemPocketComputer.NBT_LIGHT, colour );
+                tag.putInt( NBT_LIGHT, colour );
                 updateUserData();
             }
         }
-        else if( tag.hasKey( ItemPocketComputer.NBT_LIGHT, Constants.NBT.TAG_ANY_NUMERIC ) )
+        else if( tag.contains( NBT_LIGHT, Constants.NBT.TAG_ANY_NUMERIC ) )
         {
-            tag.removeTag( ItemPocketComputer.NBT_LIGHT );
+            tag.remove( NBT_LIGHT );
             updateUserData();
         }
     }
@@ -160,7 +154,6 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
         {
             ItemPocketComputer.setUpgrade( m_stack, upgrade );
             updateUpgradeNBTData();
-
             m_upgrade = upgrade;
             invalidatePeripheral();
         }

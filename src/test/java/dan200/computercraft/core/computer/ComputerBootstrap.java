@@ -15,7 +15,6 @@ import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.core.apis.ArgumentHelper;
 import dan200.computercraft.core.filesystem.MemoryMount;
 import dan200.computercraft.core.terminal.Terminal;
-import org.apache.logging.log4j.LogManager;
 import org.junit.jupiter.api.Assertions;
 
 import javax.annotation.Nonnull;
@@ -30,11 +29,6 @@ public class ComputerBootstrap
     private static final int TPS = 20;
     private static final int MAX_TIME = 10;
 
-    public static void run( IMount mount, Consumer<Computer> setup )
-    {
-
-    }
-
     public static void run( String program )
     {
         MemoryMount mount = new MemoryMount()
@@ -47,7 +41,6 @@ public class ComputerBootstrap
     public static void run( IWritableMount mount, Consumer<Computer> setup )
     {
         ComputerCraft.logPeripheralErrors = true;
-        ComputerCraft.log = LogManager.getLogger( ComputerCraft.MOD_ID );
 
         Terminal term = new Terminal( ComputerCraft.terminalWidth_computer, ComputerCraft.terminalHeight_computer );
         final Computer computer = new Computer( new BasicEnvironment( mount ), term, 0 );

@@ -74,10 +74,10 @@ public final class PrintoutRenderer
 
     public static void drawText( int x, int y, int start, String[] text, String[] colours )
     {
-        GlStateManager.color( 1.0f, 1.0f, 1.0f, 1.0f );
+        GlStateManager.color4f( 1.0f, 1.0f, 1.0f, 1.0f );
         GlStateManager.enableBlend();
         GlStateManager.enableTexture2D();
-        GlStateManager.tryBlendFuncSeparate( SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA, SourceFactor.ONE, DestFactor.ZERO );
+        GlStateManager.blendFuncSeparate( SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA, SourceFactor.ONE, DestFactor.ZERO );
 
         FixedWidthFontRenderer fontRenderer = FixedWidthFontRenderer.instance();
 
@@ -89,12 +89,12 @@ public final class PrintoutRenderer
 
     public static void drawBorder( double x, double y, double z, int page, int pages, boolean isBook )
     {
-        GlStateManager.color( 1.0f, 1.0f, 1.0f, 1.0f );
+        GlStateManager.color4f( 1.0f, 1.0f, 1.0f, 1.0f );
         GlStateManager.enableBlend();
         GlStateManager.enableTexture2D();
-        GlStateManager.tryBlendFuncSeparate( SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA, SourceFactor.ONE, DestFactor.ZERO );
+        GlStateManager.blendFuncSeparate( SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA, SourceFactor.ONE, DestFactor.ZERO );
 
-        Minecraft.getMinecraft().getTextureManager().bindTexture( BG );
+        Minecraft.getInstance().getTextureManager().bindTexture( BG );
 
         Tessellator tessellator = Tessellator.getInstance();
         BufferBuilder buffer = tessellator.getBuffer();

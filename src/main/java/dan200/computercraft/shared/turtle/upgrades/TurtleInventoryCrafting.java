@@ -12,7 +12,6 @@ import dan200.computercraft.shared.turtle.core.TurtlePlayer;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.CraftingManager;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.text.ITextComponent;
@@ -20,7 +19,8 @@ import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.ForgeHooks;
-import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.common.crafting.VanillaRecipeTypes;
+import net.minecraftforge.fml.hooks.BasicEventHooks;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -68,7 +68,7 @@ public class TurtleInventoryCrafting extends InventoryCrafting
         }
 
         // Check the actual crafting
-        return CraftingManager.findMatchingRecipe( this, m_turtle.getWorld() );
+        return m_turtle.getWorld().getRecipeManager().getRecipe( this, m_turtle.getWorld(), VanillaRecipeTypes.CRAFTING );
     }
 
     @Nullable
@@ -96,7 +96,7 @@ public class TurtleInventoryCrafting extends InventoryCrafting
             results.add( result );
 
             result.onCrafting( world, player, result.getCount() );
-            FMLCommonHandler.instance().firePlayerCraftingEvent( player, result, this );
+            BasicEventHooks.firePlayerCraftingEvent( player, result, this );
 
             ForgeHooks.setCraftingPlayer( player );
             NonNullList<ItemStack> remainders = recipe.getRemainingItems( this );
@@ -134,15 +134,6 @@ public class TurtleInventoryCrafting extends InventoryCrafting
         }
 
         return results;
-    }
-
-    @Nonnull
-    @Override
-    public ItemStack getStackInRowAndColumn( int x, int y )
-    {
-        return x >= 0 && x < getWidth() && y >= 0 && y < getHeight()
-            ? getStackInSlot( x + y * getWidth() )
-            : ItemStack.EMPTY;
     }
 
     @Override
@@ -184,22 +175,15 @@ public class TurtleInventoryCrafting extends InventoryCrafting
 
     @Nonnull
     @Override
-    public String getName()
+    public ITextComponent getName()
     {
-        return "";
+        return new TextComponentString( "" );
     }
 
     @Override
     public boolean hasCustomName()
     {
         return false;
-    }
-
-    @Nonnull
-    @Override
-    public ITextComponent getDisplayName()
-    {
-        return new TextComponentString( "" );
     }
 
     @Nonnull
@@ -244,37 +228,10 @@ public class TurtleInventoryCrafting extends InventoryCrafting
     }
 
     @Override
-    public void openInventory( EntityPlayer player )
-    {
-    }
-
-    @Override
-    public void closeInventory( EntityPlayer player )
-    {
-    }
-
-    @Override
     public boolean isItemValidForSlot( int i, @Nonnull ItemStack stack )
     {
         i = modifyIndex( i );
         return m_turtle.getInventory().isItemValidForSlot( i, stack );
-    }
-
-    @Override
-    public int getField( int id )
-    {
-        return 0;
-    }
-
-    @Override
-    public void setField( int id, int value )
-    {
-    }
-
-    @Override
-    public int getFieldCount()
-    {
-        return 0;
     }
 
     @Override

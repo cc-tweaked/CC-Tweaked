@@ -10,371 +10,349 @@ import dan200.computercraft.client.FrameInfo;
 import dan200.computercraft.client.gui.FixedWidthFontRenderer;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.core.terminal.TextBuffer;
+import dan200.computercraft.shared.computer.core.ClientComputer;
 import dan200.computercraft.shared.computer.core.IComputer;
-import dan200.computercraft.shared.computer.core.IComputerContainer;
 import dan200.computercraft.shared.util.Colour;
 import dan200.computercraft.shared.util.Palette;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.gui.IGuiEventListener;
+import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.util.ChatAllowedCharacters;
-import org.lwjgl.input.Keyboard;
-import org.lwjgl.input.Mouse;
+import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraft.util.SharedConstants;
+import org.lwjgl.glfw.GLFW;
+import org.lwjgl.opengl.GL11;
 
-import java.util.ArrayList;
+import java.util.BitSet;
+import java.util.function.Supplier;
 
 import static dan200.computercraft.client.gui.FixedWidthFontRenderer.BACKGROUND;
 
-public class WidgetTerminal extends Widget
+public class WidgetTerminal implements IGuiEventListener
 {
     private static final float TERMINATE_TIME = 0.5f;
 
-    private final IComputerContainer m_computer;
+    private final Minecraft client;
 
-    private float m_terminateTimer = 0.0f;
-    private float m_rebootTimer = 0.0f;
-    private float m_shutdownTimer = 0.0f;
+    private final Supplier<ClientComputer> computer;
+    private final int termWidth;
+    private final int termHeight;
 
-    private int m_lastClickButton = -1;
-    private int m_lastClickX = -1;
-    private int m_lastClickY = -1;
+    private float terminateTimer = -1;
+    private float rebootTimer = -1;
+    private float shutdownTimer = -1;
 
-    private boolean m_focus = false;
-    private boolean m_allowFocusLoss = true;
+    private int lastMouseButton = -1;
+    private int lastMouseX = -1;
+    private int lastMouseY = -1;
 
-    private int m_leftMargin;
-    private int m_rightMargin;
-    private int m_topMargin;
-    private int m_bottomMargin;
+    private final int leftMargin;
+    private final int rightMargin;
+    private final int topMargin;
+    private final int bottomMargin;
 
-    private final ArrayList<Integer> m_keysDown = new ArrayList<>();
+    private final BitSet keysDown = new BitSet( 256 );
 
-    public WidgetTerminal( int x, int y, int termWidth, int termHeight, IComputerContainer computer, int leftMargin, int rightMargin, int topMargin, int bottomMargin )
+    public WidgetTerminal( Minecraft client, Supplier<ClientComputer> computer, int termWidth, int termHeight, int leftMargin, int rightMargin, int topMargin, int bottomMargin )
     {
-        super(
-            x, y,
-            leftMargin + rightMargin + termWidth * FixedWidthFontRenderer.FONT_WIDTH,
-            topMargin + bottomMargin + termHeight * FixedWidthFontRenderer.FONT_HEIGHT
-        );
-
-        m_computer = computer;
-
-        m_leftMargin = leftMargin;
-        m_rightMargin = rightMargin;
-        m_topMargin = topMargin;
-        m_bottomMargin = bottomMargin;
-    }
-
-    public void setAllowFocusLoss( boolean allowFocusLoss )
-    {
-        m_allowFocusLoss = allowFocusLoss;
-        m_focus = m_focus || !allowFocusLoss;
+        this.client = client;
+        this.computer = computer;
+        this.termWidth = termWidth;
+        this.termHeight = termHeight;
+        this.leftMargin = leftMargin;
+        this.rightMargin = rightMargin;
+        this.topMargin = topMargin;
+        this.bottomMargin = bottomMargin;
     }
 
     @Override
-    public boolean onKeyTyped( char ch, int key )
+    public boolean charTyped( char ch, int modifiers )
     {
-        if( m_focus )
+        if( ch >= 32 && ch <= 126 || ch >= 160 && ch <= 255 ) // printable chars in byte range
         {
-            // Ctrl+V for paste
-            if( ch == 22 )
+            // Queue the "char" event
+            queueEvent( "char", Character.toString( ch ) );
+        }
+
+        return true;
+    }
+
+    @Override
+    public boolean keyPressed( int key, int scancode, int modifiers )
+    {
+        if( key == GLFW.GLFW_KEY_ESCAPE ) return false;
+        if( (modifiers & GLFW.GLFW_MOD_CONTROL) != 0 )
+        {
+            switch( key )
             {
-                String clipboard = GuiScreen.getClipboardString();
-                if( clipboard != null )
-                {
-                    // Clip to the first occurrence of \r or \n
-                    int newLineIndex1 = clipboard.indexOf( '\r' );
-                    int newLineIndex2 = clipboard.indexOf( '\n' );
-                    if( newLineIndex1 >= 0 && newLineIndex2 >= 0 )
-                    {
-                        clipboard = clipboard.substring( 0, Math.min( newLineIndex1, newLineIndex2 ) );
-                    }
-                    else if( newLineIndex1 >= 0 )
-                    {
-                        clipboard = clipboard.substring( 0, newLineIndex1 );
-                    }
-                    else if( newLineIndex2 >= 0 )
-                    {
-                        clipboard = clipboard.substring( 0, newLineIndex2 );
-                    }
+                case GLFW.GLFW_KEY_T:
+                    if( terminateTimer < 0 ) terminateTimer = 0;
+                    return true;
+                case GLFW.GLFW_KEY_S:
+                    if( shutdownTimer < 0 ) shutdownTimer = 0;
+                    return true;
+                case GLFW.GLFW_KEY_R:
+                    if( rebootTimer < 0 ) rebootTimer = 0;
+                    return true;
 
-                    // Filter the string
-                    clipboard = ChatAllowedCharacters.filterAllowedCharacters( clipboard );
-
-                    if( !clipboard.isEmpty() )
+                case GLFW.GLFW_KEY_V:
+                    // Ctrl+V for paste
+                    String clipboard = client.keyboardListener.getClipboardString();
+                    if( clipboard != null )
                     {
-                        // Clip to 512 characters
-                        if( clipboard.length() > 512 )
+                        // Clip to the first occurrence of \r or \n
+                        int newLineIndex1 = clipboard.indexOf( "\r" );
+                        int newLineIndex2 = clipboard.indexOf( "\n" );
+                        if( newLineIndex1 >= 0 && newLineIndex2 >= 0 )
                         {
-                            clipboard = clipboard.substring( 0, 512 );
+                            clipboard = clipboard.substring( 0, Math.min( newLineIndex1, newLineIndex2 ) );
+                        }
+                        else if( newLineIndex1 >= 0 )
+                        {
+                            clipboard = clipboard.substring( 0, newLineIndex1 );
+                        }
+                        else if( newLineIndex2 >= 0 )
+                        {
+                            clipboard = clipboard.substring( 0, newLineIndex2 );
                         }
 
-                        // Queue the "paste" event
-                        queueEvent( "paste", new Object[] { clipboard } );
-                    }
-                }
-                return true;
-            }
+                        // Filter the string
+                        clipboard = SharedConstants.filterAllowedCharacters( clipboard );
+                        if( !clipboard.isEmpty() )
+                        {
+                            // Clip to 512 characters and queue the event
+                            if( clipboard.length() > 512 ) clipboard = clipboard.substring( 0, 512 );
+                            queueEvent( "paste", clipboard );
+                        }
 
-            // Regular keys normally
-            if( m_terminateTimer <= 0.0f && m_rebootTimer <= 0.0f && m_shutdownTimer <= 0.0f )
+                        return true;
+                    }
+            }
+        }
+
+        if( key >= 0 && terminateTimer < 0 && rebootTimer < 0 && shutdownTimer < 0 )
+        {
+            // Queue the "key" event and add to the down set
+            boolean repeat = keysDown.get( key );
+            keysDown.set( key );
+            IComputer computer = this.computer.get();
+            if( computer != null ) computer.keyDown( key, repeat );
+        }
+
+        return true;
+    }
+
+    @Override
+    public boolean keyReleased( int key, int scancode, int modifiers )
+    {
+        // Queue the "key_up" event and remove from the down set
+        if( key >= 0 && keysDown.get( key ) )
+        {
+            keysDown.set( key, false );
+            IComputer computer = this.computer.get();
+            if( computer != null ) computer.keyUp( key );
+        }
+
+        switch( key )
+        {
+            case GLFW.GLFW_KEY_T:
+                terminateTimer = -1;
+                break;
+            case GLFW.GLFW_KEY_R:
+                rebootTimer = -1;
+                break;
+            case GLFW.GLFW_KEY_S:
+                shutdownTimer = -1;
+                break;
+            case GLFW.GLFW_KEY_LEFT_CONTROL:
+            case GLFW.GLFW_KEY_RIGHT_CONTROL:
+                terminateTimer = rebootTimer = shutdownTimer = -1;
+                break;
+        }
+
+        return true;
+    }
+
+    @Override
+    public boolean mouseClicked( double mouseX, double mouseY, int button )
+    {
+        ClientComputer computer = this.computer.get();
+        if( computer == null || !computer.isColour() || button < 0 || button > 2 ) return false;
+
+        Terminal term = computer.getTerminal();
+        if( term != null )
+        {
+            int charX = (int) (mouseX / FixedWidthFontRenderer.FONT_WIDTH);
+            int charY = (int) (mouseY / FixedWidthFontRenderer.FONT_HEIGHT);
+            charX = Math.min( Math.max( charX, 0 ), term.getWidth() - 1 );
+            charY = Math.min( Math.max( charY, 0 ), term.getHeight() - 1 );
+
+            computer.mouseClick( button + 1, charX + 1, charY + 1 );
+
+            lastMouseButton = button;
+            lastMouseX = charX;
+            lastMouseY = charY;
+        }
+
+        return true;
+    }
+
+    @Override
+    public boolean mouseReleased( double mouseX, double mouseY, int button )
+    {
+        ClientComputer computer = this.computer.get();
+        if( computer == null || !computer.isColour() || button < 0 || button > 2 ) return false;
+
+        Terminal term = computer.getTerminal();
+        if( term != null )
+        {
+            int charX = (int) (mouseX / FixedWidthFontRenderer.FONT_WIDTH);
+            int charY = (int) (mouseY / FixedWidthFontRenderer.FONT_HEIGHT);
+            charX = Math.min( Math.max( charX, 0 ), term.getWidth() - 1 );
+            charY = Math.min( Math.max( charY, 0 ), term.getHeight() - 1 );
+
+            if( lastMouseButton == button )
             {
-                boolean repeat = Keyboard.isRepeatEvent();
-                boolean handled = false;
-                if( key > 0 )
-                {
-                    if( !repeat )
-                    {
-                        m_keysDown.add( key );
-                    }
-
-                    // Queue the "key" event
-                    IComputer computer = m_computer.getComputer();
-                    if( computer != null ) computer.keyDown( key, repeat );
-                    handled = true;
-                }
-
-                if( (ch >= 32 && ch <= 126) || (ch >= 160 && ch <= 255) ) // printable chars in byte range
-                {
-                    // Queue the "char" event
-                    queueEvent( "char", new Object[] { Character.toString( ch ) } );
-                    handled = true;
-                }
-
-                return handled;
+                computer.mouseUp( lastMouseButton + 1, charX + 1, charY + 1 );
+                lastMouseButton = -1;
             }
+
+            lastMouseX = charX;
+            lastMouseY = charY;
         }
 
         return false;
     }
 
     @Override
-    public void mouseClicked( int mouseX, int mouseY, int button )
+    public boolean mouseDragged( double mouseX, double mouseY, int button, double v2, double v3 )
     {
-        if( mouseX >= getXPosition() && mouseX < getXPosition() + getWidth() &&
-            mouseY >= getYPosition() && mouseY < getYPosition() + getHeight() )
+        ClientComputer computer = this.computer.get();
+        if( computer == null || !computer.isColour() || button < 0 || button > 2 ) return false;
+
+        Terminal term = computer.getTerminal();
+        if( term != null )
         {
-            if( !m_focus && button == 0 )
-            {
-                m_focus = true;
-            }
+            int charX = (int) (mouseX / FixedWidthFontRenderer.FONT_WIDTH);
+            int charY = (int) (mouseY / FixedWidthFontRenderer.FONT_HEIGHT);
+            charX = Math.min( Math.max( charX, 0 ), term.getWidth() - 1 );
+            charY = Math.min( Math.max( charY, 0 ), term.getHeight() - 1 );
 
-            if( m_focus )
-            {
-                IComputer computer = m_computer.getComputer();
-                if( computer != null && computer.isColour() && button >= 0 && button <= 2 )
-                {
-                    Terminal term = computer.getTerminal();
-                    if( term != null )
-                    {
-                        int charX = (mouseX - (getXPosition() + m_leftMargin)) / FixedWidthFontRenderer.FONT_WIDTH;
-                        int charY = (mouseY - (getYPosition() + m_topMargin)) / FixedWidthFontRenderer.FONT_HEIGHT;
-                        charX = Math.min( Math.max( charX, 0 ), term.getWidth() - 1 );
-                        charY = Math.min( Math.max( charY, 0 ), term.getHeight() - 1 );
+            computer.mouseDrag( button + 1, charX + 1, charY + 1 );
 
-                        computer.mouseClick( button + 1, charX + 1, charY + 1 );
-
-                        m_lastClickButton = button;
-                        m_lastClickX = charX;
-                        m_lastClickY = charY;
-                    }
-                }
-            }
+            lastMouseX = charX;
+            lastMouseY = charY;
+            lastMouseButton = button;
         }
-        else
-        {
-            if( m_focus && button == 0 && m_allowFocusLoss )
-            {
-                m_focus = false;
-            }
-        }
+
+        return false;
     }
 
     @Override
-    public boolean onKeyboardInput()
+    public boolean mouseScrolled( double delta )
     {
-        boolean handled = false;
-        for( int i = m_keysDown.size() - 1; i >= 0; --i )
+        ClientComputer computer = this.computer.get();
+        if( computer == null || !computer.isColour() ) return false;
+
+        if( lastMouseX >= 0 && lastMouseY >= 0 && delta != 0 )
         {
-            int key = m_keysDown.get( i );
-            if( !Keyboard.isKeyDown( key ) )
-            {
-                m_keysDown.remove( i );
-                if( m_focus )
-                {
-                    // Queue the "key_up" event
-                    IComputer computer = m_computer.getComputer();
-                    if( computer != null ) computer.keyUp( key );
-                    handled = true;
-                }
-            }
+            queueEvent( "mouse_scroll", delta < 0 ? 1 : -1, lastMouseX + 1, lastMouseY + 1 );
         }
 
-        return handled;
+        return true;
     }
 
-    @Override
-    public void handleMouseInput( int mouseX, int mouseY )
-    {
-        IComputer computer = m_computer.getComputer();
-        if( mouseX >= getXPosition() && mouseX < getXPosition() + getWidth() &&
-            mouseY >= getYPosition() && mouseY < getYPosition() + getHeight() &&
-            computer != null && computer.isColour() )
-        {
-            Terminal term = computer.getTerminal();
-            if( term != null )
-            {
-                int charX = (mouseX - (getXPosition() + m_leftMargin)) / FixedWidthFontRenderer.FONT_WIDTH;
-                int charY = (mouseY - (getYPosition() + m_topMargin)) / FixedWidthFontRenderer.FONT_HEIGHT;
-                charX = Math.min( Math.max( charX, 0 ), term.getWidth() - 1 );
-                charY = Math.min( Math.max( charY, 0 ), term.getHeight() - 1 );
-
-                if( m_lastClickButton >= 0 && !Mouse.isButtonDown( m_lastClickButton ) )
-                {
-                    if( m_focus ) computer.mouseUp( m_lastClickButton + 1, charX + 1, charY + 1 );
-                    m_lastClickButton = -1;
-                }
-
-                int wheelChange = Mouse.getEventDWheel();
-                if( wheelChange == 0 && m_lastClickButton == -1 )
-                {
-                    return;
-                }
-
-                if( m_focus )
-                {
-                    if( wheelChange < 0 )
-                    {
-                        computer.mouseScroll( 1, charX + 1, charY + 1 );
-                    }
-                    else if( wheelChange > 0 )
-                    {
-                        computer.mouseScroll( -1, charX + 1, charY + 1 );
-                    }
-
-                    if( m_lastClickButton >= 0 && (charX != m_lastClickX || charY != m_lastClickY) )
-                    {
-                        computer.mouseDrag( m_lastClickButton + 1, charX + 1, charY + 1 );
-                        m_lastClickX = charX;
-                        m_lastClickY = charY;
-                    }
-                }
-            }
-        }
-    }
-
-    @Override
     public void update()
     {
-        // Handle special keys
-        if( m_focus && (Keyboard.isKeyDown( 29 ) || Keyboard.isKeyDown( 157 )) )
+        if( terminateTimer >= 0 && terminateTimer < TERMINATE_TIME && (terminateTimer += 0.05f) > TERMINATE_TIME )
         {
-            // Ctrl+T for terminate
-            if( Keyboard.isKeyDown( 20 ) )
-            {
-                if( m_terminateTimer < TERMINATE_TIME )
-                {
-                    m_terminateTimer += 0.05f;
-                    if( m_terminateTimer >= TERMINATE_TIME ) queueEvent( "terminate" );
-                }
-            }
-            else
-            {
-                m_terminateTimer = 0.0f;
-            }
-
-            // Ctrl+R for reboot
-            if( Keyboard.isKeyDown( 19 ) )
-            {
-                if( m_rebootTimer < TERMINATE_TIME )
-                {
-                    m_rebootTimer += 0.05f;
-                    if( m_rebootTimer >= TERMINATE_TIME )
-                    {
-                        IComputer computer = m_computer.getComputer();
-                        if( computer != null ) computer.reboot();
-                    }
-                }
-            }
-            else
-            {
-                m_rebootTimer = 0.0f;
-            }
-
-            // Ctrl+S for shutdown
-            if( Keyboard.isKeyDown( 31 ) )
-            {
-                if( m_shutdownTimer < TERMINATE_TIME )
-                {
-                    m_shutdownTimer += 0.05f;
-                    if( m_shutdownTimer >= TERMINATE_TIME )
-                    {
-                        IComputer computer = m_computer.getComputer();
-                        if( computer != null ) computer.shutdown();
-                    }
-                }
-            }
-            else
-            {
-                m_shutdownTimer = 0.0f;
-            }
+            queueEvent( "terminate" );
         }
-        else
+
+        if( shutdownTimer >= 0 && shutdownTimer < TERMINATE_TIME && (shutdownTimer += 0.05f) > TERMINATE_TIME )
         {
-            m_terminateTimer = 0.0f;
-            m_rebootTimer = 0.0f;
-            m_shutdownTimer = 0.0f;
+            ClientComputer computer = this.computer.get();
+            if( computer != null ) computer.shutdown();
+        }
+
+        if( rebootTimer >= 0 && rebootTimer < TERMINATE_TIME && (rebootTimer += 0.05f) > TERMINATE_TIME )
+        {
+            ClientComputer computer = this.computer.get();
+            if( computer != null ) computer.reboot();
         }
     }
 
     @Override
-    public void draw( Minecraft mc, int xOrigin, int yOrigin, int mouseX, int mouseY )
+    public void focusChanged( boolean focused )
     {
-        int startX = xOrigin + getXPosition();
-        int startY = yOrigin + getYPosition();
+        if( !focused )
+        {
+            // When blurring, we should make all keys go up
+            for( int key = 0; key < keysDown.size(); key++ )
+            {
+                if( keysDown.get( key ) ) queueEvent( "key_up", key );
+            }
+            keysDown.clear();
 
-        synchronized( m_computer )
+            // When blurring, we should make the last mouse button go up
+            if( lastMouseButton > 0 )
+            {
+                IComputer computer = this.computer.get();
+                if( computer != null ) computer.mouseUp( lastMouseButton + 1, lastMouseX + 1, lastMouseY + 1 );
+                lastMouseButton = -1;
+            }
+
+            shutdownTimer = terminateTimer = rebootTimer = -1;
+        }
+    }
+
+    public void draw( int originX, int originY )
+    {
+        synchronized( computer )
         {
             // Draw the screen contents
-            IComputer computer = m_computer.getComputer();
+            ClientComputer computer = this.computer.get();
             Terminal terminal = computer != null ? computer.getTerminal() : null;
             if( terminal != null )
             {
                 // Draw the terminal
                 boolean greyscale = !computer.isColour();
-
                 Palette palette = terminal.getPalette();
 
                 // Get the data from the terminal first
                 // Unfortunately we have to keep the lock for the whole of drawing, so the text doesn't change under us.
                 FixedWidthFontRenderer fontRenderer = FixedWidthFontRenderer.instance();
-                boolean tblink = m_focus && terminal.getCursorBlink() && FrameInfo.getGlobalCursorBlink();
+                boolean tblink = terminal.getCursorBlink() && FrameInfo.getGlobalCursorBlink();
                 int tw = terminal.getWidth();
                 int th = terminal.getHeight();
                 int tx = terminal.getCursorX();
                 int ty = terminal.getCursorY();
 
-                int x = startX + m_leftMargin;
-                int y = startY + m_topMargin;
-
                 // Draw margins
                 TextBuffer emptyLine = new TextBuffer( ' ', tw );
-                if( m_topMargin > 0 )
+                if( topMargin > 0 )
                 {
-                    fontRenderer.drawString( emptyLine, x, startY, terminal.getTextColourLine( 0 ), terminal.getBackgroundColourLine( 0 ), m_leftMargin, m_rightMargin, greyscale, palette );
+                    fontRenderer.drawString( emptyLine, originX, originY - topMargin,
+                        terminal.getTextColourLine( 0 ), terminal.getBackgroundColourLine( 0 ),
+                        leftMargin, rightMargin, greyscale, palette );
                 }
-                if( m_bottomMargin > 0 )
+
+                if( bottomMargin > 0 )
                 {
-                    fontRenderer.drawString( emptyLine, x, startY + 2 * m_bottomMargin + (th - 1) * FixedWidthFontRenderer.FONT_HEIGHT, terminal.getTextColourLine( th - 1 ), terminal.getBackgroundColourLine( th - 1 ), m_leftMargin, m_rightMargin, greyscale, palette );
+                    fontRenderer.drawString( emptyLine, originX, originY + bottomMargin + (th - 1) * FixedWidthFontRenderer.FONT_HEIGHT,
+                        terminal.getTextColourLine( th - 1 ), terminal.getBackgroundColourLine( th - 1 ),
+                        leftMargin, rightMargin, greyscale, palette );
                 }
 
                 // Draw lines
+                int y = originY;
                 for( int line = 0; line < th; line++ )
                 {
                     TextBuffer text = terminal.getLine( line );
                     TextBuffer colour = terminal.getTextColourLine( line );
                     TextBuffer backgroundColour = terminal.getBackgroundColourLine( line );
-                    fontRenderer.drawString( text, x, y, colour, backgroundColour, m_leftMargin, m_rightMargin, greyscale, palette );
+                    fontRenderer.drawString( text, originX, y, colour, backgroundColour, leftMargin, rightMargin, greyscale, palette );
                     y += FixedWidthFontRenderer.FONT_HEIGHT;
                 }
 
@@ -385,8 +363,8 @@ public class WidgetTerminal extends Widget
 
                     fontRenderer.drawString(
                         cursor,
-                        x + FixedWidthFontRenderer.FONT_WIDTH * tx,
-                        startY + m_topMargin + FixedWidthFontRenderer.FONT_HEIGHT * ty,
+                        originX + FixedWidthFontRenderer.FONT_WIDTH * tx,
+                        originY + FixedWidthFontRenderer.FONT_HEIGHT * ty,
                         cursorColour, null,
                         0, 0,
                         greyscale,
@@ -397,16 +375,29 @@ public class WidgetTerminal extends Widget
             else
             {
                 // Draw a black background
-                mc.getTextureManager().bindTexture( BACKGROUND );
                 Colour black = Colour.Black;
-                GlStateManager.color( black.getR(), black.getG(), black.getB(), 1.0f );
+                GlStateManager.color4f( black.getR(), black.getG(), black.getB(), 1.0f );
                 try
                 {
-                    drawTexturedModalRect( startX, startY, 0, 0, getWidth(), getHeight() );
+                    int x = originX - leftMargin;
+                    int y = originY - rightMargin;
+                    int width = termWidth * FixedWidthFontRenderer.FONT_WIDTH + leftMargin + rightMargin;
+                    int height = termHeight * FixedWidthFontRenderer.FONT_HEIGHT + topMargin + bottomMargin;
+
+                    client.getTextureManager().bindTexture( BACKGROUND );
+
+                    Tessellator tesslector = Tessellator.getInstance();
+                    BufferBuilder buffer = tesslector.getBuffer();
+                    buffer.begin( GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX );
+                    buffer.pos( x, y + height, 0 ).tex( 0 / 256.0, height / 256.0 ).endVertex();
+                    buffer.pos( x + width, y + height, 0 ).tex( width / 256.0, height / 256.0 ).endVertex();
+                    buffer.pos( x + width, y, 0 ).tex( width / 256.0, 0 / 256.0 ).endVertex();
+                    buffer.pos( x, y, 0 ).tex( 0 / 256.0, 0 / 256.0 ).endVertex();
+                    tesslector.draw();
                 }
                 finally
                 {
-                    GlStateManager.color( 1.0f, 1.0f, 1.0f, 1.0f );
+                    GlStateManager.color4f( 1.0f, 1.0f, 1.0f, 1.0f );
                 }
             }
         }
@@ -414,13 +405,13 @@ public class WidgetTerminal extends Widget
 
     private void queueEvent( String event )
     {
-        IComputer computer = m_computer.getComputer();
+        ClientComputer computer = this.computer.get();
         if( computer != null ) computer.queueEvent( event );
     }
 
-    private void queueEvent( String event, Object[] args )
+    private void queueEvent( String event, Object... args )
     {
-        IComputer computer = m_computer.getComputer();
+        ClientComputer computer = this.computer.get();
         if( computer != null ) computer.queueEvent( event, args );
     }
 }

@@ -6,10 +6,10 @@
 
 package dan200.computercraft.shared.pocket.inventory;
 
+import dan200.computercraft.shared.common.ContainerHeldItem;
 import dan200.computercraft.shared.computer.core.IComputer;
 import dan200.computercraft.shared.computer.core.IContainerComputer;
 import dan200.computercraft.shared.computer.core.InputState;
-import dan200.computercraft.shared.media.inventory.ContainerHeldItem;
 import dan200.computercraft.shared.pocket.items.ItemPocketComputer;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;

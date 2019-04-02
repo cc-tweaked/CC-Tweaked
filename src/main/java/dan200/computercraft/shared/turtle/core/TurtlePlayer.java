@@ -7,10 +7,12 @@
 package dan200.computercraft.shared.turtle.core;
 
 import com.mojang.authlib.GameProfile;
+import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.shared.util.InventoryUtil;
 import dan200.computercraft.shared.util.WorldUtil;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityType;
 import net.minecraft.entity.IMerchant;
 import net.minecraft.entity.passive.AbstractHorse;
 import net.minecraft.inventory.IInventory;
@@ -29,21 +31,19 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.UUID;
 
-public class TurtlePlayer extends FakePlayer
+public final class TurtlePlayer extends FakePlayer
 {
     public static final GameProfile DEFAULT_PROFILE = new GameProfile(
         UUID.fromString( "0d0c4ca0-4ff1-11e4-916c-0800200c9a66" ),
         "[ComputerCraft]"
     );
 
-    /**
-     * Construct a TurtlePlayer which exists in the world
-     *
-     * @param world The world the player exists in
-     * @deprecated This is required by {@link Entity}.
-     */
-    @Deprecated
-    public TurtlePlayer( World world )
+    public static final EntityType<TurtlePlayer> TYPE = EntityType.Builder.create( TurtlePlayer.class, TurtlePlayer::new )
+        .disableSerialization()
+        .disableSummoning()
+        .build( ComputerCraft.MOD_ID + ":turtle_player" );
+
+    private TurtlePlayer( World world )
     {
         super( (WorldServer) world, DEFAULT_PROFILE );
     }
@@ -159,8 +159,10 @@ public class TurtlePlayer extends FakePlayer
         return SleepResult.OTHER_PROBLEM;
     }
 
+    // TODO: Flesh this out. Or just stub out the connection, like plethora?
+
     @Override
-    public void openEditSign( TileEntitySign signTile )
+    public void openSignEditor( TileEntitySign signTile )
     {
     }
 
@@ -180,7 +182,7 @@ public class TurtlePlayer extends FakePlayer
     }
 
     @Override
-    public void openGuiHorseInventory( AbstractHorse horse, IInventory inventoryIn )
+    public void openHorseInventory( AbstractHorse horse, IInventory inventoryIn )
     {
     }
 
@@ -199,10 +201,12 @@ public class TurtlePlayer extends FakePlayer
     {
     }
 
+    /*
     @Override
     public void mountEntityAndWakeUp()
     {
     }
+    */
 
     @Override
     public void dismountEntity( @Nonnull Entity entity )

@@ -7,11 +7,11 @@
 package dan200.computercraft.shared.peripheral.printer;
 
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Items;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.IContainerListener;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
+import net.minecraft.item.ItemDye;
 import net.minecraft.item.ItemStack;
 
 import javax.annotation.Nonnull;
@@ -29,25 +29,25 @@ public class ContainerPrinter extends Container
         m_lastPrinting = false;
 
         // Ink slot
-        addSlotToContainer( new Slot( m_printer, 0, 13, 35 ) );
+        addSlot( new Slot( printer, 0, 13, 35 ) );
 
         // In-tray
-        for( int x = 0; x < 6; x++ ) addSlotToContainer( new Slot( m_printer, x + 1, 61 + x * 18, 22 ) );
+        for( int x = 0; x < 6; x++ ) addSlot( new Slot( printer, x + 1, 61 + x * 18, 22 ) );
 
         // Out-tray
-        for( int x = 0; x < 6; x++ ) addSlotToContainer( new Slot( m_printer, x + 7, 61 + x * 18, 49 ) );
+        for( int x = 0; x < 6; x++ ) addSlot( new Slot( printer, x + 7, 61 + x * 18, 49 ) );
 
         // Player inv
         for( int y = 0; y < 3; y++ )
         {
             for( int x = 0; x < 9; x++ )
             {
-                addSlotToContainer( new Slot( playerInventory, x + y * 9 + 9, 8 + x * 18, 84 + y * 18 ) );
+                addSlot( new Slot( playerInventory, x + y * 9 + 9, 8 + x * 18, 84 + y * 18 ) );
             }
         }
 
         // Player hotbar
-        for( int x = 0; x < 9; x++ ) addSlotToContainer( new Slot( playerInventory, x, 8 + x * 18, 142 ) );
+        for( int x = 0; x < 9; x++ ) addSlot( new Slot( playerInventory, x, 8 + x * 18, 142 ) );
     }
 
     public boolean isPrinting()
@@ -74,6 +74,7 @@ public class ContainerPrinter extends Container
 
         if( !m_printer.getWorld().isRemote )
         {
+            // Push the printing state to the client if needed.
             boolean printing = m_printer.isPrinting();
             if( printing != m_lastPrinting )
             {
@@ -117,7 +118,7 @@ public class ContainerPrinter extends Container
         else
         {
             // Transfer from inventory to printer
-            if( stack.getItem() == Items.DYE )
+            if( stack.getItem() instanceof ItemDye )
             {
                 if( !mergeItemStack( stack, 0, 1, false ) ) return ItemStack.EMPTY;
             }

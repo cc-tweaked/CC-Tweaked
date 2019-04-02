@@ -43,7 +43,7 @@ public final class TurtleItemFactory
         switch( family )
         {
             case Normal:
-                return ComputerCraft.Items.turtleExpanded.create( id, label, colour, leftUpgrade, rightUpgrade, fuelLevel, overlay );
+                return ComputerCraft.Items.turtleNormal.create( id, label, colour, leftUpgrade, rightUpgrade, fuelLevel, overlay );
             case Advanced:
                 return ComputerCraft.Items.turtleAdvanced.create( id, label, colour, leftUpgrade, rightUpgrade, fuelLevel, overlay );
             default:

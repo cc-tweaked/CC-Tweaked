@@ -14,12 +14,12 @@ import dan200.computercraft.api.turtle.TurtleCommandResult;
 import dan200.computercraft.api.turtle.event.TurtleBlockEvent;
 import dan200.computercraft.shared.TurtlePermissions;
 import dan200.computercraft.shared.util.WorldUtil;
-import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 
@@ -56,23 +56,22 @@ public class TurtleMoveCommand implements ITurtleCommand
 
         // Check existing block is air or replaceable
         IBlockState state = oldWorld.getBlockState( newPosition );
-        Block block = state.getBlock();
         if( !oldWorld.isAirBlock( newPosition ) &&
             !WorldUtil.isLiquidBlock( oldWorld, newPosition ) &&
-            !block.isReplaceable( oldWorld, newPosition ) )
+            !state.getMaterial().isReplaceable() )
         {
             return TurtleCommandResult.failure( "Movement obstructed" );
         }
 
         // Check there isn't anything in the way
-        AxisAlignedBB aabb = state.getBoundingBox( oldWorld, oldPosition );
+        AxisAlignedBB aabb = getBox( state.getCollisionShape( oldWorld, oldPosition ) );
         aabb = aabb.offset(
             newPosition.getX(),
             newPosition.getY(),
             newPosition.getZ()
         );
 
-        if( !oldWorld.checkNoEntityCollision( aabb ) )
+        if( !oldWorld.checkNoEntityCollision( null, aabb ) )
         {
             if( !ComputerCraft.turtlesCanPush || m_direction == MoveDirection.Up || m_direction == MoveDirection.Down )
             {
@@ -80,10 +79,10 @@ public class TurtleMoveCommand implements ITurtleCommand
             }
 
             // Check there is space for all the pushable entities to be pushed
-            List<Entity> list = oldWorld.getEntitiesWithinAABB( Entity.class, aabb, x -> x != null && !x.isDead && x.preventEntitySpawning );
+            List<Entity> list = oldWorld.getEntitiesWithinAABB( Entity.class, aabb, x -> x != null && x.isAlive() && x.preventEntitySpawning );
             for( Entity entity : list )
             {
-                AxisAlignedBB entityBB = entity.getEntityBoundingBox();
+                AxisAlignedBB entityBB = entity.getBoundingBox();
                 if( entityBB == null ) entityBB = entity.getCollisionBoundingBox();
                 if( entityBB == null ) continue;
 
@@ -92,7 +91,7 @@ public class TurtleMoveCommand implements ITurtleCommand
                     direction.getYOffset(),
                     direction.getZOffset()
                 );
-                if( !oldWorld.getCollisionBoxes( null, pushedBB ).isEmpty() )
+                if( !oldWorld.checkNoEntityCollision( null, pushedBB ) )
                 {
                     return TurtleCommandResult.failure( "Movement obstructed" );
                 }
@@ -139,11 +138,11 @@ public class TurtleMoveCommand implements ITurtleCommand
 
     private static TurtleCommandResult canEnter( TurtlePlayer turtlePlayer, World world, BlockPos position )
     {
-        if( world.isOutsideBuildHeight( position ) )
+        if( World.isOutsideBuildHeight( position ) )
         {
             return TurtleCommandResult.failure( position.getY() < 0 ? "Too low to move" : "Too high to move" );
         }
-        if( !world.isValid( position ) ) return TurtleCommandResult.failure( "Cannot leave the world" );
+        if( !World.isValid( position ) ) return TurtleCommandResult.failure( "Cannot leave the world" );
 
         // Check spawn protection
         if( ComputerCraft.turtlesObeyBlockProtection && !TurtlePermissions.isBlockEnterable( world, position, turtlePlayer ) )
@@ -159,4 +158,11 @@ public class TurtleMoveCommand implements ITurtleCommand
 
         return TurtleCommandResult.success();
     }
+
+    private static AxisAlignedBB getBox( VoxelShape shape )
+    {
+        return shape.isEmpty() ? EMPTY_BOX : shape.getBoundingBox();
+    }
+
+    private static final AxisAlignedBB EMPTY_BOX = new AxisAlignedBB( 0, 0, 0, 0, 0, 0 );
 }

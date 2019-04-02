@@ -6,9 +6,14 @@
 
 package dan200.computercraft.shared.peripheral.speaker;
 
+import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.peripheral.IPeripheral;
-import dan200.computercraft.shared.peripheral.common.TilePeripheralBase;
+import dan200.computercraft.api.peripheral.IPeripheralTile;
+import dan200.computercraft.shared.common.TileGeneric;
+import dan200.computercraft.shared.util.NamedBlockEntityType;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.ITickable;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -16,26 +21,28 @@ import net.minecraft.world.World;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public class TileSpeaker extends TilePeripheralBase
+public class TileSpeaker extends TileGeneric implements ITickable, IPeripheralTile
 {
-    // Statics
     public static final int MIN_TICKS_BETWEEN_SOUNDS = 1;
 
-    // Members
+    public static final NamedBlockEntityType<TileSpeaker> FACTORY = NamedBlockEntityType.create(
+        new ResourceLocation( ComputerCraft.MOD_ID, "speaker" ),
+        TileSpeaker::new
+    );
+
     private final SpeakerPeripheral m_peripheral;
 
     public TileSpeaker()
     {
+        super( FACTORY );
         m_peripheral = new Peripheral( this );
     }
 
     @Override
-    public void update()
+    public void tick()
     {
         m_peripheral.update();
     }
-
-    // IPeripheralTile implementation
 
     @Override
     public IPeripheral getPeripheral( @Nonnull EnumFacing side )
@@ -72,3 +79,4 @@ public class TileSpeaker extends TilePeripheralBase
         }
     }
 }
+

@@ -25,14 +25,14 @@ import javax.annotation.Nonnull;
 
 public class TurtleHoe extends TurtleTool
 {
-    public TurtleHoe( ResourceLocation id, int legacyId, String adjective, Item item )
+    public TurtleHoe( ResourceLocation id, String adjective, Item item )
     {
-        super( id, legacyId, adjective, item );
+        super( id, adjective, item );
     }
 
-    public TurtleHoe( ResourceLocation id, int legacyId, Item item )
+    public TurtleHoe( ResourceLocation id, Item item )
     {
-        super( id, legacyId, item );
+        super( id, item );
     }
 
     @Override
@@ -45,6 +45,7 @@ public class TurtleHoe extends TurtleTool
             material == Material.CACTUS ||
             material == Material.GOURD ||
             material == Material.LEAVES ||
+            material == Material.OCEAN_PLANT ||
             material == Material.VINE;
     }
 

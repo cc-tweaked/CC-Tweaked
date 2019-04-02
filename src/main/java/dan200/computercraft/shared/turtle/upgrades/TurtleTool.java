@@ -20,10 +20,11 @@ import dan200.computercraft.shared.util.WorldUtil;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.block.model.IBakedModel;
+import net.minecraft.client.renderer.model.IBakedModel;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.item.EntityArmorStand;
+import net.minecraft.fluid.IFluidState;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -34,11 +35,11 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.AttackEntityEvent;
 import net.minecraftforge.event.world.BlockEvent;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nonnull;
@@ -50,21 +51,21 @@ public class TurtleTool extends AbstractTurtleUpgrade
 {
     protected ItemStack m_item;
 
-    public TurtleTool( ResourceLocation id, int legacyID, String adjective, Item item )
+    public TurtleTool( ResourceLocation id, String adjective, Item item )
     {
-        super( id, legacyID, TurtleUpgradeType.Tool, adjective, item );
-        m_item = new ItemStack( item, 1, 0 );
+        super( id, TurtleUpgradeType.Tool, adjective, item );
+        m_item = new ItemStack( item );
     }
 
-    public TurtleTool( ResourceLocation id, int legacyID, Item item )
+    public TurtleTool( ResourceLocation id, Item item )
     {
-        super( id, legacyID, TurtleUpgradeType.Tool, item );
-        m_item = new ItemStack( item, 1, 0 );
+        super( id, TurtleUpgradeType.Tool, item );
+        m_item = new ItemStack( item );
     }
 
     @Nonnull
     @Override
-    @SideOnly( Side.CLIENT )
+    @OnlyIn( Dist.CLIENT )
     public Pair<IBakedModel, Matrix4f> getModel( ITurtleAccess turtle, @Nonnull TurtleSide side )
     {
         float xOffset = side == TurtleSide.Left ? -0.40625f : 0.40625f;
@@ -74,9 +75,9 @@ public class TurtleTool extends AbstractTurtleUpgrade
             0.0f, -1.0f, 0.0f, 1.0f,
             0.0f, 0.0f, 0.0f, 1.0f
         );
-        Minecraft mc = Minecraft.getMinecraft();
+        Minecraft mc = Minecraft.getInstance();
         return Pair.of(
-            mc.getRenderItem().getItemModelMesher().getItemModel( m_item ),
+            mc.getItemRenderer().getItemModelMesher().getItemModel( m_item ),
             transform
         );
     }
@@ -99,7 +100,7 @@ public class TurtleTool extends AbstractTurtleUpgrade
     protected boolean canBreakBlock( IBlockState state, World world, BlockPos pos, TurtlePlayer player )
     {
         Block block = state.getBlock();
-        return !block.isAir( state, world, pos )
+        return !state.isAir( world, pos )
             && block != Blocks.BEDROCK
             && state.getPlayerRelativeBlockHardness( player, world, pos ) > 0
             && block.canEntityDestroy( state, world, pos, player );
@@ -148,7 +149,7 @@ public class TurtleTool extends AbstractTurtleUpgrade
             boolean attacked = false;
             if( !hitEntity.hitByEntity( turtlePlayer ) )
             {
-                float damage = (float) turtlePlayer.getEntityAttribute( SharedMonsterAttributes.ATTACK_DAMAGE ).getAttributeValue();
+                float damage = (float) turtlePlayer.getAttribute( SharedMonsterAttributes.ATTACK_DAMAGE ).getValue();
                 damage *= getDamageMultiplier();
                 if( damage > 0.0f )
                 {
@@ -157,7 +158,7 @@ public class TurtleTool extends AbstractTurtleUpgrade
                     {
                         // Special case for armor stands: attack twice to guarantee destroy
                         hitEntity.attackEntityFrom( source, damage );
-                        if( !hitEntity.isDead )
+                        if( hitEntity.isAlive() )
                         {
                             hitEntity.attackEntityFrom( source, damage );
                         }
@@ -200,6 +201,7 @@ public class TurtleTool extends AbstractTurtleUpgrade
         }
 
         IBlockState state = world.getBlockState( blockPosition );
+        IFluidState fluidState = world.getFluidState( blockPosition );
 
         TurtlePlayer turtlePlayer = TurtlePlaceCommand.createPlayer( turtle, turtlePosition, direction );
         turtlePlayer.loadInventory( m_item.copy() );
@@ -239,12 +241,12 @@ public class TurtleTool extends AbstractTurtleUpgrade
         // Much of this logic comes from PlayerInteractionManager#tryHarvestBlock, so it's a good idea
         // to consult there before making any changes.
 
-        // Play the destruction sound
+        // Play the destruction sound and particles
         world.playEvent( 2001, blockPosition, Block.getStateId( state ) );
 
         // Destroy the block
-        boolean canHarvest = state.getBlock().canHarvestBlock( world, blockPosition, turtlePlayer );
-        boolean canBreak = state.getBlock().removedByPlayer( state, world, blockPosition, turtlePlayer, canHarvest );
+        boolean canHarvest = state.canHarvestBlock( world, blockPosition, turtlePlayer );
+        boolean canBreak = state.removedByPlayer( world, blockPosition, turtlePlayer, canHarvest, fluidState );
         if( canBreak ) state.getBlock().onPlayerDestroy( world, blockPosition, state );
         if( canHarvest )
         {

@@ -11,16 +11,13 @@ import dan200.computercraft.api.turtle.ITurtleCommand;
 import dan200.computercraft.api.turtle.TurtleCommandResult;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.relauncher.ReflectionHelper;
 
 import javax.annotation.Nonnull;
-import java.lang.reflect.Method;
 
 public class TurtleCompareCommand implements ITurtleCommand
 {
@@ -54,6 +51,7 @@ public class TurtleCompareCommand implements ITurtleCommand
             if( !lookAtBlock.isAir( lookAtState, world, newPosition ) )
             {
                 // Try createStackedBlock first
+                /*
                 if( !lookAtBlock.hasTileEntity( lookAtState ) )
                 {
                     try
@@ -69,18 +67,19 @@ public class TurtleCompareCommand implements ITurtleCommand
                     {
                     }
                 }
+                */
 
                 // See if the block drops anything with the same ID as itself
                 // (try 5 times to try and beat random number generators)
                 for( int i = 0; i < 5 && lookAtStack.isEmpty(); i++ )
                 {
                     NonNullList<ItemStack> drops = NonNullList.create();
-                    lookAtBlock.getDrops( drops, world, newPosition, lookAtState, 0 );
+                    lookAtState.getDrops( drops, world, newPosition, 0 );
                     if( !drops.isEmpty() )
                     {
                         for( ItemStack drop : drops )
                         {
-                            if( drop.getItem() == Item.getItemFromBlock( lookAtBlock ) )
+                            if( drop.getItem() == lookAtBlock.asItem() )
                             {
                                 lookAtStack = drop;
                                 break;
@@ -92,36 +91,13 @@ public class TurtleCompareCommand implements ITurtleCommand
                 // Last resort: roll our own (which will probably be wrong)
                 if( lookAtStack.isEmpty() )
                 {
-                    Item item = Item.getItemFromBlock( lookAtBlock );
-                    if( item != null && item.getHasSubtypes() )
-                    {
-                        lookAtStack = new ItemStack( item, 1, lookAtBlock.getMetaFromState( lookAtState ) );
-                    }
-                    else
-                    {
-                        lookAtStack = new ItemStack( item, 1, 0 );
-                    }
+                    lookAtStack = new ItemStack( lookAtBlock );
                 }
             }
         }
 
-        // If they're both empty, obviously the same
-        if( selectedStack.isEmpty() && lookAtStack.isEmpty() ) return TurtleCommandResult.success();
-
-        // If the items don't match, obviously different.
-        if( selectedStack.isEmpty() || lookAtStack == null || selectedStack.getItem() != lookAtStack.getItem() )
-        {
-            return TurtleCommandResult.failure();
-        }
-
-        // If the damage matches, or the damage doesn't matter, then the same.
-        if( !selectedStack.getHasSubtypes() || selectedStack.getItemDamage() == lookAtStack.getItemDamage() )
-        {
-            return TurtleCommandResult.success();
-        }
-
-        // Otherwise just double check the translation is the same. It's a pretty good guess.
-        return selectedStack.getTranslationKey().equals( lookAtStack.getTranslationKey() )
+        // Compare them
+        return selectedStack.getItem() == lookAtStack.getItem()
             ? TurtleCommandResult.success()
             : TurtleCommandResult.failure();
     }

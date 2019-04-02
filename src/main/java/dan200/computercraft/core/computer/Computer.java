@@ -8,7 +8,6 @@ package dan200.computercraft.core.computer;
 
 import com.google.common.base.Objects;
 import dan200.computercraft.api.lua.ILuaAPI;
-import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.peripheral.IWorkMonitor;
 import dan200.computercraft.core.apis.IAPIEnvironment;
 import dan200.computercraft.core.filesystem.FileSystem;
@@ -218,32 +217,4 @@ public class Computer
     {
         executor.addApi( api );
     }
-
-    @Deprecated
-    public IPeripheral getPeripheral( int side )
-    {
-        return internalEnvironment.getPeripheral( side );
-    }
-
-    @Deprecated
-    public void setPeripheral( int side, IPeripheral peripheral )
-    {
-        internalEnvironment.setPeripheral( side, peripheral );
-    }
-
-    @Deprecated
-    public void addAPI( dan200.computercraft.core.apis.ILuaAPI api )
-    {
-        addApi( api );
-    }
-
-    @Deprecated
-    @SuppressWarnings( "unused" )
-    public void advance( double dt )
-    {
-        tick();
-    }
-
-    @Deprecated
-    public static final String[] s_sideNames = IAPIEnvironment.SIDE_NAMES;
 }

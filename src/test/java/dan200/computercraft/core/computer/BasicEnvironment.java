@@ -12,7 +12,6 @@ import dan200.computercraft.api.filesystem.IWritableMount;
 import dan200.computercraft.core.filesystem.FileMount;
 import dan200.computercraft.core.filesystem.JarMount;
 import dan200.computercraft.core.filesystem.MemoryMount;
-import net.minecraftforge.fml.common.Loader;
 
 import java.io.File;
 import java.io.IOException;
@@ -78,19 +77,19 @@ public class BasicEnvironment implements IComputerEnvironment
     @Override
     public String getHostString()
     {
-        return "ComputerCraft ${version} (Minecraft " + Loader.MC_VERSION + ")";
+        return "ComputerCraft ${version} (Test environment)";
     }
 
     @Override
     public IMount createResourceMount( String domain, String subPath )
     {
-        return createMount( ComputerCraft.class, "assets/" + domain + "/" + subPath, "main" );
+        return createMount( ComputerCraft.class, "data/" + domain + "/" + subPath, "main" );
     }
 
     @Override
     public InputStream createResourceFile( String domain, String subPath )
     {
-        return ComputerCraft.class.getClassLoader().getResourceAsStream( "assets/" + domain + "/" + subPath );
+        return ComputerCraft.class.getClassLoader().getResourceAsStream( "data/" + domain + "/" + subPath );
     }
 
 

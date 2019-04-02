@@ -6,9 +6,6 @@
 
 package dan200.computercraft.shared.command.text;
 
-import dan200.computercraft.shared.command.framework.CommandContext;
-import dan200.computercraft.shared.command.framework.CommandRoot;
-import dan200.computercraft.shared.command.framework.ISubCommand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.*;
 import net.minecraft.util.text.event.ClickEvent;
@@ -20,8 +17,6 @@ import net.minecraft.util.text.event.HoverEvent;
 public final class ChatHelpers
 {
     private static final TextFormatting HEADER = TextFormatting.LIGHT_PURPLE;
-    private static final TextFormatting SYNOPSIS = TextFormatting.AQUA;
-    private static final TextFormatting NAME = TextFormatting.GREEN;
 
     private ChatHelpers() {}
 
@@ -61,41 +56,6 @@ public final class ChatHelpers
             component.appendSibling( child );
         }
         return component;
-    }
-
-    public static ITextComponent getHelp( CommandContext context, ISubCommand command, String prefix )
-    {
-
-        ITextComponent output = new TextComponentString( "" )
-            .appendSibling(
-                coloured( "/" + prefix, HEADER )
-                    .appendSibling( translate( command.getUsage( context ) ) )
-            )
-            .appendText( " " )
-            .appendSibling( coloured( translate( "commands." + command.getFullName() + ".synopsis" ), SYNOPSIS ) )
-            .appendText( "\n" )
-            .appendSibling( translate( "commands." + command.getFullName() + ".desc" ) );
-
-        if( command instanceof CommandRoot )
-        {
-            for( ISubCommand subCommand : ((CommandRoot) command).getSubCommands().values() )
-            {
-                if( !subCommand.checkPermission( context ) ) continue;
-
-                output.appendText( "\n" );
-
-                ITextComponent component = coloured( subCommand.getName(), NAME );
-                component.getStyle().setClickEvent( new ClickEvent(
-                    ClickEvent.Action.SUGGEST_COMMAND,
-                    "/" + prefix + " " + subCommand.getName()
-                ) );
-                output.appendSibling( component );
-
-                output.appendText( " - " ).appendSibling( translate( "commands." + subCommand.getFullName() + ".synopsis" ) );
-            }
-        }
-
-        return output;
     }
 
     public static ITextComponent position( BlockPos pos )

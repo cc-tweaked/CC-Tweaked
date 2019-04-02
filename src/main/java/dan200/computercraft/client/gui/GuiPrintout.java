@@ -7,13 +7,11 @@
 package dan200.computercraft.client.gui;
 
 import dan200.computercraft.core.terminal.TextBuffer;
-import dan200.computercraft.shared.media.inventory.ContainerHeldItem;
+import dan200.computercraft.shared.common.ContainerHeldItem;
 import dan200.computercraft.shared.media.items.ItemPrintout;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.GlStateManager;
-import org.lwjgl.input.Mouse;
-
-import java.io.IOException;
+import org.lwjgl.glfw.GLFW;
 
 import static dan200.computercraft.client.render.PrintoutRenderer.*;
 
@@ -41,63 +39,70 @@ public class GuiPrintout extends GuiContainer
 
         m_page = 0;
         m_pages = Math.max( m_text.length / ItemPrintout.LINES_PER_PAGE, 1 );
-        m_book = ItemPrintout.getType( container.getStack() ) == ItemPrintout.Type.Book;
+        m_book = ((ItemPrintout) container.getStack().getItem()).getType() == ItemPrintout.Type.BOOK;
     }
 
     @Override
-    protected void keyTyped( char c, int k ) throws IOException
+    public boolean keyPressed( int key, int scancode, int modifiers )
     {
-        super.keyTyped( c, k );
+        if( super.keyPressed( key, scancode, modifiers ) ) return true;
 
-        if( k == 205 )
+        if( key == GLFW.GLFW_KEY_RIGHT )
         {
-            // Right
             if( m_page < m_pages - 1 ) m_page++;
+            return true;
         }
-        else if( k == 203 )
+
+        if( key == GLFW.GLFW_KEY_LEFT )
         {
-            // Left
             if( m_page > 0 ) m_page--;
+            return true;
         }
+
+        return false;
     }
 
     @Override
-    public void handleMouseInput() throws IOException
+    public boolean mouseScrolled( double delta )
     {
-        super.handleMouseInput();
-
-        int mouseWheelChange = Mouse.getEventDWheel();
-        if( mouseWheelChange < 0 )
+        if( super.mouseScrolled( delta ) ) return true;
+        if( delta < 0 )
         {
             // Scroll up goes to the next page
             if( m_page < m_pages - 1 ) m_page++;
+            return true;
         }
-        else if( mouseWheelChange > 0 )
+
+        if( delta > 0 )
         {
             // Scroll down goes to the previous page
             if( m_page > 0 ) m_page--;
+            return true;
         }
+
+        return false;
     }
 
     @Override
-    protected void drawGuiContainerBackgroundLayer( float partialTicks, int mouseX, int mouseY )
+    public void drawGuiContainerBackgroundLayer( float partialTicks, int mouseX, int mouseY )
     {
         // Draw the printout
-        GlStateManager.color( 1.0f, 1.0f, 1.0f, 1.0f );
+        GlStateManager.color4f( 1.0f, 1.0f, 1.0f, 1.0f );
+        GlStateManager.enableDepthTest();
 
         drawBorder( guiLeft, guiTop, zLevel, m_page, m_pages, m_book );
         drawText( guiLeft + X_TEXT_MARGIN, guiTop + Y_TEXT_MARGIN, ItemPrintout.LINES_PER_PAGE * m_page, m_text, m_colours );
     }
 
     @Override
-    public void drawScreen( int mouseX, int mouseY, float partialTicks )
+    public void render( int mouseX, int mouseY, float partialTicks )
     {
         // We must take the background further back in order to not overlap with our printed pages.
         zLevel--;
         drawDefaultBackground();
         zLevel++;
 
-        super.drawScreen( mouseX, mouseY, partialTicks );
+        super.render( mouseX, mouseY, partialTicks );
         renderHoveredToolTip( mouseX, mouseY );
     }
 }

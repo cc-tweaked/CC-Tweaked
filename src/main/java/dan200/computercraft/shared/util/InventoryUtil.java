@@ -16,6 +16,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemHandlerHelper;
@@ -44,7 +45,7 @@ public final class InventoryUtil
      * Determines if two items are "mostly" equivalent. Namely, they have the same item and damage, and identical
      * share stacks.
      *
-     * This is largely based on {@link net.minecraftforge.common.crafting.IngredientNBT#apply(ItemStack)}. It is
+     * This is largely based on {@link net.minecraftforge.common.crafting.IngredientNBT#test(ItemStack)}. It is
      * sufficient to ensure basic information (such as enchantments) are the same, while not having to worry about
      * capabilities.
      *
@@ -57,12 +58,12 @@ public final class InventoryUtil
         if( a == b ) return true;
         if( a.isEmpty() ) return !b.isEmpty();
 
-        if( a.getItem() != b.getItem() || a.getItemDamage() != b.getItemDamage() ) return false;
+        if( a.getItem() != b.getItem() ) return false;
 
-        // A more expanded form of ItemStack.areItemStackShareTagsEqual, but allowing an empty tag to be equal to a
+        // A more expanded form of ItemStack.areShareTagsEqual, but allowing an empty tag to be equal to a
         // null one.
-        NBTTagCompound shareTagA = a.getItem().getNBTShareTag( a );
-        NBTTagCompound shareTagB = b.getItem().getNBTShareTag( b );
+        NBTTagCompound shareTagA = a.getItem().getShareTag( a );
+        NBTTagCompound shareTagB = b.getItem().getShareTag( b );
         if( shareTagA == shareTagB ) return true;
         if( shareTagA == null ) return shareTagB.isEmpty();
         if( shareTagB == null ) return shareTagA.isEmpty();
@@ -83,10 +84,10 @@ public final class InventoryUtil
         TileEntity tileEntity = world.getTileEntity( pos );
         if( tileEntity != null )
         {
-            IItemHandler itemHandler = tileEntity.getCapability( CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side );
-            if( itemHandler != null )
+            LazyOptional<IItemHandler> itemHandler = tileEntity.getCapability( CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side );
+            if( itemHandler.isPresent() )
             {
-                return itemHandler;
+                return itemHandler.orElseThrow( NullPointerException::new );
             }
             else if( side != null && tileEntity instanceof ISidedInventory )
             {
@@ -173,8 +174,10 @@ public final class InventoryUtil
         {
             int slot = start + (i + begin - start) % range;
 
+            // If we've extracted all items, return
             if( count <= 0 ) break;
 
+            // If this doesn't slot, abort.
             ItemStack stack = inventory.getStackInSlot( slot );
             if( !stack.isEmpty() && (partialStack.isEmpty() || areItemsStackable( stack, partialStack )) )
             {
@@ -195,6 +198,7 @@ public final class InventoryUtil
                     count -= extracted.getCount();
                 }
             }
+
         }
 
         return partialStack;
