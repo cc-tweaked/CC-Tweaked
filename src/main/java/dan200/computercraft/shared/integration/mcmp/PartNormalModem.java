@@ -36,7 +36,7 @@ public class PartNormalModem implements IMultipart
 
     private EnumFacing getFacing( IBlockState state )
     {
-        BlockPeripheralVariant type = state.getValue( BlockPeripheral.Properties.VARIANT );
+        BlockPeripheralVariant type = state.getValue( BlockPeripheral.VARIANT );
         if( type == BlockPeripheralVariant.WirelessModemUpOn || type == BlockPeripheralVariant.WirelessModemUpOff )
         {
             return EnumFacing.UP;
@@ -47,7 +47,7 @@ public class PartNormalModem implements IMultipart
         }
         else
         {
-            return state.getValue( BlockPeripheral.Properties.FACING );
+            return state.getValue( BlockPeripheral.FACING );
         }
     }
 

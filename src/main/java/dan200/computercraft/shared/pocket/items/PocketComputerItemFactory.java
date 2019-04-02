@@ -20,12 +20,11 @@ public final class PocketComputerItemFactory
     @Nonnull
     public static ItemStack create( int id, String label, int colour, ComputerFamily family, IPocketUpgrade upgrade )
     {
-        ItemPocketComputer computer = ComputerCraft.Items.pocketComputer;
         switch( family )
         {
             case Normal:
             case Advanced:
-                return computer.create( id, label, colour, family, upgrade );
+                return ComputerCraft.Items.pocketComputer.create( id, label, colour, family, upgrade );
             default:
                 return ItemStack.EMPTY;
         }

@@ -82,14 +82,10 @@ public abstract class BlockComputerBase extends BlockDirectional
         return getFamily( world.getBlockState( pos ) );
     }
 
-    protected void updateInput( IBlockAccess world, BlockPos pos )
+    private static void updateInput( IBlockAccess world, BlockPos pos )
     {
         TileEntity tile = world.getTileEntity( pos );
-        if( tile instanceof TileComputerBase )
-        {
-            TileComputerBase computer = (TileComputerBase) tile;
-            computer.updateInput();
-        }
+        if( tile instanceof TileComputerBase ) ((TileComputerBase) tile).updateInput();
     }
 
     @Override

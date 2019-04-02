@@ -23,9 +23,9 @@ public class FileSystemWrapperMount implements IFileSystem
 {
     private final FileSystem m_filesystem;
 
-    public FileSystemWrapperMount( FileSystem m_filesystem )
+    public FileSystemWrapperMount( FileSystem filesystem )
     {
-        this.m_filesystem = m_filesystem;
+        this.m_filesystem = filesystem;
     }
 
     @Override

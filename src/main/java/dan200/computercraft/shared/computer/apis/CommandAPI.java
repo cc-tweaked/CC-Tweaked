@@ -26,6 +26,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -67,37 +68,29 @@ public class CommandAPI implements ILuaAPI
 
     private static Map<Object, Object> createOutput( String output )
     {
-        Map<Object, Object> result = new HashMap<>( 1 );
-        result.put( 1, output );
-        return result;
+        return Collections.singletonMap( 1, output );
     }
 
     private Object[] doCommand( String command )
     {
         MinecraftServer server = m_computer.getWorld().getMinecraftServer();
-        if( server != null && server.isCommandBlockEnabled() )
-        {
-            ICommandManager commandManager = server.getCommandManager();
-            try
-            {
-                TileCommandComputer.CommandSender sender = m_computer.getCommandSender();
-                sender.clearOutput();
-
-                int result = commandManager.executeCommand( sender, command );
-                return new Object[] { result > 0, sender.copyOutput() };
-            }
-            catch( Throwable t )
-            {
-                if( ComputerCraft.logPeripheralErrors )
-                {
-                    ComputerCraft.log.error( "Error running command.", t );
-                }
-                return new Object[] { false, createOutput( "Java Exception Thrown: " + t ) };
-            }
-        }
-        else
+        if( server == null || !server.isCommandBlockEnabled() )
         {
             return new Object[] { false, createOutput( "Command blocks disabled by server" ) };
+        }
+
+        ICommandManager commandManager = server.getCommandManager();
+        TileCommandComputer.CommandSender sender = m_computer.getCommandSender();
+        try
+        {
+            sender.clearOutput();
+            int result = commandManager.executeCommand( sender, command );
+            return new Object[] { result > 0, sender.copyOutput() };
+        }
+        catch( Throwable t )
+        {
+            if( ComputerCraft.logPeripheralErrors ) ComputerCraft.log.error( "Error running command.", t );
+            return new Object[] { false, createOutput( "Java Exception Thrown: " + t ) };
         }
     }
 
@@ -120,7 +113,7 @@ public class CommandAPI implements ILuaAPI
         table.put( "state", stateTable );
 
         TileEntity tile = world.getTileEntity( pos );
-        if( tile != null ) table.put( "nbt", NBTUtil.toLua( tile.writeToNBT( new NBTTagCompound() ).copy() ) );
+        if( tile != null ) table.put( "nbt", NBTUtil.toLua( tile.writeToNBT( new NBTTagCompound() ) ) );
 
         return table;
     }

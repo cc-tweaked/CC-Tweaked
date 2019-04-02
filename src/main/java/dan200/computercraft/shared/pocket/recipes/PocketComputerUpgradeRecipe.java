@@ -57,6 +57,8 @@ public class PocketComputerUpgradeRecipe extends IForgeRegistryEntry.Impl<IRecip
         ItemStack computer = ItemStack.EMPTY;
         int computerX = -1;
         int computerY = -1;
+
+        computer:
         for( int y = 0; y < inventory.getHeight(); y++ )
         {
             for( int x = 0; x < inventory.getWidth(); x++ )
@@ -67,25 +69,15 @@ public class PocketComputerUpgradeRecipe extends IForgeRegistryEntry.Impl<IRecip
                     computer = item;
                     computerX = x;
                     computerY = y;
-                    break;
+                    break computer;
                 }
             }
-            if( !computer.isEmpty() )
-            {
-                break;
-            }
         }
 
-        if( computer.isEmpty() )
-        {
-            return ItemStack.EMPTY;
-        }
+        if( computer.isEmpty() ) return ItemStack.EMPTY;
 
         ItemPocketComputer itemComputer = (ItemPocketComputer) computer.getItem();
-        if( itemComputer.getUpgrade( computer ) != null )
-        {
-            return ItemStack.EMPTY;
-        }
+        if( itemComputer.getUpgrade( computer ) != null ) return ItemStack.EMPTY;
 
         // Check for upgrades around the item
         IPocketUpgrade upgrade = null;
@@ -108,10 +100,7 @@ public class PocketComputerUpgradeRecipe extends IForgeRegistryEntry.Impl<IRecip
             }
         }
 
-        if( upgrade == null )
-        {
-            return ItemStack.EMPTY;
-        }
+        if( upgrade == null ) return ItemStack.EMPTY;
 
         // Construct the new stack
         ComputerFamily family = itemComputer.getFamily( computer );

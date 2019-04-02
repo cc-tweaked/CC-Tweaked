@@ -6,6 +6,7 @@
 
 package dan200.computercraft.shared.turtle.upgrades;
 
+import dan200.computercraft.api.AbstractTurtleUpgrade;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.TurtleSide;

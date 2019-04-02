@@ -24,13 +24,13 @@ public class PartAdvancedModem implements IMultipart
     @Override
     public IPartSlot getSlotForPlacement( World world, BlockPos pos, IBlockState state, EnumFacing facing, float hitX, float hitY, float hitZ, EntityLivingBase placer )
     {
-        return EnumFaceSlot.fromFace( state.getValue( BlockAdvancedModem.Properties.FACING ) );
+        return EnumFaceSlot.fromFace( state.getValue( BlockAdvancedModem.FACING ) );
     }
 
     @Override
     public IPartSlot getSlotFromWorld( IBlockAccess world, BlockPos pos, IBlockState state )
     {
-        return EnumFaceSlot.fromFace( state.getValue( BlockAdvancedModem.Properties.FACING ) );
+        return EnumFaceSlot.fromFace( state.getValue( BlockAdvancedModem.FACING ) );
     }
 
     @Override

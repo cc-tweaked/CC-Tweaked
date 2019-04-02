@@ -108,19 +108,19 @@ public class TurtlePlaceCommand implements ITurtleCommand
         }
     }
 
-    public static ItemStack deploy( @Nonnull ItemStack stack, ITurtleAccess turtle, EnumFacing direction, Object[] extraArguments, String[] o_errorMessage )
+    public static ItemStack deploy( @Nonnull ItemStack stack, ITurtleAccess turtle, EnumFacing direction, Object[] extraArguments, String[] outErrorMessage )
     {
         // Create a fake player, and orient it appropriately
         BlockPos playerPosition = turtle.getPosition().offset( direction );
         TurtlePlayer turtlePlayer = createPlayer( turtle, playerPosition, direction );
 
-        return deploy( stack, turtle, turtlePlayer, direction, extraArguments, o_errorMessage );
+        return deploy( stack, turtle, turtlePlayer, direction, extraArguments, outErrorMessage );
     }
 
-    public static ItemStack deploy( @Nonnull ItemStack stack, ITurtleAccess turtle, TurtlePlayer turtlePlayer, EnumFacing direction, Object[] extraArguments, String[] o_errorMessage )
+    public static ItemStack deploy( @Nonnull ItemStack stack, ITurtleAccess turtle, TurtlePlayer turtlePlayer, EnumFacing direction, Object[] extraArguments, String[] outErrorMessage )
     {
         // Deploy on an entity
-        ItemStack remainder = deployOnEntity( stack, turtle, turtlePlayer, direction, extraArguments, o_errorMessage );
+        ItemStack remainder = deployOnEntity( stack, turtle, turtlePlayer, direction, extraArguments, outErrorMessage );
         if( remainder != stack )
         {
             return remainder;
@@ -129,14 +129,14 @@ public class TurtlePlaceCommand implements ITurtleCommand
         // Deploy on the block immediately in front
         BlockPos position = turtle.getPosition();
         BlockPos newPosition = position.offset( direction );
-        remainder = deployOnBlock( stack, turtle, turtlePlayer, newPosition, direction.getOpposite(), extraArguments, true, o_errorMessage );
+        remainder = deployOnBlock( stack, turtle, turtlePlayer, newPosition, direction.getOpposite(), extraArguments, true, outErrorMessage );
         if( remainder != stack )
         {
             return remainder;
         }
 
         // Deploy on the block one block away
-        remainder = deployOnBlock( stack, turtle, turtlePlayer, newPosition.offset( direction ), direction.getOpposite(), extraArguments, false, o_errorMessage );
+        remainder = deployOnBlock( stack, turtle, turtlePlayer, newPosition.offset( direction ), direction.getOpposite(), extraArguments, false, outErrorMessage );
         if( remainder != stack )
         {
             return remainder;
@@ -145,7 +145,7 @@ public class TurtlePlaceCommand implements ITurtleCommand
         if( direction.getAxis() != EnumFacing.Axis.Y )
         {
             // Deploy down on the block in front
-            remainder = deployOnBlock( stack, turtle, turtlePlayer, newPosition.down(), EnumFacing.UP, extraArguments, false, o_errorMessage );
+            remainder = deployOnBlock( stack, turtle, turtlePlayer, newPosition.down(), EnumFacing.UP, extraArguments, false, outErrorMessage );
             if( remainder != stack )
             {
                 return remainder;
@@ -153,7 +153,7 @@ public class TurtlePlaceCommand implements ITurtleCommand
         }
 
         // Deploy back onto the turtle
-        remainder = deployOnBlock( stack, turtle, turtlePlayer, position, direction, extraArguments, false, o_errorMessage );
+        remainder = deployOnBlock( stack, turtle, turtlePlayer, position, direction, extraArguments, false, outErrorMessage );
         if( remainder != stack )
         {
             return remainder;
@@ -206,7 +206,7 @@ public class TurtlePlaceCommand implements ITurtleCommand
     }
 
     @Nonnull
-    private static ItemStack deployOnEntity( @Nonnull ItemStack stack, final ITurtleAccess turtle, TurtlePlayer turtlePlayer, EnumFacing direction, Object[] extraArguments, String[] o_errorMessage )
+    private static ItemStack deployOnEntity( @Nonnull ItemStack stack, final ITurtleAccess turtle, TurtlePlayer turtlePlayer, EnumFacing direction, Object[] extraArguments, String[] outErrorMessage )
     {
         // See if there is an entity present
         final World world = turtle.getWorld();
@@ -288,7 +288,7 @@ public class TurtlePlaceCommand implements ITurtleCommand
         }
     }
 
-    private static boolean canDeployOnBlock( @Nonnull ItemStack stack, ITurtleAccess turtle, TurtlePlayer player, BlockPos position, EnumFacing side, boolean allowReplaceable, String[] o_errorMessage )
+    private static boolean canDeployOnBlock( @Nonnull ItemStack stack, ITurtleAccess turtle, TurtlePlayer player, BlockPos position, EnumFacing side, boolean allowReplaceable, String[] outErrorMessage )
     {
         World world = turtle.getWorld();
         if( !world.isValid( position ) || world.isAirBlock( position ) ||
@@ -311,7 +311,7 @@ public class TurtlePlaceCommand implements ITurtleCommand
                 : TurtlePermissions.isBlockEditable( world, position.offset( side ), player );
             if( !editable )
             {
-                if( o_errorMessage != null ) o_errorMessage[0] = "Cannot place in protected area";
+                if( outErrorMessage != null ) outErrorMessage[0] = "Cannot place in protected area";
                 return false;
             }
         }
@@ -321,18 +321,18 @@ public class TurtlePlaceCommand implements ITurtleCommand
     }
 
     @Nonnull
-    private static ItemStack deployOnBlock( @Nonnull ItemStack stack, ITurtleAccess turtle, TurtlePlayer turtlePlayer, BlockPos position, EnumFacing side, Object[] extraArguments, boolean allowReplace, String[] o_errorMessage )
+    private static ItemStack deployOnBlock( @Nonnull ItemStack stack, ITurtleAccess turtle, TurtlePlayer turtlePlayer, BlockPos position, EnumFacing side, Object[] extraArguments, boolean allowReplace, String[] outErrorMessage )
     {
-        // Check if there's something suitable to place onto
-        if( !canDeployOnBlock( stack, turtle, turtlePlayer, position, side, allowReplace, o_errorMessage ) )
-        {
-            return stack;
-        }
-
         // Re-orient the fake player
         EnumFacing playerDir = side.getOpposite();
         BlockPos playerPosition = position.offset( side );
         orientPlayer( turtle, turtlePlayer, playerPosition, playerDir );
+
+        // Check if there's something suitable to place onto
+        if( !canDeployOnBlock( stack, turtle, turtlePlayer, position, side, allowReplace, outErrorMessage ) )
+        {
+            return stack;
+        }
 
         // Calculate where the turtle would hit the block
         float hitX = 0.5f + side.getXOffset() * 0.5f;

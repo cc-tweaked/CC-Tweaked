@@ -11,7 +11,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.FakePlayer;
-import net.minecraftforge.fml.common.eventhandler.Cancelable;
 import net.minecraftforge.items.IItemHandler;
 
 import javax.annotation.Nonnull;
@@ -21,7 +20,6 @@ import java.util.Objects;
 /**
  * Fired when a turtle attempts to interact with an inventory.
  */
-@Cancelable
 public abstract class TurtleInventoryEvent extends TurtleBlockEvent
 {
     private final IItemHandler handler;

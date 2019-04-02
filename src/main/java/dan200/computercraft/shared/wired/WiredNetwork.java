@@ -25,7 +25,7 @@ public final class WiredNetwork implements IWiredNetwork
     HashSet<WiredNode> nodes;
     private HashMap<String, IPeripheral> peripherals = new HashMap<>();
 
-    public WiredNetwork( WiredNode node )
+    WiredNetwork( WiredNode node )
     {
         nodes = new HashSet<>( 1 );
         nodes.add( node );
@@ -358,9 +358,9 @@ public final class WiredNetwork implements IWiredNetwork
 
                     if( neighbourPoint == null )
                     {
-                        neighbourPoint = new TransmitPoint( neighbour, newDistance, newInterdimensional );
-                        points.put( neighbour, neighbourPoint );
-                        transmitTo.add( neighbourPoint );
+                        TransmitPoint nextPoint = new TransmitPoint( neighbour, newDistance, newInterdimensional );
+                        points.put( neighbour, nextPoint );
+                        transmitTo.add( nextPoint );
                     }
                     else if( newDistance < neighbourPoint.distance )
                     {

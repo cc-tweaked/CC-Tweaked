@@ -74,7 +74,7 @@ for _, language in ipairs(secondary) do
     end
 
     local h = io.open(path:format(language), "wb")
-    local previous_blank = flase
+    local previous_blank = true
     for _, line in ipairs(primary_contents) do
         if line == "" then
             if not previous_blank then

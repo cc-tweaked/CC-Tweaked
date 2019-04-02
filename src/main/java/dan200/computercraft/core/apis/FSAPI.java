@@ -34,9 +34,9 @@ public class FSAPI implements ILuaAPI
     private IAPIEnvironment m_env;
     private FileSystem m_fileSystem;
 
-    public FSAPI( IAPIEnvironment _env )
+    public FSAPI( IAPIEnvironment env )
     {
-        m_env = _env;
+        m_env = env;
         m_fileSystem = null;
     }
 

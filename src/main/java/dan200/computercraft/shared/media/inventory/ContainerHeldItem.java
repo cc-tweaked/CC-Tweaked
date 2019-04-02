@@ -34,7 +34,7 @@ public class ContainerHeldItem extends Container
     @Override
     public boolean canInteractWith( @Nonnull EntityPlayer player )
     {
-        if( player == null || !player.isEntityAlive() ) return false;
+        if( !player.isEntityAlive() ) return false;
 
         ItemStack stack = player.getHeldItem( m_hand );
         return stack == m_stack || !stack.isEmpty() && !m_stack.isEmpty() && stack.getItem() == m_stack.getItem();

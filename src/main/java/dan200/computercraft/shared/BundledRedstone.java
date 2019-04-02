@@ -22,6 +22,8 @@ public final class BundledRedstone
 {
     private static final Set<IBundledRedstoneProvider> providers = new LinkedHashSet<>();
 
+    private BundledRedstone() {}
+
     public static void register( @Nonnull IBundledRedstoneProvider provider )
     {
         Preconditions.checkNotNull( provider, "provider cannot be null" );

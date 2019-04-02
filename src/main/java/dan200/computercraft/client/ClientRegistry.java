@@ -11,6 +11,7 @@ import dan200.computercraft.client.render.TurtleModelLoader;
 import dan200.computercraft.shared.media.items.ItemDiskLegacy;
 import dan200.computercraft.shared.pocket.items.ItemPocketComputer;
 import dan200.computercraft.shared.turtle.items.ItemTurtleBase;
+import dan200.computercraft.shared.util.Colour;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ItemMeshDefinition;
 import net.minecraft.client.renderer.block.model.IBakedModel;
@@ -132,7 +133,10 @@ public final class ClientRegistry
                 case 1: // Frame colour
                     return ComputerCraft.Items.pocketComputer.getColour( stack );
                 case 2: // Light colour
-                    return ItemPocketComputer.getLightState( stack );
+                {
+                    int light = ItemPocketComputer.getLightState( stack );
+                    return light == -1 ? Colour.Black.getHex() : light;
+                }
             }
         }, ComputerCraft.Items.pocketComputer );
 

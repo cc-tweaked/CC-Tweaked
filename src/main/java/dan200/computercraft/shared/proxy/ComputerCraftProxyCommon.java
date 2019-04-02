@@ -47,9 +47,8 @@ import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.registry.EntityRegistry;
 import pl.asie.charset.ModCharset;
 
-public class ComputerCraftProxyCommon implements IComputerCraftProxy
+public class ComputerCraftProxyCommon
 {
-    @Override
     public void preInit()
     {
         NetworkHandler.setup();
@@ -62,7 +61,6 @@ public class ComputerCraftProxyCommon implements IComputerCraftProxy
         );
     }
 
-    @Override
     public void init()
     {
         registerProviders();
@@ -72,8 +70,7 @@ public class ComputerCraftProxyCommon implements IComputerCraftProxy
         if( Loader.isModLoaded( ModCharset.MODID ) ) IntegrationCharset.register();
     }
 
-    @Override
-    public void initServer( MinecraftServer server )
+    public static void initServer( MinecraftServer server )
     {
         CommandHandler handler = (CommandHandler) server.getCommandManager();
         handler.registerCommand( new CommandComputerCraft() );

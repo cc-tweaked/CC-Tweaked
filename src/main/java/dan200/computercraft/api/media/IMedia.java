@@ -46,7 +46,7 @@ public interface IMedia
 
     /**
      * If this disk represents an item with audio (like a record), get the readable name of the audio track. ie:
-     * "Jonathon Coulton - Still Alive"
+     * "Jonathan Coulton - Still Alive"
      *
      * @param stack The {@link ItemStack} to modify.
      * @return The name, or null if this item does not represent an item with audio.

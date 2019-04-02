@@ -43,28 +43,20 @@ import java.util.List;
 
 public class BlockCable extends BlockGeneric
 {
-    // Statics
-
-    public static final class Properties
-    {
-        public static final PropertyEnum<BlockCableModemVariant> MODEM = PropertyEnum.create( "modem", BlockCableModemVariant.class );
-        public static final PropertyBool CABLE = PropertyBool.create( "cable" );
-        public static final PropertyBool NORTH = PropertyBool.create( "north" );
-        public static final PropertyBool SOUTH = PropertyBool.create( "south" );
-        public static final PropertyBool EAST = PropertyBool.create( "east" );
-        public static final PropertyBool WEST = PropertyBool.create( "west" );
-        public static final PropertyBool UP = PropertyBool.create( "up" );
-        public static final PropertyBool DOWN = PropertyBool.create( "down" );
-
-        static final EnumMap<EnumFacing, PropertyBool> CONNECTIONS =
-            new EnumMap<>( new ImmutableMap.Builder<EnumFacing, PropertyBool>()
-                .put( EnumFacing.DOWN, DOWN ).put( EnumFacing.UP, UP )
-                .put( EnumFacing.NORTH, NORTH ).put( EnumFacing.SOUTH, SOUTH )
-                .put( EnumFacing.WEST, WEST ).put( EnumFacing.EAST, EAST )
-                .build() );
-    }
-
-    // Members
+    public static final PropertyEnum<BlockCableModemVariant> MODEM = PropertyEnum.create( "modem", BlockCableModemVariant.class );
+    static final PropertyBool CABLE = PropertyBool.create( "cable" );
+    static final PropertyBool NORTH = PropertyBool.create( "north" );
+    static final PropertyBool SOUTH = PropertyBool.create( "south" );
+    static final PropertyBool EAST = PropertyBool.create( "east" );
+    static final PropertyBool WEST = PropertyBool.create( "west" );
+    static final PropertyBool UP = PropertyBool.create( "up" );
+    static final PropertyBool DOWN = PropertyBool.create( "down" );
+    static final EnumMap<EnumFacing, PropertyBool> CONNECTIONS =
+        new EnumMap<>( new ImmutableMap.Builder<EnumFacing, PropertyBool>()
+            .put( EnumFacing.DOWN, DOWN ).put( EnumFacing.UP, UP )
+            .put( EnumFacing.NORTH, NORTH ).put( EnumFacing.SOUTH, SOUTH )
+            .put( EnumFacing.WEST, WEST ).put( EnumFacing.EAST, EAST )
+            .build() );
 
     public BlockCable()
     {
@@ -73,14 +65,14 @@ public class BlockCable extends BlockGeneric
         setTranslationKey( "computercraft:cable" );
         setCreativeTab( ComputerCraft.mainCreativeTab );
         setDefaultState( blockState.getBaseState()
-            .withProperty( Properties.MODEM, BlockCableModemVariant.None )
-            .withProperty( Properties.CABLE, false )
-            .withProperty( Properties.NORTH, false )
-            .withProperty( Properties.SOUTH, false )
-            .withProperty( Properties.EAST, false )
-            .withProperty( Properties.WEST, false )
-            .withProperty( Properties.UP, false )
-            .withProperty( Properties.DOWN, false )
+            .withProperty( MODEM, BlockCableModemVariant.None )
+            .withProperty( CABLE, false )
+            .withProperty( NORTH, false )
+            .withProperty( SOUTH, false )
+            .withProperty( EAST, false )
+            .withProperty( WEST, false )
+            .withProperty( UP, false )
+            .withProperty( DOWN, false )
         );
     }
 
@@ -89,14 +81,14 @@ public class BlockCable extends BlockGeneric
     protected BlockStateContainer createBlockState()
     {
         return new BlockStateContainer( this,
-            Properties.MODEM,
-            Properties.CABLE,
-            Properties.NORTH,
-            Properties.SOUTH,
-            Properties.EAST,
-            Properties.WEST,
-            Properties.UP,
-            Properties.DOWN
+            MODEM,
+            CABLE,
+            NORTH,
+            SOUTH,
+            EAST,
+            WEST,
+            UP,
+            DOWN
         );
     }
 
@@ -108,18 +100,18 @@ public class BlockCable extends BlockGeneric
         IBlockState state = getDefaultState();
         if( meta < 6 )
         {
-            state = state.withProperty( Properties.CABLE, false );
-            state = state.withProperty( Properties.MODEM, BlockCableModemVariant.fromFacing( EnumFacing.byIndex( meta ) ) );
+            state = state.withProperty( CABLE, false );
+            state = state.withProperty( MODEM, BlockCableModemVariant.from( EnumFacing.byIndex( meta ) ) );
         }
         else if( meta < 12 )
         {
-            state = state.withProperty( Properties.CABLE, true );
-            state = state.withProperty( Properties.MODEM, BlockCableModemVariant.fromFacing( EnumFacing.byIndex( meta - 6 ) ) );
+            state = state.withProperty( CABLE, true );
+            state = state.withProperty( MODEM, BlockCableModemVariant.from( EnumFacing.byIndex( meta - 6 ) ) );
         }
         else if( meta == 13 )
         {
-            state = state.withProperty( Properties.CABLE, true );
-            state = state.withProperty( Properties.MODEM, BlockCableModemVariant.None );
+            state = state.withProperty( CABLE, true );
+            state = state.withProperty( MODEM, BlockCableModemVariant.None );
         }
         return state;
     }
@@ -128,8 +120,8 @@ public class BlockCable extends BlockGeneric
     public int getMetaFromState( IBlockState state )
     {
         int meta = 0;
-        boolean cable = state.getValue( Properties.CABLE );
-        BlockCableModemVariant modem = state.getValue( Properties.MODEM );
+        boolean cable = state.getValue( CABLE );
+        BlockCableModemVariant modem = state.getValue( MODEM );
         if( cable && modem != BlockCableModemVariant.None )
         {
             meta = 6 + modem.getFacing().getIndex();
@@ -154,30 +146,30 @@ public class BlockCable extends BlockGeneric
         {
             case Cable:
                 return getDefaultState()
-                    .withProperty( Properties.CABLE, true )
-                    .withProperty( Properties.MODEM, BlockCableModemVariant.None );
+                    .withProperty( CABLE, true )
+                    .withProperty( MODEM, BlockCableModemVariant.None );
             default:
             case WiredModem:
                 return getDefaultState()
-                    .withProperty( Properties.CABLE, false )
-                    .withProperty( Properties.MODEM, BlockCableModemVariant.fromFacing( placedSide.getOpposite() ) );
+                    .withProperty( CABLE, false )
+                    .withProperty( MODEM, BlockCableModemVariant.from( placedSide.getOpposite() ) );
             case WiredModemWithCable:
                 return getDefaultState()
-                    .withProperty( Properties.CABLE, true )
-                    .withProperty( Properties.MODEM, BlockCableModemVariant.fromFacing( placedSide.getOpposite() ) );
+                    .withProperty( CABLE, true )
+                    .withProperty( MODEM, BlockCableModemVariant.from( placedSide.getOpposite() ) );
         }
     }
 
     public static boolean canConnectIn( IBlockState state, EnumFacing direction )
     {
-        return state.getValue( BlockCable.Properties.CABLE )
-            && state.getValue( BlockCable.Properties.MODEM ).getFacing() != direction;
+        return state.getValue( CABLE )
+            && state.getValue( MODEM ).getFacing() != direction;
     }
 
     public static boolean doesConnectVisually( IBlockState state, IBlockAccess world, BlockPos pos, EnumFacing direction )
     {
-        if( !state.getValue( Properties.CABLE ) ) return false;
-        if( state.getValue( Properties.MODEM ).getFacing() == direction ) return true;
+        if( !state.getValue( CABLE ) ) return false;
+        if( state.getValue( MODEM ).getFacing() == direction ) return true;
         return ComputerCraftAPI.getWiredElementAt( world, pos.offset( direction ), direction.getOpposite() ) != null;
     }
 
@@ -187,22 +179,19 @@ public class BlockCable extends BlockGeneric
     public IBlockState getActualState( @Nonnull IBlockState state, IBlockAccess world, BlockPos pos )
     {
         state = state
-            .withProperty( Properties.NORTH, doesConnectVisually( state, world, pos, EnumFacing.NORTH ) )
-            .withProperty( Properties.SOUTH, doesConnectVisually( state, world, pos, EnumFacing.SOUTH ) )
-            .withProperty( Properties.EAST, doesConnectVisually( state, world, pos, EnumFacing.EAST ) )
-            .withProperty( Properties.WEST, doesConnectVisually( state, world, pos, EnumFacing.WEST ) )
-            .withProperty( Properties.UP, doesConnectVisually( state, world, pos, EnumFacing.UP ) )
-            .withProperty( Properties.DOWN, doesConnectVisually( state, world, pos, EnumFacing.DOWN ) );
+            .withProperty( NORTH, doesConnectVisually( state, world, pos, EnumFacing.NORTH ) )
+            .withProperty( SOUTH, doesConnectVisually( state, world, pos, EnumFacing.SOUTH ) )
+            .withProperty( EAST, doesConnectVisually( state, world, pos, EnumFacing.EAST ) )
+            .withProperty( WEST, doesConnectVisually( state, world, pos, EnumFacing.WEST ) )
+            .withProperty( UP, doesConnectVisually( state, world, pos, EnumFacing.UP ) )
+            .withProperty( DOWN, doesConnectVisually( state, world, pos, EnumFacing.DOWN ) );
 
         TileEntity tile = world.getTileEntity( pos );
         int anim = tile instanceof TileCable ? ((TileCable) tile).getState() : 0;
 
-        BlockCableModemVariant modem = state.getValue( Properties.MODEM );
-        if( modem != BlockCableModemVariant.None )
-        {
-            modem = BlockCableModemVariant.values()[1 + 6 * anim + modem.getFacing().getIndex()];
-        }
-        state = state.withProperty( Properties.MODEM, modem );
+        BlockCableModemVariant modem = state.getValue( MODEM );
+        if( modem != BlockCableModemVariant.None ) modem = BlockCableModemVariant.from( modem.getFacing(), anim );
+        state = state.withProperty( MODEM, modem );
 
         return state;
     }
@@ -216,8 +205,8 @@ public class BlockCable extends BlockGeneric
 
     public static PeripheralType getPeripheralType( IBlockState state )
     {
-        boolean cable = state.getValue( Properties.CABLE );
-        BlockCableModemVariant modem = state.getValue( Properties.MODEM );
+        boolean cable = state.getValue( CABLE );
+        BlockCableModemVariant modem = state.getValue( MODEM );
         if( cable && modem != BlockCableModemVariant.None )
         {
             return PeripheralType.WiredModemWithCable;
@@ -310,18 +299,21 @@ public class BlockCable extends BlockGeneric
                     TileCable cable = (TileCable) tile;
 
                     ItemStack item;
+                    IBlockState newState;
 
                     AxisAlignedBB bb = CableBounds.getModemBounds( state );
                     if( WorldUtil.isVecInsideInclusive( bb, hit.hitVec.subtract( pos.getX(), pos.getY(), pos.getZ() ) ) )
                     {
-                        world.setBlockState( pos, state.withProperty( Properties.MODEM, BlockCableModemVariant.None ), 3 );
+                        newState = state.withProperty( MODEM, BlockCableModemVariant.None );
                         item = PeripheralItemFactory.create( PeripheralType.WiredModem, null, 1 );
                     }
                     else
                     {
-                        world.setBlockState( pos, state.withProperty( Properties.CABLE, false ), 3 );
+                        newState = state.withProperty( CABLE, false );
                         item = PeripheralItemFactory.create( PeripheralType.Cable, null, 1 );
                     }
+
+                    world.setBlockState( pos, newState, 3 );
 
                     cable.modemChanged();
                     cable.connectionsChanged();

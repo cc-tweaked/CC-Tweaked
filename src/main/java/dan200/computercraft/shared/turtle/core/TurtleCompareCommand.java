@@ -105,30 +105,24 @@ public class TurtleCompareCommand implements ITurtleCommand
             }
         }
 
-        // Compare them
-        if( selectedStack.isEmpty() && lookAtStack.isEmpty() )
+        // If they're both empty, obviously the same
+        if( selectedStack.isEmpty() && lookAtStack.isEmpty() ) return TurtleCommandResult.success();
+
+        // If the items don't match, obviously different.
+        if( selectedStack.isEmpty() || lookAtStack == null || selectedStack.getItem() != lookAtStack.getItem() )
+        {
+            return TurtleCommandResult.failure();
+        }
+
+        // If the damage matches, or the damage doesn't matter, then the same.
+        if( !selectedStack.getHasSubtypes() || selectedStack.getItemDamage() == lookAtStack.getItemDamage() )
         {
             return TurtleCommandResult.success();
         }
-        else if( !selectedStack.isEmpty() && lookAtStack != null )
-        {
-            if( selectedStack.getItem() == lookAtStack.getItem() )
-            {
-                if( !selectedStack.getHasSubtypes() )
-                {
-                    return TurtleCommandResult.success();
-                }
-                else if( selectedStack.getItemDamage() == lookAtStack.getItemDamage() )
-                {
-                    return TurtleCommandResult.success();
-                }
-                else if( selectedStack.getTranslationKey().equals( lookAtStack.getTranslationKey() ) )
-                {
-                    return TurtleCommandResult.success();
-                }
-            }
-        }
 
-        return TurtleCommandResult.failure();
+        // Otherwise just double check the translation is the same. It's a pretty good guess.
+        return selectedStack.getTranslationKey().equals( lookAtStack.getTranslationKey() )
+            ? TurtleCommandResult.success()
+            : TurtleCommandResult.failure();
     }
 }

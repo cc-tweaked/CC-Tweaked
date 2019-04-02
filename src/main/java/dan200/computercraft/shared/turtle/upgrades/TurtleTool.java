@@ -7,6 +7,7 @@
 package dan200.computercraft.shared.turtle.upgrades;
 
 import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.api.AbstractTurtleUpgrade;
 import dan200.computercraft.api.turtle.*;
 import dan200.computercraft.api.turtle.event.TurtleAttackEvent;
 import dan200.computercraft.api.turtle.event.TurtleBlockEvent;

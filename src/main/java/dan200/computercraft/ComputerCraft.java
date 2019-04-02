@@ -51,7 +51,7 @@ import dan200.computercraft.shared.peripheral.modem.wireless.WirelessNetwork;
 import dan200.computercraft.shared.pocket.items.ItemPocketComputer;
 import dan200.computercraft.shared.pocket.peripherals.PocketModem;
 import dan200.computercraft.shared.pocket.peripherals.PocketSpeaker;
-import dan200.computercraft.shared.proxy.IComputerCraftProxy;
+import dan200.computercraft.shared.proxy.ComputerCraftProxyCommon;
 import dan200.computercraft.shared.turtle.blocks.BlockTurtle;
 import dan200.computercraft.shared.turtle.items.ItemTurtleAdvanced;
 import dan200.computercraft.shared.turtle.items.ItemTurtleLegacy;
@@ -248,7 +248,7 @@ public class ComputerCraft
         clientSide = "dan200.computercraft.client.proxy.ComputerCraftProxyClient",
         serverSide = "dan200.computercraft.shared.proxy.ComputerCraftProxyCommon"
     )
-    private static IComputerCraftProxy proxy;
+    private static ComputerCraftProxyCommon proxy;
 
     @Mod.EventHandler
     public void preInit( FMLPreInitializationEvent event )
@@ -270,7 +270,7 @@ public class ComputerCraft
     @Mod.EventHandler
     public void onServerStarting( FMLServerStartingEvent event )
     {
-        proxy.initServer( event.getServer() );
+        ComputerCraftProxyCommon.initServer( event.getServer() );
     }
 
     @Mod.EventHandler

@@ -18,7 +18,7 @@ public class CreativeTabMain extends CreativeTabs
 {
     public CreativeTabMain( int i )
     {
-        super( i, "CC: Tweaked" );
+        super( i, ComputerCraft.MOD_ID );
     }
 
     @Nonnull
@@ -27,13 +27,5 @@ public class CreativeTabMain extends CreativeTabs
     public ItemStack createIcon()
     {
         return new ItemStack( ComputerCraft.Blocks.computer );
-    }
-
-    @Nonnull
-    @Override
-    @SideOnly( Side.CLIENT )
-    public String getTranslationKey()
-    {
-        return getTabLabel();
     }
 }

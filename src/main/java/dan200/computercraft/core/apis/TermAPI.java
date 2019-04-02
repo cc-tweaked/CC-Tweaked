@@ -24,10 +24,10 @@ public class TermAPI implements ILuaAPI
     private final Terminal m_terminal;
     private final IComputerEnvironment m_environment;
 
-    public TermAPI( IAPIEnvironment _environment )
+    public TermAPI( IAPIEnvironment environment )
     {
-        m_terminal = _environment.getTerminal();
-        m_environment = _environment.getComputerEnvironment();
+        m_terminal = environment.getTerminal();
+        m_environment = environment.getComputerEnvironment();
     }
 
     @Override

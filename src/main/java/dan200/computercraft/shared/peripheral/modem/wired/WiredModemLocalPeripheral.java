@@ -30,6 +30,9 @@ import java.util.Map;
  */
 public final class WiredModemLocalPeripheral
 {
+    private static final String NBT_PERIPHERAL_TYPE = "peripheralType";
+    private static final String NBT_PERIPHERAL_ID = "peripheralID";
+
     private int id;
     private String type;
 
@@ -115,17 +118,17 @@ public final class WiredModemLocalPeripheral
 
     public void writeNBT( @Nonnull NBTTagCompound tag, @Nonnull String suffix )
     {
-        if( id >= 0 ) tag.setInteger( "peripheralID" + suffix, id );
-        if( type != null ) tag.setString( "peripheralType" + suffix, type );
+        if( id >= 0 ) tag.setInteger( NBT_PERIPHERAL_TYPE + suffix, id );
+        if( type != null ) tag.setString( NBT_PERIPHERAL_TYPE + suffix, type );
     }
 
     public void readNBT( @Nonnull NBTTagCompound tag, @Nonnull String suffix )
     {
-        id = tag.hasKey( "peripheralID" + suffix, Constants.NBT.TAG_ANY_NUMERIC )
-            ? tag.getInteger( "peripheralID" + suffix ) : -1;
+        id = tag.hasKey( NBT_PERIPHERAL_ID + suffix, Constants.NBT.TAG_ANY_NUMERIC )
+            ? tag.getInteger( NBT_PERIPHERAL_ID + suffix ) : -1;
 
-        type = tag.hasKey( "peripheralType" + suffix, Constants.NBT.TAG_STRING )
-            ? tag.getString( "peripheralType" + suffix ) : null;
+        type = tag.hasKey( NBT_PERIPHERAL_TYPE + suffix, Constants.NBT.TAG_STRING )
+            ? tag.getString( NBT_PERIPHERAL_TYPE + suffix ) : null;
     }
 
     private static IPeripheral getPeripheralFrom( World world, BlockPos pos, EnumFacing direction )

@@ -16,8 +16,6 @@ import net.minecraft.util.math.AxisAlignedBB;
 import java.util.EnumMap;
 import java.util.List;
 
-import static dan200.computercraft.shared.peripheral.modem.wired.BlockCable.Properties.*;
-
 public final class CableBounds
 {
     public static final double MIN = 0.375;
@@ -47,7 +45,7 @@ public final class CableBounds
         int index = 0;
         for( EnumFacing facing : EnumFacing.VALUES )
         {
-            if( state.getValue( CONNECTIONS.get( facing ) ) ) index |= 1 << facing.ordinal();
+            if( state.getValue( BlockCable.CONNECTIONS.get( facing ) ) ) index |= 1 << facing.ordinal();
         }
 
         return index;
@@ -72,32 +70,32 @@ public final class CableBounds
 
     public static AxisAlignedBB getCableBounds( IBlockState state )
     {
-        if( !state.getValue( CABLE ) ) return BlockCable.NULL_AABB;
+        if( !state.getValue( BlockCable.CABLE ) ) return BlockCable.NULL_AABB;
         return getCableBounds( getCableIndex( state ) );
     }
 
     public static void getCableBounds( IBlockState state, List<AxisAlignedBB> bounds )
     {
-        if( !state.getValue( CABLE ) ) return;
+        if( !state.getValue( BlockCable.CABLE ) ) return;
 
         bounds.add( SHAPE_CABLE_CORE );
         for( EnumFacing facing : EnumFacing.VALUES )
         {
-            if( state.getValue( CONNECTIONS.get( facing ) ) ) bounds.add( SHAPE_CABLE_ARM.get( facing ) );
+            if( state.getValue( BlockCable.CONNECTIONS.get( facing ) ) ) bounds.add( SHAPE_CABLE_ARM.get( facing ) );
         }
     }
 
     public static AxisAlignedBB getModemBounds( IBlockState state )
     {
-        EnumFacing facing = state.getValue( MODEM ).getFacing();
+        EnumFacing facing = state.getValue( BlockCable.MODEM ).getFacing();
         return facing == null ? Block.NULL_AABB : ModemBounds.getBounds( facing );
     }
 
     public static AxisAlignedBB getBounds( IBlockState state )
     {
-        if( !state.getValue( CABLE ) ) return getModemBounds( state );
+        if( !state.getValue( BlockCable.CABLE ) ) return getModemBounds( state );
 
-        EnumFacing facing = state.getValue( MODEM ).getFacing();
+        EnumFacing facing = state.getValue( BlockCable.MODEM ).getFacing();
         int cableIndex = getCableIndex( state );
         int index = cableIndex + ((facing == null ? 0 : facing.ordinal() + 1) << 6);
 
@@ -111,7 +109,7 @@ public final class CableBounds
 
     public static void getBounds( IBlockState state, List<AxisAlignedBB> bounds )
     {
-        EnumFacing facing = state.getValue( MODEM ).getFacing();
+        EnumFacing facing = state.getValue( BlockCable.MODEM ).getFacing();
         if( facing != null ) bounds.add( getModemBounds( state ) );
         getCableBounds( state, bounds );
     }

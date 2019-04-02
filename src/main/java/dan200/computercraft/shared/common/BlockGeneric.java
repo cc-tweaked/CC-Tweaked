@@ -52,10 +52,10 @@ public abstract class BlockGeneric extends Block implements ITileEntityProvider
     @Override
     @Deprecated
     @SuppressWarnings( "deprecation" )
-    public final void neighborChanged( IBlockState state, World world, BlockPos pos, Block block, BlockPos neighbour )
+    public final void neighborChanged( IBlockState state, World world, BlockPos pos, Block neighbourBlock, BlockPos neighbourPos )
     {
         TileEntity tile = world.getTileEntity( pos );
-        if( tile instanceof TileGeneric ) ((TileGeneric) tile).onNeighbourChange( neighbour );
+        if( tile instanceof TileGeneric ) ((TileGeneric) tile).onNeighbourChange( neighbourPos );
     }
 
     @Override
@@ -91,11 +91,7 @@ public abstract class BlockGeneric extends Block implements ITileEntityProvider
     public final int getStrongPower( IBlockState state, IBlockAccess world, BlockPos pos, EnumFacing oppositeSide )
     {
         TileEntity tile = world.getTileEntity( pos );
-        if( tile instanceof TileGeneric && tile.hasWorld() )
-        {
-            return ((TileGeneric) tile).getRedstoneOutput( oppositeSide.getOpposite() );
-        }
-        return 0;
+        return tile instanceof TileGeneric && tile.hasWorld() ? ((TileGeneric) tile).getRedstoneOutput( oppositeSide.getOpposite() ) : 0;
     }
 
     @Override
@@ -114,11 +110,7 @@ public abstract class BlockGeneric extends Block implements ITileEntityProvider
     public int getBundledRedstoneOutput( World world, BlockPos pos, EnumFacing side )
     {
         TileEntity tile = world.getTileEntity( pos );
-        if( tile instanceof TileGeneric && tile.hasWorld() )
-        {
-            return ((TileGeneric) tile).getBundledRedstoneOutput( side );
-        }
-        return 0;
+        return tile instanceof TileGeneric && tile.hasWorld() ? ((TileGeneric) tile).getBundledRedstoneOutput( side ) : 0;
     }
 
     @Nonnull

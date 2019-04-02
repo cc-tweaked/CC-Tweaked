@@ -40,14 +40,7 @@ public class ContainerTurtle extends Container implements IContainerComputer
         m_turtleInvStartX = turtleInvStartX;
 
         m_turtle = turtle;
-        if( !m_turtle.getWorld().isRemote )
-        {
-            m_selectedSlot = m_turtle.getSelectedSlot();
-        }
-        else
-        {
-            m_selectedSlot = 0;
-        }
+        m_selectedSlot = m_turtle.getWorld().isRemote ? 0 : m_turtle.getSelectedSlot();
 
         // Turtle inventory
         for( int y = 0; y < 4; y++ )
@@ -139,7 +132,7 @@ public class ContainerTurtle extends Container implements IContainerComputer
     }
 
     @Nonnull
-    protected ItemStack tryItemMerge( EntityPlayer player, int slotNum, int firstSlot, int lastSlot, boolean reverse )
+    private ItemStack tryItemMerge( EntityPlayer player, int slotNum, int firstSlot, int lastSlot, boolean reverse )
     {
         Slot slot = inventorySlots.get( slotNum );
         ItemStack originalStack = ItemStack.EMPTY;

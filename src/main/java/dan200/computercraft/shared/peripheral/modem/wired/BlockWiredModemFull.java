@@ -21,15 +21,8 @@ import javax.annotation.Nonnull;
 
 public class BlockWiredModemFull extends BlockGeneric
 {
-    // Statics
-
-    public static final class Properties
-    {
-        public static final PropertyBool MODEM_ON = PropertyBool.create( "modem" );
-        public static final PropertyBool PERIPHERAL_ON = PropertyBool.create( "peripheral" );
-    }
-
-    // Members
+    private static final PropertyBool MODEM_ON = PropertyBool.create( "modem" );
+    private static final PropertyBool PERIPHERAL_ON = PropertyBool.create( "peripheral" );
 
     public BlockWiredModemFull()
     {
@@ -38,8 +31,8 @@ public class BlockWiredModemFull extends BlockGeneric
         setTranslationKey( "computercraft:wired_modem_full" );
         setCreativeTab( ComputerCraft.mainCreativeTab );
         setDefaultState( blockState.getBaseState()
-            .withProperty( Properties.MODEM_ON, false )
-            .withProperty( Properties.PERIPHERAL_ON, false )
+            .withProperty( MODEM_ON, false )
+            .withProperty( PERIPHERAL_ON, false )
         );
     }
 
@@ -48,8 +41,8 @@ public class BlockWiredModemFull extends BlockGeneric
     protected BlockStateContainer createBlockState()
     {
         return new BlockStateContainer( this,
-            Properties.MODEM_ON,
-            Properties.PERIPHERAL_ON
+            MODEM_ON,
+            PERIPHERAL_ON
         );
     }
 
@@ -70,8 +63,8 @@ public class BlockWiredModemFull extends BlockGeneric
             TileWiredModemFull modem = (TileWiredModemFull) te;
             int anim = modem.getState();
             state = state
-                .withProperty( Properties.MODEM_ON, (anim & 1) != 0 )
-                .withProperty( Properties.PERIPHERAL_ON, (anim & 2) != 0 );
+                .withProperty( MODEM_ON, (anim & 1) != 0 )
+                .withProperty( PERIPHERAL_ON, (anim & 2) != 0 );
         }
 
         return state;

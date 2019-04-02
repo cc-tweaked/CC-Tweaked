@@ -475,5 +475,5 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
     private static final IItemPropertyGetter COMPUTER_STATE = ( stack, world, player ) -> getState( stack ).ordinal();
 
     private static final IItemPropertyGetter COMPUTER_COLOURED = ( stack, world, player ) ->
-        ((ItemPocketComputer) stack.getItem()).getColour( stack ) != -1 ? 1 : 0;
+        IColouredItem.getColourBasic( stack ) != -1 ? 1 : 0;
 }

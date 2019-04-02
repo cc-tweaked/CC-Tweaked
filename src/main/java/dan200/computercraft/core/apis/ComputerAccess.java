@@ -25,17 +25,17 @@ public abstract class ComputerAccess implements IComputerAccess
     private final IAPIEnvironment m_environment;
     private final Set<String> m_mounts = new HashSet<>();
 
-    protected ComputerAccess( IAPIEnvironment m_environment )
+    protected ComputerAccess( IAPIEnvironment environment )
     {
-        this.m_environment = m_environment;
+        this.m_environment = environment;
     }
 
     public void unmountAll()
     {
         FileSystem fileSystem = m_environment.getFileSystem();
-        for( String m_mount : m_mounts )
+        for( String mount : m_mounts )
         {
-            fileSystem.unmount( m_mount );
+            fileSystem.unmount( mount );
         }
         m_mounts.clear();
     }

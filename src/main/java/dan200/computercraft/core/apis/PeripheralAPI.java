@@ -228,9 +228,9 @@ public class PeripheralAPI implements ILuaAPI, IAPIEnvironment.IPeripheralChange
     private final PeripheralWrapper[] m_peripherals;
     private boolean m_running;
 
-    public PeripheralAPI( IAPIEnvironment _environment )
+    public PeripheralAPI( IAPIEnvironment environment )
     {
-        m_environment = _environment;
+        m_environment = environment;
         m_environment.setPeripheralChangeListener( this );
 
         m_peripherals = new PeripheralWrapper[6];

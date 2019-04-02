@@ -130,7 +130,6 @@ public abstract class TileGeneric extends TileEntity
     @Override
     public final SPacketUpdateTileEntity getUpdatePacket()
     {
-        // Communicate properties
         NBTTagCompound nbt = new NBTTagCompound();
         writeDescription( nbt );
         return new SPacketUpdateTileEntity( getPos(), 0, nbt );

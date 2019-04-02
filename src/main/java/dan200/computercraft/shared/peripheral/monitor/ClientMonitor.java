@@ -9,6 +9,8 @@ package dan200.computercraft.shared.peripheral.monitor;
 import dan200.computercraft.shared.common.ClientTerminal;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.math.BlockPos;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 import java.util.HashSet;
 import java.util.Iterator;
@@ -35,6 +37,7 @@ public class ClientMonitor extends ClientTerminal
         return origin;
     }
 
+    @SideOnly( Side.CLIENT )
     public void createLists()
     {
         if( renderDisplayLists == null )
@@ -53,6 +56,7 @@ public class ClientMonitor extends ClientTerminal
         }
     }
 
+    @SideOnly( Side.CLIENT )
     public void destroy()
     {
         if( renderDisplayLists != null )
@@ -71,6 +75,7 @@ public class ClientMonitor extends ClientTerminal
         }
     }
 
+    @SideOnly( Side.CLIENT )
     public static void destroyAll()
     {
         synchronized( allMonitors )

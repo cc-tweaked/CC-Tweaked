@@ -123,8 +123,7 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
     @Override
     public void updateUpgradeNBTData()
     {
-        InventoryPlayer inventory = m_entity instanceof EntityPlayer ? ((EntityPlayer) m_entity).inventory : null;
-        if( inventory != null ) inventory.markDirty();
+        if( m_entity instanceof EntityPlayer ) ((EntityPlayer) m_entity).inventory.markDirty();
     }
 
     @Override
@@ -160,7 +159,7 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
         synchronized( this )
         {
             ItemPocketComputer.setUpgrade( m_stack, upgrade );
-            if( m_entity instanceof EntityPlayer ) ((EntityPlayer) m_entity).inventory.markDirty();
+            updateUpgradeNBTData();
 
             m_upgrade = upgrade;
             invalidatePeripheral();

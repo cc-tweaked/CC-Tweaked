@@ -31,7 +31,7 @@ public class ComputerFamilyRecipe extends ComputerConvertRecipe
 
     @Nonnull
     @Override
-    protected ItemStack convert( IComputerItem item, @Nonnull ItemStack stack )
+    protected ItemStack convert( @Nonnull IComputerItem item, @Nonnull ItemStack stack )
     {
         return item.withFamily( stack, family );
     }

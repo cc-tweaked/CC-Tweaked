@@ -29,11 +29,8 @@ import javax.annotation.Nonnull;
 
 public class BlockAdvancedModem extends BlockGeneric
 {
-    public static final class Properties
-    {
-        public static final PropertyDirection FACING = BlockDirectional.FACING;
-        public static final PropertyBool ON = PropertyBool.create( "on" );
-    }
+    public static final PropertyDirection FACING = BlockDirectional.FACING;
+    private static final PropertyBool ON = PropertyBool.create( "on" );
 
     public BlockAdvancedModem()
     {
@@ -42,8 +39,8 @@ public class BlockAdvancedModem extends BlockGeneric
         setTranslationKey( "computercraft:advanced_modem" );
         setCreativeTab( ComputerCraft.mainCreativeTab );
         setDefaultState( blockState.getBaseState()
-            .withProperty( Properties.FACING, EnumFacing.NORTH )
-            .withProperty( Properties.ON, false )
+            .withProperty( FACING, EnumFacing.NORTH )
+            .withProperty( ON, false )
         );
     }
 
@@ -51,7 +48,7 @@ public class BlockAdvancedModem extends BlockGeneric
     @Override
     protected BlockStateContainer createBlockState()
     {
-        return new BlockStateContainer( this, Properties.FACING, Properties.ON );
+        return new BlockStateContainer( this, FACING, ON );
     }
 
     @Nonnull
@@ -59,13 +56,13 @@ public class BlockAdvancedModem extends BlockGeneric
     @Deprecated
     public IBlockState getStateFromMeta( int meta )
     {
-        return getDefaultState().withProperty( Properties.FACING, EnumFacing.byIndex( meta ) );
+        return getDefaultState().withProperty( FACING, EnumFacing.byIndex( meta ) );
     }
 
     @Override
     public int getMetaFromState( IBlockState state )
     {
-        return state.getValue( Properties.FACING ).getIndex();
+        return state.getValue( FACING ).getIndex();
     }
 
     @Nonnull
@@ -74,7 +71,7 @@ public class BlockAdvancedModem extends BlockGeneric
     public IBlockState getActualState( @Nonnull IBlockState state, IBlockAccess world, BlockPos pos )
     {
         TileEntity tile = world.getTileEntity( pos );
-        return state.withProperty( Properties.ON, tile instanceof TileAdvancedModem && ((TileAdvancedModem) tile).isOn() );
+        return state.withProperty( ON, tile instanceof TileAdvancedModem && ((TileAdvancedModem) tile).isOn() );
     }
 
     @Nonnull
@@ -82,7 +79,7 @@ public class BlockAdvancedModem extends BlockGeneric
     @Deprecated
     public IBlockState getStateForPlacement( World worldIn, BlockPos pos, EnumFacing facing, float hitX, float hitY, float hitZ, int meta, EntityLivingBase placer )
     {
-        return getDefaultState().withProperty( Properties.FACING, facing.getOpposite() );
+        return getDefaultState().withProperty( FACING, facing.getOpposite() );
     }
 
     @Override
@@ -124,6 +121,6 @@ public class BlockAdvancedModem extends BlockGeneric
     @Deprecated
     public AxisAlignedBB getBoundingBox( IBlockState state, IBlockAccess source, BlockPos pos )
     {
-        return ModemBounds.getBounds( state.getValue( Properties.FACING ) );
+        return ModemBounds.getBounds( state.getValue( FACING ) );
     }
 }

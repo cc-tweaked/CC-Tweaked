@@ -61,11 +61,11 @@ public class TileEntityCableRenderer extends TileEntitySpecialRenderer<TileCable
         state = state.getActualState( world, pos );
         if( te.getPeripheralType() != PeripheralType.Cable && WorldUtil.isVecInsideInclusive( CableBounds.getModemBounds( state ), hit.hitVec.subtract( pos.getX(), pos.getY(), pos.getZ() ) ) )
         {
-            state = block.getDefaultState().withProperty( BlockCable.Properties.MODEM, state.getValue( BlockCable.Properties.MODEM ) );
+            state = block.getDefaultState().withProperty( BlockCable.MODEM, state.getValue( BlockCable.MODEM ) );
         }
         else
         {
-            state = state.withProperty( BlockCable.Properties.MODEM, BlockCableModemVariant.None );
+            state = state.withProperty( BlockCable.MODEM, BlockCableModemVariant.None );
         }
 
         IBakedModel model = mc.getBlockRendererDispatcher().getModelForState( state );

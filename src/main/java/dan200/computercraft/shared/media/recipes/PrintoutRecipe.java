@@ -46,9 +46,9 @@ public class PrintoutRecipe extends IForgeRegistryEntry.Impl<IRecipe> implements
     }
 
     @Override
-    public boolean matches( @Nonnull InventoryCrafting _inventory, @Nonnull World world )
+    public boolean matches( @Nonnull InventoryCrafting inventory, @Nonnull World world )
     {
-        return !getCraftingResult( _inventory ).isEmpty();
+        return !getCraftingResult( inventory ).isEmpty();
     }
 
     @Nonnull

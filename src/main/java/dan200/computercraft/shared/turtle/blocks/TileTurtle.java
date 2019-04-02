@@ -290,8 +290,6 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
     @Override
     public NBTTagCompound writeToNBT( NBTTagCompound nbt )
     {
-        nbt = super.writeToNBT( nbt );
-
         // Write inventory
         NBTTagList nbttaglist = new NBTTagList();
         for( int i = 0; i < INVENTORY_SIZE; i++ )
@@ -309,7 +307,7 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
         // Write brain
         nbt = m_brain.writeToNBT( nbt );
 
-        return nbt;
+        return super.writeToNBT( nbt );
     }
 
     @Override
@@ -545,14 +543,14 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
     // Networking stuff
 
     @Override
-    public void writeDescription( @Nonnull NBTTagCompound nbt )
+    protected void writeDescription( @Nonnull NBTTagCompound nbt )
     {
         super.writeDescription( nbt );
         m_brain.writeDescription( nbt );
     }
 
     @Override
-    public void readDescription( @Nonnull NBTTagCompound nbt )
+    protected void readDescription( @Nonnull NBTTagCompound nbt )
     {
         super.readDescription( nbt );
         m_brain.readDescription( nbt );

@@ -4,14 +4,18 @@
  * Send enquiries to dratcliffe@gmail.com
  */
 
-package dan200.computercraft.shared.pocket.peripherals;
+package dan200.computercraft.api.pocket;
 
-import dan200.computercraft.api.pocket.IPocketUpgrade;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 
 import javax.annotation.Nonnull;
 
+/**
+ * A base class for {@link IPocketUpgrade}s.
+ *
+ * One does not have to use this, but it does provide a convenient template.
+ */
 public abstract class AbstractPocketUpgrade implements IPocketUpgrade
 {
     private final ResourceLocation id;

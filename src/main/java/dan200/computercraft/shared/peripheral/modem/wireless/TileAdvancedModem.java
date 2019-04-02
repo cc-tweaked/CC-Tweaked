@@ -18,6 +18,6 @@ public class TileAdvancedModem extends TileWirelessModemBase
     @Override
     protected EnumFacing getDirection()
     {
-        return getBlockState().getValue( BlockAdvancedModem.Properties.FACING );
+        return getBlockState().getValue( BlockAdvancedModem.FACING );
     }
 }

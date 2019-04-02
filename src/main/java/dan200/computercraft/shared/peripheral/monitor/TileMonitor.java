@@ -45,7 +45,7 @@ public class TileMonitor extends TileGeneric implements ITilePeripheral, IPeriph
     private final Set<IComputerAccess> m_computers = Collections.newSetFromMap( new ConcurrentHashMap<>() );
 
     private boolean m_destroyed = false;
-    private boolean m_ignoreMe = false;
+    private boolean visiting = false;
 
     private int m_width = 1;
     private int m_height = 1;
@@ -60,7 +60,7 @@ public class TileMonitor extends TileGeneric implements ITilePeripheral, IPeriph
     public void onLoad()
     {
         super.onLoad();
-        m_advanced = getBlockState().getValue( BlockPeripheral.Properties.VARIANT )
+        m_advanced = getBlockState().getValue( BlockPeripheral.VARIANT )
             .getPeripheralType() == PeripheralType.AdvancedMonitor;
         world.scheduleUpdate( getPos(), getBlockType(), 0 );
     }
@@ -68,14 +68,10 @@ public class TileMonitor extends TileGeneric implements ITilePeripheral, IPeriph
     @Override
     public void destroy()
     {
-        if( !m_destroyed )
-        {
-            m_destroyed = true;
-            if( !getWorld().isRemote )
-            {
-                contractNeighbours();
-            }
-        }
+        if( m_destroyed ) return;
+
+        m_destroyed = true;
+        if( !getWorld().isRemote ) contractNeighbours();
     }
 
     @Override
@@ -97,12 +93,10 @@ public class TileMonitor extends TileGeneric implements ITilePeripheral, IPeriph
     {
         if( !player.isSneaking() && getFront() == side )
         {
-            if( !getWorld().isRemote )
-            {
-                monitorTouched( hitX, hitY, hitZ );
-            }
+            if( !getWorld().isRemote ) monitorTouched( hitX, hitY, hitZ );
             return true;
         }
+
         return false;
     }
 
@@ -110,13 +104,12 @@ public class TileMonitor extends TileGeneric implements ITilePeripheral, IPeriph
     @Override
     public NBTTagCompound writeToNBT( NBTTagCompound nbt )
     {
-        nbt = super.writeToNBT( nbt );
         nbt.setInteger( "xIndex", m_xIndex );
         nbt.setInteger( "yIndex", m_yIndex );
         nbt.setInteger( "width", m_width );
         nbt.setInteger( "height", m_height );
         nbt.setInteger( "dir", m_dir );
-        return nbt;
+        return super.writeToNBT( nbt );
     }
 
     @Override
@@ -193,11 +186,9 @@ public class TileMonitor extends TileGeneric implements ITilePeripheral, IPeriph
 
     private ServerMonitor createServerMonitor()
     {
-        if( m_serverMonitor != null )
-        {
-            return m_serverMonitor;
-        }
-        else if( m_xIndex == 0 && m_yIndex == 0 )
+        if( m_serverMonitor != null ) return m_serverMonitor;
+
+        if( m_xIndex == 0 && m_yIndex == 0 )
         {
             // If we're the origin, set up the new monitor
             m_serverMonitor = new ServerMonitor( m_advanced, this );
@@ -241,7 +232,7 @@ public class TileMonitor extends TileGeneric implements ITilePeripheral, IPeriph
     // Networking stuff
 
     @Override
-    public void writeDescription( @Nonnull NBTTagCompound nbt )
+    protected void writeDescription( @Nonnull NBTTagCompound nbt )
     {
         super.writeDescription( nbt );
         nbt.setInteger( "xIndex", m_xIndex );
@@ -257,7 +248,7 @@ public class TileMonitor extends TileGeneric implements ITilePeripheral, IPeriph
     }
 
     @Override
-    public final void readDescription( @Nonnull NBTTagCompound nbt )
+    protected final void readDescription( @Nonnull NBTTagCompound nbt )
     {
         super.readDescription( nbt );
 
@@ -408,8 +399,8 @@ public class TileMonitor extends TileGeneric implements ITilePeripheral, IPeriph
         if( !(tile instanceof TileMonitor) ) return null;
 
         TileMonitor monitor = (TileMonitor) tile;
-        return monitor.getDir() == getDir() && monitor.m_advanced == m_advanced &&
-            !monitor.m_destroyed && !monitor.m_ignoreMe ? monitor : null;
+        return !monitor.visiting && monitor.getDir() == getDir() && monitor.m_advanced == m_advanced &&
+            !monitor.m_destroyed ? monitor : null;
     }
 
     private TileMonitor getNeighbour( int x, int y )
@@ -550,7 +541,7 @@ public class TileMonitor extends TileGeneric implements ITilePeripheral, IPeriph
 
     public void contractNeighbours()
     {
-        m_ignoreMe = true;
+        visiting = true;
         if( m_xIndex > 0 )
         {
             TileMonitor left = getNeighbour( m_xIndex - 1, m_yIndex );
@@ -571,7 +562,7 @@ public class TileMonitor extends TileGeneric implements ITilePeripheral, IPeriph
             TileMonitor above = getNeighbour( m_xIndex, m_yIndex + 1 );
             if( above != null ) above.contract();
         }
-        m_ignoreMe = false;
+        visiting = false;
     }
 
     public void contract()

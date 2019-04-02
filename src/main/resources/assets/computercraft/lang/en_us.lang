@@ -1,3 +1,5 @@
+itemGroup.computercraft=CC: Tweaked
+
 tile.computercraft:computer.name=Computer
 tile.computercraft:advanced_computer.name=Advanced Computer
 tile.computercraft:drive.name=Disk Drive

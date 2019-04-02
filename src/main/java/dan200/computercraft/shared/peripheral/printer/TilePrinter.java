@@ -51,21 +51,13 @@ public class TilePrinter extends TilePeripheralBase implements DefaultSidedInven
 
     // Members
 
-    private final NonNullList<ItemStack> m_inventory;
+    private final NonNullList<ItemStack> m_inventory = NonNullList.withSize( 13, ItemStack.EMPTY );
     private final IItemHandlerModifiable m_itemHandlerAll = new InvWrapper( this );
     private IItemHandlerModifiable[] m_itemHandlerSides;
 
-    private final Terminal m_page;
-    private String m_pageTitle;
-    private boolean m_printing;
-
-    public TilePrinter()
-    {
-        m_inventory = NonNullList.withSize( 13, ItemStack.EMPTY );
-        m_page = new Terminal( ItemPrintout.LINE_MAX_LENGTH, ItemPrintout.LINES_PER_PAGE );
-        m_pageTitle = "";
-        m_printing = false;
-    }
+    private final Terminal m_page = new Terminal( ItemPrintout.LINE_MAX_LENGTH, ItemPrintout.LINES_PER_PAGE );
+    private String m_pageTitle = "";
+    private boolean m_printing = false;
 
     @Override
     public void destroy()
@@ -76,15 +68,10 @@ public class TilePrinter extends TilePeripheralBase implements DefaultSidedInven
     @Override
     public boolean onActivate( EntityPlayer player, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ )
     {
-        if( !player.isSneaking() )
-        {
-            if( !getWorld().isRemote )
-            {
-                Containers.openPrinterGUI( player, this );
-            }
-            return true;
-        }
-        return false;
+        if( player.isSneaking() ) return false;
+
+        if( !getWorld().isRemote ) Containers.openPrinterGUI( player, this );
+        return true;
     }
 
     @Override
@@ -108,7 +95,7 @@ public class TilePrinter extends TilePeripheralBase implements DefaultSidedInven
             {
                 NBTTagCompound itemTag = nbttaglist.getCompoundTagAt( i );
                 int j = itemTag.getByte( "Slot" ) & 0xff;
-                if( j >= 0 && j < m_inventory.size() )
+                if( j < m_inventory.size() )
                 {
                     m_inventory.set( j, new ItemStack( itemTag ) );
                 }
@@ -120,8 +107,6 @@ public class TilePrinter extends TilePeripheralBase implements DefaultSidedInven
     @Override
     public NBTTagCompound writeToNBT( NBTTagCompound nbt )
     {
-        nbt = super.writeToNBT( nbt );
-
         // Write page
         synchronized( m_page )
         {
@@ -147,7 +132,7 @@ public class TilePrinter extends TilePeripheralBase implements DefaultSidedInven
             nbt.setTag( "Items", nbttaglist );
         }
 
-        return nbt;
+        return super.writeToNBT( nbt );
     }
 
     @Override
@@ -314,12 +299,12 @@ public class TilePrinter extends TilePeripheralBase implements DefaultSidedInven
     {
         switch( side )
         {
-            case DOWN:
-                return bottomSlots;    // Bottom (Out tray)
-            case UP:
-                return topSlots; // Top (In tray)
-            default:
-                return sideSlots;     // Sides (Ink)
+            case DOWN: // Bottom (Out tray)
+                return bottomSlots;
+            case UP: // Top (In tray)
+                return topSlots;
+            default: // Sides (Ink)
+                return sideSlots;
         }
     }
 
@@ -333,11 +318,7 @@ public class TilePrinter extends TilePeripheralBase implements DefaultSidedInven
 
     public Terminal getCurrentPage()
     {
-        if( m_printing )
-        {
-            return m_page;
-        }
-        return null;
+        return m_printing ? m_page : null;
     }
 
     public boolean startNewPage()
@@ -430,14 +411,7 @@ public class TilePrinter extends TilePeripheralBase implements DefaultSidedInven
                 {
                     // Setup the new page
                     int colour = inkStack.getItemDamage();
-                    if( colour >= 0 && colour < 16 )
-                    {
-                        m_page.setTextColour( 15 - colour );
-                    }
-                    else
-                    {
-                        m_page.setTextColour( 15 );
-                    }
+                    m_page.setTextColour( colour >= 0 && colour < 16 ? 15 - colour : 15 );
 
                     m_page.clear();
                     if( paperStack.getItem() instanceof ItemPrintout )

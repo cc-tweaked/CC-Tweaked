@@ -107,9 +107,9 @@ public class ItemTurtleNormal extends ItemTurtleBase
         NBTTagCompound nbt = stack.getTagCompound();
         if( nbt != null && nbt.hasKey( "overlay_mod" ) && nbt.hasKey( "overlay_path" ) )
         {
-            String overlay_mod = nbt.getString( "overlay_mod" );
-            String overlay_path = nbt.getString( "overlay_path" );
-            return new ResourceLocation( overlay_mod, overlay_path );
+            String overlayMod = nbt.getString( "overlay_mod" );
+            String overlayPath = nbt.getString( "overlay_path" );
+            return new ResourceLocation( overlayMod, overlayPath );
         }
         return null;
     }

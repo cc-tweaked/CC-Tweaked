@@ -9,6 +9,7 @@ package dan200.computercraft.shared.computer.blocks;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.items.ComputerItemFactory;
+import net.minecraft.block.BlockHorizontal;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.PropertyBool;
 import net.minecraft.block.properties.PropertyDirection;
@@ -28,7 +29,7 @@ public class BlockComputer extends BlockComputerBase
     // Statics
     public static final class Properties
     {
-        public static final PropertyDirection FACING = PropertyDirection.create( "facing", EnumFacing.Plane.HORIZONTAL );
+        public static final PropertyDirection FACING = BlockHorizontal.FACING;
         public static final PropertyBool ADVANCED = PropertyBool.create( "advanced" );
         public static final PropertyEnum<ComputerState> STATE = PropertyEnum.create( "state", ComputerState.class );
     }

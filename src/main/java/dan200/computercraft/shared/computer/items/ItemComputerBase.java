@@ -47,26 +47,16 @@ public abstract class ItemComputerBase extends ItemBlock implements IComputerIte
         }
     }
 
-    // IComputerItem implementation
-
-    @Override
-    public abstract int getComputerID( @Nonnull ItemStack stack );
-
     @Override
     public String getLabel( @Nonnull ItemStack stack )
     {
-        if( stack.hasDisplayName() )
-        {
-            return stack.getDisplayName();
-        }
-        return null;
+        return IComputerItem.super.getLabel( stack );
     }
 
     @Override
     public final ComputerFamily getFamily( @Nonnull ItemStack stack )
     {
-        int damage = stack.getItemDamage();
-        return getFamily( damage );
+        return getFamily( stack.getItemDamage() );
     }
 
     // IMedia implementation

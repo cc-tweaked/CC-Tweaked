@@ -78,11 +78,7 @@ public class ColourableRecipe extends IForgeRegistryEntry.Impl<IRecipe> implemen
             }
         }
 
-        if( colourable.isEmpty() )
-        {
-            return ItemStack.EMPTY;
-        }
-
+        if( colourable.isEmpty() ) return ItemStack.EMPTY;
         return ((IColouredItem) colourable.getItem()).withColour( colourable, tracker.getColour() );
     }
 

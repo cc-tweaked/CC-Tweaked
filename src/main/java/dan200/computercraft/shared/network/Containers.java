@@ -149,7 +149,7 @@ public final class Containers implements IGuiHandler
                 break;
             }
             case PRINTOUT:
-                return new ContainerHeldItem( player, x == 0 ? EnumHand.MAIN_HAND : EnumHand.MAIN_HAND );
+                return new ContainerHeldItem( player, x == 0 ? EnumHand.MAIN_HAND : EnumHand.OFF_HAND );
             case POCKET_COMPUTER:
                 return new ContainerPocketComputer( player, x == 0 ? EnumHand.MAIN_HAND : EnumHand.OFF_HAND );
             case VIEW_COMPUTER:

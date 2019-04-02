@@ -1290,12 +1290,12 @@
       <option name="m_ignoreStaticMethods" value="true" />
     </inspection_tool>
     <inspection_tool class="LocalVariableName" enabled="true" level="WEAK WARNING" enabled_by_default="true" />
-    <inspection_tool class="LocalVariableNamingConvention" enabled="false" level="WARNING" enabled_by_default="false">
+    <inspection_tool class="LocalVariableNamingConvention" enabled="true" level="ERROR" enabled_by_default="true">
       <option name="m_ignoreForLoopParameters" value="false" />
       <option name="m_ignoreCatchParameters" value="false" />
       <option name="m_regex" value="[a-z][A-Za-z\d]*" />
       <option name="m_minLength" value="1" />
-      <option name="m_maxLength" value="20" />
+      <option name="m_maxLength" value="50" />
     </inspection_tool>
     <inspection_tool class="LocalVariableNamingConventionJS" enabled="false" level="WARNING" enabled_by_default="false">
       <option name="m_regex" value="[a-z][A-Za-z]*" />
@@ -1490,7 +1490,7 @@
     <inspection_tool class="NewExceptionWithoutArguments" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="NewGroovyClassNamingConvention" enabled="false" level="WARNING" enabled_by_default="false" />
     <inspection_tool class="NewInstanceOfSingleton" enabled="true" level="WARNING" enabled_by_default="true" />
-    <inspection_tool class="NewMethodNamingConvention" enabled="false" level="WARNING" enabled_by_default="false" />
+    <inspection_tool class="NewMethodNamingConvention" enabled="true" level="ERROR" enabled_by_default="true" />
     <inspection_tool class="NewObjectEquality" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="NewStringBufferWithCharArgument" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="NoButtonGroup" enabled="true" level="WARNING" enabled_by_default="true" />
@@ -1657,10 +1657,10 @@
       <option name="m_ignoreSingleCharacterNames" value="false" />
       <option name="m_ignoreOverridesOfLibraryMethods" value="false" />
     </inspection_tool>
-    <inspection_tool class="ParameterNamingConvention" enabled="false" level="WARNING" enabled_by_default="false">
+    <inspection_tool class="ParameterNamingConvention" enabled="true" level="ERROR" enabled_by_default="true">
       <option name="m_regex" value="[a-z][A-Za-z\d]*" />
       <option name="m_minLength" value="1" />
-      <option name="m_maxLength" value="20" />
+      <option name="m_maxLength" value="50" />
     </inspection_tool>
     <inspection_tool class="ParameterNamingConventionJS" enabled="false" level="WARNING" enabled_by_default="false">
       <option name="m_regex" value="[a-z][A-Za-z]*" />

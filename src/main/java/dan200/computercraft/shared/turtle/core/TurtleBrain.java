@@ -29,6 +29,7 @@ import net.minecraft.entity.MoverType;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.EntitySelectors;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.ResourceLocation;
@@ -160,11 +161,11 @@ public class TurtleBrain implements ITurtleAccess
         // Read overlay
         if( nbt.hasKey( "overlay_mod" ) )
         {
-            String overlay_mod = nbt.getString( "overlay_mod" );
+            String overlayMod = nbt.getString( "overlay_mod" );
             if( nbt.hasKey( "overlay_path" ) )
             {
-                String overlay_path = nbt.getString( "overlay_path" );
-                m_overlay = new ResourceLocation( overlay_mod, overlay_path );
+                String overlayPath = nbt.getString( "overlay_path" );
+                m_overlay = new ResourceLocation( overlayMod, overlayPath );
             }
             else
             {
@@ -336,9 +337,9 @@ public class TurtleBrain implements ITurtleAccess
         // Overlay
         if( nbt.hasKey( "overlay_mod" ) && nbt.hasKey( "overlay_path" ) )
         {
-            String overlay_mod = nbt.getString( "overlay_mod" );
-            String overlay_path = nbt.getString( "overlay_path" );
-            m_overlay = new ResourceLocation( overlay_mod, overlay_path );
+            String overlayMod = nbt.getString( "overlay_mod" );
+            String overlayPath = nbt.getString( "overlay_path" );
+            m_overlay = new ResourceLocation( overlayMod, overlayPath );
         }
         else
         {
@@ -988,7 +989,7 @@ public class TurtleBrain implements ITurtleAccess
                     }
 
                     AxisAlignedBB aabb = new AxisAlignedBB( minX, minY, minZ, maxX, maxY, maxZ );
-                    List<Entity> list = world.getEntitiesWithinAABBExcludingEntity( null, aabb );
+                    List<Entity> list = world.getEntitiesWithinAABB( Entity.class, aabb, EntitySelectors.NOT_SPECTATING );
                     if( !list.isEmpty() )
                     {
                         double pushStep = 1.0f / ANIM_DURATION;

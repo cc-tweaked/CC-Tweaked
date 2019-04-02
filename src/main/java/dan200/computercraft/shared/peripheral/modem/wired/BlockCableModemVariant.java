@@ -10,6 +10,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.IStringSerializable;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public enum BlockCableModemVariant implements IStringSerializable
 {
@@ -39,25 +40,7 @@ public enum BlockCableModemVariant implements IStringSerializable
     WestOnPeripheral( "west_on_peripheral", EnumFacing.WEST ),
     EastOnPeripheral( "east_on_peripheral", EnumFacing.EAST );
 
-    public static BlockCableModemVariant fromFacing( EnumFacing facing )
-    {
-        switch( facing )
-        {
-            case DOWN:
-                return DownOff;
-            case UP:
-                return UpOff;
-            case NORTH:
-                return NorthOff;
-            case SOUTH:
-                return SouthOff;
-            case WEST:
-                return WestOff;
-            case EAST:
-                return EastOff;
-        }
-        return NorthOff;
-    }
+    private static final BlockCableModemVariant[] VALUES = values();
 
     private final String name;
     private final EnumFacing facing;
@@ -66,6 +49,19 @@ public enum BlockCableModemVariant implements IStringSerializable
     {
         this.name = name;
         this.facing = facing;
+    }
+
+
+    @Nonnull
+    public static BlockCableModemVariant from( @Nullable EnumFacing facing )
+    {
+        return facing == null ? None : VALUES[1 + facing.getIndex()];
+    }
+
+    @Nonnull
+    public static BlockCableModemVariant from( @Nullable EnumFacing facing, int state )
+    {
+        return facing == null ? None : VALUES[1 + 6 * state + facing.ordinal()];
     }
 
     @Nonnull

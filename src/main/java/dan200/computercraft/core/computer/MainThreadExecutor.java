@@ -26,8 +26,8 @@ import java.util.concurrent.TimeUnit;
  * the executor goes through three stages:
  *
  * When {@link State#COOL}, the computer is allocated {@link ComputerCraft#maxMainComputerTime}ns to execute any work
- * this tick. At the beginning of the tick, we execute as many {@link MainThread} tasks as possible, until our timeframe
- * or the global time frame has expired.
+ * this tick. At the beginning of the tick, we execute as many {@link MainThread} tasks as possible, until our
+ * time-frame or the global time frame has expired.
  *
  * Then, when other objects (such as {@link TileEntity}) are ticked, we update how much time we've used using
  * {@link IWorkMonitor#trackWork(long, TimeUnit)}.

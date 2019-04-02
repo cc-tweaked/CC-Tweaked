@@ -8,7 +8,6 @@ package dan200.computercraft.shared.util;
 
 import dan200.computercraft.shared.BundledRedstone;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.init.Blocks;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -35,7 +34,7 @@ public final class RedstoneUtil
         IBlockState block = world.getBlockState( pos );
         BlockPos neighbourPos = pos.offset( side );
         IBlockState neighbour = world.getBlockState( neighbourPos );
-        if( neighbour.getBlock() != Blocks.AIR )
+        if( neighbour.getBlock().isAir( neighbour, world, neighbourPos ) )
         {
             world.neighborChanged( neighbourPos, block.getBlock(), pos );
             if( neighbour.getBlock().isNormalCube( neighbour, world, neighbourPos ) )

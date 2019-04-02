@@ -128,38 +128,27 @@ public abstract class TilePeripheralBase extends TileGeneric implements IPeriphe
     public NBTTagCompound writeToNBT( NBTTagCompound nbt )
     {
         // Write properties
-        nbt = super.writeToNBT( nbt );
         nbt.setInteger( "dir", m_dir.getIndex() );
         nbt.setInteger( "anim", m_anim );
         if( m_label != null ) nbt.setString( "label", m_label );
-        return nbt;
+        return super.writeToNBT( nbt );
     }
 
     @Override
-    public void readDescription( @Nonnull NBTTagCompound nbt )
+    protected void readDescription( @Nonnull NBTTagCompound nbt )
     {
         super.readDescription( nbt );
         m_dir = EnumFacing.byIndex( nbt.getInteger( "dir" ) );
         m_anim = nbt.getInteger( "anim" );
-        if( nbt.hasKey( "label" ) )
-        {
-            m_label = nbt.getString( "label" );
-        }
-        else
-        {
-            m_label = null;
-        }
+        m_label = nbt.hasKey( "label" ) ? nbt.getString( "label" ) : null;
     }
 
     @Override
-    public void writeDescription( @Nonnull NBTTagCompound nbt )
+    protected void writeDescription( @Nonnull NBTTagCompound nbt )
     {
         super.writeDescription( nbt );
         nbt.setInteger( "dir", m_dir.getIndex() );
         nbt.setInteger( "anim", m_anim );
-        if( m_label != null )
-        {
-            nbt.setString( "label", m_label );
-        }
+        if( m_label != null ) nbt.setString( "label", m_label );
     }
 }

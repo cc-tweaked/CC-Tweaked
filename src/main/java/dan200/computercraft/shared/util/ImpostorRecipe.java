@@ -48,7 +48,7 @@ public class ImpostorRecipe extends ShapedRecipes
 
     @Nonnull
     @Override
-    public ItemStack getCraftingResult( @Nonnull InventoryCrafting _inventory )
+    public ItemStack getCraftingResult( @Nonnull InventoryCrafting inventory )
     {
         return ItemStack.EMPTY;
     }

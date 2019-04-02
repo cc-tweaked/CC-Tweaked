@@ -28,10 +28,10 @@ public class ComputerSystem extends ComputerAccess implements IComputerSystem
 {
     private final IAPIEnvironment m_environment;
 
-    ComputerSystem( IAPIEnvironment m_environment )
+    ComputerSystem( IAPIEnvironment environment )
     {
-        super( m_environment );
-        this.m_environment = m_environment;
+        super( environment );
+        this.m_environment = environment;
     }
 
     @Nonnull

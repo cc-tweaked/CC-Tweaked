@@ -7,6 +7,7 @@
 package dan200.computercraft.shared.pocket.peripherals;
 
 import dan200.computercraft.api.peripheral.IPeripheral;
+import dan200.computercraft.api.pocket.AbstractPocketUpgrade;
 import dan200.computercraft.api.pocket.IPocketAccess;
 import dan200.computercraft.shared.peripheral.PeripheralType;
 import dan200.computercraft.shared.peripheral.common.PeripheralItemFactory;

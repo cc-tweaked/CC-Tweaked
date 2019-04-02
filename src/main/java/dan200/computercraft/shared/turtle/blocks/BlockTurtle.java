@@ -15,6 +15,7 @@ import dan200.computercraft.shared.turtle.core.TurtleBrain;
 import dan200.computercraft.shared.turtle.items.ITurtleItem;
 import dan200.computercraft.shared.turtle.items.TurtleItemFactory;
 import dan200.computercraft.shared.util.DirectionUtil;
+import net.minecraft.block.BlockHorizontal;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.PropertyDirection;
 import net.minecraft.block.state.BlockFaceShape;
@@ -39,14 +40,7 @@ import javax.annotation.Nonnull;
 
 public class BlockTurtle extends BlockComputerBase
 {
-    // Statics
-
-    public static final class Properties
-    {
-        public static final PropertyDirection FACING = PropertyDirection.create( "facing", EnumFacing.Plane.HORIZONTAL );
-    }
-
-    // Members
+    public static final PropertyDirection FACING = BlockHorizontal.FACING;
 
     public BlockTurtle()
     {
@@ -55,7 +49,7 @@ public class BlockTurtle extends BlockComputerBase
         setTranslationKey( "computercraft:turtle" );
         setCreativeTab( ComputerCraft.mainCreativeTab );
         setDefaultState( blockState.getBaseState()
-            .withProperty( Properties.FACING, EnumFacing.NORTH )
+            .withProperty( FACING, EnumFacing.NORTH )
         );
     }
 
@@ -93,7 +87,7 @@ public class BlockTurtle extends BlockComputerBase
     @Override
     protected BlockStateContainer createBlockState()
     {
-        return new BlockStateContainer( this, Properties.FACING );
+        return new BlockStateContainer( this, FACING );
     }
 
     @Nonnull
@@ -115,7 +109,7 @@ public class BlockTurtle extends BlockComputerBase
     @Deprecated
     public IBlockState getActualState( @Nonnull IBlockState state, IBlockAccess world, BlockPos pos )
     {
-        return state.withProperty( Properties.FACING, getDirection( world, pos ) );
+        return state.withProperty( FACING, getDirection( world, pos ) );
     }
 
     @Override

@@ -38,9 +38,9 @@ public class TileWiredModemFull extends TileGeneric implements IPeripheralTile
     {
         private final TileWiredModemFull m_entity;
 
-        private FullElement( TileWiredModemFull m_entity )
+        private FullElement( TileWiredModemFull entity )
         {
-            this.m_entity = m_entity;
+            m_entity = entity;
         }
 
         @Override
@@ -209,10 +209,9 @@ public class TileWiredModemFull extends TileGeneric implements IPeripheralTile
     @Override
     public NBTTagCompound writeToNBT( NBTTagCompound nbt )
     {
-        nbt = super.writeToNBT( nbt );
         nbt.setBoolean( "peripheralAccess", m_peripheralAccessAllowed );
         for( int i = 0; i < m_peripherals.length; i++ ) m_peripherals[i].writeNBT( nbt, "_" + i );
-        return nbt;
+        return super.writeToNBT( nbt );
     }
 
     public int getState()
@@ -257,23 +256,22 @@ public class TileWiredModemFull extends TileGeneric implements IPeripheralTile
     @Override
     protected void updateTick()
     {
-        if( !getWorld().isRemote )
+        if( getWorld().isRemote ) return;
+
+        if( m_modemState.pollChanged() ) updateState();
+
+        if( !m_connectionsFormed )
         {
-            if( m_modemState.pollChanged() ) updateState();
+            m_connectionsFormed = true;
 
-            if( !m_connectionsFormed )
+            connectionsChanged();
+            if( m_peripheralAccessAllowed )
             {
-                m_connectionsFormed = true;
-
-                connectionsChanged();
-                if( m_peripheralAccessAllowed )
+                for( EnumFacing facing : EnumFacing.VALUES )
                 {
-                    for( EnumFacing facing : EnumFacing.VALUES )
-                    {
-                        m_peripherals[facing.ordinal()].attach( world, getPos(), facing );
-                    }
-                    updateConnectedPeripherals();
+                    m_peripherals[facing.ordinal()].attach( world, getPos(), facing );
                 }
+                updateConnectedPeripherals();
             }
         }
     }
@@ -330,9 +328,9 @@ public class TileWiredModemFull extends TileGeneric implements IPeripheralTile
         if( !m_peripheralAccessAllowed ) return Collections.emptySet();
 
         Set<String> peripherals = new HashSet<>( 6 );
-        for( WiredModemLocalPeripheral m_peripheral : m_peripherals )
+        for( WiredModemLocalPeripheral peripheral : m_peripherals )
         {
-            String name = m_peripheral.getConnectedName();
+            String name = peripheral.getConnectedName();
             if( name != null ) peripherals.add( name );
         }
         return peripherals;
@@ -343,7 +341,7 @@ public class TileWiredModemFull extends TileGeneric implements IPeripheralTile
         if( !m_peripheralAccessAllowed ) return Collections.emptyMap();
 
         Map<String, IPeripheral> peripherals = new HashMap<>( 6 );
-        for( WiredModemLocalPeripheral m_peripheral : m_peripherals ) m_peripheral.extendMap( peripherals );
+        for( WiredModemLocalPeripheral peripheral : m_peripherals ) peripheral.extendMap( peripherals );
         return peripherals;
     }
 
