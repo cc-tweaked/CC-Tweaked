@@ -186,6 +186,7 @@ public class TilePrinter extends TilePeripheralBase implements DefaultSidedInven
         {
             ItemStack result = m_inventory.get( i );
             m_inventory.set( i, ItemStack.EMPTY );
+            markDirty();
             updateAnim();
             return result;
         }
@@ -197,10 +198,7 @@ public class TilePrinter extends TilePeripheralBase implements DefaultSidedInven
     {
         synchronized( m_inventory )
         {
-            if( m_inventory.get( i ).isEmpty() )
-            {
-                return ItemStack.EMPTY;
-            }
+            if( m_inventory.get( i ).isEmpty() ) return ItemStack.EMPTY;
 
             if( m_inventory.get( i ).getCount() <= j )
             {
@@ -238,10 +236,7 @@ public class TilePrinter extends TilePeripheralBase implements DefaultSidedInven
     {
         synchronized( m_inventory )
         {
-            for( int i = 0; i < m_inventory.size(); i++ )
-            {
-                m_inventory.set( i, ItemStack.EMPTY );
-            }
+            for( int i = 0; i < m_inventory.size(); i++ ) m_inventory.set( i, ItemStack.EMPTY );
             markDirty();
             updateAnim();
         }
@@ -432,10 +427,7 @@ public class TilePrinter extends TilePeripheralBase implements DefaultSidedInven
 
                     // Decrement ink
                     inkStack.shrink( 1 );
-                    if( inkStack.isEmpty() )
-                    {
-                        m_inventory.set( 0, ItemStack.EMPTY );
-                    }
+                    if( inkStack.isEmpty() ) m_inventory.set( 0, ItemStack.EMPTY );
 
                     // Decrement paper
                     paperStack.shrink( 1 );
@@ -474,7 +466,7 @@ public class TilePrinter extends TilePeripheralBase implements DefaultSidedInven
                 {
                     if( m_inventory.get( slot ).isEmpty() )
                     {
-                        m_inventory.set( slot, stack );
+                        setInventorySlotContents( slot, stack );
                         m_printing = false;
                         return true;
                     }
