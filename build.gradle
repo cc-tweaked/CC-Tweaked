@@ -230,7 +230,7 @@ curseforge {
     project {
         id = '282001'
         releaseType = 'release'
-        changelog = "Release notes can be found on the GitHub repository (https://github.com/SquidDev-CC/CC-Tweaked/releases/tag/v${project.version})."
+        changelog = "Release notes can be found on the GitHub repository (https://github.com/SquidDev-CC/CC-Tweaked/releases/tag/v${mc_version}-${mod_version})."
     }
 }
 
