@@ -46,8 +46,8 @@
     "upgrade.computercraft.wireless_modem_advanced.adjective": "ender",
     "upgrade.computercraft.speaker.adjective": "ruidosa",
 
-    "chat.computercraft.wired_modem.peripheral_connected": "El periférico "%s" se conectó a la red",
-    "chat.computercraft.wired_modem.peripheral_disconnected": "El periférico "%s" se desconectó de la red",
+    "chat.computercraft.wired_modem.peripheral_connected": "El periférico \"%s\" se conectó a la red",
+    "chat.computercraft.wired_modem.peripheral_disconnected": "El periférico \"%s\" se desconectó de la red",
 
     "gui.computercraft.config.computer_space_limit": "Límite de memoria de ordenadores (en bytes)",
     "gui.computercraft.config.floppy_space_limit": "Límite de memoria de disquetes (en bytes)",

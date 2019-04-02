@@ -46,11 +46,10 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
 
     @Nullable
     @Override
-    @Deprecated
     public Entity getEntity()
     {
         Entity entity = m_entity;
-        if( entity == null || m_stack == null || entity.removed ) return null;
+        if( entity == null || m_stack == null || !entity.isAlive() ) return null;
 
         if( entity instanceof EntityPlayer )
         {

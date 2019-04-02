@@ -268,16 +268,14 @@ task compressJson(dependsOn: jar) {
 
 assemble.dependsOn compressJson
 
-/*
 curseforge {
     apiKey = project.hasProperty('curseForgeApiKey') ? project.curseForgeApiKey : ''
     project {
         id = '282001'
-        releaseType = 'release'
-        changelog = "Release notes can be found on the GitHub repository (https://github.com/SquidDev-CC/CC-Tweaked/releases/tag/v${project.version})."
+        releaseType = 'beta'
+        changelog = "Release notes can be found on the GitHub repository (https://github.com/SquidDev-CC/CC-Tweaked/releases/tag/v${mc_version}-${mod_version})."
     }
 }
-*/
 
 publishing {
     publications {
