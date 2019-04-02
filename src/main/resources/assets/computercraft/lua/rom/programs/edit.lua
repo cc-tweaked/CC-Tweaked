@@ -329,7 +329,7 @@ local tMenuFuncs = {
                 printer.setPageTitle( sName.." (page "..nPage..")" )
             end
 
-            while not printer.newPage()    do
+            while not printer.newPage() do
                 if printer.getInkLevel() < 1 then
                     sStatus = "Printer out of ink, please refill"
                 elseif printer.getPaperLevel() < 1 then
@@ -342,7 +342,6 @@ local tMenuFuncs = {
                 redrawMenu()
                 term.redirect( printerTerminal )
 
-                local timer = os.startTimer(0.5)
                 sleep(0.5)
             end
 
