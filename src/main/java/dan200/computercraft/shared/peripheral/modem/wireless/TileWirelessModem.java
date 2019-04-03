@@ -8,30 +8,32 @@ package dan200.computercraft.shared.peripheral.modem.wireless;
 
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.peripheral.IPeripheral;
+import dan200.computercraft.api.peripheral.IPeripheralTile;
 import dan200.computercraft.shared.common.TileGeneric;
 import dan200.computercraft.shared.peripheral.modem.ModemPeripheral;
 import dan200.computercraft.shared.peripheral.modem.ModemState;
 import dan200.computercraft.shared.util.NamedBlockEntityType;
 import dan200.computercraft.shared.util.TickScheduler;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.entity.BlockEntityType;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
-public class TileWirelessModem extends TileGeneric
+public class TileWirelessModem extends TileGeneric implements IPeripheralTile
 {
     public static final NamedBlockEntityType<TileWirelessModem> FACTORY_NORMAL = NamedBlockEntityType.create(
-        new ResourceLocation( ComputerCraft.MOD_ID, "wireless_modem_normal" ),
+        new Identifier( ComputerCraft.MOD_ID, "wireless_modem_normal" ),
         f -> new TileWirelessModem( f, false )
     );
 
     public static final NamedBlockEntityType<TileWirelessModem> FACTORY_ADVANCED = NamedBlockEntityType.create(
-        new ResourceLocation( ComputerCraft.MOD_ID, "wireless_modem_advanced" ),
+        new Identifier( ComputerCraft.MOD_ID, "wireless_modem_advanced" ),
         f -> new TileWirelessModem( f, true )
     );
 
@@ -70,11 +72,11 @@ public class TileWirelessModem extends TileGeneric
     private final boolean advanced;
 
     private boolean hasModemDirection = false;
-    private EnumFacing modemDirection = EnumFacing.DOWN;
+    private Direction modemDirection = Direction.DOWN;
     private final ModemPeripheral modem;
     private boolean destroyed = false;
 
-    public TileWirelessModem( TileEntityType<? extends TileWirelessModem> type, boolean advanced )
+    public TileWirelessModem( BlockEntityType<? extends TileWirelessModem> type, boolean advanced )
     {
         super( type );
         this.advanced = advanced;
@@ -82,11 +84,10 @@ public class TileWirelessModem extends TileGeneric
     }
 
     @Override
-    public void onLoad()
+    public void validate()
     {
-        super.onLoad();
-        updateDirection();
-        world.getPendingBlockTicks().scheduleTick( getPos(), getBlockState().getBlock(), 0 );
+        super.validate();
+        TickScheduler.schedule( this );
     }
 
     @Override
@@ -114,11 +115,11 @@ public class TileWirelessModem extends TileGeneric
     }
 
     @Override
-    public void updateContainingBlockInfo()
+    public void resetBlock()
     {
-        super.updateContainingBlockInfo();
+        super.resetBlock();
         hasModemDirection = false;
-        world.getPendingBlockTicks().scheduleTick( getPos(), getBlockState().getBlock(), 0 );
+        world.getBlockTickScheduler().schedule( getPos(), getCachedState().getBlock(), 0 );
     }
 
     @Override
@@ -134,16 +135,24 @@ public class TileWirelessModem extends TileGeneric
         if( hasModemDirection ) return;
 
         hasModemDirection = true;
-        modemDirection = getBlockState().get( BlockWirelessModem.FACING );
+        modemDirection = getCachedState().get( BlockWirelessModem.FACING );
     }
 
     private void updateBlockState()
     {
         boolean on = modem.getModemState().isOpen();
-        IBlockState state = getBlockState();
+        BlockState state = getCachedState();
         if( state.get( BlockWirelessModem.ON ) != on )
         {
             getWorld().setBlockState( getPos(), state.with( BlockWirelessModem.ON, on ) );
         }
+    }
+
+    @Nullable
+    @Override
+    public IPeripheral getPeripheral( @Nonnull Direction side )
+    {
+        updateDirection();
+        return side == modemDirection ? modem : null;
     }
 }

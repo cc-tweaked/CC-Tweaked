@@ -6,29 +6,29 @@
 
 package dan200.computercraft.shared.command.text;
 
-import net.minecraft.command.CommandSource;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextComponentString;
+import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.text.StringTextComponent;
+import net.minecraft.text.TextComponent;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.Nullable;
 
 public class ServerTableFormatter implements TableFormatter
 {
-    private final CommandSource source;
+    private final ServerCommandSource source;
 
-    public ServerTableFormatter( CommandSource source )
+    public ServerTableFormatter( ServerCommandSource source )
     {
         this.source = source;
     }
 
     @Override
-    @Nullable
-    public ITextComponent getPadding( ITextComponent component, int width )
+    public @Nullable
+    TextComponent getPadding( TextComponent component, int width )
     {
         int extraWidth = width - getWidth( component );
         if( extraWidth <= 0 ) return null;
-        return new TextComponentString( StringUtils.repeat( ' ', extraWidth ) );
+        return new StringTextComponent( StringUtils.repeat( ' ', extraWidth ) );
     }
 
     @Override
@@ -38,13 +38,13 @@ public class ServerTableFormatter implements TableFormatter
     }
 
     @Override
-    public int getWidth( ITextComponent component )
+    public int getWidth( TextComponent component )
     {
-        return component.getString().length();
+        return component.getText().length();
     }
 
     @Override
-    public void writeLine( int id, ITextComponent component )
+    public void writeLine( int id, TextComponent component )
     {
         source.sendFeedback( component, false );
     }

@@ -7,42 +7,45 @@
 package dan200.computercraft.shared.peripheral.modem.wired;
 
 import dan200.computercraft.ComputerCraft;
-import net.minecraft.block.SoundType;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.BlockItemUseContext;
-import net.minecraft.item.ItemBlock;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
+import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.*;
+import net.minecraft.item.block.BlockItem;
+import net.minecraft.sound.BlockSoundGroup;
+import net.minecraft.sound.SoundCategory;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.DefaultedList;
+import net.minecraft.util.SystemUtil;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
+import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
-import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nonnull;
 
 import static dan200.computercraft.shared.peripheral.modem.wired.BlockCable.*;
 
-public abstract class ItemBlockCable extends ItemBlock
+public abstract class ItemBlockCable extends BlockItem
 {
     private String translationKey;
 
-    public ItemBlockCable( BlockCable block, Properties settings )
+    public ItemBlockCable( BlockCable block, Item.Settings settings )
     {
         super( block, settings );
     }
 
-    boolean placeAt( World world, BlockPos pos, IBlockState state, EntityPlayer player )
+    boolean placeAt( World world, BlockPos pos, BlockState state )
     {
-        // TODO: Check entity collision.
-        if( !state.isValidPosition( world, pos ) ) return false;
+        if( !state.canPlaceAt( world, pos ) ) return false;
 
         world.setBlockState( pos, state, 3 );
-        SoundType soundType = state.getBlock().getSoundType( state, world, pos, player );
-        world.playSound( null, pos, soundType.getPlaceSound(), SoundCategory.BLOCKS, (soundType.getVolume() + 1.0F) / 2.0F, soundType.getPitch() * 0.8F );
+        BlockSoundGroup soundType = state.getBlock().getSoundGroup( state );
+        world.playSound( null, pos, soundType.getPlaceSound(), SoundCategory.BLOCK, (soundType.getVolume() + 1.0F) / 2.0F, soundType.getPitch() * 0.8F );
 
-        TileEntity tile = world.getTileEntity( pos );
+        BlockEntity tile = world.getBlockEntity( pos );
         if( tile instanceof TileCable )
         {
             TileCable cable = (TileCable) tile;
@@ -53,101 +56,100 @@ public abstract class ItemBlockCable extends ItemBlock
         return true;
     }
 
-    boolean placeAtCorrected( World world, BlockPos pos, IBlockState state )
+    boolean placeAtCorrected( World world, BlockPos pos, BlockState state )
     {
-        return placeAt( world, pos, correctConnections( world, pos, state ), null );
+        return placeAt( world, pos, correctConnections( world, pos, state ) );
     }
 
     @Override
-    public void fillItemGroup( @Nonnull ItemGroup group, @Nonnull NonNullList<ItemStack> list )
+    public void appendItemsForGroup( ItemGroup group, DefaultedList<ItemStack> list )
     {
-        if( isInGroup( group ) ) list.add( new ItemStack( this ) );
+        if( isInItemGroup( group ) ) list.add( new ItemStack( this ) );
     }
 
-    @Nonnull
     @Override
     public String getTranslationKey()
     {
         if( translationKey == null )
         {
-            translationKey = Util.makeTranslationKey( "block", ForgeRegistries.ITEMS.getKey( this ) );
+            translationKey = SystemUtil.createTranslationKey( "block", Registry.ITEM.getId( this ) );
         }
         return translationKey;
     }
 
     public static class WiredModem extends ItemBlockCable
     {
-        public WiredModem( BlockCable block, Properties settings )
+        public WiredModem( BlockCable block, Settings settings )
         {
             super( block, settings );
         }
 
         @Nonnull
         @Override
-        public EnumActionResult tryPlace( BlockItemUseContext context )
+        public ActionResult place( ItemPlacementContext context )
         {
-            ItemStack stack = context.getItem();
-            if( stack.isEmpty() ) return EnumActionResult.FAIL;
+            ItemStack stack = context.getItemStack();
+            if( stack.isEmpty() ) return ActionResult.FAIL;
 
             World world = context.getWorld();
-            BlockPos pos = context.getPos();
-            IBlockState existingState = world.getBlockState( pos );
+            BlockPos pos = context.getBlockPos();
+            BlockState existingState = world.getBlockState( pos );
 
             // Try to add a modem to a cable
             if( existingState.getBlock() == ComputerCraft.Blocks.cable && existingState.get( MODEM ) == CableModemVariant.None )
             {
-                EnumFacing side = context.getFace().getOpposite();
-                IBlockState newState = existingState
+                Direction side = context.getFacing().getOpposite();
+                BlockState newState = existingState
                     .with( MODEM, CableModemVariant.from( side ) )
                     .with( CONNECTIONS.get( side ), existingState.get( CABLE ) );
-                if( placeAt( world, pos, newState, context.getPlayer() ) )
+                if( placeAt( world, pos, newState ) )
                 {
-                    stack.shrink( 1 );
-                    return EnumActionResult.SUCCESS;
+                    stack.subtractAmount( 1 );
+                    return ActionResult.SUCCESS;
                 }
             }
 
-            return super.tryPlace( context );
+            return super.place( context );
         }
     }
 
     public static class Cable extends ItemBlockCable
     {
-        public Cable( BlockCable block, Properties settings )
+        public Cable( BlockCable block, Settings settings )
         {
             super( block, settings );
         }
 
         @Nonnull
         @Override
-        public EnumActionResult tryPlace( BlockItemUseContext context )
+        public ActionResult place( ItemPlacementContext context )
         {
-            ItemStack stack = context.getItem();
-            if( stack.isEmpty() ) return EnumActionResult.FAIL;
+            ItemStack stack = context.getItemStack();
+            if( stack.isEmpty() ) return ActionResult.FAIL;
 
             World world = context.getWorld();
-            BlockPos pos = context.getPos();
+            BlockPos pos = context.getBlockPos();
 
             // Try to add a cable to a modem inside the block we're clicking on.
-            BlockPos insidePos = pos.offset( context.getFace().getOpposite() );
-            IBlockState insideState = world.getBlockState( insidePos );
+            BlockPos insidePos = pos.offset( context.getFacing().getOpposite() );
+            BlockState insideState = world.getBlockState( insidePos );
             if( insideState.getBlock() == ComputerCraft.Blocks.cable && !insideState.get( BlockCable.CABLE )
                 && placeAtCorrected( world, insidePos, insideState.with( BlockCable.CABLE, true ) ) )
             {
-                stack.shrink( 1 );
-                return EnumActionResult.SUCCESS;
+                stack.subtractAmount( 1 );
+                return ActionResult.SUCCESS;
             }
 
             // Try to add a cable to a modem adjacent to this block
-            IBlockState existingState = world.getBlockState( pos );
+            BlockState existingState = world.getBlockState( pos );
             if( existingState.getBlock() == ComputerCraft.Blocks.cable && !existingState.get( BlockCable.CABLE )
                 && placeAtCorrected( world, pos, existingState.with( BlockCable.CABLE, true ) ) )
             {
-                stack.shrink( 1 );
-                return EnumActionResult.SUCCESS;
+                stack.subtractAmount( 1 );
+                return ActionResult.SUCCESS;
             }
 
-            return super.tryPlace( context );
+            return super.place( context );
         }
     }
 }

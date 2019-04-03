@@ -12,27 +12,27 @@ import dan200.computercraft.shared.computer.core.ComputerState;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.network.Containers;
 import dan200.computercraft.shared.util.NamedBlockEntityType;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.entity.BlockEntityType;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.math.Direction;
 
 public class TileComputer extends TileComputerBase
 {
     public static final NamedBlockEntityType<TileComputer> FACTORY_NORMAL = NamedBlockEntityType.create(
-        new ResourceLocation( ComputerCraft.MOD_ID, "computer_normal" ),
+        new Identifier( ComputerCraft.MOD_ID, "computer_normal" ),
         f -> new TileComputer( ComputerFamily.Normal, f )
     );
 
     public static final NamedBlockEntityType<TileComputer> FACTORY_ADVANCED = NamedBlockEntityType.create(
-        new ResourceLocation( ComputerCraft.MOD_ID, "computer_advanced" ),
+        new Identifier( ComputerCraft.MOD_ID, "computer_advanced" ),
         f -> new TileComputer( ComputerFamily.Advanced, f )
     );
 
     private ComputerProxy m_proxy;
 
-    public TileComputer( ComputerFamily family, TileEntityType<? extends TileComputer> type )
+    public TileComputer( ComputerFamily family, BlockEntityType<? extends TileComputer> type )
     {
         super( type, family );
     }
@@ -68,26 +68,26 @@ public class TileComputer extends TileComputerBase
     }
 
     @Override
-    public void openGUI( EntityPlayer player )
+    public void openGUI( PlayerEntity player )
     {
         Containers.openComputerGUI( player, this );
     }
 
-    public boolean isUsableByPlayer( EntityPlayer player )
+    public boolean isUsableByPlayer( PlayerEntity player )
     {
         return isUsable( player, false );
     }
 
     @Override
-    public EnumFacing getDirection()
+    public Direction getDirection()
     {
-        return getBlockState().get( BlockComputer.FACING );
+        return getCachedState().get( BlockComputer.FACING );
     }
 
     @Override
     protected void updateBlockState( ComputerState newState )
     {
-        IBlockState existing = getBlockState();
+        BlockState existing = getCachedState();
         if( existing.get( BlockComputer.STATE ) != newState )
         {
             getWorld().setBlockState( getPos(), existing.with( BlockComputer.STATE, newState ), 3 );
@@ -95,8 +95,8 @@ public class TileComputer extends TileComputerBase
     }
 
     @Override
-    protected EnumFacing remapLocalSide( EnumFacing localSide )
+    protected Direction remapLocalSide( Direction localSide )
     {
-        return localSide.getAxis() == EnumFacing.Axis.X ? localSide.getOpposite() : localSide;
+        return localSide.getAxis() == Direction.Axis.X ? localSide.getOpposite() : localSide;
     }
 }

@@ -22,7 +22,7 @@ import mcmultipart.api.ref.MCMPCapabilities;
 import mcmultipart.api.slot.EnumFaceSlot;
 import net.minecraft.block.Block;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.capabilities.Capability;
@@ -97,14 +97,14 @@ public class MCMPIntegration implements IMCMPAddon
         private BasicMultipart( TileEntity tile ) {this.tile = tile;}
 
         @Override
-        public boolean hasCapability( @Nonnull Capability<?> capability, @Nullable EnumFacing facing )
+        public boolean hasCapability( @Nonnull Capability<?> capability, @Nullable Direction facing )
         {
             return capability == MCMPCapabilities.MULTIPART_TILE;
         }
 
         @Nullable
         @Override
-        public <T> T getCapability( @Nonnull Capability<T> capability, @Nullable EnumFacing facing )
+        public <T> T getCapability( @Nonnull Capability<T> capability, @Nullable Direction facing )
         {
             if( capability == MCMPCapabilities.MULTIPART_TILE )
             {

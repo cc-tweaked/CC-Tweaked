@@ -15,7 +15,7 @@ import mcmultipart.api.slot.IPartSlot;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
@@ -23,7 +23,7 @@ import net.minecraft.world.World;
 public class PartNormalModem implements IMultipart
 {
     @Override
-    public IPartSlot getSlotForPlacement( World world, BlockPos pos, IBlockState state, EnumFacing facing, float hitX, float hitY, float hitZ, EntityLivingBase placer )
+    public IPartSlot getSlotForPlacement( World world, BlockPos pos, IBlockState state, Direction facing, float hitX, float hitY, float hitZ, EntityLivingBase placer )
     {
         return EnumFaceSlot.fromFace( getFacing( state ) );
     }
@@ -34,16 +34,16 @@ public class PartNormalModem implements IMultipart
         return EnumFaceSlot.fromFace( getFacing( state ) );
     }
 
-    private EnumFacing getFacing( IBlockState state )
+    private Direction getFacing( IBlockState state )
     {
         BlockPeripheralVariant type = state.getValue( BlockPeripheral.VARIANT );
         if( type == BlockPeripheralVariant.WirelessModemUpOn || type == BlockPeripheralVariant.WirelessModemUpOff )
         {
-            return EnumFacing.UP;
+            return Direction.UP;
         }
         else if( type == BlockPeripheralVariant.WirelessModemDownOn || type == BlockPeripheralVariant.WirelessModemDownOff )
         {
-            return EnumFacing.UP;
+            return Direction.UP;
         }
         else
         {

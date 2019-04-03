@@ -6,29 +6,27 @@
 
 package dan200.computercraft.shared.turtle.recipes;
 
-import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.items.IComputerItem;
 import dan200.computercraft.shared.computer.recipe.ComputerFamilyRecipe;
 import dan200.computercraft.shared.turtle.items.TurtleItemFactory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.IRecipeSerializer;
-import net.minecraft.item.crafting.Ingredient;
-import net.minecraft.util.NonNullList;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.recipe.Ingredient;
+import net.minecraft.recipe.RecipeSerializer;
+import net.minecraft.util.DefaultedList;
+import net.minecraft.util.Identifier;
 
 import javax.annotation.Nonnull;
 
 public final class TurtleRecipe extends ComputerFamilyRecipe
 {
-    private TurtleRecipe( ResourceLocation identifier, String group, int width, int height, NonNullList<Ingredient> ingredients, ItemStack result, ComputerFamily family )
+    private TurtleRecipe( Identifier identifier, String group, int width, int height, DefaultedList<Ingredient> ingredients, ItemStack result, ComputerFamily family )
     {
         super( identifier, group, width, height, ingredients, result, family );
     }
 
-    @Nonnull
     @Override
-    public IRecipeSerializer<?> getSerializer()
+    public RecipeSerializer<?> getSerializer()
     {
         return SERIALIZER;
     }
@@ -43,20 +41,12 @@ public final class TurtleRecipe extends ComputerFamilyRecipe
         return TurtleItemFactory.create( computerID, label, -1, getFamily(), null, null, 0, null );
     }
 
-    private static final ResourceLocation ID = new ResourceLocation( ComputerCraft.MOD_ID, "turtle" );
-    public static final IRecipeSerializer<TurtleRecipe> SERIALIZER = new Serializer<TurtleRecipe>()
+    public static final RecipeSerializer<TurtleRecipe> SERIALIZER = new Serializer<TurtleRecipe>()
     {
         @Override
-        protected TurtleRecipe create( ResourceLocation identifier, String group, int width, int height, NonNullList<Ingredient> ingredients, ItemStack result, ComputerFamily family )
+        protected TurtleRecipe create( Identifier identifier, String group, int width, int height, DefaultedList<Ingredient> ingredients, ItemStack result, ComputerFamily family )
         {
             return new TurtleRecipe( identifier, group, width, height, ingredients, result, family );
-        }
-
-        @Nonnull
-        @Override
-        public ResourceLocation getName()
-        {
-            return ID;
         }
     };
 }

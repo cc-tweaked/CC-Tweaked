@@ -8,18 +8,16 @@ package dan200.computercraft.shared.util;
 
 import com.google.gson.JsonObject;
 import dan200.computercraft.ComputerCraft;
-import net.minecraft.inventory.IInventory;
+import net.minecraft.inventory.CraftingInventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.IRecipeSerializer;
-import net.minecraft.item.crafting.Ingredient;
-import net.minecraft.item.crafting.RecipeSerializers;
-import net.minecraft.item.crafting.ShapedRecipe;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.JsonUtils;
-import net.minecraft.util.NonNullList;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.recipe.Ingredient;
+import net.minecraft.recipe.RecipeSerializer;
+import net.minecraft.recipe.crafting.ShapedRecipe;
+import net.minecraft.util.DefaultedList;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.JsonHelper;
+import net.minecraft.util.PacketByteBuf;
 import net.minecraft.world.World;
-import net.minecraftforge.common.crafting.CraftingHelper;
 
 import javax.annotation.Nonnull;
 
@@ -27,7 +25,7 @@ public final class ImpostorRecipe extends ShapedRecipe
 {
     private final String group;
 
-    private ImpostorRecipe( @Nonnull ResourceLocation id, @Nonnull String group, int width, int height, NonNullList<Ingredient> ingredients, @Nonnull ItemStack result )
+    private ImpostorRecipe( @Nonnull Identifier id, @Nonnull String group, int width, int height, DefaultedList<Ingredient> ingredients, @Nonnull ItemStack result )
     {
         super( id, group, width, height, ingredients, result );
         this.group = group;
@@ -41,64 +39,57 @@ public final class ImpostorRecipe extends ShapedRecipe
     }
 
     @Override
-    public boolean matches( @Nonnull IInventory inv, World world )
+    public boolean matches( @Nonnull CraftingInventory inv, World world )
     {
         return false;
     }
 
     @Nonnull
     @Override
-    public ItemStack getCraftingResult( @Nonnull IInventory inventory )
+    public ItemStack craft( @Nonnull CraftingInventory inventory )
     {
         return ItemStack.EMPTY;
     }
 
     @Nonnull
     @Override
-    public IRecipeSerializer<?> getSerializer()
+    public RecipeSerializer<?> getSerializer()
     {
         return SERIALIZER;
     }
 
-    private static final ResourceLocation ID = new ResourceLocation( ComputerCraft.MOD_ID, "impostor_shaped" );
-    public static final IRecipeSerializer<ImpostorRecipe> SERIALIZER = new IRecipeSerializer<ImpostorRecipe>()
+    private static final Identifier ID = new Identifier( ComputerCraft.MOD_ID, "impostor_shaped" );
+    public static final RecipeSerializer<ImpostorRecipe> SERIALIZER = new RecipeSerializer<ImpostorRecipe>()
     {
         @Override
-        public ImpostorRecipe read( @Nonnull ResourceLocation identifier, @Nonnull JsonObject json )
+        public ImpostorRecipe read( Identifier identifier, JsonObject json )
         {
-            String group = JsonUtils.getString( json, "group", "" );
-            ShapedRecipe recipe = RecipeSerializers.CRAFTING_SHAPED.read( identifier, json );
-            ItemStack result = CraftingHelper.getItemStack( JsonUtils.getJsonObject( json, "result" ), true );
-            return new ImpostorRecipe( identifier, group, recipe.getWidth(), recipe.getHeight(), recipe.getIngredients(), result );
+            String group = JsonHelper.getString( json, "group", "" );
+            ShapedRecipe recipe = RecipeSerializer.SHAPED.read( identifier, json );
+            ItemStack result = ShapedRecipe.getItemStack( JsonHelper.getObject( json, "result" ) );
+            return new ImpostorRecipe( identifier, group, recipe.getWidth(), recipe.getHeight(), recipe.getPreviewInputs(), result );
         }
 
         @Override
-        public ImpostorRecipe read( @Nonnull ResourceLocation identifier, @Nonnull PacketBuffer buf )
+        public ImpostorRecipe read( Identifier identifier, PacketByteBuf buf )
         {
             int width = buf.readVarInt();
             int height = buf.readVarInt();
             String group = buf.readString( Short.MAX_VALUE );
-            NonNullList<Ingredient> items = NonNullList.withSize( width * height, Ingredient.EMPTY );
-            for( int k = 0; k < items.size(); ++k ) items.set( k, Ingredient.read( buf ) );
+            DefaultedList<Ingredient> items = DefaultedList.create( width * height, Ingredient.EMPTY );
+            for( int k = 0; k < items.size(); ++k ) items.set( k, Ingredient.fromPacket( buf ) );
             ItemStack result = buf.readItemStack();
             return new ImpostorRecipe( identifier, group, width, height, items, result );
         }
 
         @Override
-        public void write( @Nonnull PacketBuffer buf, @Nonnull ImpostorRecipe recipe )
+        public void write( @Nonnull PacketByteBuf buf, @Nonnull ImpostorRecipe recipe )
         {
-            buf.writeVarInt( recipe.getRecipeWidth() );
-            buf.writeVarInt( recipe.getRecipeHeight() );
+            buf.writeVarInt( recipe.getWidth() );
+            buf.writeVarInt( recipe.getHeight() );
             buf.writeString( recipe.getGroup() );
-            for( Ingredient ingredient : recipe.getIngredients() ) ingredient.write( buf );
-            buf.writeItemStack( recipe.getRecipeOutput() );
-        }
-
-        @Nonnull
-        @Override
-        public ResourceLocation getName()
-        {
-            return ID;
+            for( Ingredient ingredient : recipe.getPreviewInputs() ) ingredient.write( buf );
+            buf.writeItemStack( recipe.getOutput() );
         }
     };
 }

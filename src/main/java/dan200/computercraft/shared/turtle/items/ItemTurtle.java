@@ -6,7 +6,6 @@
 
 package dan200.computercraft.shared.turtle.items;
 
-import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.shared.TurtleUpgrades;
@@ -16,30 +15,29 @@ import dan200.computercraft.shared.computer.items.ItemComputerBase;
 import dan200.computercraft.shared.turtle.blocks.BlockTurtle;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.NonNullList;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextComponentString;
-import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.text.StringTextComponent;
+import net.minecraft.text.TextComponent;
+import net.minecraft.text.TranslatableTextComponent;
+import net.minecraft.util.DefaultedList;
+import net.minecraft.util.Identifier;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 import static dan200.computercraft.shared.turtle.core.TurtleBrain.*;
 
 public class ItemTurtle extends ItemComputerBase implements ITurtleItem
 {
-    public ItemTurtle( BlockTurtle block, Properties settings )
+    public ItemTurtle( BlockTurtle block, Settings settings )
     {
         super( block, settings );
     }
 
-    public ItemStack create( int id, String label, int colour, ITurtleUpgrade leftUpgrade, ITurtleUpgrade rightUpgrade, int fuelLevel, ResourceLocation overlay )
+    public ItemStack create( int id, String label, int colour, ITurtleUpgrade leftUpgrade, ITurtleUpgrade rightUpgrade, int fuelLevel, Identifier overlay )
     {
         // Build the stack
         ItemStack stack = new ItemStack( this );
-        if( label != null ) stack.setDisplayName( new TextComponentString( label ) );
+        if( label != null ) stack.setDisplayName( new StringTextComponent( label ) );
         if( id >= 0 ) stack.getOrCreateTag().putInt( NBT_ID, id );
         IColouredItem.setColourBasic( stack, colour );
         if( fuelLevel > 0 ) stack.getOrCreateTag().putInt( NBT_FUEL, fuelLevel );
@@ -59,9 +57,9 @@ public class ItemTurtle extends ItemComputerBase implements ITurtleItem
     }
 
     @Override
-    public void fillItemGroup( @Nonnull ItemGroup group, @Nonnull NonNullList<ItemStack> list )
+    public void appendItemsForGroup( @Nonnull ItemGroup group, @Nonnull DefaultedList<ItemStack> list )
     {
-        if( !isInGroup( group ) ) return;
+        if( !isInItemGroup( group ) ) return;
 
         ComputerFamily family = getFamily();
 
@@ -76,58 +74,34 @@ public class ItemTurtle extends ItemComputerBase implements ITurtleItem
 
     @Nonnull
     @Override
-    public ITextComponent getDisplayName( @Nonnull ItemStack stack )
+    public TextComponent getTranslatedNameTrimmed( @Nonnull ItemStack stack )
     {
         String baseString = getTranslationKey( stack );
         ITurtleUpgrade left = getUpgrade( stack, TurtleSide.Left );
         ITurtleUpgrade right = getUpgrade( stack, TurtleSide.Right );
         if( left != null && right != null )
         {
-            return new TextComponentTranslation( baseString + ".upgraded_twice",
-                new TextComponentTranslation( right.getUnlocalisedAdjective() ),
-                new TextComponentTranslation( left.getUnlocalisedAdjective() )
+            return new TranslatableTextComponent( baseString + ".upgraded_twice",
+                new TranslatableTextComponent( right.getUnlocalisedAdjective() ),
+                new TranslatableTextComponent( left.getUnlocalisedAdjective() )
             );
         }
         else if( left != null )
         {
-            return new TextComponentTranslation( baseString + ".upgraded",
-                new TextComponentTranslation( left.getUnlocalisedAdjective() )
+            return new TranslatableTextComponent( baseString + ".upgraded",
+                new TranslatableTextComponent( left.getUnlocalisedAdjective() )
             );
         }
         else if( right != null )
         {
-            return new TextComponentTranslation( baseString + ".upgraded",
-                new TextComponentTranslation( right.getUnlocalisedAdjective() )
+            return new TranslatableTextComponent( baseString + ".upgraded",
+                new TranslatableTextComponent( right.getUnlocalisedAdjective() )
             );
         }
         else
         {
-            return new TextComponentTranslation( baseString );
+            return new TranslatableTextComponent( baseString );
         }
-    }
-
-    @Nullable
-    @Override
-    public String getCreatorModId( ItemStack stack )
-    {
-        // Determine our "creator mod" from the upgrades. We attempt to find the first non-vanilla/non-CC
-        // upgrade (starting from the left).
-
-        ITurtleUpgrade left = getUpgrade( stack, TurtleSide.Left );
-        if( left != null )
-        {
-            String mod = TurtleUpgrades.getOwner( left );
-            if( mod != null && !mod.equals( ComputerCraft.MOD_ID ) ) return mod;
-        }
-
-        ITurtleUpgrade right = getUpgrade( stack, TurtleSide.Right );
-        if( right != null )
-        {
-            String mod = TurtleUpgrades.getOwner( right );
-            if( mod != null && !mod.equals( ComputerCraft.MOD_ID ) ) return mod;
-        }
-
-        return super.getCreatorModId( stack );
     }
 
     @Override
@@ -144,24 +118,24 @@ public class ItemTurtle extends ItemComputerBase implements ITurtleItem
     @Override
     public ITurtleUpgrade getUpgrade( @Nonnull ItemStack stack, @Nonnull TurtleSide side )
     {
-        NBTTagCompound tag = stack.getTag();
+        CompoundTag tag = stack.getTag();
         if( tag == null ) return null;
 
         String key = side == TurtleSide.Left ? NBT_LEFT_UPGRADE : NBT_RIGHT_UPGRADE;
-        return tag.contains( key ) ? TurtleUpgrades.get( tag.getString( key ) ) : null;
+        return tag.containsKey( key ) ? TurtleUpgrades.get( tag.getString( key ) ) : null;
     }
 
     @Override
-    public ResourceLocation getOverlay( @Nonnull ItemStack stack )
+    public Identifier getOverlay( @Nonnull ItemStack stack )
     {
-        NBTTagCompound tag = stack.getTag();
-        return tag != null && tag.contains( NBT_OVERLAY ) ? new ResourceLocation( tag.getString( NBT_OVERLAY ) ) : null;
+        CompoundTag tag = stack.getTag();
+        return tag != null && tag.containsKey( NBT_OVERLAY ) ? new Identifier( tag.getString( NBT_OVERLAY ) ) : null;
     }
 
     @Override
     public int getFuelLevel( @Nonnull ItemStack stack )
     {
-        NBTTagCompound tag = stack.getTag();
-        return tag != null && tag.contains( NBT_FUEL ) ? tag.getInt( NBT_FUEL ) : 0;
+        CompoundTag tag = stack.getTag();
+        return tag != null && tag.containsKey( NBT_FUEL ) ? tag.getInt( NBT_FUEL ) : 0;
     }
 }

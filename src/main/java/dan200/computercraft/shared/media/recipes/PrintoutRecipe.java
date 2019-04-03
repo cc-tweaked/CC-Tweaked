@@ -6,53 +6,52 @@
 
 package dan200.computercraft.shared.media.recipes;
 
-import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.media.items.ItemPrintout;
-import dan200.computercraft.shared.util.AbstractRecipe;
-import net.minecraft.init.Items;
-import net.minecraft.inventory.IInventory;
+import net.minecraft.inventory.CraftingInventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.IRecipeSerializer;
-import net.minecraft.item.crafting.Ingredient;
-import net.minecraft.item.crafting.RecipeSerializers;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.item.Items;
+import net.minecraft.recipe.Ingredient;
+import net.minecraft.recipe.RecipeSerializer;
+import net.minecraft.recipe.SpecialRecipeSerializer;
+import net.minecraft.recipe.crafting.SpecialCraftingRecipe;
+import net.minecraft.util.Identifier;
 import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
 
-public final class PrintoutRecipe extends AbstractRecipe
+public final class PrintoutRecipe extends SpecialCraftingRecipe
 {
-    private final Ingredient paper = Ingredient.fromItems( Items.PAPER );
-    private final Ingredient leather = Ingredient.fromItems( Items.LEATHER );
-    private final Ingredient string = Ingredient.fromItems( Items.STRING );
+    private final Ingredient paper = Ingredient.ofItems( Items.PAPER );
+    private final Ingredient leather = Ingredient.ofItems( Items.LEATHER );
+    private final Ingredient string = Ingredient.ofItems( Items.STRING );
 
-    private PrintoutRecipe( ResourceLocation id )
+    public PrintoutRecipe( Identifier id )
     {
         super( id );
     }
 
     @Override
-    public boolean canFit( int x, int y )
+    public boolean fits( int x, int y )
     {
         return x >= 3 && y >= 3;
     }
 
     @Nonnull
     @Override
-    public ItemStack getRecipeOutput()
+    public ItemStack getOutput()
     {
         return ItemPrintout.createMultipleFromTitleAndText( null, null, null );
     }
 
     @Override
-    public boolean matches( @Nonnull IInventory inventory, @Nonnull World world )
+    public boolean matches( @Nonnull CraftingInventory inventory, @Nonnull World world )
     {
-        return !getCraftingResult( inventory ).isEmpty();
+        return !craft( inventory ).isEmpty();
     }
 
     @Nonnull
     @Override
-    public ItemStack getCraftingResult( @Nonnull IInventory inventory )
+    public ItemStack craft( @Nonnull CraftingInventory inventory )
     {
         // See if we match the recipe, and extract the input disk ID and dye colour
         int numPages = 0;
@@ -65,7 +64,7 @@ public final class PrintoutRecipe extends AbstractRecipe
         {
             for( int x = 0; x < inventory.getWidth(); x++ )
             {
-                ItemStack stack = inventory.getStackInSlot( x + y * inventory.getWidth() );
+                ItemStack stack = inventory.getInvStack( x + y * inventory.getWidth() );
                 if( !stack.isEmpty() )
                 {
                     if( stack.getItem() instanceof ItemPrintout && ((ItemPrintout) stack.getItem()).getType() != ItemPrintout.Type.BOOK )
@@ -160,12 +159,10 @@ public final class PrintoutRecipe extends AbstractRecipe
 
     @Nonnull
     @Override
-    public IRecipeSerializer<?> getSerializer()
+    public RecipeSerializer<?> getSerializer()
     {
         return SERIALIZER;
     }
 
-    public static final IRecipeSerializer<?> SERIALIZER = new RecipeSerializers.SimpleSerializer<>(
-        ComputerCraft.MOD_ID + ":printout", PrintoutRecipe::new
-    );
+    public static final RecipeSerializer<?> SERIALIZER = new SpecialRecipeSerializer<>( PrintoutRecipe::new );
 }

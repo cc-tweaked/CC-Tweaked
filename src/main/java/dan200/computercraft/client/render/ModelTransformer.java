@@ -6,19 +6,13 @@
 
 package dan200.computercraft.client.render;
 
-import net.minecraft.client.renderer.model.BakedQuad;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.renderer.vertex.VertexFormat;
-import net.minecraft.util.EnumFacing;
-import net.minecraftforge.client.model.pipeline.IVertexConsumer;
-import net.minecraftforge.client.model.pipeline.LightUtil;
-import net.minecraftforge.client.model.pipeline.VertexTransformer;
-import net.minecraftforge.common.model.TRSRTransformation;
+import net.minecraft.client.render.VertexFormat;
+import net.minecraft.client.render.VertexFormatElement;
+import net.minecraft.client.render.VertexFormats;
+import net.minecraft.client.render.model.BakedQuad;
 
-import javax.annotation.Nonnull;
 import javax.vecmath.Matrix4f;
-import javax.vecmath.Point3f;
-import javax.vecmath.Vector3f;
+import javax.vecmath.Vector4f;
 import java.util.List;
 
 /**
@@ -41,230 +35,66 @@ public final class ModelTransformer
 
     public static void transformQuadsTo( List<BakedQuad> output, List<BakedQuad> input, Matrix4f transform )
     {
+        transformQuadsTo( VertexFormats.POSITION_COLOR_UV_NORMAL, output, input, transform );
+    }
+
+    public static void transformQuadsTo( VertexFormat format, List<BakedQuad> output, List<BakedQuad> input, Matrix4f transform )
+    {
         if( transform == null || transform.equals( identity ) )
         {
             output.addAll( input );
         }
         else
         {
-            Matrix4f normalMatrix = new Matrix4f( transform );
-            normalMatrix.invert();
-            normalMatrix.transpose();
-
-            for( BakedQuad quad : input ) output.add( doTransformQuad( quad, transform, normalMatrix ) );
+            for( BakedQuad quad : input ) output.add( doTransformQuad( format, quad, transform ) );
         }
     }
 
-    public static BakedQuad transformQuad( BakedQuad input, Matrix4f transform )
+    public static BakedQuad transformQuad( VertexFormat format, BakedQuad input, Matrix4f transform )
     {
         if( transform == null || transform.equals( identity ) ) return input;
-
-        Matrix4f normalMatrix = new Matrix4f( transform );
-        normalMatrix.invert();
-        normalMatrix.transpose();
-        return doTransformQuad( input, transform, normalMatrix );
+        return doTransformQuad( format, input, transform );
     }
 
-    private static BakedQuad doTransformQuad( BakedQuad input, Matrix4f positionMatrix, Matrix4f normalMatrix )
+    private static BakedQuad doTransformQuad( VertexFormat format, BakedQuad quad, Matrix4f transform )
     {
-
-        BakedQuadBuilder builder = new BakedQuadBuilder( input.getFormat() );
-        NormalAwareTransformer transformer = new NormalAwareTransformer( builder, positionMatrix, normalMatrix );
-        input.pipe( transformer );
-
-        if( transformer.areNormalsInverted() )
+        int[] vertexData = quad.getVertexData().clone();
+        int offset = 0;
+        BakedQuad copy = new BakedQuad( vertexData, -1, quad.getFace(), quad.getSprite() );
+        for( int i = 0; i < format.getElementCount(); ++i ) // For each vertex element
         {
-            builder.swap( 1, 3 );
-            transformer.areNormalsInverted();
-        }
-
-        return builder.build();
-    }
-
-    /**
-     * A vertex transformer that tracks whether the normals have been inverted and so the vertices
-     * should be reordered so backface culling works as expected.
-     */
-    private static class NormalAwareTransformer extends VertexTransformer
-    {
-        private final Matrix4f positionMatrix;
-        private final Matrix4f normalMatrix;
-
-        private int vertexIndex = 0, elementIndex = 0;
-        private final Point3f[] before = new Point3f[4];
-        private final Point3f[] after = new Point3f[4];
-
-        public NormalAwareTransformer( IVertexConsumer parent, Matrix4f positionMatrix, Matrix4f normalMatrix )
-        {
-            super( parent );
-            this.positionMatrix = positionMatrix;
-            this.normalMatrix = normalMatrix;
-        }
-
-        @Override
-        public void setQuadOrientation( @Nonnull EnumFacing orientation )
-        {
-            super.setQuadOrientation( orientation == null ? orientation : TRSRTransformation.rotate( positionMatrix, orientation ) );
-        }
-
-        @Override
-        public void put( int element, @Nonnull float... data )
-        {
-            switch( getVertexFormat().getElement( element ).getUsage() )
+            VertexFormatElement element = format.getElement( i );
+            if( element.isPosition() &&
+                element.getFormat() == VertexFormatElement.Format.FLOAT &&
+                element.getCount() == 3 ) // When we find a position element
             {
-                case POSITION:
+                for( int j = 0; j < 4; ++j ) // For each corner of the quad
                 {
-                    Point3f vec = new Point3f( data );
-                    Point3f newVec = new Point3f();
-                    positionMatrix.transform( vec, newVec );
+                    int start = offset + j * format.getVertexSize();
+                    if( (start % 4) == 0 )
+                    {
+                        start = start / 4;
 
-                    float[] newData = new float[4];
-                    newVec.get( newData );
-                    super.put( element, newData );
+                        // Extract the position
+                        Vector4f pos = new Vector4f(
+                            Float.intBitsToFloat( vertexData[start] ),
+                            Float.intBitsToFloat( vertexData[start + 1] ),
+                            Float.intBitsToFloat( vertexData[start + 2] ),
+                            1
+                        );
 
+                        // Transform the position
+                        transform.transform( pos );
 
-                    before[vertexIndex] = vec;
-                    after[vertexIndex] = newVec;
-                    break;
+                        // Insert the position
+                        vertexData[start] = Float.floatToRawIntBits( pos.x );
+                        vertexData[start + 1] = Float.floatToRawIntBits( pos.y );
+                        vertexData[start + 2] = Float.floatToRawIntBits( pos.z );
+                    }
                 }
-                case NORMAL:
-                {
-                    Vector3f vec = new Vector3f( data );
-                    normalMatrix.transform( vec );
-
-                    float[] newData = new float[4];
-                    vec.get( newData );
-                    super.put( element, newData );
-                    break;
-                }
-                default:
-                    super.put( element, data );
-                    break;
             }
-
-            elementIndex++;
-            if( elementIndex == getVertexFormat().getElementCount() )
-            {
-                vertexIndex++;
-                elementIndex = 0;
-            }
+            offset += element.getSize();
         }
-
-        public boolean areNormalsInverted()
-        {
-            Vector3f temp1 = new Vector3f(), temp2 = new Vector3f();
-            Vector3f crossBefore = new Vector3f(), crossAfter = new Vector3f();
-
-            // Determine what cross product we expect to have
-            temp1.sub( before[1], before[0] );
-            temp2.sub( before[1], before[2] );
-            crossBefore.cross( temp1, temp2 );
-            normalMatrix.transform( crossBefore );
-
-            // And determine what cross product we actually have
-            temp1.sub( after[1], after[0] );
-            temp2.sub( after[1], after[2] );
-            crossAfter.cross( temp1, temp2 );
-
-            // If the angle between expected and actual cross product is greater than
-            // pi/2 radians then we will need to reorder our quads.
-            return Math.abs( crossBefore.angle( crossAfter ) ) >= Math.PI / 2;
-        }
-    }
-
-    /**
-     * A vertex consumer which is capable of building {@link BakedQuad}s.
-     *
-     * Equivalent to {@link net.minecraftforge.client.model.pipeline.UnpackedBakedQuad.Builder} but more memory
-     * efficient.
-     *
-     * This also provides the ability to swap vertices through {@link #swap(int, int)} to allow reordering.
-     */
-    private static final class BakedQuadBuilder implements IVertexConsumer
-    {
-        private final VertexFormat format;
-
-        private final int[] vertexData;
-        private int vertexIndex = 0, elementIndex = 0;
-
-        private EnumFacing orientation;
-        private int quadTint;
-        private boolean diffuse;
-        private TextureAtlasSprite texture;
-
-        private BakedQuadBuilder( VertexFormat format )
-        {
-            this.format = format;
-            vertexData = new int[format.getSize()];
-        }
-
-        @Nonnull
-        @Override
-        public VertexFormat getVertexFormat()
-        {
-            return format;
-        }
-
-        @Override
-        public void setQuadTint( int tint )
-        {
-            quadTint = tint;
-        }
-
-        @Override
-        public void setQuadOrientation( @Nonnull EnumFacing orientation )
-        {
-            this.orientation = orientation;
-        }
-
-        @Override
-        public void setApplyDiffuseLighting( boolean diffuse )
-        {
-            this.diffuse = diffuse;
-        }
-
-        @Override
-        public void setTexture( @Nonnull TextureAtlasSprite texture )
-        {
-            this.texture = texture;
-        }
-
-        @Override
-        public void put( int element, @Nonnull float... data )
-        {
-            LightUtil.pack( data, vertexData, format, vertexIndex, element );
-
-            elementIndex++;
-            if( elementIndex == getVertexFormat().getElementCount() )
-            {
-                vertexIndex++;
-                elementIndex = 0;
-            }
-        }
-
-        public void swap( int a, int b )
-        {
-            int length = vertexData.length / 4;
-            for( int i = 0; i < length; i++ )
-            {
-                int temp = vertexData[a * length + i];
-                vertexData[a * length + i] = vertexData[b * length + i];
-                vertexData[b * length + i] = temp;
-            }
-        }
-
-        public BakedQuad build()
-        {
-            if( elementIndex != 0 || vertexIndex != 4 )
-            {
-                throw new IllegalStateException( "Got an unexpected number of elements/vertices" );
-            }
-            if( texture == null )
-            {
-                throw new IllegalStateException( "Texture has not been set" );
-            }
-
-            return new BakedQuad( vertexData, quadTint, orientation, texture, diffuse, format );
-        }
+        return copy;
     }
 }

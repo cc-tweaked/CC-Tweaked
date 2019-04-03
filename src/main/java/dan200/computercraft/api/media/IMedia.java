@@ -9,7 +9,7 @@ package dan200.computercraft.api.media;
 import dan200.computercraft.api.filesystem.IMount;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.SoundEvent;
+import net.minecraft.sound.SoundEvent;
 import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;

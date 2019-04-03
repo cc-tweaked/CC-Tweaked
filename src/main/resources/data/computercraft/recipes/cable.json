@@ -6,8 +6,8 @@
         " # "
     ],
     "key": {
-        "#": { "tag": "forge:stone" },
-        "R": { "tag": "forge:dusts/redstone" }
+        "#": { "item": "minecraft:stone" },
+        "R": { "item": "minecraft:redstone" }
     },
     "result": { "item": "computercraft:cable", "count": 6 }
 }

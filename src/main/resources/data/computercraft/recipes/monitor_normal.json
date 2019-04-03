@@ -6,7 +6,7 @@
         "###"
     ],
     "key": {
-        "#": { "tag": "forge:stone" },
+        "#": { "item": "minecraft:stone" },
         "G": { "item": "minecraft:glass_pane" }
     },
     "result": { "item": "computercraft:monitor_normal" }

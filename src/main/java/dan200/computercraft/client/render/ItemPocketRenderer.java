@@ -6,7 +6,7 @@
 
 package dan200.computercraft.client.render;
 
-import dan200.computercraft.ComputerCraft;
+import com.mojang.blaze3d.platform.GlStateManager;
 import dan200.computercraft.client.FrameInfo;
 import dan200.computercraft.client.gui.FixedWidthFontRenderer;
 import dan200.computercraft.core.terminal.Terminal;
@@ -14,19 +14,15 @@ import dan200.computercraft.core.terminal.TextBuffer;
 import dan200.computercraft.shared.computer.core.ClientComputer;
 import dan200.computercraft.shared.pocket.items.ItemPocketComputer;
 import dan200.computercraft.shared.util.Palette;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.ItemRenderer;
-import net.minecraft.client.renderer.model.IBakedModel;
-import net.minecraft.client.renderer.model.ItemCameraTransforms.TransformType;
-import net.minecraft.client.renderer.texture.TextureManager;
-import net.minecraft.client.renderer.texture.TextureMap;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.render.item.ItemRenderer;
+import net.minecraft.client.render.model.BakedModel;
+import net.minecraft.client.render.model.json.ModelTransformation;
+import net.minecraft.client.texture.SpriteAtlasTexture;
+import net.minecraft.client.texture.TextureManager;
 import net.minecraft.item.ItemStack;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.ForgeHooksClient;
-import net.minecraftforge.client.event.RenderSpecificHandEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
 import org.lwjgl.opengl.GL11;
 
 import static dan200.computercraft.client.gui.FixedWidthFontRenderer.FONT_HEIGHT;
@@ -35,15 +31,16 @@ import static dan200.computercraft.client.gui.FixedWidthFontRenderer.FONT_WIDTH;
 /**
  * Emulates map rendering for pocket computers
  */
-@Mod.EventBusSubscriber( modid = ComputerCraft.MOD_ID, value = Dist.CLIENT )
+@Environment( EnvType.CLIENT )
 public final class ItemPocketRenderer extends ItemMapLikeRenderer
 {
-    private static final ItemPocketRenderer INSTANCE = new ItemPocketRenderer();
+    public static final ItemPocketRenderer INSTANCE = new ItemPocketRenderer();
 
     private ItemPocketRenderer()
     {
     }
 
+    /*
     @SubscribeEvent
     public static void renderItem( RenderSpecificHandEvent event )
     {
@@ -53,6 +50,7 @@ public final class ItemPocketRenderer extends ItemMapLikeRenderer
         event.setCanceled( true );
         INSTANCE.renderItemFirstPerson( event.getHand(), event.getInterpolatedPitch(), event.getEquipProgress(), event.getSwingProgress(), event.getItemStack() );
     }
+    */
 
     @Override
     protected void renderItem( ItemStack stack )
@@ -74,13 +72,13 @@ public final class ItemPocketRenderer extends ItemMapLikeRenderer
 
             GlStateManager.scalef( 1.0f, -1.0f, 1.0f );
 
-            Minecraft minecraft = Minecraft.getInstance();
+            MinecraftClient minecraft = MinecraftClient.getInstance();
             TextureManager textureManager = minecraft.getTextureManager();
             ItemRenderer renderItem = minecraft.getItemRenderer();
 
             // Copy of RenderItem#renderItemModelIntoGUI but without the translation or scaling
-            textureManager.bindTexture( TextureMap.LOCATION_BLOCKS_TEXTURE );
-            textureManager.getTexture( TextureMap.LOCATION_BLOCKS_TEXTURE ).setBlurMipmap( false, false );
+            textureManager.bindTexture( SpriteAtlasTexture.BLOCK_ATLAS_TEX );
+            textureManager.getTexture( SpriteAtlasTexture.BLOCK_ATLAS_TEX ).pushFilter( false, false );
 
             GlStateManager.enableRescaleNormal();
             GlStateManager.enableAlphaTest();
@@ -89,9 +87,9 @@ public final class ItemPocketRenderer extends ItemMapLikeRenderer
             GlStateManager.blendFunc( GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA );
             GlStateManager.color4f( 1.0F, 1.0F, 1.0F, 1.0F );
 
-            IBakedModel baked = renderItem.getItemModelWithOverrides( stack, null, null );
-            baked = ForgeHooksClient.handleCameraTransforms( baked, TransformType.GUI, false );
-            renderItem.renderItem( stack, baked );
+            BakedModel baked = renderItem.getModel( stack, null, null );
+            baked.getTransformation().applyGl( ModelTransformation.Type.GUI );
+            renderItem.renderItemAndGlow( stack, baked );
 
             GlStateManager.disableAlphaTest();
             GlStateManager.disableRescaleNormal();

@@ -8,23 +8,17 @@ package dan200.computercraft.shared.command;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
-import dan200.computercraft.ComputerCraft;
-import net.minecraft.client.Minecraft;
-import net.minecraft.command.CommandSource;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextComponentString;
-import net.minecraft.util.text.TextComponentTranslation;
-import net.minecraft.util.text.event.ClickEvent;
-import net.minecraft.util.text.event.HoverEvent;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.ClientChatEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.text.StringTextComponent;
+import net.minecraft.text.TextComponent;
+import net.minecraft.text.TranslatableTextComponent;
+import net.minecraft.text.event.ClickEvent;
+import net.minecraft.text.event.HoverEvent;
 
-import static net.minecraft.command.Commands.argument;
-import static net.minecraft.command.Commands.literal;
+import static net.minecraft.server.command.ServerCommandManager.argument;
+import static net.minecraft.server.command.ServerCommandManager.literal;
 
-@Mod.EventBusSubscriber( modid = ComputerCraft.MOD_ID, value = Dist.CLIENT )
 public final class CommandCopy
 {
     private static final String PREFIX = "/computercraft copy ";
@@ -33,35 +27,36 @@ public final class CommandCopy
     {
     }
 
-    public static void register( CommandDispatcher<CommandSource> registry )
+    public static void register( CommandDispatcher<ServerCommandSource> registry )
     {
         registry.register( literal( "computercraft" )
             .then( literal( "copy" ) )
             .then( argument( "message", StringArgumentType.greedyString() ) )
             .executes( context -> {
-                Minecraft.getInstance().keyboardListener.setClipboardString( context.getArgument( "message", String.class ) );
+                MinecraftClient.getInstance().keyboard.setClipboard( context.getArgument( "message", String.class ) );
                 return 1;
             } )
         );
     }
 
-    @SubscribeEvent
-    public static void onClientSendMessage( ClientChatEvent event )
+    public static boolean onClientSendMessage( String message )
     {
         // Emulate the command on the client side
-        if( event.getMessage().startsWith( PREFIX ) )
+        if( message.startsWith( PREFIX ) )
         {
-            Minecraft.getInstance().keyboardListener.setClipboardString( event.getMessage().substring( PREFIX.length() ) );
-            event.setCanceled( true );
+            MinecraftClient.getInstance().keyboard.setClipboard( message.substring( PREFIX.length() ) );
+            return true;
         }
+
+        return false;
     }
 
-    public static ITextComponent createCopyText( String text )
+    public static TextComponent createCopyText( String text )
     {
-        TextComponentString name = new TextComponentString( text );
+        StringTextComponent name = new StringTextComponent( text );
         name.getStyle()
             .setClickEvent( new ClickEvent( ClickEvent.Action.RUN_COMMAND, PREFIX + text ) )
-            .setHoverEvent( new HoverEvent( HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation( "gui.computercraft.tooltip.copy" ) ) );
+            .setHoverEvent( new HoverEvent( HoverEvent.Action.SHOW_TEXT, new TranslatableTextComponent( "gui.computercraft.tooltip.copy" ) ) );
         return name;
     }
 }

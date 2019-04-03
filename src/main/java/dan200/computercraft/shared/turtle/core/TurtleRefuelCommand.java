@@ -10,9 +10,9 @@ import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.ITurtleCommand;
 import dan200.computercraft.api.turtle.TurtleAnimation;
 import dan200.computercraft.api.turtle.TurtleCommandResult;
+import dan200.computercraft.api.turtle.event.TurtleEvent;
 import dan200.computercraft.api.turtle.event.TurtleRefuelEvent;
 import net.minecraft.item.ItemStack;
-import net.minecraftforge.common.MinecraftForge;
 
 import javax.annotation.Nonnull;
 
@@ -30,11 +30,11 @@ public class TurtleRefuelCommand implements ITurtleCommand
     public TurtleCommandResult execute( @Nonnull ITurtleAccess turtle )
     {
         int slot = turtle.getSelectedSlot();
-        ItemStack stack = turtle.getInventory().getStackInSlot( slot );
+        ItemStack stack = turtle.getInventory().getInvStack( slot );
         if( stack.isEmpty() ) return TurtleCommandResult.failure( "No items to combust" );
 
         TurtleRefuelEvent event = new TurtleRefuelEvent( turtle, stack );
-        if( MinecraftForge.EVENT_BUS.post( event ) ) return TurtleCommandResult.failure( event.getFailureMessage() );
+        if( TurtleEvent.post( event ) ) return TurtleCommandResult.failure( event.getFailureMessage() );
         if( event.getHandler() == null ) return TurtleCommandResult.failure( "Items not combustible" );
 
         if( limit != 0 )

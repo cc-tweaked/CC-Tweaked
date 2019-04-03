@@ -10,12 +10,12 @@ import dan200.computercraft.shared.network.NetworkHandler;
 import dan200.computercraft.shared.network.NetworkMessage;
 import dan200.computercraft.shared.network.client.PlayRecordClientMessage;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemRecord;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.SoundEvent;
+import net.minecraft.item.MusicDiscItem;
+import net.minecraft.sound.SoundEvent;
+import net.minecraft.text.TranslatableTextComponent;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
@@ -33,8 +33,8 @@ public final class RecordUtil
     public static String getRecordInfo( @Nonnull ItemStack recordStack )
     {
         Item item = recordStack.getItem();
-        if( !(item instanceof ItemRecord) ) return null;
+        if( !(item instanceof MusicDiscItem) ) return null;
 
-        return new TextComponentTranslation( item.getTranslationKey() + ".desc" ).getString();
+        return new TranslatableTextComponent( item.getTranslationKey() + ".desc" ).getString();
     }
 }

@@ -6,17 +6,17 @@
 
 package dan200.computercraft.shared.command;
 
-import net.minecraft.command.CommandSource;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.command.ServerCommandSource;
 
 import java.util.function.Predicate;
 
 /**
  * The level a user must be at in order to execute a command.
  */
-public enum UserLevel implements Predicate<CommandSource>
+public enum UserLevel implements Predicate<ServerCommandSource>
 {
     /**
      * Only can be used by the owner of the server: namely the server console or the player in SSP.
@@ -54,16 +54,16 @@ public enum UserLevel implements Predicate<CommandSource>
     }
 
     @Override
-    public boolean test( CommandSource source )
+    public boolean test( ServerCommandSource source )
     {
         if( this == ANYONE ) return true;
 
         // We *always* allow level 0 stuff, even if the
-        MinecraftServer server = source.getServer();
+        MinecraftServer server = source.getMinecraftServer();
         Entity sender = source.getEntity();
 
-        if( server.isSinglePlayer() && sender instanceof EntityPlayer &&
-            ((EntityPlayer) sender).getGameProfile().getName().equalsIgnoreCase( server.getServerModName() ) )
+        if( server.isSinglePlayer() && sender instanceof PlayerEntity &&
+            ((PlayerEntity) sender).getGameProfile().getName().equalsIgnoreCase( server.getUserName() ) )
         {
             if( this == OWNER || this == OWNER_OP ) return true;
         }

@@ -22,10 +22,10 @@ import dan200.computercraft.shared.pocket.inventory.ContainerPocketComputer;
 import dan200.computercraft.shared.pocket.items.ItemPocketComputer;
 import dan200.computercraft.shared.turtle.blocks.TileTurtle;
 import dan200.computercraft.shared.turtle.inventory.ContainerTurtle;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumHand;
+import net.minecraft.util.Hand;
 
 public final class Containers
 {
@@ -33,64 +33,70 @@ public final class Containers
     {
     }
 
-    public static void openDiskDriveGUI( EntityPlayer player, TileDiskDrive drive )
+    public static void openDiskDriveGUI( PlayerEntity player, TileDiskDrive drive )
     {
         TileEntityContainerType.diskDrive( drive.getPos() ).open( player );
     }
 
-    public static void openComputerGUI( EntityPlayer player, TileComputer computer )
+    public static void openComputerGUI( PlayerEntity player, TileComputer computer )
     {
+        computer.createServerComputer().sendTerminalState( player );
         TileEntityContainerType.computer( computer.getPos() ).open( player );
     }
 
-    public static void openPrinterGUI( EntityPlayer player, TilePrinter printer )
+    public static void openPrinterGUI( PlayerEntity player, TilePrinter printer )
     {
         TileEntityContainerType.printer( printer.getPos() ).open( player );
     }
 
-    public static void openTurtleGUI( EntityPlayer player, TileTurtle turtle )
+    public static void openTurtleGUI( PlayerEntity player, TileTurtle turtle )
     {
+        turtle.createServerComputer().sendTerminalState( player );
         TileEntityContainerType.turtle( turtle.getPos() ).open( player );
     }
 
-    public static void openPrintoutGUI( EntityPlayer player, EnumHand hand )
+    public static void openPrintoutGUI( PlayerEntity player, Hand hand )
     {
-        ItemStack stack = player.getHeldItem( hand );
+        ItemStack stack = player.getStackInHand( hand );
         Item item = stack.getItem();
         if( !(item instanceof ItemPrintout) ) return;
 
         new PrintoutContainerType( hand ).open( player );
     }
 
-    public static void openPocketComputerGUI( EntityPlayer player, EnumHand hand )
+    public static void openPocketComputerGUI( PlayerEntity player, Hand hand )
     {
-        ItemStack stack = player.getHeldItem( hand );
+        ItemStack stack = player.getStackInHand( hand );
         Item item = stack.getItem();
         if( !(item instanceof ItemPocketComputer) ) return;
+
+        ServerComputer computer = ItemPocketComputer.getServerComputer( stack );
+        if( computer != null ) computer.sendTerminalState( player );
 
         new PocketComputerContainerType( hand ).open( player );
     }
 
-    public static void openComputerGUI( EntityPlayer player, ServerComputer computer )
+    public static void openComputerGUI( PlayerEntity player, ServerComputer computer )
     {
+        computer.sendTerminalState( player );
         new ViewComputerContainerType( computer ).open( player );
     }
 
     public static void setup()
     {
-        ContainerType.register( TileEntityContainerType::computer, ( packet, player ) ->
-            new ContainerComputer( (TileComputer) packet.getTileEntity( player ) ) );
-        ContainerType.register( TileEntityContainerType::turtle, ( packet, player ) -> {
+        ContainerType.register( TileEntityContainerType::computer, ( id, packet, player ) ->
+            new ContainerComputer( id, (TileComputer) packet.getTileEntity( player ) ) );
+        ContainerType.register( TileEntityContainerType::turtle, ( id, packet, player ) -> {
             TileTurtle turtle = (TileTurtle) packet.getTileEntity( player );
-            return new ContainerTurtle( player.inventory, turtle.getAccess(), turtle.getServerComputer() );
+            return new ContainerTurtle( id, player.inventory, turtle.getAccess(), turtle.getServerComputer() );
         } );
-        ContainerType.register( TileEntityContainerType::diskDrive, ( packet, player ) ->
-            new ContainerDiskDrive( player.inventory, (TileDiskDrive) packet.getTileEntity( player ) ) );
-        ContainerType.register( TileEntityContainerType::printer, ( packet, player ) ->
-            new ContainerPrinter( player.inventory, (TilePrinter) packet.getTileEntity( player ) ) );
+        ContainerType.register( TileEntityContainerType::diskDrive, ( id, packet, player ) ->
+            new ContainerDiskDrive( id, player.inventory, (TileDiskDrive) packet.getTileEntity( player ) ) );
+        ContainerType.register( TileEntityContainerType::printer, ( id, packet, player ) ->
+            new ContainerPrinter( id, player.inventory, (TilePrinter) packet.getTileEntity( player ) ) );
 
-        ContainerType.register( PocketComputerContainerType::new, ( packet, player ) -> new ContainerPocketComputer( player, packet.hand ) );
-        ContainerType.register( PrintoutContainerType::new, ( packet, player ) -> new ContainerHeldItem( player, packet.hand ) );
-        ContainerType.register( ViewComputerContainerType::new, ( packet, player ) -> new ContainerViewComputer( ComputerCraft.serverComputerRegistry.get( packet.instanceId ) ) );
+        ContainerType.register( PocketComputerContainerType::new, ( id, packet, player ) -> new ContainerPocketComputer( id, player, packet.hand ) );
+        ContainerType.register( PrintoutContainerType::new, ( id, packet, player ) -> new ContainerHeldItem( id, player, packet.hand ) );
+        ContainerType.register( ViewComputerContainerType::new, ( id, packet, player ) -> new ContainerViewComputer( id, ComputerCraft.serverComputerRegistry.get( packet.instanceId ) ) );
     }
 }

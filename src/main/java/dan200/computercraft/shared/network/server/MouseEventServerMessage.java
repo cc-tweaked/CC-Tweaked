@@ -9,7 +9,7 @@ package dan200.computercraft.shared.network.server;
 import dan200.computercraft.shared.computer.core.IContainerComputer;
 import dan200.computercraft.shared.computer.core.InputState;
 import dan200.computercraft.shared.computer.core.ServerComputer;
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.PacketByteBuf;
 
 import javax.annotation.Nonnull;
 
@@ -39,7 +39,7 @@ public class MouseEventServerMessage extends ComputerServerMessage
     }
 
     @Override
-    public void toBytes( @Nonnull PacketBuffer buf )
+    public void toBytes( @Nonnull PacketByteBuf buf )
     {
         super.toBytes( buf );
         buf.writeByte( type );
@@ -49,7 +49,7 @@ public class MouseEventServerMessage extends ComputerServerMessage
     }
 
     @Override
-    public void fromBytes( @Nonnull PacketBuffer buf )
+    public void fromBytes( @Nonnull PacketByteBuf buf )
     {
         super.fromBytes( buf );
         type = buf.readByte();

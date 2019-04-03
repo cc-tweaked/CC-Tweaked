@@ -10,7 +10,7 @@ import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.Identifier;
 import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
@@ -36,7 +36,7 @@ public interface IPocketUpgrade
      * @see ComputerCraftAPI#registerPocketUpgrade(IPocketUpgrade)
      */
     @Nonnull
-    ResourceLocation getUpgradeID();
+    Identifier getUpgradeID();
 
     /**
      * Return an unlocalised string to describe the type of pocket computer this upgrade provides.

@@ -6,6 +6,7 @@
 
 package dan200.computercraft.client.gui;
 
+import com.mojang.blaze3d.platform.GlStateManager;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.client.gui.widgets.WidgetTerminal;
 import dan200.computercraft.client.gui.widgets.WidgetWrapper;
@@ -13,16 +14,17 @@ import dan200.computercraft.shared.computer.blocks.TileComputer;
 import dan200.computercraft.shared.computer.core.ClientComputer;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.inventory.ContainerComputer;
-import net.minecraft.client.gui.inventory.GuiContainer;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.inventory.Container;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.client.gui.ContainerScreen;
+import net.minecraft.container.Container;
+import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.text.StringTextComponent;
+import net.minecraft.util.Identifier;
 
-public class GuiComputer extends GuiContainer
+public class GuiComputer<T extends Container> extends ContainerScreen<T>
 {
-    private static final ResourceLocation BACKGROUND_NORMAL = new ResourceLocation( "computercraft", "textures/gui/corners_normal.png" );
-    private static final ResourceLocation BACKGROUND_ADVANCED = new ResourceLocation( "computercraft", "textures/gui/corners_advanced.png" );
-    private static final ResourceLocation BACKGROUND_COMMAND = new ResourceLocation( "computercraft", "textures/gui/corners_command.png" );
+    private static final Identifier BACKGROUND_NORMAL = new Identifier( "computercraft", "textures/gui/corners_normal.png" );
+    private static final Identifier BACKGROUND_ADVANCED = new Identifier( "computercraft", "textures/gui/corners_advanced.png" );
+    private static final Identifier BACKGROUND_COMMAND = new Identifier( "computercraft", "textures/gui/corners_command.png" );
 
     private final ComputerFamily m_family;
     private final ClientComputer m_computer;
@@ -32,9 +34,11 @@ public class GuiComputer extends GuiContainer
     private WidgetTerminal terminal;
     private WidgetWrapper terminalWrapper;
 
-    public GuiComputer( Container container, ComputerFamily family, ClientComputer computer, int termWidth, int termHeight )
+
+    public GuiComputer( T container, PlayerInventory player, ComputerFamily family, ClientComputer computer, int termWidth, int termHeight )
     {
-        super( container );
+        super( container, player, new StringTextComponent( "" ) );
+
         m_family = family;
         m_computer = computer;
         m_termWidth = termWidth;
@@ -42,10 +46,10 @@ public class GuiComputer extends GuiContainer
         terminal = null;
     }
 
-    public GuiComputer( TileComputer computer )
+    public static GuiComputer<ContainerComputer> create( int id, TileComputer computer, PlayerInventory player )
     {
-        this(
-            new ContainerComputer( computer ),
+        return new GuiComputer<>(
+            new ContainerComputer( id, computer ), player,
             computer.getFamily(),
             computer.createClientComputer(),
             ComputerCraft.terminalWidth_computer,
@@ -54,32 +58,32 @@ public class GuiComputer extends GuiContainer
     }
 
     @Override
-    protected void initGui()
+    protected void init()
     {
-        mc.keyboardListener.enableRepeatEvents( true );
+        minecraft.keyboard.enableRepeatEvents( true );
 
         int termPxWidth = m_termWidth * FixedWidthFontRenderer.FONT_WIDTH;
         int termPxHeight = m_termHeight * FixedWidthFontRenderer.FONT_HEIGHT;
 
-        xSize = termPxWidth + 4 + 24;
-        ySize = termPxHeight + 4 + 24;
+        containerWidth = termPxWidth + 4 + 24;
+        containerHeight = termPxHeight + 4 + 24;
 
-        super.initGui();
+        super.init();
 
-        terminal = new WidgetTerminal( mc, () -> m_computer, m_termWidth, m_termHeight, 2, 2, 2, 2 );
-        terminalWrapper = new WidgetWrapper( terminal, 2 + 12 + guiLeft, 2 + 12 + guiTop, termPxWidth, termPxHeight );
+        terminal = new WidgetTerminal( minecraft, () -> m_computer, m_termWidth, m_termHeight, 2, 2, 2, 2 );
+        terminalWrapper = new WidgetWrapper( terminal, 2 + 12 + left, 2 + 12 + top, termPxWidth, termPxHeight );
 
         children.add( terminalWrapper );
         setFocused( terminalWrapper );
     }
 
     @Override
-    public void onGuiClosed()
+    public void removed()
     {
-        super.onGuiClosed();
+        super.removed();
         children.remove( terminal );
         terminal = null;
-        mc.keyboardListener.enableRepeatEvents( false );
+        minecraft.keyboard.enableRepeatEvents( false );
     }
 
     @Override
@@ -90,7 +94,7 @@ public class GuiComputer extends GuiContainer
     }
 
     @Override
-    public void drawGuiContainerBackgroundLayer( float partialTicks, int mouseX, int mouseY )
+    public void drawBackground( float partialTicks, int mouseX, int mouseY )
     {
         // Work out where to draw
         int startX = terminalWrapper.getX() - 2;
@@ -107,34 +111,34 @@ public class GuiComputer extends GuiContainer
         {
             case Normal:
             default:
-                mc.getTextureManager().bindTexture( BACKGROUND_NORMAL );
+                minecraft.getTextureManager().bindTexture( BACKGROUND_NORMAL );
                 break;
             case Advanced:
-                mc.getTextureManager().bindTexture( BACKGROUND_ADVANCED );
+                minecraft.getTextureManager().bindTexture( BACKGROUND_ADVANCED );
                 break;
             case Command:
-                mc.getTextureManager().bindTexture( BACKGROUND_COMMAND );
+                minecraft.getTextureManager().bindTexture( BACKGROUND_COMMAND );
                 break;
         }
 
-        drawTexturedModalRect( startX - 12, startY - 12, 12, 28, 12, 12 );
-        drawTexturedModalRect( startX - 12, endY, 12, 40, 12, 16 );
-        drawTexturedModalRect( endX, startY - 12, 24, 28, 12, 12 );
-        drawTexturedModalRect( endX, endY, 24, 40, 12, 16 );
+        blit( startX - 12, startY - 12, 12, 28, 12, 12 );
+        blit( startX - 12, endY, 12, 40, 12, 16 );
+        blit( endX, startY - 12, 24, 28, 12, 12 );
+        blit( endX, endY, 24, 40, 12, 16 );
 
-        drawTexturedModalRect( startX, startY - 12, 0, 0, endX - startX, 12 );
-        drawTexturedModalRect( startX, endY, 0, 12, endX - startX, 16 );
+        blit( startX, startY - 12, 0, 0, endX - startX, 12 );
+        blit( startX, endY, 0, 12, endX - startX, 16 );
 
-        drawTexturedModalRect( startX - 12, startY, 0, 28, 12, endY - startY );
-        drawTexturedModalRect( endX, startY, 36, 28, 12, endY - startY );
+        blit( startX - 12, startY, 0, 28, 12, endY - startY );
+        blit( endX, startY, 36, 28, 12, endY - startY );
     }
 
     @Override
     public void render( int mouseX, int mouseY, float partialTicks )
     {
-        drawDefaultBackground();
+        renderBackground( 0 );
         super.render( mouseX, mouseY, partialTicks );
-        renderHoveredToolTip( mouseX, mouseY );
+        drawMouseoverTooltip( mouseX, mouseY );
     }
 
     @Override

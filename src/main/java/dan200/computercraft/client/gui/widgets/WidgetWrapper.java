@@ -6,17 +6,17 @@
 
 package dan200.computercraft.client.gui.widgets;
 
-import net.minecraft.client.gui.IGuiEventListener;
+import net.minecraft.client.gui.Element;
 
-public class WidgetWrapper implements IGuiEventListener
+public class WidgetWrapper implements Element
 {
-    private final IGuiEventListener listener;
+    private final Element listener;
     private final int x;
     private final int y;
     private final int width;
     private final int height;
 
-    public WidgetWrapper( IGuiEventListener listener, int x, int y, int width, int height )
+    public WidgetWrapper( Element listener, int x, int y, int width, int height )
     {
         this.listener = listener;
         this.x = x;
@@ -26,15 +26,16 @@ public class WidgetWrapper implements IGuiEventListener
     }
 
     @Override
-    public void focusChanged( boolean b )
+    public void mouseMoved( double x, double y )
     {
-        listener.focusChanged( b );
+        double dx = x - this.x, dy = y - this.y;
+        if( dx >= 0 && dx < width && dy >= 0 && dy < height ) listener.mouseMoved( dx, dy );
     }
 
     @Override
-    public boolean canFocus()
+    public void onFocusChanged( boolean a, boolean b )
     {
-        return listener.canFocus();
+        listener.onFocusChanged( a, b );
     }
 
     @Override
@@ -59,9 +60,10 @@ public class WidgetWrapper implements IGuiEventListener
     }
 
     @Override
-    public boolean mouseScrolled( double delta )
+    public boolean mouseScrolled( double x, double y, double delta )
     {
-        return listener.mouseScrolled( delta );
+        double dx = x - this.x, dy = y - this.y;
+        return dx >= 0 && dx < width && dy >= 0 && dy < height && listener.mouseScrolled( dx, dy, delta );
     }
 
     @Override
@@ -100,5 +102,12 @@ public class WidgetWrapper implements IGuiEventListener
     public int getHeight()
     {
         return height;
+    }
+
+    @Override
+    public boolean isMouseOver( double x, double y )
+    {
+        double dx = x - this.x, dy = y - this.y;
+        return dx >= 0 && dx < width && dy >= 0 && dy < height;
     }
 }

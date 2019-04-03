@@ -8,77 +8,56 @@ package dan200.computercraft.shared.peripheral.printer;
 
 import dan200.computercraft.shared.common.BlockGeneric;
 import net.minecraft.block.Block;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.BlockItemUseContext;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
-import net.minecraft.state.BooleanProperty;
-import net.minecraft.state.DirectionProperty;
-import net.minecraft.state.StateContainer;
-import net.minecraft.state.properties.BlockStateProperties;
-import net.minecraft.stats.StatList;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.INameable;
+import net.minecraft.state.StateFactory;
+import net.minecraft.state.property.BooleanProperty;
+import net.minecraft.state.property.DirectionProperty;
+import net.minecraft.state.property.Properties;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class BlockPrinter extends BlockGeneric
 {
-    private static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
+    private static final DirectionProperty FACING = Properties.FACING_HORIZONTAL;
     static final BooleanProperty TOP = BooleanProperty.create( "top" );
     static final BooleanProperty BOTTOM = BooleanProperty.create( "bottom" );
 
-    public BlockPrinter( Properties settings )
+    public BlockPrinter( Settings settings )
     {
         super( settings, TilePrinter.FACTORY );
-        setDefaultState( getStateContainer().getBaseState()
-            .with( FACING, EnumFacing.NORTH )
+        setDefaultState( getStateFactory().getDefaultState()
+            .with( FACING, Direction.NORTH )
             .with( TOP, false )
             .with( BOTTOM, false ) );
     }
 
     @Override
-    protected void fillStateContainer( StateContainer.Builder<Block, IBlockState> properties )
+    protected void appendProperties( StateFactory.Builder<Block, BlockState> properties )
     {
-        properties.add( FACING, TOP, BOTTOM );
+        super.appendProperties( properties );
+        properties.with( FACING, TOP, BOTTOM );
     }
 
     @Nullable
     @Override
-    public IBlockState getStateForPlacement( BlockItemUseContext placement )
+    public BlockState getPlacementState( ItemPlacementContext placement )
     {
-        return getDefaultState().with( FACING, placement.getPlacementHorizontalFacing().getOpposite() );
+        return getDefaultState().with( FACING, placement.getPlayerHorizontalFacing().getOpposite() );
     }
 
     @Override
-    public void harvestBlock( @Nonnull World world, EntityPlayer player, @Nonnull BlockPos pos, @Nonnull IBlockState state, @Nullable TileEntity te, ItemStack stack )
-    {
-        if( te instanceof INameable && ((INameable) te).hasCustomName() )
-        {
-            player.addStat( StatList.BLOCK_MINED.get( this ) );
-            player.addExhaustion( 0.005F );
-
-            ItemStack result = new ItemStack( this );
-            result.setDisplayName( ((INameable) te).getCustomName() );
-            spawnAsEntity( world, pos, result );
-        }
-        else
-        {
-            super.harvestBlock( world, player, pos, state, te, stack );
-        }
-    }
-
-    @Override
-    public void onBlockPlacedBy( World world, BlockPos pos, IBlockState state, EntityLivingBase placer, ItemStack stack )
+    public void onPlaced( World world, BlockPos pos, BlockState state, LivingEntity placer, ItemStack stack )
     {
         if( stack.hasDisplayName() )
         {
-            TileEntity tileentity = world.getTileEntity( pos );
+            BlockEntity tileentity = world.getBlockEntity( pos );
             if( tileentity instanceof TilePrinter ) ((TilePrinter) tileentity).customName = stack.getDisplayName();
         }
     }

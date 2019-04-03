@@ -6,13 +6,13 @@
 
 package dan200.computercraft.shared.common;
 
-import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 
 public interface IBundledRedstoneBlock
 {
-    boolean getBundledRedstoneConnectivity( World world, BlockPos pos, EnumFacing side );
+    boolean getBundledRedstoneConnectivity( World world, BlockPos pos, Direction side );
 
-    int getBundledRedstoneOutput( World world, BlockPos pos, EnumFacing side );
+    int getBundledRedstoneOutput( World world, BlockPos pos, Direction side );
 }

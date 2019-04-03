@@ -11,14 +11,14 @@ import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.api.turtle.TurtleUpgradeType;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.model.IBakedModel;
-import net.minecraft.client.renderer.model.ModelManager;
-import net.minecraft.client.renderer.model.ModelResourceLocation;
-import net.minecraft.init.Blocks;
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.minecraft.block.Blocks;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.render.model.BakedModel;
+import net.minecraft.client.render.model.BakedModelManager;
+import net.minecraft.client.util.ModelIdentifier;
+import net.minecraft.util.Identifier;
 import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nonnull;
@@ -26,13 +26,13 @@ import javax.vecmath.Matrix4f;
 
 public class TurtleCraftingTable extends AbstractTurtleUpgrade
 {
-    @OnlyIn( Dist.CLIENT )
-    private ModelResourceLocation m_leftModel;
+    @Environment( EnvType.CLIENT )
+    private ModelIdentifier m_leftModel;
 
-    @OnlyIn( Dist.CLIENT )
-    private ModelResourceLocation m_rightModel;
+    @Environment( EnvType.CLIENT )
+    private ModelIdentifier m_rightModel;
 
-    public TurtleCraftingTable( ResourceLocation id )
+    public TurtleCraftingTable( Identifier id )
     {
         super( id, TurtleUpgradeType.Peripheral, Blocks.CRAFTING_TABLE );
     }
@@ -43,25 +43,25 @@ public class TurtleCraftingTable extends AbstractTurtleUpgrade
         return new CraftingTablePeripheral( turtle );
     }
 
-    @OnlyIn( Dist.CLIENT )
+    @Environment( EnvType.CLIENT )
     private void loadModelLocations()
     {
         if( m_leftModel == null )
         {
-            m_leftModel = new ModelResourceLocation( "computercraft:turtle_crafting_table_left", "inventory" );
-            m_rightModel = new ModelResourceLocation( "computercraft:turtle_crafting_table_right", "inventory" );
+            m_leftModel = new ModelIdentifier( "computercraft:turtle_crafting_table_left", "inventory" );
+            m_rightModel = new ModelIdentifier( "computercraft:turtle_crafting_table_right", "inventory" );
         }
     }
 
     @Nonnull
     @Override
-    @OnlyIn( Dist.CLIENT )
-    public Pair<IBakedModel, Matrix4f> getModel( ITurtleAccess turtle, @Nonnull TurtleSide side )
+    @Environment( EnvType.CLIENT )
+    public Pair<BakedModel, Matrix4f> getModel( ITurtleAccess turtle, @Nonnull TurtleSide side )
     {
         loadModelLocations();
 
         Matrix4f transform = null;
-        ModelManager modelManager = Minecraft.getInstance().getItemRenderer().getItemModelMesher().getModelManager();
+        BakedModelManager modelManager = MinecraftClient.getInstance().getItemRenderer().getModels().getModelManager();
         if( side == TurtleSide.Left )
         {
             return Pair.of( modelManager.getModel( m_leftModel ), transform );

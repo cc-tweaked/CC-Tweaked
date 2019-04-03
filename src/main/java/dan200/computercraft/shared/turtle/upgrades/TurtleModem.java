@@ -12,18 +12,18 @@ import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.turtle.*;
 import dan200.computercraft.shared.peripheral.modem.ModemState;
 import dan200.computercraft.shared.peripheral.modem.wireless.WirelessModemPeripheral;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.model.IBakedModel;
-import net.minecraft.client.renderer.model.ModelManager;
-import net.minecraft.client.renderer.model.ModelResourceLocation;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.ResourceLocation;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.render.model.BakedModel;
+import net.minecraft.client.render.model.BakedModelManager;
+import net.minecraft.client.util.ModelIdentifier;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nonnull;
@@ -69,19 +69,19 @@ public class TurtleModem extends AbstractTurtleUpgrade
 
     private boolean advanced;
 
-    @OnlyIn( Dist.CLIENT )
-    private ModelResourceLocation m_leftOffModel;
+    @Environment( EnvType.CLIENT )
+    private ModelIdentifier m_leftOffModel;
 
-    @OnlyIn( Dist.CLIENT )
-    private ModelResourceLocation m_rightOffModel;
+    @Environment( EnvType.CLIENT )
+    private ModelIdentifier m_rightOffModel;
 
-    @OnlyIn( Dist.CLIENT )
-    private ModelResourceLocation m_leftOnModel;
+    @Environment( EnvType.CLIENT )
+    private ModelIdentifier m_leftOnModel;
 
-    @OnlyIn( Dist.CLIENT )
-    private ModelResourceLocation m_rightOnModel;
+    @Environment( EnvType.CLIENT )
+    private ModelIdentifier m_rightOnModel;
 
-    public TurtleModem( boolean advanced, ResourceLocation id )
+    public TurtleModem( boolean advanced, Identifier id )
     {
         super(
             id, TurtleUpgradeType.Peripheral,
@@ -100,52 +100,52 @@ public class TurtleModem extends AbstractTurtleUpgrade
 
     @Nonnull
     @Override
-    public TurtleCommandResult useTool( @Nonnull ITurtleAccess turtle, @Nonnull TurtleSide side, @Nonnull TurtleVerb verb, @Nonnull EnumFacing dir )
+    public TurtleCommandResult useTool( @Nonnull ITurtleAccess turtle, @Nonnull TurtleSide side, @Nonnull TurtleVerb verb, @Nonnull Direction dir )
     {
         return TurtleCommandResult.failure();
     }
 
-    @OnlyIn( Dist.CLIENT )
+    @Environment( EnvType.CLIENT )
     private void loadModelLocations()
     {
         if( m_leftOffModel == null )
         {
             if( advanced )
             {
-                m_leftOffModel = new ModelResourceLocation( "computercraft:turtle_modem_advanced_off_left", "inventory" );
-                m_rightOffModel = new ModelResourceLocation( "computercraft:turtle_modem_advanced_off_right", "inventory" );
-                m_leftOnModel = new ModelResourceLocation( "computercraft:turtle_modem_advanced_on_left", "inventory" );
-                m_rightOnModel = new ModelResourceLocation( "computercraft:turtle_modem_advanced_on_right", "inventory" );
+                m_leftOffModel = new ModelIdentifier( "computercraft:turtle_modem_advanced_off_left", "inventory" );
+                m_rightOffModel = new ModelIdentifier( "computercraft:turtle_modem_advanced_off_right", "inventory" );
+                m_leftOnModel = new ModelIdentifier( "computercraft:turtle_modem_advanced_on_left", "inventory" );
+                m_rightOnModel = new ModelIdentifier( "computercraft:turtle_modem_advanced_on_right", "inventory" );
             }
             else
             {
-                m_leftOffModel = new ModelResourceLocation( "computercraft:turtle_modem_normal_off_left", "inventory" );
-                m_rightOffModel = new ModelResourceLocation( "computercraft:turtle_modem_normal_off_right", "inventory" );
-                m_leftOnModel = new ModelResourceLocation( "computercraft:turtle_modem_normal_on_left", "inventory" );
-                m_rightOnModel = new ModelResourceLocation( "computercraft:turtle_modem_normal_on_right", "inventory" );
+                m_leftOffModel = new ModelIdentifier( "computercraft:turtle_modem_normal_off_left", "inventory" );
+                m_rightOffModel = new ModelIdentifier( "computercraft:turtle_modem_normal_off_right", "inventory" );
+                m_leftOnModel = new ModelIdentifier( "computercraft:turtle_modem_normal_on_left", "inventory" );
+                m_rightOnModel = new ModelIdentifier( "computercraft:turtle_modem_normal_on_right", "inventory" );
             }
         }
     }
 
     @Nonnull
     @Override
-    @OnlyIn( Dist.CLIENT )
-    public Pair<IBakedModel, Matrix4f> getModel( ITurtleAccess turtle, @Nonnull TurtleSide side )
+    @Environment( EnvType.CLIENT )
+    public Pair<BakedModel, Matrix4f> getModel( ITurtleAccess turtle, @Nonnull TurtleSide side )
     {
         loadModelLocations();
 
         boolean active = false;
         if( turtle != null )
         {
-            NBTTagCompound turtleNBT = turtle.getUpgradeNBTData( side );
-            if( turtleNBT.contains( "active" ) )
+            CompoundTag turtleNBT = turtle.getUpgradeNBTData( side );
+            if( turtleNBT.containsKey( "active" ) )
             {
                 active = turtleNBT.getBoolean( "active" );
             }
         }
 
         Matrix4f transform = null;
-        ModelManager modelManager = Minecraft.getInstance().getItemRenderer().getItemModelMesher().getModelManager();
+        BakedModelManager modelManager = MinecraftClient.getInstance().getItemRenderer().getModels().getModelManager();
         if( side == TurtleSide.Left )
         {
             return Pair.of(
@@ -166,7 +166,7 @@ public class TurtleModem extends AbstractTurtleUpgrade
     public void update( @Nonnull ITurtleAccess turtle, @Nonnull TurtleSide side )
     {
         // Advance the modem
-        if( !turtle.getWorld().isRemote )
+        if( !turtle.getWorld().isClient )
         {
             IPeripheral peripheral = turtle.getPeripheral( side );
             if( peripheral instanceof Peripheral )

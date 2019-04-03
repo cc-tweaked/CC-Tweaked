@@ -6,9 +6,10 @@
         "#D#"
     ],
     "key": {
-        "#": { "tag": "forge:stone" },
+        "#": { "item": "minecraft:stone" },
         "R": { "item": "minecraft:glass_pane" },
-        "D": { "tag": "forge:dyes" }
+        "D": { "item": "minecraft:black_dye" }
     },
+    "_comment": "TODO: All dyes",
     "result": { "item": "computercraft:printer" }
 }

@@ -8,10 +8,10 @@ package dan200.computercraft;
 
 import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.api.turtle.event.TurtleAction;
+import dan200.computercraft.client.proxy.ComputerCraftProxyClient;
 import dan200.computercraft.core.apis.AddressPredicate;
 import dan200.computercraft.core.apis.http.websocket.Websocket;
 import dan200.computercraft.core.filesystem.ResourceMount;
-import dan200.computercraft.shared.Config;
 import dan200.computercraft.shared.computer.blocks.BlockComputer;
 import dan200.computercraft.shared.computer.core.ClientComputerRegistry;
 import dan200.computercraft.shared.computer.core.ServerComputerRegistry;
@@ -30,13 +30,14 @@ import dan200.computercraft.shared.peripheral.speaker.BlockSpeaker;
 import dan200.computercraft.shared.pocket.items.ItemPocketComputer;
 import dan200.computercraft.shared.pocket.peripherals.PocketModem;
 import dan200.computercraft.shared.pocket.peripherals.PocketSpeaker;
+import dan200.computercraft.shared.proxy.ComputerCraftProxyCommon;
 import dan200.computercraft.shared.turtle.blocks.BlockTurtle;
 import dan200.computercraft.shared.turtle.items.ItemTurtle;
 import dan200.computercraft.shared.turtle.upgrades.*;
-import net.minecraft.resources.IReloadableResourceManager;
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.server.ServerLifecycleHooks;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.ModInitializer;
+import net.minecraft.resource.ReloadableResourceManager;
+import net.minecraft.util.Identifier;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -45,8 +46,7 @@ import java.io.InputStream;
 import java.util.EnumSet;
 import java.util.concurrent.TimeUnit;
 
-@Mod( ComputerCraft.MOD_ID )
-public final class ComputerCraft
+public final class ComputerCraft implements ModInitializer
 {
     public static final String MOD_ID = "computercraft";
 
@@ -184,9 +184,22 @@ public final class ComputerCraft
     // Logging
     public static final Logger log = LogManager.getLogger( MOD_ID );
 
+    // Implementation
+    public static ComputerCraft instance;
+
     public ComputerCraft()
     {
-        Config.load();
+        instance = this;
+    }
+
+    @Override
+    public void onInitialize()
+    {
+        ComputerCraftProxyCommon.setup();
+        if( net.fabricmc.loader.api.FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT )
+        {
+            ComputerCraftProxyClient.setup();
+        }
     }
 
     public static String getVersion()
@@ -196,17 +209,17 @@ public final class ComputerCraft
 
     static IMount createResourceMount( String domain, String subPath )
     {
-        IReloadableResourceManager manager = ServerLifecycleHooks.getCurrentServer().getResourceManager();
+        ReloadableResourceManager manager = ComputerCraftProxyCommon.getServer().getDataManager();
         ResourceMount mount = new ResourceMount( domain, subPath, manager );
         return mount.exists( "" ) ? mount : null;
     }
 
     public static InputStream getResourceFile( String domain, String subPath )
     {
-        IReloadableResourceManager manager = ServerLifecycleHooks.getCurrentServer().getResourceManager();
+        ReloadableResourceManager manager = ComputerCraftProxyCommon.getServer().getDataManager();
         try
         {
-            return manager.getResource( new ResourceLocation( domain, subPath ) ).getInputStream();
+            return manager.getResource( new Identifier( domain, subPath ) ).getInputStream();
         }
         catch( IOException ignored )
         {

@@ -6,44 +6,42 @@
 
 package dan200.computercraft.shared.media.recipes;
 
-import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.media.items.ItemDisk;
-import dan200.computercraft.shared.util.AbstractRecipe;
 import dan200.computercraft.shared.util.Colour;
 import dan200.computercraft.shared.util.ColourTracker;
 import dan200.computercraft.shared.util.ColourUtils;
-import net.minecraft.init.Items;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.item.EnumDyeColor;
+import net.minecraft.inventory.CraftingInventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.IRecipeSerializer;
-import net.minecraft.item.crafting.Ingredient;
-import net.minecraft.item.crafting.RecipeSerializers;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.item.Items;
+import net.minecraft.recipe.Ingredient;
+import net.minecraft.recipe.RecipeSerializer;
+import net.minecraft.recipe.SpecialRecipeSerializer;
+import net.minecraft.recipe.crafting.SpecialCraftingRecipe;
+import net.minecraft.util.DyeColor;
+import net.minecraft.util.Identifier;
 import net.minecraft.world.World;
-import net.minecraftforge.common.Tags;
 
 import javax.annotation.Nonnull;
 
-public class DiskRecipe extends AbstractRecipe
+public class DiskRecipe extends SpecialCraftingRecipe
 {
-    private final Ingredient paper = Ingredient.fromItems( Items.PAPER );
-    private final Ingredient redstone = Ingredient.fromTag( Tags.Items.DUSTS_REDSTONE );
+    private final Ingredient paper = Ingredient.ofItems( Items.PAPER );
+    private final Ingredient redstone = Ingredient.ofItems( Items.REDSTONE );
 
-    public DiskRecipe( ResourceLocation id )
+    public DiskRecipe( Identifier id )
     {
         super( id );
     }
 
     @Override
-    public boolean matches( @Nonnull IInventory inv, @Nonnull World world )
+    public boolean matches( @Nonnull CraftingInventory inv, @Nonnull World world )
     {
         boolean paperFound = false;
         boolean redstoneFound = false;
 
-        for( int i = 0; i < inv.getSizeInventory(); i++ )
+        for( int i = 0; i < inv.getInvSize(); i++ )
         {
-            ItemStack stack = inv.getStackInSlot( i );
+            ItemStack stack = inv.getInvStack( i );
 
             if( !stack.isEmpty() )
             {
@@ -69,19 +67,19 @@ public class DiskRecipe extends AbstractRecipe
 
     @Nonnull
     @Override
-    public ItemStack getCraftingResult( @Nonnull IInventory inv )
+    public ItemStack craft( @Nonnull CraftingInventory inv )
     {
         ColourTracker tracker = new ColourTracker();
 
-        for( int i = 0; i < inv.getSizeInventory(); i++ )
+        for( int i = 0; i < inv.getInvSize(); i++ )
         {
-            ItemStack stack = inv.getStackInSlot( i );
+            ItemStack stack = inv.getInvStack( i );
 
             if( stack.isEmpty() ) continue;
 
             if( !paper.test( stack ) && !redstone.test( stack ) )
             {
-                EnumDyeColor dye = ColourUtils.getStackColour( stack );
+                DyeColor dye = ColourUtils.getStackColour( stack );
                 if( dye == null ) continue;
 
                 Colour colour = Colour.VALUES[dye.getId()];
@@ -93,26 +91,24 @@ public class DiskRecipe extends AbstractRecipe
     }
 
     @Override
-    public boolean canFit( int x, int y )
+    public boolean fits( int x, int y )
     {
         return x >= 2 && y >= 2;
     }
 
     @Nonnull
     @Override
-    public ItemStack getRecipeOutput()
+    public ItemStack getOutput()
     {
         return ItemDisk.createFromIDAndColour( -1, null, Colour.Blue.getHex() );
     }
 
     @Nonnull
     @Override
-    public IRecipeSerializer<?> getSerializer()
+    public RecipeSerializer<?> getSerializer()
     {
         return SERIALIZER;
     }
 
-    public static final IRecipeSerializer<DiskRecipe> SERIALIZER = new RecipeSerializers.SimpleSerializer<>(
-        ComputerCraft.MOD_ID + ":disk", DiskRecipe::new
-    );
+    public static final RecipeSerializer<DiskRecipe> SERIALIZER = new SpecialRecipeSerializer<>( DiskRecipe::new );
 }

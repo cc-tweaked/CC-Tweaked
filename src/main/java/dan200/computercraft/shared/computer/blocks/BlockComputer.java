@@ -10,15 +10,15 @@ import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ComputerState;
 import dan200.computercraft.shared.computer.items.ComputerItemFactory;
 import net.minecraft.block.Block;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.item.BlockItemUseContext;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.entity.BlockEntityType;
+import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
-import net.minecraft.state.DirectionProperty;
-import net.minecraft.state.EnumProperty;
-import net.minecraft.state.StateContainer;
-import net.minecraft.state.properties.BlockStateProperties;
-import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.state.StateFactory;
+import net.minecraft.state.property.DirectionProperty;
+import net.minecraft.state.property.EnumProperty;
+import net.minecraft.state.property.Properties;
+import net.minecraft.util.math.Direction;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -26,28 +26,28 @@ import javax.annotation.Nullable;
 public class BlockComputer extends BlockComputerBase<TileComputer>
 {
     public static final EnumProperty<ComputerState> STATE = EnumProperty.create( "state", ComputerState.class );
-    public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
+    public static final DirectionProperty FACING = Properties.FACING_HORIZONTAL;
 
-    public BlockComputer( Properties settings, ComputerFamily family, TileEntityType<? extends TileComputer> type )
+    public BlockComputer( Settings settings, ComputerFamily family, BlockEntityType<? extends TileComputer> type )
     {
         super( settings, family, type );
         setDefaultState( getDefaultState()
-            .with( FACING, EnumFacing.NORTH )
+            .with( FACING, Direction.NORTH )
             .with( STATE, ComputerState.OFF )
         );
     }
 
     @Override
-    protected void fillStateContainer( StateContainer.Builder<Block, IBlockState> builder )
+    protected void appendProperties( StateFactory.Builder<Block, BlockState> builder )
     {
-        builder.add( FACING, STATE );
+        builder.with( FACING, STATE );
     }
 
     @Nullable
     @Override
-    public IBlockState getStateForPlacement( BlockItemUseContext placement )
+    public BlockState getPlacementState( ItemPlacementContext placement )
     {
-        return getDefaultState().with( FACING, placement.getPlacementHorizontalFacing().getOpposite() );
+        return getDefaultState().with( FACING, placement.getPlayerHorizontalFacing().getOpposite() );
     }
 
     @Nonnull

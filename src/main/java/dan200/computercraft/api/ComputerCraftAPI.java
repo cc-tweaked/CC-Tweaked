@@ -20,9 +20,9 @@ import dan200.computercraft.api.peripheral.IPeripheralProvider;
 import dan200.computercraft.api.pocket.IPocketUpgrade;
 import dan200.computercraft.api.redstone.IBundledRedstoneProvider;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
-import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IBlockReader;
+import net.minecraft.util.math.Direction;
+import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
@@ -182,7 +182,7 @@ public final class ComputerCraftAPI
      * If there is no block capable of emitting bundled redstone at the location, -1 will be returned.
      * @see IBundledRedstoneProvider
      */
-    public static int getBundledRedstoneOutput( @Nonnull World world, @Nonnull BlockPos pos, @Nonnull EnumFacing side )
+    public static int getBundledRedstoneOutput( @Nonnull World world, @Nonnull BlockPos pos, @Nonnull Direction side )
     {
         return getInstance().getBundledRedstoneOutput( world, pos, side );
     }
@@ -241,7 +241,7 @@ public final class ComputerCraftAPI
      * @see IWiredElement#getNode()
      */
     @Nullable
-    public static IWiredElement getWiredElementAt( @Nonnull IBlockReader world, @Nonnull BlockPos pos, @Nonnull EnumFacing side )
+    public static IWiredElement getWiredElementAt( @Nonnull BlockView world, @Nonnull BlockPos pos, @Nonnull Direction side )
     {
         return getInstance().getWiredElementAt( world, pos, side );
     }
@@ -280,7 +280,7 @@ public final class ComputerCraftAPI
 
         void registerBundledRedstoneProvider( @Nonnull IBundledRedstoneProvider provider );
 
-        int getBundledRedstoneOutput( @Nonnull World world, @Nonnull BlockPos pos, @Nonnull EnumFacing side );
+        int getBundledRedstoneOutput( @Nonnull World world, @Nonnull BlockPos pos, @Nonnull Direction side );
 
         void registerMediaProvider( @Nonnull IMediaProvider provider );
 
@@ -292,6 +292,6 @@ public final class ComputerCraftAPI
 
         IWiredNode createWiredNodeForElement( @Nonnull IWiredElement element );
 
-        IWiredElement getWiredElementAt( @Nonnull IBlockReader world, @Nonnull BlockPos pos, @Nonnull EnumFacing side );
+        IWiredElement getWiredElementAt( @Nonnull BlockView world, @Nonnull BlockPos pos, @Nonnull Direction side );
     }
 }

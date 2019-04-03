@@ -6,9 +6,9 @@
 
 package dan200.computercraft.api.peripheral;
 
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
@@ -17,7 +17,8 @@ import javax.annotation.Nullable;
 /**
  * This interface is used to create peripheral implementations for blocks.
  *
- * If you have a {@link TileEntity} which acts as a peripheral, you may alternatively implement {@link IPeripheralTile}.
+ * If you have a {@link BlockEntity} which acts as a peripheral, you may alternatively implement
+ * {@link IPeripheralTile}.
  *
  * @see dan200.computercraft.api.ComputerCraftAPI#registerPeripheralProvider(IPeripheralProvider)
  */
@@ -34,5 +35,5 @@ public interface IPeripheralProvider
      * @see dan200.computercraft.api.ComputerCraftAPI#registerPeripheralProvider(IPeripheralProvider)
      */
     @Nullable
-    IPeripheral getPeripheral( @Nonnull World world, @Nonnull BlockPos pos, @Nonnull EnumFacing side );
+    IPeripheral getPeripheral( @Nonnull World world, @Nonnull BlockPos pos, @Nonnull Direction side );
 }

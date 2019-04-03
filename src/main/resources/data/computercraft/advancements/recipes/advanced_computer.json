@@ -7,7 +7,7 @@
         "has_redstone": {
             "trigger": "minecraft:inventory_changed",
             "conditions": {
-                "items": [ { "tag": "forge:dusts/redstone" } ]
+                "items": [ { "tag": "minecraft:redstone" } ]
             }
         },
         "has_the_recipe": {

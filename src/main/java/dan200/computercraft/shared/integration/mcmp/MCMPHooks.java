@@ -9,11 +9,11 @@ package dan200.computercraft.shared.integration.mcmp;
 import mcmultipart.MCMultiPart;
 import mcmultipart.api.item.ItemBlockMultipart;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.Direction;
 import net.minecraft.util.EnumActionResult;
-import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -27,7 +27,7 @@ public final class MCMPHooks
     {
     }
 
-    public static EnumActionResult onItemUse( ItemBlock itemBlock, EntityPlayer player, World world, @Nonnull BlockPos pos, @Nonnull EnumHand hand, @Nonnull EnumFacing facing, float hitX, float hitY, float hitZ )
+    public static EnumActionResult onItemUse( ItemBlock itemBlock, PlayerEntity player, World world, @Nonnull BlockPos pos, @Nonnull EnumHand hand, @Nonnull Direction facing, float hitX, float hitY, float hitZ )
     {
         if( !Loader.isModLoaded( MCMultiPart.MODID ) ) return EnumActionResult.PASS;
 
@@ -37,7 +37,7 @@ public final class MCMPHooks
             MCMPIntegration.multipartMap.get( itemBlock.getBlock() ),
 
             (
-                ItemStack stack, EntityPlayer thisPlayer, World thisWorld, BlockPos thisPos, EnumFacing thisFacing,
+                ItemStack stack, PlayerEntity thisPlayer, World thisWorld, BlockPos thisPos, Direction thisFacing,
                 float thisX, float thisY, float thisZ, IBlockState thisState
             ) ->
                 thisPlayer.canPlayerEdit( thisPos, thisFacing, stack ) &&

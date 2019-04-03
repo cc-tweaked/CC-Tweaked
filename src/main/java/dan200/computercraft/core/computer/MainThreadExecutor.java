@@ -10,7 +10,7 @@ import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.peripheral.IWorkMonitor;
 import dan200.computercraft.core.tracking.Tracking;
 import dan200.computercraft.shared.turtle.core.TurtleBrain;
-import net.minecraft.tileentity.TileEntity;
+import net.minecraft.block.entity.BlockEntity;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayDeque;
@@ -29,7 +29,7 @@ import java.util.concurrent.TimeUnit;
  * this tick. At the beginning of the tick, we execute as many {@link MainThread} tasks as possible, until our
  * time-frame or the global time frame has expired.
  *
- * Then, when other objects (such as {@link TileEntity}) are ticked, we update how much time we've used using
+ * Then, when other objects (such as {@link BlockEntity}) are ticked, we update how much time we've used using
  * {@link IWorkMonitor#trackWork(long, TimeUnit)}.
  *
  * Now, if anywhere during this period, we use more than our allocated time slice, the executor is marked as

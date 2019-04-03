@@ -8,9 +8,9 @@ package dan200.computercraft.shared.network.container;
 
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.common.ContainerHeldItem;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.EnumHand;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.Hand;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.PacketByteBuf;
 
 import javax.annotation.Nonnull;
 
@@ -21,11 +21,11 @@ import javax.annotation.Nonnull;
  */
 public class PrintoutContainerType implements ContainerType<ContainerHeldItem>
 {
-    public static final ResourceLocation ID = new ResourceLocation( ComputerCraft.MOD_ID, "printout_gui" );
+    public static final Identifier ID = new Identifier( ComputerCraft.MOD_ID, "printout_gui" );
 
-    public EnumHand hand;
+    public Hand hand;
 
-    public PrintoutContainerType( EnumHand hand )
+    public PrintoutContainerType( Hand hand )
     {
         this.hand = hand;
     }
@@ -36,20 +36,20 @@ public class PrintoutContainerType implements ContainerType<ContainerHeldItem>
 
     @Nonnull
     @Override
-    public ResourceLocation getId()
+    public Identifier getId()
     {
         return ID;
     }
 
     @Override
-    public void toBytes( @Nonnull PacketBuffer buf )
+    public void toBytes( @Nonnull PacketByteBuf buf )
     {
-        buf.writeEnumValue( hand );
+        buf.writeEnumConstant( hand );
     }
 
     @Override
-    public void fromBytes( @Nonnull PacketBuffer buf )
+    public void fromBytes( @Nonnull PacketByteBuf buf )
     {
-        hand = buf.readEnumValue( EnumHand.class );
+        hand = buf.readEnumConstant( Hand.class );
     }
 }

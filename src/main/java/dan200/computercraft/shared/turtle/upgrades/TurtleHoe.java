@@ -12,46 +12,46 @@ import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.api.turtle.TurtleVerb;
 import dan200.computercraft.shared.turtle.core.TurtlePlaceCommand;
 import dan200.computercraft.shared.turtle.core.TurtlePlayer;
-import net.minecraft.block.material.Material;
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.Material;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
 
 public class TurtleHoe extends TurtleTool
 {
-    public TurtleHoe( ResourceLocation id, String adjective, Item item )
+    public TurtleHoe( Identifier id, String adjective, Item item )
     {
         super( id, adjective, item );
     }
 
-    public TurtleHoe( ResourceLocation id, Item item )
+    public TurtleHoe( Identifier id, Item item )
     {
         super( id, item );
     }
 
     @Override
-    protected boolean canBreakBlock( IBlockState state, World world, BlockPos pos, TurtlePlayer player )
+    protected boolean canBreakBlock( BlockState state, World world, BlockPos pos, TurtlePlayer player )
     {
         if( !super.canBreakBlock( state, world, pos, player ) ) return false;
 
         Material material = state.getMaterial();
-        return material == Material.PLANTS ||
+        return material == Material.PLANT ||
             material == Material.CACTUS ||
-            material == Material.GOURD ||
+            material == Material.PUMPKIN ||
             material == Material.LEAVES ||
-            material == Material.OCEAN_PLANT ||
-            material == Material.VINE;
+            material == Material.UNDERWATER_PLANT;
+        // material == Material.VINE;
     }
 
     @Nonnull
     @Override
-    public TurtleCommandResult useTool( @Nonnull ITurtleAccess turtle, @Nonnull TurtleSide side, @Nonnull TurtleVerb verb, @Nonnull EnumFacing direction )
+    public TurtleCommandResult useTool( @Nonnull ITurtleAccess turtle, @Nonnull TurtleSide side, @Nonnull TurtleVerb verb, @Nonnull Direction direction )
     {
         if( verb == TurtleVerb.Dig )
         {

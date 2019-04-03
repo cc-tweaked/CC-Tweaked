@@ -6,39 +6,39 @@
 
 package dan200.computercraft.shared.util;
 
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.Direction;
 
 public final class DirectionUtil
 {
     private DirectionUtil() {}
 
-    public static final EnumFacing[] FACINGS = EnumFacing.values();
+    public static final Direction[] FACINGS = Direction.values();
 
-    public static EnumFacing toLocal( EnumFacing front, EnumFacing relative )
+    public static Direction toLocal( Direction front, Direction relative )
     {
-        if( relative.getAxis() == EnumFacing.Axis.Y ) return relative;
+        if( relative.getAxis() == Direction.Axis.Y ) return relative;
 
-        if( front.getAxis() == EnumFacing.Axis.Y ) front = EnumFacing.NORTH;
+        if( front.getAxis() == Direction.Axis.Y ) front = Direction.NORTH;
 
         if( relative == front )
         {
-            return EnumFacing.SOUTH;
+            return Direction.SOUTH;
         }
         else if( relative == front.getOpposite() )
         {
-            return EnumFacing.NORTH;
+            return Direction.NORTH;
         }
-        else if( relative == front.rotateYCCW() )
+        else if( relative == front.rotateYCounterclockwise() )
         {
-            return EnumFacing.EAST;
+            return Direction.EAST;
         }
         else
         {
-            return EnumFacing.WEST;
+            return Direction.WEST;
         }
     }
 
-    public static float toPitchAngle( EnumFacing dir )
+    public static float toPitchAngle( Direction dir )
     {
         switch( dir )
         {

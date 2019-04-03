@@ -5,15 +5,15 @@
  */
 package dan200.computercraft.api.peripheral;
 
-import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
- * A {@link net.minecraft.tileentity.TileEntity} which may act as a peripheral.
+ * A {@link net.minecraft.block.entity.BlockEntity} which may act as a peripheral.
  *
  * If you need more complex capabilities (such as handling TEs not belonging to your mod), you should use
  * {@link IPeripheralProvider}.
@@ -25,8 +25,8 @@ public interface IPeripheralTile
      *
      * @param side The side to get the peripheral from.
      * @return A peripheral, or {@code null} if there is not a peripheral here.
-     * @see IPeripheralProvider#getPeripheral(World, BlockPos, EnumFacing)
+     * @see IPeripheralProvider#getPeripheral(World, BlockPos, Direction)
      */
     @Nullable
-    IPeripheral getPeripheral( @Nonnull EnumFacing side );
+    IPeripheral getPeripheral( @Nonnull Direction side );
 }

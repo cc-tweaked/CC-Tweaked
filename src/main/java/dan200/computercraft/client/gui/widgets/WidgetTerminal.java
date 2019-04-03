@@ -6,6 +6,7 @@
 
 package dan200.computercraft.client.gui.widgets;
 
+import com.mojang.blaze3d.platform.GlStateManager;
 import dan200.computercraft.client.FrameInfo;
 import dan200.computercraft.client.gui.FixedWidthFontRenderer;
 import dan200.computercraft.core.terminal.Terminal;
@@ -14,13 +15,12 @@ import dan200.computercraft.shared.computer.core.ClientComputer;
 import dan200.computercraft.shared.computer.core.IComputer;
 import dan200.computercraft.shared.util.Colour;
 import dan200.computercraft.shared.util.Palette;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.IGuiEventListener;
-import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.util.SharedConstants;
+import net.minecraft.SharedConstants;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.Element;
+import net.minecraft.client.render.BufferBuilder;
+import net.minecraft.client.render.Tessellator;
+import net.minecraft.client.render.VertexFormats;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.opengl.GL11;
 
@@ -29,11 +29,11 @@ import java.util.function.Supplier;
 
 import static dan200.computercraft.client.gui.FixedWidthFontRenderer.BACKGROUND;
 
-public class WidgetTerminal implements IGuiEventListener
+public class WidgetTerminal implements Element
 {
     private static final float TERMINATE_TIME = 0.5f;
 
-    private final Minecraft client;
+    private final MinecraftClient minecraft;
 
     private final Supplier<ClientComputer> computer;
     private final int termWidth;
@@ -54,9 +54,9 @@ public class WidgetTerminal implements IGuiEventListener
 
     private final BitSet keysDown = new BitSet( 256 );
 
-    public WidgetTerminal( Minecraft client, Supplier<ClientComputer> computer, int termWidth, int termHeight, int leftMargin, int rightMargin, int topMargin, int bottomMargin )
+    public WidgetTerminal( MinecraftClient minecraft, Supplier<ClientComputer> computer, int termWidth, int termHeight, int leftMargin, int rightMargin, int topMargin, int bottomMargin )
     {
-        this.client = client;
+        this.minecraft = minecraft;
         this.computer = computer;
         this.termWidth = termWidth;
         this.termHeight = termHeight;
@@ -98,7 +98,7 @@ public class WidgetTerminal implements IGuiEventListener
 
                 case GLFW.GLFW_KEY_V:
                     // Ctrl+V for paste
-                    String clipboard = client.keyboardListener.getClipboardString();
+                    String clipboard = minecraft.keyboard.getClipboard();
                     if( clipboard != null )
                     {
                         // Clip to the first occurrence of \r or \n
@@ -118,7 +118,7 @@ public class WidgetTerminal implements IGuiEventListener
                         }
 
                         // Filter the string
-                        clipboard = SharedConstants.filterAllowedCharacters( clipboard );
+                        clipboard = SharedConstants.stripInvalidChars( clipboard );
                         if( !clipboard.isEmpty() )
                         {
                             // Clip to 512 characters and queue the event
@@ -250,14 +250,23 @@ public class WidgetTerminal implements IGuiEventListener
     }
 
     @Override
-    public boolean mouseScrolled( double delta )
+    public boolean mouseScrolled( double mouseX, double mouseY, double delta )
     {
         ClientComputer computer = this.computer.get();
-        if( computer == null || !computer.isColour() ) return false;
+        if( computer == null || !computer.isColour() || delta == 0 ) return false;
 
-        if( lastMouseX >= 0 && lastMouseY >= 0 && delta != 0 )
+        Terminal term = computer.getTerminal();
+        if( term != null )
         {
-            queueEvent( "mouse_scroll", delta < 0 ? 1 : -1, lastMouseX + 1, lastMouseY + 1 );
+            int charX = (int) (mouseX / FixedWidthFontRenderer.FONT_WIDTH);
+            int charY = (int) (mouseY / FixedWidthFontRenderer.FONT_HEIGHT);
+            charX = Math.min( Math.max( charX, 0 ), term.getWidth() - 1 );
+            charY = Math.min( Math.max( charY, 0 ), term.getHeight() - 1 );
+
+            computer.mouseScroll( delta < 0 ? 1 : -1, charX + 1, charY + 1 );
+
+            lastMouseX = charX;
+            lastMouseY = charY;
         }
 
         return true;
@@ -284,7 +293,7 @@ public class WidgetTerminal implements IGuiEventListener
     }
 
     @Override
-    public void focusChanged( boolean focused )
+    public void onFocusChanged( boolean noClue, boolean focused )
     {
         if( !focused )
         {
@@ -384,15 +393,15 @@ public class WidgetTerminal implements IGuiEventListener
                     int width = termWidth * FixedWidthFontRenderer.FONT_WIDTH + leftMargin + rightMargin;
                     int height = termHeight * FixedWidthFontRenderer.FONT_HEIGHT + topMargin + bottomMargin;
 
-                    client.getTextureManager().bindTexture( BACKGROUND );
+                    minecraft.getTextureManager().bindTexture( BACKGROUND );
 
                     Tessellator tesslector = Tessellator.getInstance();
-                    BufferBuilder buffer = tesslector.getBuffer();
-                    buffer.begin( GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX );
-                    buffer.pos( x, y + height, 0 ).tex( 0 / 256.0, height / 256.0 ).endVertex();
-                    buffer.pos( x + width, y + height, 0 ).tex( width / 256.0, height / 256.0 ).endVertex();
-                    buffer.pos( x + width, y, 0 ).tex( width / 256.0, 0 / 256.0 ).endVertex();
-                    buffer.pos( x, y, 0 ).tex( 0 / 256.0, 0 / 256.0 ).endVertex();
+                    BufferBuilder buffer = tesslector.getBufferBuilder();
+                    buffer.begin( GL11.GL_QUADS, VertexFormats.POSITION_UV );
+                    buffer.vertex( x, y + height, 0 ).texture( 0 / 256.0, height / 256.0 ).next();
+                    buffer.vertex( x + width, y + height, 0 ).texture( width / 256.0, height / 256.0 ).next();
+                    buffer.vertex( x + width, y, 0 ).texture( width / 256.0, 0 / 256.0 ).next();
+                    buffer.vertex( x, y, 0 ).texture( 0 / 256.0, 0 / 256.0 ).next();
                     tesslector.draw();
                 }
                 finally

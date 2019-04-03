@@ -9,24 +9,35 @@ package dan200.computercraft.shared.network;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.network.client.*;
 import dan200.computercraft.shared.network.server.*;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.ResourceLocation;
+import io.netty.buffer.Unpooled;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
+import net.fabricmc.fabric.api.network.ClientSidePacketRegistry;
+import net.fabricmc.fabric.api.network.PacketContext;
+import net.fabricmc.fabric.api.network.ServerSidePacketRegistry;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.packet.CustomPayloadS2CPacket;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.network.packet.CustomPayloadC2SPacket;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.PacketByteBuf;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.network.NetworkDirection;
-import net.minecraftforge.fml.network.NetworkEvent;
-import net.minecraftforge.fml.network.NetworkRegistry;
-import net.minecraftforge.fml.network.simple.SimpleChannel;
-import net.minecraftforge.fml.server.ServerLifecycleHooks;
 
+import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
 public final class NetworkHandler
 {
-    public static SimpleChannel network;
+    private static final Int2ObjectMap<BiConsumer<PacketContext, PacketByteBuf>> packetReaders = new Int2ObjectOpenHashMap<>();
+    private static final Object2IntMap<Class<?>> packetIds = new Object2IntOpenHashMap<>();
+
+    private static final Identifier ID = new Identifier( ComputerCraft.MOD_ID, "main" );
 
     private NetworkHandler()
     {
@@ -34,11 +45,8 @@ public final class NetworkHandler
 
     public static void setup()
     {
-        String version = ComputerCraft.getVersion();
-        network = NetworkRegistry.ChannelBuilder.named( new ResourceLocation( ComputerCraft.MOD_ID, "network" ) )
-            .networkProtocolVersion( () -> version )
-            .clientAcceptedVersions( version::equals ).serverAcceptedVersions( version::equals )
-            .simpleChannel();
+        ClientSidePacketRegistry.INSTANCE.register( ID, NetworkHandler::receive );
+        ServerSidePacketRegistry.INSTANCE.register( ID, NetworkHandler::receive );
 
         // Server messages
         registerMainThread( 0, ComputerActionServerMessage::new );
@@ -55,35 +63,45 @@ public final class NetworkHandler
         registerMainThread( 14, PlayRecordClientMessage.class, PlayRecordClientMessage::new );
     }
 
-    public static void sendToPlayer( EntityPlayer player, NetworkMessage packet )
+    public static void sendToPlayer( PlayerEntity player, NetworkMessage packet )
     {
-        network.sendTo( packet, ((EntityPlayerMP) player).connection.netManager, NetworkDirection.PLAY_TO_CLIENT );
+        ((ServerPlayerEntity) player).networkHandler.sendPacket(
+            new CustomPayloadS2CPacket( ID, encode( packet ) )
+        );
     }
 
-    public static void sendToAllPlayers( NetworkMessage packet )
+    public static void sendToAllPlayers( MinecraftServer server, NetworkMessage packet )
     {
-        for( EntityPlayerMP player : ServerLifecycleHooks.getCurrentServer().getPlayerList().getPlayers() )
-        {
-            sendToPlayer( player, packet );
-        }
+        server.getPlayerManager().sendToAll( new CustomPayloadS2CPacket( ID, encode( packet ) ) );
     }
 
     public static void sendToServer( NetworkMessage packet )
     {
-        network.sendToServer( packet );
+        MinecraftClient.getInstance().player.networkHandler.sendPacket(
+            new CustomPayloadC2SPacket( ID, encode( packet ) )
+        );
     }
 
     public static void sendToAllAround( NetworkMessage packet, World world, Vec3d pos, double range )
     {
-        for( EntityPlayerMP player : ServerLifecycleHooks.getCurrentServer().getPlayerList().getPlayers() )
-        {
-            if( player.getEntityWorld() != world ) continue;
+        world.getServer().getPlayerManager().sendToAround(
+            null, pos.x, pos.y, pos.z, range, world.getDimension().getType(),
+            new CustomPayloadS2CPacket( ID, encode( packet ) )
+        );
+    }
 
-            double x = pos.x - player.posX;
-            double y = pos.y - player.posY;
-            double z = pos.z - player.posZ;
-            if( x * x + y * y + z * z < range * range ) sendToPlayer( player, packet );
-        }
+    private static void receive( PacketContext context, PacketByteBuf buffer )
+    {
+        int type = buffer.readByte();
+        packetReaders.get( type ).accept( context, buffer );
+    }
+
+    private static PacketByteBuf encode( NetworkMessage message )
+    {
+        PacketByteBuf buf = new PacketByteBuf( Unpooled.buffer() );
+        buf.writeByte( packetIds.getInt( message.getClass() ) );
+        message.toBytes( buf );
+        return buf;
     }
 
     /**
@@ -109,17 +127,13 @@ public final class NetworkHandler
      * @param id      The identifier for this packet type
      * @param decoder The factory for this type of packet.
      */
-    private static <T extends NetworkMessage> void registerMainThread( int id, Class<T> type, Function<PacketBuffer, T> decoder )
+    private static <T extends NetworkMessage> void registerMainThread( int id, Class<T> type, Function<PacketByteBuf, T> decoder )
     {
-        network.messageBuilder( type, id )
-            .encoder( NetworkMessage::toBytes )
-            .decoder( decoder )
-            .consumer( ( packet, contextSup ) -> {
-                NetworkEvent.Context context = contextSup.get();
-                context.enqueueWork( () -> packet.handle( context ) );
-                context.setPacketHandled( true );
-            } )
-            .add();
+        packetIds.put( type, id );
+        packetReaders.put( id, ( context, buf ) -> {
+            T result = decoder.apply( buf );
+            context.getTaskQueue().execute( () -> result.handle( context ) );
+        } );
     }
 
     @SuppressWarnings( "unchecked" )

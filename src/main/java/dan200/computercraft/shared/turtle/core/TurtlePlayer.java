@@ -7,25 +7,27 @@
 package dan200.computercraft.shared.turtle.core;
 
 import com.mojang.authlib.GameProfile;
-import dan200.computercraft.ComputerCraft;
+import com.mojang.datafixers.util.Either;
 import dan200.computercraft.api.turtle.ITurtleAccess;
+import dan200.computercraft.api.turtle.event.FakePlayer;
 import dan200.computercraft.shared.util.InventoryUtil;
+import dan200.computercraft.shared.util.ItemStorage;
 import dan200.computercraft.shared.util.WorldUtil;
+import net.minecraft.command.arguments.EntityAnchorArgumentType;
+import net.minecraft.container.Container;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.IMerchant;
-import net.minecraft.entity.passive.AbstractHorse;
-import net.minecraft.inventory.IInventory;
+import net.minecraft.entity.passive.HorseBaseEntity;
+import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntitySign;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.text.TextComponent;
+import net.minecraft.util.DefaultedList;
+import net.minecraft.util.Void;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.IInteractionObject;
 import net.minecraft.world.World;
-import net.minecraft.world.WorldServer;
-import net.minecraftforge.common.util.FakePlayer;
+import net.minecraft.world.dimension.DimensionType;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -33,24 +35,19 @@ import java.util.UUID;
 
 public final class TurtlePlayer extends FakePlayer
 {
-    public static final GameProfile DEFAULT_PROFILE = new GameProfile(
+    private static final GameProfile DEFAULT_PROFILE = new GameProfile(
         UUID.fromString( "0d0c4ca0-4ff1-11e4-916c-0800200c9a66" ),
         "[ComputerCraft]"
     );
 
-    public static final EntityType<TurtlePlayer> TYPE = EntityType.Builder.create( TurtlePlayer.class, TurtlePlayer::new )
-        .disableSerialization()
-        .disableSummoning()
-        .build( ComputerCraft.MOD_ID + ":turtle_player" );
-
     private TurtlePlayer( World world )
     {
-        super( (WorldServer) world, DEFAULT_PROFILE );
+        super( (ServerWorld) world, DEFAULT_PROFILE );
     }
 
     private TurtlePlayer( ITurtleAccess turtle )
     {
-        super( (WorldServer) turtle.getWorld(), getProfile( turtle.getOwningPlayer() ) );
+        super( (ServerWorld) turtle.getWorld(), getProfile( turtle.getOwningPlayer() ) );
         setState( turtle );
     }
 
@@ -62,12 +59,12 @@ public final class TurtlePlayer extends FakePlayer
     private void setState( ITurtleAccess turtle )
     {
         BlockPos position = turtle.getPosition();
-        posX = position.getX() + 0.5;
-        posY = position.getY() + 0.5;
-        posZ = position.getZ() + 0.5;
+        x = position.getX() + 0.5;
+        y = position.getY() + 0.5;
+        z = position.getZ() + 0.5;
 
-        rotationYaw = turtle.getDirection().getHorizontalAngle();
-        rotationPitch = 0.0f;
+        yaw = turtle.getDirection().asRotation();
+        pitch = 0.0f;
 
         inventory.clear();
     }
@@ -94,30 +91,31 @@ public final class TurtlePlayer extends FakePlayer
     public void loadInventory( @Nonnull ItemStack currentStack )
     {
         // Load up the fake inventory
-        inventory.currentItem = 0;
-        inventory.setInventorySlotContents( 0, currentStack );
+        inventory.selectedSlot = 0;
+        inventory.setInvStack( 0, currentStack );
     }
 
     public ItemStack unloadInventory( ITurtleAccess turtle )
     {
         // Get the item we placed with
-        ItemStack results = inventory.getStackInSlot( 0 );
-        inventory.setInventorySlotContents( 0, ItemStack.EMPTY );
+        ItemStack results = inventory.getInvStack( 0 );
+        inventory.setInvStack( 0, ItemStack.EMPTY );
 
         // Store (or drop) anything else we found
         BlockPos dropPosition = turtle.getPosition();
-        EnumFacing dropDirection = turtle.getDirection().getOpposite();
-        for( int i = 0; i < inventory.getSizeInventory(); i++ )
+        Direction dropDirection = turtle.getDirection().getOpposite();
+        ItemStorage storage = ItemStorage.wrap( turtle.getInventory() );
+        for( int i = 0; i < inventory.getInvSize(); ++i )
         {
-            ItemStack stack = inventory.getStackInSlot( i );
+            ItemStack stack = inventory.getInvStack( i );
             if( !stack.isEmpty() )
             {
-                ItemStack remainder = InventoryUtil.storeItems( stack, turtle.getItemHandler(), turtle.getSelectedSlot() );
+                ItemStack remainder = InventoryUtil.storeItems( stack, storage, turtle.getSelectedSlot() );
                 if( !remainder.isEmpty() )
                 {
                     WorldUtil.dropItemStack( remainder, turtle.getWorld(), dropPosition, dropDirection );
                 }
-                inventory.setInventorySlotContents( i, ItemStack.EMPTY );
+                inventory.setInvStack( i, ItemStack.EMPTY );
             }
         }
         inventory.markDirty();
@@ -125,91 +123,86 @@ public final class TurtlePlayer extends FakePlayer
     }
 
     @Override
-    public Vec3d getPositionVector()
-    {
-        return new Vec3d( posX, posY, posZ );
-    }
-
-    @Override
-    public float getEyeHeight()
-    {
-        return 0.0f;
-    }
-
-    @Override
-    public float getDefaultEyeHeight()
-    {
-        return 0.0f;
-    }
-
-    @Override
-    public void sendEnterCombat()
+    public void method_6000()
     {
     }
 
     @Override
-    public void sendEndCombat()
+    public void method_6044()
     {
     }
+
+    @Override
+    @Nullable
+    public Entity changeDimension( DimensionType dimensionType )
+    {
+        return null;
+    }
+
 
     @Nonnull
     @Override
-    public SleepResult trySleep( @Nonnull BlockPos bedLocation )
+    public Either<SleepResult, Void> trySleep( @Nonnull BlockPos bedLocation )
     {
-        return SleepResult.OTHER_PROBLEM;
-    }
-
-    // TODO: Flesh this out. Or just stub out the connection, like plethora?
-
-    @Override
-    public void openSignEditor( TileEntitySign signTile )
-    {
+        return Either.left( SleepResult.INVALID_ATTEMPT );
     }
 
     @Override
-    public void displayGui( IInteractionObject guiOwner )
+    public boolean startRiding( Entity entity, boolean bool )
     {
+        return false;
     }
 
     @Override
-    public void displayGUIChest( IInventory chestInventory )
+    public void stopRiding()
     {
     }
 
     @Override
-    public void displayVillagerTradeGui( IMerchant villager )
+    public void openHorseInventory( HorseBaseEntity entity, Inventory inventory )
     {
     }
 
     @Override
-    public void openHorseInventory( AbstractHorse horse, IInventory inventoryIn )
+    public void onContainerRegistered( Container container, DefaultedList<ItemStack> defaultedList )
     {
     }
 
     @Override
-    public void openBook( ItemStack stack, @Nonnull EnumHand hand )
+    public void onContainerPropertyUpdate( Container container, int i, int j )
+    {
+    }
+
+
+    @Override
+    public void closeGui()
     {
     }
 
     @Override
-    public void updateHeldItem()
+    public void onContainerSlotUpdate( Container container, int i, ItemStack itemStack )
     {
     }
 
     @Override
-    protected void onItemUseFinish()
+    public void method_14241()
     {
     }
 
-    /*
     @Override
-    public void mountEntityAndWakeUp()
+    public void addChatMessage( TextComponent textComponent, boolean bool )
     {
     }
-    */
 
     @Override
-    public void dismountEntity( @Nonnull Entity entity )
+    protected void method_6040()
     {
     }
+
+    @Override
+    public void lookAt( EntityAnchorArgumentType.EntityAnchor anchor, Vec3d pos )
+    {
+    }
+
+    // TODO: Finish this off.
 }

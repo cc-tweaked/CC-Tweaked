@@ -11,17 +11,13 @@ import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.util.InventoryUtil;
 import net.minecraft.item.ItemStack;
-import net.minecraftforge.fml.ModContainer;
-import net.minecraftforge.fml.ModLoadingContext;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.*;
 
 public final class TurtleUpgrades
 {
     private static final Map<String, ITurtleUpgrade> upgrades = new HashMap<>();
-    private static final IdentityHashMap<ITurtleUpgrade, String> upgradeOwners = new IdentityHashMap<>();
 
     private TurtleUpgrades() {}
 
@@ -37,9 +33,6 @@ public final class TurtleUpgrades
         }
 
         upgrades.put( id, upgrade );
-
-        ModContainer mc = ModLoadingContext.get().getActiveContainer();
-        if( mc != null && mc.getModId() != null ) upgradeOwners.put( upgrade, mc.getModId() );
     }
 
 
@@ -82,12 +75,6 @@ public final class TurtleUpgrades
         vanilla.add( ComputerCraft.TurtleUpgrades.diamondHoe );
         vanilla.add( ComputerCraft.TurtleUpgrades.craftingTable );
         return vanilla;
-    }
-
-    @Nullable
-    public static String getOwner( @Nonnull ITurtleUpgrade upgrade )
-    {
-        return upgradeOwners.get( upgrade );
     }
 
     public static Iterable<ITurtleUpgrade> getUpgrades()

@@ -6,6 +6,8 @@
 
 package dan200.computercraft.client.render;
 
+import com.mojang.blaze3d.platform.GLX;
+import com.mojang.blaze3d.platform.GlStateManager;
 import dan200.computercraft.client.FrameInfo;
 import dan200.computercraft.client.gui.FixedWidthFontRenderer;
 import dan200.computercraft.core.terminal.Terminal;
@@ -15,18 +17,16 @@ import dan200.computercraft.shared.peripheral.monitor.TileMonitor;
 import dan200.computercraft.shared.util.Colour;
 import dan200.computercraft.shared.util.DirectionUtil;
 import dan200.computercraft.shared.util.Palette;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.OpenGlHelper;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.tileentity.TileEntityRenderer;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.render.BufferBuilder;
+import net.minecraft.client.render.Tessellator;
+import net.minecraft.client.render.VertexFormats;
+import net.minecraft.client.render.block.entity.BlockEntityRenderer;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
 import org.lwjgl.opengl.GL11;
 
-public class TileEntityMonitorRenderer extends TileEntityRenderer<TileMonitor>
+public class TileEntityMonitorRenderer extends BlockEntityRenderer<TileMonitor>
 {
     @Override
     public void render( TileMonitor tileEntity, double posX, double posY, double posZ, float f, int i )
@@ -64,9 +64,9 @@ public class TileEntityMonitorRenderer extends TileEntityRenderer<TileMonitor>
         posZ += originPos.getZ() - monitorPos.getZ();
 
         // Determine orientation
-        EnumFacing dir = origin.getDirection();
-        EnumFacing front = origin.getFront();
-        float yaw = dir.getHorizontalAngle();
+        Direction dir = origin.getDirection();
+        Direction front = origin.getFront();
+        float yaw = dir.asRotation();
         float pitch = DirectionUtil.toPitchAngle( front );
 
         GlStateManager.pushMatrix();
@@ -85,16 +85,16 @@ public class TileEntityMonitorRenderer extends TileEntityRenderer<TileMonitor>
             double ySize = origin.getHeight() - 2.0 * (TileMonitor.RENDER_MARGIN + TileMonitor.RENDER_BORDER);
 
             // Get renderers
-            Minecraft mc = Minecraft.getInstance();
+            MinecraftClient mc = MinecraftClient.getInstance();
             Tessellator tessellator = Tessellator.getInstance();
-            BufferBuilder renderer = tessellator.getBuffer();
+            BufferBuilder renderer = tessellator.getBufferBuilder();
 
             // Get terminal
             boolean redraw = originTerminal.pollTerminalChanged();
 
             // Draw the contents
             GlStateManager.depthMask( false );
-            OpenGlHelper.glMultiTexCoord2f( OpenGlHelper.GL_TEXTURE1, 0xFFFF, 0xFFFF );
+            GLX.glMultiTexCoord2f( GLX.GL_TEXTURE1, 0xFFFF, 0xFFFF );
             GlStateManager.disableLighting();
             mc.gameRenderer.disableLightmap();
             try
@@ -171,7 +171,7 @@ public class TileEntityMonitorRenderer extends TileEntityRenderer<TileMonitor>
                             }
                         }
                         GlStateManager.callList( originTerminal.renderDisplayLists[0] );
-                        GlStateManager.resetColor();
+                        GlStateManager.clearCurrentColor();
 
                         // Draw text
                         fontRenderer.bindFont();
@@ -199,7 +199,7 @@ public class TileEntityMonitorRenderer extends TileEntityRenderer<TileMonitor>
                             }
                         }
                         GlStateManager.callList( originTerminal.renderDisplayLists[1] );
-                        GlStateManager.resetColor();
+                        GlStateManager.clearCurrentColor();
 
                         // Draw cursor
                         fontRenderer.bindFont();
@@ -233,7 +233,7 @@ public class TileEntityMonitorRenderer extends TileEntityRenderer<TileMonitor>
                         if( FrameInfo.getGlobalCursorBlink() )
                         {
                             GlStateManager.callList( originTerminal.renderDisplayLists[2] );
-                            GlStateManager.resetColor();
+                            GlStateManager.clearCurrentColor();
                         }
                     }
                     finally
@@ -251,11 +251,11 @@ public class TileEntityMonitorRenderer extends TileEntityRenderer<TileMonitor>
                     final float g = colour.getG();
                     final float b = colour.getB();
 
-                    renderer.begin( GL11.GL_TRIANGLE_STRIP, DefaultVertexFormats.POSITION_TEX_COLOR );
-                    renderer.pos( -TileMonitor.RENDER_MARGIN, TileMonitor.RENDER_MARGIN, 0.0D ).tex( 0.0, 0.0 ).color( r, g, b, 1.0f ).endVertex();
-                    renderer.pos( -TileMonitor.RENDER_MARGIN, -ySize - TileMonitor.RENDER_MARGIN, 0.0 ).tex( 0.0, 1.0 ).color( r, g, b, 1.0f ).endVertex();
-                    renderer.pos( xSize + TileMonitor.RENDER_MARGIN, TileMonitor.RENDER_MARGIN, 0.0D ).tex( 1.0, 0.0 ).color( r, g, b, 1.0f ).endVertex();
-                    renderer.pos( xSize + TileMonitor.RENDER_MARGIN, -ySize - TileMonitor.RENDER_MARGIN, 0.0 ).tex( 1.0, 1.0 ).color( r, g, b, 1.0f ).endVertex();
+                    renderer.begin( GL11.GL_TRIANGLE_STRIP, VertexFormats.POSITION_UV_COLOR );
+                    renderer.vertex( -TileMonitor.RENDER_MARGIN, TileMonitor.RENDER_MARGIN, 0.0D ).texture( 0.0, 0.0 ).color( r, g, b, 1.0f ).next();
+                    renderer.vertex( -TileMonitor.RENDER_MARGIN, -ySize - TileMonitor.RENDER_MARGIN, 0.0 ).texture( 0.0, 1.0 ).color( r, g, b, 1.0f ).next();
+                    renderer.vertex( xSize + TileMonitor.RENDER_MARGIN, TileMonitor.RENDER_MARGIN, 0.0D ).texture( 1.0, 0.0 ).color( r, g, b, 1.0f ).next();
+                    renderer.vertex( xSize + TileMonitor.RENDER_MARGIN, -ySize - TileMonitor.RENDER_MARGIN, 0.0 ).texture( 1.0, 1.0 ).color( r, g, b, 1.0f ).next();
                     tessellator.draw();
                 }
             }
@@ -271,11 +271,11 @@ public class TileEntityMonitorRenderer extends TileEntityRenderer<TileMonitor>
             try
             {
                 mc.getTextureManager().bindTexture( FixedWidthFontRenderer.BACKGROUND );
-                renderer.begin( GL11.GL_TRIANGLE_STRIP, DefaultVertexFormats.POSITION );
-                renderer.pos( -TileMonitor.RENDER_MARGIN, TileMonitor.RENDER_MARGIN, 0.0 ).endVertex();
-                renderer.pos( -TileMonitor.RENDER_MARGIN, -ySize - TileMonitor.RENDER_MARGIN, 0.0 ).endVertex();
-                renderer.pos( xSize + TileMonitor.RENDER_MARGIN, TileMonitor.RENDER_MARGIN, 0.0 ).endVertex();
-                renderer.pos( xSize + TileMonitor.RENDER_MARGIN, -ySize - TileMonitor.RENDER_MARGIN, 0.0 ).endVertex();
+                renderer.begin( GL11.GL_TRIANGLE_STRIP, VertexFormats.POSITION );
+                renderer.vertex( -TileMonitor.RENDER_MARGIN, TileMonitor.RENDER_MARGIN, 0.0 ).next();
+                renderer.vertex( -TileMonitor.RENDER_MARGIN, -ySize - TileMonitor.RENDER_MARGIN, 0.0 ).next();
+                renderer.vertex( xSize + TileMonitor.RENDER_MARGIN, TileMonitor.RENDER_MARGIN, 0.0 ).next();
+                renderer.vertex( xSize + TileMonitor.RENDER_MARGIN, -ySize - TileMonitor.RENDER_MARGIN, 0.0 ).next();
                 tessellator.draw();
             }
             finally

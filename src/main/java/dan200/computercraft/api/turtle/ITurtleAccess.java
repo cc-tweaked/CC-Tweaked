@@ -10,13 +10,12 @@ import com.mojang.authlib.GameProfile;
 import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.peripheral.IPeripheral;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.inventory.Inventory;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-import net.minecraftforge.items.IItemHandlerModifiable;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -83,10 +82,10 @@ public interface ITurtleAccess
      * Returns the world direction the turtle is currently facing.
      *
      * @return The world direction the turtle is currently facing.
-     * @see #setDirection(EnumFacing)
+     * @see #setDirection(Direction)
      */
     @Nonnull
-    EnumFacing getDirection();
+    Direction getDirection();
 
     /**
      * Set the direction the turtle is facing. Note that this will not play a rotation animation, you will also need to
@@ -95,7 +94,7 @@ public interface ITurtleAccess
      * @param dir The new direction to set. This should be on either the x or z axis (so north, south, east or west).
      * @see #getDirection()
      */
-    void setDirection( @Nonnull EnumFacing dir );
+    void setDirection( @Nonnull Direction dir );
 
     /**
      * Get the currently selected slot in the turtle's inventory.
@@ -147,21 +146,9 @@ public interface ITurtleAccess
      * Get the inventory of this turtle
      *
      * @return This turtle's inventory
-     * @see #getItemHandler()
      */
     @Nonnull
-    IInventory getInventory();
-
-    /**
-     * Get the inventory of this turtle as an {@link IItemHandlerModifiable}.
-     *
-     * @return This turtle's inventory
-     * @see #getInventory()
-     * @see IItemHandlerModifiable
-     * @see net.minecraftforge.items.CapabilityItemHandler#ITEM_HANDLER_CAPABILITY
-     */
-    @Nonnull
-    IItemHandlerModifiable getItemHandler();
+    Inventory getInventory();
 
     /**
      * Determine whether this turtle will require fuel when performing actions.
@@ -290,7 +277,7 @@ public interface ITurtleAccess
      * @see #updateUpgradeNBTData(TurtleSide)
      */
     @Nonnull
-    NBTTagCompound getUpgradeNBTData( @Nullable TurtleSide side );
+    CompoundTag getUpgradeNBTData( @Nullable TurtleSide side );
 
     /**
      * Mark the upgrade-specific data as dirty on a specific side. This is required for the data to be synced to the

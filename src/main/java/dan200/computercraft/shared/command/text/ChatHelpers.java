@@ -6,83 +6,83 @@
 
 package dan200.computercraft.shared.command.text;
 
+import net.minecraft.text.*;
+import net.minecraft.text.event.ClickEvent;
+import net.minecraft.text.event.HoverEvent;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.*;
-import net.minecraft.util.text.event.ClickEvent;
-import net.minecraft.util.text.event.HoverEvent;
 
 /**
  * Various helpers for building chat messages
  */
 public final class ChatHelpers
 {
-    private static final TextFormatting HEADER = TextFormatting.LIGHT_PURPLE;
+    private static final TextFormat HEADER = TextFormat.LIGHT_PURPLE;
 
     private ChatHelpers() {}
 
-    public static ITextComponent coloured( String text, TextFormatting colour )
+    public static TextComponent coloured( String text, TextFormat colour )
     {
-        ITextComponent component = new TextComponentString( text == null ? "" : text );
+        TextComponent component = new StringTextComponent( text == null ? "" : text );
         component.getStyle().setColor( colour );
         return component;
     }
 
-    public static <T extends ITextComponent> T coloured( T component, TextFormatting colour )
+    public static <T extends TextComponent> T coloured( T component, TextFormat colour )
     {
         component.getStyle().setColor( colour );
         return component;
     }
 
-    public static ITextComponent text( String text )
+    public static TextComponent text( String text )
     {
-        return new TextComponentString( text == null ? "" : text );
+        return new StringTextComponent( text == null ? "" : text );
     }
 
-    public static ITextComponent translate( String text )
+    public static TextComponent translate( String text )
     {
-        return new TextComponentTranslation( text == null ? "" : text );
+        return new TranslatableTextComponent( text == null ? "" : text );
     }
 
-    public static ITextComponent translate( String text, Object... args )
+    public static TextComponent translate( String text, Object... args )
     {
-        return new TextComponentTranslation( text == null ? "" : text, args );
+        return new TranslatableTextComponent( text == null ? "" : text, args );
     }
 
-    public static ITextComponent list( ITextComponent... children )
+    public static TextComponent list( TextComponent... children )
     {
-        ITextComponent component = new TextComponentString( "" );
-        for( ITextComponent child : children )
+        TextComponent component = new StringTextComponent( "" );
+        for( TextComponent child : children )
         {
-            component.appendSibling( child );
+            component.append( child );
         }
         return component;
     }
 
-    public static ITextComponent position( BlockPos pos )
+    public static TextComponent position( BlockPos pos )
     {
         if( pos == null ) return translate( "commands.computercraft.generic.no_position" );
         return translate( "commands.computercraft.generic.position", pos.getX(), pos.getY(), pos.getZ() );
     }
 
-    public static ITextComponent bool( boolean value )
+    public static TextComponent bool( boolean value )
     {
         return value
-            ? coloured( translate( "commands.computercraft.generic.yes" ), TextFormatting.GREEN )
-            : coloured( translate( "commands.computercraft.generic.no" ), TextFormatting.RED );
+            ? coloured( translate( "commands.computercraft.generic.yes" ), TextFormat.GREEN )
+            : coloured( translate( "commands.computercraft.generic.no" ), TextFormat.RED );
     }
 
-    public static ITextComponent link( ITextComponent component, String command, ITextComponent toolTip )
+    public static TextComponent link( TextComponent component, String command, TextComponent toolTip )
     {
         Style style = component.getStyle();
 
-        if( style.getColor() == null ) style.setColor( TextFormatting.YELLOW );
+        if( style.getColor() == null ) style.setColor( TextFormat.YELLOW );
         style.setClickEvent( new ClickEvent( ClickEvent.Action.RUN_COMMAND, command ) );
         style.setHoverEvent( new HoverEvent( HoverEvent.Action.SHOW_TEXT, toolTip ) );
 
         return component;
     }
 
-    public static ITextComponent header( String text )
+    public static TextComponent header( String text )
     {
         return coloured( text, HEADER );
     }

@@ -6,8 +6,8 @@
         "#G#"
     ],
     "key": {
-        "#": { "tag": "forge:stone" },
-        "R": { "tag": "forge:dusts/redstone" },
+        "#": { "item": "minecraft:stone" },
+        "R": { "item": "minecraft:redstone" },
         "G": { "item": "minecraft:glass_pane" }
     },
     "result": { "item": "computercraft:computer_normal" }

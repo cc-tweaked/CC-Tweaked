@@ -6,10 +6,10 @@
 
 package dan200.computercraft.api.pocket;
 
+import net.minecraft.item.ItemProvider;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.IItemProvider;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.Util;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.SystemUtil;
 
 import javax.annotation.Nonnull;
 
@@ -20,30 +20,30 @@ import javax.annotation.Nonnull;
  */
 public abstract class AbstractPocketUpgrade implements IPocketUpgrade
 {
-    private final ResourceLocation id;
+    private final Identifier id;
     private final String adjective;
     private final ItemStack stack;
 
-    protected AbstractPocketUpgrade( ResourceLocation id, String adjective, ItemStack stack )
+    protected AbstractPocketUpgrade( Identifier id, String adjective, ItemStack stack )
     {
         this.id = id;
         this.adjective = adjective;
         this.stack = stack;
     }
 
-    protected AbstractPocketUpgrade( ResourceLocation id, String adjective, IItemProvider item )
+    protected AbstractPocketUpgrade( Identifier identifier, String adjective, ItemProvider item )
     {
-        this( id, adjective, new ItemStack( item ) );
+        this( identifier, adjective, new ItemStack( item ) );
     }
 
-    protected AbstractPocketUpgrade( ResourceLocation id, IItemProvider item )
+    protected AbstractPocketUpgrade( Identifier id, ItemProvider item )
     {
-        this( id, Util.makeTranslationKey( "upgrade", id ) + ".adjective", new ItemStack( item ) );
+        this( id, SystemUtil.createTranslationKey( "upgrade", id ) + ".adjective", new ItemStack( item ) );
     }
 
     @Nonnull
     @Override
-    public final ResourceLocation getUpgradeID()
+    public final Identifier getUpgradeID()
     {
         return id;
     }

@@ -11,12 +11,12 @@ import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
-import net.minecraft.network.play.server.SPacketCustomSound;
+import net.minecraft.block.enums.Instrument;
+import net.minecraft.client.network.packet.PlaySoundIdS2CPacket;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.state.properties.NoteBlockInstrument;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.ResourceLocationException;
-import net.minecraft.util.SoundCategory;
+import net.minecraft.sound.SoundCategory;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.InvalidIdentifierException;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
@@ -75,12 +75,12 @@ public abstract class SpeakerPeripheral implements IPeripheral
                 float volume = (float) optReal( args, 1, 1.0 );
                 float pitch = (float) optReal( args, 2, 1.0 );
 
-                ResourceLocation identifier;
+                Identifier identifier;
                 try
                 {
-                    identifier = new ResourceLocation( name );
+                    identifier = new Identifier( name );
                 }
-                catch( ResourceLocationException e )
+                catch( InvalidIdentifierException e )
                 {
                     throw new LuaException( "Malformed sound name '" + name + "' " );
                 }
@@ -103,10 +103,10 @@ public abstract class SpeakerPeripheral implements IPeripheral
         float volume = (float) optReal( arguments, 1, 1.0 );
         float pitch = (float) optReal( arguments, 2, 1.0 );
 
-        NoteBlockInstrument instrument = null;
-        for( NoteBlockInstrument testInstrument : NoteBlockInstrument.values() )
+        Instrument instrument = null;
+        for( Instrument testInstrument : Instrument.values() )
         {
-            if( testInstrument.getName().equalsIgnoreCase( name ) )
+            if( testInstrument.asString().equalsIgnoreCase( name ) )
             {
                 instrument = testInstrument;
                 break;
@@ -120,13 +120,13 @@ public abstract class SpeakerPeripheral implements IPeripheral
         }
 
         // If the resource location for note block notes changes, this method call will need to be updated
-        boolean success = playSound( context, instrument.getSound().getName(), volume, (float) Math.pow( 2.0, (pitch - 12.0) / 12.0 ), true );
+        boolean success = playSound( context, instrument.getSound().getId(), volume, (float) Math.pow( 2.0, (pitch - 12.0) / 12.0 ), true );
 
         if( success ) m_notesThisTick.incrementAndGet();
         return new Object[] { success };
     }
 
-    private synchronized boolean playSound( ILuaContext context, ResourceLocation name, float volume, float pitch, boolean isNote ) throws LuaException
+    private synchronized boolean playSound( ILuaContext context, Identifier name, float volume, float pitch, boolean isNote ) throws LuaException
     {
         if( m_clock - m_lastPlayTime < TileSpeaker.MIN_TICKS_BETWEEN_SOUNDS &&
             (!isNote || m_clock - m_lastPlayTime != 0 || m_notesThisTick.get() >= ComputerCraft.maxNotesPerTick) )
@@ -144,9 +144,9 @@ public abstract class SpeakerPeripheral implements IPeripheral
             if( server == null ) return null;
 
             float adjVolume = Math.min( volume, 3.0f );
-            server.getPlayerList().sendToAllNearExcept(
-                null, pos.x, pos.y, pos.z, adjVolume > 1.0f ? 16 * adjVolume : 16.0, world.dimension.getType(),
-                new SPacketCustomSound( name, SoundCategory.RECORDS, pos, adjVolume, pitch )
+            server.getPlayerManager().sendToAround(
+                null, pos.x, pos.y, pos.z, adjVolume > 1.0f ? 16 * adjVolume : 16.0, world.getDimension().getType(),
+                new PlaySoundIdS2CPacket( name, SoundCategory.RECORD, pos, adjVolume, pitch )
             );
             return null;
         } );

@@ -1,0 +1,10 @@
+{
+    "id": "computercraft",
+    "name": "CC: Tweaked",
+    "version": "${version}",
+    "side": "universal",
+    "initializer": "dan200.computercraft.ComputerCraft",
+    "mixins": {
+        "client": "computercraft.client.json"
+    }
+}

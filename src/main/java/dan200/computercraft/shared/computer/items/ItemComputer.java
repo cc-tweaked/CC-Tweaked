@@ -9,13 +9,13 @@ package dan200.computercraft.shared.computer.items;
 import dan200.computercraft.shared.computer.blocks.BlockComputer;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.text.TextComponentString;
+import net.minecraft.text.StringTextComponent;
 
 import javax.annotation.Nonnull;
 
 public class ItemComputer extends ItemComputerBase
 {
-    public ItemComputer( BlockComputer block, Properties settings )
+    public ItemComputer( BlockComputer block, Settings settings )
     {
         super( block, settings );
     }
@@ -24,7 +24,7 @@ public class ItemComputer extends ItemComputerBase
     {
         ItemStack result = new ItemStack( this );
         if( id >= 0 ) result.getOrCreateTag().putInt( NBT_ID, id );
-        if( label != null ) result.setDisplayName( new TextComponentString( label ) );
+        if( label != null ) result.setDisplayName( new StringTextComponent( label ) );
         return result;
     }
 

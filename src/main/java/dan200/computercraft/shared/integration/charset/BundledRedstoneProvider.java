@@ -8,7 +8,7 @@ package dan200.computercraft.shared.integration.charset;
 
 import dan200.computercraft.api.redstone.IBundledRedstoneProvider;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
@@ -19,7 +19,7 @@ import static dan200.computercraft.shared.integration.charset.IntegrationCharset
 public class BundledRedstoneProvider implements IBundledRedstoneProvider
 {
     @Override
-    public int getBundledRedstoneOutput( @Nonnull World world, @Nonnull BlockPos pos, @Nonnull EnumFacing side )
+    public int getBundledRedstoneOutput( @Nonnull World world, @Nonnull BlockPos pos, @Nonnull Direction side )
     {
         TileEntity tile = world.getTileEntity( pos );
         if( tile == null || !tile.hasCapability( CAPABILITY_EMITTER, side ) ) return -1;

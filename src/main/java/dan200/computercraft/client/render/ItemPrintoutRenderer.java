@@ -6,15 +6,12 @@
 
 package dan200.computercraft.client.render;
 
-import dan200.computercraft.ComputerCraft;
+import com.mojang.blaze3d.platform.GlStateManager;
 import dan200.computercraft.shared.media.items.ItemPrintout;
-import net.minecraft.client.renderer.GlStateManager;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.minecraft.entity.decoration.ItemFrameEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.RenderItemInFrameEvent;
-import net.minecraftforge.client.event.RenderSpecificHandEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
 
 import static dan200.computercraft.client.gui.FixedWidthFontRenderer.FONT_HEIGHT;
 import static dan200.computercraft.client.gui.FixedWidthFontRenderer.FONT_WIDTH;
@@ -25,15 +22,16 @@ import static dan200.computercraft.shared.media.items.ItemPrintout.LINE_MAX_LENG
 /**
  * Emulates map and item-frame rendering for printouts
  */
-@Mod.EventBusSubscriber( modid = ComputerCraft.MOD_ID, value = Dist.CLIENT )
+@Environment( EnvType.CLIENT )
 public final class ItemPrintoutRenderer extends ItemMapLikeRenderer
 {
-    private static final ItemPrintoutRenderer INSTANCE = new ItemPrintoutRenderer();
+    public static final ItemPrintoutRenderer INSTANCE = new ItemPrintoutRenderer();
 
     private ItemPrintoutRenderer()
     {
     }
 
+    /*
     @SubscribeEvent
     public static void onRenderInHand( RenderSpecificHandEvent event )
     {
@@ -43,6 +41,7 @@ public final class ItemPrintoutRenderer extends ItemMapLikeRenderer
         event.setCanceled( true );
         INSTANCE.renderItemFirstPerson( event.getHand(), event.getInterpolatedPitch(), event.getEquipProgress(), event.getSwingProgress(), event.getItemStack() );
     }
+    */
 
     @Override
     protected void renderItem( ItemStack stack )
@@ -61,15 +60,12 @@ public final class ItemPrintoutRenderer extends ItemMapLikeRenderer
         GlStateManager.enableLighting();
     }
 
-    @SubscribeEvent
-    public static void onRenderInFrame( RenderItemInFrameEvent event )
+    public void renderInFrame( ItemFrameEntity entity, ItemStack stack )
     {
-        ItemStack stack = event.getItem();
-        if( !(stack.getItem() instanceof ItemPrintout) ) return;
-
-        event.setCanceled( true );
-
         GlStateManager.disableLighting();
+
+        int rotation = entity.getRotation();
+        GlStateManager.rotatef( (float) rotation * 360.0F / 8.0F, 0.0F, 0.0F, 1.0F );
 
         // Move a little bit forward to ensure we're not clipping with the frame
         GlStateManager.translatef( 0.0f, 0.0f, -0.001f );

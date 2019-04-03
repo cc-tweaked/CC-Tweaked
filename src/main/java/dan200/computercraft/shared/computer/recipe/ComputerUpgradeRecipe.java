@@ -6,20 +6,19 @@
 
 package dan200.computercraft.shared.computer.recipe;
 
-import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.items.IComputerItem;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.IRecipeSerializer;
-import net.minecraft.item.crafting.Ingredient;
-import net.minecraft.util.NonNullList;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.recipe.Ingredient;
+import net.minecraft.recipe.RecipeSerializer;
+import net.minecraft.util.DefaultedList;
+import net.minecraft.util.Identifier;
 
 import javax.annotation.Nonnull;
 
 public class ComputerUpgradeRecipe extends ComputerFamilyRecipe
 {
-    public ComputerUpgradeRecipe( ResourceLocation identifier, String group, int width, int height, NonNullList<Ingredient> ingredients, ItemStack result, ComputerFamily family )
+    public ComputerUpgradeRecipe( Identifier identifier, String group, int width, int height, DefaultedList<Ingredient> ingredients, ItemStack result, ComputerFamily family )
     {
         super( identifier, group, width, height, ingredients, result, family );
     }
@@ -33,25 +32,17 @@ public class ComputerUpgradeRecipe extends ComputerFamilyRecipe
 
     @Nonnull
     @Override
-    public IRecipeSerializer<?> getSerializer()
+    public RecipeSerializer<?> getSerializer()
     {
         return SERIALIZER;
     }
 
-    private static final ResourceLocation ID = new ResourceLocation( ComputerCraft.MOD_ID, "computer_upgrade" );
-    public static final IRecipeSerializer<ComputerUpgradeRecipe> SERIALIZER = new Serializer<ComputerUpgradeRecipe>()
+    public static final RecipeSerializer<ComputerUpgradeRecipe> SERIALIZER = new Serializer<ComputerUpgradeRecipe>()
     {
         @Override
-        protected ComputerUpgradeRecipe create( ResourceLocation identifier, String group, int width, int height, NonNullList<Ingredient> ingredients, ItemStack result, ComputerFamily family )
+        protected ComputerUpgradeRecipe create( Identifier identifier, String group, int width, int height, DefaultedList<Ingredient> ingredients, ItemStack result, ComputerFamily family )
         {
             return new ComputerUpgradeRecipe( identifier, group, width, height, ingredients, result, family );
-        }
-
-        @Nonnull
-        @Override
-        public ResourceLocation getName()
-        {
-            return ID;
         }
     };
 }

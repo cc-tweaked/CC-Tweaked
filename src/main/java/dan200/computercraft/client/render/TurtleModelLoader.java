@@ -7,14 +7,12 @@
 package dan200.computercraft.client.render;
 
 import dan200.computercraft.ComputerCraft;
-import net.minecraft.client.renderer.model.IBakedModel;
-import net.minecraft.client.renderer.model.IUnbakedModel;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.renderer.vertex.VertexFormat;
-import net.minecraft.resources.IResourceManager;
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.client.model.ICustomModelLoader;
-import net.minecraftforge.common.model.IModelState;
+import net.minecraft.client.render.model.BakedModel;
+import net.minecraft.client.render.model.ModelLoader;
+import net.minecraft.client.render.model.ModelRotationContainer;
+import net.minecraft.client.render.model.UnbakedModel;
+import net.minecraft.client.texture.Sprite;
+import net.minecraft.util.Identifier;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -24,11 +22,11 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public final class TurtleModelLoader implements ICustomModelLoader
+public final class TurtleModelLoader
 {
-    private static final ResourceLocation NORMAL_TURTLE_MODEL = new ResourceLocation( ComputerCraft.MOD_ID, "block/turtle_normal" );
-    private static final ResourceLocation ADVANCED_TURTLE_MODEL = new ResourceLocation( ComputerCraft.MOD_ID, "block/turtle_advanced" );
-    private static final ResourceLocation COLOUR_TURTLE_MODEL = new ResourceLocation( ComputerCraft.MOD_ID, "block/turtle_colour" );
+    private static final Identifier NORMAL_TURTLE_MODEL = new Identifier( ComputerCraft.MOD_ID, "block/turtle_normal" );
+    private static final Identifier ADVANCED_TURTLE_MODEL = new Identifier( ComputerCraft.MOD_ID, "block/turtle_advanced" );
+    private static final Identifier COLOUR_TURTLE_MODEL = new Identifier( ComputerCraft.MOD_ID, "block/turtle_colour" );
 
     public static final TurtleModelLoader INSTANCE = new TurtleModelLoader();
 
@@ -36,21 +34,14 @@ public final class TurtleModelLoader implements ICustomModelLoader
     {
     }
 
-    @Override
-    public void onResourceManagerReload( @Nonnull IResourceManager manager )
-    {
-    }
-
-    @Override
-    public boolean accepts( @Nonnull ResourceLocation name )
+    public boolean accepts( @Nonnull Identifier name )
     {
         return name.getNamespace().equals( ComputerCraft.MOD_ID )
             && (name.getPath().equals( "item/turtle_normal" ) || name.getPath().equals( "item/turtle_advanced" ));
     }
 
     @Nonnull
-    @Override
-    public IUnbakedModel loadModel( @Nonnull ResourceLocation name )
+    public UnbakedModel loadModel( @Nonnull Identifier name )
     {
         if( name.getNamespace().equals( ComputerCraft.MOD_ID ) )
         {
@@ -66,35 +57,35 @@ public final class TurtleModelLoader implements ICustomModelLoader
         throw new IllegalStateException( "Loader does not accept " + name );
     }
 
-    private static final class TurtleModel implements IUnbakedModel
+    private static final class TurtleModel implements UnbakedModel
     {
-        private final ResourceLocation family;
+        private final Identifier family;
 
-        private TurtleModel( ResourceLocation family ) {this.family = family;}
+        private TurtleModel( Identifier family ) {this.family = family;}
 
         @Nonnull
         @Override
-        public Collection<ResourceLocation> getDependencies()
+        public Collection<Identifier> getModelDependencies()
         {
             return Arrays.asList( family, COLOUR_TURTLE_MODEL );
         }
 
         @Nonnull
         @Override
-        public Collection<ResourceLocation> getTextures( @Nonnull Function<ResourceLocation, IUnbakedModel> modelGetter, @Nonnull Set<String> missingTextureErrors )
+        public Collection<Identifier> getTextureDependencies( @Nonnull Function<Identifier, UnbakedModel> modelGetter, @Nonnull Set<String> missingTextureErrors )
         {
-            return getDependencies().stream()
-                .flatMap( x -> modelGetter.apply( x ).getTextures( modelGetter, missingTextureErrors ).stream() )
+            return getModelDependencies().stream()
+                .flatMap( x -> modelGetter.apply( x ).getTextureDependencies( modelGetter, missingTextureErrors ).stream() )
                 .collect( Collectors.toSet() );
         }
 
         @Nullable
         @Override
-        public IBakedModel bake( @Nonnull Function<ResourceLocation, IUnbakedModel> modelGetter, @Nonnull Function<ResourceLocation, TextureAtlasSprite> spriteGetter, @Nonnull IModelState state, boolean uvlock, @Nonnull VertexFormat format )
+        public BakedModel bake( @Nonnull ModelLoader loader, @Nonnull Function<Identifier, Sprite> spriteGetter, @Nonnull ModelRotationContainer state )
         {
             return new TurtleSmartItemModel(
-                modelGetter.apply( family ).bake( modelGetter, spriteGetter, state, uvlock, format ),
-                modelGetter.apply( COLOUR_TURTLE_MODEL ).bake( modelGetter, spriteGetter, state, uvlock, format )
+                loader.getOrLoadModel( family ).bake( loader, spriteGetter, state ),
+                loader.getOrLoadModel( COLOUR_TURTLE_MODEL ).bake( loader, spriteGetter, state )
             );
         }
     }

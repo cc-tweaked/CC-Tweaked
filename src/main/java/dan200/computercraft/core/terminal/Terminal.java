@@ -7,7 +7,7 @@
 package dan200.computercraft.core.terminal;
 
 import dan200.computercraft.shared.util.Palette;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundTag;
 
 public class Terminal
 {
@@ -334,7 +334,7 @@ public class Terminal
         m_changed = false;
     }
 
-    public synchronized NBTTagCompound writeToNBT( NBTTagCompound nbt )
+    public synchronized CompoundTag writeToNBT( CompoundTag nbt )
     {
         nbt.putInt( "term_cursorX", m_cursorX );
         nbt.putInt( "term_cursorY", m_cursorY );
@@ -354,7 +354,7 @@ public class Terminal
         return nbt;
     }
 
-    public synchronized void readFromNBT( NBTTagCompound nbt )
+    public synchronized void readFromNBT( CompoundTag nbt )
     {
         m_cursorX = nbt.getInt( "term_cursorX" );
         m_cursorY = nbt.getInt( "term_cursorY" );
@@ -365,17 +365,17 @@ public class Terminal
         for( int n = 0; n < m_height; n++ )
         {
             m_text[n].fill( ' ' );
-            if( nbt.contains( "term_text_" + n ) )
+            if( nbt.containsKey( "term_text_" + n ) )
             {
                 m_text[n].write( nbt.getString( "term_text_" + n ) );
             }
             m_textColour[n].fill( base16.charAt( m_cursorColour ) );
-            if( nbt.contains( "term_textColour_" + n ) )
+            if( nbt.containsKey( "term_textColour_" + n ) )
             {
                 m_textColour[n].write( nbt.getString( "term_textColour_" + n ) );
             }
             m_backgroundColour[n].fill( base16.charAt( m_cursorBackgroundColour ) );
-            if( nbt.contains( "term_textBgColour_" + n ) )
+            if( nbt.containsKey( "term_textBgColour_" + n ) )
             {
                 m_backgroundColour[n].write( nbt.getString( "term_textBgColour_" + n ) );
             }

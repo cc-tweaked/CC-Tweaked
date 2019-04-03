@@ -13,40 +13,28 @@ import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.shared.common.TileGeneric;
 import dan200.computercraft.shared.media.items.ItemPrintout;
 import dan200.computercraft.shared.network.Containers;
-import dan200.computercraft.shared.util.ColourUtils;
-import dan200.computercraft.shared.util.DefaultSidedInventory;
-import dan200.computercraft.shared.util.NamedBlockEntityType;
-import dan200.computercraft.shared.util.WorldUtil;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Items;
-import net.minecraft.inventory.ItemStackHelper;
-import net.minecraft.item.EnumDyeColor;
+import dan200.computercraft.shared.util.*;
+import net.minecraft.block.BlockState;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.inventory.Inventories;
+import net.minecraft.item.DyeItem;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemDye;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
-import net.minecraft.util.NonNullList;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.item.Items;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.text.TextComponent;
+import net.minecraft.util.*;
+import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.items.IItemHandlerModifiable;
-import net.minecraftforge.items.wrapper.InvWrapper;
-import net.minecraftforge.items.wrapper.SidedInvWrapper;
+import net.minecraft.util.math.Direction;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import static net.minecraftforge.items.CapabilityItemHandler.ITEM_HANDLER_CAPABILITY;
-
-public final class TilePrinter extends TileGeneric implements DefaultSidedInventory, IPeripheralTile
+public final class TilePrinter extends TileGeneric implements DefaultSidedInventory, IPeripheralTile, DefaultPropertyDelegate, Nameable
 {
     public static final NamedBlockEntityType<TilePrinter> FACTORY = NamedBlockEntityType.create(
-        new ResourceLocation( ComputerCraft.MOD_ID, "printer" ),
+        new Identifier( ComputerCraft.MOD_ID, "printer" ),
         TilePrinter::new
     );
 
@@ -54,15 +42,19 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
     private static final String NBT_PRINTING = "Printing";
     private static final String NBT_PAGE_TITLE = "PageTitle";
 
+    public static final int PROPERTY_SIZE = 1;
+    public static final int PROPERTY_PRINTING = 0;
+
+    public static final int INVENTORY_SIZE = 13;
+
     private static final int[] BOTTOM_SLOTS = new int[] { 7, 8, 9, 10, 11, 12 };
     private static final int[] TOP_SLOTS = new int[] { 1, 2, 3, 4, 5, 6 };
     private static final int[] SIDE_SLOTS = new int[] { 0 };
 
-    ITextComponent customName;
+    TextComponent customName;
 
-    private final NonNullList<ItemStack> m_inventory = NonNullList.withSize( 13, ItemStack.EMPTY );
-    private IItemHandlerModifiable m_itemHandlerAll = new InvWrapper( this );
-    private LazyOptional<IItemHandlerModifiable>[] m_itemHandlerSides;
+    private final DefaultedList<ItemStack> m_inventory = DefaultedList.create( INVENTORY_SIZE, ItemStack.EMPTY );
+    private final ItemStorage m_itemHandlerAll = ItemStorage.wrap( this );
 
     private final Terminal m_page = new Terminal( ItemPrintout.LINE_MAX_LENGTH, ItemPrintout.LINES_PER_PAGE );
     private String m_pageTitle = "";
@@ -80,20 +72,20 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
     }
 
     @Override
-    public boolean onActivate( EntityPlayer player, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ )
+    public boolean onActivate( PlayerEntity player, Hand hand, BlockHitResult hit )
     {
         if( player.isSneaking() ) return false;
 
-        if( !getWorld().isRemote ) Containers.openPrinterGUI( player, this );
+        if( !getWorld().isClient ) Containers.openPrinterGUI( player, this );
         return true;
     }
 
     @Override
-    public void read( NBTTagCompound nbt )
+    public void fromTag( CompoundTag nbt )
     {
-        super.read( nbt );
+        super.fromTag( nbt );
 
-        customName = nbt.contains( NBT_NAME ) ? ITextComponent.Serializer.fromJson( nbt.getString( NBT_NAME ) ) : null;
+        customName = nbt.containsKey( NBT_NAME ) ? TextComponent.Serializer.fromJsonString( nbt.getString( NBT_NAME ) ) : null;
 
         // Read page
         synchronized( m_page )
@@ -106,15 +98,15 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
         // Read inventory
         synchronized( m_inventory )
         {
-            ItemStackHelper.loadAllItems( nbt, m_inventory );
+            Inventories.fromTag( nbt, m_inventory );
         }
     }
 
     @Nonnull
     @Override
-    public NBTTagCompound write( NBTTagCompound nbt )
+    public CompoundTag toTag( CompoundTag nbt )
     {
-        if( customName != null ) nbt.putString( NBT_NAME, ITextComponent.Serializer.toJson( customName ) );
+        if( customName != null ) nbt.putString( NBT_NAME, TextComponent.Serializer.toJsonString( customName ) );
 
         // Write page
         synchronized( m_page )
@@ -127,24 +119,24 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
         // Write inventory
         synchronized( m_inventory )
         {
-            ItemStackHelper.saveAllItems( nbt, m_inventory );
+            Inventories.toTag( nbt, m_inventory );
         }
 
-        return super.write( nbt );
+        return super.toTag( nbt );
     }
 
     @Override
-    protected void writeDescription( @Nonnull NBTTagCompound nbt )
+    protected void writeDescription( @Nonnull CompoundTag nbt )
     {
         super.writeDescription( nbt );
-        if( customName != null ) nbt.putString( NBT_NAME, ITextComponent.Serializer.toJson( customName ) );
+        if( customName != null ) nbt.putString( NBT_NAME, TextComponent.Serializer.toJsonString( customName ) );
     }
 
     @Override
-    public void readDescription( @Nonnull NBTTagCompound nbt )
+    public void readDescription( @Nonnull CompoundTag nbt )
     {
         super.readDescription( nbt );
-        customName = nbt.contains( NBT_NAME ) ? ITextComponent.Serializer.fromJson( nbt.getString( NBT_NAME ) ) : null;
+        customName = nbt.containsKey( NBT_NAME ) ? TextComponent.Serializer.fromJsonString( nbt.getString( NBT_NAME ) ) : null;
         updateBlock();
     }
 
@@ -153,15 +145,15 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
         return m_printing;
     }
 
-    // IInventory implementation
+    // Inventory implementation
     @Override
-    public int getSizeInventory()
+    public int getInvSize()
     {
         return m_inventory.size();
     }
 
     @Override
-    public boolean isEmpty()
+    public boolean isInvEmpty()
     {
         for( ItemStack stack : m_inventory )
         {
@@ -172,14 +164,14 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
 
     @Nonnull
     @Override
-    public ItemStack getStackInSlot( int i )
+    public ItemStack getInvStack( int i )
     {
         return m_inventory.get( i );
     }
 
     @Nonnull
     @Override
-    public ItemStack removeStackFromSlot( int i )
+    public ItemStack removeInvStack( int i )
     {
         synchronized( m_inventory )
         {
@@ -193,13 +185,13 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
 
     @Nonnull
     @Override
-    public ItemStack decrStackSize( int i, int j )
+    public ItemStack takeInvStack( int i, int j )
     {
         synchronized( m_inventory )
         {
             if( m_inventory.get( i ).isEmpty() ) return ItemStack.EMPTY;
 
-            if( m_inventory.get( i ).getCount() <= j )
+            if( m_inventory.get( i ).getAmount() <= j )
             {
                 ItemStack itemstack = m_inventory.get( i );
                 m_inventory.set( i, ItemStack.EMPTY );
@@ -220,7 +212,7 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
     }
 
     @Override
-    public void setInventorySlotContents( int i, @Nonnull ItemStack stack )
+    public void setInvStack( int i, @Nonnull ItemStack stack )
     {
         synchronized( m_inventory )
         {
@@ -242,7 +234,7 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
     }
 
     @Override
-    public boolean isItemValidForSlot( int slot, @Nonnull ItemStack stack )
+    public boolean isValidInvStack( int slot, @Nonnull ItemStack stack )
     {
         if( slot == 0 )
         {
@@ -259,16 +251,15 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
     }
 
     @Override
-    public boolean isUsableByPlayer( @Nonnull EntityPlayer playerEntity )
+    public boolean canPlayerUseInv( PlayerEntity playerEntity )
     {
         return isUsable( playerEntity, false );
     }
 
     // ISidedInventory implementation
 
-    @Nonnull
     @Override
-    public int[] getSlotsForFace( @Nonnull EnumFacing side )
+    public int[] getInvAvailableSlots( @Nonnull Direction side )
     {
         switch( side )
         {
@@ -284,7 +275,7 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
     // IPeripheralTile implementation
 
     @Override
-    public IPeripheral getPeripheral( @Nonnull EnumFacing side )
+    public IPeripheral getPeripheral( @Nonnull Direction side )
     {
         return new PrinterPeripheral( this );
     }
@@ -321,7 +312,7 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
         synchronized( m_inventory )
         {
             ItemStack inkStack = m_inventory.get( 0 );
-            return isInk( inkStack ) ? inkStack.getCount() : 0;
+            return isInk( inkStack ) ? inkStack.getAmount() : 0;
         }
     }
 
@@ -335,7 +326,7 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
                 ItemStack paperStack = m_inventory.get( i );
                 if( !paperStack.isEmpty() && isPaper( paperStack ) )
                 {
-                    count += paperStack.getCount();
+                    count += paperStack.getAmount();
                 }
             }
         }
@@ -352,7 +343,7 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
 
     private static boolean isInk( @Nonnull ItemStack stack )
     {
-        return stack.getItem() instanceof ItemDye;
+        return stack.getItem() instanceof DyeItem;
     }
 
     private static boolean isPaper( @Nonnull ItemStack stack )
@@ -384,7 +375,7 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
                 if( !paperStack.isEmpty() && isPaper( paperStack ) )
                 {
                     // Setup the new page
-                    EnumDyeColor dye = ColourUtils.getStackColour( inkStack );
+                    DyeColor dye = ColourUtils.getStackColour( inkStack );
                     m_page.setTextColour( dye != null ? dye.getId() : 15 );
 
                     m_page.clear();
@@ -405,11 +396,11 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
                     m_page.setCursorPos( 0, 0 );
 
                     // Decrement ink
-                    inkStack.shrink( 1 );
+                    inkStack.subtractAmount( 1 );
                     if( inkStack.isEmpty() ) m_inventory.set( 0, ItemStack.EMPTY );
 
                     // Decrement paper
-                    paperStack.shrink( 1 );
+                    paperStack.subtractAmount( 1 );
                     if( paperStack.isEmpty() )
                     {
                         m_inventory.set( i, ItemStack.EMPTY );
@@ -445,7 +436,7 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
                 {
                     if( m_inventory.get( slot ).isEmpty() )
                     {
-                        setInventorySlotContents( slot, stack );
+                        setInvStack( slot, stack );
                         m_printing = false;
                         return true;
                     }
@@ -465,7 +456,7 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
                 if( !stack.isEmpty() )
                 {
                     // Remove the stack from the inventory
-                    setInventorySlotContents( i, ItemStack.EMPTY );
+                    setInvStack( i, ItemStack.EMPTY );
 
                     // Spawn the item in the world
                     BlockPos pos = getPos();
@@ -508,50 +499,25 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
 
     private void updateBlockState( boolean top, boolean bottom )
     {
-        if( removed ) return;
+        if( invalid ) return;
 
-        IBlockState state = getBlockState();
+        BlockState state = getCachedState();
         if( state.get( BlockPrinter.TOP ) == top & state.get( BlockPrinter.BOTTOM ) == bottom ) return;
 
         getWorld().setBlockState( getPos(), state.with( BlockPrinter.TOP, top ).with( BlockPrinter.BOTTOM, bottom ) );
     }
 
-
-    @SuppressWarnings( { "unchecked", "rawtypes" } )
-    @Nonnull
     @Override
-    public <T> LazyOptional<T> getCapability( @Nonnull Capability<T> capability, @Nullable EnumFacing facing )
+    public int get( int property )
     {
-        if( capability == ITEM_HANDLER_CAPABILITY )
-        {
-            LazyOptional<IItemHandlerModifiable>[] handlers = m_itemHandlerSides;
-            if( handlers == null ) handlers = m_itemHandlerSides = new LazyOptional[6];
+        if( property == PROPERTY_PRINTING ) return isPrinting() ? 1 : 0;
+        return 0;
+    }
 
-            LazyOptional<IItemHandlerModifiable> handler;
-            if( facing == null )
-            {
-                int i = 6;
-                handler = handlers[i];
-                if( handler == null )
-                {
-                    handler = handlers[i] = LazyOptional.of( () -> m_itemHandlerAll );
-                }
-            }
-            else
-            {
-
-                int i = facing.ordinal();
-                handler = handlers[i];
-                if( handler == null )
-                {
-                    handler = handlers[i] = LazyOptional.of( () -> new SidedInvWrapper( this, facing ) );
-                }
-            }
-
-            return handler.cast();
-        }
-
-        return super.getCapability( capability, facing );
+    @Override
+    public int size()
+    {
+        return PROPERTY_SIZE;
     }
 
     @Override
@@ -562,15 +528,15 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
 
     @Nullable
     @Override
-    public ITextComponent getCustomName()
+    public TextComponent getCustomName()
     {
         return customName;
     }
 
     @Nonnull
     @Override
-    public ITextComponent getName()
+    public TextComponent getName()
     {
-        return customName != null ? customName : getBlockState().getBlock().getNameTextComponent();
+        return customName != null ? customName : getCachedState().getBlock().getTextComponent();
     }
 }

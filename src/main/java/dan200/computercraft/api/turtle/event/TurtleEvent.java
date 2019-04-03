@@ -6,8 +6,8 @@
 
 package dan200.computercraft.api.turtle.event;
 
+import com.google.common.eventbus.EventBus;
 import dan200.computercraft.api.turtle.ITurtleAccess;
-import net.minecraftforge.eventbus.api.Event;
 
 import javax.annotation.Nonnull;
 import java.util.Objects;
@@ -20,8 +20,10 @@ import java.util.Objects;
  *
  * @see TurtleActionEvent
  */
-public abstract class TurtleEvent extends Event
+public abstract class TurtleEvent
 {
+    public static final EventBus EVENT_BUS = new EventBus();
+
     private final ITurtleAccess turtle;
 
     protected TurtleEvent( @Nonnull ITurtleAccess turtle )
@@ -39,5 +41,11 @@ public abstract class TurtleEvent extends Event
     public ITurtleAccess getTurtle()
     {
         return turtle;
+    }
+
+    public static boolean post( TurtleActionEvent event )
+    {
+        EVENT_BUS.post( event );
+        return event.isCancelled();
     }
 }

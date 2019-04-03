@@ -1,25 +1,16 @@
 buildscript {
-    repositories {
-        jcenter()
-        mavenCentral()
-        maven {
-            name = "forge"
-            url = "http://files.minecraftforge.net/maven"
-        }
-    }
     dependencies {
         classpath 'com.google.code.gson:gson:2.8.1'
-        classpath 'net.minecraftforge.gradle:ForgeGradle:3.0.115'
         classpath 'net.sf.proguard:proguard-gradle:6.1.0beta2'
         classpath 'org.ajoberstar.grgit:grgit-gradle:3.0.0'
     }
 }
 
 plugins {
+    id 'fabric-loom' version '0.2.0-SNAPSHOT'
     id 'com.matthewprenger.cursegradle' version '1.2.0'
 }
 
-apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'org.ajoberstar.grgit'
 apply plugin: 'maven-publish'
 apply plugin: 'maven'
@@ -30,38 +21,10 @@ group = "org.squiddev"
 archivesBaseName = "cc-tweaked-${mc_version}"
 
 minecraft {
-    runs {
-        client {
-            workingDirectory project.file('run')
-            property 'forge.logging.markers', 'REGISTRIES'
-            property 'forge.logging.console.level', 'debug'
-
-            mods {
-                computercraft {
-                    source sourceSets.main
-                }
-            }
-        }
-
-        server {
-            workingDirectory project.file('run')
-            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
-            property 'forge.logging.console.level', 'debug'
-
-            mods {
-                computercraft {
-                    source sourceSets.main
-                }
-            }
-        }
-    }
-
-    mappings channel: 'snapshot', version: "${mappings_version}".toString()
-
-    accessTransformer file('src/main/resources/META-INF/accesstransformer.cfg')
 }
 
 repositories {
+    mavenCentral()
     maven {
         name "JEI"
         url  "http://dvs1.progwml6.com/files/maven"
@@ -87,15 +50,21 @@ configurations {
 }
 
 dependencies {
-    minecraft "net.minecraftforge:forge:${mc_version}-${forge_version}"
+    minecraft "com.mojang:minecraft:${mc_version}"
+    mappings "net.fabricmc:yarn:${mc_version}.${mappings_version}"
+    modCompile "net.fabricmc:fabric-loader:0.3.7.109"
+    modCompile "net.fabricmc:fabric:0.2.6.117"
 
-    compileOnly "mezz.jei:jei-1.13.2:5.0.0.8:api"
+    // compileOnly "mezz.jei:jei-1.13.2:5.0.0.8:api"
     // deobfProvided "pl.asie:Charset-Lib:0.5.4.6"
     // deobfProvided "MCMultiPart2:MCMultiPart:2.5.3"
 
-    deobf "mezz.jei:jei-1.13.2:5.0.0.8"
+    // deobf "mezz.jei:jei-1.13.2:5.0.0.8"
+
+    implementation 'com.google.code.findbugs:jsr305:3.0.2'
 
     shade 'org.squiddev:Cobalt:0.5.0-SNAPSHOT'
+    shade 'javax.vecmath:vecmath:1.5.2'
 
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.1.0'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.1.0'
@@ -106,8 +75,7 @@ dependencies {
 sourceSets {
     main {
         java {
-            exclude 'dan200/computercraft/shared/integration/mcmp'
-            exclude 'dan200/computercraft/shared/integration/charset'
+            exclude 'dan200/computercraft/shared/integration'
         }
     }
 }
@@ -212,7 +180,7 @@ processResources {
     inputs.property "commithash", hash
 
     from(sourceSets.main.resources.srcDirs) {
-        include 'META-INF/mods.toml'
+        include 'fabric.mods.json'
         include 'data/computercraft/lua/rom/help/credits.txt'
 
         expand 'version': mod_version,
@@ -221,7 +189,7 @@ processResources {
     }
 
     from(sourceSets.main.resources.srcDirs) {
-        exclude 'META-INF/mods.toml'
+        exclude 'fabric.mods.json'
         exclude 'data/computercraft/lua/rom/help/credits.txt'
     }
 }
@@ -272,7 +240,8 @@ curseforge {
     apiKey = project.hasProperty('curseForgeApiKey') ? project.curseForgeApiKey : ''
     project {
         id = '282001'
-        releaseType = 'beta'
+        addGameVersion '1.14-Snapshot'
+        releaseType = 'alpha'
         changelog = "Release notes can be found on the GitHub repository (https://github.com/SquidDev-CC/CC-Tweaked/releases/tag/v${mc_version}-${mod_version})."
     }
 }
@@ -338,7 +307,7 @@ test {
 }
 
 gradle.projectsEvaluated {
-    reobfJar.dependsOn proguardMove
+    remapJar.dependsOn proguardMove
 
     tasks.withType(JavaCompile) {
         options.compilerArgs << "-Xlint" << "-Xlint:-processing" // Causes Forge build to fail << "-Werror"

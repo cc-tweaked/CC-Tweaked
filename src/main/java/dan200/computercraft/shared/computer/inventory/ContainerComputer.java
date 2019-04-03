@@ -10,8 +10,8 @@ import dan200.computercraft.shared.computer.blocks.TileComputer;
 import dan200.computercraft.shared.computer.core.IComputer;
 import dan200.computercraft.shared.computer.core.IContainerComputer;
 import dan200.computercraft.shared.computer.core.InputState;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.Container;
+import net.minecraft.container.Container;
+import net.minecraft.entity.player.PlayerEntity;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -21,13 +21,14 @@ public class ContainerComputer extends Container implements IContainerComputer
     private final TileComputer computer;
     private final InputState input = new InputState( this );
 
-    public ContainerComputer( TileComputer computer )
+    public ContainerComputer( int id, TileComputer computer )
     {
+        super( null, id );
         this.computer = computer;
     }
 
     @Override
-    public boolean canInteractWith( @Nonnull EntityPlayer player )
+    public boolean canUse( @Nonnull PlayerEntity player )
     {
         return computer.isUsableByPlayer( player );
     }
@@ -47,9 +48,9 @@ public class ContainerComputer extends Container implements IContainerComputer
     }
 
     @Override
-    public void onContainerClosed( EntityPlayer player )
+    public void close( PlayerEntity player )
     {
-        super.onContainerClosed( player );
+        super.close( player );
         input.close();
     }
 }

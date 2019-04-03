@@ -6,47 +6,46 @@
 
 package dan200.computercraft.client.gui;
 
+import com.mojang.blaze3d.platform.GlStateManager;
+import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.peripheral.printer.ContainerPrinter;
-import net.minecraft.client.gui.inventory.GuiContainer;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.resources.I18n;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.client.gui.ContainerScreen;
+import net.minecraft.client.resource.language.I18n;
+import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.util.Identifier;
 
-public class GuiPrinter extends GuiContainer
+public class GuiPrinter extends ContainerScreen<ContainerPrinter>
 {
-    private static final ResourceLocation BACKGROUND = new ResourceLocation( "computercraft", "textures/gui/printer.png" );
+    private static final Identifier BACKGROUND = new Identifier( "computercraft", "textures/gui/printer.png" );
 
-    private final ContainerPrinter container;
-
-    public GuiPrinter( ContainerPrinter container )
+    public GuiPrinter( ContainerPrinter container, PlayerInventory player )
     {
-        super( container );
-        this.container = container;
+        super( container, player, ComputerCraft.Blocks.printer.getTextComponent() );
     }
 
     @Override
-    protected void drawGuiContainerForegroundLayer( int mouseX, int mouseY )
+    protected void drawForeground( int mouseX, int mouseY )
     {
-        String title = container.getPrinter().getDisplayName().getString();
-        fontRenderer.drawString( title, (xSize - fontRenderer.getStringWidth( title )) / 2.0f, 6, 0x404040 );
-        fontRenderer.drawString( I18n.format( "container.inventory" ), 8, ySize - 96 + 2, 0x404040 );
+        String title = getTitle().getFormattedText();
+        font.draw( title, (containerWidth - font.getStringWidth( title )) / 2.0f, 6, 0x404040 );
+        font.draw( I18n.translate( "container.inventory" ), 8, containerHeight - 96 + 2, 0x404040 );
     }
 
     @Override
-    protected void drawGuiContainerBackgroundLayer( float partialTicks, int mouseX, int mouseY )
+    protected void drawBackground( float f, int i, int j )
     {
         GlStateManager.color4f( 1.0F, 1.0F, 1.0F, 1.0F );
-        mc.getTextureManager().bindTexture( BACKGROUND );
-        drawTexturedModalRect( guiLeft, guiTop, 0, 0, xSize, ySize );
+        minecraft.getTextureManager().bindTexture( BACKGROUND );
+        blit( left, top, 0, 0, containerWidth, containerHeight );
 
-        if( container.isPrinting() ) drawTexturedModalRect( guiLeft + 34, guiTop + 21, 176, 0, 25, 45 );
+        if( container.isPrinting() ) blit( left + 34, top + 21, 176, 0, 25, 45 );
     }
 
     @Override
     public void render( int mouseX, int mouseY, float partialTicks )
     {
-        drawDefaultBackground();
+        renderBackground();
         super.render( mouseX, mouseY, partialTicks );
-        renderHoveredToolTip( mouseX, mouseY );
+        drawMouseoverTooltip( mouseX, mouseY );
     }
 }
