@@ -1,3 +1,5 @@
+itemGroup.computercraft=CC: Tweaked
+
 tile.computercraft:computer.name=Computer
 tile.computercraft:advanced_computer.name=Erweiterter Computer
 tile.computercraft:drive.name=Diskettenlaufwerk
@@ -158,7 +160,10 @@ gui.computercraft:config.default_computer_settings=Computer-Standardeinstellunge
 gui.computercraft:config.debug_enabled=Debug-Library aktivieren
 gui.computercraft:config.log_computer_errors=Computerfehler loggen
 
+gui.computercraft:config.execution=Ausführung
 gui.computercraft:config.execution.computer_threads=Computer Threads
+gui.computercraft:config.execution.max_main_global_time=Globales Servertick Zeitlimit
+gui.computercraft:config.execution.max_main_computer_time=Computer Servertick Zeitlimit
 
 gui.computercraft:config.http=HTTP
 gui.computercraft:config.http.enabled=HTTP-API aktivieren
