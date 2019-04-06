@@ -11,6 +11,9 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.event.ForgeEventFactory;
+
+import java.util.EnumSet;
 
 public final class RedstoneUtil
 {
@@ -30,17 +33,12 @@ public final class RedstoneUtil
 
     public static void propagateRedstoneOutput( World world, BlockPos pos, EnumFacing side )
     {
-        // Propagate ordinary output
+        // Propagate ordinary output. See BlockRedstoneDiode.notifyNeighbors
         IBlockState block = world.getBlockState( pos );
+        if( ForgeEventFactory.onNeighborNotify( world, pos, block, EnumSet.of( side ), false ).isCanceled() ) return;
+
         BlockPos neighbourPos = pos.offset( side );
-        IBlockState neighbour = world.getBlockState( neighbourPos );
-        if( neighbour.getBlock().isAir( neighbour, world, neighbourPos ) )
-        {
-            world.neighborChanged( neighbourPos, block.getBlock(), pos );
-            if( neighbour.getBlock().isNormalCube( neighbour, world, neighbourPos ) )
-            {
-                world.notifyNeighborsOfStateExcept( neighbourPos, block.getBlock(), side.getOpposite() );
-            }
-        }
+        world.neighborChanged( neighbourPos, block.getBlock(), pos );
+        world.notifyNeighborsOfStateExcept( neighbourPos, block.getBlock(), side.getOpposite() );
     }
 }
