@@ -7,6 +7,7 @@
 package dan200.computercraft.core.computer;
 
 import com.google.common.base.Objects;
+import dan200.computercraft.api.filesystem.IWritableMount;
 import dan200.computercraft.api.lua.ILuaAPI;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.peripheral.IWorkMonitor;
@@ -242,6 +243,12 @@ public class Computer
     public void advance( double dt )
     {
         tick();
+    }
+
+    @Deprecated
+    public IWritableMount getRootMount()
+    {
+        return executor.getRootMount();
     }
 
     @Deprecated
