@@ -309,19 +309,21 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
         if( getWorld() == null || getWorld().isRemote ) return;
 
         ServerComputer computer = getServerComputer();
-        if( computer != null )
+        if( computer == null ) return;
+
+        BlockPos pos = computer.getPosition();
+        for( EnumFacing dir : EnumFacing.VALUES )
         {
-            BlockPos pos = computer.getPosition();
-            for( EnumFacing dir : EnumFacing.VALUES )
+            BlockPos offset = pos.offset( dir );
+            if( offset.equals( neighbour ) )
             {
-                BlockPos offset = pos.offset( dir );
-                if( offset.equals( neighbour ) )
-                {
-                    updateSideInput( computer, dir, offset );
-                    break;
-                }
+                updateSideInput( computer, dir, offset );
+                return;
             }
         }
+
+        // If the position is not any adjacent one, update all inputs.
+        updateInput();
     }
 
     public void updateOutput()
