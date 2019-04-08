@@ -6,7 +6,6 @@
 
 package dan200.computercraft.shared;
 
-import com.google.common.base.Preconditions;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.permissions.ITurtlePermissionProvider;
 import dan200.computercraft.api.turtle.event.TurtleActionEvent;
@@ -20,6 +19,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import javax.annotation.Nonnull;
 import java.util.Collection;
 import java.util.LinkedHashSet;
+import java.util.Objects;
 
 @Mod.EventBusSubscriber( modid = ComputerCraft.MOD_ID )
 public final class TurtlePermissions
@@ -32,7 +32,7 @@ public final class TurtlePermissions
 
     public static void register( @Nonnull ITurtlePermissionProvider upgrade )
     {
-        Preconditions.checkNotNull( upgrade, "upgrade cannot be null" );
+        Objects.requireNonNull( upgrade, "upgrade cannot be null" );
 
         providers.add( upgrade );
     }

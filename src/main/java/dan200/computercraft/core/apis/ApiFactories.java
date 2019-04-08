@@ -6,13 +6,13 @@
 
 package dan200.computercraft.core.apis;
 
-import com.google.common.base.Preconditions;
 import dan200.computercraft.api.lua.ILuaAPIFactory;
 
 import javax.annotation.Nonnull;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
+import java.util.Objects;
 
 public final class ApiFactories
 {
@@ -25,7 +25,7 @@ public final class ApiFactories
 
     public static void register( @Nonnull ILuaAPIFactory factory )
     {
-        Preconditions.checkNotNull( factory, "provider cannot be null" );
+        Objects.requireNonNull( factory, "provider cannot be null" );
         factories.add( factory );
     }
 
