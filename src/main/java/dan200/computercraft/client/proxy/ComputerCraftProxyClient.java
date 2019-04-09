@@ -75,8 +75,9 @@ public final class ComputerCraftProxyClient
         ModLoadingContext.get().registerExtensionPoint( ExtensionPoint.GUIFACTORY, () -> packet -> {
             ContainerType<?> type = ContainerType.factories.get( packet.getId() ).get();
             if( packet.getAdditionalData() != null ) type.fromBytes( packet.getAdditionalData() );
-            return ((BiFunction<ContainerType<?>, EntityPlayer, GuiContainer>) ContainerType.guiFactories.get( packet.getId() ))
-                .apply( type, Minecraft.getInstance().player );
+            @SuppressWarnings( "unchecked" )
+            BiFunction<ContainerType<?>, EntityPlayer, GuiContainer> factory = (BiFunction<ContainerType<?>, EntityPlayer, GuiContainer>) ContainerType.guiFactories.get( packet.getId() );
+            return factory.apply( type, Minecraft.getInstance().player );
         } );
     }
 

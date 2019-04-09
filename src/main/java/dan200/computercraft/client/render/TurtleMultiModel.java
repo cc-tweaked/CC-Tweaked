@@ -9,7 +9,6 @@ package dan200.computercraft.client.render;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.model.BakedQuad;
 import net.minecraft.client.renderer.model.IBakedModel;
-import net.minecraft.client.renderer.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.model.ItemOverrideList;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.util.EnumFacing;
@@ -122,7 +121,7 @@ public class TurtleMultiModel implements IBakedModel
     @Nonnull
     @Override
     @Deprecated
-    public ItemCameraTransforms getItemCameraTransforms()
+    public net.minecraft.client.renderer.model.ItemCameraTransforms getItemCameraTransforms()
     {
         return m_baseModel.getItemCameraTransforms();
     }

@@ -14,7 +14,6 @@ import dan200.computercraft.core.apis.handles.ArrayByteChannel;
 import net.minecraft.resources.IReloadableResourceManager;
 import net.minecraft.resources.IResource;
 import net.minecraft.resources.IResourceManager;
-import net.minecraft.resources.IResourceManagerReloadListener;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.resource.IResourceType;
 import net.minecraftforge.resource.ISelectiveResourceReloadListener;
@@ -241,7 +240,7 @@ public class ResourceMount implements IMount
     }
 
     /**
-     * A {@link IResourceManagerReloadListener} which reloads any associated mounts.
+     * A {@link ISelectiveResourceReloadListener} which reloads any associated mounts.
      *
      * While people should really be keeping a permanent reference to this, some people construct it every
      * method call, so let's make this as small as possible.

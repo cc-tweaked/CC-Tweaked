@@ -18,7 +18,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.ItemRenderer;
 import net.minecraft.client.renderer.model.IBakedModel;
-import net.minecraft.client.renderer.model.ItemCameraTransforms.TransformType;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.item.ItemStack;
@@ -89,9 +88,7 @@ public final class ItemPocketRenderer extends ItemMapLikeRenderer
             GlStateManager.blendFunc( GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA );
             GlStateManager.color4f( 1.0F, 1.0F, 1.0F, 1.0F );
 
-            IBakedModel baked = renderItem.getItemModelWithOverrides( stack, null, null );
-            baked = ForgeHooksClient.handleCameraTransforms( baked, TransformType.GUI, false );
-            renderItem.renderItem( stack, baked );
+            renderItem.renderItem( stack, transform( renderItem.getItemModelWithOverrides( stack, null, null ) ) );
 
             GlStateManager.disableAlphaTest();
             GlStateManager.disableRescaleNormal();
@@ -167,5 +164,11 @@ public final class ItemPocketRenderer extends ItemMapLikeRenderer
         }
 
         GlStateManager.enableLighting();
+    }
+
+    @SuppressWarnings( { "deprecation" } )
+    private static IBakedModel transform( IBakedModel model )
+    {
+        return ForgeHooksClient.handleCameraTransforms( model, net.minecraft.client.renderer.model.ItemCameraTransforms.TransformType.GUI, false );
     }
 }

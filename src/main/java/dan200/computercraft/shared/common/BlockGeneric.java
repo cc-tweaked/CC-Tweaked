@@ -7,7 +7,6 @@
 package dan200.computercraft.shared.common;
 
 import net.minecraft.block.Block;
-import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
@@ -23,7 +22,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Random;
 
-public abstract class BlockGeneric extends Block implements ITileEntityProvider
+public abstract class BlockGeneric extends Block
 {
     private final TileEntityType<? extends TileGeneric> type;
 
@@ -77,9 +76,15 @@ public abstract class BlockGeneric extends Block implements ITileEntityProvider
         if( te instanceof TileGeneric ) ((TileGeneric) te).blockTick();
     }
 
+    @Override
+    public boolean hasTileEntity( IBlockState state )
+    {
+        return true;
+    }
+
     @Nullable
     @Override
-    public TileEntity createNewTileEntity( @Nonnull IBlockReader world )
+    public TileEntity createTileEntity( @Nonnull IBlockState state, @Nonnull IBlockReader world )
     {
         return type.create();
     }
