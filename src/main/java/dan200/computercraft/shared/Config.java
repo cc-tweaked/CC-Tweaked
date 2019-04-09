@@ -44,8 +44,8 @@ public final class Config
     private static ConfigValue<Boolean> logComputerErrors;
 
     private static ConfigValue<Integer> computerThreads;
-    private static ConfigValue<Long> maxMainGlobalTime;
-    private static ConfigValue<Long> maxMainComputerTime;
+    private static ConfigValue<Integer> maxMainGlobalTime;
+    private static ConfigValue<Integer> maxMainComputerTime;
 
     private static ConfigValue<Boolean> httpEnabled;
     private static ConfigValue<Boolean> httpWebsocketEnabled;
@@ -54,8 +54,8 @@ public final class Config
 
     private static ConfigValue<Integer> httpTimeout;
     private static ConfigValue<Integer> httpMaxRequests;
-    private static ConfigValue<Long> httpMaxDownload;
-    private static ConfigValue<Long> httpMaxUpload;
+    private static ConfigValue<Integer> httpMaxDownload;
+    private static ConfigValue<Integer> httpMaxUpload;
     private static ConfigValue<Integer> httpMaxWebsockets;
     private static ConfigValue<Integer> httpMaxWebsocketMessage;
 
@@ -134,13 +134,13 @@ public final class Config
                 .comment( "The maximum time that can be spent executing tasks in a single tick, in milliseconds.\n" +
                     "Note, we will quite possibly go over this limit, as there's no way to tell how long a will take " +
                     "- this aims to be the upper bound of the average time." )
-                .defineInRange( "max_main_global_time", TimeUnit.NANOSECONDS.toMillis( ComputerCraft.maxMainGlobalTime ), 1, Long.MAX_VALUE );
+                .defineInRange( "max_main_global_time", (int) TimeUnit.NANOSECONDS.toMillis( ComputerCraft.maxMainGlobalTime ), 1, Integer.MAX_VALUE );
 
             maxMainComputerTime = builder
                 .comment( "The ideal maximum time a computer can execute for in a tick, in milliseconds.\n" +
                     "Note, we will quite possibly go over this limit, as there's no way to tell how long a will take " +
                     "- this aims to be the upper bound of the average time." )
-                .defineInRange( "max_main_computer_time", TimeUnit.NANOSECONDS.toMillis( ComputerCraft.maxMainComputerTime ), 1, Long.MAX_VALUE );
+                .defineInRange( "max_main_computer_time", (int) TimeUnit.NANOSECONDS.toMillis( ComputerCraft.maxMainComputerTime ), 1, Integer.MAX_VALUE );
 
             builder.pop();
         }
@@ -180,11 +180,11 @@ public final class Config
 
             httpMaxDownload = builder
                 .comment( "The maximum size (in bytes) that a computer can download in a single request. Note that responses may receive more data than allowed, but this data will not be returned to the client." )
-                .defineInRange( "max_download", ComputerCraft.httpMaxDownload, 0, Long.MAX_VALUE );
+                .defineInRange( "max_download", (int) ComputerCraft.httpMaxDownload, 0, Integer.MAX_VALUE );
 
             httpMaxUpload = builder
                 .comment( "The maximum size (in bytes) that a computer can upload in a single request. This includes headers and POST text." )
-                .defineInRange( "max_upload", ComputerCraft.httpMaxUpload, 0, Long.MAX_VALUE );
+                .defineInRange( "max_upload", (int) ComputerCraft.httpMaxUpload, 0, Integer.MAX_VALUE );
 
             httpMaxWebsockets = builder
                 .comment( "The number of websockets a computer can have open at one time. Set to 0 for unlimited." )
