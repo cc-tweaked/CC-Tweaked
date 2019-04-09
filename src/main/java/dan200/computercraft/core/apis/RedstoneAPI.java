@@ -9,6 +9,7 @@ package dan200.computercraft.core.apis;
 import dan200.computercraft.api.lua.ILuaAPI;
 import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
+import dan200.computercraft.core.computer.ComputerSide;
 
 import javax.annotation.Nonnull;
 import java.util.HashMap;
@@ -64,56 +65,40 @@ public class RedstoneAPI implements ILuaAPI
             {
                 // getSides
                 Map<Object, Object> table = new HashMap<>();
-                for( int i = 0; i < IAPIEnvironment.SIDE_NAMES.length; i++ )
+                for( int i = 0; i < ComputerSide.NAMES.length; i++ )
                 {
-                    table.put( i + 1, IAPIEnvironment.SIDE_NAMES[i] );
+                    table.put( i + 1, ComputerSide.NAMES[i] );
                 }
                 return new Object[] { table };
             }
             case 1:
             {
                 // setOutput
-                int side = parseSide( args );
+                ComputerSide side = parseSide( args );
                 boolean output = getBoolean( args, 1 );
                 m_environment.setOutput( side, output ? 15 : 0 );
                 return null;
             }
-            case 2:
-            {
-                // getOutput
-                int side = parseSide( args );
-                return new Object[] { m_environment.getOutput( side ) > 0 };
-            }
-            case 3:
-            {
-                // getInput
-                int side = parseSide( args );
-                return new Object[] { m_environment.getInput( side ) > 0 };
-            }
+            case 2: // getOutput
+                return new Object[] { m_environment.getOutput( parseSide( args ) ) > 0 };
+            case 3: // getInput
+                return new Object[] { m_environment.getInput( parseSide( args ) ) > 0 };
             case 4:
             {
                 // setBundledOutput
-                int side = parseSide( args );
+                ComputerSide side = parseSide( args );
                 int output = getInt( args, 1 );
                 m_environment.setBundledOutput( side, output );
                 return null;
             }
-            case 5:
-            {
-                // getBundledOutput
-                int side = parseSide( args );
-                return new Object[] { m_environment.getBundledOutput( side ) };
-            }
-            case 6:
-            {
-                // getBundledInput
-                int side = parseSide( args );
-                return new Object[] { m_environment.getBundledInput( side ) };
-            }
+            case 5: // getBundledOutput
+                return new Object[] { m_environment.getBundledOutput( parseSide( args ) ) };
+            case 6: // getBundledInput
+                return new Object[] { m_environment.getBundledInput( parseSide( args ) ) };
             case 7:
             {
                 // testBundledInput
-                int side = parseSide( args );
+                ComputerSide side = parseSide( args );
                 int mask = getInt( args, 1 );
                 int input = m_environment.getBundledInput( side );
                 return new Object[] { (input & mask) == mask };
@@ -122,7 +107,7 @@ public class RedstoneAPI implements ILuaAPI
             case 9:
             {
                 // setAnalogOutput/setAnalogueOutput
-                int side = parseSide( args );
+                ComputerSide side = parseSide( args );
                 int output = getInt( args, 1 );
                 if( output < 0 || output > 15 )
                 {
@@ -132,34 +117,20 @@ public class RedstoneAPI implements ILuaAPI
                 return null;
             }
             case 10:
-            case 11:
-            {
-                // getAnalogOutput/getAnalogueOutput
-                int side = parseSide( args );
-                return new Object[] { m_environment.getOutput( side ) };
-            }
+            case 11: // getAnalogOutput/getAnalogueOutput
+                return new Object[] { m_environment.getOutput( parseSide( args ) ) };
             case 12:
-            case 13:
-            {
-                // getAnalogInput/getAnalogueInput
-                int side = parseSide( args );
-                return new Object[] { m_environment.getInput( side ) };
-            }
+            case 13: // getAnalogInput/getAnalogueInput
+                return new Object[] { m_environment.getInput( parseSide( args ) ) };
             default:
                 return null;
         }
     }
 
-    private static int parseSide( Object[] args ) throws LuaException
+    private static ComputerSide parseSide( Object[] args ) throws LuaException
     {
-        String side = getString( args, 0 );
-        for( int n = 0; n < IAPIEnvironment.SIDE_NAMES.length; n++ )
-        {
-            if( side.equals( IAPIEnvironment.SIDE_NAMES[n] ) )
-            {
-                return n;
-            }
-        }
-        throw new LuaException( "Invalid side." );
+        ComputerSide side = ComputerSide.valueOfInsensitive( getString( args, 0 ) );
+        if( side == null ) throw new LuaException( "Invalid side." );
+        return side;
     }
 }

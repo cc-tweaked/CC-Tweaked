@@ -9,6 +9,7 @@ package dan200.computercraft.shared.computer.blocks;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.peripheral.IPeripheralTile;
+import dan200.computercraft.core.computer.ComputerSide;
 import dan200.computercraft.shared.BundledRedstone;
 import dan200.computercraft.shared.Peripherals;
 import dan200.computercraft.shared.common.TileGeneric;
@@ -198,24 +199,24 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
         m_on = m_startOn = nbt.getBoolean( NBT_ON );
     }
 
-    protected boolean isPeripheralBlockedOnSide( EnumFacing localSide )
+    protected boolean isPeripheralBlockedOnSide( ComputerSide localSide )
     {
         return false;
     }
 
-    protected boolean isRedstoneBlockedOnSide( EnumFacing localSide )
+    protected boolean isRedstoneBlockedOnSide( ComputerSide localSide )
     {
         return false;
     }
 
     protected abstract EnumFacing getDirection();
 
-    protected EnumFacing remapToLocalSide( EnumFacing globalSide )
+    protected ComputerSide remapToLocalSide( EnumFacing globalSide )
     {
         return remapLocalSide( DirectionUtil.toLocal( getDirection(), globalSide ) );
     }
 
-    protected EnumFacing remapLocalSide( EnumFacing localSide )
+    protected ComputerSide remapLocalSide( ComputerSide localSide )
     {
         return localSide;
     }
@@ -223,15 +224,15 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
     private void updateSideInput( ServerComputer computer, EnumFacing dir, BlockPos offset )
     {
         EnumFacing offsetSide = dir.getOpposite();
-        EnumFacing localDir = remapToLocalSide( dir );
+        ComputerSide localDir = remapToLocalSide( dir );
         if( !isRedstoneBlockedOnSide( localDir ) )
         {
-            computer.setRedstoneInput( localDir.getIndex(), getWorld().getRedstonePower( offset, dir ) );
-            computer.setBundledRedstoneInput( localDir.getIndex(), BundledRedstone.getOutput( getWorld(), offset, offsetSide ) );
+            computer.setRedstoneInput( localDir, getWorld().getRedstonePower( offset, dir ) );
+            computer.setBundledRedstoneInput( localDir, BundledRedstone.getOutput( getWorld(), offset, offsetSide ) );
         }
         if( !isPeripheralBlockedOnSide( localDir ) )
         {
-            computer.setPeripheral( localDir.getIndex(), Peripherals.getPeripheral( getWorld(), offset, offsetSide ) );
+            computer.setPeripheral( localDir, Peripherals.getPeripheral( getWorld(), offset, offsetSide ) );
         }
     }
 
@@ -257,7 +258,6 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
         ServerComputer computer = getServerComputer();
         if( computer == null ) return;
 
-        // Find the appropriate side and update.
         BlockPos pos = computer.getPosition();
         for( EnumFacing dir : DirectionUtil.FACINGS )
         {
@@ -268,6 +268,9 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
                 break;
             }
         }
+
+        // If the position is not any adjacent one, update all inputs.
+        updateInput();
     }
 
     public void updateOutput()

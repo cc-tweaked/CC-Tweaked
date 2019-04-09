@@ -338,7 +338,7 @@ final class ComputerExecutor
         }
     }
 
-    private FileSystem createFileSystem()
+    IWritableMount getRootMount()
     {
         if( rootMount == null )
         {
@@ -347,11 +347,15 @@ final class ComputerExecutor
                 computer.getComputerEnvironment().getComputerSpaceLimit()
             );
         }
+        return rootMount;
+    }
 
+    private FileSystem createFileSystem()
+    {
         FileSystem filesystem = null;
         try
         {
-            filesystem = new FileSystem( "hdd", rootMount );
+            filesystem = new FileSystem( "hdd", getRootMount() );
 
             IMount romMount = getRomMount();
             if( romMount == null )

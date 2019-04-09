@@ -6,7 +6,6 @@
 
 package dan200.computercraft.shared;
 
-import com.google.common.base.Preconditions;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.redstone.IBundledRedstoneProvider;
 import dan200.computercraft.shared.common.DefaultBundledRedstoneProvider;
@@ -16,6 +15,7 @@ import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
 import java.util.LinkedHashSet;
+import java.util.Objects;
 import java.util.Set;
 
 public final class BundledRedstone
@@ -26,7 +26,7 @@ public final class BundledRedstone
 
     public static synchronized void register( @Nonnull IBundledRedstoneProvider provider )
     {
-        Preconditions.checkNotNull( provider, "provider cannot be null" );
+        Objects.requireNonNull( provider, "provider cannot be null" );
         providers.add( provider );
     }
 

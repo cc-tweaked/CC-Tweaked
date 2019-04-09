@@ -12,6 +12,7 @@ import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.api.media.IMedia;
 import dan200.computercraft.api.pocket.IPocketUpgrade;
+import dan200.computercraft.core.computer.ComputerSide;
 import dan200.computercraft.shared.PocketUpgrades;
 import dan200.computercraft.shared.common.IColouredItem;
 import dan200.computercraft.shared.computer.core.ClientComputer;
@@ -120,7 +121,7 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
                 // Update pocket upgrade
                 if( upgrade != null )
                 {
-                    upgrade.update( computer, computer.getPeripheral( 2 ) );
+                    upgrade.update( computer, computer.getPeripheral( ComputerSide.BACK ) );
                 }
             }
         }
@@ -149,7 +150,7 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
                 if( upgrade != null )
                 {
                     computer.updateValues( player, stack, upgrade );
-                    stop = upgrade.onRightClick( world, computer, computer.getPeripheral( 2 ) );
+                    stop = upgrade.onRightClick( world, computer, computer.getPeripheral( ComputerSide.BACK ) );
                 }
             }
 

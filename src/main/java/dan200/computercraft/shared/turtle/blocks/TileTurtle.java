@@ -13,6 +13,7 @@ import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.shared.common.TileGeneric;
+import dan200.computercraft.core.computer.ComputerSide;
 import dan200.computercraft.shared.computer.blocks.ComputerPeripheral;
 import dan200.computercraft.shared.computer.blocks.ComputerProxy;
 import dan200.computercraft.shared.computer.blocks.TileComputerBase;
@@ -324,13 +325,13 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
     }
 
     @Override
-    protected boolean isPeripheralBlockedOnSide( EnumFacing localSide )
+    protected boolean isPeripheralBlockedOnSide( ComputerSide localSide )
     {
         return hasPeripheralUpgradeOnSide( localSide );
     }
 
     @Override
-    protected boolean isRedstoneBlockedOnSide( EnumFacing localSide )
+    protected boolean isRedstoneBlockedOnSide( ComputerSide localSide )
     {
         return false;
     }
@@ -568,15 +569,15 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
 
     // Privates
 
-    private boolean hasPeripheralUpgradeOnSide( EnumFacing side )
+    private boolean hasPeripheralUpgradeOnSide( ComputerSide side )
     {
         ITurtleUpgrade upgrade;
         switch( side )
         {
-            case WEST:
+            case RIGHT:
                 upgrade = getUpgrade( TurtleSide.Right );
                 break;
-            case EAST:
+            case LEFT:
                 upgrade = getUpgrade( TurtleSide.Left );
                 break;
             default:

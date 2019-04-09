@@ -26,12 +26,12 @@ import javax.annotation.Nullable;
  */
 public class ComputerSystem extends ComputerAccess implements IComputerSystem
 {
-    private final IAPIEnvironment m_environment;
+    private final IAPIEnvironment environment;
 
     ComputerSystem( IAPIEnvironment environment )
     {
         super( environment );
-        this.m_environment = environment;
+        this.environment = environment;
     }
 
     @Nonnull
@@ -45,7 +45,7 @@ public class ComputerSystem extends ComputerAccess implements IComputerSystem
     @Override
     public IFileSystem getFileSystem()
     {
-        FileSystem fs = m_environment.getFileSystem();
+        FileSystem fs = environment.getFileSystem();
         return fs == null ? null : fs.getMountWrapper();
     }
 
@@ -53,6 +53,6 @@ public class ComputerSystem extends ComputerAccess implements IComputerSystem
     @Override
     public String getLabel()
     {
-        return m_environment.getLabel();
+        return environment.getLabel();
     }
 }

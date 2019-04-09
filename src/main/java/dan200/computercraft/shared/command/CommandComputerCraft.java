@@ -11,8 +11,8 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.peripheral.IPeripheral;
-import dan200.computercraft.core.apis.IAPIEnvironment;
 import dan200.computercraft.core.computer.Computer;
+import dan200.computercraft.core.computer.ComputerSide;
 import dan200.computercraft.core.tracking.ComputerTracker;
 import dan200.computercraft.core.tracking.Tracking;
 import dan200.computercraft.core.tracking.TrackingContext;
@@ -118,12 +118,12 @@ public final class CommandComputerCraft
                         table.row( header( "Position" ), linkPosition( context.getSource(), computer ) );
                         table.row( header( "Family" ), text( computer.getFamily().toString() ) );
 
-                        for( int i = 0; i < 6; i++ )
+                        for( ComputerSide side : ComputerSide.values() )
                         {
-                            IPeripheral peripheral = computer.getPeripheral( i );
+                            IPeripheral peripheral = computer.getPeripheral( side );
                             if( peripheral != null )
                             {
-                                table.row( header( "Peripheral " + IAPIEnvironment.SIDE_NAMES[i] ), text( peripheral.getType() ) );
+                                table.row( header( "Peripheral " + side.getName() ), text( peripheral.getType() ) );
                             }
                         }
 

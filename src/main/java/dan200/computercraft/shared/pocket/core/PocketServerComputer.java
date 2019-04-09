@@ -10,6 +10,7 @@ import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.pocket.IPocketAccess;
 import dan200.computercraft.api.pocket.IPocketUpgrade;
+import dan200.computercraft.core.computer.ComputerSide;
 import dan200.computercraft.shared.common.IColouredItem;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ServerComputer;
@@ -123,14 +124,14 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
     public void invalidatePeripheral()
     {
         IPeripheral peripheral = m_upgrade == null ? null : m_upgrade.createPeripheral( this );
-        setPeripheral( 2, peripheral );
+        setPeripheral( ComputerSide.BACK, peripheral );
     }
 
     @Nonnull
     @Override
     public Map<ResourceLocation, IPeripheral> getUpgrades()
     {
-        return m_upgrade == null ? Collections.emptyMap() : Collections.singletonMap( m_upgrade.getUpgradeID(), getPeripheral( 2 ) );
+        return m_upgrade == null ? Collections.emptyMap() : Collections.singletonMap( m_upgrade.getUpgradeID(), getPeripheral( ComputerSide.BACK ) );
     }
 
     public IPocketUpgrade getUpgrade()

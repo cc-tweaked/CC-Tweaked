@@ -116,7 +116,7 @@
     "argument.computercraft.computer.no_matching": "No computers matching '%s'",
     "argument.computercraft.computer.many_matching": "Multiple computers matching '%s' (instances %s)",
 
-    "argument.computercraft.tacking_field.no_field": "Unknown field '%s'",
+    "argument.computercraft.tracking_field.no_field": "Unknown field '%s'",
 
     "argument.computercraft.argument_expected": "Argument expected",
 
