@@ -13,6 +13,7 @@ import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.turtle.*;
+import dan200.computercraft.core.computer.ComputerSide;
 import dan200.computercraft.shared.TurtleUpgrades;
 import dan200.computercraft.shared.computer.blocks.ComputerProxy;
 import dan200.computercraft.shared.computer.blocks.TileComputerBase;
@@ -827,15 +828,15 @@ public class TurtleBrain implements ITurtleAccess
             : 0.0f;
     }
 
-    private static int toDirection( TurtleSide side )
+    private static ComputerSide toDirection( TurtleSide side )
     {
         switch( side )
         {
             case Left:
-                return 5;
+                return ComputerSide.LEFT;
             case Right:
             default:
-                return 4;
+                return ComputerSide.RIGHT;
         }
     }
 

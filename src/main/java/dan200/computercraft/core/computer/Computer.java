@@ -223,13 +223,13 @@ public class Computer
     @Deprecated
     public IPeripheral getPeripheral( int side )
     {
-        return internalEnvironment.getPeripheral( side );
+        return internalEnvironment.getPeripheral( ComputerSide.valueOf( side ) );
     }
 
     @Deprecated
     public void setPeripheral( int side, IPeripheral peripheral )
     {
-        internalEnvironment.setPeripheral( side, peripheral );
+        internalEnvironment.setPeripheral( ComputerSide.valueOf( side ), peripheral );
     }
 
     @Deprecated
@@ -252,5 +252,5 @@ public class Computer
     }
 
     @Deprecated
-    public static final String[] s_sideNames = IAPIEnvironment.SIDE_NAMES;
+    public static final String[] s_sideNames = ComputerSide.NAMES;
 }
