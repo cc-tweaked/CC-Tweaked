@@ -121,6 +121,12 @@ public final class ClientRegistry
     @SubscribeEvent
     public static void onItemColours( ColorHandlerEvent.Item event )
     {
+        if( ComputerCraft.Items.disk == null || ComputerCraft.Blocks.turtleNormal == null )
+        {
+            ComputerCraft.log.warn( "Block/item registration has failed. Skipping registration of item colours." );
+            return;
+        }
+
         event.getItemColors().register(
             ( stack, layer ) -> layer == 1 ? ((ItemDisk) stack.getItem()).getColour( stack ) : 0xFFFFFF,
             ComputerCraft.Items.disk
