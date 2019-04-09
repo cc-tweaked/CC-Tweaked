@@ -61,8 +61,7 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
     ITextComponent customName;
 
     private final NonNullList<ItemStack> m_inventory = NonNullList.withSize( 13, ItemStack.EMPTY );
-    private IItemHandlerModifiable m_itemHandlerAll = new InvWrapper( this );
-    private LazyOptional<IItemHandlerModifiable>[] m_itemHandlerSides;
+    private LazyOptional<IItemHandlerModifiable>[] itemHandlerCaps;
 
     private final Terminal m_page = new Terminal( ItemPrintout.LINE_MAX_LENGTH, ItemPrintout.LINES_PER_PAGE );
     private String m_pageTitle = "";
@@ -77,6 +76,22 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
     public void destroy()
     {
         ejectContents();
+    }
+
+    @Override
+    protected void invalidateCaps()
+    {
+        super.invalidateCaps();
+
+        if( itemHandlerCaps != null )
+        {
+            for( int i = 0; i < itemHandlerCaps.length; i++ )
+            {
+                if( itemHandlerCaps[i] == null ) continue;
+                itemHandlerCaps[i].invalidate();
+                itemHandlerCaps[i] = null;
+            }
+        }
     }
 
     @Override
@@ -516,7 +531,6 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
         getWorld().setBlockState( getPos(), state.with( BlockPrinter.TOP, top ).with( BlockPrinter.BOTTOM, bottom ) );
     }
 
-
     @SuppressWarnings( { "unchecked", "rawtypes" } )
     @Nonnull
     @Override
@@ -524,28 +538,16 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
     {
         if( capability == ITEM_HANDLER_CAPABILITY )
         {
-            LazyOptional<IItemHandlerModifiable>[] handlers = m_itemHandlerSides;
-            if( handlers == null ) handlers = m_itemHandlerSides = new LazyOptional[6];
+            LazyOptional<IItemHandlerModifiable>[] handlers = itemHandlerCaps;
+            if( handlers == null ) handlers = itemHandlerCaps = new LazyOptional[7];
 
-            LazyOptional<IItemHandlerModifiable> handler;
-            if( facing == null )
+            int index = facing == null ? 0 : 1 + facing.getIndex();
+            LazyOptional<IItemHandlerModifiable> handler = handlers[index];
+            if( handler == null )
             {
-                int i = 6;
-                handler = handlers[i];
-                if( handler == null )
-                {
-                    handler = handlers[i] = LazyOptional.of( () -> m_itemHandlerAll );
-                }
-            }
-            else
-            {
-
-                int i = facing.ordinal();
-                handler = handlers[i];
-                if( handler == null )
-                {
-                    handler = handlers[i] = LazyOptional.of( () -> new SidedInvWrapper( this, facing ) );
-                }
+                handler = handlers[index] = facing == null
+                    ? LazyOptional.of( () -> new InvWrapper( this ) )
+                    : LazyOptional.of( () -> new SidedInvWrapper( this, facing ) );
             }
 
             return handler.cast();

@@ -40,7 +40,7 @@ public final class WorldUtil
     public static boolean isVecInside( VoxelShape shape, Vec3d vec )
     {
         if( shape.isEmpty() ) return false;
-        // return shape.contains( pos.x, pos.y, pos.z );
+        // AxisAlignedBB.contains, but without strict inequalities.
         AxisAlignedBB bb = shape.getBoundingBox();
         return vec.x >= bb.minX && vec.x <= bb.maxX && vec.y >= bb.minY && vec.y <= bb.maxY && vec.z >= bb.minZ && vec.z <= bb.maxZ;
     }

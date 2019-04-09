@@ -43,6 +43,7 @@ public final class ComputerCraftAPIImpl implements IComputerCraftAPI
     {
     }
 
+    @Nonnull
     @Override
     public String getInstalledVersion()
     {
@@ -110,6 +111,7 @@ public final class ComputerCraftAPIImpl implements IComputerCraftAPI
         PocketUpgrades.register( upgrade );
     }
 
+    @Nonnull
     @Override
     public IPacketNetwork getWirelessNetwork()
     {
@@ -122,19 +124,18 @@ public final class ComputerCraftAPIImpl implements IComputerCraftAPI
         ApiFactories.register( factory );
     }
 
+    @Nonnull
     @Override
     public IWiredNode createWiredNodeForElement( @Nonnull IWiredElement element )
     {
         return new WiredNode( element );
     }
 
+    @Nonnull
     @Override
-    public IWiredElement getWiredElementAt( @Nonnull IBlockReader world, @Nonnull BlockPos pos, @Nonnull EnumFacing side )
+    public LazyOptional<IWiredElement> getWiredElementAt( @Nonnull IBlockReader world, @Nonnull BlockPos pos, @Nonnull EnumFacing side )
     {
         TileEntity tile = world.getTileEntity( pos );
-        if( tile == null ) return null;
-
-        LazyOptional<IWiredElement> element = tile.getCapability( CapabilityWiredElement.CAPABILITY, side );
-        return CapabilityWiredElement.unwrap( element );
+        return tile == null ? LazyOptional.empty() : tile.getCapability( CapabilityWiredElement.CAPABILITY, side );
     }
 }

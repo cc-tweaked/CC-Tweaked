@@ -86,7 +86,7 @@ public class BlockCable extends BlockGeneric implements WaterloggableBlock
     {
         if( !state.get( CABLE ) ) return false;
         if( state.get( MODEM ).getFacing() == direction ) return true;
-        return ComputerCraftAPI.getWiredElementAt( world, pos.offset( direction ), direction.getOpposite() ) != null;
+        return ComputerCraftAPI.getWiredElementAt( world, pos.offset( direction ), direction.getOpposite() ).isPresent();
     }
 
     @Nonnull
@@ -113,8 +113,7 @@ public class BlockCable extends BlockGeneric implements WaterloggableBlock
                     ItemStack item;
                     IBlockState newState;
 
-                    VoxelShape bb = CableShapes.getModemShape( state );
-                    if( WorldUtil.isVecInside( bb, hit.hitVec.subtract( pos.getX(), pos.getY(), pos.getZ() ) ) )
+                    if( WorldUtil.isVecInside( CableShapes.getModemShape( state ), hit.hitVec.subtract( pos.getX(), pos.getY(), pos.getZ() ) ) )
                     {
                         newState = state.with( MODEM, CableModemVariant.None );
                         item = new ItemStack( ComputerCraft.Items.wiredModem );
@@ -161,9 +160,7 @@ public class BlockCable extends BlockGeneric implements WaterloggableBlock
         if( modem == null ) return new ItemStack( ComputerCraft.Items.cable );
 
         // We've a modem and cable, so try to work out which one we're interacting with
-        TileEntity tile = world.getTileEntity( pos );
-        return tile instanceof TileCable && hit != null &&
-            CableShapes.getModemShape( state ).getBoundingBox().contains( hit.hitVec.subtract( pos.getX(), pos.getY(), pos.getZ() ) )
+        return hit != null && WorldUtil.isVecInside( CableShapes.getModemShape( state ), hit.hitVec.subtract( pos.getX(), pos.getY(), pos.getZ() ) )
             ? new ItemStack( ComputerCraft.Items.wiredModem )
             : new ItemStack( ComputerCraft.Items.cable );
 
@@ -200,21 +197,6 @@ public class BlockCable extends BlockGeneric implements WaterloggableBlock
         if( !state.get( CABLE ) && state.get( MODEM ) == CableModemVariant.None )
         {
             return getFluidState( state ).getBlockState();
-        }
-
-        if( side == state.get( MODEM ).getFacing() && !state.isValidPosition( world, pos ) )
-        {
-            if( !state.get( CABLE ) ) return getFluidState( state ).getBlockState();
-
-            /* TODO:
-            TileEntity entity = world.getTileEntity( pos );
-            if( entity instanceof TileCable )
-            {
-                entity.modemChanged();
-                entity.connectionsChanged();
-            }
-            */
-            state = state.with( MODEM, CableModemVariant.None );
         }
 
         return state.with( CONNECTIONS.get( side ), doesConnectVisually( state, world, pos, side ) );

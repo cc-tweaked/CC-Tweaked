@@ -62,7 +62,7 @@ public final class TileDiskDrive extends TileGeneric implements DefaultInventory
 
     @Nonnull
     private ItemStack m_diskStack = ItemStack.EMPTY;
-    private final LazyOptional<IItemHandlerModifiable> m_itemCap = LazyOptional.of( () -> new InvWrapper( this ) );
+    private LazyOptional<IItemHandlerModifiable> itemHandlerCap;
     private IMount m_diskMount = null;
 
     private boolean m_recordQueued = false;
@@ -80,6 +80,17 @@ public final class TileDiskDrive extends TileGeneric implements DefaultInventory
     {
         ejectContents( true );
         if( m_recordPlaying ) stopRecord();
+    }
+
+    @Override
+    protected void invalidateCaps()
+    {
+        super.invalidateCaps();
+        if( itemHandlerCap != null )
+        {
+            itemHandlerCap.invalidate();
+            itemHandlerCap = null;
+        }
     }
 
     @Override
@@ -540,7 +551,11 @@ public final class TileDiskDrive extends TileGeneric implements DefaultInventory
     @Override
     public <T> LazyOptional<T> getCapability( @Nonnull Capability<T> cap, @Nullable final EnumFacing side )
     {
-        if( cap == ITEM_HANDLER_CAPABILITY ) return m_itemCap.cast();
+        if( cap == ITEM_HANDLER_CAPABILITY )
+        {
+            if( itemHandlerCap == null ) itemHandlerCap = LazyOptional.of( () -> new InvWrapper( this ) );
+            return itemHandlerCap.cast();
+        }
         return super.getCapability( cap, side );
     }
 

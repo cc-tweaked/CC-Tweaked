@@ -24,6 +24,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
+import net.minecraftforge.common.util.LazyOptional;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -240,8 +241,8 @@ public final class ComputerCraftAPI
      * @return The element's node
      * @see IWiredElement#getNode()
      */
-    @Nullable
-    public static IWiredElement getWiredElementAt( @Nonnull IBlockReader world, @Nonnull BlockPos pos, @Nonnull EnumFacing side )
+    @Nonnull
+    public static LazyOptional<IWiredElement> getWiredElementAt( @Nonnull IBlockReader world, @Nonnull BlockPos pos, @Nonnull EnumFacing side )
     {
         return getInstance().getWiredElementAt( world, pos, side );
     }
@@ -266,12 +267,15 @@ public final class ComputerCraftAPI
 
     public interface IComputerCraftAPI
     {
+        @Nonnull
         String getInstalledVersion();
 
         int createUniqueNumberedSaveDir( @Nonnull World world, @Nonnull String parentSubPath );
 
+        @Nullable
         IWritableMount createSaveDirMount( @Nonnull World world, @Nonnull String subPath, long capacity );
 
+        @Nullable
         IMount createResourceMount( @Nonnull String domain, @Nonnull String subPath );
 
         void registerPeripheralProvider( @Nonnull IPeripheralProvider provider );
@@ -286,12 +290,15 @@ public final class ComputerCraftAPI
 
         void registerPocketUpgrade( @Nonnull IPocketUpgrade upgrade );
 
+        @Nonnull
         IPacketNetwork getWirelessNetwork();
 
         void registerAPIFactory( @Nonnull ILuaAPIFactory factory );
 
+        @Nonnull
         IWiredNode createWiredNodeForElement( @Nonnull IWiredElement element );
 
-        IWiredElement getWiredElementAt( @Nonnull IBlockReader world, @Nonnull BlockPos pos, @Nonnull EnumFacing side );
+        @Nonnull
+        LazyOptional<IWiredElement> getWiredElementAt( @Nonnull IBlockReader world, @Nonnull BlockPos pos, @Nonnull EnumFacing side );
     }
 }

@@ -12,8 +12,8 @@ import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
-import dan200.computercraft.shared.common.TileGeneric;
 import dan200.computercraft.core.computer.ComputerSide;
+import dan200.computercraft.shared.common.TileGeneric;
 import dan200.computercraft.shared.computer.blocks.ComputerPeripheral;
 import dan200.computercraft.shared.computer.blocks.ComputerProxy;
 import dan200.computercraft.shared.computer.blocks.TileComputerBase;
@@ -79,7 +79,7 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
     private NonNullList<ItemStack> m_inventory;
     private NonNullList<ItemStack> m_previousInventory;
     private final IItemHandlerModifiable m_itemHandler = new InvWrapper( this );
-    private final LazyOptional<IItemHandlerModifiable> m_itemHandlerCap = LazyOptional.of( () -> m_itemHandler );
+    private LazyOptional<IItemHandlerModifiable> itemHandlerCap;
     private boolean m_inventoryChanged;
     private TurtleBrain m_brain;
     private MoveState m_moveState;
@@ -160,11 +160,19 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
     }
 
     @Override
+    protected void invalidateCaps()
+    {
+        super.invalidateCaps();
+        if( itemHandlerCap != null )
+        {
+            itemHandlerCap.invalidate();
+            itemHandlerCap = null;
+        }
+    }
+
+    @Override
     public boolean onActivate( EntityPlayer player, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ )
     {
-        // Request description from server
-        // requestTileEntityUpdate();
-
         // Apply dye
         ItemStack currentItem = player.getHeldItem( hand );
         if( !currentItem.isEmpty() )
@@ -613,7 +621,11 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
     @Override
     public <T> LazyOptional<T> getCapability( @Nonnull Capability<T> cap, @Nullable EnumFacing side )
     {
-        if( cap == ITEM_HANDLER_CAPABILITY ) return m_itemHandlerCap.cast();
+        if( cap == ITEM_HANDLER_CAPABILITY )
+        {
+            if( itemHandlerCap == null ) itemHandlerCap = LazyOptional.of( () -> new InvWrapper( this ) );
+            return itemHandlerCap.cast();
+        }
         return super.getCapability( cap, side );
     }
 }

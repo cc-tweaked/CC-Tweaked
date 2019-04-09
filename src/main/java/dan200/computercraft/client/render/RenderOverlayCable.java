@@ -74,7 +74,8 @@ public final class RenderOverlayCable
         double z = player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * partialTicks;
 
         VoxelShape shape = WorldUtil.isVecInside( CableShapes.getModemShape( state ), event.getTarget().hitVec.subtract( pos.getX(), pos.getY(), pos.getZ() ) )
-            ? CableShapes.getModemShape( state ) : CableShapes.getCableShape( state );
+            ? CableShapes.getModemShape( state )
+            : CableShapes.getCableShape( state );
 
         WorldRenderer.drawShape( shape, pos.getX() - x, pos.getY() - y, pos.getZ() - z, 0.0F, 0.0F, 0.0F, 0.4F );
 

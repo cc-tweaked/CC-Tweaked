@@ -35,6 +35,7 @@ import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
+import net.minecraftforge.common.util.NonNullConsumer;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -90,7 +91,7 @@ public class TileCable extends TileGeneric implements IPeripheralTile
     private boolean m_connectionsFormed = false;
 
     private final WiredModemElement m_cable = new CableElement();
-    private LazyOptional<IWiredElement> m_cableCapability = LazyOptional.of( () -> m_cable );
+    private LazyOptional<IWiredElement> elementCap;
     private final IWiredNode m_node = m_cable.getNode();
     private final WiredModemPeripheral m_modem = new WiredModemPeripheral(
         new ModemState( () -> TickScheduler.schedule( this ) ),
@@ -112,6 +113,8 @@ public class TileCable extends TileGeneric implements IPeripheralTile
             return new Vec3d( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5 );
         }
     };
+
+    private final NonNullConsumer<LazyOptional<IWiredElement>> connectedNodeChanged = x -> connectionsChanged();
 
     public TileCable()
     {
@@ -150,6 +153,17 @@ public class TileCable extends TileGeneric implements IPeripheralTile
     {
         super.remove();
         onRemove();
+    }
+
+    @Override
+    protected void invalidateCaps()
+    {
+        super.invalidateCaps();
+        if( elementCap != null )
+        {
+            elementCap.invalidate();
+            elementCap = null;
+        }
     }
 
     @Override
@@ -322,18 +336,20 @@ public class TileCable extends TileGeneric implements IPeripheralTile
             BlockPos offset = current.offset( facing );
             if( !world.isBlockLoaded( offset ) ) continue;
 
-            IWiredElement element = ComputerCraftAPI.getWiredElementAt( world, offset, facing.getOpposite() );
-            if( element == null ) continue;
+            LazyOptional<IWiredElement> element = ComputerCraftAPI.getWiredElementAt( world, offset, facing.getOpposite() );
+            if( !element.isPresent() ) continue;
 
+            element.addListener( connectedNodeChanged );
+            IWiredNode node = element.orElseThrow( NullPointerException::new ).getNode();
             if( BlockCable.canConnectIn( state, facing ) )
             {
                 // If we can connect to it then do so
-                m_node.connectTo( element.getNode() );
+                m_node.connectTo( node );
             }
-            else if( m_node.getNetwork() == element.getNode().getNetwork() )
+            else if( m_node.getNetwork() == node.getNetwork() )
             {
                 // Otherwise if we're on the same network then attempt to void it.
-                m_node.disconnectFrom( element.getNode() );
+                m_node.disconnectFrom( node );
             }
         }
     }
@@ -341,9 +357,11 @@ public class TileCable extends TileGeneric implements IPeripheralTile
     void modemChanged()
     {
         // Tell anyone who cares that the connection state has changed
-        // TODO: Be more restrictive about this.
-        m_cableCapability.invalidate();
-        m_cableCapability = LazyOptional.of( () -> m_cable );
+        if( elementCap != null )
+        {
+            elementCap.invalidate();
+            elementCap = null;
+        }
 
         if( getWorld().isRemote ) return;
 
@@ -405,8 +423,9 @@ public class TileCable extends TileGeneric implements IPeripheralTile
     {
         if( capability == CapabilityWiredElement.CAPABILITY )
         {
-            return !m_destroyed && BlockCable.canConnectIn( getBlockState(), facing )
-                ? m_cableCapability.cast() : LazyOptional.empty();
+            if( m_destroyed || !BlockCable.canConnectIn( getBlockState(), facing ) ) return LazyOptional.empty();
+            if( elementCap == null ) elementCap = LazyOptional.of( () -> m_cable );
+            return elementCap.cast();
         }
 
         return super.getCapability( capability, facing );
@@ -418,7 +437,7 @@ public class TileCable extends TileGeneric implements IPeripheralTile
         return !m_destroyed && hasModem() && side == getDirection() ? m_modem : null;
     }
 
-    public boolean hasCable()
+    boolean hasCable()
     {
         return getBlockState().get( BlockCable.CABLE );
     }
@@ -428,7 +447,7 @@ public class TileCable extends TileGeneric implements IPeripheralTile
         return getBlockState().get( BlockCable.MODEM ) != CableModemVariant.None;
     }
 
-    boolean canAttachPeripheral()
+    private boolean canAttachPeripheral()
     {
         return hasCable() && hasModem();
     }

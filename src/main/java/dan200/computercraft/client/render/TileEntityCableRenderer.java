@@ -11,6 +11,7 @@ import dan200.computercraft.shared.peripheral.modem.wired.BlockCable;
 import dan200.computercraft.shared.peripheral.modem.wired.CableModemVariant;
 import dan200.computercraft.shared.peripheral.modem.wired.CableShapes;
 import dan200.computercraft.shared.peripheral.modem.wired.TileCable;
+import dan200.computercraft.shared.util.WorldUtil;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
@@ -25,7 +26,6 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.world.World;
 import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.client.MinecraftForgeClient;
@@ -60,8 +60,7 @@ public class TileEntityCableRenderer extends TileEntityRenderer<TileCable>
         Block block = state.getBlock();
         if( block != ComputerCraft.Blocks.cable ) return;
 
-        VoxelShape shape = CableShapes.getModemShape( state );
-        state = te.hasModem() && shape.getBoundingBox().grow( 0.02, 0.02, 0.02 ).contains( hit.hitVec.subtract( pos.getX(), pos.getY(), pos.getZ() ) )
+        state = WorldUtil.isVecInside( CableShapes.getModemShape( state ), hit.hitVec.subtract( pos.getX(), pos.getY(), pos.getZ() ) )
             ? block.getDefaultState().with( BlockCable.MODEM, state.get( BlockCable.MODEM ) )
             : state.with( BlockCable.MODEM, CableModemVariant.None );
 

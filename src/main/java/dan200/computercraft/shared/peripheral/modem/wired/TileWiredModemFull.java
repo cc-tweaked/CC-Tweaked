@@ -8,7 +8,7 @@ package dan200.computercraft.shared.peripheral.modem.wired;
 
 import com.google.common.base.Objects;
 import dan200.computercraft.ComputerCraft;
-import dan200.computercraft.ComputerCraftAPIImpl;
+import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.network.wired.IWiredElement;
 import dan200.computercraft.api.network.wired.IWiredNode;
 import dan200.computercraft.api.peripheral.IPeripheral;
@@ -33,6 +33,7 @@ import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
+import net.minecraftforge.common.util.NonNullConsumer;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -105,10 +106,10 @@ public class TileWiredModemFull extends TileGeneric implements IPeripheralTile
 
     private final ModemState m_modemState = new ModemState( () -> TickScheduler.schedule( this ) );
     private final WiredModemElement m_element = new FullElement( this );
-    private final LazyOptional<WiredModemElement> m_elementCap = LazyOptional.of( () -> m_element );
+    private LazyOptional<IWiredElement> elementCap;
     private final IWiredNode m_node = m_element.getNode();
 
-    private int m_state = 0;
+    private final NonNullConsumer<LazyOptional<IWiredElement>> connectedNodeChanged = x -> connectionsChanged();
 
     public TileWiredModemFull()
     {
@@ -141,6 +142,17 @@ public class TileWiredModemFull extends TileGeneric implements IPeripheralTile
     {
         super.onChunkUnloaded();
         doRemove();
+    }
+
+    @Override
+    protected void invalidateCaps()
+    {
+        super.invalidateCaps();
+        if( elementCap != null )
+        {
+            elementCap.invalidate();
+            elementCap = null;
+        }
     }
 
     @Override
@@ -275,11 +287,11 @@ public class TileWiredModemFull extends TileGeneric implements IPeripheralTile
             BlockPos offset = current.offset( facing );
             if( !world.isBlockLoaded( offset ) ) continue;
 
-            IWiredElement element = ComputerCraftAPIImpl.INSTANCE.getWiredElementAt( world, offset, facing.getOpposite() );
-            if( element == null ) continue;
+            LazyOptional<IWiredElement> element = ComputerCraftAPI.getWiredElementAt( world, offset, facing.getOpposite() );
+            if( !element.isPresent() ) continue;
 
-            // If we can connect to it then do so
-            m_node.connectTo( element.getNode() );
+            element.addListener( connectedNodeChanged );
+            m_node.connectTo( element.orElseThrow( NullPointerException::new ).getNode() );
         }
     }
 
@@ -350,7 +362,11 @@ public class TileWiredModemFull extends TileGeneric implements IPeripheralTile
     @Override
     public <T> LazyOptional<T> getCapability( @Nonnull Capability<T> capability, @Nullable EnumFacing facing )
     {
-        if( capability == CapabilityWiredElement.CAPABILITY ) return m_elementCap.cast();
+        if( capability == CapabilityWiredElement.CAPABILITY )
+        {
+            if( elementCap == null ) elementCap = LazyOptional.of( () -> m_element );
+            return elementCap.cast();
+        }
         return super.getCapability( capability, facing );
     }
 
