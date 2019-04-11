@@ -6,6 +6,7 @@
 
 package dan200.computercraft.shared.util;
 
+import dan200.computercraft.core.computer.ComputerSide;
 import dan200.computercraft.shared.common.IDirectionalTile;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.EnumFacing;
@@ -14,38 +15,17 @@ public final class DirectionUtil
 {
     private DirectionUtil() {}
 
-    public static int toLocal( IDirectionalTile directional, EnumFacing dir )
+    public static ComputerSide toLocal( IDirectionalTile directional, EnumFacing dir )
     {
         EnumFacing front = directional.getDirection();
         if( front.getAxis() == EnumFacing.Axis.Y ) front = EnumFacing.NORTH;
 
-        EnumFacing back = front.getOpposite();
-        EnumFacing left = front.rotateYCCW();
-        EnumFacing right = front.rotateY();
-        if( dir == front )
-        {
-            return 3;
-        }
-        else if( dir == back )
-        {
-            return 2;
-        }
-        else if( dir == left )
-        {
-            return 5;
-        }
-        else if( dir == right )
-        {
-            return 4;
-        }
-        else if( dir == EnumFacing.UP )
-        {
-            return 1;
-        }
-        else
-        {
-            return 0;
-        }
+        if( dir == front ) return ComputerSide.FRONT;
+        if( dir == front.getOpposite() ) return ComputerSide.BACK;
+        if( dir == front.rotateYCCW() ) return ComputerSide.LEFT;
+        if( dir == front.rotateY() ) return ComputerSide.RIGHT;
+        if( dir == EnumFacing.UP ) return ComputerSide.TOP;
+        return ComputerSide.BOTTOM;
     }
 
     public static EnumFacing fromEntityRot( EntityLivingBase player )

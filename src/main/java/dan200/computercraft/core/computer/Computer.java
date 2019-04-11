@@ -7,6 +7,7 @@
 package dan200.computercraft.core.computer;
 
 import com.google.common.base.Objects;
+import dan200.computercraft.api.filesystem.IWritableMount;
 import dan200.computercraft.api.lua.ILuaAPI;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.peripheral.IWorkMonitor;
@@ -222,13 +223,13 @@ public class Computer
     @Deprecated
     public IPeripheral getPeripheral( int side )
     {
-        return internalEnvironment.getPeripheral( side );
+        return internalEnvironment.getPeripheral( ComputerSide.valueOf( side ) );
     }
 
     @Deprecated
     public void setPeripheral( int side, IPeripheral peripheral )
     {
-        internalEnvironment.setPeripheral( side, peripheral );
+        internalEnvironment.setPeripheral( ComputerSide.valueOf( side ), peripheral );
     }
 
     @Deprecated
@@ -245,5 +246,11 @@ public class Computer
     }
 
     @Deprecated
-    public static final String[] s_sideNames = IAPIEnvironment.SIDE_NAMES;
+    public IWritableMount getRootMount()
+    {
+        return executor.getRootMount();
+    }
+
+    @Deprecated
+    public static final String[] s_sideNames = ComputerSide.NAMES;
 }

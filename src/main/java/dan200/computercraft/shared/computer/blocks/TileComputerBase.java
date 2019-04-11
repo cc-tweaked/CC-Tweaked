@@ -9,6 +9,7 @@ package dan200.computercraft.shared.computer.blocks;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.peripheral.IPeripheralTile;
+import dan200.computercraft.core.computer.ComputerSide;
 import dan200.computercraft.shared.BundledRedstone;
 import dan200.computercraft.shared.Peripherals;
 import dan200.computercraft.shared.common.IDirectionalTile;
@@ -124,15 +125,15 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
     public boolean getRedstoneConnectivity( EnumFacing side )
     {
         if( side == null ) return false;
-        int localDir = remapLocalSide( DirectionUtil.toLocal( this, side.getOpposite() ) );
+        ComputerSide localDir = remapLocalSide( DirectionUtil.toLocal( this, side.getOpposite() ) );
         return !isRedstoneBlockedOnSide( localDir );
     }
 
     @Override
     public int getRedstoneOutput( EnumFacing side )
     {
-        int localDir = remapLocalSide( DirectionUtil.toLocal( this, side ) );
-        if( !isRedstoneBlockedOnSide( localDir ) && getWorld() != null && !getWorld().isRemote )
+        ComputerSide localDir = remapLocalSide( DirectionUtil.toLocal( this, side ) );
+        if( !isRedstoneBlockedOnSide( localDir ) && world != null && !world.isRemote )
         {
             ServerComputer computer = getServerComputer();
             if( computer != null ) return computer.getRedstoneOutput( localDir );
@@ -143,24 +144,18 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
     @Override
     public boolean getBundledRedstoneConnectivity( @Nonnull EnumFacing side )
     {
-        int localDir = remapLocalSide( DirectionUtil.toLocal( this, side ) );
+        ComputerSide localDir = remapLocalSide( DirectionUtil.toLocal( this, side ) );
         return !isRedstoneBlockedOnSide( localDir );
     }
 
     @Override
     public int getBundledRedstoneOutput( @Nonnull EnumFacing side )
     {
-        int localDir = remapLocalSide( DirectionUtil.toLocal( this, side ) );
-        if( !isRedstoneBlockedOnSide( localDir ) )
+        ComputerSide localDir = remapLocalSide( DirectionUtil.toLocal( this, side ) );
+        if( !isRedstoneBlockedOnSide( localDir ) && !world.isRemote )
         {
-            if( !getWorld().isRemote )
-            {
-                ServerComputer computer = getServerComputer();
-                if( computer != null )
-                {
-                    return computer.getBundledRedstoneOutput( localDir );
-                }
-            }
+            ServerComputer computer = getServerComputer();
+            if( computer != null ) return computer.getBundledRedstoneOutput( localDir );
         }
         return 0;
     }
@@ -259,17 +254,17 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
         m_on = m_startOn;
     }
 
-    protected boolean isPeripheralBlockedOnSide( int localSide )
+    protected boolean isPeripheralBlockedOnSide( ComputerSide localSide )
     {
         return false;
     }
 
-    protected boolean isRedstoneBlockedOnSide( int localSide )
+    protected boolean isRedstoneBlockedOnSide( ComputerSide localSide )
     {
         return false;
     }
 
-    protected int remapLocalSide( int localSide )
+    protected ComputerSide remapLocalSide( ComputerSide localSide )
     {
         return localSide;
     }
@@ -277,7 +272,7 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
     private void updateSideInput( ServerComputer computer, EnumFacing dir, BlockPos offset )
     {
         EnumFacing offsetSide = dir.getOpposite();
-        int localDir = remapLocalSide( DirectionUtil.toLocal( this, dir ) );
+        ComputerSide localDir = remapLocalSide( DirectionUtil.toLocal( this, dir ) );
         if( !isRedstoneBlockedOnSide( localDir ) )
         {
             computer.setRedstoneInput( localDir, getWorld().getRedstonePower( offset, dir ) );
@@ -309,19 +304,21 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
         if( getWorld() == null || getWorld().isRemote ) return;
 
         ServerComputer computer = getServerComputer();
-        if( computer != null )
+        if( computer == null ) return;
+
+        BlockPos pos = computer.getPosition();
+        for( EnumFacing dir : EnumFacing.VALUES )
         {
-            BlockPos pos = computer.getPosition();
-            for( EnumFacing dir : EnumFacing.VALUES )
+            BlockPos offset = pos.offset( dir );
+            if( offset.equals( neighbour ) )
             {
-                BlockPos offset = pos.offset( dir );
-                if( offset.equals( neighbour ) )
-                {
-                    updateSideInput( computer, dir, offset );
-                    break;
-                }
+                updateSideInput( computer, dir, offset );
+                return;
             }
         }
+
+        // If the position is not any adjacent one, update all inputs.
+        updateInput();
     }
 
     public void updateOutput()

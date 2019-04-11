@@ -8,6 +8,7 @@ package dan200.computercraft.core.apis;
 
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.peripheral.IWorkMonitor;
+import dan200.computercraft.core.computer.ComputerSide;
 import dan200.computercraft.core.computer.IComputerEnvironment;
 import dan200.computercraft.core.filesystem.FileSystem;
 import dan200.computercraft.core.terminal.Terminal;
@@ -18,16 +19,10 @@ import javax.annotation.Nullable;
 
 public interface IAPIEnvironment
 {
-    String[] SIDE_NAMES = new String[] {
-        "bottom", "top", "back", "front", "right", "left",
-    };
-
-    int SIDE_COUNT = 6;
-
     @FunctionalInterface
     interface IPeripheralChangeListener
     {
-        void onPeripheralChanged( int side, @Nullable IPeripheral newPeripheral );
+        void onPeripheralChanged( ComputerSide side, @Nullable IPeripheral newPeripheral );
     }
 
     int getComputerID();
@@ -49,22 +44,22 @@ public interface IAPIEnvironment
 
     void queueEvent( String event, Object[] args );
 
-    void setOutput( int side, int output );
+    void setOutput( ComputerSide side, int output );
 
-    int getOutput( int side );
+    int getOutput( ComputerSide side );
 
-    int getInput( int side );
+    int getInput( ComputerSide side );
 
-    void setBundledOutput( int side, int output );
+    void setBundledOutput( ComputerSide side, int output );
 
-    int getBundledOutput( int side );
+    int getBundledOutput( ComputerSide side );
 
-    int getBundledInput( int side );
+    int getBundledInput( ComputerSide side );
 
     void setPeripheralChangeListener( @Nullable IPeripheralChangeListener listener );
 
     @Nullable
-    IPeripheral getPeripheral( int side );
+    IPeripheral getPeripheral( ComputerSide side );
 
     String getLabel();
 

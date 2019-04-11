@@ -41,17 +41,17 @@ public final class Environment implements IAPIEnvironment
     private final Computer computer;
 
     private boolean internalOutputChanged = false;
-    private final int[] internalOutput = new int[SIDE_COUNT];
-    private final int[] internalBundledOutput = new int[SIDE_COUNT];
+    private final int[] internalOutput = new int[ComputerSide.COUNT];
+    private final int[] internalBundledOutput = new int[ComputerSide.COUNT];
 
-    private final int[] externalOutput = new int[SIDE_COUNT];
-    private final int[] externalBundledOutput = new int[SIDE_COUNT];
+    private final int[] externalOutput = new int[ComputerSide.COUNT];
+    private final int[] externalBundledOutput = new int[ComputerSide.COUNT];
 
     private boolean inputChanged = false;
-    private final int[] input = new int[SIDE_COUNT];
-    private final int[] bundledInput = new int[SIDE_COUNT];
+    private final int[] input = new int[ComputerSide.COUNT];
+    private final int[] bundledInput = new int[ComputerSide.COUNT];
 
-    private final IPeripheral[] peripherals = new IPeripheral[SIDE_COUNT];
+    private final IPeripheral[] peripherals = new IPeripheral[ComputerSide.COUNT];
     private IPeripheralChangeListener peripheralListener = null;
 
     Environment( Computer computer )
@@ -111,85 +111,89 @@ public final class Environment implements IAPIEnvironment
     }
 
     @Override
-    public int getInput( int side )
+    public int getInput( ComputerSide side )
     {
-        return input[side];
+        return input[side.ordinal()];
     }
 
     @Override
-    public int getBundledInput( int side )
+    public int getBundledInput( ComputerSide side )
     {
-        return bundledInput[side];
+        return bundledInput[side.ordinal()];
     }
 
     @Override
-    public void setOutput( int side, int output )
+    public void setOutput( ComputerSide side, int output )
     {
+        int index = side.ordinal();
         synchronized( internalOutput )
         {
-            if( internalOutput[side] != output )
+            if( internalOutput[index] != output )
             {
-                internalOutput[side] = output;
+                internalOutput[index] = output;
                 internalOutputChanged = true;
             }
         }
     }
 
     @Override
-    public int getOutput( int side )
+    public int getOutput( ComputerSide side )
     {
         synchronized( internalOutput )
         {
-            return computer.isOn() ? internalOutput[side] : 0;
+            return computer.isOn() ? internalOutput[side.ordinal()] : 0;
         }
     }
 
     @Override
-    public void setBundledOutput( int side, int output )
+    public void setBundledOutput( ComputerSide side, int output )
     {
+        int index = side.ordinal();
         synchronized( internalOutput )
         {
-            if( internalBundledOutput[side] != output )
+            if( internalBundledOutput[index] != output )
             {
-                internalBundledOutput[side] = output;
+                internalBundledOutput[index] = output;
                 internalOutputChanged = true;
             }
         }
     }
 
     @Override
-    public int getBundledOutput( int side )
+    public int getBundledOutput( ComputerSide side )
     {
         synchronized( internalOutput )
         {
-            return computer.isOn() ? internalBundledOutput[side] : 0;
+            return computer.isOn() ? internalBundledOutput[side.ordinal()] : 0;
         }
     }
 
-    public int getExternalRedstoneOutput( int side )
+    public int getExternalRedstoneOutput( ComputerSide side )
     {
-        return computer.isOn() ? externalOutput[side] : 0;
+        return computer.isOn() ? externalOutput[side.ordinal()] : 0;
     }
 
-    public int getExternalBundledRedstoneOutput( int side )
+    public int getExternalBundledRedstoneOutput( ComputerSide side )
     {
-        return computer.isOn() ? externalBundledOutput[side] : 0;
+        return computer.isOn() ? externalBundledOutput[side.ordinal()] : 0;
     }
 
-    public void setRedstoneInput( int side, int level )
+    public void setRedstoneInput( ComputerSide side, int level )
     {
-        if( input[side] != level )
+        int index = side.ordinal();
+        if( input[index] != level )
         {
-            input[side] = level;
+            input[index] = level;
             inputChanged = true;
         }
     }
 
-    public void setBundledRedstoneInput( int side, int combination )
+    public void setBundledRedstoneInput( ComputerSide side, int combination )
     {
-        if( bundledInput[side] != combination )
+        int index = side.ordinal();
+        if( bundledInput[index] != combination )
         {
-            bundledInput[side] = combination;
+            bundledInput[index] = combination;
             inputChanged = true;
         }
     }
@@ -222,7 +226,7 @@ public final class Environment implements IAPIEnvironment
 
             boolean changed = false;
 
-            for( int i = 0; i < SIDE_COUNT; i++ )
+            for( int i = 0; i < ComputerSide.COUNT; i++ )
             {
                 if( externalOutput[i] != internalOutput[i] )
                 {
@@ -255,24 +259,25 @@ public final class Environment implements IAPIEnvironment
     }
 
     @Override
-    public IPeripheral getPeripheral( int side )
+    public IPeripheral getPeripheral( ComputerSide side )
     {
         synchronized( peripherals )
         {
-            return peripherals[side];
+            return peripherals[side.ordinal()];
         }
     }
 
-    public void setPeripheral( int side, IPeripheral peripheral )
+    public void setPeripheral( ComputerSide side, IPeripheral peripheral )
     {
         synchronized( peripherals )
         {
-            IPeripheral existing = peripherals[side];
+            int index = side.ordinal();
+            IPeripheral existing = peripherals[index];
             if( (existing == null && peripheral != null) ||
                 (existing != null && peripheral == null) ||
                 (existing != null && !existing.equals( peripheral )) )
             {
-                peripherals[side] = peripheral;
+                peripherals[index] = peripheral;
                 if( peripheralListener != null ) peripheralListener.onPeripheralChanged( side, peripheral );
             }
         }

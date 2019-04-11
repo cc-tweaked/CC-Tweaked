@@ -6,7 +6,6 @@
 
 package dan200.computercraft.core.apis;
 
-import com.google.common.base.Preconditions;
 import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.api.filesystem.IWritableMount;
 import dan200.computercraft.api.peripheral.IComputerAccess;
@@ -121,7 +120,7 @@ public abstract class ComputerAccess implements IComputerAccess
     @Override
     public void queueEvent( @Nonnull final String event, final Object[] arguments )
     {
-        Preconditions.checkNotNull( event, "event cannot be null" );
+        Objects.requireNonNull( event, "event cannot be null" );
         m_environment.queueEvent( event, arguments );
     }
 
