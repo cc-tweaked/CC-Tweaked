@@ -7,6 +7,7 @@
 package dan200.computercraft.shared.computer.blocks;
 
 import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.core.computer.ComputerSide;
 import dan200.computercraft.shared.common.BlockGeneric;
 import dan200.computercraft.shared.common.IBundledRedstoneBlock;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
@@ -65,9 +66,8 @@ public abstract class BlockComputerBase<T extends TileComputerBase> extends Bloc
         ServerComputer computer = computerEntity.getServerComputer();
         if( computer == null ) return 0;
 
-        Direction localSide = computerEntity.remapToLocalSide( incomingSide.getOpposite() );
-        return computerEntity.isRedstoneBlockedOnSide( localSide ) ? 0 :
-            computer.getRedstoneOutput( localSide.getId() );
+        ComputerSide localSide = computerEntity.remapToLocalSide( incomingSide.getOpposite() );
+        return computerEntity.isRedstoneBlockedOnSide( localSide ) ? 0 : computer.getRedstoneOutput( localSide );
     }
 
     @Nonnull
@@ -105,9 +105,8 @@ public abstract class BlockComputerBase<T extends TileComputerBase> extends Bloc
         ServerComputer computer = computerEntity.getServerComputer();
         if( computer == null ) return 0;
 
-        Direction localSide = computerEntity.remapToLocalSide( side );
-        return computerEntity.isRedstoneBlockedOnSide( localSide ) ? 0 :
-            computer.getBundledRedstoneOutput( localSide.getId() );
+        ComputerSide localSide = computerEntity.remapToLocalSide( side );
+        return computerEntity.isRedstoneBlockedOnSide( localSide ) ? 0 : computer.getBundledRedstoneOutput( localSide );
     }
 
     @Nonnull

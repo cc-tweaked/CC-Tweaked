@@ -12,6 +12,7 @@ import dan200.computercraft.api.lua.ILuaAPI;
 import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.peripheral.IPeripheral;
+import dan200.computercraft.core.computer.ComputerSide;
 import dan200.computercraft.core.tracking.TrackingField;
 
 import javax.annotation.Nonnull;
@@ -245,32 +246,33 @@ public class PeripheralAPI implements ILuaAPI, IAPIEnvironment.IPeripheralChange
     // IPeripheralChangeListener
 
     @Override
-    public void onPeripheralChanged( int side, IPeripheral newPeripheral )
+    public void onPeripheralChanged( ComputerSide side, IPeripheral newPeripheral )
     {
         synchronized( m_peripherals )
         {
-            if( m_peripherals[side] != null )
+            int index = side.ordinal();
+            if( m_peripherals[index] != null )
             {
                 // Queue a detachment
-                final PeripheralWrapper wrapper = m_peripherals[side];
+                final PeripheralWrapper wrapper = m_peripherals[index];
                 if( wrapper.isAttached() ) wrapper.detach();
 
                 // Queue a detachment event
-                m_environment.queueEvent( "peripheral_detach", new Object[] { IAPIEnvironment.SIDE_NAMES[side] } );
+                m_environment.queueEvent( "peripheral_detach", new Object[] { side.getName() } );
             }
 
             // Assign the new peripheral
-            m_peripherals[side] = newPeripheral == null ? null
-                : new PeripheralWrapper( newPeripheral, IAPIEnvironment.SIDE_NAMES[side] );
+            m_peripherals[index] = newPeripheral == null ? null
+                : new PeripheralWrapper( newPeripheral, side.getName() );
 
-            if( m_peripherals[side] != null )
+            if( m_peripherals[index] != null )
             {
                 // Queue an attachment
-                final PeripheralWrapper wrapper = m_peripherals[side];
+                final PeripheralWrapper wrapper = m_peripherals[index];
                 if( m_running && !wrapper.isAttached() ) wrapper.attach();
 
                 // Queue an attachment event
-                m_environment.queueEvent( "peripheral", new Object[] { IAPIEnvironment.SIDE_NAMES[side] } );
+                m_environment.queueEvent( "peripheral", new Object[] { side.getName() } );
             }
         }
     }
@@ -337,16 +339,13 @@ public class PeripheralAPI implements ILuaAPI, IAPIEnvironment.IPeripheralChange
             {
                 // isPresent
                 boolean present = false;
-                int side = parseSide( args );
-                if( side >= 0 )
+                ComputerSide side = ComputerSide.valueOfInsensitive( getString( args, 0 ) );
+                if( side != null )
                 {
                     synchronized( m_peripherals )
                     {
-                        PeripheralWrapper p = m_peripherals[side];
-                        if( p != null )
-                        {
-                            present = true;
-                        }
+                        PeripheralWrapper p = m_peripherals[side.ordinal()];
+                        if( p != null ) present = true;
                     }
                 }
                 return new Object[] { present };
@@ -354,21 +353,14 @@ public class PeripheralAPI implements ILuaAPI, IAPIEnvironment.IPeripheralChange
             case 1:
             {
                 // getType
-                String type = null;
-                int side = parseSide( args );
-                if( side >= 0 )
+                ComputerSide side = ComputerSide.valueOfInsensitive( getString( args, 0 ) );
+                if( side != null )
                 {
+                    String type = null;
                     synchronized( m_peripherals )
                     {
-                        PeripheralWrapper p = m_peripherals[side];
-                        if( p != null )
-                        {
-                            type = p.getType();
-                        }
-                    }
-                    if( type != null )
-                    {
-                        return new Object[] { type };
+                        PeripheralWrapper p = m_peripherals[side.ordinal()];
+                        if( p != null ) return new Object[] { p.getType() };
                     }
                 }
                 return null;
@@ -377,12 +369,12 @@ public class PeripheralAPI implements ILuaAPI, IAPIEnvironment.IPeripheralChange
             {
                 // getMethods
                 String[] methods = null;
-                int side = parseSide( args );
-                if( side >= 0 )
+                ComputerSide side = ComputerSide.valueOfInsensitive( getString( args, 0 ) );
+                if( side != null )
                 {
                     synchronized( m_peripherals )
                     {
-                        PeripheralWrapper p = m_peripherals[side];
+                        PeripheralWrapper p = m_peripherals[side.ordinal()];
                         if( p != null )
                         {
                             methods = p.getMethods();
@@ -403,16 +395,16 @@ public class PeripheralAPI implements ILuaAPI, IAPIEnvironment.IPeripheralChange
             case 3:
             {
                 // call
-                int side = parseSide( args );
+                ComputerSide side = ComputerSide.valueOfInsensitive( getString( args, 0 ) );
                 String methodName = getString( args, 1 );
                 Object[] methodArgs = Arrays.copyOfRange( args, 2, args.length );
 
-                if( side >= 0 )
+                if( side != null )
                 {
                     PeripheralWrapper p;
                     synchronized( m_peripherals )
                     {
-                        p = m_peripherals[side];
+                        p = m_peripherals[side.ordinal()];
                     }
                     if( p != null )
                     {
@@ -424,20 +416,5 @@ public class PeripheralAPI implements ILuaAPI, IAPIEnvironment.IPeripheralChange
             default:
                 return null;
         }
-    }
-
-    // Privates
-
-    private int parseSide( Object[] args ) throws LuaException
-    {
-        String side = getString( args, 0 );
-        for( int n = 0; n < IAPIEnvironment.SIDE_NAMES.length; n++ )
-        {
-            if( side.equals( IAPIEnvironment.SIDE_NAMES[n] ) )
-            {
-                return n;
-            }
-        }
-        return -1;
     }
 }

@@ -266,12 +266,15 @@ public final class ComputerCraftAPI
 
     public interface IComputerCraftAPI
     {
+        @Nonnull
         String getInstalledVersion();
 
         int createUniqueNumberedSaveDir( @Nonnull World world, @Nonnull String parentSubPath );
 
+        @Nullable
         IWritableMount createSaveDirMount( @Nonnull World world, @Nonnull String subPath, long capacity );
 
+        @Nullable
         IMount createResourceMount( @Nonnull String domain, @Nonnull String subPath );
 
         void registerPeripheralProvider( @Nonnull IPeripheralProvider provider );
@@ -286,12 +289,15 @@ public final class ComputerCraftAPI
 
         void registerPocketUpgrade( @Nonnull IPocketUpgrade upgrade );
 
+        @Nonnull
         IPacketNetwork getWirelessNetwork();
 
         void registerAPIFactory( @Nonnull ILuaAPIFactory factory );
 
+        @Nonnull
         IWiredNode createWiredNodeForElement( @Nonnull IWiredElement element );
 
+        @Nullable
         IWiredElement getWiredElementAt( @Nonnull BlockView world, @Nonnull BlockPos pos, @Nonnull Direction side );
     }
 }

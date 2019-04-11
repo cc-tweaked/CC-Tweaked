@@ -9,6 +9,7 @@ buildscript {
 plugins {
     id 'fabric-loom' version '0.2.0-SNAPSHOT'
     id 'com.matthewprenger.cursegradle' version '1.2.0'
+    id "com.github.breadmoirai.github-release" version "2.2.4"
 }
 
 apply plugin: 'org.ajoberstar.grgit'
@@ -297,6 +298,20 @@ uploadArchives {
             }
         }
     }
+}
+
+githubRelease {
+    token project.hasProperty('githubApiKey') ? project.githubApiKey : ''
+    owner 'SquidDev-CC'
+    repo 'CC-Tweaked'
+    targetCommitish (mc_version == "1.12.2" ? "master" : mc_version)
+
+    tagName "v${mc_version}-${mod_version}"
+    releaseName "[${mc_version}] ${mod_version}"
+    body ''
+    prerelease true
+
+    releaseAssets.from(jar.archivePath)
 }
 
 test {

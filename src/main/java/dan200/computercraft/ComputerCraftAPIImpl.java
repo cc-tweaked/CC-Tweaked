@@ -33,6 +33,7 @@ import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.File;
 
 public final class ComputerCraftAPIImpl implements IComputerCraftAPI
@@ -43,6 +44,7 @@ public final class ComputerCraftAPIImpl implements IComputerCraftAPI
     {
     }
 
+    @Nonnull
     @Override
     public String getInstalledVersion()
     {
@@ -110,6 +112,7 @@ public final class ComputerCraftAPIImpl implements IComputerCraftAPI
         PocketUpgrades.register( upgrade );
     }
 
+    @Nonnull
     @Override
     public IPacketNetwork getWirelessNetwork()
     {
@@ -122,12 +125,14 @@ public final class ComputerCraftAPIImpl implements IComputerCraftAPI
         ApiFactories.register( factory );
     }
 
+    @Nonnull
     @Override
     public IWiredNode createWiredNodeForElement( @Nonnull IWiredElement element )
     {
         return new WiredNode( element );
     }
 
+    @Nullable
     @Override
     public IWiredElement getWiredElementAt( @Nonnull BlockView world, @Nonnull BlockPos pos, @Nonnull Direction side )
     {

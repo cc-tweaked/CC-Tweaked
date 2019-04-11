@@ -7,6 +7,7 @@
 package dan200.computercraft.shared.computer.blocks;
 
 import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.core.computer.ComputerSide;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ComputerState;
 import dan200.computercraft.shared.computer.core.ServerComputer;
@@ -95,8 +96,12 @@ public class TileComputer extends TileComputerBase
     }
 
     @Override
-    protected Direction remapLocalSide( Direction localSide )
+    protected ComputerSide remapLocalSide( ComputerSide localSide )
     {
-        return localSide.getAxis() == Direction.Axis.X ? localSide.getOpposite() : localSide;
+        // For legacy reasons, computers invert the meaning of "left" and "right". A computer's front is facing
+        // towards you, but a turtle's front is facing the other way.
+        if( localSide == ComputerSide.RIGHT ) return ComputerSide.LEFT;
+        if( localSide == ComputerSide.LEFT ) return ComputerSide.RIGHT;
+        return localSide;
     }
 }

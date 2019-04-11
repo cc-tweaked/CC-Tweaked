@@ -15,17 +15,10 @@ public final class RedstoneUtil
 {
     public static void propagateRedstoneOutput( World world, BlockPos pos, Direction side )
     {
-        // Propagate ordinary output
+        // Propagate ordinary output. See BlockRedstoneDiode.notifyNeighbors
         BlockState block = world.getBlockState( pos );
         BlockPos neighbourPos = pos.offset( side );
-        BlockState neighbour = world.getBlockState( neighbourPos );
-        if( !neighbour.isAir() )
-        {
-            world.updateNeighbor( neighbourPos, block.getBlock(), pos );
-            if( neighbour.isSimpleFullBlock( world, neighbourPos ) )
-            {
-                world.updateNeighborsExcept( neighbourPos, block.getBlock(), side.getOpposite() );
-            }
-        }
+        world.updateNeighbor( neighbourPos, block.getBlock(), pos );
+        world.updateNeighborsExcept( neighbourPos, block.getBlock(), side.getOpposite() );
     }
 }

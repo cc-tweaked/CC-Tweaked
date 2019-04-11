@@ -8,7 +8,7 @@ package dan200.computercraft.shared.peripheral.modem.wired;
 
 import com.google.common.base.Objects;
 import dan200.computercraft.ComputerCraft;
-import dan200.computercraft.ComputerCraftAPIImpl;
+import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.network.wired.IWiredElement;
 import dan200.computercraft.api.network.wired.IWiredNode;
 import dan200.computercraft.api.peripheral.IPeripheral;
@@ -271,10 +271,9 @@ public class TileWiredModemFull extends TileGeneric implements IPeripheralTile
             BlockPos offset = current.offset( facing );
             if( !world.isBlockLoaded( offset ) ) continue;
 
-            IWiredElement element = ComputerCraftAPIImpl.INSTANCE.getWiredElementAt( world, offset, facing.getOpposite() );
+            IWiredElement element = ComputerCraftAPI.getWiredElementAt( world, offset, facing.getOpposite() );
             if( element == null ) continue;
 
-            // If we can connect to it then do so
             m_node.connectTo( element.getNode() );
         }
     }
@@ -347,7 +346,11 @@ public class TileWiredModemFull extends TileGeneric implements IPeripheralTile
     @Override
     public <T> LazyOptional<T> getCapability( @Nonnull Capability<T> capability, @Nullable Direction facing )
     {
-        if( capability == CapabilityWiredElement.CAPABILITY ) return m_elementCap.cast();
+        if( capability == CapabilityWiredElement.CAPABILITY )
+        {
+            if( elementCap == null ) elementCap = LazyOptional.of( () -> m_element );
+            return elementCap.cast();
+        }
         return super.getCapability( capability, facing );
     }
     */

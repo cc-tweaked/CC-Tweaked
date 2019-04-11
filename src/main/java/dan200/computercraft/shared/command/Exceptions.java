@@ -16,7 +16,7 @@ public final class Exceptions
     public static final DynamicCommandExceptionType COMPUTER_ARG_NONE = translated1( "argument.computercraft.computer.no_matching" );
     public static final Dynamic2CommandExceptionType COMPUTER_ARG_MANY = translated2( "argument.computercraft.computer.many_matching" );
 
-    public static final DynamicCommandExceptionType TRACKING_FIELD_ARG_NONE = translated1( "argument.computercraft.tacking_field.no_field" );
+    public static final DynamicCommandExceptionType TRACKING_FIELD_ARG_NONE = translated1( "argument.computercraft.tracking_field.no_field" );
 
     static final SimpleCommandExceptionType NOT_TRACKING_EXCEPTION = translated( "commands.computercraft.track.stop.not_enabled" );
     static final SimpleCommandExceptionType NO_TIMINGS_EXCEPTION = translated( "commands.computercraft.track.dump.no_timings" );

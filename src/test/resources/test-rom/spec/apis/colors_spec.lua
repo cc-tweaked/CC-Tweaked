@@ -1,0 +1,43 @@
+describe("The colors library", function()
+    it("colors.combine", function()
+        expect(colors.combine(colors.red, colors.brown, colors.green)):equals(0x7000)
+    end)
+
+    describe("colors.subtract", function()
+        it("subtracts colours", function()
+            expect(colors.subtract(0x7000, colors.green)):equals(0x5000)
+            expect(colors.subtract(0x5000, colors.red)):equals(0x1000)
+        end)
+        it("does nothing when color is not present", function()
+            expect(colors.subtract(0x1000, colors.red)):equals(0x1000)
+        end)
+        it("accepts multiple arguments", function()
+            expect(colors.subtract(0x7000, colors.red, colors.green, colors.red)):equals(0x1000)
+        end)
+    end)
+
+    describe("colors.test", function()
+        it("returns true when present", function()
+            expect(colors.test(0x7000, colors.green)):equals(true)
+        end)
+        it("returns false when absent", function()
+            expect(colors.test(0x5000, colors.green)):equals(false)
+        end)
+        it("allows multiple colors", function()
+            expect(colors.test(0x7000, 0x5000)):equals(true)
+        end)
+    end)
+
+    it("colors.packRGB", function()
+        expect(colors.packRGB(0.3, 0.5, 0.6)):equals(0x4c7f99)
+    end)
+
+    it("colors.unpackRGB", function()
+        expect({ colors.unpackRGB(0x4c7f99) }):same { 0x4c / 0xFF, 0x7f / 0xFF, 0.6 }
+    end)
+
+    it("colors.rgb8", function()
+        expect(colors.rgb8(0.3, 0.5, 0.6)):equals(0x4c7f99)
+        expect({ colors.rgb8(0x4c7f99) }):same { 0x4c / 0xFF, 0x7f / 0xFF, 0.6 }
+    end)
+end )

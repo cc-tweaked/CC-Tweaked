@@ -26,7 +26,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class MixinFirstPersonRenderer implements MixedFirstPersonRenderer
 {
     @Shadow
-    private float getMapAngle ( float pitch )
+    private float getMapAngle( float pitch )
     {
         return 0;
     }

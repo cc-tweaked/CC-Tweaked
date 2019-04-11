@@ -14,6 +14,7 @@ import dan200.computercraft.api.lua.ILuaAPI;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.core.apis.IAPIEnvironment;
 import dan200.computercraft.core.computer.Computer;
+import dan200.computercraft.core.computer.ComputerSide;
 import dan200.computercraft.core.computer.IComputerEnvironment;
 import dan200.computercraft.shared.common.ServerTerminal;
 import dan200.computercraft.shared.network.NetworkHandler;
@@ -264,22 +265,22 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
         m_computer.queueEvent( event, arguments );
     }
 
-    public int getRedstoneOutput( int side )
+    public int getRedstoneOutput( ComputerSide side )
     {
         return m_computer.getEnvironment().getExternalRedstoneOutput( side );
     }
 
-    public void setRedstoneInput( int side, int level )
+    public void setRedstoneInput( ComputerSide side, int level )
     {
         m_computer.getEnvironment().setRedstoneInput( side, level );
     }
 
-    public int getBundledRedstoneOutput( int side )
+    public int getBundledRedstoneOutput( ComputerSide side )
     {
         return m_computer.getEnvironment().getExternalBundledRedstoneOutput( side );
     }
 
-    public void setBundledRedstoneInput( int side, int combination )
+    public void setBundledRedstoneInput( ComputerSide side, int combination )
     {
         m_computer.getEnvironment().setBundledRedstoneInput( side, combination );
     }
@@ -289,12 +290,12 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
         m_computer.addApi( api );
     }
 
-    public void setPeripheral( int side, IPeripheral peripheral )
+    public void setPeripheral( ComputerSide side, IPeripheral peripheral )
     {
         m_computer.getEnvironment().setPeripheral( side, peripheral );
     }
 
-    public IPeripheral getPeripheral( int side )
+    public IPeripheral getPeripheral( ComputerSide side )
     {
         return m_computer.getEnvironment().getPeripheral( side );
     }

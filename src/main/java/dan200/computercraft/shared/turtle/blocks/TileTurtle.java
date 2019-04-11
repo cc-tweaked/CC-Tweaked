@@ -12,6 +12,7 @@ import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
+import dan200.computercraft.core.computer.ComputerSide;
 import dan200.computercraft.shared.common.TileGeneric;
 import dan200.computercraft.shared.computer.blocks.ComputerPeripheral;
 import dan200.computercraft.shared.computer.blocks.ComputerProxy;
@@ -150,9 +151,6 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
     @Override
     public boolean onActivate( PlayerEntity player, Hand hand, BlockHitResult hit )
     {
-        // Request description from server
-        // requestTileEntityUpdate();
-
         // Apply dye
         ItemStack currentItem = player.getStackInHand( hand );
         if( !currentItem.isEmpty() )
@@ -313,13 +311,13 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
     }
 
     @Override
-    protected boolean isPeripheralBlockedOnSide( Direction localSide )
+    protected boolean isPeripheralBlockedOnSide( ComputerSide localSide )
     {
         return hasPeripheralUpgradeOnSide( localSide );
     }
 
     @Override
-    protected boolean isRedstoneBlockedOnSide( Direction localSide )
+    protected boolean isRedstoneBlockedOnSide( ComputerSide localSide )
     {
         return false;
     }
@@ -557,15 +555,15 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
 
     // Privates
 
-    private boolean hasPeripheralUpgradeOnSide( Direction side )
+    private boolean hasPeripheralUpgradeOnSide( ComputerSide side )
     {
         ITurtleUpgrade upgrade;
         switch( side )
         {
-            case WEST:
+            case RIGHT:
                 upgrade = getUpgrade( TurtleSide.Right );
                 break;
-            case EAST:
+            case LEFT:
                 upgrade = getUpgrade( TurtleSide.Left );
                 break;
             default:

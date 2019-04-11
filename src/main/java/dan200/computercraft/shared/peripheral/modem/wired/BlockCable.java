@@ -11,6 +11,7 @@ import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.shared.common.BlockGeneric;
 import dan200.computercraft.shared.util.WaterloggableBlock;
+import dan200.computercraft.shared.util.WorldUtil;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.block.Block;
@@ -113,8 +114,7 @@ public class BlockCable extends BlockGeneric implements WaterloggableBlock
 
                     ItemStack item;
 
-                    AxisAlignedBB bb = cable.getModemBounds();
-                    if( WorldUtil.isVecInsideInclusive( bb, hit.hitVec.subtract( pos.getX(), pos.getY(), pos.getZ() ) ) )
+                    if( WorldUtil.isVecInside( CableShapes.getModemShape( state ), hit.hitVec.subtract( pos.getX(), pos.getY(), pos.getZ() ) ) )
                     {
                         newState = state.with( MODEM, CableModemVariant.None );
                         item = new ItemStack( ComputerCraft.Items.wiredModem );
@@ -154,10 +154,8 @@ public class BlockCable extends BlockGeneric implements WaterloggableBlock
         if( modem == null ) return new ItemStack( ComputerCraft.Items.cable );
 
         // We've a modem and cable, so try to work out which one we're interacting with
-        BlockEntity tile = world.getBlockEntity( pos );
         HitResult hit = MinecraftClient.getInstance().hitResult;
-        return tile instanceof TileCable && hit != null &&
-            CableShapes.getModemShape( state ).getBoundingBox().contains( hit.getPos().subtract( pos.getX(), pos.getY(), pos.getZ() ) )
+        return hit != null && WorldUtil.isVecInside( CableShapes.getModemShape( state ), hit.getPos().subtract( pos.getX(), pos.getY(), pos.getZ() ) )
             ? new ItemStack( ComputerCraft.Items.wiredModem )
             : new ItemStack( ComputerCraft.Items.cable );
 

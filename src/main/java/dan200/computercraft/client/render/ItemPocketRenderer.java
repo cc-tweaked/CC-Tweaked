@@ -40,18 +40,6 @@ public final class ItemPocketRenderer extends ItemMapLikeRenderer
     {
     }
 
-    /*
-    @SubscribeEvent
-    public static void renderItem( RenderSpecificHandEvent event )
-    {
-        ItemStack stack = event.getItemStack();
-        if( !(stack.getItem() instanceof ItemPocketComputer) ) return;
-
-        event.setCanceled( true );
-        INSTANCE.renderItemFirstPerson( event.getHand(), event.getInterpolatedPitch(), event.getEquipProgress(), event.getSwingProgress(), event.getItemStack() );
-    }
-    */
-
     @Override
     protected void renderItem( ItemStack stack )
     {
