@@ -18,6 +18,8 @@ if not http then
     return
 end
 
+local pastebin = require('http.pastebin')
+
 local sCommand = tArgs[1]
 if sCommand == "put" then
     -- Upload a file to pastebin.com
@@ -29,14 +31,16 @@ if sCommand == "put" then
         return
     end
 
-    local success, msg = pastebin.put(sFile)
+    print( "Connecting to pastebin.com... " )
 
-    if success then
+    local resp, msg = pastebin.put(sFile)
+
+    if resp then
         print( "Uploaded as "..msg )
-        print( "Run \"pastebin get "..msg.."\" to download anywhere" )
+        print( "Run \"pastebin get "..resp.."\" to download anywhere" )
 
     else
-        print( msg )
+        printError( msg )
     end
 
 elseif sCommand == "get" then
@@ -46,30 +50,36 @@ elseif sCommand == "get" then
         return
     end
 
+    print( "Connecting to pastebin.com... " )
+
     -- Determine file to download
     local sCode = tArgs[2]
     local sFile = tArgs[3]
     local sPath = shell.resolve( sFile )
     if fs.exists( sPath ) then
-        print( "File already exists" )
+        printError( "File already exists" )
         return
     end
 
-    local success, msg = pastebin.get(sCode, sPath)
+    local resp, msg = pastebin.get(sCode, sPath)
 
-    if success then
-        print( "Downloaded as "..sFile )
+    if resp then
+        print( "Downloaded as "..resp )
     else
-        print(msg)
+        printError( msg )
     end
+
 elseif sCommand == "run" then
     local sCode = tArgs[2]
 
-    local success, msg = pastebin.run(sCode, table.unpack(tArgs, 3))
-    if not success then
-        print(msg)
+    print( "Connecting to pastebin.com... " )
+
+    local resp, msg = pastebin.run(sCode, table.unpack(tArgs, 3))
+    if not resp then
+        printError( msg )
     end
 else
+
     printUsage()
     return
 end
