@@ -146,7 +146,7 @@ public abstract class SpeakerPeripheral implements IPeripheral
             float adjVolume = Math.min( volume, 3.0f );
             server.getPlayerManager().sendToAround(
                 null, pos.x, pos.y, pos.z, adjVolume > 1.0f ? 16 * adjVolume : 16.0, world.getDimension().getType(),
-                new PlaySoundIdS2CPacket( name, SoundCategory.RECORD, pos, adjVolume, pitch )
+                new PlaySoundIdS2CPacket( name, SoundCategory.RECORDS, pos, adjVolume, pitch )
             );
             return null;
         } );

@@ -33,9 +33,9 @@ public class WidgetWrapper implements Element
     }
 
     @Override
-    public void onFocusChanged( boolean a, boolean b )
+    public boolean changeFocus( boolean reverse )
     {
-        listener.onFocusChanged( a, b );
+        return listener.changeFocus( reverse );
     }
 
     @Override

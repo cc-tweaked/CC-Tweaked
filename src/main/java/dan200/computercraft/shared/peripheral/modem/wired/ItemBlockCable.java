@@ -43,7 +43,7 @@ public abstract class ItemBlockCable extends BlockItem
 
         world.setBlockState( pos, state, 3 );
         BlockSoundGroup soundType = state.getBlock().getSoundGroup( state );
-        world.playSound( null, pos, soundType.getPlaceSound(), SoundCategory.BLOCK, (soundType.getVolume() + 1.0F) / 2.0F, soundType.getPitch() * 0.8F );
+        world.playSound( null, pos, soundType.getPlaceSound(), SoundCategory.BLOCKS, (soundType.getVolume() + 1.0F) / 2.0F, soundType.getPitch() * 0.8F );
 
         BlockEntity tile = world.getBlockEntity( pos );
         if( tile instanceof TileCable )

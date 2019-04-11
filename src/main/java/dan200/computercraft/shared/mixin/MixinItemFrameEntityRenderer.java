@@ -19,7 +19,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin( ItemFrameEntityRenderer.class )
 public class MixinItemFrameEntityRenderer
 {
-    @Inject( method = "method_3992", at = @At( "HEAD" ), cancellable = true )
+    @Inject( method = "hasLabel", at = @At( "HEAD" ), cancellable = true ) // TODO: This name is entirely wrong
     private void method_3992_Injected( ItemFrameEntity entity, CallbackInfo info )
     {
         ItemStack stack = entity.getHeldItemStack();

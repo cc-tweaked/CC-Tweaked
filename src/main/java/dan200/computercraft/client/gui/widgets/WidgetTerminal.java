@@ -39,6 +39,8 @@ public class WidgetTerminal implements Element
     private final int termWidth;
     private final int termHeight;
 
+    private boolean focused;
+
     private float terminateTimer = -1;
     private float rebootTimer = -1;
     private float shutdownTimer = -1;
@@ -293,9 +295,9 @@ public class WidgetTerminal implements Element
     }
 
     @Override
-    public void onFocusChanged( boolean noClue, boolean focused )
+    public boolean changeFocus( boolean reverse )
     {
-        if( !focused )
+        if( focused )
         {
             // When blurring, we should make all keys go up
             for( int key = 0; key < keysDown.size(); key++ )
@@ -314,6 +316,9 @@ public class WidgetTerminal implements Element
 
             shutdownTimer = terminateTimer = rebootTimer = -1;
         }
+
+        focused = !focused;
+        return true;
     }
 
     public void draw( int originX, int originY )

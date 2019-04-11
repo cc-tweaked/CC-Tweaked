@@ -17,6 +17,7 @@ import net.minecraft.command.arguments.EntityAnchorArgumentType;
 import net.minecraft.container.Container;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.passive.HorseBaseEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.world.ServerWorld;
@@ -139,12 +140,11 @@ public final class TurtlePlayer extends FakePlayer
         return null;
     }
 
-
     @Nonnull
     @Override
-    public Either<SleepResult, Void> trySleep( @Nonnull BlockPos bedLocation )
+    public Either<PlayerEntity.SleepFailureReason, Void> trySleep( @Nonnull BlockPos bedLocation )
     {
-        return Either.left( SleepResult.INVALID_ATTEMPT );
+        return Either.left( PlayerEntity.SleepFailureReason.INVALID_ATTEMPT );
     }
 
     @Override

@@ -7,7 +7,7 @@ buildscript {
 }
 
 plugins {
-    id 'fabric-loom' version '0.2.0-SNAPSHOT'
+    id 'fabric-loom' version '0.2.1-SNAPSHOT'
     id 'com.matthewprenger.cursegradle' version '1.2.0'
     id "com.github.breadmoirai.github-release" version "2.2.4"
 }
@@ -52,9 +52,9 @@ configurations {
 
 dependencies {
     minecraft "com.mojang:minecraft:${mc_version}"
-    mappings "net.fabricmc:yarn:${mc_version}.${mappings_version}"
-    modCompile "net.fabricmc:fabric-loader:0.3.7.109"
-    modCompile "net.fabricmc:fabric:0.2.6.117"
+    mappings "net.fabricmc:yarn:${mc_version}+build.${mappings_version}"
+    modCompile "net.fabricmc:fabric-loader:0.4.0+build.119"
+    modCompile "net.fabricmc:fabric:0.2.7+build.122"
 
     // compileOnly "mezz.jei:jei-1.13.2:5.0.0.8:api"
     // deobfProvided "pl.asie:Charset-Lib:0.5.4.6"

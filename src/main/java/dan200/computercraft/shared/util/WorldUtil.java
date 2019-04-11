@@ -29,7 +29,7 @@ import java.util.List;
 public final class WorldUtil
 {
     @SuppressWarnings( "Guava" )
-    private static final Predicate<Entity> CAN_COLLIDE = x -> x != null && x.isAlive() && x.doesCollide();
+    private static final Predicate<Entity> CAN_COLLIDE = x -> x != null && x.isAlive() && x.collides();
 
     public static boolean isLiquidBlock( World world, BlockPos pos )
     {
@@ -73,7 +73,7 @@ public final class WorldUtil
 
         Entity closest = null;
         double closestDist = 99.0;
-        List<Entity> list = world.getEntitiesInBox( Entity.class, bigBox, CAN_COLLIDE );
+        List<Entity> list = world.getEntities( Entity.class, bigBox, CAN_COLLIDE );
         for( Entity entity : list )
         {
             BoundingBox littleBox = entity.getBoundingBox();
