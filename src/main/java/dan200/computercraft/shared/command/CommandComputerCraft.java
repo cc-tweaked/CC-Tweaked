@@ -44,7 +44,7 @@ import static dan200.computercraft.shared.command.builder.CommandBuilder.args;
 import static dan200.computercraft.shared.command.builder.CommandBuilder.command;
 import static dan200.computercraft.shared.command.builder.HelpingArgumentBuilder.choice;
 import static dan200.computercraft.shared.command.text.ChatHelpers.*;
-import static net.minecraft.server.command.ServerCommandManager.literal;
+import static net.minecraft.server.command.CommandManager.literal;
 
 public final class CommandComputerCraft
 {
@@ -178,7 +178,7 @@ public final class CommandComputerCraft
                     }
                     else
                     {
-                        player.method_14251( (ServerWorld) world, pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, 0, 0 );
+                        player.teleport( (ServerWorld) world, pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, 0, 0 );
                     }
 
                     return 1;

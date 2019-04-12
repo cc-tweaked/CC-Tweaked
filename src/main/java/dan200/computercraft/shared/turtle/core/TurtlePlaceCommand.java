@@ -299,7 +299,7 @@ public class TurtlePlaceCommand implements ITurtleCommand
         BlockState state = world.getBlockState( position );
         Block block = state.getBlock();
 
-        boolean replaceable = state.method_11587( context );
+        boolean replaceable = state.canReplace( context );
         if( !allowReplaceable && replaceable ) return false;
 
         if( ComputerCraft.turtlesObeyBlockProtection )

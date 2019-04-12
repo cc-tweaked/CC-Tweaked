@@ -53,7 +53,7 @@ configurations {
 dependencies {
     minecraft "com.mojang:minecraft:${mc_version}"
     mappings "net.fabricmc:yarn:${mc_version}+build.${mappings_version}"
-    modCompile "net.fabricmc:fabric-loader:0.4.0+build.119"
+    modCompile "net.fabricmc:fabric-loader:0.4.0+build.121"
     modCompile "net.fabricmc:fabric:0.2.7+build.122"
 
     // compileOnly "mezz.jei:jei-1.13.2:5.0.0.8:api"

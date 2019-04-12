@@ -16,8 +16,8 @@ import net.minecraft.text.TranslatableTextComponent;
 import net.minecraft.text.event.ClickEvent;
 import net.minecraft.text.event.HoverEvent;
 
-import static net.minecraft.server.command.ServerCommandManager.argument;
-import static net.minecraft.server.command.ServerCommandManager.literal;
+import static net.minecraft.server.command.CommandManager.argument;
+import static net.minecraft.server.command.CommandManager.literal;
 
 public final class CommandCopy
 {

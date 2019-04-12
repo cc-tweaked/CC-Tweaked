@@ -86,13 +86,13 @@ public class TileEntityTurtleRenderer extends BlockEntityRenderer<TileTurtle>
         String label = turtle.createProxy().getLabel();
         if( label != null && renderManager.hitResult != null && renderManager.hitResult instanceof BlockHitResult && turtle.getPos().equals( ((BlockHitResult) renderManager.hitResult).getBlockPos() ) )
         {
-            method_3570( true );
+            disableLightmap( true );
             GameRenderer.renderFloatingText(
                 getFontRenderer(), label,
                 (float) posX + 0.5F, (float) posY + 1.2F, (float) posZ + 0.5F, 0,
                 renderManager.cameraEntity.getYaw(), renderManager.cameraEntity.getPitch(), false
             );
-            method_3570( false );
+            disableLightmap( false );
         }
 
         GlStateManager.pushMatrix();

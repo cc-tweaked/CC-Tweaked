@@ -20,7 +20,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.command.ServerCommandManager;
+import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.state.property.Property;
 import net.minecraft.util.math.BlockPos;
@@ -81,7 +81,7 @@ public class CommandAPI implements ILuaAPI
             return new Object[] { false, createOutput( "Command blocks disabled by server" ) };
         }
 
-        ServerCommandManager commandManager = server.getCommandManager();
+        CommandManager commandManager = server.getCommandManager();
         TileCommandComputer.CommandReceiver receiver = m_computer.getReceiver();
         try
         {

@@ -207,7 +207,7 @@ public class BlockCable extends BlockGeneric implements WaterloggableBlock
 
         BlockPos offsetPos = pos.offset( facing );
         BlockState offsetState = world.getBlockState( offsetPos );
-        return Block.isFaceFullSquare( offsetState.getCollisionShape( world, offsetPos ), facing.getOpposite() ) && !method_9581( offsetState.getBlock() );
+        return Block.isFaceFullSquare( offsetState.getCollisionShape( world, offsetPos ), facing.getOpposite() );
     }
 
     @Nullable

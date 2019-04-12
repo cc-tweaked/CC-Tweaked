@@ -83,7 +83,7 @@ public class BlockWirelessModem extends BlockGeneric implements WaterloggableBlo
         Direction facing = state.get( FACING );
         BlockPos offsetPos = pos.offset( facing );
         BlockState offsetState = world.getBlockState( offsetPos );
-        return Block.isFaceFullSquare( offsetState.getCollisionShape( world, offsetPos ), facing.getOpposite() ) && !method_9581( offsetState.getBlock() );
+        return Block.isFaceFullSquare( offsetState.getCollisionShape( world, offsetPos ), facing.getOpposite() );
     }
 
     @Nullable
