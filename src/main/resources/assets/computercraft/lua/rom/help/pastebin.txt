@@ -5,3 +5,11 @@ ex:
 "pastebin put foo" will upload the file "foo" to pastebin.com, and print the URL.
 "pastebin get xq5gc7LB foo" will download the file from the URL http://pastebin.com/xq5gc7LB, and save it as "foo".
 "pastebin run CxaWmPrX" will download the file from the URL http://pastebin.com/CxaWmPrX, and immediately run it.
+
+Functions in the pastebin API:
+pastebin.get( code, filepath )
+pastebin.put( filepath )
+pastebin.download( code )
+pastebin.upload( pastename, text )
+pastebin.parseCode( code )
+
