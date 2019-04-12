@@ -23,12 +23,15 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
+import net.minecraft.world.loot.context.LootContext;
+import net.minecraft.world.loot.context.LootContextParameters;
 
 import javax.annotation.Nonnull;
+import java.util.List;
 
 public abstract class BlockComputerBase<T extends TileComputerBase> extends BlockGeneric implements IBundledRedstoneBlock
 {
-    public static final Identifier COMPUTER_DROP = new Identifier( ComputerCraft.MOD_ID, "computer" );
+    private static final Identifier COMPUTER_DROP = new Identifier( ComputerCraft.MOD_ID, "computer" );
 
     private final ComputerFamily family;
 
@@ -123,46 +126,17 @@ public abstract class BlockComputerBase<T extends TileComputerBase> extends Bloc
         return super.getPickStack( world, pos, state );
     }
 
-    /*
-    TODO: Find a way of doing creative block drops
     @Override
     @Deprecated
-    public final void dropBlockAsItemWithChance( @Nonnull BlockState state, World world, @Nonnull BlockPos pos, float change, int fortune )
+    public List<ItemStack> getDroppedStacks( BlockState state, LootContext.Builder builder )
     {
+        // TODO: Find a way of doing creative block drops
+        builder.putDrop( COMPUTER_DROP, ( context, consumer ) -> {
+            BlockEntity tile = context.get( LootContextParameters.BLOCK_ENTITY );
+            if( tile instanceof TileComputerBase ) consumer.accept( getItem( (TileComputerBase) tile ) );
+        } );
+        return super.getDroppedStacks( state, builder );
     }
-
-    @Override
-    public final void getDrops( BlockState state, DefaultedList<ItemStack> drops, World world, BlockPos pos, int fortune )
-    {
-        BlockEntity tile = world.getBlockEntity( pos );
-        if( tile instanceof TileComputerBase )
-        {
-            ItemStack stack = getItem( (TileComputerBase) tile );
-            if( !stack.isEmpty() ) drops.add( stack );
-        }
-    }
-
-    @Override
-    public boolean removedByPlayer( BlockState state, World world, BlockPos pos, PlayerEntity player, boolean willHarvest, FluidState fluid )
-    {
-        if( !world.isClient )
-        {
-            // We drop the item here instead of doing it in the harvest method, as we
-            // need to drop it for creative players too.
-            BlockEntity tile = world.getBlockEntity( pos );
-            if( tile instanceof TileComputerBase )
-            {
-                TileComputerBase computer = (TileComputerBase) tile;
-                if( !player.abilities.creativeMode || computer.getLabel() != null )
-                {
-                    dropStack( world, pos, getItem( computer ) );
-                }
-            }
-        }
-
-        return super.removedByPlayer( state, world, pos, player, willHarvest, fluid );
-    }
-    */
 
     @Override
     public void onPlaced( World world, BlockPos pos, BlockState state, LivingEntity placer, ItemStack stack )
