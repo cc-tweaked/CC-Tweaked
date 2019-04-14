@@ -270,20 +270,8 @@ local function findStartups( sBaseDir )
 end
 
 -- Show MOTD
-if settings.get( "shell.enable_motd" ) then
-    local tMotd = {}
-    for sPath in string.gmatch(settings.get( "shell.motd_path" ), "[^:]+") do
-        if fs.exists(sPath) then
-            for sLine in io.lines(sPath) do
-                table.insert(tMotd,sLine)
-            end
-        end
-    end
-    if #tMotd == 0 then
-        print("missingno")
-    else
-        print(tMotd[math.random(1,#tMotd)])
-    end
+if settings.get( "motd.enable" ) then
+    shell.run( "motd" )
 end
 
 -- Run the user created startup, either from disk drives or the root
