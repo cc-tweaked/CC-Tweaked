@@ -118,7 +118,7 @@ public final class WiredModemLocalPeripheral
 
     public void writeNBT( @Nonnull NBTTagCompound tag, @Nonnull String suffix )
     {
-        if( id >= 0 ) tag.setInteger( NBT_PERIPHERAL_TYPE + suffix, id );
+        if( id >= 0 ) tag.setInteger( NBT_PERIPHERAL_ID + suffix, id );
         if( type != null ) tag.setString( NBT_PERIPHERAL_TYPE + suffix, type );
     }
 
