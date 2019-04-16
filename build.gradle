@@ -302,6 +302,12 @@ githubRelease {
     releaseAssets.from(jar.archivePath)
 }
 
+task uploadAll(dependsOn: proguard) {
+    group "upload"
+    description "Uploads to all repositories (Maven, Curse, GitHub release)"
+    dependsOn uploadArchives, curseforge, githubRelease
+}
+
 test {
     useJUnitPlatform()
     testLogging {
