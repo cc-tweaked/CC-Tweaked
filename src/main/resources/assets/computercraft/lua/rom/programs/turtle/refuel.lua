@@ -6,19 +6,27 @@ if #tArgs > 1 then
     return
 elseif #tArgs > 0 then
     if tArgs[1] == "all" then
-        nLimit = 64 * 16
+        nLimit = nil
     else
         nLimit = tonumber( tArgs[1] )
+        if not nLimit then
+            print("Invalid limit, expected a number or \"all\"")
+            return
+        end
     end
 end
 
 if turtle.getFuelLevel() ~= "unlimited" then
-    for n=1,16 do
+    for n = 1, 16 do
+        -- Stop if we've reached the limit, or are fully refuelled.
+        if (nLimit and nLimit <= 0) or turtle.getFuelLevel() >= turtle.getFuelLimit() then
+            break
+        end
+
         local nCount = turtle.getItemCount(n)
-        if nLimit > 0 and nCount > 0 and turtle.getFuelLevel() < turtle.getFuelLimit() then
-            local nBurn = math.min( nLimit, nCount )
+        if nCount > 0 then
             turtle.select( n )
-            if turtle.refuel( nBurn ) then
+            if turtle.refuel( nLimit ) and nLimit then
                 local nNewCount = turtle.getItemCount(n)
                 nLimit = nLimit - (nCount - nNewCount)
             end
