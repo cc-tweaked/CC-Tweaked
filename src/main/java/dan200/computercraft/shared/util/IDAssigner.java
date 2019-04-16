@@ -64,12 +64,11 @@ public final class IDAssigner
                 {
                     try
                     {
-                        int number = Integer.parseInt( content );
-                        id = Math.max( number + 1, id );
+                        id = Math.max( Integer.parseInt( content ) + 1, id );
                     }
-                    catch( NumberFormatException e )
+                    catch( NumberFormatException ignored )
                     {
-                        ComputerCraft.log.error( "Unexpected file '" + content + "' in '" + location.getAbsolutePath() + "'", e );
+                        // Skip files which aren't numbers
                     }
                 }
             }

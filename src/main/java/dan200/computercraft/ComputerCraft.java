@@ -449,6 +449,9 @@ public class ComputerCraft
                         if( subResource.exists() ) mounts.add( new FileMount( subResource, 0 ) );
                     }
                 }
+                catch( FileNotFoundException ignored )
+                {
+                }
                 catch( IOException | RuntimeException e )
                 {
                     ComputerCraft.log.error( "Could not load resource pack '" + resourcePackName + "'", e );
