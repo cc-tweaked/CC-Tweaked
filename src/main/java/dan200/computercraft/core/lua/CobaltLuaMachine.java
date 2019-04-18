@@ -242,7 +242,7 @@ public class CobaltLuaMachine implements ILuaMachine
                         }
                         catch( InterruptedException e )
                         {
-                            throw new OrphanedThread();
+                            throw new InterruptedError( e );
                         }
                         catch( LuaException e )
                         {
