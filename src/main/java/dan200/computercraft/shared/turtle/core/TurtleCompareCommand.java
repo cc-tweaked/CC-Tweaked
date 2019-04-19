@@ -53,19 +53,15 @@ public class TurtleCompareCommand implements ITurtleCommand
             Block lookAtBlock = lookAtState.getBlock();
             if( !lookAtBlock.isAir( lookAtState, world, newPosition ) )
             {
-                // Try createStackedBlock first
+                // Try getSilkTouchDrop first
                 if( !lookAtBlock.hasTileEntity( lookAtState ) )
                 {
                     try
                     {
-                        Method method = ReflectionHelper.findMethod(
-                            Block.class,
-                            "func_180643_i", "getSilkTouchDrop",
-                            IBlockState.class
-                        );
+                        Method method = ReflectionHelper.findMethod( Block.class, "getSilkTouchDrop", "func_180643_i", IBlockState.class );
                         lookAtStack = (ItemStack) method.invoke( lookAtBlock, lookAtState );
                     }
-                    catch( ReflectiveOperationException ignored )
+                    catch( ReflectiveOperationException | RuntimeException ignored )
                     {
                     }
                 }
