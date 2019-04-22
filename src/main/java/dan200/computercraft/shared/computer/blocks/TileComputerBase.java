@@ -22,7 +22,10 @@ import dan200.computercraft.shared.util.DirectionUtil;
 import dan200.computercraft.shared.util.RedstoneUtil;
 import joptsimple.internal.Strings;
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockRedstoneWire;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -34,6 +37,7 @@ import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.IWorldNameable;
+import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -266,13 +270,33 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
         EnumFacing offsetSide = dir.getOpposite();
         ComputerSide localDir = remapLocalSide( DirectionUtil.toLocal( this, dir ) );
 
-        computer.setRedstoneInput( localDir, getWorld().getRedstonePower( offset, dir ) );
+        computer.setRedstoneInput( localDir, getRedstoneInput( world, offset, dir ) );
         computer.setBundledRedstoneInput( localDir, BundledRedstone.getOutput( getWorld(), offset, offsetSide ) );
 
         if( !isPeripheralBlockedOnSide( localDir ) )
         {
             computer.setPeripheral( localDir, Peripherals.getPeripheral( getWorld(), offset, offsetSide ) );
         }
+    }
+
+    /**
+     * Gets the redstone input for an adjacent block
+     *
+     * @param world The world we exist in
+     * @param pos   The position of the neighbour
+     * @param side  The side we are reading from
+     * @return The effective redstone power
+     * @see net.minecraft.block.BlockRedstoneDiode#calculateInputStrength(World, BlockPos, IBlockState)
+     */
+    protected static int getRedstoneInput( World world, BlockPos pos, EnumFacing side )
+    {
+        int power = world.getRedstonePower( pos, side );
+        if( power >= 15 ) return power;
+
+        IBlockState neighbour = world.getBlockState( pos );
+        return neighbour.getBlock() == Blocks.REDSTONE_WIRE
+            ? Math.max( power, neighbour.getValue( BlockRedstoneWire.POWER ) )
+            : power;
     }
 
     public void updateInput()
