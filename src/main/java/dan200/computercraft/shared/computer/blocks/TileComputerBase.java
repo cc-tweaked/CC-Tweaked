@@ -124,16 +124,14 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
     @Override
     public boolean getRedstoneConnectivity( EnumFacing side )
     {
-        if( side == null ) return false;
-        ComputerSide localDir = remapLocalSide( DirectionUtil.toLocal( this, side.getOpposite() ) );
-        return !isRedstoneBlockedOnSide( localDir );
+        return true;
     }
 
     @Override
     public int getRedstoneOutput( EnumFacing side )
     {
         ComputerSide localDir = remapLocalSide( DirectionUtil.toLocal( this, side ) );
-        if( !isRedstoneBlockedOnSide( localDir ) && world != null && !world.isRemote )
+        if( world != null && !world.isRemote )
         {
             ServerComputer computer = getServerComputer();
             if( computer != null ) return computer.getRedstoneOutput( localDir );
@@ -144,15 +142,14 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
     @Override
     public boolean getBundledRedstoneConnectivity( @Nonnull EnumFacing side )
     {
-        ComputerSide localDir = remapLocalSide( DirectionUtil.toLocal( this, side ) );
-        return !isRedstoneBlockedOnSide( localDir );
+        return true;
     }
 
     @Override
     public int getBundledRedstoneOutput( @Nonnull EnumFacing side )
     {
         ComputerSide localDir = remapLocalSide( DirectionUtil.toLocal( this, side ) );
-        if( !isRedstoneBlockedOnSide( localDir ) && !world.isRemote )
+        if( !world.isRemote )
         {
             ServerComputer computer = getServerComputer();
             if( computer != null ) return computer.getBundledRedstoneOutput( localDir );
@@ -259,11 +256,6 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
         return false;
     }
 
-    protected boolean isRedstoneBlockedOnSide( ComputerSide localSide )
-    {
-        return false;
-    }
-
     protected ComputerSide remapLocalSide( ComputerSide localSide )
     {
         return localSide;
@@ -273,11 +265,10 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
     {
         EnumFacing offsetSide = dir.getOpposite();
         ComputerSide localDir = remapLocalSide( DirectionUtil.toLocal( this, dir ) );
-        if( !isRedstoneBlockedOnSide( localDir ) )
-        {
-            computer.setRedstoneInput( localDir, getWorld().getRedstonePower( offset, dir ) );
-            computer.setBundledRedstoneInput( localDir, BundledRedstone.getOutput( getWorld(), offset, offsetSide ) );
-        }
+
+        computer.setRedstoneInput( localDir, getWorld().getRedstonePower( offset, dir ) );
+        computer.setBundledRedstoneInput( localDir, BundledRedstone.getOutput( getWorld(), offset, offsetSide ) );
+
         if( !isPeripheralBlockedOnSide( localDir ) )
         {
             computer.setPeripheral( localDir, Peripherals.getPeripheral( getWorld(), offset, offsetSide ) );
