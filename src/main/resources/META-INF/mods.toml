@@ -1,7 +1,6 @@
 modLoader="javafml"
 loaderVersion="[25,)"
 
-# updateJSONURL="http://myurl.me/" #optional
 issueTrackerURL="https://github.com/SquidDev-CC/CC-Tweaked/issues"
 displayURL="https://github.com/SquidDev-CC/CC-Tweaked"
 logoFile="pack.png"
