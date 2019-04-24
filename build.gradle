@@ -335,7 +335,7 @@ githubRelease {
     token project.hasProperty('githubApiKey') ? project.githubApiKey : ''
     owner 'SquidDev-CC'
     repo 'CC-Tweaked'
-    targetCommitish (mc_version == "1.12.2" ? "master" : mc_version)
+    targetCommitish "mc-1.13.x" // TODO: Pull from GrGit
 
     tagName "v${mc_version}-${mod_version}"
     releaseName "[${mc_version}] ${mod_version}"
