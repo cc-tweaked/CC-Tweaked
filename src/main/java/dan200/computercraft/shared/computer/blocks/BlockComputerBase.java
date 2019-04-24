@@ -67,7 +67,7 @@ public abstract class BlockComputerBase<T extends TileComputerBase> extends Bloc
         if( computer == null ) return 0;
 
         ComputerSide localSide = computerEntity.remapToLocalSide( incomingSide.getOpposite() );
-        return computerEntity.isRedstoneBlockedOnSide( localSide ) ? 0 : computer.getRedstoneOutput( localSide );
+        return computer.getRedstoneOutput( localSide );
     }
 
     @Nonnull
@@ -88,11 +88,7 @@ public abstract class BlockComputerBase<T extends TileComputerBase> extends Bloc
     @Override
     public boolean getBundledRedstoneConnectivity( World world, BlockPos pos, EnumFacing side )
     {
-        TileEntity entity = world.getTileEntity( pos );
-        if( !(entity instanceof TileComputerBase) ) return false;
-
-        TileComputerBase computerEntity = (TileComputerBase) entity;
-        return !computerEntity.isRedstoneBlockedOnSide( computerEntity.remapToLocalSide( side ) );
+        return true;
     }
 
     @Override
@@ -106,7 +102,7 @@ public abstract class BlockComputerBase<T extends TileComputerBase> extends Bloc
         if( computer == null ) return 0;
 
         ComputerSide localSide = computerEntity.remapToLocalSide( side );
-        return computerEntity.isRedstoneBlockedOnSide( localSide ) ? 0 : computer.getBundledRedstoneOutput( localSide );
+        return computer.getBundledRedstoneOutput( localSide );
     }
 
     @Nonnull

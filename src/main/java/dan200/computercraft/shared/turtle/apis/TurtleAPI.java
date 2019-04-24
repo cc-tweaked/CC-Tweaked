@@ -304,7 +304,8 @@ public class TurtleAPI implements ILuaAPI
             case 31:
             {
                 // refuel
-                int count = parseCount( args, 0 );
+                int count = optInt( args, 0, Integer.MAX_VALUE );
+                if( count < 0 ) throw new LuaException( "Refuel count " + count + " out of range" );
                 return tryCommand( context, new TurtleRefuelCommand( count ) );
             }
             case 32:

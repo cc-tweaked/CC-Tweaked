@@ -345,6 +345,11 @@ githubRelease {
     releaseAssets.from(jar.archivePath)
 }
 
+task uploadAll(dependsOn: [uploadArchives, "curseforge", "githubRelease"]) {
+    group "upload"
+    description "Uploads to all repositories (Maven, Curse, GitHub release)"
+}
+
 test {
     useJUnitPlatform()
     testLogging {
