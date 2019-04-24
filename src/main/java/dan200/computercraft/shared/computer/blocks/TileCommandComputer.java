@@ -54,7 +54,7 @@ public class TileCommandComputer extends TileComputer
         }
 
         @Override
-        public void appendCommandFeedback( TextComponent textComponent )
+        public void sendMessage( TextComponent textComponent )
         {
             output.put( output.size() + 1, textComponent.getText() );
         }

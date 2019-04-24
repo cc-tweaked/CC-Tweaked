@@ -1,10 +1,27 @@
 {
+    "schemaVersion": 1,
+
     "id": "computercraft",
     "name": "CC: Tweaked",
     "version": "${version}",
-    "side": "universal",
-    "initializer": "dan200.computercraft.ComputerCraft",
-    "mixins": {
-        "client": "computercraft.client.json"
-    }
+    "description": "CC: Tweaked is a fork of ComputerCraft, adding programmable computers, turtles and more to Minecraft.",
+    "license": "ComputerCraft Public License",
+    "icon": "assets/computercraft/pack.png",
+    "contact": {
+        "homepage": "https://github.com/SquidDev-CC/CC-Tweaked",
+        "issues": "https://github.com/SquidDev-CC/CC-Tweaked/issues"
+    },
+    "authors": [
+        "Daniel Ratcliffe",
+        "Aaron Mills",
+        "SquidDev"
+    ],
+
+    "environment": "*",
+    "entrypoints": {
+        "main": [ "dan200.computercraft.ComputerCraft" ]
+    },
+    "mixins": [
+        { "config": "computercraft.client.json", "environment": "client" }
+    ]
 }

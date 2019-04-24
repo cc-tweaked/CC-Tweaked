@@ -8,8 +8,8 @@ package dan200.computercraft.client.render;
 
 import dan200.computercraft.ComputerCraft;
 import net.minecraft.client.render.model.BakedModel;
+import net.minecraft.client.render.model.ModelBakeSettings;
 import net.minecraft.client.render.model.ModelLoader;
-import net.minecraft.client.render.model.ModelRotationContainer;
 import net.minecraft.client.render.model.UnbakedModel;
 import net.minecraft.client.texture.Sprite;
 import net.minecraft.util.Identifier;
@@ -81,7 +81,7 @@ public final class TurtleModelLoader
 
         @Nullable
         @Override
-        public BakedModel bake( @Nonnull ModelLoader loader, @Nonnull Function<Identifier, Sprite> spriteGetter, @Nonnull ModelRotationContainer state )
+        public BakedModel bake( @Nonnull ModelLoader loader, @Nonnull Function<Identifier, Sprite> spriteGetter, @Nonnull ModelBakeSettings state )
         {
             return new TurtleSmartItemModel(
                 loader.getOrLoadModel( family ).bake( loader, spriteGetter, state ),

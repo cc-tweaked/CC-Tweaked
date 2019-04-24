@@ -34,7 +34,7 @@ public interface WaterloggableBlock extends Waterloggable
      */
     default FluidState getWaterloggedFluidState( BlockState state )
     {
-        return state.get( WATERLOGGED ) ? Fluids.WATER.getState( false ) : Fluids.EMPTY.getDefaultState();
+        return state.get( WATERLOGGED ) ? Fluids.WATER.getStill( false ) : Fluids.EMPTY.getDefaultState();
     }
 
     /**

@@ -61,7 +61,7 @@ public class CommandBlockPeripheral implements IPeripheral
                 context.issueMainThreadTask( () ->
                 {
                     m_commandBlock.getCommandExecutor().setCommand( command );
-                    m_commandBlock.getCommandExecutor().method_8295();
+                    m_commandBlock.getCommandExecutor().markDirty();
                     return null;
                 } );
                 return null;

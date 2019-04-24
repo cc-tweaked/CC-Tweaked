@@ -7,7 +7,7 @@ buildscript {
 }
 
 plugins {
-    id 'fabric-loom' version '0.2.1-SNAPSHOT'
+    id 'fabric-loom' version '0.2.2-SNAPSHOT'
     id 'com.matthewprenger.cursegradle' version '1.2.0'
     id "com.github.breadmoirai.github-release" version "2.2.4"
 }
@@ -53,8 +53,22 @@ configurations {
 dependencies {
     minecraft "com.mojang:minecraft:${mc_version}"
     mappings "net.fabricmc:yarn:${mc_version}+build.${mappings_version}"
-    modCompile "net.fabricmc:fabric-loader:0.4.0+build.121"
-    modCompile "net.fabricmc:fabric:0.2.7+build.122"
+    modCompile "net.fabricmc:fabric-loader:0.4.2+build.132"
+    modCompile "net.fabricmc:fabric:0.2.7+build.126"
+
+    /*
+    modCompile "net.fabricmc:fabric-lib:0.1.0"
+    modCompile "net.fabricmc:fabric-networking:0.1.0"
+    modCompile "net.fabricmc:fabric-networking-blockentity:0.1.0"
+    modCompile "net.fabricmc:fabric-object-builders:0.1.0"
+    modCompile "net.fabricmc:fabric-containers:0.1.0"
+    modCompile "net.fabricmc:fabric-item-groups:0.1.0"
+    modCompile "net.fabricmc:fabric-client-registries:0.1.0"
+    modCompile "net.fabricmc:fabric-commands:0.1.0"
+    modCompile "net.fabricmc:fabric-events-lifecycle:0.1.0"
+    modCompile "net.fabricmc:fabric-events-interaction:0.1.0"
+    modCompile "net.fabricmc:fabric-resource-loader:0.1.0"
+    */
 
     implementation 'com.google.code.findbugs:jsr305:3.0.2'
 
@@ -298,7 +312,7 @@ githubRelease {
     token project.hasProperty('githubApiKey') ? project.githubApiKey : ''
     owner 'SquidDev-CC'
     repo 'CC-Tweaked'
-    targetCommitish "mc-1.13.x" // TODO: Pull from GrGit
+    targetCommitish "mc-1.14-fabric" // TODO: Pull from GrGit
 
     tagName "v${mc_version}-${mod_version}"
     releaseName "[${mc_version}] ${mod_version}"

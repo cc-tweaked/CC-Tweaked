@@ -175,7 +175,7 @@ public final class TurtlePlayer extends FakePlayer
 
 
     @Override
-    public void closeGui()
+    public void closeContainer()
     {
     }
 
