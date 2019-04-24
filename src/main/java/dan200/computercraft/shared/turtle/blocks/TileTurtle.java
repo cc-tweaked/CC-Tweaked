@@ -317,12 +317,6 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
         return hasPeripheralUpgradeOnSide( localSide );
     }
 
-    @Override
-    protected boolean isRedstoneBlockedOnSide( ComputerSide localSide )
-    {
-        return false;
-    }
-
     // IDirectionalTile
 
     @Override
