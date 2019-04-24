@@ -56,12 +56,6 @@ dependencies {
     modCompile "net.fabricmc:fabric-loader:0.4.0+build.121"
     modCompile "net.fabricmc:fabric:0.2.7+build.122"
 
-    // compileOnly "mezz.jei:jei-1.13.2:5.0.0.8:api"
-    // deobfProvided "pl.asie:Charset-Lib:0.5.4.6"
-    // deobfProvided "MCMultiPart2:MCMultiPart:2.5.3"
-
-    // deobf "mezz.jei:jei-1.13.2:5.0.0.8"
-
     implementation 'com.google.code.findbugs:jsr305:3.0.2'
 
     shade 'org.squiddev:Cobalt:0.5.0-SNAPSHOT'
@@ -304,7 +298,7 @@ githubRelease {
     token project.hasProperty('githubApiKey') ? project.githubApiKey : ''
     owner 'SquidDev-CC'
     repo 'CC-Tweaked'
-    targetCommitish (mc_version == "1.12.2" ? "master" : mc_version)
+    targetCommitish "mc-1.13.x" // TODO: Pull from GrGit
 
     tagName "v${mc_version}-${mod_version}"
     releaseName "[${mc_version}] ${mod_version}"
@@ -312,6 +306,11 @@ githubRelease {
     prerelease true
 
     releaseAssets.from(jar.archivePath)
+}
+
+task uploadAll(dependsOn: [uploadArchives, "curseforge", "githubRelease"]) {
+    group "upload"
+    description "Uploads to all repositories (Maven, Curse, GitHub release)"
 }
 
 test {

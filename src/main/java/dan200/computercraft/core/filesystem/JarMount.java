@@ -69,7 +69,7 @@ public class JarMount implements IMount
         // Cleanup any old mounts. It's unlikely that there will be any, but it's best to be safe.
         cleanup();
 
-        if( !jarFile.exists() || jarFile.isDirectory() ) throw new FileNotFoundException();
+        if( !jarFile.exists() || jarFile.isDirectory() ) throw new FileNotFoundException( "Cannot find " + jarFile );
 
         // Open the zip file
         try
@@ -85,7 +85,7 @@ public class JarMount implements IMount
         if( zip.getEntry( subPath ) == null )
         {
             zip.close();
-            throw new IOException( "Zip does not contain path" );
+            throw new FileNotFoundException( "Zip does not contain path" );
         }
 
         // We now create a weak reference to this mount. This is automatically added to the appropriate queue.

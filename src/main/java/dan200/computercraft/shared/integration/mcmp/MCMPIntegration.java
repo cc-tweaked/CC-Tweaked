@@ -10,8 +10,10 @@ import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.peripheral.IPeripheralTile;
+import dan200.computercraft.shared.peripheral.common.TilePeripheralBase;
 import dan200.computercraft.shared.peripheral.modem.wireless.TileAdvancedModem;
 import dan200.computercraft.shared.peripheral.modem.wireless.TileWirelessModem;
+import dan200.computercraft.shared.peripheral.monitor.TileMonitor;
 import mcmultipart.api.addon.IMCMPAddon;
 import mcmultipart.api.addon.MCMPAddon;
 import mcmultipart.api.container.IMultipartContainer;
@@ -52,7 +54,7 @@ public class MCMPIntegration implements IMCMPAddon
     public void registerParts( IMultipartRegistry registry )
     {
         // Setup all parts
-        register( registry, ComputerCraft.Blocks.peripheral, new PartNormalModem() );
+        register( registry, ComputerCraft.Blocks.peripheral, new PartPeripheral() );
         register( registry, ComputerCraft.Blocks.advancedModem, new PartAdvancedModem() );
 
         // Subscribe to capability events
@@ -83,8 +85,11 @@ public class MCMPIntegration implements IMCMPAddon
     public static void attach( AttachCapabilitiesEvent<TileEntity> event )
     {
         TileEntity tile = event.getObject();
-        if( tile instanceof TileAdvancedModem || tile instanceof TileWirelessModem )
+        if( tile instanceof TileAdvancedModem || tile instanceof TileWirelessModem
+            || tile instanceof TilePeripheralBase || tile instanceof TileMonitor )
         {
+            // We need to attach to modems (obviously), but also any other tile created by BlockPeripheral. Otherwise
+            // IMultipart.convertToMultipartTile will error.
             event.addCapability( CAPABILITY_KEY, new BasicMultipart( tile ) );
         }
     }
@@ -94,7 +99,10 @@ public class MCMPIntegration implements IMCMPAddon
         private final TileEntity tile;
         private IMultipartTile wrapped;
 
-        private BasicMultipart( TileEntity tile ) {this.tile = tile;}
+        private BasicMultipart( TileEntity tile )
+        {
+            this.tile = tile;
+        }
 
         @Override
         public boolean hasCapability( @Nonnull Capability<?> capability, @Nullable Direction facing )
