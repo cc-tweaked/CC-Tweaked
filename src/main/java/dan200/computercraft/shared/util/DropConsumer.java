@@ -7,6 +7,7 @@
 package dan200.computercraft.shared.util;
 
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.ItemEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BoundingBox;
@@ -87,44 +88,40 @@ public final class DropConsumer
         if( !remaining.isEmpty() ) remainingDrops.add( remaining );
     }
 
-    /*
-    @SubscribeEvent( priority = EventPriority.LOWEST )
-    public static void onEntityLivingDrops( LivingDropsEvent event )
+    public static boolean onEntityLivingDrops( Entity entity, ItemStack stack )
     {
         // Capture any mob drops for the current entity
-        if( dropEntity != null && event.getEntity() == dropEntity.get() )
+        if( dropEntity != null && entity == dropEntity.get() )
         {
-            Collection<EntityItem> drops = event.getDrops();
-            for( EntityItem entityItem : drops ) handleDrops( entityItem.getItem() );
-            drops.clear();
+            handleDrops( stack );
+            return true;
         }
+
+        return false;
     }
 
-    @SubscribeEvent( priority = EventPriority.LOWEST )
-    public static void onHarvestDrops( BlockEvent.HarvestDropsEvent event )
+    public static boolean onHarvestDrops( World world, BlockPos pos, ItemStack stack )
     {
         // Capture block drops for the current entity
-        if( dropWorld != null && dropWorld.get() == event.getWorld()
-            && dropPos != null && dropPos.equals( event.getPos() ) )
+        if( dropWorld != null && dropWorld.get() == world && dropPos != null && dropPos.equals( pos ) )
         {
-            for( ItemStack item : event.getDrops() )
-            {
-                if( event.getWorld().getRandom().nextFloat() < event.getDropChance() ) handleDrops( item );
-            }
-            event.getDrops().clear();
+            handleDrops( stack );
+            return true;
         }
+
+        return false;
     }
 
-    @SubscribeEvent( priority = EventPriority.LOWEST )
-    public static void onEntitySpawn( EntityJoinWorldEvent event )
+    public static boolean onEntitySpawn( Entity entity )
     {
         // Capture any nearby item spawns
-        if( dropWorld != null && dropWorld.get() == event.getWorld() && event.getEntity() instanceof EntityItem
-            && dropBounds.contains( event.getEntity().getPositionVector() ) )
+        if( dropWorld != null && dropWorld.get() == entity.getEntityWorld() && entity instanceof ItemEntity
+            && dropBounds.contains( entity.getPos() ) )
         {
-            handleDrops( ((EntityItem) event.getEntity()).getItem() );
-            event.setCanceled( true );
+            handleDrops( ((ItemEntity) entity).getStack() );
+            return true;
         }
+
+        return false;
     }
-    */
 }

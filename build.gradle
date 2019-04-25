@@ -189,7 +189,7 @@ processResources {
     inputs.property "commithash", hash
 
     from(sourceSets.main.resources.srcDirs) {
-        include 'fabric.mods.json'
+        include 'fabric.mod.json'
         include 'data/computercraft/lua/rom/help/credits.txt'
 
         expand 'version': mod_version,
@@ -198,7 +198,7 @@ processResources {
     }
 
     from(sourceSets.main.resources.srcDirs) {
-        exclude 'fabric.mods.json'
+        exclude 'fabric.mod.json'
         exclude 'data/computercraft/lua/rom/help/credits.txt'
     }
 }
@@ -250,7 +250,7 @@ curseforge {
     project {
         id = '282001'
         addGameVersion '1.14-Snapshot'
-        releaseType = 'alpha'
+        releaseType = 'beta'
         changelog = "Release notes can be found on the GitHub repository (https://github.com/SquidDev-CC/CC-Tweaked/releases/tag/v${mc_version}-${mod_version})."
     }
 }

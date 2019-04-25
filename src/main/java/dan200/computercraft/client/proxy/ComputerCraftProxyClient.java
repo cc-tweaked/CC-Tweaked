@@ -12,6 +12,7 @@ import dan200.computercraft.client.gui.*;
 import dan200.computercraft.client.render.TileEntityCableRenderer;
 import dan200.computercraft.client.render.TileEntityMonitorRenderer;
 import dan200.computercraft.client.render.TileEntityTurtleRenderer;
+import dan200.computercraft.client.render.TurtleModelLoader;
 import dan200.computercraft.shared.computer.blocks.TileComputer;
 import dan200.computercraft.shared.computer.core.ClientComputer;
 import dan200.computercraft.shared.computer.inventory.ContainerViewComputer;
@@ -20,7 +21,9 @@ import dan200.computercraft.shared.peripheral.modem.wired.TileCable;
 import dan200.computercraft.shared.peripheral.monitor.TileMonitor;
 import dan200.computercraft.shared.turtle.blocks.TileTurtle;
 import dan200.computercraft.shared.turtle.inventory.ContainerTurtle;
+import net.fabricmc.fabric.api.client.model.ModelLoadingRegistry;
 import net.fabricmc.fabric.api.client.render.BlockEntityRendererRegistry;
+import net.fabricmc.fabric.api.event.client.ClientSpriteRegistryCallback;
 
 public final class ComputerCraftProxyClient
 {
@@ -34,6 +37,11 @@ public final class ComputerCraftProxyClient
         BlockEntityRendererRegistry.INSTANCE.register( TileTurtle.class, new TileEntityTurtleRenderer() );
 
         ClientRegistry.onItemColours();
+        ClientSpriteRegistryCallback.registerBlockAtlas( ClientRegistry::onTextureStitchEvent );
+        ModelLoadingRegistry.INSTANCE.registerAppender( ClientRegistry::onModelBakeEvent );
+        ModelLoadingRegistry.INSTANCE.registerResourceProvider( loader -> ( name, context ) ->
+            TurtleModelLoader.INSTANCE.accepts( name ) ? TurtleModelLoader.INSTANCE.loadModel( name ) : null
+        );
     }
 
     private static void registerContainers()

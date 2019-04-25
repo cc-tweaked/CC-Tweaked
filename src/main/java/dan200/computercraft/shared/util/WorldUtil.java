@@ -8,9 +8,7 @@ package dan200.computercraft.shared.util;
 
 import com.google.common.base.Predicate;
 import net.minecraft.block.BlockState;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.ItemEntity;
-import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.*;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.hit.HitResult;
@@ -30,6 +28,21 @@ public final class WorldUtil
 {
     @SuppressWarnings( "Guava" )
     private static final Predicate<Entity> CAN_COLLIDE = x -> x != null && x.isAlive() && x.collides();
+
+    private static final Entity ENTITY = new ItemEntity( EntityType.ITEM, null )
+    {
+        @Override
+        public EntitySize getSize( EntityPose pos )
+        {
+            return EntitySize.constant( 0, 0 );
+        }
+    };
+
+    static
+    {
+        ENTITY.noClip = true;
+        ENTITY.refreshSize();
+    }
 
     public static boolean isLiquidBlock( World world, BlockPos pos )
     {
@@ -51,7 +64,8 @@ public final class WorldUtil
         Vec3d vecEnd = vecStart.add( vecDir.x * distance, vecDir.y * distance, vecDir.z * distance );
 
         // Raycast for blocks
-        HitResult result = world.rayTrace( new RayTraceContext( vecStart, vecEnd, RayTraceContext.ShapeType.OUTLINE, RayTraceContext.FluidHandling.NONE, null ) );
+        ENTITY.setPosition( vecStart.x, vecStart.y, vecStart.z );
+        HitResult result = world.rayTrace( new RayTraceContext( vecStart, vecEnd, RayTraceContext.ShapeType.OUTLINE, RayTraceContext.FluidHandling.NONE, ENTITY ) );
         if( result != null && result.getType() == HitResult.Type.BLOCK )
         {
             distance = vecStart.distanceTo( result.getPos() );

@@ -19,6 +19,7 @@ import net.minecraft.container.Container;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.text.StringTextComponent;
 import net.minecraft.util.Identifier;
+import org.lwjgl.glfw.GLFW;
 
 public class GuiComputer<T extends Container> extends ContainerScreen<T>
 {
@@ -142,8 +143,17 @@ public class GuiComputer<T extends Container> extends ContainerScreen<T>
     }
 
     @Override
+    public boolean keyPressed( int key, int scancode, int modifiers )
+    {
+        // When pressing tab, send it to the computer first
+        return (key == GLFW.GLFW_KEY_TAB && getFocused() == terminalWrapper && terminalWrapper.keyPressed( key, scancode, modifiers ))
+            || super.keyPressed( key, scancode, modifiers );
+    }
+
+    @Override
     public boolean mouseDragged( double x, double y, int button, double deltaX, double deltaY )
     {
+        // Make sure drag events are propagated to children
         return (getFocused() != null && getFocused().mouseDragged( x, y, button, deltaX, deltaY ))
             || super.mouseDragged( x, y, button, deltaX, deltaY );
     }
@@ -151,6 +161,7 @@ public class GuiComputer<T extends Container> extends ContainerScreen<T>
     @Override
     public boolean mouseReleased( double x, double y, int button )
     {
+        // Make sure release events are propagated to children
         return (getFocused() != null && getFocused().mouseReleased( x, y, button ))
             || super.mouseReleased( x, y, button );
     }

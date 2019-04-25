@@ -21,6 +21,7 @@ import dan200.computercraft.shared.util.ItemStorage;
 import dan200.computercraft.shared.util.WorldUtil;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.event.player.AttackEntityCallback;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -33,6 +34,8 @@ import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.decoration.ArmorStandEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
@@ -99,8 +102,7 @@ public class TurtleTool extends AbstractTurtleUpgrade
         Block block = state.getBlock();
         return !state.isAir()
             && block != Blocks.BEDROCK
-            && state.getHardness( world, pos ) > 0
-            /*&& block.canEntityDestroy( state, world, pos, player )*/;
+            && state.calcBlockBreakingDelta( player, world, pos ) > 0;
     }
 
     protected float getDamageMultiplier()
@@ -128,12 +130,11 @@ public class TurtleTool extends AbstractTurtleUpgrade
             Entity hitEntity = hit.getKey();
 
             // Fire several events to ensure we have permissions.
-            /*
-            if( MinecraftForge.EVENT_BUS.post( new AttackEntityEvent( turtlePlayer, hitEntity ) ) || !hitEntity.canBeAttackedWithItem() )
+            if( AttackEntityCallback.EVENT.invoker().interact( turtlePlayer, world, Hand.MAIN, hitEntity, null ) == ActionResult.FAIL
+                || !hitEntity.canPlayerAttack() )
             {
                 return TurtleCommandResult.failure( "Nothing to attack here" );
             }
-            */
 
             TurtleAttackEvent attackEvent = new TurtleAttackEvent( turtle, turtlePlayer, hitEntity, this, side );
             if( TurtleEvent.post( attackEvent ) )

@@ -22,6 +22,7 @@
         "main": [ "dan200.computercraft.ComputerCraft" ]
     },
     "mixins": [
-        { "config": "computercraft.client.json", "environment": "client" }
+        { "config": "computercraft.client.json", "environment": "client" },
+        "computercraft.common.json"
     ]
 }

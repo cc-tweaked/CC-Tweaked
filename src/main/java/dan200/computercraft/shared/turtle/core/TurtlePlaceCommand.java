@@ -286,9 +286,8 @@ public class TurtlePlaceCommand implements ITurtleCommand
     private static boolean canDeployOnBlock( @Nonnull ItemPlacementContext context, ITurtleAccess turtle, TurtlePlayer player, BlockPos position, Direction side, boolean allowReplaceable, String[] outErrorMessage )
     {
         World world = turtle.getWorld();
-        if( World.isValid( position ) &&
-            !world.isAir( position ) &&
-            !(context.getItemStack().getItem() instanceof BlockItem && WorldUtil.isLiquidBlock( world, position )) )
+        if( !World.isValid( position ) || world.isAir( position ) ||
+            (context.getItemStack().getItem() instanceof BlockItem && WorldUtil.isLiquidBlock( world, position )) )
         {
             return false;
         }

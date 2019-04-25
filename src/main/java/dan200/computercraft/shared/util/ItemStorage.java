@@ -6,6 +6,7 @@
 
 package dan200.computercraft.shared.util;
 
+import dan200.computercraft.ComputerCraft;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.inventory.SidedInventory;
 import net.minecraft.item.ItemStack;
@@ -58,8 +59,8 @@ public interface ItemStorage
         }
 
         @Override
-        public @Nonnull
-        ItemStack take( int slot, int limit, @Nonnull ItemStack filter, boolean simulate )
+        @Nonnull
+        public ItemStack take( int slot, int limit, @Nonnull ItemStack filter, boolean simulate )
         {
             ItemStack existing = inventory.getInvStack( slot );
             if( existing.isEmpty() || !canExtract( slot, existing )
@@ -88,8 +89,8 @@ public interface ItemStorage
         }
 
         @Override
-        public @Nonnull
-        ItemStack store( int slot, @Nonnull ItemStack stack, boolean simulate )
+        @Nonnull
+        public ItemStack store( int slot, @Nonnull ItemStack stack, boolean simulate )
         {
             if( stack.isEmpty() || !inventory.isValidInvStack( slot, stack ) ) return stack;
 
@@ -97,7 +98,7 @@ public interface ItemStorage
             if( existing.isEmpty() )
             {
                 int limit = Math.min( stack.getMaxAmount(), inventory.getInvMaxStackAmount() );
-                if( limit <= 0 ) return ItemStack.EMPTY;
+                if( limit <= 0 ) return stack;
 
                 if( stack.getAmount() < limit )
                 {
@@ -114,8 +115,8 @@ public interface ItemStorage
             }
             else if( areStackable( stack, existing ) )
             {
-                int limit = Math.min( existing.getMaxAmount(), inventory.getInvMaxStackAmount() ) - stack.getAmount();
-                if( limit <= 0 ) return ItemStack.EMPTY;
+                int limit = Math.min( existing.getMaxAmount(), inventory.getInvMaxStackAmount() ) - existing.getAmount();
+                if( limit <= 0 ) return stack;
 
                 if( stack.getAmount() < limit )
                 {
@@ -140,7 +141,7 @@ public interface ItemStorage
             }
             else
             {
-                return ItemStack.EMPTY;
+                return stack;
             }
         }
     }
@@ -169,24 +170,23 @@ public interface ItemStorage
             return super.canExtract( slot, stack ) && inventory.canExtractInvStack( slot, stack, facing );
         }
 
+        @Nonnull
         @Override
-        public @Nonnull
-        ItemStack take( int slot, int limit, @Nonnull ItemStack filter, boolean simulate )
+        public ItemStack take( int slot, int limit, @Nonnull ItemStack filter, boolean simulate )
         {
             int[] slots = inventory.getInvAvailableSlots( facing );
             return slot >= 0 && slot < slots.length ? super.take( slots[slot], limit, filter, simulate ) : ItemStack.EMPTY;
-
         }
 
+        @Nonnull
         @Override
-        public @Nonnull
-        ItemStack store( int slot, @Nonnull ItemStack stack, boolean simulate )
+        public ItemStack store( int slot, @Nonnull ItemStack stack, boolean simulate )
         {
             int[] slots = inventory.getInvAvailableSlots( facing );
-            if( slot < 0 || slot >= slots.length ) return ItemStack.EMPTY;
+            if( slot < 0 || slot >= slots.length ) return stack;
 
             int mappedSlot = slots[slot];
-            if( !inventory.canInsertInvStack( slot, stack, facing ) ) return ItemStack.EMPTY;
+            if( !inventory.canInsertInvStack( slot, stack, facing ) ) return stack;
             return super.store( mappedSlot, stack, simulate );
         }
     }
@@ -197,7 +197,7 @@ public interface ItemStorage
         private final int start;
         private final int size;
 
-        public View( ItemStorage parent, int start, int size )
+        View( ItemStorage parent, int start, int size )
         {
             this.parent = parent;
             this.start = start;
@@ -210,19 +210,19 @@ public interface ItemStorage
             return size;
         }
 
+        @Nonnull
         @Override
-        public @Nonnull
-        ItemStack take( int slot, int limit, @Nonnull ItemStack filter, boolean simulate )
+        public ItemStack take( int slot, int limit, @Nonnull ItemStack filter, boolean simulate )
         {
             if( slot < start || slot >= start + size ) return ItemStack.EMPTY;
             return parent.take( slot - start, limit, filter, simulate );
         }
 
+        @Nonnull
         @Override
-        public @Nonnull
-        ItemStack store( int slot, @Nonnull ItemStack stack, boolean simulate )
+        public ItemStack store( int slot, @Nonnull ItemStack stack, boolean simulate )
         {
-            if( slot < start || slot >= start + size ) return ItemStack.EMPTY;
+            if( slot < start || slot >= start + size ) return stack;
             return parent.store( slot - start, stack, simulate );
         }
 

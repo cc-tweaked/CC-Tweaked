@@ -17,6 +17,7 @@ import dan200.computercraft.shared.turtle.inventory.ContainerTurtle;
 import net.minecraft.client.gui.ContainerScreen;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.util.Identifier;
+import org.lwjgl.glfw.GLFW;
 
 public class GuiTurtle extends ContainerScreen<ContainerTurtle>
 {
@@ -115,5 +116,26 @@ public class GuiTurtle extends ContainerScreen<ContainerTurtle>
         renderBackground();
         super.render( mouseX, mouseY, partialTicks );
         drawMouseoverTooltip( mouseX, mouseY );
+    }
+
+    @Override
+    public boolean keyPressed( int key, int scancode, int modifiers )
+    {
+        return (key == GLFW.GLFW_KEY_TAB && getFocused() == terminalWrapper && terminalWrapper.keyPressed( key, scancode, modifiers ))
+            || super.keyPressed( key, scancode, modifiers );
+    }
+
+    @Override
+    public boolean mouseDragged( double x, double y, int button, double deltaX, double deltaY )
+    {
+        return (getFocused() != null && getFocused().mouseDragged( x, y, button, deltaX, deltaY ))
+            || super.mouseDragged( x, y, button, deltaX, deltaY );
+    }
+
+    @Override
+    public boolean mouseReleased( double x, double y, int button )
+    {
+        return (getFocused() != null && getFocused().mouseReleased( x, y, button ))
+            || super.mouseReleased( x, y, button );
     }
 }

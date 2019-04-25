@@ -12,14 +12,19 @@ import dan200.computercraft.shared.media.items.ItemDisk;
 import dan200.computercraft.shared.pocket.items.ItemPocketComputer;
 import dan200.computercraft.shared.util.Colour;
 import net.fabricmc.fabric.api.client.render.ColorProviderRegistry;
+import net.fabricmc.fabric.api.event.client.ClientSpriteRegistryCallback;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.model.BakedModel;
 import net.minecraft.client.render.model.ModelLoader;
 import net.minecraft.client.render.model.ModelRotation;
 import net.minecraft.client.render.model.UnbakedModel;
 import net.minecraft.client.texture.SpriteAtlasTexture;
+import net.minecraft.client.util.ModelIdentifier;
+import net.minecraft.resource.ResourceManager;
+import net.minecraft.util.Identifier;
 
 import java.util.HashSet;
+import java.util.function.Consumer;
 
 /**
  * Registers textures and models for items.
@@ -57,55 +62,21 @@ public final class ClientRegistry
 
     private ClientRegistry() {}
 
-    /*
-    TODO: @SubscribeEvent
-    public static void registerModels( ModelRegistryEvent event )
+    public static void onTextureStitchEvent( SpriteAtlasTexture atlasTexture, ClientSpriteRegistryCallback.Registry registry )
     {
-        ModelLoaderRegistry.registerLoader( TurtleModelLoader.INSTANCE );
-    }
-
-    TODO: @SubscribeEvent
-    public static void onTextureStitchEvent( TextureStitchEvent.Pre event )
-    {
-        ResourceManager manager = MinecraftClient.getInstance().getResourceManager();
         for( String extra : EXTRA_TEXTURES )
         {
-            event.getMap().registerSprite( manager, new Identifier( ComputerCraft.MOD_ID, extra ) );
+            registry.register( new Identifier( ComputerCraft.MOD_ID, extra ) );
         }
     }
 
-    TODO: @SubscribeEvent
-    public static void onModelBakeEvent( ModelBakeEvent event )
+    public static void onModelBakeEvent( ResourceManager manager, Consumer<ModelIdentifier> out )
     {
-        // Load all extra models
-        ModelLoader loader = event.getModelLoader();
-        Map<ModelIdentifier, BakedModel> registry = event.getModelRegistry();
-
         for( String model : EXTRA_MODELS )
         {
-            BakedModel bakedModel = bake( loader, loader.getOrLoadModel( new Identifier( ComputerCraft.MOD_ID, "item/" + model ) ) );
-
-            if( bakedModel != null )
-            {
-                registry.put(
-                    new ModelIdentifier( new Identifier( ComputerCraft.MOD_ID, model ), "inventory" ),
-                    bakedModel
-                );
-            }
+            out.accept( new ModelIdentifier( new Identifier( ComputerCraft.MOD_ID, model ), "inventory" ) );
         }
-
-        // And load the custom turtle models in too.
-        registry.put(
-            new ModelIdentifier( new Identifier( ComputerCraft.MOD_ID, "turtle_normal" ), "inventory" ),
-            bake( loader, TurtleModelLoader.INSTANCE.loadModel( new Identifier( ComputerCraft.MOD_ID, "item/turtle_normal" ) ) )
-        );
-
-        registry.put(
-            new ModelIdentifier( new Identifier( ComputerCraft.MOD_ID, "turtle_advanced" ), "inventory" ),
-            bake( loader, TurtleModelLoader.INSTANCE.loadModel( new Identifier( ComputerCraft.MOD_ID, "item/turtle_advanced" ) ) )
-        );
     }
-    */
 
     public static void onItemColours()
     {
