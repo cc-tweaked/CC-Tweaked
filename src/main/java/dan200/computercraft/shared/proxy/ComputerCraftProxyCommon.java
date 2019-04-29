@@ -11,7 +11,6 @@ import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.media.IMedia;
 import dan200.computercraft.api.peripheral.IPeripheralTile;
 import dan200.computercraft.api.turtle.event.TurtleEvent;
-import dan200.computercraft.client.FrameInfo;
 import dan200.computercraft.core.computer.MainThread;
 import dan200.computercraft.core.tracking.Tracking;
 import dan200.computercraft.shared.Registry;
@@ -35,7 +34,6 @@ import dan200.computercraft.shared.turtle.recipes.TurtleUpgradeRecipe;
 import dan200.computercraft.shared.util.ImpostorRecipe;
 import dan200.computercraft.shared.util.ImpostorShapelessRecipe;
 import dan200.computercraft.shared.util.TickScheduler;
-import net.fabricmc.fabric.api.event.client.ClientTickCallback;
 import net.fabricmc.fabric.api.event.server.ServerStartCallback;
 import net.fabricmc.fabric.api.event.server.ServerStopCallback;
 import net.fabricmc.fabric.api.event.server.ServerTickCallback;
@@ -108,10 +106,6 @@ public class ComputerCraftProxyCommon
     private static void registerHandlers()
     {
         CommandRegistry.INSTANCE.register( false, CommandComputerCraft::register );
-
-        ClientTickCallback.EVENT.register( client -> {
-            FrameInfo.onTick();
-        } );
 
         ServerTickCallback.EVENT.register( server -> {
             MainThread.executePendingTasks();

@@ -17,6 +17,8 @@ import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.fabricmc.fabric.api.network.ClientSidePacketRegistry;
 import net.fabricmc.fabric.api.network.PacketContext;
 import net.fabricmc.fabric.api.network.ServerSidePacketRegistry;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.packet.CustomPayloadS2CPacket;
 import net.minecraft.entity.player.PlayerEntity;
@@ -45,8 +47,11 @@ public final class NetworkHandler
 
     public static void setup()
     {
-        ClientSidePacketRegistry.INSTANCE.register( ID, NetworkHandler::receive );
         ServerSidePacketRegistry.INSTANCE.register( ID, NetworkHandler::receive );
+        if( FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT )
+        {
+            ClientSidePacketRegistry.INSTANCE.register( ID, NetworkHandler::receive );
+        }
 
         // Server messages
         registerMainThread( 0, ComputerActionServerMessage::new );

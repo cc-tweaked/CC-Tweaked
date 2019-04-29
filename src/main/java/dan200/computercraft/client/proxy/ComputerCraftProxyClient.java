@@ -7,6 +7,7 @@
 package dan200.computercraft.client.proxy;
 
 import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.client.FrameInfo;
 import dan200.computercraft.client.ClientRegistry;
 import dan200.computercraft.client.gui.*;
 import dan200.computercraft.client.render.TileEntityCableRenderer;
@@ -24,6 +25,7 @@ import dan200.computercraft.shared.turtle.inventory.ContainerTurtle;
 import net.fabricmc.fabric.api.client.model.ModelLoadingRegistry;
 import net.fabricmc.fabric.api.client.render.BlockEntityRendererRegistry;
 import net.fabricmc.fabric.api.event.client.ClientSpriteRegistryCallback;
+import net.fabricmc.fabric.api.event.client.ClientTickCallback;
 
 public final class ComputerCraftProxyClient
 {
@@ -42,6 +44,8 @@ public final class ComputerCraftProxyClient
         ModelLoadingRegistry.INSTANCE.registerResourceProvider( loader -> ( name, context ) ->
             TurtleModelLoader.INSTANCE.accepts( name ) ? TurtleModelLoader.INSTANCE.loadModel( name ) : null
         );
+
+        ClientTickCallback.EVENT.register( client -> FrameInfo.onTick() );
     }
 
     private static void registerContainers()

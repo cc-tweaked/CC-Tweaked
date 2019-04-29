@@ -36,6 +36,7 @@ import dan200.computercraft.shared.turtle.items.ItemTurtle;
 import dan200.computercraft.shared.turtle.upgrades.*;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.resource.ReloadableResourceManager;
 import net.minecraft.util.Identifier;
 import org.apache.logging.log4j.LogManager;
@@ -196,7 +197,7 @@ public final class ComputerCraft implements ModInitializer
     public void onInitialize()
     {
         ComputerCraftProxyCommon.setup();
-        if( net.fabricmc.loader.api.FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT )
+        if( FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT )
         {
             ComputerCraftProxyClient.setup();
         }
