@@ -17,7 +17,7 @@ buildscript {
 }
 
 plugins {
-    id 'com.matthewprenger.cursegradle' version '1.0.10'
+    id 'com.matthewprenger.cursegradle' version '1.2.0'
     id "com.github.breadmoirai.github-release" version "2.2.4"
 }
 
@@ -232,6 +232,10 @@ curseforge {
         id = '282001'
         releaseType = 'release'
         changelog = "Release notes can be found on the GitHub repository (https://github.com/SquidDev-CC/CC-Tweaked/releases/tag/v${mc_version}-${mod_version})."
+
+        relations {
+            incompatible "computercraft"
+        }
     }
 }
 
