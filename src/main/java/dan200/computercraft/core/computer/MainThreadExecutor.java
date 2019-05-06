@@ -224,7 +224,7 @@ final class MainThreadExecutor implements IWorkMonitor
     {
         state = State.COOLING;
         currentTick = MainThread.currentTick();
-        budget += Math.min( budget + ComputerCraft.maxMainComputerTime, ComputerCraft.maxMainComputerTime );
+        budget = Math.min( budget + ComputerCraft.maxMainComputerTime, ComputerCraft.maxMainComputerTime );
         if( budget < ComputerCraft.maxMainComputerTime ) return false;
 
         state = State.COOL;
