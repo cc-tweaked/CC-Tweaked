@@ -7,28 +7,16 @@
 package dan200.computercraft.shared.turtle.core;
 
 import com.mojang.authlib.GameProfile;
-import com.mojang.datafixers.util.Either;
 import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.event.FakePlayer;
 import dan200.computercraft.shared.util.InventoryUtil;
 import dan200.computercraft.shared.util.ItemStorage;
 import dan200.computercraft.shared.util.WorldUtil;
-import net.minecraft.command.arguments.EntityAnchorArgumentType;
-import net.minecraft.container.Container;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.passive.HorseBaseEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.text.TextComponent;
-import net.minecraft.util.DefaultedList;
-import net.minecraft.util.Void;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-import net.minecraft.world.dimension.DimensionType;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -122,87 +110,4 @@ public final class TurtlePlayer extends FakePlayer
         inventory.markDirty();
         return results;
     }
-
-    @Override
-    public void method_6000()
-    {
-    }
-
-    @Override
-    public void method_6044()
-    {
-    }
-
-    @Override
-    @Nullable
-    public Entity changeDimension( DimensionType dimensionType )
-    {
-        return null;
-    }
-
-    @Nonnull
-    @Override
-    public Either<PlayerEntity.SleepFailureReason, Void> trySleep( @Nonnull BlockPos bedLocation )
-    {
-        return Either.left( PlayerEntity.SleepFailureReason.INVALID_ATTEMPT );
-    }
-
-    @Override
-    public boolean startRiding( Entity entity, boolean bool )
-    {
-        return false;
-    }
-
-    @Override
-    public void stopRiding()
-    {
-    }
-
-    @Override
-    public void openHorseInventory( HorseBaseEntity entity, Inventory inventory )
-    {
-    }
-
-    @Override
-    public void onContainerRegistered( Container container, DefaultedList<ItemStack> defaultedList )
-    {
-    }
-
-    @Override
-    public void onContainerPropertyUpdate( Container container, int i, int j )
-    {
-    }
-
-
-    @Override
-    public void closeContainer()
-    {
-    }
-
-    @Override
-    public void onContainerSlotUpdate( Container container, int i, ItemStack itemStack )
-    {
-    }
-
-    @Override
-    public void method_14241()
-    {
-    }
-
-    @Override
-    public void addChatMessage( TextComponent textComponent, boolean bool )
-    {
-    }
-
-    @Override
-    protected void method_6040()
-    {
-    }
-
-    @Override
-    public void lookAt( EntityAnchorArgumentType.EntityAnchor anchor, Vec3d pos )
-    {
-    }
-
-    // TODO: Finish this off.
 }
