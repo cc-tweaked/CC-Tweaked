@@ -7,8 +7,8 @@
 package dan200.computercraft.client.proxy;
 
 import dan200.computercraft.ComputerCraft;
-import dan200.computercraft.client.FrameInfo;
 import dan200.computercraft.client.ClientRegistry;
+import dan200.computercraft.client.FrameInfo;
 import dan200.computercraft.client.gui.*;
 import dan200.computercraft.client.render.TileEntityCableRenderer;
 import dan200.computercraft.client.render.TileEntityMonitorRenderer;
@@ -26,6 +26,8 @@ import net.fabricmc.fabric.api.client.model.ModelLoadingRegistry;
 import net.fabricmc.fabric.api.client.render.BlockEntityRendererRegistry;
 import net.fabricmc.fabric.api.event.client.ClientSpriteRegistryCallback;
 import net.fabricmc.fabric.api.event.client.ClientTickCallback;
+import net.minecraft.container.ArrayPropertyDelegate;
+import net.minecraft.inventory.BasicInventory;
 
 public final class ComputerCraftProxyClient
 {
@@ -56,7 +58,10 @@ public final class ComputerCraftProxyClient
         ContainerType.registerGui( TileEntityContainerType::printer, GuiPrinter::new );
         ContainerType.registerGui( TileEntityContainerType::turtle, ( id, packet, player ) -> {
             TileTurtle turtle = (TileTurtle) packet.getTileEntity( player );
-            return new GuiTurtle( turtle, new ContainerTurtle( id, player.inventory, turtle.getAccess(), turtle.getClientComputer() ), player.inventory );
+            return new GuiTurtle( turtle,
+                new ContainerTurtle( id, player.inventory, new BasicInventory( TileTurtle.INVENTORY_SIZE ), new ArrayPropertyDelegate( 1 ) ),
+                player.inventory
+            );
         } );
 
         ContainerType.registerGui( PocketComputerContainerType::new, GuiPocketComputer::new );

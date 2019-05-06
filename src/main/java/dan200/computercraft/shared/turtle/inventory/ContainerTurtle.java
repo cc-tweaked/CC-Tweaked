@@ -35,7 +35,7 @@ public class ContainerTurtle extends Container implements IContainerComputer
     private final InputState input = new InputState( this );
     private int m_selectedSlot;
 
-    protected ContainerTurtle( int id, PlayerInventory playerInventory, Inventory inventory, PropertyDelegate properties, int playerInvStartY, int turtleInvStartX )
+    private ContainerTurtle( int id, PlayerInventory playerInventory, Inventory inventory, PropertyDelegate properties, int playerInvStartY, int turtleInvStartX )
     {
         super( null, id );
 
@@ -71,6 +71,11 @@ public class ContainerTurtle extends Container implements IContainerComputer
         }
     }
 
+    public ContainerTurtle( int id, PlayerInventory playerInventory, Inventory inventory, PropertyDelegate properties )
+    {
+        this( id, playerInventory, inventory, properties, 134, 175 );
+    }
+
     public ContainerTurtle( int id, PlayerInventory playerInventory, ITurtleAccess turtle, IComputer computer )
     {
         this( id, playerInventory, turtle.getInventory(), new DefaultPropertyDelegate()
@@ -78,8 +83,7 @@ public class ContainerTurtle extends Container implements IContainerComputer
             @Override
             public int get( int id )
             {
-                if( id == PROPERTY_SLOT ) return turtle.getSelectedSlot();
-                return 0;
+                return id == PROPERTY_SLOT ? turtle.getSelectedSlot() : 0;
             }
 
             @Override
@@ -87,7 +91,7 @@ public class ContainerTurtle extends Container implements IContainerComputer
             {
                 return 1;
             }
-        }, 134, 175 );
+        } );
         this.computer = computer;
     }
 
