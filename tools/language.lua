@@ -25,6 +25,7 @@ local secondary = {
     "it_it",
     "pt_br",
     "sv_se",
+    "zh_cn",
 }
 
 local verbose = false

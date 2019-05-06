@@ -134,7 +134,7 @@ public final class MainThread
         // Of course, we'll go over the MAX_TICK_TIME most of the time, but eventually that overrun will accumulate
         // and we'll skip a whole tick - bringing the average back down again.
         currentTick++;
-        budget += Math.min( budget + ComputerCraft.maxMainGlobalTime, ComputerCraft.maxMainGlobalTime );
+        budget = Math.min( budget + ComputerCraft.maxMainGlobalTime, ComputerCraft.maxMainGlobalTime );
         canExecute = budget > 0;
 
         // Cool down any warm computers.

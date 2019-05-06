@@ -275,6 +275,10 @@ curseforge {
         id = '282001'
         releaseType = 'beta'
         changelog = "Release notes can be found on the GitHub repository (https://github.com/SquidDev-CC/CC-Tweaked/releases/tag/v${mc_version}-${mod_version})."
+
+        relations {
+            incompatible "computercraft"
+        }
     }
 }
 
