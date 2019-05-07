@@ -13,9 +13,9 @@ import dan200.computercraft.shared.common.IBundledRedstoneBlock;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.computer.items.IComputerItem;
+import dan200.computercraft.shared.util.NamedBlockEntityType;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Identifier;
@@ -35,7 +35,7 @@ public abstract class BlockComputerBase<T extends TileComputerBase> extends Bloc
 
     private final ComputerFamily family;
 
-    protected BlockComputerBase( Settings settings, ComputerFamily family, BlockEntityType<? extends T> type )
+    protected BlockComputerBase( Settings settings, ComputerFamily family, NamedBlockEntityType<? extends T> type )
     {
         super( settings, type );
         this.family = family;

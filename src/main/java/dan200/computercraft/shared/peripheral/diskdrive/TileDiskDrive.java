@@ -26,8 +26,9 @@ import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.sound.SoundEvent;
-import net.minecraft.text.TextComponent;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Nameable;
@@ -59,7 +60,7 @@ public final class TileDiskDrive extends TileGeneric implements DefaultInventory
         String mountPath;
     }
 
-    TextComponent customName;
+    Component customName;
 
     private final Map<IComputerAccess, MountInfo> m_computers = new HashMap<>();
 
@@ -542,14 +543,14 @@ public final class TileDiskDrive extends TileGeneric implements DefaultInventory
 
     @Nullable
     @Override
-    public TextComponent getCustomName()
+    public Component getCustomName()
     {
         return customName;
     }
 
     @Nonnull
     @Override
-    public TextComponent getName()
+    public Component getName()
     {
         return customName != null ? customName : getCachedState().getBlock().getTextComponent();
     }

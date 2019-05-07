@@ -6,12 +6,12 @@
 
 package dan200.computercraft.shared.peripheral.modem.wired;
 
-import net.minecraft.util.StringRepresentable;
+import net.minecraft.util.SnakeCaseIdentifiable;
 import net.minecraft.util.math.Direction;
 
 import javax.annotation.Nonnull;
 
-public enum CableModemVariant implements StringRepresentable
+public enum CableModemVariant implements SnakeCaseIdentifiable
 {
     None( "none", null ),
     DownOff( "down_off", Direction.DOWN ),
@@ -65,7 +65,7 @@ public enum CableModemVariant implements StringRepresentable
 
     @Nonnull
     @Override
-    public String asString()
+    public String toSnakeCase()
     {
         return name;
     }

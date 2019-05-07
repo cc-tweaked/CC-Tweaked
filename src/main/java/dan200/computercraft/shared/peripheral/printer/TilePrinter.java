@@ -22,7 +22,8 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.text.TextComponent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.util.*;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
@@ -51,7 +52,7 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
     private static final int[] TOP_SLOTS = new int[] { 1, 2, 3, 4, 5, 6 };
     private static final int[] SIDE_SLOTS = new int[] { 0 };
 
-    TextComponent customName;
+    Component customName;
 
     private final DefaultedList<ItemStack> m_inventory = DefaultedList.create( INVENTORY_SIZE, ItemStack.EMPTY );
     private final ItemStorage m_itemHandlerAll = ItemStorage.wrap( this );
@@ -528,14 +529,14 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
 
     @Nullable
     @Override
-    public TextComponent getCustomName()
+    public Component getCustomName()
     {
         return customName;
     }
 
     @Nonnull
     @Override
-    public TextComponent getName()
+    public Component getName()
     {
         return customName != null ? customName : getCachedState().getBlock().getTextComponent();
     }

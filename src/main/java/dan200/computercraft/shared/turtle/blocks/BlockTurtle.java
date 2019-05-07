@@ -13,14 +13,14 @@ import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.turtle.core.TurtleBrain;
 import dan200.computercraft.shared.turtle.items.ITurtleItem;
 import dan200.computercraft.shared.turtle.items.TurtleItemFactory;
+import dan200.computercraft.shared.util.NamedBlockEntityType;
 import dan200.computercraft.shared.util.WaterloggableBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.entity.BlockEntityType;
+import net.minecraft.entity.EntityContext;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.VerticalEntityPosition;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.item.ItemPlacementContext;
@@ -50,7 +50,7 @@ public class BlockTurtle extends BlockComputerBase<TileTurtle> implements Waterl
         0.875, 0.875, 0.875
     );
 
-    public BlockTurtle( Settings settings, ComputerFamily family, BlockEntityType<TileTurtle> type )
+    public BlockTurtle( Settings settings, ComputerFamily family, NamedBlockEntityType<TileTurtle> type )
     {
         super( settings, family, type );
         setDefaultState( getStateFactory().getDefaultState()
@@ -62,7 +62,7 @@ public class BlockTurtle extends BlockComputerBase<TileTurtle> implements Waterl
     @Override
     protected void appendProperties( StateFactory.Builder<Block, BlockState> builder )
     {
-        builder.with( FACING, WATERLOGGED );
+        builder.add( FACING, WATERLOGGED );
     }
 
     @Nonnull
@@ -76,7 +76,7 @@ public class BlockTurtle extends BlockComputerBase<TileTurtle> implements Waterl
     @Nonnull
     @Override
     @Deprecated
-    public VoxelShape getOutlineShape( BlockState state, BlockView world, BlockPos pos, VerticalEntityPosition position )
+    public VoxelShape getOutlineShape( BlockState state, BlockView world, BlockPos pos, EntityContext position )
     {
         BlockEntity tile = world.getBlockEntity( pos );
         Vec3d offset = tile instanceof TileTurtle ? ((TileTurtle) tile).getRenderOffset( 1.0f ) : Vec3d.ZERO;

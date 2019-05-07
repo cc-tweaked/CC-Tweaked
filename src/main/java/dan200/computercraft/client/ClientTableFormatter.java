@@ -10,12 +10,12 @@ import dan200.computercraft.shared.command.text.ChatHelpers;
 import dan200.computercraft.shared.command.text.TableBuilder;
 import dan200.computercraft.shared.command.text.TableFormatter;
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
+import net.minecraft.ChatFormat;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.hud.ChatHud;
 import net.minecraft.client.util.TextComponentUtil;
-import net.minecraft.text.TextComponent;
-import net.minecraft.text.TextFormat;
+import net.minecraft.network.chat.Component;
 import net.minecraft.util.math.MathHelper;
 import org.apache.commons.lang3.StringUtils;
 
@@ -35,7 +35,7 @@ public class ClientTableFormatter implements TableFormatter
 
     @Override
     @Nullable
-    public TextComponent getPadding( TextComponent component, int width )
+    public Component getPadding( Component component, int width )
     {
         int extraWidth = width - getWidth( component );
         if( extraWidth <= 0 ) return null;
@@ -46,7 +46,7 @@ public class ClientTableFormatter implements TableFormatter
         int spaces = MathHelper.floor( extraWidth / spaceWidth );
         int extra = extraWidth - (int) (spaces * spaceWidth);
 
-        return ChatHelpers.coloured( StringUtils.repeat( ' ', spaces ) + StringUtils.repeat( (char) 712, extra ), TextFormat.GRAY );
+        return ChatHelpers.coloured( StringUtils.repeat( ' ', spaces ) + StringUtils.repeat( (char) 712, extra ), ChatFormat.GRAY );
     }
 
     @Override
@@ -56,20 +56,20 @@ public class ClientTableFormatter implements TableFormatter
     }
 
     @Override
-    public int getWidth( TextComponent component )
+    public int getWidth( Component component )
     {
         return renderer().getStringWidth( component.getFormattedText() );
     }
 
     @Override
-    public void writeLine( int id, TextComponent component )
+    public void writeLine( int id, Component component )
     {
         MinecraftClient mc = MinecraftClient.getInstance();
         ChatHud chat = mc.inGameHud.getChatHud();
 
         // Trim the text if it goes over the allowed length
         int maxWidth = MathHelper.floor( chat.getWidth() / chat.getScale() );
-        List<TextComponent> list = TextComponentUtil.wrapLines( component, maxWidth, mc.textRenderer, false, false );
+        List<Component> list = TextComponentUtil.wrapLines( component, maxWidth, mc.textRenderer, false, false );
         if( !list.isEmpty() ) chat.addMessage( list.get( 0 ), id );
     }
 

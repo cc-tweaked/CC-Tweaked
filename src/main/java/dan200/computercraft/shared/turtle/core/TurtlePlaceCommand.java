@@ -22,7 +22,7 @@ import net.minecraft.block.entity.SignBlockEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.*;
-import net.minecraft.text.StringTextComponent;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.TypedActionResult;
@@ -228,10 +228,10 @@ public class TurtlePlaceCommand implements ITurtleCommand
 
         // Place on the entity
         boolean placed = false;
-        ActionResult cancelResult = null; // ForgeHooks.onInteractEntityAt( turtlePlayer, hitEntity, hitPos, Hand.MAIN );
+        ActionResult cancelResult = null; // ForgeHooks.onInteractEntityAt( turtlePlayer, hitEntity, hitPos, Hand.MAIN_HAND);
         if( cancelResult == null )
         {
-            cancelResult = hitEntity.interactAt( turtlePlayer, hitPos, Hand.MAIN );
+            cancelResult = hitEntity.interactAt( turtlePlayer, hitPos, Hand.MAIN_HAND );
         }
 
         if( cancelResult == ActionResult.SUCCESS )
@@ -241,20 +241,20 @@ public class TurtlePlaceCommand implements ITurtleCommand
         else
         {
             // See PlayerEntity.interactOn
-            // cancelResult = ForgeHooks.onInteractEntity( turtlePlayer, hitEntity, Hand.MAIN );
+            // cancelResult = ForgeHooks.onInteractEntity( turtlePlayer, hitEntity, Hand.MAIN_HAND);
             if( cancelResult == ActionResult.SUCCESS )
             {
                 placed = true;
             }
             else if( cancelResult == null )
             {
-                if( hitEntity.interact( turtlePlayer, Hand.MAIN ) )
+                if( hitEntity.interact( turtlePlayer, Hand.MAIN_HAND ) )
                 {
                     placed = true;
                 }
                 else if( hitEntity instanceof LivingEntity )
                 {
-                    placed = stackCopy.interactWithEntity( turtlePlayer, (LivingEntity) hitEntity, Hand.MAIN );
+                    placed = stackCopy.interactWithEntity( turtlePlayer, (LivingEntity) hitEntity, Hand.MAIN_HAND );
                     if( placed ) turtlePlayer.loadInventory( stackCopy );
                 }
             }
@@ -336,7 +336,7 @@ public class TurtlePlaceCommand implements ITurtleCommand
         }
 
         // Check if there's something suitable to place onto
-        ItemUsageContext context = new ItemUsageContext( turtlePlayer, Hand.MAIN, new BlockHitResult( new Vec3d( hitX, hitY, hitZ ), side, position, false ) );
+        ItemUsageContext context = new ItemUsageContext( turtlePlayer, Hand.MAIN_HAND, new BlockHitResult( new Vec3d( hitX, hitY, hitZ ), side, position, false ) );
         if( !canDeployOnBlock( new ItemPlacementContext( context ), turtle, turtlePlayer, position, side, allowReplace, outErrorMessage ) )
         {
             return stack;
@@ -354,7 +354,7 @@ public class TurtlePlaceCommand implements ITurtleCommand
         PlayerInteractEvent.RightClickBlock event = ForgeHooks.onRightClickBlock( turtlePlayer, Hand.MAIN, position, side, new Vec3d( hitX, hitY, hitZ ) );
         if( !event.isCanceled() ) */
         {
-            /* if( item.onItemUseFirst( turtlePlayer, turtle.getWorld(), position, side, hitX, hitY, hitZ, Hand.MAIN ) == ActionResult.SUCCESS )
+            /* if( item.onItemUseFirst( turtlePlayer, turtle.getWorld(), position, side, hitX, hitY, hitZ, Hand.MAIN_HAND) == ActionResult.SUCCESS )
             {
                 placed = true;
                 turtlePlayer.loadInventory( stackCopy );
@@ -370,14 +370,14 @@ public class TurtlePlaceCommand implements ITurtleCommand
 
         if( !placed && (item instanceof BucketItem || item instanceof BoatItem || item instanceof LilyPadItem || item instanceof GlassBottleItem) )
         {
-            ActionResult actionResult = null; // ForgeHooks.onItemRightClick( turtlePlayer, Hand.MAIN );
+            ActionResult actionResult = null; // ForgeHooks.onItemRightClick( turtlePlayer, Hand.MAIN_HAND);
             if( actionResult == ActionResult.SUCCESS )
             {
                 placed = true;
             }
             else if( actionResult == null )
             {
-                TypedActionResult<ItemStack> result = stackCopy.use( turtle.getWorld(), turtlePlayer, Hand.MAIN );
+                TypedActionResult<ItemStack> result = stackCopy.use( turtle.getWorld(), turtlePlayer, Hand.MAIN_HAND );
                 if( result.getResult() == ActionResult.SUCCESS && !ItemStack.areEqual( stack, result.getValue() ) )
                 {
                     placed = true;
@@ -409,16 +409,16 @@ public class TurtlePlaceCommand implements ITurtleCommand
                         {
                             if( split[i - firstLine].length() > 15 )
                             {
-                                signTile.text[i] = new StringTextComponent( split[i - firstLine].substring( 0, 15 ) );
+                                signTile.text[i] = new TextComponent( split[i - firstLine].substring( 0, 15 ) );
                             }
                             else
                             {
-                                signTile.text[i] = new StringTextComponent( split[i - firstLine] );
+                                signTile.text[i] = new TextComponent( split[i - firstLine] );
                             }
                         }
                         else
                         {
-                            signTile.text[i] = new StringTextComponent( "" );
+                            signTile.text[i] = new TextComponent( "" );
                         }
                     }
                     signTile.markDirty();

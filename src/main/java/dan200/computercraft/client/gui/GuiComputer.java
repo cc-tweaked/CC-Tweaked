@@ -17,7 +17,7 @@ import dan200.computercraft.shared.computer.inventory.ContainerComputer;
 import net.minecraft.client.gui.ContainerScreen;
 import net.minecraft.container.Container;
 import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.text.StringTextComponent;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.util.Identifier;
 import org.lwjgl.glfw.GLFW;
 
@@ -38,7 +38,7 @@ public class GuiComputer<T extends Container> extends ContainerScreen<T>
 
     public GuiComputer( T container, PlayerInventory player, ComputerFamily family, ClientComputer computer, int termWidth, int termHeight )
     {
-        super( container, player, new StringTextComponent( "" ) );
+        super( container, player, new TextComponent( "" ) );
 
         m_family = family;
         m_computer = computer;

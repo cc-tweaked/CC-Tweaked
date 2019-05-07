@@ -23,11 +23,11 @@ import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.network.Containers;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.text.StringTextComponent;
-import net.minecraft.text.TextComponent;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
@@ -256,9 +256,9 @@ public final class CommandComputerCraft
         );
     }
 
-    private static TextComponent linkComputer( ServerCommandSource source, ServerComputer serverComputer, int computerId )
+    private static Component linkComputer( ServerCommandSource source, ServerComputer serverComputer, int computerId )
     {
-        TextComponent out = new StringTextComponent( "" );
+        TextComponent out = new TextComponent( "" );
 
         // Append the computer instance
         if( serverComputer == null )
@@ -298,7 +298,7 @@ public final class CommandComputerCraft
         return out;
     }
 
-    private static TextComponent linkPosition( ServerCommandSource context, ServerComputer computer )
+    private static Component linkPosition( ServerCommandSource context, ServerComputer computer )
     {
         if( UserLevel.OP.test( context ) )
         {
@@ -344,7 +344,7 @@ public final class CommandComputerCraft
 
         timings.sort( Comparator.<ComputerTracker, Long>comparing( x -> x.get( sortField ) ).reversed() );
 
-        TextComponent[] headers = new TextComponent[1 + fields.size()];
+        Component[] headers = new Component[1 + fields.size()];
         headers[0] = translate( "commands.computercraft.track.dump.computer" );
         for( int i = 0; i < fields.size(); i++ ) headers[i + 1] = translate( fields.get( i ).translationKey() );
         TableBuilder table = new TableBuilder( TRACK_ID, headers );
@@ -354,9 +354,9 @@ public final class CommandComputerCraft
             Computer computer = entry.getComputer();
             ServerComputer serverComputer = computer == null ? null : lookup.get( computer );
 
-            TextComponent computerComponent = linkComputer( source, serverComputer, entry.getComputerId() );
+            Component computerComponent = linkComputer( source, serverComputer, entry.getComputerId() );
 
-            TextComponent[] row = new TextComponent[1 + fields.size()];
+            Component[] row = new Component[1 + fields.size()];
             row[0] = computerComponent;
             for( int i = 0; i < fields.size(); i++ ) row[i + 1] = text( entry.getFormatted( fields.get( i ) ) );
             table.row( row );

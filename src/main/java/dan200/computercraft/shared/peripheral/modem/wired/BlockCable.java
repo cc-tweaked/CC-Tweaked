@@ -18,8 +18,8 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.entity.EntityContext;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.VerticalEntityPosition;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
@@ -75,7 +75,7 @@ public class BlockCable extends BlockGeneric implements WaterloggableBlock
     @Override
     protected void appendProperties( StateFactory.Builder<Block, BlockState> builder )
     {
-        builder.with( MODEM, CABLE, NORTH, SOUTH, EAST, WEST, UP, DOWN, WATERLOGGED );
+        builder.add( MODEM, CABLE, NORTH, SOUTH, EAST, WEST, UP, DOWN, WATERLOGGED );
     }
 
     public static boolean canConnectIn( BlockState state, Direction direction )
@@ -92,7 +92,7 @@ public class BlockCable extends BlockGeneric implements WaterloggableBlock
 
     @Override
     @Deprecated
-    public VoxelShape getOutlineShape( BlockState state, BlockView world, BlockPos pos, VerticalEntityPosition position )
+    public VoxelShape getOutlineShape( BlockState state, BlockView world, BlockPos pos, EntityContext position )
     {
         return CableShapes.getShape( state );
     }

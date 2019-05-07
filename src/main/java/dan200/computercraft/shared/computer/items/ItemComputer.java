@@ -9,7 +9,7 @@ package dan200.computercraft.shared.computer.items;
 import dan200.computercraft.shared.computer.blocks.BlockComputer;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import net.minecraft.item.ItemStack;
-import net.minecraft.text.StringTextComponent;
+import net.minecraft.network.chat.TextComponent;
 
 import javax.annotation.Nonnull;
 
@@ -24,7 +24,7 @@ public class ItemComputer extends ItemComputerBase
     {
         ItemStack result = new ItemStack( this );
         if( id >= 0 ) result.getOrCreateTag().putInt( NBT_ID, id );
-        if( label != null ) result.setDisplayName( new StringTextComponent( label ) );
+        if( label != null ) result.setDisplayName( new TextComponent( label ) );
         return result;
     }
 

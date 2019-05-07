@@ -60,7 +60,7 @@ public class TurtleCompareCommand implements ITurtleCommand
                     {
                         for( ItemStack drop : drops )
                         {
-                            if( drop.getItem() == lookAtBlock.getItem() )
+                            if( drop.getItem() == lookAtBlock.asItem() )
                             {
                                 lookAtStack = drop;
                                 break;

@@ -6,9 +6,9 @@
 
 package dan200.computercraft.shared.command.text;
 
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.text.StringTextComponent;
-import net.minecraft.text.TextComponent;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.Nullable;
@@ -23,12 +23,12 @@ public class ServerTableFormatter implements TableFormatter
     }
 
     @Override
-    public @Nullable
-    TextComponent getPadding( TextComponent component, int width )
+    @Nullable
+    public Component getPadding( Component component, int width )
     {
         int extraWidth = width - getWidth( component );
         if( extraWidth <= 0 ) return null;
-        return new StringTextComponent( StringUtils.repeat( ' ', extraWidth ) );
+        return new TextComponent( StringUtils.repeat( ' ', extraWidth ) );
     }
 
     @Override
@@ -38,13 +38,13 @@ public class ServerTableFormatter implements TableFormatter
     }
 
     @Override
-    public int getWidth( TextComponent component )
+    public int getWidth( Component component )
     {
         return component.getText().length();
     }
 
     @Override
-    public void writeLine( int id, TextComponent component )
+    public void writeLine( int id, Component component )
     {
         source.sendFeedback( component, false );
     }

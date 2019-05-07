@@ -8,11 +8,11 @@ package dan200.computercraft.shared.peripheral.monitor;
 
 import dan200.computercraft.shared.common.BlockGeneric;
 import dan200.computercraft.shared.common.TileGeneric;
+import dan200.computercraft.shared.util.NamedBlockEntityType;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockRenderLayer;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
@@ -35,7 +35,7 @@ public class BlockMonitor extends BlockGeneric
 
     static final EnumProperty<MonitorEdgeState> STATE = EnumProperty.create( "state", MonitorEdgeState.class );
 
-    public BlockMonitor( Settings settings, BlockEntityType<? extends TileGeneric> type )
+    public BlockMonitor( Settings settings, NamedBlockEntityType<? extends TileGeneric> type )
     {
         super( settings, type );
         setDefaultState( getStateFactory().getDefaultState()
@@ -53,7 +53,7 @@ public class BlockMonitor extends BlockGeneric
     @Override
     protected void appendProperties( StateFactory.Builder<Block, BlockState> builder )
     {
-        builder.with( ORIENTATION, FACING, STATE );
+        builder.add( ORIENTATION, FACING, STATE );
     }
 
     @Override

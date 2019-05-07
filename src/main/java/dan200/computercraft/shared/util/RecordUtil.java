@@ -12,8 +12,8 @@ import dan200.computercraft.shared.network.client.PlayRecordClientMessage;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.MusicDiscItem;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.sound.SoundEvent;
-import net.minecraft.text.TranslatableTextComponent;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -35,6 +35,6 @@ public final class RecordUtil
         Item item = recordStack.getItem();
         if( !(item instanceof MusicDiscItem) ) return null;
 
-        return new TranslatableTextComponent( item.getTranslationKey() + ".desc" ).getString();
+        return new TranslatableComponent( item.getTranslationKey() + ".desc" ).getString();
     }
 }

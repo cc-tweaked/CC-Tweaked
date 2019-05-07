@@ -130,7 +130,7 @@ public class TurtleTool extends AbstractTurtleUpgrade
             Entity hitEntity = hit.getKey();
 
             // Fire several events to ensure we have permissions.
-            if( AttackEntityCallback.EVENT.invoker().interact( turtlePlayer, world, Hand.MAIN, hitEntity, null ) == ActionResult.FAIL
+            if( AttackEntityCallback.EVENT.invoker().interact( turtlePlayer, world, Hand.MAIN_HAND, hitEntity, null ) == ActionResult.FAIL
                 || !hitEntity.canPlayerAttack() )
             {
                 return TurtleCommandResult.failure( "Nothing to attack here" );

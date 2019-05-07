@@ -9,12 +9,11 @@ package dan200.computercraft.shared.command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.network.chat.ClickEvent;
+import net.minecraft.network.chat.HoverEvent;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.text.StringTextComponent;
-import net.minecraft.text.TextComponent;
-import net.minecraft.text.TranslatableTextComponent;
-import net.minecraft.text.event.ClickEvent;
-import net.minecraft.text.event.HoverEvent;
 
 import static net.minecraft.server.command.CommandManager.argument;
 import static net.minecraft.server.command.CommandManager.literal;
@@ -53,10 +52,10 @@ public final class CommandCopy
 
     public static TextComponent createCopyText( String text )
     {
-        StringTextComponent name = new StringTextComponent( text );
+        TextComponent name = new TextComponent( text );
         name.getStyle()
             .setClickEvent( new ClickEvent( ClickEvent.Action.RUN_COMMAND, PREFIX + text ) )
-            .setHoverEvent( new HoverEvent( HoverEvent.Action.SHOW_TEXT, new TranslatableTextComponent( "gui.computercraft.tooltip.copy" ) ) );
+            .setHoverEvent( new HoverEvent( HoverEvent.Action.SHOW_TEXT, new TranslatableComponent( "gui.computercraft.tooltip.copy" ) ) );
         return name;
     }
 }

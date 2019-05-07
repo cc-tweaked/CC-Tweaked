@@ -29,6 +29,6 @@ public class BlockWiredModemFull extends BlockGeneric
     @Override
     protected void appendProperties( StateFactory.Builder<Block, BlockState> builder )
     {
-        builder.with( MODEM_ON, PERIPHERAL_ON );
+        builder.add( MODEM_ON, PERIPHERAL_ON );
     }
 }

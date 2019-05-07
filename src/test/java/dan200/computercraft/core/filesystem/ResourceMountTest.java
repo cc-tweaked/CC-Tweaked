@@ -29,7 +29,7 @@ public class ResourceMountTest
     @BeforeEach
     public void before()
     {
-        ReloadableResourceManagerImpl manager = new ReloadableResourceManagerImpl( ResourceType.DATA, null );
+        ReloadableResourceManagerImpl manager = new ReloadableResourceManagerImpl( ResourceType.SERVER_DATA, null );
         manager.addPack( new DirectoryResourcePack( new File( "src/main/resources" ) ) );
 
         mount = new ResourceMount( "computercraft", "lua/rom", manager );

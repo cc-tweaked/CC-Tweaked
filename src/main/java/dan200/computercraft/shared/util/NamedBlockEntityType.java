@@ -10,6 +10,7 @@ import com.mojang.datafixers.DataFixUtils;
 import com.mojang.datafixers.types.Type;
 import dan200.computercraft.ComputerCraft;
 import net.minecraft.SharedConstants;
+import net.minecraft.block.Block;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.datafixers.Schemas;
@@ -17,16 +18,20 @@ import net.minecraft.datafixers.TypeReferences;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.MutableRegistry;
 
+import javax.annotation.Nonnull;
+import java.util.Collections;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-public class NamedBlockEntityType<T extends BlockEntity> extends BlockEntityType<T>
+public final class NamedBlockEntityType<T extends BlockEntity> extends BlockEntityType<T>
 {
     private final Identifier identifier;
+    private Block block;
 
     private NamedBlockEntityType( Identifier identifier, Supplier<? extends T> supplier )
     {
-        super( supplier, getDatafixer( identifier ) );
+        super( supplier, Collections.emptySet(), getDatafixer( identifier ) );
         this.identifier = identifier;
     }
 
@@ -43,6 +48,18 @@ public class NamedBlockEntityType<T extends BlockEntity> extends BlockEntityType
     public Identifier getId()
     {
         return identifier;
+    }
+
+    @Override
+    public boolean method_20526( Block block )
+    {
+        return block == this.block;
+    }
+
+    public void setBlock( @Nonnull Block block )
+    {
+        if( this.block != null ) throw new IllegalStateException( "Cannot override block" );
+        this.block = Objects.requireNonNull( block, "block cannot be null" );
     }
 
     public void register( MutableRegistry<BlockEntityType<?>> registry )
@@ -66,14 +83,14 @@ public class NamedBlockEntityType<T extends BlockEntity> extends BlockEntityType
         }
     }
 
-    private static class FixedPointSupplier<T extends BlockEntity> implements Supplier<T>
+    private static final class FixedPointSupplier<T extends BlockEntity> implements Supplier<T>
     {
         final NamedBlockEntityType<T> factory;
         private final Function<NamedBlockEntityType<T>, ? extends T> builder;
 
         private FixedPointSupplier( Identifier identifier, Function<NamedBlockEntityType<T>, ? extends T> builder )
         {
-            this.factory = create( identifier, this );
+            factory = create( identifier, this );
             this.builder = builder;
         }
 

@@ -16,9 +16,9 @@ import dan200.computercraft.shared.turtle.blocks.BlockTurtle;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.text.StringTextComponent;
-import net.minecraft.text.TextComponent;
-import net.minecraft.text.TranslatableTextComponent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.util.DefaultedList;
 import net.minecraft.util.Identifier;
 
@@ -37,7 +37,7 @@ public class ItemTurtle extends ItemComputerBase implements ITurtleItem
     {
         // Build the stack
         ItemStack stack = new ItemStack( this );
-        if( label != null ) stack.setDisplayName( new StringTextComponent( label ) );
+        if( label != null ) stack.setDisplayName( new TextComponent( label ) );
         if( id >= 0 ) stack.getOrCreateTag().putInt( NBT_ID, id );
         IColouredItem.setColourBasic( stack, colour );
         if( fuelLevel > 0 ) stack.getOrCreateTag().putInt( NBT_FUEL, fuelLevel );
@@ -74,33 +74,33 @@ public class ItemTurtle extends ItemComputerBase implements ITurtleItem
 
     @Nonnull
     @Override
-    public TextComponent getTranslatedNameTrimmed( @Nonnull ItemStack stack )
+    public Component getTranslatedNameTrimmed( @Nonnull ItemStack stack )
     {
         String baseString = getTranslationKey( stack );
         ITurtleUpgrade left = getUpgrade( stack, TurtleSide.Left );
         ITurtleUpgrade right = getUpgrade( stack, TurtleSide.Right );
         if( left != null && right != null )
         {
-            return new TranslatableTextComponent( baseString + ".upgraded_twice",
-                new TranslatableTextComponent( right.getUnlocalisedAdjective() ),
-                new TranslatableTextComponent( left.getUnlocalisedAdjective() )
+            return new TranslatableComponent( baseString + ".upgraded_twice",
+                new TranslatableComponent( right.getUnlocalisedAdjective() ),
+                new TranslatableComponent( left.getUnlocalisedAdjective() )
             );
         }
         else if( left != null )
         {
-            return new TranslatableTextComponent( baseString + ".upgraded",
-                new TranslatableTextComponent( left.getUnlocalisedAdjective() )
+            return new TranslatableComponent( baseString + ".upgraded",
+                new TranslatableComponent( left.getUnlocalisedAdjective() )
             );
         }
         else if( right != null )
         {
-            return new TranslatableTextComponent( baseString + ".upgraded",
-                new TranslatableTextComponent( right.getUnlocalisedAdjective() )
+            return new TranslatableComponent( baseString + ".upgraded",
+                new TranslatableComponent( right.getUnlocalisedAdjective() )
             );
         }
         else
         {
-            return new TranslatableTextComponent( baseString );
+            return new TranslatableComponent( baseString );
         }
     }
 

@@ -28,8 +28,8 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.text.StringTextComponent;
-import net.minecraft.text.TextComponent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Nameable;
 import net.minecraft.util.Tickable;
@@ -439,9 +439,9 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
 
     @Nonnull
     @Override
-    public TextComponent getName()
+    public Component getName()
     {
-        return hasCustomName() ? new StringTextComponent( m_label ) : getCachedState().getBlock().getTextComponent();
+        return hasCustomName() ? new TextComponent( m_label ) : getCachedState().getBlock().getTextComponent();
     }
 
     @Override
@@ -452,8 +452,8 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
 
     @Nullable
     @Override
-    public TextComponent getCustomName()
+    public Component getCustomName()
     {
-        return hasCustomName() ? new StringTextComponent( m_label ) : null;
+        return hasCustomName() ? new TextComponent( m_label ) : null;
     }
 }

@@ -8,7 +8,7 @@ package dan200.computercraft.api;
 
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleUpgradeType;
-import net.minecraft.item.ItemProvider;
+import net.minecraft.item.ItemConvertible;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.SystemUtil;
@@ -35,7 +35,7 @@ public abstract class AbstractTurtleUpgrade implements ITurtleUpgrade
         this.stack = stack;
     }
 
-    protected AbstractTurtleUpgrade( Identifier id, TurtleUpgradeType type, String adjective, ItemProvider item )
+    protected AbstractTurtleUpgrade( Identifier id, TurtleUpgradeType type, String adjective, ItemConvertible item )
     {
         this( id, type, adjective, new ItemStack( item ) );
     }
@@ -45,7 +45,7 @@ public abstract class AbstractTurtleUpgrade implements ITurtleUpgrade
         this( id, type, SystemUtil.createTranslationKey( "upgrade", id ) + ".adjective", stack );
     }
 
-    protected AbstractTurtleUpgrade( Identifier id, TurtleUpgradeType type, ItemProvider item )
+    protected AbstractTurtleUpgrade( Identifier id, TurtleUpgradeType type, ItemConvertible item )
     {
         this( id, type, new ItemStack( item ) );
     }

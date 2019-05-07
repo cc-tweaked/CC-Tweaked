@@ -6,7 +6,6 @@
 
 package dan200.computercraft.shared.util;
 
-import dan200.computercraft.ComputerCraft;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.inventory.SidedInventory;
 import net.minecraft.item.ItemStack;

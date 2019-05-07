@@ -6,9 +6,9 @@
 
 package dan200.computercraft.shared.peripheral.diskdrive;
 
-import net.minecraft.util.StringRepresentable;
+import net.minecraft.util.SnakeCaseIdentifiable;
 
-public enum DiskDriveState implements StringRepresentable
+public enum DiskDriveState implements SnakeCaseIdentifiable
 {
     EMPTY( "empty" ),
     FULL( "full" ),
@@ -23,7 +23,7 @@ public enum DiskDriveState implements StringRepresentable
 
 
     @Override
-    public String asString()
+    public String toSnakeCase()
     {
         return name;
     }

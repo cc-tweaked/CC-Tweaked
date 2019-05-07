@@ -39,7 +39,7 @@ public class BlockDiskDrive extends BlockGeneric
     @Override
     protected void appendProperties( StateFactory.Builder<Block, BlockState> properties )
     {
-        properties.with( FACING, STATE );
+        properties.add( FACING, STATE );
     }
 
     @Nullable

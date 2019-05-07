@@ -31,7 +31,7 @@ public class BlockSpeaker extends BlockGeneric
     @Override
     protected void appendProperties( StateFactory.Builder<Block, BlockState> properties )
     {
-        properties.with( FACING );
+        properties.add( FACING );
     }
 
     @Nullable

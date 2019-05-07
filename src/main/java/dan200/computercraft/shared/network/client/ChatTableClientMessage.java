@@ -12,7 +12,7 @@ import dan200.computercraft.shared.network.NetworkMessage;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.network.PacketContext;
-import net.minecraft.text.TextComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.util.PacketByteBuf;
 
 import javax.annotation.Nonnull;
@@ -39,13 +39,13 @@ public class ChatTableClientMessage implements NetworkMessage
         buf.writeBoolean( table.getHeaders() != null );
         if( table.getHeaders() != null )
         {
-            for( TextComponent header : table.getHeaders() ) buf.writeTextComponent( header );
+            for( Component header : table.getHeaders() ) buf.writeTextComponent( header );
         }
 
         buf.writeVarInt( table.getRows().size() );
-        for( TextComponent[] row : table.getRows() )
+        for( Component[] row : table.getRows() )
         {
-            for( TextComponent column : row ) buf.writeTextComponent( column );
+            for( Component column : row ) buf.writeTextComponent( column );
         }
 
         buf.writeVarInt( table.getAdditional() );
@@ -59,7 +59,7 @@ public class ChatTableClientMessage implements NetworkMessage
         TableBuilder table;
         if( buf.readBoolean() )
         {
-            TextComponent[] headers = new TextComponent[columns];
+            Component[] headers = new Component[columns];
             for( int i = 0; i < columns; i++ ) headers[i] = buf.readTextComponent();
             table = new TableBuilder( id, headers );
         }
@@ -71,7 +71,7 @@ public class ChatTableClientMessage implements NetworkMessage
         int rows = buf.readVarInt();
         for( int i = 0; i < rows; i++ )
         {
-            TextComponent[] row = new TextComponent[columns];
+            Component[] row = new Component[columns];
             for( int j = 0; j < columns; j++ ) row[j] = buf.readTextComponent();
             table.row( row );
         }

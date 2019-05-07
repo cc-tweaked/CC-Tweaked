@@ -6,9 +6,8 @@
 
 package dan200.computercraft.shared.command.text;
 
-import net.minecraft.text.*;
-import net.minecraft.text.event.ClickEvent;
-import net.minecraft.text.event.HoverEvent;
+import net.minecraft.ChatFormat;
+import net.minecraft.network.chat.*;
 import net.minecraft.util.math.BlockPos;
 
 /**
@@ -16,73 +15,73 @@ import net.minecraft.util.math.BlockPos;
  */
 public final class ChatHelpers
 {
-    private static final TextFormat HEADER = TextFormat.LIGHT_PURPLE;
+    private static final ChatFormat HEADER = ChatFormat.LIGHT_PURPLE;
 
     private ChatHelpers() {}
 
-    public static TextComponent coloured( String text, TextFormat colour )
+    public static Component coloured( String text, ChatFormat colour )
     {
-        TextComponent component = new StringTextComponent( text == null ? "" : text );
+        TextComponent component = new TextComponent( text == null ? "" : text );
         component.getStyle().setColor( colour );
         return component;
     }
 
-    public static <T extends TextComponent> T coloured( T component, TextFormat colour )
+    public static <T extends Component> T coloured( T component, ChatFormat colour )
     {
         component.getStyle().setColor( colour );
         return component;
     }
 
-    public static TextComponent text( String text )
+    public static Component text( String text )
     {
-        return new StringTextComponent( text == null ? "" : text );
+        return new TextComponent( text == null ? "" : text );
     }
 
-    public static TextComponent translate( String text )
+    public static Component translate( String text )
     {
-        return new TranslatableTextComponent( text == null ? "" : text );
+        return new TranslatableComponent( text == null ? "" : text );
     }
 
-    public static TextComponent translate( String text, Object... args )
+    public static Component translate( String text, Object... args )
     {
-        return new TranslatableTextComponent( text == null ? "" : text, args );
+        return new TranslatableComponent( text == null ? "" : text, args );
     }
 
-    public static TextComponent list( TextComponent... children )
+    public static Component list( Component... children )
     {
-        TextComponent component = new StringTextComponent( "" );
-        for( TextComponent child : children )
+        Component component = new TextComponent( "" );
+        for( Component child : children )
         {
             component.append( child );
         }
         return component;
     }
 
-    public static TextComponent position( BlockPos pos )
+    public static Component position( BlockPos pos )
     {
         if( pos == null ) return translate( "commands.computercraft.generic.no_position" );
         return translate( "commands.computercraft.generic.position", pos.getX(), pos.getY(), pos.getZ() );
     }
 
-    public static TextComponent bool( boolean value )
+    public static Component bool( boolean value )
     {
         return value
-            ? coloured( translate( "commands.computercraft.generic.yes" ), TextFormat.GREEN )
-            : coloured( translate( "commands.computercraft.generic.no" ), TextFormat.RED );
+            ? coloured( translate( "commands.computercraft.generic.yes" ), ChatFormat.GREEN )
+            : coloured( translate( "commands.computercraft.generic.no" ), ChatFormat.RED );
     }
 
-    public static TextComponent link( TextComponent component, String command, TextComponent toolTip )
+    public static Component link( Component component, String command, Component toolTip )
     {
         Style style = component.getStyle();
 
-        if( style.getColor() == null ) style.setColor( TextFormat.YELLOW );
+        if( style.getColor() == null ) style.setColor( ChatFormat.YELLOW );
         style.setClickEvent( new ClickEvent( ClickEvent.Action.RUN_COMMAND, command ) );
         style.setHoverEvent( new HoverEvent( HoverEvent.Action.SHOW_TEXT, toolTip ) );
 
         return component;
     }
 
-    public static TextComponent header( String text )
+    public static Component header( String text )
     {
         return coloured( text, HEADER );
     }

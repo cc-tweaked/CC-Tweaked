@@ -13,13 +13,13 @@ import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.util.NamedBlockEntityType;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.CommandOutput;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.text.StringTextComponent;
-import net.minecraft.text.TextComponent;
-import net.minecraft.text.TranslatableTextComponent;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec2f;
 import net.minecraft.util.math.Vec3d;
@@ -54,7 +54,7 @@ public class TileCommandComputer extends TileComputer
         }
 
         @Override
-        public void sendMessage( TextComponent textComponent )
+        public void sendMessage( Component textComponent )
         {
             output.put( output.size() + 1, textComponent.getText() );
         }
@@ -104,7 +104,7 @@ public class TileCommandComputer extends TileComputer
         return new ServerCommandSource( receiver,
             new Vec3d( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5 ), Vec2f.ZERO,
             (ServerWorld) getWorld(), 2,
-            name, new StringTextComponent( name ),
+            name, new TextComponent( name ),
             getWorld().getServer(), null
         );
     }
@@ -123,12 +123,12 @@ public class TileCommandComputer extends TileComputer
         MinecraftServer server = player.getServer();
         if( server == null || !server.areCommandBlocksEnabled() )
         {
-            player.addChatMessage( new TranslatableTextComponent( "advMode.notEnabled" ), true );
+            player.addChatMessage( new TranslatableComponent( "advMode.notEnabled" ), true );
             return false;
         }
         else if( !player.isCreativeLevelTwoOp() )
         {
-            player.addChatMessage( new TranslatableTextComponent( "advMode.notAllowed" ), true );
+            player.addChatMessage( new TranslatableComponent( "advMode.notAllowed" ), true );
             return false;
         }
         else

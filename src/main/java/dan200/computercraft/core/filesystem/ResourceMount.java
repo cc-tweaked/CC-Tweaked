@@ -11,7 +11,10 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.io.ByteStreams;
 import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.core.apis.handles.ArrayByteChannel;
-import net.minecraft.resource.*;
+import net.minecraft.resource.ReloadableResourceManager;
+import net.minecraft.resource.Resource;
+import net.minecraft.resource.ResourceManager;
+import net.minecraft.resource.ResourceReloadListener;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.profiler.Profiler;
 
@@ -23,6 +26,8 @@ import java.io.InputStream;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
 public class ResourceMount implements IMount
@@ -241,7 +246,7 @@ public class ResourceMount implements IMount
      * While people should really be keeping a permanent reference to this, some people construct it every
      * method call, so let's make this as small as possible.
      */
-    static class Listener extends SupplyingResourceReloadListener<Void>
+    static class Listener implements ResourceReloadListener
     {
         private static final Listener INSTANCE = new Listener();
 
@@ -249,23 +254,19 @@ public class ResourceMount implements IMount
         private final Set<ReloadableResourceManager> managers = Collections.newSetFromMap( new WeakHashMap<>() );
 
         @Override
-        protected synchronized Void load( ResourceManager manager, Profiler profiler )
+        public CompletableFuture<Void> reload( Synchronizer synchronizer, ResourceManager resourceManager, Profiler profiler, Profiler profiler1, Executor executor, Executor executor1 )
         {
-            profiler.push( "Mount reloading" );
-            try
-            {
-                for( ResourceMount mount : mounts ) mount.load();
-            }
-            finally
-            {
-                profiler.pop();
-            }
-            return null;
-        }
-
-        @Override
-        protected void apply( Void res, ResourceManager manager, Profiler profiler )
-        {
+            return CompletableFuture.runAsync( () -> {
+                profiler.push( "Mount reloading" );
+                try
+                {
+                    for( ResourceMount mount : mounts ) mount.load();
+                }
+                finally
+                {
+                    profiler.pop();
+                }
+            }, executor );
         }
 
         synchronized void add( ReloadableResourceManager manager, ResourceMount mount )

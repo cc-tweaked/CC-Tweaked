@@ -31,14 +31,14 @@ public abstract class ItemMapLikeRenderer
         PlayerEntity player = MinecraftClient.getInstance().player;
 
         GlStateManager.pushMatrix();
-        if( hand == Hand.MAIN && player.getOffHandStack().isEmpty() )
+        if( hand == Hand.MAIN_HAND && player.getOffHandStack().isEmpty() )
         {
             renderItemFirstPersonCenter( pitch, equipProgress, swingProgress, stack );
         }
         else
         {
             renderItemFirstPersonSide(
-                hand == Hand.MAIN ? player.getMainHand() : player.getMainHand().getOpposite(),
+                hand == Hand.MAIN_HAND ? player.getMainHand() : player.getMainHand().getOpposite(),
                 equipProgress, swingProgress, stack
             );
         }

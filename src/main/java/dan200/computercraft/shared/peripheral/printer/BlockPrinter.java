@@ -42,7 +42,7 @@ public class BlockPrinter extends BlockGeneric
     protected void appendProperties( StateFactory.Builder<Block, BlockState> properties )
     {
         super.appendProperties( properties );
-        properties.with( FACING, TOP, BOTTOM );
+        properties.add( FACING, TOP, BOTTOM );
     }
 
     @Nullable

@@ -9,9 +9,9 @@ package dan200.computercraft.shared.computer.blocks;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ComputerState;
 import dan200.computercraft.shared.computer.items.ComputerItemFactory;
+import dan200.computercraft.shared.util.NamedBlockEntityType;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.state.StateFactory;
@@ -28,7 +28,7 @@ public class BlockComputer extends BlockComputerBase<TileComputer>
     public static final EnumProperty<ComputerState> STATE = EnumProperty.create( "state", ComputerState.class );
     public static final DirectionProperty FACING = Properties.FACING_HORIZONTAL;
 
-    public BlockComputer( Settings settings, ComputerFamily family, BlockEntityType<? extends TileComputer> type )
+    public BlockComputer( Settings settings, ComputerFamily family, NamedBlockEntityType<? extends TileComputer> type )
     {
         super( settings, family, type );
         setDefaultState( getDefaultState()
@@ -40,7 +40,7 @@ public class BlockComputer extends BlockComputerBase<TileComputer>
     @Override
     protected void appendProperties( StateFactory.Builder<Block, BlockState> builder )
     {
-        builder.with( FACING, STATE );
+        builder.add( FACING, STATE );
     }
 
     @Nullable

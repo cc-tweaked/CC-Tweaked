@@ -6,6 +6,7 @@
 
 package dan200.computercraft.shared.common;
 
+import dan200.computercraft.shared.util.NamedBlockEntityType;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockEntityProvider;
 import net.minecraft.block.BlockState;
@@ -26,10 +27,11 @@ public abstract class BlockGeneric extends Block implements BlockEntityProvider
 {
     private final BlockEntityType<? extends TileGeneric> type;
 
-    public BlockGeneric( Settings settings, BlockEntityType<? extends TileGeneric> type )
+    public BlockGeneric( Settings settings, NamedBlockEntityType<? extends TileGeneric> type )
     {
         super( settings );
         this.type = type;
+        type.setBlock( this );
     }
 
     @Override

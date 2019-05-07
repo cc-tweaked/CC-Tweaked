@@ -8,11 +8,11 @@ package dan200.computercraft.shared.peripheral.modem.wireless;
 
 import dan200.computercraft.shared.common.BlockGeneric;
 import dan200.computercraft.shared.peripheral.modem.ModemShapes;
+import dan200.computercraft.shared.util.NamedBlockEntityType;
 import dan200.computercraft.shared.util.WaterloggableBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.entity.VerticalEntityPosition;
+import net.minecraft.entity.EntityContext;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.state.StateFactory;
@@ -34,7 +34,7 @@ public class BlockWirelessModem extends BlockGeneric implements WaterloggableBlo
     public static final DirectionProperty FACING = Properties.FACING;
     public static final BooleanProperty ON = BooleanProperty.create( "on" );
 
-    public BlockWirelessModem( Settings settings, BlockEntityType<? extends TileWirelessModem> type )
+    public BlockWirelessModem( Settings settings, NamedBlockEntityType<? extends TileWirelessModem> type )
     {
         super( settings, type );
         setDefaultState( getStateFactory().getDefaultState()
@@ -46,13 +46,13 @@ public class BlockWirelessModem extends BlockGeneric implements WaterloggableBlo
     @Override
     protected void appendProperties( StateFactory.Builder<Block, BlockState> builder )
     {
-        builder.with( FACING, ON, WATERLOGGED );
+        builder.add( FACING, ON, WATERLOGGED );
     }
 
     @Nonnull
     @Override
     @Deprecated
-    public VoxelShape getOutlineShape( BlockState blockState, BlockView world, BlockPos pos, VerticalEntityPosition position )
+    public VoxelShape getOutlineShape( BlockState blockState, BlockView world, BlockPos pos, EntityContext position )
     {
         return ModemShapes.getBounds( blockState.get( FACING ) );
     }

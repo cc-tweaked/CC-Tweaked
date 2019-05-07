@@ -25,6 +25,7 @@ import dan200.computercraft.shared.pocket.apis.PocketAPI;
 import dan200.computercraft.shared.pocket.core.PocketServerComputer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.ChatFormat;
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -34,10 +35,9 @@ import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemPropertyGetter;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.text.StringTextComponent;
-import net.minecraft.text.TextComponent;
-import net.minecraft.text.TextFormat;
-import net.minecraft.text.TranslatableTextComponent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.util.*;
 import net.minecraft.world.World;
 
@@ -68,7 +68,7 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
     {
         ItemStack result = new ItemStack( this );
         if( id >= 0 ) result.getOrCreateTag().putInt( NBT_ID, id );
-        if( label != null ) result.setDisplayName( new StringTextComponent( label ) );
+        if( label != null ) result.setDisplayName( new TextComponent( label ) );
         if( upgrade != null ) result.getOrCreateTag().putString( NBT_UPGRADE, upgrade.getUpgradeID().toString() );
         if( colour != -1 ) result.getOrCreateTag().putInt( NBT_COLOUR, colour );
         return result;
@@ -161,14 +161,14 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
 
     @Nonnull
     @Override
-    public TextComponent getTranslatedNameTrimmed( @Nonnull ItemStack stack )
+    public Component getTranslatedNameTrimmed( @Nonnull ItemStack stack )
     {
         String baseString = getTranslationKey( stack );
         IPocketUpgrade upgrade = getUpgrade( stack );
         if( upgrade != null )
         {
-            return new TranslatableTextComponent( baseString + ".upgraded",
-                new TranslatableTextComponent( upgrade.getUnlocalisedAdjective() )
+            return new TranslatableComponent( baseString + ".upgraded",
+                new TranslatableComponent( upgrade.getUnlocalisedAdjective() )
             );
         }
         else
@@ -179,15 +179,15 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
 
 
     @Override
-    public void buildTooltip( ItemStack stack, @Nullable World world, List<TextComponent> list, TooltipContext flag )
+    public void buildTooltip( ItemStack stack, @Nullable World world, List<Component> list, TooltipContext flag )
     {
         if( flag.isAdvanced() )
         {
             int id = getComputerID( stack );
             if( id >= 0 )
             {
-                list.add( new TranslatableTextComponent( "gui.computercraft.tooltip.computer_id", id )
-                    .applyFormat( TextFormat.GRAY ) );
+                list.add( new TranslatableComponent( "gui.computercraft.tooltip.computer_id", id )
+                    .applyFormat( ChatFormat.GRAY ) );
             }
         }
     }
@@ -297,7 +297,7 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
     {
         if( label != null )
         {
-            stack.setDisplayName( new StringTextComponent( label ) );
+            stack.setDisplayName( new TextComponent( label ) );
         }
         else
         {

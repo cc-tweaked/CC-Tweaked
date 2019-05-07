@@ -17,8 +17,8 @@ import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import net.minecraft.command.arguments.ArgumentTypes;
 import net.minecraft.command.arguments.serialize.ArgumentSerializer;
-import net.minecraft.text.StringTextComponent;
-import net.minecraft.text.TextComponent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.util.PacketByteBuf;
 
 import javax.annotation.Nonnull;
@@ -143,7 +143,7 @@ public final class RepeatArgumentType<T, U> implements ArgumentType<List<T>>
         {
             boolean isList = buf.readBoolean();
             ArgumentType<?> child = ArgumentTypes.fromPacket( buf );
-            TextComponent message = buf.readTextComponent();
+            Component message = buf.readTextComponent();
             BiConsumer<List<Object>, ?> appender = isList ? ( list, x ) -> list.addAll( (Collection) x ) : List::add;
             return new RepeatArgumentType( child, appender, isList, new SimpleCommandExceptionType( message ) );
         }
@@ -160,7 +160,7 @@ public final class RepeatArgumentType<T, U> implements ArgumentType<List<T>>
         {
             Message message = arg.some.create().getRawMessage();
             if( message instanceof TextComponent ) return (TextComponent) message;
-            return new StringTextComponent( message.getString() );
+            return new TextComponent( message.getString() );
         }
     }
 }

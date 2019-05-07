@@ -12,13 +12,13 @@ import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.api.media.IMedia;
 import dan200.computercraft.shared.computer.blocks.BlockComputerBase;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
+import net.minecraft.ChatFormat;
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
-import net.minecraft.text.StringTextComponent;
-import net.minecraft.text.TextComponent;
-import net.minecraft.text.TextFormat;
-import net.minecraft.text.TranslatableTextComponent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
@@ -36,15 +36,15 @@ public abstract class ItemComputerBase extends BlockItem implements IComputerIte
     }
 
     @Override
-    public void buildTooltip( @Nonnull ItemStack stack, @Nullable World world, @Nonnull List<TextComponent> list, @Nonnull TooltipContext options )
+    public void buildTooltip( @Nonnull ItemStack stack, @Nullable World world, @Nonnull List<Component> list, @Nonnull TooltipContext options )
     {
         if( options.isAdvanced() )
         {
             int id = getComputerID( stack );
             if( id >= 0 )
             {
-                list.add( new TranslatableTextComponent( "gui.computercraft.tooltip.computer_id", id )
-                    .applyFormat( TextFormat.GRAY ) );
+                list.add( new TranslatableComponent( "gui.computercraft.tooltip.computer_id", id )
+                    .applyFormat( ChatFormat.GRAY ) );
             }
         }
     }
@@ -68,7 +68,7 @@ public abstract class ItemComputerBase extends BlockItem implements IComputerIte
     {
         if( label != null )
         {
-            stack.setDisplayName( new StringTextComponent( label ) );
+            stack.setDisplayName( new TextComponent( label ) );
         }
         else
         {

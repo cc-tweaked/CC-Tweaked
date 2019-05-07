@@ -22,8 +22,8 @@ import dan200.computercraft.shared.util.TickScheduler;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.text.StringTextComponent;
-import net.minecraft.text.TranslatableTextComponent;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.hit.BlockHitResult;
@@ -194,14 +194,14 @@ public class TileWiredModemFull extends TileGeneric implements IPeripheralTile
         List<String> names = new ArrayList<>( peripherals );
         names.sort( Comparator.naturalOrder() );
 
-        StringTextComponent base = new StringTextComponent( "" );
+        TextComponent base = new TextComponent( "" );
         for( int i = 0; i < names.size(); i++ )
         {
             if( i > 0 ) base.append( ", " );
             base.append( CommandCopy.createCopyText( names.get( i ) ) );
         }
 
-        player.addChatMessage( new TranslatableTextComponent( kind, base ), false );
+        player.addChatMessage( new TranslatableComponent( kind, base ), false );
     }
 
     @Override

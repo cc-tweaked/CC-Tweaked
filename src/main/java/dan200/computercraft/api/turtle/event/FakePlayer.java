@@ -25,6 +25,8 @@ import net.minecraft.network.ClientConnection;
 import net.minecraft.network.NetworkSide;
 import net.minecraft.network.NetworkState;
 import net.minecraft.network.Packet;
+import net.minecraft.network.chat.ChatMessageType;
+import net.minecraft.network.chat.Component;
 import net.minecraft.recipe.Recipe;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -34,14 +36,12 @@ import net.minecraft.server.network.packet.VehicleMoveC2SPacket;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
-import net.minecraft.text.ChatMessageType;
-import net.minecraft.text.TextComponent;
 import net.minecraft.util.DefaultedList;
 import net.minecraft.util.Hand;
+import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.village.TraderOfferList;
 import net.minecraft.world.GameMode;
-import net.minecraft.world.chunk.ChunkPos;
 import net.minecraft.world.dimension.DimensionType;
 
 import javax.annotation.Nullable;
@@ -135,7 +135,7 @@ public class FakePlayer extends ServerPlayerEntity
     public void method_14241() { }
 
     @Override
-    public void addChatMessage( TextComponent textComponent, boolean status ) { }
+    public void addChatMessage( Component textComponent, boolean status ) { }
 
     @Override
     protected void method_6040() { }
@@ -162,7 +162,7 @@ public class FakePlayer extends ServerPlayerEntity
     public void setGameMode( GameMode gameMode ) { }
 
     @Override
-    public void sendChatMessage( TextComponent textComponent, ChatMessageType chatMessageType ) { }
+    public void sendChatMessage( Component textComponent, ChatMessageType chatMessageType ) { }
 
     @Override
     public String getServerBrand()
@@ -214,7 +214,7 @@ public class FakePlayer extends ServerPlayerEntity
         }
 
         @Override
-        public void disconnect( TextComponent message ) { }
+        public void disconnect( Component message ) { }
 
         @Override
         public void onRequestCommandCompletions( RequestCommandCompletionsC2SPacket packet ) { }
@@ -230,7 +230,7 @@ public class FakePlayer extends ServerPlayerEntity
     {
         FakeConnection()
         {
-            super( NetworkSide.SERVER );
+            super( NetworkSide.CLIENTBOUND );
         }
 
         @Override
@@ -244,7 +244,7 @@ public class FakePlayer extends ServerPlayerEntity
         }
 
         @Override
-        public void disconnect( TextComponent message )
+        public void disconnect( Component message )
         {
         }
 
