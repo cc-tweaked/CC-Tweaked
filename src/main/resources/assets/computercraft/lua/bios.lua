@@ -982,6 +982,8 @@ settings.set( "edit.default_extension", "lua" )
 settings.set( "paint.default_extension", "nfp" )
 settings.set( "lua.autocomplete", true )
 settings.set( "list.show_hidden", false )
+settings.set( "cctpm.directory", "/var/cctpm" )
+settings.set( "cctpm.repolist", "repolist|https://gitlab.com/Wilma456/cctpm/raw/master/repolist.txt" )
 if term.isColour() then
     settings.set( "bios.use_multishell", true )
 end
