@@ -402,7 +402,7 @@ public final class Config
 
             if( oldProperty.isList() )
             {
-                oldProperty.setValues( oldProperty.getStringList() );
+                oldProperty.setValues( newProperty.getStringList() );
             }
             else
             {
