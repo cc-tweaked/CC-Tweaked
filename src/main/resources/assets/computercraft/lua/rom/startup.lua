@@ -177,6 +177,12 @@ local function completeExec( shell, nIndex, sText, tPreviousText )
         return completeMultipleChoice( sText, tCommands, true )
     end
 end
+local tCCCTPMOptions = { "install ", "remove ", "upgrade ", "list", "installed", "info " }
+local function completeCCTPM( shell, nIndex, sText, tPreviousText )
+    if nIndex == 1 then
+        return completeMultipleChoice( sText, tCCCTPMOptions )
+    end
+end
 shell.setCompletionFunction( "rom/programs/alias.lua", completeAlias )
 shell.setCompletionFunction( "rom/programs/cd.lua", completeDir )
 shell.setCompletionFunction( "rom/programs/copy.lua", completeEitherEither )
@@ -202,6 +208,7 @@ shell.setCompletionFunction( "rom/programs/advanced/fg.lua", completeProgram )
 shell.setCompletionFunction( "rom/programs/fun/dj.lua", completeDJ )
 shell.setCompletionFunction( "rom/programs/fun/advanced/paint.lua", completeFile )
 shell.setCompletionFunction( "rom/programs/http/pastebin.lua", completePastebin )
+shell.setCompletionFunction( "rom/programs/http/cctpm.lua", completeCCTPM )
 shell.setCompletionFunction( "rom/programs/rednet/chat.lua", completeChat )
 shell.setCompletionFunction( "rom/programs/command/exec.lua", completeExec )
 

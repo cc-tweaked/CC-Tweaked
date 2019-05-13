@@ -1,6 +1,6 @@
 local cctpm = {}
 
-cctpm_cache = {}
+local cctpm_cache = {}
 
 local function downloadFile( sURL, sPath )
     local response, err = http.get( sURL )
@@ -17,7 +17,7 @@ end
 local function addRepo( sRepo, sName, tInstalledList )
     local tRepo = textutils.unserialise( sRepo )
     if type( tRepo ) ~= "table" then
-        return false, "Can't Read Repo \""..sName..'"'
+        return false, "Can't read repo \"" .. sName .. '"'
     end
     for a, b in pairs( tRepo) do 
         cctpm_cache.packages[a] = b
@@ -35,16 +35,17 @@ function cctpm.readRepos()
     local sDirectory = fs.combine( settings.get( "cctpm.directory", "/var/cctpm" ), "" )
     local tInstalledList = {}
     if fs.exists( sDirectory.."/installed.txt" ) then
-        for sLine in io.lines( sDirectory.."/installed.txt" ) do
-            local sPackageName = sLine:match("([^,]+);([^,]+)")
+        for sLine in io.lines( sDirectory .. "/installed.txt" ) do
+            local sPackageName = sLine:match( "([^,]+);([^,]+)" )
             tInstalledList[sPackageName] = true
         end
     end
-    local sRepoList = settings.get( "cctpm.repolist", "" )
+    local sRepoList = settings.get( "cctpm.repolist#", "" )
+        --Read online repos
         for sRepo in sRepoList:gmatch( sRepoList, "[^;]+") do
-            local sType, sMeta = sRepo:match("([^,]+)|([^,]+)")
+            local sType, sMeta = sRepo:match( "([^,]+)|([^,]+)" )
             if sType == "repo" then
-                sName, sURL = sMeta:match("([^,]+):([^,]+)")
+                sName, sURL = sMeta:match( "([^,]+),([^,]+)" )
                 local response, err = http.get( sURL )
                 if err then
                     return false, err
@@ -55,12 +56,16 @@ function cctpm.readRepos()
                     return false, err
                 end
             elseif sType == "repolist" then
-                local ok, err = downloadFile( sMeta, "/tmp/repolist.txt" )
-                if not ok then
+                local response, err = http.get( sMeta )
+                if not response then
                     return false, err
                 end
-                for sLine in io.lines( "/tmp/repolist.txt" ) do
-                    sName, sURL = sLine:match("([^,]+)|([^,]+)")
+                while true do
+                    local sLine = response.readLine()
+                    if sLine == nil then
+                        break
+                    end
+                    sName, sURL = sLine:match( "([^,]+)|([^,]+)" )
                     local response, err = http.get( sURL )
                     if err then
                         return false, err
@@ -73,10 +78,11 @@ function cctpm.readRepos()
                 end
             end
         end
-    fs.mkdir( sDirectory.."/repos" )
-    for k, v in ipairs( fs.list( sDirectory.."/repos" ) ) do
+    --Read local Repos
+    fs.makeDir( sDirectory.."/repos" )
+    for k, v in ipairs( fs.list( sDirectory .. "/repos" ) ) do
         local sName = v:sub( 1, -5 )
-        local handle = fs.open( sDirectory.."/repos/"..v, "r" )
+        local handle = fs.open( sDirectory .. "/repos/" .. v, "r" )
         local sContent = handle.readAll()
         handle.close()
         local ok, err = addRepo( sContent, sName, tInstalledList )
@@ -92,7 +98,7 @@ local function findDependencies( sPackage, sParent )
         return
     end
     if not cctpm_cache.packages[sPackage] then
-        cctpm_cache.err = '"'..sParent..'" depends to the the package "'..sPackage..'" which doesen\'t exists'
+        cctpm_cache.err = '"' .. sParent .. '" depends to the the package "' .. sPackage .. '" which doesen\'t exists'
         return
     end
     for k,v in ipairs(cctpm_cache.packages[sPackage]["dependencies"]) do
@@ -108,7 +114,7 @@ function cctpm.getDependencies( sPackage )
         error( "bad argument #1 (expected string, got " .. type( sPackage ) .. ")", 2 )
     end
     if cctpm_cache.packages[sPackage] == nil then
-        return nil, "Can't find Package \""..sPackage..'"'
+        return nil, "Can't find Package \"" .. sPackage .. '"'
     end
     cctpm_cache.dependencies = {}
     cctpm_cache.err = nil
@@ -146,7 +152,7 @@ function cctpm.install( sPackage, bForce )
         error( "bad argument #2 (expected boolean, got " .. type( bForce ) .. ")", 2 ) 
     end
     if cctpm_cache.packages[sPackage] == nil then
-        return false, "Can't find Package \""..sPackage..'"'
+        return false, "Can't find Package \"" .. sPackage .. '"'
     end
     local tInstall, err = cctpm.getDependencies( sPackage )
     if not tInstall then
@@ -156,11 +162,12 @@ function cctpm.install( sPackage, bForce )
     local sDirectory = fs.combine( settings.get( "cctpm.directory", "/var/cctpm" ), "" )
     for a, sInstallPack in ipairs( tInstall ) do
         if ( not cctpm_cache.packages[sInstallPack]["installed"] ) or ( bForce and sInstallPack == sPackage ) then
-            if not cctpm_cache.packages[sInstallPack]["files"] then
-                return false, '"'..sInstallPack..'" has no Filelist'
+            local ok, err = cctpm.checkPackage( sInstallPack )
+            if not ok then
+                return false, err
             end
-            if not cctpm_cache.packages[sInstallPack]["version"] then
-                return false, '"'..sInstallPack..'" has no Version'
+            if fs.getFreeSpace( "/ ") < ctpm_cache.packages[sInstallPack]["size"] then
+                return false, "Not enough Space"
             end
             for k,v in pairs(cctpm_cache.packages[sInstallPack]["files"]) do
                 local ok, err = downloadFile( k, v )
@@ -170,7 +177,7 @@ function cctpm.install( sPackage, bForce )
             end
             if not cctpm_cache.packages[sInstallPack]["installed"] then
                 local file = fs.open( sDirectory.."/installed.txt", "a" )
-                file.writeLine( sInstallPack..";"..cctpm_cache.packages[sInstallPack]["version"] )
+                file.writeLine( sInstallPack .. ";" .. cctpm_cache.packages[sInstallPack]["version"] )
                 file.close()
             end
             cctpm_cache.packages[sInstallPack]["installed"] = true
@@ -187,10 +194,10 @@ function cctpm.remove( sPackage, bForce )
         error( "bad argument #2 (expected boolean, got " .. type( bForce ) .. ")", 2 ) 
     end
     if cctpm_cache.packages[sPackage] == nil then
-        return false, "Can't find Package \""..sPackage..'"'
+        return false, "Can't find Package \"" .. sPackage.. '"'
     end
     if ( not cctpm_cache.packages[sPackage]["installed"] ) and not bForce then
-        return false, 'Package "'..sPackage..'" is not installed'
+        return false, 'Package "' .. sPackage .. '" is not installed'
     end
     for k,v in pairs(cctpm_cache.packages[sPackage]["files"]) do
         fs.delete( v )
@@ -217,7 +224,7 @@ function cctpm.getUpgradeable()
     local tUpgrade = {}
     if fs.exists( sInstalledFile ) then
         for sLine in io.lines( sInstalledFile ) do
-            local sName, sVersion = sLine:match("([^,]+);([^,]+)")
+            local sName, sVersion = sLine:match( "([^,]+);([^,]+)" )
             if cctpm_cache.packages[sName]["version"] ~= sVersion then
                 table.insert( tUpgrade, sName )
             end
@@ -243,6 +250,31 @@ function cctpm.getPackageInfo( sPackage )
     else
         return nil
     end
+end
+
+function cctpm.checkPackage( sPackage )
+    if type( sPackage ) ~= "string" then
+        error( "bad argument #1 (expected string, got " .. type( sPackage ) .. ")", 2 )
+    end
+    if cctpm_cache.packages[sPackage] == nil then
+        return false, "Can't find Package \"" .. sPackage .. '"'
+    end
+    if not cctpm_cache.packages[sPackage]["files"] then
+        return false, '"' .. sPackage .. '" has no Filelist'
+    end
+    if not cctpm_cache.packages[sPackage]["version"] then
+        return false, '"' .. sPackage .. '" has no Version'
+    end
+    if not cctpm_cache.packages[sPackage]["author"] then
+        return false, '"' .. sPackage .. '" has no Author'
+    end
+    if not cctpm_cache.packages[sPackage]["description"] then
+        return false, '"' .. sPackage .. '" has no Description'
+    end
+    if not cctpm_cache.packages[sPackage]["size"] then
+        return false, '"' .. sPackage .. '" has no Size'
+    end
+    return true
 end
 
 return cctpm

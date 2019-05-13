@@ -1,6 +1,17 @@
-local cctpm = require("cctpm")
+local cctpm = require("http.cctpm")
 
 local tArgs = { ... }
+
+local function askYesNo()
+    while true do
+        local ev, key = os.pullEvent("key_up")
+        if key == keys.n then
+            return false
+        elseif key == keys.y then
+            return true
+        end
+    end
+end
 
 local ok, err = cctpm.readRepos()
 if not ok then
@@ -10,6 +21,20 @@ end
 if tArgs[1] == "install" then
     if not tArgs[2] then
         print("Usage: cctpm install <package>")
+        return
+    end
+    local tInstall, err = cctpm.getDependencies( tArgs[2] )
+    if not tInstall then
+        printError( err )
+        return
+    end
+    table.insert( tInstall, tArgs[2] )
+    print( "The following Packages will be installed:" )
+    for k, v in ipairs( tInstall ) do
+        write( v .. " " )
+    end
+    print( "\nDo you want to Continue? [Y|N]" )
+    if not askYesNo() then
         return
     end
     local ok, err = cctpm.install( tArgs[2] )
@@ -31,18 +56,13 @@ elseif tArgs[1] == "upgrade" then
         print( "All Packages are up to date!" )
         return
     end
-    print( "The following Packages can be upgradet:" )
+    print( "The following Packages can be Upgraded:" )
     for k, v in ipairs( tList ) do
         write( v )
     end
     print( "\nDo you want to Continue? [Y|N]" )
-    while true do
-        local ev, key = os.pullEvent("key_up")
-        if key == keys.n then
-            return
-        elseif key == keys.y then
-            break
-        end
+    if not askYesNo() then
+        return
     end
     for k, v in ipairs( tList ) do
         local ok, err = cctpm.install( v, true )
@@ -64,8 +84,15 @@ elseif tArgs[1] == "info" then
         print( 'Package "'..tArgs[2]..'" not found' )
         return
     end
+    local ok, err = cctpm.checkPackage( tArgs[2] )
+    if not ok then
+        printError( err )
+        return
+    end
     print( tInfo.name )
     print( tInfo.description )
+    print( "Author: " .. tInfo.author )
+    print( "Version: " .. tInfo.version )
     if tInfo.installed then
         print( "Installed: Yes" )
     else
@@ -74,9 +101,9 @@ elseif tArgs[1] == "info" then
     if #tInfo.dependencies == 0 then
         print( "Dependencies: None" )
     else
-        write( "Dependencies:" )
+        write( "Dependencies: " )
         for k, v in ipairs( tInfo.dependencies ) do
-            write( v )
+            write( v .. " " )
         end
         print()
     end
