@@ -269,6 +269,11 @@ local function findStartups( sBaseDir )
     return tStartups
 end
 
+-- Show MOTD
+if settings.get( "motd.enable" ) then
+    shell.run( "motd" )
+end
+
 -- Run the user created startup, either from disk drives or the root
 local tUserStartups = nil
 if settings.get( "shell.allow_startup" ) then
