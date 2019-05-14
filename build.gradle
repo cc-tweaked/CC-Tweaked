@@ -302,8 +302,6 @@ githubRelease {
     releaseName "[${mc_version}] ${mod_version}"
     body ''
     prerelease false
-
-    releaseAssets.from(jar.archivePath)
 }
 
 task uploadAll(dependsOn: [uploadArchives, "curseforge", "githubRelease"]) {
