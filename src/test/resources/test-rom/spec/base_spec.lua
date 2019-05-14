@@ -1,4 +1,28 @@
 describe("The Lua base library", function()
+    describe("expect", function()
+        local e = _G.expect
+
+        it("checks a single type", function()
+            expect(e(1, "test", "string")):eq(true)
+            expect(e(1, 2, "number")):eq(true)
+
+            expect({ pcall(e, 1, nil, "string") })
+                :matches { false, "base_spec.lua:9: bad argument #1 (expected string, got nil)"}
+            expect({ pcall(e, 2, 1, "nil") })
+                :matches { false, "base_spec.lua:11: bad argument #2 (expected nil, got number)"}
+        end)
+
+        it("checks multiple types", function()
+            expect(e(1, "test", "string", "number")):eq(true)
+            expect(e(1, 2, "string", "number")):eq(true)
+
+            expect({ pcall(e, 1, nil, "string", "number") })
+                :matches { false, "base_spec.lua:19: bad argument #1 (expected string or number, got nil)"}
+            expect({ pcall(e, 2, false, "string", "table", "number", "nil") })
+                :matches { false, "base_spec.lua:21: bad argument #2 (expected string, table or number, got boolean)"}
+        end)
+    end)
+
     describe("loadfile", function()
         it("prefixes the filename with @", function()
             local info = debug.getinfo(loadfile("/rom/startup.lua"), "S")

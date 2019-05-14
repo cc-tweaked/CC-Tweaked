@@ -1,29 +1,34 @@
-
-local nativegetfenv = getfenv
-
-function expect (index, arg, ...)
-    local type = type
-    if type(index) ~= "number" then
-        return error("bad argument #1 (expected number, got " .. type(index) .. ")", 2)
+local native_select, native_type = select, type
+function expect(index, value, ...)
+    if native_type(index) ~= "number" then
+        error("bad argument #1 (expected number, got " .. type(index) .. ")", 2)
     end
 
-    local t, tys, n = type(arg), {}, 1
+    local t = type(value)
+    for i = 1, native_select("#", ...) do
+        local ty = native_select(i, ...)
+        if native_type(ty) ~= "string" then
+            error("bad argument #" .. 2 + i .. " (expected string, got " .. type(ty) .. ")", 2)
+        end
 
-    for i = 1, select("#", ...) do
-        local ty = select(i, ...)
-        if type(ty) ~= "string" then
-            return error("bad argument #" .. 2 + i .. " (expected string, got " .. type(ty) .. ")", 2)
-        elseif t == ty then
+        if t == ty then
             return true
         end
-        if ty ~= "nil" then
-            tys[n] = ty
-            n = n + 1
-        end
     end
 
-    local types = table.concat(tys, " or ")
-    return error( ("bad argument #%d (expected %s, got %s)"):format(index, types, t), 3 )
+    local types = table.pack(...)
+    for i = types.n, 1, -1 do
+        if types[i] == "nil" then table.remove(types, i) end
+    end
+
+    local names
+    if #types <= 1 then
+        names = tostring(...)
+    else
+        names = table.concat(types, ", ", 1, #types - 1) .. " or " .. types[#types]
+    end
+
+    error( ("bad argument #%d (expected %s, got %s)"):format(index, names, t), 3 )
 end
 
 if _VERSION == "Lua 5.1" then
