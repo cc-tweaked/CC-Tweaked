@@ -147,6 +147,7 @@ public class ComputerBootstrap
                 }
                 case 1:
                     ComputerCraft.log.info( "[Computer] {}", Arrays.toString( arguments ) );
+                    return null;
 
                 default:
                     return null;
