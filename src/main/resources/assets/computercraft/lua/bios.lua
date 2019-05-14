@@ -1004,18 +1004,18 @@ local ok, err = pcall( function()
         function()
             rednet.run()
         end )
+end )
+
+-- If the shell errored, let the user read it.
+term.redirect( term.native() )
+if not ok then
+    printError( err )
+    pcall( function()
+        term.setCursorBlink( false )
+        print( "Press any key to continue" )
+        os.pullEvent( "key" )
     end )
+end
 
-    -- If the shell errored, let the user read it.
-    term.redirect( term.native() )
-    if not ok then
-        printError( err )
-        pcall( function()
-            term.setCursorBlink( false )
-            print( "Press any key to continue" )
-            os.pullEvent( "key" )
-        end )
-    end
-
-    -- End
-    os.shutdown()
+-- End
+os.shutdown()

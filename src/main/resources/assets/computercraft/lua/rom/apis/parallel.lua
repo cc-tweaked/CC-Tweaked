@@ -4,7 +4,9 @@ local function create( ... )
     local tCos = {}
     for i = 1, tFns.n, 1 do
         local fn = tFns[i]
-        expect(i, fn, "function")
+        if type( fn ) ~= "function" then
+            error( "bad argument #" .. i .. " (expected function, got " .. type( fn ) .. ")", 3 )
+        end
 
         tCos[i] = coroutine.create(fn)
     end
