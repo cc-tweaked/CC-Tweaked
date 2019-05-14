@@ -5,7 +5,8 @@
     "mixins": [
         "MixinBlock",
         "MixinEntity",
-        "MixinServerWorld"
+        "MixinServerWorld",
+        "MixinWorld"
     ],
     "injectors": {
         "defaultRequire": 1
