@@ -689,108 +689,110 @@ if http then
 
     local function checkOptions( options, body )
         checkKey( options, "url", "string")
-        if body == false
-            then checkKey( options, "body", "nil" )
-    else checkKey( options, "body", "string", not body ) end
-    checkKey( options, "headers", "table", true )
-    checkKey( options, "method", "string", true )
-    checkKey( options, "redirect", "boolean", true )
+        if body == false then
+          checkKey( options, "body", "nil" )
+        else
+          checkKey( options, "body", "string", not body )
+        end
+        checkKey( options, "headers", "table", true )
+        checkKey( options, "method", "string", true )
+        checkKey( options, "redirect", "boolean", true )
 
-    if options.method and not methods[options.method] then
-        error( "Unsupported HTTP method", 3 )
+        if options.method and not methods[options.method] then
+            error( "Unsupported HTTP method", 3 )
+        end
     end
-end
 
-local function wrapRequest( _url, ... )
-    local ok, err = nativeHTTPRequest( ... )
-    if ok then
+    local function wrapRequest( _url, ... )
+        local ok, err = nativeHTTPRequest( ... )
+        if ok then
+            while true do
+                local event, param1, param2, param3 = os.pullEvent()
+                if event == "http_success" and param1 == _url then
+                    return param2
+                elseif event == "http_failure" and param1 == _url then
+                    return nil, param2, param3
+                end
+            end
+        end
+        return nil, err
+    end
+
+    http.get = function( _url, _headers, _binary)
+        if type( _url ) == "table" then
+            checkOptions( _url, false )
+            return wrapRequest( _url.url, _url )
+        end
+
+        expect(1, _url, 'string')
+        expect(2, _headers, 'table', 'nil')
+        expect(3, _binary, 'boolean', 'nil')
+        return wrapRequest( _url, _url, nil, _headers, _binary )
+    end
+
+    http.post = function( _url, _post, _headers, _binary)
+        if type( _url ) == "table" then
+            checkOptions( _url, true )
+            return wrapRequest( _url.url, _url )
+        end
+
+        expect(1, _url, 'string')
+        expect(2, _post, 'string')
+        expect(3, _headers, 'table', 'nil')
+        expect(4, _binary, 'boolean', 'nil')
+        return wrapRequest( _url, _url, _post, _headers, _binary )
+    end
+
+    http.request = function( _url, _post, _headers, _binary )
+        local url
+        if type( _url ) == "table" then
+            checkOptions( _url )
+            url = _url.url
+        else
+            expect(1, _url, 'string')
+            expect(2, _post, 'string', 'nil')
+            expect(3, _headers, 'table', 'nil')
+            expect(4, _binary, 'boolean', 'nil')
+            url = _url.url
+        end
+
+        local ok, err = nativeHTTPRequest( _url, _post, _headers, _binary )
+        if not ok then
+            os.queueEvent( "http_failure", url, err )
+        end
+        return ok, err
+    end
+
+    local nativeCheckURL = http.checkURL
+    http.checkURLAsync = nativeCheckURL
+    http.checkURL = function( _url )
+        local ok, err = nativeCheckURL( _url )
+        if not ok then return ok, err end
+
         while true do
-            local event, param1, param2, param3 = os.pullEvent()
-            if event == "http_success" and param1 == _url then
-                return param2
-            elseif event == "http_failure" and param1 == _url then
-                return nil, param2, param3
+            local event, url, ok, err = os.pullEvent( "http_check" )
+            if url == _url then return ok, err end
+        end
+    end
+
+    local nativeWebsocket = http.websocket
+    http.websocketAsync = nativeWebsocket
+    http.websocket = function( _url, _headers )
+        expect(1, _url, 'string')
+        expect(2, _headers, 'table', 'nil')
+
+        local ok, err = nativeWebsocket( _url, _headers )
+        if not ok then return ok, err end
+
+        while true do
+            local event, url, param = os.pullEvent( )
+            if event == "websocket_success" and url == _url then
+                return param
+            elseif event == "websocket_failure" and url == _url then
+                return false, param
             end
         end
     end
-    return nil, err
-end
-
-http.get = function( _url, _headers, _binary)
-    if type( _url ) == "table" then
-        checkOptions( _url, false )
-        return wrapRequest( _url.url, _url )
-    end
-
-    expect(1, _url, 'string')
-    expect(2, _headers, 'table', 'nil')
-    expect(3, _binary, 'boolean', 'nil')
-    return wrapRequest( _url, _url, nil, _headers, _binary )
-end
-
-http.post = function( _url, _post, _headers, _binary)
-    if type( _url ) == "table" then
-        checkOptions( _url, true )
-        return wrapRequest( _url.url, _url )
-    end
-
-    expect(1, _url, 'string')
-    expect(2, _post, 'string')
-    expect(3, _headers, 'table', 'nil')
-    expect(4, _binary, 'boolean', 'nil')
-    return wrapRequest( _url, _url, _post, _headers, _binary )
-end
-
-http.request = function( _url, _post, _headers, _binary )
-    local url
-    if type( _url ) == "table" then
-        checkOptions( _url )
-        url = _url.url
-    else
-        expect(1, _url, 'string')
-        expect(2, _post, 'string', 'nil')
-        expect(3, _headers, 'table', 'nil')
-        expect(4, _binary, 'boolean', 'nil')
-        url = _url.url
-    end
-
-    local ok, err = nativeHTTPRequest( _url, _post, _headers, _binary )
-    if not ok then
-        os.queueEvent( "http_failure", url, err )
-    end
-    return ok, err
-end
-
-local nativeCheckURL = http.checkURL
-http.checkURLAsync = nativeCheckURL
-http.checkURL = function( _url )
-    local ok, err = nativeCheckURL( _url )
-    if not ok then return ok, err end
-
-    while true do
-        local event, url, ok, err = os.pullEvent( "http_check" )
-        if url == _url then return ok, err end
-    end
-end
-
-local nativeWebsocket = http.websocket
-http.websocketAsync = nativeWebsocket
-http.websocket = function( _url, _headers )
-    expect(1, _url, 'string')
-    expect(2, _headers, 'table', 'nil')
-
-    local ok, err = nativeWebsocket( _url, _headers )
-    if not ok then return ok, err end
-
-    while true do
-        local event, url, param = os.pullEvent( )
-        if event == "websocket_success" and url == _url then
-            return param
-        elseif event == "websocket_failure" and url == _url then
-            return false, param
-        end
-    end
-end
 end
 
 -- Install the lua part of the FS api
