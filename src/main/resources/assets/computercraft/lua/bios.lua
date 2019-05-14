@@ -3,26 +3,26 @@ local nativegetfenv = getfenv
 
 function expect (index, arg, ...)
     local type = type
-    if type(index) ~= 'number' then
+    if type(index) ~= "number" then
         return error("bad argument #1 (expected number, got " .. type(index) .. ")", 2)
     end
 
     local t, tys, n = type(arg), {}, 1
 
-    for i = 1, select('#', ...) do
+    for i = 1, select("#", ...) do
         local ty = select(i, ...)
-        if type(ty) ~= 'string' then
+        if type(ty) ~= "string" then
             return error("bad argument #" .. 2 + i .. " (expected string, got " .. type(ty) .. ")", 2)
         elseif t == ty then
             return true
         end
-        if ty ~= 'nil' then
+        if ty ~= "nil" then
             tys[n] = ty
             n = n + 1
         end
     end
 
-    local types = table.concat(tys, ' or ')
+    local types = table.concat(tys, " or ")
     return error( ("bad argument #%d (expected %s, got %s)"):format(index, types, t), 3 )
 end
 
@@ -194,7 +194,7 @@ end
 
 -- Install globals
 function sleep( nTime )
-    expect(1, nTime, 'number')
+    expect(1, nTime, "number", nil)
     local timer = os.startTimer( nTime or 0 )
     repeat
         local sEvent, param = os.pullEvent( "timer" )
@@ -202,7 +202,7 @@ function sleep( nTime )
 end
 
 function write( sText )
-    expect(1, sText, 'string', 'number')
+    expect(1, sText, "string", "number")
 
     local w,h = term.getSize()
     local x,y = term.getCursorPos()
@@ -290,10 +290,10 @@ function printError( ... )
 end
 
 function read( _sReplaceChar, _tHistory, _fnComplete, _sDefault )
-    expect(1, _sReplaceChar, 'string', 'nil')
-    expect(2, _tHistory, 'table', 'nil')
-    expect(3, _fnComplete, 'function', 'nil')
-    expect(4, _sDefault, 'string', 'nil')
+    expect(1, _sReplaceChar, "string", "nil")
+    expect(2, _tHistory, "table", "nil")
+    expect(3, _fnComplete, "function", "nil")
+    expect(4, _sDefault, "string", "nil")
 
     term.setCursorBlink( true )
 
@@ -553,8 +553,8 @@ function read( _sReplaceChar, _tHistory, _fnComplete, _sDefault )
 end
 
 function loadfile( _sFile, _tEnv )
-    expect(1, _sFile, 'string')
-    expect(2, _tEnv, 'table', 'nil')
+    expect(1, _sFile, "string")
+    expect(2, _tEnv, "table", "nil")
 
     local file = fs.open( _sFile, "r" )
     if file then
@@ -566,7 +566,7 @@ function loadfile( _sFile, _tEnv )
 end
 
 function dofile( _sFile )
-    expect(1, _sFile, 'string')
+    expect(1, _sFile, "string")
 
     local fnFile, e = loadfile( _sFile, _G )
     if fnFile then
@@ -578,8 +578,8 @@ end
 
 -- Install the rest of the OS api
 function os.run( _tEnv, _sPath, ... )
-    expect(1, _tEnv, 'table')
-    expect(2, _sPath, 'string')
+    expect(1, _tEnv, "table")
+    expect(2, _sPath, "string")
 
     local tArgs = table.pack( ... )
     local tEnv = _tEnv
@@ -605,7 +605,7 @@ end
 
 local tAPIsLoading = {}
 function os.loadAPI( _sPath )
-    expect(1, _sPath, 'string')
+    expect(1, _sPath, "string")
     local sName = fs.getName( _sPath )
     if sName:sub(-4) == ".lua" then
         sName = sName:sub(1,-5)
@@ -643,7 +643,7 @@ function os.loadAPI( _sPath )
 end
 
 function os.unloadAPI( _sName )
-    expect(1, _sName, 'string')
+    expect(1, _sName, "string")
     if _sName ~= "_G" and type(_G[_sName]) == "table" then
         _G[_sName] = nil
     end
@@ -724,9 +724,9 @@ if http then
             return wrapRequest( _url.url, _url )
         end
 
-        expect(1, _url, 'string')
-        expect(2, _headers, 'table', 'nil')
-        expect(3, _binary, 'boolean', 'nil')
+        expect(1, _url, "string")
+        expect(2, _headers, "table", "nil")
+        expect(3, _binary, "boolean", "nil")
         return wrapRequest( _url, _url, nil, _headers, _binary )
     end
 
@@ -736,10 +736,10 @@ if http then
             return wrapRequest( _url.url, _url )
         end
 
-        expect(1, _url, 'string')
-        expect(2, _post, 'string')
-        expect(3, _headers, 'table', 'nil')
-        expect(4, _binary, 'boolean', 'nil')
+        expect(1, _url, "string")
+        expect(2, _post, "string")
+        expect(3, _headers, "table", "nil")
+        expect(4, _binary, "boolean", "nil")
         return wrapRequest( _url, _url, _post, _headers, _binary )
     end
 
@@ -749,10 +749,10 @@ if http then
             checkOptions( _url )
             url = _url.url
         else
-            expect(1, _url, 'string')
-            expect(2, _post, 'string', 'nil')
-            expect(3, _headers, 'table', 'nil')
-            expect(4, _binary, 'boolean', 'nil')
+            expect(1, _url, "string")
+            expect(2, _post, "string", "nil")
+            expect(3, _headers, "table", "nil")
+            expect(4, _binary, "boolean", "nil")
             url = _url.url
         end
 
@@ -778,8 +778,8 @@ if http then
     local nativeWebsocket = http.websocket
     http.websocketAsync = nativeWebsocket
     http.websocket = function( _url, _headers )
-        expect(1, _url, 'string')
-        expect(2, _headers, 'table', 'nil')
+        expect(1, _url, "string")
+        expect(2, _headers, "table", "nil")
 
         local ok, err = nativeWebsocket( _url, _headers )
         if not ok then return ok, err end
@@ -798,10 +798,10 @@ end
 -- Install the lua part of the FS api
 local tEmpty = {}
 function fs.complete( sPath, sLocation, bIncludeFiles, bIncludeDirs )
-    expect(1, sPath, 'string')
-    expect(2, sLocation, 'string')
-    expect(3, bIncludeFiles, 'boolean', 'nil')
-    expect(4, bIncludeDirs, 'boolean', 'nil')
+    expect(1, sPath, "string")
+    expect(2, sLocation, "string")
+    expect(3, bIncludeFiles, "boolean", "nil")
+    expect(4, bIncludeDirs, "boolean", "nil")
 
     bIncludeFiles = (bIncludeFiles ~= false)
     bIncludeDirs = (bIncludeDirs ~= false)

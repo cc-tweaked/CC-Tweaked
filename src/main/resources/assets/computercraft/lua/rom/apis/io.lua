@@ -65,7 +65,7 @@ handleMetatable = {
             local handle = self._handle
             if not handle.read and not handle.readLine then return nil, "Not opened for reading" end
 
-            local n = select('#', ...)
+            local n = select("#", ...)
             local output = {}
             for i = 1, n do
                 local arg = select(i, ...)
@@ -184,7 +184,7 @@ function input(_arg)
 end
 
 function lines(_sFileName)
-    expect(1, _sFileName, 'string', 'nil')
+    expect(1, _sFileName, "string", "nil")
     if _sFileName then
         local ok, err = open(_sFileName, "rb")
         if not ok then error(err, 2) end
@@ -199,8 +199,8 @@ function lines(_sFileName)
 end
 
 function open(_sPath, _sMode)
-    expect(1, _sPath, 'string')
-    expect(1, _sMode, 'string', 'nil')
+    expect(1, _sPath, "string")
+    expect(1, _sMode, "string", "nil")
 
     local sMode = _sMode and _sMode:gsub("%+", "") or "rb"
     local file, err = fs.open(_sPath, sMode)

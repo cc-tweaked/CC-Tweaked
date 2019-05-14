@@ -54,7 +54,7 @@ end
 
 function send( nRecipient, message, sProtocol )
     expect(1, nRecipient, "number")
-    expect(3, sProtocol, "string", 'nil')
+    expect(3, sProtocol, "string", "nil")
     -- Generate a (probably) unique message ID
     -- We could do other things to guarantee uniqueness, but we really don't need to
     -- Store it to ensure we don't get our own messages back

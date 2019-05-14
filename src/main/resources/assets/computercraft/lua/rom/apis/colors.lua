@@ -19,7 +19,7 @@ black = 32768
 function combine( ... )
     local r = 0
     for n,c in ipairs( { ... } ) do
-        expect(n, c, 'number')
+        expect(n, c, "number")
         r = bit32.bor(r,c)
     end
     return r
@@ -29,7 +29,7 @@ function subtract( colors, ... )
     expect(1, colors, "number")
     local r = colors
     for n,c in ipairs( { ... } ) do
-        expect(n + 1, c, 'number')
+        expect(n + 1, c, "number")
         r = bit32.band(r, bit32.bnot(c))
     end
     return r

@@ -4,7 +4,7 @@ local function create( ... )
     local tCos = {}
     for i = 1, tFns.n, 1 do
         local fn = tFns[i]
-        expect(i, fn, 'function')
+        expect(i, fn, "function")
 
         tCos[i] = coroutine.create(fn)
     end
