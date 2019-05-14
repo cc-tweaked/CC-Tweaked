@@ -1,5 +1,31 @@
 
 local nativegetfenv = getfenv
+
+function expect (index, arg, ...)
+    local type = type
+    if type(index) ~= 'number' then
+        return error("bad argument #1 (expected number, got " .. type(index) .. ")", 2)
+    end
+
+    local t, tys, n = type(arg), {}, 1
+
+    for i = 1, select('#', ...) do
+        local ty = select(i, ...)
+        if type(ty) ~= 'string' then
+            return error("bad argument #" .. 2 + i .. " (expected string, got " .. type(ty) .. ")", 2)
+        elseif t == ty then
+            return true
+        end
+        if ty ~= 'nil' then
+            tys[n] = ty
+            n = n + 1
+        end
+    end
+
+    local types = table.concat(tys, ' or ')
+    return error( ("bad argument #%d (expected %s, got %s)"):format(index, types, t), 3 )
+end
+
 if _VERSION == "Lua 5.1" then
     -- If we're on Lua 5.1, install parts of the Lua 5.2/5.3 API so that programs can be written against it
     local type = type
@@ -20,18 +46,11 @@ if _VERSION == "Lua 5.1" then
     end
 
     function load( x, name, mode, env )
-        if type( x ) ~= "string" and type( x ) ~= "function" then
-            error( "bad argument #1 (expected string or function, got " .. type( x ) .. ")", 2 )
-        end
-        if name ~= nil and type( name ) ~= "string" then
-            error( "bad argument #2 (expected string, got " .. type( name ) .. ")", 2 )
-        end
-        if mode ~= nil and type( mode ) ~= "string" then
-            error( "bad argument #3 (expected string, got " .. type( mode ) .. ")", 2 )
-        end
-        if env ~= nil and type( env) ~= "table" then
-            error( "bad argument #4 (expected table, got " .. type( env ) .. ")", 2 )
-        end
+        expect(1, x, "function", "string")
+        expect(2, name, "string", "nil")
+        expect(3, mode, "string", "nil")
+        expect(4, env, "table", "nil")
+
         local ok, p1, p2 = pcall( function()
             if type(x) == "string" then
                 local result, err = nativeloadstring( x, name )
@@ -78,7 +97,7 @@ if _VERSION == "Lua 5.1" then
     else
         loadstring = function(string, chunkname) return nativeloadstring(string, prefix( chunkname ))
 
-        -- Inject a stub for the old bit library
+            -- Inject a stub for the old bit library
         end
         _G.bit = {
             bnot = bit32.bnot,
@@ -175,9 +194,7 @@ end
 
 -- Install globals
 function sleep( nTime )
-    if nTime ~= nil and type( nTime ) ~= "number" then
-        error( "bad argument #1 (expected number, got " .. type( nTime ) .. ")", 2 )
-    end
+    expect(1, nTime, 'number')
     local timer = os.startTimer( nTime or 0 )
     repeat
         local sEvent, param = os.pullEvent( "timer" )
@@ -185,9 +202,7 @@ function sleep( nTime )
 end
 
 function write( sText )
-    if type( sText ) ~= "string" and type( sText ) ~= "number" then
-        error( "bad argument #1 (expected string or number, got " .. type( sText ) .. ")", 2 )
-    end
+    expect(1, sText, 'string', 'number')
 
     local w,h = term.getSize()
     local x,y = term.getCursorPos()
@@ -275,18 +290,11 @@ function printError( ... )
 end
 
 function read( _sReplaceChar, _tHistory, _fnComplete, _sDefault )
-    if _sReplaceChar ~= nil and type( _sReplaceChar ) ~= "string" then
-        error( "bad argument #1 (expected string, got " .. type( _sReplaceChar ) .. ")", 2 )
-    end
-    if _tHistory ~= nil and type( _tHistory ) ~= "table" then
-        error( "bad argument #2 (expected table, got " .. type( _tHistory ) .. ")", 2 )
-    end
-    if _fnComplete ~= nil and type( _fnComplete ) ~= "function" then
-        error( "bad argument #3 (expected function, got " .. type( _fnComplete ) .. ")", 2 )
-    end
-    if _sDefault ~= nil and type( _sDefault ) ~= "string" then
-        error( "bad argument #4 (expected string, got " .. type( _sDefault ) .. ")", 2 )
-    end
+    expect(1, _sReplaceChar, 'string', 'nil')
+    expect(2, _tHistory, 'table', 'nil')
+    expect(3, _fnComplete, 'function', 'nil')
+    expect(4, _sDefault, 'string', 'nil')
+
     term.setCursorBlink( true )
 
     local sLine
@@ -544,13 +552,10 @@ function read( _sReplaceChar, _tHistory, _fnComplete, _sDefault )
     return sLine
 end
 
-loadfile = function( _sFile, _tEnv )
-    if type( _sFile ) ~= "string" then
-        error( "bad argument #1 (expected string, got " .. type( _sFile ) .. ")", 2 )
-    end
-    if _tEnv ~= nil and type( _tEnv ) ~= "table" then
-        error( "bad argument #2 (expected table, got " .. type( _tEnv ) .. ")", 2 )
-    end
+function loadfile( _sFile, _tEnv )
+    expect(1, _sFile, 'string')
+    expect(2, _tEnv, 'table', 'nil')
+
     local file = fs.open( _sFile, "r" )
     if file then
         local func, err = load( file.readAll(), "@" .. fs.getName( _sFile ), "t", _tEnv )
@@ -560,10 +565,9 @@ loadfile = function( _sFile, _tEnv )
     return nil, "File not found"
 end
 
-dofile = function( _sFile )
-    if type( _sFile ) ~= "string" then
-        error( "bad argument #1 (expected string, got " .. type( _sFile ) .. ")", 2 )
-    end
+function dofile( _sFile )
+    expect(1, _sFile, 'string')
+
     local fnFile, e = loadfile( _sFile, _G )
     if fnFile then
         return fnFile()
@@ -574,12 +578,9 @@ end
 
 -- Install the rest of the OS api
 function os.run( _tEnv, _sPath, ... )
-    if type( _tEnv ) ~= "table" then
-        error( "bad argument #1 (expected table, got " .. type( _tEnv ) .. ")", 2 )
-    end
-    if type( _sPath ) ~= "string" then
-        error( "bad argument #2 (expected string, got " .. type( _sPath ) .. ")", 2 )
-    end
+    expect(1, _tEnv, 'table')
+    expect(2, _sPath, 'string')
+
     local tArgs = table.pack( ... )
     local tEnv = _tEnv
     setmetatable( tEnv, { __index = _G } )
@@ -604,9 +605,7 @@ end
 
 local tAPIsLoading = {}
 function os.loadAPI( _sPath )
-    if type( _sPath ) ~= "string" then
-        error( "bad argument #1 (expected string, got " .. type( _sPath ) .. ")", 2 )
-    end
+    expect(1, _sPath, 'string')
     local sName = fs.getName( _sPath )
     if sName:sub(-4) == ".lua" then
         sName = sName:sub(1,-5)
@@ -644,9 +643,7 @@ function os.loadAPI( _sPath )
 end
 
 function os.unloadAPI( _sName )
-    if type( _sName ) ~= "string" then
-        error( "bad argument #1 (expected string, got " .. type( _sName ) .. ")", 2 )
-    end
+    expect(1, _sName, 'string')
     if _sName ~= "_G" and type(_G[_sName]) == "table" then
         _G[_sName] = nil
     end
@@ -693,150 +690,117 @@ if http then
     local function checkOptions( options, body )
         checkKey( options, "url", "string")
         if body == false
-        then checkKey( options, "body", "nil" )
-        else checkKey( options, "body", "string", not body ) end
-        checkKey( options, "headers", "table", true )
-        checkKey( options, "method", "string", true )
-        checkKey( options, "redirect", "boolean", true )
+            then checkKey( options, "body", "nil" )
+    else checkKey( options, "body", "string", not body ) end
+    checkKey( options, "headers", "table", true )
+    checkKey( options, "method", "string", true )
+    checkKey( options, "redirect", "boolean", true )
 
-        if options.method and not methods[options.method] then
-            error( "Unsupported HTTP method", 3 )
-        end
+    if options.method and not methods[options.method] then
+        error( "Unsupported HTTP method", 3 )
     end
+end
 
-    local function wrapRequest( _url, ... )
-        local ok, err = nativeHTTPRequest( ... )
-        if ok then
-            while true do
-                local event, param1, param2, param3 = os.pullEvent()
-                if event == "http_success" and param1 == _url then
-                    return param2
-                elseif event == "http_failure" and param1 == _url then
-                    return nil, param2, param3
-                end
-            end
-        end
-        return nil, err
-    end
-
-    http.get = function( _url, _headers, _binary)
-        if type( _url ) == "table" then
-            checkOptions( _url, false )
-            return wrapRequest( _url.url, _url )
-        end
-
-        if type( _url ) ~= "string" then
-            error( "bad argument #1 (expected string, got " .. type( _url ) .. ")", 2 )
-        end
-        if _headers ~= nil and type( _headers ) ~= "table" then
-            error( "bad argument #2 (expected table, got " .. type( _headers ) .. ")", 2 )
-        end
-        if _binary ~= nil and type( _binary ) ~= "boolean" then
-            error( "bad argument #3 (expected boolean, got " .. type( _binary ) .. ")", 2 )
-        end
-        return wrapRequest( _url, _url, nil, _headers, _binary )
-    end
-
-    http.post = function( _url, _post, _headers, _binary)
-        if type( _url ) == "table" then
-            checkOptions( _url, true )
-            return wrapRequest( _url.url, _url )
-        end
-
-        if type( _url ) ~= "string" then
-            error( "bad argument #1 (expected string, got " .. type( _url ) .. ")", 2 )
-        end
-        if type( _post ) ~= "string" then
-            error( "bad argument #2 (expected string, got " .. type( _post ) .. ")", 2 )
-        end
-        if _headers ~= nil and type( _headers ) ~= "table" then
-            error( "bad argument #3 (expected table, got " .. type( _headers ) .. ")", 2 )
-        end
-        if _binary ~= nil and type( _binary ) ~= "boolean" then
-            error( "bad argument #4 (expected boolean, got " .. type( _binary ) .. ")", 2 )
-        end
-        return wrapRequest( _url, _url, _post, _headers, _binary )
-    end
-
-    http.request = function( _url, _post, _headers, _binary )
-        local url
-        if type( _url ) == "table" then
-            checkOptions( _url )
-            url = _url.url
-        else
-            if type( _url ) ~= "string" then
-                error( "bad argument #1 (expected string, got " .. type( _url ) .. ")", 2 )
-            end
-            if _post ~= nil and type( _post ) ~= "string" then
-                error( "bad argument #2 (expected string, got " .. type( _post ) .. ")", 2 )
-            end
-            if _headers ~= nil and type( _headers ) ~= "table" then
-                error( "bad argument #3 (expected table, got " .. type( _headers ) .. ")", 2 )
-            end
-            if _binary ~= nil and type( _binary ) ~= "boolean" then
-                error( "bad argument #4 (expected boolean, got " .. type( _binary ) .. ")", 2 )
-            end
-
-            url = _url.url
-        end
-
-        local ok, err = nativeHTTPRequest( _url, _post, _headers, _binary )
-        if not ok then
-            os.queueEvent( "http_failure", url, err )
-        end
-        return ok, err
-    end
-
-    local nativeCheckURL = http.checkURL
-    http.checkURLAsync = nativeCheckURL
-    http.checkURL = function( _url )
-        local ok, err = nativeCheckURL( _url )
-        if not ok then return ok, err end
-
+local function wrapRequest( _url, ... )
+    local ok, err = nativeHTTPRequest( ... )
+    if ok then
         while true do
-            local event, url, ok, err = os.pullEvent( "http_check" )
-            if url == _url then return ok, err end
-        end
-    end
-
-    local nativeWebsocket = http.websocket
-    http.websocketAsync = nativeWebsocket
-    http.websocket = function( _url, _headers )
-        if type( _url ) ~= "string" then
-            error( "bad argument #1 (expected string, got " .. type( _url ) .. ")", 2 )
-        end
-        if _headers ~= nil and type( _headers ) ~= "table" then
-            error( "bad argument #2 (expected table, got " .. type( _headers ) .. ")", 2 )
-        end
-        local ok, err = nativeWebsocket( _url, _headers )
-        if not ok then return ok, err end
-
-        while true do
-            local event, url, param = os.pullEvent( )
-            if event == "websocket_success" and url == _url then
-                return param
-            elseif event == "websocket_failure" and url == _url then
-                return false, param
+            local event, param1, param2, param3 = os.pullEvent()
+            if event == "http_success" and param1 == _url then
+                return param2
+            elseif event == "http_failure" and param1 == _url then
+                return nil, param2, param3
             end
         end
     end
+    return nil, err
+end
+
+http.get = function( _url, _headers, _binary)
+    if type( _url ) == "table" then
+        checkOptions( _url, false )
+        return wrapRequest( _url.url, _url )
+    end
+
+    expect(1, _url, 'string')
+    expect(2, _headers, 'table', 'nil')
+    expect(3, _binary, 'boolean', 'nil')
+    return wrapRequest( _url, _url, nil, _headers, _binary )
+end
+
+http.post = function( _url, _post, _headers, _binary)
+    if type( _url ) == "table" then
+        checkOptions( _url, true )
+        return wrapRequest( _url.url, _url )
+    end
+
+    expect(1, _url, 'string')
+    expect(2, _post, 'string')
+    expect(3, _headers, 'table', 'nil')
+    expect(4, _binary, 'boolean', 'nil')
+    return wrapRequest( _url, _url, _post, _headers, _binary )
+end
+
+http.request = function( _url, _post, _headers, _binary )
+    local url
+    if type( _url ) == "table" then
+        checkOptions( _url )
+        url = _url.url
+    else
+        expect(1, _url, 'string')
+        expect(2, _post, 'string', 'nil')
+        expect(3, _headers, 'table', 'nil')
+        expect(4, _binary, 'boolean', 'nil')
+        url = _url.url
+    end
+
+    local ok, err = nativeHTTPRequest( _url, _post, _headers, _binary )
+    if not ok then
+        os.queueEvent( "http_failure", url, err )
+    end
+    return ok, err
+end
+
+local nativeCheckURL = http.checkURL
+http.checkURLAsync = nativeCheckURL
+http.checkURL = function( _url )
+    local ok, err = nativeCheckURL( _url )
+    if not ok then return ok, err end
+
+    while true do
+        local event, url, ok, err = os.pullEvent( "http_check" )
+        if url == _url then return ok, err end
+    end
+end
+
+local nativeWebsocket = http.websocket
+http.websocketAsync = nativeWebsocket
+http.websocket = function( _url, _headers )
+    expect(1, _url, 'string')
+    expect(2, _headers, 'table', 'nil')
+
+    local ok, err = nativeWebsocket( _url, _headers )
+    if not ok then return ok, err end
+
+    while true do
+        local event, url, param = os.pullEvent( )
+        if event == "websocket_success" and url == _url then
+            return param
+        elseif event == "websocket_failure" and url == _url then
+            return false, param
+        end
+    end
+end
 end
 
 -- Install the lua part of the FS api
 local tEmpty = {}
 function fs.complete( sPath, sLocation, bIncludeFiles, bIncludeDirs )
-    if type( sPath ) ~= "string" then
-        error( "bad argument #1 (expected string, got " .. type( sPath ) .. ")", 2 )
-    end
-    if type( sLocation ) ~= "string" then
-        error( "bad argument #2 (expected string, got " .. type( sLocation ) .. ")", 2 )
-    end
-    if bIncludeFiles ~= nil and type( bIncludeFiles ) ~= "boolean" then
-        error( "bad argument #3 (expected boolean, got " .. type( bIncludeFiles ) .. ")", 2 )
-    end
-    if bIncludeDirs ~= nil and type( bIncludeDirs ) ~= "boolean" then
-        error( "bad argument #4 (expected boolean, got " .. type( bIncludeDirs ) .. ")", 2 )
-    end
+    expect(1, sPath, 'string')
+    expect(2, sLocation, 'string')
+    expect(3, bIncludeFiles, 'boolean', 'nil')
+    expect(4, bIncludeDirs, 'boolean', 'nil')
+
     bIncludeFiles = (bIncludeFiles ~= false)
     bIncludeDirs = (bIncludeDirs ~= false)
     local sDir = sLocation
@@ -1033,18 +997,18 @@ local ok, err = pcall( function()
         function()
             rednet.run()
         end )
-end )
-
--- If the shell errored, let the user read it.
-term.redirect( term.native() )
-if not ok then
-    printError( err )
-    pcall( function()
-        term.setCursorBlink( false )
-        print( "Press any key to continue" )
-        os.pullEvent( "key" )
     end )
-end
 
--- End
-os.shutdown()
+    -- If the shell errored, let the user read it.
+    term.redirect( term.native() )
+    if not ok then
+        printError( err )
+        pcall( function()
+            term.setCursorBlink( false )
+            print( "Press any key to continue" )
+            os.pullEvent( "key" )
+        end )
+    end
+
+    -- End
+    os.shutdown()
