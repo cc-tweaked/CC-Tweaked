@@ -24,12 +24,12 @@ local string_sub = string.sub
 local table_unpack = table.unpack
 
 function create( parent, nX, nY, nWidth, nHeight, bStartVisible )
-    if type( parent ) ~= "table" then error( "bad argument #1 (expected table, got " .. type( parent ) .. ")", 2 ) end
-    if type( nX ) ~= "number" then error( "bad argument #2 (expected number, got " .. type( nX ) .. ")", 2 ) end
-    if type( nY ) ~= "number" then error( "bad argument #3 (expected number, got " .. type( nY ) .. ")", 2 ) end
-    if type( nWidth ) ~= "number" then error( "bad argument #4 (expected number, got " .. type( nWidth ) .. ")", 2 ) end
-    if type( nHeight ) ~= "number" then error( "bad argument #5 (expected number, got " .. type( nHeight ) .. ")", 2 ) end
-    if bStartVisible ~= nil and type( bStartVisible ) ~= "boolean" then error( "bad argument #6 (expected boolean, got " .. type( bStartVisible ) .. ")", 2 ) end
+    expect(1, parent, "table")
+    expect(2, nX, "number")
+    expect(3, nY, "number")
+    expect(4, nWidth, "number")
+    expect(5, nHeight, "number")
+    expect(6, bStartVisible, "boolean", "nil")
 
     if parent == term then
         error( "term is not a recommended window parent, try term.current() instead", 2 )
@@ -191,9 +191,9 @@ function create( parent, nX, nY, nWidth, nHeight, bStartVisible )
     end
 
     function window.blit( sText, sTextColor, sBackgroundColor )
-        if type( sText ) ~= "string" then error( "bad argument #1 (expected string, got " .. type( sText ) .. ")", 2 ) end
-        if type( sTextColor ) ~= "string" then error( "bad argument #2 (expected string, got " .. type( sTextColor ) .. ")", 2 ) end
-        if type( sBackgroundColor ) ~= "string" then error( "bad argument #3 (expected string, got " .. type( sBackgroundColor ) .. ")", 2 ) end
+        expect(1, sText, "string")
+        expect(2, sTextColor, "string")
+        expect(3, sBackgroundColor, "string")
         if #sTextColor ~= #sText or #sBackgroundColor ~= #sText then
             error( "Arguments must be the same length", 2 )
         end
@@ -241,8 +241,8 @@ function create( parent, nX, nY, nWidth, nHeight, bStartVisible )
     end
 
     function window.setCursorPos( x, y )
-        if type( x ) ~= "number" then error( "bad argument #1 (expected number, got " .. type( x ) .. ")", 2 ) end
-        if type( y ) ~= "number" then error( "bad argument #2 (expected number, got " .. type( y ) .. ")", 2 ) end
+        expect(1, x, "number")
+        expect(2, y, "number")
         nCursorX = math.floor( x )
         nCursorY = math.floor( y )
         if bVisible then
@@ -251,7 +251,7 @@ function create( parent, nX, nY, nWidth, nHeight, bStartVisible )
     end
 
     function window.setCursorBlink( blink )
-        if type( blink ) ~= "boolean" then error( "bad argument #1 (expected boolean, got " .. type( blink ) .. ")", 2 ) end
+        expect(1, blink, "boolean")
         bCursorBlink = blink
         if bVisible then
             updateCursorBlink()
@@ -275,11 +275,11 @@ function create( parent, nX, nY, nWidth, nHeight, bStartVisible )
     end
 
     local function setTextColor( color )
-        if type( color ) ~= "number" then
-            error( "bad argument #1 (expected number, got " .. type( color ) .. ")", 2 )
-        elseif tHex[color] == nil then
+        expect(1, color, "number")
+        if tHex[color] == nil then
             error( "Invalid color (got " .. color .. ")" , 2 )
         end
+
         nTextColor = color
         if bVisible then
             updateCursorColor()
@@ -290,7 +290,7 @@ function create( parent, nX, nY, nWidth, nHeight, bStartVisible )
     window.setTextColour = setTextColor
 
     function window.setPaletteColour( colour, r, g, b )
-        if type( colour ) ~= "number" then error( "bad argument #1 (expected number, got " .. type( colour ) .. ")", 2 ) end
+        expect(1, colour, "number")
 
         if tHex[colour] == nil then
             error( "Invalid color (got " .. colour .. ")" , 2 )
@@ -301,9 +301,9 @@ function create( parent, nX, nY, nWidth, nHeight, bStartVisible )
             tCol = { colours.unpackRGB( r ) }
             tPalette[ colour ] = tCol
         else
-            if type( r ) ~= "number" then error( "bad argument #2 (expected number, got " .. type( r ) .. ")", 2 ) end
-            if type( g ) ~= "number" then error( "bad argument #3 (expected number, got " .. type( g ) .. ")", 2 ) end
-            if type( b ) ~= "number" then error( "bad argument #4 (expected number, got " .. type( b ) .. ")", 2 ) end
+            expect(2, r, "number")
+            expect(3, g, "number")
+            expect(4, b, "number")
 
             tCol = tPalette[ colour ]
             tCol[1] = r
@@ -319,7 +319,7 @@ function create( parent, nX, nY, nWidth, nHeight, bStartVisible )
     window.setPaletteColor = window.setPaletteColour
 
     function window.getPaletteColour( colour )
-        if type( colour ) ~= "number" then error( "bad argument #1 (expected number, got " .. type( colour ) .. ")", 2 ) end
+        expect(1, colour, "number")
         if tHex[colour] == nil then
             error( "Invalid color (got " .. colour .. ")" , 2 )
         end
@@ -330,9 +330,8 @@ function create( parent, nX, nY, nWidth, nHeight, bStartVisible )
     window.getPaletteColor = window.getPaletteColour
 
     local function setBackgroundColor( color )
-        if type( color ) ~= "number" then
-            error( "bad argument #1 (expected number, got " .. type( color ) .. ")", 2 )
-        elseif tHex[color] == nil then
+        expect(1, color, "number")
+        if tHex[color] == nil then
             error( "Invalid color (got " .. color .. ")", 2 )
         end
         nBackgroundColor = color
@@ -346,7 +345,7 @@ function create( parent, nX, nY, nWidth, nHeight, bStartVisible )
     end
 
     function window.scroll( n )
-        if type( n ) ~= "number" then error( "bad argument #1 (expected number, got " .. type( n ) .. ")", 2 ) end
+        expect(1, n, "number")
         if n ~= 0 then
             local tNewLines = {}
             local sEmptyText = sEmptySpaceLine
@@ -391,7 +390,7 @@ function create( parent, nX, nY, nWidth, nHeight, bStartVisible )
 
     -- Other functions
     function window.setVisible( bVis )
-        if type( bVis ) ~= "boolean" then error( "bad argument #1 (expected boolean, got " .. type( bVis ) .. ")", 2 ) end
+        expect(1, bVis, "boolean")
         if bVisible ~= bVis then
             bVisible = bVis
             if bVisible then
@@ -423,12 +422,10 @@ function create( parent, nX, nY, nWidth, nHeight, bStartVisible )
     end
 
     function window.reposition( nNewX, nNewY, nNewWidth, nNewHeight )
-        if type( nNewX ) ~= "number" then error( "bad argument #1 (expected number, got " .. type( nNewX ) .. ")", 2 ) end
-        if type( nNewY ) ~= "number" then error( "bad argument #2 (expected number, got " .. type( nNewY ) .. ")", 2 ) end
-        if nNewWidth ~= nil or nNewHeight ~= nil  then
-            if type( nNewWidth ) ~= "number" then error( "bad argument #3 (expected number, got " .. type( nNewWidth ) .. ")", 2 ) end
-            if type( nNewHeight ) ~= "number" then error( "bad argument #4 (expected number, got " .. type( nNewHeight ) .. ")", 2 ) end
-        end
+        expect(1, nNewX, "number")
+        expect(2, nNewY, "number")
+        expect(3, nNewWidth, "number", "nil")
+        expect(4, nNewHeight, "number", "nil")
 
         nX = nNewX
         nY = nNewY

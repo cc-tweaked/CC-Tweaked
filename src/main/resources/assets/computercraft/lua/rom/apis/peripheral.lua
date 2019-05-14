@@ -17,9 +17,7 @@ function getNames()
 end
 
 function isPresent( _sSide )
-    if type( _sSide ) ~= "string" then
-        error( "bad argument #1 (expected string, got " .. type( _sSide ) .. ")", 2 )
-    end
+    expect(1, _sSide, "string")
     if native.isPresent( _sSide ) then
         return true
     end
@@ -34,9 +32,7 @@ function isPresent( _sSide )
 end
 
 function getType( _sSide )
-    if type( _sSide ) ~= "string" then
-        error( "bad argument #1 (expected string, got " .. type( _sSide ) .. ")", 2 )
-    end
+    expect(1, _sSide, "string")
     if native.isPresent( _sSide ) then
         return native.getType( _sSide )
     end
@@ -51,9 +47,7 @@ function getType( _sSide )
 end
 
 function getMethods( _sSide )
-    if type( _sSide ) ~= "string" then
-        error( "bad argument #1 (expected string, got " .. type( _sSide ) .. ")", 2 )
-    end
+    expect(1, _sSide, "string")
     if native.isPresent( _sSide ) then
         return native.getMethods( _sSide )
     end
@@ -68,12 +62,8 @@ function getMethods( _sSide )
 end
 
 function call( _sSide, _sMethod, ... )
-    if type( _sSide ) ~= "string" then
-        error( "bad argument #1 (expected string, got " .. type( _sSide ) .. ")", 2 )
-    end
-    if type( _sSide ) ~= "string" then
-        error( "bad argument #2 (expected string, got " .. type( _sMethod ) .. ")", 2 )
-    end
+    expect(1, _sSide, "string")
+    expect(2, _sMethod, "string")
     if native.isPresent( _sSide ) then
         return native.call( _sSide, _sMethod, ... )
     end
@@ -88,9 +78,7 @@ function call( _sSide, _sMethod, ... )
 end
 
 function wrap( _sSide )
-    if type( _sSide ) ~= "string" then
-        error( "bad argument #1 (expected string, got " .. type( _sSide ) .. ")", 2 )
-    end
+    expect(1, _sSide, "string")
     if peripheral.isPresent( _sSide ) then
         local tMethods = peripheral.getMethods( _sSide )
         local tResult = {}
@@ -105,12 +93,8 @@ function wrap( _sSide )
 end
 
 function find( sType, fnFilter )
-    if type( sType ) ~= "string" then
-        error( "bad argument #1 (expected string, got " .. type( sType ) .. ")", 2 )
-    end
-    if fnFilter ~= nil and type( fnFilter ) ~= "function" then
-        error( "bad argument #2 (expected function, got " .. type( fnFilter ) .. ")", 2 )
-    end
+    expect(1, sType, "string")
+    expect(2, fnFilter, "function", "nil")
     local tResults = {}
     for n,sName in ipairs( peripheral.getNames() ) do
         if peripheral.getType( sName ) == sType then

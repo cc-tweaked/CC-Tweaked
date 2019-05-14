@@ -58,8 +58,6 @@ keys.scollLock = keys.scrollLock
 keys.cimcumflex = keys.circumflex
 
 function getName( _nKey )
-    if type( _nKey ) ~= "number" then
-        error( "bad argument #1 (expected number, got " .. type( _nKey ) .. ")", 2 )
-    end
+    expect(1, _nKey, "number")
     return tKeys[ _nKey ]
 end

@@ -55,12 +55,8 @@ local function narrow( p1, p2, fix )
 end
 
 function locate( _nTimeout, _bDebug )
-    if _nTimeout ~= nil and type( _nTimeout ) ~= "number" then
-        error( "bad argument #1 (expected number, got " .. type( _nTimeout ) .. ")", 2 )
-    end
-    if _bDebug ~= nil and type( _bDebug ) ~= "boolean" then
-        error( "bad argument #2 (expected boolean, got " .. type( _bDebug) .. ")", 2 )
-    end
+    expect(1, _nTimeout, "number", "nil")
+    expect(2, _bDebug, "boolean", "nil")
     -- Let command computers use their magic fourth-wall-breaking special abilities
     if commands then
         return commands.getBlockPosition()

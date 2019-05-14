@@ -184,9 +184,7 @@ function input(_arg)
 end
 
 function lines(_sFileName)
-    if _sFileName ~= nil and typeOf(_sFileName) ~= "string" then
-        error("bad argument #1 (expected string, got " .. typeOf(_sFileName) .. ")", 2)
-    end
+    expect(1, _sFileName, 'string', 'nil')
     if _sFileName then
         local ok, err = open(_sFileName, "rb")
         if not ok then error(err, 2) end
@@ -201,12 +199,8 @@ function lines(_sFileName)
 end
 
 function open(_sPath, _sMode)
-    if typeOf(_sPath) ~= "string" then
-        error("bad argument #1 (expected string, got " .. typeOf(_sPath) .. ")", 2)
-    end
-    if _sMode ~= nil and typeOf(_sMode) ~= "string" then
-        error("bad argument #2 (expected string, got " .. typeOf(_sMode) .. ")", 2)
-    end
+    expect(1, _sPath, 'string')
+    expect(1, _sMode, 'string', 'nil')
 
     local sMode = _sMode and _sMode:gsub("%+", "") or "rb"
     local file, err = fs.open(_sPath, sMode)
