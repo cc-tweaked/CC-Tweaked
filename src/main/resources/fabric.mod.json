@@ -16,6 +16,10 @@
         "Aaron Mills",
         "SquidDev"
     ],
+    "requires": {
+        "fabricloader": ">=0.4.0",
+        "fabric": "*"
+    },
 
     "environment": "*",
     "entrypoints": {

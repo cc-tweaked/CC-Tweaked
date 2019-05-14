@@ -6,13 +6,13 @@
 
 package dan200.computercraft.shared.peripheral.monitor;
 
-import net.minecraft.util.SnakeCaseIdentifiable;
+import net.minecraft.util.StringIdentifiable;
 
 import javax.annotation.Nonnull;
 
 import static dan200.computercraft.shared.peripheral.monitor.MonitorEdgeState.Flags.*;
 
-public enum MonitorEdgeState implements SnakeCaseIdentifiable
+public enum MonitorEdgeState implements StringIdentifiable
 {
     NONE( "none", 0 ),
 
@@ -60,7 +60,7 @@ public enum MonitorEdgeState implements SnakeCaseIdentifiable
 
     @Nonnull
     @Override
-    public String toSnakeCase()
+    public String asString()
     {
         return name;
     }

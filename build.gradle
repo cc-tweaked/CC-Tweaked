@@ -7,7 +7,7 @@ buildscript {
 }
 
 plugins {
-    id 'fabric-loom' version '0.2.2-SNAPSHOT'
+    id 'fabric-loom' version '0.2.3-SNAPSHOT'
     id 'com.matthewprenger.cursegradle' version '1.2.0'
     id "com.github.breadmoirai.github-release" version "2.2.4"
 }
@@ -53,22 +53,9 @@ configurations {
 dependencies {
     minecraft "com.mojang:minecraft:${mc_version}"
     mappings "net.fabricmc:yarn:${mc_version}+build.${mappings_version}"
+    // modCompile "net.fabricmc:fabric-loader:0.4.6+build.143"
     modCompile "net.fabricmc:fabric-loader:0.4.6+build.141"
-    modCompile "net.fabricmc:fabric:0.2.7+build.126"
-
-    /*
-    modCompile "net.fabricmc:fabric-lib:0.1.0"
-    modCompile "net.fabricmc:fabric-networking:0.1.0"
-    modCompile "net.fabricmc:fabric-networking-blockentity:0.1.0"
-    modCompile "net.fabricmc:fabric-object-builders:0.1.0"
-    modCompile "net.fabricmc:fabric-containers:0.1.0"
-    modCompile "net.fabricmc:fabric-item-groups:0.1.0"
-    modCompile "net.fabricmc:fabric-client-registries:0.1.0"
-    modCompile "net.fabricmc:fabric-commands:0.1.0"
-    modCompile "net.fabricmc:fabric-events-lifecycle:0.1.0"
-    modCompile "net.fabricmc:fabric-events-interaction:0.1.0"
-    modCompile "net.fabricmc:fabric-resource-loader:0.1.0"
-    */
+    modCompile "net.fabricmc.fabric-api:fabric-api:0.3.0-pre+build.156"
 
     implementation 'com.google.code.findbugs:jsr305:3.0.2'
 
@@ -126,8 +113,11 @@ task proguard(type: ProGuardTask, dependsOn: jar) {
     description "Removes unused shadowed classes from the jar"
     group "compact"
 
-    injars jar.archivePath
-    outjars "${jar.archivePath.absolutePath.replace(".jar", "")}-min.jar"
+    afterEvaluate {
+        // Fabric changes the jar's classifier so we to do this after evaluating!
+        injars jar.archivePath
+        outjars "${jar.archivePath.absolutePath.replace(".jar", "")}-min.jar"
+    }
 
     // Add the main runtime jar and all non-shadowed dependencies
     libraryjars "${System.getProperty('java.home')}/lib/rt.jar"
@@ -167,7 +157,7 @@ task proguardMove(dependsOn: proguard) {
     }
 }
 
-
+remapJar.dependsOn proguardMove
 
 processResources {
     inputs.property "version", mod_version
@@ -203,7 +193,7 @@ processResources {
     }
 }
 
-task compressJson(dependsOn: jar) {
+task compressJson(dependsOn: remapJar) {
     group "compact"
     description "Minifies all JSON files, stripping whitespace"
 
@@ -249,13 +239,22 @@ curseforge {
     apiKey = project.hasProperty('curseForgeApiKey') ? project.curseForgeApiKey : ''
     project {
         id = '282001'
-        addGameVersion '1.14-Snapshot'
+        addGameVersion '1.14.1'
         releaseType = 'beta'
         changelog = "Release notes can be found on the GitHub repository (https://github.com/SquidDev-CC/CC-Tweaked/releases/tag/v${mc_version}-${mod_version})."
 
         relations {
             incompatible "computercraft"
+            requiredDependency "fabric"
         }
+        afterEvaluate {
+            mainArtifact(remapJar.output)
+            uploadTask.dependsOn(remapJar)
+        }
+    }
+
+    options {
+        forgeGradleIntegration = false
     }
 }
 
@@ -326,7 +325,7 @@ githubRelease {
     releaseAssets.from(jar.archivePath)
 }
 
-task uploadAll(dependsOn: [uploadArchives, "curseforge", "githubRelease"]) {
+task uploadAll(dependsOn: [remapJar, uploadArchives, "curseforge", "githubRelease"]) {
     group "upload"
     description "Uploads to all repositories (Maven, Curse, GitHub release)"
 }
@@ -339,8 +338,6 @@ test {
 }
 
 gradle.projectsEvaluated {
-    remapJar.dependsOn proguardMove
-
     tasks.withType(JavaCompile) {
         options.compilerArgs << "-Xlint" << "-Xlint:-processing" // Causes Forge build to fail << "-Werror"
     }

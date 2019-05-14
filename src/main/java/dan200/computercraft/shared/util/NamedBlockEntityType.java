@@ -51,7 +51,7 @@ public final class NamedBlockEntityType<T extends BlockEntity> extends BlockEnti
     }
 
     @Override
-    public boolean method_20526( Block block )
+    public boolean supports( Block block )
     {
         return block == this.block;
     }

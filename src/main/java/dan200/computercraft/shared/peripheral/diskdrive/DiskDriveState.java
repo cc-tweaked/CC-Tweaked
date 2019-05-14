@@ -6,9 +6,9 @@
 
 package dan200.computercraft.shared.peripheral.diskdrive;
 
-import net.minecraft.util.SnakeCaseIdentifiable;
+import net.minecraft.util.StringIdentifiable;
 
-public enum DiskDriveState implements SnakeCaseIdentifiable
+public enum DiskDriveState implements StringIdentifiable
 {
     EMPTY( "empty" ),
     FULL( "full" ),
@@ -23,7 +23,7 @@ public enum DiskDriveState implements SnakeCaseIdentifiable
 
 
     @Override
-    public String toSnakeCase()
+    public String asString()
     {
         return name;
     }

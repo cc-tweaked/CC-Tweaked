@@ -6,11 +6,11 @@
 
 package dan200.computercraft.shared.computer.core;
 
-import net.minecraft.util.SnakeCaseIdentifiable;
+import net.minecraft.util.StringIdentifiable;
 
 import javax.annotation.Nonnull;
 
-public enum ComputerState implements SnakeCaseIdentifiable
+public enum ComputerState implements StringIdentifiable
 {
     OFF( "off" ),
     ON( "on" ),
@@ -25,7 +25,7 @@ public enum ComputerState implements SnakeCaseIdentifiable
 
     @Nonnull
     @Override
-    public String toSnakeCase()
+    public String asString()
     {
         return name;
     }

@@ -106,7 +106,7 @@ public abstract class SpeakerPeripheral implements IPeripheral
         Instrument instrument = null;
         for( Instrument testInstrument : Instrument.values() )
         {
-            if( testInstrument.toSnakeCase().equalsIgnoreCase( name ) )
+            if( testInstrument.asString().equalsIgnoreCase( name ) )
             {
                 instrument = testInstrument;
                 break;
