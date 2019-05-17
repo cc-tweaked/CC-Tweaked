@@ -60,6 +60,7 @@ if peripheral.find( "printer" ) then
     table.insert( tMenuItems, "Print" )
 end
 table.insert( tMenuItems, "Exit" )
+table.insert( tMenuItems, "Goto" )
 
 local sStatus = "Press Ctrl to access menu"
 if string.len( sStatus ) > w - 5 then
@@ -282,6 +283,47 @@ local function redrawMenu()
     term.setCursorPos( x - scrollX, y - scrollY )
 end
 
+local function setCursor( newX, newY )
+    local oldX, oldY = x, y
+    x, y = newX, newY
+    local screenX = x - scrollX
+    local screenY = y - scrollY
+
+    local bRedraw = false
+    if screenX < 1 then
+        scrollX = x - 1
+        screenX = 1
+        bRedraw = true
+    elseif screenX > w then
+        scrollX = x - w
+        screenX = w
+        bRedraw = true
+    end
+
+    if screenY < 1 then
+        scrollY = y - 1
+        screenY = 1
+        bRedraw = true
+    elseif screenY > h-1 then
+        scrollY = y - (h-1)
+        screenY = h-1
+        bRedraw = true
+    end
+
+    recomplete()
+    if bRedraw then
+        redrawText()
+    elseif y ~= oldY then
+        redrawLine( oldY )
+        redrawLine( y )
+    else
+        redrawLine( y )
+    end
+    term.setCursorPos( screenX, screenY )
+
+    redrawMenu()
+end
+
 local tMenuFuncs = {
     Save = function()
         if bReadOnly then
@@ -399,6 +441,24 @@ local tMenuFuncs = {
             sStatus="Error saving to "..sTempPath
         end
         redrawMenu()
+    end,
+    Goto = function()
+        local nPosX, nPosY = term.getCursorPos()
+        term.setCursorPos( 1, h )
+        term.clearLine()
+        term.write( "Line:" )
+        local nLine = tonumber( read() )
+        if not nLine then
+            sStatus = "Not a number"
+            term.setCursorPos( nPosX, nPosY )
+        elseif nLine > #tLines or nLine < 1 then
+            sStatus = "Number out of range"
+            term.setCursorPos( nPosX, nPosY )
+        else
+            setCursor( 1, nLine )
+        end
+        redrawText()
+        redrawMenu()
     end
 }
 
@@ -408,47 +468,6 @@ local function doMenuItem( _n )
         bMenu = false
         term.setCursorBlink( true )
     end
-    redrawMenu()
-end
-
-local function setCursor( newX, newY )
-    local oldX, oldY = x, y
-    x, y = newX, newY
-    local screenX = x - scrollX
-    local screenY = y - scrollY
-
-    local bRedraw = false
-    if screenX < 1 then
-        scrollX = x - 1
-        screenX = 1
-        bRedraw = true
-    elseif screenX > w then
-        scrollX = x - w
-        screenX = w
-        bRedraw = true
-    end
-
-    if screenY < 1 then
-        scrollY = y - 1
-        screenY = 1
-        bRedraw = true
-    elseif screenY > h-1 then
-        scrollY = y - (h-1)
-        screenY = h-1
-        bRedraw = true
-    end
-
-    recomplete()
-    if bRedraw then
-        redrawText()
-    elseif y ~= oldY then
-        redrawLine( oldY )
-        redrawLine( y )
-    else
-        redrawLine( y )
-    end
-    term.setCursorPos( screenX, screenY )
-
     redrawMenu()
 end
 
