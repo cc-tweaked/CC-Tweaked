@@ -43,7 +43,7 @@ final class LuaDateTime
                     switch( c = format.charAt( i++ ) )
                     {
                         default:
-                            throw new LuaException( "bad argument #1: invalid conversion specifier '%" + (char) c + "'" );
+                            throw new LuaException( "bad argument #1: invalid conversion specifier '%" + c + "'" );
 
                         case '%':
                             formatter.appendLiteral( '%' );
