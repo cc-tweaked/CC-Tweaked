@@ -24,9 +24,10 @@ import java.io.IOException;
 
 public class GuiComputer extends GuiContainer
 {
-    private static final ResourceLocation BACKGROUND = new ResourceLocation( "computercraft", "textures/gui/corners.png" );
-    private static final ResourceLocation BACKGROUND_ADVANCED = new ResourceLocation( "computercraft", "textures/gui/corners_advanced.png" );
-    private static final ResourceLocation BACKGROUND_COMMAND = new ResourceLocation( "computercraft", "textures/gui/corners_command.png" );
+    public static final ResourceLocation BACKGROUND_NORMAL = new ResourceLocation( ComputerCraft.MOD_ID, "textures/gui/corners.png" );
+    public static final ResourceLocation BACKGROUND_ADVANCED = new ResourceLocation( ComputerCraft.MOD_ID, "textures/gui/corners_advanced.png" );
+    public static final ResourceLocation BACKGROUND_COMMAND = new ResourceLocation( ComputerCraft.MOD_ID, "textures/gui/corners_command.png" );
+    public static final ResourceLocation BACKGROUND_COLOUR = new ResourceLocation( ComputerCraft.MOD_ID, "textures/gui/corners_colour.png" );
 
     private final ComputerFamily m_family;
     private final ClientComputer m_computer;
@@ -158,7 +159,7 @@ public class GuiComputer extends GuiContainer
         {
             case Normal:
             default:
-                mc.getTextureManager().bindTexture( BACKGROUND );
+                mc.getTextureManager().bindTexture( BACKGROUND_NORMAL );
                 break;
             case Advanced:
                 mc.getTextureManager().bindTexture( BACKGROUND_ADVANCED );
@@ -169,12 +170,12 @@ public class GuiComputer extends GuiContainer
         }
 
         drawTexturedModalRect( startX - 12, startY - 12, 12, 28, 12, 12 );
-        drawTexturedModalRect( startX - 12, endY, 12, 40, 12, 16 );
+        drawTexturedModalRect( startX - 12, endY, 12, 40, 12, 12 );
         drawTexturedModalRect( endX, startY - 12, 24, 28, 12, 12 );
-        drawTexturedModalRect( endX, endY, 24, 40, 12, 16 );
+        drawTexturedModalRect( endX, endY, 24, 40, 12, 12 );
 
         drawTexturedModalRect( startX, startY - 12, 0, 0, endX - startX, 12 );
-        drawTexturedModalRect( startX, endY, 0, 12, endX - startX, 16 );
+        drawTexturedModalRect( startX, endY, 0, 12, endX - startX, 12 );
 
         drawTexturedModalRect( startX - 12, startY, 0, 28, 12, endY - startY );
         drawTexturedModalRect( endX, startY, 36, 28, 12, endY - startY );
