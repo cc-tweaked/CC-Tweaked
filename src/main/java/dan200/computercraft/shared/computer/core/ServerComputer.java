@@ -175,12 +175,13 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
             FMLCommonHandler handler = FMLCommonHandler.instance();
             if( handler != null )
             {
-                IMessage packet = createTerminalPacket();
+                IMessage packet = null;
                 MinecraftServer server = handler.getMinecraftServerInstance();
                 for( EntityPlayerMP player : server.getPlayerList().getPlayers() )
                 {
                     if( isInteracting( player ) )
                     {
+                        if( packet == null ) packet = createTerminalPacket();
                         NetworkHandler.sendToPlayer( player, packet );
                     }
                 }

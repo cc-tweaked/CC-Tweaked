@@ -1,16 +1,17 @@
+local args = table.pack(...)
 
-local tArgs = { ... }
-if #tArgs < 1 then
-    print( "Usage: rm <path>" )
+if args.n < 1 then
+    print("Usage: rm <paths>")
     return
 end
 
-local sPath = shell.resolve( tArgs[1] )
-local tFiles = fs.find( sPath )
-if #tFiles > 0 then
-    for n,sFile in ipairs( tFiles ) do
-        fs.delete( sFile )
+for i = 1, args.n do
+    local files = fs.find(shell.resolve(args[i]))
+    if #files > 0 then
+        for n, file in ipairs(files) do
+            fs.delete(file)
+        end
+    else
+        printError(args[i] .. ": No matching files")
     end
-else
-    printError( "No matching files" )
 end

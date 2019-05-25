@@ -79,6 +79,9 @@ local function completeEither( shell, nIndex, sText, tPreviousText )
         return fs.complete( sText, shell.dir(), true, true )
     end
 end
+local function completeEitherMany( shell, nIndex, sText, tPreviousText )
+    return fs.complete( sText, shell.dir(), true, true )
+end
 local function completeEitherEither( shell, nIndex, sText, tPreviousText )
     if nIndex == 1 then
         local tResults = fs.complete( sText, shell.dir(), true, true )
@@ -183,7 +186,7 @@ end
 shell.setCompletionFunction( "rom/programs/alias.lua", completeAlias )
 shell.setCompletionFunction( "rom/programs/cd.lua", completeDir )
 shell.setCompletionFunction( "rom/programs/copy.lua", completeEitherEither )
-shell.setCompletionFunction( "rom/programs/delete.lua", completeEither )
+shell.setCompletionFunction( "rom/programs/delete.lua", completeEitherMany )
 shell.setCompletionFunction( "rom/programs/drive.lua", completeDir )
 shell.setCompletionFunction( "rom/programs/edit.lua", completeFile )
 shell.setCompletionFunction( "rom/programs/eject.lua", completePeripheral )
