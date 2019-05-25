@@ -78,7 +78,7 @@ public final class InventoryUtil
         if( y >= 0 && y < world.getHeight() )
         {
             BlockEntity tileEntity = world.getBlockEntity( pos );
-            if( tileEntity != null )
+            if( tileEntity instanceof Inventory )
             {
                 return (Inventory) tileEntity;
             }
