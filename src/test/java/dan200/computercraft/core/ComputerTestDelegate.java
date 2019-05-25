@@ -14,8 +14,8 @@ import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.core.computer.BasicEnvironment;
 import dan200.computercraft.core.computer.Computer;
 import dan200.computercraft.core.computer.MainThread;
+import dan200.computercraft.core.filesystem.FileMount;
 import dan200.computercraft.core.filesystem.FileSystemException;
-import dan200.computercraft.core.filesystem.MemoryMount;
 import dan200.computercraft.core.terminal.Terminal;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -25,9 +25,13 @@ import org.opentest4j.AssertionFailedError;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.io.File;
+import java.io.IOException;
+import java.io.Writer;
+import java.nio.channels.Channels;
+import java.nio.channels.WritableByteChannel;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
@@ -70,14 +74,25 @@ public class ComputerTestDelegate
     private boolean finished = false;
 
     @BeforeEach
-    public void before()
+    public void before() throws IOException
     {
         ComputerCraft.logPeripheralErrors = true;
         ComputerCraft.log = LogManager.getLogger( ComputerCraft.MOD_ID );
 
         Terminal term = new Terminal( 78, 20 );
-        IWritableMount mount = new MemoryMount()
-            .addFile( "startup.lua", "loadfile('test/mcfly.lua', _ENV)('test/spec') cct_test.finish()" );
+        IWritableMount mount = new FileMount( new File( "test-files/mount" ), Long.MAX_VALUE );
+
+        // Remove any existing files
+        List<String> children = new ArrayList<>();
+        mount.list( "", children );
+        for( String child : children ) mount.delete( child );
+
+        // And add our startup file
+        try( WritableByteChannel channel = mount.openChannelForWrite( "startup.lua" );
+             Writer writer = Channels.newWriter( channel, StandardCharsets.UTF_8.newEncoder(), -1 ) )
+        {
+            writer.write( "loadfile('test/mcfly.lua', _ENV)('test/spec') cct_test.finish()" );
+        }
 
         computer = new Computer( new BasicEnvironment( mount ), term, 0 );
         computer.addApi( new ILuaAPI()
