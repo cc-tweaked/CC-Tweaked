@@ -66,6 +66,9 @@ local function completeFile( shell, nIndex, sText, tPreviousText )
         return fs.complete( sText, shell.dir(), true, false )
     end
 end
+local function completeFileMany( shell, nIndex, sText, tPreviousText )
+    return fs.complete( sText, shell.dir(), true, false )
+end
 local function completeDir( shell, nIndex, sText, tPreviousText )
     if nIndex == 1 then
         return fs.complete( sText, shell.dir(), false, true )
@@ -189,7 +192,7 @@ shell.setCompletionFunction( "rom/programs/help.lua", completeHelp )
 shell.setCompletionFunction( "rom/programs/id.lua", completePeripheral )
 shell.setCompletionFunction( "rom/programs/label.lua", completeLabel )
 shell.setCompletionFunction( "rom/programs/list.lua", completeDir )
-shell.setCompletionFunction( "rom/programs/mkdir.lua", completeFile )
+shell.setCompletionFunction( "rom/programs/mkdir.lua", completeFileMany )
 shell.setCompletionFunction( "rom/programs/monitor.lua", completeMonitor )
 shell.setCompletionFunction( "rom/programs/move.lua", completeEitherEither )
 shell.setCompletionFunction( "rom/programs/redstone.lua", completeRedstone )
