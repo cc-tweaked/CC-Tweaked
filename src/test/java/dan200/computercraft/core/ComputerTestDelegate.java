@@ -416,6 +416,6 @@ public class ComputerTestDelegate
 
     private static String formatName( String name )
     {
-        return name.replace( "\0", " \u2192 " );
+        return name.replace( "\0", " -> " );
     }
 }
