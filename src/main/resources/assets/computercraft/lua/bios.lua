@@ -1,19 +1,8 @@
 local native_select, native_type = select, type
 function expect(index, value, ...)
-    if native_type(index) ~= "number" then
-        error("bad argument #1 (expected number, got " .. type(index) .. ")", 2)
-    end
-
-    local t = type(value)
+    local t = native_type(value)
     for i = 1, native_select("#", ...) do
-        local ty = native_select(i, ...)
-        if native_type(ty) ~= "string" then
-            error("bad argument #" .. 2 + i .. " (expected string, got " .. type(ty) .. ")", 2)
-        end
-
-        if t == ty then
-            return true
-        end
+        if t == native_select(i, ...) then return true end
     end
 
     local types = table.pack(...)
