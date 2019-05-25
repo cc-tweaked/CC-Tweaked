@@ -5,7 +5,7 @@ if #tArgs < 1 then
     return
 end
 
-for k, v in ipairs( tArgs ) do
+for _, v in ipairs( tArgs ) do
     local sNewDir = shell.resolve( v )
     if fs.exists( sNewDir ) and not fs.isDir( sNewDir ) then
         printError( v..": Destination exists" )
