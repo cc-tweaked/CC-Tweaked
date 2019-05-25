@@ -1,15 +1,17 @@
 local tArgs = { ... }
+
 if #tArgs < 1 then
-    print( "Usage: mkdir <path>" )
+    print( "Usage: mkdir <paths>" )
     return
 end
 
-local sNewDir = shell.resolve( tArgs[1] )
-
-if fs.exists( sNewDir ) and not fs.isDir(sNewDir) then
-    printError( "Destination exists" )
-    return
+for k, v in ipairs( tArgs ) do
+    local sNewDir = shell.resolve( v )
+    if fs.exists( sNewDir ) and not fs.isDir( sNewDir ) then
+        printError( v..": Destination exists" )
+    elseif fs.isReadOnly( sNewDir ) then
+        printError( v..": Access denied" )
+    else
+        fs.makeDir( sNewDir )
+    end
 end
-
-fs.makeDir( sNewDir )
-
