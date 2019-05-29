@@ -37,6 +37,9 @@ if term.isColor() then
     shell.setAlias( "background", "bg" )
     shell.setAlias( "foreground", "fg" )
 end
+if http then
+    shell.setAlias( "curl", "wget" )
+end
 
 -- Setup completion functions
 local function completeMultipleChoice( sText, tOptions, bAddSpaces )
