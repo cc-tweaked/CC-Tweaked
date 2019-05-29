@@ -29,13 +29,13 @@ import net.minecraftforge.fml.relauncher.Side;
 import org.lwjgl.opengl.GL11;
 
 @Mod.EventBusSubscriber( modid = ComputerCraft.MOD_ID, value = Side.CLIENT )
-public final class RenderOverlayCable
+public final class CableHighlightRenderer
 {
     private static final float EXPAND = 0.002f;
     private static final double MIN = CableBounds.MIN - EXPAND;
     private static final double MAX = CableBounds.MAX + EXPAND;
 
-    private RenderOverlayCable()
+    private CableHighlightRenderer()
     {
     }
 
