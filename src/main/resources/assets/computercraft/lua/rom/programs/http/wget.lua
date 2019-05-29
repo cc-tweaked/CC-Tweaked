@@ -1,7 +1,7 @@
 
 local function printUsage()
     print( "Usage:" )
-    print( "wget <url> [filename]" )
+    print( "wget [-r] <url> [filename]" )
 end
 
 local tArgs = { ... }
@@ -38,7 +38,17 @@ local function get( sUrl )
 end
 
 -- Determine file to download
-local sUrl = tArgs[1]
+local sUrl
+if tArgs[1] == "-r" then
+    if tArgs[2] == nil then
+        printUsage()
+        return
+    else
+      sUrl = tArgs[2]
+    end
+else
+    sUrl = tArgs[1]
+end
 
 --Check if the URL is valid
 local ok, err = http.checkURL( sUrl )
@@ -57,9 +67,21 @@ end
 -- Do the get
 local res = get( sUrl )
 if res then
-    local file = fs.open( sPath, "wb" )
-    file.write( res )
-    file.close()
+    if tArgs[1] == "-r" then
+        local func, err = load( res, sFile, "t", _ENV)
+        if not func then
+            printError( err )
+            return
+        end
+        
+        table.remove( tArgs, 1 )
+        table.remove( tArgs, 1 )        
+        func( table.unpack( tArgs ) )
+    else
+      local file = fs.open( sPath, "wb" )
+      file.write( res )
+      file.close()
 
-    print( "Downloaded as "..sFile )
+      print( "Downloaded as "..sFile )
+    end
 end

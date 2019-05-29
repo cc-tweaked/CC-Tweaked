@@ -3,4 +3,5 @@ View the documentation at https://wiki.computercraft.cc
 Visit the forum at https://forums.computercraft.cc
 You can disable these messages by running "set motd.enable false"
 You can create directories with "mkdir".
-You can use "webrun" to run a program from the internet without downloading it.
+You can use "wget -r <url>" to run a program from the internet without downloading it.
+You can use "wget" to download a file from the internet.
