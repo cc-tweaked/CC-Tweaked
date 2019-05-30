@@ -1,11 +1,11 @@
 local native_select, native_type = select, type
 
---- Expect an argument ot have a specific type
+--- Expect an argument to have a specific type.
 --
--- @tparam int index The 1-based argument index
--- @param value The argument's value
--- @tparam string ... The allowed types of the argument
--- @throws If the value is not one of the allowed types
+-- @tparam int index The 1-based argument index.
+-- @param value The argument's value.
+-- @tparam string ... The allowed types of the argument.
+-- @throws If the value is not one of the allowed types.
 local function expect(index, value, ...)
     local t = native_type(value)
     for i = 1, native_select("#", ...) do
@@ -38,9 +38,9 @@ local function expect(index, value, ...)
     end
 end
 
--- We expose expect in the global table as APIs need to access it, but surround
--- it with earmuffs. expect is an internal function, and should not be used by
--- users.
+-- We expose expect in the global table as APIs need to access it, but give it
+-- a non-identifier name - meaning it does not show up in auto-completion.
+-- expect is an internal function, and should not be used by users.
 _G["~expect"] = expect
 
 if _VERSION == "Lua 5.1" then
@@ -112,10 +112,9 @@ if _VERSION == "Lua 5.1" then
         math.log10 = nil
         table.maxn = nil
     else
-        loadstring = function(string, chunkname) return nativeloadstring(string, prefix( chunkname ))
+        loadstring = function(string, chunkname) return nativeloadstring(string, prefix( chunkname )) end
 
-            -- Inject a stub for the old bit library
-        end
+        -- Inject a stub for the old bit library
         _G.bit = {
             bnot = bit32.bnot,
             band = bit32.band,
