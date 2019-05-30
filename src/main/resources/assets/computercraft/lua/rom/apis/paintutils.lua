@@ -1,3 +1,4 @@
+local expect = _G["*expect*"]
 
 local function drawPixelInternal( xPos, yPos )
     term.setCursorPos( xPos, yPos )

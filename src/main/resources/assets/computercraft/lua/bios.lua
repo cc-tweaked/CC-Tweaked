@@ -1,5 +1,12 @@
 local native_select, native_type = select, type
-function expect(index, value, ...)
+
+--- Expect an argument ot have a specific type
+--
+-- @tparam int index The 1-based argument index
+-- @param value The argument's value
+-- @tparam string ... The allowed types of the argument
+-- @throws If the value is not one of the allowed types
+local function expect(index, value, ...)
     local t = native_type(value)
     for i = 1, native_select("#", ...) do
         if t == native_select(i, ...) then return true end
@@ -10,15 +17,31 @@ function expect(index, value, ...)
         if types[i] == "nil" then table.remove(types, i) end
     end
 
-    local names
+    local type_names
     if #types <= 1 then
-        names = tostring(...)
+        type_names = tostring(...)
     else
-        names = table.concat(types, ", ", 1, #types - 1) .. " or " .. types[#types]
+        type_names = table.concat(types, ", ", 1, #types - 1) .. " or " .. types[#types]
     end
 
-    error( ("bad argument #%d (expected %s, got %s)"):format(index, names, t), 3 )
+    -- If we can determine the function name with a high level of confidence, try to include it.
+    local name
+    if native_type(debug) == "table" and native_type(debug.getinfo) == "function" then
+        local ok, info = pcall(debug.getinfo, 3, "nS")
+        if ok and info.name and #info.name ~= "" and info.what ~= "C" then name = info.name end
+    end
+
+    if name then
+        error( ("bad argument #%d to '%s' (expected %s, got %s)"):format(index, name, type_names, t), 3 )
+    else
+        error( ("bad argument #%d (expected %s, got %s)"):format(index, type_names, t), 3 )
+    end
 end
+
+-- We expose expect in the global table as APIs need to access it, but surround
+-- it with earmuffs. expect is an internal function, and should not be used by
+-- users.
+_G["*expect*"] = expect
 
 if _VERSION == "Lua 5.1" then
     -- If we're on Lua 5.1, install parts of the Lua 5.2/5.3 API so that programs can be written against it
@@ -188,7 +211,7 @@ end
 
 -- Install globals
 function sleep( nTime )
-    expect(1, nTime, "number", nil)
+    expect(1, nTime, "number", "nil")
     local timer = os.startTimer( nTime or 0 )
     repeat
         local sEvent, param = os.pullEvent( "timer" )

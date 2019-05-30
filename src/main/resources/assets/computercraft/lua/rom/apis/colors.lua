@@ -1,3 +1,5 @@
+local expect = _G["*expect*"]
+
 -- Colors
 white = 1
 orange = 2

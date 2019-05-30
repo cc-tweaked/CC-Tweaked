@@ -1,3 +1,4 @@
+local expect = _G["*expect*"]
 
 local tHex = {
     [ colors.white ] = "0",
@@ -21,7 +22,6 @@ local tHex = {
 local type = type
 local string_rep = string.rep
 local string_sub = string.sub
-local table_unpack = table.unpack
 
 function create( parent, nX, nY, nWidth, nHeight, bStartVisible )
     expect(1, parent, "table")
@@ -191,9 +191,9 @@ function create( parent, nX, nY, nWidth, nHeight, bStartVisible )
     end
 
     function window.blit( sText, sTextColor, sBackgroundColor )
-        expect(1, sText, "string")
-        expect(2, sTextColor, "string")
-        expect(3, sBackgroundColor, "string")
+        if type(sText) ~= "string" then expect(1, sText, "string") end
+        if type(sTextColor) ~= "string" then expect(2, sTextColor, "string") end
+        if type(sBackgroundColor) ~= "string" then expect(3, sBackgroundColor, "string") end
         if #sTextColor ~= #sText or #sBackgroundColor ~= #sText then
             error( "Arguments must be the same length", 2 )
         end
@@ -241,8 +241,8 @@ function create( parent, nX, nY, nWidth, nHeight, bStartVisible )
     end
 
     function window.setCursorPos( x, y )
-        expect(1, x, "number")
-        expect(2, y, "number")
+        if type(x) ~= "number" then expect(1, x, "number") end
+        if type(y) ~= "number" then expect(2, y, "number") end
         nCursorX = math.floor( x )
         nCursorY = math.floor( y )
         if bVisible then
@@ -251,7 +251,7 @@ function create( parent, nX, nY, nWidth, nHeight, bStartVisible )
     end
 
     function window.setCursorBlink( blink )
-        expect(1, blink, "boolean")
+        if type(blink) ~= "boolean" then expect(1, blink, "boolean") end
         bCursorBlink = blink
         if bVisible then
             updateCursorBlink()
@@ -275,7 +275,7 @@ function create( parent, nX, nY, nWidth, nHeight, bStartVisible )
     end
 
     local function setTextColor( color )
-        expect(1, color, "number")
+        if type(color) ~= "number" then expect(1, color, "number") end
         if tHex[color] == nil then
             error( "Invalid color (got " .. color .. ")" , 2 )
         end
@@ -290,7 +290,7 @@ function create( parent, nX, nY, nWidth, nHeight, bStartVisible )
     window.setTextColour = setTextColor
 
     function window.setPaletteColour( colour, r, g, b )
-        expect(1, colour, "number")
+        if type(colour) ~= "number" then expect(1, colour, "number") end
 
         if tHex[colour] == nil then
             error( "Invalid color (got " .. colour .. ")" , 2 )
@@ -301,9 +301,9 @@ function create( parent, nX, nY, nWidth, nHeight, bStartVisible )
             tCol = { colours.unpackRGB( r ) }
             tPalette[ colour ] = tCol
         else
-            expect(2, r, "number")
-            expect(3, g, "number")
-            expect(4, b, "number")
+            if type(r) ~= "number" then expect(2, r, "number") end
+            if type(g) ~= "number" then expect(3, g, "number") end
+            if type(b) ~= "number" then expect(4, b, "number") end
 
             tCol = tPalette[ colour ]
             tCol[1] = r
@@ -319,7 +319,7 @@ function create( parent, nX, nY, nWidth, nHeight, bStartVisible )
     window.setPaletteColor = window.setPaletteColour
 
     function window.getPaletteColour( colour )
-        expect(1, colour, "number")
+        if type(colour) ~= "number" then expect(1, colour, "number") end
         if tHex[colour] == nil then
             error( "Invalid color (got " .. colour .. ")" , 2 )
         end
@@ -330,7 +330,7 @@ function create( parent, nX, nY, nWidth, nHeight, bStartVisible )
     window.getPaletteColor = window.getPaletteColour
 
     local function setBackgroundColor( color )
-        expect(1, color, "number")
+        if type(color) ~= "number" then expect(1, color, "number") end
         if tHex[color] == nil then
             error( "Invalid color (got " .. color .. ")", 2 )
         end
@@ -345,7 +345,7 @@ function create( parent, nX, nY, nWidth, nHeight, bStartVisible )
     end
 
     function window.scroll( n )
-        expect(1, n, "number")
+        if type(n) ~= "number" then expect(1, n, "number") end
         if n ~= 0 then
             local tNewLines = {}
             local sEmptyText = sEmptySpaceLine
@@ -390,7 +390,7 @@ function create( parent, nX, nY, nWidth, nHeight, bStartVisible )
 
     -- Other functions
     function window.setVisible( bVis )
-        expect(1, bVis, "boolean")
+        if type(bVis) ~= "boolean" then expect(1, bVis, "boolean") end
         if bVisible ~= bVis then
             bVisible = bVis
             if bVisible then
@@ -422,10 +422,12 @@ function create( parent, nX, nY, nWidth, nHeight, bStartVisible )
     end
 
     function window.reposition( nNewX, nNewY, nNewWidth, nNewHeight )
-        expect(1, nNewX, "number")
-        expect(2, nNewY, "number")
-        expect(3, nNewWidth, "number", "nil")
-        expect(4, nNewHeight, "number", "nil")
+        if type(nNewX) ~= "number" then expect(1, nNewX, "number") end
+        if type(nNewY) ~= "number" then expect(2, nNewY, "number") end
+        if nNewWidth ~= nil or nNewHeight ~= nil then
+            expect(3, nNewWidth, "number")
+            expect(4, nNewHeight, "number")
+        end
 
         nX = nNewX
         nY = nNewY

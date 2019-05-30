@@ -1,3 +1,4 @@
+local expect = _G["*expect*"]
 
 local tSettings = {}
 
@@ -5,7 +6,7 @@ function set( sName, value )
     expect(1, sName, "string")
     expect(2, value, "number", "string", "boolean", "table")
 
-    if sValueTy == "table" then
+    if type(value) == "table" then
         -- Ensure value is serializeable
         value = textutils.unserialize( textutils.serialize(value) )
     end

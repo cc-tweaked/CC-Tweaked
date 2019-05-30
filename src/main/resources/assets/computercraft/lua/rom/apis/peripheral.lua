@@ -1,3 +1,5 @@
+local expect = _G["*expect*"]
+
 local native = peripheral
 
 function getNames()

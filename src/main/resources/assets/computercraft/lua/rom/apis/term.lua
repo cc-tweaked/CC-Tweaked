@@ -1,3 +1,4 @@
+local expect = _G["*expect*"]
 
 local native = (term.native and term.native()) or term
 local redirectTarget = native
@@ -12,7 +13,7 @@ local term = {}
 
 term.redirect = function( target )
     expect(1, target, "table")
-    if target == term then
+    if target == term or target == _G.term then
         error( "term is not a recommended redirect target, try term.current() instead", 2 )
     end
     for k,v in pairs( native ) do

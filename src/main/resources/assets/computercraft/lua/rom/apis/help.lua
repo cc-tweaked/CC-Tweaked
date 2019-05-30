@@ -1,3 +1,4 @@
+local expect = _G["*expect*"]
 
 local sPath = "/rom/help"
 

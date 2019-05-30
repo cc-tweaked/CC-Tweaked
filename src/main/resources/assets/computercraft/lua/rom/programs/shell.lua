@@ -1,3 +1,4 @@
+local expect = _G["*expect*"]
 
 local multishell = multishell
 local parentShell = shell

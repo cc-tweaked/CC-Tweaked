@@ -1,3 +1,5 @@
+local expect = _G["*expect*"]
+
 CHANNEL_GPS = 65534
 
 local function trilaterate( A, B, C )

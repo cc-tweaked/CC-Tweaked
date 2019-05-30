@@ -1,5 +1,6 @@
 -- Definition for the IO API
-local typeOf = _G.type
+
+local expect, typeOf = _G["*expect*"], _G.type
 
 --- If we return nil then close the file, as we've reached the end.
 -- We use this weird wrapper function as we wish to preserve the varargs
@@ -200,7 +201,7 @@ end
 
 function open(_sPath, _sMode)
     expect(1, _sPath, "string")
-    expect(1, _sMode, "string", "nil")
+    expect(2, _sMode, "string", "nil")
 
     local sMode = _sMode and _sMode:gsub("%+", "") or "rb"
     local file, err = fs.open(_sPath, sMode)

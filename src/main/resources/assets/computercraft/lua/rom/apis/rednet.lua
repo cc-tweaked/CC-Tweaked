@@ -1,3 +1,4 @@
+local expect = _G["*expect*"]
 
 CHANNEL_BROADCAST = 65535
 CHANNEL_REPEAT = 65533
@@ -16,9 +17,9 @@ function open( sModem )
 end
 
 function close( sModem )
+    expect(1, sModem, "string", "nil")
     if sModem then
         -- Close a specific modem
-        expect(1, sModem, "string")
         if peripheral.getType( sModem ) ~= "modem" then
             error( "No such modem: "..sModem, 2 )
         end
@@ -35,9 +36,9 @@ function close( sModem )
 end
 
 function isOpen( sModem )
+    expect(1, sModem, "string", "nil")
     if sModem then
         -- Check if a specific modem is open
-        expect(1, sModem, "string")
         if peripheral.getType( sModem ) == "modem" then
             return peripheral.call( sModem, "isOpen", os.getComputerID() ) and peripheral.call( sModem, "isOpen", CHANNEL_BROADCAST )
         end
@@ -86,7 +87,7 @@ function send( nRecipient, message, sProtocol )
             end
         end
     end
-    
+
     return sent
 end
 
