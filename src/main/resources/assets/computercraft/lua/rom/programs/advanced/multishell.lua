@@ -1,4 +1,4 @@
-local expect = _G["*expect*"]
+local expect = _G["~expect"]
 
 -- Setup process switching
 local parentTerm = term.current()

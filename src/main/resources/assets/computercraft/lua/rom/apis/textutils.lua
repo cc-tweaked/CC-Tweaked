@@ -1,4 +1,4 @@
-local expect = _G["*expect*"]
+local expect = _G["~expect"]
 
 function slowWrite( sText, nRate )
     expect(2, nRate, "number", "nil")

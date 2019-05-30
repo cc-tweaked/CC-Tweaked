@@ -41,7 +41,7 @@ end
 -- We expose expect in the global table as APIs need to access it, but surround
 -- it with earmuffs. expect is an internal function, and should not be used by
 -- users.
-_G["*expect*"] = expect
+_G["~expect"] = expect
 
 if _VERSION == "Lua 5.1" then
     -- If we're on Lua 5.1, install parts of the Lua 5.2/5.3 API so that programs can be written against it

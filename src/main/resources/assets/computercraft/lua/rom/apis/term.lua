@@ -1,4 +1,4 @@
-local expect = _G["*expect*"]
+local expect = _G["~expect"]
 
 local native = (term.native and term.native()) or term
 local redirectTarget = native

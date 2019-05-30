@@ -1,4 +1,4 @@
-local expect = _G["*expect*"]
+local expect = _G["~expect"]
 
 -- Colors
 white = 1

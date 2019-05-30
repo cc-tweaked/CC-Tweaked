@@ -1,6 +1,6 @@
 describe("The Lua base library", function()
     describe("expect", function()
-        local e = _G["*expect*"]
+        local e = _G["~expect"]
 
         it("checks a single type", function()
             expect(e(1, "test", "string")):eq(true)
