@@ -339,7 +339,7 @@ public class TileMonitor extends TileGeneric implements ITilePeripheral, IPeriph
         return EnumFacing.WEST;
     }
 
-    private EnumFacing getDown()
+    public EnumFacing getDown()
     {
         int dir = getDir();
         if( dir <= 5 ) return EnumFacing.UP;
