@@ -47,28 +47,35 @@ local function try(fn)
     end
 
     local ok, err = xpcall(fn, function(err)
-        return { message = err, trace = debug.traceback() }
+        return { message = err, trace = debug.traceback(nil, 2) }
     end)
 
     -- Restore a whole bunch of state
     io.input(io.stdin)
     io.output(io.stdout)
 
-    -- If we're an existing error, or we succeded then propagate it.
+    -- If we succeeded, propagate it
     if ok then return ok, err end
+
+    -- Error handling failed for some reason - just return a simpler error
     if type(err) ~= "table" then
-        return setmetatable({ message = tostring(err) }, error_mt)
+        return ok, setmetatable({ message = tostring(err) }, error_mt)
     end
 
-    if getmetatable(err.message) == error_mt then return ok, err.message end
-
-    -- Find the common substring between the two traces. Yes, this is horrible.
+    -- Find the common substring the errors' trace and the current one. Then
+    -- eliminate it.
     local trace = debug.traceback()
     for i = 1, #trace do
         if trace:sub(-i) ~= err.trace:sub(-i) then
             err.trace = err.trace:sub(1, -i)
             break
         end
+    end
+
+    -- If we've received a rethrown error, copy
+    if getmetatable(err.message) == error_mt then
+        for k, v in pairs(err.message) do err[k] = v end
+        return ok, err
     end
 
     return ok, setmetatable(err, error_mt)

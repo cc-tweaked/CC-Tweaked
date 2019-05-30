@@ -120,7 +120,7 @@ public class MemoryMount implements IWritableMount
     {
         for( String file : this.files.keySet() )
         {
-            if( file.startsWith( path ) ) files.add( file );
+            if( file.startsWith( path ) ) files.add( file.substring( path.length() + 1 ) );
         }
     }
 

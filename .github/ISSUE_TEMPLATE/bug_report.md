@@ -1,7 +1,7 @@
 ---
 name: Bug report
 about: Report some misbehaviour in the mod
-
+labels: bug
 ---
 
 <!--

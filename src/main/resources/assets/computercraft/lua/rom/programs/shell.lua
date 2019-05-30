@@ -128,8 +128,12 @@ local function run( _sCommand, ... )
             end
             multishell.setTitle( multishell.getCurrent(), sTitle )
         end
+
         local sDir = fs.getDir( sPath )
-        local result = os.run( createShellEnv( sDir ), sPath, ... )
+        local env = createShellEnv( sDir )
+        env[ "arg" ] = { [0] = _sCommand, ... }
+        local result = os.run( env, sPath, ... )
+
         tProgramStack[#tProgramStack] = nil
         if multishell then
             if #tProgramStack > 0 then
