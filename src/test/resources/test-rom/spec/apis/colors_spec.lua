@@ -1,9 +1,24 @@
 describe("The colors library", function()
-    it("colors.combine", function()
-        expect(colors.combine(colors.red, colors.brown, colors.green)):equals(0x7000)
+    describe("colors.combine", function()
+        it("validates arguments", function()
+            -- FIXME: Error when last argument is nil - use table.pack instead.
+            expect.error(colors.combine, 1, false):eq("bad argument #2 (expected number, got boolean)")
+            expect.error(colors.combine, 1, 1, false):eq("bad argument #3 (expected number, got boolean)")
+        end)
+
+        it("combines colours", function()
+            expect(colors.combine()):eq(0)
+            expect(colors.combine(colors.red, colors.brown, colors.green)):eq(0x7000)
+        end)
     end)
 
     describe("colors.subtract", function()
+        it("validates arguments", function()
+            expect.error(colors.subtract, nil):eq("bad argument #1 (expected number, got nil)")
+            expect.error(colors.subtract, 1, false):eq("bad argument #2 (expected number, got boolean)")
+            expect.error(colors.subtract, 1, 1, false):eq("bad argument #3 (expected number, got boolean)")
+        end)
+
         it("subtracts colours", function()
             expect(colors.subtract(0x7000, colors.green)):equals(0x5000)
             expect(colors.subtract(0x5000, colors.red)):equals(0x1000)
@@ -17,6 +32,11 @@ describe("The colors library", function()
     end)
 
     describe("colors.test", function()
+        it("validates arguments", function()
+            expect.error(colors.test, nil):eq("bad argument #1 (expected number, got nil)")
+            expect.error(colors.test, 1, nil):eq("bad argument #2 (expected number, got nil)")
+        end)
+
         it("returns true when present", function()
             expect(colors.test(0x7000, colors.green)):equals(true)
         end)
@@ -28,16 +48,30 @@ describe("The colors library", function()
         end)
     end)
 
-    it("colors.packRGB", function()
-        expect(colors.packRGB(0.3, 0.5, 0.6)):equals(0x4c7f99)
+    describe("colors.packRGB", function()
+        it("validates arguments", function()
+            expect.error(colors.packRGB, nil):eq("bad argument #1 (expected number, got nil)")
+            expect.error(colors.packRGB, 1, nil):eq("bad argument #2 (expected number, got nil)")
+            expect.error(colors.packRGB, 1, 1, nil):eq("bad argument #3 (expected number, got nil)")
+        end)
+
+        it("packs colours", function()
+            expect(colors.packRGB(0.3, 0.5, 0.6)):equals(0x4c7f99)
+        end)
     end)
 
-    it("colors.unpackRGB", function()
-        expect({ colors.unpackRGB(0x4c7f99) }):same { 0x4c / 0xFF, 0x7f / 0xFF, 0.6 }
+    describe("colors.unpackRGB", function()
+        it("validates arguments", function()
+            expect.error(colors.unpackRGB, nil):eq("bad argument #1 (expected number, got nil)")
+        end)
+
+        it("unpacks colours", function()
+            expect({ colors.unpackRGB(0x4c7f99) }):same { 0x4c / 0xFF, 0x7f / 0xFF, 0.6 }
+        end)
     end)
 
     it("colors.rgb8", function()
         expect(colors.rgb8(0.3, 0.5, 0.6)):equals(0x4c7f99)
         expect({ colors.rgb8(0x4c7f99) }):same { 0x4c / 0xFF, 0x7f / 0xFF, 0.6 }
     end)
-end )
+end)

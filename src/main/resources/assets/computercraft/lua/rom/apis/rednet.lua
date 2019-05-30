@@ -1,3 +1,4 @@
+local expect = _G["~expect"]
 
 CHANNEL_BROADCAST = 65535
 CHANNEL_REPEAT = 65533
@@ -7,9 +8,7 @@ local tReceivedMessageTimeouts = {}
 local tHostnames = {}
 
 function open( sModem )
-    if type( sModem ) ~= "string" then
-        error( "bad argument #1 (expected string, got " .. type( sModem ) .. ")", 2 )
-    end
+    expect(1, sModem, "string")
     if peripheral.getType( sModem ) ~= "modem" then
         error( "No such modem: "..sModem, 2 )
     end
@@ -18,11 +17,9 @@ function open( sModem )
 end
 
 function close( sModem )
+    expect(1, sModem, "string", "nil")
     if sModem then
         -- Close a specific modem
-        if type( sModem ) ~= "string" then
-            error( "bad argument #1 (expected string, got " .. type( sModem ) .. ")", 2 )
-        end
         if peripheral.getType( sModem ) ~= "modem" then
             error( "No such modem: "..sModem, 2 )
         end
@@ -39,11 +36,9 @@ function close( sModem )
 end
 
 function isOpen( sModem )
+    expect(1, sModem, "string", "nil")
     if sModem then
         -- Check if a specific modem is open
-        if type( sModem ) ~= "string" then
-            error( "bad argument #1 (expected string, got " .. type( sModem ) .. ")", 2 )
-        end
         if peripheral.getType( sModem ) == "modem" then
             return peripheral.call( sModem, "isOpen", os.getComputerID() ) and peripheral.call( sModem, "isOpen", CHANNEL_BROADCAST )
         end
@@ -59,12 +54,8 @@ function isOpen( sModem )
 end
 
 function send( nRecipient, message, sProtocol )
-    if type( nRecipient ) ~= "number" then
-        error( "bad argument #1 (expected number, got " .. type( nRecipient ) .. ")", 2 )
-    end
-    if sProtocol ~= nil and type( sProtocol ) ~= "string" then
-        error( "bad argument #3 (expected string, got " .. type( sProtocol ) .. ")", 2 )
-    end
+    expect(1, nRecipient, "number")
+    expect(3, sProtocol, "string", "nil")
     -- Generate a (probably) unique message ID
     -- We could do other things to guarantee uniqueness, but we really don't need to
     -- Store it to ensure we don't get our own messages back
@@ -96,14 +87,12 @@ function send( nRecipient, message, sProtocol )
             end
         end
     end
-    
+
     return sent
 end
 
 function broadcast( message, sProtocol )
-    if sProtocol ~= nil and type( sProtocol ) ~= "string" then
-        error( "bad argument #2 (expected string, got " .. type( sProtocol ) .. ")", 2 )
-    end
+    expect(2, sProtocol, "string", "nil")
     send( CHANNEL_BROADCAST, message, sProtocol )
 end
 
@@ -112,12 +101,8 @@ function receive( sProtocolFilter, nTimeout )
     if type(sProtocolFilter) == "number" and nTimeout == nil then
         sProtocolFilter, nTimeout = nil, sProtocolFilter
     end
-    if sProtocolFilter ~= nil and type( sProtocolFilter ) ~= "string" then
-        error( "bad argument #1 (expected string, got " .. type( sProtocolFilter ) .. ")", 2 )
-    end
-    if nTimeout ~= nil and type( nTimeout ) ~= "number" then
-        error( "bad argument #2 (expected number, got " .. type( nTimeout ) .. ")", 2 )
-    end
+    expect(1, sProtocolFilter, "string", "nil")
+    expect(2, nTimeout, "number", "nil")
 
     -- Start the timer
     local timer = nil
@@ -148,12 +133,8 @@ function receive( sProtocolFilter, nTimeout )
 end
 
 function host( sProtocol, sHostname )
-    if type( sProtocol ) ~= "string" then
-        error( "bad argument #1 (expected string, got " .. type( sProtocol ) .. ")", 2 )
-    end
-    if type( sHostname ) ~= "string" then
-        error( "bad argument #2 (expected string, got " .. type( sHostname ) .. ")", 2 )
-    end
+    expect(1, sProtocol, "string")
+    expect(2, sHostname, "string")
     if sHostname == "localhost" then
         error( "Reserved hostname", 2 )
     end
@@ -166,19 +147,13 @@ function host( sProtocol, sHostname )
 end
 
 function unhost( sProtocol )
-    if type( sProtocol ) ~= "string" then
-        error( "bad argument #1 (expected string, got " .. type( sProtocol ) .. ")", 2 )
-    end
+    expect(1, sProtocol, "string")
     tHostnames[ sProtocol ] = nil
 end
 
 function lookup( sProtocol, sHostname )
-    if type( sProtocol ) ~= "string" then
-        error( "bad argument #1 (expected string, got " .. type( sProtocol ) .. ")", 2 )
-    end
-    if sHostname ~= nil and type( sHostname ) ~= "string" then
-        error( "bad argument #2 (expected string, got " .. type( sHostname ) .. ")", 2 )
-    end
+    expect(1, sProtocol, "string")
+    expect(2, sHostname, "string")
 
     -- Build list of host IDs
     local tResults = nil

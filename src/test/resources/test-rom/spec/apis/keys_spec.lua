@@ -1,0 +1,8 @@
+describe("The keys library", function()
+    describe("keys.getName", function()
+        it("validates arguments", function()
+            keys.getName(1)
+            expect.error(keys.getName, nil):eq("bad argument #1 (expected number, got nil)")
+        end)
+    end)
+end)

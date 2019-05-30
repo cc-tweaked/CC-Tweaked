@@ -1,8 +1,7 @@
+local expect = _G["~expect"]
 
 function slowWrite( sText, nRate )
-    if nRate ~= nil and type( nRate ) ~= "number" then
-        error( "bad argument #2 (expected number, got " .. type( nRate ) .. ")", 2 )
-    end
+    expect(2, nRate, "number", "nil")
     nRate = nRate or 20
     if nRate < 0 then
         error( "Rate must be positive", 2 )
@@ -28,12 +27,8 @@ function slowPrint( sText, nRate )
 end
 
 function formatTime( nTime, bTwentyFourHour )
-    if type( nTime ) ~= "number" then
-        error( "bad argument #1 (expected number, got " .. type( nTime ) .. ")", 2 )
-    end
-    if bTwentyFourHour ~= nil and type( bTwentyFourHour ) ~= "boolean" then
-        error( "bad argument #2 (expected boolean, got " .. type( bTwentyFourHour ) .. ")", 2 )
-    end
+    expect(1, nTime, "number")
+    expect(2, bTwentyFourHour, "boolean", "nil")
     local sTOD = nil
     if not bTwentyFourHour then
         if nTime >= 12 then
@@ -77,9 +72,7 @@ local function makePagedScroll( _term, _nFreeLines )
 end
 
 function pagedPrint( _sText, _nFreeLines )
-    if _nFreeLines ~= nil and type( _nFreeLines ) ~= "number" then
-        error( "bad argument #2 (expected number, got " .. type( _nFreeLines ) .. ")", 2 )
-    end
+    expect(2, _nFreeLines, "number", "nil")
     -- Setup a redirector
     local oldTerm = term.current()
     local newTerm = {}
@@ -321,9 +314,7 @@ function serialize( t )
 end
 
 function unserialize( s )
-    if type( s ) ~= "string" then
-        error( "bad argument #1 (expected string, got " .. type( s ) .. ")", 2 )
-    end
+    expect(1, s, "string")
     local func = load( "return "..s, "unserialize", "t", {} )
     if func then
         local ok, result = pcall( func )
@@ -335,20 +326,14 @@ function unserialize( s )
 end
 
 function serializeJSON( t, bNBTStyle )
-    if type( t ) ~= "table" and type( t ) ~= "string" and type( t ) ~= "number" and type( t ) ~= "boolean" then
-        error( "bad argument #1 (expected table/string/number/boolean, got " .. type( t ) .. ")", 2 )
-    end
-    if bNBTStyle ~= nil and type( bNBTStyle ) ~= "boolean" then
-        error( "bad argument #2 (expected boolean, got " .. type( bNBTStyle ) .. ")", 2 )
-    end
+    expect(1, t, "table", "string", "number", "boolean")
+    expect(2, bNBTStyle, "boolean", "nil")
     local tTracking = {}
     return serializeJSONImpl( t, tTracking, bNBTStyle or false )
 end
 
 function urlEncode( str )
-    if type( str ) ~= "string" then
-        error( "bad argument #1 (expected string, got " .. type( str ) .. ")", 2 )
-    end
+    expect(1, str, "string")
     if str then
         str = string.gsub(str, "\n", "\r\n")
         str = string.gsub(str, "([^A-Za-z0-9 %-%_%.])", function(c)
@@ -370,12 +355,8 @@ end
 
 local tEmpty = {}
 function complete( sSearchText, tSearchTable )
-    if type( sSearchText ) ~= "string" then
-        error( "bad argument #1 (expected string, got " .. type( sSearchText ) .. ")", 2 )
-    end
-    if tSearchTable ~= nil and type( tSearchTable ) ~= "table" then
-        error( "bad argument #2 (expected table, got " .. type( tSearchTable ) .. ")", 2 )
-    end
+    expect(1, sSearchText, "string")
+    expect(2, tSearchTable, "table", "nil")
 
     if g_tLuaKeywords[sSearchText] then return tEmpty end
     local nStart = 1
