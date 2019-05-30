@@ -46,6 +46,15 @@ develop CC:T, you'll need to follow these steps:
 
 If you want to run CC:T in a normal Minecraft instance, run `./gradlew build` and copy the `.jar` from `build/libs`.
 
+## Community
+If you need help getting started with CC: Tweaked, want to show off your latest project, or just want to chat about
+ComputerCraft we have a [forum](https://forums.computercraft.cc/) and [Discord guild](https://discord.gg/H2UyJXe)!
+There's also a fairly populated, albeit quiet [IRC channel](http://webchat.esper.net/?channels=#computercraft), if
+that's more your cup of tea.
+
+I'd generally recommend you don't contact me directly (email, DM, etc...) unless absolutely necessary (i.e. in order to
+report exploits). You'll get a far quicker response if you ask the whole community!
+
 ## Using
 If you want to depend on CC:Tweaked, we have a maven repo. However, you should be wary that some functionality is only
 exposed by CC:T's API and not vanilla ComputerCraft. If you wish to support all variations of ComputerCraft, I recommend
