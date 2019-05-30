@@ -20,6 +20,13 @@ describe("The textutils library", function()
         end)
     end)
 
+    describe("textutils.empty_json_array", function()
+        it("is immutable", function()
+            expect.error(function() textutils.empty_json_array[1] = true end)
+                :eq("textutils_spec.lua:25: attempt to mutate textutils.empty_json_array")
+        end)
+    end)
+
     describe("textutils.unserialise", function()
         it("validates arguments", function()
             textutils.unserialise("")

@@ -240,7 +240,11 @@ local function serializeImpl( t, tTracking, sIndent )
     end
 end
 
-empty_json_array = {}
+empty_json_array = setmetatable({}, {
+    __newindex = function()
+        error("attempt to mutate textutils.empty_json_array", 2)
+    end
+})
 
 local function serializeJSONImpl( t, tTracking, bNBTStyle )
     local sType = type(t)
