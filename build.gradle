@@ -336,12 +336,12 @@ githubRelease {
     token project.hasProperty('githubApiKey') ? project.githubApiKey : ''
     owner 'SquidDev-CC'
     repo 'CC-Tweaked'
-    targetCommitish { Grgit.open(dir: '.').branch.current() }
+    targetCommitish { Grgit.open(dir: '.').branch.current().fullName }
 
     tagName "v${mc_version}-${mod_version}"
     releaseName "[${mc_version}] ${mod_version}"
     body {
-        "##" + new File("src/main/resources/assets/computercraft/lua/rom/help/whatsnew.txt")
+        "## " + new File("src/main/resources/assets/computercraft/lua/rom/help/whatsnew.txt")
             .readLines()
             .takeWhile { it != 'Type "help changelog" to see the full version history.' }
             .join("\n").trim()
