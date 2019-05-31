@@ -9,7 +9,7 @@ ComputerCraft has always held a fond place in my heart: it's the mod which reall
 mod which has kept me playing it for many years. However, development of the original mod has slowed, as the original
 developers have had less time to work on the mod, and moved onto other projects and commitments.
 
-CC:Tweaked (or CC:T for short) is an attempt to continue ComputerCraft's legacy. It's not intended to be a competitor
+CC: Tweaked (or CC:T for short) is an attempt to continue ComputerCraft's legacy. It's not intended to be a competitor
 to CC, nor do I want to take it in a vastly different direction to the original mod. Instead, CC:T focuses on making the
 ComputerCraft experience as _solid_ as possible, ironing out any wrinkles that may have developed over time.
 
@@ -56,7 +56,7 @@ I'd generally recommend you don't contact me directly (email, DM, etc...) unless
 report exploits). You'll get a far quicker response if you ask the whole community!
 
 ## Using
-If you want to depend on CC:Tweaked, we have a maven repo. However, you should be wary that some functionality is only
+If you want to depend on CC: Tweaked, we have a maven repo. However, you should be wary that some functionality is only
 exposed by CC:T's API and not vanilla ComputerCraft. If you wish to support all variations of ComputerCraft, I recommend
 using [cc.crzd.me's maven](https://cc.crzd.me/maven/) instead.
 
