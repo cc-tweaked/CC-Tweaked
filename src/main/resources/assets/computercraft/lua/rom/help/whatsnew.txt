@@ -1,11 +1,17 @@
-New features in CC: Tweaked 1.82.3
+New features in CC: Tweaked 1.83.0
 
-* Make computers' redstone input handling consistent with repeaters. Redstone inputs parallel to the computer will now be picked up.
+* Add Chinese translation (XuyuEre)
+* Small performance optimisations for packet sending.
+* Provide an `arg` table to programs fun from the shell, similar to PUC Lua.
+* Add `os.date`, and handle passing datetime tables to `os.time`, making them largely compatible with PUC Lua.
+* `rm` and `mkdir` accept multiple arguments (hydraz, JakobDev).
+* Rework rendering of in-hand pocket computers.
+* Prevent rendering of a bounding box on a monitor's screen.
+* Refactor Lua-side type checking code into a single method. Also include the function name in error messages.
 
 And several bug fixes:
-* Fix `turtle.compare*()` crashing the server.
-* Fix Cobalt leaking threads when coroutines blocked on Java methods are discarded.
-* Fix `rawset` allowing nan keys
-* Fix several out-of-bounds exceptions when handling malformed patterns.
+* Fix incorrect computation of server-tick budget.
+* Fix list-based config options not reloading.
+* Ensure `require` is usable within the Lua REPL.
 
 Type "help changelog" to see the full version history.
