@@ -1,5 +1,5 @@
 # ![CC: Tweaked](logo.png)
-[![Build Status](https://travis-ci.org/SquidDev-CC/CC-Tweaked.svg?branch=master)](https://travis-ci.org/SquidDev-CC/CC-Tweaked)
+[![Current build status](https://travis-ci.org/SquidDev-CC/CC-Tweaked.svg?branch=master)](https://travis-ci.org/SquidDev-CC/CC-Tweaked "Current build status") [![Download CC: Tweaked on CurseForge](https://cf.way2muchnoise.eu/title/cc-tweaked.svg)](https://minecraft.curseforge.com/projects/cc-tweaked "Download CC: Tweaked on CurseForge")
 
 CC: Tweaked is a fork of [ComputerCraft](https://github.com/dan200/ComputerCraft), adding programmable computers,
 turtles and more to Minecraft.
