@@ -31,6 +31,8 @@ to see the full set of changes, but here's a couple of the more interesting addi
    files, meaning you don't need to read large files into memory.
  - Allow running multiple computers on multiple threads, reducing latency on worlds with many computers.
 
+## Download
+You can download CC-Tweaked on [Curseforge](https://minecraft.curseforge.com/projects/cc-tweaked).
 ## Relation to CCTweaks?
 This mod has nothing to do with CCTweaks, though there is no denying the name is a throwback to it. That being said,
 several features have been included, such as full block modems, the Cobalt runtime and map-like rendering for pocket
