@@ -20,10 +20,36 @@ describe("The textutils library", function()
         end)
     end)
 
+    describe("textutils.tabulate", function()
+        it("validates arguments", function()
+            term.redirect(window.create(term.current(), 1, 1, 5, 5, false))
+
+            textutils.tabulate()
+            textutils.tabulate({ "test" })
+            textutils.tabulate(colors.white)
+
+            expect.error(textutils.tabulate, nil):eq("bad argument #1 (expected number or table, got nil)")
+            expect.error(textutils.tabulate, { "test" }, nil):eq("bad argument #2 (expected number or table, got nil)")
+        end)
+    end)
+
+    describe("textutils.pagedTabulate", function()
+        it("validates arguments", function()
+            term.redirect(window.create(term.current(), 1, 1, 5, 5, false))
+
+            textutils.pagedTabulate()
+            textutils.pagedTabulate({ "test" })
+            textutils.pagedTabulate(colors.white)
+
+            expect.error(textutils.pagedTabulate, nil):eq("bad argument #1 (expected number or table, got nil)")
+            expect.error(textutils.pagedTabulate, { "test" }, nil):eq("bad argument #2 (expected number or table, got nil)")
+        end)
+    end)
+
     describe("textutils.empty_json_array", function()
         it("is immutable", function()
             expect.error(function() textutils.empty_json_array[1] = true end)
-                :eq("textutils_spec.lua:25: attempt to mutate textutils.empty_json_array")
+                :eq("textutils_spec.lua:51: attempt to mutate textutils.empty_json_array")
         end)
     end)
 

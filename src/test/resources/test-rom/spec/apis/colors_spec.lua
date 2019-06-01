@@ -1,9 +1,8 @@
 describe("The colors library", function()
     describe("colors.combine", function()
         it("validates arguments", function()
-            -- FIXME: Error when last argument is nil - use table.pack instead.
-            expect.error(colors.combine, 1, false):eq("bad argument #2 (expected number, got boolean)")
-            expect.error(colors.combine, 1, 1, false):eq("bad argument #3 (expected number, got boolean)")
+            expect.error(colors.combine, 1, nil):eq("bad argument #2 (expected number, got nil)")
+            expect.error(colors.combine, 1, 1, nil):eq("bad argument #3 (expected number, got nil)")
         end)
 
         it("combines colours", function()
@@ -15,8 +14,8 @@ describe("The colors library", function()
     describe("colors.subtract", function()
         it("validates arguments", function()
             expect.error(colors.subtract, nil):eq("bad argument #1 (expected number, got nil)")
-            expect.error(colors.subtract, 1, false):eq("bad argument #2 (expected number, got boolean)")
-            expect.error(colors.subtract, 1, 1, false):eq("bad argument #3 (expected number, got boolean)")
+            expect.error(colors.subtract, 1, nil):eq("bad argument #2 (expected number, got nil)")
+            expect.error(colors.subtract, 1, 1, nil):eq("bad argument #3 (expected number, got nil)")
         end)
 
         it("subtracts colours", function()

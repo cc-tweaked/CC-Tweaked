@@ -103,11 +103,9 @@ function pagedPrint( _sText, _nFreeLines )
 end
 
 local function tabulateCommon( bPaged, ... )
-    local tAll = { ... }
-    for k,v in ipairs( tAll ) do
-        if type( v ) ~= "number" and type( v ) ~= "table" then
-            error( "bad argument #"..k.." (expected number or table, got " .. type( v ) .. ")", 3 )
-        end
+    local tAll = table.pack(...)
+    for i = 1, tAll.n do
+        expect(i, tAll[i], "number", "table")
     end
 
     local w,h = term.getSize()
@@ -162,11 +160,11 @@ local function tabulateCommon( bPaged, ... )
 end
 
 function tabulate( ... )
-    tabulateCommon( false, ... )
+    return tabulateCommon( false, ... )
 end
 
 function pagedTabulate( ... )
-    tabulateCommon( true, ... )
+    return tabulateCommon( true, ... )
 end
 
 local g_tLuaKeywords = {
