@@ -74,5 +74,13 @@ describe("The rednet library", function()
             expect.error(rednet.lookup, nil):eq("bad argument #1 (expected string, got nil)")
             expect.error(rednet.lookup, "", false):eq("bad argument #2 (expected string, got boolean)")
         end)
+
+        it("gets a locally hosted protocol", function()
+            rednet.host("a_protocol", "a_hostname")
+
+            expect(rednet.lookup("a_protocol")):eq(os.getComputerID())
+            expect(rednet.lookup("a_protocol", "localhost")):eq(os.getComputerID())
+            expect(rednet.lookup("a_protocol", "a_hostname")):eq(os.getComputerID())
+        end)
     end)
 end)

@@ -153,7 +153,7 @@ end
 
 function lookup( sProtocol, sHostname )
     expect(1, sProtocol, "string")
-    expect(2, sHostname, "string")
+    expect(2, sHostname, "string", "nil")
 
     -- Build list of host IDs
     local tResults = nil

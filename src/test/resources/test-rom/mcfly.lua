@@ -33,11 +33,8 @@ local active_stubs = {}
 --
 -- @tparam string var The variable to stub
 -- @param value The value to stub it with
-local function stub(var, value)
-    if not active_stubs[var] then
-        active_stubs[var] = { value = _G[var] }
-    end
-
+local function stub(tbl, var, value)
+    table.insert(active_stubs, { tbl = tbl, var = var, value = tbl[var] })
     _G[var] = value
 end
 
@@ -56,7 +53,11 @@ end
 
 --- Restore the global state of the computer to a previous version
 local function pop_state(state)
-    for k, v in pairs(active_stubs) do _G[k] = v.value end
+    for i = #active_stubs, 1, -1 do
+        local stub = active_stubs[i]
+        stub.tbl[stub.var] = stub.value
+    end
+
     active_stubs = state.stubs
 
     term.redirect(state.term)

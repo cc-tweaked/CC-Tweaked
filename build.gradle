@@ -336,7 +336,7 @@ githubRelease {
     token project.hasProperty('githubApiKey') ? project.githubApiKey : ''
     owner 'SquidDev-CC'
     repo 'CC-Tweaked'
-    targetCommitish { Grgit.open(dir: '.').branch.current().fullName }
+    targetCommitish { Grgit.open(dir: '.').branch.current().name }
 
     tagName "v${mc_version}-${mod_version}"
     releaseName "[${mc_version}] ${mod_version}"
@@ -349,10 +349,12 @@ githubRelease {
     prerelease false
 }
 
-task uploadAll(dependsOn: [uploadArchives, "curseforge", "githubRelease"]) {
+def uploadTasks = ["uploadArchives", "curseforge", "githubRelease"]
+uploadTasks.forEach { tasks.getByName(it).dependsOn checkRelease }
+
+task uploadAll(dependsOn: uploadTasks) {
     group "upload"
     description "Uploads to all repositories (Maven, Curse, GitHub release)"
-    dependsOn checkRelease
 }
 
 test {

@@ -1,7 +1,7 @@
 describe("The gps library", function()
     describe("gps.locate", function()
         it("validates arguments", function()
-            stub("commands", { getBlockPosition = function()
+            stub(_G, "commands", { getBlockPosition = function()
             end })
 
             gps.locate()
