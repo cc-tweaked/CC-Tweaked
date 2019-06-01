@@ -226,6 +226,46 @@ task compressJson(dependsOn: extractAnnotationsJar) {
 
 assemble.dependsOn compressJson
 
+task checkRelease(dependsOn: extractAnnotationsJar) {
+    group "upload"
+    description "Verifies that everything is ready for a release"
+
+    inputs.property "version", mod_version
+    inputs.file("src/main/resources/assets/computercraft/lua/rom/help/changelog.txt")
+    inputs.file("src/main/resources/assets/computercraft/lua/rom/help/whatsnew.txt")
+
+    doLast {
+        def ok = true
+
+        // Check we're targetting the current version
+        def whatsnew = new File("src/main/resources/assets/computercraft/lua/rom/help/whatsnew.txt").readLines()
+        if (whatsnew[0] != "New features in CC: Tweaked $mod_version") {
+            ok = false
+            project.logger.error("Expected `whatsnew.txt' to target $mod_version.")
+        }
+
+        // Check "read more" exists and trim it
+        def idx = whatsnew.findIndexOf { it == 'Type "help changelog" to see the full version history.' }
+        if (idx == -1) {
+            ok = false
+            project.logger.error("Must mention the changelog in whatsnew.txt")
+        } else {
+            whatsnew = whatsnew.getAt(0 ..< idx)
+        }
+
+        // Check whatsnew and changelog match.
+        def versionChangelog = "# " + whatsnew.join("\n")
+        def changelog = new File("src/main/resources/assets/computercraft/lua/rom/help/changelog.txt").getText()
+        if (!changelog.startsWith(versionChangelog)) {
+            ok = false
+            project.logger.error("whatsnew and changelog are not in sync")
+        }
+
+        if (!ok) throw new IllegalStateException("Could not check release")
+    }
+}
+
+
 curseforge {
     apiKey = project.hasProperty('curseForgeApiKey') ? project.curseForgeApiKey : ''
     project {
@@ -296,15 +336,23 @@ githubRelease {
     token project.hasProperty('githubApiKey') ? project.githubApiKey : ''
     owner 'SquidDev-CC'
     repo 'CC-Tweaked'
-    targetCommitish (mc_version == "1.12.2" ? "master" : mc_version)
+    targetCommitish { Grgit.open(dir: '.').branch.current().name }
 
     tagName "v${mc_version}-${mod_version}"
     releaseName "[${mc_version}] ${mod_version}"
-    body ''
+    body {
+        "## " + new File("src/main/resources/assets/computercraft/lua/rom/help/whatsnew.txt")
+            .readLines()
+            .takeWhile { it != 'Type "help changelog" to see the full version history.' }
+            .join("\n").trim()
+    }
     prerelease false
 }
 
-task uploadAll(dependsOn: [uploadArchives, "curseforge", "githubRelease"]) {
+def uploadTasks = ["uploadArchives", "curseforge", "githubRelease"]
+uploadTasks.forEach { tasks.getByName(it).dependsOn checkRelease }
+
+task uploadAll(dependsOn: uploadTasks) {
     group "upload"
     description "Uploads to all repositories (Maven, Curse, GitHub release)"
 }

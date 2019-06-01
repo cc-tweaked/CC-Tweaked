@@ -27,6 +27,44 @@ local function check(func, arg, ty, val)
     end
 end
 
+local active_stubs = {}
+
+--- Stub a global variable with a specific value
+--
+-- @tparam string var The variable to stub
+-- @param value The value to stub it with
+local function stub(tbl, var, value)
+    table.insert(active_stubs, { tbl = tbl, var = var, value = tbl[var] })
+    _G[var] = value
+end
+
+
+--- Capture the current global state of the computer
+local function push_state()
+    local stubs = active_stubs
+    active_stubs = {}
+    return {
+        term = term.current(),
+        input = io.input(),
+        output = io.output(),
+        stubs = stubs,
+    }
+end
+
+--- Restore the global state of the computer to a previous version
+local function pop_state(state)
+    for i = #active_stubs, 1, -1 do
+        local stub = active_stubs[i]
+        stub.tbl[stub.var] = stub.value
+    end
+
+    active_stubs = state.stubs
+
+    term.redirect(state.term)
+    io.input(state.input)
+    io.output(state.output)
+end
+
 local error_mt = { __tostring = function(self) return self.message end }
 
 --- Attempt to execute the provided function, gathering a stack trace when it
@@ -49,10 +87,6 @@ local function try(fn)
     local ok, err = xpcall(fn, function(err)
         return { message = err, trace = debug.traceback(nil, 2) }
     end)
-
-    -- Restore a whole bunch of state
-    io.input(io.stdin)
-    io.output(io.stdout)
 
     -- If we succeeded, propagate it
     if ok then return ok, err end
@@ -196,13 +230,32 @@ function expect_mt:matches(value)
     return self
 end
 
---- Construct a new expectation from the provided value
---
--- @param value The value to apply assertions to
--- @return The new expectation
-local function expect(value)
-    return setmetatable({ value = value}, expect_mt)
-end
+local expect = setmetatable( {
+    --- Construct an expectation on the error message calling this function
+    -- produces
+    --
+    -- @tparam fun The function to call
+    -- @param ... The function arguments
+    -- @return The new expectation
+    error = function(fun, ...)
+        local ok, res = pcall(fun, ...) local _, line = pcall(error, "", 2)
+        if ok then fail("expected function to error") end
+        if res:sub(1, #line) == line then
+            res = res:sub(#line + 1)
+        elseif res:sub(1, 7) == "pcall: " then
+            res = res:sub(8)
+        end
+        return setmetatable({ value = res }, expect_mt)
+    end,
+}, {
+    --- Construct a new expectation from the provided value
+    --
+    -- @param value The value to apply assertions to
+    -- @return The new expectation
+    __call = function(_, value)
+        return setmetatable({ value = value }, expect_mt)
+    end
+})
 
 --- The stack of "describe"s.
 local test_stack = { n = 0 }
@@ -302,10 +355,15 @@ end
 
 do
     -- Load in the tests from all our files
-    local env = setmetatable({
-        expect = expect, fail = fail,
-        describe = describe, it = it, pending = pending
-    }, { __index = _ENV })
+    local env = setmetatable({}, { __index = _ENV })
+
+    local function set_env(tbl)
+        for k in pairs(env) do env[k] = nil end
+        for k, v in pairs(tbl) do env[k] = v end
+    end
+
+    -- When declaring tests, you shouldn't be able to use test methods
+    set_env { describe = describe, it = it, pending = pending }
 
     local suffix = "_spec.lua"
     local function run_in(sub_dir)
@@ -326,6 +384,9 @@ do
     end
 
     run_in(root_dir)
+
+    -- When running tests, you shouldn't be able to declare new ones.
+    set_env { expect = expect, fail = fail, stub = stub }
 end
 
 -- Error if we've found no tests
@@ -359,9 +420,13 @@ local function do_run(test)
         err = test.error
         status = "error"
     elseif test.action then
+        local state = push_state()
+
         local ok
         ok, err = try(test.action)
         status = ok and "pass" or (err.fail and "fail" or "error")
+
+        pop_state(state)
     end
 
     -- If we've a boolean status, then convert it into a string

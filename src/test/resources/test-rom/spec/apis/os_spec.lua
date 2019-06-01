@@ -1,4 +1,4 @@
-describe("The os api", function()
+describe("The os library", function()
     describe("os.date and os.time", function()
         it("round trips correctly", function()
             local t = math.floor(os.epoch("local") / 1000)
@@ -116,6 +116,18 @@ describe("The os api", function()
             local t1 = os.time { year = 2000, month = 10, day = 1, hour = 23, min = 12, sec = 17 }
             local t2 = os.time { year = 2000, month = 10, day = 1, hour = 23, min = 10, sec = 19 }
             expect(t1 - t2):eq(60 * 2 - 2)
+        end)
+    end)
+
+    describe("os.loadAPI", function()
+        it("validates arguments", function()
+            expect.error(os.loadAPI, nil):eq("bad argument #1 (expected string, got nil)")
+        end)
+    end)
+
+    describe("os.unloadAPI", function()
+        it("validates arguments", function()
+            expect.error(os.loadAPI, nil):eq("bad argument #1 (expected string, got nil)")
         end)
     end)
 end)

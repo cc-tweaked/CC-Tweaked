@@ -1,37 +1,17 @@
-New Features in ComputerCraft 1.80:
+New features in CC: Tweaked 1.83.0
 
-* Added .getResponseHeaders() to HTTP responses.
-* Return a HTTP response when a HTTP error occurs.
-* Added a GUI to change ComputerCraft config options.
-* os.time() and os.day() now accept parameters to give the real world time.
-* Added os.epoch()
-* Monitor text now glows in the dark.
-* Added a "Pocket Computer upgrade API" so mod developers can add their own pocket upgrades.
-* Added pocket.equipBack()/pocket.unequipBack() to add/remove pocket upgrades.
-* Added term.setPaletteColor()/term.getPaletteColor() to change/check colors
-* Added colors.rgb8()/colours.rgb8() 
-* Performance improvements to fs.find
-* Requires the player to be interacting with the computer when typing
-* Disk labels are limited to 32 characters
-* Labels can now only include characters within the printable range ( to ~)
-* Various model improvements
-* There is now a configurable file descriptor limit
-* Threads are now daemon threads
-* Termination signals are now sent unless the computer is off
-* Fixed compilation errors
-* Now handles tile entity changes
-* GPS coordinates now have to be numbers
-* Turtle upgrades now act as tools and peripherals
-* The Filesystem.list result is now sorted
-* The number of values to unpack can now be manually specified
-* Small terminal & monitor rendering improvements
-* General improvements to the documentation
-* Redstone inputs are no longer reset when adding peripherals
-* Turtles now use tinting
-* shell.resolveProgram now picks up on *.lua files
-* Fixed a handful of bugs in ComputerCraft
-* Added speaker block, turtle upgrade, pocket upgrade, and peripheral api
-* Startup can now be a directory containing multiple startup files
-* Added .getLabel to the computer peripheral
+* Add Chinese translation (XuyuEre)
+* Small performance optimisations for packet sending.
+* Provide an `arg` table to programs fun from the shell, similar to PUC Lua.
+* Add `os.date`, and handle passing datetime tables to `os.time`, making them largely compatible with PUC Lua.
+* `rm` and `mkdir` accept multiple arguments (hydraz, JakobDev).
+* Rework rendering of in-hand pocket computers.
+* Prevent rendering of a bounding box on a monitor's screen.
+* Refactor Lua-side type checking code into a single method. Also include the function name in error messages.
+
+And several bug fixes:
+* Fix incorrect computation of server-tick budget.
+* Fix list-based config options not reloading.
+* Ensure `require` is usable within the Lua REPL.
 
 Type "help changelog" to see the full version history.

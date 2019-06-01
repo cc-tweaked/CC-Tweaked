@@ -1,3 +1,7 @@
+if not turtle then
+    printError( "Requires a Turtle" )
+    return
+end
 
 if not turtle.craft then
     print( "Requires a Crafty Turtle" )

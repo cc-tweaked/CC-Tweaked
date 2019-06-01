@@ -1,14 +1,12 @@
+local expect = _G["~expect"]
 
 local tSettings = {}
 
 function set( sName, value )
-    if type( sName ) ~= "string" then error( "bad argument #1 (expected string, got " .. type( sName ) .. ")", 2 ) end
+    expect(1, sName, "string")
+    expect(2, value, "number", "string", "boolean", "table")
 
-    local sValueTy = type(value)
-    if sValueTy ~= "number" and sValueTy ~= "string" and sValueTy ~= "boolean" and sValueTy ~= "table" then
-        error( "bad argument #2 (expected value, got " .. sValueTy .. ")", 2 )
-    end
-    if sValueTy == "table" then
+    if type(value) == "table" then
         -- Ensure value is serializeable
         value = textutils.unserialize( textutils.serialize(value) )
     end
@@ -29,9 +27,7 @@ function copy( value )
 end
 
 function get( sName, default )
-    if type(sName) ~= "string" then
-        error( "bad argument #1 (expected string, got " .. type( sName ) .. ")", 2 )
-    end
+    expect(1, sName, "string")
     local result = tSettings[ sName ]
     if result ~= nil then
         return copy(result)
@@ -41,9 +37,7 @@ function get( sName, default )
 end
 
 function unset( sName )
-    if type(sName) ~= "string" then
-        error( "bad argument #1 (expected string, got " .. type( sName ) .. ")", 2 )
-    end
+    expect(1, sName, "string")
     tSettings[ sName ] = nil
 end
 
@@ -61,9 +55,7 @@ function getNames()
 end
 
 function load( sPath )
-    if type(sPath) ~= "string" then
-        error( "bad argument #1 (expected string, got " .. type( sPath ) .. ")", 2 )
-    end
+    expect(1, sPath, "string")
     local file = fs.open( sPath, "r" )
     if not file then
         return false
@@ -88,9 +80,7 @@ function load( sPath )
 end
 
 function save( sPath )
-    if type(sPath) ~= "string" then
-        error( "bad argument #1 (expected string, got " .. type( sPath ) .. ")", 2 )
-    end
+    expect(1, sPath, "string")
     local file = fs.open( sPath, "w" )
     if not file then
         return false

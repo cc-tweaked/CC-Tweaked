@@ -1,3 +1,5 @@
+local expect = _G["~expect"]
+
 -- Colors
 white = 1
 orange = 2
@@ -18,49 +20,35 @@ black = 32768
 
 function combine( ... )
     local r = 0
-    for n,c in ipairs( { ... } ) do
-        if type( c ) ~= "number" then
-            error( "bad argument #"..n.." (expected number, got " .. type( c ) .. ")", 2 )
-        end
+    for i = 1, select('#', ...) do
+        local c = select(i, ...)
+        expect(i, c, "number")
         r = bit32.bor(r,c)
     end
     return r
 end
 
 function subtract( colors, ... )
-    if type( colors ) ~= "number" then
-        error( "bad argument #1 (expected number, got " .. type( colors ) .. ")", 2 )
-    end
+    expect(1, colors, "number")
     local r = colors
-    for n,c in ipairs( { ... } ) do
-        if type( c ) ~= "number" then
-            error( "bad argument #"..tostring( n+1 ).." (expected number, got " .. type( c ) .. ")", 2 )
-        end
+    for i = 1, select('#', ...) do
+        local c = select(i, ...)
+        expect(i + 1, c, "number")
         r = bit32.band(r, bit32.bnot(c))
     end
     return r
 end
 
 function test( colors, color )
-    if type( colors ) ~= "number" then
-        error( "bad argument #1 (expected number, got " .. type( colors ) .. ")", 2 )
-    end
-    if type( color ) ~= "number" then
-        error( "bad argument #2 (expected number, got " .. type( color ) .. ")", 2 )
-    end
+    expect(1, colors, "number")
+    expect(2, color, "number")
     return bit32.band(colors, color) == color
 end
 
 function packRGB( r, g, b )
-    if type( r ) ~= "number" then
-        error( "bad argument #1 (expected number, got " .. type( r ) .. ")", 2 )
-    end
-    if type( g ) ~= "number" then
-        error( "bad argument #2 (expected number, got " .. type( g ) .. ")", 2 )
-    end
-    if type( b ) ~= "number" then
-        error( "bad argument #3 (expected number, got " .. type( b ) .. ")", 2 )
-    end
+    expect(1, r, "number")
+    expect(2, g, "number")
+    expect(3, b, "number")
     return
         bit32.band( r * 255, 0xFF ) * 2^16 +
         bit32.band( g * 255, 0xFF ) * 2^8 +
@@ -68,9 +56,7 @@ function packRGB( r, g, b )
 end
 
 function unpackRGB( rgb )
-    if type( rgb ) ~= "number" then
-        error( "bad argument #1 (expected number, got " .. type( rgb ) .. ")", 2 )
-    end
+    expect(1, rgb, "number")
     return
         bit32.band( bit32.rshift( rgb, 16 ), 0xFF ) / 255,
         bit32.band( bit32.rshift( rgb, 8 ), 0xFF ) / 255,

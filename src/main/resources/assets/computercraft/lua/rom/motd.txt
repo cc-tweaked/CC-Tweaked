@@ -3,5 +3,13 @@ View the documentation at https://wiki.computercraft.cc
 Visit the forum at https://forums.computercraft.cc
 You can disable these messages by running "set motd.enable false"
 You can create directories with "mkdir".
-You can use "wget -r <url>" to run a program from the internet without downloading it.
+Want to see hidden files? Run "set list.show_hidden true".
+Run "list" or "ls" to see all files in a directory.
+You can delete files and directories with "delete" or "rm".
+Use "pastebin put" to upload a program to pastebin.
+Use "pastebin get" to download a program from pastebin.
+Use "pastebin run" to run a program from pastebin without saving it.
+Use the "edit" program to create and edit your programs.
+You can copy files with "copy" or "cp".
+You can use "wget -r <url>" to run a program from the internet without saving it.
 You can use "wget" to download a file from the internet.

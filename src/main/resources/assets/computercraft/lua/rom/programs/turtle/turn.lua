@@ -1,3 +1,8 @@
+if not turtle then
+    printError( "Requires a Turtle" )
+    return
+end
+
 local tArgs = { ... }
 if #tArgs < 1 then
     print( "Usage: turn <direction> <turns>" )

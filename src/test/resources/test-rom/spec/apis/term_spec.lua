@@ -1,0 +1,12 @@
+describe("The term library", function()
+    describe("term.redirect", function()
+        it("validates arguments", function()
+            expect.error(term.redirect, nil):eq("bad argument #1 (expected table, got nil)")
+        end)
+
+        it("prevents redirecting to term", function()
+            expect.error(term.redirect, term)
+                  :eq("term is not a recommended redirect target, try term.current() instead")
+        end)
+    end)
+end)
