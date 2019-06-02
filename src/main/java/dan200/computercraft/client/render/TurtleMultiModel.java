@@ -13,6 +13,7 @@ import net.minecraft.client.renderer.model.ItemOverrideList;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.client.model.data.EmptyModelData;
+import net.minecraftforge.client.model.data.IModelData;
 
 import javax.annotation.Nonnull;
 import javax.vecmath.Matrix4f;
@@ -44,7 +45,15 @@ public class TurtleMultiModel implements IBakedModel
 
     @Nonnull
     @Override
+    @Deprecated
     public List<BakedQuad> getQuads( IBlockState state, EnumFacing side, @Nonnull Random rand )
+    {
+        return getQuads( state, side, rand, EmptyModelData.INSTANCE );
+    }
+
+    @Nonnull
+    @Override
+    public List<BakedQuad> getQuads( IBlockState state, EnumFacing side, @Nonnull Random rand, @Nonnull IModelData data )
     {
         if( side != null )
         {
