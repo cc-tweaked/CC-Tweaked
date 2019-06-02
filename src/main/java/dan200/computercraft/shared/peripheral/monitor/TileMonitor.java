@@ -114,7 +114,11 @@ public class TileMonitor extends TileGeneric implements IPeripheralTile
         {
             if( !getWorld().isClient )
             {
-                monitorTouched( (float) hit.getPos().x, (float) hit.getPos().y, (float) hit.getPos().z );
+                monitorTouched(
+                    (float) (hit.getPos().x - hit.getBlockPos().getX()),
+                    (float) (hit.getPos().y - hit.getBlockPos().getY()),
+                    (float) (hit.getPos().z - hit.getBlockPos().getZ())
+                );
             }
             return true;
         }
