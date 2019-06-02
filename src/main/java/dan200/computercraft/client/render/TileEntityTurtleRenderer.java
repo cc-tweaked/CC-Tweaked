@@ -31,6 +31,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.client.ForgeHooksClient;
+import net.minecraftforge.client.model.data.EmptyModelData;
 import net.minecraftforge.client.model.pipeline.LightUtil;
 import org.apache.commons.lang3.tuple.Pair;
 import org.lwjgl.opengl.GL11;
@@ -197,10 +198,10 @@ public class TileEntityTurtleRenderer extends TileEntityRenderer<TileTurtle>
         Random random = new Random( 0 );
         Tessellator tessellator = Tessellator.getInstance();
         rendererDispatcher.textureManager.bindTexture( TextureMap.LOCATION_BLOCKS_TEXTURE );
-        renderQuads( tessellator, model.getQuads( state, null, random ), tints );
+        renderQuads( tessellator, model.getQuads( state, null, random, EmptyModelData.INSTANCE ), tints );
         for( EnumFacing facing : DirectionUtil.FACINGS )
         {
-            renderQuads( tessellator, model.getQuads( state, facing, random ), tints );
+            renderQuads( tessellator, model.getQuads( state, facing, random, EmptyModelData.INSTANCE ), tints );
         }
     }
 

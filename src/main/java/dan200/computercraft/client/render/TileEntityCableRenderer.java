@@ -29,6 +29,7 @@ import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
 import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.client.MinecraftForgeClient;
+import net.minecraftforge.client.model.data.EmptyModelData;
 import org.lwjgl.opengl.GL11;
 
 import javax.annotation.Nonnull;
@@ -80,7 +81,7 @@ public class TileEntityCableRenderer extends TileEntityRenderer<TileCable>
         mc.getBlockRendererDispatcher().getBlockModelRenderer().renderModel(
             world,
             ForgeHooksClient.getDamageModel( model, breakingTexture, state, world, pos ),
-            state, pos, buffer, true, random, state.getPositionRandom( pos )
+            state, pos, buffer, true, random, state.getPositionRandom( pos ), EmptyModelData.INSTANCE
         );
 
         ForgeHooksClient.setRenderLayer( BlockRenderLayer.SOLID );

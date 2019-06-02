@@ -12,6 +12,7 @@ import net.minecraft.client.renderer.model.IBakedModel;
 import net.minecraft.client.renderer.model.ItemOverrideList;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.util.EnumFacing;
+import net.minecraftforge.client.model.data.EmptyModelData;
 
 import javax.annotation.Nonnull;
 import javax.vecmath.Matrix4f;
@@ -60,14 +61,10 @@ public class TurtleMultiModel implements IBakedModel
     private List<BakedQuad> buildQuads( IBlockState state, EnumFacing side, Random rand )
     {
         ArrayList<BakedQuad> quads = new ArrayList<>();
-        ModelTransformer.transformQuadsTo( quads, m_baseModel.getQuads( state, side, rand ), m_generalTransform );
+        ModelTransformer.transformQuadsTo( quads, m_baseModel.getQuads( state, side, rand, EmptyModelData.INSTANCE ), m_generalTransform );
         if( m_overlayModel != null )
         {
-            ModelTransformer.transformQuadsTo( quads, m_overlayModel.getQuads( state, side, rand ), m_generalTransform );
-        }
-        if( m_overlayModel != null )
-        {
-            ModelTransformer.transformQuadsTo( quads, m_overlayModel.getQuads( state, side, rand ), m_generalTransform );
+            ModelTransformer.transformQuadsTo( quads, m_overlayModel.getQuads( state, side, rand, EmptyModelData.INSTANCE ), m_generalTransform );
         }
         if( m_leftUpgradeModel != null )
         {
@@ -77,7 +74,7 @@ public class TurtleMultiModel implements IBakedModel
                 upgradeTransform = new Matrix4f( m_generalTransform );
                 upgradeTransform.mul( m_leftUpgradeTransform );
             }
-            ModelTransformer.transformQuadsTo( quads, m_leftUpgradeModel.getQuads( state, side, rand ), upgradeTransform );
+            ModelTransformer.transformQuadsTo( quads, m_leftUpgradeModel.getQuads( state, side, rand, EmptyModelData.INSTANCE ), upgradeTransform );
         }
         if( m_rightUpgradeModel != null )
         {
@@ -87,7 +84,7 @@ public class TurtleMultiModel implements IBakedModel
                 upgradeTransform = new Matrix4f( m_generalTransform );
                 upgradeTransform.mul( m_rightUpgradeTransform );
             }
-            ModelTransformer.transformQuadsTo( quads, m_rightUpgradeModel.getQuads( state, side, rand ), upgradeTransform );
+            ModelTransformer.transformQuadsTo( quads, m_rightUpgradeModel.getQuads( state, side, rand , EmptyModelData.INSTANCE), upgradeTransform );
         }
         quads.trimToSize();
         return quads;
