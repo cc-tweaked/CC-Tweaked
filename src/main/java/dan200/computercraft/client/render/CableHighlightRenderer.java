@@ -13,9 +13,9 @@ import dan200.computercraft.shared.peripheral.modem.wired.CableShapes;
 import dan200.computercraft.shared.util.WorldUtil;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.WorldRenderer;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.BlockPos;
@@ -34,12 +34,10 @@ public final class CableHighlightRenderer
      *
      * @see WorldRenderer#drawHighlightedBlockOutline(Entity, HitResult, int, float)
      */
-    public static boolean drawHighlight()
+    public static boolean drawHighlight( Camera camera, BlockHitResult hit )
     {
         MinecraftClient mc = MinecraftClient.getInstance();
-        if( mc.hitResult == null || mc.hitResult.getType() != HitResult.Type.BLOCK ) return false;
-
-        BlockPos pos = ((BlockHitResult) mc.hitResult).getBlockPos();
+        BlockPos pos = hit.getBlockPos();
         World world = mc.world;
 
         BlockState state = world.getBlockState( pos );
@@ -50,9 +48,6 @@ public final class CableHighlightRenderer
             return false;
         }
 
-        PlayerEntity player = mc.player;
-        float partialTicks = mc.getTickDelta();
-
         GlStateManager.enableBlend();
         GlStateManager.blendFuncSeparate( GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO );
         GlStateManager.lineWidth( Math.max( 2.5F, mc.window.getFramebufferWidth() / 1920.0F * 2.5F ) );
@@ -62,15 +57,11 @@ public final class CableHighlightRenderer
         GlStateManager.pushMatrix();
         GlStateManager.scalef( 1.0F, 1.0F, 0.999F );
 
-        double x = player.prevX + (player.x - player.prevX) * partialTicks;
-        double y = player.prevY + (player.y - player.prevY) * partialTicks;
-        double z = player.prevZ + (player.z - player.prevZ) * partialTicks;
-
-        VoxelShape shape = WorldUtil.isVecInside( CableShapes.getModemShape( state ), mc.hitResult.getPos().subtract( pos.getX(), pos.getY(), pos.getZ() ) )
+        VoxelShape shape = WorldUtil.isVecInside( CableShapes.getModemShape( state ), hit.getPos().subtract( pos.getX(), pos.getY(), pos.getZ() ) )
             ? CableShapes.getModemShape( state )
             : CableShapes.getCableShape( state );
 
-        WorldRenderer.drawShapeOutline( shape, pos.getX() - x, pos.getY() - y, pos.getZ() - z, 0.0F, 0.0F, 0.0F, 0.4F );
+        WorldRenderer.drawShapeOutline( shape, pos.getX() - camera.getPos().getX(), pos.getY() - camera.getPos().getY(), pos.getZ() - camera.getPos().getZ(), 0.0F, 0.0F, 0.0F, 0.4F );
 
         GlStateManager.popMatrix();
         GlStateManager.matrixMode( GL11.GL_MODELVIEW );

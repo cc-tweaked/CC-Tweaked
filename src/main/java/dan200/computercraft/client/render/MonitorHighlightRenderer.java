@@ -11,11 +11,10 @@ import dan200.computercraft.shared.peripheral.monitor.TileMonitor;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.BufferBuilder;
+import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.Tessellator;
 import net.minecraft.client.render.VertexFormats;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
@@ -33,12 +32,12 @@ public final class MonitorHighlightRenderer
     {
     }
 
-    public static boolean drawHighlight()
+    public static boolean drawHighlight( Camera camera, BlockHitResult hit )
     {
         MinecraftClient mc = MinecraftClient.getInstance();
-        if( mc.hitResult == null || mc.hitResult.getType() != HitResult.Type.BLOCK ) return false;
+        if( mc.player.isSneaking() ) return false;
 
-        BlockPos pos = ((BlockHitResult) mc.hitResult).getBlockPos();
+        BlockPos pos = hit.getBlockPos();
         World world = mc.world;
 
         BlockEntity tile = world.getBlockEntity( pos );
@@ -62,13 +61,7 @@ public final class MonitorHighlightRenderer
         GlStateManager.depthMask( false );
         GlStateManager.pushMatrix();
 
-        PlayerEntity player = mc.player;
-        float partialTicks = mc.getTickDelta();
-        double x = player.prevX + (player.x - player.prevX) * partialTicks;
-        double y = player.prevY + (player.y - player.prevY) * partialTicks;
-        double z = player.prevZ + (player.z - player.prevZ) * partialTicks;
-
-        GlStateManager.translated( -x + pos.getX(), -y + pos.getY(), -z + pos.getZ() );
+        GlStateManager.translated( pos.getX() - camera.getPos().getX(), pos.getY() - camera.getPos().getY(), pos.getZ() - camera.getPos().getZ() );
 
         Tessellator tessellator = Tessellator.getInstance();
         BufferBuilder buffer = tessellator.getBufferBuilder();

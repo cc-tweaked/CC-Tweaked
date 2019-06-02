@@ -6,7 +6,8 @@
         "MixinFirstPersonRenderer",
         "MixinItemFrameEntityRenderer",
         "MixinMinecraftGame",
-        "MixinScreen"
+        "MixinScreen",
+        "MixinWorldRenderer"
     ],
     "injectors": {
         "defaultRequire": 1
