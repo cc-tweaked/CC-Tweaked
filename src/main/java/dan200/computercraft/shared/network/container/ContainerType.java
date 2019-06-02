@@ -9,7 +9,7 @@ package dan200.computercraft.shared.network.container;
 import net.fabricmc.fabric.api.client.screen.ScreenProviderRegistry;
 import net.fabricmc.fabric.api.container.ContainerProviderRegistry;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.ContainerScreen;
+import net.minecraft.client.gui.screen.ingame.AbstractContainerScreen;
 import net.minecraft.container.Container;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
@@ -43,7 +43,7 @@ public interface ContainerType<T extends Container>
         } );
     }
 
-    static <C extends Container, T extends ContainerType<C>> void registerGui( Supplier<T> containerType, ContainerFactory<T, ContainerScreen<?>> factory )
+    static <C extends Container, T extends ContainerType<C>> void registerGui( Supplier<T> containerType, ContainerFactory<T, AbstractContainerScreen<?>> factory )
     {
         ScreenProviderRegistry.INSTANCE.registerFactory( containerType.get().getId(), ( id, type, player, packet ) -> {
             T container = containerType.get();
@@ -52,7 +52,7 @@ public interface ContainerType<T extends Container>
         } );
     }
 
-    static <C extends Container, T extends ContainerType<C>> void registerGui( Supplier<T> containerType, BiFunction<C, PlayerInventory, ContainerScreen<?>> factory )
+    static <C extends Container, T extends ContainerType<C>> void registerGui( Supplier<T> containerType, BiFunction<C, PlayerInventory, AbstractContainerScreen<?>> factory )
     {
         ScreenProviderRegistry.INSTANCE.<C>registerFactory( containerType.get().getId(), container ->
             factory.apply( container, MinecraftClient.getInstance().player.inventory ) );

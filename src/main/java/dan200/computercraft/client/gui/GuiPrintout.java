@@ -10,13 +10,13 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import dan200.computercraft.core.terminal.TextBuffer;
 import dan200.computercraft.shared.common.ContainerHeldItem;
 import dan200.computercraft.shared.media.items.ItemPrintout;
-import net.minecraft.client.gui.ContainerScreen;
+import net.minecraft.client.gui.screen.ingame.AbstractContainerScreen;
 import net.minecraft.entity.player.PlayerInventory;
 import org.lwjgl.glfw.GLFW;
 
 import static dan200.computercraft.client.render.PrintoutRenderer.*;
 
-public class GuiPrintout extends ContainerScreen<ContainerHeldItem>
+public class GuiPrintout extends AbstractContainerScreen<ContainerHeldItem>
 {
     private final boolean m_book;
     private final int m_pages;

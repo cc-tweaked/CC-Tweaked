@@ -14,14 +14,14 @@ import dan200.computercraft.shared.computer.blocks.TileComputer;
 import dan200.computercraft.shared.computer.core.ClientComputer;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.inventory.ContainerComputer;
-import net.minecraft.client.gui.ContainerScreen;
+import net.minecraft.client.gui.screen.ingame.AbstractContainerScreen;
 import net.minecraft.container.Container;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.util.Identifier;
 import org.lwjgl.glfw.GLFW;
 
-public class GuiComputer<T extends Container> extends ContainerScreen<T>
+public class GuiComputer<T extends Container> extends AbstractContainerScreen<T>
 {
     private static final Identifier BACKGROUND_NORMAL = new Identifier( "computercraft", "textures/gui/corners_normal.png" );
     private static final Identifier BACKGROUND_ADVANCED = new Identifier( "computercraft", "textures/gui/corners_advanced.png" );

@@ -9,12 +9,12 @@ package dan200.computercraft.client.gui;
 import com.mojang.blaze3d.platform.GlStateManager;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.peripheral.diskdrive.ContainerDiskDrive;
-import net.minecraft.client.gui.ContainerScreen;
+import net.minecraft.client.gui.screen.ingame.AbstractContainerScreen;
 import net.minecraft.client.resource.language.I18n;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.util.Identifier;
 
-public class GuiDiskDrive extends ContainerScreen<ContainerDiskDrive>
+public class GuiDiskDrive extends AbstractContainerScreen<ContainerDiskDrive>
 {
     private static final Identifier BACKGROUND = new Identifier( "computercraft", "textures/gui/disk_drive.png" );
 

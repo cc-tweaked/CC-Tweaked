@@ -10,7 +10,7 @@ import dan200.computercraft.shared.computer.items.IComputerItem;
 import net.minecraft.inventory.CraftingInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.recipe.Ingredient;
-import net.minecraft.recipe.crafting.ShapedRecipe;
+import net.minecraft.recipe.ShapedRecipe;
 import net.minecraft.util.DefaultedList;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.World;

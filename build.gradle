@@ -53,9 +53,8 @@ configurations {
 dependencies {
     minecraft "com.mojang:minecraft:${mc_version}"
     mappings "net.fabricmc:yarn:${mc_version}+build.${mappings_version}"
-    // modCompile "net.fabricmc:fabric-loader:0.4.6+build.143"
-    modCompile "net.fabricmc:fabric-loader:0.4.6+build.141"
-    modCompile "net.fabricmc.fabric-api:fabric-api:0.3.0-pre+build.156"
+    modCompile "net.fabricmc:fabric-loader:0.4.8+build.153"
+    modCompile "net.fabricmc.fabric-api:fabric-api:0.3.0+build.175"
 
     implementation 'com.google.code.findbugs:jsr305:3.0.2'
 
@@ -239,7 +238,7 @@ curseforge {
     apiKey = project.hasProperty('curseForgeApiKey') ? project.curseForgeApiKey : ''
     project {
         id = '282001'
-        addGameVersion '1.14.1'
+        addGameVersion '1.14.2'
         releaseType = 'beta'
         changelog = "Release notes can be found on the GitHub repository (https://github.com/SquidDev-CC/CC-Tweaked/releases/tag/v${mc_version}-${mod_version})."
 
