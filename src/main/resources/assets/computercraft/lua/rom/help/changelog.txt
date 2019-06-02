@@ -1,3 +1,12 @@
+# New features in CC: Tweaked 1.83.1
+
+* Add several new MOTD messages (JakobDev)
+
+And several bug fixes:
+* Fix type check in `rednet.lookup`
+* Error if turtle and pocket computer programs are run on the wrong system (JakobDev)
+* Do not discard varargs after a nil.
+
 # New features in CC: Tweaked 1.83.0
 
 * Add Chinese translation (XuyuEre)

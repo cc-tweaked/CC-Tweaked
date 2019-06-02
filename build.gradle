@@ -226,7 +226,7 @@ task compressJson(dependsOn: extractAnnotationsJar) {
 
 assemble.dependsOn compressJson
 
-task checkRelease(dependsOn: extractAnnotationsJar) {
+task checkRelease {
     group "upload"
     description "Verifies that everything is ready for a release"
 
