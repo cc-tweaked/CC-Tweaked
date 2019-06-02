@@ -173,10 +173,14 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
             // Send terminal state to clients who are currently interacting with the computer.
             MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
 
-            NetworkMessage packet = createTerminalPacket();
+            NetworkMessage packet = null;
             for( EntityPlayer player : server.getPlayerList().getPlayers() )
             {
-                if( isInteracting( player ) ) NetworkHandler.sendToPlayer( player, packet );
+                if( isInteracting( player ) )
+                {
+                    if( packet == null ) packet = createTerminalPacket();
+                    NetworkHandler.sendToPlayer( player, packet );
+                }
             }
         }
     }

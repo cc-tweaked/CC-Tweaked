@@ -26,9 +26,9 @@ import net.minecraftforge.fml.common.Mod;
 import org.lwjgl.opengl.GL11;
 
 @Mod.EventBusSubscriber( modid = ComputerCraft.MOD_ID, value = Dist.CLIENT )
-public final class RenderOverlayCable
+public final class CableHighlightRenderer
 {
-    private RenderOverlayCable()
+    private CableHighlightRenderer()
     {
     }
 

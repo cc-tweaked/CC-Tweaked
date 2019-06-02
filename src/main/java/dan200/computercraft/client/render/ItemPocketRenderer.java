@@ -12,24 +12,24 @@ import dan200.computercraft.client.gui.FixedWidthFontRenderer;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.core.terminal.TextBuffer;
 import dan200.computercraft.shared.computer.core.ClientComputer;
+import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.pocket.items.ItemPocketComputer;
+import dan200.computercraft.shared.util.Colour;
 import dan200.computercraft.shared.util.Palette;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.ItemRenderer;
-import net.minecraft.client.renderer.model.IBakedModel;
-import net.minecraft.client.renderer.texture.TextureManager;
-import net.minecraft.client.renderer.texture.TextureMap;
+import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.client.event.RenderSpecificHandEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import org.lwjgl.opengl.GL11;
 
-import static dan200.computercraft.client.gui.FixedWidthFontRenderer.FONT_HEIGHT;
-import static dan200.computercraft.client.gui.FixedWidthFontRenderer.FONT_WIDTH;
+import static dan200.computercraft.client.gui.FixedWidthFontRenderer.*;
+import static dan200.computercraft.client.gui.GuiComputer.*;
 
 /**
  * Emulates map rendering for pocket computers
@@ -37,6 +37,10 @@ import static dan200.computercraft.client.gui.FixedWidthFontRenderer.FONT_WIDTH;
 @Mod.EventBusSubscriber( modid = ComputerCraft.MOD_ID, value = Dist.CLIENT )
 public final class ItemPocketRenderer extends ItemMapLikeRenderer
 {
+    private static final int MARGIN = 2;
+    private static final int FRAME = 12;
+    private static final int LIGHT_HEIGHT = 8;
+
     private static final ItemPocketRenderer INSTANCE = new ItemPocketRenderer();
 
     private ItemPocketRenderer()
@@ -56,119 +60,195 @@ public final class ItemPocketRenderer extends ItemMapLikeRenderer
     @Override
     protected void renderItem( ItemStack stack )
     {
+        ClientComputer computer = ItemPocketComputer.createClientComputer( stack );
+        Terminal terminal = computer == null ? null : computer.getTerminal();
+
+        int termWidth, termHeight;
+        if( terminal == null )
+        {
+            termWidth = ComputerCraft.terminalWidth_pocketComputer;
+            termHeight = ComputerCraft.terminalHeight_pocketComputer;
+        }
+        else
+        {
+            termWidth = terminal.getWidth();
+            termHeight = terminal.getHeight();
+        }
+
+        int width = termWidth * FONT_WIDTH + MARGIN * 2;
+        int height = termHeight * FONT_HEIGHT + MARGIN * 2;
+
         // Setup various transformations. Note that these are partially adapted from the corresponding method
         // in ItemRenderer
+        GlStateManager.pushMatrix();
+
         GlStateManager.disableLighting();
+        GlStateManager.disableDepthTest();
 
         GlStateManager.rotatef( 180f, 0f, 1f, 0f );
         GlStateManager.rotatef( 180f, 0f, 0f, 1f );
         GlStateManager.scalef( 0.5f, 0.5f, 0.5f );
 
-        ClientComputer computer = ItemPocketComputer.createClientComputer( stack );
+        double scale = 0.75 / Math.max( width + FRAME * 2, height + FRAME * 2 + LIGHT_HEIGHT );
+        GlStateManager.scaled( scale, scale, 0 );
+        GlStateManager.translated( -0.5 * width, -0.5 * height, 0 );
 
+        // Render the main frame
+        ItemPocketComputer item = (ItemPocketComputer) stack.getItem();
+        ComputerFamily family = item.getFamily();
+        int frameColour = item.getColour( stack );
+        renderFrame( family, frameColour, width, height );
+
+        // Render the light
+        int lightColour = ItemPocketComputer.getLightState( stack );
+        if( lightColour == -1 ) lightColour = Colour.Black.getHex();
+        renderLight( lightColour, width, height );
+
+        if( computer != null && terminal != null )
         {
-            // First render the background item. We use the item's model rather than a direct texture as this ensures
-            // we display the pocket light and other such decorations.
-            GlStateManager.pushMatrix();
+            // If we've a computer and terminal then attempt to render it.
+            renderTerminal( terminal, !computer.isColour(), width, height );
+        }
+        else
+        {
+            // Otherwise render a plain background
+            Minecraft.getInstance().getTextureManager().bindTexture( BACKGROUND );
 
-            GlStateManager.scalef( 1.0f, -1.0f, 1.0f );
+            Tessellator tessellator = Tessellator.getInstance();
+            BufferBuilder buffer = tessellator.getBuffer();
 
-            Minecraft minecraft = Minecraft.getInstance();
-            TextureManager textureManager = minecraft.getTextureManager();
-            ItemRenderer renderItem = minecraft.getItemRenderer();
-
-            // Copy of RenderItem#renderItemModelIntoGUI but without the translation or scaling
-            textureManager.bindTexture( TextureMap.LOCATION_BLOCKS_TEXTURE );
-            textureManager.getTexture( TextureMap.LOCATION_BLOCKS_TEXTURE ).setBlurMipmap( false, false );
-
-            GlStateManager.enableRescaleNormal();
-            GlStateManager.enableAlphaTest();
-            GlStateManager.alphaFunc( GL11.GL_GREATER, 0.1F );
-            GlStateManager.enableBlend();
-            GlStateManager.blendFunc( GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA );
-            GlStateManager.color4f( 1.0F, 1.0F, 1.0F, 1.0F );
-
-            renderItem.renderItem( stack, transform( renderItem.getItemModelWithOverrides( stack, null, null ) ) );
-
-            GlStateManager.disableAlphaTest();
-            GlStateManager.disableRescaleNormal();
-
-            GlStateManager.popMatrix();
+            Colour black = Colour.Black;
+            buffer.begin( GL11.GL_QUADS, DefaultVertexFormats.POSITION );
+            renderTexture( buffer, 0, 0, 0, 0, width, height, black.getR(), black.getG(), black.getB() );
+            tessellator.draw();
         }
 
-        // If we've a computer and terminal then attempt to render it.
-        if( computer != null )
-        {
-            Terminal terminal = computer.getTerminal();
-            if( terminal != null )
-            {
-                synchronized( terminal )
-                {
-                    GlStateManager.pushMatrix();
-                    GlStateManager.disableDepthTest();
-
-                    // Reset the position to be at the top left corner of the pocket computer
-                    // Note we translate towards the screen slightly too.
-                    GlStateManager.translated( -8 / 16.0, -8 / 16.0, 0.5 / 16.0 );
-                    // Translate to the top left of the screen.
-                    GlStateManager.translated( 4 / 16.0, 3 / 16.0, 0 );
-
-                    // Work out the scaling required to resize the terminal in order to fit on the computer
-                    final int margin = 2;
-                    int tw = terminal.getWidth();
-                    int th = terminal.getHeight();
-                    int width = tw * FONT_WIDTH + margin * 2;
-                    int height = th * FONT_HEIGHT + margin * 2;
-                    int max = Math.max( height, width );
-
-                    // The grid is 8 * 8 wide, so we start with a base of 1/2 (8 / 16).
-                    double scale = 1.0 / 2.0 / max;
-                    GlStateManager.scaled( scale, scale, scale );
-
-                    // The margin/start positions are determined in order for the terminal to be centred.
-                    int startX = (max - width) / 2 + margin;
-                    int startY = (max - height) / 2 + margin;
-
-                    FixedWidthFontRenderer fontRenderer = FixedWidthFontRenderer.instance();
-                    boolean greyscale = !computer.isColour();
-                    Palette palette = terminal.getPalette();
-
-                    // Render the actual text
-                    for( int line = 0; line < th; line++ )
-                    {
-                        TextBuffer text = terminal.getLine( line );
-                        TextBuffer colour = terminal.getTextColourLine( line );
-                        TextBuffer backgroundColour = terminal.getBackgroundColourLine( line );
-                        fontRenderer.drawString(
-                            text, startX, startY + line * FONT_HEIGHT,
-                            colour, backgroundColour, margin, margin, greyscale, palette
-                        );
-                    }
-
-                    // And render the cursor;
-                    int tx = terminal.getCursorX(), ty = terminal.getCursorY();
-                    if( terminal.getCursorBlink() && FrameInfo.getGlobalCursorBlink() &&
-                        tx >= 0 && ty >= 0 && tx < tw && ty < th )
-                    {
-                        TextBuffer cursorColour = new TextBuffer( "0123456789abcdef".charAt( terminal.getTextColour() ), 1 );
-                        fontRenderer.drawString(
-                            new TextBuffer( '_', 1 ), startX + FONT_WIDTH * tx, startY + FONT_HEIGHT * ty,
-                            cursorColour, null, 0, 0, greyscale, palette
-                        );
-                    }
-
-                    GlStateManager.enableDepthTest();
-                    GlStateManager.popMatrix();
-                }
-            }
-        }
-
+        GlStateManager.enableDepthTest();
         GlStateManager.enableLighting();
+        GlStateManager.popMatrix();
     }
 
-    @SuppressWarnings( { "deprecation" } )
-    private static IBakedModel transform( IBakedModel model )
+    private static void renderFrame( ComputerFamily family, int colour, int width, int height )
     {
-        return ForgeHooksClient.handleCameraTransforms( model, net.minecraft.client.renderer.model.ItemCameraTransforms.TransformType.GUI, false );
+
+        Minecraft.getInstance().getTextureManager().bindTexture( colour != -1
+            ? BACKGROUND_COLOUR
+            : family == ComputerFamily.Normal ? BACKGROUND_NORMAL : BACKGROUND_ADVANCED
+        );
+
+        float r = ((colour >>> 16) & 0xFF) / 255.0f;
+        float g = ((colour >>> 8) & 0xFF) / 255.0f;
+        float b = (colour & 0xFF) / 255.0f;
+
+        Tessellator tessellator = Tessellator.getInstance();
+        BufferBuilder buffer = tessellator.getBuffer();
+        buffer.begin( GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR );
+
+        // Top left, middle, right
+        renderTexture( buffer, -FRAME, -FRAME, 12, 28, FRAME, FRAME, r, g, b );
+        renderTexture( buffer, 0, -FRAME, 0, 0, width, FRAME, r, g, b );
+        renderTexture( buffer, width, -FRAME, 24, 28, FRAME, FRAME, r, g, b );
+
+        // Left and bright border
+        renderTexture( buffer, -FRAME, 0, 0, 28, FRAME, height, r, g, b );
+        renderTexture( buffer, width, 0, 36, 28, FRAME, height, r, g, b );
+
+        // Bottom left, middle, right. We do this in three portions: the top inner corners, an extended region for
+        // lights, and then the bottom outer corners.
+        renderTexture( buffer, -FRAME, height, 12, 40, FRAME, FRAME / 2, r, g, b );
+        renderTexture( buffer, 0, height, 0, 12, width, FRAME / 2, r, g, b );
+        renderTexture( buffer, width, height, 24, 40, FRAME, FRAME / 2, r, g, b );
+
+        renderTexture( buffer, -FRAME, height + FRAME / 2, 12, 44, FRAME, LIGHT_HEIGHT, FRAME, 4, r, g, b );
+        renderTexture( buffer, 0, height + FRAME / 2, 0, 16, width, LIGHT_HEIGHT, FRAME, 4, r, g, b );
+        renderTexture( buffer, width, height + FRAME / 2, 24, 44, FRAME, LIGHT_HEIGHT, FRAME, 4, r, g, b );
+
+        renderTexture( buffer, -FRAME, height + LIGHT_HEIGHT + FRAME / 2, 12, 40 + FRAME / 2, FRAME, FRAME / 2, r, g, b );
+        renderTexture( buffer, 0, height + LIGHT_HEIGHT + FRAME / 2, 0, 12 + FRAME / 2, width, FRAME / 2, r, g, b );
+        renderTexture( buffer, width, height + LIGHT_HEIGHT + FRAME / 2, 24, 40 + FRAME / 2, FRAME, FRAME / 2, r, g, b );
+
+        tessellator.draw();
+    }
+
+    private static void renderLight( int colour, int width, int height )
+    {
+        GlStateManager.enableBlend();
+        GlStateManager.disableTexture2D();
+
+        float r = ((colour >>> 16) & 0xFF) / 255.0f;
+        float g = ((colour >>> 8) & 0xFF) / 255.0f;
+        float b = (colour & 0xFF) / 255.0f;
+
+        Tessellator tessellator = Tessellator.getInstance();
+        BufferBuilder buffer = tessellator.getBuffer();
+        buffer.begin( GL11.GL_QUADS, DefaultVertexFormats.POSITION_COLOR );
+        buffer.pos( width - LIGHT_HEIGHT * 2, height + LIGHT_HEIGHT + FRAME / 2.0f, 0.0D ).color( r, g, b, 1.0f ).endVertex();
+        buffer.pos( width, height + LIGHT_HEIGHT + FRAME / 2.0f, 0.0D ).color( r, g, b, 1.0f ).endVertex();
+        buffer.pos( width, height + FRAME / 2.0f, 0.0D ).color( r, g, b, 1.0f ).endVertex();
+        buffer.pos( width - LIGHT_HEIGHT * 2, height + FRAME / 2.0f, 0.0D ).color( r, g, b, 1.0f ).endVertex();
+
+        tessellator.draw();
+        GlStateManager.enableTexture2D();
+    }
+
+    private static void renderTerminal( Terminal terminal, boolean greyscale, int width, int height )
+    {
+        synchronized( terminal )
+        {
+            int termWidth = terminal.getWidth();
+            int termHeight = terminal.getHeight();
+
+            FixedWidthFontRenderer fontRenderer = FixedWidthFontRenderer.instance();
+            Palette palette = terminal.getPalette();
+
+            // Render top/bottom borders
+            TextBuffer emptyLine = new TextBuffer( ' ', termWidth );
+            fontRenderer.drawString(
+                emptyLine, MARGIN, 0,
+                terminal.getTextColourLine( 0 ), terminal.getBackgroundColourLine( 0 ), MARGIN, MARGIN, greyscale, palette
+            );
+            fontRenderer.drawString(
+                emptyLine, MARGIN, 2 * MARGIN + (termHeight - 1) * FixedWidthFontRenderer.FONT_HEIGHT,
+                terminal.getTextColourLine( termHeight - 1 ), terminal.getBackgroundColourLine( termHeight - 1 ), MARGIN, MARGIN, greyscale, palette
+            );
+
+            // Render the actual text
+            for( int line = 0; line < termWidth; line++ )
+            {
+                TextBuffer text = terminal.getLine( line );
+                TextBuffer colour = terminal.getTextColourLine( line );
+                TextBuffer backgroundColour = terminal.getBackgroundColourLine( line );
+                fontRenderer.drawString(
+                    text, MARGIN, MARGIN + line * FONT_HEIGHT,
+                    colour, backgroundColour, MARGIN, MARGIN, greyscale, palette
+                );
+            }
+
+            // And render the cursor;
+            int tx = terminal.getCursorX(), ty = terminal.getCursorY();
+            if( terminal.getCursorBlink() && FrameInfo.getGlobalCursorBlink() &&
+                tx >= 0 && ty >= 0 && tx < termWidth && ty < termHeight )
+            {
+                TextBuffer cursorColour = new TextBuffer( "0123456789abcdef".charAt( terminal.getTextColour() ), 1 );
+                fontRenderer.drawString(
+                    new TextBuffer( '_', 1 ), MARGIN + FONT_WIDTH * tx, MARGIN + FONT_HEIGHT * ty,
+                    cursorColour, null, 0, 0, greyscale, palette
+                );
+            }
+        }
+    }
+
+    private static void renderTexture( BufferBuilder builder, int x, int y, int textureX, int textureY, int width, int height, float r, float g, float b )
+    {
+        renderTexture( builder, x, y, textureX, textureY, width, height, width, height, r, g, b );
+    }
+
+    private static void renderTexture( BufferBuilder builder, int x, int y, int textureX, int textureY, int width, int height, int textureWidth, int textureHeight, float r, float g, float b )
+    {
+        float scale = 1 / 255.0f;
+        builder.pos( x, y + height, 0 ).tex( textureX * scale, (textureY + textureHeight) * scale ).color( r, g, b, 1.0f ).endVertex();
+        builder.pos( x + width, y + height, 0 ).tex( (textureX + textureWidth) * scale, (textureY + textureHeight) * scale ).color( r, g, b, 1.0f ).endVertex();
+        builder.pos( x + width, y, 0 ).tex( (textureX + textureWidth) * scale, textureY * scale ).color( r, g, b, 1.0f ).endVertex();
+        builder.pos( x, y, 0 ).tex( textureX * scale, textureY * scale ).color( r, g, b, 1.0f ).endVertex();
     }
 }

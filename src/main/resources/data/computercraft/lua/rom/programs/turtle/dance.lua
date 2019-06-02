@@ -1,3 +1,6 @@
+if not turtle then
+    printError( "Requires a Turtle" )
+end
 
 local tMoves = {
     function()

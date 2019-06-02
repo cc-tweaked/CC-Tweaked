@@ -18,6 +18,23 @@ local tEnv = {
 }
 setmetatable( tEnv, { __index = _ENV } )
 
+-- Replace our package.path, so that it loads from the current directory, rather
+-- than from /rom/programs. This makes it a little more friendly to use and
+-- closer to what you'd expect.
+do
+    local dir = shell.dir()
+    if dir:sub(1, 1) ~= "/" then dir = "/" .. dir end
+    if dir:sub(-1) ~= "/" then dir = dir .. "/" end
+
+    local strip_path = "?;?.lua;?/init.lua;"
+    local path = package.path
+    if path:sub(1, #strip_path) == strip_path then
+        path = path:sub(#strip_path + 1)
+    end
+
+    package.path = dir .. "?;" .. dir .. "?.lua;" .. dir .. "?/init.lua;" .. path
+end
+
 if term.isColour() then
     term.setTextColour( colours.yellow )
 end

@@ -136,11 +136,9 @@ end
 -- Alias some keys for ease-of-use and backwards compatibility
 keys["return"] = keys.enter
 keys.scollLock = keys.scrollLock
--- keys.cimcumflex = keys.circumflex
+keys.cimcumflex = keys.circumflex
 
 function getName( _nKey )
-    if type( _nKey ) ~= "number" then
-        error( "bad argument #1 (expected number, got " .. type( _nKey ) .. ")", 2 )
-    end
-	return tKeys[ _nKey ]
+    expect(1, _nKey, "number")
+    return tKeys[ _nKey ]
 end

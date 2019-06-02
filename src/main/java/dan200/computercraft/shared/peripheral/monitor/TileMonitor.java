@@ -321,7 +321,7 @@ public class TileMonitor extends TileGeneric implements IPeripheralTile
         return getDirection().rotateYCCW();
     }
 
-    private EnumFacing getDown()
+    public EnumFacing getDown()
     {
         EnumFacing orientation = getOrientation();
         if( orientation == EnumFacing.NORTH ) return EnumFacing.UP;

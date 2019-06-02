@@ -24,6 +24,7 @@ import java.io.Closeable;
 import java.util.Arrays;
 
 import static dan200.computercraft.core.apis.ArgumentHelper.optBoolean;
+import static dan200.computercraft.core.apis.http.websocket.Websocket.CLOSE_EVENT;
 import static dan200.computercraft.core.apis.http.websocket.Websocket.MESSAGE_EVENT;
 
 public class WebsocketHandle implements ILuaObject, Closeable
@@ -53,14 +54,17 @@ public class WebsocketHandle implements ILuaObject, Closeable
         switch( method )
         {
             case 0: // receive
+                checkOpen();
                 while( true )
                 {
-                    checkOpen();
-
-                    Object[] event = context.pullEvent( MESSAGE_EVENT );
-                    if( event.length >= 3 && Objects.equal( event[1], websocket.address() ) )
+                    Object[] event = context.pullEvent( null );
+                    if( event.length >= 3 && Objects.equal( event[0], MESSAGE_EVENT ) && Objects.equal( event[1], websocket.address() ) )
                     {
                         return Arrays.copyOfRange( event, 2, event.length );
+                    }
+                    else if( event.length >= 2 && Objects.equal( event[0], CLOSE_EVENT ) && Objects.equal( event[1], websocket.address() ) && closed )
+                    {
+                        return null;
                     }
                 }
 

@@ -1,3 +1,4 @@
+local expect = _G["~expect"]
 
 local sPath = "/rom/help"
 
@@ -6,17 +7,13 @@ function path()
 end
 
 function setPath( _sPath )
-    if type( _sPath ) ~= "string" then
-        error( "bad argument #1 (expected string, got " .. type( _sPath ) .. ")", 2 )
-    end
+    expect(1, _sPath, "string")
     sPath = _sPath
 end
 
 function lookup( _sTopic )
-    if type( _sTopic ) ~= "string" then
-        error( "bad argument #1 (expected string, got " .. type( _sTopic ) .. ")", 2 )
-    end
-     -- Look on the path variable
+    expect(1, _sTopic, "string")
+    -- Look on the path variable
     for sPath in string.gmatch(sPath, "[^:]+") do
         sPath = fs.combine( sPath, _sTopic )
         if fs.exists( sPath ) and not fs.isDir( sPath ) then
@@ -63,9 +60,7 @@ function topics()
 end
 
 function completeTopic( sText )
-    if type( sText ) ~= "string" then
-        error( "bad argument #1 (expected string, got " .. type( sText ) .. ")", 2 )
-    end
+    expect(1, sText, "string")
     local tTopics = topics()
     local tResults = {}
     for n=1,#tTopics do
