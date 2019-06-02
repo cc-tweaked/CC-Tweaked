@@ -44,7 +44,7 @@ public class TurtleMultiModel implements BakedModel
 
     @Nonnull
     @Override
-    public List<BakedQuad> getQuads( BlockState state, Direction side, Random rand )
+    public List<BakedQuad> getQuads( BlockState state, Direction side, @Nonnull Random rand )
     {
         if( side != null )
         {

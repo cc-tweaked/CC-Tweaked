@@ -7,6 +7,9 @@
 -- they relied on Minecraft's character mappings. However, if CC emulators have
 -- taught me anything, it's that emulating LWJGL's weird key handling is nigh-on
 -- impossible.
+
+local expect = _G["~expect"]
+
 local tKeys = {}
 tKeys[32] = 'space'
 tKeys[39] = 'apostrophe'
