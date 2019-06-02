@@ -199,6 +199,7 @@ task compressJson(dependsOn: extractAnnotationsJar) {
         // Copy over all files in the current jar to the new one, running json files from GSON. As pretty printing
         // is turned off, they should be minified.
         new ZipFile(jarPath).withCloseable { inJar ->
+            tempPath.getParentFile().mkdirs()
             new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(tempPath))).withCloseable { outJar ->
                 inJar.entries().each { entry ->
                     if(entry.directory) {
