@@ -17,7 +17,6 @@ import dan200.computercraft.shared.util.DirectionUtil;
 import dan200.computercraft.shared.util.DropConsumer;
 import dan200.computercraft.shared.util.InventoryUtil;
 import dan200.computercraft.shared.util.WorldUtil;
-import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -299,7 +298,6 @@ public class TurtlePlaceCommand implements ITurtleCommand
         }
 
         IBlockState state = world.getBlockState( position );
-        Block block = state.getBlock();
 
         boolean replaceable = state.isReplaceable( context );
         if( !allowReplaceable && replaceable ) return false;
@@ -317,8 +315,7 @@ public class TurtlePlaceCommand implements ITurtleCommand
             }
         }
 
-        // Check the block is solid or liquid
-        return block.isCollidable( state );
+        return context.canPlace();
     }
 
     @Nonnull
