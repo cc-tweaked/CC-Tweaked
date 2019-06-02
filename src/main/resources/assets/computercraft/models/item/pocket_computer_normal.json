@@ -14,7 +14,7 @@
             "predicate": { "computercraft:state": 1, "computercraft:coloured": 0 }
         },
         {
-            "model": "computercraft:item/pocket_computer_advanced_blinking",
+            "model": "computercraft:item/pocket_computer_normal_blinking",
             "predicate": { "computercraft:state": 2, "computercraft:coloured": 0 }
         },
 

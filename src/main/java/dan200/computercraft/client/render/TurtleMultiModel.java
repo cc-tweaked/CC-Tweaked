@@ -66,10 +66,6 @@ public class TurtleMultiModel implements BakedModel
         {
             ModelTransformer.transformQuadsTo( quads, m_overlayModel.getQuads( state, side, rand ), m_generalTransform );
         }
-        if( m_overlayModel != null )
-        {
-            ModelTransformer.transformQuadsTo( quads, m_overlayModel.getQuads( state, side, rand ), m_generalTransform );
-        }
         if( m_leftUpgradeModel != null )
         {
             Matrix4f upgradeTransform = m_generalTransform;

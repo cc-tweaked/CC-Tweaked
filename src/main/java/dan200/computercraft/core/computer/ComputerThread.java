@@ -133,7 +133,6 @@ public final class ComputerThread
         synchronized( threadLock )
         {
             running = true;
-            if( monitor == null || !monitor.isAlive() ) (monitor = monitorFactory.newThread( new Monitor() )).start();
 
             if( runners == null )
             {
@@ -158,6 +157,8 @@ public final class ComputerThread
                     runnerFactory.newThread( runners[i] = new TaskRunner() ).start();
                 }
             }
+
+            if( monitor == null || !monitor.isAlive() ) (monitor = monitorFactory.newThread( new Monitor() )).start();
         }
     }
 
@@ -368,7 +369,16 @@ public final class ComputerThread
                         {
                             TaskRunner runner = currentRunners[i];
                             // If we've no runner, skip.
-                            if( runner == null ) continue;
+                            if( runner == null || runner.owner == null || !runner.owner.isAlive() )
+                            {
+                                if( !running ) continue;
+
+                                // Mark the old runner as dead and start a new one.
+                                ComputerCraft.log.warn( "Previous runner ({}) has crashed, restarting!",
+                                    runner != null && runner.owner != null ? runner.owner.getName() : runner );
+                                if( runner != null ) runner.running = false;
+                                runnerFactory.newThread( runners[i] = new TaskRunner() ).start();
+                            }
 
                             // If the runner has no work, skip
                             ComputerExecutor executor = runner.currentExecutor.get();
@@ -492,7 +502,7 @@ public final class ComputerThread
                 {
                     executor.work();
                 }
-                catch( Exception e )
+                catch( Exception | LinkageError | VirtualMachineError e )
                 {
                     ComputerCraft.log.error( "Error running task on computer #" + executor.getComputer().getID(), e );
                 }

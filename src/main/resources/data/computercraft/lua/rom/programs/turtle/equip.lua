@@ -1,3 +1,7 @@
+if not turtle then
+    printError( "Requires a Turtle" )
+    return
+end
 
 local tArgs = { ... }
 local function printUsage()

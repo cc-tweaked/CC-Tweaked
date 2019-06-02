@@ -12,6 +12,11 @@ import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.shared.util.StringUtil;
 
 import javax.annotation.Nonnull;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatterBuilder;
 import java.util.*;
 
 import static dan200.computercraft.core.apis.ArgumentHelper.*;
@@ -184,11 +189,12 @@ public class OSAPI implements ILuaAPI
             "day",
             "cancelTimer",
             "cancelAlarm",
-            "epoch"
+            "epoch",
+            "date",
         };
     }
 
-    private float getTimeForCalendar( Calendar c )
+    private static float getTimeForCalendar( Calendar c )
     {
         float time = c.get( Calendar.HOUR_OF_DAY );
         time += c.get( Calendar.MINUTE ) / 60.0f;
@@ -196,7 +202,7 @@ public class OSAPI implements ILuaAPI
         return time;
     }
 
-    private int getDayForCalendar( Calendar c )
+    private static int getDayForCalendar( Calendar c )
     {
         GregorianCalendar g = c instanceof GregorianCalendar ? (GregorianCalendar) c : new GregorianCalendar();
         int year = c.get( Calendar.YEAR );
@@ -209,7 +215,7 @@ public class OSAPI implements ILuaAPI
         return day;
     }
 
-    private long getEpochForCalendar( Calendar c )
+    private static long getEpochForCalendar( Calendar c )
     {
         return c.getTime().getTime();
     }
@@ -282,6 +288,9 @@ public class OSAPI implements ILuaAPI
             case 11:
             {
                 // time
+                Object value = args.length > 0 ? args[0] : null;
+                if( value instanceof Map ) return new Object[] { LuaDateTime.fromTable( (Map<?, ?>) value ) };
+
                 String param = optString( args, 0, "ingame" );
                 switch( param.toLowerCase( Locale.ROOT ) )
                 {
@@ -355,9 +364,8 @@ public class OSAPI implements ILuaAPI
                 }
                 return null;
             }
-            case 15:
+            case 15: // epoch
             {
-                // epoch
                 String param = optString( args, 0, "ingame" );
                 switch( param.toLowerCase( Locale.ROOT ) )
                 {
@@ -384,6 +392,34 @@ public class OSAPI implements ILuaAPI
                     default:
                         throw new LuaException( "Unsupported operation" );
                 }
+            }
+            case 16: // date
+            {
+                String format = optString( args, 0, "%c" );
+                long time = optLong( args, 1, Instant.now().getEpochSecond() );
+
+                Instant instant = Instant.ofEpochSecond( time );
+                ZonedDateTime date;
+                ZoneOffset offset;
+                boolean isDst;
+                if( format.startsWith( "!" ) )
+                {
+                    offset = ZoneOffset.UTC;
+                    date = ZonedDateTime.ofInstant( instant, offset );
+                    format = format.substring( 1 );
+                }
+                else
+                {
+                    ZoneId id = ZoneId.systemDefault();
+                    offset = id.getRules().getOffset( instant );
+                    date = ZonedDateTime.ofInstant( instant, id );
+                }
+
+                if( format.equals( "*t" ) ) return new Object[] { LuaDateTime.toTable( date, offset, instant ) };
+
+                DateTimeFormatterBuilder formatter = new DateTimeFormatterBuilder();
+                LuaDateTime.format( formatter, format, offset );
+                return new Object[] { formatter.toFormatter( Locale.ROOT ).format( date ) };
             }
             default:
                 return null;

@@ -23,9 +23,10 @@ import org.lwjgl.glfw.GLFW;
 
 public class GuiComputer<T extends Container> extends AbstractContainerScreen<T>
 {
-    private static final Identifier BACKGROUND_NORMAL = new Identifier( "computercraft", "textures/gui/corners_normal.png" );
-    private static final Identifier BACKGROUND_ADVANCED = new Identifier( "computercraft", "textures/gui/corners_advanced.png" );
-    private static final Identifier BACKGROUND_COMMAND = new Identifier( "computercraft", "textures/gui/corners_command.png" );
+    public static final Identifier BACKGROUND_NORMAL = new Identifier( ComputerCraft.MOD_ID, "textures/gui/corners_normal.png" );
+    public static final Identifier BACKGROUND_ADVANCED = new Identifier( ComputerCraft.MOD_ID, "textures/gui/corners_advanced.png" );
+    public static final Identifier BACKGROUND_COMMAND = new Identifier( ComputerCraft.MOD_ID, "textures/gui/corners_command.png" );
+    public static final Identifier BACKGROUND_COLOUR = new Identifier( ComputerCraft.MOD_ID, "textures/gui/corners_colour.png" );
 
     private final ComputerFamily m_family;
     private final ClientComputer m_computer;
@@ -123,12 +124,12 @@ public class GuiComputer<T extends Container> extends AbstractContainerScreen<T>
         }
 
         blit( startX - 12, startY - 12, 12, 28, 12, 12 );
-        blit( startX - 12, endY, 12, 40, 12, 16 );
+        blit( startX - 12, endY, 12, 40, 12, 12 );
         blit( endX, startY - 12, 24, 28, 12, 12 );
-        blit( endX, endY, 24, 40, 12, 16 );
+        blit( endX, endY, 24, 40, 12, 12 );
 
         blit( startX, startY - 12, 0, 0, endX - startX, 12 );
-        blit( startX, endY, 0, 12, endX - startX, 16 );
+        blit( startX, endY, 0, 12, endX - startX, 12 );
 
         blit( startX - 12, startY, 0, 28, 12, endY - startY );
         blit( endX, startY, 36, 28, 12, endY - startY );

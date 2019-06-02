@@ -23,9 +23,9 @@ import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.World;
 import org.lwjgl.opengl.GL11;
 
-public final class RenderOverlayCable
+public final class CableHighlightRenderer
 {
-    private RenderOverlayCable()
+    private CableHighlightRenderer()
     {
     }
 
@@ -34,11 +34,10 @@ public final class RenderOverlayCable
      *
      * @see WorldRenderer#drawHighlightedBlockOutline(Entity, HitResult, int, float)
      */
-    // TODO @SubscribeEvent
-    public static void drawHighlight()
+    public static boolean drawHighlight()
     {
         MinecraftClient mc = MinecraftClient.getInstance();
-        if( mc.hitResult == null || mc.hitResult.getType() != HitResult.Type.BLOCK ) return;
+        if( mc.hitResult == null || mc.hitResult.getType() != HitResult.Type.BLOCK ) return false;
 
         BlockPos pos = ((BlockHitResult) mc.hitResult).getBlockPos();
         World world = mc.world;
@@ -48,7 +47,7 @@ public final class RenderOverlayCable
         // We only care about instances with both cable and modem.
         if( state.getBlock() != ComputerCraft.Blocks.cable || state.get( BlockCable.MODEM ).getFacing() == null || !state.get( BlockCable.CABLE ) )
         {
-            return;
+            return false;
         }
 
         PlayerEntity player = mc.player;
@@ -78,5 +77,7 @@ public final class RenderOverlayCable
         GlStateManager.depthMask( true );
         GlStateManager.enableTexture();
         GlStateManager.disableBlend();
+
+        return true;
     }
 }

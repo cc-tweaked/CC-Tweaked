@@ -19,6 +19,7 @@ import org.junit.jupiter.api.Assertions;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Arrays;
 import java.util.function.Consumer;
 
 /**
@@ -115,7 +116,7 @@ public class ComputerBootstrap
         @Override
         public String[] getMethodNames()
         {
-            return new String[] { "assert" };
+            return new String[] { "assert", "log" };
         }
 
         @Nullable
@@ -137,6 +138,9 @@ public class ComputerBootstrap
 
                     return arguments;
                 }
+                case 1:
+                    ComputerCraft.log.info( "[Computer] {}", Arrays.toString( arguments ) );
+                    return null;
 
                 default:
                     return null;

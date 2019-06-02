@@ -328,7 +328,7 @@ public class TileMonitor extends TileGeneric implements IPeripheralTile
         return getDirection().rotateYCounterclockwise();
     }
 
-    private Direction getDown()
+    public Direction getDown()
     {
         Direction orientation = getOrientation();
         if( orientation == Direction.NORTH ) return Direction.UP;

@@ -173,6 +173,7 @@ public class TurtleSmartItemModel implements BakedModel
 
     @Nonnull
     @Override
+    @Deprecated
     public List<BakedQuad> getQuads( BlockState state, Direction facing, Random rand )
     {
         return familyModel.getQuads( state, facing, rand );

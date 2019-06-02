@@ -15,7 +15,6 @@ import dan200.computercraft.api.turtle.event.TurtleBlockEvent;
 import dan200.computercraft.api.turtle.event.TurtleEvent;
 import dan200.computercraft.shared.TurtlePermissions;
 import dan200.computercraft.shared.util.*;
-import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.SignBlockEntity;
@@ -293,7 +292,6 @@ public class TurtlePlaceCommand implements ITurtleCommand
         }
 
         BlockState state = world.getBlockState( position );
-        Block block = state.getBlock();
 
         boolean replaceable = state.canReplace( context );
         if( !allowReplaceable && replaceable ) return false;
@@ -311,8 +309,7 @@ public class TurtlePlaceCommand implements ITurtleCommand
             }
         }
 
-        // Check the block is solid or liquid
-        return !state.getCollisionShape( world, position ).isEmpty();
+        return context.canPlace();
     }
 
     @Nonnull

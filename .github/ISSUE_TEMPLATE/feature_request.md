@@ -1,7 +1,7 @@
 ---
 name: Feature request
 about: Suggest an idea or improvement
-
+labels: enhancement
 ---
 
 <!--
@@ -11,4 +11,4 @@ about: Suggest an idea or improvement
 
 ## Useful information to include:
  - Explanation of how the feature/change should work.
- - Some rationale/use case for a feature. I'd like to keep CC:T as minimal as possible, so I like have a solid justification for each feature.
+ - Some rationale/use case for a feature. My general approach to designing new features is to ask yourself "what issue are we trying to solve" and _then_ "is this the best way to solve this issue?".
