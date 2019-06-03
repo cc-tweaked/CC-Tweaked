@@ -8,6 +8,7 @@ package dan200.computercraft.core.filesystem;
 
 import com.google.common.io.ByteStreams;
 import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.api.filesystem.FileOperationException;
 import dan200.computercraft.api.filesystem.IFileSystem;
 import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.api.filesystem.IWritableMount;
@@ -107,7 +108,7 @@ public class FileSystem
             }
             catch( IOException e )
             {
-                throw new FileSystemException( e.getMessage() );
+                throw localExceptionOf( e );
             }
         }
 
@@ -122,12 +123,12 @@ public class FileSystem
                 }
                 else
                 {
-                    throw new FileSystemException( "/" + path + ": Not a directory" );
+                    throw localExceptionOf( path, "Not a directory" );
                 }
             }
             catch( IOException e )
             {
-                throw new FileSystemException( e.getMessage() );
+                throw localExceptionOf( e );
             }
         }
 
@@ -149,12 +150,12 @@ public class FileSystem
                 }
                 else
                 {
-                    throw new FileSystemException( "/" + path + ": No such file" );
+                    throw localExceptionOf( path, "No such file" );
                 }
             }
             catch( IOException e )
             {
-                throw new FileSystemException( e.getMessage() );
+                throw localExceptionOf( e );
             }
         }
 
@@ -169,12 +170,12 @@ public class FileSystem
                 }
                 else
                 {
-                    throw new FileSystemException( "/" + path + ": No such file" );
+                    throw localExceptionOf( path, "No such file" );
                 }
             }
             catch( IOException e )
             {
-                throw new FileSystemException( e.getMessage() );
+                throw localExceptionOf( e );
             }
         }
 
@@ -182,19 +183,14 @@ public class FileSystem
 
         public void makeDirectory( String path ) throws FileSystemException
         {
-            if( m_writableMount == null )
-            {
-                throw new FileSystemException( "/" + path + ": Access denied" );
-            }
+            if( m_writableMount == null ) throw exceptionOf( path, "Access denied" );
+
+            path = toLocal( path );
             try
             {
-                path = toLocal( path );
                 if( m_mount.exists( path ) )
                 {
-                    if( !m_mount.isDirectory( path ) )
-                    {
-                        throw new FileSystemException( "/" + path + ": File exists" );
-                    }
+                    if( !m_mount.isDirectory( path ) ) throw localExceptionOf( path, "File exists" );
                 }
                 else
                 {
@@ -203,16 +199,14 @@ public class FileSystem
             }
             catch( IOException e )
             {
-                throw new FileSystemException( e.getMessage() );
+                throw localExceptionOf( e );
             }
         }
 
         public void delete( String path ) throws FileSystemException
         {
-            if( m_writableMount == null )
-            {
-                throw new FileSystemException( "/" + path + ": Access denied" );
-            }
+            if( m_writableMount == null ) throw exceptionOf( path, "Access denied" );
+
             try
             {
                 path = toLocal( path );
@@ -227,22 +221,20 @@ public class FileSystem
             }
             catch( IOException e )
             {
-                throw new FileSystemException( e.getMessage() );
+                throw localExceptionOf( e );
             }
         }
 
         public WritableByteChannel openForWrite( String path ) throws FileSystemException
         {
-            if( m_writableMount == null )
-            {
-                throw new FileSystemException( "/" + path + ": Access denied" );
-            }
+            if( m_writableMount == null ) throw exceptionOf( path, "Access denied" );
+
+            path = toLocal( path );
             try
             {
-                path = toLocal( path );
                 if( m_mount.exists( path ) && m_mount.isDirectory( path ) )
                 {
-                    throw new FileSystemException( "/" + path + ": Cannot write to directory" );
+                    throw localExceptionOf( path, "Cannot write to directory" );
                 }
                 else
                 {
@@ -263,19 +255,17 @@ public class FileSystem
             }
             catch( IOException e )
             {
-                throw new FileSystemException( e.getMessage() );
+                throw localExceptionOf( e );
             }
         }
 
         public WritableByteChannel openForAppend( String path ) throws FileSystemException
         {
-            if( m_writableMount == null )
-            {
-                throw new FileSystemException( "/" + path + ": Access denied" );
-            }
+            if( m_writableMount == null ) throw exceptionOf( path, "Access denied" );
+
+            path = toLocal( path );
             try
             {
-                path = toLocal( path );
                 if( !m_mount.exists( path ) )
                 {
                     if( !path.isEmpty() )
@@ -290,7 +280,7 @@ public class FileSystem
                 }
                 else if( m_mount.isDirectory( path ) )
                 {
-                    throw new FileSystemException( "/" + path + ": Cannot write to directory" );
+                    throw localExceptionOf( path, "Cannot write to directory" );
                 }
                 else
                 {
@@ -303,15 +293,35 @@ public class FileSystem
             }
             catch( IOException e )
             {
-                throw new FileSystemException( e.getMessage() );
+                throw localExceptionOf( e );
             }
         }
-
-        // private members
 
         private String toLocal( String path )
         {
             return FileSystem.toLocal( path, m_location );
+        }
+
+        private FileSystemException localExceptionOf( IOException e )
+        {
+            if( !m_location.isEmpty() && e instanceof FileOperationException )
+            {
+                FileOperationException ex = (FileOperationException) e;
+                if( ex.getFilename() != null ) return localExceptionOf( ex.getFilename(), ex.getMessage() );
+            }
+
+            return new FileSystemException( e.getMessage() );
+        }
+
+        private FileSystemException localExceptionOf( String path, String message )
+        {
+            if( !m_location.isEmpty() ) path = path.isEmpty() ? m_location : m_location + "/" + path;
+            return exceptionOf( path, message );
+        }
+
+        private static FileSystemException exceptionOf( String path, String message )
+        {
+            return new FileSystemException( "/" + path + ": " + message );
         }
     }
 

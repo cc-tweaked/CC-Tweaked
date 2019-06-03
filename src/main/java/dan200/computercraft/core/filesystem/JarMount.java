@@ -9,6 +9,7 @@ package dan200.computercraft.core.filesystem;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.io.ByteStreams;
+import dan200.computercraft.api.filesystem.FileOperationException;
 import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.core.apis.handles.ArrayByteChannel;
 import dan200.computercraft.shared.util.IoUtil;
@@ -166,7 +167,7 @@ public class JarMount implements IMount
     public void list( @Nonnull String path, @Nonnull List<String> contents ) throws IOException
     {
         FileEntry file = get( path );
-        if( file == null || !file.isDirectory() ) throw new IOException( "/" + path + ": Not a directory" );
+        if( file == null || !file.isDirectory() ) throw new FileOperationException( path, "Not a directory" );
 
         file.list( contents );
     }
@@ -176,7 +177,7 @@ public class JarMount implements IMount
     {
         FileEntry file = get( path );
         if( file != null ) return file.size;
-        throw new IOException( "/" + path + ": No such file" );
+        throw new FileOperationException( path, "No such file" );
     }
 
     @Nonnull
@@ -218,7 +219,7 @@ public class JarMount implements IMount
             }
         }
 
-        throw new IOException( "/" + path + ": No such file" );
+        throw new FileOperationException( path, "No such file" );
     }
 
     private static class FileEntry

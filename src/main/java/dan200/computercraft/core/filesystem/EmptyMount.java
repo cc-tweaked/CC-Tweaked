@@ -6,6 +6,7 @@
 
 package dan200.computercraft.core.filesystem;
 
+import dan200.computercraft.api.filesystem.FileOperationException;
 import dan200.computercraft.api.filesystem.IMount;
 
 import javax.annotation.Nonnull;
@@ -44,7 +45,7 @@ public class EmptyMount implements IMount
     @Deprecated
     public InputStream openForRead( @Nonnull String path ) throws IOException
     {
-        throw new IOException( "/" + path + ": No such file" );
+        throw new FileOperationException( path, "No such file" );
     }
 
     @Nonnull
@@ -52,6 +53,6 @@ public class EmptyMount implements IMount
     @Deprecated
     public ReadableByteChannel openChannelForRead( @Nonnull String path ) throws IOException
     {
-        throw new IOException( "/" + path + ": No such file" );
+        throw new FileOperationException( path, "No such file" );
     }
 }
