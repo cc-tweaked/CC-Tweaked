@@ -54,6 +54,20 @@ describe("The fs library", function()
                 expect { fs.open("rom/x", "r") }:same { nil, "/rom/x: No such file" }
                 expect { fs.open("x", "r") }:same { nil, "/x: No such file" }
             end)
+
+            it("errors when closing twice", function()
+                local handle = fs.open("rom/startup.lua", "r")
+                handle.close()
+                expect.error(handle.close):eq("attempt to use a closed file")
+            end)
+        end)
+
+        describe("reading in binary mode", function()
+            it("errors when closing twice", function()
+                local handle = fs.open("rom/startup.lua", "rb")
+                handle.close()
+                expect.error(handle.close):eq("attempt to use a closed file")
+            end)
         end)
 
         describe("writing", function()
@@ -63,6 +77,20 @@ describe("The fs library", function()
 
             it("fails on read-only mounts", function()
                 expect { fs.open("rom/x", "w") }:same { nil, "/rom/x: Access denied" }
+            end)
+
+            it("errors when closing twice", function()
+                local handle = fs.open("test-files/out.txt", "w")
+                handle.close()
+                expect.error(handle.close):eq("attempt to use a closed file")
+            end)
+        end)
+
+        describe("writing in binary mode", function()
+            it("errors when closing twice", function()
+                local handle = fs.open("test-files/out.txt", "wb")
+                handle.close()
+                expect.error(handle.close):eq("attempt to use a closed file")
             end)
         end)
 

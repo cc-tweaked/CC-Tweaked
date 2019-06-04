@@ -212,6 +212,7 @@ public class BinaryReadableHandle extends HandleGeneric
                 }
             }
             case 3: // close
+                checkOpen();
                 close();
                 return null;
             case 4: // seek
