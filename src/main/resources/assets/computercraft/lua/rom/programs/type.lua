@@ -1,18 +1,20 @@
 
 local tArgs = { ... }
 if #tArgs < 1 then
-    print( "Usage: type <path>" )
+    print( "Usage: type <paths>" )
     return
 end
 
-local sPath = shell.resolve( tArgs[1] )
-if fs.exists( sPath ) then
-    if fs.isDir( sPath ) then
-        print( "directory" )
+for k, v in ipairs( tArgs ) do
+    local sPath = shell.resolve( v )
+    if fs.exists( sPath ) then
+        if fs.isDir( sPath ) then
+            print( "/" .. sPath .. ": Directory" )
+        else
+            print( "/" .. sPath .. ": File" )
+        end
     else
-        print( "file" )
+        print( "/" .. sPath .. ": No such path" )
     end
-else
-    print( "No such path" )
 end
 
