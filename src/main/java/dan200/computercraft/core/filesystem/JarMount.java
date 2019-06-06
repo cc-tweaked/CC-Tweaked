@@ -93,7 +93,7 @@ public class JarMount implements IMount
         new MountReference( this );
 
         // Read in all the entries
-        root = new FileEntry( "" );
+        root = new FileEntry();
         Enumeration<? extends ZipEntry> zipEntries = zip.entries();
         while( zipEntries.hasMoreElements() )
         {
@@ -140,7 +140,7 @@ public class JarMount implements IMount
             FileEntry nextEntry = lastEntry.children.get( part );
             if( nextEntry == null || !nextEntry.isDirectory() )
             {
-                lastEntry.children.put( part, nextEntry = new FileEntry( part ) );
+                lastEntry.children.put( part, nextEntry = new FileEntry() );
             }
 
             lastEntry = nextEntry;
@@ -224,16 +224,9 @@ public class JarMount implements IMount
 
     private static class FileEntry
     {
-        final String name;
-
         String path;
         long size;
         Map<String, FileEntry> children;
-
-        FileEntry( String name )
-        {
-            this.name = name;
-        }
 
         void setup( ZipEntry entry )
         {

@@ -90,7 +90,6 @@ public interface IMount
      * @throws IOException If the file does not exist, or could not be opened.
      */
     @Nonnull
-    @SuppressWarnings( "deprecation" )
     default ReadableByteChannel openChannelForRead( @Nonnull String path ) throws IOException
     {
         return Channels.newChannel( openForRead( path ) );

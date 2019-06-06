@@ -90,6 +90,7 @@ public class JEIComputerCraft implements IModPlugin
         ingredients.addIngredientsAtRuntime( VanillaTypes.ITEM, upgradeItems );
 
         // Hide all upgrade recipes
+        @SuppressWarnings("unchecked")
         IRecipeCategory<? extends IRecipeWrapper> category = (IRecipeCategory<? extends IRecipeWrapper>) registry.getRecipeCategory( VanillaRecipeCategoryUid.CRAFTING );
         if( category != null )
         {

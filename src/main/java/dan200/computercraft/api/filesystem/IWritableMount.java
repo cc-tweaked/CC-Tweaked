@@ -67,7 +67,6 @@ public interface IWritableMount extends IMount
      * @throws IOException If the file could not be opened for writing.
      */
     @Nonnull
-    @SuppressWarnings( "deprecation" )
     default WritableByteChannel openChannelForWrite( @Nonnull String path ) throws IOException
     {
         return Channels.newChannel( openForWrite( path ) );
@@ -94,7 +93,6 @@ public interface IWritableMount extends IMount
      * @throws IOException If the file could not be opened for writing.
      */
     @Nonnull
-    @SuppressWarnings( "deprecation" )
     default WritableByteChannel openChannelForAppend( @Nonnull String path ) throws IOException
     {
         return Channels.newChannel( openForAppend( path ) );

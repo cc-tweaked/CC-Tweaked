@@ -239,7 +239,6 @@ public class Computer
     }
 
     @Deprecated
-    @SuppressWarnings( "unused" )
     public void advance( double dt )
     {
         tick();

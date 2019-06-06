@@ -401,7 +401,6 @@ public class OSAPI implements ILuaAPI
                 Instant instant = Instant.ofEpochSecond( time );
                 ZonedDateTime date;
                 ZoneOffset offset;
-                boolean isDst;
                 if( format.startsWith( "!" ) )
                 {
                     offset = ZoneOffset.UTC;
