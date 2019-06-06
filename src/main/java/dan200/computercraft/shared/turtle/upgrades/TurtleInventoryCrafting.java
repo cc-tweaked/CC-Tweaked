@@ -34,6 +34,7 @@ public class TurtleInventoryCrafting extends InventoryCrafting
     private int m_xStart;
     private int m_yStart;
 
+    @SuppressWarnings( "ConstantConditions" )
     public TurtleInventoryCrafting( ITurtleAccess turtle )
     {
         // Passing null in here is evil, but we don't have a container present. We override most methods in order to
