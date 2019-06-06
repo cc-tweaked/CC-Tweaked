@@ -169,6 +169,8 @@ public class BlockPeripheral extends BlockGeneric
             case Speaker:
                 meta = 13;
                 break;
+            default:
+            	break;
         }
         return meta;
     }
@@ -469,6 +471,8 @@ public class BlockPeripheral extends BlockGeneric
                     }
                 }
                 break;
+            default:
+            	break;
         }
     }
 

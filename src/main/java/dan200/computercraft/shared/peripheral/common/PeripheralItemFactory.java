@@ -41,6 +41,8 @@ public final class PeripheralItemFactory
                 return new ItemStack( ComputerCraft.Blocks.advancedModem, quantity );
             case WiredModemFull:
                 return new ItemStack( ComputerCraft.Blocks.wiredModemFull, quantity );
+            default:
+            	break;
         }
         return ItemStack.EMPTY;
     }
