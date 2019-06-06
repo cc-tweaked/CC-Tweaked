@@ -1,7 +1,7 @@
 
 local function printUsage()
     print( "Usage:" )
-    print( "wget [-r] <url> [filename]" )
+    print( "wget [run] <url> [filename]" )
 end
 
 local tArgs = { ... }
@@ -39,7 +39,7 @@ end
 
 -- Determine file to download
 local sUrl
-if tArgs[1] == "-r" then
+if tArgs[1] == "run" then
     if tArgs[2] == nil then
         printUsage()
         return
@@ -59,7 +59,7 @@ end
 
 local sFile = tArgs[2] or getFilename( sUrl )
 local sPath = shell.resolve( sFile )
-if fs.exists( sPath ) then
+if fs.exists( sPath ) and tArgs[1] ~= "run" then
     print( "File already exists" )
     return
 end
@@ -67,7 +67,7 @@ end
 -- Do the get
 local res = get( sUrl )
 if res then
-    if tArgs[1] == "-r" then
+    if tArgs[1] == "run" then
         local func, err = load( res, sFile, "t", _ENV)
         if not func then
             printError( err )
@@ -85,3 +85,4 @@ if res then
       print( "Downloaded as "..sFile )
     end
 end
+

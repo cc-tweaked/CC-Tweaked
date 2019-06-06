@@ -11,5 +11,5 @@ Use "pastebin get" to download a program from pastebin.
 Use "pastebin run" to run a program from pastebin without saving it.
 Use the "edit" program to create and edit your programs.
 You can copy files with "copy" or "cp".
-You can use "wget -r <url>" to run a program from the internet without saving it.
+You can use "wget run <url>" to run a program from the internet without saving it.
 You can use "wget" to download a file from the internet.
