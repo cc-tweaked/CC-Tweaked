@@ -220,7 +220,8 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
         return m_instanceID;
     }
 
-    /* getID and getLabel are deprecated on IComputer, as they do not make sense in ClientComputer.
+    /*
+     * getID and getLabel are deprecated on IComputer, as they do not make sense in ClientComputer.
      * However, for compatibility reasons, we still need these here, and have no choice but to override the IComputer methods.
      *
      * Hence, we suppress the deprecation warning.
