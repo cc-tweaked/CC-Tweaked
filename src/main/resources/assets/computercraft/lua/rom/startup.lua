@@ -183,10 +183,10 @@ local function completeExec( shell, nIndex, sText, tPreviousText )
         return completeMultipleChoice( sText, tCommands, true )
     end
 end
-local tWgetOptions = { "run " }
+local tWgetOptions = { "run" }
 local function completeWget( shell, nIndex, sText, tPreviousText )
     if nIndex == 1 then
-        return completeMultipleChoice( sText, tWgetOptions )
+        return completeMultipleChoice( sText, tWgetOptions, true )
     end
 end
 shell.setCompletionFunction( "rom/programs/alias.lua", completeAlias )
