@@ -20,7 +20,7 @@ public final class ColourUtils
         "dyeBlack", "dyeRed", "dyeGreen", "dyeBrown",
         "dyeBlue", "dyePurple", "dyeCyan", "dyeLightGray",
         "dyeGray", "dyePink", "dyeLime", "dyeYellow",
-        "dyeLightBlue", "dyeMagenta", "dyeOrange", "dyeWhite"
+        "dyeLightBlue", "dyeMagenta", "dyeOrange", "dyeWhite",
     };
 
     private static int[] ids;

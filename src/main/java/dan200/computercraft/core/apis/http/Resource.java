@@ -72,7 +72,8 @@ public abstract class Resource<T extends Resource<T>> implements Closeable
      */
     protected void dispose()
     {
-        @SuppressWarnings( "unchecked" ) T thisT = (T) this;
+        @SuppressWarnings( "unchecked" )
+        T thisT = (T) this;
         limiter.release( thisT );
     }
 
@@ -95,7 +96,8 @@ public abstract class Resource<T extends Resource<T>> implements Closeable
 
     public boolean queue( Consumer<T> task )
     {
-        @SuppressWarnings( "unchecked" ) T thisT = (T) this;
+        @SuppressWarnings( "unchecked" )
+        T thisT = (T) this;
         return limiter.queue( thisT, () -> task.accept( thisT ) );
     }
 

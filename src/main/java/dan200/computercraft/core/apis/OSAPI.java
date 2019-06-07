@@ -36,9 +36,9 @@ public class OSAPI implements ILuaAPI
 
     private static class Timer
     {
-        public int m_ticksLeft;
+        int m_ticksLeft;
 
-        public Timer( int ticksLeft )
+        Timer( int ticksLeft )
         {
             m_ticksLeft = ticksLeft;
         }
@@ -46,10 +46,10 @@ public class OSAPI implements ILuaAPI
 
     private static class Alarm implements Comparable<Alarm>
     {
-        public final double m_time;
-        public final int m_day;
+        final double m_time;
+        final int m_day;
 
-        public Alarm( double time, int day )
+        Alarm( double time, int day )
         {
             m_time = time;
             m_day = day;
@@ -78,9 +78,7 @@ public class OSAPI implements ILuaAPI
     @Override
     public String[] getNames()
     {
-        return new String[] {
-            "os"
-        };
+        return new String[] { "os" };
     }
 
     @Override
@@ -385,9 +383,7 @@ public class OSAPI implements ILuaAPI
                         // Get in-game epoch
                         synchronized( m_alarms )
                         {
-                            return new Object[] {
-                                m_day * 86400000 + (int) (m_time * 3600000.0f)
-                            };
+                            return new Object[] { m_day * 86400000 + (int) (m_time * 3600000.0f) };
                         }
                     default:
                         throw new LuaException( "Unsupported operation" );

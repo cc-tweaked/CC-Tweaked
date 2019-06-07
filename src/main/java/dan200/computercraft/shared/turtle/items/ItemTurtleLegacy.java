@@ -73,7 +73,10 @@ public class ItemTurtleLegacy extends ItemTurtleBase
     }
 
     @Override
-    public ResourceLocation getOverlay( @Nonnull ItemStack stack ) { return null; }
+    public ResourceLocation getOverlay( @Nonnull ItemStack stack )
+    {
+        return null;
+    }
 
     @Override
     public int getFuelLevel( @Nonnull ItemStack stack )

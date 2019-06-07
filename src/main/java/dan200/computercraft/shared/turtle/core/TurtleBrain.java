@@ -908,14 +908,14 @@ public class TurtleBrain implements ITurtleAccess
             else
             {
                 computer.queueEvent( "turtle_response", new Object[] {
-                    callbackID, true
+                    callbackID, true,
                 } );
             }
         }
         else
         {
             computer.queueEvent( "turtle_response", new Object[] {
-                callbackID, false, result != null ? result.getErrorMessage() : null
+                callbackID, false, result != null ? result.getErrorMessage() : null,
             } );
         }
     }

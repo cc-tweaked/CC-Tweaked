@@ -71,8 +71,8 @@ public abstract class SpeakerPeripheral implements IPeripheral
     public String[] getMethodNames()
     {
         return new String[] {
-            "playSound", // Plays sound at resourceLocator
-            "playNote" // Plays note
+            "playSound",
+            "playNote",
         };
     }
 

@@ -43,9 +43,7 @@ public class FSAPI implements ILuaAPI
     @Override
     public String[] getNames()
     {
-        return new String[] {
-            "fs"
-        };
+        return new String[] { "fs" };
     }
 
     @Override

@@ -120,7 +120,7 @@ public class GuiTurtle extends GuiContainer
             int slotX = slot % 4;
             int slotY = slot / 4;
             mc.getTextureManager().bindTexture( advanced ? BACKGROUND_ADVANCED : BACKGROUND_NORMAL );
-            drawTexturedModalRect( guiLeft + m_container.m_turtleInvStartX - 2 + slotX * 18, guiTop + m_container.m_playerInvStartY - 2 + slotY * 18, 0, 217, 24, 24 );
+            drawTexturedModalRect( guiLeft + m_container.turtleInvStartX - 2 + slotX * 18, guiTop + m_container.playerInvStartY - 2 + slotY * 18, 0, 217, 24, 24 );
         }
     }
 

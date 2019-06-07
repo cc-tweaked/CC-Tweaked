@@ -1,9 +1,8 @@
 /*
- * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2019. Do not distribute without permission.
- * Send enquiries to dratcliffe@gmail.com
+ * This file is part of the public ComputerCraft API - http://www.computercraft.info
+ * Copyright Daniel Ratcliffe, 2011-2019. This API may be redistributed unmodified and in full only.
+ * For help using the API, and posting your mods, visit the forums at computercraft.info.
  */
-
 package dan200.computercraft.api.filesystem;
 
 import javax.annotation.Nonnull;
@@ -20,7 +19,7 @@ public class FileOperationException extends IOException
 {
     private static final long serialVersionUID = -8809108200853029849L;
 
-    private String filename;
+    private final String filename;
 
     public FileOperationException( @Nullable String filename, @Nonnull String message )
     {
@@ -31,6 +30,7 @@ public class FileOperationException extends IOException
     public FileOperationException( String message )
     {
         super( Objects.requireNonNull( message, "message cannot be null" ) );
+        this.filename = null;
     }
 
     @Nullable

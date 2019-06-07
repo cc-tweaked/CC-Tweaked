@@ -46,7 +46,7 @@ public class FileSystem
             m_writableMount = null;
         }
 
-        public MountWrapper( String label, String location, IWritableMount mount )
+        MountWrapper( String label, String location, IWritableMount mount )
         {
             this( label, location, (IMount) mount );
             m_writableMount = mount;
@@ -779,7 +779,7 @@ public class FileSystem
 
         // Clean the path or illegal characters.
         final char[] specialChars = new char[] {
-            '"', ':', '<', '>', '?', '|' // Sorted by ascii value (important)
+            '"', ':', '<', '>', '?', '|', // Sorted by ascii value (important)
         };
 
         StringBuilder cleanName = new StringBuilder();

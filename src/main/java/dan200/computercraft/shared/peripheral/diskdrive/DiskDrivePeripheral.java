@@ -51,7 +51,7 @@ public class DiskDrivePeripheral implements IPeripheral
             "playAudio",
             "stopAudio",
             "ejectDisk",
-            "getDiskID"
+            "getDiskID",
         };
     }
 

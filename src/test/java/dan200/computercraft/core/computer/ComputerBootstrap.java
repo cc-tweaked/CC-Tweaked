@@ -42,7 +42,7 @@ public class ComputerBootstrap
             .addFile( "test.lua", program )
             .addFile( "startup", "assertion.assert(pcall(loadfile('test.lua', _ENV))) os.shutdown()" );
 
-        run( mount, x -> {} );
+        run( mount, x -> { } );
     }
 
     public static void run( IWritableMount mount, Consumer<Computer> setup )

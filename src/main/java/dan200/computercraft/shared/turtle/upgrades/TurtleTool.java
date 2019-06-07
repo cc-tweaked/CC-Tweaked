@@ -48,18 +48,18 @@ import java.util.function.Function;
 
 public class TurtleTool extends AbstractTurtleUpgrade
 {
-    protected ItemStack m_item;
+    protected final ItemStack item;
 
     public TurtleTool( ResourceLocation id, int legacyID, String adjective, Item item )
     {
         super( id, legacyID, TurtleUpgradeType.Tool, adjective, item );
-        m_item = new ItemStack( item, 1, 0 );
+        this.item = new ItemStack( item, 1, 0 );
     }
 
     public TurtleTool( ResourceLocation id, int legacyID, Item item )
     {
         super( id, legacyID, TurtleUpgradeType.Tool, item );
-        m_item = new ItemStack( item, 1, 0 );
+        this.item = new ItemStack( item, 1, 0 );
     }
 
     @Nonnull
@@ -76,7 +76,7 @@ public class TurtleTool extends AbstractTurtleUpgrade
         );
         Minecraft mc = Minecraft.getMinecraft();
         return Pair.of(
-            mc.getRenderItem().getItemModelMesher().getItemModel( m_item ),
+            mc.getRenderItem().getItemModelMesher().getItemModel( item ),
             transform
         );
     }
@@ -124,7 +124,7 @@ public class TurtleTool extends AbstractTurtleUpgrade
         if( hit != null )
         {
             // Load up the turtle's inventory
-            ItemStack stackCopy = m_item.copy();
+            ItemStack stackCopy = item.copy();
             turtlePlayer.loadInventory( stackCopy );
 
             Entity hitEntity = hit.getKey();
@@ -202,7 +202,7 @@ public class TurtleTool extends AbstractTurtleUpgrade
         IBlockState state = world.getBlockState( blockPosition );
 
         TurtlePlayer turtlePlayer = TurtlePlaceCommand.createPlayer( turtle, turtlePosition, direction );
-        turtlePlayer.loadInventory( m_item.copy() );
+        turtlePlayer.loadInventory( item.copy() );
 
         if( ComputerCraft.turtlesObeyBlockProtection )
         {

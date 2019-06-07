@@ -45,9 +45,7 @@ public class TurtleAPI implements ILuaAPI
     @Override
     public String[] getNames()
     {
-        return new String[] {
-            "turtle"
-        };
+        return new String[] { "turtle" };
     }
 
     @Nonnull

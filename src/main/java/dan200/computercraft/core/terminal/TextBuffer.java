@@ -8,7 +8,7 @@ package dan200.computercraft.core.terminal;
 
 public class TextBuffer
 {
-    public char[] m_text;
+    private final char[] m_text;
 
     public TextBuffer( char c, int length )
     {

@@ -39,5 +39,8 @@ public enum PeripheralType implements IStringSerializable
     }
 
     @Override
-    public String toString() { return name; }
+    public String toString()
+    {
+        return name;
+    }
 }

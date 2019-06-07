@@ -87,7 +87,7 @@ public abstract class ModemPeripheral implements IPeripheral, IPacketSender, IPa
             for( IComputerAccess computer : m_computers )
             {
                 computer.queueEvent( "modem_message", new Object[] {
-                    computer.getAttachmentName(), packet.getChannel(), packet.getReplyChannel(), packet.getPayload(), distance
+                    computer.getAttachmentName(), packet.getChannel(), packet.getReplyChannel(), packet.getPayload(), distance,
                 } );
             }
         }
@@ -103,7 +103,7 @@ public abstract class ModemPeripheral implements IPeripheral, IPacketSender, IPa
             for( IComputerAccess computer : m_computers )
             {
                 computer.queueEvent( "modem_message", new Object[] {
-                    computer.getAttachmentName(), packet.getChannel(), packet.getReplyChannel(), packet.getPayload()
+                    computer.getAttachmentName(), packet.getChannel(), packet.getReplyChannel(), packet.getPayload(),
                 } );
             }
         }

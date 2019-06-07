@@ -42,9 +42,7 @@ public class HTTPAPI implements ILuaAPI
     @Override
     public String[] getNames()
     {
-        return new String[] {
-            "http"
-        };
+        return new String[] { "http" };
     }
 
     @Override

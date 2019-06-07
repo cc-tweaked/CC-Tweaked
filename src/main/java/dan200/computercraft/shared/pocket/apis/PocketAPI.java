@@ -35,9 +35,7 @@ public class PocketAPI implements ILuaAPI
     @Override
     public String[] getNames()
     {
-        return new String[] {
-            "pocket"
-        };
+        return new String[] { "pocket" };
     }
 
     @Nonnull
@@ -46,7 +44,7 @@ public class PocketAPI implements ILuaAPI
     {
         return new String[] {
             "equipBack",
-            "unequipBack"
+            "unequipBack",
         };
     }
 

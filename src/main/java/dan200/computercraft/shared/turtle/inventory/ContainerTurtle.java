@@ -26,8 +26,8 @@ public class ContainerTurtle extends Container implements IContainerComputer
 {
     private static final int PROGRESS_ID_SELECTED_SLOT = 0;
 
-    public final int m_playerInvStartY;
-    public final int m_turtleInvStartX;
+    public final int playerInvStartY;
+    public final int turtleInvStartX;
 
     private final ITurtleAccess m_turtle;
     private IComputer m_computer;
@@ -36,8 +36,8 @@ public class ContainerTurtle extends Container implements IContainerComputer
 
     protected ContainerTurtle( IInventory playerInventory, ITurtleAccess turtle, int playerInvStartY, int turtleInvStartX )
     {
-        m_playerInvStartY = playerInvStartY;
-        m_turtleInvStartX = turtleInvStartX;
+        this.playerInvStartY = playerInvStartY;
+        this.turtleInvStartX = turtleInvStartX;
 
         m_turtle = turtle;
         m_selectedSlot = m_turtle.getWorld().isRemote ? 0 : m_turtle.getSelectedSlot();
