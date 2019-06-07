@@ -344,8 +344,6 @@ public class BlockCable extends BlockGeneric
                 drops.add( PeripheralItemFactory.create( PeripheralType.WiredModem, null, 1 ) );
                 drops.add( PeripheralItemFactory.create( PeripheralType.Cable, null, 1 ) );
                 break;
-            default:
-            	break;
         }
     }
 

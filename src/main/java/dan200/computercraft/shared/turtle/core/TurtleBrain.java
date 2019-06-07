@@ -485,8 +485,6 @@ public class TurtleBrain implements ITurtleAccess
                 }
                 break;
             }
-			default:
-				break;
         }
         return yaw;
     }

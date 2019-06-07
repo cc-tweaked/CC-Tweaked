@@ -197,8 +197,6 @@ public class TileCable extends TileGeneric implements IPeripheralTile
                     connectionsChanged();
 
                     return;
-                default:
-                	break;
             }
         }
 
