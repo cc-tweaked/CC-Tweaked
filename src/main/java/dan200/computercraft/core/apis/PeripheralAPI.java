@@ -356,7 +356,6 @@ public class PeripheralAPI implements ILuaAPI, IAPIEnvironment.IPeripheralChange
                 ComputerSide side = ComputerSide.valueOfInsensitive( getString( args, 0 ) );
                 if( side != null )
                 {
-                    String type = null;
                     synchronized( m_peripherals )
                     {
                         PeripheralWrapper p = m_peripherals[side.ordinal()];

@@ -35,7 +35,6 @@ public final class StringUtil
     /**
      * Translates a Stat name
      */
-    @SuppressWarnings( "deprecation" )
     public static String translate( String key )
     {
         return net.minecraft.util.text.translation.I18n.translateToLocal( key );
@@ -44,7 +43,6 @@ public final class StringUtil
     /**
      * Translates a Stat name with format args
      */
-    @SuppressWarnings( "deprecation" )
     public static String translateFormatted( String key, Object... format )
     {
         return net.minecraft.util.text.translation.I18n.translateToLocalFormatted( key, format );

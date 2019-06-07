@@ -25,7 +25,6 @@ import net.minecraft.world.World;
 import org.apache.logging.log4j.LogManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import javax.annotation.Nonnull;
@@ -438,20 +437,6 @@ public class NetworkTest
         {
             this.size = size;
             this.box = (T[]) new Object[size * size * size];
-        }
-
-        public void set( BlockPos pos, T elem )
-        {
-            int x = pos.getX(), y = pos.getY(), z = pos.getZ();
-
-            if( x >= 0 && x < size && y >= 0 && y < size && z >= 0 && z < size )
-            {
-                box[x * size * size + y * size + z] = elem;
-            }
-            else
-            {
-                throw new IndexOutOfBoundsException( pos.toString() );
-            }
         }
 
         public T get( BlockPos pos )
