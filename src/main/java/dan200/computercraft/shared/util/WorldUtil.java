@@ -25,7 +25,7 @@ import java.util.List;
 
 public final class WorldUtil
 {
-	@SuppressWarnings( "Guava" )
+    @SuppressWarnings( "Guava" )
     private static final Predicate<Entity> CAN_COLLIDE = x -> x != null && !x.isDead && x.canBeCollidedWith();
 
     private WorldUtil() {}

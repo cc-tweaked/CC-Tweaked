@@ -226,7 +226,7 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
      *
      * Hence, we suppress the deprecation warning.
      */
-    
+
     @Override
     @SuppressWarnings( "deprecation" )
     public int getID()
