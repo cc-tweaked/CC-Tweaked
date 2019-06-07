@@ -82,9 +82,8 @@ public class HTTPAPI implements ILuaAPI
         };
     }
 
-    // All the resources here are closed automatically.
-    @SuppressWarnings("resource")
-	@Override
+    @Override
+    @SuppressWarnings( "resource" )
     public Object[] callMethod( @Nonnull ILuaContext context, int method, @Nonnull Object[] args ) throws LuaException
     {
         switch( method )
@@ -137,7 +136,7 @@ public class HTTPAPI implements ILuaAPI
                 try
                 {
                     URI uri = HttpRequest.checkUri( address );
-					HttpRequest request = new HttpRequest( requests, m_apiEnvironment, address, postString, headers, binary, redirect );
+                    HttpRequest request = new HttpRequest( requests, m_apiEnvironment, address, postString, headers, binary, redirect );
 
                     long requestBody = request.body().readableBytes() + HttpRequest.getHeaderSize( headers );
                     if( ComputerCraft.httpMaxUpload != 0 && requestBody > ComputerCraft.httpMaxUpload )
