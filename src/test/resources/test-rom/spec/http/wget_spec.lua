@@ -21,6 +21,6 @@ describe("The wget program", function()
 
     it("displays the usage of wget with no arguments", function()
         expect(capture(stub, "wget"))
-            :matches { ok = true, output = "Usage:\nwget [run] <url> [filename]\n", error = "" }
+            :matches { ok = true, output = "Usages:\nwget <url> [filename]\nwget run <url>\n", error = "" }
     end)
 end)

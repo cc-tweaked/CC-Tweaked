@@ -1,7 +1,8 @@
 
 local function printUsage()
-    print( "Usage:" )
-    print( "wget [run] <url> [filename]" )
+    print( "Usages:" )
+    print( "wget <url> [filename]" )
+    print( "wget run <url>" )
 end
 
 local tArgs = { ... }
