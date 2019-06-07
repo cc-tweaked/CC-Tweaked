@@ -1,17 +1,10 @@
-New features in CC: Tweaked 1.83.0
+New features in CC: Tweaked 1.83.1
 
-* Add Chinese translation (XuyuEre)
-* Small performance optimisations for packet sending.
-* Provide an `arg` table to programs fun from the shell, similar to PUC Lua.
-* Add `os.date`, and handle passing datetime tables to `os.time`, making them largely compatible with PUC Lua.
-* `rm` and `mkdir` accept multiple arguments (hydraz, JakobDev).
-* Rework rendering of in-hand pocket computers.
-* Prevent rendering of a bounding box on a monitor's screen.
-* Refactor Lua-side type checking code into a single method. Also include the function name in error messages.
+* Add several new MOTD messages (JakobDev)
 
 And several bug fixes:
-* Fix incorrect computation of server-tick budget.
-* Fix list-based config options not reloading.
-* Ensure `require` is usable within the Lua REPL.
+* Fix type check in `rednet.lookup`
+* Error if turtle and pocket computer programs are run on the wrong system (JakobDev)
+* Do not discard varargs after a nil.
 
 Type "help changelog" to see the full version history.

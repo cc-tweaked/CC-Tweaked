@@ -34,10 +34,12 @@ local active_stubs = {}
 -- @tparam string var The variable to stub
 -- @param value The value to stub it with
 local function stub(tbl, var, value)
-    table.insert(active_stubs, { tbl = tbl, var = var, value = tbl[var] })
-    _G[var] = value
-end
+    check('stub', 1, 'table', tbl)
+    check('stub', 2, 'string', var)
 
+    table.insert(active_stubs, { tbl = tbl, var = var, value = tbl[var] })
+    rawset(tbl, var, value)
+end
 
 --- Capture the current global state of the computer
 local function push_state()
@@ -55,7 +57,7 @@ end
 local function pop_state(state)
     for i = #active_stubs, 1, -1 do
         local stub = active_stubs[i]
-        stub.tbl[stub.var] = stub.value
+        rawset(stub.tbl, stub.var, stub.value)
     end
 
     active_stubs = state.stubs
@@ -352,6 +354,9 @@ if not fs.isDir(root_dir) then
     io.stderr:write(("%q is not a directory.\n"):format(root_dir))
     error()
 end
+
+-- Ensure the test folder is also on the package path
+package.path = ("/%s/?.lua;/%s/?/init.lua;%s"):format(root_dir, root_dir, package.path)
 
 do
     -- Load in the tests from all our files

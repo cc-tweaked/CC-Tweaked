@@ -6,6 +6,7 @@
 
 package dan200.computercraft.core.filesystem;
 
+import dan200.computercraft.api.filesystem.FileOperationException;
 import dan200.computercraft.api.filesystem.IMount;
 
 import javax.annotation.Nonnull;
@@ -95,7 +96,7 @@ public class ComboMount implements IMount
         }
         else
         {
-            throw new IOException( "/" + path + ": Not a directory" );
+            throw new FileOperationException( path, "Not a directory" );
         }
     }
 
@@ -110,7 +111,7 @@ public class ComboMount implements IMount
                 return part.getSize( path );
             }
         }
-        throw new IOException( "/" + path + ": No such file" );
+        throw new FileOperationException( path, "No such file" );
     }
 
     @Nonnull
@@ -126,7 +127,7 @@ public class ComboMount implements IMount
                 return part.openForRead( path );
             }
         }
-        throw new IOException( "/" + path + ": No such file" );
+        throw new FileOperationException( path, "No such file" );
     }
 
     @Nonnull
@@ -141,6 +142,6 @@ public class ComboMount implements IMount
                 return part.openChannelForRead( path );
             }
         }
-        throw new IOException( "/" + path + ": No such file" );
+        throw new FileOperationException( path, "No such file" );
     }
 }

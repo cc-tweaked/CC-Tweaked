@@ -1,3 +1,5 @@
+local capture = require "test_helpers".capture_program
+
 describe("The rm program", function()
     local function touch(file)
         io.open(file, "w"):close()
@@ -31,5 +33,20 @@ describe("The rm program", function()
 
         expect(fs.exists("/test-files/a.txt")):eq(false)
         expect(fs.exists("/test-files/b.txt")):eq(false)
+    end)
+
+    it("displays the usage with no arguments", function()
+        expect(capture(stub, "rm"))
+            :matches { ok = true, output = "Usage: rm <paths>\n", error = "" }
+    end)
+    
+    it("errors when trying to delete a read-only file", function()
+        expect(capture(stub, "rm /rom/startup.lua"))
+            :matches { ok = true, output = "", error = "/rom/startup.lua: Access denied\n" }
+    end)
+
+    it("errors when a glob fails to match", function()
+        expect(capture(stub, "rm", "never-existed"))
+            :matches { ok = true, output = "", error = "never-existed: No matching files\n" }
     end)
 end)

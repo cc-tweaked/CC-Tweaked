@@ -95,6 +95,7 @@ public class BinaryWritableHandle extends HandleGeneric
                     return null;
                 }
             case 2: // close
+                checkOpen();
                 close();
                 return null;
             case 3: // seek
