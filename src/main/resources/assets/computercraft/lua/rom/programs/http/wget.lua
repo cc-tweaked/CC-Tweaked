@@ -1,15 +1,24 @@
 
 local function printUsage()
-    print( "Usages:" )
+    print( "Usage:" )
     print( "wget <url> [filename]" )
     print( "wget run <url>" )
 end
 
 local tArgs = { ... }
+
+local run = false
+if tArgs[1] == "run" then
+    table.remove( tArgs, 1 )
+    run = true
+end
+
 if #tArgs < 1 then
     printUsage()
     return
 end
+
+local url = table.remove( tArgs, 1 )
 
 if not http then
     printError( "wget requires http API" )
@@ -23,6 +32,13 @@ local function getFilename( sUrl )
 end
 
 local function get( sUrl )
+    -- Check if the URL is valid
+    local ok, err = http.checkURL( url )
+    if not ok then
+        printError( err or "Invalid URL." )
+        return
+    end
+
     write( "Connecting to " .. sUrl .. "... " )
 
     local response = http.get( sUrl , nil , true )
@@ -38,52 +54,34 @@ local function get( sUrl )
     return sResponse
 end
 
--- Determine file to download
-local sUrl
-if tArgs[1] == "run" then
-    if tArgs[2] == nil then
-        printUsage()
+if run then
+    local res = get(url)
+    if not res then return end
+
+    local func, err = load(res, getFilename(url), "t", _ENV)
+    if not func then
+        printError(err)
         return
-    else
-      sUrl = tArgs[2]
+    end
+
+    local ok, err = pcall(func, table.unpack(tArgs))
+    if not ok then
+        printError( err )
     end
 else
-    sUrl = tArgs[1]
-end
-
---Check if the URL is valid
-local ok, err = http.checkURL( sUrl )
-if not ok then
-    printError( err or "Invalid URL." )
-    return
-end
-
-local sFile = tArgs[2] or getFilename( sUrl )
-local sPath = shell.resolve( sFile )
-if fs.exists( sPath ) and tArgs[1] ~= "run" then
-    print( "File already exists" )
-    return
-end
-
--- Do the get
-local res = get( sUrl )
-if res then
-    if tArgs[1] == "run" then
-        local func, err = load( res, sFile, "t", _ENV)
-        if not func then
-            printError( err )
-            return
-        end
-        
-        table.remove( tArgs, 1 )
-        table.remove( tArgs, 1 )        
-        func( table.unpack( tArgs ) )
-    else
-      local file = fs.open( sPath, "wb" )
-      file.write( res )
-      file.close()
-
-      print( "Downloaded as "..sFile )
+    local sFile = tArgs[1] or getFilename( url )
+    local sPath = shell.resolve( sFile )
+    if fs.exists( sPath ) then
+        print( "File already exists" )
+        return
     end
-end
 
+    local res = get(url)
+    if not res then return end
+
+    local file = fs.open( sPath, "wb" )
+    file.write( res )
+    file.close()
+
+    print( "Downloaded as " .. sFile )
+end

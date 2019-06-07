@@ -1,26 +1,42 @@
 local capture = require "test_helpers".capture_program
 
 describe("The wget program", function()
-
+    local function setup_request()
+        stub(_G, "http", {
+            checkURL = function() return true end,
+            get = function() return {
+                readAll = function() return [[print("Hello", ...)]] end,
+                close = function() end,
+            } end
+        })
+    end
     it("downloads one file", function()
+        setup_request()
+
         shell.run("wget https://example.com")
 
         expect(fs.exists("/example.com")):eq(true)
     end)
 
     it("downloads one file with given filename", function()
-        shell.run("wget https://example.com testdownload")
+        setup_request()
 
-        expect(fs.exists("/testdownload")):eq(true)
+        shell.run("wget https://example.com /test-files/download")
+
+        expect(fs.exists("/test-files/download")):eq(true)
     end)
 
-    it("run a program from the internet", function()
-        expect(capture(stub, "wget run https://raw.githubusercontent.com/SquidDev-CC/CC-Tweaked/master/src/main/resources/assets/computercraft/lua/rom/programs/type.lua /rom"))
-            :matches { ok = true, output = "Connecting to https://raw.githubusercontent.com/SquidDev-CC/CC-Tweaked/master/src/main/resources/assets/computercraft/lua/rom/programs/type.lua... Success.\ndirectory\n", error = "" }
+    it("runs a program from the internet", function()
+        setup_request()
+
+        expect(capture(stub, "wget", "run", "http://test.com", "a", "b", "c"))
+            :matches { ok = true, output = "Connecting to http://test.com... Success.\nHello a b c\n", error = "" }
     end)
 
-    it("displays the usage of wget with no arguments", function()
+    it("displays its usage when given no arguments", function()
+        setup_request()
+
         expect(capture(stub, "wget"))
-            :matches { ok = true, output = "Usages:\nwget <url> [filename]\nwget run <url>\n", error = "" }
+            :matches { ok = true, output = "Usage:\nwget <url> [filename]\nwget run <url>\n", error = "" }
     end)
 end)
