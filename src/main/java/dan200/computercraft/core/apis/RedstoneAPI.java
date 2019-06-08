@@ -29,9 +29,7 @@ public class RedstoneAPI implements ILuaAPI
     @Override
     public String[] getNames()
     {
-        return new String[] {
-            "rs", "redstone"
-        };
+        return new String[] { "rs", "redstone" };
     }
 
     @Nonnull

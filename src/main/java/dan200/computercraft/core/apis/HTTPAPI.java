@@ -42,9 +42,7 @@ public class HTTPAPI implements ILuaAPI
     @Override
     public String[] getNames()
     {
-        return new String[] {
-            "http"
-        };
+        return new String[] { "http" };
     }
 
     @Override
@@ -83,6 +81,7 @@ public class HTTPAPI implements ILuaAPI
     }
 
     @Override
+    @SuppressWarnings( "resource" )
     public Object[] callMethod( @Nonnull ILuaContext context, int method, @Nonnull Object[] args ) throws LuaException
     {
         switch( method )
@@ -95,7 +94,7 @@ public class HTTPAPI implements ILuaAPI
 
                 if( args.length >= 1 && args[0] instanceof Map )
                 {
-                    Map<?, ?> options = (Map) args[0];
+                    Map<?, ?> options = (Map<?, ?>) args[0];
                     address = getStringField( options, "url" );
                     postString = optStringField( options, "body", null );
                     headerTable = optTableField( options, "headers", Collections.emptyMap() );
@@ -135,7 +134,6 @@ public class HTTPAPI implements ILuaAPI
                 try
                 {
                     URI uri = HttpRequest.checkUri( address );
-
                     HttpRequest request = new HttpRequest( requests, m_apiEnvironment, address, postString, headers, binary, redirect );
 
                     long requestBody = request.body().readableBytes() + HttpRequest.getHeaderSize( headers );

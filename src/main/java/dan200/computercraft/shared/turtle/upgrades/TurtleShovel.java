@@ -60,7 +60,7 @@ public class TurtleShovel extends TurtleTool
     {
         if( verb == TurtleVerb.Dig )
         {
-            ItemStack shovel = m_item.copy();
+            ItemStack shovel = item.copy();
             ItemStack remainder = TurtlePlaceCommand.deploy( shovel, turtle, direction, null, null );
             if( remainder != shovel )
             {

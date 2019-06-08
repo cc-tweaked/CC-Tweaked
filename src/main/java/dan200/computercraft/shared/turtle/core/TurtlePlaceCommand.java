@@ -64,7 +64,6 @@ public class TurtlePlaceCommand implements ITurtleCommand
 
         // Remember old block
         EnumFacing direction = m_direction.toWorldDir( turtle );
-        World world = turtle.getWorld();
         BlockPos coordinates = turtle.getPosition().offset( direction );
 
         // Create a fake player, and orient it appropriately

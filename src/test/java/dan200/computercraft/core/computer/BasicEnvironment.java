@@ -95,7 +95,7 @@ public class BasicEnvironment implements IComputerEnvironment
 
     public static IMount createMount( Class<?> klass, String path, String fallback )
     {
-        File file = getContainingFile(klass);
+        File file = getContainingFile( klass );
 
         if( file.isFile() )
         {
@@ -127,7 +127,7 @@ public class BasicEnvironment implements IComputerEnvironment
     }
 
 
-    private static File getContainingFile(Class<?> klass)
+    private static File getContainingFile( Class<?> klass )
     {
         String path = klass.getProtectionDomain().getCodeSource().getLocation().getPath();
         int bangIndex = path.indexOf( "!" );

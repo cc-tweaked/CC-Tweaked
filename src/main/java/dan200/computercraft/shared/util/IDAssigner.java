@@ -28,7 +28,9 @@ import java.util.Map;
 public final class IDAssigner
 {
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
-    private static final Type ID_TOKEN = new TypeToken<Map<String, Integer>>() {}.getType();
+    private static final Type ID_TOKEN = new TypeToken<Map<String, Integer>>()
+    {
+    }.getType();
 
     private IDAssigner()
     {

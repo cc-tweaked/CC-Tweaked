@@ -7,7 +7,6 @@
 package dan200.computercraft.core.computer;
 
 import dan200.computercraft.ComputerCraft;
-import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.api.filesystem.IWritableMount;
 import dan200.computercraft.api.lua.ILuaAPI;
 import dan200.computercraft.api.lua.ILuaContext;
@@ -36,7 +35,7 @@ public class ComputerBootstrap
             .addFile( "test.lua", program )
             .addFile( "startup", "assertion.assert(pcall(loadfile('test.lua', _ENV))) os.shutdown()" );
 
-        run( mount, x -> {} );
+        run( mount, x -> { } );
     }
 
     public static void run( IWritableMount mount, Consumer<Computer> setup )

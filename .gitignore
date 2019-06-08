@@ -15,3 +15,9 @@
 .idea
 .gradle
 *.DS_Store
+
+.classpath
+.project
+.settings/
+bin/
+*.launch

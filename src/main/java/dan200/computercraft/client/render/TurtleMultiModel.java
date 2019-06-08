@@ -93,7 +93,7 @@ public class TurtleMultiModel implements IBakedModel
                 upgradeTransform = new Matrix4f( m_generalTransform );
                 upgradeTransform.mul( m_rightUpgradeTransform );
             }
-            ModelTransformer.transformQuadsTo( quads, m_rightUpgradeModel.getQuads( state, side, rand , EmptyModelData.INSTANCE), upgradeTransform );
+            ModelTransformer.transformQuadsTo( quads, m_rightUpgradeModel.getQuads( state, side, rand, EmptyModelData.INSTANCE ), upgradeTransform );
         }
         quads.trimToSize();
         return quads;

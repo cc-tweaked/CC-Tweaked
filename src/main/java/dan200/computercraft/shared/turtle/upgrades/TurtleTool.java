@@ -49,18 +49,18 @@ import java.util.function.Function;
 
 public class TurtleTool extends AbstractTurtleUpgrade
 {
-    protected ItemStack m_item;
+    protected final ItemStack item;
 
     public TurtleTool( ResourceLocation id, String adjective, Item item )
     {
         super( id, TurtleUpgradeType.Tool, adjective, item );
-        m_item = new ItemStack( item );
+        this.item = new ItemStack( item );
     }
 
     public TurtleTool( ResourceLocation id, Item item )
     {
         super( id, TurtleUpgradeType.Tool, item );
-        m_item = new ItemStack( item );
+        this.item = new ItemStack( item );
     }
 
     @Nonnull
@@ -77,7 +77,7 @@ public class TurtleTool extends AbstractTurtleUpgrade
         );
         Minecraft mc = Minecraft.getInstance();
         return Pair.of(
-            mc.getItemRenderer().getItemModelMesher().getItemModel( m_item ),
+            mc.getItemRenderer().getItemModelMesher().getItemModel( item ),
             transform
         );
     }
@@ -125,7 +125,7 @@ public class TurtleTool extends AbstractTurtleUpgrade
         if( hit != null )
         {
             // Load up the turtle's inventory
-            ItemStack stackCopy = m_item.copy();
+            ItemStack stackCopy = item.copy();
             turtlePlayer.loadInventory( stackCopy );
 
             Entity hitEntity = hit.getKey();
@@ -204,7 +204,7 @@ public class TurtleTool extends AbstractTurtleUpgrade
         IFluidState fluidState = world.getFluidState( blockPosition );
 
         TurtlePlayer turtlePlayer = TurtlePlaceCommand.createPlayer( turtle, turtlePosition, direction );
-        turtlePlayer.loadInventory( m_item.copy() );
+        turtlePlayer.loadInventory( item.copy() );
 
         if( ComputerCraft.turtlesObeyBlockProtection )
         {

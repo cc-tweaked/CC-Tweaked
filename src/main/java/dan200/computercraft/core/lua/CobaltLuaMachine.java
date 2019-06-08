@@ -550,7 +550,7 @@ public class CobaltLuaMachine implements ILuaMachine
                 {
                     if( ComputerCraft.logPeripheralErrors ) ComputerCraft.log.error( "Error running task", t );
                     m_computer.queueEvent( "task_complete", new Object[] {
-                        taskID, false, "Java Exception Thrown: " + t
+                        taskID, false, "Java Exception Thrown: " + t,
                     } );
                 }
             };

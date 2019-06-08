@@ -30,7 +30,10 @@ public enum ComputerSide
 
     private final String name;
 
-    ComputerSide( String name ) {this.name = name;}
+    ComputerSide( String name )
+    {
+        this.name = name;
+    }
 
     @Nonnull
     public static ComputerSide valueOf( int side )

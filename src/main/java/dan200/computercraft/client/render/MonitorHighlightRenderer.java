@@ -62,8 +62,8 @@ public final class MonitorHighlightRenderer
         if( monitor.getYIndex() != monitor.getHeight() - 1 ) faces.remove( monitor.getDown() );
 
         GlStateManager.enableBlend();
-        GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
-        GlStateManager.lineWidth(Math.max(2.5F, (float) Minecraft.getInstance().mainWindow.getFramebufferWidth() / 1920.0F * 2.5F));
+        GlStateManager.blendFuncSeparate( GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO );
+        GlStateManager.lineWidth( Math.max( 2.5F, (float) Minecraft.getInstance().mainWindow.getFramebufferWidth() / 1920.0F * 2.5F ) );
         GlStateManager.disableTexture2D();
         GlStateManager.depthMask( false );
         GlStateManager.pushMatrix();

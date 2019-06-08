@@ -7,6 +7,7 @@
 package dan200.computercraft.core.filesystem;
 
 import com.google.common.collect.Sets;
+import dan200.computercraft.api.filesystem.FileOperationException;
 import dan200.computercraft.api.filesystem.IWritableMount;
 
 import javax.annotation.Nonnull;
@@ -167,12 +168,12 @@ public class FileMount implements IWritableMount
     {
         if( !created() )
         {
-            if( !path.isEmpty() ) throw new IOException( "/" + path + ": Not a directory" );
+            if( !path.isEmpty() ) throw new FileOperationException( path, "Not a directory" );
             return;
         }
 
         File file = getRealPath( path );
-        if( !file.exists() || !file.isDirectory() ) throw new IOException( "/" + path + ": Not a directory" );
+        if( !file.exists() || !file.isDirectory() ) throw new FileOperationException( path, "Not a directory" );
 
         String[] paths = file.list();
         for( String subPath : paths )
@@ -194,7 +195,7 @@ public class FileMount implements IWritableMount
             if( file.exists() ) return file.isDirectory() ? 0 : file.length();
         }
 
-        throw new IOException( "/" + path + ": No such file" );
+        throw new FileOperationException( path, "No such file" );
     }
 
     @Nonnull
@@ -208,7 +209,7 @@ public class FileMount implements IWritableMount
             if( file.exists() && !file.isDirectory() ) return new FileInputStream( file );
         }
 
-        throw new IOException( "/" + path + ": No such file" );
+        throw new FileOperationException( path, "No such file" );
     }
 
     @Nonnull
@@ -221,7 +222,7 @@ public class FileMount implements IWritableMount
             if( file.exists() && !file.isDirectory() ) return FileChannel.open( file.toPath(), READ_OPTIONS );
         }
 
-        throw new IOException( "/" + path + ": No such file" );
+        throw new FileOperationException( path, "No such file" );
     }
 
     // IWritableMount implementation
@@ -233,7 +234,7 @@ public class FileMount implements IWritableMount
         File file = getRealPath( path );
         if( file.exists() )
         {
-            if( !file.isDirectory() ) throw new IOException( "/" + path + ": File exists" );
+            if( !file.isDirectory() ) throw new FileOperationException( path, "File exists" );
             return;
         }
 
@@ -247,7 +248,7 @@ public class FileMount implements IWritableMount
 
         if( getRemainingSpace() < dirsToCreate * MINIMUM_FILE_SIZE )
         {
-            throw new IOException( "/" + path + ": Out of space" );
+            throw new FileOperationException( path, "Out of space" );
         }
 
         if( file.mkdirs() )
@@ -256,14 +257,14 @@ public class FileMount implements IWritableMount
         }
         else
         {
-            throw new IOException( "/" + path + ": Access denied" );
+            throw new FileOperationException( path, "Access denied" );
         }
     }
 
     @Override
     public void delete( @Nonnull String path ) throws IOException
     {
-        if( path.isEmpty() ) throw new IOException( "/" + path + ": Access denied" );
+        if( path.isEmpty() ) throw new FileOperationException( path, "Access denied" );
 
         if( created() )
         {
@@ -319,7 +320,7 @@ public class FileMount implements IWritableMount
     {
         create();
         File file = getRealPath( path );
-        if( file.exists() && file.isDirectory() ) throw new IOException( "/" + path + ": Cannot write to directory" );
+        if( file.exists() && file.isDirectory() ) throw new FileOperationException( path, "Cannot write to directory" );
 
         if( file.exists() )
         {
@@ -327,7 +328,7 @@ public class FileMount implements IWritableMount
         }
         else if( getRemainingSpace() < MINIMUM_FILE_SIZE )
         {
-            throw new IOException( "/" + path + ": Out of space" );
+            throw new FileOperationException( path, "Out of space" );
         }
         m_usedSpace += MINIMUM_FILE_SIZE;
 
@@ -340,12 +341,12 @@ public class FileMount implements IWritableMount
     {
         if( !created() )
         {
-            throw new IOException( "/" + path + ": No such file" );
+            throw new FileOperationException( path, "No such file" );
         }
 
         File file = getRealPath( path );
-        if( !file.exists() ) throw new IOException( "/" + path + ": No such file" );
-        if( file.isDirectory() ) throw new IOException( "/" + path + ": Cannot write to directory" );
+        if( !file.exists() ) throw new FileOperationException( path, "No such file" );
+        if( file.isDirectory() ) throw new FileOperationException( path, "Cannot write to directory" );
 
         // Allowing seeking when appending is not recommended, so we use a separate channel.
         return new WritableCountingChannel(

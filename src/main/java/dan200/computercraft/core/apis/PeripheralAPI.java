@@ -36,7 +36,7 @@ public class PeripheralAPI implements ILuaAPI, IAPIEnvironment.IPeripheralChange
         private Map<String, Integer> m_methodMap;
         private boolean m_attached;
 
-        public PeripheralWrapper( IPeripheral peripheral, String side )
+        PeripheralWrapper( IPeripheral peripheral, String side )
         {
             super( m_environment );
             m_side = side;
@@ -282,9 +282,7 @@ public class PeripheralAPI implements ILuaAPI, IAPIEnvironment.IPeripheralChange
     @Override
     public String[] getNames()
     {
-        return new String[] {
-            "peripheral"
-        };
+        return new String[] { "peripheral" };
     }
 
     @Override
@@ -326,7 +324,7 @@ public class PeripheralAPI implements ILuaAPI, IAPIEnvironment.IPeripheralChange
             "isPresent",
             "getType",
             "getMethods",
-            "call"
+            "call",
         };
     }
 
@@ -356,7 +354,6 @@ public class PeripheralAPI implements ILuaAPI, IAPIEnvironment.IPeripheralChange
                 ComputerSide side = ComputerSide.valueOfInsensitive( getString( args, 0 ) );
                 if( side != null )
                 {
-                    String type = null;
                     synchronized( m_peripherals )
                     {
                         PeripheralWrapper p = m_peripherals[side.ordinal()];

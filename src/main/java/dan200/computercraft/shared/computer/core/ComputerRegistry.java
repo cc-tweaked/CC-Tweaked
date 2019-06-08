@@ -11,9 +11,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
-public class ComputerRegistry<TComputer extends IComputer>
+public class ComputerRegistry<T extends IComputer>
 {
-    private Map<Integer, TComputer> m_computers;
+    private Map<Integer, T> m_computers;
     private int m_nextUnusedInstanceID;
     private int m_sessionID;
 
@@ -33,12 +33,12 @@ public class ComputerRegistry<TComputer extends IComputer>
         return m_nextUnusedInstanceID++;
     }
 
-    public Collection<TComputer> getComputers()
+    public Collection<T> getComputers()
     {
         return m_computers.values();
     }
 
-    public TComputer get( int instanceID )
+    public T get( int instanceID )
     {
         if( instanceID >= 0 )
         {
@@ -55,7 +55,7 @@ public class ComputerRegistry<TComputer extends IComputer>
         return m_computers.containsKey( instanceID );
     }
 
-    public void add( int instanceID, TComputer computer )
+    public void add( int instanceID, T computer )
     {
         if( m_computers.containsKey( instanceID ) )
         {

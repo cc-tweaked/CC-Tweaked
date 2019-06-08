@@ -72,12 +72,11 @@ public class Palette
 
     public static double[] decodeRGB8( int rgb )
     {
-        return new double[]
-            {
-                ((rgb >> 16) & 0xFF) / 255.0f,
-                ((rgb >> 8) & 0xFF) / 255.0f,
-                (rgb & 0xFF) / 255.0f
-            };
+        return new double[] {
+            ((rgb >> 16) & 0xFF) / 255.0f,
+            ((rgb >> 8) & 0xFF) / 255.0f,
+            (rgb & 0xFF) / 255.0f,
+        };
     }
 
     public NBTTagCompound writeToNBT( NBTTagCompound nbt )

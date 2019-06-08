@@ -49,9 +49,7 @@ public class CommandAPI implements ILuaAPI
     @Override
     public String[] getNames()
     {
-        return new String[] {
-            "commands"
-        };
+        return new String[] { "commands" };
     }
 
     @Nonnull
@@ -64,7 +62,7 @@ public class CommandAPI implements ILuaAPI
             "list",
             "getBlockPosition",
             "getBlockInfos",
-            "getBlockInfo"
+            "getBlockInfo",
         };
     }
 

@@ -170,7 +170,7 @@ public class ResourceMount implements IMount
                 {
                     total += read;
                     read = s.read( TEMP_BUFFER );
-                } while( read > 0 );
+                } while ( read > 0 );
 
                 return file.size = total;
             }

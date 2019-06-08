@@ -93,6 +93,7 @@ public class EncodedWritableHandle extends HandleGeneric
                     return null;
                 }
             case 3: // close
+                checkOpen();
                 close();
                 return null;
             default:

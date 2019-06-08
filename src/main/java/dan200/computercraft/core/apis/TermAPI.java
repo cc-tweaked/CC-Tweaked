@@ -33,9 +33,7 @@ public class TermAPI implements ILuaAPI
     @Override
     public String[] getNames()
     {
-        return new String[] {
-            "term"
-        };
+        return new String[] { "term" };
     }
 
     @Nonnull
@@ -89,9 +87,7 @@ public class TermAPI implements ILuaAPI
 
     public static Object[] encodeColour( int colour ) throws LuaException
     {
-        return new Object[] {
-            1 << colour
-        };
+        return new Object[] { 1 << colour };
     }
 
     public static void setColour( Terminal terminal, int colour, double r, double g, double b )

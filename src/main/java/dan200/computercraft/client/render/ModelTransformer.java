@@ -94,7 +94,7 @@ public final class ModelTransformer
         private final Point3f[] before = new Point3f[4];
         private final Point3f[] after = new Point3f[4];
 
-        public NormalAwareTransformer( IVertexConsumer parent, Matrix4f positionMatrix, Matrix4f normalMatrix )
+        NormalAwareTransformer( IVertexConsumer parent, Matrix4f positionMatrix, Matrix4f normalMatrix )
         {
             super( parent );
             this.positionMatrix = positionMatrix;

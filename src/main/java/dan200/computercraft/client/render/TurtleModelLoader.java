@@ -70,7 +70,10 @@ public final class TurtleModelLoader implements ICustomModelLoader
     {
         private final ResourceLocation family;
 
-        private TurtleModel( ResourceLocation family ) {this.family = family;}
+        private TurtleModel( ResourceLocation family )
+        {
+            this.family = family;
+        }
 
         @Nonnull
         @Override

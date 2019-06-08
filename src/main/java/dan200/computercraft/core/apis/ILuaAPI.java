@@ -10,6 +10,7 @@ package dan200.computercraft.core.apis;
  * This exists purely to ensure binary compatibility.
  *
  * @see dan200.computercraft.api.lua.ILuaAPI
+ * @deprecated Use the version in the public API. Only exists for compatibility with CCEmuX.
  */
 @Deprecated
 public interface ILuaAPI extends dan200.computercraft.api.lua.ILuaAPI

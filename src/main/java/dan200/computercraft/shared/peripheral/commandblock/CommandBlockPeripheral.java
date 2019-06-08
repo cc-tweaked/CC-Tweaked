@@ -52,7 +52,7 @@ public class CommandBlockPeripheral implements IPeripheral
         {
             case 0: // getCommand
                 return context.executeMainThreadTask( () -> new Object[] {
-                    m_commandBlock.getCommandBlockLogic().getCommand()
+                    m_commandBlock.getCommandBlockLogic().getCommand(),
                 } );
             case 1:
             {

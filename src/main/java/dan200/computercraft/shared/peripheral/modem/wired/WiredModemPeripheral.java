@@ -277,7 +277,7 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements IW
         private final String[] m_methods;
         private final Map<String, Integer> m_methodMap;
 
-        public RemotePeripheralWrapper( WiredModemElement element, IPeripheral peripheral, IComputerAccess computer, String name )
+        RemotePeripheralWrapper( WiredModemElement element, IPeripheral peripheral, IComputerAccess computer, String name )
         {
             m_element = element;
             m_peripheral = peripheral;
