@@ -13,17 +13,17 @@ import dan200.computercraft.api.media.IMedia;
 import dan200.computercraft.shared.common.IColouredItem;
 import dan200.computercraft.shared.util.Colour;
 import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextComponentString;
-import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TextFormatting;
+import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.IWorldReader;
 import net.minecraft.world.World;
 
@@ -68,14 +68,14 @@ public class ItemDisk extends Item implements IMedia, IColouredItem
             int id = getDiskID( stack );
             if( id >= 0 )
             {
-                list.add( new TextComponentTranslation( "gui.computercraft.tooltip.disk_id", id )
+                list.add( new TranslationTextComponent( "gui.computercraft.tooltip.disk_id", id )
                     .applyTextStyle( TextFormatting.GRAY ) );
             }
         }
     }
 
     @Override
-    public boolean doesSneakBypassUse( ItemStack stack, IWorldReader world, BlockPos pos, EntityPlayer player )
+    public boolean doesSneakBypassUse( ItemStack stack, IWorldReader world, BlockPos pos, PlayerEntity player )
     {
         return true;
     }
@@ -91,7 +91,7 @@ public class ItemDisk extends Item implements IMedia, IColouredItem
     {
         if( label != null )
         {
-            stack.setDisplayName( new TextComponentString( label ) );
+            stack.setDisplayName( new StringTextComponent( label ) );
         }
         else
         {
@@ -114,7 +114,7 @@ public class ItemDisk extends Item implements IMedia, IColouredItem
 
     public static int getDiskID( @Nonnull ItemStack stack )
     {
-        NBTTagCompound nbt = stack.getTag();
+        CompoundNBT nbt = stack.getTag();
         return nbt != null && nbt.contains( NBT_ID ) ? nbt.getInt( NBT_ID ) : -1;
     }
 

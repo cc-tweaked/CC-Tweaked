@@ -20,17 +20,17 @@ import dan200.computercraft.core.tracking.TrackingField;
 import dan200.computercraft.shared.command.text.TableBuilder;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ServerComputer;
-import dan200.computercraft.shared.network.Containers;
+import dan200.computercraft.shared.network.container.ViewComputerContainerData;
 import net.minecraft.command.CommandSource;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.network.play.server.SPacketPlayerPosLook;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.network.play.server.SPlayerPositionLookPacket;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.world.ServerWorld;
 import net.minecraft.world.World;
-import net.minecraft.world.WorldServer;
 
 import javax.annotation.Nonnull;
 import java.util.*;
@@ -170,16 +170,21 @@ public final class CommandComputerCraft
                     if( world == null || pos == null ) throw TP_NOT_THERE.create();
 
                     Entity entity = context.getSource().assertIsEntity();
-                    if( !(entity instanceof EntityPlayerMP) ) throw TP_NOT_PLAYER.create();
+                    if( !(entity instanceof ServerPlayerEntity) ) throw TP_NOT_PLAYER.create();
 
-                    EntityPlayerMP player = (EntityPlayerMP) entity;
+                    ServerPlayerEntity player = (ServerPlayerEntity) entity;
                     if( player.getEntityWorld() == world )
                     {
-                        player.connection.setPlayerLocation( pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, 0, 0, EnumSet.noneOf( SPacketPlayerPosLook.EnumFlags.class ) );
+                        player.connection.setPlayerLocation(
+                            pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, 0, 0,
+                            EnumSet.noneOf( SPlayerPositionLookPacket.Flags.class )
+                        );
                     }
                     else
                     {
-                        player.teleport( (WorldServer) world, pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, 0, 0 );
+                        player.teleport( (ServerWorld) world,
+                            pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, 0, 0
+                        );
                     }
 
                     return 1;
@@ -210,9 +215,9 @@ public final class CommandComputerCraft
                 .requires( UserLevel.OP )
                 .arg( "computer", oneComputer() )
                 .executes( context -> {
-                    EntityPlayerMP player = context.getSource().asPlayer();
+                    ServerPlayerEntity player = context.getSource().asPlayer();
                     ServerComputer computer = getComputerArgument( context, "computer" );
-                    Containers.openComputerGUI( player, computer );
+                    new ViewComputerContainerData( computer ).open( player );
                     return 1;
                 } ) )
 
@@ -259,7 +264,7 @@ public final class CommandComputerCraft
 
     private static ITextComponent linkComputer( CommandSource source, ServerComputer serverComputer, int computerId )
     {
-        ITextComponent out = new TextComponentString( "" );
+        ITextComponent out = new StringTextComponent( "" );
 
         // Append the computer instance
         if( serverComputer == null )
@@ -319,7 +324,7 @@ public final class CommandComputerCraft
     private static TrackingContext getTimingContext( CommandSource source )
     {
         Entity entity = source.getEntity();
-        return entity instanceof EntityPlayer ? Tracking.getContext( entity.getUniqueID() ) : Tracking.getContext( SYSTEM_UUID );
+        return entity instanceof PlayerEntity ? Tracking.getContext( entity.getUniqueID() ) : Tracking.getContext( SYSTEM_UUID );
     }
 
     private static final List<TrackingField> DEFAULT_FIELDS = Arrays.asList( TrackingField.TASKS, TrackingField.TOTAL_TIME, TrackingField.AVERAGE_TIME, TrackingField.MAX_TIME );

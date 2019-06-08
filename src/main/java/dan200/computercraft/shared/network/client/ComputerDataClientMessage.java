@@ -8,7 +8,7 @@ package dan200.computercraft.shared.network.client;
 
 import dan200.computercraft.shared.computer.core.ComputerState;
 import dan200.computercraft.shared.computer.core.ServerComputer;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.fml.network.NetworkEvent;
 
@@ -20,7 +20,7 @@ import javax.annotation.Nonnull;
 public class ComputerDataClientMessage extends ComputerClientMessage
 {
     private ComputerState state;
-    private NBTTagCompound userData;
+    private CompoundNBT userData;
 
     public ComputerDataClientMessage( ServerComputer computer )
     {

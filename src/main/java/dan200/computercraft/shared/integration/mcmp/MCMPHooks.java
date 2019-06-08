@@ -8,13 +8,11 @@ package dan200.computercraft.shared.integration.mcmp;
 
 import mcmultipart.MCMultiPart;
 import mcmultipart.api.item.ItemBlockMultipart;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemBlock;
+import net.minecraft.block.BlockState;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumActionResult;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
+import net.minecraft.util.ActionResultType;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.Loader;
@@ -27,9 +25,9 @@ public final class MCMPHooks
     {
     }
 
-    public static EnumActionResult onItemUse( ItemBlock itemBlock, EntityPlayer player, World world, @Nonnull BlockPos pos, @Nonnull EnumHand hand, @Nonnull EnumFacing facing, float hitX, float hitY, float hitZ )
+    public static ActionResultType onItemUse( BlockItem itemBlock, PlayerEntity player, World world, @Nonnull BlockPos pos, @Nonnull Hand hand, @Nonnull Direction facing, float hitX, float hitY, float hitZ )
     {
-        if( !Loader.isModLoaded( MCMultiPart.MODID ) ) return EnumActionResult.PASS;
+        if( !Loader.isModLoaded( MCMultiPart.MODID ) ) return ActionResultType.PASS;
 
         return ItemBlockMultipart.place(
             player, world, pos, hand, facing, hitX, hitY, hitZ, itemBlock,
@@ -37,8 +35,8 @@ public final class MCMPHooks
             MCMPIntegration.multipartMap.get( itemBlock.getBlock() ),
 
             (
-                ItemStack stack, EntityPlayer thisPlayer, World thisWorld, BlockPos thisPos, EnumFacing thisFacing,
-                float thisX, float thisY, float thisZ, IBlockState thisState
+                ItemStack stack, PlayerEntity thisPlayer, World thisWorld, BlockPos thisPos, Direction thisFacing,
+                float thisX, float thisY, float thisZ, BlockState thisState
             ) ->
                 thisPlayer.canPlayerEdit( thisPos, thisFacing, stack ) &&
                     thisWorld.getBlockState( thisPos ).getBlock().isReplaceable( thisWorld, thisPos ) &&

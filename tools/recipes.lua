@@ -30,22 +30,22 @@ local pocket_upgrades = {
 
 --- All dye/disk colours
 local colours = {
-    { 0x111111, "minecraft:ink_sac" },
-    { 0xcc4c4c, "minecraft:rose_red" },
-    { 0x57A64E, "minecraft:cactus_green" },
-    { 0x7f664c, "minecraft:cocoa_beans" },
-    { 0x3366cc, "minecraft:lapis_lazuli" },
+    { 0x111111, "minecraft:black_dye" },
+    { 0xcc4c4c, "minecraft:red_dye" },
+    { 0x57A64E, "minecraft:green_dye" },
+    { 0x7f664c, "minecraft:brown_dye" },
+    { 0x3366cc, "minecraft:blue_dye" },
     { 0xb266e5, "minecraft:purple_dye" },
     { 0x4c99b2, "minecraft:cyan_dye" },
     { 0x999999, "minecraft:light_gray_dye" },
     { 0x4c4c4c, "minecraft:gray_dye" },
     { 0xf2b2cc, "minecraft:pink_dye" },
     { 0x7fcc19, "minecraft:lime_dye" },
-    { 0xdede6c, "minecraft:dandelion_yellow" },
+    { 0xdede6c, "minecraft:yellow_dye" },
     { 0x99b2f2, "minecraft:light_blue_dye" },
     { 0xe57fd8, "minecraft:magenta_dye" },
     { 0xf2b233, "minecraft:orange_dye" },
-    { 0xf0f0f0, "minecraft:bone_meal" },
+    { 0xf0f0f0, "minecraft:white_dye" },
 }
 
 --- Read the provided file into a string, exiting the program if not found.

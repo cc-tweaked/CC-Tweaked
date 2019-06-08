@@ -5,7 +5,7 @@
  */
 package dan200.computercraft.api.peripheral;
 
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
@@ -25,8 +25,8 @@ public interface IPeripheralTile
      *
      * @param side The side to get the peripheral from.
      * @return A peripheral, or {@code null} if there is not a peripheral here.
-     * @see IPeripheralProvider#getPeripheral(World, BlockPos, EnumFacing)
+     * @see IPeripheralProvider#getPeripheral(World, BlockPos, Direction)
      */
     @Nullable
-    IPeripheral getPeripheral( @Nonnull EnumFacing side );
+    IPeripheral getPeripheral( @Nonnull Direction side );
 }

@@ -10,9 +10,9 @@ import net.minecraft.entity.Entity;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.ISidedInventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -62,8 +62,8 @@ public final class InventoryUtil
 
         // A more expanded form of ItemStack.areShareTagsEqual, but allowing an empty tag to be equal to a
         // null one.
-        NBTTagCompound shareTagA = a.getItem().getShareTag( a );
-        NBTTagCompound shareTagB = b.getItem().getShareTag( b );
+        CompoundNBT shareTagA = a.getItem().getShareTag( a );
+        CompoundNBT shareTagB = b.getItem().getShareTag( b );
         if( shareTagA == shareTagB ) return true;
         if( shareTagA == null ) return shareTagB.isEmpty();
         if( shareTagB == null ) return shareTagA.isEmpty();
@@ -78,7 +78,7 @@ public final class InventoryUtil
 
     // Methods for finding inventories:
 
-    public static IItemHandler getInventory( World world, BlockPos pos, EnumFacing side )
+    public static IItemHandler getInventory( World world, BlockPos pos, Direction side )
     {
         // Look for tile with inventory
         TileEntity tileEntity = world.getTileEntity( pos );
@@ -105,7 +105,7 @@ public final class InventoryUtil
             pos.getY() + 0.5 + 0.6 * side.getYOffset(),
             pos.getZ() + 0.5 + 0.6 * side.getZOffset()
         );
-        EnumFacing dir = side.getOpposite();
+        Direction dir = side.getOpposite();
         Vec3d vecDir = new Vec3d(
             dir.getXOffset(), dir.getYOffset(), dir.getZOffset()
         );

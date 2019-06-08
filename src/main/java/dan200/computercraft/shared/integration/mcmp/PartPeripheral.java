@@ -14,9 +14,9 @@ import mcmultipart.api.slot.EnumCenterSlot;
 import mcmultipart.api.slot.EnumFaceSlot;
 import mcmultipart.api.slot.IPartSlot;
 import net.minecraft.block.Block;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.block.BlockState;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
@@ -26,19 +26,19 @@ import javax.annotation.Nonnull;
 public class PartPeripheral implements IMultipart
 {
     @Override
-    public IPartSlot getSlotForPlacement( World world, BlockPos pos, IBlockState state, EnumFacing facing, float hitX, float hitY, float hitZ, EntityLivingBase placer )
+    public IPartSlot getSlotForPlacement( World world, BlockPos pos, BlockState state, Direction facing, float hitX, float hitY, float hitZ, LivingEntity placer )
     {
         return getSlot( state );
     }
 
     @Override
-    public IPartSlot getSlotFromWorld( IBlockAccess world, BlockPos pos, IBlockState state )
+    public IPartSlot getSlotFromWorld( IBlockAccess world, BlockPos pos, BlockState state )
     {
         return getSlot( state );
     }
 
     @Nonnull
-    private static IPartSlot getSlot( IBlockState state )
+    private static IPartSlot getSlot( BlockState state )
     {
         BlockPeripheralVariant type = state.getValue( BlockPeripheral.VARIANT );
         if( type == BlockPeripheralVariant.WirelessModemUpOn || type == BlockPeripheralVariant.WirelessModemUpOff )

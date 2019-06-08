@@ -7,11 +7,11 @@
 package dan200.computercraft.shared.peripheral.modem.wired;
 
 import dan200.computercraft.ComputerCraft;
+import net.minecraft.block.BlockState;
 import net.minecraft.block.SoundType;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.BlockItem;
 import net.minecraft.item.BlockItemUseContext;
-import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
@@ -24,7 +24,7 @@ import javax.annotation.Nonnull;
 
 import static dan200.computercraft.shared.peripheral.modem.wired.BlockCable.*;
 
-public abstract class ItemBlockCable extends ItemBlock
+public abstract class ItemBlockCable extends BlockItem
 {
     private String translationKey;
 
@@ -33,7 +33,7 @@ public abstract class ItemBlockCable extends ItemBlock
         super( block, settings );
     }
 
-    boolean placeAt( World world, BlockPos pos, IBlockState state, EntityPlayer player )
+    boolean placeAt( World world, BlockPos pos, BlockState state, PlayerEntity player )
     {
         // TODO: Check entity collision.
         if( !state.isValidPosition( world, pos ) ) return false;
@@ -53,7 +53,7 @@ public abstract class ItemBlockCable extends ItemBlock
         return true;
     }
 
-    boolean placeAtCorrected( World world, BlockPos pos, IBlockState state )
+    boolean placeAtCorrected( World world, BlockPos pos, BlockState state )
     {
         return placeAt( world, pos, correctConnections( world, pos, state ), null );
     }
@@ -84,26 +84,26 @@ public abstract class ItemBlockCable extends ItemBlock
 
         @Nonnull
         @Override
-        public EnumActionResult tryPlace( BlockItemUseContext context )
+        public ActionResultType tryPlace( BlockItemUseContext context )
         {
             ItemStack stack = context.getItem();
-            if( stack.isEmpty() ) return EnumActionResult.FAIL;
+            if( stack.isEmpty() ) return ActionResultType.FAIL;
 
             World world = context.getWorld();
             BlockPos pos = context.getPos();
-            IBlockState existingState = world.getBlockState( pos );
+            BlockState existingState = world.getBlockState( pos );
 
             // Try to add a modem to a cable
             if( existingState.getBlock() == ComputerCraft.Blocks.cable && existingState.get( MODEM ) == CableModemVariant.None )
             {
-                EnumFacing side = context.getFace().getOpposite();
-                IBlockState newState = existingState
+                Direction side = context.getFace().getOpposite();
+                BlockState newState = existingState
                     .with( MODEM, CableModemVariant.from( side ) )
                     .with( CONNECTIONS.get( side ), existingState.get( CABLE ) );
                 if( placeAt( world, pos, newState, context.getPlayer() ) )
                 {
                     stack.shrink( 1 );
-                    return EnumActionResult.SUCCESS;
+                    return ActionResultType.SUCCESS;
                 }
             }
 
@@ -120,31 +120,31 @@ public abstract class ItemBlockCable extends ItemBlock
 
         @Nonnull
         @Override
-        public EnumActionResult tryPlace( BlockItemUseContext context )
+        public ActionResultType tryPlace( BlockItemUseContext context )
         {
             ItemStack stack = context.getItem();
-            if( stack.isEmpty() ) return EnumActionResult.FAIL;
+            if( stack.isEmpty() ) return ActionResultType.FAIL;
 
             World world = context.getWorld();
             BlockPos pos = context.getPos();
 
             // Try to add a cable to a modem inside the block we're clicking on.
             BlockPos insidePos = pos.offset( context.getFace().getOpposite() );
-            IBlockState insideState = world.getBlockState( insidePos );
+            BlockState insideState = world.getBlockState( insidePos );
             if( insideState.getBlock() == ComputerCraft.Blocks.cable && !insideState.get( BlockCable.CABLE )
                 && placeAtCorrected( world, insidePos, insideState.with( BlockCable.CABLE, true ) ) )
             {
                 stack.shrink( 1 );
-                return EnumActionResult.SUCCESS;
+                return ActionResultType.SUCCESS;
             }
 
             // Try to add a cable to a modem adjacent to this block
-            IBlockState existingState = world.getBlockState( pos );
+            BlockState existingState = world.getBlockState( pos );
             if( existingState.getBlock() == ComputerCraft.Blocks.cable && !existingState.get( BlockCable.CABLE )
                 && placeAtCorrected( world, pos, existingState.with( BlockCable.CABLE, true ) ) )
             {
                 stack.shrink( 1 );
-                return EnumActionResult.SUCCESS;
+                return ActionResultType.SUCCESS;
             }
 
             return super.tryPlace( context );

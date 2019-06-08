@@ -6,7 +6,6 @@
 
 package dan200.computercraft.shared.computer.recipe;
 
-import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.items.IComputerItem;
 import net.minecraft.item.ItemStack;
@@ -38,20 +37,12 @@ public class ComputerUpgradeRecipe extends ComputerFamilyRecipe
         return SERIALIZER;
     }
 
-    private static final ResourceLocation ID = new ResourceLocation( ComputerCraft.MOD_ID, "computer_upgrade" );
     public static final IRecipeSerializer<ComputerUpgradeRecipe> SERIALIZER = new Serializer<ComputerUpgradeRecipe>()
     {
         @Override
         protected ComputerUpgradeRecipe create( ResourceLocation identifier, String group, int width, int height, NonNullList<Ingredient> ingredients, ItemStack result, ComputerFamily family )
         {
             return new ComputerUpgradeRecipe( identifier, group, width, height, ingredients, result, family );
-        }
-
-        @Nonnull
-        @Override
-        public ResourceLocation getName()
-        {
-            return ID;
         }
     };
 }

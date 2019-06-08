@@ -6,30 +6,29 @@
 
 package dan200.computercraft.shared.common;
 
-import dan200.computercraft.ComputerCraft;
-import dan200.computercraft.shared.util.AbstractRecipe;
 import dan200.computercraft.shared.util.Colour;
 import dan200.computercraft.shared.util.ColourTracker;
 import dan200.computercraft.shared.util.ColourUtils;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.item.EnumDyeColor;
+import net.minecraft.inventory.CraftingInventory;
+import net.minecraft.item.DyeColor;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipeSerializer;
-import net.minecraft.item.crafting.RecipeSerializers;
+import net.minecraft.item.crafting.SpecialRecipe;
+import net.minecraft.item.crafting.SpecialRecipeSerializer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
 
-public class ColourableRecipe extends AbstractRecipe
+public class ColourableRecipe extends SpecialRecipe
 {
-    public ColourableRecipe( ResourceLocation id )
+    private ColourableRecipe( ResourceLocation id )
     {
         super( id );
     }
 
     @Override
-    public boolean matches( @Nonnull IInventory inv, @Nonnull World world )
+    public boolean matches( @Nonnull CraftingInventory inv, @Nonnull World world )
     {
         boolean hasColourable = false;
         boolean hasDye = false;
@@ -58,7 +57,7 @@ public class ColourableRecipe extends AbstractRecipe
 
     @Nonnull
     @Override
-    public ItemStack getCraftingResult( @Nonnull IInventory inv )
+    public ItemStack getCraftingResult( @Nonnull CraftingInventory inv )
     {
         ItemStack colourable = ItemStack.EMPTY;
 
@@ -76,7 +75,7 @@ public class ColourableRecipe extends AbstractRecipe
             }
             else
             {
-                EnumDyeColor dye = ColourUtils.getStackColour( stack );
+                DyeColor dye = ColourUtils.getStackColour( stack );
                 if( dye == null ) continue;
 
                 Colour colour = Colour.fromInt( 15 - dye.getId() );
@@ -101,7 +100,5 @@ public class ColourableRecipe extends AbstractRecipe
         return SERIALIZER;
     }
 
-    public static final IRecipeSerializer<?> SERIALIZER = new RecipeSerializers.SimpleSerializer<>(
-        ComputerCraft.MOD_ID + ":colour", ColourableRecipe::new
-    );
+    public static final IRecipeSerializer<?> SERIALIZER = new SpecialRecipeSerializer<>( ColourableRecipe::new );
 }

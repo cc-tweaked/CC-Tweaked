@@ -6,6 +6,7 @@
 
 package dan200.computercraft.client.gui.widgets;
 
+import com.mojang.blaze3d.platform.GlStateManager;
 import dan200.computercraft.client.FrameInfo;
 import dan200.computercraft.client.gui.FixedWidthFontRenderer;
 import dan200.computercraft.core.terminal.Terminal;
@@ -17,7 +18,6 @@ import dan200.computercraft.shared.util.Palette;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.IGuiEventListener;
 import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.SharedConstants;
@@ -34,6 +34,8 @@ public class WidgetTerminal implements IGuiEventListener
     private static final float TERMINATE_TIME = 0.5f;
 
     private final Minecraft client;
+
+    private boolean focused;
 
     private final Supplier<ClientComputer> computer;
     private final int termWidth;
@@ -250,14 +252,23 @@ public class WidgetTerminal implements IGuiEventListener
     }
 
     @Override
-    public boolean mouseScrolled( double delta )
+    public boolean mouseScrolled( double mouseX, double mouseY, double delta )
     {
         ClientComputer computer = this.computer.get();
-        if( computer == null || !computer.isColour() ) return false;
+        if( computer == null || !computer.isColour() || delta == 0 ) return false;
 
-        if( lastMouseX >= 0 && lastMouseY >= 0 && delta != 0 )
+        Terminal term = computer.getTerminal();
+        if( term != null )
         {
-            queueEvent( "mouse_scroll", delta < 0 ? 1 : -1, lastMouseX + 1, lastMouseY + 1 );
+            int charX = (int) (mouseX / FixedWidthFontRenderer.FONT_WIDTH);
+            int charY = (int) (mouseY / FixedWidthFontRenderer.FONT_HEIGHT);
+            charX = Math.min( Math.max( charX, 0 ), term.getWidth() - 1 );
+            charY = Math.min( Math.max( charY, 0 ), term.getHeight() - 1 );
+
+            computer.mouseScroll( delta < 0 ? 1 : -1, charX + 1, charY + 1 );
+
+            lastMouseX = charX;
+            lastMouseY = charY;
         }
 
         return true;
@@ -284,9 +295,9 @@ public class WidgetTerminal implements IGuiEventListener
     }
 
     @Override
-    public void focusChanged( boolean focused )
+    public boolean changeFocus( boolean reversed )
     {
-        if( !focused )
+        if( focused )
         {
             // When blurring, we should make all keys go up
             for( int key = 0; key < keysDown.size(); key++ )
@@ -305,6 +316,8 @@ public class WidgetTerminal implements IGuiEventListener
 
             shutdownTimer = terminateTimer = rebootTimer = -1;
         }
+        focused = !focused;
+        return true;
     }
 
     public void draw( int originX, int originY )

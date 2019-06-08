@@ -6,24 +6,23 @@
 
 package dan200.computercraft.shared.media.recipes;
 
-import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.media.items.ItemPrintout;
-import dan200.computercraft.shared.util.AbstractRecipe;
-import net.minecraft.init.Items;
-import net.minecraft.inventory.IInventory;
+import net.minecraft.inventory.CraftingInventory;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.item.crafting.IRecipeSerializer;
 import net.minecraft.item.crafting.Ingredient;
-import net.minecraft.item.crafting.RecipeSerializers;
+import net.minecraft.item.crafting.SpecialRecipe;
+import net.minecraft.item.crafting.SpecialRecipeSerializer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
 
-public final class PrintoutRecipe extends AbstractRecipe
+public final class PrintoutRecipe extends SpecialRecipe
 {
-    private final Ingredient paper = Ingredient.fromItems( Items.PAPER );
-    private final Ingredient leather = Ingredient.fromItems( Items.LEATHER );
+    private final Ingredient paper = Ingredient.fromItems( net.minecraft.item.Items.PAPER );
+    private final Ingredient leather = Ingredient.fromItems( net.minecraft.item.Items.LEATHER );
     private final Ingredient string = Ingredient.fromItems( Items.STRING );
 
     private PrintoutRecipe( ResourceLocation id )
@@ -45,14 +44,14 @@ public final class PrintoutRecipe extends AbstractRecipe
     }
 
     @Override
-    public boolean matches( @Nonnull IInventory inventory, @Nonnull World world )
+    public boolean matches( @Nonnull CraftingInventory inventory, @Nonnull World world )
     {
         return !getCraftingResult( inventory ).isEmpty();
     }
 
     @Nonnull
     @Override
-    public ItemStack getCraftingResult( @Nonnull IInventory inventory )
+    public ItemStack getCraftingResult( @Nonnull CraftingInventory inventory )
     {
         // See if we match the recipe, and extract the input disk ID and dye colour
         int numPages = 0;
@@ -165,7 +164,5 @@ public final class PrintoutRecipe extends AbstractRecipe
         return SERIALIZER;
     }
 
-    public static final IRecipeSerializer<?> SERIALIZER = new RecipeSerializers.SimpleSerializer<>(
-        ComputerCraft.MOD_ID + ":printout", PrintoutRecipe::new
-    );
+    public static final IRecipeSerializer<?> SERIALIZER = new SpecialRecipeSerializer<>( PrintoutRecipe::new );
 }

@@ -9,6 +9,7 @@ package dan200.computercraft.shared.util;
 import com.mojang.datafixers.DataFixUtils;
 import com.mojang.datafixers.types.Type;
 import dan200.computercraft.ComputerCraft;
+import net.minecraft.block.Block;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.ResourceLocation;
@@ -16,28 +17,44 @@ import net.minecraft.util.SharedConstants;
 import net.minecraft.util.datafix.DataFixesManager;
 import net.minecraft.util.datafix.TypeReferences;
 
+import javax.annotation.Nonnull;
+import java.util.Collections;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-public final class NamedBlockEntityType<T extends TileEntity> extends TileEntityType<T>
+public final class NamedTileEntityType<T extends TileEntity> extends TileEntityType<T>
 {
     private final ResourceLocation identifier;
+    private Block block;
 
-    private NamedBlockEntityType( ResourceLocation identifier, Supplier<? extends T> supplier )
+    private NamedTileEntityType( ResourceLocation identifier, Supplier<? extends T> supplier )
     {
-        super( supplier, getDatafixer( identifier ) );
+        super( supplier, Collections.emptySet(), getDatafixer( identifier ) );
         this.identifier = identifier;
         setRegistryName( identifier );
     }
 
-    public static <T extends TileEntity> NamedBlockEntityType<T> create( ResourceLocation identifier, Supplier<? extends T> supplier )
+    public static <T extends TileEntity> NamedTileEntityType<T> create( ResourceLocation identifier, Supplier<? extends T> supplier )
     {
-        return new NamedBlockEntityType<>( identifier, supplier );
+        return new NamedTileEntityType<>( identifier, supplier );
     }
 
-    public static <T extends TileEntity> NamedBlockEntityType<T> create( ResourceLocation identifier, Function<NamedBlockEntityType<T>, ? extends T> builder )
+    public static <T extends TileEntity> NamedTileEntityType<T> create( ResourceLocation identifier, Function<NamedTileEntityType<T>, ? extends T> builder )
     {
         return new FixedPointSupplier<>( identifier, builder ).factory;
+    }
+
+    public void setBlock( @Nonnull Block block )
+    {
+        if( this.block != null ) throw new IllegalStateException( "Cannot change block once set" );
+        this.block = Objects.requireNonNull( block, "block cannot be null" );
+    }
+
+    @Override
+    public boolean isValidBlock( @Nonnull Block block )
+    {
+        return block == this.block;
     }
 
     public ResourceLocation getId()
@@ -45,7 +62,7 @@ public final class NamedBlockEntityType<T extends TileEntity> extends TileEntity
         return identifier;
     }
 
-    public static Type<?> getDatafixer( ResourceLocation id )
+    private static Type<?> getDatafixer( ResourceLocation id )
     {
         try
         {
@@ -63,10 +80,10 @@ public final class NamedBlockEntityType<T extends TileEntity> extends TileEntity
 
     private static final class FixedPointSupplier<T extends TileEntity> implements Supplier<T>
     {
-        final NamedBlockEntityType<T> factory;
-        private final Function<NamedBlockEntityType<T>, ? extends T> builder;
+        final NamedTileEntityType<T> factory;
+        private final Function<NamedTileEntityType<T>, ? extends T> builder;
 
-        private FixedPointSupplier( ResourceLocation identifier, Function<NamedBlockEntityType<T>, ? extends T> builder )
+        private FixedPointSupplier( ResourceLocation identifier, Function<NamedTileEntityType<T>, ? extends T> builder )
         {
             factory = create( identifier, this );
             this.builder = builder;

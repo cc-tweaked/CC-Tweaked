@@ -13,15 +13,16 @@ import dan200.computercraft.api.peripheral.IPeripheralTile;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.shared.common.ServerTerminal;
 import dan200.computercraft.shared.common.TileGeneric;
-import dan200.computercraft.shared.util.NamedBlockEntityType;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.nbt.NBTTagCompound;
+import dan200.computercraft.shared.util.NamedTileEntityType;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
+import net.minecraft.util.Direction;
+import net.minecraft.util.Hand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
@@ -30,12 +31,12 @@ import java.util.Set;
 
 public class TileMonitor extends TileGeneric implements IPeripheralTile
 {
-    public static final NamedBlockEntityType<TileMonitor> FACTORY_NORMAL = NamedBlockEntityType.create(
+    public static final NamedTileEntityType<TileMonitor> FACTORY_NORMAL = NamedTileEntityType.create(
         new ResourceLocation( ComputerCraft.MOD_ID, "monitor_normal" ),
         f -> new TileMonitor( f, false )
     );
 
-    public static final NamedBlockEntityType<TileMonitor> FACTORY_ADVANCED = NamedBlockEntityType.create(
+    public static final NamedTileEntityType<TileMonitor> FACTORY_ADVANCED = NamedTileEntityType.create(
         new ResourceLocation( ComputerCraft.MOD_ID, "monitor_advanced" ),
         f -> new TileMonitor( f, true )
     );
@@ -104,11 +105,18 @@ public class TileMonitor extends TileGeneric implements IPeripheralTile
     }
 
     @Override
-    public boolean onActivate( EntityPlayer player, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ )
+    public boolean onActivate( PlayerEntity player, Hand hand, BlockRayTraceResult hit )
     {
-        if( !player.isSneaking() && getFront() == side )
+        if( !player.isSneaking() && getFront() == hit.getFace() )
         {
-            if( !getWorld().isRemote ) monitorTouched( hitX, hitY, hitZ );
+            if( !getWorld().isRemote )
+            {
+                monitorTouched(
+                    (float) (hit.getHitVec().x - hit.getPos().getX()),
+                    (float) (hit.getHitVec().y - hit.getPos().getY()),
+                    (float) (hit.getHitVec().z - hit.getPos().getZ())
+                );
+            }
             return true;
         }
 
@@ -117,7 +125,7 @@ public class TileMonitor extends TileGeneric implements IPeripheralTile
 
     @Nonnull
     @Override
-    public NBTTagCompound write( NBTTagCompound tag )
+    public CompoundNBT write( CompoundNBT tag )
     {
         tag.putInt( NBT_X, m_xIndex );
         tag.putInt( NBT_Y, m_yIndex );
@@ -127,7 +135,7 @@ public class TileMonitor extends TileGeneric implements IPeripheralTile
     }
 
     @Override
-    public void read( NBTTagCompound tag )
+    public void read( CompoundNBT tag )
     {
         super.read( tag );
         m_xIndex = tag.getInt( NBT_X );
@@ -168,7 +176,7 @@ public class TileMonitor extends TileGeneric implements IPeripheralTile
     // IPeripheralTile implementation
 
     @Override
-    public IPeripheral getPeripheral( @Nonnull EnumFacing side )
+    public IPeripheral getPeripheral( @Nonnull Direction side )
     {
         createServerMonitor(); // Ensure the monitor is created before doing anything else.
         if( m_peripheral == null ) m_peripheral = new MonitorPeripheral( this );
@@ -238,7 +246,7 @@ public class TileMonitor extends TileGeneric implements IPeripheralTile
     // Networking stuff
 
     @Override
-    protected void writeDescription( @Nonnull NBTTagCompound nbt )
+    protected void writeDescription( @Nonnull CompoundNBT nbt )
     {
         super.writeDescription( nbt );
 
@@ -254,7 +262,7 @@ public class TileMonitor extends TileGeneric implements IPeripheralTile
     }
 
     @Override
-    protected final void readDescription( @Nonnull NBTTagCompound nbt )
+    protected final void readDescription( @Nonnull CompoundNBT nbt )
     {
         super.readDescription( nbt );
 
@@ -300,32 +308,32 @@ public class TileMonitor extends TileGeneric implements IPeripheralTile
     }
 
     // region Sizing and placement stuff
-    public EnumFacing getDirection()
+    public Direction getDirection()
     {
         return getBlockState().get( BlockMonitor.FACING );
     }
 
-    public EnumFacing getOrientation()
+    public Direction getOrientation()
     {
         return getBlockState().get( BlockMonitor.ORIENTATION );
     }
 
-    public EnumFacing getFront()
+    public Direction getFront()
     {
-        EnumFacing orientation = getOrientation();
-        return orientation == EnumFacing.NORTH ? getDirection() : orientation;
+        Direction orientation = getOrientation();
+        return orientation == Direction.NORTH ? getDirection() : orientation;
     }
 
-    public EnumFacing getRight()
+    public Direction getRight()
     {
         return getDirection().rotateYCCW();
     }
 
-    public EnumFacing getDown()
+    public Direction getDown()
     {
-        EnumFacing orientation = getOrientation();
-        if( orientation == EnumFacing.NORTH ) return EnumFacing.UP;
-        return orientation == EnumFacing.DOWN ? getDirection() : getDirection().getOpposite();
+        Direction orientation = getOrientation();
+        if( orientation == Direction.NORTH ) return Direction.UP;
+        return orientation == Direction.DOWN ? getDirection() : getDirection().getOpposite();
     }
 
     public int getWidth()
@@ -368,8 +376,8 @@ public class TileMonitor extends TileGeneric implements IPeripheralTile
     private TileMonitor getNeighbour( int x, int y )
     {
         BlockPos pos = getPos();
-        EnumFacing right = getRight();
-        EnumFacing down = getDown();
+        Direction right = getRight();
+        Direction down = getDown();
         int xOffset = -m_xIndex + x;
         int yOffset = -m_yIndex + y;
         return getSimilarMonitorAt( pos.offset( right, xOffset ).offset( down, yOffset ) );

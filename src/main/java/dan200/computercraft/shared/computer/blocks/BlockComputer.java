@@ -9,16 +9,16 @@ package dan200.computercraft.shared.computer.blocks;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ComputerState;
 import dan200.computercraft.shared.computer.items.ComputerItemFactory;
+import dan200.computercraft.shared.util.NamedTileEntityType;
 import net.minecraft.block.Block;
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.BlockState;
 import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.state.DirectionProperty;
 import net.minecraft.state.EnumProperty;
 import net.minecraft.state.StateContainer;
 import net.minecraft.state.properties.BlockStateProperties;
-import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -28,24 +28,24 @@ public class BlockComputer extends BlockComputerBase<TileComputer>
     public static final EnumProperty<ComputerState> STATE = EnumProperty.create( "state", ComputerState.class );
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
 
-    public BlockComputer( Properties settings, ComputerFamily family, TileEntityType<? extends TileComputer> type )
+    public BlockComputer( Properties settings, ComputerFamily family, NamedTileEntityType<? extends TileComputer> type )
     {
         super( settings, family, type );
         setDefaultState( getDefaultState()
-            .with( FACING, EnumFacing.NORTH )
+            .with( FACING, Direction.NORTH )
             .with( STATE, ComputerState.OFF )
         );
     }
 
     @Override
-    protected void fillStateContainer( StateContainer.Builder<Block, IBlockState> builder )
+    protected void fillStateContainer( StateContainer.Builder<Block, BlockState> builder )
     {
         builder.add( FACING, STATE );
     }
 
     @Nullable
     @Override
-    public IBlockState getStateForPlacement( BlockItemUseContext placement )
+    public BlockState getStateForPlacement( BlockItemUseContext placement )
     {
         return getDefaultState().with( FACING, placement.getPlacementHorizontalFacing().getOpposite() );
     }

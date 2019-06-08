@@ -6,16 +6,18 @@
 
 package dan200.computercraft.client.gui;
 
+import com.mojang.blaze3d.platform.GlStateManager;
 import dan200.computercraft.core.terminal.TextBuffer;
 import dan200.computercraft.shared.common.ContainerHeldItem;
 import dan200.computercraft.shared.media.items.ItemPrintout;
-import net.minecraft.client.gui.inventory.GuiContainer;
-import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.gui.screen.inventory.ContainerScreen;
+import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.util.text.ITextComponent;
 import org.lwjgl.glfw.GLFW;
 
 import static dan200.computercraft.client.render.PrintoutRenderer.*;
 
-public class GuiPrintout extends GuiContainer
+public class GuiPrintout extends ContainerScreen<ContainerHeldItem>
 {
     private final boolean m_book;
     private final int m_pages;
@@ -23,9 +25,9 @@ public class GuiPrintout extends GuiContainer
     private final TextBuffer[] m_colours;
     private int m_page;
 
-    public GuiPrintout( ContainerHeldItem container )
+    public GuiPrintout( ContainerHeldItem container, PlayerInventory player, ITextComponent title )
     {
-        super( container );
+        super( container, player, title );
 
         ySize = Y_SIZE;
 
@@ -63,9 +65,9 @@ public class GuiPrintout extends GuiContainer
     }
 
     @Override
-    public boolean mouseScrolled( double delta )
+    public boolean mouseScrolled( double x, double y, double delta )
     {
-        if( super.mouseScrolled( delta ) ) return true;
+        if( super.mouseScrolled( x, y, delta ) ) return true;
         if( delta < 0 )
         {
             // Scroll up goes to the next page
@@ -90,7 +92,7 @@ public class GuiPrintout extends GuiContainer
         GlStateManager.color4f( 1.0f, 1.0f, 1.0f, 1.0f );
         GlStateManager.enableDepthTest();
 
-        drawBorder( guiLeft, guiTop, zLevel, m_page, m_pages, m_book );
+        drawBorder( guiLeft, guiTop, blitOffset, m_page, m_pages, m_book );
         drawText( guiLeft + X_TEXT_MARGIN, guiTop + Y_TEXT_MARGIN, ItemPrintout.LINES_PER_PAGE * m_page, m_text, m_colours );
     }
 
@@ -98,9 +100,9 @@ public class GuiPrintout extends GuiContainer
     public void render( int mouseX, int mouseY, float partialTicks )
     {
         // We must take the background further back in order to not overlap with our printed pages.
-        zLevel--;
-        drawDefaultBackground();
-        zLevel++;
+        blitOffset--;
+        renderBackground();
+        blitOffset++;
 
         super.render( mouseX, mouseY, partialTicks );
         renderHoveredToolTip( mouseX, mouseY );

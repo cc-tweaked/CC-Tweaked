@@ -19,7 +19,7 @@ import net.minecraft.command.arguments.ArgumentTypes;
 import net.minecraft.command.arguments.IArgumentSerializer;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.StringTextComponent;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
@@ -160,7 +160,7 @@ public final class RepeatArgumentType<T, U> implements ArgumentType<List<T>>
         {
             Message message = arg.some.create().getRawMessage();
             if( message instanceof ITextComponent ) return (ITextComponent) message;
-            return new TextComponentString( message.getString() );
+            return new StringTextComponent( message.getString() );
         }
     }
 }

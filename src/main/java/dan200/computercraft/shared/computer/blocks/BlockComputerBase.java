@@ -12,15 +12,14 @@ import dan200.computercraft.shared.common.IBundledRedstoneBlock;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.computer.items.IComputerItem;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.player.EntityPlayer;
+import dan200.computercraft.shared.util.NamedTileEntityType;
+import net.minecraft.block.BlockState;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.fluid.IFluidState;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.NonNullList;
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.IBlockReader;
@@ -32,7 +31,7 @@ public abstract class BlockComputerBase<T extends TileComputerBase> extends Bloc
 {
     private final ComputerFamily family;
 
-    protected BlockComputerBase( Properties settings, ComputerFamily family, TileEntityType<? extends T> type )
+    protected BlockComputerBase( Properties settings, ComputerFamily family, NamedTileEntityType<? extends T> type )
     {
         super( settings, type );
         this.family = family;
@@ -40,9 +39,9 @@ public abstract class BlockComputerBase<T extends TileComputerBase> extends Bloc
 
     @Override
     @Deprecated
-    public void onBlockAdded( IBlockState state, World world, BlockPos pos, IBlockState oldState )
+    public void onBlockAdded( BlockState state, World world, BlockPos pos, BlockState oldState, boolean isMoving )
     {
-        super.onBlockAdded( state, world, pos, oldState );
+        super.onBlockAdded( state, world, pos, oldState, isMoving );
 
         TileEntity tile = world.getTileEntity( pos );
         if( tile instanceof TileComputerBase ) ((TileComputerBase) tile).updateInput();
@@ -50,14 +49,14 @@ public abstract class BlockComputerBase<T extends TileComputerBase> extends Bloc
 
     @Override
     @Deprecated
-    public boolean canProvidePower( IBlockState state )
+    public boolean canProvidePower( BlockState state )
     {
         return true;
     }
 
     @Override
     @Deprecated
-    public int getStrongPower( IBlockState state, IBlockReader world, BlockPos pos, EnumFacing incomingSide )
+    public int getStrongPower( BlockState state, IBlockReader world, BlockPos pos, Direction incomingSide )
     {
         TileEntity entity = world.getTileEntity( pos );
         if( !(entity instanceof TileComputerBase) ) return 0;
@@ -80,19 +79,19 @@ public abstract class BlockComputerBase<T extends TileComputerBase> extends Bloc
 
     @Override
     @Deprecated
-    public int getWeakPower( IBlockState state, IBlockReader world, BlockPos pos, EnumFacing incomingSide )
+    public int getWeakPower( BlockState state, IBlockReader world, BlockPos pos, Direction incomingSide )
     {
         return getStrongPower( state, world, pos, incomingSide );
     }
 
     @Override
-    public boolean getBundledRedstoneConnectivity( World world, BlockPos pos, EnumFacing side )
+    public boolean getBundledRedstoneConnectivity( World world, BlockPos pos, Direction side )
     {
         return true;
     }
 
     @Override
-    public int getBundledRedstoneOutput( World world, BlockPos pos, EnumFacing side )
+    public int getBundledRedstoneOutput( World world, BlockPos pos, Direction side )
     {
         TileEntity entity = world.getTileEntity( pos );
         if( !(entity instanceof TileComputerBase) ) return 0;
@@ -107,7 +106,7 @@ public abstract class BlockComputerBase<T extends TileComputerBase> extends Bloc
 
     @Nonnull
     @Override
-    public ItemStack getPickBlock( IBlockState state, RayTraceResult target, IBlockReader world, BlockPos pos, EntityPlayer player )
+    public ItemStack getPickBlock( BlockState state, RayTraceResult target, IBlockReader world, BlockPos pos, PlayerEntity player )
     {
         TileEntity tile = world.getTileEntity( pos );
         if( tile instanceof TileComputerBase )
@@ -119,14 +118,15 @@ public abstract class BlockComputerBase<T extends TileComputerBase> extends Bloc
         return super.getPickBlock( state, target, world, pos, player );
     }
 
+    /* TODO: THIS!!
     @Override
     @Deprecated
-    public final void dropBlockAsItemWithChance( @Nonnull IBlockState state, World world, @Nonnull BlockPos pos, float change, int fortune )
+    public final void dropBlockAsItemWithChance( @Nonnull BlockState state, World world, @Nonnull BlockPos pos, float change, int fortune )
     {
     }
 
     @Override
-    public final void getDrops( IBlockState state, NonNullList<ItemStack> drops, World world, BlockPos pos, int fortune )
+    public final void getDrops( BlockState state, NonNullList<ItemStack> drops, World world, BlockPos pos, int fortune )
     {
         TileEntity tile = world.getTileEntity( pos );
         if( tile instanceof TileComputerBase )
@@ -135,9 +135,10 @@ public abstract class BlockComputerBase<T extends TileComputerBase> extends Bloc
             if( !stack.isEmpty() ) drops.add( stack );
         }
     }
+    */
 
     @Override
-    public boolean removedByPlayer( IBlockState state, World world, BlockPos pos, EntityPlayer player, boolean willHarvest, IFluidState fluid )
+    public boolean removedByPlayer( BlockState state, World world, BlockPos pos, PlayerEntity player, boolean willHarvest, IFluidState fluid )
     {
         if( !world.isRemote )
         {
@@ -147,7 +148,7 @@ public abstract class BlockComputerBase<T extends TileComputerBase> extends Bloc
             if( tile instanceof TileComputerBase )
             {
                 TileComputerBase computer = (TileComputerBase) tile;
-                if( !player.abilities.isCreativeMode || computer.getLabel() != null )
+                if( !player.playerAbilities.isCreativeMode || computer.getLabel() != null )
                 {
                     spawnAsEntity( world, pos, getItem( computer ) );
                 }
@@ -158,7 +159,7 @@ public abstract class BlockComputerBase<T extends TileComputerBase> extends Bloc
     }
 
     @Override
-    public void onBlockPlacedBy( World world, BlockPos pos, IBlockState state, EntityLivingBase placer, ItemStack stack )
+    public void onBlockPlacedBy( World world, BlockPos pos, BlockState state, LivingEntity placer, ItemStack stack )
     {
         super.onBlockPlacedBy( world, pos, state, placer, stack );
 

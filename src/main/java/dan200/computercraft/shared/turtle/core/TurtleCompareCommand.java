@@ -10,16 +10,17 @@ import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.ITurtleCommand;
 import dan200.computercraft.api.turtle.TurtleCommandResult;
 import net.minecraft.block.Block;
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.BlockState;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.NonNullList;
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.ServerWorld;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 
 import javax.annotation.Nonnull;
 import java.lang.reflect.Method;
+import java.util.List;
 
 public class TurtleCompareCommand implements ITurtleCommand
 {
@@ -35,7 +36,7 @@ public class TurtleCompareCommand implements ITurtleCommand
     public TurtleCommandResult execute( @Nonnull ITurtleAccess turtle )
     {
         // Get world direction from direction
-        EnumFacing direction = m_direction.toWorldDir( turtle );
+        Direction direction = m_direction.toWorldDir( turtle );
 
         // Get currently selected stack
         ItemStack selectedStack = turtle.getInventory().getStackInSlot( turtle.getSelectedSlot() );
@@ -48,7 +49,7 @@ public class TurtleCompareCommand implements ITurtleCommand
         ItemStack lookAtStack = ItemStack.EMPTY;
         if( !world.isAirBlock( newPosition ) )
         {
-            IBlockState lookAtState = world.getBlockState( newPosition );
+            BlockState lookAtState = world.getBlockState( newPosition );
             Block lookAtBlock = lookAtState.getBlock();
             if( !lookAtBlock.isAir( lookAtState, world, newPosition ) )
             {
@@ -57,7 +58,7 @@ public class TurtleCompareCommand implements ITurtleCommand
                 {
                     try
                     {
-                        Method method = ObfuscationReflectionHelper.findMethod( Block.class, "func_180643_i", IBlockState.class );
+                        Method method = ObfuscationReflectionHelper.findMethod( Block.class, "func_180643_i", BlockState.class );
                         lookAtStack = (ItemStack) method.invoke( lookAtBlock, lookAtState );
                     }
                     catch( ReflectiveOperationException | RuntimeException ignored )
@@ -69,8 +70,7 @@ public class TurtleCompareCommand implements ITurtleCommand
                 // (try 5 times to try and beat random number generators)
                 for( int i = 0; i < 5 && lookAtStack.isEmpty(); i++ )
                 {
-                    NonNullList<ItemStack> drops = NonNullList.create();
-                    lookAtState.getDrops( drops, world, newPosition, 0 );
+                    List<ItemStack> drops = Block.getDrops( lookAtState, (ServerWorld) world, newPosition, world.getTileEntity( newPosition ) );
                     if( !drops.isEmpty() )
                     {
                         for( ItemStack drop : drops )

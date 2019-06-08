@@ -8,12 +8,12 @@ package dan200.computercraft.shared.peripheral.speaker;
 
 import dan200.computercraft.shared.common.BlockGeneric;
 import net.minecraft.block.Block;
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.BlockState;
 import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.state.DirectionProperty;
 import net.minecraft.state.StateContainer;
 import net.minecraft.state.properties.BlockStateProperties;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 
 import javax.annotation.Nullable;
 
@@ -25,18 +25,18 @@ public class BlockSpeaker extends BlockGeneric
     {
         super( settings, TileSpeaker.FACTORY );
         setDefaultState( getStateContainer().getBaseState()
-            .with( FACING, EnumFacing.NORTH ) );
+            .with( FACING, Direction.NORTH ) );
     }
 
     @Override
-    protected void fillStateContainer( StateContainer.Builder<Block, IBlockState> properties )
+    protected void fillStateContainer( StateContainer.Builder<Block, BlockState> properties )
     {
         properties.add( FACING );
     }
 
     @Nullable
     @Override
-    public IBlockState getStateForPlacement( BlockItemUseContext placement )
+    public BlockState getStateForPlacement( BlockItemUseContext placement )
     {
         return getDefaultState().with( FACING, placement.getPlacementHorizontalFacing().getOpposite() );
     }

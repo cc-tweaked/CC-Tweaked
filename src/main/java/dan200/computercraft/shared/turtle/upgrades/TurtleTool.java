@@ -18,19 +18,19 @@ import dan200.computercraft.shared.util.DropConsumer;
 import dan200.computercraft.shared.util.InventoryUtil;
 import dan200.computercraft.shared.util.WorldUtil;
 import net.minecraft.block.Block;
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.model.IBakedModel;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.SharedMonsterAttributes;
-import net.minecraft.entity.item.EntityArmorStand;
+import net.minecraft.entity.item.ArmorStandEntity;
 import net.minecraft.fluid.IFluidState;
-import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.DamageSource;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
@@ -84,7 +84,7 @@ public class TurtleTool extends AbstractTurtleUpgrade
 
     @Nonnull
     @Override
-    public TurtleCommandResult useTool( @Nonnull ITurtleAccess turtle, @Nonnull TurtleSide side, @Nonnull TurtleVerb verb, @Nonnull EnumFacing direction )
+    public TurtleCommandResult useTool( @Nonnull ITurtleAccess turtle, @Nonnull TurtleSide side, @Nonnull TurtleVerb verb, @Nonnull Direction direction )
     {
         switch( verb )
         {
@@ -97,7 +97,7 @@ public class TurtleTool extends AbstractTurtleUpgrade
         }
     }
 
-    protected boolean canBreakBlock( IBlockState state, World world, BlockPos pos, TurtlePlayer player )
+    protected boolean canBreakBlock( BlockState state, World world, BlockPos pos, TurtlePlayer player )
     {
         Block block = state.getBlock();
         return !state.isAir( world, pos )
@@ -111,7 +111,7 @@ public class TurtleTool extends AbstractTurtleUpgrade
         return 3.0f;
     }
 
-    private TurtleCommandResult attack( final ITurtleAccess turtle, EnumFacing direction, TurtleSide side )
+    private TurtleCommandResult attack( final ITurtleAccess turtle, Direction direction, TurtleSide side )
     {
         // Create a fake player, and orient it appropriately
         final World world = turtle.getWorld();
@@ -154,7 +154,7 @@ public class TurtleTool extends AbstractTurtleUpgrade
                 if( damage > 0.0f )
                 {
                     DamageSource source = DamageSource.causePlayerDamage( turtlePlayer );
-                    if( hitEntity instanceof EntityArmorStand )
+                    if( hitEntity instanceof ArmorStandEntity )
                     {
                         // Special case for armor stands: attack twice to guarantee destroy
                         hitEntity.attackEntityFrom( source, damage );
@@ -188,7 +188,7 @@ public class TurtleTool extends AbstractTurtleUpgrade
         return TurtleCommandResult.failure( "Nothing to attack here" );
     }
 
-    private TurtleCommandResult dig( ITurtleAccess turtle, EnumFacing direction, TurtleSide side )
+    private TurtleCommandResult dig( ITurtleAccess turtle, Direction direction, TurtleSide side )
     {
         // Get ready to dig
         World world = turtle.getWorld();
@@ -200,7 +200,7 @@ public class TurtleTool extends AbstractTurtleUpgrade
             return TurtleCommandResult.failure( "Nothing to dig here" );
         }
 
-        IBlockState state = world.getBlockState( blockPosition );
+        BlockState state = world.getBlockState( blockPosition );
         IFluidState fluidState = world.getFluidState( blockPosition );
 
         TurtlePlayer turtlePlayer = TurtlePlaceCommand.createPlayer( turtle, turtlePosition, direction );

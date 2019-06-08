@@ -14,12 +14,13 @@ import dan200.computercraft.api.turtle.TurtleCommandResult;
 import dan200.computercraft.api.turtle.event.TurtleBlockEvent;
 import dan200.computercraft.shared.TurtlePermissions;
 import dan200.computercraft.shared.util.WorldUtil;
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.shapes.VoxelShape;
+import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 
@@ -40,7 +41,7 @@ public class TurtleMoveCommand implements ITurtleCommand
     public TurtleCommandResult execute( @Nonnull ITurtleAccess turtle )
     {
         // Get world direction from direction
-        EnumFacing direction = m_direction.toWorldDir( turtle );
+        Direction direction = m_direction.toWorldDir( turtle );
 
         // Check if we can move
         World oldWorld = turtle.getWorld();
@@ -55,7 +56,7 @@ public class TurtleMoveCommand implements ITurtleCommand
         }
 
         // Check existing block is air or replaceable
-        IBlockState state = oldWorld.getBlockState( newPosition );
+        BlockState state = oldWorld.getBlockState( newPosition );
         if( !oldWorld.isAirBlock( newPosition ) &&
             !WorldUtil.isLiquidBlock( oldWorld, newPosition ) &&
             !state.getMaterial().isReplaceable() )
@@ -64,14 +65,13 @@ public class TurtleMoveCommand implements ITurtleCommand
         }
 
         // Check there isn't anything in the way
-        AxisAlignedBB aabb = getBox( state.getCollisionShape( oldWorld, oldPosition ) );
-        aabb = aabb.offset(
+        VoxelShape collision = state.getCollisionShape( oldWorld, oldPosition ).withOffset(
             newPosition.getX(),
             newPosition.getY(),
             newPosition.getZ()
         );
 
-        if( !oldWorld.checkNoEntityCollision( null, aabb ) )
+        if( !oldWorld.checkNoEntityCollision( null, collision ) )
         {
             if( !ComputerCraft.turtlesCanPush || m_direction == MoveDirection.Up || m_direction == MoveDirection.Down )
             {
@@ -79,19 +79,15 @@ public class TurtleMoveCommand implements ITurtleCommand
             }
 
             // Check there is space for all the pushable entities to be pushed
-            List<Entity> list = oldWorld.getEntitiesWithinAABB( Entity.class, aabb, x -> x != null && x.isAlive() && x.preventEntitySpawning );
+            List<Entity> list = oldWorld.getEntitiesWithinAABB( Entity.class, getBox( collision ), x -> x != null && x.isAlive() && x.preventEntitySpawning );
             for( Entity entity : list )
             {
-                AxisAlignedBB entityBB = entity.getBoundingBox();
-                if( entityBB == null ) entityBB = entity.getCollisionBoundingBox();
-                if( entityBB == null ) continue;
-
-                AxisAlignedBB pushedBB = entityBB.offset(
+                AxisAlignedBB pushedBB = entity.getBoundingBox().offset(
                     direction.getXOffset(),
                     direction.getYOffset(),
                     direction.getZOffset()
                 );
-                if( !oldWorld.checkNoEntityCollision( null, pushedBB ) )
+                if( !oldWorld.checkNoEntityCollision( null, VoxelShapes.create( pushedBB ) ) )
                 {
                     return TurtleCommandResult.failure( "Movement obstructed" );
                 }

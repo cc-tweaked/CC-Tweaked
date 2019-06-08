@@ -6,6 +6,7 @@
 
 package dan200.computercraft.client.gui;
 
+import com.mojang.blaze3d.platform.GlStateManager;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.client.gui.widgets.WidgetTerminal;
 import dan200.computercraft.client.gui.widgets.WidgetWrapper;
@@ -13,11 +14,12 @@ import dan200.computercraft.shared.computer.core.ClientComputer;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.turtle.blocks.TileTurtle;
 import dan200.computercraft.shared.turtle.inventory.ContainerTurtle;
-import net.minecraft.client.gui.inventory.GuiContainer;
-import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.gui.screen.inventory.ContainerScreen;
+import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.ITextComponent;
 
-public class GuiTurtle extends GuiContainer
+public class GuiTurtle extends ContainerScreen<ContainerTurtle>
 {
     private static final ResourceLocation BACKGROUND_NORMAL = new ResourceLocation( "computercraft", "textures/gui/turtle_normal.png" );
     private static final ResourceLocation BACKGROUND_ADVANCED = new ResourceLocation( "computercraft", "textures/gui/turtle_advanced.png" );
@@ -30,9 +32,9 @@ public class GuiTurtle extends GuiContainer
     private WidgetTerminal terminal;
     private WidgetWrapper terminalWrapper;
 
-    public GuiTurtle( TileTurtle turtle, ContainerTurtle container )
+    public GuiTurtle( TileTurtle turtle, ContainerTurtle container, PlayerInventory player, ITextComponent title )
     {
-        super( container );
+        super( container, player, title );
 
         m_container = container;
         m_family = turtle.getFamily();
@@ -43,16 +45,16 @@ public class GuiTurtle extends GuiContainer
     }
 
     @Override
-    protected void initGui()
+    protected void init()
     {
-        super.initGui();
-        mc.keyboardListener.enableRepeatEvents( true );
+        super.init();
+        minecraft.keyboardListener.enableRepeatEvents( true );
 
         int termPxWidth = ComputerCraft.terminalWidth_turtle * FixedWidthFontRenderer.FONT_WIDTH;
         int termPxHeight = ComputerCraft.terminalHeight_turtle * FixedWidthFontRenderer.FONT_HEIGHT;
 
         terminal = new WidgetTerminal(
-            mc, () -> m_computer,
+            minecraft, () -> m_computer,
             ComputerCraft.terminalWidth_turtle,
             ComputerCraft.terminalHeight_turtle,
             2, 2, 2, 2
@@ -64,11 +66,12 @@ public class GuiTurtle extends GuiContainer
     }
 
     @Override
-    public void onGuiClosed()
+    public void removed()
     {
+        super.removed();
         children.remove( terminal );
         terminal = null;
-        mc.keyboardListener.enableRepeatEvents( false );
+        minecraft.keyboardListener.enableRepeatEvents( false );
     }
 
     @Override
@@ -87,8 +90,8 @@ public class GuiTurtle extends GuiContainer
             GlStateManager.color4f( 1.0F, 1.0F, 1.0F, 1.0F );
             int slotX = slot % 4;
             int slotY = slot / 4;
-            mc.getTextureManager().bindTexture( advanced ? BACKGROUND_ADVANCED : BACKGROUND_NORMAL );
-            drawTexturedModalRect( guiLeft + m_container.turtleInvStartX - 2 + slotX * 18, guiTop + m_container.playerInvStartY - 2 + slotY * 18, 0, 217, 24, 24 );
+            minecraft.getTextureManager().bindTexture( advanced ? BACKGROUND_ADVANCED : BACKGROUND_NORMAL );
+            blit( guiLeft + ContainerTurtle.TURTLE_START_X - 2 + slotX * 18, guiTop + ContainerTurtle.PLAYER_START_Y - 2 + slotY * 18, 0, 217, 24, 24 );
         }
     }
 
@@ -101,8 +104,8 @@ public class GuiTurtle extends GuiContainer
 
         // Draw border/inventory
         GlStateManager.color4f( 1.0F, 1.0F, 1.0F, 1.0F );
-        mc.getTextureManager().bindTexture( advanced ? BACKGROUND_ADVANCED : BACKGROUND_NORMAL );
-        drawTexturedModalRect( guiLeft, guiTop, 0, 0, xSize, ySize );
+        minecraft.getTextureManager().bindTexture( advanced ? BACKGROUND_ADVANCED : BACKGROUND_NORMAL );
+        blit( guiLeft, guiTop, 0, 0, xSize, ySize );
 
         drawSelectionSlot( advanced );
     }
@@ -110,7 +113,7 @@ public class GuiTurtle extends GuiContainer
     @Override
     public void render( int mouseX, int mouseY, float partialTicks )
     {
-        drawDefaultBackground();
+        renderBackground();
         super.render( mouseX, mouseY, partialTicks );
         renderHoveredToolTip( mouseX, mouseY );
     }

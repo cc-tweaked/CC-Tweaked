@@ -8,8 +8,8 @@ package dan200.computercraft.shared.wired;
 
 import dan200.computercraft.api.network.wired.IWiredElement;
 import dan200.computercraft.api.network.wired.IWiredNode;
-import net.minecraft.nbt.INBTBase;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.nbt.INBT;
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
@@ -66,13 +66,13 @@ public final class CapabilityWiredElement
     private static class NullStorage implements Capability.IStorage<IWiredElement>
     {
         @Override
-        public INBTBase writeNBT( Capability<IWiredElement> capability, IWiredElement instance, EnumFacing side )
+        public INBT writeNBT( Capability<IWiredElement> capability, IWiredElement instance, Direction side )
         {
             return null;
         }
 
         @Override
-        public void readNBT( Capability<IWiredElement> capability, IWiredElement instance, EnumFacing side, INBTBase base )
+        public void readNBT( Capability<IWiredElement> capability, IWiredElement instance, Direction side, INBT base )
         {
         }
     }

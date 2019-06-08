@@ -10,7 +10,7 @@ import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
-import net.minecraft.tileentity.TileEntityCommandBlock;
+import net.minecraft.tileentity.CommandBlockTileEntity;
 
 import javax.annotation.Nonnull;
 
@@ -18,9 +18,9 @@ import static dan200.computercraft.core.apis.ArgumentHelper.getString;
 
 public class CommandBlockPeripheral implements IPeripheral
 {
-    private final TileEntityCommandBlock m_commandBlock;
+    private final CommandBlockTileEntity m_commandBlock;
 
-    public CommandBlockPeripheral( TileEntityCommandBlock commandBlock )
+    public CommandBlockPeripheral( CommandBlockTileEntity commandBlock )
     {
         m_commandBlock = commandBlock;
     }

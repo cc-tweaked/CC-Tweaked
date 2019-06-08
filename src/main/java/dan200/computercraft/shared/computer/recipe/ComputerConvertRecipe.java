@@ -7,7 +7,7 @@
 package dan200.computercraft.shared.computer.recipe;
 
 import dan200.computercraft.shared.computer.items.IComputerItem;
-import net.minecraft.inventory.IInventory;
+import net.minecraft.inventory.CraftingInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.item.crafting.ShapedRecipe;
@@ -34,7 +34,7 @@ public abstract class ComputerConvertRecipe extends ShapedRecipe
     protected abstract ItemStack convert( @Nonnull IComputerItem item, @Nonnull ItemStack stack );
 
     @Override
-    public boolean matches( @Nonnull IInventory inventory, @Nonnull World world )
+    public boolean matches( @Nonnull CraftingInventory inventory, @Nonnull World world )
     {
         if( !super.matches( inventory, world ) ) return false;
 
@@ -48,7 +48,7 @@ public abstract class ComputerConvertRecipe extends ShapedRecipe
 
     @Nonnull
     @Override
-    public ItemStack getCraftingResult( @Nonnull IInventory inventory )
+    public ItemStack getCraftingResult( @Nonnull CraftingInventory inventory )
     {
         // Find our computer item and convert it.
         for( int i = 0; i < inventory.getSizeInventory(); i++ )

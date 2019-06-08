@@ -11,7 +11,7 @@ import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
-import net.minecraft.network.play.server.SPacketCustomSound;
+import net.minecraft.network.play.server.SPlaySoundPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.state.properties.NoteBlockInstrument;
 import net.minecraft.util.ResourceLocation;
@@ -146,7 +146,7 @@ public abstract class SpeakerPeripheral implements IPeripheral
             float adjVolume = Math.min( volume, 3.0f );
             server.getPlayerList().sendToAllNearExcept(
                 null, pos.x, pos.y, pos.z, adjVolume > 1.0f ? 16 * adjVolume : 16.0, world.dimension.getType(),
-                new SPacketCustomSound( name, SoundCategory.RECORDS, pos, adjVolume, pitch )
+                new SPlaySoundPacket( name, SoundCategory.RECORDS, pos, adjVolume, pitch )
             );
             return null;
         } );

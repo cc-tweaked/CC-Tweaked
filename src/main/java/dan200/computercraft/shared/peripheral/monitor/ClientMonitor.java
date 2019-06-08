@@ -6,8 +6,8 @@
 
 package dan200.computercraft.shared.peripheral.monitor;
 
+import com.mojang.blaze3d.platform.GlStateManager;
 import dan200.computercraft.shared.common.ClientTerminal;
-import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;

@@ -8,7 +8,7 @@ package dan200.computercraft.shared.peripheral.modem.wired;
 
 import dan200.computercraft.shared.common.BlockGeneric;
 import net.minecraft.block.Block;
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.BlockState;
 import net.minecraft.state.BooleanProperty;
 import net.minecraft.state.StateContainer;
 
@@ -27,7 +27,7 @@ public class BlockWiredModemFull extends BlockGeneric
     }
 
     @Override
-    protected void fillStateContainer( StateContainer.Builder<Block, IBlockState> builder )
+    protected void fillStateContainer( StateContainer.Builder<Block, BlockState> builder )
     {
         builder.add( MODEM_ON, PERIPHERAL_ON );
     }

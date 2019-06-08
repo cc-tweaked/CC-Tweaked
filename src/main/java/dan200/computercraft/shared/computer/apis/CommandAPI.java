@@ -16,10 +16,10 @@ import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.shared.computer.blocks.TileCommandComputer;
 import dan200.computercraft.shared.util.NBTUtil;
 import net.minecraft.block.Block;
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.BlockState;
 import net.minecraft.command.CommandSource;
 import net.minecraft.command.Commands;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.state.IProperty;
 import net.minecraft.tileentity.TileEntity;
@@ -97,7 +97,7 @@ public class CommandAPI implements ILuaAPI
     private static Object getBlockInfo( World world, BlockPos pos )
     {
         // Get the details of the block
-        IBlockState state = world.getBlockState( pos );
+        BlockState state = world.getBlockState( pos );
         Block block = state.getBlock();
 
         Map<Object, Object> table = new HashMap<>();
@@ -112,7 +112,7 @@ public class CommandAPI implements ILuaAPI
         table.put( "state", stateTable );
 
         TileEntity tile = world.getTileEntity( pos );
-        if( tile != null ) table.put( "nbt", NBTUtil.toLua( tile.write( new NBTTagCompound() ) ) );
+        if( tile != null ) table.put( "nbt", NBTUtil.toLua( tile.write( new CompoundNBT() ) ) );
 
         return table;
     }

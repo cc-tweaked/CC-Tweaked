@@ -13,19 +13,19 @@ import dan200.computercraft.api.media.IMedia;
 import dan200.computercraft.shared.computer.blocks.BlockComputerBase;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.item.ItemBlock;
+import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextComponentString;
-import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TextFormatting;
+import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 
-public abstract class ItemComputerBase extends ItemBlock implements IComputerItem, IMedia
+public abstract class ItemComputerBase extends BlockItem implements IComputerItem, IMedia
 {
     private final ComputerFamily family;
 
@@ -43,7 +43,7 @@ public abstract class ItemComputerBase extends ItemBlock implements IComputerIte
             int id = getComputerID( stack );
             if( id >= 0 )
             {
-                list.add( new TextComponentTranslation( "gui.computercraft.tooltip.computer_id", id )
+                list.add( new TranslationTextComponent( "gui.computercraft.tooltip.computer_id", id )
                     .applyTextStyle( TextFormatting.GRAY ) );
             }
         }
@@ -68,7 +68,7 @@ public abstract class ItemComputerBase extends ItemBlock implements IComputerIte
     {
         if( label != null )
         {
-            stack.setDisplayName( new TextComponentString( label ) );
+            stack.setDisplayName( new StringTextComponent( label ) );
         }
         else
         {

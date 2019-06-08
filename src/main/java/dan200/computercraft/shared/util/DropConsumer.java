@@ -8,7 +8,7 @@ package dan200.computercraft.shared.util;
 
 import dan200.computercraft.ComputerCraft;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.item.EntityItem;
+import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
@@ -69,10 +69,10 @@ public final class DropConsumer
             Entity entity = dropEntity.get();
             if( entity != null )
             {
-                Collection<EntityItem> dropped = entity.captureDrops( null );
+                Collection<ItemEntity> dropped = entity.captureDrops( null );
                 if( dropped != null )
                 {
-                    for( EntityItem entityItem : dropped ) handleDrops( entityItem.getItem() );
+                    for( ItemEntity entityItem : dropped ) handleDrops( entityItem.getItem() );
                 }
             }
         }
@@ -101,8 +101,8 @@ public final class DropConsumer
         // Capture any mob drops for the current entity
         if( dropEntity != null && event.getEntity() == dropEntity.get() )
         {
-            Collection<EntityItem> drops = event.getDrops();
-            for( EntityItem entityItem : drops ) handleDrops( entityItem.getItem() );
+            Collection<ItemEntity> drops = event.getDrops();
+            for( ItemEntity entityItem : drops ) handleDrops( entityItem.getItem() );
             drops.clear();
         }
     }
@@ -126,10 +126,10 @@ public final class DropConsumer
     public static void onEntitySpawn( EntityJoinWorldEvent event )
     {
         // Capture any nearby item spawns
-        if( dropWorld != null && dropWorld.get() == event.getWorld() && event.getEntity() instanceof EntityItem
+        if( dropWorld != null && dropWorld.get() == event.getWorld() && event.getEntity() instanceof ItemEntity
             && dropBounds.contains( event.getEntity().getPositionVector() ) )
         {
-            handleDrops( ((EntityItem) event.getEntity()).getItem() );
+            handleDrops( ((ItemEntity) event.getEntity()).getItem() );
             event.setCanceled( true );
         }
     }

@@ -11,20 +11,13 @@ import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.shared.util.InventoryUtil;
 import dan200.computercraft.shared.util.WorldUtil;
-import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityClassification;
 import net.minecraft.entity.EntityType;
-import net.minecraft.entity.IMerchant;
-import net.minecraft.entity.passive.AbstractHorse;
-import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntitySign;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.IInteractionObject;
-import net.minecraft.world.World;
-import net.minecraft.world.WorldServer;
+import net.minecraft.world.ServerWorld;
 import net.minecraftforge.common.util.FakePlayer;
 
 import javax.annotation.Nonnull;
@@ -33,24 +26,20 @@ import java.util.UUID;
 
 public final class TurtlePlayer extends FakePlayer
 {
-    public static final GameProfile DEFAULT_PROFILE = new GameProfile(
+    private static final GameProfile DEFAULT_PROFILE = new GameProfile(
         UUID.fromString( "0d0c4ca0-4ff1-11e4-916c-0800200c9a66" ),
         "[ComputerCraft]"
     );
 
-    public static final EntityType<TurtlePlayer> TYPE = EntityType.Builder.create( TurtlePlayer.class, TurtlePlayer::new )
+    public static final EntityType<TurtlePlayer> TYPE = EntityType.Builder.<TurtlePlayer>create( EntityClassification.MISC )
         .disableSerialization()
         .disableSummoning()
+        .size( 0, 0 )
         .build( ComputerCraft.MOD_ID + ":turtle_player" );
-
-    private TurtlePlayer( World world )
-    {
-        super( (WorldServer) world, DEFAULT_PROFILE );
-    }
 
     private TurtlePlayer( ITurtleAccess turtle )
     {
-        super( (WorldServer) turtle.getWorld(), getProfile( turtle.getOwningPlayer() ) );
+        super( (ServerWorld) turtle.getWorld(), getProfile( turtle.getOwningPlayer() ) );
         setState( turtle );
     }
 
@@ -106,7 +95,7 @@ public final class TurtlePlayer extends FakePlayer
 
         // Store (or drop) anything else we found
         BlockPos dropPosition = turtle.getPosition();
-        EnumFacing dropDirection = turtle.getDirection().getOpposite();
+        Direction dropDirection = turtle.getDirection().getOpposite();
         for( int i = 0; i < inventory.getSizeInventory(); i++ )
         {
             ItemStack stack = inventory.getStackInSlot( i );
@@ -124,92 +113,19 @@ public final class TurtlePlayer extends FakePlayer
         return results;
     }
 
+    @Nonnull
+    @Override
+    public EntityType<?> getType()
+    {
+        return TYPE;
+    }
+
     @Override
     public Vec3d getPositionVector()
     {
         return new Vec3d( posX, posY, posZ );
     }
 
-    @Override
-    public float getEyeHeight()
-    {
-        return 0.0f;
-    }
-
-    @Override
-    public float getDefaultEyeHeight()
-    {
-        return 0.0f;
-    }
-
-    @Override
-    public void sendEnterCombat()
-    {
-    }
-
-    @Override
-    public void sendEndCombat()
-    {
-    }
-
-    @Nonnull
-    @Override
-    public SleepResult trySleep( @Nonnull BlockPos bedLocation )
-    {
-        return SleepResult.OTHER_PROBLEM;
-    }
-
-    // TODO: Flesh this out. Or just stub out the connection, like plethora?
-
-    @Override
-    public void openSignEditor( TileEntitySign signTile )
-    {
-    }
-
-    @Override
-    public void displayGui( IInteractionObject guiOwner )
-    {
-    }
-
-    @Override
-    public void displayGUIChest( IInventory chestInventory )
-    {
-    }
-
-    @Override
-    public void displayVillagerTradeGui( IMerchant villager )
-    {
-    }
-
-    @Override
-    public void openHorseInventory( AbstractHorse horse, IInventory inventoryIn )
-    {
-    }
-
-    @Override
-    public void openBook( ItemStack stack, @Nonnull EnumHand hand )
-    {
-    }
-
-    @Override
-    public void updateHeldItem()
-    {
-    }
-
-    @Override
-    protected void onItemUseFinish()
-    {
-    }
-
-    /*
-    @Override
-    public void mountEntityAndWakeUp()
-    {
-    }
-    */
-
-    @Override
-    public void dismountEntity( @Nonnull Entity entity )
-    {
-    }
+    // TODO: Work out what needs stubbing again.
+    //  Or just replace the network.
 }

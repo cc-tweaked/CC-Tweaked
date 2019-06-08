@@ -6,8 +6,8 @@
 
 package dan200.computercraft.shared.util;
 
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.block.BlockState;
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.event.ForgeEventFactory;
@@ -16,10 +16,10 @@ import java.util.EnumSet;
 
 public final class RedstoneUtil
 {
-    public static void propagateRedstoneOutput( World world, BlockPos pos, EnumFacing side )
+    public static void propagateRedstoneOutput( World world, BlockPos pos, Direction side )
     {
         // Propagate ordinary output. See BlockRedstoneDiode.notifyNeighbors
-        IBlockState block = world.getBlockState( pos );
+        BlockState block = world.getBlockState( pos );
         if( ForgeEventFactory.onNeighborNotify( world, pos, block, EnumSet.of( side ), false ).isCanceled() ) return;
 
         BlockPos neighbourPos = pos.offset( side );

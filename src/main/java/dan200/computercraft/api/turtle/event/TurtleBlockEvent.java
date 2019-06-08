@@ -12,9 +12,9 @@ import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.api.turtle.TurtleVerb;
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.BlockState;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.FakePlayer;
@@ -75,7 +75,7 @@ public abstract class TurtleBlockEvent extends TurtlePlayerEvent
     /**
      * Fired when a turtle attempts to dig a block.
      *
-     * This must be fired by {@link ITurtleUpgrade#useTool(ITurtleAccess, TurtleSide, TurtleVerb, EnumFacing)},
+     * This must be fired by {@link ITurtleUpgrade#useTool(ITurtleAccess, TurtleSide, TurtleVerb, Direction)},
      * as the base {@code turtle.dig()} command does not fire it.
      *
      * Note that such commands should also fire {@link BlockEvent.BreakEvent}, so you do not need to listen to both.
@@ -84,11 +84,11 @@ public abstract class TurtleBlockEvent extends TurtlePlayerEvent
      */
     public static class Dig extends TurtleBlockEvent
     {
-        private final IBlockState block;
+        private final BlockState block;
         private final ITurtleUpgrade upgrade;
         private final TurtleSide side;
 
-        public Dig( @Nonnull ITurtleAccess turtle, @Nonnull FakePlayer player, @Nonnull World world, @Nonnull BlockPos pos, @Nonnull IBlockState block, @Nonnull ITurtleUpgrade upgrade, @Nonnull TurtleSide side )
+        public Dig( @Nonnull ITurtleAccess turtle, @Nonnull FakePlayer player, @Nonnull World world, @Nonnull BlockPos pos, @Nonnull BlockState block, @Nonnull ITurtleUpgrade upgrade, @Nonnull TurtleSide side )
         {
             super( turtle, TurtleAction.DIG, player, world, pos );
 
@@ -106,7 +106,7 @@ public abstract class TurtleBlockEvent extends TurtlePlayerEvent
          * @return The block which is going to be broken.
          */
         @Nonnull
-        public IBlockState getBlock()
+        public BlockState getBlock()
         {
             return block;
         }
@@ -185,10 +185,10 @@ public abstract class TurtleBlockEvent extends TurtlePlayerEvent
      */
     public static class Inspect extends TurtleBlockEvent
     {
-        private final IBlockState state;
+        private final BlockState state;
         private final Map<String, Object> data;
 
-        public Inspect( @Nonnull ITurtleAccess turtle, @Nonnull FakePlayer player, @Nonnull World world, @Nonnull BlockPos pos, @Nonnull IBlockState state, @Nonnull Map<String, Object> data )
+        public Inspect( @Nonnull ITurtleAccess turtle, @Nonnull FakePlayer player, @Nonnull World world, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nonnull Map<String, Object> data )
         {
             super( turtle, TurtleAction.INSPECT, player, world, pos );
 
@@ -204,7 +204,7 @@ public abstract class TurtleBlockEvent extends TurtlePlayerEvent
          * @return The inspected block state.
          */
         @Nonnull
-        public IBlockState getState()
+        public BlockState getState()
         {
             return state;
         }

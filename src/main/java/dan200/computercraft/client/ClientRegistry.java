@@ -16,7 +16,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.model.IBakedModel;
 import net.minecraft.client.renderer.model.IUnbakedModel;
 import net.minecraft.client.renderer.model.ModelResourceLocation;
-import net.minecraft.client.renderer.model.ModelRotation;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.resources.IResourceManager;
 import net.minecraft.util.ResourceLocation;
@@ -25,6 +24,7 @@ import net.minecraftforge.client.event.ColorHandlerEvent;
 import net.minecraftforge.client.event.ModelBakeEvent;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.event.TextureStitchEvent;
+import net.minecraftforge.client.model.BasicState;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.client.model.ModelLoaderRegistry;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -82,7 +82,7 @@ public final class ClientRegistry
         IResourceManager manager = Minecraft.getInstance().getResourceManager();
         for( String extra : EXTRA_TEXTURES )
         {
-            event.getMap().registerSprite( manager, new ResourceLocation( ComputerCraft.MOD_ID, extra ) );
+            // TODO: event.getMap().registerSprite( manager, new ResourceLocation( ComputerCraft.MOD_ID, extra ) );
         }
     }
 
@@ -160,9 +160,9 @@ public final class ClientRegistry
         model.getTextures( loader::getUnbakedModel, new HashSet<>() );
 
         return model.bake(
-            loader::getUnbakedModel,
+            loader,
             ModelLoader.defaultTextureGetter(),
-            ModelRotation.X0_Y0, false, DefaultVertexFormats.BLOCK
+            new BasicState( model.getDefaultState(), false ), DefaultVertexFormats.BLOCK
         );
     }
 }

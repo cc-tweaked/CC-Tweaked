@@ -9,7 +9,7 @@ package dan200.computercraft.client.render;
 import net.minecraft.client.renderer.model.BakedQuad;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.VertexFormat;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraftforge.client.model.pipeline.IVertexConsumer;
 import net.minecraftforge.client.model.pipeline.LightUtil;
 import net.minecraftforge.client.model.pipeline.VertexTransformer;
@@ -102,7 +102,7 @@ public final class ModelTransformer
         }
 
         @Override
-        public void setQuadOrientation( @Nonnull EnumFacing orientation )
+        public void setQuadOrientation( @Nonnull Direction orientation )
         {
             super.setQuadOrientation( orientation == null ? orientation : TRSRTransformation.rotate( positionMatrix, orientation ) );
         }
@@ -187,7 +187,7 @@ public final class ModelTransformer
         private final int[] vertexData;
         private int vertexIndex = 0, elementIndex = 0;
 
-        private EnumFacing orientation;
+        private Direction orientation;
         private int quadTint;
         private boolean diffuse;
         private TextureAtlasSprite texture;
@@ -212,7 +212,7 @@ public final class ModelTransformer
         }
 
         @Override
-        public void setQuadOrientation( @Nonnull EnumFacing orientation )
+        public void setQuadOrientation( @Nonnull Direction orientation )
         {
             this.orientation = orientation;
         }

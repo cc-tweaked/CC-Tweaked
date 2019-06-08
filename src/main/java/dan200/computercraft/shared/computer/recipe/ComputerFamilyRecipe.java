@@ -13,7 +13,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipeSerializer;
 import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.JsonUtils;
+import net.minecraft.util.JSONUtils;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 
@@ -42,11 +42,11 @@ public abstract class ComputerFamilyRecipe extends ComputerConvertRecipe
         @Override
         public T read( @Nonnull ResourceLocation identifier, @Nonnull JsonObject json )
         {
-            String group = JsonUtils.getString( json, "group", "" );
+            String group = JSONUtils.getString( json, "group", "" );
             ComputerFamily family = RecipeUtil.getFamily( json, "family" );
 
             RecipeUtil.ShapedTemplate template = RecipeUtil.getTemplate( json );
-            ItemStack result = deserializeItem( JsonUtils.getJsonObject( json, "result" ) );
+            ItemStack result = deserializeItem( JSONUtils.getJsonObject( json, "result" ) );
 
             return create( identifier, group, template.width, template.height, template.ingredients, result, family );
         }

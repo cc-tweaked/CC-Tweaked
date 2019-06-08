@@ -39,10 +39,10 @@ import dan200.computercraft.shared.util.CreativeTabMain;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.EntityType;
-import net.minecraft.init.Items;
+import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemGroup;
+import net.minecraft.item.Items;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.event.RegistryEvent;
@@ -181,7 +181,7 @@ public final class Registry
         );
     }
 
-    private static <T extends ItemBlock> T setupItemBlock( T item )
+    private static <T extends BlockItem> T setupItemBlock( T item )
     {
         item.setRegistryName( item.getBlock().getRegistryName() );
         return item;
@@ -247,14 +247,14 @@ public final class Registry
 
         // Peripherals
         registry.registerAll(
-            setupItemBlock( new ItemBlock( ComputerCraft.Blocks.speaker, defaultItem() ) ),
-            setupItemBlock( new ItemBlock( ComputerCraft.Blocks.diskDrive, defaultItem() ) ),
-            setupItemBlock( new ItemBlock( ComputerCraft.Blocks.printer, defaultItem() ) ),
-            setupItemBlock( new ItemBlock( ComputerCraft.Blocks.monitorNormal, defaultItem() ) ),
-            setupItemBlock( new ItemBlock( ComputerCraft.Blocks.monitorAdvanced, defaultItem() ) ),
-            setupItemBlock( new ItemBlock( ComputerCraft.Blocks.wirelessModemNormal, defaultItem() ) ),
-            setupItemBlock( new ItemBlock( ComputerCraft.Blocks.wirelessModemAdvanced, defaultItem() ) ),
-            setupItemBlock( new ItemBlock( ComputerCraft.Blocks.wiredModemFull, defaultItem() ) )
+            setupItemBlock( new BlockItem( ComputerCraft.Blocks.speaker, defaultItem() ) ),
+            setupItemBlock( new BlockItem( ComputerCraft.Blocks.diskDrive, defaultItem() ) ),
+            setupItemBlock( new BlockItem( ComputerCraft.Blocks.printer, defaultItem() ) ),
+            setupItemBlock( new BlockItem( ComputerCraft.Blocks.monitorNormal, defaultItem() ) ),
+            setupItemBlock( new BlockItem( ComputerCraft.Blocks.monitorAdvanced, defaultItem() ) ),
+            setupItemBlock( new BlockItem( ComputerCraft.Blocks.wirelessModemNormal, defaultItem() ) ),
+            setupItemBlock( new BlockItem( ComputerCraft.Blocks.wirelessModemAdvanced, defaultItem() ) ),
+            setupItemBlock( new BlockItem( ComputerCraft.Blocks.wiredModemFull, defaultItem() ) )
         );
 
         ComputerCraft.Items.cable = new ItemBlockCable.Cable( ComputerCraft.Blocks.cable, defaultItem() );
@@ -286,7 +286,7 @@ public final class Registry
         ComputerCraft.TurtleUpgrades.diamondSword = new TurtleSword( new ResourceLocation( "minecraft", "diamond_sword" ), Items.DIAMOND_SWORD );
         ComputerCraftAPI.registerTurtleUpgrade( ComputerCraft.TurtleUpgrades.diamondSword );
 
-        ComputerCraft.TurtleUpgrades.diamondShovel = new TurtleShovel( new ResourceLocation( "minecraft", "diamond_shovel" ), Items.DIAMOND_SHOVEL );
+        ComputerCraft.TurtleUpgrades.diamondShovel = new TurtleShovel( new ResourceLocation( "minecraft", "diamond_shovel" ), net.minecraft.item.Items.DIAMOND_SHOVEL );
         ComputerCraftAPI.registerTurtleUpgrade( ComputerCraft.TurtleUpgrades.diamondShovel );
 
         ComputerCraft.TurtleUpgrades.diamondPickaxe = new TurtleTool( new ResourceLocation( "minecraft", "diamond_pickaxe" ), Items.DIAMOND_PICKAXE );

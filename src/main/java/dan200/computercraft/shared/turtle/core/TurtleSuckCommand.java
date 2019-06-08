@@ -12,10 +12,10 @@ import dan200.computercraft.api.turtle.TurtleAnimation;
 import dan200.computercraft.api.turtle.TurtleCommandResult;
 import dan200.computercraft.api.turtle.event.TurtleInventoryEvent;
 import dan200.computercraft.shared.util.InventoryUtil;
-import net.minecraft.entity.item.EntityItem;
+import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.EntitySelectors;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
+import net.minecraft.util.EntityPredicates;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -48,13 +48,13 @@ public class TurtleSuckCommand implements ITurtleCommand
         }
 
         // Get world direction from direction
-        EnumFacing direction = m_direction.toWorldDir( turtle );
+        Direction direction = m_direction.toWorldDir( turtle );
 
         // Get inventory for thing in front
         World world = turtle.getWorld();
         BlockPos turtlePosition = turtle.getPosition();
         BlockPos blockPosition = turtlePosition.offset( direction );
-        EnumFacing side = direction.getOpposite();
+        Direction side = direction.getOpposite();
 
         IItemHandler inventory = InventoryUtil.getInventory( world, blockPosition, side );
 
@@ -98,10 +98,10 @@ public class TurtleSuckCommand implements ITurtleCommand
                 blockPosition.getX(), blockPosition.getY(), blockPosition.getZ(),
                 blockPosition.getX() + 1.0, blockPosition.getY() + 1.0, blockPosition.getZ() + 1.0
             );
-            List<EntityItem> list = world.getEntitiesWithinAABB( EntityItem.class, aabb, EntitySelectors.IS_ALIVE );
+            List<ItemEntity> list = world.getEntitiesWithinAABB( ItemEntity.class, aabb, EntityPredicates.IS_ALIVE );
             if( list.isEmpty() ) return TurtleCommandResult.failure( "No items to take" );
 
-            for( EntityItem entity : list )
+            for( ItemEntity entity : list )
             {
                 // Suck up the item
                 ItemStack stack = entity.getItem().copy();

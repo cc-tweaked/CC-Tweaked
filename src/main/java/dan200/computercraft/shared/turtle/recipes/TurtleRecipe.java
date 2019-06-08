@@ -6,7 +6,6 @@
 
 package dan200.computercraft.shared.turtle.recipes;
 
-import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.items.IComputerItem;
 import dan200.computercraft.shared.computer.recipe.ComputerFamilyRecipe;
@@ -43,20 +42,12 @@ public final class TurtleRecipe extends ComputerFamilyRecipe
         return TurtleItemFactory.create( computerID, label, -1, getFamily(), null, null, 0, null );
     }
 
-    private static final ResourceLocation ID = new ResourceLocation( ComputerCraft.MOD_ID, "turtle" );
     public static final IRecipeSerializer<TurtleRecipe> SERIALIZER = new Serializer<TurtleRecipe>()
     {
         @Override
         protected TurtleRecipe create( ResourceLocation identifier, String group, int width, int height, NonNullList<Ingredient> ingredients, ItemStack result, ComputerFamily family )
         {
             return new TurtleRecipe( identifier, group, width, height, ingredients, result, family );
-        }
-
-        @Nonnull
-        @Override
-        public ResourceLocation getName()
-        {
-            return ID;
         }
     };
 }

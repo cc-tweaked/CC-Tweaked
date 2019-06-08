@@ -7,27 +7,27 @@
 package dan200.computercraft.shared.util;
 
 import dan200.computercraft.core.computer.ComputerSide;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 
 public final class DirectionUtil
 {
     private DirectionUtil() {}
 
-    public static final EnumFacing[] FACINGS = EnumFacing.values();
+    public static final Direction[] FACINGS = Direction.values();
 
-    public static ComputerSide toLocal( EnumFacing front, EnumFacing dir )
+    public static ComputerSide toLocal( Direction front, Direction dir )
     {
-        if( front.getAxis() == EnumFacing.Axis.Y ) front = EnumFacing.NORTH;
+        if( front.getAxis() == Direction.Axis.Y ) front = Direction.NORTH;
 
         if( dir == front ) return ComputerSide.FRONT;
         if( dir == front.getOpposite() ) return ComputerSide.BACK;
         if( dir == front.rotateYCCW() ) return ComputerSide.LEFT;
         if( dir == front.rotateY() ) return ComputerSide.RIGHT;
-        if( dir == EnumFacing.UP ) return ComputerSide.TOP;
+        if( dir == Direction.UP ) return ComputerSide.TOP;
         return ComputerSide.BOTTOM;
     }
 
-    public static float toPitchAngle( EnumFacing dir )
+    public static float toPitchAngle( Direction dir )
     {
         switch( dir )
         {

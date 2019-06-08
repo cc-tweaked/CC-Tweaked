@@ -6,16 +6,16 @@
 
 package dan200.computercraft.shared.common;
 
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.block.BlockState;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.NetworkManager;
-import net.minecraft.network.play.server.SPacketUpdateTileEntity;
+import net.minecraft.network.play.server.SUpdateTileEntityPacket;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
+import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.BlockRayTraceResult;
 
 import javax.annotation.Nonnull;
 
@@ -34,12 +34,12 @@ public abstract class TileGeneric extends TileEntity
     {
         markDirty();
         BlockPos pos = getPos();
-        IBlockState state = getBlockState();
-        getWorld().markBlockRangeForRenderUpdate( pos, pos );
+        BlockState state = getBlockState();
+        getWorld().markForRerender( pos );
         getWorld().notifyBlockUpdate( pos, state, state, 3 );
     }
 
-    public boolean onActivate( EntityPlayer player, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ )
+    public boolean onActivate( PlayerEntity player, Hand hand, BlockRayTraceResult hit )
     {
         return false;
     }
@@ -56,12 +56,12 @@ public abstract class TileGeneric extends TileEntity
     {
     }
 
-    protected double getInteractRange( EntityPlayer player )
+    protected double getInteractRange( PlayerEntity player )
     {
         return 8.0;
     }
 
-    public boolean isUsable( EntityPlayer player, boolean ignoreRange )
+    public boolean isUsable( PlayerEntity player, boolean ignoreRange )
     {
         if( player == null || !player.isAlive() || getWorld().getTileEntity( getPos() ) != this ) return false;
         if( ignoreRange ) return true;
@@ -72,40 +72,40 @@ public abstract class TileGeneric extends TileEntity
             player.getDistanceSq( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5 ) <= range * range;
     }
 
-    protected void writeDescription( @Nonnull NBTTagCompound nbt )
+    protected void writeDescription( @Nonnull CompoundNBT nbt )
     {
     }
 
-    protected void readDescription( @Nonnull NBTTagCompound nbt )
+    protected void readDescription( @Nonnull CompoundNBT nbt )
     {
     }
 
     @Nonnull
     @Override
-    public final SPacketUpdateTileEntity getUpdatePacket()
+    public final SUpdateTileEntityPacket getUpdatePacket()
     {
-        NBTTagCompound nbt = new NBTTagCompound();
+        CompoundNBT nbt = new CompoundNBT();
         writeDescription( nbt );
-        return new SPacketUpdateTileEntity( pos, 0, nbt );
+        return new SUpdateTileEntityPacket( pos, 0, nbt );
     }
 
     @Override
-    public final void onDataPacket( NetworkManager net, SPacketUpdateTileEntity packet )
+    public final void onDataPacket( NetworkManager net, SUpdateTileEntityPacket packet )
     {
         if( packet.getTileEntityType() == 0 ) readDescription( packet.getNbtCompound() );
     }
 
     @Nonnull
     @Override
-    public NBTTagCompound getUpdateTag()
+    public CompoundNBT getUpdateTag()
     {
-        NBTTagCompound tag = super.getUpdateTag();
+        CompoundNBT tag = super.getUpdateTag();
         writeDescription( tag );
         return tag;
     }
 
     @Override
-    public void handleUpdateTag( @Nonnull NBTTagCompound tag )
+    public void handleUpdateTag( @Nonnull CompoundNBT tag )
     {
         super.handleUpdateTag( tag );
         readDescription( tag );

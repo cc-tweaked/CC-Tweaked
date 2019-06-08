@@ -16,30 +16,35 @@ import dan200.computercraft.shared.Config;
 import dan200.computercraft.shared.command.CommandComputerCraft;
 import dan200.computercraft.shared.command.arguments.ArgumentSerializers;
 import dan200.computercraft.shared.common.ColourableRecipe;
+import dan200.computercraft.shared.common.ContainerHeldItem;
 import dan200.computercraft.shared.common.DefaultBundledRedstoneProvider;
 import dan200.computercraft.shared.computer.core.IComputer;
 import dan200.computercraft.shared.computer.core.IContainerComputer;
 import dan200.computercraft.shared.computer.core.ServerComputer;
+import dan200.computercraft.shared.computer.inventory.ContainerViewComputer;
 import dan200.computercraft.shared.computer.recipe.ComputerUpgradeRecipe;
 import dan200.computercraft.shared.media.items.RecordMedia;
 import dan200.computercraft.shared.media.recipes.DiskRecipe;
 import dan200.computercraft.shared.media.recipes.PrintoutRecipe;
-import dan200.computercraft.shared.network.Containers;
 import dan200.computercraft.shared.network.NetworkHandler;
 import dan200.computercraft.shared.peripheral.commandblock.CommandBlockPeripheral;
+import dan200.computercraft.shared.peripheral.diskdrive.ContainerDiskDrive;
 import dan200.computercraft.shared.peripheral.modem.wireless.WirelessNetwork;
+import dan200.computercraft.shared.peripheral.printer.ContainerPrinter;
+import dan200.computercraft.shared.pocket.inventory.ContainerPocketComputer;
 import dan200.computercraft.shared.pocket.recipes.PocketComputerUpgradeRecipe;
 import dan200.computercraft.shared.turtle.recipes.TurtleRecipe;
 import dan200.computercraft.shared.turtle.recipes.TurtleUpgradeRecipe;
 import dan200.computercraft.shared.util.ImpostorRecipe;
 import dan200.computercraft.shared.util.ImpostorShapelessRecipe;
 import dan200.computercraft.shared.wired.CapabilityWiredElement;
-import net.minecraft.inventory.Container;
+import net.minecraft.inventory.container.Container;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemRecord;
-import net.minecraft.item.crafting.RecipeSerializers;
+import net.minecraft.item.MusicDiscItem;
+import net.minecraft.item.crafting.IRecipeSerializer;
+import net.minecraft.tileentity.CommandBlockTileEntity;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.tileentity.TileEntityCommandBlock;
+import net.minecraft.util.registry.Registry;
 import net.minecraftforge.event.entity.player.PlayerContainerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent;
@@ -57,19 +62,25 @@ public final class ComputerCraftProxyCommon
     public static void init( FMLCommonSetupEvent event )
     {
         NetworkHandler.setup();
-        Containers.setup();
 
         registerProviders();
 
-        RecipeSerializers.register( ColourableRecipe.SERIALIZER );
-        RecipeSerializers.register( ComputerUpgradeRecipe.SERIALIZER );
-        RecipeSerializers.register( PocketComputerUpgradeRecipe.SERIALIZER );
-        RecipeSerializers.register( DiskRecipe.SERIALIZER );
-        RecipeSerializers.register( PrintoutRecipe.SERIALIZER );
-        RecipeSerializers.register( TurtleRecipe.SERIALIZER );
-        RecipeSerializers.register( TurtleUpgradeRecipe.SERIALIZER );
-        RecipeSerializers.register( ImpostorShapelessRecipe.SERIALIZER );
-        RecipeSerializers.register( ImpostorRecipe.SERIALIZER );
+        // Eww, eww, eww - can we move this to an event?
+        IRecipeSerializer.func_222156_a( ComputerCraft.MOD_ID + ":colour", ColourableRecipe.SERIALIZER );
+        IRecipeSerializer.func_222156_a( ComputerCraft.MOD_ID + ":computer_upgrade", ComputerUpgradeRecipe.SERIALIZER );
+        IRecipeSerializer.func_222156_a( ComputerCraft.MOD_ID + ":pocket_computer_upgrade", PocketComputerUpgradeRecipe.SERIALIZER );
+        IRecipeSerializer.func_222156_a( ComputerCraft.MOD_ID + ":disk", DiskRecipe.SERIALIZER );
+        IRecipeSerializer.func_222156_a( ComputerCraft.MOD_ID + ":printout", PrintoutRecipe.SERIALIZER );
+        IRecipeSerializer.func_222156_a( ComputerCraft.MOD_ID + ":turtle", TurtleRecipe.SERIALIZER );
+        IRecipeSerializer.func_222156_a( ComputerCraft.MOD_ID + ":turtle_upgrade", TurtleUpgradeRecipe.SERIALIZER );
+        IRecipeSerializer.func_222156_a( ComputerCraft.MOD_ID + ":impostor_shapeless", ImpostorShapelessRecipe.SERIALIZER );
+        IRecipeSerializer.func_222156_a( ComputerCraft.MOD_ID + ":impostor_shaped", ImpostorRecipe.SERIALIZER );
+
+        Registry.register( Registry.field_218366_G, ComputerCraft.MOD_ID + ":printer", ContainerPrinter.TYPE );
+        Registry.register( Registry.field_218366_G, ComputerCraft.MOD_ID + ":disk_drive", ContainerDiskDrive.TYPE );
+        Registry.register( Registry.field_218366_G, ComputerCraft.MOD_ID + ":pocket_computer", ContainerPocketComputer.TYPE );
+        Registry.register( Registry.field_218366_G, ComputerCraft.MOD_ID + ":printout", ContainerHeldItem.PRINTOUT_TYPE );
+        Registry.register( Registry.field_218366_G, ComputerCraft.MOD_ID + ":view_computer", ContainerViewComputer.TYPE );
 
         ArgumentSerializers.register();
 
@@ -86,7 +97,7 @@ public final class ComputerCraftProxyCommon
 
         ComputerCraftAPI.registerPeripheralProvider( ( world, pos, side ) -> {
             TileEntity tile = world.getTileEntity( pos );
-            return ComputerCraft.enableCommandBlock && tile instanceof TileEntityCommandBlock ? new CommandBlockPeripheral( (TileEntityCommandBlock) tile ) : null;
+            return ComputerCraft.enableCommandBlock && tile instanceof CommandBlockTileEntity ? new CommandBlockPeripheral( (CommandBlockTileEntity) tile ) : null;
         } );
 
         // Register bundled power providers
@@ -96,7 +107,7 @@ public final class ComputerCraftProxyCommon
         ComputerCraftAPI.registerMediaProvider( stack -> {
             Item item = stack.getItem();
             if( item instanceof IMedia ) return (IMedia) item;
-            if( item instanceof ItemRecord ) return RecordMedia.INSTANCE;
+            if( item instanceof MusicDiscItem ) return RecordMedia.INSTANCE;
             return null;
         } );
 

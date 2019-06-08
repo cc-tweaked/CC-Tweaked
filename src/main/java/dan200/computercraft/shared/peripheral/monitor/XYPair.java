@@ -6,7 +6,7 @@
 
 package dan200.computercraft.shared.peripheral.monitor;
 
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 
 public class XYPair
 {
@@ -24,7 +24,7 @@ public class XYPair
         return new XYPair( this.x + x, this.y + y );
     }
 
-    public static XYPair of( float xPos, float yPos, float zPos, EnumFacing facing, EnumFacing orientation )
+    public static XYPair of( float xPos, float yPos, float zPos, Direction facing, Direction orientation )
     {
         switch( orientation )
         {

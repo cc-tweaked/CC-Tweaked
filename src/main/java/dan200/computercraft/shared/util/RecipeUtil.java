@@ -11,7 +11,7 @@ import com.google.common.collect.Sets;
 import com.google.gson.*;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import net.minecraft.item.crafting.Ingredient;
-import net.minecraft.util.JsonUtils;
+import net.minecraft.util.JSONUtils;
 import net.minecraft.util.NonNullList;
 
 import java.util.Map;
@@ -40,7 +40,7 @@ public final class RecipeUtil
     public static ShapedTemplate getTemplate( JsonObject json )
     {
         Map<Character, Ingredient> ingMap = Maps.newHashMap();
-        for( Map.Entry<String, JsonElement> entry : JsonUtils.getJsonObject( json, "key" ).entrySet() )
+        for( Map.Entry<String, JsonElement> entry : JSONUtils.getJsonObject( json, "key" ).entrySet() )
         {
             if( entry.getKey().length() != 1 )
             {
@@ -56,7 +56,7 @@ public final class RecipeUtil
 
         ingMap.put( ' ', Ingredient.EMPTY );
 
-        JsonArray patternJ = JsonUtils.getJsonArray( json, "pattern" );
+        JsonArray patternJ = JSONUtils.getJsonArray( json, "pattern" );
 
         if( patternJ.size() == 0 )
         {
@@ -66,7 +66,7 @@ public final class RecipeUtil
         String[] pattern = new String[patternJ.size()];
         for( int x = 0; x < pattern.length; x++ )
         {
-            String line = JsonUtils.getString( patternJ.get( x ), "pattern[" + x + "]" );
+            String line = JSONUtils.getString( patternJ.get( x ), "pattern[" + x + "]" );
             if( x > 0 && pattern[0].length() != line.length() )
             {
                 throw new JsonSyntaxException( "Invalid pattern: each row must  be the same width" );
@@ -107,7 +107,7 @@ public final class RecipeUtil
     public static NonNullList<Ingredient> getIngredients( JsonObject json )
     {
         NonNullList<Ingredient> ingredients = NonNullList.create();
-        for( JsonElement ele : JsonUtils.getJsonArray( json, "ingredients" ) )
+        for( JsonElement ele : JSONUtils.getJsonArray( json, "ingredients" ) )
         {
             ingredients.add( Ingredient.deserialize( ele ) );
         }
@@ -118,7 +118,7 @@ public final class RecipeUtil
 
     public static ComputerFamily getFamily( JsonObject json, String name )
     {
-        String familyName = JsonUtils.getString( json, name );
+        String familyName = JSONUtils.getString( json, name );
         try
         {
             return ComputerFamily.valueOf( familyName );

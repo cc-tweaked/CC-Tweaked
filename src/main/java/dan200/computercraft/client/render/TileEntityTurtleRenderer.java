@@ -6,6 +6,7 @@
 
 package dan200.computercraft.client.render;
 
+import com.mojang.blaze3d.platform.GlStateManager;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
@@ -13,22 +14,23 @@ import dan200.computercraft.shared.turtle.blocks.TileTurtle;
 import dan200.computercraft.shared.util.DirectionUtil;
 import dan200.computercraft.shared.util.Holiday;
 import dan200.computercraft.shared.util.HolidayUtil;
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.model.BakedQuad;
 import net.minecraft.client.renderer.model.IBakedModel;
 import net.minecraft.client.renderer.model.ModelManager;
 import net.minecraft.client.renderer.model.ModelResourceLocation;
-import net.minecraft.client.renderer.texture.TextureMap;
+import net.minecraft.client.renderer.texture.AtlasTexture;
 import net.minecraft.client.renderer.tileentity.TileEntityRenderer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexFormat;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.BlockRayTraceResult;
+import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.client.model.data.EmptyModelData;
@@ -85,13 +87,15 @@ public class TileEntityTurtleRenderer extends TileEntityRenderer<TileTurtle>
     {
         // Render the label
         String label = turtle.createProxy().getLabel();
-        if( label != null && rendererDispatcher.cameraHitResult != null && turtle.getPos().equals( rendererDispatcher.cameraHitResult.getBlockPos() ) )
+        RayTraceResult hit = rendererDispatcher.cameraHitResult;
+        if( label != null && hit.getType() == RayTraceResult.Type.BLOCK && turtle.getPos().equals( ((BlockRayTraceResult) hit).getPos() ) )
         {
             setLightmapDisabled( true );
-            GameRenderer.drawNameplate(
+            GameRenderer.func_215307_a(
                 getFontRenderer(), label,
                 (float) posX + 0.5F, (float) posY + 1.2F, (float) posZ + 0.5F, 0,
-                rendererDispatcher.entityYaw, rendererDispatcher.entityPitch, false, false
+                rendererDispatcher.field_217666_g.func_216778_f(), rendererDispatcher.field_217666_g.func_216777_e(), false
+                // yaw, pitch
             );
             setLightmapDisabled( false );
         }
@@ -99,7 +103,7 @@ public class TileEntityTurtleRenderer extends TileEntityRenderer<TileTurtle>
         GlStateManager.pushMatrix();
         try
         {
-            IBlockState state = turtle.getBlockState();
+            BlockState state = turtle.getBlockState();
             // Setup the transform
             Vec3d offset = turtle.getRenderOffset( partialTicks );
             float yaw = turtle.getRenderYaw( partialTicks );
@@ -153,7 +157,7 @@ public class TileEntityTurtleRenderer extends TileEntityRenderer<TileTurtle>
         }
     }
 
-    private void renderUpgrade( IBlockState state, TileTurtle turtle, TurtleSide side, float f )
+    private void renderUpgrade( BlockState state, TileTurtle turtle, TurtleSide side, float f )
     {
         ITurtleUpgrade upgrade = turtle.getUpgrade( side );
         if( upgrade != null )
@@ -186,20 +190,20 @@ public class TileEntityTurtleRenderer extends TileEntityRenderer<TileTurtle>
         }
     }
 
-    private void renderModel( IBlockState state, ModelResourceLocation modelLocation, int[] tints )
+    private void renderModel( BlockState state, ModelResourceLocation modelLocation, int[] tints )
     {
         Minecraft mc = Minecraft.getInstance();
         ModelManager modelManager = mc.getItemRenderer().getItemModelMesher().getModelManager();
         renderModel( state, modelManager.getModel( modelLocation ), tints );
     }
 
-    private void renderModel( IBlockState state, IBakedModel model, int[] tints )
+    private void renderModel( BlockState state, IBakedModel model, int[] tints )
     {
         Random random = new Random( 0 );
         Tessellator tessellator = Tessellator.getInstance();
-        rendererDispatcher.textureManager.bindTexture( TextureMap.LOCATION_BLOCKS_TEXTURE );
+        rendererDispatcher.textureManager.bindTexture( AtlasTexture.LOCATION_BLOCKS_TEXTURE );
         renderQuads( tessellator, model.getQuads( state, null, random, EmptyModelData.INSTANCE ), tints );
-        for( EnumFacing facing : DirectionUtil.FACINGS )
+        for( Direction facing : DirectionUtil.FACINGS )
         {
             renderQuads( tessellator, model.getQuads( state, facing, random, EmptyModelData.INSTANCE ), tints );
         }

@@ -6,51 +6,59 @@
 
 package dan200.computercraft.shared.peripheral.diskdrive;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.Container;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.Slot;
+import net.minecraft.inventory.Inventory;
+import net.minecraft.inventory.container.Container;
+import net.minecraft.inventory.container.ContainerType;
+import net.minecraft.inventory.container.Slot;
 import net.minecraft.item.ItemStack;
 
 import javax.annotation.Nonnull;
 
 public class ContainerDiskDrive extends Container
 {
-    private final TileDiskDrive m_diskDrive;
+    public static final ContainerType<ContainerDiskDrive> TYPE = new ContainerType<>( ContainerDiskDrive::new );
 
-    public ContainerDiskDrive( IInventory playerInventory, TileDiskDrive diskDrive )
+    private final IInventory inventory;
+
+    public ContainerDiskDrive( int id, PlayerInventory player, IInventory inventory )
     {
-        m_diskDrive = diskDrive;
-        addSlot( new Slot( m_diskDrive, 0, 8 + 4 * 18, 35 ) );
+        super( TYPE, id );
+
+        this.inventory = inventory;
+
+        addSlot( new Slot( this.inventory, 0, 8 + 4 * 18, 35 ) );
 
         for( int y = 0; y < 3; y++ )
         {
             for( int x = 0; x < 9; x++ )
             {
-                addSlot( new Slot( playerInventory, x + y * 9 + 9, 8 + x * 18, 84 + y * 18 ) );
+                addSlot( new Slot( player, x + y * 9 + 9, 8 + x * 18, 84 + y * 18 ) );
             }
         }
 
         for( int x = 0; x < 9; x++ )
         {
-            addSlot( new Slot( playerInventory, x, 8 + x * 18, 142 ) );
+            addSlot( new Slot( player, x, 8 + x * 18, 142 ) );
         }
     }
 
-    public TileDiskDrive getDiskDrive()
+    private ContainerDiskDrive( int id, PlayerInventory player )
     {
-        return m_diskDrive;
+        this( id, player, new Inventory( 1 ) );
     }
 
     @Override
-    public boolean canInteractWith( @Nonnull EntityPlayer player )
+    public boolean canInteractWith( @Nonnull PlayerEntity player )
     {
-        return m_diskDrive.isUsableByPlayer( player );
+        return inventory.isUsableByPlayer( player );
     }
 
     @Nonnull
     @Override
-    public ItemStack transferStackInSlot( EntityPlayer player, int slotIndex )
+    public ItemStack transferStackInSlot( PlayerEntity player, int slotIndex )
     {
         Slot slot = inventorySlots.get( slotIndex );
         if( slot == null || !slot.getHasStack() ) return ItemStack.EMPTY;

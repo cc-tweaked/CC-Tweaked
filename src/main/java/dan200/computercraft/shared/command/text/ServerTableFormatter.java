@@ -8,7 +8,7 @@ package dan200.computercraft.shared.command.text;
 
 import net.minecraft.command.CommandSource;
 import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.StringTextComponent;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.Nullable;
@@ -28,7 +28,7 @@ public class ServerTableFormatter implements TableFormatter
     {
         int extraWidth = width - getWidth( component );
         if( extraWidth <= 0 ) return null;
-        return new TextComponentString( StringUtils.repeat( ' ', extraWidth ) );
+        return new StringTextComponent( StringUtils.repeat( ' ', extraWidth ) );
     }
 
     @Override

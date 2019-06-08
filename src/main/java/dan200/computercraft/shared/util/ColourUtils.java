@@ -6,7 +6,7 @@
 
 package dan200.computercraft.shared.util;
 
-import net.minecraft.item.EnumDyeColor;
+import net.minecraft.item.DyeColor;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tags.Tag;
@@ -39,12 +39,12 @@ public final class ColourUtils
     @Nullable
     private ColourUtils() {}
 
-    public static EnumDyeColor getStackColour( ItemStack stack )
+    public static DyeColor getStackColour( ItemStack stack )
     {
         for( int i = 0; i < DYES.length; i++ )
         {
             Tag<Item> dye = DYES[i];
-            if( dye.contains( stack.getItem() ) ) return EnumDyeColor.byId( i );
+            if( dye.contains( stack.getItem() ) ) return DyeColor.byId( i );
         }
 
         return null;

@@ -6,23 +6,22 @@
 
 package dan200.computercraft.shared.pocket.recipes;
 
-import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.pocket.IPocketUpgrade;
 import dan200.computercraft.shared.PocketUpgrades;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.pocket.items.ItemPocketComputer;
 import dan200.computercraft.shared.pocket.items.PocketComputerItemFactory;
-import dan200.computercraft.shared.util.AbstractRecipe;
-import net.minecraft.inventory.IInventory;
+import net.minecraft.inventory.CraftingInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipeSerializer;
-import net.minecraft.item.crafting.RecipeSerializers;
+import net.minecraft.item.crafting.SpecialRecipe;
+import net.minecraft.item.crafting.SpecialRecipeSerializer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
 
-public final class PocketComputerUpgradeRecipe extends AbstractRecipe
+public final class PocketComputerUpgradeRecipe extends SpecialRecipe
 {
     private PocketComputerUpgradeRecipe( ResourceLocation identifier )
     {
@@ -43,14 +42,14 @@ public final class PocketComputerUpgradeRecipe extends AbstractRecipe
     }
 
     @Override
-    public boolean matches( @Nonnull IInventory inventory, @Nonnull World world )
+    public boolean matches( @Nonnull CraftingInventory inventory, @Nonnull World world )
     {
         return !getCraftingResult( inventory ).isEmpty();
     }
 
     @Nonnull
     @Override
-    public ItemStack getCraftingResult( @Nonnull IInventory inventory )
+    public ItemStack getCraftingResult( @Nonnull CraftingInventory inventory )
     {
         // Scan the grid for a pocket computer
         ItemStack computer = ItemStack.EMPTY;
@@ -115,8 +114,5 @@ public final class PocketComputerUpgradeRecipe extends AbstractRecipe
         return SERIALIZER;
     }
 
-    public static final IRecipeSerializer<PocketComputerUpgradeRecipe> SERIALIZER = new RecipeSerializers.SimpleSerializer<>(
-        ComputerCraft.MOD_ID + ":pocket_computer_upgrade",
-        PocketComputerUpgradeRecipe::new
-    );
+    public static final IRecipeSerializer<PocketComputerUpgradeRecipe> SERIALIZER = new SpecialRecipeSerializer<>( PocketComputerUpgradeRecipe::new );
 }

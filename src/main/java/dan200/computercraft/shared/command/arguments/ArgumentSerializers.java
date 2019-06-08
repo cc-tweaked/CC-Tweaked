@@ -18,12 +18,12 @@ public final class ArgumentSerializers
     @SuppressWarnings( "unchecked" )
     private static <T extends ArgumentType<?>> void registerUnsafe( ResourceLocation id, Class<T> type, IArgumentSerializer<?> serializer )
     {
-        ArgumentTypes.register( id, type, (IArgumentSerializer<T>) serializer );
+        ArgumentTypes.func_218136_a( id.toString(), type, (IArgumentSerializer<T>) serializer );
     }
 
     private static <T extends ArgumentType<?>> void register( ResourceLocation id, Class<T> type, IArgumentSerializer<T> serializer )
     {
-        ArgumentTypes.register( id, type, serializer );
+        ArgumentTypes.func_218136_a( id.toString(), type, serializer );
     }
 
     private static <T extends ArgumentType<?>> void register( ResourceLocation id, T instance )

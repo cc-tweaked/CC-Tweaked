@@ -6,7 +6,7 @@
 package dan200.computercraft.shared.integration.charset;
 
 import dan200.computercraft.shared.common.TileGeneric;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import pl.asie.charset.api.wires.IBundledEmitter;
@@ -30,14 +30,14 @@ final class BundledCapabilityProvider implements ICapabilityProvider
     }
 
     @Override
-    public boolean hasCapability( @Nonnull Capability<?> capability, @Nullable EnumFacing side )
+    public boolean hasCapability( @Nonnull Capability<?> capability, @Nullable Direction side )
     {
         return capability == CAPABILITY_EMITTER || capability == CAPABILITY_RECEIVER;
     }
 
     @Nullable
     @Override
-    public <T> T getCapability( @Nonnull Capability<T> capability, @Nullable EnumFacing side )
+    public <T> T getCapability( @Nonnull Capability<T> capability, @Nullable Direction side )
     {
         if( capability == CAPABILITY_RECEIVER )
         {
@@ -62,7 +62,7 @@ final class BundledCapabilityProvider implements ICapabilityProvider
                 {
                     emitter = emitters[index] = () -> {
                         int flags = 0;
-                        for( EnumFacing facing : EnumFacing.VALUES ) flags |= tile.getBundledRedstoneOutput( facing );
+                        for( Direction facing : Direction.VALUES ) flags |= tile.getBundledRedstoneOutput( facing );
                         return toBytes( flags );
                     };
                 }

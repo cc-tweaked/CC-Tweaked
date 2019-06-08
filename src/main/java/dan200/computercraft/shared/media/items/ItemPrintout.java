@@ -7,17 +7,17 @@
 package dan200.computercraft.shared.media.items;
 
 import dan200.computercraft.ComputerCraft;
-import dan200.computercraft.shared.network.Containers;
+import dan200.computercraft.shared.network.container.PrintoutContainerData;
 import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.ActionResult;
-import net.minecraft.util.EnumActionResult;
-import net.minecraft.util.EnumHand;
+import net.minecraft.util.ActionResultType;
+import net.minecraft.util.Hand;
 import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
@@ -53,15 +53,15 @@ public class ItemPrintout extends Item
     public void addInformation( @Nonnull ItemStack stack, World world, List<ITextComponent> list, ITooltipFlag options )
     {
         String title = getTitle( stack );
-        if( title != null && !title.isEmpty() ) list.add( new TextComponentString( title ) );
+        if( title != null && !title.isEmpty() ) list.add( new StringTextComponent( title ) );
     }
 
     @Nonnull
     @Override
-    public ActionResult<ItemStack> onItemRightClick( World world, EntityPlayer player, @Nonnull EnumHand hand )
+    public ActionResult<ItemStack> onItemRightClick( World world, PlayerEntity player, @Nonnull Hand hand )
     {
-        if( !world.isRemote ) Containers.openPrintoutGUI( player, hand );
-        return new ActionResult<>( EnumActionResult.SUCCESS, player.getHeldItem( hand ) );
+        if( !world.isRemote ) new PrintoutContainerData( hand ).open( player );
+        return new ActionResult<>( ActionResultType.SUCCESS, player.getHeldItem( hand ) );
     }
 
     @Nonnull
@@ -73,7 +73,7 @@ public class ItemPrintout extends Item
         if( title != null ) stack.getOrCreateTag().putString( NBT_TITLE, title );
         if( text != null )
         {
-            NBTTagCompound tag = stack.getOrCreateTag();
+            CompoundNBT tag = stack.getOrCreateTag();
             tag.putInt( NBT_PAGES, text.length / LINES_PER_PAGE );
             for( int i = 0; i < text.length; i++ )
             {
@@ -82,7 +82,7 @@ public class ItemPrintout extends Item
         }
         if( colours != null )
         {
-            NBTTagCompound tag = stack.getOrCreateTag();
+            CompoundNBT tag = stack.getOrCreateTag();
             for( int i = 0; i < colours.length; i++ )
             {
                 if( colours[i] != null ) tag.putString( NBT_LINE_COLOUR + i, colours[i] );
@@ -118,13 +118,13 @@ public class ItemPrintout extends Item
 
     public static String getTitle( @Nonnull ItemStack stack )
     {
-        NBTTagCompound nbt = stack.getTag();
+        CompoundNBT nbt = stack.getTag();
         return nbt != null && nbt.contains( NBT_TITLE ) ? nbt.getString( NBT_TITLE ) : null;
     }
 
     public static int getPageCount( @Nonnull ItemStack stack )
     {
-        NBTTagCompound nbt = stack.getTag();
+        CompoundNBT nbt = stack.getTag();
         return nbt != null && nbt.contains( NBT_PAGES ) ? nbt.getInt( NBT_PAGES ) : 1;
     }
 
@@ -140,7 +140,7 @@ public class ItemPrintout extends Item
 
     private static String[] getLines( @Nonnull ItemStack stack, String prefix )
     {
-        NBTTagCompound nbt = stack.getTag();
+        CompoundNBT nbt = stack.getTag();
         int numLines = getPageCount( stack ) * LINES_PER_PAGE;
         String[] lines = new String[numLines];
         for( int i = 0; i < lines.length; i++ )

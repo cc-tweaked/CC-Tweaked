@@ -9,7 +9,7 @@ buildscript {
     }
     dependencies {
         classpath 'com.google.code.gson:gson:2.8.1'
-        classpath 'net.minecraftforge.gradle:ForgeGradle:3.0.117'
+        classpath 'net.minecraftforge.gradle:ForgeGradle:3.0.128'
         classpath 'net.sf.proguard:proguard-gradle:6.1.0beta2'
         classpath 'org.ajoberstar.grgit:grgit-gradle:3.0.0'
     }
@@ -98,7 +98,7 @@ dependencies {
     // deobfProvided "pl.asie:Charset-Lib:0.5.4.6"
     // deobfProvided "MCMultiPart2:MCMultiPart:2.5.3"
 
-    runtimeOnly fg.deobf("mezz.jei:jei-1.13.2:5.0.0.20")
+    // runtimeOnly fg.deobf("mezz.jei:jei-1.13.2:5.0.0.20")
 
     shade 'org.squiddev:Cobalt:0.5.0-SNAPSHOT'
 
@@ -127,7 +127,7 @@ jar {
     manifest {
         attributes(["Specification-Title": "computercraft",
                     "Specification-Vendor": "SquidDev",
-                    "Specification-Version": "25.0",
+                    "Specification-Version": "26.0",
                     "Implementation-Title": "CC: Tweaked",
                     "Implementation-Version": "${mod_version}",
                     "Implementation-Vendor" :"SquidDev",
@@ -355,7 +355,7 @@ curseforge {
     apiKey = project.hasProperty('curseForgeApiKey') ? project.curseForgeApiKey : ''
     project {
         id = '282001'
-        releaseType = 'release'
+        releaseType = 'beta'
         changelog = "Release notes can be found on the GitHub repository (https://github.com/SquidDev-CC/CC-Tweaked/releases/tag/v${mc_version}-${mod_version})."
 
         relations {
@@ -431,7 +431,7 @@ githubRelease {
             .takeWhile { it != 'Type "help changelog" to see the full version history.' }
             .join("\n").trim()
     }
-    prerelease false
+    prerelease true
 }
 
 def uploadTasks = ["uploadArchives", "curseforge", "githubRelease"]

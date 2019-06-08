@@ -6,13 +6,13 @@
 
 package dan200.computercraft.client.render;
 
+import com.mojang.blaze3d.platform.GlStateManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.FirstPersonRenderer;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumHand;
-import net.minecraft.util.EnumHandSide;
+import net.minecraft.util.Hand;
+import net.minecraft.util.HandSide;
 import net.minecraft.util.math.MathHelper;
 
 public abstract class ItemMapLikeRenderer
@@ -25,19 +25,19 @@ public abstract class ItemMapLikeRenderer
      */
     protected abstract void renderItem( ItemStack stack );
 
-    protected void renderItemFirstPerson( EnumHand hand, float pitch, float equipProgress, float swingProgress, ItemStack stack )
+    protected void renderItemFirstPerson( Hand hand, float pitch, float equipProgress, float swingProgress, ItemStack stack )
     {
-        EntityPlayer player = Minecraft.getInstance().player;
+        PlayerEntity player = Minecraft.getInstance().player;
 
         GlStateManager.pushMatrix();
-        if( hand == EnumHand.MAIN_HAND && player.getHeldItemOffhand().isEmpty() )
+        if( hand == Hand.MAIN_HAND && player.getHeldItemOffhand().isEmpty() )
         {
             renderItemFirstPersonCenter( pitch, equipProgress, swingProgress, stack );
         }
         else
         {
             renderItemFirstPersonSide(
-                hand == EnumHand.MAIN_HAND ? player.getPrimaryHand() : player.getPrimaryHand().opposite(),
+                hand == Hand.MAIN_HAND ? player.getPrimaryHand() : player.getPrimaryHand().opposite(),
                 equipProgress, swingProgress, stack
             );
         }
@@ -51,12 +51,12 @@ public abstract class ItemMapLikeRenderer
      * @param equipProgress The equip progress of this item
      * @param swingProgress The swing progress of this item
      * @param stack         The stack to render
-     * @see FirstPersonRenderer#renderMapFirstPersonSide(float, EnumHandSide, float, ItemStack)
+     * @see FirstPersonRenderer#renderMapFirstPersonSide(float, HandSide, float, ItemStack)
      */
-    private void renderItemFirstPersonSide( EnumHandSide side, float equipProgress, float swingProgress, ItemStack stack )
+    private void renderItemFirstPersonSide( HandSide side, float equipProgress, float swingProgress, ItemStack stack )
     {
         Minecraft minecraft = Minecraft.getInstance();
-        float offset = side == EnumHandSide.RIGHT ? 1f : -1f;
+        float offset = side == HandSide.RIGHT ? 1f : -1f;
         GlStateManager.translatef( offset * 0.125f, -0.125f, 0f );
 
         // If the player is not invisible then render a single arm

@@ -6,6 +6,7 @@
 
 package dan200.computercraft.client.render;
 
+import com.mojang.blaze3d.platform.GlStateManager;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.peripheral.modem.wired.BlockCable;
 import dan200.computercraft.shared.peripheral.modem.wired.CableModemVariant;
@@ -13,10 +14,9 @@ import dan200.computercraft.shared.peripheral.modem.wired.CableShapes;
 import dan200.computercraft.shared.peripheral.modem.wired.TileCable;
 import dan200.computercraft.shared.util.WorldUtil;
 import net.minecraft.block.Block;
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.WorldRenderer;
 import net.minecraft.client.renderer.model.IBakedModel;
@@ -25,10 +25,10 @@ import net.minecraft.client.renderer.tileentity.TileEntityRenderer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
 import net.minecraftforge.client.ForgeHooksClient;
-import net.minecraftforge.client.MinecraftForgeClient;
 import net.minecraftforge.client.model.data.EmptyModelData;
 import org.lwjgl.opengl.GL11;
 
@@ -52,16 +52,19 @@ public class TileEntityCableRenderer extends TileEntityRenderer<TileCable>
         Minecraft mc = Minecraft.getInstance();
 
         RayTraceResult hit = mc.objectMouseOver;
-        if( hit == null || !hit.getBlockPos().equals( pos ) ) return;
+        if( hit == null || hit.getType() != RayTraceResult.Type.BLOCK || !((BlockRayTraceResult) hit).getPos().equals( pos ) )
+        {
+            return;
+        }
 
-        if( MinecraftForgeClient.getRenderPass() != 0 ) return;
+        if( ForgeHooksClient.getWorldRenderPass() != 0 ) return;
 
         World world = te.getWorld();
-        IBlockState state = world.getBlockState( pos );
+        BlockState state = world.getBlockState( pos );
         Block block = state.getBlock();
         if( block != ComputerCraft.Blocks.cable ) return;
 
-        state = WorldUtil.isVecInside( CableShapes.getModemShape( state ), hit.hitVec.subtract( pos.getX(), pos.getY(), pos.getZ() ) )
+        state = WorldUtil.isVecInside( CableShapes.getModemShape( state ), hit.getHitVec().subtract( pos.getX(), pos.getY(), pos.getZ() ) )
             ? block.getDefaultState().with( BlockCable.MODEM, state.get( BlockCable.MODEM ) )
             : state.with( BlockCable.MODEM, CableModemVariant.None );
 
@@ -80,7 +83,7 @@ public class TileEntityCableRenderer extends TileEntityRenderer<TileCable>
         TextureAtlasSprite breakingTexture = mc.getTextureMap().getSprite( DESTROY_STAGES[destroyStage] );
         mc.getBlockRendererDispatcher().getBlockModelRenderer().renderModel(
             world,
-            ForgeHooksClient.getDamageModel( model, breakingTexture, state, world, pos ),
+            ForgeHooksClient.getDamageModel( model, breakingTexture, state, world, pos, 0 ),
             state, pos, buffer, true, random, state.getPositionRandom( pos ), EmptyModelData.INSTANCE
         );
 

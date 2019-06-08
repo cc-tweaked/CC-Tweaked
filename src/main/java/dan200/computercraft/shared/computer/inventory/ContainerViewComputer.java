@@ -8,21 +8,27 @@ package dan200.computercraft.shared.computer.inventory;
 
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.computer.core.*;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.Container;
+import dan200.computercraft.shared.network.container.ContainerData;
+import dan200.computercraft.shared.network.container.ViewComputerContainerData;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.inventory.container.Container;
+import net.minecraft.inventory.container.ContainerType;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.util.text.TranslationTextComponent;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class ContainerViewComputer extends Container implements IContainerComputer
 {
+    public static final ContainerType<ContainerViewComputer> TYPE = ContainerData.create( ViewComputerContainerData::new );
+
     private final IComputer computer;
     private final InputState input = new InputState( this );
 
-    public ContainerViewComputer( IComputer computer )
+    public ContainerViewComputer( int id, IComputer computer )
     {
+        super( TYPE, id );
         this.computer = computer;
     }
 
@@ -34,7 +40,7 @@ public class ContainerViewComputer extends Container implements IContainerComput
     }
 
     @Override
-    public boolean canInteractWith( @Nonnull EntityPlayer player )
+    public boolean canInteractWith( @Nonnull PlayerEntity player )
     {
         if( computer instanceof ServerComputer )
         {
@@ -52,18 +58,18 @@ public class ContainerViewComputer extends Container implements IContainerComput
                 MinecraftServer server = player.getServer();
                 if( server == null || !server.isCommandBlockEnabled() )
                 {
-                    player.sendStatusMessage( new TextComponentTranslation( "advMode.notEnabled" ), false );
+                    player.sendStatusMessage( new TranslationTextComponent( "advMode.notEnabled" ), false );
                     return false;
                 }
                 else if( !player.canUseCommandBlock() )
                 {
-                    player.sendStatusMessage( new TextComponentTranslation( "advMode.notAllowed" ), false );
+                    player.sendStatusMessage( new TranslationTextComponent( "advMode.notAllowed" ), false );
                     return false;
                 }
             }
         }
 
-        return true;
+        return computer != null;
     }
 
     @Nonnull
@@ -74,7 +80,7 @@ public class ContainerViewComputer extends Container implements IContainerComput
     }
 
     @Override
-    public void onContainerClosed( EntityPlayer player )
+    public void onContainerClosed( PlayerEntity player )
     {
         super.onContainerClosed( player );
         input.close();

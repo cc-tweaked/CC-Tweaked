@@ -6,12 +6,12 @@
 
 package dan200.computercraft.client.render;
 
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.BlockState;
 import net.minecraft.client.renderer.model.BakedQuad;
 import net.minecraft.client.renderer.model.IBakedModel;
 import net.minecraft.client.renderer.model.ItemOverrideList;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraftforge.client.model.data.EmptyModelData;
 import net.minecraftforge.client.model.data.IModelData;
 
@@ -29,7 +29,7 @@ public class TurtleMultiModel implements IBakedModel
     private final IBakedModel m_rightUpgradeModel;
     private final Matrix4f m_rightUpgradeTransform;
     private List<BakedQuad> m_generalQuads = null;
-    private Map<EnumFacing, List<BakedQuad>> m_faceQuads = new EnumMap<>( EnumFacing.class );
+    private Map<Direction, List<BakedQuad>> m_faceQuads = new EnumMap<>( Direction.class );
 
     public TurtleMultiModel( IBakedModel baseModel, IBakedModel overlayModel, Matrix4f generalTransform, IBakedModel leftUpgradeModel, Matrix4f leftUpgradeTransform, IBakedModel rightUpgradeModel, Matrix4f rightUpgradeTransform )
     {
@@ -46,14 +46,14 @@ public class TurtleMultiModel implements IBakedModel
     @Nonnull
     @Override
     @Deprecated
-    public List<BakedQuad> getQuads( IBlockState state, EnumFacing side, @Nonnull Random rand )
+    public List<BakedQuad> getQuads( BlockState state, Direction side, @Nonnull Random rand )
     {
         return getQuads( state, side, rand, EmptyModelData.INSTANCE );
     }
 
     @Nonnull
     @Override
-    public List<BakedQuad> getQuads( IBlockState state, EnumFacing side, @Nonnull Random rand, @Nonnull IModelData data )
+    public List<BakedQuad> getQuads( BlockState state, Direction side, @Nonnull Random rand, @Nonnull IModelData data )
     {
         if( side != null )
         {
@@ -67,7 +67,7 @@ public class TurtleMultiModel implements IBakedModel
         }
     }
 
-    private List<BakedQuad> buildQuads( IBlockState state, EnumFacing side, Random rand )
+    private List<BakedQuad> buildQuads( BlockState state, Direction side, Random rand )
     {
         ArrayList<BakedQuad> quads = new ArrayList<>();
         ModelTransformer.transformQuadsTo( quads, m_baseModel.getQuads( state, side, rand, EmptyModelData.INSTANCE ), m_generalTransform );

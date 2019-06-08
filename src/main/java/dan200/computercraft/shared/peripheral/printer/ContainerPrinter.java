@@ -6,105 +6,85 @@
 
 package dan200.computercraft.shared.peripheral.printer;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.Container;
-import net.minecraft.inventory.IContainerListener;
+import dan200.computercraft.shared.util.SingleIntArray;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.Slot;
-import net.minecraft.item.ItemDye;
+import net.minecraft.inventory.Inventory;
+import net.minecraft.inventory.container.Container;
+import net.minecraft.inventory.container.ContainerType;
+import net.minecraft.inventory.container.Slot;
+import net.minecraft.item.DyeItem;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.IIntArray;
+import net.minecraft.util.IntArray;
 
 import javax.annotation.Nonnull;
 
 public class ContainerPrinter extends Container
 {
-    private static final int PROPERTY_PRINTING = 0;
+    public static final ContainerType<ContainerPrinter> TYPE = new ContainerType<>( ContainerPrinter::new );
 
-    private final TilePrinter m_printer;
-    private boolean m_lastPrinting;
+    private final IInventory inventory;
+    private final IIntArray properties;
 
-    public ContainerPrinter( IInventory playerInventory, TilePrinter printer )
+    private ContainerPrinter( int id, PlayerInventory player, IInventory inventory, IIntArray properties )
     {
-        m_printer = printer;
-        m_lastPrinting = false;
+        super( TYPE, id );
+        this.properties = properties;
+        this.inventory = inventory;
+
+        func_216961_a( properties );
 
         // Ink slot
-        addSlot( new Slot( printer, 0, 13, 35 ) );
+        addSlot( new Slot( inventory, 0, 13, 35 ) );
 
         // In-tray
-        for( int x = 0; x < 6; x++ ) addSlot( new Slot( printer, x + 1, 61 + x * 18, 22 ) );
+        for( int x = 0; x < 6; x++ ) addSlot( new Slot( inventory, x + 1, 61 + x * 18, 22 ) );
 
         // Out-tray
-        for( int x = 0; x < 6; x++ ) addSlot( new Slot( printer, x + 7, 61 + x * 18, 49 ) );
+        for( int x = 0; x < 6; x++ ) addSlot( new Slot( inventory, x + 7, 61 + x * 18, 49 ) );
 
         // Player inv
         for( int y = 0; y < 3; y++ )
         {
             for( int x = 0; x < 9; x++ )
             {
-                addSlot( new Slot( playerInventory, x + y * 9 + 9, 8 + x * 18, 84 + y * 18 ) );
+                addSlot( new Slot( player, x + y * 9 + 9, 8 + x * 18, 84 + y * 18 ) );
             }
         }
 
         // Player hotbar
-        for( int x = 0; x < 9; x++ ) addSlot( new Slot( playerInventory, x, 8 + x * 18, 142 ) );
+        for( int x = 0; x < 9; x++ )
+        {
+            addSlot( new Slot( player, x, 8 + x * 18, 142 ) );
+        }
+    }
+
+    private ContainerPrinter( int id, PlayerInventory player )
+    {
+        this( id, player, new Inventory( TilePrinter.SLOTS ), new IntArray( TilePrinter.PROPERTIES ) );
+    }
+
+    public ContainerPrinter( int id, PlayerInventory player, TilePrinter printer )
+    {
+        this( id, player, printer, (SingleIntArray) (() -> printer.isPrinting() ? 1 : 0) );
     }
 
     public boolean isPrinting()
     {
-        return m_lastPrinting;
-    }
-
-    public TilePrinter getPrinter()
-    {
-        return m_printer;
+        return properties.func_221476_a( 0 ) != 0;
     }
 
     @Override
-    public void addListener( IContainerListener listener )
+    public boolean canInteractWith( @Nonnull PlayerEntity player )
     {
-        super.addListener( listener );
-        listener.sendWindowProperty( this, PROPERTY_PRINTING, m_printer.isPrinting() ? 1 : 0 );
-    }
-
-    @Override
-    public void detectAndSendChanges()
-    {
-        super.detectAndSendChanges();
-
-        if( !m_printer.getWorld().isRemote )
-        {
-            // Push the printing state to the client if needed.
-            boolean printing = m_printer.isPrinting();
-            if( printing != m_lastPrinting )
-            {
-                for( IContainerListener listener : listeners )
-                {
-                    listener.sendWindowProperty( this, PROPERTY_PRINTING, printing ? 1 : 0 );
-                }
-                m_lastPrinting = printing;
-            }
-        }
-    }
-
-    @Override
-    public void updateProgressBar( int property, int value )
-    {
-        if( m_printer.getWorld().isRemote )
-        {
-            if( property == PROPERTY_PRINTING ) m_lastPrinting = value != 0;
-        }
-    }
-
-    @Override
-    public boolean canInteractWith( @Nonnull EntityPlayer player )
-    {
-        return m_printer.isUsableByPlayer( player );
+        return inventory.isUsableByPlayer( player );
     }
 
     @Nonnull
     @Override
-    public ItemStack transferStackInSlot( EntityPlayer player, int index )
+    public ItemStack transferStackInSlot( PlayerEntity player, int index )
     {
         Slot slot = inventorySlots.get( index );
         if( slot == null || !slot.getHasStack() ) return ItemStack.EMPTY;
@@ -118,7 +98,7 @@ public class ContainerPrinter extends Container
         else
         {
             // Transfer from inventory to printer
-            if( stack.getItem() instanceof ItemDye )
+            if( stack.getItem() instanceof DyeItem )
             {
                 if( !mergeItemStack( stack, 0, 1, false ) ) return ItemStack.EMPTY;
             }

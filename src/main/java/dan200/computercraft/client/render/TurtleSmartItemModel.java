@@ -12,13 +12,13 @@ import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.shared.turtle.items.ItemTurtle;
 import dan200.computercraft.shared.util.Holiday;
 import dan200.computercraft.shared.util.HolidayUtil;
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.model.*;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.minecraftforge.client.model.data.IModelData;
@@ -111,7 +111,7 @@ public class TurtleSmartItemModel implements IBakedModel
         {
             @Nonnull
             @Override
-            public IBakedModel getModelWithOverrides( @Nonnull IBakedModel originalModel, @Nonnull ItemStack stack, @Nullable World world, @Nullable EntityLivingBase entity )
+            public IBakedModel getModelWithOverrides( @Nonnull IBakedModel originalModel, @Nonnull ItemStack stack, @Nullable World world, @Nullable LivingEntity entity )
             {
                 ItemTurtle turtle = (ItemTurtle) stack.getItem();
                 int colour = turtle.getColour( stack );
@@ -169,7 +169,7 @@ public class TurtleSmartItemModel implements IBakedModel
     @Nonnull
     @Override
     @Deprecated
-    public List<BakedQuad> getQuads( IBlockState state, EnumFacing facing, @Nonnull Random rand )
+    public List<BakedQuad> getQuads( BlockState state, Direction facing, @Nonnull Random rand )
     {
         return familyModel.getQuads( state, facing, rand );
     }
@@ -177,7 +177,7 @@ public class TurtleSmartItemModel implements IBakedModel
     @Nonnull
     @Override
     @Deprecated
-    public List<BakedQuad> getQuads( IBlockState state, EnumFacing facing, @Nonnull Random rand, @Nonnull IModelData data )
+    public List<BakedQuad> getQuads( BlockState state, Direction facing, @Nonnull Random rand, @Nonnull IModelData data )
     {
         return familyModel.getQuads( state, facing, rand, data );
     }

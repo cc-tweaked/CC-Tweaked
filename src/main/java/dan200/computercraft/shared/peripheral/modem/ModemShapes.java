@@ -6,7 +6,7 @@
 
 package dan200.computercraft.shared.peripheral.modem;
 
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.shapes.VoxelShapes;
 
@@ -24,7 +24,7 @@ public final class ModemShapes
     };
 
     @Nonnull
-    public static VoxelShape getBounds( EnumFacing facing )
+    public static VoxelShape getBounds( Direction facing )
     {
         int direction = facing.ordinal();
         return direction < BOXES.length ? BOXES[direction] : VoxelShapes.fullCube();

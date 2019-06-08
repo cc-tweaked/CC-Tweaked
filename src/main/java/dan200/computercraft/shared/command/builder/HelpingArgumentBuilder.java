@@ -15,7 +15,7 @@ import com.mojang.brigadier.tree.CommandNode;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import net.minecraft.command.CommandSource;
 import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.event.ClickEvent;
 
@@ -174,7 +174,7 @@ public final class HelpingArgumentBuilder extends LiteralArgumentBuilder<Command
         temp.addChild( node );
         String usage = dispatcher.getSmartUsage( temp, context.getSource() ).get( node ).substring( node.getName().length() );
 
-        ITextComponent output = new TextComponentString( "" )
+        ITextComponent output = new StringTextComponent( "" )
             .appendSibling( coloured( "/" + command + usage, HEADER ) )
             .appendText( " " )
             .appendSibling( coloured( translate( "commands." + id + ".synopsis" ), SYNOPSIS ) )

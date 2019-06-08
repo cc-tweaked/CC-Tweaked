@@ -22,7 +22,7 @@ public final class ChatHelpers
 
     public static ITextComponent coloured( String text, TextFormatting colour )
     {
-        ITextComponent component = new TextComponentString( text == null ? "" : text );
+        ITextComponent component = new StringTextComponent( text == null ? "" : text );
         component.getStyle().setColor( colour );
         return component;
     }
@@ -35,22 +35,22 @@ public final class ChatHelpers
 
     public static ITextComponent text( String text )
     {
-        return new TextComponentString( text == null ? "" : text );
+        return new StringTextComponent( text == null ? "" : text );
     }
 
     public static ITextComponent translate( String text )
     {
-        return new TextComponentTranslation( text == null ? "" : text );
+        return new TranslationTextComponent( text == null ? "" : text );
     }
 
     public static ITextComponent translate( String text, Object... args )
     {
-        return new TextComponentTranslation( text == null ? "" : text, args );
+        return new TranslationTextComponent( text == null ? "" : text, args );
     }
 
     public static ITextComponent list( ITextComponent... children )
     {
-        ITextComponent component = new TextComponentString( "" );
+        ITextComponent component = new StringTextComponent( "" );
         for( ITextComponent child : children )
         {
             component.appendSibling( child );

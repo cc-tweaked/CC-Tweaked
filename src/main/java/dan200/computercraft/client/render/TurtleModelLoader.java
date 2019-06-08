@@ -9,15 +9,15 @@ package dan200.computercraft.client.render;
 import dan200.computercraft.ComputerCraft;
 import net.minecraft.client.renderer.model.IBakedModel;
 import net.minecraft.client.renderer.model.IUnbakedModel;
+import net.minecraft.client.renderer.model.ModelBakery;
+import net.minecraft.client.renderer.texture.ISprite;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.resources.IResourceManager;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.model.ICustomModelLoader;
-import net.minecraftforge.common.model.IModelState;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Set;
@@ -91,13 +91,13 @@ public final class TurtleModelLoader implements ICustomModelLoader
                 .collect( Collectors.toSet() );
         }
 
-        @Nullable
+        @Nonnull
         @Override
-        public IBakedModel bake( @Nonnull Function<ResourceLocation, IUnbakedModel> modelGetter, @Nonnull Function<ResourceLocation, TextureAtlasSprite> spriteGetter, @Nonnull IModelState state, boolean uvlock, @Nonnull VertexFormat format )
+        public IBakedModel bake( @Nonnull ModelBakery bakery, @Nonnull Function<ResourceLocation, TextureAtlasSprite> spriteGetter, @Nonnull ISprite sprite, @Nonnull VertexFormat format )
         {
             return new TurtleSmartItemModel(
-                modelGetter.apply( family ).bake( modelGetter, spriteGetter, state, uvlock, format ),
-                modelGetter.apply( COLOUR_TURTLE_MODEL ).bake( modelGetter, spriteGetter, state, uvlock, format )
+                bakery.getBakedModel( family, sprite, spriteGetter, format ),
+                bakery.getBakedModel( COLOUR_TURTLE_MODEL, sprite, spriteGetter, format )
             );
         }
     }

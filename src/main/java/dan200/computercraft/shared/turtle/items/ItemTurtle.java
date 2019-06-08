@@ -16,12 +16,12 @@ import dan200.computercraft.shared.computer.items.ItemComputerBase;
 import dan200.computercraft.shared.turtle.blocks.BlockTurtle;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextComponentString;
-import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.util.text.TranslationTextComponent;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -39,7 +39,7 @@ public class ItemTurtle extends ItemComputerBase implements ITurtleItem
     {
         // Build the stack
         ItemStack stack = new ItemStack( this );
-        if( label != null ) stack.setDisplayName( new TextComponentString( label ) );
+        if( label != null ) stack.setDisplayName( new StringTextComponent( label ) );
         if( id >= 0 ) stack.getOrCreateTag().putInt( NBT_ID, id );
         IColouredItem.setColourBasic( stack, colour );
         if( fuelLevel > 0 ) stack.getOrCreateTag().putInt( NBT_FUEL, fuelLevel );
@@ -83,26 +83,26 @@ public class ItemTurtle extends ItemComputerBase implements ITurtleItem
         ITurtleUpgrade right = getUpgrade( stack, TurtleSide.Right );
         if( left != null && right != null )
         {
-            return new TextComponentTranslation( baseString + ".upgraded_twice",
-                new TextComponentTranslation( right.getUnlocalisedAdjective() ),
-                new TextComponentTranslation( left.getUnlocalisedAdjective() )
+            return new TranslationTextComponent( baseString + ".upgraded_twice",
+                new TranslationTextComponent( right.getUnlocalisedAdjective() ),
+                new TranslationTextComponent( left.getUnlocalisedAdjective() )
             );
         }
         else if( left != null )
         {
-            return new TextComponentTranslation( baseString + ".upgraded",
-                new TextComponentTranslation( left.getUnlocalisedAdjective() )
+            return new TranslationTextComponent( baseString + ".upgraded",
+                new TranslationTextComponent( left.getUnlocalisedAdjective() )
             );
         }
         else if( right != null )
         {
-            return new TextComponentTranslation( baseString + ".upgraded",
-                new TextComponentTranslation( right.getUnlocalisedAdjective() )
+            return new TranslationTextComponent( baseString + ".upgraded",
+                new TranslationTextComponent( right.getUnlocalisedAdjective() )
             );
         }
         else
         {
-            return new TextComponentTranslation( baseString );
+            return new TranslationTextComponent( baseString );
         }
     }
 
@@ -144,7 +144,7 @@ public class ItemTurtle extends ItemComputerBase implements ITurtleItem
     @Override
     public ITurtleUpgrade getUpgrade( @Nonnull ItemStack stack, @Nonnull TurtleSide side )
     {
-        NBTTagCompound tag = stack.getTag();
+        CompoundNBT tag = stack.getTag();
         if( tag == null ) return null;
 
         String key = side == TurtleSide.Left ? NBT_LEFT_UPGRADE : NBT_RIGHT_UPGRADE;
@@ -154,14 +154,14 @@ public class ItemTurtle extends ItemComputerBase implements ITurtleItem
     @Override
     public ResourceLocation getOverlay( @Nonnull ItemStack stack )
     {
-        NBTTagCompound tag = stack.getTag();
+        CompoundNBT tag = stack.getTag();
         return tag != null && tag.contains( NBT_OVERLAY ) ? new ResourceLocation( tag.getString( NBT_OVERLAY ) ) : null;
     }
 
     @Override
     public int getFuelLevel( @Nonnull ItemStack stack )
     {
-        NBTTagCompound tag = stack.getTag();
+        CompoundNBT tag = stack.getTag();
         return tag != null && tag.contains( NBT_FUEL ) ? tag.getInt( NBT_FUEL ) : 0;
     }
 }

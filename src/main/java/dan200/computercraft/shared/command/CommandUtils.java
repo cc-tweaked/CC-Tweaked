@@ -12,7 +12,7 @@ import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import net.minecraft.command.CommandSource;
 import net.minecraft.command.ISuggestionProvider;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraftforge.common.util.FakePlayer;
 
 import java.util.Arrays;
@@ -27,9 +27,9 @@ public final class CommandUtils
     public static boolean isPlayer( CommandSource output )
     {
         Entity sender = output.getEntity();
-        return sender instanceof EntityPlayerMP
+        return sender instanceof ServerPlayerEntity
             && !(sender instanceof FakePlayer)
-            && ((EntityPlayerMP) sender).connection != null;
+            && ((ServerPlayerEntity) sender).connection != null;
     }
 
     @SuppressWarnings( "unchecked" )

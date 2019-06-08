@@ -24,18 +24,18 @@ import dan200.computercraft.shared.util.Colour;
 import dan200.computercraft.shared.util.Holiday;
 import dan200.computercraft.shared.util.HolidayUtil;
 import net.minecraft.block.Block;
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.MoverType;
 import net.minecraft.fluid.IFluidState;
-import net.minecraft.init.Particles;
 import net.minecraft.inventory.IInventory;
-import net.minecraft.item.EnumDyeColor;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.item.DyeColor;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.particles.ParticleTypes;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EntitySelectors;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
+import net.minecraft.util.EntityPredicates;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
@@ -49,7 +49,7 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 import static dan200.computercraft.shared.common.IColouredItem.NBT_COLOUR;
-import static dan200.computercraft.shared.util.WaterloggableBlock.WATERLOGGED;
+import static dan200.computercraft.shared.util.WaterloggableHelpers.WATERLOGGED;
 
 public class TurtleBrain implements ITurtleAccess
 {
@@ -73,7 +73,7 @@ public class TurtleBrain implements ITurtleAccess
 
     private Map<TurtleSide, ITurtleUpgrade> m_upgrades = new EnumMap<>( TurtleSide.class );
     private Map<TurtleSide, IPeripheral> peripherals = new EnumMap<>( TurtleSide.class );
-    private Map<TurtleSide, NBTTagCompound> m_upgradeNBTData = new EnumMap<>( TurtleSide.class );
+    private Map<TurtleSide, CompoundNBT> m_upgradeNBTData = new EnumMap<>( TurtleSide.class );
 
     private int m_selectedSlot = 0;
     private int m_fuelLevel = 0;
@@ -154,7 +154,7 @@ public class TurtleBrain implements ITurtleAccess
      *
      * @param nbt The tag to read from
      */
-    private void readCommon( NBTTagCompound nbt )
+    private void readCommon( CompoundNBT nbt )
     {
         // Read fields
         m_colourHex = nbt.contains( NBT_COLOUR ) ? nbt.getInt( NBT_COLOUR ) : -1;
@@ -177,7 +177,7 @@ public class TurtleBrain implements ITurtleAccess
         }
     }
 
-    private void writeCommon( NBTTagCompound nbt )
+    private void writeCommon( CompoundNBT nbt )
     {
         nbt.putInt( NBT_FUEL, m_fuelLevel );
         if( m_colourHex != -1 ) nbt.putInt( NBT_COLOUR, m_colourHex );
@@ -200,7 +200,7 @@ public class TurtleBrain implements ITurtleAccess
         }
     }
 
-    public void readFromNBT( NBTTagCompound nbt )
+    public void readFromNBT( CompoundNBT nbt )
     {
         readCommon( nbt );
 
@@ -210,7 +210,7 @@ public class TurtleBrain implements ITurtleAccess
         // Read owner
         if( nbt.contains( "Owner", Constants.NBT.TAG_COMPOUND ) )
         {
-            NBTTagCompound owner = nbt.getCompound( "Owner" );
+            CompoundNBT owner = nbt.getCompound( "Owner" );
             m_owningPlayer = new GameProfile(
                 new UUID( owner.getLong( "UpperId" ), owner.getLong( "LowerId" ) ),
                 owner.getString( "Name" )
@@ -222,7 +222,7 @@ public class TurtleBrain implements ITurtleAccess
         }
     }
 
-    public NBTTagCompound writeToNBT( NBTTagCompound nbt )
+    public CompoundNBT writeToNBT( CompoundNBT nbt )
     {
         writeCommon( nbt );
 
@@ -232,7 +232,7 @@ public class TurtleBrain implements ITurtleAccess
         // Write owner
         if( m_owningPlayer != null )
         {
-            NBTTagCompound owner = new NBTTagCompound();
+            CompoundNBT owner = new CompoundNBT();
             nbt.put( "Owner", owner );
 
             owner.putLong( "UpperId", m_owningPlayer.getId().getMostSignificantBits() );
@@ -248,7 +248,7 @@ public class TurtleBrain implements ITurtleAccess
         return upgrade != null ? upgrade.getUpgradeID().toString() : null;
     }
 
-    public void readDescription( NBTTagCompound nbt )
+    public void readDescription( CompoundNBT nbt )
     {
         readCommon( nbt );
 
@@ -265,7 +265,7 @@ public class TurtleBrain implements ITurtleAccess
         }
     }
 
-    public void writeDescription( NBTTagCompound nbt )
+    public void writeDescription( CompoundNBT nbt )
     {
         writeCommon( nbt );
         nbt.putInt( "Animation", m_animation.ordinal() );
@@ -297,7 +297,7 @@ public class TurtleBrain implements ITurtleAccess
         World oldWorld = getWorld();
         TileTurtle oldOwner = m_owner;
         BlockPos oldPos = m_owner.getPos();
-        IBlockState oldBlock = m_owner.getBlockState();
+        BlockState oldBlock = m_owner.getBlockState();
 
         if( oldWorld == world && oldPos.equals( pos ) )
         {
@@ -312,7 +312,7 @@ public class TurtleBrain implements ITurtleAccess
         if( !world.getWorldBorder().contains( pos ) ) return false;
 
         IFluidState existingFluid = world.getBlockState( pos ).getFluidState();
-        IBlockState newState = oldBlock
+        BlockState newState = oldBlock
             // We only mark this as waterlogged when travelling into a source block. This prevents us from spreading
             // fluid by creating a new source when moving into a block, causing the next block to be almost full and
             // then moving into that.
@@ -340,7 +340,7 @@ public class TurtleBrain implements ITurtleAccess
                         newTurtle.createServerComputer().setPosition( pos );
 
                         // Remove the old turtle
-                        oldWorld.removeBlock( oldPos );
+                        oldWorld.removeBlock( oldPos, false );
 
                         // Make sure everybody knows about it
                         newTurtle.updateBlock();
@@ -351,7 +351,7 @@ public class TurtleBrain implements ITurtleAccess
                 }
 
                 // Something went wrong, remove the newly created turtle
-                world.removeBlock( pos );
+                world.removeBlock( pos, false );
             }
         }
         finally
@@ -406,13 +406,13 @@ public class TurtleBrain implements ITurtleAccess
 
     @Nonnull
     @Override
-    public EnumFacing getDirection()
+    public Direction getDirection()
     {
         return m_owner.getDirection();
     }
 
     @Override
-    public void setDirection( @Nonnull EnumFacing dir )
+    public void setDirection( @Nonnull Direction dir )
     {
         m_owner.setDirection( dir );
     }
@@ -570,14 +570,14 @@ public class TurtleBrain implements ITurtleAccess
         }
     }
 
-    public EnumDyeColor getDyeColour()
+    public DyeColor getDyeColour()
     {
         if( m_colourHex == -1 ) return null;
         Colour colour = Colour.fromHex( m_colourHex );
-        return colour == null ? null : EnumDyeColor.byId( 15 - colour.ordinal() );
+        return colour == null ? null : DyeColor.byId( 15 - colour.ordinal() );
     }
 
-    public void setDyeColour( EnumDyeColor dyeColour )
+    public void setDyeColour( DyeColor dyeColour )
     {
         int newColour = -1;
         if( dyeColour != null )
@@ -668,10 +668,10 @@ public class TurtleBrain implements ITurtleAccess
 
     @Nonnull
     @Override
-    public NBTTagCompound getUpgradeNBTData( TurtleSide side )
+    public CompoundNBT getUpgradeNBTData( TurtleSide side )
     {
-        NBTTagCompound nbt = m_upgradeNBTData.get( side );
-        if( nbt == null ) m_upgradeNBTData.put( side, nbt = new NBTTagCompound() );
+        CompoundNBT nbt = m_upgradeNBTData.get( side );
+        if( nbt == null ) m_upgradeNBTData.put( side, nbt = new CompoundNBT() );
         return nbt;
     }
 
@@ -691,7 +691,7 @@ public class TurtleBrain implements ITurtleAccess
             case MoveDown:
             {
                 // Get direction
-                EnumFacing dir;
+                Direction dir;
                 switch( m_animation )
                 {
                     case MoveForward:
@@ -702,10 +702,10 @@ public class TurtleBrain implements ITurtleAccess
                         dir = getDirection().getOpposite();
                         break;
                     case MoveUp:
-                        dir = EnumFacing.UP;
+                        dir = Direction.UP;
                         break;
                     case MoveDown:
-                        dir = EnumFacing.DOWN;
+                        dir = Direction.DOWN;
                         break;
                 }
 
@@ -838,7 +838,7 @@ public class TurtleBrain implements ITurtleAccess
                     m_animation == TurtleAnimation.MoveDown )
                 {
                     BlockPos pos = getPosition();
-                    EnumFacing moveDir;
+                    Direction moveDir;
                     switch( m_animation )
                     {
                         case MoveForward:
@@ -849,10 +849,10 @@ public class TurtleBrain implements ITurtleAccess
                             moveDir = getDirection().getOpposite();
                             break;
                         case MoveUp:
-                            moveDir = EnumFacing.UP;
+                            moveDir = Direction.UP;
                             break;
                         case MoveDown:
-                            moveDir = EnumFacing.DOWN;
+                            moveDir = Direction.DOWN;
                             break;
                     }
 
@@ -893,7 +893,7 @@ public class TurtleBrain implements ITurtleAccess
                     }
 
                     AxisAlignedBB aabb = new AxisAlignedBB( minX, minY, minZ, maxX, maxY, maxZ );
-                    List<Entity> list = world.getEntitiesWithinAABB( Entity.class, aabb, EntitySelectors.NOT_SPECTATING );
+                    List<Entity> list = world.getEntitiesWithinAABB( Entity.class, aabb, EntityPredicates.NOT_SPECTATING );
                     if( !list.isEmpty() )
                     {
                         double pushStep = 1.0f / ANIM_DURATION;
@@ -902,7 +902,7 @@ public class TurtleBrain implements ITurtleAccess
                         double pushStepZ = moveDir.getZOffset() * pushStep;
                         for( Entity entity : list )
                         {
-                            entity.move( MoverType.PISTON, pushStepX, pushStepY, pushStepZ );
+                            entity.move( MoverType.PISTON, new Vec3d( pushStepX, pushStepY, pushStepZ ) );
                         }
                     }
                 }
@@ -922,7 +922,7 @@ public class TurtleBrain implements ITurtleAccess
                         double y = position.y + 0.5 + world.rand.nextGaussian() * 0.1;
                         double z = position.z + world.rand.nextGaussian() * 0.1;
                         world.addParticle(
-                            Particles.HEART, x, y, z,
+                            ParticleTypes.HEART, x, y, z,
                             world.rand.nextGaussian() * 0.02,
                             world.rand.nextGaussian() * 0.02,
                             world.rand.nextGaussian() * 0.02

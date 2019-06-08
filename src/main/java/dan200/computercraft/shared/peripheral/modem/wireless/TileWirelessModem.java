@@ -12,11 +12,11 @@ import dan200.computercraft.api.peripheral.IPeripheralTile;
 import dan200.computercraft.shared.common.TileGeneric;
 import dan200.computercraft.shared.peripheral.modem.ModemPeripheral;
 import dan200.computercraft.shared.peripheral.modem.ModemState;
-import dan200.computercraft.shared.util.NamedBlockEntityType;
+import dan200.computercraft.shared.util.NamedTileEntityType;
 import dan200.computercraft.shared.util.TickScheduler;
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.BlockState;
 import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
@@ -27,12 +27,12 @@ import javax.annotation.Nullable;
 
 public class TileWirelessModem extends TileGeneric implements IPeripheralTile
 {
-    public static final NamedBlockEntityType<TileWirelessModem> FACTORY_NORMAL = NamedBlockEntityType.create(
+    public static final NamedTileEntityType<TileWirelessModem> FACTORY_NORMAL = NamedTileEntityType.create(
         new ResourceLocation( ComputerCraft.MOD_ID, "wireless_modem_normal" ),
         f -> new TileWirelessModem( f, false )
     );
 
-    public static final NamedBlockEntityType<TileWirelessModem> FACTORY_ADVANCED = NamedBlockEntityType.create(
+    public static final NamedTileEntityType<TileWirelessModem> FACTORY_ADVANCED = NamedTileEntityType.create(
         new ResourceLocation( ComputerCraft.MOD_ID, "wireless_modem_advanced" ),
         f -> new TileWirelessModem( f, true )
     );
@@ -72,7 +72,7 @@ public class TileWirelessModem extends TileGeneric implements IPeripheralTile
     private final boolean advanced;
 
     private boolean hasModemDirection = false;
-    private EnumFacing modemDirection = EnumFacing.DOWN;
+    private Direction modemDirection = Direction.DOWN;
     private final ModemPeripheral modem;
     private boolean destroyed = false;
 
@@ -142,7 +142,7 @@ public class TileWirelessModem extends TileGeneric implements IPeripheralTile
     private void updateBlockState()
     {
         boolean on = modem.getModemState().isOpen();
-        IBlockState state = getBlockState();
+        BlockState state = getBlockState();
         if( state.get( BlockWirelessModem.ON ) != on )
         {
             getWorld().setBlockState( getPos(), state.with( BlockWirelessModem.ON, on ) );
@@ -152,7 +152,7 @@ public class TileWirelessModem extends TileGeneric implements IPeripheralTile
 
     @Nullable
     @Override
-    public IPeripheral getPeripheral( @Nonnull EnumFacing side )
+    public IPeripheral getPeripheral( @Nonnull Direction side )
     {
         updateDirection();
         return side == modemDirection ? modem : null;

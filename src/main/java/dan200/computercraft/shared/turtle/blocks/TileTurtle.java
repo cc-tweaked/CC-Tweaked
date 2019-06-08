@@ -20,23 +20,23 @@ import dan200.computercraft.shared.computer.blocks.TileComputerBase;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ComputerState;
 import dan200.computercraft.shared.computer.core.ServerComputer;
-import dan200.computercraft.shared.network.Containers;
 import dan200.computercraft.shared.turtle.apis.TurtleAPI;
 import dan200.computercraft.shared.turtle.core.TurtleBrain;
 import dan200.computercraft.shared.util.*;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Items;
-import net.minecraft.item.EnumDyeColor;
-import net.minecraft.item.ItemDye;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.DyeColor;
+import net.minecraft.item.DyeItem;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
+import net.minecraft.item.Items;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.ListNBT;
 import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
+import net.minecraft.util.Direction;
+import net.minecraft.util.Hand;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.Constants;
@@ -57,12 +57,12 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
     public static final int INVENTORY_WIDTH = 4;
     public static final int INVENTORY_HEIGHT = 4;
 
-    public static final NamedBlockEntityType<TileTurtle> FACTORY_NORMAL = NamedBlockEntityType.create(
+    public static final NamedTileEntityType<TileTurtle> FACTORY_NORMAL = NamedTileEntityType.create(
         new ResourceLocation( ComputerCraft.MOD_ID, "turtle_normal" ),
         type -> new TileTurtle( type, ComputerFamily.Normal )
     );
 
-    public static final NamedBlockEntityType<TileTurtle> FACTORY_ADVANCED = NamedBlockEntityType.create(
+    public static final NamedTileEntityType<TileTurtle> FACTORY_ADVANCED = NamedTileEntityType.create(
         new ResourceLocation( ComputerCraft.MOD_ID, "turtle_advanced" ),
         type -> new TileTurtle( type, ComputerFamily.Advanced )
     );
@@ -143,7 +143,7 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
         else
         {
             // Just turn off any redstone we had on
-            for( EnumFacing dir : DirectionUtil.FACINGS )
+            for( Direction dir : DirectionUtil.FACINGS )
             {
                 RedstoneUtil.propagateRedstoneOutput( getWorld(), getPos(), dir );
             }
@@ -171,18 +171,18 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
     }
 
     @Override
-    public boolean onActivate( EntityPlayer player, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ )
+    public boolean onActivate( PlayerEntity player, Hand hand, BlockRayTraceResult hit )
     {
         // Apply dye
         ItemStack currentItem = player.getHeldItem( hand );
         if( !currentItem.isEmpty() )
         {
-            if( currentItem.getItem() instanceof ItemDye )
+            if( currentItem.getItem() instanceof DyeItem )
             {
                 // Dye to change turtle colour
                 if( !getWorld().isRemote )
                 {
-                    EnumDyeColor dye = ((ItemDye) currentItem.getItem()).getDyeColor();
+                    DyeColor dye = ((DyeItem) currentItem.getItem()).getDyeColor();
                     if( m_brain.getDyeColour() != dye )
                     {
                         m_brain.setDyeColour( dye );
@@ -214,23 +214,23 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
         }
 
         // Open GUI or whatever
-        return super.onActivate( player, hand, side, hitX, hitY, hitZ );
+        return super.onActivate( player, hand, hit );
     }
 
     @Override
-    protected boolean canNameWithTag( EntityPlayer player )
+    protected boolean canNameWithTag( PlayerEntity player )
     {
         return true;
     }
 
     @Override
-    public void openGUI( EntityPlayer player )
+    public void openGUI( PlayerEntity player )
     {
-        Containers.openTurtleGUI( player, this );
+        // TODO: Containers.openTurtleGUI( player, this );
     }
 
     @Override
-    protected double getInteractRange( EntityPlayer player )
+    protected double getInteractRange( PlayerEntity player )
     {
         return 12.0;
     }
@@ -285,17 +285,17 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
     }
 
     @Override
-    public void read( NBTTagCompound nbt )
+    public void read( CompoundNBT nbt )
     {
         super.read( nbt );
 
         // Read inventory
-        NBTTagList nbttaglist = nbt.getList( "Items", Constants.NBT.TAG_COMPOUND );
+        ListNBT nbttaglist = nbt.getList( "Items", Constants.NBT.TAG_COMPOUND );
         m_inventory = NonNullList.withSize( INVENTORY_SIZE, ItemStack.EMPTY );
         m_previousInventory = NonNullList.withSize( INVENTORY_SIZE, ItemStack.EMPTY );
         for( int i = 0; i < nbttaglist.size(); i++ )
         {
-            NBTTagCompound tag = nbttaglist.getCompound( i );
+            CompoundNBT tag = nbttaglist.getCompound( i );
             int slot = tag.getByte( "Slot" ) & 0xff;
             if( slot < getSizeInventory() )
             {
@@ -310,15 +310,15 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
 
     @Nonnull
     @Override
-    public NBTTagCompound write( NBTTagCompound nbt )
+    public CompoundNBT write( CompoundNBT nbt )
     {
         // Write inventory
-        NBTTagList nbttaglist = new NBTTagList();
+        ListNBT nbttaglist = new ListNBT();
         for( int i = 0; i < INVENTORY_SIZE; i++ )
         {
             if( !m_inventory.get( i ).isEmpty() )
             {
-                NBTTagCompound tag = new NBTTagCompound();
+                CompoundNBT tag = new CompoundNBT();
                 tag.putByte( "Slot", (byte) i );
                 m_inventory.get( i ).write( tag );
                 nbttaglist.add( tag );
@@ -341,14 +341,14 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
     // IDirectionalTile
 
     @Override
-    public EnumFacing getDirection()
+    public Direction getDirection()
     {
         return getBlockState().get( BlockTurtle.FACING );
     }
 
-    public void setDirection( EnumFacing dir )
+    public void setDirection( Direction dir )
     {
-        if( dir.getAxis() == EnumFacing.Axis.Y ) dir = EnumFacing.NORTH;
+        if( dir.getAxis() == Direction.Axis.Y ) dir = Direction.NORTH;
         world.setBlockState( pos, getBlockState().with( BlockTurtle.FACING, dir ) );
         updateOutput();
         updateInput();
@@ -536,7 +536,7 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
     }
 
     @Override
-    public boolean isUsableByPlayer( @Nonnull EntityPlayer player )
+    public boolean isUsableByPlayer( @Nonnull PlayerEntity player )
     {
         return isUsable( player, false );
     }
@@ -555,14 +555,14 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
     // Networking stuff
 
     @Override
-    protected void writeDescription( @Nonnull NBTTagCompound nbt )
+    protected void writeDescription( @Nonnull CompoundNBT nbt )
     {
         super.writeDescription( nbt );
         m_brain.writeDescription( nbt );
     }
 
     @Override
-    protected void readDescription( @Nonnull NBTTagCompound nbt )
+    protected void readDescription( @Nonnull CompoundNBT nbt )
     {
         super.readDescription( nbt );
         m_brain.readDescription( nbt );
@@ -601,7 +601,7 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
 
     @Nullable
     @Override
-    public IPeripheral getPeripheral( @Nonnull EnumFacing side )
+    public IPeripheral getPeripheral( @Nonnull Direction side )
     {
         return hasMoved() ? null : new ComputerPeripheral( "turtle", createProxy() );
     }
@@ -613,7 +613,7 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
 
     @Nonnull
     @Override
-    public <T> LazyOptional<T> getCapability( @Nonnull Capability<T> cap, @Nullable EnumFacing side )
+    public <T> LazyOptional<T> getCapability( @Nonnull Capability<T> cap, @Nullable Direction side )
     {
         if( cap == ITEM_HANDLER_CAPABILITY )
         {

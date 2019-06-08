@@ -26,7 +26,7 @@ import dan200.computercraft.shared.util.IDAssigner;
 import dan200.computercraft.shared.wired.CapabilityWiredElement;
 import dan200.computercraft.shared.wired.WiredNode;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
@@ -94,7 +94,7 @@ public final class ComputerCraftAPIImpl implements IComputerCraftAPI
     }
 
     @Override
-    public int getBundledRedstoneOutput( @Nonnull World world, @Nonnull BlockPos pos, @Nonnull EnumFacing side )
+    public int getBundledRedstoneOutput( @Nonnull World world, @Nonnull BlockPos pos, @Nonnull Direction side )
     {
         return BundledRedstone.getDefaultOutput( world, pos, side );
     }
@@ -133,7 +133,7 @@ public final class ComputerCraftAPIImpl implements IComputerCraftAPI
 
     @Nonnull
     @Override
-    public LazyOptional<IWiredElement> getWiredElementAt( @Nonnull IBlockReader world, @Nonnull BlockPos pos, @Nonnull EnumFacing side )
+    public LazyOptional<IWiredElement> getWiredElementAt( @Nonnull IBlockReader world, @Nonnull BlockPos pos, @Nonnull Direction side )
     {
         TileEntity tile = world.getTileEntity( pos );
         return tile == null ? LazyOptional.empty() : tile.getCapability( CapabilityWiredElement.CAPABILITY, side );

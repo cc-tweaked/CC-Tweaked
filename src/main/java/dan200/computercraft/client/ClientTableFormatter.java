@@ -12,8 +12,8 @@ import dan200.computercraft.shared.command.text.TableFormatter;
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.gui.GuiNewChat;
-import net.minecraft.client.gui.GuiUtilRenderComponents;
+import net.minecraft.client.gui.NewChatGui;
+import net.minecraft.client.gui.RenderComponentsUtil;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextFormatting;
@@ -65,18 +65,18 @@ public class ClientTableFormatter implements TableFormatter
     public void writeLine( int id, ITextComponent component )
     {
         Minecraft mc = Minecraft.getInstance();
-        GuiNewChat chat = mc.ingameGUI.getChatGUI();
+        NewChatGui chat = mc.field_71456_v.getChatGUI(); // ingameGUI
 
         // Trim the text if it goes over the allowed length
         int maxWidth = MathHelper.floor( chat.getChatWidth() / chat.getScale() );
-        List<ITextComponent> list = GuiUtilRenderComponents.splitText( component, maxWidth, mc.fontRenderer, false, false );
+        List<ITextComponent> list = RenderComponentsUtil.splitText( component, maxWidth, mc.fontRenderer, false, false );
         if( !list.isEmpty() ) chat.printChatMessageWithOptionalDeletion( list.get( 0 ), id );
     }
 
     @Override
     public int display( TableBuilder table )
     {
-        GuiNewChat chat = Minecraft.getInstance().ingameGUI.getChatGUI();
+        NewChatGui chat = Minecraft.getInstance().field_71456_v.getChatGUI();
 
         int lastHeight = lastHeights.get( table.getId() );
 

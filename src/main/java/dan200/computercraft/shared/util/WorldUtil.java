@@ -7,17 +7,13 @@
 package dan200.computercraft.shared.util;
 
 import com.google.common.base.Predicate;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.item.EntityItem;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.block.BlockState;
+import net.minecraft.entity.*;
+import net.minecraft.entity.item.ItemEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.Direction;
+import net.minecraft.util.math.*;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.world.World;
 import org.apache.commons.lang3.tuple.Pair;
@@ -30,10 +26,25 @@ public final class WorldUtil
     @SuppressWarnings( "Guava" )
     private static final Predicate<Entity> CAN_COLLIDE = x -> x != null && x.isAlive() && x.canBeCollidedWith();
 
+    private static final Entity ENTITY = new ItemEntity( EntityType.ITEM, null )
+    {
+        @Override
+        public EntitySize getSize( Pose pose )
+        {
+            return EntitySize.fixed( 0, 0 );
+        }
+    };
+
+    static
+    {
+        ENTITY.noClip = true;
+        ENTITY.recalculateSize();
+    }
+
     public static boolean isLiquidBlock( World world, BlockPos pos )
     {
         if( !World.isValid( pos ) ) return false;
-        IBlockState state = world.getBlockState( pos );
+        BlockState state = world.getBlockState( pos );
         return !state.getFluidState().isEmpty();
     }
 
@@ -50,10 +61,12 @@ public final class WorldUtil
         Vec3d vecEnd = vecStart.add( vecDir.x * distance, vecDir.y * distance, vecDir.z * distance );
 
         // Raycast for blocks
-        RayTraceResult result = world.rayTraceBlocks( vecStart, vecEnd );
-        if( result != null && result.type == RayTraceResult.Type.BLOCK )
+        ENTITY.setPosition( vecStart.x, vecStart.y, vecStart.z );
+        RayTraceContext context = new RayTraceContext( vecStart, vecEnd, RayTraceContext.BlockMode.COLLIDER, RayTraceContext.FluidMode.NONE, ENTITY );
+        RayTraceResult result = world.func_217299_a( context );
+        if( result != null && result.getType() == RayTraceResult.Type.BLOCK )
         {
-            distance = vecStart.distanceTo( result.hitVec );
+            distance = vecStart.distanceTo( result.getHitVec() );
             vecEnd = vecStart.add( vecDir.x * distance, vecDir.y * distance, vecDir.z * distance );
         }
 
@@ -76,15 +89,6 @@ public final class WorldUtil
         for( Entity entity : list )
         {
             AxisAlignedBB littleBox = entity.getBoundingBox();
-            if( littleBox == null )
-            {
-                littleBox = entity.getCollisionBoundingBox();
-                if( littleBox == null )
-                {
-                    continue;
-                }
-            }
-
             if( littleBox.contains( vecStart ) )
             {
                 closest = entity;
@@ -92,10 +96,10 @@ public final class WorldUtil
                 continue;
             }
 
-            RayTraceResult littleBoxResult = littleBox.calculateIntercept( vecStart, vecEnd );
+            Vec3d littleBoxResult = littleBox.func_216365_b( vecStart, vecEnd ).orElse( null ); // rayTrace
             if( littleBoxResult != null )
             {
-                double dist = vecStart.distanceTo( littleBoxResult.hitVec );
+                double dist = vecStart.distanceTo( littleBoxResult );
                 if( closest == null || dist <= closestDist )
                 {
                     closest = entity;
@@ -119,14 +123,14 @@ public final class WorldUtil
         return null;
     }
 
-    public static Vec3d getRayStart( EntityLivingBase entity )
+    public static Vec3d getRayStart( LivingEntity entity )
     {
         return entity.getEyePosition( 1 );
     }
 
-    public static Vec3d getRayEnd( EntityPlayer player )
+    public static Vec3d getRayEnd( PlayerEntity player )
     {
-        double reach = player.getAttribute( EntityPlayer.REACH_DISTANCE ).getValue();
+        double reach = player.getAttribute( PlayerEntity.REACH_DISTANCE ).getValue();
         Vec3d look = player.getLookVec();
         return getRayStart( player ).add( look.x * reach, look.y * reach, look.z * reach );
     }
@@ -136,7 +140,7 @@ public final class WorldUtil
         dropItemStack( stack, world, pos, null );
     }
 
-    public static void dropItemStack( @Nonnull ItemStack stack, World world, BlockPos pos, EnumFacing direction )
+    public static void dropItemStack( @Nonnull ItemStack stack, World world, BlockPos pos, Direction direction )
     {
         double xDir;
         double yDir;
@@ -167,11 +171,13 @@ public final class WorldUtil
 
     public static void dropItemStack( @Nonnull ItemStack stack, World world, double xPos, double yPos, double zPos, double xDir, double yDir, double zDir )
     {
-        EntityItem item = new EntityItem( world, xPos, yPos, zPos, stack.copy() );
-        item.motionX = xDir * 0.7 + world.getRandom().nextFloat() * 0.2 - 0.1;
-        item.motionY = yDir * 0.7 + world.getRandom().nextFloat() * 0.2 - 0.1;
-        item.motionZ = zDir * 0.7 + world.getRandom().nextFloat() * 0.2 - 0.1;
+        ItemEntity item = new ItemEntity( world, xPos, yPos, zPos, stack.copy() );
+        item.setVelocity(
+            xDir * 0.7 + world.getRandom().nextFloat() * 0.2 - 0.1,
+            yDir * 0.7 + world.getRandom().nextFloat() * 0.2 - 0.1,
+            zDir * 0.7 + world.getRandom().nextFloat() * 0.2 - 0.1
+        );
         item.setDefaultPickupDelay();
-        world.spawnEntity( item );
+        world.func_217376_c( item );
     }
 }

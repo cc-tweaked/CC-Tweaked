@@ -11,8 +11,8 @@ import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.shared.Peripherals;
 import dan200.computercraft.shared.util.IDAssigner;
 import net.minecraft.block.Block;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
@@ -46,7 +46,7 @@ public final class WiredModemLocalPeripheral
      * @param direction The direction so search in
      * @return Whether the peripheral changed.
      */
-    public boolean attach( @Nonnull World world, @Nonnull BlockPos origin, @Nonnull EnumFacing direction )
+    public boolean attach( @Nonnull World world, @Nonnull BlockPos origin, @Nonnull Direction direction )
     {
         IPeripheral oldPeripheral = peripheral;
         IPeripheral peripheral = this.peripheral = getPeripheralFrom( world, origin, direction );
@@ -116,13 +116,13 @@ public final class WiredModemLocalPeripheral
             : Collections.singletonMap( type + "_" + id, peripheral );
     }
 
-    public void write( @Nonnull NBTTagCompound tag, @Nonnull String suffix )
+    public void write( @Nonnull CompoundNBT tag, @Nonnull String suffix )
     {
         if( id >= 0 ) tag.putInt( NBT_PERIPHERAL_ID + suffix, id );
         if( type != null ) tag.putString( NBT_PERIPHERAL_TYPE + suffix, type );
     }
 
-    public void read( @Nonnull NBTTagCompound tag, @Nonnull String suffix )
+    public void read( @Nonnull CompoundNBT tag, @Nonnull String suffix )
     {
         id = tag.contains( NBT_PERIPHERAL_ID + suffix, Constants.NBT.TAG_ANY_NUMERIC )
             ? tag.getInt( NBT_PERIPHERAL_ID + suffix ) : -1;
@@ -131,7 +131,7 @@ public final class WiredModemLocalPeripheral
             ? tag.getString( NBT_PERIPHERAL_TYPE + suffix ) : null;
     }
 
-    private static IPeripheral getPeripheralFrom( World world, BlockPos pos, EnumFacing direction )
+    private static IPeripheral getPeripheralFrom( World world, BlockPos pos, Direction direction )
     {
         BlockPos offset = pos.offset( direction );
 

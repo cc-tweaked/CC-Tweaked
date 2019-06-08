@@ -26,15 +26,9 @@ public class WidgetWrapper implements IGuiEventListener
     }
 
     @Override
-    public void focusChanged( boolean b )
+    public boolean changeFocus( boolean b )
     {
-        listener.focusChanged( b );
-    }
-
-    @Override
-    public boolean canFocus()
-    {
-        return listener.canFocus();
+        return listener.changeFocus( b );
     }
 
     @Override
@@ -59,9 +53,9 @@ public class WidgetWrapper implements IGuiEventListener
     }
 
     @Override
-    public boolean mouseScrolled( double delta )
+    public boolean mouseScrolled( double x, double y, double delta )
     {
-        return listener.mouseScrolled( delta );
+        return listener.mouseScrolled( x, y, delta );
     }
 
     @Override

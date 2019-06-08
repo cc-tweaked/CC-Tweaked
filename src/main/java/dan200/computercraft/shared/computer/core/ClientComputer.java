@@ -10,7 +10,7 @@ import com.google.common.base.Objects;
 import dan200.computercraft.shared.common.ClientTerminal;
 import dan200.computercraft.shared.network.NetworkHandler;
 import dan200.computercraft.shared.network.server.*;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundNBT;
 
 public class ClientComputer extends ClientTerminal implements IComputer
 {
@@ -19,7 +19,7 @@ public class ClientComputer extends ClientTerminal implements IComputer
     private boolean m_on = false;
     private boolean m_blinking = false;
     private boolean m_changed = true;
-    private NBTTagCompound m_userData = null;
+    private CompoundNBT m_userData = null;
 
     private boolean m_changedLastFrame = false;
 
@@ -40,7 +40,7 @@ public class ClientComputer extends ClientTerminal implements IComputer
         return m_changedLastFrame;
     }
 
-    public NBTTagCompound getUserData()
+    public CompoundNBT getUserData()
     {
         return m_userData;
     }
@@ -135,11 +135,11 @@ public class ClientComputer extends ClientTerminal implements IComputer
         NetworkHandler.sendToServer( new MouseEventServerMessage( m_instanceID, MouseEventServerMessage.TYPE_SCROLL, direction, x, y ) );
     }
 
-    public void setState( ComputerState state, NBTTagCompound userData )
+    public void setState( ComputerState state, CompoundNBT userData )
     {
         boolean oldOn = m_on;
         boolean oldBlinking = m_blinking;
-        NBTTagCompound oldUserData = m_userData;
+        CompoundNBT oldUserData = m_userData;
 
         m_on = state != ComputerState.OFF;
         m_blinking = state == ComputerState.BLINKING;

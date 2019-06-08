@@ -22,9 +22,9 @@ import dan200.computercraft.shared.network.NetworkMessage;
 import dan200.computercraft.shared.network.client.ComputerDataClientMessage;
 import dan200.computercraft.shared.network.client.ComputerDeletedClientMessage;
 import dan200.computercraft.shared.network.client.ComputerTerminalClientMessage;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.Container;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.inventory.container.Container;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -43,7 +43,7 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
 
     private final ComputerFamily m_family;
     private final Computer m_computer;
-    private NBTTagCompound m_userData;
+    private CompoundNBT m_userData;
     private boolean m_changed;
 
     private boolean m_changedLastFrame;
@@ -134,11 +134,11 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
         m_computer.unload();
     }
 
-    public NBTTagCompound getUserData()
+    public CompoundNBT getUserData()
     {
         if( m_userData == null )
         {
-            m_userData = new NBTTagCompound();
+            m_userData = new CompoundNBT();
         }
         return m_userData;
     }
@@ -155,7 +155,7 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
 
     protected NetworkMessage createTerminalPacket()
     {
-        NBTTagCompound tagCompound = new NBTTagCompound();
+        CompoundNBT tagCompound = new CompoundNBT();
         writeDescription( tagCompound );
         return new ComputerTerminalClientMessage( getInstanceID(), tagCompound );
     }
@@ -174,7 +174,7 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
             MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
 
             NetworkMessage packet = null;
-            for( EntityPlayer player : server.getPlayerList().getPlayers() )
+            for( PlayerEntity player : server.getPlayerList().getPlayers() )
             {
                 if( isInteracting( player ) )
                 {
@@ -185,13 +185,13 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
         }
     }
 
-    public void sendComputerState( EntityPlayer player )
+    public void sendComputerState( PlayerEntity player )
     {
         // Send state to client
         NetworkHandler.sendToPlayer( player, createComputerPacket() );
     }
 
-    public void sendTerminalState( EntityPlayer player )
+    public void sendTerminalState( PlayerEntity player )
     {
         // Send terminal state to client
         NetworkHandler.sendToPlayer( player, createTerminalPacket() );
@@ -357,7 +357,7 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
     }
 
     @Nullable
-    public IContainerComputer getContainer( EntityPlayer player )
+    public IContainerComputer getContainer( PlayerEntity player )
     {
         if( player == null ) return null;
 
@@ -368,7 +368,7 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
         return computerContainer.getComputer() != this ? null : computerContainer;
     }
 
-    protected boolean isInteracting( EntityPlayer player )
+    protected boolean isInteracting( PlayerEntity player )
     {
         return getContainer( player ) != null;
     }

@@ -6,26 +6,25 @@
 
 package dan200.computercraft.shared.media.recipes;
 
-import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.media.items.ItemDisk;
-import dan200.computercraft.shared.util.AbstractRecipe;
 import dan200.computercraft.shared.util.Colour;
 import dan200.computercraft.shared.util.ColourTracker;
 import dan200.computercraft.shared.util.ColourUtils;
-import net.minecraft.init.Items;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.item.EnumDyeColor;
+import net.minecraft.inventory.CraftingInventory;
+import net.minecraft.item.DyeColor;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.item.crafting.IRecipeSerializer;
 import net.minecraft.item.crafting.Ingredient;
-import net.minecraft.item.crafting.RecipeSerializers;
+import net.minecraft.item.crafting.SpecialRecipe;
+import net.minecraft.item.crafting.SpecialRecipeSerializer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.minecraftforge.common.Tags;
 
 import javax.annotation.Nonnull;
 
-public class DiskRecipe extends AbstractRecipe
+public class DiskRecipe extends SpecialRecipe
 {
     private final Ingredient paper = Ingredient.fromItems( Items.PAPER );
     private final Ingredient redstone = Ingredient.fromTag( Tags.Items.DUSTS_REDSTONE );
@@ -36,7 +35,7 @@ public class DiskRecipe extends AbstractRecipe
     }
 
     @Override
-    public boolean matches( @Nonnull IInventory inv, @Nonnull World world )
+    public boolean matches( @Nonnull CraftingInventory inv, @Nonnull World world )
     {
         boolean paperFound = false;
         boolean redstoneFound = false;
@@ -69,7 +68,7 @@ public class DiskRecipe extends AbstractRecipe
 
     @Nonnull
     @Override
-    public ItemStack getCraftingResult( @Nonnull IInventory inv )
+    public ItemStack getCraftingResult( @Nonnull CraftingInventory inv )
     {
         ColourTracker tracker = new ColourTracker();
 
@@ -81,7 +80,7 @@ public class DiskRecipe extends AbstractRecipe
 
             if( !paper.test( stack ) && !redstone.test( stack ) )
             {
-                EnumDyeColor dye = ColourUtils.getStackColour( stack );
+                DyeColor dye = ColourUtils.getStackColour( stack );
                 if( dye == null ) continue;
 
                 Colour colour = Colour.VALUES[dye.getId()];
@@ -112,7 +111,5 @@ public class DiskRecipe extends AbstractRecipe
         return SERIALIZER;
     }
 
-    public static final IRecipeSerializer<DiskRecipe> SERIALIZER = new RecipeSerializers.SimpleSerializer<>(
-        ComputerCraft.MOD_ID + ":disk", DiskRecipe::new
-    );
+    public static final IRecipeSerializer<DiskRecipe> SERIALIZER = new SpecialRecipeSerializer<>( DiskRecipe::new );
 }

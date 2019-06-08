@@ -6,18 +6,19 @@
 
 package dan200.computercraft.client.render;
 
+import com.mojang.blaze3d.platform.GlStateManager;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.peripheral.monitor.TileMonitor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.DrawBlockHighlightEvent;
@@ -27,7 +28,7 @@ import org.lwjgl.opengl.GL11;
 
 import java.util.EnumSet;
 
-import static net.minecraft.util.EnumFacing.*;
+import static net.minecraft.util.Direction.*;
 
 @Mod.EventBusSubscriber( modid = ComputerCraft.MOD_ID, value = Dist.CLIENT )
 public final class MonitorHighlightRenderer
@@ -41,10 +42,13 @@ public final class MonitorHighlightRenderer
     @SubscribeEvent
     public static void drawHighlight( DrawBlockHighlightEvent event )
     {
-        if( event.getTarget().type != RayTraceResult.Type.BLOCK || event.getPlayer().isSneaking() ) return;
+        if( event.getTarget().getType() != RayTraceResult.Type.BLOCK || event.getInfo().func_216773_g().isSneaking() )
+        {
+            return;
+        }
 
-        World world = event.getPlayer().getEntityWorld();
-        BlockPos pos = event.getTarget().getBlockPos();
+        World world = event.getInfo().func_216773_g().getEntityWorld();
+        BlockPos pos = ((BlockRayTraceResult) event.getTarget()).getPos();
 
         TileEntity tile = world.getTileEntity( pos );
         if( !(tile instanceof TileMonitor) ) return;
@@ -53,8 +57,8 @@ public final class MonitorHighlightRenderer
         event.setCanceled( true );
 
         // Determine which sides are part of the external faces of the monitor, and so which need to be rendered.
-        EnumSet<EnumFacing> faces = EnumSet.allOf( EnumFacing.class );
-        EnumFacing front = monitor.getFront();
+        EnumSet<Direction> faces = EnumSet.allOf( Direction.class );
+        Direction front = monitor.getFront();
         faces.remove( front );
         if( monitor.getXIndex() != 0 ) faces.remove( monitor.getRight().getOpposite() );
         if( monitor.getXIndex() != monitor.getWidth() - 1 ) faces.remove( monitor.getRight() );
@@ -64,16 +68,12 @@ public final class MonitorHighlightRenderer
         GlStateManager.enableBlend();
         GlStateManager.blendFuncSeparate( GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO );
         GlStateManager.lineWidth( Math.max( 2.5F, (float) Minecraft.getInstance().mainWindow.getFramebufferWidth() / 1920.0F * 2.5F ) );
-        GlStateManager.disableTexture2D();
+        GlStateManager.disableTexture();
         GlStateManager.depthMask( false );
         GlStateManager.pushMatrix();
 
-        EntityPlayer player = event.getPlayer();
-        double x = player.lastTickPosX + (player.posX - player.lastTickPosX) * event.getPartialTicks();
-        double y = player.lastTickPosY + (player.posY - player.lastTickPosY) * event.getPartialTicks();
-        double z = player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * event.getPartialTicks();
-
-        GlStateManager.translated( -x + pos.getX(), -y + pos.getY(), -z + pos.getZ() );
+        Vec3d cameraPos = event.getInfo().func_216785_c();
+        GlStateManager.translated( pos.getX() - cameraPos.getX(), pos.getY() - cameraPos.getY(), pos.getZ() - cameraPos.getZ() );
 
         Tessellator tessellator = Tessellator.getInstance();
         BufferBuilder buffer = tessellator.getBuffer();
@@ -97,11 +97,11 @@ public final class MonitorHighlightRenderer
 
         GlStateManager.popMatrix();
         GlStateManager.depthMask( true );
-        GlStateManager.enableTexture2D();
+        GlStateManager.enableTexture();
         GlStateManager.disableBlend();
     }
 
-    private static void line( BufferBuilder buffer, int x, int y, int z, EnumFacing direction )
+    private static void line( BufferBuilder buffer, int x, int y, int z, Direction direction )
     {
         double minX = x == 0 ? -EXPAND : 1 + EXPAND;
         double minY = y == 0 ? -EXPAND : 1 + EXPAND;

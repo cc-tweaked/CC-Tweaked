@@ -4,7 +4,7 @@
     "ingredients": [
         { "tag": "forge:dusts/redstone" },
         { "item": "minecraft:paper" },
-        { "item": "minecraft:rose_red" }
+        { "item": "minecraft:red_dye" }
     ],
     "result": { "item": "computercraft:disk", "nbt": { "color": 13388876 } }
 }

@@ -9,8 +9,8 @@ package dan200.computercraft.shared.network;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.network.client.*;
 import dan200.computercraft.shared.network.server.*;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.Vec3d;
@@ -55,14 +55,14 @@ public final class NetworkHandler
         registerMainThread( 14, PlayRecordClientMessage.class, PlayRecordClientMessage::new );
     }
 
-    public static void sendToPlayer( EntityPlayer player, NetworkMessage packet )
+    public static void sendToPlayer( PlayerEntity player, NetworkMessage packet )
     {
-        network.sendTo( packet, ((EntityPlayerMP) player).connection.netManager, NetworkDirection.PLAY_TO_CLIENT );
+        network.sendTo( packet, ((ServerPlayerEntity) player).connection.netManager, NetworkDirection.PLAY_TO_CLIENT );
     }
 
     public static void sendToAllPlayers( NetworkMessage packet )
     {
-        for( EntityPlayerMP player : ServerLifecycleHooks.getCurrentServer().getPlayerList().getPlayers() )
+        for( ServerPlayerEntity player : ServerLifecycleHooks.getCurrentServer().getPlayerList().getPlayers() )
         {
             sendToPlayer( player, packet );
         }
@@ -75,7 +75,7 @@ public final class NetworkHandler
 
     public static void sendToAllAround( NetworkMessage packet, World world, Vec3d pos, double range )
     {
-        for( EntityPlayerMP player : ServerLifecycleHooks.getCurrentServer().getPlayerList().getPlayers() )
+        for( ServerPlayerEntity player : ServerLifecycleHooks.getCurrentServer().getPlayerList().getPlayers() )
         {
             if( player.getEntityWorld() != world ) continue;
 

@@ -82,7 +82,7 @@ public class PlayRecordClientMessage implements NetworkMessage
     public void handle( NetworkEvent.Context context )
     {
         Minecraft mc = Minecraft.getInstance();
-        mc.world.playRecord( pos, soundEvent );
-        if( name != null ) mc.ingameGUI.setRecordPlayingMessage( name );
+        mc.worldRenderer.playRecord( soundEvent, pos );
+        if( name != null ) mc.field_71456_v.setRecordPlayingMessage( name );
     }
 }

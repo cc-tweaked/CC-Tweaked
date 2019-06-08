@@ -6,6 +6,8 @@
 
 package dan200.computercraft.client.render;
 
+import com.mojang.blaze3d.platform.GLX;
+import com.mojang.blaze3d.platform.GlStateManager;
 import dan200.computercraft.client.FrameInfo;
 import dan200.computercraft.client.gui.FixedWidthFontRenderer;
 import dan200.computercraft.core.terminal.Terminal;
@@ -17,12 +19,10 @@ import dan200.computercraft.shared.util.DirectionUtil;
 import dan200.computercraft.shared.util.Palette;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.tileentity.TileEntityRenderer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import org.lwjgl.opengl.GL11;
 
@@ -64,8 +64,8 @@ public class TileEntityMonitorRenderer extends TileEntityRenderer<TileMonitor>
         posZ += originPos.getZ() - monitorPos.getZ();
 
         // Determine orientation
-        EnumFacing dir = origin.getDirection();
-        EnumFacing front = origin.getFront();
+        Direction dir = origin.getDirection();
+        Direction front = origin.getFront();
         float yaw = dir.getHorizontalAngle();
         float pitch = DirectionUtil.toPitchAngle( front );
 
@@ -94,7 +94,7 @@ public class TileEntityMonitorRenderer extends TileEntityRenderer<TileMonitor>
 
             // Draw the contents
             GlStateManager.depthMask( false );
-            OpenGlHelper.glMultiTexCoord2f( OpenGlHelper.GL_TEXTURE1, 0xFFFF, 0xFFFF );
+            GLX.glMultiTexCoord2f( GLX.GL_TEXTURE1, 0xFFFF, 0xFFFF );
             GlStateManager.disableLighting();
             mc.gameRenderer.disableLightmap();
             try
@@ -171,7 +171,7 @@ public class TileEntityMonitorRenderer extends TileEntityRenderer<TileMonitor>
                             }
                         }
                         GlStateManager.callList( originTerminal.renderDisplayLists[0] );
-                        GlStateManager.resetColor();
+                        GlStateManager.clearCurrentColor();
 
                         // Draw text
                         fontRenderer.bindFont();
@@ -199,7 +199,7 @@ public class TileEntityMonitorRenderer extends TileEntityRenderer<TileMonitor>
                             }
                         }
                         GlStateManager.callList( originTerminal.renderDisplayLists[1] );
-                        GlStateManager.resetColor();
+                        GlStateManager.clearCurrentColor();
 
                         // Draw cursor
                         fontRenderer.bindFont();
@@ -233,7 +233,7 @@ public class TileEntityMonitorRenderer extends TileEntityRenderer<TileMonitor>
                         if( FrameInfo.getGlobalCursorBlink() )
                         {
                             GlStateManager.callList( originTerminal.renderDisplayLists[2] );
-                            GlStateManager.resetColor();
+                            GlStateManager.clearCurrentColor();
                         }
                     }
                     finally

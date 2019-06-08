@@ -12,7 +12,7 @@ import dan200.computercraft.api.turtle.event.TurtleRefuelEvent;
 import dan200.computercraft.shared.util.InventoryUtil;
 import dan200.computercraft.shared.util.WorldUtil;
 import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntityFurnace;
+import net.minecraft.tileentity.FurnaceTileEntity;
 import net.minecraftforge.event.ForgeEventFactory;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -54,7 +54,7 @@ public final class FurnaceRefuelHandler implements TurtleRefuelEvent.Handler
         int basicBurnTime = stack.getBurnTime();
         int burnTime = ForgeEventFactory.getItemBurnTime(
             stack,
-            basicBurnTime == -1 ? TileEntityFurnace.getBurnTimes().getOrDefault( stack.getItem(), 0 ) : basicBurnTime
+            basicBurnTime == -1 ? FurnaceTileEntity.func_214001_f().getOrDefault( stack.getItem(), 0 ) : basicBurnTime
         );
         return (burnTime * 5) / 100;
     }

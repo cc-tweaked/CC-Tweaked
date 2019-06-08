@@ -7,7 +7,7 @@
 package dan200.computercraft.shared.command.text;
 
 import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TextFormatting;
 import org.apache.commons.lang3.StringUtils;
 
@@ -77,7 +77,7 @@ public interface TableFormatter
 
         if( headers != null )
         {
-            TextComponentString line = new TextComponentString( "" );
+            StringTextComponent line = new StringTextComponent( "" );
             for( int i = 0; i < columns - 1; i++ )
             {
                 line.appendSibling( headers[i] );
@@ -98,7 +98,7 @@ public interface TableFormatter
 
         for( ITextComponent[] row : table.getRows() )
         {
-            TextComponentString line = new TextComponentString( "" );
+            StringTextComponent line = new StringTextComponent( "" );
             for( int i = 0; i < columns - 1; i++ )
             {
                 line.appendSibling( row[i] );

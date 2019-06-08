@@ -9,17 +9,15 @@ package dan200.computercraft.shared.turtle.upgrades;
 import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.shared.turtle.blocks.TileTurtle;
 import dan200.computercraft.shared.turtle.core.TurtlePlayer;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.InventoryCrafting;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.inventory.CraftingInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
+import net.minecraft.item.crafting.IRecipeType;
 import net.minecraft.util.NonNullList;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextComponentString;
+import net.minecraft.world.ServerWorld;
 import net.minecraft.world.World;
-import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.ForgeHooks;
-import net.minecraftforge.common.crafting.VanillaRecipeTypes;
 import net.minecraftforge.fml.hooks.BasicEventHooks;
 
 import javax.annotation.Nonnull;
@@ -28,7 +26,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class TurtleInventoryCrafting extends InventoryCrafting
+public class TurtleInventoryCrafting extends CraftingInventory
 {
     private ITurtleAccess m_turtle;
     private int m_xStart;
@@ -46,7 +44,7 @@ public class TurtleInventoryCrafting extends InventoryCrafting
     }
 
     @Nullable
-    private IRecipe tryCrafting( int xStart, int yStart )
+    private IRecipe<CraftingInventory> tryCrafting( int xStart, int yStart )
     {
         m_xStart = xStart;
         m_yStart = yStart;
@@ -68,16 +66,16 @@ public class TurtleInventoryCrafting extends InventoryCrafting
         }
 
         // Check the actual crafting
-        return m_turtle.getWorld().getRecipeManager().getRecipe( this, m_turtle.getWorld(), VanillaRecipeTypes.CRAFTING );
+        return m_turtle.getWorld().getRecipeManager().func_215371_a( IRecipeType.field_222149_a, this, m_turtle.getWorld() ).orElse( null );
     }
 
     @Nullable
     public List<ItemStack> doCrafting( World world, int maxCount )
     {
-        if( world.isRemote || !(world instanceof WorldServer) ) return null;
+        if( world.isRemote || !(world instanceof ServerWorld) ) return null;
 
         // Find out what we can craft
-        IRecipe recipe = tryCrafting( 0, 0 );
+        IRecipe<CraftingInventory> recipe = tryCrafting( 0, 0 );
         if( recipe == null ) recipe = tryCrafting( 0, 1 );
         if( recipe == null ) recipe = tryCrafting( 1, 0 );
         if( recipe == null ) recipe = tryCrafting( 1, 1 );
@@ -175,19 +173,6 @@ public class TurtleInventoryCrafting extends InventoryCrafting
 
     @Nonnull
     @Override
-    public ITextComponent getName()
-    {
-        return new TextComponentString( "" );
-    }
-
-    @Override
-    public boolean hasCustomName()
-    {
-        return false;
-    }
-
-    @Nonnull
-    @Override
     public ItemStack removeStackFromSlot( int i )
     {
         i = modifyIndex( i );
@@ -222,7 +207,7 @@ public class TurtleInventoryCrafting extends InventoryCrafting
     }
 
     @Override
-    public boolean isUsableByPlayer( EntityPlayer player )
+    public boolean isUsableByPlayer( PlayerEntity player )
     {
         return true;
     }

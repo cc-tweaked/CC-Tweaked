@@ -6,7 +6,7 @@
 
 package dan200.computercraft.api.turtle;
 
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -15,7 +15,7 @@ import javax.annotation.Nullable;
  * Used to indicate the result of executing a turtle command.
  *
  * @see ITurtleCommand#execute(ITurtleAccess)
- * @see ITurtleUpgrade#useTool(ITurtleAccess, TurtleSide, TurtleVerb, EnumFacing)
+ * @see ITurtleUpgrade#useTool(ITurtleAccess, TurtleSide, TurtleVerb, Direction)
  */
 public final class TurtleCommandResult
 {

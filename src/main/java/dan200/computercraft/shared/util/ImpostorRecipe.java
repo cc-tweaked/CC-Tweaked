@@ -7,15 +7,13 @@
 package dan200.computercraft.shared.util;
 
 import com.google.gson.JsonObject;
-import dan200.computercraft.ComputerCraft;
-import net.minecraft.inventory.IInventory;
+import net.minecraft.inventory.CraftingInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipeSerializer;
 import net.minecraft.item.crafting.Ingredient;
-import net.minecraft.item.crafting.RecipeSerializers;
 import net.minecraft.item.crafting.ShapedRecipe;
 import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.JsonUtils;
+import net.minecraft.util.JSONUtils;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
@@ -41,14 +39,14 @@ public final class ImpostorRecipe extends ShapedRecipe
     }
 
     @Override
-    public boolean matches( @Nonnull IInventory inv, World world )
+    public boolean matches( @Nonnull CraftingInventory inv, World world )
     {
         return false;
     }
 
     @Nonnull
     @Override
-    public ItemStack getCraftingResult( @Nonnull IInventory inventory )
+    public ItemStack getCraftingResult( @Nonnull CraftingInventory inventory )
     {
         return ItemStack.EMPTY;
     }
@@ -60,15 +58,14 @@ public final class ImpostorRecipe extends ShapedRecipe
         return SERIALIZER;
     }
 
-    private static final ResourceLocation ID = new ResourceLocation( ComputerCraft.MOD_ID, "impostor_shaped" );
     public static final IRecipeSerializer<ImpostorRecipe> SERIALIZER = new IRecipeSerializer<ImpostorRecipe>()
     {
         @Override
         public ImpostorRecipe read( @Nonnull ResourceLocation identifier, @Nonnull JsonObject json )
         {
-            String group = JsonUtils.getString( json, "group", "" );
-            ShapedRecipe recipe = RecipeSerializers.CRAFTING_SHAPED.read( identifier, json );
-            ItemStack result = CraftingHelper.getItemStack( JsonUtils.getJsonObject( json, "result" ), true );
+            String group = JSONUtils.getString( json, "group", "" );
+            ShapedRecipe recipe = IRecipeSerializer.field_222157_a.read( identifier, json );
+            ItemStack result = CraftingHelper.getItemStack( JSONUtils.getJsonObject( json, "result" ), true );
             return new ImpostorRecipe( identifier, group, recipe.getWidth(), recipe.getHeight(), recipe.getIngredients(), result );
         }
 
@@ -92,13 +89,6 @@ public final class ImpostorRecipe extends ShapedRecipe
             buf.writeString( recipe.getGroup() );
             for( Ingredient ingredient : recipe.getIngredients() ) ingredient.write( buf );
             buf.writeItemStack( recipe.getRecipeOutput() );
-        }
-
-        @Nonnull
-        @Override
-        public ResourceLocation getName()
-        {
-            return ID;
         }
     };
 }

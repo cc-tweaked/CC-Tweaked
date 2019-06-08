@@ -170,7 +170,7 @@ public class ResourceMount implements IMount
                 {
                     total += read;
                     read = s.read( TEMP_BUFFER );
-                } while ( read > 0 );
+                } while( read > 0 );
 
                 return file.size = total;
             }
@@ -267,7 +267,7 @@ public class ResourceMount implements IMount
 
         synchronized void add( IReloadableResourceManager manager, ResourceMount mount )
         {
-            if( managers.add( manager ) ) manager.addReloadListener( this );
+            if( managers.add( manager ) ) manager.func_219534_a( this ); // addReloadListener
             mounts.add( mount );
         }
     }

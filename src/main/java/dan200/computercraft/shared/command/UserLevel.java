@@ -8,7 +8,7 @@ package dan200.computercraft.shared.command;
 
 import net.minecraft.command.CommandSource;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.MinecraftServer;
 
 import java.util.function.Predicate;
@@ -62,8 +62,8 @@ public enum UserLevel implements Predicate<CommandSource>
         MinecraftServer server = source.getServer();
         Entity sender = source.getEntity();
 
-        if( server.isSinglePlayer() && sender instanceof EntityPlayer &&
-            ((EntityPlayer) sender).getGameProfile().getName().equalsIgnoreCase( server.getServerModName() ) )
+        if( server.isSinglePlayer() && sender instanceof PlayerEntity &&
+            ((PlayerEntity) sender).getGameProfile().getName().equalsIgnoreCase( server.getServerModName() ) )
         {
             if( this == OWNER || this == OWNER_OP ) return true;
         }

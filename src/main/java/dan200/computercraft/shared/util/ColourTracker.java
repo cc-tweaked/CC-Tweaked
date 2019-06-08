@@ -6,8 +6,10 @@
 
 package dan200.computercraft.shared.util;
 
+import net.minecraft.item.crafting.ArmorDyeRecipe;
+
 /**
- * A reimplementation of the colour system in {@link net.minecraft.item.crafting.RecipesArmorDyes}, but
+ * A reimplementation of the colour system in {@link ArmorDyeRecipe}, but
  * bundled together as an object.
  */
 public class ColourTracker

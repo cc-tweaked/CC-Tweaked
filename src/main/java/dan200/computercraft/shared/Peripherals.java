@@ -9,7 +9,7 @@ package dan200.computercraft.shared;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.peripheral.IPeripheralProvider;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
@@ -30,12 +30,12 @@ public final class Peripherals
         providers.add( provider );
     }
 
-    public static IPeripheral getPeripheral( World world, BlockPos pos, EnumFacing side )
+    public static IPeripheral getPeripheral( World world, BlockPos pos, Direction side )
     {
         return World.isValid( pos ) && !world.isRemote ? getPeripheralAt( world, pos, side ) : null;
     }
 
-    private static IPeripheral getPeripheralAt( World world, BlockPos pos, EnumFacing side )
+    private static IPeripheral getPeripheralAt( World world, BlockPos pos, Direction side )
     {
         // Try the handlers in order:
         for( IPeripheralProvider peripheralProvider : providers )

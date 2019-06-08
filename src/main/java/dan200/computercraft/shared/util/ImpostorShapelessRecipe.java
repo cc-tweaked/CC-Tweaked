@@ -9,14 +9,13 @@ package dan200.computercraft.shared.util;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
-import dan200.computercraft.ComputerCraft;
-import net.minecraft.inventory.IInventory;
+import net.minecraft.inventory.CraftingInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipeSerializer;
 import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.item.crafting.ShapelessRecipe;
 import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.JsonUtils;
+import net.minecraft.util.JSONUtils;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
@@ -42,14 +41,14 @@ public final class ImpostorShapelessRecipe extends ShapelessRecipe
     }
 
     @Override
-    public boolean matches( IInventory inv, World world )
+    public boolean matches( CraftingInventory inv, World world )
     {
         return false;
     }
 
     @Nonnull
     @Override
-    public ItemStack getCraftingResult( IInventory inventory )
+    public ItemStack getCraftingResult( CraftingInventory inventory )
     {
         return ItemStack.EMPTY;
     }
@@ -61,15 +60,13 @@ public final class ImpostorShapelessRecipe extends ShapelessRecipe
         return SERIALIZER;
     }
 
-    private static final ResourceLocation ID = new ResourceLocation( ComputerCraft.MOD_ID, "impostor_shapeless" );
-
     public static final IRecipeSerializer<ImpostorShapelessRecipe> SERIALIZER = new IRecipeSerializer<ImpostorShapelessRecipe>()
     {
         @Override
         public ImpostorShapelessRecipe read( @Nonnull ResourceLocation id, @Nonnull JsonObject json )
         {
-            String s = JsonUtils.getString( json, "group", "" );
-            NonNullList<Ingredient> ingredients = readIngredients( JsonUtils.getJsonArray( json, "ingredients" ) );
+            String s = JSONUtils.getString( json, "group", "" );
+            NonNullList<Ingredient> ingredients = readIngredients( JSONUtils.getJsonArray( json, "ingredients" ) );
 
             if( ingredients.isEmpty() ) throw new JsonParseException( "No ingredients for shapeless recipe" );
             if( ingredients.size() > 9 )
@@ -77,7 +74,7 @@ public final class ImpostorShapelessRecipe extends ShapelessRecipe
                 throw new JsonParseException( "Too many ingredients for shapeless recipe the max is 9" );
             }
 
-            ItemStack itemstack = CraftingHelper.getItemStack( JsonUtils.getJsonObject( json, "result" ), true );
+            ItemStack itemstack = CraftingHelper.getItemStack( JSONUtils.getJsonObject( json, "result" ), true );
             return new ImpostorShapelessRecipe( id, s, itemstack, ingredients );
         }
 
@@ -114,13 +111,6 @@ public final class ImpostorShapelessRecipe extends ShapelessRecipe
 
             for( Ingredient ingredient : recipe.getIngredients() ) ingredient.write( buffer );
             buffer.writeItemStack( recipe.getRecipeOutput() );
-        }
-
-        @Nonnull
-        @Override
-        public ResourceLocation getName()
-        {
-            return ID;
         }
     };
 }

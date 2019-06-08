@@ -13,15 +13,15 @@ import dan200.computercraft.api.media.IMedia;
 import dan200.computercraft.core.filesystem.SubMount;
 import dan200.computercraft.shared.util.Colour;
 import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.IWorldReader;
 import net.minecraft.world.World;
 
@@ -50,11 +50,11 @@ public class ItemTreasureDisk extends Item implements IMedia
     public void addInformation( ItemStack stack, @Nullable World world, List<ITextComponent> list, ITooltipFlag tooltipOptions )
     {
         String label = getTitle( stack );
-        if( !label.isEmpty() ) list.add( new TextComponentString( label ) );
+        if( !label.isEmpty() ) list.add( new StringTextComponent( label ) );
     }
 
     @Override
-    public boolean doesSneakBypassUse( @Nonnull ItemStack stack, IWorldReader world, BlockPos pos, EntityPlayer player )
+    public boolean doesSneakBypassUse( @Nonnull ItemStack stack, IWorldReader world, BlockPos pos, PlayerEntity player )
     {
         return true;
     }
@@ -94,7 +94,7 @@ public class ItemTreasureDisk extends Item implements IMedia
     public static ItemStack create( String subPath, int colourIndex )
     {
         ItemStack result = new ItemStack( ComputerCraft.Items.treasureDisk );
-        NBTTagCompound nbt = result.getOrCreateTag();
+        CompoundNBT nbt = result.getOrCreateTag();
         nbt.putString( NBT_SUB_PATH, subPath );
 
         int slash = subPath.indexOf( '/' );
@@ -121,20 +121,20 @@ public class ItemTreasureDisk extends Item implements IMedia
     @Nonnull
     private static String getTitle( @Nonnull ItemStack stack )
     {
-        NBTTagCompound nbt = stack.getTag();
+        CompoundNBT nbt = stack.getTag();
         return nbt != null && nbt.contains( NBT_TITLE ) ? nbt.getString( NBT_TITLE ) : "'alongtimeago' by dan200";
     }
 
     @Nonnull
     private static String getSubPath( @Nonnull ItemStack stack )
     {
-        NBTTagCompound nbt = stack.getTag();
+        CompoundNBT nbt = stack.getTag();
         return nbt != null && nbt.contains( NBT_SUB_PATH ) ? nbt.getString( NBT_SUB_PATH ) : "dan200/alongtimeago";
     }
 
     public static int getColour( @Nonnull ItemStack stack )
     {
-        NBTTagCompound nbt = stack.getTag();
+        CompoundNBT nbt = stack.getTag();
         return nbt != null && nbt.contains( NBT_COLOUR ) ? nbt.getInt( NBT_COLOUR ) : Colour.Blue.getHex();
     }
 }

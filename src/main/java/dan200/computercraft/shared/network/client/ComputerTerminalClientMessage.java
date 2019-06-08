@@ -6,7 +6,7 @@
 
 package dan200.computercraft.shared.network.client;
 
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.fml.network.NetworkEvent;
 
@@ -14,9 +14,9 @@ import javax.annotation.Nonnull;
 
 public class ComputerTerminalClientMessage extends ComputerClientMessage
 {
-    private NBTTagCompound tag;
+    private CompoundNBT tag;
 
-    public ComputerTerminalClientMessage( int instanceId, NBTTagCompound tag )
+    public ComputerTerminalClientMessage( int instanceId, CompoundNBT tag )
     {
         super( instanceId );
         this.tag = tag;
