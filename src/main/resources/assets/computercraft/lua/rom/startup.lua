@@ -1,22 +1,22 @@
 
 -- Setup paths
 local sPath = ".:/rom/programs"
-local tPathStrings = fs.list("rom/programs")
-tPathStrings[#tPathStrings + 1] = "fun/advanced"
-local tConditions = { 
-    [":/rom/programs/advanced"] = not term.isColor(),
-    [":/rom/programs/turtle"] = not turtle,
-    [":/rom/programs/rednet"] = turtle,
-    [":/rom/programs/fun"] = turtle,
-    [":/rom/programs/fun/advanced"] = turtle or not term.isColor(),
-    [":/rom/programs/pocket"] = not pocket,
-    [":/rom/programs/command"] = not command,
-    [":/rom/programs/http"] = not http,
+local tPathStrings = fs.list( "rom/programs" )
+tPathStrings[ #tPathStrings + 1 ] = "fun/advanced"
+local tConditions = {
+    ["/rom/programs/advanced"] = term.isColor(),
+    ["/rom/programs/turtle"] = turtle ~= nil,
+    ["/rom/programs/rednet"] = turtle == nil,
+    ["/rom/programs/fun"] = turtle == nil,
+    ["/rom/programs/fun/advanced"] = turtle == nil and term.isColor(),
+    ["/rom/programs/pocket"] = pocket ~= nil,
+    ["/rom/programs/command"] = command ~= nil,
+    ["/rom/programs/http"] = http ~= nil,
 }
-for _, sProgramPath in pairs(fs.list("/rom/programs")) do
-    local sPathComponent = ":/rom/programs/" .. sProgramPath
-    if fs.isDir(sPathComponent) and not tConditions[sPathComponent] then
-        sPath = sPath .. sPathComponent
+for _, sProgramPath in pairs( tPathStrings ) do
+    local sPathComponent = "/rom/programs/" .. sProgramPath
+    if fs.isDir( sPathComponent ) and tConditions[ sPathComponent ] ~= false then
+        sPath = sPath .. ":" .. sPathComponent
     end
 end
 shell.setPath( sPath )
