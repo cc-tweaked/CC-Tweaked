@@ -1,25 +1,23 @@
 
 -- Setup paths
 local sPath = ".:/rom/programs"
-if term.isColor() then
-    sPath = sPath..":/rom/programs/advanced"
-end
-if turtle then
-    sPath = sPath..":/rom/programs/turtle"
-else
-    sPath = sPath..":/rom/programs/rednet:/rom/programs/fun"
-    if term.isColor() then
-        sPath = sPath..":/rom/programs/fun/advanced"
+local tPathStrings = fs.list("rom/programs")
+tPathStrings[#tPathStrings + 1] = "fun/advanced"
+local tConditions = { 
+    [":/rom/programs/advanced"] = not term.isColor(),
+    [":/rom/programs/turtle"] = not turtle,
+    [":/rom/programs/rednet"] = turtle,
+    [":/rom/programs/fun"] = turtle,
+    [":/rom/programs/fun/advanced"] = turtle or not term.isColor(),
+    [":/rom/programs/pocket"] = not pocket,
+    [":/rom/programs/command"] = not command,
+    [":/rom/programs/http"] = not http,
+}
+for _, sProgramPath in pairs(fs.list("/rom/programs")) do
+    local sPathComponent = ":/rom/programs/" .. sProgramPath
+    if fs.isDir(sPathComponent) and not tConditions[sPathComponent] then
+        sPath = sPath .. sPathComponent
     end
-end
-if pocket then
-    sPath = sPath..":/rom/programs/pocket"
-end
-if commands then
-    sPath = sPath..":/rom/programs/command"
-end
-if http then
-    sPath = sPath..":/rom/programs/http"
 end
 shell.setPath( sPath )
 help.setPath( "/rom/help" )
