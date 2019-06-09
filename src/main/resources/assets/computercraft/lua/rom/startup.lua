@@ -1,18 +1,29 @@
 
 -- Setup paths
 local sPath = ".:/rom/programs"
-local tPathStrings = fs.list( "rom/programs" )
-tPathStrings[ #tPathStrings + 1 ] = "fun/advanced"
 local tConditions = {
     ["/rom/programs/advanced"] = term.isColor(),
     ["/rom/programs/turtle"] = turtle ~= nil,
     ["/rom/programs/rednet"] = turtle == nil,
     ["/rom/programs/fun"] = turtle == nil,
     ["/rom/programs/fun/advanced"] = turtle == nil and term.isColor(),
+    ["/rom/programs/fun/advanced/levels"] = false,
     ["/rom/programs/pocket"] = pocket ~= nil,
     ["/rom/programs/command"] = command ~= nil,
     ["/rom/programs/http"] = http ~= nil,
 }
+local tPathStrings = fs.list( "rom/programs" )
+local nPathIndex = 1
+while nPathIndex < #tPathStrings do
+    local sDir = "/rom/programs/" .. tPathStrings[ nPathIndex ]
+    if fs.isDir( sDir ) then
+        local tStr = fs.list( sDir )
+        for k, v in pairs( tStr ) do
+            tPathStrings[ #tPathStrings + 1 ] = fs.combine( tPathStrings[ nPathIndex ], v )
+        end
+    end
+    nPathIndex = nPathIndex + 1
+end
 for _, sProgramPath in pairs( tPathStrings ) do
     local sPathComponent = "/rom/programs/" .. sProgramPath
     if fs.isDir( sPathComponent ) and tConditions[ sPathComponent ] ~= false then
