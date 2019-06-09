@@ -8,9 +8,9 @@ package dan200.computercraft.shared.computer.recipe;
 
 import com.google.gson.JsonObject;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
+import dan200.computercraft.shared.util.BasicRecipeSerializer;
 import dan200.computercraft.shared.util.RecipeUtil;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.IRecipeSerializer;
 import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.JSONUtils;
@@ -34,7 +34,7 @@ public abstract class ComputerFamilyRecipe extends ComputerConvertRecipe
         return family;
     }
 
-    public abstract static class Serializer<T extends ComputerFamilyRecipe> implements IRecipeSerializer<T>
+    public abstract static class Serializer<T extends ComputerFamilyRecipe> extends BasicRecipeSerializer<T>
     {
         protected abstract T create( ResourceLocation identifier, String group, int width, int height, NonNullList<Ingredient> ingredients, ItemStack result, ComputerFamily family );
 

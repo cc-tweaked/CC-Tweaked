@@ -58,7 +58,7 @@ public final class ImpostorRecipe extends ShapedRecipe
         return SERIALIZER;
     }
 
-    public static final IRecipeSerializer<ImpostorRecipe> SERIALIZER = new IRecipeSerializer<ImpostorRecipe>()
+    public static final IRecipeSerializer<ImpostorRecipe> SERIALIZER = new BasicRecipeSerializer<ImpostorRecipe>()
     {
         @Override
         public ImpostorRecipe read( @Nonnull ResourceLocation identifier, @Nonnull JsonObject json )

@@ -15,28 +15,18 @@ import dan200.computercraft.core.tracking.Tracking;
 import dan200.computercraft.shared.Config;
 import dan200.computercraft.shared.command.CommandComputerCraft;
 import dan200.computercraft.shared.command.arguments.ArgumentSerializers;
-import dan200.computercraft.shared.common.ColourableRecipe;
 import dan200.computercraft.shared.common.DefaultBundledRedstoneProvider;
 import dan200.computercraft.shared.computer.core.IComputer;
 import dan200.computercraft.shared.computer.core.IContainerComputer;
 import dan200.computercraft.shared.computer.core.ServerComputer;
-import dan200.computercraft.shared.computer.recipe.ComputerUpgradeRecipe;
 import dan200.computercraft.shared.media.items.RecordMedia;
-import dan200.computercraft.shared.media.recipes.DiskRecipe;
-import dan200.computercraft.shared.media.recipes.PrintoutRecipe;
 import dan200.computercraft.shared.network.NetworkHandler;
 import dan200.computercraft.shared.peripheral.commandblock.CommandBlockPeripheral;
 import dan200.computercraft.shared.peripheral.modem.wireless.WirelessNetwork;
-import dan200.computercraft.shared.pocket.recipes.PocketComputerUpgradeRecipe;
-import dan200.computercraft.shared.turtle.recipes.TurtleRecipe;
-import dan200.computercraft.shared.turtle.recipes.TurtleUpgradeRecipe;
-import dan200.computercraft.shared.util.ImpostorRecipe;
-import dan200.computercraft.shared.util.ImpostorShapelessRecipe;
 import dan200.computercraft.shared.wired.CapabilityWiredElement;
 import net.minecraft.inventory.container.Container;
 import net.minecraft.item.Item;
 import net.minecraft.item.MusicDiscItem;
-import net.minecraft.item.crafting.IRecipeSerializer;
 import net.minecraft.tileentity.CommandBlockTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.event.entity.player.PlayerContainerEvent;
@@ -58,17 +48,6 @@ public final class ComputerCraftProxyCommon
         NetworkHandler.setup();
 
         registerProviders();
-
-        // Eww, eww, eww - can we move this to an event?
-        IRecipeSerializer.register( ComputerCraft.MOD_ID + ":colour", ColourableRecipe.SERIALIZER );
-        IRecipeSerializer.register( ComputerCraft.MOD_ID + ":computer_upgrade", ComputerUpgradeRecipe.SERIALIZER );
-        IRecipeSerializer.register( ComputerCraft.MOD_ID + ":pocket_computer_upgrade", PocketComputerUpgradeRecipe.SERIALIZER );
-        IRecipeSerializer.register( ComputerCraft.MOD_ID + ":disk", DiskRecipe.SERIALIZER );
-        IRecipeSerializer.register( ComputerCraft.MOD_ID + ":printout", PrintoutRecipe.SERIALIZER );
-        IRecipeSerializer.register( ComputerCraft.MOD_ID + ":turtle", TurtleRecipe.SERIALIZER );
-        IRecipeSerializer.register( ComputerCraft.MOD_ID + ":turtle_upgrade", TurtleUpgradeRecipe.SERIALIZER );
-        IRecipeSerializer.register( ComputerCraft.MOD_ID + ":impostor_shapeless", ImpostorShapelessRecipe.SERIALIZER );
-        IRecipeSerializer.register( ComputerCraft.MOD_ID + ":impostor_shaped", ImpostorRecipe.SERIALIZER );
 
         ArgumentSerializers.register();
 

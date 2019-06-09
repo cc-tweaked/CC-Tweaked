@@ -60,7 +60,7 @@ public final class ImpostorShapelessRecipe extends ShapelessRecipe
         return SERIALIZER;
     }
 
-    public static final IRecipeSerializer<ImpostorShapelessRecipe> SERIALIZER = new IRecipeSerializer<ImpostorShapelessRecipe>()
+    public static final IRecipeSerializer<ImpostorShapelessRecipe> SERIALIZER = new BasicRecipeSerializer<ImpostorShapelessRecipe>()
     {
         @Override
         public ImpostorShapelessRecipe read( @Nonnull ResourceLocation id, @Nonnull JsonObject json )
