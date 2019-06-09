@@ -333,7 +333,7 @@ public class TileCable extends TileGeneric implements IPeripheralTile
         for( Direction facing : DirectionUtil.FACINGS )
         {
             BlockPos offset = current.offset( facing );
-            if( !world.isBlockLoaded( offset ) ) continue;
+            if( !world.isAreaLoaded( offset, 0 ) ) continue;
 
             LazyOptional<IWiredElement> element = ComputerCraftAPI.getWiredElementAt( world, offset, facing.getOpposite() );
             if( !element.isPresent() ) continue;

@@ -59,7 +59,7 @@ public final class TickScheduler
             World world = tile.getWorld();
             BlockPos pos = tile.getPos();
 
-            if( world != null && pos != null && world.isBlockLoaded( pos ) && world.getTileEntity( pos ) == tile )
+            if( world != null && pos != null && world.isAreaLoaded( pos, 0 ) && world.getTileEntity( pos ) == tile )
             {
                 world.getPendingBlockTicks().scheduleTick( pos, tile.getBlockState().getBlock(), 0 );
             }

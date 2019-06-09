@@ -40,7 +40,7 @@ public class FileSystemTest
             wrapper.call( "close" );
         }
 
-        assertEquals( "This is a long line", Files.toString( new File( ROOT, "out.txt" ), StandardCharsets.UTF_8 ) );
+        assertEquals( "This is a long line", Files.asCharSource( new File( ROOT, "out.txt" ), StandardCharsets.UTF_8 ).read() );
 
         {
             FileSystemWrapper<BufferedWriter> writer = fs.openForWrite( "out.txt", false, EncodedWritableHandle::openUtf8 );
@@ -49,6 +49,6 @@ public class FileSystemTest
             wrapper.call( "close" );
         }
 
-        assertEquals( "Tiny line", Files.toString( new File( ROOT, "out.txt" ), StandardCharsets.UTF_8 ) );
+        assertEquals( "Tiny line", Files.asCharSource( new File( ROOT, "out.txt" ), StandardCharsets.UTF_8 ).read() );
     }
 }

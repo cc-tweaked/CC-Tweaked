@@ -362,7 +362,7 @@ public class TileMonitor extends TileGeneric implements IPeripheralTile
 
         int y = pos.getY();
         World world = getWorld();
-        if( world == null || !world.isBlockLoaded( pos ) ) return null;
+        if( world == null || !world.isAreaLoaded( pos, 0 ) ) return null;
 
         TileEntity tile = world.getTileEntity( pos );
         if( !(tile instanceof TileMonitor) ) return null;

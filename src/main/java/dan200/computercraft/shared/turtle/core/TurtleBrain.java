@@ -306,7 +306,7 @@ public class TurtleBrain implements ITurtleAccess
         }
 
         // Ensure the chunk is loaded
-        if( !world.isBlockLoaded( pos ) ) return false;
+        if( !world.isAreaLoaded( pos, 0 ) ) return false;
 
         // Ensure we're inside the world border
         if( !world.getWorldBorder().contains( pos ) ) return false;

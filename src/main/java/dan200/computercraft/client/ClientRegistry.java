@@ -12,12 +12,10 @@ import dan200.computercraft.shared.common.IColouredItem;
 import dan200.computercraft.shared.media.items.ItemDisk;
 import dan200.computercraft.shared.pocket.items.ItemPocketComputer;
 import dan200.computercraft.shared.util.Colour;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.model.IBakedModel;
 import net.minecraft.client.renderer.model.IUnbakedModel;
 import net.minecraft.client.renderer.model.ModelResourceLocation;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.resources.IResourceManager;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.ColorHandlerEvent;
@@ -79,11 +77,13 @@ public final class ClientRegistry
     @SubscribeEvent
     public static void onTextureStitchEvent( TextureStitchEvent.Pre event )
     {
+        /*
         IResourceManager manager = Minecraft.getInstance().getResourceManager();
         for( String extra : EXTRA_TEXTURES )
         {
             // TODO: event.getMap().registerSprite( manager, new ResourceLocation( ComputerCraft.MOD_ID, extra ) );
         }
+        */
     }
 
     @SubscribeEvent
