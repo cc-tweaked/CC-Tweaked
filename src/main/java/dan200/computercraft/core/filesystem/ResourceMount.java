@@ -267,7 +267,7 @@ public class ResourceMount implements IMount
 
         synchronized void add( IReloadableResourceManager manager, ResourceMount mount )
         {
-            if( managers.add( manager ) ) manager.func_219534_a( this ); // addReloadListener
+            if( managers.add( manager ) ) manager.addReloadListener( this );
             mounts.add( mount );
         }
     }

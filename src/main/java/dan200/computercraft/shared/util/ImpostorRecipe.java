@@ -64,7 +64,7 @@ public final class ImpostorRecipe extends ShapedRecipe
         public ImpostorRecipe read( @Nonnull ResourceLocation identifier, @Nonnull JsonObject json )
         {
             String group = JSONUtils.getString( json, "group", "" );
-            ShapedRecipe recipe = IRecipeSerializer.field_222157_a.read( identifier, json );
+            ShapedRecipe recipe = IRecipeSerializer.CRAFTING_SHAPED.read( identifier, json );
             ItemStack result = CraftingHelper.getItemStack( JSONUtils.getJsonObject( json, "result" ), true );
             return new ImpostorRecipe( identifier, group, recipe.getWidth(), recipe.getHeight(), recipe.getIngredients(), result );
         }

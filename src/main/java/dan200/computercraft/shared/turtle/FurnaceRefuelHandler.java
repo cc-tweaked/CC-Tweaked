@@ -54,7 +54,7 @@ public final class FurnaceRefuelHandler implements TurtleRefuelEvent.Handler
         int basicBurnTime = stack.getBurnTime();
         int burnTime = ForgeEventFactory.getItemBurnTime(
             stack,
-            basicBurnTime == -1 ? FurnaceTileEntity.func_214001_f().getOrDefault( stack.getItem(), 0 ) : basicBurnTime
+            basicBurnTime == -1 ? FurnaceTileEntity.getBurnTimes().getOrDefault( stack.getItem(), 0 ) : basicBurnTime
         );
         return (burnTime * 5) / 100;
     }

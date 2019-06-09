@@ -10,14 +10,17 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.client.gui.widgets.WidgetTerminal;
 import dan200.computercraft.client.gui.widgets.WidgetWrapper;
-import dan200.computercraft.shared.computer.blocks.TileComputer;
 import dan200.computercraft.shared.computer.core.ClientComputer;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.IContainerComputer;
 import dan200.computercraft.shared.computer.inventory.ContainerComputer;
+import dan200.computercraft.shared.computer.inventory.ContainerViewComputer;
+import dan200.computercraft.shared.pocket.inventory.ContainerPocketComputer;
+import dan200.computercraft.shared.pocket.items.ItemPocketComputer;
 import net.minecraft.client.gui.screen.inventory.ContainerScreen;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.container.Container;
+import net.minecraft.item.Item;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 
@@ -49,16 +52,38 @@ public class GuiComputer<T extends Container & IContainerComputer> extends Conta
         terminal = null;
     }
 
-    public static GuiComputer<ContainerComputer> create( int id, TileComputer computer, PlayerInventory inventory, ITextComponent component )
+    public static GuiComputer<ContainerComputer> create( ContainerComputer container, PlayerInventory inventory, ITextComponent component )
     {
         return new GuiComputer<>(
-            new ContainerComputer( id, computer ), inventory, component,
-            computer.getFamily(),
-            computer.createClientComputer(),
+            container, inventory, component,
+            container.getFamily(),
+            (ClientComputer) container.getComputer(),
             ComputerCraft.terminalWidth_computer,
             ComputerCraft.terminalHeight_computer
         );
     }
+
+    public static GuiComputer<ContainerPocketComputer> createPocket( ContainerPocketComputer container, PlayerInventory inventory, ITextComponent component )
+    {
+        Item item = container.getStack().getItem();
+        return new GuiComputer<>(
+            container, inventory, component,
+            item instanceof ItemPocketComputer ? ((ItemPocketComputer) item).getFamily() : ComputerFamily.Normal,
+            (ClientComputer) container.getComputer(),
+            ComputerCraft.terminalWidth_computer,
+            ComputerCraft.terminalHeight_computer
+        );
+    }
+
+    public static GuiComputer<ContainerViewComputer> createView( ContainerViewComputer container, PlayerInventory inventory, ITextComponent component )
+    {
+        return new GuiComputer<>(
+            container, inventory, component,
+            // TODO: Waiting to see how Forge handles this before implementing anything else.
+            null, (ClientComputer) container.getComputer(), 0, 0
+        );
+    }
+
 
     @Override
     protected void init()

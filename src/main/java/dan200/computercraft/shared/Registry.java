@@ -8,15 +8,19 @@ package dan200.computercraft.shared;
 
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.ComputerCraftAPI;
+import dan200.computercraft.shared.common.ContainerHeldItem;
 import dan200.computercraft.shared.computer.blocks.BlockComputer;
 import dan200.computercraft.shared.computer.blocks.TileCommandComputer;
 import dan200.computercraft.shared.computer.blocks.TileComputer;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
+import dan200.computercraft.shared.computer.inventory.ContainerComputer;
+import dan200.computercraft.shared.computer.inventory.ContainerViewComputer;
 import dan200.computercraft.shared.computer.items.ItemComputer;
 import dan200.computercraft.shared.media.items.ItemDisk;
 import dan200.computercraft.shared.media.items.ItemPrintout;
 import dan200.computercraft.shared.media.items.ItemTreasureDisk;
 import dan200.computercraft.shared.peripheral.diskdrive.BlockDiskDrive;
+import dan200.computercraft.shared.peripheral.diskdrive.ContainerDiskDrive;
 import dan200.computercraft.shared.peripheral.diskdrive.TileDiskDrive;
 import dan200.computercraft.shared.peripheral.modem.wired.*;
 import dan200.computercraft.shared.peripheral.modem.wireless.BlockWirelessModem;
@@ -24,21 +28,25 @@ import dan200.computercraft.shared.peripheral.modem.wireless.TileWirelessModem;
 import dan200.computercraft.shared.peripheral.monitor.BlockMonitor;
 import dan200.computercraft.shared.peripheral.monitor.TileMonitor;
 import dan200.computercraft.shared.peripheral.printer.BlockPrinter;
+import dan200.computercraft.shared.peripheral.printer.ContainerPrinter;
 import dan200.computercraft.shared.peripheral.printer.TilePrinter;
 import dan200.computercraft.shared.peripheral.speaker.BlockSpeaker;
 import dan200.computercraft.shared.peripheral.speaker.TileSpeaker;
+import dan200.computercraft.shared.pocket.inventory.ContainerPocketComputer;
 import dan200.computercraft.shared.pocket.items.ItemPocketComputer;
 import dan200.computercraft.shared.pocket.peripherals.PocketModem;
 import dan200.computercraft.shared.pocket.peripherals.PocketSpeaker;
 import dan200.computercraft.shared.turtle.blocks.BlockTurtle;
 import dan200.computercraft.shared.turtle.blocks.TileTurtle;
 import dan200.computercraft.shared.turtle.core.TurtlePlayer;
+import dan200.computercraft.shared.turtle.inventory.ContainerTurtle;
 import dan200.computercraft.shared.turtle.items.ItemTurtle;
 import dan200.computercraft.shared.turtle.upgrades.*;
 import dan200.computercraft.shared.util.CreativeTabMain;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.EntityType;
+import net.minecraft.inventory.container.ContainerType;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
@@ -310,5 +318,21 @@ public final class Registry
     public static void registerEntities( RegistryEvent.Register<EntityType<?>> registry )
     {
         registry.getRegistry().register( TurtlePlayer.TYPE.setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "turtle_player" ) ) );
+    }
+
+    @SubscribeEvent
+    public static void registerContainers( RegistryEvent.Register<ContainerType<?>> event )
+    {
+        event.getRegistry().registerAll(
+            ContainerComputer.TYPE.setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "computer" ) ),
+            ContainerPocketComputer.TYPE.setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "pocket_computer" ) ),
+            ContainerTurtle.TYPE.setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "turtle" ) ),
+
+            ContainerDiskDrive.TYPE.setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "disk_drive" ) ),
+            ContainerPrinter.TYPE.setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "printer" ) ),
+            ContainerHeldItem.PRINTOUT_TYPE.setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "printout" ) ),
+
+            ContainerViewComputer.TYPE.setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "view_computer" ) )
+        );
     }
 }

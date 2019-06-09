@@ -53,7 +53,6 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
     private static final String NBT_PAGE_TITLE = "PageTitle";
 
     static final int SLOTS = 13;
-    static final int PROPERTIES = 1;
 
     private static final int[] BOTTOM_SLOTS = new int[] { 7, 8, 9, 10, 11, 12 };
     private static final int[] TOP_SLOTS = new int[] { 1, 2, 3, 4, 5, 6 };

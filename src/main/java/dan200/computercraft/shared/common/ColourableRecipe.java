@@ -20,7 +20,7 @@ import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
 
-public class ColourableRecipe extends SpecialRecipe
+public final class ColourableRecipe extends SpecialRecipe
 {
     private ColourableRecipe( ResourceLocation id )
     {

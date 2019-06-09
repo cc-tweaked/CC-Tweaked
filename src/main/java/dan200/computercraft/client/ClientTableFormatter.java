@@ -65,7 +65,7 @@ public class ClientTableFormatter implements TableFormatter
     public void writeLine( int id, ITextComponent component )
     {
         Minecraft mc = Minecraft.getInstance();
-        NewChatGui chat = mc.field_71456_v.getChatGUI(); // ingameGUI
+        NewChatGui chat = mc.ingameGUI.getChatGUI();
 
         // Trim the text if it goes over the allowed length
         int maxWidth = MathHelper.floor( chat.getChatWidth() / chat.getScale() );
@@ -76,7 +76,7 @@ public class ClientTableFormatter implements TableFormatter
     @Override
     public int display( TableBuilder table )
     {
-        NewChatGui chat = Minecraft.getInstance().field_71456_v.getChatGUI();
+        NewChatGui chat = Minecraft.getInstance().ingameGUI.getChatGUI();
 
         int lastHeight = lastHeights.get( table.getId() );
 

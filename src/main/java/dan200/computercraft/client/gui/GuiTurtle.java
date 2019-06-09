@@ -12,7 +12,6 @@ import dan200.computercraft.client.gui.widgets.WidgetTerminal;
 import dan200.computercraft.client.gui.widgets.WidgetWrapper;
 import dan200.computercraft.shared.computer.core.ClientComputer;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
-import dan200.computercraft.shared.turtle.blocks.TileTurtle;
 import dan200.computercraft.shared.turtle.inventory.ContainerTurtle;
 import net.minecraft.client.gui.screen.inventory.ContainerScreen;
 import net.minecraft.entity.player.PlayerInventory;
@@ -32,13 +31,13 @@ public class GuiTurtle extends ContainerScreen<ContainerTurtle>
     private WidgetTerminal terminal;
     private WidgetWrapper terminalWrapper;
 
-    public GuiTurtle( TileTurtle turtle, ContainerTurtle container, PlayerInventory player, ITextComponent title )
+    public GuiTurtle( ContainerTurtle container, PlayerInventory player, ITextComponent title )
     {
         super( container, player, title );
 
         m_container = container;
-        m_family = turtle.getFamily();
-        m_computer = turtle.getClientComputer();
+        m_family = null; // TODO
+        m_computer = (ClientComputer) container.getComputer();
 
         xSize = 254;
         ySize = 217;

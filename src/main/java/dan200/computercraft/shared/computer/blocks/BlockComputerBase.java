@@ -148,7 +148,7 @@ public abstract class BlockComputerBase<T extends TileComputerBase> extends Bloc
             if( tile instanceof TileComputerBase )
             {
                 TileComputerBase computer = (TileComputerBase) tile;
-                if( !player.playerAbilities.isCreativeMode || computer.getLabel() != null )
+                if( !player.abilities.isCreativeMode || computer.getLabel() != null )
                 {
                     spawnAsEntity( world, pos, getItem( computer ) );
                 }

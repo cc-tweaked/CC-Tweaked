@@ -91,7 +91,7 @@ public class TileEntityTurtleRenderer extends TileEntityRenderer<TileTurtle>
         if( label != null && hit.getType() == RayTraceResult.Type.BLOCK && turtle.getPos().equals( ((BlockRayTraceResult) hit).getPos() ) )
         {
             setLightmapDisabled( true );
-            GameRenderer.func_215307_a(
+            GameRenderer.drawNameplate(
                 getFontRenderer(), label,
                 (float) posX + 0.5F, (float) posY + 1.2F, (float) posZ + 0.5F, 0,
                 rendererDispatcher.field_217666_g.func_216778_f(), rendererDispatcher.field_217666_g.func_216777_e(), false

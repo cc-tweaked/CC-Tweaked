@@ -51,7 +51,7 @@ public abstract class WirelessModemPeripheral extends ModemPeripheral
                 }
                 if( position.y > 96.0 && maxRange > minRange )
                 {
-                    return minRange + (position.y - 96.0) * ((maxRange - minRange) / ((world.func_217301_I() - 1) - 96.0));
+                    return minRange + (position.y - 96.0) * ((maxRange - minRange) / ((world.getHeight() - 1) - 96.0));
                 }
                 return minRange;
             }

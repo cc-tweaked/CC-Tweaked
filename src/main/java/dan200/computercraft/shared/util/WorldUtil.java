@@ -63,7 +63,7 @@ public final class WorldUtil
         // Raycast for blocks
         ENTITY.setPosition( vecStart.x, vecStart.y, vecStart.z );
         RayTraceContext context = new RayTraceContext( vecStart, vecEnd, RayTraceContext.BlockMode.COLLIDER, RayTraceContext.FluidMode.NONE, ENTITY );
-        RayTraceResult result = world.func_217299_a( context );
+        RayTraceResult result = world.rayTraceBlocks( context );
         if( result != null && result.getType() == RayTraceResult.Type.BLOCK )
         {
             distance = vecStart.distanceTo( result.getHitVec() );
@@ -96,7 +96,7 @@ public final class WorldUtil
                 continue;
             }
 
-            Vec3d littleBoxResult = littleBox.func_216365_b( vecStart, vecEnd ).orElse( null ); // rayTrace
+            Vec3d littleBoxResult = littleBox.rayTrace( vecStart, vecEnd ).orElse( null );
             if( littleBoxResult != null )
             {
                 double dist = vecStart.distanceTo( littleBoxResult );
@@ -178,6 +178,6 @@ public final class WorldUtil
             zDir * 0.7 + world.getRandom().nextFloat() * 0.2 - 0.1
         );
         item.setDefaultPickupDelay();
-        world.func_217376_c( item );
+        world.addEntity( item );
     }
 }

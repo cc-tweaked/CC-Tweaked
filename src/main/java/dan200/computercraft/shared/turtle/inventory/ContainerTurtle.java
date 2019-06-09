@@ -6,47 +6,53 @@
 
 package dan200.computercraft.shared.turtle.inventory;
 
-import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.shared.computer.core.IComputer;
 import dan200.computercraft.shared.computer.core.IContainerComputer;
 import dan200.computercraft.shared.computer.core.InputState;
 import dan200.computercraft.shared.turtle.blocks.TileTurtle;
 import dan200.computercraft.shared.turtle.core.TurtleBrain;
+import dan200.computercraft.shared.util.SingleIntArray;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.inventory.Inventory;
 import net.minecraft.inventory.container.Container;
 import net.minecraft.inventory.container.ContainerType;
 import net.minecraft.inventory.container.Slot;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.IIntArray;
+import net.minecraft.util.IntArray;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class ContainerTurtle extends Container implements IContainerComputer
 {
-    public static final ContainerType<ContainerTurtle> TYPE = null;
+    public static final ContainerType<ContainerTurtle> TYPE = new ContainerType<>( ContainerTurtle::new );
 
     public static final int PLAYER_START_Y = 134;
     public static final int TURTLE_START_X = 175;
 
-    private final ITurtleAccess m_turtle;
-    private IComputer m_computer;
-    private final InputState input = new InputState( this );
-    private int selectedSlot;
+    private final IIntArray properties;
 
-    protected ContainerTurtle( int id, PlayerInventory playerInventory, ITurtleAccess turtle )
+    private IComputer computer;
+    private TurtleBrain turtle;
+
+    private final InputState input = new InputState( this );
+
+    protected ContainerTurtle( int id, PlayerInventory playerInventory, IInventory inventory, IIntArray properties )
     {
         super( TYPE, id );
+        this.properties = properties;
 
-        m_turtle = turtle;
-        selectedSlot = m_turtle.getWorld().isRemote ? 0 : m_turtle.getSelectedSlot();
+        func_216961_a( properties );
 
         // Turtle inventory
         for( int y = 0; y < 4; y++ )
         {
             for( int x = 0; x < 4; x++ )
             {
-                addSlot( new Slot( m_turtle.getInventory(), x + y * 4, TURTLE_START_X + 1 + x * 18, PLAYER_START_Y + 1 + y * 18 ) );
+                addSlot( new Slot( inventory, x + y * 4, TURTLE_START_X + 1 + x * 18, PLAYER_START_Y + 1 + y * 18 ) );
             }
         }
 
@@ -66,22 +72,28 @@ public class ContainerTurtle extends Container implements IContainerComputer
         }
     }
 
-    public ContainerTurtle( int id, PlayerInventory playerInventory, ITurtleAccess turtle, IComputer computer )
+    public ContainerTurtle( int id, PlayerInventory playerInventory, TurtleBrain turtle, IComputer computer )
     {
-        this( id, playerInventory, turtle );
-        m_computer = computer;
+        this( id, playerInventory, turtle.getInventory(), (SingleIntArray) turtle::getSelectedSlot );
+        this.turtle = turtle;
+        this.computer = computer;
+    }
+
+    private ContainerTurtle( int id, PlayerInventory playerInventory )
+    {
+        this( id, playerInventory, new Inventory( TileTurtle.INVENTORY_SIZE ), new IntArray( 1 ) );
     }
 
     public int getSelectedSlot()
     {
-        return selectedSlot;
+        return properties.get( 0 );
     }
 
     @Override
     public boolean canInteractWith( @Nonnull PlayerEntity player )
     {
-        TileTurtle turtle = ((TurtleBrain) m_turtle).getOwner();
-        return turtle != null && turtle.isUsableByPlayer( player );
+        // If we've no turtle, we'll be on the client.
+        return turtle == null || (turtle.getOwner() != null && turtle.getOwner().isUsableByPlayer( player ));
     }
 
     @Nonnull
@@ -138,7 +150,7 @@ public class ContainerTurtle extends Container implements IContainerComputer
     @Override
     public IComputer getComputer()
     {
-        return m_computer;
+        return computer;
     }
 
     @Nonnull

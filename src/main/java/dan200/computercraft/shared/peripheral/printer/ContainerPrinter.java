@@ -63,7 +63,7 @@ public class ContainerPrinter extends Container
 
     private ContainerPrinter( int id, PlayerInventory player )
     {
-        this( id, player, new Inventory( TilePrinter.SLOTS ), new IntArray( TilePrinter.PROPERTIES ) );
+        this( id, player, new Inventory( TilePrinter.SLOTS ), new IntArray( 1 ) );
     }
 
     public ContainerPrinter( int id, PlayerInventory player, TilePrinter printer )
@@ -73,7 +73,7 @@ public class ContainerPrinter extends Container
 
     public boolean isPrinting()
     {
-        return properties.func_221476_a( 0 ) != 0;
+        return properties.get( 0 ) != 0;
     }
 
     @Override

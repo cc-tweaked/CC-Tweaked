@@ -85,7 +85,7 @@ public class BlockWirelessModem extends BlockGeneric implements IWaterLoggable
         Direction facing = state.get( FACING );
         BlockPos offsetPos = pos.offset( facing );
         BlockState offsetState = world.getBlockState( offsetPos );
-        return func_220056_d( offsetState, world, offsetPos, facing.getOpposite() );
+        return hasSolidSide( offsetState, world, offsetPos, facing.getOpposite() );
     }
 
     @Nullable

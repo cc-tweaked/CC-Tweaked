@@ -105,7 +105,7 @@ public class BlockCable extends BlockGeneric implements IWaterLoggable
     {
         if( state.get( CABLE ) && state.get( MODEM ).getFacing() != null )
         {
-            BlockRayTraceResult hit = world.func_217299_a( new RayTraceContext(
+            BlockRayTraceResult hit = world.rayTraceBlocks( new RayTraceContext(
                 WorldUtil.getRayStart( player ), WorldUtil.getRayEnd( player ),
                 RayTraceContext.BlockMode.COLLIDER, RayTraceContext.FluidMode.NONE, player
             ) );
@@ -134,7 +134,7 @@ public class BlockCable extends BlockGeneric implements IWaterLoggable
 
                     cable.modemChanged();
                     cable.connectionsChanged();
-                    if( !world.isRemote && !player.playerAbilities.isCreativeMode )
+                    if( !world.isRemote && !player.abilities.isCreativeMode )
                     {
                         Block.spawnAsEntity( world, pos, item );
                     }
@@ -210,7 +210,7 @@ public class BlockCable extends BlockGeneric implements IWaterLoggable
 
         BlockPos offsetPos = pos.offset( facing );
         BlockState offsetState = world.getBlockState( offsetPos );
-        return Block.func_220056_d( offsetState, world, offsetPos, facing.getOpposite() ); // hasSolidTop ??
+        return Block.hasSolidSide( offsetState, world, offsetPos, facing.getOpposite() );
     }
 
     @Nullable

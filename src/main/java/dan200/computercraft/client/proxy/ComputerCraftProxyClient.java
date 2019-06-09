@@ -7,14 +7,13 @@
 package dan200.computercraft.client.proxy;
 
 import dan200.computercraft.ComputerCraft;
-import dan200.computercraft.client.gui.GuiDiskDrive;
-import dan200.computercraft.client.gui.GuiPocketComputer;
-import dan200.computercraft.client.gui.GuiPrinter;
-import dan200.computercraft.client.gui.GuiPrintout;
+import dan200.computercraft.client.gui.*;
 import dan200.computercraft.client.render.TileEntityCableRenderer;
 import dan200.computercraft.client.render.TileEntityMonitorRenderer;
 import dan200.computercraft.client.render.TileEntityTurtleRenderer;
 import dan200.computercraft.shared.common.ContainerHeldItem;
+import dan200.computercraft.shared.computer.inventory.ContainerComputer;
+import dan200.computercraft.shared.computer.inventory.ContainerViewComputer;
 import dan200.computercraft.shared.peripheral.diskdrive.ContainerDiskDrive;
 import dan200.computercraft.shared.peripheral.modem.wired.TileCable;
 import dan200.computercraft.shared.peripheral.monitor.ClientMonitor;
@@ -22,6 +21,7 @@ import dan200.computercraft.shared.peripheral.monitor.TileMonitor;
 import dan200.computercraft.shared.peripheral.printer.ContainerPrinter;
 import dan200.computercraft.shared.pocket.inventory.ContainerPocketComputer;
 import dan200.computercraft.shared.turtle.blocks.TileTurtle;
+import dan200.computercraft.shared.turtle.inventory.ContainerTurtle;
 import net.minecraft.client.gui.ScreenManager;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.event.world.WorldEvent;
@@ -46,11 +46,17 @@ public final class ComputerCraftProxyClient
 
     private static void registerContainers()
     {
+        // My IDE doesn't think so, but we do actually need these generics.
+
+        ScreenManager.<ContainerComputer, GuiComputer<ContainerComputer>>registerFactory( ContainerComputer.TYPE, GuiComputer::create );
+        ScreenManager.<ContainerPocketComputer, GuiComputer<ContainerPocketComputer>>registerFactory( ContainerPocketComputer.TYPE, GuiComputer::createPocket );
+        ScreenManager.registerFactory( ContainerTurtle.TYPE, GuiTurtle::new );
+
         ScreenManager.registerFactory( ContainerPrinter.TYPE, GuiPrinter::new );
         ScreenManager.registerFactory( ContainerDiskDrive.TYPE, GuiDiskDrive::new );
-        ScreenManager.registerFactory( ContainerPocketComputer.TYPE, GuiPocketComputer::new );
         ScreenManager.registerFactory( ContainerHeldItem.PRINTOUT_TYPE, GuiPrintout::new );
-        // TODO: ScreenManager.registerFactory( ContainerViewComputer.TYPE, GuiComputer::new );
+
+        ScreenManager.<ContainerViewComputer, GuiComputer<ContainerViewComputer>>registerFactory( ContainerViewComputer.TYPE, GuiComputer::createView );
     }
 
     @Mod.EventBusSubscriber( modid = ComputerCraft.MOD_ID, value = Dist.CLIENT )

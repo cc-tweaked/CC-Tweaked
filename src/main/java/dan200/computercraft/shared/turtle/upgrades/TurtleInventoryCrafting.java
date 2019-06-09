@@ -66,7 +66,7 @@ public class TurtleInventoryCrafting extends CraftingInventory
         }
 
         // Check the actual crafting
-        return m_turtle.getWorld().getRecipeManager().func_215371_a( IRecipeType.field_222149_a, this, m_turtle.getWorld() ).orElse( null );
+        return m_turtle.getWorld().getRecipeManager().getRecipe( IRecipeType.CRAFTING, this, m_turtle.getWorld() ).orElse( null );
     }
 
     @Nullable

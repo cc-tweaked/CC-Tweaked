@@ -14,19 +14,18 @@ public interface SingleIntArray extends IIntArray
     int get();
 
     @Override
-    default int func_221476_a( int property )
+    default int get( int property )
     {
         return property == 0 ? get() : 0;
     }
 
     @Override
-    default void func_221477_a( int i, int i1 )
+    default void set( int property, int value )
     {
-
     }
 
     @Override
-    default int func_221478_a()
+    default int size()
     {
         return 1;
     }

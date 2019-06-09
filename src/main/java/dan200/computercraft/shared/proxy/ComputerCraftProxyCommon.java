@@ -16,22 +16,17 @@ import dan200.computercraft.shared.Config;
 import dan200.computercraft.shared.command.CommandComputerCraft;
 import dan200.computercraft.shared.command.arguments.ArgumentSerializers;
 import dan200.computercraft.shared.common.ColourableRecipe;
-import dan200.computercraft.shared.common.ContainerHeldItem;
 import dan200.computercraft.shared.common.DefaultBundledRedstoneProvider;
 import dan200.computercraft.shared.computer.core.IComputer;
 import dan200.computercraft.shared.computer.core.IContainerComputer;
 import dan200.computercraft.shared.computer.core.ServerComputer;
-import dan200.computercraft.shared.computer.inventory.ContainerViewComputer;
 import dan200.computercraft.shared.computer.recipe.ComputerUpgradeRecipe;
 import dan200.computercraft.shared.media.items.RecordMedia;
 import dan200.computercraft.shared.media.recipes.DiskRecipe;
 import dan200.computercraft.shared.media.recipes.PrintoutRecipe;
 import dan200.computercraft.shared.network.NetworkHandler;
 import dan200.computercraft.shared.peripheral.commandblock.CommandBlockPeripheral;
-import dan200.computercraft.shared.peripheral.diskdrive.ContainerDiskDrive;
 import dan200.computercraft.shared.peripheral.modem.wireless.WirelessNetwork;
-import dan200.computercraft.shared.peripheral.printer.ContainerPrinter;
-import dan200.computercraft.shared.pocket.inventory.ContainerPocketComputer;
 import dan200.computercraft.shared.pocket.recipes.PocketComputerUpgradeRecipe;
 import dan200.computercraft.shared.turtle.recipes.TurtleRecipe;
 import dan200.computercraft.shared.turtle.recipes.TurtleUpgradeRecipe;
@@ -44,7 +39,6 @@ import net.minecraft.item.MusicDiscItem;
 import net.minecraft.item.crafting.IRecipeSerializer;
 import net.minecraft.tileentity.CommandBlockTileEntity;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.registry.Registry;
 import net.minecraftforge.event.entity.player.PlayerContainerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent;
@@ -66,21 +60,15 @@ public final class ComputerCraftProxyCommon
         registerProviders();
 
         // Eww, eww, eww - can we move this to an event?
-        IRecipeSerializer.func_222156_a( ComputerCraft.MOD_ID + ":colour", ColourableRecipe.SERIALIZER );
-        IRecipeSerializer.func_222156_a( ComputerCraft.MOD_ID + ":computer_upgrade", ComputerUpgradeRecipe.SERIALIZER );
-        IRecipeSerializer.func_222156_a( ComputerCraft.MOD_ID + ":pocket_computer_upgrade", PocketComputerUpgradeRecipe.SERIALIZER );
-        IRecipeSerializer.func_222156_a( ComputerCraft.MOD_ID + ":disk", DiskRecipe.SERIALIZER );
-        IRecipeSerializer.func_222156_a( ComputerCraft.MOD_ID + ":printout", PrintoutRecipe.SERIALIZER );
-        IRecipeSerializer.func_222156_a( ComputerCraft.MOD_ID + ":turtle", TurtleRecipe.SERIALIZER );
-        IRecipeSerializer.func_222156_a( ComputerCraft.MOD_ID + ":turtle_upgrade", TurtleUpgradeRecipe.SERIALIZER );
-        IRecipeSerializer.func_222156_a( ComputerCraft.MOD_ID + ":impostor_shapeless", ImpostorShapelessRecipe.SERIALIZER );
-        IRecipeSerializer.func_222156_a( ComputerCraft.MOD_ID + ":impostor_shaped", ImpostorRecipe.SERIALIZER );
-
-        Registry.register( Registry.field_218366_G, ComputerCraft.MOD_ID + ":printer", ContainerPrinter.TYPE );
-        Registry.register( Registry.field_218366_G, ComputerCraft.MOD_ID + ":disk_drive", ContainerDiskDrive.TYPE );
-        Registry.register( Registry.field_218366_G, ComputerCraft.MOD_ID + ":pocket_computer", ContainerPocketComputer.TYPE );
-        Registry.register( Registry.field_218366_G, ComputerCraft.MOD_ID + ":printout", ContainerHeldItem.PRINTOUT_TYPE );
-        Registry.register( Registry.field_218366_G, ComputerCraft.MOD_ID + ":view_computer", ContainerViewComputer.TYPE );
+        IRecipeSerializer.register( ComputerCraft.MOD_ID + ":colour", ColourableRecipe.SERIALIZER );
+        IRecipeSerializer.register( ComputerCraft.MOD_ID + ":computer_upgrade", ComputerUpgradeRecipe.SERIALIZER );
+        IRecipeSerializer.register( ComputerCraft.MOD_ID + ":pocket_computer_upgrade", PocketComputerUpgradeRecipe.SERIALIZER );
+        IRecipeSerializer.register( ComputerCraft.MOD_ID + ":disk", DiskRecipe.SERIALIZER );
+        IRecipeSerializer.register( ComputerCraft.MOD_ID + ":printout", PrintoutRecipe.SERIALIZER );
+        IRecipeSerializer.register( ComputerCraft.MOD_ID + ":turtle", TurtleRecipe.SERIALIZER );
+        IRecipeSerializer.register( ComputerCraft.MOD_ID + ":turtle_upgrade", TurtleUpgradeRecipe.SERIALIZER );
+        IRecipeSerializer.register( ComputerCraft.MOD_ID + ":impostor_shapeless", ImpostorShapelessRecipe.SERIALIZER );
+        IRecipeSerializer.register( ComputerCraft.MOD_ID + ":impostor_shaped", ImpostorRecipe.SERIALIZER );
 
         ArgumentSerializers.register();
 
