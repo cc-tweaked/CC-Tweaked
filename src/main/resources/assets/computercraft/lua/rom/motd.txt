@@ -13,7 +13,7 @@ Use the "edit" program to create and edit your programs.
 You can copy files with "copy" or "cp".
 You can use "wget run <url>" to run a program from the internet.
 You can use "wget" to download a file from the internet.
-Use "fg" or "bg" to run multiple programs at the same time.
+On an advanced computer you can use "fg" or "bg" to run multiple programs at the same time.
 Use "type" to see if a path is a file or a directory.
 Get a list of all programs with "programs".
 Use an Advanced Computer to use colours and the mouse.
