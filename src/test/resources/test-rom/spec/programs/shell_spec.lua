@@ -29,8 +29,7 @@ describe("The shell", function()
         end)
 
         it("not existing directory", function()
-            shell.setDir(shell.dir("/rom/nothing"))
-            expect.error(shell.setDir, nil):eq("Not a directory")
+            expect.error(shell.setDir, "/rom/nothing"):eq("Not a directory")
         end)
     end)
 
