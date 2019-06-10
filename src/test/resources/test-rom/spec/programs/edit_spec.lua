@@ -6,6 +6,6 @@ describe("The edit program", function()
         multishell = nil
         
         expect(capture(stub, "edit"))
-            :matches { ok = true, output = "Usage: edit <path>", error = "" }
+            :matches { ok = true, output = "Usage: edit <path>\n", error = "" }
     end)
 end)
