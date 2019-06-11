@@ -19,7 +19,7 @@ import javax.annotation.Nonnull;
 
 public class ContainerHeldItem extends Container
 {
-    public static final ContainerType<ContainerHeldItem> PRINTOUT_TYPE = ContainerData.create( PrintoutContainerData::new );
+    public static final ContainerType<ContainerHeldItem> PRINTOUT_TYPE = ContainerData.toType( PrintoutContainerData::new, null /* TODO */ );
 
     private final ItemStack m_stack;
     private final Hand m_hand;

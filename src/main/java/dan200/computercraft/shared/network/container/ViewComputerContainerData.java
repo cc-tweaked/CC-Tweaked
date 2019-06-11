@@ -6,18 +6,9 @@
 
 package dan200.computercraft.shared.network.container;
 
-import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.core.terminal.Terminal;
-import dan200.computercraft.shared.computer.core.ComputerFamily;
-import dan200.computercraft.shared.computer.core.IComputer;
 import dan200.computercraft.shared.computer.core.ServerComputer;
-import dan200.computercraft.shared.computer.inventory.ContainerViewComputer;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
 
 import javax.annotation.Nonnull;
 
@@ -26,18 +17,14 @@ import javax.annotation.Nonnull;
  *
  * @see dan200.computercraft.shared.command.CommandComputerCraft
  */
-public class ViewComputerContainerData implements ContainerData<ContainerViewComputer>
+public class ViewComputerContainerData extends ComputerContainerData
 {
-    public static final ResourceLocation ID = new ResourceLocation( ComputerCraft.MOD_ID, "view_computer_gui" );
-
-    private final int instanceId;
     private final int width;
     private final int height;
-    private final ComputerFamily family;
 
     public ViewComputerContainerData( ServerComputer computer )
     {
-        instanceId = computer.getInstanceID();
+        super( computer );
         Terminal terminal = computer.getTerminal();
         if( terminal != null )
         {
@@ -48,38 +35,30 @@ public class ViewComputerContainerData implements ContainerData<ContainerViewCom
         {
             width = height = 0;
         }
-        family = computer.getFamily();
     }
 
     public ViewComputerContainerData( PacketBuffer buffer )
     {
-        instanceId = buffer.readVarInt();
+        super( buffer );
         width = buffer.readVarInt();
         height = buffer.readVarInt();
-        family = buffer.readEnumValue( ComputerFamily.class );
     }
 
     @Override
     public void toBytes( @Nonnull PacketBuffer buf )
     {
-        buf.writeVarInt( instanceId );
+        super.toBytes( buf );
         buf.writeVarInt( width );
         buf.writeVarInt( height );
-        buf.writeEnumValue( family );
     }
 
-    @Nonnull
-    @Override
-    public ITextComponent getDisplayName()
+    public int getWidth()
     {
-        return new TranslationTextComponent( "gui.computercraft.view_computer" );
+        return width;
     }
 
-    @Nonnull
-    @Override
-    public ContainerViewComputer createMenu( int id, @Nonnull PlayerInventory inventory, @Nonnull PlayerEntity player )
+    public int getHeight()
     {
-        IComputer computer = (player.world.isRemote ? ComputerCraft.clientComputerRegistry : ComputerCraft.serverComputerRegistry).get( id );
-        return new ContainerViewComputer( id, computer );
+        return height;
     }
 }

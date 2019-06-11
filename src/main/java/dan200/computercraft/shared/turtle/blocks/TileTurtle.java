@@ -22,8 +22,11 @@ import dan200.computercraft.shared.computer.core.ComputerState;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.turtle.apis.TurtleAPI;
 import dan200.computercraft.shared.turtle.core.TurtleBrain;
+import dan200.computercraft.shared.turtle.inventory.ContainerTurtle;
 import dan200.computercraft.shared.util.*;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.inventory.container.Container;
 import net.minecraft.item.DyeColor;
 import net.minecraft.item.DyeItem;
 import net.minecraft.item.ItemStack;
@@ -221,12 +224,6 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
     protected boolean canNameWithTag( PlayerEntity player )
     {
         return true;
-    }
-
-    @Override
-    public void openGUI( PlayerEntity player )
-    {
-        // TODO: Containers.openTurtleGUI( player, this );
     }
 
     @Override
@@ -621,5 +618,12 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
             return itemHandlerCap.cast();
         }
         return super.getCapability( cap, side );
+    }
+
+    @Nullable
+    @Override
+    public Container createMenu( int id, @Nonnull PlayerInventory inventory, @Nonnull PlayerEntity player )
+    {
+        return new ContainerTurtle( id, inventory, m_brain );
     }
 }

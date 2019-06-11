@@ -10,32 +10,36 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.inventory.container.Container;
+import net.minecraft.inventory.container.ContainerType;
 import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.network.PacketBuffer;
+import net.minecraftforge.common.extensions.IForgeContainerType;
 import net.minecraftforge.fml.network.NetworkHooks;
 
 import javax.annotation.Nonnull;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 /**
- * A horrible hack to allow opening GUIs until Forge adds a built-in system.
+ * An extension over the basic {@link IForgeContainerType}/{@link NetworkHooks#openGui(ServerPlayerEntity, INamedContainerProvider, Consumer)}
+ * hooks, with a more convenient way of reading and writing data.
  */
-public interface ContainerData<T extends Container> extends INamedContainerProvider
+public interface ContainerData
 {
     void toBytes( PacketBuffer buf );
 
-    default void open( PlayerEntity player )
+    default void open( PlayerEntity player, INamedContainerProvider owner )
     {
-        NetworkHooks.openGui( (ServerPlayerEntity) player, this, this::toBytes );
+        NetworkHooks.openGui( (ServerPlayerEntity) player, owner, this::toBytes );
     }
 
-    @Nonnull
-    T createMenu( int id, @Nonnull PlayerInventory inventory, @Nonnull PlayerEntity player );
-
-    static <C extends Container, T extends ContainerData<C>> net.minecraft.inventory.container.ContainerType<C> create( Function<PacketBuffer, T> reader )
+    static <C extends Container, T extends ContainerData> ContainerType<C> toType( Function<PacketBuffer, T> reader, Factory<C, T> factory )
     {
-        return new net.minecraft.inventory.container.ContainerType<>(
-            ( id, player ) -> reader.apply( null ).createMenu( id, player, player.player )
-        );
+        return IForgeContainerType.create( ( id, player, data ) -> factory.create( id, player, reader.apply( data ) ) );
+    }
+
+    interface Factory<C extends Container, T extends ContainerData>
+    {
+        C create( int id, @Nonnull PlayerInventory inventory, T data );
     }
 }

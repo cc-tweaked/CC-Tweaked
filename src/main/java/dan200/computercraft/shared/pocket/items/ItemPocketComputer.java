@@ -20,7 +20,6 @@ import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ComputerState;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.computer.items.IComputerItem;
-import dan200.computercraft.shared.network.container.PocketComputerContainerData;
 import dan200.computercraft.shared.pocket.apis.PocketAPI;
 import dan200.computercraft.shared.pocket.core.PocketServerComputer;
 import net.minecraft.client.util.ITooltipFlag;
@@ -154,7 +153,7 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
                 }
             }
 
-            if( !stop ) new PocketComputerContainerData( hand ).open( player );
+            // TODO: if( !stop ) new PocketComputerContainerData( hand ).open( player );
         }
         return new ActionResult<>( ActionResultType.SUCCESS, stack );
     }

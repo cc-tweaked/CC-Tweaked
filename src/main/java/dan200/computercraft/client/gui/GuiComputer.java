@@ -24,7 +24,7 @@ import net.minecraft.item.Item;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 
-public class GuiComputer<T extends Container & IContainerComputer> extends ContainerScreen<T>
+public final class GuiComputer<T extends Container & IContainerComputer> extends ContainerScreen<T>
 {
     public static final ResourceLocation BACKGROUND_NORMAL = new ResourceLocation( ComputerCraft.MOD_ID, "textures/gui/corners_normal.png" );
     public static final ResourceLocation BACKGROUND_ADVANCED = new ResourceLocation( ComputerCraft.MOD_ID, "textures/gui/corners_advanced.png" );
@@ -39,7 +39,7 @@ public class GuiComputer<T extends Container & IContainerComputer> extends Conta
     private WidgetTerminal terminal;
     private WidgetWrapper terminalWrapper;
 
-    public GuiComputer(
+    private GuiComputer(
         T container, PlayerInventory player, ITextComponent title,
         ComputerFamily family, ClientComputer computer, int termWidth, int termHeight
     )
@@ -58,8 +58,7 @@ public class GuiComputer<T extends Container & IContainerComputer> extends Conta
             container, inventory, component,
             container.getFamily(),
             (ClientComputer) container.getComputer(),
-            ComputerCraft.terminalWidth_computer,
-            ComputerCraft.terminalHeight_computer
+            ComputerCraft.terminalWidth_computer, ComputerCraft.terminalHeight_computer
         );
     }
 
@@ -70,8 +69,7 @@ public class GuiComputer<T extends Container & IContainerComputer> extends Conta
             container, inventory, component,
             item instanceof ItemPocketComputer ? ((ItemPocketComputer) item).getFamily() : ComputerFamily.Normal,
             (ClientComputer) container.getComputer(),
-            ComputerCraft.terminalWidth_computer,
-            ComputerCraft.terminalHeight_computer
+            ComputerCraft.terminalWidth_computer, ComputerCraft.terminalHeight_computer
         );
     }
 
@@ -79,8 +77,9 @@ public class GuiComputer<T extends Container & IContainerComputer> extends Conta
     {
         return new GuiComputer<>(
             container, inventory, component,
-            // TODO: Waiting to see how Forge handles this before implementing anything else.
-            null, (ClientComputer) container.getComputer(), 0, 0
+            container.getFamily(),
+            (ClientComputer) container.getComputer(),
+            container.getWidth(), container.getHeight()
         );
     }
 

@@ -6,9 +6,12 @@
 
 package dan200.computercraft.shared.turtle.inventory;
 
+import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.IComputer;
-import dan200.computercraft.shared.computer.core.IContainerComputer;
-import dan200.computercraft.shared.computer.core.InputState;
+import dan200.computercraft.shared.computer.inventory.ContainerComputerBase;
+import dan200.computercraft.shared.network.container.ComputerContainerData;
+import dan200.computercraft.shared.network.container.ContainerData;
 import dan200.computercraft.shared.turtle.blocks.TileTurtle;
 import dan200.computercraft.shared.turtle.core.TurtleBrain;
 import dan200.computercraft.shared.util.SingleIntArray;
@@ -16,7 +19,6 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Inventory;
-import net.minecraft.inventory.container.Container;
 import net.minecraft.inventory.container.ContainerType;
 import net.minecraft.inventory.container.Slot;
 import net.minecraft.item.ItemStack;
@@ -24,25 +26,23 @@ import net.minecraft.util.IIntArray;
 import net.minecraft.util.IntArray;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import java.util.function.Predicate;
 
-public class ContainerTurtle extends Container implements IContainerComputer
+public class ContainerTurtle extends ContainerComputerBase
 {
-    public static final ContainerType<ContainerTurtle> TYPE = new ContainerType<>( ContainerTurtle::new );
+    public static final ContainerType<ContainerTurtle> TYPE = ContainerData.toType( ComputerContainerData::new, ContainerTurtle::new );
 
     public static final int PLAYER_START_Y = 134;
     public static final int TURTLE_START_X = 175;
 
     private final IIntArray properties;
 
-    private IComputer computer;
-    private TurtleBrain turtle;
-
-    private final InputState input = new InputState( this );
-
-    protected ContainerTurtle( int id, PlayerInventory playerInventory, IInventory inventory, IIntArray properties )
+    private ContainerTurtle(
+        int id, Predicate<PlayerEntity> canUse, IComputer computer, ComputerFamily family,
+        PlayerInventory playerInventory, IInventory inventory, IIntArray properties
+    )
     {
-        super( TYPE, id );
+        super( TYPE, id, canUse, computer, family );
         this.properties = properties;
 
         func_216961_a( properties );
@@ -72,28 +72,27 @@ public class ContainerTurtle extends Container implements IContainerComputer
         }
     }
 
-    public ContainerTurtle( int id, PlayerInventory playerInventory, TurtleBrain turtle, IComputer computer )
+    public ContainerTurtle( int id, PlayerInventory player, TurtleBrain turtle )
     {
-        this( id, playerInventory, turtle.getInventory(), (SingleIntArray) turtle::getSelectedSlot );
-        this.turtle = turtle;
-        this.computer = computer;
+        this(
+            id, p -> turtle.getOwner().isUsableByPlayer( p ), turtle.getOwner().createServerComputer(), turtle.getFamily(),
+            player, turtle.getInventory(), (SingleIntArray) turtle::getSelectedSlot
+        );
     }
 
-    private ContainerTurtle( int id, PlayerInventory playerInventory )
+    private ContainerTurtle( int id, PlayerInventory player, ComputerContainerData data )
     {
-        this( id, playerInventory, new Inventory( TileTurtle.INVENTORY_SIZE ), new IntArray( 1 ) );
+        this( id, x -> true,
+            (player.player.world.isRemote
+                ? ComputerCraft.clientComputerRegistry
+                : ComputerCraft.serverComputerRegistry).get( data.getInstanceId() ),
+            data.getFamily(),
+            player, new Inventory( TileTurtle.INVENTORY_SIZE ), new IntArray( 1 ) );
     }
 
     public int getSelectedSlot()
     {
         return properties.get( 0 );
-    }
-
-    @Override
-    public boolean canInteractWith( @Nonnull PlayerEntity player )
-    {
-        // If we've no turtle, we'll be on the client.
-        return turtle == null || (turtle.getOwner() != null && turtle.getOwner().isUsableByPlayer( player ));
     }
 
     @Nonnull
@@ -144,26 +143,5 @@ public class ContainerTurtle extends Container implements IContainerComputer
             return tryItemMerge( player, slotNum, 0, 16, false );
         }
         return ItemStack.EMPTY;
-    }
-
-    @Nullable
-    @Override
-    public IComputer getComputer()
-    {
-        return computer;
-    }
-
-    @Nonnull
-    @Override
-    public InputState getInput()
-    {
-        return input;
-    }
-
-    @Override
-    public void onContainerClosed( PlayerEntity player )
-    {
-        super.onContainerClosed( player );
-        input.close();
     }
 }

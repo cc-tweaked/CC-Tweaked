@@ -20,7 +20,6 @@ import dan200.computercraft.core.tracking.TrackingField;
 import dan200.computercraft.shared.command.text.TableBuilder;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ServerComputer;
-import dan200.computercraft.shared.network.container.ViewComputerContainerData;
 import net.minecraft.command.CommandSource;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -217,7 +216,7 @@ public final class CommandComputerCraft
                 .executes( context -> {
                     ServerPlayerEntity player = context.getSource().asPlayer();
                     ServerComputer computer = getComputerArgument( context, "computer" );
-                    new ViewComputerContainerData( computer ).open( player );
+                    // TODO: new ViewComputerContainerData( computer ).open( player );
                     return 1;
                 } ) )
 

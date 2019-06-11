@@ -583,10 +583,11 @@ public final class TileDiskDrive extends TileGeneric implements DefaultInventory
         return customName != null ? customName : getBlockState().getBlock().getNameTextComponent();
     }
 
+    @Nonnull
     @Override
     public ITextComponent getDisplayName()
     {
-        return getName();
+        return INameable.super.getDisplayName();
     }
 
     @Nonnull

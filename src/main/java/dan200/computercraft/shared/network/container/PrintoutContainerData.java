@@ -11,8 +11,6 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.Hand;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
 
 import javax.annotation.Nonnull;
 
@@ -21,7 +19,7 @@ import javax.annotation.Nonnull;
  *
  * @see dan200.computercraft.shared.media.items.ItemPrintout
  */
-public class PrintoutContainerData implements ContainerData<ContainerHeldItem>
+public class PrintoutContainerData implements ContainerData
 {
     private final Hand hand;
 
@@ -42,14 +40,6 @@ public class PrintoutContainerData implements ContainerData<ContainerHeldItem>
     }
 
     @Nonnull
-    @Override
-    public ITextComponent getDisplayName()
-    {
-        return new TranslationTextComponent( "gui.computercraft.printout" );
-    }
-
-    @Nonnull
-    @Override
     public ContainerHeldItem createMenu( int id, @Nonnull PlayerInventory inventory, @Nonnull PlayerEntity player )
     {
         return new ContainerHeldItem( ContainerHeldItem.PRINTOUT_TYPE, id, player, hand );

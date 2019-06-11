@@ -579,7 +579,7 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
     @Override
     public ITextComponent getDisplayName()
     {
-        return getName();
+        return INameable.super.getDisplayName();
     }
 
     @Nonnull

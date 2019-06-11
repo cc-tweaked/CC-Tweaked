@@ -17,6 +17,7 @@ import dan200.computercraft.shared.computer.core.ClientComputer;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ComputerState;
 import dan200.computercraft.shared.computer.core.ServerComputer;
+import dan200.computercraft.shared.network.container.ComputerContainerData;
 import dan200.computercraft.shared.util.DirectionUtil;
 import dan200.computercraft.shared.util.RedstoneUtil;
 import joptsimple.internal.Strings;
@@ -25,6 +26,7 @@ import net.minecraft.block.Blocks;
 import net.minecraft.block.RedstoneDiodeBlock;
 import net.minecraft.block.RedstoneWireBlock;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.CompoundNBT;
@@ -43,7 +45,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Objects;
 
-public abstract class TileComputerBase extends TileGeneric implements IComputerTile, ITickableTileEntity, IPeripheralTile, INameable
+public abstract class TileComputerBase extends TileGeneric implements IComputerTile, ITickableTileEntity, IPeripheralTile, INameable, INamedContainerProvider
 {
     private static final String NBT_ID = "ComputerId";
     private static final String NBT_LABEL = "Label";
@@ -97,8 +99,6 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
         super.remove();
     }
 
-    public abstract void openGUI( PlayerEntity player );
-
     protected boolean canNameWithTag( PlayerEntity player )
     {
         return false;
@@ -124,7 +124,7 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
             if( !getWorld().isRemote && isUsable( player, false ) )
             {
                 createServerComputer().turnOn();
-                openGUI( player );
+                new ComputerContainerData( createServerComputer() ).open( player, this );
             }
             return true;
         }
@@ -454,5 +454,12 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
     public ITextComponent getCustomName()
     {
         return hasCustomName() ? new StringTextComponent( m_label ) : null;
+    }
+
+    @Nonnull
+    @Override
+    public ITextComponent getDisplayName()
+    {
+        return INameable.super.getDisplayName();
     }
 }

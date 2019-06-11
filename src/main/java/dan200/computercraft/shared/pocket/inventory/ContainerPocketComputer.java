@@ -23,7 +23,7 @@ import javax.annotation.Nullable;
 
 public class ContainerPocketComputer extends ContainerHeldItem implements IContainerComputer
 {
-    public static final ContainerType<ContainerPocketComputer> TYPE = ContainerData.create( PocketComputerContainerData::new );
+    public static final ContainerType<ContainerPocketComputer> TYPE = ContainerData.toType( PocketComputerContainerData::new, null /* TODO */ );
 
     private final InputState input = new InputState( this );
 

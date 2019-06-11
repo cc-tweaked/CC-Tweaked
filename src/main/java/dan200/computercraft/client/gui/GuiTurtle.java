@@ -36,7 +36,7 @@ public class GuiTurtle extends ContainerScreen<ContainerTurtle>
         super( container, player, title );
 
         m_container = container;
-        m_family = null; // TODO
+        m_family = container.getFamily();
         m_computer = (ClientComputer) container.getComputer();
 
         xSize = 254;

@@ -11,12 +11,18 @@ import dan200.computercraft.core.computer.ComputerSide;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ComputerState;
 import dan200.computercraft.shared.computer.core.ServerComputer;
+import dan200.computercraft.shared.computer.inventory.ContainerComputer;
 import dan200.computercraft.shared.util.NamedTileEntityType;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.inventory.container.Container;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class TileComputer extends TileComputerBase
 {
@@ -67,12 +73,6 @@ public class TileComputer extends TileComputerBase
         return m_proxy;
     }
 
-    @Override
-    public void openGUI( PlayerEntity player )
-    {
-        // TODO: Containers.openComputerGUI( player, this );
-    }
-
     public boolean isUsableByPlayer( PlayerEntity player )
     {
         return isUsable( player, false );
@@ -102,5 +102,12 @@ public class TileComputer extends TileComputerBase
         if( localSide == ComputerSide.RIGHT ) return ComputerSide.LEFT;
         if( localSide == ComputerSide.LEFT ) return ComputerSide.RIGHT;
         return localSide;
+    }
+
+    @Nullable
+    @Override
+    public Container createMenu( int id, @Nonnull PlayerInventory inventory, @Nonnull PlayerEntity player )
+    {
+        return new ContainerComputer( id, this );
     }
 }
