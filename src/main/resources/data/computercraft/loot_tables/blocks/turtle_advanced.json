@@ -2,12 +2,14 @@
     "type": "minecraft:block",
     "pools": [
         {
+            "name": "main",
             "rolls": 1,
             "entries": [
                 { "type": "minecraft:dynamic", "name": "computercraft:computer" }
             ]
         },
         {
+            "name": "contents",
             "rolls": 1,
             "entries": [ { "type": "minecraft:dynamic", "name": "computercraft:contents" } ],
             "conditions": [ { "condition": "minecraft:survives_explosion" } ]

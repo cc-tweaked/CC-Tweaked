@@ -104,15 +104,6 @@ public final class ComputerCraftProxyCommon
         */
 
         @SubscribeEvent
-        public static void onClientTick( TickEvent.ClientTickEvent event )
-        {
-            if( event.phase == TickEvent.Phase.START )
-            {
-                ComputerCraft.clientComputerRegistry.update();
-            }
-        }
-
-        @SubscribeEvent
         public static void onServerTick( TickEvent.ServerTickEvent event )
         {
             if( event.phase == TickEvent.Phase.START )

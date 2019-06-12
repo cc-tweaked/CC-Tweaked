@@ -7,8 +7,6 @@
 package dan200.computercraft.shared.network.container;
 
 import dan200.computercraft.shared.common.ContainerHeldItem;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.Hand;
 
@@ -17,18 +15,19 @@ import javax.annotation.Nonnull;
 /**
  * Opens a printout GUI based on the currently held item
  *
+ * @see ContainerHeldItem
  * @see dan200.computercraft.shared.media.items.ItemPrintout
  */
-public class PrintoutContainerData implements ContainerData
+public class HeldItemContainerData implements ContainerData
 {
     private final Hand hand;
 
-    public PrintoutContainerData( Hand hand )
+    public HeldItemContainerData( Hand hand )
     {
         this.hand = hand;
     }
 
-    public PrintoutContainerData( PacketBuffer buffer )
+    public HeldItemContainerData( PacketBuffer buffer )
     {
         hand = buffer.readEnumValue( Hand.class );
     }
@@ -40,8 +39,8 @@ public class PrintoutContainerData implements ContainerData
     }
 
     @Nonnull
-    public ContainerHeldItem createMenu( int id, @Nonnull PlayerInventory inventory, @Nonnull PlayerEntity player )
+    public Hand getHand()
     {
-        return new ContainerHeldItem( ContainerHeldItem.PRINTOUT_TYPE, id, player, hand );
+        return hand;
     }
 }

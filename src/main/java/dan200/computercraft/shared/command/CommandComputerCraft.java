@@ -20,14 +20,20 @@ import dan200.computercraft.core.tracking.TrackingField;
 import dan200.computercraft.shared.command.text.TableBuilder;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ServerComputer;
+import dan200.computercraft.shared.computer.inventory.ContainerViewComputer;
+import dan200.computercraft.shared.network.container.ViewComputerContainerData;
 import net.minecraft.command.CommandSource;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.inventory.container.Container;
+import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.network.play.server.SPlayerPositionLookPacket;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.ServerWorld;
 import net.minecraft.world.World;
 
@@ -216,7 +222,22 @@ public final class CommandComputerCraft
                 .executes( context -> {
                     ServerPlayerEntity player = context.getSource().asPlayer();
                     ServerComputer computer = getComputerArgument( context, "computer" );
-                    // TODO: new ViewComputerContainerData( computer ).open( player );
+                    new ViewComputerContainerData( computer ).open( player, new INamedContainerProvider()
+                    {
+                        @Nonnull
+                        @Override
+                        public ITextComponent getDisplayName()
+                        {
+                            return new TranslationTextComponent( "gui.computercraft.view_computer" );
+                        }
+
+                        @Nonnull
+                        @Override
+                        public Container createMenu( int id, @Nonnull PlayerInventory player, @Nonnull PlayerEntity entity )
+                        {
+                            return new ContainerViewComputer( id, computer );
+                        }
+                    } );
                     return 1;
                 } ) )
 

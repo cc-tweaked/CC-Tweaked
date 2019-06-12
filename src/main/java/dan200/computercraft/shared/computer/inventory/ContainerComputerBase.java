@@ -7,10 +7,7 @@
 package dan200.computercraft.shared.computer.inventory;
 
 import dan200.computercraft.ComputerCraft;
-import dan200.computercraft.shared.computer.core.ComputerFamily;
-import dan200.computercraft.shared.computer.core.IComputer;
-import dan200.computercraft.shared.computer.core.IContainerComputer;
-import dan200.computercraft.shared.computer.core.InputState;
+import dan200.computercraft.shared.computer.core.*;
 import dan200.computercraft.shared.network.container.ComputerContainerData;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
@@ -38,11 +35,17 @@ public class ContainerComputerBase extends Container implements IContainerComput
 
     protected ContainerComputerBase( ContainerType<? extends ContainerComputerBase> type, int id, PlayerInventory player, ComputerContainerData data )
     {
-        this( type, id, x -> true,
-            (player.player.world.isRemote
-                ? ComputerCraft.clientComputerRegistry
-                : ComputerCraft.serverComputerRegistry).get( data.getInstanceId() ),
-            data.getFamily() );
+        this( type, id, x -> true, getComputer( player, data ), data.getFamily() );
+    }
+
+    protected static IComputer getComputer( PlayerInventory player, ComputerContainerData data )
+    {
+        int id = data.getInstanceId();
+        if( !player.player.world.isRemote ) return ComputerCraft.serverComputerRegistry.get( id );
+
+        ClientComputer computer = ComputerCraft.clientComputerRegistry.get( id );
+        if( computer == null ) ComputerCraft.clientComputerRegistry.add( id, computer = new ClientComputer( id ) );
+        return computer;
     }
 
     @Override

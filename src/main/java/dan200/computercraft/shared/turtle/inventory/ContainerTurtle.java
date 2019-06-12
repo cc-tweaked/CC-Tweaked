@@ -6,7 +6,6 @@
 
 package dan200.computercraft.shared.turtle.inventory;
 
-import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.IComputer;
 import dan200.computercraft.shared.computer.inventory.ContainerComputerBase;
@@ -82,12 +81,10 @@ public class ContainerTurtle extends ContainerComputerBase
 
     private ContainerTurtle( int id, PlayerInventory player, ComputerContainerData data )
     {
-        this( id, x -> true,
-            (player.player.world.isRemote
-                ? ComputerCraft.clientComputerRegistry
-                : ComputerCraft.serverComputerRegistry).get( data.getInstanceId() ),
-            data.getFamily(),
-            player, new Inventory( TileTurtle.INVENTORY_SIZE ), new IntArray( 1 ) );
+        this(
+            id, x -> true, getComputer( player, data ), data.getFamily(),
+            player, new Inventory( TileTurtle.INVENTORY_SIZE ), new IntArray( 1 )
+        );
     }
 
     public int getSelectedSlot()

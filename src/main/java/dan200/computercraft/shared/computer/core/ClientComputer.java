@@ -6,7 +6,6 @@
 
 package dan200.computercraft.shared.computer.core;
 
-import com.google.common.base.Objects;
 import dan200.computercraft.shared.common.ClientTerminal;
 import dan200.computercraft.shared.network.NetworkHandler;
 import dan200.computercraft.shared.network.server.*;
@@ -18,26 +17,13 @@ public class ClientComputer extends ClientTerminal implements IComputer
 
     private boolean m_on = false;
     private boolean m_blinking = false;
-    private boolean m_changed = true;
     private CompoundNBT m_userData = null;
 
-    private boolean m_changedLastFrame = false;
 
     public ClientComputer( int instanceID )
     {
         super( false );
         m_instanceID = instanceID;
-    }
-
-    public void update()
-    {
-        m_changedLastFrame = m_changed;
-        m_changed = false;
-    }
-
-    public boolean hasOutputChanged()
-    {
-        return m_changedLastFrame;
     }
 
     public CompoundNBT getUserData()
@@ -137,14 +123,8 @@ public class ClientComputer extends ClientTerminal implements IComputer
 
     public void setState( ComputerState state, CompoundNBT userData )
     {
-        boolean oldOn = m_on;
-        boolean oldBlinking = m_blinking;
-        CompoundNBT oldUserData = m_userData;
-
         m_on = state != ComputerState.OFF;
         m_blinking = state == ComputerState.BLINKING;
         m_userData = userData;
-
-        m_changed |= m_on != oldOn || m_blinking != oldBlinking || !Objects.equal( m_userData, oldUserData );
     }
 }

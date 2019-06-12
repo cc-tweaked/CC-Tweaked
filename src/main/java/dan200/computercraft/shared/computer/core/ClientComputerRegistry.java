@@ -8,14 +8,6 @@ package dan200.computercraft.shared.computer.core;
 
 public class ClientComputerRegistry extends ComputerRegistry<ClientComputer>
 {
-    public void update()
-    {
-        for( ClientComputer computer : getComputers() )
-        {
-            computer.update();
-        }
-    }
-
     @Override
     public void add( int instanceID, ClientComputer computer )
     {

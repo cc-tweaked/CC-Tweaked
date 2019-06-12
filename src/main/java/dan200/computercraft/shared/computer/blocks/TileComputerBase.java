@@ -13,7 +13,6 @@ import dan200.computercraft.core.computer.ComputerSide;
 import dan200.computercraft.shared.BundledRedstone;
 import dan200.computercraft.shared.Peripherals;
 import dan200.computercraft.shared.common.TileGeneric;
-import dan200.computercraft.shared.computer.core.ClientComputer;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ComputerState;
 import dan200.computercraft.shared.computer.core.ServerComputer;
@@ -49,7 +48,6 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
 {
     private static final String NBT_ID = "ComputerId";
     private static final String NBT_LABEL = "Label";
-    private static final String NBT_INSTANCE = "InstanceId";
     private static final String NBT_ON = "On";
 
     private int m_instanceID = -1;
@@ -172,11 +170,6 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
             updateBlockState( computer.getState() );
 
             if( computer.hasOutputChanged() ) updateOutput();
-        }
-        else
-        {
-            ClientComputer computer = createClientComputer();
-            if( computer != null && computer.hasOutputChanged() ) updateBlock();
         }
     }
 
@@ -376,23 +369,6 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
         return getWorld().isRemote ? null : ComputerCraft.serverComputerRegistry.get( m_instanceID );
     }
 
-    public ClientComputer createClientComputer()
-    {
-        if( !getWorld().isRemote || m_instanceID < 0 ) return null;
-
-        ClientComputer computer = ComputerCraft.clientComputerRegistry.get( m_instanceID );
-        if( computer == null )
-        {
-            ComputerCraft.clientComputerRegistry.add( m_instanceID, computer = new ClientComputer( m_instanceID ) );
-        }
-        return computer;
-    }
-
-    public ClientComputer getClientComputer()
-    {
-        return getWorld().isRemote ? ComputerCraft.clientComputerRegistry.get( m_instanceID ) : null;
-    }
-
     // Networking stuff
 
     @Override
@@ -402,14 +378,12 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
 
         if( m_computerID >= 0 ) nbt.putInt( NBT_ID, m_computerID );
         if( m_label != null ) nbt.putString( NBT_LABEL, m_label );
-        nbt.putInt( NBT_INSTANCE, createServerComputer().getInstanceID() );
     }
 
     @Override
     protected void readDescription( @Nonnull CompoundNBT nbt )
     {
         super.readDescription( nbt );
-        m_instanceID = nbt.contains( NBT_INSTANCE ) ? nbt.getInt( NBT_INSTANCE ) : -1;
         m_label = nbt.contains( NBT_LABEL ) ? nbt.getString( NBT_LABEL ) : null;
         m_computerID = nbt.contains( NBT_ID ) ? nbt.getInt( NBT_ID ) : -1;
     }

@@ -20,8 +20,10 @@ import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ComputerState;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.computer.items.IComputerItem;
+import dan200.computercraft.shared.network.container.ComputerContainerData;
 import dan200.computercraft.shared.pocket.apis.PocketAPI;
 import dan200.computercraft.shared.pocket.core.PocketServerComputer;
+import dan200.computercraft.shared.pocket.inventory.ContainerPocketComputer;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -153,7 +155,10 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
                 }
             }
 
-            // TODO: if( !stop ) new PocketComputerContainerData( hand ).open( player );
+            if( !stop && computer != null )
+            {
+                new ComputerContainerData( computer ).open( player, new ContainerPocketComputer.Factory( computer, stack, this, hand ) );
+            }
         }
         return new ActionResult<>( ActionResultType.SUCCESS, stack );
     }
@@ -207,7 +212,7 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
         return super.getCreatorModId( stack );
     }
 
-    private PocketServerComputer createServerComputer( final World world, IInventory inventory, Entity entity, @Nonnull ItemStack stack )
+    public PocketServerComputer createServerComputer( final World world, IInventory inventory, Entity entity, @Nonnull ItemStack stack )
     {
         if( world.isRemote ) return null;
 

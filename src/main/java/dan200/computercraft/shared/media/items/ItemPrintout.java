@@ -7,6 +7,8 @@
 package dan200.computercraft.shared.media.items;
 
 import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.shared.common.ContainerHeldItem;
+import dan200.computercraft.shared.network.container.HeldItemContainerData;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
@@ -59,7 +61,11 @@ public class ItemPrintout extends Item
     @Override
     public ActionResult<ItemStack> onItemRightClick( World world, PlayerEntity player, @Nonnull Hand hand )
     {
-        // TODO: if( !world.isRemote ) new PrintoutContainerData( hand ).open( player );
+        if( !world.isRemote )
+        {
+            new HeldItemContainerData( hand )
+                .open( player, new ContainerHeldItem.Factory( ContainerHeldItem.PRINTOUT_TYPE, player.getHeldItem( hand ), hand ) );
+        }
         return new ActionResult<>( ActionResultType.SUCCESS, player.getHeldItem( hand ) );
     }
 

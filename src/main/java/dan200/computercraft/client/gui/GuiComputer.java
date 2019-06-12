@@ -12,19 +12,16 @@ import dan200.computercraft.client.gui.widgets.WidgetTerminal;
 import dan200.computercraft.client.gui.widgets.WidgetWrapper;
 import dan200.computercraft.shared.computer.core.ClientComputer;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
-import dan200.computercraft.shared.computer.core.IContainerComputer;
 import dan200.computercraft.shared.computer.inventory.ContainerComputer;
+import dan200.computercraft.shared.computer.inventory.ContainerComputerBase;
 import dan200.computercraft.shared.computer.inventory.ContainerViewComputer;
 import dan200.computercraft.shared.pocket.inventory.ContainerPocketComputer;
-import dan200.computercraft.shared.pocket.items.ItemPocketComputer;
 import net.minecraft.client.gui.screen.inventory.ContainerScreen;
 import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.container.Container;
-import net.minecraft.item.Item;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 
-public final class GuiComputer<T extends Container & IContainerComputer> extends ContainerScreen<T>
+public final class GuiComputer<T extends ContainerComputerBase> extends ContainerScreen<T>
 {
     public static final ResourceLocation BACKGROUND_NORMAL = new ResourceLocation( ComputerCraft.MOD_ID, "textures/gui/corners_normal.png" );
     public static final ResourceLocation BACKGROUND_ADVANCED = new ResourceLocation( ComputerCraft.MOD_ID, "textures/gui/corners_advanced.png" );
@@ -40,13 +37,12 @@ public final class GuiComputer<T extends Container & IContainerComputer> extends
     private WidgetWrapper terminalWrapper;
 
     private GuiComputer(
-        T container, PlayerInventory player, ITextComponent title,
-        ComputerFamily family, ClientComputer computer, int termWidth, int termHeight
+        T container, PlayerInventory player, ITextComponent title, int termWidth, int termHeight
     )
     {
         super( container, player, title );
-        m_family = family;
-        m_computer = computer;
+        m_family = container.getFamily();
+        m_computer = (ClientComputer) container.getComputer();
         m_termWidth = termWidth;
         m_termHeight = termHeight;
         terminal = null;
@@ -56,20 +52,15 @@ public final class GuiComputer<T extends Container & IContainerComputer> extends
     {
         return new GuiComputer<>(
             container, inventory, component,
-            container.getFamily(),
-            (ClientComputer) container.getComputer(),
             ComputerCraft.terminalWidth_computer, ComputerCraft.terminalHeight_computer
         );
     }
 
     public static GuiComputer<ContainerPocketComputer> createPocket( ContainerPocketComputer container, PlayerInventory inventory, ITextComponent component )
     {
-        Item item = container.getStack().getItem();
         return new GuiComputer<>(
             container, inventory, component,
-            item instanceof ItemPocketComputer ? ((ItemPocketComputer) item).getFamily() : ComputerFamily.Normal,
-            (ClientComputer) container.getComputer(),
-            ComputerCraft.terminalWidth_computer, ComputerCraft.terminalHeight_computer
+            ComputerCraft.terminalWidth_pocketComputer, ComputerCraft.terminalHeight_pocketComputer
         );
     }
 
@@ -77,8 +68,6 @@ public final class GuiComputer<T extends Container & IContainerComputer> extends
     {
         return new GuiComputer<>(
             container, inventory, component,
-            container.getFamily(),
-            (ClientComputer) container.getComputer(),
             container.getWidth(), container.getHeight()
         );
     }

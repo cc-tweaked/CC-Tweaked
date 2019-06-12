@@ -7,35 +7,44 @@
 package dan200.computercraft.shared.common;
 
 import dan200.computercraft.shared.network.container.ContainerData;
-import dan200.computercraft.shared.network.container.PrintoutContainerData;
+import dan200.computercraft.shared.network.container.HeldItemContainerData;
 import dan200.computercraft.shared.util.InventoryUtil;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.container.Container;
 import net.minecraft.inventory.container.ContainerType;
+import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Hand;
+import net.minecraft.util.text.ITextComponent;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class ContainerHeldItem extends Container
 {
-    public static final ContainerType<ContainerHeldItem> PRINTOUT_TYPE = ContainerData.toType( PrintoutContainerData::new, null /* TODO */ );
+    public static final ContainerType<ContainerHeldItem> PRINTOUT_TYPE = ContainerData.toType( HeldItemContainerData::new, ContainerHeldItem::createPrintout );
 
-    private final ItemStack m_stack;
-    private final Hand m_hand;
+    private final ItemStack stack;
+    private final Hand hand;
 
     public ContainerHeldItem( ContainerType<? extends ContainerHeldItem> type, int id, PlayerEntity player, Hand hand )
     {
         super( type, id );
 
-        m_hand = hand;
-        m_stack = InventoryUtil.copyItem( player.getHeldItem( hand ) );
+        this.hand = hand;
+        stack = InventoryUtil.copyItem( player.getHeldItem( hand ) );
+    }
+
+    private static ContainerHeldItem createPrintout( int id, PlayerInventory inventory, HeldItemContainerData data )
+    {
+        return new ContainerHeldItem( PRINTOUT_TYPE, id, inventory.player, data.getHand() );
     }
 
     @Nonnull
     public ItemStack getStack()
     {
-        return m_stack;
+        return stack;
     }
 
     @Override
@@ -43,7 +52,35 @@ public class ContainerHeldItem extends Container
     {
         if( !player.isAlive() ) return false;
 
-        ItemStack stack = player.getHeldItem( m_hand );
-        return stack == m_stack || !stack.isEmpty() && !m_stack.isEmpty() && stack.getItem() == m_stack.getItem();
+        ItemStack stack = player.getHeldItem( hand );
+        return stack == this.stack || !stack.isEmpty() && !this.stack.isEmpty() && stack.getItem() == this.stack.getItem();
+    }
+
+    public static class Factory implements INamedContainerProvider
+    {
+        private final ContainerType<ContainerHeldItem> type;
+        private final ITextComponent name;
+        private final Hand hand;
+
+        public Factory( ContainerType<ContainerHeldItem> type, ItemStack stack, Hand hand )
+        {
+            this.type = type;
+            this.name = stack.getDisplayName();
+            this.hand = hand;
+        }
+
+        @Nonnull
+        @Override
+        public ITextComponent getDisplayName()
+        {
+            return name;
+        }
+
+        @Nullable
+        @Override
+        public Container createMenu( int id, @Nonnull PlayerInventory inventory, @Nonnull PlayerEntity player )
+        {
+            return new ContainerHeldItem( type, id, player, hand );
+        }
     }
 }
