@@ -453,7 +453,7 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
     protected void writeDescription( @Nonnull NBTTagCompound nbt )
     {
         super.writeDescription( nbt );
-        nbt.setInteger( "instanceID", createServerComputer().getInstanceID() );
+        if( m_instanceID >= 0 ) nbt.setInteger( "instanceID", m_instanceID );
         if( m_label != null ) nbt.setString( "label", m_label );
         if( m_computerID >= 0 ) nbt.setInteger( "computerID", m_computerID );
     }
