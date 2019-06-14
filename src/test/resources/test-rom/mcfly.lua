@@ -49,6 +49,8 @@ local function push_state()
         term = term.current(),
         input = io.input(),
         output = io.output(),
+        dir = shell.dir(),
+        path = shell.path(),
         stubs = stubs,
     }
 end
@@ -65,6 +67,8 @@ local function pop_state(state)
     term.redirect(state.term)
     io.input(state.input)
     io.output(state.output)
+    shell.setDir(state.dir)
+    shell.setPath(state.path)
 end
 
 local error_mt = { __tostring = function(self) return self.message end }
