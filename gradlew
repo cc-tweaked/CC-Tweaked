@@ -1,5 +1,8 @@
 #!/usr/bin/env sh
 
+# There are only suppressions for the english errors, so it will fail in other languages.
+export LC_ALL=C
+
 ##############################################################################
 ##
 ##  Gradle start up script for UN*X
