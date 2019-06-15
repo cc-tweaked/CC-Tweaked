@@ -4,8 +4,15 @@
         {
             "name": "main",
             "rolls": 1,
-            "entries": [
-                { "type": "minecraft:dynamic", "name": "computercraft:computer" }
+            "entries": [ { "type": "minecraft:dynamic", "name": "computercraft:computer" } ],
+            "conditions": [
+                {
+                    "condition": "alternative",
+                    "terms": [
+                        { "condition": "computercraft:block_named" },
+                        { "condition": "minecraft:inverted", "term": { "condition": "computercraft:player_creative" } }
+                    ]
+                }
             ]
         }
     ]

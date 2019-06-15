@@ -6,12 +6,6 @@
             "rolls": 1,
             "entries": [ { "type": "minecraft:item", "name": "computercraft:printer" } ],
             "conditions": [ { "condition": "minecraft:survives_explosion" } ]
-        },
-        {
-            "name": "contents",
-            "rolls": 1,
-            "entries": [ { "type": "minecraft:dynamic", "name": "computercraft:contents" } ],
-            "conditions": [ { "condition": "minecraft:survives_explosion" } ]
         }
     ]
 }

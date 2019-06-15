@@ -19,6 +19,9 @@ import dan200.computercraft.shared.common.DefaultBundledRedstoneProvider;
 import dan200.computercraft.shared.computer.core.IComputer;
 import dan200.computercraft.shared.computer.core.IContainerComputer;
 import dan200.computercraft.shared.computer.core.ServerComputer;
+import dan200.computercraft.shared.data.BlockNamedEntityLootCondition;
+import dan200.computercraft.shared.data.ConstantLootConditionSerializer;
+import dan200.computercraft.shared.data.PlayerCreativeLootCondition;
 import dan200.computercraft.shared.media.items.RecordMedia;
 import dan200.computercraft.shared.network.NetworkHandler;
 import dan200.computercraft.shared.peripheral.commandblock.CommandBlockPeripheral;
@@ -29,6 +32,8 @@ import net.minecraft.item.Item;
 import net.minecraft.item.MusicDiscItem;
 import net.minecraft.tileentity.CommandBlockTileEntity;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.storage.loot.conditions.LootConditionManager;
 import net.minecraftforge.event.entity.player.PlayerContainerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent;
@@ -50,6 +55,18 @@ public final class ComputerCraftProxyCommon
         registerProviders();
 
         ArgumentSerializers.register();
+
+        LootConditionManager.registerCondition( ConstantLootConditionSerializer.of(
+            new ResourceLocation( ComputerCraft.MOD_ID, "block_named" ),
+            BlockNamedEntityLootCondition.class,
+            BlockNamedEntityLootCondition.INSTANCE
+        ) );
+
+        LootConditionManager.registerCondition( ConstantLootConditionSerializer.of(
+            new ResourceLocation( ComputerCraft.MOD_ID, "player_creative" ),
+            PlayerCreativeLootCondition.class,
+            PlayerCreativeLootCondition.INSTANCE
+        ) );
 
         // if( Loader.isModLoaded( ModCharset.MODID ) ) IntegrationCharset.register();
     }
