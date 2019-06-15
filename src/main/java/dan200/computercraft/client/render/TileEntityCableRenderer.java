@@ -24,6 +24,7 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.tileentity.TileEntityRenderer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.BlockRenderLayer;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.RayTraceResult;
@@ -40,7 +41,16 @@ import java.util.Random;
  */
 public class TileEntityCableRenderer extends TileEntityRenderer<TileCable>
 {
+    private static final ResourceLocation[] DESTROY_STAGES = new ResourceLocation[10];
     private static final Random random = new Random();
+
+    static
+    {
+        for( int i = 0; i < DESTROY_STAGES.length; i++ )
+        {
+            DESTROY_STAGES[i] = new ResourceLocation( "block/destroy_stage_" + i );
+        }
+    }
 
     @Override
     public void render( @Nonnull TileCable te, double x, double y, double z, float partialTicks, int destroyStage )
@@ -57,8 +67,6 @@ public class TileEntityCableRenderer extends TileEntityRenderer<TileCable>
             return;
         }
 
-        if( ForgeHooksClient.getWorldRenderPass() != 0 ) return;
-
         World world = te.getWorld();
         BlockState state = world.getBlockState( pos );
         Block block = state.getBlock();
@@ -72,15 +80,16 @@ public class TileEntityCableRenderer extends TileEntityRenderer<TileCable>
 
         preRenderDamagedBlocks();
 
+        ForgeHooksClient.setRenderLayer( block.getRenderLayer() );
+
+        // See BlockRendererDispatcher#renderBlockDamage
+        TextureAtlasSprite breakingTexture = mc.getTextureMap().getSprite( DESTROY_STAGES[destroyStage] );
+
         BufferBuilder buffer = Tessellator.getInstance().getBuffer();
         buffer.begin( GL11.GL_QUADS, DefaultVertexFormats.BLOCK );
         buffer.setTranslation( x - pos.getX(), y - pos.getY(), z - pos.getZ() );
         buffer.noColor();
 
-        ForgeHooksClient.setRenderLayer( block.getRenderLayer() );
-
-        // See BlockRendererDispatcher#renderBlockDamage
-        TextureAtlasSprite breakingTexture = mc.getTextureMap().getSprite( DESTROY_STAGES[destroyStage] );
         mc.getBlockRendererDispatcher().getBlockModelRenderer().renderModel(
             world,
             ForgeHooksClient.getDamageModel( model, breakingTexture, state, world, pos, 0 ),
