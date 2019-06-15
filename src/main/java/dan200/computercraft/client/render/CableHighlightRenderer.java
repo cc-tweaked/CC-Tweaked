@@ -76,7 +76,7 @@ public final class CableHighlightRenderer
             ? CableShapes.getModemShape( state )
             : CableShapes.getCableShape( state );
 
-        Vec3d cameraPos = info.func_216785_c();
+        Vec3d cameraPos = info.getProjectedView();
         WorldRenderer.drawShape(
             shape, pos.getX() - cameraPos.getX(), pos.getY() - cameraPos.getY(), pos.getZ() - cameraPos.getZ(),
             0.0F, 0.0F, 0.0F, 0.4F

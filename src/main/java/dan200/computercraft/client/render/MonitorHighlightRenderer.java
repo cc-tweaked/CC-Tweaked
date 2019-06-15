@@ -72,7 +72,7 @@ public final class MonitorHighlightRenderer
         GlStateManager.depthMask( false );
         GlStateManager.pushMatrix();
 
-        Vec3d cameraPos = event.getInfo().func_216785_c();
+        Vec3d cameraPos = event.getInfo().getProjectedView();
         GlStateManager.translated( pos.getX() - cameraPos.getX(), pos.getY() - cameraPos.getY(), pos.getZ() - cameraPos.getZ() );
 
         Tessellator tessellator = Tessellator.getInstance();
