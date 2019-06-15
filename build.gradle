@@ -78,11 +78,13 @@ dependencies {
 
     shade 'org.squiddev:Cobalt:0.5.0-SNAPSHOT'
 
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.1.0'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.1.0'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.4.2'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.4.2'
 
     deployerJars "org.apache.maven.wagon:wagon-ssh:3.0.0"
 }
+
+// Compile tasks
 
 javadoc {
     include "dan200/computercraft/api/**/*.java"
@@ -101,6 +103,14 @@ jar {
 
     from configurations.shade.collect { it.isDirectory() ? it : zipTree(it) }
 }
+
+[compileJava, compileTestJava].forEach {
+    it.configure {
+        options.compilerArgs << "-Xlint" << "-Xlint:-processing" << "-Werror"
+    }
+}
+
+
 
 import java.nio.charset.StandardCharsets
 import java.nio.file.*
@@ -233,7 +243,14 @@ task compressJson(dependsOn: extractAnnotationsJar) {
 
 assemble.dependsOn compressJson
 
-/* Check tasks */
+// Check tasks
+
+test {
+    useJUnitPlatform()
+    testLogging {
+        events "skipped", "failed"
+    }
+}
 
 license {
     mapping("java", "SLASHSTAR_STYLE")
@@ -257,6 +274,13 @@ license {
     }
 }
 
+gradle.projectsEvaluated {
+    tasks.withType(LicenseFormat) {
+        outputs.upToDateWhen { false }
+    }
+}
+
+
 task licenseAPI(type: LicenseCheck);
 task licenseFormatAPI(type: LicenseFormat);
 [licenseAPI, licenseFormatAPI].forEach {
@@ -267,7 +291,7 @@ task licenseFormatAPI(type: LicenseFormat);
     }
 }
 
-/* Upload tasks */
+// Upload tasks
 
 task checkRelease {
     group "upload"
@@ -397,23 +421,6 @@ uploadTasks.forEach { tasks.getByName(it).dependsOn checkRelease }
 task uploadAll(dependsOn: uploadTasks) {
     group "upload"
     description "Uploads to all repositories (Maven, Curse, GitHub release)"
-}
-
-test {
-    useJUnitPlatform()
-    testLogging {
-        events "passed", "skipped", "failed"
-    }
-}
-
-gradle.projectsEvaluated {
-    tasks.withType(JavaCompile) {
-        options.compilerArgs << "-Xlint" << "-Xlint:-processing" << "-Werror"
-    }
-
-    tasks.withType(LicenseFormat) {
-        outputs.upToDateWhen { false }
-    }
 }
 
 runClient.outputs.upToDateWhen { false }
