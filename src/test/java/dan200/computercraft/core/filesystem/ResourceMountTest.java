@@ -42,7 +42,7 @@ public class ResourceMountTest
         files.sort( Comparator.naturalOrder() );
 
         assertEquals(
-            Arrays.asList( "apis", "autorun", "help", "modules", "programs", "startup.lua" ),
+            Arrays.asList( "apis", "autorun", "help", "modules", "motd.txt", "programs", "startup.lua" ),
             files
         );
     }

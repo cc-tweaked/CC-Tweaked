@@ -52,7 +52,7 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
 
     private int m_instanceID = -1;
     private int m_computerID = -1;
-    protected String m_label = null;
+    protected String label = null;
     private boolean m_on = false;
     boolean m_startOn = false;
     private boolean m_fresh = false;
@@ -160,7 +160,7 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
 
             m_fresh = false;
             m_computerID = computer.getID();
-            m_label = computer.getLabel();
+            label = computer.getLabel();
             m_on = computer.isOn();
 
             if( computer.hasOutputChanged() ) updateOutput();
@@ -181,7 +181,7 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
     {
         // Save ID, label and power state
         if( m_computerID >= 0 ) nbt.putInt( NBT_ID, m_computerID );
-        if( m_label != null ) nbt.putString( NBT_LABEL, m_label );
+        if( label != null ) nbt.putString( NBT_LABEL, label );
         nbt.putBoolean( NBT_ON, m_on );
 
         return super.write( nbt );
@@ -194,7 +194,7 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
 
         // Load ID, label and power state
         m_computerID = nbt.contains( NBT_ID ) ? nbt.getInt( NBT_ID ) : -1;
-        m_label = nbt.contains( NBT_LABEL ) ? nbt.getString( NBT_LABEL ) : null;
+        label = nbt.contains( NBT_LABEL ) ? nbt.getString( NBT_LABEL ) : null;
         m_on = m_startOn = nbt.getBoolean( NBT_ON );
     }
 
@@ -308,7 +308,7 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
     @Override
     public final String getLabel()
     {
-        return m_label;
+        return label;
     }
 
     @Override
@@ -325,9 +325,9 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
     @Override
     public final void setLabel( String label )
     {
-        if( getWorld().isRemote || Objects.equals( m_label, label ) ) return;
+        if( getWorld().isRemote || Objects.equals( this.label, label ) ) return;
 
-        m_label = label;
+        this.label = label;
         ServerComputer computer = getServerComputer();
         if( computer != null ) computer.setLabel( label );
         markDirty();
@@ -375,16 +375,15 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
     protected void writeDescription( @Nonnull CompoundNBT nbt )
     {
         super.writeDescription( nbt );
-
+        if( label != null ) nbt.putString( NBT_LABEL, label );
         if( m_computerID >= 0 ) nbt.putInt( NBT_ID, m_computerID );
-        if( m_label != null ) nbt.putString( NBT_LABEL, m_label );
     }
 
     @Override
     protected void readDescription( @Nonnull CompoundNBT nbt )
     {
         super.readDescription( nbt );
-        m_label = nbt.contains( NBT_LABEL ) ? nbt.getString( NBT_LABEL ) : null;
+        label = nbt.contains( NBT_LABEL ) ? nbt.getString( NBT_LABEL ) : null;
         m_computerID = nbt.contains( NBT_ID ) ? nbt.getInt( NBT_ID ) : -1;
     }
 
@@ -395,7 +394,7 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
             unload();
             m_instanceID = copy.m_instanceID;
             m_computerID = copy.m_computerID;
-            m_label = copy.m_label;
+            label = copy.label;
             m_on = copy.m_on;
             m_startOn = copy.m_startOn;
             updateBlock();
@@ -414,20 +413,20 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
     @Override
     public ITextComponent getName()
     {
-        return hasCustomName() ? new StringTextComponent( m_label ) : getBlockState().getBlock().getNameTextComponent();
+        return hasCustomName() ? new StringTextComponent( label ) : getBlockState().getBlock().getNameTextComponent();
     }
 
     @Override
     public boolean hasCustomName()
     {
-        return !Strings.isNullOrEmpty( m_label );
+        return !Strings.isNullOrEmpty( label );
     }
 
     @Nullable
     @Override
     public ITextComponent getCustomName()
     {
-        return hasCustomName() ? new StringTextComponent( m_label ) : null;
+        return hasCustomName() ? new StringTextComponent( label ) : null;
     }
 
     @Nonnull

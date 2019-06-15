@@ -106,7 +106,7 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
     protected ServerComputer createComputer( int instanceID, int id )
     {
         ServerComputer computer = new ServerComputer(
-            getWorld(), id, m_label, instanceID, getFamily(),
+            getWorld(), id, label, instanceID, getFamily(),
             ComputerCraft.terminalWidth_turtle, ComputerCraft.terminalHeight_turtle
         );
         computer.setPosition( getPos() );

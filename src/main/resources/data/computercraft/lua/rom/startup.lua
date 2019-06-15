@@ -183,6 +183,12 @@ local function completeExec( shell, nIndex, sText, tPreviousText )
         return completeMultipleChoice( sText, tCommands, true )
     end
 end
+local tWgetOptions = { "run" }
+local function completeWget( shell, nIndex, sText, tPreviousText )
+    if nIndex == 1 then
+        return completeMultipleChoice( sText, tWgetOptions, true )
+    end
+end
 shell.setCompletionFunction( "rom/programs/alias.lua", completeAlias )
 shell.setCompletionFunction( "rom/programs/cd.lua", completeDir )
 shell.setCompletionFunction( "rom/programs/copy.lua", completeEitherEither )
@@ -210,6 +216,7 @@ shell.setCompletionFunction( "rom/programs/fun/advanced/paint.lua", completeFile
 shell.setCompletionFunction( "rom/programs/http/pastebin.lua", completePastebin )
 shell.setCompletionFunction( "rom/programs/rednet/chat.lua", completeChat )
 shell.setCompletionFunction( "rom/programs/command/exec.lua", completeExec )
+shell.setCompletionFunction( "rom/programs/http/wget.lua", completeWget )
 
 if turtle then
     local tGoOptions = { "left", "right", "forward", "back", "down", "up" }
