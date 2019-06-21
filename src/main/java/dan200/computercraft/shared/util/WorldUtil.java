@@ -172,7 +172,7 @@ public final class WorldUtil
     public static void dropItemStack( @Nonnull ItemStack stack, World world, double xPos, double yPos, double zPos, double xDir, double yDir, double zDir )
     {
         ItemEntity item = new ItemEntity( world, xPos, yPos, zPos, stack.copy() );
-        item.setVelocity(
+        item.setMotion(
             xDir * 0.7 + world.getRandom().nextFloat() * 0.2 - 0.1,
             yDir * 0.7 + world.getRandom().nextFloat() * 0.2 - 0.1,
             zDir * 0.7 + world.getRandom().nextFloat() * 0.2 - 0.1

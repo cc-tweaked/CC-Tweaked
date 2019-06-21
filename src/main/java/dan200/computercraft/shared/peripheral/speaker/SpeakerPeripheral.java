@@ -120,7 +120,7 @@ public abstract class SpeakerPeripheral implements IPeripheral
         }
 
         // If the resource location for note block notes changes, this method call will need to be updated
-        boolean success = playSound( context, instrument.getSound().getName(), volume, (float) Math.pow( 2.0, (pitch - 12.0) / 12.0 ), true );
+        boolean success = playSound( context, instrument.getSound().getRegistryName(), volume, (float) Math.pow( 2.0, (pitch - 12.0) / 12.0 ), true );
 
         if( success ) m_notesThisTick.incrementAndGet();
         return new Object[] { success };

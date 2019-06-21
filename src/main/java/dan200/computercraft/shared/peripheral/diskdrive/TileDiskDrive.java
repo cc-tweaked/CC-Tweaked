@@ -503,7 +503,7 @@ public final class TileDiskDrive extends TileGeneric implements DefaultInventory
         double y = pos.getY() + 0.75;
         double z = pos.getZ() + 0.5 + zOff * 0.5;
         ItemEntity entityitem = new ItemEntity( getWorld(), x, y, z, disks );
-        entityitem.setVelocity( xOff * 0.15, 0, zOff * 0.15 );
+        entityitem.setMotion( xOff * 0.15, 0, zOff * 0.15 );
 
         getWorld().addEntity( entityitem );
         if( !destroyed ) getWorld().playBroadcastSound( 1000, getPos(), 0 );
