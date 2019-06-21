@@ -5,7 +5,7 @@ buildscript {
         jcenter()
         maven {
             name = "forge"
-            url = "http://files.minecraftforge.net/maven"
+            url = "https://files.minecraftforge.net/maven"
         }
     }
     dependencies {
@@ -45,7 +45,7 @@ minecraft {
 repositories {
     maven {
         name "JEI"
-        url "http://dvs1.progwml6.com/files/maven"
+        url "https://dvs1.progwml6.com/files/maven"
     }
     maven {
         name "SquidDev"
@@ -57,7 +57,7 @@ repositories {
     }
     maven {
         name "Amadornes"
-        url "http://maven.amadornes.com/"
+        url "https://maven.amadornes.com/"
     }
 }
 
