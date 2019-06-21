@@ -41,7 +41,7 @@ Any contribution is welcome, be that using the mod, reporting bugs or contributi
 develop CC:T, you'll need to follow these steps:
 
  - **Clone the repository:** `git clone https://github.com/SquidDev-CC/CC-Tweaked.git && cd CC-Tweaked`
- - **Setup Forge:** `./gradlew setupDecompWorkspace`
+ - **Setup Forge:** `./gradlew build`
  - **Test your changes:** `./gradlew runClient` (or run the `GradleStart` class from your IDE).
 
 If you want to run CC:T in a normal Minecraft instance, run `./gradlew build` and copy the `.jar` from `build/libs`.
