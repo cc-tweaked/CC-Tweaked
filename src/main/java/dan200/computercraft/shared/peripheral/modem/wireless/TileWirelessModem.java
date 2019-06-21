@@ -87,8 +87,7 @@ public class TileWirelessModem extends TileGeneric implements IPeripheralTile
     public void onLoad()
     {
         super.onLoad();
-        updateDirection();
-        world.getPendingBlockTicks().scheduleTick( getPos(), getBlockState().getBlock(), 0 );
+        TickScheduler.schedule( this );
     }
 
     @Override

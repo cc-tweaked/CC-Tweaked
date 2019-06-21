@@ -170,11 +170,7 @@ public class TileCable extends TileGeneric implements IPeripheralTile
     public void onLoad()
     {
         super.onLoad();
-        if( !world.isRemote )
-        {
-            updateDirection();
-            world.getPendingBlockTicks().scheduleTick( pos, getBlockState().getBlock(), 0 );
-        }
+        TickScheduler.schedule( this );
     }
 
     @Override

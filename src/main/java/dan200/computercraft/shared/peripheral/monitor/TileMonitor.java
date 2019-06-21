@@ -14,6 +14,7 @@ import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.shared.common.ServerTerminal;
 import dan200.computercraft.shared.common.TileGeneric;
 import dan200.computercraft.shared.util.NamedTileEntityType;
+import dan200.computercraft.shared.util.TickScheduler;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.TileEntity;
@@ -78,7 +79,7 @@ public class TileMonitor extends TileGeneric implements IPeripheralTile
     public void onLoad()
     {
         super.onLoad();
-        world.getPendingBlockTicks().scheduleTick( getPos(), getBlockState().getBlock(), 0 );
+        TickScheduler.schedule( this );
     }
 
     @Override
