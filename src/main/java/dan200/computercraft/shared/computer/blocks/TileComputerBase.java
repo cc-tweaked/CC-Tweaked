@@ -38,6 +38,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
@@ -413,7 +414,9 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
     @Override
     public ITextComponent getName()
     {
-        return hasCustomName() ? new StringTextComponent( label ) : getBlockState().getBlock().getNameTextComponent();
+        return hasCustomName()
+            ? new StringTextComponent( label )
+            : new TranslationTextComponent(getBlockState().getBlock().getTranslationKey());
     }
 
     @Override

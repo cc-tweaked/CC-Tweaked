@@ -29,6 +29,7 @@ import net.minecraft.util.*;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.fml.network.NetworkHooks;
@@ -573,7 +574,7 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
     @Override
     public ITextComponent getName()
     {
-        return customName != null ? customName : getBlockState().getBlock().getNameTextComponent();
+        return customName != null ? customName : new TranslationTextComponent(getBlockState().getBlock().getTranslationKey());
     }
 
     @Override
