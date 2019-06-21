@@ -63,7 +63,7 @@ public class ContainerDiskDrive extends Container
         Slot slot = inventorySlots.get( slotIndex );
         if( slot == null || !slot.getHasStack() ) return ItemStack.EMPTY;
 
-        ItemStack existing = slot.getStack();
+        ItemStack existing = slot.getStack().copy();
         ItemStack result = existing.copy();
         if( slotIndex == 0 )
         {
