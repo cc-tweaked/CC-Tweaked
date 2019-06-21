@@ -20,6 +20,7 @@ import net.minecraft.client.gui.screen.inventory.ContainerScreen;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
+import org.lwjgl.glfw.GLFW;
 
 public final class GuiComputer<T extends ContainerComputerBase> extends ContainerScreen<T>
 {
@@ -107,6 +108,18 @@ public final class GuiComputer<T extends ContainerComputerBase> extends Containe
     {
         super.tick();
         terminal.update();
+    }
+
+    @Override
+    public boolean keyPressed( int key, int scancode, int modifiers )
+    {
+        // Forward the tab key to the terminal, rather than moving between controls.
+        if( key == GLFW.GLFW_KEY_TAB && getFocused() != null && getFocused() == terminalWrapper )
+        {
+            return getFocused().keyPressed( key, scancode, modifiers );
+        }
+
+        return super.keyPressed( key, scancode, modifiers );
     }
 
     @Override
