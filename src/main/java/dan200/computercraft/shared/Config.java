@@ -6,6 +6,8 @@
 
 package dan200.computercraft.shared;
 
+import com.electronwill.nightconfig.core.CommentedConfig;
+import com.electronwill.nightconfig.core.file.CommentedFileConfig;
 import com.google.common.base.CaseFormat;
 import com.google.common.base.Converter;
 import dan200.computercraft.ComputerCraft;
@@ -325,6 +327,10 @@ public final class Config
     @SubscribeEvent
     public static void sync( ModConfig.ConfigReloading event )
     {
+        // Ensure file configs are reloaded. Forge should probably do this, so worth checking in the future.
+        CommentedConfig config = event.getConfig().getConfigData();
+        if( config instanceof CommentedFileConfig ) ((CommentedFileConfig) config).load();
+
         sync();
     }
 
