@@ -17,6 +17,6 @@ describe("The commands program", function()
         })
         
         expect(capture(stub, "/rom/programs/command/commands.lua"))
-            :matches { ok = true, output = "Available commands:\n\n", error = "" }
+            :matches { ok = true, output = "Available commands:\ncomputercraft\n", error = "" }
     end)
 end)

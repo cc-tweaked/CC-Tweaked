@@ -30,6 +30,30 @@ local function capture_program(stub, program, ...)
     end)
 
     stub(_G, "write", function(msg) out(output, tostring(msg)) end)
+    
+    local tTextutilsCopy = {}
+    for k,v in pairs(textutils) do
+        tTextutilsCopy[k] = v
+    end
+
+    function tTextutilsCopy.slowPrint( msg )
+        out(output, tostring(msg).."\n")
+    end
+    
+    function tTextutilsCopy.pagedTabulate(...)
+        local tArgs = table.pack(...)
+        for k,v in ipairs(tArgs) do
+            if type(v) == "table" then
+                for a,b in ipairs(v) do
+                    out(output, tostring(b).."\n")
+                end
+            else
+                out(output, tostring(v).."\n")
+            end
+        end
+    end
+
+    stub(_G,"textutils",tTextutilsCopy)
 
     local ok = shell.run(program, ...)
 

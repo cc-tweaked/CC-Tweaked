@@ -11,7 +11,7 @@ describe("The alias program", function()
     it("list alias", function()
         
         expect(capture(stub, "alias"))
-            :matches { ok = true, output = "\n\n\n", error = "" }
+            :matches { ok = true, output = "background:bg\nclr:clear\ncp:copy\ndir:list\nforeground:fg\nls:list\nmv:move\nrm:delete\nrs:redstone\nsh:shell\n", error = "" }
     end)
 
     it("set alias", function()

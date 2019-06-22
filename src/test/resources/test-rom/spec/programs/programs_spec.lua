@@ -11,6 +11,6 @@ describe("The programs program", function()
         shell.setPath("/test-files/programs")
 
         expect(capture(stub, "/rom/programs/programs.lua"))
-            :matches { ok = true, output = "\n", error = "" }
+            :matches { ok = true, output = "test\n", error = "" }
     end)
 end)
