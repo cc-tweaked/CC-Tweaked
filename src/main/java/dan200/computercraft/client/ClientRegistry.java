@@ -34,7 +34,7 @@ import java.util.Map;
 /**
  * Registers textures and models for items.
  */
-@Mod.EventBusSubscriber( modid = ComputerCraft.MOD_ID, value = Dist.CLIENT )
+@Mod.EventBusSubscriber( modid = ComputerCraft.MOD_ID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.MOD )
 public final class ClientRegistry
 {
     private static final String[] EXTRA_MODELS = new String[] {
@@ -91,7 +91,7 @@ public final class ClientRegistry
     {
         // Load all extra models
         ModelLoader loader = event.getModelLoader();
-        Map<ModelResourceLocation, IBakedModel> registry = event.getModelRegistry();
+        Map<ResourceLocation, IBakedModel> registry = event.getModelRegistry();
 
         for( String model : EXTRA_MODELS )
         {
