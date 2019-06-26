@@ -22,6 +22,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.world.GameRules;
 import net.minecraft.world.ServerWorld;
 
 import javax.annotation.Nonnull;
@@ -63,7 +64,7 @@ public class TileCommandComputer extends TileComputer
         @Override
         public boolean shouldReceiveFeedback()
         {
-            return getWorld().getGameRules().getBoolean( "sendCommandFeedback" );
+            return getWorld().getGameRules().getBoolean( GameRules.SEND_COMMAND_FEEDBACK );
         }
 
         @Override
@@ -75,7 +76,7 @@ public class TileCommandComputer extends TileComputer
         @Override
         public boolean allowLogging()
         {
-            return getWorld().getGameRules().getBoolean( "commandBlockOutput" );
+            return getWorld().getGameRules().getBoolean( GameRules.COMMAND_BLOCK_OUTPUT );
         }
     }
 

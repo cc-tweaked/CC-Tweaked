@@ -574,7 +574,7 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
     @Override
     public ITextComponent getName()
     {
-        return customName != null ? customName : new TranslationTextComponent(getBlockState().getBlock().getTranslationKey());
+        return customName != null ? customName : new TranslationTextComponent( getBlockState().getBlock().getTranslationKey() );
     }
 
     @Override

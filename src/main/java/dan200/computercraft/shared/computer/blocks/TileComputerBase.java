@@ -416,7 +416,7 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
     {
         return hasCustomName()
             ? new StringTextComponent( label )
-            : new TranslationTextComponent(getBlockState().getBlock().getTranslationKey());
+            : new TranslationTextComponent( getBlockState().getBlock().getTranslationKey() );
     }
 
     @Override
