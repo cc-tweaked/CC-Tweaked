@@ -32,7 +32,7 @@ public class TileComputer extends TileComputerBase
         ServerComputer computer = new ServerComputer(
             getWorld(),
             id,
-            m_label,
+            label,
             instanceID,
             family,
             ComputerCraft.terminalWidth_computer,
