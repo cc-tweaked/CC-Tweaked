@@ -66,7 +66,7 @@ local function stub(tbl, key, value)
         stub.arguments = arguments
         value = function(...)
             arguments[#arguments + 1] = table.pack(...)
-            return delegate(value)
+            return delegate(...)
         end
     end
 
