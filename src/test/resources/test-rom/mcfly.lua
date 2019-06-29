@@ -43,14 +43,18 @@ end
 
 local active_stubs = {}
 
+local function default_stub() end
+
 --- Stub a table entry with a new value.
 --
 -- @tparam table
 -- @tparam string key The variable to stub
--- @param value The value to stub it with. If this is a function, one can use
--- the various stub expectation methods to determine what it was called with.
+-- @param[opt] value The value to stub it with. If this is a function, one can
+-- use the various stub expectation methods to determine what it was called
+-- with. Defaults to an empty function - pass @{nil} in explicitly to set the
+-- value to nil.
 -- @treturn Stub The resulting stub
-local function stub(tbl, key, value)
+local function stub(tbl, key, ...)
     check('stub', 1, 'table', tbl)
     check('stub', 2, 'string', key)
 
@@ -61,6 +65,8 @@ local function stub(tbl, key, value)
         original = rawget(tbl, key),
     }, stub_mt)
 
+    local value = ...
+    if select('#', ...) == 0 then value = default_stub end
     if type(value) == "function" then
         local arguments, delegate = {}, value
         stub.arguments = arguments
@@ -85,6 +91,7 @@ local function push_state()
         output = io.output(),
         dir = shell.dir(),
         path = shell.path(),
+        aliases = shell.aliases(),
         stubs = stubs,
     }
 end
@@ -100,6 +107,14 @@ local function pop_state(state)
     io.output(state.output)
     shell.setDir(state.dir)
     shell.setPath(state.path)
+
+    local aliases = shell.aliases()
+    for k in pairs(aliases) do
+        if not state.aliases[k] then shell.clearAlias(k) end
+    end
+    for k, v in pairs(state.aliases) do
+        if aliases[k] ~= v then shell.setAlias(k, v) end
+    end
 end
 
 local error_mt = { __tostring = function(self) return self.message end }
@@ -303,10 +318,7 @@ function expect_mt:called(times)
     return self
 end
 
---- Assert that this stub was called with a set of arguments
---
--- Arguments are compared using exact equality.
-function expect_mt:called_with(...)
+local function called_with_check(eq, self, ...)
     if getmetatable(self.value) ~= stub_mt or self.value.arguments == nil then
         fail(("Expected stubbed function, got %s"):format(type(self.value)))
     end
@@ -314,7 +326,7 @@ function expect_mt:called_with(...)
     local exp_args = table.pack(...)
     local actual_args = self.value.arguments
     for i = 1, #actual_args do
-        if pairwise_equal(actual_args[i], exp_args) then return self end
+        if eq(actual_args[i], exp_args) then return self end
     end
 
     local head = ("Expected stub to be called with %s\nbut was"):format(format(exp_args))
@@ -328,6 +340,20 @@ function expect_mt:called_with(...)
 
         fail(table.concat(lines, "\n"))
     end
+end
+
+--- Assert that this stub was called with a set of arguments
+--
+-- Arguments are compared using exact equality.
+function expect_mt:called_with(...)
+    return called_with_check(pairwise_equal, self, ...)
+end
+
+--- Assert that this stub was called with a set of arguments
+--
+-- Arguments are compared using matching.
+function expect_mt:called_with_matching(...)
+    return called_with_check(matches, self, ...)
 end
 
 local expect = setmetatable( {

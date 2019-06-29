@@ -1,33 +1,28 @@
 local capture = require "test_helpers".capture_program
 
 describe("The alias program", function()
-
-    it("displays its usage when given to many arguments", function()
-        
+    it("displays its usage when given too many arguments", function()
         expect(capture(stub, "alias a b c"))
             :matches { ok = true, output = "Usage: alias <alias> <program>\n", error = "" }
     end)
 
-    it("list alias", function()
-        
+    it("lists aliases", function()
+        local pagedTabulate = stub(textutils, "pagedTabulate", function(x) print(table.unpack(x)) end)
+        stub(shell, "aliases", function() return { cp = "copy" } end)
         expect(capture(stub, "alias"))
-            :matches { ok = true, output = "background:bg\nclr:clear\ncp:copy\ndir:list\nforeground:fg\nls:list\nmv:move\nrm:delete\nrs:redstone\nsh:shell\n", error = "" }
+            :matches { ok = true, output = "cp:copy\n", error = "" }
+        expect(pagedTabulate):called_with_matching({ "cp:copy" })
     end)
 
-    it("set alias", function()
-        shell.run("alias test Hello")
-
-        local tAlias = shell.aliases()
-
-        expect(tAlias.test):eq("Hello")
+    it("sets an alias", function()
+        local setAlias = stub(shell, "setAlias")
+        capture(stub, "alias test Hello")
+        expect(setAlias):called_with("test", "Hello")
     end)
 
-    it("clear alias", function()
-        shell.setAlias("test","hello")
-        shell.run("alias test")
-
-        local tAlias = shell.aliases()
-
-        expect(tAlias.test):eq(nil)
+    it("clears an alias", function()
+        local clearAlias = stub(shell, "clearAlias")
+        capture(stub, "alias test")
+        expect(clearAlias):called_with("test")
     end)
 end)

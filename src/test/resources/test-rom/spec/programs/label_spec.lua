@@ -1,39 +1,34 @@
 local capture = require "test_helpers".capture_program
 
 describe("The label program", function()
-
-    it("displays its usage when given no argument", function()     
+    it("displays its usage when given no arguments", function()
         expect(capture(stub, "label"))
             :matches { ok = true, output = "Usages:\nlabel get\nlabel get <drive>\nlabel set <text>\nlabel set <drive> <text>\nlabel clear\nlabel clear <drive>\n", error = "" }
     end)
 
-    it("computer has no label", function() 
-        os.setComputerLabel(nil)
-    
-        expect(capture(stub, "label get"))
-            :matches { ok = true, output = "No Computer label\n", error = "" }
+    describe("displays the computer's label", function()
+        it("when it is not labelled", function()
+            stub(os, "getComputerLabel", function() return nil end)
+            expect(capture(stub, "label get"))
+                :matches { ok = true, output = "No Computer label\n", error = "" }
+        end)
+
+        it("when it is labelled", function()
+            stub(os, "getComputerLabel", function() return "Test" end)
+            expect(capture(stub, "label get"))
+                :matches { ok = true, output = "Computer label is \"Test\"\n", error = "" }
+        end)
     end)
 
-    it("computer has a label", function() 
-        os.setComputerLabel("Test")
-    
-        expect(capture(stub, "label get"))
-            :matches { ok = true, output = "Computer label is \"Test\"\n", error = "" }
+    it("sets the computer's label", function()
+        local setComputerLabel = stub(os, "setComputerLabel")
+        capture(stub, "label set Test")
+        expect(setComputerLabel):called_with("Test")
     end)
 
-    it("set computer label", function() 
-        os.setComputerLabel(nil)
-        
-        shell.run("label set Test")
-
-        expect(os.getComputerLabel()):eq("Test")
-    end)
-
-    it("clear computer label", function() 
-        os.setComputerLabel("Test")
-        
-        shell.run("label clear")
-
-        expect(os.getComputerLabel()):eq(nil)
+    it("clears the computer's label", function()
+        local setComputerLabel = stub(os, "setComputerLabel")
+        capture(stub, "label clear")
+        expect(setComputerLabel):called_with(nil)
     end)
 end)

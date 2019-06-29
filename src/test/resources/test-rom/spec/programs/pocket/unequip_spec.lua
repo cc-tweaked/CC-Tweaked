@@ -1,33 +1,27 @@
 local capture = require "test_helpers".capture_program
 
 describe("The pocket unequip program", function()
-
-    it("displays the error without the pocket api", function()
-        stub(_G,"pocket",nil)
-        
+    it("errors when not a pocket computer", function()
+        stub(_G, "pocket", nil)
         expect(capture(stub, "/rom/programs/pocket/unequip.lua"))
             :matches { ok = true, output = "", error = "Requires a Pocket Computer\n" }
     end)
 
-    it("run the program", function()
-        stub(_G,"pocket",{
-            unequipBack = function()
-                return true
-            end
+    it("unequips an upgrade", function()
+        stub(_G, "pocket", {
+            unequipBack = function() return true end
         })
-        
+
         expect(capture(stub, "/rom/programs/pocket/unequip.lua"))
             :matches { ok = true, output = "Item unequipped\n", error = "" }
     end)
 
-    it("failed to equip", function()
-        stub(_G,"pocket",{
-            unequipBack = function()
-                return false, "Test123"
-            end
+    it("handles when an upgrade cannot be equipped", function()
+        stub(_G, "pocket", {
+            unequipBack = function() return false, "Nothing to remove." end
         })
-        
+
         expect(capture(stub, "/rom/programs/pocket/unequip.lua"))
-            :matches { ok = true, output = "", error = "Test123\n" }
+            :matches { ok = true, output = "", error = "Nothing to remove.\n" }
     end)
 end)

@@ -80,7 +80,6 @@ describe("The shell", function()
             shell.setAlias("sl", "ls")
             expect.error(shell.setAlias, nil):eq("bad argument #1 (expected string, got nil)")
             expect.error(shell.setAlias, "", nil):eq("bad argument #2 (expected string, got nil)")
-            shell.clearAlias("sl")
         end)
     end)
 
