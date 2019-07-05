@@ -7,6 +7,7 @@
 package dan200.computercraft.shared.util;
 
 import com.google.common.base.Predicate;
+import com.google.common.collect.MapMaker;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.*;
 import net.minecraft.entity.item.ItemEntity;
@@ -20,25 +21,35 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nonnull;
 import java.util.List;
+import java.util.Map;
 
 public final class WorldUtil
 {
     @SuppressWarnings( "Guava" )
     private static final Predicate<Entity> CAN_COLLIDE = x -> x != null && x.isAlive() && x.canBeCollidedWith();
 
-    private static final Entity ENTITY = new ItemEntity( EntityType.ITEM, null )
-    {
-        @Override
-        public EntitySize getSize( Pose pose )
-        {
-            return EntitySize.fixed( 0, 0 );
-        }
-    };
+    private static final Map<World, Entity> entityCache = new MapMaker().weakKeys().weakValues().makeMap();
 
-    static
+    private static synchronized Entity getEntity( World world )
     {
-        ENTITY.noClip = true;
-        ENTITY.recalculateSize();
+        // TODO: It'd be nice if we could avoid this. Maybe always use the turtle player (if it's available).
+        Entity entity = entityCache.get( world );
+        if( entity != null ) return entity;
+
+        entity = new ItemEntity( EntityType.ITEM, world )
+        {
+            @Nonnull
+            @Override
+            public EntitySize getSize( Pose pose )
+            {
+                return EntitySize.fixed( 0, 0 );
+            }
+        };
+
+        entity.noClip = true;
+        entity.recalculateSize();
+        entityCache.put( world, entity );
+        return entity;
     }
 
     public static boolean isLiquidBlock( World world, BlockPos pos )
@@ -61,8 +72,9 @@ public final class WorldUtil
         Vec3d vecEnd = vecStart.add( vecDir.x * distance, vecDir.y * distance, vecDir.z * distance );
 
         // Raycast for blocks
-        ENTITY.setPosition( vecStart.x, vecStart.y, vecStart.z );
-        RayTraceContext context = new RayTraceContext( vecStart, vecEnd, RayTraceContext.BlockMode.COLLIDER, RayTraceContext.FluidMode.NONE, ENTITY );
+        Entity collisionEntity = getEntity( world );
+        collisionEntity.setPosition( vecStart.x, vecStart.y, vecStart.z );
+        RayTraceContext context = new RayTraceContext( vecStart, vecEnd, RayTraceContext.BlockMode.COLLIDER, RayTraceContext.FluidMode.NONE, collisionEntity );
         RayTraceResult result = world.rayTraceBlocks( context );
         if( result != null && result.getType() == RayTraceResult.Type.BLOCK )
         {
