@@ -1,4 +1,4 @@
-local expect = dofile("rom/modules/main/craftos/expect.lua")
+local expect = dofile("rom/modules/main/craftos/expect.lua").expect
 
 local function drawPixelInternal( xPos, yPos )
     term.setCursorPos( xPos, yPos )

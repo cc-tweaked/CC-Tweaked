@@ -11,7 +11,7 @@ do
     h.close()
 
     if not f then error(err) end
-    expect = f()
+    expect = f().expect
 end
 
 if _VERSION == "Lua 5.1" then

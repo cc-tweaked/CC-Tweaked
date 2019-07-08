@@ -1,4 +1,4 @@
-local expect = dofile("rom/modules/main/craftos/expect.lua")
+local expect = dofile("rom/modules/main/craftos/expect.lua").expect
 
 function slowWrite( sText, nRate )
     expect(2, nRate, "number", "nil")

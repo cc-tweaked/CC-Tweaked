@@ -1,4 +1,7 @@
---- @module craftos.expect
+--- The @{craftos.expect} library provides helper functions for verifying that
+-- function arguments are well-formed and of the correct type.
+--
+-- @module craftos.expect
 
 local native_select, native_type = select, type
 
@@ -8,7 +11,7 @@ local native_select, native_type = select, type
 -- @param value The argument's value.
 -- @tparam string ... The allowed types of the argument.
 -- @throws If the value is not one of the allowed types.
-return function(index, value, ...)
+local function expect(index, value, ...)
     local t = native_type(value)
     for i = 1, native_select("#", ...) do
         if t == native_select(i, ...) then return true end
@@ -39,3 +42,5 @@ return function(index, value, ...)
         error( ("bad argument #%d (expected %s, got %s)"):format(index, type_names, t), 3 )
     end
 end
+
+return { expect = expect }

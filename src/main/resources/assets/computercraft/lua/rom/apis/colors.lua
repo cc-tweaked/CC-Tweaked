@@ -1,4 +1,4 @@
-local expect = dofile("rom/modules/main/craftos/expect.lua")
+local expect = dofile("rom/modules/main/craftos/expect.lua").expect
 
 -- Colors
 white = 1
