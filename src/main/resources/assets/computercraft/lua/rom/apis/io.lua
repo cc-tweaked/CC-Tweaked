@@ -1,6 +1,6 @@
 -- Definition for the IO API
 
-local expect, typeOf = _G["~expect"], _G.type
+local expect, typeOf = dofile("rom/modules/main/craftos/expect.lua").expect, _G.type
 
 --- If we return nil then close the file, as we've reached the end.
 -- We use this weird wrapper function as we wish to preserve the varargs
