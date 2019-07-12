@@ -56,7 +56,7 @@ local function createShellEnv( sDir )
                     sPath = fs.combine(sDir, sPath)
                 end
                 if fs.exists(sPath) and not fs.isDir(sPath) then
-                    local fnFile, sError = loadfile( sPath, tEnv )
+                    local fnFile, sError = loadfile( sPath, nil, tEnv )
                     if fnFile then
                         return fnFile, sPath
                     else

@@ -501,7 +501,7 @@ do
             if fs.isDir(file) then
                 run_in(file)
             elseif file:sub(-#suffix) == suffix then
-                local fun, err = loadfile(file, env)
+                local fun, err = loadfile(file, nil, env)
                 if not fun then
                     do_test { name = file:sub(#root_dir + 2), error = { message = err } }
                 else

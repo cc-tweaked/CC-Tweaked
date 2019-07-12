@@ -539,23 +539,28 @@ function read( _sReplaceChar, _tHistory, _fnComplete, _sDefault )
     return sLine
 end
 
-function loadfile( _sFile, _tEnv )
-    expect(1, _sFile, "string")
-    expect(2, _tEnv, "table", "nil")
-
-    local file = fs.open( _sFile, "r" )
-    if file then
-        local func, err = load( file.readAll(), "@" .. fs.getName( _sFile ), "t", _tEnv )
-        file.close()
-        return func, err
+function loadfile( filename, mode, env )
+    -- Support the previous `loadfile(filename, env)` form instead.
+    if type(mode) == "table" and env == nil then
+        mode, env = nil, mode
     end
-    return nil, "File not found"
+
+    expect(1, filename, "string")
+    expect(2, mode, "string", "nil")
+    expect(3, env, "table", "nil")
+
+    local file = fs.open( filename, "r" )
+    if not file then return nil, "File not found" end
+
+    local func, err = load( file.readAll(), "@" .. fs.getName( filename ), mode, env )
+    file.close()
+    return func, err
 end
 
 function dofile( _sFile )
     expect(1, _sFile, "string")
 
-    local fnFile, e = loadfile( _sFile, _G )
+    local fnFile, e = loadfile( _sFile, nil, _G )
     if fnFile then
         return fnFile()
     else
@@ -571,7 +576,7 @@ function os.run( _tEnv, _sPath, ... )
     local tArgs = table.pack( ... )
     local tEnv = _tEnv
     setmetatable( tEnv, { __index = _G } )
-    local fnFile, err = loadfile( _sPath, tEnv )
+    local fnFile, err = loadfile( _sPath, nil, tEnv )
     if fnFile then
         local ok, err = pcall( function()
             fnFile( table.unpack( tArgs, 1, tArgs.n ) )
@@ -605,7 +610,7 @@ function os.loadAPI( _sPath )
 
     local tEnv = {}
     setmetatable( tEnv, { __index = _G } )
-    local fnAPI, err = loadfile( _sPath, tEnv )
+    local fnAPI, err = loadfile( _sPath, nil, tEnv )
     if fnAPI then
         local ok, err = pcall( fnAPI )
         if not ok then

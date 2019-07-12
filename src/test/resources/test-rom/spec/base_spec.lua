@@ -16,17 +16,42 @@ describe("The Lua base library", function()
     end)
 
     describe("loadfile", function()
+        local function make_file()
+            local tmp = fs.open("test-files/out.lua", "w")
+            tmp.write("return _ENV")
+            tmp.close()
+        end
+
         it("validates arguments", function()
             loadfile("")
-            loadfile("", {})
+            loadfile("", "")
+            loadfile("", "", {})
 
             expect.error(loadfile, nil):eq("bad argument #1 (expected string, got nil)")
-            expect.error(loadfile, "", false):eq("bad argument #2 (expected table, got boolean)")
+            expect.error(loadfile, "", false):eq("bad argument #2 (expected string, got boolean)")
+            expect.error(loadfile, "", "", false):eq("bad argument #3 (expected table, got boolean)")
         end)
 
         it("prefixes the filename with @", function()
             local info = debug.getinfo(loadfile("/rom/startup.lua"), "S")
             expect(info):matches { short_src = "startup.lua", source = "@startup.lua" }
+        end)
+
+        it("loads a file with the global environment", function()
+            make_file()
+            expect(loadfile("test-files/out.lua")()):eq(_G)
+        end)
+
+        it("loads a file with a specific environment", function()
+            make_file()
+            local env = {}
+            expect(loadfile("test-files/out.lua", nil, env)()):eq(env)
+        end)
+
+        it("supports the old-style argument form", function()
+            make_file()
+            local env = {}
+            expect(loadfile("test-files/out.lua", env)()):eq(env)
         end)
     end)
 
