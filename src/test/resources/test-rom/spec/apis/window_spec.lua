@@ -130,5 +130,11 @@ describe("The window library", function()
             expect.error(w.getLine, 0):eq("Line is out of range.")
             expect.error(w.getLine, y + 1):eq("Line is out of range.")
         end)
+
+        it("provides a line's contents", function()
+            local w = mk()
+            w.blit("test", "aaaa", "4444")
+            expect({ w.getLine(1) }):same { "test ", "aaaa0", "4444f" }
+        end)
     end)
 end)
