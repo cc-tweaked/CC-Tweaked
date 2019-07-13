@@ -67,7 +67,7 @@ public class TermAPI implements ILuaAPI
             "nativePaletteColour",
             "nativePaletteColor",
             "getCursorBlink",
-            "getLine"
+            "getLine",
         };
     }
 
@@ -288,7 +288,7 @@ public class TermAPI implements ILuaAPI
                     throw new LuaException( "Line is out of range." );
                 }
                 String line, lineTextColour, lineBackgroundColour;
-                synchronized (m_terminal)
+                synchronized ( m_terminal )
                 {
                     line = m_terminal.getLine( y ).read();
                     lineTextColour = m_terminal.getTextColourLine( y ).read();
