@@ -67,6 +67,7 @@ public class TermAPI implements ILuaAPI
             "nativePaletteColour",
             "nativePaletteColor",
             "getCursorBlink",
+            "getLine"
         };
     }
 
@@ -279,6 +280,21 @@ public class TermAPI implements ILuaAPI
             case 25:
                 // getCursorBlink
                 return new Object[] { m_terminal.getCursorBlink() };
+            case 26:
+                // getLine
+                int y = getInt( args, 0 ) - 1;
+                if ( y < 0 || y >= m_terminal.getHeight() )
+                {
+                    throw new LuaException( "Line is out of range." );
+                }
+                String line, lineTextColour, lineBackgroundColour;
+                synchronized (m_terminal)
+                {
+                    line = m_terminal.getLine( y ).read();
+                    lineTextColour = m_terminal.getTextColourLine( y ).read();
+                    lineBackgroundColour = m_terminal.getBackgroundColourLine( y ).read();
+                }
+                return new Object[] { line, lineTextColour, lineBackgroundColour };
             default:
                 return null;
         }

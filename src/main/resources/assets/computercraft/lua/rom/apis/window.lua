@@ -388,6 +388,16 @@ function create( parent, nX, nY, nWidth, nHeight, bStartVisible )
         return nBackgroundColor
     end
 
+    function window.getLine( nY )
+        if type(nY) ~= "number" then expect(1, nY, "number") end
+
+        if nY < 1 or nY > nHeight then
+            error( "Line is out of range.", 2 )
+        end
+
+        return tLines[nY].text, tLines[nY].textColor, tLines[nY].backgroundColor
+    end
+
     -- Other functions
     function window.setVisible( bVis )
         if type(bVis) ~= "boolean" then expect(1, bVis, "boolean") end
