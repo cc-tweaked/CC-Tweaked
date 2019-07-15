@@ -30,9 +30,14 @@ public final class FurnaceRefuelHandler implements TurtleRefuelEvent.Handler
     @Override
     public int refuel( @Nonnull ITurtleAccess turtle, @Nonnull ItemStack currentStack, int slot, int limit )
     {
-        ItemStack stack = turtle.getItemHandler().extractItem( slot, limit, false );
-        int fuelToGive = getFuelPerItem( stack ) * stack.getCount();
+        int fuelSpaceLeft = turtle.getFuelLimit() - turtle.getFuelLevel();
+        ItemStack tmpStack = turtle.getItemHandler().getStackInSlot( slot );
+        int fuelPerItem = getFuelPerItem( tmpStack );
+        int fuelItemLimit = (int) Math.ceil( fuelSpaceLeft / ( (double) fuelPerItem ) );
+        if (limit > fuelItemLimit) limit = fuelItemLimit;
 
+        ItemStack stack = turtle.getItemHandler().extractItem( slot, limit, false );
+        int fuelToGive = fuelPerItem * stack.getCount();
         // Store the replacement item in the inventory
         ItemStack replacementStack = stack.getItem().getContainerItem( stack );
         if( !replacementStack.isEmpty() )
