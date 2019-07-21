@@ -202,6 +202,7 @@ public class TurtleSmartItemModel implements IBakedModel
 
     @Nonnull
     @Override
+    @Deprecated
     public TextureAtlasSprite getParticleTexture()
     {
         return familyModel.getParticleTexture();

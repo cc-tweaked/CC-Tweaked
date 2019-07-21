@@ -35,7 +35,6 @@ public abstract class TileGeneric extends TileEntity
         markDirty();
         BlockPos pos = getPos();
         BlockState state = getBlockState();
-        getWorld().markForRerender( pos );
         getWorld().notifyBlockUpdate( pos, state, state, 3 );
     }
 

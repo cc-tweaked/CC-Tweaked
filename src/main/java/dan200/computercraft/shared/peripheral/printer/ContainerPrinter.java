@@ -34,7 +34,7 @@ public class ContainerPrinter extends Container
         this.properties = properties;
         this.inventory = inventory;
 
-        func_216961_a( properties );
+        trackIntArray( properties );
 
         // Ink slot
         addSlot( new Slot( inventory, 0, 13, 35 ) );

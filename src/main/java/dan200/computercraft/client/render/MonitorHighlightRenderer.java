@@ -42,12 +42,12 @@ public final class MonitorHighlightRenderer
     @SubscribeEvent
     public static void drawHighlight( DrawBlockHighlightEvent event )
     {
-        if( event.getTarget().getType() != RayTraceResult.Type.BLOCK || event.getInfo().func_216773_g().isSneaking() )
+        if( event.getTarget().getType() != RayTraceResult.Type.BLOCK || event.getInfo().getRenderViewEntity().isSneaking() )
         {
             return;
         }
 
-        World world = event.getInfo().func_216773_g().getEntityWorld();
+        World world = event.getInfo().getRenderViewEntity().getEntityWorld();
         BlockPos pos = ((BlockRayTraceResult) event.getTarget()).getPos();
 
         TileEntity tile = world.getTileEntity( pos );

@@ -509,28 +509,6 @@ public final class TileDiskDrive extends TileGeneric implements DefaultInventory
         if( !destroyed ) getWorld().playBroadcastSound( 1000, getPos(), 0 );
     }
 
-    @Override
-    protected void readDescription( @Nonnull CompoundNBT nbt )
-    {
-        super.readDescription( nbt );
-        customName = nbt.contains( NBT_NAME ) ? ITextComponent.Serializer.fromJson( nbt.getString( NBT_NAME ) ) : null;
-        m_diskStack = nbt.contains( NBT_ITEM ) ? ItemStack.read( nbt.getCompound( NBT_ITEM ) ) : ItemStack.EMPTY;
-        updateBlock();
-    }
-
-    @Override
-    protected void writeDescription( @Nonnull CompoundNBT nbt )
-    {
-        super.writeDescription( nbt );
-        if( customName != null ) nbt.putString( NBT_NAME, ITextComponent.Serializer.toJson( customName ) );
-        if( !m_diskStack.isEmpty() )
-        {
-            CompoundNBT item = new CompoundNBT();
-            m_diskStack.write( item );
-            nbt.put( NBT_ITEM, item );
-        }
-    }
-
     // Private methods
 
     private void playRecord()

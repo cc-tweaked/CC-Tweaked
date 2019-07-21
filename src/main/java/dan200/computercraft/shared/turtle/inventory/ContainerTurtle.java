@@ -44,7 +44,7 @@ public class ContainerTurtle extends ContainerComputerBase
         super( TYPE, id, canUse, computer, family );
         this.properties = properties;
 
-        func_216961_a( properties );
+        trackIntArray( properties );
 
         // Turtle inventory
         for( int y = 0; y < 4; y++ )

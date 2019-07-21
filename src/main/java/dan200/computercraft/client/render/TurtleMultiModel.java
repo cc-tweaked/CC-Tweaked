@@ -119,6 +119,7 @@ public class TurtleMultiModel implements IBakedModel
 
     @Nonnull
     @Override
+    @Deprecated
     public TextureAtlasSprite getParticleTexture()
     {
         return m_baseModel.getParticleTexture();

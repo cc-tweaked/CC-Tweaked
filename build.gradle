@@ -9,7 +9,7 @@ buildscript {
     }
     dependencies {
         classpath 'com.google.code.gson:gson:2.8.1'
-        classpath 'net.minecraftforge.gradle:ForgeGradle:3.0.128'
+        classpath 'net.minecraftforge.gradle:ForgeGradle:3.0.130'
         classpath 'net.sf.proguard:proguard-gradle:6.1.0beta2'
         classpath 'org.ajoberstar.grgit:grgit-gradle:3.0.0'
     }
@@ -127,7 +127,7 @@ jar {
     manifest {
         attributes(["Specification-Title": "computercraft",
                     "Specification-Vendor": "SquidDev",
-                    "Specification-Version": "26.0",
+                    "Specification-Version": "1",
                     "Implementation-Title": "CC: Tweaked",
                     "Implementation-Version": "${mod_version}",
                     "Implementation-Vendor" :"SquidDev",

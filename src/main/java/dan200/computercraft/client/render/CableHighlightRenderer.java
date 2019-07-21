@@ -15,7 +15,6 @@ import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ActiveRenderInfo;
 import net.minecraft.client.renderer.WorldRenderer;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.RayTraceResult;
@@ -39,7 +38,7 @@ public final class CableHighlightRenderer
      * Draw an outline for a specific part of a cable "Multipart".
      *
      * @param event The event to observe
-     * @see WorldRenderer#drawSelectionBox(PlayerEntity, RayTraceResult, int, float)
+     * @see WorldRenderer#drawSelectionBox(ActiveRenderInfo, RayTraceResult, int)
      */
     @SubscribeEvent
     public static void drawHighlight( DrawBlockHighlightEvent event )
@@ -48,7 +47,7 @@ public final class CableHighlightRenderer
 
         BlockRayTraceResult hit = (BlockRayTraceResult) event.getTarget();
         BlockPos pos = hit.getPos();
-        World world = event.getInfo().func_216773_g().getEntityWorld();
+        World world = event.getInfo().getRenderViewEntity().getEntityWorld();
         ActiveRenderInfo info = event.getInfo();
 
         BlockState state = world.getBlockState( pos );

@@ -563,7 +563,6 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
     {
         super.readDescription( nbt );
         m_brain.readDescription( nbt );
-        updateBlock();
     }
 
     // Privates

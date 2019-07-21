@@ -149,21 +149,6 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
         return super.write( nbt );
     }
 
-    @Override
-    protected void writeDescription( @Nonnull CompoundNBT nbt )
-    {
-        super.writeDescription( nbt );
-        if( customName != null ) nbt.putString( NBT_NAME, ITextComponent.Serializer.toJson( customName ) );
-    }
-
-    @Override
-    public void readDescription( @Nonnull CompoundNBT nbt )
-    {
-        super.readDescription( nbt );
-        customName = nbt.contains( NBT_NAME ) ? ITextComponent.Serializer.fromJson( nbt.getString( NBT_NAME ) ) : null;
-        updateBlock();
-    }
-
     public boolean isPrinting()
     {
         return m_printing;
