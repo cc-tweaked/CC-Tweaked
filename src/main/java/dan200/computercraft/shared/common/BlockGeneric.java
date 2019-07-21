@@ -89,4 +89,10 @@ public abstract class BlockGeneric extends Block
     {
         return type.create();
     }
+
+    @Override
+    public boolean canBeReplacedByLeaves( BlockState state, IWorldReader world, BlockPos pos )
+    {
+        return false;
+    }
 }
