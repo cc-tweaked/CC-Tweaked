@@ -1,36 +1,44 @@
 
 -- Setup paths
-local sPath = ".:/rom/programs"
-local tConditions = {
-    ["/rom/programs/advanced"] = term.isColor(),
-    ["/rom/programs/turtle"] = turtle ~= nil,
-    ["/rom/programs/rednet"] = turtle == nil,
-    ["/rom/programs/fun"] = turtle == nil,
-    ["/rom/programs/fun/advanced"] = turtle == nil and term.isColor(),
-    ["/rom/programs/fun/advanced/levels"] = false,
-    ["/rom/programs/pocket"] = pocket ~= nil,
-    ["/rom/programs/command"] = command ~= nil,
-    ["/rom/programs/http"] = http ~= nil,
-}
-local tPathStrings = fs.list( "rom/programs" )
-local nPathIndex = 1
-while nPathIndex < #tPathStrings do
-    local sDir = "/rom/programs/" .. tPathStrings[ nPathIndex ]
-    if fs.isDir( sDir ) then
-        local tStr = fs.list( sDir )
-        for k, v in pairs( tStr ) do
-            tPathStrings[ #tPathStrings + 1 ] = fs.combine( tPathStrings[ nPathIndex ], v )
+do
+    local conditions = {
+        ["/rom/programs/advanced"] = term.isColor(),
+        ["/rom/programs/turtle"] = turtle ~= nil,
+        ["/rom/programs/rednet"] = turtle == nil,
+        ["/rom/programs/fun"] = turtle == nil,
+        ["/rom/programs/fun/advanced"] = turtle == nil and term.isColor(),
+        ["/rom/programs/pocket"] = pocket ~= nil,
+        ["/rom/programs/command"] = command ~= nil,
+        ["/rom/programs/http"] = http ~= nil,
+    }
+
+    -- Recursively load all child directories of rom/programs
+    local paths = { "/rom/programs" }
+    local i = 1
+    while i <= #paths do
+        local dir = paths[i]
+        for _, name in pairs(fs.list(dir)) do
+            local child = "/" .. fs.combine(dir, name)
+            if fs.isDir(child) and conditions[child] ~= false then
+                paths[#paths + 1] = child
+            end
+        end
+        i = i + 1
+    end
+
+    -- Filter the path to directories which contain lua files.
+    for i = #paths, 1, -1 do
+        local path = paths[i]
+        if next(fs.find(path .. "/*.lua")) == nil then
+            table.remove(paths, i)
         end
     end
-    nPathIndex = nPathIndex + 1
+
+    table.sort(paths)
+
+    shell.setPath(".:" .. table.concat(paths, ":"))
 end
-for _, sProgramPath in pairs( tPathStrings ) do
-    local sPathComponent = "/rom/programs/" .. sProgramPath
-    if fs.isDir( sPathComponent ) and tConditions[ sPathComponent ] ~= false then
-        sPath = sPath .. ":" .. sPathComponent
-    end
-end
-shell.setPath( sPath )
+
 help.setPath( "/rom/help" )
 
 -- Setup aliases
