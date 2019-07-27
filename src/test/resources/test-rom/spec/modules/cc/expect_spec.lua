@@ -1,5 +1,5 @@
-describe("craftos.expect", function()
-    local e = require("craftos.expect")
+describe("cc.expect", function()
+    local e = require("cc.expect")
 
     it("checks a single type", function()
         expect(e.expect(1, "test", "string")):eq(true)

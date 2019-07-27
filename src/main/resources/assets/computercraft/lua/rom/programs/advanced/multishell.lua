@@ -1,4 +1,4 @@
-local expect = dofile("rom/modules/main/craftos/expect.lua").expect
+local expect = dofile("rom/modules/main/cc/expect.lua").expect
 
 -- Setup process switching
 local parentTerm = term.current()

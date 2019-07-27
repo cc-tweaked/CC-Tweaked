@@ -1,4 +1,4 @@
-local expect = dofile("rom/modules/main/craftos/expect.lua").expect
+local expect = dofile("rom/modules/main/cc/expect.lua").expect
 
 local native = (term.native and term.native()) or term
 local redirectTarget = native
