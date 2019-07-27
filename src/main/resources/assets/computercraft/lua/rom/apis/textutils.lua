@@ -1,4 +1,4 @@
-local expect = _G["~expect"]
+local expect = dofile("rom/modules/main/cc/expect.lua").expect
 
 function slowWrite( sText, nRate )
     expect(2, nRate, "number", "nil")

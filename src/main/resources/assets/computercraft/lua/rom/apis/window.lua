@@ -1,4 +1,4 @@
-local expect = _G["~expect"]
+local expect = dofile("rom/modules/main/cc/expect.lua").expect
 
 local tHex = {
     [ colors.white ] = "0",
@@ -386,6 +386,16 @@ function create( parent, nX, nY, nWidth, nHeight, bStartVisible )
 
     function window.getBackgroundColour()
         return nBackgroundColor
+    end
+
+    function window.getLine(y)
+        if type(y) ~= "number" then expect(1, y, "number") end
+
+        if y < 1 or y > nHeight then
+            error("Line is out of range.", 2)
+        end
+
+        return tLines[y].text, tLines[y].textColor, tLines[y].backgroundColor
     end
 
     -- Other functions

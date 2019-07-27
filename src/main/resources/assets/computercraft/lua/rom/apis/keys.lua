@@ -1,7 +1,7 @@
 -- Minecraft key code bindings
 -- See http://www.minecraftwiki.net/wiki/Key_codes for more info
 
-local expect = _G["~expect"]
+local expect = dofile("rom/modules/main/cc/expect.lua").expect
 
 local tKeys = {
     nil,	 	"one", 		"two", 		"three", 	"four",			-- 1

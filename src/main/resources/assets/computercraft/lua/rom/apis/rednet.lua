@@ -1,4 +1,4 @@
-local expect = _G["~expect"]
+local expect = dofile("rom/modules/main/cc/expect.lua").expect
 
 CHANNEL_BROADCAST = 65535
 CHANNEL_REPEAT = 65533
