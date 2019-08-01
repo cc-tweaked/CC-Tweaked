@@ -145,7 +145,9 @@ public interface ITurtleAccess
     GameProfile getOwningPlayer();
 
     /**
-     * Get the inventory of this turtle
+     * Get the inventory of this turtle.
+     *
+     * Note: this inventory should only be accessed and modified on the server thread.
      *
      * @return This turtle's inventory
      * @see #getItemHandler()
@@ -155,6 +157,8 @@ public interface ITurtleAccess
 
     /**
      * Get the inventory of this turtle as an {@link IItemHandlerModifiable}.
+     *
+     * Note: this inventory should only be accessed and modified on the server thread.
      *
      * @return This turtle's inventory
      * @see #getInventory()
