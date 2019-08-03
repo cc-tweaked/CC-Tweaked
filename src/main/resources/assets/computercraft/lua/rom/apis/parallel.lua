@@ -102,7 +102,7 @@ end
 
 
 
-function createBundle( ... )
+function createGroup( ... )
     local inst = setmetatable(
         { 
             _run = true, 

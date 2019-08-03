@@ -976,21 +976,33 @@ if fs.exists( ".settings" ) then
 end
 
 -- Run the shell
+local top = parallel.createGroup()
+top:add(
+    function()
+        local sShell
+        if term.isColour() and settings.get( "bios.use_multishell" ) then
+            sShell = "rom/programs/advanced/multishell.lua"
+        else
+            sShell = "rom/programs/shell.lua"
+        end
+        os.run( {}, sShell )
+        os.run( {}, "rom/programs/shutdown.lua" )
+    end, 
+    rednet.run,
+    function()
+        repeat
+            coroutine.yield()
+        until not top._coroutines[1] or not top._coroutines[2]
+        top:stop()
+    end
+)
+
+function os.runTask(f)
+    return top:add(f)
+end
+
 local ok, err = pcall( function()
-    parallel.waitForAny(
-        function()
-            local sShell
-            if term.isColour() and settings.get( "bios.use_multishell" ) then
-                sShell = "rom/programs/advanced/multishell.lua"
-            else
-                sShell = "rom/programs/shell.lua"
-            end
-            os.run( {}, sShell )
-            os.run( {}, "rom/programs/shutdown.lua" )
-        end,
-        function()
-            rednet.run()
-        end )
+    top:waitForAll()
 end )
 
 -- If the shell errored, let the user read it.
