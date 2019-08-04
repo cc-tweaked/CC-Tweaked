@@ -11,6 +11,7 @@ import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.core.terminal.Terminal;
+import dan200.computercraft.shared.util.StringUtil;
 
 import javax.annotation.Nonnull;
 
@@ -108,7 +109,7 @@ public class PrinterPeripheral implements IPeripheral
                 // setPageTitle
                 String title = optString( args, 0, "" );
                 getCurrentPage();
-                m_printer.setPageTitle( title );
+                m_printer.setPageTitle( StringUtil.normaliseLabel( title ) );
                 return null;
             }
             case 8: // getPaperLevel
