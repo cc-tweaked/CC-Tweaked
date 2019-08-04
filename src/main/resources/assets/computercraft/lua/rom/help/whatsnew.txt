@@ -12,5 +12,7 @@ And several bug fixes:
 * Do not load chunks when calling writeDescription.
 * Fix the signature of loadfile
 * Fix turtles harvesting blocks multiple times
+* Improve thread-safety of various peripherals
+* Prevent printed pages having massive/malformed titles
 
 Type "help changelog" to see the full version history.
