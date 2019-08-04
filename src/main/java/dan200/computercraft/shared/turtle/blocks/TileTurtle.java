@@ -49,13 +49,12 @@ import net.minecraftforge.items.wrapper.InvWrapper;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Collections;
 
 import static net.minecraftforge.items.CapabilityItemHandler.ITEM_HANDLER_CAPABILITY;
 
 public class TileTurtle extends TileComputerBase implements ITurtleTile, DefaultInventory
 {
-    // Statics
-
     public static final int INVENTORY_SIZE = 16;
     public static final int INVENTORY_WIDTH = 4;
     public static final int INVENTORY_HEIGHT = 4;
@@ -70,8 +69,6 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
         type -> new TileTurtle( type, ComputerFamily.Advanced )
     );
 
-    // Members
-
     enum MoveState
     {
         NOT_MOVED,
@@ -79,25 +76,20 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
         MOVED
     }
 
-    private NonNullList<ItemStack> m_inventory;
-    private NonNullList<ItemStack> m_previousInventory;
+    private final NonNullList<ItemStack> m_inventory = NonNullList.withSize( INVENTORY_SIZE, ItemStack.EMPTY );
+    private final NonNullList<ItemStack> m_previousInventory = NonNullList.withSize( INVENTORY_SIZE, ItemStack.EMPTY );
     private final IItemHandlerModifiable m_itemHandler = new InvWrapper( this );
     private LazyOptional<IItemHandlerModifiable> itemHandlerCap;
-    private boolean m_inventoryChanged;
-    private TurtleBrain m_brain;
-    private MoveState m_moveState;
+    private boolean m_inventoryChanged = false;
+    private TurtleBrain m_brain = new TurtleBrain( this );
+    private MoveState m_moveState = MoveState.NOT_MOVED;
 
     public TileTurtle( TileEntityType<? extends TileGeneric> type, ComputerFamily family )
     {
         super( type, family );
-        m_inventory = NonNullList.withSize( INVENTORY_SIZE, ItemStack.EMPTY );
-        m_previousInventory = NonNullList.withSize( INVENTORY_SIZE, ItemStack.EMPTY );
-        m_inventoryChanged = false;
-        m_brain = new TurtleBrain( this );
-        m_moveState = MoveState.NOT_MOVED;
     }
 
-    public boolean hasMoved()
+    private boolean hasMoved()
     {
         return m_moveState == MoveState.MOVED;
     }
@@ -237,18 +229,15 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
     {
         super.tick();
         m_brain.update();
-        synchronized( m_inventory )
+        if( !getWorld().isRemote && m_inventoryChanged )
         {
-            if( !getWorld().isRemote && m_inventoryChanged )
-            {
-                ServerComputer computer = getServerComputer();
-                if( computer != null ) computer.queueEvent( "turtle_inventory" );
+            ServerComputer computer = getServerComputer();
+            if( computer != null ) computer.queueEvent( "turtle_inventory" );
 
-                m_inventoryChanged = false;
-                for( int n = 0; n < getSizeInventory(); n++ )
-                {
-                    m_previousInventory.set( n, InventoryUtil.copyItem( getStackInSlot( n ) ) );
-                }
+            m_inventoryChanged = false;
+            for( int n = 0; n < getSizeInventory(); n++ )
+            {
+                m_previousInventory.set( n, InventoryUtil.copyItem( getStackInSlot( n ) ) );
             }
         }
     }
@@ -288,8 +277,8 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
 
         // Read inventory
         ListNBT nbttaglist = nbt.getList( "Items", Constants.NBT.TAG_COMPOUND );
-        m_inventory = NonNullList.withSize( INVENTORY_SIZE, ItemStack.EMPTY );
-        m_previousInventory = NonNullList.withSize( INVENTORY_SIZE, ItemStack.EMPTY );
+        m_inventory.clear();
+        m_previousInventory.clear();
         for( int i = 0; i < nbttaglist.size(); i++ )
         {
             CompoundNBT tag = nbttaglist.getCompound( i );
@@ -396,7 +385,7 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
         return m_brain.getToolRenderAngle( side, f );
     }
 
-    public void setOwningPlayer( GameProfile player )
+    void setOwningPlayer( GameProfile player )
     {
         m_brain.setOwningPlayer( player );
         markDirty();
@@ -424,109 +413,76 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
     @Override
     public ItemStack getStackInSlot( int slot )
     {
-        if( slot >= 0 && slot < INVENTORY_SIZE )
-        {
-            synchronized( m_inventory )
-            {
-                return m_inventory.get( slot );
-            }
-        }
-        return ItemStack.EMPTY;
+        return slot >= 0 && slot < INVENTORY_SIZE ? m_inventory.get( slot ) : ItemStack.EMPTY;
     }
 
     @Nonnull
     @Override
     public ItemStack removeStackFromSlot( int slot )
     {
-        synchronized( m_inventory )
-        {
-            ItemStack result = getStackInSlot( slot );
-            setInventorySlotContents( slot, ItemStack.EMPTY );
-            return result;
-        }
+        ItemStack result = getStackInSlot( slot );
+        setInventorySlotContents( slot, ItemStack.EMPTY );
+        return result;
     }
 
     @Nonnull
     @Override
     public ItemStack decrStackSize( int slot, int count )
     {
-        if( count == 0 )
+        if( count == 0 ) return ItemStack.EMPTY;
+
+        ItemStack stack = getStackInSlot( slot );
+        if( stack.isEmpty() ) return ItemStack.EMPTY;
+
+        if( stack.getCount() <= count )
         {
-            return ItemStack.EMPTY;
+            setInventorySlotContents( slot, ItemStack.EMPTY );
+            return stack;
         }
 
-        synchronized( m_inventory )
-        {
-            ItemStack stack = getStackInSlot( slot );
-            if( stack.isEmpty() )
-            {
-                return ItemStack.EMPTY;
-            }
-
-            if( stack.getCount() <= count )
-            {
-                setInventorySlotContents( slot, ItemStack.EMPTY );
-                return stack;
-            }
-
-            ItemStack part = stack.split( count );
-            onInventoryDefinitelyChanged();
-            return part;
-        }
+        ItemStack part = stack.split( count );
+        onInventoryDefinitelyChanged();
+        return part;
     }
 
     @Override
     public void setInventorySlotContents( int i, @Nonnull ItemStack stack )
     {
-        if( i >= 0 && i < INVENTORY_SIZE )
+        if( i >= 0 && i < INVENTORY_SIZE && !InventoryUtil.areItemsEqual( stack, m_inventory.get( i ) ) )
         {
-            synchronized( m_inventory )
-            {
-                if( !InventoryUtil.areItemsEqual( stack, m_inventory.get( i ) ) )
-                {
-                    m_inventory.set( i, stack );
-                    onInventoryDefinitelyChanged();
-                }
-            }
+            m_inventory.set( i, stack );
+            onInventoryDefinitelyChanged();
         }
     }
 
     @Override
     public void clear()
     {
-        synchronized( m_inventory )
+        boolean changed = false;
+        for( int i = 0; i < INVENTORY_SIZE; i++ )
         {
-            boolean changed = false;
-            for( int i = 0; i < INVENTORY_SIZE; i++ )
+            if( !m_inventory.get( i ).isEmpty() )
             {
-                if( !m_inventory.get( i ).isEmpty() )
-                {
-                    m_inventory.set( i, ItemStack.EMPTY );
-                    changed = true;
-                }
-            }
-            if( changed )
-            {
-                onInventoryDefinitelyChanged();
+                m_inventory.set( i, ItemStack.EMPTY );
+                changed = true;
             }
         }
+
+        if( changed ) onInventoryDefinitelyChanged();
     }
 
     @Override
     public void markDirty()
     {
         super.markDirty();
-        synchronized( m_inventory )
+        if( !m_inventoryChanged )
         {
-            if( !m_inventoryChanged )
+            for( int n = 0; n < getSizeInventory(); n++ )
             {
-                for( int n = 0; n < getSizeInventory(); n++ )
+                if( !ItemStack.areItemStacksEqual( getStackInSlot( n ), m_previousInventory.get( n ) ) )
                 {
-                    if( !ItemStack.areItemStacksEqual( getStackInSlot( n ), m_previousInventory.get( n ) ) )
-                    {
-                        m_inventoryChanged = true;
-                        break;
-                    }
+                    m_inventoryChanged = true;
+                    break;
                 }
             }
         }
@@ -587,8 +543,8 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
     public void transferStateFrom( TileTurtle copy )
     {
         super.transferStateFrom( copy );
-        m_inventory = copy.m_inventory;
-        m_previousInventory = copy.m_previousInventory;
+        Collections.copy( m_inventory, copy.m_inventory );
+        Collections.copy( m_previousInventory, copy.m_previousInventory );
         m_inventoryChanged = copy.m_inventoryChanged;
         m_brain = copy.m_brain;
         m_brain.setOwner( this );

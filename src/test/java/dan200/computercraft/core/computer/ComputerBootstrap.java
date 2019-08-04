@@ -33,7 +33,7 @@ public class ComputerBootstrap
     {
         MemoryMount mount = new MemoryMount()
             .addFile( "test.lua", program )
-            .addFile( "startup", "assertion.assert(pcall(loadfile('test.lua', _ENV))) os.shutdown()" );
+            .addFile( "startup", "assertion.assert(pcall(loadfile('test.lua', nil, _ENV))) os.shutdown()" );
 
         run( mount, x -> { } );
     }

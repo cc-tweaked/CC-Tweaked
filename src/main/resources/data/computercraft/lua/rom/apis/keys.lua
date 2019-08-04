@@ -8,7 +8,7 @@
 -- taught me anything, it's that emulating LWJGL's weird key handling is nigh-on
 -- impossible.
 
-local expect = _G["~expect"]
+local expect = dofile("rom/modules/main/cc/expect.lua").expect
 
 local tKeys = {}
 tKeys[32] = 'space'

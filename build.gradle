@@ -4,7 +4,7 @@ buildscript {
         mavenCentral()
         maven {
             name = "forge"
-            url = "http://files.minecraftforge.net/maven"
+            url = "https://files.minecraftforge.net/maven"
         }
     }
     dependencies {
@@ -67,7 +67,7 @@ minecraft {
 repositories {
     maven {
         name "JEI"
-        url  "http://dvs1.progwml6.com/files/maven"
+        url "https://dvs1.progwml6.com/files/maven"
     }
     maven {
         name "SquidDev"
@@ -79,7 +79,7 @@ repositories {
     }
     maven {
         name "Amadornes"
-        url "http://maven.amadornes.com/"
+        url "https://maven.amadornes.com/"
     }
 }
 
@@ -102,8 +102,8 @@ dependencies {
 
     shade 'org.squiddev:Cobalt:0.5.0-SNAPSHOT'
 
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.1.0'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.1.0'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.4.2'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.4.2'
 
     deployerJars "org.apache.maven.wagon:wagon-ssh:3.0.0"
 }
@@ -116,6 +116,8 @@ sourceSets {
         }
     }
 }
+
+// Compile tasks
 
 javadoc {
     include "dan200/computercraft/api/**/*.java"
@@ -140,6 +142,14 @@ jar {
 
     from configurations.shade.collect { it.isDirectory() ? it : zipTree(it) }
 }
+
+[compileJava, compileTestJava].forEach {
+    it.configure {
+        options.compilerArgs << "-Xlint" << "-Xlint:-processing" << "-Werror"
+    }
+}
+
+
 
 import java.nio.charset.StandardCharsets
 import java.nio.file.*
@@ -276,7 +286,14 @@ task compressJson(dependsOn: jar) {
 
 assemble.dependsOn compressJson
 
-/* Check tasks */
+// Check tasks
+
+test {
+    useJUnitPlatform()
+    testLogging {
+        events "skipped", "failed"
+    }
+}
 
 license {
     mapping("java", "SLASHSTAR_STYLE")
@@ -300,6 +317,13 @@ license {
     }
 }
 
+gradle.projectsEvaluated {
+    tasks.withType(LicenseFormat) {
+        outputs.upToDateWhen { false }
+    }
+}
+
+
 task licenseAPI(type: LicenseCheck);
 task licenseFormatAPI(type: LicenseFormat);
 [licenseAPI, licenseFormatAPI].forEach {
@@ -310,7 +334,7 @@ task licenseFormatAPI(type: LicenseFormat);
     }
 }
 
-/* Upload tasks */
+// Upload tasks
 
 task checkRelease {
     group "upload"
@@ -441,23 +465,3 @@ task uploadAll(dependsOn: uploadTasks) {
     group "upload"
     description "Uploads to all repositories (Maven, Curse, GitHub release)"
 }
-
-test {
-    useJUnitPlatform()
-    testLogging {
-        events "passed", "skipped", "failed"
-    }
-}
-
-gradle.projectsEvaluated {
-    reobfJar.dependsOn proguardMove
-
-    tasks.withType(JavaCompile) {
-        options.compilerArgs << "-Xlint" << "-Xlint:-processing" // Causes Forge build to fail << "-Werror"
-    }
-
-    tasks.withType(LicenseFormat) {
-        outputs.upToDateWhen { false }
-    }
-}
-

@@ -1,47 +1,18 @@
-local native_select, native_type = select, type
-
---- Expect an argument to have a specific type.
+-- Load in expect from the module path.
 --
--- @tparam int index The 1-based argument index.
--- @param value The argument's value.
--- @tparam string ... The allowed types of the argument.
--- @throws If the value is not one of the allowed types.
-local function expect(index, value, ...)
-    local t = native_type(value)
-    for i = 1, native_select("#", ...) do
-        if t == native_select(i, ...) then return true end
-    end
+-- Ideally we'd use require, but that is part of the shell, and so is not
+-- available to the BIOS or any APIs. All APIs load this using dofile, but that
+-- has not been defined at this point.
+local expect
 
-    local types = table.pack(...)
-    for i = types.n, 1, -1 do
-        if types[i] == "nil" then table.remove(types, i) end
-    end
+do
+    local h = fs.open("rom/modules/main/cc/expect.lua", "r")
+    local f, err = loadstring(h.readAll(), "@expect.lua")
+    h.close()
 
-    local type_names
-    if #types <= 1 then
-        type_names = tostring(...)
-    else
-        type_names = table.concat(types, ", ", 1, #types - 1) .. " or " .. types[#types]
-    end
-
-    -- If we can determine the function name with a high level of confidence, try to include it.
-    local name
-    if native_type(debug) == "table" and native_type(debug.getinfo) == "function" then
-        local ok, info = pcall(debug.getinfo, 3, "nS")
-        if ok and info.name and #info.name ~= "" and info.what ~= "C" then name = info.name end
-    end
-
-    if name then
-        error( ("bad argument #%d to '%s' (expected %s, got %s)"):format(index, name, type_names, t), 3 )
-    else
-        error( ("bad argument #%d (expected %s, got %s)"):format(index, type_names, t), 3 )
-    end
+    if not f then error(err) end
+    expect = f().expect
 end
-
--- We expose expect in the global table as APIs need to access it, but give it
--- a non-identifier name - meaning it does not show up in auto-completion.
--- expect is an internal function, and should not be used by users.
-_G["~expect"] = expect
 
 if _VERSION == "Lua 5.1" then
     -- If we're on Lua 5.1, install parts of the Lua 5.2/5.3 API so that programs can be written against it
@@ -568,23 +539,28 @@ function read( _sReplaceChar, _tHistory, _fnComplete, _sDefault )
     return sLine
 end
 
-function loadfile( _sFile, _tEnv )
-    expect(1, _sFile, "string")
-    expect(2, _tEnv, "table", "nil")
-
-    local file = fs.open( _sFile, "r" )
-    if file then
-        local func, err = load( file.readAll(), "@" .. fs.getName( _sFile ), "t", _tEnv )
-        file.close()
-        return func, err
+function loadfile( filename, mode, env )
+    -- Support the previous `loadfile(filename, env)` form instead.
+    if type(mode) == "table" and env == nil then
+        mode, env = nil, mode
     end
-    return nil, "File not found"
+
+    expect(1, filename, "string")
+    expect(2, mode, "string", "nil")
+    expect(3, env, "table", "nil")
+
+    local file = fs.open( filename, "r" )
+    if not file then return nil, "File not found" end
+
+    local func, err = load( file.readAll(), "@" .. fs.getName( filename ), mode, env )
+    file.close()
+    return func, err
 end
 
 function dofile( _sFile )
     expect(1, _sFile, "string")
 
-    local fnFile, e = loadfile( _sFile, _G )
+    local fnFile, e = loadfile( _sFile, nil, _G )
     if fnFile then
         return fnFile()
     else
@@ -600,7 +576,7 @@ function os.run( _tEnv, _sPath, ... )
     local tArgs = table.pack( ... )
     local tEnv = _tEnv
     setmetatable( tEnv, { __index = _G } )
-    local fnFile, err = loadfile( _sPath, tEnv )
+    local fnFile, err = loadfile( _sPath, nil, tEnv )
     if fnFile then
         local ok, err = pcall( function()
             fnFile( table.unpack( tArgs, 1, tArgs.n ) )
@@ -634,7 +610,7 @@ function os.loadAPI( _sPath )
 
     local tEnv = {}
     setmetatable( tEnv, { __index = _G } )
-    local fnAPI, err = loadfile( _sPath, tEnv )
+    local fnAPI, err = loadfile( _sPath, nil, tEnv )
     if fnAPI then
         local ok, err = pcall( fnAPI )
         if not ok then

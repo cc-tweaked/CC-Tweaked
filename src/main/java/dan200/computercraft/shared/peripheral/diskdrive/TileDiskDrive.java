@@ -320,35 +320,31 @@ public final class TileDiskDrive extends TileGeneric implements DefaultInventory
     }
 
     @Nonnull
-    public ItemStack getDiskStack()
+    ItemStack getDiskStack()
     {
         return getStackInSlot( 0 );
     }
 
-    public void setDiskStack( @Nonnull ItemStack stack )
+    void setDiskStack( @Nonnull ItemStack stack )
     {
         setInventorySlotContents( 0, stack );
     }
 
-    public IMedia getDiskMedia()
+    private IMedia getDiskMedia()
     {
         return MediaProviders.get( getDiskStack() );
     }
 
-    public String getDiskMountPath( IComputerAccess computer )
+    String getDiskMountPath( IComputerAccess computer )
     {
         synchronized( this )
         {
-            if( m_computers.containsKey( computer ) )
-            {
-                MountInfo info = m_computers.get( computer );
-                return info.mountPath;
-            }
+            MountInfo info = m_computers.get( computer );
+            return info != null ? info.mountPath : null;
         }
-        return null;
     }
 
-    public void mount( IComputerAccess computer )
+    void mount( IComputerAccess computer )
     {
         synchronized( this )
         {
@@ -357,7 +353,7 @@ public final class TileDiskDrive extends TileGeneric implements DefaultInventory
         }
     }
 
-    public void unmount( IComputerAccess computer )
+    void unmount( IComputerAccess computer )
     {
         synchronized( this )
         {
@@ -366,7 +362,7 @@ public final class TileDiskDrive extends TileGeneric implements DefaultInventory
         }
     }
 
-    public void playDiskAudio()
+    void playDiskAudio()
     {
         synchronized( this )
         {
@@ -379,7 +375,7 @@ public final class TileDiskDrive extends TileGeneric implements DefaultInventory
         }
     }
 
-    public void stopDiskAudio()
+    void stopDiskAudio()
     {
         synchronized( this )
         {
@@ -388,7 +384,7 @@ public final class TileDiskDrive extends TileGeneric implements DefaultInventory
         }
     }
 
-    public void ejectDisk()
+    void ejectDisk()
     {
         synchronized( this )
         {

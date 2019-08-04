@@ -1,3 +1,20 @@
+New features in CC: Tweaked 1.84.0
+
+* Improve validation in rename, copy and delete programs
+* Add window.getLine - the inverse of blit
+* turtle.refuel no longer consumes more fuel than needed
+* Add "cc.expect" module, for improved argument type checks
+* Mount the ROM from all mod jars, not just CC's
+
+And several bug fixes:
+* Ensure file error messages use the absolute correct path
+* Fix NPE when closing a file multiple times.
+* Do not load chunks when calling writeDescription.
+* Fix the signature of loadfile
+* Fix turtles harvesting blocks multiple times
+* Improve thread-safety of various peripherals
+* Prevent printed pages having massive/malformed titles
+
 # New features in CC: Tweaked 1.83.1
 
 * Add several new MOTD messages (JakobDev)

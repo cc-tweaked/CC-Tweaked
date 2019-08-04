@@ -17,7 +17,8 @@ ignore = {
 -- are largely unsupported.
 include_files = {
     'src/main/resources/assets/computercraft/lua/rom',
-    'src/main/resources/assets/computercraft/lua/bios.lua'
+    'src/main/resources/assets/computercraft/lua/bios.lua',
+    'src/test/resources/test-rom',
 }
 
 files['src/main/resources/assets/computercraft/lua/bios.lua'] = {

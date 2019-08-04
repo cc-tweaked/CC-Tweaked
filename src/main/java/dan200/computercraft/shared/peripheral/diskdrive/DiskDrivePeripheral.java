@@ -11,6 +11,7 @@ import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.media.IMedia;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
+import dan200.computercraft.shared.MediaProviders;
 import dan200.computercraft.shared.media.items.ItemDisk;
 import dan200.computercraft.shared.util.StringUtil;
 import net.minecraft.item.ItemStack;
@@ -19,11 +20,11 @@ import javax.annotation.Nonnull;
 
 import static dan200.computercraft.core.apis.ArgumentHelper.optString;
 
-public class DiskDrivePeripheral implements IPeripheral
+class DiskDrivePeripheral implements IPeripheral
 {
     private final TileDiskDrive m_diskDrive;
 
-    public DiskDrivePeripheral( TileDiskDrive diskDrive )
+    DiskDrivePeripheral( TileDiskDrive diskDrive )
     {
         m_diskDrive = diskDrive;
     }
@@ -55,7 +56,7 @@ public class DiskDrivePeripheral implements IPeripheral
     }
 
     @Override
-    public Object[] callMethod( @Nonnull IComputerAccess computer, @Nonnull ILuaContext context, int method, @Nonnull Object[] arguments ) throws LuaException
+    public Object[] callMethod( @Nonnull IComputerAccess computer, @Nonnull ILuaContext context, int method, @Nonnull Object[] arguments ) throws LuaException, InterruptedException
     {
         switch( method )
         {
@@ -63,21 +64,26 @@ public class DiskDrivePeripheral implements IPeripheral
                 return new Object[] { !m_diskDrive.getDiskStack().isEmpty() };
             case 1: // getDiskLabel
             {
-                IMedia media = m_diskDrive.getDiskMedia();
-                return media == null ? null : new Object[] { media.getLabel( m_diskDrive.getDiskStack() ) };
+                ItemStack stack = m_diskDrive.getDiskStack();
+                IMedia media = MediaProviders.get( stack );
+                return media == null ? null : new Object[] { media.getLabel( stack ) };
             }
             case 2: // setDiskLabel
             {
                 String label = optString( arguments, 0, null );
 
-                IMedia media = m_diskDrive.getDiskMedia();
-                if( media == null ) return null;
+                return context.executeMainThreadTask( () -> {
+                    ItemStack stack = m_diskDrive.getDiskStack();
+                    IMedia media = MediaProviders.get( stack );
+                    if( media == null ) return null;
 
-                ItemStack disk = m_diskDrive.getDiskStack();
-                label = StringUtil.normaliseLabel( label );
-                if( !media.setLabel( disk, label ) ) throw new LuaException( "Disk label cannot be changed" );
-                m_diskDrive.setDiskStack( disk );
-                return null;
+                    if( !media.setLabel( stack, StringUtil.normaliseLabel( label ) ) )
+                    {
+                        throw new LuaException( "Disk label cannot be changed" );
+                    }
+                    m_diskDrive.setDiskStack( stack );
+                    return null;
+                } );
             }
             case 3: // hasData
                 return new Object[] { m_diskDrive.getDiskMountPath( computer ) != null };
@@ -86,14 +92,16 @@ public class DiskDrivePeripheral implements IPeripheral
             case 5:
             {
                 // hasAudio
-                IMedia media = m_diskDrive.getDiskMedia();
-                return new Object[] { media != null && media.getAudio( m_diskDrive.getDiskStack() ) != null };
+                ItemStack stack = m_diskDrive.getDiskStack();
+                IMedia media = MediaProviders.get( stack );
+                return new Object[] { media != null && media.getAudio( stack ) != null };
             }
             case 6:
             {
                 // getAudioTitle
-                IMedia media = m_diskDrive.getDiskMedia();
-                return new Object[] { media != null ? media.getAudioTitle( m_diskDrive.getDiskStack() ) : false };
+                ItemStack stack = m_diskDrive.getDiskStack();
+                IMedia media = MediaProviders.get( stack );
+                return new Object[] { media != null ? media.getAudioTitle( stack ) : false };
             }
             case 7: // playAudio
                 m_diskDrive.playDiskAudio();
@@ -129,8 +137,7 @@ public class DiskDrivePeripheral implements IPeripheral
     @Override
     public boolean equals( IPeripheral other )
     {
-        if( this == other ) return true;
-        return other instanceof DiskDrivePeripheral && ((DiskDrivePeripheral) other).m_diskDrive == m_diskDrive;
+        return this == other || other instanceof DiskDrivePeripheral && ((DiskDrivePeripheral) other).m_diskDrive == m_diskDrive;
     }
 
     @Nonnull

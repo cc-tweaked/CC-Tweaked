@@ -1,4 +1,4 @@
-local expect = _G["~expect"]
+local expect = dofile("rom/modules/main/cc/expect.lua").expect
 
 -- Colors
 white = 1

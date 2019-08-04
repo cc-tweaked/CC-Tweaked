@@ -335,9 +335,11 @@ public class TurtleAPI implements ILuaAPI
                 return tryCommand( context, new TurtleInspectCommand( InteractDirection.Up ) );
             case 40: // inspectDown
                 return tryCommand( context, new TurtleInspectCommand( InteractDirection.Down ) );
-            case 41:
+            case 41: // getItemDetail
             {
-                // getItemDetail
+                // FIXME: There's a race condition here if the stack is being modified (mutating NBT, etc...)
+                //  on another thread. The obvious solution is to move this into a command, but some programs rely
+                //  on this having a 0-tick delay.
                 int slot = parseOptionalSlotNumber( args, 0, m_turtle.getSelectedSlot() );
                 ItemStack stack = m_turtle.getInventory().getStackInSlot( slot );
                 if( stack.isEmpty() ) return new Object[] { null };
