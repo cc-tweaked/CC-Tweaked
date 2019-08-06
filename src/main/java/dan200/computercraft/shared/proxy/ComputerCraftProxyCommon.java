@@ -34,11 +34,11 @@ import net.minecraft.tileentity.CommandBlockTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.storage.loot.conditions.LootConditionManager;
+import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.player.PlayerContainerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.server.FMLServerStartedEvent;
 import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
@@ -146,7 +146,7 @@ public final class ComputerCraftProxyCommon
                 IComputer computer = ((IContainerComputer) container).getComputer();
                 if( computer instanceof ServerComputer )
                 {
-                    ((ServerComputer) computer).sendTerminalState( event.getEntityPlayer() );
+                    ((ServerComputer) computer).sendTerminalState( event.getPlayer() );
                 }
             }
         }
