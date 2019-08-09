@@ -19,7 +19,7 @@ apply plugin: 'maven'
 version = mod_version
 
 group = "org.squiddev"
-archivesBaseName = "cc-tweaked-${mc_version}"
+archivesBaseName = "cc-t-fabric-${mc_version}"
 
 minecraft {
 }
@@ -84,11 +84,11 @@ jar {
 
     manifest {
         attributes(["Specification-Title": "computercraft",
-                    "Specification-Vendor": "SquidDev",
+                    "Specification-Vendor": "parly",
                     "Specification-Version": "25.0",
-                    "Implementation-Title": "CC: Tweaked",
+                    "Implementation-Title": "CC:T for Fabric",
                     "Implementation-Version": "${mod_version}",
-                    "Implementation-Vendor" :"SquidDev",
+                    "Implementation-Vendor" :"parly",
                     "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")])
     }
 
@@ -247,7 +247,7 @@ task checkRelease {
 
         // Check we're targetting the current version
         def whatsnew = new File("src/main/resources/data/computercraft/lua/rom/help/whatsnew.txt").readLines()
-        if (whatsnew[0] != "New features in CC: Tweaked $mod_version") {
+        if (whatsnew[0] != "New features in CC:T for Fabric $mod_version") {
             ok = false
             project.logger.error("Expected `whatsnew.txt' to target $mod_version.")
         }

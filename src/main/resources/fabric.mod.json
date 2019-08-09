@@ -2,19 +2,20 @@
     "schemaVersion": 1,
 
     "id": "computercraft",
-    "name": "CC: Tweaked",
+    "name": "CC:T for Fabric",
     "version": "${version}",
-    "description": "CC: Tweaked is a fork of ComputerCraft, adding programmable computers, turtles and more to Minecraft.",
+    "description": "A fork of CC: Tweaked for use with the latest Fabric.",
     "license": "ComputerCraft Public License",
     "icon": "assets/computercraft/pack.png",
     "contact": {
-        "homepage": "https://github.com/SquidDev-CC/CC-Tweaked",
-        "issues": "https://github.com/SquidDev-CC/CC-Tweaked/issues"
+        "homepage": "https://github.com/mystiacraft/cc-tweaked-fabric",
+        "issues": "https://github.com/mystiacraft/cc-tweaked-fabric/issues"
     },
     "authors": [
         "Daniel Ratcliffe",
         "Aaron Mills",
-        "SquidDev"
+        "SquidDev",
+        "parly"
     ],
     "requires": {
         "fabricloader": ">=0.4.0",
