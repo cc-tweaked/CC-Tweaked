@@ -41,15 +41,15 @@ import java.util.EnumMap;
 
 public class BlockCable extends BlockGeneric implements WaterloggableBlock
 {
-    public static final EnumProperty<CableModemVariant> MODEM = EnumProperty.create( "modem", CableModemVariant.class );
-    public static final BooleanProperty CABLE = BooleanProperty.create( "cable" );
+    public static final EnumProperty<CableModemVariant> MODEM = EnumProperty.of( "modem", CableModemVariant.class );
+    public static final BooleanProperty CABLE = BooleanProperty.of( "cable" );
 
-    private static final BooleanProperty NORTH = BooleanProperty.create( "north" );
-    private static final BooleanProperty SOUTH = BooleanProperty.create( "south" );
-    private static final BooleanProperty EAST = BooleanProperty.create( "east" );
-    private static final BooleanProperty WEST = BooleanProperty.create( "west" );
-    private static final BooleanProperty UP = BooleanProperty.create( "up" );
-    private static final BooleanProperty DOWN = BooleanProperty.create( "down" );
+    private static final BooleanProperty NORTH = BooleanProperty.of( "north" );
+    private static final BooleanProperty SOUTH = BooleanProperty.of( "south" );
+    private static final BooleanProperty EAST = BooleanProperty.of( "east" );
+    private static final BooleanProperty WEST = BooleanProperty.of( "west" );
+    private static final BooleanProperty UP = BooleanProperty.of( "up" );
+    private static final BooleanProperty DOWN = BooleanProperty.of( "down" );
 
     static final EnumMap<Direction, BooleanProperty> CONNECTIONS =
         new EnumMap<>( new ImmutableMap.Builder<Direction, BooleanProperty>()
@@ -217,7 +217,7 @@ public class BlockCable extends BlockGeneric implements WaterloggableBlock
         BlockState state = getDefaultState()
             .with( WATERLOGGED, getWaterloggedStateForPlacement( context ) );
 
-        if( context.getItemStack().getItem() instanceof ItemBlockCable.Cable )
+        if( context.getStack().getItem() instanceof ItemBlockCable.Cable )
         {
             World world = context.getWorld();
             BlockPos pos = context.getBlockPos();
@@ -225,7 +225,7 @@ public class BlockCable extends BlockGeneric implements WaterloggableBlock
         }
         else
         {
-            return state.with( MODEM, CableModemVariant.from( context.getFacing().getOpposite() ) );
+            return state.with( MODEM, CableModemVariant.from( context.getSide().getOpposite() ) );
         }
     }
 

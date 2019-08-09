@@ -14,8 +14,8 @@ import net.minecraft.state.property.BooleanProperty;
 
 public class BlockWiredModemFull extends BlockGeneric
 {
-    public static final BooleanProperty MODEM_ON = BooleanProperty.create( "modem" );
-    public static final BooleanProperty PERIPHERAL_ON = BooleanProperty.create( "peripheral" );
+    public static final BooleanProperty MODEM_ON = BooleanProperty.of( "modem" );
+    public static final BooleanProperty PERIPHERAL_ON = BooleanProperty.of( "peripheral" );
 
     public BlockWiredModemFull( Settings settings )
     {

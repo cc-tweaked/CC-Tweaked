@@ -26,9 +26,9 @@ import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.sound.SoundEvent;
+import net.minecraft.text.LiteralText;
+import net.minecraft.text.Text;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Nameable;
@@ -60,7 +60,7 @@ public final class TileDiskDrive extends TileGeneric implements DefaultInventory
         String mountPath;
     }
 
-    Component customName;
+    Text customName;
 
     private final Map<IComputerAccess, MountInfo> m_computers = new HashMap<>();
 
@@ -116,7 +116,7 @@ public final class TileDiskDrive extends TileGeneric implements DefaultInventory
     public void fromTag( CompoundTag nbt )
     {
         super.fromTag( nbt );
-        customName = nbt.containsKey( NBT_NAME ) ? TextComponent.Serializer.fromJsonString( nbt.getString( NBT_NAME ) ) : null;
+        customName = nbt.containsKey( NBT_NAME ) ? LiteralText.Serializer.fromJson( nbt.getString( NBT_NAME ) ) : null;
         if( nbt.containsKey( NBT_ITEM ) )
         {
             CompoundTag item = nbt.getCompound( NBT_ITEM );
@@ -129,7 +129,7 @@ public final class TileDiskDrive extends TileGeneric implements DefaultInventory
     @Override
     public CompoundTag toTag( CompoundTag nbt )
     {
-        if( customName != null ) nbt.putString( NBT_NAME, TextComponent.Serializer.toJsonString( customName ) );
+        if( customName != null ) nbt.putString( NBT_NAME, LiteralText.Serializer.toJson( customName ) );
 
         if( !m_diskStack.isEmpty() )
         {
@@ -216,7 +216,7 @@ public final class TileDiskDrive extends TileGeneric implements DefaultInventory
     {
         if( m_diskStack.isEmpty() ) return ItemStack.EMPTY;
 
-        if( m_diskStack.getAmount() <= count )
+        if( m_diskStack.getCount() <= count )
         {
             ItemStack disk = m_diskStack;
             setInvStack( slot, ItemStack.EMPTY );
@@ -496,7 +496,7 @@ public final class TileDiskDrive extends TileGeneric implements DefaultInventory
     protected void readDescription( @Nonnull CompoundTag nbt )
     {
         super.readDescription( nbt );
-        customName = nbt.containsKey( NBT_NAME ) ? TextComponent.Serializer.fromJsonString( nbt.getString( NBT_NAME ) ) : null;
+        customName = nbt.containsKey( NBT_NAME ) ? LiteralText.Serializer.fromJson( nbt.getString( NBT_NAME ) ) : null;
         m_diskStack = nbt.containsKey( NBT_ITEM ) ? ItemStack.fromTag( nbt.getCompound( NBT_ITEM ) ) : ItemStack.EMPTY;
         updateBlock();
     }
@@ -505,7 +505,7 @@ public final class TileDiskDrive extends TileGeneric implements DefaultInventory
     protected void writeDescription( @Nonnull CompoundTag nbt )
     {
         super.writeDescription( nbt );
-        if( customName != null ) nbt.putString( NBT_NAME, TextComponent.Serializer.toJsonString( customName ) );
+        if( customName != null ) nbt.putString( NBT_NAME, LiteralText.Serializer.toJson( customName ) );
         if( !m_diskStack.isEmpty() )
         {
             CompoundTag item = new CompoundTag();
@@ -543,15 +543,15 @@ public final class TileDiskDrive extends TileGeneric implements DefaultInventory
 
     @Nullable
     @Override
-    public Component getCustomName()
+    public Text getCustomName()
     {
         return customName;
     }
 
     @Nonnull
     @Override
-    public Component getName()
+    public Text getName()
     {
-        return customName != null ? customName : getCachedState().getBlock().getTextComponent();
+        return customName != null ? customName : getCachedState().getBlock().getName();
     }
 }

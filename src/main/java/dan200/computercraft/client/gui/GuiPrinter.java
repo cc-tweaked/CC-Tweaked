@@ -20,13 +20,13 @@ public class GuiPrinter extends AbstractContainerScreen<ContainerPrinter>
 
     public GuiPrinter( ContainerPrinter container, PlayerInventory player )
     {
-        super( container, player, ComputerCraft.Blocks.printer.getTextComponent() );
+        super( container, player, ComputerCraft.Blocks.printer.getName() );
     }
 
     @Override
     protected void drawForeground( int mouseX, int mouseY )
     {
-        String title = getTitle().getFormattedText();
+        String title = getTitle().asFormattedString();
         font.draw( title, (containerWidth - font.getStringWidth( title )) / 2.0f, 6, 0x404040 );
         font.draw( I18n.translate( "container.inventory" ), 8, containerHeight - 96 + 2, 0x404040 );
     }

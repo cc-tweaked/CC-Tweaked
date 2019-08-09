@@ -60,7 +60,7 @@ public abstract class ComputerFamilyRecipe extends ComputerConvertRecipe
             int height = buf.readVarInt();
             String group = buf.readString( Short.MAX_VALUE );
 
-            DefaultedList<Ingredient> ingredients = DefaultedList.create( width * height, Ingredient.EMPTY );
+            DefaultedList<Ingredient> ingredients = DefaultedList.ofSize( width * height, Ingredient.EMPTY );
             for( int i = 0; i < ingredients.size(); i++ ) ingredients.set( i, Ingredient.fromPacket( buf ) );
 
             ItemStack result = buf.readItemStack();

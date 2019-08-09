@@ -9,7 +9,7 @@ package dan200.computercraft.shared.command;
 import com.mojang.brigadier.exceptions.Dynamic2CommandExceptionType;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.text.TranslatableText;
 
 public final class Exceptions
 {
@@ -28,16 +28,16 @@ public final class Exceptions
 
     private static SimpleCommandExceptionType translated( String key )
     {
-        return new SimpleCommandExceptionType( new TranslatableComponent( key ) );
+        return new SimpleCommandExceptionType( new TranslatableText( key ) );
     }
 
     private static DynamicCommandExceptionType translated1( String key )
     {
-        return new DynamicCommandExceptionType( x -> new TranslatableComponent( key, x ) );
+        return new DynamicCommandExceptionType( x -> new TranslatableText( key, x ) );
     }
 
     private static Dynamic2CommandExceptionType translated2( String key )
     {
-        return new Dynamic2CommandExceptionType( ( x, y ) -> new TranslatableComponent( key, x, y ) );
+        return new Dynamic2CommandExceptionType( ( x, y ) -> new TranslatableText( key, x, y ) );
     }
 }

@@ -13,16 +13,17 @@ import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.util.NamedBlockEntityType;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.CommandOutput;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.text.LiteralText;
+import net.minecraft.text.Text;
+import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec2f;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.GameRules;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -54,15 +55,15 @@ public class TileCommandComputer extends TileComputer
         }
 
         @Override
-        public void sendMessage( Component textComponent )
+        public void sendMessage( Text textComponent )
         {
-            output.put( output.size() + 1, textComponent.getText() );
+            output.put( output.size() + 1, textComponent.asString() );
         }
 
         @Override
         public boolean sendCommandFeedback()
         {
-            return getWorld().getGameRules().getBoolean( "sendCommandFeedback" );
+            return getWorld().getGameRules().getBoolean( GameRules.SEND_COMMAND_FEEDBACK );
         }
 
         @Override
@@ -74,7 +75,7 @@ public class TileCommandComputer extends TileComputer
         @Override
         public boolean shouldBroadcastConsoleToOps()
         {
-            return getWorld().getGameRules().getBoolean( "commandBlockOutput" );
+            return getWorld().getGameRules().getBoolean( GameRules.COMMAND_BLOCK_OUTPUT );
         }
     }
 
@@ -104,7 +105,7 @@ public class TileCommandComputer extends TileComputer
         return new ServerCommandSource( receiver,
             new Vec3d( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5 ), Vec2f.ZERO,
             (ServerWorld) getWorld(), 2,
-            name, new TextComponent( name ),
+            name, new LiteralText( name ),
             getWorld().getServer(), null
         );
     }
@@ -123,12 +124,12 @@ public class TileCommandComputer extends TileComputer
         MinecraftServer server = player.getServer();
         if( server == null || !server.areCommandBlocksEnabled() )
         {
-            player.addChatMessage( new TranslatableComponent( "advMode.notEnabled" ), true );
+            player.addChatMessage( new TranslatableText( "advMode.notEnabled" ), true );
             return false;
         }
         else if( !player.isCreativeLevelTwoOp() )
         {
-            player.addChatMessage( new TranslatableComponent( "advMode.notAllowed" ), true );
+            player.addChatMessage( new TranslatableText( "advMode.notAllowed" ), true );
             return false;
         }
         else

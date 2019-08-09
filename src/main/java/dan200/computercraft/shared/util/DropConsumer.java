@@ -10,7 +10,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BoundingBox;
+import net.minecraft.util.math.Box;
 import net.minecraft.world.World;
 
 import java.lang.ref.WeakReference;
@@ -28,7 +28,7 @@ public final class DropConsumer
     private static List<ItemStack> remainingDrops;
     private static WeakReference<World> dropWorld;
     private static BlockPos dropPos;
-    private static BoundingBox dropBounds;
+    private static Box dropBounds;
     private static WeakReference<Entity> dropEntity;
 
     public static void set( Entity entity, Function<ItemStack, ItemStack> consumer )
@@ -38,7 +38,7 @@ public final class DropConsumer
         dropEntity = new WeakReference<>( entity );
         dropWorld = new WeakReference<>( entity.world );
         dropPos = null;
-        dropBounds = new BoundingBox( entity.getBlockPos() ).expand( 2, 2, 2 );
+        dropBounds = new Box( entity.getBlockPos() ).expand( 2, 2, 2 );
 
         // entity.captureDrops( new ArrayList<>() );
     }
@@ -50,7 +50,7 @@ public final class DropConsumer
         dropEntity = null;
         dropWorld = new WeakReference<>( world );
         dropPos = pos;
-        dropBounds = new BoundingBox( pos ).expand( 2, 2, 2 );
+        dropBounds = new Box( pos ).expand( 2, 2, 2 );
     }
 
     public static List<ItemStack> clear()

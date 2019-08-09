@@ -25,9 +25,9 @@ import javax.annotation.Nullable;
 
 public class BlockPrinter extends BlockGeneric
 {
-    private static final DirectionProperty FACING = Properties.FACING_HORIZONTAL;
-    static final BooleanProperty TOP = BooleanProperty.create( "top" );
-    static final BooleanProperty BOTTOM = BooleanProperty.create( "bottom" );
+    private static final DirectionProperty FACING = Properties.HORIZONTAL_FACING;
+    static final BooleanProperty TOP = BooleanProperty.of( "top" );
+    static final BooleanProperty BOTTOM = BooleanProperty.of( "bottom" );
 
     public BlockPrinter( Settings settings )
     {
@@ -49,16 +49,16 @@ public class BlockPrinter extends BlockGeneric
     @Override
     public BlockState getPlacementState( ItemPlacementContext placement )
     {
-        return getDefaultState().with( FACING, placement.getPlayerHorizontalFacing().getOpposite() );
+        return getDefaultState().with( FACING, placement.getPlayerFacing().getOpposite() );
     }
 
     @Override
     public void onPlaced( World world, BlockPos pos, BlockState state, LivingEntity placer, ItemStack stack )
     {
-        if( stack.hasDisplayName() )
+        if( stack.hasCustomName() )
         {
             BlockEntity tileentity = world.getBlockEntity( pos );
-            if( tileentity instanceof TilePrinter ) ((TilePrinter) tileentity).customName = stack.getDisplayName();
+            if( tileentity instanceof TilePrinter ) ((TilePrinter) tileentity).customName = stack.getName();
         }
     }
 }

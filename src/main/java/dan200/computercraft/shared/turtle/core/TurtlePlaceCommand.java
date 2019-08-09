@@ -21,7 +21,7 @@ import net.minecraft.block.entity.SignBlockEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.*;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.text.LiteralText;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.TypedActionResult;
@@ -253,7 +253,7 @@ public class TurtlePlaceCommand implements ITurtleCommand
                 }
                 else if( hitEntity instanceof LivingEntity )
                 {
-                    placed = stackCopy.interactWithEntity( turtlePlayer, (LivingEntity) hitEntity, Hand.MAIN_HAND );
+                    placed = stackCopy.useOnEntity( turtlePlayer, (LivingEntity) hitEntity, Hand.MAIN_HAND );
                     if( placed ) turtlePlayer.loadInventory( stackCopy );
                 }
             }
@@ -268,7 +268,7 @@ public class TurtlePlaceCommand implements ITurtleCommand
 
         // Put everything we collected into the turtles inventory, then return
         ItemStack remainder = turtlePlayer.unloadInventory( turtle );
-        if( !placed && ItemStack.areEqual( stack, remainder ) )
+        if( !placed && ItemStack.areEqualIgnoreDamage( stack, remainder ) )
         {
             return stack;
         }
@@ -286,7 +286,7 @@ public class TurtlePlaceCommand implements ITurtleCommand
     {
         World world = turtle.getWorld();
         if( !World.isValid( position ) || world.isAir( position ) ||
-            (context.getItemStack().getItem() instanceof BlockItem && WorldUtil.isLiquidBlock( world, position )) )
+            (context.getStack().getItem() instanceof BlockItem && WorldUtil.isLiquidBlock( world, position )) )
         {
             return false;
         }
@@ -375,7 +375,7 @@ public class TurtlePlaceCommand implements ITurtleCommand
             else if( actionResult == null )
             {
                 TypedActionResult<ItemStack> result = stackCopy.use( turtle.getWorld(), turtlePlayer, Hand.MAIN_HAND );
-                if( result.getResult() == ActionResult.SUCCESS && !ItemStack.areEqual( stack, result.getValue() ) )
+                if( result.getResult() == ActionResult.SUCCESS && !ItemStack.areEqualIgnoreDamage( stack, result.getValue() ) )
                 {
                     placed = true;
                     turtlePlayer.loadInventory( result.getValue() );
@@ -406,27 +406,27 @@ public class TurtlePlaceCommand implements ITurtleCommand
                         {
                             if( split[i - firstLine].length() > 15 )
                             {
-                                signTile.text[i] = new TextComponent( split[i - firstLine].substring( 0, 15 ) );
+                                signTile.text[i] = new LiteralText( split[i - firstLine].substring( 0, 15 ) );
                             }
                             else
                             {
-                                signTile.text[i] = new TextComponent( split[i - firstLine] );
+                                signTile.text[i] = new LiteralText( split[i - firstLine] );
                             }
                         }
                         else
                         {
-                            signTile.text[i] = new TextComponent( "" );
+                            signTile.text[i] = new LiteralText( "" );
                         }
                     }
                     signTile.markDirty();
-                    world.scheduleBlockRender( signTile.getPos() ); // TODO: This doesn't do anything!
+                    world.updateListeners( tile.getPos(), tile.getCachedState(), tile.getCachedState(), 3 );
                 }
             }
         }
 
         // Put everything we collected into the turtles inventory, then return
         ItemStack remainder = turtlePlayer.unloadInventory( turtle );
-        if( !placed && ItemStack.areEqual( stack, remainder ) )
+        if( !placed && ItemStack.areEqualIgnoreDamage( stack, remainder ) )
         {
             return stack;
         }

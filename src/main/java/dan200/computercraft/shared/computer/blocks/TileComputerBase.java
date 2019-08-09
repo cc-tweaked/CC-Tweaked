@@ -28,8 +28,8 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.text.LiteralText;
+import net.minecraft.text.Text;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Nameable;
 import net.minecraft.util.Tickable;
@@ -109,13 +109,13 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
     public boolean onActivate( PlayerEntity player, Hand hand, BlockHitResult hit )
     {
         ItemStack currentItem = player.getStackInHand( hand );
-        if( !currentItem.isEmpty() && currentItem.getItem() == Items.NAME_TAG && canNameWithTag( player ) && currentItem.hasDisplayName() )
+        if( !currentItem.isEmpty() && currentItem.getItem() == Items.NAME_TAG && canNameWithTag( player ) && currentItem.hasCustomName() )
         {
             // Label to rename computer
             if( !getWorld().isClient )
             {
-                setLabel( currentItem.getDisplayName().getText() );
-                currentItem.subtractAmount( 1 );
+                setLabel( currentItem.getName().asString() );
+                currentItem.decrement( 1 );
             }
             return true;
         }
@@ -439,9 +439,9 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
 
     @Nonnull
     @Override
-    public Component getName()
+    public Text getName()
     {
-        return hasCustomName() ? new TextComponent( m_label ) : getCachedState().getBlock().getTextComponent();
+        return hasCustomName() ? new LiteralText( m_label ) : getCachedState().getBlock().getName();
     }
 
     @Override
@@ -452,8 +452,8 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
 
     @Nullable
     @Override
-    public Component getCustomName()
+    public Text getCustomName()
     {
-        return hasCustomName() ? new TextComponent( m_label ) : null;
+        return hasCustomName() ? new LiteralText( m_label ) : null;
     }
 }

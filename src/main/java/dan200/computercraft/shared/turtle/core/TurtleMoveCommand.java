@@ -20,7 +20,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.predicate.entity.EntityPredicates;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BoundingBox;
+import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.World;
@@ -68,7 +68,7 @@ public class TurtleMoveCommand implements ITurtleCommand
         }
 
         // Check there isn't anything in the way
-        BoundingBox aabb = getBox( state.getCollisionShape( oldWorld, oldPosition ) );
+        Box aabb = getBox( state.getCollisionShape( oldWorld, oldPosition ) );
         aabb = aabb.offset(
             newPosition.getX(),
             newPosition.getY(),
@@ -85,10 +85,10 @@ public class TurtleMoveCommand implements ITurtleCommand
             List<Entity> list = oldWorld.getEntities( (Entity) null, aabb, EntityPredicates.VALID_ENTITY );
             for( Entity entity : list )
             {
-                BoundingBox entityBB = entity.getBoundingBox();
+                Box entityBB = entity.getBoundingBox();
                 if( entityBB == null ) continue;
 
-                BoundingBox pushedBB = entityBB.offset(
+                Box pushedBB = entityBB.offset(
                     direction.getOffsetX(),
                     direction.getOffsetY(),
                     direction.getOffsetZ()
@@ -164,10 +164,10 @@ public class TurtleMoveCommand implements ITurtleCommand
         return TurtleCommandResult.success();
     }
 
-    private static BoundingBox getBox( VoxelShape shape )
+    private static Box getBox( VoxelShape shape )
     {
         return shape.isEmpty() ? EMPTY_BOX : shape.getBoundingBox();
     }
 
-    private static final BoundingBox EMPTY_BOX = new BoundingBox( 0, 0, 0, 0, 0, 0 );
+    private static final Box EMPTY_BOX = new Box( 0, 0, 0, 0, 0, 0 );
 }

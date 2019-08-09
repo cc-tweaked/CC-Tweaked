@@ -74,7 +74,7 @@ public final class RecipeUtil
 
         int width = pattern[0].length();
         int height = pattern.length;
-        DefaultedList<Ingredient> ingredients = DefaultedList.create( width * height, Ingredient.EMPTY );
+        DefaultedList<Ingredient> ingredients = DefaultedList.ofSize( width * height, Ingredient.EMPTY );
 
         Set<Character> missingKeys = Sets.newHashSet( ingMap.keySet() );
         missingKeys.remove( ' ' );
@@ -104,7 +104,7 @@ public final class RecipeUtil
 
     public static DefaultedList<Ingredient> getIngredients( JsonObject json )
     {
-        DefaultedList<Ingredient> ingredients = DefaultedList.create();
+        DefaultedList<Ingredient> ingredients = DefaultedList.of();
         for( JsonElement ele : JsonHelper.getArray( json, "ingredients" ) )
         {
             ingredients.add( Ingredient.fromJson( ele ) );

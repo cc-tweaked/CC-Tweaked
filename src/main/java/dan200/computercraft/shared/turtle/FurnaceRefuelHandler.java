@@ -31,7 +31,7 @@ public final class FurnaceRefuelHandler implements TurtleRefuelEvent.Handler
     {
         ItemStorage storage = ItemStorage.wrap( turtle.getInventory() );
         ItemStack stack = storage.take( slot, limit, ItemStack.EMPTY, false );
-        int fuelToGive = getFuelPerItem( stack ) * stack.getAmount();
+        int fuelToGive = getFuelPerItem( stack ) * stack.getCount();
 
         // Store the replacement item in the inventory
         Item replacementStack = stack.getItem().getRecipeRemainder();

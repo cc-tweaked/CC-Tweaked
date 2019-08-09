@@ -32,7 +32,7 @@ import javax.annotation.Nullable;
 public class BlockWirelessModem extends BlockGeneric implements WaterloggableBlock
 {
     public static final DirectionProperty FACING = Properties.FACING;
-    public static final BooleanProperty ON = BooleanProperty.create( "on" );
+    public static final BooleanProperty ON = BooleanProperty.of( "on" );
 
     public BlockWirelessModem( Settings settings, NamedBlockEntityType<? extends TileWirelessModem> type )
     {
@@ -91,7 +91,7 @@ public class BlockWirelessModem extends BlockGeneric implements WaterloggableBlo
     public BlockState getPlacementState( ItemPlacementContext placement )
     {
         return getDefaultState()
-            .with( FACING, placement.getFacing().getOpposite() )
+            .with( FACING, placement.getSide().getOpposite() )
             .with( WATERLOGGED, getWaterloggedStateForPlacement( placement ) );
     }
 }

@@ -222,14 +222,14 @@ public class TurtleAPI implements ILuaAPI
                 // getItemCount
                 int slot = parseOptionalSlotNumber( args, 0, m_turtle.getSelectedSlot() );
                 ItemStack stack = m_turtle.getInventory().getInvStack( slot );
-                return new Object[] { stack.getAmount() };
+                return new Object[] { stack.getCount() };
             }
             case 15:
             {
                 // getItemSpace
                 int slot = parseOptionalSlotNumber( args, 0, m_turtle.getSelectedSlot() );
                 ItemStack stack = m_turtle.getInventory().getInvStack( slot );
-                return new Object[] { stack.isEmpty() ? 64 : Math.min( stack.getMaxAmount(), 64 ) - stack.getAmount() };
+                return new Object[] { stack.isEmpty() ? 64 : Math.min( stack.getMaxCount(), 64 ) - stack.getCount() };
             }
             case 16: // detect
                 return tryCommand( context, new TurtleDetectCommand( InteractDirection.Forward ) );
@@ -346,7 +346,7 @@ public class TurtleAPI implements ILuaAPI
 
                 Item item = stack.getItem();
                 String name = Registry.ITEM.getId( item ).toString();
-                int count = stack.getAmount();
+                int count = stack.getCount();
 
                 Map<String, Object> table = new HashMap<>();
                 table.put( "name", name );

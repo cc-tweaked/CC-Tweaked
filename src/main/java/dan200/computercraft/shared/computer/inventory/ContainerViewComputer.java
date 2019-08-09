@@ -10,8 +10,8 @@ import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.computer.core.*;
 import net.minecraft.container.Container;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.text.TranslatableText;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -53,12 +53,12 @@ public class ContainerViewComputer extends Container implements IContainerComput
                 MinecraftServer server = player.getServer();
                 if( server == null || !server.areCommandBlocksEnabled() )
                 {
-                    player.addChatMessage( new TranslatableComponent( "advMode.notEnabled" ), false );
+                    player.addChatMessage( new TranslatableText( "advMode.notEnabled" ), false );
                     return false;
                 }
                 else if( !player.isCreativeLevelTwoOp() )
                 {
-                    player.addChatMessage( new TranslatableComponent( "advMode.notAllowed" ), false );
+                    player.addChatMessage( new TranslatableText( "advMode.notAllowed" ), false );
                     return false;
                 }
             }

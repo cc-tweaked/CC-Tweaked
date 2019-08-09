@@ -129,7 +129,7 @@ public class ContainerTurtle extends Container implements IContainerComputer
                 slot.markDirty();
             }
 
-            if( clickedStack.getAmount() != originalStack.getAmount() )
+            if( clickedStack.getCount() != originalStack.getCount() )
             {
                 slot.onTakeItem( player, clickedStack );
             }

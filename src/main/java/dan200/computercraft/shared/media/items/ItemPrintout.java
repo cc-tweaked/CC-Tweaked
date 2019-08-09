@@ -13,8 +13,8 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.text.LiteralText;
+import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.TypedActionResult;
@@ -50,10 +50,10 @@ public class ItemPrintout extends Item
     }
 
     @Override
-    public void buildTooltip( @Nonnull ItemStack stack, World world, List<Component> list, TooltipContext options )
+    public void appendTooltip( @Nonnull ItemStack stack, World world, List<Text> list, TooltipContext options )
     {
         String title = getTitle( stack );
-        if( title != null && !title.isEmpty() ) list.add( new TextComponent( title ) );
+        if( title != null && !title.isEmpty() ) list.add( new LiteralText( title ) );
     }
 
     @Override

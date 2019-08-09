@@ -26,7 +26,7 @@ public class GuiPrintout extends AbstractContainerScreen<ContainerHeldItem>
 
     public GuiPrintout( ContainerHeldItem container, PlayerInventory player )
     {
-        super( container, player, container.getStack().getDisplayName() );
+        super( container, player, container.getStack().getName() );
 
         containerHeight = Y_SIZE;
 

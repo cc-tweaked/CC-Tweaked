@@ -71,10 +71,10 @@ public interface ItemStorage
             if( simulate )
             {
                 existing = existing.copy();
-                if( existing.getAmount() > limit ) existing.setAmount( limit );
+                if( existing.getCount() > limit ) existing.setCount( limit );
                 return existing;
             }
-            else if( existing.getAmount() < limit )
+            else if( existing.getCount() < limit )
             {
                 setAndDirty( slot, ItemStack.EMPTY );
                 return existing;
@@ -96,10 +96,10 @@ public interface ItemStorage
             ItemStack existing = inventory.getInvStack( slot );
             if( existing.isEmpty() )
             {
-                int limit = Math.min( stack.getMaxAmount(), inventory.getInvMaxStackAmount() );
+                int limit = Math.min( stack.getMaxCount(), inventory.getInvMaxStackAmount() );
                 if( limit <= 0 ) return stack;
 
-                if( stack.getAmount() < limit )
+                if( stack.getCount() < limit )
                 {
                     if( !simulate ) setAndDirty( slot, stack );
                     return ItemStack.EMPTY;
@@ -114,14 +114,14 @@ public interface ItemStorage
             }
             else if( areStackable( stack, existing ) )
             {
-                int limit = Math.min( existing.getMaxAmount(), inventory.getInvMaxStackAmount() ) - existing.getAmount();
+                int limit = Math.min( existing.getMaxCount(), inventory.getInvMaxStackAmount() ) - existing.getCount();
                 if( limit <= 0 ) return stack;
 
-                if( stack.getAmount() < limit )
+                if( stack.getCount() < limit )
                 {
                     if( !simulate )
                     {
-                        existing.addAmount( stack.getAmount() );
+                        existing.increment( stack.getCount() );
                         setAndDirty( slot, existing );
                     }
                     return ItemStack.EMPTY;
@@ -129,10 +129,10 @@ public interface ItemStorage
                 else
                 {
                     stack = stack.copy();
-                    stack.subtractAmount( limit );
+                    stack.decrement( limit );
                     if( !simulate )
                     {
-                        existing.addAmount( limit );
+                        existing.increment( limit );
                         setAndDirty( slot, existing );
                     }
                     return stack;

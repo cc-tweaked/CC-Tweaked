@@ -13,10 +13,10 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.tree.CommandNode;
 import com.mojang.brigadier.tree.LiteralCommandNode;
-import net.minecraft.ChatFormat;
-import net.minecraft.network.chat.ClickEvent;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.text.ClickEvent;
+import net.minecraft.text.LiteralText;
+import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 import net.minecraft.server.command.ServerCommandSource;
 
 import javax.annotation.Nonnull;
@@ -133,9 +133,9 @@ public final class HelpingArgumentBuilder extends LiteralArgumentBuilder<ServerC
         return node;
     }
 
-    private static final ChatFormat HEADER = ChatFormat.LIGHT_PURPLE;
-    private static final ChatFormat SYNOPSIS = ChatFormat.AQUA;
-    private static final ChatFormat NAME = ChatFormat.GREEN;
+    private static final Formatting HEADER = Formatting.LIGHT_PURPLE;
+    private static final Formatting SYNOPSIS = Formatting.AQUA;
+    private static final Formatting NAME = Formatting.GREEN;
 
     private static final class HelpCommand implements Command<ServerCommandSource>
     {
@@ -165,7 +165,7 @@ public final class HelpingArgumentBuilder extends LiteralArgumentBuilder<ServerC
         };
     }
 
-    private static Component getHelp( CommandContext<ServerCommandSource> context, CommandNode<ServerCommandSource> node, String id, String command )
+    private static Text getHelp( CommandContext<ServerCommandSource> context, CommandNode<ServerCommandSource> node, String id, String command )
     {
         // An ugly hack to extract usage information from the dispatcher. We generate a temporary node, generate
         // the shorthand usage, and emit that.
@@ -174,7 +174,7 @@ public final class HelpingArgumentBuilder extends LiteralArgumentBuilder<ServerC
         temp.addChild( node );
         String usage = dispatcher.getSmartUsage( temp, context.getSource() ).get( node ).substring( node.getName().length() );
 
-        Component output = new TextComponent( "" )
+        Text output = new LiteralText( "" )
             .append( coloured( "/" + command + usage, HEADER ) )
             .append( " " )
             .append( coloured( translate( "commands." + id + ".synopsis" ), SYNOPSIS ) )
@@ -190,7 +190,7 @@ public final class HelpingArgumentBuilder extends LiteralArgumentBuilder<ServerC
 
             output.append( "\n" );
 
-            Component component = coloured( child.getName(), NAME );
+            Text component = coloured( child.getName(), NAME );
             component.getStyle().setClickEvent( new ClickEvent(
                 ClickEvent.Action.SUGGEST_COMMAND,
                 "/" + command + " " + child.getName()

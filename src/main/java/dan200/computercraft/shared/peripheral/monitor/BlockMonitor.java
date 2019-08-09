@@ -28,12 +28,12 @@ import javax.annotation.Nullable;
 
 public class BlockMonitor extends BlockGeneric
 {
-    public static final DirectionProperty ORIENTATION = DirectionProperty.create( "orientation",
+    public static final DirectionProperty ORIENTATION = DirectionProperty.of( "orientation",
         Direction.UP, Direction.DOWN, Direction.NORTH );
 
-    public static final DirectionProperty FACING = Properties.FACING_HORIZONTAL;
+    public static final DirectionProperty FACING = Properties.HORIZONTAL_FACING;
 
-    static final EnumProperty<MonitorEdgeState> STATE = EnumProperty.create( "state", MonitorEdgeState.class );
+    static final EnumProperty<MonitorEdgeState> STATE = EnumProperty.of( "state", MonitorEdgeState.class );
 
     public BlockMonitor( Settings settings, NamedBlockEntityType<? extends TileGeneric> type )
     {
@@ -78,7 +78,7 @@ public class BlockMonitor extends BlockGeneric
         }
 
         return getDefaultState()
-            .with( FACING, context.getPlayerHorizontalFacing().getOpposite() )
+            .with( FACING, context.getPlayerFacing().getOpposite() )
             .with( ORIENTATION, orientation );
     }
 

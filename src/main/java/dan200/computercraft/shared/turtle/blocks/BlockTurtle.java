@@ -43,7 +43,7 @@ import javax.annotation.Nullable;
 
 public class BlockTurtle extends BlockComputerBase<TileTurtle> implements WaterloggableBlock
 {
-    public static final DirectionProperty FACING = Properties.FACING_HORIZONTAL;
+    public static final DirectionProperty FACING = Properties.HORIZONTAL_FACING;
 
     private static final VoxelShape DEFAULT_SHAPE = VoxelShapes.cuboid(
         0.125, 0.125, 0.125,
@@ -88,7 +88,7 @@ public class BlockTurtle extends BlockComputerBase<TileTurtle> implements Waterl
     public BlockState getPlacementState( ItemPlacementContext placement )
     {
         return getDefaultState()
-            .with( FACING, placement.getPlayerHorizontalFacing() )
+            .with( FACING, placement.getPlayerFacing() )
             .with( WATERLOGGED, getWaterloggedStateForPlacement( placement ) );
     }
 

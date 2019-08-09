@@ -58,9 +58,9 @@ public abstract class ItemBlockCable extends BlockItem
     }
 
     @Override
-    public void appendItemsForGroup( ItemGroup group, DefaultedList<ItemStack> list )
+    public void appendStacks( ItemGroup group, DefaultedList<ItemStack> list )
     {
-        if( isInItemGroup( group ) ) list.add( new ItemStack( this ) );
+        if( isIn( group ) ) list.add( new ItemStack( this ) );
     }
 
     @Override
@@ -84,7 +84,7 @@ public abstract class ItemBlockCable extends BlockItem
         @Override
         public ActionResult place( ItemPlacementContext context )
         {
-            ItemStack stack = context.getItemStack();
+            ItemStack stack = context.getStack();
             if( stack.isEmpty() ) return ActionResult.FAIL;
 
             World world = context.getWorld();
@@ -94,13 +94,13 @@ public abstract class ItemBlockCable extends BlockItem
             // Try to add a modem to a cable
             if( existingState.getBlock() == ComputerCraft.Blocks.cable && existingState.get( MODEM ) == CableModemVariant.None )
             {
-                Direction side = context.getFacing().getOpposite();
+                Direction side = context.getSide().getOpposite();
                 BlockState newState = existingState
                     .with( MODEM, CableModemVariant.from( side ) )
                     .with( CONNECTIONS.get( side ), existingState.get( CABLE ) );
                 if( placeAt( world, pos, newState ) )
                 {
-                    stack.subtractAmount( 1 );
+                    stack.decrement( 1 );
                     return ActionResult.SUCCESS;
                 }
             }
@@ -120,19 +120,19 @@ public abstract class ItemBlockCable extends BlockItem
         @Override
         public ActionResult place( ItemPlacementContext context )
         {
-            ItemStack stack = context.getItemStack();
+            ItemStack stack = context.getStack();
             if( stack.isEmpty() ) return ActionResult.FAIL;
 
             World world = context.getWorld();
             BlockPos pos = context.getBlockPos();
 
             // Try to add a cable to a modem inside the block we're clicking on.
-            BlockPos insidePos = pos.offset( context.getFacing().getOpposite() );
+            BlockPos insidePos = pos.offset( context.getSide().getOpposite() );
             BlockState insideState = world.getBlockState( insidePos );
             if( insideState.getBlock() == ComputerCraft.Blocks.cable && !insideState.get( BlockCable.CABLE )
                 && placeAtCorrected( world, insidePos, insideState.with( BlockCable.CABLE, true ) ) )
             {
-                stack.subtractAmount( 1 );
+                stack.decrement( 1 );
                 return ActionResult.SUCCESS;
             }
 
@@ -141,7 +141,7 @@ public abstract class ItemBlockCable extends BlockItem
             if( existingState.getBlock() == ComputerCraft.Blocks.cable && !existingState.get( BlockCable.CABLE )
                 && placeAtCorrected( world, pos, existingState.with( BlockCable.CABLE, true ) ) )
             {
-                stack.subtractAmount( 1 );
+                stack.decrement( 1 );
                 return ActionResult.SUCCESS;
             }
 

@@ -76,8 +76,8 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
     public TileTurtle( BlockEntityType<? extends TileGeneric> type, ComputerFamily family )
     {
         super( type, family );
-        m_inventory = DefaultedList.create( INVENTORY_SIZE, ItemStack.EMPTY );
-        m_previousInventory = DefaultedList.create( INVENTORY_SIZE, ItemStack.EMPTY );
+        m_inventory = DefaultedList.ofSize( INVENTORY_SIZE, ItemStack.EMPTY );
+        m_previousInventory = DefaultedList.ofSize( INVENTORY_SIZE, ItemStack.EMPTY );
         m_inventoryChanged = false;
         m_brain = new TurtleBrain( this );
         m_moveState = MoveState.NOT_MOVED;
@@ -166,7 +166,7 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
                         m_brain.setDyeColour( dye );
                         if( !player.isCreative() )
                         {
-                            currentItem.subtractAmount( 1 );
+                            currentItem.decrement( 1 );
                         }
                     }
                 }
@@ -269,8 +269,8 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
 
         // Read inventory
         ListTag nbttaglist = nbt.getList( "Items", NBTUtil.TAG_COMPOUND );
-        m_inventory = DefaultedList.create( INVENTORY_SIZE, ItemStack.EMPTY );
-        m_previousInventory = DefaultedList.create( INVENTORY_SIZE, ItemStack.EMPTY );
+        m_inventory = DefaultedList.ofSize( INVENTORY_SIZE, ItemStack.EMPTY );
+        m_previousInventory = DefaultedList.ofSize( INVENTORY_SIZE, ItemStack.EMPTY );
         for( int i = 0; i < nbttaglist.size(); i++ )
         {
             CompoundTag tag = nbttaglist.getCompoundTag( i );
@@ -444,7 +444,7 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
                 return ItemStack.EMPTY;
             }
 
-            if( stack.getAmount() <= count )
+            if( stack.getCount() <= count )
             {
                 setInvStack( slot, ItemStack.EMPTY );
                 return stack;
@@ -503,7 +503,7 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
             {
                 for( int n = 0; n < getInvSize(); n++ )
                 {
-                    if( !ItemStack.areEqual( getInvStack( n ), m_previousInventory.get( n ) ) )
+                    if( !ItemStack.areEqualIgnoreDamage( getInvStack( n ), m_previousInventory.get( n ) ) )
                     {
                         m_inventoryChanged = true;
                         break;

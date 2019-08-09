@@ -16,9 +16,9 @@ import dan200.computercraft.shared.turtle.blocks.BlockTurtle;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.text.LiteralText;
+import net.minecraft.text.Text;
+import net.minecraft.text.TranslatableText;
 import net.minecraft.util.DefaultedList;
 import net.minecraft.util.Identifier;
 
@@ -37,7 +37,7 @@ public class ItemTurtle extends ItemComputerBase implements ITurtleItem
     {
         // Build the stack
         ItemStack stack = new ItemStack( this );
-        if( label != null ) stack.setDisplayName( new TextComponent( label ) );
+        if( label != null ) stack.setCustomName( new LiteralText( label ) );
         if( id >= 0 ) stack.getOrCreateTag().putInt( NBT_ID, id );
         IColouredItem.setColourBasic( stack, colour );
         if( fuelLevel > 0 ) stack.getOrCreateTag().putInt( NBT_FUEL, fuelLevel );
@@ -57,9 +57,9 @@ public class ItemTurtle extends ItemComputerBase implements ITurtleItem
     }
 
     @Override
-    public void appendItemsForGroup( @Nonnull ItemGroup group, @Nonnull DefaultedList<ItemStack> list )
+    public void appendStacks( @Nonnull ItemGroup group, @Nonnull DefaultedList<ItemStack> list )
     {
-        if( !isInItemGroup( group ) ) return;
+        if( !isIn( group ) ) return;
 
         ComputerFamily family = getFamily();
 
@@ -74,33 +74,33 @@ public class ItemTurtle extends ItemComputerBase implements ITurtleItem
 
     @Nonnull
     @Override
-    public Component getTranslatedNameTrimmed( @Nonnull ItemStack stack )
+    public Text getName( @Nonnull ItemStack stack )
     {
         String baseString = getTranslationKey( stack );
         ITurtleUpgrade left = getUpgrade( stack, TurtleSide.Left );
         ITurtleUpgrade right = getUpgrade( stack, TurtleSide.Right );
         if( left != null && right != null )
         {
-            return new TranslatableComponent( baseString + ".upgraded_twice",
-                new TranslatableComponent( right.getUnlocalisedAdjective() ),
-                new TranslatableComponent( left.getUnlocalisedAdjective() )
+            return new TranslatableText( baseString + ".upgraded_twice",
+                new TranslatableText( right.getUnlocalisedAdjective() ),
+                new TranslatableText( left.getUnlocalisedAdjective() )
             );
         }
         else if( left != null )
         {
-            return new TranslatableComponent( baseString + ".upgraded",
-                new TranslatableComponent( left.getUnlocalisedAdjective() )
+            return new TranslatableText( baseString + ".upgraded",
+                new TranslatableText( left.getUnlocalisedAdjective() )
             );
         }
         else if( right != null )
         {
-            return new TranslatableComponent( baseString + ".upgraded",
-                new TranslatableComponent( right.getUnlocalisedAdjective() )
+            return new TranslatableText( baseString + ".upgraded",
+                new TranslatableText( right.getUnlocalisedAdjective() )
             );
         }
         else
         {
-            return new TranslatableComponent( baseString );
+            return new TranslatableText( baseString );
         }
     }
 

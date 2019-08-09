@@ -91,7 +91,7 @@ public class TurtleInventoryCrafting extends CraftingInventory
             if( result.isEmpty() ) break;
             results.add( result );
 
-            result.onCrafted( world, player, result.getAmount() );
+            result.onCraft( world, player, result.getCount() );
             DefaultedList<ItemStack> remainders = recipe.getRemainingStacks( this );
 
             for( int slot = 0; slot < remainders.size(); slot++ )
@@ -115,7 +115,7 @@ public class TurtleInventoryCrafting extends CraftingInventory
                 }
                 else if( existing.getItem() == remainder.getItem() && ItemStack.areTagsEqual( existing, remainder ) )
                 {
-                    remainder.addAmount( existing.getAmount() );
+                    remainder.increment( existing.getCount() );
                     setInvStack( slot, remainder );
                 }
                 else

@@ -23,8 +23,8 @@ import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.network.Containers;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.text.LiteralText;
+import net.minecraft.text.Text;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -256,9 +256,9 @@ public final class CommandComputerCraft
         );
     }
 
-    private static Component linkComputer( ServerCommandSource source, ServerComputer serverComputer, int computerId )
+    private static Text linkComputer( ServerCommandSource source, ServerComputer serverComputer, int computerId )
     {
-        TextComponent out = new TextComponent( "" );
+        LiteralText out = new LiteralText( "" );
 
         // Append the computer instance
         if( serverComputer == null )
@@ -298,7 +298,7 @@ public final class CommandComputerCraft
         return out;
     }
 
-    private static Component linkPosition( ServerCommandSource context, ServerComputer computer )
+    private static Text linkPosition( ServerCommandSource context, ServerComputer computer )
     {
         if( UserLevel.OP.test( context ) )
         {
@@ -344,7 +344,7 @@ public final class CommandComputerCraft
 
         timings.sort( Comparator.<ComputerTracker, Long>comparing( x -> x.get( sortField ) ).reversed() );
 
-        Component[] headers = new Component[1 + fields.size()];
+        Text[] headers = new Text[1 + fields.size()];
         headers[0] = translate( "commands.computercraft.track.dump.computer" );
         for( int i = 0; i < fields.size(); i++ ) headers[i + 1] = translate( fields.get( i ).translationKey() );
         TableBuilder table = new TableBuilder( TRACK_ID, headers );
@@ -354,9 +354,9 @@ public final class CommandComputerCraft
             Computer computer = entry.getComputer();
             ServerComputer serverComputer = computer == null ? null : lookup.get( computer );
 
-            Component computerComponent = linkComputer( source, serverComputer, entry.getComputerId() );
+            Text computerComponent = linkComputer( source, serverComputer, entry.getComputerId() );
 
-            Component[] row = new Component[1 + fields.size()];
+            Text[] row = new Text[1 + fields.size()];
             row[0] = computerComponent;
             for( int i = 0; i < fields.size(); i++ ) row[i + 1] = text( entry.getFormatted( fields.get( i ) ) );
             table.row( row );

@@ -80,7 +80,7 @@ public final class ImpostorShapelessRecipe extends ShapelessRecipe
 
         private DefaultedList<Ingredient> readIngredients( JsonArray arrays )
         {
-            DefaultedList<Ingredient> items = DefaultedList.create();
+            DefaultedList<Ingredient> items = DefaultedList.of();
             for( int i = 0; i < arrays.size(); ++i )
             {
                 Ingredient ingredient = Ingredient.fromJson( arrays.get( i ) );
@@ -95,7 +95,7 @@ public final class ImpostorShapelessRecipe extends ShapelessRecipe
         {
             String s = buffer.readString( 32767 );
             int i = buffer.readVarInt();
-            DefaultedList<Ingredient> items = DefaultedList.create( i, Ingredient.EMPTY );
+            DefaultedList<Ingredient> items = DefaultedList.ofSize( i, Ingredient.EMPTY );
 
             for( int j = 0; j < items.size(); j++ ) items.set( j, Ingredient.fromPacket( buffer ) );
             ItemStack result = buffer.readItemStack();

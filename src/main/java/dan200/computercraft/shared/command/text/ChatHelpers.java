@@ -6,8 +6,8 @@
 
 package dan200.computercraft.shared.command.text;
 
-import net.minecraft.ChatFormat;
-import net.minecraft.network.chat.*;
+import net.minecraft.text.*;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
 
 /**
@@ -15,73 +15,73 @@ import net.minecraft.util.math.BlockPos;
  */
 public final class ChatHelpers
 {
-    private static final ChatFormat HEADER = ChatFormat.LIGHT_PURPLE;
+    private static final Formatting HEADER = Formatting.LIGHT_PURPLE;
 
     private ChatHelpers() {}
 
-    public static Component coloured( String text, ChatFormat colour )
+    public static Text coloured( String text, Formatting colour )
     {
-        TextComponent component = new TextComponent( text == null ? "" : text );
+        LiteralText component = new LiteralText( text == null ? "" : text );
         component.getStyle().setColor( colour );
         return component;
     }
 
-    public static <T extends Component> T coloured( T component, ChatFormat colour )
+    public static <T extends Text> T coloured( T component, Formatting colour )
     {
         component.getStyle().setColor( colour );
         return component;
     }
 
-    public static Component text( String text )
+    public static Text text( String text )
     {
-        return new TextComponent( text == null ? "" : text );
+        return new LiteralText( text == null ? "" : text );
     }
 
-    public static Component translate( String text )
+    public static Text translate( String text )
     {
-        return new TranslatableComponent( text == null ? "" : text );
+        return new TranslatableText( text == null ? "" : text );
     }
 
-    public static Component translate( String text, Object... args )
+    public static Text translate( String text, Object... args )
     {
-        return new TranslatableComponent( text == null ? "" : text, args );
+        return new TranslatableText( text == null ? "" : text, args );
     }
 
-    public static Component list( Component... children )
+    public static Text list( Text... children )
     {
-        Component component = new TextComponent( "" );
-        for( Component child : children )
+        Text component = new LiteralText( "" );
+        for( Text child : children )
         {
             component.append( child );
         }
         return component;
     }
 
-    public static Component position( BlockPos pos )
+    public static Text position( BlockPos pos )
     {
         if( pos == null ) return translate( "commands.computercraft.generic.no_position" );
         return translate( "commands.computercraft.generic.position", pos.getX(), pos.getY(), pos.getZ() );
     }
 
-    public static Component bool( boolean value )
+    public static Text bool( boolean value )
     {
         return value
-            ? coloured( translate( "commands.computercraft.generic.yes" ), ChatFormat.GREEN )
-            : coloured( translate( "commands.computercraft.generic.no" ), ChatFormat.RED );
+            ? coloured( translate( "commands.computercraft.generic.yes" ), Formatting.GREEN )
+            : coloured( translate( "commands.computercraft.generic.no" ), Formatting.RED );
     }
 
-    public static Component link( Component component, String command, Component toolTip )
+    public static Text link( Text component, String command, Text toolTip )
     {
         Style style = component.getStyle();
 
-        if( style.getColor() == null ) style.setColor( ChatFormat.YELLOW );
+        if( style.getColor() == null ) style.setColor( Formatting.YELLOW );
         style.setClickEvent( new ClickEvent( ClickEvent.Action.RUN_COMMAND, command ) );
         style.setHoverEvent( new HoverEvent( HoverEvent.Action.SHOW_TEXT, toolTip ) );
 
         return component;
     }
 
-    public static Component header( String text )
+    public static Text header( String text )
     {
         return coloured( text, HEADER );
     }

@@ -24,7 +24,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.hit.BlockHitResult;
@@ -238,12 +238,12 @@ public class TileCable extends TileGeneric implements IPeripheralTile
         {
             if( oldName != null )
             {
-                player.addChatMessage( new TranslatableComponent( "chat.computercraft.wired_modem.peripheral_disconnected",
+                player.addChatMessage( new TranslatableText( "chat.computercraft.wired_modem.peripheral_disconnected",
                     CommandCopy.createCopyText( oldName ) ), false );
             }
             if( newName != null )
             {
-                player.addChatMessage( new TranslatableComponent( "chat.computercraft.wired_modem.peripheral_connected",
+                player.addChatMessage( new TranslatableText( "chat.computercraft.wired_modem.peripheral_connected",
                     CommandCopy.createCopyText( newName ) ), false );
             }
         }

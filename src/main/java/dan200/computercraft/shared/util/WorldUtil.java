@@ -13,7 +13,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BoundingBox;
+import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.shape.VoxelShape;
@@ -32,16 +32,16 @@ public final class WorldUtil
     private static final Entity ENTITY = new ItemEntity( EntityType.ITEM, null )
     {
         @Override
-        public EntitySize getSize( EntityPose pos )
+        public EntityDimensions getDimensions( EntityPose pos )
         {
-            return EntitySize.constant( 0, 0 );
+            return EntityDimensions.fixed( 0, 0 );
         }
     };
 
     static
     {
         ENTITY.noClip = true;
-        ENTITY.refreshSize();
+        ENTITY.calculateDimensions();
     }
 
     public static boolean isLiquidBlock( World world, BlockPos pos )
@@ -55,7 +55,7 @@ public final class WorldUtil
     {
         if( shape.isEmpty() ) return false;
         // AxisAlignedBB.contains, but without strict inequalities.
-        BoundingBox bb = shape.getBoundingBox();
+        Box bb = shape.getBoundingBox();
         return vec.x >= bb.minX && vec.x <= bb.maxX && vec.y >= bb.minY && vec.y <= bb.maxY && vec.z >= bb.minZ && vec.z <= bb.maxZ;
     }
 
@@ -76,7 +76,7 @@ public final class WorldUtil
         float xStretch = Math.abs( vecDir.x ) > 0.25f ? 0.0f : 1.0f;
         float yStretch = Math.abs( vecDir.y ) > 0.25f ? 0.0f : 1.0f;
         float zStretch = Math.abs( vecDir.z ) > 0.25f ? 0.0f : 1.0f;
-        BoundingBox bigBox = new BoundingBox(
+        Box bigBox = new Box(
             Math.min( vecStart.x, vecEnd.x ) - 0.375f * xStretch,
             Math.min( vecStart.y, vecEnd.y ) - 0.375f * yStretch,
             Math.min( vecStart.z, vecEnd.z ) - 0.375f * zStretch,
@@ -90,7 +90,7 @@ public final class WorldUtil
         List<Entity> list = world.getEntities( Entity.class, bigBox, CAN_COLLIDE );
         for( Entity entity : list )
         {
-            BoundingBox littleBox = entity.getBoundingBox();
+            Box littleBox = entity.getBoundingBox();
 
             if( littleBox.contains( vecStart ) )
             {

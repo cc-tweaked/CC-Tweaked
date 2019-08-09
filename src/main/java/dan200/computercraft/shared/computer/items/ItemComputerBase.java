@@ -12,13 +12,13 @@ import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.api.media.IMedia;
 import dan200.computercraft.shared.computer.blocks.BlockComputerBase;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
-import net.minecraft.ChatFormat;
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.text.LiteralText;
+import net.minecraft.text.Text;
+import net.minecraft.text.TranslatableText;
+import net.minecraft.util.Formatting;
 import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
@@ -36,15 +36,15 @@ public abstract class ItemComputerBase extends BlockItem implements IComputerIte
     }
 
     @Override
-    public void buildTooltip( @Nonnull ItemStack stack, @Nullable World world, @Nonnull List<Component> list, @Nonnull TooltipContext options )
+    public void appendTooltip( @Nonnull ItemStack stack, @Nullable World world, @Nonnull List<Text> list, @Nonnull TooltipContext options )
     {
         if( options.isAdvanced() )
         {
             int id = getComputerID( stack );
             if( id >= 0 )
             {
-                list.add( new TranslatableComponent( "gui.computercraft.tooltip.computer_id", id )
-                    .applyFormat( ChatFormat.GRAY ) );
+                list.add( new TranslatableText( "gui.computercraft.tooltip.computer_id", id )
+                    .formatted( Formatting.GRAY ) );
             }
         }
     }
@@ -52,7 +52,7 @@ public abstract class ItemComputerBase extends BlockItem implements IComputerIte
     @Override
     public String getLabel( @Nonnull ItemStack stack )
     {
-        return stack.hasDisplayName() ? stack.getDisplayName().getString() : null;
+        return stack.hasCustomName() ? stack.getName().getString() : null;
     }
 
     @Override
@@ -68,11 +68,11 @@ public abstract class ItemComputerBase extends BlockItem implements IComputerIte
     {
         if( label != null )
         {
-            stack.setDisplayName( new TextComponent( label ) );
+            stack.setCustomName( new LiteralText( label ) );
         }
         else
         {
-            stack.removeDisplayName();
+            stack.removeCustomName();
         }
         return true;
     }

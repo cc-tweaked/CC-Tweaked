@@ -76,7 +76,7 @@ public final class ImpostorRecipe extends ShapedRecipe
             int width = buf.readVarInt();
             int height = buf.readVarInt();
             String group = buf.readString( Short.MAX_VALUE );
-            DefaultedList<Ingredient> items = DefaultedList.create( width * height, Ingredient.EMPTY );
+            DefaultedList<Ingredient> items = DefaultedList.ofSize( width * height, Ingredient.EMPTY );
             for( int k = 0; k < items.size(); ++k ) items.set( k, Ingredient.fromPacket( buf ) );
             ItemStack result = buf.readItemStack();
             return new ImpostorRecipe( identifier, group, width, height, items, result );

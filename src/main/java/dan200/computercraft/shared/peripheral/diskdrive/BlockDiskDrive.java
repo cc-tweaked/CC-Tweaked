@@ -25,8 +25,8 @@ import javax.annotation.Nullable;
 
 public class BlockDiskDrive extends BlockGeneric
 {
-    static final DirectionProperty FACING = Properties.FACING_HORIZONTAL;
-    static final EnumProperty<DiskDriveState> STATE = EnumProperty.create( "state", DiskDriveState.class );
+    static final DirectionProperty FACING = Properties.HORIZONTAL_FACING;
+    static final EnumProperty<DiskDriveState> STATE = EnumProperty.of( "state", DiskDriveState.class );
 
     public BlockDiskDrive( Settings settings )
     {
@@ -46,16 +46,16 @@ public class BlockDiskDrive extends BlockGeneric
     @Override
     public BlockState getPlacementState( ItemPlacementContext placement )
     {
-        return getDefaultState().with( FACING, placement.getPlayerHorizontalFacing().getOpposite() );
+        return getDefaultState().with( FACING, placement.getPlayerFacing().getOpposite() );
     }
 
     @Override
     public void onPlaced( World world, BlockPos pos, BlockState state, LivingEntity placer, ItemStack stack )
     {
-        if( stack.hasDisplayName() )
+        if( stack.hasCustomName() )
         {
             BlockEntity tileentity = world.getBlockEntity( pos );
-            if( tileentity instanceof TileDiskDrive ) ((TileDiskDrive) tileentity).customName = stack.getDisplayName();
+            if( tileentity instanceof TileDiskDrive ) ((TileDiskDrive) tileentity).customName = stack.getName();
         }
     }
 }

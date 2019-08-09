@@ -112,7 +112,7 @@ public class ContainerPrinter extends Container
             slot.markDirty();
         }
 
-        if( stack.getAmount() == result.getAmount() ) return ItemStack.EMPTY;
+        if( stack.getCount() == result.getCount() ) return ItemStack.EMPTY;
 
         slot.onTakeItem( player, stack );
         return result;

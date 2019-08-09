@@ -53,8 +53,8 @@ configurations {
 dependencies {
     minecraft "com.mojang:minecraft:${mc_version}"
     mappings "net.fabricmc:yarn:${mc_version}+build.${mappings_version}"
-    modCompile "net.fabricmc:fabric-loader:0.4.8+build.153"
-    modCompile "net.fabricmc.fabric-api:fabric-api:0.3.0+build.175"
+    modCompile "net.fabricmc:fabric-loader:0.4.8+build.159"
+    modCompile "net.fabricmc.fabric-api:fabric-api:0.3.1+build.208"
 
     implementation 'com.google.code.findbugs:jsr305:3.0.2'
 

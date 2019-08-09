@@ -14,7 +14,7 @@ import dan200.computercraft.shared.pocket.items.ItemPocketComputer;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.render.FirstPersonRenderer;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.AbsoluteHand;
+import net.minecraft.util.Arm;
 import net.minecraft.util.Hand;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -37,7 +37,7 @@ public class MixinFirstPersonRenderer implements MixedFirstPersonRenderer
     }
 
     @Shadow
-    private void renderArmHoldingItem( float equip, float swing, AbsoluteHand hand )
+    private void renderArmHoldingItem( float equip, float swing, Arm hand )
     {
     }
 
@@ -48,7 +48,7 @@ public class MixinFirstPersonRenderer implements MixedFirstPersonRenderer
     }
 
     @Override
-    public void renderArmFirstPerson_CC( float equip, float swing, AbsoluteHand hand )
+    public void renderArmFirstPerson_CC( float equip, float swing, Arm hand )
     {
         renderArmHoldingItem( equip, swing, hand );
     }

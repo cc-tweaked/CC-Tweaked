@@ -65,16 +65,6 @@ public class ComputerCraftProxyCommon
         registerProviders();
         registerHandlers();
 
-        RecipeSerializer.register( ComputerCraft.MOD_ID + ":colour", ColourableRecipe.SERIALIZER );
-        RecipeSerializer.register( ComputerCraft.MOD_ID + ":computer_upgrade", ComputerUpgradeRecipe.SERIALIZER );
-        RecipeSerializer.register( ComputerCraft.MOD_ID + ":pocket_computer_upgrade", PocketComputerUpgradeRecipe.SERIALIZER );
-        RecipeSerializer.register( ComputerCraft.MOD_ID + ":disk", DiskRecipe.SERIALIZER );
-        RecipeSerializer.register( ComputerCraft.MOD_ID + ":printout", PrintoutRecipe.SERIALIZER );
-        RecipeSerializer.register( ComputerCraft.MOD_ID + ":turtle", TurtleRecipe.SERIALIZER );
-        RecipeSerializer.register( ComputerCraft.MOD_ID + ":turtle_upgrade", TurtleUpgradeRecipe.SERIALIZER );
-        RecipeSerializer.register( ComputerCraft.MOD_ID + ":impostor_shapeless", ImpostorShapelessRecipe.SERIALIZER );
-        RecipeSerializer.register( ComputerCraft.MOD_ID + ":impostor_shaped", ImpostorRecipe.SERIALIZER );
-
         ArgumentSerializers.register();
     }
 

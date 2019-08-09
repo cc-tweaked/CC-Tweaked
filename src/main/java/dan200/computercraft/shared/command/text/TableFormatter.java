@@ -6,9 +6,9 @@
 
 package dan200.computercraft.shared.command.text;
 
-import net.minecraft.ChatFormat;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.text.LiteralText;
+import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.Nullable;
@@ -18,8 +18,8 @@ import static dan200.computercraft.shared.command.text.ChatHelpers.translate;
 
 public interface TableFormatter
 {
-    Component SEPARATOR = coloured( "| ", ChatFormat.GRAY );
-    Component HEADER = coloured( "=", ChatFormat.GRAY );
+    Text SEPARATOR = coloured( "| ", Formatting.GRAY );
+    Text HEADER = coloured( "=", Formatting.GRAY );
 
     /**
      * Get additional padding for the component
@@ -29,7 +29,7 @@ public interface TableFormatter
      * @return The padding for this component, or {@code null} if none is needed.
      */
     @Nullable
-    Component getPadding( Component component, int width );
+    Text getPadding( Text component, int width );
 
     /**
      * Get the minimum padding between each column
@@ -38,9 +38,9 @@ public interface TableFormatter
      */
     int getColumnPadding();
 
-    int getWidth( Component component );
+    int getWidth( Text component );
 
-    void writeLine( int id, Component component );
+    void writeLine( int id, Text component );
 
     default int display( TableBuilder table )
     {
@@ -50,13 +50,13 @@ public interface TableFormatter
         int columns = table.getColumns();
         int[] maxWidths = new int[columns];
 
-        Component[] headers = table.getHeaders();
+        Text[] headers = table.getHeaders();
         if( headers != null )
         {
             for( int i = 0; i < columns; i++ ) maxWidths[i] = getWidth( headers[i] );
         }
 
-        for( Component[] row : table.getRows() )
+        for( Text[] row : table.getRows() )
         {
             for( int i = 0; i < row.length; i++ )
             {
@@ -77,11 +77,11 @@ public interface TableFormatter
 
         if( headers != null )
         {
-            TextComponent line = new TextComponent( "" );
+            LiteralText line = new LiteralText( "" );
             for( int i = 0; i < columns - 1; i++ )
             {
                 line.append( headers[i] );
-                Component padding = getPadding( headers[i], maxWidths[i] );
+                Text padding = getPadding( headers[i], maxWidths[i] );
                 if( padding != null ) line.append( padding );
                 line.append( SEPARATOR );
             }
@@ -93,16 +93,16 @@ public interface TableFormatter
             // it a tad prettier.
             int rowCharWidth = getWidth( HEADER );
             int rowWidth = totalWidth / rowCharWidth + (totalWidth % rowCharWidth == 0 ? 0 : 1);
-            writeLine( rowId++, coloured( StringUtils.repeat( HEADER.getText(), rowWidth ), ChatFormat.GRAY ) );
+            writeLine( rowId++, coloured( StringUtils.repeat( HEADER.asString(), rowWidth ), Formatting.GRAY ) );
         }
 
-        for( Component[] row : table.getRows() )
+        for( Text[] row : table.getRows() )
         {
-            TextComponent line = new TextComponent( "" );
+            LiteralText line = new LiteralText( "" );
             for( int i = 0; i < columns - 1; i++ )
             {
                 line.append( row[i] );
-                Component padding = getPadding( row[i], maxWidths[i] );
+                Text padding = getPadding( row[i], maxWidths[i] );
                 if( padding != null ) line.append( padding );
                 line.append( SEPARATOR );
             }
@@ -112,7 +112,7 @@ public interface TableFormatter
 
         if( table.getAdditional() > 0 )
         {
-            writeLine( rowId++, coloured( translate( "commands.computercraft.generic.additional_rows", table.getAdditional() ), ChatFormat.AQUA ) );
+            writeLine( rowId++, coloured( translate( "commands.computercraft.generic.additional_rows", table.getAdditional() ), Formatting.AQUA ) );
         }
 
         return rowId - table.getId();

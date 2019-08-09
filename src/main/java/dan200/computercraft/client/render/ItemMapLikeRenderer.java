@@ -12,7 +12,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.FirstPersonRenderer;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.AbsoluteHand;
+import net.minecraft.util.Arm;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.MathHelper;
 
@@ -38,7 +38,7 @@ public abstract class ItemMapLikeRenderer
         else
         {
             renderItemFirstPersonSide(
-                hand == Hand.MAIN_HAND ? player.getMainHand() : player.getMainHand().getOpposite(),
+                hand == Hand.MAIN_HAND ? player.getMainArm() : player.getMainArm().getOpposite(),
                 equipProgress, swingProgress, stack
             );
         }
@@ -52,12 +52,12 @@ public abstract class ItemMapLikeRenderer
      * @param equipProgress The equip progress of this item
      * @param swingProgress The swing progress of this item
      * @param stack         The stack to render
-     * @see FirstPersonRenderer#method_3222(float, AbsoluteHand, float, ItemStack) // renderMapFirstPersonSide
+     * @see FirstPersonRenderer#method_3222(float, Arm, float, ItemStack) // renderMapFirstPersonSide
      */
-    private void renderItemFirstPersonSide( AbsoluteHand side, float equipProgress, float swingProgress, ItemStack stack )
+    private void renderItemFirstPersonSide( Arm side, float equipProgress, float swingProgress, ItemStack stack )
     {
         MinecraftClient minecraft = MinecraftClient.getInstance();
-        float offset = side == AbsoluteHand.RIGHT ? 1f : -1f;
+        float offset = side == Arm.RIGHT ? 1f : -1f;
         GlStateManager.translatef( offset * 0.125f, -0.125f, 0f );
 
         // If the player is not invisible then render a single arm

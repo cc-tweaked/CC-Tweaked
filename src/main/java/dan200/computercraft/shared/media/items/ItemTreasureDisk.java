@@ -17,11 +17,10 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.text.LiteralText;
+import net.minecraft.text.Text;
 import net.minecraft.util.DefaultedList;
 import net.minecraft.world.World;
-
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.IOException;
@@ -39,15 +38,15 @@ public class ItemTreasureDisk extends Item implements IMedia
     }
 
     @Override
-    public void appendItemsForGroup( @Nonnull ItemGroup group, @Nonnull DefaultedList<ItemStack> stacks )
+    public void appendStacks( @Nonnull ItemGroup group, @Nonnull DefaultedList<ItemStack> stacks )
     {
     }
 
     @Override
-    public void buildTooltip( ItemStack stack, @Nullable World world, List<Component> list, TooltipContext context )
+    public void appendTooltip( ItemStack stack, @Nullable World world, List<Text> list, TooltipContext context )
     {
         String label = getTitle( stack );
-        if( !label.isEmpty() ) list.add( new TextComponent( label ) );
+        if( !label.isEmpty() ) list.add( new LiteralText( label ) );
     }
 
     @Override

@@ -12,7 +12,7 @@ import dan200.computercraft.shared.network.NetworkMessage;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.network.PacketContext;
-import net.minecraft.network.chat.Component;
+import net.minecraft.text.Text;
 import net.minecraft.util.PacketByteBuf;
 
 import javax.annotation.Nonnull;
@@ -39,13 +39,13 @@ public class ChatTableClientMessage implements NetworkMessage
         buf.writeBoolean( table.getHeaders() != null );
         if( table.getHeaders() != null )
         {
-            for( Component header : table.getHeaders() ) buf.writeTextComponent( header );
+            for( Text header : table.getHeaders() ) buf.writeText( header );
         }
 
         buf.writeVarInt( table.getRows().size() );
-        for( Component[] row : table.getRows() )
+        for( Text[] row : table.getRows() )
         {
-            for( Component column : row ) buf.writeTextComponent( column );
+            for( Text column : row ) buf.writeText( column );
         }
 
         buf.writeVarInt( table.getAdditional() );
@@ -59,8 +59,8 @@ public class ChatTableClientMessage implements NetworkMessage
         TableBuilder table;
         if( buf.readBoolean() )
         {
-            Component[] headers = new Component[columns];
-            for( int i = 0; i < columns; i++ ) headers[i] = buf.readTextComponent();
+            Text[] headers = new Text[columns];
+            for( int i = 0; i < columns; i++ ) headers[i] = buf.readText();
             table = new TableBuilder( id, headers );
         }
         else
@@ -71,8 +71,8 @@ public class ChatTableClientMessage implements NetworkMessage
         int rows = buf.readVarInt();
         for( int i = 0; i < rows; i++ )
         {
-            Component[] row = new Component[columns];
-            for( int j = 0; j < columns; j++ ) row[j] = buf.readTextComponent();
+            Text[] row = new Text[columns];
+            for( int j = 0; j < columns; j++ ) row[j] = buf.readText();
             table.row( row );
         }
 

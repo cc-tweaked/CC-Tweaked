@@ -25,8 +25,8 @@ import javax.annotation.Nullable;
 
 public class BlockComputer extends BlockComputerBase<TileComputer>
 {
-    public static final EnumProperty<ComputerState> STATE = EnumProperty.create( "state", ComputerState.class );
-    public static final DirectionProperty FACING = Properties.FACING_HORIZONTAL;
+    public static final EnumProperty<ComputerState> STATE = EnumProperty.of( "state", ComputerState.class );
+    public static final DirectionProperty FACING = Properties.HORIZONTAL_FACING;
 
     public BlockComputer( Settings settings, ComputerFamily family, NamedBlockEntityType<? extends TileComputer> type )
     {
@@ -47,7 +47,7 @@ public class BlockComputer extends BlockComputerBase<TileComputer>
     @Override
     public BlockState getPlacementState( ItemPlacementContext placement )
     {
-        return getDefaultState().with( FACING, placement.getPlayerHorizontalFacing().getOpposite() );
+        return getDefaultState().with( FACING, placement.getPlayerFacing().getOpposite() );
     }
 
     @Nonnull

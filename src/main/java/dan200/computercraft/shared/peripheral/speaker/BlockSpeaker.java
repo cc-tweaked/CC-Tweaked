@@ -19,7 +19,7 @@ import javax.annotation.Nullable;
 
 public class BlockSpeaker extends BlockGeneric
 {
-    private static final DirectionProperty FACING = Properties.FACING_HORIZONTAL;
+    private static final DirectionProperty FACING = Properties.HORIZONTAL_FACING;
 
     public BlockSpeaker( Settings settings )
     {
@@ -38,6 +38,6 @@ public class BlockSpeaker extends BlockGeneric
     @Override
     public BlockState getPlacementState( ItemPlacementContext placement )
     {
-        return getDefaultState().with( FACING, placement.getPlayerHorizontalFacing().getOpposite() );
+        return getDefaultState().with( FACING, placement.getPlayerFacing().getOpposite() );
     }
 }

@@ -9,9 +9,9 @@ package dan200.computercraft.shared.command.text;
 import dan200.computercraft.shared.command.CommandUtils;
 import dan200.computercraft.shared.network.NetworkHandler;
 import dan200.computercraft.shared.network.client.ChatTableClientMessage;
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.text.Text;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -22,11 +22,11 @@ public class TableBuilder
 {
     private final int id;
     private int columns = -1;
-    private final Component[] headers;
-    private final ArrayList<Component[]> rows = new ArrayList<>();
+    private final Text[] headers;
+    private final ArrayList<Text[]> rows = new ArrayList<>();
     private int additional;
 
-    public TableBuilder( int id, @Nonnull Component... headers )
+    public TableBuilder( int id, @Nonnull Text... headers )
     {
         if( id < 0 ) throw new IllegalArgumentException( "ID must be positive" );
         this.id = id;
@@ -45,13 +45,13 @@ public class TableBuilder
     {
         if( id < 0 ) throw new IllegalArgumentException( "ID must be positive" );
         this.id = id;
-        this.headers = new Component[headers.length];
+        this.headers = new Text[headers.length];
         columns = headers.length;
 
         for( int i = 0; i < headers.length; i++ ) this.headers[i] = ChatHelpers.header( headers[i] );
     }
 
-    public void row( @Nonnull Component... row )
+    public void row( @Nonnull Text... row )
     {
         if( columns == -1 ) columns = row.length;
         if( row.length != columns ) throw new IllegalArgumentException( "Row is the incorrect length" );
@@ -85,13 +85,13 @@ public class TableBuilder
     }
 
     @Nullable
-    public Component[] getHeaders()
+    public Text[] getHeaders()
     {
         return headers;
     }
 
     @Nonnull
-    public List<Component[]> getRows()
+    public List<Text[]> getRows()
     {
         return rows;
     }

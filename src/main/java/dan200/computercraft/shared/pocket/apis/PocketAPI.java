@@ -138,7 +138,7 @@ public class PocketAPI implements ILuaAPI
                 {
                     // Consume an item from this stack and exit the loop
                     invStack = invStack.copy();
-                    invStack.subtractAmount( 1 );
+                    invStack.decrement( 1 );
                     inv.set( (i + start) % inv.size(), invStack.isEmpty() ? ItemStack.EMPTY : invStack );
 
                     return newUpgrade;

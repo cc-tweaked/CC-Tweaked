@@ -12,16 +12,16 @@ import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.api.media.IMedia;
 import dan200.computercraft.shared.common.IColouredItem;
 import dan200.computercraft.shared.util.Colour;
-import net.minecraft.ChatFormat;
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.text.LiteralText;
+import net.minecraft.text.Text;
+import net.minecraft.text.TranslatableText;
 import net.minecraft.util.DefaultedList;
+import net.minecraft.util.Formatting;
 import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
@@ -48,9 +48,9 @@ public class ItemDisk extends Item implements IMedia, IColouredItem
     }
 
     @Override
-    public void appendItemsForGroup( @Nonnull ItemGroup tabs, @Nonnull DefaultedList<ItemStack> list )
+    public void appendStacks( @Nonnull ItemGroup tabs, @Nonnull DefaultedList<ItemStack> list )
     {
-        if( !isInItemGroup( tabs ) ) return;
+        if( !isIn( tabs ) ) return;
         for( int colour = 0; colour < 16; colour++ )
         {
             list.add( createFromIDAndColour( -1, null, Colour.VALUES[colour].getHex() ) );
@@ -58,15 +58,15 @@ public class ItemDisk extends Item implements IMedia, IColouredItem
     }
 
     @Override
-    public void buildTooltip( ItemStack stack, @Nullable World world, List<Component> list, TooltipContext options )
+    public void appendTooltip( ItemStack stack, @Nullable World world, List<Text> list, TooltipContext options )
     {
         if( options.isAdvanced() )
         {
             int id = getDiskID( stack );
             if( id >= 0 )
             {
-                list.add( new TranslatableComponent( "gui.computercraft.tooltip.disk_id", id )
-                    .applyFormat( ChatFormat.GRAY ) );
+                list.add( new TranslatableText( "gui.computercraft.tooltip.disk_id", id )
+                    .formatted( Formatting.GRAY ) );
             }
         }
     }
@@ -74,7 +74,7 @@ public class ItemDisk extends Item implements IMedia, IColouredItem
     @Override
     public String getLabel( @Nonnull ItemStack stack )
     {
-        return stack.hasDisplayName() ? stack.getDisplayName().getString() : null;
+        return stack.hasCustomName() ? stack.getName().getString() : null;
     }
 
     @Override
@@ -82,11 +82,11 @@ public class ItemDisk extends Item implements IMedia, IColouredItem
     {
         if( label != null )
         {
-            stack.setDisplayName( new TextComponent( label ) );
+            stack.setCustomName( new LiteralText( label ) );
         }
         else
         {
-            stack.removeDisplayName();
+            stack.removeCustomName();
         }
         return true;
     }

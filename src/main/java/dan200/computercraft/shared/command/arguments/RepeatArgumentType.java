@@ -17,8 +17,8 @@ import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import net.minecraft.command.arguments.ArgumentTypes;
 import net.minecraft.command.arguments.serialize.ArgumentSerializer;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.text.LiteralText;
+import net.minecraft.text.Text;
 import net.minecraft.util.PacketByteBuf;
 
 import javax.annotation.Nonnull;
@@ -133,7 +133,7 @@ public final class RepeatArgumentType<T, U> implements ArgumentType<List<T>>
         {
             buf.writeBoolean( arg.flatten );
             ArgumentTypes.toPacket( buf, arg.child );
-            buf.writeTextComponent( getMessage( arg ) );
+            buf.writeText( getMessage( arg ) );
         }
 
         @Nonnull
@@ -143,7 +143,7 @@ public final class RepeatArgumentType<T, U> implements ArgumentType<List<T>>
         {
             boolean isList = buf.readBoolean();
             ArgumentType<?> child = ArgumentTypes.fromPacket( buf );
-            Component message = buf.readTextComponent();
+            Text message = buf.readText();
             BiConsumer<List<Object>, ?> appender = isList ? ( list, x ) -> list.addAll( (Collection) x ) : List::add;
             return new RepeatArgumentType( child, appender, isList, new SimpleCommandExceptionType( message ) );
         }
@@ -153,14 +153,14 @@ public final class RepeatArgumentType<T, U> implements ArgumentType<List<T>>
         {
             json.addProperty( "flatten", arg.flatten );
             json.addProperty( "child", "<<cannot serialize>>" ); // TODO: Potentially serialize this using reflection.
-            json.addProperty( "error", TextComponent.Serializer.toJsonString( getMessage( arg ) ) );
+            json.addProperty( "error", LiteralText.Serializer.toJson( getMessage( arg ) ) );
         }
 
-        private static TextComponent getMessage( RepeatArgumentType<?, ?> arg )
+        private static LiteralText getMessage( RepeatArgumentType<?, ?> arg )
         {
             Message message = arg.some.create().getRawMessage();
-            if( message instanceof TextComponent ) return (TextComponent) message;
-            return new TextComponent( message.getString() );
+            if( message instanceof LiteralText ) return (LiteralText) message;
+            return new LiteralText( message.getString() );
         }
     }
 }

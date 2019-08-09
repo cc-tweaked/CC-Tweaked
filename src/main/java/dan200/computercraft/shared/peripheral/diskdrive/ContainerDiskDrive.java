@@ -81,7 +81,7 @@ public class ContainerDiskDrive extends Container
             slot.markDirty();
         }
 
-        if( existing.getAmount() == result.getAmount() ) return ItemStack.EMPTY;
+        if( existing.getCount() == result.getCount() ) return ItemStack.EMPTY;
 
         slot.onTakeItem( player, existing );
         return result;

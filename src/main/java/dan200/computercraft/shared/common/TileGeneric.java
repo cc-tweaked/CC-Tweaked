@@ -34,7 +34,6 @@ public abstract class TileGeneric extends BlockEntity implements BlockEntityClie
         markDirty();
         BlockPos pos = getPos();
         BlockState state = getCachedState();
-        getWorld().scheduleBlockRender( pos );
         getWorld().updateListeners( pos, state, state, 3 );
     }
 

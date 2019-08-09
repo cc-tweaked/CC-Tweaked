@@ -6,13 +6,13 @@
 
 package dan200.computercraft.shared.mixed;
 
-import net.minecraft.util.AbsoluteHand;
+import net.minecraft.util.Arm;
 
 public interface MixedFirstPersonRenderer
 {
     void renderArms_CC();
 
-    void renderArmFirstPerson_CC( float equip, float swing, AbsoluteHand hand );
+    void renderArmFirstPerson_CC( float equip, float swing, Arm hand );
 
     float getMapAngleFromPitch_CC( float pitch );
 }

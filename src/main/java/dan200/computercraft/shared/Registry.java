@@ -184,7 +184,7 @@ public final class Registry
 
     private static Item.Settings defaultItem()
     {
-        return new Item.Settings().itemGroup( mainItemGroup );
+        return new Item.Settings().group( mainItemGroup );
     }
 
     public static void registerItems( MutableRegistry<Item> registry )
@@ -206,23 +206,23 @@ public final class Registry
         registerItemBlock( registry, ComputerCraft.Items.turtleAdvanced );
 
         // Pocket computer
-        ComputerCraft.Items.pocketComputerNormal = new ItemPocketComputer( defaultItem().stackSize( 1 ), ComputerFamily.Normal );
-        ComputerCraft.Items.pocketComputerAdvanced = new ItemPocketComputer( defaultItem().stackSize( 1 ), ComputerFamily.Advanced );
+        ComputerCraft.Items.pocketComputerNormal = new ItemPocketComputer( defaultItem().maxCount( 1 ), ComputerFamily.Normal );
+        ComputerCraft.Items.pocketComputerAdvanced = new ItemPocketComputer( defaultItem().maxCount( 1 ), ComputerFamily.Advanced );
 
         registry.add( new Identifier( ComputerCraft.MOD_ID, "pocket_computer_normal" ), ComputerCraft.Items.pocketComputerNormal );
         registry.add( new Identifier( ComputerCraft.MOD_ID, "pocket_computer_advanced" ), ComputerCraft.Items.pocketComputerAdvanced );
 
         // Floppy disk
-        ComputerCraft.Items.disk = new ItemDisk( defaultItem().stackSize( 1 ) );
-        ComputerCraft.Items.treasureDisk = new ItemTreasureDisk( defaultItem().stackSize( 1 ) );
+        ComputerCraft.Items.disk = new ItemDisk( defaultItem().maxCount( 1 ) );
+        ComputerCraft.Items.treasureDisk = new ItemTreasureDisk( defaultItem().maxCount( 1 ) );
 
         registry.add( new Identifier( ComputerCraft.MOD_ID, "disk" ), ComputerCraft.Items.disk );
         registry.add( new Identifier( ComputerCraft.MOD_ID, "treasure_disk" ), ComputerCraft.Items.treasureDisk );
 
         // Printouts
-        ComputerCraft.Items.printedPage = new ItemPrintout( defaultItem().stackSize( 1 ), ItemPrintout.Type.PAGE );
-        ComputerCraft.Items.printedPages = new ItemPrintout( defaultItem().stackSize( 1 ), ItemPrintout.Type.PAGES );
-        ComputerCraft.Items.printedBook = new ItemPrintout( defaultItem().stackSize( 1 ), ItemPrintout.Type.BOOK );
+        ComputerCraft.Items.printedPage = new ItemPrintout( defaultItem().maxCount( 1 ), ItemPrintout.Type.PAGE );
+        ComputerCraft.Items.printedPages = new ItemPrintout( defaultItem().maxCount( 1 ), ItemPrintout.Type.PAGES );
+        ComputerCraft.Items.printedBook = new ItemPrintout( defaultItem().maxCount( 1 ), ItemPrintout.Type.BOOK );
 
         registry.add( new Identifier( ComputerCraft.MOD_ID, "printed_page" ), ComputerCraft.Items.printedPage );
         registry.add( new Identifier( ComputerCraft.MOD_ID, "printed_pages" ), ComputerCraft.Items.printedPages );

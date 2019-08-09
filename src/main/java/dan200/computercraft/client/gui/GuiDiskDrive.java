@@ -20,13 +20,13 @@ public class GuiDiskDrive extends AbstractContainerScreen<ContainerDiskDrive>
 
     public GuiDiskDrive( ContainerDiskDrive container, PlayerInventory inventory )
     {
-        super( container, inventory, ComputerCraft.Blocks.diskDrive.getTextComponent() );
+        super( container, inventory, ComputerCraft.Blocks.diskDrive.getName() );
     }
 
     @Override
     protected void drawForeground( int par1, int par2 )
     {
-        String title = getTitle().getFormattedText();
+        String title = getTitle().asFormattedString();
         font.draw( title, (containerWidth - font.getStringWidth( title )) / 2.0f, 6, 0x404040 );
         font.draw( I18n.translate( "container.inventory" ), 8, (containerHeight - 96) + 2, 0x404040 );
     }

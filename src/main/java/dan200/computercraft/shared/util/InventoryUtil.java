@@ -26,7 +26,7 @@ public final class InventoryUtil
 
     public static boolean areItemsEqual( @Nonnull ItemStack a, @Nonnull ItemStack b )
     {
-        return a == b || ItemStack.areEqual( a, b );
+        return a == b || ItemStack.areEqualIgnoreDamage( a, b );
     }
 
     public static boolean areItemsStackable( @Nonnull ItemStack a, @Nonnull ItemStack b )
@@ -171,16 +171,16 @@ public final class InventoryUtil
             ItemStack extracted = inventory.take( slot, count, partialStack, false );
             if( extracted.isEmpty() ) continue;
 
-            count -= extracted.getAmount();
+            count -= extracted.getCount();
             if( partialStack.isEmpty() )
             {
                 // If we've extracted for this first time, then limit the count to the maximum stack size.
                 partialStack = extracted;
-                count = Math.min( count, extracted.getMaxAmount() );
+                count = Math.min( count, extracted.getMaxCount() );
             }
             else
             {
-                partialStack.addAmount( extracted.getAmount() );
+                partialStack.increment( extracted.getCount() );
             }
         }
 

@@ -22,11 +22,10 @@ import net.minecraft.entity.passive.HorseBaseEntity;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.ClientConnection;
+import net.minecraft.network.MessageType;
 import net.minecraft.network.NetworkSide;
 import net.minecraft.network.NetworkState;
 import net.minecraft.network.Packet;
-import net.minecraft.network.chat.ChatMessageType;
-import net.minecraft.network.chat.Component;
 import net.minecraft.recipe.Recipe;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -36,6 +35,7 @@ import net.minecraft.server.network.packet.VehicleMoveC2SPacket;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
+import net.minecraft.text.Text;
 import net.minecraft.util.DefaultedList;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.ChunkPos;
@@ -108,7 +108,7 @@ public class FakePlayer extends ServerPlayerEntity
     }
 
     @Override
-    public void sendTradeOffers( int id, TraderOfferList list, int level, int experience, boolean levelled ) { }
+    public void sendTradeOffers( int id, TraderOfferList list, int level, int experience, boolean levelled, boolean refreshable ) { }
 
     @Override
     public void openHorseInventory( HorseBaseEntity horse, Inventory inventory ) { }
@@ -135,7 +135,7 @@ public class FakePlayer extends ServerPlayerEntity
     public void method_14241() { }
 
     @Override
-    public void addChatMessage( Component textComponent, boolean status ) { }
+    public void addChatMessage( Text textComponent, boolean status ) { }
 
     @Override
     protected void method_6040() { }
@@ -162,7 +162,7 @@ public class FakePlayer extends ServerPlayerEntity
     public void setGameMode( GameMode gameMode ) { }
 
     @Override
-    public void sendChatMessage( Component textComponent, ChatMessageType chatMessageType ) { }
+    public void sendChatMessage( Text textComponent, MessageType chatMessageType ) { }
 
     @Override
     public String getServerBrand()
@@ -214,7 +214,7 @@ public class FakePlayer extends ServerPlayerEntity
         }
 
         @Override
-        public void disconnect( Component message ) { }
+        public void disconnect( Text message ) { }
 
         @Override
         public void onRequestCommandCompletions( RequestCommandCompletionsC2SPacket packet ) { }
@@ -244,7 +244,7 @@ public class FakePlayer extends ServerPlayerEntity
         }
 
         @Override
-        public void disconnect( Component message )
+        public void disconnect( Text message )
         {
         }
 

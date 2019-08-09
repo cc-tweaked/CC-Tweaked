@@ -26,6 +26,7 @@ import net.fabricmc.fabric.api.client.model.ModelLoadingRegistry;
 import net.fabricmc.fabric.api.client.render.BlockEntityRendererRegistry;
 import net.fabricmc.fabric.api.event.client.ClientSpriteRegistryCallback;
 import net.fabricmc.fabric.api.event.client.ClientTickCallback;
+import net.minecraft.client.texture.SpriteAtlasTexture;
 import net.minecraft.container.ArrayPropertyDelegate;
 import net.minecraft.inventory.BasicInventory;
 
@@ -41,7 +42,7 @@ public final class ComputerCraftProxyClient
         BlockEntityRendererRegistry.INSTANCE.register( TileTurtle.class, new TileEntityTurtleRenderer() );
 
         ClientRegistry.onItemColours();
-        ClientSpriteRegistryCallback.registerBlockAtlas( ClientRegistry::onTextureStitchEvent );
+        ClientSpriteRegistryCallback.event( SpriteAtlasTexture.BLOCK_ATLAS_TEX ).register( ClientRegistry::onTextureStitchEvent );
         ModelLoadingRegistry.INSTANCE.registerAppender( ClientRegistry::onModelBakeEvent );
         ModelLoadingRegistry.INSTANCE.registerResourceProvider( loader -> ( name, context ) ->
             TurtleModelLoader.INSTANCE.accepts( name ) ? TurtleModelLoader.INSTANCE.loadModel( name ) : null

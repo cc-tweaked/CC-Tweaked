@@ -38,7 +38,7 @@ import net.minecraft.tag.FluidTags;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BoundingBox;
+import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -891,7 +891,7 @@ public class TurtleBrain implements ITurtleAccess
                         maxZ -= moveDir.getOffsetZ() * push;
                     }
 
-                    BoundingBox aabb = new BoundingBox( minX, minY, minZ, maxX, maxY, maxZ );
+                    Box aabb = new Box( minX, minY, minZ, maxX, maxY, maxZ );
                     List<Entity> list = world.getEntities( (Entity) null, aabb, EntityPredicates.EXCEPT_SPECTATOR );
                     if( !list.isEmpty() )
                     {

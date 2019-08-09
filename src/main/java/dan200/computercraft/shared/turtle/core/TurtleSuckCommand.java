@@ -20,7 +20,7 @@ import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.predicate.entity.EntityPredicates;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BoundingBox;
+import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 
@@ -97,7 +97,7 @@ public class TurtleSuckCommand implements ITurtleCommand
         else
         {
             // Suck up loose items off the ground
-            BoundingBox aabb = new BoundingBox(
+            Box aabb = new Box(
                 newPosition.getX(), newPosition.getY(), newPosition.getZ(),
                 newPosition.getX() + 1.0, newPosition.getY() + 1.0, newPosition.getZ() + 1.0
             );
@@ -116,7 +116,7 @@ public class TurtleSuckCommand implements ITurtleCommand
                     ItemStack stack = entityItem.getStack().copy();
                     ItemStack storeStack;
                     ItemStack leaveStack;
-                    if( stack.getAmount() > m_quantity )
+                    if( stack.getCount() > m_quantity )
                     {
                         storeStack = stack.split( m_quantity );
                         leaveStack = stack;
@@ -144,7 +144,7 @@ public class TurtleSuckCommand implements ITurtleCommand
                         }
                         else
                         {
-                            leaveStack.addAmount( remainder.getAmount() );
+                            leaveStack.increment( remainder.getCount() );
                             entityItem.setStack( leaveStack );
                         }
                         break;
