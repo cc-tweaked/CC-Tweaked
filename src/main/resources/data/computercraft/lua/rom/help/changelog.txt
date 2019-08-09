@@ -1,3 +1,7 @@
+# New features in CC:T for Fabric 1.83.2
+
+* Update to Minecraft 1.14.4
+
 # New features in CC: Tweaked 1.83.1
 
 * Add several new MOTD messages (JakobDev)
