@@ -12,6 +12,7 @@ import dan200.computercraft.shared.common.IColouredItem;
 import dan200.computercraft.shared.media.items.ItemDisk;
 import dan200.computercraft.shared.pocket.items.ItemPocketComputer;
 import dan200.computercraft.shared.util.Colour;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.model.IBakedModel;
 import net.minecraft.client.renderer.model.IUnbakedModel;
 import net.minecraft.client.renderer.model.ModelResourceLocation;
@@ -58,8 +59,8 @@ public final class ClientRegistry
     };
 
     private static final String[] EXTRA_TEXTURES = new String[] {
-        // TODO: Gather these automatically from the model. I'm unable to get this working with Forge's current
-        //  model loading code.
+        // TODO: Gather these automatically from the model. Sadly the model loader isn't available
+        //  when stitching textures.
         "block/turtle_colour",
         "block/turtle_elf_overlay",
         "block/turtle_crafty_face",
@@ -77,13 +78,12 @@ public final class ClientRegistry
     @SubscribeEvent
     public static void onTextureStitchEvent( TextureStitchEvent.Pre event )
     {
-        /*
-        IResourceManager manager = Minecraft.getInstance().getResourceManager();
+        if( event.getMap() != Minecraft.getInstance().getTextureMap() ) return;
+
         for( String extra : EXTRA_TEXTURES )
         {
-            // TODO: event.getMap().registerSprite( manager, new ResourceLocation( ComputerCraft.MOD_ID, extra ) );
+            event.addSprite( new ResourceLocation( ComputerCraft.MOD_ID, extra ) );
         }
-        */
     }
 
     @SubscribeEvent

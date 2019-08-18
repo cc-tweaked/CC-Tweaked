@@ -94,11 +94,11 @@ dependencies {
 
     minecraft "net.minecraftforge:forge:${mc_version}-${forge_version}"
 
-    compileOnly fg.deobf("mezz.jei:jei-1.14.3:6.0.0.7:api")
+    compileOnly fg.deobf("mezz.jei:jei-1.14.4:6.0.0.10:api")
     // deobfProvided "pl.asie:Charset-Lib:0.5.4.6"
     // deobfProvided "MCMultiPart2:MCMultiPart:2.5.3"
 
-    runtimeOnly fg.deobf("mezz.jei:jei-1.14.3:6.0.0.7")
+    runtimeOnly fg.deobf("mezz.jei:jei-1.14.4:6.0.0.10")
 
     shade 'org.squiddev:Cobalt:0.5.0-SNAPSHOT'
 
