@@ -14,8 +14,6 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
-import net.minecraftforge.event.entity.living.LivingDropsEvent;
-import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -35,7 +33,6 @@ public final class DropConsumer
     private static Function<ItemStack, ItemStack> dropConsumer;
     private static List<ItemStack> remainingDrops;
     private static WeakReference<World> dropWorld;
-    private static BlockPos dropPos;
     private static AxisAlignedBB dropBounds;
     private static WeakReference<Entity> dropEntity;
 
@@ -45,7 +42,6 @@ public final class DropConsumer
         remainingDrops = new ArrayList<>();
         dropEntity = new WeakReference<>( entity );
         dropWorld = new WeakReference<>( entity.world );
-        dropPos = null;
         dropBounds = new AxisAlignedBB( entity.getPosition() ).grow( 2, 2, 2 );
 
         entity.captureDrops = true;
@@ -54,10 +50,9 @@ public final class DropConsumer
     public static void set( World world, BlockPos pos, Function<ItemStack, ItemStack> consumer )
     {
         dropConsumer = consumer;
-        remainingDrops = new ArrayList<>();
+        remainingDrops = new ArrayList<>( 2 );
         dropEntity = null;
         dropWorld = new WeakReference<>( world );
-        dropPos = pos;
         dropBounds = new AxisAlignedBB( pos ).grow( 2, 2, 2 );
     }
 
@@ -83,7 +78,6 @@ public final class DropConsumer
         remainingDrops = null;
         dropEntity = null;
         dropWorld = null;
-        dropPos = null;
         dropBounds = null;
 
         return remainingStacks;
@@ -93,33 +87,6 @@ public final class DropConsumer
     {
         ItemStack remaining = dropConsumer.apply( stack );
         if( !remaining.isEmpty() ) remainingDrops.add( remaining );
-    }
-
-    @SubscribeEvent( priority = EventPriority.LOWEST )
-    public static void onEntityLivingDrops( LivingDropsEvent event )
-    {
-        // Capture any mob drops for the current entity
-        if( dropEntity != null && event.getEntity() == dropEntity.get() )
-        {
-            List<EntityItem> drops = event.getDrops();
-            for( EntityItem entityItem : drops ) handleDrops( entityItem.getItem() );
-            drops.clear();
-        }
-    }
-
-    @SubscribeEvent( priority = EventPriority.LOWEST )
-    public static void onHarvestDrops( BlockEvent.HarvestDropsEvent event )
-    {
-        // Capture block drops for the current entity
-        if( dropWorld != null && dropWorld.get() == event.getWorld()
-            && dropPos != null && dropPos.equals( event.getPos() ) )
-        {
-            for( ItemStack item : event.getDrops() )
-            {
-                if( event.getWorld().rand.nextFloat() < event.getDropChance() ) handleDrops( item );
-            }
-            event.getDrops().clear();
-        }
     }
 
     @SubscribeEvent( priority = EventPriority.LOWEST )
