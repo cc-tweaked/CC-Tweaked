@@ -311,13 +311,13 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
     @Override
     public double getTimeOfDay()
     {
-        return (m_world.getGameTime() + 6000) % 24000 / 1000.0;
+        return (m_world.getDayTime() + 6000) % 24000 / 1000.0;
     }
 
     @Override
     public int getDay()
     {
-        return (int) ((m_world.getGameTime() + 6000) / 24000) + 1;
+        return (int) ((m_world.getDayTime() + 6000) / 24000) + 1;
     }
 
     @Override
