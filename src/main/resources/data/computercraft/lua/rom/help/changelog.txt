@@ -1,3 +1,8 @@
+# New features in CC:T for Fabric 1.83.2+build.2
+
+* Fix os.time() and os.day() behavior (doomy64)
+* Change versioning scheme (add build number for each version)
+
 # New features in CC:T for Fabric 1.83.2
 
 * Update to Minecraft 1.14.4
