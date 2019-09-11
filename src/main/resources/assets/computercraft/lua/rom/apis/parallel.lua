@@ -1,10 +1,10 @@
-local function create( level, ... )
+local function create( ... )
     local tFns = table.pack(...)
     local tCos = {}
     for i = 1, tFns.n, 1 do
         local fn = tFns[i]
         if type( fn ) ~= "function" then
-            error( "bad argument #" .. i .. " (expected function, got " .. type( fn ) .. ")", level+3 )
+            error( "bad argument #" .. i .. " (expected function, got " .. type( fn ) .. ")", 4 )
         end
 
         tCos[i] = coroutine.create(fn)
@@ -13,33 +13,35 @@ local function create( level, ... )
     return tCos
 end
 
-local function runUntilLimit( _routines, _data, _limit )
-    local run, count = true, #_routines
+local function checkDead(self, r, n)
+    if r and coroutine.status( r ) == "dead" then
+        for i = 1, #self._coroutines do
+            if r == self._coroutines[i] then
+                table.remove(self._coroutines, i)
+                self._removed[#self._removed+1] = i
+                if _any then
+                    return i
+                elseif #self._removed == self._total then
+                    return true
+                end
+            end
+        end
+    end
+end
 
+local group = {}
+
+function runUntilLimit( self, _any )
+    local buffer
     local tFilters = {}
     local eventData = { n = 0 }
 
-    local function checkDead(r, n)
-        local living = count
-        if r and coroutine.status( r ) == "dead" then
-            _routines[n] = nil
-        end
-        for i = 1, count do
-            if _routines[i] == nil then
-                living = living-1
-            end
-        end
-        if living <= _limit then
-            return n
-        end
-    end
-
     while true do
-        local buffer = {}
-        for i = 1, count do
-            buffer[#buffer+1] = _routines[i]
+        buffer = {}
+        for i = 1, #self._coroutines do
+            buffer[#buffer+1] = self._coroutines[i]
         end
-        for n=1,count do
+        for n=1,#buffer do
             local r = buffer[n]
             if r then
                 if tFilters[r] == nil or tFilters[r] == eventData[1] or eventData[1] == "terminate" then
@@ -49,43 +51,46 @@ local function runUntilLimit( _routines, _data, _limit )
                     else
                         tFilters[r] = param
                     end
-                    if _data then
-                        local last_count = count
-                        run, count = _data()
-                        if _limit > 0 then
-                            _limit = _limit+(count-last_count)
-                        end
-                    end
-                    local c = checkDead(r, n)
-                    if c then return c end
                 end
+                local c = checkDead(self, buffer[n], n)
+                if c then return c end
             end
         end
-        for n = 1, count do
-            local c = checkDead(_routines[n], n)
+        for n = 1, #buffer do
+            local c = checkDead(self, buffer[n], n)
             if c then return c end
         end
-        if not run then
+        if not self._run then
             return
         end
         eventData = table.pack( os.pullEventRaw() )
     end
 end
 
-local group = {}
-
 function group:add(...)
-    local set = create(1, ...)
-    local rfuncs = {}
+    local set = create( ... )
+    local ids = {}
     for i = 1, #set do
-        self._coroutines[self._total+1] = set[i]
+        self._coroutines[#self._coroutines+1] = set[i]
         self._total = self._total+1
-        local del = self._total
-        rfuncs[#rfuncs+1] = function()
-            self._coroutines[del] = nil
+        ids[i] = self._total
+    end
+    return table.unpack(ids)
+end
+
+function group:remove(id)
+    local out
+    for i = 1, #self._removed do
+        if self._removed[i] <= id then
+            id = id-1
         end
     end
-    return table.unpack(rfuncs)
+    if self._coroutines[id] then
+        table.remove(self._coroutines, id)
+        self._removed[#self._removed+1] = id
+        return true
+    end
+    return false
 end
 
 function group:stop()
@@ -93,20 +98,19 @@ function group:stop()
 end
 
 function group:waitForAll()
-    runUntilLimit( self._coroutines, self._data, 0 )
+    runUntilLimit( self, false )
 end
 
 function group:waitForAny()
-    return runUntilLimit( self._coroutines, self._data, #self._coroutines-1 )
+    return runUntilLimit( self, true )
 end
-
-
 
 function createGroup( ... )
     local inst = setmetatable(
         { 
             _run = true, 
             _coroutines = {},
+            _removed = {},
             _total = 0
         }, 
         { 
@@ -116,15 +120,16 @@ function createGroup( ... )
     inst._data = function()
         return inst._run, inst._total
     end
-    return inst, inst:add(...)
+    inst:add(...)
+    return inst
 end
 
 function waitForAny( ... )
-    local routines = create(0, ...)
-    return runUntilLimit( routines, nil, #routines - 1 )
+    local routines = createGroup( ... )
+    return routines:runUntilLimit( true )
 end
 
 function waitForAll( ... )
-    local routines = create(0, ...)
-    runUntilLimit( routines, nil, 0 )
+    local routines = createGroup( ... )
+    routines:runUntilLimit( false )
 end

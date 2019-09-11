@@ -976,7 +976,8 @@ if fs.exists( ".settings" ) then
 end
 
 -- Run the shell
-local top = parallel.createGroup()
+local top, living = parallel.createGroup(), true
+local err
 top:add(
     function()
         local sShell
@@ -987,23 +988,30 @@ top:add(
         end
         os.run( {}, sShell )
         os.run( {}, "rom/programs/shutdown.lua" )
-    end, 
-    rednet.run,
+    end, rednet.run)
+
+local biggest = top:add(
     function()
         repeat
             coroutine.yield()
-        until not top._coroutines[1] or not top._coroutines[2]
+        until not living
         top:stop()
-    end
-)
+    end)
 
 function os.runTask(f)
+    expect(1, f, "function")
     return top:add(f)
 end
 
-local ok, err = pcall( function()
-    top:waitForAll()
-end )
+function os.stopTask(id)
+    expect(1, id, "number")
+    if id > biggest then
+        return top:remove(id)
+    end
+    return false
+end
+
+local ok, err = pcall(top.waitForAll, top)
 
 -- If the shell errored, let the user read it.
 term.redirect( term.native() )
