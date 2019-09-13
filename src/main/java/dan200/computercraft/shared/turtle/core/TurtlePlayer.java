@@ -16,6 +16,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
@@ -109,5 +110,13 @@ public final class TurtlePlayer extends FakePlayer
         }
         inventory.markDirty();
         return results;
+    }
+
+    @Override
+    public Vec3d getCameraPosVec(float float_1) {
+        y-=getStandingEyeHeight();
+        Vec3d r = super.getCameraPosVec(float_1);
+        y+=getStandingEyeHeight();
+        return r;
     }
 }
