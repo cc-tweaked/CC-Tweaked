@@ -227,35 +227,21 @@ public class TurtlePlaceCommand implements ITurtleCommand
 
         // Place on the entity
         boolean placed = false;
-        ActionResult cancelResult = null; // ForgeHooks.onInteractEntityAt( turtlePlayer, hitEntity, hitPos, Hand.MAIN_HAND);
-        if( cancelResult == null )
-        {
-            cancelResult = hitEntity.interactAt( turtlePlayer, hitPos, Hand.MAIN_HAND );
-        }
-
+        ActionResult cancelResult = hitEntity.interactAt( turtlePlayer, hitPos, Hand.MAIN_HAND );
         if( cancelResult == ActionResult.SUCCESS )
         {
             placed = true;
         }
         else
         {
-            // See PlayerEntity.interactOn
-            // cancelResult = ForgeHooks.onInteractEntity( turtlePlayer, hitEntity, Hand.MAIN_HAND);
-            if( cancelResult == ActionResult.SUCCESS )
+            if( hitEntity.interact( turtlePlayer, Hand.MAIN_HAND ) )
             {
                 placed = true;
             }
-            else if( cancelResult == null )
+            else if( hitEntity instanceof LivingEntity )
             {
-                if( hitEntity.interact( turtlePlayer, Hand.MAIN_HAND ) )
-                {
-                    placed = true;
-                }
-                else if( hitEntity instanceof LivingEntity )
-                {
-                    placed = stackCopy.useOnEntity( turtlePlayer, (LivingEntity) hitEntity, Hand.MAIN_HAND );
-                    if( placed ) turtlePlayer.loadInventory( stackCopy );
-                }
+                placed = stackCopy.useOnEntity( turtlePlayer, (LivingEntity) hitEntity, Hand.MAIN_HAND );
+                if( placed ) turtlePlayer.loadInventory( stackCopy );
             }
         }
 
