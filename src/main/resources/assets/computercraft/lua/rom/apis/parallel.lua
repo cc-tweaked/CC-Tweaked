@@ -13,84 +13,77 @@ local function create( ... )
     return tCos
 end
 
-local function checkDead(self, r, n)
-    if r and coroutine.status( r ) == "dead" then
-        for i = 1, #self._coroutines do
-            if r == self._coroutines[i] then
-                table.remove(self._coroutines, i)
-                self._removed[#self._removed+1] = i
-                if _any then
-                    return i
-                elseif #self._removed == self._total then
-                    return true
-                end
-            end
-        end
-    end
-end
-
 local group = {}
+group.__index = group
 
-function runUntilLimit( self, _any )
-    local buffer
-    local tFilters = {}
+function runUntilLimit( self, any )
+    if self._count <= 0 then error("Cannot run group without coroutines", 3) end
+    if self._run then error("Group is already running", 3) end
+    self._run = true
+
+    local tFilters = setmetatable({}, { __mode = "k" })
     local eventData = { n = 0 }
 
     while true do
-        buffer = {}
-        for i = 1, #self._coroutines do
-            buffer[#buffer+1] = self._coroutines[i]
-        end
-        for n=1,#buffer do
-            local r = buffer[n]
+        local coroutines, n = self._coroutines, self._count
+
+        for i = 1, n do
+            local r = coroutines[i]
             if r then
                 if tFilters[r] == nil or tFilters[r] == eventData[1] or eventData[1] == "terminate" then
                     local ok, param = coroutine.resume( r, table.unpack( eventData, 1, eventData.n ) )
                     if not ok then
+                        self:remove(r) self._run = false -- Dubious, but w/e.
                         error( param, 0 )
                     else
                         tFilters[r] = param
                     end
                 end
-                local c = checkDead(self, buffer[n], n)
-                if c then return c end
+
+                if coroutine.status(r) == "dead" then
+                    self:remove(r)
+                    if any then self._run = false return end
+                end
             end
         end
-        for n = 1, #buffer do
-            local c = checkDead(self, buffer[n], n)
-            if c then return c end
-        end
-        if not self._run then
-            return
-        end
+
+        if not self._run or self._count <= 0 then self._run = false return end
+
         eventData = table.pack( os.pullEventRaw() )
+
+        if not self._run then self._run = false return end
     end
 end
 
 function group:add(...)
     local set = create( ... )
-    local ids = {}
+    local objs = { }
     for i = 1, #set do
         self._coroutines[#self._coroutines+1] = set[i]
-        self._total = self._total+1
-        ids[i] = self._total
+        self._count = self._count + 1
+        objs[i] = set[i] -- TODO: Put this in a wrapper??
     end
-    return table.unpack(ids)
+    return table.unpack(objs)
 end
 
-function group:remove(id)
-    local out
-    for i = 1, #self._removed do
-        if self._removed[i] <= id then
-            id = id-1
+function group:remove(co)
+    local routines, index = self._coroutines, nil
+    for i = 1, self._count do
+        if routines[i] == co then
+            index = i
+            break
         end
     end
-    if self._coroutines[id] then
-        table.remove(self._coroutines, id)
-        self._removed[#self._removed+1] = id
-        return true
-    end
-    return false
+
+    if not index then return false end
+
+    local new_routines = {}
+    for i = 1, index - 1 do new_routines[i] = routines[i] end
+    for i = index + 1, index do new_routines[i - 1] = routines[i] end
+
+    self._coroutines = new_routines
+    self._count = self._count - 1
+    return true
 end
 
 function group:stop()
@@ -106,30 +99,19 @@ function group:waitForAny()
 end
 
 function createGroup( ... )
-    local inst = setmetatable(
-        { 
-            _run = true, 
-            _coroutines = {},
-            _removed = {},
-            _total = 0
-        }, 
-        { 
-            __index = group 
-        }
-    )
-    inst._data = function()
-        return inst._run, inst._total
-    end
+    local inst = setmetatable({
+        _run = false,
+        _coroutines = {},
+        _count = 0
+    }, group)
     inst:add(...)
     return inst
 end
 
 function waitForAny( ... )
-    local routines = createGroup( ... )
-    return routines:runUntilLimit( true )
+    return createGroup( ... ):waitForAny()
 end
 
 function waitForAll( ... )
-    local routines = createGroup( ... )
-    routines:runUntilLimit( false )
+    return createGroup( ... ):waitForAll()
 end
