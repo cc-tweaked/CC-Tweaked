@@ -978,7 +978,7 @@ end
 -- Run the shell
 local top, living = parallel.createGroup(), true
 local err
-top:add(
+local cShell, cRednet = top:add(
     function()
         local sShell
         if term.isColour() and settings.get( "bios.use_multishell" ) then
@@ -990,25 +990,13 @@ top:add(
         os.run( {}, "rom/programs/shutdown.lua" )
     end, rednet.run)
 
-local biggest = top:add(
-    function()
-        repeat
-            coroutine.yield()
-        until not living
-        top:stop()
-    end)
-
 function os.runTask(f)
     expect(1, f, "function")
     return top:add(f)
 end
 
 function os.stopTask(id)
-    expect(1, id, "number")
-    if id > biggest then
-        return top:remove(id)
-    end
-    return false
+    return top:remove(id)
 end
 
 local ok, err = pcall(top.waitForAll, top)

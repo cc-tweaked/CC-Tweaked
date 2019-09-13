@@ -57,13 +57,11 @@ end
 
 function group:add(...)
     local set = create( ... )
-    local objs = { }
     for i = 1, #set do
         self._coroutines[#self._coroutines+1] = set[i]
         self._count = self._count + 1
-        objs[i] = set[i] -- TODO: Put this in a wrapper??
     end
-    return table.unpack(objs)
+    return table.unpack(set)
 end
 
 function group:remove(co)
@@ -79,7 +77,7 @@ function group:remove(co)
 
     local new_routines = {}
     for i = 1, index - 1 do new_routines[i] = routines[i] end
-    for i = index + 1, index do new_routines[i - 1] = routines[i] end
+    for i = index + 1, self._count do new_routines[i - 1] = routines[i] end
 
     self._coroutines = new_routines
     self._count = self._count - 1
