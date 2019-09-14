@@ -15,7 +15,6 @@ import dan200.computercraft.api.turtle.event.TurtleBlockEvent;
 import dan200.computercraft.api.turtle.event.TurtleEvent;
 import dan200.computercraft.shared.TurtlePermissions;
 import dan200.computercraft.shared.util.*;
-import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.SignBlockEntity;
 import net.minecraft.entity.Entity;
@@ -268,36 +267,6 @@ public class TurtlePlaceCommand implements ITurtleCommand
         }
     }
 
-    private static boolean canDeployOnBlock( @Nonnull ItemPlacementContext context, ITurtleAccess turtle, TurtlePlayer player, BlockPos position, Direction side, boolean allowReplaceable, String[] outErrorMessage )
-    {
-        World world = turtle.getWorld();
-        if( !World.isValid( position ) || world.isAir( position ) ||
-            (context.getStack().getItem() instanceof BlockItem && WorldUtil.isLiquidBlock( world, position )) )
-        {
-            return false;
-        }
-
-        BlockState state = world.getBlockState( position );
-
-        boolean replaceable = state.canReplace( context );
-        if( !allowReplaceable && replaceable ) return false;
-
-        if( ComputerCraft.turtlesObeyBlockProtection )
-        {
-            // Check spawn protection
-            boolean editable = replaceable
-                ? TurtlePermissions.isBlockEditable( world, position, player )
-                : TurtlePermissions.isBlockEditable( world, position.offset( side ), player );
-            if( !editable )
-            {
-                if( outErrorMessage != null ) outErrorMessage[0] = "Cannot place in protected area";
-                return false;
-            }
-        }
-
-        return context.canPlace();
-    }
-
     @Nonnull
     private static ItemStack deployOnBlock( @Nonnull ItemStack stack, ITurtleAccess turtle, TurtlePlayer turtlePlayer, BlockPos position, Direction side, Object[] extraArguments, boolean allowReplace, String[] outErrorMessage )
     {
@@ -306,6 +275,7 @@ public class TurtlePlaceCommand implements ITurtleCommand
         BlockPos playerPosition = position.offset( side );
         orientPlayer( turtle, turtlePlayer, playerPosition, playerDir );
 
+        World world = turtle.getWorld();
         ItemStack stackCopy = stack.copy();
         turtlePlayer.loadInventory( stackCopy );
 
@@ -319,10 +289,30 @@ public class TurtlePlaceCommand implements ITurtleCommand
         }
 
         // Check if there's something suitable to place onto
-        ItemUsageContext context = new ItemUsageContext( turtlePlayer, Hand.MAIN_HAND, new BlockHitResult( new Vec3d( hitX, hitY, hitZ ), side, position, false ) );
-        if( !canDeployOnBlock( new ItemPlacementContext( context ), turtle, turtlePlayer, position, side, allowReplace, outErrorMessage ) )
+        BlockHitResult hit = new BlockHitResult( new Vec3d( hitX, hitY, hitZ ), side, position, false );
+        ItemUsageContext context = new ItemUsageContext( turtlePlayer, Hand.MAIN_HAND, hit );
+        ItemPlacementContext placementContext = new ItemPlacementContext( context );
+
+        if( !World.isValid( position ) || world.isAir( position ) ||
+            (context.getStack().getItem() instanceof BlockItem && WorldUtil.isLiquidBlock( world, position )) )
         {
             return stack;
+        }
+
+        boolean replaceable = world.getBlockState( position ).canReplace( placementContext );
+        if( !allowReplace && replaceable ) return stack;
+
+        if( ComputerCraft.turtlesObeyBlockProtection )
+        {
+            // Check spawn protection
+            boolean editable = replaceable
+                ? TurtlePermissions.isBlockEditable( world, position, turtlePlayer )
+                : TurtlePermissions.isBlockEditable( world, position.offset( side ), turtlePlayer );
+            if( !editable )
+            {
+                if( outErrorMessage != null ) outErrorMessage[0] = "Cannot place in protected area";
+                return stack;
+            }
         }
 
         // Load up the turtle's inventory
@@ -332,6 +322,7 @@ public class TurtlePlaceCommand implements ITurtleCommand
         boolean placed = false;
         BlockEntity existingTile = turtle.getWorld().getBlockEntity( position );
 
+        if (placementContext.canPlace())
         // See PlayerInteractionManager.processRightClickBlock
         /*
         PlayerInteractEvent.RightClickBlock event = ForgeHooks.onRightClickBlock( turtlePlayer, Hand.MAIN, position, side, new Vec3d( hitX, hitY, hitZ ) );
@@ -374,7 +365,6 @@ public class TurtlePlaceCommand implements ITurtleCommand
         {
             if( extraArguments != null && extraArguments.length >= 1 && extraArguments[0] instanceof String )
             {
-                World world = turtle.getWorld();
                 BlockEntity tile = world.getBlockEntity( position );
                 if( tile == null || tile == existingTile )
                 {
