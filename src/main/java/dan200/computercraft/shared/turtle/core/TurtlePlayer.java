@@ -114,9 +114,9 @@ public final class TurtlePlayer extends FakePlayer
 
     @Override
     public Vec3d getCameraPosVec(float float_1) {
-        y-=getStandingEyeHeight();
-        Vec3d r = super.getCameraPosVec(float_1);
-        y+=getStandingEyeHeight();
+        y-= getStandingEyeHeight();
+        Vec3d r = super.getCameraPosVec( float_1 );
+        y+= getStandingEyeHeight();
         return r;
     }
 }

@@ -58,7 +58,6 @@ public class TurtlePlaceCommand implements ITurtleCommand
 
         // Remember old block
         Direction direction = m_direction.toWorldDir( turtle );
-        World world = turtle.getWorld();
         BlockPos coordinates = turtle.getPosition().offset( direction );
 
         // Create a fake player, and orient it appropriately
@@ -322,20 +321,8 @@ public class TurtlePlaceCommand implements ITurtleCommand
         boolean placed = false;
         BlockEntity existingTile = turtle.getWorld().getBlockEntity( position );
 
-        if (placementContext.canPlace())
-        // See PlayerInteractionManager.processRightClickBlock
-        /*
-        PlayerInteractEvent.RightClickBlock event = ForgeHooks.onRightClickBlock( turtlePlayer, Hand.MAIN, position, side, new Vec3d( hitX, hitY, hitZ ) );
-        if( !event.isCanceled() ) */
-        {
-            /* if( item.onItemUseFirst( turtlePlayer, turtle.getWorld(), position, side, hitX, hitY, hitZ, Hand.MAIN_HAND) == ActionResult.SUCCESS )
-            {
-                placed = true;
-                turtlePlayer.loadInventory( stackCopy );
-            }
-            else*/
-            if( /* event.getUseItem() != Event.Result.DENY && */
-                stackCopy.useOnBlock( context ) == ActionResult.SUCCESS )
+        if( placementContext.canPlace() ) {
+            if( stackCopy.useOnBlock( context ) == ActionResult.SUCCESS )
             {
                 placed = true;
                 turtlePlayer.loadInventory( stackCopy );
@@ -344,19 +331,11 @@ public class TurtlePlaceCommand implements ITurtleCommand
 
         if( !placed && (item instanceof BucketItem || item instanceof BoatItem || item instanceof LilyPadItem || item instanceof GlassBottleItem) )
         {
-            ActionResult actionResult = null; // ForgeHooks.onItemRightClick( turtlePlayer, Hand.MAIN_HAND);
-            if( actionResult == ActionResult.SUCCESS )
+            TypedActionResult<ItemStack> result = stackCopy.use( turtle.getWorld(), turtlePlayer, Hand.MAIN_HAND );
+            if( result.getResult() == ActionResult.SUCCESS && !ItemStack.areEqualIgnoreDamage( stack, result.getValue() ) )
             {
                 placed = true;
-            }
-            else if( actionResult == null )
-            {
-                TypedActionResult<ItemStack> result = stackCopy.use( turtle.getWorld(), turtlePlayer, Hand.MAIN_HAND );
-                if( result.getResult() == ActionResult.SUCCESS && !ItemStack.areEqualIgnoreDamage( stack, result.getValue() ) )
-                {
-                    placed = true;
-                    turtlePlayer.loadInventory( result.getValue() );
-                }
+                turtlePlayer.loadInventory( result.getValue() );
             }
         }
 
