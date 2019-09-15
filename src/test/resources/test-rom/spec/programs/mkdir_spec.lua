@@ -23,7 +23,7 @@ describe("The mkdir program", function()
         io.open("/test-files.a.txt", "w"):close()
 
         local complete = shell.getCompletionInfo()["rom/programs/mkdir.lua"].fnComplete
-        expect(complete(shell, 1, "/test-files/", {})):same { "a/", "b/" }
-        expect(complete(shell, 2, "/test-files/", { "/" })):same { "a/", "b/" }
+        expect(complete(shell, 1, "/test-files/", {})):same { "a/", "a", "b/", "b" }
+        expect(complete(shell, 2, "/test-files/", { "/" })):same { "a/", "a", "b/", "b" }
     end)
 end)
