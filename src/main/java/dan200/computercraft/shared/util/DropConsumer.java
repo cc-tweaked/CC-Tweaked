@@ -89,7 +89,7 @@ public final class DropConsumer
         if( !remaining.isEmpty() ) remainingDrops.add( remaining );
     }
 
-    @SubscribeEvent( priority = EventPriority.LOWEST )
+    @SubscribeEvent( priority = EventPriority.HIGHEST )
     public static void onEntitySpawn( EntityJoinWorldEvent event )
     {
         // Capture any nearby item spawns
