@@ -83,7 +83,7 @@ public class CommandAPI implements ILuaAPI
         {
             sender.clearOutput();
             int result = commandManager.executeCommand( sender, command );
-            return new Object[] { result > 0, sender.copyOutput() };
+            return new Object[] { result > 0, sender.copyOutput(), result };
         }
         catch( Throwable t )
         {
