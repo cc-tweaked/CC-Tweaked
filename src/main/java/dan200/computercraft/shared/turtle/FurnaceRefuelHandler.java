@@ -33,7 +33,7 @@ public final class FurnaceRefuelHandler implements TurtleRefuelEvent.Handler
         int fuelSpaceLeft = turtle.getFuelLimit() - turtle.getFuelLevel();
         int fuelPerItem = getFuelPerItem( turtle.getItemHandler().getStackInSlot( slot ) );
         int fuelItemLimit = (int) Math.ceil( fuelSpaceLeft / (double) fuelPerItem );
-        if ( limit > fuelItemLimit ) limit = fuelItemLimit;
+        if( limit > fuelItemLimit ) limit = fuelItemLimit;
 
         ItemStack stack = turtle.getItemHandler().extractItem( slot, limit, false );
         int fuelToGive = fuelPerItem * stack.getCount();
