@@ -3,6 +3,10 @@
 -- Most programs may be completed using the @{build} helper method, rather than
 -- manually switching on the argument index.
 --
+-- Note, the helper functions within this module do not accept an argument index,
+-- and so are not directly usable with the @{shell.setCompletionFunction}. Instead,
+-- wrap them using @{build}, or your own custom function.
+--
 -- @module craftos.shell.completion
 -- @see cc.completion For more general helpers, suitable for use with @{read}.
 -- @see shell.setCompletionFunction
