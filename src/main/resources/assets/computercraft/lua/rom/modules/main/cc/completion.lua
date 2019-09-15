@@ -46,7 +46,7 @@ end
 -- @tparam[opt] boolean add_space Whether to add a space after the completed name.
 -- @treturn { string... } A list of suffixes of matching peripherals.
 -- @usage read(nil, nil, peripheral)
-local function peripheral(text, add_space)
+local function peripheral_(text, add_space)
     expect(1, text, "string")
     expect(2, add_space, "boolean", "nil")
     return choice_impl(text, peripheral.getNames(), add_space)
@@ -98,7 +98,7 @@ end
 
 return {
     choice = choice,
-    peripheral = peripheral,
+    peripheral = peripheral_,
     side = side,
     setting = setting,
     command = command,

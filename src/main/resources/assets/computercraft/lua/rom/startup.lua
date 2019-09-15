@@ -41,14 +41,14 @@ end
 
 -- Setup completion functions
 
-local function completePastebinPut(shell, index, text, previous)
+local function completePastebinPut(shell, text, previous)
     if previous[2] == "put" then
         return fs.complete(text, shell.dir(), true, false )
     end
 end
 
 shell.setCompletionFunction( "rom/programs/alias.lua", completion.build(nil, completion.program) )
-shell.setCompletionFunction( "rom/programs/cd.lua", completion.build(nil, completion.dir) )
+shell.setCompletionFunction( "rom/programs/cd.lua", completion.build(completion.dir) )
 shell.setCompletionFunction( "rom/programs/copy.lua", completion.build(
     { completion.dirOrFile, true },
     completion.dirOrFile
@@ -65,7 +65,7 @@ shell.setCompletionFunction( "rom/programs/label.lua", completion.build(
     completion.peripheral
 ) )
 shell.setCompletionFunction( "rom/programs/list.lua", completion.build(completion.dir) )
-shell.setCompletionFunction( "rom/programs/mkdir.lua", completion.build({ completion.file, many = true }) )
+shell.setCompletionFunction( "rom/programs/mkdir.lua", completion.build({ completion.dir, many = true }) )
 shell.setCompletionFunction( "rom/programs/monitor.lua", completion.build(
     { completion.peripheral, true },
     completion.program
@@ -83,9 +83,9 @@ shell.setCompletionFunction( "rom/programs/rename.lua", completion.build(
     completion.dirOrFile
 ) )
 shell.setCompletionFunction( "rom/programs/shell.lua", completion.build(completion.program) )
-shell.setCompletionFunction( "rom/programs/type.lua", completion.dirOrFile )
+shell.setCompletionFunction( "rom/programs/type.lua", completion.build(completion.dirOrFile) )
 shell.setCompletionFunction( "rom/programs/set.lua", completion.build({ completion.setting, true }) )
-shell.setCompletionFunction( "rom/programs/advanced/bg.lua", completion.build(completion.program) ) -- Program args?
+shell.setCompletionFunction( "rom/programs/advanced/bg.lua", completion.build(completion.program) )
 shell.setCompletionFunction( "rom/programs/advanced/fg.lua", completion.build(completion.program) )
 shell.setCompletionFunction( "rom/programs/fun/dj.lua", completion.build(
     { completion.choice, { "play", "play ", "stop " } },

@@ -13,20 +13,18 @@ local completion = require "cc.completion"
 --- Complete the name of a file relative to the current working directory.
 --
 -- @tparam shell shell The shell we're completing in
--- @tparam number index The argument index.
 -- @tparam { string... } choices The list of choices to complete from.
 -- @treturn { string... } A list of suffixes of matching files.
-local function file(shell, index, text)
+local function file(shell, text)
     return fs.complete(text, shell.dir(), true, false)
 end
 
 --- Complete the name of a directory relative to the current working directory.
 --
 -- @tparam shell shell The shell we're completing in
--- @tparam number index The argument index.
 -- @tparam { string... } choices The list of choices to complete from.
 -- @treturn { string... } A list of suffixes of matching directories.
-local function dir(shell, index, text)
+local function dir(shell, text)
     return fs.complete(text, shell.dir(), false, true)
 end
 
@@ -34,12 +32,11 @@ end
 -- directory.
 --
 -- @tparam shell shell The shell we're completing in
--- @tparam number index The argument index.
 -- @tparam { string... } choices The list of choices to complete from.
 -- @tparam { string... } previous The shell arguments before this one.
 -- @tparam[opt] boolean add_space Whether to add a space after the completed item.
 -- @treturn { string... } A list of suffixes of matching files and directories.
-local function dirOrFile(shell, index, text, previous, add_space)
+local function dirOrFile(shell, text, previous, add_space)
     local results = fs.complete(text, shell.dir(), true, true)
     if add_space then
         for n = 1, #results do
@@ -53,7 +50,7 @@ local function dirOrFile(shell, index, text, previous, add_space)
 end
 
 local function wrap(func)
-    return function(shell, index, text, previousText, ...)
+    return function(shell, text, previous, ...)
         return func(text, ...)
     end
 end
@@ -61,11 +58,10 @@ end
 --- Complete the name of a program.
 --
 -- @tparam shell shell The shell we're completing in
--- @tparam number index The argument index.
 -- @tparam { string... } choices The list of choices to complete from.
 -- @treturn { string... } A list of suffixes of matching programs.
-local function program(shell, index, text)
-    return shell.completeProgram(sText)
+local function program(shell, text)
+    return shell.completeProgram(text)
 end
 
 --- A helper function for building shell completion arguments.
@@ -79,14 +75,14 @@ end
 --  - `nil`: This argument will not be completed.
 --
 --  - A function: This argument will be completed with the given function. It is
---    called with the @{shell} object, the argument index, the string to complete
---    and the arguments before this one.
+--    called with the @{shell} object, the string to complete and the arguments
+--    before this one.
 --
 --  - A table: This acts as a more powerful version of the function case. The table
 --    must have a function as the first item - this will be called with the shell,
---    argument index, string and argument as above, but also followed by any
---    additional items in the table. This provides a more convenient interface to
---    pass options to your completion functions.
+--    string and preceding arguments as above, but also followed by any additional
+--    items in the table. This provides a more convenient interface to pass
+--    options to your completion functions.
 --
 --    If this table is the last argument, it may also set the `many` key to true,
 --    which states this function should be used to complete any remaining arguments.
@@ -129,7 +125,7 @@ local function build(...)
             if not arg or not arg.many then return end
         end
 
-        return arg[1](shell, index, text, previous, table.unpack(arg, 2))
+        return arg[1](shell, text, previous, table.unpack(arg, 2))
     end
 end
 
