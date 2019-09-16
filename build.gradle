@@ -7,7 +7,7 @@ buildscript {
 }
 
 plugins {
-    id 'fabric-loom' version '0.2.3-SNAPSHOT'
+    id 'fabric-loom' version '0.2.5-SNAPSHOT'
     id 'com.matthewprenger.cursegradle' version '1.2.0'
     id "com.github.breadmoirai.github-release" version "2.2.4"
 }
@@ -53,8 +53,8 @@ configurations {
 dependencies {
     minecraft "com.mojang:minecraft:${mc_version}"
     mappings "net.fabricmc:yarn:${mc_version}+build.${mappings_version}"
-    modCompile "net.fabricmc:fabric-loader:0.4.8+build.159"
-    modCompile "net.fabricmc.fabric-api:fabric-api:0.3.1+build.208"
+    modCompile "net.fabricmc:fabric-loader:0.6.1+build.165"
+    modCompile "net.fabricmc.fabric-api:fabric-api:0.3.2+build.226-1.14"
 
     implementation 'com.google.code.findbugs:jsr305:3.0.2'
 
@@ -287,7 +287,7 @@ curseforge {
             requiredDependency "fabric"
         }
         afterEvaluate {
-            mainArtifact(remapJar.output)
+            mainArtifact(remapJar)
             uploadTask.dependsOn(remapJar)
         }
     }
