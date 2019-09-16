@@ -321,7 +321,8 @@ public class TurtlePlaceCommand implements ITurtleCommand
         boolean placed = false;
         BlockEntity existingTile = turtle.getWorld().getBlockEntity( position );
 
-        if( placementContext.canPlace() ) {
+        if( placementContext.canPlace() )
+        {
             if( stackCopy.useOnBlock( context ) == ActionResult.SUCCESS )
             {
                 placed = true;
