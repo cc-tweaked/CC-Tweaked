@@ -18,7 +18,7 @@ apply plugin: 'maven'
 
 version = mod_version
 
-group = "org.squiddev"
+group = "org.mystia.craft"
 archivesBaseName = "cc-t-fabric-${mc_version}"
 
 minecraft {
