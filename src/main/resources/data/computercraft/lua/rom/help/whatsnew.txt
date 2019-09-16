@@ -1,6 +1,5 @@
-New features in CC:T for Fabric 1.83.2+build.2
+New features in CC:T for Fabric 1.83.2+build.3
 
-* Fix os.time() and os.day() behavior (doomy64)
-* Change versioning scheme (add build number for each version)
+* Fix turtle.place bugs (svitoos)
 
 Type "help changelog" to see the full version history.
