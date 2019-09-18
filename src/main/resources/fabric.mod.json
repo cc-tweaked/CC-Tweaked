@@ -21,10 +21,13 @@
         "fabricloader": ">=0.4.0",
         "fabric": "*"
     },
-
+    "suggests": {
+        "modmenu": "*"
+    },
     "environment": "*",
     "entrypoints": {
-        "main": [ "dan200.computercraft.ComputerCraft" ]
+        "main": [ "dan200.computercraft.ComputerCraft" ],
+        "modmenu": [ "dan200.computercraft.client.ModMenuIntegration" ]
     },
     "mixins": [
         { "config": "computercraft.client.json", "environment": "client" },

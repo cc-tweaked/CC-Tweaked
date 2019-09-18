@@ -34,6 +34,7 @@ import dan200.computercraft.shared.proxy.ComputerCraftProxyCommon;
 import dan200.computercraft.shared.turtle.blocks.BlockTurtle;
 import dan200.computercraft.shared.turtle.items.ItemTurtle;
 import dan200.computercraft.shared.turtle.upgrades.*;
+import dan200.computercraft.shared.util.Config;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.loader.api.FabricLoader;
@@ -44,6 +45,7 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Paths;
 import java.util.EnumSet;
 import java.util.concurrent.TimeUnit;
 
@@ -196,6 +198,7 @@ public final class ComputerCraft implements ModInitializer
     @Override
     public void onInitialize()
     {
+        Config.load( Paths.get( FabricLoader.getInstance().getConfigDirectory().getPath(), MOD_ID + ".json5" ) );
         ComputerCraftProxyCommon.setup();
         if( FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT )
         {

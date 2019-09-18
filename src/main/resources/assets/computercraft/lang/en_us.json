@@ -146,6 +146,9 @@
     "gui.computercraft.tooltip.computer_id": "(Computer ID: %s)",
     "gui.computercraft.tooltip.disk_id": "(Disk ID: %s)",
 
+    "gui.computercraft.config.title": "CC:T for Fabric",
+
+    "gui.computercraft.config.general": "General",
     "gui.computercraft.config.computer_space_limit": "Computer space limit (bytes)",
     "gui.computercraft.config.floppy_space_limit": "Floppy Disk space limit (bytes)",
     "gui.computercraft.config.maximum_open_files": "Maximum files open per computer",
