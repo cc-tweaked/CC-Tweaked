@@ -63,7 +63,7 @@ dependencies {
     implementation 'com.google.code.findbugs:jsr305:3.0.2'
 
     include "me.shedaniel.cloth:config-2:1.1.2"
-    include "blue.endless:jankson:1.1.0"
+    include "blue.endless:jankson:1.1.2"
 
     shade 'org.squiddev:Cobalt:0.5.0-SNAPSHOT'
     shade 'javax.vecmath:vecmath:1.5.2'
