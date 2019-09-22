@@ -1,3 +1,8 @@
+# New features in CC:T for Fabric 1.83.2+build.4
+
+* Add support for config file and in-game config GUI (svitoos)
+* Fix the repository url in motd
+
 # New features in CC:T for Fabric 1.83.2+build.3
 
 * Fix turtle.place bugs (svitoos)
