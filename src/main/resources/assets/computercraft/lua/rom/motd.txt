@@ -1,4 +1,4 @@
-View the source code at https://github.com/SquidDev-CC/CC-Tweaked
+View the source code at https://github.com/mystiacraft/cc-tweaked-fabric
 View the documentation at https://wiki.computercraft.cc
 Visit the forum at https://forums.computercraft.cc
 You can disable these messages by running "set motd.enable false"
