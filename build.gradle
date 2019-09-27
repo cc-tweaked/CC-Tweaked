@@ -56,13 +56,13 @@ dependencies {
     modCompile "net.fabricmc:fabric-loader:0.6.1+build.165"
     modCompile "net.fabricmc.fabric-api:fabric-api:0.3.2+build.226-1.14"
 
-    modImplementation "me.shedaniel.cloth:config-2:1.1.2"
+    modImplementation "me.shedaniel.cloth:config-2:1.1.3"
     modImplementation "io.github.prospector:modmenu:1.7.13+build.123"
 
     implementation "blue.endless:jankson:1.1.2"
     implementation 'com.google.code.findbugs:jsr305:3.0.2'
 
-    include "me.shedaniel.cloth:config-2:1.1.2"
+    include "me.shedaniel.cloth:config-2:1.1.3"
     include "blue.endless:jankson:1.1.2"
 
     shade 'org.squiddev:Cobalt:0.5.0-SNAPSHOT'
