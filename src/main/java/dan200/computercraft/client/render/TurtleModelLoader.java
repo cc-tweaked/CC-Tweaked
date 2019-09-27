@@ -84,6 +84,7 @@ public final class TurtleModelLoader
         public BakedModel bake( @Nonnull ModelLoader loader, @Nonnull Function<Identifier, Sprite> spriteGetter, @Nonnull ModelBakeSettings state )
         {
             return new TurtleSmartItemModel(
+                loader,
                 loader.getOrLoadModel( family ).bake( loader, spriteGetter, state ),
                 loader.getOrLoadModel( COLOUR_TURTLE_MODEL ).bake( loader, spriteGetter, state )
             );

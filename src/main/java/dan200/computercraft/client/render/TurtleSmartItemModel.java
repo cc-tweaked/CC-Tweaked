@@ -17,6 +17,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.model.BakedModel;
 import net.minecraft.client.render.model.BakedModelManager;
 import net.minecraft.client.render.model.BakedQuad;
+import net.minecraft.client.render.model.ModelLoader;
 import net.minecraft.client.render.model.json.ModelItemPropertyOverrideList;
 import net.minecraft.client.render.model.json.ModelTransformation;
 import net.minecraft.client.texture.Sprite;
@@ -106,13 +107,13 @@ public class TurtleSmartItemModel implements BakedModel
     private HashMap<TurtleModelCombination, BakedModel> m_cachedModels;
     private ModelItemPropertyOverrideList m_overrides;
 
-    public TurtleSmartItemModel( BakedModel familyModel, BakedModel colourModel )
+    public TurtleSmartItemModel( ModelLoader loader, BakedModel familyModel, BakedModel colourModel )
     {
         this.familyModel = familyModel;
         this.colourModel = colourModel;
 
         m_cachedModels = new HashMap<>();
-        m_overrides = new ModelItemPropertyOverrideList( null, null, null, Collections.emptyList() )
+        m_overrides = new ModelItemPropertyOverrideList( loader, null, null, Collections.emptyList() )
         {
             @Nonnull
             @Override
