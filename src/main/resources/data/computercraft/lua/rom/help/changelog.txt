@@ -1,3 +1,9 @@
+New features in CC:T for Fabric 1.83.2+build.5
+
+* Fix rendering issues with OptiFine
+* Fix version of bundled Jankson (svitoos)
+* Update ClothConfig
+
 # New features in CC:T for Fabric 1.83.2+build.4
 
 * Add support for config file and in-game config GUI (svitoos)
