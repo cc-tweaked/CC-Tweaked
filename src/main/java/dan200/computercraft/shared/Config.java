@@ -277,7 +277,7 @@ public final class Config
             renameProperty( CATEGORY_GENERAL, "turtlesCanPush", CATEGORY_TURTLE, "can_push" );
             renameProperty( CATEGORY_GENERAL, "turtle_disabled_actions", CATEGORY_TURTLE, "disabled_actions" );
 
-            config.getCategory( CATEGORY_HTTP )
+            config.getCategory( CATEGORY_TURTLE )
                 .setComment( "Various options relating to turtles." );
 
             turtlesNeedFuel = config.get( CATEGORY_TURTLE, "need_fuel", ComputerCraft.turtlesNeedFuel );
