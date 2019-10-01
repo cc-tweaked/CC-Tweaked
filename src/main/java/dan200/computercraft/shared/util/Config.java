@@ -72,12 +72,12 @@ public class Config
         @Comment( "\nThe maximum time that can be spent executing tasks in a single tick, in milliseconds.\n" +
             "Note, we will quite possibly go over this limit, as there's no way to tell how long a will take - this aims " +
             "to be the upper bound of the average time." )
-        public long max_main_global_time = (int) TimeUnit.NANOSECONDS.toMillis( ComputerCraft.maxMainGlobalTime );
+        public long max_main_global_time = TimeUnit.NANOSECONDS.toMillis( ComputerCraft.maxMainGlobalTime );
 
         @Comment( "\nThe ideal maximum time a computer can execute for in a tick, in milliseconds.\n" +
             "Note, we will quite possibly go over this limit, as there's no way to tell how long a will take - this aims " +
             "to be the upper bound of the average time." )
-        public long max_main_computer_time = (int) TimeUnit.NANOSECONDS.toMillis( ComputerCraft.maxMainComputerTime );
+        public long max_main_computer_time = TimeUnit.NANOSECONDS.toMillis( ComputerCraft.maxMainComputerTime );
     }
 
     public static class Http
@@ -234,8 +234,8 @@ public class Config
 
         // Execution
         ComputerCraft.computer_threads = Math.max( 1, config.execution.computer_threads );
-        ComputerCraft.maxMainGlobalTime = Math.max( 1, config.execution.max_main_global_time );
-        ComputerCraft.maxMainComputerTime = Math.max( 1, config.execution.max_main_computer_time );
+        ComputerCraft.maxMainGlobalTime = TimeUnit.MILLISECONDS.toNanos( Math.max( 1, config.execution.max_main_global_time ) );
+        ComputerCraft.maxMainComputerTime = TimeUnit.MILLISECONDS.toNanos( Math.max( 1, config.execution.max_main_computer_time ) );
 
         // HTTP
         ComputerCraft.http_enable = config.http.enabled;
