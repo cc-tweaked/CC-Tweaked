@@ -7,7 +7,7 @@ else
 end
 
 if sTopic == "index" then
-    print( "Help topics availiable:" )
+    print( "Help topics available:" )
     local tTopics = help.topics()
     textutils.pagedTabulate( tTopics )
     return

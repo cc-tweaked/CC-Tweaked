@@ -118,6 +118,26 @@ describe("The window library", function()
             expect.error(w.reposition, 1, 1, false, 1):eq("bad argument #3 (expected number, got boolean)")
             expect.error(w.reposition, 1, 1, nil, 1):eq("bad argument #3 (expected number, got nil)")
             expect.error(w.reposition, 1, 1, 1, nil):eq("bad argument #4 (expected number, got nil)")
+            expect.error(w.reposition, 1, 1, 1, 1, true):eq("bad argument #5 (expected table, got boolean)")
+        end)
+
+        it("can change the buffer", function()
+            local a, b = mk(), mk()
+            local target = window.create(a, 1, 1, a.getSize())
+
+            target.write("Test")
+            expect((a.getLine(1))):equal("Test ")
+            expect({ a.getCursorPos() }):same { 5, 1 }
+
+            target.reposition(1, 1, nil, nil, b)
+
+            target.redraw()
+            expect((a.getLine(1))):equal("Test ")
+            expect({ a.getCursorPos() }):same { 5, 1 }
+
+            target.setCursorPos(1, 1) target.write("More")
+            expect((a.getLine(1))):equal("Test ")
+            expect((b.getLine(1))):equal("More ")
         end)
     end)
 

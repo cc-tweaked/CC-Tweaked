@@ -431,16 +431,20 @@ function create( parent, nX, nY, nWidth, nHeight, bStartVisible )
         return nX, nY
     end
 
-    function window.reposition( nNewX, nNewY, nNewWidth, nNewHeight )
+    function window.reposition( nNewX, nNewY, nNewWidth, nNewHeight, newParent )
         if type(nNewX) ~= "number" then expect(1, nNewX, "number") end
         if type(nNewY) ~= "number" then expect(2, nNewY, "number") end
         if nNewWidth ~= nil or nNewHeight ~= nil then
             expect(3, nNewWidth, "number")
             expect(4, nNewHeight, "number")
         end
+        if newParent ~= nil and type(newParent) ~= "table" then expect(5, newParent, "table") end
 
         nX = nNewX
         nY = nNewY
+
+        if newParent then parent = newParent end
+
         if nNewWidth and nNewHeight then
             local tNewLines = {}
             createEmptyLines( nNewWidth )
