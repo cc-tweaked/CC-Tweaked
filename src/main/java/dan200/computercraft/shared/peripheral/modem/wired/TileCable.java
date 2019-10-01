@@ -201,8 +201,7 @@ public class TileCable extends TileGeneric implements IPeripheralTile
     public void onNeighbourChange( @Nonnull BlockPos neighbour )
     {
         Direction dir = getDirection();
-        if( neighbour.equals( getPos().offset( dir ) ) && hasModem()
-            && getBlockState().isValidPosition( world, pos ) )
+        if( neighbour.equals( getPos().offset( dir ) ) && hasModem() && !getBlockState().isValidPosition( getWorld(), getPos() ) )
         {
             if( hasCable() )
             {

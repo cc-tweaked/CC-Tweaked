@@ -210,7 +210,7 @@ public class BlockCable extends BlockGeneric implements IWaterLoggable
 
         BlockPos offsetPos = pos.offset( facing );
         BlockState offsetState = world.getBlockState( offsetPos );
-        return Block.hasSolidSide( offsetState, world, offsetPos, facing.getOpposite() );
+        return hasSolidSide( offsetState, world, offsetPos, facing.getOpposite() );
     }
 
     @Nullable
