@@ -176,11 +176,4 @@ public final class GuiComputer<T extends ContainerComputerBase> extends Containe
         return (getFocused() != null && getFocused().mouseDragged( x, y, button, deltaX, deltaY ))
             || super.mouseDragged( x, y, button, deltaX, deltaY );
     }
-
-    @Override
-    public boolean mouseReleased( double x, double y, int button )
-    {
-        return (getFocused() != null && getFocused().mouseReleased( x, y, button ))
-            || super.mouseReleased( x, y, button );
-    }
 }

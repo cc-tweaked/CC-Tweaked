@@ -95,4 +95,11 @@ public class WidgetWrapper implements IGuiEventListener
     {
         return height;
     }
+
+    @Override
+    public boolean isMouseOver( double x, double y )
+    {
+        double dx = x - this.x, dy = y - this.y;
+        return dx >= 0 && dx < width && dy >= 0 && dy < height;
+    }
 }

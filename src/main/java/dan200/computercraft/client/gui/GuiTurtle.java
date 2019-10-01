@@ -129,4 +129,11 @@ public class GuiTurtle extends ContainerScreen<ContainerTurtle>
         super.render( mouseX, mouseY, partialTicks );
         renderHoveredToolTip( mouseX, mouseY );
     }
+
+    @Override
+    public boolean mouseDragged( double x, double y, int button, double deltaX, double deltaY )
+    {
+        return (getFocused() != null && getFocused().mouseDragged( x, y, button, deltaX, deltaY ))
+            || super.mouseDragged( x, y, button, deltaX, deltaY );
+    }
 }

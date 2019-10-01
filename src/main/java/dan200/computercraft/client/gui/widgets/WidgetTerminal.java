@@ -241,11 +241,12 @@ public class WidgetTerminal implements IGuiEventListener
             charX = Math.min( Math.max( charX, 0 ), term.getWidth() - 1 );
             charY = Math.min( Math.max( charY, 0 ), term.getHeight() - 1 );
 
-            computer.mouseDrag( button + 1, charX + 1, charY + 1 );
-
-            lastMouseX = charX;
-            lastMouseY = charY;
-            lastMouseButton = button;
+            if( button == lastMouseButton && (charX != lastMouseX || charY != lastMouseY) )
+            {
+                computer.mouseDrag( button + 1, charX + 1, charY + 1 );
+                lastMouseX = charX;
+                lastMouseY = charY;
+            }
         }
 
         return false;
@@ -426,5 +427,11 @@ public class WidgetTerminal implements IGuiEventListener
     {
         ClientComputer computer = this.computer.get();
         if( computer != null ) computer.queueEvent( event, args );
+    }
+
+    @Override
+    public boolean isMouseOver( double x, double y )
+    {
+        return true;
     }
 }
