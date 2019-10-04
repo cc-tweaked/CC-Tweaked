@@ -8,7 +8,6 @@ package dan200.computercraft.shared.common;
 
 import dan200.computercraft.shared.network.container.ContainerData;
 import dan200.computercraft.shared.network.container.HeldItemContainerData;
-import dan200.computercraft.shared.util.InventoryUtil;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.container.Container;
@@ -33,7 +32,7 @@ public class ContainerHeldItem extends Container
         super( type, id );
 
         this.hand = hand;
-        stack = InventoryUtil.copyItem( player.getHeldItem( hand ) );
+        stack = player.getHeldItem( hand ).copy();
     }
 
     private static ContainerHeldItem createPrintout( int id, PlayerInventory inventory, HeldItemContainerData data )
