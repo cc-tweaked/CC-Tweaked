@@ -1,3 +1,13 @@
+# New features in CC: Tweaked 1.85.0
+
+* Window.reposition now allows changing the redirect buffer
+* Add cc.completion and cc.shell.completion modules
+* command.exec also returns the number of affected objects, when exposed by the game.
+
+And several bug fixes:
+* Change how turtle mining drops are handled, improving compatibility with some mods.
+* Fix several GUI desyncs after a turtle moves.
+
 # New features in CC: Tweaked 1.84.0
 
 * Improve validation in rename, copy and delete programs
