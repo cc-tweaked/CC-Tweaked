@@ -224,7 +224,7 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
             m_inventoryChanged = false;
             for( int n = 0; n < getSizeInventory(); n++ )
             {
-                m_previousInventory.set( n, InventoryUtil.copyItem( getStackInSlot( n ) ) );
+                m_previousInventory.set( n, getStackInSlot( n ).copy() );
             }
         }
     }
@@ -268,7 +268,7 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
             if( slot < getSizeInventory() )
             {
                 m_inventory.set( slot, new ItemStack( tag ) );
-                m_previousInventory.set( slot, InventoryUtil.copyItem( m_inventory.get( slot ) ) );
+                m_previousInventory.set( slot, m_inventory.get( slot ).copy() );
             }
         }
 

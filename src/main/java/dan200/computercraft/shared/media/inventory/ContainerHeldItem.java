@@ -6,7 +6,6 @@
 
 package dan200.computercraft.shared.media.inventory;
 
-import dan200.computercraft.shared.util.InventoryUtil;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Container;
 import net.minecraft.item.ItemStack;
@@ -22,7 +21,7 @@ public class ContainerHeldItem extends Container
     public ContainerHeldItem( EntityPlayer player, EnumHand hand )
     {
         m_hand = hand;
-        m_stack = InventoryUtil.copyItem( player.getHeldItem( hand ) );
+        m_stack = player.getHeldItem( hand ).copy();
     }
 
     @Nonnull
