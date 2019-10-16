@@ -155,5 +155,8 @@
 
     <module name="FileTabCharacter" />
     <module name="NewlineAtEndOfFile" />
+    <module name="RegexpSingleline">
+        <property name="format" value="\s+$"/>
+        <property name="message" value="Trailing whitespace"/>
+    </module>
 </module>
-
