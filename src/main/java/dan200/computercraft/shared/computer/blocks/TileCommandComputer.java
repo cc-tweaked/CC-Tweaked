@@ -57,7 +57,7 @@ public class TileCommandComputer extends TileComputer
         @Override
         public void sendMessage( Text textComponent )
         {
-            output.put( output.size() + 1, textComponent.asString() );
+            output.put( output.size() + 1, textComponent.getString() );
         }
 
         @Override
