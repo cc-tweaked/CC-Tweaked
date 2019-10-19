@@ -1,6 +1,6 @@
-New features in CC:T for Fabric 1.83.2+build.7
+New features in CC:T for Fabric 1.83.2+build.8
 
-* Fix a bug that most turtle functions hang
-* Update ClothConfig
+* Fix an issue where the results of commands.exec were incomplete (hugeblank)
+* Update dependencies
 
 Type "help changelog" to see the full version history.
