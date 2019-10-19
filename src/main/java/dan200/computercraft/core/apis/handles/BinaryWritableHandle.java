@@ -15,6 +15,7 @@ import dan200.computercraft.shared.util.StringUtil;
 import javax.annotation.Nonnull;
 import java.io.Closeable;
 import java.io.IOException;
+import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.SeekableByteChannel;
@@ -60,7 +61,7 @@ public class BinaryWritableHandle extends HandleGeneric
                     if( args.length > 0 && args[0] instanceof Number )
                     {
                         int number = ((Number) args[0]).intValue();
-                        single.clear();
+                        ((Buffer) single).clear();
                         single.put( (byte) number );
                         single.flip();
 

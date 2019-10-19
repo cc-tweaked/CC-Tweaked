@@ -14,6 +14,7 @@ import javax.annotation.Nonnull;
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.io.IOException;
+import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.SeekableByteChannel;
@@ -124,7 +125,7 @@ public class BinaryReadableHandle extends HandleGeneric
                     }
                     else
                     {
-                        single.clear();
+                        ((Buffer) single).clear();
                         int b = m_reader.read( single );
                         return b == -1 ? null : new Object[] { single.get( 0 ) & 0xFF };
                     }
@@ -148,7 +149,7 @@ public class BinaryReadableHandle extends HandleGeneric
                     boolean readAnything = false;
                     while( true )
                     {
-                        buf.clear();
+                        ((Buffer) buf).clear();
                         int r = m_reader.read( buf );
                         if( r == -1 ) break;
 
@@ -172,7 +173,7 @@ public class BinaryReadableHandle extends HandleGeneric
                     boolean readAnything = false, readRc = false;
                     while( true )
                     {
-                        single.clear();
+                        ((Buffer) single).clear();
                         int read = m_reader.read( single );
                         if( read <= 0 )
                         {
