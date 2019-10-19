@@ -29,17 +29,17 @@ configurations {
 dependencies {
     minecraft "com.mojang:minecraft:${mc_version}"
     mappings "net.fabricmc:yarn:${mc_version}+build.${mappings_version}"
-    modImplementation "net.fabricmc:fabric-loader:0.6.2+build.166"
-    modImplementation "net.fabricmc.fabric-api:fabric-api:0.4.0+build.240-1.14"
+    modImplementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_api_version}"
 
-    modImplementation "me.shedaniel.cloth:config-2:1.2.1"
-    modImplementation "io.github.prospector:modmenu:1.7.13+build.123"
+    modImplementation "me.shedaniel.cloth:config-2:${cloth_config_version}"
+    modImplementation "io.github.prospector:modmenu:${modmenu_version}"
 
-    implementation "blue.endless:jankson:1.1.2"
+    implementation "blue.endless:jankson:${jankson_version}"
     implementation 'com.google.code.findbugs:jsr305:3.0.2'
 
-    include "me.shedaniel.cloth:config-2:1.2.1"
-    include "blue.endless:jankson:1.1.2"
+    include "me.shedaniel.cloth:config-2:${cloth_config_version}"
+    include "blue.endless:jankson:${jankson_version}"
     include 'javax.vecmath:vecmath:1.5.2'
 
     compile 'javax.vecmath:vecmath:1.5.2'
