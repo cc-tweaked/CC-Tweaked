@@ -1,60 +1,36 @@
-buildscript {
-    dependencies {
-        classpath 'com.google.code.gson:gson:2.8.1'
-        classpath 'net.sf.proguard:proguard-gradle:6.1.0beta2'
-        classpath 'org.ajoberstar.grgit:grgit-gradle:3.0.0'
-    }
-}
-
 plugins {
     id 'fabric-loom' version '0.2.5-SNAPSHOT'
-    id 'com.matthewprenger.cursegradle' version '1.2.0'
-    id "com.github.breadmoirai.github-release" version "2.2.4"
+    id 'maven-publish'
 }
 
-apply plugin: 'org.ajoberstar.grgit'
-apply plugin: 'maven-publish'
-apply plugin: 'maven'
+sourceCompatibility = JavaVersion.VERSION_1_8
+targetCompatibility = JavaVersion.VERSION_1_8
 
 version = mod_version
 
 group = "org.mystia.craft"
 archivesBaseName = "cc-t-fabric-${mc_version}"
 
-minecraft {
-}
-
 repositories {
     mavenCentral()
-    maven {
-        name "JEI"
-        url  "http://dvs1.progwml6.com/files/maven"
-    }
     maven {
         name "SquidDev"
         url "https://squiddev.cc/maven"
     }
-    ivy {
-        name "Charset"
-        artifactPattern "https://asie.pl/files/mods/Charset/LibOnly/[module]-[revision](-[classifier]).[ext]"
-    }
-    maven {
-        name "Amadornes"
-        url "http://maven.amadornes.com/"
-    }
+}
+
+minecraft {
 }
 
 configurations {
-    shade
     compile.extendsFrom shade
-    deployerJars
 }
 
 dependencies {
     minecraft "com.mojang:minecraft:${mc_version}"
     mappings "net.fabricmc:yarn:${mc_version}+build.${mappings_version}"
-    modCompile "net.fabricmc:fabric-loader:0.6.2+build.166"
-    modCompile "net.fabricmc.fabric-api:fabric-api:0.4.0+build.240-1.14"
+    modImplementation "net.fabricmc:fabric-loader:0.6.2+build.166"
+    modImplementation "net.fabricmc.fabric-api:fabric-api:0.4.0+build.240-1.14"
 
     modImplementation "me.shedaniel.cloth:config-2:1.2.1"
     modImplementation "io.github.prospector:modmenu:1.7.13+build.123"
@@ -64,14 +40,14 @@ dependencies {
 
     include "me.shedaniel.cloth:config-2:1.2.1"
     include "blue.endless:jankson:1.1.2"
+    include 'javax.vecmath:vecmath:1.5.2'
+
+    compile 'javax.vecmath:vecmath:1.5.2'
 
     shade 'org.squiddev:Cobalt:0.5.0-SNAPSHOT'
-    shade 'javax.vecmath:vecmath:1.5.2'
 
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.1.0'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.1.0'
-
-    deployerJars "org.apache.maven.wagon:wagon-ssh:3.0.0"
 }
 
 sourceSets {
@@ -82,316 +58,57 @@ sourceSets {
     }
 }
 
-javadoc {
-    include "dan200/computercraft/api/**/*.java"
+processResources {
+    inputs.property "version", project.version
+
+    from(sourceSets.main.resources.srcDirs) {
+        include "fabric.mod.json"
+        expand "version": project.version
+    }
+
+    from(sourceSets.main.resources.srcDirs) {
+        exclude "fabric.mod.json"
+    }
+}
+
+// ensure that the encoding is set to UTF-8, no matter what the system default is
+// this fixes some edge cases with special characters not displaying correctly
+// see http://yodaconditions.net/blog/fix-for-java-file-encoding-problems-with-gradle.html
+tasks.withType(JavaCompile) {
+    options.encoding = "UTF-8"
+}
+
+// Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
+// if it is present.
+// If you remove this task, sources will not be generated.
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = "sources"
+    from sourceSets.main.allSource
 }
 
 jar {
-    dependsOn javadoc
-
-    manifest {
-        attributes(["Specification-Title": "computercraft",
-                    "Specification-Vendor": "parly",
-                    "Specification-Version": "25.0",
-                    "Implementation-Title": "CC:T for Fabric",
-                    "Implementation-Version": "${mod_version}",
-                    "Implementation-Vendor" :"parly",
-                    "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")])
-    }
-
-    from (sourceSets.main.allSource) {
-        include "dan200/computercraft/api/**/*.java"
-    }
+    from "LICENSE"
 
     from configurations.shade.collect { it.isDirectory() ? it : zipTree(it) }
 }
 
-import java.nio.charset.StandardCharsets
-import java.nio.file.*
-import java.util.zip.*
-
-import com.google.gson.GsonBuilder
-import com.google.gson.JsonElement
-import org.ajoberstar.grgit.Grgit
-import proguard.gradle.ProGuardTask
-
-task proguard(type: ProGuardTask, dependsOn: jar) {
-    description "Removes unused shadowed classes from the jar"
-    group "compact"
-
-    afterEvaluate {
-        // Fabric changes the jar's classifier so we to do this after evaluating!
-        injars jar.archivePath
-        outjars "${jar.archivePath.absolutePath.replace(".jar", "")}-min.jar"
-    }
-
-    // Add the main runtime jar and all non-shadowed dependencies
-    libraryjars "${System.getProperty('java.home')}/lib/rt.jar"
-    doFirst {
-        sourceSets.main.compileClasspath
-            .filter { !it.name.contains("Cobalt") }
-            .each { libraryjars it }
-    }
-
-    // We want to avoid as much obfuscation as possible. We're only doing this to shrink code size.
-    dontobfuscate; dontoptimize; keepattributes; keepparameternames
-
-    // Proguard will remove directories by default, but that breaks JarMount.
-    keepdirectories 'data/computercraft/lua**'
-
-    // Preserve ComputerCraft classes - we only want to strip shadowed files.
-    keep 'class dan200.computercraft.** { *; }'
-
-    // Preserve the constructors in Cobalt library class, as we init them via reflection
-    keepclassmembers 'class org.squiddev.cobalt.lib.** { <init>(...); }'
-
-    // LWJGL and Apache bundle Java 9 versions, which is great, but rather breaks Proguard
-    dontwarn 'module-info'
-    dontwarn 'org.apache.**,org.lwjgl.**,javax.crypto.SecretKey'
-}
-
-task proguardMove(dependsOn: proguard) {
-    description "Replace the original jar with the minified version"
-    group "compact"
-
-    doLast {
-        Files.move(
-            file("${jar.archivePath.absolutePath.replace(".jar", "")}-min.jar").toPath(),
-            file(jar.archivePath).toPath(),
-            StandardCopyOption.REPLACE_EXISTING
-        )
-    }
-}
-
-remapJar.dependsOn proguardMove
-
-processResources {
-    inputs.property "version", mod_version
-    inputs.property "mcversion", mc_version
-
-    def hash = 'none'
-    Set<String> contributors = []
-    try {
-        def grgit = Grgit.open(dir: '.')
-        hash = grgit.head().id
-
-        def blacklist = ['GitHub', 'dan200', 'Daniel Ratcliffe']
-        grgit.log().each {
-            if (!blacklist.contains(it.author.name)) contributors.add(it.author.name)
-            if (!blacklist.contains(it.committer.name)) contributors.add(it.committer.name)
-        }
-    } catch(Exception ignored) { }
-
-    inputs.property "commithash", hash
-
-    from(sourceSets.main.resources.srcDirs) {
-        include 'fabric.mod.json'
-        include 'data/computercraft/lua/rom/help/credits.txt'
-
-        expand 'version': mod_version,
-               'mcversion': mc_version,
-               'gitcontributors': contributors.sort(false, String.CASE_INSENSITIVE_ORDER).join('\n')
-    }
-
-    from(sourceSets.main.resources.srcDirs) {
-        exclude 'fabric.mod.json'
-        exclude 'data/computercraft/lua/rom/help/credits.txt'
-    }
-}
-
-task compressJson(dependsOn: remapJar) {
-    group "compact"
-    description "Minifies all JSON files, stripping whitespace"
-
-    def jarPath = file(jar.archivePath)
-
-    def tempPath = File.createTempFile("input", ".jar", temporaryDir)
-    tempPath.deleteOnExit()
-
-    def gson = new GsonBuilder().create()
-
-    doLast {
-        // Copy over all files in the current jar to the new one, running json files from GSON. As pretty printing
-        // is turned off, they should be minified.
-        new ZipFile(jarPath).withCloseable { inJar ->
-            new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(tempPath))).withCloseable { outJar ->
-                inJar.entries().each { entry ->
-                    if(entry.directory) {
-                        outJar.putNextEntry(entry)
-                    } else if(!entry.name.endsWith(".json")) {
-                        outJar.putNextEntry(entry)
-                        inJar.getInputStream(entry).withCloseable { outJar << it }
-                    } else {
-                        ZipEntry newEntry = new ZipEntry(entry.name)
-                        newEntry.setTime(entry.time)
-                        outJar.putNextEntry(newEntry)
-
-                        def element = inJar.getInputStream(entry).withCloseable { gson.fromJson(it.newReader("UTF8"), JsonElement.class) }
-                        outJar.write(gson.toJson(element).getBytes(StandardCharsets.UTF_8))
-                    }
-                }
-
-            }
-        }
-
-        // And replace the original jar again
-        Files.move(tempPath.toPath(), jarPath.toPath(), StandardCopyOption.REPLACE_EXISTING)
-    }
-}
-
-assemble.dependsOn compressJson
-
-task checkRelease {
-    group "upload"
-    description "Verifies that everything is ready for a release"
-
-    inputs.property "version", mod_version
-    inputs.file("src/main/resources/data/computercraft/lua/rom/help/changelog.txt")
-    inputs.file("src/main/resources/data/computercraft/lua/rom/help/whatsnew.txt")
-
-    doLast {
-        def ok = true
-
-        // Check we're targetting the current version
-        def whatsnew = new File("src/main/resources/data/computercraft/lua/rom/help/whatsnew.txt").readLines()
-        if (whatsnew[0] != "New features in CC:T for Fabric $mod_version") {
-            ok = false
-            project.logger.error("Expected `whatsnew.txt' to target $mod_version.")
-        }
-
-        // Check "read more" exists and trim it
-        def idx = whatsnew.findIndexOf { it == 'Type "help changelog" to see the full version history.' }
-        if (idx == -1) {
-            ok = false
-            project.logger.error("Must mention the changelog in whatsnew.txt")
-        } else {
-            whatsnew = whatsnew.getAt(0 ..< idx)
-        }
-
-        // Check whatsnew and changelog match.
-        def versionChangelog = "# " + whatsnew.join("\n")
-        def changelog = new File("src/main/resources/data/computercraft/lua/rom/help/changelog.txt").getText()
-        if (!changelog.startsWith(versionChangelog)) {
-            ok = false
-            project.logger.error("whatsnew and changelog are not in sync")
-        }
-
-        if (!ok) throw new IllegalStateException("Could not check release")
-    }
-}
-
-
-curseforge {
-    apiKey = project.hasProperty('curseForgeApiKey') ? project.curseForgeApiKey : ''
-    project {
-        id = '282001'
-        addGameVersion '1.14.2'
-        releaseType = 'beta'
-        changelog = "Release notes can be found on the GitHub repository (https://github.com/SquidDev-CC/CC-Tweaked/releases/tag/v${mc_version}-${mod_version})."
-
-        relations {
-            incompatible "computercraft"
-            requiredDependency "fabric"
-        }
-        afterEvaluate {
-            mainArtifact(remapJar)
-            uploadTask.dependsOn(remapJar)
-        }
-    }
-
-    options {
-        forgeGradleIntegration = false
-    }
-}
-
+// configure the maven publication
 publishing {
     publications {
         mavenJava(MavenPublication) {
-            from components.java
-            // artifact sourceJar
-        }
-    }
-}
-
-uploadArchives {
-    repositories {
-        if(project.hasProperty('mavenUploadUrl')) {
-            mavenDeployer {
-                configuration = configurations.deployerJars
-
-                repository(url: project.property('mavenUploadUrl')) {
-                    authentication(
-                        userName: project.property('mavenUploadUser'),
-                        privateKey: project.property('mavenUploadKey'))
-                }
-
-                pom.project {
-                    name 'CC: Tweaked'
-                    packaging 'jar'
-                    description 'CC: Tweaked is a fork of ComputerCraft, adding programmable computers, turtles and more to Minecraft.'
-                    url 'https://github.com/SquidDev-CC/CC-Tweaked'
-
-                    scm {
-                        url 'https://github.com/SquidDev-CC/CC-Tweaked.git'
-                    }
-
-                    issueManagement {
-                        system 'github'
-                        url 'https://github.com/SquidDev-CC/CC-Tweaked/issues'
-                    }
-
-                    licenses {
-                        license {
-                            name 'ComputerCraft Public License, Version 1.0'
-                            url 'https://github.com/SquidDev-CC/CC-Tweaked/blob/master/LICENSE'
-                            distribution 'repo'
-                        }
-                    }
-                }
-
-                pom.whenConfigured { pom ->
-                    pom.dependencies.clear()
-                }
+            // add all the jars that should be included when publishing to maven
+            artifact(remapJar) {
+                builtBy remapJar
+            }
+            artifact(sourcesJar) {
+                builtBy remapSourcesJar
             }
         }
     }
-}
 
-githubRelease {
-    token project.hasProperty('githubApiKey') ? project.githubApiKey : ''
-    owner 'SquidDev-CC'
-    repo 'CC-Tweaked'
-    targetCommitish { Grgit.open(dir: '.').branch.current().name }
-
-    tagName "v${mc_version}-${mod_version}"
-    releaseName "[${mc_version}] ${mod_version}"
-    body {
-        "## " + new File("src/main/resources/data/computercraft/lua/rom/help/whatsnew.txt")
-            .readLines()
-            .takeWhile { it != 'Type "help changelog" to see the full version history.' }
-            .join("\n").trim()
-    }
-    prerelease false
-}
-
-def uploadTasks = ["uploadArchives", "curseforge", "githubRelease"]
-uploadTasks.forEach { tasks.getByName(it).dependsOn checkRelease }
-
-task uploadAll(dependsOn: [remapJar] + uploadTasks) {
-    group "upload"
-    description "Uploads to all repositories (Maven, Curse, GitHub release)"
-}
-
-test {
-    useJUnitPlatform()
-    testLogging {
-        events "passed", "skipped", "failed"
+    // select the repositories you want to publish to
+    repositories {
+        // uncomment to publish to the local maven
+        // mavenLocal()
     }
 }
-
-gradle.projectsEvaluated {
-    tasks.withType(JavaCompile) {
-        options.compilerArgs << "-Xlint" << "-Xlint:-processing" // Causes Forge build to fail << "-Werror"
-    }
-}
-
