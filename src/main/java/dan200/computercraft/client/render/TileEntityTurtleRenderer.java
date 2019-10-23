@@ -33,6 +33,7 @@ import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 
 import javax.vecmath.Matrix4f;
+import java.nio.Buffer;
 import java.nio.FloatBuffer;
 import java.util.List;
 import java.util.Random;
@@ -170,14 +171,14 @@ public class TileEntityTurtleRenderer extends BlockEntityRenderer<TileTurtle>
                 {
                     if( pair.getRight() != null )
                     {
-                        matrixBuf.clear();
+                        ((Buffer) matrixBuf).clear();
                         float[] t = new float[4];
                         for( int i = 0; i < 4; i++ )
                         {
                             pair.getRight().getColumn( i, t );
                             matrixBuf.put( t );
                         }
-                        matrixBuf.flip();
+                        ((Buffer) matrixBuf).flip();
 
                         GlStateManager.multMatrix( matrixBuf );
                     }

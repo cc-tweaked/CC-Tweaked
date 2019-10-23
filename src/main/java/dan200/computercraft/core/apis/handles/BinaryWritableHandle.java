@@ -63,7 +63,7 @@ public class BinaryWritableHandle extends HandleGeneric
                         int number = ((Number) args[0]).intValue();
                         ((Buffer) single).clear();
                         single.put( (byte) number );
-                        single.flip();
+                        ((Buffer) single).flip();
 
                         m_writer.write( single );
                     }
