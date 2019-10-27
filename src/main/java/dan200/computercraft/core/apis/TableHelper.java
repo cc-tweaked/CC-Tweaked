@@ -6,11 +6,14 @@
 
 package dan200.computercraft.core.apis;
 
+import dan200.computercraft.api.lua.ArgumentHelper;
 import dan200.computercraft.api.lua.LuaException;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Map;
+
+import static dan200.computercraft.api.lua.ArgumentHelper.getNumericType;
 
 /**
  * Various helpers for tables
@@ -200,21 +203,7 @@ public final class TableHelper
 
     private static double checkReal( @Nonnull String key, double value ) throws LuaException
     {
-        if( Double.isNaN( value ) )
-        {
-            throw badKey( key, "number", "nan" );
-        }
-        else if( value == Double.POSITIVE_INFINITY )
-        {
-            throw badKey( key, "number", "inf" );
-        }
-        else if( value == Double.NEGATIVE_INFINITY )
-        {
-            throw badKey( key, "number", "-inf" );
-        }
-        else
-        {
-            return value;
-        }
+        if( !Double.isFinite( value ) ) throw badKey( key, "number", getNumericType( value ) );
+        return value;
     }
 }

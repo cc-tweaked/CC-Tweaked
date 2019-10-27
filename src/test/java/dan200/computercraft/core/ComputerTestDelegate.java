@@ -37,8 +37,8 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Stream;
 
-import static dan200.computercraft.core.apis.ArgumentHelper.getTable;
-import static dan200.computercraft.core.apis.ArgumentHelper.getType;
+import static dan200.computercraft.api.lua.ArgumentHelper.getTable;
+import static dan200.computercraft.api.lua.ArgumentHelper.getType;
 
 /**
  * Loads tests from {@code test-rom/spec} and executes them.

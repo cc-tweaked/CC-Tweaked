@@ -7,9 +7,9 @@
 package dan200.computercraft.core.apis.handles;
 
 import com.google.common.collect.ObjectArrays;
+import dan200.computercraft.api.lua.ArgumentHelper;
 import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
-import dan200.computercraft.core.apis.ArgumentHelper;
 import dan200.computercraft.shared.util.StringUtil;
 
 import javax.annotation.Nonnull;
@@ -73,7 +73,7 @@ public class BinaryWritableHandle extends HandleGeneric
                     }
                     else
                     {
-                        throw ArgumentHelper.badArgument( 0, "string or number", args.length > 0 ? args[0] : null );
+                        throw ArgumentHelper.badArgumentOf( 0, "string or number", args.length > 0 ? args[0] : null );
                     }
                     return null;
                 }

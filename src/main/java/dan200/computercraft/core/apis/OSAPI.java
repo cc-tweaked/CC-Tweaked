@@ -19,7 +19,7 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatterBuilder;
 import java.util.*;
 
-import static dan200.computercraft.core.apis.ArgumentHelper.*;
+import static dan200.computercraft.api.lua.ArgumentHelper.*;
 
 public class OSAPI implements ILuaAPI
 {
@@ -229,7 +229,7 @@ public class OSAPI implements ILuaAPI
             case 1:
             {
                 // startTimer
-                double timer = getReal( args, 0 );
+                double timer = getFiniteDouble( args, 0 );
                 synchronized( m_timers )
                 {
                     m_timers.put( m_nextTimerToken, new Timer( (int) Math.round( timer / 0.05 ) ) );
@@ -239,7 +239,7 @@ public class OSAPI implements ILuaAPI
             case 2:
             {
                 // setAlarm
-                double time = getReal( args, 0 );
+                double time = getFiniteDouble( args, 0 );
                 if( time < 0.0 || time >= 24.0 )
                 {
                     throw new LuaException( "Number out of range" );

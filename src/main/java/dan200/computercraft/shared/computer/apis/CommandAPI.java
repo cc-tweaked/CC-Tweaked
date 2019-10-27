@@ -30,8 +30,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import static dan200.computercraft.core.apis.ArgumentHelper.getInt;
-import static dan200.computercraft.core.apis.ArgumentHelper.getString;
+import static dan200.computercraft.api.lua.ArgumentHelper.getInt;
+import static dan200.computercraft.api.lua.ArgumentHelper.getString;
 
 public class CommandAPI implements ILuaAPI
 {
