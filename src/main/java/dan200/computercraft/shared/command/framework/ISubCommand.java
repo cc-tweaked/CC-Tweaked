@@ -22,7 +22,7 @@ import java.util.List;
 public interface ISubCommand
 {
     /**
-     * Get the name of this command
+     * Get the name of this command.
      *
      * @return The name of this command
      * @see ICommand#getName()
@@ -40,7 +40,7 @@ public interface ISubCommand
     String getFullName();
 
     /**
-     * Get the usage of this command
+     * Get the usage of this command.
      *
      * @param context The context this command is executed in
      * @return The usage of this command
@@ -62,16 +62,17 @@ public interface ISubCommand
     boolean checkPermission( @Nonnull CommandContext context );
 
     /**
-     * Execute this command
+     * Execute this command.
      *
      * @param context   The current command context.
-     * @param arguments The arguments passed  @throws CommandException When an error occurs
+     * @param arguments The arguments passed
+     * @throws CommandException When an error occurs
      * @see ICommand#execute(MinecraftServer, ICommandSender, String[])
      */
     void execute( @Nonnull CommandContext context, @Nonnull List<String> arguments ) throws CommandException;
 
     /**
-     * Get a list of possible completions
+     * Get a list of possible completions.
      *
      * @param context   The current command context.
      * @param arguments The arguments passed. You should complete the last one.

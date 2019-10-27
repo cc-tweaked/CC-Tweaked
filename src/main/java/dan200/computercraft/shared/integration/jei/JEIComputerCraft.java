@@ -108,7 +108,7 @@ public class JEIComputerCraft implements IModPlugin
     }
 
     /**
-     * Distinguishes turtles by upgrades and family
+     * Distinguishes turtles by upgrades and family.
      */
     private static final ISubtypeInterpreter turtleSubtype = stack -> {
         Item item = stack.getItem();
@@ -132,7 +132,7 @@ public class JEIComputerCraft implements IModPlugin
     };
 
     /**
-     * Distinguishes pocket computers by upgrade and family
+     * Distinguishes pocket computers by upgrade and family.
      */
     private static final ISubtypeInterpreter pocketSubtype = stack -> {
         Item item = stack.getItem();
@@ -152,7 +152,7 @@ public class JEIComputerCraft implements IModPlugin
     };
 
     /**
-     * Distinguishes disks by colour
+     * Distinguishes disks by colour.
      */
     private static final ISubtypeInterpreter diskSubtype = stack -> {
         Item item = stack.getItem();

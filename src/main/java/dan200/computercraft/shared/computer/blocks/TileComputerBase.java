@@ -280,7 +280,7 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
     }
 
     /**
-     * Gets the redstone input for an adjacent block
+     * Gets the redstone input for an adjacent block.
      *
      * @param world The world we exist in
      * @param pos   The position of the neighbour

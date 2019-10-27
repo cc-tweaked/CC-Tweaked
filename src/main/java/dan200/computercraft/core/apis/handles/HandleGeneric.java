@@ -47,7 +47,7 @@ public abstract class HandleGeneric implements ILuaObject
     }
 
     /**
-     * Shared implementation for various file handle types
+     * Shared implementation for various file handle types.
      *
      * @param channel The channel to seek in
      * @param args    The Lua arguments to process, like Lua's {@code file:seek}.

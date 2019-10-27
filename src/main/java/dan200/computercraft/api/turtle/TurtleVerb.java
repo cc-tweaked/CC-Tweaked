@@ -18,12 +18,12 @@ import net.minecraft.util.EnumFacing;
 public enum TurtleVerb
 {
     /**
-     * The turtle called {@code turtle.dig()}, {@code turtle.digUp()} or {@code turtle.digDown()}
+     * The turtle called {@code turtle.dig()}, {@code turtle.digUp()} or {@code turtle.digDown()}.
      */
     Dig,
 
     /**
-     * The turtle called {@code turtle.attack()}, {@code turtle.attackUp()} or {@code turtle.attackDown()}
+     * The turtle called {@code turtle.attack()}, {@code turtle.attackUp()} or {@code turtle.attackDown()}.
      */
     Attack,
 }

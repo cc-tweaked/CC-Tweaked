@@ -12,7 +12,7 @@ import dan200.computercraft.ComputerCraft;
 import java.util.concurrent.ThreadFactory;
 
 /**
- * Provides some utilities to create thread groups
+ * Provides some utilities to create thread groups.
  */
 public final class ThreadUtils
 {
@@ -33,7 +33,7 @@ public final class ThreadUtils
     }
 
     /**
-     * Construct a group under ComputerCraft's shared group
+     * Construct a group under ComputerCraft's shared group.
      *
      * @param name The group's name. This will be prefixed with "ComputerCraft-".
      * @return The constructed thread group.

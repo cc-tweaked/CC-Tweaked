@@ -16,7 +16,7 @@ import java.util.Map;
 import static dan200.computercraft.api.lua.ArgumentHelper.getNumericType;
 
 /**
- * Various helpers for tables
+ * Various helpers for tables.
  */
 public final class TableHelper
 {

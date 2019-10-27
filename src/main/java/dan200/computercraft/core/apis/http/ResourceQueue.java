@@ -12,6 +12,8 @@ import java.util.function.Supplier;
 
 /**
  * A {@link ResourceGroup} which will queue items when the group at capacity.
+ *
+ * @param <T> The type of the resource this queue manages.
  */
 public class ResourceQueue<T extends Resource<T>> extends ResourceGroup<T>
 {

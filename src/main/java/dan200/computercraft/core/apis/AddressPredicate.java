@@ -154,7 +154,7 @@ public class AddressPredicate
     }
 
     /**
-     * Determine whether the given address matches a series of patterns
+     * Determine whether the given address matches a series of patterns.
      *
      * @param address The address to check.
      * @return Whether it matches any of these patterns.

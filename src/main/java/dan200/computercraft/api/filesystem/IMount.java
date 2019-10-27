@@ -19,7 +19,7 @@ import java.util.List;
 
 /**
  * Represents a read only part of a virtual filesystem that can be mounted onto a computer using
- * {@link IComputerAccess#mount(String, IMount)}
+ * {@link IComputerAccess#mount(String, IMount)}.
  *
  * Ready made implementations of this interface can be created using
  * {@link ComputerCraftAPI#createSaveDirMount(World, String, long)} or
@@ -60,7 +60,7 @@ public interface IMount
     void list( @Nonnull String path, @Nonnull List<String> contents ) throws IOException;
 
     /**
-     * Returns the size of a file with a given path, in bytes
+     * Returns the size of a file with a given path, in bytes.
      *
      * @param path A file path in normalised format, relative to the mount location. ie: "programs/myprogram".
      * @return The size of the file, in bytes.

@@ -23,7 +23,7 @@ import java.util.Collections;
 import java.util.Map;
 
 /**
- * Represents a local peripheral exposed on the wired network
+ * Represents a local peripheral exposed on the wired network.
  *
  * This is responsible for getting the peripheral in world, tracking id and type and determining whether
  * it has changed.
@@ -39,7 +39,7 @@ public final class WiredModemLocalPeripheral
     private IPeripheral peripheral;
 
     /**
-     * Attach a new peripheral from the world
+     * Attach a new peripheral from the world.
      *
      * @param world     The world to search in
      * @param origin    The position to search from
@@ -76,7 +76,7 @@ public final class WiredModemLocalPeripheral
     }
 
     /**
-     * Detach the current peripheral
+     * Detach the current peripheral.
      *
      * @return Whether the peripheral changed
      */

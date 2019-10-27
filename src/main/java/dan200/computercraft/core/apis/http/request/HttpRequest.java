@@ -40,7 +40,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * Represents one or more
+ * Represents an in-progress HTTP request.
  */
 public class HttpRequest extends Resource<HttpRequest>
 {

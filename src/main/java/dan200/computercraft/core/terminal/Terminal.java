@@ -314,6 +314,9 @@ public class Terminal
     }
 
     /**
+     * Determine whether this terminal has changed.
+     *
+     * @return If this terminal is dirty.
      * @deprecated All {@code *Changed()} methods are deprecated: one should pass in a callback
      * instead.
      */

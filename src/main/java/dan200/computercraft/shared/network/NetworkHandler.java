@@ -72,6 +72,7 @@ public final class NetworkHandler
      * /**
      * Register packet, and a thread-unsafe handler for it.
      *
+     * @param <T>     The type of the packet to send.
      * @param id      The identifier for this packet type
      * @param side    The side to register this packet handler under
      * @param factory The factory for this type of packet.

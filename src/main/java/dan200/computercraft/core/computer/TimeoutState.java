@@ -36,12 +36,12 @@ import java.util.concurrent.TimeUnit;
 public final class TimeoutState
 {
     /**
-     * The total time a task is allowed to run before aborting in nanoseconds
+     * The total time a task is allowed to run before aborting in nanoseconds.
      */
     static final long TIMEOUT = TimeUnit.MILLISECONDS.toNanos( 7000 );
 
     /**
-     * The time the task is allowed to run after each abort in nanoseconds
+     * The time the task is allowed to run after each abort in nanoseconds.
      */
     static final long ABORT_TIMEOUT = TimeUnit.MILLISECONDS.toNanos( 1500 );
 
@@ -111,6 +111,8 @@ public final class TimeoutState
 
     /**
      * If the machine should be passively aborted.
+     *
+     * @return {@code true} if we should throw a timeout error.
      */
     public boolean isSoftAborted()
     {
@@ -118,7 +120,9 @@ public final class TimeoutState
     }
 
     /**
-     * If the machine should be forcibly aborted.
+     * Determine if the machine should be forcibly aborted.
+     *
+     * @return {@code true} if the machine should be forcibly shut down.
      */
     public boolean isHardAborted()
     {
@@ -146,7 +150,7 @@ public final class TimeoutState
     }
 
     /**
-     * Pauses the cumulative time, to be resumed by {@link #startTimer()}
+     * Pauses the cumulative time, to be resumed by {@link #startTimer()}.
      *
      * @see #nanoCumulative()
      */

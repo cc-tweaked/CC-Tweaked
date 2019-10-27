@@ -68,7 +68,7 @@ configurations {
 }
 
 dependencies {
-    checkstyle "com.puppycrawl.tools:checkstyle:8.21"
+    checkstyle "com.puppycrawl.tools:checkstyle:8.25"
 
     deobfProvided "mezz.jei:jei_1.12.2:4.15.0.269:api"
     deobfProvided "pl.asie:Charset-Lib:0.5.4.6"

@@ -15,7 +15,7 @@ import net.minecraft.util.SoundEvent;
 import javax.annotation.Nonnull;
 
 /**
- * An implementation of IMedia for ItemRecord's
+ * An implementation of IMedia for ItemRecords.
  */
 public final class RecordMedia implements IMedia
 {

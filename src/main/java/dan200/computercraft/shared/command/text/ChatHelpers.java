@@ -15,7 +15,7 @@ import net.minecraft.util.text.event.ClickEvent;
 import net.minecraft.util.text.event.HoverEvent;
 
 /**
- * Various helpers for building chat messages
+ * Various helpers for building chat messages.
  */
 public final class ChatHelpers
 {
