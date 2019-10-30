@@ -81,4 +81,9 @@ public enum TurtleAction
      * Gather metdata about an item in the turtle's inventory.
      */
     INSPECT_ITEM,
+
+    /**
+     * Rotate a block in world
+     */
+    ROTATE,
 }

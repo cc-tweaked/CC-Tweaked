@@ -232,4 +232,49 @@ public abstract class TurtleBlockEvent extends TurtlePlayerEvent
             data.putAll( newData );
         }
     }
+
+    /**
+     * Fired when a turtle gathers data on a block in world.
+     *
+     * You may prevent blocks being inspected, or add additional information to the result.
+     *
+     * @see TurtleAction#INSPECT
+     */
+    public static class Rotate extends TurtleBlockEvent
+    {
+        private final BlockState state;
+        private final Direction direction;
+
+        public Rotate( @Nonnull ITurtleAccess turtle, @Nonnull FakePlayer player, @Nonnull World world, @Nonnull BlockPos pos, @Nonnull BlockState state , @Nonnull Direction direction)
+        {
+            super( turtle, TurtleAction.ROTATE, player, world, pos );
+
+            Objects.requireNonNull( state, "state cannot be null" );
+            Objects.requireNonNull( state, "direction cannot be null" );
+            this.state = state;
+            this.direction = direction;
+        }
+
+        /**
+         * Get the block state which is being rotated.
+         *
+         * @return The inspected block state.
+         */
+        @Nonnull
+        public BlockState getState()
+        {
+            return state;
+        }
+
+        /**
+         * Get the block direction which is being rotated.
+         *
+         * @return The inspected block state.
+         */
+        @Nonnull
+        public Direction getDirection()
+        {
+            return direction;
+        }
+    }
 }

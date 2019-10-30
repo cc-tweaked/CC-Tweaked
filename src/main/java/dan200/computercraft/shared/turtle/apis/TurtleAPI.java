@@ -20,6 +20,7 @@ import dan200.computercraft.core.tracking.TrackingField;
 import dan200.computercraft.shared.turtle.core.*;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.math.Direction;
 import net.minecraftforge.common.MinecraftForge;
 
 import javax.annotation.Nonnull;
@@ -95,6 +96,9 @@ public class TurtleAPI implements ILuaAPI
             "inspectUp",
             "inspectDown",
             "getItemDetail",
+            "rotate",
+            "rotateUp",
+            "rotateDown",
         };
     }
 
@@ -121,6 +125,39 @@ public class TurtleAPI implements ILuaAPI
         int count = optInt( arguments, index, 64 );
         if( count < 0 || count > 64 ) throw new LuaException( "Item count " + count + " out of range" );
         return count;
+    }
+
+    private static Direction parseDirection( Object[] arguments ) throws LuaException
+    {
+        String side = optString( arguments, 0, null);
+        if ( side == null || side.equalsIgnoreCase("up") )
+        {
+            return Direction.UP;
+        }
+        else if ( side.equalsIgnoreCase( "down" ) )
+        {
+            return Direction.DOWN;
+        }
+        else if ( side.equalsIgnoreCase( "east" ) )
+        {
+            return Direction.EAST;
+        }
+        else if ( side.equalsIgnoreCase( "west ") )
+        {
+            return Direction.WEST;
+        }
+        else if ( side.equalsIgnoreCase( "north" ) )
+        {
+            return Direction.NORTH;
+        }
+        else if ( side.equalsIgnoreCase( "south" ) )
+        {
+            return Direction.SOUTH;
+        }
+        else
+        {
+            throw new LuaException( "Invalid Direction" );
+        }
     }
 
     @Nullable
@@ -358,6 +395,12 @@ public class TurtleAPI implements ILuaAPI
 
                 return new Object[] { table };
             }
+            case 42: // rotate
+                return tryCommand( context, new TurtleRotateCommand( InteractDirection.Forward, parseDirection( args ) ) );
+            case 43: // rotateUp
+                return tryCommand( context, new TurtleRotateCommand( InteractDirection.Up, parseDirection( args ) ) );
+            case 44: // rotateDown
+                return tryCommand( context, new TurtleRotateCommand( InteractDirection.Down, parseDirection( args ) ) );
 
             default:
                 return null;
