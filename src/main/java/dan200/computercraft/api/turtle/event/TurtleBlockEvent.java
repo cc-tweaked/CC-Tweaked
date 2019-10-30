@@ -234,11 +234,11 @@ public abstract class TurtleBlockEvent extends TurtlePlayerEvent
     }
 
     /**
-     * Fired when a turtle gathers data on a block in world.
+     * Fired when a turtle roates a block in the world
      *
-     * You may prevent blocks being inspected, or add additional information to the result.
+     * You may prevent blocks being rotated, or add additional information to the result.
      *
-     * @see TurtleAction#INSPECT
+     * @see TurtleAction#ROTATE
      */
     public static class Rotate extends TurtleBlockEvent
     {
@@ -258,7 +258,7 @@ public abstract class TurtleBlockEvent extends TurtlePlayerEvent
         /**
          * Get the block state which is being rotated.
          *
-         * @return The inspected block state.
+         * @return The rotated block state before rotation.
          */
         @Nonnull
         public BlockState getState()
@@ -269,7 +269,7 @@ public abstract class TurtleBlockEvent extends TurtlePlayerEvent
         /**
          * Get the block direction which is being rotated.
          *
-         * @return The inspected block state.
+         * @return The direction the block will be rotated to.
          */
         @Nonnull
         public Direction getDirection()
