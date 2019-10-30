@@ -23,7 +23,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 
 /**
- * A very basic environment
+ * A very basic environment.
  */
 public class BasicEnvironment implements IComputerEnvironment
 {
@@ -92,7 +92,6 @@ public class BasicEnvironment implements IComputerEnvironment
     {
         return ComputerCraft.class.getClassLoader().getResourceAsStream( "assets/" + domain + "/" + subPath );
     }
-
 
     public static IMount createMount( Class<?> klass, String path, String fallback )
     {
