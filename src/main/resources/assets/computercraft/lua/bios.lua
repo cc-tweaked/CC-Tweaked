@@ -527,7 +527,7 @@ function read( _sReplaceChar, _tHistory, _fnComplete, _sDefault )
             local _, cy = term.getCursorPos()
             if param2 >= sx and param2 <= w and param2 == cy then
                 -- Then ensure we don't scroll beyond the current line
-                nPos = math.min(math.max(nScroll + x - sx, 0, #sLine))
+                nPos = math.min(math.max(nScroll + x - sx, 0), #sLine)
                 redraw()
             end
 
