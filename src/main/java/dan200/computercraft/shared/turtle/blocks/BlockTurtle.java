@@ -58,7 +58,7 @@ public class BlockTurtle extends BlockComputerBase
     @Deprecated
     public EnumBlockRenderType getRenderType( IBlockState state )
     {
-        return EnumBlockRenderType.INVISIBLE;
+        return EnumBlockRenderType.ENTITYBLOCK_ANIMATED;
     }
 
     @Override
