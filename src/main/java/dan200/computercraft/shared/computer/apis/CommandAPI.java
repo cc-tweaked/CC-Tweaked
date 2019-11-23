@@ -22,18 +22,20 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.state.property.Property;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
+import java.awt.*;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import static dan200.computercraft.core.apis.ArgumentHelper.getInt;
-import static dan200.computercraft.core.apis.ArgumentHelper.getString;
+import static dan200.computercraft.core.apis.ArgumentHelper.*;
 
 public class CommandAPI implements ILuaAPI
 {
@@ -96,14 +98,31 @@ public class CommandAPI implements ILuaAPI
         }
     }
 
+    private World getWorldFromID(@Nonnull Object[] arguments, int index) throws LuaException {
+        World world = null;
+        final int dim = optInt(arguments, index, m_computer.getWorld().dimension.getType().getRawId());
+        for(World w : m_computer.getWorld().getServer().getWorlds()) {
+            if (w.getDimension().getType().getRawId() == dim) {
+                world = w;
+                break;
+            }
+        }
+        if (world == null) {
+            throw new LuaException( "Invalid dimension ID" );
+        }
+        return world;
+    }
+
     private static Object getBlockInfo( World world, BlockPos pos )
     {
         // Get the details of the block
         BlockState state = world.getBlockState( pos );
         Block block = state.getBlock();
+        int id  = world.dimension.getType().getRawId();
 
         Map<Object, Object> table = new HashMap<>();
         table.put( "name", Registry.BLOCK.getId( block ).toString() );
+        table.put( "dimension", id);
 
         Map<Object, Object> stateTable = new HashMap<>();
         for( ImmutableMap.Entry<Property<?>, Comparable<?>> entry : state.getEntries().entrySet() )
@@ -180,10 +199,12 @@ public class CommandAPI implements ILuaAPI
                 final int maxX = getInt( arguments, 3 );
                 final int maxY = getInt( arguments, 4 );
                 final int maxZ = getInt( arguments, 5 );
+
                 return context.executeMainThreadTask( () ->
                 {
                     // Get the details of the block
-                    World world = m_computer.getWorld();
+                    World world = getWorldFromID(arguments, 6);
+
                     BlockPos min = new BlockPos(
                         Math.min( minX, maxX ),
                         Math.min( minY, maxY ),
@@ -196,7 +217,7 @@ public class CommandAPI implements ILuaAPI
                     );
                     if( !World.isValid( min ) || !World.isValid( max ) )
                     {
-                        throw new LuaException( "Co-ordinates out or range" );
+                        throw new LuaException( "Co-ordinates out of range" );
                     }
                     if( (max.getX() - min.getX() + 1) * (max.getY() - min.getY() + 1) * (max.getZ() - min.getZ() + 1) > 4096 )
                     {
@@ -224,10 +245,12 @@ public class CommandAPI implements ILuaAPI
                 final int x = getInt( arguments, 0 );
                 final int y = getInt( arguments, 1 );
                 final int z = getInt( arguments, 2 );
+
                 return context.executeMainThreadTask( () ->
                 {
                     // Get the details of the block
-                    World world = m_computer.getWorld();
+                    World world = getWorldFromID(arguments, 3);
+
                     BlockPos position = new BlockPos( x, y, z );
                     if( World.isValid( position ) )
                     {
@@ -235,7 +258,7 @@ public class CommandAPI implements ILuaAPI
                     }
                     else
                     {
-                        throw new LuaException( "co-ordinates out or range" );
+                        throw new LuaException( "co-ordinates out of range" );
                     }
                 } );
             }
