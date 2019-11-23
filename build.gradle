@@ -9,7 +9,7 @@ buildscript {
     }
     dependencies {
         classpath 'com.google.code.gson:gson:2.8.1'
-        classpath 'net.minecraftforge.gradle:ForgeGradle:3.0.147'
+        classpath 'net.minecraftforge.gradle:ForgeGradle:3.0.154'
         classpath 'net.sf.proguard:proguard-gradle:6.1.0beta2'
         classpath 'org.ajoberstar.grgit:grgit-gradle:3.0.0'
     }
@@ -94,11 +94,11 @@ dependencies {
 
     minecraft "net.minecraftforge:forge:${mc_version}-${forge_version}"
 
-    compileOnly fg.deobf("mezz.jei:jei-1.14.4:6.0.0.10:api")
+    compileOnly fg.deobf("mezz.jei:jei-1.14.4:6.0.0.25:api")
     // deobfProvided "pl.asie:Charset-Lib:0.5.4.6"
     // deobfProvided "MCMultiPart2:MCMultiPart:2.5.3"
 
-    runtimeOnly fg.deobf("mezz.jei:jei-1.14.4:6.0.0.10")
+    runtimeOnly fg.deobf("mezz.jei:jei-1.14.4:6.0.0.25")
 
     shade 'org.squiddev:Cobalt:0.5.0-SNAPSHOT'
 
