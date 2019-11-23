@@ -35,7 +35,6 @@ import net.minecraft.util.ResourceLocation;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import static dan200.computercraft.shared.integration.jei.RecipeResolver.MAIN_FAMILIES;
@@ -91,10 +90,6 @@ public class JEIComputerCraft implements IModPlugin
         }
 
         runtime.getIngredientManager().addIngredientsAtRuntime( VanillaTypes.ITEM, upgradeItems );
-
-        // Hide treasure disks
-        runtime.getIngredientManager().removeIngredientsAtRuntime( VanillaTypes.ITEM,
-            Collections.singletonList( new ItemStack( ComputerCraft.Items.treasureDisk ) ) );
 
         // Hide all upgrade recipes
         IRecipeCategory<?> category = (IRecipeCategory<?>) registry.getRecipeCategory( VanillaRecipeCategoryUid.CRAFTING );
