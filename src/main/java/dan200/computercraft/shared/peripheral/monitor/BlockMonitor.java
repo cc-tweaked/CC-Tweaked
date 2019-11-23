@@ -49,7 +49,16 @@ public class BlockMonitor extends BlockGeneric
     @Override
     public BlockRenderLayer getRenderLayer()
     {
+        // We use the CUTOUT layer, as otherwise monitor rendering will cause flickering.
         return BlockRenderLayer.CUTOUT;
+    }
+
+    @Override
+    @Deprecated
+    public boolean isSolid( BlockState p_200124_1_ )
+    {
+        // We override isSolid, as our overriding of getRenderLayer means that it would otherwise return false.
+        return true;
     }
 
     @Override
