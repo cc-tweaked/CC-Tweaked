@@ -55,7 +55,7 @@ public class BlockMonitor extends BlockGeneric
 
     @Override
     @Deprecated
-    public boolean isSolid( BlockState p_200124_1_ )
+    public boolean isSolid( BlockState state )
     {
         // We override isSolid, as our overriding of getRenderLayer means that it would otherwise return false.
         return true;
