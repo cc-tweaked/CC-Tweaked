@@ -9,12 +9,20 @@ package dan200.computercraft.shared.turtle.core;
 import com.mojang.authlib.GameProfile;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.turtle.ITurtleAccess;
+import dan200.computercraft.shared.util.FakeNetHandler;
 import dan200.computercraft.shared.util.InventoryUtil;
 import dan200.computercraft.shared.util.WorldUtil;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityClassification;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.passive.horse.AbstractHorseEntity;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.item.ItemStack;
+import net.minecraft.potion.EffectInstance;
+import net.minecraft.tileentity.SignTileEntity;
 import net.minecraft.util.Direction;
+import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.server.ServerWorld;
@@ -22,6 +30,7 @@ import net.minecraftforge.common.util.FakePlayer;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.OptionalInt;
 import java.util.UUID;
 
 public final class TurtlePlayer extends FakePlayer
@@ -40,6 +49,7 @@ public final class TurtlePlayer extends FakePlayer
     private TurtlePlayer( ITurtleAccess turtle )
     {
         super( (ServerWorld) turtle.getWorld(), getProfile( turtle.getOwningPlayer() ) );
+        this.connection = new FakeNetHandler( this );
         setState( turtle );
     }
 
@@ -50,6 +60,13 @@ public final class TurtlePlayer extends FakePlayer
 
     private void setState( ITurtleAccess turtle )
     {
+        if( openContainer != null )
+        {
+            ComputerCraft.log.warn( "Turtle has open container ({})", openContainer );
+            openContainer.onContainerClosed( this );
+            openContainer = null;
+        }
+
         BlockPos position = turtle.getPosition();
         posX = position.getX() + 0.5;
         posY = position.getY() + 0.5;
@@ -126,6 +143,73 @@ public final class TurtlePlayer extends FakePlayer
         return new Vec3d( posX, posY, posZ );
     }
 
-    // TODO: Work out what needs stubbing again.
-    //  Or just replace the network.
+    //region Code which depends on the connection
+    @Nonnull
+    @Override
+    public OptionalInt openContainer( @Nullable INamedContainerProvider prover )
+    {
+        return OptionalInt.empty();
+    }
+
+    @Override
+    public void sendEnterCombat()
+    {
+    }
+
+    @Override
+    public void sendEndCombat()
+    {
+    }
+
+    @Override
+    public boolean startRiding( @Nonnull Entity entityIn, boolean force )
+    {
+        return false;
+    }
+
+    @Override
+    public void stopRiding()
+    {
+    }
+
+    @Override
+    public void openSignEditor( SignTileEntity signTile )
+    {
+    }
+
+    @Override
+    public void openHorseInventory( AbstractHorseEntity horse, IInventory inventory )
+    {
+    }
+
+    @Override
+    public void openBook( ItemStack stack, @Nonnull Hand hand )
+    {
+    }
+
+    @Override
+    public void closeScreen()
+    {
+    }
+
+    @Override
+    public void updateHeldItem()
+    {
+    }
+
+    @Override
+    protected void onNewPotionEffect( EffectInstance id )
+    {
+    }
+
+    @Override
+    protected void onChangedPotionEffect( EffectInstance id, boolean apply )
+    {
+    }
+
+    @Override
+    protected void onFinishedPotionEffect( EffectInstance effect )
+    {
+    }
+    //endregion
 }
