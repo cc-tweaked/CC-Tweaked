@@ -108,15 +108,6 @@ dependencies {
     deployerJars "org.apache.maven.wagon:wagon-ssh:3.0.0"
 }
 
-sourceSets {
-    main {
-        java {
-            exclude 'dan200/computercraft/shared/integration/mcmp'
-            exclude 'dan200/computercraft/shared/integration/charset'
-        }
-    }
-}
-
 // Compile tasks
 
 javadoc {

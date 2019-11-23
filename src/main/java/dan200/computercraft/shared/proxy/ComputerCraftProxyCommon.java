@@ -67,8 +67,6 @@ public final class ComputerCraftProxyCommon
             PlayerCreativeLootCondition.class,
             PlayerCreativeLootCondition.INSTANCE
         ) );
-
-        // if( Loader.isModLoaded( ModCharset.MODID ) ) IntegrationCharset.register();
     }
 
     private static void registerProviders()
