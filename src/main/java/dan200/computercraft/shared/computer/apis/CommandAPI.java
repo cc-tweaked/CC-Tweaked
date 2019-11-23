@@ -204,7 +204,7 @@ public class CommandAPI implements ILuaAPI
                     );
                     if( !world.isValid( min ) || !world.isValid( max ) )
                     {
-                        throw new LuaException( "Co-ordinates out or range" );
+                        throw new LuaException( "Co-ordinates out of range" );
                     }
                     if( (max.getX() - min.getX() + 1) * (max.getY() - min.getY() + 1) * (max.getZ() - min.getZ() + 1) > 4096 )
                     {
@@ -243,7 +243,7 @@ public class CommandAPI implements ILuaAPI
                     }
                     else
                     {
-                        throw new LuaException( "co-ordinates out or range" );
+                        throw new LuaException( "Co-ordinates out of range" );
                     }
                 } );
             }
