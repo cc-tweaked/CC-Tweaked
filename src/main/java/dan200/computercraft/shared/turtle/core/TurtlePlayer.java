@@ -12,9 +12,7 @@ import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.shared.util.FakeNetHandler;
 import dan200.computercraft.shared.util.InventoryUtil;
 import dan200.computercraft.shared.util.WorldUtil;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityClassification;
-import net.minecraft.entity.EntityType;
+import net.minecraft.entity.*;
 import net.minecraft.entity.passive.horse.AbstractHorseEntity;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.container.INamedContainerProvider;
@@ -141,6 +139,19 @@ public final class TurtlePlayer extends FakePlayer
     public Vec3d getPositionVector()
     {
         return new Vec3d( posX, posY, posZ );
+    }
+
+
+    @Override
+    public float getEyeHeight( @Nonnull Pose pose )
+    {
+        return 0;
+    }
+
+    @Override
+    public float getStandingEyeHeight( Pose pose, EntitySize size )
+    {
+        return 0;
     }
 
     //region Code which depends on the connection
