@@ -1,3 +1,10 @@
+# New features in CC: Tweaked 1.85.1
+
+* Add basic mouse support to `read`
+
+And several bug fixes:
+* Fix turtles not having breaking particles.
+
 # New features in CC: Tweaked 1.85.0
 
 * Window.reposition now allows changing the redirect buffer
