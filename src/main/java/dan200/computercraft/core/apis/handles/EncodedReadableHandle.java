@@ -20,8 +20,8 @@ import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CodingErrorAction;
 import java.nio.charset.StandardCharsets;
 
-import static dan200.computercraft.core.apis.ArgumentHelper.optBoolean;
-import static dan200.computercraft.core.apis.ArgumentHelper.optInt;
+import static dan200.computercraft.api.lua.ArgumentHelper.optBoolean;
+import static dan200.computercraft.api.lua.ArgumentHelper.optInt;
 
 public class EncodedReadableHandle extends HandleGeneric
 {

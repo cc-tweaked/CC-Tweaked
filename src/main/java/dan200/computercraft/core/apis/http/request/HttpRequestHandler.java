@@ -226,7 +226,11 @@ public final class HttpRequestHandler extends SimpleChannelInboundHandler<HttpOb
     }
 
     /**
-     * Determine the redirect from this response
+     * Determine the redirect from this response.
+     *
+     * @param status  The status of the HTTP response.
+     * @param headers The headers of the HTTP response.
+     * @return The URI to redirect to, or {@code null} if no redirect should occur.
      */
     private URI getRedirect( HttpResponseStatus status, HttpHeaders headers )
     {

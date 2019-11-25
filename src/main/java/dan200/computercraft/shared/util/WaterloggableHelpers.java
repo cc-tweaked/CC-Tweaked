@@ -30,7 +30,7 @@ public final class WaterloggableHelpers
     }
 
     /**
-     * Call from {@link net.minecraft.block.Block#getFluidState(BlockState)}
+     * Call from {@link net.minecraft.block.Block#getFluidState(BlockState)}.
      *
      * @param state The current state
      * @return This waterlogged block's current fluid
@@ -41,7 +41,7 @@ public final class WaterloggableHelpers
     }
 
     /**
-     * Call from {@link net.minecraft.block.Block#updatePostPlacement(BlockState, Direction, BlockState, IWorld, BlockPos, BlockPos)}
+     * Call from {@link net.minecraft.block.Block#updatePostPlacement(BlockState, Direction, BlockState, IWorld, BlockPos, BlockPos)}.
      *
      * @param state The current state
      * @param world The position of this block

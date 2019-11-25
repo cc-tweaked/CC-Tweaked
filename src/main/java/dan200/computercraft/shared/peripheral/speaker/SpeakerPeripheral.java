@@ -23,8 +23,8 @@ import net.minecraft.world.World;
 import javax.annotation.Nonnull;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static dan200.computercraft.core.apis.ArgumentHelper.getString;
-import static dan200.computercraft.core.apis.ArgumentHelper.optReal;
+import static dan200.computercraft.api.lua.ArgumentHelper.getString;
+import static dan200.computercraft.api.lua.ArgumentHelper.optFiniteDouble;
 
 public abstract class SpeakerPeripheral implements IPeripheral
 {
@@ -72,8 +72,8 @@ public abstract class SpeakerPeripheral implements IPeripheral
             case 0: // playSound
             {
                 String name = getString( args, 0 );
-                float volume = (float) optReal( args, 1, 1.0 );
-                float pitch = (float) optReal( args, 2, 1.0 );
+                float volume = (float) optFiniteDouble( args, 1, 1.0 );
+                float pitch = (float) optFiniteDouble( args, 2, 1.0 );
 
                 ResourceLocation identifier;
                 try
@@ -100,8 +100,8 @@ public abstract class SpeakerPeripheral implements IPeripheral
     private synchronized Object[] playNote( Object[] arguments, ILuaContext context ) throws LuaException
     {
         String name = getString( arguments, 0 );
-        float volume = (float) optReal( arguments, 1, 1.0 );
-        float pitch = (float) optReal( arguments, 2, 1.0 );
+        float volume = (float) optFiniteDouble( arguments, 1, 1.0 );
+        float pitch = (float) optFiniteDouble( arguments, 2, 1.0 );
 
         NoteBlockInstrument instrument = null;
         for( NoteBlockInstrument testInstrument : NoteBlockInstrument.values() )

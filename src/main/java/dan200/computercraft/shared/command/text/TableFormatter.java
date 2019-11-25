@@ -22,7 +22,7 @@ public interface TableFormatter
     ITextComponent HEADER = coloured( "=", TextFormatting.GRAY );
 
     /**
-     * Get additional padding for the component
+     * Get additional padding for the component.
      *
      * @param component The component to pad
      * @param width     The desired width for the component
@@ -32,7 +32,7 @@ public interface TableFormatter
     ITextComponent getPadding( ITextComponent component, int width );
 
     /**
-     * Get the minimum padding between each column
+     * Get the minimum padding between each column.
      *
      * @return The minimum padding.
      */

@@ -20,7 +20,7 @@ import net.minecraftforge.fml.common.ObfuscationReflectionHelper.UnableToFindFie
 import javax.annotation.Nonnull;
 
 /**
- * An implementation of IMedia for ItemRecord's
+ * An implementation of IMedia for ItemRecords.
  */
 public final class RecordMedia implements IMedia
 {

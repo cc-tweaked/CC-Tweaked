@@ -73,7 +73,7 @@ public class BlockTurtle extends BlockComputerBase<TileTurtle> implements IWater
     @Deprecated
     public BlockRenderType getRenderType( BlockState state )
     {
-        return BlockRenderType.INVISIBLE;
+        return BlockRenderType.ENTITYBLOCK_ANIMATED;
     }
 
     @Nonnull

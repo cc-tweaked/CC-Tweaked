@@ -21,7 +21,7 @@ import javax.annotation.Nonnull;
 import java.util.HashSet;
 import java.util.Set;
 
-import static dan200.computercraft.core.apis.ArgumentHelper.getInt;
+import static dan200.computercraft.api.lua.ArgumentHelper.getInt;
 
 public abstract class ModemPeripheral implements IPeripheral, IPacketSender, IPacketReceiver
 {

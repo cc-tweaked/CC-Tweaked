@@ -16,7 +16,7 @@ import javax.annotation.Nullable;
 import java.util.Map;
 
 /**
- * Wrapper class for pocket computers
+ * Wrapper class for pocket computers.
  */
 public interface IPocketAccess
 {

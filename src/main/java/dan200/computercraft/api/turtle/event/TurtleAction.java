@@ -71,7 +71,7 @@ public enum TurtleAction
     EQUIP,
 
     /**
-     * Inspect a block in world
+     * Inspect a block in world.
      *
      * @see TurtleBlockEvent.Inspect
      */

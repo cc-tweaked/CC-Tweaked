@@ -1,14 +1,11 @@
-New features in CC: Tweaked 1.85.0
+New features in CC: Tweaked 1.85.1
 
-* Window.reposition now allows changing the redirect buffer
-* Add cc.completion and cc.shell.completion modules
-* command.exec also returns the number of affected objects, when exposed by the game.
+* Add basic mouse support to `read`
 
 And several bug fixes:
-* Change how turtle mining drops are handled, improving compatibility with some mods.
-* Fix several GUI desyncs after a turtle moves.
-* Fix os.day/os.time using the incorrect world time.
-* Prevent wired modems dropping incorrectly.
-* Fix mouse events not firing within the computer GUI.
+* Fix turtles not having breaking particles.
+* Correct rendering of monitors when underwater.
+* Adjust the position from where turtle performs actions, correcting the behaviour of some interactions.
+* Fix several crashes when the turtle performs some action.
 
 Type "help changelog" to see the full version history.

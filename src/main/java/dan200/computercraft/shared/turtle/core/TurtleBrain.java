@@ -155,7 +155,7 @@ public class TurtleBrain implements ITurtleAccess
     }
 
     /**
-     * Read common data for saving and client synchronisation
+     * Read common data for saving and client synchronisation.
      *
      * @param nbt The tag to read from
      */

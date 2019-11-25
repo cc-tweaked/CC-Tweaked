@@ -105,6 +105,8 @@ public class TileEntityCableRenderer extends TileEntityRenderer<TileCable>
     }
 
     /**
+     * Set up the state for rendering block-breaking progress.
+     *
      * @see WorldRenderer#preRenderDamagedBlocks()
      */
     private void preRenderDamagedBlocks()
@@ -123,6 +125,8 @@ public class TileEntityCableRenderer extends TileEntityRenderer<TileCable>
     }
 
     /**
+     * Tear down the state for rendering block-breaking progress.
+     *
      * @see WorldRenderer#postRenderDamagedBlocks()
      */
     private void postRenderDamagedBlocks()

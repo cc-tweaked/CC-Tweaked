@@ -18,7 +18,7 @@ import net.minecraft.util.math.MathHelper;
 public abstract class ItemMapLikeRenderer
 {
     /**
-     * The main rendering method for the item
+     * The main rendering method for the item.
      *
      * @param stack The stack to render
      * @see FirstPersonRenderer#renderMapFirstPerson(ItemStack)
@@ -87,7 +87,7 @@ public abstract class ItemMapLikeRenderer
     }
 
     /**
-     * Render an item in the middle of the screen
+     * Render an item in the middle of the screen.
      *
      * @param pitch         The pitch of the player
      * @param equipProgress The equip progress of this item

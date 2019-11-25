@@ -38,7 +38,7 @@ public final class MachineResult
     public static final MachineResult TIMEOUT = new MachineResult( true, false, TimeoutState.ABORT_MESSAGE );
 
     /**
-     * An error with no user-friendly error message
+     * An error with no user-friendly error message.
      */
     public static final MachineResult GENERIC_ERROR = new MachineResult( true, false, null );
 

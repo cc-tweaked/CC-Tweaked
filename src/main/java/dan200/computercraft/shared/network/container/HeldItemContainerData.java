@@ -13,7 +13,7 @@ import net.minecraft.util.Hand;
 import javax.annotation.Nonnull;
 
 /**
- * Opens a printout GUI based on the currently held item
+ * Opens a printout GUI based on the currently held item.
  *
  * @see ContainerHeldItem
  * @see dan200.computercraft.shared.media.items.ItemPrintout

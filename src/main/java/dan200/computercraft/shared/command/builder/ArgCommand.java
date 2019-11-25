@@ -11,7 +11,10 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 
 /**
- * A {@link Command} which accepts an argument
+ * A {@link Command} which accepts an argument.
+ *
+ * @param <S> The command source we consume.
+ * @param <T> The argument given to this command when executed.
  */
 @FunctionalInterface
 public interface ArgCommand<S, T>

@@ -7,7 +7,7 @@
 package dan200.computercraft.shared.computer.core;
 
 /**
- * Receives some input and forwards it to a computer
+ * Receives some input and forwards it to a computer.
  *
  * @see InputState
  * @see IComputer

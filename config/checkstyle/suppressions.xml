@@ -6,4 +6,7 @@
     <!-- All the config options and method fields. -->
     <suppress checks="StaticVariableName" files=".*[\\/]ComputerCraft.java" />
     <suppress checks="StaticVariableName" files=".*[\\/]ComputerCraftAPI.java" />
+
+    <!-- Do not check for missing package Javadoc. -->
+    <suppress checks="JavadocStyle" files=".*[\\/]package-info.java" />
 </suppressions>

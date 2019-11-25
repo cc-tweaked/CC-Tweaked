@@ -32,8 +32,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import static dan200.computercraft.core.apis.ArgumentHelper.getInt;
-import static dan200.computercraft.core.apis.ArgumentHelper.getString;
+import static dan200.computercraft.api.lua.ArgumentHelper.getInt;
+import static dan200.computercraft.api.lua.ArgumentHelper.getString;
 
 public class CommandAPI implements ILuaAPI
 {
@@ -194,7 +194,7 @@ public class CommandAPI implements ILuaAPI
                     );
                     if( !World.isValid( min ) || !World.isValid( max ) )
                     {
-                        throw new LuaException( "Co-ordinates out or range" );
+                        throw new LuaException( "Co-ordinates out of range" );
                     }
                     if( (max.getX() - min.getX() + 1) * (max.getY() - min.getY() + 1) * (max.getZ() - min.getZ() + 1) > 4096 )
                     {
@@ -233,7 +233,7 @@ public class CommandAPI implements ILuaAPI
                     }
                     else
                     {
-                        throw new LuaException( "co-ordinates out or range" );
+                        throw new LuaException( "Co-ordinates out of range" );
                     }
                 } );
             }

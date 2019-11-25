@@ -107,7 +107,7 @@ public class TableBuilder
     }
 
     /**
-     * Trim this table to a given height
+     * Trim this table to a given height.
      *
      * @param height The desired height.
      */

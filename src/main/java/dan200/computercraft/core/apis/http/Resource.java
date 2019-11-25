@@ -20,6 +20,8 @@ import java.util.function.Consumer;
 
 /**
  * A holder for one or more resources, with a lifetime.
+ *
+ * @param <T> The type of this resource. Should be the class extending from {@link Resource}.
  */
 public abstract class Resource<T extends Resource<T>> implements Closeable
 {
@@ -42,8 +44,9 @@ public abstract class Resource<T extends Resource<T>> implements Closeable
     }
 
     /**
-     * Checks if this has been cancelled. If so, it'll clean up any
-     * existing resources and cancel any pending futures.
+     * Checks if this has been cancelled. If so, it'll clean up any existing resources and cancel any pending futures.
+     *
+     * @return Whether this resource has been closed.
      */
     public final boolean checkClosed()
     {
@@ -80,6 +83,7 @@ public abstract class Resource<T extends Resource<T>> implements Closeable
     /**
      * Create a {@link WeakReference} which will close {@code this} when collected.
      *
+     * @param <R>    The object we are wrapping in a reference.
      * @param object The object to reference to
      * @return The weak reference.
      */

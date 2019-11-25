@@ -27,7 +27,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
-import static dan200.computercraft.core.apis.ArgumentHelper.getString;
+import static dan200.computercraft.api.lua.ArgumentHelper.getString;
 
 public class FSAPI implements ILuaAPI
 {

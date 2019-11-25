@@ -50,7 +50,7 @@ import static dan200.computercraft.core.computer.TimeoutState.TIMEOUT;
 public final class ComputerThread
 {
     /**
-     * How often the computer thread monitor should run, in milliseconds
+     * How often the computer thread monitor should run, in milliseconds.
      *
      * @see Monitor
      */
@@ -83,7 +83,7 @@ public final class ComputerThread
     private static final Object threadLock = new Object();
 
     /**
-     * Whether the computer thread system is currently running
+     * Whether the computer thread system is currently running.
      */
     private static volatile boolean running = false;
 
@@ -105,7 +105,7 @@ public final class ComputerThread
     private static final Condition hasWork = computerLock.newCondition();
 
     /**
-     * Active queues to execute
+     * Active queues to execute.
      */
     private static final TreeSet<ComputerExecutor> computerQueue = new TreeSet<>( ( a, b ) -> {
         if( a == b ) return 0; // Should never happen, but let's be consistent here
@@ -126,7 +126,7 @@ public final class ComputerThread
     private ComputerThread() {}
 
     /**
-     * Start the computer thread
+     * Start the computer thread.
      */
     static void start()
     {
@@ -194,7 +194,7 @@ public final class ComputerThread
     }
 
     /**
-     * Mark a computer as having work, enqueuing it on the thread
+     * Mark a computer as having work, enqueuing it on the thread.
      *
      * You must be holding {@link ComputerExecutor}'s {@code queueLock} when calling this method - it should only
      * be called from {@code enqueue}.
@@ -244,6 +244,8 @@ public final class ComputerThread
      * {@link #minimumVirtualRuntime} based on the current tasks.
      *
      * This is called before queueing tasks, to ensure that {@link #minimumVirtualRuntime} is up-to-date.
+     *
+     * @param current The machine which we updating runtimes from.
      */
     private static void updateRuntimes( @Nullable ComputerExecutor current )
     {
@@ -321,7 +323,7 @@ public final class ComputerThread
     }
 
     /**
-     * The scaled period for a single task
+     * The scaled period for a single task.
      *
      * @return The scaled period for the task
      * @see #DEFAULT_LATENCY
@@ -336,7 +338,7 @@ public final class ComputerThread
     }
 
     /**
-     * Determine if the thread has computers queued up
+     * Determine if the thread has computers queued up.
      *
      * @return If we have work queued up.
      */

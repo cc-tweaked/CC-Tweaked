@@ -90,6 +90,7 @@ public final class NetworkHandler
      * /**
      * Register packet, and a thread-unsafe handler for it.
      *
+     * @param <T>     The type of the packet to send.
      * @param id      The identifier for this packet type
      * @param factory The factory for this type of packet.
      */
@@ -106,6 +107,8 @@ public final class NetworkHandler
      * /**
      * Register packet, and a thread-unsafe handler for it.
      *
+     * @param <T>     The type of the packet to send.
+     * @param type    The class of the type of packet to send.
      * @param id      The identifier for this packet type
      * @param decoder The factory for this type of packet.
      */

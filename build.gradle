@@ -90,7 +90,7 @@ configurations {
 }
 
 dependencies {
-    checkstyle "com.puppycrawl.tools:checkstyle:8.21"
+    checkstyle "com.puppycrawl.tools:checkstyle:8.25"
 
     minecraft "net.minecraftforge:forge:${mc_version}-${forge_version}"
 
@@ -365,6 +365,7 @@ task checkRelease {
         if (!ok) throw new IllegalStateException("Could not check release")
     }
 }
+check.dependsOn checkRelease
 
 curseforge {
     apiKey = project.hasProperty('curseForgeApiKey') ? project.curseForgeApiKey : ''
@@ -436,7 +437,9 @@ githubRelease {
     token project.hasProperty('githubApiKey') ? project.githubApiKey : ''
     owner 'SquidDev-CC'
     repo 'CC-Tweaked'
-    targetCommitish { Grgit.open(dir: '.').branch.current().name }
+    try {
+        targetCommitish = Grgit.open(dir: '.').branch.current().name
+    } catch(Exception ignored) { }
 
     tagName "v${mc_version}-${mod_version}"
     releaseName "[${mc_version}] ${mod_version}"

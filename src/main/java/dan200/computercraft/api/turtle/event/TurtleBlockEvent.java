@@ -112,7 +112,7 @@ public abstract class TurtleBlockEvent extends TurtlePlayerEvent
         }
 
         /**
-         * Get the upgrade doing the digging
+         * Get the upgrade doing the digging.
          *
          * @return The upgrade doing the digging.
          */

@@ -14,7 +14,7 @@ import net.minecraft.tileentity.CommandBlockTileEntity;
 
 import javax.annotation.Nonnull;
 
-import static dan200.computercraft.core.apis.ArgumentHelper.getString;
+import static dan200.computercraft.api.lua.ArgumentHelper.getString;
 
 public class CommandBlockPeripheral implements IPeripheral
 {

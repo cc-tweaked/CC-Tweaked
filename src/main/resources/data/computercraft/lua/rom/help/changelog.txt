@@ -1,3 +1,13 @@
+# New features in CC: Tweaked 1.85.1
+
+* Add basic mouse support to `read`
+
+And several bug fixes:
+* Fix turtles not having breaking particles.
+* Correct rendering of monitors when underwater.
+* Adjust the position from where turtle performs actions, correcting the behaviour of some interactions.
+* Fix several crashes when the turtle performs some action.
+
 # New features in CC: Tweaked 1.85.0
 
 * Window.reposition now allows changing the redirect buffer

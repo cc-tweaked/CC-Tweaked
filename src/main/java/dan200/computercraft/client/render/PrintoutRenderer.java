@@ -28,32 +28,32 @@ public final class PrintoutRenderer
     private static final double BG_SIZE = 256.0;
 
     /**
-     * Width of a page
+     * Width of a page.
      */
     public static final int X_SIZE = 172;
 
     /**
-     * Height of a page
+     * Height of a page.
      */
     public static final int Y_SIZE = 209;
 
     /**
-     * Padding between the left and right of a page and the text
+     * Padding between the left and right of a page and the text.
      */
     public static final int X_TEXT_MARGIN = 13;
 
     /**
-     * Padding between the top and bottom of a page and the text
+     * Padding between the top and bottom of a page and the text.
      */
     public static final int Y_TEXT_MARGIN = 11;
 
     /**
-     * Width of the extra page texture
+     * Width of the extra page texture.
      */
     private static final int X_FOLD_SIZE = 12;
 
     /**
-     * Size of the leather cover
+     * Size of the leather cover.
      */
     public static final int COVER_SIZE = 12;
 

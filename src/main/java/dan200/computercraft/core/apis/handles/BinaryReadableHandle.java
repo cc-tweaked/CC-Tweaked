@@ -21,8 +21,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static dan200.computercraft.core.apis.ArgumentHelper.getInt;
-import static dan200.computercraft.core.apis.ArgumentHelper.optBoolean;
+import static dan200.computercraft.api.lua.ArgumentHelper.getInt;
+import static dan200.computercraft.api.lua.ArgumentHelper.optBoolean;
 
 public class BinaryReadableHandle extends HandleGeneric
 {

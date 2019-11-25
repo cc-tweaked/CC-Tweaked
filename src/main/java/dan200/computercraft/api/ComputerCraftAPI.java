@@ -31,8 +31,9 @@ import javax.annotation.Nullable;
 
 /**
  * The static entry point to the ComputerCraft API.
- * Members in this class must be called after mod_ComputerCraft has been initialised,
- * but may be called before it is fully loaded.
+ *
+ * Members in this class must be called after mod_ComputerCraft has been initialised, but may be called before it is
+ * fully loaded.
  */
 public final class ComputerCraftAPI
 {
@@ -189,7 +190,7 @@ public final class ComputerCraftAPI
     }
 
     /**
-     * Registers a media provider to provide {@link IMedia} implementations for Items
+     * Registers a media provider to provide {@link IMedia} implementations for Items.
      *
      * @param provider The media provider to register.
      * @see IMediaProvider
@@ -220,7 +221,7 @@ public final class ComputerCraftAPI
     }
 
     /**
-     * Construct a new wired node for a given wired element
+     * Construct a new wired node for a given wired element.
      *
      * @param element The element to construct it for
      * @return The element's node
@@ -233,7 +234,7 @@ public final class ComputerCraftAPI
     }
 
     /**
-     * Get the wired network element for a block in world
+     * Get the wired network element for a block in world.
      *
      * @param world The world the block exists in
      * @param pos   The position the block exists in

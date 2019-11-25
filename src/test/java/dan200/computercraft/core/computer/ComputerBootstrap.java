@@ -11,7 +11,7 @@ import dan200.computercraft.api.filesystem.IWritableMount;
 import dan200.computercraft.api.lua.ILuaAPI;
 import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
-import dan200.computercraft.core.apis.ArgumentHelper;
+import dan200.computercraft.api.lua.ArgumentHelper;
 import dan200.computercraft.core.filesystem.MemoryMount;
 import dan200.computercraft.core.terminal.Terminal;
 import org.junit.jupiter.api.Assertions;

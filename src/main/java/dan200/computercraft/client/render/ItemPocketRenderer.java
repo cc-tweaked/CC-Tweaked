@@ -32,7 +32,7 @@ import static dan200.computercraft.client.gui.FixedWidthFontRenderer.*;
 import static dan200.computercraft.client.gui.GuiComputer.*;
 
 /**
- * Emulates map rendering for pocket computers
+ * Emulates map rendering for pocket computers.
  */
 @Mod.EventBusSubscriber( modid = ComputerCraft.MOD_ID, value = Dist.CLIENT )
 public final class ItemPocketRenderer extends ItemMapLikeRenderer

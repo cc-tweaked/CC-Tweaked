@@ -25,8 +25,10 @@ import static dan200.computercraft.shared.command.Exceptions.ARGUMENT_EXPECTED;
 import static dan200.computercraft.shared.command.builder.HelpingArgumentBuilder.literal;
 
 /**
- * An alternative way of building command nodes, so one does not have to nest
+ * An alternative way of building command nodes, so one does not have to nest.
  * {@link ArgumentBuilder#then(CommandNode)}s.
+ *
+ * @param <S> The command source we consume.
  */
 public class CommandBuilder<S> implements CommandNodeBuilder<S, Command<S>>
 {
