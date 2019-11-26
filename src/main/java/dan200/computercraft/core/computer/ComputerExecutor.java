@@ -56,9 +56,6 @@ final class ComputerExecutor
 {
     private static final int QUEUE_LIMIT = 256;
 
-    private static IMount romMount;
-    private static final Object romMountLock = new Object();
-
     private final Computer computer;
     private final List<ILuaAPI> apis = new ArrayList<>();
     final TimeoutState timeout = new TimeoutState();
@@ -329,16 +326,10 @@ final class ComputerExecutor
 
     private IMount getRomMount()
     {
-        if( romMount != null ) return romMount;
-
-        synchronized( romMountLock )
-        {
-            if( romMount != null ) return romMount;
-            return romMount = computer.getComputerEnvironment().createResourceMount( "computercraft", "lua/rom" );
-        }
+        return computer.getComputerEnvironment().createResourceMount( "computercraft", "lua/rom" );
     }
 
-    IWritableMount getRootMount()
+    private IWritableMount getRootMount()
     {
         if( rootMount == null )
         {

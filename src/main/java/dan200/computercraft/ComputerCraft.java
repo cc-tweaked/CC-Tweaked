@@ -6,11 +6,9 @@
 
 package dan200.computercraft;
 
-import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.api.turtle.event.TurtleAction;
 import dan200.computercraft.core.apis.AddressPredicate;
 import dan200.computercraft.core.apis.http.websocket.Websocket;
-import dan200.computercraft.core.filesystem.ResourceMount;
 import dan200.computercraft.shared.Config;
 import dan200.computercraft.shared.computer.blocks.BlockComputer;
 import dan200.computercraft.shared.computer.core.ClientComputerRegistry;
@@ -192,13 +190,6 @@ public final class ComputerCraft
     public static String getVersion()
     {
         return "${version}";
-    }
-
-    static IMount createResourceMount( String domain, String subPath )
-    {
-        IReloadableResourceManager manager = ServerLifecycleHooks.getCurrentServer().getResourceManager();
-        ResourceMount mount = new ResourceMount( domain, subPath, manager );
-        return mount.exists( "" ) ? mount : null;
     }
 
     public static InputStream getResourceFile( String domain, String subPath )

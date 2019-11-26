@@ -31,7 +31,7 @@ public class ResourceMountTest
         SimpleReloadableResourceManager manager = new SimpleReloadableResourceManager( ResourcePackType.SERVER_DATA, null );
         manager.addResourcePack( new FolderPack( new File( "src/main/resources" ) ) );
 
-        mount = new ResourceMount( "computercraft", "lua/rom", manager );
+        mount = ResourceMount.get( "computercraft", "lua/rom", manager );
     }
 
     @Test

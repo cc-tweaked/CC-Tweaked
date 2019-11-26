@@ -8,13 +8,16 @@ package dan200.computercraft.core.filesystem;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import com.google.common.collect.MapMaker;
 import com.google.common.io.ByteStreams;
+import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.core.apis.handles.ArrayByteChannel;
 import net.minecraft.resources.IReloadableResourceManager;
 import net.minecraft.resources.IResource;
 import net.minecraft.resources.IResourceManager;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.ResourceLocationException;
 import net.minecraftforge.resource.IResourceType;
 import net.minecraftforge.resource.ISelectiveResourceReloadListener;
 
@@ -29,7 +32,7 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 
-public class ResourceMount implements IMount
+public final class ResourceMount implements IMount
 {
     /**
      * Only cache files smaller than 1MiB.
@@ -55,6 +58,13 @@ public class ResourceMount implements IMount
         .<FileEntry, byte[]>weigher( ( k, v ) -> v.length )
         .build();
 
+    private static final MapMaker CACHE_TEMPLATE = new MapMaker().weakValues().concurrencyLevel( 1 );
+
+    /**
+     * Maintain a cache of currently loaded resource mounts. This cache is invalidated when currentManager changes.
+     */
+    private static final Map<IReloadableResourceManager, Map<ResourceLocation, ResourceMount>> MOUNT_CACHE = new WeakHashMap<>( 2 );
+
     private final String namespace;
     private final String subPath;
     private final IReloadableResourceManager manager;
@@ -62,7 +72,26 @@ public class ResourceMount implements IMount
     @Nullable
     private FileEntry root;
 
-    public ResourceMount( String namespace, String subPath, IReloadableResourceManager manager )
+    public static ResourceMount get( String namespace, String subPath, IReloadableResourceManager manager )
+    {
+        Map<ResourceLocation, ResourceMount> cache;
+
+        synchronized( MOUNT_CACHE )
+        {
+            cache = MOUNT_CACHE.get( manager );
+            if( cache == null ) MOUNT_CACHE.put( manager, cache = CACHE_TEMPLATE.makeMap() );
+        }
+
+        ResourceLocation path = new ResourceLocation( namespace, subPath );
+        synchronized( cache )
+        {
+            ResourceMount mount = cache.get( path );
+            if( mount == null ) cache.put( path, mount = new ResourceMount( namespace, subPath, manager ) );
+            return mount;
+        }
+    }
+
+    private ResourceMount( String namespace, String subPath, IReloadableResourceManager manager )
     {
         this.namespace = namespace;
         this.subPath = subPath;
@@ -119,7 +148,17 @@ public class ResourceMount implements IMount
             FileEntry nextEntry = lastEntry.children.get( part );
             if( nextEntry == null )
             {
-                lastEntry.children.put( part, nextEntry = new FileEntry( new ResourceLocation( namespace, subPath + "/" + path ) ) );
+                ResourceLocation childPath;
+                try
+                {
+                    childPath = new ResourceLocation( namespace, subPath + "/" + path );
+                }
+                catch( ResourceLocationException e )
+                {
+                    ComputerCraft.log.warn( "Cannot create resource location for {} ({})", part, e.getMessage() );
+                    return;
+                }
+                lastEntry.children.put( part, nextEntry = new FileEntry( childPath ) );
             }
 
             lastEntry = nextEntry;

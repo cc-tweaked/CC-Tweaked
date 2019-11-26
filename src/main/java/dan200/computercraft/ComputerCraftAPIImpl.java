@@ -6,6 +6,7 @@
 
 package dan200.computercraft;
 
+import com.google.common.collect.MapMaker;
 import dan200.computercraft.api.ComputerCraftAPI.IComputerCraftAPI;
 import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.api.filesystem.IWritableMount;
@@ -20,20 +21,26 @@ import dan200.computercraft.api.redstone.IBundledRedstoneProvider;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.core.apis.ApiFactories;
 import dan200.computercraft.core.filesystem.FileMount;
+import dan200.computercraft.core.filesystem.ResourceMount;
 import dan200.computercraft.shared.*;
 import dan200.computercraft.shared.peripheral.modem.wireless.WirelessNetwork;
 import dan200.computercraft.shared.util.IDAssigner;
 import dan200.computercraft.shared.wired.CapabilityWiredElement;
 import dan200.computercraft.shared.wired.WiredNode;
+import net.minecraft.resources.IReloadableResourceManager;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.LazyOptional;
+import net.minecraftforge.fml.server.ServerLifecycleHooks;
 
 import javax.annotation.Nonnull;
 import java.io.File;
+import java.lang.ref.WeakReference;
+import java.util.Map;
 
 public final class ComputerCraftAPIImpl implements IComputerCraftAPI
 {
@@ -42,6 +49,9 @@ public final class ComputerCraftAPIImpl implements IComputerCraftAPI
     private ComputerCraftAPIImpl()
     {
     }
+
+    private WeakReference<IReloadableResourceManager> currentResources;
+    private final Map<ResourceLocation, ResourceMount> mountCache = new MapMaker().weakValues().concurrencyLevel( 1 ).makeMap();
 
     @Nonnull
     @Override
@@ -72,7 +82,9 @@ public final class ComputerCraftAPIImpl implements IComputerCraftAPI
     @Override
     public IMount createResourceMount( @Nonnull String domain, @Nonnull String subPath )
     {
-        return ComputerCraft.createResourceMount( domain, subPath );
+        IReloadableResourceManager manager = ServerLifecycleHooks.getCurrentServer().getResourceManager();
+        ResourceMount mount = ResourceMount.get( domain, subPath, manager );
+        return mount.exists( "" ) ? mount : null;
     }
 
     @Override
