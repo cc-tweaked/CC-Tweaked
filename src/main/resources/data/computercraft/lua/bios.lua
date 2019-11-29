@@ -291,7 +291,7 @@ function read( _sReplaceChar, _tHistory, _fnComplete, _sDefault )
         sLine = ""
     end
     local nHistoryPos
-    local nPos = #sLine
+    local nPos, nScroll = #sLine, 0
     if _sReplaceChar then
         _sReplaceChar = string.sub( _sReplaceChar, 1, 1 )
     end
@@ -321,16 +321,20 @@ function read( _sReplaceChar, _tHistory, _fnComplete, _sDefault )
     local sx = term.getCursorPos()
 
     local function redraw( _bClear )
-        local nScroll = 0
-        if sx + nPos >= w then
-            nScroll = (sx + nPos) - w
+        local cursor_pos = nPos - nScroll
+        if sx + cursor_pos >= w then
+            -- We've moved beyond the RHS, ensure we're on the edge.
+            nScroll = sx + nPos - w
+        elseif cursor_pos < 0 then
+            -- We've moved beyond the LHS, ensure we're on the edge.
+            nScroll = nPos
         end
 
         local _, cy = term.getCursorPos()
         term.setCursorPos( sx, cy )
         local sReplace = (_bClear and " ") or _sReplaceChar
         if sReplace then
-            term.write( string.rep( sReplace, math.max( string.len(sLine) - nScroll, 0 ) ) )
+            term.write( string.rep( sReplace, math.max( #sLine - nScroll, 0 ) ) )
         else
             term.write( string.sub( sLine, nScroll + 1 ) )
         end
@@ -345,7 +349,7 @@ function read( _sReplaceChar, _tHistory, _fnComplete, _sDefault )
                 term.setBackgroundColor( colors.gray )
             end
             if sReplace then
-                term.write( string.rep( sReplace, string.len( sCompletion ) ) )
+                term.write( string.rep( sReplace, #sCompletion ) )
             else
                 term.write( sCompletion )
             end
@@ -373,7 +377,7 @@ function read( _sReplaceChar, _tHistory, _fnComplete, _sDefault )
             -- Find the common prefix of all the other suggestions which start with the same letter as the current one
             local sCompletion = tCompletions[ nCompletion ]
             sLine = sLine .. sCompletion
-            nPos = string.len( sLine )
+            nPos = #sLine
 
             -- Redraw
             recomplete()
@@ -381,7 +385,7 @@ function read( _sReplaceChar, _tHistory, _fnComplete, _sDefault )
         end
     end
     while true do
-        local sEvent, param = os.pullEvent()
+        local sEvent, param, param1, param2 = os.pullEvent()
         if sEvent == "char" then
             -- Typed key
             clear()
@@ -394,7 +398,7 @@ function read( _sReplaceChar, _tHistory, _fnComplete, _sDefault )
             -- Pasted text
             clear()
             sLine = string.sub( sLine, 1, nPos ) .. param .. string.sub( sLine, nPos + 1 )
-            nPos = nPos + string.len( param )
+            nPos = nPos + #param
             recomplete()
             redraw()
 
@@ -419,7 +423,7 @@ function read( _sReplaceChar, _tHistory, _fnComplete, _sDefault )
 
             elseif param == keys.right then
                 -- Right
-                if nPos < string.len(sLine) then
+                if nPos < #sLine then
                     -- Move right
                     clear()
                     nPos = nPos + 1
@@ -470,10 +474,10 @@ function read( _sReplaceChar, _tHistory, _fnComplete, _sDefault )
                     end
                     if nHistoryPos then
                         sLine = _tHistory[nHistoryPos]
-                        nPos = string.len( sLine )
+                        nPos, nScroll = #sLine, 0
                     else
                         sLine = ""
-                        nPos = 0
+                        nPos, nScroll = 0, 0
                     end
                     uncomplete()
                     redraw()
@@ -486,6 +490,7 @@ function read( _sReplaceChar, _tHistory, _fnComplete, _sDefault )
                     clear()
                     sLine = string.sub( sLine, 1, nPos - 1 ) .. string.sub( sLine, nPos + 1 )
                     nPos = nPos - 1
+                    if nScroll > 0 then nScroll = nScroll - 1 end
                     recomplete()
                     redraw()
                 end
@@ -501,7 +506,7 @@ function read( _sReplaceChar, _tHistory, _fnComplete, _sDefault )
 
             elseif param == keys.delete then
                 -- Delete
-                if nPos < string.len(sLine) then
+                if nPos < #sLine then
                     clear()
                     sLine = string.sub( sLine, 1, nPos ) .. string.sub( sLine, nPos + 2 )
                     recomplete()
@@ -510,9 +515,9 @@ function read( _sReplaceChar, _tHistory, _fnComplete, _sDefault )
 
             elseif param == keys["end"] then
                 -- End
-                if nPos < string.len(sLine ) then
+                if nPos < #sLine then
                     clear()
-                    nPos = string.len(sLine)
+                    nPos = #sLine
                     recomplete()
                     redraw()
                 end
@@ -525,9 +530,9 @@ function read( _sReplaceChar, _tHistory, _fnComplete, _sDefault )
 
         elseif sEvent == "mouse_click" or sEvent == "mouse_drag" and param == 1 then
             local _, cy = term.getCursorPos()
-            if param2 >= sx and param2 <= w and param2 == cy then
-                -- Then ensure we don't scroll beyond the current line
-                nPos = math.min(math.max(nScroll + x - sx, 0), #sLine)
+            if param1 >= sx and param1 <= w and param2 == cy then
+                -- Ensure we don't scroll beyond the current line
+                nPos = math.min(math.max(nScroll + param1 - sx, 0), #sLine)
                 redraw()
             end
 
