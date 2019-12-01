@@ -1,3 +1,8 @@
+New features in CC:T for Fabric 1.83.2+build.9
+
+* Add an argument `dimension` to commands.getBlockInfo and getBlockInfos (hugeblank)
+* Update dependencies
+
 New features in CC:T for Fabric 1.83.2+build.8
 
 * Fix an issue where the results of commands.exec were incomplete (hugeblank)
