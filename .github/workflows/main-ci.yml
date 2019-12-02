@@ -16,3 +16,10 @@ jobs:
 
     - name: Build with Gradle
       run: ./gradlew build --no-daemon
+
+    - name: Lint Lua code
+      run: |
+        test -d bin || mkdir bin
+        test -f bin/illuaminate || wget -q -Obin/illuaminate https://squiddev.cc/illuaminate/bin/illuaminate
+        chmod +x bin/illuaminate
+        bin/illuaminate lint
