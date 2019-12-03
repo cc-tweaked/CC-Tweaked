@@ -6,15 +6,20 @@
 
 (at /
   (linters
-    ;; We disable the two global linters for now, as Illuaminate really doesn't
-    ;; like CC's (mis)use of them.
-    -var:set-global -var:unused-global -var:unused-arg
     ;; It'd be nice to avoid this, but right now there's a lot of instances of it.
     -var:set-loop
-    ))
 
+    ;; It's useful to name arguments for documentation, so we allow this. It'd
+    ;; be good to find a compromise in the future, but this works for now.
+    -var:unused-arg))
 
-;; These warning is broken right now
-(at "completion.lua" (linters -doc:malformed-type))
-(at "bios.lua" (linters -control:unreachable))
-(at "worm.lua" (linters -control:unreachable))
+;; We disable the two global linters in bios.lua and the APIs. In the future
+;; hopefully we'll get illuaminate to handle this.
+(at
+  (/src/main/resources/assets/computercraft/lua/bios.lua
+   /src/main/resources/assets/computercraft/lua/rom/apis/)
+  (linters -var:set-global -var:unused-global))
+
+;; These warnings are broken right now
+(at completion.lua (linters -doc:malformed-type))
+(at (bios.lua worm.lua) (linters -control:unreachable))
