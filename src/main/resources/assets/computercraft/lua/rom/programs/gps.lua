@@ -28,7 +28,7 @@ elseif sCommand == "host" then
 
     -- Find a modem
     local sModemSide = nil
-    for n,sSide in ipairs( rs.getSides() ) do
+    for _,sSide in ipairs( rs.getSides() ) do
         if peripheral.getType( sSide ) == "modem" and peripheral.call( sSide, "isWireless" ) then
             sModemSide = sSide
             break
@@ -80,7 +80,7 @@ elseif sCommand == "host" then
                 -- Print the number of requests handled
                 nServed = nServed + 1
                 if nServed > 1 then
-                    local x,y = term.getCursorPos()
+                    local _,y = term.getCursorPos()
                     term.setCursorPos(1,y-1)
                 end
                 print( nServed.." GPS requests served" )

@@ -9,10 +9,10 @@ if multishell then
 end
 
 local bExit = false
-local sDir = (parentShell and parentShell.dir()) or ""
-local sPath = (parentShell and parentShell.path()) or ".:/rom/programs"
-local tAliases = (parentShell and parentShell.aliases()) or {}
-local tCompletionInfo = (parentShell and parentShell.getCompletionInfo()) or {}
+local sDir = parentShell and parentShell.dir() or ""
+local sPath = parentShell and parentShell.path() or ".:/rom/programs"
+local tAliases = parentShell and parentShell.aliases() or {}
+local tCompletionInfo = parentShell and parentShell.getCompletionInfo() or {}
 local tProgramStack = {}
 
 local shell = {}
@@ -287,7 +287,7 @@ function shell.programs( _bIncludeHidden )
 
     -- Sort and return
     local tItemList = {}
-    for sItem, b in pairs( tItems ) do
+    for sItem in pairs( tItems ) do
         table.insert( tItemList, sItem )
     end
     table.sort( tItemList )
@@ -304,7 +304,7 @@ local function completeProgram( sLine )
         local tSeen = {}
 
         -- Add aliases
-        for sAlias, sCommand in pairs( tAliases ) do
+        for sAlias in pairs( tAliases ) do
             if #sAlias > #sLine and string.sub( sAlias, 1, #sLine ) == sLine then
                 local sResult = string.sub( sAlias, #sLine + 1 )
                 if not tSeen[ sResult ] then

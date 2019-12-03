@@ -66,8 +66,8 @@ local function printCentred( yc, stg )
 end
 
 local function centerOrgin()
-    XOrgin = math.floor((TermW/2)-(SizeW/2))
-    YOrgin = math.floor((TermH/2)-(SizeH/2))
+    XOrgin = math.floor(TermW/2-SizeW/2)
+    YOrgin = math.floor(TermH/2-SizeH/2)
 end
 
 local function reMap()
@@ -177,7 +177,6 @@ local function loadLevel(nNum)
     local sLevelD = sDir .. "/levels/" .. tostring(nNum)..".dat"
     if not ( fs.exists(sLevelD) or fs.isDir(sLevelD) ) then return error("Level Not Exists : "..sLevelD) end
     fLevel = fs.open(sLevelD,"r")
-    local Line = 0
     local wl = true
     Blocks = tonumber(string.sub(fLevel.readLine(),1,1))
     local xSize = string.len(fLevel.readLine())+2
@@ -557,7 +556,7 @@ function InterFace.render()
         elseif p3 == TermH and p2 >= TermW-4 and p2 <= TermW-3 then
             bPaused = not bPaused
             fSpeedS = false
-            Speed = (bPaused and 0) or nSpeed
+            Speed = bPaused and 0 or nSpeed
             if Speed > 0 then
                 Tick = os.startTimer(Speed)
             else
@@ -567,7 +566,7 @@ function InterFace.render()
         elseif p3 == TermH and p2 >= TermW-1 then
             bPaused = false
             fSpeedS = not fSpeedS
-            Speed = (fSpeedS and fSpeed) or nSpeed
+            Speed = fSpeedS and fSpeed or nSpeed
             Tick = os.startTimer(Speed)
             InterFace.drawBar()
         elseif p3-1 < YOrgin+SizeH+1 and p3-1 > YOrgin and
@@ -596,7 +595,6 @@ local function startG(LevelN)
     drawStars()
     loadLevel(LevelN)
     centerOrgin()
-    local create = true
     drawMap()
     InterFace.drawBar()
     gRender("start")

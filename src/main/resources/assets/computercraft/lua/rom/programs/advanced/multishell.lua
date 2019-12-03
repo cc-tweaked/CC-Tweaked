@@ -172,7 +172,6 @@ local function resizeWindows()
     end
     for n=1,#tProcesses do
         local tProcess = tProcesses[n]
-        local window = tProcess.window
         local x,y = tProcess.window.getCursorPos()
         if y > windowHeight then
             tProcess.window.scroll( y - windowHeight )
@@ -232,7 +231,7 @@ function multishell.launch( tProgramEnv, sProgramPath, ... )
     expect(1, tProgramEnv, "table")
     expect(2, sProgramPath, "string")
     local previousTerm = term.current()
-    setMenuVisible( (#tProcesses + 1) >= 2 )
+    setMenuVisible( #tProcesses + 1 >= 2 )
     local nResult = launchProcess( false, tProgramEnv, sProgramPath, ... )
     redrawMenu()
     term.redirect( previousTerm )
@@ -299,7 +298,7 @@ while #tProcesses > 0 do
             end
         else
             -- Passthrough to current process
-            resumeProcess( nCurrentProcess, sEvent, button, x, (bShowMenu and y-1) or y )
+            resumeProcess( nCurrentProcess, sEvent, button, x, bShowMenu and y-1 or y )
             if cullProcess( nCurrentProcess ) then
                 setMenuVisible( #tProcesses >= 2 )
                 redrawMenu()
@@ -319,7 +318,7 @@ while #tProcesses > 0 do
             end
         elseif not (bShowMenu and y == 1) then
             -- Passthrough to current process
-            resumeProcess( nCurrentProcess, sEvent, p1, x, (bShowMenu and y-1) or y )
+            resumeProcess( nCurrentProcess, sEvent, p1, x, bShowMenu and y-1 or y )
             if cullProcess( nCurrentProcess ) then
                 setMenuVisible( #tProcesses >= 2 )
                 redrawMenu()

@@ -184,7 +184,7 @@ function sleep( nTime )
     expect(1, nTime, "number", "nil")
     local timer = os.startTimer( nTime or 0 )
     repeat
-        local sEvent, param = os.pullEvent( "timer" )
+        local _, param = os.pullEvent( "timer" )
     until param == timer
 end
 
@@ -233,7 +233,7 @@ function write( sText )
                         newLine()
                     end
                     term.write( text )
-                    text = string.sub( text, (w-x) + 2 )
+                    text = string.sub( text, w-x + 2 )
                     x,y = term.getCursorPos()
                 end
             else
@@ -332,7 +332,7 @@ function read( _sReplaceChar, _tHistory, _fnComplete, _sDefault )
 
         local _, cy = term.getCursorPos()
         term.setCursorPos( sx, cy )
-        local sReplace = (_bClear and " ") or _sReplaceChar
+        local sReplace = _bClear and " " or _sReplaceChar
         if sReplace then
             term.write( string.rep( sReplace, math.max( #sLine - nScroll, 0 ) ) )
         else
@@ -544,7 +544,7 @@ function read( _sReplaceChar, _tHistory, _fnComplete, _sDefault )
         end
     end
 
-    local cx, cy = term.getCursorPos()
+    local _, cy = term.getCursorPos()
     term.setCursorBlink( false )
     term.setCursorPos( w + 1, cy )
     print()
@@ -775,7 +775,7 @@ if http then
         if not ok then return ok, err end
 
         while true do
-            local event, url, ok, err = os.pullEvent( "http_check" )
+            local _, url, ok, err = os.pullEvent( "http_check" )
             if url == _url then return ok, err end
         end
     end
@@ -808,8 +808,8 @@ function fs.complete( sPath, sLocation, bIncludeFiles, bIncludeDirs )
     expect(3, bIncludeFiles, "boolean", "nil")
     expect(4, bIncludeDirs, "boolean", "nil")
 
-    bIncludeFiles = (bIncludeFiles ~= false)
-    bIncludeDirs = (bIncludeDirs ~= false)
+    bIncludeFiles = bIncludeFiles ~= false
+    bIncludeDirs = bIncludeDirs ~= false
     local sDir = sLocation
     local nStart = 1
     local nSlash = string.find( sPath, "[/\\]", nStart )
@@ -836,9 +836,9 @@ function fs.complete( sPath, sLocation, bIncludeFiles, bIncludeDirs )
         end
         if sDir ~= "" then
             if sPath == "" then
-                table.insert( tResults, (bIncludeDirs and "..") or "../" )
+                table.insert( tResults, bIncludeDirs and ".." or "../" )
             elseif sPath == "." then
-                table.insert( tResults, (bIncludeDirs and ".") or "./" )
+                table.insert( tResults, bIncludeDirs and "." or "./" )
             end
         end
         local tFiles = fs.list( sDir )
@@ -867,7 +867,7 @@ end
 -- Load APIs
 local bAPIError = false
 local tApis = fs.list( "rom/apis" )
-for n,sFile in ipairs( tApis ) do
+for _,sFile in ipairs( tApis ) do
     if string.sub( sFile, 1, 1 ) ~= "." then
         local sPath = fs.combine( "rom/apis", sFile )
         if not fs.isDir( sPath ) then
@@ -881,7 +881,7 @@ end
 if turtle and fs.isDir( "rom/apis/turtle" ) then
     -- Load turtle APIs
     local tApis = fs.list( "rom/apis/turtle" )
-    for n,sFile in ipairs( tApis ) do
+    for _,sFile in ipairs( tApis ) do
         if string.sub( sFile, 1, 1 ) ~= "." then
             local sPath = fs.combine( "rom/apis/turtle", sFile )
             if not fs.isDir( sPath ) then
@@ -896,7 +896,7 @@ end
 if pocket and fs.isDir( "rom/apis/pocket" ) then
     -- Load pocket APIs
     local tApis = fs.list( "rom/apis/pocket" )
-    for n,sFile in ipairs( tApis ) do
+    for _,sFile in ipairs( tApis ) do
         if string.sub( sFile, 1, 1 ) ~= "." then
             local sPath = fs.combine( "rom/apis/pocket", sFile )
             if not fs.isDir( sPath ) then
@@ -946,7 +946,7 @@ end
 
 -- Set default settings
 settings.set( "shell.allow_startup", true )
-settings.set( "shell.allow_disk_startup", (commands == nil) )
+settings.set( "shell.allow_disk_startup", commands == nil )
 settings.set( "shell.autocomplete", true )
 settings.set( "edit.autocomplete", true )
 settings.set( "edit.default_extension", "lua" )

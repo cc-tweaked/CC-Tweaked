@@ -2,7 +2,7 @@
 local tArgs = { ... }
 if #tArgs == 0 then
     -- "set"
-    local x,y = term.getCursorPos()
+    local _,y = term.getCursorPos()
     local tSettings = {}
     for n,sName in ipairs( settings.getNames() ) do
         tSettings[n] = textutils.serialize(sName) .. " is " .. textutils.serialize(settings.get(sName))

@@ -15,8 +15,6 @@ if length < 1 then
     print( "Tunnel length must be positive" )
     return
 end
-
-local depth = 0
 local collected = 0
 
 local function collect()

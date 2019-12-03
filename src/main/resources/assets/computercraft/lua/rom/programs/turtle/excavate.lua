@@ -81,7 +81,7 @@ local function collect()
     if nTotalItems > collected then
         collected = nTotalItems
         if math.fmod(collected + unloaded, 50) == 0 then
-            print( "Mined "..(collected + unloaded).." items." )
+            print( "Mined "..collected + unloaded.." items." )
         end
     end
 
@@ -98,9 +98,8 @@ function refuel( ammount )
         return true
     end
 
-    local needed = ammount or (xPos + zPos + depth + 2)
+    local needed = ammount or xPos + zPos + depth + 2
     if turtle.getFuelLevel() < needed then
-        local fueled = false
         for n=1,16 do
             if turtle.getItemCount(n) > 0 then
                 turtle.select(n)
@@ -292,7 +291,7 @@ local alternate = 0
 local done = false
 while not done do
     for n=1,size do
-        for m=1,size-1 do
+        for _=1,size-1 do
             if not tryForwards() then
                 done = true
                 break
@@ -354,4 +353,4 @@ if reseal then
     turtle.placeDown()
 end
 
-print( "Mined "..(collected + unloaded).." items total." )
+print( "Mined "..collected + unloaded.." items total." )

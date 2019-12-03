@@ -23,7 +23,7 @@ end
 if turtle.getFuelLevel() ~= "unlimited" then
     for n = 1, 16 do
         -- Stop if we've reached the limit, or are fully refuelled.
-        if (nLimit and nLimit <= 0) or turtle.getFuelLevel() >= turtle.getFuelLimit() then
+        if nLimit and nLimit <= 0 or turtle.getFuelLevel() >= turtle.getFuelLimit() then
             break
         end
 

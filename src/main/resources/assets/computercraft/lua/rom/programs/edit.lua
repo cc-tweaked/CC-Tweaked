@@ -95,7 +95,7 @@ local function save( _sPath )
     local function innerSave()
         file, fileerr = fs.open( _sPath, "w" )
         if file then
-            for n, sLine in ipairs( tLines ) do
+            for _, sLine in ipairs( tLines ) do
                 file.write( sLine .. "\n" )
             end
         else
@@ -287,7 +287,7 @@ local tMenuFuncs = {
         if bReadOnly then
             sStatus = "Access denied"
         else
-            local ok, err, fileerr  = save( sPath )
+            local ok, _, fileerr  = save( sPath )
             if ok then
                 sStatus="Saved to "..sPath
             else
@@ -357,7 +357,7 @@ local tMenuFuncs = {
         term.redirect( printerTerminal )
         local ok, error = pcall( function()
             term.scroll()
-            for n, sLine in ipairs( tLines ) do
+            for _, sLine in ipairs( tLines ) do
                 print( sLine )
             end
         end )
@@ -385,7 +385,7 @@ local tMenuFuncs = {
     end,
     Run = function()
         local sTempPath = "/.temp"
-        local ok, err = save( sTempPath )
+        local ok = save( sTempPath )
         if ok then
             local nTask = shell.openTab( sTempPath )
             if nTask then
@@ -411,7 +411,7 @@ local function doMenuItem( _n )
 end
 
 local function setCursor( newX, newY )
-    local oldX, oldY = x, y
+    local _, oldY = x, y
     x, y = newX, newY
     local screenX = x - scrollX
     local screenY = y - scrollY
@@ -476,7 +476,6 @@ end
 while bRunning do
     local sEvent, param, param2, param3 = os.pullEvent()
     if sEvent == "key" then
-        local oldX, oldY = x, y
         if param == keys.up then
             -- Up
             if not bMenu then

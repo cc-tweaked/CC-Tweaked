@@ -31,7 +31,7 @@ while nArg <= #tArgs do
 
     local fnHandler = tHandlers[string.lower(sDirection)]
     if fnHandler then
-        for n=1,nDistance do
+        for _=1,nDistance do
             fnHandler( nArg )
         end
     else

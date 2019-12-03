@@ -186,8 +186,8 @@ local function drawInterface()
     term.write("\127\127")
 
     -- Left and Right Selected Colours
-    for i=18,18 do
-        term.setCursorPos(w-1, i)
+    do
+        term.setCursorPos(w-1, 18)
         if leftColour ~= nil then
             term.setBackgroundColour( leftColour )
             term.write(" ")
@@ -269,7 +269,7 @@ local function accessMenu()
         for k,v in pairs(mChoices) do
             if selection==k then
                 term.setTextColour(colours.yellow)
-                local ox,_ = term.getCursorPos()
+                local ox = term.getCursorPos()
                 term.write("["..string.rep(" ",#v).."]")
                 term.setCursorPos(ox+1,h)
                 term.setTextColour(colours.white)

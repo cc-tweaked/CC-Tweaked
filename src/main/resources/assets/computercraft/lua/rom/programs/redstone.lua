@@ -17,7 +17,7 @@ if sCommand == "probe" then
 
     local count = 0
     local bundledCount = 0
-    for n,sSide in ipairs( redstone.getSides() ) do
+    for _,sSide in ipairs( redstone.getSides() ) do
         if redstone.getBundledInput( sSide ) > 0 then
             bundledCount = bundledCount + 1
         end
@@ -39,7 +39,7 @@ if sCommand == "probe" then
     if bundledCount > 0 then
         print()
         print( "Bundled inputs:" )
-        for i,sSide in ipairs( redstone.getSides() ) do
+        for _,sSide in ipairs( redstone.getSides() ) do
             local nInput = redstone.getBundledInput( sSide )
             if nInput ~= 0 then
                 write( sSide..": " )
@@ -69,7 +69,7 @@ elseif sCommand == "pulse" then
     local sSide = tArgs[2]
     local nCount = tonumber( tArgs[3] ) or 1
     local nPeriod = tonumber( tArgs[4] ) or 0.5
-    for n=1,nCount do
+    for _=1,nCount do
         redstone.setOutput( sSide, true )
         sleep( nPeriod / 2 )
         redstone.setOutput( sSide, false )

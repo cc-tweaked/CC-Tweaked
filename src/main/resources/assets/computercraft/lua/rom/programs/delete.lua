@@ -8,7 +8,7 @@ end
 for i = 1, args.n do
     local files = fs.find(shell.resolve(args[i]))
     if #files > 0 then
-        for n, file in ipairs(files) do
+        for _, file in ipairs(files) do
             local ok, err = pcall(fs.delete, file)
             if not ok then
                 printError((err:gsub("^pcall: ", "")))

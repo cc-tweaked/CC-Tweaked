@@ -16,7 +16,7 @@ function slowWrite( sText, nRate )
         term.setCursorPos( x, y )
         sleep( nSleep )
         local nLines = write( string.sub( sText, 1, n ) )
-        local newX, newY = term.getCursorPos()
+        local _, newY = term.getCursorPos()
         y = newY - nLines
     end
 end
@@ -54,11 +54,11 @@ local function makePagedScroll( _term, _nFreeLines )
     local nativeScroll = _term.scroll
     local nFreeLines = _nFreeLines or 0
     return function( _n )
-        for n=1,_n do
+        for _=1,_n do
             nativeScroll( 1 )
 
             if nFreeLines <= 0 then
-                local w,h = _term.getSize()
+                local _,h = _term.getSize()
                 _term.setCursorPos( 1, h )
                 _term.write( "Press any key to continue" )
                 os.pullEvent( "key" )
@@ -123,7 +123,7 @@ local function tabulateCommon( bPaged, ... )
     local nCols = math.floor( w / nMaxLen )
     local nLines = 0
     local function newLine()
-        if bPaged and nLines >= (h-3) then
+        if bPaged and nLines >= h-3 then
             pagedPrint()
         else
             print()
@@ -133,14 +133,14 @@ local function tabulateCommon( bPaged, ... )
 
     local function drawCols( _t )
         local nCol = 1
-        for n, s in ipairs( _t ) do
+        for _, s in ipairs( _t ) do
             if nCol > nCols then
                 nCol = 1
                 newLine()
             end
 
             local cx, cy = term.getCursorPos()
-            cx = 1 + ((nCol - 1) * nMaxLen)
+            cx = 1 + (nCol - 1) * nMaxLen
             term.setCursorPos( cx, cy )
             term.write( s )
 
@@ -148,7 +148,7 @@ local function tabulateCommon( bPaged, ... )
         end
         print()
     end
-    for n, t in ipairs( tAll ) do
+    for _, t in ipairs( tAll ) do
         if type(t) == "table" then
             if #t > 0 then
                 drawCols( t )
@@ -280,7 +280,7 @@ local function serializeJSONImpl( t, tTracking, bNBTStyle )
                     nObjectSize = nObjectSize + 1
                 end
             end
-            for n,v in ipairs(t) do
+            for _,v in ipairs(t) do
                 local sEntry = serializeJSONImpl( v, tTracking, bNBTStyle )
                 if nArraySize == 0 then
                     sArrayResult = sArrayResult .. sEntry
