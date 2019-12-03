@@ -163,7 +163,7 @@ if settings.get( "shell.allow_startup" ) then
     tUserStartups = findStartups( "/" )
 end
 if settings.get( "shell.allow_disk_startup" ) then
-    for n,sName in pairs( peripheral.getNames() ) do
+    for _,sName in pairs( peripheral.getNames() ) do
         if disk.isPresent( sName ) and disk.hasData( sName ) then
             local startups = findStartups( disk.getMountPath( sName ) )
             if startups then

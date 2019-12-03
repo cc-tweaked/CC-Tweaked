@@ -147,8 +147,8 @@ function drawBox( startX, startY, endX, endY, nColour )
         drawPixelInternal( x, maxY )
     end
 
-    if (maxY - minY) >= 2 then
-        for y=(minY+1),(maxY-1) do
+    if maxY - minY >= 2 then
+        for y=minY+1,maxY-1 do
             drawPixelInternal( minX, y )
             drawPixelInternal( maxX, y )
         end

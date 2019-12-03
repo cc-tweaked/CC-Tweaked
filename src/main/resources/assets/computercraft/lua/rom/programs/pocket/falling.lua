@@ -424,7 +424,7 @@ local function playGame()
     end
 
     if #rows>0 then
-      for i=1,4 do
+      for _=1,4 do
         sleep(.1)
         for r=1,#rows do
           r=rows[r]
@@ -469,7 +469,6 @@ local function playGame()
   end
 
   local function blockFall()
-    local result = false
     if testBlockAt(curBlock,curX,curY+1,curRot) then
       pitBlock(curBlock,curX,curY,curRot)
       --detect rows that clear
@@ -524,16 +523,16 @@ local function playGame()
         dropTimer=os.startTimer(dropSpeed)
       end
       if dx+dr~=0 then
-        if not testBlockAt(curBlock,curX+dx,curY+dy,(dr>0 and curRot%#curBlock+dr or curRot)) then
+        if not testBlockAt(curBlock,curX+dx,curY+dy,dr>0 and curRot%#curBlock+dr or curRot) then
           eraseBlockAt(curBlock,curX,curY,curRot)
           curX=curX+dx
           curY=curY+dy
-          curRot=dr==0 and curRot or (curRot%#curBlock+dr)
+          curRot=dr==0 and curRot or curRot%#curBlock+dr
           drawBlockAt(curBlock,curX,curY,curRot)
         end
       end
     elseif e[1]=="term_resize" then
-      local w,h=term.getSize()
+      local _,h=term.getSize()
       if h==20 then
         heightAdjust=0
       else
@@ -617,7 +616,7 @@ local function runMenu()
         level=math.max(level-1,1)
         drawMenu()
       elseif key>=keys.one and key<=keys.nine and selected==1 then
-        level=(key-keys.one) + 1
+        level=key-keys.one + 1
         drawMenu()
       elseif key==keys.up or key==keys.w then
         selected=selected-1

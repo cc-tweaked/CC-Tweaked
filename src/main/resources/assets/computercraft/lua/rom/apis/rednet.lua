@@ -27,7 +27,7 @@ function close( sModem )
         peripheral.call( sModem, "close", CHANNEL_BROADCAST )
     else
         -- Close all modems
-        for n,sModem in ipairs( peripheral.getNames() ) do
+        for _,sModem in ipairs( peripheral.getNames() ) do
             if isOpen( sModem ) then
                 close( sModem )
             end
@@ -44,7 +44,7 @@ function isOpen( sModem )
         end
     else
         -- Check if any modem is open
-        for n,sModem in ipairs( peripheral.getNames() ) do
+        for _,sModem in ipairs( peripheral.getNames() ) do
             if isOpen( sModem ) then
                 return true
             end
@@ -79,11 +79,9 @@ function send( nRecipient, message, sProtocol )
         sent = true
     else
         -- Send on all open modems, to the target and to repeaters
-        for n,sModem in ipairs( peripheral.getNames() ) do
+        for _,sModem in ipairs( peripheral.getNames() ) do
             if isOpen( sModem ) then
-                peripheral.call( sModem, "transmit", nRecipient, nReplyChannel, tMessage );
-                peripheral.call( sModem, "transmit", CHANNEL_REPEAT, nReplyChannel, tMessage );
-                sent = true
+                peripheral.call( sModem, "transmit", nRecipient, nReplyChannel, tMessage )                peripheral.call( sModem, "transmit", CHANNEL_REPEAT, nReplyChannel, tMessage )                sent = true
             end
         end
     end

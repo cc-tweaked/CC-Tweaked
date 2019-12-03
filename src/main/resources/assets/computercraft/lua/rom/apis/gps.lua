@@ -13,7 +13,7 @@ local function trilaterate( A, B, C )
     local d = a2b:length()
     local ex = a2b:normalize( )
     local i = ex:dot( a2c )
-    local ey = (a2c - (ex * i)):normalize()
+    local ey = (a2c - ex * i):normalize()
     local j = ey:dot( a2c )
     local ez = ex:cross( ey )
 
@@ -24,13 +24,13 @@ local function trilaterate( A, B, C )
     local x = (r1*r1 - r2*r2 + d*d) / (2*d)
     local y = (r1*r1 - r3*r3 - x*x + (x-i)*(x-i) + j*j) / (2*j)
 
-    local result = A.vPosition + (ex * x) + (ey * y)
+    local result = A.vPosition + ex * x + ey * y
 
     local zSquared = r1*r1 - x*x - y*y
     if zSquared > 0 then
         local z = math.sqrt( zSquared )
-        local result1 = result + (ez * z)
-        local result2 = result - (ez * z)
+        local result1 = result + ez * z
+        local result2 = result - ez * z
 
         local rounded1, rounded2 = result1:round( 0.01 ), result2:round( 0.01 )
         if rounded1.x ~= rounded2.x or rounded1.y ~= rounded2.y or rounded1.z ~= rounded2.z then
@@ -66,7 +66,7 @@ function locate( _nTimeout, _bDebug )
 
     -- Find a modem
     local sModemSide = nil
-    for n,sSide in ipairs( rs.getSides() ) do
+    for _,sSide in ipairs( rs.getSides() ) do
         if peripheral.getType( sSide ) == "modem" and peripheral.call( sSide, "isWireless" ) then
             sModemSide = sSide
             break

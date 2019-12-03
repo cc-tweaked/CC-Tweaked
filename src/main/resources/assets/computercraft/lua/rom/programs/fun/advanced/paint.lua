@@ -269,7 +269,7 @@ local function accessMenu()
         for k,v in pairs(mChoices) do
             if selection==k then
                 term.setTextColour(colours.yellow)
-                local ox,_ = term.getCursorPos()
+                local ox = term.getCursorPos()
                 term.write("["..string.rep(" ",#v).."]")
                 term.setCursorPos(ox+1,h)
                 term.setTextColour(colours.white)

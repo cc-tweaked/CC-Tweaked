@@ -37,7 +37,7 @@ function topics()
     for sPath in string.gmatch(sPath, "[^:]+") do
         if fs.isDir( sPath ) then
             local tList = fs.list( sPath )
-            for n,sFile in pairs( tList ) do
+            for _,sFile in pairs( tList ) do
                 if string.sub( sFile, 1, 1 ) ~= "." then
                     if not fs.isDir( fs.combine( sPath, sFile ) ) then
                         if #sFile > 4 and sFile:sub(-4) == ".txt" then
@@ -52,7 +52,7 @@ function topics()
 
     -- Sort and return
     local tItemList = {}
-    for sItem, b in pairs( tItems ) do
+    for sItem in pairs( tItems ) do
         table.insert( tItemList, sItem )
     end
     table.sort( tItemList )

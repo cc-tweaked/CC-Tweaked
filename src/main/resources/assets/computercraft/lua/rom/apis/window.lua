@@ -49,7 +49,7 @@ function create( parent, nX, nY, nWidth, nHeight, bStartVisible )
     createEmptyLines( nWidth )
 
     -- Setup
-    local bVisible = (bStartVisible ~= false)
+    local bVisible = bStartVisible ~= false
     local nCursorX = 1
     local nCursorY = 1
     local bCursorBlink = false

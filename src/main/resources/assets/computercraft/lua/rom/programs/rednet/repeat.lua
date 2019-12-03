@@ -1,7 +1,7 @@
 
 -- Find modems
 local tModems = {}
-for n,sModem in ipairs( peripheral.getNames() ) do
+for _,sModem in ipairs( peripheral.getNames() ) do
     if peripheral.getType( sModem ) == "modem" then
         table.insert( tModems, sModem )
     end
@@ -59,7 +59,7 @@ local ok, error = pcall( function()
 
                         -- Log the event
                         nTransmittedMessages = nTransmittedMessages + 1
-                        local x,y = term.getCursorPos()
+                        local _,y = term.getCursorPos()
                         term.setCursorPos( 1, y - 1 )
                         term.clearLine()
                         if nTransmittedMessages == 1 then

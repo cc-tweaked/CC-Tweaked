@@ -23,7 +23,7 @@ elseif sCommand == "play" or sCommand == nil then
     if sName == nil then
         -- No disc specified, pick one at random
         local tNames = {}
-        for n,sName in ipairs( peripheral.getNames() ) do
+        for _,sName in ipairs( peripheral.getNames() ) do
             if disk.isPresent( sName ) and disk.hasAudio( sName ) then
                 table.insert( tNames, sName )
             end

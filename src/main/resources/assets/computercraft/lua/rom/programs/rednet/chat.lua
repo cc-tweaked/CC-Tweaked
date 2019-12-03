@@ -9,7 +9,7 @@ end
 
 local sOpenedModem = nil
 local function openModem()
-    for n,sModem in ipairs( peripheral.getNames() ) do
+    for _,sModem in ipairs( peripheral.getNames() ) do
         if peripheral.getType( sModem ) == "modem" then
             if not rednet.isOpen( sModem ) then
                 rednet.open( sModem )
@@ -94,7 +94,7 @@ if sCommand == "host" then
     end
 
     local function printUsers()
-        local x,y = term.getCursorPos()
+        local _,y = term.getCursorPos()
         term.setCursorPos( 1, y - 1 )
         term.clearLine()
         if nUsers == 1 then
@@ -108,7 +108,7 @@ if sCommand == "host" then
     local ok, error = pcall( function()
         parallel.waitForAny( function()
             while true do
-                local sEvent, timer = os.pullEvent( "timer" )
+                local _, timer = os.pullEvent( "timer" )
                 local nUserID = tPingPongTimer[ timer ]
                 if nUserID and tUsers[ nUserID ] then
                     local tUser = tUsers[ nUserID ]
@@ -148,7 +148,7 @@ if sCommand == "host" then
                     ["users"] = function( tUser, sContent )
                         send( "* Connected Users:", tUser.nUserID )
                         local sUsers = "*"
-                        for nUserID, tUser in pairs( tUsers ) do
+                        for _, tUser in pairs( tUsers ) do
                             sUsers = sUsers .. " " .. tUser.sUsername
                         end
                         send( sUsers, tUser.nUserID )
@@ -156,7 +156,7 @@ if sCommand == "host" then
                     ["help"] = function( tUser, sContent )
                         send( "* Available commands:", tUser.nUserID )
                         local sCommands = "*"
-                        for sCommand, fnCommand in pairs( tCommands ) do
+                        for sCommand in pairs( tCommands ) do
                             sCommands = sCommands .. " /" .. sCommand
                         end
                         send( sCommands.." /logout", tUser.nUserID )
@@ -297,8 +297,8 @@ elseif sCommand == "join" then
     promptWindow.restoreCursor()
 
     local function drawTitle()
-        local x,y = titleWindow.getCursorPos()
-        local w,h = titleWindow.getSize()
+        local _,_ = titleWindow.getCursorPos()
+        local w = titleWindow.getSize()
         local sTitle = sUsername.." on "..sHostname
         titleWindow.setTextColour( highlightColour )
         titleWindow.setCursorPos( math.floor( w/2 - string.len(sTitle)/2 ), 1 )
@@ -410,7 +410,7 @@ elseif sCommand == "join" then
     term.redirect( parentTerm )
 
     -- Print error notice
-    local w,h = term.getSize()
+    local _,h = term.getSize()
     term.setCursorPos( 1, h )
     term.clearLine()
     term.setCursorBlink( false )

@@ -47,7 +47,7 @@ end
 
 function getNames()
     local result = {}
-    for k,v in pairs( tSettings ) do
+    for k in pairs( tSettings ) do
         result[ #result + 1 ] = k
     end
     table.sort(result)

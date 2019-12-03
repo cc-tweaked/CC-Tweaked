@@ -33,9 +33,9 @@ local tNonNBTJSONCommands = {
     [ "title" ] = true
 }
 local tCommands = native.list()
-for n,sCommandName in ipairs(tCommands) do
+for _,sCommandName in ipairs(tCommands) do
     if env[ sCommandName ] == nil then
-        local bJSONIsNBT = (tNonNBTJSONCommands[ sCommandName ] == nil)
+        local bJSONIsNBT = tNonNBTJSONCommands[ sCommandName ] == nil
         env[ sCommandName ] = function( ... )
             local sCommand = collapseArgs( bJSONIsNBT, sCommandName, ... )
             return native.exec( sCommand )

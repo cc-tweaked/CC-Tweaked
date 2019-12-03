@@ -67,7 +67,7 @@ while bRunning do
 
     local nForcePrint = 0
     local func, e = load( s, "=lua", "t", tEnv )
-    local func2, e2 = load( "return _echo("..s..");", "=lua", "t", tEnv )
+    local func2 = load( "return _echo("..s..");", "=lua", "t", tEnv )
     if not func then
         if func2 then
             func = func2
@@ -84,7 +84,7 @@ while bRunning do
         local tResults = table.pack( pcall( func ) )
         if tResults[1] then
             local n = 1
-            while n < tResults.n or (n <= nForcePrint) do
+            while n < tResults.n or n <= nForcePrint do
                 local value = tResults[ n + 1 ]
                 if type( value ) == "table" then
                     local metatable = getmetatable( value )

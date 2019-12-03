@@ -2,15 +2,15 @@
 -- Display the start screen
 local w,h = term.getSize()
 
-local titleColour, headingColour, textColour, wormColour, fruitColour
+local _, headingColour, textColour, wormColour, fruitColour
 if term.isColour() then
-    titleColour = colours.red
+    _ = colours.red
     headingColour = colours.yellow
     textColour = colours.white
     wormColour = colours.green
     fruitColour = colours.red
 else
-    titleColour = colours.white
+    _ = colours.white
     headingColour = colours.white
     textColour = colours.white
     wormColour = colours.white
@@ -27,8 +27,6 @@ end
 local xVel,yVel = 1,0
 local xPos, yPos = math.floor(w/2), math.floor(h/2)
 local pxVel, pyVel = nil, nil
-
-local nLength = 1
 local nExtraLength = 6
 local bRunning = true
 
@@ -103,7 +101,6 @@ local function drawMenu()
 end
 
 local function update( )
-    local x,y = xPos,yPos
     if pxVel and pyVel then
         xVel, yVel = pxVel, pyVel
         pxVel, pyVel = nil, nil
@@ -190,7 +187,7 @@ end
 drawMenu()
 drawFrontend()
 while true do
-    local e,key = os.pullEvent( "key" )
+    local _,key = os.pullEvent( "key" )
     if key == keys.up or key == keys.w then
         -- Up
         if nDifficulty > 1 then
@@ -228,7 +225,7 @@ addFruit()
 -- Play the game
 local timer = os.startTimer(0)
 while bRunning do
-    local event, p1, p2 = os.pullEvent()
+    local event, p1 = os.pullEvent()
     if event == "timer" and p1 == timer then
         timer = os.startTimer(nInterval)
         update( false )

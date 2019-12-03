@@ -54,9 +54,9 @@ local vector = {
 	round = function( self, nTolerance )
 	    nTolerance = nTolerance or 1.0
 		return vector.new(
-			math.floor( (self.x + (nTolerance * 0.5)) / nTolerance ) * nTolerance,
-			math.floor( (self.y + (nTolerance * 0.5)) / nTolerance ) * nTolerance,
-			math.floor( (self.z + (nTolerance * 0.5)) / nTolerance ) * nTolerance
+			math.floor( (self.x + nTolerance * 0.5) / nTolerance ) * nTolerance,
+			math.floor( (self.y + nTolerance * 0.5) / nTolerance ) * nTolerance,
+			math.floor( (self.z + nTolerance * 0.5) / nTolerance ) * nTolerance
 		)
 	end,
 	tostring = function( self )
