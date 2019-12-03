@@ -1071,7 +1071,6 @@ function commands.craft( _sItem )
         return
     end
 
-    local _ = getRoom( x,y,z )
     local sItem = findItem( items, _sItem )
     local tRecipe = sItem and tRecipes[ sItem ] or nil
     if tRecipe then

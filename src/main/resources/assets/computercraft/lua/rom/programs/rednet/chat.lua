@@ -297,7 +297,6 @@ elseif sCommand == "join" then
     promptWindow.restoreCursor()
 
     local function drawTitle()
-        local _,_ = titleWindow.getCursorPos()
         local w = titleWindow.getSize()
         local sTitle = sUsername.." on "..sHostname
         titleWindow.setTextColour( highlightColour )

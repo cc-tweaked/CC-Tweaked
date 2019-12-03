@@ -172,7 +172,6 @@ local function resizeWindows()
     end
     for n=1,#tProcesses do
         local tProcess = tProcesses[n]
-        local _ = tProcess.window
         local x,y = tProcess.window.getCursorPos()
         if y > windowHeight then
             tProcess.window.scroll( y - windowHeight )

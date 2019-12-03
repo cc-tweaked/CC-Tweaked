@@ -2,15 +2,13 @@
 -- Display the start screen
 local w,h = term.getSize()
 
-local _, headingColour, textColour, wormColour, fruitColour
+local headingColour, textColour, wormColour, fruitColour
 if term.isColour() then
-    _ = colours.red
     headingColour = colours.yellow
     textColour = colours.white
     wormColour = colours.green
     fruitColour = colours.red
 else
-    _ = colours.white
     headingColour = colours.white
     textColour = colours.white
     wormColour = colours.white

@@ -81,7 +81,9 @@ function send( nRecipient, message, sProtocol )
         -- Send on all open modems, to the target and to repeaters
         for _,sModem in ipairs( peripheral.getNames() ) do
             if isOpen( sModem ) then
-                peripheral.call( sModem, "transmit", nRecipient, nReplyChannel, tMessage )                peripheral.call( sModem, "transmit", CHANNEL_REPEAT, nReplyChannel, tMessage )                sent = true
+                peripheral.call( sModem, "transmit", nRecipient, nReplyChannel, tMessage )
+                peripheral.call( sModem, "transmit", CHANNEL_REPEAT, nReplyChannel, tMessage )
+                sent = true
             end
         end
     end
