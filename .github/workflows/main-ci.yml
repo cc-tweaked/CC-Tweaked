@@ -4,6 +4,7 @@ on: [push, pull_request]
 
 jobs:
   build:
+    name: Build
     runs-on: ubuntu-latest
 
     steps:
@@ -17,9 +18,16 @@ jobs:
     - name: Build with Gradle
       run: ./gradlew build --no-daemon
 
+  lint-lua:
+    name: Lint Lua
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v1
+
     - name: Lint Lua code
       run: |
         test -d bin || mkdir bin
         test -f bin/illuaminate || wget -q -Obin/illuaminate https://squiddev.cc/illuaminate/bin/illuaminate
         chmod +x bin/illuaminate
-        bin/illuaminate lint
+        GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }} bin/illuaminate lint --github
