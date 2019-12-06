@@ -30,7 +30,7 @@ end
 function topics()
     -- Add index
     local tItems = {
-        [ "index" ] = true
+        [ "index" ] = true,
     }
 
     -- Add topics from the path

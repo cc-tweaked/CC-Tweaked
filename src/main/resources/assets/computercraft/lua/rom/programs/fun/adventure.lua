@@ -112,7 +112,7 @@ local items = {
         desc = "A perfect handle for torches or a pickaxe.",
     },
     ["a crafting table"] = {
-        aliases = { "crafting table", "craft table", "work bench", "workbench", "crafting bench", "table", },
+        aliases = { "crafting table", "craft table", "work bench", "workbench", "crafting bench", "table" },
         desc = "It's a crafting table. I shouldn't tell you this, but these don't actually do anything in this game, you can craft tools whenever you like.",
     },
     ["a furnace"] = {
@@ -270,7 +270,7 @@ local tAnimals = {
 }
 
 local tMonsters = {
-    "a creeper", "a skeleton", "a zombie", "a spider"
+    "a creeper", "a skeleton", "a zombie", "a spider",
 }
 
 local tRecipes = {
@@ -309,7 +309,7 @@ local tGoWest = {
 local nGoWest = 0
 
 local bRunning = true
-local tMap = { { {}, }, }
+local tMap = { { {} } }
 local x, y, z = 0, 0, 0
 local inventory = {
     ["no tea"] = items["no tea"],

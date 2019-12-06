@@ -46,7 +46,7 @@ local tKeys = {
     nil,		"pause",	nil,		"home",		"up",			-- 196
     "pageUp",	nil,		"left",		nil,		"right",		-- 201
     nil,		"end",		"down",		"pageDown",	"insert",		-- 206
-    "delete"														-- 211
+    "delete",														-- 211
 }
 
 local keys = _ENV

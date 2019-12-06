@@ -21,7 +21,7 @@ describe("The turtle unequip program", function()
             select = function() end,
             getItemCount = function() return 0 end,
             equipRight = function() return true end,
-            equipLeft = function() return true end
+            equipLeft = function() return true end,
         })
 
         expect(capture(stub, "/rom/programs/turtle/unequip.lua left"))
@@ -42,7 +42,7 @@ describe("The turtle unequip program", function()
             equipLeft = function()
                 item_count = 1
                 return true
-            end
+            end,
         })
 
         expect(capture(stub, "/rom/programs/turtle/unequip.lua left"))
@@ -57,7 +57,7 @@ describe("The turtle unequip program", function()
             select = function() end,
             getItemCount = function() return 1 end,
             equipRight = function() return true end,
-            equipLeft = function() return true end
+            equipLeft = function() return true end,
         })
 
         expect(capture(stub, "/rom/programs/turtle/unequip.lua left"))

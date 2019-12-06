@@ -30,7 +30,7 @@ end
 local tAsync = {}
 local tNonNBTJSONCommands = {
     [ "tellraw" ] = true,
-    [ "title" ] = true
+    [ "title" ] = true,
 }
 local tCommands = native.list()
 for _, sCommandName in ipairs(tCommands) do

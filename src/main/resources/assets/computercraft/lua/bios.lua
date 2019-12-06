@@ -93,7 +93,7 @@ if _VERSION == "Lua 5.1" then
             bxor = bit32.bxor,
             brshift = bit32.arshift,
             blshift = bit32.lshift,
-            blogic_rshift = bit32.rshift
+            blogic_rshift = bit32.rshift,
         }
     end
 end
@@ -680,7 +680,7 @@ if http then
 
     local methods = {
         GET = true, POST = true, HEAD = true,
-        OPTIONS = true, PUT = true, DELETE = true
+        OPTIONS = true, PUT = true, DELETE = true,
     }
 
     local function checkKey( options, key, ty, opt )
@@ -925,7 +925,7 @@ if commands and fs.isDir( "rom/apis/command" ) then
                     end
                 end
                 return nil
-            end
+            end,
         }
         setmetatable( commands, tCaseInsensitiveMetatable )
         setmetatable( commands.async, tCaseInsensitiveMetatable )

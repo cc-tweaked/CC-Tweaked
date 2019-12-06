@@ -380,7 +380,7 @@ local expect = setmetatable( {
     -- @return The new expectation
     __call = function(_, value)
         return setmetatable({ value = value }, expect_mt)
-    end
+    end,
 })
 
 --- The stack of "describe"s.

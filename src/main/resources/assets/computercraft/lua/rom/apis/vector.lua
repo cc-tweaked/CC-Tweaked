@@ -78,7 +78,7 @@ function new( x, y, z )
 	local v = {
 		x = tonumber(x) or 0,
 		y = tonumber(y) or 0,
-		z = tonumber(z) or 0
+		z = tonumber(z) or 0,
 	}
 	setmetatable( v, vmetatable )
 	return v

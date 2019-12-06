@@ -398,7 +398,7 @@ local tMenuFuncs = {
             sStatus = "Error saving to " .. sTempPath
         end
         redrawMenu()
-    end
+    end,
 }
 
 local function doMenuItem( _n )

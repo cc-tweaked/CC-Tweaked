@@ -70,7 +70,7 @@ local function createShellEnv( sDir )
                 end
             end
             return nil, sError
-        end
+        end,
     }
 
     local sentinel = {}
@@ -397,7 +397,7 @@ function shell.setCompletionFunction( sProgram, fnComplete )
     expect(1, sProgram, "string")
     expect(2, fnComplete, "function")
     tCompletionInfo[ sProgram ] = {
-        fnComplete = fnComplete
+        fnComplete = fnComplete,
     }
 end
 

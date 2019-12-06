@@ -5,7 +5,7 @@ describe("cc.shell.completion", function()
         it("completes both", function()
             expect(c.dirOrFile(shell, "rom/")):same {
                 "apis/", "apis", "autorun/", "autorun", "help/", "help",
-                "modules/", "modules", "motd.txt", "programs/", "programs", "startup.lua"
+                "modules/", "modules", "motd.txt", "programs/", "programs", "startup.lua",
             }
         end)
 

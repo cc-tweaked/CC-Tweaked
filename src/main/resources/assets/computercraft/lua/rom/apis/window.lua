@@ -456,7 +456,7 @@ function create( parent, nX, nY, nWidth, nHeight, bStartVisible )
                     tNewLines[y] = {
                         text = sEmptyText,
                         textColor = sEmptyTextColor,
-                        backgroundColor = sEmptyBackgroundColor
+                        backgroundColor = sEmptyBackgroundColor,
                     }
                 else
                     local tOldLine = tLines[y]

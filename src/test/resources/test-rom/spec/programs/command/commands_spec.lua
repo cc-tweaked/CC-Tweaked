@@ -10,7 +10,7 @@ describe("The commands program", function()
     it("lists commands", function()
         local pagedTabulate = stub(textutils, "pagedTabulate", function(x) print(table.unpack(x)) end)
         stub(_G, "commands", {
-            list = function() return { "computercraft" } end
+            list = function() return { "computercraft" } end,
         })
 
         expect(capture(stub, "/rom/programs/command/commands.lua"))

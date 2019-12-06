@@ -9,7 +9,7 @@ describe("The pocket unequip program", function()
 
     it("unequips an upgrade", function()
         stub(_G, "pocket", {
-            unequipBack = function() return true end
+            unequipBack = function() return true end,
         })
 
         expect(capture(stub, "/rom/programs/pocket/unequip.lua"))
@@ -18,7 +18,7 @@ describe("The pocket unequip program", function()
 
     it("handles when an upgrade cannot be equipped", function()
         stub(_G, "pocket", {
-            unequipBack = function() return false, "Nothing to remove." end
+            unequipBack = function() return false, "Nothing to remove." end,
         })
 
         expect(capture(stub, "/rom/programs/pocket/unequip.lua"))

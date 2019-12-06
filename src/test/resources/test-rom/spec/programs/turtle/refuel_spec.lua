@@ -17,7 +17,7 @@ describe("The refuel program", function()
             end,
             getFuelLimit = function()
                 return fuel_limit
-            end
+            end,
         })
     end
 
