@@ -46,9 +46,9 @@ local function get(url)
 
     write( "Connecting to pastebin.com... " )
     -- Add a cache buster so that spam protection is re-checked
-    local cacheBuster = ("%x"):format(math.random(0, 2^30))
+    local cacheBuster = ("%x"):format(math.random(0, 2 ^ 30))
     local response, err = http.get(
-        "https://pastebin.com/raw/"..textutils.urlEncode( paste ).."?cb="..cacheBuster
+        "https://pastebin.com/raw/" .. textutils.urlEncode( paste ) .. "?cb=" .. cacheBuster
     )
 
     if response then
@@ -93,11 +93,11 @@ if sCommand == "put" then
     local key = "0ec2eb25b6166c0c27a394ae118ad829"
     local response = http.post(
         "https://pastebin.com/api/api_post.php",
-        "api_option=paste&"..
-        "api_dev_key="..key.."&"..
-        "api_paste_format=lua&"..
-        "api_paste_name="..textutils.urlEncode(sName).."&"..
-        "api_paste_code="..textutils.urlEncode(sText)
+        "api_option=paste&" ..
+        "api_dev_key=" .. key .. "&" ..
+        "api_paste_format=lua&" ..
+        "api_paste_name=" .. textutils.urlEncode(sName) .. "&" ..
+        "api_paste_code=" .. textutils.urlEncode(sText)
     )
 
     if response then
@@ -107,8 +107,8 @@ if sCommand == "put" then
         response.close()
 
         local sCode = string.match( sResponse, "[^/]+$" )
-        print( "Uploaded as "..sResponse )
-        print( "Run \"pastebin get "..sCode.."\" to download anywhere" )
+        print( "Uploaded as " .. sResponse )
+        print( "Run \"pastebin get " .. sCode .. "\" to download anywhere" )
 
     else
         print( "Failed." )
@@ -137,7 +137,7 @@ elseif sCommand == "get" then
         file.write( res )
         file.close()
 
-        print( "Downloaded as "..sFile )
+        print( "Downloaded as " .. sFile )
     end
 elseif sCommand == "run" then
     local sCode = tArgs[2]

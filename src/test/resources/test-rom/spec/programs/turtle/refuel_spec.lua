@@ -49,13 +49,13 @@ describe("The refuel program", function()
     end)
 
     it("reports when the fuel limit is reached", function()
-       setup_turtle(0,5,5)
+       setup_turtle(0, 5, 5)
        expect(capture(stub, "/rom/programs/turtle/refuel.lua 5"))
            :matches { ok = true, output = "Fuel level is 5\nFuel limit reached\n", error = "" }
     end)
 
     it("reports when the fuel level is unlimited", function()
-       setup_turtle("unlimited",5,5)
+       setup_turtle("unlimited", 5, 5)
        expect(capture(stub, "/rom/programs/turtle/refuel.lua 5"))
            :matches { ok = true, output = "Fuel level is unlimited\n", error = "" }
     end)

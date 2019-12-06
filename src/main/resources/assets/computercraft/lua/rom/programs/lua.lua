@@ -67,7 +67,7 @@ while bRunning do
 
     local nForcePrint = 0
     local func, e = load( s, "=lua", "t", tEnv )
-    local func2 = load( "return _echo("..s..");", "=lua", "t", tEnv )
+    local func2 = load( "return _echo(" .. s .. ");", "=lua", "t", tEnv )
     if not func then
         if func2 then
             func = func2

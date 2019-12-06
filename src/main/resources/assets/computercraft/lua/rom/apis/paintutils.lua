@@ -6,14 +6,14 @@ local function drawPixelInternal( xPos, yPos )
 end
 
 local tColourLookup = {}
-for n=1,16 do
-    tColourLookup[ string.byte( "0123456789abcdef",n,n ) ] = 2^(n-1)
+for n = 1, 16 do
+    tColourLookup[ string.byte( "0123456789abcdef", n, n ) ] = 2 ^ (n - 1)
 end
 
 local function parseLine( tImageArg, sLine )
     local tLine = {}
-    for x=1,sLine:len() do
-        tLine[x] = tColourLookup[ string.byte(sLine,x,x) ] or 0
+    for x = 1, sLine:len() do
+        tLine[x] = tColourLookup[ string.byte(sLine, x, x) ] or 0
     end
     table.insert( tImageArg, tLine )
 end
@@ -89,7 +89,7 @@ function drawLine( startX, startY, endX, endY, nColour )
     if xDiff > math.abs(yDiff) then
         local y = minY
         local dy = yDiff / xDiff
-        for x=minX,maxX do
+        for x = minX, maxX do
             drawPixelInternal( x, math.floor( y + 0.5 ) )
             y = y + dy
         end
@@ -97,12 +97,12 @@ function drawLine( startX, startY, endX, endY, nColour )
         local x = minX
         local dx = xDiff / yDiff
         if maxY >= minY then
-            for y=minY,maxY do
+            for y = minY, maxY do
                 drawPixelInternal( math.floor( x + 0.5 ), y )
                 x = x + dx
             end
         else
-            for y=minY,maxY,-1 do
+            for y = minY, maxY, -1 do
                 drawPixelInternal( math.floor( x + 0.5 ), y )
                 x = x - dx
             end
@@ -142,13 +142,13 @@ function drawBox( startX, startY, endX, endY, nColour )
         maxY = startY
     end
 
-    for x=minX,maxX do
+    for x = minX, maxX do
         drawPixelInternal( x, minY )
         drawPixelInternal( x, maxY )
     end
 
     if maxY - minY >= 2 then
-        for y=minY+1,maxY-1 do
+        for y = minY + 1, maxY - 1 do
             drawPixelInternal( minX, y )
             drawPixelInternal( maxX, y )
         end
@@ -187,8 +187,8 @@ function drawFilledBox( startX, startY, endX, endY, nColour )
         maxY = startY
     end
 
-    for x=minX,maxX do
-        for y=minY,maxY do
+    for x = minX, maxX do
+        for y = minY, maxY do
             drawPixelInternal( x, y )
         end
     end
@@ -198,9 +198,9 @@ function drawImage( tImage, xPos, yPos )
     expect(1, tImage, "table")
     expect(2, xPos, "number")
     expect(3, yPos, "number")
-    for y=1,#tImage do
+    for y = 1, #tImage do
         local tLine = tImage[y]
-        for x=1,#tLine do
+        for x = 1, #tLine do
             if tLine[x] > 0 then
                 term.setBackgroundColor( tLine[x] )
                 drawPixelInternal( x + xPos - 1, y + yPos - 1 )

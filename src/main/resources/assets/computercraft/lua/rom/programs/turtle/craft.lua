@@ -29,7 +29,7 @@ if turtle.craft( nLimit ) then
 end
 
 if nCrafted > 1 then
-    print( nCrafted.." items crafted" )
+    print( nCrafted .. " items crafted" )
 elseif nCrafted == 1 then
     print( "1 item crafted" )
 else

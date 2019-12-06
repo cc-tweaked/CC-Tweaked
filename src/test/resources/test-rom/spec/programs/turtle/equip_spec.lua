@@ -29,7 +29,7 @@ describe("The turtle equip program", function()
     end)
 
     it("swaps existing upgrades", function()
-        stub(_G,"turtle",{
+        stub(_G, "turtle", {
             select = function() end,
             getItemCount = function() return 1 end,
             equipLeft = function() return true end,
@@ -45,7 +45,7 @@ describe("The turtle equip program", function()
     describe("equips a new upgrade", function()
         local function setup()
             local item_count = 1
-            stub(_G,"turtle",{
+            stub(_G, "turtle", {
                 select = function() end,
                 getItemCount = function() return item_count end,
                 equipLeft = function()
@@ -73,7 +73,7 @@ describe("The turtle equip program", function()
     end)
 
     it("handles when an upgrade cannot be equipped", function()
-        stub(_G,"turtle",{
+        stub(_G, "turtle", {
             select = function() end,
             getItemCount = function() return 1 end,
             equipLeft = function() return false end,

@@ -9,7 +9,7 @@ local sSource = shell.resolve( tArgs[1] )
 local sDest = shell.resolve( tArgs[2] )
 local tFiles = fs.find( sSource )
 if #tFiles > 0 then
-    for _,sFile in ipairs( tFiles ) do
+    for _, sFile in ipairs( tFiles ) do
         if fs.isDir( sDest ) then
             fs.copy( sFile, fs.combine( sDest, fs.getName(sFile) ) )
         elseif #tFiles == 1 then

@@ -23,7 +23,7 @@ elseif sCommand == "play" or sCommand == nil then
     if sName == nil then
         -- No disc specified, pick one at random
         local tNames = {}
-        for _,sName in ipairs( peripheral.getNames() ) do
+        for _, sName in ipairs( peripheral.getNames() ) do
             if disk.isPresent( sName ) and disk.hasAudio( sName ) then
                 table.insert( tNames, sName )
             end
@@ -32,15 +32,15 @@ elseif sCommand == "play" or sCommand == nil then
             print( "No Music Discs in attached disk drives" )
             return
         end
-        sName = tNames[ math.random(1,#tNames) ]
+        sName = tNames[ math.random(1, #tNames) ]
     end
 
     -- Play the disc
     if disk.isPresent( sName ) and disk.hasAudio( sName ) then
-        print( "Playing "..disk.getAudioTitle( sName ) )
+        print( "Playing " .. disk.getAudioTitle( sName ) )
         disk.playAudio( sName )
     else
-        print( "No Music Disc in disk drive: "..sName )
+        print( "No Music Disc in disk drive: " .. sName )
         return
     end
 

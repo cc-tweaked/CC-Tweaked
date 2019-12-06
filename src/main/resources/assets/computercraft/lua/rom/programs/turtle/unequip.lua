@@ -14,7 +14,7 @@ if #tArgs ~= 1 then
 end
 
 local function unequip( fnEquipFunction )
-    for nSlot=1,16 do
+    for nSlot = 1, 16 do
         local nOldCount = turtle.getItemCount( nSlot )
         if nOldCount == 0 then
             turtle.select( nSlot )

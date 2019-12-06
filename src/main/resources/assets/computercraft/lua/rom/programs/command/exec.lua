@@ -18,7 +18,7 @@ local function printSuccess( text )
 end
 
 local sCommand = string.lower( tArgs[1] )
-for n=2,#tArgs do
+for n = 2, #tArgs do
     sCommand = sCommand .. " " .. tArgs[n]
 end
 
@@ -26,14 +26,14 @@ local bResult, tOutput = commands.exec( sCommand )
 if bResult then
     printSuccess( "Success" )
     if #tOutput > 0 then
-        for n=1,#tOutput do
+        for n = 1, #tOutput do
             print( tOutput[n] )
         end
     end
 else
     printError( "Failed" )
     if #tOutput > 0 then
-        for n=1,#tOutput do
+        for n = 1, #tOutput do
             print( tOutput[n] )
         end
     end

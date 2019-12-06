@@ -23,7 +23,7 @@ describe("The exec program", function()
     end)
 
     it("reports command failures", function()
-        stub(_G,"commands",{
+        stub(_G, "commands", {
             exec = function() return false, {"Hello World!"} end
         })
 

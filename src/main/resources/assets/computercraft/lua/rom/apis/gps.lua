@@ -21,12 +21,12 @@ local function trilaterate( A, B, C )
     local r2 = B.nDistance
     local r3 = C.nDistance
 
-    local x = (r1*r1 - r2*r2 + d*d) / (2*d)
-    local y = (r1*r1 - r3*r3 - x*x + (x-i)*(x-i) + j*j) / (2*j)
+    local x = (r1 * r1 - r2 * r2 + d * d) / (2 * d)
+    local y = (r1 * r1 - r3 * r3 - x * x + (x - i) * (x - i) + j * j) / (2 * j)
 
     local result = A.vPosition + ex * x + ey * y
 
-    local zSquared = r1*r1 - x*x - y*y
+    local zSquared = r1 * r1 - x * x - y * y
     if zSquared > 0 then
         local z = math.sqrt( zSquared )
         local result1 = result + ez * z
@@ -66,7 +66,7 @@ function locate( _nTimeout, _bDebug )
 
     -- Find a modem
     local sModemSide = nil
-    for _,sSide in ipairs( rs.getSides() ) do
+    for _, sSide in ipairs( rs.getSides() ) do
         if peripheral.getType( sSide ) == "modem" and peripheral.call( sSide, "isWireless" ) then
             sModemSide = sSide
             break
@@ -109,7 +109,7 @@ function locate( _nTimeout, _bDebug )
                 if type(tMessage) == "table" and #tMessage == 3 and tonumber(tMessage[1]) and tonumber(tMessage[2]) and tonumber(tMessage[3]) then
                     local tFix = { vPosition = vector.new( tMessage[1], tMessage[2], tMessage[3] ), nDistance = nDistance }
                     if _bDebug then
-                        print( tFix.nDistance.." metres from "..tostring( tFix.vPosition ) )
+                        print( tFix.nDistance .. " metres from " .. tostring( tFix.vPosition ) )
                     end
                     if tFix.nDistance == 0 then
                         pos1, pos2 = tFix.vPosition, nil
@@ -148,12 +148,12 @@ function locate( _nTimeout, _bDebug )
     if pos1 and pos2 then
         if _bDebug then
             print( "Ambiguous position" )
-            print( "Could be "..pos1.x..","..pos1.y..","..pos1.z.." or "..pos2.x..","..pos2.y..","..pos2.z )
+            print( "Could be " .. pos1.x .. "," .. pos1.y .. "," .. pos1.z .. " or " .. pos2.x .. "," .. pos2.y .. "," .. pos2.z )
         end
         return nil
     elseif pos1 then
         if _bDebug then
-            print( "Position is "..pos1.x..","..pos1.y..","..pos1.z )
+            print( "Position is " .. pos1.x .. "," .. pos1.y .. "," .. pos1.z )
         end
         return pos1.x, pos1.y, pos1.z
     else

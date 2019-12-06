@@ -6,6 +6,6 @@ describe("The id program", function()
         local id = os.getComputerID()
 
         expect(capture(stub, "id"))
-            :matches { ok = true, output = "This is computer #"..id.."\n", error = "" }
+            :matches { ok = true, output = "This is computer #" .. id .. "\n", error = "" }
     end)
 end)

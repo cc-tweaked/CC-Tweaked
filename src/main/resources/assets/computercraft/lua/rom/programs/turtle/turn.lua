@@ -31,11 +31,11 @@ while nArg <= #tArgs do
 
     local fnHandler = tHandlers[string.lower(sDirection)]
     if fnHandler then
-        for _=1,nDistance do
+        for _ = 1, nDistance do
             fnHandler( nArg )
         end
     else
-        print( "No such direction: "..sDirection )
+        print( "No such direction: " .. sDirection )
         print( "Try: left, right" )
         return
     end

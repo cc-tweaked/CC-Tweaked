@@ -191,8 +191,8 @@ end
 function write( sText )
     expect(1, sText, "string", "number")
 
-    local w,h = term.getSize()
-    local x,y = term.getCursorPos()
+    local w, h = term.getSize()
+    local x, y = term.getCursorPos()
 
     local nLinesPrinted = 0
     local function newLine()
@@ -212,7 +212,7 @@ function write( sText )
         if whitespace then
             -- Print whitespace
             term.write( whitespace )
-            x,y = term.getCursorPos()
+            x, y = term.getCursorPos()
             sText = string.sub( sText, string.len(whitespace) + 1 )
         end
 
@@ -233,8 +233,8 @@ function write( sText )
                         newLine()
                     end
                     term.write( text )
-                    text = string.sub( text, w-x + 2 )
-                    x,y = term.getCursorPos()
+                    text = string.sub( text, w - x + 2 )
+                    x, y = term.getCursorPos()
                 end
             else
                 -- Print a word normally
@@ -242,7 +242,7 @@ function write( sText )
                     newLine()
                 end
                 term.write( text )
-                x,y = term.getCursorPos()
+                x, y = term.getCursorPos()
             end
         end
     end
@@ -613,10 +613,10 @@ function os.loadAPI( _sPath )
     expect(1, _sPath, "string")
     local sName = fs.getName( _sPath )
     if sName:sub(-4) == ".lua" then
-        sName = sName:sub(1,-5)
+        sName = sName:sub(1, -5)
     end
     if tAPIsLoading[sName] == true then
-        printError( "API "..sName.." is already being loaded" )
+        printError( "API " .. sName .. " is already being loaded" )
         return false
     end
     tAPIsLoading[sName] = true
@@ -636,7 +636,7 @@ function os.loadAPI( _sPath )
     end
 
     local tAPI = {}
-    for k,v in pairs( tEnv ) do
+    for k, v in pairs( tEnv ) do
         if k ~= "_ENV" then
             tAPI[k] =  v
         end
@@ -842,7 +842,7 @@ function fs.complete( sPath, sLocation, bIncludeFiles, bIncludeDirs )
             end
         end
         local tFiles = fs.list( sDir )
-        for n=1,#tFiles do
+        for n = 1, #tFiles do
             local sFile = tFiles[n]
             if #sFile >= #sName and string.sub( sFile, 1, #sName ) == sName then
                 local bIsDir = fs.isDir( fs.combine( sDir, sFile ) )
@@ -867,7 +867,7 @@ end
 -- Load APIs
 local bAPIError = false
 local tApis = fs.list( "rom/apis" )
-for _,sFile in ipairs( tApis ) do
+for _, sFile in ipairs( tApis ) do
     if string.sub( sFile, 1, 1 ) ~= "." then
         local sPath = fs.combine( "rom/apis", sFile )
         if not fs.isDir( sPath ) then
@@ -881,7 +881,7 @@ end
 if turtle and fs.isDir( "rom/apis/turtle" ) then
     -- Load turtle APIs
     local tApis = fs.list( "rom/apis/turtle" )
-    for _,sFile in ipairs( tApis ) do
+    for _, sFile in ipairs( tApis ) do
         if string.sub( sFile, 1, 1 ) ~= "." then
             local sPath = fs.combine( "rom/apis/turtle", sFile )
             if not fs.isDir( sPath ) then
@@ -896,7 +896,7 @@ end
 if pocket and fs.isDir( "rom/apis/pocket" ) then
     -- Load pocket APIs
     local tApis = fs.list( "rom/apis/pocket" )
-    for _,sFile in ipairs( tApis ) do
+    for _, sFile in ipairs( tApis ) do
         if string.sub( sFile, 1, 1 ) ~= "." then
             local sPath = fs.combine( "rom/apis/pocket", sFile )
             if not fs.isDir( sPath ) then
@@ -941,7 +941,7 @@ if bAPIError then
     print( "Press any key to continue" )
     os.pullEvent( "key" )
     term.clear()
-    term.setCursorPos( 1,1 )
+    term.setCursorPos( 1, 1 )
 end
 
 -- Set default settings

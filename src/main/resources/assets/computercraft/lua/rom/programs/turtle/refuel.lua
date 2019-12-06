@@ -36,7 +36,7 @@ if turtle.getFuelLevel() ~= "unlimited" then
             end
         end
     end
-    print( "Fuel level is "..turtle.getFuelLevel() )
+    print( "Fuel level is " .. turtle.getFuelLevel() )
     if turtle.getFuelLevel() == turtle.getFuelLimit() then
         print( "Fuel limit reached" )
     end

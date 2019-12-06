@@ -1,6 +1,6 @@
 
 -- Display the start screen
-local w,h = term.getSize()
+local w, h = term.getSize()
 
 local headingColour, textColour, wormColour, fruitColour
 if term.isColour() then
@@ -17,27 +17,27 @@ end
 
 local function printCentred( y, s )
     local x = math.floor((w - string.len(s)) / 2)
-    term.setCursorPos(x,y)
+    term.setCursorPos(x, y)
     --term.clearLine()
     term.write( s )
 end
 
-local xVel,yVel = 1,0
-local xPos, yPos = math.floor(w/2), math.floor(h/2)
+local xVel, yVel = 1, 0
+local xPos, yPos = math.floor(w / 2), math.floor(h / 2)
 local pxVel, pyVel = nil, nil
 local nExtraLength = 6
 local bRunning = true
 
-local tailX,tailY = xPos,yPos
+local tailX, tailY = xPos, yPos
 local nScore = 0
 local nDifficulty = 2
 local nSpeed, nInterval
 
 -- Setup the screen
 local screen = {}
-for x=1,w do
+for x = 1, w do
     screen[x] = {}
-    for y=1,h do
+    for y = 1, h do
         screen[x][y] = {}
     end
 end
@@ -59,12 +59,12 @@ local tFruits = {
 
 local function addFruit()
     while true do
-        local x = math.random(1,w)
-        local y = math.random(2,h)
+        local x = math.random(1, w)
+        local y = math.random(2, h)
         local fruit = screen[x][y]
         if fruit.snake == nil and fruit.wall == nil and fruit.fruit == nil then
             screen[x][y] = { fruit = true }
-            term.setCursorPos(x,y)
+            term.setCursorPos(x, y)
             term.setBackgroundColour( fruitColour )
             term.write(" ")
             term.setBackgroundColour( colours.black )
@@ -80,19 +80,19 @@ end
 
 local function drawMenu()
     term.setTextColour( headingColour )
-    term.setCursorPos(1,1)
+    term.setCursorPos(1, 1)
     term.write( "SCORE " )
 
     term.setTextColour( textColour )
-    term.setCursorPos(7,1)
+    term.setCursorPos(7, 1)
     term.write( tostring(nScore) )
 
     term.setTextColour( headingColour )
-    term.setCursorPos(w-11,1)
+    term.setCursorPos(w - 11, 1)
     term.write( "DIFFICULTY ")
 
     term.setTextColour( textColour )
-    term.setCursorPos(w,1)
+    term.setCursorPos(w, 1)
     term.write( tostring(nDifficulty or "?") )
 
     term.setTextColour( colours.white )
@@ -108,7 +108,7 @@ local function update( )
     if nExtraLength == 0 then
         local tail = screen[tailX][tailY]
         screen[tailX][tailY] = {}
-        term.setCursorPos(tailX,tailY)
+        term.setCursorPos(tailX, tailY)
         term.write(" ")
         tailX = tail.nextX
         tailY = tail.nextY
@@ -149,7 +149,7 @@ local function update( )
 
     end
 
-    term.setCursorPos(xPos,yPos)
+    term.setCursorPos(xPos, yPos)
     term.setBackgroundColour( wormColour )
     term.write(" ")
     term.setBackgroundColour( colours.black )
@@ -164,20 +164,20 @@ local function drawFrontend()
     --printCentred( math.floor(h/2) - 4, " W O R M " )
 
     term.setTextColour( headingColour )
-    printCentred( math.floor(h/2) - 3, "" )
-    printCentred( math.floor(h/2) - 2, " SELECT DIFFICULTY " )
-    printCentred( math.floor(h/2) - 1, "" )
+    printCentred( math.floor(h / 2) - 3, "" )
+    printCentred( math.floor(h / 2) - 2, " SELECT DIFFICULTY " )
+    printCentred( math.floor(h / 2) - 1, "" )
 
-    printCentred( math.floor(h/2) + 0, "            " )
-    printCentred( math.floor(h/2) + 1, "            " )
-    printCentred( math.floor(h/2) + 2, "            " )
-    printCentred( math.floor(h/2) - 1 + nDifficulty, " [        ] " )
+    printCentred( math.floor(h / 2) + 0, "            " )
+    printCentred( math.floor(h / 2) + 1, "            " )
+    printCentred( math.floor(h / 2) + 2, "            " )
+    printCentred( math.floor(h / 2) - 1 + nDifficulty, " [        ] " )
 
     term.setTextColour( textColour )
-    printCentred( math.floor(h/2) + 0, "EASY" )
-    printCentred( math.floor(h/2) + 1, "MEDIUM" )
-    printCentred( math.floor(h/2) + 2, "HARD" )
-    printCentred( math.floor(h/2) + 3, "" )
+    printCentred( math.floor(h / 2) + 0, "EASY" )
+    printCentred( math.floor(h / 2) + 1, "MEDIUM" )
+    printCentred( math.floor(h / 2) + 2, "HARD" )
+    printCentred( math.floor(h / 2) + 3, "" )
 
     term.setTextColour( colours.white )
 end
@@ -185,7 +185,7 @@ end
 drawMenu()
 drawFrontend()
 while true do
-    local _,key = os.pullEvent( "key" )
+    local _, key = os.pullEvent( "key" )
     if key == keys.up or key == keys.w then
         -- Up
         if nDifficulty > 1 then
@@ -233,23 +233,23 @@ while bRunning do
         if key == keys.up or key == keys.w then
             -- Up
             if yVel == 0 then
-                pxVel,pyVel = 0,-1
+                pxVel, pyVel = 0, -1
             end
         elseif key == keys.down or key == keys.s then
             -- Down
             if yVel == 0 then
-                pxVel,pyVel = 0,1
+                pxVel, pyVel = 0, 1
             end
         elseif key == keys.left or key == keys.a then
             -- Left
             if xVel == 0 then
-                pxVel,pyVel = -1,0
+                pxVel, pyVel = -1, 0
             end
 
         elseif key == keys.right or key == keys.d then
             -- Right
             if xVel == 0 then
-                pxVel,pyVel = 1,0
+                pxVel, pyVel = 1, 0
             end
 
         end
@@ -258,25 +258,25 @@ end
 
 -- Display the gameover screen
 term.setTextColour( headingColour )
-printCentred( math.floor(h/2) - 2, "                   " )
-printCentred( math.floor(h/2) - 1, " G A M E   O V E R " )
+printCentred( math.floor(h / 2) - 2, "                   " )
+printCentred( math.floor(h / 2) - 1, " G A M E   O V E R " )
 
 term.setTextColour( textColour )
-printCentred( math.floor(h/2) + 0, "                 " )
-printCentred( math.floor(h/2) + 1, " FINAL SCORE "..nScore.." " )
-printCentred( math.floor(h/2) + 2, "                 " )
+printCentred( math.floor(h / 2) + 0, "                 " )
+printCentred( math.floor(h / 2) + 1, " FINAL SCORE " .. nScore .. " " )
+printCentred( math.floor(h / 2) + 2, "                 " )
 term.setTextColour( colours.white )
 
 local timer = os.startTimer(2.5)
 repeat
-    local e,p = os.pullEvent()
+    local e, p = os.pullEvent()
     if e == "timer" and p == timer then
         term.setTextColour( textColour )
-        printCentred( math.floor(h/2) + 2, " PRESS ANY KEY " )
-        printCentred( math.floor(h/2) + 3, "               " )
+        printCentred( math.floor(h / 2) + 2, " PRESS ANY KEY " )
+        printCentred( math.floor(h / 2) + 3, "               " )
         term.setTextColour( colours.white )
     end
 until e == "char"
 
 term.clear()
-term.setCursorPos(1,1)
+term.setCursorPos(1, 1)

@@ -7,6 +7,6 @@ describe("The time program", function()
         local day = os.day()
         
         expect(capture(stub, "time"))
-            :matches { ok = true, output = "The time is "..time.." on Day "..day.."\n", error = "" }
+            :matches { ok = true, output = "The time is " .. time .. " on Day " .. day .. "\n", error = "" }
     end)
 end)

@@ -22,7 +22,7 @@ end
 
 -- Put native functions into the environment
 local env = _ENV
-for k,v in pairs( native ) do
+for k, v in pairs( native ) do
     env[k] = v
 end
 
@@ -33,7 +33,7 @@ local tNonNBTJSONCommands = {
     [ "title" ] = true
 }
 local tCommands = native.list()
-for _,sCommandName in ipairs(tCommands) do
+for _, sCommandName in ipairs(tCommands) do
     if env[ sCommandName ] == nil then
         local bJSONIsNBT = tNonNBTJSONCommands[ sCommandName ] == nil
         env[ sCommandName ] = function( ... )
