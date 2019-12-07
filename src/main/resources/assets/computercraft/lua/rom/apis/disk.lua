@@ -62,7 +62,7 @@ end
 
 function stopAudio( name )
     if not name then
-        for _,sName in ipairs( peripheral.getNames() ) do
+        for _, sName in ipairs( peripheral.getNames() ) do
             stopAudio( sName )
         end
     else

@@ -17,7 +17,7 @@ describe("The pastebin program", function()
                         local tHeader = {}
                         tHeader["Content-Type"] = "text/plain; charset=utf-8"
                         return tHeader
-                    end
+                    end,
                 }
             end,
             post = function()
@@ -28,7 +28,7 @@ describe("The pastebin program", function()
                     close = function()
                     end,
                 }
-            end
+            end,
         })
     end
 

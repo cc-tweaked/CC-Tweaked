@@ -70,7 +70,7 @@ describe("The Lua base library", function()
 
         it("does not prefix for unnamed chunks", function()
             local info = debug.getinfo(loadstring("return 1"), "S")
-            expect(info):matches { short_src = '[string "return 1"]', source = "return 1", }
+            expect(info):matches { short_src = '[string "return 1"]', source = "return 1" }
         end)
 
         it("does not prefix when already prefixed", function()

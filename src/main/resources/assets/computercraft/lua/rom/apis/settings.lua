@@ -17,7 +17,7 @@ local copy
 function copy( value )
     if type(value) == "table" then
         local result = {}
-        for k,v in pairs(value) do
+        for k, v in pairs(value) do
             result[k] = copy(v)
         end
         return result
@@ -69,7 +69,7 @@ function load( sPath )
         return false
     end
 
-    for k,v in pairs(tFile) do
+    for k, v in pairs(tFile) do
         if type(k) == "string" and
            (type(v) == "string" or type(v) == "number" or type(v) == "boolean" or type(v) == "table") then
             set( k, v )

@@ -9,7 +9,7 @@ end
 
 local sOpenedModem = nil
 local function openModem()
-    for _,sModem in ipairs( peripheral.getNames() ) do
+    for _, sModem in ipairs( peripheral.getNames() ) do
         if peripheral.getType( sModem ) == "modem" then
             if not rednet.isOpen( sModem ) then
                 rednet.open( sModem )
@@ -94,7 +94,7 @@ if sCommand == "host" then
     end
 
     local function printUsers()
-        local _,y = term.getCursorPos()
+        local _, y = term.getCursorPos()
         term.setCursorPos( 1, y - 1 )
         term.clearLine()
         if nUsers == 1 then
@@ -114,7 +114,7 @@ if sCommand == "host" then
                     local tUser = tUsers[ nUserID ]
                     if tUser then
                         if not tUser.bPingPonged then
-                            send( "* "..tUser.sUsername.." has timed out" )
+                            send( "* " .. tUser.sUsername .. " has timed out" )
                             tUsers[ nUserID ] = nil
                             nUsers = nUsers - 1
                             printUsers()
@@ -131,7 +131,7 @@ if sCommand == "host" then
                 tCommands = {
                     ["me"] = function( tUser, sContent )
                         if string.len(sContent) > 0 then
-                            send( "* "..tUser.sUsername.." "..sContent )
+                            send( "* " .. tUser.sUsername .. " " .. sContent )
                         else
                             send( "* Usage: /me [words]", tUser.nUserID )
                         end
@@ -140,7 +140,7 @@ if sCommand == "host" then
                         if string.len(sContent) > 0 then
                             local sOldName = tUser.sUsername
                             tUser.sUsername = sContent
-                            send( "* "..sOldName.." is now known as "..tUser.sUsername )
+                            send( "* " .. sOldName .. " is now known as " .. tUser.sUsername )
                         else
                             send( "* Usage: /nick [nickname]", tUser.nUserID )
                         end
@@ -159,7 +159,7 @@ if sCommand == "host" then
                         for sCommand in pairs( tCommands ) do
                             sCommands = sCommands .. " /" .. sCommand
                         end
-                        send( sCommands.." /logout", tUser.nUserID )
+                        send( sCommands .. " /logout", tUser.nUserID )
                     end,
                 }
 
@@ -177,7 +177,7 @@ if sCommand == "host" then
                             }
                             nUsers = nUsers + 1
                             printUsers()
-                            send( "* "..sUsername.." has joined the chat" )
+                            send( "* " .. sUsername .. " has joined the chat" )
                             ping( nUserID )
                         end
 
@@ -187,7 +187,7 @@ if sCommand == "host" then
                         local tUser = tUsers[ nUserID ]
                         if tUser and tUser.nID == nSenderID then
                             if tMessage.sType == "logout" then
-                                send( "* "..tUser.sUsername.." has left the chat" )
+                                send( "* " .. tUser.sUsername .. " has left the chat" )
                                 tUsers[ nUserID ] = nil
                                 nUsers = nUsers - 1
                                 printUsers()
@@ -199,13 +199,13 @@ if sCommand == "host" then
                                     if sCommand then
                                         local fnCommand = tCommands[ sCommand ]
                                         if fnCommand then
-                                            local sContent = string.sub( sMessage, string.len(sCommand)+3 )
+                                            local sContent = string.sub( sMessage, string.len(sCommand) + 3 )
                                             fnCommand( tUser, sContent )
                                         else
-                                            send( "* Unrecognised command: /"..sCommand, tUser.nUserID )
+                                            send( "* Unrecognised command: /" .. sCommand, tUser.nUserID )
                                         end
                                     else
-                                        send( "<"..tUser.sUsername.."> "..tMessage.sText )
+                                        send( "<" .. tUser.sUsername .. "> " .. tMessage.sText )
                                     end
                                 end
 
@@ -284,12 +284,12 @@ elseif sCommand == "join" then
     end
 
     -- Handle messages
-    local w,h = term.getSize()
+    local w, h = term.getSize()
     local parentTerm = term.current()
     local titleWindow = window.create( parentTerm, 1, 1, w, 1, true )
-    local historyWindow = window.create( parentTerm, 1, 2, w, h-2, true )
+    local historyWindow = window.create( parentTerm, 1, 2, w, h - 2, true )
     local promptWindow = window.create( parentTerm, 1, h, w, 1, true )
-    historyWindow.setCursorPos( 1, h-2 )
+    historyWindow.setCursorPos( 1, h - 2 )
 
     term.clear()
     term.setTextColour( textColour )
@@ -298,9 +298,9 @@ elseif sCommand == "join" then
 
     local function drawTitle()
         local w = titleWindow.getSize()
-        local sTitle = sUsername.." on "..sHostname
+        local sTitle = sUsername .. " on " .. sHostname
         titleWindow.setTextColour( highlightColour )
-        titleWindow.setCursorPos( math.floor( w/2 - string.len(sTitle)/2 ), 1 )
+        titleWindow.setCursorPos( math.floor( w / 2 - string.len(sTitle) / 2 ), 1 )
         titleWindow.clearLine()
         titleWindow.write( sTitle )
         promptWindow.restoreCursor()
@@ -347,9 +347,9 @@ elseif sCommand == "join" then
                     end
 
                 elseif sEvent == "term_resize" then
-                    local w,h = parentTerm.getSize()
+                    local w, h = parentTerm.getSize()
                     titleWindow.reposition( 1, 1, w, 1 )
-                    historyWindow.reposition( 1, 2, w, h-2 )
+                    historyWindow.reposition( 1, 2, w, h - 2 )
                     promptWindow.reposition( 1, h, w, 1 )
 
                 end
@@ -384,7 +384,7 @@ elseif sCommand == "join" then
         function()
             local tSendHistory = {}
             while true do
-                promptWindow.setCursorPos( 1,1 )
+                promptWindow.setCursorPos( 1, 1 )
                 promptWindow.clearLine()
                 promptWindow.setTextColor( highlightColour )
                 promptWindow.write( ": ")
@@ -409,7 +409,7 @@ elseif sCommand == "join" then
     term.redirect( parentTerm )
 
     -- Print error notice
-    local _,h = term.getSize()
+    local _, h = term.getSize()
     term.setCursorPos( 1, h )
     term.clearLine()
     term.setCursorBlink( false )

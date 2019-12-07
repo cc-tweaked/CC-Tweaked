@@ -17,11 +17,11 @@ describe("The turtle unequip program", function()
     end)
 
     it("says when nothing was unequipped", function()
-        stub(_G,"turtle",{
+        stub(_G, "turtle", {
             select = function() end,
             getItemCount = function() return 0 end,
             equipRight = function() return true end,
-            equipLeft = function() return true end
+            equipLeft = function() return true end,
         })
 
         expect(capture(stub, "/rom/programs/turtle/unequip.lua left"))
@@ -32,7 +32,7 @@ describe("The turtle unequip program", function()
 
     it("unequips a upgrade", function()
         local item_count = 0
-        stub(_G,"turtle",{
+        stub(_G, "turtle", {
             select = function() end,
             getItemCount = function() return item_count end,
             equipRight = function()
@@ -42,7 +42,7 @@ describe("The turtle unequip program", function()
             equipLeft = function()
                 item_count = 1
                 return true
-            end
+            end,
         })
 
         expect(capture(stub, "/rom/programs/turtle/unequip.lua left"))
@@ -53,11 +53,11 @@ describe("The turtle unequip program", function()
     end)
 
     it("fails when the turtle is full", function()
-        stub(_G,"turtle",{
+        stub(_G, "turtle", {
             select = function() end,
             getItemCount = function() return 1 end,
             equipRight = function() return true end,
-            equipLeft = function() return true end
+            equipLeft = function() return true end,
         })
 
         expect(capture(stub, "/rom/programs/turtle/unequip.lua left"))

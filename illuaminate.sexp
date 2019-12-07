@@ -2,7 +2,8 @@
 
 (sources
   /src/main/resources/assets/computercraft/lua/bios.lua
-  /src/main/resources/assets/computercraft/lua/rom/)
+  /src/main/resources/assets/computercraft/lua/rom/
+  /src/test/resources/test-rom)
 
 (at /
   (linters

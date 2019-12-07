@@ -9,10 +9,10 @@ function slowWrite( sText, nRate )
     local nSleep = 1 / nRate
 
     sText = tostring( sText )
-    local x,y = term.getCursorPos()
+    local x, y = term.getCursorPos()
     local len = string.len( sText )
 
-    for n=1,len do
+    for n = 1, len do
         term.setCursorPos( x, y )
         sleep( nSleep )
         local nLines = write( string.sub( sText, 1, n ) )
@@ -42,7 +42,7 @@ function formatTime( nTime, bTwentyFourHour )
     end
 
     local nHour = math.floor(nTime)
-    local nMinute = math.floor((nTime - nHour)*60)
+    local nMinute = math.floor((nTime - nHour) * 60)
     if sTOD then
         return string.format( "%d:%02d %s", nHour, nMinute, sTOD )
     else
@@ -54,11 +54,11 @@ local function makePagedScroll( _term, _nFreeLines )
     local nativeScroll = _term.scroll
     local nFreeLines = _nFreeLines or 0
     return function( _n )
-        for _=1,_n do
+        for _ = 1, _n do
             nativeScroll( 1 )
 
             if nFreeLines <= 0 then
-                local _,h = _term.getSize()
+                local _, h = _term.getSize()
                 _term.setCursorPos( 1, h )
                 _term.write( "Press any key to continue" )
                 os.pullEvent( "key" )
@@ -76,7 +76,7 @@ function pagedPrint( _sText, _nFreeLines )
     -- Setup a redirector
     local oldTerm = term.current()
     local newTerm = {}
-    for k,v in pairs( oldTerm ) do
+    for k, v in pairs( oldTerm ) do
         newTerm[k] = v
     end
     newTerm.scroll = makePagedScroll( oldTerm, _nFreeLines )
@@ -108,13 +108,13 @@ local function tabulateCommon( bPaged, ... )
         expect(i, tAll[i], "number", "table")
     end
 
-    local w,h = term.getSize()
+    local w, h = term.getSize()
     local nMaxLen = w / 8
     for n, t in ipairs( tAll ) do
         if type(t) == "table" then
             for nu, sItem in pairs(t) do
                 if type( sItem ) ~= "string" then
-                    error( "bad argument #"..n.."."..nu.." (expected string, got " .. type( sItem ) .. ")", 3 )
+                    error( "bad argument #" .. n .. "." .. nu .. " (expected string, got " .. type( sItem ) .. ")", 3 )
                 end
                 nMaxLen = math.max( string.len( sItem ) + 1, nMaxLen )
             end
@@ -123,7 +123,7 @@ local function tabulateCommon( bPaged, ... )
     local nCols = math.floor( w / nMaxLen )
     local nLines = 0
     local function newLine()
-        if bPaged and nLines >= h-3 then
+        if bPaged and nLines >= h - 3 then
             pagedPrint()
         else
             print()
@@ -207,11 +207,11 @@ local function serializeImpl( t, tTracking, sIndent )
             local sResult = "{\n"
             local sSubIndent = sIndent .. "  "
             local tSeen = {}
-            for k,v in ipairs(t) do
+            for k, v in ipairs(t) do
                 tSeen[k] = true
                 sResult = sResult .. sSubIndent .. serializeImpl( v, tTracking, sSubIndent ) .. ",\n"
             end
-            for k,v in pairs(t) do
+            for k, v in pairs(t) do
                 if not tSeen[k] then
                     local sEntry
                     if type(k) == "string" and not g_tLuaKeywords[k] and string.match( k, "^[%a_][%a%d_]*$" ) then
@@ -233,7 +233,7 @@ local function serializeImpl( t, tTracking, sIndent )
         return tostring(t)
 
     else
-        error( "Cannot serialize type "..sType, 0 )
+        error( "Cannot serialize type " .. sType, 0 )
 
     end
 end
@@ -241,7 +241,7 @@ end
 empty_json_array = setmetatable({}, {
     __newindex = function()
         error("attempt to mutate textutils.empty_json_array", 2)
-    end
+    end,
 })
 
 local function serializeJSONImpl( t, tTracking, bNBTStyle )
@@ -264,7 +264,7 @@ local function serializeJSONImpl( t, tTracking, bNBTStyle )
             local sArrayResult = "["
             local nObjectSize = 0
             local nArraySize = 0
-            for k,v in pairs(t) do
+            for k, v in pairs(t) do
                 if type(k) == "string" then
                     local sEntry
                     if bNBTStyle then
@@ -280,7 +280,7 @@ local function serializeJSONImpl( t, tTracking, bNBTStyle )
                     nObjectSize = nObjectSize + 1
                 end
             end
-            for _,v in ipairs(t) do
+            for _, v in ipairs(t) do
                 local sEntry = serializeJSONImpl( v, tTracking, bNBTStyle )
                 if nArraySize == 0 then
                     sArrayResult = sArrayResult .. sEntry
@@ -305,7 +305,7 @@ local function serializeJSONImpl( t, tTracking, bNBTStyle )
         return tostring(t)
 
     else
-        error( "Cannot serialize type "..sType, 0 )
+        error( "Cannot serialize type " .. sType, 0 )
 
     end
 end
@@ -317,7 +317,7 @@ end
 
 function unserialize( s )
     expect(1, s, "string")
-    local func = load( "return "..s, "unserialize", "t", {} )
+    local func = load( "return " .. s, "unserialize", "t", {} )
     if func then
         local ok, result = pcall( func )
         if ok then
@@ -346,7 +346,7 @@ function urlEncode( str )
             else
                 -- Non-ASCII (encode as UTF-8)
                 return
-                    string.format("%%%02X", 192 + bit32.band( bit32.arshift(n,6), 31 ) ) ..
+                    string.format("%%%02X", 192 + bit32.band( bit32.arshift(n, 6), 31 ) ) ..
                     string.format("%%%02X", 128 + bit32.band( n, 63 ) )
             end
         end )
@@ -393,7 +393,7 @@ function complete( sSearchText, tSearchTable )
     local tResults = {}
     local tSeen = {}
     while tTable do
-        for k,v in pairs( tTable ) do
+        for k, v in pairs( tTable ) do
             if not tSeen[k] and type(k) == "string" then
                 if string.find( k, sPart, 1, true ) == 1 then
                     if not g_tLuaKeywords[k] and string.match( k, "^[%a_][%a%d_]*$" ) then

@@ -21,9 +21,9 @@ if not fs.exists( sPath ) and not string.find( sPath, "%." ) then
     end
 end
 
-local x,y = 1,1
-local w,h = term.getSize()
-local scrollX, scrollY = 0,0
+local x, y = 1, 1
+local w, h = term.getSize()
+local scrollX, scrollY = 0, 0
 
 local tLines = {}
 local bRunning = true
@@ -99,7 +99,7 @@ local function save( _sPath )
                 file.write( sLine .. "\n" )
             end
         else
-            error( "Failed to open ".._sPath )
+            error( "Failed to open " .. _sPath )
         end
     end
 
@@ -130,7 +130,7 @@ local tKeywords = {
     ["return"] = true,
     ["then"] = true,
     ["true"] = true,
-    ["until"]= true,
+    ["until"] = true,
     ["while"] = true,
 }
 
@@ -214,7 +214,7 @@ end
 
 local function redrawText()
     local cursorX, cursorY = x, y
-    for y=1,h-1 do
+    for y = 1, h - 1 do
         term.setCursorPos( 1 - scrollX, y )
         term.clearLine()
 
@@ -248,7 +248,7 @@ local function redrawMenu()
     term.clearLine()
 
     -- Draw line numbers
-    term.setCursorPos( w - string.len( "Ln "..y ) + 1, h )
+    term.setCursorPos( w - string.len( "Ln " .. y ) + 1, h )
     term.setTextColour( highlightColour )
     term.write( "Ln " )
     term.setTextColour( textColour )
@@ -258,7 +258,7 @@ local function redrawMenu()
     if bMenu then
         -- Draw menu
         term.setTextColour( textColour )
-        for nItem,sItem in pairs( tMenuItems ) do
+        for nItem, sItem in pairs( tMenuItems ) do
             if nItem == nMenuItem then
                 term.setTextColour( highlightColour )
                 term.write( "[" )
@@ -268,7 +268,7 @@ local function redrawMenu()
                 term.write( "]" )
                 term.setTextColour( textColour )
             else
-                term.write( " "..sItem.." " )
+                term.write( " " .. sItem .. " " )
             end
         end
     else
@@ -289,12 +289,12 @@ local tMenuFuncs = {
         else
             local ok, _, fileerr  = save( sPath )
             if ok then
-                sStatus="Saved to "..sPath
+                sStatus = "Saved to " .. sPath
             else
                 if fileerr then
-                    sStatus="Error saving to "..fileerr
+                    sStatus = "Error saving to " .. fileerr
                 else
-                    sStatus="Error saving to "..sPath
+                    sStatus = "Error saving to " .. sPath
                 end
             end
         end
@@ -326,7 +326,7 @@ local tMenuFuncs = {
         }
         printerTerminal.scroll = function()
             if nPage == 1 then
-                printer.setPageTitle( sName.." (page "..nPage..")" )
+                printer.setPageTitle( sName .. " (page " .. nPage .. ")" )
             end
 
             while not printer.newPage() do
@@ -349,7 +349,7 @@ local tMenuFuncs = {
             if nPage == 1 then
                 printer.setPageTitle( sName )
             else
-                printer.setPageTitle( sName.." (page "..nPage..")" )
+                printer.setPageTitle( sName .. " (page " .. nPage .. ")" )
             end
         end
 
@@ -374,7 +374,7 @@ local tMenuFuncs = {
         bMenu = true
 
         if nPage > 1 then
-            sStatus = "Printed "..nPage.." Pages"
+            sStatus = "Printed " .. nPage .. " Pages"
         else
             sStatus = "Printed 1 Page"
         end
@@ -391,14 +391,14 @@ local tMenuFuncs = {
             if nTask then
                 shell.switchTab( nTask )
             else
-                sStatus="Error starting Task"
+                sStatus = "Error starting Task"
             end
             fs.delete( sTempPath )
         else
-            sStatus="Error saving to "..sTempPath
+            sStatus = "Error saving to " .. sTempPath
         end
         redrawMenu()
-    end
+    end,
 }
 
 local function doMenuItem( _n )
@@ -431,9 +431,9 @@ local function setCursor( newX, newY )
         scrollY = y - 1
         screenY = 1
         bRedraw = true
-    elseif screenY > h-1 then
-        scrollY = y - (h-1)
-        screenY = h-1
+    elseif screenY > h - 1 then
+        scrollY = y - (h - 1)
+        screenY = h - 1
         bRedraw = true
     end
 
@@ -456,7 +456,7 @@ load(sPath)
 
 term.setBackgroundColour( bgColour )
 term.clear()
-term.setCursorPos(x,y)
+term.setCursorPos(x, y)
 term.setCursorBlink( true )
 
 recomplete()
@@ -526,7 +526,7 @@ while bRunning do
                 else
                     -- Indent line
                     local sLine = tLines[y]
-                    tLines[y] = string.sub(sLine,1,x-1) .. "    " .. string.sub(sLine,x)
+                    tLines[y] = string.sub(sLine, 1, x - 1) .. "    " .. string.sub(sLine, x)
                     setCursor( x + 4, y )
                 end
             end
@@ -566,7 +566,7 @@ while bRunning do
             if not bMenu then
                 -- Move cursor to the beginning
                 if x > 1 then
-                    setCursor(1,y)
+                    setCursor(1, y)
                 end
             end
 
@@ -586,8 +586,8 @@ while bRunning do
                 if x > 1 then
                     -- Move cursor left
                     setCursor( x - 1, y )
-                elseif x==1 and y>1 then
-                    setCursor( string.len( tLines[y-1] ) + 1, y - 1 )
+                elseif x == 1 and y > 1 then
+                    setCursor( string.len( tLines[y - 1] ) + 1, y - 1 )
                 end
             else
                 -- Move menu left
@@ -608,7 +608,7 @@ while bRunning do
                 elseif nCompletion and x == string.len(tLines[y]) + 1 then
                     -- Accept autocomplete
                     acceptCompletion()
-                elseif x==nLimit and y<#tLines then
+                elseif x == nLimit and y < #tLines then
                     -- Go to next line
                     setCursor( 1, y + 1 )
                 end
@@ -627,12 +627,12 @@ while bRunning do
                 local nLimit = string.len( tLines[y] ) + 1
                 if x < nLimit then
                     local sLine = tLines[y]
-                    tLines[y] = string.sub(sLine,1,x-1) .. string.sub(sLine,x+1)
+                    tLines[y] = string.sub(sLine, 1, x - 1) .. string.sub(sLine, x + 1)
                     recomplete()
                     redrawLine(y)
-                elseif y<#tLines then
-                    tLines[y] = tLines[y] .. tLines[y+1]
-                    table.remove( tLines, y+1 )
+                elseif y < #tLines then
+                    tLines[y] = tLines[y] .. tLines[y + 1]
+                    table.remove( tLines, y + 1 )
                     recomplete()
                     redrawText()
                 end
@@ -644,17 +644,17 @@ while bRunning do
                 if x > 1 then
                     -- Remove character
                     local sLine = tLines[y]
-                    if x > 4 and string.sub(sLine,x-4,x-1) == "    " and not string.sub(sLine, 1, x - 1):find("%S") then
-                        tLines[y] = string.sub(sLine,1,x-5) .. string.sub(sLine,x)
+                    if x > 4 and string.sub(sLine, x - 4, x - 1) == "    " and not string.sub(sLine, 1, x - 1):find("%S") then
+                        tLines[y] = string.sub(sLine, 1, x - 5) .. string.sub(sLine, x)
                         setCursor( x - 4, y )
                     else
-                        tLines[y] = string.sub(sLine,1,x-2) .. string.sub(sLine,x)
+                        tLines[y] = string.sub(sLine, 1, x - 2) .. string.sub(sLine, x)
                         setCursor( x - 1, y )
                     end
                 elseif y > 1 then
                     -- Remove newline
-                    local sPrevLen = string.len( tLines[y-1] )
-                    tLines[y-1] = tLines[y-1] .. tLines[y]
+                    local sPrevLen = string.len( tLines[y - 1] )
+                    tLines[y - 1] = tLines[y - 1] .. tLines[y]
                     table.remove( tLines, y )
                     setCursor( sPrevLen + 1, y - 1 )
                     redrawText()
@@ -666,12 +666,12 @@ while bRunning do
             if not bMenu and not bReadOnly then
                 -- Newline
                 local sLine = tLines[y]
-                local _,spaces=string.find(sLine,"^[ ]+")
+                local _, spaces = string.find(sLine, "^[ ]+")
                 if not spaces then
-                    spaces=0
+                    spaces = 0
                 end
-                tLines[y] = string.sub(sLine,1,x-1)
-                table.insert( tLines, y+1, string.rep(' ',spaces)..string.sub(sLine,x) )
+                tLines[y] = string.sub(sLine, 1, x - 1)
+                table.insert( tLines, y + 1, string.rep(' ', spaces) .. string.sub(sLine, x) )
                 setCursor( spaces + 1, y + 1 )
                 redrawText()
 
@@ -697,13 +697,13 @@ while bRunning do
         if not bMenu and not bReadOnly then
             -- Input text
             local sLine = tLines[y]
-            tLines[y] = string.sub(sLine,1,x-1) .. param .. string.sub(sLine,x)
+            tLines[y] = string.sub(sLine, 1, x - 1) .. param .. string.sub(sLine, x)
             setCursor( x + 1, y )
 
         elseif bMenu then
             -- Select menu items
-            for n,sMenuItem in ipairs( tMenuItems ) do
-                if string.lower(string.sub(sMenuItem,1,1)) == string.lower(param) then
+            for n, sMenuItem in ipairs( tMenuItems ) do
+                if string.lower(string.sub(sMenuItem, 1, 1)) == string.lower(param) then
                     doMenuItem( n )
                     break
                 end
@@ -720,7 +720,7 @@ while bRunning do
             end
             -- Input text
             local sLine = tLines[y]
-            tLines[y] = string.sub(sLine,1,x-1) .. param .. string.sub(sLine,x)
+            tLines[y] = string.sub(sLine, 1, x - 1) .. param .. string.sub(sLine, x)
             setCursor( x + string.len( param ), y )
         end
 
@@ -728,7 +728,7 @@ while bRunning do
         if not bMenu then
             if param == 1 then
                 -- Left click
-                local cx,cy = param2, param3
+                local cx, cy = param2, param3
                 if cy < h then
                     local newY = math.min( math.max( scrollY + cy, 1 ), #tLines )
                     local newX = math.min( math.max( scrollX + cx, 1 ), string.len( tLines[newY] ) + 1 )
@@ -749,7 +749,7 @@ while bRunning do
 
             elseif param == 1 then
                 -- Scroll down
-                local nMaxScroll = #tLines - (h-1)
+                local nMaxScroll = #tLines - (h - 1)
                 if scrollY < nMaxScroll then
                     -- Move cursor down
                     scrollY = scrollY + 1
@@ -760,7 +760,7 @@ while bRunning do
         end
 
     elseif sEvent == "term_resize" then
-        w,h = term.getSize()
+        w, h = term.getSize()
         setCursor( x, y )
         redrawMenu()
         redrawText()

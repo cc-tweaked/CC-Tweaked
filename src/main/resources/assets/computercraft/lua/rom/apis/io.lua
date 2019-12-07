@@ -129,11 +129,11 @@ handleMetatable = {
 }
 
 local defaultInput = setmetatable({
-    _handle = { readLine = _G.read }
+    _handle = { readLine = _G.read },
 }, handleMetatable)
 
 local defaultOutput = setmetatable({
-    _handle = { write = _G.write }
+    _handle = { write = _G.write },
 }, handleMetatable)
 
 local defaultError = setmetatable({
@@ -147,7 +147,7 @@ local defaultError = setmetatable({
             _G.write(...)
             if term.isColour() then term.setTextColour(oldColour) end
         end,
-    }
+    },
 }, handleMetatable)
 
 local currentInput = defaultInput

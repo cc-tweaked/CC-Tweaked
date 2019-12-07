@@ -16,11 +16,11 @@ term.redirect = function( target )
     if target == term or target == _G.term then
         error( "term is not a recommended redirect target, try term.current() instead", 2 )
     end
-    for k,v in pairs( native ) do
+    for k, v in pairs( native ) do
         if type( k ) == "string" and type( v ) == "function" then
             if type( target[k] ) ~= "function" then
                 target[k] = function()
-                    error( "Redirect object is missing method "..k..".", 2 )
+                    error( "Redirect object is missing method " .. k .. ".", 2 )
                 end
             end
         end
@@ -48,13 +48,13 @@ for _, method in ipairs { "nativePaletteColor", "nativePaletteColour"} do
     native[method] = nil
 end
 
-for k,v in pairs( native ) do
+for k, v in pairs( native ) do
     if type( k ) == "string" and type( v ) == "function" and term[k] == nil then
         term[k] = wrap( k )
     end
 end
 
 local env = _ENV
-for k,v in pairs( term ) do
+for k, v in pairs( term ) do
     env[k] = v
 end

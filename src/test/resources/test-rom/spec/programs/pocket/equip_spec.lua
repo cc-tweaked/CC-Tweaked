@@ -9,7 +9,7 @@ describe("The pocket equip program", function()
 
     it("can equip an upgrade", function()
         stub(_G, "pocket", {
-            equipBack = function() return true end
+            equipBack = function() return true end,
         })
 
         expect(capture(stub, "/rom/programs/pocket/equip.lua"))
@@ -18,7 +18,7 @@ describe("The pocket equip program", function()
 
     it("handles when an upgrade cannot be equipped", function()
         stub(_G, "pocket", {
-            equipBack = function() return false, "Cannot equip this item." end
+            equipBack = function() return false, "Cannot equip this item." end,
         })
 
         expect(capture(stub, "/rom/programs/pocket/equip.lua"))

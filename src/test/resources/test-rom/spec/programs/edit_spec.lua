@@ -1,5 +1,4 @@
 local capture = require "test_helpers".capture_program
-local testFile = require "test_helpers".testFile
 
 describe("The edit program", function()
 

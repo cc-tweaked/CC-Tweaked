@@ -3,24 +3,24 @@ local completion = require "cc.shell.completion"
 -- Setup paths
 local sPath = ".:/rom/programs"
 if term.isColor() then
-    sPath = sPath..":/rom/programs/advanced"
+    sPath = sPath .. ":/rom/programs/advanced"
 end
 if turtle then
-    sPath = sPath..":/rom/programs/turtle"
+    sPath = sPath .. ":/rom/programs/turtle"
 else
-    sPath = sPath..":/rom/programs/rednet:/rom/programs/fun"
+    sPath = sPath .. ":/rom/programs/rednet:/rom/programs/fun"
     if term.isColor() then
-        sPath = sPath..":/rom/programs/fun/advanced"
+        sPath = sPath .. ":/rom/programs/fun/advanced"
     end
 end
 if pocket then
-    sPath = sPath..":/rom/programs/pocket"
+    sPath = sPath .. ":/rom/programs/pocket"
 end
 if commands then
-    sPath = sPath..":/rom/programs/command"
+    sPath = sPath .. ":/rom/programs/command"
 end
 if http then
-    sPath = sPath..":/rom/programs/http"
+    sPath = sPath .. ":/rom/programs/http"
 end
 shell.setPath( sPath )
 help.setPath( "/rom/help" )
@@ -121,7 +121,7 @@ if fs.exists( "/rom/autorun" ) and fs.isDir( "/rom/autorun" ) then
     local tFiles = fs.list( "/rom/autorun" )
     for _, sFile in ipairs( tFiles ) do
         if string.sub( sFile, 1, 1 ) ~= "." then
-            local sPath = "/rom/autorun/"..sFile
+            local sPath = "/rom/autorun/" .. sFile
             if not fs.isDir( sPath ) then
                 shell.run( sPath )
             end
@@ -142,7 +142,7 @@ local function findStartups( sBaseDir )
         if tStartups == nil then
             tStartups = {}
         end
-        for _,v in pairs( fs.list( sBasePath ) ) do
+        for _, v in pairs( fs.list( sBasePath ) ) do
             local sPath = "/" .. fs.combine( sBasePath, v )
             if not fs.isDir( sPath ) then
                 tStartups[ #tStartups + 1 ] = sPath
@@ -163,7 +163,7 @@ if settings.get( "shell.allow_startup" ) then
     tUserStartups = findStartups( "/" )
 end
 if settings.get( "shell.allow_disk_startup" ) then
-    for _,sName in pairs( peripheral.getNames() ) do
+    for _, sName in pairs( peripheral.getNames() ) do
         if disk.isPresent( sName ) and disk.hasData( sName ) then
             local startups = findStartups( disk.getMountPath( sName ) )
             if startups then
@@ -174,7 +174,7 @@ if settings.get( "shell.allow_disk_startup" ) then
     end
 end
 if tUserStartups then
-    for _,v in pairs( tUserStartups ) do
+    for _, v in pairs( tUserStartups ) do
         shell.run( v )
     end
 end

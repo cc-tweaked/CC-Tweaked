@@ -39,7 +39,7 @@ describe("The craft program", function()
 
     it("craft a single item", function()
         local item_count = 2
-        stub(_G,"turtle",{
+        stub(_G, "turtle", {
             craft = function()
                 item_count = 1
                 return true
@@ -54,7 +54,7 @@ describe("The craft program", function()
 
      it("crafts no items", function()
         local item_count = 2
-        stub(_G,"turtle",{
+        stub(_G, "turtle", {
             craft = function()
                 item_count = 1
                 return false

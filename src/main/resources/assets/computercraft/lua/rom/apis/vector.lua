@@ -36,17 +36,17 @@ local vector = {
 		)
 	end,
 	dot = function( self, o )
-		return self.x*o.x + self.y*o.y + self.z*o.z
+		return self.x * o.x + self.y * o.y + self.z * o.z
 	end,
 	cross = function( self, o )
 		return vector.new(
-			self.y*o.z - self.z*o.y,
-			self.z*o.x - self.x*o.z,
-			self.x*o.y - self.y*o.x
+			self.y * o.z - self.z * o.y,
+			self.z * o.x - self.x * o.z,
+			self.x * o.y - self.y * o.x
 		)
 	end,
 	length = function( self )
-		return math.sqrt( self.x*self.x + self.y*self.y + self.z*self.z )
+		return math.sqrt( self.x * self.x + self.y * self.y + self.z * self.z )
 	end,
 	normalize = function( self )
 		return self:mul( 1 / self:length() )
@@ -60,7 +60,7 @@ local vector = {
 		)
 	end,
 	tostring = function( self )
-		return self.x..","..self.y..","..self.z
+		return self.x .. "," .. self.y .. "," .. self.z
 	end,
 }
 
@@ -78,7 +78,7 @@ function new( x, y, z )
 	local v = {
 		x = tonumber(x) or 0,
 		y = tonumber(y) or 0,
-		z = tonumber(z) or 0
+		z = tonumber(z) or 0,
 	}
 	setmetatable( v, vmetatable )
 	return v
