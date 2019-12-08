@@ -681,6 +681,7 @@ if http then
     local methods = {
         GET = true, POST = true, HEAD = true,
         OPTIONS = true, PUT = true, DELETE = true,
+        PATCH = true, TRACE = true,
     }
 
     local function checkKey( options, key, ty, opt )
