@@ -30,4 +30,4 @@ jobs:
         test -d bin || mkdir bin
         test -f bin/illuaminate || wget -q -Obin/illuaminate https://squiddev.cc/illuaminate/bin/illuaminate
         chmod +x bin/illuaminate
-        GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }} bin/illuaminate lint --github
+        bin/illuaminate lint
