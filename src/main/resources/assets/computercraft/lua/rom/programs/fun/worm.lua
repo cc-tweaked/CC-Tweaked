@@ -16,7 +16,7 @@ else
 end
 
 local function printCentred( y, s )
-    local x = math.floor((w - string.len(s)) / 2)
+    local x = math.floor((w - #s) / 2)
     term.setCursorPos(x, y)
     --term.clearLine()
     term.write( s )

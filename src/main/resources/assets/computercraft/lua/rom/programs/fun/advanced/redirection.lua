@@ -60,7 +60,7 @@ local tArgs = { ... }
 
 --Functions--
 local function printCentred( yc, stg )
-    local xc = math.floor((TermW - string.len(stg)) / 2) + 1
+    local xc = math.floor((TermW - #stg) / 2) + 1
     term.setCursorPos(xc, yc)
     term.write( stg )
 end
@@ -179,7 +179,7 @@ local function loadLevel(nNum)
     fLevel = fs.open(sLevelD, "r")
     local wl = true
     Blocks = tonumber(string.sub(fLevel.readLine(), 1, 1))
-    local xSize = string.len(fLevel.readLine()) + 2
+    local xSize = #fLevel.readLine() + 2
     local Lines = 3
     while wl do
         local wLine = fLevel.readLine()
@@ -187,7 +187,7 @@ local function loadLevel(nNum)
             fLevel.close()
             wl = false
         else
-            xSize = math.max(string.len(wLine) + 2, xSize)
+            xSize = math.max(#wLine + 2, xSize)
             Lines = Lines + 1
         end
     end
@@ -197,7 +197,7 @@ local function loadLevel(nNum)
     fLevel.readLine()
     for Line = 2, Lines - 1 do
         local sLine = fLevel.readLine()
-        local chars = string.len(sLine)
+        local chars = #sLine
         for char = 1, chars do
             local el = string.sub(sLine, char, char)
             if el == "8" then

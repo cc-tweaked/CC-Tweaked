@@ -10,7 +10,7 @@ function slowWrite( sText, nRate )
 
     sText = tostring( sText )
     local x, y = term.getCursorPos()
-    local len = string.len( sText )
+    local len = #sText
 
     for n = 1, len do
         term.setCursorPos( x, y )
@@ -116,7 +116,7 @@ local function tabulateCommon( bPaged, ... )
                 if type( sItem ) ~= "string" then
                     error( "bad argument #" .. n .. "." .. nu .. " (expected string, got " .. type( sItem ) .. ")", 3 )
                 end
-                nMaxLen = math.max( string.len( sItem ) + 1, nMaxLen )
+                nMaxLen = math.max( #sItem + 1, nMaxLen )
             end
         end
     end
@@ -388,7 +388,7 @@ function complete( sSearchText, tSearchTable )
     end
 
     local sPart = string.sub( sSearchText, nStart )
-    local nPartLength = string.len( sPart )
+    local nPartLength = #sPart
 
     local tResults = {}
     local tSeen = {}

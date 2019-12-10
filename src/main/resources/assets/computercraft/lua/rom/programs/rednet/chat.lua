@@ -130,14 +130,14 @@ if sCommand == "host" then
                 local tCommands
                 tCommands = {
                     ["me"] = function( tUser, sContent )
-                        if string.len(sContent) > 0 then
+                        if #sContent > 0 then
                             send( "* " .. tUser.sUsername .. " " .. sContent )
                         else
                             send( "* Usage: /me [words]", tUser.nUserID )
                         end
                     end,
                     ["nick"] = function( tUser, sContent )
-                        if string.len(sContent) > 0 then
+                        if #sContent > 0 then
                             local sOldName = tUser.sUsername
                             tUser.sUsername = sContent
                             send( "* " .. sOldName .. " is now known as " .. tUser.sUsername )
@@ -199,7 +199,7 @@ if sCommand == "host" then
                                     if sCommand then
                                         local fnCommand = tCommands[ sCommand ]
                                         if fnCommand then
-                                            local sContent = string.sub( sMessage, string.len(sCommand) + 3 )
+                                            local sContent = string.sub( sMessage, #sCommand + 3 )
                                             fnCommand( tUser, sContent )
                                         else
                                             send( "* Unrecognised command: /" .. sCommand, tUser.nUserID )
@@ -300,7 +300,7 @@ elseif sCommand == "join" then
         local w = titleWindow.getSize()
         local sTitle = sUsername .. " on " .. sHostname
         titleWindow.setTextColour( highlightColour )
-        titleWindow.setCursorPos( math.floor( w / 2 - string.len(sTitle) / 2 ), 1 )
+        titleWindow.setCursorPos( math.floor( w / 2 - #sTitle / 2 ), 1 )
         titleWindow.clearLine()
         titleWindow.write( sTitle )
         promptWindow.restoreCursor()
@@ -321,7 +321,7 @@ elseif sCommand == "join" then
                 term.setTextColour( highlightColour )
                 write( sUsernameBit )
                 term.setTextColour( textColour )
-                write( string.sub( sMessage, string.len( sUsernameBit ) + 1 ) )
+                write( string.sub( sMessage, #sUsernameBit + 1 ) )
             else
                 write( sMessage )
             end

@@ -62,7 +62,7 @@ end
 table.insert( tMenuItems, "Exit" )
 
 local sStatus = "Press Ctrl to access menu"
-if string.len( sStatus ) > w - 5 then
+if #sStatus > w - 5 then
     sStatus = "Press Ctrl for menu"
 end
 
@@ -144,13 +144,13 @@ local function tryWrite( sLine, regex, colour )
         end
         term.write( match )
         term.setTextColour( textColour )
-        return string.sub( sLine, string.len(match) + 1 )
+        return string.sub( sLine, #match + 1 )
     end
     return nil
 end
 
 local function writeHighlighted( sLine )
-    while string.len(sLine) > 0 do
+    while #sLine > 0 do
         sLine =
             tryWrite( sLine, "^%-%-%[%[.-%]%]", commentColour ) or
             tryWrite( sLine, "^%-%-.*", commentColour ) or
@@ -188,7 +188,7 @@ end
 
 local function recomplete()
     local sLine = tLines[y]
-    if not bMenu and not bReadOnly and x == string.len(sLine) + 1 then
+    if not bMenu and not bReadOnly and x == #sLine + 1 then
         tCompletions = complete( sLine )
         if tCompletions and #tCompletions > 0 then
             nCompletion = 1
@@ -248,7 +248,7 @@ local function redrawMenu()
     term.clearLine()
 
     -- Draw line numbers
-    term.setCursorPos( w - string.len( "Ln " .. y ) + 1, h )
+    term.setCursorPos( w - #( "Ln " .. y ) + 1, h )
     term.setTextColour( highlightColour )
     term.write( "Ln " )
     term.setTextColour( textColour )
@@ -468,7 +468,7 @@ local function acceptCompletion()
         -- Append the completion
         local sCompletion = tCompletions[ nCompletion ]
         tLines[y] = tLines[y] .. sCompletion
-        setCursor( x + string.len( sCompletion ), y )
+        setCursor( x + #sCompletion , y )
     end
 end
 
@@ -490,7 +490,7 @@ while bRunning do
                 elseif y > 1 then
                     -- Move cursor up
                     setCursor(
-                        math.min( x, string.len( tLines[y - 1] ) + 1 ),
+                        math.min( x, #tLines[y - 1] + 1 ),
                         y - 1
                     )
                 end
@@ -511,7 +511,7 @@ while bRunning do
                 elseif y < #tLines then
                     -- Move cursor down
                     setCursor(
-                        math.min( x, string.len( tLines[y + 1] ) + 1 ),
+                        math.min( x, #tLines[y + 1] + 1 ),
                         y + 1
                     )
                 end
@@ -520,7 +520,7 @@ while bRunning do
         elseif param == keys.tab then
             -- Tab
             if not bMenu and not bReadOnly then
-                if nCompletion and x == string.len(tLines[y]) + 1 then
+                if nCompletion and x == #tLines[y] + 1 then
                     -- Accept autocomplete
                     acceptCompletion()
                 else
@@ -542,7 +542,7 @@ while bRunning do
                     newY = 1
                 end
                 setCursor(
-                    math.min( x, string.len( tLines[newY] ) + 1 ),
+                    math.min( x, #tLines[newY] + 1 ),
                     newY
                 )
             end
@@ -557,7 +557,7 @@ while bRunning do
                 else
                     newY = #tLines
                 end
-                local newX = math.min( x, string.len( tLines[newY] ) + 1 )
+                local newX = math.min( x, #tLines[newY] + 1 )
                 setCursor( newX, newY )
             end
 
@@ -574,7 +574,7 @@ while bRunning do
             -- End
             if not bMenu then
                 -- Move cursor to the end
-                local nLimit = string.len( tLines[y] ) + 1
+                local nLimit = #tLines[y] + 1
                 if x < nLimit then
                     setCursor( nLimit, y )
                 end
@@ -587,7 +587,7 @@ while bRunning do
                     -- Move cursor left
                     setCursor( x - 1, y )
                 elseif x == 1 and y > 1 then
-                    setCursor( string.len( tLines[y - 1] ) + 1, y - 1 )
+                    setCursor( #tLines[y - 1] + 1, y - 1 )
                 end
             else
                 -- Move menu left
@@ -601,11 +601,11 @@ while bRunning do
         elseif param == keys.right then
             -- Right
             if not bMenu then
-                local nLimit = string.len( tLines[y] ) + 1
+                local nLimit = #tLines[y] + 1
                 if x < nLimit then
                     -- Move cursor right
                     setCursor( x + 1, y )
-                elseif nCompletion and x == string.len(tLines[y]) + 1 then
+                elseif nCompletion and x == #tLines[y] + 1 then
                     -- Accept autocomplete
                     acceptCompletion()
                 elseif x == nLimit and y < #tLines then
@@ -624,7 +624,7 @@ while bRunning do
         elseif param == keys.delete then
             -- Delete
             if not bMenu and not bReadOnly then
-                local nLimit = string.len( tLines[y] ) + 1
+                local nLimit = #tLines[y] + 1
                 if x < nLimit then
                     local sLine = tLines[y]
                     tLines[y] = string.sub(sLine, 1, x - 1) .. string.sub(sLine, x + 1)
@@ -653,7 +653,7 @@ while bRunning do
                     end
                 elseif y > 1 then
                     -- Remove newline
-                    local sPrevLen = string.len( tLines[y - 1] )
+                    local sPrevLen = #tLines[y - 1]
                     tLines[y - 1] = tLines[y - 1] .. tLines[y]
                     table.remove( tLines, y )
                     setCursor( sPrevLen + 1, y - 1 )
@@ -721,7 +721,7 @@ while bRunning do
             -- Input text
             local sLine = tLines[y]
             tLines[y] = string.sub(sLine, 1, x - 1) .. param .. string.sub(sLine, x)
-            setCursor( x + string.len( param ), y )
+            setCursor( x + #param , y )
         end
 
     elseif sEvent == "mouse_click" then
@@ -731,7 +731,7 @@ while bRunning do
                 local cx, cy = param2, param3
                 if cy < h then
                     local newY = math.min( math.max( scrollY + cy, 1 ), #tLines )
-                    local newX = math.min( math.max( scrollX + cx, 1 ), string.len( tLines[newY] ) + 1 )
+                    local newX = math.min( math.max( scrollX + cx, 1 ), #tLines[newY] + 1 )
                     setCursor( newX, newY )
                 end
             end

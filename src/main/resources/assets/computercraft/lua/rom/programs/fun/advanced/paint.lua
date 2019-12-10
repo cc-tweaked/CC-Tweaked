@@ -148,7 +148,7 @@ local function save(path)
         end
         sLine = string.sub( sLine, 1, nLastChar )
         tLines[y] = sLine
-        if string.len( sLine ) > 0 then
+        if #sLine > 0 then
             nLastLine = y
         end
     end

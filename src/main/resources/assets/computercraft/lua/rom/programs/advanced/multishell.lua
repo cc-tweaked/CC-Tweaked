@@ -287,7 +287,7 @@ while #tProcesses > 0 do
                     tabStart = 2
                 end
                 for n = nScrollPos, #tProcesses do
-                    local tabEnd = tabStart + string.len( tProcesses[n].sTitle ) + 1
+                    local tabEnd = tabStart + #tProcesses[n].sTitle + 1
                     if x >= tabStart and x <= tabEnd then
                         selectProcess( n )
                         redrawMenu()

@@ -207,13 +207,13 @@ function write( sText )
     end
 
     -- Print the line with proper word wrapping
-    while string.len(sText) > 0 do
+    while #sText > 0 do
         local whitespace = string.match( sText, "^[ \t]+" )
         if whitespace then
             -- Print whitespace
             term.write( whitespace )
             x, y = term.getCursorPos()
-            sText = string.sub( sText, string.len(whitespace) + 1 )
+            sText = string.sub( sText, #whitespace + 1 )
         end
 
         local newline = string.match( sText, "^\n" )
@@ -225,10 +225,10 @@ function write( sText )
 
         local text = string.match( sText, "^[^ \t\n]+" )
         if text then
-            sText = string.sub( sText, string.len(text) + 1 )
-            if string.len(text) > w then
+            sText = string.sub( sText, #text + 1 )
+            if #text > w then
                 -- Print a multiline word
-                while string.len( text ) > 0 do
+                while #text > 0 do
                     if x > w then
                         newLine()
                     end
@@ -238,7 +238,7 @@ function write( sText )
                 end
             else
                 -- Print a word normally
-                if x + string.len(text) - 1 > w then
+                if x + #text - 1 > w then
                     newLine()
                 end
                 term.write( text )
@@ -299,7 +299,7 @@ function read( _sReplaceChar, _tHistory, _fnComplete, _sDefault )
     local tCompletions
     local nCompletion
     local function recomplete()
-        if _fnComplete and nPos == string.len(sLine) then
+        if _fnComplete and nPos == #sLine then
             tCompletions = _fnComplete( sLine )
             if tCompletions and #tCompletions > 0 then
                 nCompletion = 1
