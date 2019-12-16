@@ -10,6 +10,7 @@ import dan200.computercraft.shared.turtle.core.TurtlePlayer;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -24,6 +25,11 @@ public class TurtleSword extends TurtleTool
     public TurtleSword( ResourceLocation id, int legacyId, Item item )
     {
         super( id, legacyId, item );
+    }
+
+    public TurtleSword( ResourceLocation id, ItemStack craftItem, ItemStack toolItem )
+    {
+        super( id, craftItem, toolItem );
     }
 
     @Override

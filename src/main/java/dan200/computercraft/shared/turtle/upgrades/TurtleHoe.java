@@ -35,6 +35,11 @@ public class TurtleHoe extends TurtleTool
         super( id, legacyId, item );
     }
 
+    public TurtleHoe( ResourceLocation id, ItemStack craftItem, ItemStack toolItem )
+    {
+        super( id, craftItem, toolItem );
+    }
+
     @Override
     protected boolean canBreakBlock( IBlockState state, World world, BlockPos pos, TurtlePlayer player )
     {

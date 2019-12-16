@@ -59,6 +59,10 @@ repositories {
         name "Amadornes"
         url "https://maven.amadornes.com/"
     }
+    maven {
+        name "CraftTweaker"
+        url "https://maven.blamejared.com/"
+    }
 }
 
 configurations {
@@ -70,9 +74,10 @@ configurations {
 dependencies {
     checkstyle "com.puppycrawl.tools:checkstyle:8.25"
 
+    deobfProvided "CraftTweaker2:CraftTweaker2-MC1120-Main:1.12-4.1.20.554"
+    deobfProvided "MCMultiPart2:MCMultiPart:2.5.3"
     deobfProvided "mezz.jei:jei_1.12.2:4.15.0.269:api"
     deobfProvided "pl.asie:Charset-Lib:0.5.4.6"
-    deobfProvided "MCMultiPart2:MCMultiPart:2.5.3"
 
     runtime "mezz.jei:jei_1.12.2:4.15.0.269"
 

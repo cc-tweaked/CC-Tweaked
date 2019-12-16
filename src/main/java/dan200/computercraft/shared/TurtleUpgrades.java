@@ -19,12 +19,35 @@ import net.minecraftforge.fml.common.ModContainer;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
+import java.util.stream.Stream;
 
 public final class TurtleUpgrades
 {
+    public static class Wrapper
+    {
+        final ITurtleUpgrade upgrade;
+        final int legacyId;
+        final String id;
+        final String modId;
+        boolean enabled;
+
+        public Wrapper( ITurtleUpgrade upgrade )
+        {
+            ModContainer mc = Loader.instance().activeModContainer();
+
+            this.upgrade = upgrade;
+            this.legacyId = upgrade.getLegacyUpgradeID();
+            this.id = upgrade.getUpgradeID().toString();
+            this.modId = mc != null && mc.getModId() != null ? mc.getModId() : null;
+            this.enabled = true;
+        }
+    }
+
+    private static ITurtleUpgrade[] vanilla;
+
     private static final Map<String, ITurtleUpgrade> upgrades = new HashMap<>();
     private static final Int2ObjectMap<ITurtleUpgrade> legacyUpgrades = new Int2ObjectOpenHashMap<>();
-    private static final IdentityHashMap<ITurtleUpgrade, String> upgradeOwners = new IdentityHashMap<>();
+    private static final IdentityHashMap<ITurtleUpgrade, Wrapper> wrappers = new IdentityHashMap<>();
 
     private TurtleUpgrades() {}
 
@@ -35,9 +58,7 @@ public final class TurtleUpgrades
         int id = upgrade.getLegacyUpgradeID();
         if( id >= 0 && id < 64 )
         {
-            String message = getMessage( upgrade, "Legacy UpgradeID '" + id + "' is reserved by ComputerCraft" );
-            ComputerCraft.log.error( message );
-            throw new RuntimeException( message );
+            throw registrationError( upgrade, "Legacy Upgrade ID '" + id + "' is reserved by ComputerCraft" );
         }
 
         registerInternal( upgrade );
@@ -47,56 +68,61 @@ public final class TurtleUpgrades
     {
         Objects.requireNonNull( upgrade, "upgrade cannot be null" );
 
+        Wrapper wrapper = new Wrapper( upgrade );
+
         // Check conditions
-        int legacyId = upgrade.getLegacyUpgradeID();
+        int legacyId = wrapper.legacyId;
         if( legacyId >= 0 )
         {
             if( legacyId >= Short.MAX_VALUE )
             {
-                String message = getMessage( upgrade, "UpgradeID '" + legacyId + "' is out of range" );
-                ComputerCraft.log.error( message );
-                throw new RuntimeException( message );
+                throw registrationError( upgrade, "Upgrade ID '" + legacyId + "' is out of range" );
             }
 
             ITurtleUpgrade existing = legacyUpgrades.get( legacyId );
             if( existing != null )
             {
-                String message = getMessage( upgrade, "UpgradeID '" + legacyId + "' is already registered by '" + existing.getUnlocalisedAdjective() + " Turtle'" );
-                ComputerCraft.log.error( message );
-                throw new RuntimeException( message );
+                throw registrationError( upgrade, "Upgrade ID '" + legacyId + "' is already registered by '" + existing.getUnlocalisedAdjective() + " Turtle'" );
             }
         }
 
-        String id = upgrade.getUpgradeID().toString();
+        String id = wrapper.id;
         ITurtleUpgrade existing = upgrades.get( id );
         if( existing != null )
         {
-            String message = getMessage( upgrade, "UpgradeID '" + id + "' is already registered by '" + existing.getUnlocalisedAdjective() + " Turtle'" );
-            ComputerCraft.log.error( message );
-            throw new RuntimeException( message );
+            throw registrationError( upgrade, "Upgrade '" + id + "' is already registered by '" + existing.getUnlocalisedAdjective() + " Turtle'" );
         }
 
         // Register
         if( legacyId >= 0 ) legacyUpgrades.put( legacyId, upgrade );
         upgrades.put( id, upgrade );
-
-        ModContainer mc = Loader.instance().activeModContainer();
-        if( mc != null && mc.getModId() != null ) upgradeOwners.put( upgrade, mc.getModId() );
+        wrappers.put( upgrade, wrapper );
     }
 
-    private static String getMessage( ITurtleUpgrade upgrade, String rest )
+    private static RuntimeException registrationError( ITurtleUpgrade upgrade, String rest )
     {
-        return "Error registering '" + upgrade.getUnlocalisedAdjective() + " Turtle'. " + rest;
+        String message = "Error registering '" + upgrade.getUnlocalisedAdjective() + " Turtle'. " + rest;
+        ComputerCraft.log.error( message );
+        throw new IllegalArgumentException( message );
     }
 
+    @Nullable
     public static ITurtleUpgrade get( String id )
     {
         return upgrades.get( id );
     }
 
+    @Nullable
     public static ITurtleUpgrade get( int id )
     {
         return legacyUpgrades.get( id );
+    }
+
+    @Nullable
+    public static String getOwner( @Nonnull ITurtleUpgrade upgrade )
+    {
+        Wrapper wrapper = wrappers.get( upgrade );
+        return wrapper != null ? wrapper.modId : null;
     }
 
     public static ITurtleUpgrade get( @Nonnull ItemStack stack )
@@ -115,25 +141,24 @@ public final class TurtleUpgrades
         return null;
     }
 
-    public static Iterable<ITurtleUpgrade> getVanillaUpgrades()
+    public static Stream<ITurtleUpgrade> getVanillaUpgrades()
     {
-        List<ITurtleUpgrade> vanilla = new ArrayList<>();
-        vanilla.add( ComputerCraft.TurtleUpgrades.diamondPickaxe );
-        vanilla.add( ComputerCraft.TurtleUpgrades.diamondAxe );
-        vanilla.add( ComputerCraft.TurtleUpgrades.diamondSword );
-        vanilla.add( ComputerCraft.TurtleUpgrades.diamondShovel );
-        vanilla.add( ComputerCraft.TurtleUpgrades.diamondHoe );
-        vanilla.add( ComputerCraft.TurtleUpgrades.craftingTable );
-        vanilla.add( ComputerCraft.TurtleUpgrades.wirelessModem );
-        vanilla.add( ComputerCraft.TurtleUpgrades.advancedModem );
-        vanilla.add( ComputerCraft.TurtleUpgrades.speaker );
-        return vanilla;
-    }
+        if( vanilla == null )
+        {
+            vanilla = new ITurtleUpgrade[] {
+                ComputerCraft.TurtleUpgrades.diamondPickaxe,
+                ComputerCraft.TurtleUpgrades.diamondAxe,
+                ComputerCraft.TurtleUpgrades.diamondSword,
+                ComputerCraft.TurtleUpgrades.diamondShovel,
+                ComputerCraft.TurtleUpgrades.diamondHoe,
+                ComputerCraft.TurtleUpgrades.craftingTable,
+                ComputerCraft.TurtleUpgrades.wirelessModem,
+                ComputerCraft.TurtleUpgrades.advancedModem,
+                ComputerCraft.TurtleUpgrades.speaker,
+            };
+        }
 
-    @Nullable
-    public static String getOwner( @Nonnull ITurtleUpgrade upgrade )
-    {
-        return upgradeOwners.get( upgrade );
+        return Arrays.stream( vanilla ).filter( x -> x != null && wrappers.get( x ).enabled );
     }
 
     public static Iterable<ITurtleUpgrade> getUpgrades()
@@ -144,5 +169,15 @@ public final class TurtleUpgrades
     public static boolean suitableForFamily( ComputerFamily family, ITurtleUpgrade upgrade )
     {
         return true;
+    }
+
+    public static void disable( ITurtleUpgrade upgrade )
+    {
+        Wrapper wrapper = wrappers.get( upgrade );
+        if( !wrapper.enabled ) return;
+
+        wrapper.enabled = false;
+        upgrades.remove( wrapper.id );
+        if( wrapper.legacyId >= 0 ) legacyUpgrades.remove( wrapper.legacyId );
     }
 }
