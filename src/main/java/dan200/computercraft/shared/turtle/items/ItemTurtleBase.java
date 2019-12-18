@@ -48,13 +48,11 @@ public abstract class ItemTurtleBase extends ItemComputerBase implements ITurtle
         ItemStack normalStack = TurtleItemFactory.create( -1, null, -1, family, null, null, 0, null );
         if( !normalStack.isEmpty() && normalStack.getItem() == this ) list.add( normalStack );
 
-        for( ITurtleUpgrade upgrade : TurtleUpgrades.getVanillaUpgrades() )
-        {
-            if( !TurtleUpgrades.suitableForFamily( family, upgrade ) ) continue;
-
-            ItemStack stack = TurtleItemFactory.create( -1, null, -1, family, null, upgrade, 0, null );
-            if( !stack.isEmpty() && stack.getItem() == this ) list.add( stack );
-        }
+        TurtleUpgrades.getVanillaUpgrades()
+            .filter( x -> TurtleUpgrades.suitableForFamily( family, x ) )
+            .map( x -> TurtleItemFactory.create( -1, null, -1, family, null, x, 0, null ) )
+            .filter( x -> !x.isEmpty() && x.getItem() == this )
+            .forEach( list::add );
     }
 
     @Nonnull

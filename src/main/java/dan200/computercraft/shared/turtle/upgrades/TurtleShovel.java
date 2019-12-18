@@ -35,6 +35,11 @@ public class TurtleShovel extends TurtleTool
         super( id, legacyId, item );
     }
 
+    public TurtleShovel( ResourceLocation id, ItemStack craftItem, ItemStack toolItem )
+    {
+        super( id, craftItem, toolItem );
+    }
+
     @Override
     protected boolean canBreakBlock( IBlockState state, World world, BlockPos pos, TurtlePlayer player )
     {
