@@ -15,7 +15,7 @@ import javax.annotation.Nonnull;
 import java.util.HashMap;
 import java.util.Map;
 
-import static dan200.computercraft.core.apis.ArgumentHelper.*;
+import static dan200.computercraft.api.lua.ArgumentHelper.*;
 
 public class RedstoneAPI implements ILuaAPI
 {

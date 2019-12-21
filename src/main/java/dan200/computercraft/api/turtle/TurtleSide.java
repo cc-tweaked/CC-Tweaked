@@ -12,12 +12,12 @@ package dan200.computercraft.api.turtle;
 public enum TurtleSide
 {
     /**
-     * The turtle's left side (where the pickaxe usually is on a Wireless Mining Turtle)
+     * The turtle's left side (where the pickaxe usually is on a Wireless Mining Turtle).
      */
     Left,
 
     /**
-     * The turtle's right side (where the modem usually is on a Wireless Mining Turtle)
+     * The turtle's right side (where the modem usually is on a Wireless Mining Turtle).
      */
     Right,
 }

@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * A command which delegates to a series of sub commands
+ * A command which delegates to a series of sub commands.
  */
 public class CommandRoot implements ISubCommand
 {

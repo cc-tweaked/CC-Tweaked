@@ -1,4 +1,4 @@
-local expect = _G["~expect"]
+local expect = dofile("rom/modules/main/cc/expect.lua").expect
 
 local tHex = {
     [ colors.white ] = "0",
@@ -39,8 +39,8 @@ function create( parent, nX, nY, nWidth, nHeight, bStartVisible )
     local tEmptyColorLines = {}
     local function createEmptyLines( nWidth )
         sEmptySpaceLine = string_rep( " ", nWidth )
-        for n=0,15 do
-            local nColor = 2^n
+        for n = 0, 15 do
+            local nColor = 2 ^ n
             local sHex = tHex[nColor]
             tEmptyColorLines[nColor] = string_rep( sHex, nWidth )
         end
@@ -49,7 +49,7 @@ function create( parent, nX, nY, nWidth, nHeight, bStartVisible )
     createEmptyLines( nWidth )
 
     -- Setup
-    local bVisible = (bStartVisible ~= false)
+    local bVisible = bStartVisible ~= false
     local nCursorX = 1
     local nCursorY = 1
     local bCursorBlink = false
@@ -61,7 +61,7 @@ function create( parent, nX, nY, nWidth, nHeight, bStartVisible )
         local sEmptyText = sEmptySpaceLine
         local sEmptyTextColor = tEmptyColorLines[ nTextColor ]
         local sEmptyBackgroundColor = tEmptyColorLines[ nBackgroundColor ]
-        for y=1,nHeight do
+        for y = 1, nHeight do
             tLines[y] = {
                 text = sEmptyText,
                 textColor = sEmptyTextColor,
@@ -69,7 +69,7 @@ function create( parent, nX, nY, nWidth, nHeight, bStartVisible )
             }
         end
 
-        for i=0,15 do
+        for i = 0, 15 do
             local c = 2 ^ i
             tPalette[c] = { parent.getPaletteColour( c ) }
         end
@@ -100,13 +100,13 @@ function create( parent, nX, nY, nWidth, nHeight, bStartVisible )
     end
 
     local function redraw()
-        for n=1,nHeight do
+        for n = 1, nHeight do
             redrawLine( n )
         end
     end
 
     local function updatePalette()
-        for k,v in pairs( tPalette ) do
+        for k, v in pairs( tPalette ) do
             parent.setPaletteColour( k, v[1], v[2], v[3] )
         end
     end
@@ -204,7 +204,7 @@ function create( parent, nX, nY, nWidth, nHeight, bStartVisible )
         local sEmptyText = sEmptySpaceLine
         local sEmptyTextColor = tEmptyColorLines[ nTextColor ]
         local sEmptyBackgroundColor = tEmptyColorLines[ nBackgroundColor ]
-        for y=1,nHeight do
+        for y = 1, nHeight do
             tLines[y] = {
                 text = sEmptyText,
                 textColor = sEmptyTextColor,
@@ -351,7 +351,7 @@ function create( parent, nX, nY, nWidth, nHeight, bStartVisible )
             local sEmptyText = sEmptySpaceLine
             local sEmptyTextColor = tEmptyColorLines[ nTextColor ]
             local sEmptyBackgroundColor = tEmptyColorLines[ nBackgroundColor ]
-            for newY=1,nHeight do
+            for newY = 1, nHeight do
                 local y = newY + n
                 if y >= 1 and y <= nHeight then
                     tNewLines[newY] = tLines[y]
@@ -388,6 +388,16 @@ function create( parent, nX, nY, nWidth, nHeight, bStartVisible )
         return nBackgroundColor
     end
 
+    function window.getLine(y)
+        if type(y) ~= "number" then expect(1, y, "number") end
+
+        if y < 1 or y > nHeight then
+            error("Line is out of range.", 2)
+        end
+
+        return tLines[y].text, tLines[y].textColor, tLines[y].backgroundColor
+    end
+
     -- Other functions
     function window.setVisible( bVis )
         if type(bVis) ~= "boolean" then expect(1, bVis, "boolean") end
@@ -421,28 +431,32 @@ function create( parent, nX, nY, nWidth, nHeight, bStartVisible )
         return nX, nY
     end
 
-    function window.reposition( nNewX, nNewY, nNewWidth, nNewHeight )
+    function window.reposition( nNewX, nNewY, nNewWidth, nNewHeight, newParent )
         if type(nNewX) ~= "number" then expect(1, nNewX, "number") end
         if type(nNewY) ~= "number" then expect(2, nNewY, "number") end
         if nNewWidth ~= nil or nNewHeight ~= nil then
             expect(3, nNewWidth, "number")
             expect(4, nNewHeight, "number")
         end
+        if newParent ~= nil and type(newParent) ~= "table" then expect(5, newParent, "table") end
 
         nX = nNewX
         nY = nNewY
+
+        if newParent then parent = newParent end
+
         if nNewWidth and nNewHeight then
             local tNewLines = {}
             createEmptyLines( nNewWidth )
             local sEmptyText = sEmptySpaceLine
             local sEmptyTextColor = tEmptyColorLines[ nTextColor ]
             local sEmptyBackgroundColor = tEmptyColorLines[ nBackgroundColor ]
-            for y=1,nNewHeight do
+            for y = 1, nNewHeight do
                 if y > nHeight then
                     tNewLines[y] = {
                         text = sEmptyText,
                         textColor = sEmptyTextColor,
-                        backgroundColor = sEmptyBackgroundColor
+                        backgroundColor = sEmptyBackgroundColor,
                     }
                 else
                     local tOldLine = tLines[y]

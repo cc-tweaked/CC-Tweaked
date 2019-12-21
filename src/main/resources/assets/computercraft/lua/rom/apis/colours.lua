@@ -1,6 +1,6 @@
 -- Colours (for lovers of british spelling)
 local colours = _ENV
-for k,v in pairs(colors) do
+for k, v in pairs(colors) do
 	colours[k] = v
 end
 

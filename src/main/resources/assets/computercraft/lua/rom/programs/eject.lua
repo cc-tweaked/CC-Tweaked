@@ -11,7 +11,7 @@ local sDrive = tArgs[1]
 -- Check the disk exists
 local bPresent = disk.isPresent( sDrive )
 if not bPresent then
-    print( "Nothing in "..sDrive.." drive" )
+    print( "Nothing in " .. sDrive .. " drive" )
     return
 end
 

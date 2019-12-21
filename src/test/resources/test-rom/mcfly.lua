@@ -11,34 +11,74 @@
 
 --- Assert an argument to the given function has the specified type.
 --
--- @tparam string The function's name
--- @tparam int    The argument index to this function
--- @tparam string The type this argument should have. May be 'value' for any
---                non-nil value.
--- @param val     The value to check
--- @raise If this value doesn't match the expected type.
-local function check(func, arg, ty, val)
+-- @tparam string func The function's name
+-- @tparam int    idx  The argument index to this function
+-- @tparam string ty   The type this argument should have. May be 'value' for 
+--                     any non-nil value.
+-- @param val     val  The value to check
+-- @throws If this value doesn't match the expected type.
+local function check(func, idx, ty, val)
     if ty == 'value' then
         if val == nil then
-            error(('%s: bad argument #%d (got nil)'):format(func, arg), 3)
+            error(('%s: bad argument #%d (got nil)'):format(func, idx), 3)
         end
     elseif type(val) ~= ty then
-        return error(('%s: bad argument #%d (expected %s, got %s)'):format(func, arg, ty, type(val)), 3)
+        return error(('%s: bad argument #%d (expected %s, got %s)'):format(func, idx, ty, type(val)), 3)
     end
+end
+
+--- A stub - wraps a value within a a table,
+local stub_mt = {}
+stub_mt.__index = stub_mt
+
+--- Revert this stub, restoring the previous value.
+--
+-- Note, a stub can only be reverted once.
+function stub_mt:revert()
+    if not self.active then return end
+
+    self.active = false
+    rawset(self.stubbed_in, self.key, self.original)
 end
 
 local active_stubs = {}
 
---- Stub a global variable with a specific value
---
--- @tparam string var The variable to stub
--- @param value The value to stub it with
-local function stub(tbl, var, value)
-    check('stub', 1, 'table', tbl)
-    check('stub', 2, 'string', var)
+local function default_stub() end
 
-    table.insert(active_stubs, { tbl = tbl, var = var, value = tbl[var] })
-    rawset(tbl, var, value)
+--- Stub a table entry with a new value.
+--
+-- @tparam table
+-- @tparam string key The variable to stub
+-- @param[opt] value The value to stub it with. If this is a function, one can
+-- use the various stub expectation methods to determine what it was called
+-- with. Defaults to an empty function - pass @{nil} in explicitly to set the
+-- value to nil.
+-- @treturn Stub The resulting stub
+local function stub(tbl, key, ...)
+    check('stub', 1, 'table', tbl)
+    check('stub', 2, 'string', key)
+
+    local stub = setmetatable({
+        active = true,
+        stubbed_in = tbl,
+        key = key,
+        original = rawget(tbl, key),
+    }, stub_mt)
+
+    local value = ...
+    if select('#', ...) == 0 then value = default_stub end
+    if type(value) == "function" then
+        local arguments, delegate = {}, value
+        stub.arguments = arguments
+        value = function(...)
+            arguments[#arguments + 1] = table.pack(...)
+            return delegate(...)
+        end
+    end
+
+    table.insert(active_stubs, stub)
+    rawset(tbl, key, value)
+    return stub
 end
 
 --- Capture the current global state of the computer
@@ -49,22 +89,32 @@ local function push_state()
         term = term.current(),
         input = io.input(),
         output = io.output(),
+        dir = shell.dir(),
+        path = shell.path(),
+        aliases = shell.aliases(),
         stubs = stubs,
     }
 end
 
 --- Restore the global state of the computer to a previous version
 local function pop_state(state)
-    for i = #active_stubs, 1, -1 do
-        local stub = active_stubs[i]
-        rawset(stub.tbl, stub.var, stub.value)
-    end
+    for i = #active_stubs, 1, -1 do active_stubs[i]:revert() end
 
     active_stubs = state.stubs
 
     term.redirect(state.term)
     io.input(state.input)
     io.output(state.output)
+    shell.setDir(state.dir)
+    shell.setPath(state.path)
+
+    local aliases = shell.aliases()
+    for k in pairs(aliases) do
+        if not state.aliases[k] then shell.clearAlias(k) end
+    end
+    for k, v in pairs(state.aliases) do
+        if aliases[k] ~= v then shell.setAlias(k, v) end
+    end
 end
 
 local error_mt = { __tostring = function(self) return self.message end }
@@ -72,7 +122,7 @@ local error_mt = { __tostring = function(self) return self.message end }
 --- Attempt to execute the provided function, gathering a stack trace when it
 -- errors.
 --
--- @tparam
+-- @tparam function() fn The function to run
 -- @return[1] true
 -- @return[2] false
 -- @return[2] The error object
@@ -120,7 +170,7 @@ end
 --- Fail a test with the given message
 --
 -- @tparam string message The message to fail with
--- @raises An error with the given message
+-- @throws An error with the given message
 local function fail(message)
     check('fail', 1, 'string', message)
     error(setmetatable({ message = message, fail = true }, error_mt))
@@ -142,7 +192,7 @@ expect_mt.__index = expect_mt
 --- Assert that this expectation has the provided value
 --
 -- @param value The value to require this expectation to be equal to
--- @raises If the values are not equal
+-- @throws If the values are not equal
 function expect_mt:equals(value)
     if value ~= self.value then
         fail(("Expected %s\n but got %s"):format(format(value), format(self.value)))
@@ -156,7 +206,7 @@ expect_mt.eq = expect_mt.equals
 --- Assert that this expectation does not equal the provided value
 --
 -- @param value The value to require this expectation to not be equal to
--- @raises If the values are equal
+-- @throws If the values are equal
 function expect_mt:not_equals(value)
     if value == self.value then
         fail(("Expected any value but %s"):format(format(value)))
@@ -170,7 +220,7 @@ expect_mt.ne = expect_mt.not_equals
 --- Assert that this expectation has something of the provided type
 --
 -- @tparam string exp_type The type to require this expectation to have
--- @raises If it does not have that thpe
+-- @throws If it does not have that thpe
 function expect_mt:type(exp_type)
     local actual_type = type(self.value)
     if exp_type ~= actual_type then
@@ -206,11 +256,21 @@ local function matches(eq, exact, left, right)
     return true
 end
 
+local function pairwise_equal(left, right)
+    if left.n ~= right.n then return false end
+
+    for i = 1, left.n do
+        if left[i] ~= right[i] then return false end
+    end
+
+    return true
+end
+
 --- Assert that this expectation is structurally equivalent to
 -- the provided object.
 --
 -- @param value The value to check for structural equivalence
--- @raises If they are not equivalent
+-- @throws If they are not equivalent
 function expect_mt:same(value)
     if not matches({}, true, self.value, value) then
         fail(("Expected %s\n but got %s"):format(format(value), format(self.value)))
@@ -223,13 +283,77 @@ end
 -- in the provided object.
 --
 -- @param value The value to check against
--- @raises If this does not match the provided value
+-- @throws If this does not match the provided value
 function expect_mt:matches(value)
     if not matches({}, false, value, self.value) then
         fail(("Expected %s\nto match %s"):format(format(self.value), format(value)))
     end
 
     return self
+end
+
+--- Assert that this stub was called a specific number of times.
+--
+-- @tparam[opt] number The exact number of times the function must be called.
+-- If not given just require the function to be called at least once.
+-- @throws If this function was not called the expected number of times.
+function expect_mt:called(times)
+    if getmetatable(self.value) ~= stub_mt or self.value.arguments == nil then
+        fail(("Expected stubbed function, got %s"):format(type(self.value)))
+    end
+
+    local called = #self.value.arguments
+
+    if times == nil then
+        if called == 0 then
+            fail("Expected stub to be called\nbut it was not.")
+        end
+    else
+        check('stub', 1, 'number', times)
+        if called ~= times then
+            fail(("Expected stub to be called %d times\nbut was called %d times."):format(times, called))
+        end
+    end
+
+    return self
+end
+
+local function called_with_check(eq, self, ...)
+    if getmetatable(self.value) ~= stub_mt or self.value.arguments == nil then
+        fail(("Expected stubbed function, got %s"):format(type(self.value)))
+    end
+
+    local exp_args = table.pack(...)
+    local actual_args = self.value.arguments
+    for i = 1, #actual_args do
+        if eq(actual_args[i], exp_args) then return self end
+    end
+
+    local head = ("Expected stub to be called with %s\nbut was"):format(format(exp_args))
+    if #actual_args == 0 then
+        fail(head .. " not called at all")
+    elseif #actual_args == 1 then
+        fail(("%s called with %s."):format(head, format(actual_args[1])))
+    else
+        local lines = { head .. " called with:" }
+        for i = 1, #actual_args do lines[i + 1] = " - " .. format(actual_args[i]) end
+
+        fail(table.concat(lines, "\n"))
+    end
+end
+
+--- Assert that this stub was called with a set of arguments
+--
+-- Arguments are compared using exact equality.
+function expect_mt:called_with(...)
+    return called_with_check(pairwise_equal, self, ...)
+end
+
+--- Assert that this stub was called with a set of arguments
+--
+-- Arguments are compared using matching.
+function expect_mt:called_with_matching(...)
+    return called_with_check(matches, self, ...)
 end
 
 local expect = setmetatable( {
@@ -256,7 +380,7 @@ local expect = setmetatable( {
     -- @return The new expectation
     __call = function(_, value)
         return setmetatable({ value = value }, expect_mt)
-    end
+    end,
 })
 
 --- The stack of "describe"s.
@@ -377,7 +501,7 @@ do
             if fs.isDir(file) then
                 run_in(file)
             elseif file:sub(-#suffix) == suffix then
-                local fun, err = loadfile(file, env)
+                local fun, err = loadfile(file, nil, env)
                 if not fun then
                     do_test { name = file:sub(#root_dir + 2), error = { message = err } }
                 else
@@ -499,7 +623,7 @@ end
 -- And some summary statistics
 local actual_count = tests_run - test_status.pending
 local info = ("Ran %s test(s), of which %s passed (%g%%).")
-    :format(actual_count, test_status.pass, (test_status.pass / actual_count) * 100)
+    :format(actual_count, test_status.pass, test_status.pass / actual_count * 100)
 
 if test_status.pending > 0 then
     info = info .. (" Skipped %d pending test(s)."):format(test_status.pending)

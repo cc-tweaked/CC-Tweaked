@@ -268,7 +268,7 @@ final class ComputerExecutor
     }
 
     /**
-     * Queue an event if the computer is on
+     * Queue an event if the computer is on.
      *
      * @param event The event's name
      * @param args  The event's arguments

@@ -20,7 +20,7 @@ end
 
 -- Put commands into environment table
 local env = _ENV
-for k,v in pairs( native ) do
+for k, v in pairs( native ) do
     if k == "equipLeft" or k == "equipRight" then
         env[k] = function( ... )
             local result, err = v( ... )

@@ -7,14 +7,14 @@ else
 end
 
 if sTopic == "index" then
-    print( "Help topics availiable:" )
+    print( "Help topics available:" )
     local tTopics = help.topics()
     textutils.pagedTabulate( tTopics )
     return
 end
 
 local sFile = help.lookup( sTopic )
-local file = ((sFile ~= nil) and io.open( sFile )) or nil
+local file = sFile ~= nil and io.open( sFile ) or nil
 if file then
     local sContents = file:read("*a")
     file:close()

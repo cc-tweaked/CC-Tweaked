@@ -17,7 +17,7 @@ import org.apache.commons.lang3.ArrayUtils;
 
 import javax.annotation.Nonnull;
 
-import static dan200.computercraft.core.apis.ArgumentHelper.*;
+import static dan200.computercraft.api.lua.ArgumentHelper.*;
 
 public class TermAPI implements ILuaAPI
 {
@@ -242,9 +242,9 @@ public class TermAPI implements ILuaAPI
                 }
                 else
                 {
-                    double r = getReal( args, 1 );
-                    double g = getReal( args, 2 );
-                    double b = getReal( args, 3 );
+                    double r = getFiniteDouble( args, 1 );
+                    double g = getFiniteDouble( args, 2 );
+                    double b = getFiniteDouble( args, 3 );
                     setColour( m_terminal, colour, r, g, b );
                 }
                 return null;

@@ -3,11 +3,10 @@
     "-//Checkstyle//DTD SuppressionFilter Configuration 1.2//EN"
     "https://checkstyle.org/dtds/suppressions_1_2.dtd">
 <suppressions>
-    <!-- Has a public m_label field. We need to check if this is used in other projects before renaming it. -->
-    <suppress checks="MemberName" files=".*[\\/]TileComputerBase.java"
-        message="Name 'm_label' must match pattern .*" />
-
     <!-- All the config options and method fields. -->
     <suppress checks="StaticVariableName" files=".*[\\/]ComputerCraft.java" />
     <suppress checks="StaticVariableName" files=".*[\\/]ComputerCraftAPI.java" />
+
+    <!-- Do not check for missing package Javadoc. -->
+    <suppress checks="JavadocStyle" files=".*[\\/]package-info.java" />
 </suppressions>

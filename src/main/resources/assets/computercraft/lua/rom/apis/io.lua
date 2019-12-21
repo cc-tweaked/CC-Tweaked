@@ -1,6 +1,6 @@
 -- Definition for the IO API
 
-local expect, typeOf = _G["~expect"], _G.type
+local expect, typeOf = dofile("rom/modules/main/cc/expect.lua").expect, _G.type
 
 --- If we return nil then close the file, as we've reached the end.
 -- We use this weird wrapper function as we wish to preserve the varargs
@@ -129,11 +129,11 @@ handleMetatable = {
 }
 
 local defaultInput = setmetatable({
-    _handle = { readLine = _G.read }
+    _handle = { readLine = _G.read },
 }, handleMetatable)
 
 local defaultOutput = setmetatable({
-    _handle = { write = _G.write }
+    _handle = { write = _G.write },
 }, handleMetatable)
 
 local defaultError = setmetatable({
@@ -147,7 +147,7 @@ local defaultError = setmetatable({
             _G.write(...)
             if term.isColour() then term.setTextColour(oldColour) end
         end,
-    }
+    },
 }, handleMetatable)
 
 local currentInput = defaultInput

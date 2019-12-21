@@ -37,7 +37,7 @@ public class TurtlePlayer extends FakePlayer
     );
 
     /**
-     * Construct a TurtlePlayer which exists in the world
+     * Construct a TurtlePlayer which exists in the world.
      *
      * @param world The world the player exists in
      * @deprecated This is required by {@link Entity}.

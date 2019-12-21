@@ -14,6 +14,8 @@ import java.util.function.Supplier;
 
 /**
  * A collection of {@link Resource}s, with an upper bound on capacity.
+ *
+ * @param <T> The type of the resource this group manages.
  */
 public class ResourceGroup<T extends Resource<T>>
 {

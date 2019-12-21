@@ -6,6 +6,7 @@
 
 package dan200.computercraft.api.peripheral;
 
+import dan200.computercraft.api.lua.ArgumentHelper;
 import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
 
@@ -58,9 +59,11 @@ public interface IPeripheral
      *                  Lua values of type "table" will be represented by Object type Map.<br>
      *                  Lua values of any other type will be represented by a null object.<br>
      *                  This array will be empty if no arguments are passed.
+     *
+     *                  It is recommended you use {@link ArgumentHelper} in order to validate and process arguments.
      * @return An array of objects, representing values you wish to return to the lua program. Integers, Doubles, Floats,
-     * Strings, Booleans, Maps and ILuaObject and null be converted to their corresponding lua type. All other types
-     * will be converted to nil.
+     * Strings, Booleans, Maps, ILuaObject and null be converted to their corresponding lua type. All other types will
+     * be converted to nil.
      *
      * You may return null to indicate no values should be returned.
      * @throws LuaException         If you throw any exception from this function, a lua error will be raised with the
@@ -70,6 +73,7 @@ public interface IPeripheral
      *                              InterruptedException will be thrown. This exception must not be caught or
      *                              intercepted, or the computer will leak memory and end up in a broken state.
      * @see #getMethodNames
+     * @see ArgumentHelper
      */
     @Nullable
     Object[] callMethod( @Nonnull IComputerAccess computer, @Nonnull ILuaContext context, int method, @Nonnull Object[] arguments ) throws LuaException, InterruptedException;

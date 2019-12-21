@@ -58,7 +58,7 @@ public class BlockTurtle extends BlockComputerBase
     @Deprecated
     public EnumBlockRenderType getRenderType( IBlockState state )
     {
-        return EnumBlockRenderType.INVISIBLE;
+        return EnumBlockRenderType.ENTITYBLOCK_ANIMATED;
     }
 
     @Override
@@ -218,7 +218,7 @@ public class BlockTurtle extends BlockComputerBase
     @Deprecated
     public float getExplosionResistance( Entity exploder )
     {
-        if( getFamily() == ComputerFamily.Advanced && (exploder instanceof EntityLivingBase || exploder instanceof EntityFireball) )
+        if( getFamily() == ComputerFamily.Advanced || exploder instanceof EntityLivingBase || exploder instanceof EntityFireball )
         {
             return 2000;
         }

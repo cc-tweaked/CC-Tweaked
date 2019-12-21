@@ -23,7 +23,7 @@ import java.util.Collections;
 import java.util.Locale;
 import java.util.Map;
 
-import static dan200.computercraft.core.apis.ArgumentHelper.*;
+import static dan200.computercraft.api.lua.ArgumentHelper.*;
 import static dan200.computercraft.core.apis.TableHelper.*;
 
 public class HTTPAPI implements ILuaAPI
@@ -89,7 +89,7 @@ public class HTTPAPI implements ILuaAPI
             case 0: // request
             {
                 String address, postString, requestMethod;
-                Map<Object, Object> headerTable;
+                Map<?, ?> headerTable;
                 boolean binary, redirect;
 
                 if( args.length >= 1 && args[0] instanceof Map )
@@ -172,7 +172,7 @@ public class HTTPAPI implements ILuaAPI
             case 2: // websocket
             {
                 String address = getString( args, 0 );
-                Map<Object, Object> headerTbl = optTable( args, 1, Collections.emptyMap() );
+                Map<?, ?> headerTbl = optTable( args, 1, Collections.emptyMap() );
 
                 if( !ComputerCraft.http_websocket_enable )
                 {

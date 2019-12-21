@@ -47,7 +47,7 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
 {
     private int m_instanceID = -1;
     private int m_computerID = -1;
-    protected String m_label = null;
+    protected String label = null;
     private boolean m_on = false;
     boolean m_startOn = false;
     private boolean m_fresh = false;
@@ -190,7 +190,7 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
 
                 m_fresh = false;
                 m_computerID = computer.getID();
-                m_label = computer.getLabel();
+                label = computer.getLabel();
                 m_on = computer.isOn();
 
                 if( computer.hasOutputChanged() ) updateOutput();
@@ -212,9 +212,9 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
         {
             nbt.setInteger( "computerID", m_computerID );
         }
-        if( m_label != null )
+        if( label != null )
         {
-            nbt.setString( "label", m_label );
+            nbt.setString( "label", label );
         }
         nbt.setBoolean( "on", m_on );
         return super.writeToNBT( nbt );
@@ -248,7 +248,7 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
         m_computerID = id;
 
         // Load label
-        m_label = nbt.hasKey( "label" ) ? nbt.getString( "label" ) : null;
+        label = nbt.hasKey( "label" ) ? nbt.getString( "label" ) : null;
 
         // Load power state
         m_startOn = nbt.getBoolean( "on" );
@@ -280,7 +280,7 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
     }
 
     /**
-     * Gets the redstone input for an adjacent block
+     * Gets the redstone input for an adjacent block.
      *
      * @param world The world we exist in
      * @param pos   The position of the neighbour
@@ -361,7 +361,7 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
     @Override
     public final String getLabel()
     {
-        return m_label;
+        return label;
     }
 
     @Override
@@ -378,9 +378,9 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
     @Override
     public final void setLabel( String label )
     {
-        if( getWorld().isRemote || Objects.equals( m_label, label ) ) return;
+        if( getWorld().isRemote || Objects.equals( this.label, label ) ) return;
 
-        m_label = label;
+        this.label = label;
         ServerComputer computer = getServerComputer();
         if( computer != null ) computer.setLabel( label );
         markDirty();
@@ -453,8 +453,8 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
     protected void writeDescription( @Nonnull NBTTagCompound nbt )
     {
         super.writeDescription( nbt );
-        nbt.setInteger( "instanceID", createServerComputer().getInstanceID() );
-        if( m_label != null ) nbt.setString( "label", m_label );
+        if( m_instanceID >= 0 ) nbt.setInteger( "instanceID", m_instanceID );
+        if( label != null ) nbt.setString( "label", label );
         if( m_computerID >= 0 ) nbt.setInteger( "computerID", m_computerID );
     }
 
@@ -463,7 +463,7 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
     {
         super.readDescription( nbt );
         m_instanceID = nbt.getInteger( "instanceID" );
-        m_label = nbt.hasKey( "label" ) ? nbt.getString( "label" ) : null;
+        label = nbt.hasKey( "label" ) ? nbt.getString( "label" ) : null;
         m_computerID = nbt.hasKey( "computerID" ) ? nbt.getInteger( "computerID" ) : -1;
     }
 
@@ -474,7 +474,7 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
             unload();
             m_instanceID = copy.m_instanceID;
             m_computerID = copy.m_computerID;
-            m_label = copy.m_label;
+            label = copy.label;
             m_on = copy.m_on;
             m_startOn = copy.m_startOn;
             updateBlock();
@@ -493,13 +493,13 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
     @Override
     public String getName()
     {
-        return hasCustomName() ? m_label : getBlockType().getTranslationKey();
+        return hasCustomName() ? label : getBlockType().getTranslationKey();
     }
 
     @Override
     public boolean hasCustomName()
     {
-        return !Strings.isNullOrEmpty( m_label );
+        return !Strings.isNullOrEmpty( label );
     }
 
     @Nonnull

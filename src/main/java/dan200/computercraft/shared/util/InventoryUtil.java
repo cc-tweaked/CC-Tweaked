@@ -69,12 +69,6 @@ public final class InventoryUtil
         return shareTagA.equals( shareTagB );
     }
 
-    @Nonnull
-    public static ItemStack copyItem( @Nonnull ItemStack a )
-    {
-        return a.copy();
-    }
-
     // Methods for finding inventories:
 
     public static IItemHandler getInventory( World world, BlockPos pos, EnumFacing side )

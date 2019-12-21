@@ -50,7 +50,7 @@ while nArg <= #tArgs do
             end
         end
     else
-        print( "No such direction: "..sDirection )
+        print( "No such direction: " .. sDirection )
         print( "Try: forward, back, up, down" )
         return
     end

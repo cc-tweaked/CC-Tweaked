@@ -14,9 +14,7 @@
         <!-- Annotations -->
         <module name="AnnotationLocation" />
         <module name="AnnotationUseStyle" />
-        <module name="MissingDeprecated">
-            <property name="skipNoJavadoc" value="true" />
-        </module>
+        <module name="MissingDeprecated" />
         <module name="MissingOverride" />
 
         <!-- Blocks -->
@@ -57,6 +55,9 @@
         <module name="SimplifyBooleanReturn" />
         <module name="StringLiteralEquality" />
         <module name="UnnecessaryParentheses" />
+        <module name="UnnecessarySemicolonAfterTypeMemberDeclaration" />
+        <module name="UnnecessarySemicolonInTryWithResources" />
+        <module name="UnnecessarySemicolonInEnumeration" />
 
         <!-- Imports -->
         <module name="CustomImportOrder" />
@@ -65,10 +66,16 @@
         <module name="UnusedImports" />
 
         <!-- Javadoc -->
+        <!-- TODO: Missing* checks for the dan200.computercraft.api package? -->
         <module name="AtclauseOrder" />
-        <!-- TODO: Cleanup our documentation before enabling JavadocMethod, JavadocStyle, JavadocType and SummaryJavadoc. -->
+        <module name="InvalidJavadocPosition" />
+        <module name="JavadocBlockTagLocation" />
+        <module name="JavadocMethod"/>
+        <module name="JavadocType"/>
+        <module name="JavadocStyle" />
         <module name="NonEmptyAtclauseDescription" />
         <module name="SingleLineJavadoc" />
+        <module name="SummaryJavadocCheck"/>
 
         <!-- Misc -->
         <module name="ArrayTypeStyle" />
@@ -155,5 +162,8 @@
 
     <module name="FileTabCharacter" />
     <module name="NewlineAtEndOfFile" />
+    <module name="RegexpSingleline">
+        <property name="format" value="\s+$"/>
+        <property name="message" value="Trailing whitespace"/>
+    </module>
 </module>
-

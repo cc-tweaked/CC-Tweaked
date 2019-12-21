@@ -31,7 +31,7 @@ public abstract class TurtleInventoryEvent extends TurtleBlockEvent
     }
 
     /**
-     * Get the inventory being interacted with
+     * Get the inventory being interacted with.
      *
      * @return The inventory being interacted with, {@code null} if the item will be dropped to/sucked from the world.
      */

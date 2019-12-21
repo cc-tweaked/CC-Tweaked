@@ -99,7 +99,7 @@ public final class NetworkUtils
     }
 
     /**
-     * Checks a host is allowed
+     * Checks a host is allowed.
      *
      * @param host The domain to check against
      * @throws HTTPRequestException If the host is not permitted.

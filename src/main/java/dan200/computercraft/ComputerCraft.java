@@ -72,9 +72,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.common.DimensionManager;
-import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.SidedProxy;
+import net.minecraftforge.fml.common.*;
 import net.minecraftforge.fml.common.event.*;
 import net.minecraftforge.fml.relauncher.Side;
 import org.apache.logging.log4j.Logger;
@@ -83,9 +81,7 @@ import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -394,6 +390,27 @@ public class ComputerCraft
         }
     }
 
+    private static void loadFromFile( List<IMount> mounts, File file, String path, boolean allowMissing )
+    {
+        try
+        {
+            if( file.isFile() )
+            {
+                mounts.add( new JarMount( file, path ) );
+            }
+            else
+            {
+                File subResource = new File( file, path );
+                if( subResource.exists() ) mounts.add( new FileMount( subResource, 0 ) );
+            }
+        }
+        catch( IOException | RuntimeException e )
+        {
+            if( allowMissing && e instanceof FileNotFoundException ) return;
+            ComputerCraft.log.error( "Could not load mount '" + path + " 'from '" + file.getName() + "'", e );
+        }
+    }
+
     @Deprecated
     public static IMount createResourceMount( Class<?> modClass, String domain, String subPath )
     {
@@ -413,18 +430,26 @@ public class ComputerCraft
             }
         }
 
-        // Mount from mod jar
+        // Mount from mod jars, preferring the specified one.
         File modJar = getContainingJar( modClass );
+        Set<File> otherMods = new HashSet<>();
+        for( ModContainer container : Loader.instance().getActiveModList() )
+        {
+            File modFile = container.getSource();
+            if( modFile != null && !modFile.equals( modJar ) && modFile.exists() )
+            {
+                otherMods.add( container.getSource() );
+            }
+        }
+
+        for( File file : otherMods )
+        {
+            loadFromFile( mounts, file, subPath, true );
+        }
+
         if( modJar != null )
         {
-            try
-            {
-                mounts.add( new JarMount( modJar, subPath ) );
-            }
-            catch( IOException | RuntimeException e )
-            {
-                ComputerCraft.log.error( "Could not load mount from mod jar", e );
-            }
+            loadFromFile( mounts, modJar, subPath, false );
         }
 
         // Mount from resource packs
@@ -434,28 +459,8 @@ public class ComputerCraft
             String[] resourcePacks = resourcePackDir.list();
             for( String resourcePackName : resourcePacks )
             {
-                try
-                {
-                    File resourcePack = new File( resourcePackDir, resourcePackName );
-                    if( !resourcePack.isDirectory() )
-                    {
-                        // Mount a resource pack from a jar
-                        mounts.add( new JarMount( resourcePack, subPath ) );
-                    }
-                    else
-                    {
-                        // Mount a resource pack from a folder
-                        File subResource = new File( resourcePack, subPath );
-                        if( subResource.exists() ) mounts.add( new FileMount( subResource, 0 ) );
-                    }
-                }
-                catch( FileNotFoundException ignored )
-                {
-                }
-                catch( IOException | RuntimeException e )
-                {
-                    ComputerCraft.log.error( "Could not load resource pack '" + resourcePackName + "'", e );
-                }
+                File resourcePack = new File( resourcePackDir, resourcePackName );
+                loadFromFile( mounts, resourcePack, subPath, true );
             }
         }
 

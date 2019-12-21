@@ -81,10 +81,10 @@ textutils.slowWrite( "Preparing to get down." )
 textutils.slowPrint( "..", 0.75 )
 
 local sAudio = nil
-for n,sName in pairs( peripheral.getNames() ) do
+for _, sName in pairs( peripheral.getNames() ) do
     if disk.hasAudio( sName ) then
         disk.playAudio( sName )
-        print( "Jamming to "..disk.getAudioTitle( sName ) )
+        print( "Jamming to " .. disk.getAudioTitle( sName ) )
         sAudio = sName
         break
     end
@@ -95,7 +95,7 @@ print( "Press any key to stop the groove" )
 parallel.waitForAny(
     function()
         while not bEnd do
-            local event, key = os.pullEvent("key")
+            local _, key = os.pullEvent("key")
             if key ~= keys.escape then
                 return
             end
@@ -103,7 +103,7 @@ parallel.waitForAny(
     end,
     function()
         while true do
-            local fnMove = tMoves[math.random(1,#tMoves)]
+            local fnMove = tMoves[math.random(1, #tMoves)]
             fnMove()
         end
     end

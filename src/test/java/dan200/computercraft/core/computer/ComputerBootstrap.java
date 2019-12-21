@@ -12,7 +12,7 @@ import dan200.computercraft.api.filesystem.IWritableMount;
 import dan200.computercraft.api.lua.ILuaAPI;
 import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
-import dan200.computercraft.core.apis.ArgumentHelper;
+import dan200.computercraft.api.lua.ArgumentHelper;
 import dan200.computercraft.core.filesystem.MemoryMount;
 import dan200.computercraft.core.terminal.Terminal;
 import org.apache.logging.log4j.LogManager;
@@ -40,7 +40,7 @@ public class ComputerBootstrap
     {
         MemoryMount mount = new MemoryMount()
             .addFile( "test.lua", program )
-            .addFile( "startup", "assertion.assert(pcall(loadfile('test.lua', _ENV))) os.shutdown()" );
+            .addFile( "startup", "assertion.assert(pcall(loadfile('test.lua', nil, _ENV))) os.shutdown()" );
 
         run( mount, x -> { } );
     }

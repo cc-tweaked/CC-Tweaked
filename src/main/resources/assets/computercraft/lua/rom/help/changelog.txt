@@ -1,3 +1,41 @@
+# New features in CC: Tweaked 1.85.2
+
+* Fix crashes when using the mouse with advanced computers.
+
+# New features in CC: Tweaked 1.85.1
+
+* Add basic mouse support to `read`
+
+And several bug fixes:
+* Fix turtles not having breaking particles.
+
+# New features in CC: Tweaked 1.85.0
+
+* Window.reposition now allows changing the redirect buffer
+* Add cc.completion and cc.shell.completion modules
+* command.exec also returns the number of affected objects, when exposed by the game.
+
+And several bug fixes:
+* Change how turtle mining drops are handled, improving compatibility with some mods.
+* Fix several GUI desyncs after a turtle moves.
+
+# New features in CC: Tweaked 1.84.0
+
+* Improve validation in rename, copy and delete programs
+* Add window.getLine - the inverse of blit
+* turtle.refuel no longer consumes more fuel than needed
+* Add "cc.expect" module, for improved argument type checks
+* Mount the ROM from all mod jars, not just CC's
+
+And several bug fixes:
+* Ensure file error messages use the absolute correct path
+* Fix NPE when closing a file multiple times.
+* Do not load chunks when calling writeDescription.
+* Fix the signature of loadfile
+* Fix turtles harvesting blocks multiple times
+* Improve thread-safety of various peripherals
+* Prevent printed pages having massive/malformed titles
+
 # New features in CC: Tweaked 1.83.1
 
 * Add several new MOTD messages (JakobDev)

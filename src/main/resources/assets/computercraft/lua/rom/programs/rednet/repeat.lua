@@ -1,7 +1,7 @@
 
 -- Find modems
 local tModems = {}
-for n,sModem in ipairs( peripheral.getNames() ) do
+for _, sModem in ipairs( peripheral.getNames() ) do
     if peripheral.getType( sModem ) == "modem" then
         table.insert( tModems, sModem )
     end
@@ -16,14 +16,14 @@ else
 end
 
 local function open( nChannel )
-    for n=1,#tModems do
+    for n = 1, #tModems do
         local sModem = tModems[n]
         peripheral.call( sModem, "open", nChannel )
     end
 end
 
 local function close( nChannel )
-    for n=1,#tModems do
+    for n = 1, #tModems do
         local sModem = tModems[n]
         peripheral.call( sModem, "close", nChannel )
     end
@@ -51,7 +51,7 @@ local ok, error = pcall( function()
                         tReceivedMessageTimeouts[ os.startTimer( 30 ) ] = tMessage.nMessageID
 
                         -- Send on all other open modems, to the target and to other repeaters
-                        for n=1,#tModems do
+                        for n = 1, #tModems do
                             local sOtherModem = tModems[n]
                             peripheral.call( sOtherModem, "transmit", rednet.CHANNEL_REPEAT, nReplyChannel, tMessage )
                             peripheral.call( sOtherModem, "transmit", tMessage.nRecipient, nReplyChannel, tMessage )
@@ -59,7 +59,7 @@ local ok, error = pcall( function()
 
                         -- Log the event
                         nTransmittedMessages = nTransmittedMessages + 1
-                        local x,y = term.getCursorPos()
+                        local _, y = term.getCursorPos()
                         term.setCursorPos( 1, y - 1 )
                         term.clearLine()
                         if nTransmittedMessages == 1 then

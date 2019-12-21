@@ -13,7 +13,7 @@ import java.io.*;
 import java.util.*;
 
 /**
- * Mounts in memory
+ * In-memory file mounts.
  */
 public class MemoryMount implements IWritableMount
 {

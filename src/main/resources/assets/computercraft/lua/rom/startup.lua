@@ -1,25 +1,26 @@
+local completion = require "cc.shell.completion"
 
 -- Setup paths
 local sPath = ".:/rom/programs"
 if term.isColor() then
-    sPath = sPath..":/rom/programs/advanced"
+    sPath = sPath .. ":/rom/programs/advanced"
 end
 if turtle then
-    sPath = sPath..":/rom/programs/turtle"
+    sPath = sPath .. ":/rom/programs/turtle"
 else
-    sPath = sPath..":/rom/programs/rednet:/rom/programs/fun"
+    sPath = sPath .. ":/rom/programs/rednet:/rom/programs/fun"
     if term.isColor() then
-        sPath = sPath..":/rom/programs/fun/advanced"
+        sPath = sPath .. ":/rom/programs/fun/advanced"
     end
 end
 if pocket then
-    sPath = sPath..":/rom/programs/pocket"
+    sPath = sPath .. ":/rom/programs/pocket"
 end
 if commands then
-    sPath = sPath..":/rom/programs/command"
+    sPath = sPath .. ":/rom/programs/command"
 end
 if http then
-    sPath = sPath..":/rom/programs/http"
+    sPath = sPath .. ":/rom/programs/http"
 end
 shell.setPath( sPath )
 help.setPath( "/rom/help" )
@@ -39,219 +40,88 @@ if term.isColor() then
 end
 
 -- Setup completion functions
-local function completeMultipleChoice( sText, tOptions, bAddSpaces )
-    local tResults = {}
-    for n=1,#tOptions do
-        local sOption = tOptions[n]
-        if #sOption + (bAddSpaces and 1 or 0) > #sText and string.sub( sOption, 1, #sText ) == sText then
-            local sResult = string.sub( sOption, #sText + 1 )
-            if bAddSpaces then
-                table.insert( tResults, sResult .. " " )
-            else
-                table.insert( tResults, sResult )
-            end
-        end
-    end
-    return tResults
-end
-local function completePeripheralName( sText, bAddSpaces )
-    return completeMultipleChoice( sText, peripheral.getNames(), bAddSpaces )
-end
-local tRedstoneSides = redstone.getSides()
-local function completeSide( sText, bAddSpaces )
-    return completeMultipleChoice( sText, tRedstoneSides, bAddSpaces )
-end
-local function completeFile( shell, nIndex, sText, tPreviousText )
-    if nIndex == 1 then
-        return fs.complete( sText, shell.dir(), true, false )
+
+local function completePastebinPut(shell, text, previous)
+    if previous[2] == "put" then
+        return fs.complete(text, shell.dir(), true, false )
     end
 end
-local function completeFileMany( shell, nIndex, sText, tPreviousText )
-    return fs.complete( sText, shell.dir(), true, false )
-end
-local function completeDir( shell, nIndex, sText, tPreviousText )
-    if nIndex == 1 then
-        return fs.complete( sText, shell.dir(), false, true )
-    end
-end
-local function completeEither( shell, nIndex, sText, tPreviousText )
-    if nIndex == 1 then
-        return fs.complete( sText, shell.dir(), true, true )
-    end
-end
-local function completeEitherMany( shell, nIndex, sText, tPreviousText )
-    return fs.complete( sText, shell.dir(), true, true )
-end
-local function completeEitherEither( shell, nIndex, sText, tPreviousText )
-    if nIndex == 1 then
-        local tResults = fs.complete( sText, shell.dir(), true, true )
-        for n=1,#tResults do
-            local sResult = tResults[n]
-            if string.sub( sResult, #sResult, #sResult ) ~= "/" then
-                tResults[n] = sResult .. " "
-            end
-        end
-        return tResults
-    elseif nIndex == 2 then
-        return fs.complete( sText, shell.dir(), true, true )
-    end
-end
-local function completeProgram( shell, nIndex, sText, tPreviousText )
-    if nIndex == 1 then
-        return shell.completeProgram( sText )
-    end
-end
-local function completeHelp( shell, nIndex, sText, tPreviousText )
-    if nIndex == 1 then
-        return help.completeTopic( sText )
-    end
-end
-local function completeAlias( shell, nIndex, sText, tPreviousText )
-    if nIndex == 2 then
-        return shell.completeProgram( sText )
-    end
-end
-local function completePeripheral( shell, nIndex, sText, tPreviousText )
-    if nIndex == 1 then
-        return completePeripheralName( sText )
-    end
-end
-local tGPSOptions = { "host", "host ", "locate" }
-local function completeGPS( shell, nIndex, sText, tPreviousText )
-    if nIndex == 1 then
-        return completeMultipleChoice( sText, tGPSOptions )
-    end
-end
-local tLabelOptions = { "get", "get ", "set ", "clear", "clear " }
-local function completeLabel( shell, nIndex, sText, tPreviousText )
-    if nIndex == 1 then
-        return completeMultipleChoice( sText, tLabelOptions )
-    elseif nIndex == 2 then
-        return completePeripheralName( sText )
-    end
-end
-local function completeMonitor( shell, nIndex, sText, tPreviousText )
-    if nIndex == 1 then
-        return completePeripheralName( sText, true )
-    elseif nIndex == 2 then
-        return shell.completeProgram( sText )
-    end
-end
-local tRedstoneOptions = { "probe", "set ", "pulse " }
-local function completeRedstone( shell, nIndex, sText, tPreviousText )
-    if nIndex == 1 then
-        return completeMultipleChoice( sText, tRedstoneOptions )
-    elseif nIndex == 2 then
-        return completeSide( sText )
-    end
-end
-local tDJOptions = { "play", "play ", "stop " }
-local function completeDJ( shell, nIndex, sText, tPreviousText )
-    if nIndex == 1 then
-        return completeMultipleChoice( sText, tDJOptions )
-    elseif nIndex == 2 then
-        return completePeripheralName( sText )
-    end
-end
-local tPastebinOptions = { "put ", "get ", "run " }
-local function completePastebin( shell, nIndex, sText, tPreviousText )
-    if nIndex == 1 then
-        return completeMultipleChoice( sText, tPastebinOptions )
-    elseif nIndex == 2 then
-        if tPreviousText[2] == "put" then
-            return fs.complete( sText, shell.dir(), true, false )
-        end
-    end
-end
-local tChatOptions = { "host ", "join " }
-local function completeChat( shell, nIndex, sText, tPreviousText )
-    if nIndex == 1 then
-        return completeMultipleChoice( sText, tChatOptions )
-    end
-end
-local function completeSet( shell, nIndex, sText, tPreviousText )
-    if nIndex == 1 then
-        return completeMultipleChoice( sText, settings.getNames(), true )
-    end
-end
-local tCommands
-if commands then
-    tCommands = commands.list()
-end
-local function completeExec( shell, nIndex, sText, tPreviousText )
-    if nIndex == 1 and commands then
-        return completeMultipleChoice( sText, tCommands, true )
-    end
-end
-local tWgetOptions = { "run" }
-local function completeWget( shell, nIndex, sText, tPreviousText )
-    if nIndex == 1 then
-        return completeMultipleChoice( sText, tWgetOptions, true )
-    end
-end
-shell.setCompletionFunction( "rom/programs/alias.lua", completeAlias )
-shell.setCompletionFunction( "rom/programs/cd.lua", completeDir )
-shell.setCompletionFunction( "rom/programs/copy.lua", completeEitherEither )
-shell.setCompletionFunction( "rom/programs/delete.lua", completeEitherMany )
-shell.setCompletionFunction( "rom/programs/drive.lua", completeDir )
-shell.setCompletionFunction( "rom/programs/edit.lua", completeFile )
-shell.setCompletionFunction( "rom/programs/eject.lua", completePeripheral )
-shell.setCompletionFunction( "rom/programs/gps.lua", completeGPS )
-shell.setCompletionFunction( "rom/programs/help.lua", completeHelp )
-shell.setCompletionFunction( "rom/programs/id.lua", completePeripheral )
-shell.setCompletionFunction( "rom/programs/label.lua", completeLabel )
-shell.setCompletionFunction( "rom/programs/list.lua", completeDir )
-shell.setCompletionFunction( "rom/programs/mkdir.lua", completeFileMany )
-shell.setCompletionFunction( "rom/programs/monitor.lua", completeMonitor )
-shell.setCompletionFunction( "rom/programs/move.lua", completeEitherEither )
-shell.setCompletionFunction( "rom/programs/redstone.lua", completeRedstone )
-shell.setCompletionFunction( "rom/programs/rename.lua", completeEitherEither )
-shell.setCompletionFunction( "rom/programs/shell.lua", completeProgram )
-shell.setCompletionFunction( "rom/programs/type.lua", completeEither )
-shell.setCompletionFunction( "rom/programs/set.lua", completeSet )
-shell.setCompletionFunction( "rom/programs/advanced/bg.lua", completeProgram )
-shell.setCompletionFunction( "rom/programs/advanced/fg.lua", completeProgram )
-shell.setCompletionFunction( "rom/programs/fun/dj.lua", completeDJ )
-shell.setCompletionFunction( "rom/programs/fun/advanced/paint.lua", completeFile )
-shell.setCompletionFunction( "rom/programs/http/pastebin.lua", completePastebin )
-shell.setCompletionFunction( "rom/programs/rednet/chat.lua", completeChat )
-shell.setCompletionFunction( "rom/programs/command/exec.lua", completeExec )
-shell.setCompletionFunction( "rom/programs/http/wget.lua", completeWget )
+
+shell.setCompletionFunction( "rom/programs/alias.lua", completion.build(nil, completion.program) )
+shell.setCompletionFunction( "rom/programs/cd.lua", completion.build(completion.dir) )
+shell.setCompletionFunction( "rom/programs/copy.lua", completion.build(
+    { completion.dirOrFile, true },
+    completion.dirOrFile
+) )
+shell.setCompletionFunction( "rom/programs/delete.lua", completion.build({ completion.dirOrFile, many = true }) )
+shell.setCompletionFunction( "rom/programs/drive.lua", completion.build(completion.dir) )
+shell.setCompletionFunction( "rom/programs/edit.lua", completion.build(completion.file) )
+shell.setCompletionFunction( "rom/programs/eject.lua", completion.build(completion.peripheral) )
+shell.setCompletionFunction( "rom/programs/gps.lua", completion.build({ completion.choice, { "host", "host ", "locate" } }) )
+shell.setCompletionFunction( "rom/programs/help.lua", completion.build(completion.help) )
+shell.setCompletionFunction( "rom/programs/id.lua", completion.build(completion.peripheral) )
+shell.setCompletionFunction( "rom/programs/label.lua", completion.build(
+    { completion.choice, { "get", "get ", "set ", "clear", "clear " } },
+    completion.peripheral
+) )
+shell.setCompletionFunction( "rom/programs/list.lua", completion.build(completion.dir) )
+shell.setCompletionFunction( "rom/programs/mkdir.lua", completion.build({ completion.dir, many = true }) )
+shell.setCompletionFunction( "rom/programs/monitor.lua", completion.build(
+    { completion.peripheral, true },
+    completion.program
+) )
+shell.setCompletionFunction( "rom/programs/move.lua", completion.build(
+    { completion.dirOrFile, true },
+    completion.dirOrFile
+) )
+shell.setCompletionFunction( "rom/programs/redstone.lua", completion.build(
+    { completion.choice, { "probe", "set ", "pulse " } },
+    completion.side
+) )
+shell.setCompletionFunction( "rom/programs/rename.lua", completion.build(
+    { completion.dirOrFile, true },
+    completion.dirOrFile
+) )
+shell.setCompletionFunction( "rom/programs/shell.lua", completion.build(completion.program) )
+shell.setCompletionFunction( "rom/programs/type.lua", completion.build(completion.dirOrFile) )
+shell.setCompletionFunction( "rom/programs/set.lua", completion.build({ completion.setting, true }) )
+shell.setCompletionFunction( "rom/programs/advanced/bg.lua", completion.build(completion.program) )
+shell.setCompletionFunction( "rom/programs/advanced/fg.lua", completion.build(completion.program) )
+shell.setCompletionFunction( "rom/programs/fun/dj.lua", completion.build(
+    { completion.choice, { "play", "play ", "stop " } },
+    completion.peripheral
+) )
+shell.setCompletionFunction( "rom/programs/fun/advanced/paint.lua", completion.build(completion.file) )
+shell.setCompletionFunction( "rom/programs/http/pastebin.lua", completion.build(
+    { completion.choice, { "put ", "get ", "run " } },
+    completePastebinPut
+) )
+shell.setCompletionFunction( "rom/programs/rednet/chat.lua", completion.build({ completion.choice, { "host ", "join " } }) )
+shell.setCompletionFunction( "rom/programs/command/exec.lua", completion.build(completion.command) )
+shell.setCompletionFunction( "rom/programs/http/wget.lua", completion.build({ completion.choice, { "run " } }) )
 
 if turtle then
-    local tGoOptions = { "left", "right", "forward", "back", "down", "up" }
-    local function completeGo( shell, nIndex, sText )
-        return completeMultipleChoice( sText, tGoOptions, true)
-    end
-    local tTurnOptions = { "left", "right" }
-    local function completeTurn( shell, nIndex, sText )
-            return completeMultipleChoice( sText, tTurnOptions, true )
-    end
-    local tEquipOptions = { "left", "right" }
-    local function completeEquip( shell, nIndex, sText )
-        if nIndex == 2 then
-            return completeMultipleChoice( sText, tEquipOptions )
-        end
-    end
-    local function completeUnequip( shell, nIndex, sText )
-        if nIndex == 1 then
-            return completeMultipleChoice( sText, tEquipOptions )
-        end
-    end
-    shell.setCompletionFunction( "rom/programs/turtle/go.lua", completeGo )
-    shell.setCompletionFunction( "rom/programs/turtle/turn.lua", completeTurn )
-    shell.setCompletionFunction( "rom/programs/turtle/equip.lua", completeEquip )
-    shell.setCompletionFunction( "rom/programs/turtle/unequip.lua", completeUnequip )
+    shell.setCompletionFunction( "rom/programs/turtle/go.lua", completion.build(
+        { completion.choice, { "left", "right", "forward", "back", "down", "up" }, true, many = true }
+    ) )
+    shell.setCompletionFunction( "rom/programs/turtle/turn.lua", completion.build(
+        { completion.choice, { "left", "right" }, true, many = true }
+    ))
+    shell.setCompletionFunction( "rom/programs/turtle/equip.lua", completion.build(
+        nil,
+        { completion.choice, { "left", "right" } }
+    ) )
+    shell.setCompletionFunction( "rom/programs/turtle/unequip.lua", completion.build(
+        { completion.choice, { "left", "right" } }
+    ) )
 end
-
 
 -- Run autorun files
 if fs.exists( "/rom/autorun" ) and fs.isDir( "/rom/autorun" ) then
     local tFiles = fs.list( "/rom/autorun" )
-    table.sort( tFiles )
-    for n, sFile in ipairs( tFiles ) do
+    for _, sFile in ipairs( tFiles ) do
         if string.sub( sFile, 1, 1 ) ~= "." then
-            local sPath = "/rom/autorun/"..sFile
+            local sPath = "/rom/autorun/" .. sFile
             if not fs.isDir( sPath ) then
                 shell.run( sPath )
             end
@@ -272,7 +142,7 @@ local function findStartups( sBaseDir )
         if tStartups == nil then
             tStartups = {}
         end
-        for _,v in pairs( fs.list( sBasePath ) ) do
+        for _, v in pairs( fs.list( sBasePath ) ) do
             local sPath = "/" .. fs.combine( sBasePath, v )
             if not fs.isDir( sPath ) then
                 tStartups[ #tStartups + 1 ] = sPath
@@ -293,7 +163,7 @@ if settings.get( "shell.allow_startup" ) then
     tUserStartups = findStartups( "/" )
 end
 if settings.get( "shell.allow_disk_startup" ) then
-    for n,sName in pairs( peripheral.getNames() ) do
+    for _, sName in pairs( peripheral.getNames() ) do
         if disk.isPresent( sName ) and disk.hasData( sName ) then
             local startups = findStartups( disk.getMountPath( sName ) )
             if startups then
@@ -304,7 +174,7 @@ if settings.get( "shell.allow_disk_startup" ) then
     end
 end
 if tUserStartups then
-    for _,v in pairs( tUserStartups ) do
+    for _, v in pairs( tUserStartups ) do
         shell.run( v )
     end
 end

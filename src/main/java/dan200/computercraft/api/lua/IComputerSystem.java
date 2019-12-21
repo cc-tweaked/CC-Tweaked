@@ -26,7 +26,7 @@ public interface IComputerSystem extends IComputerAccess
     IFileSystem getFileSystem();
 
     /**
-     * Get the label for this computer
+     * Get the label for this computer.
      *
      * @return This computer's label, or {@code null} if it is not set.
      */

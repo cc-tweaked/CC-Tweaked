@@ -17,7 +17,7 @@ import org.apache.commons.lang3.ArrayUtils;
 
 import javax.annotation.Nonnull;
 
-import static dan200.computercraft.core.apis.ArgumentHelper.*;
+import static dan200.computercraft.api.lua.ArgumentHelper.*;
 
 public class MonitorPeripheral implements IPeripheral
 {
@@ -123,7 +123,7 @@ public class MonitorPeripheral implements IPeripheral
             case 8:
             {
                 // setTextScale
-                int scale = (int) (getReal( args, 0 ) * 2.0);
+                int scale = (int) (getFiniteDouble( args, 0 ) * 2.0);
                 if( scale < 1 || scale > 10 )
                 {
                     throw new LuaException( "Expected number in range 0.5-5" );
@@ -184,9 +184,9 @@ public class MonitorPeripheral implements IPeripheral
                 }
                 else
                 {
-                    double r = getReal( args, 1 );
-                    double g = getReal( args, 2 );
-                    double b = getReal( args, 3 );
+                    double r = getFiniteDouble( args, 1 );
+                    double g = getFiniteDouble( args, 2 );
+                    double b = getFiniteDouble( args, 3 );
                     TermAPI.setColour( terminal, colour, r, g, b );
                 }
                 return null;

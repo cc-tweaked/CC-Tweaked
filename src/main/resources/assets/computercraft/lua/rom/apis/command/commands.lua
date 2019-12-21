@@ -22,7 +22,7 @@ end
 
 -- Put native functions into the environment
 local env = _ENV
-for k,v in pairs( native ) do
+for k, v in pairs( native ) do
     env[k] = v
 end
 
@@ -30,12 +30,12 @@ end
 local tAsync = {}
 local tNonNBTJSONCommands = {
     [ "tellraw" ] = true,
-    [ "title" ] = true
+    [ "title" ] = true,
 }
 local tCommands = native.list()
-for n,sCommandName in ipairs(tCommands) do
+for _, sCommandName in ipairs(tCommands) do
     if env[ sCommandName ] == nil then
-        local bJSONIsNBT = (tNonNBTJSONCommands[ sCommandName ] == nil)
+        local bJSONIsNBT = tNonNBTJSONCommands[ sCommandName ] == nil
         env[ sCommandName ] = function( ... )
             local sCommand = collapseArgs( bJSONIsNBT, sCommandName, ... )
             return native.exec( sCommand )

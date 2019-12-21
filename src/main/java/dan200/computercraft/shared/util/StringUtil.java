@@ -6,6 +6,8 @@
 
 package dan200.computercraft.shared.util;
 
+import net.minecraft.util.text.TextComponentTranslation;
+
 public final class StringUtil
 {
     private StringUtil() {}
@@ -33,7 +35,12 @@ public final class StringUtil
     }
 
     /**
-     * Translates a Stat name
+     * Translates a string.
+     *
+     * Try to avoid using this where possible - it is generally preferred to use {@link TextComponentTranslation}.
+     *
+     * @param key The key to translate.
+     * @return The translated string.
      */
     @SuppressWarnings( "deprecation" )
     public static String translate( String key )
@@ -42,12 +49,18 @@ public final class StringUtil
     }
 
     /**
-     * Translates a Stat name with format args
+     * Translates and formats a string.
+     *
+     * Try to avoid using this where possible - it is generally preferred to use {@link TextComponentTranslation}.
+     *
+     * @param key  The key to translate.
+     * @param args The arguments to supply to {@link String#format(String, Object...)}.
+     * @return The translated and formatted string.
      */
     @SuppressWarnings( "deprecation" )
-    public static String translateFormatted( String key, Object... format )
+    public static String translateFormatted( String key, Object... args )
     {
-        return net.minecraft.util.text.translation.I18n.translateToLocalFormatted( key, format );
+        return net.minecraft.util.text.translation.I18n.translateToLocalFormatted( key, args );
     }
 
     public static byte[] encodeString( String string )

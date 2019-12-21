@@ -20,10 +20,7 @@ import dan200.computercraft.shared.computer.blocks.TileComputerBase;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.turtle.blocks.TileTurtle;
-import dan200.computercraft.shared.util.Colour;
-import dan200.computercraft.shared.util.ColourUtils;
-import dan200.computercraft.shared.util.Holiday;
-import dan200.computercraft.shared.util.HolidayUtil;
+import dan200.computercraft.shared.util.*;
 import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.MoverType;
@@ -40,6 +37,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.items.IItemHandlerModifiable;
+import net.minecraftforge.items.wrapper.InvWrapper;
 
 import javax.annotation.Nonnull;
 import java.util.*;
@@ -52,6 +50,9 @@ public class TurtleBrain implements ITurtleAccess
     private TileTurtle m_owner;
     private ComputerProxy m_proxy;
     private GameProfile m_owningPlayer;
+
+    private final IInventory m_inventory = (InventoryDelegate) () -> m_owner;
+    private final IItemHandlerModifiable m_inventoryWrapper = new InvWrapper( m_inventory );
 
     private Queue<TurtleCommandQueueEntry> m_commandQueue = new ArrayDeque<>();
     private int m_commandsIssued = 0;
@@ -531,14 +532,14 @@ public class TurtleBrain implements ITurtleAccess
     @Override
     public IInventory getInventory()
     {
-        return m_owner;
+        return m_inventory;
     }
 
     @Nonnull
     @Override
     public IItemHandlerModifiable getItemHandler()
     {
-        return m_owner.getItemHandler();
+        return m_inventoryWrapper;
     }
 
     @Override

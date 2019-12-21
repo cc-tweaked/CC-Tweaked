@@ -16,8 +16,8 @@ import java.io.IOException;
 import java.nio.channels.Channel;
 import java.nio.channels.SeekableByteChannel;
 
-import static dan200.computercraft.core.apis.ArgumentHelper.optLong;
-import static dan200.computercraft.core.apis.ArgumentHelper.optString;
+import static dan200.computercraft.api.lua.ArgumentHelper.optLong;
+import static dan200.computercraft.api.lua.ArgumentHelper.optString;
 
 public abstract class HandleGeneric implements ILuaObject
 {
@@ -47,7 +47,7 @@ public abstract class HandleGeneric implements ILuaObject
     }
 
     /**
-     * Shared implementation for various file handle types
+     * Shared implementation for various file handle types.
      *
      * @param channel The channel to seek in
      * @param args    The Lua arguments to process, like Lua's {@code file:seek}.

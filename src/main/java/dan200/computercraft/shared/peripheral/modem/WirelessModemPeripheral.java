@@ -7,8 +7,11 @@
 package dan200.computercraft.shared.peripheral.modem;
 
 /**
- * This only exists for backwards compatibility
+ * This only exists for backwards compatibility.
+ *
+ * @deprecated Use {@link dan200.computercraft.shared.peripheral.modem.wireless.WirelessModemPeripheral} instead.
  */
+@Deprecated
 public abstract class WirelessModemPeripheral extends dan200.computercraft.shared.peripheral.modem.wireless.WirelessModemPeripheral
 {
     @Deprecated

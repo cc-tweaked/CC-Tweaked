@@ -1,4 +1,4 @@
-local expect = _G["~expect"]
+local expect = dofile("rom/modules/main/cc/expect.lua").expect
 
 local sPath = "/rom/help"
 
@@ -18,8 +18,8 @@ function lookup( _sTopic )
         sPath = fs.combine( sPath, _sTopic )
         if fs.exists( sPath ) and not fs.isDir( sPath ) then
             return sPath
-        elseif fs.exists( sPath..".txt" ) and not fs.isDir( sPath..".txt" ) then
-            return sPath..".txt"
+        elseif fs.exists( sPath .. ".txt" ) and not fs.isDir( sPath .. ".txt" ) then
+            return sPath .. ".txt"
         end
     end
 
@@ -30,18 +30,18 @@ end
 function topics()
     -- Add index
     local tItems = {
-        [ "index" ] = true
+        [ "index" ] = true,
     }
 
     -- Add topics from the path
     for sPath in string.gmatch(sPath, "[^:]+") do
         if fs.isDir( sPath ) then
             local tList = fs.list( sPath )
-            for n,sFile in pairs( tList ) do
+            for _, sFile in pairs( tList ) do
                 if string.sub( sFile, 1, 1 ) ~= "." then
                     if not fs.isDir( fs.combine( sPath, sFile ) ) then
                         if #sFile > 4 and sFile:sub(-4) == ".txt" then
-                            sFile = sFile:sub(1,-5)
+                            sFile = sFile:sub(1, -5)
                         end
                         tItems[ sFile ] = true
                     end
@@ -52,7 +52,7 @@ function topics()
 
     -- Sort and return
     local tItemList = {}
-    for sItem, b in pairs( tItems ) do
+    for sItem in pairs( tItems ) do
         table.insert( tItemList, sItem )
     end
     table.sort( tItemList )
@@ -63,7 +63,7 @@ function completeTopic( sText )
     expect(1, sText, "string")
     local tTopics = topics()
     local tResults = {}
-    for n=1,#tTopics do
+    for n = 1, #tTopics do
         local sTopic = tTopics[n]
         if #sTopic > #sText and string.sub( sTopic, 1, #sText ) == sText then
             table.insert( tResults, string.sub( sTopic, #sText + 1 ) )
