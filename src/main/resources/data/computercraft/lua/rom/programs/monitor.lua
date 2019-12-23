@@ -11,18 +11,18 @@ end
 
 local sName = tArgs[1]
 if peripheral.getType( sName ) ~= "monitor" then
-    print( "No monitor named ".. sName )
+    print( "No monitor named " .. sName )
     return
 end
 
 local sProgram = tArgs[2]
 local sPath = shell.resolveProgram( sProgram )
 if sPath == nil then
-    print( "No such program: "..sProgram )
+    print( "No such program: " .. sProgram )
     return
 end
 
-print( "Running "..sProgram.." on monitor "..sName )
+print( "Running " .. sProgram .. " on monitor " .. sName )
 
 local monitor = peripheral.wrap( sName )
 local previousTerm = term.redirect( monitor )

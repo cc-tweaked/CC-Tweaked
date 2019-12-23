@@ -15,14 +15,12 @@ if length < 1 then
     print( "Tunnel length must be positive" )
     return
 end
-
-local depth = 0
 local collected = 0
 
 local function collect()
     collected = collected + 1
     if math.fmod(collected, 25) == 0 then
-        print( "Mined "..collected.." items." )
+        print( "Mined " .. collected .. " items." )
     end
 end
 
@@ -69,7 +67,7 @@ local function refuel()
     end
 
     local function tryRefuel()
-        for n=1,16 do
+        for n = 1, 16 do
             if turtle.getItemCount(n) > 0 then
                 turtle.select(n)
                 if turtle.refuel(1) then
@@ -141,7 +139,7 @@ end
 
 print( "Tunnelling..." )
 
-for n=1,length do
+for n = 1, length do
     turtle.placeDown()
     tryDigUp()
     turtle.turnLeft()
@@ -155,7 +153,7 @@ for n=1,length do
     tryDig()
     turtle.turnLeft()
 
-    if n<length then
+    if n < length then
         tryDig()
         if not tryForward() then
             print( "Aborting Tunnel." )
@@ -185,4 +183,4 @@ turtle.turnRight()
 ]]
 
 print( "Tunnel complete." )
-print( "Mined "..collected.." items total." )
+print( "Mined " .. collected .. " items total." )

@@ -1,7 +1,7 @@
 View the source code at https://github.com/SquidDev-CC/CC-Tweaked
 View the documentation at https://wiki.computercraft.cc
 Visit the forum at https://forums.computercraft.cc
-You can disable these messages by running "set motd.enable false"
+You can disable these messages by running "set motd.enable false".
 You can create directories with "mkdir".
 Want to see hidden files? Run "set list.show_hidden true".
 Run "list" or "ls" to see all files in a directory.
@@ -13,3 +13,22 @@ Use the "edit" program to create and edit your programs.
 You can copy files with "copy" or "cp".
 You can use "wget run <url>" to run a program from the internet.
 You can use "wget" to download a file from the internet.
+On an advanced computer you can use "fg" or "bg" to run multiple programs at the same time.
+Use "type" to see if a path is a file or a directory.
+Get a list of all programs with "programs".
+Use an advanced computer to use colours and the mouse.
+With a speaker you can play sounds.
+Use "motd" to print the Message of the Day.
+You can disable the startup from a computer with "set shell.allow_startup false".
+You can disable the startup from a disk with "set shell.allow_disk_startup false".
+Programs that are placed in the "startup" folder in the root of a computer are started on boot.
+Use a modem to connect with other computers.
+With the "gps" program you can get the position of a computer.
+Use "monitor" to run a program on a attached monitor.
+View all attached peripherals with "peripherals".
+Use "time" to see the in-game time.
+You can set the label of a computer with "label set".
+A computer needs a label to keep its files if it got destroyed.
+You can disable auto completion in the shell with "set shell.autocomplete false".
+You can disable auto completion in edit with "set edit.autocomplete false".
+Feeling creative? Use a printer to print a book!

@@ -2,12 +2,12 @@
 local tArgs = { ... }
 if #tArgs == 0 then
     -- "set"
-    local x,y = term.getCursorPos()
+    local _, y = term.getCursorPos()
     local tSettings = {}
-    for n,sName in ipairs( settings.getNames() ) do
+    for n, sName in ipairs( settings.getNames() ) do
         tSettings[n] = textutils.serialize(sName) .. " is " .. textutils.serialize(settings.get(sName))
     end
-    textutils.pagedPrint(table.concat(tSettings,"\n"),y-3)
+    textutils.pagedPrint(table.concat(tSettings, "\n"), y - 3)
 
 elseif #tArgs == 1 then
     -- "set foo"

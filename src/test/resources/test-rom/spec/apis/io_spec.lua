@@ -60,10 +60,10 @@ describe("The io library", function()
 
         expect(io.output():seek()):equal(0)
         assert(io.write("alo alo"))
-        expect(io.output():seek()):equal(#("alo alo"))
-        expect(io.output():seek("cur", -3)):equal(#("alo alo") - 3)
+        expect(io.output():seek()):equal(#"alo alo")
+        expect(io.output():seek("cur", -3)):equal(#"alo alo" - 3)
         assert(io.write("joao"))
-        expect(io.output():seek("end"):equal(#("alo joao")))
+        expect(io.output():seek("end"):equal(#"alo joao"))
 
         expect(io.output():seek("set")):equal(0)
 

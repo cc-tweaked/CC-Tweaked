@@ -21,7 +21,7 @@ local function runUntilLimit( _routines, _limit )
     local tFilters = {}
     local eventData = { n = 0 }
     while true do
-        for n=1,count do
+        for n = 1, count do
             local r = _routines[n]
             if r then
                 if tFilters[r] == nil or tFilters[r] == eventData[1] or eventData[1] == "terminate" then
@@ -41,7 +41,7 @@ local function runUntilLimit( _routines, _limit )
                 end
             end
         end
-        for n=1,count do
+        for n = 1, count do
             local r = _routines[n]
             if r and coroutine.status( r ) == "dead" then
                 _routines[n] = nil

@@ -2,7 +2,7 @@ local expect = dofile("rom/modules/main/cc/expect.lua").expect
 
 -- Setup process switching
 local parentTerm = term.current()
-local w,h = parentTerm.getSize()
+local w, h = parentTerm.getSize()
 
 local tProcesses = {}
 local nCurrentProcess = nil
@@ -55,7 +55,7 @@ local function launchProcess( bFocus, tProgramEnv, sProgramPath, ... )
     local tProcess = {}
     tProcess.sTitle = fs.getName( sProgramPath )
     if bShowMenu then
-        tProcess.window = window.create( parentTerm, 1, 2, w, h-1, false )
+        tProcess.window = window.create( parentTerm, 1, 2, w, h - 1, false )
     else
         tProcess.window = window.create( parentTerm, 1, 1, w, h, false )
     end
@@ -102,7 +102,7 @@ end
 
 local function cullProcesses()
     local culled = false
-    for n=#tProcesses,1,-1 do
+    for n = #tProcesses, 1, -1 do
         culled = culled or cullProcess( n )
     end
     return culled
@@ -132,7 +132,7 @@ local function redrawMenu()
             parentTerm.write( "<" )
             nCharCount = 1
         end
-        for n=nScrollPos,#tProcesses do
+        for n = nScrollPos, #tProcesses do
             if n == nCurrentProcess then
                 parentTerm.setTextColor( menuMainTextColor )
                 parentTerm.setBackgroundColor( menuMainBgColor )
@@ -165,15 +165,14 @@ local function resizeWindows()
     local windowY, windowHeight
     if bShowMenu then
         windowY = 2
-        windowHeight = h-1
+        windowHeight = h - 1
     else
         windowY = 1
         windowHeight = h
     end
-    for n=1,#tProcesses do
+    for n = 1, #tProcesses do
         local tProcess = tProcesses[n]
-        local window = tProcess.window
-        local x,y = tProcess.window.getCursorPos()
+        local x, y = tProcess.window.getCursorPos()
         if y > windowHeight then
             tProcess.window.scroll( y - windowHeight )
             tProcess.window.setCursorPos( x, windowHeight )
@@ -232,7 +231,7 @@ function multishell.launch( tProgramEnv, sProgramPath, ... )
     expect(1, tProgramEnv, "table")
     expect(2, sProgramPath, "string")
     local previousTerm = term.current()
-    setMenuVisible( (#tProcesses + 1) >= 2 )
+    setMenuVisible( #tProcesses + 1 >= 2 )
     local nResult = launchProcess( false, tProgramEnv, sProgramPath, ... )
     redrawMenu()
     term.redirect( previousTerm )
@@ -258,7 +257,7 @@ while #tProcesses > 0 do
     local sEvent = tEventData[1]
     if sEvent == "term_resize" then
         -- Resize event
-        w,h = parentTerm.getSize()
+        w, h = parentTerm.getSize()
         resizeWindows()
         redrawMenu()
 
@@ -287,8 +286,8 @@ while #tProcesses > 0 do
                 if nScrollPos ~= 1 then
                     tabStart = 2
                 end
-                for n=nScrollPos,#tProcesses do
-                    local tabEnd = tabStart + string.len( tProcesses[n].sTitle ) + 1
+                for n = nScrollPos, #tProcesses do
+                    local tabEnd = tabStart + #tProcesses[n].sTitle + 1
                     if x >= tabStart and x <= tabEnd then
                         selectProcess( n )
                         redrawMenu()
@@ -299,7 +298,7 @@ while #tProcesses > 0 do
             end
         else
             -- Passthrough to current process
-            resumeProcess( nCurrentProcess, sEvent, button, x, (bShowMenu and y-1) or y )
+            resumeProcess( nCurrentProcess, sEvent, button, x, bShowMenu and y - 1 or y )
             if cullProcess( nCurrentProcess ) then
                 setMenuVisible( #tProcesses >= 2 )
                 redrawMenu()
@@ -319,7 +318,7 @@ while #tProcesses > 0 do
             end
         elseif not (bShowMenu and y == 1) then
             -- Passthrough to current process
-            resumeProcess( nCurrentProcess, sEvent, p1, x, (bShowMenu and y-1) or y )
+            resumeProcess( nCurrentProcess, sEvent, p1, x, bShowMenu and y - 1 or y )
             if cullProcess( nCurrentProcess ) then
                 setMenuVisible( #tProcesses >= 2 )
                 redrawMenu()
@@ -330,7 +329,7 @@ while #tProcesses > 0 do
         -- Other event
         -- Passthrough to all processes
         local nLimit = #tProcesses -- Storing this ensures any new things spawned don't get the event
-        for n=1,nLimit do
+        for n = 1, nLimit do
             resumeProcess( n, table.unpack( tEventData, 1, tEventData.n ) )
         end
         if cullProcesses() then
@@ -342,7 +341,7 @@ while #tProcesses > 0 do
     if bWindowsResized then
         -- Pass term_resize to all processes
         local nLimit = #tProcesses -- Storing this ensures any new things spawned don't get the event
-        for n=1,nLimit do
+        for n = 1, nLimit do
             resumeProcess( n, "term_resize" )
         end
         bWindowsResized = false

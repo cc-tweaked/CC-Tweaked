@@ -11,19 +11,19 @@
 
 --- Assert an argument to the given function has the specified type.
 --
--- @tparam string The function's name
--- @tparam int    The argument index to this function
--- @tparam string The type this argument should have. May be 'value' for any
---                non-nil value.
--- @param val     The value to check
--- @raise If this value doesn't match the expected type.
-local function check(func, arg, ty, val)
+-- @tparam string func The function's name
+-- @tparam int    idx  The argument index to this function
+-- @tparam string ty   The type this argument should have. May be 'value' for 
+--                     any non-nil value.
+-- @param val     val  The value to check
+-- @throws If this value doesn't match the expected type.
+local function check(func, idx, ty, val)
     if ty == 'value' then
         if val == nil then
-            error(('%s: bad argument #%d (got nil)'):format(func, arg), 3)
+            error(('%s: bad argument #%d (got nil)'):format(func, idx), 3)
         end
     elseif type(val) ~= ty then
-        return error(('%s: bad argument #%d (expected %s, got %s)'):format(func, arg, ty, type(val)), 3)
+        return error(('%s: bad argument #%d (expected %s, got %s)'):format(func, idx, ty, type(val)), 3)
     end
 end
 
@@ -122,7 +122,7 @@ local error_mt = { __tostring = function(self) return self.message end }
 --- Attempt to execute the provided function, gathering a stack trace when it
 -- errors.
 --
--- @tparam
+-- @tparam function() fn The function to run
 -- @return[1] true
 -- @return[2] false
 -- @return[2] The error object
@@ -170,7 +170,7 @@ end
 --- Fail a test with the given message
 --
 -- @tparam string message The message to fail with
--- @raises An error with the given message
+-- @throws An error with the given message
 local function fail(message)
     check('fail', 1, 'string', message)
     error(setmetatable({ message = message, fail = true }, error_mt))
@@ -192,7 +192,7 @@ expect_mt.__index = expect_mt
 --- Assert that this expectation has the provided value
 --
 -- @param value The value to require this expectation to be equal to
--- @raises If the values are not equal
+-- @throws If the values are not equal
 function expect_mt:equals(value)
     if value ~= self.value then
         fail(("Expected %s\n but got %s"):format(format(value), format(self.value)))
@@ -206,7 +206,7 @@ expect_mt.eq = expect_mt.equals
 --- Assert that this expectation does not equal the provided value
 --
 -- @param value The value to require this expectation to not be equal to
--- @raises If the values are equal
+-- @throws If the values are equal
 function expect_mt:not_equals(value)
     if value == self.value then
         fail(("Expected any value but %s"):format(format(value)))
@@ -220,7 +220,7 @@ expect_mt.ne = expect_mt.not_equals
 --- Assert that this expectation has something of the provided type
 --
 -- @tparam string exp_type The type to require this expectation to have
--- @raises If it does not have that thpe
+-- @throws If it does not have that thpe
 function expect_mt:type(exp_type)
     local actual_type = type(self.value)
     if exp_type ~= actual_type then
@@ -270,7 +270,7 @@ end
 -- the provided object.
 --
 -- @param value The value to check for structural equivalence
--- @raises If they are not equivalent
+-- @throws If they are not equivalent
 function expect_mt:same(value)
     if not matches({}, true, self.value, value) then
         fail(("Expected %s\n but got %s"):format(format(value), format(self.value)))
@@ -283,7 +283,7 @@ end
 -- in the provided object.
 --
 -- @param value The value to check against
--- @raises If this does not match the provided value
+-- @throws If this does not match the provided value
 function expect_mt:matches(value)
     if not matches({}, false, value, self.value) then
         fail(("Expected %s\nto match %s"):format(format(self.value), format(value)))
@@ -296,7 +296,7 @@ end
 --
 -- @tparam[opt] number The exact number of times the function must be called.
 -- If not given just require the function to be called at least once.
--- @raises If this function was not called the expected number of times.
+-- @throws If this function was not called the expected number of times.
 function expect_mt:called(times)
     if getmetatable(self.value) ~= stub_mt or self.value.arguments == nil then
         fail(("Expected stubbed function, got %s"):format(type(self.value)))
@@ -380,7 +380,7 @@ local expect = setmetatable( {
     -- @return The new expectation
     __call = function(_, value)
         return setmetatable({ value = value }, expect_mt)
-    end
+    end,
 })
 
 --- The stack of "describe"s.
@@ -623,7 +623,7 @@ end
 -- And some summary statistics
 local actual_count = tests_run - test_status.pending
 local info = ("Ran %s test(s), of which %s passed (%g%%).")
-    :format(actual_count, test_status.pass, (test_status.pass / actual_count) * 100)
+    :format(actual_count, test_status.pass, test_status.pass / actual_count * 100)
 
 if test_status.pending > 0 then
     info = info .. (" Skipped %d pending test(s)."):format(test_status.pending)

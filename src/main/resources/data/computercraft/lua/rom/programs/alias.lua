@@ -19,7 +19,7 @@ else
     local tAliases = shell.aliases()
     local tList = {}
     for sAlias, sCommand in pairs( tAliases ) do
-        table.insert( tList, sAlias..":"..sCommand )
+        table.insert( tList, sAlias .. ":" .. sCommand )
     end
     table.sort( tList )
     textutils.pagedTabulate( tList )

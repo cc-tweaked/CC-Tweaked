@@ -23,7 +23,7 @@ function combine( ... )
     for i = 1, select('#', ...) do
         local c = select(i, ...)
         expect(i, c, "number")
-        r = bit32.bor(r,c)
+        r = bit32.bor(r, c)
     end
     return r
 end
@@ -50,8 +50,8 @@ function packRGB( r, g, b )
     expect(2, g, "number")
     expect(3, b, "number")
     return
-        bit32.band( r * 255, 0xFF ) * 2^16 +
-        bit32.band( g * 255, 0xFF ) * 2^8 +
+        bit32.band( r * 255, 0xFF ) * 2 ^ 16 +
+        bit32.band( g * 255, 0xFF ) * 2 ^ 8 +
         bit32.band( b * 255, 0xFF )
 end
 

@@ -18,7 +18,7 @@ local tFiles = {}
 local tDirs = {}
 
 local bShowHidden = settings.get( "list.show_hidden" )
-for n, sItem in pairs( tAll ) do
+for _, sItem in pairs( tAll ) do
     if bShowHidden or string.sub( sItem, 1, 1 ) ~= "." then
         local sPath = fs.combine( sDir, sItem )
         if fs.isDir( sPath ) then

@@ -93,7 +93,7 @@ if _VERSION == "Lua 5.1" then
             bxor = bit32.bxor,
             brshift = bit32.arshift,
             blshift = bit32.lshift,
-            blogic_rshift = bit32.rshift
+            blogic_rshift = bit32.rshift,
         }
     end
 end
@@ -184,15 +184,15 @@ function sleep( nTime )
     expect(1, nTime, "number", "nil")
     local timer = os.startTimer( nTime or 0 )
     repeat
-        local sEvent, param = os.pullEvent( "timer" )
+        local _, param = os.pullEvent( "timer" )
     until param == timer
 end
 
 function write( sText )
     expect(1, sText, "string", "number")
 
-    local w,h = term.getSize()
-    local x,y = term.getCursorPos()
+    local w, h = term.getSize()
+    local x, y = term.getCursorPos()
 
     local nLinesPrinted = 0
     local function newLine()
@@ -207,13 +207,13 @@ function write( sText )
     end
 
     -- Print the line with proper word wrapping
-    while string.len(sText) > 0 do
+    while #sText > 0 do
         local whitespace = string.match( sText, "^[ \t]+" )
         if whitespace then
             -- Print whitespace
             term.write( whitespace )
-            x,y = term.getCursorPos()
-            sText = string.sub( sText, string.len(whitespace) + 1 )
+            x, y = term.getCursorPos()
+            sText = string.sub( sText, #whitespace + 1 )
         end
 
         local newline = string.match( sText, "^\n" )
@@ -225,24 +225,24 @@ function write( sText )
 
         local text = string.match( sText, "^[^ \t\n]+" )
         if text then
-            sText = string.sub( sText, string.len(text) + 1 )
-            if string.len(text) > w then
+            sText = string.sub( sText, #text + 1 )
+            if #text > w then
                 -- Print a multiline word
-                while string.len( text ) > 0 do
+                while #text > 0 do
                     if x > w then
                         newLine()
                     end
                     term.write( text )
-                    text = string.sub( text, (w-x) + 2 )
-                    x,y = term.getCursorPos()
+                    text = string.sub( text, w - x + 2 )
+                    x, y = term.getCursorPos()
                 end
             else
                 -- Print a word normally
-                if x + string.len(text) - 1 > w then
+                if x + #text - 1 > w then
                     newLine()
                 end
                 term.write( text )
-                x,y = term.getCursorPos()
+                x, y = term.getCursorPos()
             end
         end
     end
@@ -299,7 +299,7 @@ function read( _sReplaceChar, _tHistory, _fnComplete, _sDefault )
     local tCompletions
     local nCompletion
     local function recomplete()
-        if _fnComplete and nPos == string.len(sLine) then
+        if _fnComplete and nPos == #sLine then
             tCompletions = _fnComplete( sLine )
             if tCompletions and #tCompletions > 0 then
                 nCompletion = 1
@@ -332,7 +332,7 @@ function read( _sReplaceChar, _tHistory, _fnComplete, _sDefault )
 
         local _, cy = term.getCursorPos()
         term.setCursorPos( sx, cy )
-        local sReplace = (_bClear and " ") or _sReplaceChar
+        local sReplace = _bClear and " " or _sReplaceChar
         if sReplace then
             term.write( string.rep( sReplace, math.max( #sLine - nScroll, 0 ) ) )
         else
@@ -544,7 +544,7 @@ function read( _sReplaceChar, _tHistory, _fnComplete, _sDefault )
         end
     end
 
-    local cx, cy = term.getCursorPos()
+    local _, cy = term.getCursorPos()
     term.setCursorBlink( false )
     term.setCursorPos( w + 1, cy )
     print()
@@ -613,10 +613,10 @@ function os.loadAPI( _sPath )
     expect(1, _sPath, "string")
     local sName = fs.getName( _sPath )
     if sName:sub(-4) == ".lua" then
-        sName = sName:sub(1,-5)
+        sName = sName:sub(1, -5)
     end
     if tAPIsLoading[sName] == true then
-        printError( "API "..sName.." is already being loaded" )
+        printError( "API " .. sName .. " is already being loaded" )
         return false
     end
     tAPIsLoading[sName] = true
@@ -636,7 +636,7 @@ function os.loadAPI( _sPath )
     end
 
     local tAPI = {}
-    for k,v in pairs( tEnv ) do
+    for k, v in pairs( tEnv ) do
         if k ~= "_ENV" then
             tAPI[k] =  v
         end
@@ -680,7 +680,8 @@ if http then
 
     local methods = {
         GET = true, POST = true, HEAD = true,
-        OPTIONS = true, PUT = true, DELETE = true
+        OPTIONS = true, PUT = true, DELETE = true,
+        PATCH = true, TRACE = true,
     }
 
     local function checkKey( options, key, ty, opt )
@@ -775,7 +776,7 @@ if http then
         if not ok then return ok, err end
 
         while true do
-            local event, url, ok, err = os.pullEvent( "http_check" )
+            local _, url, ok, err = os.pullEvent( "http_check" )
             if url == _url then return ok, err end
         end
     end
@@ -808,8 +809,8 @@ function fs.complete( sPath, sLocation, bIncludeFiles, bIncludeDirs )
     expect(3, bIncludeFiles, "boolean", "nil")
     expect(4, bIncludeDirs, "boolean", "nil")
 
-    bIncludeFiles = (bIncludeFiles ~= false)
-    bIncludeDirs = (bIncludeDirs ~= false)
+    bIncludeFiles = bIncludeFiles ~= false
+    bIncludeDirs = bIncludeDirs ~= false
     local sDir = sLocation
     local nStart = 1
     local nSlash = string.find( sPath, "[/\\]", nStart )
@@ -836,13 +837,13 @@ function fs.complete( sPath, sLocation, bIncludeFiles, bIncludeDirs )
         end
         if sDir ~= "" then
             if sPath == "" then
-                table.insert( tResults, (bIncludeDirs and "..") or "../" )
+                table.insert( tResults, bIncludeDirs and ".." or "../" )
             elseif sPath == "." then
-                table.insert( tResults, (bIncludeDirs and ".") or "./" )
+                table.insert( tResults, bIncludeDirs and "." or "./" )
             end
         end
         local tFiles = fs.list( sDir )
-        for n=1,#tFiles do
+        for n = 1, #tFiles do
             local sFile = tFiles[n]
             if #sFile >= #sName and string.sub( sFile, 1, #sName ) == sName then
                 local bIsDir = fs.isDir( fs.combine( sDir, sFile ) )
@@ -867,7 +868,7 @@ end
 -- Load APIs
 local bAPIError = false
 local tApis = fs.list( "rom/apis" )
-for n,sFile in ipairs( tApis ) do
+for _, sFile in ipairs( tApis ) do
     if string.sub( sFile, 1, 1 ) ~= "." then
         local sPath = fs.combine( "rom/apis", sFile )
         if not fs.isDir( sPath ) then
@@ -881,7 +882,7 @@ end
 if turtle and fs.isDir( "rom/apis/turtle" ) then
     -- Load turtle APIs
     local tApis = fs.list( "rom/apis/turtle" )
-    for n,sFile in ipairs( tApis ) do
+    for _, sFile in ipairs( tApis ) do
         if string.sub( sFile, 1, 1 ) ~= "." then
             local sPath = fs.combine( "rom/apis/turtle", sFile )
             if not fs.isDir( sPath ) then
@@ -896,7 +897,7 @@ end
 if pocket and fs.isDir( "rom/apis/pocket" ) then
     -- Load pocket APIs
     local tApis = fs.list( "rom/apis/pocket" )
-    for n,sFile in ipairs( tApis ) do
+    for _, sFile in ipairs( tApis ) do
         if string.sub( sFile, 1, 1 ) ~= "." then
             local sPath = fs.combine( "rom/apis/pocket", sFile )
             if not fs.isDir( sPath ) then
@@ -925,7 +926,7 @@ if commands and fs.isDir( "rom/apis/command" ) then
                     end
                 end
                 return nil
-            end
+            end,
         }
         setmetatable( commands, tCaseInsensitiveMetatable )
         setmetatable( commands.async, tCaseInsensitiveMetatable )
@@ -941,12 +942,12 @@ if bAPIError then
     print( "Press any key to continue" )
     os.pullEvent( "key" )
     term.clear()
-    term.setCursorPos( 1,1 )
+    term.setCursorPos( 1, 1 )
 end
 
 -- Set default settings
 settings.set( "shell.allow_startup", true )
-settings.set( "shell.allow_disk_startup", (commands == nil) )
+settings.set( "shell.allow_disk_startup", commands == nil )
 settings.set( "shell.autocomplete", true )
 settings.set( "edit.autocomplete", true )
 settings.set( "edit.default_extension", "lua" )

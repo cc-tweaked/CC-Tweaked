@@ -14,7 +14,7 @@ describe("The wget program", function()
                     close = function()
                     end,
                 }
-            end
+            end,
         })
     end
 

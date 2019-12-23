@@ -17,11 +17,33 @@ import net.minecraftforge.fml.ModLoadingContext;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
+import java.util.stream.Stream;
 
 public final class TurtleUpgrades
 {
+    public static class Wrapper
+    {
+        final ITurtleUpgrade upgrade;
+        final int legacyId;
+        final String id;
+        final String modId;
+        boolean enabled;
+
+        public Wrapper( ITurtleUpgrade upgrade )
+        {
+            ModContainer mc = ModLoadingContext.get().getActiveContainer();
+
+            this.upgrade = upgrade;
+            this.id = upgrade.getUpgradeID().toString();
+            this.modId = mc != null && mc.getModId() != null ? mc.getModId() : null;
+            this.enabled = true;
+        }
+    }
+
+    private static ITurtleUpgrade[] vanilla;
+
     private static final Map<String, ITurtleUpgrade> upgrades = new HashMap<>();
-    private static final IdentityHashMap<ITurtleUpgrade, String> upgradeOwners = new IdentityHashMap<>();
+    private static final IdentityHashMap<ITurtleUpgrade, Wrapper> wrappers = new IdentityHashMap<>();
 
     private TurtleUpgrades() {}
 
@@ -29,7 +51,8 @@ public final class TurtleUpgrades
     {
         Objects.requireNonNull( upgrade, "upgrade cannot be null" );
 
-        String id = upgrade.getUpgradeID().toString();
+        Wrapper wrapper = new Wrapper( upgrade );
+        String id = wrapper.id;
         ITurtleUpgrade existing = upgrades.get( id );
         if( existing != null )
         {
@@ -37,15 +60,26 @@ public final class TurtleUpgrades
         }
 
         upgrades.put( id, upgrade );
-
-        ModContainer mc = ModLoadingContext.get().getActiveContainer();
-        if( mc != null && mc.getModId() != null ) upgradeOwners.put( upgrade, mc.getModId() );
+        wrappers.put( upgrade, wrapper );
     }
 
-
+    @Nullable
     public static ITurtleUpgrade get( String id )
     {
         return upgrades.get( id );
+    }
+
+    @Nullable
+    public static ITurtleUpgrade get( int id )
+    {
+        return legacyUpgrades.get( id );
+    }
+
+    @Nullable
+    public static String getOwner( @Nonnull ITurtleUpgrade upgrade )
+    {
+        Wrapper wrapper = wrappers.get( upgrade );
+        return wrapper != null ? wrapper.modId : null;
     }
 
     public static ITurtleUpgrade get( @Nonnull ItemStack stack )
@@ -64,30 +98,27 @@ public final class TurtleUpgrades
         return null;
     }
 
-    public static Iterable<ITurtleUpgrade> getVanillaUpgrades()
+    public static Stream<ITurtleUpgrade> getVanillaUpgrades()
     {
-        List<ITurtleUpgrade> vanilla = new ArrayList<>();
+        if( vanilla == null )
+        {
+            vanilla = new ITurtleUpgrade[] {
+                // ComputerCraft upgrades
+                ComputerCraft.TurtleUpgrades.wirelessModemNormal,
+                ComputerCraft.TurtleUpgrades.wirelessModemAdvanced,
+                ComputerCraft.TurtleUpgrades.speaker,
 
+                // Vanilla Minecraft upgrades
+                ComputerCraft.TurtleUpgrades.diamondPickaxe,
+                ComputerCraft.TurtleUpgrades.diamondAxe,
+                ComputerCraft.TurtleUpgrades.diamondSword,
+                ComputerCraft.TurtleUpgrades.diamondShovel,
+                ComputerCraft.TurtleUpgrades.diamondHoe,
+                ComputerCraft.TurtleUpgrades.craftingTable,
+            };
+        }
 
-        // ComputerCraft upgrades
-        vanilla.add( ComputerCraft.TurtleUpgrades.wirelessModemNormal );
-        vanilla.add( ComputerCraft.TurtleUpgrades.wirelessModemAdvanced );
-        vanilla.add( ComputerCraft.TurtleUpgrades.speaker );
-
-        // Vanilla Minecraft upgrades
-        vanilla.add( ComputerCraft.TurtleUpgrades.diamondPickaxe );
-        vanilla.add( ComputerCraft.TurtleUpgrades.diamondAxe );
-        vanilla.add( ComputerCraft.TurtleUpgrades.diamondSword );
-        vanilla.add( ComputerCraft.TurtleUpgrades.diamondShovel );
-        vanilla.add( ComputerCraft.TurtleUpgrades.diamondHoe );
-        vanilla.add( ComputerCraft.TurtleUpgrades.craftingTable );
-        return vanilla;
-    }
-
-    @Nullable
-    public static String getOwner( @Nonnull ITurtleUpgrade upgrade )
-    {
-        return upgradeOwners.get( upgrade );
+        return Arrays.stream( vanilla ).filter( x -> x != null && wrappers.get( x ).enabled );
     }
 
     public static Iterable<ITurtleUpgrade> getUpgrades()
@@ -98,5 +129,15 @@ public final class TurtleUpgrades
     public static boolean suitableForFamily( ComputerFamily family, ITurtleUpgrade upgrade )
     {
         return true;
+    }
+
+    public static void disable( ITurtleUpgrade upgrade )
+    {
+        Wrapper wrapper = wrappers.get( upgrade );
+        if( !wrapper.enabled ) return;
+
+        wrapper.enabled = false;
+        upgrades.remove( wrapper.id );
+        if( wrapper.legacyId >= 0 ) legacyUpgrades.remove( wrapper.legacyId );
     }
 }

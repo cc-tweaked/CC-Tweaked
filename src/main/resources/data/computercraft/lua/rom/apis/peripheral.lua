@@ -4,12 +4,12 @@ local native = peripheral
 
 function getNames()
     local tResults = {}
-    for n,sSide in ipairs( rs.getSides() ) do
+    for _, sSide in ipairs( rs.getSides() ) do
         if native.isPresent( sSide ) then
             table.insert( tResults, sSide )
             if native.getType( sSide ) == "modem" and not native.call( sSide, "isWireless" ) then
                 local tRemote = native.call( sSide, "getNamesRemote" )
-                for n,sName in ipairs( tRemote ) do
+                for _, sName in ipairs( tRemote ) do
                     table.insert( tResults, sName )
                 end
             end
@@ -23,7 +23,7 @@ function isPresent( _sSide )
     if native.isPresent( _sSide ) then
         return true
     end
-    for n,sSide in ipairs( rs.getSides() ) do
+    for _, sSide in ipairs( rs.getSides() ) do
         if native.getType( sSide ) == "modem" and not native.call( sSide, "isWireless" ) then
             if native.call( sSide, "isPresentRemote", _sSide )  then
                 return true
@@ -38,7 +38,7 @@ function getType( _sSide )
     if native.isPresent( _sSide ) then
         return native.getType( _sSide )
     end
-    for n,sSide in ipairs( rs.getSides() ) do
+    for _, sSide in ipairs( rs.getSides() ) do
         if native.getType( sSide ) == "modem" and not native.call( sSide, "isWireless" ) then
             if native.call( sSide, "isPresentRemote", _sSide )  then
                 return native.call( sSide, "getTypeRemote", _sSide )
@@ -53,7 +53,7 @@ function getMethods( _sSide )
     if native.isPresent( _sSide ) then
         return native.getMethods( _sSide )
     end
-    for n,sSide in ipairs( rs.getSides() ) do
+    for _, sSide in ipairs( rs.getSides() ) do
         if native.getType( sSide ) == "modem" and not native.call( sSide, "isWireless" ) then
             if native.call( sSide, "isPresentRemote", _sSide )  then
                 return native.call( sSide, "getMethodsRemote", _sSide )
@@ -69,7 +69,7 @@ function call( _sSide, _sMethod, ... )
     if native.isPresent( _sSide ) then
         return native.call( _sSide, _sMethod, ... )
     end
-    for n,sSide in ipairs( rs.getSides() ) do
+    for _, sSide in ipairs( rs.getSides() ) do
         if native.getType( sSide ) == "modem" and not native.call( sSide, "isWireless" ) then
             if native.call( sSide, "isPresentRemote", _sSide )  then
                 return native.call( sSide, "callRemote", _sSide, _sMethod, ... )
@@ -84,7 +84,7 @@ function wrap( _sSide )
     if peripheral.isPresent( _sSide ) then
         local tMethods = peripheral.getMethods( _sSide )
         local tResult = {}
-        for n,sMethod in ipairs( tMethods ) do
+        for _, sMethod in ipairs( tMethods ) do
             tResult[sMethod] = function( ... )
                 return peripheral.call( _sSide, sMethod, ... )
             end
@@ -98,7 +98,7 @@ function find( sType, fnFilter )
     expect(1, sType, "string")
     expect(2, fnFilter, "function", "nil")
     local tResults = {}
-    for n,sName in ipairs( peripheral.getNames() ) do
+    for _, sName in ipairs( peripheral.getNames() ) do
         if peripheral.getType( sName ) == sType then
             local wrapped = peripheral.wrap( sName )
             if fnFilter == nil or fnFilter( sName, wrapped ) then

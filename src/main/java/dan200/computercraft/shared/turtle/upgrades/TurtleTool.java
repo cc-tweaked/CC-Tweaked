@@ -63,6 +63,12 @@ public class TurtleTool extends AbstractTurtleUpgrade
         this.item = new ItemStack( item );
     }
 
+    public TurtleTool( ResourceLocation id, ItemStack craftItem, ItemStack toolItem )
+    {
+        super( id, -1, TurtleUpgradeType.Tool, craftItem );
+        this.item = toolItem;
+    }
+
     @Nonnull
     @Override
     @OnlyIn( Dist.CLIENT )
@@ -77,7 +83,7 @@ public class TurtleTool extends AbstractTurtleUpgrade
         );
         Minecraft mc = Minecraft.getInstance();
         return Pair.of(
-            mc.getItemRenderer().getItemModelMesher().getItemModel( item ),
+            mc.getItemRenderer().getItemModelMesher().getItemModel( getCraftingItem() ),
             transform
         );
     }

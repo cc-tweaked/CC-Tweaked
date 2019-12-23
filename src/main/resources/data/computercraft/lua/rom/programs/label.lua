@@ -14,11 +14,11 @@ local function checkDrive( sDrive )
         -- Check the disk exists
         local bData = disk.hasData( sDrive )
         if not bData then
-            print( "No disk in "..sDrive.." drive" )
+            print( "No disk in " .. sDrive .. " drive" )
             return false
         end
     else
-        print( "No disk drive named "..sDrive )
+        print( "No disk drive named " .. sDrive )
         return false
     end
     return true
@@ -29,7 +29,7 @@ local function get( sDrive )
         if checkDrive( sDrive ) then
             local sLabel = disk.getLabel( sDrive )
             if sLabel then
-                print( "Disk label is \""..sLabel.."\"" )
+                print( "Disk label is \"" .. sLabel .. "\"" )
             else
                 print( "No Disk label" )
             end
@@ -37,7 +37,7 @@ local function get( sDrive )
     else
         local sLabel = os.getComputerLabel()
         if sLabel then
-            print( "Computer label is \""..sLabel.."\"" )
+            print( "Computer label is \"" .. sLabel .. "\"" )
         else
             print( "No Computer label" )
         end
@@ -50,7 +50,7 @@ local function set( sDrive, sText )
             disk.setLabel( sDrive, sText )
             local sLabel = disk.getLabel( sDrive )
             if sLabel then
-                print( "Disk label set to \""..sLabel.."\"" )
+                print( "Disk label set to \"" .. sLabel .. "\"" )
             else
                 print( "Disk label cleared" )
             end
@@ -59,7 +59,7 @@ local function set( sDrive, sText )
         os.setComputerLabel( sText )
         local sLabel = os.getComputerLabel()
         if sLabel then
-            print( "Computer label set to \""..sLabel.."\"" )
+            print( "Computer label set to \"" .. sLabel .. "\"" )
         else
             print( "Computer label cleared" )
         end

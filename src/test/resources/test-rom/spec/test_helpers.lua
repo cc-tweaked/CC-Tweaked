@@ -37,7 +37,7 @@ local function capture_program(stub, program, ...)
         output = table.concat(output),
         error = table.concat(error),
         combined = table.concat(combined),
-        ok = ok
+        ok = ok,
     }
 end
 

@@ -15,7 +15,7 @@ describe("The exec program", function()
 
     it("runs a command", function()
         stub(_G, "commands", {
-            exec = function() return true, {"Hello World!"} end
+            exec = function() return true, {"Hello World!"} end,
         })
 
         expect(capture(stub, "/rom/programs/command/exec.lua computercraft"))
@@ -23,8 +23,8 @@ describe("The exec program", function()
     end)
 
     it("reports command failures", function()
-        stub(_G,"commands",{
-            exec = function() return false, {"Hello World!"} end
+        stub(_G, "commands", {
+            exec = function() return false, {"Hello World!"} end,
         })
 
         expect(capture(stub, "/rom/programs/command/exec.lua computercraft"))

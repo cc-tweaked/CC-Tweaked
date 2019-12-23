@@ -6,7 +6,7 @@
 ------------
 
 -- The width and height of the terminal
-local w,h = term.getSize()
+local w, h = term.getSize()
 
 -- The selected colours on the left and right mouse button, and the colour of the canvas
 local leftColour, rightColour = colours.white, nil
@@ -16,7 +16,7 @@ local canvasColour = colours.black
 local canvas = {}
 
 -- The menu options
-local mChoices = { "Save","Exit" }
+local mChoices = { "Save", "Exit" }
 
 -- The message displayed in the footer bar
 local fMessage = "Press Ctrl to access menu"
@@ -86,8 +86,8 @@ end
     returns: the colour number of the hex value
 ]]
 local tColourLookup = {}
-for n=1,16 do
-    tColourLookup[ string.byte( "0123456789abcdef",n,n ) ] = 2^(n-1)
+for n = 1, 16 do
+    tColourLookup[ string.byte( "0123456789abcdef", n, n ) ] = 2 ^ (n - 1)
 end
 local function getColourOf( char )
     -- Values not in the hex table are transparent (canvas coloured)
@@ -106,8 +106,8 @@ local function load(path)
         local sLine = file.readLine()
         while sLine do
             local line = {}
-            for x=1,w-2 do
-                line[x] = getColourOf( string.byte(sLine,x,x) )
+            for x = 1, w - 2 do
+                line[x] = getColourOf( string.byte(sLine, x, x) )
             end
             table.insert( canvas, line )
             sLine = file.readLine()
@@ -136,10 +136,10 @@ local function save(path)
     -- Encode (and trim)
     local tLines = {}
     local nLastLine = 0
-    for y=1,h-1 do
+    for y = 1, h - 1 do
         local sLine = ""
         local nLastChar = 0
-        for x=1,w-2 do
+        for x = 1, w - 2 do
             local c = getCharOf( getCanvasPixel( x, y ) )
             sLine = sLine .. c
             if c ~= " " then
@@ -148,13 +148,13 @@ local function save(path)
         end
         sLine = string.sub( sLine, 1, nLastChar )
         tLines[y] = sLine
-        if string.len( sLine ) > 0 then
+        if #sLine > 0 then
             nLastLine = y
         end
     end
 
     -- Save out
-    for n=1,nLastLine do
+    for n = 1, nLastLine do
            file.writeLine( tLines[ n ] )
     end
     file.close()
@@ -174,20 +174,20 @@ local function drawInterface()
     term.write(fMessage)
 
     -- Colour Picker
-    for i=1,16 do
-        term.setCursorPos(w-1, i)
-        term.setBackgroundColour( 2^(i-1) )
+    for i = 1, 16 do
+        term.setCursorPos(w - 1, i)
+        term.setBackgroundColour( 2 ^ (i - 1) )
         term.write("  ")
     end
 
-    term.setCursorPos(w-1, 17)
+    term.setCursorPos(w - 1, 17)
     term.setBackgroundColour( canvasColour )
     term.setTextColour( colours.grey )
     term.write("\127\127")
 
     -- Left and Right Selected Colours
-    for i=18,18 do
-        term.setCursorPos(w-1, i)
+    do
+        term.setCursorPos(w - 1, 18)
         if leftColour ~= nil then
             term.setBackgroundColour( leftColour )
             term.write(" ")
@@ -208,8 +208,8 @@ local function drawInterface()
 
     -- Padding
     term.setBackgroundColour( canvasColour )
-    for i=20,h-1 do
-        term.setCursorPos(w-1, i)
+    for i = 20, h - 1 do
+        term.setCursorPos(w - 1, i)
         term.write("  ")
     end
 end
@@ -237,7 +237,7 @@ end
     returns: nil
 ]]
 local function drawCanvasLine( y )
-    for x = 1, w-2 do
+    for x = 1, w - 2 do
         drawCanvasPixel( x, y )
     end
 end
@@ -247,7 +247,7 @@ end
     returns: nil
 ]]
 local function drawCanvas()
-    for y = 1, h-1 do
+    for y = 1, h - 1 do
         drawCanvasLine( y )
     end
 end
@@ -263,25 +263,25 @@ local function accessMenu()
     term.setBackgroundColour(colours.black)
     while true do
         -- Draw the menu
-        term.setCursorPos(1,h)
+        term.setCursorPos(1, h)
         term.clearLine()
         term.setTextColour(colours.white)
-        for k,v in pairs(mChoices) do
-            if selection==k then
+        for k, v in pairs(mChoices) do
+            if selection == k then
                 term.setTextColour(colours.yellow)
-                local ox,_ = term.getCursorPos()
-                term.write("["..string.rep(" ",#v).."]")
-                term.setCursorPos(ox+1,h)
+                local ox = term.getCursorPos()
+                term.write("[" .. string.rep(" ", #v) .. "]")
+                term.setCursorPos(ox + 1, h)
                 term.setTextColour(colours.white)
                 term.write(v)
-                term.setCursorPos(term.getCursorPos()+1,h)
+                term.setCursorPos(term.getCursorPos() + 1, h)
             else
-                term.write(" "..v.." ")
+                term.write(" " .. v .. " ")
             end
         end
 
         -- Handle input in the menu
-        local id,key = os.pullEvent("key")
+        local id, key = os.pullEvent("key")
         if id == "key" then
             -- S and E are shortcuts
             if key == keys.s then
@@ -308,23 +308,23 @@ local function accessMenu()
 
             elseif key == keys.enter then
                 -- Select an option
-                if mChoices[selection]=="Save" then
+                if mChoices[selection] == "Save" then
                     if bReadOnly then
                         fMessage = "Access denied"
                         return false
                     end
                     local success, err = save(sPath)
                     if success then
-                        fMessage = "Saved to "..sPath
+                        fMessage = "Saved to " .. sPath
                     else
                         if err then
-                            fMessage = "Error saving to "..err
+                            fMessage = "Error saving to " .. err
                         else
-                            fMessage = "Error saving to "..sPath
+                            fMessage = "Error saving to " .. sPath
                         end
                     end
                     return false
-                elseif mChoices[selection]=="Exit" then
+                elseif mChoices[selection] == "Exit" then
                     return true
                 end
             elseif key == keys.leftCtrl or keys == keys.rightCtrl then
@@ -343,19 +343,19 @@ end
 local function handleEvents()
     local programActive = true
     while programActive do
-        local id,p1,p2,p3 = os.pullEvent()
-        if id=="mouse_click" or id=="mouse_drag" then
-            if p2 >= w-1 and p3 >= 1 and p3 <= 17 then
+        local id, p1, p2, p3 = os.pullEvent()
+        if id == "mouse_click" or id == "mouse_drag" then
+            if p2 >= w - 1 and p3 >= 1 and p3 <= 17 then
                 if id ~= "mouse_drag" then
                     -- Selecting an items in the colour picker
                     if p3 <= 16 then
-                        if p1==1 then
-                            leftColour = 2^(p3-1)
+                        if p1 == 1 then
+                            leftColour = 2 ^ (p3 - 1)
                         else
-                            rightColour = 2^(p3-1)
+                            rightColour = 2 ^ (p3 - 1)
                         end
                     else
-                        if p1==1 then
+                        if p1 == 1 then
                             leftColour = nil
                         else
                             rightColour = nil
@@ -364,12 +364,12 @@ local function handleEvents()
                     --drawCanvas()
                     drawInterface()
                 end
-            elseif p2 < w-1 and p3 <= h-1 then
+            elseif p2 < w - 1 and p3 <= h - 1 then
                 -- Clicking on the canvas
                 local paintColour = nil
-                if p1==1 then
+                if p1 == 1 then
                     paintColour = leftColour
-                elseif p1==2 then
+                elseif p1 == 2 then
                     paintColour = rightColour
                 end
                 if not canvas[p3] then
@@ -379,13 +379,13 @@ local function handleEvents()
 
                 drawCanvasPixel( p2, p3 )
             end
-        elseif id=="key" then
-            if p1==keys.leftCtrl or p1==keys.rightCtrl then
+        elseif id == "key" then
+            if p1 == keys.leftCtrl or p1 == keys.rightCtrl then
                 programActive = not accessMenu()
                 drawInterface()
             end
-        elseif id=="term_resize" then
-            w,h = term.getSize()
+        elseif id == "term_resize" then
+            w, h = term.getSize()
             drawCanvas()
             drawInterface()
         end
@@ -404,4 +404,4 @@ handleEvents()
 term.setBackgroundColour(colours.black)
 term.setTextColour(colours.white)
 term.clear()
-term.setCursorPos(1,1)
+term.setCursorPos(1, 1)

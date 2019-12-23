@@ -28,7 +28,7 @@ elseif sCommand == "host" then
 
     -- Find a modem
     local sModemSide = nil
-    for n,sSide in ipairs( rs.getSides() ) do
+    for _, sSide in ipairs( rs.getSides() ) do
         if peripheral.getType( sSide ) == "modem" and peripheral.call( sSide, "isWireless" ) then
             sModemSide = sSide
             break
@@ -41,7 +41,7 @@ elseif sCommand == "host" then
     end
 
     -- Determine position
-    local x,y,z
+    local x, y, z
     if #tArgs >= 4 then
         -- Position is manually specified
         x = tonumber(tArgs[2])
@@ -51,10 +51,10 @@ elseif sCommand == "host" then
             printUsage()
             return
         end
-        print( "Position is "..x..","..y..","..z )
+        print( "Position is " .. x .. "," .. y .. "," .. z )
     else
         -- Position is to be determined using locate
-        x,y,z = gps.locate( 2, true )
+        x, y, z = gps.locate( 2, true )
         if x == nil then
             print( "Run \"gps host <x> <y> <z>\" to set position manually" )
             return
@@ -63,7 +63,7 @@ elseif sCommand == "host" then
 
     -- Open a channel
     local modem = peripheral.wrap( sModemSide )
-    print( "Opening channel on modem "..sModemSide )
+    print( "Opening channel on modem " .. sModemSide )
     modem.open( gps.CHANNEL_GPS )
 
     -- Serve requests indefinately
@@ -80,10 +80,10 @@ elseif sCommand == "host" then
                 -- Print the number of requests handled
                 nServed = nServed + 1
                 if nServed > 1 then
-                    local x,y = term.getCursorPos()
-                    term.setCursorPos(1,y-1)
+                    local _, y = term.getCursorPos()
+                    term.setCursorPos(1, y - 1)
                 end
-                print( nServed.." GPS requests served" )
+                print( nServed .. " GPS requests served" )
             end
         end
     end

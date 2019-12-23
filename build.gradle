@@ -81,6 +81,10 @@ repositories {
         name "Amadornes"
         url "https://maven.amadornes.com/"
     }
+    maven {
+        name "CraftTweaker"
+        url "https://maven.blamejared.com/"
+    }
 }
 
 configurations {
@@ -95,8 +99,7 @@ dependencies {
     minecraft "net.minecraftforge:forge:${mc_version}-${forge_version}"
 
     compileOnly fg.deobf("mezz.jei:jei-1.14.4:6.0.0.25:api")
-    // deobfProvided "pl.asie:Charset-Lib:0.5.4.6"
-    // deobfProvided "MCMultiPart2:MCMultiPart:2.5.3"
+    compileOnly fg.deobf("com.blamejared.crafttweaker:CraftTweaker-1.14.4:5.0.1.150")
 
     runtimeOnly fg.deobf("mezz.jei:jei-1.14.4:6.0.0.25")
 
@@ -162,6 +165,7 @@ task proguard(type: ProGuardTask, dependsOn: jar) {
 
     // Add the main runtime jar and all non-shadowed dependencies
     libraryjars "${System.getProperty('java.home')}/lib/rt.jar"
+    libraryjars "${System.getProperty('java.home')}/lib/jce.jar"
     doFirst {
         sourceSets.main.compileClasspath
             .filter { !it.name.contains("Cobalt") }
@@ -176,9 +180,6 @@ task proguard(type: ProGuardTask, dependsOn: jar) {
 
     // Preserve ComputerCraft classes - we only want to strip shadowed files.
     keep 'class dan200.computercraft.** { *; }'
-
-    // Preserve the constructors in Cobalt library class, as we init them via reflection
-    keepclassmembers 'class org.squiddev.cobalt.lib.** { <init>(...); }'
 
     // LWJGL and Apache bundle Java 9 versions, which is great, but rather breaks Proguard
     dontwarn 'module-info'
