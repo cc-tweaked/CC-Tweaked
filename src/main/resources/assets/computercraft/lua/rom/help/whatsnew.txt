@@ -1,5 +1,10 @@
-New features in CC: Tweaked 1.85.2
+New features in CC: Tweaked 1.86.0
 
-* Fix crashes when using the mouse with advanced computers.
+* Add PATCH and TRACE HTTP methods. (jaredallard)
+* Add more MOTD messages. (JakobDev)
+* Allow removing and adding turtle upgrades via CraftTweaker.
+
+And several bug fixes:
+* Fix crash when interacting with Wearable Backpacks.
 
 Type "help changelog" to see the full version history.
