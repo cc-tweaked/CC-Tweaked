@@ -172,8 +172,8 @@ public final class Config
                 .setComment( "Controls the HTTP API" );
 
             httpEnable = config.get( CATEGORY_HTTP, "enabled", ComputerCraft.http_enable );
-            httpEnable.setComment( "Enable the \"http\" API on Computers (see \"http_whitelist\" and \"http_blacklist\" for " +
-                "more fine grained control than this)" );
+            httpEnable.setComment( "Enable the \"http\" API on Computers (see \"allowed_domains\" and \"blocked_domains\" " +
+                "for more fine grained control than this)" );
 
             httpWebsocketEnable = config.get( CATEGORY_HTTP, "websocket_enabled", ComputerCraft.http_websocket_enable );
             httpWebsocketEnable.setComment( "Enable use of http websockets. This requires the \"http_enable\" option to also be true." );
@@ -188,7 +188,7 @@ public final class Config
             httpBlockedDomains = config.get( CATEGORY_HTTP, "blocked_domains", DEFAULT_HTTP_BLACKLIST );
             httpBlockedDomains.setComment( "A list of wildcards for domains or IP ranges that cannot be accessed through the " +
                 "\"http\" API on Computers.\n" +
-                "If this is empty then all whitelisted domains will be accessible. Example: \"*.github.com\" will block " +
+                "If this is empty then all explicitly allowed domains will be accessible. Example: \"*.github.com\" will block " +
                 "access to all subdomains of github.com.\n" +
                 "You can use domain names (\"pastebin.com\"), wilcards (\"*.pastebin.com\") or CIDR notation (\"127.0.0.0/8\")." );
 
