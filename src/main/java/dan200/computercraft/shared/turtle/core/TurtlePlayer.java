@@ -8,6 +8,7 @@ package dan200.computercraft.shared.turtle.core;
 
 import com.mojang.authlib.GameProfile;
 import dan200.computercraft.api.turtle.ITurtleAccess;
+import dan200.computercraft.shared.util.FakeNetHandler;
 import dan200.computercraft.shared.util.InventoryUtil;
 import dan200.computercraft.shared.util.WorldUtil;
 import net.minecraft.entity.Entity;
@@ -46,11 +47,13 @@ public class TurtlePlayer extends FakePlayer
     public TurtlePlayer( World world )
     {
         super( (WorldServer) world, DEFAULT_PROFILE );
+        connection = new FakeNetHandler( this );
     }
 
     private TurtlePlayer( ITurtleAccess turtle )
     {
         super( (WorldServer) turtle.getWorld(), getProfile( turtle.getOwningPlayer() ) );
+        connection = new FakeNetHandler( this );
         setState( turtle );
     }
 
