@@ -63,8 +63,8 @@ gui.computercraft:config.execution.computer_threads=Dator trådar
 gui.computercraft:config.http=HTTP
 gui.computercraft:config.http.enabled=Aktivera HTTP API
 gui.computercraft:config.http.websocket_enabled=Aktivera websockets
-gui.computercraft:config.http.whitelist=HTTP vitlista
-gui.computercraft:config.http.blacklist=HTTP svartlista
+gui.computercraft:config.http.allowed_domains=HTTP vitlista
+gui.computercraft:config.http.blocked_domains=HTTP svartlista
 
 gui.computercraft:config.http.timeout=Timeout
 gui.computercraft:config.http.max_requests=Maximalt antal samgående förfrågningar

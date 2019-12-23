@@ -168,8 +168,8 @@ gui.computercraft:config.execution.max_main_computer_time=Computer Servertick Ze
 gui.computercraft:config.http=HTTP
 gui.computercraft:config.http.enabled=HTTP-API aktivieren
 gui.computercraft:config.http.websocket_enabled=Websockets aktivieren
-gui.computercraft:config.http.whitelist=HTTP-Whitelist
-gui.computercraft:config.http.blacklist=HTTP-Blacklist
+gui.computercraft:config.http.allowed_domains=HTTP-Whitelist
+gui.computercraft:config.http.blocked_domains=HTTP-Blacklist
 
 gui.computercraft:config.http.timeout=Zeitüberschreitung
 gui.computercraft:config.http.max_requests=Maximale Anzahl gleichzeitiger Anfragen

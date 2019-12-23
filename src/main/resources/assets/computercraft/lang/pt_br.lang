@@ -63,8 +63,8 @@ gui.computercraft:config.execution.computer_threads=Threads por computador
 gui.computercraft:config.http=HTTP
 gui.computercraft:config.http.enabled=Habilitar a biblioteca de HTTP
 gui.computercraft:config.http.websocket_enabled=Habilitar websockets
-gui.computercraft:config.http.whitelist=Lista de endereços autorizados
-gui.computercraft:config.http.blacklist=Lista de endereços proíbidos
+gui.computercraft:config.http.allowed_domains=Lista de endereços autorizados
+gui.computercraft:config.http.blocked_domains=Lista de endereços proíbidos
 
 gui.computercraft:config.http.timeout=Tempo limite para conexões
 gui.computercraft:config.http.max_requests=Limite de conexões paralelas

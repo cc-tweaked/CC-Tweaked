@@ -63,8 +63,8 @@ gui.computercraft:config.execution.computer_threads=Threads computer
 gui.computercraft:config.http=HTTP
 gui.computercraft:config.http.enabled=Attiva l'API HTTP
 gui.computercraft:config.http.websocket_enabled=Attiva websocket
-gui.computercraft:config.http.whitelist=Lista bianca HTTP
-gui.computercraft:config.http.blacklist=Lista nera HTTP
+gui.computercraft:config.http.allowed_domains=Lista bianca HTTP
+gui.computercraft:config.http.blocked_domains=Lista nera HTTP
 
 gui.computercraft:config.http.timeout=Tempo di scadenza
 gui.computercraft:config.http.max_requests=Richieste correnti massime

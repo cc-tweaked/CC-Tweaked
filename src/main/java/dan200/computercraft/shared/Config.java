@@ -54,8 +54,8 @@ public final class Config
 
     private static Property httpEnable;
     private static Property httpWebsocketEnable;
-    private static Property httpWhitelist;
-    private static Property httpBlacklist;
+    private static Property httpAllowedDomains;
+    private static Property httpBlockedDomains;
 
     private static Property httpTimeout;
     private static Property httpMaxRequests;
@@ -163,8 +163,10 @@ public final class Config
         { // HTTP
             renameProperty( CATEGORY_GENERAL, "http_enable", CATEGORY_HTTP, "enabled" );
             renameProperty( CATEGORY_GENERAL, "http_websocket_enable", CATEGORY_HTTP, "websocket_enabled" );
-            renameProperty( CATEGORY_GENERAL, "http_whitelist", CATEGORY_HTTP, "whitelist" );
-            renameProperty( CATEGORY_GENERAL, "http_blacklist", CATEGORY_HTTP, "blacklist" );
+            renameProperty( CATEGORY_GENERAL, "http_whitelist", CATEGORY_HTTP, "allowed_domains" );
+            renameProperty( CATEGORY_GENERAL, "http_blacklist", CATEGORY_HTTP, "blocked_domains" );
+            renameProperty( CATEGORY_HTTP, "whitelist", CATEGORY_HTTP, "allowed_domains" );
+            renameProperty( CATEGORY_HTTP, "blacklist", CATEGORY_HTTP, "blocked_domains" );
 
             config.getCategory( CATEGORY_HTTP )
                 .setComment( "Controls the HTTP API" );
@@ -176,15 +178,15 @@ public final class Config
             httpWebsocketEnable = config.get( CATEGORY_HTTP, "websocket_enabled", ComputerCraft.http_websocket_enable );
             httpWebsocketEnable.setComment( "Enable use of http websockets. This requires the \"http_enable\" option to also be true." );
 
-            httpWhitelist = config.get( CATEGORY_HTTP, "whitelist", DEFAULT_HTTP_WHITELIST );
-            httpWhitelist.setComment( "A list of wildcards for domains or IP ranges that can be accessed through the " +
+            httpAllowedDomains = config.get( CATEGORY_HTTP, "allowed_domains", DEFAULT_HTTP_WHITELIST );
+            httpAllowedDomains.setComment( "A list of wildcards for domains or IP ranges that can be accessed through the " +
                 "\"http\" API on Computers.\n" +
                 "Set this to \"*\" to access to the entire internet. Example: \"*.pastebin.com\" will restrict access to " +
                 "just subdomains of pastebin.com.\n" +
                 "You can use domain names (\"pastebin.com\"), wilcards (\"*.pastebin.com\") or CIDR notation (\"127.0.0.0/8\")." );
 
-            httpBlacklist = config.get( CATEGORY_HTTP, "blacklist", DEFAULT_HTTP_BLACKLIST );
-            httpBlacklist.setComment( "A list of wildcards for domains or IP ranges that cannot be accessed through the " +
+            httpBlockedDomains = config.get( CATEGORY_HTTP, "blocked_domains", DEFAULT_HTTP_BLACKLIST );
+            httpBlockedDomains.setComment( "A list of wildcards for domains or IP ranges that cannot be accessed through the " +
                 "\"http\" API on Computers.\n" +
                 "If this is empty then all whitelisted domains will be accessible. Example: \"*.github.com\" will block " +
                 "access to all subdomains of github.com.\n" +
@@ -220,7 +222,7 @@ public final class Config
 
             setOrder(
                 CATEGORY_HTTP,
-                httpEnable, httpWebsocketEnable, httpWhitelist, httpBlacklist,
+                httpEnable, httpWebsocketEnable, httpAllowedDomains, httpBlockedDomains,
                 httpTimeout, httpMaxRequests, httpMaxDownload, httpMaxUpload, httpMaxWebsockets, httpMaxWebsocketMessage
             );
         }
@@ -441,8 +443,8 @@ public final class Config
         // HTTP
         ComputerCraft.http_enable = httpEnable.getBoolean();
         ComputerCraft.http_websocket_enable = httpWebsocketEnable.getBoolean();
-        ComputerCraft.http_whitelist = new AddressPredicate( httpWhitelist.getStringList() );
-        ComputerCraft.http_blacklist = new AddressPredicate( httpBlacklist.getStringList() );
+        ComputerCraft.http_whitelist = new AddressPredicate( httpAllowedDomains.getStringList() );
+        ComputerCraft.http_blacklist = new AddressPredicate( httpBlockedDomains.getStringList() );
 
         ComputerCraft.httpTimeout = Math.max( 0, httpTimeout.getInt() );
         ComputerCraft.httpMaxRequests = Math.max( 1, httpMaxRequests.getInt() );

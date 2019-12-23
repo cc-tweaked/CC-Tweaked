@@ -168,8 +168,8 @@ gui.computercraft:config.execution.max_main_computer_time=服务器计算机tick
 gui.computercraft:config.http=HTTP
 gui.computercraft:config.http.enabled=启用HTTP API
 gui.computercraft:config.http.websocket_enabled=启用websockets
-gui.computercraft:config.http.whitelist=HTTP白名单
-gui.computercraft:config.http.blacklist=HTTP黑名单
+gui.computercraft:config.http.allowed_domains=HTTP白名单
+gui.computercraft:config.http.blocked_domains=HTTP黑名单
 
 gui.computercraft:config.http.timeout=Timeout
 gui.computercraft:config.http.max_requests=最大并发请求数

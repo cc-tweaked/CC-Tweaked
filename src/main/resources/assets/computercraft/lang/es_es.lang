@@ -57,8 +57,8 @@ gui.computercraft:config.default_computer_settings=Configuración de Ordenador p
 gui.computercraft:config.log_computer_errors=Grabar errores periféricos
 
 gui.computercraft:config.http.enabled=Habilitar API de HTTP
-gui.computercraft:config.http.whitelist=Lista blanca de HTTP
-gui.computercraft:config.http.blacklist=Lista negra de HTTP
+gui.computercraft:config.http.allowed_domains=Lista blanca de HTTP
+gui.computercraft:config.http.blocked_domains=Lista negra de HTTP
 
 gui.computercraft:config.peripheral.command_block_enabled=Habilitar bloque de comandos periférico
 gui.computercraft:config.peripheral.modem_range=Rango del módem (Por defecto)
