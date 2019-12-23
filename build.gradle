@@ -137,6 +137,7 @@ task proguard(type: ProGuardTask, dependsOn: jar) {
 
     // Add the main runtime jar and all non-shadowed dependencies
     libraryjars "${System.getProperty('java.home')}/lib/rt.jar"
+    libraryjars "${System.getProperty('java.home')}/lib/jce.jar"
     doFirst {
         sourceSets.main.compileClasspath
             .filter { !it.name.contains("Cobalt") }
@@ -151,9 +152,6 @@ task proguard(type: ProGuardTask, dependsOn: jar) {
 
     // Preserve ComputerCraft classes - we only want to strip shadowed files.
     keep 'class dan200.computercraft.** { *; }'
-
-    // Preserve the constructors in Cobalt library class, as we init them via reflection
-    keepclassmembers 'class org.squiddev.cobalt.lib.** { <init>(...); }'
 }
 
 task proguardMove(dependsOn: proguard) {
