@@ -27,7 +27,7 @@ public final class TurtleUpgrades
         final String modId;
         boolean enabled;
 
-        public Wrapper( ITurtleUpgrade upgrade )
+        Wrapper( ITurtleUpgrade upgrade )
         {
             this.upgrade = upgrade;
             this.id = upgrade.getUpgradeID().toString();

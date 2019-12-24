@@ -19,7 +19,7 @@ import org.openzen.zencode.java.ZenCodeType;
 public class TurtleTweaker
 {
     /**
-     * Remove a turtle upgrade with the given id
+     * Remove a turtle upgrade with the given id.
      *
      * @param upgrade The ID of the to remove
      */
@@ -30,7 +30,7 @@ public class TurtleTweaker
     }
 
     /**
-     * Remove a turtle upgrade crafted with the given item stack"
+     * Remove a turtle upgrade crafted with the given item stack".
      *
      * @param stack The stack with which the upgrade is crafted.
      */
