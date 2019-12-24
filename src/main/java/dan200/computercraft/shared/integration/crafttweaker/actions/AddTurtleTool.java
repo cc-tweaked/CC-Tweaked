@@ -6,20 +6,24 @@
 
 package dan200.computercraft.shared.integration.crafttweaker.actions;
 
+import com.blamejared.crafttweaker.api.actions.IUndoableAction;
+import com.blamejared.crafttweaker.api.logger.ILogger;
 import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.shared.TurtleUpgrades;
+import dan200.computercraft.shared.integration.crafttweaker.TrackingLogger;
 import dan200.computercraft.shared.turtle.upgrades.*;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.fml.LogicalSide;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 /**
  * Register a new turtle tool.
  */
-public class AddTurtleTool implements IAction
+public class AddTurtleTool implements IUndoableAction
 {
     private interface Factory
     {
@@ -42,6 +46,8 @@ public class AddTurtleTool implements IAction
     private final ItemStack toolItem;
     private final String kind;
 
+    private ITurtleUpgrade upgrade;
+
     public AddTurtleTool( String id, ItemStack craftItem, ItemStack toolItem, String kind )
     {
         this.id = id;
@@ -53,16 +59,22 @@ public class AddTurtleTool implements IAction
     @Override
     public void apply()
     {
-        Factory factory = kinds.get( kind );
-        if( factory == null )
+        ITurtleUpgrade upgrade = this.upgrade;
+        if( upgrade == null )
         {
-            ComputerCraft.log.error( "Unknown turtle upgrade kind '{}' (this should have been rejected by verify!)", kind );
-            return;
+            Factory factory = kinds.get( kind );
+            if( factory == null )
+            {
+                ComputerCraft.log.error( "Unknown turtle upgrade kind '{}' (this should have been rejected by verify!)", kind );
+                return;
+            }
+
+            upgrade = this.upgrade = factory.create( new ResourceLocation( id ), craftItem, toolItem );
         }
 
         try
         {
-            TurtleUpgrades.register( factory.create( new ResourceLocation( id ), craftItem, toolItem ) );
+            TurtleUpgrades.register( upgrade );
         }
         catch( RuntimeException e )
         {
@@ -76,21 +88,40 @@ public class AddTurtleTool implements IAction
         return String.format( "Add new turtle %s '%s' (crafted with '%s', uses a '%s')", kind, id, craftItem, toolItem );
     }
 
-    public Optional<String> getValidationProblem()
+    @Override
+    public void undo()
     {
-        if( craftItem.isEmpty() ) return Optional.of( "Crafting item stack is empty." );
-        if( craftItem.hasTagCompound() && !craftItem.getTagCompound().isEmpty() )
-        {
-            return Optional.of( "Crafting item has NBT." );
-        }
-        if( toolItem.isEmpty() ) return Optional.of( "Tool item stack is empty." );
-        if( !kinds.containsKey( kind ) ) return Optional.of( String.format( "Unknown kind '%s'.", kind ) );
+        if( upgrade != null ) TurtleUpgrades.remove( upgrade );
+    }
+
+    @Override
+    public String describeUndo()
+    {
+        return String.format( "Removing turtle upgrade %s.", id );
+    }
+
+    public boolean validate( ILogger logger )
+    {
+        TrackingLogger trackLog = new TrackingLogger( logger );
+
+        if( craftItem.isEmpty() ) trackLog.warning( "Crafting item stack is empty." );
+
+        if( craftItem.hasTag() && !craftItem.getTag().isEmpty() ) trackLog.warning( "Crafting item has NBT." );
+        if( toolItem.isEmpty() ) trackLog.error( "Tool item stack is empty." );
+
+        if( !kinds.containsKey( kind ) ) trackLog.error( String.format( "Unknown kind '%s'.", kind ) );
 
         if( TurtleUpgrades.get( id ) != null )
         {
-            return Optional.of( String.format( "An upgrade with the same name ('%s') has already been registered.", id ) );
+            trackLog.error( String.format( "An upgrade with the same name ('%s') has already been registered.", id ) );
         }
 
-        return Optional.empty();
+        return trackLog.isOk();
+    }
+
+    @Override
+    public boolean shouldApplyOn( LogicalSide side )
+    {
+        return true;
     }
 }

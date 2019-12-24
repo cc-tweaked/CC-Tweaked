@@ -11,7 +11,6 @@ import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.util.InventoryUtil;
 import net.minecraft.item.ItemStack;
-import net.minecraftforge.fml.ModContainer;
 import net.minecraftforge.fml.ModLoadingContext;
 
 import javax.annotation.Nonnull;
@@ -21,21 +20,18 @@ import java.util.stream.Stream;
 
 public final class TurtleUpgrades
 {
-    public static class Wrapper
+    private static class Wrapper
     {
         final ITurtleUpgrade upgrade;
-        final int legacyId;
         final String id;
         final String modId;
         boolean enabled;
 
         public Wrapper( ITurtleUpgrade upgrade )
         {
-            ModContainer mc = ModLoadingContext.get().getActiveContainer();
-
             this.upgrade = upgrade;
             this.id = upgrade.getUpgradeID().toString();
-            this.modId = mc != null && mc.getModId() != null ? mc.getModId() : null;
+            this.modId = ModLoadingContext.get().getActiveNamespace();
             this.enabled = true;
         }
     }
@@ -44,19 +40,21 @@ public final class TurtleUpgrades
 
     private static final Map<String, ITurtleUpgrade> upgrades = new HashMap<>();
     private static final IdentityHashMap<ITurtleUpgrade, Wrapper> wrappers = new IdentityHashMap<>();
+    private static boolean needsRebuild;
 
     private TurtleUpgrades() {}
 
     public static void register( @Nonnull ITurtleUpgrade upgrade )
     {
         Objects.requireNonNull( upgrade, "upgrade cannot be null" );
+        rebuild();
 
         Wrapper wrapper = new Wrapper( upgrade );
         String id = wrapper.id;
         ITurtleUpgrade existing = upgrades.get( id );
         if( existing != null )
         {
-            throw new IllegalStateException( "Error registering '" + upgrade.getUnlocalisedAdjective() + " Turle'. UpgradeID '" + id + "' is already registered by '" + existing.getUnlocalisedAdjective() + " Turtle'" );
+            throw new IllegalStateException( "Error registering '" + upgrade.getUnlocalisedAdjective() + " Turtle'. Upgrade ID '" + id + "' is already registered by '" + existing.getUnlocalisedAdjective() + " Turtle'" );
         }
 
         upgrades.put( id, upgrade );
@@ -66,13 +64,8 @@ public final class TurtleUpgrades
     @Nullable
     public static ITurtleUpgrade get( String id )
     {
+        rebuild();
         return upgrades.get( id );
-    }
-
-    @Nullable
-    public static ITurtleUpgrade get( int id )
-    {
-        return legacyUpgrades.get( id );
     }
 
     @Nullable
@@ -86,12 +79,14 @@ public final class TurtleUpgrades
     {
         if( stack.isEmpty() ) return null;
 
-        for( ITurtleUpgrade upgrade : upgrades.values() )
+        for( Wrapper wrapper : wrappers.values() )
         {
-            ItemStack craftingStack = upgrade.getCraftingItem();
+            if( !wrapper.enabled ) continue;
+
+            ItemStack craftingStack = wrapper.upgrade.getCraftingItem();
             if( !craftingStack.isEmpty() && InventoryUtil.areItemsSimilar( stack, craftingStack ) )
             {
-                return upgrade;
+                return wrapper.upgrade;
             }
         }
 
@@ -121,14 +116,49 @@ public final class TurtleUpgrades
         return Arrays.stream( vanilla ).filter( x -> x != null && wrappers.get( x ).enabled );
     }
 
-    public static Iterable<ITurtleUpgrade> getUpgrades()
+    public static Stream<ITurtleUpgrade> getUpgrades()
     {
-        return Collections.unmodifiableCollection( upgrades.values() );
+        return wrappers.values().stream().filter( x -> x.enabled ).map( x -> x.upgrade );
     }
 
     public static boolean suitableForFamily( ComputerFamily family, ITurtleUpgrade upgrade )
     {
         return true;
+    }
+
+    /**
+     * Rebuild the cache of turtle upgrades. This is done before querying the cache or registering new upgrades.
+     */
+    private static void rebuild()
+    {
+        if( !needsRebuild ) return;
+
+        upgrades.clear();
+        for( Wrapper wrapper : wrappers.values() )
+        {
+            if( !wrapper.enabled ) continue;
+
+            ITurtleUpgrade existing = upgrades.get( wrapper.id );
+            if( existing != null )
+            {
+                ComputerCraft.log.error( "Error registering '" + wrapper.upgrade.getUnlocalisedAdjective() + " Turtle'." +
+                    " Upgrade ID '" + wrapper.id + "' is already registered by '" + existing.getUnlocalisedAdjective() + " Turtle'" );
+                continue;
+            }
+
+            upgrades.put( wrapper.id, wrapper.upgrade );
+        }
+
+        needsRebuild = false;
+    }
+
+    public static void enable( ITurtleUpgrade upgrade )
+    {
+        Wrapper wrapper = wrappers.get( upgrade );
+        if( wrapper.enabled ) return;
+
+        wrapper.enabled = true;
+        needsRebuild = true;
     }
 
     public static void disable( ITurtleUpgrade upgrade )
@@ -138,6 +168,11 @@ public final class TurtleUpgrades
 
         wrapper.enabled = false;
         upgrades.remove( wrapper.id );
-        if( wrapper.legacyId >= 0 ) legacyUpgrades.remove( wrapper.legacyId );
+    }
+
+    public static void remove( ITurtleUpgrade upgrade )
+    {
+        wrappers.remove( upgrade );
+        needsRebuild = true;
     }
 }

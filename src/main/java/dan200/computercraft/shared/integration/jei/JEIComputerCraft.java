@@ -76,12 +76,10 @@ public class JEIComputerCraft implements IModPlugin
         List<ItemStack> upgradeItems = new ArrayList<>();
         for( ComputerFamily family : MAIN_FAMILIES )
         {
-            for( ITurtleUpgrade upgrade : TurtleUpgrades.getUpgrades() )
-            {
-                if( !TurtleUpgrades.suitableForFamily( family, upgrade ) ) continue;
-
-                upgradeItems.add( TurtleItemFactory.create( -1, null, -1, family, null, upgrade, 0, null ) );
-            }
+            TurtleUpgrades.getUpgrades()
+                .filter( x -> TurtleUpgrades.suitableForFamily( family, x ) )
+                .map( x -> TurtleItemFactory.create( -1, null, -1, family, null, x, 0, null ) )
+                .forEach( upgradeItems::add );
 
             for( IPocketUpgrade upgrade : PocketUpgrades.getUpgrades() )
             {

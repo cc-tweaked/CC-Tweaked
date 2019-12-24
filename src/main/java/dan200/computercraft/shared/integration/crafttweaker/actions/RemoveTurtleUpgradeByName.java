@@ -6,17 +6,19 @@
 
 package dan200.computercraft.shared.integration.crafttweaker.actions;
 
+import com.blamejared.crafttweaker.api.actions.IUndoableAction;
+import com.blamejared.crafttweaker.api.logger.ILogger;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.shared.TurtleUpgrades;
-
-import java.util.Optional;
+import net.minecraftforge.fml.LogicalSide;
 
 /**
  * Removes a turtle upgrade with the given id.
  */
-public class RemoveTurtleUpgradeByName implements IAction
+public class RemoveTurtleUpgradeByName implements IUndoableAction
 {
     private final String id;
+    private ITurtleUpgrade upgrade;
 
     public RemoveTurtleUpgradeByName( String id )
     {
@@ -26,7 +28,7 @@ public class RemoveTurtleUpgradeByName implements IAction
     @Override
     public void apply()
     {
-        ITurtleUpgrade upgrade = TurtleUpgrades.get( id );
+        ITurtleUpgrade upgrade = this.upgrade = TurtleUpgrades.get( id );
         if( upgrade != null ) TurtleUpgrades.disable( upgrade );
     }
 
@@ -37,13 +39,32 @@ public class RemoveTurtleUpgradeByName implements IAction
     }
 
     @Override
-    public Optional<String> getValidationProblem()
+    public void undo()
+    {
+        if( this.upgrade != null ) TurtleUpgrades.enable( upgrade );
+    }
+
+    @Override
+    public String describeUndo()
+    {
+        return String.format( "Adding back turtle upgrade '%s'", id );
+    }
+
+    @Override
+    public boolean validate( ILogger logger )
     {
         if( TurtleUpgrades.get( id ) == null )
         {
-            return Optional.of( String.format( "Unknown turtle upgrade '%s'.", id ) );
+            logger.error( String.format( "Unknown turtle upgrade '%s'.", id ) );
+            return false;
         }
 
-        return Optional.empty();
+        return true;
+    }
+
+    @Override
+    public boolean shouldApplyOn( LogicalSide side )
+    {
+        return true;
     }
 }

@@ -139,7 +139,7 @@ jar {
 
 [compileJava, compileTestJava].forEach {
     it.configure {
-        options.compilerArgs << "-Xlint" << "-Xlint:-processing" << "-Werror"
+        options.compilerArgs << "-Xlint" << "-Xlint:-processing"
     }
 }
 

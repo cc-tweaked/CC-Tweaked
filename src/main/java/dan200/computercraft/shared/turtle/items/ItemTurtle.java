@@ -66,12 +66,10 @@ public class ItemTurtle extends ItemComputerBase implements ITurtleItem
         ComputerFamily family = getFamily();
 
         list.add( create( -1, null, -1, null, null, 0, null ) );
-        for( ITurtleUpgrade upgrade : TurtleUpgrades.getVanillaUpgrades() )
-        {
-            if( !TurtleUpgrades.suitableForFamily( family, upgrade ) ) continue;
-
-            list.add( create( -1, null, -1, null, upgrade, 0, null ) );
-        }
+        TurtleUpgrades.getVanillaUpgrades()
+            .filter( x -> TurtleUpgrades.suitableForFamily( family, x ) )
+            .map( x -> create( -1, null, -1, null, x, 0, null ) )
+            .forEach( list::add );
     }
 
     @Nonnull
