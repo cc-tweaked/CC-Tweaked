@@ -183,14 +183,14 @@ public final class Config
                 "\"http\" API on Computers.\n" +
                 "Set this to \"*\" to access to the entire internet. Example: \"*.pastebin.com\" will restrict access to " +
                 "just subdomains of pastebin.com.\n" +
-                "You can use domain names (\"pastebin.com\"), wilcards (\"*.pastebin.com\") or CIDR notation (\"127.0.0.0/8\")." );
+                "You can use domain names (\"pastebin.com\"), wildcards (\"*.pastebin.com\") or CIDR notation (\"127.0.0.0/8\")." );
 
             httpBlockedDomains = config.get( CATEGORY_HTTP, "blocked_domains", DEFAULT_HTTP_BLACKLIST );
             httpBlockedDomains.setComment( "A list of wildcards for domains or IP ranges that cannot be accessed through the " +
                 "\"http\" API on Computers.\n" +
                 "If this is empty then all explicitly allowed domains will be accessible. Example: \"*.github.com\" will block " +
                 "access to all subdomains of github.com.\n" +
-                "You can use domain names (\"pastebin.com\"), wilcards (\"*.pastebin.com\") or CIDR notation (\"127.0.0.0/8\")." );
+                "You can use domain names (\"pastebin.com\"), wildcards (\"*.pastebin.com\") or CIDR notation (\"127.0.0.0/8\")." );
 
             httpTimeout = config.get( CATEGORY_HTTP, "timeout", ComputerCraft.httpTimeout );
             httpTimeout.setComment( "The period of time (in milliseconds) to wait before a HTTP request times out. Set to 0 for unlimited." );
