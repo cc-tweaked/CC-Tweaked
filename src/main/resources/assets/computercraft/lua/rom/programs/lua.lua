@@ -9,9 +9,10 @@ end
 local bRunning = true
 local tCommandHistory = {}
 local tEnv = {
-    ["exit"] = function()
-        bRunning = false
-    end,
+    ["exit"] = setmetatable({}, {
+        __tostring = function() return "Call exit() to exit" end,
+        __call = function() bRunning = false end,
+    }),
     ["_echo"] = function( ... )
         return ...
     end,
