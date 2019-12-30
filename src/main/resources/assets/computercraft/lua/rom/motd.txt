@@ -28,7 +28,16 @@ Use "monitor" to run a program on a attached monitor.
 View all attached peripherals with "peripherals".
 Use "time" to see the in-game time.
 You can set the label of a computer with "label set".
-A computer needs a label to keep its files if it got destroyed.
+A computer needs a label to keep its files if it is destroyed.
 You can disable auto completion in the shell with "set shell.autocomplete false".
 You can disable auto completion in edit with "set edit.autocomplete false".
 Feeling creative? Use a printer to print a book!
+Files beginning with a "." character are hidden from "list" by default.
+Running "set" lists the current values of all settings.
+Some programs are only available on advanced computers, turtles, pocket computers, or command computers.
+The "equip" and "unequip" programs let you add or remove supported upgrades from a turtle or pocket computer without crafting.
+You can change the color of a disk by crafting it with dye.
+Right-clicking a turtle with a dye changes its color.
+You can print on a printed page again to get multiple colors.
+Holding the Control and T keys terminates the running program.
+Holding Control and S or R shuts down or reboots the computer you are using.
