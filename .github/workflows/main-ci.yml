@@ -16,15 +16,13 @@ jobs:
         java-version: 1.8
 
     - name: Build with Gradle
-      run: |
-        ./gradlew build --no-daemon
-        mv build/libs/*.jar CC-Tweaked.jar
+      run: ./gradlew build --no-daemon
 
     - name: Upload Jar
       uses: actions/upload-artifact@v1
       with:
         name: CC-Tweaked
-        path: CC-Tweaked.jar
+        path: build/libs
 
   lint-lua:
     name: Lint Lua
