@@ -41,6 +41,22 @@ local function capture_program(stub, program, ...)
     }
 end
 
+--- Run a function redirecting to a new window with the given dimensions
+--
+-- @tparam number width The window's width
+-- @tparam number height The window's height
+-- @tparam function() fn The action to run
+-- @treturn window.Window The window, whose content can be queried.
+local function with_window(width, height, fn)
+    local current = term.current()
+    local redirect = window.create(current, 1, 1, width, height, false)
+    term.redirect(redirect)
+    fn()
+    term.redirect(current)
+    return redirect
+end
+
 return {
     capture_program = capture_program,
+    with_window = with_window,
 }

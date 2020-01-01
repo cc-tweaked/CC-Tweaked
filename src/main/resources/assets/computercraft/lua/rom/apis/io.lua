@@ -122,7 +122,11 @@ handleMetatable = {
             if not handle.write then return nil, "file is not writable" end
 
             local n = select("#", ...)
-            for i = 1, n do handle.write(select(i, ...)) end
+            for i = 1, n do
+                local arg = select(i, ...)
+                expect(1, arg, "string", "number")
+                handle.write(arg)
+            end
             return self
         end,
     },

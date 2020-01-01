@@ -207,6 +207,7 @@ function write( sText )
     end
 
     -- Print the line with proper word wrapping
+    sText = tostring(sText)
     while #sText > 0 do
         local whitespace = string.match( sText, "^[ \t]+" )
         if whitespace then
