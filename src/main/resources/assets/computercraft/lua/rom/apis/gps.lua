@@ -84,16 +84,19 @@ function locate( _nTimeout, _bDebug )
         print( "Finding position..." )
     end
 
-    -- Open a channel
+    -- Generate random channel
+    local channel = math.random(16000, 64000)
+    
+    -- Open it
     local modem = peripheral.wrap( sModemSide )
     local bCloseChannel = false
-    if not modem.isOpen( os.getComputerID() ) then
-        modem.open( os.getComputerID() )
+    if not modem.isOpen( channel ) then
+        modem.open( channel )
         bCloseChannel = true
     end
 
     -- Send a ping to listening GPS hosts
-    modem.transmit( CHANNEL_GPS, os.getComputerID(), "PING" )
+    modem.transmit( CHANNEL_GPS, channel, "PING" )
 
     -- Wait for the responses
     local tFixes = {}
@@ -104,7 +107,7 @@ function locate( _nTimeout, _bDebug )
         if e == "modem_message" then
             -- We received a reply from a modem
             local sSide, sChannel, sReplyChannel, tMessage, nDistance = p1, p2, p3, p4, p5
-            if sSide == sModemSide and sChannel == os.getComputerID() and sReplyChannel == CHANNEL_GPS and nDistance then
+            if sSide == sModemSide and sChannel == channel and sReplyChannel == CHANNEL_GPS and nDistance then
                 -- Received the correct message from the correct modem: use it to determine position
                 if type(tMessage) == "table" and #tMessage == 3 and tonumber(tMessage[1]) and tonumber(tMessage[2]) and tonumber(tMessage[3]) then
                     local tFix = { vPosition = vector.new( tMessage[1], tMessage[2], tMessage[3] ), nDistance = nDistance }
