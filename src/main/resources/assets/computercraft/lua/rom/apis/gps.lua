@@ -144,7 +144,7 @@ function locate( _nTimeout, _bDebug )
 
     -- Close the channel, if we opened one
     if bCloseChannel then
-        modem.close( os.getComputerID() )
+        modem.close( channel )
     end
 
     -- Return the response
