@@ -84,7 +84,7 @@ function locate( _nTimeout, _bDebug )
         print( "Finding position..." )
     end
 
-    -- Open it
+    -- Open GPS channel to listen for ping responses
     local modem = peripheral.wrap( sModemSide )
     local bCloseChannel = false
     if not modem.isOpen( CHANNEL_GPS ) then
