@@ -8,5 +8,6 @@ New features in CC: Tweaked 1.86.1
 And several bug fixes:
 * Fix error when calling `write` with a number.
 * Add missing assertion to `io.write`.
+* Fix incorrect coordinates in `mouse_scroll` events.
 
 Type "help changelog" to see the full version history.
