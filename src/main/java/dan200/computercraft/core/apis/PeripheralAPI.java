@@ -1,9 +1,8 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2019. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.core.apis;
 
 import dan200.computercraft.api.filesystem.IMount;
@@ -378,16 +377,7 @@ public class PeripheralAPI implements ILuaAPI, IAPIEnvironment.IPeripheralChange
                         }
                     }
                 }
-                if( methods != null )
-                {
-                    Map<Object, Object> table = new HashMap<>();
-                    for( int i = 0; i < methods.length; i++ )
-                    {
-                        table.put( i + 1, methods[i] );
-                    }
-                    return new Object[] { table };
-                }
-                return null;
+                return methods != null ? new Object[] { new HashMap<>() } : null;
             }
             case 3:
             {

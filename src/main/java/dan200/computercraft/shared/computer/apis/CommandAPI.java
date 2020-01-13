@@ -1,9 +1,8 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2019. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.shared.computer.apis;
 
 import com.google.common.collect.ImmutableMap;
@@ -28,9 +27,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nonnull;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import static dan200.computercraft.api.lua.ArgumentHelper.getInt;
 import static dan200.computercraft.api.lua.ArgumentHelper.getString;
@@ -66,9 +63,9 @@ public class CommandAPI implements ILuaAPI
         };
     }
 
-    private static Map<Object, Object> createOutput( String output )
+    private static Object createOutput( String output )
     {
-        return Collections.singletonMap( 1, output );
+        return new Object[] { output };
     }
 
     private Object[] doCommand( String command )
@@ -155,11 +152,10 @@ public class CommandAPI implements ILuaAPI
                         if( !(node instanceof LiteralCommandNode) ) return new Object[] { Collections.emptyMap() };
                     }
 
-                    int i = 1;
-                    Map<Object, Object> result = new HashMap<>();
+                    List<String> result = new ArrayList<>();
                     for( CommandNode<?> child : node.getChildren() )
                     {
-                        if( child instanceof LiteralCommandNode<?> ) result.put( i++, child.getName() );
+                        if( child instanceof LiteralCommandNode<?> ) result.add( child.getName() );
                     }
                     return new Object[] { result };
                 } );
@@ -196,12 +192,11 @@ public class CommandAPI implements ILuaAPI
                     {
                         throw new LuaException( "Co-ordinates out of range" );
                     }
-                    if( (max.getX() - min.getX() + 1) * (max.getY() - min.getY() + 1) * (max.getZ() - min.getZ() + 1) > 4096 )
-                    {
-                        throw new LuaException( "Too many blocks" );
-                    }
-                    int i = 1;
-                    Map<Object, Object> results = new HashMap<>();
+
+                    int blocks = (max.getX() - min.getX() + 1) * (max.getY() - min.getY() + 1) * (max.getZ() - min.getZ() + 1);
+                    if( blocks > 4096 ) throw new LuaException( "Too many blocks" );
+
+                    List<Object> results = new ArrayList<>( blocks );
                     for( int y = min.getY(); y <= max.getY(); y++ )
                     {
                         for( int z = min.getZ(); z <= max.getZ(); z++ )
@@ -209,7 +204,7 @@ public class CommandAPI implements ILuaAPI
                             for( int x = min.getX(); x <= max.getX(); x++ )
                             {
                                 BlockPos pos = new BlockPos( x, y, z );
-                                results.put( i++, getBlockInfo( world, pos ) );
+                                results.add( getBlockInfo( world, pos ) );
                             }
                         }
                     }

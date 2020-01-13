@@ -1,10 +1,12 @@
-New features in CC: Tweaked 1.86.0
+New features in CC: Tweaked 1.86.1
 
-* Add PATCH and TRACE HTTP methods. (jaredallard)
-* Add more MOTD messages. (JakobDev)
-* Allow removing and adding turtle upgrades via CraftTweaker.
+* Add a help message to the Lua REPL's exit function
+* Add more MOTD messages. (osmarks)
+* GPS requests are now made anonymously (osmarks)
+* Minor memory usage improvements to Cobalt VM.
 
 And several bug fixes:
-* Fix crash when interacting with Wearable Backpacks.
+* Fix error when calling `write` with a number.
+* Add missing assertion to `io.write`.
 
 Type "help changelog" to see the full version history.
