@@ -22,8 +22,6 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.function.Function;
 
 import static dan200.computercraft.api.lua.ArgumentHelper.getString;
@@ -93,13 +91,7 @@ public class FSAPI implements ILuaAPI
                 m_env.addTrackingChange( TrackingField.FS_OPS );
                 try
                 {
-                    String[] results = m_fileSystem.list( path );
-                    Map<Object, Object> table = new HashMap<>();
-                    for( int i = 0; i < results.length; i++ )
-                    {
-                        table.put( i + 1, results[i] );
-                    }
-                    return new Object[] { table };
+                    return new Object[] { m_fileSystem.list( path ) };
                 }
                 catch( FileSystemException e )
                 {
@@ -330,13 +322,7 @@ public class FSAPI implements ILuaAPI
                 try
                 {
                     m_env.addTrackingChange( TrackingField.FS_OPS );
-                    String[] results = m_fileSystem.find( path );
-                    Map<Object, Object> table = new HashMap<>();
-                    for( int i = 0; i < results.length; i++ )
-                    {
-                        table.put( i + 1, results[i] );
-                    }
-                    return new Object[] { table };
+                    return new Object[] { m_fileSystem.find( path ) };
                 }
                 catch( FileSystemException e )
                 {

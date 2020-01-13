@@ -377,16 +377,7 @@ public class PeripheralAPI implements ILuaAPI, IAPIEnvironment.IPeripheralChange
                         }
                     }
                 }
-                if( methods != null )
-                {
-                    Map<Object, Object> table = new HashMap<>();
-                    for( int i = 0; i < methods.length; i++ )
-                    {
-                        table.put( i + 1, methods[i] );
-                    }
-                    return new Object[] { table };
-                }
-                return null;
+                return methods != null ? new Object[] { new HashMap<>() } : null;
             }
             case 3:
             {

@@ -369,7 +369,10 @@ public class TurtlePlaceCommand implements ITurtleCommand
 
         if( !placed && (item instanceof ItemBucket || item instanceof ItemBoat || item instanceof ItemLilyPad || item instanceof ItemGlassBottle) )
         {
-            EnumActionResult actionResult = ForgeHooks.onItemRightClick( turtlePlayer, EnumHand.MAIN_HAND );
+            PlayerInteractEvent.RightClickItem evt = new PlayerInteractEvent.RightClickItem( turtlePlayer, EnumHand.MAIN_HAND );
+            MinecraftForge.EVENT_BUS.post( evt );
+            EnumActionResult actionResult = evt.isCanceled() ? evt.getCancellationResult() : null;
+            // EnumActionResult actionResult = ForgeHooks.onItemRightClick( turtlePlayer, EnumHand.MAIN_HAND );
             if( actionResult == EnumActionResult.SUCCESS )
             {
                 placed = true;

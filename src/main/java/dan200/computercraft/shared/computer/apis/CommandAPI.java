@@ -25,8 +25,9 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static dan200.computercraft.api.lua.ArgumentHelper.getInt;
@@ -63,9 +64,9 @@ public class CommandAPI implements ILuaAPI
         };
     }
 
-    private static Map<Object, Object> createOutput( String output )
+    private static Object createOutput( String output )
     {
-        return Collections.singletonMap( 1, output );
+        return new Object[] { output };
     }
 
     private Object[] doCommand( String command )
@@ -141,8 +142,7 @@ public class CommandAPI implements ILuaAPI
             case 2: // list
                 return context.executeMainThreadTask( () ->
                 {
-                    int i = 1;
-                    Map<Object, Object> result = new HashMap<>();
+                    List<String> result = new ArrayList<>();
                     MinecraftServer server = m_computer.getWorld().getMinecraftServer();
                     if( server != null )
                     {
@@ -157,7 +157,7 @@ public class CommandAPI implements ILuaAPI
                             {
                                 if( command.checkPermission( server, commandSender ) )
                                 {
-                                    result.put( i++, name );
+                                    result.add( name );
                                 }
                             }
                             catch( Throwable t )
@@ -205,12 +205,11 @@ public class CommandAPI implements ILuaAPI
                     {
                         throw new LuaException( "Co-ordinates out of range" );
                     }
-                    if( (max.getX() - min.getX() + 1) * (max.getY() - min.getY() + 1) * (max.getZ() - min.getZ() + 1) > 4096 )
-                    {
-                        throw new LuaException( "Too many blocks" );
-                    }
-                    int i = 1;
-                    Map<Object, Object> results = new HashMap<>();
+
+                    int blocks = (max.getX() - min.getX() + 1) * (max.getY() - min.getY() + 1) * (max.getZ() - min.getZ() + 1);
+                    if( blocks > 4096 ) throw new LuaException( "Too many blocks" );
+
+                    List<Object> results = new ArrayList<>( blocks );
                     for( int y = min.getY(); y <= max.getY(); y++ )
                     {
                         for( int z = min.getZ(); z <= max.getZ(); z++ )
@@ -218,7 +217,7 @@ public class CommandAPI implements ILuaAPI
                             for( int x = min.getX(); x <= max.getX(); x++ )
                             {
                                 BlockPos pos = new BlockPos( x, y, z );
-                                results.put( i++, getBlockInfo( world, pos ) );
+                                results.add( getBlockInfo( world, pos ) );
                             }
                         }
                     }

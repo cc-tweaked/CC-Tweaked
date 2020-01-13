@@ -11,8 +11,6 @@ import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.core.computer.ComputerSide;
 
 import javax.annotation.Nonnull;
-import java.util.HashMap;
-import java.util.Map;
 
 import static dan200.computercraft.api.lua.ArgumentHelper.*;
 
@@ -58,16 +56,8 @@ public class RedstoneAPI implements ILuaAPI
     {
         switch( method )
         {
-            case 0:
-            {
-                // getSides
-                Map<Object, Object> table = new HashMap<>();
-                for( int i = 0; i < ComputerSide.NAMES.length; i++ )
-                {
-                    table.put( i + 1, ComputerSide.NAMES[i] );
-                }
-                return new Object[] { table };
-            }
+            case 0: // getSides
+                return new Object[] { ComputerSide.NAMES };
             case 1:
             {
                 // setOutput
