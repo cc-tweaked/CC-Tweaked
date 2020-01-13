@@ -55,7 +55,8 @@ public class WidgetWrapper implements IGuiEventListener
     @Override
     public boolean mouseScrolled( double x, double y, double delta )
     {
-        return listener.mouseScrolled( x, y, delta );
+        double dx = x - this.x, dy = y - this.y;
+        return dx >= 0 && dx < width && dy >= 0 && dy < height && listener.mouseScrolled( dx, dy, delta );
     }
 
     @Override
