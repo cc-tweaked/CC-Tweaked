@@ -1,13 +1,5 @@
-New features in CC: Tweaked 1.86.1
+New features in CC: Tweaked 1.86.2
 
-* Add a help message to the Lua REPL's exit function
-* Add more MOTD messages. (osmarks)
-* GPS requests are now made anonymously (osmarks)
-* Minor memory usage improvements to Cobalt VM.
-
-And several bug fixes:
-* Fix error when calling `write` with a number.
-* Add missing assertion to `io.write`.
-* Fix incorrect coordinates in `mouse_scroll` events.
+* Fix peripheral.getMethods returning an empty table
 
 Type "help changelog" to see the full version history.
