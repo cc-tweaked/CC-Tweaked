@@ -364,20 +364,17 @@ public class PeripheralAPI implements ILuaAPI, IAPIEnvironment.IPeripheralChange
             case 2:
             {
                 // getMethods
-                String[] methods = null;
                 ComputerSide side = ComputerSide.valueOfInsensitive( getString( args, 0 ) );
                 if( side != null )
                 {
                     synchronized( m_peripherals )
                     {
                         PeripheralWrapper p = m_peripherals[side.ordinal()];
-                        if( p != null )
-                        {
-                            methods = p.getMethods();
-                        }
+                        if( p != null ) return new Object[] { p.getMethods() };
                     }
                 }
-                return methods != null ? new Object[] { new HashMap<>() } : null;
+
+                return null;
             }
             case 3:
             {

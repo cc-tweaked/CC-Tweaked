@@ -1,3 +1,7 @@
+# New features in CC: Tweaked 1.86.2
+
+* Fix peripheral.getMethods returning an empty table
+
 # New features in CC: Tweaked 1.86.1
 
 * Add a help message to the Lua REPL's exit function
