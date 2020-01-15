@@ -991,22 +991,19 @@ if fs.exists( ".settings" ) then
 end
 
 -- Run the shell
-local ok, err = pcall( function()
-    parallel.waitForAny(
-        function()
-            local sShell
-            if term.isColour() and settings.get( "bios.use_multishell" ) then
-                sShell = "rom/programs/advanced/multishell.lua"
-            else
-                sShell = "rom/programs/shell.lua"
-            end
-            os.run( {}, sShell )
-            os.run( {}, "rom/programs/shutdown.lua" )
-        end,
-        function()
-            rednet.run()
-        end )
-end )
+local ok, err = pcall(parallel.waitForAny,
+    function()
+        local sShell
+        if term.isColour() and settings.get( "bios.use_multishell" ) then
+            sShell = "rom/programs/advanced/multishell.lua"
+        else
+            sShell = "rom/programs/shell.lua"
+        end
+        os.run( {}, sShell )
+        os.run( {}, "rom/programs/shutdown.lua" )
+    end,
+    rednet.run
+)
 
 -- If the shell errored, let the user read it.
 term.redirect( term.native() )

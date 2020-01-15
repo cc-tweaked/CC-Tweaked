@@ -105,8 +105,8 @@ if sCommand == "host" then
     end
 
     -- Handle messages
-    local ok, error = pcall( function()
-        parallel.waitForAny( function()
+    local ok, error = pcall(parallel.waitForAny,
+        function()
             while true do
                 local _, timer = os.pullEvent( "timer" )
                 local nUserID = tPingPongTimer[ timer ]
@@ -223,8 +223,8 @@ if sCommand == "host" then
                     end
                  end
             end
-        end )
-    end )
+        end
+   )
     if not ok then
         printError( error )
     end
@@ -332,8 +332,8 @@ elseif sCommand == "join" then
 
     drawTitle()
 
-    local ok, error = pcall( function()
-        parallel.waitForAny( function()
+    local ok, error = pcall(parallel.waitForAny,
+        function()
             while true do
                 local sEvent, timer = os.pullEvent()
                 if sEvent == "timer" then
@@ -402,8 +402,8 @@ elseif sCommand == "join" then
                     table.insert( tSendHistory, sChat )
                 end
             end
-        end )
-    end )
+        end
+    )
 
     -- Close the windows
     term.redirect( parentTerm )
