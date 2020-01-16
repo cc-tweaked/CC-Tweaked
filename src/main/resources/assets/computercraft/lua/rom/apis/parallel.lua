@@ -1,6 +1,6 @@
 
-local function create( ... )
-    local tFns = table.pack(...)
+local function create( listOrFirst, ... )
+    local tFns = type( listOrFirst ) == "table" and listOrFirst or table.pack(listOrFirst, ...)
     local tCos = {}
     for i = 1, tFns.n, 1 do
         local fn = tFns[i]
