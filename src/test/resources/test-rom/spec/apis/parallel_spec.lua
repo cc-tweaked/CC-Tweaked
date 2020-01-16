@@ -27,7 +27,7 @@ describe("The parallel library", function()
     describe("parallel.waitForAll", function()
         it("validates arguments", function()
             parallel.waitForAll(mock, mock)
-            parallel.waitForAll({mock,mock})
+            parallel.waitForAll({mock, mock})
 
             expect.error(parallel.waitForAll, nil):eq("bad argument #1 (expected function, got nil)")
             expect.error(parallel.waitForAll, mock, nil):eq("bad argument #2 (expected function, got nil)")
