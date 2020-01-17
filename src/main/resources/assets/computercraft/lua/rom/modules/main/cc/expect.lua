@@ -1,7 +1,7 @@
---- The @{craftos.expect} library provides helper functions for verifying that
+--- The @{cc.expect} library provides helper functions for verifying that
 -- function arguments are well-formed and of the correct type.
 --
--- @module craftos.expect
+-- @module cc.expect
 
 local native_select, native_type = select, type
 

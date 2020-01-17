@@ -23,6 +23,3 @@
   (linters -var:unused-global)
   (lint
     (allow-toplevel-global true)))
-
-;; These warnings are broken right now
-(at (bios.lua worm.lua) (linters -control:unreachable))

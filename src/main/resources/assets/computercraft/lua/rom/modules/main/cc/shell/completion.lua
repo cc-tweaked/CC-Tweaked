@@ -7,7 +7,7 @@
 -- and so are not directly usable with the @{shell.setCompletionFunction}. Instead,
 -- wrap them using @{build}, or your own custom function.
 --
--- @module craftos.shell.completion
+-- @module cc.shell.completion
 -- @see cc.completion For more general helpers, suitable for use with @{read}.
 -- @see shell.setCompletionFunction
 

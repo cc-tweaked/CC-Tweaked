@@ -1,7 +1,7 @@
 --- A collection of helper methods for working with input completion, such
 -- as that require by @{read}.
 --
--- @module craftos.completion
+-- @module cc.completion
 -- @see cc.shell.completion For additional helpers to use with
 -- @{shell.setCompletionFunction}.
 

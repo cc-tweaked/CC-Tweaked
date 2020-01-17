@@ -1,3 +1,5 @@
+local with_window = require "test_helpers".with_window
+
 describe("The Lua base library", function()
     describe("sleep", function()
         it("validates arguments", function()
@@ -12,6 +14,16 @@ describe("The Lua base library", function()
         it("validates arguments", function()
             write("")
             expect.error(write, nil):eq("bad argument #1 (expected string or number, got nil)")
+        end)
+
+        it("writes numbers", function()
+            local w = with_window(5, 5, function() write(123) end)
+            expect(w.getLine(1)):eq("123  ")
+        end)
+
+        it("writes strings", function()
+            local w = with_window(5, 5, function() write("abc") end)
+            expect(w.getLine(1)):eq("abc  ")
         end)
     end)
 

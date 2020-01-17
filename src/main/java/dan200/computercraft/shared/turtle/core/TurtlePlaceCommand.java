@@ -1,9 +1,8 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2019. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.shared.turtle.core;
 
 import dan200.computercraft.ComputerCraft;
@@ -370,7 +369,10 @@ public class TurtlePlaceCommand implements ITurtleCommand
 
         if( !placed && (item instanceof ItemBucket || item instanceof ItemBoat || item instanceof ItemLilyPad || item instanceof ItemGlassBottle) )
         {
-            EnumActionResult actionResult = ForgeHooks.onItemRightClick( turtlePlayer, EnumHand.MAIN_HAND );
+            PlayerInteractEvent.RightClickItem evt = new PlayerInteractEvent.RightClickItem( turtlePlayer, EnumHand.MAIN_HAND );
+            MinecraftForge.EVENT_BUS.post( evt );
+            EnumActionResult actionResult = evt.isCanceled() ? evt.getCancellationResult() : null;
+            // EnumActionResult actionResult = ForgeHooks.onItemRightClick( turtlePlayer, EnumHand.MAIN_HAND );
             if( actionResult == EnumActionResult.SUCCESS )
             {
                 placed = true;

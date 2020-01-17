@@ -18,6 +18,12 @@ jobs:
     - name: Build with Gradle
       run: ./gradlew build --no-daemon
 
+    - name: Upload Jar
+      uses: actions/upload-artifact@v1
+      with:
+        name: CC-Tweaked
+        path: build/libs
+
   lint-lua:
     name: Lint Lua
     runs-on: ubuntu-latest

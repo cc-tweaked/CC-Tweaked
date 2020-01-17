@@ -1,9 +1,8 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2019. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.core.lua;
 
 import dan200.computercraft.ComputerCraft;
@@ -26,11 +25,9 @@ import org.squiddev.cobalt.lib.*;
 import org.squiddev.cobalt.lib.platform.VoidResourceManipulator;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.InputStream;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.IdentityHashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -264,80 +261,79 @@ public class CobaltLuaMachine implements ILuaMachine
         return table;
     }
 
-    private LuaValue toValue( Object object, Map<Object, LuaValue> values )
+    @Nonnull
+    private LuaValue toValue( @Nullable Object object, @Nonnull Map<Object, LuaValue> values )
     {
-        if( object == null )
-        {
-            return Constants.NIL;
-        }
-        else if( object instanceof Number )
-        {
-            double d = ((Number) object).doubleValue();
-            return valueOf( d );
-        }
-        else if( object instanceof Boolean )
-        {
-            return valueOf( (Boolean) object );
-        }
-        else if( object instanceof String )
-        {
-            String s = object.toString();
-            return valueOf( s );
-        }
-        else if( object instanceof byte[] )
+        if( object == null ) return Constants.NIL;
+        if( object instanceof Number ) return valueOf( ((Number) object).doubleValue() );
+        if( object instanceof Boolean ) return valueOf( (Boolean) object );
+        if( object instanceof String ) return valueOf( object.toString() );
+        if( object instanceof byte[] )
         {
             byte[] b = (byte[]) object;
             return valueOf( Arrays.copyOf( b, b.length ) );
         }
-        else if( object instanceof Map )
+
+        LuaValue result = values.get( object );
+        if( result != null ) return result;
+
+        if( object instanceof ILuaObject )
         {
-            // Table:
-            // Start remembering stuff
-            if( values == null )
-            {
-                values = new IdentityHashMap<>();
-            }
-            else if( values.containsKey( object ) )
-            {
-                return values.get( object );
-            }
+            LuaValue wrapped = wrapLuaObject( (ILuaObject) object );
+            values.put( object, wrapped );
+            return wrapped;
+        }
+
+        if( object instanceof Map )
+        {
             LuaTable table = new LuaTable();
             values.put( object, table );
 
-            // Convert all keys
             for( Map.Entry<?, ?> pair : ((Map<?, ?>) object).entrySet() )
             {
                 LuaValue key = toValue( pair.getKey(), values );
                 LuaValue value = toValue( pair.getValue(), values );
-                if( !key.isNil() && !value.isNil() )
-                {
-                    table.rawset( key, value );
-                }
+                if( !key.isNil() && !value.isNil() ) table.rawset( key, value );
             }
             return table;
         }
-        else if( object instanceof ILuaObject )
+
+        if( object instanceof Collection )
         {
-            return wrapLuaObject( (ILuaObject) object );
+            Collection<?> objects = (Collection<?>) object;
+            LuaTable table = new LuaTable( objects.size(), 0 );
+            values.put( object, table );
+            int i = 0;
+            for( Object child : objects ) table.rawset( ++i, toValue( child, values ) );
+            return table;
         }
-        else
+
+        if( object instanceof Object[] )
         {
-            return Constants.NIL;
+            Object[] objects = (Object[]) object;
+            LuaTable table = new LuaTable( objects.length, 0 );
+            values.put( object, table );
+            for( int i = 0; i < objects.length; i++ ) table.rawset( i + 1, toValue( objects[i], values ) );
+            return table;
         }
+
+        if( ComputerCraft.logPeripheralErrors )
+        {
+            ComputerCraft.log.warn( "Received unknown type '{}', returning nil.", object.getClass().getName() );
+        }
+        return Constants.NIL;
     }
 
     private Varargs toValues( Object[] objects )
     {
-        if( objects == null || objects.length == 0 )
-        {
-            return Constants.NONE;
-        }
+        if( objects == null || objects.length == 0 ) return Constants.NONE;
 
+        Map<Object, LuaValue> result = new IdentityHashMap<>( 0 );
         LuaValue[] values = new LuaValue[objects.length];
         for( int i = 0; i < values.length; i++ )
         {
             Object object = objects[i];
-            values[i] = toValue( object, null );
+            values[i] = toValue( object, result );
         }
         return varargsOf( values );
     }

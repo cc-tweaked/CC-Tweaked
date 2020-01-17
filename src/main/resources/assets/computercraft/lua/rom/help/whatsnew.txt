@@ -1,10 +1,5 @@
-New features in CC: Tweaked 1.86.0
+New features in CC: Tweaked 1.86.2
 
-* Add PATCH and TRACE HTTP methods. (jaredallard)
-* Add more MOTD messages. (JakobDev)
-* Allow removing and adding turtle upgrades via CraftTweaker.
-
-And several bug fixes:
-* Fix crash when interacting with Wearable Backpacks.
+* Fix peripheral.getMethods returning an empty table
 
 Type "help changelog" to see the full version history.

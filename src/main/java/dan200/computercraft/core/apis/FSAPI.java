@@ -1,9 +1,8 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2019. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.core.apis;
 
 import dan200.computercraft.api.lua.ILuaAPI;
@@ -23,8 +22,6 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.function.Function;
 
 import static dan200.computercraft.api.lua.ArgumentHelper.getString;
@@ -94,13 +91,7 @@ public class FSAPI implements ILuaAPI
                 m_env.addTrackingChange( TrackingField.FS_OPS );
                 try
                 {
-                    String[] results = m_fileSystem.list( path );
-                    Map<Object, Object> table = new HashMap<>();
-                    for( int i = 0; i < results.length; i++ )
-                    {
-                        table.put( i + 1, results[i] );
-                    }
-                    return new Object[] { table };
+                    return new Object[] { m_fileSystem.list( path ) };
                 }
                 catch( FileSystemException e )
                 {
@@ -331,13 +322,7 @@ public class FSAPI implements ILuaAPI
                 try
                 {
                     m_env.addTrackingChange( TrackingField.FS_OPS );
-                    String[] results = m_fileSystem.find( path );
-                    Map<Object, Object> table = new HashMap<>();
-                    for( int i = 0; i < results.length; i++ )
-                    {
-                        table.put( i + 1, results[i] );
-                    }
-                    return new Object[] { table };
+                    return new Object[] { m_fileSystem.find( path ) };
                 }
                 catch( FileSystemException e )
                 {
