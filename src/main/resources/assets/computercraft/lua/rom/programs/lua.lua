@@ -91,8 +91,7 @@ while bRunning do
                 local value = tResults[ n + 1 ]
                 local ok, serialised = pcall(pretty.pretty, value)
                 if ok then
-                    pretty.write(serialised)
-                    print()
+                    pretty.print(serialised)
                 else
                     print(tostring(value))
                 end
