@@ -33,10 +33,7 @@ import net.minecraft.item.Items;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.ListNBT;
 import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Hand;
-import net.minecraft.util.NonNullList;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.*;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.Vec3d;
@@ -164,8 +161,9 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
         }
     }
 
+    @Nonnull
     @Override
-    public boolean onActivate( PlayerEntity player, Hand hand, BlockRayTraceResult hit )
+    public ActionResultType onActivate( PlayerEntity player, Hand hand, BlockRayTraceResult hit )
     {
         // Apply dye
         ItemStack currentItem = player.getHeldItem( hand );
@@ -186,7 +184,7 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
                         }
                     }
                 }
-                return true;
+                return ActionResultType.SUCCESS;
             }
             else if( currentItem.getItem() == Items.WATER_BUCKET && m_brain.getColour() != -1 )
             {
@@ -203,7 +201,7 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
                         }
                     }
                 }
-                return true;
+                return ActionResultType.SUCCESS;
             }
         }
 

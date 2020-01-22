@@ -24,6 +24,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.ActionResultType;
 import net.minecraft.util.Direction;
 import net.minecraft.util.Hand;
 import net.minecraft.util.ResourceLocation;
@@ -238,12 +239,14 @@ public class TileCable extends TileGeneric implements IPeripheralTile
         }
     }
 
+    @Nonnull
     @Override
-    public boolean onActivate( PlayerEntity player, Hand hand, BlockRayTraceResult hit )
+    public ActionResultType onActivate( PlayerEntity player, Hand hand, BlockRayTraceResult hit )
     {
-        if( !canAttachPeripheral() || player.isSneaking() ) return false;
+        if( player.isCrouching() ) return ActionResultType.PASS;
+        if( !canAttachPeripheral() ) return ActionResultType.FAIL;
 
-        if( getWorld().isRemote ) return true;
+        if( getWorld().isRemote ) return ActionResultType.SUCCESS;
 
         String oldName = m_peripheral.getConnectedName();
         togglePeripheralAccess();
@@ -262,7 +265,7 @@ public class TileCable extends TileGeneric implements IPeripheralTile
             }
         }
 
-        return true;
+        return ActionResultType.SUCCESS;
     }
 
     @Override

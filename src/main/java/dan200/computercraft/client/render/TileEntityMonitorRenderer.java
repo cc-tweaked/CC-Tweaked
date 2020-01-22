@@ -5,38 +5,40 @@
  */
 package dan200.computercraft.client.render;
 
-import com.mojang.blaze3d.platform.GLX;
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.IVertexBuilder;
 import dan200.computercraft.client.FrameInfo;
 import dan200.computercraft.client.gui.FixedWidthFontRenderer;
 import dan200.computercraft.core.terminal.Terminal;
-import dan200.computercraft.core.terminal.TextBuffer;
 import dan200.computercraft.shared.peripheral.monitor.ClientMonitor;
 import dan200.computercraft.shared.peripheral.monitor.TileMonitor;
-import dan200.computercraft.shared.util.Colour;
 import dan200.computercraft.shared.util.DirectionUtil;
-import dan200.computercraft.shared.util.Palette;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.tileentity.TileEntityRenderer;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
+import net.minecraft.client.renderer.vertex.VertexBuffer;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
-import org.lwjgl.opengl.GL11;
+
+import javax.annotation.Nonnull;
 
 public class TileEntityMonitorRenderer extends TileEntityRenderer<TileMonitor>
 {
-    @Override
-    public void render( TileMonitor tileEntity, double posX, double posY, double posZ, float f, int i )
+    /**
+     * {@link TileMonitor#RENDER_MARGIN}, but a tiny bit of additional padding to ensure that there is no space between
+     * the monitor frame and contents.
+     */
+    private static final float MARGIN = (float) (TileMonitor.RENDER_MARGIN * 1.1);
+
+    private static final Matrix4f IDENTITY = TransformationMatrix.identity().getMatrix();
+
+    public TileEntityMonitorRenderer( TileEntityRendererDispatcher rendererDispatcher )
     {
-        if( tileEntity != null )
-        {
-            renderMonitorAt( tileEntity, posX, posY, posZ, f, i );
-        }
+        super( rendererDispatcher );
     }
 
-    private static void renderMonitorAt( TileMonitor monitor, double posX, double posY, double posZ, float f, int i )
+    @Override
+    public void render( @Nonnull TileMonitor monitor, float partialTicks, @Nonnull MatrixStack transform, @Nonnull IRenderTypeBuffer renderer, int lightmapCoord, int overlayLight )
     {
         // Render from the origin monitor
         ClientMonitor originTerminal = monitor.getClientMonitor();
@@ -58,9 +60,6 @@ public class TileEntityMonitorRenderer extends TileEntityRenderer<TileMonitor>
         originTerminal.lastRenderPos = monitorPos;
 
         BlockPos originPos = origin.getPos();
-        posX += originPos.getX() - monitorPos.getX();
-        posY += originPos.getY() - monitorPos.getY();
-        posZ += originPos.getZ() - monitorPos.getZ();
 
         // Determine orientation
         Direction dir = origin.getDirection();
@@ -68,224 +67,94 @@ public class TileEntityMonitorRenderer extends TileEntityRenderer<TileMonitor>
         float yaw = dir.getHorizontalAngle();
         float pitch = DirectionUtil.toPitchAngle( front );
 
-        GlStateManager.pushMatrix();
-        try
+        // Setup initial transform
+        transform.push();
+        transform.translate(
+            originPos.getX() - monitorPos.getX() + 0.5,
+            originPos.getY() - monitorPos.getY() + 0.5,
+            originPos.getZ() - monitorPos.getZ() + 0.5
+        );
+
+        transform.rotate( Vector3f.YN.rotationDegrees( yaw ) );
+        transform.rotate( Vector3f.XP.rotationDegrees( pitch ) );
+        transform.translate(
+            -0.5 + TileMonitor.RENDER_BORDER + TileMonitor.RENDER_MARGIN,
+            origin.getHeight() - 0.5 - (TileMonitor.RENDER_BORDER + TileMonitor.RENDER_MARGIN) + 0,
+            0.5
+        );
+        double xSize = origin.getWidth() - 2.0 * (TileMonitor.RENDER_MARGIN + TileMonitor.RENDER_BORDER);
+        double ySize = origin.getHeight() - 2.0 * (TileMonitor.RENDER_MARGIN + TileMonitor.RENDER_BORDER);
+
+        // Draw the contents
+        Terminal terminal = originTerminal.getTerminal();
+        if( terminal != null )
         {
-            // Setup initial transform
-            GlStateManager.translated( posX + 0.5, posY + 0.5, posZ + 0.5 );
-            GlStateManager.rotatef( -yaw, 0.0f, 1.0f, 0.0f );
-            GlStateManager.rotatef( pitch, 1.0f, 0.0f, 0.0f );
-            GlStateManager.translated(
-                -0.5 + TileMonitor.RENDER_BORDER + TileMonitor.RENDER_MARGIN,
-                origin.getHeight() - 0.5 - (TileMonitor.RENDER_BORDER + TileMonitor.RENDER_MARGIN) + 0,
-                0.5
-            );
-            double xSize = origin.getWidth() - 2.0 * (TileMonitor.RENDER_MARGIN + TileMonitor.RENDER_BORDER);
-            double ySize = origin.getHeight() - 2.0 * (TileMonitor.RENDER_MARGIN + TileMonitor.RENDER_BORDER);
-
-            // Get renderers
-            Minecraft mc = Minecraft.getInstance();
-            Tessellator tessellator = Tessellator.getInstance();
-            BufferBuilder renderer = tessellator.getBuffer();
-
-            // Get terminal
             boolean redraw = originTerminal.pollTerminalChanged();
-
-            // Draw the contents
-            GlStateManager.depthMask( false );
-            GLX.glMultiTexCoord2f( GLX.GL_TEXTURE1, 0xFFFF, 0xFFFF );
-            GlStateManager.disableLighting();
-            mc.gameRenderer.disableLightmap();
-            try
+            if( originTerminal.buffer == null )
             {
-                Terminal terminal = originTerminal.getTerminal();
-                if( terminal != null )
-                {
-                    Palette palette = terminal.getPalette();
-
-                    // Allocate display lists
-                    if( originTerminal.renderDisplayLists == null )
-                    {
-                        originTerminal.createLists();
-                        redraw = true;
-                    }
-
-                    // Draw a terminal
-                    boolean greyscale = !originTerminal.isColour();
-                    int width = terminal.getWidth();
-                    int height = terminal.getHeight();
-                    int cursorX = terminal.getCursorX();
-                    int cursorY = terminal.getCursorY();
-                    FixedWidthFontRenderer fontRenderer = FixedWidthFontRenderer.instance();
-
-                    GlStateManager.pushMatrix();
-                    try
-                    {
-                        double xScale = xSize / (width * FixedWidthFontRenderer.FONT_WIDTH);
-                        double yScale = ySize / (height * FixedWidthFontRenderer.FONT_HEIGHT);
-                        GlStateManager.scaled( xScale, -yScale, 1.0 );
-
-                        // Draw background
-                        mc.getTextureManager().bindTexture( FixedWidthFontRenderer.BACKGROUND );
-                        if( redraw )
-                        {
-                            // Build background display list
-                            GlStateManager.newList( originTerminal.renderDisplayLists[0], GL11.GL_COMPILE );
-                            try
-                            {
-                                double marginXSize = TileMonitor.RENDER_MARGIN / xScale;
-                                double marginYSize = TileMonitor.RENDER_MARGIN / yScale;
-                                double marginSquash = marginYSize / FixedWidthFontRenderer.FONT_HEIGHT;
-
-                                // Top and bottom margins
-                                GlStateManager.pushMatrix();
-                                try
-                                {
-                                    GlStateManager.scaled( 1.0, marginSquash, 1.0 );
-                                    GlStateManager.translated( 0.0, -marginYSize / marginSquash, 0.0 );
-                                    fontRenderer.drawStringBackgroundPart( 0, 0, terminal.getBackgroundColourLine( 0 ), marginXSize, marginXSize, greyscale, palette );
-                                    GlStateManager.translated( 0.0, (marginYSize + height * FixedWidthFontRenderer.FONT_HEIGHT) / marginSquash, 0.0 );
-                                    fontRenderer.drawStringBackgroundPart( 0, 0, terminal.getBackgroundColourLine( height - 1 ), marginXSize, marginXSize, greyscale, palette );
-                                }
-                                finally
-                                {
-                                    GlStateManager.popMatrix();
-                                }
-
-                                // Backgrounds
-                                for( int y = 0; y < height; y++ )
-                                {
-                                    fontRenderer.drawStringBackgroundPart(
-                                        0, FixedWidthFontRenderer.FONT_HEIGHT * y,
-                                        terminal.getBackgroundColourLine( y ),
-                                        marginXSize, marginXSize,
-                                        greyscale,
-                                        palette
-                                    );
-                                }
-                            }
-                            finally
-                            {
-                                GlStateManager.endList();
-                            }
-                        }
-                        GlStateManager.callList( originTerminal.renderDisplayLists[0] );
-                        GlStateManager.clearCurrentColor();
-
-                        // Draw text
-                        fontRenderer.bindFont();
-                        if( redraw )
-                        {
-                            // Build text display list
-                            GlStateManager.newList( originTerminal.renderDisplayLists[1], GL11.GL_COMPILE );
-                            try
-                            {
-                                // Lines
-                                for( int y = 0; y < height; y++ )
-                                {
-                                    fontRenderer.drawStringTextPart(
-                                        0, FixedWidthFontRenderer.FONT_HEIGHT * y,
-                                        terminal.getLine( y ),
-                                        terminal.getTextColourLine( y ),
-                                        greyscale,
-                                        palette
-                                    );
-                                }
-                            }
-                            finally
-                            {
-                                GlStateManager.endList();
-                            }
-                        }
-                        GlStateManager.callList( originTerminal.renderDisplayLists[1] );
-                        GlStateManager.clearCurrentColor();
-
-                        // Draw cursor
-                        fontRenderer.bindFont();
-                        if( redraw )
-                        {
-                            // Build cursor display list
-                            GlStateManager.newList( originTerminal.renderDisplayLists[2], GL11.GL_COMPILE );
-                            try
-                            {
-                                // Cursor
-                                if( terminal.getCursorBlink() && cursorX >= 0 && cursorX < width && cursorY >= 0 && cursorY < height )
-                                {
-                                    TextBuffer cursor = new TextBuffer( "_" );
-                                    TextBuffer cursorColour = new TextBuffer( "0123456789abcdef".charAt( terminal.getTextColour() ), 1 );
-                                    fontRenderer.drawString(
-                                        cursor,
-                                        FixedWidthFontRenderer.FONT_WIDTH * cursorX,
-                                        FixedWidthFontRenderer.FONT_HEIGHT * cursorY,
-                                        cursorColour, null,
-                                        0, 0,
-                                        greyscale,
-                                        palette
-                                    );
-                                }
-                            }
-                            finally
-                            {
-                                GlStateManager.endList();
-                            }
-                        }
-                        if( FrameInfo.getGlobalCursorBlink() )
-                        {
-                            GlStateManager.callList( originTerminal.renderDisplayLists[2] );
-                            GlStateManager.clearCurrentColor();
-                        }
-                    }
-                    finally
-                    {
-                        GlStateManager.popMatrix();
-                    }
-                }
-                else
-                {
-                    // Draw a big black quad
-                    mc.getTextureManager().bindTexture( FixedWidthFontRenderer.BACKGROUND );
-                    final Colour colour = Colour.Black;
-
-                    final float r = colour.getR();
-                    final float g = colour.getG();
-                    final float b = colour.getB();
-
-                    renderer.begin( GL11.GL_TRIANGLE_STRIP, DefaultVertexFormats.POSITION_TEX_COLOR );
-                    renderer.pos( -TileMonitor.RENDER_MARGIN, TileMonitor.RENDER_MARGIN, 0.0D ).tex( 0.0, 0.0 ).color( r, g, b, 1.0f ).endVertex();
-                    renderer.pos( -TileMonitor.RENDER_MARGIN, -ySize - TileMonitor.RENDER_MARGIN, 0.0 ).tex( 0.0, 1.0 ).color( r, g, b, 1.0f ).endVertex();
-                    renderer.pos( xSize + TileMonitor.RENDER_MARGIN, TileMonitor.RENDER_MARGIN, 0.0D ).tex( 1.0, 0.0 ).color( r, g, b, 1.0f ).endVertex();
-                    renderer.pos( xSize + TileMonitor.RENDER_MARGIN, -ySize - TileMonitor.RENDER_MARGIN, 0.0 ).tex( 1.0, 1.0 ).color( r, g, b, 1.0f ).endVertex();
-                    tessellator.draw();
-                }
+                originTerminal.createBuffer();
+                redraw = true;
             }
-            finally
+            VertexBuffer vbo = originTerminal.buffer;
+
+            // Draw a terminal
+            double xScale = xSize / (terminal.getWidth() * FixedWidthFontRenderer.FONT_WIDTH);
+            double yScale = ySize / (terminal.getHeight() * FixedWidthFontRenderer.FONT_HEIGHT);
+            transform.push();
+            transform.scale( (float) xScale, (float) -yScale, 1.0f );
+
+            float xMargin = (float) (MARGIN / xScale);
+            float yMargin = (float) (MARGIN / yScale);
+
+            Matrix4f matrix = transform.getLast().getPositionMatrix();
+
+            if( redraw )
             {
-                GlStateManager.depthMask( true );
-                mc.gameRenderer.enableLightmap();
-                GlStateManager.enableLighting();
+                Tessellator tessellator = Tessellator.getInstance();
+                BufferBuilder builder = tessellator.getBuffer();
+                builder.begin( FixedWidthFontRenderer.TYPE.getGlMode(), FixedWidthFontRenderer.TYPE.getVertexFormat() );
+                FixedWidthFontRenderer.drawTerminalWithoutCursor(
+                    IDENTITY, builder, 0, 0,
+                    terminal, !originTerminal.isColour(), yMargin, yMargin, xMargin, xMargin
+                );
+
+                builder.finishDrawing();
+                vbo.upload( builder );
             }
 
-            // Draw the depth blocker
-            GlStateManager.colorMask( false, false, false, false );
-            try
-            {
-                mc.getTextureManager().bindTexture( FixedWidthFontRenderer.BACKGROUND );
-                renderer.begin( GL11.GL_TRIANGLE_STRIP, DefaultVertexFormats.POSITION );
-                renderer.pos( -TileMonitor.RENDER_MARGIN, TileMonitor.RENDER_MARGIN, 0.0 ).endVertex();
-                renderer.pos( -TileMonitor.RENDER_MARGIN, -ySize - TileMonitor.RENDER_MARGIN, 0.0 ).endVertex();
-                renderer.pos( xSize + TileMonitor.RENDER_MARGIN, TileMonitor.RENDER_MARGIN, 0.0 ).endVertex();
-                renderer.pos( xSize + TileMonitor.RENDER_MARGIN, -ySize - TileMonitor.RENDER_MARGIN, 0.0 ).endVertex();
-                tessellator.draw();
-            }
-            finally
-            {
-                GlStateManager.colorMask( true, true, true, true );
-            }
+            // Sneaky hack here: we get a buffer now in order to flush existing ones and set up the appropriate
+            // render state. I've no clue how well this'll work in future versions of Minecraft, but it does the trick
+            // for now.
+            IVertexBuilder buffer = renderer.getBuffer( FixedWidthFontRenderer.TYPE );
+            FixedWidthFontRenderer.TYPE.enable();
+
+            vbo.bindBuffer();
+            FixedWidthFontRenderer.TYPE.getVertexFormat().setupBufferState( 0L );
+            vbo.draw( matrix, FixedWidthFontRenderer.TYPE.getGlMode() );
+            VertexBuffer.unbindBuffer();
+            FixedWidthFontRenderer.TYPE.getVertexFormat().clearBufferState();
+
+            // We don't draw the cursor with the VBO, as it's dynamic and so we'll end up refreshing far more than is
+            // reasonable.
+            FixedWidthFontRenderer.drawCursor( matrix, buffer, 0, 0, terminal, !originTerminal.isColour() );
+
+            transform.pop();
         }
-        finally
+        else
         {
-            GlStateManager.color4f( 1.0f, 1.0f, 1.0f, 1.0f );
-            GlStateManager.popMatrix();
+            FixedWidthFontRenderer.drawEmptyTerminal(
+                transform.getLast().getPositionMatrix(), renderer,
+                -MARGIN, MARGIN,
+                (float) (xSize + 2 * MARGIN), (float) -(ySize + MARGIN * 2)
+            );
         }
+
+        FixedWidthFontRenderer.drawBlocker(
+            transform.getLast().getPositionMatrix(), renderer,
+            (float) -TileMonitor.RENDER_MARGIN, (float) TileMonitor.RENDER_MARGIN,
+            (float) (xSize + 2 * TileMonitor.RENDER_MARGIN), (float) -(ySize + TileMonitor.RENDER_MARGIN * 2)
+        );
+
+        transform.pop();
     }
 }

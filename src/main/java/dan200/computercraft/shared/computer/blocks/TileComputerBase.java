@@ -30,6 +30,7 @@ import net.minecraft.item.Items;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.ITickableTileEntity;
 import net.minecraft.tileentity.TileEntityType;
+import net.minecraft.util.ActionResultType;
 import net.minecraft.util.Direction;
 import net.minecraft.util.Hand;
 import net.minecraft.util.INameable;
@@ -102,8 +103,9 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
         return false;
     }
 
+    @Nonnull
     @Override
-    public boolean onActivate( PlayerEntity player, Hand hand, BlockRayTraceResult hit )
+    public ActionResultType onActivate( PlayerEntity player, Hand hand, BlockRayTraceResult hit )
     {
         ItemStack currentItem = player.getHeldItem( hand );
         if( !currentItem.isEmpty() && currentItem.getItem() == Items.NAME_TAG && canNameWithTag( player ) && currentItem.hasDisplayName() )
@@ -114,9 +116,9 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
                 setLabel( currentItem.getDisplayName().getString() );
                 currentItem.shrink( 1 );
             }
-            return true;
+            return ActionResultType.SUCCESS;
         }
-        else if( !player.isSneaking() )
+        else if( !player.isCrouching() )
         {
             // Regular right click to activate computer
             if( !getWorld().isRemote && isUsable( player, false ) )
@@ -124,9 +126,9 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
                 createServerComputer().turnOn();
                 new ComputerContainerData( createServerComputer() ).open( player, this );
             }
-            return true;
+            return ActionResultType.SUCCESS;
         }
-        return false;
+        return ActionResultType.PASS;
     }
 
     @Override

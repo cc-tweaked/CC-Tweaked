@@ -18,12 +18,10 @@ import net.minecraft.state.EnumProperty;
 import net.minecraft.state.StateContainer;
 import net.minecraft.state.properties.BlockStateProperties;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class BlockMonitor extends BlockGeneric
@@ -38,26 +36,11 @@ public class BlockMonitor extends BlockGeneric
     public BlockMonitor( Properties settings, NamedTileEntityType<? extends TileGeneric> type )
     {
         super( settings, type );
+        // TODO: Test underwater - do we need isSolid at all?
         setDefaultState( getStateContainer().getBaseState()
             .with( ORIENTATION, Direction.NORTH )
             .with( FACING, Direction.NORTH )
             .with( STATE, MonitorEdgeState.NONE ) );
-    }
-
-    @Nonnull
-    @Override
-    public BlockRenderLayer getRenderLayer()
-    {
-        // We use the CUTOUT layer, as otherwise monitor rendering will cause flickering.
-        return BlockRenderLayer.CUTOUT;
-    }
-
-    @Override
-    @Deprecated
-    public boolean isSolid( BlockState state )
-    {
-        // We override isSolid, as our overriding of getRenderLayer means that it would otherwise return false.
-        return true;
     }
 
     @Override

@@ -11,7 +11,6 @@ import dan200.computercraft.api.media.IMedia;
 import dan200.computercraft.api.peripheral.IPeripheralTile;
 import dan200.computercraft.core.computer.MainThread;
 import dan200.computercraft.core.tracking.Tracking;
-import dan200.computercraft.shared.Config;
 import dan200.computercraft.shared.command.CommandComputerCraft;
 import dan200.computercraft.shared.command.arguments.ArgumentSerializers;
 import dan200.computercraft.shared.common.DefaultBundledRedstoneProvider;
@@ -36,7 +35,6 @@ import net.minecraft.world.storage.loot.conditions.LootConditionManager;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.player.PlayerContainerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.client.event.ConfigChangedEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.server.FMLServerStartedEvent;
@@ -125,12 +123,6 @@ public final class ComputerCraftProxyCommon
                 MainThread.executePendingTasks();
                 ComputerCraft.serverComputerRegistry.update();
             }
-        }
-
-        @SubscribeEvent
-        public static void onConfigChanged( ConfigChangedEvent.OnConfigChangedEvent event )
-        {
-            if( event.getModID().equals( ComputerCraft.MOD_ID ) ) Config.sync();
         }
 
         @SubscribeEvent

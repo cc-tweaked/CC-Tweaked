@@ -25,8 +25,8 @@ import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.item.*;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.*;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.common.capabilities.Capability;
@@ -94,13 +94,14 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
         }
     }
 
+    @Nonnull
     @Override
-    public boolean onActivate( PlayerEntity player, Hand hand, BlockRayTraceResult hit )
+    public ActionResultType onActivate( PlayerEntity player, Hand hand, BlockRayTraceResult hit )
     {
-        if( player.isSneaking() ) return false;
+        if( player.isCrouching() ) return ActionResultType.PASS;
 
         if( !getWorld().isRemote ) NetworkHooks.openGui( (ServerPlayerEntity) player, this );
-        return true;
+        return ActionResultType.SUCCESS;
     }
 
     @Override
@@ -424,11 +425,7 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
                 setInventorySlotContents( i, ItemStack.EMPTY );
 
                 // Spawn the item in the world
-                BlockPos pos = getPos();
-                double x = pos.getX() + 0.5;
-                double y = pos.getY() + 0.75;
-                double z = pos.getZ() + 0.5;
-                WorldUtil.dropItemStack( stack, getWorld(), x, y, z );
+                WorldUtil.dropItemStack( stack, getWorld(), new Vec3d( getPos() ).add( 0.5, 0.75, 0.5 ) );
             }
         }
     }

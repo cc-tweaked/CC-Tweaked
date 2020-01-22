@@ -10,6 +10,10 @@
         <property name="file" value="config/checkstyle/suppressions.xml" />
     </module>
 
+    <module name="BeforeExecutionExclusionFileFilter">
+        <property name="fileNamePattern" value="render_old"/>
+    </module>
+
     <module name="TreeWalker">
         <!-- Annotations -->
         <module name="AnnotationLocation" />

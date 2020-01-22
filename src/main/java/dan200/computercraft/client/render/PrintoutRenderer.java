@@ -5,9 +5,9 @@
  */
 package dan200.computercraft.client.render;
 
-import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.GlStateManager.DestFactor;
 import com.mojang.blaze3d.platform.GlStateManager.SourceFactor;
+import com.mojang.blaze3d.systems.RenderSystem;
 import dan200.computercraft.client.gui.FixedWidthFontRenderer;
 import dan200.computercraft.core.terminal.TextBuffer;
 import dan200.computercraft.shared.util.Palette;
@@ -24,7 +24,7 @@ import static dan200.computercraft.shared.media.items.ItemPrintout.LINES_PER_PAG
 public final class PrintoutRenderer
 {
     private static final ResourceLocation BG = new ResourceLocation( "computercraft", "textures/gui/printout.png" );
-    private static final double BG_SIZE = 256.0;
+    private static final float BG_SIZE = 256.0f;
 
     /**
      * Width of a page.
@@ -63,35 +63,21 @@ public final class PrintoutRenderer
 
     public static void drawText( int x, int y, int start, TextBuffer[] text, TextBuffer[] colours )
     {
-        FixedWidthFontRenderer fontRenderer = FixedWidthFontRenderer.instance();
-
         for( int line = 0; line < LINES_PER_PAGE && line < text.length; line++ )
         {
-            fontRenderer.drawString( text[start + line], x, y + line * FONT_HEIGHT, colours[start + line], null, 0, 0, false, Palette.DEFAULT );
-        }
-    }
-
-    public static void drawText( int x, int y, int start, String[] text, String[] colours )
-    {
-        GlStateManager.color4f( 1.0f, 1.0f, 1.0f, 1.0f );
-        GlStateManager.enableBlend();
-        GlStateManager.enableTexture();
-        GlStateManager.blendFuncSeparate( SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA, SourceFactor.ONE, DestFactor.ZERO );
-
-        FixedWidthFontRenderer fontRenderer = FixedWidthFontRenderer.instance();
-
-        for( int line = 0; line < LINES_PER_PAGE && line < text.length; line++ )
-        {
-            fontRenderer.drawString( new TextBuffer( text[start + line] ), x, y + line * FONT_HEIGHT, new TextBuffer( colours[start + line] ), null, 0, 0, false, Palette.DEFAULT );
+            FixedWidthFontRenderer.drawString(
+                x, y + line * FONT_HEIGHT, text[start + line], colours[start + line], null, Palette.DEFAULT,
+                false, 0, 0
+            );
         }
     }
 
     public static void drawBorder( double x, double y, double z, int page, int pages, boolean isBook )
     {
-        GlStateManager.color4f( 1.0f, 1.0f, 1.0f, 1.0f );
-        GlStateManager.enableBlend();
-        GlStateManager.enableTexture();
-        GlStateManager.blendFuncSeparate( SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA, SourceFactor.ONE, DestFactor.ZERO );
+        RenderSystem.color4f( 1.0f, 1.0f, 1.0f, 1.0f );
+        RenderSystem.enableBlend();
+        RenderSystem.enableTexture();
+        RenderSystem.blendFuncSeparate( SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA, SourceFactor.ONE, DestFactor.ZERO );
 
         Minecraft.getInstance().getTextureManager().bindTexture( BG );
 
@@ -123,8 +109,8 @@ public final class PrintoutRenderer
             while( borderX < right )
             {
                 double thisWidth = Math.min( right - borderX, X_SIZE );
-                drawTexture( buffer, borderX, y - 8, z - 0.02, 0, COVER_Y, thisWidth, COVER_SIZE );
-                drawTexture( buffer, borderX, y + Y_SIZE - 4, z - 0.02, 0, COVER_Y + COVER_SIZE, thisWidth, COVER_SIZE );
+                drawTexture( buffer, borderX, y - 8, z - 0.02, 0, COVER_Y, (float) thisWidth, COVER_SIZE );
+                drawTexture( buffer, borderX, y + Y_SIZE - 4, z - 0.02, 0, COVER_Y + COVER_SIZE, (float) thisWidth, COVER_SIZE );
                 borderX += thisWidth;
             }
         }
@@ -156,7 +142,7 @@ public final class PrintoutRenderer
         tessellator.draw();
     }
 
-    private static void drawTexture( BufferBuilder buffer, double x, double y, double z, double u, double v, double width, double height )
+    private static void drawTexture( BufferBuilder buffer, double x, double y, double z, float u, float v, float width, float height )
     {
         buffer.pos( x, y + height, z ).tex( u / BG_SIZE, (v + height) / BG_SIZE ).endVertex();
         buffer.pos( x + width, y + height, z ).tex( (u + width) / BG_SIZE, (v + height) / BG_SIZE ).endVertex();
@@ -164,7 +150,7 @@ public final class PrintoutRenderer
         buffer.pos( x, y, z ).tex( u / BG_SIZE, v / BG_SIZE ).endVertex();
     }
 
-    private static void drawTexture( BufferBuilder buffer, double x, double y, double z, double width, double height, double u, double v, double tWidth, double tHeight )
+    private static void drawTexture( BufferBuilder buffer, double x, double y, double z, double width, double height, float u, float v, float tWidth, float tHeight )
     {
         buffer.pos( x, y + height, z ).tex( u / BG_SIZE, (v + tHeight) / BG_SIZE ).endVertex();
         buffer.pos( x + width, y + height, z ).tex( (u + tWidth) / BG_SIZE, (v + tHeight) / BG_SIZE ).endVertex();

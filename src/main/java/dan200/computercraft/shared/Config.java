@@ -324,7 +324,7 @@ public final class Config
     }
 
     @SubscribeEvent
-    public static void sync( ModConfig.ConfigReloading event )
+    public static void sync( ModConfig.Reloading event )
     {
         // Ensure file configs are reloaded. Forge should probably do this, so worth checking in the future.
         CommentedConfig config = event.getConfig().getConfigData();

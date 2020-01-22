@@ -18,6 +18,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityType;
+import net.minecraft.util.ActionResultType;
 import net.minecraft.util.Direction;
 import net.minecraft.util.Hand;
 import net.minecraft.util.ResourceLocation;
@@ -104,10 +105,11 @@ public class TileMonitor extends TileGeneric implements IPeripheralTile
         if( m_clientMonitor != null && m_xIndex == 0 && m_yIndex == 0 ) m_clientMonitor.destroy();
     }
 
+    @Nonnull
     @Override
-    public boolean onActivate( PlayerEntity player, Hand hand, BlockRayTraceResult hit )
+    public ActionResultType onActivate( PlayerEntity player, Hand hand, BlockRayTraceResult hit )
     {
-        if( !player.isSneaking() && getFront() == hit.getFace() )
+        if( !player.isCrouching() && getFront() == hit.getFace() )
         {
             if( !getWorld().isRemote )
             {
@@ -117,10 +119,10 @@ public class TileMonitor extends TileGeneric implements IPeripheralTile
                     (float) (hit.getHitVec().z - hit.getPos().getZ())
                 );
             }
-            return true;
+            return ActionResultType.SUCCESS;
         }
 
-        return false;
+        return ActionResultType.PASS;
     }
 
     @Nonnull

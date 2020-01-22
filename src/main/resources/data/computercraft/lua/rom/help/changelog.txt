@@ -1,6 +1,8 @@
 # New features in CC: Tweaked 1.86.2
 
 * Fix peripheral.getMethods returning an empty table
+* Update to Minecraft 1.15.2. This is currently alpha-quality and so is missing
+  missing features and may be unstable.
 
 # New features in CC: Tweaked 1.86.1
 

@@ -7,14 +7,12 @@ package dan200.computercraft.client.proxy;
 
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.client.gui.*;
-import dan200.computercraft.client.render.TileEntityCableRenderer;
 import dan200.computercraft.client.render.TileEntityMonitorRenderer;
 import dan200.computercraft.client.render.TileEntityTurtleRenderer;
 import dan200.computercraft.shared.common.ContainerHeldItem;
 import dan200.computercraft.shared.computer.inventory.ContainerComputer;
 import dan200.computercraft.shared.computer.inventory.ContainerViewComputer;
 import dan200.computercraft.shared.peripheral.diskdrive.ContainerDiskDrive;
-import dan200.computercraft.shared.peripheral.modem.wired.TileCable;
 import dan200.computercraft.shared.peripheral.monitor.ClientMonitor;
 import dan200.computercraft.shared.peripheral.monitor.TileMonitor;
 import dan200.computercraft.shared.peripheral.printer.ContainerPrinter;
@@ -22,6 +20,8 @@ import dan200.computercraft.shared.pocket.inventory.ContainerPocketComputer;
 import dan200.computercraft.shared.turtle.blocks.TileTurtle;
 import dan200.computercraft.shared.turtle.inventory.ContainerTurtle;
 import net.minecraft.client.gui.ScreenManager;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.RenderTypeLookup;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -37,10 +37,21 @@ public final class ComputerCraftProxyClient
     {
         registerContainers();
 
+        // While turtles themselves are not transparent, their upgrades may be.
+        RenderTypeLookup.setRenderLayer( ComputerCraft.Blocks.turtleNormal, RenderType.translucent() );
+        RenderTypeLookup.setRenderLayer( ComputerCraft.Blocks.turtleAdvanced, RenderType.translucent() );
+
+        // Monitors' textures have _entirely_ transparent sections which, while not translucent, requires being rendered
+        // as transparent.
+        RenderTypeLookup.setRenderLayer( ComputerCraft.Blocks.monitorNormal, RenderType.translucent() );
+        RenderTypeLookup.setRenderLayer( ComputerCraft.Blocks.monitorAdvanced, RenderType.translucent() );
+
         // Setup TESRs
-        ClientRegistry.bindTileEntitySpecialRenderer( TileMonitor.class, new TileEntityMonitorRenderer() );
-        ClientRegistry.bindTileEntitySpecialRenderer( TileCable.class, new TileEntityCableRenderer() );
-        ClientRegistry.bindTileEntitySpecialRenderer( TileTurtle.class, new TileEntityTurtleRenderer() );
+        ClientRegistry.bindTileEntityRenderer( TileMonitor.FACTORY_NORMAL, TileEntityMonitorRenderer::new );
+        ClientRegistry.bindTileEntityRenderer( TileMonitor.FACTORY_ADVANCED, TileEntityMonitorRenderer::new );
+        ClientRegistry.bindTileEntityRenderer( TileTurtle.FACTORY_NORMAL, TileEntityTurtleRenderer::new );
+        ClientRegistry.bindTileEntityRenderer( TileTurtle.FACTORY_ADVANCED, TileEntityTurtleRenderer::new );
+        // TODO: ClientRegistry.bindTileEntityRenderer( TileCable.FACTORY, x -> new TileEntityCableRenderer() );
     }
 
     private static void registerContainers()

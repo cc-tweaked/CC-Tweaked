@@ -5,7 +5,7 @@
  */
 package dan200.computercraft.client.gui;
 
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.client.gui.widgets.WidgetTerminal;
 import dan200.computercraft.client.gui.widgets.WidgetWrapper;
@@ -134,7 +134,7 @@ public final class GuiComputer<T extends ContainerComputerBase> extends Containe
         terminal.draw( terminalWrapper.getX(), terminalWrapper.getY() );
 
         // Draw a border around the terminal
-        GlStateManager.color4f( 1.0f, 1.0f, 1.0f, 1.0f );
+        RenderSystem.color4f( 1.0f, 1.0f, 1.0f, 1.0f );
         switch( m_family )
         {
             case Normal:

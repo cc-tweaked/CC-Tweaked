@@ -5,7 +5,9 @@
  */
 package dan200.computercraft.client.render;
 
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.IVertexBuilder;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.client.FrameInfo;
 import dan200.computercraft.client.gui.FixedWidthFontRenderer;
@@ -18,6 +20,7 @@ import dan200.computercraft.shared.util.Colour;
 import dan200.computercraft.shared.util.Palette;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BufferBuilder;
+import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.item.ItemStack;
@@ -53,11 +56,16 @@ public final class ItemPocketRenderer extends ItemMapLikeRenderer
         if( !(stack.getItem() instanceof ItemPocketComputer) ) return;
 
         event.setCanceled( true );
-        INSTANCE.renderItemFirstPerson( event.getHand(), event.getInterpolatedPitch(), event.getEquipProgress(), event.getSwingProgress(), event.getItemStack() );
+        Minecraft minecraft = Minecraft.getInstance();
+        INSTANCE.renderItemFirstPerson(
+            event.getMatrixStack(), minecraft.func_228019_au_().func_228487_b_(),
+            minecraft.getRenderManager().func_229085_a_( minecraft.player, event.getPartialTicks() ),
+            event.getHand(), event.getInterpolatedPitch(), event.getEquipProgress(), event.getSwingProgress(), event.getItemStack()
+        );
     }
 
     @Override
-    protected void renderItem( ItemStack stack )
+    protected void renderItem( MatrixStack transform, IRenderTypeBuffer render, ItemStack stack )
     {
         ClientComputer computer = ItemPocketComputer.createClientComputer( stack );
         Terminal terminal = computer == null ? null : computer.getTerminal();
@@ -79,18 +87,17 @@ public final class ItemPocketRenderer extends ItemMapLikeRenderer
 
         // Setup various transformations. Note that these are partially adapted from the corresponding method
         // in ItemRenderer
-        GlStateManager.pushMatrix();
+        transform.push();
+        // TODO: RenderSystem.disableLighting();
+        // TODO: RenderSystem.disableDepthTest();
 
-        GlStateManager.disableLighting();
-        GlStateManager.disableDepthTest();
+        RenderSystem.rotatef( 180f, 0f, 1f, 0f );
+        RenderSystem.rotatef( 180f, 0f, 0f, 1f );
+        transform.scale( 0.5f, 0.5f, 0.5f );
 
-        GlStateManager.rotatef( 180f, 0f, 1f, 0f );
-        GlStateManager.rotatef( 180f, 0f, 0f, 1f );
-        GlStateManager.scalef( 0.5f, 0.5f, 0.5f );
-
-        double scale = 0.75 / Math.max( width + FRAME * 2, height + FRAME * 2 + LIGHT_HEIGHT );
-        GlStateManager.scaled( scale, scale, 0 );
-        GlStateManager.translated( -0.5 * width, -0.5 * height, 0 );
+        float scale = 0.75f / Math.max( width + FRAME * 2, height + FRAME * 2 + LIGHT_HEIGHT );
+        transform.scale( scale, scale, 0 );
+        transform.translate( -0.5 * width, -0.5 * height, 0 );
 
         // Render the main frame
         ItemPocketComputer item = (ItemPocketComputer) stack.getItem();
@@ -106,7 +113,7 @@ public final class ItemPocketRenderer extends ItemMapLikeRenderer
         if( computer != null && terminal != null )
         {
             // If we've a computer and terminal then attempt to render it.
-            renderTerminal( terminal, !computer.isColour(), width, height );
+            renderTerminal( terminal, !computer.isColour() );
         }
         else
         {
@@ -122,9 +129,9 @@ public final class ItemPocketRenderer extends ItemMapLikeRenderer
             tessellator.draw();
         }
 
-        GlStateManager.enableDepthTest();
-        GlStateManager.enableLighting();
-        GlStateManager.popMatrix();
+        // TODO: RenderSystem.enableDepthTest();
+        // TODO: RenderSystem.enableLighting();
+        transform.pop();
     }
 
     private static void renderFrame( ComputerFamily family, int colour, int width, int height )
@@ -171,8 +178,8 @@ public final class ItemPocketRenderer extends ItemMapLikeRenderer
 
     private static void renderLight( int colour, int width, int height )
     {
-        GlStateManager.enableBlend();
-        GlStateManager.disableTexture();
+        RenderSystem.enableBlend();
+        RenderSystem.disableTexture();
 
         float r = ((colour >>> 16) & 0xFF) / 255.0f;
         float g = ((colour >>> 8) & 0xFF) / 255.0f;
@@ -187,10 +194,10 @@ public final class ItemPocketRenderer extends ItemMapLikeRenderer
         buffer.pos( width - LIGHT_HEIGHT * 2, height + FRAME / 2.0f, 0.0D ).color( r, g, b, 1.0f ).endVertex();
 
         tessellator.draw();
-        GlStateManager.enableTexture();
+        RenderSystem.enableTexture();
     }
 
-    private static void renderTerminal( Terminal terminal, boolean greyscale, int width, int height )
+    private static void renderTerminal( Terminal terminal, boolean greyscale )
     {
         synchronized( terminal )
         {
@@ -237,12 +244,12 @@ public final class ItemPocketRenderer extends ItemMapLikeRenderer
         }
     }
 
-    private static void renderTexture( BufferBuilder builder, int x, int y, int textureX, int textureY, int width, int height, float r, float g, float b )
+    private static void renderTexture( IVertexBuilder builder, int x, int y, int textureX, int textureY, int width, int height, float r, float g, float b )
     {
         renderTexture( builder, x, y, textureX, textureY, width, height, width, height, r, g, b );
     }
 
-    private static void renderTexture( BufferBuilder builder, int x, int y, int textureX, int textureY, int width, int height, int textureWidth, int textureHeight, float r, float g, float b )
+    private static void renderTexture( IVertexBuilder builder, int x, int y, int textureX, int textureY, int width, int height, int textureWidth, int textureHeight, float r, float g, float b )
     {
         float scale = 1 / 255.0f;
         builder.pos( x, y + height, 0 ).tex( textureX * scale, (textureY + textureHeight) * scale ).color( r, g, b, 1.0f ).endVertex();

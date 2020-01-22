@@ -5,7 +5,7 @@
  */
 package dan200.computercraft.client.gui;
 
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.client.gui.widgets.WidgetTerminal;
 import dan200.computercraft.client.gui.widgets.WidgetWrapper;
@@ -98,7 +98,7 @@ public class GuiTurtle extends ContainerScreen<ContainerTurtle>
         int slot = m_container.getSelectedSlot();
         if( slot >= 0 )
         {
-            GlStateManager.color4f( 1.0F, 1.0F, 1.0F, 1.0F );
+            RenderSystem.color4f( 1.0F, 1.0F, 1.0F, 1.0F );
             int slotX = slot % 4;
             int slotY = slot / 4;
             minecraft.getTextureManager().bindTexture( advanced ? BACKGROUND_ADVANCED : BACKGROUND_NORMAL );
@@ -114,7 +114,7 @@ public class GuiTurtle extends ContainerScreen<ContainerTurtle>
         terminal.draw( terminalWrapper.getX(), terminalWrapper.getY() );
 
         // Draw border/inventory
-        GlStateManager.color4f( 1.0F, 1.0F, 1.0F, 1.0F );
+        RenderSystem.color4f( 1.0F, 1.0F, 1.0F, 1.0F );
         minecraft.getTextureManager().bindTexture( advanced ? BACKGROUND_ADVANCED : BACKGROUND_NORMAL );
         blit( guiLeft, guiTop, 0, 0, xSize, ySize );
 

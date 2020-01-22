@@ -5,7 +5,7 @@
  */
 package dan200.computercraft.client.render;
 
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.media.items.ItemPrintout;
 import net.minecraft.item.ItemStack;
@@ -48,16 +48,16 @@ public final class ItemPrintoutRenderer extends ItemMapLikeRenderer
     {
         // Setup various transformations. Note that these are partially adapated from the corresponding method
         // in FirstPersonRenderer.renderFirstPersonMap
-        GlStateManager.disableLighting();
+        RenderSystem.disableLighting();
 
-        GlStateManager.rotatef( 180f, 0f, 1f, 0f );
-        GlStateManager.rotatef( 180f, 0f, 0f, 1f );
-        GlStateManager.scalef( 0.42f, 0.42f, -0.42f );
-        GlStateManager.translatef( -0.5f, -0.48f, 0.0f );
+        RenderSystem.rotatef( 180f, 0f, 1f, 0f );
+        RenderSystem.rotatef( 180f, 0f, 0f, 1f );
+        RenderSystem.scalef( 0.42f, 0.42f, -0.42f );
+        RenderSystem.translatef( -0.5f, -0.48f, 0.0f );
 
         drawPrintout( stack );
 
-        GlStateManager.enableLighting();
+        RenderSystem.enableLighting();
     }
 
     @SubscribeEvent
@@ -68,18 +68,18 @@ public final class ItemPrintoutRenderer extends ItemMapLikeRenderer
 
         event.setCanceled( true );
 
-        GlStateManager.disableLighting();
+        RenderSystem.disableLighting();
 
         // Move a little bit forward to ensure we're not clipping with the frame
-        GlStateManager.translatef( 0.0f, 0.0f, -0.001f );
-        GlStateManager.rotatef( 180f, 0f, 0f, 1f );
-        GlStateManager.scalef( 0.95f, 0.95f, -0.95f );
-        GlStateManager.translatef( -0.5f, -0.5f, 0.0f );
+        RenderSystem.translatef( 0.0f, 0.0f, -0.001f );
+        RenderSystem.rotatef( 180f, 0f, 0f, 1f );
+        RenderSystem.scalef( 0.95f, 0.95f, -0.95f );
+        RenderSystem.translatef( -0.5f, -0.5f, 0.0f );
 
         drawPrintout( stack );
 
-        GlStateManager.enableLighting();
-        GlStateManager.disableBlend();
+        RenderSystem.enableLighting();
+        RenderSystem.disableBlend();
     }
 
     private static void drawPrintout( ItemStack stack )
@@ -106,8 +106,8 @@ public final class ItemPrintoutRenderer extends ItemMapLikeRenderer
 
         // Scale the printout to fit correctly.
         double scale = 1.0 / max;
-        GlStateManager.scaled( scale, scale, scale );
-        GlStateManager.translated( (max - width) / 2.0, (max - height) / 2.0, 0.0 );
+        RenderSystem.scaled( scale, scale, scale );
+        RenderSystem.translated( (max - width) / 2.0, (max - height) / 2.0, 0.0 );
 
         drawBorder( 0, 0, -0.01, 0, pages, book );
         drawText( X_TEXT_MARGIN, Y_TEXT_MARGIN, 0, ItemPrintout.getText( stack ), ItemPrintout.getColours( stack ) );

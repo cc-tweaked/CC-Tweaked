@@ -337,8 +337,7 @@ public class TurtleBrain implements ITurtleAccess
                     {
                         // Copy the old turtle state into the new turtle
                         TileTurtle newTurtle = (TileTurtle) newTile;
-                        newTurtle.setWorld( world );
-                        newTurtle.setPos( pos );
+                        newTurtle.setWorldAndPos( world, pos );
                         newTurtle.transferStateFrom( oldOwner );
                         newTurtle.createServerComputer().setWorld( world );
                         newTurtle.createServerComputer().setPosition( pos );

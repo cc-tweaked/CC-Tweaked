@@ -6,6 +6,7 @@
 package dan200.computercraft.client.render;
 
 import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.peripheral.modem.wired.BlockCable;
 import dan200.computercraft.shared.peripheral.modem.wired.CableModemVariant;
@@ -110,17 +111,17 @@ public class TileEntityCableRenderer extends TileEntityRenderer<TileCable>
      */
     private void preRenderDamagedBlocks()
     {
-        GlStateManager.disableLighting();
+        RenderSystem.disableLighting();
 
-        GlStateManager.enableBlend();
-        GlStateManager.blendFuncSeparate( GlStateManager.SourceFactor.DST_COLOR, GlStateManager.DestFactor.SRC_COLOR, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO );
-        GlStateManager.enableBlend();
-        GlStateManager.color4f( 1.0F, 1.0F, 1.0F, 0.5F );
-        GlStateManager.polygonOffset( -3.0F, -3.0F );
-        GlStateManager.enablePolygonOffset();
-        GlStateManager.alphaFunc( 516, 0.1F );
-        GlStateManager.enableAlphaTest();
-        GlStateManager.pushMatrix();
+        RenderSystem.enableBlend();
+        RenderSystem.blendFuncSeparate( GlStateManager.SourceFactor.DST_COLOR, GlStateManager.DestFactor.SRC_COLOR, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO );
+        RenderSystem.enableBlend();
+        RenderSystem.color4f( 1.0F, 1.0F, 1.0F, 0.5F );
+        RenderSystem.polygonOffset( -3.0F, -3.0F );
+        RenderSystem.enablePolygonOffset();
+        RenderSystem.alphaFunc( 516, 0.1F );
+        RenderSystem.enableAlphaTest();
+        RenderSystem.pushMatrix();
     }
 
     /**
@@ -130,11 +131,11 @@ public class TileEntityCableRenderer extends TileEntityRenderer<TileCable>
      */
     private void postRenderDamagedBlocks()
     {
-        GlStateManager.disableAlphaTest();
-        GlStateManager.polygonOffset( 0.0F, 0.0F );
-        GlStateManager.disablePolygonOffset();
-        GlStateManager.disablePolygonOffset();
-        GlStateManager.depthMask( true );
-        GlStateManager.popMatrix();
+        RenderSystem.disableAlphaTest();
+        RenderSystem.polygonOffset( 0.0F, 0.0F );
+        RenderSystem.disablePolygonOffset();
+        RenderSystem.disablePolygonOffset();
+        RenderSystem.depthMask( true );
+        RenderSystem.popMatrix();
     }
 }

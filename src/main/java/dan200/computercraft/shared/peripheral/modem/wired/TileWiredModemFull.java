@@ -22,6 +22,7 @@ import dan200.computercraft.shared.wired.CapabilityWiredElement;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.ActionResultType;
 import net.minecraft.util.Direction;
 import net.minecraft.util.Hand;
 import net.minecraft.util.ResourceLocation;
@@ -184,10 +185,11 @@ public class TileWiredModemFull extends TileGeneric implements IPeripheralTile
         }
     }
 
+    @Nonnull
     @Override
-    public boolean onActivate( PlayerEntity player, Hand hand, BlockRayTraceResult hit )
+    public ActionResultType onActivate( PlayerEntity player, Hand hand, BlockRayTraceResult hit )
     {
-        if( getWorld().isRemote ) return true;
+        if( getWorld().isRemote ) return ActionResultType.SUCCESS;
 
         // On server, we interacted if a peripheral was found
         Set<String> oldPeriphNames = getConnectedPeripheralNames();
@@ -200,7 +202,7 @@ public class TileWiredModemFull extends TileGeneric implements IPeripheralTile
             sendPeripheralChanges( player, "chat.computercraft.wired_modem.peripheral_connected", periphNames );
         }
 
-        return true;
+        return ActionResultType.SUCCESS;
     }
 
     private static void sendPeripheralChanges( PlayerEntity player, String kind, Collection<String> peripherals )

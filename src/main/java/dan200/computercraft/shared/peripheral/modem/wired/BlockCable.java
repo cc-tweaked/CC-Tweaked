@@ -250,11 +250,4 @@ public class BlockCable extends BlockGeneric implements IWaterLoggable
                 .with( WEST, false ).with( UP, false ).with( DOWN, false );
         }
     }
-
-    @Override
-    @Deprecated
-    public boolean hasCustomBreakingProgress( BlockState state )
-    {
-        return true;
-    }
 }

@@ -7,13 +7,11 @@ package dan200.computercraft.shared.turtle.upgrades;
 
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.AbstractTurtleUpgrade;
+import dan200.computercraft.api.client.TransformedModel;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.turtle.*;
 import dan200.computercraft.shared.peripheral.modem.ModemState;
 import dan200.computercraft.shared.peripheral.modem.wireless.WirelessModemPeripheral;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.model.IBakedModel;
-import net.minecraft.client.renderer.model.ModelManager;
 import net.minecraft.client.renderer.model.ModelResourceLocation;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.Direction;
@@ -23,10 +21,8 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nonnull;
-import javax.vecmath.Matrix4f;
 
 public class TurtleModem extends AbstractTurtleUpgrade
 {
@@ -129,7 +125,7 @@ public class TurtleModem extends AbstractTurtleUpgrade
     @Nonnull
     @Override
     @OnlyIn( Dist.CLIENT )
-    public Pair<IBakedModel, Matrix4f> getModel( ITurtleAccess turtle, @Nonnull TurtleSide side )
+    public TransformedModel getModel( ITurtleAccess turtle, @Nonnull TurtleSide side )
     {
         loadModelLocations();
 
@@ -137,28 +133,12 @@ public class TurtleModem extends AbstractTurtleUpgrade
         if( turtle != null )
         {
             CompoundNBT turtleNBT = turtle.getUpgradeNBTData( side );
-            if( turtleNBT.contains( "active" ) )
-            {
-                active = turtleNBT.getBoolean( "active" );
-            }
+            active = turtleNBT.contains( "active" ) && turtleNBT.getBoolean( "active" );
         }
 
-        Matrix4f transform = null;
-        ModelManager modelManager = Minecraft.getInstance().getItemRenderer().getItemModelMesher().getModelManager();
-        if( side == TurtleSide.Left )
-        {
-            return Pair.of(
-                active ? modelManager.getModel( m_leftOnModel ) : modelManager.getModel( m_leftOffModel ),
-                transform
-            );
-        }
-        else
-        {
-            return Pair.of(
-                active ? modelManager.getModel( m_rightOnModel ) : modelManager.getModel( m_rightOffModel ),
-                transform
-            );
-        }
+        return side == TurtleSide.Left
+            ? TransformedModel.of( active ? m_leftOnModel : m_leftOffModel )
+            : TransformedModel.of( active ? m_rightOnModel : m_rightOffModel );
     }
 
     @Override

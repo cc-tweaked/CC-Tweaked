@@ -6,6 +6,7 @@
 package dan200.computercraft.client.render;
 
 import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.peripheral.modem.wired.BlockCable;
 import dan200.computercraft.shared.peripheral.modem.wired.CableShapes;
@@ -21,7 +22,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.DrawBlockHighlightEvent;
+import net.minecraftforge.client.event.DrawHighlightEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import org.lwjgl.opengl.GL11;
@@ -40,11 +41,9 @@ public final class CableHighlightRenderer
      * @see WorldRenderer#drawSelectionBox(ActiveRenderInfo, RayTraceResult, int)
      */
     @SubscribeEvent
-    public static void drawHighlight( DrawBlockHighlightEvent event )
+    public static void drawHighlight( DrawHighlightEvent.HighlightBlock event )
     {
-        if( event.getTarget().getType() != RayTraceResult.Type.BLOCK ) return;
-
-        BlockRayTraceResult hit = (BlockRayTraceResult) event.getTarget();
+        BlockRayTraceResult hit = event.getTarget();
         BlockPos pos = hit.getPos();
         World world = event.getInfo().getRenderViewEntity().getEntityWorld();
         ActiveRenderInfo info = event.getInfo();
@@ -61,14 +60,14 @@ public final class CableHighlightRenderer
 
         Minecraft mc = Minecraft.getInstance();
 
-        GlStateManager.enableBlend();
-        GlStateManager.blendFuncSeparate( GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO );
-        GlStateManager.lineWidth( Math.max( 2.5F, mc.mainWindow.getFramebufferWidth() / 1920.0F * 2.5F ) );
-        GlStateManager.disableTexture();
-        GlStateManager.depthMask( false );
-        GlStateManager.matrixMode( GL11.GL_PROJECTION );
-        GlStateManager.pushMatrix();
-        GlStateManager.scalef( 1.0F, 1.0F, 0.999F );
+        RenderSystem.enableBlend();
+        RenderSystem.blendFuncSeparate( GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO );
+        RenderSystem.lineWidth( Math.max( 2.5F, mc.getMainWindow().getFramebufferWidth() / 1920.0F * 2.5F ) );
+        RenderSystem.disableTexture();
+        RenderSystem.depthMask( false );
+        RenderSystem.matrixMode( GL11.GL_PROJECTION );
+        RenderSystem.pushMatrix();
+        RenderSystem.scalef( 1.0F, 1.0F, 0.999F );
 
         VoxelShape shape = WorldUtil.isVecInside( CableShapes.getModemShape( state ), hit.getHitVec().subtract( pos.getX(), pos.getY(), pos.getZ() ) )
             ? CableShapes.getModemShape( state )
@@ -80,10 +79,10 @@ public final class CableHighlightRenderer
             0.0F, 0.0F, 0.0F, 0.4F
         );
 
-        GlStateManager.popMatrix();
-        GlStateManager.matrixMode( GL11.GL_MODELVIEW );
-        GlStateManager.depthMask( true );
-        GlStateManager.enableTexture();
-        GlStateManager.disableBlend();
+        RenderSystem.popMatrix();
+        RenderSystem.matrixMode( GL11.GL_MODELVIEW );
+        RenderSystem.depthMask( true );
+        RenderSystem.enableTexture();
+        RenderSystem.disableBlend();
     }
 }

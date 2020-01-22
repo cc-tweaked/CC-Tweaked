@@ -11,12 +11,14 @@ import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityType;
+import net.minecraft.util.ActionResultType;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.IWorldReader;
 import net.minecraft.world.World;
+import net.minecraft.world.server.ServerWorld;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -45,12 +47,13 @@ public abstract class BlockGeneric extends Block
         if( tile instanceof TileGeneric ) ((TileGeneric) tile).destroy();
     }
 
+    @Nonnull
     @Override
     @Deprecated
-    public final boolean onBlockActivated( BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockRayTraceResult hit )
+    public final ActionResultType onBlockActivated( BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockRayTraceResult hit )
     {
         TileEntity tile = world.getTileEntity( pos );
-        return tile instanceof TileGeneric && ((TileGeneric) tile).onActivate( player, hand, hit );
+        return tile instanceof TileGeneric ? ((TileGeneric) tile).onActivate( player, hand, hit ) : ActionResultType.PASS;
     }
 
     @Override
@@ -70,7 +73,7 @@ public abstract class BlockGeneric extends Block
 
     @Override
     @Deprecated
-    public void tick( BlockState state, World world, BlockPos pos, Random rand )
+    public void tick( BlockState state, ServerWorld world, BlockPos pos, Random rand )
     {
         TileEntity te = world.getTileEntity( pos );
         if( te instanceof TileGeneric ) ((TileGeneric) te).blockTick();

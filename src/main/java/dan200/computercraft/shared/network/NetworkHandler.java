@@ -76,12 +76,10 @@ public final class NetworkHandler
     {
         for( ServerPlayerEntity player : ServerLifecycleHooks.getCurrentServer().getPlayerList().getPlayers() )
         {
-            if( player.getEntityWorld() != world ) continue;
-
-            double x = pos.x - player.posX;
-            double y = pos.y - player.posY;
-            double z = pos.z - player.posZ;
-            if( x * x + y * y + z * z < range * range ) sendToPlayer( player, packet );
+            if( player.getEntityWorld() == world && player.getDistanceSq( pos ) < range * range )
+            {
+                sendToPlayer( player, packet );
+            }
         }
     }
 

@@ -12,6 +12,7 @@ import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SUpdateTileEntityPacket;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityType;
+import net.minecraft.util.ActionResultType;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
@@ -37,9 +38,10 @@ public abstract class TileGeneric extends TileEntity
         getWorld().notifyBlockUpdate( pos, state, state, 3 );
     }
 
-    public boolean onActivate( PlayerEntity player, Hand hand, BlockRayTraceResult hit )
+    @Nonnull
+    public ActionResultType onActivate( PlayerEntity player, Hand hand, BlockRayTraceResult hit )
     {
-        return false;
+        return ActionResultType.PASS;
     }
 
     public void onNeighbourChange( @Nonnull BlockPos neighbour )

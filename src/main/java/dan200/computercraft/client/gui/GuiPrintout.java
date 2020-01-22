@@ -5,7 +5,7 @@
  */
 package dan200.computercraft.client.gui;
 
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import dan200.computercraft.core.terminal.TextBuffer;
 import dan200.computercraft.shared.common.ContainerHeldItem;
 import dan200.computercraft.shared.media.items.ItemPrintout;
@@ -88,10 +88,10 @@ public class GuiPrintout extends ContainerScreen<ContainerHeldItem>
     public void drawGuiContainerBackgroundLayer( float partialTicks, int mouseX, int mouseY )
     {
         // Draw the printout
-        GlStateManager.color4f( 1.0f, 1.0f, 1.0f, 1.0f );
-        GlStateManager.enableDepthTest();
+        RenderSystem.color4f( 1.0f, 1.0f, 1.0f, 1.0f );
+        RenderSystem.enableDepthTest();
 
-        drawBorder( guiLeft, guiTop, blitOffset, m_page, m_pages, m_book );
+        drawBorder( guiLeft, guiTop, getBlitOffset(), m_page, m_pages, m_book );
         drawText( guiLeft + X_TEXT_MARGIN, guiTop + Y_TEXT_MARGIN, ItemPrintout.LINES_PER_PAGE * m_page, m_text, m_colours );
     }
 
@@ -99,9 +99,9 @@ public class GuiPrintout extends ContainerScreen<ContainerHeldItem>
     public void render( int mouseX, int mouseY, float partialTicks )
     {
         // We must take the background further back in order to not overlap with our printed pages.
-        blitOffset--;
+        setBlitOffset( getBlitOffset() - 1 );
         renderBackground();
-        blitOffset++;
+        setBlitOffset( getBlitOffset() + 1 );
 
         super.render( mouseX, mouseY, partialTicks );
         renderHoveredToolTip( mouseX, mouseY );

@@ -5,7 +5,9 @@
  */
 package dan200.computercraft.client.render;
 
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.IVertexBuilder;
+import dan200.computercraft.api.client.TransformedModel;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
@@ -13,31 +15,26 @@ import dan200.computercraft.shared.turtle.blocks.TileTurtle;
 import dan200.computercraft.shared.util.DirectionUtil;
 import dan200.computercraft.shared.util.Holiday;
 import dan200.computercraft.shared.util.HolidayUtil;
-import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.renderer.Atlases;
+import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.client.renderer.Matrix4f;
+import net.minecraft.client.renderer.Vector3f;
 import net.minecraft.client.renderer.model.BakedQuad;
 import net.minecraft.client.renderer.model.IBakedModel;
 import net.minecraft.client.renderer.model.ModelManager;
 import net.minecraft.client.renderer.model.ModelResourceLocation;
-import net.minecraft.client.renderer.texture.AtlasTexture;
 import net.minecraft.client.renderer.tileentity.TileEntityRenderer;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.client.renderer.vertex.VertexFormat;
+import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
-import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.client.model.data.EmptyModelData;
-import net.minecraftforge.client.model.pipeline.LightUtil;
-import org.apache.commons.lang3.tuple.Pair;
-import org.lwjgl.opengl.GL11;
 
-import javax.vecmath.Matrix4f;
+import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.Random;
 
@@ -48,10 +45,11 @@ public class TileEntityTurtleRenderer extends TileEntityRenderer<TileTurtle>
     private static final ModelResourceLocation COLOUR_TURTLE_MODEL = new ModelResourceLocation( "computercraft:turtle_colour", "inventory" );
     private static final ModelResourceLocation ELF_OVERLAY_MODEL = new ModelResourceLocation( "computercraft:turtle_elf_overlay", "inventory" );
 
-    @Override
-    public void render( TileTurtle tileEntity, double posX, double posY, double posZ, float partialTicks, int breaking )
+    private final Random random = new Random( 0 );
+
+    public TileEntityTurtleRenderer( TileEntityRendererDispatcher renderDispatcher )
     {
-        if( tileEntity != null ) renderTurtleAt( tileEntity, posX, posY, posZ, partialTicks );
+        super( renderDispatcher );
     }
 
     public static ModelResourceLocation getTurtleModel( ComputerFamily family, boolean coloured )
@@ -68,169 +66,126 @@ public class TileEntityTurtleRenderer extends TileEntityRenderer<TileTurtle>
 
     public static ModelResourceLocation getTurtleOverlayModel( ResourceLocation overlay, boolean christmas )
     {
-        if( overlay != null )
-        {
-            return new ModelResourceLocation( overlay, "inventory" );
-        }
-        else if( christmas )
-        {
-            return ELF_OVERLAY_MODEL;
-        }
-        else
-        {
-            return null;
-        }
+        if( overlay != null ) return new ModelResourceLocation( overlay, "inventory" );
+        if( christmas ) return ELF_OVERLAY_MODEL;
+        return null;
     }
 
-    private void renderTurtleAt( TileTurtle turtle, double posX, double posY, double posZ, float partialTicks )
+    @Override
+    public void render( @Nonnull TileTurtle turtle, float partialTicks, @Nonnull MatrixStack transform, @Nonnull IRenderTypeBuffer renderer, int lightmapCoord, int overlayLight )
     {
         // Render the label
         String label = turtle.createProxy().getLabel();
-        RayTraceResult hit = rendererDispatcher.cameraHitResult;
+        RayTraceResult hit = renderDispatcher.cameraHitResult;
         if( label != null && hit.getType() == RayTraceResult.Type.BLOCK && turtle.getPos().equals( ((BlockRayTraceResult) hit).getPos() ) )
         {
-            setLightmapDisabled( true );
-            GameRenderer.drawNameplate(
-                getFontRenderer(), label,
-                (float) posX + 0.5F, (float) posY + 1.2F, (float) posZ + 0.5F, 0,
-                rendererDispatcher.renderInfo.getYaw(), rendererDispatcher.renderInfo.getPitch(), false
-            );
-            setLightmapDisabled( false );
+            Minecraft mc = Minecraft.getInstance();
+            FontRenderer font = renderDispatcher.fontRenderer;
+
+            transform.push();
+            transform.translate( 0.5, 1.2, 0.5 );
+            transform.rotate( mc.getRenderManager().getCameraOrientation() );
+            transform.scale( -0.025f, -0.025f, 0.025f );
+
+            Matrix4f matrix = transform.getLast().getPositionMatrix();
+            int opacity = (int) (mc.gameSettings.getTextBackgroundOpacity( 0.25f ) * 255) << 24;
+            float width = -font.getStringWidth( label ) / 2.0f;
+            font.renderString( label, width, (float) 0, 0x20ffffff, false, matrix, renderer, true, opacity, lightmapCoord );
+            font.renderString( label, width, (float) 0, 0xffffffff, false, matrix, renderer, false, 0, lightmapCoord );
+
+            transform.pop();
         }
 
-        GlStateManager.pushMatrix();
-        try
+        transform.push();
+
+        // Setup the transform.
+        Vec3d offset = turtle.getRenderOffset( partialTicks );
+        float yaw = turtle.getRenderYaw( partialTicks );
+        transform.translate( offset.x, offset.y, offset.z );
+
+        transform.translate( 0.5f, 0.5f, 0.5f );
+        transform.rotate( Vector3f.YP.rotationDegrees( 180.0f - yaw ) );
+        if( label != null && (label.equals( "Dinnerbone" ) || label.equals( "Grumm" )) )
         {
-            BlockState state = turtle.getBlockState();
-            // Setup the transform
-            Vec3d offset = turtle.getRenderOffset( partialTicks );
-            float yaw = turtle.getRenderYaw( partialTicks );
-            GlStateManager.translated( posX + offset.x, posY + offset.y, posZ + offset.z );
-            // Render the turtle
-            GlStateManager.translatef( 0.5f, 0.5f, 0.5f );
-            GlStateManager.rotatef( 180.0f - yaw, 0.0f, 1.0f, 0.0f );
-            if( label != null && (label.equals( "Dinnerbone" ) || label.equals( "Grumm" )) )
-            {
-                // Flip the model and swap the cull face as winding order will have changed.
-                GlStateManager.scalef( 1.0f, -1.0f, 1.0f );
-                GlStateManager.cullFace( GlStateManager.CullFace.FRONT );
-            }
-            GlStateManager.translatef( -0.5f, -0.5f, -0.5f );
-            // Render the turtle
-            int colour = turtle.getColour();
-            ComputerFamily family = turtle.getFamily();
-            ResourceLocation overlay = turtle.getOverlay();
-
-            renderModel( state, getTurtleModel( family, colour != -1 ), colour == -1 ? null : new int[] { colour } );
-
-            // Render the overlay
-            ModelResourceLocation overlayModel = getTurtleOverlayModel(
-                overlay,
-                HolidayUtil.getCurrentHoliday() == Holiday.Christmas
-            );
-            if( overlayModel != null )
-            {
-                GlStateManager.disableCull();
-                GlStateManager.enableBlend();
-                GlStateManager.blendFunc( GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA );
-                try
-                {
-                    renderModel( state, overlayModel, null );
-                }
-                finally
-                {
-                    GlStateManager.disableBlend();
-                    GlStateManager.enableCull();
-                }
-            }
-
-            // Render the upgrades
-            renderUpgrade( state, turtle, TurtleSide.Left, partialTicks );
-            renderUpgrade( state, turtle, TurtleSide.Right, partialTicks );
+            // Flip the model
+            transform.scale( 1.0f, -1.0f, 1.0f );
         }
-        finally
+        transform.translate( -0.5f, -0.5f, -0.5f );
+
+        // Render the turtle
+        int colour = turtle.getColour();
+        ComputerFamily family = turtle.getFamily();
+        ResourceLocation overlay = turtle.getOverlay();
+
+        IVertexBuilder buffer = renderer.getBuffer( Atlases.getTranslucentCullBlockType() );
+        renderModel( transform, buffer, lightmapCoord, overlayLight, getTurtleModel( family, colour != -1 ), colour == -1 ? null : new int[] { colour } );
+
+        // Render the overlay
+        ModelResourceLocation overlayModel = getTurtleOverlayModel( overlay, HolidayUtil.getCurrentHoliday() == Holiday.Christmas );
+        if( overlayModel != null )
         {
-            GlStateManager.popMatrix();
-            GlStateManager.cullFace( GlStateManager.CullFace.BACK );
+            renderModel( transform, buffer, lightmapCoord, overlayLight, overlayModel, null );
         }
+
+        // Render the upgrades
+        renderUpgrade( transform, buffer, lightmapCoord, overlayLight, turtle, TurtleSide.Left, partialTicks );
+        renderUpgrade( transform, buffer, lightmapCoord, overlayLight, turtle, TurtleSide.Right, partialTicks );
+
+        transform.pop();
     }
 
-    private void renderUpgrade( BlockState state, TileTurtle turtle, TurtleSide side, float f )
+    private void renderUpgrade( @Nonnull MatrixStack transform, @Nonnull IVertexBuilder renderer, int lightmapCoord, int overlayLight, TileTurtle turtle, TurtleSide side, float f )
     {
         ITurtleUpgrade upgrade = turtle.getUpgrade( side );
-        if( upgrade != null )
-        {
-            GlStateManager.pushMatrix();
-            try
-            {
-                float toolAngle = turtle.getToolRenderAngle( side, f );
-                GlStateManager.translatef( 0.0f, 0.5f, 0.5f );
-                GlStateManager.rotatef( -toolAngle, 1.0f, 0.0f, 0.0f );
-                GlStateManager.translatef( 0.0f, -0.5f, -0.5f );
+        if( upgrade == null ) return;
+        transform.push();
 
-                Pair<IBakedModel, Matrix4f> pair = upgrade.getModel( turtle.getAccess(), side );
-                if( pair != null )
-                {
-                    if( pair.getRight() != null )
-                    {
-                        ForgeHooksClient.multiplyCurrentGlMatrix( pair.getRight() );
-                    }
-                    if( pair.getLeft() != null )
-                    {
-                        renderModel( state, pair.getLeft(), null );
-                    }
-                }
-            }
-            finally
-            {
-                GlStateManager.popMatrix();
-            }
-        }
+        float toolAngle = turtle.getToolRenderAngle( side, f );
+        transform.translate( 0.0f, 0.5f, 0.5f );
+        transform.rotate( Vector3f.XN.rotationDegrees( toolAngle ) );
+        transform.translate( 0.0f, -0.5f, -0.5f );
+
+        TransformedModel model = upgrade.getModel( turtle.getAccess(), side );
+        model.getMatrix().push( transform );
+        renderModel( transform, renderer, lightmapCoord, overlayLight, model.getModel(), null );
+        transform.pop();
+
+        transform.pop();
     }
 
-    private void renderModel( BlockState state, ModelResourceLocation modelLocation, int[] tints )
+    private void renderModel( @Nonnull MatrixStack transform, @Nonnull IVertexBuilder renderer, int lightmapCoord, int overlayLight, ModelResourceLocation modelLocation, int[] tints )
     {
-        Minecraft mc = Minecraft.getInstance();
-        ModelManager modelManager = mc.getItemRenderer().getItemModelMesher().getModelManager();
-        renderModel( state, modelManager.getModel( modelLocation ), tints );
+        ModelManager modelManager = Minecraft.getInstance().getItemRenderer().getItemModelMesher().getModelManager();
+        renderModel( transform, renderer, lightmapCoord, overlayLight, modelManager.getModel( modelLocation ), tints );
     }
 
-    private void renderModel( BlockState state, IBakedModel model, int[] tints )
+    private void renderModel( @Nonnull MatrixStack transform, @Nonnull IVertexBuilder renderer, int lightmapCoord, int overlayLight, IBakedModel model, int[] tints )
     {
-        Random random = new Random( 0 );
-        Tessellator tessellator = Tessellator.getInstance();
-        rendererDispatcher.textureManager.bindTexture( AtlasTexture.LOCATION_BLOCKS_TEXTURE );
-        renderQuads( tessellator, model.getQuads( state, null, random, EmptyModelData.INSTANCE ), tints );
+        random.setSeed( 0 );
+        renderQuads( transform, renderer, lightmapCoord, overlayLight, model.getQuads( null, null, random, EmptyModelData.INSTANCE ), tints );
         for( Direction facing : DirectionUtil.FACINGS )
         {
-            renderQuads( tessellator, model.getQuads( state, facing, random, EmptyModelData.INSTANCE ), tints );
+            renderQuads( transform, renderer, lightmapCoord, overlayLight, model.getQuads( null, facing, random, EmptyModelData.INSTANCE ), tints );
         }
     }
 
-    private static void renderQuads( Tessellator tessellator, List<BakedQuad> quads, int[] tints )
+    private static void renderQuads( @Nonnull MatrixStack transform, @Nonnull IVertexBuilder buffer, int lightmapCoord, int overlayLight, List<BakedQuad> quads, int[] tints )
     {
-        BufferBuilder buffer = tessellator.getBuffer();
-        VertexFormat format = DefaultVertexFormats.ITEM;
-        buffer.begin( GL11.GL_QUADS, format );
-        for( BakedQuad quad : quads )
+        MatrixStack.Entry matrix = transform.getLast();
+
+        for( BakedQuad bakedquad : quads )
         {
-            VertexFormat quadFormat = quad.getFormat();
-            if( quadFormat != format )
+            int tint = -1;
+            if( tints != null && bakedquad.hasTintIndex() )
             {
-                tessellator.draw();
-                format = quadFormat;
-                buffer.begin( GL11.GL_QUADS, format );
+                int idx = bakedquad.getTintIndex();
+                if( idx >= 0 && idx < tints.length ) tint = tints[bakedquad.getTintIndex()];
             }
 
-            int colour = 0xFFFFFFFF;
-            if( quad.hasTintIndex() && tints != null )
-            {
-                int index = quad.getTintIndex();
-                if( index >= 0 && index < tints.length ) colour = tints[index] | 0xFF000000;
-            }
-
-            LightUtil.renderQuadColor( buffer, quad, colour );
+            float f = (float) (tint >> 16 & 255) / 255.0F;
+            float f1 = (float) (tint >> 8 & 255) / 255.0F;
+            float f2 = (float) (tint & 255) / 255.0F;
+            buffer.addVertexData( matrix, bakedquad, f, f1, f2, lightmapCoord, overlayLight, true );
         }
-        tessellator.draw();
     }
 }

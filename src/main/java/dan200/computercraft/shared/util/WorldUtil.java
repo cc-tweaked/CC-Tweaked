@@ -172,17 +172,17 @@ public final class WorldUtil
         double xPos = pos.getX() + 0.5 + xDir * 0.4;
         double yPos = pos.getY() + 0.5 + yDir * 0.4;
         double zPos = pos.getZ() + 0.5 + zDir * 0.4;
-        dropItemStack( stack, world, xPos, yPos, zPos, xDir, yDir, zDir );
+        dropItemStack( stack, world, new Vec3d( xPos, yPos, zPos ), xDir, yDir, zDir );
     }
 
-    public static void dropItemStack( @Nonnull ItemStack stack, World world, double xPos, double yPos, double zPos )
+    public static void dropItemStack( @Nonnull ItemStack stack, World world, Vec3d pos )
     {
-        dropItemStack( stack, world, xPos, yPos, zPos, 0.0, 0.0, 0.0 );
+        dropItemStack( stack, world, pos, 0.0, 0.0, 0.0 );
     }
 
-    public static void dropItemStack( @Nonnull ItemStack stack, World world, double xPos, double yPos, double zPos, double xDir, double yDir, double zDir )
+    public static void dropItemStack( @Nonnull ItemStack stack, World world, Vec3d pos, double xDir, double yDir, double zDir )
     {
-        ItemEntity item = new ItemEntity( world, xPos, yPos, zPos, stack.copy() );
+        ItemEntity item = new ItemEntity( world, pos.x, pos.y, pos.z, stack.copy() );
         item.setMotion(
             xDir * 0.7 + world.getRandom().nextFloat() * 0.2 - 0.1,
             yDir * 0.7 + world.getRandom().nextFloat() * 0.2 - 0.1,
