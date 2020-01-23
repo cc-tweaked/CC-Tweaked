@@ -27,11 +27,11 @@ function initVariables()
 	human6x = 85
 	human6y = 18
 	human1 = true
-	human2 = true 
-	human3 = true 
-	human4 = true 
-	human5 = true 
-	human6 = true 
+	human2 = true
+	human3 = true
+	human4 = true
+	human5 = true
+	human6 = true
 	human1Abducted=false
 	human2Abducted=false
 	human3Abducted=false
@@ -245,7 +245,7 @@ function printScore()
 end
 
 function rewriteScores()
-	if newScore > score1 then 
+	if newScore > score1 then
 		name5=name4 score5=score4
 		name4=name3 score4=score3
 		name3=name2 score3=score2
@@ -264,7 +264,7 @@ function rewriteScores()
 		name5=name4 score5=score4
 		name4=newName score4=newScore
 	elseif newScore > score5 then
-		name5=newName score5=newScore	
+		name5=newName score5=newScore
 	end
 	local highScoreTable = {{name1, score1}, {name2,score2}, {name3,score3}, {name4,score4}, {name5,score5}}
 	local newHighScoreStr = textutils.serialize(highScoreTable)
@@ -289,7 +289,7 @@ function newHighScoreObtained()
 			newNameStr=newNameStr..p1
 			newNameStrLen=newNameStrLen+1
 			printCent(14,newNameStr.." ")
-			
+
 		elseif event=="key" and p1 == 14 and newNameStrLen>0 then
 			newNameStr=string.sub(newNameStr,1,string.len(newNameStr)-1)
 			newNameStrLen=newNameStrLen-1
@@ -303,9 +303,9 @@ function newHighScoreObtained()
 			printScore()
 		end
 	end
-	
 
-	
+
+
 end
 
 function highScore()
@@ -327,8 +327,8 @@ function highScore()
 		newHighScoreObtained()
 	end
 	printScore()
-	
-	
+
+
 end
 
 
@@ -351,24 +351,24 @@ function gameOver(gameOverMsg)
 	running=false
 	sleep(1.5)
 	highScore()-- new
-	--playAgain 
+	--playAgain
 end
 
 function playAgain()
 	sleep(1)
 	printCent(12,"Play again (Y or N)")
-	
+
 	while true do
 		local event,p1,p2,p3 = os.pullEvent()
 		if event=="char" then
-			if string.lower(p1)=="y" then 
+			if string.lower(p1)=="y" then
 				runGame()
-			elseif string.lower(p1)=="n" then 
+			elseif string.lower(p1)=="n" then
 				os.shutdown()
 			end
 		end
 	end
-	
+
 end
 
 function killPlayer()
@@ -378,7 +378,7 @@ function killPlayer()
 	moveDown=false
 	delShip(shipYPos)
 	lives=lives-1
-	if lives==0 then 
+	if lives==0 then
 		gameOver("OUT OF LIVES")
 	end
 	killedState=true
@@ -438,7 +438,7 @@ function right()
 end
 
 function up()
-	if shipYPos > 2 then 
+	if shipYPos > 2 then
 		delShip(shipYPos)
 		shipYPos=shipYPos-1
 		checkShipCollision()
@@ -449,7 +449,7 @@ function up()
 end
 
 function down()
-	if shipYPos<17 then 
+	if shipYPos<17 then
 		delShip(shipYPos)
 		shipYPos=shipYPos+1
 		checkShipCollision()
@@ -480,7 +480,7 @@ function checkShipCollision()
 			if human3x >=24 and human3x <= 26 then
 				human3=false
 				humanHitRoutine()
-			end	
+			end
 		elseif human4==true and human4y==shipYPos then
 			if human4x >=24 and human4x <= 26 then
 				human4=false
@@ -495,7 +495,7 @@ function checkShipCollision()
 			if human6x >=24 and human6x <= 26 then
 				human6=false
 				humanHitRoutine()
-			end	
+			end
 		end
 	end
 end
@@ -551,7 +551,7 @@ function alienDown()
 			alien1Abduct=true
 			alien1Carry=true
 			alien1Step=17
-		end	
+		end
 	end
 end
 
@@ -564,74 +564,74 @@ function alienRoutine()
 	end
 	alien1Abduct=false
 	alien1Carry=false
-	if humansLeft==0 then 
+	if humansLeft==0 then
 		gameOver("NO HUMANS LEFT")
 	end
-	
+
 end
 
 function alienUp()
 	if alien1==true and alien1Abduct==true then
-		if alien1x+1 == human1x then 
+		if alien1x+1 == human1x then
 			human1Abducted=true
 			alien1Step=alien1Step-stepValue
 			alien1y=math.floor(alien1Step)
 			human1y=math.floor(alien1Step)+1
 			human1x=alien1x+1
-			if human1y<=2 then 
+			if human1y<=2 then
 				alienRoutine()
 				human1=false
 			end
-		elseif alien1x+1 == human2x then 
+		elseif alien1x+1 == human2x then
 			human2Abducted=true
 			alien1Step=alien1Step-stepValue
 			alien1y=math.floor(alien1Step)
 			human2y=math.floor(alien1Step)+1
 			human2x=alien1x+1
-			if human2y<=2 then 
+			if human2y<=2 then
 				alienRoutine()
 				human2=false
 			end
-		elseif alien1x+1 == human3x then 
+		elseif alien1x+1 == human3x then
 			human3Abducted=true
 			alien1Step=alien1Step-stepValue
 			alien1y=math.floor(alien1Step)
 			human3y=math.floor(alien1Step)+1
 			human3x=alien1x+1
-			if human3y<=2 then 
+			if human3y<=2 then
 				alienRoutine()
 				human3=false
 			end
-		elseif alien1x+1 == human4x then 
+		elseif alien1x+1 == human4x then
 			human4Abducted=true
 			alien1Step=alien1Step-stepValue
 			alien1y=math.floor(alien1Step)
 			human4y=math.floor(alien1Step)+1
 			human4x=alien1x+1
-			if human4y<=2 then 
+			if human4y<=2 then
 				alienRoutine()
 				human4=false
 			end
-		elseif alien1x+1 == human5x then 
+		elseif alien1x+1 == human5x then
 			human5Abducted=true
 			alien1Step=alien1Step-stepValue
 			alien1y=math.floor(alien1Step)
 			human5y=math.floor(alien1Step)+1
 			human5x=alien1x+1
-			if human5y<=2 then 
+			if human5y<=2 then
 				alienRoutine()
 				human5=false
 			end
-		elseif alien1x+1 == human6x then 
+		elseif alien1x+1 == human6x then
 			human6Abducted=true
 			alien1Step=alien1Step-stepValue
 			alien1y=math.floor(alien1Step)
 			human6y=math.floor(alien1Step)+1
 			human6x=alien1x+1
-			if human6y<=2 then 
+			if human6y<=2 then
 				alienRoutine()
 				human6=false
-			end	
+			end
 		end
 	end
 	if alien1==false then alienGen() end
@@ -645,7 +645,7 @@ function keyPress()  -- 200 UP, 208 DOWN, 203 LEFT,  205 RIGHT,  57 SPACE, 16 Q
 			moveDown=true
 			moveUp=false
 		elseif pressedKey==203 or pressedKey == 30 then -- left
-			moveLeft=true	
+			moveLeft=true
 			moveRight=false
 		elseif pressedKey==205 or pressedKey == 32 then -- right
 			moveRight=true
@@ -654,7 +654,7 @@ function keyPress()  -- 200 UP, 208 DOWN, 203 LEFT,  205 RIGHT,  57 SPACE, 16 Q
 				if bulletState==false then
 					bulletYPos=shipYPos
 					bulletState=true
-					if shipFacingRight==true then 
+					if shipFacingRight==true then
 						bulletXPos=shipXPos+3
 						bulletGoingRight=true
 					else
@@ -665,13 +665,13 @@ function keyPress()  -- 200 UP, 208 DOWN, 203 LEFT,  205 RIGHT,  57 SPACE, 16 Q
 		elseif pressedKey==25 then -- q  (use 25 if p for quit)
 				gameOver("YOU QUIT")
 		end
-		
+
 		--term.setCursorPos(30,1)
 		--write(pressedKey.."  ")
 end
 
 function removeBullet()
-	if bulletGoingRight==true then 
+	if bulletGoingRight==true then
 		bulletXPos = 60
 	else
 		bulletXPos = -10
@@ -691,7 +691,7 @@ end
 function humanHitRoutine()
 	score=score-50
 	humansLeft=humansLeft-1
-	if humansLeft==0 then 
+	if humansLeft==0 then
 		gameOver("NO HUMANS LEFT")
 	end
 	if alien1Carry==true then alien1Carry=false end
@@ -699,9 +699,9 @@ end
 
 
 function checkBulletCollision()
-	if alien1 == true and bulletYPos == alien1y then 
-		if bulletXPos >= alien1x  and bulletXPos <= alien1x + 3 then 
-			alien1Hit() 
+	if alien1 == true and bulletYPos == alien1y then
+		if bulletXPos >= alien1x  and bulletXPos <= alien1x + 3 then
+			alien1Hit()
 		end
 	end
 	if human1 == true and bulletYPos == human1y and bulletXPos == human1x then human1=false humanHitRoutine()  end
@@ -737,15 +737,15 @@ end
 function gameControl()
 
 	gameTimer=os.startTimer(0.1)
-		
+
 	while running do
 		local event,p1,p2,p3 = os.pullEvent()
 		if score<0 then score=0 end
 		term.setCursorPos(1,1)
 		term.setBackgroundColour(colours.yellow)
 		write(string.rep(" ",w))
-	
-	
+
+
 		term.setTextColour(colours.red)
 		term.setCursorPos(5,1)
 		write("Score: "..score.."  ")
@@ -753,15 +753,15 @@ function gameControl()
 		write("Humans Left: "..humansLeft.."  ")
 		term.setCursorPos(40,1)
 		write("Lives: "..lives.."  ")
-	
+
 		term.setBackgroundColour(colours.black)
 		term.setTextColour(colours.white)
-		
+
 		local newStepValue = (score+0.1)/1000
 		if newStepValue > stepValue then stepValue= newStepValue end
 		if stepValue>0.4 then stepValue=0.4 end
-		
-		
+
+
 		--[[DEBUG
 		term.setCursorPos(2,2)
 		write("human1x "..human1x.."  ")
@@ -776,10 +776,10 @@ function gameControl()
 		term.setCursorPos(2,7)
 		write("human6x "..human6x.."  ")
 		]]--
-		
-				
+
+
 		if event=="timer" and gameTimer == p1 then
-			if killedState==true then 
+			if killedState==true then
 				delShip(shipYPos)
 				delHumans()
 				dropHumans()
@@ -800,15 +800,15 @@ function gameControl()
 					else
 						moveLeft=true
 						moveRight=false
-					end 
+					end
 					killedDelay=0
 				end
 			else
-				
+
 				--alienGen()
 				drawShip(shipYPos)
 				delAliens()
-				
+
 				delHumans()
 				dropHumans()
 				alienDown()
@@ -817,7 +817,7 @@ function gameControl()
 				drawHumans()
 				drawBorder()
 			end
-			
+
 			if bulletState==true then
 				if bulletGoingRight==true then
 					delBullet()
@@ -839,7 +839,7 @@ function gameControl()
 					end
 				end
 			end
-			
+
 			if moveLeft==true then
 				left()
 			end
@@ -852,16 +852,16 @@ function gameControl()
 			if moveDown==true then
 				down()
 			end
-			
+
 			gameTimer=os.startTimer(0.1)
-		
-		elseif event=="key" and killedState==false then 
+
+		elseif event=="key" and killedState==false then
 			pressedKey=p1
 			keyPress()
 		end
-		
-	end 
-	
+
+	end
+
 end
 
 function runGame()
@@ -875,7 +875,7 @@ end
 
 
 function pix(xCo,yCo,text,col)
-	if col== nil then term.setBackgroundColour(colours.black) 
+	if col== nil then term.setBackgroundColour(colours.black)
 	elseif col =="white" then term.setBackgroundColour(colours.white)
 	elseif col =="green" then term.setBackgroundColour(colours.green)
 	elseif col =="pink" then term.setBackgroundColour(colours.pink)
@@ -977,7 +977,7 @@ function line2()
 	pix(38,5," ","white")
 	pix(40,5," ","white")
 	pix(42,5," ","white")
-	
+
 end
 
 function line3()
@@ -1030,7 +1030,7 @@ function startScreen()
 	term.setCursorPos(1,h)
 	write(string.rep(" ",w))
 	local screenStage=0
-	
+
 	screenTimer=os.startTimer(0.1)
 	while true do
 		local event,p1,p2,p3=os.pullEvent()
@@ -1039,12 +1039,12 @@ function startScreen()
 			clear()
 			runGame()
 		elseif event=="timer" and screenTimer == p1 then
-		
+
 			--term.setCursorPos(1,1) write("screenStage: "..screenStage.."  ")
-			
+
 			term.setBackgroundColour(colours.black)
 			term.setCursorPos(35,1) write("SPACE WHEN READY")
-			
+
 			if screenStage>0 and screenStage<0.5 then
 				humanPixY = 18
 				drawHumanPix()
@@ -1055,17 +1055,17 @@ function startScreen()
 				alienPixY = -2
 				delAlienPix()
 				alienPixY = -1
-				drawAlienPix() 
+				drawAlienPix()
 			elseif screenStage>4 and screenStage<4.9 then
 				alienPixY = -1
 				delAlienPix()
 				alienPixY = 0
-				drawAlienPix() 	
+				drawAlienPix()
 			elseif screenStage>5 and screenStage<5.9 then
 				alienPixY = 0
 				delAlienPix()
 				alienPixY = 1
-				drawAlienPix() 
+				drawAlienPix()
 			elseif screenStage>6 and screenStage<6.9 then
 				alienPixY = 1
 				delAlienPix()
@@ -1080,7 +1080,7 @@ function startScreen()
 				alienPixY = 3
 				delAlienPix()
 				alienPixY = 4
-				drawAlienPix()	
+				drawAlienPix()
 			elseif screenStage>8 and screenStage<9.9 then
 				alienPixY = 4
 				delAlienPix()
@@ -1120,7 +1120,7 @@ function startScreen()
 				pix(22,17,"       ","yellow")
 				pix(22,18,"       ","yellow")
 				humanPixY = 18
-				drawHumanPix()	
+				drawHumanPix()
 			elseif screenStage>10.8 and screenStage<11 then
 				pix(25,8," ","yellow")
 				pix(24,9,"   ","yellow")
@@ -1134,7 +1134,7 @@ function startScreen()
 				pix(20,17,"           ","yellow")
 				pix(20,18,"           ","yellow")
 				humanPixY = 18
-				drawHumanPix()		
+				drawHumanPix()
 			elseif screenStage>11.9 and screenStage<12 then
 				pix(1,6,"  ","yellow")
 			elseif screenStage>12 and screenStage<12.1 then
@@ -1142,7 +1142,7 @@ function startScreen()
 				pix(3,6,"  ","yellow")
 			elseif screenStage>12.1 and screenStage<12.2 then
 				pix(3,6,"  ")
-				pix(5,6,"  ","yellow")	
+				pix(5,6,"  ","yellow")
 			elseif screenStage>12.2 and screenStage<12.3 then
 				pix(5,6,"  ")
 				pix(7,6,"  ","yellow")
@@ -1166,102 +1166,102 @@ function startScreen()
 				end
 				humanPixY=18
 				drawHumanPix()
-			elseif screenStage>13 and screenStage<13.1 then	
+			elseif screenStage>13 and screenStage<13.1 then
 				shipPixX= -16
 				drawShipPix()
-			elseif screenStage>13 and screenStage<13.1 then	
+			elseif screenStage>13 and screenStage<13.1 then
 				delShipPix()
 				shipPixX= -15
-				drawShipPix()	
-			elseif screenStage>13.1 and screenStage<13.2 then	
+				drawShipPix()
+			elseif screenStage>13.1 and screenStage<13.2 then
 				delShipPix()
 				shipPixX= -12
-				drawShipPix()	
-			elseif screenStage>13.2 and screenStage<13.3 then	
+				drawShipPix()
+			elseif screenStage>13.2 and screenStage<13.3 then
 				delShipPix()
 				shipPixX= -9
 				drawShipPix()
-			elseif screenStage>13.2 and screenStage<13.3 then	
+			elseif screenStage>13.2 and screenStage<13.3 then
 				delShipPix()
 				shipPixX= -6
 				drawShipPix()
-			elseif screenStage>13.3 and screenStage<13.4 then	
+			elseif screenStage>13.3 and screenStage<13.4 then
 				delShipPix()
 				shipPixX= -3
 				drawShipPix()
-			elseif screenStage>13.4 and screenStage<13.5 then	
+			elseif screenStage>13.4 and screenStage<13.5 then
 				delShipPix()
 				shipPixX= 0
 				drawShipPix()
-			elseif screenStage>13.6 and screenStage<13.7 then	
+			elseif screenStage>13.6 and screenStage<13.7 then
 				delShipPix()
 				shipPixX= 3
 				drawShipPix()
-			elseif screenStage>13.8 and screenStage<13.9 then	
+			elseif screenStage>13.8 and screenStage<13.9 then
 				delShipPix()
 				shipPixX= 6
 				drawShipPix()
-			elseif screenStage>13.9 and screenStage<14 then	
+			elseif screenStage>13.9 and screenStage<14 then
 				delShipPix()
 				shipPixX= 9
 				drawShipPix()
-			elseif screenStage>14.1 and screenStage<14.2 then	
+			elseif screenStage>14.1 and screenStage<14.2 then
 				delShipPix()
 				shipPixX= 12
 				drawShipPix()
-			elseif screenStage>14.2 and screenStage<14.3 then	
+			elseif screenStage>14.2 and screenStage<14.3 then
 				delShipPix()
 				shipPixX= 15
 				drawShipPix()
-			elseif screenStage>14.3 and screenStage<14.4 then	
+			elseif screenStage>14.3 and screenStage<14.4 then
 				delShipPix()
 				shipPixX= 18
 				drawShipPix()
-			elseif screenStage>14.4 and screenStage<14.5 then	
+			elseif screenStage>14.4 and screenStage<14.5 then
 				delShipPix()
 				shipPixX= 21
 				drawShipPix()
-			elseif screenStage>14.5 and screenStage<14.6 then	
+			elseif screenStage>14.5 and screenStage<14.6 then
 				delShipPix()
 				shipPixX= 24
 				drawShipPix()
-			elseif screenStage>14.6 and screenStage<14.7 then	
+			elseif screenStage>14.6 and screenStage<14.7 then
 				delShipPix()
 				shipPixX= 27
 				drawShipPix()
-			elseif screenStage>14.7 and screenStage<14.8 then	
+			elseif screenStage>14.7 and screenStage<14.8 then
 				delShipPix()
 				shipPixX= 30
 				drawShipPix()
-			elseif screenStage>14.8 and screenStage<14.9 then	
+			elseif screenStage>14.8 and screenStage<14.9 then
 				delShipPix()
 				shipPixX= 33
 				drawShipPix()
-			elseif screenStage>14.9 and screenStage<15 then	
+			elseif screenStage>14.9 and screenStage<15 then
 				delShipPix()
 				shipPixX= 36
 				drawShipPix()
-			elseif screenStage>15 and screenStage<15.1 then	
+			elseif screenStage>15 and screenStage<15.1 then
 				delShipPix()
 				shipPixX= 39
 				drawShipPix()
-			elseif screenStage>15.1 and screenStage<15.2 then	
+			elseif screenStage>15.1 and screenStage<15.2 then
 				delShipPix()
 				shipPixX= 41
 				drawShipPix()
-			elseif screenStage>15.2 and screenStage<15.3 then	
+			elseif screenStage>15.2 and screenStage<15.3 then
 				delShipPix()
 				shipPixX= 44
 				drawShipPix()
-			elseif screenStage>15.3 and screenStage<15.4 then	
+			elseif screenStage>15.3 and screenStage<15.4 then
 				delShipPix()
 				shipPixX= 47
 				drawShipPix()
-			elseif screenStage>15.4 and screenStage<15.5 then	
+			elseif screenStage>15.4 and screenStage<15.5 then
 				delShipPix()
 				shipPixX= 50
 				drawShipPix()
-			elseif screenStage>15.5 and screenStage<15.6 then	
+			elseif screenStage>15.5 and screenStage<15.6 then
 				delShipPix()
 			elseif screenStage>16 and screenStage<16.9 then
 				humanPixY=18
@@ -1284,7 +1284,7 @@ function startScreen()
 				write("Fire when ready")
 			elseif screenStage>22.1 and screenStage <27 then
 				introHighScoreTable()
-			elseif screenStage>27 then	
+			elseif screenStage>27 then
 				term.setBackgroundColour(colours.black)
 				for i = 2,h-1 do
 					term.setCursorPos(1,i)
@@ -1292,7 +1292,7 @@ function startScreen()
 				end
 				screenStage=0
 			end
-			
+
 			screenStage=screenStage+0.1
 			screenTimer=os.startTimer(0.025)
 		end

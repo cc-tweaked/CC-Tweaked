@@ -51,7 +51,7 @@ describe("The pastebin program", function()
 
         local file = fs.open( "testup", "w" )
         file.close()
-        
+
         expect(capture(stub, "pastebin", "put", "testup" ))
             :matches { ok = true, output = "Connecting to pastebin.com... Success.\nUploaded as https://pastebin.com/abcde\nRun \"pastebin get abcde\" to download anywhere\n", error = "" }
     end)

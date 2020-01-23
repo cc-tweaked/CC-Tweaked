@@ -1,7 +1,7 @@
 --[[
 		3D Print
 		A printing program for use with NPaintPro
-		
+
 		By NitrogenFingers
 ]]--
 
@@ -30,7 +30,7 @@ local commandList = {
 	["DE"] = endPrint;
 }
 
---Splits a string according to a pattern into a table				
+--Splits a string according to a pattern into a table
 local function split(str, pattern)
   local t = { }
   local fpat = "(.-)" .. pattern
@@ -56,11 +56,11 @@ local function respondToQuery()
 		print("Listening for ACT/ID query")
 		local id,key = rednet.receive()
 		print("Received : "..key)
-		
+
 		if key == "$3DPRINT IDENTIFY" then
 			print("Requested Identification")
 			rednet.send(id, "$3DPRINT IDACK "..os.getComputerLabel())
-		
+
 		elseif key == "$3DPRINT ACTIVATE" then
 			print("Requested Activation")
 			activeCommander = id
@@ -76,10 +76,10 @@ local function performPrint()
 	while operatingPrint do
 		local id,msg = rednet.receive()
 		print("Command : "..msg)
-		
+
 		if id == activeCommander and string.find(msg, "$PC") == 1 then
 			local cmds = split(msg, " ")
-			
+
 			--It's a bit of a hack, but those are the 2 methods required for a refuel
 			if turtle.getFuelLevel() == 0 and cmds[2] ~= "SS" and cmds[2] ~= "RF" then
 				rednet.send(id, "$3DPRINT OOF")
@@ -95,7 +95,7 @@ local function performPrint()
 						commandList[cmds[2]][i](tonumber(cmds[3]))
 					end
 				end
-			
+
 				rednet.send(activeCommander, "$3DPRINT ACK")
 			end
 		end

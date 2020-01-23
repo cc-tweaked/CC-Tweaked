@@ -1,8 +1,8 @@
 
---  
+--
 --  Lua IDE
 --  Made by GravityScore
---  
+--
 
 
 --  -------- Variables
@@ -44,7 +44,7 @@ local function isAdvanced() return term.isColor and term.isColor() end
 
 local function modRead(properties)
 	local w, h = term.getSize()
-	local defaults = {replaceChar = nil, history = nil, visibleLength = nil, textLength = nil, 
+	local defaults = {replaceChar = nil, history = nil, visibleLength = nil, textLength = nil,
 		liveUpdates = nil, exitOnKey = nil}
 	if not properties then properties = {} end
 	for k, v in pairs(defaults) do if not properties[k] then properties[k] = v end end
@@ -58,7 +58,7 @@ local function modRead(properties)
 
 	local function redraw(repl)
 		local scroll = 0
-		if properties.visibleLength and sx + pos > properties.visibleLength + 1 then 
+		if properties.visibleLength and sx + pos > properties.visibleLength + 1 then
 			scroll = (sx + pos) - (properties.visibleLength + 1)
 		end
 
@@ -133,9 +133,9 @@ local function modRead(properties)
 			elseif (but == keys.up or but == keys.down) and properties.history then
 				redraw(" ")
 				if but == keys.up then
-					if historyPos == nil and #properties.history > 0 then 
+					if historyPos == nil and #properties.history > 0 then
 						historyPos = #properties.history
-					elseif historyPos > 1 then 
+					elseif historyPos > 1 then
 						historyPos = historyPos - 1
 					end
 				elseif but == keys.down then
@@ -173,9 +173,9 @@ local function modRead(properties)
 			elseif but == keys["end"] then
 				pos = line:len()
 				redraw()
-			elseif properties.exitOnKey then 
-				if but == properties.exitOnKey or (properties.exitOnKey == "control" and 
-						(but == 29 or but == 157)) then 
+			elseif properties.exitOnKey then
+				if but == properties.exitOnKey or (properties.exitOnKey == "control" and
+						(but == 29 or but == 157)) then
 					term.setCursorBlink(false)
 					return nil
 				end
@@ -296,7 +296,7 @@ end
 
 local function centerRead(wid, begt)
 	local function liveUpdate(line, e, but, x, y, p4, p5)
-		if isAdvanced() and e == "mouse_click" and x >= w/2 - wid/2 and x <= w/2 - wid/2 + 10 
+		if isAdvanced() and e == "mouse_click" and x >= w/2 - wid/2 and x <= w/2 - wid/2 + 10
 				and y >= 13 and y <= 15 then
 			return true, ""
 		end
@@ -707,7 +707,7 @@ languages.brainfuck.mapLoops = function(code)
 			loopLocations[loc] = true
 		elseif let == "]" then
 			local found = false
-			for i = loc, 1, -1 do 
+			for i = loc, 1, -1 do
 				if loopLocations[i] == true then
 					loopLocations[i] = loc
 					found = true
@@ -877,7 +877,7 @@ local function run(path, lines, useArgs)
 		local s = centerRead(w - 13, fs.getName(path) .. " ")
 		for m in string.gmatch(s, "[^ \t]+") do ar[#ar + 1] = m:gsub("^%s*(.-)%s*$", "%1") end
 	end
-	
+
 	saveFile(path, lines)
 	term.setCursorBlink(false)
 	term.setBackgroundColor(colors.black)
@@ -949,7 +949,7 @@ local function run(path, lines, useArgs)
 				term.setCursorPos(5, 14)
 				term.write(b)
 			end
-			
+
 			local opt = prompt({{"Error Help", w/2 - 15, 17}, {"Go To Line", w/2 + 2, 17}},
 				"horizontal")
 			if opt == "Error Help" then
@@ -1459,7 +1459,7 @@ end
 
 local function writeHighlighted(line)
 	if curLanguage == languages.lua then
-		while line:len() > 0 do	
+		while line:len() > 0 do
 			line = attemptToHighlight(line, "^%-%-%[%[.-%]%]", colors[theme.comment]) or
 				attemptToHighlight(line, "^%-%-.*", colors[theme.comment]) or
 				attemptToHighlight(line, "^\".*[^\\]\"", colors[theme.string]) or
@@ -1491,7 +1491,7 @@ local function draw()
 	for i = 1, edh do
 		local a = lines[scrolly + i]
 		if a then
-			local ln = string.rep(" ", offx - 1 - tostring(scrolly + i):len()) .. tostring(scrolly + i) 
+			local ln = string.rep(" ", offx - 1 - tostring(scrolly + i):len()) .. tostring(scrolly + i)
 			local l = a:sub(scrollx + 1, edw + scrollx + 1)
 			ln = ln .. ":"
 
@@ -1541,7 +1541,7 @@ local function drawLine(...)
 	for _, ly in pairs(ls) do
 		local a = lines[ly]
 		if a then
-			local ln = string.rep(" ", offx - 1 - tostring(ly):len()) .. tostring(ly) 
+			local ln = string.rep(" ", offx - 1 - tostring(ly):len()) .. tostring(ly)
 			local l = a:sub(scrollx + 1, edw + scrollx + 1)
 			ln = ln .. ":"
 
@@ -1651,7 +1651,7 @@ local function edit(path)
 	draw()
 	term.setCursorPos(x + offx, y + offy)
 	term.setCursorBlink(true)
-	
+
 	-- Main loop
 	local tid = os.startTimer(3)
 	while true do
@@ -1692,8 +1692,8 @@ local function edit(path)
 				if f then
 					table.insert(lines, y + 1, string.rep(" ", spaces + 2))
 					if not f:find("else", 1, true) and not f:find("elseif", 1, true) then
-						table.insert(lines, y + 2, string.rep(" ", spaces) .. 
-							(f:find("repeat", 1, true) and "until " or f:find("{", 1, true) and "}" or 
+						table.insert(lines, y + 2, string.rep(" ", spaces) ..
+							(f:find("repeat", 1, true) and "until " or f:find("{", 1, true) and "}" or
 							"end"))
 					end
 					x, y = spaces + 3, y + 1
@@ -1771,7 +1771,7 @@ local function edit(path)
 				x = math.min(lines[y]:len() + 1, x)
 				cursorLoc(x, y, true)
 			end
-		elseif e == "char" and allowEditorEvent and (displayCode and true or 
+		elseif e == "char" and allowEditorEvent and (displayCode and true or
 				y + scrolly - 1 == liveErr.line) then
 			local shouldIgnore = false
 			for k, v in pairs(liveCompletions) do
@@ -2083,7 +2083,7 @@ local function changeTheme()
 			sleep(1.6)
 			return "menu"
 		end
-		
+
 		term.write("LuaIDE - Could Not Load Theme!")
 		fs.delete("/.LuaIDE_temp_theme_file")
 		sleep(1.6)
@@ -2100,7 +2100,7 @@ local function settings()
 	title("LuaIDE - Settings")
 
 	local opt = prompt({{"Change Theme", w/2 - 17, 8}, {"Return to Menu", w/2 - 19, 13},
-		--[[{"Check for Updates", w/2 + 2, 8},]] {"Exit IDE", w/2 + 2, 13, bg = colors[theme.err], 
+		--[[{"Check for Updates", w/2 + 2, 8},]] {"Exit IDE", w/2 + 2, 13, bg = colors[theme.err],
 		highlight = colors[theme.errHighlight]}}, "vertical", true)
 	if opt == "Change Theme" then return changeTheme()
 --	elseif opt == "Check for Updates" then return update()
@@ -2189,7 +2189,7 @@ if err and not err:find("Terminated") then
 	term.write("Please report this error to")
 	term.setCursorPos(6, cy + 3)
 	term.write("GravityScore! ")
-	
+
 	term.setBackgroundColor(colors[theme.background])
 	if isAdvanced() then centerPrint("Click to Exit...", h - 1)
 	else centerPrint("Press Any Key to Exit...", h - 1) end

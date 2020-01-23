@@ -13,7 +13,7 @@
 --
 -- @tparam string func The function's name
 -- @tparam int    idx  The argument index to this function
--- @tparam string ty   The type this argument should have. May be 'value' for 
+-- @tparam string ty   The type this argument should have. May be 'value' for
 --                     any non-nil value.
 -- @param val     val  The value to check
 -- @throws If this value doesn't match the expected type.

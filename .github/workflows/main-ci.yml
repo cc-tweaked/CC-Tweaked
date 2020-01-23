@@ -37,3 +37,6 @@ jobs:
         test -f bin/illuaminate || wget -q -Obin/illuaminate https://squiddev.cc/illuaminate/bin/illuaminate
         chmod +x bin/illuaminate
         bin/illuaminate lint
+
+    - name: Check whitespace
+      run: python3 tools/check-lines.py

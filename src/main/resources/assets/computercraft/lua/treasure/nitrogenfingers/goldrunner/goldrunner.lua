@@ -89,7 +89,7 @@ local titleLevel = {
 local function parseValue(x, y, lchar)
 if tonumber(lchar, 16) then
 	lchar = math.pow(2, tonumber(lchar,16))
-	
+
 	if lchar == colours.blue then
 	  map[y][x] = 0
 	elseif lchar == colours.brown then
@@ -146,7 +146,7 @@ local function loadMap(_sPath)
   goldMap = {}
   monks = {}
   goldCount = 0
-    
+
   local file = fs.open(_sPath, "r")
   local line = file:readLine()
   while line do
@@ -279,14 +279,14 @@ local function resetMap()
 		monk.x = monk.spawnX
 		monk.y = monk.spawnY
 	end
-	
+
 	for _,timer in pairs(blockTimers) do
 		map[timer.y][timer.x] = 0
 	end
 	blockTimers = {}
 	plX = plspawnX
 	plY = plspawnY
-	
+
 	moveTimer = -1
 	shootTimer = -1
 	spawnTimer = -1
@@ -320,27 +320,27 @@ end
 local function drawLevelList()
 	local minLev = ((levelLot-1) * 10 + 1)
 	local maxLev = minLev + math.min(10, #levelList - (levelLot-1) * 10) - 1
-	
+
 	term.setCursorPos(7, 2)
 	term.setBackgroundColour(colours.black)
 	term.clearLine()
 	for j = 1,49 do updateMap(j,2) end
-	
+
 	term.setBackgroundColour(colours.black)
 	term.setTextColour(colours.white)
 	term.setCursorPos(7, 2)
 	local msg = "Levels "..minLev.." to "..maxLev.." of "..#levelList
 	term.write(msg)
-	
+
 	term.setTextColour(colours.yellow)
 	term.setCursorPos(4, 2)
 	if levelLot > 1 then term.write("<-")
-	else term.write("  ") end 
-	
+	else term.write("  ") end
+
 	term.setCursorPos(8 + #msg, 2)
 	if maxLev < #levelList then term.write("->")
 	else term.write(" ") end
-	
+
 	for i = 1,10 do
 		term.setCursorPos(1, 3+i)
 		for j = 1,49 do updateMap(j,3+i) end
@@ -371,12 +371,12 @@ local function loadTitleScreen()
     if #map == 18 then break end
   end
   maxGoldCount = goldCount
-  
+
   drawMap()
   term.setCursorPos(1,19)
   term.setBackgroundColour(colours.blue)
   term.clearLine()
-  
+
   menIndex = 1
   titleLoaded = true
 end
@@ -384,22 +384,22 @@ end
 --Opens an in-game menu to display a series of options.
 local function inGameMenu(menuList)
 	menIndex = 1
-	
+
 	local squareTop,squareBottom = 4,6 + #menuList * 2
 	local squareSize = 0
 	for i=1,#menuList do squareSize = math.max(squareSize, #menuList[i] + 6) end
-	
+
 	for y=squareTop,squareBottom do
 		term.setCursorPos(w/2 - squareSize/2, y)
 		term.setBackgroundColour(colours.lightBlue)
 		term.write(string.rep(" ", squareSize))
-		
+
 		if y ~= squareTop and y ~= squareBottom then
 			term.setCursorPos(w/2 - squareSize/2 + 1, y)
 			term.setBackgroundColour(colours.black)
 			term.write(string.rep(" ", squareSize - 2))
 		end
-		
+
 		if y ~= squareTop and y ~= squareBottom and y % 2 == 0 then
 			local opt = menuList[(y - squareTop) / 2]
 			term.setCursorPos(w/2 - #opt/2, y)
@@ -407,7 +407,7 @@ local function inGameMenu(menuList)
 			term.write(opt)
 		end
 	end
-	
+
 	local p1 = nil
 	repeat
 		for i=1,#menuList do
@@ -426,20 +426,20 @@ local function inGameMenu(menuList)
 			end
 		end
 		_,p1 = os.pullEvent("key")
-		
+
 		if p1 == keys.up and menIndex > 1 then menIndex = menIndex - 1
 		elseif p1 == keys.down and menIndex < #menuList then menIndex = menIndex + 1 end
 	until p1 == keys.enter
-	
+
 	return menuList[menIndex]
 end
 
 --Checks to see if any given desired move is legal. Monks and players both use this.
 local function isLegalMove(initX,initY,finX,finY)
-	if finY < 1 or finY > #map or finX < 1 or finX > 49 then 
-		return false 
+	if finY < 1 or finY > #map or finX < 1 or finX > 49 then
+		return false
 	end
-	
+
 	if map[finY][finX] ~= 0 and map[finY][finX] ~= '#' then
 		--This reports 'self moves' as being illegal, but that's fine
 		for _,monk in pairs(monks) do
@@ -450,10 +450,10 @@ local function isLegalMove(initX,initY,finX,finY)
 			then return true
 		elseif finY == initY+1 and (map[finY][finX] == "H" or (map[finY][finX] == "h" and goldCount == 0)
 				or (type(map[finY][finX]) == "number" and map[finY][finX] > 0) or map[finY][finX] == nil or
-				map[finY][finX] == "V" or map[finY][finX] == "-" or (map[finY][finX] == 'h' and goldCount ~= 0)) 
+				map[finY][finX] == "V" or map[finY][finX] == "-" or (map[finY][finX] == 'h' and goldCount ~= 0))
 			then return true
-		elseif finX == initX-1 or finX == initX+1 then 
-			return true 
+		elseif finX == initX-1 or finX == initX+1 then
+			return true
 		end
 	end
 end
@@ -461,12 +461,12 @@ end
 --Moves the player to a given step.
 local function movePlayer(x,y,ignoreLegal)
 	if not ignoreLegal and not isLegalMove(plX,plY,x,y) then return false end
-	
+
 	local ox = plX
 	local oy = plY
 	plX = x
 	plY = y
-	
+
 	updateMap(ox,oy)
 	updateMap(x,y)
 	if goldMap[y][x] == 1 then
@@ -481,14 +481,14 @@ local function movePlayer(x,y,ignoreLegal)
 		started = false
 		nextLevel = true
 	end
-	
-	pfalling = (y < #map and map[y][x] ~= '-' and map[y][x] ~= 'H' and not (map[y][x] == 'h' and goldCount == 0) 
+
+	pfalling = (y < #map and map[y][x] ~= '-' and map[y][x] ~= 'H' and not (map[y][x] == 'h' and goldCount == 0)
 		and (map[y+1][x] == nil or map[y+1][x] == "V" or map[y+1][x] == 2 or map[y+1][x] == '-'))
 	if (y < #map and map[y+1][x] == 'h' and goldCount ~= 0) then pfalling = true end
 	for _,monk in pairs(monks) do
 		if monk.x == plX and monk.y == plY + 1 then pfalling = false break end
 	end
-	
+
 	return true
 end
 
@@ -634,7 +634,7 @@ local function updateMonks()
 				end
 			end
 		end
-		
+
 		if not (monk.trapped or monk.dead) then
 			--Has the monk decided on moving left or right? If so we try to move him
 			if monk.desX and not monk.falling then
@@ -708,7 +708,7 @@ local function updateBlockTimer(tid)
 end
 
 local function shootBlock(x,y)
-	if y <= #map and map[y][x] == 0 and (map[y-1][x] == nil 
+	if y <= #map and map[y][x] == 0 and (map[y-1][x] == nil
 			or map[y-1][x] == 2 or (map[y-1][x] == 'h' and goldCount > 0)) then
 		map[y][x] = 3
 		table.insert(blockTimers, {x = x; y = y; timer = os.startTimer(0.1);} )
@@ -718,14 +718,14 @@ end
 
 local function handleEvents()
 	local id,p1,p2,p3 = os.pullEvent()
-	
+
 	if id == "key" then
 		--Menu Handling
 		if p1 == keys.up then
 			if menIndex > 1 then menIndex = menIndex - 1 end
 		elseif p1 == keys.down then
-			if inLevelSelect then 
-				if menIndex < math.min(10, #levelList - (levelLot-1)*10) then 
+			if inLevelSelect then
+				if menIndex < math.min(10, #levelList - (levelLot-1)*10) then
 					menIndex = menIndex + 1
 				end
 			elseif menIndex < #titleOptions then menIndex = menIndex + 1 end
@@ -736,7 +736,7 @@ local function handleEvents()
 			levelLot = levelLot + 1
 			drawLevelList()
 		end
-	
+
 		--Game Handling
 		if p1 == keys.a and moveTimer == -1 and spawnTimer == -1 then
 			movePlayer(plX-1,plY)
@@ -811,7 +811,7 @@ local function handleEvents()
 						monk.trapped = nil
 						monk.behaviour = "none"
 						monk.justEscaped = true
-						
+
 						updateMap(monk.x, monk.y+1)
 						drawMonk(monk)
 					end
@@ -859,12 +859,12 @@ local pallette = {  { t = colours.black, b = colours.blue, s = " ", n = "Solid G
 local brushType = 1
 
 local function getHexOf(colour)
-	if not colour or not tonumber(colour) then 
-		return " " 
+	if not colour or not tonumber(colour) then
+		return " "
 	end
 	local value = math.log(colour)/math.log(2)
-	if value > 9 then 
-		value = hexnums[value] 
+	if value > 9 then
+		value = hexnums[value]
 	end
 	return value
 end
@@ -878,7 +878,7 @@ local function drawFooter()
 		term.setCursorPos(w,i)
 		term.write(" ")
 	end
-	
+
 	term.setBackgroundColour(colours.black)
 	term.setTextColour(colours.blue)
 	term.setCursorPos(2,h)
@@ -904,7 +904,7 @@ local function drawPallette(xpos,ypos)
 	local top  = ypos
 	if xpos + xdim > w then left = left + (w - xpos - xdim) end
 	if ypos + ydim > h then top = top + (h - ypos - ydim) end
-	
+
 	--There's no easy way to do this... so we draw it manually :(
 	for i=0,4 do
 		term.setCursorPos(left, top + i)
@@ -913,25 +913,25 @@ local function drawPallette(xpos,ypos)
 		if i == 0 or i == 4 then term.write("*-----*")
 		else term.write("*     *") end
 	end
-	
+
 	for i=1,#pallette-1 do
 		local ypl = 1
 		local xmv = i
 		if i > 5 then ypl = 2 xmv = i - 5 end
-		
+
 		term.setCursorPos(left + xmv, top+ypl)
 		term.setBackgroundColour(pallette[i].b)
 		term.setTextColour(pallette[i].t)
 		term.write(pallette[i].s)
 	end
-	
+
 	term.setCursorPos(left + 1, top + 3)
 	term.setBackgroundColour(colours.red)
 	term.setTextColour(colours.black)
 	term.write("ERASE")
-	
+
 	local _,button,x,y = os.pullEvent("mouse_click")
-	
+
 	if button == 1 then
 		if y == top + 1 and x > left and x < left + 6 then
 			brushType = x-left
@@ -941,9 +941,9 @@ local function drawPallette(xpos,ypos)
 			brushType = 11
 		end
 	end
-	
+
 	for y = top,top+ydim do
-		for x = left,left+xdim do	
+		for x = left,left+xdim do
 			--Not sure why the -2 is necessary
 			if map[y+drawOffsetY] then updateMap(x-2,y+drawOffsetY) end
 		end
@@ -955,7 +955,7 @@ end
 local function saveCurrentMap(path)
 	local file = io.open(shell.resolve(".").."/levels/"..path, "w")
 	if not file then return false end
-	
+
 	drawMap()
 	drawFooter()
 	local msg = "Saving.."
@@ -968,7 +968,7 @@ local function saveCurrentMap(path)
 	term.write(string.rep(" ", 18))
 	term.setCursorPos(w/2-9,6)
 	term.setBackgroundColour(colours.lime)
-	
+
 	for y=1,#map do
 		local xstr = ""
 		for x=1,49 do
@@ -1016,14 +1016,14 @@ local function runLevelEditor()
 		end
 		monks = {}
 	end
-	
+
 	drawMap()
 	drawFooter()
-	
+
 	while inLevelEditor do
 		local id,button,x,y = os.pullEvent()
 		if id == "mouse_click" or id == "mouse_drag" then
-			if button == 2 then 
+			if button == 2 then
 				drawPallette(x,y)
 			elseif x > drawOffsetX and x <= 49 + drawOffsetX and y > drawOffsetY and y <= 18 + drawOffsetY then
 				if pallette[brushType].v == "player" then
@@ -1095,7 +1095,7 @@ local function runLevelSelect()
 	if not titleLoaded then
 		loadTitleScreen()
 		monkTimer = os.startTimer(moveIntv * 1.5)
-	else 
+	else
 		drawMap()
 		drawEndgameMap()
 		term.setCursorPos(1,19)
@@ -1103,11 +1103,11 @@ local function runLevelSelect()
 		term.clearLine()
 	end
 	drawLevelList()
-	
+
 	menSel = "none"
 	repeat
 		handleEvents()
-		
+
 		term.setBackgroundColour(colours.black)
 		term.setTextColour(colours.yellow)
 		for i=1,10 do
@@ -1131,23 +1131,23 @@ local function runTitle()
 	term.write("Gold Runner")
 	term.setCursorPos(16,4)
 	term.write("By Nitrogen Fingers")
-	
+
 	term.setTextColour(colours.white)
 	for i=1,#titleOptions do
 		term.setCursorPos(19, 5 + (i*2))
 		term.write(titleOptions[i])
 	end
-	  
+
 	term.setCursorPos(16, 7)
 	term.setTextColour(colours.yellow)
 	term.write("->")
-	
+
 	menSel = "none"
 	monkTimer = os.startTimer(moveIntv * 1.5)
-	
+
 	repeat
 		handleEvents()
-		
+
 		term.setBackgroundColour(colours.black)
 		term.setTextColour(colours.yellow)
 		for i=1,#titleOptions do
@@ -1166,25 +1166,25 @@ local function playLevel()
 		drawHUD()
 		os.pullEvent("key")
 		movePlayer(plX,plY,true)
-		
+
 		monkTimer = os.startTimer(moveIntv * 1.5)
 		moveTimer = os.startTimer(moveIntv)
 		shootTimer = -1
 		spawnTimer = -1
-		
+
 		started = true
 		while started do
 			handleEvents()
 		end
-		
+
 		if menSel == "Quit" or menSel == "Back to Title" or menSel == "Edit Level" then
 			running = false
 			return
 		end
 		menSel = "none"
-		
+
 		if nextLevel then
-			if currentLevel == #levelList then 
+			if currentLevel == #levelList then
 				started = false
 				running = false
 				break
@@ -1198,12 +1198,12 @@ local function playLevel()
 		else
 			playerLives = playerLives-1
 			if playerLives > 0 then resetMap()
-			else 
-				running = false 
+			else
+				running = false
 			end
 		end
 	end
-	
+
 	if nextLevel then
 		local msg = "All levels defeated, Gold Runner!"
 		term.setBackgroundColour(colours.black)
@@ -1247,7 +1247,7 @@ while menSel ~= "Quit" do
 		term.setCursorPos(1,19)
 		term.setBackgroundColour(colours.blue)
 		term.clearLine()
-		
+
 		term.setCursorPos(16,10)
 		term.setBackgroundColour(colours.black)
 		term.setTextColour(colours.white)
@@ -1256,13 +1256,13 @@ while menSel ~= "Quit" do
 		term.setCursorPos(17,11)
 		term.setCursorBlink(true)
 		local levelName = ""
-		
+
 		local id,p1
 		repeat
 			id,p1 = os.pullEvent()
 			if id == "key" and p1 == keys.backspace then
 				levelName = string.sub(levelName, 1, #levelName - 1)
-			elseif id == "timer" and p1 == monkTimer then 
+			elseif id == "timer" and p1 == monkTimer then
 				updateMonks()
 				monkTimer = os.startTimer(moveIntv * 2)
 			elseif id == "char" and #levelName < 14 then
@@ -1273,15 +1273,15 @@ while menSel ~= "Quit" do
 			term.write(levelName..string.rep(" ",14 - #levelName))
 			term.setCursorPos(17 + #levelName ,11)
 		until id == "key" and p1 == keys.enter and #levelName > 0
-		
+
 		term.setCursorBlink(false)
 		levelEditName = levelName
 		runLevelEditor()
-		
+
 		if menSel == "Play Level" then
 			currentLevel = nil
 			levelList = fs.list(shell.resolve(".").."/levels")
-			for num,name in pairs(levelList) do 
+			for num,name in pairs(levelList) do
 				if name == levelName then
 					currentLevel = num
 					break
@@ -1296,7 +1296,7 @@ while menSel ~= "Quit" do
 		runLevelEditor()
 		term.setBackgroundColour(colours.black)
 		term.clear()
-		
+
 		if menSel == "Play Level" then
 			menSel = "New Game"
 		else

@@ -1,6 +1,6 @@
 --[[
 	Project info:
-	
+
 	Name: Maze 3D
 	Creator: Jesusthekiller
 	Language: Lua (CC)
@@ -28,7 +28,7 @@
 
 --[[
 	LICENSE:
-	
+
 	Maze 3D
 	Copyright (c) 2013 Jesusthekiller
 
@@ -78,7 +78,7 @@ repeat
 
 	cwrite("Enter maze size (5-99):")
 	size = read()
-	
+
 	size = tonumber(size)
 	if not size then
 		size = 0
@@ -87,18 +87,18 @@ until size > 4 and size < 100
 
 -- The generate
 local function mazeGen(mx, my)
-	
+
 	--[[
 		Format:
-		
+
 		maze.x.y.(1/2/3/4) = true/false
-		
+
 		1 - top
 		2 - bottom
 		3 - right
 		4 - left
 	]]--
-	
+
 	local maze = {}
 	for i = 1, mx do
 		maze[i] = {}
@@ -121,26 +121,26 @@ local function mazeGen(mx, my)
 		local intact = {}
 		local x = curr.x
 		local y = curr.y
-		
+
 		if x - 1 >= 1 and maze[x-1][y][1] and maze[x-1][y][2] and maze[x-1][y][3] and maze[x-1][y][4] then -- Check for full cells
 			intact[#intact+1] = {x-1, y, 1}
 		end
-		
+
 		if x + 1 <= mx and maze[x+1][y][1] and maze[x+1][y][2] and maze[x+1][y][3] and maze[x+1][y][4] then
 			intact[#intact+1] = {x+1, y, 2}
 		end
-		
+
 		if y + 1 <= my and maze[x][y+1][1] and maze[x][y+1][2] and maze[x][y+1][3] and maze[x][y+1][4] then
 			intact[#intact+1] = {x, y+1, 3}
 		end
-		
+
 		if y - 1 >= 1 and maze[x][y-1][1] and maze[x][y-1][2] and maze[x][y-1][3] and maze[x][y-1][4] then
 			intact[#intact+1] = {x, y-1, 4}
 		end
-		
+
 		if #intact > 0 then
 			local i = math.random(1, #intact) -- Choose random
-			
+
 			if intact[i][3] == 1 then -- Set intact's attached wall to false
 				maze[intact[i][1]][intact[i][2]][2] = false
 			elseif intact[i][3] == 2 then
@@ -150,11 +150,11 @@ local function mazeGen(mx, my)
 			elseif intact[i][3] == 4 then
 				maze[intact[i][1]][intact[i][2]][3] = false
 			end
-			
+
 			maze[x][y][intact[i][3]] = false -- Set attached wall to false
-			
+
 			vis = vis + 1 -- Increase vis
-			
+
 			stack[#stack+1] = intact[i] -- Add to stack
 		else
 			local tmp = table.remove(stack) -- Get last cell
@@ -162,7 +162,7 @@ local function mazeGen(mx, my)
 			curr.y = tmp[2]
 		end
 	end
-	
+
 	return maze
 end
 
@@ -180,7 +180,7 @@ local tab = {}
 
 for x = 1, size * 2 + 1 do
 	tab[x] = {}
-	
+
 	for y = 1, size * 2 + 1 do
 		if x % 2 == 0 and y % 2 == 0 then -- Fill cells (empty)
 			tab[x][y] = " "
@@ -263,13 +263,13 @@ if redirect then
   print("redirect API found, using buffer")
 else
   local pe=printError
-  rawset(_G,"printError",error)  
+  rawset(_G,"printError",error)
   local ok, err=pcall(os.loadAPI,"redirect")
   if not ok then
     print("trying "..shell.dir().."/redirect")
     ok,err=pcall(os.loadAPI,shell.dir().."/redirect")
   end
-  if ok then    
+  if ok then
     print("Loaded redirect API, using buffer")
     buffer=redirect.createRedirectBuffer()
     loadedAPI=true
@@ -277,7 +277,7 @@ else
     print("redirect API not found or could not be loaded, drawing directly; this may cause flickering.")
   end
   rawset(_G,"printError",pe)
-end 
+end
 
 local colorSchemes = {
   {0,8}, --white+gray
@@ -338,10 +338,10 @@ local function cast(cx,cy,angle)
     end
     local wall=map[y]:sub(x,x)
     if wall~=" " then
-      
+
       return colorSchemes[tonumber(wall)][isX and 1 or 2], hitD
     end
-  end  
+  end
 end
 
 local w,h=term.getSize()
@@ -370,7 +370,7 @@ for x=1,w do
   t.angle=math.atan2(x-centerX,screenDist)
   t.dist=((x-centerX)^2+screenDist^2)^.5/screenDist
 end
-  
+
 local function redraw()
   local oldTerm
   if buffer.isBuffer then
@@ -411,15 +411,15 @@ local function clampCollision(x,y,radius)
     --I am. Complete fail, do nothing.
     return x,y
   end
-  
+
   --ok, check the neighbors.
   local right=math.floor(x+radius)>gx
   local left=math.floor(x-radius)<gx
   local front=math.floor(y-radius)<gy
   local back=math.floor(y+radius)>gy
-  
+
   local pushed=false
-  
+
   if right and map[gy]:sub(gx+1,gx+1)~=" " then
     --push left
     pushed=true
@@ -429,7 +429,7 @@ local function clampCollision(x,y,radius)
     pushed=true
     x=gx+radius
   end
-  
+
   if front and map[gy-1]:sub(gx,gx)~=" " then
     --push back
     pushed=true
@@ -442,7 +442,7 @@ local function clampCollision(x,y,radius)
 
     y=gy+1-radius
   end
- 
+
   --if I wasn't pushed out on any side, I might be hitting a corner
   if not pushed then
     --square rad
@@ -482,7 +482,7 @@ local function clampCollision(x,y,radius)
     x=x+pushx
     y=y+pushy
   end
-  
+
   return x,y
 end
 
@@ -533,7 +533,7 @@ while true do
     redraw()
     dirty=false
   end
-  
+
   local e={os.pullEvent()}
   if e[1]=="key" then
     if e[2]==keys.left then
@@ -565,7 +565,7 @@ while true do
       dir=startdir
       dirty=true
     end
-    
+
     if px >= mapW-1 and py >= mapH-1 then
       win = true
       break

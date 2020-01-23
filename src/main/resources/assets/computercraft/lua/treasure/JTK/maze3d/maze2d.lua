@@ -1,6 +1,6 @@
 --[[
 	Project info:
-	
+
 	Name: Maze
 	Creator: Jesusthekiller
 	Language: Lua (CC)
@@ -24,7 +24,7 @@
 
 --[[
 	LICENSE:
-	
+
 	Maze
 	Copyright (c) 2013 Jesusthekiller
 
@@ -73,7 +73,7 @@ repeat
 
 	cwrite("Enter maze size (5-99):")
 	size = read()
-	
+
 	size = tonumber(size)
 	if not size then
 		size = 0
@@ -82,18 +82,18 @@ until size > 4 and size < 100
 
 -- The generate
 local function mazeGen(mx, my)
-	
+
 	--[[
 		Format:
-		
+
 		maze.x.y.(1/2/3/4) = true/false
-		
+
 		1 - top
 		2 - bottom
 		3 - right
 		4 - left
 	]]--
-	
+
 	local maze = {}
 	for i = 1, mx do
 		maze[i] = {}
@@ -116,26 +116,26 @@ local function mazeGen(mx, my)
 		local intact = {}
 		local x = curr.x
 		local y = curr.y
-		
+
 		if x - 1 >= 1 and maze[x-1][y][1] and maze[x-1][y][2] and maze[x-1][y][3] and maze[x-1][y][4] then -- Check for full cells
 			intact[#intact+1] = {x-1, y, 1}
 		end
-		
+
 		if x + 1 <= mx and maze[x+1][y][1] and maze[x+1][y][2] and maze[x+1][y][3] and maze[x+1][y][4] then
 			intact[#intact+1] = {x+1, y, 2}
 		end
-		
+
 		if y + 1 <= my and maze[x][y+1][1] and maze[x][y+1][2] and maze[x][y+1][3] and maze[x][y+1][4] then
 			intact[#intact+1] = {x, y+1, 3}
 		end
-		
+
 		if y - 1 >= 1 and maze[x][y-1][1] and maze[x][y-1][2] and maze[x][y-1][3] and maze[x][y-1][4] then
 			intact[#intact+1] = {x, y-1, 4}
 		end
-		
+
 		if #intact > 0 then
 			local i = math.random(1, #intact) -- Choose random
-			
+
 			if intact[i][3] == 1 then -- Set intact's attached wall to false
 				maze[intact[i][1]][intact[i][2]][2] = false
 			elseif intact[i][3] == 2 then
@@ -145,11 +145,11 @@ local function mazeGen(mx, my)
 			elseif intact[i][3] == 4 then
 				maze[intact[i][1]][intact[i][2]][3] = false
 			end
-			
+
 			maze[x][y][intact[i][3]] = false -- Set attached wall to false
-			
+
 			vis = vis + 1 -- Increase vis
-			
+
 			stack[#stack+1] = intact[i] -- Add to stack
 		else
 			local tmp = table.remove(stack) -- Get last cell
@@ -157,7 +157,7 @@ local function mazeGen(mx, my)
 			curr.y = tmp[2]
 		end
 	end
-	
+
 	return maze
 end
 
@@ -177,7 +177,7 @@ local tab = {}
 
 for x = 1, size * 2 + 1 do
 	tab[x] = {}
-	
+
 	for y = 1, size * 2 + 1 do
 		if x % 2 == 0 and y % 2 == 0 then -- Fill cells (empty)
 			tab[x][y] = false
@@ -201,7 +201,7 @@ repeat
 	-- Print map
 	term.setBackgroundColor(colors.white)
 	term.clear()
-	
+
 	if posx == 2 and posy == 2 then
 		term.setCursorPos(1, 1)
 		term.setTextColor(colors.black)
@@ -211,27 +211,27 @@ repeat
 		print("Goal: Step on # (It's on bottom right corner)")
 		print("\nGood Luck!")
 	end
-	
+
 	--[[
 		term.setTextColor(colors.black)
 		term.setCursorPos(1, 19)
 		write("X: "..posx.."   Y: "..posy)
 	]]
-	
+
 	for x, tV in ipairs(tab) do -- Print the map
 		for y, v in ipairs(tV) do
 			if offsety+y > 20 then
 				break
 			end
-			
+
 			term.setCursorPos(offsetx+x, offsety+y)
-			
+
 			if v then
 				term.setBackgroundColor(colors.black)
 			else
 				term.setBackgroundColor(colors.white)
 			end
-			
+
 			if offsety+y < 20 and offsety+y > 0 and offsetx+x < 52 and offsetx+x > 0 then
 				if x == size*2 and y == size*2 then
 					if term.isColor() then
@@ -243,51 +243,51 @@ repeat
 				end
 			end
 		end
-		
+
 		if offsetx+x > 51 then
 			break
 		end
-	end 
-	
+	end
+
 	term.setCursorPos(51/2, 19/2)
 	term.setBackgroundColor(colors.white)
-	
+
 	if term.isColor() then
 		term.setTextColor(colors.red)
 	else
 		term.setTextColor(colors.black)
 	end
-	
+
 	write("X")
-	
+
 	-- Wait for key
-	
+
 	local e, k = os.pullEvent("char")
-	
+
 	if k == "a" and (not tab[posx-1][posy]) then
 		posx = posx - 1
 		offsetx = offsetx + 1
 	end
-	
+
 	if k == "d" and (not tab[posx+1][posy]) then
 		posx = posx + 1
 		offsetx = offsetx - 1
 	end
-	
+
 	if k == "w" and (not tab[posx][posy-1]) then
 		posy = posy - 1
 		offsety = offsety + 1
 	end
-	
+
 	if k == "s" and (not tab[posx][posy+1]) then
 		posy = posy + 1
 		offsety = offsety - 1
 	end
-	
+
 	if k == "q" then
 		break
 	end
-	
+
 	if k == "r" then
 		posx = 2
 		posy = 2

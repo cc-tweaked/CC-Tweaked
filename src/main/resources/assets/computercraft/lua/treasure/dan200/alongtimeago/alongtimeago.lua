@@ -22,7 +22,7 @@ while not bFinished do
 		break
 	end
 
-	-- Get this every frame incase the monitor resizes	
+	-- Get this every frame incase the monitor resizes
 	local w,h = term.getSize()
 	local startX = math.floor( (w - 65) / 2 )
 	local startY = math.floor( (h - 14) / 2 )
