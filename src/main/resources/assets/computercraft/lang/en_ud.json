@@ -1,0 +1,190 @@
+{
+    "itemGroup.computercraft": "\u0287\u025f\u0250\u0279\u0186\u0279\u01dd\u0287nd\u026fo\u0186",
+
+    "block.computercraft.computer_normal": "\u0279\u01dd\u0287nd\u026fo\u0186",
+    "block.computercraft.computer_advanced": "\u0279\u01dd\u0287nd\u026fo\u0186 p\u01dd\u0254u\u0250\u028cp\u2c6f",
+    "block.computercraft.computer_command": "\u0279\u01dd\u0287nd\u026fo\u0186 pu\u0250\u026f\u026fo\u0186",
+
+    "block.computercraft.disk_drive": "\u01dd\u028c\u1d09\u0279\u15e1 \u029es\u1d09\u15e1",
+    "block.computercraft.printer": "\u0279\u01dd\u0287u\u1d09\u0279\u0500",
+    "block.computercraft.speaker": "\u0279\u01dd\u029e\u0250\u01dddS",
+
+    "block.computercraft.monitor_normal": "\u0279o\u0287\u1d09uoW",
+    "block.computercraft.monitor_advanced": "\u0279o\u0287\u1d09uoW p\u01dd\u0254u\u0250\u028cp\u2c6f",
+
+    "block.computercraft.wireless_modem_normal": "\u026f\u01ddpoW ss\u01dd\ua781\u01dd\u0279\u1d09M",
+    "block.computercraft.wireless_modem_advanced": "\u026f\u01ddpoW \u0279\u01ddpu\u018e",
+
+    "block.computercraft.wired_modem": "\u026f\u01ddpoW p\u01dd\u0279\u1d09M",
+    "block.computercraft.cable": "\u01dd\ua781q\u0250\u0186 \u1d77u\u1d09\u029e\u0279o\u028d\u0287\u01ddN",
+    "block.computercraft.wired_modem_full": "\u026f\u01ddpoW p\u01dd\u0279\u1d09M",
+
+    "block.computercraft.turtle_normal": "\u01dd\ua781\u0287\u0279n\u27d8",
+    "block.computercraft.turtle_normal.upgraded": "\u01dd\ua781\u0287\u0279n\u27d8 %s",
+    "block.computercraft.turtle_normal.upgraded_twice": "\u01dd\ua781\u0287\u0279n\u27d8 %s %s",
+
+    "block.computercraft.turtle_advanced": "\u01dd\ua781\u0287\u0279n\u27d8 p\u01dd\u0254u\u0250\u028cp\u2c6f",
+    "block.computercraft.turtle_advanced.upgraded": "\u01dd\ua781\u0287\u0279n\u27d8 %s p\u01dd\u0254u\u0250\u028cp\u2c6f",
+    "block.computercraft.turtle_advanced.upgraded_twice": "\u01dd\ua781\u0287\u0279n\u27d8 %s %s p\u01dd\u0254u\u0250\u028cp\u2c6f",
+
+    "item.computercraft.disk": "\u029es\u1d09\u15e1 \u028eddo\ua781\u2132",
+    "item.computercraft.treasure_disk": "\u029es\u1d09\u15e1 \u028eddo\ua781\u2132",
+    "item.computercraft.printed_page": "\u01dd\u1d77\u0250\u0500 p\u01dd\u0287u\u1d09\u0279\u0500",
+    "item.computercraft.printed_pages": "s\u01dd\u1d77\u0250\u0500 p\u01dd\u0287u\u1d09\u0279\u0500",
+    "item.computercraft.printed_book": "\u029eoo\u15fa p\u01dd\u0287u\u1d09\u0279\u0500",
+
+    "item.computercraft.pocket_computer_normal": "\u0279\u01dd\u0287nd\u026fo\u0186 \u0287\u01dd\u029e\u0254o\u0500",
+    "item.computercraft.pocket_computer_normal.upgraded": "\u0279\u01dd\u0287nd\u026fo\u0186 \u0287\u01dd\u029e\u0254o\u0500 %s",
+    "item.computercraft.pocket_computer_advanced": "\u0279\u01dd\u0287nd\u026fo\u0186 \u0287\u01dd\u029e\u0254o\u0500 p\u01dd\u0254u\u0250\u028cp\u2c6f",
+    "item.computercraft.pocket_computer_advanced.upgraded": "\u0279\u01dd\u0287nd\u026fo\u0186 \u0287\u01dd\u029e\u0254o\u0500 %s p\u01dd\u0254u\u0250\u028cp\u2c6f",
+
+    "upgrade.minecraft.diamond_sword.adjective": "\u01dd\u01dd\ua781\u01ddW",
+    "upgrade.minecraft.diamond_shovel.adjective": "\u1d77u\u1d09\u1d77\u1d77\u1d09\u15e1",
+    "upgrade.minecraft.diamond_pickaxe.adjective": "\u1d77u\u1d09u\u1d09W",
+    "upgrade.minecraft.diamond_axe.adjective": "\u1d77u\u1d09\ua781\ua781\u01dd\u2132",
+    "upgrade.minecraft.diamond_hoe.adjective": "\u1d77u\u1d09\u026f\u0279\u0250\u2132",
+    "upgrade.minecraft.crafting_table.adjective": "\u028e\u0287\u025f\u0250\u0279\u0186",
+    "upgrade.computercraft.wireless_modem_normal.adjective": "ss\u01dd\ua781\u01dd\u0279\u1d09M",
+    "upgrade.computercraft.wireless_modem_advanced.adjective": "\u0279\u01ddpu\u018e",
+    "upgrade.computercraft.speaker.adjective": "\u028es\u1d09oN",
+
+    "chat.computercraft.wired_modem.peripheral_connected": "\u029e\u0279o\u028d\u0287\u01ddu o\u0287 p\u01dd\u0287\u0254\u01dduuo\u0254 \"%s\" \ua781\u0250\u0279\u01dd\u0265d\u1d09\u0279\u01dd\u0500",
+    "chat.computercraft.wired_modem.peripheral_disconnected": "\u029e\u0279o\u028d\u0287\u01ddu \u026fo\u0279\u025f p\u01dd\u0287\u0254\u01dduuo\u0254s\u1d09p \"%s\" \ua781\u0250\u0279\u01dd\u0265d\u1d09\u0279\u01dd\u0500",
+
+    "commands.computercraft.synopsis": "\u02d9s\u0279\u01dd\u0287nd\u026fo\u0254 \u1d77u\u1d09\ua781\ua781o\u0279\u0287uo\u0254 \u0279o\u025f spu\u0250\u026f\u026fo\u0254 sno\u1d09\u0279\u0250\u039b",
+    "commands.computercraft.desc": "\u02d9s\u0279\u01dd\u0287nd\u026fo\u0254 \u0265\u0287\u1d09\u028d \u1d77u\u1d09\u0287\u0254\u0250\u0279\u01dd\u0287u\u1d09  pu\u0250 \u1d77u\u1d09\ua781\ua781o\u0279\u0287uo\u0254 \u0279o\u025f s\ua781oo\u0287 \u0279o\u0287\u0250\u0279\u0287s\u1d09u\u1d09\u026fp\u0250 pu\u0250 \u1d77u\u1d09\u1d77\u1d77nq\u01ddp sno\u1d09\u0279\u0250\u028c s\u01ddp\u1d09\u028co\u0279d pu\u0250\u026f\u026fo\u0254 \u0287\u025f\u0250\u0279\u0254\u0279\u01dd\u0287nd\u026fo\u0254/ \u01dd\u0265\u27d8",
+
+    "commands.computercraft.help.synopsis": "pu\u0250\u026f\u026fo\u0254 \u0254\u1d09\u025f\u1d09\u0254\u01ddds \u0250 \u0279o\u025f d\ua781\u01dd\u0265 \u01ddp\u1d09\u028co\u0279\u0500",
+    "commands.computercraft.help.desc": "",
+    "commands.computercraft.help.no_children": "spu\u0250\u026f\u026fo\u0254-qns ou s\u0250\u0265 %s",
+    "commands.computercraft.help.no_command": ",%s, pu\u0250\u026f\u026fo\u0254 \u0265\u0254ns oN",
+
+    "commands.computercraft.dump.synopsis": "\u02d9s\u0279\u01dd\u0287nd\u026fo\u0254 \u025fo sn\u0287\u0250\u0287s \u01dd\u0265\u0287 \u028e\u0250\ua781ds\u1d09\u15e1",
+    "commands.computercraft.dump.desc": "\u02d9)\"\u0279\u01dd\u0287nd\u026fo\u0186 \u028eW@\" \u02d9\u1d77\u02d9\u01dd( \ua781\u01ddq\u0250\ua781 \u0279o )\u0190\u1614\u295d# \u1d77\u02d9\u01dd( p\u1d09 \u0279\u01dd\u0287nd\u026fo\u0254 ')\u0190\u1614\u295d \u02d9\u1d77\u02d9\u01dd( p\u1d09 \u01dd\u0254u\u0250\u0287su\u1d09 s,\u0279\u01dd\u0287nd\u026fo\u0254 \u01dd\u0265\u0287 \u028e\u025f\u1d09\u0254\u01ddds u\u0250\u0254 no\u2144 \u02d9\u0279\u01dd\u0287nd\u026fo\u0254 \u01dduo \u0287noq\u0250 uo\u1d09\u0287\u0250\u026f\u0279o\u025fu\u1d09 \u0254\u1d09\u025f\u1d09\u0254\u01ddds \u0279o s\u0279\u01dd\u0287nd\u026fo\u0254 \ua781\ua781\u0250 \u025fo sn\u0287\u0250\u0287s \u01dd\u0265\u0287 \u028e\u0250\ua781ds\u1d09\u15e1",
+    "commands.computercraft.dump.action": "\u0279\u01dd\u0287nd\u026fo\u0254 s\u1d09\u0265\u0287 \u0287noq\u0250 o\u025fu\u1d09 \u01dd\u0279o\u026f \u028d\u01dd\u1d09\u039b",
+
+    "commands.computercraft.shutdown.synopsis": "\u02d9\u028e\ua781\u01dd\u0287o\u026f\u01dd\u0279 s\u0279\u01dd\u0287nd\u026fo\u0254 u\u028dop\u0287n\u0265S",
+    "commands.computercraft.shutdown.desc": "\u02d9)\"\u0279\u01dd\u0287nd\u026fo\u0186 \u028eW@\" \u02d9\u1d77\u02d9\u01dd( \ua781\u01ddq\u0250\ua781 \u0279o )\u0190\u1614\u295d# \u1d77\u02d9\u01dd( p\u1d09 \u0279\u01dd\u0287nd\u026fo\u0254 ')\u0190\u1614\u295d \u02d9\u1d77\u02d9\u01dd( p\u1d09 \u01dd\u0254u\u0250\u0287su\u1d09 s,\u0279\u01dd\u0287nd\u026fo\u0254 \u01dd\u0265\u0287 \u028e\u025f\u1d09\u0254\u01ddds u\u0250\u0254 no\u2144 \u02d9p\u01dd\u1d09\u025f\u1d09\u0254\u01ddds \u01dd\u0279\u0250 \u01dduou \u025f\u1d09 \ua781\ua781\u0250 \u0279o s\u0279\u01dd\u0287nd\u026fo\u0254 p\u01dd\u0287s\u1d09\ua781 \u01dd\u0265\u0287 u\u028dop\u0287n\u0265S",
+    "commands.computercraft.shutdown.done": "s\u0279\u01dd\u0287nd\u026fo\u0254 %s/%s u\u028dop\u0287n\u0265S",
+
+    "commands.computercraft.turn_on.synopsis": "\u02d9\u028e\ua781\u01dd\u0287o\u026f\u01dd\u0279 uo s\u0279\u01dd\u0287nd\u026fo\u0254 u\u0279n\u27d8",
+    "commands.computercraft.turn_on.desc": "\u02d9)\"\u0279\u01dd\u0287nd\u026fo\u0186 \u028eW@\" \u02d9\u1d77\u02d9\u01dd( \ua781\u01ddq\u0250\ua781 \u0279o )\u0190\u1614\u295d# \u1d77\u02d9\u01dd( p\u1d09 \u0279\u01dd\u0287nd\u026fo\u0254 ')\u0190\u1614\u295d \u02d9\u1d77\u02d9\u01dd( p\u1d09 \u01dd\u0254u\u0250\u0287su\u1d09 s,\u0279\u01dd\u0287nd\u026fo\u0254 \u01dd\u0265\u0287 \u028e\u025f\u1d09\u0254\u01ddds u\u0250\u0254 no\u2144 \u02d9s\u0279\u01dd\u0287nd\u026fo\u0254 p\u01dd\u0287s\u1d09\ua781 \u01dd\u0265\u0287 uo u\u0279n\u27d8",
+    "commands.computercraft.turn_on.done": "s\u0279\u01dd\u0287nd\u026fo\u0254 %s/%s uo p\u01ddu\u0279n\u27d8",
+
+    "commands.computercraft.tp.synopsis": "\u02d9\u0279\u01dd\u0287nd\u026fo\u0254 \u0254\u1d09\u025f\u1d09\u0254\u01ddds \u0250 o\u0287 \u0287\u0279od\u01dd\ua781\u01dd\u27d8",
+    "commands.computercraft.tp.desc": "\u02d9)\u0190\u1614\u295d# \u1d77\u02d9\u01dd( p\u1d09 \u0279\u01dd\u0287nd\u026fo\u0254 \u0279o )\u0190\u1614\u295d \u02d9\u1d77\u02d9\u01dd( p\u1d09 \u01dd\u0254u\u0250\u0287su\u1d09 s,\u0279\u01dd\u0287nd\u026fo\u0254 \u01dd\u0265\u0287 \u028e\u025f\u1d09\u0254\u01ddds \u0279\u01dd\u0265\u0287\u1d09\u01dd u\u0250\u0254 no\u2144 \u02d9\u0279\u01dd\u0287nd\u026fo\u0254 \u0250 \u025fo uo\u1d09\u0287\u0250\u0254o\ua781 \u01dd\u0265\u0287 o\u0287 \u0287\u0279od\u01dd\ua781\u01dd\u27d8",
+    "commands.computercraft.tp.action": "\u0279\u01dd\u0287nd\u026fo\u0254 s\u1d09\u0265\u0287 o\u0287 \u0287\u0279od\u01dd\ua781\u01dd\u27d8",
+    "commands.computercraft.tp.not_player": "\u0279\u01dd\u028e\u0250\ua781d-uou \u0279o\u025f \ua781\u0250u\u1d09\u026f\u0279\u01dd\u0287 u\u01dddo \u0287ouu\u0250\u0186",
+    "commands.computercraft.tp.not_there": "p\ua781\u0279o\u028d \u01dd\u0265\u0287 u\u1d09 \u0279\u01dd\u0287nd\u026fo\u0254 \u01dd\u0287\u0250\u0254o\ua781 \u0287ouu\u0250\u0186",
+
+    "commands.computercraft.view.synopsis": "\u02d9\u0279\u01dd\u0287nd\u026fo\u0254 \u0250 \u025fo \ua781\u0250u\u1d09\u026f\u0279\u01dd\u0287 \u01dd\u0265\u0287 \u028d\u01dd\u1d09\u039b",
+    "commands.computercraft.view.desc": "\u02d9)\u0190\u1614\u295d# \u1d77\u02d9\u01dd( p\u1d09 \u0279\u01dd\u0287nd\u026fo\u0254 \u0279o )\u0190\u1614\u295d \u02d9\u1d77\u02d9\u01dd( p\u1d09 \u01dd\u0254u\u0250\u0287su\u1d09 s,\u0279\u01dd\u0287nd\u026fo\u0254 \u01dd\u0265\u0287 \u028e\u025f\u1d09\u0254\u01ddds \u0279\u01dd\u0265\u0287\u1d09\u01dd u\u0250\u0254 no\u2144 \u02d9s\u01dd\u1d09\u0279o\u0287u\u01dd\u028cu\u1d09 s,\u01dd\ua781\u0287\u0279n\u0287 o\u0287 ss\u01dd\u0254\u0254\u0250 \u01ddp\u1d09\u028co\u0279d \u0287ou s\u01ddop s\u1d09\u0265\u27d8 \u02d9\u0279\u01dd\u0287nd\u026fo\u0254 \u0250 \u025fo \ua781o\u0279\u0287uo\u0254 \u01dd\u0287o\u026f\u01dd\u0279 \u1d77u\u1d09\u028do\ua781\ua781\u0250 '\u0279\u01dd\u0287nd\u026fo\u0254 \u0250 \u025fo \ua781\u0250u\u1d09\u026f\u0279\u01dd\u0287 \u01dd\u0265\u0287 u\u01dddO",
+    "commands.computercraft.view.action": "\u0279\u01dd\u0287nd\u026fo\u0254 s\u1d09\u0265\u0287 \u028d\u01dd\u1d09\u039b",
+    "commands.computercraft.view.not_player": "\u0279\u01dd\u028e\u0250\ua781d-uou \u0279o\u025f \ua781\u0250u\u1d09\u026f\u0279\u01dd\u0287 u\u01dddo \u0287ouu\u0250\u0186",
+
+    "commands.computercraft.track.synopsis": "\u02d9s\u0279\u01dd\u0287nd\u026fo\u0254 \u0279o\u025f s\u01dd\u026f\u1d09\u0287 uo\u1d09\u0287n\u0254\u01ddx\u01dd \u029e\u0254\u0250\u0279\u27d8",
+    "commands.computercraft.track.desc": "\u02d9\u1d77\u0250\ua781 \u1d77u\u1d09sou\u1d77\u0250\u1d09p \u0279o\u025f \ua781n\u025f\u01ddsn \u01ddq u\u0250\u0254 pu\u0250 \u029e\u0254\u0250\u0279\u0287 \u01dd\u1d77\u0279o\u025f/ o\u0287 \u028e\u0250\u028d \u0279\u0250\ua781\u1d09\u026f\u1d09s \u0250 u\u1d09 uo\u1d09\u0287\u0250\u026f\u0279o\u025fu\u1d09 s\u0287u\u01dds\u01dd\u0279d s\u1d09\u0265\u27d8 \u02d9\u01dd\ua781pu\u0250\u0265 \u028e\u01dd\u0265\u0287 s\u0287u\u01dd\u028c\u01dd \u028eu\u0250\u026f \u028do\u0265 s\u0250 \ua781\ua781\u01dd\u028d s\u0250 '\u0279o\u025f \u01dd\u0287n\u0254\u01ddx\u01dd s\u0279\u01dd\u0287nd\u026fo\u0254 \u1d77uo\ua781 \u028do\u0265 \u029e\u0254\u0250\u0279\u27d8",
+
+    "commands.computercraft.track.start.synopsis": "s\u0279\u01dd\u0287nd\u026fo\u0254 \ua781\ua781\u0250 \u1d77u\u1d09\u029e\u0254\u0250\u0279\u0287 \u0287\u0279\u0250\u0287S",
+    "commands.computercraft.track.start.desc": "\u02d9sun\u0279 sno\u1d09\u028c\u01dd\u0279d \u025fo s\u0287\ua781ns\u01dd\u0279 \u01dd\u0265\u0287 p\u0279\u0250\u0254s\u1d09p \ua781\ua781\u1d09\u028d s\u1d09\u0265\u27d8 \u02d9s\u0287uno\u0254 \u0287u\u01dd\u028c\u01dd pu\u0250 s\u01dd\u026f\u1d09\u0287 uo\u1d09\u0287n\u0254\u01ddx\u01dd ,s\u0279\u01dd\u0287nd\u026fo\u0254 \ua781\ua781\u0250 \u1d77u\u1d09\u029e\u0254\u0250\u0279\u0287 \u0287\u0279\u0250\u0287S",
+    "commands.computercraft.track.start.stop": "s\u0287\ua781ns\u01dd\u0279 \u01dd\u0265\u0287 \u028d\u01dd\u1d09\u028c pu\u0250 \u1d77u\u1d09\u029e\u0254\u0250\u0279\u0287 do\u0287s o\u0287 %s un\u1d1a",
+
+    "commands.computercraft.track.stop.synopsis": "s\u0279\u01dd\u0287nd\u026fo\u0254 \ua781\ua781\u0250 \u1d77u\u1d09\u029e\u0254\u0250\u0279\u0287 do\u0287S",
+    "commands.computercraft.track.stop.desc": "s\u01dd\u026f\u1d09\u0287 uo\u1d09\u0287n\u0254\u01ddx\u01dd pu\u0250 s\u0287u\u01dd\u028c\u01dd ,s\u0279\u01dd\u0287nd\u026fo\u0254 \ua781\ua781\u0250 \u1d77u\u1d09\u029e\u0254\u0250\u0279\u0287 do\u0287S",
+    "commands.computercraft.track.stop.action": "\u1d77u\u1d09\u029e\u0254\u0250\u0279\u0287 do\u0287s o\u0287 \u029e\u0254\u1d09\ua781\u0186",
+    "commands.computercraft.track.stop.not_enabled": "s\u0279\u01dd\u0287nd\u026fo\u0254 \u1d77u\u1d09\u029e\u0254\u0250\u0279\u0287 \u028e\ua781\u0287u\u01dd\u0279\u0279n\u0254 \u0287oN",
+
+    "commands.computercraft.track.dump.synopsis": "s\u0287\ua781ns\u01dd\u0279 \u029e\u0254\u0250\u0279\u0287 \u0287s\u01dd\u0287\u0250\ua781 \u01dd\u0265\u0287 d\u026fn\u15e1",
+    "commands.computercraft.track.dump.desc": "\u02d9\u1d77u\u1d09\u029e\u0254\u0250\u0279\u0287 \u0279\u01dd\u0287nd\u026fo\u0254 \u025fo s\u0287\ua781ns\u01dd\u0279 \u0287s\u01dd\u0287\u0250\ua781 \u01dd\u0265\u0287 d\u026fn\u15e1",
+    "commands.computercraft.track.dump.no_timings": "\u01dd\ua781q\u0250\ua781\u1d09\u0250\u028c\u0250 s\u1d77u\u1d09\u026f\u1d09\u0287 oN",
+    "commands.computercraft.track.dump.computer": "\u0279\u01dd\u0287nd\u026fo\u0186",
+
+    "commands.computercraft.reload.synopsis": "\u01dd\ua781\u1d09\u025f \u1d77\u1d09\u025fuo\u0254 \u0287\u025f\u0250\u0279\u0186\u0279\u01dd\u0287nd\u026fo\u0186 \u01dd\u0265\u0287 p\u0250o\ua781\u01dd\u1d1a",
+    "commands.computercraft.reload.desc": "\u01dd\ua781\u1d09\u025f \u1d77\u1d09\u025fuo\u0254 \u0287\u025f\u0250\u0279\u0186\u0279\u01dd\u0287nd\u026fo\u0186 \u01dd\u0265\u0287 p\u0250o\ua781\u01dd\u1d1a",
+    "commands.computercraft.reload.done": "\u1d77\u1d09\u025fuo\u0254 p\u01ddp\u0250o\ua781\u01dd\u1d1a",
+
+    "commands.computercraft.queue.synopsis": "\u0279\u01dd\u0287nd\u026fo\u0254 pu\u0250\u026f\u026fo\u0254 \u0250 o\u0287 \u0287u\u01dd\u028c\u01dd pu\u0250\u026f\u026fo\u0254_\u0279\u01dd\u0287nd\u026fo\u0254 \u0250 pu\u01ddS",
+    "commands.computercraft.queue.desc": "\u02d9\u0287u\u01dd\u028c\u01dd \u029e\u0254\u1d09\ua781\u0254 s,\u0287u\u01dduod\u026fo\u0254 \u0287x\u01dd\u0287 \u0250 \u0265\u1d77no\u0279\u0265\u0287 \u01dduop \u01ddq \u028e\ua781\u01dd\u029e\u1d09\ua781 \u0287so\u026f p\ua781no\u028d \u0265\u0254\u1d09\u0265\u028d 'pu\u0250\u026f\u026fo\u0254 \u01dd\u0265\u0287 un\u0279 u\u0250\u0254 \u0279\u01dd\u028e\u0250\ua781d \u028eu\u2c6f \u02d9\u0279\u01dd\u1d77\u1d77\u1d09\u0279\u0287/ \u025fo uo\u1d09s\u0279\u01dd\u028c \u028e\ua781pu\u01dd\u1d09\u0279\u025f-\u0279\u01dd\u0287nd\u026fo\u0254 \u01dd\u0279o\u026f \u0250 s\u0250 \u1d77u\u1d09\u0287\u0254\u0250 's\u0279\u01dd\u029e\u0250\u026f d\u0250\u026f \u0279o\u025f p\u01ddu\u1d77\u1d09s\u01ddp \u028e\ua781\u0287so\u026f s\u1d09 s\u1d09\u0265\u27d8 \u02d9s\u0287u\u01dd\u026fn\u1d77\u0279\u0250 \ua781\u0250uo\u1d09\u0287\u1d09pp\u0250 \u01dd\u0265\u0287 \u0265\u1d77no\u0279\u0265\u0287 \u1d77u\u1d09ss\u0250d '\u0279\u01dd\u0287nd\u026fo\u0254 pu\u0250\u026f\u026fo\u0254 \u0250 o\u0287 \u0287u\u01dd\u028c\u01dd pu\u0250\u026f\u026fo\u0254_\u0279\u01dd\u0287nd\u026fo\u0254 \u0250 pu\u01ddS",
+
+    "commands.computercraft.generic.no_position": ">sod ou<",
+    "commands.computercraft.generic.position": "%s '%s '%s",
+    "commands.computercraft.generic.yes": "\u2144",
+    "commands.computercraft.generic.no": "N",
+    "commands.computercraft.generic.exception": ")%s( uo\u1d09\u0287d\u01dd\u0254x\u01dd p\u01dd\ua781pu\u0250\u0265u\u2229",
+    "commands.computercraft.generic.additional_rows": "?s\u028do\u0279 \ua781\u0250uo\u1d09\u0287\u1d09pp\u0250 p%",
+
+    "argument.computercraft.computer.no_matching": ",%s, \u1d77u\u1d09\u0265\u0254\u0287\u0250\u026f s\u0279\u01dd\u0287nd\u026fo\u0254 oN",
+    "argument.computercraft.computer.many_matching": ")%s s\u01dd\u0254u\u0250\u0287su\u1d09( ,%s, \u1d77u\u1d09\u0265\u0254\u0287\u0250\u026f s\u0279\u01dd\u0287nd\u026fo\u0254 \u01dd\ua781d\u1d09\u0287\ua781nW",
+
+    "argument.computercraft.tracking_field.no_field": ",%s, p\ua781\u01dd\u1d09\u025f u\u028dou\u029eu\u2229",
+
+    "argument.computercraft.argument_expected": "p\u01dd\u0287\u0254\u01dddx\u01dd \u0287u\u01dd\u026fn\u1d77\u0279\u2c6f",
+
+    "tracking_field.computercraft.tasks.name": "s\u029es\u0250\u27d8",
+    "tracking_field.computercraft.total.name": "\u01dd\u026f\u1d09\u0287 \ua781\u0250\u0287o\u27d8",
+    "tracking_field.computercraft.average.name": "\u01dd\u026f\u1d09\u0287 \u01dd\u1d77\u0250\u0279\u01dd\u028c\u2c6f",
+    "tracking_field.computercraft.max.name": "\u01dd\u026f\u1d09\u0287 x\u0250W",
+
+    "tracking_field.computercraft.server_count.name": "\u0287uno\u0254 \u029es\u0250\u0287 \u0279\u01dd\u028c\u0279\u01ddS",
+    "tracking_field.computercraft.server_time.name": "\u01dd\u026f\u1d09\u0287 \u029es\u0250\u0287 \u0279\u01dd\u028c\u0279\u01ddS",
+
+    "tracking_field.computercraft.peripheral.name": "s\ua781\ua781\u0250\u0254 \ua781\u0250\u0279\u01dd\u0265d\u1d09\u0279\u01dd\u0500",
+    "tracking_field.computercraft.fs.name": "suo\u1d09\u0287\u0250\u0279\u01dddo \u026f\u01dd\u0287s\u028es\u01dd\ua781\u1d09\u2132",
+    "tracking_field.computercraft.turtle.name": "suo\u1d09\u0287\u0250\u0279\u01dddo \u01dd\ua781\u0287\u0279n\u27d8",
+
+    "tracking_field.computercraft.http.name": "s\u0287s\u01ddnb\u01dd\u0279 \u0500\u27d8\u27d8H",
+    "tracking_field.computercraft.http_upload.name": "p\u0250o\ua781dn \u0500\u27d8\u27d8H",
+    "tracking_field.computercraft.http_download.name": "p\u0250o\ua781u\u028dop \u27d8\u27d8\u27d8H",
+
+    "tracking_field.computercraft.websocket_incoming.name": "\u1d77u\u1d09\u026fo\u0254u\u1d09 \u0287\u01dd\u029e\u0254osq\u01ddM",
+    "tracking_field.computercraft.websocket_outgoing.name": "\u1d77u\u1d09o\u1d77\u0287no \u0287\u01dd\u029e\u0254osq\u01ddM",
+
+    "tracking_field.computercraft.coroutines_created.name": "p\u01dd\u0287\u0250\u01dd\u0279\u0254 s\u01ddu\u1d09\u0287no\u0279o\u0186",
+    "tracking_field.computercraft.coroutines_dead.name": "p\u01ddsods\u1d09p s\u01ddu\u1d09\u0287no\u0279o\u0186",
+
+    "gui.computercraft.tooltip.copy": "p\u0279\u0250oqd\u1d09\ua781\u0254 o\u0287 \u028edo\u0186",
+    "gui.computercraft.tooltip.computer_id": ")%s :\u15e1I \u0279\u01dd\u0287nd\u026fo\u0186(",
+    "gui.computercraft.tooltip.disk_id": ")%s :\u15e1I \u029es\u1d09\u15e1(",
+
+    "gui.computercraft.config.computer_space_limit": ")s\u01dd\u0287\u028eq( \u0287\u1d09\u026f\u1d09\ua781 \u01dd\u0254\u0250ds \u0279\u01dd\u0287nd\u026fo\u0186",
+    "gui.computercraft.config.floppy_space_limit": ")s\u01dd\u0287\u028eq( \u0287\u1d09\u026f\u1d09\ua781 \u01dd\u0254\u0250ds \u029es\u1d09\u15e1 \u028eddo\ua781\u2132",
+    "gui.computercraft.config.maximum_open_files": "\u0279\u01dd\u0287nd\u026fo\u0254 \u0279\u01ddd u\u01dddo s\u01dd\ua781\u1d09\u025f \u026fn\u026f\u1d09x\u0250W",
+    "gui.computercraft.config.disable_lua51_features": "s\u01dd\u0279n\u0287\u0250\u01dd\u025f \u295d\u02d9\u03db \u0250n\ua780 \u01dd\ua781q\u0250s\u1d09\u15e1",
+    "gui.computercraft.config.default_computer_settings": "s\u1d77u\u1d09\u0287\u0287\u01dds \u0279\u01dd\u0287nd\u026fo\u0186 \u0287\ua781n\u0250\u025f\u01dd\u15e1",
+    "gui.computercraft.config.debug_enabled": "\u028e\u0279\u0250\u0279q\u1d09\ua781 \u1d77nq\u01ddp \u01dd\ua781q\u0250u\u018e",
+    "gui.computercraft.config.log_computer_errors": "s\u0279o\u0279\u0279\u01dd \u0279\u01dd\u0287nd\u026fo\u0254 \u1d77o\ua780",
+
+    "gui.computercraft.config.execution": "uo\u1d09\u0287n\u0254\u01ddx\u018e",
+    "gui.computercraft.config.execution.computer_threads": "sp\u0250\u01dd\u0279\u0265\u0287 \u0279\u01dd\u0287nd\u026fo\u0186",
+    "gui.computercraft.config.execution.max_main_global_time": "\u0287\u1d09\u026f\u1d09\ua781 \u01dd\u026f\u1d09\u0287 \ua781\u0250qo\ua781\u1d77 \u029e\u0254\u1d09\u0287 \u0279\u01dd\u028c\u0279\u01ddS",
+    "gui.computercraft.config.execution.max_main_computer_time": "\u0287\u1d09\u026f\u1d09\ua781 \u01dd\u026f\u1d09\u0287 \u0279\u01dd\u0287nd\u026fo\u0254 \u029e\u0254\u1d09\u0287 \u0279\u01dd\u028c\u0279\u01ddS",
+
+    "gui.computercraft.config.http": "\u0500\u27d8\u27d8H",
+    "gui.computercraft.config.http.enabled": "I\u0500\u2c6f \u0500\u27d8\u27d8H \u01dd\u0265\u0287 \u01dd\ua781q\u0250u\u018e",
+    "gui.computercraft.config.http.websocket_enabled": "s\u0287\u01dd\u029e\u0254osq\u01dd\u028d \u01dd\ua781q\u0250u\u018e",
+    "gui.computercraft.config.http.whitelist": "\u0287s\u1d09\ua781\u01dd\u0287\u1d09\u0265\u028d \u0500\u27d8\u27d8H",
+    "gui.computercraft.config.http.blacklist": "\u0287s\u1d09\ua781\u029e\u0254\u0250\ua781q \u0500\u27d8\u27d8H",
+
+    "gui.computercraft.config.http.timeout": "\u0287no\u01dd\u026f\u1d09\u27d8",
+    "gui.computercraft.config.http.max_requests": "s\u0287s\u01ddnb\u01dd\u0279 \u0287u\u01dd\u0279\u0279n\u0254uo\u0254 \u026fn\u026f\u1d09x\u0250W",
+    "gui.computercraft.config.http.max_download": "\u01ddz\u1d09s \u01ddsuods\u01dd\u0279 \u026fn\u026f\u1d09x\u0250W",
+    "gui.computercraft.config.http.max_upload": "\u01ddz\u1d09s \u0287s\u01ddnb\u01dd\u0279 \u026fn\u026f\u1d09x\u0250W",
+    "gui.computercraft.config.http.max_websockets": "s\u0287\u01dd\u029e\u0254osq\u01dd\u028d \u0287u\u01dd\u0279\u0279n\u0254uo\u0254 \u026fn\u026f\u1d09x\u0250W",
+    "gui.computercraft.config.http.max_websocket_message": "\u01ddz\u1d09s \u01dd\u1d77\u0250ss\u01dd\u026f \u0287\u01dd\u029e\u0254osq\u01dd\u028d \u026fn\u026f\u1d09x\u0250W",
+
+    "gui.computercraft.config.peripheral": "s\ua781\u0250\u0279\u01dd\u0265d\u1d09\u0279\u01dd\u0500",
+    "gui.computercraft.config.peripheral.command_block_enabled": "\ua781\u0250\u0279\u01dd\u0265d\u1d09\u0279\u01ddd \u029e\u0254o\ua781q pu\u0250\u026f\u026fo\u0254 \u01dd\ua781q\u0250u\u018e",
+    "gui.computercraft.config.peripheral.modem_range": ")\u0287\ua781n\u0250\u025f\u01ddp( \u01dd\u1d77u\u0250\u0279 \u026f\u01ddpoW",
+    "gui.computercraft.config.peripheral.modem_high_altitude_range": ")\u01ddpn\u0287\u1d09\u0287\ua781\u0250-\u0265\u1d77\u1d09\u0265( \u01dd\u1d77u\u0250\u0279 \u026f\u01ddpoW",
+    "gui.computercraft.config.peripheral.modem_range_during_storm": ")\u0279\u01dd\u0265\u0287\u0250\u01dd\u028d p\u0250q( \u01dd\u1d77u\u0250\u0279 \u026f\u01ddpoW",
+    "gui.computercraft.config.peripheral.modem_high_altitude_range_during_storm": ")\u0279\u01dd\u0265\u0287\u0250\u01dd\u028d p\u0250q '\u01ddpn\u0287\u1d09\u0287\ua781\u0250-\u0265\u1d77\u1d09\u0265( \u01dd\u1d77u\u0250\u0279 \u026f\u01ddpoW",
+    "gui.computercraft.config.peripheral.max_notes_per_tick": "\u01dd\u0254uo \u0287\u0250 \u028e\u0250\ua781d u\u0250\u0254 \u0279\u01dd\u0287nd\u026fo\u0254 \u0250 \u0287\u0250\u0265\u0287 s\u01dd\u0287ou \u026fn\u026f\u1d09x\u0250W",
+
+    "gui.computercraft.config.turtle": "s\u01dd\ua781\u0287\u0279n\u27d8",
+    "gui.computercraft.config.turtle.need_fuel": "\ua781\u01ddn\u025f \u01dd\ua781q\u0250u\u018e",
+    "gui.computercraft.config.turtle.normal_fuel_limit": "\u0287\u1d09\u026f\u1d09\ua781 \ua781\u01ddn\u025f \u01dd\ua781\u0287\u0279n\u27d8",
+    "gui.computercraft.config.turtle.advanced_fuel_limit": "\u0287\u1d09\u026f\u1d09\ua781 \ua781\u01ddn\u025f \u01dd\ua781\u0287\u0279n\u27d8 p\u01dd\u0254u\u0250\u028cp\u2c6f",
+    "gui.computercraft.config.turtle.obey_block_protection": "uo\u1d09\u0287\u0254\u01dd\u0287o\u0279d \u029e\u0254o\ua781q \u028e\u01ddqo s\u01dd\ua781\u0287\u0279n\u27d8",
+    "gui.computercraft.config.turtle.can_push": "s\u01dd\u1d09\u0287\u1d09\u0287u\u01dd \u0265snd u\u0250\u0254 s\u01dd\ua781\u0287\u0279n\u27d8",
+    "gui.computercraft.config.turtle.disabled_actions": "uo\u1d09\u0287\u0254\u0250 \u01dd\ua781\u0287\u0279n\u0287 p\u01dd\ua781q\u0250s\u1d09\u15e1"
+}
