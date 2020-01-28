@@ -13,7 +13,6 @@ import dan200.computercraft.core.filesystem.FileSystem;
 import dan200.computercraft.core.filesystem.FileSystemException;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -123,7 +122,7 @@ public abstract class ComputerAccess implements IComputerAccess
         m_environment.queueEvent( event, arguments );
     }
 
-    @Nullable
+    @Nonnull
     @Override
     public IWorkMonitor getMainThreadMonitor()
     {

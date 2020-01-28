@@ -7,9 +7,9 @@
 package dan200.computercraft.shared.turtle.upgrades;
 
 import dan200.computercraft.ComputerCraft;
-import dan200.computercraft.api.AbstractTurtleUpgrade;
 import dan200.computercraft.api.client.TransformedModel;
 import dan200.computercraft.api.peripheral.IPeripheral;
+import dan200.computercraft.api.turtle.AbstractTurtleUpgrade;
 import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.api.turtle.TurtleUpgradeType;

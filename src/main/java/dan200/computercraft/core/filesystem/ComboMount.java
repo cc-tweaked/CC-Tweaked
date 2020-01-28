@@ -10,7 +10,6 @@ import dan200.computercraft.api.filesystem.IMount;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.channels.ReadableByteChannel;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -115,8 +114,7 @@ public class ComboMount implements IMount
 
     @Nonnull
     @Override
-    @Deprecated
-    public InputStream openForRead( @Nonnull String path ) throws IOException
+    public ReadableByteChannel openForRead( @Nonnull String path ) throws IOException
     {
         for( int i = m_parts.length - 1; i >= 0; --i )
         {
@@ -124,21 +122,6 @@ public class ComboMount implements IMount
             if( part.exists( path ) && !part.isDirectory( path ) )
             {
                 return part.openForRead( path );
-            }
-        }
-        throw new FileOperationException( path, "No such file" );
-    }
-
-    @Nonnull
-    @Override
-    public ReadableByteChannel openChannelForRead( @Nonnull String path ) throws IOException
-    {
-        for( int i = m_parts.length - 1; i >= 0; --i )
-        {
-            IMount part = m_parts[i];
-            if( part.exists( path ) && !part.isDirectory( path ) )
-            {
-                return part.openChannelForRead( path );
             }
         }
         throw new FileOperationException( path, "No such file" );

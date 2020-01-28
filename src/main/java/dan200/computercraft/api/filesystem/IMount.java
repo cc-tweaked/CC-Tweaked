@@ -11,8 +11,6 @@ import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.util.List;
 
@@ -22,10 +20,10 @@ import java.util.List;
  *
  * Ready made implementations of this interface can be created using
  * {@link ComputerCraftAPI#createSaveDirMount(World, String, long)} or
- * {@link ComputerCraftAPI#createResourceMount(Class, String, String)}, or you're free to implement it yourselves!
+ * {@link ComputerCraftAPI#createResourceMount(String, String)}, or you're free to implement it yourselves!
  *
  * @see ComputerCraftAPI#createSaveDirMount(World, String, long)
- * @see ComputerCraftAPI#createResourceMount(Class, String, String)
+ * @see ComputerCraftAPI#createResourceMount(String, String)
  * @see IComputerAccess#mount(String, IMount)
  * @see IWritableMount
  */
@@ -68,18 +66,6 @@ public interface IMount
     long getSize( @Nonnull String path ) throws IOException;
 
     /**
-     * Opens a file with a given path, and returns an {@link InputStream} representing its contents.
-     *
-     * @param path A file path in normalised format, relative to the mount location. ie: "programs/myprogram".
-     * @return A stream representing the contents of the file.
-     * @throws IOException If the file does not exist, or could not be opened.
-     * @deprecated Use {@link #openChannelForRead(String)} instead
-     */
-    @Nonnull
-    @Deprecated
-    InputStream openForRead( @Nonnull String path ) throws IOException;
-
-    /**
      * Opens a file with a given path, and returns an {@link ReadableByteChannel} representing its contents.
      *
      * @param path A file path in normalised format, relative to the mount location. ie: "programs/myprogram".
@@ -89,8 +75,5 @@ public interface IMount
      * @throws IOException If the file does not exist, or could not be opened.
      */
     @Nonnull
-    default ReadableByteChannel openChannelForRead( @Nonnull String path ) throws IOException
-    {
-        return Channels.newChannel( openForRead( path ) );
-    }
+    ReadableByteChannel openForRead( @Nonnull String path ) throws IOException;
 }

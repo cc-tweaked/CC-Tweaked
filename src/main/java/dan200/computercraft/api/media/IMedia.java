@@ -79,7 +79,7 @@ public interface IMedia
      * @see IMount
      * @see dan200.computercraft.api.filesystem.IWritableMount
      * @see dan200.computercraft.api.ComputerCraftAPI#createSaveDirMount(World, String, long)
-     * @see dan200.computercraft.api.ComputerCraftAPI#createResourceMount(Class, String, String)
+     * @see dan200.computercraft.api.ComputerCraftAPI#createResourceMount(String, String)
      */
     @Nullable
     default IMount createDataMount( @Nonnull ItemStack stack, @Nonnull World world )

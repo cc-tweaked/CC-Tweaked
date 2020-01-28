@@ -10,7 +10,8 @@ import dan200.computercraft.api.filesystem.FileOperationException;
 import dan200.computercraft.api.filesystem.IWritableMount;
 
 import javax.annotation.Nonnull;
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.*;
 import java.nio.file.Files;
@@ -199,21 +200,7 @@ public class FileMount implements IWritableMount
 
     @Nonnull
     @Override
-    @Deprecated
-    public InputStream openForRead( @Nonnull String path ) throws IOException
-    {
-        if( created() )
-        {
-            File file = getRealPath( path );
-            if( file.exists() && !file.isDirectory() ) return new FileInputStream( file );
-        }
-
-        throw new FileOperationException( path, "No such file" );
-    }
-
-    @Nonnull
-    @Override
-    public ReadableByteChannel openChannelForRead( @Nonnull String path ) throws IOException
+    public ReadableByteChannel openForRead( @Nonnull String path ) throws IOException
     {
         if( created() )
         {
@@ -299,23 +286,7 @@ public class FileMount implements IWritableMount
 
     @Nonnull
     @Override
-    @Deprecated
-    public OutputStream openForWrite( @Nonnull String path ) throws IOException
-    {
-        return Channels.newOutputStream( openChannelForWrite( path ) );
-    }
-
-    @Nonnull
-    @Override
-    @Deprecated
-    public OutputStream openForAppend( @Nonnull String path ) throws IOException
-    {
-        return Channels.newOutputStream( openChannelForAppend( path ) );
-    }
-
-    @Nonnull
-    @Override
-    public WritableByteChannel openChannelForWrite( @Nonnull String path ) throws IOException
+    public WritableByteChannel openForWrite( @Nonnull String path ) throws IOException
     {
         create();
         File file = getRealPath( path );
@@ -336,7 +307,7 @@ public class FileMount implements IWritableMount
 
     @Nonnull
     @Override
-    public WritableByteChannel openChannelForAppend( @Nonnull String path ) throws IOException
+    public WritableByteChannel openForAppend( @Nonnull String path ) throws IOException
     {
         if( !created() )
         {

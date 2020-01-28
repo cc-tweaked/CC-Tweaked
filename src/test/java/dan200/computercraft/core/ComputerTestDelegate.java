@@ -86,7 +86,7 @@ public class ComputerTestDelegate
         for( String child : children ) mount.delete( child );
 
         // And add our startup file
-        try( WritableByteChannel channel = mount.openChannelForWrite( "startup.lua" );
+        try( WritableByteChannel channel = mount.openForWrite( "startup.lua" );
              Writer writer = Channels.newWriter( channel, StandardCharsets.UTF_8.newEncoder(), -1 ) )
         {
             writer.write( "loadfile('test/mcfly.lua', nil, _ENV)('test/spec') cct_test.finish()" );

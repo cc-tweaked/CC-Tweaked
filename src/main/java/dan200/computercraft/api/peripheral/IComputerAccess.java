@@ -14,7 +14,6 @@ import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Collections;
 import java.util.Map;
 
 /**
@@ -31,9 +30,9 @@ public interface IComputerAccess
      * @param mount           The mount object to mount on the computer.
      * @return The location on the computer's file system where you the mount mounted, or {@code null} if there was already a
      * file in the desired location. Store this value if you wish to unmount the mount later.
-     * @throws RuntimeException If the peripheral has been detached.
+     * @throws NotAttachedException If the peripheral has been detached.
      * @see ComputerCraftAPI#createSaveDirMount(World, String, long)
-     * @see ComputerCraftAPI#createResourceMount(Class, String, String)
+     * @see ComputerCraftAPI#createResourceMount(String, String)
      * @see #mount(String, IMount, String)
      * @see #mountWritable(String, IWritableMount)
      * @see #unmount(String)
@@ -53,9 +52,9 @@ public interface IComputerAccess
      * @param driveName       A custom name to give for this mount location, as returned by {@code fs.getDrive()}.
      * @return The location on the computer's file system where you the mount mounted, or {@code null} if there was already a
      * file in the desired location. Store this value if you wish to unmount the mount later.
-     * @throws RuntimeException If the peripheral has been detached.
+     * @throws NotAttachedException If the peripheral has been detached.
      * @see ComputerCraftAPI#createSaveDirMount(World, String, long)
-     * @see ComputerCraftAPI#createResourceMount(Class, String, String)
+     * @see ComputerCraftAPI#createResourceMount(String, String)
      * @see #mount(String, IMount)
      * @see #mountWritable(String, IWritableMount)
      * @see #unmount(String)
@@ -71,9 +70,9 @@ public interface IComputerAccess
      * @param mount           The mount object to mount on the computer.
      * @return The location on the computer's file system where you the mount mounted, or null if there was already a
      * file in the desired location. Store this value if you wish to unmount the mount later.
-     * @throws RuntimeException If the peripheral has been detached.
+     * @throws NotAttachedException If the peripheral has been detached.
      * @see ComputerCraftAPI#createSaveDirMount(World, String, long)
-     * @see ComputerCraftAPI#createResourceMount(Class, String, String)
+     * @see ComputerCraftAPI#createResourceMount(String, String)
      * @see #mount(String, IMount)
      * @see #unmount(String)
      * @see IMount
@@ -92,9 +91,9 @@ public interface IComputerAccess
      * @param driveName       A custom name to give for this mount location, as returned by {@code fs.getDrive()}.
      * @return The location on the computer's file system where you the mount mounted, or null if there was already a
      * file in the desired location. Store this value if you wish to unmount the mount later.
-     * @throws RuntimeException If the peripheral has been detached.
+     * @throws NotAttachedException If the peripheral has been detached.
      * @see ComputerCraftAPI#createSaveDirMount(World, String, long)
-     * @see ComputerCraftAPI#createResourceMount(Class, String, String)
+     * @see ComputerCraftAPI#createResourceMount(String, String)
      * @see #mount(String, IMount)
      * @see #unmount(String)
      * @see IMount
@@ -114,8 +113,8 @@ public interface IComputerAccess
      * @param location The desired location in the computers file system of the directory to unmount.
      *                 This must be the location of a directory previously mounted by {@link #mount(String, IMount)} or
      *                 {@link #mountWritable(String, IWritableMount)}, as indicated by their return value.
-     * @throws RuntimeException If the peripheral has been detached.
-     * @throws RuntimeException If the mount does not exist, or was mounted by another peripheral.
+     * @throws NotAttachedException  If the peripheral has been detached.
+     * @throws IllegalStateException If the mount does not exist, or was mounted by another peripheral.
      * @see #mount(String, IMount)
      * @see #mountWritable(String, IWritableMount)
      */
@@ -146,7 +145,7 @@ public interface IComputerAccess
      *                  to lua data types in the same fashion as the return values of IPeripheral.callMethod().
      *
      *                  You may supply {@code null} to indicate that no arguments are to be supplied.
-     * @throws RuntimeException If the peripheral has been detached.
+     * @throws NotAttachedException If the peripheral has been detached.
      * @see IPeripheral#callMethod
      */
     void queueEvent( @Nonnull String event, @Nullable Object[] arguments );
@@ -159,7 +158,7 @@ public interface IComputerAccess
      * which peripheral the event came.
      *
      * @return A string unique to the computer, but not globally.
-     * @throws RuntimeException If the peripheral has been detached.
+     * @throws NotAttachedException If the peripheral has been detached.
      */
     @Nonnull
     String getAttachmentName();
@@ -170,14 +169,12 @@ public interface IComputerAccess
      * This may include other peripherals on the wired network or peripherals on other sides of the computer.
      *
      * @return All reachable peripherals
+     * @throws NotAttachedException If the peripheral has been detached.
      * @see #getAttachmentName()
      * @see #getAvailablePeripheral(String)
      */
     @Nonnull
-    default Map<String, IPeripheral> getAvailablePeripherals()
-    {
-        return Collections.emptyMap();
-    }
+    Map<String, IPeripheral> getAvailablePeripherals();
 
     /**
      * Get a reachable peripheral with the given attachment name. This is a equivalent to
@@ -188,10 +185,7 @@ public interface IComputerAccess
      * @see #getAvailablePeripherals()
      */
     @Nullable
-    default IPeripheral getAvailablePeripheral( @Nonnull String name )
-    {
-        return null;
-    }
+    IPeripheral getAvailablePeripheral( @Nonnull String name );
 
     /**
      * Get a {@link IWorkMonitor} for tasks your peripheral might execute on the main (server) thread.
@@ -205,10 +199,8 @@ public interface IComputerAccess
      * thread.
      *
      * @return The work monitor for the main thread, or {@code null} if this computer does not have one.
+     * @throws NotAttachedException If the peripheral has been detached.
      */
-    @Nullable
-    default IWorkMonitor getMainThreadMonitor()
-    {
-        return null;
-    }
+    @Nonnull
+    IWorkMonitor getMainThreadMonitor();
 }

@@ -6,9 +6,15 @@
 package dan200.computercraft.core.filesystem;
 
 import dan200.computercraft.api.filesystem.IWritableMount;
+import dan200.computercraft.core.apis.handles.ArrayByteChannel;
 
 import javax.annotation.Nonnull;
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.nio.channels.Channels;
+import java.nio.channels.ReadableByteChannel;
+import java.nio.channels.WritableByteChannel;
 import java.util.*;
 
 /**
@@ -61,10 +67,9 @@ public class MemoryMount implements IWritableMount
 
     @Nonnull
     @Override
-    @Deprecated
-    public OutputStream openForWrite( @Nonnull final String path )
+    public WritableByteChannel openForWrite( @Nonnull final String path )
     {
-        return new ByteArrayOutputStream()
+        return Channels.newChannel( new ByteArrayOutputStream()
         {
             @Override
             public void close() throws IOException
@@ -72,13 +77,12 @@ public class MemoryMount implements IWritableMount
                 super.close();
                 files.put( path, toByteArray() );
             }
-        };
+        } );
     }
 
     @Nonnull
     @Override
-    @Deprecated
-    public OutputStream openForAppend( @Nonnull final String path ) throws IOException
+    public WritableByteChannel openForAppend( @Nonnull final String path ) throws IOException
     {
         ByteArrayOutputStream stream = new ByteArrayOutputStream()
         {
@@ -93,7 +97,7 @@ public class MemoryMount implements IWritableMount
         byte[] current = files.get( path );
         if( current != null ) stream.write( current );
 
-        return stream;
+        return Channels.newChannel( stream );
     }
 
     @Override
@@ -131,10 +135,9 @@ public class MemoryMount implements IWritableMount
 
     @Nonnull
     @Override
-    @Deprecated
-    public InputStream openForRead( @Nonnull String path )
+    public ReadableByteChannel openForRead( @Nonnull String path )
     {
-        return new ByteArrayInputStream( files.get( path ) );
+        return new ArrayByteChannel( files.get( path ) );
     }
 
     public MemoryMount addFile( String file, String contents )

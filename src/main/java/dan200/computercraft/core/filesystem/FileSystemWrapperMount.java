@@ -9,9 +9,6 @@ import dan200.computercraft.api.filesystem.IFileSystem;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
 import java.util.Collections;
@@ -55,7 +52,7 @@ public class FileSystemWrapperMount implements IFileSystem
 
     @Nonnull
     @Override
-    public ReadableByteChannel openChannelForRead( @Nonnull String path ) throws IOException
+    public ReadableByteChannel openForRead( @Nonnull String path ) throws IOException
     {
         try
         {
@@ -70,7 +67,7 @@ public class FileSystemWrapperMount implements IFileSystem
 
     @Nonnull
     @Override
-    public WritableByteChannel openChannelForWrite( @Nonnull String path ) throws IOException
+    public WritableByteChannel openForWrite( @Nonnull String path ) throws IOException
     {
         try
         {
@@ -84,7 +81,7 @@ public class FileSystemWrapperMount implements IFileSystem
 
     @Nonnull
     @Override
-    public WritableByteChannel openChannelForAppend( @Nonnull String path ) throws IOException
+    public WritableByteChannel openForAppend( @Nonnull String path ) throws IOException
     {
         try
         {
@@ -94,30 +91,6 @@ public class FileSystemWrapperMount implements IFileSystem
         {
             throw new IOException( e.getMessage() );
         }
-    }
-
-    @Nonnull
-    @Override
-    @Deprecated
-    public InputStream openForRead( @Nonnull String path ) throws IOException
-    {
-        return Channels.newInputStream( openChannelForRead( path ) );
-    }
-
-    @Nonnull
-    @Override
-    @Deprecated
-    public OutputStream openForWrite( @Nonnull String path ) throws IOException
-    {
-        return Channels.newOutputStream( openChannelForWrite( path ) );
-    }
-
-    @Nonnull
-    @Override
-    @Deprecated
-    public OutputStream openForAppend( @Nonnull String path ) throws IOException
-    {
-        return Channels.newOutputStream( openChannelForAppend( path ) );
     }
 
     @Override

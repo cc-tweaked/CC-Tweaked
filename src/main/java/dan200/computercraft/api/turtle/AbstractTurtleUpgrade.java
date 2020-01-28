@@ -3,10 +3,8 @@
  * Copyright Daniel Ratcliffe, 2011-2020. This API may be redistributed unmodified and in full only.
  * For help using the API, and posting your mods, visit the forums at computercraft.info.
  */
-package dan200.computercraft.api;
+package dan200.computercraft.api.turtle;
 
-import dan200.computercraft.api.turtle.ITurtleUpgrade;
-import dan200.computercraft.api.turtle.TurtleUpgradeType;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.IItemProvider;
 import net.minecraft.util.ResourceLocation;

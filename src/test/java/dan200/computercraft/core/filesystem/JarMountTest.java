@@ -13,14 +13,14 @@ import org.junit.jupiter.api.Test;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
+import java.nio.channels.Channels;
+import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.StandardCharsets;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@SuppressWarnings( "deprecation" )
 public class JarMountTest
 {
     private static final File ZIP_FILE = new File( "test-files/jar-mount.zip" );
@@ -63,9 +63,9 @@ public class JarMountTest
     {
         IMount mount = new JarMount( ZIP_FILE, "dir/file.lua" );
         byte[] contents;
-        try( InputStream stream = mount.openForRead( "" ) )
+        try( ReadableByteChannel stream = mount.openForRead( "" ) )
         {
-            contents = ByteStreams.toByteArray( stream );
+            contents = ByteStreams.toByteArray( Channels.newInputStream( stream ) );
         }
 
         assertEquals( new String( contents, StandardCharsets.UTF_8 ), "print('testing')" );
@@ -76,9 +76,9 @@ public class JarMountTest
     {
         IMount mount = new JarMount( ZIP_FILE, "dir" );
         byte[] contents;
-        try( InputStream stream = mount.openForRead( "file.lua" ) )
+        try( ReadableByteChannel stream = mount.openForRead( "file.lua" ) )
         {
-            contents = ByteStreams.toByteArray( stream );
+            contents = ByteStreams.toByteArray( Channels.newInputStream( stream ) );
         }
 
         assertEquals( new String( contents, StandardCharsets.UTF_8 ), "print('testing')" );

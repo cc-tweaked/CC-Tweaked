@@ -11,6 +11,8 @@ import dan200.computercraft.api.lua.ILuaAPI;
 import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.peripheral.IPeripheral;
+import dan200.computercraft.api.peripheral.IWorkMonitor;
+import dan200.computercraft.api.peripheral.NotAttachedException;
 import dan200.computercraft.core.computer.ComputerSide;
 import dan200.computercraft.core.tracking.TrackingField;
 
@@ -122,53 +124,35 @@ public class PeripheralAPI implements ILuaAPI, IAPIEnvironment.IPeripheralChange
         @Override
         public synchronized String mount( @Nonnull String desiredLoc, @Nonnull IMount mount, @Nonnull String driveName )
         {
-            if( !m_attached )
-            {
-                throw new RuntimeException( "You are not attached to this Computer" );
-            }
-
+            if( !m_attached ) throw new NotAttachedException();
             return super.mount( desiredLoc, mount, driveName );
         }
 
         @Override
         public synchronized String mountWritable( @Nonnull String desiredLoc, @Nonnull IWritableMount mount, @Nonnull String driveName )
         {
-            if( !m_attached )
-            {
-                throw new RuntimeException( "You are not attached to this Computer" );
-            }
-
+            if( !m_attached ) throw new NotAttachedException();
             return super.mountWritable( desiredLoc, mount, driveName );
         }
 
         @Override
         public synchronized void unmount( String location )
         {
-            if( !m_attached )
-            {
-                throw new RuntimeException( "You are not attached to this Computer" );
-            }
-
+            if( !m_attached ) throw new NotAttachedException();
             super.unmount( location );
         }
 
         @Override
         public int getID()
         {
-            if( !m_attached )
-            {
-                throw new RuntimeException( "You are not attached to this Computer" );
-            }
+            if( !m_attached ) throw new NotAttachedException();
             return super.getID();
         }
 
         @Override
         public void queueEvent( @Nonnull final String event, final Object[] arguments )
         {
-            if( !m_attached )
-            {
-                throw new RuntimeException( "You are not attached to this Computer" );
-            }
+            if( !m_attached ) throw new NotAttachedException();
             super.queueEvent( event, arguments );
         }
 
@@ -176,10 +160,7 @@ public class PeripheralAPI implements ILuaAPI, IAPIEnvironment.IPeripheralChange
         @Override
         public String getAttachmentName()
         {
-            if( !m_attached )
-            {
-                throw new RuntimeException( "You are not attached to this Computer" );
-            }
+            if( !m_attached ) throw new NotAttachedException();
             return m_side;
         }
 
@@ -187,10 +168,7 @@ public class PeripheralAPI implements ILuaAPI, IAPIEnvironment.IPeripheralChange
         @Override
         public Map<String, IPeripheral> getAvailablePeripherals()
         {
-            if( !m_attached )
-            {
-                throw new RuntimeException( "You are not attached to this Computer" );
-            }
+            if( !m_attached ) throw new NotAttachedException();
 
             Map<String, IPeripheral> peripherals = new HashMap<>();
             for( PeripheralWrapper wrapper : m_peripherals )
@@ -208,10 +186,7 @@ public class PeripheralAPI implements ILuaAPI, IAPIEnvironment.IPeripheralChange
         @Override
         public IPeripheral getAvailablePeripheral( @Nonnull String name )
         {
-            if( !m_attached )
-            {
-                throw new RuntimeException( "You are not attached to this Computer" );
-            }
+            if( !m_attached ) throw new NotAttachedException();
 
             for( PeripheralWrapper wrapper : m_peripherals )
             {
@@ -221,6 +196,14 @@ public class PeripheralAPI implements ILuaAPI, IAPIEnvironment.IPeripheralChange
                 }
             }
             return null;
+        }
+
+        @Nonnull
+        @Override
+        public IWorkMonitor getMainThreadMonitor()
+        {
+            if( !m_attached ) throw new NotAttachedException();
+            return super.getMainThreadMonitor();
         }
     }
 

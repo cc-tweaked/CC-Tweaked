@@ -374,7 +374,7 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements IW
             m_computer.queueEvent( event, arguments );
         }
 
-        @Nullable
+        @Nonnull
         @Override
         public IWorkMonitor getMainThreadMonitor()
         {

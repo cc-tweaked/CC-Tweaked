@@ -181,15 +181,7 @@ public class JarMount implements IMount
 
     @Nonnull
     @Override
-    @Deprecated
-    public InputStream openForRead( @Nonnull String path ) throws IOException
-    {
-        return Channels.newInputStream( openChannelForRead( path ) );
-    }
-
-    @Nonnull
-    @Override
-    public ReadableByteChannel openChannelForRead( @Nonnull String path ) throws IOException
+    public ReadableByteChannel openForRead( @Nonnull String path ) throws IOException
     {
         FileEntry file = get( path );
         if( file != null && !file.isDirectory() )

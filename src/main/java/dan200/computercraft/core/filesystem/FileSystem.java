@@ -165,7 +165,7 @@ public class FileSystem
             {
                 if( m_mount.exists( path ) && !m_mount.isDirectory( path ) )
                 {
-                    return m_mount.openChannelForRead( path );
+                    return m_mount.openForRead( path );
                 }
                 else
                 {
@@ -245,7 +245,7 @@ public class FileSystem
                             m_writableMount.makeDirectory( dir );
                         }
                     }
-                    return m_writableMount.openChannelForWrite( path );
+                    return m_writableMount.openForWrite( path );
                 }
             }
             catch( AccessDeniedException e )
@@ -275,7 +275,7 @@ public class FileSystem
                             m_writableMount.makeDirectory( dir );
                         }
                     }
-                    return m_writableMount.openChannelForWrite( path );
+                    return m_writableMount.openForWrite( path );
                 }
                 else if( m_mount.isDirectory( path ) )
                 {
@@ -283,7 +283,7 @@ public class FileSystem
                 }
                 else
                 {
-                    return m_writableMount.openChannelForAppend( path );
+                    return m_writableMount.openForAppend( path );
                 }
             }
             catch( AccessDeniedException e )

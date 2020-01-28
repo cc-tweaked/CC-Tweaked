@@ -113,31 +113,6 @@ public final class ComputerCraftAPI
     }
 
     /**
-     * Creates a file system mount to a resource folder, and returns it.
-     *
-     * Use in conjunction with {@link IComputerAccess#mount} or {@link IComputerAccess#mountWritable} to mount a
-     * resource folder onto a computer's file system.
-     *
-     * The files in this mount will be a combination of files in all mod jar, and data packs that contain
-     * resources with the same domain and path.
-     *
-     * @param klass   The mod class to which the files belong.
-     * @param domain  The domain under which to look for resources. eg: "mymod".
-     * @param subPath The subPath under which to look for resources. eg: "lua/myfiles".
-     * @return The mount, or {@code null} if it could be created for some reason.
-     * @see IComputerAccess#mount(String, IMount)
-     * @see IComputerAccess#mountWritable(String, IWritableMount)
-     * @see IMount
-     * @deprecated Use {@link #createResourceMount(String, String)} instead.
-     */
-    @Nullable
-    @Deprecated
-    public static IMount createResourceMount( Class<?> klass, @Nonnull String domain, @Nonnull String subPath )
-    {
-        return getInstance().createResourceMount( domain, subPath );
-    }
-
-    /**
      * Registers a peripheral provider to convert blocks into {@link IPeripheral} implementations.
      *
      * @param provider The peripheral provider to register.
