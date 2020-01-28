@@ -270,7 +270,7 @@ public final class FixedWidthFontRenderer
 
     public static void drawEmptyTerminal( @Nonnull Matrix4f transform, @Nonnull IRenderTypeBuffer renderer, float x, float y, float width, float height )
     {
-        Colour colour = Colour.Black;
+        Colour colour = Colour.BLACK;
         drawQuad( transform, renderer.getBuffer( TYPE ), x, y, width, height, colour.getR(), colour.getG(), colour.getB() );
     }
 
@@ -286,7 +286,7 @@ public final class FixedWidthFontRenderer
 
     public static void drawBlocker( @Nonnull Matrix4f transform, @Nonnull IRenderTypeBuffer renderer, float x, float y, float width, float height )
     {
-        Colour colour = Colour.Black;
+        Colour colour = Colour.BLACK;
         drawQuad( transform, renderer.getBuffer( Type.BLOCKER ), x, y, width, height, colour.getR(), colour.getG(), colour.getB() );
     }
 

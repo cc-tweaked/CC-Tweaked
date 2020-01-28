@@ -84,7 +84,7 @@ public class TurtleBrain implements ITurtleAccess
     private int m_colourHex = -1;
     private ResourceLocation m_overlay = null;
 
-    private TurtleAnimation m_animation = TurtleAnimation.None;
+    private TurtleAnimation m_animation = TurtleAnimation.NONE;
     private int m_animationProgress = 0;
     private int m_lastAnimationProgress = 0;
 
@@ -166,18 +166,18 @@ public class TurtleBrain implements ITurtleAccess
         m_overlay = nbt.contains( NBT_OVERLAY ) ? new ResourceLocation( nbt.getString( NBT_OVERLAY ) ) : null;
 
         // Read upgrades
-        setUpgrade( TurtleSide.Left, nbt.contains( NBT_LEFT_UPGRADE ) ? TurtleUpgrades.get( nbt.getString( NBT_LEFT_UPGRADE ) ) : null );
-        setUpgrade( TurtleSide.Right, nbt.contains( NBT_RIGHT_UPGRADE ) ? TurtleUpgrades.get( nbt.getString( NBT_RIGHT_UPGRADE ) ) : null );
+        setUpgrade( TurtleSide.LEFT, nbt.contains( NBT_LEFT_UPGRADE ) ? TurtleUpgrades.get( nbt.getString( NBT_LEFT_UPGRADE ) ) : null );
+        setUpgrade( TurtleSide.RIGHT, nbt.contains( NBT_RIGHT_UPGRADE ) ? TurtleUpgrades.get( nbt.getString( NBT_RIGHT_UPGRADE ) ) : null );
 
         // NBT
         m_upgradeNBTData.clear();
         if( nbt.contains( NBT_LEFT_UPGRADE_DATA ) )
         {
-            m_upgradeNBTData.put( TurtleSide.Left, nbt.getCompound( NBT_LEFT_UPGRADE_DATA ).copy() );
+            m_upgradeNBTData.put( TurtleSide.LEFT, nbt.getCompound( NBT_LEFT_UPGRADE_DATA ).copy() );
         }
         if( nbt.contains( NBT_RIGHT_UPGRADE_DATA ) )
         {
-            m_upgradeNBTData.put( TurtleSide.Right, nbt.getCompound( NBT_RIGHT_UPGRADE_DATA ).copy() );
+            m_upgradeNBTData.put( TurtleSide.RIGHT, nbt.getCompound( NBT_RIGHT_UPGRADE_DATA ).copy() );
         }
     }
 
@@ -188,19 +188,19 @@ public class TurtleBrain implements ITurtleAccess
         if( m_overlay != null ) nbt.putString( NBT_OVERLAY, m_overlay.toString() );
 
         // Write upgrades
-        String leftUpgradeId = getUpgradeId( getUpgrade( TurtleSide.Left ) );
+        String leftUpgradeId = getUpgradeId( getUpgrade( TurtleSide.LEFT ) );
         if( leftUpgradeId != null ) nbt.putString( NBT_LEFT_UPGRADE, leftUpgradeId );
-        String rightUpgradeId = getUpgradeId( getUpgrade( TurtleSide.Right ) );
+        String rightUpgradeId = getUpgradeId( getUpgrade( TurtleSide.RIGHT ) );
         if( rightUpgradeId != null ) nbt.putString( NBT_RIGHT_UPGRADE, rightUpgradeId );
 
         // Write upgrade NBT
-        if( m_upgradeNBTData.containsKey( TurtleSide.Left ) )
+        if( m_upgradeNBTData.containsKey( TurtleSide.LEFT ) )
         {
-            nbt.put( NBT_LEFT_UPGRADE_DATA, getUpgradeNBTData( TurtleSide.Left ).copy() );
+            nbt.put( NBT_LEFT_UPGRADE_DATA, getUpgradeNBTData( TurtleSide.LEFT ).copy() );
         }
-        if( m_upgradeNBTData.containsKey( TurtleSide.Right ) )
+        if( m_upgradeNBTData.containsKey( TurtleSide.RIGHT ) )
         {
-            nbt.put( NBT_RIGHT_UPGRADE_DATA, getUpgradeNBTData( TurtleSide.Right ).copy() );
+            nbt.put( NBT_RIGHT_UPGRADE_DATA, getUpgradeNBTData( TurtleSide.RIGHT ).copy() );
         }
     }
 
@@ -259,9 +259,9 @@ public class TurtleBrain implements ITurtleAccess
         // Animation
         TurtleAnimation anim = TurtleAnimation.values()[nbt.getInt( "Animation" )];
         if( anim != m_animation &&
-            anim != TurtleAnimation.Wait &&
-            anim != TurtleAnimation.ShortWait &&
-            anim != TurtleAnimation.None )
+            anim != TurtleAnimation.WAIT &&
+            anim != TurtleAnimation.SHORT_WAIT &&
+            anim != TurtleAnimation.NONE )
         {
             m_animation = anim;
             m_animationProgress = 0;
@@ -385,7 +385,7 @@ public class TurtleBrain implements ITurtleAccess
         float yaw = getDirection().getHorizontalAngle();
         switch( m_animation )
         {
-            case TurnLeft:
+            case TURN_LEFT:
             {
                 yaw += 90.0f * (1.0f - getAnimationFraction( f ));
                 if( yaw >= 360.0f )
@@ -394,7 +394,7 @@ public class TurtleBrain implements ITurtleAccess
                 }
                 break;
             }
-            case TurnRight:
+            case TURN_RIGHT:
             {
                 yaw += -90.0f * (1.0f - getAnimationFraction( f ));
                 if( yaw < 0.0f )
@@ -474,7 +474,7 @@ public class TurtleBrain implements ITurtleAccess
     @Override
     public int getFuelLimit()
     {
-        if( m_owner.getFamily() == ComputerFamily.Advanced )
+        if( m_owner.getFamily() == ComputerFamily.ADVANCED )
         {
             return ComputerCraft.advancedTurtleFuelLimit;
         }
@@ -546,7 +546,7 @@ public class TurtleBrain implements ITurtleAccess
         if( getWorld().isRemote ) throw new UnsupportedOperationException( "Cannot play animations on the client" );
 
         m_animation = animation;
-        if( m_animation == TurtleAnimation.ShortWait )
+        if( m_animation == TurtleAnimation.SHORT_WAIT )
         {
             m_animationProgress = ANIM_DURATION / 2;
             m_lastAnimationProgress = ANIM_DURATION / 2;
@@ -688,26 +688,26 @@ public class TurtleBrain implements ITurtleAccess
     {
         switch( m_animation )
         {
-            case MoveForward:
-            case MoveBack:
-            case MoveUp:
-            case MoveDown:
+            case MOVE_FORWARD:
+            case MOVE_BACK:
+            case MOVE_UP:
+            case MOVE_DOWN:
             {
                 // Get direction
                 Direction dir;
                 switch( m_animation )
                 {
-                    case MoveForward:
+                    case MOVE_FORWARD:
                     default:
                         dir = getDirection();
                         break;
-                    case MoveBack:
+                    case MOVE_BACK:
                         dir = getDirection().getOpposite();
                         break;
-                    case MoveUp:
+                    case MOVE_UP:
                         dir = Direction.UP;
                         break;
-                    case MoveDown:
+                    case MOVE_DOWN:
                         dir = Direction.DOWN;
                         break;
                 }
@@ -728,8 +728,8 @@ public class TurtleBrain implements ITurtleAccess
 
     public float getToolRenderAngle( TurtleSide side, float f )
     {
-        return (side == TurtleSide.Left && m_animation == TurtleAnimation.SwingLeftTool) ||
-            (side == TurtleSide.Right && m_animation == TurtleAnimation.SwingRightTool)
+        return (side == TurtleSide.LEFT && m_animation == TurtleAnimation.SWING_LEFT_TOOL) ||
+            (side == TurtleSide.RIGHT && m_animation == TurtleAnimation.SWING_RIGHT_TOOL)
             ? 45.0f * (float) Math.sin( getAnimationFraction( f ) * Math.PI )
             : 0.0f;
     }
@@ -738,9 +738,9 @@ public class TurtleBrain implements ITurtleAccess
     {
         switch( side )
         {
-            case Left:
+            case LEFT:
                 return ComputerSide.LEFT;
-            case Right:
+            case RIGHT:
             default:
                 return ComputerSide.RIGHT;
         }
@@ -779,7 +779,7 @@ public class TurtleBrain implements ITurtleAccess
 
     private void updateCommands()
     {
-        if( m_animation != TurtleAnimation.None || m_commandQueue.isEmpty() ) return;
+        if( m_animation != TurtleAnimation.NONE || m_commandQueue.isEmpty() ) return;
 
         // If we've got a computer, ensure that we're allowed to perform work.
         ServerComputer computer = m_owner.getServerComputer();
@@ -828,33 +828,33 @@ public class TurtleBrain implements ITurtleAccess
 
     private void updateAnimation()
     {
-        if( m_animation != TurtleAnimation.None )
+        if( m_animation != TurtleAnimation.NONE )
         {
             World world = getWorld();
 
             if( ComputerCraft.turtlesCanPush )
             {
                 // Advance entity pushing
-                if( m_animation == TurtleAnimation.MoveForward ||
-                    m_animation == TurtleAnimation.MoveBack ||
-                    m_animation == TurtleAnimation.MoveUp ||
-                    m_animation == TurtleAnimation.MoveDown )
+                if( m_animation == TurtleAnimation.MOVE_FORWARD ||
+                    m_animation == TurtleAnimation.MOVE_BACK ||
+                    m_animation == TurtleAnimation.MOVE_UP ||
+                    m_animation == TurtleAnimation.MOVE_DOWN )
                 {
                     BlockPos pos = getPosition();
                     Direction moveDir;
                     switch( m_animation )
                     {
-                        case MoveForward:
+                        case MOVE_FORWARD:
                         default:
                             moveDir = getDirection();
                             break;
-                        case MoveBack:
+                        case MOVE_BACK:
                             moveDir = getDirection().getOpposite();
                             break;
-                        case MoveUp:
+                        case MOVE_UP:
                             moveDir = Direction.UP;
                             break;
-                        case MoveDown:
+                        case MOVE_DOWN:
                             moveDir = Direction.DOWN;
                             break;
                     }
@@ -912,11 +912,11 @@ public class TurtleBrain implements ITurtleAccess
             }
 
             // Advance valentines day easter egg
-            if( world.isRemote && m_animation == TurtleAnimation.MoveForward && m_animationProgress == 4 )
+            if( world.isRemote && m_animation == TurtleAnimation.MOVE_FORWARD && m_animationProgress == 4 )
             {
                 // Spawn love pfx if valentines day
                 Holiday currentHoliday = HolidayUtil.getCurrentHoliday();
-                if( currentHoliday == Holiday.Valentines )
+                if( currentHoliday == Holiday.VALENTINES )
                 {
                     Vec3d position = getVisualPosition( 1.0f );
                     if( position != null )
@@ -938,7 +938,7 @@ public class TurtleBrain implements ITurtleAccess
             m_lastAnimationProgress = m_animationProgress;
             if( ++m_animationProgress >= ANIM_DURATION )
             {
-                m_animation = TurtleAnimation.None;
+                m_animation = TurtleAnimation.NONE;
                 m_animationProgress = 0;
                 m_lastAnimationProgress = 0;
             }

@@ -56,10 +56,10 @@ public class TileEntityTurtleRenderer extends TileEntityRenderer<TileTurtle>
     {
         switch( family )
         {
-            case Normal:
+            case NORMAL:
             default:
                 return coloured ? COLOUR_TURTLE_MODEL : NORMAL_TURTLE_MODEL;
-            case Advanced:
+            case ADVANCED:
                 return coloured ? COLOUR_TURTLE_MODEL : ADVANCED_TURTLE_MODEL;
         }
     }
@@ -121,15 +121,15 @@ public class TileEntityTurtleRenderer extends TileEntityRenderer<TileTurtle>
         renderModel( transform, buffer, lightmapCoord, overlayLight, getTurtleModel( family, colour != -1 ), colour == -1 ? null : new int[] { colour } );
 
         // Render the overlay
-        ModelResourceLocation overlayModel = getTurtleOverlayModel( overlay, HolidayUtil.getCurrentHoliday() == Holiday.Christmas );
+        ModelResourceLocation overlayModel = getTurtleOverlayModel( overlay, HolidayUtil.getCurrentHoliday() == Holiday.CHRISTMAS );
         if( overlayModel != null )
         {
             renderModel( transform, buffer, lightmapCoord, overlayLight, overlayModel, null );
         }
 
         // Render the upgrades
-        renderUpgrade( transform, buffer, lightmapCoord, overlayLight, turtle, TurtleSide.Left, partialTicks );
-        renderUpgrade( transform, buffer, lightmapCoord, overlayLight, turtle, TurtleSide.Right, partialTicks );
+        renderUpgrade( transform, buffer, lightmapCoord, overlayLight, turtle, TurtleSide.LEFT, partialTicks );
+        renderUpgrade( transform, buffer, lightmapCoord, overlayLight, turtle, TurtleSide.RIGHT, partialTicks );
 
         transform.pop();
     }

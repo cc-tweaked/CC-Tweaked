@@ -42,7 +42,7 @@ public class TurtleSuckCommand implements ITurtleCommand
         // Sucking nothing is easy
         if( m_quantity == 0 )
         {
-            turtle.playAnimation( TurtleAnimation.Wait );
+            turtle.playAnimation( TurtleAnimation.WAIT );
             return TurtleCommandResult.success();
         }
 
@@ -82,7 +82,7 @@ public class TurtleSuckCommand implements ITurtleCommand
             // Return true if we consumed anything
             if( remainder != stack )
             {
-                turtle.playAnimation( TurtleAnimation.Wait );
+                turtle.playAnimation( TurtleAnimation.WAIT );
                 return TurtleCommandResult.success();
             }
             else
@@ -142,7 +142,7 @@ public class TurtleSuckCommand implements ITurtleCommand
 
                     // Play fx
                     world.playBroadcastSound( 1000, turtlePosition, 0 ); // BLOCK_DISPENSER_DISPENSE
-                    turtle.playAnimation( TurtleAnimation.Wait );
+                    turtle.playAnimation( TurtleAnimation.WAIT );
                     return TurtleCommandResult.success();
                 }
             }

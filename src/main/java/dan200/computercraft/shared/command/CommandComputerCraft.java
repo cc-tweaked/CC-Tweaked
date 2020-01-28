@@ -205,7 +205,7 @@ public final class CommandComputerCraft
                     int queued = 0;
                     for( ServerComputer computer : computers )
                     {
-                        if( computer.getFamily() == ComputerFamily.Command && computer.isOn() )
+                        if( computer.getFamily() == ComputerFamily.COMMAND && computer.isOn() )
                         {
                             computer.queueEvent( "computer_command", rest );
                             queued++;

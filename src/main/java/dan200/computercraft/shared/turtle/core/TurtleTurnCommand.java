@@ -36,16 +36,16 @@ public class TurtleTurnCommand implements ITurtleCommand
 
         switch( m_direction )
         {
-            case Left:
+            case LEFT:
             {
                 turtle.setDirection( turtle.getDirection().rotateYCCW() );
-                turtle.playAnimation( TurtleAnimation.TurnLeft );
+                turtle.playAnimation( TurtleAnimation.TURN_LEFT );
                 return TurtleCommandResult.success();
             }
-            case Right:
+            case RIGHT:
             {
                 turtle.setDirection( turtle.getDirection().rotateY() );
-                turtle.playAnimation( TurtleAnimation.TurnRight );
+                turtle.playAnimation( TurtleAnimation.TURN_RIGHT );
                 return TurtleCommandResult.success();
             }
             default:

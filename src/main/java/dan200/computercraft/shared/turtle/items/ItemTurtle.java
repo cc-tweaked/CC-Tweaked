@@ -76,8 +76,8 @@ public class ItemTurtle extends ItemComputerBase implements ITurtleItem
     public ITextComponent getDisplayName( @Nonnull ItemStack stack )
     {
         String baseString = getTranslationKey( stack );
-        ITurtleUpgrade left = getUpgrade( stack, TurtleSide.Left );
-        ITurtleUpgrade right = getUpgrade( stack, TurtleSide.Right );
+        ITurtleUpgrade left = getUpgrade( stack, TurtleSide.LEFT );
+        ITurtleUpgrade right = getUpgrade( stack, TurtleSide.RIGHT );
         if( left != null && right != null )
         {
             return new TranslationTextComponent( baseString + ".upgraded_twice",
@@ -110,14 +110,14 @@ public class ItemTurtle extends ItemComputerBase implements ITurtleItem
         // Determine our "creator mod" from the upgrades. We attempt to find the first non-vanilla/non-CC
         // upgrade (starting from the left).
 
-        ITurtleUpgrade left = getUpgrade( stack, TurtleSide.Left );
+        ITurtleUpgrade left = getUpgrade( stack, TurtleSide.LEFT );
         if( left != null )
         {
             String mod = TurtleUpgrades.getOwner( left );
             if( mod != null && !mod.equals( ComputerCraft.MOD_ID ) ) return mod;
         }
 
-        ITurtleUpgrade right = getUpgrade( stack, TurtleSide.Right );
+        ITurtleUpgrade right = getUpgrade( stack, TurtleSide.RIGHT );
         if( right != null )
         {
             String mod = TurtleUpgrades.getOwner( right );
@@ -133,7 +133,7 @@ public class ItemTurtle extends ItemComputerBase implements ITurtleItem
         return TurtleItemFactory.create(
             getComputerID( stack ), getLabel( stack ),
             getColour( stack ), family,
-            getUpgrade( stack, TurtleSide.Left ), getUpgrade( stack, TurtleSide.Right ),
+            getUpgrade( stack, TurtleSide.LEFT ), getUpgrade( stack, TurtleSide.RIGHT ),
             getFuelLevel( stack ), getOverlay( stack )
         );
     }
@@ -144,7 +144,7 @@ public class ItemTurtle extends ItemComputerBase implements ITurtleItem
         CompoundNBT tag = stack.getTag();
         if( tag == null ) return null;
 
-        String key = side == TurtleSide.Left ? NBT_LEFT_UPGRADE : NBT_RIGHT_UPGRADE;
+        String key = side == TurtleSide.LEFT ? NBT_LEFT_UPGRADE : NBT_RIGHT_UPGRADE;
         return tag.contains( key ) ? TurtleUpgrades.get( tag.getString( key ) ) : null;
     }
 

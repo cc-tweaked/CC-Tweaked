@@ -22,8 +22,8 @@ public final class TurtleItemFactory
     @Nonnull
     public static ItemStack create( ITurtleTile turtle )
     {
-        ITurtleUpgrade leftUpgrade = turtle.getAccess().getUpgrade( TurtleSide.Left );
-        ITurtleUpgrade rightUpgrade = turtle.getAccess().getUpgrade( TurtleSide.Right );
+        ITurtleUpgrade leftUpgrade = turtle.getAccess().getUpgrade( TurtleSide.LEFT );
+        ITurtleUpgrade rightUpgrade = turtle.getAccess().getUpgrade( TurtleSide.RIGHT );
 
         String label = turtle.getLabel();
         if( label == null )
@@ -41,9 +41,9 @@ public final class TurtleItemFactory
     {
         switch( family )
         {
-            case Normal:
+            case NORMAL:
                 return ComputerCraft.Items.turtleNormal.create( id, label, colour, leftUpgrade, rightUpgrade, fuelLevel, overlay );
-            case Advanced:
+            case ADVANCED:
                 return ComputerCraft.Items.turtleAdvanced.create( id, label, colour, leftUpgrade, rightUpgrade, fuelLevel, overlay );
             default:
                 return ItemStack.EMPTY;

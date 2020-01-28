@@ -57,12 +57,12 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
 
     public static final NamedTileEntityType<TileTurtle> FACTORY_NORMAL = NamedTileEntityType.create(
         new ResourceLocation( ComputerCraft.MOD_ID, "turtle_normal" ),
-        type -> new TileTurtle( type, ComputerFamily.Normal )
+        type -> new TileTurtle( type, ComputerFamily.NORMAL )
     );
 
     public static final NamedTileEntityType<TileTurtle> FACTORY_ADVANCED = NamedTileEntityType.create(
         new ResourceLocation( ComputerCraft.MOD_ID, "turtle_advanced" ),
-        type -> new TileTurtle( type, ComputerFamily.Advanced )
+        type -> new TileTurtle( type, ComputerFamily.ADVANCED )
     );
 
     enum MoveState
@@ -526,10 +526,10 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
         switch( side )
         {
             case RIGHT:
-                upgrade = getUpgrade( TurtleSide.Right );
+                upgrade = getUpgrade( TurtleSide.RIGHT );
                 break;
             case LEFT:
-                upgrade = getUpgrade( TurtleSide.Left );
+                upgrade = getUpgrade( TurtleSide.LEFT );
                 break;
             default:
                 return false;

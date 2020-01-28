@@ -17,70 +17,70 @@ public enum TurtleAnimation
     /**
      * An animation which does nothing. This takes no time to complete.
      *
-     * @see #Wait
-     * @see #ShortWait
+     * @see #WAIT
+     * @see #SHORT_WAIT
      */
-    None,
+    NONE,
 
     /**
      * Make the turtle move forward. Note that the animation starts from the block <em>behind</em> it, and
      * moves into this one.
      */
-    MoveForward,
+    MOVE_FORWARD,
 
     /**
      * Make the turtle move backwards. Note that the animation starts from the block <em>in front</em> it, and
      * moves into this one.
      */
-    MoveBack,
+    MOVE_BACK,
 
     /**
      * Make the turtle move backwards. Note that the animation starts from the block <em>above</em> it, and
      * moves into this one.
      */
-    MoveUp,
+    MOVE_UP,
 
     /**
      * Make the turtle move backwards. Note that the animation starts from the block <em>below</em> it, and
      * moves into this one.
      */
-    MoveDown,
+    MOVE_DOWN,
 
     /**
      * Turn the turtle to the left. Note that the animation starts with the turtle facing <em>right</em>, and
      * the turtle turns to face in the current direction.
      */
-    TurnLeft,
+    TURN_LEFT,
 
     /**
      * Turn the turtle to the left. Note that the animation starts with the turtle facing <em>right</em>, and
      * the turtle turns to face in the current direction.
      */
-    TurnRight,
+    TURN_RIGHT,
 
     /**
      * Swing the tool on the left.
      */
-    SwingLeftTool,
+    SWING_LEFT_TOOL,
 
     /**
      * Swing the tool on the right.
      */
-    SwingRightTool,
+    SWING_RIGHT_TOOL,
 
     /**
      * Wait until the animation has finished, performing no movement.
      *
-     * @see #ShortWait
-     * @see #None
+     * @see #SHORT_WAIT
+     * @see #NONE
      */
-    Wait,
+    WAIT,
 
     /**
      * Wait until the animation has finished, performing no movement. This takes 4 ticks to complete.
      *
-     * @see #Wait
-     * @see #None
+     * @see #WAIT
+     * @see #NONE
      */
-    ShortWait,
+    SHORT_WAIT,
 }

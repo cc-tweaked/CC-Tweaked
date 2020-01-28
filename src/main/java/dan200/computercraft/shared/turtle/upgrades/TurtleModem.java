@@ -78,7 +78,7 @@ public class TurtleModem extends AbstractTurtleUpgrade
     public TurtleModem( boolean advanced, ResourceLocation id )
     {
         super(
-            id, TurtleUpgradeType.Peripheral,
+            id, TurtleUpgradeType.PERIPHERAL,
             advanced
                 ? ComputerCraft.Blocks.wirelessModemAdvanced
                 : ComputerCraft.Blocks.wirelessModemNormal
@@ -135,7 +135,7 @@ public class TurtleModem extends AbstractTurtleUpgrade
             active = turtleNBT.contains( "active" ) && turtleNBT.getBoolean( "active" );
         }
 
-        return side == TurtleSide.Left
+        return side == TurtleSide.LEFT
             ? TransformedModel.of( active ? m_leftOnModel : m_leftOffModel )
             : TransformedModel.of( active ? m_rightOnModel : m_rightOffModel );
     }

@@ -61,7 +61,7 @@ public class TurtleShovel extends TurtleTool
     @Override
     public TurtleCommandResult useTool( @Nonnull ITurtleAccess turtle, @Nonnull TurtleSide side, @Nonnull TurtleVerb verb, @Nonnull Direction direction )
     {
-        if( verb == TurtleVerb.Dig )
+        if( verb == TurtleVerb.DIG )
         {
             ItemStack shovel = item.copy();
             ItemStack remainder = TurtlePlaceCommand.deploy( shovel, turtle, direction, null, null );

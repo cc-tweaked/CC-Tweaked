@@ -51,19 +51,19 @@ public class TurtleTool extends AbstractTurtleUpgrade
 
     public TurtleTool( ResourceLocation id, String adjective, Item item )
     {
-        super( id, TurtleUpgradeType.Tool, adjective, item );
+        super( id, TurtleUpgradeType.TOOL, adjective, item );
         this.item = new ItemStack( item );
     }
 
     public TurtleTool( ResourceLocation id, Item item )
     {
-        super( id, TurtleUpgradeType.Tool, item );
+        super( id, TurtleUpgradeType.TOOL, item );
         this.item = new ItemStack( item );
     }
 
     public TurtleTool( ResourceLocation id, ItemStack craftItem, ItemStack toolItem )
     {
-        super( id, TurtleUpgradeType.Tool, craftItem );
+        super( id, TurtleUpgradeType.TOOL, craftItem );
         this.item = toolItem;
     }
 
@@ -72,7 +72,7 @@ public class TurtleTool extends AbstractTurtleUpgrade
     @OnlyIn( Dist.CLIENT )
     public TransformedModel getModel( ITurtleAccess turtle, @Nonnull TurtleSide side )
     {
-        float xOffset = side == TurtleSide.Left ? -0.40625f : 0.40625f;
+        float xOffset = side == TurtleSide.LEFT ? -0.40625f : 0.40625f;
         Matrix4f transform = new Matrix4f( new float[] {
             0.0f, 0.0f, -1.0f, 1.0f + xOffset,
             1.0f, 0.0f, 0.0f, 0.0f,
@@ -88,9 +88,9 @@ public class TurtleTool extends AbstractTurtleUpgrade
     {
         switch( verb )
         {
-            case Attack:
+            case ATTACK:
                 return attack( turtle, direction, side );
-            case Dig:
+            case DIG:
                 return dig( turtle, direction, side );
             default:
                 return TurtleCommandResult.failure( "Unsupported action" );

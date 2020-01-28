@@ -114,10 +114,10 @@ public class TurtleSmartItemModel implements IBakedModel
             {
                 ItemTurtle turtle = (ItemTurtle) stack.getItem();
                 int colour = turtle.getColour( stack );
-                ITurtleUpgrade leftUpgrade = turtle.getUpgrade( stack, TurtleSide.Left );
-                ITurtleUpgrade rightUpgrade = turtle.getUpgrade( stack, TurtleSide.Right );
+                ITurtleUpgrade leftUpgrade = turtle.getUpgrade( stack, TurtleSide.LEFT );
+                ITurtleUpgrade rightUpgrade = turtle.getUpgrade( stack, TurtleSide.RIGHT );
                 ResourceLocation overlay = turtle.getOverlay( stack );
-                boolean christmas = HolidayUtil.getCurrentHoliday() == Holiday.Christmas;
+                boolean christmas = HolidayUtil.getCurrentHoliday() == Holiday.CHRISTMAS;
                 String label = turtle.getLabel( stack );
                 boolean flip = label != null && (label.equals( "Dinnerbone" ) || label.equals( "Grumm" ));
                 TurtleModelCombination combo = new TurtleModelCombination( colour != -1, leftUpgrade, rightUpgrade, overlay, christmas, flip );
@@ -145,8 +145,8 @@ public class TurtleSmartItemModel implements IBakedModel
         IBakedModel baseModel = combo.m_colour ? colourModel : familyModel;
         IBakedModel overlayModel = overlayModelLocation != null ? modelManager.getModel( overlayModelLocation ) : null;
         TransformationMatrix transform = combo.m_flip ? flip : identity;
-        TransformedModel leftModel = combo.m_leftUpgrade != null ? combo.m_leftUpgrade.getModel( null, TurtleSide.Left ) : null;
-        TransformedModel rightModel = combo.m_rightUpgrade != null ? combo.m_rightUpgrade.getModel( null, TurtleSide.Right ) : null;
+        TransformedModel leftModel = combo.m_leftUpgrade != null ? combo.m_leftUpgrade.getModel( null, TurtleSide.LEFT ) : null;
+        TransformedModel rightModel = combo.m_rightUpgrade != null ? combo.m_rightUpgrade.getModel( null, TurtleSide.RIGHT ) : null;
         return new TurtleMultiModel( baseModel, overlayModel, transform, leftModel, rightModel );
     }
 

@@ -57,7 +57,7 @@ public class TurtleHoe extends TurtleTool
     @Override
     public TurtleCommandResult useTool( @Nonnull ITurtleAccess turtle, @Nonnull TurtleSide side, @Nonnull TurtleVerb verb, @Nonnull Direction direction )
     {
-        if( verb == TurtleVerb.Dig )
+        if( verb == TurtleVerb.DIG )
         {
             ItemStack hoe = item.copy();
             ItemStack remainder = TurtlePlaceCommand.deploy( hoe, turtle, direction, null, null );

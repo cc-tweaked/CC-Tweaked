@@ -84,17 +84,17 @@ public final class Registry
         // Computers
         ComputerCraft.Blocks.computerNormal = new BlockComputer(
             Block.Properties.create( Material.ROCK ).hardnessAndResistance( 2.0f ),
-            ComputerFamily.Normal, TileComputer.FACTORY_NORMAL
+            ComputerFamily.NORMAL, TileComputer.FACTORY_NORMAL
         );
 
         ComputerCraft.Blocks.computerAdvanced = new BlockComputer(
             Block.Properties.create( Material.ROCK ).hardnessAndResistance( 2.0f ),
-            ComputerFamily.Advanced, TileComputer.FACTORY_ADVANCED
+            ComputerFamily.ADVANCED, TileComputer.FACTORY_ADVANCED
         );
 
         ComputerCraft.Blocks.computerCommand = new BlockComputer(
             Block.Properties.create( Material.ROCK ).hardnessAndResistance( -1, 6000000.0F ),
-            ComputerFamily.Command, TileCommandComputer.FACTORY
+            ComputerFamily.COMMAND, TileCommandComputer.FACTORY
         );
 
         registry.registerAll(
@@ -106,12 +106,12 @@ public final class Registry
         // Turtles
         ComputerCraft.Blocks.turtleNormal = new BlockTurtle(
             Block.Properties.create( Material.ROCK ).hardnessAndResistance( 2.5f ),
-            ComputerFamily.Normal, TileTurtle.FACTORY_NORMAL
+            ComputerFamily.NORMAL, TileTurtle.FACTORY_NORMAL
         );
 
         ComputerCraft.Blocks.turtleAdvanced = new BlockTurtle(
             Block.Properties.create( Material.ROCK ).hardnessAndResistance( 2.5f ),
-            ComputerFamily.Advanced, TileTurtle.FACTORY_ADVANCED
+            ComputerFamily.ADVANCED, TileTurtle.FACTORY_ADVANCED
         );
 
         registry.registerAll(
@@ -234,8 +234,8 @@ public final class Registry
         );
 
         // Pocket computer
-        ComputerCraft.Items.pocketComputerNormal = new ItemPocketComputer( defaultItem().maxStackSize( 1 ), ComputerFamily.Normal );
-        ComputerCraft.Items.pocketComputerAdvanced = new ItemPocketComputer( defaultItem().maxStackSize( 1 ), ComputerFamily.Advanced );
+        ComputerCraft.Items.pocketComputerNormal = new ItemPocketComputer( defaultItem().maxStackSize( 1 ), ComputerFamily.NORMAL );
+        ComputerCraft.Items.pocketComputerAdvanced = new ItemPocketComputer( defaultItem().maxStackSize( 1 ), ComputerFamily.ADVANCED );
 
         registry.registerAll(
             ComputerCraft.Items.pocketComputerNormal.setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "pocket_computer_normal" ) ),

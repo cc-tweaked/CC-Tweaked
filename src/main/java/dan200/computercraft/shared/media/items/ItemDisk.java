@@ -126,6 +126,6 @@ public class ItemDisk extends Item implements IMedia, IColouredItem
     public int getColour( @Nonnull ItemStack stack )
     {
         int colour = IColouredItem.getColourBasic( stack );
-        return colour == -1 ? Colour.White.getHex() : colour;
+        return colour == -1 ? Colour.WHITE.getHex() : colour;
     }
 }

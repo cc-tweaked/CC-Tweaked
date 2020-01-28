@@ -13,10 +13,10 @@ public enum TurtleSide
     /**
      * The turtle's left side (where the pickaxe usually is on a Wireless Mining Turtle).
      */
-    Left,
+    LEFT,
 
     /**
      * The turtle's right side (where the modem usually is on a Wireless Mining Turtle).
      */
-    Right,
+    RIGHT,
 }

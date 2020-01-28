@@ -20,10 +20,10 @@ public final class HolidayUtil
     {
         int month = calendar.get( Calendar.MONTH );
         int day = calendar.get( Calendar.DAY_OF_MONTH );
-        if( month == Calendar.FEBRUARY && day == 14 ) return Holiday.Valentines;
-        if( month == Calendar.APRIL && day == 1 ) return Holiday.AprilFoolsDay;
-        if( month == Calendar.OCTOBER && day == 31 ) return Holiday.Halloween;
-        if( month == Calendar.DECEMBER && day >= 24 && day <= 30 ) return Holiday.Christmas;
-        return Holiday.None;
+        if( month == Calendar.FEBRUARY && day == 14 ) return Holiday.VALENTINES;
+        if( month == Calendar.APRIL && day == 1 ) return Holiday.APRIL_FOOLS_DAY;
+        if( month == Calendar.OCTOBER && day == 31 ) return Holiday.HALLOWEEN;
+        if( month == Calendar.DECEMBER && day >= 24 && day <= 30 ) return Holiday.CHRISTMAS;
+        return Holiday.NONE;
     }
 }

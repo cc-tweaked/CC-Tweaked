@@ -21,9 +21,9 @@ public final class PocketComputerItemFactory
     {
         switch( family )
         {
-            case Normal:
+            case NORMAL:
                 return ComputerCraft.Items.pocketComputerNormal.create( id, label, colour, upgrade );
-            case Advanced:
+            case ADVANCED:
                 return ComputerCraft.Items.pocketComputerAdvanced.create( id, label, colour, upgrade );
             default:
                 return ItemStack.EMPTY;

@@ -92,7 +92,7 @@ public class TurtleEquipCommand implements ITurtleCommand
         // Animate
         if( newUpgrade != null || oldUpgrade != null )
         {
-            turtle.playAnimation( TurtleAnimation.Wait );
+            turtle.playAnimation( TurtleAnimation.WAIT );
         }
 
         return TurtleCommandResult.success();

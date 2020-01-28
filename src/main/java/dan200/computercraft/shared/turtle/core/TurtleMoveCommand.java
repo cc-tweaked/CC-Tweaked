@@ -72,7 +72,7 @@ public class TurtleMoveCommand implements ITurtleCommand
 
         if( !oldWorld.checkNoEntityCollision( null, collision ) )
         {
-            if( !ComputerCraft.turtlesCanPush || m_direction == MoveDirection.Up || m_direction == MoveDirection.Down )
+            if( !ComputerCraft.turtlesCanPush || m_direction == MoveDirection.UP || m_direction == MoveDirection.DOWN )
             {
                 return TurtleCommandResult.failure( "Movement obstructed" );
             }
@@ -114,18 +114,18 @@ public class TurtleMoveCommand implements ITurtleCommand
         // Animate
         switch( m_direction )
         {
-            case Forward:
+            case FORWARD:
             default:
-                turtle.playAnimation( TurtleAnimation.MoveForward );
+                turtle.playAnimation( TurtleAnimation.MOVE_FORWARD );
                 break;
-            case Back:
-                turtle.playAnimation( TurtleAnimation.MoveBack );
+            case BACK:
+                turtle.playAnimation( TurtleAnimation.MOVE_BACK );
                 break;
-            case Up:
-                turtle.playAnimation( TurtleAnimation.MoveUp );
+            case UP:
+                turtle.playAnimation( TurtleAnimation.MOVE_UP );
                 break;
-            case Down:
-                turtle.playAnimation( TurtleAnimation.MoveDown );
+            case DOWN:
+                turtle.playAnimation( TurtleAnimation.MOVE_DOWN );
                 break;
         }
         return TurtleCommandResult.success();

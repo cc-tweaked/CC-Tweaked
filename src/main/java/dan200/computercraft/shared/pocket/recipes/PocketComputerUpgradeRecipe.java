@@ -37,7 +37,7 @@ public final class PocketComputerUpgradeRecipe extends SpecialRecipe
     @Override
     public ItemStack getRecipeOutput()
     {
-        return PocketComputerItemFactory.create( -1, null, -1, ComputerFamily.Normal, null );
+        return PocketComputerItemFactory.create( -1, null, -1, ComputerFamily.NORMAL, null );
     }
 
     @Override

@@ -86,7 +86,7 @@ public class TurtlePlaceCommand implements ITurtleCommand
             turtle.getInventory().markDirty();
 
             // Animate and return success
-            turtle.playAnimation( TurtleAnimation.Wait );
+            turtle.playAnimation( TurtleAnimation.WAIT );
             return TurtleCommandResult.success();
         }
         else

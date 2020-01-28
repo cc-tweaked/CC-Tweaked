@@ -27,12 +27,12 @@ public class TileComputer extends TileComputerBase
 {
     public static final NamedTileEntityType<TileComputer> FACTORY_NORMAL = NamedTileEntityType.create(
         new ResourceLocation( ComputerCraft.MOD_ID, "computer_normal" ),
-        f -> new TileComputer( ComputerFamily.Normal, f )
+        f -> new TileComputer( ComputerFamily.NORMAL, f )
     );
 
     public static final NamedTileEntityType<TileComputer> FACTORY_ADVANCED = NamedTileEntityType.create(
         new ResourceLocation( ComputerCraft.MOD_ID, "computer_advanced" ),
-        f -> new TileComputer( ComputerFamily.Advanced, f )
+        f -> new TileComputer( ComputerFamily.ADVANCED, f )
     );
 
     private ComputerProxy m_proxy;

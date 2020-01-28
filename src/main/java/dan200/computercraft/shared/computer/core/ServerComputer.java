@@ -50,7 +50,7 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
 
     public ServerComputer( World world, int computerID, String label, int instanceID, ComputerFamily family, int terminalWidth, int terminalHeight )
     {
-        super( family != ComputerFamily.Normal, terminalWidth, terminalHeight );
+        super( family != ComputerFamily.NORMAL, terminalWidth, terminalHeight );
         m_instanceID = instanceID;
 
         m_world = world;

@@ -134,6 +134,6 @@ public class ItemTreasureDisk extends Item implements IMedia
     public static int getColour( @Nonnull ItemStack stack )
     {
         CompoundNBT nbt = stack.getTag();
-        return nbt != null && nbt.contains( NBT_COLOUR ) ? nbt.getInt( NBT_COLOUR ) : Colour.Blue.getHex();
+        return nbt != null && nbt.contains( NBT_COLOUR ) ? nbt.getInt( NBT_COLOUR ) : Colour.BLUE.getHex();
     }
 }

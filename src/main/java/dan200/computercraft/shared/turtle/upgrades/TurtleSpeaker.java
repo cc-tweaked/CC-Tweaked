@@ -63,7 +63,7 @@ public class TurtleSpeaker extends AbstractTurtleUpgrade
 
     public TurtleSpeaker( ResourceLocation id )
     {
-        super( id, TurtleUpgradeType.Peripheral, ComputerCraft.Blocks.speaker );
+        super( id, TurtleUpgradeType.PERIPHERAL, ComputerCraft.Blocks.speaker );
     }
 
     @Override
@@ -88,7 +88,7 @@ public class TurtleSpeaker extends AbstractTurtleUpgrade
     public TransformedModel getModel( ITurtleAccess turtle, @Nonnull TurtleSide side )
     {
         loadModelLocations();
-        return TransformedModel.of( side == TurtleSide.Left ? m_leftModel : m_rightModel );
+        return TransformedModel.of( side == TurtleSide.LEFT ? m_leftModel : m_rightModel );
     }
 
     @Override

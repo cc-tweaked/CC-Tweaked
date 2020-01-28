@@ -45,7 +45,7 @@ public class TurtleCraftCommand implements ITurtleCommand
             }
         }
 
-        if( !results.isEmpty() ) turtle.playAnimation( TurtleAnimation.Wait );
+        if( !results.isEmpty() ) turtle.playAnimation( TurtleAnimation.WAIT );
         return TurtleCommandResult.success();
     }
 }

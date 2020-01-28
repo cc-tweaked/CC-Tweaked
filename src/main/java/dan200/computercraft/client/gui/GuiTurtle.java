@@ -110,7 +110,7 @@ public class GuiTurtle extends ContainerScreen<ContainerTurtle>
     protected void drawGuiContainerBackgroundLayer( float partialTicks, int mouseX, int mouseY )
     {
         // Draw term
-        boolean advanced = m_family == ComputerFamily.Advanced;
+        boolean advanced = m_family == ComputerFamily.ADVANCED;
         terminal.draw( terminalWrapper.getX(), terminalWrapper.getY() );
 
         // Draw border/inventory

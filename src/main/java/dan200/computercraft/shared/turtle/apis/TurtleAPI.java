@@ -133,11 +133,11 @@ public class TurtleAPI implements ILuaAPI
         }
         else if( side.equalsIgnoreCase( "left" ) )
         {
-            return TurtleSide.Left;
+            return TurtleSide.LEFT;
         }
         else if( side.equalsIgnoreCase( "right" ) )
         {
-            return TurtleSide.Right;
+            return TurtleSide.RIGHT;
         }
         else
         {
@@ -152,58 +152,58 @@ public class TurtleAPI implements ILuaAPI
         {
             case 0: // forward
                 m_environment.addTrackingChange( TrackingField.TURTLE_OPS );
-                return tryCommand( context, new TurtleMoveCommand( MoveDirection.Forward ) );
+                return tryCommand( context, new TurtleMoveCommand( MoveDirection.FORWARD ) );
             case 1: // back
                 m_environment.addTrackingChange( TrackingField.TURTLE_OPS );
-                return tryCommand( context, new TurtleMoveCommand( MoveDirection.Back ) );
+                return tryCommand( context, new TurtleMoveCommand( MoveDirection.BACK ) );
             case 2: // up
                 m_environment.addTrackingChange( TrackingField.TURTLE_OPS );
-                return tryCommand( context, new TurtleMoveCommand( MoveDirection.Up ) );
+                return tryCommand( context, new TurtleMoveCommand( MoveDirection.UP ) );
             case 3: // down
                 m_environment.addTrackingChange( TrackingField.TURTLE_OPS );
-                return tryCommand( context, new TurtleMoveCommand( MoveDirection.Down ) );
+                return tryCommand( context, new TurtleMoveCommand( MoveDirection.DOWN ) );
             case 4: // turnLeft
                 m_environment.addTrackingChange( TrackingField.TURTLE_OPS );
-                return tryCommand( context, new TurtleTurnCommand( TurnDirection.Left ) );
+                return tryCommand( context, new TurtleTurnCommand( TurnDirection.LEFT ) );
             case 5: // turnRight
                 m_environment.addTrackingChange( TrackingField.TURTLE_OPS );
-                return tryCommand( context, new TurtleTurnCommand( TurnDirection.Right ) );
+                return tryCommand( context, new TurtleTurnCommand( TurnDirection.RIGHT ) );
             case 6:
             {
                 // dig
                 TurtleSide side = parseSide( args, 0 );
                 m_environment.addTrackingChange( TrackingField.TURTLE_OPS );
-                return tryCommand( context, TurtleToolCommand.dig( InteractDirection.Forward, side ) );
+                return tryCommand( context, TurtleToolCommand.dig( InteractDirection.FORWARD, side ) );
             }
             case 7:
             {
                 // digUp
                 TurtleSide side = parseSide( args, 0 );
                 m_environment.addTrackingChange( TrackingField.TURTLE_OPS );
-                return tryCommand( context, TurtleToolCommand.dig( InteractDirection.Up, side ) );
+                return tryCommand( context, TurtleToolCommand.dig( InteractDirection.UP, side ) );
             }
             case 8:
             {
                 // digDown
                 TurtleSide side = parseSide( args, 0 );
                 m_environment.addTrackingChange( TrackingField.TURTLE_OPS );
-                return tryCommand( context, TurtleToolCommand.dig( InteractDirection.Down, side ) );
+                return tryCommand( context, TurtleToolCommand.dig( InteractDirection.DOWN, side ) );
             }
             case 9: // place
                 m_environment.addTrackingChange( TrackingField.TURTLE_OPS );
-                return tryCommand( context, new TurtlePlaceCommand( InteractDirection.Forward, args ) );
+                return tryCommand( context, new TurtlePlaceCommand( InteractDirection.FORWARD, args ) );
             case 10: // placeUp
                 m_environment.addTrackingChange( TrackingField.TURTLE_OPS );
-                return tryCommand( context, new TurtlePlaceCommand( InteractDirection.Up, args ) );
+                return tryCommand( context, new TurtlePlaceCommand( InteractDirection.UP, args ) );
             case 11: // placeDown
                 m_environment.addTrackingChange( TrackingField.TURTLE_OPS );
-                return tryCommand( context, new TurtlePlaceCommand( InteractDirection.Down, args ) );
+                return tryCommand( context, new TurtlePlaceCommand( InteractDirection.DOWN, args ) );
             case 12:
             {
                 // drop
                 int count = parseCount( args, 0 );
                 m_environment.addTrackingChange( TrackingField.TURTLE_OPS );
-                return tryCommand( context, new TurtleDropCommand( InteractDirection.Forward, count ) );
+                return tryCommand( context, new TurtleDropCommand( InteractDirection.FORWARD, count ) );
             }
             case 13:
             {
@@ -229,72 +229,72 @@ public class TurtleAPI implements ILuaAPI
                 return new Object[] { stack.isEmpty() ? 64 : Math.min( stack.getMaxStackSize(), 64 ) - stack.getCount() };
             }
             case 16: // detect
-                return tryCommand( context, new TurtleDetectCommand( InteractDirection.Forward ) );
+                return tryCommand( context, new TurtleDetectCommand( InteractDirection.FORWARD ) );
             case 17: // detectUp
-                return tryCommand( context, new TurtleDetectCommand( InteractDirection.Up ) );
+                return tryCommand( context, new TurtleDetectCommand( InteractDirection.UP ) );
             case 18: // detectDown
-                return tryCommand( context, new TurtleDetectCommand( InteractDirection.Down ) );
+                return tryCommand( context, new TurtleDetectCommand( InteractDirection.DOWN ) );
             case 19: // compare
-                return tryCommand( context, new TurtleCompareCommand( InteractDirection.Forward ) );
+                return tryCommand( context, new TurtleCompareCommand( InteractDirection.FORWARD ) );
             case 20: // compareUp
-                return tryCommand( context, new TurtleCompareCommand( InteractDirection.Up ) );
+                return tryCommand( context, new TurtleCompareCommand( InteractDirection.UP ) );
             case 21: // compareDown
-                return tryCommand( context, new TurtleCompareCommand( InteractDirection.Down ) );
+                return tryCommand( context, new TurtleCompareCommand( InteractDirection.DOWN ) );
             case 22:
             {
                 // attack
                 TurtleSide side = parseSide( args, 0 );
                 m_environment.addTrackingChange( TrackingField.TURTLE_OPS );
-                return tryCommand( context, TurtleToolCommand.attack( InteractDirection.Forward, side ) );
+                return tryCommand( context, TurtleToolCommand.attack( InteractDirection.FORWARD, side ) );
             }
             case 23:
             {
                 // attackUp
                 TurtleSide side = parseSide( args, 0 );
                 m_environment.addTrackingChange( TrackingField.TURTLE_OPS );
-                return tryCommand( context, TurtleToolCommand.attack( InteractDirection.Up, side ) );
+                return tryCommand( context, TurtleToolCommand.attack( InteractDirection.UP, side ) );
             }
             case 24:
             {
                 // attackDown
                 TurtleSide side = parseSide( args, 0 );
                 m_environment.addTrackingChange( TrackingField.TURTLE_OPS );
-                return tryCommand( context, TurtleToolCommand.attack( InteractDirection.Down, side ) );
+                return tryCommand( context, TurtleToolCommand.attack( InteractDirection.DOWN, side ) );
             }
             case 25:
             {
                 // dropUp
                 int count = parseCount( args, 0 );
                 m_environment.addTrackingChange( TrackingField.TURTLE_OPS );
-                return tryCommand( context, new TurtleDropCommand( InteractDirection.Up, count ) );
+                return tryCommand( context, new TurtleDropCommand( InteractDirection.UP, count ) );
             }
             case 26:
             {
                 // dropDown
                 int count = parseCount( args, 0 );
                 m_environment.addTrackingChange( TrackingField.TURTLE_OPS );
-                return tryCommand( context, new TurtleDropCommand( InteractDirection.Down, count ) );
+                return tryCommand( context, new TurtleDropCommand( InteractDirection.DOWN, count ) );
             }
             case 27:
             {
                 // suck
                 int count = parseCount( args, 0 );
                 m_environment.addTrackingChange( TrackingField.TURTLE_OPS );
-                return tryCommand( context, new TurtleSuckCommand( InteractDirection.Forward, count ) );
+                return tryCommand( context, new TurtleSuckCommand( InteractDirection.FORWARD, count ) );
             }
             case 28:
             {
                 // suckUp
                 int count = parseCount( args, 0 );
                 m_environment.addTrackingChange( TrackingField.TURTLE_OPS );
-                return tryCommand( context, new TurtleSuckCommand( InteractDirection.Up, count ) );
+                return tryCommand( context, new TurtleSuckCommand( InteractDirection.UP, count ) );
             }
             case 29:
             {
                 // suckDown
                 int count = parseCount( args, 0 );
                 m_environment.addTrackingChange( TrackingField.TURTLE_OPS );
-                return tryCommand( context, new TurtleSuckCommand( InteractDirection.Down, count ) );
+                return tryCommand( context, new TurtleSuckCommand( InteractDirection.DOWN, count ) );
             }
             case 30: // getFuelLevel
                 return new Object[] { m_turtle.isFuelNeeded() ? m_turtle.getFuelLevel() : "unlimited" };
@@ -324,16 +324,16 @@ public class TurtleAPI implements ILuaAPI
                 return new Object[] { m_turtle.isFuelNeeded() ? m_turtle.getFuelLimit() : "unlimited" };
             case 36: // equipLeft
                 m_environment.addTrackingChange( TrackingField.TURTLE_OPS );
-                return tryCommand( context, new TurtleEquipCommand( TurtleSide.Left ) );
+                return tryCommand( context, new TurtleEquipCommand( TurtleSide.LEFT ) );
             case 37: // equipRight
                 m_environment.addTrackingChange( TrackingField.TURTLE_OPS );
-                return tryCommand( context, new TurtleEquipCommand( TurtleSide.Right ) );
+                return tryCommand( context, new TurtleEquipCommand( TurtleSide.RIGHT ) );
             case 38: // inspect
-                return tryCommand( context, new TurtleInspectCommand( InteractDirection.Forward ) );
+                return tryCommand( context, new TurtleInspectCommand( InteractDirection.FORWARD ) );
             case 39: // inspectUp
-                return tryCommand( context, new TurtleInspectCommand( InteractDirection.Up ) );
+                return tryCommand( context, new TurtleInspectCommand( InteractDirection.UP ) );
             case 40: // inspectDown
-                return tryCommand( context, new TurtleInspectCommand( InteractDirection.Down ) );
+                return tryCommand( context, new TurtleInspectCommand( InteractDirection.DOWN ) );
             case 41: // getItemDetail
             {
                 // FIXME: There's a race condition here if the stack is being modified (mutating NBT, etc...)

@@ -37,7 +37,7 @@ import static net.minecraft.util.NonNullList.from;
 
 class RecipeResolver implements IRecipeManagerPlugin
 {
-    static final ComputerFamily[] MAIN_FAMILIES = new ComputerFamily[] { ComputerFamily.Normal, ComputerFamily.Advanced };
+    static final ComputerFamily[] MAIN_FAMILIES = new ComputerFamily[] { ComputerFamily.NORMAL, ComputerFamily.ADVANCED };
 
     private final Map<Item, List<UpgradeInfo>> upgradeItemLookup = new HashMap<>();
     private final List<UpgradeInfo> pocketUpgrades = new ArrayList<>();
@@ -150,8 +150,8 @@ class RecipeResolver implements IRecipeManagerPlugin
         {
             // Suggest possible upgrades which can be applied to this turtle
             ITurtleItem item = (ITurtleItem) stack.getItem();
-            ITurtleUpgrade left = item.getUpgrade( stack, TurtleSide.Left );
-            ITurtleUpgrade right = item.getUpgrade( stack, TurtleSide.Right );
+            ITurtleUpgrade left = item.getUpgrade( stack, TurtleSide.LEFT );
+            ITurtleUpgrade right = item.getUpgrade( stack, TurtleSide.RIGHT );
             if( left != null && right != null ) return Collections.emptyList();
 
             List<Shaped> recipes = new ArrayList<>();
@@ -231,8 +231,8 @@ class RecipeResolver implements IRecipeManagerPlugin
             ITurtleItem item = (ITurtleItem) stack.getItem();
             List<Shaped> recipes = new ArrayList<>( 0 );
 
-            ITurtleUpgrade left = item.getUpgrade( stack, TurtleSide.Left );
-            ITurtleUpgrade right = item.getUpgrade( stack, TurtleSide.Right );
+            ITurtleUpgrade left = item.getUpgrade( stack, TurtleSide.LEFT );
+            ITurtleUpgrade right = item.getUpgrade( stack, TurtleSide.RIGHT );
 
             // The turtle is facing towards us, so upgrades on the left are actually crafted on the right.
             if( left != null )

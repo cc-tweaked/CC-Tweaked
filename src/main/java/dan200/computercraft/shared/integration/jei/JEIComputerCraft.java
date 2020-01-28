@@ -116,8 +116,8 @@ public class JEIComputerCraft implements IModPlugin
         StringBuilder name = new StringBuilder();
 
         // Add left and right upgrades to the identifier
-        ITurtleUpgrade left = turtle.getUpgrade( stack, TurtleSide.Left );
-        ITurtleUpgrade right = turtle.getUpgrade( stack, TurtleSide.Right );
+        ITurtleUpgrade left = turtle.getUpgrade( stack, TurtleSide.LEFT );
+        ITurtleUpgrade right = turtle.getUpgrade( stack, TurtleSide.RIGHT );
         if( left != null ) name.append( left.getUpgradeID() );
         if( left != null && right != null ) name.append( '|' );
         if( right != null ) name.append( right.getUpgradeID() );

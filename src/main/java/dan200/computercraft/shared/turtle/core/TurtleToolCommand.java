@@ -41,14 +41,14 @@ public class TurtleToolCommand implements ITurtleCommand
             {
                 switch( side )
                 {
-                    case Left:
-                        turtle.playAnimation( TurtleAnimation.SwingLeftTool );
+                    case LEFT:
+                        turtle.playAnimation( TurtleAnimation.SWING_LEFT_TOOL );
                         break;
-                    case Right:
-                        turtle.playAnimation( TurtleAnimation.SwingRightTool );
+                    case RIGHT:
+                        turtle.playAnimation( TurtleAnimation.SWING_RIGHT_TOOL );
                         break;
                     default:
-                        turtle.playAnimation( TurtleAnimation.Wait );
+                        turtle.playAnimation( TurtleAnimation.WAIT );
                         break;
                 }
                 return result;
@@ -64,11 +64,11 @@ public class TurtleToolCommand implements ITurtleCommand
 
     public static TurtleToolCommand attack( InteractDirection direction, @Nullable TurtleSide side )
     {
-        return new TurtleToolCommand( TurtleVerb.Attack, direction, side );
+        return new TurtleToolCommand( TurtleVerb.ATTACK, direction, side );
     }
 
     public static TurtleToolCommand dig( InteractDirection direction, @Nullable TurtleSide side )
     {
-        return new TurtleToolCommand( TurtleVerb.Dig, direction, side );
+        return new TurtleToolCommand( TurtleVerb.DIG, direction, side );
     }
 }

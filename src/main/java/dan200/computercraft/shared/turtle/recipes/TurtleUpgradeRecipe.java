@@ -38,7 +38,7 @@ public final class TurtleUpgradeRecipe extends SpecialRecipe
     @Override
     public ItemStack getRecipeOutput()
     {
-        return TurtleItemFactory.create( -1, null, -1, ComputerFamily.Normal, null, null, 0, null );
+        return TurtleItemFactory.create( -1, null, -1, ComputerFamily.NORMAL, null, null, 0, null );
     }
 
     @Override
@@ -142,8 +142,8 @@ public final class TurtleUpgradeRecipe extends SpecialRecipe
         ITurtleItem itemTurtle = (ITurtleItem) turtle.getItem();
         ComputerFamily family = itemTurtle.getFamily();
         ITurtleUpgrade[] upgrades = new ITurtleUpgrade[] {
-            itemTurtle.getUpgrade( turtle, TurtleSide.Left ),
-            itemTurtle.getUpgrade( turtle, TurtleSide.Right ),
+            itemTurtle.getUpgrade( turtle, TurtleSide.LEFT ),
+            itemTurtle.getUpgrade( turtle, TurtleSide.RIGHT ),
         };
 
         // Get the upgrades for the new items

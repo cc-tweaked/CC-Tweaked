@@ -39,7 +39,7 @@ public class TurtleDropCommand implements ITurtleCommand
         // Dropping nothing is easy
         if( m_quantity == 0 )
         {
-            turtle.playAnimation( TurtleAnimation.Wait );
+            turtle.playAnimation( TurtleAnimation.WAIT );
             return TurtleCommandResult.success();
         }
 
@@ -83,7 +83,7 @@ public class TurtleDropCommand implements ITurtleCommand
             // Return true if we stored anything
             if( remainder != stack )
             {
-                turtle.playAnimation( TurtleAnimation.Wait );
+                turtle.playAnimation( TurtleAnimation.WAIT );
                 return TurtleCommandResult.success();
             }
             else
@@ -96,7 +96,7 @@ public class TurtleDropCommand implements ITurtleCommand
             // Drop the item into the world
             WorldUtil.dropItemStack( stack, world, oldPosition, direction );
             world.playBroadcastSound( 1000, newPosition, 0 );
-            turtle.playAnimation( TurtleAnimation.Wait );
+            turtle.playAnimation( TurtleAnimation.WAIT );
             return TurtleCommandResult.success();
         }
     }

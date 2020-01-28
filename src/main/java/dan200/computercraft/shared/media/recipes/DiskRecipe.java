@@ -87,7 +87,7 @@ public class DiskRecipe extends SpecialRecipe
             }
         }
 
-        return ItemDisk.createFromIDAndColour( -1, null, tracker.hasColour() ? tracker.getColour() : Colour.Blue.getHex() );
+        return ItemDisk.createFromIDAndColour( -1, null, tracker.hasColour() ? tracker.getColour() : Colour.BLUE.getHex() );
     }
 
     @Override
@@ -100,7 +100,7 @@ public class DiskRecipe extends SpecialRecipe
     @Override
     public ItemStack getRecipeOutput()
     {
-        return ItemDisk.createFromIDAndColour( -1, null, Colour.Blue.getHex() );
+        return ItemDisk.createFromIDAndColour( -1, null, Colour.BLUE.getHex() );
     }
 
     @Nonnull

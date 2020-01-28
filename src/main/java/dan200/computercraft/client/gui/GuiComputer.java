@@ -137,14 +137,14 @@ public final class GuiComputer<T extends ContainerComputerBase> extends Containe
         RenderSystem.color4f( 1.0f, 1.0f, 1.0f, 1.0f );
         switch( m_family )
         {
-            case Normal:
+            case NORMAL:
             default:
                 minecraft.getTextureManager().bindTexture( BACKGROUND_NORMAL );
                 break;
-            case Advanced:
+            case ADVANCED:
                 minecraft.getTextureManager().bindTexture( BACKGROUND_ADVANCED );
                 break;
-            case Command:
+            case COMMAND:
                 minecraft.getTextureManager().bindTexture( BACKGROUND_COMMAND );
                 break;
         }

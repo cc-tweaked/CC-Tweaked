@@ -80,7 +80,7 @@ public abstract class ItemComputerBase extends BlockItem implements IComputerIte
     public IMount createDataMount( @Nonnull ItemStack stack, @Nonnull World world )
     {
         ComputerFamily family = getFamily();
-        if( family != ComputerFamily.Command )
+        if( family != ComputerFamily.COMMAND )
         {
             int id = getComputerID( stack );
             if( id >= 0 )

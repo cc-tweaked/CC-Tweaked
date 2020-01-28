@@ -10,23 +10,23 @@ import net.minecraft.util.Direction;
 
 public enum MoveDirection
 {
-    Forward,
-    Back,
-    Up,
-    Down;
+    FORWARD,
+    BACK,
+    UP,
+    DOWN;
 
     public Direction toWorldDir( ITurtleAccess turtle )
     {
         switch( this )
         {
-            case Forward:
+            case FORWARD:
             default:
                 return turtle.getDirection();
-            case Back:
+            case BACK:
                 return turtle.getDirection().getOpposite();
-            case Up:
+            case UP:
                 return Direction.UP;
-            case Down:
+            case DOWN:
                 return Direction.DOWN;
         }
     }

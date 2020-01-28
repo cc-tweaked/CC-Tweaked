@@ -609,7 +609,7 @@ final class ComputerExecutor
         terminal.reset();
 
         // Display our primary error message
-        if( colour ) terminal.setTextColour( 15 - Colour.Red.ordinal() );
+        if( colour ) terminal.setTextColour( 15 - Colour.RED.ordinal() );
         terminal.write( message );
 
         if( extra != null )
@@ -622,7 +622,7 @@ final class ComputerExecutor
 
         // And display our generic "CC may be installed incorrectly" message.
         terminal.setCursorPos( 0, terminal.getCursorY() + 1 );
-        if( colour ) terminal.setTextColour( 15 - Colour.White.ordinal() );
+        if( colour ) terminal.setTextColour( 15 - Colour.WHITE.ordinal() );
         terminal.write( "ComputerCraft may be installed incorrectly" );
     }
 

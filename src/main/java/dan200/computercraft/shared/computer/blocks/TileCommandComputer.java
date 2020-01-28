@@ -32,7 +32,7 @@ public class TileCommandComputer extends TileComputer
 {
     public static final NamedTileEntityType<TileCommandComputer> FACTORY = NamedTileEntityType.create(
         new ResourceLocation( ComputerCraft.MOD_ID, "command_computer" ),
-        f -> new TileCommandComputer( ComputerFamily.Command, f )
+        f -> new TileCommandComputer( ComputerFamily.COMMAND, f )
     );
 
     public class CommandReceiver implements ICommandSource

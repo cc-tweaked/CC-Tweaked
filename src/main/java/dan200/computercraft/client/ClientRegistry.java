@@ -130,7 +130,7 @@ public final class ClientRegistry
                 case 2: // Light colour
                 {
                     int light = ItemPocketComputer.getLightState( stack );
-                    return light == -1 ? Colour.Black.getHex() : light;
+                    return light == -1 ? Colour.BLACK.getHex() : light;
                 }
             }
         }, ComputerCraft.Items.pocketComputerNormal, ComputerCraft.Items.pocketComputerAdvanced );

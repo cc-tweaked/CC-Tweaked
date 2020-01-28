@@ -48,7 +48,7 @@ public class ContainerViewComputer extends ContainerComputerBase implements ICon
         }
 
         // If we're a command computer then ensure we're in creative
-        if( computer.getFamily() == ComputerFamily.Command )
+        if( computer.getFamily() == ComputerFamily.COMMAND )
         {
             MinecraftServer server = player.getServer();
             if( server == null || !server.isCommandBlockEnabled() )

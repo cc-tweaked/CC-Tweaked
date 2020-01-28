@@ -29,7 +29,7 @@ public class TurtleCraftingTable extends AbstractTurtleUpgrade
 
     public TurtleCraftingTable( ResourceLocation id )
     {
-        super( id, TurtleUpgradeType.Peripheral, Blocks.CRAFTING_TABLE );
+        super( id, TurtleUpgradeType.PERIPHERAL, Blocks.CRAFTING_TABLE );
     }
 
     @Override
@@ -54,6 +54,6 @@ public class TurtleCraftingTable extends AbstractTurtleUpgrade
     public TransformedModel getModel( ITurtleAccess turtle, @Nonnull TurtleSide side )
     {
         loadModelLocations();
-        return TransformedModel.of( side == TurtleSide.Left ? m_leftModel : m_rightModel );
+        return TransformedModel.of( side == TurtleSide.LEFT ? m_leftModel : m_rightModel );
     }
 }
