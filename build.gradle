@@ -90,14 +90,6 @@ repositories {
         name "SquidDev"
         url "https://squiddev.cc/maven"
     }
-    ivy {
-        name "Charset"
-        artifactPattern "https://asie.pl/files/mods/Charset/LibOnly/[module]-[revision](-[classifier]).[ext]"
-    }
-    maven {
-        name "Amadornes"
-        url "https://maven.amadornes.com/"
-    }
     maven {
         name "CraftTweaker"
         url "https://maven.blamejared.com/"
