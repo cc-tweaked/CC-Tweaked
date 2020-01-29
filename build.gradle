@@ -57,11 +57,28 @@ minecraft {
                 }
             }
         }
+
+        data {
+            workingDirectory project.file('run')
+            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
+            property 'forge.logging.console.level', 'debug'
+
+            args '--mod', 'computercraft', '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
+            mods {
+                computercraft {
+                    source sourceSets.main
+                }
+            }
+        }
     }
 
     mappings channel: 'snapshot', version: "${mappings_version}".toString()
 
     accessTransformer file('src/main/resources/META-INF/accesstransformer.cfg')
+}
+
+sourceSets.main.resources {
+    srcDir 'src/generated/resources'
 }
 
 repositories {

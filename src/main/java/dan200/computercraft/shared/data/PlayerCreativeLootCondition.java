@@ -40,4 +40,9 @@ public final class PlayerCreativeLootCondition implements ILootCondition
     {
         return Collections.singleton( LootParameters.THIS_ENTITY );
     }
+
+    public static IBuilder builder()
+    {
+        return () -> INSTANCE;
+    }
 }
