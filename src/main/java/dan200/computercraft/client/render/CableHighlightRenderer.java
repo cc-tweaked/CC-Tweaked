@@ -5,19 +5,20 @@
  */
 package dan200.computercraft.client.render;
 
-import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.IVertexBuilder;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.peripheral.modem.wired.BlockCable;
 import dan200.computercraft.shared.peripheral.modem.wired.CableShapes;
 import dan200.computercraft.shared.util.WorldUtil;
 import net.minecraft.block.BlockState;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ActiveRenderInfo;
+import net.minecraft.client.renderer.Matrix4f;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.WorldRenderer;
+import net.minecraft.entity.Entity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.world.World;
@@ -25,7 +26,6 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.DrawHighlightEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import org.lwjgl.opengl.GL11;
 
 @Mod.EventBusSubscriber( modid = ComputerCraft.MOD_ID, value = Dist.CLIENT )
 public final class CableHighlightRenderer
@@ -38,7 +38,7 @@ public final class CableHighlightRenderer
      * Draw an outline for a specific part of a cable "Multipart".
      *
      * @param event The event to observe
-     * @see WorldRenderer#drawSelectionBox(ActiveRenderInfo, RayTraceResult, int)
+     * @see WorldRenderer#drawSelectionBox(MatrixStack, IVertexBuilder, Entity, double, double, double, BlockPos, BlockState)
      */
     @SubscribeEvent
     public static void drawHighlight( DrawHighlightEvent.HighlightBlock event )
@@ -58,31 +58,22 @@ public final class CableHighlightRenderer
 
         event.setCanceled( true );
 
-        Minecraft mc = Minecraft.getInstance();
-
-        RenderSystem.enableBlend();
-        RenderSystem.blendFuncSeparate( GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO );
-        RenderSystem.lineWidth( Math.max( 2.5F, mc.getMainWindow().getFramebufferWidth() / 1920.0F * 2.5F ) );
-        RenderSystem.disableTexture();
-        RenderSystem.depthMask( false );
-        RenderSystem.matrixMode( GL11.GL_PROJECTION );
-        RenderSystem.pushMatrix();
-        RenderSystem.scalef( 1.0F, 1.0F, 0.999F );
-
         VoxelShape shape = WorldUtil.isVecInside( CableShapes.getModemShape( state ), hit.getHitVec().subtract( pos.getX(), pos.getY(), pos.getZ() ) )
             ? CableShapes.getModemShape( state )
             : CableShapes.getCableShape( state );
 
         Vec3d cameraPos = info.getProjectedView();
-        WorldRenderer.drawShape(
-            shape, pos.getX() - cameraPos.getX(), pos.getY() - cameraPos.getY(), pos.getZ() - cameraPos.getZ(),
-            0.0F, 0.0F, 0.0F, 0.4F
-        );
+        double xOffset = pos.getX() - cameraPos.getX();
+        double yOffset = pos.getY() - cameraPos.getY();
+        double zOffset = pos.getZ() - cameraPos.getZ();
 
-        RenderSystem.popMatrix();
-        RenderSystem.matrixMode( GL11.GL_MODELVIEW );
-        RenderSystem.depthMask( true );
-        RenderSystem.enableTexture();
-        RenderSystem.disableBlend();
+        IVertexBuilder buffer = event.getBuffers().getBuffer( RenderType.lines() );
+        Matrix4f matrix4f = event.getMatrix().getLast().getPositionMatrix();
+        shape.forEachEdge( ( x1, y1, z1, x2, y2, z2 ) -> {
+            buffer.pos( matrix4f, (float) (x1 + xOffset), (float) (y1 + yOffset), (float) (z1 + zOffset) )
+                .color( 0, 0, 0, 0.4f ).endVertex();
+            buffer.pos( matrix4f, (float) (x2 + xOffset), (float) (y2 + yOffset), (float) (z2 + zOffset) )
+                .color( 0, 0, 0, 0.4f ).endVertex();
+        } );
     }
 }

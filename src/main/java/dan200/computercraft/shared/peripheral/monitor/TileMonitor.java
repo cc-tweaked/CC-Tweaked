@@ -22,6 +22,7 @@ import net.minecraft.util.ActionResultType;
 import net.minecraft.util.Direction;
 import net.minecraft.util.Hand;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.world.World;
@@ -653,13 +654,12 @@ public class TileMonitor extends TileGeneric implements IPeripheralTile
         m_computers.remove( computer );
     }
 
-    /*
     @Nonnull
     @Override
     public AxisAlignedBB getRenderBoundingBox()
     {
         TileMonitor start = getNeighbour( 0, 0 );
-        TileMonitor end = getNeighbour( width - 1, height - 1 );
+        TileMonitor end = getNeighbour( m_width - 1, m_height - 1 );
         if( start != null && end != null )
         {
             BlockPos startPos = start.getPos();
@@ -678,5 +678,4 @@ public class TileMonitor extends TileGeneric implements IPeripheralTile
             return new AxisAlignedBB( pos.getX(), pos.getY(), pos.getZ(), pos.getX() + 1, pos.getY() + 1, pos.getZ() + 1 );
         }
     }
-    */
 }
