@@ -52,13 +52,16 @@ public abstract class ItemMapLikeRenderer
     /**
      * Renders the item to one side of the player.
      *
+     * @param transform     The matrix transformation stack
+     * @param render        The buffer to render to
+     * @param combinedLight The current light level
      * @param side          The side to render on
      * @param equipProgress The equip progress of this item
      * @param swingProgress The swing progress of this item
      * @param stack         The stack to render
      * @see FirstPersonRenderer#renderMapFirstPersonSide(MatrixStack, IRenderTypeBuffer, int, float, HandSide, float, ItemStack)
      */
-    private void renderItemFirstPersonSide( MatrixStack transform, IRenderTypeBuffer render, int lightTexture, HandSide side, float equipProgress, float swingProgress, ItemStack stack )
+    private void renderItemFirstPersonSide( MatrixStack transform, IRenderTypeBuffer render, int combinedLight, HandSide side, float equipProgress, float swingProgress, ItemStack stack )
     {
         Minecraft minecraft = Minecraft.getInstance();
         float offset = side == HandSide.RIGHT ? 1f : -1f;
@@ -68,8 +71,8 @@ public abstract class ItemMapLikeRenderer
         if( !minecraft.player.isInvisible() )
         {
             transform.push();
-            transform.rotate( Vector3f.field_229183_f_.func_229187_a_( offset * 10f ) );
-            minecraft.getFirstPersonRenderer().renderArmFirstPerson( transform, render, lightTexture, equipProgress, swingProgress, side );
+            transform.rotate( Vector3f.ZP.rotationDegrees( offset * 10f ) );
+            minecraft.getFirstPersonRenderer().renderArmFirstPerson( transform, render, combinedLight, equipProgress, swingProgress, side );
             transform.pop();
         }
 
@@ -83,8 +86,8 @@ public abstract class ItemMapLikeRenderer
         float f4 = 0.4f * MathHelper.sin( f1 * ((float) Math.PI * 2f) );
         float f5 = -0.3f * MathHelper.sin( swingProgress * (float) Math.PI );
         transform.translate( offset * f3, f4 - 0.3f * f2, f5 );
-        transform.rotate( Vector3f.field_229179_b_.func_229187_a_( f2 * -45f ) );
-        transform.rotate( Vector3f.field_229181_d_.func_229187_a_( offset * f2 * -30f ) );
+        transform.rotate( Vector3f.XP.rotationDegrees( f2 * -45f ) );
+        transform.rotate( Vector3f.YP.rotationDegrees( offset * f2 * -30f ) );
 
         renderItem( transform, render, stack );
 
@@ -94,13 +97,16 @@ public abstract class ItemMapLikeRenderer
     /**
      * Render an item in the middle of the screen.
      *
+     * @param transform     The matrix transformation stack
+     * @param render        The buffer to render to
+     * @param combinedLight The current light level
      * @param pitch         The pitch of the player
      * @param equipProgress The equip progress of this item
      * @param swingProgress The swing progress of this item
      * @param stack         The stack to render
      * @see FirstPersonRenderer#renderMapFirstPerson(MatrixStack, IRenderTypeBuffer, int, float, float, float)
      */
-    private void renderItemFirstPersonCenter( MatrixStack transform, IRenderTypeBuffer render, int lightTexture, float pitch, float equipProgress, float swingProgress, ItemStack stack )
+    private void renderItemFirstPersonCenter( MatrixStack transform, IRenderTypeBuffer render, int combinedLight, float pitch, float equipProgress, float swingProgress, ItemStack stack )
     {
         Minecraft minecraft = Minecraft.getInstance();
         FirstPersonRenderer renderer = minecraft.getFirstPersonRenderer();
@@ -114,18 +120,18 @@ public abstract class ItemMapLikeRenderer
 
         float pitchAngle = renderer.getMapAngleFromPitch( pitch );
         transform.translate( 0, 0.04F + equipProgress * -1.2f + pitchAngle * -0.5f, -0.72f );
-        transform.rotate( Vector3f.field_229179_b_.func_229187_a_( pitchAngle * -85.0f ) );
+        transform.rotate( Vector3f.XP.rotationDegrees( pitchAngle * -85.0f ) );
         if( !minecraft.player.isInvisible() )
         {
             transform.push();
-            transform.rotate( Vector3f.field_229181_d_.func_229187_a_( 90.0F ) );
-            renderer.renderArm( transform, render, lightTexture, HandSide.RIGHT );
-            renderer.renderArm( transform, render, lightTexture, HandSide.LEFT );
+            transform.rotate( Vector3f.YP.rotationDegrees( 90.0F ) );
+            renderer.renderArm( transform, render, combinedLight, HandSide.RIGHT );
+            renderer.renderArm( transform, render, combinedLight, HandSide.LEFT );
             transform.pop();
         }
 
         float rX = MathHelper.sin( swingRt * (float) Math.PI );
-        transform.rotate( Vector3f.field_229179_b_.func_229187_a_( rX * 20.0F ) );
+        transform.rotate( Vector3f.XP.rotationDegrees( rX * 20.0F ) );
         transform.scale( 2.0F, 2.0F, 2.0F );
 
         renderItem( transform, render, stack );

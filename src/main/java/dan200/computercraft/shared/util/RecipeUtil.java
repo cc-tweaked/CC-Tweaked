@@ -103,28 +103,14 @@ public final class RecipeUtil
         return new ShapedTemplate( width, height, ingredients );
     }
 
-    public static NonNullList<Ingredient> getIngredients( JsonObject json )
-    {
-        NonNullList<Ingredient> ingredients = NonNullList.create();
-        for( JsonElement ele : JSONUtils.getJsonArray( json, "ingredients" ) )
-        {
-            ingredients.add( Ingredient.deserialize( ele ) );
-        }
-
-        if( ingredients.isEmpty() ) throw new JsonParseException( "No ingredients for recipe" );
-        return ingredients;
-    }
-
     public static ComputerFamily getFamily( JsonObject json, String name )
     {
         String familyName = JSONUtils.getString( json, name );
-        try
+        for( ComputerFamily family : ComputerFamily.values() )
         {
-            return ComputerFamily.valueOf( familyName );
+            if( family.name().equalsIgnoreCase( familyName ) ) return family;
         }
-        catch( IllegalArgumentException e )
-        {
-            throw new JsonSyntaxException( "Unknown computer family '" + familyName + "' for field " + name );
-        }
+
+        throw new JsonSyntaxException( "Unknown computer family '" + familyName + "' for field " + name );
     }
 }

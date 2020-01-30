@@ -9,7 +9,11 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import dan200.computercraft.core.terminal.TextBuffer;
 import dan200.computercraft.shared.common.ContainerHeldItem;
 import dan200.computercraft.shared.media.items.ItemPrintout;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.inventory.ContainerScreen;
+import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.client.renderer.Matrix4f;
+import net.minecraft.client.renderer.TransformationMatrix;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.util.text.ITextComponent;
 import org.lwjgl.glfw.GLFW;
@@ -18,6 +22,8 @@ import static dan200.computercraft.client.render.PrintoutRenderer.*;
 
 public class GuiPrintout extends ContainerScreen<ContainerHeldItem>
 {
+    private static final Matrix4f IDENTITY = TransformationMatrix.identity().getMatrix();
+
     private final boolean m_book;
     private final int m_pages;
     private final TextBuffer[] m_text;
@@ -91,8 +97,10 @@ public class GuiPrintout extends ContainerScreen<ContainerHeldItem>
         RenderSystem.color4f( 1.0f, 1.0f, 1.0f, 1.0f );
         RenderSystem.enableDepthTest();
 
-        drawBorder( guiLeft, guiTop, getBlitOffset(), m_page, m_pages, m_book );
-        drawText( guiLeft + X_TEXT_MARGIN, guiTop + Y_TEXT_MARGIN, ItemPrintout.LINES_PER_PAGE * m_page, m_text, m_colours );
+        IRenderTypeBuffer.Impl renderer = Minecraft.getInstance().getRenderTypeBuffers().getBufferSource();
+        drawBorder( IDENTITY, renderer, guiLeft, guiTop, getBlitOffset(), m_page, m_pages, m_book );
+        drawText( IDENTITY, renderer, guiLeft + X_TEXT_MARGIN, guiTop + Y_TEXT_MARGIN, ItemPrintout.LINES_PER_PAGE * m_page, m_text, m_colours );
+        renderer.finish();
     }
 
     @Override

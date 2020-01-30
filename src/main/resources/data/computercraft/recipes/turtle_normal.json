@@ -10,6 +10,6 @@
         "C": { "item": "computercraft:computer_normal" },
         "I": { "tag": "forge:chests/wooden" }
     },
-    "family": "Normal",
+    "family": "normal",
     "result": { "item": "computercraft:turtle_normal" }
 }
