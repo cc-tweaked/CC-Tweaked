@@ -39,7 +39,40 @@ local function resume( ... )
     return param
 end
 
-local ok, param = pcall( function()
+local timers = { n = 0 }
+
+-- add a timer to the timers list with id 'id', xpos 'x', ypos 'y'
+local function addTimer( id, x, y )
+    timers.n = timers.n + 1
+    timers[timers.n] = { n = 3, id, x, y }
+end
+
+-- remove a timer from the timers list with id 'id'
+local function removeTimer( id )
+    for i = 1, timers.n do
+        if timers[i][1] == id then
+            local x, y = table.unpack( timers[i], 2, timers[i].n )
+            table.remove( timers, i )
+            timers.n = timers.n - 1
+            return true, x, y
+        end
+    end
+    return false
+end
+
+local ok, param = pcall( parallel.waitForAny,
+function()
+    while true do
+        local _, id = os.pullEventRaw( "timer" )
+        -- when a timer is set off, check if it exists and remove it if so
+        -- also generate "mouse_up" event
+        local ok, x, y = removeTimer( id )
+            if ok then
+            os.queueEvent( "mouse_up", 1, x, y )
+        end
+    end
+end,
+function()
     local sFilter = resume()
     while coroutine.status( co ) ~= "dead" do
         local tEvent = table.pack( os.pullEventRaw() )
@@ -48,6 +81,7 @@ local ok, param = pcall( function()
         end
         if coroutine.status( co ) ~= "dead" and (sFilter == nil or sFilter == "mouse_click") then
             if tEvent[1] == "monitor_touch" and tEvent[2] == sName then
+                addTimer(os.startTimer(0.1), tEvent[3], tEvent[4])
                 sFilter = resume( "mouse_click", 1, table.unpack( tEvent, 3, tEvent.n ) )
             end
         end
