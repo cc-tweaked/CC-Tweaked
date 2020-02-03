@@ -59,10 +59,12 @@ local ok, param = pcall( function()
                 sFilter = resume( "term_resize" )
             end
         end
-        if tEvent[1] == "timer" and timers[tEvent[2]] then
-            local x, y = table.unpack(timers[tEvent[2]], 1, 2)
-            timers[tEvent[2]] = nil
-            sFilter = resume( "mouse_up", 1, x, y )
+        if coroutine.status( co ) ~= "dead" and (sFilter == nil or sFilter == "mouse_up") then
+            if tEvent[1] == "timer" and timers[tEvent[2]] then
+                local x, y = table.unpack(timers[tEvent[2]], 1, 2)
+                timers[tEvent[2]] = nil
+                sFilter = resume( "mouse_up", 1, x, y )
+            end
         end
     end
 end )
