@@ -48,9 +48,7 @@ local ok, param = pcall( function()
         if tEvent[1] == "timer" and timers[tEvent[2]] then
             local x, y = table.unpack(timers[tEvent[2]], 1, 2)
             timers[tEvent[2]] = nil
-            tEvent = { n = 4, "mouse_up", 1, x, y }
-            -- hijack event, insert mouse_up event. Child process shouldn't know
-            -- timer event exists.
+            resume( "mouse_up", 1, x, y )
         end
         if sFilter == nil or tEvent[1] == sFilter or tEvent[1] == "terminate" then
             sFilter = resume( table.unpack( tEvent, 1, tEvent.n ) )
