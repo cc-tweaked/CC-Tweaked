@@ -45,11 +45,6 @@ local ok, param = pcall( function()
     local sFilter = resume()
     while coroutine.status( co ) ~= "dead" do
         local tEvent = table.pack( os.pullEventRaw() )
-        if tEvent[1] == "timer" and timers[tEvent[2]] then
-            local x, y = table.unpack(timers[tEvent[2]], 1, 2)
-            timers[tEvent[2]] = nil
-            sFilter = resume( "mouse_up", 1, x, y )
-        end
         if sFilter == nil or tEvent[1] == sFilter or tEvent[1] == "terminate" then
             sFilter = resume( table.unpack( tEvent, 1, tEvent.n ) )
         end
@@ -63,6 +58,11 @@ local ok, param = pcall( function()
             if tEvent[1] == "monitor_resize" and tEvent[2] == sName then
                 sFilter = resume( "term_resize" )
             end
+        end
+        if tEvent[1] == "timer" and timers[tEvent[2]] then
+            local x, y = table.unpack(timers[tEvent[2]], 1, 2)
+            timers[tEvent[2]] = nil
+            sFilter = resume( "mouse_up", 1, x, y )
         end
     end
 end )
