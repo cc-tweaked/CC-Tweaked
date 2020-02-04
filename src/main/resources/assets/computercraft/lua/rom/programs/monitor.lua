@@ -39,6 +39,8 @@ local function resume( ... )
     return param
 end
 
+local timers = {}
+
 local ok, param = pcall( function()
     local sFilter = resume()
     while coroutine.status( co ) ~= "dead" do
@@ -48,12 +50,19 @@ local ok, param = pcall( function()
         end
         if coroutine.status( co ) ~= "dead" and (sFilter == nil or sFilter == "mouse_click") then
             if tEvent[1] == "monitor_touch" and tEvent[2] == sName then
+                timers[os.startTimer( 0.1 )] = { tEvent[3], tEvent[4] }
                 sFilter = resume( "mouse_click", 1, table.unpack( tEvent, 3, tEvent.n ) )
             end
         end
         if coroutine.status( co ) ~= "dead" and (sFilter == nil or sFilter == "term_resize") then
             if tEvent[1] == "monitor_resize" and tEvent[2] == sName then
                 sFilter = resume( "term_resize" )
+            end
+        end
+        if coroutine.status( co ) ~= "dead" and (sFilter == nil or sFilter == "mouse_up") then
+            if tEvent[1] == "timer" and timers[tEvent[2]] then
+                sFilter = resume( "mouse_up", 1, table.unpack( timers[tEvent[2]], 1, 2 ) )
+                timers[tEvent[2]] = nil
             end
         end
     end
