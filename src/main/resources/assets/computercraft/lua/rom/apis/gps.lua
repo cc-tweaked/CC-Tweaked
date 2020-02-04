@@ -1,5 +1,30 @@
+--- The GPS API provides a method for turtles and computers to retrieve their
+-- own locations.
+--
+-- It broadcasts a PING message over @{rednet} and wait for responses. In order
+-- for this system to work, there must be at least 4 computers used as gps hosts
+-- which will respond and allow trilateration. Three of these hosts should be in
+-- a plane, and the fourth should be either above or below the other three. The
+-- three in a plane should not be in a line with each other. You can set up
+-- hosts using the gps program.
+--
+-- **Note**: When entering in the coordinates for the host you need to put in
+-- the `x`, `y`, and `z` coordinates of the computer, not the modem, as all
+-- rednet distances are measured from the block the computer is in.
+--
+-- Also note that you may choose which axes x, y, or z refers to - so long as
+-- your systems have the same definition as any GPS servers that're in range, it
+-- works just the same. For example, you might build a GPS cluster according to
+-- [this tutorial][1], using z to account for height, or you might use y to
+-- account for height in the way that Minecraft's debug screen displays.
+--
+-- [1]: http://www.computercraft.info/forums2/index.php?/topic/3088-how-to-guide-gps-global-position-system/
+--
+-- @module gps
+
 local expect = dofile("rom/modules/main/cc/expect.lua").expect
 
+--- The channel which GPS requests and responses are broadcast on.
 CHANNEL_GPS = 65534
 
 local function trilaterate( A, B, C )
@@ -56,6 +81,15 @@ local function narrow( p1, p2, fix )
     end
 end
 
+--- Tries to retrieve the computer or turtles own location.
+--
+-- @tparam[opt] number timeout The maximum time taken to establish our
+-- position. Defaults to 2 seconds if not specified.
+-- @tparam[opt] boolean debug Print debugging messages
+-- @treturn[1] number This computer's `x` position.
+-- @treturn[1] number This computer's `y` position.
+-- @treturn[1] number This computer's `z` position.
+-- @treturn[2] nil If the position could not be established.
 function locate( _nTimeout, _bDebug )
     expect(1, _nTimeout, "number", "nil")
     expect(2, _bDebug, "boolean", "nil")

@@ -1,5 +1,12 @@
--- Minecraft key code bindings
--- See http://www.minecraftwiki.net/wiki/Key_codes for more info
+--- The Keys API provides a table of numerical codes corresponding to keyboard
+-- keys, suitable for decoding key events.
+--
+-- The Minecraft wiki [has a list of key
+-- codes](http://www.minecraftwiki.net/wiki/Key_codes). It is recommended that
+-- you use the constants provided by this file, rather than the underlying
+-- numerical values.
+--
+-- @module keys
 
 local expect = dofile("rom/modules/main/cc/expect.lua").expect
 
@@ -53,12 +60,18 @@ local keys = _ENV
 for nKey, sKey in pairs( tKeys ) do
     keys[sKey] = nKey
 end
-keys["return"] = keys.enter
---backwards compatibility to earlier, typo prone, versions
-keys.scollLock = keys.scrollLock
-keys.cimcumflex = keys.circumflex
 
-function getName( _nKey )
-    expect(1, _nKey, "number")
-    return tKeys[ _nKey ]
+keys["return"] = keys.enter --- @local
+--backwards compatibility to earlier, typo prone, versions
+keys.scollLock = keys.scrollLock --- @local
+keys.cimcumflex = keys.circumflex --- @local
+
+--- Translates a numerical key code to a human-readable name. The human-readable
+-- name is one of the constants in the keys API.
+--
+-- @tparam number code The key code to look up.
+-- @treturn string|nil The name of the key, or `nil` if not a valid key code.
+function getName( code )
+    expect(1, code, "number")
+    return tKeys[ code ]
 end

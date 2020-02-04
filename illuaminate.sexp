@@ -1,9 +1,26 @@
 ; -*- mode: Lisp;-*-
 
 (sources
+  /doc/stub/
   /src/main/resources/assets/computercraft/lua/bios.lua
   /src/main/resources/assets/computercraft/lua/rom/
   /src/test/resources/test-rom)
+
+
+(doc
+  (title "CC: Tweaked")
+  (index doc/index.md)
+
+  (library-path
+    /doc/stub/
+
+    /src/main/resources/assets/computercraft/lua/rom/apis
+    /src/main/resources/assets/computercraft/lua/rom/apis/command
+    /src/main/resources/assets/computercraft/lua/rom/apis/turtle
+
+    /src/main/resources/assets/computercraft/lua/rom/modules/main
+    /src/main/resources/assets/computercraft/lua/rom/modules/command
+    /src/main/resources/assets/computercraft/lua/rom/modules/turtle))
 
 (at /
   (linters
@@ -17,13 +34,13 @@
 
     ;; Suppress a couple of documentation comments warnings for now. We'll
     ;; hopefully be able to remove them in the coming weeks.
-    -doc:detached-comment -doc:undocumented -doc:undocumented-arg
-    -doc:unresolved-reference))
+    -doc:undocumented -doc:undocumented-arg -doc:unresolved-reference))
 
 ;; We disable the unused global linter in bios.lua and the APIs. In the future
 ;; hopefully we'll get illuaminate to handle this.
 (at
-  (/src/main/resources/assets/computercraft/lua/bios.lua
+  (/doc/stub/
+   /src/main/resources/assets/computercraft/lua/bios.lua
    /src/main/resources/assets/computercraft/lua/rom/apis/)
   (linters -var:unused-global)
   (lint
