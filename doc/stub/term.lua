@@ -1,6 +1,3 @@
--- TODO: Do we really need to do this twice? What's the best way of approaching
--- this?
-
 function write(text) end
 function scroll(lines) end
 function setCursorPos(x, y) end
@@ -10,46 +7,46 @@ function getSize() end
 function clear() end
 function clearLine() end
 function setTextColour(colour) end
-function setTextColor(color) end
+setTextColor = setTextColour
 function setBackgroundColour(colour) end
-function setBackgroundColor(color) end
+setBackgroundColor = setBackgroundColour
 function isColour() end
-function isColor() end
+isColor = isColour
 function getTextColour() end
-function getTextColor() end
+getTextColor = getTextColor
 function getBackgroundColour() end
-function getBackgroundColor() end
+getBackgroundColour = getBackgroundColour
 function blit(text, text_colours, background_colours) end
 function setPaletteColour(colour, ...) end
-function setPaletteColor(colour, ...) end
+setPaletteColour = setPaletteColour
 function getPaletteColour(colour, ...) end
-function getPaletteColor(colour) end
+getPaletteColour = getPaletteColour
 function nativePaletteColour(colour) end
-function nativePaletteColor(colour) end
+nativePaletteColour = nativePaletteColour
 
 --- @type Redirect
 local Redirect = {}
 
-function Redirect.write(text) end
-function Redirect.scroll(lines) end
-function Redirect.setCursorPos(x, y) end
-function Redirect.setCursorBlink(blink) end
-function Redirect.getCursorPos() end
-function Redirect.getSize() end
-function Redirect.clear() end
-function Redirect.clearLine() end
-function Redirect.setTextColour(colour) end
-function Redirect.setTextColor(color) end
-function Redirect.setBackgroundColour(colour) end
-function Redirect.setBackgroundColor(color) end
-function Redirect.isColour() end
-function Redirect.isColor() end
-function Redirect.getTextColour() end
-function Redirect.getTextColor() end
-function Redirect.getBackgroundColour() end
-function Redirect.getBackgroundColor() end
-function Redirect.blit(text, text_colours, background_colours) end
-function Redirect.setPaletteColour(colour, ...) end
-function Redirect.setPaletteColor(colour, ...) end
-function Redirect.getPaletteColour(colour, ...) end
-function Redirect.getPaletteColor(colour) end
+Redirect.write = write
+Redirect.scroll = scroll
+Redirect.setCursorPos = setCursorPos
+Redirect.setCursorBlink = setCursorBlink
+Redirect.getCursorPos = getCursorPos
+Redirect.getSize = getSize
+Redirect.clear = clear
+Redirect.clearLine = clearLine
+Redirect.setTextColour = setTextColour
+Redirect.setTextColor = setTextColor
+Redirect.setBackgroundColour = setBackgroundColour
+Redirect.setBackgroundColor = setBackgroundColor
+Redirect.isColour = isColour
+Redirect.isColor = isColor
+Redirect.getTextColour = getTextColour
+Redirect.getTextColor = getTextColor
+Redirect.getBackgroundColour = getBackgroundColour
+Redirect.getBackgroundColor = getBackgroundColor
+Redirect.blit = blit
+Redirect.setPaletteColour = setPaletteColour
+Redirect.setPaletteColor = setPaletteColor
+Redirect.getPaletteColour = getPaletteColour
+Redirect.getPaletteColor = getPaletteColor

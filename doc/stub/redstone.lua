@@ -7,8 +7,8 @@ function getBundledOutput(side) end
 function getBundledInput(side) end
 function testBundledInput(side, mask) end
 function setAnalogOutput(side, value) end
-function setAnalogueOutput(side, value) end
+setAnalogueOutput = setAnalogOutput
 function getAnalogOutput(sid) end
-function getAnalogueOutput(side) end
+getAnalogueOutput = getAnalogOutput
 function getAnalogInput(side) end
-function getAnalogueInput(side) end
+getAnalogueInput = getAnaloguInput

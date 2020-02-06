@@ -21,22 +21,22 @@ function getDir(path) end
 
 --- A file handle which can be read from.
 --
--- @type ReadableHandle
+-- @type ReadHandle
 -- @see fs.open
-local ReadableHandle = {}
-function ReadableHandle.read(count) end
-function ReadableHandle.readAll() end
-function ReadableHandle.readLine(with_trailing) end
-function ReadableHandle.seek(whence, offset) end
-function ReadableHandle.close() end
+local ReadHandle = {}
+function ReadHandle.read(count) end
+function ReadHandle.readAll() end
+function ReadHandle.readLine(with_trailing) end
+function ReadHandle.seek(whence, offset) end
+function ReadHandle.close() end
 
 --- A file handle which can be written to.
 --
--- @type WritableHandle
+-- @type WriteHandle
 -- @see fs.open
-local WritableHandle = {}
-function WritableHandle.write(text) end
-function WritableHandle.writeLine(text) end
-function WritableHandle.flush(text) end
-function WritableHandle.seek(whence, offset) end
-function WritableHandle.close() end
+local WriteHandle = {}
+function WriteHandle.write(text) end
+function WriteHandle.writeLine(text) end
+function WriteHandle.flush(text) end
+function WriteHandle.seek(whence, offset) end
+function WriteHandle.close() end

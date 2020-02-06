@@ -3,11 +3,11 @@ function startTimer(delay) end
 function setAlarm(time) end
 function shutdown() end
 function reboot() end
-function computerID() end
 function getComputerID() end
+computerID = getComputerID
 function setComputerLabel(label) end
-function computerLabel() end
 function getComputerLabel() end
+computerLabel = getComputerLabel
 function clock() end
 function time(timezone) end
 function day(timezone) end
