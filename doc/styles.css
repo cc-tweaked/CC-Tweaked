@@ -23,7 +23,7 @@ body {
                  "Droid Sans", "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
 }
 
-code, span.parameter, span.type, table.definition_list th, dl.definition dt, .reference {
+code, pre, .parameter, .type, .definition-name, .reference {
     font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
 }
 
@@ -106,29 +106,37 @@ footer {
 }
 
 /* The definition lists at the top of each page */
-table.definition_list {
+table.definition-list {
     border-collapse: collapse;
     width: 100%;
 }
 
-table.definition_list td, table.definition_list th {
+table.definition-list td, table.definition-list th {
     border: 1px solid #cccccc;
     padding: 5px;
 }
 
-table.definition_list th {
+table.definition-list th {
     background-color: #f0f0f0;
     min-width: 200px;
     white-space: nowrap;
     text-align: right;
 }
 
-table.definition_list td { width: 100%; }
+table.definition-list td { width: 100%; }
 
 dl.definition dt {
     border-top: 1px solid #ccc;
     padding-top: 1em;
+    display: flex;
 }
+
+dl.definition dt .definition-name {
+    padding: 0 0.1em;
+    margin: 0 0.1em;
+    flex-grow: 1;
+}
+
 
 dl.definition dd {
     padding-bottom: 1em;
@@ -138,6 +146,12 @@ dl.definition dd {
 dl.definition h3 {
     font-size: .95em;
 }
+
+/* Links to source-code */
+.source-link { font-size: 0.8em; }
+.source-link::before { content: '[' }
+.source-link::after  { content: ']' }
+a.source-link, a.source-link:visited, a.source-link:active { color: #505050; }
 
 /* Method definitions */
 span.parameter:after { content:":"; padding-left: 0.3em; }
@@ -162,6 +176,7 @@ span.parameter .optional { text-decoration: underline dotted; }
 .highlight .library { color: #0e7c6b; }
 .highlight .marker { color: #512b1e; background: #fedc56; font-weight: bold; }
 .highlight .string { color: #8080ff; }
+.highlight .literal-kw { color: #8080ff; }
 .highlight .number { color: #f8660d; }
 .highlight .operator { color: #2239a8; font-weight: bold; }
 .highlight .preprocessor, pre .prepro { color: #a33243; }

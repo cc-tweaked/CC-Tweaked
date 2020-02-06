@@ -9,5 +9,5 @@ generation tool, and there's a couple of missing features. Furthermore, Java-bas
 For more information, please check out [the GitHub issue][gh_issue] and [the
 documented source][gh_branch].
 
-[gh_issue]: https://github.com/SquidDev-CC/CC-Tweaked/issues/133"
+[gh_issue]: https://github.com/SquidDev-CC/CC-Tweaked/issues/133
 [gh_branch]: https://github.com/SquidDev-CC/CC-Tweaked/tree/feature/doc-gen

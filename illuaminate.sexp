@@ -10,6 +10,7 @@
 (doc
   (title "CC: Tweaked")
   (index doc/index.md)
+  (source-link https://github.com/SquidDev-CC/CC-Tweaked/blob/${commit}/${path}#L${line})
 
   (library-path
     /doc/stub/
