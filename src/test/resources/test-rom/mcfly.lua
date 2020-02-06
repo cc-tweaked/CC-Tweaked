@@ -380,7 +380,7 @@ end
 --
 -- @param value The value to apply assertions to
 -- @return The new expectation
-function expect:__call(_, value)
+function expect:__call(value)
     return setmetatable({ value = value }, expect_mt)
 end
 
