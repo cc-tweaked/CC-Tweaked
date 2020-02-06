@@ -40,9 +40,13 @@
 ;; We disable the unused global linter in bios.lua and the APIs. In the future
 ;; hopefully we'll get illuaminate to handle this.
 (at
-  (/doc/stub/
-   /src/main/resources/assets/computercraft/lua/bios.lua
+  (/src/main/resources/assets/computercraft/lua/bios.lua
    /src/main/resources/assets/computercraft/lua/rom/apis/)
   (linters -var:unused-global)
   (lint
     (allow-toplevel-global true)))
+
+;; Shut up some variable warnings in documentation stubs. It's not like this is
+;; actual code after all.
+(at /doc/stub
+  (linters -var:unused-global -var:unused -var:set-global))

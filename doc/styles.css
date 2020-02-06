@@ -155,7 +155,7 @@ a.source-link, a.source-link:visited, a.source-link:active { color: #505050; }
 
 /* Method definitions */
 span.parameter:after { content:":"; padding-left: 0.3em; }
-span.parameter .optional { text-decoration: underline dotted; }
+.optional { text-decoration: underline dotted; }
 
 /** Fancy colour display. */
 .colour-ref {
