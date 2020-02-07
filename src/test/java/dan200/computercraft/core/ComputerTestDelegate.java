@@ -79,7 +79,7 @@ public class ComputerTestDelegate
         ComputerCraft.log = LogManager.getLogger( ComputerCraft.MOD_ID );
 
         Terminal term = new Terminal( 78, 20 );
-        IWritableMount mount = new FileMount( new File( "test-files/mount" ), Long.MAX_VALUE );
+        IWritableMount mount = new FileMount( new File( "test-files/mount" ), 10_000_000 );
 
         // Remove any existing files
         List<String> children = new ArrayList<>();
