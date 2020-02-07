@@ -7,6 +7,7 @@ package dan200.computercraft.core.apis.http.websocket;
 
 import com.google.common.base.Objects;
 import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.api.lua.ArgumentHelper;
 import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.ILuaObject;
 import dan200.computercraft.api.lua.LuaException;
@@ -23,6 +24,7 @@ import java.io.Closeable;
 import java.util.Arrays;
 
 import static dan200.computercraft.api.lua.ArgumentHelper.optBoolean;
+import static dan200.computercraft.core.apis.IAPIEnvironment.TIMER_EVENT;
 import static dan200.computercraft.core.apis.http.websocket.Websocket.CLOSE_EVENT;
 import static dan200.computercraft.core.apis.http.websocket.Websocket.MESSAGE_EVENT;
 
@@ -53,7 +55,21 @@ public class WebsocketHandle implements ILuaObject, Closeable
         switch( method )
         {
             case 0: // receive
+            {
                 checkOpen();
+                int timeoutId;
+                if( arguments.length <= 0 || arguments[0] == null )
+                {
+                    // We do this rather odd argument validation to ensure we can tell the difference between a
+                    // negative timeout and an absent one.
+                    timeoutId = -1;
+                }
+                else
+                {
+                    double timeout = ArgumentHelper.getFiniteDouble( arguments, 0 );
+                    timeoutId = websocket.environment().startTimer( Math.round( timeout / 0.05 ) );
+                }
+
                 while( true )
                 {
                     Object[] event = context.pullEvent( null );
@@ -63,9 +79,17 @@ public class WebsocketHandle implements ILuaObject, Closeable
                     }
                     else if( event.length >= 2 && Objects.equal( event[0], CLOSE_EVENT ) && Objects.equal( event[1], websocket.address() ) && closed )
                     {
+                        // If the socket is closed abort.
+                        return null;
+                    }
+                    else if( event.length >= 2 && timeoutId != -1 && Objects.equal( event[0], TIMER_EVENT )
+                        && event[1] instanceof Number && ((Number) event[1]).intValue() == timeoutId )
+                    {
+                        // If we received a matching timer event then abort.
                         return null;
                     }
                 }
+            }
 
             case 1: // send
             {
