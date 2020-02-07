@@ -125,6 +125,21 @@ describe("The fs library", function()
         it("fails on read-only mounts", function()
             expect.error(fs.copy, "rom", "rom/startup"):eq("/rom/startup: Access denied")
         end)
+
+        it("fails to copy a folder inside itself", function()
+            fs.makeDir("some-folder")
+            expect.error(fs.copy, "some-folder", "some-folder/x"):eq("/some-folder: Can't copy a directory inside itself")
+            expect.error(fs.copy, "some-folder", "Some-Folder/x"):eq("/some-folder: Can't copy a directory inside itself")
+        end)
+
+        it("copies folders", function()
+            fs.delete("some-folder")
+            fs.delete("another-folder")
+
+            fs.makeDir("some-folder")
+            fs.copy("some-folder", "another-folder")
+            expect(fs.isDir("another-folder")):eq(true)
+        end)
     end)
 
     describe("fs.move", function()

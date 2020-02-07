@@ -29,6 +29,14 @@ import java.util.regex.Pattern;
 
 public class FileSystem
 {
+    /**
+     * Maximum depth that {@link #copyRecursive(String, MountWrapper, String, MountWrapper, int)} will descend into.
+     *
+     * This is a pretty arbitrary value, though hopefully it is large enough that it'll never be normally hit. This
+     * exists to prevent it overflowing if it ever gets into an infinite loop.
+     */
+    private static final int MAX_COPY_DEPTH = 128;
+
     private static class MountWrapper
     {
         private String m_label;
@@ -611,15 +619,13 @@ public class FileSystem
         {
             throw new FileSystemException( "/" + sourcePath + ": Can't copy a directory inside itself" );
         }
-        copyRecursive( sourcePath, getMount( sourcePath ), destPath, getMount( destPath ) );
+        copyRecursive( sourcePath, getMount( sourcePath ), destPath, getMount( destPath ), 0 );
     }
 
-    private synchronized void copyRecursive( String sourcePath, MountWrapper sourceMount, String destinationPath, MountWrapper destinationMount ) throws FileSystemException
+    private synchronized void copyRecursive( String sourcePath, MountWrapper sourceMount, String destinationPath, MountWrapper destinationMount, int depth ) throws FileSystemException
     {
-        if( !sourceMount.exists( sourcePath ) )
-        {
-            return;
-        }
+        if( !sourceMount.exists( sourcePath ) ) return;
+        if( depth >= MAX_COPY_DEPTH ) throw new FileSystemException( "Too many directories to copy" );
 
         if( sourceMount.isDirectory( sourcePath ) )
         {
@@ -634,7 +640,8 @@ public class FileSystem
             {
                 copyRecursive(
                     combine( sourcePath, child ), sourceMount,
-                    combine( destinationPath, child ), destinationMount
+                    combine( destinationPath, child ), destinationMount,
+                    depth + 1
                 );
             }
         }
@@ -854,8 +861,8 @@ public class FileSystem
 
     public static boolean contains( String pathA, String pathB )
     {
-        pathA = sanitizePath( pathA );
-        pathB = sanitizePath( pathB );
+        pathA = sanitizePath( pathA ).toLowerCase( Locale.ROOT );
+        pathB = sanitizePath( pathB ).toLowerCase( Locale.ROOT );
 
         if( pathB.equals( ".." ) )
         {
