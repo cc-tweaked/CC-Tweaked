@@ -66,7 +66,7 @@ dependencies {
 }
 
 dependencies {
-  implementation "org.squiddev:cc-tweaked-${mc_version}:${cct_version}"
+  implementation fg.deobf("org.squiddev:cc-tweaked-${mc_version}:${cct_version}")
 }
 ```
 
