@@ -7,6 +7,7 @@
 package dan200.computercraft.data;
 
 import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.data.Tags.CCTags;
 import dan200.computercraft.shared.TurtleUpgrades;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.pocket.items.PocketComputerItemFactory;
@@ -15,11 +16,12 @@ import dan200.computercraft.shared.util.Colour;
 import dan200.computercraft.shared.util.ImpostorRecipe;
 import dan200.computercraft.shared.util.ImpostorShapelessRecipe;
 import net.minecraft.advancements.criterion.InventoryChangeTrigger;
+import net.minecraft.advancements.criterion.ItemPredicate;
+import net.minecraft.block.Blocks;
 import net.minecraft.data.*;
-import net.minecraft.item.DyeColor;
-import net.minecraft.item.DyeItem;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
+import net.minecraft.item.*;
+import net.minecraft.tags.Tag;
+import net.minecraft.util.IItemProvider;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.Tags;
 
@@ -37,6 +39,7 @@ public class Recipes extends RecipeProvider
     @Override
     protected void registerRecipes( @Nonnull Consumer<IFinishedRecipe> add )
     {
+        basicRecipes( add );
         diskColours( add );
         pocketUpgrades( add );
         turtleUpgrades( add );
@@ -57,7 +60,7 @@ public class Recipes extends RecipeProvider
                 .addIngredient( Items.PAPER )
                 .addIngredient( DyeItem.getItem( ofColour( colour ) ) )
                 .setGroup( "computercraft:disk" )
-                .addCriterion( "has_drive", InventoryChangeTrigger.Instance.forItems( ComputerCraft.Blocks.diskDrive ) )
+                .addCriterion( "has_drive", inventoryChange( ComputerCraft.Blocks.diskDrive ) )
                 .build( RecipeWrapper.wrap(
                     ImpostorShapelessRecipe.SERIALIZER, add,
                     x -> x.putInt( "color", colour.getHex() )
@@ -88,7 +91,7 @@ public class Recipes extends RecipeProvider
                     .key( '#', base.getItem() )
                     .key( 'T', upgrade.getCraftingItem().getItem() )
                     .addCriterion( "has_items",
-                        InventoryChangeTrigger.Instance.forItems( base.getItem(), upgrade.getCraftingItem().getItem() ) )
+                        inventoryChange( base.getItem(), upgrade.getCraftingItem().getItem() ) )
                     .build(
                         RecipeWrapper.wrap( ImpostorRecipe.SERIALIZER, add, result.getTag() ),
                         new ResourceLocation( ComputerCraft.MOD_ID, String.format( "turtle_%s/%s/%s",
@@ -123,7 +126,7 @@ public class Recipes extends RecipeProvider
                     .key( '#', base.getItem() )
                     .key( 'P', upgrade.getCraftingItem().getItem() )
                     .addCriterion( "has_items",
-                        InventoryChangeTrigger.Instance.forItems( base.getItem(), upgrade.getCraftingItem().getItem() ) )
+                        inventoryChange( base.getItem(), upgrade.getCraftingItem().getItem() ) )
                     .build(
                         RecipeWrapper.wrap( ImpostorRecipe.SERIALIZER, add, result.getTag() ),
                         new ResourceLocation( ComputerCraft.MOD_ID, String.format( "pocket_%s/%s/%s",
@@ -134,8 +137,184 @@ public class Recipes extends RecipeProvider
         }
     }
 
+    private void basicRecipes( @Nonnull Consumer<IFinishedRecipe> add )
+    {
+        ShapedRecipeBuilder
+            .shapedRecipe( ComputerCraft.Items.cable, 6 )
+            .patternLine( " # " )
+            .patternLine( "#R#" )
+            .patternLine( " # " )
+            .key( '#', Tags.Items.STONE )
+            .key( 'R', Tags.Items.DUSTS_REDSTONE )
+            .addCriterion( "has_computer", inventoryChange( CCTags.COMPUTER ) )
+            .addCriterion( "has_modem", inventoryChange( CCTags.COMPUTER ) )
+            .build( add );
+
+        ShapedRecipeBuilder
+            .shapedRecipe( ComputerCraft.Blocks.computerNormal )
+            .patternLine( "###" )
+            .patternLine( "#R#" )
+            .patternLine( "#G#" )
+            .key( '#', Tags.Items.STONE )
+            .key( 'R', Tags.Items.DUSTS_REDSTONE )
+            .key( 'G', Tags.Items.GLASS_PANES )
+            .addCriterion( "has_redstone", inventoryChange( Tags.Items.DUSTS_REDSTONE ) )
+            .build( add );
+
+        ShapedRecipeBuilder
+            .shapedRecipe( ComputerCraft.Blocks.computerAdvanced )
+            .patternLine( "###" )
+            .patternLine( "#R#" )
+            .patternLine( "#G#" )
+            .key( '#', Tags.Items.INGOTS_GOLD )
+            .key( 'R', Tags.Items.DUSTS_REDSTONE )
+            .key( 'G', Tags.Items.GLASS_PANES )
+            .addCriterion( "has_components", inventoryChange( Items.REDSTONE, Items.GOLD_INGOT ) )
+            .build( add );
+
+        ShapedRecipeBuilder
+            .shapedRecipe( ComputerCraft.Blocks.computerCommand )
+            .patternLine( "###" )
+            .patternLine( "#R#" )
+            .patternLine( "#G#" )
+            .key( '#', Tags.Items.INGOTS_GOLD )
+            .key( 'R', Blocks.COMMAND_BLOCK )
+            .key( 'G', Tags.Items.GLASS_PANES )
+            .addCriterion( "has_components", inventoryChange( Blocks.COMMAND_BLOCK ) )
+            .build( add );
+
+        ShapedRecipeBuilder
+            .shapedRecipe( ComputerCraft.Blocks.diskDrive )
+            .patternLine( "###" )
+            .patternLine( "#R#" )
+            .patternLine( "#R#" )
+            .key( '#', Tags.Items.STONE )
+            .key( 'R', Tags.Items.DUSTS_REDSTONE )
+            .addCriterion( "has_computer", inventoryChange( CCTags.COMPUTER ) )
+            .build( add );
+
+        ShapedRecipeBuilder
+            .shapedRecipe( ComputerCraft.Blocks.monitorNormal )
+            .patternLine( "###" )
+            .patternLine( "#G#" )
+            .patternLine( "###" )
+            .key( '#', Tags.Items.STONE )
+            .key( 'G', Tags.Items.GLASS_PANES )
+            .addCriterion( "has_computer", inventoryChange( CCTags.COMPUTER ) )
+            .build( add );
+
+        ShapedRecipeBuilder
+            .shapedRecipe( ComputerCraft.Blocks.monitorAdvanced, 4 )
+            .patternLine( "###" )
+            .patternLine( "#G#" )
+            .patternLine( "###" )
+            .key( '#', Tags.Items.INGOTS_GOLD )
+            .key( 'G', Tags.Items.GLASS_PANES )
+            .addCriterion( "has_computer", inventoryChange( CCTags.COMPUTER ) )
+            .build( add );
+
+        ShapedRecipeBuilder
+            .shapedRecipe( ComputerCraft.Items.pocketComputerNormal )
+            .patternLine( "###" )
+            .patternLine( "#A#" )
+            .patternLine( "#G#" )
+            .key( '#', Tags.Items.STONE )
+            .key( 'A', Items.GOLDEN_APPLE )
+            .key( 'G', Tags.Items.GLASS_PANES )
+            .addCriterion( "has_computer", inventoryChange( CCTags.COMPUTER ) )
+            .addCriterion( "has_apple", inventoryChange( Items.GOLDEN_APPLE ) )
+            .build( add );
+
+        ShapedRecipeBuilder
+            .shapedRecipe( ComputerCraft.Items.pocketComputerAdvanced )
+            .patternLine( "###" )
+            .patternLine( "#A#" )
+            .patternLine( "#G#" )
+            .key( '#', Tags.Items.INGOTS_GOLD )
+            .key( 'A', Items.GOLDEN_APPLE )
+            .key( 'G', Tags.Items.GLASS_PANES )
+            .addCriterion( "has_computer", inventoryChange( CCTags.COMPUTER ) )
+            .addCriterion( "has_apple", inventoryChange( Items.GOLDEN_APPLE ) )
+            .build( add );
+
+        ShapedRecipeBuilder
+            .shapedRecipe( ComputerCraft.Blocks.printer )
+            .patternLine( "###" )
+            .patternLine( "#R#" )
+            .patternLine( "#D#" )
+            .key( '#', Tags.Items.STONE )
+            .key( 'R', Tags.Items.DUSTS_REDSTONE )
+            .key( 'D', Tags.Items.DYES )
+            .addCriterion( "has_computer", inventoryChange( CCTags.COMPUTER ) )
+            .build( add );
+
+        ShapedRecipeBuilder
+            .shapedRecipe( ComputerCraft.Blocks.speaker )
+            .patternLine( "###" )
+            .patternLine( "#N#" )
+            .patternLine( "#R#" )
+            .key( '#', Tags.Items.STONE )
+            .key( 'N', Blocks.NOTE_BLOCK )
+            .key( 'R', Tags.Items.DUSTS_REDSTONE )
+            .addCriterion( "has_computer", inventoryChange( CCTags.COMPUTER ) )
+            .build( add );
+
+        ShapedRecipeBuilder
+            .shapedRecipe( ComputerCraft.Items.wiredModem )
+            .patternLine( "###" )
+            .patternLine( "#R#" )
+            .patternLine( "###" )
+            .key( '#', Tags.Items.STONE )
+            .key( 'R', Tags.Items.DUSTS_REDSTONE )
+            .addCriterion( "has_computer", inventoryChange( CCTags.COMPUTER ) )
+            .addCriterion( "has_cable", inventoryChange( ComputerCraft.Items.cable ) )
+            .build( add );
+
+        ShapelessRecipeBuilder
+            .shapelessRecipe( ComputerCraft.Blocks.wiredModemFull )
+            .addIngredient( ComputerCraft.Items.wiredModem )
+            .addCriterion( "has_modem", inventoryChange( CCTags.WIRED_MODEM ) )
+            .build( add, new ResourceLocation( ComputerCraft.MOD_ID, "wired_modem_full_from" ) );
+        ShapelessRecipeBuilder
+            .shapelessRecipe( ComputerCraft.Items.wiredModem )
+            .addIngredient( ComputerCraft.Blocks.wiredModemFull )
+            .addCriterion( "has_modem", inventoryChange( CCTags.WIRED_MODEM ) )
+            .build( add, new ResourceLocation( ComputerCraft.MOD_ID, "wired_modem_full_to" ) );
+
+        ShapedRecipeBuilder
+            .shapedRecipe( ComputerCraft.Blocks.wirelessModemNormal )
+            .patternLine( "###" )
+            .patternLine( "#E#" )
+            .patternLine( "###" )
+            .key( '#', Tags.Items.STONE )
+            .key( 'E', Tags.Items.ENDER_PEARLS )
+            .addCriterion( "has_computer", inventoryChange( CCTags.COMPUTER ) )
+            .build( add );
+
+        ShapedRecipeBuilder
+            .shapedRecipe( ComputerCraft.Blocks.wirelessModemAdvanced )
+            .patternLine( "###" )
+            .patternLine( "#E#" )
+            .patternLine( "###" )
+            .key( '#', Tags.Items.INGOTS_GOLD )
+            .key( 'E', Items.ENDER_EYE )
+            .addCriterion( "has_computer", inventoryChange( CCTags.COMPUTER ) )
+            .addCriterion( "has_wireless", inventoryChange( ComputerCraft.Blocks.wirelessModemNormal ) )
+            .build( add );
+    }
+
     private static DyeColor ofColour( Colour colour )
     {
         return DyeColor.byId( 15 - colour.ordinal() );
+    }
+
+    private static InventoryChangeTrigger.Instance inventoryChange( Tag<Item> stack )
+    {
+        return InventoryChangeTrigger.Instance.forItems( ItemPredicate.Builder.create().tag( stack ).build() );
+    }
+
+    private static InventoryChangeTrigger.Instance inventoryChange( IItemProvider... stack )
+    {
+        return InventoryChangeTrigger.Instance.forItems( stack );
     }
 }

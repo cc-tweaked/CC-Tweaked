@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "###",
+    "#R#",
+    "#R#"
+  ],
+  "key": {
+    "#": {
+      "tag": "forge:stone"
+    },
+    "R": {
+      "tag": "forge:dusts/redstone"
+    }
+  },
+  "result": {
+    "item": "computercraft:disk_drive"
+  }
+}

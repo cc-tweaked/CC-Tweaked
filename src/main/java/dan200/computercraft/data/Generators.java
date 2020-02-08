@@ -23,5 +23,6 @@ public class Generators
         DataGenerator generator = event.getGenerator();
         generator.addProvider( new Recipes( generator ) );
         generator.addProvider( new LootTables( generator ) );
+        generator.addProvider( new Tags( generator ) );
     }
 }

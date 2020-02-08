@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "computercraft:wired_modem"
+    }
+  ],
+  "result": {
+    "item": "computercraft:wired_modem_full"
+  }
+}
