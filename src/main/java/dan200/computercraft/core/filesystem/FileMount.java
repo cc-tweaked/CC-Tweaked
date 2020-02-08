@@ -16,8 +16,10 @@ import java.nio.channels.*;
 import java.nio.file.Files;
 import java.nio.file.OpenOption;
 import java.nio.file.StandardOpenOption;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collections;
 import java.util.List;
+import java.util.OptionalLong;
 import java.util.Set;
 
 public class FileMount implements IWritableMount
@@ -224,6 +226,19 @@ public class FileMount implements IWritableMount
         throw new FileOperationException( path, "No such file" );
     }
 
+    @Nonnull
+    @Override
+    public BasicFileAttributes getAttributes( @Nonnull String path ) throws IOException
+    {
+        if( created() )
+        {
+            File file = getRealPath( path );
+            if( file.exists() ) return Files.readAttributes( file.toPath(), BasicFileAttributes.class );
+        }
+
+        throw new FileOperationException( path, "No such file" );
+    }
+
     // IWritableMount implementation
 
     @Override
@@ -358,6 +373,13 @@ public class FileMount implements IWritableMount
     public long getRemainingSpace()
     {
         return Math.max( m_capacity - m_usedSpace, 0 );
+    }
+
+    @Nonnull
+    @Override
+    public OptionalLong getCapacity()
+    {
+        return OptionalLong.of( m_capacity - MINIMUM_FILE_SIZE );
     }
 
     private File getRealPath( String path )
