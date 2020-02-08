@@ -67,6 +67,9 @@ while bRunning do
     if s:match("%S") and tCommandHistory[#tCommandHistory] ~= s then
         table.insert( tCommandHistory, s )
     end
+    if settings.get( "lua.warn_against_use_of_local" ) s:match("local%s+%w+%s*=") then -- TODO: make the pattern less ugly
+       print("It looks like you are assigning to a local variable, this variable will be inaccessible on your next input") 
+    end
 
     local nForcePrint = 0
     local func, e = load( s, "=lua", "t", tEnv )
