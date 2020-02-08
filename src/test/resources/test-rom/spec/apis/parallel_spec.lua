@@ -16,8 +16,8 @@ describe("The parallel library", function()
             expect(parallel.waitForAny, mock, mock):eq(1)
             expect(parallel.waitForAny, {mock, mock}):eq(1)
             
-            expect(parallel.waitForAny, longMock, mock):eq(1)
-            expect(parallel.waitForAny, {longMock, mock}):eq(1)
+            expect(parallel.waitForAny, longMock, mock):eq(2)
+            expect(parallel.waitForAny, {longMock, mock}):eq(2)
             
             expect(parallel.waitForAny, mock, longMock):eq(1)
             expect(parallel.waitForAny, {mock, longMock}):eq(1)
