@@ -359,7 +359,6 @@ public class FSAPI implements ILuaAPI
                 {
                     BasicFileAttributes attributes = m_fileSystem.getAttributes( path );
                     Map<String, Object> result = new HashMap<>();
-                    result.put( "access", attributes.lastAccessTime().toMillis() );
                     result.put( "modification", attributes.lastModifiedTime().toMillis() );
                     result.put( "created", attributes.creationTime().toMillis() );
                     result.put( "size", attributes.isDirectory() ? 0 : attributes.size() );
