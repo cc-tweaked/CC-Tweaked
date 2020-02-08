@@ -681,7 +681,7 @@ while bRunning do
 
             end
 
-        elseif param == keys.leftCtrl or param == keys.rightCtrl or param == keys.rightAlt then
+        elseif param == keys.leftCtrl or param == keys.rightCtrl then
             -- Menu toggle
             bMenu = not bMenu
             if bMenu then
