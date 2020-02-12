@@ -2,8 +2,27 @@
 local tArgs = { ... }
 
 -- Get all the files in the directory
-local sDir = shell.dir()
-if tArgs[1] ~= nil then
+local sDir
+if #tArgs == 0 then
+    sDir = shell.dir()
+elseif string.sub(tArgs[1],1,1) == "-" then
+    sArgs = string.sub(tArgs[1],2,-1)
+    for c in sArgs:gmatch"." do
+        if c == "a" then
+            bShowHiddenArg = true
+        elseif c == "l" then
+            bShowAttr = true
+        else
+            printError("Unknown Argument")
+            return
+        end
+    end
+    if tArgs[2] == nil then
+        sDir = shell.dir()
+    else
+        sDir = shell.resolve( tArgs[1] )
+    end
+else
     sDir = shell.resolve( tArgs[1] )
 end
 
@@ -17,7 +36,7 @@ local tAll = fs.list( sDir )
 local tFiles = {}
 local tDirs = {}
 
-local bShowHidden = settings.get( "list.show_hidden" )
+local bShowHidden = settings.get( "list.show_hidden" ) or bShowHiddenArg
 for _, sItem in pairs( tAll ) do
     if bShowHidden or string.sub( sItem, 1, 1 ) ~= "." then
         local sPath = fs.combine( sDir, sItem )
@@ -31,8 +50,32 @@ end
 table.sort( tDirs )
 table.sort( tFiles )
 
-if term.isColour() then
-    textutils.pagedTabulate( colors.green, tDirs, colors.white, tFiles )
+local function writeFileTable( tPrint, tList )
+    for i, v in ipairs( tList ) do
+        tAttr = fs.attributes( shell.resolve( v ) )
+        tSingeEntry = {v}
+        if tAttr["isDir"] then
+            table.insert( tSingeEntry, "Dir" )
+        else
+            table.insert( tSingeEntry, "File" )
+        end
+        table.insert( tSingeEntry, tostring( tAttr["size"] ) )
+        table.insert( tSingeEntry, string.sub( tostring( tAttr["created"] ), 1, 5 ) )
+        table.insert( tSingeEntry, string.sub( tostring( tAttr["modification"] ),1, 5 ) )
+        table.insert( tPrint, tSingeEntry )
+    end
+    return tPrint
+end
+
+if bShowAttr then
+    tPrint = {{"Name","Type","Size","Created","Modified"}}
+    tPrint = writeFileTable( tPrint, tDirs )
+    tPrint = writeFileTable( tPrint, tFiles )
+    textutils.tabulate( table.unpack( tPrint ) )
 else
-    textutils.pagedTabulate( tDirs, tFiles )
+    if term.isColour() then
+        textutils.pagedTabulate( colors.green, tDirs, colors.white, tFiles )
+    else
+        textutils.pagedTabulate( tDirs, tFiles )
+    end
 end
