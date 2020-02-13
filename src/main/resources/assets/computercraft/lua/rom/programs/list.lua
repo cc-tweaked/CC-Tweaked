@@ -59,9 +59,10 @@ local function writeFileTable( tPrint, tList )
         else
             table.insert( tSingeEntry, "File" )
         end
+        sDate = settings.get("list.date_format")
         table.insert( tSingeEntry, tostring( tAttr["size"] ) )
-        table.insert( tSingeEntry, string.sub( tostring( tAttr["created"] ), 1, 5 ) )
-        table.insert( tSingeEntry, string.sub( tostring( tAttr["modification"] ),1, 5 ) )
+        table.insert( tSingeEntry, os.date( sDate, tAttr["created"] ) )
+        table.insert( tSingeEntry, os.date( sDate, tAttr["modification"] ) )
         table.insert( tPrint, tSingeEntry )
     end
     return tPrint
