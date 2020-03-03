@@ -18,6 +18,10 @@ local tEnv = {
     ["_echo"] = function( ... )
         return ...
     end,
+    ["_requireFromDisk"] = function(p)
+        package.preload[p] = nil
+        return require(p)
+    end,
 }
 setmetatable( tEnv, { __index = _ENV } )
 
