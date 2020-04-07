@@ -44,7 +44,7 @@ import java.util.concurrent.TimeUnit;
 
 public class TurtleBrain implements ITurtleAccess
 {
-    private static final int ANIM_DURATION = 8;
+    private static final int ANIM_DURATION = ComputerCraft.turtleAnimationDuration;
 
     private TileTurtle m_owner;
     private ComputerProxy m_proxy;
@@ -637,8 +637,8 @@ public class TurtleBrain implements ITurtleAccess
         m_animation = animation;
         if( m_animation == TurtleAnimation.ShortWait )
         {
-            m_animationProgress = ANIM_DURATION / 2;
-            m_lastAnimationProgress = ANIM_DURATION / 2;
+            m_animationProgress = ComputerCraft.turtleAnimationDuration / 2;
+            m_lastAnimationProgress = ComputerCraft.turtleAnimationDuration / 2;
         }
         else
         {
@@ -960,7 +960,7 @@ public class TurtleBrain implements ITurtleAccess
                     double maxY = minY + 1.0;
                     double maxZ = minZ + 1.0;
 
-                    float pushFrac = 1.0f - (float) (m_animationProgress + 1) / ANIM_DURATION;
+                    float pushFrac = 1.0f - (float) (m_animationProgress + 1) / ComputerCraft.turtleAnimationDuration;
                     float push = Math.max( pushFrac + 0.0125f, 0.0f );
                     if( moveDir.getXOffset() < 0 )
                     {
@@ -993,7 +993,7 @@ public class TurtleBrain implements ITurtleAccess
                     List<Entity> list = world.getEntitiesWithinAABB( Entity.class, aabb, EntitySelectors.NOT_SPECTATING );
                     if( !list.isEmpty() )
                     {
-                        double pushStep = 1.0f / ANIM_DURATION;
+                        double pushStep = 1.0f / ComputerCraft.turtleAnimationDuration;
                         double pushStepX = moveDir.getXOffset() * pushStep;
                         double pushStepY = moveDir.getYOffset() * pushStep;
                         double pushStepZ = moveDir.getZOffset() * pushStep;
@@ -1030,7 +1030,7 @@ public class TurtleBrain implements ITurtleAccess
 
             // Wait for anim completion
             m_lastAnimationProgress = m_animationProgress;
-            if( ++m_animationProgress >= ANIM_DURATION )
+            if( ++m_animationProgress >= ComputerCraft.turtleAnimationDuration )
             {
                 m_animation = TurtleAnimation.None;
                 m_animationProgress = 0;
@@ -1041,8 +1041,8 @@ public class TurtleBrain implements ITurtleAccess
 
     private float getAnimationFraction( float f )
     {
-        float next = (float) m_animationProgress / ANIM_DURATION;
-        float previous = (float) m_lastAnimationProgress / ANIM_DURATION;
+        float next = (float) m_animationProgress / ComputerCraft.turtleAnimationDuration;
+        float previous = (float) m_lastAnimationProgress / ComputerCraft.turtleAnimationDuration;
         return previous + (next - previous) * f;
     }
 }
