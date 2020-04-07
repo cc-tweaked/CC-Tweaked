@@ -193,3 +193,4 @@ gui.computercraft:config.turtle.advanced_fuel_limit=Advanced Turtle fuel limit
 gui.computercraft:config.turtle.obey_block_protection=Turtles obey block protection
 gui.computercraft:config.turtle.can_push=Turtles can push entities
 gui.computercraft:config.turtle.disabled_actions=Disabled turtle actions
+gui.computercraft:config.turtle.animation_duration=Turtle Animation Duration
