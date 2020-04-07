@@ -143,7 +143,7 @@ public class ComputerCraft
     public static boolean turtlesObeyBlockProtection = true;
     public static boolean turtlesCanPush = true;
     public static EnumSet<TurtleAction> turtleDisabledActions = EnumSet.noneOf( TurtleAction.class );
-    public static int turtleSpeedMultiplier = 1;
+    public static float turtleSpeedMultiplier = 1;
 
     public static final int terminalWidth_computer = 51;
     public static final int terminalHeight_computer = 19;

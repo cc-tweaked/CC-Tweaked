@@ -485,7 +485,7 @@ public final class Config
             }
         }
 
-        ComputerCraft.turtleSpeedMultiplier = turtleSpeedMultiplier.getInt();
+        ComputerCraft.turtleSpeedMultiplier = (float) turtleSpeedMultiplier.getDouble();
 
         config.save();
     }

@@ -637,8 +637,8 @@ public class TurtleBrain implements ITurtleAccess
         m_animation = animation;
         if( m_animation == TurtleAnimation.ShortWait )
         {
-            m_animationProgress = ANIM_DURATION / (2 * ComputerCraft.turtleSpeedMultiplier);
-            m_lastAnimationProgress = ANIM_DURATION / (2 * ComputerCraft.turtleSpeedMultiplier);
+            m_animationProgress = (int)(ANIM_DURATION / (2 * ComputerCraft.turtleSpeedMultiplier));
+            m_lastAnimationProgress = (int)(ANIM_DURATION / (2 * ComputerCraft.turtleSpeedMultiplier));
         }
         else
         {
