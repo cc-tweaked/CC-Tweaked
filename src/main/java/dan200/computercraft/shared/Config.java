@@ -76,6 +76,7 @@ public final class Config
     private static Property turtlesObeyBlockProtection;
     private static Property turtlesCanPush;
     private static Property turtleDisabledActions;
+    private static Property turtleSpeedMultiplier;
 
     private Config() {}
 
@@ -303,9 +304,12 @@ public final class Config
             turtleDisabledActions = config.get( CATEGORY_TURTLE, "disabled_actions", new String[0] );
             turtleDisabledActions.setComment( "A list of turtle actions which are disabled." );
 
+            turtleSpeedMultiplier = config.get( CATEGORY_TURTLE, "speed_multiplier", ComputerCraft.turtleSpeedMultiplier );
+            turtleSpeedMultiplier.setComment( "How fast the turtle does various actions including movement. Higher values are faster." );
+
             setOrder(
                 CATEGORY_TURTLE,
-                turtlesNeedFuel, turtleFuelLimit, advancedTurtleFuelLimit, turtlesObeyBlockProtection, turtlesCanPush, turtleDisabledActions
+                turtlesNeedFuel, turtleFuelLimit, advancedTurtleFuelLimit, turtlesObeyBlockProtection, turtlesCanPush, turtleDisabledActions, turtleSpeedMultiplier
             );
         }
 
@@ -480,6 +484,8 @@ public final class Config
                 ComputerCraft.log.error( "Unknown turtle action " + value );
             }
         }
+
+        ComputerCraft.turtleSpeedMultiplier = turtleSpeedMultiplier.getInt();
 
         config.save();
     }
