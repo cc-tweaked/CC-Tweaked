@@ -44,8 +44,6 @@ import java.util.concurrent.TimeUnit;
 
 public class TurtleBrain implements ITurtleAccess
 {
-    private static final int ANIM_DURATION = ComputerCraft.turtleAnimationDuration;
-
     private TileTurtle m_owner;
     private ComputerProxy m_proxy;
     private GameProfile m_owningPlayer;
