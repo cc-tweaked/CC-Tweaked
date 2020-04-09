@@ -253,7 +253,7 @@ end
 
 function print( ... )
     local nLinesPrinted = 0
-    local nLimit = select("#", ... )
+    local nLimit = select("#", ...)
     for n = 1, nLimit do
         local s = tostring( select( n, ... ) )
         if n < nLimit then
@@ -695,7 +695,7 @@ if http then
     end
 
     local function checkOptions( options, body )
-        checkKey( options, "url", "string")
+        checkKey( options, "url", "string" )
         if body == false then
           checkKey( options, "body", "nil" )
         else
@@ -725,7 +725,7 @@ if http then
         return nil, err
     end
 
-    http.get = function( _url, _headers, _binary)
+    http.get = function(_url, _headers, _binary)
         if type( _url ) == "table" then
             checkOptions( _url, false )
             return wrapRequest( _url.url, _url )
@@ -737,7 +737,7 @@ if http then
         return wrapRequest( _url, _url, nil, _headers, _binary )
     end
 
-    http.post = function( _url, _post, _headers, _binary)
+    http.post = function(_url, _post, _headers, _binary)
         if type( _url ) == "table" then
             checkOptions( _url, true )
             return wrapRequest( _url.url, _url )

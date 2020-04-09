@@ -43,7 +43,7 @@ end
 
 local function completePastebinPut(shell, text, previous)
     if previous[2] == "put" then
-        return fs.complete(text, shell.dir(), true, false )
+        return fs.complete( text, shell.dir(), true, false )
     end
 end
 
@@ -106,7 +106,7 @@ if turtle then
     ) )
     shell.setCompletionFunction( "rom/programs/turtle/turn.lua", completion.build(
         { completion.choice, { "left", "right" }, true, many = true }
-    ))
+    ) )
     shell.setCompletionFunction( "rom/programs/turtle/equip.lua", completion.build(
         nil,
         { completion.choice, { "left", "right" } }

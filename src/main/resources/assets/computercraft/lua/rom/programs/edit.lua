@@ -15,7 +15,7 @@ end
 
 -- Create .lua files by default
 if not fs.exists( sPath ) and not string.find( sPath, "%." ) then
-    local sExtension = settings.get("edit.default_extension", "" )
+    local sExtension = settings.get("edit.default_extension", "")
     if sExtension ~= "" and type( sExtension ) == "string" then
         sPath = sPath .. "." .. sExtension
     end
@@ -85,7 +85,7 @@ end
 
 local function save( _sPath )
     -- Create intervening folder
-    local sDir = _sPath:sub(1, _sPath:len() - fs.getName(_sPath):len() )
+    local sDir = _sPath:sub(1, _sPath:len() - fs.getName(_sPath):len())
     if not fs.exists( sDir ) then
         fs.makeDir( sDir )
     end

@@ -393,7 +393,7 @@ end
 -- @treturn Doc The object formatted as a document.
 -- @usage Display a table on the screen
 --     local pretty = require "cc.pretty"
---     pretty.print(pretty.pretty({ 1, 2, 3 })
+--     pretty.print(pretty.pretty({ 1, 2, 3 }))
 local function pretty(obj)
     return pretty_impl(obj, {})
 end

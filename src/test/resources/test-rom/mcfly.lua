@@ -356,7 +356,7 @@ function expect_mt:called_with_matching(...)
     return called_with_check(matches, self, ...)
 end
 
-local expect = setmetatable( {
+local expect = setmetatable({
     --- Construct an expectation on the error message calling this function
     -- produces
     --

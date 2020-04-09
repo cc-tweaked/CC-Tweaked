@@ -346,10 +346,10 @@ function urlEncode( str )
             else
                 -- Non-ASCII (encode as UTF-8)
                 return
-                    string.format("%%%02X", 192 + bit32.band( bit32.arshift(n, 6), 31 ) ) ..
-                    string.format("%%%02X", 128 + bit32.band( n, 63 ) )
+                    string.format("%%%02X", 192 + bit32.band( bit32.arshift(n, 6), 31 )) ..
+                    string.format("%%%02X", 128 + bit32.band( n, 63 ))
             end
-        end )
+        end)
         str = string.gsub(str, " ", "+")
     end
     return str
