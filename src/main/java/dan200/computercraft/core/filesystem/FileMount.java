@@ -6,6 +6,7 @@
 package dan200.computercraft.core.filesystem;
 
 import com.google.common.collect.Sets;
+import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.filesystem.FileOperationException;
 import dan200.computercraft.api.filesystem.IWritableMount;
 
@@ -13,9 +14,7 @@ import javax.annotation.Nonnull;
 import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.channels.*;
-import java.nio.file.Files;
-import java.nio.file.OpenOption;
-import java.nio.file.StandardOpenOption;
+import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collections;
 import java.util.List;
@@ -404,23 +403,46 @@ public class FileMount implements IWritableMount
         }
     }
 
+    private static class Visitor extends SimpleFileVisitor<Path>
+    {
+        long size;
+
+        @Override
+        public FileVisitResult preVisitDirectory( Path dir, BasicFileAttributes attrs )
+        {
+            size += MINIMUM_FILE_SIZE;
+            return FileVisitResult.CONTINUE;
+        }
+
+        @Override
+        public FileVisitResult visitFile( Path file, BasicFileAttributes attrs )
+        {
+            size += Math.max( attrs.size(), MINIMUM_FILE_SIZE );
+            return FileVisitResult.CONTINUE;
+        }
+
+        @Override
+        public FileVisitResult visitFileFailed( Path file, IOException exc )
+        {
+            ComputerCraft.log.error( "Error computing file size for {}", file, exc );
+            return FileVisitResult.CONTINUE;
+        }
+    }
+
     private static long measureUsedSpace( File file )
     {
         if( !file.exists() ) return 0;
 
-        if( file.isDirectory() )
+        try
         {
-            long size = MINIMUM_FILE_SIZE;
-            String[] contents = file.list();
-            for( String content : contents )
-            {
-                size += measureUsedSpace( new File( file, content ) );
-            }
-            return size;
+            Visitor visitor = new Visitor();
+            Files.walkFileTree( file.toPath(), visitor );
+            return visitor.size;
         }
-        else
+        catch( IOException e )
         {
-            return Math.max( file.length(), MINIMUM_FILE_SIZE );
+            ComputerCraft.log.error( "Error computing file size for {}", file, e );
+            return 0;
         }
     }
 }
