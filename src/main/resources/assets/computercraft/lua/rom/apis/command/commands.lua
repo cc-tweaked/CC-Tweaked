@@ -1,7 +1,26 @@
+--- The commands API allows your system to directly execute [Minecraft
+-- commands][mc] and gather data from the results.
+--
+-- While one may use @{commands.exec} directly to execute a command, the
+-- commands API also provides helper methods to execute every command. For
+-- instance, `commands.say("Hi!")` is equivalent to `commands.exec("say Hi!")`.
+--
+-- @{commands.async} provides a similar interface to execute asynchronous
+-- commands. `commands.async.say("Hi!")` is equivalent to
+-- `commands.execAsync("Hi!")`.
+--
+-- [mc]: https://minecraft.gamepedia.com/Commands
+--
+-- @module commands
 
 if not commands then
-	error( "Cannot load command API on normal computer", 2 )
+    error( "Cannot load command API on normal computer", 2 )
 end
+
+--- The builtin commands API, without any generated command helper functions
+--
+-- This may be useful if a built-in function (such as @{commands.list}) has been
+-- overwritten by a command.
 native = commands.native or commands
 
 local function collapseArgs( bJSONIsNBT, ... )

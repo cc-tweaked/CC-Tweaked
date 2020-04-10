@@ -21,7 +21,7 @@ if _VERSION == "Lua 5.1" then
     local nativeloadstring = loadstring
     local nativesetfenv = setfenv
 
-    --- Historically load/loadstring would handle the chunk name as if it has
+    -- Historically load/loadstring would handle the chunk name as if it has
     -- been prefixed with "=". We emulate that behaviour here.
     local function prefix(chunkname)
         if type(chunkname) ~= "string" then return chunkname end
