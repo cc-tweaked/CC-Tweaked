@@ -40,7 +40,6 @@ public class EmptyMount implements IMount
 
     @Nonnull
     @Override
-    @Deprecated
     public ReadableByteChannel openForRead( @Nonnull String path ) throws IOException
     {
         throw new FileOperationException( path, "No such file" );

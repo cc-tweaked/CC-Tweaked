@@ -312,19 +312,6 @@ public class Terminal
         return null;
     }
 
-    /**
-     * Determine whether this terminal has changed.
-     *
-     * @return If this terminal is dirty.
-     * @deprecated All {@code *Changed()} methods are deprecated: one should pass in a callback
-     * instead.
-     */
-    @Deprecated
-    public final boolean getChanged()
-    {
-        return m_changed;
-    }
-
     public final void setChanged()
     {
         m_changed = true;
