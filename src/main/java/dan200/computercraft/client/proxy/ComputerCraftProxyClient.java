@@ -38,12 +38,12 @@ public final class ComputerCraftProxyClient
         registerContainers();
 
         // While turtles themselves are not transparent, their upgrades may be.
-        RenderTypeLookup.setRenderLayer( ComputerCraft.Blocks.turtleNormal, RenderType.translucent() );
-        RenderTypeLookup.setRenderLayer( ComputerCraft.Blocks.turtleAdvanced, RenderType.translucent() );
+        RenderTypeLookup.setRenderLayer( ComputerCraft.Blocks.turtleNormal, RenderType.getTranslucent() );
+        RenderTypeLookup.setRenderLayer( ComputerCraft.Blocks.turtleAdvanced, RenderType.getTranslucent() );
 
         // Monitors' textures have transparent fronts and so count as cutouts.
-        RenderTypeLookup.setRenderLayer( ComputerCraft.Blocks.monitorNormal, RenderType.cutout() );
-        RenderTypeLookup.setRenderLayer( ComputerCraft.Blocks.monitorAdvanced, RenderType.cutout() );
+        RenderTypeLookup.setRenderLayer( ComputerCraft.Blocks.monitorNormal, RenderType.getCutout() );
+        RenderTypeLookup.setRenderLayer( ComputerCraft.Blocks.monitorAdvanced, RenderType.getCutout() );
 
         // Setup TESRs
         ClientRegistry.bindTileEntityRenderer( TileMonitor.FACTORY_NORMAL, TileEntityMonitorRenderer::new );

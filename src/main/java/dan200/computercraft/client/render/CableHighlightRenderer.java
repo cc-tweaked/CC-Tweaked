@@ -67,8 +67,8 @@ public final class CableHighlightRenderer
         double yOffset = pos.getY() - cameraPos.getY();
         double zOffset = pos.getZ() - cameraPos.getZ();
 
-        IVertexBuilder buffer = event.getBuffers().getBuffer( RenderType.lines() );
-        Matrix4f matrix4f = event.getMatrix().getLast().getPositionMatrix();
+        IVertexBuilder buffer = event.getBuffers().getBuffer( RenderType.getLines() );
+        Matrix4f matrix4f = event.getMatrix().getLast().getMatrix();
         shape.forEachEdge( ( x1, y1, z1, x2, y2, z2 ) -> {
             buffer.pos( matrix4f, (float) (x1 + xOffset), (float) (y1 + yOffset), (float) (z1 + zOffset) )
                 .color( 0, 0, 0, 0.4f ).endVertex();

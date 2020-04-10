@@ -42,7 +42,7 @@ public class TurtleSmartItemModel implements IBakedModel
         stack.translate( 0, 0, 1 );
 
         identity = TransformationMatrix.identity();
-        flip = new TransformationMatrix( stack.getLast().getPositionMatrix() );
+        flip = new TransformationMatrix( stack.getLast().getMatrix() );
     }
 
     private static class TurtleModelCombination
@@ -97,15 +97,14 @@ public class TurtleSmartItemModel implements IBakedModel
     private final IBakedModel familyModel;
     private final IBakedModel colourModel;
 
-    private HashMap<TurtleModelCombination, IBakedModel> m_cachedModels;
-    private ItemOverrideList m_overrides;
+    private final HashMap<TurtleModelCombination, IBakedModel> m_cachedModels = new HashMap<>();
+    private final ItemOverrideList m_overrides;
 
     public TurtleSmartItemModel( IBakedModel familyModel, IBakedModel colourModel )
     {
         this.familyModel = familyModel;
         this.colourModel = colourModel;
 
-        m_cachedModels = new HashMap<>();
         m_overrides = new ItemOverrideList()
         {
             @Nonnull

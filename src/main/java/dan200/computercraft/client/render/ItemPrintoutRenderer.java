@@ -36,7 +36,7 @@ public final class ItemPrintoutRenderer extends ItemMapLikeRenderer
     {
     }
 
-    // TODO: @SubscribeEvent
+    @SubscribeEvent
     public static void onRenderInHand( RenderHandEvent event )
     {
         ItemStack stack = event.getItemStack();
@@ -53,7 +53,6 @@ public final class ItemPrintoutRenderer extends ItemMapLikeRenderer
     protected void renderItem( MatrixStack transform, IRenderTypeBuffer render, ItemStack stack )
     {
         transform.rotate( Vector3f.XP.rotationDegrees( 180f ) );
-        transform.rotate( Vector3f.ZP.rotationDegrees( 180f ) );
         transform.scale( 0.42f, 0.42f, -0.42f );
         transform.translate( -0.5f, -0.48f, 0.0f );
 
@@ -105,7 +104,7 @@ public final class ItemPrintoutRenderer extends ItemMapLikeRenderer
         transform.scale( scale, scale, scale );
         transform.translate( (max - width) / 2.0, (max - height) / 2.0, 0.0 );
 
-        Matrix4f matrix = transform.getLast().getPositionMatrix();
+        Matrix4f matrix = transform.getLast().getMatrix();
         drawBorder( matrix, render, 0, 0, -0.01f, 0, pages, book );
         drawText( matrix, render,
             X_TEXT_MARGIN, Y_TEXT_MARGIN, 0, ItemPrintout.getText( stack ), ItemPrintout.getColours( stack )

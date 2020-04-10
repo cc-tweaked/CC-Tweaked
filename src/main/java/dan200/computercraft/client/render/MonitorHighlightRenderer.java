@@ -66,8 +66,8 @@ public final class MonitorHighlightRenderer
         transformStack.translate( pos.getX() - cameraPos.getX(), pos.getY() - cameraPos.getY(), pos.getZ() - cameraPos.getZ() );
 
         // I wish I could think of a better way to do this
-        IVertexBuilder buffer = event.getBuffers().getBuffer( RenderType.lines() );
-        Matrix4f transform = transformStack.getLast().getPositionMatrix();
+        IVertexBuilder buffer = event.getBuffers().getBuffer( RenderType.getLines() );
+        Matrix4f transform = transformStack.getLast().getMatrix();
         if( faces.contains( NORTH ) || faces.contains( WEST ) ) line( buffer, transform, 0, 0, 0, UP );
         if( faces.contains( SOUTH ) || faces.contains( WEST ) ) line( buffer, transform, 0, 0, 1, UP );
         if( faces.contains( NORTH ) || faces.contains( EAST ) ) line( buffer, transform, 1, 0, 0, UP );

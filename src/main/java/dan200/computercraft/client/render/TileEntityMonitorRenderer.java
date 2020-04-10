@@ -106,13 +106,13 @@ public class TileEntityMonitorRenderer extends TileEntityRenderer<TileMonitor>
             float xMargin = (float) (MARGIN / xScale);
             float yMargin = (float) (MARGIN / yScale);
 
-            Matrix4f matrix = transform.getLast().getPositionMatrix();
+            Matrix4f matrix = transform.getLast().getMatrix();
 
             if( redraw )
             {
                 Tessellator tessellator = Tessellator.getInstance();
                 BufferBuilder builder = tessellator.getBuffer();
-                builder.begin( FixedWidthFontRenderer.TYPE.getGlMode(), FixedWidthFontRenderer.TYPE.getVertexFormat() );
+                builder.begin( FixedWidthFontRenderer.TYPE.getDrawMode(), FixedWidthFontRenderer.TYPE.getVertexFormat() );
                 FixedWidthFontRenderer.drawTerminalWithoutCursor(
                     IDENTITY, builder, 0, 0,
                     terminal, !originTerminal.isColour(), yMargin, yMargin, xMargin, xMargin
@@ -126,11 +126,11 @@ public class TileEntityMonitorRenderer extends TileEntityRenderer<TileMonitor>
             // render state. I've no clue how well this'll work in future versions of Minecraft, but it does the trick
             // for now.
             IVertexBuilder buffer = renderer.getBuffer( FixedWidthFontRenderer.TYPE );
-            FixedWidthFontRenderer.TYPE.enable();
+            FixedWidthFontRenderer.TYPE.setupRenderState();
 
             vbo.bindBuffer();
             FixedWidthFontRenderer.TYPE.getVertexFormat().setupBufferState( 0L );
-            vbo.draw( matrix, FixedWidthFontRenderer.TYPE.getGlMode() );
+            vbo.draw( matrix, FixedWidthFontRenderer.TYPE.getDrawMode() );
             VertexBuffer.unbindBuffer();
             FixedWidthFontRenderer.TYPE.getVertexFormat().clearBufferState();
 
@@ -143,14 +143,14 @@ public class TileEntityMonitorRenderer extends TileEntityRenderer<TileMonitor>
         else
         {
             FixedWidthFontRenderer.drawEmptyTerminal(
-                transform.getLast().getPositionMatrix(), renderer,
+                transform.getLast().getMatrix(), renderer,
                 -MARGIN, MARGIN,
                 (float) (xSize + 2 * MARGIN), (float) -(ySize + MARGIN * 2)
             );
         }
 
         FixedWidthFontRenderer.drawBlocker(
-            transform.getLast().getPositionMatrix(), renderer,
+            transform.getLast().getMatrix(), renderer,
             (float) -TileMonitor.RENDER_MARGIN, (float) TileMonitor.RENDER_MARGIN,
             (float) (xSize + 2 * TileMonitor.RENDER_MARGIN), (float) -(ySize + TileMonitor.RENDER_MARGIN * 2)
         );

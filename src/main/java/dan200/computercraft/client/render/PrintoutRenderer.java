@@ -167,10 +167,10 @@ public final class PrintoutRenderer
 
     private static final class Type extends RenderState
     {
-        static final RenderType TYPE = RenderType.get(
+        static final RenderType TYPE = RenderType.makeType(
             "printout_background", DefaultVertexFormats.POSITION_TEX, GL11.GL_QUADS, 1024,
             false, false, // useDelegate, needsSorting
-            RenderType.State.builder()
+            RenderType.State.getBuilder()
                 .texture( new RenderState.TextureState( BG, false, false ) ) // blur, minimap
                 .alpha( DEFAULT_ALPHA )
                 .lightmap( LIGHTMAP_DISABLED )

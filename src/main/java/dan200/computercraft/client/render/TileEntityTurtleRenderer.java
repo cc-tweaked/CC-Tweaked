@@ -87,7 +87,7 @@ public class TileEntityTurtleRenderer extends TileEntityRenderer<TileTurtle>
             transform.rotate( mc.getRenderManager().getCameraOrientation() );
             transform.scale( -0.025f, -0.025f, 0.025f );
 
-            Matrix4f matrix = transform.getLast().getPositionMatrix();
+            Matrix4f matrix = transform.getLast().getMatrix();
             int opacity = (int) (mc.gameSettings.getTextBackgroundOpacity( 0.25f ) * 255) << 24;
             float width = -font.getStringWidth( label ) / 2.0f;
             font.renderString( label, width, (float) 0, 0x20ffffff, false, matrix, renderer, true, opacity, lightmapCoord );

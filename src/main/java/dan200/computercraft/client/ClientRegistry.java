@@ -76,7 +76,7 @@ public final class ClientRegistry
     @SubscribeEvent
     public static void onTextureStitchEvent( TextureStitchEvent.Pre event )
     {
-        if( !event.getMap().getBasePath().equals( PlayerContainer.LOCATION_BLOCKS_TEXTURE ) ) return;
+        if( !event.getMap().getTextureLocation().equals( PlayerContainer.LOCATION_BLOCKS_TEXTURE ) ) return;
 
         for( String extra : EXTRA_TEXTURES )
         {

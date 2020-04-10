@@ -7,7 +7,10 @@ package dan200.computercraft.shared.util;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import com.google.gson.*;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonSyntaxException;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.util.JSONUtils;
