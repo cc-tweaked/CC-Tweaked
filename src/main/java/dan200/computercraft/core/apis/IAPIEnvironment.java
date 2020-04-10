@@ -18,6 +18,8 @@ import javax.annotation.Nullable;
 
 public interface IAPIEnvironment
 {
+    String TIMER_EVENT = "timer";
+
     @FunctionalInterface
     interface IPeripheralChangeListener
     {
@@ -63,6 +65,10 @@ public interface IAPIEnvironment
     String getLabel();
 
     void setLabel( @Nullable String label );
+
+    int startTimer( long ticks );
+
+    void cancelTimer( int id );
 
     void addTrackingChange( @Nonnull TrackingField field, long change );
 

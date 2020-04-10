@@ -125,6 +125,21 @@ describe("The fs library", function()
         it("fails on read-only mounts", function()
             expect.error(fs.copy, "rom", "rom/startup"):eq("/rom/startup: Access denied")
         end)
+
+        it("fails to copy a folder inside itself", function()
+            fs.makeDir("some-folder")
+            expect.error(fs.copy, "some-folder", "some-folder/x"):eq("/some-folder: Can't copy a directory inside itself")
+            expect.error(fs.copy, "some-folder", "Some-Folder/x"):eq("/some-folder: Can't copy a directory inside itself")
+        end)
+
+        it("copies folders", function()
+            fs.delete("some-folder")
+            fs.delete("another-folder")
+
+            fs.makeDir("some-folder")
+            fs.copy("some-folder", "another-folder")
+            expect(fs.isDir("another-folder")):eq(true)
+        end)
     end)
 
     describe("fs.move", function()
@@ -132,6 +147,46 @@ describe("The fs library", function()
             expect.error(fs.move, "rom", "rom/move"):eq("Access denied")
             expect.error(fs.move, "test-files", "rom/move"):eq("Access denied")
             expect.error(fs.move, "rom", "test-files"):eq("Access denied")
+        end)
+    end)
+
+    describe("fs.getCapacity", function()
+        it("returns nil on read-only mounts", function()
+            expect(fs.getCapacity("rom")):eq(nil)
+        end)
+
+        it("returns the capacity on the root mount", function()
+            expect(fs.getCapacity("")):eq(10000000)
+        end)
+    end)
+
+    describe("fs.attributes", function()
+        it("errors on non-existent files", function()
+            expect.error(fs.attributes, "xuxu_nao_existe"):eq("/xuxu_nao_existe: No such file")
+        end)
+
+        it("returns information about read-only mounts", function()
+            expect(fs.attributes("rom")):matches { isDir = true, size = 0 }
+        end)
+
+        it("returns information about files", function()
+            local now = os.epoch("utc")
+
+            fs.delete("/tmp/basic-file")
+            local h = fs.open("/tmp/basic-file", "w")
+            h.write("A reasonably sized string")
+            h.close()
+
+            local attributes = fs.attributes("tmp/basic-file")
+            expect(attributes):matches { isDir = false, size = 25 }
+
+            if attributes.created - now >= 1000 then
+                fail(("Expected created time (%d) to be within 1000ms of now (%d"):format(attributes.created, now))
+            end
+
+            if attributes.modification - now >= 1000 then
+                fail(("Expected modification time (%d) to be within 1000ms of now (%d"):format(attributes.modification, now))
+            end
         end)
     end)
 end)

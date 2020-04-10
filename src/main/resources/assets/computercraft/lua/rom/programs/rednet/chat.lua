@@ -387,7 +387,7 @@ elseif sCommand == "join" then
                 promptWindow.setCursorPos( 1, 1 )
                 promptWindow.clearLine()
                 promptWindow.setTextColor( highlightColour )
-                promptWindow.write( ": ")
+                promptWindow.write( ": " )
                 promptWindow.setTextColor( textColour )
 
                 local sChat = read( nil, tSendHistory )

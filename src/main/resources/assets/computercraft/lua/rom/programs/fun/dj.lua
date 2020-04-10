@@ -1,7 +1,7 @@
 local tArgs = { ... }
 
 local function printUsage()
-    print( "Usages:")
+    print( "Usages:" )
     print( "dj play" )
     print( "dj play <drive>" )
     print( "dj stop" )

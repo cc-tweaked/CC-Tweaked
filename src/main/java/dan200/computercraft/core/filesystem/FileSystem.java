@@ -7,7 +7,6 @@ package dan200.computercraft.core.filesystem;
 
 import com.google.common.io.ByteStreams;
 import dan200.computercraft.ComputerCraft;
-import dan200.computercraft.api.filesystem.FileOperationException;
 import dan200.computercraft.api.filesystem.IFileSystem;
 import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.api.filesystem.IWritableMount;
@@ -23,309 +22,23 @@ import java.nio.channels.Channel;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
 import java.nio.file.AccessDeniedException;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 
 public class FileSystem
 {
-    private static class MountWrapper
-    {
-        private String m_label;
-        private String m_location;
-
-        private IMount m_mount;
-        private IWritableMount m_writableMount;
-
-        MountWrapper( String label, String location, IMount mount )
-        {
-            m_label = label;
-            m_location = location;
-            m_mount = mount;
-            m_writableMount = null;
-        }
-
-        MountWrapper( String label, String location, IWritableMount mount )
-        {
-            this( label, location, (IMount) mount );
-            m_writableMount = mount;
-        }
-
-        public String getLabel()
-        {
-            return m_label;
-        }
-
-        public String getLocation()
-        {
-            return m_location;
-        }
-
-        public long getFreeSpace()
-        {
-            if( m_writableMount == null )
-            {
-                return 0;
-            }
-
-            try
-            {
-                return m_writableMount.getRemainingSpace();
-            }
-            catch( IOException e )
-            {
-                return 0;
-            }
-        }
-
-        public boolean isReadOnly( String path )
-        {
-            return m_writableMount == null;
-        }
-
-        // IMount forwarders:
-
-        public boolean exists( String path ) throws FileSystemException
-        {
-            path = toLocal( path );
-            try
-            {
-                return m_mount.exists( path );
-            }
-            catch( IOException e )
-            {
-                throw new FileSystemException( e.getMessage() );
-            }
-        }
-
-        public boolean isDirectory( String path ) throws FileSystemException
-        {
-            path = toLocal( path );
-            try
-            {
-                return m_mount.exists( path ) && m_mount.isDirectory( path );
-            }
-            catch( IOException e )
-            {
-                throw localExceptionOf( e );
-            }
-        }
-
-        public void list( String path, List<String> contents ) throws FileSystemException
-        {
-            path = toLocal( path );
-            try
-            {
-                if( m_mount.exists( path ) && m_mount.isDirectory( path ) )
-                {
-                    m_mount.list( path, contents );
-                }
-                else
-                {
-                    throw localExceptionOf( path, "Not a directory" );
-                }
-            }
-            catch( IOException e )
-            {
-                throw localExceptionOf( e );
-            }
-        }
-
-        public long getSize( String path ) throws FileSystemException
-        {
-            path = toLocal( path );
-            try
-            {
-                if( m_mount.exists( path ) )
-                {
-                    if( m_mount.isDirectory( path ) )
-                    {
-                        return 0;
-                    }
-                    else
-                    {
-                        return m_mount.getSize( path );
-                    }
-                }
-                else
-                {
-                    throw localExceptionOf( path, "No such file" );
-                }
-            }
-            catch( IOException e )
-            {
-                throw localExceptionOf( e );
-            }
-        }
-
-        public ReadableByteChannel openForRead( String path ) throws FileSystemException
-        {
-            path = toLocal( path );
-            try
-            {
-                if( m_mount.exists( path ) && !m_mount.isDirectory( path ) )
-                {
-                    return m_mount.openChannelForRead( path );
-                }
-                else
-                {
-                    throw localExceptionOf( path, "No such file" );
-                }
-            }
-            catch( IOException e )
-            {
-                throw localExceptionOf( e );
-            }
-        }
-
-        // IWritableMount forwarders:
-
-        public void makeDirectory( String path ) throws FileSystemException
-        {
-            if( m_writableMount == null ) throw exceptionOf( path, "Access denied" );
-
-            path = toLocal( path );
-            try
-            {
-                if( m_mount.exists( path ) )
-                {
-                    if( !m_mount.isDirectory( path ) ) throw localExceptionOf( path, "File exists" );
-                }
-                else
-                {
-                    m_writableMount.makeDirectory( path );
-                }
-            }
-            catch( IOException e )
-            {
-                throw localExceptionOf( e );
-            }
-        }
-
-        public void delete( String path ) throws FileSystemException
-        {
-            if( m_writableMount == null ) throw exceptionOf( path, "Access denied" );
-
-            try
-            {
-                path = toLocal( path );
-                if( m_mount.exists( path ) )
-                {
-                    m_writableMount.delete( path );
-                }
-            }
-            catch( AccessDeniedException e )
-            {
-                throw new FileSystemException( "Access denied" );
-            }
-            catch( IOException e )
-            {
-                throw localExceptionOf( e );
-            }
-        }
-
-        public WritableByteChannel openForWrite( String path ) throws FileSystemException
-        {
-            if( m_writableMount == null ) throw exceptionOf( path, "Access denied" );
-
-            path = toLocal( path );
-            try
-            {
-                if( m_mount.exists( path ) && m_mount.isDirectory( path ) )
-                {
-                    throw localExceptionOf( path, "Cannot write to directory" );
-                }
-                else
-                {
-                    if( !path.isEmpty() )
-                    {
-                        String dir = getDirectory( path );
-                        if( !dir.isEmpty() && !m_mount.exists( path ) )
-                        {
-                            m_writableMount.makeDirectory( dir );
-                        }
-                    }
-                    return m_writableMount.openChannelForWrite( path );
-                }
-            }
-            catch( AccessDeniedException e )
-            {
-                throw new FileSystemException( "Access denied" );
-            }
-            catch( IOException e )
-            {
-                throw localExceptionOf( e );
-            }
-        }
-
-        public WritableByteChannel openForAppend( String path ) throws FileSystemException
-        {
-            if( m_writableMount == null ) throw exceptionOf( path, "Access denied" );
-
-            path = toLocal( path );
-            try
-            {
-                if( !m_mount.exists( path ) )
-                {
-                    if( !path.isEmpty() )
-                    {
-                        String dir = getDirectory( path );
-                        if( !dir.isEmpty() && !m_mount.exists( path ) )
-                        {
-                            m_writableMount.makeDirectory( dir );
-                        }
-                    }
-                    return m_writableMount.openChannelForWrite( path );
-                }
-                else if( m_mount.isDirectory( path ) )
-                {
-                    throw localExceptionOf( path, "Cannot write to directory" );
-                }
-                else
-                {
-                    return m_writableMount.openChannelForAppend( path );
-                }
-            }
-            catch( AccessDeniedException e )
-            {
-                throw new FileSystemException( "Access denied" );
-            }
-            catch( IOException e )
-            {
-                throw localExceptionOf( e );
-            }
-        }
-
-        private String toLocal( String path )
-        {
-            return FileSystem.toLocal( path, m_location );
-        }
-
-        private FileSystemException localExceptionOf( IOException e )
-        {
-            if( !m_location.isEmpty() && e instanceof FileOperationException )
-            {
-                FileOperationException ex = (FileOperationException) e;
-                if( ex.getFilename() != null ) return localExceptionOf( ex.getFilename(), ex.getMessage() );
-            }
-
-            return new FileSystemException( e.getMessage() );
-        }
-
-        private FileSystemException localExceptionOf( String path, String message )
-        {
-            if( !m_location.isEmpty() ) path = path.isEmpty() ? m_location : m_location + "/" + path;
-            return exceptionOf( path, message );
-        }
-
-        private static FileSystemException exceptionOf( String path, String message )
-        {
-            return new FileSystemException( "/" + path + ": " + message );
-        }
-    }
+    /**
+     * Maximum depth that {@link #copyRecursive(String, MountWrapper, String, MountWrapper, int)} will descend into.
+     *
+     * This is a pretty arbitrary value, though hopefully it is large enough that it'll never be normally hit. This
+     * exists to prevent it overflowing if it ever gets into an infinite loop.
+     */
+    private static final int MAX_COPY_DEPTH = 128;
 
     private final FileSystemWrapperMount m_wrapper = new FileSystemWrapperMount( this );
-    private final Map<String, MountWrapper> m_mounts = new HashMap<>();
+    private final Map<String, MountWrapper> mounts = new HashMap<>();
 
     private final HashMap<WeakReference<FileSystemWrapper<?>>, ChannelWrapper<?>> m_openFiles = new HashMap<>();
     private final ReferenceQueue<FileSystemWrapper<?>> m_openFileQueue = new ReferenceQueue<>();
@@ -355,10 +68,7 @@ public class FileSystem
     {
         if( mount == null ) throw new NullPointerException();
         location = sanitizePath( location );
-        if( location.contains( ".." ) )
-        {
-            throw new FileSystemException( "Cannot mount below the root" );
-        }
+        if( location.contains( ".." ) ) throw new FileSystemException( "Cannot mount below the root" );
         mount( new MountWrapper( label, location, mount ) );
     }
 
@@ -379,14 +89,13 @@ public class FileSystem
     private synchronized void mount( MountWrapper wrapper )
     {
         String location = wrapper.getLocation();
-        m_mounts.remove( location );
-        m_mounts.put( location, wrapper );
+        mounts.remove( location );
+        mounts.put( location, wrapper );
     }
 
     public synchronized void unmount( String path )
     {
-        path = sanitizePath( path );
-        m_mounts.remove( path );
+        mounts.remove( sanitizePath( path ) );
     }
 
     public synchronized String combine( String path, String childPath )
@@ -430,27 +139,20 @@ public class FileSystem
     public static String getName( String path )
     {
         path = sanitizePath( path, true );
-        if( path.isEmpty() )
-        {
-            return "root";
-        }
+        if( path.isEmpty() ) return "root";
 
         int lastSlash = path.lastIndexOf( '/' );
-        if( lastSlash >= 0 )
-        {
-            return path.substring( lastSlash + 1 );
-        }
-        else
-        {
-            return path;
-        }
+        return lastSlash >= 0 ? path.substring( lastSlash + 1 ) : path;
     }
 
     public synchronized long getSize( String path ) throws FileSystemException
     {
-        path = sanitizePath( path );
-        MountWrapper mount = getMount( path );
-        return mount.getSize( path );
+        return getMount( sanitizePath( path ) ).getSize( sanitizePath( path ) );
+    }
+
+    public synchronized BasicFileAttributes getAttributes( String path ) throws FileSystemException
+    {
+        return getMount( sanitizePath( path ) ).getAttributes( sanitizePath( path ) );
     }
 
     public synchronized String[] list( String path ) throws FileSystemException
@@ -463,7 +165,7 @@ public class FileSystem
         mount.list( path, list );
 
         // Add any mounts that are mounted at this location
-        for( MountWrapper otherMount : m_mounts.values() )
+        for( MountWrapper otherMount : mounts.values() )
         {
             if( getDirectory( otherMount.getLocation() ).equals( path ) )
             {
@@ -611,15 +313,13 @@ public class FileSystem
         {
             throw new FileSystemException( "/" + sourcePath + ": Can't copy a directory inside itself" );
         }
-        copyRecursive( sourcePath, getMount( sourcePath ), destPath, getMount( destPath ) );
+        copyRecursive( sourcePath, getMount( sourcePath ), destPath, getMount( destPath ), 0 );
     }
 
-    private synchronized void copyRecursive( String sourcePath, MountWrapper sourceMount, String destinationPath, MountWrapper destinationMount ) throws FileSystemException
+    private synchronized void copyRecursive( String sourcePath, MountWrapper sourceMount, String destinationPath, MountWrapper destinationMount, int depth ) throws FileSystemException
     {
-        if( !sourceMount.exists( sourcePath ) )
-        {
-            return;
-        }
+        if( !sourceMount.exists( sourcePath ) ) return;
+        if( depth >= MAX_COPY_DEPTH ) throw new FileSystemException( "Too many directories to copy" );
 
         if( sourceMount.isDirectory( sourcePath ) )
         {
@@ -634,7 +334,8 @@ public class FileSystem
             {
                 copyRecursive(
                     combine( sourcePath, child ), sourceMount,
-                    combine( destinationPath, child ), destinationMount
+                    combine( destinationPath, child ), destinationMount,
+                    depth + 1
                 );
             }
         }
@@ -726,17 +427,25 @@ public class FileSystem
         return null;
     }
 
-    public long getFreeSpace( String path ) throws FileSystemException
+    public synchronized long getFreeSpace( String path ) throws FileSystemException
     {
         path = sanitizePath( path );
         MountWrapper mount = getMount( path );
         return mount.getFreeSpace();
     }
 
-    private MountWrapper getMount( String path ) throws FileSystemException
+    @Nonnull
+    public synchronized OptionalLong getCapacity( String path ) throws FileSystemException
+    {
+        path = sanitizePath( path );
+        MountWrapper mount = getMount( path );
+        return mount.getCapacity();
+    }
+
+    private synchronized MountWrapper getMount( String path ) throws FileSystemException
     {
         // Return the deepest mount that contains a given path
-        Iterator<MountWrapper> it = m_mounts.values().iterator();
+        Iterator<MountWrapper> it = mounts.values().iterator();
         MountWrapper match = null;
         int matchLength = 999;
         while( it.hasNext() )
@@ -854,8 +563,8 @@ public class FileSystem
 
     public static boolean contains( String pathA, String pathB )
     {
-        pathA = sanitizePath( pathA );
-        pathB = sanitizePath( pathB );
+        pathA = sanitizePath( pathA ).toLowerCase( Locale.ROOT );
+        pathB = sanitizePath( pathB ).toLowerCase( Locale.ROOT );
 
         if( pathB.equals( ".." ) )
         {

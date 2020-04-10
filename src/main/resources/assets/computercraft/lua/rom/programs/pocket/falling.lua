@@ -158,7 +158,7 @@ local block_T = {
     bg = colorass(colors.purple, colors.white),
   }
 
-local blocks = { block_line, block_square, block_s1, block_s2, block_L1, block_L2, block_T}
+local blocks = { block_line, block_square, block_s1, block_s2, block_L1, block_L2, block_T }
 
 local points = {4, 10, 30, 120}
 
