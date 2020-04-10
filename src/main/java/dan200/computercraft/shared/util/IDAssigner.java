@@ -36,7 +36,7 @@ public final class IDAssigner
         return getNextID( file, false );
     }
 
-    private static int getNextID( File location, boolean directory )
+    private static synchronized int getNextID( File location, boolean directory )
     {
         // Determine where to locate ID file
         File lastIdFile;
