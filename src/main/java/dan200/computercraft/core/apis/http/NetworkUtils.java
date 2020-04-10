@@ -98,20 +98,6 @@ public final class NetworkUtils
     }
 
     /**
-     * Checks a host is allowed.
-     *
-     * @param host The domain to check against
-     * @throws HTTPRequestException If the host is not permitted.
-     */
-    public static void checkHost( String host ) throws HTTPRequestException
-    {
-        if( !ComputerCraft.http_whitelist.matches( host ) || ComputerCraft.http_blacklist.matches( host ) )
-        {
-            throw new HTTPRequestException( "Domain not permitted" );
-        }
-    }
-
-    /**
      * Create a {@link InetSocketAddress} from the resolved {@code host} and port.
      *
      * Note, this may require a DNS lookup, and so should not be executed on the main CC thread.
@@ -130,7 +116,7 @@ public final class NetworkUtils
         if( socketAddress.isUnresolved() ) throw new HTTPRequestException( "Unknown host" );
 
         InetAddress address = socketAddress.getAddress();
-        if( !ComputerCraft.http_whitelist.matches( address ) || ComputerCraft.http_blacklist.matches( address ) )
+        if( AddressRule.apply( ComputerCraft.httpRules, host, address ) == AddressRule.Action.BLOCK )
         {
             throw new HTTPRequestException( "Domain not permitted" );
         }
