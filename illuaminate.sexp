@@ -34,8 +34,9 @@
     -var:unused-arg
 
     ;; Suppress a couple of documentation comments warnings for now. We'll
-    ;; hopefully be able to remove them in the coming weeks.
-    -doc:undocumented -doc:undocumented-arg -doc:unresolved-reference))
+    ;; hopefully be able to remove them in the future.
+    -doc:undocumented -doc:undocumented-arg -doc:unresolved-reference
+    -var:unresolved-member))
 
 ;; We disable the unused global linter in bios.lua and the APIs. In the future
 ;; hopefully we'll get illuaminate to handle this.
@@ -43,10 +44,9 @@
   (/src/main/resources/assets/computercraft/lua/bios.lua
    /src/main/resources/assets/computercraft/lua/rom/apis/)
   (linters -var:unused-global)
-  (lint
-    (allow-toplevel-global true)))
+  (lint (allow-toplevel-global true)))
 
-;; Shut up some variable warnings in documentation stubs. It's not like this is
-;; actual code after all.
+;; Silence some variable warnings in documentation stubs.
 (at /doc/stub
-  (linters -var:unused-global -var:unused -var:set-global))
+  (linters -var:unused-global)
+  (lint (allow-toplevel-global true)))
