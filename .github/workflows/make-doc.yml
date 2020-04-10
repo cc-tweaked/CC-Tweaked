@@ -1,0 +1,29 @@
+name: Build documentation
+
+on:
+  push:
+    branches: [ master ]
+    tags:
+
+jobs:
+  make_doc:
+    name: Build
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v1
+
+    - name: Build documentation
+      run: |
+        test -d bin || mkdir bin
+        test -f bin/illuaminate || wget -q -Obin/illuaminate https://squiddev.cc/illuaminate/linux-x86-64/illuaminate
+        chmod +x bin/illuaminate
+        bin/illuaminate doc-gen
+
+    - name: Upload documentation
+      run: .github/workflows/make-doc.sh 2> /dev/null
+      env:
+        SSH_KEY:  ${{ secrets.SSH_KEY  }}
+        SSH_USER: ${{ secrets.SSH_USER }}
+        SSH_HOST: ${{ secrets.SSH_HOST }}
+        SSH_PORT: ${{ secrets.SSH_PORT }}
