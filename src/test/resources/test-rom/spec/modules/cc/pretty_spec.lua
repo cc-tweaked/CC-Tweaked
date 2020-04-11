@@ -163,7 +163,7 @@ describe("cc.pretty", function()
     end)
 
     describe("pretty", function()
-        --- We make use of "render" here, as it's considerably easier than checking against the actual structure.
+        -- We make use of "render" here, as it's considerably easier than checking against the actual structure.
         -- However, it does also mean our tests are less unit-like.
         local function pretty(x, width) return pp.render(pp.pretty(x), width) end
 

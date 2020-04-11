@@ -1,3 +1,6 @@
+--- The turtle API allows you to control your turtle.
+--
+-- @module turtle
 
 if not turtle then
     error( "Cannot load turtle API on computer", 2 )

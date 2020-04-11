@@ -89,7 +89,7 @@ local function drawMenu()
 
     term.setTextColour( headingColour )
     term.setCursorPos(w - 11, 1)
-    term.write( "DIFFICULTY ")
+    term.write( "DIFFICULTY " )
 
     term.setTextColour( textColour )
     term.setCursorPos(w, 1)

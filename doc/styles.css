@@ -1,0 +1,186 @@
+/* Basic reset on elements */
+h1, h2, h3, h4, p, table, div, body {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    font-size: 100%;
+    font: inherit;
+    vertical-align: baseline;
+}
+/* Make the page a little more airy */
+body {
+    margin: 20px auto;
+    max-width: 1200px;
+    padding: 0 10px;
+    line-height: 1.6;
+    color: #222;
+    background: #fff;
+}
+
+/* Try to use system default fonts. */
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans",
+                 "Droid Sans", "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+}
+
+code, pre, .parameter, .type, .definition-name, .reference {
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
+}
+
+/* Some definitions of basic tags */
+code {
+    color: #c7254e;
+    background-color: #f9f2f4;
+}
+
+p {
+    margin: 0.9em 0;
+}
+
+h1 {
+    font-size: 1.5em;
+    font-weight: lighter;
+    border-bottom: solid 1px #aaa;
+}
+
+h2, h3, h4 { margin: 1.4em 0 0.3em;}
+h2 { font-size: 1.25em; }
+h3 { font-size: 1.15em; font-weight: bold; }
+h4 { font-size: 1.06em; }
+
+a, a:visited, a:active { font-weight: bold; color: #004080; text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+blockquote { margin-left: 3em; }
+
+/* Stop sublists from having initial vertical space */
+ul ul { margin-top: 0px; }
+ol ul { margin-top: 0px; }
+ol ol { margin-top: 0px; }
+ul ol { margin-top: 0px; }
+
+/* Make the target distinct; helps when we're navigating to a function */
+a:target + * { background-color: #FFFF99; }
+
+/* Allow linking to any subsection */
+a[name]::before { content: "#"; }
+
+/* Layout */
+#main {
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    min-height: calc(100vh - 100px);
+}
+
+#main > nav {
+    flex-basis: 30%;
+    min-width: 150px;
+    max-width: 250px;
+    background-color: #f0f0f0;
+}
+
+nav h1, nav ul { padding: 0em 10px; }
+
+nav h2 {
+    background-color:#e7e7e7;
+    font-size: 1.1em;
+    color:#000000;
+    padding: 5px 10px;
+}
+
+nav ul {
+    list-style-type: none;
+    margin: 0;
+}
+
+#content {
+    flex-shrink: 1;
+    flex-basis: 80%;
+    padding: 0px 10px;
+}
+
+footer {
+    text-align: right;
+    font-size: 0.8em;
+}
+
+/* The definition lists at the top of each page */
+table.definition-list {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+table.definition-list td, table.definition-list th {
+    border: 1px solid #cccccc;
+    padding: 5px;
+}
+
+table.definition-list th {
+    background-color: #f0f0f0;
+    min-width: 200px;
+    white-space: nowrap;
+    text-align: right;
+}
+
+table.definition-list td { width: 100%; }
+
+dl.definition dt {
+    border-top: 1px solid #ccc;
+    padding-top: 1em;
+    display: flex;
+}
+
+dl.definition dt .definition-name {
+    padding: 0 0.1em;
+    margin: 0 0.1em;
+    flex-grow: 1;
+}
+
+
+dl.definition dd {
+    padding-bottom: 1em;
+    margin: 10px 0 0 20px;
+}
+
+dl.definition h3 {
+    font-size: .95em;
+}
+
+/* Links to source-code */
+.source-link { font-size: 0.8em; }
+.source-link::before { content: '[' }
+.source-link::after  { content: ']' }
+a.source-link, a.source-link:visited, a.source-link:active { color: #505050; }
+
+/* Method definitions */
+span.parameter:after { content:":"; padding-left: 0.3em; }
+.optional { text-decoration: underline dotted; }
+
+/** Fancy colour display. */
+.colour-ref {
+    display: inline-block;
+    width: 0.8em;
+    height: 0.8em;
+    margin: 0.1em 0.1em 0.3em 0.1em; /* Terrrible hack to force vertical alignment. */
+    border: solid 1px black;
+    box-sizing: border-box;
+    vertical-align: middle;
+}
+
+/* styles for prettification of source */
+.highlight .comment { color: #558817; }
+.highlight .constant { color: #a8660d; }
+.highlight .escape { color: #844631; }
+.highlight .keyword { color: #aa5050; font-weight: bold; }
+.highlight .library { color: #0e7c6b; }
+.highlight .marker { color: #512b1e; background: #fedc56; font-weight: bold; }
+.highlight .string { color: #8080ff; }
+.highlight .literal-kw { color: #8080ff; }
+.highlight .number { color: #f8660d; }
+.highlight .operator { color: #2239a8; font-weight: bold; }
+.highlight .preprocessor, pre .prepro { color: #a33243; }
+.highlight .global { color: #800080; }
+.highlight .user-keyword { color: #800080; }
+.highlight .prompt { color: #558817; }
+.highlight .url { color: #272fc2; text-decoration: underline; }

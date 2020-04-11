@@ -7,7 +7,7 @@ local native_select, native_type = select, type
 
 --- Expect an argument to have a specific type.
 --
--- @tparam int index The 1-based argument index.
+-- @tparam number index The 1-based argument index.
 -- @param value The argument's value.
 -- @tparam string ... The allowed types of the argument.
 -- @throws If the value is not one of the allowed types.

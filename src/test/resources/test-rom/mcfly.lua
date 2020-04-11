@@ -356,32 +356,33 @@ function expect_mt:called_with_matching(...)
     return called_with_check(matches, self, ...)
 end
 
-local expect = setmetatable( {
-    --- Construct an expectation on the error message calling this function
-    -- produces
-    --
-    -- @tparam fun The function to call
-    -- @param ... The function arguments
-    -- @return The new expectation
-    error = function(fun, ...)
-        local ok, res = pcall(fun, ...) local _, line = pcall(error, "", 2)
-        if ok then fail("expected function to error") end
-        if res:sub(1, #line) == line then
-            res = res:sub(#line + 1)
-        elseif res:sub(1, 7) == "pcall: " then
-            res = res:sub(8)
-        end
-        return setmetatable({ value = res }, expect_mt)
-    end,
-}, {
-    --- Construct a new expectation from the provided value
-    --
-    -- @param value The value to apply assertions to
-    -- @return The new expectation
-    __call = function(_, value)
-        return setmetatable({ value = value }, expect_mt)
-    end,
-})
+local expect = {}
+setmetatable(expect, expect)
+
+--- Construct an expectation on the error message calling this function
+-- produces
+--
+-- @tparam fun The function to call
+-- @param ... The function arguments
+-- @return The new expectation
+function expect.error(fun, ...)
+    local ok, res = pcall(fun, ...) local _, line = pcall(error, "", 2)
+    if ok then fail("expected function to error") end
+    if res:sub(1, #line) == line then
+        res = res:sub(#line + 1)
+    elseif res:sub(1, 7) == "pcall: " then
+        res = res:sub(8)
+    end
+    return setmetatable({ value = res }, expect_mt)
+end
+
+--- Construct a new expectation from the provided value
+--
+-- @param value The value to apply assertions to
+-- @return The new expectation
+function expect:__call(value)
+    return setmetatable({ value = value }, expect_mt)
+end
 
 --- The stack of "describe"s.
 local test_stack = { n = 0 }
@@ -390,7 +391,8 @@ local test_stack = { n = 0 }
 local tests_locked = false
 
 --- The list of tests that we'll run
-local test_list, test_map, test_count = { }, { }, 0
+local test_list = {}
+local test_map, test_count = {}, 0
 
 --- Add a new test to our queue.
 --

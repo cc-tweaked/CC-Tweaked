@@ -1,3 +1,32 @@
+--- The Window API allows easy definition of spaces within the display that can
+-- be written/drawn to, then later redrawn/repositioned/etc as need be. The API
+-- itself contains only one function, @{window.create}, which returns the
+-- windows themselves.
+--
+-- Windows are considered terminal objects - as such, they have access to nearly
+-- all the commands in the term API (plus a few extras of their own, listed
+-- within said API) and are valid targets to redirect to.
+--
+-- Each window has a "parent" terminal object, which can be the computer's own
+-- display, a monitor, another window or even other, user-defined terminal
+-- objects. Whenever a window is rendered to, the actual screen-writing is
+-- performed via that parent (or, if that has one too, then that parent, and so
+-- forth). Bear in mind that the cursor of a window's parent will hence be moved
+-- around etc when writing a given child window.
+--
+-- Windows retain a memory of everything rendered "through" them (hence acting
+-- as display buffers), and if the parent's display is wiped, the window's
+-- content can be easily redrawn later. A window may also be flagged as
+-- invisible, preventing any changes to it from being rendered until it's
+-- flagged as visible once more.
+--
+-- A parent terminal object may have multiple children assigned to it, and
+-- windows may overlap. For example, the Multishell system functions by
+-- assigning each tab a window covering the screen, each using the starting
+-- terminal display as its parent, and only one of which is visible at a time.
+--
+-- @module window
+
 local expect = dofile("rom/modules/main/cc/expect.lua").expect
 
 local tHex = {
@@ -23,6 +52,24 @@ local type = type
 local string_rep = string.rep
 local string_sub = string.sub
 
+--- Returns a terminal object that is a space within the specified parent
+-- terminal object. This can then be used (or even redirected to) in the same
+-- manner as eg a wrapped monitor. Refer to @{term|the term API} for a list of
+-- functions available to it.
+--
+-- @{term} itself may not be passed as the parent, though @{term.native} is
+-- acceptable. Generally, @{term.current} or a wrapped monitor will be most
+-- suitable, though windows may even have other windows assigned as their
+-- parents.
+--
+-- @tparam term.Redirect parent The parent terminal redirect to draw to.
+-- @tparam number nX The x coordinate this window is drawn at in the parent terminal
+-- @tparam number nY The y coordinate this window is drawn at in the parent terminal
+-- @tparam number nWidth The width of this window
+-- @tparam number nHeight The height of this window
+-- @tparam[opt] boolean bStartVisible Whether this window is visible by
+--                      default. Defaults to `true`.
+-- @treturn Window The constructed window
 function create( parent, nX, nY, nWidth, nHeight, bStartVisible )
     expect(1, parent, "table")
     expect(2, nX, "number")
@@ -182,7 +229,9 @@ function create( parent, nX, nY, nWidth, nHeight, bStartVisible )
         end
     end
 
-    -- Terminal implementation
+    --- Terminal implementation
+    --
+    -- @type Window
     local window = {}
 
     function window.write( sText )

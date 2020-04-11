@@ -1001,7 +1001,7 @@ function commands.cbreak( _sItem, _sTool )
                     end
                 end
             else
-                print( "You can't break " .. sItem .. " with " .. sTool .. ".")
+                print("You can't break " .. sItem .. " with " .. sTool .. ".")
             end
 
         elseif tItem.creature == true then

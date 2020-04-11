@@ -23,6 +23,7 @@ import java.io.BufferedWriter;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.nio.file.attribute.FileTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.OptionalLong;
@@ -359,8 +360,8 @@ public class FSAPI implements ILuaAPI
                 {
                     BasicFileAttributes attributes = m_fileSystem.getAttributes( path );
                     Map<String, Object> result = new HashMap<>();
-                    result.put( "modification", attributes.lastModifiedTime().toMillis() );
-                    result.put( "created", attributes.creationTime().toMillis() );
+                    result.put( "modification", getFileTime( attributes.lastModifiedTime() ) );
+                    result.put( "created", getFileTime( attributes.creationTime() ) );
                     result.put( "size", attributes.isDirectory() ? 0 : attributes.size() );
                     result.put( "isDir", attributes.isDirectory() );
                     return new Object[] { result };
@@ -374,5 +375,10 @@ public class FSAPI implements ILuaAPI
                 assert false;
                 return null;
         }
+    }
+
+    private static long getFileTime( FileTime time )
+    {
+        return time == null ? 0 : time.toMillis();
     }
 }

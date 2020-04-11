@@ -25,6 +25,7 @@ import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileTime;
+import java.time.Instant;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
@@ -290,19 +291,20 @@ public class JarMount implements IMount
         @Override
         public FileTime lastModifiedTime()
         {
-            return entry.getLastModifiedTime();
+            return orEpoch( entry.getLastModifiedTime() );
         }
 
         @Override
         public FileTime lastAccessTime()
         {
-            return entry.getLastAccessTime();
+            return orEpoch( entry.getLastAccessTime() );
         }
 
         @Override
         public FileTime creationTime()
         {
-            return entry.getCreationTime();
+            FileTime time = entry.getCreationTime();
+            return time == null ? lastModifiedTime() : time;
         }
 
         @Override
@@ -339,6 +341,13 @@ public class JarMount implements IMount
         public Object fileKey()
         {
             return null;
+        }
+
+        private static final FileTime EPOCH = FileTime.from( Instant.EPOCH );
+
+        private static FileTime orEpoch( FileTime time )
+        {
+            return time == null ? EPOCH : time;
         }
     }
 }

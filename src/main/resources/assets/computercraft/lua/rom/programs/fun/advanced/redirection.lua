@@ -525,7 +525,7 @@ function InterFace.drawBar()
     term.setCursorPos( TermW - 8, TermH )
     term.setBackgroundColor( colors.black )
     term.setTextColour(InterFace.cSpeedD)
-    write(" <<" )
+    write(" <<")
     if bPaused then
         term.setTextColour(InterFace.cSpeedA)
     else
