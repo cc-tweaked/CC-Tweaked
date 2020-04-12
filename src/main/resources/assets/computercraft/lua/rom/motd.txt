@@ -43,3 +43,4 @@ Holding the Control and T keys terminates the running program.
 Holding Control and S or R shuts down or reboots the computer you are using.
 Run list -l to see all file attributes
 You can configure the date format in list with "set list.date_format <format>"
+You can configure the columns in list with "set list.columns <columns>"
