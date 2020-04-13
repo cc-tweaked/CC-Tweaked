@@ -13,8 +13,8 @@ if #tArgs < 2 then
 end
 
 if not http then
-    printError( "Pastebin requires http API" )
-    printError( "Set http_enable to true in ComputerCraft.cfg" )
+    printError( "Pastebin requires the http API" )
+    printError( "Set http.enabled to true in CC: Tweaked's config" )
     return
 end
 

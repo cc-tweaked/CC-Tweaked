@@ -175,7 +175,7 @@ public final class Config
                 "for more fine grained control than this)" );
 
             httpWebsocketEnable = config.get( CATEGORY_HTTP, "websocket_enabled", ComputerCraft.http_websocket_enable );
-            httpWebsocketEnable.setComment( "Enable use of http websockets. This requires the \"http_enable\" option to also be true." );
+            httpWebsocketEnable.setComment( "Enable use of http websockets. This requires the \"http.enabled\" option to also be true." );
 
             httpAllowedDomains = config.get( CATEGORY_HTTP, "allowed_domains", DEFAULT_HTTP_WHITELIST );
             httpAllowedDomains.setComment( "A list of wildcards for domains or IP ranges that can be accessed through the " +
