@@ -1,0 +1,54 @@
+Gist is a service provided by GitHub that allows uploading small sets of text files, similar to Pastebin.
+The gist program lets you upload and download files through this service.
+The HTTP API must be enabled in ComputerCraft.cfg to use this program.
+The first time you upload a file to Gist, you will be prompted to enter a Personal Access Key (PAK).
+Follow the instructions at https://tinyurl.com/GitHubPAK to generate one. Make sure to check the 'gist' checkbox on step 7 (below 'Select scopes').
+This PAK will be stored in your settings as "gist.id" for future use.
+
+Advantages of Gist over Pastebin:
+* Hosted by GitHub, meaning more reliable service
+* Multiple files can be uploaded at once
+* Descriptions can tell people what your files do
+* Markdown & automatic syntax hightlighting online
+* Files can be edited after uploading
+* Tied to your GitHub account
+
+Disadvantages of Gist:
+* Requires you to log in to upload files
+* Longer IDs mean more typing or pasting
+
+Usages:
+gist put <filenames...> [-- description...]
+gist edit <id> <filenames...> [-- description...]
+gist delete <id>
+gist get <id> <filename>
+gist run <id> [arguments...]
+gist info <id>
+
+An ID consists of a 32-character hash (last part of a gist.github.com URL), and optionally a slash ('/') followed by a file name.
+A specific revision can be selected by following the hash with a colon (':') and the revision SHA hash. (Advanced users only)
+If no file name is provided, it will try to find the most suitable file to download with this algorithm:
+* If a file name is specified, retrieves that file
+* Otherwise, if there's only one file, retrieves that file
+* Otherwise, if there's a file named 'init.lua', retrieves 'init.lua'
+* Otherwise, if there's more than one file but only one *.lua file, retrieves the Lua file
+* Otherwise, retrieves the first Lua file alphabetically (with a warning)
+* Otherwise, you'll need to manually give it a file name
+
+When using the edit subcommand, you can delete files by deleting them on disk, then uploading the non-existent file.
+For example, if you want to delete "bar.lua" from your Gist, first delete "bar.lua" on the computer, then run "gist edit <id> bar.lua".
+You can also add or replace files by listing those files as well.
+Only files you specify will be changed: files you don't list won't be edited or deleted.
+Also, do not specify a file name in the ID when using edit.
+
+Do not specify a file name or revision hash when using the delete subcommand.
+
+Examples:
+"gist put foo.lua" will upload the file "foo.lua" to gist.github.com, and prints the URL.
+"gist put foo.lua bar.lua -- My cool program" will upload the files "foo.lua" and "bar.lua" to gist.github.com with the description "My cool program", and prints the URL.
+"gist edit 0123456789abcdef0123456789abcdef foo.lua -- My cool program - Updated!" will update "foo.lua" at https://gist.github.com/0123456789abcdef0123456789abcdef to have the contents of "foo.lua", changing the description to "My cool program - Updated!". If "foo.lua" doesn't exist, it will be deleted from the Gist.
+"gist delete 0123456789abcdef0123456789abcdef" will delete https://gist.github.com/0123456789abcdef0123456789abcdef.
+"gist get 42bc69d3757226c966da752df80437dc foo.lua" will download the first Lua file from the URL https://gist.github.com/42bc69d3757226c966da752df80437dc, and saves it as "foo.lua".
+"gist get b7ded5a4b2a221e13dd3492f2971ae34/ipsw_keys.py ipsw_keys.py" will download the file "ipsw_keys.py" from the URL https://gist.github.com/b7ded5a4b2a221e13dd3492f2971ae34, and saves it as "ipsw_keys.py".
+"gist run b5e069cdf65c1174f24fc113c0e1292b" will download the first Lua file from https://gist.github.com/b5e069cdf65c1174f24fc113c0e1292b, and immediately runs it.
+"gist info 497a5658c24e02aff4e4fab743f8adc7" will show a description and file list from https://gist.github.com/497a5658c24e02aff4e4fab743f8adc7.

@@ -96,6 +96,10 @@ shell.setCompletionFunction( "rom/programs/http/pastebin.lua", completion.build(
     { completion.choice, { "put ", "get ", "run " } },
     completePastebinPut
 ) )
+shell.setCompletionFunction( "rom/programs/http/gist.lua", completion.build(
+    { completion.choice, { "put ", "edit ", "delete ", "get ", "run ", "info " } },
+    completePastebinPut
+) )
 shell.setCompletionFunction( "rom/programs/rednet/chat.lua", completion.build({ completion.choice, { "host ", "join " } }) )
 shell.setCompletionFunction( "rom/programs/command/exec.lua", completion.build(completion.command) )
 shell.setCompletionFunction( "rom/programs/http/wget.lua", completion.build({ completion.choice, { "run " } }) )
