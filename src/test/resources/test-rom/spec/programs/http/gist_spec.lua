@@ -201,7 +201,7 @@ describe("The gist program", function()
                         return 204
                     end,
                 }
-            end
+            end,
         })
         stub(_G, "settings", {
             get = function()

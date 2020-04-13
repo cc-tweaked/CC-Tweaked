@@ -86,7 +86,7 @@ local function encode_table(val, stack)
       error("invalid table: sparse array")
     end
     -- Encode
-    for i, v in ipairs(val) do
+    for _, v in ipairs(val) do
       table.insert(res, encode(v, stack))
     end
     stack[val] = nil
@@ -412,7 +412,10 @@ local function getGistFile(data)
     if not data.truncated then return data.content else
         local handle = http.get(data.raw_url)
         if not handle then error("Could not connect to api.github.com.") end
-        if handle.getResponseCode() ~= 200 then handle.close(); error("Failed to download file data.") end
+        if handle.getResponseCode() ~= 200 then
+            handle.close()
+            error("Failed to download file data.")
+        end
         local d = handle.readAll()
         handle.close()
         return d
@@ -427,16 +430,16 @@ end
 -- * Otherwise, retrieves the first Lua file alphabetically (with a warning)
 -- * Otherwise, fails
 local function getGistData(id)
-    local file, rev
+    local file
     if id:find("/") ~= nil then id, file = id:match("^([0-9A-Fa-f:]+)/(.+)$") end
     if id:find(":") ~= nil then id = id:gsub(":", "/") end
     write("Connecting to api.github.com... ")
     local handle = http.get("https://api.github.com/gists/" .. id)
-    if handle == nil then print("Failed."); return nil end
-    if handle.getResponseCode() ~= 200 then print("Failed."); handle.close(); return nil end
+    if handle == nil then print("Failed.") return nil end
+    if handle.getResponseCode() ~= 200 then print("Failed.") handle.close() return nil end
     local meta = json.decode(handle.readAll())
     handle.close()
-    if meta == nil or meta.files == nil then print("Failed."); return nil end
+    if meta == nil or meta.files == nil then print("Failed.") return nil end
     print("Success.")
     if file then return getGistFile(meta.files[file]), file
     elseif next(meta.files, next(meta.files)) == nil then return getGistFile(meta.files[next(meta.files)]), next(meta.files)
@@ -495,7 +498,7 @@ if not http then
 end
 
 if args[1] == "get" then
-    if #args < 3 then print(helpstr); return 1 end
+    if #args < 3 then print(helpstr) return 1 end
     local data = getGistData(args[2])
     if data == nil then return 3 end
     local file = fs.open(shell.resolve(args[3]), "w")
@@ -513,17 +516,17 @@ elseif args[1] == "put" then
     local data = {files = {}, public = true}
     local i = 2
     while args[i] ~= nil and args[i] ~= "--" do
-        if data.files[fs.getName(args[i])] then print("Cannot upload files with duplicate names."); return 2 end
+        if data.files[fs.getName(args[i])] then print("Cannot upload files with duplicate names.") return 2 end
         local file = fs.open(shell.resolve(args[i]), "r")
-        if file == nil then print("Could not read " .. shell.resolve(args[i]) .. "."); return 2 end
+        if file == nil then print("Could not read " .. shell.resolve(args[i]) .. ".") return 2 end
         data.files[fs.getName(args[i])] = {content = file.readAll()}
         file.close()
-        i=i+1
+        i = i + 1
     end
-    if args[i] == "--" then data.description = table.concat({table.unpack(args, i+1)}, " ") end
+    if args[i] == "--" then data.description = table.concat({table.unpack(args, i + 1)}, " ") end
     local jsonfiles = ""
-    for k,v in pairs(data.files) do jsonfiles = jsonfiles .. (jsonfiles == "" and "" or ",\n") .. ("    \"%s\": {\n      \"content\": %s\n    }"):format(k, json.encode(v.content)) end
-    if jsonfiles == "" then print("No such file"); return 2 end
+    for k, v in pairs(data.files) do jsonfiles = jsonfiles .. (jsonfiles == "" and "" or ",\n") .. ("    \"%s\": {\n      \"content\": %s\n    }"):format(k, json.encode(v.content)) end
+    if jsonfiles == "" then print("No such file") return 2 end
     local jsondata = ([[{
   "description": %s,
   "public": true,
@@ -535,9 +538,9 @@ elseif args[1] == "put" then
     requestAuth(headers)
     write("Connecting to api.github.com... ")
     local handle = http.post("https://api.github.com/gists", jsondata, headers)
-    if handle == nil then print("Failed."); return 3 end
+    if handle == nil then print("Failed.") return 3 end
     local resp = json.decode(handle.readAll())
-    if handle.getResponseCode() ~= 201 or resp == nil then print("Failed: " .. handle.getResponseCode() .. ": " .. (resp and json.encode(resp) or "Unknown error")); handle.close(); return 3 end
+    if handle.getResponseCode() ~= 201 or resp == nil then print("Failed: " .. handle.getResponseCode() .. ": " .. (resp and json.encode(resp) or "Unknown error")) handle.close() return 3 end
     handle.close()
     print("Success.\nUploaded as " .. resp.html_url .. "\nRun 'gist get " .. resp.id .. "' to download anywhere")
 elseif args[1] == "info" then
@@ -546,11 +549,11 @@ elseif args[1] == "info" then
     if id:find(":") ~= nil then id = id:gsub(":", "/") end
     write("Connecting to api.github.com... ")
     local handle = http.get("https://api.github.com/gists/" .. id)
-    if handle == nil then print("Failed."); return 3 end
-    if handle.getResponseCode() ~= 200 then print("Failed."); handle.close(); return 3 end
+    if handle == nil then print("Failed.") return 3 end
+    if handle.getResponseCode() ~= 200 then print("Failed.") handle.close() return 3 end
     local meta = json.decode(handle.readAll())
     handle.close()
-    if meta == nil or meta.files == nil then print("Failed."); return 3 end
+    if meta == nil or meta.files == nil then print("Failed.") return 3 end
     local f = {}
     for k in pairs(meta.files) do table.insert(f, k) end
     table.sort(f)
@@ -572,7 +575,7 @@ elseif args[1] == "info" then
     setTextColor(colors.white)
     textutils.tabulate(f)
 elseif args[1] == "edit" then
-    if #args < 3 then print(helpstr); return 1 end
+    if #args < 3 then print(helpstr) return 1 end
     local data = {files = {}, public = true}
     local id = args[2]
     if id:find("/") ~= nil then id = id:match("^([0-9A-Fa-f:]+)/.+$") end
@@ -585,16 +588,16 @@ elseif args[1] == "edit" then
             data.files[fs.getName(args[i])] = {content = file.readAll()}
             file.close()
         end
-        i=i+1
+        i = i + 1
     end
-    if args[i] == "--" then data.description = table.concat({table.unpack(args, i+1)}, " ") else
+    if args[i] == "--" then data.description = table.concat({table.unpack(args, i + 1)}, " ") else
         write("Connecting to api.github.com... ")
         local handle = http.get("https://api.github.com/gists/" .. id)
-        if handle == nil then print("Failed."); return 3 end
-        if handle.getResponseCode() ~= 200 then print("Failed."); handle.close(); return 3 end
+        if handle == nil then print("Failed.") return 3 end
+        if handle.getResponseCode() ~= 200 then print("Failed.") handle.close() return 3 end
         local meta = json.decode(handle.readAll())
         handle.close()
-        if meta == nil or meta.files == nil then print("Failed."); return 3 end
+        if meta == nil or meta.files == nil then print("Failed.") return 3 end
         data.description = meta.description
         print("Success.")
     end
@@ -602,7 +605,7 @@ elseif args[1] == "edit" then
     local headers = {["Content-Type"] = "application/json"}
     requestAuth(headers)
     local jsonfiles = ""
-    for k,v in pairs(data.files) do jsonfiles = jsonfiles .. (jsonfiles == "" and "" or ",\n") .. (v.content == nil and ("    \"%s\": null"):format(k) or ("    \"%s\": {\n      \"content\": %s\n    }"):format(k, json.encode(v.content))) end
+    for k, v in pairs(data.files) do jsonfiles = jsonfiles .. (jsonfiles == "" and "" or ",\n") .. (v.content == nil and ("    \"%s\": null"):format(k) or ("    \"%s\": {\n      \"content\": %s\n    }"):format(k, json.encode(v.content))) end
     local jsondata = ([[{
   "description": %s,
   "public": true,
@@ -627,11 +630,11 @@ elseif args[1] == "edit" then
                     return 3
                 end
             end
-        else print("Failed: " .. err); return 3 end
-    else print("Failed: This version of ComputerCraft doesn't support the PATCH method. Update to CC: Tweaked or a compatible emulator (CraftOS-PC, CCEmuX) to use 'edit'."); return 3 end
-    if handle == nil then print("Failed."); return 3 end
+        else print("Failed: " .. err) return 3 end
+    else print("Failed: This version of ComputerCraft doesn't support the PATCH method. Update to CC: Tweaked or a compatible emulator (CraftOS-PC, CCEmuX) to use 'edit'.") return 3 end
+    if handle == nil then print("Failed.") return 3 end
     local resp = json.decode(handle.readAll())
-    if handle.getResponseCode() ~= 200 or resp == nil then print("Failed: " .. handle.getResponseCode() .. ": " .. (resp and json.encode(resp) or "Unknown error")); handle.close(); return 3 end
+    if handle.getResponseCode() ~= 200 or resp == nil then print("Failed: " .. handle.getResponseCode() .. ": " .. (resp and json.encode(resp) or "Unknown error")) handle.close() return 3 end
     handle.close()
     print("Success. Uploaded as " .. resp.html_url .. "\nRun 'gist get " .. resp.id .. "' to download anywhere")
 elseif args[1] == "delete" then
@@ -656,11 +659,11 @@ elseif args[1] == "delete" then
                     return 3
                 end
             end
-        else print("Failed: " .. err); return 3 end
-    else print("Failed: This version of ComputerCraft doesn't support the PATCH method. Update to CC: Tweaked or a compatible emulator (CraftOS-PC, CCEmuX) to use 'edit'."); return 3 end
-    if handle == nil then print("Failed."); return 3 end
-    if handle.getResponseCode() ~= 204 then print("Failed: " .. handle.getResponseCode() .. "."); handle.close(); return 3 end
+        else print("Failed: " .. err) return 3 end
+    else print("Failed: This version of ComputerCraft doesn't support the PATCH method. Update to CC: Tweaked or a compatible emulator (CraftOS-PC, CCEmuX) to use 'edit'.") return 3 end
+    if handle == nil then print("Failed.") return 3 end
+    if handle.getResponseCode() ~= 204 then print("Failed: " .. handle.getResponseCode() .. ".") handle.close() return 3 end
     handle.close()
     print("Success.")
     print("The requested Gist has been deleted.")
-else print(helpstr); return 1 end
+else print(helpstr) return 1 end
