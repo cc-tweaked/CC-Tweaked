@@ -38,7 +38,7 @@ do
     if not nextc then error(early_end_error) end
     return parse_str_val(str, pos + 2, val .. (esc_map[nextc] or nextc))
   end
-  
+
   -- Returns val, pos; the returned pos is after the number's final character.
   local function parse_num_val(str, pos)
     local num_str = str:match('^-?%d+%.?%d*[eE]?[+-]?%d*', pos)
