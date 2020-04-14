@@ -22,7 +22,7 @@ do
     end
     return pos + 1, true
   end
-  
+
   -- Expects the given pos to be the first character after the opening quote.
   -- Returns val, pos; the returned pos is after the closing quote character.
   local function parse_str_val(str, pos, val)

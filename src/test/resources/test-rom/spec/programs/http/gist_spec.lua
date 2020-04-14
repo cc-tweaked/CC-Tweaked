@@ -172,7 +172,7 @@ describe("The gist program", function()
             post = function(tab)
                 return {
                     readAll = function()
-                        if type(tab) == "table" and tab.method == "PATCH" then 
+                        if type(tab) == "table" and tab.method == "PATCH" then
                             return gistout
                                 :gsub('"hello_world.rb": %b{},\n', "")
                                 :gsub('"Hello World Examples"', '"Hello World Examples (Updated)"')
