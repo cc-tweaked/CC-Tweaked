@@ -1,410 +1,98 @@
 -- gist.lua - Gist client for ComputerCraft
--- Made by JackMacWindows for CraftOS-PC and CC: Tweaked
+-- Made by JackMacWindows for CraftOS-PC, modified for CC: Tweaked
 
--- The following code consists of a JSON library.
+-- The following code is a JSON decoder. It was retreived from
+-- https://gist.github.com/tylerneylon/59f4bcf316be525b30ab, and is in the public domain.
 
-local json
+local json = {}
 do
 
---
--- json.lua
---
--- Copyright (c) 2019 rxi
---
--- Permission is hereby granted, free of charge, to any person obtaining a copy of
--- this software and associated documentation files (the "Software"), to deal in
--- the Software without restriction, including without limitation the rights to
--- use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
--- of the Software, and to permit persons to whom the Software is furnished to do
--- so, subject to the following conditions:
---
--- The above copyright notice and this permission notice shall be included in all
--- copies or substantial portions of the Software.
---
--- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
--- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
--- FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
--- AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
--- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
--- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
--- SOFTWARE.
---
-
-json = { _version = "0.1.2" }
-
--------------------------------------------------------------------------------
--- Encode
--------------------------------------------------------------------------------
-
-local encode
-
-local escape_char_map = {
-  [ "\\" ] = "\\\\",
-  [ "\"" ] = "\\\"",
-  [ "\b" ] = "\\b",
-  [ "\f" ] = "\\f",
-  [ "\n" ] = "\\n",
-  [ "\r" ] = "\\r",
-  [ "\t" ] = "\\t",
-}
-
-local escape_char_map_inv = { [ "\\/" ] = "/" }
-for k, v in pairs(escape_char_map) do
-  escape_char_map_inv[v] = k
-end
-
-
-local function escape_char(c)
-  return escape_char_map[c] or string.format("\\u%04x", c:byte())
-end
-
-
-local function encode_nil(val)
-  return "null"
-end
-
-
-local function encode_table(val, stack)
-  local res = {}
-  stack = stack or {}
-
-  -- Circular reference?
-  if stack[val] then error("circular reference") end
-
-  stack[val] = true
-
-  if rawget(val, 1) ~= nil or next(val) == nil then
-    -- Treat as array -- check keys are valid and it is not sparse
-    local n = 0
-    for k in pairs(val) do
-      if type(k) ~= "number" then
-        error("invalid table: mixed or invalid key types")
+  -- Internal functions.
+  -- Returns pos, did_find; there are two cases:
+  -- 1. Delimiter found: pos = pos after leading space + delim; did_find = true.
+  -- 2. Delimiter not found: pos = pos after leading space;     did_find = false.
+  -- This throws an error if err_if_missing is true and the delim is not found.
+  local function skip_delim(str, pos, delim, err_if_missing)
+    pos = pos + #str:match('^%s*', pos)
+    if str:sub(pos, pos) ~= delim then
+      if err_if_missing then
+        error('Expected ' .. delim .. ' near position ' .. pos)
       end
-      n = n + 1
+      return pos, false
     end
-    if n ~= #val then
-      error("invalid table: sparse array")
-    end
-    -- Encode
-    for _, v in ipairs(val) do
-      table.insert(res, encode(v, stack))
-    end
-    stack[val] = nil
-    return "[" .. table.concat(res, ",") .. "]"
+    return pos + 1, true
+  end
+  
+  -- Expects the given pos to be the first character after the opening quote.
+  -- Returns val, pos; the returned pos is after the closing quote character.
+  local function parse_str_val(str, pos, val)
+    val = val or ''
+    local early_end_error = 'End of input found while parsing string.'
+    if pos > #str then error(early_end_error) end
+    local c = str:sub(pos, pos)
+    if c == '"'  then return val, pos + 1 end
+    if c ~= '\\' then return parse_str_val(str, pos + 1, val .. c) end
+    -- We must have a \ character.
+    local esc_map = {b = '\b', f = '\f', n = '\n', r = '\r', t = '\t'}
+    local nextc = str:sub(pos + 1, pos + 1)
+    if not nextc then error(early_end_error) end
+    return parse_str_val(str, pos + 2, val .. (esc_map[nextc] or nextc))
+  end
+  
+  -- Returns val, pos; the returned pos is after the number's final character.
+  local function parse_num_val(str, pos)
+    local num_str = str:match('^-?%d+%.?%d*[eE]?[+-]?%d*', pos)
+    local val = tonumber(num_str)
+    if not val then error('Error parsing number at position ' .. pos .. '.') end
+    return val, pos + #num_str
+  end
 
-  else
-    -- Treat as an object
-    for k, v in pairs(val) do
-      if type(k) ~= "string" then
-        error("invalid table: mixed or invalid key types")
+  json.null = {}
+
+  function json.decode(str, pos, end_delim)
+    pos = pos or 1
+    if pos > #str then error('Reached unexpected end of input.') end
+    pos = pos + #str:match('^%s*', pos)  -- Skip whitespace.
+    local first = str:sub(pos, pos)
+    if first == '{' then  -- Parse an object.
+      local obj, key, delim_found = {}, true, true
+      pos = pos + 1
+      while true do
+        key, pos = json.decode(str, pos, '}')
+        if key == nil then return obj, pos end
+        if not delim_found then error('Comma missing between object items.') end
+        pos = skip_delim(str, pos, ':', true)  -- true -> error if missing.
+        obj[key], pos = json.decode(str, pos)
+        pos, delim_found = skip_delim(str, pos, ',')
       end
-      table.insert(res, encode(k, stack) .. ":" .. encode(v, stack))
-    end
-    stack[val] = nil
-    return "{" .. table.concat(res, ",") .. "}"
-  end
-end
-
-
-local function encode_string(val)
-  return '"' .. val:gsub('[%z\1-\31\\"]', escape_char) .. '"'
-end
-
-
-local function encode_number(val)
-  -- Check for NaN, -inf and inf
-  if val ~= val or val <= -math.huge or val >= math.huge then
-    error("unexpected number value '" .. tostring(val) .. "'")
-  end
-  return string.format("%.14g", val)
-end
-
-
-local type_func_map = {
-  [ "nil"     ] = encode_nil,
-  [ "table"   ] = encode_table,
-  [ "string"  ] = encode_string,
-  [ "number"  ] = encode_number,
-  [ "boolean" ] = tostring,
-}
-
-
-encode = function(val, stack)
-  local t = type(val)
-  local f = type_func_map[t]
-  if f then
-    return f(val, stack)
-  end
-  error("unexpected type '" .. t .. "'")
-end
-
-
-function json.encode(val)
-  return ( encode(val) )
-end
-
-
--------------------------------------------------------------------------------
--- Decode
--------------------------------------------------------------------------------
-
-local parse
-
-local function create_set(...)
-  local res = {}
-  for i = 1, select("#", ...) do
-    res[ select(i, ...) ] = true
-  end
-  return res
-end
-
-local space_chars   = create_set(" ", "\t", "\r", "\n")
-local delim_chars   = create_set(" ", "\t", "\r", "\n", "]", "}", ",")
-local escape_chars  = create_set("\\", "/", '"', "b", "f", "n", "r", "t", "u")
-local literals      = create_set("true", "false", "null")
-
-local literal_map = {
-  [ "true"  ] = true,
-  [ "false" ] = false,
-  [ "null"  ] = nil,
-}
-
-
-local function next_char(str, idx, set, negate)
-  for i = idx, #str do
-    if set[str:sub(i, i)] ~= negate then
-      return i
-    end
-  end
-  return #str + 1
-end
-
-
-local function decode_error(str, idx, msg)
-  local line_count = 1
-  local col_count = 1
-  for i = 1, idx - 1 do
-    col_count = col_count + 1
-    if str:sub(i, i) == "\n" then
-      line_count = line_count + 1
-      col_count = 1
-    end
-  end
-  error( string.format("%s at line %d col %d", msg, line_count, col_count) )
-end
-
-
-local function codepoint_to_utf8(n)
-  -- http://scripts.sil.org/cms/scripts/page.php?site_id=nrsi&id=iws-appendixa
-  local f = math.floor
-  if n <= 0x7f then
-    return string.char(n)
-  elseif n <= 0x7ff then
-    return string.char(f(n / 64) + 192, n % 64 + 128)
-  elseif n <= 0xffff then
-    return string.char(f(n / 4096) + 224, f(n % 4096 / 64) + 128, n % 64 + 128)
-  elseif n <= 0x10ffff then
-    return string.char(f(n / 262144) + 240, f(n % 262144 / 4096) + 128,
-                       f(n % 4096 / 64) + 128, n % 64 + 128)
-  end
-  error( string.format("invalid unicode codepoint '%x'", n) )
-end
-
-
-local function parse_unicode_escape(s)
-  local n1 = tonumber( s:sub(3, 6),  16 )
-  local n2 = tonumber( s:sub(9, 12), 16 )
-  -- Surrogate pair?
-  if n2 then
-    return codepoint_to_utf8((n1 - 0xd800) * 0x400 + (n2 - 0xdc00) + 0x10000)
-  else
-    return codepoint_to_utf8(n1)
-  end
-end
-
-
-local function parse_string(str, i)
-  local has_unicode_escape = false
-  local has_surrogate_escape = false
-  local has_escape = false
-  local last
-  for j = i + 1, #str do
-    local x = str:byte(j)
-
-    if x < 32 then
-      decode_error(str, j, "control character in string")
-    end
-
-    if last == 92 then -- "\\" (escape char)
-      if x == 117 then -- "u" (unicode escape sequence)
-        local hex = str:sub(j + 1, j + 5)
-        if not hex:find("%x%x%x%x") then
-          decode_error(str, j, "invalid unicode escape in string")
-        end
-        if hex:find("^[dD][89aAbB]") then
-          has_surrogate_escape = true
-        else
-          has_unicode_escape = true
-        end
-      else
-        local c = string.char(x)
-        if not escape_chars[c] then
-          decode_error(str, j, "invalid escape char '" .. c .. "' in string")
-        end
-        has_escape = true
+    elseif first == '[' then  -- Parse an array.
+      local arr, val, delim_found = {}, true, true
+      pos = pos + 1
+      while true do
+        val, pos = json.decode(str, pos, ']')
+        if val == nil then return arr, pos end
+        if not delim_found then error('Comma missing between array items.') end
+        arr[#arr + 1] = val
+        pos, delim_found = skip_delim(str, pos, ',')
       end
-      last = nil
-
-    elseif x == 34 then -- '"' (end of string)
-      local s = str:sub(i + 1, j - 1)
-      if has_surrogate_escape then
-        s = s:gsub("\\u[dD][89aAbB]..\\u....", parse_unicode_escape)
+    elseif first == '"' then  -- Parse a string.
+      return parse_str_val(str, pos + 1)
+    elseif first == '-' or first:match('%d') then  -- Parse a number.
+      return parse_num_val(str, pos)
+    elseif first == end_delim then  -- End of an object or array.
+      return nil, pos + 1
+    else  -- Parse true, false, or null.
+      local literals = {['true'] = true, ['false'] = false, ['null'] = json.null}
+      for lit_str, lit_val in pairs(literals) do
+        local lit_end = pos + #lit_str - 1
+        if str:sub(pos, lit_end) == lit_str then return lit_val, lit_end + 1 end
       end
-      if has_unicode_escape then
-        s = s:gsub("\\u....", parse_unicode_escape)
-      end
-      if has_escape then
-        s = s:gsub("\\.", escape_char_map_inv)
-      end
-      return s, j + 1
-
-    else
-      last = x
+      local pos_info_str = 'position ' .. pos .. ': ' .. str:sub(pos, pos + 10)
+      error('Invalid json syntax starting at ' .. pos_info_str)
     end
   end
-  decode_error(str, i, "expected closing quote for string")
-end
 
-
-local function parse_number(str, i)
-  local x = next_char(str, i, delim_chars)
-  local s = str:sub(i, x - 1)
-  local n = tonumber(s)
-  if not n then
-    decode_error(str, i, "invalid number '" .. s .. "'")
-  end
-  return n, x
-end
-
-
-local function parse_literal(str, i)
-  local x = next_char(str, i, delim_chars)
-  local word = str:sub(i, x - 1)
-  if not literals[word] then
-    decode_error(str, i, "invalid literal '" .. word .. "'")
-  end
-  return literal_map[word], x
-end
-
-
-local function parse_array(str, i)
-  local res = {}
-  local n = 1
-  i = i + 1
-  while 1 do
-    local x
-    i = next_char(str, i, space_chars, true)
-    -- Empty / end of array?
-    if str:sub(i, i) == "]" then
-      i = i + 1
-      break
-    end
-    -- Read token
-    x, i = parse(str, i)
-    res[n] = x
-    n = n + 1
-    -- Next token
-    i = next_char(str, i, space_chars, true)
-    local chr = str:sub(i, i)
-    i = i + 1
-    if chr == "]" then break end
-    if chr ~= "," then decode_error(str, i, "expected ']' or ','") end
-  end
-  return res, i
-end
-
-
-local function parse_object(str, i)
-  local res = {}
-  i = i + 1
-  while 1 do
-    local key, val
-    i = next_char(str, i, space_chars, true)
-    -- Empty / end of object?
-    if str:sub(i, i) == "}" then
-      i = i + 1
-      break
-    end
-    -- Read key
-    if str:sub(i, i) ~= '"' then
-      decode_error(str, i, "expected string for key")
-    end
-    key, i = parse(str, i)
-    -- Read ':' delimiter
-    i = next_char(str, i, space_chars, true)
-    if str:sub(i, i) ~= ":" then
-      decode_error(str, i, "expected ':' after key")
-    end
-    i = next_char(str, i + 1, space_chars, true)
-    -- Read value
-    val, i = parse(str, i)
-    -- Set
-    res[key] = val
-    -- Next token
-    i = next_char(str, i, space_chars, true)
-    local chr = str:sub(i, i)
-    i = i + 1
-    if chr == "}" then break end
-    if chr ~= "," then decode_error(str, i, "expected '}' or ','") end
-  end
-  return res, i
-end
-
-
-local char_func_map = {
-  [ '"' ] = parse_string,
-  [ "0" ] = parse_number,
-  [ "1" ] = parse_number,
-  [ "2" ] = parse_number,
-  [ "3" ] = parse_number,
-  [ "4" ] = parse_number,
-  [ "5" ] = parse_number,
-  [ "6" ] = parse_number,
-  [ "7" ] = parse_number,
-  [ "8" ] = parse_number,
-  [ "9" ] = parse_number,
-  [ "-" ] = parse_number,
-  [ "t" ] = parse_literal,
-  [ "f" ] = parse_literal,
-  [ "n" ] = parse_literal,
-  [ "[" ] = parse_array,
-  [ "{" ] = parse_object,
-}
-
-
-parse = function(str, idx)
-  local chr = str:sub(idx, idx)
-  local f = char_func_map[chr]
-  if f then
-    return f(str, idx)
-  end
-  decode_error(str, idx, "unexpected character '" .. chr .. "'")
-end
-
-
-function json.decode(str)
-  if type(str) ~= "string" then
-    error("expected argument of type string, got " .. type(str))
-  end
-  local res, idx = parse(str, next_char(str, 1, space_chars, true))
-  idx = next_char(str, idx, space_chars, true)
-  if idx <= #str then
-    decode_error(str, idx, "trailing garbage")
-  end
-  return res
-end
-
-end -- end of libraries
+end -- end of library
 
 -- Actual program
 
@@ -492,8 +180,7 @@ end
 
 if not http then
     printError("Gist requires http API")
-    if _G.config ~= nil then printError("Set http_enable to true in the CraftOS-PC configuration")
-    else printError("Set http_enable to true in ComputerCraft.cfg") end
+    printError("Set http_enable to true in ComputerCraft's configuration'")
     return 2
 end
 
@@ -525,7 +212,7 @@ elseif args[1] == "put" then
     end
     if args[i] == "--" then data.description = table.concat({table.unpack(args, i + 1)}, " ") end
     local jsonfiles = ""
-    for k, v in pairs(data.files) do jsonfiles = jsonfiles .. (jsonfiles == "" and "" or ",\n") .. ("    \"%s\": {\n      \"content\": %s\n    }"):format(k, json.encode(v.content)) end
+    for k, v in pairs(data.files) do jsonfiles = jsonfiles .. (jsonfiles == "" and "" or ",\n") .. ("    \"%s\": {\n      \"content\": %s\n    }"):format(k, textutils.serializeJSON(v.content)) end
     if jsonfiles == "" then print("No such file") return 2 end
     local jsondata = ([[{
   "description": %s,
@@ -540,7 +227,7 @@ elseif args[1] == "put" then
     local handle = http.post("https://api.github.com/gists", jsondata, headers)
     if handle == nil then print("Failed.") return 3 end
     local resp = json.decode(handle.readAll())
-    if handle.getResponseCode() ~= 201 or resp == nil then print("Failed: " .. handle.getResponseCode() .. ": " .. (resp and json.encode(resp) or "Unknown error")) handle.close() return 3 end
+    if handle.getResponseCode() ~= 201 or resp == nil then print("Failed: " .. handle.getResponseCode() .. ": " .. (resp and textutils.serializeJSON(resp) or "Unknown error")) handle.close() return 3 end
     handle.close()
     print("Success.\nUploaded as " .. resp.html_url .. "\nRun 'gist get " .. resp.id .. "' to download anywhere")
 elseif args[1] == "info" then
@@ -605,7 +292,7 @@ elseif args[1] == "edit" then
     local headers = {["Content-Type"] = "application/json"}
     requestAuth(headers)
     local jsonfiles = ""
-    for k, v in pairs(data.files) do jsonfiles = jsonfiles .. (jsonfiles == "" and "" or ",\n") .. (v.content == nil and ("    \"%s\": null"):format(k) or ("    \"%s\": {\n      \"content\": %s\n    }"):format(k, json.encode(v.content))) end
+    for k, v in pairs(data.files) do jsonfiles = jsonfiles .. (jsonfiles == "" and "" or ",\n") .. (v.content == nil and ("    \"%s\": null"):format(k) or ("    \"%s\": {\n      \"content\": %s\n    }"):format(k, textutils.serializeJSON(v.content))) end
     local jsondata = ([[{
   "description": %s,
   "public": true,
@@ -614,53 +301,19 @@ elseif args[1] == "edit" then
   }
 }]]):format(data.description and '"' .. data.description .. '"' or "null", jsonfiles)
     write("Connecting to api.github.com... ")
-    local handle
-    if http.patch ~= nil then handle = http.patch("https://api.github.com/gists/" .. id, jsondata, headers)
-    elseif http.websocket ~= nil then
-        local _url = "https://api.github.com/gists/" .. id
-        local ok, err = http.request(_url, jsondata, headers, false, "PATCH")
-        if ok then
-            while true do
-                local event, param1, param2, param3 = os.pullEvent()
-                if event == "http_success" and param1 == _url then
-                    handle = param2
-                    break
-                elseif event == "http_failure" and param1 == _url then
-                    print("Failed: ", param2, param3)
-                    return 3
-                end
-            end
-        else print("Failed: " .. err) return 3 end
-    else print("Failed: This version of ComputerCraft doesn't support the PATCH method. Update to CC: Tweaked or a compatible emulator (CraftOS-PC, CCEmuX) to use 'edit'.") return 3 end
+    local handle = http.post{url = "https://api.github.com/gists/" .. id, body = jsondata, headers = headers, method = "PATCH"}
     if handle == nil then print("Failed.") return 3 end
     local resp = json.decode(handle.readAll())
-    if handle.getResponseCode() ~= 200 or resp == nil then print("Failed: " .. handle.getResponseCode() .. ": " .. (resp and json.encode(resp) or "Unknown error")) handle.close() return 3 end
+    if handle.getResponseCode() ~= 200 or resp == nil then print("Failed: " .. handle.getResponseCode() .. ": " .. (resp and textutils.serializeJSON(resp) or "Unknown error")) handle.close() return 3 end
     handle.close()
-    print("Success. Uploaded as " .. resp.html_url .. "\nRun 'gist get " .. resp.id .. "' to download anywhere")
+    print("Success.\nUploaded as " .. resp.html_url .. "\nRun 'gist get " .. resp.id .. "' to download anywhere")
 elseif args[1] == "delete" then
     local id = args[2]
     if id:find("/") ~= nil or id:find(":") ~= nil then id = id:match("^([0-9A-Fa-f]+)") end
     local headers = {}
     requestAuth(headers)
-    local handle
     write("Connecting to api.github.com... ")
-    if http.delete ~= nil then handle = http.delete("https://api.github.com/gists/" .. id, nil, headers)
-    elseif http.websocket ~= nil then
-        local _url = "https://api.github.com/gists/" .. id
-        local ok, err = http.request(_url, nil, headers, false, "DELETE")
-        if ok then
-            while true do
-                local event, param1, param2, param3 = os.pullEvent()
-                if event == "http_success" and param1 == _url then
-                    handle = param2
-                    break
-                elseif event == "http_failure" and param1 == _url then
-                    print("Failed: ", param2, param3)
-                    return 3
-                end
-            end
-        else print("Failed: " .. err) return 3 end
-    else print("Failed: This version of ComputerCraft doesn't support the PATCH method. Update to CC: Tweaked or a compatible emulator (CraftOS-PC, CCEmuX) to use 'edit'.") return 3 end
+    local handle = http.post{url = "https://api.github.com/gists/" .. id, headers = headers, method = "DELETE"}
     if handle == nil then print("Failed.") return 3 end
     if handle.getResponseCode() ~= 204 then print("Failed: " .. handle.getResponseCode() .. ".") handle.close() return 3 end
     handle.close()

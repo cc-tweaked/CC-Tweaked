@@ -169,36 +169,21 @@ describe("The gist program", function()
                     end,
                 }
             end,
-            post = function()
+            post = function(tab)
                 return {
                     readAll = function()
-                        return gistout
+                        if type(tab) == "table" and tab.method == "PATCH" then 
+                            return gistout
+                                :gsub('"hello_world.rb": %b{},\n', "")
+                                :gsub('"Hello World Examples"', '"Hello World Examples (Updated)"')
+                        else return gistout end
                     end,
                     close = function()
                     end,
                     getResponseCode = function()
-                        return 201
-                    end,
-                }
-            end,
-            patch = function()
-                return {
-                    readAll = function()
-                        return gistout
-                    end,
-                    close = function()
-                    end,
-                    getResponseCode = function()
-                        return 200
-                    end,
-                }
-            end,
-            delete = function()
-                return {
-                    close = function()
-                    end,
-                    getResponseCode = function()
-                        return 204
+                        if type(tab) ~= "table" then return 201
+                        elseif tab.method == "PATCH" then return 200
+                        else return 204 end
                     end,
                 }
             end,
@@ -245,6 +230,20 @@ describe("The gist program", function()
 
         expect(capture(stub, "gist", "put", "nothing"))
             :matches { ok = true, output = "Could not read nothing.\n", error = "" }
+    end)
+
+    it("edit a Gist", function()
+        setup_request()
+
+        expect(capture(stub, "gist", "edit", "aa5a315d61ae9438b18d", "hello_world.rb", "--", "Hello", "World", "Examples", "(Updated)"))
+            :matches { ok = true, output = "Connecting to api.github.com... Success.\nUploaded as https://gist.github.com/aa5a315d61ae9438b18d\nRun 'gist get aa5a315d61ae9438b18d' to download anywhere\n", error = "" }
+    end)
+
+    it("delete a Gist", function()
+        setup_request()
+
+        expect(capture(stub, "gist", "delete", "aa5a315d61ae9438b18d"))
+            :matches { ok = true, output = "Connecting to api.github.com... Success.\nThe requested Gist has been deleted.\n", error = "" }
     end)
 
     it("displays its usage when given no arguments", function()
