@@ -70,8 +70,6 @@ if _VERSION == "Lua 5.1" then
             error( p1, 2 )
         end
     end
-    table.unpack = unpack
-    table.pack = function( ... ) return { n = select( "#", ... ), ... } end
 
     if _CC_DISABLE_LUA51_FEATURES then
         -- Remove the Lua 5.1 features that will be removed when we update to Lua 5.2, for compatibility testing.
@@ -96,70 +94,6 @@ if _VERSION == "Lua 5.1" then
             blogic_rshift = bit32.rshift,
         }
     end
-end
-
-if _VERSION == "Lua 5.3" and not bit32 then
-    -- If we're on Lua 5.3, install the bit32 api from Lua 5.2
-    -- (Loaded from a string so this file will still parse on <5.3 lua)
-    load( [[
-        bit32 = {}
-
-        function bit32.arshift( n, bits )
-            if type(n) ~= "number" or type(bits) ~= "number" then
-                error( "Expected number, number", 2 )
-            end
-            return n >> bits
-        end
-
-        function bit32.band( m, n )
-            if type(m) ~= "number" or type(n) ~= "number" then
-                error( "Expected number, number", 2 )
-            end
-            return m & n
-        end
-
-        function bit32.bnot( n )
-            if type(n) ~= "number" then
-                error( "Expected number", 2 )
-            end
-            return ~n
-        end
-
-        function bit32.bor( m, n )
-            if type(m) ~= "number" or type(n) ~= "number" then
-                error( "Expected number, number", 2 )
-            end
-            return m | n
-        end
-
-        function bit32.btest( m, n )
-            if type(m) ~= "number" or type(n) ~= "number" then
-                error( "Expected number, number", 2 )
-            end
-            return (m & n) ~= 0
-        end
-
-        function bit32.bxor( m, n )
-            if type(m) ~= "number" or type(n) ~= "number" then
-                error( "Expected number, number", 2 )
-            end
-            return m ~ n
-        end
-
-        function bit32.lshift( n, bits )
-            if type(n) ~= "number" or type(bits) ~= "number" then
-                error( "Expected number, number", 2 )
-            end
-            return n << bits
-        end
-
-        function bit32.rshift( n, bits )
-            if type(n) ~= "number" or type(bits) ~= "number" then
-                error( "Expected number, number", 2 )
-            end
-            return n >> bits
-        end
-    ]] )()
 end
 
 -- Install lua parts of the os api

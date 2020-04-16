@@ -22,7 +22,7 @@ afterwards.
 
 ### Code linters
 CC: Tweaked uses a couple of "linters" on its source code, to enforce a consistent style across the project. While these
-are run whenever you submit a PR, it's often useful to
+are run whenever you submit a PR, it's often useful to run this before committing.
 
  - **[Checkstyle]:** Checks Java code to ensure it is consistently formatted. This can be run with `./gradlew build` or
    `./gradle check`.

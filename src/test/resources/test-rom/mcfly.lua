@@ -224,7 +224,7 @@ expect_mt.ne = expect_mt.not_equals
 function expect_mt:type(exp_type)
     local actual_type = type(self.value)
     if exp_type ~= actual_type then
-        fail(("Expected value of type %s\n                   got %s"):format(exp_type, actual_type))
+        fail(("Expected value of type %s\nbut got %s"):format(exp_type, actual_type))
     end
 
     return self
@@ -273,7 +273,7 @@ end
 -- @throws If they are not equivalent
 function expect_mt:same(value)
     if not matches({}, true, self.value, value) then
-        fail(("Expected %s\n but got %s"):format(format(value), format(self.value)))
+        fail(("Expected %s\nbut got %s"):format(format(value), format(self.value)))
     end
 
     return self
@@ -354,6 +354,22 @@ end
 -- Arguments are compared using matching.
 function expect_mt:called_with_matching(...)
     return called_with_check(matches, self, ...)
+end
+
+--- Assert that this expectation matches a Lua pattern
+--
+-- @tparam string pattern The pattern to match against
+-- @throws If it does not match this pattern.
+function expect_mt:str_match(pattern)
+    local actual_type = type(self.value)
+    if actual_type ~= "string" then
+        fail(("Expected value of type string\nbut got %s"):format(actual_type))
+    end
+    if not self.value:find(pattern) then
+        fail(("Expected %q\n to match pattern %q"):format(self.value, pattern))
+    end
+
+    return self
 end
 
 local expect = {}

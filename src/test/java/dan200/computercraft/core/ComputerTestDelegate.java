@@ -10,12 +10,18 @@ import dan200.computercraft.api.filesystem.IWritableMount;
 import dan200.computercraft.api.lua.ILuaAPI;
 import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
+import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.core.computer.BasicEnvironment;
 import dan200.computercraft.core.computer.Computer;
+import dan200.computercraft.core.computer.ComputerSide;
 import dan200.computercraft.core.computer.MainThread;
 import dan200.computercraft.core.filesystem.FileMount;
 import dan200.computercraft.core.filesystem.FileSystemException;
 import dan200.computercraft.core.terminal.Terminal;
+import dan200.computercraft.shared.peripheral.modem.ModemState;
+import dan200.computercraft.shared.peripheral.modem.wireless.WirelessModemPeripheral;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.World;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.*;
@@ -94,6 +100,7 @@ public class ComputerTestDelegate
         }
 
         computer = new Computer( new BasicEnvironment( mount ), term, 0 );
+        computer.getEnvironment().setPeripheral( ComputerSide.TOP, new FakeModem() );
         computer.addApi( new ILuaAPI()
         {
             @Override
@@ -416,5 +423,34 @@ public class ComputerTestDelegate
     private static String formatName( String name )
     {
         return name.replace( "\0", " -> " );
+    }
+
+    private static class FakeModem extends WirelessModemPeripheral
+    {
+        FakeModem()
+        {
+            super( new ModemState(), true );
+        }
+
+        @Nonnull
+        @Override
+        @SuppressWarnings( "ConstantConditions" )
+        public World getWorld()
+        {
+            return null;
+        }
+
+        @Nonnull
+        @Override
+        public Vec3d getPosition()
+        {
+            return Vec3d.ZERO;
+        }
+
+        @Override
+        public boolean equals( @Nullable IPeripheral other )
+        {
+            return this == other;
+        }
     }
 }
