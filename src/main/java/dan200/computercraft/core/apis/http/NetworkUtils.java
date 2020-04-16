@@ -116,7 +116,7 @@ public final class NetworkUtils
         if( socketAddress.isUnresolved() ) throw new HTTPRequestException( "Unknown host" );
 
         InetAddress address = socketAddress.getAddress();
-        if( AddressRule.apply( ComputerCraft.httpRules, host, address ) == AddressRule.Action.BLOCK )
+        if( AddressRule.apply( ComputerCraft.httpRules, host, address ) == AddressRule.Action.DENY )
         {
             throw new HTTPRequestException( "Domain not permitted" );
         }

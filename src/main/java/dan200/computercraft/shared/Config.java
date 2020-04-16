@@ -152,8 +152,7 @@ public final class Config
             builder.push( "http" );
 
             httpEnabled = builder
-                .comment( "Enable the \"http\" API on Computers (see \"http_whitelist\" and \"http_blacklist\" for more " +
-                    "fine grained control than this)" )
+                .comment( "Enable the \"http\" API on Computers (see \"rules\" for more fine grained control than this)." )
                 .define( "enabled", ComputerCraft.httpEnabled );
 
             httpWebsocketEnabled = builder
@@ -168,7 +167,7 @@ public final class Config
                     "match, the domain will be blocked." )
                 .defineList( "rules",
                     Stream.concat(
-                        Stream.of( ComputerCraft.DEFAULT_HTTP_BLOCK ).map( x -> makeRule( x, "block" ) ),
+                        Stream.of( ComputerCraft.DEFAULT_HTTP_DENY ).map( x -> makeRule( x, "deny" ) ),
                         Stream.of( ComputerCraft.DEFAULT_HTTP_ALLOW ).map( x -> makeRule( x, "allow" ) )
                     ).collect( Collectors.toList() ),
                     x -> x instanceof UnmodifiableConfig && parseRule( (UnmodifiableConfig) x ) != null );
@@ -360,11 +359,11 @@ public final class Config
     @Nullable
     private static AddressRule parseRule( UnmodifiableConfig builder )
     {
-        Object hostO = builder.get( "host" );
-        Object actionO = builder.get( "action" );
-        if( !(hostO instanceof String) || !(actionO instanceof String) ) return null;
+        Object hostObj = builder.get( "host" );
+        Object actionObj = builder.get( "action" );
+        if( !(hostObj instanceof String) || !(actionObj instanceof String) ) return null;
 
-        String host = (String) hostO, action = ((String) actionO);
+        String host = (String) hostObj, action = (String) actionObj;
         for( AddressRule.Action candiate : AddressRule.Action.values() )
         {
             if( candiate.name().equalsIgnoreCase( action ) ) return AddressRule.parse( host, candiate );

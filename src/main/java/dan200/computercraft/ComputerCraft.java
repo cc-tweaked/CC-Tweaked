@@ -56,7 +56,7 @@ public final class ComputerCraft
 
     // Configuration options
     public static final String[] DEFAULT_HTTP_ALLOW = new String[] { "*" };
-    public static final String[] DEFAULT_HTTP_BLOCK = new String[] {
+    public static final String[] DEFAULT_HTTP_DENY = new String[] {
         "127.0.0.0/8",
         "10.0.0.0/8",
         "172.16.0.0/12",
@@ -79,7 +79,7 @@ public final class ComputerCraft
     public static boolean httpEnabled = true;
     public static boolean httpWebsocketEnabled = true;
     public static List<AddressRule> httpRules = Collections.unmodifiableList( Stream.concat(
-        Stream.of( DEFAULT_HTTP_BLOCK ).map( x -> AddressRule.parse( x, AddressRule.Action.BLOCK ) ).filter( Objects::nonNull ),
+        Stream.of( DEFAULT_HTTP_DENY ).map( x -> AddressRule.parse( x, AddressRule.Action.DENY ) ).filter( Objects::nonNull ),
         Stream.of( DEFAULT_HTTP_ALLOW ).map( x -> AddressRule.parse( x, AddressRule.Action.ALLOW ) ).filter( Objects::nonNull )
     ).collect( Collectors.toList() ) );
 

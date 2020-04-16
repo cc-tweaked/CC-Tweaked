@@ -14,9 +14,9 @@ import java.net.InetAddress;
 import java.util.regex.Pattern;
 
 /**
- * A pattern which matches an address, and either allows or blocks it depending
+ * A pattern which matches an address, and controls whether it is accessible or not.
  */
-public class AddressRule
+public final class AddressRule
 {
     private static final class HostRange
     {
@@ -47,7 +47,7 @@ public class AddressRule
     public enum Action
     {
         ALLOW,
-        BLOCK
+        DENY,
     }
 
     private final HostRange ip;
@@ -162,6 +162,6 @@ public class AddressRule
             if( rule.matches( domain, address ) ) return rule.action;
         }
 
-        return Action.BLOCK;
+        return Action.DENY;
     }
 }
