@@ -4,6 +4,7 @@
 /build
 /out
 /doc/**/*.html
+/doc/index.json
 
 # Runtime directories
 /run
