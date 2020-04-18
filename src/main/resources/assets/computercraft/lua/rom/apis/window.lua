@@ -68,7 +68,7 @@ local string_sub = string.sub
 -- @tparam number nWidth The width of this window
 -- @tparam number nHeight The height of this window
 -- @tparam[opt] boolean bStartVisible Whether this window is visible by
---                      default. Defaults to `true`.
+-- default. Defaults to `true`.
 -- @treturn Window The constructed window
 function create(parent, nX, nY, nWidth, nHeight, bStartVisible)
     expect(1, parent, "table")
@@ -229,9 +229,11 @@ function create(parent, nX, nY, nWidth, nHeight, bStartVisible)
         end
     end
 
-    --- Terminal implementation
+    --- The window object. Refer to the @{window|module's documentation} for
+    -- a full description.
     --
     -- @type Window
+    -- @see term.Redirect
     local window = {}
 
     function window.write(sText)
@@ -437,6 +439,13 @@ function create(parent, nX, nY, nWidth, nHeight, bStartVisible)
         return nBackgroundColor
     end
 
+    --- Get the buffered contents of a line in this window.
+    ---
+    -- @tparam number y The y position of the line to get.
+    -- @treturn string The textual content of this line.
+    -- @treturn string The text colours of this line, suitable for use with @{term.blit}.
+    -- @treturn string The background colours of this line, suitable for use with @{term.blit}.
+    -- @throws If `y` is a valid line.
     function window.getLine(y)
         if type(y) ~= "number" then expect(1, y, "number") end
 
@@ -448,16 +457,26 @@ function create(parent, nX, nY, nWidth, nHeight, bStartVisible)
     end
 
     -- Other functions
-    function window.setVisible(bVis)
-        if type(bVis) ~= "boolean" then expect(1, bVis, "boolean") end
-        if bVisible ~= bVis then
-            bVisible = bVis
+
+    --- Set whether this window is visible. Invisible windows will not be drawn
+    -- to the screen until they are made visible again.
+    --
+    -- Making an invisible window visible will immediately draw it.
+    --
+    -- @tparam boolean visible Whether this window is visible.
+    function window.setVisible(visible)
+        if type(visible) ~= "boolean" then expect(1, visible, "boolean") end
+        if bVisible ~= visible then
+            bVisible = visible
             if bVisible then
                 window.redraw()
             end
         end
     end
 
+    --- Draw this window. This does nothing if the window is not visible.
+    --
+    -- @see Window:setVisible
     function window.redraw()
         if bVisible then
             redraw()
@@ -468,6 +487,8 @@ function create(parent, nX, nY, nWidth, nHeight, bStartVisible)
         end
     end
 
+    --- Set the current terminal's cursor to where this window's cursor is. This
+    -- does nothing if the window is not visible.
     function window.restoreCursor()
         if bVisible then
             updateCursorBlink()
@@ -476,31 +497,47 @@ function create(parent, nX, nY, nWidth, nHeight, bStartVisible)
         end
     end
 
+    --- Get the position of the top left corner of this window.
+    --
+    -- @treturn number The x position of this window.
+    -- @treturn number The y position of this window.
     function window.getPosition()
         return nX, nY
     end
 
-    function window.reposition(nNewX, nNewY, nNewWidth, nNewHeight, newParent)
-        if type(nNewX) ~= "number" then expect(1, nNewX, "number") end
-        if type(nNewY) ~= "number" then expect(2, nNewY, "number") end
-        if nNewWidth ~= nil or nNewHeight ~= nil then
-            expect(3, nNewWidth, "number")
-            expect(4, nNewHeight, "number")
+    --- Reposition or resize the given window.
+    --
+    -- This function also accepts arguments to change the size of this window.
+    -- It is recommended that you fire a `term_resize` event after changing a
+    -- window's, to allow programs to adjust their sizing.
+    --
+    -- @tparam number new_x The new x position of this window.
+    -- @tparam number new_y The new y position of this window.
+    -- @tparam[opt] number new_width The new width of this window.
+    -- @tparam number new_height The new height of this window.
+    -- @tparam[opt] term.Redirect new_parent The new redirect object this
+    -- window should draw to.
+    function window.reposition(new_x, new_y, new_width, new_height, new_parent)
+        if type(new_x) ~= "number" then expect(1, new_x, "number") end
+        if type(new_y) ~= "number" then expect(2, new_y, "number") end
+        if new_width ~= nil or new_height ~= nil then
+            expect(3, new_width, "number")
+            expect(4, new_height, "number")
         end
-        if newParent ~= nil and type(newParent) ~= "table" then expect(5, newParent, "table") end
+        if new_parent ~= nil and type(new_parent) ~= "table" then expect(5, new_parent, "table") end
 
-        nX = nNewX
-        nY = nNewY
+        nX = new_x
+        nY = new_y
 
-        if newParent then parent = newParent end
+        if new_parent then parent = new_parent end
 
-        if nNewWidth and nNewHeight then
+        if new_width and new_height then
             local tNewLines = {}
-            createEmptyLines(nNewWidth)
+            createEmptyLines(new_width)
             local sEmptyText = sEmptySpaceLine
             local sEmptyTextColor = tEmptyColorLines[nTextColor]
             local sEmptyBackgroundColor = tEmptyColorLines[nBackgroundColor]
-            for y = 1, nNewHeight do
+            for y = 1, new_height do
                 if y > nHeight then
                     tNewLines[y] = {
                         text = sEmptyText,
@@ -509,25 +546,25 @@ function create(parent, nX, nY, nWidth, nHeight, bStartVisible)
                     }
                 else
                     local tOldLine = tLines[y]
-                    if nNewWidth == nWidth then
+                    if new_width == nWidth then
                         tNewLines[y] = tOldLine
-                    elseif nNewWidth < nWidth then
+                    elseif new_width < nWidth then
                         tNewLines[y] = {
-                            text = string_sub(tOldLine.text, 1, nNewWidth),
-                            textColor = string_sub(tOldLine.textColor, 1, nNewWidth),
-                            backgroundColor = string_sub(tOldLine.backgroundColor, 1, nNewWidth),
+                            text = string_sub(tOldLine.text, 1, new_width),
+                            textColor = string_sub(tOldLine.textColor, 1, new_width),
+                            backgroundColor = string_sub(tOldLine.backgroundColor, 1, new_width),
                         }
                     else
                         tNewLines[y] = {
-                            text = tOldLine.text .. string_sub(sEmptyText, nWidth + 1, nNewWidth),
-                            textColor = tOldLine.textColor .. string_sub(sEmptyTextColor, nWidth + 1, nNewWidth),
-                            backgroundColor = tOldLine.backgroundColor .. string_sub(sEmptyBackgroundColor, nWidth + 1, nNewWidth),
+                            text = tOldLine.text .. string_sub(sEmptyText, nWidth + 1, new_width),
+                            textColor = tOldLine.textColor .. string_sub(sEmptyTextColor, nWidth + 1, new_width),
+                            backgroundColor = tOldLine.backgroundColor .. string_sub(sEmptyBackgroundColor, nWidth + 1, new_width),
                         }
                     end
                 end
             end
-            nWidth = nNewWidth
-            nHeight = nNewHeight
+            nWidth = new_width
+            nHeight = new_height
             tLines = tNewLines
         end
         if bVisible then

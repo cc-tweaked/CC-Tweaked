@@ -105,14 +105,16 @@ function getMethods(name)
     return nil
 end
 
---- Call a method on a peripheral with a given name
+--- Call a method on the peripheral with the given name.
 --
 -- @tparam string name The name of the peripheral to invoke the method on.
 -- @tparam string method The name of the method
 -- @param ... Additional arguments to pass to the method
 -- @return The return values of the peripheral method.
 --
--- @usage peripheral.call("top", "open", 1)
+-- @usage Open the modem on the top of this computer.
+--
+--     peripheral.call("top", "open", 1)
 function call(name, method, ...)
     expect(1, name, "string")
     expect(2, method, "string")

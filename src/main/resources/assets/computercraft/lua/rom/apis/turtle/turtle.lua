@@ -5,7 +5,7 @@
 if not turtle then
     error("Cannot load turtle API on computer", 2)
 end
-native = turtle.native or turtle
+native = turtle.native or turtle --- @local
 
 local function addCraftMethod(object)
     if peripheral.getType("left") == "workbench" then
