@@ -881,52 +881,52 @@ if bAPIError then
 end
 
 -- Set default settings
-settings.add("shell.allow_startup", {
+settings.define("shell.allow_startup", {
     default = true,
     description = "Run startup files when the computer turns on.",
 })
-settings.add("shell.allow_disk_startup", {
+settings.define("shell.allow_disk_startup", {
     default = commands == nil,
     description = "Run startup files from disk drives when the computer turns on.",
 })
 
-settings.add("shell.autocomplete", {
+settings.define("shell.autocomplete", {
     default = true,
     description = "Autocomplete program and arguments in the shell.",
 })
-settings.add("edit.autocomplete", {
+settings.define("edit.autocomplete", {
     default = true,
     description = "Autocomplete API and function names in the editor.",
 })
-settings.add("lua.autocomplete", {
+settings.define("lua.autocomplete", {
     default = true,
     description = "Autocomplete API and function names in the Lua REPL.",
 })
 
-settings.add("edit.default_extension", {
+settings.define("edit.default_extension", {
     default = "lua",
     description = [[The file extension the editor will use if none is given. Set to "" to disable.]],
 })
-settings.add("paint.default_extension", {
+settings.define("paint.default_extension", {
     default = "nfp",
     description = [[The file extension the paint program will use if none is given. Set to "" to disable.]],
 })
 
-settings.add("list.show_hidden", {
+settings.define("list.show_hidden", {
     default = false,
     description = [[Show hidden files (those starting with "." in the Lua REPL)]],
 })
 
-settings.add("motd.enable", {
+settings.define("motd.enable", {
     default = false,
     description = "Display a random message when the computer starts up.",
 })
-settings.add("motd.path", {
+settings.define("motd.path", {
     default = "/rom/motd.txt:/motd.txt",
     description = [[The path to load random messages from. Should be a colon (":") separated string of file paths.]],
 })
 if term.isColour() then
-    settings.add("bios.use_multishell", {
+    settings.define("bios.use_multishell", {
         default = true,
         description = [[Allow running multiple programs at once, through the use of the "fg" and "bg" programs.]],
     })

@@ -23,7 +23,7 @@ local function copy(value)
     return result
 end
 
---- Register a new setting, optional specifying various properties about it.
+--- Define a new setting, optional specifying various properties about it.
 --
 -- While settings do not have to be added before being used, doing so allows
 -- you to provide defaults and additional metadata.
@@ -31,7 +31,7 @@ end
 -- @tparam string name The name of this option
 -- @tparam[opt] { description? = string, default? = value } options Options for
 -- this setting.
-function add(name, options)
+function define(name, options)
     expect(1, name, "string")
     expect(2, options, "table", nil)
 
