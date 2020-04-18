@@ -70,6 +70,14 @@ describe("The textutils library", function()
             expect.error(textutils.serialiseJSON, nil):eq("bad argument #1 (expected table, string, number or boolean, got nil)")
             expect.error(textutils.serialiseJSON, "", 1):eq("bad argument #2 (expected boolean, got number)")
         end)
+
+        it("serializes empty arrays", function()
+            expect(textutils.serializeJSON(textutils.empty_json_array)):eq("[]")
+        end)
+
+        it("serializes null", function()
+            expect(textutils.serializeJSON(textutils.json_null)):eq("null")
+        end)
     end)
 
     describe("textutils.urlEncode", function()
