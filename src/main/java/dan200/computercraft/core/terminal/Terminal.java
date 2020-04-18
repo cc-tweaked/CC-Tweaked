@@ -8,22 +8,25 @@ package dan200.computercraft.core.terminal;
 import dan200.computercraft.shared.util.Palette;
 import net.minecraft.nbt.NBTTagCompound;
 
+import java.util.Arrays;
+
 public class Terminal
 {
     private static final String base16 = "0123456789abcdef";
+    private static final byte BLANK_CHAR = (byte) ' ';
 
     private int m_cursorX;
     private int m_cursorY;
     private boolean m_cursorBlink;
-    private int m_cursorColour;
-    private int m_cursorBackgroundColour;
+    private byte m_cursorColour;
+    private byte m_cursorBackgroundColour;
 
     private int m_width;
     private int m_height;
 
-    private TextBuffer[] m_text;
-    private TextBuffer[] m_textColour;
-    private TextBuffer[] m_backgroundColour;
+    private byte[] m_text;
+    private byte[] m_textColour;
+    private byte[] m_backgroundColour;
 
     private final Palette m_palette;
 
@@ -44,15 +47,13 @@ public class Terminal
         m_cursorColour = 0;
         m_cursorBackgroundColour = 15;
 
-        m_text = new TextBuffer[m_height];
-        m_textColour = new TextBuffer[m_height];
-        m_backgroundColour = new TextBuffer[m_height];
-        for( int i = 0; i < m_height; i++ )
-        {
-            m_text[i] = new TextBuffer( ' ', m_width );
-            m_textColour[i] = new TextBuffer( base16.charAt( m_cursorColour ), m_width );
-            m_backgroundColour[i] = new TextBuffer( base16.charAt( m_cursorBackgroundColour ), m_width );
-        }
+        m_text = new byte[m_width * m_height];
+        m_textColour = new byte[m_width * m_height];
+        m_backgroundColour = new byte[m_width * m_height];
+
+        Arrays.fill(m_text, BLANK_CHAR);
+        Arrays.fill(m_textColour, m_cursorColour);
+        Arrays.fill(m_backgroundColour, m_cursorBackgroundColour);
 
         m_cursorX = 0;
         m_cursorY = 0;
@@ -94,38 +95,43 @@ public class Terminal
 
         int oldHeight = m_height;
         int oldWidth = m_width;
-        TextBuffer[] oldText = m_text;
-        TextBuffer[] oldTextColour = m_textColour;
-        TextBuffer[] oldBackgroundColour = m_backgroundColour;
+        byte[] oldText = m_text;
+        byte[] oldTextColour = m_textColour;
+        byte[] oldBackgroundColour = m_backgroundColour;
 
         m_width = width;
         m_height = height;
 
-        m_text = new TextBuffer[m_height];
-        m_textColour = new TextBuffer[m_height];
-        m_backgroundColour = new TextBuffer[m_height];
-        for( int i = 0; i < m_height; i++ )
+        m_text = new byte[m_width * m_height];
+        m_textColour = new byte[m_width * m_height];
+        m_backgroundColour = new byte[m_width * m_height];
+        for( int y = 0; y < m_height; y++ )
         {
-            if( i >= oldHeight )
+            int lineStart = y * m_width;
+            int lineEnd = (y + 1) * m_width;
+
+            if( y >= oldHeight ) // fill new height of the screen with empty lines
             {
-                m_text[i] = new TextBuffer( ' ', m_width );
-                m_textColour[i] = new TextBuffer( base16.charAt( m_cursorColour ), m_width );
-                m_backgroundColour[i] = new TextBuffer( base16.charAt( m_cursorBackgroundColour ), m_width );
+                Arrays.fill(m_text, lineStart, lineEnd, BLANK_CHAR);
+                Arrays.fill(m_textColour, lineStart, lineEnd, m_cursorColour);
+                Arrays.fill(m_backgroundColour, lineStart, lineEnd, m_cursorBackgroundColour);
             }
-            else if( m_width == oldWidth )
+            else // copy old content onto new terminal
             {
-                m_text[i] = oldText[i];
-                m_textColour[i] = oldTextColour[i];
-                m_backgroundColour[i] = oldBackgroundColour[i];
-            }
-            else
-            {
-                m_text[i] = new TextBuffer( ' ', m_width );
-                m_textColour[i] = new TextBuffer( base16.charAt( m_cursorColour ), m_width );
-                m_backgroundColour[i] = new TextBuffer( base16.charAt( m_cursorBackgroundColour ), m_width );
-                m_text[i].write( oldText[i] );
-                m_textColour[i].write( oldTextColour[i] );
-                m_backgroundColour[i].write( oldBackgroundColour[i] );
+                int copySize = Math.min(oldWidth, m_width);
+                int srcFrom = y * oldWidth;
+                System.arraycopy(oldText, srcFrom, m_text, lineStart, copySize);
+                System.arraycopy(oldTextColour, srcFrom, m_textColour, lineStart, copySize);
+                System.arraycopy(oldBackgroundColour, srcFrom, m_backgroundColour, lineStart, copySize);
+
+                if( m_width > oldWidth ) // fill extra space on each line if needed
+                {
+                    int fillFrom = srcFrom + copySize;
+                    int fillTo = fillFrom + (m_width - oldWidth);
+                    Arrays.fill(m_text, fillFrom, fillTo, BLANK_CHAR);
+                    Arrays.fill(m_textColour, fillFrom, fillTo, m_cursorColour);
+                    Arrays.fill(m_backgroundColour, fillFrom, fillTo, m_cursorBackgroundColour);
+                }
             }
         }
         setChanged();
@@ -150,7 +156,7 @@ public class Terminal
         }
     }
 
-    public void setTextColour( int colour )
+    public void setTextColour( byte colour )
     {
         if( m_cursorColour != colour )
         {
@@ -159,7 +165,7 @@ public class Terminal
         }
     }
 
-    public void setBackgroundColour( int colour )
+    public void setBackgroundColour( byte colour )
     {
         if( m_cursorBackgroundColour != colour )
         {
@@ -198,70 +204,75 @@ public class Terminal
         return m_palette;
     }
 
-    public synchronized void blit( String text, String textColour, String backgroundColour )
+    public synchronized void blit( byte[] text, byte[] textColour, byte[] backgroundColour )
     {
         int x = m_cursorX;
         int y = m_cursorY;
         if( y >= 0 && y < m_height )
         {
-            m_text[y].write( text, x );
-            m_textColour[y].write( textColour, x );
-            m_backgroundColour[y].write( backgroundColour, x );
+            int copySize = Math.min(text.length, m_width);
+            int dstFrom = (y * m_width) + x;
+
+            System.arraycopy(text, 0, m_text, dstFrom, copySize);
+            System.arraycopy(textColour, 0, m_textColour, dstFrom, copySize);
+            System.arraycopy(backgroundColour, 0, m_backgroundColour, dstFrom, copySize);
+
             setChanged();
         }
     }
 
-    public synchronized void write( String text )
+    public synchronized void write( byte[] text )
     {
         int x = m_cursorX;
         int y = m_cursorY;
         if( y >= 0 && y < m_height )
         {
-            m_text[y].write( text, x );
-            m_textColour[y].fill( base16.charAt( m_cursorColour ), x, x + text.length() );
-            m_backgroundColour[y].fill( base16.charAt( m_cursorBackgroundColour ), x, x + text.length() );
+            int copySize = Math.min(text.length, m_width);
+            int dstFrom = (y * m_width) + x;
+
+            System.arraycopy(text, 0, m_text, dstFrom, copySize);
+            Arrays.fill(m_textColour, dstFrom, dstFrom + copySize, m_cursorColour);
+            Arrays.fill(m_backgroundColour, dstFrom, dstFrom + copySize, m_cursorBackgroundColour);
+
             setChanged();
         }
     }
 
     public synchronized void scroll( int yDiff )
     {
-        if( yDiff != 0 )
-        {
-            TextBuffer[] newText = new TextBuffer[m_height];
-            TextBuffer[] newTextColour = new TextBuffer[m_height];
-            TextBuffer[] newBackgroundColour = new TextBuffer[m_height];
-            for( int y = 0; y < m_height; y++ )
-            {
-                int oldY = y + yDiff;
-                if( oldY >= 0 && oldY < m_height )
-                {
-                    newText[y] = m_text[oldY];
-                    newTextColour[y] = m_textColour[oldY];
-                    newBackgroundColour[y] = m_backgroundColour[oldY];
-                }
-                else
-                {
-                    newText[y] = new TextBuffer( ' ', m_width );
-                    newTextColour[y] = new TextBuffer( base16.charAt( m_cursorColour ), m_width );
-                    newBackgroundColour[y] = new TextBuffer( base16.charAt( m_cursorBackgroundColour ), m_width );
-                }
-            }
-            m_text = newText;
-            m_textColour = newTextColour;
-            m_backgroundColour = newBackgroundColour;
+        int absDiff = Math.abs(yDiff);
+        if (absDiff >= m_height) { // just reset the entire terminal
+            clear();
+        } else if (yDiff != 0) {
+            int charDiff = yDiff * m_width;
+
+            int srcPos = Math.max(0, charDiff);
+            int dstPos = Math.max(0, -charDiff);
+            int copySize = m_width * (m_height - absDiff);
+
+            int fillStart = yDiff > 0 ? m_width * (m_height - yDiff) : 0;
+            int fillEnd = fillStart + Math.abs(charDiff);
+
+            // 'move' the characters around (it's safe to arraycopy into itself)
+            System.arraycopy(m_text, srcPos, m_text, dstPos, copySize);
+            System.arraycopy(m_textColour, srcPos, m_textColour, dstPos, copySize);
+            System.arraycopy(m_backgroundColour, srcPos, m_backgroundColour, dstPos, copySize);
+
+            // fill the remaining space
+            Arrays.fill(m_text, fillStart, fillEnd, BLANK_CHAR);
+            Arrays.fill(m_textColour, fillStart, fillEnd, BLANK_CHAR);
+            Arrays.fill(m_backgroundColour, fillStart, fillEnd, BLANK_CHAR);
+
             setChanged();
         }
     }
 
     public synchronized void clear()
     {
-        for( int y = 0; y < m_height; y++ )
-        {
-            m_text[y].fill( ' ' );
-            m_textColour[y].fill( base16.charAt( m_cursorColour ) );
-            m_backgroundColour[y].fill( base16.charAt( m_cursorBackgroundColour ) );
-        }
+        Arrays.fill(m_text, BLANK_CHAR);
+        Arrays.fill(m_textColour, m_cursorColour);
+        Arrays.fill(m_backgroundColour, m_cursorBackgroundColour);
+
         setChanged();
     }
 
@@ -270,9 +281,13 @@ public class Terminal
         int y = m_cursorY;
         if( y >= 0 && y < m_height )
         {
-            m_text[y].fill( ' ' );
-            m_textColour[y].fill( base16.charAt( m_cursorColour ) );
-            m_backgroundColour[y].fill( base16.charAt( m_cursorBackgroundColour ) );
+            int fillStart = y * m_width;
+            int fillEnd = (y + 1) * m_height;
+
+            Arrays.fill(m_text, fillStart, fillEnd, BLANK_CHAR);
+            Arrays.fill(m_textColour, fillStart, fillEnd, m_cursorColour);
+            Arrays.fill(m_backgroundColour, fillStart, fillEnd, m_cursorBackgroundColour);
+
             setChanged();
         }
     }

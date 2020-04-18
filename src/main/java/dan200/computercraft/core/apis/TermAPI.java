@@ -69,19 +69,19 @@ public class TermAPI implements ILuaAPI
         };
     }
 
-    public static int parseColour( Object[] args ) throws LuaException
+    public static byte parseColour( Object[] args ) throws LuaException
     {
         int colour = getInt( args, 0 );
         if( colour <= 0 )
         {
             throw new LuaException( "Colour out of range" );
         }
-        colour = getHighestBit( colour ) - 1;
-        if( colour < 0 || colour > 15 )
+        byte bit = (byte) (getHighestBit( colour ) - 1);
+        if( bit < 0 || bit > 15 )
         {
             throw new LuaException( "Colour out of range" );
         }
-        return colour;
+        return bit;
     }
 
     public static Object[] encodeColour( int colour ) throws LuaException
@@ -183,7 +183,7 @@ public class TermAPI implements ILuaAPI
             case 9:
             {
                 // setTextColour/setTextColor
-                int colour = parseColour( args );
+                byte colour = parseColour( args );
                 synchronized( m_terminal )
                 {
                     m_terminal.setTextColour( colour );
@@ -194,7 +194,7 @@ public class TermAPI implements ILuaAPI
             case 11:
             {
                 // setBackgroundColour/setBackgroundColor
-                int colour = parseColour( args );
+                byte colour = parseColour( args );
                 synchronized( m_terminal )
                 {
                     m_terminal.setBackgroundColour( colour );
@@ -283,9 +283,9 @@ public class TermAPI implements ILuaAPI
         }
     }
 
-    private static int getHighestBit( int group )
+    private static byte getHighestBit( int group )
     {
-        int bit = 0;
+        byte bit = 0;
         while( group > 0 )
         {
             group >>= 1;
