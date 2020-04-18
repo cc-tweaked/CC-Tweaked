@@ -6,9 +6,46 @@
 --
 -- @module settings
 
-local expect = dofile("rom/modules/main/cc/expect.lua").expect
+local expect = dofile("rom/modules/main/cc/expect.lua")
+local type, expect, field = type, expect.expect, expect.field
 
-local tSettings = {}
+local details, values = {}, {}
+
+local function reserialize(value)
+    if type(value) ~= "table" then return value end
+    return textutils.unserialize(textutils.serialize(value))
+end
+
+local function copy(value)
+    if type(value) ~= "table" then return value end
+    local result = {}
+    for k, v in pairs(value) do result[k] = copy(v) end
+    return result
+end
+
+--- Register a new setting, optional specifying various properties about it.
+--
+-- While settings do not have to be added before being used, doing so allows
+-- you to provide defaults and additional metadata.
+--
+-- @tparam string name The name of this option
+-- @tparam[opt] { description? = string, default? = value } options Options for
+-- this setting.
+function add(name, options)
+    expect(1, name, "string")
+    expect(2, options, "table", nil)
+
+    if options then
+        options = {
+            description = field(options, "description", "string", "nil"),
+            default = reserialize(field(options, "default", "number", "string", "boolean", "table", "nil")),
+        }
+    else
+        options = {}
+    end
+
+    details[name] = options
+end
 
 --- Set the value of a setting.
 --
@@ -20,44 +57,40 @@ local tSettings = {}
 function set(name, value)
     expect(1, name, "string")
     expect(2, value, "number", "string", "boolean", "table")
-
-    if type(value) == "table" then
-        -- Ensure value is serializeable
-        value = textutils.unserialize(textutils.serialize(value))
-    end
-    tSettings[name] = value
-end
-
-local copy
-function copy(value)
-    if type(value) == "table" then
-        local result = {}
-        for k, v in pairs(value) do
-            result[k] = copy(v)
-        end
-        return result
-    else
-        return value
-    end
+    values[name] = reserialize(value)
 end
 
 --- Get the value of a setting.
 --
 -- @tparam string name The name of the setting to get.
 -- @param[opt] default The value to use should there be pre-existing value for
--- this setting. Defaults to `nil`.
--- @return The setting's, or `default` if the setting has not been set.
+-- this setting. If not given, it will use the setting's default value if given,
+-- or `nil` otherwise.
+-- @return The setting's, or the default if the setting has not been changed.
 function get(name, default)
     expect(1, name, "string")
-    local result = tSettings[name]
+    local result = values[name]
     if result ~= nil then
         return copy(result)
-    else
+    elseif default ~= nil then
         return default
+    else
+        local opt = details[name]
+        return opt and copy(opt.default)
     end
 end
 
---- Remove the value of a setting, clearing it back to `nil`.
+--- Get details about a specific setting
+function getDetails(name)
+    expect(1, name, "string")
+    local deets = copy(details[name]) or {}
+    deets.value = values[name]
+    deets.changed = deets.value ~= nil
+    if deets.value == nil then deets.value = deets.default end
+    return deets
+end
+
+--- Remove the value of a setting, setting it to the default.
 --
 -- @{settings.get} will return the default value until the setting's value is
 -- @{settings.set|set}, or the computer is rebooted.
@@ -67,15 +100,15 @@ end
 -- @see settings.clear
 function unset(name)
     expect(1, name, "string")
-    tSettings[name] = nil
+    values[name] = nil
 end
 
---- Removes the value of all settings. Equivalent to calling @{settings.unset}
+--- Resets the value of all settings. Equivalent to calling @{settings.unset}
 --- on every setting.
 --
 -- @see settings.unset
 function clear()
-    tSettings = {}
+    values = {}
 end
 
 --- Get the names of all currently defined settings.
@@ -83,9 +116,12 @@ end
 -- @treturn { string } An alphabetically sorted list of all currently-defined
 -- settings.
 function getNames()
-    local result = {}
-    for k in pairs(tSettings) do
-        result[#result + 1] = k
+    local result, n = {}, 1
+    for k in pairs(details) do
+        result[n], n = k, n + 1
+    end
+    for k in pairs(values) do
+        if not details[k] then result[n], n = k, n + 1 end
     end
     table.sort(result)
     return result
@@ -143,7 +179,7 @@ function save(sPath)
         return false
     end
 
-    file.write(textutils.serialize(tSettings))
+    file.write(textutils.serialize(values))
     file.close()
 
     return true

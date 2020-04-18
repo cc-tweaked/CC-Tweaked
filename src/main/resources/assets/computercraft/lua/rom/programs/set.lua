@@ -1,3 +1,4 @@
+local pp = require "cc.pretty"
 
 local tArgs = { ... }
 if #tArgs == 0 then
@@ -12,7 +13,13 @@ if #tArgs == 0 then
 elseif #tArgs == 1 then
     -- "set foo"
     local sName = tArgs[1]
-    print(textutils.serialize(sName) .. " is " .. textutils.serialize(settings.get(sName)))
+    local deets = settings.getDetails(sName)
+    local msg = pp.text(sName, colors.cyan) .. " is " .. pp.pretty(deets.value)
+    if deets.default ~= nil and deets.value ~= deets.default then
+        msg = msg .. " (default is " .. pp.pretty(deets.default) .. ")"
+    end
+    pp.print(msg)
+    if deets.description then print(deets.description) end
 
 else
     -- "set foo bar"

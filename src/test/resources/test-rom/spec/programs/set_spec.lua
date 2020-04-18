@@ -1,23 +1,27 @@
 local capture = require "test_helpers".capture_program
 
 describe("The set program", function()
+    local function setup()
+        local set = setmetatable({}, { __index = _G })
+        loadfile("/rom/apis/settings.lua", set)()
+        stub(_G, "settings", set)
 
-    it("displays all settings", function()
-        settings.clear()
         settings.set("Test", "Hello World!")
         settings.set("123", 456)
+    end
+
+    it("displays all settings", function()
+        setup()
 
         expect(capture(stub, "set"))
             :matches { ok = true, output = '"123" is 456\n"Test" is "Hello World!"\n', error = "" }
     end)
 
     it("displays a single settings", function()
-        settings.clear()
-        settings.set("Test", "Hello World!")
-        settings.set("123", 456)
+        setup()
 
         expect(capture(stub, "set Test"))
-            :matches { ok = true, output = '"Test" is "Hello World!"\n', error = "" }
+            :matches { ok = true, output = 'Test is "Hello World!"\n', error = "" }
     end)
 
     it("set a setting", function()
