@@ -4,7 +4,7 @@ if #tArgs == 0 then
     -- "set"
     local _, y = term.getCursorPos()
     local tSettings = {}
-    for n, sName in ipairs( settings.getNames() ) do
+    for n, sName in ipairs(settings.getNames()) do
         tSettings[n] = textutils.serialize(sName) .. " is " .. textutils.serialize(settings.get(sName))
     end
     textutils.pagedPrint(table.concat(tSettings, "\n"), y - 3)
@@ -12,7 +12,7 @@ if #tArgs == 0 then
 elseif #tArgs == 1 then
     -- "set foo"
     local sName = tArgs[1]
-    print( textutils.serialize(sName) .. " is " .. textutils.serialize(settings.get(sName)) )
+    print(textutils.serialize(sName) .. " is " .. textutils.serialize(settings.get(sName)))
 
 else
     -- "set foo bar"
@@ -31,15 +31,15 @@ else
         value = sValue
     end
 
-    local oldValue = settings.get( sValue )
+    local oldValue = settings.get(sValue)
     if value ~= nil then
-        settings.set( sName, value )
-        print( textutils.serialize(sName) .. " set to " .. textutils.serialize(value) )
+        settings.set(sName, value)
+        print(textutils.serialize(sName) .. " set to " .. textutils.serialize(value))
     else
-        settings.unset( sName )
-        print( textutils.serialize(sName) .. " unset" )
+        settings.unset(sName)
+        print(textutils.serialize(sName) .. " unset")
     end
     if value ~= oldValue then
-        settings.save( ".settings" )
+        settings.save(".settings")
     end
 end

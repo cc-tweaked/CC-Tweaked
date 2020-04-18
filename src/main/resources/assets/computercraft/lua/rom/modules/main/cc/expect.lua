@@ -37,9 +37,9 @@ local function expect(index, value, ...)
     end
 
     if name then
-        error( ("bad argument #%d to '%s' (expected %s, got %s)"):format(index, name, type_names, t), 3 )
+        error(("bad argument #%d to '%s' (expected %s, got %s)"):format(index, name, type_names, t), 3)
     else
-        error( ("bad argument #%d (expected %s, got %s)"):format(index, type_names, t), 3 )
+        error(("bad argument #%d (expected %s, got %s)"):format(index, type_names, t), 3)
     end
 end
 

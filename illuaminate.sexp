@@ -25,6 +25,8 @@
 
 (at /
   (linters
+    syntax:string-index
+
     ;; It'd be nice to avoid this, but right now there's a lot of instances of
     ;; it.
     -var:set-loop
@@ -36,7 +38,14 @@
     ;; Suppress a couple of documentation comments warnings for now. We'll
     ;; hopefully be able to remove them in the future.
     -doc:undocumented -doc:undocumented-arg -doc:unresolved-reference
-    -var:unresolved-member))
+    -var:unresolved-member)
+  (lint
+    (bracket-spaces
+      (call no-space)
+      (function-args no-space)
+      (parens no-space)
+      (table space)
+      (index no-space))))
 
 ;; We disable the unused global linter in bios.lua and the APIs. In the future
 ;; hopefully we'll get illuaminate to handle this.

@@ -1,18 +1,18 @@
 
 if not shell.openTab then
-    printError( "Requires multishell" )
+    printError("Requires multishell")
     return
 end
 
 local tArgs = { ... }
 if #tArgs > 0 then
-    local nTask = shell.openTab( table.unpack( tArgs ) )
+    local nTask = shell.openTab(table.unpack(tArgs))
     if nTask then
-        shell.switchTab( nTask )
+        shell.switchTab(nTask)
     end
 else
-    local nTask = shell.openTab( "shell" )
+    local nTask = shell.openTab("shell")
     if nTask then
-        shell.switchTab( nTask )
+        shell.switchTab(nTask)
     end
 end

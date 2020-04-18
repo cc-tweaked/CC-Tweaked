@@ -113,7 +113,7 @@ local vector = {
     -- @tparam Vector self This vector.
     -- @treturn number The length of this vector.
     length = function(self)
-        return math.sqrt( self.x * self.x + self.y * self.y + self.z * self.z )
+        return math.sqrt(self.x * self.x + self.y * self.y + self.z * self.z)
     end,
 
     --- Divide this vector by its length, producing with the same direction, but
@@ -123,7 +123,7 @@ local vector = {
     -- @treturn Vector The normalised vector
     -- @usage v:normalize()
     normalize = function(self)
-        return self:mul( 1 / self:length() )
+        return self:mul(1 / self:length())
     end,
 
     --- Construct a vector with each dimension rounded to the nearest value.

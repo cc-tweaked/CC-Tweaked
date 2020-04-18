@@ -238,8 +238,8 @@ local function matches(eq, exact, left, right)
 
     -- If we've already explored/are exploring the left and right then return
     if eq[left] and eq[left][right] then return true end
-    if not eq[left]  then eq[left] = {[right] = true} else eq[left][right] = true end
-    if not eq[right] then eq[right] = {[left] = true} else eq[right][left] = true end
+    if not eq[left]  then eq[left] = { [right] = true } else eq[left][right] = true end
+    if not eq[right] then eq[right] = { [left] = true } else eq[right][left] = true end
 
     -- Verify all pairs in left are equal to those in right
     for k, v in pairs(left) do

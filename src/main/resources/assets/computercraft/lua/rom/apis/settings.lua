@@ -17,19 +17,19 @@ local tSettings = {}
 -- serialisable by @{textutils.serialize}.
 -- @throws If this value cannot be serialised
 -- @see settings.unset
-function set( name, value )
+function set(name, value)
     expect(1, name, "string")
     expect(2, value, "number", "string", "boolean", "table")
 
     if type(value) == "table" then
         -- Ensure value is serializeable
-        value = textutils.unserialize( textutils.serialize(value) )
+        value = textutils.unserialize(textutils.serialize(value))
     end
-    tSettings[ name ] = value
+    tSettings[name] = value
 end
 
 local copy
-function copy( value )
+function copy(value)
     if type(value) == "table" then
         local result = {}
         for k, v in pairs(value) do
@@ -47,9 +47,9 @@ end
 -- @param[opt] default The value to use should there be pre-existing value for
 -- this setting. Defaults to `nil`.
 -- @return The setting's, or `default` if the setting has not been set.
-function get( name, default )
+function get(name, default)
     expect(1, name, "string")
-    local result = tSettings[ name ]
+    local result = tSettings[name]
     if result ~= nil then
         return copy(result)
     else
@@ -65,9 +65,9 @@ end
 -- @tparam string name The name of the setting to unset.
 -- @see settings.set
 -- @see settings.clear
-function unset( name )
+function unset(name)
     expect(1, name, "string")
-    tSettings[ name ] = nil
+    tSettings[name] = nil
 end
 
 --- Removes the value of all settings. Equivalent to calling @{settings.unset}
@@ -84,8 +84,8 @@ end
 -- settings.
 function getNames()
     local result = {}
-    for k in pairs( tSettings ) do
-        result[ #result + 1 ] = k
+    for k in pairs(tSettings) do
+        result[#result + 1] = k
     end
     table.sort(result)
     return result
@@ -102,9 +102,9 @@ end
 -- corrupted.
 --
 -- @see settings.save
-function load( sPath )
+function load(sPath)
     expect(1, sPath, "string")
-    local file = fs.open( sPath, "r" )
+    local file = fs.open(sPath, "r")
     if not file then
         return false
     end
@@ -112,7 +112,7 @@ function load( sPath )
     local sText = file.readAll()
     file.close()
 
-    local tFile = textutils.unserialize( sText )
+    local tFile = textutils.unserialize(sText)
     if type(tFile) ~= "table" then
         return false
     end
@@ -120,7 +120,7 @@ function load( sPath )
     for k, v in pairs(tFile) do
         if type(k) == "string" and
            (type(v) == "string" or type(v) == "number" or type(v) == "boolean" or type(v) == "table") then
-            set( k, v )
+            set(k, v)
         end
     end
 
@@ -136,14 +136,14 @@ end
 -- @treturn boolean If the settings were successfully saved.
 --
 -- @see settings.load
-function save( sPath )
+function save(sPath)
     expect(1, sPath, "string")
-    local file = fs.open( sPath, "w" )
+    local file = fs.open(sPath, "w")
     if not file then
         return false
     end
 
-    file.write( textutils.serialize( tSettings ) )
+    file.write(textutils.serialize(tSettings))
     file.close()
 
     return true

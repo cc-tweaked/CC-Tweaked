@@ -22,7 +22,7 @@ end
 -- @usage help.setPath( "/disk/help/" )
 -- @usage help.setPath( help.path() .. ":/myfolder/help/" )
 -- @see help.path
-function setPath( _sPath )
+function setPath(_sPath)
     expect(1, _sPath, "string")
     sPath = _sPath
 end
@@ -33,14 +33,14 @@ end
 -- @treturn string|nil The path to the given topic's help file, or `nil` if it
 -- cannot be found.
 -- @usage print(help.lookup("disk"))
-function lookup( _sTopic )
+function lookup(_sTopic)
     expect(1, _sTopic, "string")
     -- Look on the path variable
     for sPath in string.gmatch(sPath, "[^:]+") do
-        sPath = fs.combine( sPath, _sTopic )
-        if fs.exists( sPath ) and not fs.isDir( sPath ) then
+        sPath = fs.combine(sPath, _sTopic)
+        if fs.exists(sPath) and not fs.isDir(sPath) then
             return sPath
-        elseif fs.exists( sPath .. ".txt" ) and not fs.isDir( sPath .. ".txt" ) then
+        elseif fs.exists(sPath .. ".txt") and not fs.isDir(sPath .. ".txt") then
             return sPath .. ".txt"
         end
     end
@@ -55,20 +55,20 @@ end
 function topics()
     -- Add index
     local tItems = {
-        [ "index" ] = true,
+        ["index"] = true,
     }
 
     -- Add topics from the path
     for sPath in string.gmatch(sPath, "[^:]+") do
-        if fs.isDir( sPath ) then
-            local tList = fs.list( sPath )
-            for _, sFile in pairs( tList ) do
-                if string.sub( sFile, 1, 1 ) ~= "." then
-                    if not fs.isDir( fs.combine( sPath, sFile ) ) then
+        if fs.isDir(sPath) then
+            local tList = fs.list(sPath)
+            for _, sFile in pairs(tList) do
+                if string.sub(sFile, 1, 1) ~= "." then
+                    if not fs.isDir(fs.combine(sPath, sFile)) then
                         if #sFile > 4 and sFile:sub(-4) == ".txt" then
                             sFile = sFile:sub(1, -5)
                         end
-                        tItems[ sFile ] = true
+                        tItems[sFile] = true
                     end
                 end
             end
@@ -77,10 +77,10 @@ function topics()
 
     -- Sort and return
     local tItemList = {}
-    for sItem in pairs( tItems ) do
-        table.insert( tItemList, sItem )
+    for sItem in pairs(tItems) do
+        table.insert(tItemList, sItem)
     end
-    table.sort( tItemList )
+    table.sort(tItemList)
     return tItemList
 end
 
@@ -89,14 +89,14 @@ end
 --
 -- @tparam string prefix The prefix to match
 -- @treturn table A list of matching topics.
-function completeTopic( sText )
+function completeTopic(sText)
     expect(1, sText, "string")
     local tTopics = topics()
     local tResults = {}
     for n = 1, #tTopics do
         local sTopic = tTopics[n]
-        if #sTopic > #sText and string.sub( sTopic, 1, #sText ) == sText then
-            table.insert( tResults, string.sub( sTopic, #sText + 1 ) )
+        if #sTopic > #sText and string.sub(sTopic, 1, #sText) == sText then
+            table.insert(tResults, string.sub(sTopic, #sText + 1))
         end
     end
     return tResults

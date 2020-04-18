@@ -1,2 +1,2 @@
 term.clear()
-term.setCursorPos( 1, 1 )
+term.setCursorPos(1, 1)

@@ -5,22 +5,22 @@
 
 local expect = dofile("rom/modules/main/cc/expect.lua").expect
 
-local function drawPixelInternal( xPos, yPos )
-    term.setCursorPos( xPos, yPos )
+local function drawPixelInternal(xPos, yPos)
+    term.setCursorPos(xPos, yPos)
     term.write(" ")
 end
 
 local tColourLookup = {}
 for n = 1, 16 do
-    tColourLookup[ string.byte( "0123456789abcdef", n, n ) ] = 2 ^ (n - 1)
+    tColourLookup[string.byte("0123456789abcdef", n, n)] = 2 ^ (n - 1)
 end
 
-local function parseLine( tImageArg, sLine )
+local function parseLine(tImageArg, sLine)
     local tLine = {}
     for x = 1, sLine:len() do
-        tLine[x] = tColourLookup[ string.byte(sLine, x, x) ] or 0
+        tLine[x] = tColourLookup[string.byte(sLine, x, x)] or 0
     end
-    table.insert( tImageArg, tLine )
+    table.insert(tImageArg, tLine)
 end
 
 --- Parses an image from a multi-line string
@@ -28,11 +28,11 @@ end
 -- @tparam string image The string containing the raw-image data.
 -- @treturn table The parsed image data, suitable for use with
 -- @{paintutils.drawImage}.
-function parseImage( image )
+function parseImage(image)
     expect(1, image, "string")
     local tImage = {}
-    for sLine in ( image .. "\n" ):gmatch( "(.-)\n" ) do
-        parseLine( tImage, sLine )
+    for sLine in (image .. "\n"):gmatch("(.-)\n") do
+        parseLine(tImage, sLine)
     end
     return tImage
 end
@@ -45,14 +45,14 @@ end
 --
 -- @treturn table|nil The parsed image data, suitable for use with
 -- @{paintutils.drawImage}, or `nil` if the file does not exist.
-function loadImage( path )
+function loadImage(path)
     expect(1, path, "string")
 
-    if fs.exists( path ) then
-        local file = io.open( path, "r" )
+    if fs.exists(path) then
+        local file = io.open(path, "r")
         local sContent = file:read("*a")
         file:close()
-        return parseImage( sContent )
+        return parseImage(sContent)
     end
     return nil
 end
@@ -66,18 +66,18 @@ end
 -- @tparam number yPos The y position to draw at, where 1 is the very top.
 -- @tparam[opt] number colour The @{colors|color} of this pixel. This will be
 -- the current background colour if not specified.
-function drawPixel( xPos, yPos, colour )
+function drawPixel(xPos, yPos, colour)
     expect(1, xPos, "number")
     expect(2, yPos, "number")
     expect(3, colour, "number", "nil")
 
-    if type( xPos ) ~= "number" then error( "bad argument #1 (expected number, got " .. type( xPos ) .. ")", 2 ) end
-    if type( yPos ) ~= "number" then error( "bad argument #2 (expected number, got " .. type( yPos ) .. ")", 2 ) end
-    if colour ~= nil and type( colour ) ~= "number" then error( "bad argument #3 (expected number, got " .. type( colour ) .. ")", 2 ) end
+    if type(xPos) ~= "number" then error("bad argument #1 (expected number, got " .. type(xPos) .. ")", 2) end
+    if type(yPos) ~= "number" then error("bad argument #2 (expected number, got " .. type(yPos) .. ")", 2) end
+    if colour ~= nil and type(colour) ~= "number" then error("bad argument #3 (expected number, got " .. type(colour) .. ")", 2) end
     if colour then
-        term.setBackgroundColor( colour )
+        term.setBackgroundColor(colour)
     end
-    return drawPixelInternal( xPos, yPos )
+    return drawPixelInternal(xPos, yPos)
 end
 
 --- Draws a straight line from the start to end position.
@@ -91,7 +91,7 @@ end
 -- @tparam number endY The end y position of the line.
 -- @tparam[opt] number colour The @{colors|color} of this pixel. This will be
 -- the current background colour if not specified.
-function drawLine( startX, startY, endX, endY, colour )
+function drawLine(startX, startY, endX, endY, colour)
     expect(1, startX, "number")
     expect(2, startY, "number")
     expect(3, endX, "number")
@@ -104,14 +104,14 @@ function drawLine( startX, startY, endX, endY, colour )
     endY = math.floor(endY)
 
     if colour then
-        term.setBackgroundColor( colour )
+        term.setBackgroundColor(colour)
     end
     if startX == endX and startY == endY then
-        drawPixelInternal( startX, startY )
+        drawPixelInternal(startX, startY)
         return
     end
 
-    local minX = math.min( startX, endX )
+    local minX = math.min(startX, endX)
     local maxX, minY, maxY
     if minX == startX then
         minY = startY
@@ -132,7 +132,7 @@ function drawLine( startX, startY, endX, endY, colour )
         local y = minY
         local dy = yDiff / xDiff
         for x = minX, maxX do
-            drawPixelInternal( x, math.floor( y + 0.5 ) )
+            drawPixelInternal(x, math.floor(y + 0.5))
             y = y + dy
         end
     else
@@ -140,12 +140,12 @@ function drawLine( startX, startY, endX, endY, colour )
         local dx = xDiff / yDiff
         if maxY >= minY then
             for y = minY, maxY do
-                drawPixelInternal( math.floor( x + 0.5 ), y )
+                drawPixelInternal(math.floor(x + 0.5), y)
                 x = x + dx
             end
         else
             for y = minY, maxY, -1 do
-                drawPixelInternal( math.floor( x + 0.5 ), y )
+                drawPixelInternal(math.floor(x + 0.5), y)
                 x = x - dx
             end
         end
@@ -164,7 +164,7 @@ end
 -- @tparam number endY The end y position of the line.
 -- @tparam[opt] number colour The @{colors|color} of this pixel. This will be
 -- the current background colour if not specified.
-function drawBox( startX, startY, endX, endY, nColour )
+function drawBox(startX, startY, endX, endY, nColour)
     expect(1, startX, "number")
     expect(2, startY, "number")
     expect(3, endX, "number")
@@ -177,14 +177,14 @@ function drawBox( startX, startY, endX, endY, nColour )
     endY = math.floor(endY)
 
     if nColour then
-        term.setBackgroundColor( nColour )
+        term.setBackgroundColor(nColour)
     end
     if startX == endX and startY == endY then
-        drawPixelInternal( startX, startY )
+        drawPixelInternal(startX, startY)
         return
     end
 
-    local minX = math.min( startX, endX )
+    local minX = math.min(startX, endX)
     local maxX, minY, maxY
     if minX == startX then
         minY = startY
@@ -197,14 +197,14 @@ function drawBox( startX, startY, endX, endY, nColour )
     end
 
     for x = minX, maxX do
-        drawPixelInternal( x, minY )
-        drawPixelInternal( x, maxY )
+        drawPixelInternal(x, minY)
+        drawPixelInternal(x, maxY)
     end
 
     if maxY - minY >= 2 then
         for y = minY + 1, maxY - 1 do
-            drawPixelInternal( minX, y )
-            drawPixelInternal( maxX, y )
+            drawPixelInternal(minX, y)
+            drawPixelInternal(maxX, y)
         end
     end
 end
@@ -220,7 +220,7 @@ end
 -- @tparam number endY The end y position of the line.
 -- @tparam[opt] number colour The @{colors|color} of this pixel. This will be
 -- the current background colour if not specified.
-function drawFilledBox( startX, startY, endX, endY, nColour )
+function drawFilledBox(startX, startY, endX, endY, nColour)
     expect(1, startX, "number")
     expect(2, startY, "number")
     expect(3, endX, "number")
@@ -233,14 +233,14 @@ function drawFilledBox( startX, startY, endX, endY, nColour )
     endY = math.floor(endY)
 
     if nColour then
-        term.setBackgroundColor( nColour )
+        term.setBackgroundColor(nColour)
     end
     if startX == endX and startY == endY then
-        drawPixelInternal( startX, startY )
+        drawPixelInternal(startX, startY)
         return
     end
 
-    local minX = math.min( startX, endX )
+    local minX = math.min(startX, endX)
     local maxX, minY, maxY
     if minX == startX then
         minY = startY
@@ -254,7 +254,7 @@ function drawFilledBox( startX, startY, endX, endY, nColour )
 
     for x = minX, maxX do
         for y = minY, maxY do
-            drawPixelInternal( x, y )
+            drawPixelInternal(x, y)
         end
     end
 end
@@ -264,7 +264,7 @@ end
 -- @tparam table image The parsed image data.
 -- @tparam number xPos The x position to start drawing at.
 -- @tparam number xPos The y position to start drawing at.
-function drawImage( image, xPos, yPos )
+function drawImage(image, xPos, yPos)
     expect(1, image, "table")
     expect(2, xPos, "number")
     expect(3, yPos, "number")
@@ -272,8 +272,8 @@ function drawImage( image, xPos, yPos )
         local tLine = image[y]
         for x = 1, #tLine do
             if tLine[x] > 0 then
-                term.setBackgroundColor( tLine[x] )
-                drawPixelInternal( x + xPos - 1, y + yPos - 1 )
+                term.setBackgroundColor(tLine[x])
+                drawPixelInternal(x + xPos - 1, y + yPos - 1)
             end
         end
     end
