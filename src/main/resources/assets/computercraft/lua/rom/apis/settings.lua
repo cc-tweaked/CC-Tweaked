@@ -132,15 +132,15 @@ end
 -- Existing settings will be merged with any pre-existing ones. Conflicting
 -- entries will be overwritten, but any others will be preserved.
 --
--- @tparam string sPath The file to load from.
+-- @tparam[opt] string sPath The file to load from, defaulting to `.settings`.
 -- @treturn boolean Whether settings were successfully read from this
 -- file. Reasons for failure may include the file not existing or being
 -- corrupted.
 --
 -- @see settings.save
 function load(sPath)
-    expect(1, sPath, "string")
-    local file = fs.open(sPath, "r")
+    expect(1, sPath, "string", "nil")
+    local file = fs.open(sPath or ".settings", "r")
     if not file then
         return false
     end
@@ -168,13 +168,13 @@ end
 -- This will entirely overwrite the pre-existing file. Settings defined in the
 -- file, but not currently loaded will be removed.
 --
--- @tparam string sPath The path to save settings to.
+-- @tparam[opt] string sPath The path to save settings to, defaulting to `.settings`.
 -- @treturn boolean If the settings were successfully saved.
 --
 -- @see settings.load
 function save(sPath)
-    expect(1, sPath, "string")
-    local file = fs.open(sPath, "w")
+    expect(1, sPath, "string", "nil")
+    local file = fs.open(".settings", "w")
     if not file then
         return false
     end

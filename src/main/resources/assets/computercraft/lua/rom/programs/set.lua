@@ -47,6 +47,6 @@ else
         print(textutils.serialize(sName) .. " unset")
     end
     if value ~= oldValue then
-        settings.save(".settings")
+        settings.save()
     end
 end
