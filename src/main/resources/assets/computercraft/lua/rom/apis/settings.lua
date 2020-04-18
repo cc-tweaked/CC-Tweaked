@@ -47,6 +47,21 @@ function add(name, options)
     details[name] = options
 end
 
+local function set_value(name, value)
+    local new = reserialize(value)
+    local old = values[name]
+    if old == nil then
+        local opt = details[name]
+        old = opt and opt.default
+    end
+
+    values[name] = new
+    if old ~= new then
+        -- This should be safe, as os.queueEvent copies values anyway.
+        os.queueEvent("setting_changed", name, new, old)
+    end
+end
+
 --- Set the value of a setting.
 --
 -- @tparam string name The name of the setting to set
@@ -57,7 +72,7 @@ end
 function set(name, value)
     expect(1, name, "string")
     expect(2, value, "number", "string", "boolean", "table")
-    values[name] = reserialize(value)
+    set_value(name, value)
 end
 
 --- Get the value of a setting.
@@ -100,7 +115,7 @@ end
 -- @see settings.clear
 function unset(name)
     expect(1, name, "string")
-    values[name] = nil
+    set_value(name, nil)
 end
 
 --- Resets the value of all settings. Equivalent to calling @{settings.unset}
@@ -108,7 +123,9 @@ end
 --
 -- @see settings.unset
 function clear()
-    values = {}
+    for name in pairs(values) do
+        set_value(name, nil)
+    end
 end
 
 --- Get the names of all currently defined settings.

@@ -19,6 +19,17 @@ describe("The settings library", function()
             settings.set("test", random)
             expect(settings.get("test")):eq(random)
         end)
+
+        it("setting fires an event", function()
+            settings.clear()
+
+            local s = stub(os, "queueEvent")
+            settings.set("test", 1)
+            settings.set("test", 2)
+
+            expect(s):called_with("setting_changed", "test", 1, nil)
+            expect(s):called_with("setting_changed", "test", 2, 1)
+        end)
     end)
 
     describe("settings.get", function()
@@ -39,6 +50,14 @@ describe("The settings library", function()
             settings.unset("test")
             expect(settings.get("test")):eq(nil)
         end)
+
+        it("unsetting fires an event", function()
+            settings.set("test", 1)
+
+            local s = stub(os, "queueEvent")
+            settings.unset("test")
+            expect(s):called_with("setting_changed", "test", nil, 1)
+        end)
     end)
 
     describe("settings.clear", function()
@@ -46,6 +65,14 @@ describe("The settings library", function()
             settings.set("test", true)
             settings.clear()
             expect(settings.get("test")):eq(nil)
+        end)
+
+        it("clearing fires an event", function()
+            settings.set("test", 1)
+
+            local s = stub(os, "queueEvent")
+            settings.clear()
+            expect(s):called_with("setting_changed", "test", nil, 1)
         end)
     end)
 
