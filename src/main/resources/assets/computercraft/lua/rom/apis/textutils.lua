@@ -407,7 +407,7 @@ do
 
     --- Skip any whitespace
     local function skip(str, pos)
-        local _, last = find(str, "^%s+", pos)
+        local _, last = find(str, "^[ \n\r\v]+", pos)
         if last then return last + 1 else return pos end
     end
 
@@ -436,10 +436,8 @@ do
             if c == "" then error_at(pos, "Unexpected end of input, expected '\"'.") end
             if c == '"' then break end
 
-            if c ~= '\\' then
-                buf[n], n, pos = c, n + 1, pos + 1
-            else
-                -- We must have a \ character.
+            if c == '\\' then
+                -- Handle the various escapes
                 c = sub(str, pos + 1, pos + 1)
                 if c == "" then error_at(pos, "Unexpected end of input, expected escape sequence.") end
 
@@ -452,6 +450,10 @@ do
                     if not unesc then error_at(pos + 1, "Unknown escape character %q.", unesc) end
                     buf[n], n, pos = unesc, n + 1, pos + 2
                 end
+            elseif c >= '\x20' then
+                buf[n], n, pos = c, n + 1, pos + 1
+            else
+                error_at(pos + 1, "Unescaped whitespace %q.", c)
             end
         end
 
@@ -533,7 +535,7 @@ do
             pos = skip(str, pos + 1)
             c = sub(str, pos, pos)
 
-            if c == "" then error("Unexpected end of input, expected ']'", 0) end
+            if c == "" then return expected(pos, c, "']'") end
             if c == "]" then return empty_json_array, pos + 1 end
 
             while true do
@@ -578,8 +580,8 @@ do
         expect(2, options, "table", "nil")
 
         if options then
-            field(s, "nbt_style", "boolean", "nil")
-            field(serializeJSONImpl, "nbt_style", "boolean", "nil")
+            field(options, "nbt_style", "boolean", "nil")
+            field(options, "nbt_style", "boolean", "nil")
         else
             options = {}
         end
@@ -593,7 +595,7 @@ do
             error(res, 0)
         end
 
-        pos = skip(s, options)
+        pos = skip(s, pos)
         if pos <= #s then
             return nil, ("Malformed JSON at position %d: Unexpected trailing character %q."):format(pos, sub(s, pos, pos))
         end

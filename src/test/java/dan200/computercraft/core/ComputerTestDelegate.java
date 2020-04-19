@@ -96,7 +96,7 @@ public class ComputerTestDelegate
         try( WritableByteChannel channel = mount.openChannelForWrite( "startup.lua" );
              Writer writer = Channels.newWriter( channel, StandardCharsets.UTF_8.newEncoder(), -1 ) )
         {
-            writer.write( "loadfile('test/mcfly.lua', nil, _ENV)('test/spec') cct_test.finish()" );
+            writer.write( "loadfile('test-rom/mcfly.lua', nil, _ENV)('test-rom/spec') cct_test.finish()" );
         }
 
         computer = new Computer( new BasicEnvironment( mount ), term, 0 );
@@ -122,7 +122,7 @@ public class ComputerTestDelegate
                 try
                 {
                     computer.getAPIEnvironment().getFileSystem().mount(
-                        "test-rom", "test",
+                        "test-rom", "test-rom",
                         BasicEnvironment.createMount( ComputerTestDelegate.class, "test-rom", "test" )
                     );
                 }
