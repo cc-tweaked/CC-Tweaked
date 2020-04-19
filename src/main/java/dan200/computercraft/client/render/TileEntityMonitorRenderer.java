@@ -57,6 +57,8 @@ public class TileEntityMonitorRenderer extends TileEntitySpecialRenderer<TileMon
         originTerminal.lastRenderFrame = renderFrame;
         originTerminal.lastRenderPos = monitorPos;
 
+        /*
+
         BlockPos originPos = origin.getPos();
         posX += originPos.getX() - monitorPos.getX();
         posY += originPos.getY() - monitorPos.getY();
@@ -116,7 +118,6 @@ public class TileEntityMonitorRenderer extends TileEntitySpecialRenderer<TileMon
                     int height = terminal.getHeight();
                     int cursorX = terminal.getCursorX();
                     int cursorY = terminal.getCursorY();
-                    FixedWidthFontRenderer fontRenderer = FixedWidthFontRenderer.instance();
 
                     GlStateManager.pushMatrix();
                     try
@@ -287,5 +288,6 @@ public class TileEntityMonitorRenderer extends TileEntitySpecialRenderer<TileMon
             GlStateManager.color( 1.0f, 1.0f, 1.0f, 1.0f );
             GlStateManager.popMatrix();
         }
+        */
     }
 }
