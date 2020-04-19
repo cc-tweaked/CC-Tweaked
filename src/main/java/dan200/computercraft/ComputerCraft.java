@@ -22,7 +22,6 @@ import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.event.TurtleAction;
 import dan200.computercraft.core.apis.AddressPredicate;
 import dan200.computercraft.core.apis.ApiFactories;
-import dan200.computercraft.core.apis.http.websocket.Websocket;
 import dan200.computercraft.core.computer.MainThread;
 import dan200.computercraft.core.filesystem.ComboMount;
 import dan200.computercraft.core.filesystem.FileMount;
@@ -128,7 +127,7 @@ public class ComputerCraft
     public static long httpMaxDownload = 16 * 1024 * 1024;
     public static long httpMaxUpload = 4 * 1024 * 1024;
     public static int httpMaxWebsockets = 4;
-    public static int httpMaxWebsocketMessage = Websocket.MAX_MESSAGE_SIZE;
+    public static int httpMaxWebsocketMessage = 128 * 1024;
 
     public static boolean enableCommandBlock = false;
     public static int modem_range = 64;
