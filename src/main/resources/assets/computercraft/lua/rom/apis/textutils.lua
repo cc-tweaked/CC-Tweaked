@@ -3,7 +3,8 @@
 --
 -- @module textutils
 
-local expect = dofile("rom/modules/main/cc/expect.lua").expect
+local expect = dofile("rom/modules/main/cc/expect.lua")
+local expect, field = expect.expect, expect.field
 
 --- Slowly writes string text at current cursor position,
 -- character-by-character.
@@ -307,6 +308,14 @@ local function serializeImpl(t, tTracking, sIndent)
     end
 end
 
+local function mk_tbl(str, name)
+    local msg = "attempt to mutate textutils." .. name
+    return setmetatable({}, {
+        __newindex = function() error(msg, 2) end,
+        __tostring = function() return str end,
+    })
+end
+
 --- A table representing an empty JSON array, in order to distinguish it from an
 -- empty JSON object.
 --
@@ -314,16 +323,22 @@ end
 --
 -- @usage textutils.serialiseJSON(textutils.empty_json_array)
 -- @see textutils.serialiseJSON
-empty_json_array = setmetatable({}, {
-    __newindex = function()
-        error("attempt to mutate textutils.empty_json_array", 2)
-    end,
-})
+-- @see textutils.unserialiseJSON
+empty_json_array = mk_tbl("[]", "empty_json_array")
+
+--- A table representing the JSON null value.
+--
+-- The contents of this table should not be modified.
+--
+-- @usage textutils.serialiseJSON(textutils.json_null)
+-- @see textutils.serialiseJSON
+-- @see textutils.unserialiseJSON
+json_null = mk_tbl("null", "json_null")
 
 local function serializeJSONImpl(t, tTracking, bNBTStyle)
     local sType = type(t)
-    if t == empty_json_array then
-        return "[]"
+    if t == empty_json_array then return "[]"
+    elseif t == json_null then return "null"
 
     elseif sType == "table" then
         if tTracking[t] ~= nil then
@@ -382,6 +397,209 @@ local function serializeJSONImpl(t, tTracking, bNBTStyle)
 
     else
         error("Cannot serialize type " .. sType, 0)
+
+    end
+end
+
+local unserialise_json
+do
+    local sub, find, match, concat, tonumber = string.sub, string.find, string.match, table.concat, tonumber
+
+    --- Skip any whitespace
+    local function skip(str, pos)
+        local _, last = find(str, "^[ \n\r\v]+", pos)
+        if last then return last + 1 else return pos end
+    end
+
+    local escapes = {
+        ["b"] = '\b', ["f"] = '\f', ["n"] = '\n', ["r"] = '\r', ["t"] = '\t',
+        ["\""] = "\"", ["/"] = "/", ["\\"] = "\\",
+    }
+
+    local mt = {}
+
+    local function error_at(pos, msg, ...)
+        if select('#', ...) > 0 then msg = msg:format(...) end
+        error(setmetatable({ pos = pos, msg = msg }, mt))
+    end
+
+    local function expected(pos, actual, exp)
+        if actual == "" then actual = "end of input" else actual = ("%q"):format(actual) end
+        error_at(pos, "Unexpected %s, expected %s.", actual, exp)
+    end
+
+    local function parse_string(str, pos)
+        local buf, n = {}, 1
+
+        while true do
+            local c = sub(str, pos, pos)
+            if c == "" then error_at(pos, "Unexpected end of input, expected '\"'.") end
+            if c == '"' then break end
+
+            if c == '\\' then
+                -- Handle the various escapes
+                c = sub(str, pos + 1, pos + 1)
+                if c == "" then error_at(pos, "Unexpected end of input, expected escape sequence.") end
+
+                if c == "u" then
+                    local num_str = match(str, "^%x%x%x%x", pos + 2)
+                    if not num_str then error_at(pos, "Malformed unicode escape %q.", sub(str, pos + 2, pos + 5)) end
+                    buf[n], n, pos = utf8.char(tonumber(num_str, 16)), n + 1, pos + 6
+                else
+                    local unesc = escapes[c]
+                    if not unesc then error_at(pos + 1, "Unknown escape character %q.", unesc) end
+                    buf[n], n, pos = unesc, n + 1, pos + 2
+                end
+            elseif c >= '\x20' then
+                buf[n], n, pos = c, n + 1, pos + 1
+            else
+                error_at(pos + 1, "Unescaped whitespace %q.", c)
+            end
+        end
+
+        return concat(buf, "", 1, n - 1), pos + 1
+    end
+
+    local valid = { b = true, B = true, s = true, S = true, l = true, L = true, f = true, F = true, d = true, D = true }
+    local function parse_number(str, pos, opts)
+        local _, last, num_str = find(str, '^(-?%d+%.?%d*[eE]?[+-]?%d*)', pos)
+        local val = tonumber(num_str)
+        if not val then error_at(pos, "Malformed number %q.", num_str) end
+
+        if opts.nbt_style and valid[sub(str, pos + 1, pos + 1)] then return val, last + 2 end
+
+        return val, last + 1
+    end
+
+    local function parse_ident(str, pos)
+        local _, last, val = find(str, '^([%a][%w_]*)', pos)
+        return val, last + 1
+    end
+
+    local function decode_impl(str, pos, opts)
+        local c = sub(str, pos, pos)
+        if c == '"' then return parse_string(str, pos + 1)
+        elseif c == "-" or c >= "0" and c <= "9" then return parse_number(str, pos, opts)
+        elseif c == "t" then
+            if sub(str, pos + 1, pos + 3) == "rue" then return true, pos + 4 end
+        elseif c == 'f' then
+            if sub(str, pos + 1, pos + 4) == "alse" then return false, pos + 5 end
+        elseif c == 'n' then
+            if sub(str, pos + 1, pos + 3) == "ull" then
+                if opts.parse_null then
+                    return json_null, pos + 4
+                else
+                    return nil, pos + 4
+                end
+            end
+        elseif c == "{" then
+            local obj = {}
+
+            pos = skip(str, pos + 1)
+            c = sub(str, pos, pos)
+
+            if c == "" then return error_at(pos, "Unexpected end of input, expected '}'.") end
+            if c == "}" then return obj, pos + 1 end
+
+            while true do
+                local key, value
+                if c == "\"" then key, pos = parse_string(str, pos + 1)
+                elseif opts.nbt_style then key, pos = parse_ident(str, pos)
+                else return expected(pos, c, "object key")
+                end
+
+                pos = skip(str, pos)
+
+                c = sub(str, pos, pos)
+                if c ~= ":" then return expected(pos, c, "':'") end
+
+                value, pos = decode_impl(str, skip(str, pos + 1), opts)
+                obj[key] = value
+
+                -- Consume the next delimiter
+                pos = skip(str, pos)
+                c = sub(str, pos, pos)
+                if c == "}" then break
+                elseif c == "," then pos = skip(str, pos + 1)
+                else return expected(pos, c, "',' or '}'")
+                end
+
+                c = sub(str, pos, pos)
+            end
+
+            return obj, pos + 1
+
+        elseif c == "[" then
+            local arr, n = {}, 1
+
+            pos = skip(str, pos + 1)
+            c = sub(str, pos, pos)
+
+            if c == "" then return expected(pos, c, "']'") end
+            if c == "]" then return empty_json_array, pos + 1 end
+
+            while true do
+                n, arr[n], pos = n + 1, decode_impl(str, pos, opts)
+
+                -- Consume the next delimiter
+                pos = skip(str, pos)
+                c = sub(str, pos, pos)
+                if c == "]" then break
+                elseif c == "," then pos = skip(str, pos + 1)
+                else return expected(pos, c, "',' or ']'")
+                end
+            end
+
+            return arr, pos + 1
+        elseif c == "" then error_at(pos, 'Unexpected end of input.')
+        end
+
+        error_at(pos, "Unexpected character %q.", c)
+    end
+
+    --- Converts a serialised JSON string back into a reassembled Lua object.
+    --
+    -- This may be used with @{textutils.serializeJSON}, or when communicating
+    -- with command blocks or web APIs.
+    --
+    -- @tparam string s The serialised string to deserialise.
+    -- @tparam[opt] { nbt_style? = boolean, parse_null? = boolean } options
+    -- Options which control how this JSON object is parsed.
+    --
+    --  - `nbt_style`: When true, this will accept [stringified NBT][nbt] strings,
+    --    as produced by many commands.
+    --  - `parse_null`: When true, `null` will be parsed as @{json_null}, rather
+    --    than `nil`.
+    --
+    --  [nbt]: https://minecraft.gamepedia.com/NBT_format
+    -- @return[1] The deserialised object
+    -- @treturn[2] nil If the object could not be deserialised.
+    -- @treturn string A message describing why the JSON string is invalid.
+    unserialise_json = function(s, options)
+        expect(1, s, "string")
+        expect(2, options, "table", "nil")
+
+        if options then
+            field(options, "nbt_style", "boolean", "nil")
+            field(options, "nbt_style", "boolean", "nil")
+        else
+            options = {}
+        end
+
+        local ok, res, pos = pcall(decode_impl, s, skip(s, 1), options)
+        if not ok then
+            if type(res) == "table" and getmetatable(res) == mt then
+                return nil, ("Malformed JSON at position %d: %s"):format(res.pos, res.msg)
+            end
+
+            error(res, 0)
+        end
+
+        pos = skip(s, pos)
+        if pos <= #s then
+            return nil, ("Malformed JSON at position %d: Unexpected trailing character %q."):format(pos, sub(s, pos, pos))
+        end
+        return res
 
     end
 end
@@ -448,6 +666,9 @@ function serializeJSON(t, bNBTStyle)
 end
 
 serialiseJSON = serializeJSON -- GB version
+
+unserializeJSON = unserialise_json
+unserialiseJSON = unserialise_json
 
 --- Replaces certain characters in a string to make it safe for use in URLs or POST data.
 --
