@@ -1,4 +1,12 @@
 describe("The settings library", function()
+    describe("settings.undefine", function()
+        it("clears defined settings", function()
+            settings.define("test.unset", { default = 123 })
+            settings.undefine("test.unset")
+            expect(settings.get("test.unset")):eq(nil)
+        end)
+    end)
+
     describe("settings.set", function()
         it("validates arguments", function()
             settings.set("test", 1)
@@ -37,6 +45,43 @@ describe("The settings library", function()
             settings.get("test")
             expect.error(settings.get, nil):eq("bad argument #1 (expected string, got nil)")
         end)
+
+        it("returns the default", function()
+            expect(settings.get("test.undefined")):eq(nil)
+            expect(settings.get("test.undefined", "?")):eq("?")
+
+            settings.define("test.unset", { default = "default" })
+            expect(settings.get("test.unset")):eq("default")
+            expect(settings.get("test.unset", "?")):eq("?")
+        end)
+    end)
+
+    describe("settings.getDetails", function()
+        it("validates arguments", function()
+            expect.error(settings.getDetails, nil):eq("bad argument #1 (expected string, got nil)")
+        end)
+
+        it("works on undefined and unset values", function()
+            expect(settings.getDetails("test.undefined")):same { value = nil, changed = false }
+        end)
+
+        it("works on undefined but set values", function()
+            settings.set("test", 456)
+            expect(settings.getDetails("test")):same { value = 456, changed = true }
+        end)
+
+        it("works on defined but unset values", function()
+            settings.define("test.unset", { default = 123, description = "A description" })
+            expect(settings.getDetails("test.unset")):same
+                { default = 123, value = 123, changed = false, description = "A description" }
+        end)
+
+        it("works on defined and set values", function()
+            settings.define("test.defined", { default = 123, description = "A description" })
+            settings.set("test.defined", 456)
+            expect(settings.getDetails("test.defined")):same
+                { default = 123, value = 456, changed = true, description = "A description" }
+        end)
     end)
 
     describe("settings.unset", function()
@@ -49,6 +94,13 @@ describe("The settings library", function()
             settings.set("test", true)
             settings.unset("test")
             expect(settings.get("test")):eq(nil)
+        end)
+
+        it("unsetting does not touch defaults", function()
+            settings.define("test.defined", { default = 123 })
+            settings.set("test.defined", 456)
+            settings.unset("test.defined")
+            expect(settings.get("test.defined")):eq(123)
         end)
 
         it("unsetting fires an event", function()
@@ -65,6 +117,13 @@ describe("The settings library", function()
             settings.set("test", true)
             settings.clear()
             expect(settings.get("test")):eq(nil)
+        end)
+
+        it("clearing does not touch defaults", function()
+            settings.define("test.defined", { default = 123 })
+            settings.set("test.defined", 456)
+            settings.clear()
+            expect(settings.get("test.defined")):eq(123)
         end)
 
         it("clearing fires an event", function()

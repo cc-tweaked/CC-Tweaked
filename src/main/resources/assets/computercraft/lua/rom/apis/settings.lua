@@ -47,6 +47,17 @@ function define(name, options)
     details[name] = options
 end
 
+--- Remove a @{define|definition} of a setting.
+--
+-- If a setting has been changed, this does not remove its value. Use @{settings.unset}
+-- for that.
+--
+-- @tparam string name The name of this option
+function undefine(name)
+    expect(1, name, "string")
+    details[name] = nil
+end
+
 local function set_value(name, value)
     local new = reserialize(value)
     local old = values[name]
