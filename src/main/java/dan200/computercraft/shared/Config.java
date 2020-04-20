@@ -36,43 +36,43 @@ public final class Config
 
     private static final String TRANSLATION_PREFIX = "gui.computercraft.config.";
 
-    private static ConfigValue<Integer> computerSpaceLimit;
-    private static ConfigValue<Integer> floppySpaceLimit;
-    private static ConfigValue<Integer> maximumFilesOpen;
-    private static ConfigValue<Boolean> disableLua51Features;
-    private static ConfigValue<String> defaultComputerSettings;
-    private static ConfigValue<Boolean> debugEnabled;
-    private static ConfigValue<Boolean> logComputerErrors;
+    private static final ConfigValue<Integer> computerSpaceLimit;
+    private static final ConfigValue<Integer> floppySpaceLimit;
+    private static final ConfigValue<Integer> maximumFilesOpen;
+    private static final ConfigValue<Boolean> disableLua51Features;
+    private static final ConfigValue<String> defaultComputerSettings;
+    private static final ConfigValue<Boolean> debugEnabled;
+    private static final ConfigValue<Boolean> logComputerErrors;
 
-    private static ConfigValue<Integer> computerThreads;
-    private static ConfigValue<Integer> maxMainGlobalTime;
-    private static ConfigValue<Integer> maxMainComputerTime;
+    private static final ConfigValue<Integer> computerThreads;
+    private static final ConfigValue<Integer> maxMainGlobalTime;
+    private static final ConfigValue<Integer> maxMainComputerTime;
 
-    private static ConfigValue<Boolean> httpEnabled;
-    private static ConfigValue<Boolean> httpWebsocketEnabled;
-    private static ConfigValue<List<? extends String>> httpWhitelist;
-    private static ConfigValue<List<? extends String>> httpBlacklist;
+    private static final ConfigValue<Boolean> httpEnabled;
+    private static final ConfigValue<Boolean> httpWebsocketEnabled;
+    private static final ConfigValue<List<? extends String>> httpWhitelist;
+    private static final ConfigValue<List<? extends String>> httpBlacklist;
 
-    private static ConfigValue<Integer> httpTimeout;
-    private static ConfigValue<Integer> httpMaxRequests;
-    private static ConfigValue<Integer> httpMaxDownload;
-    private static ConfigValue<Integer> httpMaxUpload;
-    private static ConfigValue<Integer> httpMaxWebsockets;
-    private static ConfigValue<Integer> httpMaxWebsocketMessage;
+    private static final ConfigValue<Integer> httpTimeout;
+    private static final ConfigValue<Integer> httpMaxRequests;
+    private static final ConfigValue<Integer> httpMaxDownload;
+    private static final ConfigValue<Integer> httpMaxUpload;
+    private static final ConfigValue<Integer> httpMaxWebsockets;
+    private static final ConfigValue<Integer> httpMaxWebsocketMessage;
 
-    private static ConfigValue<Boolean> commandBlockEnabled;
-    private static ConfigValue<Integer> modemRange;
-    private static ConfigValue<Integer> modemHighAltitudeRange;
-    private static ConfigValue<Integer> modemRangeDuringStorm;
-    private static ConfigValue<Integer> modemHighAltitudeRangeDuringStorm;
-    private static ConfigValue<Integer> maxNotesPerTick;
+    private static final ConfigValue<Boolean> commandBlockEnabled;
+    private static final ConfigValue<Integer> modemRange;
+    private static final ConfigValue<Integer> modemHighAltitudeRange;
+    private static final ConfigValue<Integer> modemRangeDuringStorm;
+    private static final ConfigValue<Integer> modemHighAltitudeRangeDuringStorm;
+    private static final ConfigValue<Integer> maxNotesPerTick;
 
-    private static ConfigValue<Boolean> turtlesNeedFuel;
-    private static ConfigValue<Integer> turtleFuelLimit;
-    private static ConfigValue<Integer> advancedTurtleFuelLimit;
-    private static ConfigValue<Boolean> turtlesObeyBlockProtection;
-    private static ConfigValue<Boolean> turtlesCanPush;
-    private static ConfigValue<List<? extends String>> turtleDisabledActions;
+    private static final ConfigValue<Boolean> turtlesNeedFuel;
+    private static final ConfigValue<Integer> turtleFuelLimit;
+    private static final ConfigValue<Integer> advancedTurtleFuelLimit;
+    private static final ConfigValue<Boolean> turtlesObeyBlockProtection;
+    private static final ConfigValue<Boolean> turtlesCanPush;
+    private static final ConfigValue<List<? extends String>> turtleDisabledActions;
 
     private static final ForgeConfigSpec spec;
 
