@@ -37,8 +37,8 @@ several features have been included, such as full block modems, the Cobalt runti
 computers.
 
 ## Contributing
-Any contribution is welcome, be that using the mod, reporting bugs or contributing code. If you want to developing the
-mod, [check out the instructions here](CONTRIBUTING.md#developing).
+Any contribution is welcome, be that using the mod, reporting bugs or contributing code. If you want to get started
+developing the mod, [check out the instructions here](CONTRIBUTING.md#developing).
 
 ## Community
 If you need help getting started with CC: Tweaked, want to show off your latest project, or just want to chat about
