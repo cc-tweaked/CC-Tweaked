@@ -9,7 +9,6 @@ package dan200.computercraft.shared.peripheral.monitor;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.client.render.TileEntityMonitorRenderer;
 import net.minecraft.client.renderer.OpenGlHelper;
-import net.minecraft.client.renderer.Tessellator;
 
 import javax.annotation.Nonnull;
 import java.util.Locale;
@@ -39,15 +38,7 @@ public enum MonitorRenderer
      *
      * @see net.minecraft.client.renderer.GLAllocation#generateDisplayLists(int)
      */
-    DISPLAY_LIST,
-
-    /**
-     * Draw directly using the tessellator. This will never be selected by default, but is useful as a way to check
-     * performance.
-     *
-     * @see Tessellator#draw()
-     */
-    DIRECT;
+    DISPLAY_LIST;
 
     private static final MonitorRenderer[] VALUES = values();
     public static final String[] NAMES;

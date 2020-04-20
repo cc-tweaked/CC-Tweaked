@@ -177,11 +177,6 @@ public class TileEntityMonitorRenderer extends TileEntitySpecialRenderer<TileMon
 
                 GlStateManager.callList( monitor.displayList );
                 break;
-
-            case DIRECT:
-                renderTerminalTo( monitor, buffer, xMargin, yMargin );
-                tessellator.draw();
-                break;
         }
 
         // We don't draw the cursor with a buffer, as it's dynamic and so we'll end up refreshing far more than is
