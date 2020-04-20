@@ -185,6 +185,11 @@ gui.computercraft:config.peripheral.modem_high_altitude_range=Modem range (high-
 gui.computercraft:config.peripheral.modem_range_during_storm=Modem range (bad weather)
 gui.computercraft:config.peripheral.modem_high_altitude_range_during_storm=Modem range (high-altitude, bad weather)
 gui.computercraft:config.peripheral.max_notes_per_tick=Maximum notes that a computer can play at once
+gui.computercraft:config.peripheral.monitor_renderer=Monitor renderer
+gui.computercraft:config.peripheral.monitor_renderer.best=Best
+gui.computercraft:config.peripheral.monitor_renderer.vbo=Vertex Buffers
+gui.computercraft:config.peripheral.monitor_renderer.display_list=Display Lists
+gui.computercraft:config.peripheral.monitor_renderer.direct=Direct
 
 gui.computercraft:config.turtle=Turtles
 gui.computercraft:config.turtle.need_fuel=Enable fuel

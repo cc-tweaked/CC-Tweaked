@@ -9,6 +9,7 @@ import dan200.computercraft.client.FrameInfo;
 import dan200.computercraft.client.gui.FixedWidthFontRenderer;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.shared.peripheral.monitor.ClientMonitor;
+import dan200.computercraft.shared.peripheral.monitor.MonitorRenderer;
 import dan200.computercraft.shared.peripheral.monitor.TileMonitor;
 import dan200.computercraft.shared.util.DirectionUtil;
 import net.minecraft.client.Minecraft;
@@ -22,6 +23,8 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import org.lwjgl.opengl.GL11;
 
+import javax.annotation.Nonnull;
+
 import static dan200.computercraft.shared.peripheral.monitor.TileMonitor.RENDER_MARGIN;
 
 public class TileEntityMonitorRenderer extends TileEntitySpecialRenderer<TileMonitor>
@@ -29,12 +32,9 @@ public class TileEntityMonitorRenderer extends TileEntitySpecialRenderer<TileMon
     private static final float MARGIN = (float) (TileMonitor.RENDER_MARGIN * 1.1);
 
     @Override
-    public void render( TileMonitor tileEntity, double posX, double posY, double posZ, float f, int i, float f2 )
+    public void render( @Nonnull TileMonitor tileEntity, double posX, double posY, double posZ, float f, int i, float f2 )
     {
-        if( tileEntity != null )
-        {
-            renderMonitorAt( tileEntity, posX, posY, posZ, f, i );
-        }
+        renderMonitorAt( tileEntity, posX, posY, posZ, f, i );
     }
 
     private static void renderMonitorAt( TileMonitor monitor, double posX, double posY, double posZ, float f, int i )
@@ -85,8 +85,6 @@ public class TileEntityMonitorRenderer extends TileEntitySpecialRenderer<TileMon
 
         // Get renderers
         Minecraft mc = Minecraft.getMinecraft();
-        Tessellator tessellator = Tessellator.getInstance();
-        BufferBuilder buffer = tessellator.getBuffer();
 
         // Set up render state for monitors. We disable writing to the depth buffer (we draw a "blocker" later),
         // and setup lighting so that we render with a glow.
@@ -98,14 +96,6 @@ public class TileEntityMonitorRenderer extends TileEntitySpecialRenderer<TileMon
         Terminal terminal = originTerminal.getTerminal();
         if( terminal != null )
         {
-            boolean redraw = originTerminal.pollTerminalChanged();
-            if( originTerminal.buffer == null )
-            {
-                originTerminal.createLists();
-                redraw = true;
-            }
-            VertexBuffer vbo = originTerminal.buffer;
-
             // Draw a terminal
             double xScale = xSize / (terminal.getWidth() * FixedWidthFontRenderer.FONT_WIDTH);
             double yScale = ySize / (terminal.getHeight() * FixedWidthFontRenderer.FONT_HEIGHT);
@@ -113,34 +103,7 @@ public class TileEntityMonitorRenderer extends TileEntitySpecialRenderer<TileMon
             GlStateManager.pushMatrix();
             GlStateManager.scale( (float) xScale, (float) -yScale, 1.0f );
 
-            float xMargin = (float) (MARGIN / xScale);
-            float yMargin = (float) (MARGIN / yScale);
-
-            if( redraw )
-            {
-                FixedWidthFontRenderer.begin( buffer );
-                FixedWidthFontRenderer.drawTerminalWithoutCursor(
-                    buffer, 0, 0,
-                    terminal, !originTerminal.isColour(), yMargin, yMargin, xMargin, xMargin
-                );
-
-                buffer.finishDrawing();
-                buffer.reset();
-                vbo.bufferData( buffer.getByteBuffer() );
-            }
-
-            FixedWidthFontRenderer.bindFont();
-
-            vbo.bindBuffer();
-            setupBufferFormat();
-            vbo.drawArrays( GL11.GL_TRIANGLES );
-            vbo.unbindBuffer();
-
-            // We don't draw the cursor with the VBO, as it's dynamic and so we'll end up refreshing far more than is
-            // reasonable.
-            FixedWidthFontRenderer.begin( buffer );
-            FixedWidthFontRenderer.drawCursor( buffer, 0, 0, terminal, !originTerminal.isColour() );
-            tessellator.draw();
+            renderTerminal( originTerminal, (float) (MARGIN / xScale), (float) (MARGIN / yScale) );
 
             GlStateManager.popMatrix();
         }
@@ -166,6 +129,75 @@ public class TileEntityMonitorRenderer extends TileEntitySpecialRenderer<TileMon
         GlStateManager.colorMask( true, true, true, true );
 
         GlStateManager.popMatrix();
+    }
+
+    private static void renderTerminal( ClientMonitor monitor, float xMargin, float yMargin )
+    {
+        Tessellator tessellator = Tessellator.getInstance();
+        BufferBuilder buffer = tessellator.getBuffer();
+
+        boolean redraw = monitor.pollTerminalChanged();
+
+        // Setup the buffers if needed. We get the renderer here, to avoid the (unlikely) race condition between
+        // creating the buffers and rendering.
+        MonitorRenderer renderer = MonitorRenderer.current();
+        if( monitor.createBuffer( renderer ) ) redraw = true;
+
+        FixedWidthFontRenderer.bindFont();
+
+        switch( renderer )
+        {
+            case VBO:
+            {
+                VertexBuffer vbo = monitor.buffer;
+                if( redraw )
+                {
+                    renderTerminalTo( monitor, buffer, xMargin, yMargin );
+                    buffer.finishDrawing();
+                    buffer.reset();
+                    vbo.bufferData( buffer.getByteBuffer() );
+                }
+
+                vbo.bindBuffer();
+                setupBufferFormat();
+                vbo.drawArrays( GL11.GL_TRIANGLES );
+                vbo.unbindBuffer();
+
+                break;
+            }
+
+            case DISPLAY_LIST:
+                if( redraw )
+                {
+                    GlStateManager.glNewList( monitor.displayList, GL11.GL_COMPILE );
+                    renderTerminalTo( monitor, buffer, xMargin, yMargin );
+                    tessellator.draw();
+                    GlStateManager.glEndList();
+                }
+
+                GlStateManager.callList( monitor.displayList );
+                break;
+
+            case DIRECT:
+                renderTerminalTo( monitor, buffer, xMargin, yMargin );
+                tessellator.draw();
+                break;
+        }
+
+        // We don't draw the cursor with a buffer, as it's dynamic and so we'll end up refreshing far more than is
+        // reasonable.
+        FixedWidthFontRenderer.begin( buffer );
+        FixedWidthFontRenderer.drawCursor( buffer, 0, 0, monitor.getTerminal(), !monitor.isColour() );
+        tessellator.draw();
+    }
+
+    private static void renderTerminalTo( ClientMonitor monitor, BufferBuilder buffer, float xMargin, float yMargin )
+    {
+        FixedWidthFontRenderer.begin( buffer );
+        FixedWidthFontRenderer.drawTerminalWithoutCursor(
+            buffer, 0, 0,
+            monitor.getTerminal(), !monitor.isColour(), yMargin, yMargin, xMargin, xMargin
+        );
     }
 
     public static void setupBufferFormat()
