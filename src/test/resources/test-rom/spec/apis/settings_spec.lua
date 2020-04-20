@@ -1,4 +1,10 @@
 describe("The settings library", function()
+    describe("settings.define", function()
+        it("ensures valid type names", function()
+            expect.error(settings.define, "test.defined", { type = "function" })
+                :eq('Unknown type "function". Expected one of number, string, boolean, table.')
+        end)
+    end)
     describe("settings.undefine", function()
         it("clears defined settings", function()
             settings.define("test.unset", { default = 123 })
@@ -26,6 +32,13 @@ describe("The settings library", function()
             local random = math.random(1, 0x7FFFFFFF)
             settings.set("test", random)
             expect(settings.get("test")):eq(random)
+        end)
+
+        it("checks the type of the value", function()
+            settings.define("test.defined", { default = 123, description = "A description", type = "number" })
+            expect.error(settings.set, "test.defined", "hello")
+                :eq("bad argument #2 (expected number, got string)")
+            settings.set("test.defined", 123)
         end)
 
         it("setting fires an event", function()
@@ -77,10 +90,10 @@ describe("The settings library", function()
         end)
 
         it("works on defined and set values", function()
-            settings.define("test.defined", { default = 123, description = "A description" })
+            settings.define("test.defined", { default = 123, description = "A description", type = "number" })
             settings.set("test.defined", 456)
             expect(settings.getDetails("test.defined")):same
-                { default = 123, value = 456, changed = true, description = "A description" }
+                { default = 123, value = 456, changed = true, description = "A description", type = "number" }
         end)
     end)
 

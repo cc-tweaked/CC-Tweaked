@@ -23,14 +23,23 @@ local function copy(value)
     return result
 end
 
+local valid_types = { "number", "string", "boolean", "table" }
+for _, v in ipairs(valid_types) do valid_types[v] = true end
+
 --- Define a new setting, optional specifying various properties about it.
 --
 -- While settings do not have to be added before being used, doing so allows
 -- you to provide defaults and additional metadata.
 --
 -- @tparam string name The name of this option
--- @tparam[opt] { description? = string, default? = value } options Options for
--- this setting.
+-- @tparam[opt] { description? = string, default? = value, type? = string } options
+-- Options for this setting. This table accepts the following fields:
+--
+--  - `description`: A description which may be printed when running the `set` program.
+--  - `default`: A default value, which is returned by @{settings.get} if the
+--    setting has not been changed.
+--  - `type`: Require values to be of this type. @{set|Setting} the value to another type
+--    will error.
 function define(name, options)
     expect(1, name, "string")
     expect(2, options, "table", nil)
@@ -39,7 +48,12 @@ function define(name, options)
         options = {
             description = field(options, "description", "string", "nil"),
             default = reserialize(field(options, "default", "number", "string", "boolean", "table", "nil")),
+            type = field(options, "type", "string", "nil"),
         }
+
+        if options.type and not valid_types[options.type] then
+            error(("Unknown type %q. Expected one of %s."):format(options.type, table.concat(valid_types, ", ")), 2)
+        end
     else
         options = {}
     end
@@ -83,6 +97,10 @@ end
 function set(name, value)
     expect(1, name, "string")
     expect(2, value, "number", "string", "boolean", "table")
+
+    local opt = details[name]
+    if opt and opt.type then expect(2, value, opt.type) end
+
     set_value(name, value)
 end
 
@@ -182,9 +200,12 @@ function load(sPath)
     end
 
     for k, v in pairs(tFile) do
-        if type(k) == "string" and
-           (type(v) == "string" or type(v) == "number" or type(v) == "boolean" or type(v) == "table") then
-            set(k, v)
+        local ty_v = type(k)
+        if type(k) == "string" and (ty_v == "string" or ty_v == "number" or ty_v == "boolean" or ty_v == "table") then
+            local opt = details[name]
+            if not opt or not opt.type or ty_v == opt.type then
+                set_value(k, v)
+            end
         end
     end
 

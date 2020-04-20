@@ -38,15 +38,18 @@ else
         value = sValue
     end
 
-    local oldValue = settings.get(sValue)
-    if value ~= nil then
-        settings.set(sName, value)
-        print(textutils.serialize(sName) .. " set to " .. textutils.serialize(value))
-    else
+    local option = settings.getDetails(sName)
+    if value == nil then
         settings.unset(sName)
         print(textutils.serialize(sName) .. " unset")
+    elseif option.type and option.type ~= type(value) then
+        printError(("%s is not a valid %s."):format(textutils.serialize(sValue), option.type))
+    else
+        settings.set(sName, value)
+        print(textutils.serialize(sName) .. " set to " .. textutils.serialize(value))
     end
-    if value ~= oldValue then
+
+    if value ~= option.value then
         settings.save()
     end
 end
