@@ -445,7 +445,7 @@ function create(parent, nX, nY, nWidth, nHeight, bStartVisible)
     -- @treturn string The textual content of this line.
     -- @treturn string The text colours of this line, suitable for use with @{term.blit}.
     -- @treturn string The background colours of this line, suitable for use with @{term.blit}.
-    -- @throws If `y` is a valid line.
+    -- @throws If `y` is not between 1 and this window's height.
     function window.getLine(y)
         if type(y) ~= "number" then expect(1, y, "number") end
 

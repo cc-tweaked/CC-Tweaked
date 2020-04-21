@@ -124,7 +124,12 @@ function get(name, default)
     end
 end
 
---- Get details about a specific setting
+--- Get details about a specific setting.
+--
+-- @tparam string name The name of the setting to get.
+-- @treturn { description? = string, default? = value, type? = string, value? = value }
+-- Information about this setting. This includes all information from @{settings.define},
+-- as well as this setting's value.
 function getDetails(name)
     expect(1, name, "string")
     local deets = copy(details[name]) or {}

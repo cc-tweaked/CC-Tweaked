@@ -59,3 +59,20 @@
 (at /doc/stub
   (linters -var:unused-global)
   (lint (allow-toplevel-global true)))
+
+;; Ensure any fully documented modules stay fully documented.
+(at
+  (/src/main/resources/assets/computercraft/lua/rom/apis/colors.lua
+   /src/main/resources/assets/computercraft/lua/rom/apis/colours.lua
+   /src/main/resources/assets/computercraft/lua/rom/apis/disk.lua
+   /src/main/resources/assets/computercraft/lua/rom/apis/gps.lua
+   /src/main/resources/assets/computercraft/lua/rom/apis/help.lua
+   /src/main/resources/assets/computercraft/lua/rom/apis/keys.lua
+   /src/main/resources/assets/computercraft/lua/rom/apis/paintutils.lua
+   /src/main/resources/assets/computercraft/lua/rom/apis/parallel.lua
+   /src/main/resources/assets/computercraft/lua/rom/apis/peripheral.lua
+   /src/main/resources/assets/computercraft/lua/rom/apis/rednet.lua
+   /src/main/resources/assets/computercraft/lua/rom/apis/settings.lua
+   /src/main/resources/assets/computercraft/lua/rom/apis/texutils.lua
+   /src/main/resources/assets/computercraft/lua/rom/apis/vector.lua)
+  (linters doc:undocumented doc:undocumented-arg))
