@@ -19,7 +19,7 @@ local canvas = {}
 local mChoices = { "Save", "Exit" }
 
 -- The message displayed in the footer bar
-local fMessage = "Press Ctrl to access menu"
+local fMessage = "Press Ctrl or click here to access menu"
 
 -------------------------
 -- Initialisation --
@@ -261,27 +261,58 @@ local function accessMenu()
     local selection = 1
 
     term.setBackgroundColour(colours.black)
+
+    local function selectOption( option )
+        if option == "Save" then
+            if bReadOnly then
+                fMessage = "Access denied"
+                return false
+            end
+            local success, err = save(sPath)
+            if success then
+                fMessage = "Saved to " .. sPath
+            else
+                if err then
+                    fMessage = "Error saving to " .. err
+                else
+                    fMessage = "Error saving to " .. sPath
+                end
+            end
+            return false
+        elseif option == "Exit" then
+            return true
+        end
+    end
+
     while true do
         -- Draw the menu
         term.setCursorPos(1, h)
         term.clearLine()
         term.setTextColour(colours.white)
+        tMenuPos = {}
+        local nStartPos
+        local nEndPos
         for k, v in pairs(mChoices) do
             if selection == k then
                 term.setTextColour(colours.yellow)
                 local ox = term.getCursorPos()
                 term.write("[" .. string.rep(" ", #v) .. "]")
                 term.setCursorPos(ox + 1, h)
+                nStartPos = ox + 1
                 term.setTextColour(colours.white)
                 term.write(v)
-                term.setCursorPos(term.getCursorPos() + 1, h)
+                nEndPos = term.getCursorPos()
+                term.setCursorPos(nEndPos, h)
             else
+                nStartPos = term.getCursorPos() + 1
                 term.write(" " .. v .. " ")
+                nEndPos = nStartPos + #v
             end
+            table.insert( tMenuPos, { nStartPos, nEndPos } )
         end
 
         -- Handle input in the menu
-        local id, key = os.pullEvent("key")
+        local id, key, x, y = os.pullEvent()
         if id == "key" then
             -- S and E are shortcuts
             if key == keys.s then
@@ -308,27 +339,19 @@ local function accessMenu()
 
             elseif key == keys.enter then
                 -- Select an option
-                if mChoices[selection] == "Save" then
-                    if bReadOnly then
-                        fMessage = "Access denied"
-                        return false
-                    end
-                    local success, err = save(sPath)
-                    if success then
-                        fMessage = "Saved to " .. sPath
-                    else
-                        if err then
-                            fMessage = "Error saving to " .. err
-                        else
-                            fMessage = "Error saving to " .. sPath
-                        end
-                    end
-                    return false
-                elseif mChoices[selection] == "Exit" then
-                    return true
-                end
+                return selectOption( mChoices[selection] )
             elseif key == keys.leftCtrl or keys == keys.rightCtrl then
                 -- Cancel the menu
+                return false
+            end
+        elseif id == "mouse_click" then
+            if y == h then
+                for k, v in pairs( tMenuPos ) do
+                    if x >= v[1] and x < v[2] then
+                        return selectOption( mChoices[k] )
+                    end
+                end
+            else
                 return false
             end
         end
@@ -378,6 +401,10 @@ local function handleEvents()
                 canvas[p3][p2] = paintColour
 
                 drawCanvasPixel(p2, p3)
+            elseif p3 == h and id =="mouse_click" then
+                -- Open menu
+                programActive = not accessMenu()
+                drawInterface()
             end
         elseif id == "key" then
             if p1 == keys.leftCtrl or p1 == keys.rightCtrl then
