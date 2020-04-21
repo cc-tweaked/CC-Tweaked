@@ -55,6 +55,12 @@ public final class FixedWidthFontRenderer
         return (float) ((rgb[0] + rgb[1] + rgb[2]) / 3);
     }
 
+    private static int getColour( char c )
+    {
+        int i = "0123456789abcdef".indexOf( c );
+        return i < 0 ? 0 : 15 - i;
+    }
+
     private static void drawChar( BufferBuilder buffer, float x, float y, int index, float r, float g, float b )
     {
         // Short circuit to avoid the common case - the texture should be blank here after all.
@@ -86,7 +92,7 @@ public final class FixedWidthFontRenderer
 
     private static void drawQuad( BufferBuilder buffer, float x, float y, float width, float height, Palette palette, boolean greyscale, char colourIndex )
     {
-        double[] colour = palette.getColour( 15 - "0123456789abcdef".indexOf( colourIndex ) );
+        double[] colour = palette.getColour( getColour( colourIndex ) );
         float r, g, b;
         if( greyscale )
         {
@@ -154,7 +160,7 @@ public final class FixedWidthFontRenderer
 
         for( int i = 0; i < text.length(); i++ )
         {
-            double[] colour = palette.getColour( 15 - "0123456789abcdef".indexOf( textColour.charAt( i ) ) );
+            double[] colour = palette.getColour( getColour( textColour.charAt( i ) ) );
             float r, g, b;
             if( greyscale )
             {
