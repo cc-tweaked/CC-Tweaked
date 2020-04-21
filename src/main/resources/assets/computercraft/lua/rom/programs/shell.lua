@@ -194,10 +194,7 @@ function shell.setDir( _sDir )
     if not fs.isDir( _sDir ) then
         error( "Not a directory", 2 )
     end
-    local sStartChar = string.sub( _sDir, 1, 1 )
-    if sStartChar == "/" or sStartChar == "\\" then
-        _sDir = _sDir:sub( 2 )
-    end
+    _sDir = fs.combine(_sDir, "")
     sDir = _sDir
 end
 
