@@ -63,11 +63,12 @@ public final class PrintoutRenderer
 
     public static void drawText( int x, int y, int start, TextBuffer[] text, TextBuffer[] colours )
     {
-        FixedWidthFontRenderer fontRenderer = FixedWidthFontRenderer.instance();
-
         for( int line = 0; line < LINES_PER_PAGE && line < text.length; line++ )
         {
-            fontRenderer.drawString( text[start + line], x, y + line * FONT_HEIGHT, colours[start + line], null, 0, 0, false, Palette.DEFAULT );
+            FixedWidthFontRenderer.drawString(
+                x, y + line * FONT_HEIGHT, text[start + line], colours[start + line], null, Palette.DEFAULT,
+                false, 0, 0
+            );
         }
     }
 
@@ -78,11 +79,13 @@ public final class PrintoutRenderer
         GlStateManager.enableTexture2D();
         GlStateManager.tryBlendFuncSeparate( SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA, SourceFactor.ONE, DestFactor.ZERO );
 
-        FixedWidthFontRenderer fontRenderer = FixedWidthFontRenderer.instance();
-
         for( int line = 0; line < LINES_PER_PAGE && line < text.length; line++ )
         {
-            fontRenderer.drawString( new TextBuffer( text[start + line] ), x, y + line * FONT_HEIGHT, new TextBuffer( colours[start + line] ), null, 0, 0, false, Palette.DEFAULT );
+            FixedWidthFontRenderer.drawString(
+                x, y + line * FONT_HEIGHT,
+                new TextBuffer( text[start + line] ), new TextBuffer( colours[start + line] ),
+                null, Palette.DEFAULT, false, 0, 0
+            );
         }
     }
 

@@ -46,6 +46,7 @@ import dan200.computercraft.shared.peripheral.modem.wired.ItemCable;
 import dan200.computercraft.shared.peripheral.modem.wireless.BlockAdvancedModem;
 import dan200.computercraft.shared.peripheral.modem.wireless.ItemAdvancedModem;
 import dan200.computercraft.shared.peripheral.modem.wireless.WirelessNetwork;
+import dan200.computercraft.shared.peripheral.monitor.MonitorRenderer;
 import dan200.computercraft.shared.pocket.items.ItemPocketComputer;
 import dan200.computercraft.shared.pocket.peripherals.PocketModem;
 import dan200.computercraft.shared.pocket.peripherals.PocketSpeaker;
@@ -135,6 +136,7 @@ public class ComputerCraft
     public static int modem_rangeDuringStorm = 64;
     public static int modem_highAltitudeRangeDuringStorm = 384;
     public static int maxNotesPerTick = 8;
+    public static MonitorRenderer monitorRenderer = MonitorRenderer.BEST;
 
     public static boolean turtlesNeedFuel = true;
     public static int turtleFuelLimit = 20000;
