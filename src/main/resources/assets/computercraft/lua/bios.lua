@@ -881,18 +881,66 @@ if bAPIError then
 end
 
 -- Set default settings
-settings.set("shell.allow_startup", true)
-settings.set("shell.allow_disk_startup", commands == nil)
-settings.set("shell.autocomplete", true)
-settings.set("edit.autocomplete", true)
-settings.set("edit.default_extension", "lua")
-settings.set("paint.default_extension", "nfp")
-settings.set("lua.autocomplete", true)
-settings.set("list.show_hidden", false)
-settings.set("motd.enable", false)
-settings.set("motd.path", "/rom/motd.txt:/motd.txt")
+settings.define("shell.allow_startup", {
+    default = true,
+    description = "Run startup files when the computer turns on.",
+    type = "boolean",
+})
+settings.define("shell.allow_disk_startup", {
+    default = commands == nil,
+    description = "Run startup files from disk drives when the computer turns on.",
+    type = "boolean",
+})
+
+settings.define("shell.autocomplete", {
+    default = true,
+    description = "Autocomplete program and arguments in the shell.",
+    type = "boolean",
+})
+settings.define("edit.autocomplete", {
+    default = true,
+    description = "Autocomplete API and function names in the editor.",
+        type = "boolean",
+})
+settings.define("lua.autocomplete", {
+    default = true,
+    description = "Autocomplete API and function names in the Lua REPL.",
+        type = "boolean",
+})
+
+settings.define("edit.default_extension", {
+    default = "lua",
+    description = [[The file extension the editor will use if none is given. Set to "" to disable.]],
+    type = "string",
+})
+settings.define("paint.default_extension", {
+    default = "nfp",
+    description = [[The file extension the paint program will use if none is given. Set to "" to disable.]],
+    type = "string",
+})
+
+settings.define("list.show_hidden", {
+    default = false,
+    description = [[Show hidden files (those starting with "." in the Lua REPL)]],
+    type = "boolean",
+})
+
+settings.define("motd.enable", {
+    default = false,
+    description = "Display a random message when the computer starts up.",
+    type = "boolean",
+})
+settings.define("motd.path", {
+    default = "/rom/motd.txt:/motd.txt",
+    description = [[The path to load random messages from. Should be a colon (":") separated string of file paths.]],
+    type = "string",
+})
 if term.isColour() then
-    settings.set("bios.use_multishell", true)
+    settings.define("bios.use_multishell", {
+        default = true,
+        description = [[Allow running multiple programs at once, through the use of the "fg" and "bg" programs.]],
+        type = "boolean",
+    })
 end
 if _CC_DEFAULT_SETTINGS then
     for sPair in string.gmatch(_CC_DEFAULT_SETTINGS, "[^,]+") do
