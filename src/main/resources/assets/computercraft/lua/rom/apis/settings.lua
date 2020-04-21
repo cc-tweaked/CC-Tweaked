@@ -228,7 +228,7 @@ end
 -- @see settings.load
 function save(sPath)
     expect(1, sPath, "string", "nil")
-    local file = fs.open(".settings", "w")
+    local file = fs.open(sPath or ".settings", "w")
     if not file then
         return false
     end
