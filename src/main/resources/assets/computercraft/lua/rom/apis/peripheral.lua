@@ -54,9 +54,9 @@ function isPresent(name)
     end
 
     for n = 1, #sides do
-        local name = sides[n]
-        if native.getType(name) == "modem" and not native.call(name, "isWireless") and
-            native.call(name, "isPresentRemote", name)
+        local side = sides[n]
+        if native.getType(side) == "modem" and not native.call(side, "isWireless") and
+            native.call(side, "isPresentRemote", name)
         then
             return true
         end
