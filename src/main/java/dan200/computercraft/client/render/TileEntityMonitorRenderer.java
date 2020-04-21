@@ -19,10 +19,8 @@ import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.client.renderer.vertex.VertexBuffer;
-import net.minecraft.entity.Entity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
 import org.lwjgl.opengl.GL11;
 
 import javax.annotation.Nonnull;
@@ -60,14 +58,6 @@ public class TileEntityMonitorRenderer extends TileEntitySpecialRenderer<TileMon
         originTerminal.lastRenderFrame = renderFrame;
         originTerminal.lastRenderPos = monitorPos;
 
-        Minecraft mc = Minecraft.getMinecraft();
-
-        Entity entity = mc.getRenderViewEntity();
-        if( entity != null && new Vec3d( origin.getFront().getDirectionVec() ).dotProduct( entity.getLookVec() ) > 0 )
-        {
-            return;
-        }
-
         BlockPos originPos = origin.getPos();
         posX += originPos.getX() - monitorPos.getX();
         posY += originPos.getY() - monitorPos.getY();
@@ -92,6 +82,9 @@ public class TileEntityMonitorRenderer extends TileEntitySpecialRenderer<TileMon
         );
         double xSize = origin.getWidth() - 2.0 * (RENDER_MARGIN + TileMonitor.RENDER_BORDER);
         double ySize = origin.getHeight() - 2.0 * (RENDER_MARGIN + TileMonitor.RENDER_BORDER);
+
+        // Get renderers
+        Minecraft mc = Minecraft.getMinecraft();
 
         // Set up render state for monitors. We disable writing to the depth buffer (we draw a "blocker" later),
         // and setup lighting so that we render with a glow.
