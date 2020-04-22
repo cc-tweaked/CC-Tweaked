@@ -104,7 +104,7 @@ dependencies {
 
     runtimeOnly fg.deobf("mezz.jei:jei-1.14.4:6.0.0.27")
 
-    shade 'org.squiddev:Cobalt:0.5.0-SNAPSHOT'
+    shade 'org.squiddev:Cobalt:0.5.1-SNAPSHOT'
 
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.4.2'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.4.2'

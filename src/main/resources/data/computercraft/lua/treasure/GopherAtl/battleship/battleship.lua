@@ -1,8 +1,8 @@
 --[[
 battleship,
- 
+
 by GopherAtl, 2013
- 
+
 Do whatever you want, just don't judge me by
 what a mess this code is.
 --]]
@@ -17,21 +17,21 @@ local myTurn
 local targetX,targetY
 local shipsLeft=5
 local oppShipsLeft=5
- 
+
 local originalTerm = term.current()
- 
+
 --bounding box of the target grid
 local targetGridBounds={
     minX=16, maxX=25,
     minY=4, maxY=13
   }
- 
- 
+
+
 local function doColor(text,background)
   term.setTextColor(text)
   term.setBackgroundColor(background)
 end
- 
+
 local function doColor_mono(text,background)
   if text==colors.blue or text==colors.red or text==colors.black or text==colors.lime or background==colors.lightGray then
     term.setTextColor(colors.black)
@@ -39,9 +39,9 @@ local function doColor_mono(text,background)
   else
     term.setTextColor(colors.white)
     term.setBackgroundColor(colors.black)
-  end  
+  end
 end
- 
+
 local function doScreenColor()
   if term.isColor() then
     doColor(colors.white,colors.lightGray)
@@ -49,16 +49,16 @@ local function doScreenColor()
     doColor(colors.black,colors.white)
   end
 end
- 
+
 local function toGridRef(x,y)
   return string.sub("ABCDEFGHIJ",x,x)..string.sub("1234567890",y,y)
 end
- 
- 
+
+
 if not term.isColor() then
   doColor=doColor_mono
 end
- 
+
 local function quit()
   if openedSide then
     rednet.close(openedSide)
@@ -68,7 +68,7 @@ local function quit()
   print()
   error()
 end
- 
+
 local foundModem=false
 --find modem
 for k,v in pairs(redstone.getSides()) do
@@ -81,17 +81,17 @@ for k,v in pairs(redstone.getSides()) do
     break
   end
 end
- 
+
 if not foundModem then
   print("You must have a modem to play!")
   return
 end
- 
+
 if action==nil or (action~="join" and action~="host") then
   print("Invalid parameters. Usage:\n> battleship host\nHosts a game, waits for another computer to join\n> battleship join\nLooks for another game to join")
   quit()
 end
- 
+
 --get player name
 while true do
   doColor(colors.cyan,colors.black)
@@ -108,13 +108,13 @@ while true do
     break
   end
 end
- 
+
 if action=="join" then
   print("Attempting to join a game...\n(press q to cancel)")
   while true do
     local retryTimer=os.startTimer(1);
     rednet.broadcast("bs join "..myName);
- 
+
     while true do
       local event,p1,p2,p3=os.pullEvent();
       if event=="rednet_message" then
@@ -131,7 +131,7 @@ if action=="join" then
       end
     end
     local joined=false
-   
+
     if opponentID then
       print("Joining game!")
       rednet.send(opponentID,"bs start")
@@ -142,7 +142,7 @@ elseif action=="host" then
   print("Waiting for challenger...\n(Press q to cancel)")
   while true do
     while true do
-      local event,p1,p2=os.pullEvent()  
+      local event,p1,p2=os.pullEvent()
       if event=="rednet_message" then
         opponent=string.match(p2,"bs join %s*(.+)%s*")        if opponent then
           print("found player, inviting..")
@@ -154,7 +154,7 @@ elseif action=="host" then
         quit()
       end
     end
-   
+
     if opponentID then
       rednet.send(opponentID,"bs accept "..myName)
       local timeout=os.startTimer(1)
@@ -166,17 +166,17 @@ elseif action=="host" then
         elseif event=="timer" and p1==timeout then
           print("player joined another game. Waiting for another...")
           opponentID=nil
-          break    
+          break
         end
       end
-     
+
       if opponentID then
         break
       end
     end
   end
 end
- 
+
 local ships={
   {pos=nil,dir="h",size=5,name="carrier",hits=0},
   {pos=nil,dir="h",size=4,name="battleship",hits=0},
@@ -184,12 +184,12 @@ local ships={
   {pos=nil,dir="h",size=3,name="submarine",hits=0},
   {pos=nil,dir="h",size=2,name="destroyer",hits=0},
 }
- 
+
 local myShotTable={ {1,1,true},{5,5,false} }
 local oppShotTable={ }
- 
+
 local myGrid,oppGrid={title=myName},{title=opponent}
- 
+
 --setup grids
 for i=1,10 do
   myGrid[i]={}
@@ -199,8 +199,8 @@ for i=1,10 do
     oppGrid[i][j]={hit=false,ship=false}
   end
 end
- 
-local function drawShipsToGrid(ships,grid)  
+
+local function drawShipsToGrid(ships,grid)
   for i=1,#ships do
     local x,y=table.unpack(ships[i].pos)
     local stepX=ships[i].dir=="h" and 1 or 0
@@ -211,18 +211,18 @@ local function drawShipsToGrid(ships,grid)
     end
   end
 end
- 
+
 local function drawShotToGrid(shot,grid)
   grid[shot[1]][shot[2]].shot=true
-  grid[shot[1]][shot[2]].hit=shot[3]  
+  grid[shot[1]][shot[2]].hit=shot[3]
 end
- 
+
 local function makeShot(x,y,grid)
   local tile=grid[x][y]
   if tile.shot==true then
     return nil --already shot here!
-  end  
- 
+  end
+
   local shot={x,y,tile.ship}
   drawShotToGrid(shot,grid)
   if tile.ship then
@@ -232,12 +232,12 @@ local function makeShot(x,y,grid)
     end
   end
   return shot
-end  
-   
- 
+end
+
+
 local function drawTile(scrX,scrY,tile)
   term.setCursorPos(scrX,scrY)
- 
+
   if tile.ship then
     if tile.shot then
       doColor(colors.red,colors.gray)
@@ -259,31 +259,31 @@ local function drawTile(scrX,scrY,tile)
     end
   end
 end
- 
+
 local function drawGrid(scrX,scrY,grid)
   doColor(colors.white,colors.black)
   term.setCursorPos(scrX,scrY+1)
   term.write(" ")
-  doColor(colors.white,colors.gray)  
+  doColor(colors.white,colors.gray)
   term.setCursorPos(scrX,scrY)
   local pad=11-#grid.title
   term.write(string.rep(" ",math.ceil(pad/2))..grid.title..string.rep(" ",math.floor(pad/2)))
- 
+
   for gx=1,10 do
     term.setTextColor(colors.white)
     term.setBackgroundColor(colors.black)
     term.setCursorPos(scrX+gx,scrY+1)
     term.write(gx==10 and "0" or string.char(string.byte("0")+gx))
-   
+
     term.setCursorPos(scrX,scrY+gx+1)
     term.write(string.char(string.byte("A")+gx-1))
     for gy=1,10 do
-      drawTile(scrX+gx,scrY+gy+1,grid[gx][gy])      
+      drawTile(scrX+gx,scrY+gy+1,grid[gx][gy])
     end
   end
   doColor(colors.white,colors.black)
 end
- 
+
 function moveTargetIndicator(newX,newY)
   --if x has changed...
   if targetX and targetY then
@@ -303,8 +303,8 @@ function moveTargetIndicator(newX,newY)
     term.write("^")
     term.setCursorPos(targetGridBounds.minX+newX-1,targetGridBounds.minY-3)
     term.write("v")
-   
-    targetX=newX    
+
+    targetX=newX
   end
   if newY~=targetY then
     --space over old
@@ -319,11 +319,11 @@ function moveTargetIndicator(newX,newY)
     term.write("<")
     term.setCursorPos(targetGridBounds.minX-2,targetGridBounds.minY+newY-1)
     term.write(">")
-   
+
     targetY=newY
   end
   term.setCursorPos(15,15)
-  term.write("Target : "..toGridRef(targetX,targetY))  
+  term.write("Target : "..toGridRef(targetX,targetY))
   --if the target tile is a valid target, draw a "+"
   if not oppGrid[targetX][targetY].shot then
     term.setCursorPos(targetX+targetGridBounds.minX-1,targetY+targetGridBounds.minY-1)
@@ -331,18 +331,18 @@ function moveTargetIndicator(newX,newY)
     term.write("+")
   end
 end
- 
+
 local log={}
- 
+
 local termWidth,termHeight=term.getSize()
- 
+
 local logHeight=termHeight-3
 local logWidth=termWidth-28
- 
+
 for i=1,logHeight do
   log[i]=""
 end
- 
+
 local function printLog()
   doColor(colors.white,colors.black)
   for i=1,logHeight do
@@ -358,9 +358,9 @@ local function printLog()
     end
   end
 end
- 
- 
- 
+
+
+
 --shipX/Y are the position of ship on grid; gridX/Y are the offset of the top-left of grid
 local function drawShip(size,align,x,y,char)
   local stepX=align=="h" and 1 or 0
@@ -371,31 +371,31 @@ local function drawShip(size,align,x,y,char)
     x,y=x+stepX,y+stepY
   end
 end
- 
+
 local function setStatusLine(lineNum,text)
   doScreenColor()
   local pad=math.floor((termWidth-#text)/2)
   term.setCursorPos(1,16+lineNum)
   term.write((" "):rep(pad)..text..(" "):rep(termWidth-#text-pad))
 end
- 
- 
+
+
 doScreenColor()
 term.clear()
- 
+
 drawGrid(2,2,myGrid)
- 
+
 setStatusLine(1,"Started game with "..opponent.." at computer #"..(opponentID or "nil"))
- 
+
 local function getShipBounds(ship)
   return {
      minX=ship.pos[1],
      minY=ship.pos[2],
      maxX=ship.pos[1]+(ship.dir=="h" and ship.size-1 or 0),
      maxY=ship.pos[2]+(ship.dir=="v" and ship.size-1 or 0)
-   }    
+   }
 end
- 
+
 local function getPointBounds(x,y)
   return {
     minX=x,
@@ -404,20 +404,20 @@ local function getPointBounds(x,y)
     maxY=y,
   }
 end
- 
+
 local function boundsIntersect(boundsA,boundsB)
   return not (
       boundsA.minX>boundsB.maxX or
       boundsA.maxX<boundsB.minX or
       boundsA.minY>boundsB.maxY or
       boundsA.maxY<boundsB.minY
-    )    
+    )
 end
- 
- 
+
+
 local function checkShipCollision(shipIndex)
   local myBounds=getShipBounds(ships[shipIndex])
-  for i=1,#ships do        
+  for i=1,#ships do
     if i~=shipIndex and ships[i].pos then
       if boundsIntersect(myBounds,getShipBounds(ships[i])) then
         return i
@@ -426,9 +426,9 @@ local function checkShipCollision(shipIndex)
   end
   return 0
 end
- 
- 
- 
+
+
+
 local function randomizeShips()
   for i=1,5 do
     ships[i].pos=nil
@@ -447,10 +447,10 @@ local function randomizeShips()
       ship.dir=dir
     until checkShipCollision(i)==0
   end
-end    
- 
- 
- 
+end
+
+
+
 local function shipPlacement()
   local selection=1
   local collidesWith=0
@@ -458,7 +458,7 @@ local function shipPlacement()
   local moveShip=nil
   local clickedOn=nil
   local clickedAt=nil
- 
+
   doScreenColor()
   term.setCursorPos(28,3)
   write("use arrows to move ship")
@@ -480,7 +480,7 @@ local function shipPlacement()
   write('"f" when finished')
   randomizeShips()
   setStatusLine(1,"Arrange your ships on the grid")
- 
+
   while true do
     --local placed=0
     --draw sea
@@ -502,7 +502,7 @@ local function shipPlacement()
         end
       end
     end
- 
+
     local event,p1,p2,p3=os.pullEvent()
     if event=="key" then
       if not dragging then
@@ -533,14 +533,14 @@ local function shipPlacement()
           end
         elseif p1==keys.r then
           randomizeShips();
-        end          
+        end
       end
     elseif event=="mouse_click" then
       clickedOn=nil
       --click event! figure out what we clicked on
       local clickBounds=getPointBounds(p2,p3)
       local clickGridBounds=getPointBounds(p2-2,p3-3)
- 
+
       for i=1,#ships do
         if ships[i].pos and boundsIntersect(clickGridBounds,getShipBounds(ships[i])) and
            (collidesWith==0 or collidesWith==i or i==selection) then
@@ -554,7 +554,7 @@ local function shipPlacement()
           clickedOffset={p2-2-ships[i].pos[1],p3-3-ships[i].pos[2]}
           selection=i
           break
-        --[[else        
+        --[[else
           local labelBounds={minX=15,maxX=24,minY=2*i,maxY=1+2*i}
           if boundsIntersect(clickBounds,labelBounds) and
              (collidesWith==0 or collidesWith==i or i==selection) then
@@ -583,20 +583,20 @@ local function shipPlacement()
         --can't drag from a right-click!
         clickedOn=nil
         if ships[selection].dir=="h" then
-          ships[selection].dir="v"          
+          ships[selection].dir="v"
           moveShip={p2-2-ships[selection].pos[1],-(p2-2-ships[selection].pos[1])}
-        else          
-          ships[selection].dir="h"          
+        else
+          ships[selection].dir="h"
           moveShip={p3-3-(ships[selection].pos[2]+ships[selection].size-1),p3-3-(ships[selection].pos[2])}
         end
       end
-    elseif event=="mouse_drag" and clickedOn~=nil then      
+    elseif event=="mouse_drag" and clickedOn~=nil then
       --mode="place"
       moveShip={
          p2-2-clickedOffset[1]-ships[selection].pos[1],
-         p3-3-clickedOffset[2]-ships[selection].pos[2]}      
+         p3-3-clickedOffset[2]-ships[selection].pos[2]}
     end
- 
+
     if moveShip then
       local curShip=ships[selection]
       --calc position limits based on ship size and alignment
@@ -610,15 +610,15 @@ local function shipPlacement()
       --place the ship
       ships[selection].pos=newPos
       --check for collisions with other ships
- 
+
       collidesWith=checkShipCollision(selection)
       moveShip=nil
     end
   end
 end
- 
+
 local function displayGameHelp()
-  doScreenColor()  
+  doScreenColor()
   term.setCursorPos(28,3)
   write("arrows to move cursor")
   term.setCursorPos(28,4)
@@ -626,27 +626,27 @@ local function displayGameHelp()
   if term.isColor() then
     term.setCursorPos(28,6)
     write("click on grid to fire")
-  end  
+  end
 end
- 
+
 local function hideHelpArea()
-  doScreenColor()  
+  doScreenColor()
   for y=3,13 do
     term.setCursorPos(28,y)
     write(string.rep(" ",32))
   end
 end
- 
- 
+
+
 local function runGame()
- 
+
   --first, ship placement phase!!
   shipPlacement()
- 
+
   hideHelpArea()
- 
+
   --hide the old help, draw the new
- 
+
   --tell the other guy we're done
   rednet.send(opponentID,"bs ready")
   if not opponentReady then
@@ -655,17 +655,17 @@ local function runGame()
       os.pullEvent()
     end
   end
- 
+
   --now, play the game
   --draw my final ship positions intto the grid
   drawShipsToGrid(ships,myGrid)
- 
- 
+
+
   --if I'm host, flip a coin
   if action=="host" then
     math.randomseed(os.time())
     myTurn=math.floor(100*math.random())%2==0
-    rednet.send(opponentID,"bs cointoss "..tostring(not myTurn))      
+    rednet.send(opponentID,"bs cointoss "..tostring(not myTurn))
     if myTurn then
       setStatusLine(2,"Your turn, take your shot!")
     else
@@ -678,15 +678,15 @@ local function runGame()
       os.pullEvent()
     end
   end
- 
- 
+
+
   setStatusLine(1,"")
   if myTurn then
     --I won, I go first
     displayGameHelp()
   end
- 
-  --draw a target grid  
+
+  --draw a target grid
   drawGrid(2,2,myGrid)
   drawGrid(15,2,oppGrid)
   --initialize target indicators
@@ -719,7 +719,7 @@ local function runGame()
         elseif p1>="0" and p1<="9" then
           local t=string.byte(p1)-string.byte("0")
           if t==0 then t=10 end
-          moveTargetIndicator(t,targetY)          
+          moveTargetIndicator(t,targetY)
         end
       elseif e=="key" then
         if p1==keys.enter or p1==keys.space and targetX and targetY then
@@ -736,7 +736,7 @@ local function runGame()
           moveTargetIndicator(math.max(targetX-1,1),targetY)
         elseif p1==keys.right then
           moveTargetIndicator(math.min(targetX+1,10),targetY)
-        end        
+        end
       end
     end
     --shot sent, wait for my turn to resolve (top coroutine will switch turns and draw the hit to the grid)
@@ -746,12 +746,12 @@ local function runGame()
     end
   end
 end
- 
+
 local gameRoutine=coroutine.create(runGame)
 --if advanced terminal, default focus to chat, can play with mouse
 local inChat=term.isColor()
 local savedCursorPos={7,19}
- 
+
 --redirect just to block scroll
 local redir={}
 for k,v in pairs(originalTerm) do
@@ -762,12 +762,12 @@ for k,v in pairs(originalTerm) do
   end
 end
 originalTerm = term.redirect(redir)
- 
+
 --run the game routine once
 coroutine.resume(gameRoutine)
 --hide cursor
 term.setCursorBlink(false)
- 
+
 while true do
   local e,p1,p2,p3,p4,p5=os.pullEventRaw()
   if e=="terminate" then
@@ -791,7 +791,7 @@ while true do
       opponentReady=true
       os.queueEvent("kickcoroutine")
     elseif cmd=="cointoss" then
-      myTurn=args=="true"      
+      myTurn=args=="true"
       if myTurn then
         setStatusLine(2,"Your turn, take your shot!")
       else
@@ -807,11 +807,11 @@ while true do
         local tile=myGrid[tx][ty]
         local shot=makeShot(tx,ty,myGrid)
         rednet.send(opponentID,"bs result "..(shot[3] and "hit" or "miss"))
-        drawTile(2+tx,3+ty,tile)        
+        drawTile(2+tx,3+ty,tile)
         myTurn=true
         os.queueEvent("kickcoroutine")
         displayGameHelp()
-        setStatusLine(1,opponent.." fired at "..toGridRef(tx,ty).." and "..(shot[3] and "hit" or "missed"))        
+        setStatusLine(1,opponent.." fired at "..toGridRef(tx,ty).." and "..(shot[3] and "hit" or "missed"))
         setStatusLine(2,"Your turn, take your shot!")
       end
     elseif cmd=="sink" then
@@ -838,7 +838,7 @@ while true do
         setStatusLine(2,"Waiting for opponent...")
         os.queueEvent("kickcoroutine")
       end
-     
+
     elseif cmd=="win" then
       --we won!
       setStatusLine(3,"You won the game! Congratulations!")
@@ -852,22 +852,22 @@ while true do
       print("game coroutine crashed with the following error: "..err)
       quit()
     end
-     
+
     if coroutine.status(gameRoutine)=="dead" then
       --game over
       break
     end
   end
- 
+
 end
- 
+
 term.setCursorPos(1,19)
 term.clearLine()
 term.write("  Press any key to continue...")
 os.pullEvent("key")
 --if a char event was queued following the key event, this will eat it
 os.sleep(0)
- 
+
 term.setTextColor(colors.white)
 term.setBackgroundColor(colors.black)
 term.clear()

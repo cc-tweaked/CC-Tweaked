@@ -1,6 +1,6 @@
 local tMotd = {}
 
-for sPath in string.gmatch(settings.get( "motd.path" ), "[^:]+") do
+for sPath in string.gmatch(settings.get("motd.path"), "[^:]+") do
     if fs.exists(sPath) then
         for sLine in io.lines(sPath) do
             table.insert(tMotd, sLine)

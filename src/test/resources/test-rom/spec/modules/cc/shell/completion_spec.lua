@@ -22,7 +22,7 @@ describe("cc.shell.completion", function()
             local spec = c.build(
                 function() return { "a", "b", "c" } end,
                 nil,
-                { c.choice, { "d", "e", "f"} }
+                { c.choice, { "d", "e", "f" } }
             )
 
             expect(spec(shell, 1, "")):same { "a", "b", "c" }

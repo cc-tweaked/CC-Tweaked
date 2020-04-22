@@ -27,7 +27,7 @@ public class FileOperationException extends IOException
         this.filename = filename;
     }
 
-    public FileOperationException( String message )
+    public FileOperationException( @Nonnull String message )
     {
         super( Objects.requireNonNull( message, "message cannot be null" ) );
         this.filename = null;

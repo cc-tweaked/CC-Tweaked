@@ -25,7 +25,7 @@ function initializeBuffer(terminal)
 	if not terminal.isColour() then
 		error("Parameter does not represent an advanced computer.")
 	end
-	
+
 	tw,th = terminal.getSize()
 	backbuffer = { }
 	for y=1,th do
@@ -41,8 +41,8 @@ end
 function clearBuffer(colour)
 	if not backbuffer then
 		error("Back buffer not yet initialized!")
-	end	
-	
+	end
+
 	for y=1,#backbuffer do
 		backbuffer[y] = { }
 		if colour then
@@ -60,26 +60,26 @@ end
 function writeToBuffer(entity)
 	if not backbuffer then
 		error("Back buffer not yet initialized!")
-	end	
-	
+	end
+
 	local image = nil
 	if entity.type == "animation" then
 		image = entity.frames[entity.currentFrame]
 	else
 		image = entity.image
 	end
-	
+
 	for y=1,image.dimensions.height do
 		for x=1,image.dimensions.width do
 			if image[y][x] then
 				local xpos,ypos = x,y
 				if entity.mirror.x then xpos = image.dimensions.width - x + 1 end
 				if entity.mirror.y then ypos = image.dimensions.height - y + 1 end
-				
+
 				--If the YPos doesn't exist, no need to loop through the rest of X!
 				--Don't you love optimization?
 				if not backbuffer[entity.y + ypos - 1] then break end
-				
+
 				backbuffer[entity.y + ypos - 1][entity.x + xpos - 1] = image[y][x]
 			end
 		end
@@ -93,7 +93,7 @@ end
 function drawBuffer(terminal)
 	if not backbuffer then
 		error("Back buffer not yet initialized!")
-	end	
+	end
 	if not terminal then terminal = term end
 	if not terminal.setCursorPos or not terminal.setBackgroundColour or not terminal.write then
 		error("Parameter cannot be used to initialize the backbuffer.")
@@ -101,7 +101,7 @@ function drawBuffer(terminal)
 	if not terminal.isColour() then
 		error("Parameter does not represent an advanced computer.")
 	end
-	
+
 	for y=1,math.min(#backbuffer, th) do
 		for x=1,tw do
 			if backbuffer[y][x] then
@@ -167,14 +167,14 @@ end
 ]]--
 local function drawS(self)
 	local image = self.image
-	
+
 	for y=1,image.dimensions.height do
 		for x=1,image.dimensions.width do
 			if image[y][x] then
 				local xpos,ypos = x,y
 				if self.mirror.x then xpos = image.dimensions.width - x + 1 end
 				if self.mirror.y then ypos = image.dimensions.height - y + 1 end
-				
+
 				term.setBackgroundColour(image[y][x])
 				term.setCursorPos(self.x + xpos - 1, self.y + ypos - 1)
 				term.write(" ")
@@ -198,7 +198,7 @@ local function drawA(self, frame)
 				local xpos,ypos = x,y
 				if self.mirror.x then xpos = image.dimensions.width - x + 1 end
 				if self.mirror.y then ypos = image.dimensions.height - y + 1 end
-				
+
 				term.setBackgroundColour(image[y][x])
 				term.setCursorPos(self.x + xpos - 1, self.y + ypos - 1)
 				term.write(" ")
@@ -259,16 +259,16 @@ local function drawBounds(entity, colour)
 	local image = nil
 	if entity.type == "animation" then image = entity.frames[entity.currentFrame]
 	else image = entity.image end
-	
+
 	term.setBackgroundColour(colour)
-	
+
 	corners = {
 		topleft = { x = entity.x + image.bounds.x - 1, y = entity.y + image.bounds.y - 1 };
 		topright = { x = entity.x + image.bounds.x + image.bounds.width - 2, y = entity.y + image.bounds.y - 1 };
 		botleft = { x = entity.x + image.bounds.x - 1, y = entity.y + image.bounds.y + image.bounds.height - 2 };
 		botright = { x = entity.x + image.bounds.x + image.bounds.width - 2, y = entity.y + image.bounds.y + image.bounds.height - 2 };
 	}
-	
+
 	term.setCursorPos(corners.topleft.x, corners.topleft.y)
 	term.write(" ")
 	term.setCursorPos(corners.topright.x, corners.topright.y)
@@ -308,7 +308,7 @@ end
 local function rCollidesWith(self, other)
 	--First we construct the rectangles
 	local img1C, img2C = createRectangle(self), createRectangle(other)
-	
+
 	--We then determine the "relative position" , in terms of which is farther left or right
 	leftmost,rightmost,topmost,botmost = nil,nil,nil,nil
 	if img1C.left < img2C.left then
@@ -325,13 +325,13 @@ local function rCollidesWith(self, other)
 		topmost = img2C
 		botmost = img1C
 	end
-	
+
 	--Then we determine the distance between the "extreme" edges-
 		--distance between leftmost/right edge and rightmost/left edge
 		--distance between topmost/bottom edge and bottommost/top edge
 	local xdist = rightmost.left - leftmost.right
 	local ydist = botmost.top - topmost.bottom
-	
+
 	--If both are negative, our rectangles intersect!
 	return xdist <= 0 and ydist <= 0
 end
@@ -352,13 +352,13 @@ local function pCollidesWith(self, other)
 	else img1 = self.image end
 	if other.type == "animation" then img2 = other.frames[other.currentFrame]
 	else img2 = other.image end
-	
+
 	--...then we position them...
 	leftmost,rightmost,topmost,botmost = nil,nil,nil,nil
 	--We also keep track of which is left and which is right- it doesn't matter in a rectangle
 	--collision but it does in a pixel collision.
 	img1T,img2T = {},{}
-	
+
 	if img1C.left < img2C.left then
 		leftmost = img1C
 		rightmost = img2C
@@ -377,15 +377,15 @@ local function pCollidesWith(self, other)
 		botmost = img1C
 		img2T.top = true
 	end
-	
+
 	--...and we again find the distances between the extreme edges.
 	local xdist = rightmost.left - leftmost.right
 	local ydist = botmost.top - topmost.bottom
-	
+
 	--If these distances are > 0 then we stop- no need to go any farther.
 	if xdist > 0 or ydist > 0 then return false end
-	
-	
+
+
 	for x = rightmost.left, rightmost.left + math.abs(xdist) do
 		for y = botmost.top, botmost.top + math.abs(ydist) do
 			--We know a collision has occurred if a pixel is occupied by both images. We do this by
@@ -398,16 +398,16 @@ local function pCollidesWith(self, other)
 			else testX = x - img1C.left + 1 end
 			if img1T.top then testY = y - img1C.top + 1
 			else testY = y - img1C.top + 1 end
-			
+
 			local occupy1 = img1[testY + img1.bounds.y-1][testX + img1.bounds.x-1] ~= nil
-			
+
 			if img2T.left then testX = x - img2C.left + 1
 			else testX = x - img2C.left + 1 end
 			if img2T.top then testY = y - img2C.top + 1
 			else testY = y - img2C.top + 1 end
-			
+
 			local occupy2 = img2[testY + img2.bounds.y-1][testX + img2.bounds.x-1] ~= nil
-			
+
 			if occupy1 and occupy2 then return true end
 		end
 	end
@@ -429,7 +429,7 @@ local function moveTo(self, x, y)
 	else
 		image = self.image
 	end
-	
+
 	self.x = x - image.bounds.x + 1
 	self.y = y - image.bounds.y + 1
 end
@@ -448,7 +448,7 @@ image:table = a table of the image. Indexed by height, a series of sub-tables, e
 	dimensions:table =
 		width = the width of the entire image in pixels
 		height = the height of the entire image in pixels
-		
+
 mirror:table =
 	x:bool = whether or not the image is mirrored on the X axis
 	y:bool = whether or not the image is mirrored on the Y axis
@@ -464,19 +464,19 @@ draw:function = see drawS (above)
 	y:number = the initial Y position of the sprite
 ]]--
 function loadSprite(path, x, y)
-	local sprite = { 
+	local sprite = {
 		type = "sprite",
 		x = x,
 		y = y,
 		image = { },
 		mirror = { x = false, y = false }
 	}
-	
+
 	if fs.exists(path) then
 		local file = io.open(path, "r" )
 		local leftX, rightX = math.huge, 0
 		local topY, botY = nil,nil
-		
+
 		local lcount = 0
 		for line in file:lines() do
 			lcount = lcount+1
@@ -492,7 +492,7 @@ function loadSprite(path, x, y)
 			end
 		end
 		file:close()
-		
+
 		sprite.image.bounds = {
 			x = leftX,
 			width = rightX - leftX + 1,
@@ -503,10 +503,10 @@ function loadSprite(path, x, y)
 			width = rightX,
 			height = botY
 		}
-		
+
 		sprite.x = sprite.x - leftX + 1
 		sprite.y = sprite.y - topY + 1
-		
+
 		sprite.repaint = repaintS
 		sprite.rCollidesWith = rCollidesWith
 		sprite.pCollidesWith = pCollidesWith
@@ -536,13 +536,13 @@ function loadAnimation(path, x, y, currentFrame)
 		mirror = { x = false, y = false },
 		currentFrame = currentFrame
 	}
-	
+
 	table.insert(anim.frames, { })
 	if fs.exists(path) then
 		local file = io.open(path, "r")
 		local leftX, rightX = math.huge, 0
 		local topY, botY = nil,nil
-		
+
 		local lcount = 0
 		for line in file:lines() do
 			lcount = lcount+1
@@ -589,17 +589,17 @@ function loadAnimation(path, x, y, currentFrame)
 		}
 		anim.x = anim.x - leftX + 1
 		anim.y = anim.y - topY + 1
-		
-		if not currentFrame or type(currentFrame) ~= "number" or currentFrame < 1 or 
-				currentFrame > #anim.frames then 
-			anim.currentFrame = 1 
+
+		if not currentFrame or type(currentFrame) ~= "number" or currentFrame < 1 or
+				currentFrame > #anim.frames then
+			anim.currentFrame = 1
 		end
-	
+
 		anim.timerID = nil
 		anim.lowerBound = 1
 		anim.upperBound = #anim.frames
 		anim.updating = false
-	
+
 		anim.repaint = repaintA
 		anim.rCollidesWith = rCollidesWith
 		anim.pCollidesWith = pCollidesWith

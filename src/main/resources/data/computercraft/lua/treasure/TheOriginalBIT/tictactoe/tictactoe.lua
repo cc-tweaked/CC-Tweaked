@@ -124,7 +124,7 @@ end
 local function getAIMove()
   -- make it seem like the computer actually has to think about its move
   sleep(0.8)
-  
+
   -- check if AI can win and return the 3rd tile to create a win, if it cannot, check for a human attempt at winning and stop it, if there is none, return a random
   return (search(currentPlayer) or search(opposites[currentPlayer])) or math.random(1,9)
 end
@@ -177,7 +177,7 @@ local function modread( _mask, _history, _limit )
         redraw(' ')
         if event[2] == keys.up then
           if not historyPos then
-            historyPos = #_history 
+            historyPos = #_history
           elseif historyPos > 1 then
             historyPos = historyPos - 1
           end
@@ -308,14 +308,14 @@ local function render()
   writeAt('+'..string.rep('-', sw-2)..'+', 1, 3)
   writeAt('+'..string.rep('-', sw-2)..'+', 1, sh-2)
   writeAt('+'..string.rep('-', sw-2)..'+', 1, sh)
-  
+
   if term.isColor and term.isColor() then
     term.setCursorPos(sw, 1)
     term.setBackgroundColor(colors.red)
     term.setTextColor(colors.black)
     writeWithFormat('X')
   end
-  
+
   -- set our colours
   term.setBackgroundColor(colors.white)
   term.setTextColor(colors.black)
@@ -359,7 +359,7 @@ local function render()
       writeAt((board[i + 6] == 'x' and '/\\' or '\\/'), 18+((i-1)*7), 14)
     end
   end
-  
+
   -- draw the current player
   term.setCursorPos(3, sh - 3)
   if not winner then

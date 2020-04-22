@@ -97,7 +97,7 @@ end
 --     complete.build(
 --       { complete.choice, { "get", "put" } },
 --       complete.dir,
---       } complete.file, many = true }
+--       { complete.file, many = true }
 --     )
 local function build(...)
     local arguments = table.pack(...)

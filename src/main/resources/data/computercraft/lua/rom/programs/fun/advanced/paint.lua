@@ -32,7 +32,7 @@ if not term.isColour() then
 end
 
 -- Determines if the file exists, and can be edited on this computer
-local tArgs = {...}
+local tArgs = { ... }
 if #tArgs == 0 then
     print("Usage: paint <path>")
     return
@@ -45,9 +45,9 @@ if fs.exists(sPath) and fs.isDir(sPath) then
 end
 
 -- Create .nfp files by default
-if not fs.exists( sPath ) and not string.find( sPath, "%." ) then
-    local sExtension = settings.get("paint.default_extension", "" )
-    if sExtension ~= "" and type( sExtension ) == "string" then
+if not fs.exists(sPath) and not string.find(sPath, "%.") then
+    local sExtension = settings.get("paint.default_extension", "")
+    if sExtension ~= "" and type(sExtension) == "string" then
         sPath = sPath .. "." .. sExtension
     end
 end
@@ -57,7 +57,7 @@ end
 -- Functions --
 ---------------
 
-local function getCanvasPixel( x, y )
+local function getCanvasPixel(x, y)
     if canvas[y] then
         return canvas[y][x]
     end
@@ -69,12 +69,12 @@ end
     params: colour = the number to convert to a hex value
     returns: a string representing the chosen colour
 ]]
-local function getCharOf( colour )
+local function getCharOf(colour)
     -- Incorrect values always convert to nil
     if type(colour) == "number" then
-        local value = math.floor( math.log(colour) / math.log(2) ) + 1
+        local value = math.floor(math.log(colour) / math.log(2)) + 1
         if value >= 1 and value <= 16 then
-            return string.sub( "0123456789abcdef", value, value )
+            return string.sub("0123456789abcdef", value, value)
         end
     end
     return " "
@@ -87,9 +87,9 @@ end
 ]]
 local tColourLookup = {}
 for n = 1, 16 do
-    tColourLookup[ string.byte( "0123456789abcdef", n, n ) ] = 2 ^ (n - 1)
+    tColourLookup[string.byte("0123456789abcdef", n, n)] = 2 ^ (n - 1)
 end
-local function getColourOf( char )
+local function getColourOf(char)
     -- Values not in the hex table are transparent (canvas coloured)
     return tColourLookup[char]
 end
@@ -107,9 +107,9 @@ local function load(path)
         while sLine do
             local line = {}
             for x = 1, w - 2 do
-                line[x] = getColourOf( string.byte(sLine, x, x) )
+                line[x] = getColourOf(string.byte(sLine, x, x))
             end
-            table.insert( canvas, line )
+            table.insert(canvas, line)
             sLine = file.readLine()
         end
         file.close()
@@ -128,7 +128,7 @@ local function save(path)
         fs.makeDir(sDir)
     end
 
-    local file, err = fs.open( path, "w" )
+    local file, err = fs.open(path, "w")
     if not file then
         return false, err
     end
@@ -140,13 +140,13 @@ local function save(path)
         local sLine = ""
         local nLastChar = 0
         for x = 1, w - 2 do
-            local c = getCharOf( getCanvasPixel( x, y ) )
+            local c = getCharOf(getCanvasPixel(x, y))
             sLine = sLine .. c
             if c ~= " " then
                 nLastChar = x
             end
         end
-        sLine = string.sub( sLine, 1, nLastChar )
+        sLine = string.sub(sLine, 1, nLastChar)
         tLines[y] = sLine
         if #sLine > 0 then
             nLastLine = y
@@ -155,7 +155,7 @@ local function save(path)
 
     -- Save out
     for n = 1, nLastLine do
-           file.writeLine( tLines[ n ] )
+           file.writeLine(tLines[n])
     end
     file.close()
     return true
@@ -176,38 +176,38 @@ local function drawInterface()
     -- Colour Picker
     for i = 1, 16 do
         term.setCursorPos(w - 1, i)
-        term.setBackgroundColour( 2 ^ (i - 1) )
+        term.setBackgroundColour(2 ^ (i - 1))
         term.write("  ")
     end
 
     term.setCursorPos(w - 1, 17)
-    term.setBackgroundColour( canvasColour )
-    term.setTextColour( colours.grey )
+    term.setBackgroundColour(canvasColour)
+    term.setTextColour(colours.grey)
     term.write("\127\127")
 
     -- Left and Right Selected Colours
     do
         term.setCursorPos(w - 1, 18)
         if leftColour ~= nil then
-            term.setBackgroundColour( leftColour )
+            term.setBackgroundColour(leftColour)
             term.write(" ")
         else
-            term.setBackgroundColour( canvasColour )
-            term.setTextColour( colours.grey )
+            term.setBackgroundColour(canvasColour)
+            term.setTextColour(colours.grey)
             term.write("\127")
         end
         if rightColour ~= nil then
-            term.setBackgroundColour( rightColour )
+            term.setBackgroundColour(rightColour)
             term.write(" ")
         else
-            term.setBackgroundColour( canvasColour )
-            term.setTextColour( colours.grey )
+            term.setBackgroundColour(canvasColour)
+            term.setTextColour(colours.grey)
             term.write("\127")
         end
     end
 
     -- Padding
-    term.setBackgroundColour( canvasColour )
+    term.setBackgroundColour(canvasColour)
     for i = 20, h - 1 do
         term.setCursorPos(w - 1, i)
         term.write("  ")
@@ -218,15 +218,15 @@ end
     Converts a single pixel of a single line of the canvas and draws it
     returns: nil
 ]]
-local function drawCanvasPixel( x, y )
-    local pixel = getCanvasPixel( x, y )
+local function drawCanvasPixel(x, y)
+    local pixel = getCanvasPixel(x, y)
     if pixel then
-        term.setBackgroundColour( pixel or canvasColour )
+        term.setBackgroundColour(pixel or canvasColour)
         term.setCursorPos(x, y)
         term.write(" ")
     else
-        term.setBackgroundColour( canvasColour )
-        term.setTextColour( colours.grey )
+        term.setBackgroundColour(canvasColour)
+        term.setTextColour(colours.grey)
         term.setCursorPos(x, y)
         term.write("\127")
     end
@@ -236,9 +236,9 @@ end
     Converts each colour in a single line of the canvas and draws it
     returns: nil
 ]]
-local function drawCanvasLine( y )
+local function drawCanvasLine(y)
     for x = 1, w - 2 do
-        drawCanvasPixel( x, y )
+        drawCanvasPixel(x, y)
     end
 end
 
@@ -248,7 +248,7 @@ end
 ]]
 local function drawCanvas()
     for y = 1, h - 1 do
-        drawCanvasLine( y )
+        drawCanvasLine(y)
     end
 end
 
@@ -377,7 +377,7 @@ local function handleEvents()
                 end
                 canvas[p3][p2] = paintColour
 
-                drawCanvasPixel( p2, p3 )
+                drawCanvasPixel(p2, p3)
             end
         elseif id == "key" then
             if p1 == keys.leftCtrl or p1 == keys.rightCtrl then

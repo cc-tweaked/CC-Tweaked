@@ -13,7 +13,7 @@
 --
 -- @tparam string func The function's name
 -- @tparam int    idx  The argument index to this function
--- @tparam string ty   The type this argument should have. May be 'value' for 
+-- @tparam string ty   The type this argument should have. May be 'value' for
 --                     any non-nil value.
 -- @param val     val  The value to check
 -- @throws If this value doesn't match the expected type.
@@ -224,7 +224,7 @@ expect_mt.ne = expect_mt.not_equals
 function expect_mt:type(exp_type)
     local actual_type = type(self.value)
     if exp_type ~= actual_type then
-        fail(("Expected value of type %s\n                   got %s"):format(exp_type, actual_type))
+        fail(("Expected value of type %s\nbut got %s"):format(exp_type, actual_type))
     end
 
     return self
@@ -238,8 +238,8 @@ local function matches(eq, exact, left, right)
 
     -- If we've already explored/are exploring the left and right then return
     if eq[left] and eq[left][right] then return true end
-    if not eq[left]  then eq[left] = {[right] = true} else eq[left][right] = true end
-    if not eq[right] then eq[right] = {[left] = true} else eq[right][left] = true end
+    if not eq[left]  then eq[left] = { [right] = true } else eq[left][right] = true end
+    if not eq[right] then eq[right] = { [left] = true } else eq[right][left] = true end
 
     -- Verify all pairs in left are equal to those in right
     for k, v in pairs(left) do
@@ -273,7 +273,7 @@ end
 -- @throws If they are not equivalent
 function expect_mt:same(value)
     if not matches({}, true, self.value, value) then
-        fail(("Expected %s\n but got %s"):format(format(value), format(self.value)))
+        fail(("Expected %s\nbut got %s"):format(format(value), format(self.value)))
     end
 
     return self
@@ -356,32 +356,49 @@ function expect_mt:called_with_matching(...)
     return called_with_check(matches, self, ...)
 end
 
-local expect = setmetatable( {
-    --- Construct an expectation on the error message calling this function
-    -- produces
-    --
-    -- @tparam fun The function to call
-    -- @param ... The function arguments
-    -- @return The new expectation
-    error = function(fun, ...)
-        local ok, res = pcall(fun, ...) local _, line = pcall(error, "", 2)
-        if ok then fail("expected function to error") end
-        if res:sub(1, #line) == line then
-            res = res:sub(#line + 1)
-        elseif res:sub(1, 7) == "pcall: " then
-            res = res:sub(8)
-        end
-        return setmetatable({ value = res }, expect_mt)
-    end,
-}, {
-    --- Construct a new expectation from the provided value
-    --
-    -- @param value The value to apply assertions to
-    -- @return The new expectation
-    __call = function(_, value)
-        return setmetatable({ value = value }, expect_mt)
-    end,
-})
+--- Assert that this expectation matches a Lua pattern
+--
+-- @tparam string pattern The pattern to match against
+-- @throws If it does not match this pattern.
+function expect_mt:str_match(pattern)
+    local actual_type = type(self.value)
+    if actual_type ~= "string" then
+        fail(("Expected value of type string\nbut got %s"):format(actual_type))
+    end
+    if not self.value:find(pattern) then
+        fail(("Expected %q\n to match pattern %q"):format(self.value, pattern))
+    end
+
+    return self
+end
+
+local expect = {}
+setmetatable(expect, expect)
+
+--- Construct an expectation on the error message calling this function
+-- produces
+--
+-- @tparam fun The function to call
+-- @param ... The function arguments
+-- @return The new expectation
+function expect.error(fun, ...)
+    local ok, res = pcall(fun, ...) local _, line = pcall(error, "", 2)
+    if ok then fail("expected function to error") end
+    if res:sub(1, #line) == line then
+        res = res:sub(#line + 1)
+    elseif res:sub(1, 7) == "pcall: " then
+        res = res:sub(8)
+    end
+    return setmetatable({ value = res }, expect_mt)
+end
+
+--- Construct a new expectation from the provided value
+--
+-- @param value The value to apply assertions to
+-- @return The new expectation
+function expect:__call(value)
+    return setmetatable({ value = value }, expect_mt)
+end
 
 --- The stack of "describe"s.
 local test_stack = { n = 0 }
@@ -390,7 +407,8 @@ local test_stack = { n = 0 }
 local tests_locked = false
 
 --- The list of tests that we'll run
-local test_list, test_map, test_count = { }, { }, 0
+local test_list = {}
+local test_map, test_count = {}, 0
 
 --- Add a new test to our queue.
 --

@@ -5,28 +5,17 @@
  */
 package dan200.computercraft.client.gui.widgets;
 
-import com.mojang.blaze3d.platform.GlStateManager;
-import dan200.computercraft.client.FrameInfo;
 import dan200.computercraft.client.gui.FixedWidthFontRenderer;
 import dan200.computercraft.core.terminal.Terminal;
-import dan200.computercraft.core.terminal.TextBuffer;
 import dan200.computercraft.shared.computer.core.ClientComputer;
 import dan200.computercraft.shared.computer.core.IComputer;
-import dan200.computercraft.shared.util.Colour;
-import dan200.computercraft.shared.util.Palette;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.IGuiEventListener;
-import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.SharedConstants;
 import org.lwjgl.glfw.GLFW;
-import org.lwjgl.opengl.GL11;
 
 import java.util.BitSet;
 import java.util.function.Supplier;
-
-import static dan200.computercraft.client.gui.FixedWidthFontRenderer.BACKGROUND;
 
 public class WidgetTerminal implements IGuiEventListener
 {
@@ -329,89 +318,19 @@ public class WidgetTerminal implements IGuiEventListener
             Terminal terminal = computer != null ? computer.getTerminal() : null;
             if( terminal != null )
             {
-                // Draw the terminal
-                boolean greyscale = !computer.isColour();
-                Palette palette = terminal.getPalette();
-
-                // Get the data from the terminal first
-                // Unfortunately we have to keep the lock for the whole of drawing, so the text doesn't change under us.
-                FixedWidthFontRenderer fontRenderer = FixedWidthFontRenderer.instance();
-                boolean tblink = terminal.getCursorBlink() && FrameInfo.getGlobalCursorBlink();
-                int tw = terminal.getWidth();
-                int th = terminal.getHeight();
-                int tx = terminal.getCursorX();
-                int ty = terminal.getCursorY();
-
-                // Draw margins
-                TextBuffer emptyLine = new TextBuffer( ' ', tw );
-                if( topMargin > 0 )
-                {
-                    fontRenderer.drawString( emptyLine, originX, originY - topMargin,
-                        terminal.getTextColourLine( 0 ), terminal.getBackgroundColourLine( 0 ),
-                        leftMargin, rightMargin, greyscale, palette );
-                }
-
-                if( bottomMargin > 0 )
-                {
-                    fontRenderer.drawString( emptyLine, originX, originY + bottomMargin + (th - 1) * FixedWidthFontRenderer.FONT_HEIGHT,
-                        terminal.getTextColourLine( th - 1 ), terminal.getBackgroundColourLine( th - 1 ),
-                        leftMargin, rightMargin, greyscale, palette );
-                }
-
-                // Draw lines
-                int y = originY;
-                for( int line = 0; line < th; line++ )
-                {
-                    TextBuffer text = terminal.getLine( line );
-                    TextBuffer colour = terminal.getTextColourLine( line );
-                    TextBuffer backgroundColour = terminal.getBackgroundColourLine( line );
-                    fontRenderer.drawString( text, originX, y, colour, backgroundColour, leftMargin, rightMargin, greyscale, palette );
-                    y += FixedWidthFontRenderer.FONT_HEIGHT;
-                }
-
-                if( tblink && tx >= 0 && ty >= 0 && tx < tw && ty < th )
-                {
-                    TextBuffer cursor = new TextBuffer( '_', 1 );
-                    TextBuffer cursorColour = new TextBuffer( "0123456789abcdef".charAt( terminal.getTextColour() ), 1 );
-
-                    fontRenderer.drawString(
-                        cursor,
-                        originX + FixedWidthFontRenderer.FONT_WIDTH * tx,
-                        originY + FixedWidthFontRenderer.FONT_HEIGHT * ty,
-                        cursorColour, null,
-                        0, 0,
-                        greyscale,
-                        palette
-                    );
-                }
+                FixedWidthFontRenderer.drawTerminal(
+                    originX, originY,
+                    terminal, !computer.isColour(), topMargin, bottomMargin, leftMargin, rightMargin
+                );
             }
             else
             {
-                // Draw a black background
-                Colour black = Colour.Black;
-                GlStateManager.color4f( black.getR(), black.getG(), black.getB(), 1.0f );
-                try
-                {
-                    int x = originX - leftMargin;
-                    int y = originY - rightMargin;
-                    int width = termWidth * FixedWidthFontRenderer.FONT_WIDTH + leftMargin + rightMargin;
-                    int height = termHeight * FixedWidthFontRenderer.FONT_HEIGHT + topMargin + bottomMargin;
+                int x = originX - leftMargin;
+                int y = originY - rightMargin;
+                int width = termWidth * FixedWidthFontRenderer.FONT_WIDTH + leftMargin + rightMargin;
+                int height = termHeight * FixedWidthFontRenderer.FONT_HEIGHT + topMargin + bottomMargin;
 
-                    client.getTextureManager().bindTexture( BACKGROUND );
-
-                    Tessellator tesslector = Tessellator.getInstance();
-                    BufferBuilder buffer = tesslector.getBuffer();
-                    buffer.begin( GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX );
-                    buffer.pos( x, y + height, 0 ).tex( 0 / 256.0, height / 256.0 ).endVertex();
-                    buffer.pos( x + width, y + height, 0 ).tex( width / 256.0, height / 256.0 ).endVertex();
-                    buffer.pos( x + width, y, 0 ).tex( width / 256.0, 0 / 256.0 ).endVertex();
-                    buffer.pos( x, y, 0 ).tex( 0 / 256.0, 0 / 256.0 ).endVertex();
-                    tesslector.draw();
-                }
-                finally
-                {
-                    GlStateManager.color4f( 1.0f, 1.0f, 1.0f, 1.0f );
-                }
+                FixedWidthFontRenderer.drawEmptyTerminal( x, y, width, height );
             }
         }
     }

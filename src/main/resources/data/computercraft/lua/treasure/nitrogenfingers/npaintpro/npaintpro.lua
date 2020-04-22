@@ -68,7 +68,7 @@ local px,py,pz,pfx,pfz = 0,0,0,0,0
 --The form of layering used
 local layering = "up"
 
---The animation state of the selection rectangle and image buffer 
+--The animation state of the selection rectangle and image buffer
 local rectblink = 0
 --The ID for the timer
 local recttimer = nil
@@ -268,7 +268,7 @@ local helpTopics = {
 		message = "Clicking on the mode display at the bottom of the screen will open the options menu. Here you can"..
 		" activate all of the modes in the program with a simple mouse click. Pressing left control will open up the"..
 		" file menu automatically.",
-		controls = { 
+		controls = {
 			{ "leftCtrl", "Opens the file menu" },
 			{ "leftAlt", "Opens the paint menu" }
 		}
@@ -317,8 +317,8 @@ local toplim,botlim,leflim,riglim = nil,nil,nil,nil
 --The selected path
 local sPath = nil
 
---[[  
-			Section:  Helpers  		
+--[[
+			Section:  Helpers
 ]]--
 
 --[[Converts a colour parameter into a single-digit hex coordinate for the colour
@@ -326,12 +326,12 @@ local sPath = nil
 	Returns:string A string conversion of the colour
 ]]--
 local function getHexOf(colour)
-	if not colour or not tonumber(colour) then 
-		return " " 
+	if not colour or not tonumber(colour) then
+		return " "
 	end
 	local value = math.log(colour)/math.log(2)
-	if value > 9 then 
-		value = hexnums[value] 
+	if value > 9 then
+		value = hexnums[value]
 	end
 	return value
 end
@@ -355,7 +355,7 @@ end
 local function updateImageLims(forAllFrames)
 	local f,l = sFrame,sFrame
 	if forAllFrames == true then f,l = 1,framecount end
-	
+
 	toplim,botlim,leflim,riglim = nil,nil,nil,nil
 	for locf = f,l do
 		for y,_ in pairs(frames[locf]) do
@@ -371,7 +371,7 @@ local function updateImageLims(forAllFrames)
 			end
 		end
 	end
-	
+
 	--There is just... no easier way to do this. It's horrible, but necessary
 	if textEnabled then
 		for locf = f,l do
@@ -406,19 +406,19 @@ end
 function calculateMaterials()
 	updateImageLims(animated)
 	requiredMaterials = {}
-	for i=1,16 do 
-		requiredMaterials[i] = 0 
+	for i=1,16 do
+		requiredMaterials[i] = 0
 	end
-	
+
 	if not toplim then return end
-	
+
 	for i=1,#frames do
 		for y = toplim, botlim do
 			for x = leflim, riglim do
 				if type(frames[i][y][x]) == "number" then
 					requiredMaterials[math.log(frames[i][y][x],10)/math.log(2,10) + 1] =
 						requiredMaterials[math.log(frames[i][y][x],10)/math.log(2,10) + 1] + 1
-				end	
+				end
 			end
 		end
 	end
@@ -455,16 +455,16 @@ end
 local function rsTimeReceive(timeout)
 	local timerID
 	if timeout then timerID = os.startTimer(timeout) end
-	
+
 	local id,key,msg = nil,nil
 	while true do
 		id,key,msg = os.pullEvent()
-		
+
 		if id == "timer" then
 			if key == timerID then return
 			else updateTimer(key) end
 		end
-		if id == "rednet_message" then 
+		if id == "rednet_message" then
 			return key,msg
 		end
 	end
@@ -490,9 +490,9 @@ local function drawPictureTable(image, xinit, yinit, alpha)
 	end
 end
 
---[[  
-			Section: Loading  
-]]-- 
+--[[
+			Section: Loading
+]]--
 
 --[[Loads a non-animted paint file into the program
 	Params: path:string = The path in which the file is located
@@ -526,7 +526,7 @@ local function loadNFT(path)
 	frames[sFrame] = { }
 	frames[sFrame].text = { }
 	frames[sFrame].textcol = { }
-	
+
 	if fs.exists(path) then
 		local file = io.open(path, "r")
 		local sLine = file:read()
@@ -535,7 +535,7 @@ local function loadNFT(path)
 			table.insert(frames[sFrame], num, {})
 			table.insert(frames[sFrame].text, num, {})
 			table.insert(frames[sFrame].textcol, num, {})
-			
+
 			--As we're no longer 1-1, we keep track of what index to write to
 			local writeIndex = 1
 			--Tells us if we've hit a 30 or 31 (BG and FG respectively)- next char specifies the curr colour
@@ -614,13 +614,13 @@ local function saveNFP(path)
 
 	local file = io.open(path, "w")
 	updateImageLims(false)
-	if not toplim then 
+	if not toplim then
 		file:close()
 		return
 	end
 	for y=1,botlim do
 		local line = ""
-		if frames[sFrame][y] then 
+		if frames[sFrame][y] then
 			for x=1,riglim do
 				line = line..getHexOf(frames[sFrame][y][x])
 			end
@@ -639,7 +639,7 @@ local function saveNFT(path)
 	if not fs.exists(sDir) then
 		fs.makeDir(sDir)
 	end
-	
+
 	local file = io.open(path, "w")
 	updateImageLims(false)
 	if not toplim then
@@ -678,17 +678,17 @@ local function saveNFA(path)
 	if not fs.exists(sDir) then
 		fs.makeDir(sDir)
 	end
-	
+
 	local file = io.open(path, "w")
 	updateImageLims(true)
-	if not toplim then 
+	if not toplim then
 		file:close()
 		return
 	end
 	for i=1,#frames do
 		for y=1,botlim do
 			local line = ""
-			if frames[i][y] then 
+			if frames[i][y] then
 				for x=1,riglim do
 					line = line..getHexOf(frames[i][y][x])
 				end
@@ -709,14 +709,14 @@ local function init()
 	if textEnabled then
 		loadNFT(sPath)
 		table.insert(ddModes, 2, { "text", "textpaint", name = "text"})
-	elseif animated then 
+	elseif animated then
 		loadNFA(sPath)
 		table.insert(ddModes, #ddModes, { "record", "play", name = "anim" })
 		table.insert(ddModes, #ddModes, { "go to", "remove", name = "frames"})
 		table.insert(ddModes[2], #ddModes[2], "blueprint on")
 		table.insert(ddModes[2], #ddModes[2], "layers on")
-	else 
-		loadNFP(sPath) 
+	else
+		loadNFP(sPath)
 		table.insert(ddModes[2], #ddModes[2], "blueprint on")
 	end
 
@@ -725,8 +725,8 @@ local function init()
 	end
 end
 
---[[  
-			Section: Drawing  
+--[[
+			Section: Drawing
 ]]--
 
 
@@ -747,7 +747,7 @@ local function drawLogo()
 	msg = "By NitrogenFingers"
 	term.setCursorPos(w/2 - #msg/2, h-2)
 	term.write(msg)
-	
+
 	os.pullEvent()
 end
 
@@ -772,13 +772,13 @@ local function drawCanvas()
 			if pz >= 1 and pz <= #frames then
 				sFrame = pz
 			end
-			
+
 			if py < sy then sy = py
 			elseif py > sy + h - 1 then sy = py + h - 1 end
 			if px < sx then sx = px
 			elseif px > sx + w - 2 then sx = px + w - 2 end
 		end
-		
+
 		if pfx == 1 then turtlechar = ">"
 		elseif pfx == -1 then turtlechar = "<"
 		elseif pfz == 1 then turtlechar = "V"
@@ -794,10 +794,10 @@ local function drawCanvas()
 	else
 		topLayer,botLayer = sFrame,sFrame
 	end
-	
+
 	for currframe = botLayer,topLayer,1 do
 		for y=sy+1,sy+h-1 do
-			if frames[currframe][y] then 
+			if frames[currframe][y] then
 				for x=sx+1,sx+w-2 do
 					term.setCursorPos(x-sx,y-sy)
 					if frames[currframe][y][x] then
@@ -808,7 +808,7 @@ local function drawCanvas()
 						else
 							term.write(" ")
 						end
-					else 
+					else
 						tileExists = false
 						for i=currframe-1,botLayer,-1 do
 							if frames[i][y][x] then
@@ -816,7 +816,7 @@ local function drawCanvas()
 								break
 							end
 						end
-						
+
 						if not tileExists then
 							if blueprint then
 								term.setBackgroundColour(colours.blue)
@@ -835,7 +835,7 @@ local function drawCanvas()
 									term.write(" ")
 								end
 							else
-								term.setBackgroundColour(alphaC) 
+								term.setBackgroundColour(alphaC)
 								if textEnabled and frames[currframe].textcol[y][x] and frames[currframe].text[y][x] then
 									term.setTextColour(frames[currframe].textcol[y][x])
 									term.write(frames[currframe].text[y][x])
@@ -849,7 +849,7 @@ local function drawCanvas()
 			else
 				for x=sx+1,sx+w-2 do
 					term.setCursorPos(x-sx,y-sy)
-					
+
 					tileExists = false
 					for i=currframe-1,botLayer,-1 do
 						if frames[i][y] and frames[i][y][x] then
@@ -857,7 +857,7 @@ local function drawCanvas()
 							break
 						end
 					end
-					
+
 					if not tileExists then
 						if blueprint then
 							term.setBackgroundColour(colours.blue)
@@ -876,7 +876,7 @@ local function drawCanvas()
 								term.write(" ")
 							end
 						else
-							term.setBackgroundColour(alphaC) 
+							term.setBackgroundColour(alphaC)
 							term.write(" ")
 						end
 					end
@@ -884,7 +884,7 @@ local function drawCanvas()
 			end
 		end
 	end
-	
+
 	--Then the printer, if he's on
 	if state == "active print" then
 		local bgColour = alphaC
@@ -899,14 +899,14 @@ local function drawCanvas()
 				bgColour = frames[sFrame][py-sy][px-sx]
 			elseif blueprint then bgColour = colours.blue end
 		end
-		
+
 		term.setBackgroundColour(bgColour)
 		if bgColour == colours.black then term.setTextColour(colours.white)
 		else term.setTextColour(colours.black) end
-		
+
 		term.write(turtlechar)
 	end
-	
+
 	--Then the buffer
 	if selectrect then
 		if buffer and rectblink == 1 then
@@ -920,12 +920,12 @@ local function drawCanvas()
 			end
 		end
 		end
-	
+
 		--This draws the "selection" box
 		local add = nil
 		if buffer then
 			term.setBackgroundColour(colours.lightGrey)
-		else 
+		else
 			term.setBackgroundColour(colours.grey)
 		end
 		for i=selectrect.x1, selectrect.x2 do
@@ -947,7 +947,7 @@ local function drawCanvas()
 	end
 end
 
---[[Draws the colour picker on the right side of the screen, the colour pallette and the footer with any 
+--[[Draws the colour picker on the right side of the screen, the colour pallette and the footer with any
 	messages currently being displayed
 	Params: none
 	Returns:nil
@@ -1001,7 +1001,7 @@ local function drawInterface()
 	end
 	--Footer
 	if inMenu then return end
-	
+
 	term.setCursorPos(1, h)
 	term.setBackgroundColour(colours.lightGrey)
 	term.setTextColour(colours.grey)
@@ -1016,14 +1016,14 @@ local function drawInterface()
 	term.setBackgroundColour(colours.lightGrey)
 	term.setTextColour(colours.grey)
 	term.write(getStateMessage())
-	
+
 	local coords="X:"..sx.." Y:"..sy
 	if animated then coords = coords.." Frame:"..sFrame.."/"..framecount.."   " end
 	term.setCursorPos(w-#coords+1,h)
 	if state == "play" then term.setBackgroundColour(colours.lime)
 	elseif record then term.setBackgroundColour(colours.red) end
 	term.write(coords)
-	
+
 	if animated then
 		term.setCursorPos(w-1,h)
 		term.setBackgroundColour(colours.grey)
@@ -1075,17 +1075,17 @@ local function drawHelpScreen()
 				print(helpTopics[selectedHelp].controls[i][2])
 			end
 		end
-		
+
 		local id,p1,p2,p3 = os.pullEvent()
-		
+
 		if id == "timer" then updateTimer(p1)
-		elseif id == "key" then 
+		elseif id == "key" then
 			if selectedHelp then selectedHelp = nil
 			else break end
 		elseif id == "mouse_click" then
-			if not selectedHelp then 
+			if not selectedHelp then
 				if p3 >=3 and p3 <= 2+#helpTopics then
-					selectedHelp = p3-2 
+					selectedHelp = p3-2
 				else break end
 			else
 				selectedHelp = nil
@@ -1137,7 +1137,7 @@ local function wprintOffCenter(msg, height, width, offset)
 	end
 	term.setCursorPos(width/2 - #string.sub(msg, ops)/2 + offset, height + inc)
 	term.write(string.sub(msg, ops))
-	
+
 	return inc + 1
 end
 
@@ -1151,7 +1151,7 @@ local function displayConfirmDialogue(ctitle, msg)
 	local dialogoffset = 8
 	--We actually print twice- once to get the lines, second time to print proper. Easier this way.
 	local lines = wprintOffCenter(msg, 5, w - (dialogoffset+2) * 2, dialogoffset + 2)
-	
+
 	term.setCursorPos(dialogoffset, 3)
 	term.setBackgroundColour(colours.grey)
 	term.setTextColour(colours.lightGrey)
@@ -1163,11 +1163,11 @@ local function displayConfirmDialogue(ctitle, msg)
 	term.setCursorPos(dialogoffset, 4)
 	term.write(string.rep(" ", w - dialogoffset * 2))
 	for i=5,5+lines do
-		term.setCursorPos(dialogoffset, i) 
+		term.setCursorPos(dialogoffset, i)
 		term.write(" "..string.rep(" ", w - (dialogoffset) * 2 - 2).." ")
 	end
 	wprintOffCenter(msg, 5, w - (dialogoffset+2) * 2, dialogoffset + 2)
-	
+
 	--In the event of a message, the player hits anything to continue
 	while true do
 		local id,key = os.pullEvent()
@@ -1190,24 +1190,24 @@ local function displayDropDown(x, y, options)
 	for i=1,#options do
 		local currVal = options[i]
 		if type(currVal) == "table" then currVal = currVal.name end
-		
+
 		longestX = math.max(longestX, #currVal)
 	end
 	local xOffset = math.max(0, longestX - ((w-2) - x) + 1)
 	local yOffset = math.max(0, #options - ((h-1) - y))
-	
+
 	local clickTimes = 0
 	local tid = nil
 	local selection = nil
 	while clickTimes < 2 do
 		drawCanvas()
 		drawInterface()
-		
+
 		term.setCursorPos(x-xOffset,y-yOffset)
 		term.setBackgroundColour(colours.grey)
 		term.setTextColour(colours.lightGrey)
 		term.write(options.name..string.rep(" ", longestX-#options.name + 2))
-	
+
 		for i=1,#options do
 			term.setCursorPos(x-xOffset, y-yOffset+i)
 			if i==selection and clickTimes % 2 == 0 then
@@ -1218,7 +1218,7 @@ local function displayDropDown(x, y, options)
 				term.setTextColour(colours.grey)
 			end
 			local currVal = options[i]
-			if type(currVal) == "table" then 
+			if type(currVal) == "table" then
 				term.write(currVal.name..string.rep(" ", longestX-#currVal.name + 1))
 				term.setBackgroundColour(colours.grey)
 				term.setTextColour(colours.lightGrey)
@@ -1227,18 +1227,18 @@ local function displayDropDown(x, y, options)
 				term.write(currVal..string.rep(" ", longestX-#currVal + 2))
 			end
 		end
-		
+
 		local id, p1, p2, p3 = os.pullEvent()
 		if id == "timer" then
-			if p1 == tid then 
+			if p1 == tid then
 				clickTimes = clickTimes + 1
-				if clickTimes > 2 then 
+				if clickTimes > 2 then
 					break
-				else 
-					tid = os.startTimer(0.1) 
+				else
+					tid = os.startTimer(0.1)
 				end
-			else 
-				updateTimer(p1) 
+			else
+				updateTimer(p1)
 				drawCanvas()
 				drawInterface()
 			end
@@ -1252,15 +1252,15 @@ local function displayDropDown(x, y, options)
 			end
 		end
 	end
-	
+
 	if type(selection) == "number" then
 		selection = options[selection]
 	end
-	
-	if type(selection) == "string" then 
+
+	if type(selection) == "string" then
 		inDropDown = false
 		return selection
-	elseif type(selection) == "table" then 
+	elseif type(selection) == "table" then
 		return displayDropDown(x, y, selection)
 	end
 end
@@ -1285,16 +1285,16 @@ local function readInput(lim)
 	--As events queue immediately, we may get an unwanted key... this will solve that problem
 	local inputTimer = os.startTimer(0.01)
 	local keysAllowed = false
-	
+
 	while true do
 		local id,key = os.pullEvent()
-		
+
 		if keysAllowed then
 			if id == "key" and key == 14 and #inputString > 0 then
 				inputString = string.sub(inputString, 1, #inputString-1)
 				term.setCursorPos(ox + #inputString,oy)
 				term.write(" ")
-			elseif id == "key" and key == 28 and inputString ~= string.rep(" ", #inputString) then 
+			elseif id == "key" and key == 28 and inputString ~= string.rep(" ", #inputString) then
 				break
 			elseif id == "key" and key == keys.leftCtrl then
 				return ""
@@ -1302,9 +1302,9 @@ local function readInput(lim)
 				inputString = inputString..key
 			end
 		end
-		
+
 		if id == "timer" then
-			if key == inputTimer then 
+			if key == inputTimer then
 				keysAllowed = true
 			else
 				updateTimer(key)
@@ -1318,7 +1318,7 @@ local function readInput(lim)
 		term.write(inputString)
 		term.setCursorPos(ox + #inputString, oy)
 	end
-	
+
 	while string.sub(inputString, 1, 1) == " " do
 		inputString = string.sub(inputString, 2, #inputString)
 	end
@@ -1326,12 +1326,12 @@ local function readInput(lim)
 		inputString = string.sub(inputString, 1, #inputString-1)
 	end
 	term.setCursorBlink(false)
-	
+
 	return inputString
 end
 
---[[  
-			Section: Image tools 
+--[[
+			Section: Image tools
 ]]--
 
 
@@ -1341,13 +1341,13 @@ end
 ]]--
 local function copyToBuffer(removeImage)
 	buffer = { width = selectrect.x2 - selectrect.x1 + 1, height = selectrect.y2 - selectrect.y1 + 1, contents = { } }
-	
+
 	local containsSomething = false
 	for y=1,buffer.height do
 		buffer.contents[y] = { }
 		local f,l = sFrame,sFrame
 		if record then f,l = 1, framecount end
-		
+
 		for fra = f,l do
 			if frames[fra][selectrect.y1 + y - 1] then
 				for x=1,buffer.width do
@@ -1372,7 +1372,7 @@ local function copyFromBuffer(removeBuffer)
 	for y = 1, math.min(buffer.height,selectrect.y2-selectrect.y1+1) do
 		local f,l = sFrame, sFrame
 		if record then f,l = 1, framecount end
-		
+
 		for fra = f,l do
 			if not frames[fra][selectrect.y1+y-1] then frames[fra][selectrect.y1+y-1] = { } end
 			for x = 1, math.min(buffer.width,selectrect.x2-selectrect.x1+1) do
@@ -1380,7 +1380,7 @@ local function copyFromBuffer(removeBuffer)
 			end
 		end
 	end
-	
+
 	if removeBuffer then buffer = nil end
 end
 
@@ -1394,7 +1394,7 @@ local function moveImage(newx,newy)
 	if newx <=0 or newy <=0 then return end
 	local f,l = sFrame,sFrame
 	if record then f,l = 1,framecount end
-	
+
 	for i=f,l do
 		local newlines = { }
 		for y=toplim,botlim do
@@ -1418,7 +1418,7 @@ local function moveImage(newx,newy)
 					end
 				end
 			end
-			
+
 			newlines.textcol = { }
 			for y=toplim,botlim do
 				local line = frames[i].textcol[y]
@@ -1430,7 +1430,7 @@ local function moveImage(newx,newy)
 				end
 			end
 		end
-		
+
 		frames[i] = newlines
 	end
 end
@@ -1451,7 +1451,7 @@ local function clearImage()
 	if string.find(string.upper(readInput(1)), "Y") then
 		local f,l = sFrame,sFrame
 		if record then f,l = 1,framecount end
-		
+
 		for i=f,l do
 			frames[i] = { }
 		end
@@ -1470,9 +1470,9 @@ end
 local function floodFill(x, y, targetColour, newColour)
 	if not newColour or not targetColour then return end
 	local nodeList = { }
-	
+
 	table.insert(nodeList, {x = x, y = y})
-	
+
 	while #nodeList > 0 do
 		local node = nodeList[1]
 		if frames[sFrame][node.y] and frames[sFrame][node.y][node.x] == targetColour then
@@ -1486,8 +1486,8 @@ local function floodFill(x, y, targetColour, newColour)
 	end
 end
 
---[[  
-			Section: Animation Tools  
+--[[
+			Section: Animation Tools
 ]]--
 
 --[[Enters play mode, allowing the animation to play through. Interface is restricted to allow this,
@@ -1498,14 +1498,14 @@ end
 local function playAnimation()
 	state = "play"
 	selectedrect = nil
-	
+
 	local animt = os.startTimer(animtime)
 	repeat
 		drawCanvas()
 		drawInterface()
-		
+
 		local id,key,_,y = os.pullEvent()
-		
+
 		if id=="timer" then
 			if key == animt then
 				animt = os.startTimer(animtime)
@@ -1536,15 +1536,15 @@ local function changeFrame(newframe)
 		term.setBackgroundColour(colours.lightGrey)
 		term.setTextColour(colours.grey)
 		term.clearLine()
-	
+
 		term.write("Go to frame: ")
 		newframe = tonumber(readInput(2))
 		if not newframe or newframe <= 0 then
 			inMenu = false
-			return 
+			return
 		end
 	elseif newframe <= 0 then return end
-	
+
 	if newframe > framecount then
 		for i=framecount+1,newframe do
 			frames[i] = {}
@@ -1570,12 +1570,12 @@ local function removeFramesAfter(frame)
 	if frame==framecount then return end
 	drawMessage("Remove frames "..(frame+1).."/"..framecount.."? Y/N :")
 	local answer = string.upper(readInput(1))
-	
-	if string.find(answer, string.upper("Y")) ~= 1 then 
+
+	if string.find(answer, string.upper("Y")) ~= 1 then
 		inMenu = false
-		return 
+		return
 	end
-	
+
 	for i=frame+1, framecount do
 		frames[i] = nil
 	end
@@ -1596,7 +1596,7 @@ end
 local function getLeft(curx, curz)
 	local hand = "left"
 	if layering == "up" then hand = "right" end
-	
+
 	if hand == "right" then
 		if curx == 1 then return 0,-1 end
 		if curx == -1 then return 0,1 end
@@ -1619,7 +1619,7 @@ end
 local function getRight(curx, curz)
 	local hand = "left"
 	if layering == "up" then hand = "right" end
-	
+
 	if hand == "right" then
 		if curx == 1 then return 0,1 end
 		if curx == -1 then return 0,-1 end
@@ -1647,7 +1647,7 @@ local function locatePrinters()
 	drawCanvas()
 	drawInterface()
 	state = oldState
-	
+
 	local modemOpened = false
 	for k,v in pairs(rs.getSides()) do
 		if peripheral.isPresent(v) and peripheral.getType(v) == "modem" then
@@ -1656,17 +1656,17 @@ local function locatePrinters()
 			break
 		end
 	end
-	
+
 	if not modemOpened then
 		displayConfirmDialogue("Modem not found!", "No modem peripheral. Must have network modem to locate printers.")
 		return false
 	end
-	
+
 	rednet.broadcast("$3DPRINT IDENTIFY")
-	
+
 	while true do
 		local id, msg = rsTimeReceive(1)
-		
+
 		if not id then break end
 		if string.find(msg, "$3DPRINT IDACK") == 1 then
 			msg = string.gsub(msg, "$3DPRINT IDACK ", "")
@@ -1674,7 +1674,7 @@ local function locatePrinters()
 			table.insert(printerNames, msg)
 		end
 	end
-	
+
 	if #printerList == 0 then
 		displayConfirmDialogue("Printers not found!", "No active printers found in proximity of this computer.")
 		return false
@@ -1692,7 +1692,7 @@ local function sendPC(command,param)
 	local msg = "$PC "..command
 	if param then msg = msg.." "..param end
 	rednet.send(printerList[selectedPrinter], msg)
-	
+
 	while true do
 		local id,key = rsTimeReceive()
 		if id == printerList[selectedPrinter] then
@@ -1713,7 +1713,7 @@ local function sendPC(command,param)
 			end
 		end
 	end
-	
+
 	--Changes to position are handled after the event has been successfully completed
 	if command == "FW" then
 		px = px + pfx
@@ -1724,13 +1724,13 @@ local function sendPC(command,param)
 	elseif command == "UP" then
 		if layering == "up" then
 			py = py + 1
-		else 
+		else
 			py = py - 1
 		end
 	elseif command == "DW" then
 		if layering == "up" then
 			py = py - 1
-		else 	
+		else
 			py = py + 1
 		end
 	elseif command == "TL" then
@@ -1741,7 +1741,7 @@ local function sendPC(command,param)
 		pfx = -pfx
 		pfz = -pfz
 	end
-	
+
 	drawCanvas()
 	drawInterface()
 end
@@ -1788,7 +1788,7 @@ local function performPrint()
 		--An up layering starts our builder bot on the bottom left corner of our build
 		px,py,pz = leflim, 0, botlim + 1
 		pfx,pfz = 0,-1
-		
+
 		--We move him forward and up a bit from his original position.
 		sendPC("FW")
 		sendPC("UP")
@@ -1801,7 +1801,7 @@ local function performPrint()
 			else
 				rowbot,rowtop,rowinc = toplim,botlim,1
 			end
-			
+
 			for rows = rowbot,rowtop,rowinc do
 				--Then we decide if we're going left or right, depending on what side we're on
 				local linebot,linetop,lineinc = nil,nil,nil
@@ -1814,7 +1814,7 @@ local function performPrint()
 					turnToFace(-1,0)
 					linebot,linetop,lineinc = riglim,leflim,-1
 				end
-				
+
 				for lines = linebot,linetop,lineinc do
 					--We move our turtle forward, placing the right material at each step
 					local material = frames[py][pz][px]
@@ -1827,7 +1827,7 @@ local function performPrint()
 						sendPC("FW")
 					end
 				end
-				
+
 				--The printer then has to do a U-turn, depending on which way he's facing and
 				--which way he needs to go
 				local temppfx,temppfz = getLeft(pfx,pfz)
@@ -1873,7 +1873,7 @@ local function performPrint()
 		while pz < #frames do
 			sendPC("FW")
 		end
-		
+
 		--For each layer in the frame we build our wall, the move back
 		for layers = 1,#frames do
 			--We first decide if we're going left or right based on our position
@@ -1883,7 +1883,7 @@ local function performPrint()
 			else
 				rowbot,rowtop,rowinc = riglim,leflim,-1
 			end
-			
+
 			for rows = rowbot,rowtop,rowinc do
 				--Then we decide if we're going up or down, depending on our given altitude
 				local linebot,linetop,lineinc = nil,nil,nil
@@ -1892,7 +1892,7 @@ local function performPrint()
 				else
 					linebot,linetop,lineinc = toplim,botlim,1
 				end
-				
+
 				for lines = linebot,linetop,lineinc do
 				--We move our turtle up/down, placing the right material at each step
 					local material = frames[pz][py][px]
@@ -1906,14 +1906,14 @@ local function performPrint()
 						else sendPC("UP") end
 					end
 				end
-					
+
 				if rows ~= rowtop then
 					turnToFace(rowinc,0)
 					sendPC("FW")
 					turnToFace(0,1)
 				end
 			end
-			
+
 			if layers ~= #frames then
 				sendPC("TU")
 				sendPC("FW")
@@ -1927,14 +1927,14 @@ local function performPrint()
 		end
 		turnToFace(0,1)
 	end
-	
+
 	sendPC("DE")
-	
+
 	displayConfirmDialogue("Print complete", "The 3D print was successful.")
 end
 
---[[  
-			Section: Interface  
+--[[
+			Section: Interface
 ]]--
 
 --[[Runs the printing interface. Allows users to find/select a printer, the style of printing to perform and to begin the operation
@@ -1953,7 +1953,7 @@ local function runPrintInterface()
 	if not locatePrinters() then
 		return false
 	end
-	
+
 	layering = "up"
 	requirementsDisplayed = false
 	selectedPrinter = 1
@@ -1967,7 +1967,7 @@ local function runPrintInterface()
 		drawInterface()
 		term.setBackgroundColour(colours.lightGrey)
 		term.setTextColour(colours.black)
-		
+
 		local msg = "3D Printing"
 		term.setCursorPos(w/2-#msg/2 - 2, 1)
 		term.write(msg)
@@ -1982,7 +1982,7 @@ local function runPrintInterface()
 		term.write(msg)
 		term.setBackgroundColour(colours.lightGrey)
 		term.setTextColour(colours.black)
-		
+
 		term.setCursorPos(7, 2)
 		term.write("Layering")
 		drawPictureTable(layerUpIcon, 3, 3, colours.white)
@@ -2001,7 +2001,7 @@ local function runPrintInterface()
 		end
 		term.setCursorPos(12, 9)
 		term.write("Forward")
-		
+
 		term.setBackgroundColour(colours.lightGrey)
 		term.setTextColour(colours.black)
 		term.setCursorPos(31, 2)
@@ -2014,16 +2014,16 @@ local function runPrintInterface()
 			term.setTextColour(colours.red)
 		end
 		term.write(" "..printerNames[selectedPrinter].." ")
-		
+
 		term.setBackgroundColour(colours.grey)
 		term.setTextColour(colours.lightGrey)
 		term.setCursorPos(25, 10)
 		term.write(" Cancel ")
 		term.setCursorPos(40, 10)
 		term.write(" Print ")
-		
+
 		local id, p1, p2, p3 = os.pullEvent()
-		
+
 		if id == "timer" then
 			updateTimer(p1)
 		elseif id == "mouse_click" then
@@ -2052,7 +2052,7 @@ local function runPrintInterface()
 				ready = false
 				while true do
 					local id,msg = rsTimeReceive(10)
-					
+
 					if id == printerList[selectedPrinter] and msg == "$3DPRINT ACTACK" then
 						ready = true
 						break
@@ -2077,100 +2077,100 @@ end
 ]]--
 local function performSelection(mode)
 	if not mode or mode == "" then return
-	
+
 	elseif mode == "help" then
 		drawHelpScreen()
-		
+
 	elseif mode == "blueprint on" then
 		blueprint = true
 		ddModes[2][3] = "blueprint off"
-		
+
 	elseif mode == "blueprint off" then
 		blueprint = false
 		ddModes[2][3] = "blueprint on"
-		
+
 	elseif mode == "layers on" then
 		layerDisplay = true
 		ddModes[2][4] = "layers off"
-	
+
 	elseif mode == "layers off" then
 		layerDisplay = false
 		ddModes[2][4] = "layers on"
-	
+
 	elseif mode == "direction on" then
 		printDirection = true
 		ddModes[2][5] = "direction off"
-		
+
 	elseif mode == "direction off" then
 		printDirection = false
 		ddModes[2][5] = "direction on"
-	
+
 	elseif mode == "go to" then
 		changeFrame()
-	
+
 	elseif mode == "remove" then
 		removeFramesAfter(sFrame)
-	
+
 	elseif mode == "play" then
 		playAnimation()
-		
+
 	elseif mode == "copy" then
 		if selectrect and selectrect.x1 ~= selectrect.x2 then
 			copyToBuffer(false)
 		end
-	
+
 	elseif mode == "cut" then
-		if selectrect and selectrect.x1 ~= selectrect.x2 then 
+		if selectrect and selectrect.x1 ~= selectrect.x2 then
 			copyToBuffer(true)
 		end
-		
+
 	elseif mode == "paste" then
-		if selectrect and selectrect.x1 ~= selectrect.x2 then 
+		if selectrect and selectrect.x1 ~= selectrect.x2 then
 			copyFromBuffer(false)
 		end
-		
+
 	elseif mode == "hide" then
 		selectrect = nil
 		if state == "select" then state = "corner select" end
-		
+
 	elseif mode == "alpha to left" then
 		if lSel then alphaC = lSel end
-		
+
 	elseif mode == "alpha to right" then
 		if rSel then alphaC = rSel end
-		
+
 	elseif mode == "record" then
 		record = not record
-		
+
 	elseif mode == "clear" then
 		if state=="select" then buffer = nil
 		else clearImage() end
-	
+
 	elseif mode == "select" then
 		if state=="corner select" or state=="select" then
 			state = "paint"
 		elseif selectrect and selectrect.x1 ~= selectrect.x2 then
 			state = "select"
 		else
-			state = "corner select" 
+			state = "corner select"
 		end
-		
+
 	elseif mode == "print" then
 		state = "print"
 		runPrintInterface()
 		state = "paint"
-		
+
 	elseif mode == "save" then
 		if animated then saveNFA(sPath)
 		elseif textEnabled then saveNFT(sPath)
 		else saveNFP(sPath) end
-		
+
 	elseif mode == "exit" then
 		isRunning = false
-	
+
 	elseif mode ~= state then state = mode
 	else state = "paint"
-	
+
 	end
 end
 
@@ -2184,12 +2184,12 @@ local function handleEvents()
 	while isRunning do
 		drawCanvas()
 		drawInterface()
-		
+
 		if state == "text" then
 			term.setCursorPos(textCurX - sx, textCurY - sy)
 			term.setCursorBlink(true)
 		end
-		
+
 		local id,p1,p2,p3 = os.pullEvent()
 			term.setCursorBlink(false)
 		if id=="timer" then
@@ -2212,20 +2212,20 @@ local function handleEvents()
 				if state=="pippette" then
 					if p1==1 then
 						if frames[sFrame][p3+sy] and frames[sFrame][p3+sy][p2+sx] then
-							lSel = frames[sFrame][p3+sy][p2+sx] 
+							lSel = frames[sFrame][p3+sy][p2+sx]
 						end
 					elseif p1==2 then
 						if frames[sFrame][p3+sy] and frames[sFrame][p3+sy][p2+sx] then
-							rSel = frames[sFrame][p3+sy][p2+sx] 
+							rSel = frames[sFrame][p3+sy][p2+sx]
 						end
 					end
 				elseif state=="move" then
 					updateImageLims(record)
 					moveImage(p2,p3)
 				elseif state=="flood" then
-					if p1 == 1 and lSel and frames[sFrame][p3+sy]  then 
+					if p1 == 1 and lSel and frames[sFrame][p3+sy]  then
 						floodFill(p2,p3,frames[sFrame][p3+sy][p2+sx],lSel)
-					elseif p1 == 2 and rSel and frames[sFrame][p3+sy] then 
+					elseif p1 == 2 and rSel and frames[sFrame][p3+sy] then
 						floodFill(p2,p3,frames[sFrame][p3+sy][p2+sx],rSel)
 					end
 				elseif state=="corner select" then
@@ -2234,10 +2234,10 @@ local function handleEvents()
 					elseif selectrect.x1 ~= p2+sx and selectrect.y1 ~= p3+sy then
 						if p2+sx<selectrect.x1 then selectrect.x1 = p2+sx
 						else selectrect.x2 = p2+sx end
-						
+
 						if p3+sy<selectrect.y1 then selectrect.y1 = p3+sy
 						else selectrect.y2 = p3+sy end
-						
+
 						state = "select"
 					end
 				elseif state=="textpaint" then
@@ -2253,14 +2253,14 @@ local function handleEvents()
 					if p1 == 1 then
 						local swidth = selectrect.x2 - selectrect.x1
 						local sheight = selectrect.y2 - selectrect.y1
-					
+
 						selectrect.x1 = p2 + sx
 						selectrect.y1 = p3 + sy
 						selectrect.x2 = p2 + swidth + sx
 						selectrect.y2 = p3 + sheight + sy
 					elseif p1 == 2 and p2 < w-2 and p3 < h-1 then
 						inMenu = true
-						local sel = displayDropDown(p2, p3, srModes) 
+						local sel = displayDropDown(p2, p3, srModes)
 						inMenu = false
 						performSelection(sel)
 					end
@@ -2269,7 +2269,7 @@ local function handleEvents()
 					if record then f,l = 1,framecount end
 					local bwidth = 0
 					if state == "brush" then bwidth = brushsize-1 end
-				
+
 					for i=f,l do
 						for x = math.max(1,p2+sx-bwidth),p2+sx+bwidth do
 							for y = math.max(1,p3+sy-bwidth), p3+sy+bwidth do
@@ -2277,7 +2277,7 @@ local function handleEvents()
 									if not frames[i][y] then frames[i][y] = {} end
 									if p1==1 then frames[i][y][x] = lSel
 									else frames[i][y][x] = rSel end
-									
+
 									if textEnabled then
 										if not frames[i].text[y] then frames[i].text[y] = { } end
 										if not frames[i].textcol[y] then frames[i].textcol[y] = { } end
@@ -2293,16 +2293,16 @@ local function handleEvents()
 				if not frames[sFrame][textCurY] then frames[sFrame][textCurY] = { } end
 				if not frames[sFrame].text[textCurY] then frames[sFrame].text[textCurY] = { } end
 				if not frames[sFrame].textcol[textCurY] then frames[sFrame].textcol[textCurY] = { } end
-				
+
 				if rSel then frames[sFrame][textCurY][textCurX] = rSel end
-				if lSel then 
+				if lSel then
 					frames[sFrame].text[textCurY][textCurX] = p1
 					frames[sFrame].textcol[textCurY][textCurX] = lSel
 				else
 					frames[sFrame].text[textCurY][textCurX] = " "
 					frames[sFrame].textcol[textCurY][textCurX] = rSel
 				end
-				
+
 				textCurX = textCurX+1
 				if textCurX > w + sx - 2 then sx = textCurX - w + 2 end
 			elseif tonumber(p1) then
@@ -2335,16 +2335,16 @@ local function handleEvents()
 					textCurY = textCurY+1
 					if textCurY > h + sy - 1 then sy = textCurY - h + 1 end
 				end
-			
+
 			elseif p1==keys.leftCtrl then
-				local sel = displayDropDown(1, h-1, ddModes[#ddModes]) 
+				local sel = displayDropDown(1, h-1, ddModes[#ddModes])
 				performSelection(sel)
 			elseif p1==keys.leftAlt then
-				local sel = displayDropDown(1, h-1, ddModes[1]) 
+				local sel = displayDropDown(1, h-1, ddModes[1])
 				performSelection(sel)
-			elseif p1==keys.h then 
+			elseif p1==keys.h then
 				performSelection("help")
-			elseif p1==keys.x then 
+			elseif p1==keys.x then
 				performSelection("cut")
 			elseif p1==keys.c then
 				performSelection("copy")
@@ -2415,7 +2415,7 @@ local function handleEvents()
 					selectrect.y1 = selectrect.y1-1
 					selectrect.y2 = selectrect.y2-1
 				elseif sy > 0 then sy=sy-1 end
-			elseif p1==keys.down then 
+			elseif p1==keys.down then
 				if state == "move" then
 					updateImageLims(record)
 					if toplim and leflim then
@@ -2431,7 +2431,7 @@ local function handleEvents()
 end
 
 --[[
-			Section: Main  
+			Section: Main
 ]]--
 
 if not term.isColour() then
@@ -2475,15 +2475,15 @@ if fs.exists(sPath) then
 		print("Can only edit .nfp, .nft and .nfa files:",string.find(sPath, ".nfp"),#sPath-3)
 		return
 	end
-	
+
 	if string.find(sPath, ".nfa") == #sPath-3 then
 		animated = true
 	end
-	
+
 	if string.find(sPath, ".nft") == #sPath-3 then
 		textEnabled = true
-	end	
-	
+	end
+
 	if string.find(sPath, ".nfp") == #sPath-3 and animated then
 		print("Convert to nfa? Y/N")
 		if string.find(string.lower(io.read()), "y") then
@@ -2494,20 +2494,20 @@ if fs.exists(sPath) then
 			animated = false
 		end
 	end
-	
+
 	--Again this is possible, I just haven't done it. Maybe I will?
 	if textEnabled and (string.find(sPath, ".nfp") == #sPath-3 or string.find(sPath, ".nfa") == #sPath-3) then
 		print("Cannot convert to nft")
 	end
 else
-	if not animated and not textEnabled and string.find(sPath, ".nfp") ~= #sPath-3 then 
+	if not animated and not textEnabled and string.find(sPath, ".nfp") ~= #sPath-3 then
 		sPath = sPath..".nfp"
-	elseif animated and string.find(sPath, ".nfa") ~= #sPath-3 then 
+	elseif animated and string.find(sPath, ".nfa") ~= #sPath-3 then
 		sPath = sPath..".nfa"
 	elseif textEnabled and string.find(sPath, ".nft") ~= #sPath-3 then
 		sPath = sPath..".nft"
 	end
-end 
+end
 
 drawLogo()
 init()

@@ -1,4 +1,6 @@
 describe("The peripheral library", function()
+    local it_modem = peripheral.getType("top") == "modem" and it or pending
+
     describe("peripheral.isPresent", function()
         it("validates arguments", function()
             peripheral.isPresent("")
@@ -25,6 +27,11 @@ describe("The peripheral library", function()
             peripheral.call("", "")
             expect.error(peripheral.call, nil):eq("bad argument #1 (expected string, got nil)")
             expect.error(peripheral.call, "", nil):eq("bad argument #2 (expected string, got nil)")
+        end)
+
+        it_modem("has the correct error location", function()
+            expect.error(function() peripheral.call("top", "isOpen", false) end)
+                :str_match("^peripheral_spec.lua:%d+: bad argument #1 %(number expected, got boolean%)$")
         end)
     end)
 

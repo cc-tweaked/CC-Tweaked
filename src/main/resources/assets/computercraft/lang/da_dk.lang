@@ -1,0 +1,48 @@
+tile.computercraft:computer.name=Computer
+tile.computercraft:advanced_computer.name=Avanceret Computer
+tile.computercraft:drive.name=Diskdrev
+tile.computercraft:printer.name=Printer
+tile.computercraft:monitor.name=Skærm
+tile.computercraft:advanced_monitor.name=Avanceret Skærm
+tile.computercraft:wireless_modem.name=Trådløst Modem
+tile.computercraft:wired_modem.name=Kablet Modem
+tile.computercraft:cable.name=Netværkskabel
+tile.computercraft:command_computer.name=Kommandocomputer
+tile.computercraft:advanced_modem.name=Endermodem
+tile.computercraft:speaker.name=Højttaler
+
+tile.computercraft:turtle.name=Turtle
+tile.computercraft:turtle.upgraded.name=%s Turtle
+tile.computercraft:turtle.upgraded_twice.name=%s %s Turtle
+tile.computercraft:advanced_turtle.name=Avanceret Turtle
+tile.computercraft:advanced_turtle.upgraded.name=Avanceret %s Turtle
+tile.computercraft:advanced_turtle.upgraded_twice.name=Avanceret %s %s Turtle
+
+item.computercraft:disk.name=Floppydisk
+item.computercraft:treasure_disk.name=Floppydisk
+item.computercraft:page.name=Printet Side
+item.computercraft:pages.name=Printede Sider
+item.computercraft:book.name=Printet Bog
+
+item.computercraft:pocket_computer.name=Lommecomputer
+item.computercraft:pocket_computer.upgraded.name=%s Lommecomputer
+item.computercraft:advanced_pocket_computer.name=Avanceret Lommecomputer
+item.computercraft:advanced_pocket_computer.upgraded.name=Avanceret %s Lommecomputer
+
+upgrade.minecraft:diamond_sword.adjective=Kæmpende
+upgrade.minecraft:diamond_shovel.adjective=Gravende
+upgrade.minecraft:diamond_pickaxe.adjective=Brydende
+upgrade.minecraft:diamond_axe.adjective=Fældende
+upgrade.minecraft:diamond_hoe.adjective=Dyrkende
+upgrade.computercraft:wireless_modem.adjective=Trådløs
+upgrade.minecraft:crafting_table.adjective=Fremstillende
+upgrade.computercraft:advanced_modem.adjective=Endertrådløs
+upgrade.computercraft:speaker.adjective=Larmende
+
+chat.computercraft.wired_modem.peripheral_connected=Perifer enhed "%s" koblet til netværk
+chat.computercraft.wired_modem.peripheral_disconnected=Perifer enhed "%s" koblet fra netværk
+
+# Misc tooltips
+gui.computercraft.tooltip.copy=Kopier til udklipsholder
+gui.computercraft.tooltip.computer_id=(Computer-ID: %s)
+gui.computercraft.tooltip.disk_id=(Disk-ID: %s)

@@ -1,7 +1,7 @@
 local capture = require "test_helpers".capture_program
 
 describe("The id program", function()
-    
+
     it("displays computer id", function()
         local id = os.getComputerID()
 

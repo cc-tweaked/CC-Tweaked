@@ -10,12 +10,18 @@ import dan200.computercraft.api.filesystem.IWritableMount;
 import dan200.computercraft.api.lua.ILuaAPI;
 import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
+import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.core.computer.BasicEnvironment;
 import dan200.computercraft.core.computer.Computer;
+import dan200.computercraft.core.computer.ComputerSide;
 import dan200.computercraft.core.computer.MainThread;
 import dan200.computercraft.core.filesystem.FileMount;
 import dan200.computercraft.core.filesystem.FileSystemException;
 import dan200.computercraft.core.terminal.Terminal;
+import dan200.computercraft.shared.peripheral.modem.ModemState;
+import dan200.computercraft.shared.peripheral.modem.wireless.WirelessModemPeripheral;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.World;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.*;
@@ -78,7 +84,7 @@ public class ComputerTestDelegate
         ComputerCraft.logPeripheralErrors = true;
 
         Terminal term = new Terminal( 78, 20 );
-        IWritableMount mount = new FileMount( new File( "test-files/mount" ), Long.MAX_VALUE );
+        IWritableMount mount = new FileMount( new File( "test-files/mount" ), 10_000_000 );
 
         // Remove any existing files
         List<String> children = new ArrayList<>();
@@ -89,10 +95,11 @@ public class ComputerTestDelegate
         try( WritableByteChannel channel = mount.openChannelForWrite( "startup.lua" );
              Writer writer = Channels.newWriter( channel, StandardCharsets.UTF_8.newEncoder(), -1 ) )
         {
-            writer.write( "loadfile('test/mcfly.lua', nil, _ENV)('test/spec') cct_test.finish()" );
+            writer.write( "loadfile('test-rom/mcfly.lua', nil, _ENV)('test-rom/spec') cct_test.finish()" );
         }
 
         computer = new Computer( new BasicEnvironment( mount ), term, 0 );
+        computer.getEnvironment().setPeripheral( ComputerSide.TOP, new FakeModem() );
         computer.addApi( new ILuaAPI()
         {
             @Override
@@ -114,7 +121,7 @@ public class ComputerTestDelegate
                 try
                 {
                     computer.getAPIEnvironment().getFileSystem().mount(
-                        "test-rom", "test",
+                        "test-rom", "test-rom",
                         BasicEnvironment.createMount( ComputerTestDelegate.class, "test-rom", "test" )
                     );
                 }
@@ -415,5 +422,34 @@ public class ComputerTestDelegate
     private static String formatName( String name )
     {
         return name.replace( "\0", " -> " );
+    }
+
+    private static class FakeModem extends WirelessModemPeripheral
+    {
+        FakeModem()
+        {
+            super( new ModemState(), true );
+        }
+
+        @Nonnull
+        @Override
+        @SuppressWarnings( "ConstantConditions" )
+        public World getWorld()
+        {
+            return null;
+        }
+
+        @Nonnull
+        @Override
+        public Vec3d getPosition()
+        {
+            return Vec3d.ZERO;
+        }
+
+        @Override
+        public boolean equals( @Nullable IPeripheral other )
+        {
+            return this == other;
+        }
     }
 }

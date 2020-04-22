@@ -115,7 +115,7 @@ public class BasicEnvironment implements IComputerEnvironment
             while( baseFile != null && !wholeFile.exists() )
             {
                 baseFile = baseFile.getParentFile();
-                wholeFile = new File( baseFile, "resources/" + fallback + "/" + path );
+                wholeFile = new File( baseFile, "src/" + fallback + "/resources/" + path );
             }
 
             if( !wholeFile.exists() ) throw new IllegalStateException( "Cannot find ROM mount at " + file );

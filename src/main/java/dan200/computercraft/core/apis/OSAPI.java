@@ -9,6 +9,8 @@ import dan200.computercraft.api.lua.ILuaAPI;
 import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.shared.util.StringUtil;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 
 import javax.annotation.Nonnull;
 import java.time.Instant;
@@ -24,24 +26,12 @@ public class OSAPI implements ILuaAPI
 {
     private IAPIEnvironment m_apiEnvironment;
 
-    private final Map<Integer, Timer> m_timers;
-    private final Map<Integer, Alarm> m_alarms;
+    private final Int2ObjectMap<Alarm> m_alarms = new Int2ObjectOpenHashMap<>();
     private int m_clock;
     private double m_time;
     private int m_day;
 
-    private int m_nextTimerToken;
-    private int m_nextAlarmToken;
-
-    private static class Timer
-    {
-        int m_ticksLeft;
-
-        Timer( int ticksLeft )
-        {
-            m_ticksLeft = ticksLeft;
-        }
-    }
+    private int m_nextAlarmToken = 0;
 
     private static class Alarm implements Comparable<Alarm>
     {
@@ -66,10 +56,6 @@ public class OSAPI implements ILuaAPI
     public OSAPI( IAPIEnvironment environment )
     {
         m_apiEnvironment = environment;
-        m_nextTimerToken = 0;
-        m_nextAlarmToken = 0;
-        m_timers = new HashMap<>();
-        m_alarms = new HashMap<>();
     }
 
     // ILuaAPI implementation
@@ -87,11 +73,6 @@ public class OSAPI implements ILuaAPI
         m_day = m_apiEnvironment.getComputerEnvironment().getDay();
         m_clock = 0;
 
-        synchronized( m_timers )
-        {
-            m_timers.clear();
-        }
-
         synchronized( m_alarms )
         {
             m_alarms.clear();
@@ -101,26 +82,7 @@ public class OSAPI implements ILuaAPI
     @Override
     public void update()
     {
-        synchronized( m_timers )
-        {
-            // Update the clock
-            m_clock++;
-
-            // Countdown all of our active timers
-            Iterator<Map.Entry<Integer, Timer>> it = m_timers.entrySet().iterator();
-            while( it.hasNext() )
-            {
-                Map.Entry<Integer, Timer> entry = it.next();
-                Timer timer = entry.getValue();
-                timer.m_ticksLeft--;
-                if( timer.m_ticksLeft <= 0 )
-                {
-                    // Queue the "timer" event
-                    queueLuaEvent( "timer", new Object[] { entry.getKey() } );
-                    it.remove();
-                }
-            }
-        }
+        m_clock++;
 
         // Wait for all of our alarms
         synchronized( m_alarms )
@@ -155,11 +117,6 @@ public class OSAPI implements ILuaAPI
     @Override
     public void shutdown()
     {
-        synchronized( m_timers )
-        {
-            m_timers.clear();
-        }
-
         synchronized( m_alarms )
         {
             m_alarms.clear();
@@ -229,11 +186,8 @@ public class OSAPI implements ILuaAPI
             {
                 // startTimer
                 double timer = getFiniteDouble( args, 0 );
-                synchronized( m_timers )
-                {
-                    m_timers.put( m_nextTimerToken, new Timer( (int) Math.round( timer / 0.05 ) ) );
-                    return new Object[] { m_nextTimerToken++ };
-                }
+                int id = m_apiEnvironment.startTimer( Math.round( timer / 0.05 ) );
+                return new Object[] { id };
             }
             case 2:
             {
@@ -278,10 +232,7 @@ public class OSAPI implements ILuaAPI
                 return null;
             }
             case 10: // clock
-                synchronized( m_timers )
-                {
-                    return new Object[] { m_clock * 0.05 };
-                }
+                return new Object[] { m_clock * 0.05 };
             case 11:
             {
                 // time
@@ -345,10 +296,7 @@ public class OSAPI implements ILuaAPI
             {
                 // cancelTimer
                 int token = getInt( args, 0 );
-                synchronized( m_timers )
-                {
-                    m_timers.remove( token );
-                }
+                m_apiEnvironment.cancelTimer( token );
                 return null;
             }
             case 14:
