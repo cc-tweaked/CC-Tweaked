@@ -54,7 +54,7 @@ public final class ClientMonitor extends ClientTerminal
                 if( buffer != null ) return false;
 
                 deleteBuffers();
-                buffer = new VertexBuffer( FixedWidthFontRenderer.POSITION_COLOR_TEX );
+                buffer = new VertexBuffer( FixedWidthFontRenderer.TYPE.getVertexFormat() );
                 addMonitor();
                 return true;
 

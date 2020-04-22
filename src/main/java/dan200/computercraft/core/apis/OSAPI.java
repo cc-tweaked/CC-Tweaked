@@ -103,7 +103,7 @@ public class OSAPI implements ILuaAPI
                     double t = alarm.m_day * 24.0 + alarm.m_time;
                     if( now >= t )
                     {
-                        queueLuaEvent( "alarm", new Object[] { entry.getKey() } );
+                        queueLuaEvent( "alarm", new Object[] { entry.getIntKey() } );
                         it.remove();
                     }
                 }

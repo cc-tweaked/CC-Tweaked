@@ -14,9 +14,10 @@ import net.minecraft.data.DataGenerator;
 import net.minecraft.data.DirectoryCache;
 import net.minecraft.data.IDataProvider;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.storage.loot.LootParameterSets;
 import net.minecraft.world.storage.loot.LootTable;
 import net.minecraft.world.storage.loot.LootTableManager;
-import net.minecraft.world.storage.loot.ValidationResults;
+import net.minecraft.world.storage.loot.ValidationTracker;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;
@@ -42,17 +43,17 @@ public abstract class LootTableProvider implements IDataProvider
     @Override
     public void act( @Nonnull DirectoryCache cache )
     {
-
-        ValidationResults validation = new ValidationResults();
         Map<ResourceLocation, LootTable> tables = new HashMap<>();
+        ValidationTracker validation = new ValidationTracker( LootParameterSets.GENERIC, x -> null, tables::get );
+
         registerLoot( ( id, table ) -> {
-            if( tables.containsKey( id ) ) validation.addProblem( "Duplicate loot tables for " + id );
+            if( tables.containsKey( id ) ) validation.func_227530_a_( "Duplicate loot tables for " + id );
             tables.put( id, table );
         } );
 
-        tables.forEach( ( key, value ) -> LootTableManager.func_215302_a( validation, key, value, tables::get ) );
+        tables.forEach( ( key, value ) -> LootTableManager.func_227508_a_( validation, key, value ) );
 
-        Multimap<String, String> problems = validation.getProblems();
+        Multimap<String, String> problems = validation.func_227527_a_();
         if( !problems.isEmpty() )
         {
             problems.forEach( ( child, problem ) ->

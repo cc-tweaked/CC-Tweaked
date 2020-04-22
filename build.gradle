@@ -47,7 +47,7 @@ minecraft {
         }
 
         server {
-            workingDirectory project.file('run')
+            workingDirectory project.file("run/server-${mc_version}")
             property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
             property 'forge.logging.console.level', 'debug'
 
@@ -99,8 +99,8 @@ dependencies {
 
     minecraft "net.minecraftforge:forge:${mc_version}-${forge_version}"
 
-    compileOnly fg.deobf("mezz.jei:jei-1.15.2:6.0.0.2:api")
-    runtimeOnly fg.deobf("mezz.jei:jei-1.15.2:6.0.0.2")
+    compileOnly fg.deobf("mezz.jei:jei-1.15.2:6.0.0.3:api")
+    runtimeOnly fg.deobf("mezz.jei:jei-1.15.2:6.0.0.3")
 
     shade 'org.squiddev:Cobalt:0.5.1-SNAPSHOT'
 

@@ -6,7 +6,6 @@
 
 package dan200.computercraft.shared.peripheral.monitor;
 
-import com.mojang.blaze3d.platform.GLX;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.client.render.TileEntityMonitorRenderer;
 
@@ -73,22 +72,7 @@ public enum MonitorRenderer
     public static MonitorRenderer current()
     {
         MonitorRenderer current = ComputerCraft.monitorRenderer;
-        switch( current )
-        {
-            case BEST:
-                return best();
-            case VBO:
-                if( !GLX.useVbo() )
-                {
-                    ComputerCraft.log.warn( "VBOs are not supported on your graphics card. Falling back to default." );
-                    ComputerCraft.monitorRenderer = BEST;
-                    return best();
-                }
-
-                return VBO;
-            default:
-                return current;
-        }
+        return current == MonitorRenderer.BEST ? best() : current;
     }
 
     private static MonitorRenderer best()

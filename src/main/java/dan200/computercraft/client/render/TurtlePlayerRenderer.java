@@ -6,14 +6,15 @@
 
 package dan200.computercraft.client.render;
 
-import dan200.computercraft.ComputerCraft;
+import com.mojang.blaze3d.matrix.MatrixStack;
+import dan200.computercraft.client.gui.GuiComputer;
 import dan200.computercraft.shared.turtle.core.TurtlePlayer;
+import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererManager;
 import net.minecraft.util.ResourceLocation;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 public class TurtlePlayerRenderer extends EntityRenderer<TurtlePlayer>
 {
@@ -22,16 +23,15 @@ public class TurtlePlayerRenderer extends EntityRenderer<TurtlePlayer>
         super( renderManager );
     }
 
+    @Nonnull
     @Override
-    public void doRender( @Nonnull TurtlePlayer entity, double x, double y, double z, float entityYaw, float partialTicks )
+    public ResourceLocation getEntityTexture( @Nonnull TurtlePlayer entity )
     {
-        ComputerCraft.log.error( "Rendering TurtlePlayer on the client side, at {}", entity.getPosition() );
+        return GuiComputer.BACKGROUND_NORMAL;
     }
 
-    @Nullable
     @Override
-    protected ResourceLocation getEntityTexture( @Nonnull TurtlePlayer entity )
+    public void render( @Nonnull TurtlePlayer entityIn, float entityYaw, float partialTicks, @Nonnull MatrixStack transform, @Nonnull IRenderTypeBuffer buffer, int packedLightIn )
     {
-        return null;
     }
 }
