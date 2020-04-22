@@ -173,7 +173,7 @@ public class HTTPAPI implements ILuaAPI
                 String address = getString( args, 0 );
                 Map<?, ?> headerTbl = optTable( args, 1, Collections.emptyMap() );
 
-                if( !ComputerCraft.http_websocket_enable )
+                if( !ComputerCraft.httpWebsocketEnabled )
                 {
                     throw new LuaException( "Websocket connections are disabled" );
                 }

@@ -119,8 +119,6 @@ public class HttpRequest extends Resource<HttpRequest>
         {
             throw new HTTPRequestException( "Invalid protocol '" + scheme + "'" );
         }
-
-        NetworkUtils.checkHost( url.getHost() );
     }
 
     public void request( URI uri, HttpMethod method )

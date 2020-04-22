@@ -6,7 +6,7 @@
 package dan200.computercraft;
 
 import dan200.computercraft.api.turtle.event.TurtleAction;
-import dan200.computercraft.core.apis.AddressPredicate;
+import dan200.computercraft.core.apis.http.AddressRule;
 import dan200.computercraft.core.apis.http.websocket.Websocket;
 import dan200.computercraft.shared.Config;
 import dan200.computercraft.shared.computer.blocks.BlockComputer;
@@ -39,8 +39,13 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collections;
 import java.util.EnumSet;
+import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Mod( ComputerCraft.MOD_ID )
 public final class ComputerCraft
@@ -50,8 +55,8 @@ public final class ComputerCraft
     public static final int DATAFIXER_VERSION = 0;
 
     // Configuration options
-    public static final String[] DEFAULT_HTTP_WHITELIST = new String[] { "*" };
-    public static final String[] DEFAULT_HTTP_BLACKLIST = new String[] {
+    public static final String[] DEFAULT_HTTP_ALLOW = new String[] { "*" };
+    public static final String[] DEFAULT_HTTP_DENY = new String[] {
         "127.0.0.0/8",
         "10.0.0.0/8",
         "172.16.0.0/12",
@@ -71,10 +76,12 @@ public final class ComputerCraft
     public static long maxMainGlobalTime = TimeUnit.MILLISECONDS.toNanos( 10 );
     public static long maxMainComputerTime = TimeUnit.MILLISECONDS.toNanos( 5 );
 
-    public static boolean http_enable = true;
-    public static boolean http_websocket_enable = true;
-    public static AddressPredicate http_whitelist = new AddressPredicate( DEFAULT_HTTP_WHITELIST );
-    public static AddressPredicate http_blacklist = new AddressPredicate( DEFAULT_HTTP_BLACKLIST );
+    public static boolean httpEnabled = true;
+    public static boolean httpWebsocketEnabled = true;
+    public static List<AddressRule> httpRules = Collections.unmodifiableList( Stream.concat(
+        Stream.of( DEFAULT_HTTP_DENY ).map( x -> AddressRule.parse( x, AddressRule.Action.DENY ) ).filter( Objects::nonNull ),
+        Stream.of( DEFAULT_HTTP_ALLOW ).map( x -> AddressRule.parse( x, AddressRule.Action.ALLOW ) ).filter( Objects::nonNull )
+    ).collect( Collectors.toList() ) );
 
     public static int httpTimeout = 30000;
     public static int httpMaxRequests = 16;

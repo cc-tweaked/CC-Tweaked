@@ -106,7 +106,6 @@ public class Websocket extends Resource<Websocket>
             throw new HTTPRequestException( "Invalid scheme '" + scheme + "'" );
         }
 
-        NetworkUtils.checkHost( uri.getHost() );
         return uri;
     }
 

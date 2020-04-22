@@ -6,12 +6,13 @@
 package dan200.computercraft.shared;
 
 import com.electronwill.nightconfig.core.CommentedConfig;
+import com.electronwill.nightconfig.core.UnmodifiableConfig;
 import com.electronwill.nightconfig.core.file.CommentedFileConfig;
 import com.google.common.base.CaseFormat;
 import com.google.common.base.Converter;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.turtle.event.TurtleAction;
-import dan200.computercraft.core.apis.AddressPredicate;
+import dan200.computercraft.core.apis.http.AddressRule;
 import dan200.computercraft.core.apis.http.websocket.Websocket;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -19,13 +20,14 @@ import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 
-import java.util.Arrays;
+import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-import static dan200.computercraft.ComputerCraft.DEFAULT_HTTP_BLACKLIST;
-import static dan200.computercraft.ComputerCraft.DEFAULT_HTTP_WHITELIST;
 import static net.minecraftforge.common.ForgeConfigSpec.Builder;
 import static net.minecraftforge.common.ForgeConfigSpec.ConfigValue;
 
@@ -50,8 +52,7 @@ public final class Config
 
     private static ConfigValue<Boolean> httpEnabled;
     private static ConfigValue<Boolean> httpWebsocketEnabled;
-    private static ConfigValue<List<? extends String>> httpWhitelist;
-    private static ConfigValue<List<? extends String>> httpBlacklist;
+    private static ConfigValue<List<? extends UnmodifiableConfig>> httpRules;
 
     private static ConfigValue<Integer> httpTimeout;
     private static ConfigValue<Integer> httpMaxRequests;
@@ -151,25 +152,25 @@ public final class Config
             builder.push( "http" );
 
             httpEnabled = builder
-                .comment( "Enable the \"http\" API on Computers (see \"http_whitelist\" and \"http_blacklist\" for more " +
-                    "fine grained control than this)" )
-                .define( "enabled", ComputerCraft.http_enable );
+                .comment( "Enable the \"http\" API on Computers (see \"rules\" for more fine grained control than this)." )
+                .define( "enabled", ComputerCraft.httpEnabled );
 
             httpWebsocketEnabled = builder
                 .comment( "Enable use of http websockets. This requires the \"http_enable\" option to also be true." )
-                .define( "websocket_enabled", ComputerCraft.http_websocket_enable );
+                .define( "websocket_enabled", ComputerCraft.httpWebsocketEnabled );
 
-            httpWhitelist = builder
-                .comment( "A list of wildcards for domains or IP ranges that can be accessed through the \"http\" API on Computers.\n" +
-                    "Set this to \"*\" to access to the entire internet. Example: \"*.pastebin.com\" will restrict access to just subdomains of pastebin.com.\n" +
-                    "You can use domain names (\"pastebin.com\"), wilcards (\"*.pastebin.com\") or CIDR notation (\"127.0.0.0/8\")." )
-                .defineList( "whitelist", Arrays.asList( DEFAULT_HTTP_WHITELIST ), x -> true );
-
-            httpBlacklist = builder
-                .comment( "A list of wildcards for domains or IP ranges that cannot be accessed through the \"http\" API on Computers.\n" +
-                    "If this is empty then all whitelisted domains will be accessible. Example: \"*.github.com\" will block access to all subdomains of github.com.\n" +
-                    "You can use domain names (\"pastebin.com\"), wilcards (\"*.pastebin.com\") or CIDR notation (\"127.0.0.0/8\")." )
-                .defineList( "blacklist", Arrays.asList( DEFAULT_HTTP_BLACKLIST ), x -> true );
+            httpRules = builder
+                .comment( "A list of rules which control which domains or IPs are allowed through the \"http\" API on computers.\n" +
+                    "Each rule is an item with a 'host' to match against, and an action. " +
+                    "The host may be a domain name (\"pastebin.com\"),\n" +
+                    "wildcard (\"*.pastebin.com\") or CIDR notation (\"127.0.0.0/8\"). 'action' maybe 'allow' or 'block'. If no rules" +
+                    "match, the domain will be blocked." )
+                .defineList( "rules",
+                    Stream.concat(
+                        Stream.of( ComputerCraft.DEFAULT_HTTP_DENY ).map( x -> makeRule( x, "deny" ) ),
+                        Stream.of( ComputerCraft.DEFAULT_HTTP_ALLOW ).map( x -> makeRule( x, "allow" ) )
+                    ).collect( Collectors.toList() ),
+                    x -> x instanceof UnmodifiableConfig && parseRule( (UnmodifiableConfig) x ) != null );
 
             httpTimeout = builder
                 .comment( "The period of time (in milliseconds) to wait before a HTTP request times out. Set to 0 for unlimited." )
@@ -286,10 +287,10 @@ public final class Config
         ComputerCraft.maxMainComputerTime = TimeUnit.MILLISECONDS.toNanos( maxMainComputerTime.get() );
 
         // HTTP
-        ComputerCraft.http_enable = httpEnabled.get();
-        ComputerCraft.http_websocket_enable = httpWebsocketEnabled.get();
-        ComputerCraft.http_whitelist = new AddressPredicate( httpWhitelist.get() );
-        ComputerCraft.http_blacklist = new AddressPredicate( httpBlacklist.get() );
+        ComputerCraft.httpEnabled = httpEnabled.get();
+        ComputerCraft.httpWebsocketEnabled = httpWebsocketEnabled.get();
+        ComputerCraft.httpRules = Collections.unmodifiableList( httpRules.get().stream()
+            .map( Config::parseRule ).filter( Objects::nonNull ).collect( Collectors.toList() ) );
 
         ComputerCraft.httpTimeout = httpTimeout.get();
         ComputerCraft.httpMaxRequests = httpMaxRequests.get();
@@ -345,5 +346,29 @@ public final class Config
         {
             return null;
         }
+    }
+
+    private static UnmodifiableConfig makeRule( String host, String action )
+    {
+        com.electronwill.nightconfig.core.Config config = com.electronwill.nightconfig.core.Config.inMemory();
+        config.add( "host", host );
+        config.add( "action", action );
+        return config;
+    }
+
+    @Nullable
+    private static AddressRule parseRule( UnmodifiableConfig builder )
+    {
+        Object hostObj = builder.get( "host" );
+        Object actionObj = builder.get( "action" );
+        if( !(hostObj instanceof String) || !(actionObj instanceof String) ) return null;
+
+        String host = (String) hostObj, action = (String) actionObj;
+        for( AddressRule.Action candiate : AddressRule.Action.values() )
+        {
+            if( candiate.name().equalsIgnoreCase( action ) ) return AddressRule.parse( host, candiate );
+        }
+
+        return null;
     }
 }
