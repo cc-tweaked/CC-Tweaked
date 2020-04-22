@@ -194,8 +194,7 @@ function shell.setDir( _sDir )
     if not fs.isDir( _sDir ) then
         error( "Not a directory", 2 )
     end
-    _sDir = fs.combine(_sDir, "")
-    sDir = _sDir
+    sDir = fs.combine(_sDir, "")
 end
 
 function shell.path()
