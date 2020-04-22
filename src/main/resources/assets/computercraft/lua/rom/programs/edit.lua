@@ -61,7 +61,12 @@ if peripheral.find("printer") then
 end
 table.insert(tMenuItems, "Exit")
 
-local sStatus = "Press Ctrl or click here to access menu"
+local sStatus
+if term.isColour() then
+    sStatus = "Press Ctrl or click here to access menu"
+else
+    sStatus = "Press Ctrl to access menu"
+end
 if #sStatus > w - 5 then
     sStatus = "Press Ctrl for menu"
 end
@@ -730,9 +735,9 @@ while bRunning do
             if param == 1 then
                 -- Left click
                 if cy < h then
-                    local newY = math.min( math.max( scrollY + cy, 1 ), #tLines )
-                    local newX = math.min( math.max( scrollX + cx, 1 ), #tLines[newY] + 1 )
-                    setCursor( newX, newY )
+                    local newY = math.min(math.max(scrollY + cy, 1), #tLines)
+                    local newX = math.min(math.max(scrollX + cx, 1), #tLines[newY] + 1)
+                    setCursor(newX, newY)
                 else
                     bMenu = true
                     redrawMenu()
@@ -742,10 +747,10 @@ while bRunning do
             if cy == h then
                 local nMenuPosEnd = 1
                 local nMenuPosStart = 1
-                for n, sMenuItem in ipairs( tMenuItems ) do
+                for n, sMenuItem in ipairs(tMenuItems) do
                     nMenuPosEnd = nMenuPosEnd + #sMenuItem + 1
                     if cx > nMenuPosStart and cx < nMenuPosEnd then
-                        doMenuItem( n )
+                        doMenuItem(n)
                     end
                     nMenuPosEnd = nMenuPosEnd + 1
                     nMenuPosStart = nMenuPosEnd

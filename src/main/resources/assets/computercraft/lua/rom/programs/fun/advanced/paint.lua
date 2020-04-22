@@ -260,9 +260,11 @@ local function accessMenu()
     -- Selected menu option
     local selection = 1
 
+    local tMenuPos = {}
+
     term.setBackgroundColour(colours.black)
 
-    local function selectOption( option )
+    local function selectOption(option)
         if option == "Save" then
             if bReadOnly then
                 fMessage = "Access denied"
@@ -302,13 +304,13 @@ local function accessMenu()
                 term.setTextColour(colours.white)
                 term.write(v)
                 nEndPos = term.getCursorPos()
-                term.setCursorPos(nEndPos, h)
+                term.setCursorPos(nEndPos + 1, h)
             else
                 nStartPos = term.getCursorPos() + 1
                 term.write(" " .. v .. " ")
                 nEndPos = nStartPos + #v
             end
-            table.insert( tMenuPos, { nStartPos, nEndPos } )
+            table.insert(tMenuPos, { nStartPos, nEndPos })
         end
 
         -- Handle input in the menu
@@ -339,16 +341,16 @@ local function accessMenu()
 
             elseif key == keys.enter then
                 -- Select an option
-                return selectOption( mChoices[selection] )
+                return selectOption(mChoices[selection])
             elseif key == keys.leftCtrl or keys == keys.rightCtrl then
                 -- Cancel the menu
                 return false
             end
         elseif id == "mouse_click" then
             if y == h then
-                for k, v in pairs( tMenuPos ) do
+                for k, v in pairs(tMenuPos) do
                     if x >= v[1] and x < v[2] then
-                        return selectOption( mChoices[k] )
+                        return selectOption(mChoices[k])
                     end
                 end
             else
@@ -401,7 +403,7 @@ local function handleEvents()
                 canvas[p3][p2] = paintColour
 
                 drawCanvasPixel(p2, p3)
-            elseif p3 == h and id =="mouse_click" then
+            elseif p3 == h and id == "mouse_click" then
                 -- Open menu
                 programActive = not accessMenu()
                 drawInterface()
