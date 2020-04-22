@@ -181,7 +181,7 @@ public class Computer
         executor.tick();
 
         // Update the environment's internal state.
-        internalEnvironment.update();
+        internalEnvironment.tick();
 
         // Propagate the environment's output to the world.
         if( internalEnvironment.updateOutput() ) externalOutputChanged.set( true );

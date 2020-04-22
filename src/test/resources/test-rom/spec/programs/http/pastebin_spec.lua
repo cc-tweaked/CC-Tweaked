@@ -49,17 +49,17 @@ describe("The pastebin program", function()
     it("upload a program to pastebin", function()
         setup_request()
 
-        local file = fs.open( "testup", "w" )
+        local file = fs.open("testup", "w")
         file.close()
-        
-        expect(capture(stub, "pastebin", "put", "testup" ))
+
+        expect(capture(stub, "pastebin", "put", "testup"))
             :matches { ok = true, output = "Connecting to pastebin.com... Success.\nUploaded as https://pastebin.com/abcde\nRun \"pastebin get abcde\" to download anywhere\n", error = "" }
     end)
 
     it("upload a not existing program to pastebin", function()
         setup_request()
 
-        expect(capture(stub, "pastebin", "put", "nothing" ))
+        expect(capture(stub, "pastebin", "put", "nothing"))
             :matches { ok = true, output = "No such file\n", error = "" }
     end)
 

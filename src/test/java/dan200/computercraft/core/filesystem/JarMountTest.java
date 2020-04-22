@@ -16,6 +16,10 @@ import java.io.IOException;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.nio.file.attribute.FileTime;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -25,10 +29,11 @@ public class JarMountTest
 {
     private static final File ZIP_FILE = new File( "test-files/jar-mount.zip" );
 
+    private static final FileTime MODIFY_TIME = FileTime.from( Instant.EPOCH.plus( 2, ChronoUnit.DAYS ) );
+
     @BeforeAll
     public static void before() throws IOException
     {
-        if( ZIP_FILE.exists() ) return;
         ZIP_FILE.getParentFile().mkdirs();
 
         try( ZipOutputStream stream = new ZipOutputStream( new FileOutputStream( ZIP_FILE ) ) )
@@ -36,7 +41,7 @@ public class JarMountTest
             stream.putNextEntry( new ZipEntry( "dir/" ) );
             stream.closeEntry();
 
-            stream.putNextEntry( new ZipEntry( "dir/file.lua" ) );
+            stream.putNextEntry( new ZipEntry( "dir/file.lua" ).setLastModifiedTime( MODIFY_TIME ) );
             stream.write( "print('testing')".getBytes( StandardCharsets.UTF_8 ) );
             stream.closeEntry();
         }
@@ -82,5 +87,22 @@ public class JarMountTest
         }
 
         assertEquals( new String( contents, StandardCharsets.UTF_8 ), "print('testing')" );
+    }
+
+    @Test
+    public void fileAttributes() throws IOException
+    {
+        BasicFileAttributes attributes = new JarMount( ZIP_FILE, "dir" ).getAttributes( "file.lua" );
+        assertFalse( attributes.isDirectory() );
+        assertEquals( "print('testing')".length(), attributes.size() );
+        assertEquals( MODIFY_TIME, attributes.lastModifiedTime() );
+    }
+
+    @Test
+    public void directoryAttributes() throws IOException
+    {
+        BasicFileAttributes attributes = new JarMount( ZIP_FILE, "dir" ).getAttributes( "" );
+        assertTrue( attributes.isDirectory() );
+        assertEquals( 0, attributes.size() );
     }
 }

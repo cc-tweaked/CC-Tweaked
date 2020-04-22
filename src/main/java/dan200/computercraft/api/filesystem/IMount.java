@@ -12,6 +12,7 @@ import net.minecraft.world.World;
 import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.nio.channels.ReadableByteChannel;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.List;
 
 /**
@@ -76,4 +77,18 @@ public interface IMount
      */
     @Nonnull
     ReadableByteChannel openForRead( @Nonnull String path ) throws IOException;
+
+    /**
+     * Get attributes about the given file.
+     *
+     * @param path The path to query.
+     * @return File attributes for the given file.
+     * @throws IOException If the file does not exist, or attributes could not be fetched.
+     */
+    @Nonnull
+    default BasicFileAttributes getAttributes( @Nonnull String path ) throws IOException
+    {
+        if( !exists( path ) ) throw new FileOperationException( path, "No such file" );
+        return new FileAttributes( isDirectory( path ), getSize( path ) );
+    }
 }

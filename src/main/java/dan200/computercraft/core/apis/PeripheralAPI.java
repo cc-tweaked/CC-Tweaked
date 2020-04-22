@@ -366,22 +366,30 @@ public class PeripheralAPI implements ILuaAPI, IAPIEnvironment.IPeripheralChange
                 String methodName = getString( args, 1 );
                 Object[] methodArgs = Arrays.copyOfRange( args, 2, args.length );
 
-                if( side != null )
+                if( side == null ) throw new LuaException( "No peripheral attached" );
+
+                PeripheralWrapper p;
+                synchronized( m_peripherals )
                 {
-                    PeripheralWrapper p;
-                    synchronized( m_peripherals )
-                    {
-                        p = m_peripherals[side.ordinal()];
-                    }
-                    if( p != null )
-                    {
-                        return p.call( context, methodName, methodArgs );
-                    }
+                    p = m_peripherals[side.ordinal()];
                 }
-                throw new LuaException( "No peripheral attached" );
+                if( p == null ) throw new LuaException( "No peripheral attached" );
+
+                try
+                {
+                    return p.call( context, methodName, methodArgs );
+                }
+                catch( LuaException e )
+                {
+                    // We increase the error level by one in order to shift the error level to where peripheral.call was
+                    // invoked. It would be possible to do it in Lua code, but would add significantly more overhead.
+                    if( e.getLevel() > 0 ) throw new FastLuaException( e.getMessage(), e.getLevel() + 1 );
+                    throw e;
+                }
             }
             default:
                 return null;
         }
     }
+
 }

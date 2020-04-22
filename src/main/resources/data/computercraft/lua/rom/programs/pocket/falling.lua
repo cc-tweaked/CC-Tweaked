@@ -158,9 +158,9 @@ local block_T = {
     bg = colorass(colors.purple, colors.white),
   }
 
-local blocks = { block_line, block_square, block_s1, block_s2, block_L1, block_L2, block_T}
+local blocks = { block_line, block_square, block_s1, block_s2, block_L1, block_L2, block_T }
 
-local points = {4, 10, 30, 120}
+local points = { 4, 10, 30, 120 }
 
 local function lpad(text, amt)
   text = tostring(text)
@@ -456,7 +456,7 @@ local function playGame()
       sleep(.25)
       for r = 1, #rows do
         table.remove(pit, rows[r])
-        table.insert(pit, 1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0})
+        table.insert(pit, 1, { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 })
       end
       redrawPit()
       lines = lines + #rows
@@ -496,7 +496,7 @@ local function playGame()
 
 
   while not halt do
-    local e = {os.pullEvent()}
+    local e = { os.pullEvent() }
     if e[1] == "timer" then
       if e[2] == dropTimer then
         blockFall()
@@ -517,7 +517,7 @@ local function playGame()
       elseif key == keys.space then
         hidePit()
         msgBox("Paused")
-        while ({os.pullEvent("key")})[2] ~= keys.space do end
+        while ({ os.pullEvent("key") })[2] ~= keys.space do end
         redrawPit()
         drawBlockAt(curBlock, curX, curY, curRot)
         dropTimer = os.startTimer(dropSpeed)
@@ -606,7 +606,7 @@ local function runMenu()
   drawMenu()
 
   while true do
-    local event = {os.pullEvent()}
+    local event = { os.pullEvent() }
     if event[1] == "key" then
       local key = event[2]
       if key == keys.right or key == keys.d and selected == 1 then

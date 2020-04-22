@@ -10,61 +10,60 @@ import dan200.computercraft.api.filesystem.IMount;
 import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.nio.channels.ReadableByteChannel;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.List;
 
 public class SubMount implements IMount
 {
-    private IMount m_parent;
-    private String m_subPath;
+    private IMount parent;
+    private String subPath;
 
     public SubMount( IMount parent, String subPath )
     {
-        m_parent = parent;
-        m_subPath = subPath;
+        this.parent = parent;
+        this.subPath = subPath;
     }
-
-    // IMount implementation
 
     @Override
     public boolean exists( @Nonnull String path ) throws IOException
     {
-        return m_parent.exists( getFullPath( path ) );
+        return parent.exists( getFullPath( path ) );
     }
 
     @Override
     public boolean isDirectory( @Nonnull String path ) throws IOException
     {
-        return m_parent.isDirectory( getFullPath( path ) );
+        return parent.isDirectory( getFullPath( path ) );
     }
 
     @Override
     public void list( @Nonnull String path, @Nonnull List<String> contents ) throws IOException
     {
-        m_parent.list( getFullPath( path ), contents );
+        parent.list( getFullPath( path ), contents );
     }
 
     @Override
     public long getSize( @Nonnull String path ) throws IOException
     {
-        return m_parent.getSize( getFullPath( path ) );
+        return parent.getSize( getFullPath( path ) );
     }
 
     @Nonnull
     @Override
     public ReadableByteChannel openForRead( @Nonnull String path ) throws IOException
     {
-        return m_parent.openForRead( getFullPath( path ) );
+        return parent.openForRead( getFullPath( path ) );
+    }
+
+    @Nonnull
+    @Override
+    public BasicFileAttributes getAttributes( @Nonnull String path ) throws IOException
+    {
+        return parent.getAttributes( getFullPath( path ) );
     }
 
     private String getFullPath( String path )
     {
-        if( path.isEmpty() )
-        {
-            return m_subPath;
-        }
-        else
-        {
-            return m_subPath + "/" + path;
-        }
+        return path.isEmpty() ? subPath : subPath + "/" + path;
     }
 }

@@ -3,6 +3,8 @@
 /logs
 /build
 /out
+/doc/**/*.html
+/doc/index.json
 
 # Runtime directories
 /run
@@ -21,3 +23,5 @@
 .settings/
 bin/
 *.launch
+
+/src/generated/resources/.cache

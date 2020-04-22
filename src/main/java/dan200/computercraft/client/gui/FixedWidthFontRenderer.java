@@ -46,8 +46,17 @@ public final class FixedWidthFontRenderer
         return (float) ((rgb[0] + rgb[1] + rgb[2]) / 3);
     }
 
+    private static int getColour( char c )
+    {
+        int i = "0123456789abcdef".indexOf( c );
+        return i < 0 ? 0 : 15 - i;
+    }
+
     private static void drawChar( Matrix4f transform, IVertexBuilder buffer, float x, float y, int index, float r, float g, float b )
     {
+        // Short circuit to avoid the common case - the texture should be blank here after all.
+        if( index == '\0' || index == ' ' ) return;
+
         int column = index % 16;
         int row = index / 16;
 
@@ -72,6 +81,24 @@ public final class FixedWidthFontRenderer
         buffer.pos( transform, x + width, y + height, 0 ).color( r, g, b, 1.0f ).tex( BACKGROUND_END, BACKGROUND_END ).endVertex();
     }
 
+    private static void drawQuad( Matrix4f transform, IVertexBuilder buffer, float x, float y, float width, float height, Palette palette, boolean greyscale, char colourIndex )
+    {
+        double[] colour = palette.getColour( getColour( colourIndex ) );
+        float r, g, b;
+        if( greyscale )
+        {
+            r = g = b = toGreyscale( colour );
+        }
+        else
+        {
+            r = (float) colour[0];
+            g = (float) colour[1];
+            b = (float) colour[2];
+        }
+
+        drawQuad( transform, buffer, x, y, width, height, r, g, b );
+    }
+
     private static void drawBackground(
         @Nonnull Matrix4f transform, @Nonnull IVertexBuilder renderer, float x, float y,
         @Nonnull TextBuffer backgroundColour, @Nonnull Palette palette, boolean greyscale,
@@ -80,56 +107,34 @@ public final class FixedWidthFontRenderer
     {
         if( leftMarginSize > 0 )
         {
-            double[] colour = palette.getColour( 15 - "0123456789abcdef".indexOf( backgroundColour.charAt( 0 ) ) );
-            float r, g, b;
-            if( greyscale )
-            {
-                r = g = b = toGreyscale( colour );
-            }
-            else
-            {
-                r = (float) colour[0];
-                g = (float) colour[1];
-                b = (float) colour[2];
-            }
-
-            drawQuad( transform, renderer, x - leftMarginSize, y, leftMarginSize, height, r, g, b );
+            drawQuad( transform, renderer, x - leftMarginSize, y, leftMarginSize, height, palette, greyscale, backgroundColour.charAt( 0 ) );
         }
 
         if( rightMarginSize > 0 )
         {
-            double[] colour = palette.getColour( 15 - "0123456789abcdef".indexOf( backgroundColour.charAt( backgroundColour.length() - 1 ) ) );
-            float r, g, b;
-            if( greyscale )
-            {
-                r = g = b = toGreyscale( colour );
-            }
-            else
-            {
-                r = (float) colour[0];
-                g = (float) colour[1];
-                b = (float) colour[2];
-            }
-
-            drawQuad( transform, renderer, x + backgroundColour.length() * FONT_WIDTH, y, rightMarginSize, height, r, g, b );
+            drawQuad( transform, renderer, x + backgroundColour.length() * FONT_WIDTH, y, rightMarginSize, height, palette, greyscale, backgroundColour.charAt( backgroundColour.length() - 1 ) );
         }
 
+        // Batch together runs of identical background cells.
+        int blockStart = 0;
+        char blockColour = '\0';
         for( int i = 0; i < backgroundColour.length(); i++ )
         {
-            double[] colour = palette.getColour( 15 - "0123456789abcdef".indexOf( backgroundColour.charAt( i ) ) );
-            float r, g, b;
-            if( greyscale )
+            char colourIndex = backgroundColour.charAt( i );
+            if( colourIndex == blockColour ) continue;
+
+            if( blockColour != '\0' )
             {
-                r = g = b = toGreyscale( colour );
-            }
-            else
-            {
-                r = (float) colour[0];
-                g = (float) colour[1];
-                b = (float) colour[2];
+                drawQuad( transform, renderer, x + blockStart * FONT_WIDTH, y, FONT_WIDTH * (i - blockStart), height, palette, greyscale, blockColour );
             }
 
-            drawQuad( transform, renderer, x + i * FONT_WIDTH, y, FONT_WIDTH, height, r, g, b );
+            blockColour = colourIndex;
+            blockStart = i;
+        }
+
+        if( blockColour != '\0' )
+        {
+            drawQuad( transform, renderer, x + blockStart * FONT_WIDTH, y, FONT_WIDTH * (backgroundColour.length() - blockStart), height, palette, greyscale, blockColour );
         }
     }
 
@@ -172,8 +177,7 @@ public final class FixedWidthFontRenderer
         @Nonnull Palette palette, boolean greyscale, float leftMarginSize, float rightMarginSize
     )
     {
-        Minecraft.getInstance().getTextureManager().bindTexture( FONT );
-        // TODO: RenderSystem.texParameter( GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL11.GL_CLAMP );
+        bindFont();
 
         IRenderTypeBuffer.Impl renderer = Minecraft.getInstance().getRenderTypeBuffers().getBufferSource();
         drawString( IDENTITY, ((IRenderTypeBuffer) renderer).getBuffer( TYPE ), x, y, text, textColour, backgroundColour, palette, greyscale, leftMarginSize, rightMarginSize );
@@ -258,9 +262,7 @@ public final class FixedWidthFontRenderer
         float topMarginSize, float bottomMarginSize, float leftMarginSize, float rightMarginSize
     )
     {
-        Minecraft.getInstance().getTextureManager().bindTexture( FONT );
-        // TODO: Is this the most sane thing?
-        RenderSystem.texParameter( GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL11.GL_CLAMP );
+        bindFont();
 
         IRenderTypeBuffer.Impl renderer = Minecraft.getInstance().getRenderTypeBuffers().getBufferSource();
         IVertexBuilder buffer = renderer.getBuffer( TYPE );
@@ -284,8 +286,7 @@ public final class FixedWidthFontRenderer
 
     public static void drawEmptyTerminal( @Nonnull Matrix4f transform, float x, float y, float width, float height )
     {
-        Minecraft.getInstance().getTextureManager().bindTexture( FONT );
-        RenderSystem.texParameter( GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL11.GL_CLAMP );
+        bindFont();
 
         IRenderTypeBuffer.Impl renderer = Minecraft.getInstance().getRenderTypeBuffers().getBufferSource();
         drawEmptyTerminal( transform, renderer, x, y, width, height );
@@ -301,6 +302,12 @@ public final class FixedWidthFontRenderer
     {
         Colour colour = Colour.BLACK;
         drawQuad( transform, renderer.getBuffer( Type.BLOCKER ), x, y, width, height, colour.getR(), colour.getG(), colour.getB() );
+    }
+
+    private static void bindFont()
+    {
+        Minecraft.getInstance().getTextureManager().bindTexture( FONT );
+        RenderSystem.texParameter( GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL11.GL_CLAMP );
     }
 
     private static final class Type extends RenderState

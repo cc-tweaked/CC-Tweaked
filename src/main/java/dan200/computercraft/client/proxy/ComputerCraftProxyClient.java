@@ -9,6 +9,7 @@ import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.client.gui.*;
 import dan200.computercraft.client.render.TileEntityMonitorRenderer;
 import dan200.computercraft.client.render.TileEntityTurtleRenderer;
+import dan200.computercraft.client.render.TurtlePlayerRenderer;
 import dan200.computercraft.shared.common.ContainerHeldItem;
 import dan200.computercraft.shared.computer.inventory.ContainerComputer;
 import dan200.computercraft.shared.computer.inventory.ContainerViewComputer;
@@ -18,6 +19,7 @@ import dan200.computercraft.shared.peripheral.monitor.TileMonitor;
 import dan200.computercraft.shared.peripheral.printer.ContainerPrinter;
 import dan200.computercraft.shared.pocket.inventory.ContainerPocketComputer;
 import dan200.computercraft.shared.turtle.blocks.TileTurtle;
+import dan200.computercraft.shared.turtle.core.TurtlePlayer;
 import dan200.computercraft.shared.turtle.inventory.ContainerTurtle;
 import net.minecraft.client.gui.ScreenManager;
 import net.minecraft.client.renderer.RenderType;
@@ -26,6 +28,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
+import net.minecraftforge.fml.client.registry.RenderingRegistry;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 
@@ -51,6 +54,8 @@ public final class ComputerCraftProxyClient
         ClientRegistry.bindTileEntityRenderer( TileTurtle.FACTORY_NORMAL, TileEntityTurtleRenderer::new );
         ClientRegistry.bindTileEntityRenderer( TileTurtle.FACTORY_ADVANCED, TileEntityTurtleRenderer::new );
         // TODO: ClientRegistry.bindTileEntityRenderer( TileCable.FACTORY, x -> new TileEntityCableRenderer() );
+
+        RenderingRegistry.registerEntityRenderingHandler( TurtlePlayer.TYPE, TurtlePlayerRenderer::new );
     }
 
     private static void registerContainers()

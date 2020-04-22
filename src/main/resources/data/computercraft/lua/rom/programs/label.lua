@@ -1,67 +1,67 @@
 
 local function printUsage()
-    print( "Usages:" )
-    print( "label get" )
-    print( "label get <drive>" )
-    print( "label set <text>" )
-    print( "label set <drive> <text>" )
-    print( "label clear" )
-    print( "label clear <drive>" )
+    print("Usages:")
+    print("label get")
+    print("label get <drive>")
+    print("label set <text>")
+    print("label set <drive> <text>")
+    print("label clear")
+    print("label clear <drive>")
 end
 
-local function checkDrive( sDrive )
-    if peripheral.getType( sDrive ) == "drive" then
+local function checkDrive(sDrive)
+    if peripheral.getType(sDrive) == "drive" then
         -- Check the disk exists
-        local bData = disk.hasData( sDrive )
+        local bData = disk.hasData(sDrive)
         if not bData then
-            print( "No disk in " .. sDrive .. " drive" )
+            print("No disk in " .. sDrive .. " drive")
             return false
         end
     else
-        print( "No disk drive named " .. sDrive )
+        print("No disk drive named " .. sDrive)
         return false
     end
     return true
 end
 
-local function get( sDrive )
+local function get(sDrive)
     if sDrive ~= nil then
-        if checkDrive( sDrive ) then
-            local sLabel = disk.getLabel( sDrive )
+        if checkDrive(sDrive) then
+            local sLabel = disk.getLabel(sDrive)
             if sLabel then
-                print( "Disk label is \"" .. sLabel .. "\"" )
+                print("Disk label is \"" .. sLabel .. "\"")
             else
-                print( "No Disk label" )
+                print("No Disk label")
             end
         end
     else
         local sLabel = os.getComputerLabel()
         if sLabel then
-            print( "Computer label is \"" .. sLabel .. "\"" )
+            print("Computer label is \"" .. sLabel .. "\"")
         else
-            print( "No Computer label" )
+            print("No Computer label")
         end
     end
 end
 
-local function set( sDrive, sText )
+local function set(sDrive, sText)
     if sDrive ~= nil then
-        if checkDrive( sDrive ) then
-            disk.setLabel( sDrive, sText )
-            local sLabel = disk.getLabel( sDrive )
+        if checkDrive(sDrive) then
+            disk.setLabel(sDrive, sText)
+            local sLabel = disk.getLabel(sDrive)
             if sLabel then
-                print( "Disk label set to \"" .. sLabel .. "\"" )
+                print("Disk label set to \"" .. sLabel .. "\"")
             else
-                print( "Disk label cleared" )
+                print("Disk label cleared")
             end
         end
     else
-        os.setComputerLabel( sText )
+        os.setComputerLabel(sText)
         local sLabel = os.getComputerLabel()
         if sLabel then
-            print( "Computer label set to \"" .. sLabel .. "\"" )
+            print("Computer label set to \"" .. sLabel .. "\"")
         else
-            print( "Computer label cleared" )
+            print("Computer label cleared")
         end
     end
 end
@@ -71,27 +71,27 @@ local sCommand = tArgs[1]
 if sCommand == "get" then
     -- Get a label
     if #tArgs == 1 then
-        get( nil )
+        get(nil)
     elseif #tArgs == 2 then
-        get( tArgs[2] )
+        get(tArgs[2])
     else
         printUsage()
     end
 elseif sCommand == "set" then
     -- Set a label
     if #tArgs == 2 then
-        set( nil, tArgs[2] )
+        set(nil, tArgs[2])
     elseif #tArgs == 3 then
-        set( tArgs[2], tArgs[3] )
+        set(tArgs[2], tArgs[3])
     else
         printUsage()
     end
 elseif sCommand == "clear" then
     -- Clear a label
     if #tArgs == 1 then
-        set( nil, nil )
+        set(nil, nil)
     elseif #tArgs == 2 then
-        set( tArgs[2], nil )
+        set(tArgs[2], nil)
     else
         printUsage()
     end

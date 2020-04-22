@@ -40,7 +40,11 @@ import java.util.concurrent.Future;
  */
 public class Websocket extends Resource<Websocket>
 {
-    public static final int MAX_MESSAGE_SIZE = 64 * 1024;
+    /**
+     * We declare the maximum size to be 2^30 bytes. While messages can be much longer, we set an arbitrary limit as
+     * working with larger messages (especially within a Lua VM) is absurd.
+     */
+    public static final int MAX_MESSAGE_SIZE = 1 << 30;
 
     static final String SUCCESS_EVENT = "websocket_success";
     static final String FAILURE_EVENT = "websocket_failure";

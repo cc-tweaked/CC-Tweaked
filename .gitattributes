@@ -1,0 +1,2 @@
+# Ignore changes in generated files
+src/generated/resources/data/** linguist-generated

@@ -40,4 +40,9 @@ public final class BlockNamedEntityLootCondition implements ILootCondition
     {
         return Collections.singleton( LootParameters.BLOCK_ENTITY );
     }
+
+    public static IBuilder builder()
+    {
+        return () -> INSTANCE;
+    }
 }

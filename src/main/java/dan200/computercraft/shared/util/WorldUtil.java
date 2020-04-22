@@ -7,7 +7,6 @@ package dan200.computercraft.shared.util;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.MapMaker;
-import net.minecraft.block.BlockState;
 import net.minecraft.entity.*;
 import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -54,8 +53,7 @@ public final class WorldUtil
     public static boolean isLiquidBlock( World world, BlockPos pos )
     {
         if( !World.isValid( pos ) ) return false;
-        BlockState state = world.getBlockState( pos );
-        return !state.getFluidState().isEmpty();
+        return world.getBlockState( pos ).getMaterial().isLiquid();
     }
 
     public static boolean isVecInside( VoxelShape shape, Vec3d vec )

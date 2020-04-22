@@ -57,6 +57,19 @@ minecraft {
                 }
             }
         }
+
+        data {
+            workingDirectory project.file('run')
+            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
+            property 'forge.logging.console.level', 'debug'
+
+            args '--mod', 'computercraft', '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
+            mods {
+                computercraft {
+                    source sourceSets.main
+                }
+            }
+        }
     }
 
     mappings channel: 'snapshot', version: "${mappings_version}".toString()
@@ -64,18 +77,14 @@ minecraft {
     accessTransformer file('src/main/resources/META-INF/accesstransformer.cfg')
 }
 
+sourceSets.main.resources {
+    srcDir 'src/generated/resources'
+}
+
 repositories {
-    maven {
-        name "JEI"
-        url "https://dvs1.progwml6.com/files/maven"
-    }
     maven {
         name "SquidDev"
         url "https://squiddev.cc/maven"
-    }
-    maven {
-        name "CraftTweaker"
-        url "https://maven.blamejared.com/"
     }
 }
 
@@ -93,7 +102,7 @@ dependencies {
     compileOnly fg.deobf("mezz.jei:jei-1.15.2:6.0.0.2:api")
     runtimeOnly fg.deobf("mezz.jei:jei-1.15.2:6.0.0.2")
 
-    shade 'org.squiddev:Cobalt:0.5.0-SNAPSHOT'
+    shade 'org.squiddev:Cobalt:0.5.1-SNAPSHOT'
 
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.4.2'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.4.2'

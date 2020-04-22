@@ -11,6 +11,7 @@ import dan200.computercraft.client.FrameInfo;
 import dan200.computercraft.client.gui.FixedWidthFontRenderer;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.shared.peripheral.monitor.ClientMonitor;
+import dan200.computercraft.shared.peripheral.monitor.MonitorRenderer;
 import dan200.computercraft.shared.peripheral.monitor.TileMonitor;
 import dan200.computercraft.shared.util.DirectionUtil;
 import net.minecraft.client.renderer.*;
@@ -92,7 +93,7 @@ public class TileEntityMonitorRenderer extends TileEntityRenderer<TileMonitor>
             boolean redraw = originTerminal.pollTerminalChanged();
             if( originTerminal.buffer == null )
             {
-                originTerminal.createBuffer();
+                originTerminal.createBuffer( MonitorRenderer.VBO );
                 redraw = true;
             }
             VertexBuffer vbo = originTerminal.buffer;

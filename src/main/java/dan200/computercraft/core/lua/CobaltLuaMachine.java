@@ -92,6 +92,7 @@ public class CobaltLuaMachine implements ILuaMachine
         m_globals.load( state, new MathLib() );
         m_globals.load( state, new CoroutineLib() );
         m_globals.load( state, new Bit32Lib() );
+        m_globals.load( state, new Utf8Lib() );
         if( ComputerCraft.debug_enable ) m_globals.load( state, new DebugLib() );
 
         // Remove globals we don't want to expose

@@ -7,7 +7,7 @@ describe("The motd program", function()
         file.write("Hello World!")
         file.close()
         settings.set("motd.path", "/modt_check.txt")
-        
+
         expect(capture(stub, "motd"))
             :matches { ok = true, output = "Hello World!\n", error = "" }
     end)

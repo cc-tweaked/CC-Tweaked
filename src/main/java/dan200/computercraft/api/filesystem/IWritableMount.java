@@ -13,6 +13,7 @@ import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.channels.WritableByteChannel;
+import java.util.OptionalLong;
 
 /**
  * Represents a part of a virtual filesystem that can be mounted onto a computer using {@link IComputerAccess#mount(String, IMount)}
@@ -74,4 +75,16 @@ public interface IWritableMount extends IMount
      * @throws IOException If the remaining space could not be computed.
      */
     long getRemainingSpace() throws IOException;
+
+    /**
+     * Get the capacity of this mount. This should be equal to the size of all files/directories on this mount, minus
+     * the {@link #getRemainingSpace()}.
+     *
+     * @return The capacity of this mount, in bytes.
+     */
+    @Nonnull
+    default OptionalLong getCapacity()
+    {
+        return OptionalLong.empty();
+    }
 }

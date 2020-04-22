@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "###",
+    "#E#",
+    "###"
+  ],
+  "key": {
+    "#": {
+      "tag": "forge:stone"
+    },
+    "E": {
+      "tag": "forge:ender_pearls"
+    }
+  },
+  "result": {
+    "item": "computercraft:wireless_modem_normal"
+  }
+}

@@ -5,6 +5,7 @@
  */
 package dan200.computercraft.core.computer;
 
+import dan200.computercraft.api.lua.ILuaAPI;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.peripheral.IWorkMonitor;
 import dan200.computercraft.core.apis.IAPIEnvironment;
@@ -12,9 +13,12 @@ import dan200.computercraft.core.filesystem.FileSystem;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.core.tracking.Tracking;
 import dan200.computercraft.core.tracking.TrackingField;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 
 import javax.annotation.Nonnull;
 import java.util.Arrays;
+import java.util.Iterator;
 
 /**
  * Represents the "environment" that a {@link Computer} exists in.
@@ -52,6 +56,9 @@ public final class Environment implements IAPIEnvironment
 
     private final IPeripheral[] peripherals = new IPeripheral[ComputerSide.COUNT];
     private IPeripheralChangeListener peripheralListener = null;
+
+    private final Int2ObjectMap<Timer> timers = new Int2ObjectOpenHashMap<>();
+    private int nextTimerToken = 0;
 
     Environment( Computer computer )
     {
@@ -198,16 +205,46 @@ public final class Environment implements IAPIEnvironment
     }
 
     /**
-     * Called on the main thread to update the internal state of the computer.
+     * Called when the computer starts up or shuts down, to reset any internal state.
      *
-     * This just queues a {@code redstone} event if the input has changed.
+     * @see ILuaAPI#startup()
+     * @see ILuaAPI#shutdown()
      */
-    void update()
+    void reset()
+    {
+        synchronized( timers )
+        {
+            timers.clear();
+        }
+    }
+
+    /**
+     * Called on the main thread to update the internal state of the computer.
+     */
+    void tick()
     {
         if( inputChanged )
         {
             inputChanged = false;
             queueEvent( "redstone", null );
+        }
+
+        synchronized( timers )
+        {
+            // Countdown all of our active timers
+            Iterator<Int2ObjectMap.Entry<Timer>> it = timers.int2ObjectEntrySet().iterator();
+            while( it.hasNext() )
+            {
+                Int2ObjectMap.Entry<Timer> entry = it.next();
+                Timer timer = entry.getValue();
+                timer.ticksLeft--;
+                if( timer.ticksLeft <= 0 )
+                {
+                    // Queue the "timer" event
+                    queueEvent( TIMER_EVENT, new Object[] { entry.getIntKey() } );
+                    it.remove();
+                }
+            }
         }
     }
 
@@ -304,8 +341,37 @@ public final class Environment implements IAPIEnvironment
     }
 
     @Override
+    public int startTimer( long ticks )
+    {
+        synchronized( timers )
+        {
+            timers.put( nextTimerToken, new Timer( ticks ) );
+            return nextTimerToken++;
+        }
+    }
+
+    @Override
+    public void cancelTimer( int id )
+    {
+        synchronized( timers )
+        {
+            timers.remove( id );
+        }
+    }
+
+    @Override
     public void addTrackingChange( @Nonnull TrackingField field, long change )
     {
         Tracking.addValue( computer, field, change );
+    }
+
+    private static class Timer
+    {
+        long ticksLeft;
+
+        Timer( long ticksLeft )
+        {
+            this.ticksLeft = ticksLeft;
+        }
     }
 }

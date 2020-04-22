@@ -6,6 +6,7 @@
 package dan200.computercraft.core.filesystem;
 
 import com.google.common.collect.Sets;
+import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.filesystem.FileOperationException;
 import dan200.computercraft.api.filesystem.IWritableMount;
 
@@ -14,11 +15,11 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.*;
-import java.nio.file.Files;
-import java.nio.file.OpenOption;
-import java.nio.file.StandardOpenOption;
+import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collections;
 import java.util.List;
+import java.util.OptionalLong;
 import java.util.Set;
 
 public class FileMount implements IWritableMount
@@ -211,6 +212,19 @@ public class FileMount implements IWritableMount
         throw new FileOperationException( path, "No such file" );
     }
 
+    @Nonnull
+    @Override
+    public BasicFileAttributes getAttributes( @Nonnull String path ) throws IOException
+    {
+        if( created() )
+        {
+            File file = getRealPath( path );
+            if( file.exists() ) return Files.readAttributes( file.toPath(), BasicFileAttributes.class );
+        }
+
+        throw new FileOperationException( path, "No such file" );
+    }
+
     // IWritableMount implementation
 
     @Override
@@ -331,6 +345,13 @@ public class FileMount implements IWritableMount
         return Math.max( m_capacity - m_usedSpace, 0 );
     }
 
+    @Nonnull
+    @Override
+    public OptionalLong getCapacity()
+    {
+        return OptionalLong.of( m_capacity - MINIMUM_FILE_SIZE );
+    }
+
     private File getRealPath( String path )
     {
         return new File( m_rootPath, path );
@@ -353,23 +374,46 @@ public class FileMount implements IWritableMount
         }
     }
 
+    private static class Visitor extends SimpleFileVisitor<Path>
+    {
+        long size;
+
+        @Override
+        public FileVisitResult preVisitDirectory( Path dir, BasicFileAttributes attrs )
+        {
+            size += MINIMUM_FILE_SIZE;
+            return FileVisitResult.CONTINUE;
+        }
+
+        @Override
+        public FileVisitResult visitFile( Path file, BasicFileAttributes attrs )
+        {
+            size += Math.max( attrs.size(), MINIMUM_FILE_SIZE );
+            return FileVisitResult.CONTINUE;
+        }
+
+        @Override
+        public FileVisitResult visitFileFailed( Path file, IOException exc )
+        {
+            ComputerCraft.log.error( "Error computing file size for {}", file, exc );
+            return FileVisitResult.CONTINUE;
+        }
+    }
+
     private static long measureUsedSpace( File file )
     {
         if( !file.exists() ) return 0;
 
-        if( file.isDirectory() )
+        try
         {
-            long size = MINIMUM_FILE_SIZE;
-            String[] contents = file.list();
-            for( String content : contents )
-            {
-                size += measureUsedSpace( new File( file, content ) );
-            }
-            return size;
+            Visitor visitor = new Visitor();
+            Files.walkFileTree( file.toPath(), visitor );
+            return visitor.size;
         }
-        else
+        catch( IOException e )
         {
-            return Math.max( file.length(), MINIMUM_FILE_SIZE );
+            ComputerCraft.log.error( "Error computing file size for {}", file, e );
+            return 0;
         }
     }
 }

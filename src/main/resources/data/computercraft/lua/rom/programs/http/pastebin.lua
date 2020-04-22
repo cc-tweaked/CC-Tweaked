@@ -1,9 +1,9 @@
 
 local function printUsage()
-    print( "Usages:" )
-    print( "pastebin put <filename>" )
-    print( "pastebin get <code> <filename>" )
-    print( "pastebin run <code> <arguments>" )
+    print("Usages:")
+    print("pastebin put <filename>")
+    print("pastebin get <code> <filename>")
+    print("pastebin run <code> <arguments>")
 end
 
 local tArgs = { ... }
@@ -13,8 +13,8 @@ if #tArgs < 2 then
 end
 
 if not http then
-    printError( "Pastebin requires http API" )
-    printError( "Set http_enable to true in ComputerCraft.cfg" )
+    printError("Pastebin requires the http API")
+    printError("Set http.enabled to true in CC: Tweaked's config")
     return
 end
 
@@ -29,7 +29,7 @@ local function extractId(paste)
     }
 
     for i = 1, #patterns do
-        local code = paste:match( patterns[i] )
+        local code = paste:match(patterns[i])
         if code then return code end
     end
 
@@ -37,36 +37,36 @@ local function extractId(paste)
 end
 
 local function get(url)
-    local paste = extractId( url )
+    local paste = extractId(url)
     if not paste then
-        io.stderr:write( "Invalid pastebin code.\n" )
-        io.write( "The code is the ID at the end of the pastebin.com URL.\n" )
+        io.stderr:write("Invalid pastebin code.\n")
+        io.write("The code is the ID at the end of the pastebin.com URL.\n")
         return
     end
 
-    write( "Connecting to pastebin.com... " )
+    write("Connecting to pastebin.com... ")
     -- Add a cache buster so that spam protection is re-checked
     local cacheBuster = ("%x"):format(math.random(0, 2 ^ 30))
     local response, err = http.get(
-        "https://pastebin.com/raw/" .. textutils.urlEncode( paste ) .. "?cb=" .. cacheBuster
+        "https://pastebin.com/raw/" .. textutils.urlEncode(paste) .. "?cb=" .. cacheBuster
     )
 
     if response then
         -- If spam protection is activated, we get redirected to /paste with Content-Type: text/html
         local headers = response.getResponseHeaders()
-        if not headers["Content-Type"] or not headers["Content-Type"]:find( "^text/plain" ) then
-            io.stderr:write( "Failed.\n" )
-            print( "Pastebin blocked the download due to spam protection. Please complete the captcha in a web browser: https://pastebin.com/" .. textutils.urlEncode( paste ) )
+        if not headers["Content-Type"] or not headers["Content-Type"]:find("^text/plain") then
+            io.stderr:write("Failed.\n")
+            print("Pastebin blocked the download due to spam protection. Please complete the captcha in a web browser: https://pastebin.com/" .. textutils.urlEncode(paste))
             return
         end
 
-        print( "Success." )
+        print("Success.")
 
         local sResponse = response.readAll()
         response.close()
         return sResponse
     else
-        io.stderr:write( "Failed.\n" )
+        io.stderr:write("Failed.\n")
         print(err)
     end
 end
@@ -76,20 +76,20 @@ if sCommand == "put" then
     -- Upload a file to pastebin.com
     -- Determine file to upload
     local sFile = tArgs[2]
-    local sPath = shell.resolve( sFile )
-    if not fs.exists( sPath ) or fs.isDir( sPath ) then
-        print( "No such file" )
+    local sPath = shell.resolve(sFile)
+    if not fs.exists(sPath) or fs.isDir(sPath) then
+        print("No such file")
         return
     end
 
     -- Read in the file
-    local sName = fs.getName( sPath )
-    local file = fs.open( sPath, "r" )
+    local sName = fs.getName(sPath)
+    local file = fs.open(sPath, "r")
     local sText = file.readAll()
     file.close()
 
     -- POST the contents to pastebin
-    write( "Connecting to pastebin.com... " )
+    write("Connecting to pastebin.com... ")
     local key = "0ec2eb25b6166c0c27a394ae118ad829"
     local response = http.post(
         "https://pastebin.com/api/api_post.php",
@@ -101,17 +101,17 @@ if sCommand == "put" then
     )
 
     if response then
-        print( "Success." )
+        print("Success.")
 
         local sResponse = response.readAll()
         response.close()
 
-        local sCode = string.match( sResponse, "[^/]+$" )
-        print( "Uploaded as " .. sResponse )
-        print( "Run \"pastebin get " .. sCode .. "\" to download anywhere" )
+        local sCode = string.match(sResponse, "[^/]+$")
+        print("Uploaded as " .. sResponse)
+        print("Run \"pastebin get " .. sCode .. "\" to download anywhere")
 
     else
-        print( "Failed." )
+        print("Failed.")
     end
 
 elseif sCommand == "get" then
@@ -124,20 +124,20 @@ elseif sCommand == "get" then
     -- Determine file to download
     local sCode = tArgs[2]
     local sFile = tArgs[3]
-    local sPath = shell.resolve( sFile )
-    if fs.exists( sPath ) then
-        print( "File already exists" )
+    local sPath = shell.resolve(sFile)
+    if fs.exists(sPath) then
+        print("File already exists")
         return
     end
 
     -- GET the contents from pastebin
     local res = get(sCode)
     if res then
-        local file = fs.open( sPath, "w" )
-        file.write( res )
+        local file = fs.open(sPath, "w")
+        file.write(res)
         file.close()
 
-        print( "Downloaded as " .. sFile )
+        print("Downloaded as " .. sFile)
     end
 elseif sCommand == "run" then
     local sCode = tArgs[2]
@@ -146,12 +146,12 @@ elseif sCommand == "run" then
     if res then
         local func, err = load(res, sCode, "t", _ENV)
         if not func then
-            printError( err )
+            printError(err)
             return
         end
         local success, msg = pcall(func, select(3, ...))
         if not success then
-            printError( msg )
+            printError(msg)
         end
     end
 else

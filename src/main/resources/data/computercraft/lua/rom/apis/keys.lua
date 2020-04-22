@@ -1,12 +1,11 @@
---- Key codes for ComputerCraft
+--- The Keys API provides a table of numerical codes corresponding to keyboard
+-- keys, suitable for decoding key events.
 --
--- This is derived from the GLFW list of key codes, and mostly created via
--- a couple of regexes.
+-- These values are not guaranteed to remain the same between versions. It is
+-- recommended that you use the constants provided by this file, rather than
+-- the underlying numerical values.
 --
--- Note that this is technically incompatible with previous versions of CC, as
--- they relied on Minecraft's character mappings. However, if CC emulators have
--- taught me anything, it's that emulating LWJGL's weird key handling is nigh-on
--- impossible.
+-- @module keys
 
 local expect = dofile("rom/modules/main/cc/expect.lua").expect
 
@@ -126,22 +125,27 @@ tKeys[341] = 'leftCtrl'
 tKeys[342] = 'leftAlt'
 -- tKeys[343] = 'leftSuper'
 tKeys[344] = 'rightShift'
-tKeys[345] = 'rightControl'
+tKeys[345] = 'rightCtrl'
 tKeys[346] = 'rightAlt'
 -- tKeys[347] = 'rightSuper'
 -- tKeys[348] = 'menu'
 
 local keys = _ENV
-for nKey, sKey in pairs( tKeys ) do
+for nKey, sKey in pairs(tKeys) do
     keys[sKey] = nKey
 end
 
 -- Alias some keys for ease-of-use and backwards compatibility
-keys["return"] = keys.enter
-keys.scollLock = keys.scrollLock
-keys.cimcumflex = keys.circumflex
+keys["return"] = keys.enter --- @local
+keys.scollLock = keys.scrollLock --- @local
+keys.cimcumflex = keys.circumflex --- @local
 
-function getName( _nKey )
+--- Translates a numerical key code to a human-readable name. The human-readable
+-- name is one of the constants in the keys API.
+--
+-- @tparam number code The key code to look up.
+-- @treturn string|nil The name of the key, or `nil` if not a valid key code.
+function getName(_nKey)
     expect(1, _nKey, "number")
-    return tKeys[ _nKey ]
+    return tKeys[_nKey]
 end

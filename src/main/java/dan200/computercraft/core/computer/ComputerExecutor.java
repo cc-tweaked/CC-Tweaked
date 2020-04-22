@@ -426,6 +426,7 @@ final class ComputerExecutor
             }
 
             // Init APIs
+            computer.getEnvironment().reset();
             for( ILuaAPI api : apis ) api.startup();
 
             // Init lua
@@ -469,6 +470,7 @@ final class ComputerExecutor
 
             // Shutdown our APIs
             for( ILuaAPI api : apis ) api.shutdown();
+            computer.getEnvironment().reset();
 
             // Unload filesystem
             if( fileSystem != null )

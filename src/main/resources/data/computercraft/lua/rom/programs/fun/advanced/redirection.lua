@@ -59,10 +59,10 @@ local cR4 = colors.yellow
 local tArgs = { ... }
 
 --Functions--
-local function printCentred( yc, stg )
+local function printCentred(yc, stg)
     local xc = math.floor((TermW - #stg) / 2) + 1
     term.setCursorPos(xc, yc)
-    term.write( stg )
+    term.write(stg)
 end
 
 local function centerOrgin()
@@ -173,9 +173,9 @@ end
 local function loadLevel(nNum)
     sLevelTitle = "Level " .. nNum
     if nNum == nil then return error("nNum == nil") end
-    local sDir = fs.getDir( shell.getRunningProgram() )
+    local sDir = fs.getDir(shell.getRunningProgram())
     local sLevelD = sDir .. "/levels/" .. tostring(nNum) .. ".dat"
-    if not ( fs.exists(sLevelD) or fs.isDir(sLevelD) ) then return error("Level Not Exists : " .. sLevelD) end
+    if not (fs.exists(sLevelD) or fs.isDir(sLevelD)) then return error("Level Not Exists : " .. sLevelD) end
     fLevel = fs.open(sLevelD, "r")
     local wl = true
     Blocks = tonumber(string.sub(fLevel.readLine(), 1, 1))
@@ -512,20 +512,20 @@ local function gRender(sContext)
 end
 
 function InterFace.drawBar()
-    term.setBackgroundColor( colors.black )
-    term.setTextColor( InterFace.cTitle )
-    printCentred( 1, "  " .. sLevelTitle .. "  " )
+    term.setBackgroundColor(colors.black)
+    term.setTextColor(InterFace.cTitle)
+    printCentred(1, "  " .. sLevelTitle .. "  ")
 
     term.setCursorPos(1, 1)
-    term.setBackgroundColor( cW )
-    write( " " )
-    term.setBackgroundColor( colors.black )
-    write( " x " .. tostring(Blocks) .. " " )
+    term.setBackgroundColor(cW)
+    write(" ")
+    term.setBackgroundColor(colors.black)
+    write(" x " .. tostring(Blocks) .. " ")
 
-    term.setCursorPos( TermW - 8, TermH )
-    term.setBackgroundColor( colors.black )
+    term.setCursorPos(TermW - 8, TermH)
+    term.setBackgroundColor(colors.black)
     term.setTextColour(InterFace.cSpeedD)
-    write(" <<" )
+    write(" <<")
     if bPaused then
         term.setTextColour(InterFace.cSpeedA)
     else
@@ -539,9 +539,9 @@ function InterFace.drawBar()
     end
     write(" >>")
 
-    term.setCursorPos( TermW - 1, 1 )
-    term.setBackgroundColor( colors.black )
-    term.setTextColour( InterFace.cExit )
+    term.setCursorPos(TermW - 1, 1)
+    term.setBackgroundColor(colors.black)
+    term.setTextColour(InterFace.cExit)
     write(" X")
     term.setBackgroundColor(colors.black)
 end
@@ -612,7 +612,7 @@ local function startG(LevelN)
         elseif isExit == "retry" then
             return LevelN
         elseif fExit == "yes" then
-            if fs.exists( fs.getDir( shell.getRunningProgram() ) .. "/levels/" .. tostring(LevelN + 1) .. ".dat" ) then
+            if fs.exists(fs.getDir(shell.getRunningProgram()) .. "/levels/" .. tostring(LevelN + 1) .. ".dat") then
                 return LevelN + 1
             else
                 return nil
@@ -629,26 +629,26 @@ local ok, err = true, nil
 --Menu--
 local sStartLevel = tArgs[1]
 if ok and not sStartLevel then
-    ok, err = pcall( function()
+    ok, err = pcall(function()
         term.setTextColor(colors.white)
-        term.setBackgroundColor( colors.black )
+        term.setBackgroundColor(colors.black)
         term.clear()
         drawStars()
-        term.setTextColor( colors.red )
-        printCentred( TermH / 2 - 1, "  REDIRECTION  " )
-        printCentred( TermH / 2 - 0, "  ComputerCraft Edition  " )
-        term.setTextColor( colors.yellow )
-        printCentred( TermH / 2 + 2, "  Click to Begin  " )
-        os.pullEvent( "mouse_click" )
-    end )
+        term.setTextColor(colors.red)
+        printCentred(TermH / 2 - 1, "  REDIRECTION  ")
+        printCentred(TermH / 2 - 0, "  ComputerCraft Edition  ")
+        term.setTextColor(colors.yellow)
+        printCentred(TermH / 2 + 2, "  Click to Begin  ")
+        os.pullEvent("mouse_click")
+    end)
 end
 
 --Game--
 if ok then
-    ok, err = pcall( function()
+    ok, err = pcall(function()
         local nLevel
         if sStartLevel then
-            nLevel = tonumber( sStartLevel )
+            nLevel = tonumber(sStartLevel)
         else
             nLevel = 1
         end
@@ -656,36 +656,36 @@ if ok then
             reset()
             nLevel = startG(nLevel)
         end
-    end )
+    end)
 end
 
 --Upsell screen--
 if ok then
-    ok, err = pcall( function()
+    ok, err = pcall(function()
         term.setTextColor(colors.white)
-        term.setBackgroundColor( colors.black )
+        term.setBackgroundColor(colors.black)
         term.clear()
         drawStars()
-        term.setTextColor( colors.red )
+        term.setTextColor(colors.red)
         if TermW >= 40 then
-            printCentred( TermH / 2 - 1, "  Thank you for playing Redirection  " )
-            printCentred( TermH / 2 - 0, "  ComputerCraft Edition  " )
-            printCentred( TermH / 2 + 2, "  Check out the full game:  " )
-            term.setTextColor( colors.yellow )
-            printCentred( TermH / 2 + 3, "  http://www.redirectiongame.com  " )
+            printCentred(TermH / 2 - 1, "  Thank you for playing Redirection  ")
+            printCentred(TermH / 2 - 0, "  ComputerCraft Edition  ")
+            printCentred(TermH / 2 + 2, "  Check out the full game:  ")
+            term.setTextColor(colors.yellow)
+            printCentred(TermH / 2 + 3, "  http://www.redirectiongame.com  ")
         else
-            printCentred( TermH / 2 - 2, "  Thank you for  " )
-            printCentred( TermH / 2 - 1, "  playing Redirection  " )
-            printCentred( TermH / 2 - 0, "  ComputerCraft Edition  " )
-            printCentred( TermH / 2 + 2, "  Check out the full game:  " )
-            term.setTextColor( colors.yellow )
-            printCentred( TermH / 2 + 3, "  www.redirectiongame.com  " )
+            printCentred(TermH / 2 - 2, "  Thank you for  ")
+            printCentred(TermH / 2 - 1, "  playing Redirection  ")
+            printCentred(TermH / 2 - 0, "  ComputerCraft Edition  ")
+            printCentred(TermH / 2 + 2, "  Check out the full game:  ")
+            term.setTextColor(colors.yellow)
+            printCentred(TermH / 2 + 3, "  www.redirectiongame.com  ")
         end
         parallel.waitForAll(
             function() sleep(2) end,
-            function() os.pullEvent( "mouse_click" ) end
+            function() os.pullEvent("mouse_click") end
         )
-    end )
+    end)
 end
 
 --Clear and exit--
@@ -695,9 +695,9 @@ term.setBackgroundColor(colors.black)
 term.clear()
 if not ok then
     if err == "Terminated" then
-        print( "Check out the full version of Redirection:" )
-        print( "http://www.redirectiongame.com" )
+        print("Check out the full version of Redirection:")
+        print("http://www.redirectiongame.com")
     else
-        printError( err )
+        printError(err)
     end
 end

@@ -16,7 +16,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-public class ClientMonitor extends ClientTerminal
+public final class ClientMonitor extends ClientTerminal
 {
     private static final Set<ClientMonitor> allMonitors = new HashSet<>();
 
@@ -24,7 +24,8 @@ public class ClientMonitor extends ClientTerminal
 
     public long lastRenderFrame = -1;
     public BlockPos lastRenderPos = null;
-    public VertexBuffer buffer = null;
+
+    public VertexBuffer buffer;
 
     public ClientMonitor( boolean colour, TileMonitor origin )
     {
@@ -37,16 +38,45 @@ public class ClientMonitor extends ClientTerminal
         return origin;
     }
 
+    /**
+     * Create the appropriate buffer if needed.
+     *
+     * @param renderer The renderer to use. This can be fetched from {@link MonitorRenderer#current()}.
+     * @return If a buffer was created. This will return {@code false} if we already have an appropriate buffer,
+     * or this mode does not require one.
+     */
     @OnlyIn( Dist.CLIENT )
-    public void createBuffer()
+    public boolean createBuffer( MonitorRenderer renderer )
     {
-        if( buffer == null )
+        switch( renderer )
         {
-            buffer = new VertexBuffer( FixedWidthFontRenderer.TYPE.getVertexFormat() );
-            synchronized( allMonitors )
-            {
-                allMonitors.add( this );
-            }
+            case VBO:
+                if( buffer != null ) return false;
+
+                deleteBuffers();
+                buffer = new VertexBuffer( FixedWidthFontRenderer.POSITION_COLOR_TEX );
+                addMonitor();
+                return true;
+
+            default:
+                return false;
+        }
+    }
+
+    private void addMonitor()
+    {
+        synchronized( allMonitors )
+        {
+            allMonitors.add( this );
+        }
+    }
+
+    private void deleteBuffers()
+    {
+        if( buffer != null )
+        {
+            buffer.close();
+            buffer = null;
         }
     }
 
@@ -60,8 +90,7 @@ public class ClientMonitor extends ClientTerminal
                 allMonitors.remove( this );
             }
 
-            buffer.close();
-            buffer = null;
+            deleteBuffers();
         }
     }
 
@@ -73,11 +102,7 @@ public class ClientMonitor extends ClientTerminal
             for( Iterator<ClientMonitor> iterator = allMonitors.iterator(); iterator.hasNext(); )
             {
                 ClientMonitor monitor = iterator.next();
-                if( monitor.buffer != null )
-                {
-                    monitor.buffer.close();
-                    monitor.buffer = null;
-                }
+                monitor.deleteBuffers();
 
                 iterator.remove();
             }

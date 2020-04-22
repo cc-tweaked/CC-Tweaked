@@ -1,0 +1,43 @@
+{
+  "parent": "minecraft:recipes/root",
+  "rewards": {
+    "recipes": [
+      "computercraft:pocket_computer_advanced"
+    ]
+  },
+  "criteria": {
+    "has_computer": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "tag": "computercraft:computer"
+          }
+        ]
+      }
+    },
+    "has_apple": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "item": "minecraft:golden_apple"
+          }
+        ]
+      }
+    },
+    "has_the_recipe": {
+      "trigger": "minecraft:recipe_unlocked",
+      "conditions": {
+        "recipe": "computercraft:pocket_computer_advanced"
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_computer",
+      "has_apple",
+      "has_the_recipe"
+    ]
+  ]
+}

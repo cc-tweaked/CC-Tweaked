@@ -39,7 +39,7 @@ describe("The rm program", function()
         expect(capture(stub, "rm"))
             :matches { ok = true, output = "Usage: rm <paths>\n", error = "" }
     end)
-    
+
     it("errors when trying to delete a read-only file", function()
         expect(capture(stub, "rm /rom/startup.lua"))
             :matches { ok = true, output = "", error = "/rom/startup.lua: Access denied\n" }

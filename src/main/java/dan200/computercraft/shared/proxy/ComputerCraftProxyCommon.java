@@ -45,14 +45,20 @@ import net.minecraftforge.fml.event.server.FMLServerStoppedEvent;
 public final class ComputerCraftProxyCommon
 {
     @SubscribeEvent
+    @SuppressWarnings( "deprecation" )
     public static void init( FMLCommonSetupEvent event )
     {
         NetworkHandler.setup();
 
-        registerProviders();
+        net.minecraftforge.fml.DeferredWorkQueue.runLater( () -> {
+            registerProviders();
+            ArgumentSerializers.register();
+            registerLoot();
+        } );
+    }
 
-        ArgumentSerializers.register();
-
+    public static void registerLoot()
+    {
         LootConditionManager.registerCondition( ConstantLootConditionSerializer.of(
             new ResourceLocation( ComputerCraft.MOD_ID, "block_named" ),
             BlockNamedEntityLootCondition.class,

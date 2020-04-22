@@ -1,8 +1,8 @@
 if term.isColour() then
-    term.setTextColour( colours.yellow )
+    term.setTextColour(colours.yellow)
 end
-print( "Goodbye" )
-term.setTextColour( colours.white )
+print("Goodbye")
+term.setTextColour(colours.white)
 
-sleep( 1 )
+sleep(1)
 os.shutdown()

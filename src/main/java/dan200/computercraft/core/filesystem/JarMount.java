@@ -23,6 +23,9 @@ import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.nio.file.attribute.FileTime;
+import java.time.Instant;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
@@ -213,6 +216,20 @@ public class JarMount implements IMount
         throw new FileOperationException( path, "No such file" );
     }
 
+    @Nonnull
+    @Override
+    public BasicFileAttributes getAttributes( @Nonnull String path ) throws IOException
+    {
+        FileEntry file = get( path );
+        if( file != null )
+        {
+            ZipEntry entry = zip.getEntry( file.path );
+            if( entry != null ) return new ZipEntryAttributes( entry );
+        }
+
+        throw new FileOperationException( path, "No such file" );
+    }
+
     private static class FileEntry
     {
         String path;
@@ -252,5 +269,77 @@ public class JarMount implements IMount
     {
         Reference<? extends JarMount> next;
         while( (next = MOUNT_QUEUE.poll()) != null ) IoUtil.closeQuietly( ((MountReference) next).file );
+    }
+
+    private static class ZipEntryAttributes implements BasicFileAttributes
+    {
+        private final ZipEntry entry;
+
+        ZipEntryAttributes( ZipEntry entry )
+        {
+            this.entry = entry;
+        }
+
+        @Override
+        public FileTime lastModifiedTime()
+        {
+            return orEpoch( entry.getLastModifiedTime() );
+        }
+
+        @Override
+        public FileTime lastAccessTime()
+        {
+            return orEpoch( entry.getLastAccessTime() );
+        }
+
+        @Override
+        public FileTime creationTime()
+        {
+            FileTime time = entry.getCreationTime();
+            return time == null ? lastModifiedTime() : time;
+        }
+
+        @Override
+        public boolean isRegularFile()
+        {
+            return !entry.isDirectory();
+        }
+
+        @Override
+        public boolean isDirectory()
+        {
+            return entry.isDirectory();
+        }
+
+        @Override
+        public boolean isSymbolicLink()
+        {
+            return false;
+        }
+
+        @Override
+        public boolean isOther()
+        {
+            return false;
+        }
+
+        @Override
+        public long size()
+        {
+            return entry.getSize();
+        }
+
+        @Override
+        public Object fileKey()
+        {
+            return null;
+        }
+
+        private static final FileTime EPOCH = FileTime.from( Instant.EPOCH );
+
+        private static FileTime orEpoch( FileTime time )
+        {
+            return time == null ? EPOCH : time;
+        }
     }
 }
