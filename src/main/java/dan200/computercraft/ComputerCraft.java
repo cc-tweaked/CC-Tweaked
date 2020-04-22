@@ -7,7 +7,6 @@ package dan200.computercraft;
 
 import dan200.computercraft.api.turtle.event.TurtleAction;
 import dan200.computercraft.core.apis.AddressPredicate;
-import dan200.computercraft.core.apis.http.websocket.Websocket;
 import dan200.computercraft.shared.Config;
 import dan200.computercraft.shared.computer.blocks.BlockComputer;
 import dan200.computercraft.shared.computer.core.ClientComputerRegistry;
@@ -22,9 +21,9 @@ import dan200.computercraft.shared.peripheral.modem.wired.BlockWiredModemFull;
 import dan200.computercraft.shared.peripheral.modem.wired.ItemBlockCable;
 import dan200.computercraft.shared.peripheral.modem.wireless.BlockWirelessModem;
 import dan200.computercraft.shared.peripheral.monitor.BlockMonitor;
+import dan200.computercraft.shared.peripheral.monitor.MonitorRenderer;
 import dan200.computercraft.shared.peripheral.printer.BlockPrinter;
 import dan200.computercraft.shared.peripheral.speaker.BlockSpeaker;
-import dan200.computercraft.shared.peripheral.monitor.MonitorRenderer;
 import dan200.computercraft.shared.pocket.items.ItemPocketComputer;
 import dan200.computercraft.shared.pocket.peripherals.PocketModem;
 import dan200.computercraft.shared.pocket.peripherals.PocketSpeaker;

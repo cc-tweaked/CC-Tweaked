@@ -2,10 +2,9 @@
 
 (sources
   /doc/stub/
-  /src/main/resources/assets/computercraft/lua/bios.lua
-  /src/main/resources/assets/computercraft/lua/rom/
+  /src/main/resources/data/computercraft/lua/bios.lua
+  /src/main/resources/data/computercraft/lua/rom/
   /src/test/resources/test-rom)
-
 
 (doc
   (title "CC: Tweaked")
@@ -15,13 +14,13 @@
   (library-path
     /doc/stub/
 
-    /src/main/resources/assets/computercraft/lua/rom/apis
-    /src/main/resources/assets/computercraft/lua/rom/apis/command
-    /src/main/resources/assets/computercraft/lua/rom/apis/turtle
+    /src/main/resources/data/computercraft/lua/rom/apis
+    /src/main/resources/data/computercraft/lua/rom/apis/command
+    /src/main/resources/data/computercraft/lua/rom/apis/turtle
 
-    /src/main/resources/assets/computercraft/lua/rom/modules/main
-    /src/main/resources/assets/computercraft/lua/rom/modules/command
-    /src/main/resources/assets/computercraft/lua/rom/modules/turtle))
+    /src/main/resources/data/computercraft/lua/rom/modules/main
+    /src/main/resources/data/computercraft/lua/rom/modules/command
+    /src/main/resources/data/computercraft/lua/rom/modules/turtle))
 
 (at /
   (linters
@@ -50,8 +49,8 @@
 ;; We disable the unused global linter in bios.lua and the APIs. In the future
 ;; hopefully we'll get illuaminate to handle this.
 (at
-  (/src/main/resources/assets/computercraft/lua/bios.lua
-   /src/main/resources/assets/computercraft/lua/rom/apis/)
+  (/src/main/resources/data/computercraft/lua/bios.lua
+   /src/main/resources/data/computercraft/lua/rom/apis/)
   (linters -var:unused-global)
   (lint (allow-toplevel-global true)))
 
@@ -62,17 +61,17 @@
 
 ;; Ensure any fully documented modules stay fully documented.
 (at
-  (/src/main/resources/assets/computercraft/lua/rom/apis/colors.lua
-   /src/main/resources/assets/computercraft/lua/rom/apis/colours.lua
-   /src/main/resources/assets/computercraft/lua/rom/apis/disk.lua
-   /src/main/resources/assets/computercraft/lua/rom/apis/gps.lua
-   /src/main/resources/assets/computercraft/lua/rom/apis/help.lua
-   /src/main/resources/assets/computercraft/lua/rom/apis/keys.lua
-   /src/main/resources/assets/computercraft/lua/rom/apis/paintutils.lua
-   /src/main/resources/assets/computercraft/lua/rom/apis/parallel.lua
-   /src/main/resources/assets/computercraft/lua/rom/apis/peripheral.lua
-   /src/main/resources/assets/computercraft/lua/rom/apis/rednet.lua
-   /src/main/resources/assets/computercraft/lua/rom/apis/settings.lua
-   /src/main/resources/assets/computercraft/lua/rom/apis/texutils.lua
-   /src/main/resources/assets/computercraft/lua/rom/apis/vector.lua)
+  (/src/main/resources/data/computercraft/lua/rom/apis/colors.lua
+   /src/main/resources/data/computercraft/lua/rom/apis/colours.lua
+   /src/main/resources/data/computercraft/lua/rom/apis/disk.lua
+   /src/main/resources/data/computercraft/lua/rom/apis/gps.lua
+   /src/main/resources/data/computercraft/lua/rom/apis/help.lua
+   /src/main/resources/data/computercraft/lua/rom/apis/keys.lua
+   /src/main/resources/data/computercraft/lua/rom/apis/paintutils.lua
+   /src/main/resources/data/computercraft/lua/rom/apis/parallel.lua
+   /src/main/resources/data/computercraft/lua/rom/apis/peripheral.lua
+   /src/main/resources/data/computercraft/lua/rom/apis/rednet.lua
+   /src/main/resources/data/computercraft/lua/rom/apis/settings.lua
+   /src/main/resources/data/computercraft/lua/rom/apis/texutils.lua
+   /src/main/resources/data/computercraft/lua/rom/apis/vector.lua)
   (linters doc:undocumented doc:undocumented-arg))

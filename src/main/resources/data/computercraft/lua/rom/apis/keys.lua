@@ -131,7 +131,7 @@ tKeys[346] = 'rightAlt'
 -- tKeys[348] = 'menu'
 
 local keys = _ENV
-for nKey, sKey in pairs( tKeys ) do
+for nKey, sKey in pairs(tKeys) do
     keys[sKey] = nKey
 end
 
@@ -145,7 +145,7 @@ keys.cimcumflex = keys.circumflex --- @local
 --
 -- @tparam number code The key code to look up.
 -- @treturn string|nil The name of the key, or `nil` if not a valid key code.
-function getName( _nKey )
+function getName(_nKey)
     expect(1, _nKey, "number")
-    return tKeys[ _nKey ]
+    return tKeys[_nKey]
 end

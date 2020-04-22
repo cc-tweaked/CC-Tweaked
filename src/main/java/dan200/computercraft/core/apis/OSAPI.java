@@ -95,10 +95,10 @@ public class OSAPI implements ILuaAPI
             if( time > previousTime || day > previousDay )
             {
                 double now = m_day * 24.0 + m_time;
-                Iterator<Map.Entry<Integer, Alarm>> it = m_alarms.entrySet().iterator();
+                Iterator<Int2ObjectMap.Entry<Alarm>> it = m_alarms.int2ObjectEntrySet().iterator();
                 while( it.hasNext() )
                 {
-                    Map.Entry<Integer, Alarm> entry = it.next();
+                    Int2ObjectMap.Entry<Alarm> entry = it.next();
                     Alarm alarm = entry.getValue();
                     double t = alarm.m_day * 24.0 + alarm.m_time;
                     if( now >= t )
