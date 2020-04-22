@@ -106,7 +106,7 @@ end
 -- This generally returns the same as @{disk.getLabel} for records.
 --
 -- @tparam string name The name of the disk drive.
--- @treturn string|false|nil The track title, `false` if there is not a music
+-- @treturn string|false|nil The track title, @{false} if there is not a music
 -- record in the drive or `nil` if no drive is present.
 function getAudioTitle(name)
     if isDrive(name) then
