@@ -46,7 +46,7 @@ end
 
 -- Create .nfp files by default
 if not fs.exists(sPath) and not string.find(sPath, "%.") then
-    local sExtension = settings.get("paint.default_extension", "")
+    local sExtension = settings.get("paint.default_extension")
     if sExtension ~= "" and type(sExtension) == "string" then
         sPath = sPath .. "." .. sExtension
     end

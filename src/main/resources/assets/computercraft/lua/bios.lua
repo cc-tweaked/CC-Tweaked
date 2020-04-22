@@ -923,7 +923,7 @@ settings.define("list.show_hidden", {
 })
 
 settings.define("motd.enable", {
-    default = false,
+    default = pocket == nil,
     description = "Display a random message when the computer starts up.",
     type = "boolean",
 })
