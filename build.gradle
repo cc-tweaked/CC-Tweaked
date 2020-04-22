@@ -100,6 +100,8 @@ dependencies {
     minecraft "net.minecraftforge:forge:${mc_version}-${forge_version}"
 
     compileOnly fg.deobf("mezz.jei:jei-1.15.2:6.0.0.3:api")
+    compileOnly fg.deobf("com.blamejared.crafttweaker:CraftTweaker-1.15.2:6.0.0.9")
+
     runtimeOnly fg.deobf("mezz.jei:jei-1.15.2:6.0.0.3")
 
     shade 'org.squiddev:Cobalt:0.5.1-SNAPSHOT'
@@ -108,15 +110,6 @@ dependencies {
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.4.2'
 
     deployerJars "org.apache.maven.wagon:wagon-ssh:3.0.0"
-}
-
-sourceSets {
-    main {
-        java {
-            exclude 'dan200/computercraft/client/render_old'
-            exclude 'dan200/computercraft/shared/integration/crafttweaker'
-        }
-    }
 }
 
 // Compile tasks
