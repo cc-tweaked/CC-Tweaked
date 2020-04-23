@@ -2,9 +2,10 @@
 
 (sources
   /doc/stub/
-  /src/main/resources/data/computercraft/lua/bios.lua
-  /src/main/resources/data/computercraft/lua/rom/
+  /src/main/resources/*/computercraft/lua/bios.lua
+  /src/main/resources/*/computercraft/lua/rom/
   /src/test/resources/test-rom)
+
 
 (doc
   (title "CC: Tweaked")
@@ -14,13 +15,13 @@
   (library-path
     /doc/stub/
 
-    /src/main/resources/data/computercraft/lua/rom/apis
-    /src/main/resources/data/computercraft/lua/rom/apis/command
-    /src/main/resources/data/computercraft/lua/rom/apis/turtle
+    /src/main/resources/*/computercraft/lua/rom/apis
+    /src/main/resources/*/computercraft/lua/rom/apis/command
+    /src/main/resources/*/computercraft/lua/rom/apis/turtle
 
-    /src/main/resources/data/computercraft/lua/rom/modules/main
-    /src/main/resources/data/computercraft/lua/rom/modules/command
-    /src/main/resources/data/computercraft/lua/rom/modules/turtle))
+    /src/main/resources/*/computercraft/lua/rom/modules/main
+    /src/main/resources/*/computercraft/lua/rom/modules/command
+    /src/main/resources/*/computercraft/lua/rom/modules/turtle))
 
 (at /
   (linters
@@ -34,9 +35,7 @@
     ;; be good to find a compromise in the future, but this works for now.
     -var:unused-arg
 
-    ;; Suppress a couple of documentation comments warnings for now. We'll
-    ;; hopefully be able to remove them in the future.
-    -doc:undocumented -doc:undocumented-arg -doc:unresolved-reference
+    ;; Some APIS (keys, colour and os mainly) are incomplete right now.
     -var:unresolved-member)
   (lint
     (bracket-spaces
@@ -49,8 +48,8 @@
 ;; We disable the unused global linter in bios.lua and the APIs. In the future
 ;; hopefully we'll get illuaminate to handle this.
 (at
-  (/src/main/resources/data/computercraft/lua/bios.lua
-   /src/main/resources/data/computercraft/lua/rom/apis/)
+  (/src/main/resources/*/computercraft/lua/bios.lua
+   /src/main/resources/*/computercraft/lua/rom/apis/)
   (linters -var:unused-global)
   (lint (allow-toplevel-global true)))
 
@@ -59,19 +58,27 @@
   (linters -var:unused-global)
   (lint (allow-toplevel-global true)))
 
-;; Ensure any fully documented modules stay fully documented.
+;; Suppress warnings for currently undocumented modules.
 (at
-  (/src/main/resources/data/computercraft/lua/rom/apis/colors.lua
-   /src/main/resources/data/computercraft/lua/rom/apis/colours.lua
-   /src/main/resources/data/computercraft/lua/rom/apis/disk.lua
-   /src/main/resources/data/computercraft/lua/rom/apis/gps.lua
-   /src/main/resources/data/computercraft/lua/rom/apis/help.lua
-   /src/main/resources/data/computercraft/lua/rom/apis/keys.lua
-   /src/main/resources/data/computercraft/lua/rom/apis/paintutils.lua
-   /src/main/resources/data/computercraft/lua/rom/apis/parallel.lua
-   /src/main/resources/data/computercraft/lua/rom/apis/peripheral.lua
-   /src/main/resources/data/computercraft/lua/rom/apis/rednet.lua
-   /src/main/resources/data/computercraft/lua/rom/apis/settings.lua
-   /src/main/resources/data/computercraft/lua/rom/apis/texutils.lua
-   /src/main/resources/data/computercraft/lua/rom/apis/vector.lua)
-  (linters doc:undocumented doc:undocumented-arg))
+  (/doc/stub/commands.lua
+   /doc/stub/fs.lua
+   /doc/stub/http.lua
+   /doc/stub/os.lua
+   /doc/stub/redstone.lua
+   /doc/stub/term.lua
+   /doc/stub/turtle.lua
+   /src/main/resources/*/computercraft/lua/rom/apis/command/commands.lua
+   /src/main/resources/*/computercraft/lua/rom/apis/io.lua
+   /src/main/resources/*/computercraft/lua/rom/apis/window.lua
+   /src/main/resources/*/computercraft/lua/rom/modules/main/cc/shell/completion.lua)
+
+  (linters -doc:undocumented -doc:undocumented-arg))
+
+;; These currently rely on unknown references.
+(at
+  (/src/main/resources/*/computercraft/lua/rom/apis/textutils.lua
+   /src/main/resources/*/computercraft/lua/rom/modules/main/cc/completion.lua
+   /src/main/resources/*/computercraft/lua/rom/modules/main/cc/shell/completion.lua
+   /src/main/resources/*/computercraft/lua/rom/programs/advanced/multishell.lua
+   /src/main/resources/*/computercraft/lua/rom/programs/shell.lua)
+  (linters -doc:unresolved-reference))

@@ -521,14 +521,11 @@ function os.run(_tEnv, _sPath, ...)
     expect(1, _tEnv, "table")
     expect(2, _sPath, "string")
 
-    local tArgs = table.pack(...)
     local tEnv = _tEnv
     setmetatable(tEnv, { __index = _G })
     local fnFile, err = loadfile(_sPath, nil, tEnv)
     if fnFile then
-        local ok, err = pcall(function()
-            fnFile(table.unpack(tArgs, 1, tArgs.n))
-        end)
+        local ok, err = pcall(fnFile, ...)
         if not ok then
             if err and err ~= "" then
                 printError(err)
@@ -926,7 +923,7 @@ settings.define("list.show_hidden", {
 })
 
 settings.define("motd.enable", {
-    default = false,
+    default = pocket == nil,
     description = "Display a random message when the computer starts up.",
     type = "boolean",
 })

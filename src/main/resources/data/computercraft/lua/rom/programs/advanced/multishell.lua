@@ -1,3 +1,21 @@
+--- Multishell allows multiple programs to be run at the same time.
+--
+-- When multiple programs are running, it displays a tab bar at the top of the
+-- screen, which allows you to switch between programs. New programs can be
+-- launched using the `fg` or `bg` programs, or using the @{shell.openTab} and
+-- @{multishell.launch} functions.
+--
+-- Each process is identified by its ID, which corresponds to its position in
+-- the tab list. As tabs may be opened and closed, this ID is _not_ constant
+-- over a program's run. As such, be careful not to use stale IDs.
+--
+-- As with @{shell}, @{multishell} is not a "true" API. Instead, it is a
+-- standard program, which launches a shell and injects its API into the shell's
+-- environment. This API is not available in the global environment, and so is
+-- not available to @{os.loadAPI|APIs}.
+--
+-- @module[module] multishell
+
 local expect = dofile("rom/modules/main/cc/expect.lua").expect
 
 -- Setup process switching
@@ -190,12 +208,26 @@ local function setMenuVisible(bVis)
     end
 end
 
-local multishell = {}
+local multishell = {} --- @export
 
+--- Get the currently visible process. This will be the one selected on
+-- the tab bar.
+--
+-- Note, this is different to @{getCurrent}, which returns the process which is
+-- currently executing.
+--
+-- @treturn number The currently visible process's index.
+-- @see setFocus
 function multishell.getFocus()
     return nCurrentProcess
 end
 
+--- Change the currently visible process.
+--
+-- @tparam number n The process index to switch to.
+-- @treturn boolean If the process was changed successfully. This will
+-- return @{false} if there is no process with this id.
+-- @see getFocus
 function multishell.setFocus(n)
     expect(1, n, "number")
     if n >= 1 and n <= #tProcesses then
@@ -206,6 +238,13 @@ function multishell.setFocus(n)
     return false
 end
 
+--- Get the title of the given tab.
+--
+-- This starts as the name of the program, but may be changed using
+-- @{multishell.setTitle}.
+-- @tparam number n The process index.
+-- @treturn string|nil The current process title, or @{nil} if the
+-- process doesn't exist.
 function multishell.getTitle(n)
     expect(1, n, "number")
     if n >= 1 and n <= #tProcesses then
@@ -214,19 +253,45 @@ function multishell.getTitle(n)
     return nil
 end
 
-function multishell.setTitle(n, sTitle)
+--- Set the title of the given process.
+--
+-- @tparam number n The process index.
+-- @tparam string title The new process title.
+-- @see getTitle
+-- @usage Change the title of the current process
+--
+--     multishell.setTitle(multishell.getCurrent(), "Hello")
+function multishell.setTitle(n, title)
     expect(1, n, "number")
-    expect(2, sTitle, "string")
+    expect(2, title, "string")
     if n >= 1 and n <= #tProcesses then
-        setProcessTitle(n, sTitle)
+        setProcessTitle(n, title)
         redrawMenu()
     end
 end
 
+--- Get the index of the currently running process.
+--
+-- @treturn number The currently running process.
 function multishell.getCurrent()
     return nRunningProcess
 end
 
+--- Start a new process, with the given environment, program and arguments.
+--
+-- The returned process index is not constant over the program's run. It can be
+-- safely used immediately after launching (for instance, to update the title or
+-- switch to that tab). However, after your program has yielded, it may no
+-- longer be correct.
+--
+-- @tparam table tProgramEnv The environment to load the path under.
+-- @tparam string sProgramPath The path to the program to run.
+-- @param ... Additional arguments to pass to the program.
+-- @treturn number The index of the created process.
+-- @see os.run
+-- @usage Run the "hello" program, and set its title to "Hello!"
+--     local id = multishell.launch({}, "/rom/programs/fun/hello.lua")
+--     multishell.setTitle(id, "Hello!")
 function multishell.launch(tProgramEnv, sProgramPath, ...)
     expect(1, tProgramEnv, "table")
     expect(2, sProgramPath, "string")
@@ -238,6 +303,9 @@ function multishell.launch(tProgramEnv, sProgramPath, ...)
     return nResult
 end
 
+--- Get the number of processes within this multishell.
+--
+-- @treturn number The number of processes.
 function multishell.getCount()
     return #tProcesses
 end
