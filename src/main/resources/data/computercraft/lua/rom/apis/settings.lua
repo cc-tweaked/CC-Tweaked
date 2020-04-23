@@ -32,7 +32,7 @@ for _, v in ipairs(valid_types) do valid_types[v] = true end
 -- you to provide defaults and additional metadata.
 --
 -- @tparam string name The name of this option
--- @tparam[opt] { description? = string, default? = value, type? = string } options
+-- @tparam[opt] { description? = string, default? = any, type? = string } options
 -- Options for this setting. This table accepts the following fields:
 --
 --  - `description`: A description which may be printed when running the `set` program.
@@ -127,7 +127,7 @@ end
 --- Get details about a specific setting.
 --
 -- @tparam string name The name of the setting to get.
--- @treturn { description? = string, default? = value, type? = string, value? = value }
+-- @treturn { description? = string, default? = any, type? = string, value? = any }
 -- Information about this setting. This includes all information from @{settings.define},
 -- as well as this setting's value.
 function getDetails(name)

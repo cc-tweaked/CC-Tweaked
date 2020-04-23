@@ -23,7 +23,7 @@ body {
                  "Droid Sans", "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
 }
 
-code, pre, .parameter, .type, .definition-name, .reference {
+code, pre, .parameter, .type, .definition-name, .reference-code {
     font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
 }
 

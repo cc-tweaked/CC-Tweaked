@@ -19,7 +19,7 @@ local canvas = {}
 local mChoices = { "Save", "Exit" }
 
 -- The message displayed in the footer bar
-local fMessage = "Press Ctrl to access menu"
+local fMessage = "Press Ctrl or click here to access menu"
 
 -------------------------
 -- Initialisation --
@@ -46,7 +46,7 @@ end
 
 -- Create .nfp files by default
 if not fs.exists(sPath) and not string.find(sPath, "%.") then
-    local sExtension = settings.get("paint.default_extension", "")
+    local sExtension = settings.get("paint.default_extension")
     if sExtension ~= "" and type(sExtension) == "string" then
         sPath = sPath .. "." .. sExtension
     end
@@ -252,6 +252,29 @@ local function drawCanvas()
     end
 end
 
+local menu_choices = {
+    Save = function()
+        if bReadOnly then
+            fMessage = "Access denied"
+            return false
+        end
+        local success, err = save(sPath)
+        if success then
+            fMessage = "Saved to " .. sPath
+        else
+            if err then
+                fMessage = "Error saving to " .. err
+            else
+                fMessage = "Error saving to " .. sPath
+            end
+        end
+        return false
+    end,
+    Exit = function()
+        return true
+    end,
+}
+
 --[[
     Draws menu options and handles input from within the menu.
     returns: true if the program is to be exited; false otherwise
@@ -261,6 +284,7 @@ local function accessMenu()
     local selection = 1
 
     term.setBackgroundColour(colours.black)
+
     while true do
         -- Draw the menu
         term.setCursorPos(1, h)
@@ -269,27 +293,28 @@ local function accessMenu()
         for k, v in pairs(mChoices) do
             if selection == k then
                 term.setTextColour(colours.yellow)
-                local ox = term.getCursorPos()
-                term.write("[" .. string.rep(" ", #v) .. "]")
-                term.setCursorPos(ox + 1, h)
+                term.write("[")
                 term.setTextColour(colours.white)
                 term.write(v)
-                term.setCursorPos(term.getCursorPos() + 1, h)
+                term.setTextColour(colours.yellow)
+                term.write("]")
+                term.setTextColour(colours.white)
             else
                 term.write(" " .. v .. " ")
             end
         end
 
         -- Handle input in the menu
-        local id, key = os.pullEvent("key")
+        local id, param1, param2, param3 = os.pullEvent()
         if id == "key" then
-            -- S and E are shortcuts
-            if key == keys.s then
-                selection = 1
-                key = keys.enter
-            elseif key == keys.e then
-                selection = 2
-                key = keys.enter
+            local key = param1
+
+            -- Handle menu shortcuts.
+            for _, menu_item in ipairs(mChoices) do
+                local k = keys[menu_item:sub(1, 1):lower()]
+                if k and k == key then
+                    return menu_choices[menu_item]()
+                end
             end
 
             if key == keys.right then
@@ -308,28 +333,24 @@ local function accessMenu()
 
             elseif key == keys.enter then
                 -- Select an option
-                if mChoices[selection] == "Save" then
-                    if bReadOnly then
-                        fMessage = "Access denied"
-                        return false
-                    end
-                    local success, err = save(sPath)
-                    if success then
-                        fMessage = "Saved to " .. sPath
-                    else
-                        if err then
-                            fMessage = "Error saving to " .. err
-                        else
-                            fMessage = "Error saving to " .. sPath
-                        end
-                    end
-                    return false
-                elseif mChoices[selection] == "Exit" then
-                    return true
-                end
+                return menu_choices[mChoices[selection]]()
             elseif key == keys.leftCtrl or keys == keys.rightCtrl then
                 -- Cancel the menu
                 return false
+            end
+        elseif id == "mouse_click" then
+            local cx, cy = param2, param3
+            if cy ~= h then return false end -- Exit the menu
+
+            local nMenuPosEnd = 1
+            local nMenuPosStart = 1
+            for _, sMenuItem in ipairs(mChoices) do
+                nMenuPosEnd = nMenuPosEnd + #sMenuItem + 1
+                if cx > nMenuPosStart and cx < nMenuPosEnd then
+                    return menu_choices[sMenuItem]()
+                end
+                nMenuPosEnd = nMenuPosEnd + 1
+                nMenuPosStart = nMenuPosEnd
             end
         end
     end
@@ -378,6 +399,10 @@ local function handleEvents()
                 canvas[p3][p2] = paintColour
 
                 drawCanvasPixel(p2, p3)
+            elseif p3 == h and id == "mouse_click" then
+                -- Open menu
+                programActive = not accessMenu()
+                drawInterface()
             end
         elseif id == "key" then
             if p1 == keys.leftCtrl or p1 == keys.rightCtrl then

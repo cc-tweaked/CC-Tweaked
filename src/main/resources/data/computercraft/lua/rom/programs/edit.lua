@@ -15,7 +15,7 @@ end
 
 -- Create .lua files by default
 if not fs.exists(sPath) and not string.find(sPath, "%.") then
-    local sExtension = settings.get("edit.default_extension", "")
+    local sExtension = settings.get("edit.default_extension")
     if sExtension ~= "" and type(sExtension) == "string" then
         sPath = sPath .. "." .. sExtension
     end
@@ -61,7 +61,12 @@ if peripheral.find("printer") then
 end
 table.insert(tMenuItems, "Exit")
 
-local sStatus = "Press Ctrl to access menu"
+local sStatus
+if term.isColour() then
+    sStatus = "Press Ctrl or click here to access menu"
+else
+    sStatus = "Press Ctrl to access menu"
+end
 if #sStatus > w - 5 then
     sStatus = "Press Ctrl for menu"
 end
@@ -725,15 +730,34 @@ while bRunning do
         end
 
     elseif sEvent == "mouse_click" then
+        local cx, cy = param2, param3
         if not bMenu then
             if param == 1 then
                 -- Left click
-                local cx, cy = param2, param3
                 if cy < h then
                     local newY = math.min(math.max(scrollY + cy, 1), #tLines)
                     local newX = math.min(math.max(scrollX + cx, 1), #tLines[newY] + 1)
                     setCursor(newX, newY)
+                else
+                    bMenu = true
+                    redrawMenu()
                 end
+            end
+        else
+            if cy == h then
+                local nMenuPosEnd = 1
+                local nMenuPosStart = 1
+                for n, sMenuItem in ipairs(tMenuItems) do
+                    nMenuPosEnd = nMenuPosEnd + #sMenuItem + 1
+                    if cx > nMenuPosStart and cx < nMenuPosEnd then
+                        doMenuItem(n)
+                    end
+                    nMenuPosEnd = nMenuPosEnd + 1
+                    nMenuPosStart = nMenuPosEnd
+                end
+            else
+                bMenu = false
+                redrawMenu()
             end
         end
 
