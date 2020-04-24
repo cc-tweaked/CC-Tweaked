@@ -1,3 +1,7 @@
+# New features in CC: Tweaked 1.87.1
+
+* Fix blocks not dropping items in survival.
+
 # New features in CC: Tweaked 1.87.0
 
 * Add documentation to many Lua functions. This is published online at https://tweaked.cc/.
