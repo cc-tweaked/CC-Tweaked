@@ -1,4 +1,5 @@
 {
+  "type": "minecraft:block",
   "pools": [
     {
       "name": "main",
@@ -6,7 +7,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "computercraft:monitor_advanced"
+          "name": "computercraft:wired_modem_full"
         }
       ],
       "conditions": [

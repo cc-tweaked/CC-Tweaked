@@ -45,8 +45,9 @@ public class LootTables extends LootTableProvider
 
     private static void basicDrop( BiConsumer<ResourceLocation, LootTable> add, Block block )
     {
-        add.accept( block.getRegistryName(), LootTable
+        add.accept( block.getLootTable(), LootTable
             .builder()
+            .setParameterSet( LootParameterSets.BLOCK )
             .addLootPool( LootPool.builder()
                 .name( "main" )
                 .rolls( ConstantRange.of( 1 ) )
@@ -57,8 +58,9 @@ public class LootTables extends LootTableProvider
 
     private static void computerDrop( BiConsumer<ResourceLocation, LootTable> add, Block block )
     {
-        add.accept( block.getRegistryName(), LootTable
+        add.accept( block.getLootTable(), LootTable
             .builder()
+            .setParameterSet( LootParameterSets.BLOCK )
             .addLootPool( LootPool.builder()
                 .name( "main" )
                 .rolls( ConstantRange.of( 1 ) )
