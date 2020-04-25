@@ -957,6 +957,7 @@ settings.set( "lua.autocomplete", true )
 settings.set( "list.show_hidden", false )
 settings.set( "motd.enable", false )
 settings.set( "motd.path", "/rom/motd.txt:/motd.txt" )
+settings.set( "lua.warn_against_use_of_local", true )
 if term.isColour() then
     settings.set( "bios.use_multishell", true )
 end
