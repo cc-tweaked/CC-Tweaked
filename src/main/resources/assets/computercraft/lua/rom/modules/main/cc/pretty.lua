@@ -2,7 +2,7 @@
 -- aesthetically pleasing manner.
 --
 -- In order to display something using @{cc.pretty}, you build up a series of
--- @{documents|Doc}. These behave a little bit like strings; you can concatenate
+-- @{Doc|documents}. These behave a little bit like strings; you can concatenate
 -- them together and then print them to the screen.
 --
 -- However, documents also allow you to control how they should be printed. There
@@ -28,7 +28,7 @@ local function append(out, value)
     out[n], out.n = value, n
 end
 
---- A document, which
+--- A document containing formatted text, with multiple possible layouts.
 --
 -- Documents effectively represent a sequence of strings in alternative layouts,
 -- which we will try to print in the most compact form necessary.
@@ -61,7 +61,7 @@ end
 --
 -- @tparam      string text   The string to construct a new document with.
 -- @tparam[opt] number colour The colour this text should be printed with. If not given, we default to the current
---                            colour.
+-- colour.
 -- @treturn Doc The document with the provided text.
 local function text(text, colour)
     expect(1, text, "string")
@@ -94,7 +94,7 @@ local function text(text, colour)
 end
 
 --- Concatenate several documents together. This behaves very similar to string concatenation.
-
+--
 -- @tparam Doc|string ... The documents to concatenate.
 -- @treturn Doc The concatenated documents.
 -- @usage pretty.concat(doc1, " - ", doc2)
@@ -113,7 +113,7 @@ local function concat(...)
     return setmetatable(args, Doc)
 end
 
-Doc.__concat = concat
+Doc.__concat = concat --- @local
 
 --- Indent later lines of the given document with the given number of spaces.
 --
@@ -121,7 +121,7 @@ Doc.__concat = concat
 -- ```txt
 -- foo
 -- bar
--- ``
+-- ```
 -- by two spaces will produce
 -- ```txt
 -- foo
@@ -271,8 +271,9 @@ end
 --
 -- @tparam      Doc     doc         The document to render.
 -- @tparam[opt] number  width       The maximum width of this document. Note that long strings will not be wrapped to
---                                  fit this width - it is only used for finding the best layout.
+-- fit this width - it is only used for finding the best layout.
 -- @tparam[opt] number  ribbon_frac The maximum fraction of the width that we should write in.
+-- @treturn string The rendered document as a string.
 local function render(doc, width, ribbon_frac)
     if getmetatable(doc) ~= Doc then expect(1, doc, "document") end
     expect(2, width, "number", "nil")
@@ -316,12 +317,14 @@ local function render(doc, width, ribbon_frac)
     return table.concat(out, "", 1, out.n)
 end
 
+Doc.__tostring = render --- @local
+
 local keywords = {
-    [ "and" ] = true, [ "break" ] = true, [ "do" ] = true, [ "else" ] = true,
-    [ "elseif" ] = true, [ "end" ] = true, [ "false" ] = true, [ "for" ] = true,
-    [ "function" ] = true, [ "if" ] = true, [ "in" ] = true, [ "local" ] = true,
-    [ "nil" ] = true, [ "not" ] = true, [ "or" ] = true, [ "repeat" ] = true, [ "return" ] = true,
-    [ "then" ] = true, [ "true" ] = true, [ "until" ] = true, [ "while" ] = true,
+    ["and"] = true, ["break"] = true, ["do"] = true, ["else"] = true,
+    ["elseif"] = true, ["end"] = true, ["false"] = true, ["for"] = true,
+    ["function"] = true, ["if"] = true, ["in"] = true, ["local"] = true,
+    ["nil"] = true, ["not"] = true, ["or"] = true, ["repeat"] = true, ["return"] = true,
+    ["then"] = true, ["true"] = true, ["until"] = true, ["while"] = true,
   }
 
 local comma = text(",")
@@ -393,7 +396,7 @@ end
 -- @treturn Doc The object formatted as a document.
 -- @usage Display a table on the screen
 --     local pretty = require "cc.pretty"
---     pretty.print(pretty.pretty({ 1, 2, 3 })
+--     pretty.print(pretty.pretty({ 1, 2, 3 }))
 local function pretty(obj)
     return pretty_impl(obj, {})
 end

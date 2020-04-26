@@ -16,7 +16,7 @@ local completion = require "cc.completion"
 
 --- Complete the name of a file relative to the current working directory.
 --
--- @tparam shell shell The shell we're completing in
+-- @tparam table shell The shell we're completing in
 -- @tparam { string... } choices The list of choices to complete from.
 -- @treturn { string... } A list of suffixes of matching files.
 local function file(shell, text)
@@ -25,7 +25,7 @@ end
 
 --- Complete the name of a directory relative to the current working directory.
 --
--- @tparam shell shell The shell we're completing in
+-- @tparam table shell The shell we're completing in
 -- @tparam { string... } choices The list of choices to complete from.
 -- @treturn { string... } A list of suffixes of matching directories.
 local function dir(shell, text)
@@ -35,7 +35,7 @@ end
 --- Complete the name of a file or directory relative to the current working
 -- directory.
 --
--- @tparam shell shell The shell we're completing in
+-- @tparam table shell The shell we're completing in
 -- @tparam { string... } choices The list of choices to complete from.
 -- @tparam { string... } previous The shell arguments before this one.
 -- @tparam[opt] boolean add_space Whether to add a space after the completed item.
@@ -61,9 +61,10 @@ end
 
 --- Complete the name of a program.
 --
--- @tparam shell shell The shell we're completing in
+-- @tparam table shell The shell we're completing in
 -- @tparam { string... } choices The list of choices to complete from.
 -- @treturn { string... } A list of suffixes of matching programs.
+-- @see shell.completeProgram
 local function program(shell, text)
     return shell.completeProgram(text)
 end
@@ -97,7 +98,7 @@ end
 --     complete.build(
 --       { complete.choice, { "get", "put" } },
 --       complete.dir,
---       } complete.file, many = true }
+--       { complete.file, many = true }
 --     )
 local function build(...)
     local arguments = table.pack(...)

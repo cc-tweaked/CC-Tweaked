@@ -1,4 +1,4 @@
-# ![CC: Tweaked](logo.png)
+# ![CC: Tweaked](doc/logo.png)
 [![Current build status](https://github.com/SquidDev-CC/CC-Tweaked/workflows/Build/badge.svg)](https://github.com/SquidDev-CC/CC-Tweaked/actions "Current build status") [![Download CC: Tweaked on CurseForge](http://cf.way2muchnoise.eu/title/cc-tweaked.svg)](https://minecraft.curseforge.com/projects/cc-tweaked "Download CC: Tweaked on CurseForge")
 
 CC: Tweaked is a fork of [ComputerCraft](https://github.com/dan200/ComputerCraft), adding programmable computers,
@@ -37,20 +37,14 @@ several features have been included, such as full block modems, the Cobalt runti
 computers.
 
 ## Contributing
-Any contribution is welcome, be that using the mod, reporting bugs or contributing code. In order to start helping
-develop CC:T, you'll need to follow these steps:
-
- - **Clone the repository:** `git clone https://github.com/SquidDev-CC/CC-Tweaked.git && cd CC-Tweaked`
- - **Setup Forge:** `./gradlew setupDecompWorkspace`
- - **Test your changes:** `./gradlew runClient` (or run the `GradleStart` class from your IDE).
-
-If you want to run CC:T in a normal Minecraft instance, run `./gradlew build` and copy the `.jar` from `build/libs`.
+Any contribution is welcome, be that using the mod, reporting bugs or contributing code. If you want to get started
+developing the mod, [check out the instructions here](CONTRIBUTING.md#developing).
 
 ## Community
 If you need help getting started with CC: Tweaked, want to show off your latest project, or just want to chat about
-ComputerCraft we have a [forum](https://forums.computercraft.cc/) and [Discord guild](https://discord.gg/H2UyJXe)!
-There's also a fairly populated, albeit quiet [IRC channel](http://webchat.esper.net/?channels=#computercraft), if
-that's more your cup of tea.
+ComputerCraft we have a [forum](https://forums.computercraft.cc/) and [Discord guild](https://discord.computercraft.cc)!
+There's also a fairly populated, albeit quiet [IRC channel](http://webchat.esper.net/?channels=computercraft), if that's
+more your cup of tea.
 
 I'd generally recommend you don't contact me directly (email, DM, etc...) unless absolutely necessary (i.e. in order to
 report exploits). You'll get a far quicker response if you ask the whole community!

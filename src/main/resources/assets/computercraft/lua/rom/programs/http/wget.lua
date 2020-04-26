@@ -1,15 +1,15 @@
 
 local function printUsage()
-    print( "Usage:" )
-    print( "wget <url> [filename]" )
-    print( "wget run <url>" )
+    print("Usage:")
+    print("wget <url> [filename]")
+    print("wget run <url>")
 end
 
 local tArgs = { ... }
 
 local run = false
 if tArgs[1] == "run" then
-    table.remove( tArgs, 1 )
+    table.remove(tArgs, 1)
     run = true
 end
 
@@ -18,36 +18,36 @@ if #tArgs < 1 then
     return
 end
 
-local url = table.remove( tArgs, 1 )
+local url = table.remove(tArgs, 1)
 
 if not http then
-    printError( "wget requires http API" )
-    printError( "Set http_enable to true in ComputerCraft.cfg" )
+    printError("wget requires the http API")
+    printError("Set http.enabled to true in CC: Tweaked's config")
     return
 end
 
-local function getFilename( sUrl )
-    sUrl = sUrl:gsub( "[#?].*" , "" ):gsub( "/+$" , "" )
-    return sUrl:match( "/([^/]+)$" )
+local function getFilename(sUrl)
+    sUrl = sUrl:gsub("[#?].*" , ""):gsub("/+$" , "")
+    return sUrl:match("/([^/]+)$")
 end
 
-local function get( sUrl )
+local function get(sUrl)
     -- Check if the URL is valid
-    local ok, err = http.checkURL( url )
+    local ok, err = http.checkURL(url)
     if not ok then
-        printError( err or "Invalid URL." )
+        printError(err or "Invalid URL.")
         return
     end
 
-    write( "Connecting to " .. sUrl .. "... " )
+    write("Connecting to " .. sUrl .. "... ")
 
-    local response = http.get( sUrl , nil , true )
+    local response = http.get(sUrl , nil , true)
     if not response then
-        print( "Failed." )
+        print("Failed.")
         return nil
     end
 
-    print( "Success." )
+    print("Success.")
 
     local sResponse = response.readAll()
     response.close()
@@ -66,22 +66,22 @@ if run then
 
     local ok, err = pcall(func, table.unpack(tArgs))
     if not ok then
-        printError( err )
+        printError(err)
     end
 else
-    local sFile = tArgs[1] or getFilename( url )
-    local sPath = shell.resolve( sFile )
-    if fs.exists( sPath ) then
-        print( "File already exists" )
+    local sFile = tArgs[1] or getFilename(url)
+    local sPath = shell.resolve(sFile)
+    if fs.exists(sPath) then
+        print("File already exists")
         return
     end
 
     local res = get(url)
     if not res then return end
 
-    local file = fs.open( sPath, "wb" )
-    file.write( res )
+    local file = fs.open(sPath, "wb")
+    file.write(res)
     file.close()
 
-    print( "Downloaded as " .. sFile )
+    print("Downloaded as " .. sFile)
 end

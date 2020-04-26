@@ -6,15 +6,12 @@
 package dan200.computercraft.client.render;
 
 import dan200.computercraft.ComputerCraft;
-import dan200.computercraft.client.FrameInfo;
 import dan200.computercraft.client.gui.FixedWidthFontRenderer;
 import dan200.computercraft.core.terminal.Terminal;
-import dan200.computercraft.core.terminal.TextBuffer;
 import dan200.computercraft.shared.computer.core.ClientComputer;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.pocket.items.ItemPocketComputer;
 import dan200.computercraft.shared.util.Colour;
-import dan200.computercraft.shared.util.Palette;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
@@ -27,7 +24,8 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import org.lwjgl.opengl.GL11;
 
-import static dan200.computercraft.client.gui.FixedWidthFontRenderer.*;
+import static dan200.computercraft.client.gui.FixedWidthFontRenderer.FONT_HEIGHT;
+import static dan200.computercraft.client.gui.FixedWidthFontRenderer.FONT_WIDTH;
 import static dan200.computercraft.client.gui.GuiComputer.*;
 
 /**
@@ -104,21 +102,11 @@ public final class ItemPocketRenderer extends ItemMapLikeRenderer
 
         if( computer != null && terminal != null )
         {
-            // If we've a computer and terminal then attempt to render it.
-            renderTerminal( terminal, !computer.isColour(), width, height );
+            FixedWidthFontRenderer.drawTerminal( MARGIN, MARGIN, terminal, !computer.isColour(), MARGIN, MARGIN, MARGIN, MARGIN );
         }
         else
         {
-            // Otherwise render a plain background
-            Minecraft.getMinecraft().getTextureManager().bindTexture( BACKGROUND );
-
-            Tessellator tessellator = Tessellator.getInstance();
-            BufferBuilder buffer = tessellator.getBuffer();
-
-            Colour black = Colour.Black;
-            buffer.begin( GL11.GL_QUADS, DefaultVertexFormats.POSITION );
-            renderTexture( buffer, 0, 0, 0, 0, width, height, black.getR(), black.getG(), black.getB() );
-            tessellator.draw();
+            FixedWidthFontRenderer.drawEmptyTerminal( 0, 0, width, height );
         }
 
         GlStateManager.enableDepth();
@@ -187,53 +175,6 @@ public final class ItemPocketRenderer extends ItemMapLikeRenderer
 
         tessellator.draw();
         GlStateManager.enableTexture2D();
-    }
-
-    private static void renderTerminal( Terminal terminal, boolean greyscale, int width, int height )
-    {
-        synchronized( terminal )
-        {
-            int termWidth = terminal.getWidth();
-            int termHeight = terminal.getHeight();
-
-            FixedWidthFontRenderer fontRenderer = FixedWidthFontRenderer.instance();
-            Palette palette = terminal.getPalette();
-
-            // Render top/bottom borders
-            TextBuffer emptyLine = new TextBuffer( ' ', termWidth );
-            fontRenderer.drawString(
-                emptyLine, MARGIN, 0,
-                terminal.getTextColourLine( 0 ), terminal.getBackgroundColourLine( 0 ), MARGIN, MARGIN, greyscale, palette
-            );
-            fontRenderer.drawString(
-                emptyLine, MARGIN, 2 * MARGIN + (termHeight - 1) * FixedWidthFontRenderer.FONT_HEIGHT,
-                terminal.getTextColourLine( termHeight - 1 ), terminal.getBackgroundColourLine( termHeight - 1 ), MARGIN, MARGIN, greyscale, palette
-            );
-
-            // Render the actual text
-            for( int line = 0; line < termWidth; line++ )
-            {
-                TextBuffer text = terminal.getLine( line );
-                TextBuffer colour = terminal.getTextColourLine( line );
-                TextBuffer backgroundColour = terminal.getBackgroundColourLine( line );
-                fontRenderer.drawString(
-                    text, MARGIN, MARGIN + line * FONT_HEIGHT,
-                    colour, backgroundColour, MARGIN, MARGIN, greyscale, palette
-                );
-            }
-
-            // And render the cursor;
-            int tx = terminal.getCursorX(), ty = terminal.getCursorY();
-            if( terminal.getCursorBlink() && FrameInfo.getGlobalCursorBlink() &&
-                tx >= 0 && ty >= 0 && tx < termWidth && ty < termHeight )
-            {
-                TextBuffer cursorColour = new TextBuffer( "0123456789abcdef".charAt( terminal.getTextColour() ), 1 );
-                fontRenderer.drawString(
-                    new TextBuffer( '_', 1 ), MARGIN + FONT_WIDTH * tx, MARGIN + FONT_HEIGHT * ty,
-                    cursorColour, null, 0, 0, greyscale, palette
-                );
-            }
-        }
     }
 
     private static void renderTexture( BufferBuilder builder, int x, int y, int textureX, int textureY, int width, int height, float r, float g, float b )

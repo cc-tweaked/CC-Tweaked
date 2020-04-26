@@ -48,13 +48,13 @@ public class Palette
     {
         if( i >= 0 && i < colours.length )
         {
-            setColour( i, Colour.values()[i] );
+            setColour( i, Colour.VALUES[i] );
         }
     }
 
     public void resetColours()
     {
-        for( int i = 0; i < Colour.values().length; i++ )
+        for( int i = 0; i < Colour.VALUES.length; i++ )
         {
             resetColour( i );
         }

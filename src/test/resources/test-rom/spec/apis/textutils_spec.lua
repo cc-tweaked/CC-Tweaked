@@ -70,6 +70,69 @@ describe("The textutils library", function()
             expect.error(textutils.serialiseJSON, nil):eq("bad argument #1 (expected table, string, number or boolean, got nil)")
             expect.error(textutils.serialiseJSON, "", 1):eq("bad argument #2 (expected boolean, got number)")
         end)
+
+        it("serializes empty arrays", function()
+            expect(textutils.serializeJSON(textutils.empty_json_array)):eq("[]")
+        end)
+
+        it("serializes null", function()
+            expect(textutils.serializeJSON(textutils.json_null)):eq("null")
+        end)
+    end)
+
+    describe("textutils.unserializeJSON", function()
+        describe("parses", function()
+            it("a list of primitives", function()
+                expect(textutils.unserializeJSON('[1, true, false, "hello"]')):same { 1, true, false, "hello" }
+            end)
+
+            it("null when parse_null is true", function()
+                expect(textutils.unserializeJSON("null", { parse_null = true })):eq(textutils.json_null)
+            end)
+
+            it("null when parse_null is false", function()
+                expect(textutils.unserializeJSON("null", { parse_null = false })):eq(nil)
+            end)
+
+            it("an empty array", function()
+                expect(textutils.unserializeJSON("[]", { parse_null = false })):eq(textutils.empty_json_array)
+            end)
+
+            it("basic objects", function()
+                expect(textutils.unserializeJSON([[{ "a": 1, "b":2 }]])):same { a = 1, b = 2 }
+            end)
+        end)
+
+        describe("parses using NBT-style syntax", function()
+            it("basic objects", function()
+                expect(textutils.unserializeJSON([[{ a: 1, b:2 }]], { nbt_style = true })):same { a = 1, b = 2 }
+            end)
+
+            it("suffixed numbers", function()
+                expect(textutils.unserializeJSON("1b", { nbt_style = true })):eq(1)
+            end)
+        end)
+
+        describe("passes nst/JSONTestSuite", function()
+            local search_path = "test-rom/data/json-parsing"
+            local skip = dofile(search_path .. "/skip.lua")
+            for _, file in pairs(fs.find(search_path .. "/*.json")) do
+                local name = fs.getName(file):sub(1, -6);
+                (skip[name] and pending or it)(name, function()
+                    local h = io.open(file, "r")
+                    local contents = h:read("*a")
+                    h:close()
+
+                    local res, err = textutils.unserializeJSON(contents)
+                    local kind = fs.getName(file):sub(1, 1)
+                    if kind == "n" then
+                        expect(res):eq(nil)
+                    elseif kind == "y" then
+                        if err ~= nil then fail("Expected test to pass, but failed with " .. err) end
+                    end
+                end)
+            end
+        end)
     end)
 
     describe("textutils.urlEncode", function()

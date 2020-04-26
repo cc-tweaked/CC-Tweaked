@@ -3,10 +3,10 @@ import pathlib, sys
 problems = False
 
 # Skip images and files without extensions
-exclude = [ ".png", "" ]
+exclude = [ "*.png", "**/data/json-parsing/*.json" ]
 
-for path in pathlib.Path(".").glob("src/**/*"):
-    if path.is_dir() or path.suffix in exclude:
+for path in pathlib.Path("src").glob("**/*"):
+    if path.is_dir() or path.suffix == "" or any(path.match(x) for x in exclude):
         continue
 
     with path.open(encoding="utf-8") as file:

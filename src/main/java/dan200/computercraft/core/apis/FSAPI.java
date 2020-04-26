@@ -22,6 +22,11 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.nio.file.attribute.FileTime;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.OptionalLong;
 import java.util.function.Function;
 
 import static dan200.computercraft.api.lua.ArgumentHelper.getString;
@@ -76,6 +81,8 @@ public class FSAPI implements ILuaAPI
             "getFreeSpace",
             "find",
             "getDir",
+            "getCapacity",
+            "attributes",
         };
     }
 
@@ -315,9 +322,8 @@ public class FSAPI implements ILuaAPI
                     throw new LuaException( e.getMessage() );
                 }
             }
-            case 14:
+            case 14: // find
             {
-                // find
                 String path = getString( args, 0 );
                 try
                 {
@@ -329,15 +335,50 @@ public class FSAPI implements ILuaAPI
                     throw new LuaException( e.getMessage() );
                 }
             }
-            case 15:
+            case 15: // getDir
             {
-                // getDir
                 String path = getString( args, 0 );
                 return new Object[] { FileSystem.getDirectory( path ) };
+            }
+            case 16: // getCapacity
+            {
+                String path = getString( args, 0 );
+                try
+                {
+                    OptionalLong capacity = m_fileSystem.getCapacity( path );
+                    return new Object[] { capacity.isPresent() ? capacity.getAsLong() : null };
+                }
+                catch( FileSystemException e )
+                {
+                    throw new LuaException( e.getMessage() );
+                }
+            }
+            case 17: // attributes
+            {
+                String path = getString( args, 0 );
+                try
+                {
+                    BasicFileAttributes attributes = m_fileSystem.getAttributes( path );
+                    Map<String, Object> result = new HashMap<>();
+                    result.put( "modification", getFileTime( attributes.lastModifiedTime() ) );
+                    result.put( "created", getFileTime( attributes.creationTime() ) );
+                    result.put( "size", attributes.isDirectory() ? 0 : attributes.size() );
+                    result.put( "isDir", attributes.isDirectory() );
+                    return new Object[] { result };
+                }
+                catch( FileSystemException e )
+                {
+                    throw new LuaException( e.getMessage() );
+                }
             }
             default:
                 assert false;
                 return null;
         }
+    }
+
+    private static long getFileTime( FileTime time )
+    {
+        return time == null ? 0 : time.toMillis();
     }
 }
