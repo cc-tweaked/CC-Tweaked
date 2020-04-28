@@ -68,7 +68,11 @@ while bRunning do
         table.insert(tCommandHistory, s)
     end
     if settings.get("lua.warn_against_use_of_local") and s:match("^%s*local%s+") then
+        if term.isColour() then
+            term.setTextColour(colours.yellow)
+        end
        print("local variables from the previous input are inaccessible afterwards. If you want to be able to use a variable across multiple inputs then remove the local keyword.")
+       term.setTextColour(colours.white)
     end
 
     local nForcePrint = 0
