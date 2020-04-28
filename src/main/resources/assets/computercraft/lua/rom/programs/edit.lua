@@ -29,18 +29,22 @@ local tLines = {}
 local bRunning = true
 
 -- Colours
-local highlightColour, keywordColour, commentColour, textColour, bgColour, stringColour
+local highlightColour, booleanColour, keywordColour, functionColour, commentColour, textColour, bgColour, stringColour
 if term.isColour() then
-    bgColour = colours.black
-    textColour = colours.white
-    highlightColour = colours.yellow
-    keywordColour = colours.yellow
-    commentColour = colours.green
-    stringColour = colours.red
+    bgColour = settings.get("edit.backgroundColor") or colours.black
+    textColour = settings.get("edit.textColor") or colours.white
+    highlightColour = settings.get("edit.highlightColor") or colours.yellow
+    keywordColour = settings.get("edit.keywordColor") or colours.yellow
+    booleanColour = settings.get("edit.booleanColor") or colours.magenta
+    functionColour = settings.get("edit.functionColor") or colours.lightBlue
+    commentColour = settings.get("edit.commentColor") or colours.green
+    stringColour = settings.get("edit.stringColor") or colours.red
 else
     bgColour = colours.black
     textColour = colours.white
     highlightColour = colours.white
+    booleanColour = colours.magenta
+    functionColour = colours.white
     keywordColour = colours.white
     commentColour = colours.white
     stringColour = colours.white
@@ -115,29 +119,26 @@ local function save(_sPath)
     return ok, err, fileerr
 end
 
-local tKeywords = {
-    ["and"] = true,
-    ["break"] = true,
-    ["do"] = true,
-    ["else"] = true,
-    ["elseif"] = true,
-    ["end"] = true,
-    ["false"] = true,
-    ["for"] = true,
+local tFunctions = {
     ["function"] = true,
-    ["if"] = true,
-    ["in"] = true,
-    ["local"] = true,
-    ["nil"] = true,
-    ["not"] = true,
-    ["or"] = true,
-    ["repeat"] = true,
-    ["return"] = true,
-    ["then"] = true,
-    ["true"] = true,
-    ["until"] = true,
-    ["while"] = true,
+    ["_G"] = true
 }
+
+local function addHighlights( tApi, sName )
+    for k, v in pairs(tApi) do
+        tFunctions[string.format("%s.%s", sName, k)] = true
+    end
+end
+
+for k, v in pairs(_G) do
+    if v ~= _G then -- avoid recursion
+        if type(v) == "function" then
+            tFunctions[k] = true
+        elseif type(v) == "table" then
+            addHighlights(v, k)
+        end
+    end
+end
 
 local function tryWrite(sLine, regex, colour)
     local match = string.match(sLine, regex)
@@ -164,9 +165,15 @@ local function writeHighlighted(sLine)
             tryWrite(sLine, "^\'\'", stringColour) or
             tryWrite(sLine, "^\'.-[^\\]\'", stringColour) or
             tryWrite(sLine, "^%[%[.-%]%]", stringColour) or
-            tryWrite(sLine, "^[%w_]+", function(match)
+            tryWrite(sLine, "^[%w_%.]+", function(match)
                 if tKeywords[match] then
                     return keywordColour
+                end
+                if tFunctions[match] then
+                    return functionColour
+                end
+                if match == "true" or match == "false" then
+                    return booleanColour
                 end
                 return textColour
             end) or
