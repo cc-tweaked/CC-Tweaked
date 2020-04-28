@@ -67,8 +67,8 @@ while bRunning do
     if s:match("%S") and tCommandHistory[#tCommandHistory] ~= s then
         table.insert(tCommandHistory, s)
     end
-    if settings.get( "lua.warn_against_use_of_local" ) and s:match("^%s*local%s+") then
-       print("local variables in the previous input are now inaccessible. If you want to be able to use a variable across multiple inputs then remove the local keyword.")
+    if settings.get("lua.warn_against_use_of_local") and s:match("^%s*local%s+") then
+       print("local variables from the previous input are inaccessible afterwards. If you want to be able to use a variable across multiple inputs then remove the local keyword.")
     end
 
     local nForcePrint = 0

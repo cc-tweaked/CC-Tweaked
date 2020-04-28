@@ -932,9 +932,9 @@ settings.define("motd.path", {
     description = [[The path to load random messages from. Should be a colon (":") separated string of file paths.]],
     type = "string",
 })
-settings.define( "lua.warn_against_use_of_local", {
+settings.define("lua.warn_against_use_of_local", {
     default = true,
-    description = [[Print a message when input in the Lua REPL starts with the word 'local'. Any local variable used in the Lua REPL will be inaccessable on the next input.]],
+    description = [[Print a message when input in the Lua REPL starts with the word 'local'. Local variables defined in the Lua REPL are be inaccessable on the next input.]],
     type = "boolean",
 })
 if term.isColour() then
