@@ -94,7 +94,7 @@ print("Press any key to stop the groove")
 
 parallel.waitForAny(
     function()
-        while not bEnd do
+        while true do
             local _, key = os.pullEvent("key")
             if key ~= keys.escape then
                 return

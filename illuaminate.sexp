@@ -33,17 +33,27 @@
 
     ;; It's useful to name arguments for documentation, so we allow this. It'd
     ;; be good to find a compromise in the future, but this works for now.
-    -var:unused-arg
+    -var:unused-arg)
 
-    ;; Some APIS (keys, colour and os mainly) are incomplete right now.
-    -var:unresolved-member)
   (lint
     (bracket-spaces
       (call no-space)
       (function-args no-space)
       (parens no-space)
       (table space)
-      (index no-space))))
+      (index no-space))
+
+    ;; colours imports from colors, and we don't handle that right now.
+    ;; keys is entirely dynamic, so we skip it.
+    (dynamic-modules colours keys)
+
+    (globals
+      :max
+      _CC_DEFAULT_SETTINGS
+      _CC_DISABLE_LUA51_FEATURES
+      ;; Ideally we'd pick these up from bios.lua, but illuaminate currently
+      ;; isn't smart enough.
+      sleep write printError read rs)))
 
 ;; We disable the unused global linter in bios.lua and the APIs. In the future
 ;; hopefully we'll get illuaminate to handle this.
@@ -82,3 +92,9 @@
    /src/main/resources/*/computercraft/lua/rom/programs/advanced/multishell.lua
    /src/main/resources/*/computercraft/lua/rom/programs/shell.lua)
   (linters -doc:unresolved-reference))
+
+(at /src/test/resources/test-rom
+  (lint
+    (globals
+      :max sleep write
+      cct_test describe expect howlci fail it pending stub)))
