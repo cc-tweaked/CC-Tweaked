@@ -47,13 +47,13 @@ public abstract class LootTableProvider implements IDataProvider
         ValidationTracker validation = new ValidationTracker( LootParameterSets.GENERIC, x -> null, tables::get );
 
         registerLoot( ( id, table ) -> {
-            if( tables.containsKey( id ) ) validation.func_227530_a_( "Duplicate loot tables for " + id );
+            if( tables.containsKey( id ) ) validation.addProblem( "Duplicate loot tables for " + id );
             tables.put( id, table );
         } );
 
         tables.forEach( ( key, value ) -> LootTableManager.func_227508_a_( validation, key, value ) );
 
-        Multimap<String, String> problems = validation.func_227527_a_();
+        Multimap<String, String> problems = validation.getProblems();
         if( !problems.isEmpty() )
         {
             problems.forEach( ( child, problem ) ->
