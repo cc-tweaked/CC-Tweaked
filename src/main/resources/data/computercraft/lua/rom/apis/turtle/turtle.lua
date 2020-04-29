@@ -5,7 +5,12 @@
 if not turtle then
     error("Cannot load turtle API on computer", 2)
 end
-native = turtle.native or turtle --- @local
+
+--- The builtin turtle API, without any generated helper functions.
+--
+-- Generally you should not need to use this table - it only exists for
+-- backwards compatibility reasons.
+native = turtle.native or turtle
 
 local function addCraftMethod(object)
     if peripheral.getType("left") == "workbench" then

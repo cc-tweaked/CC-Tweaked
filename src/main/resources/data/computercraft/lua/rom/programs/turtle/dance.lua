@@ -93,18 +93,10 @@ end
 print("Press any key to stop the groove")
 
 parallel.waitForAny(
-    function()
-        while not bEnd do
-            local _, key = os.pullEvent("key")
-            if key ~= keys.escape then
-                return
-            end
-        end
-    end,
+    function() os.pullEvent("key") end,
     function()
         while true do
-            local fnMove = tMoves[math.random(1, #tMoves)]
-            fnMove()
+            tMoves[math.random(1, #tMoves)]()
         end
     end
 )

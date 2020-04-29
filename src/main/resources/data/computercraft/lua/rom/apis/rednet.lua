@@ -334,7 +334,11 @@ end
 
 local bRunning = false
 
---- @local
+--- Listen for modem messages and converts them into rednet messages, which may
+-- then be @{receive|received}.
+--
+-- This is automatically started in the background on computer startup, and
+-- should not be called manually.
 function run()
     if bRunning then
         error("rednet is already running", 2)
