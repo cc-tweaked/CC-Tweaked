@@ -277,7 +277,7 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
             if( offset.equals( neighbour ) )
             {
                 updateSideInput( computer, dir, offset );
-                break;
+                return;
             }
         }
 
