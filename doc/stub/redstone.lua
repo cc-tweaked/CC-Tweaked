@@ -11,4 +11,4 @@ setAnalogueOutput = setAnalogOutput
 function getAnalogOutput(sid) end
 getAnalogueOutput = getAnalogOutput
 function getAnalogInput(side) end
-getAnalogueInput = getAnaloguInput
+getAnalogueInput = getAnalogInput

@@ -46,7 +46,7 @@ local function createShellEnv(sDir)
     package.path = "?;?.lua;?/init.lua;/rom/modules/main/?;/rom/modules/main/?.lua;/rom/modules/main/?/init.lua"
     if turtle then
         package.path = package.path .. ";/rom/modules/turtle/?;/rom/modules/turtle/?.lua;/rom/modules/turtle/?/init.lua"
-    elseif command then
+    elseif commands then
         package.path = package.path .. ";/rom/modules/command/?;/rom/modules/command/?.lua;/rom/modules/command/?/init.lua"
     end
     package.config = "/\n;\n?\n!\n-"

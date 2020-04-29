@@ -15,14 +15,14 @@ isColor = isColour
 function getTextColour() end
 getTextColor = getTextColor
 function getBackgroundColour() end
-getBackgroundColour = getBackgroundColour
+getBackgroundColor = getBackgroundColour
 function blit(text, text_colours, background_colours) end
 function setPaletteColour(colour, ...) end
-setPaletteColour = setPaletteColour
+setPaletteColor = setPaletteColour
 function getPaletteColour(colour, ...) end
-getPaletteColour = getPaletteColour
+getPaletteColor = getPaletteColour
 function nativePaletteColour(colour) end
-nativePaletteColour = nativePaletteColour
+nativePaletteColor = nativePaletteColour
 
 --- @type Redirect
 local Redirect = {}
