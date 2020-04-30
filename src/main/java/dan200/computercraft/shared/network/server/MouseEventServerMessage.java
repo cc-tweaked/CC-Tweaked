@@ -18,6 +18,7 @@ public class MouseEventServerMessage extends ComputerServerMessage
     public static final int TYPE_DRAG = 1;
     public static final int TYPE_UP = 2;
     public static final int TYPE_SCROLL = 3;
+    public static final int TYPE_MOVE = 4;
 
     private int type;
     private int x;
@@ -31,6 +32,11 @@ public class MouseEventServerMessage extends ComputerServerMessage
         this.arg = arg;
         this.x = x;
         this.y = y;
+    }
+
+    public MouseEventServerMessage( int instanceId, int type, int x, int y )
+    {
+        this( instanceId, type, 0, x, y );
     }
 
     public MouseEventServerMessage()
@@ -74,6 +80,9 @@ public class MouseEventServerMessage extends ComputerServerMessage
                 break;
             case TYPE_SCROLL:
                 input.mouseScroll( arg, x, y );
+                break;
+            case TYPE_MOVE:
+                input.mouseMove( x, y );
                 break;
         }
     }

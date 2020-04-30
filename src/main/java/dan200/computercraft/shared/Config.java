@@ -47,6 +47,7 @@ public final class Config
     private static Property defaultComputerSettings;
     private static Property debugEnabled;
     private static Property logComputerErrors;
+    private static Property mouseMoveThrottle;
 
     private static Property computerThreads;
     private static Property maxMainGlobalTime;
@@ -119,10 +120,15 @@ public final class Config
             logComputerErrors.setComment( "Log exceptions thrown by peripherals and other Lua objects.\n" +
                 "This makes it easier for mod authors to debug problems, but may result in log spam should people use buggy methods." );
 
+            mouseMoveThrottle = config.get( CATEGORY_GENERAL, "mouse_move_throttle", (int) ComputerCraft.mouseMoveThrottle );
+            mouseMoveThrottle.setComment( "The minimum time between sending mouse_move events, in milliseconds.\n" +
+                "Set to -1 to disable mouse_move events entirely." );
+
             setOrder(
                 CATEGORY_GENERAL,
                 computerSpaceLimit, floppySpaceLimit, maximumFilesOpen,
-                disableLua51Features, defaultComputerSettings, debugEnabled, logComputerErrors
+                disableLua51Features, defaultComputerSettings, debugEnabled, logComputerErrors,
+                mouseMoveThrottle
             );
         }
 
@@ -441,6 +447,7 @@ public final class Config
         ComputerCraft.default_computer_settings = defaultComputerSettings.getString();
         ComputerCraft.debug_enable = debugEnabled.getBoolean();
         ComputerCraft.logPeripheralErrors = logComputerErrors.getBoolean();
+        ComputerCraft.mouseMoveThrottle = mouseMoveThrottle.getLong();
 
         // Execution
         ComputerCraft.computer_threads = computerThreads.getInt();

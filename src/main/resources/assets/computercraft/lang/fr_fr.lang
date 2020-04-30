@@ -55,6 +55,7 @@ gui.computercraft:config.maximum_open_files=Maximum de fichier ouvert par Ordina
 gui.computercraft:config.disable_lua51_features=Désactiver les particularités de Lua 5.1
 gui.computercraft:config.default_computer_settings=Configuration d'Ordinateur par défaut
 gui.computercraft:config.log_computer_errors=Journal d'erreur périphériques
+gui.computercraft:config.mouse_move_throttle=Limitation des events mouse_move (millis)
 
 gui.computercraft:config.http.enabled=Permettre l'API HTTP
 gui.computercraft:config.http.allowed_domains=HTTP liste blanche

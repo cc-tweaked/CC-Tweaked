@@ -5,6 +5,7 @@
  */
 package dan200.computercraft.client.gui.widgets;
 
+import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.client.gui.FixedWidthFontRenderer;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.shared.computer.core.IComputer;
@@ -30,6 +31,11 @@ public class WidgetTerminal extends Widget
     private int m_lastClickButton = -1;
     private int m_lastClickX = -1;
     private int m_lastClickY = -1;
+
+    private int m_lastMouseX = -1;
+    private int m_lastMouseY = -1;
+    private long m_lastMouseMove = -1;
+    private boolean m_mouseMoved = false;
 
     private boolean m_focus = false;
     private boolean m_allowFocusLoss = true;
@@ -221,37 +227,63 @@ public class WidgetTerminal extends Widget
                 charX = Math.min( Math.max( charX, 0 ), term.getWidth() - 1 );
                 charY = Math.min( Math.max( charY, 0 ), term.getHeight() - 1 );
 
-                if( m_lastClickButton >= 0 && !Mouse.isButtonDown( m_lastClickButton ) )
-                {
-                    if( m_focus ) computer.mouseUp( m_lastClickButton + 1, charX + 1, charY + 1 );
-                    m_lastClickButton = -1;
-                }
-
-                int wheelChange = Mouse.getEventDWheel();
-                if( wheelChange == 0 && m_lastClickButton == -1 )
-                {
-                    return;
-                }
-
-                if( m_focus )
-                {
-                    if( wheelChange < 0 )
-                    {
-                        computer.mouseScroll( 1, charX + 1, charY + 1 );
-                    }
-                    else if( wheelChange > 0 )
-                    {
-                        computer.mouseScroll( -1, charX + 1, charY + 1 );
-                    }
-
-                    if( m_lastClickButton >= 0 && (charX != m_lastClickX || charY != m_lastClickY) )
-                    {
-                        computer.mouseDrag( m_lastClickButton + 1, charX + 1, charY + 1 );
-                        m_lastClickX = charX;
-                        m_lastClickY = charY;
-                    }
-                }
+                handleMouseClick( computer, charX, charY );
+                handleMouseWheel( computer, charX, charY );
+                handleMouseMove( charX, charY );
             }
+        }
+        else // The mouse has moved out of the terminal, send a -1, -1 mouse_move event
+        {
+            handleMouseMove( -1, -1 );
+        }
+    }
+
+    private void handleMouseClick( IComputer computer, int charX, int charY )
+    {
+        if( m_lastClickButton >= 0 && !Mouse.isButtonDown( m_lastClickButton ) )
+        {
+            if( m_focus ) computer.mouseUp( m_lastClickButton + 1, charX + 1, charY + 1 );
+            m_lastClickButton = -1;
+        }
+    }
+
+    private void handleMouseWheel( IComputer computer, int charX, int charY )
+    {
+        int wheelChange = Mouse.getEventDWheel();
+        if( wheelChange == 0 && m_lastClickButton == -1 )
+        {
+            return;
+        }
+
+        if( m_focus )
+        {
+            if( wheelChange < 0 )
+            {
+                computer.mouseScroll( 1, charX + 1, charY + 1 );
+            }
+            else if( wheelChange > 0 )
+            {
+                computer.mouseScroll( -1, charX + 1, charY + 1 );
+            }
+
+            if( m_lastClickButton >= 0 && (charX != m_lastClickX || charY != m_lastClickY) )
+            {
+                computer.mouseDrag( m_lastClickButton + 1, charX + 1, charY + 1 );
+                m_lastClickX = charX;
+                m_lastClickY = charY;
+            }
+        }
+    }
+
+    private void handleMouseMove( int charX, int charY )
+    {
+        if( ComputerCraft.mouseMoveThrottle >= 0 && (m_lastMouseX != charX || m_lastMouseY != charY) )
+        {
+            // Simply update the last mouse move location, the work is delegated to the update handler,
+            // which will deal with throttling too!
+            m_lastMouseX = charX;
+            m_lastMouseY = charY;
+            m_mouseMoved = true;
         }
     }
 
@@ -316,6 +348,22 @@ public class WidgetTerminal extends Widget
             m_terminateTimer = 0.0f;
             m_rebootTimer = 0.0f;
             m_shutdownTimer = 0.0f;
+        }
+
+        // Handle mouse movement
+        if( m_mouseMoved && System.currentTimeMillis() - ComputerCraft.mouseMoveThrottle > m_lastMouseMove )
+        {
+            IComputer computer = m_computer.getComputer();
+            if( computer != null )
+            {
+                computer.mouseMove(
+                    m_lastMouseX == -1 ? -1 : m_lastMouseX + 1,
+                    m_lastMouseY == -1 ? -1 : m_lastMouseY + 1
+                );
+            }
+
+            m_mouseMoved = false;
+            m_lastMouseMove = System.currentTimeMillis();
         }
     }
 

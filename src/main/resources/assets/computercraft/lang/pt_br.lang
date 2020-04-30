@@ -57,6 +57,7 @@ gui.computercraft:config.disable_lua51_features=Desabilitar funcionalidade da Lu
 gui.computercraft:config.default_computer_settings=Configurações padrão para Computadores
 gui.computercraft:config.debug_enabled=Habilitar biblioteca de debug
 gui.computercraft:config.log_computer_errors=Registrar erros de computadores
+gui.computercraft:config.mouse_move_throttle=Tempo entre eventos mouse_move (milissegundos)
 
 gui.computercraft:config.execution.computer_threads=Threads por computador
 

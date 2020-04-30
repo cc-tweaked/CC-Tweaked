@@ -149,6 +149,12 @@ public class ClientComputer extends ClientTerminal implements IComputer
         NetworkHandler.sendToServer( new MouseEventServerMessage( m_instanceID, MouseEventServerMessage.TYPE_SCROLL, direction, x, y ) );
     }
 
+    @Override
+    public void mouseMove( int x, int y )
+    {
+        NetworkHandler.sendToServer( new MouseEventServerMessage( m_instanceID, MouseEventServerMessage.TYPE_MOVE, x, y ) );
+    }
+
     public void setState( ComputerState state, NBTTagCompound userData )
     {
         boolean oldOn = m_on;

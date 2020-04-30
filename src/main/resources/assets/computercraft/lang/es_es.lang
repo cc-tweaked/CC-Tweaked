@@ -55,6 +55,7 @@ gui.computercraft:config.maximum_open_files=Archivos abiertos máximos por cada 
 gui.computercraft:config.disable_lua51_features=Deshabilitar funciones de Lua 5.1
 gui.computercraft:config.default_computer_settings=Configuración de Ordenador por defecto
 gui.computercraft:config.log_computer_errors=Grabar errores periféricos
+gui.computercraft:config.mouse_move_throttle=Tiempo entre los eventos mouse_move (milisegundos)
 
 gui.computercraft:config.http.enabled=Habilitar API de HTTP
 gui.computercraft:config.http.allowed_domains=Lista blanca de HTTP

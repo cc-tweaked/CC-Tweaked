@@ -44,4 +44,9 @@ public interface InputHandler
     {
         queueEvent( "mouse_scroll", new Object[] { direction, x, y } );
     }
+
+    default void mouseMove( int x, int y )
+    {
+        queueEvent( "mouse_move", new Object[] { x, y } );
+    }
 }
