@@ -9,6 +9,7 @@ import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.client.render.TurtleModelLoader;
 import dan200.computercraft.shared.common.IColouredItem;
 import dan200.computercraft.shared.media.items.ItemDisk;
+import dan200.computercraft.shared.media.items.ItemTreasureDisk;
 import dan200.computercraft.shared.pocket.items.ItemPocketComputer;
 import dan200.computercraft.shared.util.Colour;
 import net.minecraft.client.renderer.model.IBakedModel;
@@ -116,7 +117,12 @@ public final class ClientRegistry
 
         event.getItemColors().register(
             ( stack, layer ) -> layer == 1 ? ((ItemDisk) stack.getItem()).getColour( stack ) : 0xFFFFFF,
-            ComputerCraft.Items.disk, ComputerCraft.Items.treasureDisk
+            ComputerCraft.Items.disk
+        );
+
+        event.getItemColors().register(
+            ( stack, layer ) -> layer == 1 ? ItemTreasureDisk.getColour( stack ) : 0xFFFFFF,
+            ComputerCraft.Items.treasureDisk
         );
 
         event.getItemColors().register( ( stack, layer ) -> {
