@@ -373,9 +373,14 @@ while #tProcesses > 0 do
             end
         end
 
-    elseif sEvent == "mouse_drag" or sEvent == "mouse_up" or sEvent == "mouse_scroll" then
+    elseif sEvent == "mouse_drag" or sEvent == "mouse_up" or sEvent == "mouse_scroll" or sEvent == "mouse_move" then
         -- Other mouse event
         local p1, x, y = tEventData[2], tEventData[3], tEventData[4]
+
+        if sEvent == "mouse_move" then
+        	p1, x, y = 0, tEventData[2], tEventData[3]
+        end
+
         if bShowMenu and sEvent == "mouse_scroll" and y == 1 then
             if p1 == -1 and nScrollPos ~= 1 then
                 nScrollPos = nScrollPos - 1
@@ -386,7 +391,12 @@ while #tProcesses > 0 do
             end
         elseif not (bShowMenu and y == 1) then
             -- Passthrough to current process
-            resumeProcess(nCurrentProcess, sEvent, p1, x, bShowMenu and y - 1 or y)
+            if sEvent == "mouse_move" then
+            	resumeProcess(nCurrentProcess, sEvent, x, bShowMenu and y - 1 or y)
+            else
+            	resumeProcess(nCurrentProcess, sEvent, p1, x, bShowMenu and y - 1 or y)
+            end
+
             if cullProcess(nCurrentProcess) then
                 setMenuVisible(#tProcesses >= 2)
                 redrawMenu()
