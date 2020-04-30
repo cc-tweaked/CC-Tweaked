@@ -31,7 +31,12 @@ import net.minecraft.item.MusicDiscItem;
 import net.minecraft.tileentity.CommandBlockTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.storage.loot.ConstantRange;
+import net.minecraft.world.storage.loot.LootPool;
+import net.minecraft.world.storage.loot.LootTables;
+import net.minecraft.world.storage.loot.TableLootEntry;
 import net.minecraft.world.storage.loot.conditions.LootConditionManager;
+import net.minecraftforge.event.LootTableLoadEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.player.PlayerContainerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -40,6 +45,10 @@ import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.server.FMLServerStartedEvent;
 import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
 import net.minecraftforge.fml.event.server.FMLServerStoppedEvent;
+
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 @Mod.EventBusSubscriber( modid = ComputerCraft.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD )
 public final class ComputerCraftProxyCommon
@@ -166,6 +175,34 @@ public final class ComputerCraftProxyCommon
             ComputerCraft.serverComputerRegistry.reset();
             WirelessNetwork.resetNetworks();
             Tracking.reset();
+        }
+
+        public static final ResourceLocation LOOT_TREASURE_DISK = new ResourceLocation( ComputerCraft.MOD_ID, "treasure_disk" );
+
+        private static final Set<ResourceLocation> TABLES = new HashSet<>( Arrays.asList(
+            LootTables.CHESTS_SIMPLE_DUNGEON,
+            LootTables.CHESTS_ABANDONED_MINESHAFT,
+            LootTables.CHESTS_STRONGHOLD_CORRIDOR,
+            LootTables.CHESTS_STRONGHOLD_CROSSING,
+            LootTables.CHESTS_STRONGHOLD_LIBRARY,
+            LootTables.CHESTS_DESERT_PYRAMID,
+            LootTables.CHESTS_JUNGLE_TEMPLE,
+            LootTables.CHESTS_IGLOO_CHEST,
+            LootTables.CHESTS_WOODLAND_MANSION,
+            LootTables.CHESTS_VILLAGE_VILLAGE_CARTOGRAPHER
+        ) );
+
+        @SubscribeEvent
+        public static void lootLoad( LootTableLoadEvent event )
+        {
+            ResourceLocation name = event.getName();
+            if( !name.getNamespace().equals( "minecraft" ) || !TABLES.contains( name ) ) return;
+
+            event.getTable().addPool( LootPool.builder()
+                .addEntry( TableLootEntry.builder( LOOT_TREASURE_DISK ) )
+                .rolls( ConstantRange.of( 1 ) )
+                .name( "computercraft_treasure" )
+                .build() );
         }
     }
 }

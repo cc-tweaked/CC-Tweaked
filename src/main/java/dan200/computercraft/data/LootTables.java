@@ -9,6 +9,7 @@ package dan200.computercraft.data;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.data.BlockNamedEntityLootCondition;
 import dan200.computercraft.shared.data.PlayerCreativeLootCondition;
+import dan200.computercraft.shared.proxy.ComputerCraftProxyCommon;
 import net.minecraft.block.Block;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.util.ResourceLocation;
@@ -41,6 +42,11 @@ public class LootTables extends LootTableProvider
         computerDrop( add, ComputerCraft.Blocks.computerAdvanced );
         computerDrop( add, ComputerCraft.Blocks.turtleNormal );
         computerDrop( add, ComputerCraft.Blocks.turtleAdvanced );
+
+        add.accept( ComputerCraftProxyCommon.ForgeHandlers.LOOT_TREASURE_DISK, LootTable
+            .builder()
+            .setParameterSet( LootParameterSets.GENERIC )
+            .build() );
     }
 
     private static void basicDrop( BiConsumer<ResourceLocation, LootTable> add, Block block )

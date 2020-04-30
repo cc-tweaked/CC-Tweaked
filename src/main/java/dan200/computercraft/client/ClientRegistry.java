@@ -116,7 +116,7 @@ public final class ClientRegistry
 
         event.getItemColors().register(
             ( stack, layer ) -> layer == 1 ? ((ItemDisk) stack.getItem()).getColour( stack ) : 0xFFFFFF,
-            ComputerCraft.Items.disk
+            ComputerCraft.Items.disk, ComputerCraft.Items.treasureDisk
         );
 
         event.getItemColors().register( ( stack, layer ) -> {
