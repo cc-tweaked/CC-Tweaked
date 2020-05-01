@@ -387,10 +387,10 @@ while #tProcesses > 0 do
         elseif not (bShowMenu and y == 1) then
             -- Passthrough to current process
             if x == nil or y == nil then -- Handle mouse_move nil events
-				resumeProcess(nCurrentProcess, sEvent, p1, nil, nil)
+                resumeProcess(nCurrentProcess, sEvent, p1, nil, nil)
             else
-				resumeProcess(nCurrentProcess, sEvent, p1, x, bShowMenu and y - 1 or y)
-			end
+                resumeProcess(nCurrentProcess, sEvent, p1, x, bShowMenu and y - 1 or y)
+            end
 
             if cullProcess(nCurrentProcess) then
                 setMenuVisible(#tProcesses >= 2)
