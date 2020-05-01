@@ -34,8 +34,6 @@ public class WidgetTerminal extends Widget
 
     private int m_lastMouseX = -1;
     private int m_lastMouseY = -1;
-    private long m_lastMouseMove = -1;
-    private boolean m_mouseMoved = false;
 
     private boolean m_focus = false;
     private boolean m_allowFocusLoss = true;
@@ -215,9 +213,10 @@ public class WidgetTerminal extends Widget
     public void handleMouseInput( int mouseX, int mouseY )
     {
         IComputer computer = m_computer.getComputer();
+        if ( computer == null || !computer.isColour() ) return;
+
         if( mouseX >= getXPosition() && mouseX < getXPosition() + getWidth() &&
-            mouseY >= getYPosition() && mouseY < getYPosition() + getHeight() &&
-            computer != null && computer.isColour() )
+            mouseY >= getYPosition() && mouseY < getYPosition() + getHeight() )
         {
             Terminal term = computer.getTerminal();
             if( term != null )
@@ -229,12 +228,12 @@ public class WidgetTerminal extends Widget
 
                 handleMouseClick( computer, charX, charY );
                 handleMouseWheel( computer, charX, charY );
-                handleMouseMove( charX, charY );
+                handleMouseMove( computer, charX, charY );
             }
         }
         else // The mouse has moved out of the terminal, send a -1, -1 mouse_move event
         {
-            handleMouseMove( -1, -1 );
+            handleMouseMove( computer, -1, -1 );
         }
     }
 
@@ -275,15 +274,16 @@ public class WidgetTerminal extends Widget
         }
     }
 
-    private void handleMouseMove( int charX, int charY )
+    private void handleMouseMove( IComputer computer, int charX, int charY )
     {
+        // Avoid sending mouse movement events if the cursor is under the same character.
+        // Note that clients can also use the mouseMoveThrottle config options to disable
+        // sending their mouse movements to a server entirely.
         if( ComputerCraft.mouseMoveThrottle >= 0 && (m_lastMouseX != charX || m_lastMouseY != charY) )
         {
-            // Simply update the last mouse move location, the work is delegated to the update handler,
-            // which will deal with throttling too!
+            computer.mouseMove( charX, charY );
             m_lastMouseX = charX;
             m_lastMouseY = charY;
-            m_mouseMoved = true;
         }
     }
 
@@ -348,22 +348,6 @@ public class WidgetTerminal extends Widget
             m_terminateTimer = 0.0f;
             m_rebootTimer = 0.0f;
             m_shutdownTimer = 0.0f;
-        }
-
-        // Handle mouse movement
-        if( m_mouseMoved && System.currentTimeMillis() - ComputerCraft.mouseMoveThrottle > m_lastMouseMove )
-        {
-            IComputer computer = m_computer.getComputer();
-            if( computer != null )
-            {
-                computer.mouseMove(
-                    m_lastMouseX == -1 ? -1 : m_lastMouseX + 1,
-                    m_lastMouseY == -1 ? -1 : m_lastMouseY + 1
-                );
-            }
-
-            m_mouseMoved = false;
-            m_lastMouseMove = System.currentTimeMillis();
         }
     }
 

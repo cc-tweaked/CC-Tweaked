@@ -5,6 +5,7 @@
  */
 package dan200.computercraft.shared.computer.core;
 
+import dan200.computercraft.ComputerCraft;
 import it.unimi.dsi.fastutil.ints.IntIterator;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
@@ -21,6 +22,11 @@ public class InputState implements InputHandler
     private int lastMouseX;
     private int lastMouseY;
     private int lastMouseDown = -1;
+
+    private int lastMouseMoveX = -1;
+    private int lastMouseMoveY = -1;
+    private long lastMouseMove = -1;
+    private boolean mouseMoved = false;
 
     public InputState( IContainerComputer owner )
     {
@@ -93,6 +99,44 @@ public class InputState implements InputHandler
         if( computer != null ) computer.mouseScroll( direction, x, y );
     }
 
+    @Override
+    public void mouseMove( int x, int y )
+    {
+        // Delegate mouse movement to the throttler, which will ensure the most
+        // recent mouse movement event is always received.
+
+        // An intentional decision here is to *not* update lastMouseX and lastMouseY,
+        // as the mouse_up event currently behaves based on the click and scroll
+        // events.
+
+        if( ComputerCraft.mouseMoveThrottle >= 0 && (lastMouseMoveX != x || lastMouseMoveY != y) )
+        {
+            lastMouseMoveX = x;
+            lastMouseMoveY = y;
+            mouseMoved = true; // The mouse_move event will be performed next time update() is called.
+        }
+    }
+
+    @Override
+    public void update()
+    {
+        // Handle mouse_move throttling:
+        if( mouseMoved && System.currentTimeMillis() - ComputerCraft.mouseMoveThrottle > lastMouseMove )
+        {
+            IComputer computer = owner.getComputer();
+            if( computer != null )
+            {
+                computer.mouseMove(
+                    lastMouseMoveX == -1 ? -1 : lastMouseMoveX + 1,
+                    lastMouseMoveY == -1 ? -1 : lastMouseMoveY + 1
+                );
+            }
+
+            mouseMoved = false;
+            lastMouseMove = System.currentTimeMillis();
+        }
+    }
+
     public void close()
     {
         IComputer computer = owner.getComputer();
@@ -102,9 +146,12 @@ public class InputState implements InputHandler
             while( keys.hasNext() ) computer.keyUp( keys.nextInt() );
 
             if( lastMouseDown != -1 ) computer.mouseUp( lastMouseDown, lastMouseX, lastMouseY );
+            if( lastMouseMoveX != -1 || lastMouseMoveY != -1 ) computer.mouseMove( -1, -1 );
         }
 
         keysDown.clear();
         lastMouseDown = -1;
+        lastMouseMoveX = -1;
+        lastMouseMoveY = -1;
     }
 }

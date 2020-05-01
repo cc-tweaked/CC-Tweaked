@@ -5,6 +5,11 @@
  */
 package dan200.computercraft.shared.computer.core;
 
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.inventory.Container;
+import net.minecraft.server.MinecraftServer;
+import net.minecraftforge.fml.common.FMLCommonHandler;
+
 import java.util.Iterator;
 
 public class ServerComputerRegistry extends ComputerRegistry<ServerComputer>
@@ -30,6 +35,21 @@ public class ServerComputerRegistry extends ComputerRegistry<ServerComputer>
                 {
                     computer.broadcastState( false );
                 }
+            }
+        }
+
+        // Check for computer containers to run InputState.update() on them
+        FMLCommonHandler handler = FMLCommonHandler.instance();
+        if( handler != null )
+        {
+            MinecraftServer server = handler.getMinecraftServerInstance();
+            for( EntityPlayerMP player : server.getPlayerList().getPlayers() )
+            {
+                Container container = player.openContainer;
+                if( !(container instanceof IContainerComputer) ) continue;
+
+                IContainerComputer computerContainer = (IContainerComputer) container;
+                computerContainer.getInput().update();
             }
         }
     }
