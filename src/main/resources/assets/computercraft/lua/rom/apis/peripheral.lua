@@ -173,7 +173,7 @@ function wrap(name)
     local result = setmetatable({}, {
         __name = "peripheral",
         name = name,
-        type = peripheral.getType(name)
+        type = peripheral.getType(name),
     })
     for _, method in ipairs(methods) do
         result[method] = function(...)
