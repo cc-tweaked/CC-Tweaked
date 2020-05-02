@@ -154,6 +154,7 @@ function wrap(name)
             return peripheral.call(name, method, ...)
         end
     end
+    result.name = name
     return result
 end
 
