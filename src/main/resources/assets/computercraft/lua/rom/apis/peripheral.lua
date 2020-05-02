@@ -105,6 +105,19 @@ function getMethods(name)
     return nil
 end
 
+--- Get the name of a peripheral wrapped with @{peripheral.wrap}.
+--
+-- @tparam table peripheral The peripheral to get the name of.
+-- @treturn string The name of the given peripheral.
+function getName(peripheral)
+    expect(1, peripheral, "table")
+    local mt = getmetatable(peripheral)
+    if not mt or mt.__name ~= "peripheral" or type(mt.name) ~= "string" then
+        error("Could not get peripheral name")
+    end
+    return mt.name
+end
+
 --- Call a method on the peripheral with the given name.
 --
 -- @tparam string name The name of the peripheral to invoke the method on.
@@ -148,7 +161,7 @@ function wrap(name)
         return nil
     end
 
-    local result = {}
+    local result = setmetatable({}, { __name = "peripheral", name = name })
     for _, method in ipairs(methods) do
         result[method] = function(...)
             return peripheral.call(name, method, ...)
