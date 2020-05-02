@@ -113,7 +113,7 @@ function getName(peripheral)
     expect(1, peripheral, "table")
     local mt = getmetatable(peripheral)
     if not mt or mt.__name ~= "peripheral" or type(mt.name) ~= "string" then
-        error("Could not get peripheral name")
+        error("bad argument #1 (table is not a peripheral)", 2)
     end
     return mt.name
 end
@@ -167,7 +167,6 @@ function wrap(name)
             return peripheral.call(name, method, ...)
         end
     end
-    result.name = name
     return result
 end
 
