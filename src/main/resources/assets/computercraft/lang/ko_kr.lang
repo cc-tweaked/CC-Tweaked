@@ -148,8 +148,8 @@ tracking_field.computercraft.coroutines_dead.name=코루틴 처리됨
 
 # Misc tooltips
 gui.computercraft.tooltip.copy=클립보드에 복사
-gui.computercraft.tooltip.computer_id=(컴퓨터 ID: %s)
-gui.computercraft.tooltip.disk_id=(디스크 ID: %s)
+gui.computercraft.tooltip.computer_id=컴퓨터 ID: %s
+gui.computercraft.tooltip.disk_id=디스크 ID: %s
 
 # Config options
 gui.computercraft:config.computer_space_limit=컴퓨터 공간 제한 (바이트)

@@ -39,7 +39,7 @@ public abstract class ItemComputerBase extends ItemBlock implements IComputerIte
     @Override
     public void addInformation( @Nonnull ItemStack stack, @Nullable World world, @Nonnull List<String> list, @Nonnull ITooltipFlag flag )
     {
-        if( flag.isAdvanced() )
+        if( flag.isAdvanced() || getLabel( stack ) == null )
         {
             int id = getComputerID( stack );
             if( id >= 0 ) list.add( StringUtil.translateFormatted( "gui.computercraft.tooltip.computer_id", id ) );

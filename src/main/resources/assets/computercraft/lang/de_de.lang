@@ -148,8 +148,8 @@ tracking_field.computercraft.coroutines_dead.name=Koroutinen gelöscht
 
 # Misc tooltips
 gui.computercraft.tooltip.copy=In die Zwischenablage kopieren
-gui.computercraft.tooltip.computer_id=(Computer ID: %s)
-gui.computercraft.tooltip.disk_id=(Disketten ID: %s)
+gui.computercraft.tooltip.computer_id=Computer ID: %s
+gui.computercraft.tooltip.disk_id=Disketten ID: %s
 
 # Config options
 gui.computercraft:config.computer_space_limit=Speicherplatz von Computern (Bytes)
