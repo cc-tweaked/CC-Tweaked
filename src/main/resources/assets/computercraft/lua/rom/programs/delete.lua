@@ -5,16 +5,27 @@ if args.n < 1 then
     return
 end
 
+local function isMountPoint(path)
+    if not fs.isDir(path) then
+        return false
+    elseif fs.getDrive(path) == "hdd" then -- TODO: compare path drive to direct parent's drive
+        return false
+    else
+        return true
+    end
+end
+
+
 for i = 1, args.n do
     local resolvedPath = shell.resolve(args[i])
     local files = fs.find(resolvedPath)
     if #files > 0 then
         for _, file in ipairs(files) do
-            if fs.isReadOnly(file) then
-                print("Skipping read only "..file)
-            elseif fs.getDrive(resolvedPath) ~= fs.getDrive(file) then
-                print("Skipping seperate mount "..file)
-                print("To delete it's contents run rm "..fs.combine(file, "*"))
+            if file ~= resolvedPath and fs.isReadOnly(file) then
+                print("Skipping read only " .. file)
+            elseif isMountPoint(file) then
+                print("Skipping seperate mount " .. file)
+                print("To delete it's contents run rm " .. fs.combine(file, "*"))
             else
                 local ok, err = pcall(fs.delete, file)
                 if not ok then
