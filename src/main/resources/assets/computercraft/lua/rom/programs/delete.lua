@@ -8,7 +8,7 @@ end
 local function isMountPoint(path)
     if not fs.isDir(path) then
         return false
-    elseif fs.getDrive(path) == fs.getDrive(fs.combine(path, "..")) then
+    elseif fs.combine(path, "..") == ".." or fs.getDrive(path) == fs.getDrive(fs.combine(path, "..")) then -- the == ".." check prevents errors when path is "/"
         return false
     else
         return true
