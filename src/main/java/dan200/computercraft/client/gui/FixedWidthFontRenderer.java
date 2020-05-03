@@ -41,15 +41,16 @@ public final class FixedWidthFontRenderer
     {
     }
 
-    private static float toGreyscale( double[] rgb )
+    public static float toGreyscale( double[] rgb )
     {
         return (float) ((rgb[0] + rgb[1] + rgb[2]) / 3);
     }
 
-    private static int getColour( char c )
+    public static byte getColour( char c )
     {
-        int i = "0123456789abcdef".indexOf( c );
-        return i < 0 ? 0 : 15 - i;
+        if( c >= '0' && c <= '9' ) return (byte) (15 - (c - '0'));
+        if( c >= 'a' && c <= 'f' ) return (byte) (15 - (c - 'a' + 10));
+        return 0;
     }
 
     private static void drawChar( Matrix4f transform, IVertexBuilder buffer, float x, float y, int index, float r, float g, float b )
