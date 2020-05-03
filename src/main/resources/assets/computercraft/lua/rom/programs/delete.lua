@@ -8,7 +8,7 @@ end
 local function isMountPoint(path)
     if not fs.isDir(path) then
         return false
-    elseif fs.getDrive(path) == "hdd" then -- TODO: compare path drive to direct parent's drive
+    elseif fs.getDrive(path) == fs.getDrive(fs.combine(path, "..")) then
         return false
     else
         return true
