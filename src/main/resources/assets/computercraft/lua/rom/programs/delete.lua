@@ -14,7 +14,7 @@ for i = 1, args.n do
                 print("Skipping read only "..file)
             elseif fs.getDrive(resolvedPath) ~= fs.getDrive(file) then
                 print("Skipping seperate mount "..file)
-                print("To delete it's contents run rm "..fs.combine(file, "*")
+                print("To delete it's contents run rm "..fs.combine(file, "*"))
             else
                 local ok, err = pcall(fs.delete, file)
                 if not ok then
