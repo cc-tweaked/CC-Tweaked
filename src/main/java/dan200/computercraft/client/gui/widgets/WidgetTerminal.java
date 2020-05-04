@@ -226,51 +226,38 @@ public class WidgetTerminal extends Widget
                 charX = Math.min( Math.max( charX, 0 ), term.getWidth() - 1 );
                 charY = Math.min( Math.max( charY, 0 ), term.getHeight() - 1 );
 
-                handleMouseClick( computer, charX, charY );
-                handleMouseWheel( computer, charX, charY );
+                if( m_lastClickButton >= 0 && !Mouse.isButtonDown( m_lastClickButton ) )
+                {
+                    if( m_focus ) computer.mouseUp( m_lastClickButton + 1, charX + 1, charY + 1 );
+                    m_lastClickButton = -1;
+                }
+
+                int wheelChange = Mouse.getEventDWheel();
+                if( m_focus )
+                {
+                    if( wheelChange < 0 )
+                    {
+                        computer.mouseScroll( 1, charX + 1, charY + 1 );
+                    }
+                    else if( wheelChange > 0 )
+                    {
+                        computer.mouseScroll( -1, charX + 1, charY + 1 );
+                    }
+
+                    if( m_lastClickButton >= 0 && (charX != m_lastClickX || charY != m_lastClickY) )
+                    {
+                        computer.mouseDrag( m_lastClickButton + 1, charX + 1, charY + 1 );
+                        m_lastClickX = charX;
+                        m_lastClickY = charY;
+                    }
+                }
+
                 handleMouseMove( computer, charX, charY );
             }
         }
         else // The mouse has moved out of the terminal, send a -1, -1 mouse_move event
         {
             handleMouseMove( computer, -1, -1 );
-        }
-    }
-
-    private void handleMouseClick( IComputer computer, int charX, int charY )
-    {
-        if( m_lastClickButton >= 0 && !Mouse.isButtonDown( m_lastClickButton ) )
-        {
-            if( m_focus ) computer.mouseUp( m_lastClickButton + 1, charX + 1, charY + 1 );
-            m_lastClickButton = -1;
-        }
-    }
-
-    private void handleMouseWheel( IComputer computer, int charX, int charY )
-    {
-        int wheelChange = Mouse.getEventDWheel();
-        if( wheelChange == 0 && m_lastClickButton == -1 )
-        {
-            return;
-        }
-
-        if( m_focus )
-        {
-            if( wheelChange < 0 )
-            {
-                computer.mouseScroll( 1, charX + 1, charY + 1 );
-            }
-            else if( wheelChange > 0 )
-            {
-                computer.mouseScroll( -1, charX + 1, charY + 1 );
-            }
-
-            if( m_lastClickButton >= 0 && (charX != m_lastClickX || charY != m_lastClickY) )
-            {
-                computer.mouseDrag( m_lastClickButton + 1, charX + 1, charY + 1 );
-                m_lastClickX = charX;
-                m_lastClickY = charY;
-            }
         }
     }
 

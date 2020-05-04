@@ -27,6 +27,7 @@ public class InputState implements InputHandler
     private int lastMouseMoveY = -1;
     private long lastMouseMove = -1;
     private boolean mouseMoved = false;
+    private long ticks = 0;
 
     public InputState( IContainerComputer owner )
     {
@@ -120,8 +121,10 @@ public class InputState implements InputHandler
     @Override
     public void update()
     {
+        ticks++;
+
         // Handle mouse_move throttling:
-        if( mouseMoved && System.currentTimeMillis() - ComputerCraft.mouseMoveThrottle > lastMouseMove )
+        if( mouseMoved && ticks - ComputerCraft.mouseMoveThrottle > lastMouseMove )
         {
             IComputer computer = owner.getComputer();
             if( computer != null )
@@ -133,7 +136,7 @@ public class InputState implements InputHandler
             }
 
             mouseMoved = false;
-            lastMouseMove = System.currentTimeMillis();
+            lastMouseMove = ticks;
         }
     }
 

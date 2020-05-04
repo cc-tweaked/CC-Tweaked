@@ -121,7 +121,7 @@ public final class Config
                 "This makes it easier for mod authors to debug problems, but may result in log spam should people use buggy methods." );
 
             mouseMoveThrottle = config.get( CATEGORY_GENERAL, "mouse_move_throttle", (int) ComputerCraft.mouseMoveThrottle );
-            mouseMoveThrottle.setComment( "The minimum time between sending mouse_move events, in milliseconds.\n" +
+            mouseMoveThrottle.setComment( "The minimum time between sending mouse_move events, in ticks.\n" +
                 "Set to -1 to disable mouse_move events entirely." );
 
             setOrder(

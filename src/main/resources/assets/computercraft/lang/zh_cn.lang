@@ -159,7 +159,7 @@ gui.computercraft:config.disable_lua51_features=禁用Lua 5.1功能
 gui.computercraft:config.default_computer_settings=默认计算机设置
 gui.computercraft:config.debug_enabled=启用debug库
 gui.computercraft:config.log_computer_errors=记录计算机错误
-gui.computercraft:config.mouse_move_throttle=mouse_event事件的间隔时间(毫秒)
+gui.computercraft:config.mouse_move_throttle=mouse_event事件的间隔时间(ticks)
 
 gui.computercraft:config.execution=执行
 gui.computercraft:config.execution.computer_threads=计算机线程数

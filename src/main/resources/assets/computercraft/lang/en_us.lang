@@ -159,7 +159,7 @@ gui.computercraft:config.disable_lua51_features=Disable Lua 5.1 features
 gui.computercraft:config.default_computer_settings=Default Computer settings
 gui.computercraft:config.debug_enabled=Enable debug library
 gui.computercraft:config.log_computer_errors=Log computer errors
-gui.computercraft:config.mouse_move_throttle=Time between mouse_move events (millis)
+gui.computercraft:config.mouse_move_throttle=Time between mouse_move events (ticks)
 
 gui.computercraft:config.execution=Execution
 gui.computercraft:config.execution.computer_threads=Computer threads
