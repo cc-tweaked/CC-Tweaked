@@ -1,4 +1,4 @@
-#version 140 core
+#version 140
 
 #define FONT_WIDTH 6.0
 #define FONT_HEIGHT 9.0
@@ -24,11 +24,9 @@ void main() {
     ivec2 cell = ivec2(corner);
     int index = 3 * (clamp(cell.x, 0, u_width - 1) + clamp(cell.y, 0, u_height - 1) * u_width);
 
-    if(cell.x < 0 || cell.y < 0 || cell.x >= u_width || cell.y >= u_height) {
-        int bg = int(texelFetch(u_tbo, index + 2).r * 255.0);
-        gl_FragColor = vec4(u_palette[bg], 1.0);
-        return;
-    }
+    // 1 if 0 <= x, y < width, height, 0 otherwise
+    vec2 outside = step(ivec2(0, 0), cell) * step(cell, ivec2(u_width - 1, u_height - 1));
+    float mult = outside.x * outside.y;
 
     int character = int(texelFetch(u_tbo, index).r * 255.0);
     int fg = int(texelFetch(u_tbo, index + 1).r * 255.0);
@@ -36,5 +34,5 @@ void main() {
 
     vec2 pos = (term_pos - corner) * vec2(FONT_WIDTH, FONT_HEIGHT);
     vec4 img = texture2D(u_font, (texture_corner(character) + pos) / 256.0);
-    gl_FragColor = vec4(mix(u_palette[bg], img.rgb * u_palette[fg], img.a), 1.0);
+    gl_FragColor = vec4(mix(u_palette[bg], img.rgb * u_palette[fg], img.a * mult), 1.0);
 }

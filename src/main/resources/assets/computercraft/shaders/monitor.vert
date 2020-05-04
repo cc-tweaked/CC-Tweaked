@@ -1,7 +1,4 @@
-#version 140 core
-
-#define FONT_WIDTH 6.0
-#define FONT_HEIGHT 9.0
+#version 140
 
 uniform mat4 u_mv;
 uniform mat4 u_p;
