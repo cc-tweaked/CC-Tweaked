@@ -11,6 +11,8 @@ uniform vec3 u_palette[16];
 
 in vec2 f_pos;
 
+out vec4 colour;
+
 vec2 texture_corner(int index) {
     float x = 1.0 + float(index % 16) * (FONT_WIDTH + 2.0);
     float y = 1.0 + float(index / 16) * (FONT_HEIGHT + 2.0);
@@ -25,7 +27,7 @@ void main() {
     int index = 3 * (clamp(cell.x, 0, u_width - 1) + clamp(cell.y, 0, u_height - 1) * u_width);
 
     // 1 if 0 <= x, y < width, height, 0 otherwise
-    vec2 outside = step(ivec2(0, 0), cell) * step(cell, ivec2(u_width - 1, u_height - 1));
+    vec2 outside = step(vec2(0.0, 0.0), vec2(cell)) * step(vec2(cell), vec2(float(u_width) - 1.0, float(u_height) - 1.0));
     float mult = outside.x * outside.y;
 
     int character = int(texelFetch(u_tbo, index).r * 255.0);
@@ -34,5 +36,5 @@ void main() {
 
     vec2 pos = (term_pos - corner) * vec2(FONT_WIDTH, FONT_HEIGHT);
     vec4 img = texture2D(u_font, (texture_corner(character) + pos) / 256.0);
-    gl_FragColor = vec4(mix(u_palette[bg], img.rgb * u_palette[fg], img.a * mult), 1.0);
+    colour = vec4(mix(u_palette[bg], img.rgb * u_palette[fg], img.a * mult), 1.0);
 }
