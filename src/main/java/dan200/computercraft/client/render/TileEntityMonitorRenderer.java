@@ -214,11 +214,11 @@ public class TileEntityMonitorRenderer extends TileEntityRenderer<TileMonitor>
 
                 Tessellator tessellator = Tessellator.getInstance();
                 BufferBuilder buffer = tessellator.getBuffer();
-                buffer.begin( GL11.GL_QUADS, DefaultVertexFormats.POSITION );
-                buffer.pos( -xMargin, pixelHeight + yMargin, 0 ).endVertex();
-                buffer.pos( pixelWidth + xMargin, pixelHeight + yMargin, 0 ).endVertex();
-                buffer.pos( pixelWidth + xMargin, -yMargin, 0 ).endVertex();
+                buffer.begin( GL11.GL_TRIANGLE_STRIP, DefaultVertexFormats.POSITION );
                 buffer.pos( -xMargin, -yMargin, 0 ).endVertex();
+                buffer.pos( -xMargin, pixelHeight + yMargin, 0 ).endVertex();
+                buffer.pos( pixelWidth + xMargin, -yMargin, 0 ).endVertex();
+                buffer.pos( pixelWidth + xMargin, pixelHeight + yMargin, 0 ).endVertex();
                 tessellator.draw();
 
                 GlStateManager.useProgram( 0 );
