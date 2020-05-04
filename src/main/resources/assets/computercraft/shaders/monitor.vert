@@ -1,4 +1,4 @@
-#version 430 core
+#version 140 core
 
 #define FONT_WIDTH 6.0
 #define FONT_HEIGHT 9.0
