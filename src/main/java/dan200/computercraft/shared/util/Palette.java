@@ -91,7 +91,7 @@ public class Palette
     {
         for( double[] colour : colours )
         {
-            for( int i = 0; i < colour.length; i++ ) colour[i] = buffer.readByte() * 255;
+            for( int i = 0; i < colour.length; i++ ) colour[i] = (buffer.readByte() & 0xFF) / 255.0;
         }
     }
 
