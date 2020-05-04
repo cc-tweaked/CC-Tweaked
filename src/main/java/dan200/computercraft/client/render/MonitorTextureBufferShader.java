@@ -6,6 +6,7 @@
 
 package dan200.computercraft.client.render;
 
+import com.google.common.base.Strings;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import dan200.computercraft.ComputerCraft;
@@ -13,7 +14,6 @@ import dan200.computercraft.client.gui.FixedWidthFontRenderer;
 import dan200.computercraft.shared.util.Palette;
 import net.minecraft.client.renderer.Matrix4f;
 import net.minecraft.client.renderer.texture.TextureUtil;
-import org.apache.commons.lang3.StringUtils;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
@@ -29,14 +29,14 @@ class MonitorTextureBufferShader
     private static final FloatBuffer MATRIX_BUFFER = BufferUtils.createFloatBuffer( 16 );
     private static final FloatBuffer PALETTE_BUFFER = BufferUtils.createFloatBuffer( 16 * 3 );
 
-    private static final int UNIFORM_MV = 0;
-    private static final int UNIFORM_P = 1;
+    private static int uniformMv;
+    private static int uniformP;
 
-    private static final int UNIFORM_FONT = 2;
-    private static final int UNIFORM_WIDTH = 3;
-    private static final int UNIFORM_HEIGHT = 4;
-    private static final int UNIFORM_TBO = 5;
-    private static final int UNIFORM_PALETTE = 6;
+    private static int uniformFont;
+    private static int uniformWidth;
+    private static int uniformHeight;
+    private static int uniformTbo;
+    private static int uniformPalette;
 
     private static boolean initialised;
     private static boolean ok;
@@ -47,16 +47,16 @@ class MonitorTextureBufferShader
         MATRIX_BUFFER.rewind();
         transform.write( MATRIX_BUFFER );
         MATRIX_BUFFER.rewind();
-        RenderSystem.glUniformMatrix4( UNIFORM_MV, false, MATRIX_BUFFER );
+        RenderSystem.glUniformMatrix4( uniformMv, false, MATRIX_BUFFER );
 
         // TODO: Cache this?
         MATRIX_BUFFER.rewind();
         GL11.glGetFloatv( GL11.GL_PROJECTION_MATRIX, MATRIX_BUFFER );
         MATRIX_BUFFER.rewind();
-        RenderSystem.glUniformMatrix4( UNIFORM_P, false, MATRIX_BUFFER );
+        RenderSystem.glUniformMatrix4( uniformP, false, MATRIX_BUFFER );
 
-        RenderSystem.glUniform1i( UNIFORM_WIDTH, width );
-        RenderSystem.glUniform1i( UNIFORM_HEIGHT, height );
+        RenderSystem.glUniform1i( uniformWidth, width );
+        RenderSystem.glUniform1i( uniformHeight, height );
 
         // TODO: Cache this? Maybe??
         PALETTE_BUFFER.rewind();
@@ -74,7 +74,7 @@ class MonitorTextureBufferShader
             }
         }
         PALETTE_BUFFER.flip();
-        RenderSystem.glUniform3( UNIFORM_PALETTE, PALETTE_BUFFER );
+        RenderSystem.glUniform3( uniformPalette, PALETTE_BUFFER );
     }
 
     static boolean use()
@@ -88,8 +88,8 @@ class MonitorTextureBufferShader
         if( ok = load() )
         {
             GL20.glUseProgram( program );
-            RenderSystem.glUniform1i( UNIFORM_FONT, 0 );
-            RenderSystem.glUniform1i( UNIFORM_TBO, TEXTURE_INDEX - GL13.GL_TEXTURE0 );
+            RenderSystem.glUniform1i( uniformFont, 0 );
+            RenderSystem.glUniform1i( uniformTbo, TEXTURE_INDEX - GL13.GL_TEXTURE0 );
         }
 
         return ok;
@@ -107,14 +107,31 @@ class MonitorTextureBufferShader
             program = GlStateManager.createProgram();
             GlStateManager.attachShader( program, vertexShader );
             GlStateManager.attachShader( program, fragmentShader );
-            GlStateManager.linkProgram( program );
+            GL20.glBindAttribLocation( program, 0, "v_pos" );
 
-            int i = GlStateManager.getProgram( program, GL20.GL_LINK_STATUS );
-            if( i == 0 )
+            GlStateManager.linkProgram( program );
+            boolean ok = GlStateManager.getProgram( program, GL20.GL_LINK_STATUS ) != 0;
+            String log = GlStateManager.getProgramInfoLog( program, Short.MAX_VALUE ).trim();
+            if( !Strings.isNullOrEmpty( log ) )
             {
-                ComputerCraft.log.warn( "Error encountered when linking monitor shaders." );
-                ComputerCraft.log.warn( GlStateManager.getProgramInfoLog( program, Short.MAX_VALUE ) );
+                ComputerCraft.log.warn( "Problems when linking monitor shader: {}", log );
             }
+
+            GL20.glDetachShader( vertexShader, program );
+            GL20.glDetachShader( fragmentShader, program );
+            GlStateManager.deleteShader( vertexShader );
+            GlStateManager.deleteShader( fragmentShader );
+
+            if( !ok ) return false;
+
+            uniformMv = getUniformLocation( program, "u_mv" );
+            uniformP = getUniformLocation( program, "u_p" );
+
+            uniformFont = getUniformLocation( program, "u_font" );
+            uniformWidth = getUniformLocation( program, "u_width" );
+            uniformHeight = getUniformLocation( program, "u_height" );
+            uniformTbo = getUniformLocation( program, "u_tbo" );
+            uniformPalette = getUniformLocation( program, "u_palette" );
 
             return true;
         }
@@ -123,13 +140,6 @@ class MonitorTextureBufferShader
             ComputerCraft.log.error( "Cannot load monitor shaders", e );
             return false;
         }
-
-        /*
-        GL20.glDetachShader( vertexShader, program );
-        GL20.glDetachShader( fragmentShader, program );
-        GlStateManager.deleteShader( vertexShader );
-        GlStateManager.deleteShader( fragmentShader );
-        */
     }
 
     private static int loadShader( int kind, String path )
@@ -142,14 +152,22 @@ class MonitorTextureBufferShader
 
         GlStateManager.shaderSource( shader, contents );
         GlStateManager.compileShader( shader );
-        if( GlStateManager.getShader( shader, GL20.GL_COMPILE_STATUS ) == 0 )
+
+        boolean ok = GlStateManager.getShader( shader, GL20.GL_COMPILE_STATUS ) != 0;
+        String log = GlStateManager.getShaderInfoLog( shader, Short.MAX_VALUE ).trim();
+        if( !Strings.isNullOrEmpty( log ) )
         {
-            String s = StringUtils.trim( GlStateManager.getShaderInfoLog( shader, Short.MAX_VALUE ) );
-            ComputerCraft.log.error( "Could not compile shader {}: {}", path, s );
-            throw new IllegalStateException( "Cannot compile shader " + path );
+            ComputerCraft.log.warn( "Problems when loading monitor shader {}: {}", path, log );
         }
 
+        if( !ok ) throw new IllegalStateException( "Cannot compile shader " + path );
         return shader;
     }
 
+    private static int getUniformLocation( int program, String name )
+    {
+        int uniform = GlStateManager.getUniformLocation( program, name );
+        if( uniform == -1 ) throw new IllegalStateException( "Cannot find uniform " + name );
+        return uniform;
+    }
 }

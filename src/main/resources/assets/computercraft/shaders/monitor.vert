@@ -3,10 +3,10 @@
 #define FONT_WIDTH 6.0
 #define FONT_HEIGHT 9.0
 
-layout (location = 0) uniform mat4 u_mv;
-layout (location = 1) uniform mat4 u_p;
+uniform mat4 u_mv;
+uniform mat4 u_p;
 
-layout (location = 0) in vec3 v_pos;
+in vec3 v_pos;
 
 out vec2 f_pos;
 
