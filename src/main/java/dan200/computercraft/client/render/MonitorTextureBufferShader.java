@@ -117,6 +117,8 @@ class MonitorTextureBufferShader
                 ComputerCraft.log.warn( "Problems when linking monitor shader: {}", log );
             }
 
+            GL20.glDetachShader( program, vertexShader );
+            GL20.glDetachShader( program, fragmentShader );
             GlStateManager.deleteShader( vertexShader );
             GlStateManager.deleteShader( fragmentShader );
 
