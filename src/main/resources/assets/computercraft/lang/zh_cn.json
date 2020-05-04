@@ -143,8 +143,8 @@
     "tracking_field.computercraft.coroutines_dead.name": "协同处理",
 
     "gui.computercraft.tooltip.copy": "复制到剪贴板",
-    "gui.computercraft.tooltip.computer_id": "(计算机ID: %s)",
-    "gui.computercraft.tooltip.disk_id": "(磁盘ID: %s)",
+    "gui.computercraft.tooltip.computer_id": "计算机ID: %s",
+    "gui.computercraft.tooltip.disk_id": "磁盘ID: %s",
 
     "gui.computercraft.config.computer_space_limit": "计算机空间限制(字节)",
     "gui.computercraft.config.floppy_space_limit": "软盘空间限制(字节)",

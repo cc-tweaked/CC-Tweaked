@@ -8,10 +8,30 @@ describe("The peripheral library", function()
         end)
     end)
 
+    describe("peripheral.getName", function()
+        it("validates arguments", function()
+            expect.error(peripheral.getName, nil):eq("bad argument #1 (expected table, got nil)")
+            expect.error(peripheral.getName, {}):eq("bad argument #1 (table is not a peripheral)")
+        end)
+
+        it_modem("can get the name of a wrapped peripheral", function()
+            expect(peripheral.getName(peripheral.wrap("top"))):eq("top")
+        end)
+    end)
+
     describe("peripheral.getType", function()
         it("validates arguments", function()
             peripheral.getType("")
-            expect.error(peripheral.getType, nil):eq("bad argument #1 (expected string, got nil)")
+            expect.error(peripheral.getType, nil):eq("bad argument #1 (expected string or table, got nil)")
+            expect.error(peripheral.getType, {}):eq("bad argument #1 (table is not a peripheral)")
+        end)
+
+        it_modem("can get the type of a peripheral by side", function()
+            expect(peripheral.getType("top")):eq("modem")
+        end)
+
+        it_modem("can get the type of a wrapped peripheral", function()
+            expect(peripheral.getType(peripheral.wrap("top"))):eq("modem")
         end)
     end)
 

@@ -28,7 +28,7 @@ local monitor = peripheral.wrap(sName)
 local previousTerm = term.redirect(monitor)
 
 local co = coroutine.create(function()
-    shell.run(sProgram, table.unpack(tArgs, 3))
+    (shell.execute or shell.run)(sProgram, table.unpack(tArgs, 3))
 end)
 
 local function resume(...)

@@ -37,7 +37,7 @@ public abstract class ItemComputerBase extends BlockItem implements IComputerIte
     @Override
     public void addInformation( @Nonnull ItemStack stack, @Nullable World world, @Nonnull List<ITextComponent> list, @Nonnull ITooltipFlag options )
     {
-        if( options.isAdvanced() )
+        if( options.isAdvanced() || getLabel( stack ) == null )
         {
             int id = getComputerID( stack );
             if( id >= 0 )

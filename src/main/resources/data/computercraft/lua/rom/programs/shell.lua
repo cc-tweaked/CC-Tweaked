@@ -130,8 +130,25 @@ else
     bgColour = colours.black
 end
 
-local function run(_sCommand, ...)
-    local sPath = shell.resolveProgram(_sCommand)
+--- Run a program with the supplied arguments.
+--
+-- Unlike @{shell.run}, each argument is passed to the program verbatim. While
+-- `shell.run("echo", "b c")` runs `echo` with `b` and `c`,
+-- `shell.execute("echo", "b c")` runs `echo` with a single argument `b c`.
+--
+-- @tparam string command The program to execute.
+-- @tparam string ... Arguments to this program.
+-- @treturn boolean Whether the program exited successfully.
+-- @usage Run `paint my-image` from within your program:
+--
+--     shell.execute("paint", "my-image")
+function shell.execute(command, ...)
+    expect(1, command, "string")
+    for i = 1, select('#', ...) do
+        expect(i + 1, select(i, ...), "string")
+    end
+
+    local sPath = shell.resolveProgram(command)
     if sPath ~= nil then
         tProgramStack[#tProgramStack + 1] = sPath
         if multishell then
@@ -144,7 +161,7 @@ local function run(_sCommand, ...)
 
         local sDir = fs.getDir(sPath)
         local env = createShellEnv(sDir)
-        env.arg = { [0] = _sCommand, ... }
+        env.arg = { [0] = command, ... }
         local result = os.run(env, sPath, ...)
 
         tProgramStack[#tProgramStack] = nil
@@ -196,11 +213,12 @@ end
 -- @usage Run `paint my-image` from within your program:
 --
 --     shell.run("paint", "my-image")
+-- @see shell.execute Run a program directly without parsing the arguments.
 function shell.run(...)
     local tWords = tokenise(...)
     local sCommand = tWords[1]
     if sCommand then
-        return run(sCommand, table.unpack(tWords, 2))
+        return shell.execute(sCommand, table.unpack(tWords, 2))
     end
     return false
 end

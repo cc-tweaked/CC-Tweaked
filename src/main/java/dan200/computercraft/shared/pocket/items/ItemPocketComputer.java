@@ -184,7 +184,7 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
     @Override
     public void addInformation( @Nonnull ItemStack stack, @Nullable World world, List<ITextComponent> list, ITooltipFlag flag )
     {
-        if( flag.isAdvanced() )
+        if( flag.isAdvanced() || getLabel( stack ) == null )
         {
             int id = getComputerID( stack );
             if( id >= 0 )

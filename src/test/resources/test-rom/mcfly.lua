@@ -47,7 +47,7 @@ local function default_stub() end
 
 --- Stub a table entry with a new value.
 --
--- @tparam table
+-- @tparam table tbl The table whose field should be stubbed.
 -- @tparam string key The variable to stub
 -- @param[opt] value The value to stub it with. If this is a function, one can
 -- use the various stub expectation methods to determine what it was called

@@ -29,7 +29,7 @@ local tReceivedMessageTimeouts = {}
 local tHostnames = {}
 
 --- Opens a modem with the given @{peripheral} name, allowing it to send and
---- receive messages over rednet.
+-- receive messages over rednet.
 --
 -- This will open the modem on two channels: one which has the same
 -- @{os.getComputerID|ID} as the computer, and another on
@@ -246,7 +246,7 @@ function host(sProtocol, sHostname)
 end
 
 --- Stop @{rednet.host|hosting} a specific protocol, meaning it will no longer
---- respond to @{rednet.lookup} requests.
+-- respond to @{rednet.lookup} requests.
 --
 -- @tparam string sProtocol The protocol to unregister your self from.
 function unhost(sProtocol)

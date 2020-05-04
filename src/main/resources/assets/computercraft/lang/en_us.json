@@ -143,8 +143,8 @@
     "tracking_field.computercraft.coroutines_dead.name": "Coroutines disposed",
 
     "gui.computercraft.tooltip.copy": "Copy to clipboard",
-    "gui.computercraft.tooltip.computer_id": "(Computer ID: %s)",
-    "gui.computercraft.tooltip.disk_id": "(Disk ID: %s)",
+    "gui.computercraft.tooltip.computer_id": "Computer ID: %s",
+    "gui.computercraft.tooltip.disk_id": "Disk ID: %s",
 
     "gui.computercraft.config.computer_space_limit": "Computer space limit (bytes)",
     "gui.computercraft.config.floppy_space_limit": "Floppy Disk space limit (bytes)",
