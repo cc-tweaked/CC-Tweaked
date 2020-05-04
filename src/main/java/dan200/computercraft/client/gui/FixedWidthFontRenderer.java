@@ -46,11 +46,9 @@ public final class FixedWidthFontRenderer
         return (float) ((rgb[0] + rgb[1] + rgb[2]) / 3);
     }
 
-    public static byte getColour( char c )
+    public static int getColour( char c, Colour def )
     {
-        if( c >= '0' && c <= '9' ) return (byte) (15 - (c - '0'));
-        if( c >= 'a' && c <= 'f' ) return (byte) (15 - (c - 'a' + 10));
-        return 0;
+        return 15 - Terminal.getColour( c, def );
     }
 
     private static void drawChar( Matrix4f transform, IVertexBuilder buffer, float x, float y, int index, float r, float g, float b )
@@ -84,7 +82,7 @@ public final class FixedWidthFontRenderer
 
     private static void drawQuad( Matrix4f transform, IVertexBuilder buffer, float x, float y, float width, float height, Palette palette, boolean greyscale, char colourIndex )
     {
-        double[] colour = palette.getColour( getColour( colourIndex ) );
+        double[] colour = palette.getColour( getColour( colourIndex, Colour.BLACK ) );
         float r, g, b;
         if( greyscale )
         {
@@ -152,7 +150,7 @@ public final class FixedWidthFontRenderer
 
         for( int i = 0; i < text.length(); i++ )
         {
-            double[] colour = palette.getColour( 15 - "0123456789abcdef".indexOf( textColour.charAt( i ) ) );
+            double[] colour = palette.getColour( getColour( textColour.charAt( i ), Colour.BLACK ) );
             float r, g, b;
             if( greyscale )
             {

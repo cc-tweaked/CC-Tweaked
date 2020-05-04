@@ -19,10 +19,12 @@
 local primary = "en_us"
 
 local secondary = {
+    "da_dk",
     "de_de",
     "es_es",
     "fr_fr",
     "it_it",
+    "ko_kr",
     "pt_br",
     "sv_se",
     "zh_cn",

@@ -15,6 +15,7 @@ import dan200.computercraft.core.terminal.TextBuffer;
 import dan200.computercraft.shared.peripheral.monitor.ClientMonitor;
 import dan200.computercraft.shared.peripheral.monitor.MonitorRenderer;
 import dan200.computercraft.shared.peripheral.monitor.TileMonitor;
+import dan200.computercraft.shared.util.Colour;
 import dan200.computercraft.shared.util.DirectionUtil;
 import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.tileentity.TileEntityRenderer;
@@ -197,8 +198,8 @@ public class TileEntityMonitorRenderer extends TileEntityRenderer<TileMonitor>
                         for( int x = 0; x < width; x++ )
                         {
                             buffer.put( (byte) (text.charAt( x ) & 0xFF) );
-                            buffer.put( getColour( textColour.charAt( x ) ) );
-                            buffer.put( getColour( background.charAt( x ) ) );
+                            buffer.put( (byte) getColour( textColour.charAt( x ), Colour.WHITE ) );
+                            buffer.put( (byte) getColour( background.charAt( x ), Colour.BLACK ) );
                         }
                     }
                     buffer.flip();

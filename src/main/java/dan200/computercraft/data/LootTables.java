@@ -8,6 +8,7 @@ package dan200.computercraft.data;
 
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.data.BlockNamedEntityLootCondition;
+import dan200.computercraft.shared.data.HasComputerIdLootCondition;
 import dan200.computercraft.shared.data.PlayerCreativeLootCondition;
 import dan200.computercraft.shared.proxy.ComputerCraftProxyCommon;
 import net.minecraft.block.Block;
@@ -73,6 +74,7 @@ public class LootTables extends LootTableProvider
                 .addEntry( DynamicLootEntry.func_216162_a( new ResourceLocation( ComputerCraft.MOD_ID, "computer" ) ) )
                 .acceptCondition( Alternative.builder(
                     BlockNamedEntityLootCondition.builder(),
+                    HasComputerIdLootCondition.builder(),
                     PlayerCreativeLootCondition.builder().inverted()
                 ) )
             ).build() );

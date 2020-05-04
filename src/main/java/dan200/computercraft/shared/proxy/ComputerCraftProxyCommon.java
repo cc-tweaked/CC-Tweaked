@@ -19,6 +19,7 @@ import dan200.computercraft.shared.computer.core.IContainerComputer;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.data.BlockNamedEntityLootCondition;
 import dan200.computercraft.shared.data.ConstantLootConditionSerializer;
+import dan200.computercraft.shared.data.HasComputerIdLootCondition;
 import dan200.computercraft.shared.data.PlayerCreativeLootCondition;
 import dan200.computercraft.shared.media.items.RecordMedia;
 import dan200.computercraft.shared.network.NetworkHandler;
@@ -78,6 +79,12 @@ public final class ComputerCraftProxyCommon
             new ResourceLocation( ComputerCraft.MOD_ID, "player_creative" ),
             PlayerCreativeLootCondition.class,
             PlayerCreativeLootCondition.INSTANCE
+        ) );
+
+        LootConditionManager.registerCondition( ConstantLootConditionSerializer.of(
+            new ResourceLocation( ComputerCraft.MOD_ID, "has_id" ),
+            HasComputerIdLootCondition.class,
+            HasComputerIdLootCondition.INSTANCE
         ) );
     }
 
