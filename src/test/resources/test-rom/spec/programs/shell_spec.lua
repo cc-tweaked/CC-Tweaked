@@ -6,19 +6,25 @@ describe("The shell", function()
         end)
     end)
 
-    describe("shell.run", function()
-        it("sets the arguments", function()
-            local handle = fs.open("test-files/out.txt", "w")
-            handle.writeLine("_G.__arg = arg")
-            handle.close()
-
-            shell.run("/test-files/out.txt", "arg1", "arg2")
-            fs.delete("test-files/out.txt")
+    describe("shell.execute", function()
+        it("parses in arguments verbatim", function()
+            shell.execute("/test-rom/data/dump-args", "arg1", "arg 2")
 
             local args = _G.__arg
             _G.__arg = nil
 
-            expect(args):same { [0] = "/test-files/out.txt", "arg1", "arg2" }
+            expect(args):same { [0] = "/test-rom/data/dump-args", "arg1", "arg 2" }
+        end)
+    end)
+
+    describe("shell.run", function()
+        it("tokenises the arguments", function()
+            shell.run("/test-rom/data/dump-args", "arg1", "arg 2")
+
+            local args = _G.__arg
+            _G.__arg = nil
+
+            expect(args):same { [0] = "/test-rom/data/dump-args", "arg1", "arg", "2" }
         end)
     end)
 

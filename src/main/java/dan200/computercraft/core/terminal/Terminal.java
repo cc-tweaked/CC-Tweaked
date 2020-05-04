@@ -5,18 +5,20 @@
  */
 package dan200.computercraft.core.terminal;
 
+import dan200.computercraft.shared.util.Colour;
 import dan200.computercraft.shared.util.Palette;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.network.PacketBuffer;
 
 public class Terminal
 {
     private static final String base16 = "0123456789abcdef";
 
-    private int m_cursorX;
-    private int m_cursorY;
-    private boolean m_cursorBlink;
-    private int m_cursorColour;
-    private int m_cursorBackgroundColour;
+    private int m_cursorX = 0;
+    private int m_cursorY = 0;
+    private boolean m_cursorBlink = false;
+    private int m_cursorColour = 0;
+    private int m_cursorBackgroundColour = 15;
 
     private int m_width;
     private int m_height;
@@ -25,9 +27,9 @@ public class Terminal
     private TextBuffer[] m_textColour;
     private TextBuffer[] m_backgroundColour;
 
-    private final Palette m_palette;
+    private final Palette m_palette = new Palette();
 
-    private boolean m_changed;
+    private boolean m_changed = false;
     private final Runnable onChanged;
 
     public Terminal( int width, int height )
@@ -41,9 +43,6 @@ public class Terminal
         m_height = height;
         onChanged = changedCallback;
 
-        m_cursorColour = 0;
-        m_cursorBackgroundColour = 15;
-
         m_text = new TextBuffer[m_height];
         m_textColour = new TextBuffer[m_height];
         m_backgroundColour = new TextBuffer[m_height];
@@ -53,14 +52,6 @@ public class Terminal
             m_textColour[i] = new TextBuffer( base16.charAt( m_cursorColour ), m_width );
             m_backgroundColour[i] = new TextBuffer( base16.charAt( m_cursorBackgroundColour ), m_width );
         }
-
-        m_cursorX = 0;
-        m_cursorY = 0;
-        m_cursorBlink = false;
-
-        m_changed = false;
-
-        m_palette = new Palette();
     }
 
     public synchronized void reset()
@@ -323,6 +314,62 @@ public class Terminal
         m_changed = false;
     }
 
+    public synchronized void write( PacketBuffer buffer )
+    {
+        buffer.writeInt( m_cursorX );
+        buffer.writeInt( m_cursorY );
+        buffer.writeBoolean( m_cursorBlink );
+        buffer.writeByte( m_cursorBackgroundColour << 4 | m_cursorColour );
+
+        for( int y = 0; y < m_height; y++ )
+        {
+            TextBuffer text = m_text[y];
+            TextBuffer textColour = m_textColour[y];
+            TextBuffer backColour = m_backgroundColour[y];
+
+            for( int x = 0; x < m_width; x++ )
+            {
+                buffer.writeByte( text.charAt( x ) & 0xFF );
+                buffer.writeByte( getColour(
+                    backColour.charAt( x ), Colour.BLACK ) << 4 |
+                    getColour( textColour.charAt( x ), Colour.WHITE )
+                );
+            }
+        }
+
+        m_palette.write( buffer );
+    }
+
+    public synchronized void read( PacketBuffer buffer )
+    {
+        m_cursorX = buffer.readInt();
+        m_cursorY = buffer.readInt();
+        m_cursorBlink = buffer.readBoolean();
+
+        byte cursorColour = buffer.readByte();
+        m_cursorBackgroundColour = (cursorColour >> 4) & 0xF;
+        m_cursorColour = cursorColour & 0xF;
+
+        for( int y = 0; y < m_height; y++ )
+        {
+            TextBuffer text = m_text[y];
+            TextBuffer textColour = m_textColour[y];
+            TextBuffer backColour = m_backgroundColour[y];
+
+            for( int x = 0; x < m_width; x++ )
+            {
+                text.setChar( x, (char) (buffer.readByte() & 0xFF) );
+
+                byte colour = buffer.readByte();
+                backColour.setChar( x, base16.charAt( (colour >> 4) & 0xF ) );
+                textColour.setChar( x, base16.charAt( colour & 0xF ) );
+            }
+        }
+
+        m_palette.read( buffer );
+        setChanged();
+    }
+
     public synchronized CompoundNBT writeToNBT( CompoundNBT nbt )
     {
         nbt.putInt( "term_cursorX", m_cursorX );
@@ -336,10 +383,8 @@ public class Terminal
             nbt.putString( "term_textColour_" + n, m_textColour[n].toString() );
             nbt.putString( "term_textBgColour_" + n, m_backgroundColour[n].toString() );
         }
-        if( m_palette != null )
-        {
-            m_palette.writeToNBT( nbt );
-        }
+
+        m_palette.writeToNBT( nbt );
         return nbt;
     }
 
@@ -369,10 +414,15 @@ public class Terminal
                 m_backgroundColour[n].write( nbt.getString( "term_textBgColour_" + n ) );
             }
         }
-        if( m_palette != null )
-        {
-            m_palette.readFromNBT( nbt );
-        }
+
+        m_palette.readFromNBT( nbt );
         setChanged();
+    }
+
+    public static int getColour( char c, Colour def )
+    {
+        if( c >= '0' && c <= '9' ) return c - '0';
+        if( c >= 'a' && c <= 'f' ) return c - 'a' + 10;
+        return 15 - def.ordinal();
     }
 }

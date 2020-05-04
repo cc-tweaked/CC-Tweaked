@@ -6,6 +6,7 @@
 package dan200.computercraft.shared.turtle.items;
 
 import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
@@ -22,18 +23,13 @@ public final class TurtleItemFactory
     @Nonnull
     public static ItemStack create( ITurtleTile turtle )
     {
-        ITurtleUpgrade leftUpgrade = turtle.getAccess().getUpgrade( TurtleSide.LEFT );
-        ITurtleUpgrade rightUpgrade = turtle.getAccess().getUpgrade( TurtleSide.RIGHT );
+        ITurtleAccess access = turtle.getAccess();
 
-        String label = turtle.getLabel();
-        if( label == null )
-        {
-            return create( -1, null, turtle.getColour(), turtle.getFamily(), leftUpgrade, rightUpgrade, 0, turtle.getOverlay() );
-        }
-
-        int id = turtle.getComputerID();
-        int fuelLevel = turtle.getAccess().getFuelLevel();
-        return create( id, label, turtle.getColour(), turtle.getFamily(), leftUpgrade, rightUpgrade, fuelLevel, turtle.getOverlay() );
+        return create(
+            turtle.getComputerID(), turtle.getLabel(), turtle.getColour(), turtle.getFamily(),
+            access.getUpgrade( TurtleSide.LEFT ), access.getUpgrade( TurtleSide.RIGHT ),
+            access.getFuelLevel(), turtle.getOverlay()
+        );
     }
 
     @Nonnull
