@@ -50,12 +50,12 @@ public final class FixedWidthFontRenderer
     {
     }
 
-    private static float toGreyscale( double[] rgb )
+    public static float toGreyscale( double[] rgb )
     {
         return (float) ((rgb[0] + rgb[1] + rgb[2]) / 3);
     }
 
-    private static int getColour( char c, Colour def )
+    public static int getColour( char c, Colour def )
     {
         return 15 - Terminal.getColour( c, def );
     }

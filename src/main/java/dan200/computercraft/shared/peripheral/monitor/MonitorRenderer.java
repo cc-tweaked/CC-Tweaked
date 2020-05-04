@@ -9,6 +9,7 @@ package dan200.computercraft.shared.peripheral.monitor;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.client.render.TileEntityMonitorRenderer;
 import net.minecraft.client.renderer.OpenGlHelper;
+import org.lwjgl.opengl.GLContext;
 
 import javax.annotation.Nonnull;
 import java.util.Locale;
@@ -27,7 +28,14 @@ public enum MonitorRenderer
     BEST,
 
     /**
-     * Render using VBOs. This is the default when supported.
+     * Render using texture buffer objects.
+     *
+     * @see org.lwjgl.opengl.GL31#glTexBuffer(int, int, int)
+     */
+    TBO,
+
+    /**
+     * Render using VBOs.
      *
      * @see net.minecraft.client.renderer.vertex.VertexBuffer
      */
@@ -84,6 +92,16 @@ public enum MonitorRenderer
         {
             case BEST:
                 return best();
+            case TBO:
+                checkCapabilities();
+                if( !textureBuffer )
+                {
+                    ComputerCraft.log.warn( "Texture buffers are not supported on your graphics card. Falling back to default." );
+                    ComputerCraft.monitorRenderer = BEST;
+                    return best();
+                }
+
+                return TBO;
             case VBO:
                 if( !OpenGlHelper.vboSupported )
                 {
@@ -100,6 +118,20 @@ public enum MonitorRenderer
 
     private static MonitorRenderer best()
     {
-        return OpenGlHelper.vboSupported ? VBO : DISPLAY_LIST;
+        checkCapabilities();
+        if( textureBuffer ) return TBO;
+        if( OpenGlHelper.vboSupported ) return VBO;
+        return DISPLAY_LIST;
+    }
+
+    private static boolean initialised = false;
+    private static boolean textureBuffer = false;
+
+    private static void checkCapabilities()
+    {
+        if( initialised ) return;
+
+        textureBuffer = GLContext.getCapabilities().OpenGL31;
+        initialised = true;
     }
 }
