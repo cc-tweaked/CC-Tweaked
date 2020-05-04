@@ -22,7 +22,7 @@ import org.lwjgl.opengl.GL20;
 import java.io.InputStream;
 import java.nio.FloatBuffer;
 
-class MonitorShader
+class MonitorTextureBufferShader
 {
     static final int TEXTURE_INDEX = GL13.GL_TEXTURE3;
 
@@ -88,8 +88,8 @@ class MonitorShader
         if( ok = load() )
         {
             GL20.glUseProgram( program );
-            RenderSystem.glUniform1i( MonitorShader.UNIFORM_FONT, 0 );
-            RenderSystem.glUniform1i( MonitorShader.UNIFORM_TBO, TEXTURE_INDEX - GL13.GL_TEXTURE0 );
+            RenderSystem.glUniform1i( UNIFORM_FONT, 0 );
+            RenderSystem.glUniform1i( UNIFORM_TBO, TEXTURE_INDEX - GL13.GL_TEXTURE0 );
         }
 
         return ok;

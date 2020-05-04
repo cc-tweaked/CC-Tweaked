@@ -184,7 +184,7 @@ public class TileEntityMonitorRenderer extends TileEntityRenderer<TileMonitor>
                 //  shaders.
                 int program = GlStateManager.getInteger( GL20.GL_CURRENT_PROGRAM );
 
-                if( !MonitorShader.use() ) return;
+                if( !MonitorTextureBufferShader.use() ) return;
 
                 int width = terminal.getWidth(), height = terminal.getHeight();
                 int pixelWidth = width * FONT_WIDTH, pixelHeight = height * FONT_HEIGHT;
@@ -210,11 +210,11 @@ public class TileEntityMonitorRenderer extends TileEntityRenderer<TileMonitor>
                 }
 
                 // Nobody knows what they're doing!
-                GlStateManager.activeTexture( MonitorShader.TEXTURE_INDEX );
+                GlStateManager.activeTexture( MonitorTextureBufferShader.TEXTURE_INDEX );
                 GL11.glBindTexture( GL31.GL_TEXTURE_BUFFER, monitor.tboTexture );
                 GlStateManager.activeTexture( GL13.GL_TEXTURE0 );
 
-                MonitorShader.setupUniform( matrix, width, height, terminal.getPalette(), !monitor.isColour() );
+                MonitorTextureBufferShader.setupUniform( matrix, width, height, terminal.getPalette(), !monitor.isColour() );
 
                 Tessellator tessellator = Tessellator.getInstance();
                 BufferBuilder buffer = tessellator.getBuffer();
