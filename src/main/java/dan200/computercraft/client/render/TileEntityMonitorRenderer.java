@@ -180,10 +180,6 @@ public class TileEntityMonitorRenderer extends TileEntityRenderer<TileMonitor>
 
             case TBO:
             {
-                // TODO: Test whether we need this, or if 0 is enough. I'm curious as to how this plays with Optifine's
-                //  shaders.
-                int program = GlStateManager.getInteger( GL20.GL_CURRENT_PROGRAM );
-
                 if( !MonitorTextureBufferShader.use() ) return;
 
                 int width = terminal.getWidth(), height = terminal.getHeight();
@@ -225,7 +221,7 @@ public class TileEntityMonitorRenderer extends TileEntityRenderer<TileMonitor>
                 buffer.pos( -xMargin, -yMargin, 0 ).endVertex();
                 tessellator.draw();
 
-                GlStateManager.useProgram( program );
+                GlStateManager.useProgram( 0 );
                 break;
             }
         }

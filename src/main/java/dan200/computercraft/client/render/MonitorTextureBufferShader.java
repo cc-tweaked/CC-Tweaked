@@ -133,6 +133,7 @@ class MonitorTextureBufferShader
             uniformTbo = getUniformLocation( program, "u_tbo" );
             uniformPalette = getUniformLocation( program, "u_palette" );
 
+            ComputerCraft.log.info( "Loaded monitor shader." );
             return true;
         }
         catch( Exception e )
