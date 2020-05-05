@@ -12,6 +12,9 @@
 -- [mc]: https://minecraft.gamepedia.com/Commands
 --
 -- @module commands
+-- @usage Set the block above this computer to stone:
+--
+--     commands.setblock("~", "~1", "~", "minecraft:stone")
 
 if not commands then
     error("Cannot load command API on normal computer", 2)
@@ -65,4 +68,13 @@ for _, sCommandName in ipairs(tCommands) do
         end
     end
 end
+
+--- A table containing asynchronous wrappers for all commands.
+--
+-- As with @{commands.execAsync}, this returns the "task id" of the enqueued
+-- command.
+-- @see execAsync
+-- @usage Asynchronously sets the block above the computer to stone.
+--
+--     commands.async.setblock("~", "~1", "~", "minecraft:stone")
 env.async = tAsync
