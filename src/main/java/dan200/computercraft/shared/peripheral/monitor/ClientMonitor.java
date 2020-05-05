@@ -32,10 +32,10 @@ public final class ClientMonitor extends ClientTerminal
     public long lastRenderFrame = -1;
     public BlockPos lastRenderPos = null;
 
-    public VertexBuffer buffer;
-    public int displayList = 0;
     public int tboBuffer;
     public int tboTexture;
+    public VertexBuffer buffer;
+    public int displayList = 0;
 
     public ClientMonitor( boolean colour, TileMonitor origin )
     {
@@ -68,8 +68,6 @@ public final class ClientMonitor extends ClientTerminal
 
                 tboBuffer = OpenGlHelper.glGenBuffers();
                 OpenGlHelper.glBindBuffer( GL31.GL_TEXTURE_BUFFER, tboBuffer );
-                // TODO: DYNAMIC? Probably not, but worth profiling. After all, it only needs to be fast on /my/
-                //  graphics card.
                 GL15.glBufferData( GL31.GL_TEXTURE_BUFFER, 0, GL15.GL_STATIC_DRAW );
                 tboTexture = GlStateManager.generateTexture();
                 GL11.glBindTexture( GL31.GL_TEXTURE_BUFFER, tboTexture );
@@ -142,7 +140,7 @@ public final class ClientMonitor extends ClientTerminal
     @SideOnly( Side.CLIENT )
     public void destroy()
     {
-        if( buffer != null || tboBuffer != 0 || displayList != 0 )
+        if( tboBuffer != 0 || buffer != null || displayList != 0 )
         {
             synchronized( allMonitors )
             {

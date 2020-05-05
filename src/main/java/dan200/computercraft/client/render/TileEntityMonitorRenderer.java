@@ -180,7 +180,7 @@ public class TileEntityMonitorRenderer extends TileEntitySpecialRenderer<TileMon
                     OpenGlHelper.glBindBuffer( GL31.GL_TEXTURE_BUFFER, 0 );
                 }
 
-                // Nobody knows what they're doing!
+                // Bind TBO texture and set up the uniforms. We've already set up the main font above.
                 GlStateManager.setActiveTexture( MonitorTextureBufferShader.TEXTURE_INDEX );
                 GL11.glBindTexture( GL31.GL_TEXTURE_BUFFER, monitor.tboTexture );
                 GlStateManager.setActiveTexture( GL13.GL_TEXTURE0 );
