@@ -187,6 +187,7 @@ gui.computercraft:config.peripheral.modem_high_altitude_range_during_storm=Modem
 gui.computercraft:config.peripheral.max_notes_per_tick=Maximum notes that a computer can play at once
 gui.computercraft:config.peripheral.monitor_renderer=Monitor renderer
 gui.computercraft:config.peripheral.monitor_renderer.best=Best
+gui.computercraft:config.peripheral.monitor_renderer.tbo=Texture Buffers
 gui.computercraft:config.peripheral.monitor_renderer.vbo=Vertex Buffers
 gui.computercraft:config.peripheral.monitor_renderer.display_list=Display Lists
 

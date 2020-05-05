@@ -8,23 +8,28 @@ package dan200.computercraft.client.render;
 import dan200.computercraft.client.FrameInfo;
 import dan200.computercraft.client.gui.FixedWidthFontRenderer;
 import dan200.computercraft.core.terminal.Terminal;
+import dan200.computercraft.core.terminal.TextBuffer;
 import dan200.computercraft.shared.peripheral.monitor.ClientMonitor;
 import dan200.computercraft.shared.peripheral.monitor.MonitorRenderer;
 import dan200.computercraft.shared.peripheral.monitor.TileMonitor;
+import dan200.computercraft.shared.util.Colour;
 import dan200.computercraft.shared.util.DirectionUtil;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.OpenGlHelper;
-import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexBuffer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL13;
+import org.lwjgl.opengl.GL15;
+import org.lwjgl.opengl.GL31;
 
 import javax.annotation.Nonnull;
+import java.nio.ByteBuffer;
 
+import static dan200.computercraft.client.gui.FixedWidthFontRenderer.*;
 import static dan200.computercraft.shared.peripheral.monitor.TileMonitor.RENDER_MARGIN;
 
 public class TileEntityMonitorRenderer extends TileEntitySpecialRenderer<TileMonitor>
@@ -97,8 +102,8 @@ public class TileEntityMonitorRenderer extends TileEntitySpecialRenderer<TileMon
         if( terminal != null )
         {
             // Draw a terminal
-            double xScale = xSize / (terminal.getWidth() * FixedWidthFontRenderer.FONT_WIDTH);
-            double yScale = ySize / (terminal.getHeight() * FixedWidthFontRenderer.FONT_HEIGHT);
+            double xScale = xSize / (terminal.getWidth() * FONT_WIDTH);
+            double yScale = ySize / (terminal.getHeight() * FONT_HEIGHT);
 
             GlStateManager.pushMatrix();
             GlStateManager.scale( (float) xScale, (float) -yScale, 1.0f );
@@ -147,6 +152,52 @@ public class TileEntityMonitorRenderer extends TileEntitySpecialRenderer<TileMon
 
         switch( renderer )
         {
+            case TBO:
+            {
+                if( !MonitorTextureBufferShader.use() ) return;
+
+                Terminal terminal = monitor.getTerminal();
+                int width = terminal.getWidth(), height = terminal.getHeight();
+                int pixelWidth = width * FONT_WIDTH, pixelHeight = height * FONT_HEIGHT;
+
+                if( redraw )
+                {
+                    ByteBuffer monitorBuffer = GLAllocation.createDirectByteBuffer( width * height * 3 );
+                    for( int y = 0; y < height; y++ )
+                    {
+                        TextBuffer text = terminal.getLine( y ), textColour = terminal.getTextColourLine( y ), background = terminal.getBackgroundColourLine( y );
+                        for( int x = 0; x < width; x++ )
+                        {
+                            monitorBuffer.put( (byte) (text.charAt( x ) & 0xFF) );
+                            monitorBuffer.put( (byte) getColour( textColour.charAt( x ), Colour.White ) );
+                            monitorBuffer.put( (byte) getColour( background.charAt( x ), Colour.Black ) );
+                        }
+                    }
+                    monitorBuffer.flip();
+
+                    OpenGlHelper.glBindBuffer( GL31.GL_TEXTURE_BUFFER, monitor.tboBuffer );
+                    OpenGlHelper.glBufferData( GL31.GL_TEXTURE_BUFFER, monitorBuffer, GL15.GL_STATIC_DRAW );
+                    OpenGlHelper.glBindBuffer( GL31.GL_TEXTURE_BUFFER, 0 );
+                }
+
+                // Bind TBO texture and set up the uniforms. We've already set up the main font above.
+                GlStateManager.setActiveTexture( MonitorTextureBufferShader.TEXTURE_INDEX );
+                GL11.glBindTexture( GL31.GL_TEXTURE_BUFFER, monitor.tboTexture );
+                GlStateManager.setActiveTexture( GL13.GL_TEXTURE0 );
+
+                MonitorTextureBufferShader.setupUniform( width, height, terminal.getPalette(), !monitor.isColour() );
+
+                buffer.begin( GL11.GL_TRIANGLE_STRIP, DefaultVertexFormats.POSITION );
+                buffer.pos( -xMargin, -yMargin, 0 ).endVertex();
+                buffer.pos( -xMargin, pixelHeight + yMargin, 0 ).endVertex();
+                buffer.pos( pixelWidth + xMargin, -yMargin, 0 ).endVertex();
+                buffer.pos( pixelWidth + xMargin, pixelHeight + yMargin, 0 ).endVertex();
+                tessellator.draw();
+
+                OpenGlHelper.glUseProgram( 0 );
+                break;
+            }
+
             case VBO:
             {
                 VertexBuffer vbo = monitor.buffer;
