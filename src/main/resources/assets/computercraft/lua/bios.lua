@@ -797,6 +797,17 @@ function fs.complete(sPath, sLocation, bIncludeFiles, bIncludeDirs)
     return tEmpty
 end
 
+function fs.isMountPoint(sPath)
+    expect(1, sPath, "string")
+    if not fs.isDir(sPath) then
+        return false
+    elseif fs.combine(sPath, "..") == ".." or fs.getDrive(sPath) == fs.getDrive(fs.combine(sPath, "..")) then -- the == ".." check prevents errors when path is "/"
+        return false
+    else
+        return true
+    end
+end
+
 -- Load APIs
 local bAPIError = false
 local tApis = fs.list("rom/apis")

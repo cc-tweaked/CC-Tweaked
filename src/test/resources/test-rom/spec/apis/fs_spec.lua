@@ -12,6 +12,21 @@ describe("The fs library", function()
         end)
     end)
 
+    describe("fs.isMountPoint", function()
+        it("validates arguments", function()
+            fs.isMountPoint("")
+
+            expect.error(fs.isMountPoint, nil):eq("bad argument #1 (expected string, got nil)")
+        end)
+
+        it("correctly identifies mountpoints", function()
+            expect(fs.isMountPoint("/rom")):eq(true)
+            expect(fs.isMountPoint("/")):eq(false)
+            expect(fs.isMountPoint("/rom/startup.lua")):eq(false)
+            expect(fs.isMountPoint("/rom/programs/delete.lua")):eq(false)
+        end)
+    end)
+
     describe("fs.list", function()
         it("fails on files", function()
             expect.error(fs.list, "rom/startup.lua"):eq("/rom/startup.lua: Not a directory")

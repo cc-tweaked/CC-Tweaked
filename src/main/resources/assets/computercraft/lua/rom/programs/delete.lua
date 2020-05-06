@@ -5,17 +5,6 @@ if args.n < 1 then
     return
 end
 
-local function isMountPoint(path)
-    if not fs.isDir(path) then
-        return false
-    elseif fs.combine(path, "..") == ".." or fs.getDrive(path) == fs.getDrive(fs.combine(path, "..")) then -- the == ".." check prevents errors when path is "/"
-        return false
-    else
-        return true
-    end
-end
-
-
 for i = 1, args.n do
     local resolvedPath = shell.resolve(args[i])
     local files = fs.find(resolvedPath)
@@ -23,7 +12,7 @@ for i = 1, args.n do
         for _, file in ipairs(files) do
             if file ~= resolvedPath and fs.isReadOnly(file) then
                 print("Skipping read only " .. file)
-            elseif isMountPoint(file) then
+            elseif fs.isMountPoint(file) then
                 print("Skipping seperate mount " .. file)
                 print("To delete it's contents run rm " .. fs.combine(file, "*"))
             else
