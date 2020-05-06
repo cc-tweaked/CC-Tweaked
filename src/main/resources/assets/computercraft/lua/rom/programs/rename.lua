@@ -10,6 +10,12 @@ local sDest = shell.resolve(tArgs[2])
 if not fs.exists(sSource) then
     printError("No matching files")
     return
+elseif fs.isMountPoint(sSource) then
+    printError("Can't rename mounts")
+    return
+elseif fs.isReadOnly(sSource) then
+    printError("Source is read-only")
+    return
 elseif fs.exists(sDest) then
     printError("Destination exists")
     return
