@@ -18,6 +18,7 @@ function getDrive(path) end
 function getFreeSpace(path) end
 function find(pattern) end
 function getDir(path) end
+function isMountPoint(path) end
 
 --- Get the capacity of the drive at the given path.
 --
