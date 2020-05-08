@@ -799,13 +799,8 @@ end
 
 function fs.isMountPoint(sPath)
     expect(1, sPath, "string")
-    if not fs.isDir(sPath) then
-        return false
-    elseif fs.combine(sPath, "..") == ".." or fs.getDrive(sPath) == fs.getDrive(fs.combine(sPath, "..")) then -- the == ".." check prevents errors when path is "/"
-        return false
-    else
-        return true
-    end
+    local parent = fs.getDir(path)
+    return parent == ".." or fs.getDrive(path) ~= fs.getDrive(parent)
 end
 
 -- Load APIs

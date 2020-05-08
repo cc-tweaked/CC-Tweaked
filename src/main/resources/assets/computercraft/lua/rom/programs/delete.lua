@@ -11,10 +11,12 @@ for i = 1, args.n do
     if #files > 0 then
         for _, file in ipairs(files) do
             if file ~= resolvedPath and fs.isReadOnly(file) then
-                print("Skipping read only " .. file)
+                printError("Cannot delete read-only file " .. file)
             elseif fs.isMountPoint(file) then
                 print("Skipping seperate mount " .. file)
-                print("To delete it's contents run rm " .. fs.combine(file, "*"))
+                if fs.isDir(file) then
+                    print("To delete its contents run rm /" .. fs.combine(file, "*"))
+                end
             else
                 local ok, err = pcall(fs.delete, file)
                 if not ok then
