@@ -71,7 +71,7 @@ while bRunning do
         if term.isColour() then
             term.setTextColour(colours.yellow)
         end
-       print("local variables from the previous input are inaccessible afterwards. If you want to be able to use a variable across multiple inputs then remove the local keyword.")
+       print("To access local variables in later inputs, remove the local keyword.")
        term.setTextColour(colours.white)
     end
 
