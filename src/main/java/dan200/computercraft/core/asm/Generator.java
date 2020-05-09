@@ -25,6 +25,7 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
@@ -53,7 +54,7 @@ public class Generator<T>
         .newBuilder()
         .build( CacheLoader.from( this::build ) );
 
-    private final LoadingCache<Method, T> methodCache = CacheBuilder
+    private final LoadingCache<Method, Optional<T>> methodCache = CacheBuilder
         .newBuilder()
         .build( CacheLoader.from( this::build ) );
 
@@ -93,7 +94,7 @@ public class Generator<T>
             LuaFunction annotation = method.getAnnotation( LuaFunction.class );
             if( annotation == null ) continue;
 
-            T instance = methodCache.getUnchecked( method );
+            T instance = methodCache.getUnchecked( method ).orElse( null );
             if( instance == null ) continue;
 
             if( methods == null ) methods = new ArrayList<>();
@@ -120,8 +121,8 @@ public class Generator<T>
         return Collections.unmodifiableList( methods );
     }
 
-    @Nullable
-    private T build( Method method )
+    @Nonnull
+    private Optional<T> build( Method method )
     {
         String name = method.getDeclaringClass().getName() + "." + method.getName();
         int modifiers = method.getModifiers();
@@ -133,13 +134,13 @@ public class Generator<T>
         if( Modifier.isStatic( modifiers ) || !Modifier.isPublic( modifiers ) )
         {
             ComputerCraft.log.error( "Lua Method {} should be a public instance method.", name );
-            return null;
+            return Optional.empty();
         }
 
         if( !Modifier.isPublic( method.getDeclaringClass().getModifiers() ) )
         {
             ComputerCraft.log.error( "Lua Method {} should be on a public class.", name );
-            return null;
+            return Optional.empty();
         }
 
         ComputerCraft.log.debug( "Generating method wrapper for {}.", name );
@@ -150,7 +151,7 @@ public class Generator<T>
             if( exception != LuaException.class )
             {
                 ComputerCraft.log.error( "Lua Method {} cannot throw {}.", name, exception.getName() );
-                return null;
+                return Optional.empty();
             }
         }
 
@@ -158,15 +159,15 @@ public class Generator<T>
         {
             String className = method.getDeclaringClass().getName() + "$cc$" + method.getName() + METHOD_ID.getAndIncrement();
             byte[] bytes = generate( className, method );
-            if( bytes == null ) return null;
+            if( bytes == null ) return Optional.empty();
 
             Class<?> klass = DeclaringClassLoader.INSTANCE.define( className, bytes, method.getDeclaringClass().getProtectionDomain() );
-            return klass.asSubclass( base ).newInstance();
+            return Optional.of( klass.asSubclass( base ).newInstance() );
         }
         catch( InstantiationException | IllegalAccessException | ClassFormatError | RuntimeException e )
         {
             ComputerCraft.log.error( "Error generating wrapper for {}.", name, e );
-            return null;
+            return Optional.empty();
         }
 
     }

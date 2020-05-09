@@ -33,7 +33,7 @@ public class MonitorPeripheral extends TermMethods implements IPeripheral
     }
 
     @LuaFunction
-    public void setTextScale( Object[] args ) throws LuaException
+    public final void setTextScale( Object[] args ) throws LuaException
     {
         int scale = (int) (getFiniteDouble( args, 0 ) * 2.0);
         if( scale < 1 || scale > 10 ) throw new LuaException( "Expected number in range 0.5-5" );
@@ -41,7 +41,7 @@ public class MonitorPeripheral extends TermMethods implements IPeripheral
     }
 
     @LuaFunction
-    public double getTextScale() throws LuaException
+    public final double getTextScale() throws LuaException
     {
         return getMonitor().getTextScale() / 2.0;
     }
