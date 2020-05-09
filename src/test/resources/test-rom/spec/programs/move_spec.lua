@@ -34,7 +34,7 @@ describe("The move program", function()
     end)
 
     it("fails when moving from read-only locations", function()
-        expect(capture(stub, "move /rom/startup.lua /test-files/move/d.txt"))
+        expect(capture(stub, "move /rom/startup.lua /test-files/move/not-exist.txt"))
             :matches { ok = true, output = "", error = "Source is read-only\n" }
     end)
 
