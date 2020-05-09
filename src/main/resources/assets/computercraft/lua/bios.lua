@@ -797,12 +797,9 @@ function fs.complete(sPath, sLocation, bIncludeFiles, bIncludeDirs)
     return tEmpty
 end
 
-function fs.isMountPoint(sPath)
+function fs.isDriveRoot(sPath)
     expect(1, sPath, "string")
-    if fs.getName(sPath) == "root" then
-        return false -- should root be a mount point?
-    end
-    return fs.getDrive(sPath) ~= fs.getDrive(fs.getDir(sPath))
+    return fs.getName(sPath) == "root" or fs.getDrive(sPath) ~= fs.getDrive(fs.getDir(sPath))
 end
 
 -- Load APIs

@@ -10,7 +10,7 @@ local sDest = shell.resolve(tArgs[2])
 local tFiles = fs.find(sSource)
 
 local function sanityChecks(sSource)
-    if fs.isMountPoint(sSource) then
+    if fs.isDriveRoot(sSource) then
         printError("Can't move mounts")
         return false
     elseif fs.isReadOnly(sSource) then

@@ -10,7 +10,7 @@ local sDest = shell.resolve(tArgs[2])
 if not fs.exists(sSource) then
     printError("No matching files")
     return
-elseif fs.isMountPoint(sSource) then
+elseif fs.isDriveRoot(sSource) then
     printError("Can't rename mounts")
     return
 elseif fs.isReadOnly(sSource) then

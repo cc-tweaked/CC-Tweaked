@@ -12,7 +12,7 @@ for i = 1, args.n do
         for _, file in ipairs(files) do
             if file ~= resolvedPath and fs.isReadOnly(file) then
                 printError("Cannot delete read-only file " .. file)
-            elseif fs.isMountPoint(file) then
+            elseif fs.isDriveRoot(file) then
                 print("Skipping seperate mount " .. file)
                 if fs.isDir(file) then
                     print("To delete its contents run rm /" .. fs.combine(file, "*"))
