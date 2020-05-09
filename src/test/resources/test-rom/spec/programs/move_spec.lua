@@ -35,12 +35,12 @@ describe("The move program", function()
 
     it("fails when moving from read-only locations", function()
         expect(capture(stub, "move /rom/startup.lua /test-files/move/not-exist.txt"))
-            :matches { ok = true, output = "", error = "Source is read-only\n" }
+            :matches { ok = true, output = "", error = "Cannot move read-only file rom/startup.lua\n" }
     end)
 
     it("fails when moving mounts", function()
         expect(capture(stub, "move /rom /test-files/move/rom"))
-            :matches { ok = true, output = "", error = "Can't move mounts\n" }
+            :matches { ok = true, output = "", error = "Cannot move mount rom\n" }
     end)
 
     it("displays the usage with no arguments", function()
