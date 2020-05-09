@@ -10,6 +10,7 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.primitives.Primitives;
+import com.google.common.reflect.TypeToken;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.lua.IArguments;
 import dan200.computercraft.api.lua.LuaException;
@@ -202,29 +203,12 @@ public class Generator<T>
             mw.visitVarInsn( ALOAD, 1 );
             mw.visitTypeInsn( CHECKCAST, Type.getInternalName( method.getDeclaringClass() ) );
 
-            for( Class<?> arg : method.getParameterTypes() )
+            int argIndex = 0;
+            for( java.lang.reflect.Type genericArg : method.getGenericParameterTypes() )
             {
-                if( arg == IArguments.class )
-                {
-                    mw.visitVarInsn( ALOAD, 2 + context.size() );
-                }
-                else if( arg == Object[].class )
-                {
-                    mw.visitVarInsn( ALOAD, 2 + context.size() );
-                    mw.visitMethodInsn( INVOKEINTERFACE, INTERNAL_ARGUMENTS, "getAll", "()[Ljava/lang/Object;", true );
-                }
-                else
-                {
-                    int idx = context.indexOf( arg );
-                    if( idx < 0 )
-                    {
-                        ComputerCraft.log.error( "Unknown parameter type {} for method {}.{}.",
-                            arg.getName(), method.getDeclaringClass().getName(), method.getName() );
-                        return null;
-                    }
-
-                    mw.visitVarInsn( ALOAD, 2 + idx );
-                }
+                Boolean loadedArg = loadArg( mw, method, genericArg, argIndex );
+                if( loadedArg == null ) return null;
+                if( loadedArg ) argIndex++;
             }
 
             mw.visitMethodInsn( INVOKEVIRTUAL, Type.getInternalName( method.getDeclaringClass() ), method.getName(),
@@ -264,6 +248,74 @@ public class Generator<T>
         cw.visitEnd();
 
         return cw.toByteArray();
+    }
+
+    private Boolean loadArg( MethodVisitor mw, Method method, java.lang.reflect.Type genericArg, int argIndex )
+    {
+        Class<?> arg = Reflect.getRawType( method, genericArg, true );
+        if( arg == null ) return null;
+
+        if( arg == IArguments.class )
+        {
+            mw.visitVarInsn( ALOAD, 2 + context.size() );
+            return false;
+        }
+
+        if( arg == Object[].class )
+        {
+            mw.visitVarInsn( ALOAD, 2 + context.size() );
+            mw.visitMethodInsn( INVOKEINTERFACE, INTERNAL_ARGUMENTS, "getAll", "()[Ljava/lang/Object;", true );
+            return false;
+        }
+
+        int idx = context.indexOf( arg );
+        if( idx >= 0 )
+        {
+            mw.visitVarInsn( ALOAD, 2 + idx );
+            return false;
+        }
+
+        if( arg == Optional.class )
+        {
+            Class<?> klass = Reflect.getRawType( method, TypeToken.of( genericArg ).resolveType( Reflect.OPTIONAL_IN ).getType(), false );
+            if( klass == null ) return null;
+
+            String name = Reflect.getLuaName( Primitives.unwrap( klass ) );
+            if( name != null )
+            {
+                mw.visitVarInsn( ALOAD, 2 + context.size() );
+                loadInt( mw, argIndex );
+                mw.visitMethodInsn( INVOKEINTERFACE, INTERNAL_ARGUMENTS, "opt" + name, "(I)Ljava/util/Optional;", true );
+                return true;
+            }
+        }
+
+        String name = Reflect.getLuaName( arg );
+        if( name != null )
+        {
+            if( Reflect.getRawType( method, genericArg, false ) == null ) return null;
+
+            mw.visitVarInsn( ALOAD, 2 + context.size() );
+            loadInt( mw, argIndex );
+            mw.visitMethodInsn( INVOKEINTERFACE, INTERNAL_ARGUMENTS, "get" + name, "(I)" + Type.getDescriptor( arg ), true );
+            return true;
+        }
+
+        ComputerCraft.log.error( "Unknown parameter type {} for method {}.{}.",
+            arg.getName(), method.getDeclaringClass().getName(), method.getName() );
+        return null;
+    }
+
+    private static void loadInt( MethodVisitor visitor, int value )
+    {
+        if( value >= -1 && value <= 5 )
+        {
+            visitor.visitInsn( ICONST_0 + value );
+        }
+        else
+        {
+            visitor.visitLdcInsn( value );
+        }
     }
 
 }
