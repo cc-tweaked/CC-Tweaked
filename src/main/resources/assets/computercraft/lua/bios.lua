@@ -799,8 +799,10 @@ end
 
 function fs.isMountPoint(sPath)
     expect(1, sPath, "string")
-    local parent = fs.getDir(path)
-    return parent == ".." or fs.getDrive(path) ~= fs.getDrive(parent)
+    if fs.getName(sPath) == "root" then
+        return false -- should root be a mount point?
+    end
+    return fs.getDrive(sPath) ~= fs.getDrive(fs.getDir(sPath))
 end
 
 -- Load APIs
