@@ -42,7 +42,7 @@ describe("The rm program", function()
 
     it("errors when trying to delete a read-only file", function()
         expect(capture(stub, "rm /rom/startup.lua"))
-            :matches { ok = true, output = "", error = "/rom/startup.lua: Access denied\n" }
+            :matches { ok = true, output = "", error = "Cannot delete read-only file rom/startup.lua\n" }
     end)
 
     it("errors when a glob fails to match", function()

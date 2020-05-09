@@ -6,14 +6,13 @@ if args.n < 1 then
 end
 
 for i = 1, args.n do
-    local resolvedPath = shell.resolve(args[i])
-    local files = fs.find(resolvedPath)
+    local files = fs.find(shell.resolve(args[i]))
     if #files > 0 then
         for _, file in ipairs(files) do
-            if file ~= resolvedPath and fs.isReadOnly(file) then
+            if fs.isReadOnly(file) then
                 printError("Cannot delete read-only file " .. file)
             elseif fs.isDriveRoot(file) then
-                print("Skipping seperate mount " .. file)
+                printError("Cannot delete mount " .. file)
                 if fs.isDir(file) then
                     print("To delete its contents run rm /" .. fs.combine(file, "*"))
                 end
