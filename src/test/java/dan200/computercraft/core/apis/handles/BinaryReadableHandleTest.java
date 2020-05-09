@@ -62,7 +62,7 @@ public class BinaryReadableHandleTest
     @Test
     public void testReadLine() throws LuaException
     {
-        ObjectWrapper wrapper = new ObjectWrapper( new BinaryReadableHandle( new ArrayByteChannel( "hello\r\nworld\r!".getBytes( StandardCharsets.UTF_8 ) ) ) );
+        ObjectWrapper wrapper = new ObjectWrapper( BinaryReadableHandle.of( new ArrayByteChannel( "hello\r\nworld\r!".getBytes( StandardCharsets.UTF_8 ) ) ) );
         assertArrayEquals( "hello".getBytes( StandardCharsets.UTF_8 ), wrapper.callOf( "readLine" ) );
         assertArrayEquals( "world\r!".getBytes( StandardCharsets.UTF_8 ), wrapper.callOf( "readLine" ) );
         assertNull( wrapper.call( "readLine" ) );
@@ -71,7 +71,7 @@ public class BinaryReadableHandleTest
     @Test
     public void testReadLineTrailing() throws LuaException
     {
-        ObjectWrapper wrapper = new ObjectWrapper( new BinaryReadableHandle( new ArrayByteChannel( "hello\r\nworld\r!".getBytes( StandardCharsets.UTF_8 ) ) ) );
+        ObjectWrapper wrapper = new ObjectWrapper( BinaryReadableHandle.of( new ArrayByteChannel( "hello\r\nworld\r!".getBytes( StandardCharsets.UTF_8 ) ) ) );
         assertArrayEquals( "hello\r\n".getBytes( StandardCharsets.UTF_8 ), wrapper.callOf( "readLine", true ) );
         assertArrayEquals( "world\r!".getBytes( StandardCharsets.UTF_8 ), wrapper.callOf( "readLine", true ) );
         assertNull( wrapper.call( "readLine", true ) );
@@ -81,6 +81,6 @@ public class BinaryReadableHandleTest
     {
         byte[] input = new byte[length];
         Arrays.fill( input, (byte) 'A' );
-        return new ObjectWrapper( new BinaryReadableHandle( new ArrayByteChannel( input ) ) );
+        return new ObjectWrapper( BinaryReadableHandle.of( new ArrayByteChannel( input ) ) );
     }
 }

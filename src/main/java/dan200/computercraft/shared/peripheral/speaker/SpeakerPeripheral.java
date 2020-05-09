@@ -8,7 +8,7 @@ package dan200.computercraft.shared.peripheral.speaker;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
-import dan200.computercraft.api.peripheral.IComputerAccess;
+import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import net.minecraft.network.play.server.SPlaySoundPacket;
 import net.minecraft.server.MinecraftServer;
@@ -53,50 +53,28 @@ public abstract class SpeakerPeripheral implements IPeripheral
         return "speaker";
     }
 
-    @Nonnull
-    @Override
-    public String[] getMethodNames()
+    @LuaFunction
+    public final boolean playSound( ILuaContext context, Object[] args ) throws LuaException
     {
-        return new String[] {
-            "playSound",
-            "playNote",
-        };
-    }
+        String name = getString( args, 0 );
+        float volume = (float) optFiniteDouble( args, 1, 1.0 );
+        float pitch = (float) optFiniteDouble( args, 2, 1.0 );
 
-    @Override
-    public Object[] callMethod( @Nonnull IComputerAccess computerAccess, @Nonnull ILuaContext context, int methodIndex, @Nonnull Object[] args ) throws LuaException
-    {
-        switch( methodIndex )
+        ResourceLocation identifier;
+        try
         {
-            case 0: // playSound
-            {
-                String name = getString( args, 0 );
-                float volume = (float) optFiniteDouble( args, 1, 1.0 );
-                float pitch = (float) optFiniteDouble( args, 2, 1.0 );
-
-                ResourceLocation identifier;
-                try
-                {
-                    identifier = new ResourceLocation( name );
-                }
-                catch( ResourceLocationException e )
-                {
-                    throw new LuaException( "Malformed sound name '" + name + "' " );
-                }
-
-                return new Object[] { playSound( context, identifier, volume, pitch, false ) };
-            }
-
-            case 1: // playNote
-                return playNote( args, context );
-
-            default:
-                throw new IllegalStateException( "Method index out of range!" );
+            identifier = new ResourceLocation( name );
         }
+        catch( ResourceLocationException e )
+        {
+            throw new LuaException( "Malformed sound name '" + name + "' " );
+        }
+
+        return playSound( context, identifier, volume, pitch, false );
     }
 
-    @Nonnull
-    private synchronized Object[] playNote( Object[] arguments, ILuaContext context ) throws LuaException
+    @LuaFunction
+    public final synchronized boolean playNote( ILuaContext context, Object[] arguments ) throws LuaException
     {
         String name = getString( arguments, 0 );
         float volume = (float) optFiniteDouble( arguments, 1, 1.0 );
@@ -113,16 +91,12 @@ public abstract class SpeakerPeripheral implements IPeripheral
         }
 
         // Check if the note exists
-        if( instrument == null )
-        {
-            throw new LuaException( "Invalid instrument, \"" + name + "\"!" );
-        }
+        if( instrument == null ) throw new LuaException( "Invalid instrument, \"" + name + "\"!" );
 
         // If the resource location for note block notes changes, this method call will need to be updated
         boolean success = playSound( context, instrument.getSound().getRegistryName(), volume, (float) Math.pow( 2.0, (pitch - 12.0) / 12.0 ), true );
-
         if( success ) m_notesThisTick.incrementAndGet();
-        return new Object[] { success };
+        return success;
     }
 
     private synchronized boolean playSound( ILuaContext context, ResourceLocation name, float volume, float pitch, boolean isNote ) throws LuaException

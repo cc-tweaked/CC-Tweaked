@@ -8,8 +8,8 @@ package dan200.computercraft.core;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.filesystem.IWritableMount;
 import dan200.computercraft.api.lua.ILuaAPI;
-import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
+import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.core.computer.BasicEnvironment;
 import dan200.computercraft.core.computer.Computer;
@@ -100,182 +100,7 @@ public class ComputerTestDelegate
 
         computer = new Computer( new BasicEnvironment( mount ), term, 0 );
         computer.getEnvironment().setPeripheral( ComputerSide.TOP, new FakeModem() );
-        computer.addApi( new ILuaAPI()
-        {
-            @Override
-            public String[] getNames()
-            {
-                return new String[] { "cct_test" };
-            }
-
-            @Nonnull
-            @Override
-            public String[] getMethodNames()
-            {
-                return new String[] { "start", "submit", "finish" };
-            }
-
-            @Override
-            public void startup()
-            {
-                try
-                {
-                    computer.getAPIEnvironment().getFileSystem().mount(
-                        "test-rom", "test-rom",
-                        BasicEnvironment.createMount( ComputerTestDelegate.class, "test-rom", "test" )
-                    );
-                }
-                catch( FileSystemException e )
-                {
-                    throw new IllegalStateException( e );
-                }
-            }
-
-            @Nullable
-            @Override
-            public Object[] callMethod( @Nonnull ILuaContext context, int method, @Nonnull Object[] arguments ) throws LuaException, InterruptedException
-            {
-                switch( method )
-                {
-                    case 0: // start: Submit several tests and signal for #get to run
-                    {
-                        LOG.info( "Received tests from computer" );
-                        DynamicNodeBuilder root = new DynamicNodeBuilder( "" );
-                        for( Object key : getTable( arguments, 0 ).keySet() )
-                        {
-                            if( !(key instanceof String) ) throw new LuaException( "Non-key string " + getType( key ) );
-
-                            String name = (String) key;
-                            String[] parts = name.split( "\0" );
-                            DynamicNodeBuilder builder = root;
-                            for( int i = 0; i < parts.length - 1; i++ ) builder = builder.get( parts[i] );
-                            builder.runs( parts[parts.length - 1], () -> {
-                                // Run it
-                                lock.lockInterruptibly();
-                                try
-                                {
-                                    // Set the current test
-                                    runResult = null;
-                                    runFinished = false;
-                                    currentTest = name;
-
-                                    // Tell the computer to run it
-                                    LOG.info( "Starting '{}'", formatName( name ) );
-                                    computer.queueEvent( "cct_test_run", new Object[] { name } );
-
-                                    long remaining = TIMEOUT;
-                                    while( remaining > 0 && computer.isOn() && !runFinished )
-                                    {
-                                        tick();
-
-                                        long waiting = hasRun.awaitNanos( TICK_TIME );
-                                        if( waiting > 0 ) break;
-                                        remaining -= TICK_TIME;
-                                    }
-
-                                    LOG.info( "Finished '{}'", formatName( name ) );
-
-                                    if( remaining <= 0 )
-                                    {
-                                        throw new IllegalStateException( "Timed out waiting for test" );
-                                    }
-                                    else if( !computer.isOn() )
-                                    {
-                                        throw new IllegalStateException( "Computer turned off mid-execution" );
-                                    }
-
-                                    if( runResult != null ) throw runResult;
-                                }
-                                finally
-                                {
-                                    lock.unlock();
-                                    currentTest = null;
-                                }
-                            } );
-                        }
-
-                        lock.lockInterruptibly();
-                        try
-                        {
-                            tests = root;
-                            hasTests.signal();
-                        }
-                        finally
-                        {
-                            lock.unlock();
-                        }
-
-                        return null;
-                    }
-                    case 1:  // submit: Submit the result of a test, allowing the test executor to continue
-                    {
-                        Map<?, ?> tbl = getTable( arguments, 0 );
-                        String name = (String) tbl.get( "name" );
-                        String status = (String) tbl.get( "status" );
-                        String message = (String) tbl.get( "message" );
-                        String trace = (String) tbl.get( "trace" );
-
-                        StringBuilder wholeMessage = new StringBuilder();
-                        if( message != null ) wholeMessage.append( message );
-                        if( trace != null )
-                        {
-                            if( wholeMessage.length() != 0 ) wholeMessage.append( '\n' );
-                            wholeMessage.append( trace );
-                        }
-
-                        lock.lockInterruptibly();
-                        try
-                        {
-                            LOG.info( "'{}' finished with {}", formatName( name ), status );
-
-                            // Skip if a test mismatch
-                            if( !name.equals( currentTest ) )
-                            {
-                                LOG.warn( "Skipping test '{}', as we're currently executing '{}'", formatName( name ), formatName( currentTest ) );
-                                return null;
-                            }
-
-                            switch( status )
-                            {
-                                case "ok":
-                                case "pending":
-                                    break;
-                                case "fail":
-                                    runResult = new AssertionFailedError( wholeMessage.toString() );
-                                    break;
-                                case "error":
-                                    runResult = new IllegalStateException( wholeMessage.toString() );
-                                    break;
-                            }
-
-                            runFinished = true;
-                            hasRun.signal();
-                        }
-                        finally
-                        {
-                            lock.unlock();
-                        }
-
-                        return null;
-                    }
-                    case 2: // finish: Signal to after that execution has finished
-                        LOG.info( "Finished" );
-                        lock.lockInterruptibly();
-                        try
-                        {
-                            finished = true;
-                            hasFinished.signal();
-                        }
-                        finally
-                        {
-                            lock.unlock();
-                        }
-                        return null;
-                    default:
-                        return null;
-                }
-            }
-        } );
+        computer.addApi( new CctTestAPI() );
 
         computer.turnOn();
     }
@@ -450,6 +275,193 @@ public class ComputerTestDelegate
         public boolean equals( @Nullable IPeripheral other )
         {
             return this == other;
+        }
+    }
+
+    public class CctTestAPI implements ILuaAPI
+    {
+        @Override
+        public String[] getNames()
+        {
+            return new String[] { "cct_test" };
+        }
+
+        @Override
+        public void startup()
+        {
+            try
+            {
+                computer.getAPIEnvironment().getFileSystem().mount(
+                    "test-rom", "test-rom",
+                    BasicEnvironment.createMount( ComputerTestDelegate.class, "test-rom", "test" )
+                );
+            }
+            catch( FileSystemException e )
+            {
+                throw new IllegalStateException( e );
+            }
+        }
+
+        @LuaFunction
+        public final void start( Object[] arguments ) throws LuaException
+        {
+            // Submit several tests and signal for #get to run
+            LOG.info( "Received tests from computer" );
+            DynamicNodeBuilder root = new DynamicNodeBuilder( "" );
+            for( Object key : getTable( arguments, 0 ).keySet() )
+            {
+                if( !(key instanceof String) ) throw new LuaException( "Non-key string " + getType( key ) );
+
+                String name = (String) key;
+                String[] parts = name.split( "\0" );
+                DynamicNodeBuilder builder = root;
+                for( int i = 0; i < parts.length - 1; i++ ) builder = builder.get( parts[i] );
+                builder.runs( parts[parts.length - 1], () -> {
+                    // Run it
+                    lock.lockInterruptibly();
+                    try
+                    {
+                        // Set the current test
+                        runResult = null;
+                        runFinished = false;
+                        currentTest = name;
+
+                        // Tell the computer to run it
+                        LOG.info( "Starting '{}'", formatName( name ) );
+                        computer.queueEvent( "cct_test_run", new Object[] { name } );
+
+                        long remaining = TIMEOUT;
+                        while( remaining > 0 && computer.isOn() && !runFinished )
+                        {
+                            tick();
+
+                            long waiting = hasRun.awaitNanos( TICK_TIME );
+                            if( waiting > 0 ) break;
+                            remaining -= TICK_TIME;
+                        }
+
+                        LOG.info( "Finished '{}'", formatName( name ) );
+
+                        if( remaining <= 0 )
+                        {
+                            throw new IllegalStateException( "Timed out waiting for test" );
+                        }
+                        else if( !computer.isOn() )
+                        {
+                            throw new IllegalStateException( "Computer turned off mid-execution" );
+                        }
+
+                        if( runResult != null ) throw runResult;
+                    }
+                    finally
+                    {
+                        lock.unlock();
+                        currentTest = null;
+                    }
+                } );
+            }
+
+            try
+            {
+                lock.lockInterruptibly();
+            }
+            catch( InterruptedException e )
+            {
+                throw new RuntimeException( e );
+            }
+            try
+            {
+                tests = root;
+                hasTests.signal();
+            }
+            finally
+            {
+                lock.unlock();
+            }
+        }
+
+        @LuaFunction
+        public final void submit( Object[] arguments ) throws LuaException
+        {
+            //  Submit the result of a test, allowing the test executor to continue
+
+            Map<?, ?> tbl = getTable( arguments, 0 );
+            String name = (String) tbl.get( "name" );
+            String status = (String) tbl.get( "status" );
+            String message = (String) tbl.get( "message" );
+            String trace = (String) tbl.get( "trace" );
+
+            StringBuilder wholeMessage = new StringBuilder();
+            if( message != null ) wholeMessage.append( message );
+            if( trace != null )
+            {
+                if( wholeMessage.length() != 0 ) wholeMessage.append( '\n' );
+                wholeMessage.append( trace );
+            }
+
+            try
+            {
+                lock.lockInterruptibly();
+            }
+            catch( InterruptedException e )
+            {
+                throw new RuntimeException( e );
+            }
+            try
+            {
+                LOG.info( "'{}' finished with {}", formatName( name ), status );
+
+                // Skip if a test mismatch
+                if( !name.equals( currentTest ) )
+                {
+                    LOG.warn( "Skipping test '{}', as we're currently executing '{}'", formatName( name ), formatName( currentTest ) );
+                    return;
+                }
+
+                switch( status )
+                {
+                    case "ok":
+                    case "pending":
+                        break;
+                    case "fail":
+                        runResult = new AssertionFailedError( wholeMessage.toString() );
+                        break;
+                    case "error":
+                        runResult = new IllegalStateException( wholeMessage.toString() );
+                        break;
+                }
+
+                runFinished = true;
+                hasRun.signal();
+            }
+            finally
+            {
+                lock.unlock();
+            }
+        }
+
+        @LuaFunction
+        public final void finish()
+        {
+            // Signal to after that execution has finished
+            LOG.info( "Finished" );
+            try
+            {
+                lock.lockInterruptibly();
+            }
+            catch( InterruptedException e )
+            {
+                throw new RuntimeException( e );
+            }
+            try
+            {
+                finished = true;
+                hasFinished.signal();
+            }
+            finally
+            {
+                lock.unlock();
+            }
         }
     }
 }

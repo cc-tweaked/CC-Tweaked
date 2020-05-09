@@ -6,7 +6,6 @@
 package dan200.computercraft.core.apis.http.request;
 
 import dan200.computercraft.ComputerCraft;
-import dan200.computercraft.api.lua.ILuaObject;
 import dan200.computercraft.core.apis.IAPIEnvironment;
 import dan200.computercraft.core.apis.http.HTTPRequestException;
 import dan200.computercraft.core.apis.http.NetworkUtils;
@@ -227,12 +226,12 @@ public class HttpRequest extends Resource<HttpRequest>
         failure( message );
     }
 
-    void failure( String message, ILuaObject object )
+    void failure( String message, HttpResponseHandle object )
     {
         if( tryClose() ) environment.queueEvent( FAILURE_EVENT, new Object[] { address, message, object } );
     }
 
-    void success( ILuaObject object )
+    void success( HttpResponseHandle object )
     {
         if( tryClose() ) environment.queueEvent( SUCCESS_EVENT, new Object[] { address, object } );
     }

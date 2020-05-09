@@ -6,8 +6,8 @@
 package dan200.computercraft.core.apis;
 
 import dan200.computercraft.api.lua.ILuaAPI;
-import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
+import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.shared.util.StringUtil;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
@@ -24,7 +24,7 @@ import static dan200.computercraft.api.lua.ArgumentHelper.*;
 
 public class OSAPI implements ILuaAPI
 {
-    private IAPIEnvironment m_apiEnvironment;
+    private final IAPIEnvironment apiEnvironment;
 
     private final Int2ObjectMap<Alarm> m_alarms = new Int2ObjectOpenHashMap<>();
     private int m_clock;
@@ -55,10 +55,8 @@ public class OSAPI implements ILuaAPI
 
     public OSAPI( IAPIEnvironment environment )
     {
-        m_apiEnvironment = environment;
+        apiEnvironment = environment;
     }
-
-    // ILuaAPI implementation
 
     @Override
     public String[] getNames()
@@ -69,8 +67,8 @@ public class OSAPI implements ILuaAPI
     @Override
     public void startup()
     {
-        m_time = m_apiEnvironment.getComputerEnvironment().getTimeOfDay();
-        m_day = m_apiEnvironment.getComputerEnvironment().getDay();
+        m_time = apiEnvironment.getComputerEnvironment().getTimeOfDay();
+        m_day = apiEnvironment.getComputerEnvironment().getDay();
         m_clock = 0;
 
         synchronized( m_alarms )
@@ -89,8 +87,8 @@ public class OSAPI implements ILuaAPI
         {
             double previousTime = m_time;
             int previousDay = m_day;
-            double time = m_apiEnvironment.getComputerEnvironment().getTimeOfDay();
-            int day = m_apiEnvironment.getComputerEnvironment().getDay();
+            double time = apiEnvironment.getComputerEnvironment().getTimeOfDay();
+            int day = apiEnvironment.getComputerEnvironment().getDay();
 
             if( time > previousTime || day > previousDay )
             {
@@ -123,31 +121,6 @@ public class OSAPI implements ILuaAPI
         }
     }
 
-    @Nonnull
-    @Override
-    public String[] getMethodNames()
-    {
-        return new String[] {
-            "queueEvent",
-            "startTimer",
-            "setAlarm",
-            "shutdown",
-            "reboot",
-            "computerID",
-            "getComputerID",
-            "setComputerLabel",
-            "computerLabel",
-            "getComputerLabel",
-            "clock",
-            "time",
-            "day",
-            "cancelTimer",
-            "cancelAlarm",
-            "epoch",
-            "date",
-        };
-    }
-
     private static float getTimeForCalendar( Calendar c )
     {
         float time = c.get( Calendar.HOUR_OF_DAY );
@@ -174,214 +147,184 @@ public class OSAPI implements ILuaAPI
         return c.getTime().getTime();
     }
 
-    @Override
-    public Object[] callMethod( @Nonnull ILuaContext context, int method, @Nonnull Object[] args ) throws LuaException
+    @LuaFunction
+    public final void queueEvent( Object[] args ) throws LuaException
     {
-        switch( method )
+        queueLuaEvent( getString( args, 0 ), Arrays.copyOfRange( args, 1, args.length ) );
+    }
+
+    @LuaFunction
+    public final int startTimer( Object[] args ) throws LuaException
+    {
+        double timer = getFiniteDouble( args, 0 );
+        return apiEnvironment.startTimer( Math.round( timer / 0.05 ) );
+    }
+
+    @LuaFunction
+    public final void cancelTimer( Object[] args ) throws LuaException
+    {
+        int token = getInt( args, 0 );
+        apiEnvironment.cancelTimer( token );
+    }
+
+    @LuaFunction
+    public final int setAlarm( Object[] args ) throws LuaException
+    {
+        double time = getFiniteDouble( args, 0 );
+        if( time < 0.0 || time >= 24.0 ) throw new LuaException( "Number out of range" );
+        synchronized( m_alarms )
         {
-            case 0: // queueEvent
-                queueLuaEvent( getString( args, 0 ), trimArray( args, 1 ) );
-                return null;
-            case 1:
-            {
-                // startTimer
-                double timer = getFiniteDouble( args, 0 );
-                int id = m_apiEnvironment.startTimer( Math.round( timer / 0.05 ) );
-                return new Object[] { id };
-            }
-            case 2:
-            {
-                // setAlarm
-                double time = getFiniteDouble( args, 0 );
-                if( time < 0.0 || time >= 24.0 )
-                {
-                    throw new LuaException( "Number out of range" );
-                }
-                synchronized( m_alarms )
-                {
-                    int day = time > m_time ? m_day : m_day + 1;
-                    m_alarms.put( m_nextAlarmToken, new Alarm( time, day ) );
-                    return new Object[] { m_nextAlarmToken++ };
-                }
-            }
-            case 3: // shutdown
-                m_apiEnvironment.shutdown();
-                return null;
-            case 4: // reboot
-                m_apiEnvironment.reboot();
-                return null;
-            case 5:
-            case 6: // computerID/getComputerID
-                return new Object[] { getComputerID() };
-            case 7:
-            {
-                // setComputerLabel
-                String label = optString( args, 0, null );
-                m_apiEnvironment.setLabel( StringUtil.normaliseLabel( label ) );
-                return null;
-            }
-            case 8:
-            case 9:
-            {
-                // computerLabel/getComputerLabel
-                String label = m_apiEnvironment.getLabel();
-                if( label != null )
-                {
-                    return new Object[] { label };
-                }
-                return null;
-            }
-            case 10: // clock
-                return new Object[] { m_clock * 0.05 };
-            case 11:
-            {
-                // time
-                Object value = args.length > 0 ? args[0] : null;
-                if( value instanceof Map ) return new Object[] { LuaDateTime.fromTable( (Map<?, ?>) value ) };
-
-                String param = optString( args, 0, "ingame" );
-                switch( param.toLowerCase( Locale.ROOT ) )
-                {
-                    case "utc":
-                    {
-                        // Get Hour of day (UTC)
-                        Calendar c = Calendar.getInstance( TimeZone.getTimeZone( "UTC" ) );
-                        return new Object[] { getTimeForCalendar( c ) };
-                    }
-                    case "local":
-                    {
-                        // Get Hour of day (local time)
-                        Calendar c = Calendar.getInstance();
-                        return new Object[] { getTimeForCalendar( c ) };
-                    }
-                    case "ingame":
-                        // Get ingame hour
-                        synchronized( m_alarms )
-                        {
-                            return new Object[] { m_time };
-                        }
-                    default:
-                        throw new LuaException( "Unsupported operation" );
-                }
-            }
-            case 12:
-            {
-                // day
-                String param = optString( args, 0, "ingame" );
-                switch( param.toLowerCase( Locale.ROOT ) )
-                {
-                    case "utc":
-                    {
-                        // Get numbers of days since 1970-01-01 (utc)
-                        Calendar c = Calendar.getInstance( TimeZone.getTimeZone( "UTC" ) );
-                        return new Object[] { getDayForCalendar( c ) };
-                    }
-                    case "local":
-                    {
-                        // Get numbers of days since 1970-01-01 (local time)
-                        Calendar c = Calendar.getInstance();
-                        return new Object[] { getDayForCalendar( c ) };
-                    }
-                    case "ingame":
-                        // Get game day
-                        synchronized( m_alarms )
-                        {
-                            return new Object[] { m_day };
-                        }
-                    default:
-                        throw new LuaException( "Unsupported operation" );
-                }
-            }
-            case 13:
-            {
-                // cancelTimer
-                int token = getInt( args, 0 );
-                m_apiEnvironment.cancelTimer( token );
-                return null;
-            }
-            case 14:
-            {
-                // cancelAlarm
-                int token = getInt( args, 0 );
-                synchronized( m_alarms )
-                {
-                    m_alarms.remove( token );
-                }
-                return null;
-            }
-            case 15: // epoch
-            {
-                String param = optString( args, 0, "ingame" );
-                switch( param.toLowerCase( Locale.ROOT ) )
-                {
-                    case "utc":
-                    {
-                        // Get utc epoch
-                        Calendar c = Calendar.getInstance( TimeZone.getTimeZone( "UTC" ) );
-                        return new Object[] { getEpochForCalendar( c ) };
-                    }
-                    case "local":
-                    {
-                        // Get local epoch
-                        Calendar c = Calendar.getInstance();
-                        return new Object[] { getEpochForCalendar( c ) };
-                    }
-                    case "ingame":
-                        // Get in-game epoch
-                        synchronized( m_alarms )
-                        {
-                            return new Object[] { m_day * 86400000 + (int) (m_time * 3600000.0f) };
-                        }
-                    default:
-                        throw new LuaException( "Unsupported operation" );
-                }
-            }
-            case 16: // date
-            {
-                String format = optString( args, 0, "%c" );
-                long time = optLong( args, 1, Instant.now().getEpochSecond() );
-
-                Instant instant = Instant.ofEpochSecond( time );
-                ZonedDateTime date;
-                ZoneOffset offset;
-                if( format.startsWith( "!" ) )
-                {
-                    offset = ZoneOffset.UTC;
-                    date = ZonedDateTime.ofInstant( instant, offset );
-                    format = format.substring( 1 );
-                }
-                else
-                {
-                    ZoneId id = ZoneId.systemDefault();
-                    offset = id.getRules().getOffset( instant );
-                    date = ZonedDateTime.ofInstant( instant, id );
-                }
-
-                if( format.equals( "*t" ) ) return new Object[] { LuaDateTime.toTable( date, offset, instant ) };
-
-                DateTimeFormatterBuilder formatter = new DateTimeFormatterBuilder();
-                LuaDateTime.format( formatter, format, offset );
-                return new Object[] { formatter.toFormatter( Locale.ROOT ).format( date ) };
-            }
-            default:
-                return null;
+            int day = time > m_time ? m_day : m_day + 1;
+            m_alarms.put( m_nextAlarmToken, new Alarm( time, day ) );
+            return m_nextAlarmToken++;
         }
     }
 
-    // Private methods
+    @LuaFunction
+    public final void cancelAlarm( Object[] args ) throws LuaException
+    {
+        int token = getInt( args, 0 );
+        synchronized( m_alarms )
+        {
+            m_alarms.remove( token );
+        }
+    }
+
+    @LuaFunction( "shutdown" )
+    public final void doShutdown()
+    {
+        apiEnvironment.shutdown();
+    }
+
+    @LuaFunction( "reboot" )
+    public final void doReboot()
+    {
+        apiEnvironment.reboot();
+    }
+
+    @LuaFunction( { "getComputerID", "computerID" } )
+    public final int getComputerID()
+    {
+        return apiEnvironment.getComputerID();
+    }
+
+    @LuaFunction( { "getComputerLabel", "computerLabel" } )
+    public final Object[] getComputerLabel()
+    {
+        String label = apiEnvironment.getLabel();
+        return label == null ? null : new Object[] { label };
+    }
+
+    @LuaFunction
+    public final void setComputerLabel( Object[] args ) throws LuaException
+    {
+        String label = optString( args, 0, null );
+        apiEnvironment.setLabel( StringUtil.normaliseLabel( label ) );
+    }
+
+    @LuaFunction
+    public final double clock()
+    {
+        return m_clock * 0.05;
+    }
+
+    @LuaFunction
+    public final Object time( Object[] args ) throws LuaException
+    {
+        Object value = args.length > 0 ? args[0] : null;
+        if( value instanceof Map ) return LuaDateTime.fromTable( (Map<?, ?>) value );
+
+        String param = optString( args, 0, "ingame" );
+        switch( param.toLowerCase( Locale.ROOT ) )
+        {
+            case "utc": // Get Hour of day (UTC)
+                return getTimeForCalendar( Calendar.getInstance( TimeZone.getTimeZone( "UTC" ) ) );
+            case "local": // Get Hour of day (local time)
+                return getTimeForCalendar( Calendar.getInstance() );
+            case "ingame": // Get in-game hour
+                return m_time;
+            default:
+                throw new LuaException( "Unsupported operation" );
+        }
+    }
+
+    @LuaFunction
+    public final int day( Object[] args ) throws LuaException
+    {
+        String param = optString( args, 0, "ingame" );
+        switch( param.toLowerCase( Locale.ROOT ) )
+        {
+            case "utc":     // Get numbers of days since 1970-01-01 (utc)
+                return getDayForCalendar( Calendar.getInstance( TimeZone.getTimeZone( "UTC" ) ) );
+            case "local": // Get numbers of days since 1970-01-01 (local time)
+                return getDayForCalendar( Calendar.getInstance() );
+            case "ingame":// Get game day
+                return m_day;
+            default:
+                throw new LuaException( "Unsupported operation" );
+        }
+    }
+
+    @LuaFunction
+    public final long epoch( Object[] args ) throws LuaException
+    {
+        String param = optString( args, 0, "ingame" );
+        switch( param.toLowerCase( Locale.ROOT ) )
+        {
+            case "utc":
+            {
+                // Get utc epoch
+                Calendar c = Calendar.getInstance( TimeZone.getTimeZone( "UTC" ) );
+                return getEpochForCalendar( c );
+            }
+            case "local":
+            {
+                // Get local epoch
+                Calendar c = Calendar.getInstance();
+                return getEpochForCalendar( c );
+            }
+            case "ingame":
+                // Get in-game epoch
+                synchronized( m_alarms )
+                {
+                    return m_day * 86400000 + (int) (m_time * 3600000.0f);
+                }
+            default:
+                throw new LuaException( "Unsupported operation" );
+        }
+    }
+
+    @LuaFunction
+    public final Object date( Object[] args ) throws LuaException
+    {
+        String format = optString( args, 0, "%c" );
+        long time = optLong( args, 1, Instant.now().getEpochSecond() );
+
+        Instant instant = Instant.ofEpochSecond( time );
+        ZonedDateTime date;
+        ZoneOffset offset;
+        if( format.startsWith( "!" ) )
+        {
+            offset = ZoneOffset.UTC;
+            date = ZonedDateTime.ofInstant( instant, offset );
+            format = format.substring( 1 );
+        }
+        else
+        {
+            ZoneId id = ZoneId.systemDefault();
+            offset = id.getRules().getOffset( instant );
+            date = ZonedDateTime.ofInstant( instant, id );
+        }
+
+        if( format.equals( "*t" ) ) return LuaDateTime.toTable( date, offset, instant );
+
+        DateTimeFormatterBuilder formatter = new DateTimeFormatterBuilder();
+        LuaDateTime.format( formatter, format, offset );
+        return formatter.toFormatter( Locale.ROOT ).format( date );
+    }
 
     private void queueLuaEvent( String event, Object[] args )
     {
-        m_apiEnvironment.queueEvent( event, args );
-    }
-
-    private Object[] trimArray( Object[] array, int skip )
-    {
-        return Arrays.copyOfRange( array, skip, array.length );
-    }
-
-    private int getComputerID()
-    {
-        return m_apiEnvironment.getComputerID();
+        apiEnvironment.queueEvent( event, args );
     }
 }

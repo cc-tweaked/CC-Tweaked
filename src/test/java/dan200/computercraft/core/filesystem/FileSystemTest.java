@@ -27,8 +27,8 @@ public class FileSystemTest
      * Ensures writing a file truncates it.
      *
      * @throws FileSystemException When the file system cannot be constructed.
-     * @throws LuaException When Lua functions fail.
-     * @throws IOException When reading and writing from strings
+     * @throws LuaException        When Lua functions fail.
+     * @throws IOException         When reading and writing from strings
      */
     @Test
     public void testWriteTruncates() throws FileSystemException, LuaException, IOException

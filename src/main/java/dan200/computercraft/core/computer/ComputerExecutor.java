@@ -388,8 +388,8 @@ final class ComputerExecutor
         // Create the lua machine
         ILuaMachine machine = new CobaltLuaMachine( computer, timeout );
 
-        // Add the APIs
-        for( ILuaAPI api : apis ) machine.addAPI( api );
+        // Add the APIs. We unwrap them (yes, this is horrible) to get access to the underlying object.
+        for( ILuaAPI api : apis ) machine.addAPI( api instanceof ApiWrapper ? ((ApiWrapper) api).getDelegate() : api );
 
         // Start the machine running the bios resource
         MachineResult result = machine.loadBios( biosStream );

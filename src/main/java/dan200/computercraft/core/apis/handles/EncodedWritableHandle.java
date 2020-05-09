@@ -5,8 +5,8 @@
  */
 package dan200.computercraft.core.apis.handles;
 
-import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
+import dan200.computercraft.api.lua.LuaFunction;
 
 import javax.annotation.Nonnull;
 import java.io.BufferedWriter;
@@ -21,85 +21,57 @@ import java.nio.charset.StandardCharsets;
 
 public class EncodedWritableHandle extends HandleGeneric
 {
-    private BufferedWriter m_writer;
+    private final BufferedWriter writer;
 
     public EncodedWritableHandle( @Nonnull BufferedWriter writer, @Nonnull Closeable closable )
     {
         super( closable );
-        m_writer = writer;
+        this.writer = writer;
     }
 
-    public EncodedWritableHandle( @Nonnull BufferedWriter writer )
+    @LuaFunction
+    public final void write( Object[] args ) throws LuaException
     {
-        this( writer, writer );
-    }
-
-    @Nonnull
-    @Override
-    public String[] getMethodNames()
-    {
-        return new String[] {
-            "write",
-            "writeLine",
-            "flush",
-            "close",
-        };
-    }
-
-    @Override
-    public Object[] callMethod( @Nonnull ILuaContext context, int method, @Nonnull Object[] args ) throws LuaException
-    {
-        switch( method )
+        checkOpen();
+        String text = args.length > 0 && args[0] != null ? args[0].toString() : "";
+        try
         {
-            case 0: // write
-            {
-                checkOpen();
-                String text = args.length > 0 && args[0] != null ? args[0].toString() : "";
-                try
-                {
-                    m_writer.write( text, 0, text.length() );
-                    return null;
-                }
-                catch( IOException e )
-                {
-                    throw new LuaException( e.getMessage() );
-                }
-            }
-            case 1: // writeLine
-            {
-                checkOpen();
-                String text = args.length > 0 && args[0] != null ? args[0].toString() : "";
-                try
-                {
-                    m_writer.write( text, 0, text.length() );
-                    m_writer.newLine();
-                    return null;
-                }
-                catch( IOException e )
-                {
-                    throw new LuaException( e.getMessage() );
-                }
-            }
-            case 2: // flush
-                checkOpen();
-                try
-                {
-                    m_writer.flush();
-                    return null;
-                }
-                catch( IOException e )
-                {
-                    return null;
-                }
-            case 3: // close
-                checkOpen();
-                close();
-                return null;
-            default:
-                return null;
+            writer.write( text, 0, text.length() );
+        }
+        catch( IOException e )
+        {
+            throw new LuaException( e.getMessage() );
         }
     }
 
+    @LuaFunction
+    public final void writeLine( Object[] args ) throws LuaException
+    {
+        checkOpen();
+        String text = args.length > 0 && args[0] != null ? args[0].toString() : "";
+        try
+        {
+            writer.write( text, 0, text.length() );
+            writer.newLine();
+        }
+        catch( IOException e )
+        {
+            throw new LuaException( e.getMessage() );
+        }
+    }
+
+    @LuaFunction
+    public final void flush() throws LuaException
+    {
+        checkOpen();
+        try
+        {
+            writer.flush();
+        }
+        catch( IOException ignored )
+        {
+        }
+    }
 
     public static BufferedWriter openUtf8( WritableByteChannel channel )
     {

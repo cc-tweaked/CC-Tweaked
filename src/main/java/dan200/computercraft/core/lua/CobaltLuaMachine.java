@@ -7,6 +7,8 @@ package dan200.computercraft.core.lua;
 
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.lua.*;
+import dan200.computercraft.core.asm.LuaMethod;
+import dan200.computercraft.core.asm.NamedMethod;
 import dan200.computercraft.core.computer.Computer;
 import dan200.computercraft.core.computer.MainThread;
 import dan200.computercraft.core.computer.TimeoutState;
@@ -20,7 +22,6 @@ import org.squiddev.cobalt.debug.DebugFrame;
 import org.squiddev.cobalt.debug.DebugHandler;
 import org.squiddev.cobalt.debug.DebugState;
 import org.squiddev.cobalt.function.LuaFunction;
-import org.squiddev.cobalt.function.VarArgFunction;
 import org.squiddev.cobalt.lib.*;
 import org.squiddev.cobalt.lib.platform.VoidResourceManipulator;
 
@@ -116,11 +117,10 @@ public class CobaltLuaMachine implements ILuaMachine
     {
         // Add the methods of an API to the global table
         LuaTable table = wrapLuaObject( api );
+        if( table == null ) table = new LuaTable();
+
         String[] names = api.getNames();
-        for( String name : names )
-        {
-            m_globals.rawset( name, table );
-        }
+        for( String name : names ) m_globals.rawset( name, table );
     }
 
     @Override
@@ -216,48 +216,28 @@ public class CobaltLuaMachine implements ILuaMachine
         m_globals = null;
     }
 
-    private LuaTable wrapLuaObject( ILuaObject object )
+    @Nullable
+    private LuaTable wrapLuaObject( Object object )
     {
-        LuaTable table = new LuaTable();
-        String[] methods = object.getMethodNames();
-        for( int i = 0; i < methods.length; i++ )
+        String[] dynamicMethods = object instanceof IDynamicLuaObject
+            ? Objects.requireNonNull( ((IDynamicLuaObject) object).getMethodNames(), "Methods cannot be null" )
+            : LuaMethod.EMPTY_METHODS;
+
+        List<NamedMethod<LuaMethod>> methods = LuaMethod.GENERATOR.getMethods( object.getClass() );
+
+        if( methods.size() + dynamicMethods.length == 0 ) return null;
+
+        LuaTable table = new LuaTable( 0, methods.size() + dynamicMethods.length );
+        for( int i = 0; i < dynamicMethods.length; i++ )
         {
-            if( methods[i] != null )
-            {
-                final int method = i;
-                final ILuaObject apiObject = object;
-                final String methodName = methods[i];
-                table.rawset( methodName, new VarArgFunction()
-                {
-                    @Override
-                    public Varargs invoke( final LuaState state, Varargs args ) throws LuaError
-                    {
-                        Object[] arguments = toObjects( args, 1 );
-                        Object[] results;
-                        try
-                        {
-                            results = apiObject.callMethod( context, method, arguments );
-                        }
-                        catch( InterruptedException e )
-                        {
-                            throw new InterruptedError( e );
-                        }
-                        catch( LuaException e )
-                        {
-                            throw new LuaError( e.getMessage(), e.getLevel() );
-                        }
-                        catch( Throwable t )
-                        {
-                            if( ComputerCraft.logPeripheralErrors )
-                            {
-                                ComputerCraft.log.error( "Error calling " + methodName + " on " + apiObject, t );
-                            }
-                            throw new LuaError( "Java Exception Thrown: " + t, 0 );
-                        }
-                        return toValues( results );
-                    }
-                } );
-            }
+            String method = dynamicMethods[i];
+            table.rawset( method, new ResultInterpreterFunction( this, LuaMethod.DYNAMIC.get( i ), object, context, method ) );
+        }
+        for( NamedMethod<LuaMethod> method : methods )
+        {
+            table.rawset( method.getName(), method.nonYielding()
+                ? new BasicFunction( this, method.getMethod(), object, context, method.getName() )
+                : new ResultInterpreterFunction( this, method.getMethod(), object, context, method.getName() ) );
         }
         return table;
     }
@@ -278,9 +258,10 @@ public class CobaltLuaMachine implements ILuaMachine
         LuaValue result = values.get( object );
         if( result != null ) return result;
 
-        if( object instanceof ILuaObject )
+        if( object instanceof IDynamicLuaObject )
         {
-            LuaValue wrapped = wrapLuaObject( (ILuaObject) object );
+            LuaValue wrapped = wrapLuaObject( object );
+            if( wrapped == null ) wrapped = new LuaTable();
             values.put( object, wrapped );
             return wrapped;
         }
@@ -318,6 +299,13 @@ public class CobaltLuaMachine implements ILuaMachine
             return table;
         }
 
+        LuaTable wrapped = wrapLuaObject( object );
+        if( wrapped != null )
+        {
+            values.put( object, wrapped );
+            return wrapped;
+        }
+
         if( ComputerCraft.logPeripheralErrors )
         {
             ComputerCraft.log.warn( "Received unknown type '{}', returning nil.", object.getClass().getName() );
@@ -325,7 +313,7 @@ public class CobaltLuaMachine implements ILuaMachine
         return Constants.NIL;
     }
 
-    private Varargs toValues( Object[] objects )
+    Varargs toValues( Object[] objects )
     {
         if( objects == null || objects.length == 0 ) return Constants.NONE;
 
@@ -404,7 +392,7 @@ public class CobaltLuaMachine implements ILuaMachine
         }
     }
 
-    private static Object[] toObjects( Varargs values, int startIdx )
+    static Object[] toObjects( Varargs values, int startIdx )
     {
         int count = values.count();
         Object[] objects = new Object[count - startIdx + 1];
@@ -500,23 +488,6 @@ public class CobaltLuaMachine implements ILuaMachine
 
     private class CobaltLuaContext implements ILuaContext
     {
-        @Nonnull
-        @Override
-        public Object[] yield( Object[] yieldArgs ) throws InterruptedException
-        {
-            try
-            {
-                LuaState state = m_state;
-                if( state == null ) throw new InterruptedException();
-                Varargs results = LuaThread.yieldBlocking( state, toValues( yieldArgs ) );
-                return toObjects( results, 1 );
-            }
-            catch( LuaError e )
-            {
-                throw new IllegalStateException( e.getMessage() );
-            }
-        }
-
         @Override
         public long issueMainThreadTask( @Nonnull final ILuaTask task ) throws LuaException
         {
@@ -559,45 +530,6 @@ public class CobaltLuaMachine implements ILuaMachine
             {
                 throw new LuaException( "Task limit exceeded" );
             }
-        }
-
-        @Override
-        public Object[] executeMainThreadTask( @Nonnull final ILuaTask task ) throws LuaException, InterruptedException
-        {
-            // Issue task
-            final long taskID = issueMainThreadTask( task );
-
-            // Wait for response
-            while( true )
-            {
-                Object[] response = pullEvent( "task_complete" );
-                if( response.length >= 3 && response[1] instanceof Number && response[2] instanceof Boolean )
-                {
-                    if( ((Number) response[1]).intValue() == taskID )
-                    {
-                        Object[] returnValues = new Object[response.length - 3];
-                        if( (Boolean) response[2] )
-                        {
-                            // Extract the return values from the event and return them
-                            System.arraycopy( response, 3, returnValues, 0, returnValues.length );
-                            return returnValues;
-                        }
-                        else
-                        {
-                            // Extract the error message from the event and raise it
-                            if( response.length >= 4 && response[3] instanceof String )
-                            {
-                                throw new LuaException( (String) response[3] );
-                            }
-                            else
-                            {
-                                throw new LuaException();
-                            }
-                        }
-                    }
-                }
-            }
-
         }
     }
 

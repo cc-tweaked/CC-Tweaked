@@ -5,8 +5,8 @@
  */
 package dan200.computercraft.shared.peripheral.modem;
 
-import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
+import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.api.network.IPacketNetwork;
 import dan200.computercraft.api.network.IPacketReceiver;
 import dan200.computercraft.api.network.IPacketSender;
@@ -52,11 +52,6 @@ public abstract class ModemPeripheral implements IPeripheral, IPacketSender, IPa
         if( m_network != null ) m_network.addReceiver( this );
     }
 
-    protected void switchNetwork()
-    {
-        setNetwork( getNetwork() );
-    }
-
     public void destroy()
     {
         setNetwork( null );
@@ -96,8 +91,6 @@ public abstract class ModemPeripheral implements IPeripheral, IPacketSender, IPa
 
     protected abstract IPacketNetwork getNetwork();
 
-    // IPeripheral implementation
-
     @Nonnull
     @Override
     public String getType()
@@ -105,90 +98,65 @@ public abstract class ModemPeripheral implements IPeripheral, IPacketSender, IPa
         return "modem";
     }
 
-    @Nonnull
-    @Override
-    public String[] getMethodNames()
-    {
-        return new String[] {
-            "open",
-            "isOpen",
-            "close",
-            "closeAll",
-            "transmit",
-            "isWireless",
-        };
-    }
-
     private static int parseChannel( Object[] arguments, int index ) throws LuaException
     {
         int channel = getInt( arguments, index );
-        if( channel < 0 || channel > 65535 )
-        {
-            throw new LuaException( "Expected number in range 0-65535" );
-        }
+        if( channel < 0 || channel > 65535 ) throw new LuaException( "Expected number in range 0-65535" );
         return channel;
     }
 
-    @Override
-    public Object[] callMethod( @Nonnull IComputerAccess computer, @Nonnull ILuaContext context, int method, @Nonnull Object[] arguments ) throws LuaException, InterruptedException
+    @LuaFunction
+    public final void open( Object[] args ) throws LuaException
     {
-        switch( method )
+        m_state.open( parseChannel( args, 0 ) );
+    }
+
+    @LuaFunction
+    public final boolean isOpen( Object[] args ) throws LuaException
+    {
+        return m_state.isOpen( parseChannel( args, 0 ) );
+    }
+
+    @LuaFunction
+    public final void close( Object[] args ) throws LuaException
+    {
+        m_state.close( parseChannel( args, 0 ) );
+    }
+
+    @LuaFunction
+    public final void closeAll()
+    {
+        m_state.closeAll();
+    }
+
+    @LuaFunction
+    public final void transmit( Object[] arguments ) throws LuaException
+    {
+        int channel = parseChannel( arguments, 0 );
+        int replyChannel = parseChannel( arguments, 1 );
+        Object payload = arguments.length > 2 ? arguments[2] : null;
+        World world = getWorld();
+        Vec3d position = getPosition();
+        IPacketNetwork network = m_network;
+
+        if( world == null || position == null || network == null ) return;
+
+        Packet packet = new Packet( channel, replyChannel, payload, this );
+        if( isInterdimensional() )
         {
-            case 0:
-            {
-                // open
-                int channel = parseChannel( arguments, 0 );
-                m_state.open( channel );
-                return null;
-            }
-            case 1:
-            {
-                // isOpen
-                int channel = parseChannel( arguments, 0 );
-                return new Object[] { m_state.isOpen( channel ) };
-            }
-            case 2:
-            {
-                // close
-                int channel = parseChannel( arguments, 0 );
-                m_state.close( channel );
-                return null;
-            }
-            case 3: // closeAll
-                m_state.closeAll();
-                return null;
-            case 4:
-            {
-                // transmit
-                int channel = parseChannel( arguments, 0 );
-                int replyChannel = parseChannel( arguments, 1 );
-                Object payload = arguments.length > 2 ? arguments[2] : null;
-                World world = getWorld();
-                Vec3d position = getPosition();
-                IPacketNetwork network = m_network;
-                if( world != null && position != null && network != null )
-                {
-                    Packet packet = new Packet( channel, replyChannel, payload, this );
-                    if( isInterdimensional() )
-                    {
-                        network.transmitInterdimensional( packet );
-                    }
-                    else
-                    {
-                        network.transmitSameDimension( packet, getRange() );
-                    }
-                }
-                return null;
-            }
-            case 5:
-            {
-                // isWireless
-                IPacketNetwork network = m_network;
-                return new Object[] { network != null && network.isWireless() };
-            }
-            default:
-                return null;
+            network.transmitInterdimensional( packet );
         }
+        else
+        {
+            network.transmitSameDimension( packet, getRange() );
+        }
+    }
+
+    @LuaFunction
+    public final boolean isWireless()
+    {
+        IPacketNetwork network = m_network;
+        return network != null && network.isWireless();
     }
 
     @Override

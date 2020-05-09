@@ -7,16 +7,14 @@ package dan200.computercraft.core.computer;
 
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.filesystem.IWritableMount;
-import dan200.computercraft.api.lua.ILuaAPI;
-import dan200.computercraft.api.lua.ILuaContext;
-import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.ArgumentHelper;
+import dan200.computercraft.api.lua.ILuaAPI;
+import dan200.computercraft.api.lua.LuaException;
+import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.core.filesystem.MemoryMount;
 import dan200.computercraft.core.terminal.Terminal;
 import org.junit.jupiter.api.Assertions;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.function.Consumer;
 
@@ -99,7 +97,7 @@ public class ComputerBootstrap
         }
     }
 
-    private static class AssertApi implements ILuaAPI
+    public static class AssertApi implements ILuaAPI
     {
         boolean didAssert;
         String message;
@@ -110,39 +108,25 @@ public class ComputerBootstrap
             return new String[] { "assertion" };
         }
 
-        @Nonnull
-        @Override
-        public String[] getMethodNames()
+        @LuaFunction
+        public final void log( Object[] arguments )
         {
-            return new String[] { "assert", "log" };
+            ComputerCraft.log.info( "[Computer] {}", Arrays.toString( arguments ) );
         }
 
-        @Nullable
-        @Override
-        public Object[] callMethod( @Nonnull ILuaContext context, int method, @Nonnull Object[] arguments ) throws LuaException, InterruptedException
+        @LuaFunction( "assert" )
+        public final Object[] doAssert( Object[] arguments ) throws LuaException
         {
-            switch( method )
+            didAssert = true;
+
+            Object arg = arguments.length >= 1 ? arguments[0] : null;
+            if( arg == null || arg == Boolean.FALSE )
             {
-                case 0: // assert
-                {
-                    didAssert = true;
-
-                    Object arg = arguments.length >= 1 ? arguments[0] : null;
-                    if( arg == null || arg == Boolean.FALSE )
-                    {
-                        message = ArgumentHelper.optString( arguments, 1, "Assertion failed" );
-                        throw new LuaException( message );
-                    }
-
-                    return arguments;
-                }
-                case 1:
-                    ComputerCraft.log.info( "[Computer] {}", Arrays.toString( arguments ) );
-                    return null;
-
-                default:
-                    return null;
+                message = ArgumentHelper.optString( arguments, 1, "Assertion failed" );
+                throw new LuaException( message );
             }
+
+            return arguments;
         }
     }
 }

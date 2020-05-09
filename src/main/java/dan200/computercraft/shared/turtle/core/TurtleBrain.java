@@ -8,8 +8,8 @@ package dan200.computercraft.shared.turtle.core;
 import com.google.common.base.Objects;
 import com.mojang.authlib.GameProfile;
 import dan200.computercraft.ComputerCraft;
-import dan200.computercraft.api.lua.ILuaContext;
-import dan200.computercraft.api.lua.LuaException;
+import dan200.computercraft.api.lua.ILuaCallback;
+import dan200.computercraft.api.lua.MethodResult;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.turtle.*;
 import dan200.computercraft.core.computer.ComputerSide;
@@ -517,27 +517,13 @@ public class TurtleBrain implements ITurtleAccess
 
     @Nonnull
     @Override
-    public Object[] executeCommand( @Nonnull ILuaContext context, @Nonnull ITurtleCommand command ) throws LuaException, InterruptedException
+    public MethodResult executeCommand( @Nonnull ITurtleCommand command )
     {
         if( getWorld().isRemote ) throw new UnsupportedOperationException( "Cannot run commands on the client" );
 
         // Issue command
         int commandID = issueCommand( command );
-
-        // Wait for response
-        while( true )
-        {
-            Object[] response = context.pullEvent( "turtle_response" );
-            if( response.length >= 3 && response[1] instanceof Number && response[2] instanceof Boolean )
-            {
-                if( ((Number) response[1]).intValue() == commandID )
-                {
-                    Object[] returnValues = new Object[response.length - 2];
-                    System.arraycopy( response, 2, returnValues, 0, returnValues.length );
-                    return returnValues;
-                }
-            }
-        }
+        return new CommandCallback( commandID ).pull;
     }
 
     @Override
@@ -950,5 +936,30 @@ public class TurtleBrain implements ITurtleAccess
         float next = (float) m_animationProgress / ANIM_DURATION;
         float previous = (float) m_lastAnimationProgress / ANIM_DURATION;
         return previous + (next - previous) * f;
+    }
+
+    private static final class CommandCallback implements ILuaCallback
+    {
+        final MethodResult pull = MethodResult.pullEvent( "turtle_response", this );
+        private final int command;
+
+        CommandCallback( int command )
+        {
+            this.command = command;
+        }
+
+        @Nonnull
+        @Override
+        public MethodResult resume( Object[] response )
+        {
+            if( response.length < 3 || !(response[1] instanceof Number) || !(response[2] instanceof Boolean) )
+            {
+                return pull;
+            }
+
+            if( ((Number) response[1]).intValue() != command ) return pull;
+
+            return MethodResult.of( Arrays.copyOfRange( response, 2, response.length ) );
+        }
     }
 }

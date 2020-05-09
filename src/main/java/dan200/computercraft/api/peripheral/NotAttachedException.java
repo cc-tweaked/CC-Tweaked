@@ -15,7 +15,7 @@ public class NotAttachedException extends IllegalStateException
 
     public NotAttachedException()
     {
-        super( "You are not attached to this Computer" );
+        super( "You are not attached to this computer" );
     }
 
     public NotAttachedException( String s )

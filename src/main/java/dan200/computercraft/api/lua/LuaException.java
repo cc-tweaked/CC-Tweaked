@@ -13,22 +13,31 @@ import javax.annotation.Nullable;
 public class LuaException extends Exception
 {
     private static final long serialVersionUID = -6136063076818512651L;
+    private final boolean hasLevel;
     private final int level;
-
-    public LuaException()
-    {
-        this( "error", 1 );
-    }
 
     public LuaException( @Nullable String message )
     {
-        this( message, 1 );
+        super( message );
+        this.hasLevel = false;
+        this.level = 1;
     }
 
     public LuaException( @Nullable String message, int level )
     {
         super( message );
+        this.hasLevel = true;
         this.level = level;
+    }
+
+    /**
+     * Whether a level was explicitly specified when constructing. This is used to determine
+     *
+     * @return Whether this has an explicit level.
+     */
+    public boolean hasLevel()
+    {
+        return hasLevel;
     }
 
     /**

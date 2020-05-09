@@ -5,8 +5,8 @@
  */
 package dan200.computercraft.core.lua;
 
+import dan200.computercraft.api.lua.IDynamicLuaObject;
 import dan200.computercraft.api.lua.ILuaAPI;
-import dan200.computercraft.api.lua.ILuaObject;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -21,13 +21,13 @@ import java.io.InputStream;
  * mechanism for registering these.
  *
  * This should provide implementations of {@link dan200.computercraft.api.lua.ILuaContext}, and the ability to convert
- * {@link ILuaObject}s into something the VM understands, as well as handling method calls.
+ * {@link IDynamicLuaObject}s into something the VM understands, as well as handling method calls.
  */
 public interface ILuaMachine
 {
     /**
      * Inject an API into the global environment of this machine. This should construct an object, as it would for any
-     * {@link ILuaObject} and set it to all names in {@link ILuaAPI#getNames()}.
+     * {@link IDynamicLuaObject} and set it to all names in {@link ILuaAPI#getNames()}.
      *
      * Called before {@link #loadBios(InputStream)}.
      *

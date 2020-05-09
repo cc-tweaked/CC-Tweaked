@@ -5,9 +5,9 @@
  */
 package dan200.computercraft.shared.turtle.upgrades;
 
-import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
-import dan200.computercraft.api.peripheral.IComputerAccess;
+import dan200.computercraft.api.lua.LuaFunction;
+import dan200.computercraft.api.lua.MethodResult;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.shared.turtle.core.TurtleCraftCommand;
@@ -32,15 +32,6 @@ public class CraftingTablePeripheral implements IPeripheral
         return "workbench";
     }
 
-    @Nonnull
-    @Override
-    public String[] getMethodNames()
-    {
-        return new String[] {
-            "craft",
-        };
-    }
-
     private static int parseCount( Object[] arguments ) throws LuaException
     {
         int count = optInt( arguments, 0, 64 );
@@ -48,25 +39,16 @@ public class CraftingTablePeripheral implements IPeripheral
         return count;
     }
 
-    @Override
-    public Object[] callMethod( @Nonnull IComputerAccess computer, @Nonnull ILuaContext context, int method, @Nonnull Object[] arguments ) throws LuaException, InterruptedException
+    @LuaFunction
+    public final MethodResult craft( Object[] args ) throws LuaException
     {
-        switch( method )
-        {
-            case 0:
-            {
-                // craft
-                final int limit = parseCount( arguments );
-                return turtle.executeCommand( context, new TurtleCraftCommand( limit ) );
-            }
-            default:
-                return null;
-        }
+        int limit = parseCount( args );
+        return turtle.executeCommand( new TurtleCraftCommand( limit ) );
     }
 
     @Override
     public boolean equals( IPeripheral other )
     {
-        return this == other || other instanceof CraftingTablePeripheral;
+        return other instanceof CraftingTablePeripheral;
     }
 }

@@ -6,16 +6,15 @@
 package dan200.computercraft.api.lua;
 
 import dan200.computercraft.api.peripheral.IComputerAccess;
-import dan200.computercraft.api.peripheral.IPeripheral;
+import dan200.computercraft.api.peripheral.IDynamicPeripheral;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Map;
 
 /**
- * Provides methods for extracting values and validating Lua arguments, such as those provided to
- * {@link ILuaObject#callMethod(ILuaContext, int, Object[])} or
- * {@link IPeripheral#callMethod(IComputerAccess, ILuaContext, int, Object[])}.
+ * Provides methods for extracting values and validating Lua arguments, such as those provided to {@link LuaFunction}
+ * or {@link IDynamicPeripheral#callMethod(IComputerAccess, ILuaContext, int, Object[])}
  *
  * This provides two sets of functions: the {@code get*} methods, which require an argument to be valid, and
  * {@code opt*}, which accept a default value and return that if the argument was not present or was {@code null}.
