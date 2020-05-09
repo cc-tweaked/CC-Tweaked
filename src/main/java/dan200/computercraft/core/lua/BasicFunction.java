@@ -7,6 +7,7 @@
 package dan200.computercraft.core.lua;
 
 import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.api.lua.IArguments;
 import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.MethodResult;
@@ -41,7 +42,7 @@ class BasicFunction extends VarArgFunction
     @Override
     public Varargs invoke( LuaState luaState, Varargs args ) throws LuaError
     {
-        Object[] arguments = CobaltLuaMachine.toObjects( args, 1 );
+        IArguments arguments = CobaltLuaMachine.toArguments( args );
         MethodResult results;
         try
         {

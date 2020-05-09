@@ -5,10 +5,7 @@
  */
 package dan200.computercraft.core.apis;
 
-import dan200.computercraft.api.lua.IDynamicLuaObject;
-import dan200.computercraft.api.lua.ILuaContext;
-import dan200.computercraft.api.lua.ILuaTask;
-import dan200.computercraft.api.lua.LuaException;
+import dan200.computercraft.api.lua.*;
 import dan200.computercraft.core.asm.LuaMethod;
 import dan200.computercraft.core.asm.NamedMethod;
 
@@ -48,7 +45,7 @@ public class ObjectWrapper implements ILuaContext
         LuaMethod method = methodMap.get( name );
         if( method == null ) throw new IllegalStateException( "No such method '" + name + "'" );
 
-        return method.apply( object, this, args ).getResult();
+        return method.apply( object, this, new ObjectArguments( args ) ).getResult();
     }
 
     @SuppressWarnings( "unchecked" )

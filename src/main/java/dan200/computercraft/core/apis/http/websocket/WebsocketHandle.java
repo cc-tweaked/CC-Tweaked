@@ -9,7 +9,6 @@ import com.google.common.base.Objects;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.lua.*;
 import dan200.computercraft.core.tracking.TrackingField;
-import dan200.computercraft.shared.util.StringUtil;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
@@ -75,7 +74,7 @@ public class WebsocketHandle implements Closeable
         if( channel != null )
         {
             channel.writeAndFlush( binary
-                ? new BinaryWebSocketFrame( Unpooled.wrappedBuffer( StringUtil.encodeString( text ) ) )
+                ? new BinaryWebSocketFrame( Unpooled.wrappedBuffer( LuaValues.encode( text ) ) )
                 : new TextWebSocketFrame( text ) );
         }
     }
@@ -117,7 +116,7 @@ public class WebsocketHandle implements Closeable
 
         @Nonnull
         @Override
-        public MethodResult resume( Object[] event ) throws LuaException
+        public MethodResult resume( Object[] event )
         {
             if( event.length >= 3 && Objects.equal( event[0], MESSAGE_EVENT ) && Objects.equal( event[1], websocket.address() ) )
             {

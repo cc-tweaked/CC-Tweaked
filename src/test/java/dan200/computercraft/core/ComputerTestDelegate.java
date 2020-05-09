@@ -43,7 +43,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Stream;
 
 import static dan200.computercraft.api.lua.ArgumentHelper.getTable;
-import static dan200.computercraft.api.lua.ArgumentHelper.getType;
+import static dan200.computercraft.api.lua.LuaValues.getType;
 
 /**
  * Loads tests from {@code test-rom/spec} and executes them.

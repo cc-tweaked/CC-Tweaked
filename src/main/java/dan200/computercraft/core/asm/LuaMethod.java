@@ -6,10 +6,7 @@
 
 package dan200.computercraft.core.asm;
 
-import dan200.computercraft.api.lua.IDynamicLuaObject;
-import dan200.computercraft.api.lua.ILuaContext;
-import dan200.computercraft.api.lua.LuaException;
-import dan200.computercraft.api.lua.MethodResult;
+import dan200.computercraft.api.lua.*;
 
 import javax.annotation.Nonnull;
 import java.util.Collections;
@@ -29,5 +26,5 @@ public interface LuaMethod
     String[] EMPTY_METHODS = new String[0];
 
     @Nonnull
-    MethodResult apply( @Nonnull Object target, @Nonnull ILuaContext context, @Nonnull Object[] args ) throws LuaException;
+    MethodResult apply( @Nonnull Object target, @Nonnull ILuaContext context, @Nonnull IArguments args ) throws LuaException;
 }

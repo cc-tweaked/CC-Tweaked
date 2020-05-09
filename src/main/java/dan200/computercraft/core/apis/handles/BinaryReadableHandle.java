@@ -15,7 +15,6 @@ import java.nio.ByteBuffer;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.SeekableByteChannel;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import static dan200.computercraft.api.lua.ArgumentHelper.getInt;
@@ -68,7 +67,8 @@ public class BinaryReadableHandle extends HandleGeneric
 
                     int read = reader.read( buffer );
                     if( read < 0 ) return null;
-                    return new Object[] { read < count ? Arrays.copyOf( buffer.array(), read ) : buffer.array() };
+                    buffer.flip();
+                    return new Object[] { buffer };
                 }
                 else
                 {
@@ -80,7 +80,8 @@ public class BinaryReadableHandle extends HandleGeneric
                     // If we failed to read "enough" here, let's just abort
                     if( read >= count || read < BUFFER_SIZE )
                     {
-                        return new Object[] { Arrays.copyOf( buffer.array(), read ) };
+                        buffer.flip();
+                        return new Object[] { buffer };
                     }
 
                     // Build up an array of ByteBuffers. Hopefully this means we can perform less allocation

@@ -28,6 +28,7 @@ import org.squiddev.cobalt.lib.platform.VoidResourceManipulator;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.InputStream;
+import java.nio.ByteBuffer;
 import java.util.*;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -254,6 +255,13 @@ public class CobaltLuaMachine implements ILuaMachine
             byte[] b = (byte[]) object;
             return valueOf( Arrays.copyOf( b, b.length ) );
         }
+        if( object instanceof ByteBuffer )
+        {
+            ByteBuffer b = (ByteBuffer) object;
+            byte[] bytes = new byte[b.remaining()];
+            b.get( bytes );
+            return valueOf( bytes );
+        }
 
         LuaValue result = values.get( object );
         if( result != null ) return result;
@@ -403,6 +411,11 @@ public class CobaltLuaMachine implements ILuaMachine
             objects[i] = toObject( value, null );
         }
         return objects;
+    }
+
+    static IArguments toArguments( Varargs values )
+    {
+        return new ObjectArguments( toObjects( values, 1 ) );
     }
 
     /**

@@ -6,6 +6,7 @@
 
 package dan200.computercraft.core.asm;
 
+import dan200.computercraft.api.lua.IArguments;
 import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.MethodResult;
@@ -28,5 +29,5 @@ public interface PeripheralMethod
     );
 
     @Nonnull
-    MethodResult apply( @Nonnull Object target, @Nonnull ILuaContext context, @Nonnull IComputerAccess computer, @Nonnull Object[] args ) throws LuaException;
+    MethodResult apply( @Nonnull Object target, @Nonnull ILuaContext context, @Nonnull IComputerAccess computer, @Nonnull IArguments args ) throws LuaException;
 }

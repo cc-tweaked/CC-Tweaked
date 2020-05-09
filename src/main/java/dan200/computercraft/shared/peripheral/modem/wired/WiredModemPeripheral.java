@@ -8,10 +8,7 @@ package dan200.computercraft.shared.peripheral.modem.wired;
 import com.google.common.collect.ImmutableMap;
 import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.api.filesystem.IWritableMount;
-import dan200.computercraft.api.lua.ILuaContext;
-import dan200.computercraft.api.lua.LuaException;
-import dan200.computercraft.api.lua.LuaFunction;
-import dan200.computercraft.api.lua.MethodResult;
+import dan200.computercraft.api.lua.*;
 import dan200.computercraft.api.network.IPacketNetwork;
 import dan200.computercraft.api.network.wired.IWiredNode;
 import dan200.computercraft.api.network.wired.IWiredSender;
@@ -26,7 +23,10 @@ import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -107,14 +107,14 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements IW
     }
 
     @LuaFunction
-    public final MethodResult callRemote( IComputerAccess computer, ILuaContext context, Object[] arguments ) throws LuaException
+    public final MethodResult callRemote( IComputerAccess computer, ILuaContext context, IArguments arguments ) throws LuaException
     {
-        String remoteName = getString( arguments, 0 );
-        String methodName = getString( arguments, 1 );
+        String remoteName = arguments.getString( 0 );
+        String methodName = arguments.getString( 1 );
         RemotePeripheralWrapper wrapper = getWrapper( computer, remoteName );
         if( wrapper == null ) throw new LuaException( "No peripheral: " + remoteName );
 
-        return wrapper.callMethod( context, methodName, Arrays.copyOfRange( arguments, 2, arguments.length ) );
+        return wrapper.callMethod( context, methodName, arguments.drop( 2 ) );
     }
 
     @LuaFunction
@@ -272,7 +272,7 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements IW
             return methodMap.keySet();
         }
 
-        public MethodResult callMethod( ILuaContext context, String methodName, Object[] arguments ) throws LuaException
+        public MethodResult callMethod( ILuaContext context, String methodName, IArguments arguments ) throws LuaException
         {
             PeripheralMethod method = methodMap.get( methodName );
             if( method == null ) throw new LuaException( "No such method " + methodName );

@@ -5,10 +5,9 @@
  */
 package dan200.computercraft.core.apis.handles;
 
-import dan200.computercraft.api.lua.ArgumentHelper;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
-import dan200.computercraft.shared.util.StringUtil;
+import dan200.computercraft.api.lua.LuaValues;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -59,11 +58,11 @@ public class BinaryWritableHandle extends HandleGeneric
             else if( args.length > 0 && args[0] instanceof String )
             {
                 String value = (String) args[0];
-                writer.write( ByteBuffer.wrap( StringUtil.encodeString( value ) ) );
+                writer.write( LuaValues.encode( value ) );
             }
             else
             {
-                throw ArgumentHelper.badArgumentOf( 0, "string or number", args.length > 0 ? args[0] : null );
+                throw LuaValues.badArgumentOf( 0, "string or number", args.length > 0 ? args[0] : null );
             }
         }
         catch( IOException e )

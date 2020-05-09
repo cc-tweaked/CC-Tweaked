@@ -5,14 +5,14 @@
  */
 package dan200.computercraft.core.apis;
 
-import dan200.computercraft.api.lua.ArgumentHelper;
+import dan200.computercraft.api.lua.LuaValues;
 import dan200.computercraft.api.lua.LuaException;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Map;
 
-import static dan200.computercraft.api.lua.ArgumentHelper.getNumericType;
+import static dan200.computercraft.api.lua.LuaValues.getNumericType;
 
 /**
  * Various helpers for tables.
@@ -27,7 +27,7 @@ public final class TableHelper
     @Nonnull
     public static LuaException badKey( @Nonnull String key, @Nonnull String expected, @Nullable Object actual )
     {
-        return badKey( key, expected, ArgumentHelper.getType( actual ) );
+        return badKey( key, expected, LuaValues.getType( actual ) );
     }
 
     @Nonnull

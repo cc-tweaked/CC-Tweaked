@@ -41,9 +41,7 @@ public interface IDynamicPeripheral extends IPeripheral
      * @param method    An integer identifying which of the methods from getMethodNames() the computercraft
      *                  wishes to call. The integer indicates the index into the getMethodNames() table
      *                  that corresponds to the string passed into peripheral.call()
-     * @param arguments The arguments for this method. See {@link LuaFunction} for conversion rules.
-     *
-     *                  It is recommended you use {@link ArgumentHelper} in order to validate and process arguments.
+     * @param arguments The arguments for this method.
      * @return A {@link MethodResult} containing the values to return or the action to perform.
      * @throws LuaException If you throw any exception from this function, a lua error will be raised with the
      *                      same message as your exception. Use this to throw appropriate errors if the wrong
@@ -52,5 +50,5 @@ public interface IDynamicPeripheral extends IPeripheral
      * @see ArgumentHelper
      */
     @Nonnull
-    MethodResult callMethod( @Nonnull IComputerAccess computer, @Nonnull ILuaContext context, int method, @Nonnull Object[] arguments ) throws LuaException;
+    MethodResult callMethod( @Nonnull IComputerAccess computer, @Nonnull ILuaContext context, int method, @Nonnull IArguments arguments ) throws LuaException;
 }

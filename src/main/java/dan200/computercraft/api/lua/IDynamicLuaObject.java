@@ -35,14 +35,12 @@ public interface IDynamicLuaObject
      *                  or otherwise yield.
      * @param method    An integer identifying which method index from {@link #getMethodNames()} the computer wishes
      *                  to call.
-     * @param arguments The arguments for this method. See {@link LuaFunction} for conversion rules.
-     *
-     *                  It is recommended you use {@link ArgumentHelper} in order to validate and process arguments.
+     * @param arguments The arguments for this method.
      * @return The result of this function. Either an immediate value ({@link MethodResult#of(Object...)} or an
      * instruction to yield.
      * @throws LuaException If the function threw an exception.
      * @see ArgumentHelper
      */
     @Nonnull
-    MethodResult callMethod( @Nonnull ILuaContext context, int method, @Nonnull Object[] arguments ) throws LuaException;
+    MethodResult callMethod( @Nonnull ILuaContext context, int method, @Nonnull IArguments arguments ) throws LuaException;
 }

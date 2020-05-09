@@ -87,7 +87,7 @@ public class PeripheralAPI implements ILuaAPI, IAPIEnvironment.IPeripheralChange
             attached = false;
         }
 
-        public MethodResult call( ILuaContext context, String methodName, Object[] arguments ) throws LuaException
+        public MethodResult call( ILuaContext context, String methodName, IArguments arguments ) throws LuaException
         {
             PeripheralMethod method;
             synchronized( this )
@@ -314,11 +314,11 @@ public class PeripheralAPI implements ILuaAPI, IAPIEnvironment.IPeripheralChange
     }
 
     @LuaFunction
-    public final MethodResult call( ILuaContext context, Object[] args ) throws LuaException
+    public final MethodResult call( ILuaContext context, IArguments args ) throws LuaException
     {
-        ComputerSide side = ComputerSide.valueOfInsensitive( getString( args, 0 ) );
-        String methodName = getString( args, 1 );
-        Object[] methodArgs = Arrays.copyOfRange( args, 2, args.length );
+        ComputerSide side = ComputerSide.valueOfInsensitive( args.getString(  0 ) );
+        String methodName =  args.getString(  1 );
+        IArguments methodArgs = args.drop( 2 );
 
         if( side == null ) throw new LuaException( "No peripheral attached" );
 

@@ -11,6 +11,7 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.primitives.Primitives;
 import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.api.lua.IArguments;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.api.lua.MethodResult;
@@ -42,6 +43,9 @@ public class Generator<T>
     private static final String INTERNAL_METHOD_RESULT = Type.getInternalName( MethodResult.class );
     private static final String DESC_METHOD_RESULT = Type.getDescriptor( MethodResult.class );
 
+    private static final String INTERNAL_ARGUMENTS = Type.getInternalName( IArguments.class );
+    private static final String DESC_ARGUMENTS = Type.getDescriptor( IArguments.class );
+
     private final Class<T> base;
     private final List<Class<?>> context;
 
@@ -67,7 +71,7 @@ public class Generator<T>
 
         StringBuilder methodDesc = new StringBuilder().append( "(Ljava/lang/Object;" );
         for( Class<?> klass : context ) methodDesc.append( Type.getDescriptor( klass ) );
-        methodDesc.append( "[Ljava/lang/Object;)" ).append( DESC_METHOD_RESULT );
+        methodDesc.append( DESC_ARGUMENTS ).append( ")" ).append( DESC_METHOD_RESULT );
         this.methodDesc = methodDesc.toString();
     }
 
@@ -200,9 +204,14 @@ public class Generator<T>
 
             for( Class<?> arg : method.getParameterTypes() )
             {
-                if( arg == Object[].class )
+                if( arg == IArguments.class )
                 {
                     mw.visitVarInsn( ALOAD, 2 + context.size() );
+                }
+                else if( arg == Object[].class )
+                {
+                    mw.visitVarInsn( ALOAD, 2 + context.size() );
+                    mw.visitMethodInsn( INVOKEINTERFACE, INTERNAL_ARGUMENTS, "getAll", "()[Ljava/lang/Object;", true );
                 }
                 else
                 {
