@@ -118,7 +118,11 @@ public class CobaltLuaMachine implements ILuaMachine
     {
         // Add the methods of an API to the global table
         LuaTable table = wrapLuaObject( api );
-        if( table == null ) table = new LuaTable();
+        if( table == null )
+        {
+            ComputerCraft.log.warn( "API {} does not provide any methods", api );
+            table = new LuaTable();
+        }
 
         String[] names = api.getNames();
         for( String name : names ) m_globals.rawset( name, table );
