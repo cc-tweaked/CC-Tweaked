@@ -175,9 +175,9 @@ public abstract class TermMethods
         }
         else
         {
-            double r = args.getInt( 1 );
-            double g = args.getInt( 2 );
-            double b = args.getInt( 3 );
+            double r = args.getFiniteDouble( 1 );
+            double g = args.getFiniteDouble( 2 );
+            double b = args.getFiniteDouble( 3 );
             setColour( getTerminal(), colour, r, g, b );
         }
     }

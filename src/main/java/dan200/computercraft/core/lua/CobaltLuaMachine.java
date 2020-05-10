@@ -248,7 +248,7 @@ public class CobaltLuaMachine implements ILuaMachine
     }
 
     @Nonnull
-    private LuaValue toValue( @Nullable Object object, @Nonnull Map<Object, LuaValue> values )
+    private LuaValue toValue( @Nullable Object object, @Nullable Map<Object, LuaValue> values )
     {
         if( object == null ) return Constants.NIL;
         if( object instanceof Number ) return valueOf( ((Number) object).doubleValue() );
@@ -267,6 +267,7 @@ public class CobaltLuaMachine implements ILuaMachine
             return valueOf( bytes );
         }
 
+        if( values == null ) values = new IdentityHashMap<>( 1 );
         LuaValue result = values.get( object );
         if( result != null ) return result;
 
@@ -328,6 +329,7 @@ public class CobaltLuaMachine implements ILuaMachine
     Varargs toValues( Object[] objects )
     {
         if( objects == null || objects.length == 0 ) return Constants.NONE;
+        if( objects.length == 1 ) return toValue( objects[0], null );
 
         Map<Object, LuaValue> result = new IdentityHashMap<>( 0 );
         LuaValue[] values = new LuaValue[objects.length];
@@ -412,7 +414,7 @@ public class CobaltLuaMachine implements ILuaMachine
 
     static IArguments toArguments( Varargs values )
     {
-        return values.count() == 0 ? VarargArguments.EMPTY : new VarargArguments( values );
+        return values == Constants.NONE ? VarargArguments.EMPTY : new VarargArguments( values );
     }
 
     /**
