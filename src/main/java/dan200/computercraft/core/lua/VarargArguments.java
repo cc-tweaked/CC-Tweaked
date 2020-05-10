@@ -66,7 +66,7 @@ class VarargArguments implements IArguments
     public double getDouble( int index ) throws LuaException
     {
         LuaValue value = varargs.arg( index + 1 );
-        if( !(value instanceof LuaNumber) ) throw LuaValues.badArgument( index, "double", value.typeName() );
+        if( !(value instanceof LuaNumber) ) throw LuaValues.badArgument( index, "number", value.typeName() );
         return value.toDouble();
     }
 
@@ -74,7 +74,7 @@ class VarargArguments implements IArguments
     public long getLong( int index ) throws LuaException
     {
         LuaValue value = varargs.arg( index + 1 );
-        if( !(value instanceof LuaNumber) ) throw LuaValues.badArgument( index, "double", value.typeName() );
+        if( !(value instanceof LuaNumber) ) throw LuaValues.badArgument( index, "number", value.typeName() );
         return value instanceof LuaInteger ? value.toInteger() : (long) LuaValues.checkFinite( index, value.toDouble() );
     }
 
