@@ -226,7 +226,7 @@ public final class Environment implements IAPIEnvironment
         if( inputChanged )
         {
             inputChanged = false;
-            queueEvent( "redstone", null );
+            queueEvent( "redstone" );
         }
 
         synchronized( timers )
@@ -241,7 +241,7 @@ public final class Environment implements IAPIEnvironment
                 if( timer.ticksLeft <= 0 )
                 {
                     // Queue the "timer" event
-                    queueEvent( TIMER_EVENT, new Object[] { entry.getIntKey() } );
+                    queueEvent( TIMER_EVENT, entry.getIntKey() );
                     it.remove();
                 }
             }

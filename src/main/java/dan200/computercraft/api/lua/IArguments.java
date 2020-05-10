@@ -96,7 +96,7 @@ public interface IArguments
     {
         Object value = get( index );
         if( !(value instanceof Number) ) throw LuaValues.badArgumentOf( index, "number", value );
-        return LuaValues.checkFiniteNum( index, ((Number) value) ).longValue();
+        return LuaValues.checkFiniteNum( index, (Number) value ).longValue();
     }
 
     /**
@@ -122,7 +122,7 @@ public interface IArguments
     {
         Object value = get( index );
         if( !(value instanceof Boolean) ) throw LuaValues.badArgumentOf( index, "boolean", value );
-        return ((Boolean) value);
+        return (Boolean) value;
     }
 
     /**
@@ -137,7 +137,7 @@ public interface IArguments
     {
         Object value = get( index );
         if( !(value instanceof String) ) throw LuaValues.badArgumentOf( index, "string", value );
-        return ((String) value);
+        return (String) value;
     }
 
     /**
@@ -157,6 +157,8 @@ public interface IArguments
      * Get a string argument as an enum value.
      *
      * @param index The argument number.
+     * @param klass The type of enum to parse.
+     * @param <T>   The type of enum to parse.
      * @return The argument's value.
      * @throws LuaException If the value is not a string or not a valid option for this enum.
      */
@@ -178,7 +180,7 @@ public interface IArguments
     {
         Object value = get( index );
         if( !(value instanceof Map) ) throw LuaValues.badArgumentOf( index, "table", value );
-        return ((Map<?, ?>) value);
+        return (Map<?, ?>) value;
     }
 
     /**
@@ -222,7 +224,7 @@ public interface IArguments
         Object value = get( index );
         if( value == null ) return Optional.empty();
         if( !(value instanceof Number) ) throw LuaValues.badArgumentOf( index, "number", value );
-        return Optional.of( LuaValues.checkFiniteNum( index, ((Number) value) ).longValue() );
+        return Optional.of( LuaValues.checkFiniteNum( index, (Number) value ).longValue() );
     }
 
     /**
@@ -251,7 +253,7 @@ public interface IArguments
         Object value = get( index );
         if( value == null ) return Optional.empty();
         if( !(value instanceof Boolean) ) throw LuaValues.badArgumentOf( index, "boolean", value );
-        return Optional.of( ((Boolean) value) );
+        return Optional.of( (Boolean) value );
     }
 
     /**
@@ -266,7 +268,7 @@ public interface IArguments
         Object value = get( index );
         if( value == null ) return Optional.empty();
         if( !(value instanceof String) ) throw LuaValues.badArgumentOf( index, "string", value );
-        return Optional.of( ((String) value) );
+        return Optional.of( (String) value );
     }
 
     /**
@@ -285,6 +287,8 @@ public interface IArguments
      * Get a string argument as an enum value.
      *
      * @param index The argument number.
+     * @param klass The type of enum to parse.
+     * @param <T>   The type of enum to parse.
      * @return The argument's value.
      * @throws LuaException If the value is not a string or not a valid option for this enum.
      */
@@ -307,7 +311,7 @@ public interface IArguments
         Object value = get( index );
         if( value == null ) return Optional.empty();
         if( !(value instanceof Map) ) throw LuaValues.badArgumentOf( index, "map", value );
-        return Optional.of( ((Map<?, ?>) value) );
+        return Optional.of( (Map<?, ?>) value );
     }
 
     /**

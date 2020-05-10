@@ -339,7 +339,7 @@ public class CobaltLuaMachine implements ILuaMachine
         return varargsOf( values );
     }
 
-    private static Object toObject( LuaValue value, Map<LuaValue, Object> objects )
+    static Object toObject( LuaValue value, Map<LuaValue, Object> objects )
     {
         switch( value.type() )
         {
@@ -359,11 +359,12 @@ public class CobaltLuaMachine implements ILuaMachine
                 // Start remembering stuff
                 if( objects == null )
                 {
-                    objects = new IdentityHashMap<>();
+                    objects = new IdentityHashMap<>( 1 );
                 }
-                else if( objects.containsKey( value ) )
+                else
                 {
-                    return objects.get( value );
+                    Object existing = objects.get( value );
+                    if( existing != null ) return existing;
                 }
                 Map<Object, Object> table = new HashMap<>();
                 objects.put( value, table );
@@ -384,10 +385,7 @@ public class CobaltLuaMachine implements ILuaMachine
                         break;
                     }
                     k = keyValue.first();
-                    if( k.isNil() )
-                    {
-                        break;
-                    }
+                    if( k.isNil() ) break;
 
                     LuaValue v = keyValue.arg( 2 );
                     Object keyObject = toObject( k, objects );
@@ -404,22 +402,17 @@ public class CobaltLuaMachine implements ILuaMachine
         }
     }
 
-    static Object[] toObjects( Varargs values, int startIdx )
+    static Object[] toObjects( Varargs values )
     {
         int count = values.count();
-        Object[] objects = new Object[count - startIdx + 1];
-        for( int n = startIdx; n <= count; n++ )
-        {
-            int i = n - startIdx;
-            LuaValue value = values.arg( n );
-            objects[i] = toObject( value, null );
-        }
+        Object[] objects = new Object[count];
+        for( int i = 0; i < count; i++ ) objects[i] = toObject( values.arg( i + 1 ), null );
         return objects;
     }
 
     static IArguments toArguments( Varargs values )
     {
-        return new ObjectArguments( toObjects( values, 1 ) );
+        return values.count() == 0 ? VarargArguments.EMPTY : new VarargArguments( values );
     }
 
     /**

@@ -9,6 +9,7 @@ import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.core.apis.ObjectWrapper;
 import org.junit.jupiter.api.Test;
 
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
@@ -27,16 +28,15 @@ public class BinaryReadableHandleTest
     public void testReadShortComplete() throws LuaException
     {
         ObjectWrapper wrapper = fromLength( 10 );
-        assertEquals( 5, wrapper.<byte[]>callOf( "read", 5 ).length );
+        assertEquals( 5, wrapper.<ByteBuffer>callOf( "read", 5 ).remaining() );
     }
 
     @Test
     public void testReadShortPartial() throws LuaException
     {
         ObjectWrapper wrapper = fromLength( 5 );
-        assertEquals( 5, wrapper.<byte[]>callOf( "read", 10 ).length );
+        assertEquals( 5, wrapper.<ByteBuffer>callOf( "read", 10 ).remaining() );
     }
-
 
     @Test
     public void testReadLongComplete() throws LuaException
@@ -56,7 +56,7 @@ public class BinaryReadableHandleTest
     public void testReadLongPartialSmaller() throws LuaException
     {
         ObjectWrapper wrapper = fromLength( 1000 );
-        assertEquals( 1000, wrapper.<byte[]>callOf( "read", 11000 ).length );
+        assertEquals( 1000, wrapper.<ByteBuffer>callOf( "read", 11000 ).remaining() );
     }
 
     @Test

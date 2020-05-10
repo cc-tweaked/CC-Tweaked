@@ -380,10 +380,14 @@ public class ComputerTestDelegate
         }
 
         @LuaFunction
-        public final void submit( Map<?, ?> tbl ) throws LuaException
+        public final void submit( Map<?, ?> tbl )
         {
             //  Submit the result of a test, allowing the test executor to continue
             String name = (String) tbl.get( "name" );
+            if( name == null )
+            {
+                ComputerCraft.log.error( "Oh no: {}", tbl );
+            }
             String status = (String) tbl.get( "status" );
             String message = (String) tbl.get( "message" );
             String trace = (String) tbl.get( "trace" );

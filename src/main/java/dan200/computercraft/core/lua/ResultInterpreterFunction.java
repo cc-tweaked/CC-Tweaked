@@ -82,7 +82,7 @@ class ResultInterpreterFunction extends ResumableVarArgFunction<ResultInterprete
     protected Varargs resumeThis( LuaState state, Container container, Varargs args ) throws LuaError, UnwindThrowable
     {
         MethodResult results;
-        Object[] arguments = CobaltLuaMachine.toObjects( args, 1 );
+        Object[] arguments = CobaltLuaMachine.toObjects( args );
         try
         {
             results = container.callback.resume( arguments );
