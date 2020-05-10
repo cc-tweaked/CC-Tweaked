@@ -9,10 +9,7 @@ package dan200.computercraft.core.lua;
 import dan200.computercraft.api.lua.IArguments;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaValues;
-import org.squiddev.cobalt.Constants;
-import org.squiddev.cobalt.LuaString;
-import org.squiddev.cobalt.LuaValue;
-import org.squiddev.cobalt.Varargs;
+import org.squiddev.cobalt.*;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -63,6 +60,22 @@ class VarargArguments implements IArguments
         if( count < 0 ) throw new IllegalStateException( "count cannot be negative" );
         if( count == 0 ) return this;
         return new VarargArguments( varargs.subargs( count + 1 ) );
+    }
+
+    @Override
+    public double getDouble( int index ) throws LuaException
+    {
+        LuaValue value = varargs.arg( index + 1 );
+        if( !(value instanceof LuaNumber) ) throw LuaValues.badArgument( index, "double", value.typeName() );
+        return value.toDouble();
+    }
+
+    @Override
+    public long getLong( int index ) throws LuaException
+    {
+        LuaValue value = varargs.arg( index + 1 );
+        if( !(value instanceof LuaNumber) ) throw LuaValues.badArgument( index, "double", value.typeName() );
+        return value instanceof LuaInteger ? value.toInteger() : (long) LuaValues.checkFinite( index, value.toDouble() );
     }
 
     @Nonnull

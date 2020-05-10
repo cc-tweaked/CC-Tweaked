@@ -24,18 +24,18 @@ import java.util.function.Consumer;
 public class ComputerBootstrap
 {
     private static final int TPS = 20;
-    private static final int MAX_TIME = 10;
+    public static final int MAX_TIME = 10;
 
-    public static void run( String program )
+    public static void run( String program, int maxTimes )
     {
         MemoryMount mount = new MemoryMount()
             .addFile( "test.lua", program )
             .addFile( "startup", "assertion.assert(pcall(loadfile('test.lua', nil, _ENV))) os.shutdown()" );
 
-        run( mount, x -> { } );
+        run( mount, x -> { }, maxTimes );
     }
 
-    public static void run( IWritableMount mount, Consumer<Computer> setup )
+    public static void run( IWritableMount mount, Consumer<Computer> setup, int maxTicks )
     {
         ComputerCraft.logPeripheralErrors = true;
 
@@ -52,7 +52,7 @@ public class ComputerBootstrap
             computer.turnOn();
             boolean everOn = false;
 
-            for( int tick = 0; tick < TPS * MAX_TIME; tick++ )
+            for( int tick = 0; tick < TPS * maxTicks; tick++ )
             {
                 long start = System.currentTimeMillis();
 
