@@ -261,13 +261,6 @@ public class Generator<T>
             return false;
         }
 
-        if( arg == Object[].class )
-        {
-            mw.visitVarInsn( ALOAD, 2 + context.size() );
-            mw.visitMethodInsn( INVOKEINTERFACE, INTERNAL_ARGUMENTS, "getAll", "()[Ljava/lang/Object;", true );
-            return false;
-        }
-
         int idx = context.indexOf( arg );
         if( idx >= 0 )
         {
@@ -280,23 +273,42 @@ public class Generator<T>
             Class<?> klass = Reflect.getRawType( method, TypeToken.of( genericArg ).resolveType( Reflect.OPTIONAL_IN ).getType(), false );
             if( klass == null ) return null;
 
+            if( Enum.class.isAssignableFrom( klass ) && klass != Enum.class )
+            {
+                mw.visitVarInsn( ALOAD, 2 + context.size() );
+                Reflect.loadInt( mw, argIndex );
+                mw.visitLdcInsn( Type.getType( klass ) );
+                mw.visitMethodInsn( INVOKEINTERFACE, INTERNAL_ARGUMENTS, "optEnum", "(ILjava/lang/Class;)Ljava/util/Optional;", true );
+                return true;
+            }
+
             String name = Reflect.getLuaName( Primitives.unwrap( klass ) );
             if( name != null )
             {
                 mw.visitVarInsn( ALOAD, 2 + context.size() );
-                loadInt( mw, argIndex );
+                Reflect.loadInt( mw, argIndex );
                 mw.visitMethodInsn( INVOKEINTERFACE, INTERNAL_ARGUMENTS, "opt" + name, "(I)Ljava/util/Optional;", true );
                 return true;
             }
         }
 
-        String name = Reflect.getLuaName( arg );
+        if( Enum.class.isAssignableFrom( arg ) && arg != Enum.class )
+        {
+            mw.visitVarInsn( ALOAD, 2 + context.size() );
+            Reflect.loadInt( mw, argIndex );
+            mw.visitLdcInsn( Type.getType( arg ) );
+            mw.visitMethodInsn( INVOKEINTERFACE, INTERNAL_ARGUMENTS, "getEnum", "(ILjava/lang/Class;)Ljava/lang/Enum;", true );
+            mw.visitTypeInsn( CHECKCAST, Type.getInternalName( arg ) );
+            return true;
+        }
+
+        String name = arg == Object.class ? "" : Reflect.getLuaName( arg );
         if( name != null )
         {
             if( Reflect.getRawType( method, genericArg, false ) == null ) return null;
 
             mw.visitVarInsn( ALOAD, 2 + context.size() );
-            loadInt( mw, argIndex );
+            Reflect.loadInt( mw, argIndex );
             mw.visitMethodInsn( INVOKEINTERFACE, INTERNAL_ARGUMENTS, "get" + name, "(I)" + Type.getDescriptor( arg ), true );
             return true;
         }
@@ -305,17 +317,4 @@ public class Generator<T>
             arg.getName(), method.getDeclaringClass().getName(), method.getName() );
         return null;
     }
-
-    private static void loadInt( MethodVisitor visitor, int value )
-    {
-        if( value >= -1 && value <= 5 )
-        {
-            visitor.visitInsn( ICONST_0 + value );
-        }
-        else
-        {
-            visitor.visitLdcInsn( value );
-        }
-    }
-
 }

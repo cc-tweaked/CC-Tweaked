@@ -5,6 +5,8 @@
  */
 package dan200.computercraft.shared.util;
 
+import javax.annotation.Nullable;
+
 public final class StringUtil
 {
     private StringUtil() {}
@@ -29,5 +31,10 @@ public final class StringUtil
         }
 
         return builder.toString();
+    }
+
+    public static String toString( @Nullable Object value )
+    {
+        return value == null ? "" : value.toString();
     }
 }

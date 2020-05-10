@@ -42,7 +42,6 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Stream;
 
-import static dan200.computercraft.api.lua.ArgumentHelper.getTable;
 import static dan200.computercraft.api.lua.LuaValues.getType;
 
 /**
@@ -303,12 +302,12 @@ public class ComputerTestDelegate
         }
 
         @LuaFunction
-        public final void start( Object[] arguments ) throws LuaException
+        public final void start( Map<?, ?> tests ) throws LuaException
         {
             // Submit several tests and signal for #get to run
             LOG.info( "Received tests from computer" );
             DynamicNodeBuilder root = new DynamicNodeBuilder( "" );
-            for( Object key : getTable( arguments, 0 ).keySet() )
+            for( Object key : tests.keySet() )
             {
                 if( !(key instanceof String) ) throw new LuaException( "Non-key string " + getType( key ) );
 
@@ -371,7 +370,7 @@ public class ComputerTestDelegate
             }
             try
             {
-                tests = root;
+                ComputerTestDelegate.this.tests = root;
                 hasTests.signal();
             }
             finally
@@ -381,11 +380,9 @@ public class ComputerTestDelegate
         }
 
         @LuaFunction
-        public final void submit( Object[] arguments ) throws LuaException
+        public final void submit( Map<?, ?> tbl ) throws LuaException
         {
             //  Submit the result of a test, allowing the test executor to continue
-
-            Map<?, ?> tbl = getTable( arguments, 0 );
             String name = (String) tbl.get( "name" );
             String status = (String) tbl.get( "status" );
             String message = (String) tbl.get( "message" );

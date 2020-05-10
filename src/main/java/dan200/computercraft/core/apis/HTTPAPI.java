@@ -6,6 +6,7 @@
 package dan200.computercraft.core.apis;
 
 import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.api.lua.IArguments;
 import dan200.computercraft.api.lua.ILuaAPI;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
@@ -21,8 +22,8 @@ import java.net.URI;
 import java.util.Collections;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 
-import static dan200.computercraft.api.lua.ArgumentHelper.*;
 import static dan200.computercraft.core.apis.TableHelper.*;
 
 public class HTTPAPI implements ILuaAPI
@@ -69,15 +70,15 @@ public class HTTPAPI implements ILuaAPI
     }
 
     @LuaFunction
-    public final Object[] request( Object[] args ) throws LuaException
+    public final Object[] request( IArguments args ) throws LuaException
     {
         String address, postString, requestMethod;
         Map<?, ?> headerTable;
         boolean binary, redirect;
 
-        if( args.length >= 1 && args[0] instanceof Map )
+        if( args.get( 0 ) instanceof Map )
         {
-            Map<?, ?> options = (Map<?, ?>) args[0];
+            Map<?, ?> options = args.getTable( 0 );
             address = getStringField( options, "url" );
             postString = optStringField( options, "body", null );
             headerTable = optTableField( options, "headers", Collections.emptyMap() );
@@ -89,10 +90,10 @@ public class HTTPAPI implements ILuaAPI
         else
         {
             // Get URL and post information
-            address = getString( args, 0 );
-            postString = optString( args, 1, null );
-            headerTable = optTable( args, 2, Collections.emptyMap() );
-            binary = optBoolean( args, 3, false );
+            address = args.getString( 0 );
+            postString = args.optString( 1, null );
+            headerTable = args.optTable( 2, Collections.emptyMap() );
+            binary = args.optBoolean( 3, false );
             requestMethod = null;
             redirect = true;
         }
@@ -136,10 +137,8 @@ public class HTTPAPI implements ILuaAPI
     }
 
     @LuaFunction
-    public final Object[] checkURL( Object[] args ) throws LuaException
+    public final Object[] checkURL( String address )
     {
-        String address = getString( args, 0 );
-
         try
         {
             URI uri = HttpRequest.checkUri( address );
@@ -154,17 +153,14 @@ public class HTTPAPI implements ILuaAPI
     }
 
     @LuaFunction
-    public final Object[] websocket( Object[] args ) throws LuaException
+    public final Object[] websocket( String address, Optional<Map<?, ?>> headerTbl ) throws LuaException
     {
-        String address = getString( args, 0 );
-        Map<?, ?> headerTbl = optTable( args, 1, Collections.emptyMap() );
-
         if( !ComputerCraft.httpWebsocketEnabled )
         {
             throw new LuaException( "Websocket connections are disabled" );
         }
 
-        HttpHeaders headers = getHeaders( headerTbl );
+        HttpHeaders headers = getHeaders( headerTbl.orElse( Collections.emptyMap() ) );
 
         try
         {

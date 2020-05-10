@@ -5,10 +5,7 @@
  */
 package dan200.computercraft.shared.turtle.apis;
 
-import dan200.computercraft.api.lua.ILuaAPI;
-import dan200.computercraft.api.lua.LuaException;
-import dan200.computercraft.api.lua.LuaFunction;
-import dan200.computercraft.api.lua.MethodResult;
+import dan200.computercraft.api.lua.*;
 import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.ITurtleCommand;
 import dan200.computercraft.api.turtle.TurtleCommandResult;
@@ -23,11 +20,9 @@ import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.registries.ForgeRegistries;
 
-import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
-
-import static dan200.computercraft.api.lua.ArgumentHelper.*;
+import java.util.Optional;
 
 public class TurtleAPI implements ILuaAPI
 {
@@ -50,36 +45,6 @@ public class TurtleAPI implements ILuaAPI
     {
         environment.addTrackingChange( TrackingField.TURTLE_OPS );
         return turtle.executeCommand( command );
-    }
-
-    private int parseSlotNumber( Object[] arguments, int index ) throws LuaException
-    {
-        int slot = getInt( arguments, index );
-        if( slot < 1 || slot > 16 ) throw new LuaException( "Slot number " + slot + " out of range" );
-        return slot - 1;
-    }
-
-    private int parseOptionalSlotNumber( Object[] arguments, int index, int fallback ) throws LuaException
-    {
-        if( index >= arguments.length || arguments[index] == null ) return fallback;
-        return parseSlotNumber( arguments, index );
-    }
-
-    private static int parseCount( Object[] arguments, int index ) throws LuaException
-    {
-        int count = optInt( arguments, index, 64 );
-        if( count < 0 || count > 64 ) throw new LuaException( "Item count " + count + " out of range" );
-        return count;
-    }
-
-    @Nullable
-    private static TurtleSide parseSide( Object[] arguments, int index ) throws LuaException
-    {
-        String side = optString( arguments, index, null );
-        if( side == null ) return null;
-        if( side.equalsIgnoreCase( "left" ) ) return TurtleSide.LEFT;
-        if( side.equalsIgnoreCase( "right" ) ) return TurtleSide.RIGHT;
-        throw new LuaException( "Invalid side" );
     }
 
     @LuaFunction
@@ -119,90 +84,84 @@ public class TurtleAPI implements ILuaAPI
     }
 
     @LuaFunction
-    public final MethodResult dig( Object[] args ) throws LuaException
+    public final MethodResult dig( Optional<TurtleSide> side )
     {
-        TurtleSide side = parseSide( args, 0 );
         environment.addTrackingChange( TrackingField.TURTLE_OPS );
-        return trackCommand( TurtleToolCommand.dig( InteractDirection.FORWARD, side ) );
+        return trackCommand( TurtleToolCommand.dig( InteractDirection.FORWARD, side.orElse( null ) ) );
     }
 
     @LuaFunction
-    public final MethodResult digUp( Object[] args ) throws LuaException
+    public final MethodResult digUp( Optional<TurtleSide> side )
     {
-        TurtleSide side = parseSide( args, 0 );
         environment.addTrackingChange( TrackingField.TURTLE_OPS );
-        return trackCommand( TurtleToolCommand.dig( InteractDirection.UP, side ) );
+        return trackCommand( TurtleToolCommand.dig( InteractDirection.UP, side.orElse( null ) ) );
     }
 
     @LuaFunction
-    public final MethodResult digDown( Object[] args ) throws LuaException
+    public final MethodResult digDown( Optional<TurtleSide> side )
     {
-        TurtleSide side = parseSide( args, 0 );
         environment.addTrackingChange( TrackingField.TURTLE_OPS );
-        return trackCommand( TurtleToolCommand.dig( InteractDirection.DOWN, side ) );
+        return trackCommand( TurtleToolCommand.dig( InteractDirection.DOWN, side.orElse( null ) ) );
     }
 
     @LuaFunction
-    public final MethodResult place( Object[] args )
+    public final MethodResult place( IArguments args )
     {
-        return trackCommand( new TurtlePlaceCommand( InteractDirection.FORWARD, args ) );
+        return trackCommand( new TurtlePlaceCommand( InteractDirection.FORWARD, args.getAll() ) );
     }
 
     @LuaFunction
-    public final MethodResult placeUp( Object[] args )
+    public final MethodResult placeUp( IArguments args )
     {
-        return trackCommand( new TurtlePlaceCommand( InteractDirection.UP, args ) );
+        return trackCommand( new TurtlePlaceCommand( InteractDirection.UP, args.getAll() ) );
     }
 
     @LuaFunction
-    public final MethodResult placeDown( Object[] args )
+    public final MethodResult placeDown( IArguments args )
     {
-        return trackCommand( new TurtlePlaceCommand( InteractDirection.DOWN, args ) );
+        return trackCommand( new TurtlePlaceCommand( InteractDirection.DOWN, args.getAll() ) );
     }
 
     @LuaFunction
-    public final MethodResult drop( Object[] args ) throws LuaException
+    public final MethodResult drop( Optional<Integer> count ) throws LuaException
     {
-        int count = parseCount( args, 0 );
-        return trackCommand( new TurtleDropCommand( InteractDirection.FORWARD, count ) );
+        return trackCommand( new TurtleDropCommand( InteractDirection.FORWARD, checkCount( count ) ) );
     }
 
     @LuaFunction
-    public final MethodResult dropUp( Object[] args ) throws LuaException
+    public final MethodResult dropUp( Optional<Integer> count ) throws LuaException
     {
-        int count = parseCount( args, 0 );
-        return trackCommand( new TurtleDropCommand( InteractDirection.UP, count ) );
+        return trackCommand( new TurtleDropCommand( InteractDirection.UP, checkCount( count ) ) );
     }
 
     @LuaFunction
-    public final MethodResult dropDown( Object[] args ) throws LuaException
+    public final MethodResult dropDown( Optional<Integer> count ) throws LuaException
     {
-        int count = parseCount( args, 0 );
-        return trackCommand( new TurtleDropCommand( InteractDirection.DOWN, count ) );
+        return trackCommand( new TurtleDropCommand( InteractDirection.DOWN, checkCount( count ) ) );
     }
 
     @LuaFunction
-    public final MethodResult select( Object[] args ) throws LuaException
+    public final MethodResult select( int slot ) throws LuaException
     {
-        int slot = parseSlotNumber( args, 0 );
+        int actualSlot = checkSlot( slot );
         return turtle.executeCommand( turtle -> {
-            turtle.setSelectedSlot( slot );
+            turtle.setSelectedSlot( actualSlot );
             return TurtleCommandResult.success();
         } );
     }
 
     @LuaFunction
-    public final int getItemCount( Object[] args ) throws LuaException
+    public final int getItemCount( Optional<Integer> slot ) throws LuaException
     {
-        int slot = parseOptionalSlotNumber( args, 0, turtle.getSelectedSlot() );
-        return turtle.getInventory().getStackInSlot( slot ).getCount();
+        int actualSlot = checkSlot( slot ).orElse( turtle.getSelectedSlot() );
+        return turtle.getInventory().getStackInSlot( actualSlot ).getCount();
     }
 
     @LuaFunction
-    public final int getItemSpace( Object[] args ) throws LuaException
+    public final int getItemSpace( Optional<Integer> slot ) throws LuaException
     {
-        int slot = parseOptionalSlotNumber( args, 0, turtle.getSelectedSlot() );
-        ItemStack stack = turtle.getInventory().getStackInSlot( slot );
+        int actualSlot = checkSlot( slot ).orElse( turtle.getSelectedSlot() );
+        ItemStack stack = turtle.getInventory().getStackInSlot( actualSlot );
         return stack.isEmpty() ? 64 : Math.min( stack.getMaxStackSize(), 64 ) - stack.getCount();
     }
 
@@ -243,48 +202,39 @@ public class TurtleAPI implements ILuaAPI
     }
 
     @LuaFunction
-    public final MethodResult attack( Object[] args ) throws LuaException
+    public final MethodResult attack( Optional<TurtleSide> side )
     {
-        TurtleSide side = parseSide( args, 0 );
-        return trackCommand( TurtleToolCommand.attack( InteractDirection.FORWARD, side ) );
+        return trackCommand( TurtleToolCommand.attack( InteractDirection.FORWARD, side.orElse( null ) ) );
     }
 
     @LuaFunction
-    public final MethodResult attackUp( Object[] args ) throws LuaException
+    public final MethodResult attackUp( Optional<TurtleSide> side )
     {
-        TurtleSide side = parseSide( args, 0 );
-        return trackCommand( TurtleToolCommand.attack( InteractDirection.UP, side ) );
+        return trackCommand( TurtleToolCommand.attack( InteractDirection.UP, side.orElse( null ) ) );
     }
 
     @LuaFunction
-    public final MethodResult attackDown( Object[] args ) throws LuaException
+    public final MethodResult attackDown( Optional<TurtleSide> side )
     {
-        TurtleSide side = parseSide( args, 0 );
-        return trackCommand( TurtleToolCommand.attack( InteractDirection.DOWN, side ) );
+        return trackCommand( TurtleToolCommand.attack( InteractDirection.DOWN, side.orElse( null ) ) );
     }
 
     @LuaFunction
-    public final MethodResult suck( Object[] args ) throws LuaException
+    public final MethodResult suck( Optional<Integer> count ) throws LuaException
     {
-        int count = parseCount( args, 0 );
-        environment.addTrackingChange( TrackingField.TURTLE_OPS );
-        return trackCommand( new TurtleSuckCommand( InteractDirection.FORWARD, count ) );
+        return trackCommand( new TurtleSuckCommand( InteractDirection.FORWARD, checkCount( count ) ) );
     }
 
     @LuaFunction
-    public final MethodResult suckUp( Object[] args ) throws LuaException
+    public final MethodResult suckUp( Optional<Integer> count ) throws LuaException
     {
-        int count = parseCount( args, 0 );
-        environment.addTrackingChange( TrackingField.TURTLE_OPS );
-        return trackCommand( new TurtleSuckCommand( InteractDirection.UP, count ) );
+        return trackCommand( new TurtleSuckCommand( InteractDirection.UP, checkCount( count ) ) );
     }
 
     @LuaFunction
-    public final MethodResult suckDown( Object[] args ) throws LuaException
+    public final MethodResult suckDown( Optional<Integer> count ) throws LuaException
     {
-        int count = parseCount( args, 0 );
-        environment.addTrackingChange( TrackingField.TURTLE_OPS );
-        return trackCommand( new TurtleSuckCommand( InteractDirection.DOWN, count ) );
+        return trackCommand( new TurtleSuckCommand( InteractDirection.DOWN, checkCount( count ) ) );
     }
 
     @LuaFunction
@@ -294,25 +244,24 @@ public class TurtleAPI implements ILuaAPI
     }
 
     @LuaFunction
-    public final MethodResult refuel( Object[] args ) throws LuaException
+    public final MethodResult refuel( Optional<Integer> countA ) throws LuaException
     {
-        int count = optInt( args, 0, Integer.MAX_VALUE );
+        int count = countA.orElse( Integer.MAX_VALUE );
         if( count < 0 ) throw new LuaException( "Refuel count " + count + " out of range" );
         return trackCommand( new TurtleRefuelCommand( count ) );
     }
 
     @LuaFunction
-    public final MethodResult compareTo( Object[] args ) throws LuaException
+    public final MethodResult compareTo( int slot ) throws LuaException
     {
-        int slot = parseSlotNumber( args, 0 );
-        return trackCommand( new TurtleCompareToCommand( slot ) );
+        return trackCommand( new TurtleCompareToCommand( checkSlot( slot ) ) );
     }
 
     @LuaFunction
-    public final MethodResult transferTo( Object[] args ) throws LuaException
+    public final MethodResult transferTo( int slotArg, Optional<Integer> countArg ) throws LuaException
     {
-        int slot = parseSlotNumber( args, 0 );
-        int count = parseCount( args, 1 );
+        int slot = checkSlot( slotArg );
+        int count = checkCount( countArg );
         return trackCommand( new TurtleTransferToCommand( slot, count ) );
     }
 
@@ -359,12 +308,12 @@ public class TurtleAPI implements ILuaAPI
     }
 
     @LuaFunction
-    public final Object[] getItemDetail( Object[] args ) throws LuaException
+    public final Object[] getItemDetail( Optional<Integer> slotArg ) throws LuaException
     {
         // FIXME: There's a race condition here if the stack is being modified (mutating NBT, etc...)
         //  on another thread. The obvious solution is to move this into a command, but some programs rely
         //  on this having a 0-tick delay.
-        int slot = parseOptionalSlotNumber( args, 0, turtle.getSelectedSlot() );
+        int slot = checkSlot( slotArg ).orElse( turtle.getSelectedSlot() );
         ItemStack stack = turtle.getInventory().getStackInSlot( slot );
         if( stack.isEmpty() ) return new Object[] { null };
 
@@ -380,5 +329,24 @@ public class TurtleAPI implements ILuaAPI
         if( MinecraftForge.EVENT_BUS.post( event ) ) return new Object[] { false, event.getFailureMessage() };
 
         return new Object[] { table };
+    }
+
+
+    private static int checkSlot( int slot ) throws LuaException
+    {
+        if( slot < 1 || slot > 16 ) throw new LuaException( "Slot number " + slot + " out of range" );
+        return slot - 1;
+    }
+
+    private static Optional<Integer> checkSlot( Optional<Integer> slot ) throws LuaException
+    {
+        return slot.isPresent() ? Optional.of( checkSlot( slot.get() ) ) : Optional.empty();
+    }
+
+    private static int checkCount( Optional<Integer> countArg ) throws LuaException
+    {
+        int count = countArg.orElse( 64 );
+        if( count < 0 || count > 64 ) throw new LuaException( "Item count " + count + " out of range" );
+        return count;
     }
 }

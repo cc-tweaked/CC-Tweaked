@@ -16,8 +16,7 @@ import dan200.computercraft.shared.util.StringUtil;
 import net.minecraft.item.ItemStack;
 
 import javax.annotation.Nonnull;
-
-import static dan200.computercraft.api.lua.ArgumentHelper.optString;
+import java.util.Optional;
 
 public class DiskDrivePeripheral implements IPeripheral
 {
@@ -50,9 +49,9 @@ public class DiskDrivePeripheral implements IPeripheral
     }
 
     @LuaFunction( mainThread = true )
-    public final void setDiskLabel( Object[] arguments ) throws LuaException
+    public final void setDiskLabel( Optional<String> labelA ) throws LuaException
     {
-        String label = optString( arguments, 0, null );
+        String label = labelA.orElse( null );
         ItemStack stack = diskDrive.getDiskStack();
         IMedia media = MediaProviders.get( stack );
         if( media == null ) return;

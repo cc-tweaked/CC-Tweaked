@@ -15,8 +15,12 @@ import java.util.Map;
  *
  * @see IArguments
  */
-public class LuaValues
+public final class LuaValues
 {
+    private LuaValues()
+    {
+    }
+
     /**
      * Encode a Lua string into a read-only {@link ByteBuffer}.
      *
@@ -106,7 +110,7 @@ public class LuaValues
      * @return The input {@code value}.
      * @throws LuaException If this is not a finite number.
      */
-    public static Number checkFinite( int index, Number value ) throws LuaException
+    public static Number checkFiniteNum( int index, Number value ) throws LuaException
     {
         checkFinite( index, value.doubleValue() );
         return value;
@@ -124,5 +128,25 @@ public class LuaValues
     {
         if( !Double.isFinite( value ) ) throw badArgument( index, "number", getNumericType( value ) );
         return value;
+    }
+
+    /**
+     * Ensure a string is a valid enum value.
+     *
+     * @param index The argument index to check.
+     * @param klass The class of the enum instance.
+     * @param value The value to extract.
+     * @param <T>   The type of enum we are extracting.
+     * @return The parsed enum value.
+     * @throws LuaException If this is not a known enum value.
+     */
+    public static <T extends Enum<T>> T checkEnum( int index, Class<T> klass, String value ) throws LuaException
+    {
+        for( T possibility : klass.getEnumConstants() )
+        {
+            if( possibility.name().equalsIgnoreCase( value ) ) return possibility;
+        }
+
+        throw new LuaException( "bad argument #" + (index + 1) + " (unknown option " + value + ")" );
     }
 }

@@ -18,9 +18,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CodingErrorAction;
 import java.nio.charset.StandardCharsets;
-
-import static dan200.computercraft.api.lua.ArgumentHelper.optBoolean;
-import static dan200.computercraft.api.lua.ArgumentHelper.optInt;
+import java.util.Optional;
 
 public class EncodedReadableHandle extends HandleGeneric
 {
@@ -40,10 +38,10 @@ public class EncodedReadableHandle extends HandleGeneric
     }
 
     @LuaFunction
-    public final Object[] readLine( Object[] args ) throws LuaException
+    public final Object[] readLine( Optional<Boolean> withTrailingArg ) throws LuaException
     {
         checkOpen();
-        boolean withTrailing = optBoolean( args, 0, false );
+        boolean withTrailing = withTrailingArg.orElse( false );
         try
         {
             String line = reader.readLine();
@@ -65,7 +63,7 @@ public class EncodedReadableHandle extends HandleGeneric
     }
 
     @LuaFunction
-    public final Object[] readAll( Object[] args ) throws LuaException
+    public final Object[] readAll() throws LuaException
     {
         checkOpen();
         try
@@ -90,12 +88,12 @@ public class EncodedReadableHandle extends HandleGeneric
     }
 
     @LuaFunction
-    public final Object[] read( Object[] args ) throws LuaException
+    public final Object[] read( Optional<Integer> countA ) throws LuaException
     {
         checkOpen();
         try
         {
-            int count = optInt( args, 0, 1 );
+            int count = countA.orElse( 1 );
             if( count < 0 )
             {
                 // Whilst this may seem absurd to allow reading 0 characters, PUC Lua it so

@@ -20,10 +20,10 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static dan200.computercraft.api.lua.ArgumentHelper.getString;
-import static dan200.computercraft.api.lua.ArgumentHelper.optFiniteDouble;
+import static dan200.computercraft.api.lua.LuaValues.checkFinite;
 
 public abstract class SpeakerPeripheral implements IPeripheral
 {
@@ -54,11 +54,10 @@ public abstract class SpeakerPeripheral implements IPeripheral
     }
 
     @LuaFunction
-    public final boolean playSound( ILuaContext context, Object[] args ) throws LuaException
+    public final boolean playSound( ILuaContext context, String name, Optional<Double> volumeA, Optional<Double> pitchA ) throws LuaException
     {
-        String name = getString( args, 0 );
-        float volume = (float) optFiniteDouble( args, 1, 1.0 );
-        float pitch = (float) optFiniteDouble( args, 2, 1.0 );
+        float volume = (float) checkFinite( 1, volumeA.orElse( 1.0 ) );
+        float pitch = (float) checkFinite( 2, pitchA.orElse( 1.0 ) );
 
         ResourceLocation identifier;
         try
@@ -74,11 +73,10 @@ public abstract class SpeakerPeripheral implements IPeripheral
     }
 
     @LuaFunction
-    public final synchronized boolean playNote( ILuaContext context, Object[] arguments ) throws LuaException
+    public final synchronized boolean playNote( ILuaContext context, String name, Optional<Double> volumeA, Optional<Double> pitchA ) throws LuaException
     {
-        String name = getString( arguments, 0 );
-        float volume = (float) optFiniteDouble( arguments, 1, 1.0 );
-        float pitch = (float) optFiniteDouble( arguments, 2, 1.0 );
+        float volume = (float) checkFinite( 1, volumeA.orElse( 1.0 ) );
+        float pitch = (float) checkFinite( 2, pitchA.orElse( 1.0 ) );
 
         NoteBlockInstrument instrument = null;
         for( NoteBlockInstrument testInstrument : NoteBlockInstrument.values() )

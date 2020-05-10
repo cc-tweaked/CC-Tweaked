@@ -43,7 +43,7 @@ public interface IAPIEnvironment
 
     void reboot();
 
-    void queueEvent( String event, Object[] args );
+    void queueEvent( String event, Object... args );
 
     void setOutput( ComputerSide side, int output );
 

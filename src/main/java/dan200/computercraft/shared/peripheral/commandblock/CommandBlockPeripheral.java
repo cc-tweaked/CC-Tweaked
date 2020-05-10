@@ -5,14 +5,11 @@
  */
 package dan200.computercraft.shared.peripheral.commandblock;
 
-import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import net.minecraft.tileentity.CommandBlockTileEntity;
 
 import javax.annotation.Nonnull;
-
-import static dan200.computercraft.api.lua.ArgumentHelper.getString;
 
 public class CommandBlockPeripheral implements IPeripheral
 {
@@ -37,9 +34,8 @@ public class CommandBlockPeripheral implements IPeripheral
     }
 
     @LuaFunction( mainThread = true )
-    public final void setCommand( Object[] args ) throws LuaException
+    public final void setCommand( String command )
     {
-        String command = getString( args, 0 );
         commandBlock.getCommandBlockLogic().setCommand( command );
         commandBlock.getCommandBlockLogic().updateCommand();
     }

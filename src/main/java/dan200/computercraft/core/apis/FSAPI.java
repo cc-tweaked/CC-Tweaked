@@ -28,8 +28,6 @@ import java.util.Map;
 import java.util.OptionalLong;
 import java.util.function.Function;
 
-import static dan200.computercraft.api.lua.ArgumentHelper.getString;
-
 public class FSAPI implements ILuaAPI
 {
     private final IAPIEnvironment environment;
@@ -59,9 +57,8 @@ public class FSAPI implements ILuaAPI
     }
 
     @LuaFunction
-    public final String[] list( Object[] args ) throws LuaException
+    public final String[] list( String path ) throws LuaException
     {
-        String path = getString( args, 0 );
         environment.addTrackingChange( TrackingField.FS_OPS );
         try
         {
@@ -74,31 +71,26 @@ public class FSAPI implements ILuaAPI
     }
 
     @LuaFunction
-    public final String combine( Object[] args ) throws LuaException
+    public final String combine( String pathA, String pathB )
     {
-        String pathA = getString( args, 0 );
-        String pathB = getString( args, 1 );
         return fileSystem.combine( pathA, pathB );
     }
 
     @LuaFunction
-    public final String getName( Object[] args ) throws LuaException
+    public final String getName( String path )
     {
-        String path = getString( args, 0 );
         return FileSystem.getName( path );
     }
 
     @LuaFunction
-    public final String getDir( Object[] args ) throws LuaException
+    public final String getDir( String path )
     {
-        String path = getString( args, 0 );
         return FileSystem.getDirectory( path );
     }
 
     @LuaFunction
-    public final long getSize( Object[] args ) throws LuaException
+    public final long getSize( String path ) throws LuaException
     {
-        String path = getString( args, 0 );
         try
         {
             return fileSystem.getSize( path );
@@ -110,9 +102,8 @@ public class FSAPI implements ILuaAPI
     }
 
     @LuaFunction
-    public final boolean exists( Object[] args ) throws LuaException
+    public final boolean exists( String path )
     {
-        String path = getString( args, 0 );
         try
         {
             return fileSystem.exists( path );
@@ -124,9 +115,8 @@ public class FSAPI implements ILuaAPI
     }
 
     @LuaFunction
-    public final boolean isDir( Object[] args ) throws LuaException
+    public final boolean isDir( String path )
     {
-        String path = getString( args, 0 );
         try
         {
             return fileSystem.isDir( path );
@@ -138,9 +128,8 @@ public class FSAPI implements ILuaAPI
     }
 
     @LuaFunction
-    public final boolean isReadOnly( Object[] args ) throws LuaException
+    public final boolean isReadOnly( String path )
     {
-        String path = getString( args, 0 );
         try
         {
             return fileSystem.isReadOnly( path );
@@ -152,9 +141,8 @@ public class FSAPI implements ILuaAPI
     }
 
     @LuaFunction
-    public final void makeDir( Object[] args ) throws LuaException
+    public final void makeDir( String path ) throws LuaException
     {
-        String path = getString( args, 0 );
         try
         {
             environment.addTrackingChange( TrackingField.FS_OPS );
@@ -167,10 +155,8 @@ public class FSAPI implements ILuaAPI
     }
 
     @LuaFunction
-    public final void move( Object[] args ) throws LuaException
+    public final void move( String path, String dest ) throws LuaException
     {
-        String path = getString( args, 0 );
-        String dest = getString( args, 1 );
         try
         {
             environment.addTrackingChange( TrackingField.FS_OPS );
@@ -183,10 +169,8 @@ public class FSAPI implements ILuaAPI
     }
 
     @LuaFunction
-    public final void copy( Object[] args ) throws LuaException
+    public final void copy( String path, String dest ) throws LuaException
     {
-        String path = getString( args, 0 );
-        String dest = getString( args, 1 );
         try
         {
             environment.addTrackingChange( TrackingField.FS_OPS );
@@ -199,9 +183,8 @@ public class FSAPI implements ILuaAPI
     }
 
     @LuaFunction
-    public final void delete( Object[] args ) throws LuaException
+    public final void delete( String path ) throws LuaException
     {
-        String path = getString( args, 0 );
         try
         {
             environment.addTrackingChange( TrackingField.FS_OPS );
@@ -214,10 +197,8 @@ public class FSAPI implements ILuaAPI
     }
 
     @LuaFunction
-    public final Object[] open( Object[] args ) throws LuaException
+    public final Object[] open( String path, String mode ) throws LuaException
     {
-        String path = getString( args, 0 );
-        String mode = getString( args, 1 );
         environment.addTrackingChange( TrackingField.FS_OPS );
         try
         {
@@ -270,9 +251,8 @@ public class FSAPI implements ILuaAPI
     }
 
     @LuaFunction
-    public final Object[] getDrive( Object[] args ) throws LuaException
+    public final Object[] getDrive( String path ) throws LuaException
     {
-        String path = getString( args, 0 );
         try
         {
             return fileSystem.exists( path ) ? new Object[] { fileSystem.getMountLabel( path ) } : null;
@@ -284,9 +264,8 @@ public class FSAPI implements ILuaAPI
     }
 
     @LuaFunction
-    public final Object getFreeSpace( Object[] args ) throws LuaException
+    public final Object getFreeSpace( String path ) throws LuaException
     {
-        String path = getString( args, 0 );
         try
         {
             long freeSpace = fileSystem.getFreeSpace( path );
@@ -299,9 +278,8 @@ public class FSAPI implements ILuaAPI
     }
 
     @LuaFunction
-    public final String[] find( Object[] args ) throws LuaException
+    public final String[] find( String path ) throws LuaException
     {
-        String path = getString( args, 0 );
         try
         {
             environment.addTrackingChange( TrackingField.FS_OPS );
@@ -314,9 +292,8 @@ public class FSAPI implements ILuaAPI
     }
 
     @LuaFunction
-    public final Object getCapacity( Object[] args ) throws LuaException
+    public final Object getCapacity( String path ) throws LuaException
     {
-        String path = getString( args, 0 );
         try
         {
             OptionalLong capacity = fileSystem.getCapacity( path );
@@ -329,9 +306,8 @@ public class FSAPI implements ILuaAPI
     }
 
     @LuaFunction
-    public final Map<String, Object> attributes( Object[] args ) throws LuaException
+    public final Map<String, Object> attributes( String path ) throws LuaException
     {
-        String path = getString( args, 0 );
         try
         {
             BasicFileAttributes attributes = fileSystem.getAttributes( path );

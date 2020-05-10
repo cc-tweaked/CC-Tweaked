@@ -9,26 +9,26 @@ import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
 
 import java.lang.annotation.*;
+import java.util.Map;
+import java.util.Optional;
 
 /**
  * Used to mark a Java function which is callable from Lua.
  *
- * Methods annotated with {@link LuaFunction} must be public final instance methods. They can accept 0 or more
- * arguments, in any order, but must be of the form {@link ILuaContext} or {@code Object[]}. If this method is appears
- * on an instance of {@link IPeripheral}, {@link IComputerAccess} may also be used.
- *
- * The {@code Object[]} array specifies the arguments to this function. Each argument may be of the following form:
+ * Methods annotated with {@link LuaFunction} must be public final instance methods. They can have any number of
+ * parameters, but they must be of the following types:
  *
  * <ul>
- * <li>Lua values of type "string" will be represented by Object type String.</li>
- * <li>Lua values of type "number" will be represented by Object type Double.</li>
- * <li>Lua values of type "boolean" will be represented by Object type Boolean.</li>
- * <li>Lua values of type "table" will be represented by Object type Map.</li>
- * <li>Lua values of any other type will be represented by a null object.</li>
- * </ul>
+ *   <li>{@link ILuaContext} (and {@link IComputerAccess} if on a {@link IPeripheral})</li>
+ *   <li>{@link IArguments}: The arguments supplied to this function.</li>
+ *   <li>
+ *     Alternatively, one may specify the desired arguments as normal parameters and the argument parsing code will
+ *     be generated automatically.
  *
- * This array will be empty if no arguments are passed. It is recommended you use {@link ArgumentHelper} in order to
- * validate and process arguments.
+ *     Each parameter must be one of the given types supported by {@link IArguments} (for instance, {@link int} or
+ *     {@link Map}). Optional values are supported by accepting a parameter of type {@link Optional}.
+ *   </li>
+ * </ul>
  *
  * This function may return {@link MethodResult}. However, if you simply return a value (rather than having to yield),
  * you may return {@code void}, a single value (either an object or a primitive like {@code int}) or array of objects.

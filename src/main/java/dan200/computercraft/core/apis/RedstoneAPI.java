@@ -10,8 +10,6 @@ import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.core.computer.ComputerSide;
 
-import static dan200.computercraft.api.lua.ArgumentHelper.*;
-
 public class RedstoneAPI implements ILuaAPI
 {
     private final IAPIEnvironment environment;
@@ -34,79 +32,64 @@ public class RedstoneAPI implements ILuaAPI
     }
 
     @LuaFunction
-    public final void setOutput( Object[] args ) throws LuaException
+    public final void setOutput( ComputerSide side, boolean output )
     {
-        ComputerSide side = parseSide( args );
-        boolean output = getBoolean( args, 1 );
         environment.setOutput( side, output ? 15 : 0 );
     }
 
     @LuaFunction
-    public final boolean getOutput( Object[] args ) throws LuaException
+    public final boolean getOutput( ComputerSide side )
     {
-        return environment.getOutput( parseSide( args ) ) > 0;
+        return environment.getOutput( side ) > 0;
     }
 
     @LuaFunction
-    public final boolean getInput( Object[] args ) throws LuaException
+    public final boolean getInput( ComputerSide side )
     {
-        return environment.getInput( parseSide( args ) ) > 0;
+        return environment.getInput( side ) > 0;
     }
 
     @LuaFunction( { "setAnalogOutput", "setAnalogueOutput" } )
-    public final void setAnalogOutput( Object[] args ) throws LuaException
+    public final void setAnalogOutput( ComputerSide side, int output ) throws LuaException
     {
-        ComputerSide side = parseSide( args );
-        int output = getInt( args, 1 );
         if( output < 0 || output > 15 ) throw new LuaException( "Expected number in range 0-15" );
         environment.setOutput( side, output );
     }
 
     @LuaFunction( { "getAnalogOutput", "getAnalogueOutput" } )
-    public final int getAnalogOutput( Object[] args ) throws LuaException
+    public final int getAnalogOutput( ComputerSide side )
     {
-        return environment.getOutput( parseSide( args ) );
+        return environment.getOutput( side );
     }
 
     @LuaFunction( { "getAnalogInput", "getAnalogueInput" } )
-    public final int getAnalogInput( Object[] args ) throws LuaException
+    public final int getAnalogInput( ComputerSide side )
     {
-        return environment.getInput( parseSide( args ) );
+        return environment.getInput( side );
     }
 
     @LuaFunction
-    public final void setBundledOutput( Object[] args ) throws LuaException
+    public final void setBundledOutput( ComputerSide side, int output )
     {
-        ComputerSide side = parseSide( args );
-        int output = getInt( args, 1 );
         environment.setBundledOutput( side, output );
     }
 
     @LuaFunction
-    public final int getBundledOutput( Object[] args ) throws LuaException
+    public final int getBundledOutput( ComputerSide side )
     {
-        return environment.getBundledOutput( parseSide( args ) );
+        return environment.getBundledOutput( side );
     }
 
     @LuaFunction
-    public final int getBundledInput( Object[] args ) throws LuaException
+    public final int getBundledInput( ComputerSide side )
     {
-        return environment.getBundledOutput( parseSide( args ) );
+        return environment.getBundledOutput( side );
     }
 
     @LuaFunction
-    public final boolean testBundledInput( Object[] args ) throws LuaException
+    public final boolean testBundledInput( ComputerSide side, int mask )
     {
-        ComputerSide side = parseSide( args );
-        int mask = getInt( args, 1 );
         int input = environment.getBundledInput( side );
         return (input & mask) == mask;
-    }
-
-    private static ComputerSide parseSide( Object[] args ) throws LuaException
-    {
-        ComputerSide side = ComputerSide.valueOfInsensitive( getString( args, 0 ) );
-        if( side == null ) throw new LuaException( "Invalid side." );
-        return side;
     }
 }

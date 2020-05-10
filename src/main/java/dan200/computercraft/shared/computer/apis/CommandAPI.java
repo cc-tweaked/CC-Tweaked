@@ -9,10 +9,7 @@ import com.google.common.collect.ImmutableMap;
 import com.mojang.brigadier.tree.CommandNode;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import dan200.computercraft.ComputerCraft;
-import dan200.computercraft.api.lua.ILuaAPI;
-import dan200.computercraft.api.lua.ILuaContext;
-import dan200.computercraft.api.lua.LuaException;
-import dan200.computercraft.api.lua.LuaFunction;
+import dan200.computercraft.api.lua.*;
 import dan200.computercraft.shared.computer.blocks.TileCommandComputer;
 import dan200.computercraft.shared.util.NBTUtil;
 import net.minecraft.block.Block;
@@ -28,9 +25,6 @@ import net.minecraft.world.World;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.*;
-
-import static dan200.computercraft.api.lua.ArgumentHelper.getInt;
-import static dan200.computercraft.api.lua.ArgumentHelper.getString;
 
 public class CommandAPI implements ILuaAPI
 {
@@ -106,29 +100,27 @@ public class CommandAPI implements ILuaAPI
     }
 
     @LuaFunction( mainThread = true )
-    public final Object[] exec( Object[] args ) throws LuaException
+    public final Object[] exec( String command )
     {
-        final String command = getString( args, 0 );
         return doCommand( command );
     }
 
     @LuaFunction
-    public final long execAsync( ILuaContext context, Object[] args ) throws LuaException
+    public final long execAsync( ILuaContext context, String command ) throws LuaException
     {
-        final String command = getString( args, 0 );
         return context.issueMainThreadTask( () -> doCommand( command ) );
     }
 
     @LuaFunction( mainThread = true )
-    public final List<String> list( Object[] args ) throws LuaException
+    public final List<String> list( IArguments args ) throws LuaException
     {
         MinecraftServer server = computer.getWorld().getServer();
 
         if( server == null ) return Collections.emptyList();
         CommandNode<CommandSource> node = server.getCommandManager().getDispatcher().getRoot();
-        for( int j = 0; j < args.length; j++ )
+        for( int j = 0; j < args.count(); j++ )
         {
-            String name = getString( args, j );
+            String name = args.getString( j );
             node = node.getChild( name );
             if( !(node instanceof LiteralCommandNode) ) return Collections.emptyList();
         }
@@ -150,15 +142,8 @@ public class CommandAPI implements ILuaAPI
     }
 
     @LuaFunction( mainThread = true )
-    public final List<Map<?, ?>> getBlockInfos( Object[] args ) throws LuaException
+    public final List<Map<?, ?>> getBlockInfos( int minX, int minY, int minZ, int maxX, int maxY, int maxZ ) throws LuaException
     {
-        int minX = getInt( args, 0 );
-        int minY = getInt( args, 1 );
-        int minZ = getInt( args, 2 );
-        int maxX = getInt( args, 3 );
-        int maxY = getInt( args, 4 );
-        int maxZ = getInt( args, 5 );
-
         // Get the details of the block
         World world = computer.getWorld();
         BlockPos min = new BlockPos(
@@ -196,12 +181,8 @@ public class CommandAPI implements ILuaAPI
     }
 
     @LuaFunction( mainThread = true )
-    public final Map<?, ?> getBlockInfo( Object[] args ) throws LuaException
+    public final Map<?, ?> getBlockInfo( int x, int y, int z ) throws LuaException
     {
-        int x = getInt( args, 0 );
-        int y = getInt( args, 1 );
-        int z = getInt( args, 2 );
-
         // Get the details of the block
         World world = computer.getWorld();
         BlockPos position = new BlockPos( x, y, z );

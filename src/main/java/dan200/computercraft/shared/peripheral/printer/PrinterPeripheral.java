@@ -12,9 +12,7 @@ import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.shared.util.StringUtil;
 
 import javax.annotation.Nonnull;
-
-import static dan200.computercraft.api.lua.ArgumentHelper.getInt;
-import static dan200.computercraft.api.lua.ArgumentHelper.optString;
+import java.util.Optional;
 
 public class PrinterPeripheral implements IPeripheral
 {
@@ -47,7 +45,7 @@ public class PrinterPeripheral implements IPeripheral
     }
 
     @LuaFunction
-    public final Object[] getCursorPos( Object[] args ) throws LuaException
+    public final Object[] getCursorPos() throws LuaException
     {
         Terminal page = getCurrentPage();
         int x = page.getCursorX();
@@ -56,16 +54,14 @@ public class PrinterPeripheral implements IPeripheral
     }
 
     @LuaFunction
-    public final void setCursorPos( Object[] args ) throws LuaException
+    public final void setCursorPos( int x, int y ) throws LuaException
     {
-        int x = getInt( args, 0 ) - 1;
-        int y = getInt( args, 1 ) - 1;
         Terminal page = getCurrentPage();
-        page.setCursorPos( x, y );
+        page.setCursorPos( x - 1, y - 1 );
     }
 
     @LuaFunction
-    public final Object[] getPageSize( Object[] args ) throws LuaException
+    public final Object[] getPageSize() throws LuaException
     {
         Terminal page = getCurrentPage();
         int width = page.getWidth();
@@ -87,11 +83,10 @@ public class PrinterPeripheral implements IPeripheral
     }
 
     @LuaFunction
-    public final void setPageTitle( Object[] args ) throws LuaException
+    public final void setPageTitle( Optional<String> title ) throws LuaException
     {
-        String title = optString( args, 0, "" );
         getCurrentPage();
-        printer.setPageTitle( StringUtil.normaliseLabel( title ) );
+        printer.setPageTitle( StringUtil.normaliseLabel( title.orElse( "" ) ) );
     }
 
     @LuaFunction

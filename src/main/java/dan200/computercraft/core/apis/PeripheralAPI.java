@@ -22,8 +22,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
 
-import static dan200.computercraft.api.lua.ArgumentHelper.getString;
-
 public class PeripheralAPI implements ILuaAPI, IAPIEnvironment.IPeripheralChangeListener
 {
     private class PeripheralWrapper extends ComputerAccess
@@ -214,7 +212,7 @@ public class PeripheralAPI implements ILuaAPI, IAPIEnvironment.IPeripheralChange
                 if( wrapper.isAttached() ) wrapper.detach();
 
                 // Queue a detachment event
-                environment.queueEvent( "peripheral_detach", new Object[] { side.getName() } );
+                environment.queueEvent( "peripheral_detach", side.getName() );
             }
 
             // Assign the new peripheral
@@ -228,7 +226,7 @@ public class PeripheralAPI implements ILuaAPI, IAPIEnvironment.IPeripheralChange
                 if( running && !wrapper.isAttached() ) wrapper.attach();
 
                 // Queue an attachment event
-                environment.queueEvent( "peripheral", new Object[] { side.getName() } );
+                environment.queueEvent( "peripheral", side.getName() );
             }
         }
     }
@@ -271,9 +269,9 @@ public class PeripheralAPI implements ILuaAPI, IAPIEnvironment.IPeripheralChange
     }
 
     @LuaFunction
-    public final boolean isPresent( Object[] args ) throws LuaException
+    public final boolean isPresent( String sideName )
     {
-        ComputerSide side = ComputerSide.valueOfInsensitive( getString( args, 0 ) );
+        ComputerSide side = ComputerSide.valueOfInsensitive( sideName );
         if( side != null )
         {
             synchronized( peripherals )
@@ -286,9 +284,9 @@ public class PeripheralAPI implements ILuaAPI, IAPIEnvironment.IPeripheralChange
     }
 
     @LuaFunction
-    public final Object[] getType( Object[] args ) throws LuaException
+    public final Object[] getType( String sideName )
     {
-        ComputerSide side = ComputerSide.valueOfInsensitive( getString( args, 0 ) );
+        ComputerSide side = ComputerSide.valueOfInsensitive( sideName );
         if( side == null ) return null;
 
         synchronized( peripherals )
@@ -300,9 +298,9 @@ public class PeripheralAPI implements ILuaAPI, IAPIEnvironment.IPeripheralChange
     }
 
     @LuaFunction
-    public final Object[] getMethods( Object[] args ) throws LuaException
+    public final Object[] getMethods( String sideName )
     {
-        ComputerSide side = ComputerSide.valueOfInsensitive( getString( args, 0 ) );
+        ComputerSide side = ComputerSide.valueOfInsensitive( sideName );
         if( side == null ) return null;
 
         synchronized( peripherals )
@@ -316,8 +314,8 @@ public class PeripheralAPI implements ILuaAPI, IAPIEnvironment.IPeripheralChange
     @LuaFunction
     public final MethodResult call( ILuaContext context, IArguments args ) throws LuaException
     {
-        ComputerSide side = ComputerSide.valueOfInsensitive( args.getString(  0 ) );
-        String methodName =  args.getString(  1 );
+        ComputerSide side = ComputerSide.valueOfInsensitive( args.getString( 0 ) );
+        String methodName = args.getString( 1 );
         IArguments methodArgs = args.drop( 2 );
 
         if( side == null ) throw new LuaException( "No peripheral attached" );

@@ -13,8 +13,7 @@ import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.shared.turtle.core.TurtleCraftCommand;
 
 import javax.annotation.Nonnull;
-
-import static dan200.computercraft.api.lua.ArgumentHelper.optInt;
+import java.util.Optional;
 
 public class CraftingTablePeripheral implements IPeripheral
 {
@@ -32,17 +31,11 @@ public class CraftingTablePeripheral implements IPeripheral
         return "workbench";
     }
 
-    private static int parseCount( Object[] arguments ) throws LuaException
-    {
-        int count = optInt( arguments, 0, 64 );
-        if( count < 0 || count > 64 ) throw new LuaException( "Crafting count " + count + " out of range" );
-        return count;
-    }
-
     @LuaFunction
-    public final MethodResult craft( Object[] args ) throws LuaException
+    public final MethodResult craft( Optional<Integer> count ) throws LuaException
     {
-        int limit = parseCount( args );
+        int limit = count.orElse( 65 );
+        if( limit < 0 || limit > 64 ) throw new LuaException( "Crafting count " + limit + " out of range" );
         return turtle.executeCommand( new TurtleCraftCommand( limit ) );
     }
 

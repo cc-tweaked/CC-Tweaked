@@ -7,7 +7,7 @@ package dan200.computercraft.core.computer;
 
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.filesystem.IWritableMount;
-import dan200.computercraft.api.lua.ArgumentHelper;
+import dan200.computercraft.api.lua.IArguments;
 import dan200.computercraft.api.lua.ILuaAPI;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
@@ -109,24 +109,24 @@ public class ComputerBootstrap
         }
 
         @LuaFunction
-        public final void log( Object[] arguments )
+        public final void log( IArguments arguments )
         {
-            ComputerCraft.log.info( "[Computer] {}", Arrays.toString( arguments ) );
+            ComputerCraft.log.info( "[Computer] {}", Arrays.toString( arguments.getAll() ) );
         }
 
         @LuaFunction( "assert" )
-        public final Object[] doAssert( Object[] arguments ) throws LuaException
+        public final Object[] doAssert( IArguments arguments ) throws LuaException
         {
             didAssert = true;
 
-            Object arg = arguments.length >= 1 ? arguments[0] : null;
+            Object arg = arguments.get( 0 );
             if( arg == null || arg == Boolean.FALSE )
             {
-                message = ArgumentHelper.optString( arguments, 1, "Assertion failed" );
+                message = arguments.optString( 1, "Assertion failed" );
                 throw new LuaException( message );
             }
 
-            return arguments;
+            return arguments.getAll();
         }
     }
 }

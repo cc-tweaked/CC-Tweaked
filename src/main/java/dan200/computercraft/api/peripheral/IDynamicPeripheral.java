@@ -47,7 +47,6 @@ public interface IDynamicPeripheral extends IPeripheral
      *                      same message as your exception. Use this to throw appropriate errors if the wrong
      *                      arguments are supplied to your method.
      * @see #getMethodNames()
-     * @see ArgumentHelper
      */
     @Nonnull
     MethodResult callMethod( @Nonnull IComputerAccess computer, @Nonnull ILuaContext context, int method, @Nonnull IArguments arguments ) throws LuaException;

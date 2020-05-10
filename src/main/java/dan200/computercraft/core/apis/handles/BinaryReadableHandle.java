@@ -5,6 +5,7 @@
  */
 package dan200.computercraft.core.apis.handles;
 
+import dan200.computercraft.api.lua.IArguments;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
 
@@ -16,9 +17,7 @@ import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.SeekableByteChannel;
 import java.util.ArrayList;
 import java.util.List;
-
-import static dan200.computercraft.api.lua.ArgumentHelper.getInt;
-import static dan200.computercraft.api.lua.ArgumentHelper.optBoolean;
+import java.util.Optional;
 
 public class BinaryReadableHandle extends HandleGeneric
 {
@@ -47,14 +46,14 @@ public class BinaryReadableHandle extends HandleGeneric
     }
 
     @LuaFunction
-    public final Object[] read( Object[] args ) throws LuaException
+    public final Object[] read( Optional<Integer> countArg ) throws LuaException
     {
         checkOpen();
         try
         {
-            if( args.length > 0 && args[0] != null )
+            if( countArg.isPresent() )
             {
-                int count = getInt( args, 0 );
+                int count = countArg.get();
                 if( count < 0 ) throw new LuaException( "Cannot read a negative number of bytes" );
                 if( count == 0 && seekable != null )
                 {
@@ -124,7 +123,7 @@ public class BinaryReadableHandle extends HandleGeneric
     }
 
     @LuaFunction
-    public final Object[] readAll( Object[] args ) throws LuaException
+    public final Object[] readAll() throws LuaException
     {
         checkOpen();
         try
@@ -153,10 +152,10 @@ public class BinaryReadableHandle extends HandleGeneric
     }
 
     @LuaFunction
-    public final Object[] readLine( Object[] args ) throws LuaException
+    public final Object[] readLine( Optional<Boolean> withTrailingArg ) throws LuaException
     {
         checkOpen();
-        boolean withTrailing = optBoolean( args, 0, false );
+        boolean withTrailing = withTrailingArg.orElse( false );
         try
         {
             ByteArrayOutputStream stream = new ByteArrayOutputStream();
@@ -212,10 +211,10 @@ public class BinaryReadableHandle extends HandleGeneric
         }
 
         @LuaFunction
-        public final Object seek( Object[] args ) throws LuaException
+        public final Object seek( IArguments arguments ) throws LuaException
         {
             checkOpen();
-            return handleSeek( seekable, args );
+            return handleSeek( seekable, arguments );
         }
     }
 }

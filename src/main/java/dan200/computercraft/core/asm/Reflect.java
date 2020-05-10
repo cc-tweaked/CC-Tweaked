@@ -17,9 +17,13 @@ import java.util.Optional;
 
 import static org.objectweb.asm.Opcodes.ICONST_0;
 
-public class Reflect
+final class Reflect
 {
     static final java.lang.reflect.Type OPTIONAL_IN = Optional.class.getTypeParameters()[0];
+
+    private Reflect()
+    {
+    }
 
     @Nullable
     static String getLuaName( Class<?> klass )
@@ -77,7 +81,7 @@ public class Reflect
         }
     }
 
-    private static void loadInt( MethodVisitor visitor, int value )
+    static void loadInt( MethodVisitor visitor, int value )
     {
         if( value >= -1 && value <= 5 )
         {

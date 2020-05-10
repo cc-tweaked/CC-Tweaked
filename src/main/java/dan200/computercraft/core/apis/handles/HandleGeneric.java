@@ -5,6 +5,7 @@
  */
 package dan200.computercraft.core.apis.handles;
 
+import dan200.computercraft.api.lua.IArguments;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.shared.util.IoUtil;
@@ -14,9 +15,6 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.nio.channels.Channel;
 import java.nio.channels.SeekableByteChannel;
-
-import static dan200.computercraft.api.lua.ArgumentHelper.optLong;
-import static dan200.computercraft.api.lua.ArgumentHelper.optString;
 
 public abstract class HandleGeneric
 {
@@ -62,10 +60,10 @@ public abstract class HandleGeneric
      * @throws LuaException If the arguments were invalid
      * @see <a href="https://www.lua.org/manual/5.1/manual.html#pdf-file:seek">{@code file:seek} in the Lua manual.</a>
      */
-    protected static Object[] handleSeek( SeekableByteChannel channel, Object[] args ) throws LuaException
+    protected static Object[] handleSeek( SeekableByteChannel channel, IArguments args ) throws LuaException
     {
-        String whence = optString( args, 0, "cur" );
-        long offset = optLong( args, 1, 0 );
+        String whence = args.optString( 0, "cur" );
+        long offset = args.optLong( 1, 0 );
         try
         {
             switch( whence )

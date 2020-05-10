@@ -26,8 +26,15 @@ public interface IArguments
     int count();
 
     /**
-     * Get the argument at the specific index. The returned value must obey the conversion rules given in
-     * in the class's documentation.
+     * Get the argument at the specific index. The returned value must obey the following conversion rules:
+     *
+     * <ul>
+     *   <li>Lua values of type "string" will be represented by a {@link String}.</li>
+     *   <li>Lua values of type "number" will be represented by a {@link Number}.</li>
+     *   <li>Lua values of type "boolean" will be represented by a {@link Boolean}.</li>
+     *   <li>Lua values of type "table" will be represented by a {@link Map}.</li>
+     *   <li>Lua values of any other type will be represented by a {@code null} value.</li>
+     * </ul>
      *
      * @param index The argument number.
      * @return The argument's value, or {@code null} if not present.
@@ -89,7 +96,7 @@ public interface IArguments
     {
         Object value = get( index );
         if( !(value instanceof Number) ) throw LuaValues.badArgumentOf( index, "number", value );
-        return checkFinite( index, ((Number) value) ).longValue();
+        return LuaValues.checkFiniteNum( index, ((Number) value) ).longValue();
     }
 
     /**
@@ -144,6 +151,19 @@ public interface IArguments
     default ByteBuffer getBytes( int index ) throws LuaException
     {
         return LuaValues.encode( getString( index ) );
+    }
+
+    /**
+     * Get a string argument as an enum value.
+     *
+     * @param index The argument number.
+     * @return The argument's value.
+     * @throws LuaException If the value is not a string or not a valid option for this enum.
+     */
+    @Nonnull
+    default <T extends Enum<T>> T getEnum( int index, Class<T> klass ) throws LuaException
+    {
+        return LuaValues.checkEnum( index, klass, getString( index ) );
     }
 
     /**
@@ -202,7 +222,7 @@ public interface IArguments
         Object value = get( index );
         if( value == null ) return Optional.empty();
         if( !(value instanceof Number) ) throw LuaValues.badArgumentOf( index, "number", value );
-        return Optional.of( checkFinite( index, ((Number) value) ).longValue() );
+        return Optional.of( LuaValues.checkFiniteNum( index, ((Number) value) ).longValue() );
     }
 
     /**
@@ -215,7 +235,7 @@ public interface IArguments
     default Optional<Double> optFiniteDouble( int index ) throws LuaException
     {
         Optional<Double> value = optDouble( index );
-        if( value.isPresent() ) checkFinite( index, value.get() );
+        if( value.isPresent() ) LuaValues.checkFiniteNum( index, value.get() );
         return value;
     }
 
@@ -259,6 +279,20 @@ public interface IArguments
     default Optional<ByteBuffer> optBytes( int index ) throws LuaException
     {
         return optString( index ).map( LuaValues::encode );
+    }
+
+    /**
+     * Get a string argument as an enum value.
+     *
+     * @param index The argument number.
+     * @return The argument's value.
+     * @throws LuaException If the value is not a string or not a valid option for this enum.
+     */
+    @Nonnull
+    default <T extends Enum<T>> Optional<T> optEnum( int index, Class<T> klass ) throws LuaException
+    {
+        Optional<String> str = optString( index );
+        return str.isPresent() ? Optional.of( LuaValues.checkEnum( index, klass, str.get() ) ) : Optional.empty();
     }
 
     /**

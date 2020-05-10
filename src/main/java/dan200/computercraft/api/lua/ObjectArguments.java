@@ -44,7 +44,10 @@ public final class ObjectArguments implements IArguments
     @Override
     public IArguments drop( int count )
     {
+        if( count < 0 ) throw new IllegalStateException( "count cannot be negative" );
+        if( count == 0 ) return this;
         if( count >= args.size() ) return EMPTY;
+
         return new ObjectArguments( args.subList( count, args.size() ) );
     }
 
@@ -53,5 +56,11 @@ public final class ObjectArguments implements IArguments
     public Object get( int index )
     {
         return index >= args.size() ? null : args.get( index );
+    }
+
+    @Override
+    public Object[] getAll()
+    {
+        return args.toArray();
     }
 }

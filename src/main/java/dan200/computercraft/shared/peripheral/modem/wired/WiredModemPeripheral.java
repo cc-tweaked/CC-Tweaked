@@ -30,8 +30,6 @@ import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import static dan200.computercraft.api.lua.ArgumentHelper.getString;
-
 public abstract class WiredModemPeripheral extends ModemPeripheral implements IWiredSender
 {
     private final WiredModemElement modem;
@@ -82,24 +80,21 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements IW
     }
 
     @LuaFunction
-    public final boolean isPresentRemote( IComputerAccess computer, Object[] arguments ) throws LuaException
+    public final boolean isPresentRemote( IComputerAccess computer, String name )
     {
-        String name = getString( arguments, 0 );
         return getWrapper( computer, name ) != null;
     }
 
     @LuaFunction
-    public final Object[] getTypeRemote( IComputerAccess computer, Object[] arguments ) throws LuaException
+    public final Object[] getTypeRemote( IComputerAccess computer, String name )
     {
-        String name = getString( arguments, 0 );
         RemotePeripheralWrapper wrapper = getWrapper( computer, name );
         return wrapper != null ? new Object[] { wrapper.getType() } : null;
     }
 
     @LuaFunction
-    public final Object[] getMethodsRemote( IComputerAccess computer, Object[] arguments ) throws LuaException
+    public final Object[] getMethodsRemote( IComputerAccess computer, String name )
     {
-        String name = getString( arguments, 0 );
         RemotePeripheralWrapper wrapper = getWrapper( computer, name );
         if( wrapper == null ) return null;
 

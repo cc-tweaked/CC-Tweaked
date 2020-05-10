@@ -5,6 +5,7 @@
  */
 package dan200.computercraft.core.apis.handles;
 
+import dan200.computercraft.api.lua.IArguments;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.api.lua.LuaValues;
@@ -41,28 +42,28 @@ public class BinaryWritableHandle extends HandleGeneric
     }
 
     @LuaFunction
-    public final void write( Object[] args ) throws LuaException
+    public final void write( IArguments arguments ) throws LuaException
     {
         checkOpen();
         try
         {
-            if( args.length > 0 && args[0] instanceof Number )
+            Object arg = arguments.get( 0 );
+            if( arg instanceof Number )
             {
-                int number = ((Number) args[0]).intValue();
+                int number = ((Number) arg).intValue();
                 single.clear();
                 single.put( (byte) number );
                 single.flip();
 
                 writer.write( single );
             }
-            else if( args.length > 0 && args[0] instanceof String )
+            else if( arg instanceof String )
             {
-                String value = (String) args[0];
-                writer.write( LuaValues.encode( value ) );
+                writer.write( arguments.getBytes( 0 ) );
             }
             else
             {
-                throw LuaValues.badArgumentOf( 0, "string or number", args.length > 0 ? args[0] : null );
+                throw LuaValues.badArgumentOf( 0, "string or number", arg );
             }
         }
         catch( IOException e )
@@ -93,7 +94,7 @@ public class BinaryWritableHandle extends HandleGeneric
         }
 
         @LuaFunction
-        public final Object seek( Object[] args ) throws LuaException
+        public final Object seek( IArguments args ) throws LuaException
         {
             checkOpen();
             return handleSeek( seekable, args );

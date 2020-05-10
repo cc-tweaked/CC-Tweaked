@@ -5,8 +5,10 @@
  */
 package dan200.computercraft.core.apis.handles;
 
+import dan200.computercraft.api.lua.IArguments;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
+import dan200.computercraft.shared.util.StringUtil;
 
 import javax.annotation.Nonnull;
 import java.io.BufferedWriter;
@@ -30,10 +32,10 @@ public class EncodedWritableHandle extends HandleGeneric
     }
 
     @LuaFunction
-    public final void write( Object[] args ) throws LuaException
+    public final void write( IArguments args ) throws LuaException
     {
         checkOpen();
-        String text = args.length > 0 && args[0] != null ? args[0].toString() : "";
+        String text = StringUtil.toString( args.get( 0 ) );
         try
         {
             writer.write( text, 0, text.length() );
@@ -45,10 +47,10 @@ public class EncodedWritableHandle extends HandleGeneric
     }
 
     @LuaFunction
-    public final void writeLine( Object[] args ) throws LuaException
+    public final void writeLine( IArguments args ) throws LuaException
     {
         checkOpen();
-        String text = args.length > 0 && args[0] != null ? args[0].toString() : "";
+        String text = StringUtil.toString( args.get( 0 ) );
         try
         {
             writer.write( text, 0, text.length() );

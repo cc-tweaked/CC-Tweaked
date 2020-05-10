@@ -20,8 +20,6 @@ import javax.annotation.Nonnull;
 import java.util.HashSet;
 import java.util.Set;
 
-import static dan200.computercraft.api.lua.ArgumentHelper.getInt;
-
 public abstract class ModemPeripheral implements IPeripheral, IPacketSender, IPacketReceiver
 {
     private IPacketNetwork m_network;
@@ -98,29 +96,28 @@ public abstract class ModemPeripheral implements IPeripheral, IPacketSender, IPa
         return "modem";
     }
 
-    private static int parseChannel( Object[] arguments, int index ) throws LuaException
+    private static int parseChannel( int channel ) throws LuaException
     {
-        int channel = getInt( arguments, index );
         if( channel < 0 || channel > 65535 ) throw new LuaException( "Expected number in range 0-65535" );
         return channel;
     }
 
     @LuaFunction
-    public final void open( Object[] args ) throws LuaException
+    public final void open( int channel ) throws LuaException
     {
-        m_state.open( parseChannel( args, 0 ) );
+        m_state.open( parseChannel( channel ) );
     }
 
     @LuaFunction
-    public final boolean isOpen( Object[] args ) throws LuaException
+    public final boolean isOpen( int channel ) throws LuaException
     {
-        return m_state.isOpen( parseChannel( args, 0 ) );
+        return m_state.isOpen( parseChannel( channel ) );
     }
 
     @LuaFunction
-    public final void close( Object[] args ) throws LuaException
+    public final void close( int channel ) throws LuaException
     {
-        m_state.close( parseChannel( args, 0 ) );
+        m_state.close( parseChannel( channel ) );
     }
 
     @LuaFunction
@@ -130,11 +127,11 @@ public abstract class ModemPeripheral implements IPeripheral, IPacketSender, IPa
     }
 
     @LuaFunction
-    public final void transmit( Object[] arguments ) throws LuaException
+    public final void transmit( int channel, int replyChannel, Object payload ) throws LuaException
     {
-        int channel = parseChannel( arguments, 0 );
-        int replyChannel = parseChannel( arguments, 1 );
-        Object payload = arguments.length > 2 ? arguments[2] : null;
+        parseChannel( channel );
+        parseChannel( replyChannel );
+
         World world = getWorld();
         Vec3d position = getPosition();
         IPacketNetwork network = m_network;

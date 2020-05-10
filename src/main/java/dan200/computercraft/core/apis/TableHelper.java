@@ -5,8 +5,8 @@
  */
 package dan200.computercraft.core.apis;
 
-import dan200.computercraft.api.lua.LuaValues;
 import dan200.computercraft.api.lua.LuaException;
+import dan200.computercraft.api.lua.LuaValues;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;

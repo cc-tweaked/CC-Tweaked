@@ -39,7 +39,6 @@ public interface IDynamicLuaObject
      * @return The result of this function. Either an immediate value ({@link MethodResult#of(Object...)} or an
      * instruction to yield.
      * @throws LuaException If the function threw an exception.
-     * @see ArgumentHelper
      */
     @Nonnull
     MethodResult callMethod( @Nonnull ILuaContext context, int method, @Nonnull IArguments arguments ) throws LuaException;

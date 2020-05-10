@@ -32,9 +32,9 @@ public class TermAPI extends TermMethods implements ILuaAPI
     }
 
     @LuaFunction( { "nativePaletteColour", "nativePaletteColor" } )
-    public final Object[] nativePaletteColour( Object[] args ) throws LuaException
+    public final Object[] nativePaletteColour( int colourArg ) throws LuaException
     {
-        int colour = 15 - parseColour( args );
+        int colour = 15 - parseColour( colourArg );
         Colour c = Colour.fromInt( colour );
 
         float[] rgb = c.getRGB();

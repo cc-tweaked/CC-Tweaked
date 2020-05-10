@@ -111,7 +111,7 @@ public final class Environment implements IAPIEnvironment
     }
 
     @Override
-    public void queueEvent( String event, Object[] args )
+    public void queueEvent( String event, Object... args )
     {
         computer.queueEvent( event, args );
     }

@@ -6,15 +6,15 @@
 
 package dan200.computercraft.core.apis;
 
+import dan200.computercraft.api.lua.IArguments;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.shared.util.Palette;
+import dan200.computercraft.shared.util.StringUtil;
 import org.apache.commons.lang3.ArrayUtils;
 
 import javax.annotation.Nonnull;
-
-import static dan200.computercraft.api.lua.ArgumentHelper.*;
 
 /**
  * A base class for all objects which interact with a terminal. Namely the {@link TermAPI} and monitors.
@@ -38,9 +38,9 @@ public abstract class TermMethods
     public abstract boolean isColour() throws LuaException;
 
     @LuaFunction
-    public final void write( Object[] args ) throws LuaException
+    public final void write( IArguments arguments ) throws LuaException
     {
-        String text = args.length > 0 && args[0] != null ? args[0].toString() : "";
+        String text = StringUtil.toString( arguments.get( 0 ) );
         Terminal terminal = getTerminal();
         synchronized( terminal )
         {
@@ -50,9 +50,8 @@ public abstract class TermMethods
     }
 
     @LuaFunction
-    public final void scroll( Object[] args ) throws LuaException
+    public final void scroll( int y ) throws LuaException
     {
-        int y = getInt( args, 0 );
         getTerminal().scroll( y );
     }
 
@@ -64,14 +63,12 @@ public abstract class TermMethods
     }
 
     @LuaFunction
-    public final void setCursorPos( Object[] args ) throws LuaException
+    public final void setCursorPos( int x, int y ) throws LuaException
     {
-        int x = getInt( args, 0 ) - 1;
-        int y = getInt( args, 1 ) - 1;
         Terminal terminal = getTerminal();
         synchronized( terminal )
         {
-            terminal.setCursorPos( x, y );
+            terminal.setCursorPos( x - 1, y - 1 );
         }
     }
 
@@ -82,13 +79,12 @@ public abstract class TermMethods
     }
 
     @LuaFunction
-    public final void setCursorBlink( Object[] args ) throws LuaException
+    public final void setCursorBlink( boolean blink ) throws LuaException
     {
-        boolean b = getBoolean( args, 0 );
         Terminal terminal = getTerminal();
         synchronized( terminal )
         {
-            terminal.setCursorBlink( b );
+            terminal.setCursorBlink( blink );
         }
     }
 
@@ -97,7 +93,6 @@ public abstract class TermMethods
     {
         Terminal terminal = getTerminal();
         return new Object[] { terminal.getWidth(), terminal.getHeight() };
-
     }
 
     @LuaFunction
@@ -119,9 +114,9 @@ public abstract class TermMethods
     }
 
     @LuaFunction( { "setTextColour", "setTextColor" } )
-    public final void setTextColour( Object[] args ) throws LuaException
+    public final void setTextColour( int colourArg ) throws LuaException
     {
-        int colour = parseColour( args );
+        int colour = parseColour( colourArg );
         Terminal terminal = getTerminal();
         synchronized( terminal )
         {
@@ -136,9 +131,9 @@ public abstract class TermMethods
     }
 
     @LuaFunction( { "setBackgroundColour", "setBackgroundColor" } )
-    public final void setBackgroundColour( Object[] args ) throws LuaException
+    public final void setBackgroundColour( int colourArg ) throws LuaException
     {
-        int colour = parseColour( args );
+        int colour = parseColour( colourArg );
         Terminal terminal = getTerminal();
         synchronized( terminal )
         {
@@ -153,11 +148,8 @@ public abstract class TermMethods
     }
 
     @LuaFunction
-    public final void blit( Object[] args ) throws LuaException
+    public final void blit( String text, String textColour, String backgroundColour ) throws LuaException
     {
-        String text = getString( args, 0 );
-        String textColour = getString( args, 1 );
-        String backgroundColour = getString( args, 2 );
         if( textColour.length() != text.length() || backgroundColour.length() != text.length() )
         {
             throw new LuaException( "Arguments must be the same length" );
@@ -172,28 +164,28 @@ public abstract class TermMethods
     }
 
     @LuaFunction( { "setPaletteColour", "setPaletteColor" } )
-    public final void setPaletteColour( Object[] args ) throws LuaException
+    public final void setPaletteColour( IArguments args ) throws LuaException
     {
-        int colour = 15 - parseColour( args );
-        if( args.length == 2 )
+        int colour = 15 - parseColour( args.getInt( 0 ) );
+        if( args.count() == 2 )
         {
-            int hex = getInt( args, 1 );
+            int hex = args.getInt( 1 );
             double[] rgb = Palette.decodeRGB8( hex );
             setColour( getTerminal(), colour, rgb[0], rgb[1], rgb[2] );
         }
         else
         {
-            double r = getFiniteDouble( args, 1 );
-            double g = getFiniteDouble( args, 2 );
-            double b = getFiniteDouble( args, 3 );
+            double r = args.getInt( 1 );
+            double g = args.getInt( 2 );
+            double b = args.getInt( 3 );
             setColour( getTerminal(), colour, r, g, b );
         }
     }
 
     @LuaFunction( { "getPaletteColour", "getPaletteColor" } )
-    public final Object[] getPaletteColour( Object[] args ) throws LuaException
+    public final Object[] getPaletteColour( int colourArg ) throws LuaException
     {
-        int colour = 15 - parseColour( args );
+        int colour = 15 - parseColour( colourArg );
         Terminal terminal = getTerminal();
         synchronized( terminal )
         {
@@ -205,14 +197,14 @@ public abstract class TermMethods
         return null;
     }
 
-    public static int parseColour( Object[] args ) throws LuaException
+    public static int parseColour( int colour ) throws LuaException
     {
-        int colour = getInt( args, 0 );
         if( colour <= 0 ) throw new LuaException( "Colour out of range" );
         colour = getHighestBit( colour ) - 1;
         if( colour < 0 || colour > 15 ) throw new LuaException( "Colour out of range" );
         return colour;
     }
+
 
     public static int encodeColour( int colour )
     {
