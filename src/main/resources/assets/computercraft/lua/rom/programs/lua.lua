@@ -1,4 +1,3 @@
-
 local tArgs = { ... }
 if #tArgs > 0 then
     print("This is an interactive Lua prompt.")

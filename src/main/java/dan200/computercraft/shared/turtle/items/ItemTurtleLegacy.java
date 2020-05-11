@@ -88,4 +88,3 @@ public class ItemTurtleLegacy extends ItemTurtleBase
         return 0;
     }
 }
-

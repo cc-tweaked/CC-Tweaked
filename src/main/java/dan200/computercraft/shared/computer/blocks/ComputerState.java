@@ -45,4 +45,3 @@ public enum ComputerState implements IStringSerializable
         return ordinal < 0 || ordinal >= VALUES.length ? ComputerState.Off : VALUES[ordinal];
     }
 }
-
