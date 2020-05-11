@@ -28,6 +28,8 @@ describe("The Lua base library", function()
     end)
 
     describe("loadfile", function()
+        local loadfile = _G.native_loadfile or loadfile
+
         local function make_file()
             local tmp = fs.open("test-files/out.lua", "w")
             tmp.write("return _ENV")

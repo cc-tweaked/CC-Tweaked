@@ -51,7 +51,7 @@ describe("The peripheral library", function()
 
         it_modem("has the correct error location", function()
             expect.error(function() peripheral.call("top", "isOpen", false) end)
-                :str_match("^peripheral_spec.lua:%d+: bad argument #1 %(number expected, got boolean%)$")
+                :str_match("^[^:]+:%d+: bad argument #1 %(number expected, got boolean%)$")
         end)
     end)
 

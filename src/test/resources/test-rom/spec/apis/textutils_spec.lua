@@ -49,7 +49,7 @@ describe("The textutils library", function()
     describe("textutils.empty_json_array", function()
         it("is immutable", function()
             expect.error(function() textutils.empty_json_array[1] = true end)
-                :eq("textutils_spec.lua:51: attempt to mutate textutils.empty_json_array")
+                :str_match("^[^:]+:51: attempt to mutate textutils.empty_json_array$")
         end)
     end)
 
