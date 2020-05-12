@@ -235,7 +235,7 @@ if shell then
         else
             if files[fs.getName(filename)] then print("Cannot upload files with duplicate names.") return true end
             local file = fs.open(shell.resolve(filename), "rb")
-            if file == nil then 
+            if file == nil then
                 if not isEditing then print("Could not read " .. filename .. ".") return true
                 else files[fs.getName(filename)] = textutils.json_null end
             else
