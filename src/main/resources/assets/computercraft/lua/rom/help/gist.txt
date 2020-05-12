@@ -2,7 +2,8 @@ Gist is a service provided by GitHub that allows uploading small sets of text fi
 The gist program lets you upload and download files through this service.
 The HTTP API must be enabled in ComputerCraft.cfg to use this program.
 The first time you upload a file to Gist, you will be prompted to enter a Personal Access Key (PAK).
-Follow the instructions at https://tinyurl.com/GitHubPAK to generate one. Make sure to check the 'gist' checkbox on step 7 (below 'Select scopes').
+Follow the instructions at https://tinyurl.com/GitHubPAK to generate one.
+Make sure to check the 'gist' checkbox on step 7 (below 'Select scopes').
 This PAK will be stored in your settings as "gist.id" for future use.
 
 Advantages of Gist over Pastebin:
@@ -35,11 +36,18 @@ If no file name is provided, it will try to find the most suitable file to downl
 * Otherwise, retrieves the first Lua file alphabetically (with a warning)
 * Otherwise, you'll need to manually give it a file name
 
+You can upload and download folders with Gist as well.
+When using the put subcommand, specifying a folder as an argument will upload every file inside that folder and each subdirectory inside.
+To download all files from a Gist into a folder, you can either specify an existing folder to download to,
+or you can tell it to create a new folder by specifying the new folder name ending with a slash ('/').
+
 When using the edit subcommand, you can delete files by deleting them on disk, then uploading the non-existent file.
 For example, if you want to delete "bar.lua" from your Gist, first delete "bar.lua" on the computer, then run "gist edit <id> bar.lua".
 You can also add or replace files by listing those files as well.
 Only files you specify will be changed: files you don't list won't be edited or deleted.
 Also, do not specify a file name in the ID when using edit.
+
+gist can also be loaded as an API with os.loadAPI. See the help for "gistapi" for more info on how to use it.
 
 Do not specify a file name or revision hash when using the delete subcommand.
 
