@@ -156,7 +156,7 @@ function info(id, showMessages)
 end
 
 --- Uploads a list of files to Gist, updating a previous Gist if desired.
--- @tparam table files The files to upload to Gist. This table should be 
+-- @tparam table files The files to upload to Gist. This table should be
 -- structured with a key as file name and a string with the file contents. If
 -- updating a Gist, files can be deleted by setting the data to textutils.json_null.
 -- @tparam[opt] string description The description of the Gist. This is required
