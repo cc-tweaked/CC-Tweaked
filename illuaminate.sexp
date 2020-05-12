@@ -59,7 +59,8 @@
 ;; hopefully we'll get illuaminate to handle this.
 (at
   (/src/main/resources/*/computercraft/lua/bios.lua
-   /src/main/resources/*/computercraft/lua/rom/apis/)
+   /src/main/resources/*/computercraft/lua/rom/apis/
+   /src/main/resources/*/computercraft/lua/rom/programs/http/gist.lua)
   (linters -var:unused-global)
   (lint (allow-toplevel-global true)))
 
