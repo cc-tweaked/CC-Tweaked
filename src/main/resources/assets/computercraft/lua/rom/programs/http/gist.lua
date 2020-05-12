@@ -121,7 +121,7 @@ function getAll(id, showMessages)
     if meta == nil or meta.files == nil then if showMessages then print("Failed.") end return nil end
     if showMessages then print("Success.") end
     local retval = {}
-    for k,v in pairs(meta.files) do retval[k] = getGistFile(v) end
+    for k, v in pairs(meta.files) do retval[k] = getGistFile(v) end
     return retval
 end
 
@@ -150,7 +150,7 @@ function info(id, showMessages)
     for k in pairs(meta.files) do table.insert(f, k) end
     table.sort(f)
     if showMessages then print("Success.") end
-    return {description = meta.description, author = meta.owner.login, revisionCount = #meta.history, files = f}
+    return { description = meta.description, author = meta.owner.login, revisionCount = #meta.history, files = f }
 end
 
 --- Uploads a list of files to Gist, updating a previous Gist if desired.
@@ -171,25 +171,25 @@ end
 function put(files, description, id, interactive)
     expect(1, files, "table")
     expect(3, id, "string", "nil")
-    expect(2, description, "string", (id == nil and "nil" or nil))
+    expect(2, description, "string", id == nil and "nil" or nil)
     expect(4, interactive, "boolean", "nil")
     if id then
         if id:find("/") ~= nil then id = id:match("^([0-9A-Fa-f:]+)/.*$") end
         if id == nil or not id:match("^[0-9A-Fa-f][0-9A-Fa-f:]+[0-9A-Fa-f]$") then error("bad argument #3 to 'put' (invalid ID)", 2) end
         if id:find(":") ~= nil then id = id:gsub(":", "/") end
     end
-    local data = {files = {}, public = true, description = description}
-    for k,v in pairs(files) do if v == textutils.json_null then data.files[k] = v else data.files[k] = {content = v} end end
-    local headers = {["Content-Type"] = "application/json"}
+    local data = { files = {}, public = true, description = description }
+    for k,v in pairs(files) do if v == textutils.json_null then data.files[k] = v else data.files[k] = { content = v } end end
+    local headers = { ["Content-Type"] = "application/json" }
     requestAuth(headers, interactive)
     if headers.Authorization == nil then return nil end
     if interactive then write("Connecting to api.github.com... ") end
     local handle
-    if id then handle = http.post{url = "https://api.github.com/gists/" .. id, body = textutils.serializeJSON(data):gsub("\n", "n"), headers = headers, method = "PATCH"}
+    if id then handle = http.post{ url = "https://api.github.com/gists/" .. id, body = textutils.serializeJSON(data):gsub("\n", "n"), headers = headers, method = "PATCH" }
     else handle = http.post("https://api.github.com/gists", textutils.serializeJSON(data):gsub("\n", "n"), headers) end
     if handle == nil then if interactive then print("Failed.") end return nil end
     local resp = textutils.unserializeJSON(handle.readAll())
-    if (handle.getResponseCode() ~= 201 and handle.getResponseCode() ~= 200) or resp == nil then
+    if handle.getResponseCode() ~= 201 and handle.getResponseCode() ~= 200 or resp == nil then
         if interactive then print("Failed: " .. handle.getResponseCode() .. ": " .. (resp and textutils.serializeJSON(resp) or "Unknown error")) end
         handle.close()
         return nil
@@ -213,7 +213,7 @@ function delete(id, interactive)
     local headers = {}
     requestAuth(headers, interactive)
     if interactive then write("Connecting to api.github.com... ") end
-    local handle = http.post{url = "https://api.github.com/gists/" .. id, headers = headers, method = "DELETE"}
+    local handle = http.post{ url = "https://api.github.com/gists/" .. id, headers = headers, method = "DELETE" }
     if handle == nil then if interactive then print("Failed.") end return false end
     if handle.getResponseCode() ~= 204 then if interactive then print("Failed: " .. handle.getResponseCode() .. ".") end handle.close() return false end
     handle.close()
@@ -225,11 +225,11 @@ end
 
 if shell then
 
-    local args = {...}
+    local args = { ... }
 
     local function readFile(filename, files)
         if fs.isDir(shell.resolve(filename)) then
-            for _,v in ipairs(fs.list(shell.resolve(filename))) do if readFile(fs.combine(filename, v), files) then return true end end
+            for _, v in ipairs(fs.list(shell.resolve(filename))) do if readFile(fs.combine(filename, v), files) then return true end end
         else
             if files[fs.getName(filename)] then print("Cannot upload files with duplicate names.") return true end
             local file = fs.open(shell.resolve(filename), "rb")
@@ -246,7 +246,7 @@ if shell then
             if readFile(args[i], files) then return nil end
             i = i + 1
         end
-        if args[i] == "--" then return files, table.concat({table.unpack(args, i + 1)}, " ") end
+        if args[i] == "--" then return files, table.concat({ table.unpack(args, i + 1) }, " ") end
         return files
     end
 
@@ -269,7 +269,7 @@ if shell then
             fs.makeDir(shell.resolve(args[3]))
             local files = getAll(args[2], true)
             if files == nil then return 3 end
-            for k,v in pairs(files) do
+            for k, v in pairs(files) do
                 local file = fs.open(shell.resolve(fs.combine(args[3], k)), "wb")
                 file.write(v)
                 file.close()
@@ -326,4 +326,4 @@ if shell then
         if delete(args[2], true) then print("The requested Gist has been deleted.") end
     else print(helpstr) return 1 end
 
-else return {get = get, getAll = getAll, run = run, info = info, put = put, delete = delete} end
+else return { get = get, getAll = getAll, run = run, info = info, put = put, delete = delete } end

@@ -218,7 +218,7 @@ describe("The gist program", function()
     it("upload a program to gist", function()
         setup_request()
 
-        local file = fs.open( "testup", "w" )
+        local file = fs.open("testup", "w")
         file.close()
 
         expect(capture(stub, "gist", "put", "testup"))
