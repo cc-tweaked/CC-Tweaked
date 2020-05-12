@@ -10,9 +10,9 @@ for i = 1, args.n do
     if #files > 0 then
         for _, file in ipairs(files) do
             if fs.isReadOnly(file) then
-                printError("Cannot delete read-only file " .. file)
+                printError("Cannot delete read-only file /" .. file)
             elseif fs.isDriveRoot(file) then
-                printError("Cannot delete mount " .. file)
+                printError("Cannot delete mount /" .. file)
                 if fs.isDir(file) then
                     print("To delete its contents run rm /" .. fs.combine(file, "*"))
                 end
