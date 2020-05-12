@@ -1,5 +1,7 @@
--- gist.lua - Gist client for ComputerCraft
+--- gist.lua - Gist client for ComputerCraft
 -- Made by JackMacWindows for CraftOS-PC and CC: Tweaked
+--
+-- @module gist
 
 local expect = require and require("cc.expect").expect or dofile("/rom/modules/main/cc/expect.lua").expect
 
@@ -227,23 +229,27 @@ if shell then
 
     local args = { ... }
 
-    local function readFile(filename, files)
+    local function readFile(filename, files, isEditing)
         if fs.isDir(shell.resolve(filename)) then
-            for _, v in ipairs(fs.list(shell.resolve(filename))) do if readFile(fs.combine(filename, v), files) then return true end end
+            for _, v in ipairs(fs.list(shell.resolve(filename))) do if readFile(fs.combine(filename, v), files, isEditing) then return true end end
         else
             if files[fs.getName(filename)] then print("Cannot upload files with duplicate names.") return true end
             local file = fs.open(shell.resolve(filename), "rb")
-            if file == nil then print("Could not read " .. shell.resolve(filename) .. ".") return true end
-            files[fs.getName(filename)] = file.readAll()
-            file.close()
+            if file == nil then 
+                if not isEditing then print("Could not read " .. filename .. ".") return true
+                else files[fs.getName(filename)] = textutils.json_null end
+            else
+                files[fs.getName(filename)] = file.readAll()
+                file.close()
+            end
         end
     end
 
-    local function getFiles(i)
+    local function getFiles(isEditing)
         local files = {}
-        i = i or 2
+        local i = isEditing and 3 or 2
         while args[i] ~= nil and args[i] ~= "--" do
-            if readFile(args[i], files) then return nil end
+            if readFile(args[i], files, isEditing) then return nil end
             i = i + 1
         end
         if args[i] == "--" then return files, table.concat({ table.unpack(args, i + 1) }, " ") end
@@ -288,11 +294,11 @@ if shell then
         if data == nil then return end
         local fn, err = load(data, name, "t", _ENV)
         if fn == nil then error(err) end
-        local retval = table.pack(pcall(fn, ...))
+        local retval = table.pack(pcall(fn, table.unpack(args, 3)))
         if not retval[1] then printError(retval[2])
         else return table.unpack(retval, 2) end
     elseif args[1] == "put" then
-        local files, description = getFiles()
+        local files, description = getFiles(false)
         if files == nil then return end
         local id, html_url = put(files, description, nil, true)
         if id ~= nil then print("Uploaded as " .. html_url .. "\nRun 'gist get " .. id .. "' to download anywhere") end
@@ -317,7 +323,7 @@ if shell then
         textutils.tabulate(tab.files)
     elseif args[1] == "edit" then
         if #args < 3 then print(helpstr) return 1 end
-        local files, description = getFiles(3)
+        local files, description = getFiles(true)
         if files == nil then return end
         if not description then description = info(args[2], true).description end
         local _, html_url = put(files, description, args[2], true)

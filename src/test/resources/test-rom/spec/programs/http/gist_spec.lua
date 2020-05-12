@@ -175,7 +175,7 @@ describe("The gist program", function()
                         if type(tab) == "table" and tab.method == "PATCH" then
                             return gistout
                                 :gsub('"hello_world.rb": %b{},\n', "")
-                                :gsub('"Hello World Examples"', '"Hello World Examples (Updated)"')
+                                :gsub('"Hello World Examples"', '"Hello World Examples (Updated)"'), nil
                         else return gistout end
                     end,
                     close = function()
@@ -250,7 +250,7 @@ describe("The gist program", function()
         setup_request()
 
         expect(capture(stub, "gist"))
-            :matches { ok = true, output = "Usages:\ngist put <filenames...> [-- description...]\ngist edit <id> <filenames...> [-- description]\ngist delete <id>\ngist get <id> <filename>\ngist run <id> [arguments...]\ngist info <id>\n", error = "" }
+            :matches { ok = true, output = "Usages:\ngist put <files...> [-- description...]\ngist edit <id> <files...> [-- description]\ngist delete <id>\ngist get <id> <filename>\ngist run <id> [arguments...]\ngist info <id>\n", error = "" }
     end)
 
     it("can be completed", function()
