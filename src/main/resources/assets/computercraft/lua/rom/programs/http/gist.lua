@@ -179,7 +179,7 @@ function put(files, description, id, interactive)
         if id:find(":") ~= nil then id = id:gsub(":", "/") end
     end
     local data = { files = {}, public = true, description = description }
-    for k,v in pairs(files) do if v == textutils.json_null then data.files[k] = v else data.files[k] = { content = v } end end
+    for k, v in pairs(files) do if v == textutils.json_null then data.files[k] = v else data.files[k] = { content = v } end end
     local headers = { ["Content-Type"] = "application/json" }
     requestAuth(headers, interactive)
     if headers.Authorization == nil then return nil end
