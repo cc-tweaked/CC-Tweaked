@@ -1,4 +1,3 @@
-
 local tArgs = { ... }
 if #tArgs < 1 then
     print("Usage: type <path>")
@@ -15,4 +14,3 @@ if fs.exists(sPath) then
 else
     print("No such path")
 end
-

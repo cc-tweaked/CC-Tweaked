@@ -1,4 +1,3 @@
-
 -- Get arguments
 local tArgs = { ... }
 if #tArgs == 0 then

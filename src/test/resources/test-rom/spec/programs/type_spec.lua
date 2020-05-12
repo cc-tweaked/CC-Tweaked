@@ -23,4 +23,3 @@ describe("The type program", function()
     end)
 
 end)
-

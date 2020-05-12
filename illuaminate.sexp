@@ -70,14 +70,12 @@
 
 ;; Suppress warnings for currently undocumented modules.
 (at
-  (/doc/stub/commands.lua
-   /doc/stub/fs.lua
+  (/doc/stub/fs.lua
    /doc/stub/http.lua
    /doc/stub/os.lua
    /doc/stub/redstone.lua
    /doc/stub/term.lua
    /doc/stub/turtle.lua
-   /src/main/resources/*/computercraft/lua/rom/apis/command/commands.lua
    /src/main/resources/*/computercraft/lua/rom/apis/io.lua
    /src/main/resources/*/computercraft/lua/rom/apis/window.lua
    /src/main/resources/*/computercraft/lua/rom/modules/main/cc/shell/completion.lua)

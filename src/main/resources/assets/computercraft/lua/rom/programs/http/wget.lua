@@ -1,4 +1,3 @@
-
 local function printUsage()
     print("Usage:")
     print("wget <url> [filename]")

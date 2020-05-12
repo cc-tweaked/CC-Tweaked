@@ -117,4 +117,3 @@ public interface TableFormatter
         return rowId - table.getId();
     }
 }
-

@@ -1,4 +1,3 @@
-
 -- Find modems
 local tModems = {}
 for _, sModem in ipairs(peripheral.getNames()) do

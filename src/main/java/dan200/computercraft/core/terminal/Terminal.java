@@ -5,6 +5,7 @@
  */
 package dan200.computercraft.core.terminal;
 
+import dan200.computercraft.shared.util.Colour;
 import dan200.computercraft.shared.util.Palette;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
@@ -342,7 +343,10 @@ public class Terminal
             for( int x = 0; x < m_width; x++ )
             {
                 buffer.writeByte( text.charAt( x ) & 0xFF );
-                buffer.writeByte( colourIndex( backColour.charAt( x ) ) << 4 | colourIndex( textColour.charAt( x ) ) );
+                buffer.writeByte( getColour(
+                    backColour.charAt( x ), Colour.Black ) << 4 |
+                    getColour( textColour.charAt( x ), Colour.White )
+                );
             }
         }
 
@@ -428,10 +432,10 @@ public class Terminal
         setChanged();
     }
 
-    private static int colourIndex( char c )
+    public static int getColour( char c, Colour def )
     {
         if( c >= '0' && c <= '9' ) return c - '0';
         if( c >= 'a' && c <= 'f' ) return c - 'a' + 10;
-        return 0;
+        return 15 - def.ordinal();
     }
 }

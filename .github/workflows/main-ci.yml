@@ -32,6 +32,9 @@ jobs:
         name: CC-Tweaked
         path: build/libs
 
+    - name: Upload Coverage
+      run: bash <(curl -s https://codecov.io/bash)
+
   lint-lua:
     name: Lint Lua
     runs-on: ubuntu-latest
