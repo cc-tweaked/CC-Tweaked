@@ -49,7 +49,7 @@ describe("The rm program", function()
         expect(capture(stub, "rm /")):matches {
             ok = true,
             output = "To delete its contents run rm /*\n",
-            error = "Cannot delete mount /\n"
+            error = "Cannot delete mount /\n",
         }
     end)
 
