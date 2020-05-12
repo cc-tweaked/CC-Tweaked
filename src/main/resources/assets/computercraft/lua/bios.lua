@@ -799,7 +799,8 @@ end
 
 function fs.isDriveRoot(sPath)
     expect(1, sPath, "string")
-    return fs.getDir(sPath) == ".." or fs.getDrive(sPath) ~= fs.getDrive(fs.getDir(sPath)) -- fs.getDir("/") gives ".." and we want "/" to be a mount
+    -- Force the root directory to be a mount.
+    return fs.getDir(sPath) == ".." or fs.getDrive(sPath) ~= fs.getDrive(fs.getDir(sPath))
 end
 
 -- Load APIs
