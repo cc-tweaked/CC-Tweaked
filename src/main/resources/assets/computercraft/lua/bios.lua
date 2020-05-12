@@ -797,6 +797,12 @@ function fs.complete(sPath, sLocation, bIncludeFiles, bIncludeDirs)
     return tEmpty
 end
 
+function fs.isDriveRoot(sPath)
+    expect(1, sPath, "string")
+    -- Force the root directory to be a mount.
+    return fs.getDir(sPath) == ".." or fs.getDrive(sPath) ~= fs.getDrive(fs.getDir(sPath))
+end
+
 -- Load APIs
 local bAPIError = false
 local tApis = fs.list("rom/apis")
