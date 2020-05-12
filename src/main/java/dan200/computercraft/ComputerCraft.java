@@ -22,7 +22,6 @@ import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.event.TurtleAction;
 import dan200.computercraft.core.apis.AddressPredicate;
 import dan200.computercraft.core.apis.ApiFactories;
-import dan200.computercraft.core.apis.http.websocket.Websocket;
 import dan200.computercraft.core.computer.MainThread;
 import dan200.computercraft.core.filesystem.ComboMount;
 import dan200.computercraft.core.filesystem.FileMount;
@@ -47,6 +46,7 @@ import dan200.computercraft.shared.peripheral.modem.wired.ItemCable;
 import dan200.computercraft.shared.peripheral.modem.wireless.BlockAdvancedModem;
 import dan200.computercraft.shared.peripheral.modem.wireless.ItemAdvancedModem;
 import dan200.computercraft.shared.peripheral.modem.wireless.WirelessNetwork;
+import dan200.computercraft.shared.peripheral.monitor.MonitorRenderer;
 import dan200.computercraft.shared.pocket.items.ItemPocketComputer;
 import dan200.computercraft.shared.pocket.peripherals.PocketModem;
 import dan200.computercraft.shared.pocket.peripherals.PocketSpeaker;
@@ -128,7 +128,7 @@ public class ComputerCraft
     public static long httpMaxDownload = 16 * 1024 * 1024;
     public static long httpMaxUpload = 4 * 1024 * 1024;
     public static int httpMaxWebsockets = 4;
-    public static int httpMaxWebsocketMessage = Websocket.MAX_MESSAGE_SIZE;
+    public static int httpMaxWebsocketMessage = 128 * 1024;
 
     public static boolean enableCommandBlock = false;
     public static int modem_range = 64;
@@ -136,6 +136,7 @@ public class ComputerCraft
     public static int modem_rangeDuringStorm = 64;
     public static int modem_highAltitudeRangeDuringStorm = 384;
     public static int maxNotesPerTick = 8;
+    public static MonitorRenderer monitorRenderer = MonitorRenderer.BEST;
 
     public static boolean turtlesNeedFuel = true;
     public static int turtleFuelLimit = 20000;

@@ -80,7 +80,7 @@ public class ItemDiskLegacy extends Item implements IMedia, IColouredItem
     @Override
     public void addInformation( @Nonnull ItemStack stack, World world, List<String> list, ITooltipFlag flag )
     {
-        if( flag.isAdvanced() )
+        if( flag.isAdvanced() || getLabel( stack ) == null )
         {
             int id = getDiskID( stack );
             if( id >= 0 ) list.add( StringUtil.translateFormatted( "gui.computercraft.tooltip.disk_id", id ) );

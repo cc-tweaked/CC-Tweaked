@@ -11,11 +11,11 @@
 --
 -- @module disk
 
-local function isDrive( name )
-    if type( name ) ~= "string" then
-        error( "bad argument #1 (expected string, got " .. type( name ) .. ")", 3 )
+local function isDrive(name)
+    if type(name) ~= "string" then
+        error("bad argument #1 (expected string, got " .. type(name) .. ")", 3)
     end
-    return peripheral.getType( name ) == "drive"
+    return peripheral.getType(name) == "drive"
 end
 
 --- Checks whether any item at all is in the disk drive
@@ -23,9 +23,9 @@ end
 -- @tparam string name The name of the disk drive.
 -- @treturn boolean If something is in the disk drive.
 -- @usage disk.isPresent(false)
-function isPresent( name )
-    if isDrive( name ) then
-        return peripheral.call( name, "isDiskPresent" )
+function isPresent(name)
+    if isDrive(name) then
+        return peripheral.call(name, "isDiskPresent")
     end
     return false
 end
@@ -40,9 +40,9 @@ end
 -- @treturn string|nil The name of the current media, or `nil` if the drive is
 -- not present or empty.
 -- @see disk.setLabel
-function getLabel( name )
-    if isDrive( name ) then
-        return peripheral.call( name, "getDiskLabel" )
+function getLabel(name)
+    if isDrive(name) then
+        return peripheral.call(name, "getDiskLabel")
     end
     return nil
 end
@@ -51,9 +51,9 @@ end
 --
 -- @tparam string name The name of the disk drive.
 -- @tparam string|nil label The new label of the disk
-function setLabel( name, label )
-    if isDrive( name ) then
-        peripheral.call( name, "setDiskLabel", label )
+function setLabel(name, label)
+    if isDrive(name) then
+        peripheral.call(name, "setDiskLabel", label)
     end
 end
 
@@ -64,9 +64,9 @@ end
 -- @tparam string name The name of the disk drive.
 -- @treturn boolean If the disk is present and provides a mount.
 -- @see disk.getMountPath
-function hasData( name )
-    if isDrive( name ) then
-        return peripheral.call( name, "hasData" )
+function hasData(name)
+    if isDrive(name) then
+        return peripheral.call(name, "hasData")
     end
     return false
 end
@@ -78,9 +78,9 @@ end
 -- @treturn string|nil The mount's directory, or `nil` if the drive does not
 -- contain a floppy or computer.
 -- @see disk.hasData
-function getMountPath( name )
-    if isDrive( name ) then
-        return peripheral.call( name, "getMountPath" )
+function getMountPath(name)
+    if isDrive(name) then
+        return peripheral.call(name, "getMountPath")
     end
     return nil
 end
@@ -94,9 +94,9 @@ end
 --
 -- @tparam string name The name of the disk drive.
 -- @treturn boolean If the disk is present and has audio saved on it.
-function hasAudio( name )
-    if isDrive( name ) then
-        return peripheral.call( name, "hasAudio" )
+function hasAudio(name)
+    if isDrive(name) then
+        return peripheral.call(name, "hasAudio")
     end
     return false
 end
@@ -106,11 +106,11 @@ end
 -- This generally returns the same as @{disk.getLabel} for records.
 --
 -- @tparam string name The name of the disk drive.
--- @treturn string|false|nil The track title, `false` if there is not a music
+-- @treturn string|false|nil The track title, @{false} if there is not a music
 -- record in the drive or `nil` if no drive is present.
-function getAudioTitle( name )
-    if isDrive( name ) then
-        return peripheral.call( name, "getAudioTitle" )
+function getAudioTitle(name)
+    if isDrive(name) then
+        return peripheral.call(name, "getAudioTitle")
     end
     return nil
 end
@@ -124,9 +124,9 @@ end
 --
 -- @tparam string name The name of the disk drive.
 -- @usage disk.playAudio("bottom")
-function playAudio( name )
-    if isDrive( name ) then
-        peripheral.call( name, "playAudio" )
+function playAudio(name)
+    if isDrive(name) then
+        peripheral.call(name, "playAudio")
     end
 end
 
@@ -134,14 +134,14 @@ end
 -- @{disk.playAudio}.
 --
 -- @tparam string name The name o the disk drive.
-function stopAudio( name )
+function stopAudio(name)
     if not name then
-        for _, sName in ipairs( peripheral.getNames() ) do
-            stopAudio( sName )
+        for _, sName in ipairs(peripheral.getNames()) do
+            stopAudio(sName)
         end
     else
-        if isDrive( name ) then
-            peripheral.call( name, "stopAudio" )
+        if isDrive(name) then
+            peripheral.call(name, "stopAudio")
         end
     end
 end
@@ -150,9 +150,9 @@ end
 --
 -- @tparam string name The name of the disk drive.
 -- @usage disk.eject("bottom")
-function eject( name )
-    if isDrive( name ) then
-        peripheral.call( name, "ejectDisk" )
+function eject(name)
+    if isDrive(name) then
+        peripheral.call(name, "ejectDisk")
     end
 end
 
@@ -163,9 +163,9 @@ end
 --
 -- @tparam string name The name of the disk drive.
 -- @treturn string|nil The disk ID, or `nil` if the drive does not contain a floppy disk.
-function getID( name )
-    if isDrive( name ) then
-        return peripheral.call( name, "getDiskID" )
+function getID(name)
+    if isDrive(name) then
+        return peripheral.call(name, "getDiskID")
     end
     return nil
 end

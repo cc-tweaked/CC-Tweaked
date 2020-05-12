@@ -199,8 +199,6 @@ function websocket(url, headers) end
 -- of the initial websocket connection.
 function websocketAsync(url, headers) end
 
-
-
 --- A websocket, which can be used to send an receive messages with a web
 -- server.
 --
@@ -208,6 +206,24 @@ function websocketAsync(url, headers) end
 -- @see http.websocket On how to open a websocket.
 local Websocket = {}
 
+--- Send a websocket message to the connected server.
+--
+-- @tparam string message The message to send.
+-- @tparam[opt] boolean binary Whether this message should be treated as a
+-- binary string, rather than encoded text.
+-- @throws If the websocket has been closed.
 function Websocket.send(message, binary) end
-function Websocket.receive() end
+
+--- Wait for a message from the server.
+--
+-- @tparam[opt] number timeout The number of seconds to wait if no message is
+-- received.
+-- @treturn[1] string The received message.
+-- @treturn boolean If this was a binary message.
+-- @treturn[2] nil If the websocket was closed while waiting, or if we timed out.
+-- @throws If the websocket has been closed.
+function Websocket.receive(timeout) end
+
+--- Close this websocket. This will terminate the connection, meaning messages
+-- can no longer be sent or received along it.
 function Websocket.close() end

@@ -10,12 +10,18 @@ import dan200.computercraft.api.filesystem.IWritableMount;
 import dan200.computercraft.api.lua.ILuaAPI;
 import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
+import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.core.computer.BasicEnvironment;
 import dan200.computercraft.core.computer.Computer;
+import dan200.computercraft.core.computer.ComputerSide;
 import dan200.computercraft.core.computer.MainThread;
 import dan200.computercraft.core.filesystem.FileMount;
 import dan200.computercraft.core.filesystem.FileSystemException;
 import dan200.computercraft.core.terminal.Terminal;
+import dan200.computercraft.shared.peripheral.modem.ModemState;
+import dan200.computercraft.shared.peripheral.modem.wireless.WirelessModemPeripheral;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.World;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.*;
@@ -24,12 +30,14 @@ import org.opentest4j.AssertionFailedError;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
 import java.io.Writer;
 import java.nio.channels.Channels;
 import java.nio.channels.WritableByteChannel;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
@@ -52,6 +60,8 @@ import static dan200.computercraft.api.lua.ArgumentHelper.getType;
  */
 public class ComputerTestDelegate
 {
+    private static final File REPORT_PATH = new File( "test-files/luacov.report.out" );
+
     private static final Logger LOG = LogManager.getLogger( ComputerTestDelegate.class );
 
     private static final long TICK_TIME = TimeUnit.MILLISECONDS.toNanos( 50 );
@@ -71,12 +81,15 @@ public class ComputerTestDelegate
 
     private final Condition hasFinished = lock.newCondition();
     private boolean finished = false;
+    private Map<String, Map<Double, Double>> finishedWith;
 
     @BeforeEach
     public void before() throws IOException
     {
         ComputerCraft.logPeripheralErrors = true;
         ComputerCraft.log = LogManager.getLogger( ComputerCraft.MOD_ID );
+
+        if( REPORT_PATH.delete() ) ComputerCraft.log.info( "Deleted previous coverage report." );
 
         Terminal term = new Terminal( 78, 20 );
         IWritableMount mount = new FileMount( new File( "test-files/mount" ), 10_000_000 );
@@ -90,10 +103,11 @@ public class ComputerTestDelegate
         try( WritableByteChannel channel = mount.openChannelForWrite( "startup.lua" );
              Writer writer = Channels.newWriter( channel, StandardCharsets.UTF_8.newEncoder(), -1 ) )
         {
-            writer.write( "loadfile('test/mcfly.lua', nil, _ENV)('test/spec') cct_test.finish()" );
+            writer.write( "loadfile('test-rom/mcfly.lua', nil, _ENV)('test-rom/spec') cct_test.finish()" );
         }
 
         computer = new Computer( new BasicEnvironment( mount ), term, 0 );
+        computer.getEnvironment().setPeripheral( ComputerSide.TOP, new FakeModem() );
         computer.addApi( new ILuaAPI()
         {
             @Override
@@ -115,7 +129,7 @@ public class ComputerTestDelegate
                 try
                 {
                     computer.getAPIEnvironment().getFileSystem().mount(
-                        "test-rom", "test",
+                        "test-rom", "test-rom",
                         BasicEnvironment.createMount( ComputerTestDelegate.class, "test-rom", "test" )
                     );
                 }
@@ -258,6 +272,13 @@ public class ComputerTestDelegate
                         try
                         {
                             finished = true;
+                            if( arguments.length > 0 )
+                            {
+                                @SuppressWarnings( "unchecked" )
+                                Map<String, Map<Double, Double>> finished = (Map<String, Map<Double, Double>>) arguments[0];
+                                finishedWith = finished;
+                            }
+
                             hasFinished.signal();
                         }
                         finally
@@ -275,7 +296,7 @@ public class ComputerTestDelegate
     }
 
     @AfterEach
-    public void after() throws InterruptedException
+    public void after() throws InterruptedException, IOException
     {
         try
         {
@@ -309,6 +330,14 @@ public class ComputerTestDelegate
 
             // And shutdown
             computer.shutdown();
+        }
+
+        if( finishedWith != null )
+        {
+            try( BufferedWriter writer = Files.newBufferedWriter( REPORT_PATH.toPath() ) )
+            {
+                new LuaCoverage( finishedWith ).write( writer );
+            }
         }
     }
 
@@ -416,5 +445,34 @@ public class ComputerTestDelegate
     private static String formatName( String name )
     {
         return name.replace( "\0", " -> " );
+    }
+
+    private static class FakeModem extends WirelessModemPeripheral
+    {
+        FakeModem()
+        {
+            super( new ModemState(), true );
+        }
+
+        @Nonnull
+        @Override
+        @SuppressWarnings( "ConstantConditions" )
+        public World getWorld()
+        {
+            return null;
+        }
+
+        @Nonnull
+        @Override
+        public Vec3d getPosition()
+        {
+            return Vec3d.ZERO;
+        }
+
+        @Override
+        public boolean equals( @Nullable IPeripheral other )
+        {
+            return this == other;
+        }
     }
 }

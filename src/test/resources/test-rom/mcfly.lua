@@ -47,7 +47,7 @@ local function default_stub() end
 
 --- Stub a table entry with a new value.
 --
--- @tparam table
+-- @tparam table tbl The table whose field should be stubbed.
 -- @tparam string key The variable to stub
 -- @param[opt] value The value to stub it with. If this is a function, one can
 -- use the various stub expectation methods to determine what it was called
@@ -224,7 +224,7 @@ expect_mt.ne = expect_mt.not_equals
 function expect_mt:type(exp_type)
     local actual_type = type(self.value)
     if exp_type ~= actual_type then
-        fail(("Expected value of type %s\n                   got %s"):format(exp_type, actual_type))
+        fail(("Expected value of type %s\nbut got %s"):format(exp_type, actual_type))
     end
 
     return self
@@ -238,8 +238,8 @@ local function matches(eq, exact, left, right)
 
     -- If we've already explored/are exploring the left and right then return
     if eq[left] and eq[left][right] then return true end
-    if not eq[left]  then eq[left] = {[right] = true} else eq[left][right] = true end
-    if not eq[right] then eq[right] = {[left] = true} else eq[right][left] = true end
+    if not eq[left]  then eq[left] = { [right] = true } else eq[left][right] = true end
+    if not eq[right] then eq[right] = { [left] = true } else eq[right][left] = true end
 
     -- Verify all pairs in left are equal to those in right
     for k, v in pairs(left) do
@@ -273,7 +273,7 @@ end
 -- @throws If they are not equivalent
 function expect_mt:same(value)
     if not matches({}, true, self.value, value) then
-        fail(("Expected %s\n but got %s"):format(format(value), format(self.value)))
+        fail(("Expected %s\nbut got %s"):format(format(value), format(self.value)))
     end
 
     return self
@@ -354,6 +354,22 @@ end
 -- Arguments are compared using matching.
 function expect_mt:called_with_matching(...)
     return called_with_check(matches, self, ...)
+end
+
+--- Assert that this expectation matches a Lua pattern
+--
+-- @tparam string pattern The pattern to match against
+-- @throws If it does not match this pattern.
+function expect_mt:str_match(pattern)
+    local actual_type = type(self.value)
+    if actual_type ~= "string" then
+        fail(("Expected value of type string\nbut got %s"):format(actual_type))
+    end
+    if not self.value:find(pattern) then
+        fail(("Expected %q\n to match pattern %q"):format(self.value, pattern))
+    end
+
+    return self
 end
 
 local expect = {}
@@ -465,6 +481,49 @@ local function pending(name)
     test_stack[n], test_stack.n = name, n
     do_test { pending = true, trace = loc }
     test_stack.n = n - 1
+end
+
+local native_co_create, native_loadfile = coroutine.create, loadfile
+local line_counts = {}
+if cct_test then
+    local string_sub, debug_getinfo = string.sub, debug.getinfo
+    local function debug_hook(_, line_nr)
+        local name = debug_getinfo(2, "S").source
+        if string_sub(name, 1, 1) ~= "@" then return end
+        name = string_sub(name, 2)
+
+        local file = line_counts[name]
+        if not file then file = {} line_counts[name] = file end
+        file[line_nr] = (file[line_nr] or 0) + 1
+    end
+
+    coroutine.create = function(...)
+        local co = native_co_create(...)
+        debug.sethook(co, debug_hook, "l")
+        return co
+    end
+
+    local expect = require "cc.expect".expect
+    _G.native_loadfile = native_loadfile
+    _G.loadfile = function(filename, mode, env)
+        -- Support the previous `loadfile(filename, env)` form instead.
+        if type(mode) == "table" and env == nil then
+            mode, env = nil, mode
+        end
+
+        expect(1, filename, "string")
+        expect(2, mode, "string", "nil")
+        expect(3, env, "table", "nil")
+
+        local file = fs.open(filename, "r")
+        if not file then return nil, "File not found" end
+
+        local func, err = load(file.readAll(), "@/" .. fs.combine(filename, ""), mode, env)
+        file.close()
+        return func, err
+    end
+
+    debug.sethook(debug_hook, "l")
 end
 
 local arg = ...
@@ -632,4 +691,11 @@ if test_status.pending > 0 then
 end
 
 term.setTextColour(colours.white) io.write(info .. "\n")
+
+-- Restore hook stubs
+debug.sethook(nil, "l")
+coroutine.create = native_co_create
+_G.loadfile = native_loadfile
+
+if cct_test then cct_test.finish(line_counts) end
 if howlci then howlci.log("debug", info) sleep(3) end

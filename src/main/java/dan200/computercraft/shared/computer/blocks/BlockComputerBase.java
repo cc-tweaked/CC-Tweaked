@@ -128,7 +128,7 @@ public abstract class BlockComputerBase extends BlockDirectional
             if( tile instanceof TileComputerBase )
             {
                 TileComputerBase computer = (TileComputerBase) tile;
-                if( !player.capabilities.isCreativeMode || computer.getLabel() != null )
+                if( !player.capabilities.isCreativeMode || computer.getLabel() != null || computer.getComputerID() != -1 )
                 {
                     spawnAsEntity( world, pos, getItem( computer ) );
                 }

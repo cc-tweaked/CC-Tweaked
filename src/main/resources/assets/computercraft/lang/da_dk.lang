@@ -44,5 +44,5 @@ chat.computercraft.wired_modem.peripheral_disconnected=Perifer enhed "%s" koblet
 
 # Misc tooltips
 gui.computercraft.tooltip.copy=Kopier til udklipsholder
-gui.computercraft.tooltip.computer_id=(Computer-ID: %s)
-gui.computercraft.tooltip.disk_id=(Disk-ID: %s)
+gui.computercraft.tooltip.computer_id=Computer-ID: %s
+gui.computercraft.tooltip.disk_id=Disk-ID: %s

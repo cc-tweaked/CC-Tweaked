@@ -320,11 +320,11 @@ end
 Doc.__tostring = render --- @local
 
 local keywords = {
-    [ "and" ] = true, [ "break" ] = true, [ "do" ] = true, [ "else" ] = true,
-    [ "elseif" ] = true, [ "end" ] = true, [ "false" ] = true, [ "for" ] = true,
-    [ "function" ] = true, [ "if" ] = true, [ "in" ] = true, [ "local" ] = true,
-    [ "nil" ] = true, [ "not" ] = true, [ "or" ] = true, [ "repeat" ] = true, [ "return" ] = true,
-    [ "then" ] = true, [ "true" ] = true, [ "until" ] = true, [ "while" ] = true,
+    ["and"] = true, ["break"] = true, ["do"] = true, ["else"] = true,
+    ["elseif"] = true, ["end"] = true, ["false"] = true, ["for"] = true,
+    ["function"] = true, ["if"] = true, ["in"] = true, ["local"] = true,
+    ["nil"] = true, ["not"] = true, ["or"] = true, ["repeat"] = true, ["return"] = true,
+    ["then"] = true, ["true"] = true, ["until"] = true, ["while"] = true,
   }
 
 local comma = text(",")
@@ -384,7 +384,7 @@ local function pretty_impl(obj, tracking)
         end
 
         tracking[obj] = nil
-        return group(concat(obrace, nest(2, concat(table.unpack(doc, 1, n))), space_line, cbrace))
+        return group(concat(obrace, nest(2, concat(table.unpack(doc, 1, doc.n))), space_line, cbrace))
     end
 end
 

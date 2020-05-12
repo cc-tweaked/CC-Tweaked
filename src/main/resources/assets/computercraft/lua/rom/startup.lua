@@ -22,134 +22,134 @@ end
 if http then
     sPath = sPath .. ":/rom/programs/http"
 end
-shell.setPath( sPath )
-help.setPath( "/rom/help" )
+shell.setPath(sPath)
+help.setPath("/rom/help")
 
 -- Setup aliases
-shell.setAlias( "ls", "list" )
-shell.setAlias( "dir", "list" )
-shell.setAlias( "cp", "copy" )
-shell.setAlias( "mv", "move" )
-shell.setAlias( "rm", "delete" )
-shell.setAlias( "clr", "clear" )
-shell.setAlias( "rs", "redstone" )
-shell.setAlias( "sh", "shell" )
+shell.setAlias("ls", "list")
+shell.setAlias("dir", "list")
+shell.setAlias("cp", "copy")
+shell.setAlias("mv", "move")
+shell.setAlias("rm", "delete")
+shell.setAlias("clr", "clear")
+shell.setAlias("rs", "redstone")
+shell.setAlias("sh", "shell")
 if term.isColor() then
-    shell.setAlias( "background", "bg" )
-    shell.setAlias( "foreground", "fg" )
+    shell.setAlias("background", "bg")
+    shell.setAlias("foreground", "fg")
 end
 
 -- Setup completion functions
 
 local function completePastebinPut(shell, text, previous)
     if previous[2] == "put" then
-        return fs.complete( text, shell.dir(), true, false )
+        return fs.complete(text, shell.dir(), true, false)
     end
 end
 
-shell.setCompletionFunction( "rom/programs/alias.lua", completion.build(nil, completion.program) )
-shell.setCompletionFunction( "rom/programs/cd.lua", completion.build(completion.dir) )
-shell.setCompletionFunction( "rom/programs/copy.lua", completion.build(
+shell.setCompletionFunction("rom/programs/alias.lua", completion.build(nil, completion.program))
+shell.setCompletionFunction("rom/programs/cd.lua", completion.build(completion.dir))
+shell.setCompletionFunction("rom/programs/copy.lua", completion.build(
     { completion.dirOrFile, true },
     completion.dirOrFile
-) )
-shell.setCompletionFunction( "rom/programs/delete.lua", completion.build({ completion.dirOrFile, many = true }) )
-shell.setCompletionFunction( "rom/programs/drive.lua", completion.build(completion.dir) )
-shell.setCompletionFunction( "rom/programs/edit.lua", completion.build(completion.file) )
-shell.setCompletionFunction( "rom/programs/eject.lua", completion.build(completion.peripheral) )
-shell.setCompletionFunction( "rom/programs/gps.lua", completion.build({ completion.choice, { "host", "host ", "locate" } }) )
-shell.setCompletionFunction( "rom/programs/help.lua", completion.build(completion.help) )
-shell.setCompletionFunction( "rom/programs/id.lua", completion.build(completion.peripheral) )
-shell.setCompletionFunction( "rom/programs/label.lua", completion.build(
+))
+shell.setCompletionFunction("rom/programs/delete.lua", completion.build({ completion.dirOrFile, many = true }))
+shell.setCompletionFunction("rom/programs/drive.lua", completion.build(completion.dir))
+shell.setCompletionFunction("rom/programs/edit.lua", completion.build(completion.file))
+shell.setCompletionFunction("rom/programs/eject.lua", completion.build(completion.peripheral))
+shell.setCompletionFunction("rom/programs/gps.lua", completion.build({ completion.choice, { "host", "host ", "locate" } }))
+shell.setCompletionFunction("rom/programs/help.lua", completion.build(completion.help))
+shell.setCompletionFunction("rom/programs/id.lua", completion.build(completion.peripheral))
+shell.setCompletionFunction("rom/programs/label.lua", completion.build(
     { completion.choice, { "get", "get ", "set ", "clear", "clear " } },
     completion.peripheral
-) )
-shell.setCompletionFunction( "rom/programs/list.lua", completion.build(completion.dir) )
-shell.setCompletionFunction( "rom/programs/mkdir.lua", completion.build({ completion.dir, many = true }) )
-shell.setCompletionFunction( "rom/programs/monitor.lua", completion.build(
+))
+shell.setCompletionFunction("rom/programs/list.lua", completion.build(completion.dir))
+shell.setCompletionFunction("rom/programs/mkdir.lua", completion.build({ completion.dir, many = true }))
+shell.setCompletionFunction("rom/programs/monitor.lua", completion.build(
     { completion.peripheral, true },
     completion.program
-) )
-shell.setCompletionFunction( "rom/programs/move.lua", completion.build(
+))
+shell.setCompletionFunction("rom/programs/move.lua", completion.build(
     { completion.dirOrFile, true },
     completion.dirOrFile
-) )
-shell.setCompletionFunction( "rom/programs/redstone.lua", completion.build(
+))
+shell.setCompletionFunction("rom/programs/redstone.lua", completion.build(
     { completion.choice, { "probe", "set ", "pulse " } },
     completion.side
-) )
-shell.setCompletionFunction( "rom/programs/rename.lua", completion.build(
+))
+shell.setCompletionFunction("rom/programs/rename.lua", completion.build(
     { completion.dirOrFile, true },
     completion.dirOrFile
-) )
-shell.setCompletionFunction( "rom/programs/shell.lua", completion.build(completion.program) )
-shell.setCompletionFunction( "rom/programs/type.lua", completion.build(completion.dirOrFile) )
-shell.setCompletionFunction( "rom/programs/set.lua", completion.build({ completion.setting, true }) )
-shell.setCompletionFunction( "rom/programs/advanced/bg.lua", completion.build(completion.program) )
-shell.setCompletionFunction( "rom/programs/advanced/fg.lua", completion.build(completion.program) )
-shell.setCompletionFunction( "rom/programs/fun/dj.lua", completion.build(
+))
+shell.setCompletionFunction("rom/programs/shell.lua", completion.build(completion.program))
+shell.setCompletionFunction("rom/programs/type.lua", completion.build(completion.dirOrFile))
+shell.setCompletionFunction("rom/programs/set.lua", completion.build({ completion.setting, true }))
+shell.setCompletionFunction("rom/programs/advanced/bg.lua", completion.build(completion.program))
+shell.setCompletionFunction("rom/programs/advanced/fg.lua", completion.build(completion.program))
+shell.setCompletionFunction("rom/programs/fun/dj.lua", completion.build(
     { completion.choice, { "play", "play ", "stop " } },
     completion.peripheral
-) )
-shell.setCompletionFunction( "rom/programs/fun/advanced/paint.lua", completion.build(completion.file) )
-shell.setCompletionFunction( "rom/programs/http/pastebin.lua", completion.build(
+))
+shell.setCompletionFunction("rom/programs/fun/advanced/paint.lua", completion.build(completion.file))
+shell.setCompletionFunction("rom/programs/http/pastebin.lua", completion.build(
     { completion.choice, { "put ", "get ", "run " } },
     completePastebinPut
-) )
-shell.setCompletionFunction( "rom/programs/http/gist.lua", completion.build(
-    { completion.choice, { "put ", "edit ", "delete ", "get ", "run ", "info " } },
+))
+shell.setCompletionFunction("rom/programs/http/gist.lua", completion.build(
+    {completion.choice, {"put ", "edit ", "delete ", "get ", "run ", "info "}},
     completePastebinPut
-) )
-shell.setCompletionFunction( "rom/programs/rednet/chat.lua", completion.build({ completion.choice, { "host ", "join " } }) )
-shell.setCompletionFunction( "rom/programs/command/exec.lua", completion.build(completion.command) )
-shell.setCompletionFunction( "rom/programs/http/wget.lua", completion.build({ completion.choice, { "run " } }) )
+))
+shell.setCompletionFunction("rom/programs/rednet/chat.lua", completion.build({ completion.choice, { "host ", "join " } }))
+shell.setCompletionFunction("rom/programs/command/exec.lua", completion.build(completion.command))
+shell.setCompletionFunction("rom/programs/http/wget.lua", completion.build({ completion.choice, { "run " } }))
 
 if turtle then
-    shell.setCompletionFunction( "rom/programs/turtle/go.lua", completion.build(
+    shell.setCompletionFunction("rom/programs/turtle/go.lua", completion.build(
         { completion.choice, { "left", "right", "forward", "back", "down", "up" }, true, many = true }
-    ) )
-    shell.setCompletionFunction( "rom/programs/turtle/turn.lua", completion.build(
+    ))
+    shell.setCompletionFunction("rom/programs/turtle/turn.lua", completion.build(
         { completion.choice, { "left", "right" }, true, many = true }
-    ) )
-    shell.setCompletionFunction( "rom/programs/turtle/equip.lua", completion.build(
+    ))
+    shell.setCompletionFunction("rom/programs/turtle/equip.lua", completion.build(
         nil,
         { completion.choice, { "left", "right" } }
-    ) )
-    shell.setCompletionFunction( "rom/programs/turtle/unequip.lua", completion.build(
+    ))
+    shell.setCompletionFunction("rom/programs/turtle/unequip.lua", completion.build(
         { completion.choice, { "left", "right" } }
-    ) )
+    ))
 end
 
 -- Run autorun files
-if fs.exists( "/rom/autorun" ) and fs.isDir( "/rom/autorun" ) then
-    local tFiles = fs.list( "/rom/autorun" )
-    for _, sFile in ipairs( tFiles ) do
-        if string.sub( sFile, 1, 1 ) ~= "." then
+if fs.exists("/rom/autorun") and fs.isDir("/rom/autorun") then
+    local tFiles = fs.list("/rom/autorun")
+    for _, sFile in ipairs(tFiles) do
+        if string.sub(sFile, 1, 1) ~= "." then
             local sPath = "/rom/autorun/" .. sFile
-            if not fs.isDir( sPath ) then
-                shell.run( sPath )
+            if not fs.isDir(sPath) then
+                shell.run(sPath)
             end
         end
     end
 end
 
-local function findStartups( sBaseDir )
+local function findStartups(sBaseDir)
     local tStartups = nil
-    local sBasePath = "/" .. fs.combine( sBaseDir, "startup" )
-    local sStartupNode = shell.resolveProgram( sBasePath )
+    local sBasePath = "/" .. fs.combine(sBaseDir, "startup")
+    local sStartupNode = shell.resolveProgram(sBasePath)
     if sStartupNode then
         tStartups = { sStartupNode }
     end
     -- It's possible that there is a startup directory and a startup.lua file, so this has to be
     -- executed even if a file has already been found.
-    if fs.isDir( sBasePath ) then
+    if fs.isDir(sBasePath) then
         if tStartups == nil then
             tStartups = {}
         end
-        for _, v in pairs( fs.list( sBasePath ) ) do
-            local sPath = "/" .. fs.combine( sBasePath, v )
-            if not fs.isDir( sPath ) then
-                tStartups[ #tStartups + 1 ] = sPath
+        for _, v in pairs(fs.list(sBasePath)) do
+            local sPath = "/" .. fs.combine(sBasePath, v)
+            if not fs.isDir(sPath) then
+                tStartups[#tStartups + 1] = sPath
             end
         end
     end
@@ -157,19 +157,19 @@ local function findStartups( sBaseDir )
 end
 
 -- Show MOTD
-if settings.get( "motd.enable" ) then
-    shell.run( "motd" )
+if settings.get("motd.enable") then
+    shell.run("motd")
 end
 
 -- Run the user created startup, either from disk drives or the root
 local tUserStartups = nil
-if settings.get( "shell.allow_startup" ) then
-    tUserStartups = findStartups( "/" )
+if settings.get("shell.allow_startup") then
+    tUserStartups = findStartups("/")
 end
-if settings.get( "shell.allow_disk_startup" ) then
-    for _, sName in pairs( peripheral.getNames() ) do
-        if disk.isPresent( sName ) and disk.hasData( sName ) then
-            local startups = findStartups( disk.getMountPath( sName ) )
+if settings.get("shell.allow_disk_startup") then
+    for _, sName in pairs(peripheral.getNames()) do
+        if disk.isPresent(sName) and disk.hasData(sName) then
+            local startups = findStartups(disk.getMountPath(sName))
             if startups then
                 tUserStartups = startups
                 break
@@ -178,7 +178,7 @@ if settings.get( "shell.allow_disk_startup" ) then
     end
 end
 if tUserStartups then
-    for _, v in pairs( tUserStartups ) do
-        shell.run( v )
+    for _, v in pairs(tUserStartups) do
+        shell.run(v)
     end
 end

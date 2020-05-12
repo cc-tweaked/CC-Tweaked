@@ -1,4 +1,6 @@
 describe("The peripheral library", function()
+    local it_modem = peripheral.getType("top") == "modem" and it or pending
+
     describe("peripheral.isPresent", function()
         it("validates arguments", function()
             peripheral.isPresent("")
@@ -6,10 +8,30 @@ describe("The peripheral library", function()
         end)
     end)
 
+    describe("peripheral.getName", function()
+        it("validates arguments", function()
+            expect.error(peripheral.getName, nil):eq("bad argument #1 (expected table, got nil)")
+            expect.error(peripheral.getName, {}):eq("bad argument #1 (table is not a peripheral)")
+        end)
+
+        it_modem("can get the name of a wrapped peripheral", function()
+            expect(peripheral.getName(peripheral.wrap("top"))):eq("top")
+        end)
+    end)
+
     describe("peripheral.getType", function()
         it("validates arguments", function()
             peripheral.getType("")
-            expect.error(peripheral.getType, nil):eq("bad argument #1 (expected string, got nil)")
+            expect.error(peripheral.getType, nil):eq("bad argument #1 (expected string or table, got nil)")
+            expect.error(peripheral.getType, {}):eq("bad argument #1 (table is not a peripheral)")
+        end)
+
+        it_modem("can get the type of a peripheral by side", function()
+            expect(peripheral.getType("top")):eq("modem")
+        end)
+
+        it_modem("can get the type of a wrapped peripheral", function()
+            expect(peripheral.getType(peripheral.wrap("top"))):eq("modem")
         end)
     end)
 
@@ -25,6 +47,11 @@ describe("The peripheral library", function()
             peripheral.call("", "")
             expect.error(peripheral.call, nil):eq("bad argument #1 (expected string, got nil)")
             expect.error(peripheral.call, "", nil):eq("bad argument #2 (expected string, got nil)")
+        end)
+
+        it_modem("has the correct error location", function()
+            expect.error(function() peripheral.call("top", "isOpen", false) end)
+                :str_match("^[^:]+:%d+: bad argument #1 %(number expected, got boolean%)$")
         end)
     end)
 

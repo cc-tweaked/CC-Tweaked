@@ -54,9 +54,9 @@ function isPresent(name)
     end
 
     for n = 1, #sides do
-        local name = sides[n]
-        if native.getType(name) == "modem" and not native.call(name, "isWireless") and
-            native.call(name, "isPresentRemote", name)
+        local side = sides[n]
+        if native.getType(side) == "modem" and not native.call(side, "isWireless") and
+            native.call(side, "isPresentRemote", name)
         then
             return true
         end
@@ -64,24 +64,33 @@ function isPresent(name)
     return false
 end
 
---- Get the type of the peripheral with the given name.
+--- Get the type of a wrapped peripheral, or a peripheral with the given name.
 --
--- @tparam string name The name of the peripheral to find.
+-- @tparam string|table peripheral The name of the peripheral to find, or a
+-- wrapped peripheral instance.
 -- @treturn string|nil The peripheral's type, or `nil` if it is not present.
-function getType(name)
-    expect(1, name, "string")
-    if native.isPresent(name) then
-        return native.getType(name)
-    end
-    for n = 1, #sides do
-        local side = sides[n]
-        if native.getType(side) == "modem" and not native.call(side, "isWireless") and
-            native.call(side, "isPresentRemote", name)
-        then
-            return native.call(side, "getTypeRemote", name)
+function getType(peripheral)
+    expect(1, peripheral, "string", "table")
+    if type(peripheral) == "string" then -- Peripheral name passed
+        if native.isPresent(peripheral) then
+            return native.getType(peripheral)
         end
+        for n = 1, #sides do
+            local side = sides[n]
+            if native.getType(side) == "modem" and not native.call(side, "isWireless") and
+                native.call(side, "isPresentRemote", peripheral)
+            then
+                return native.call(side, "getTypeRemote", peripheral)
+            end
+        end
+        return nil
+    else
+        local mt = getmetatable(peripheral)
+        if not mt or mt.__name ~= "peripheral" or type(mt.type) ~= "string" then
+            error("bad argument #1 (table is not a peripheral)", 2)
+        end
+        return mt.type
     end
-    return nil
 end
 
 --- Get all available methods for the peripheral with the given name.
@@ -105,14 +114,29 @@ function getMethods(name)
     return nil
 end
 
---- Call a method on a peripheral with a given name
+--- Get the name of a peripheral wrapped with @{peripheral.wrap}.
+--
+-- @tparam table peripheral The peripheral to get the name of.
+-- @treturn string The name of the given peripheral.
+function getName(peripheral)
+    expect(1, peripheral, "table")
+    local mt = getmetatable(peripheral)
+    if not mt or mt.__name ~= "peripheral" or type(mt.name) ~= "string" then
+        error("bad argument #1 (table is not a peripheral)", 2)
+    end
+    return mt.name
+end
+
+--- Call a method on the peripheral with the given name.
 --
 -- @tparam string name The name of the peripheral to invoke the method on.
 -- @tparam string method The name of the method
 -- @param ... Additional arguments to pass to the method
 -- @return The return values of the peripheral method.
 --
--- @usage peripheral.call("top", "open", 1)
+-- @usage Open the modem on the top of this computer.
+--
+--     peripheral.call("top", "open", 1)
 function call(name, method, ...)
     expect(1, name, "string")
     expect(2, method, "string")
@@ -146,7 +170,11 @@ function wrap(name)
         return nil
     end
 
-    local result = {}
+    local result = setmetatable({}, {
+        __name = "peripheral",
+        name = name,
+        type = peripheral.getType(name),
+    })
     for _, method in ipairs(methods) do
         result[method] = function(...)
             return peripheral.call(name, method, ...)

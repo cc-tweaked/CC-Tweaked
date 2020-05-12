@@ -12,9 +12,12 @@
 -- [mc]: https://minecraft.gamepedia.com/Commands
 --
 -- @module commands
+-- @usage Set the block above this computer to stone:
+--
+--     commands.setblock("~", "~1", "~", "minecraft:stone")
 
 if not commands then
-    error( "Cannot load command API on normal computer", 2 )
+    error("Cannot load command API on normal computer", 2)
 end
 
 --- The builtin commands API, without any generated command helper functions
@@ -23,16 +26,16 @@ end
 -- overwritten by a command.
 native = commands.native or commands
 
-local function collapseArgs( bJSONIsNBT, ... )
+local function collapseArgs(bJSONIsNBT, ...)
     local args = table.pack(...)
     for i = 1, #args do
         local arg = args[i]
         if type(arg) == "boolean" or type(arg) == "number" or type(arg) == "string" then
             args[i] = tostring(arg)
         elseif type(arg) == "table" then
-            args[i] = textutils.serialiseJSON( arg, bJSONIsNBT )
+            args[i] = textutils.serialiseJSON(arg, bJSONIsNBT)
         else
-            error( "Expected string, number, boolean or table", 3 )
+            error("Expected string, number, boolean or table", 3)
         end
     end
 
@@ -41,28 +44,37 @@ end
 
 -- Put native functions into the environment
 local env = _ENV
-for k, v in pairs( native ) do
+for k, v in pairs(native) do
     env[k] = v
 end
 
 -- Create wrapper functions for all the commands
 local tAsync = {}
 local tNonNBTJSONCommands = {
-    [ "tellraw" ] = true,
-    [ "title" ] = true,
+    ["tellraw"] = true,
+    ["title"] = true,
 }
 local tCommands = native.list()
 for _, sCommandName in ipairs(tCommands) do
-    if env[ sCommandName ] == nil then
-        local bJSONIsNBT = tNonNBTJSONCommands[ sCommandName ] == nil
-        env[ sCommandName ] = function( ... )
-            local sCommand = collapseArgs( bJSONIsNBT, sCommandName, ... )
-            return native.exec( sCommand )
+    if env[sCommandName] == nil then
+        local bJSONIsNBT = tNonNBTJSONCommands[sCommandName] == nil
+        env[sCommandName] = function(...)
+            local sCommand = collapseArgs(bJSONIsNBT, sCommandName, ...)
+            return native.exec(sCommand)
         end
-        tAsync[ sCommandName ] = function( ... )
-            local sCommand = collapseArgs( bJSONIsNBT, sCommandName, ... )
-            return native.execAsync( sCommand )
+        tAsync[sCommandName] = function(...)
+            local sCommand = collapseArgs(bJSONIsNBT, sCommandName, ...)
+            return native.execAsync(sCommand)
         end
     end
 end
+
+--- A table containing asynchronous wrappers for all commands.
+--
+-- As with @{commands.execAsync}, this returns the "task id" of the enqueued
+-- command.
+-- @see execAsync
+-- @usage Asynchronously sets the block above the computer to stone.
+--
+--     commands.async.setblock("~", "~1", "~", "minecraft:stone")
 env.async = tAsync

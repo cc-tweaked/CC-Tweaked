@@ -11,6 +11,7 @@ import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.turtle.event.TurtleAction;
 import dan200.computercraft.core.apis.AddressPredicate;
 import dan200.computercraft.core.apis.http.websocket.Websocket;
+import dan200.computercraft.shared.peripheral.monitor.MonitorRenderer;
 import net.minecraftforge.common.config.ConfigCategory;
 import net.minecraftforge.common.config.ConfigElement;
 import net.minecraftforge.common.config.Configuration;
@@ -69,6 +70,7 @@ public final class Config
     private static Property modemRangeDuringStorm;
     private static Property modemHighAltitudeRangeDuringStorm;
     private static Property maxNotesPerTick;
+    private static Property monitorRenderer;
 
     private static Property turtlesNeedFuel;
     private static Property turtleFuelLimit;
@@ -175,7 +177,7 @@ public final class Config
                 "for more fine grained control than this)" );
 
             httpWebsocketEnable = config.get( CATEGORY_HTTP, "websocket_enabled", ComputerCraft.http_websocket_enable );
-            httpWebsocketEnable.setComment( "Enable use of http websockets. This requires the \"http_enable\" option to also be true." );
+            httpWebsocketEnable.setComment( "Enable use of http websockets. This requires the \"http.enabled\" option to also be true." );
 
             httpAllowedDomains = config.get( CATEGORY_HTTP, "allowed_domains", DEFAULT_HTTP_WHITELIST );
             httpAllowedDomains.setComment( "A list of wildcards for domains or IP ranges that can be accessed through the " +
@@ -264,9 +266,15 @@ public final class Config
             maxNotesPerTick.setComment( "Maximum amount of notes a speaker can play at once" );
             maxNotesPerTick.setMinValue( 1 );
 
+            monitorRenderer = config.get( CATEGORY_PERIPHERAL, "monitor_renderer", ComputerCraft.monitorRenderer.displayName() );
+            monitorRenderer.setComment( "The renderer to use for monitors. Generally this should be kept at \"best\" - if " +
+                "monitors have performance issues, you may wish to experiment with alternative renderers." );
+            monitorRenderer.setValidValues( MonitorRenderer.NAMES );
+
             setOrder(
                 CATEGORY_PERIPHERAL,
-                commandBlockEnabled, modemRange, modemHighAltitudeRange, modemRangeDuringStorm, modemHighAltitudeRangeDuringStorm, maxNotesPerTick
+                commandBlockEnabled, modemRange, modemHighAltitudeRange, modemRangeDuringStorm, modemHighAltitudeRangeDuringStorm, maxNotesPerTick,
+                monitorRenderer
             );
         }
 
@@ -459,6 +467,7 @@ public final class Config
         ComputerCraft.modem_highAltitudeRange = Math.min( modemHighAltitudeRange.getInt(), MODEM_MAX_RANGE );
         ComputerCraft.modem_rangeDuringStorm = Math.min( modemRangeDuringStorm.getInt(), MODEM_MAX_RANGE );
         ComputerCraft.modem_highAltitudeRangeDuringStorm = Math.min( modemHighAltitudeRangeDuringStorm.getInt(), MODEM_MAX_RANGE );
+        ComputerCraft.monitorRenderer = MonitorRenderer.ofString( monitorRenderer.getString() );
 
         // Turtles
         ComputerCraft.turtlesNeedFuel = turtlesNeedFuel.getBoolean();

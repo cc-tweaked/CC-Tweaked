@@ -75,7 +75,10 @@ handleMetatable = {
             if not handle.read then return nil, "file is not readable" end
 
             local args = table.pack(...)
-            return function() return checkResult(self, self:read(table.unpack(args, 1, args.n))) end
+            return function()
+                if self._closed then error("file is already closed", 2) end
+                return checkResult(self, self:read(table.unpack(args, 1, args.n)))
+            end
         end,
 
         read = function(self, ...)
@@ -259,12 +262,13 @@ end
 -- instead. In this case, the handle is not used.
 --
 -- @tparam[opt] string filename The name of the file to extract lines from
+-- @param ... The argument to pass to @{Handle:read} for each line.
 -- @treturn function():string|nil The line iterator.
 -- @throws If the file cannot be opened for reading
 --
 -- @see Handle:lines
 -- @see io.input
-function lines(filename)
+function lines(filename, ...)
     expect(1, filename, "string", "nil")
     if filename then
         local ok, err = open(filename, "rb")
@@ -273,9 +277,9 @@ function lines(filename)
         -- We set this magic flag to mark this file as being opened by io.lines and so should be
         -- closed automatically
         ok._autoclose = true
-        return ok:lines()
+        return ok:lines(...)
     else
-        return currentInput:lines()
+        return currentInput:lines(...)
     end
 end
 
@@ -313,7 +317,7 @@ end
 -- @throws If the provided filename cannot be opened for writing.
 function output(file)
     if type_of(file) == "string" then
-        local res, err = open(file, "w")
+        local res, err = open(file, "wb")
         if not res then error(err, 2) end
         currentOutput = res
     elseif type_of(file) == "table" and getmetatable(file) == handleMetatable then

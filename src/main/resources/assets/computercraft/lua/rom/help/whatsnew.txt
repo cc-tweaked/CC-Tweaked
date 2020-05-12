@@ -1,5 +1,31 @@
-New features in CC: Tweaked 1.86.2
+New features in CC: Tweaked 1.87.0
 
-* Fix peripheral.getMethods returning an empty table
+* Add documentation to many Lua functions. This is published online at https://tweaked.cc/.
+* Replace to pretty-printer in the Lua REPL. It now supports displaying functions and recursive tables. This printer is may be used within your own code through the `cc.pretty` module.
+* Add `fs.getCapacity`. A complement to `fs.getFreeSpace`, this returns the capacity of the supplied drive.
+* Add `fs.getAttributes`. This provides file size and type, as well as creation and modification time.
+* Update Cobalt version. This backports several features from Lua 5.2 and 5.3:
+  - The `__len` metamethod may now be used by tables.
+  - Add `\z`, hexadecimal (`\x00`) and unicode (`\u0000`) string escape codes.
+  - Add `utf8` lib.
+  - Mirror Lua's behaviour of tail calls more closely. Native functions are no longer tail called, and tail calls are displayed in the stack trace.
+  - `table.unpack` now uses `__len` and `__index` metamethods.
+  - Parser errors now include the token where the error occured.
+* Add `textutils.unserializeJSON`. This can be used to decode standard JSON and stringified-NBT.
+* Switch the monitor renderer to use VBOs, providing a _significant_ performance boost in some cases. You can switch back to the display list renderer via the config.
+* The `settings` API now allows "defining" settings. This allows settings to specify a default value and description.
+* Enable the motd on non-pocket computers.
+* Allow using the menu with the mouse in edit and paint (JakobDev).
+* Add Danish and Korean translations (ChristianLW, mindy15963)
+* Fire `mouse_up` events in the monitor program.
+* Allow specifying a timeout to `websocket.receive`.
+* Increase the maximimum limit for websocket messages.
+* Optimise capacity checking of computer/disk folders.
+
+And several bug fixes:
+* Fix turtle texture being incorrectly oriented (magiczocker10).
+* Prevent copying folders into themselves.
+* Fix race condition within ID assignment.
+* Normalise file paths within shell.setDir (JakobDev)
 
 Type "help changelog" to see the full version history.

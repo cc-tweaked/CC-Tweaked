@@ -49,7 +49,7 @@ describe("The pastebin program", function()
     it("upload a program to pastebin", function()
         setup_request()
 
-        local file = fs.open( "testup", "w" )
+        local file = fs.open("testup", "w")
         file.close()
 
         expect(capture(stub, "pastebin", "put", "testup"))

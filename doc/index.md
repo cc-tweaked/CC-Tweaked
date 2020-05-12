@@ -1,13 +1,11 @@
-# CC: Tweaked
+# ![CC: Tweaked](logo.png) [![Download CC: Tweaked on CurseForge](https://cf.way2muchnoise.eu/title/cc-tweaked.svg)](https://minecraft.curseforge.com/projects/cc-tweaked "Download CC: Tweaked on CurseForge")
 
-This is a small website to test documentation generation from Lua source code.
+CC: Tweaked is a fork of [ComputerCraft], adding programmable computers, turtles and more to Minecraft.
 
-This is still very much in the proof-of-concept stage. We've rolled own own documentation
-generation tool, and there's a couple of missing features. Furthermore, Java-based APIs
-(such as Lua builtins, or @{os}) are not documented.
+This website contains documentation for all Lua libraries and APIs from the latest version of CC: Tweaked. This
+documentation is still in development, so will most likely be incomplete. If you've found something you think is wrong,
+or would like to help out [please get in touch on GitHub][gh].
 
-For more information, please check out [the GitHub issue][gh_issue] and [the
-documented source][gh_branch].
-
-[gh_issue]: https://github.com/SquidDev-CC/CC-Tweaked/issues/133
-[gh_branch]: https://github.com/SquidDev-CC/CC-Tweaked/tree/feature/doc-gen
+[bug]: https://github.com/SquidDev-CC/CC-Tweaked/issues/new/choose
+[computercraft]: https://github.com/dan200/ComputerCraft "ComputerCraft on GitHub"
+[gh]: https://github.com/SquidDev-CC/CC-Tweaked "CC:Tweaked on GitHub"

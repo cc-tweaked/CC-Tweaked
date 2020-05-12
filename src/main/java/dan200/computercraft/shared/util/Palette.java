@@ -6,6 +6,7 @@
 package dan200.computercraft.shared.util;
 
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.PacketBuffer;
 
 public class Palette
 {
@@ -48,13 +49,13 @@ public class Palette
     {
         if( i >= 0 && i < colours.length )
         {
-            setColour( i, Colour.values()[i] );
+            setColour( i, Colour.VALUES[i] );
         }
     }
 
     public void resetColours()
     {
-        for( int i = 0; i < Colour.values().length; i++ )
+        for( int i = 0; i < Colour.VALUES.length; i++ )
         {
             resetColour( i );
         }
@@ -76,6 +77,22 @@ public class Palette
             ((rgb >> 8) & 0xFF) / 255.0f,
             (rgb & 0xFF) / 255.0f,
         };
+    }
+
+    public void write( PacketBuffer buffer )
+    {
+        for( double[] colour : colours )
+        {
+            for( double channel : colour ) buffer.writeByte( (int) (channel * 0xFF) & 0xFF );
+        }
+    }
+
+    public void read( PacketBuffer buffer )
+    {
+        for( double[] colour : colours )
+        {
+            for( int i = 0; i < colour.length; i++ ) colour[i] = (buffer.readByte() & 0xFF) / 255.0;
+        }
     }
 
     public NBTTagCompound writeToNBT( NBTTagCompound nbt )
