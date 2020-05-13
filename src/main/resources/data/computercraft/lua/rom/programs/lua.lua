@@ -1,4 +1,3 @@
-
 local tArgs = { ... }
 if #tArgs > 0 then
     print("This is an interactive Lua prompt.")
@@ -66,6 +65,13 @@ while bRunning do
     end)
     if s:match("%S") and tCommandHistory[#tCommandHistory] ~= s then
         table.insert(tCommandHistory, s)
+    end
+    if settings.get("lua.warn_against_use_of_local") and s:match("^%s*local%s+") then
+        if term.isColour() then
+            term.setTextColour(colours.yellow)
+        end
+       print("To access local variables in later inputs, remove the local keyword.")
+       term.setTextColour(colours.white)
     end
 
     local nForcePrint = 0

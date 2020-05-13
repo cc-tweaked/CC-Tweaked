@@ -78,4 +78,3 @@ public class TileSpeaker extends TileGeneric implements ITickableTileEntity, IPe
         }
     }
 }
-

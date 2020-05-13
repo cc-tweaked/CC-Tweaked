@@ -1,4 +1,3 @@
-
 local tArgs = { ... }
 
 -- Get all the files in the directory

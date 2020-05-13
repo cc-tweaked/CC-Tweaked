@@ -27,7 +27,7 @@ describe("cc.expect", function()
                 worker()
             end
 
-            expect.error(trampoline):eq("expect_spec.lua:27: bad argument #1 to 'worker' (expected string, got nil)")
+            expect.error(trampoline):str_match("^[^:]*expect_spec.lua:27: bad argument #1 to 'worker' %(expected string, got nil%)$")
         end)
     end)
 

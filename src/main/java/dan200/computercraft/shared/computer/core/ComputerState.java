@@ -35,4 +35,3 @@ public enum ComputerState implements IStringSerializable
         return name;
     }
 }
-

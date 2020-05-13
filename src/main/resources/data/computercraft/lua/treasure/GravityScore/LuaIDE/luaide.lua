@@ -1,4 +1,3 @@
-
 --
 --  Lua IDE
 --  Made by GravityScore

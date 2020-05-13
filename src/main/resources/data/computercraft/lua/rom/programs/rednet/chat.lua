@@ -1,4 +1,3 @@
-
 local tArgs = { ... }
 
 local function printUsage()

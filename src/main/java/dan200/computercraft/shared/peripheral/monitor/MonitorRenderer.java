@@ -6,12 +6,11 @@
 
 package dan200.computercraft.shared.peripheral.monitor;
 
-import com.mojang.blaze3d.platform.GLX;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.client.render.TileEntityMonitorRenderer;
+import org.lwjgl.opengl.GL;
 
 import javax.annotation.Nonnull;
-import java.util.Locale;
 
 /**
  * The render type to use for monitors.
@@ -27,42 +26,18 @@ public enum MonitorRenderer
     BEST,
 
     /**
+     * Render using texture buffer objects.
+     *
+     * @see org.lwjgl.opengl.GL31#glTexBuffer(int, int, int)
+     */
+    TBO,
+
+    /**
      * Render using VBOs.
      *
      * @see net.minecraft.client.renderer.vertex.VertexBuffer
      */
     VBO;
-
-    private static final MonitorRenderer[] VALUES = values();
-    public static final String[] NAMES;
-
-    private final String displayName = "gui.computercraft:config.peripheral.monitor_renderer." + name().toLowerCase( Locale.ROOT );
-
-    static
-    {
-        NAMES = new String[VALUES.length];
-        for( int i = 0; i < VALUES.length; i++ ) NAMES[i] = VALUES[i].displayName();
-    }
-
-    public String displayName()
-    {
-        return displayName;
-    }
-
-    @Nonnull
-    public static MonitorRenderer ofString( String name )
-    {
-        for( MonitorRenderer backend : VALUES )
-        {
-            if( backend.displayName.equalsIgnoreCase( name ) || backend.name().equalsIgnoreCase( name ) )
-            {
-                return backend;
-            }
-        }
-
-        ComputerCraft.log.warn( "Unknown monitor renderer {}. Falling back to default.", name );
-        return BEST;
-    }
 
     /**
      * Get the current renderer to use.
@@ -77,15 +52,16 @@ public enum MonitorRenderer
         {
             case BEST:
                 return best();
-            case VBO:
-                if( !GLX.useVbo() )
+            case TBO:
+                checkCapabilities();
+                if( !textureBuffer )
                 {
-                    ComputerCraft.log.warn( "VBOs are not supported on your graphics card. Falling back to default." );
+                    ComputerCraft.log.warn( "Texture buffers are not supported on your graphics card. Falling back to default." );
                     ComputerCraft.monitorRenderer = BEST;
                     return best();
                 }
 
-                return VBO;
+                return TBO;
             default:
                 return current;
         }
@@ -93,6 +69,18 @@ public enum MonitorRenderer
 
     private static MonitorRenderer best()
     {
-        return VBO;
+        checkCapabilities();
+        return textureBuffer ? TBO : VBO;
+    }
+
+    private static boolean initialised = false;
+    private static boolean textureBuffer = false;
+
+    private static void checkCapabilities()
+    {
+        if( initialised ) return;
+
+        textureBuffer = GL.getCapabilities().OpenGL31;
+        initialised = true;
     }
 }

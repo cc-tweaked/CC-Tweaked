@@ -1,4 +1,3 @@
-
 local tApis = {}
 for k, v in pairs(_G) do
     if type(k) == "string" and type(v) == "table" and k ~= "_G" then
