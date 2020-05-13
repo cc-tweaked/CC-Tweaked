@@ -47,6 +47,7 @@ public final class Config
     private static Property defaultComputerSettings;
     private static Property debugEnabled;
     private static Property logComputerErrors;
+    private static Property commandRequireCreative;
 
     private static Property computerThreads;
     private static Property maxMainGlobalTime;
@@ -119,10 +120,14 @@ public final class Config
             logComputerErrors.setComment( "Log exceptions thrown by peripherals and other Lua objects.\n" +
                 "This makes it easier for mod authors to debug problems, but may result in log spam should people use buggy methods." );
 
+            commandRequireCreative = config.get( CATEGORY_GENERAL, "command_require_creative", ComputerCraft.commandRequireCreative );
+            commandRequireCreative.setComment( "Require players to be in creative mode and be opped in order to interact with command computers." +
+                "This is the default behaviour for vanilla's Command blocks." );
+
             setOrder(
                 CATEGORY_GENERAL,
                 computerSpaceLimit, floppySpaceLimit, maximumFilesOpen,
-                disableLua51Features, defaultComputerSettings, debugEnabled, logComputerErrors
+                disableLua51Features, defaultComputerSettings, debugEnabled, logComputerErrors, commandRequireCreative
             );
         }
 
@@ -441,6 +446,7 @@ public final class Config
         ComputerCraft.default_computer_settings = defaultComputerSettings.getString();
         ComputerCraft.debug_enable = debugEnabled.getBoolean();
         ComputerCraft.logPeripheralErrors = logComputerErrors.getBoolean();
+        ComputerCraft.commandRequireCreative = commandRequireCreative.getBoolean();
 
         // Execution
         ComputerCraft.computer_threads = computerThreads.getInt();

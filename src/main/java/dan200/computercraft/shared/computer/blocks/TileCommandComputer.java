@@ -5,6 +5,7 @@
  */
 package dan200.computercraft.shared.computer.blocks;
 
+import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.computer.apis.CommandAPI;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import io.netty.buffer.ByteBuf;
@@ -168,20 +169,23 @@ public class TileCommandComputer extends TileComputer
     @Override
     public boolean isUsable( EntityPlayer player, boolean ignoreRange )
     {
+        return isUsable( player ) && super.isUsable( player, ignoreRange );
+    }
+
+    public static boolean isUsable( EntityPlayer player )
+    {
         MinecraftServer server = player.getServer();
         if( server == null || !server.isCommandBlockEnabled() )
         {
             player.sendMessage( new TextComponentTranslation( "advMode.notEnabled" ) );
             return false;
         }
-        else if( !player.canUseCommandBlock() )
+        else if( ComputerCraft.commandRequireCreative ? !player.canUseCommandBlock() : !server.getPlayerList().canSendCommands( player.getGameProfile() ) )
         {
             player.sendMessage( new TextComponentTranslation( "advMode.notAllowed" ) );
             return false;
         }
-        else
-        {
-            return super.isUsable( player, ignoreRange );
-        }
+
+        return true;
     }
 }
