@@ -1,3 +1,17 @@
+# New features in CC: Tweaked 1.88.0
+
+* Computers and turtles now preserve their ID when broken.
+* Add `peripheral.getName` - returns the name of a wrapped peripheral.
+* Reduce network overhead of monitors and terminals.
+* Add a TBO backend for monitors, with a significant performance boost.
+* The Lua REPL warns when declaring locals (lupus590, exerro)
+* Add config to allow using command computers in survival.
+* Add fs.isDriveRoot - checks if a path is the root of a drive.
+
+And several bug fixes:
+* Fix io.lines not accepting arguments.
+* Fix settings.load using an unknown global (MCJack123).
+
 # New features in CC: Tweaked 1.87.0
 
 * Add documentation to many Lua functions. This is published online at https://tweaked.cc/.
