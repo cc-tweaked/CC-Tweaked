@@ -333,6 +333,7 @@ public class ComputerTestDelegate
 
         if( finishedWith != null )
         {
+            REPORT_PATH.getParentFile().mkdirs();
             try( BufferedWriter writer = Files.newBufferedWriter( REPORT_PATH.toPath() ) )
             {
                 new LuaCoverage( finishedWith ).write( writer );
