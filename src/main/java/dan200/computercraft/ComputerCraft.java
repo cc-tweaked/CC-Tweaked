@@ -71,6 +71,7 @@ public final class ComputerCraft
     public static String default_computer_settings = "";
     public static boolean debug_enable = true;
     public static boolean logPeripheralErrors = true;
+    public static boolean commandRequireCreative = true;
 
     public static int computer_threads = 1;
     public static long maxMainGlobalTime = TimeUnit.MILLISECONDS.toNanos( 10 );

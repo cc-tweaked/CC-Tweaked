@@ -30,12 +30,14 @@ import org.opentest4j.AssertionFailedError;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
 import java.io.Writer;
 import java.nio.channels.Channels;
 import java.nio.channels.WritableByteChannel;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
@@ -57,6 +59,8 @@ import static dan200.computercraft.api.lua.LuaValues.getType;
  */
 public class ComputerTestDelegate
 {
+    private static final File REPORT_PATH = new File( "test-files/luacov.report.out" );
+
     private static final Logger LOG = LogManager.getLogger( ComputerTestDelegate.class );
 
     private static final long TICK_TIME = TimeUnit.MILLISECONDS.toNanos( 50 );
@@ -76,11 +80,14 @@ public class ComputerTestDelegate
 
     private final Condition hasFinished = lock.newCondition();
     private boolean finished = false;
+    private Map<String, Map<Double, Double>> finishedWith;
 
     @BeforeEach
     public void before() throws IOException
     {
         ComputerCraft.logPeripheralErrors = true;
+
+        if( REPORT_PATH.delete() ) ComputerCraft.log.info( "Deleted previous coverage report." );
 
         Terminal term = new Terminal( 78, 20 );
         IWritableMount mount = new FileMount( new File( "test-files/mount" ), 10_000_000 );
@@ -105,7 +112,7 @@ public class ComputerTestDelegate
     }
 
     @AfterEach
-    public void after() throws InterruptedException
+    public void after() throws InterruptedException, IOException
     {
         try
         {
@@ -139,6 +146,15 @@ public class ComputerTestDelegate
 
             // And shutdown
             computer.shutdown();
+        }
+
+        if( finishedWith != null )
+        {
+            REPORT_PATH.getParentFile().mkdirs();
+            try( BufferedWriter writer = Files.newBufferedWriter( REPORT_PATH.toPath() ) )
+            {
+                new LuaCoverage( finishedWith ).write( writer );
+            }
         }
     }
 
@@ -442,10 +458,13 @@ public class ComputerTestDelegate
         }
 
         @LuaFunction
-        public final void finish()
+        public final void finish( Optional<Map<?, ?>> result )
         {
-            // Signal to after that execution has finished
+            @SuppressWarnings( "unchecked" )
+            Map<String, Map<Double, Double>> finishedResult = (Map<String, Map<Double, Double>>) result.orElse( null );
             LOG.info( "Finished" );
+
+            // Signal to after that execution has finished
             try
             {
                 lock.lockInterruptibly();
@@ -457,6 +476,8 @@ public class ComputerTestDelegate
             try
             {
                 finished = true;
+                if( finishedResult != null ) finishedWith = finishedResult;
+
                 hasFinished.signal();
             }
             finally

@@ -1,4 +1,3 @@
-
 if not commands then
     printError("Requires a Command Computer.")
     return

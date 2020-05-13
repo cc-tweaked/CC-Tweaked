@@ -1,4 +1,3 @@
-
 -- Display the start screen
 local w, h = term.getSize()
 

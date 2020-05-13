@@ -797,6 +797,12 @@ function fs.complete(sPath, sLocation, bIncludeFiles, bIncludeDirs)
     return tEmpty
 end
 
+function fs.isDriveRoot(sPath)
+    expect(1, sPath, "string")
+    -- Force the root directory to be a mount.
+    return fs.getDir(sPath) == ".." or fs.getDrive(sPath) ~= fs.getDrive(fs.getDir(sPath))
+end
+
 -- Load APIs
 local bAPIError = false
 local tApis = fs.list("rom/apis")
@@ -931,6 +937,11 @@ settings.define("motd.path", {
     default = "/rom/motd.txt:/motd.txt",
     description = [[The path to load random messages from. Should be a colon (":") separated string of file paths.]],
     type = "string",
+})
+settings.define("lua.warn_against_use_of_local", {
+    default = true,
+    description = [[Print a message when input in the Lua REPL starts with the word 'local'. Local variables defined in the Lua REPL are be inaccessable on the next input.]],
+    type = "boolean",
 })
 if term.isColour() then
     settings.define("bios.use_multishell", {
