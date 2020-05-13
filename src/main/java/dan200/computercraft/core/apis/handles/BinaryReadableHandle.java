@@ -211,7 +211,7 @@ public class BinaryReadableHandle extends HandleGeneric
         }
 
         @LuaFunction
-        public final Object seek( IArguments arguments ) throws LuaException
+        public final Object[] seek( IArguments arguments ) throws LuaException
         {
             checkOpen();
             return handleSeek( seekable, arguments );
