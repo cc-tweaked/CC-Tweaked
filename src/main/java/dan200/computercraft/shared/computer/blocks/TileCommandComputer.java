@@ -121,20 +121,23 @@ public class TileCommandComputer extends TileComputer
     @Override
     public boolean isUsable( PlayerEntity player, boolean ignoreRange )
     {
+        return isUsable( player ) && super.isUsable( player, ignoreRange );
+    }
+
+    public static boolean isUsable( PlayerEntity player )
+    {
         MinecraftServer server = player.getServer();
         if( server == null || !server.isCommandBlockEnabled() )
         {
             player.sendStatusMessage( new TranslationTextComponent( "advMode.notEnabled" ), true );
             return false;
         }
-        else if( !player.canUseCommandBlock() )
+        else if( ComputerCraft.commandRequireCreative ? !player.canUseCommandBlock() : !server.getPlayerList().canSendCommands( player.getGameProfile() ) )
         {
             player.sendStatusMessage( new TranslationTextComponent( "advMode.notAllowed" ), true );
             return false;
         }
-        else
-        {
-            return super.isUsable( player, ignoreRange );
-        }
+
+        return true;
     }
 }

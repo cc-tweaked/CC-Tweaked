@@ -1,4 +1,3 @@
-
 if not shell.openTab then
     printError("Requires multishell")
     return

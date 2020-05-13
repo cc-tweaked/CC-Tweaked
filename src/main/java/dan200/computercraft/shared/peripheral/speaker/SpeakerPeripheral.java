@@ -154,4 +154,3 @@ public abstract class SpeakerPeripheral implements IPeripheral
         return true;
     }
 }
-

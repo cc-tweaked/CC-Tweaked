@@ -6,6 +6,7 @@
 package dan200.computercraft.shared.computer.inventory;
 
 import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.shared.computer.blocks.TileCommandComputer;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.IContainerComputer;
 import dan200.computercraft.shared.computer.core.ServerComputer;
@@ -14,8 +15,6 @@ import dan200.computercraft.shared.network.container.ViewComputerContainerData;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.container.ContainerType;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.text.TranslationTextComponent;
 
 import javax.annotation.Nonnull;
 
@@ -48,18 +47,9 @@ public class ContainerViewComputer extends ContainerComputerBase implements ICon
         }
 
         // If we're a command computer then ensure we're in creative
-        if( computer.getFamily() == ComputerFamily.COMMAND )
+        if( computer.getFamily() == ComputerFamily.COMMAND && !TileCommandComputer.isUsable( player ) )
         {
-            MinecraftServer server = player.getServer();
-            if( server == null || !server.isCommandBlockEnabled() )
-            {
-                return false;
-            }
-            else if( !player.canUseCommandBlock() )
-            {
-                player.sendStatusMessage( new TranslationTextComponent( "advMode.notAllowed" ), false );
-                return false;
-            }
+            return false;
         }
 
         return true;

@@ -1,4 +1,3 @@
-
 local function printUsage()
     print("Usages:")
     print("label get")

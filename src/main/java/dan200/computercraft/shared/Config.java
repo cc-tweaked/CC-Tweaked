@@ -14,6 +14,7 @@ import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.turtle.event.TurtleAction;
 import dan200.computercraft.core.apis.http.AddressRule;
 import dan200.computercraft.core.apis.http.websocket.Websocket;
+import dan200.computercraft.shared.peripheral.monitor.MonitorRenderer;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModLoadingContext;
@@ -75,7 +76,10 @@ public final class Config
     private static final ConfigValue<Boolean> turtlesCanPush;
     private static final ConfigValue<List<? extends String>> turtleDisabledActions;
 
-    private static final ForgeConfigSpec spec;
+    private static final ConfigValue<MonitorRenderer> monitorRenderer;
+
+    private static final ForgeConfigSpec commonSpec;
+    private static final ForgeConfigSpec clientSpec;
 
     private Config() {}
 
@@ -261,12 +265,20 @@ public final class Config
             builder.pop();
         }
 
-        spec = builder.build();
+        commonSpec = builder.build();
+
+        Builder clientBuilder = new Builder();
+        monitorRenderer = clientBuilder
+            .comment( "The renderer to use for monitors. Generally this should be kept at \"best\" - if " +
+                "monitors have performance issues, you may wish to experiment with alternative renderers." )
+            .defineEnum( "monitor_renderer", MonitorRenderer.BEST );
+        clientSpec = clientBuilder.build();
     }
 
     public static void load()
     {
-        ModLoadingContext.get().registerConfig( ModConfig.Type.COMMON, spec );
+        ModLoadingContext.get().registerConfig( ModConfig.Type.COMMON, commonSpec );
+        ModLoadingContext.get().registerConfig( ModConfig.Type.CLIENT, clientSpec );
     }
 
     public static void sync()
@@ -316,6 +328,9 @@ public final class Config
 
         ComputerCraft.turtleDisabledActions.clear();
         for( String value : turtleDisabledActions.get() ) ComputerCraft.turtleDisabledActions.add( getAction( value ) );
+
+        // Client
+        ComputerCraft.monitorRenderer = monitorRenderer.get();
     }
 
     @SubscribeEvent

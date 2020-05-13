@@ -11,8 +11,13 @@ for path in pathlib.Path("src").glob("**/*"):
         continue
 
     with path.open(encoding="utf-8") as file:
-        has_dos, has_trailing, needs_final = False, False, False
+        has_dos, has_trailing, first, count = False, False, 0, True
         for i, line in enumerate(file):
+            if first:
+                first = False
+                if line.strip() == "":
+                    print("%s has empty first line" % path)
+
             if len(line) >= 2 and line[-2] == "\r" and line[-1] == "\n" and not has_line:
                 print("%s has contains '\\r\\n' on line %d" % (path, i + 1))
                 problems = has_dos = True
@@ -21,8 +26,15 @@ for path in pathlib.Path("src").glob("**/*"):
                 print("%s has trailing whitespace on line %d" % (path, i + 1))
                 problems = has_trailing = True
 
-        if line is not None and len(line) >= 1 and line[-1] != "\n":
-            print("%s should end with '\\n'" % path)
+            if len(line) == 0 or line[-1] != "\n":
+                count = 0
+            elif line.strip() == "":
+                count += 1
+            else:
+                count = 1
+
+        if count != 1:
+            print("%s should have 1 trailing lines, but has %d" % (path, count))
             problems = True
 
 if problems:

@@ -12,6 +12,21 @@ describe("The fs library", function()
         end)
     end)
 
+    describe("fs.isDriveRoot", function()
+        it("validates arguments", function()
+            fs.isDriveRoot("")
+
+            expect.error(fs.isDriveRoot, nil):eq("bad argument #1 (expected string, got nil)")
+        end)
+
+        it("correctly identifies drive roots", function()
+            expect(fs.isDriveRoot("/rom")):eq(true)
+            expect(fs.isDriveRoot("/")):eq(true)
+            expect(fs.isDriveRoot("/rom/startup.lua")):eq(false)
+            expect(fs.isDriveRoot("/rom/programs/delete.lua")):eq(false)
+        end)
+    end)
+
     describe("fs.list", function()
         it("fails on files", function()
             expect.error(fs.list, "rom/startup.lua"):eq("/rom/startup.lua: Not a directory")

@@ -1,4 +1,3 @@
-
 local tArgs = { ... }
 if #tArgs < 2 then
     print("Usage: cp <source> <destination>")
