@@ -425,7 +425,7 @@ end
 -- @tparam[opt] { function_args = boolean, function_source = boolean } options
 -- Controls how various properties are displayed.
 --  - `function_args`: Show the arguments to a function if known (`false` by default).
---  - `function_source: Show where the function was defined, instead of
+--  - `function_source`: Show where the function was defined, instead of
 --    `function: xxxxxxxx` (`false` by default).
 -- @treturn Doc The object formatted as a document.
 -- @usage Display a table on the screen

@@ -7,6 +7,8 @@
 * The Lua REPL warns when declaring locals (lupus590, exerro)
 * Add config to allow using command computers in survival.
 * Add fs.isDriveRoot - checks if a path is the root of a drive.
+* `cc.pretty` can now display a function's arguments and where it was defined. The Lua REPL will show arguments by default.
+* Move the shell's `require`/`package` implementation to a separate `cc.require` module.
 
 And several bug fixes:
 * Fix io.lines not accepting arguments.
