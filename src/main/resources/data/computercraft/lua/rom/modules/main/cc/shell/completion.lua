@@ -141,12 +141,12 @@ return {
     program = program,
 
     -- Re-export various other functions
-    help = wrap(help.completeTopic),
-    choice = wrap(completion.choice),
-    peripheral = wrap(completion.peripheral),
-    side = wrap(completion.side),
-    setting = wrap(completion.setting),
-    command = wrap(completion.command),
+    help = wrap(help.completeTopic), --- Wraps @{help.completeTopic} as a @{build} compatible function.
+    choice = wrap(completion.choice), --- Wraps @{cc.completion.choice} as a @{build} compatible function.
+    peripheral = wrap(completion.peripheral), --- Wraps @{cc.completion.peripheral} as a @{build} compatible function.
+    side = wrap(completion.side), --- Wraps @{cc.completion.side} as a @{build} compatible function.
+    setting = wrap(completion.setting), --- Wraps @{cc.completion.setting} as a @{build} compatible function.
+    command = wrap(completion.command), --- Wraps @{cc.completion.command} as a @{build} compatible function.
 
     build = build,
 }
