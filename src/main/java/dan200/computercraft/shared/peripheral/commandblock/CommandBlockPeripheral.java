@@ -74,6 +74,13 @@ public class CommandBlockPeripheral implements IPeripheral, ICapabilityProvider
 
     @Nonnull
     @Override
+    public Object getTarget()
+    {
+        return commandBlock;
+    }
+
+    @Nonnull
+    @Override
     public <T> LazyOptional<T> getCapability( @Nonnull Capability<T> cap, @Nullable Direction side )
     {
         if( cap == CAPABILITY_PERIPHERAL )

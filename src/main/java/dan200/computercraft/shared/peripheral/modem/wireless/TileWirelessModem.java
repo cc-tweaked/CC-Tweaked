@@ -70,6 +70,13 @@ public class TileWirelessModem extends TileGeneric
         {
             return this == other || (other instanceof Peripheral && entity == ((Peripheral) other).entity);
         }
+
+        @Nonnull
+        @Override
+        public Object getTarget()
+        {
+            return entity;
+        }
     }
 
     private final boolean advanced;

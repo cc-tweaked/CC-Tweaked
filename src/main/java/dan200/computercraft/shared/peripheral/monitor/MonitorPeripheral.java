@@ -14,6 +14,7 @@ import dan200.computercraft.core.apis.TermMethods;
 import dan200.computercraft.core.terminal.Terminal;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class MonitorPeripheral extends TermMethods implements IPeripheral
 {
@@ -84,5 +85,12 @@ public class MonitorPeripheral extends TermMethods implements IPeripheral
     public boolean isColour() throws LuaException
     {
         return getMonitor().isColour();
+    }
+
+    @Nullable
+    @Override
+    public Object getTarget()
+    {
+        return monitor;
     }
 }

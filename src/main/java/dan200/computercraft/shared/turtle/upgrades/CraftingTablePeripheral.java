@@ -44,4 +44,11 @@ public class CraftingTablePeripheral implements IPeripheral
     {
         return other instanceof CraftingTablePeripheral;
     }
+
+    @Nonnull
+    @Override
+    public Object getTarget()
+    {
+        return turtle;
+    }
 }

@@ -81,10 +81,10 @@ public interface IPeripheral
      *
      * @return The object this peripheral targets
      */
-    @Nonnull
+    @Nullable
     default Object getTarget()
     {
-        return this;
+        return null;
     }
 
     /**

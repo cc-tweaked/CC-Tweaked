@@ -114,6 +114,13 @@ public class TileCable extends TileGeneric
             BlockPos pos = getPos().offset( modemDirection );
             return new Vec3d( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5 );
         }
+
+        @Nonnull
+        @Override
+        public Object getTarget()
+        {
+            return TileCable.this;
+        }
     };
     private LazyOptional<IPeripheral> modemCap;
 
