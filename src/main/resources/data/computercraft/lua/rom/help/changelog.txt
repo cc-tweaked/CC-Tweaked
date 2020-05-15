@@ -9,6 +9,7 @@
 * Add fs.isDriveRoot - checks if a path is the root of a drive.
 * `cc.pretty` can now display a function's arguments and where it was defined. The Lua REPL will show arguments by default.
 * Move the shell's `require`/`package` implementation to a separate `cc.require` module.
+* Move treasure programs into a separate external data pack.
 
 And several bug fixes:
 * Fix io.lines not accepting arguments.
