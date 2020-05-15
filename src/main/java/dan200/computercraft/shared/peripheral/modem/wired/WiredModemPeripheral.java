@@ -248,13 +248,13 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements IW
         public void attach()
         {
             peripheral.attach( this );
-            computer.queueEvent( "peripheral", new Object[] { getAttachmentName() } );
+            computer.queueEvent( "peripheral", getAttachmentName() );
         }
 
         public void detach()
         {
             peripheral.detach( this );
-            computer.queueEvent( "peripheral_detach", new Object[] { getAttachmentName() } );
+            computer.queueEvent( "peripheral_detach", getAttachmentName() );
         }
 
         public String getType()
@@ -313,7 +313,7 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements IW
         }
 
         @Override
-        public void queueEvent( @Nonnull String event, Object[] arguments )
+        public void queueEvent( @Nonnull String event, Object... arguments )
         {
             computer.queueEvent( event, arguments );
         }

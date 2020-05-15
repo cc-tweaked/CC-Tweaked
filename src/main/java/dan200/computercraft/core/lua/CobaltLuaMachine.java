@@ -8,7 +8,7 @@ package dan200.computercraft.core.lua;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.lua.*;
 import dan200.computercraft.core.asm.LuaMethod;
-import dan200.computercraft.core.asm.NamedMethod;
+import dan200.computercraft.core.asm.ObjectSource;
 import dan200.computercraft.core.computer.Computer;
 import dan200.computercraft.core.computer.MainThread;
 import dan200.computercraft.core.computer.TimeoutState;
@@ -228,22 +228,26 @@ public class CobaltLuaMachine implements ILuaMachine
             ? Objects.requireNonNull( ((IDynamicLuaObject) object).getMethodNames(), "Methods cannot be null" )
             : LuaMethod.EMPTY_METHODS;
 
-        List<NamedMethod<LuaMethod>> methods = LuaMethod.GENERATOR.getMethods( object.getClass() );
-
-        if( methods.size() + dynamicMethods.length == 0 ) return null;
-
-        LuaTable table = new LuaTable( 0, methods.size() + dynamicMethods.length );
+        LuaTable table = new LuaTable();
         for( int i = 0; i < dynamicMethods.length; i++ )
         {
             String method = dynamicMethods[i];
             table.rawset( method, new ResultInterpreterFunction( this, LuaMethod.DYNAMIC.get( i ), object, context, method ) );
         }
-        for( NamedMethod<LuaMethod> method : methods )
-        {
+
+        ObjectSource.allMethods( LuaMethod.GENERATOR, object, ( instance, method ) ->
             table.rawset( method.getName(), method.nonYielding()
-                ? new BasicFunction( this, method.getMethod(), object, context, method.getName() )
-                : new ResultInterpreterFunction( this, method.getMethod(), object, context, method.getName() ) );
+                ? new BasicFunction( this, method.getMethod(), instance, context, method.getName() )
+                : new ResultInterpreterFunction( this, method.getMethod(), instance, context, method.getName() ) ) );
+
+        try
+        {
+            if( table.keyCount() == 0 ) return null;
         }
+        catch( LuaError ignored )
+        {
+        }
+
         return table;
     }
 

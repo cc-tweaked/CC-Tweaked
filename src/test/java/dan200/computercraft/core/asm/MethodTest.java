@@ -16,6 +16,7 @@ import org.junit.jupiter.api.Test;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Collections;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -53,6 +54,26 @@ public class MethodTest
                 "assert(dynamic.foo() == 123, 'foo: ' .. tostring(dynamic.foo()))\n" +
                 "assert(dynamic.bar() == 321, 'bar: ' .. tostring(dynamic.bar()))",
             x -> x.getEnvironment().setPeripheral( ComputerSide.TOP, new Dynamic() ),
+            50
+        );
+    }
+
+    @Test
+    public void testExtra()
+    {
+        ComputerBootstrap.run( "assert(extra.go, 'go')\nassert(extra.go2, 'go2')",
+            x -> x.addApi( new ExtraObject() ),
+            50 );
+    }
+
+    @Test
+    public void testPeripheralThrow()
+    {
+        ComputerBootstrap.run(
+            "local throw = peripheral.wrap('top')\n" +
+                "local _, err = pcall(throw.thisThread) assert(err == 'pcall: !', err)\n" +
+                "local _, err = pcall(throw.mainThread) assert(err == 'pcall: !', err)",
+            x -> x.getEnvironment().setPeripheral( ComputerSide.TOP, new PeripheralThrow() ),
             50
         );
     }
@@ -128,6 +149,54 @@ public class MethodTest
         public String getType()
         {
             return "dynamic";
+        }
+
+        @Override
+        public boolean equals( @Nullable IPeripheral other )
+        {
+            return this == other;
+        }
+    }
+
+    public static class ExtraObject implements ObjectSource, ILuaAPI
+    {
+        @Override
+        public String[] getNames()
+        {
+            return new String[] { "extra" };
+        }
+
+        @LuaFunction
+        public final void go2()
+        {
+        }
+
+        @Override
+        public Iterable<Object> getExtra()
+        {
+            return Collections.singletonList( new GeneratorTest.Basic() );
+        }
+    }
+
+    public static class PeripheralThrow implements IPeripheral
+    {
+        @LuaFunction
+        public final void thisThread() throws LuaException
+        {
+            throw new LuaException( "!" );
+        }
+
+        @LuaFunction( mainThread = true )
+        public final void mainThread() throws LuaException
+        {
+            throw new LuaException( "!" );
+        }
+
+        @Nonnull
+        @Override
+        public String getType()
+        {
+            return "throw";
         }
 
         @Override

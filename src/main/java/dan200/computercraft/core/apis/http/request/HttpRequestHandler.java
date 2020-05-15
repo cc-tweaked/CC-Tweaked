@@ -6,10 +6,10 @@
 package dan200.computercraft.core.apis.http.request;
 
 import dan200.computercraft.ComputerCraft;
-import dan200.computercraft.api.lua.IDynamicLuaObject;
 import dan200.computercraft.core.apis.handles.ArrayByteChannel;
 import dan200.computercraft.core.apis.handles.BinaryReadableHandle;
 import dan200.computercraft.core.apis.handles.EncodedReadableHandle;
+import dan200.computercraft.core.apis.handles.HandleGeneric;
 import dan200.computercraft.core.apis.http.HTTPRequestException;
 import dan200.computercraft.core.apis.http.NetworkUtils;
 import dan200.computercraft.core.tracking.TrackingField;
@@ -209,10 +209,10 @@ public final class HttpRequestHandler extends SimpleChannelInboundHandler<HttpOb
 
         // Prepare to queue an event
         ArrayByteChannel contents = new ArrayByteChannel( bytes );
-        Object reader = request.isBinary()
+        HandleGeneric reader = request.isBinary()
             ? BinaryReadableHandle.of( contents )
             : new EncodedReadableHandle( EncodedReadableHandle.open( contents, responseCharset ) );
-        HttpResponseHandle stream = new HttpResponseHandle( (IDynamicLuaObject) reader, status.code(), status.reasonPhrase(), headers );
+        HttpResponseHandle stream = new HttpResponseHandle( reader, status.code(), status.reasonPhrase(), headers );
 
         if( status.code() >= 200 && status.code() < 400 )
         {

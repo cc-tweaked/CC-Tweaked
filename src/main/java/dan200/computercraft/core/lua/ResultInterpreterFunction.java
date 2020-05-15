@@ -24,11 +24,13 @@ class ResultInterpreterFunction extends ResumableVarArgFunction<ResultInterprete
     @Nonnull
     static class Container
     {
-        private ILuaCallback callback;
+        ILuaCallback callback;
+        int errorAdjust;
 
-        Container( ILuaCallback callback )
+        Container( ILuaCallback callback, int errorAdjust )
         {
             this.callback = callback;
+            this.errorAdjust = errorAdjust;
         }
     }
 
@@ -58,7 +60,7 @@ class ResultInterpreterFunction extends ResumableVarArgFunction<ResultInterprete
         }
         catch( LuaException e )
         {
-            throw wrap( e );
+            throw wrap( e, 0 );
         }
         catch( Throwable t )
         {
@@ -74,7 +76,7 @@ class ResultInterpreterFunction extends ResumableVarArgFunction<ResultInterprete
 
         if( callback == null ) return ret;
 
-        debugFrame.state = new Container( callback );
+        debugFrame.state = new Container( callback, results.getErrorAdjust() );
         return LuaThread.yield( state, ret );
     }
 
@@ -89,7 +91,7 @@ class ResultInterpreterFunction extends ResumableVarArgFunction<ResultInterprete
         }
         catch( LuaException e )
         {
-            throw wrap( e );
+            throw wrap( e, container.errorAdjust );
         }
         catch( Throwable t )
         {
@@ -109,11 +111,11 @@ class ResultInterpreterFunction extends ResumableVarArgFunction<ResultInterprete
         return LuaThread.yield( state, ret );
     }
 
-    public static LuaError wrap( LuaException exception )
+    public static LuaError wrap( LuaException exception, int adjust )
     {
-        if( !exception.hasLevel() ) return new LuaError( exception.getMessage() );
+        if( !exception.hasLevel() && adjust == 0 ) return new LuaError( exception.getMessage() );
 
         int level = exception.getLevel();
-        return new LuaError( exception.getMessage(), level <= 0 ? level : level + 1 );
+        return new LuaError( exception.getMessage(), level <= 0 ? level : level + adjust + 1 );
     }
 }

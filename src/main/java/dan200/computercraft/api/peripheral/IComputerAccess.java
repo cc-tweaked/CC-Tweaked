@@ -150,7 +150,7 @@ public interface IComputerAccess
      * @throws NotAttachedException If the peripheral has been detached.
      * @see MethodResult#pullEvent(String, ILuaCallback)
      */
-    void queueEvent( @Nonnull String event, @Nullable Object[] arguments );
+    void queueEvent( @Nonnull String event, @Nullable Object... arguments );
 
     /**
      * Get a string, unique to the computer, by which the computer refers to this peripheral.

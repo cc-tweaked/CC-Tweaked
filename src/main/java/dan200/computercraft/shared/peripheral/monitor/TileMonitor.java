@@ -165,9 +165,7 @@ public class TileMonitor extends TileGeneric implements IPeripheralTile
 
                     for( IComputerAccess computer : monitor.m_computers )
                     {
-                        computer.queueEvent( "monitor_resize", new Object[] {
-                            computer.getAttachmentName(),
-                        } );
+                        computer.queueEvent( "monitor_resize", computer.getAttachmentName() );
                     }
                 }
             }
@@ -635,9 +633,7 @@ public class TileMonitor extends TileGeneric implements IPeripheralTile
 
                 for( IComputerAccess computer : monitor.m_computers )
                 {
-                    computer.queueEvent( "monitor_touch", new Object[] {
-                        computer.getAttachmentName(), xCharPos, yCharPos,
-                    } );
+                    computer.queueEvent( "monitor_touch", computer.getAttachmentName(), xCharPos, yCharPos );
                 }
             }
         }

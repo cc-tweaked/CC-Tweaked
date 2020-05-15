@@ -200,7 +200,7 @@ public class HttpRequest extends Resource<HttpRequest>
 
     void failure( String message )
     {
-        if( tryClose() ) environment.queueEvent( FAILURE_EVENT, new Object[] { address, message } );
+        if( tryClose() ) environment.queueEvent( FAILURE_EVENT, address, message );
     }
 
     void failure( Throwable cause )
@@ -228,12 +228,12 @@ public class HttpRequest extends Resource<HttpRequest>
 
     void failure( String message, HttpResponseHandle object )
     {
-        if( tryClose() ) environment.queueEvent( FAILURE_EVENT, new Object[] { address, message, object } );
+        if( tryClose() ) environment.queueEvent( FAILURE_EVENT, address, message, object );
     }
 
     void success( HttpResponseHandle object )
     {
-        if( tryClose() ) environment.queueEvent( SUCCESS_EVENT, new Object[] { address, object } );
+        if( tryClose() ) environment.queueEvent( SUCCESS_EVENT, address, object );
     }
 
     @Override

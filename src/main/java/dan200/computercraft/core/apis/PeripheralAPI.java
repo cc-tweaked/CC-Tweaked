@@ -329,7 +329,7 @@ public class PeripheralAPI implements ILuaAPI, IAPIEnvironment.IPeripheralChange
 
         try
         {
-            return p.call( context, methodName, methodArgs );
+            return p.call( context, methodName, methodArgs ).adjustError( 1 );
         }
         catch( LuaException e )
         {

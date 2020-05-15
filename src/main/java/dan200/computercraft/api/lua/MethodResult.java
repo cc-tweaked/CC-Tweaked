@@ -26,11 +26,20 @@ public final class MethodResult
 
     private final Object[] result;
     private final ILuaCallback callback;
+    private final int adjust;
 
     private MethodResult( Object[] arguments, ILuaCallback callback )
     {
         this.result = arguments;
         this.callback = callback;
+        this.adjust = 0;
+    }
+
+    private MethodResult( Object[] arguments, ILuaCallback callback, int adjust )
+    {
+        this.result = arguments;
+        this.callback = callback;
+        this.adjust = adjust;
     }
 
     /**
@@ -137,5 +146,25 @@ public final class MethodResult
     public ILuaCallback getCallback()
     {
         return callback;
+    }
+
+    public int getErrorAdjust()
+    {
+        return adjust;
+    }
+
+    /**
+     * Increase the Lua error by a specific amount. One should never need to use this function - it largely exists for
+     * some CC internal code.
+     *
+     * @param adjust The amount to increase the level by.
+     * @return The new {@link MethodResult} with an adjusted error. This has no effect on immediate results.
+     */
+    @Nonnull
+    public MethodResult adjustError( int adjust )
+    {
+        if( adjust < 0 ) throw new IllegalArgumentException( "cannot adjust by a negative amount" );
+        if( adjust == 0 || callback == null ) return this;
+        return new MethodResult( result, callback, this.adjust + adjust );
     }
 }
