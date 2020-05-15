@@ -6,7 +6,8 @@
 package dan200.computercraft;
 
 import dan200.computercraft.api.turtle.event.TurtleAction;
-import dan200.computercraft.core.apis.http.AddressRule;
+import dan200.computercraft.core.apis.http.options.Action;
+import dan200.computercraft.core.apis.http.options.AddressRule;
 import dan200.computercraft.shared.Config;
 import dan200.computercraft.shared.computer.blocks.BlockComputer;
 import dan200.computercraft.shared.computer.core.ClientComputerRegistry;
@@ -70,7 +71,7 @@ public final class ComputerCraft
     public static boolean disable_lua51_features = false;
     public static String default_computer_settings = "";
     public static boolean debug_enable = true;
-    public static boolean logPeripheralErrors = true;
+    public static boolean logComputerErrors = true;
     public static boolean commandRequireCreative = true;
 
     public static int computer_threads = 1;
@@ -80,16 +81,16 @@ public final class ComputerCraft
     public static boolean httpEnabled = true;
     public static boolean httpWebsocketEnabled = true;
     public static List<AddressRule> httpRules = Collections.unmodifiableList( Stream.concat(
-        Stream.of( DEFAULT_HTTP_DENY ).map( x -> AddressRule.parse( x, AddressRule.Action.DENY ) ).filter( Objects::nonNull ),
-        Stream.of( DEFAULT_HTTP_ALLOW ).map( x -> AddressRule.parse( x, AddressRule.Action.ALLOW ) ).filter( Objects::nonNull )
+        Stream.of( DEFAULT_HTTP_DENY )
+            .map( x -> AddressRule.parse( x, Action.DENY.toPartial() ) )
+            .filter( Objects::nonNull ),
+        Stream.of( DEFAULT_HTTP_ALLOW )
+            .map( x -> AddressRule.parse( x, Action.ALLOW.toPartial() ) )
+            .filter( Objects::nonNull )
     ).collect( Collectors.toList() ) );
 
-    public static int httpTimeout = 30000;
     public static int httpMaxRequests = 16;
-    public static long httpMaxDownload = 16 * 1024 * 1024;
-    public static long httpMaxUpload = 4 * 1024 * 1024;
     public static int httpMaxWebsockets = 4;
-    public static int httpMaxWebsocketMessage = 128 * 1024;
 
     public static boolean enableCommandBlock = false;
     public static int modem_range = 64;

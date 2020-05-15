@@ -64,7 +64,7 @@ class ResultInterpreterFunction extends ResumableVarArgFunction<ResultInterprete
         }
         catch( Throwable t )
         {
-            if( ComputerCraft.logPeripheralErrors )
+            if( ComputerCraft.logComputerErrors )
             {
                 ComputerCraft.log.error( "Error calling " + name + " on " + instance, t );
             }
@@ -95,7 +95,7 @@ class ResultInterpreterFunction extends ResumableVarArgFunction<ResultInterprete
         }
         catch( Throwable t )
         {
-            if( ComputerCraft.logPeripheralErrors )
+            if( ComputerCraft.logComputerErrors )
             {
                 ComputerCraft.log.error( "Error calling " + name + " on " + container.callback, t );
             }

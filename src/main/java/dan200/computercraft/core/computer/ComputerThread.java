@@ -518,7 +518,7 @@ public final class ComputerThread
 
     private static void timeoutTask( ComputerExecutor executor, Thread thread, long time )
     {
-        if( !ComputerCraft.logPeripheralErrors ) return;
+        if( !ComputerCraft.logComputerErrors ) return;
 
         StringBuilder builder = new StringBuilder()
             .append( "Terminating computer #" ).append( executor.getComputer().getID() )

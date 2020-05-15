@@ -7,6 +7,7 @@ package dan200.computercraft.core.apis.http.websocket;
 
 import dan200.computercraft.core.apis.http.HTTPRequestException;
 import dan200.computercraft.core.apis.http.NetworkUtils;
+import dan200.computercraft.core.apis.http.options.Options;
 import dan200.computercraft.core.tracking.TrackingField;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ConnectTimeoutException;
@@ -23,11 +24,13 @@ public class WebsocketHandler extends SimpleChannelInboundHandler<Object>
 {
     private final Websocket websocket;
     private final WebSocketClientHandshaker handshaker;
+    private final Options options;
 
-    public WebsocketHandler( Websocket websocket, WebSocketClientHandshaker handshaker )
+    public WebsocketHandler( Websocket websocket, WebSocketClientHandshaker handshaker, Options options )
     {
         this.handshaker = handshaker;
         this.websocket = websocket;
+        this.options = options;
     }
 
     @Override
@@ -52,7 +55,7 @@ public class WebsocketHandler extends SimpleChannelInboundHandler<Object>
         if( !handshaker.isHandshakeComplete() )
         {
             handshaker.finishHandshake( ctx.channel(), (FullHttpResponse) msg );
-            websocket.success( ctx.channel() );
+            websocket.success( ctx.channel(), options );
             return;
         }
 

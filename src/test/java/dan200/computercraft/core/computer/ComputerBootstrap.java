@@ -42,7 +42,7 @@ public class ComputerBootstrap
 
     public static void run( IWritableMount mount, Consumer<Computer> setup, int maxTicks )
     {
-        ComputerCraft.logPeripheralErrors = true;
+        ComputerCraft.logComputerErrors = true;
         ComputerCraft.maxMainComputerTime = ComputerCraft.maxMainGlobalTime = Integer.MAX_VALUE;
 
         Terminal term = new Terminal( ComputerCraft.terminalWidth_computer, ComputerCraft.terminalHeight_computer );

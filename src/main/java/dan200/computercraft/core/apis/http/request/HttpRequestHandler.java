@@ -12,6 +12,7 @@ import dan200.computercraft.core.apis.handles.EncodedReadableHandle;
 import dan200.computercraft.core.apis.handles.HandleGeneric;
 import dan200.computercraft.core.apis.http.HTTPRequestException;
 import dan200.computercraft.core.apis.http.NetworkUtils;
+import dan200.computercraft.core.apis.http.options.Options;
 import dan200.computercraft.core.tracking.TrackingField;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.CompositeByteBuf;
@@ -45,18 +46,20 @@ public final class HttpRequestHandler extends SimpleChannelInboundHandler<HttpOb
 
     private final URI uri;
     private final HttpMethod method;
+    private final Options options;
 
     private Charset responseCharset;
     private final HttpHeaders responseHeaders = new DefaultHttpHeaders();
     private HttpResponseStatus responseStatus;
     private CompositeByteBuf responseBody;
 
-    HttpRequestHandler( HttpRequest request, URI uri, HttpMethod method )
+    HttpRequestHandler( HttpRequest request, URI uri, HttpMethod method, Options options )
     {
         this.request = request;
 
         this.uri = uri;
         this.method = method;
+        this.options = options;
     }
 
     @Override
@@ -153,7 +156,7 @@ public final class HttpRequestHandler extends SimpleChannelInboundHandler<HttpOb
             if( partial.isReadable() )
             {
                 // If we've read more than we're allowed to handle, abort as soon as possible.
-                if( ComputerCraft.httpMaxDownload != 0 && responseBody.readableBytes() + partial.readableBytes() > ComputerCraft.httpMaxDownload )
+                if( options.maxDownload != 0 && responseBody.readableBytes() + partial.readableBytes() > options.maxDownload )
                 {
                     closed = true;
                     ctx.close();
@@ -185,7 +188,7 @@ public final class HttpRequestHandler extends SimpleChannelInboundHandler<HttpOb
     @Override
     public void exceptionCaught( ChannelHandlerContext ctx, Throwable cause )
     {
-        if( ComputerCraft.logPeripheralErrors ) ComputerCraft.log.error( "Error handling HTTP response", cause );
+        if( ComputerCraft.logComputerErrors ) ComputerCraft.log.error( "Error handling HTTP response", cause );
         request.failure( cause );
     }
 

@@ -119,12 +119,6 @@ public class HTTPAPI implements ILuaAPI
             URI uri = HttpRequest.checkUri( address );
             HttpRequest request = new HttpRequest( requests, m_apiEnvironment, address, postString, headers, binary, redirect );
 
-            long requestBody = request.body().readableBytes() + HttpRequest.getHeaderSize( headers );
-            if( ComputerCraft.httpMaxUpload != 0 && requestBody > ComputerCraft.httpMaxUpload )
-            {
-                throw new HTTPRequestException( "Request body is too large" );
-            }
-
             // Make the request
             request.queue( r -> r.request( uri, httpMethod ) );
 

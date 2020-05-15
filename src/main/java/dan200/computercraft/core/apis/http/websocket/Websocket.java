@@ -12,6 +12,7 @@ import dan200.computercraft.core.apis.http.HTTPRequestException;
 import dan200.computercraft.core.apis.http.NetworkUtils;
 import dan200.computercraft.core.apis.http.Resource;
 import dan200.computercraft.core.apis.http.ResourceGroup;
+import dan200.computercraft.core.apis.http.options.Options;
 import dan200.computercraft.shared.util.IoUtil;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
@@ -130,6 +131,7 @@ public class Websocket extends Resource<Websocket>
             boolean ssl = uri.getScheme().equalsIgnoreCase( "wss" );
 
             InetSocketAddress socketAddress = NetworkUtils.getAddress( uri.getHost(), uri.getPort(), ssl );
+            Options options = NetworkUtils.getOptions( uri.getHost(), socketAddress );
             SslContext sslContext = ssl ? NetworkUtils.getSslContext() : null;
 
             // getAddress may have a slight delay, so let's perform another cancellation check.
@@ -151,14 +153,14 @@ public class Websocket extends Resource<Websocket>
 
                         WebSocketClientHandshaker handshaker = WebSocketClientHandshakerFactory.newHandshaker(
                             uri, WebSocketVersion.V13, null, true, headers,
-                            ComputerCraft.httpMaxWebsocketMessage == 0 ? MAX_MESSAGE_SIZE : ComputerCraft.httpMaxWebsocketMessage
+                            options.websocketMessage <= 0 ? MAX_MESSAGE_SIZE : options.websocketMessage
                         );
 
                         p.addLast(
                             new HttpClientCodec(),
                             new HttpObjectAggregator( 8192 ),
                             WebSocketClientCompressionHandler.INSTANCE,
-                            new WebsocketHandler( Websocket.this, handshaker )
+                            new WebsocketHandler( Websocket.this, handshaker, options )
                         );
                     }
                 } )
@@ -178,15 +180,15 @@ public class Websocket extends Resource<Websocket>
         catch( Exception e )
         {
             failure( "Could not connect" );
-            if( ComputerCraft.logPeripheralErrors ) ComputerCraft.log.error( "Error in websocket", e );
+            if( ComputerCraft.logComputerErrors ) ComputerCraft.log.error( "Error in websocket", e );
         }
     }
 
-    void success( Channel channel )
+    void success( Channel channel, Options options )
     {
         if( isClosed() ) return;
 
-        WebsocketHandle handle = new WebsocketHandle( this, channel );
+        WebsocketHandle handle = new WebsocketHandle( this, options, channel );
         environment().queueEvent( SUCCESS_EVENT, address, handle );
         websocketHandle = createOwnerReference( handle );
 

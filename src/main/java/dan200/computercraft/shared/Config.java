@@ -12,8 +12,8 @@ import com.google.common.base.CaseFormat;
 import com.google.common.base.Converter;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.turtle.event.TurtleAction;
-import dan200.computercraft.core.apis.http.AddressRule;
-import dan200.computercraft.core.apis.http.websocket.Websocket;
+import dan200.computercraft.core.apis.http.options.Action;
+import dan200.computercraft.core.apis.http.options.AddressRuleConfig;
 import dan200.computercraft.shared.peripheral.monitor.MonitorRenderer;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -21,7 +21,6 @@ import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 
-import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -55,12 +54,8 @@ public final class Config
     private static final ConfigValue<Boolean> httpWebsocketEnabled;
     private static final ConfigValue<List<? extends UnmodifiableConfig>> httpRules;
 
-    private static final ConfigValue<Integer> httpTimeout;
     private static final ConfigValue<Integer> httpMaxRequests;
-    private static final ConfigValue<Integer> httpMaxDownload;
-    private static final ConfigValue<Integer> httpMaxUpload;
     private static final ConfigValue<Integer> httpMaxWebsockets;
-    private static final ConfigValue<Integer> httpMaxWebsocketMessage;
 
     private static final ConfigValue<Boolean> commandBlockEnabled;
     private static final ConfigValue<Integer> modemRange;
@@ -121,7 +116,7 @@ public final class Config
             logComputerErrors = builder
                 .comment( "Log exceptions thrown by peripherals and other Lua objects.\n" +
                     "This makes it easier for mod authors to debug problems, but may result in log spam should people use buggy methods." )
-                .define( "log_computer_errors", ComputerCraft.logPeripheralErrors );
+                .define( "log_computer_errors", ComputerCraft.logComputerErrors );
         }
 
         {
@@ -164,41 +159,24 @@ public final class Config
                 .define( "websocket_enabled", ComputerCraft.httpWebsocketEnabled );
 
             httpRules = builder
-                .comment( "A list of rules which control which domains or IPs are allowed through the \"http\" API on computers.\n" +
-                    "Each rule is an item with a 'host' to match against, and an action. " +
+                .comment( "A list of rules which control behaviour of the \"http\" API for specific domains or IPs.\n" +
+                    "Each rule is an item with a 'host' to match against, and a series of properties. " +
                     "The host may be a domain name (\"pastebin.com\"),\n" +
-                    "wildcard (\"*.pastebin.com\") or CIDR notation (\"127.0.0.0/8\"). 'action' maybe 'allow' or 'block'. If no rules" +
-                    "match, the domain will be blocked." )
+                    "wildcard (\"*.pastebin.com\") or CIDR notation (\"127.0.0.0/8\"). If no rules, the domain is blocked." )
                 .defineList( "rules",
                     Stream.concat(
-                        Stream.of( ComputerCraft.DEFAULT_HTTP_DENY ).map( x -> makeRule( x, "deny" ) ),
-                        Stream.of( ComputerCraft.DEFAULT_HTTP_ALLOW ).map( x -> makeRule( x, "allow" ) )
+                        Stream.of( ComputerCraft.DEFAULT_HTTP_DENY ).map( x -> AddressRuleConfig.makeRule( x, Action.DENY ) ),
+                        Stream.of( ComputerCraft.DEFAULT_HTTP_ALLOW ).map( x -> AddressRuleConfig.makeRule( x, Action.ALLOW ) )
                     ).collect( Collectors.toList() ),
-                    x -> x instanceof UnmodifiableConfig && parseRule( (UnmodifiableConfig) x ) != null );
-
-            httpTimeout = builder
-                .comment( "The period of time (in milliseconds) to wait before a HTTP request times out. Set to 0 for unlimited." )
-                .defineInRange( "timeout", ComputerCraft.httpTimeout, 0, Integer.MAX_VALUE );
+                    x -> x instanceof UnmodifiableConfig && AddressRuleConfig.checkRule( (UnmodifiableConfig) x ) );
 
             httpMaxRequests = builder
                 .comment( "The number of http requests a computer can make at one time. Additional requests will be queued, and sent when the running requests have finished. Set to 0 for unlimited." )
                 .defineInRange( "max_requests", ComputerCraft.httpMaxRequests, 0, Integer.MAX_VALUE );
 
-            httpMaxDownload = builder
-                .comment( "The maximum size (in bytes) that a computer can download in a single request. Note that responses may receive more data than allowed, but this data will not be returned to the client." )
-                .defineInRange( "max_download", (int) ComputerCraft.httpMaxDownload, 0, Integer.MAX_VALUE );
-
-            httpMaxUpload = builder
-                .comment( "The maximum size (in bytes) that a computer can upload in a single request. This includes headers and POST text." )
-                .defineInRange( "max_upload", (int) ComputerCraft.httpMaxUpload, 0, Integer.MAX_VALUE );
-
             httpMaxWebsockets = builder
                 .comment( "The number of websockets a computer can have open at one time. Set to 0 for unlimited." )
                 .defineInRange( "max_websockets", ComputerCraft.httpMaxWebsockets, 1, Integer.MAX_VALUE );
-
-            httpMaxWebsocketMessage = builder
-                .comment( "The maximum size (in bytes) that a computer can send or receive in one websocket packet." )
-                .defineInRange( "max_websocket_message", ComputerCraft.httpMaxWebsocketMessage, 0, Websocket.MAX_MESSAGE_SIZE );
 
             builder.pop();
         }
@@ -291,7 +269,7 @@ public final class Config
         ComputerCraft.default_computer_settings = defaultComputerSettings.get();
         ComputerCraft.debug_enable = debugEnabled.get();
         ComputerCraft.computer_threads = computerThreads.get();
-        ComputerCraft.logPeripheralErrors = logComputerErrors.get();
+        ComputerCraft.logComputerErrors = logComputerErrors.get();
 
         // Execution
         ComputerCraft.computer_threads = computerThreads.get();
@@ -302,14 +280,10 @@ public final class Config
         ComputerCraft.httpEnabled = httpEnabled.get();
         ComputerCraft.httpWebsocketEnabled = httpWebsocketEnabled.get();
         ComputerCraft.httpRules = Collections.unmodifiableList( httpRules.get().stream()
-            .map( Config::parseRule ).filter( Objects::nonNull ).collect( Collectors.toList() ) );
+            .map( AddressRuleConfig::parseRule ).filter( Objects::nonNull ).collect( Collectors.toList() ) );
 
-        ComputerCraft.httpTimeout = httpTimeout.get();
         ComputerCraft.httpMaxRequests = httpMaxRequests.get();
-        ComputerCraft.httpMaxDownload = httpMaxDownload.get();
-        ComputerCraft.httpMaxUpload = httpMaxUpload.get();
         ComputerCraft.httpMaxWebsockets = httpMaxWebsockets.get();
-        ComputerCraft.httpMaxWebsocketMessage = httpMaxWebsocketMessage.get();
 
         // Peripheral
         ComputerCraft.enableCommandBlock = commandBlockEnabled.get();
@@ -361,29 +335,5 @@ public final class Config
         {
             return null;
         }
-    }
-
-    private static UnmodifiableConfig makeRule( String host, String action )
-    {
-        com.electronwill.nightconfig.core.Config config = com.electronwill.nightconfig.core.Config.inMemory();
-        config.add( "host", host );
-        config.add( "action", action );
-        return config;
-    }
-
-    @Nullable
-    private static AddressRule parseRule( UnmodifiableConfig builder )
-    {
-        Object hostObj = builder.get( "host" );
-        Object actionObj = builder.get( "action" );
-        if( !(hostObj instanceof String) || !(actionObj instanceof String) ) return null;
-
-        String host = (String) hostObj, action = (String) actionObj;
-        for( AddressRule.Action candiate : AddressRule.Action.values() )
-        {
-            if( candiate.name().equalsIgnoreCase( action ) ) return AddressRule.parse( host, candiate );
-        }
-
-        return null;
     }
 }

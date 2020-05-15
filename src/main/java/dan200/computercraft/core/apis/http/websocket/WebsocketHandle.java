@@ -6,8 +6,8 @@
 package dan200.computercraft.core.apis.http.websocket;
 
 import com.google.common.base.Objects;
-import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.lua.*;
+import dan200.computercraft.core.apis.http.options.Options;
 import dan200.computercraft.core.tracking.TrackingField;
 import dan200.computercraft.shared.util.StringUtil;
 import io.netty.buffer.Unpooled;
@@ -28,13 +28,15 @@ import static dan200.computercraft.core.apis.http.websocket.Websocket.MESSAGE_EV
 public class WebsocketHandle implements Closeable
 {
     private final Websocket websocket;
+    private final Options options;
     private boolean closed = false;
 
     private Channel channel;
 
-    public WebsocketHandle( Websocket websocket, Channel channel )
+    public WebsocketHandle( Websocket websocket, Options options, Channel channel )
     {
         this.websocket = websocket;
+        this.options = options;
         this.channel = channel;
     }
 
@@ -55,7 +57,7 @@ public class WebsocketHandle implements Closeable
         checkOpen();
 
         String text = StringUtil.toString( args.get( 0 ) );
-        if( ComputerCraft.httpMaxWebsocketMessage != 0 && text.length() > ComputerCraft.httpMaxWebsocketMessage )
+        if( options.websocketMessage != 0 && text.length() > options.websocketMessage )
         {
             throw new LuaException( "Message is too large" );
         }

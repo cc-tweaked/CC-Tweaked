@@ -323,7 +323,7 @@ public class CobaltLuaMachine implements ILuaMachine
             return wrapped;
         }
 
-        if( ComputerCraft.logPeripheralErrors )
+        if( ComputerCraft.logComputerErrors )
         {
             ComputerCraft.log.warn( "Received unknown type '{}', returning nil.", object.getClass().getName() );
         }
@@ -532,7 +532,7 @@ public class CobaltLuaMachine implements ILuaMachine
                 }
                 catch( Throwable t )
                 {
-                    if( ComputerCraft.logPeripheralErrors ) ComputerCraft.log.error( "Error running task", t );
+                    if( ComputerCraft.logComputerErrors ) ComputerCraft.log.error( "Error running task", t );
                     m_computer.queueEvent( "task_complete", new Object[] {
                         taskID, false, "Java Exception Thrown: " + t,
                     } );

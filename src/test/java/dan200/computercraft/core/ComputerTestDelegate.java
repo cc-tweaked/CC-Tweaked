@@ -85,7 +85,7 @@ public class ComputerTestDelegate
     @BeforeEach
     public void before() throws IOException
     {
-        ComputerCraft.logPeripheralErrors = true;
+        ComputerCraft.logComputerErrors = true;
 
         if( REPORT_PATH.delete() ) ComputerCraft.log.info( "Deleted previous coverage report." );
 

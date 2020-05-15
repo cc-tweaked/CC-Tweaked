@@ -3,11 +3,12 @@
  * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-package dan200.computercraft.core.apis.http;
+package dan200.computercraft.core.apis.http.options;
 
 import com.google.common.net.InetAddresses;
 import dan200.computercraft.ComputerCraft;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.net.Inet6Address;
 import java.net.InetAddress;
@@ -18,6 +19,11 @@ import java.util.regex.Pattern;
  */
 public final class AddressRule
 {
+    public static final long MAX_DOWNLOAD = 16 * 1024 * 1024;
+    public static final long MAX_UPLOAD = 4 * 1024 * 1024;
+    public static final int TIMEOUT = 30_000;
+    public static final int WEBSOCKET_MESSAGE = 128 * 1024;
+
     private static final class HostRange
     {
         private final byte[] min;
@@ -44,25 +50,19 @@ public final class AddressRule
         }
     }
 
-    public enum Action
-    {
-        ALLOW,
-        DENY,
-    }
-
     private final HostRange ip;
     private final Pattern domainPattern;
-    private final Action action;
+    private final PartialOptions partial;
 
-    private AddressRule( HostRange ip, Pattern domainPattern, Action action )
+    private AddressRule( @Nullable HostRange ip, @Nullable Pattern domainPattern, @Nonnull PartialOptions partial )
     {
         this.ip = ip;
         this.domainPattern = domainPattern;
-        this.action = action;
+        this.partial = partial;
     }
 
     @Nullable
-    public static AddressRule parse( String filter, Action action )
+    public static AddressRule parse( String filter, @Nonnull PartialOptions partial )
     {
         int cidr = filter.indexOf( '/' );
         if( cidr >= 0 )
@@ -117,12 +117,12 @@ public final class AddressRule
                 size -= 8;
             }
 
-            return new AddressRule( new HostRange( minBytes, maxBytes ), null, action );
+            return new AddressRule( new HostRange( minBytes, maxBytes ), null, partial );
         }
         else
         {
             Pattern pattern = Pattern.compile( "^\\Q" + filter.replaceAll( "\\*", "\\\\E.*\\\\Q" ) + "\\E$" );
-            return new AddressRule( null, pattern, action );
+            return new AddressRule( null, pattern, partial );
         }
     }
 
@@ -133,7 +133,7 @@ public final class AddressRule
      * @param address The address to check.
      * @return Whether it matches any of these patterns.
      */
-    public boolean matches( String domain, InetAddress address )
+    private boolean matches( String domain, InetAddress address )
     {
         if( domainPattern != null )
         {
@@ -155,13 +155,32 @@ public final class AddressRule
         return ip != null && ip.contains( address );
     }
 
-    public static Action apply( Iterable<? extends AddressRule> rules, String domain, InetAddress address )
+    public static Options apply( Iterable<? extends AddressRule> rules, String domain, InetAddress address )
     {
+        PartialOptions options = null;
+        boolean hasMany = false;
+
         for( AddressRule rule : rules )
         {
-            if( rule.matches( domain, address ) ) return rule.action;
+            if( !rule.matches( domain, address ) ) continue;
+
+            if( options == null )
+            {
+                options = rule.partial;
+            }
+            else
+            {
+
+                if( !hasMany )
+                {
+                    options = options.copy();
+                    hasMany = true;
+                }
+
+                options.merge( rule.partial );
+            }
         }
 
-        return Action.DENY;
+        return (options == null ? PartialOptions.DEFAULT : options).toOptions();
     }
 }

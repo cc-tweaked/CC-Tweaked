@@ -64,7 +64,7 @@ public class CommandAPI implements ILuaAPI
         }
         catch( Throwable t )
         {
-            if( ComputerCraft.logPeripheralErrors ) ComputerCraft.log.error( "Error running command.", t );
+            if( ComputerCraft.logComputerErrors ) ComputerCraft.log.error( "Error running command.", t );
             return new Object[] { false, createOutput( "Java Exception Thrown: " + t ) };
         }
     }
