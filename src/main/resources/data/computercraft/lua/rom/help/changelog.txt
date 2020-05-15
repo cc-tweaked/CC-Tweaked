@@ -13,6 +13,7 @@
 And several bug fixes:
 * Fix io.lines not accepting arguments.
 * Fix settings.load using an unknown global (MCJack123).
+* Prevent computers scanning peripherals twice.
 
 # New features in CC: Tweaked 1.87.1
 
