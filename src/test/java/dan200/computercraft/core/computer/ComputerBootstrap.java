@@ -26,18 +26,24 @@ public class ComputerBootstrap
     private static final int TPS = 20;
     public static final int MAX_TIME = 10;
 
-    public static void run( String program, int maxTimes )
+    public static void run( String program, Consumer<Computer> setup, int maxTimes )
     {
         MemoryMount mount = new MemoryMount()
             .addFile( "test.lua", program )
-            .addFile( "startup", "assertion.assert(pcall(loadfile('test.lua', nil, _ENV))) os.shutdown()" );
+            .addFile( "startup.lua", "assertion.assert(pcall(loadfile('test.lua', nil, _ENV))) os.shutdown()" );
 
-        run( mount, x -> { }, maxTimes );
+        run( mount, setup, maxTimes );
+    }
+
+    public static void run( String program, int maxTimes )
+    {
+        run( program, x -> { }, maxTimes );
     }
 
     public static void run( IWritableMount mount, Consumer<Computer> setup, int maxTicks )
     {
         ComputerCraft.logPeripheralErrors = true;
+        ComputerCraft.maxMainComputerTime = ComputerCraft.maxMainGlobalTime = Integer.MAX_VALUE;
 
         Terminal term = new Terminal( ComputerCraft.terminalWidth_computer, ComputerCraft.terminalHeight_computer );
         final Computer computer = new Computer( new BasicEnvironment( mount ), term, 0 );

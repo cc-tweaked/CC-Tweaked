@@ -25,7 +25,7 @@ public interface PeripheralMethod
         } );
 
     IntCache<PeripheralMethod> DYNAMIC = new IntCache<>(
-        method -> ( instance, context, computer, args ) -> MethodResult.of( ((IDynamicPeripheral) instance).callMethod( computer, context, method, args ) )
+        method -> ( instance, context, computer, args ) -> ((IDynamicPeripheral) instance).callMethod( computer, context, method, args )
     );
 
     @Nonnull

@@ -8,6 +8,7 @@ package dan200.computercraft.core.asm;
 
 import dan200.computercraft.api.lua.*;
 import dan200.computercraft.api.peripheral.IComputerAccess;
+import dan200.computercraft.core.computer.ComputerBootstrap;
 import dan200.computercraft.core.computer.ComputerSide;
 import org.hamcrest.Matcher;
 import org.junit.jupiter.api.Test;
@@ -218,7 +219,7 @@ public class GeneratorTest
     public static class MainThread
     {
         @LuaFunction( mainThread = true )
-        public void go()
+        public final void go()
         { }
     }
 

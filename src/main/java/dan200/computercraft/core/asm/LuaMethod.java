@@ -20,7 +20,7 @@ public interface LuaMethod
         } );
 
     IntCache<LuaMethod> DYNAMIC = new IntCache<>(
-        method -> ( instance, context, args ) -> MethodResult.of( ((IDynamicLuaObject) instance).callMethod( context, method, args ) )
+        method -> ( instance, context, args ) -> ((IDynamicLuaObject) instance).callMethod( context, method, args )
     );
 
     String[] EMPTY_METHODS = new String[0];
