@@ -73,7 +73,7 @@ public final class Config
 
     private static final ConfigValue<MonitorRenderer> monitorRenderer;
 
-    private static final ForgeConfigSpec commonSpec;
+    private static final ForgeConfigSpec serverSpec;
     private static final ForgeConfigSpec clientSpec;
 
     private Config() {}
@@ -243,7 +243,7 @@ public final class Config
             builder.pop();
         }
 
-        commonSpec = builder.build();
+        serverSpec = builder.build();
 
         Builder clientBuilder = new Builder();
         monitorRenderer = clientBuilder
@@ -255,7 +255,7 @@ public final class Config
 
     public static void load()
     {
-        ModLoadingContext.get().registerConfig( ModConfig.Type.COMMON, commonSpec );
+        ModLoadingContext.get().registerConfig( ModConfig.Type.SERVER, serverSpec );
         ModLoadingContext.get().registerConfig( ModConfig.Type.CLIENT, clientSpec );
     }
 
