@@ -7,9 +7,12 @@ New features in CC: Tweaked 1.88.0
 * The Lua REPL warns when declaring locals (lupus590, exerro)
 * Add config to allow using command computers in survival.
 * Add fs.isDriveRoot - checks if a path is the root of a drive.
+* `cc.pretty` can now display a function's arguments and where it was defined. The Lua REPL will show arguments by default.
+* Move the shell's `require`/`package` implementation to a separate `cc.require` module.
 
 And several bug fixes:
 * Fix io.lines not accepting arguments.
 * Fix settings.load using an unknown global (MCJack123).
+* Prevent computers scanning peripherals twice.
 
 Type "help changelog" to see the full version history.

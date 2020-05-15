@@ -938,11 +938,23 @@ settings.define("motd.path", {
     description = [[The path to load random messages from. Should be a colon (":") separated string of file paths.]],
     type = "string",
 })
+
 settings.define("lua.warn_against_use_of_local", {
     default = true,
     description = [[Print a message when input in the Lua REPL starts with the word 'local'. Local variables defined in the Lua REPL are be inaccessable on the next input.]],
     type = "boolean",
 })
+settings.define("lua.function_args", {
+    default = true,
+    description = "Show function arguments when printing functions.",
+    type = "boolean",
+})
+settings.define("lua.function_source", {
+    default = false,
+    description = "Show where a function was defined when printing functions.",
+    type = "boolean",
+})
+
 if term.isColour() then
     settings.define("bios.use_multishell", {
         default = true,

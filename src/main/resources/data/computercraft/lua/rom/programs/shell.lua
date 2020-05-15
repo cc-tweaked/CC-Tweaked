@@ -11,6 +11,7 @@
 -- @module[module] shell
 
 local expect = dofile("rom/modules/main/cc/expect.lua").expect
+local make_package = dofile("rom/modules/main/cc/require.lua").make
 
 local multishell = multishell
 local parentShell = shell
@@ -28,94 +29,10 @@ local tCompletionInfo = parentShell and parentShell.getCompletionInfo() or {}
 local tProgramStack = {}
 
 local shell = {} --- @export
-local function createShellEnv(sDir)
-    local tEnv = {}
-    tEnv.shell = shell
-    tEnv.multishell = multishell
-
-    local package = {}
-    package.loaded = {
-        _G = _G,
-        bit32 = bit32,
-        coroutine = coroutine,
-        math = math,
-        package = package,
-        string = string,
-        table = table,
-    }
-    package.path = "?;?.lua;?/init.lua;/rom/modules/main/?;/rom/modules/main/?.lua;/rom/modules/main/?/init.lua"
-    if turtle then
-        package.path = package.path .. ";/rom/modules/turtle/?;/rom/modules/turtle/?.lua;/rom/modules/turtle/?/init.lua"
-    elseif commands then
-        package.path = package.path .. ";/rom/modules/command/?;/rom/modules/command/?.lua;/rom/modules/command/?/init.lua"
-    end
-    package.config = "/\n;\n?\n!\n-"
-    package.preload = {}
-    package.loaders = {
-        function(name)
-            if package.preload[name] then
-                return package.preload[name]
-            else
-                return nil, "no field package.preload['" .. name .. "']"
-            end
-        end,
-        function(name)
-            local fname = string.gsub(name, "%.", "/")
-            local sError = ""
-            for pattern in string.gmatch(package.path, "[^;]+") do
-                local sPath = string.gsub(pattern, "%?", fname)
-                if sPath:sub(1, 1) ~= "/" then
-                    sPath = fs.combine(sDir, sPath)
-                end
-                if fs.exists(sPath) and not fs.isDir(sPath) then
-                    local fnFile, sError = loadfile(sPath, nil, tEnv)
-                    if fnFile then
-                        return fnFile, sPath
-                    else
-                        return nil, sError
-                    end
-                else
-                    if #sError > 0 then
-                        sError = sError .. "\n  "
-                    end
-                    sError = sError .. "no file '" .. sPath .. "'"
-                end
-            end
-            return nil, sError
-        end,
-    }
-
-    local sentinel = {}
-    local function require(name)
-        expect(1, name, "string")
-        if package.loaded[name] == sentinel then
-            error("loop or previous error loading module '" .. name .. "'", 0)
-        end
-        if package.loaded[name] then
-            return package.loaded[name]
-        end
-
-        local sError = "module '" .. name .. "' not found:"
-        for _, searcher in ipairs(package.loaders) do
-            local loader = table.pack(searcher(name))
-            if loader[1] then
-                package.loaded[name] = sentinel
-                local result = loader[1](name, table.unpack(loader, 2, loader.n))
-                if result == nil then result = true end
-
-                package.loaded[name] = result
-                return result
-            else
-                sError = sError .. "\n  " .. loader[2]
-            end
-        end
-        error(sError, 2)
-    end
-
-    tEnv.package = package
-    tEnv.require = require
-
-    return tEnv
+local function createShellEnv(dir)
+    local env = { shell = shell, multishell = multishell }
+    env.require, env.package = make_package(env, dir)
+    return env
 end
 
 -- Colours
