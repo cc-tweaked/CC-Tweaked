@@ -6,11 +6,13 @@
 package dan200.computercraft.shared.computer.blocks;
 
 import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.core.computer.ComputerSide;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ComputerState;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.computer.inventory.ContainerComputer;
+import dan200.computercraft.shared.util.CapabilityUtil;
 import dan200.computercraft.shared.util.NamedTileEntityType;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
@@ -19,9 +21,13 @@ import net.minecraft.inventory.container.Container;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.util.LazyOptional;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+
+import static dan200.computercraft.shared.Capabilities.CAPABILITY_PERIPHERAL;
 
 public class TileComputer extends TileComputerBase
 {
@@ -35,7 +41,8 @@ public class TileComputer extends TileComputerBase
         f -> new TileComputer( ComputerFamily.ADVANCED, f )
     );
 
-    private ComputerProxy m_proxy;
+    private ComputerProxy proxy;
+    private LazyOptional<IPeripheral> peripheral;
 
     public TileComputer( ComputerFamily family, TileEntityType<? extends TileComputer> type )
     {
@@ -53,23 +60,6 @@ public class TileComputer extends TileComputerBase
         );
         computer.setPosition( getPos() );
         return computer;
-    }
-
-    @Override
-    public ComputerProxy createProxy()
-    {
-        if( m_proxy == null )
-        {
-            m_proxy = new ComputerProxy()
-            {
-                @Override
-                protected TileComputerBase getTile()
-                {
-                    return TileComputer.this;
-                }
-            };
-        }
-        return m_proxy;
     }
 
     public boolean isUsableByPlayer( PlayerEntity player )
@@ -108,5 +98,31 @@ public class TileComputer extends TileComputerBase
     public Container createMenu( int id, @Nonnull PlayerInventory inventory, @Nonnull PlayerEntity player )
     {
         return new ContainerComputer( id, this );
+    }
+
+    @Nonnull
+    @Override
+    public <T> LazyOptional<T> getCapability( @Nonnull Capability<T> cap, @Nullable Direction side )
+    {
+        if( cap == CAPABILITY_PERIPHERAL )
+        {
+            if( peripheral == null )
+            {
+                peripheral = LazyOptional.of( () -> {
+                    if( proxy == null ) proxy = new ComputerProxy( () -> this );
+                    return new ComputerPeripheral( "computer", proxy );
+                } );
+            }
+            return peripheral.cast();
+        }
+
+        return super.getCapability( cap, side );
+    }
+
+    @Override
+    protected void invalidateCaps()
+    {
+        super.invalidateCaps();
+        peripheral = CapabilityUtil.invalidate( peripheral );
     }
 }

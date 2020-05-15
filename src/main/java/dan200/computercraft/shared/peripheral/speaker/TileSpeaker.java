@@ -7,8 +7,8 @@ package dan200.computercraft.shared.peripheral.speaker;
 
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.peripheral.IPeripheral;
-import dan200.computercraft.api.peripheral.IPeripheralTile;
 import dan200.computercraft.shared.common.TileGeneric;
+import dan200.computercraft.shared.util.CapabilityUtil;
 import dan200.computercraft.shared.util.NamedTileEntityType;
 import net.minecraft.tileentity.ITickableTileEntity;
 import net.minecraft.util.Direction;
@@ -16,11 +16,15 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.util.LazyOptional;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public class TileSpeaker extends TileGeneric implements ITickableTileEntity, IPeripheralTile
+import static dan200.computercraft.shared.Capabilities.CAPABILITY_PERIPHERAL;
+
+public class TileSpeaker extends TileGeneric implements ITickableTileEntity
 {
     public static final int MIN_TICKS_BETWEEN_SOUNDS = 1;
 
@@ -29,24 +33,39 @@ public class TileSpeaker extends TileGeneric implements ITickableTileEntity, IPe
         TileSpeaker::new
     );
 
-    private final SpeakerPeripheral m_peripheral;
+    private final SpeakerPeripheral peripheral;
+    private LazyOptional<IPeripheral> peripheralCap;
 
     public TileSpeaker()
     {
         super( FACTORY );
-        m_peripheral = new Peripheral( this );
+        peripheral = new Peripheral( this );
     }
 
     @Override
     public void tick()
     {
-        m_peripheral.update();
+        peripheral.update();
+    }
+
+    @Nonnull
+    @Override
+    public <T> LazyOptional<T> getCapability( @Nonnull Capability<T> cap, @Nullable Direction side )
+    {
+        if( cap == CAPABILITY_PERIPHERAL )
+        {
+            if( peripheralCap == null ) peripheralCap = LazyOptional.of( () -> peripheral );
+            return peripheralCap.cast();
+        }
+
+        return super.getCapability( cap, side );
     }
 
     @Override
-    public IPeripheral getPeripheral( @Nonnull Direction side )
+    protected void invalidateCaps()
     {
-        return m_peripheral;
+        super.invalidateCaps();
+        peripheralCap = CapabilityUtil.invalidate( peripheralCap );
     }
 
     private static final class Peripheral extends SpeakerPeripheral

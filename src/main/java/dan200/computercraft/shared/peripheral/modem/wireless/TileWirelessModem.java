@@ -7,10 +7,10 @@ package dan200.computercraft.shared.peripheral.modem.wireless;
 
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.peripheral.IPeripheral;
-import dan200.computercraft.api.peripheral.IPeripheralTile;
 import dan200.computercraft.shared.common.TileGeneric;
 import dan200.computercraft.shared.peripheral.modem.ModemPeripheral;
 import dan200.computercraft.shared.peripheral.modem.ModemState;
+import dan200.computercraft.shared.util.CapabilityUtil;
 import dan200.computercraft.shared.util.NamedTileEntityType;
 import dan200.computercraft.shared.util.TickScheduler;
 import net.minecraft.block.BlockState;
@@ -20,11 +20,15 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.util.LazyOptional;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public class TileWirelessModem extends TileGeneric implements IPeripheralTile
+import static dan200.computercraft.shared.Capabilities.CAPABILITY_PERIPHERAL;
+
+public class TileWirelessModem extends TileGeneric
 {
     public static final NamedTileEntityType<TileWirelessModem> FACTORY_NORMAL = NamedTileEntityType.create(
         new ResourceLocation( ComputerCraft.MOD_ID, "wireless_modem_normal" ),
@@ -74,6 +78,7 @@ public class TileWirelessModem extends TileGeneric implements IPeripheralTile
     private Direction modemDirection = Direction.DOWN;
     private final ModemPeripheral modem;
     private boolean destroyed = false;
+    private LazyOptional<IPeripheral> modemCap;
 
     public TileWirelessModem( TileEntityType<? extends TileWirelessModem> type, boolean advanced )
     {
@@ -100,20 +105,6 @@ public class TileWirelessModem extends TileGeneric implements IPeripheralTile
     }
 
     @Override
-    public void markDirty()
-    {
-        super.markDirty();
-        if( world != null )
-        {
-            updateDirection();
-        }
-        else
-        {
-            hasModemDirection = false;
-        }
-    }
-
-    @Override
     public void updateContainingBlockInfo()
     {
         super.updateContainingBlockInfo();
@@ -124,12 +115,17 @@ public class TileWirelessModem extends TileGeneric implements IPeripheralTile
     @Override
     public void blockTick()
     {
-        updateDirection();
+        Direction currentDirection = modemDirection;
+        refreshDirection();
+        // Invalidate the capability if the direction has changed. I'm not 100% happy with this implementation
+        //  - ideally we'd do it within refreshDirection or updateContainingBlockInfo, but this seems the _safest_
+        //  place.
+        if( currentDirection != modemDirection ) modemCap = CapabilityUtil.invalidate( modemCap );
 
         if( modem.getModemState().pollChanged() ) updateBlockState();
     }
 
-    private void updateDirection()
+    private void refreshDirection()
     {
         if( hasModemDirection ) return;
 
@@ -147,12 +143,18 @@ public class TileWirelessModem extends TileGeneric implements IPeripheralTile
         }
     }
 
-
-    @Nullable
+    @Nonnull
     @Override
-    public IPeripheral getPeripheral( @Nonnull Direction side )
+    public <T> LazyOptional<T> getCapability( @Nonnull Capability<T> cap, @Nullable Direction side )
     {
-        updateDirection();
-        return side == modemDirection ? modem : null;
+        if( cap == CAPABILITY_PERIPHERAL )
+        {
+            refreshDirection();
+            if( side != null && modemDirection != side ) return LazyOptional.empty();
+            if( modemCap == null ) modemCap = LazyOptional.of( () -> modem );
+            return modemCap.cast();
+        }
+
+        return super.getCapability( cap, side );
     }
 }

@@ -9,6 +9,7 @@ import net.minecraft.util.Direction;
 import net.minecraft.util.IStringSerializable;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public enum CableModemVariant implements IStringSerializable
 {
@@ -69,6 +70,7 @@ public enum CableModemVariant implements IStringSerializable
         return name;
     }
 
+    @Nullable
     public Direction getFacing()
     {
         return facing;

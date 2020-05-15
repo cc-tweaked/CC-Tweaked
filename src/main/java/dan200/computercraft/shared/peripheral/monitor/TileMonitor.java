@@ -8,10 +8,10 @@ package dan200.computercraft.shared.peripheral.monitor;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
-import dan200.computercraft.api.peripheral.IPeripheralTile;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.shared.common.ServerTerminal;
 import dan200.computercraft.shared.common.TileGeneric;
+import dan200.computercraft.shared.util.CapabilityUtil;
 import dan200.computercraft.shared.util.NamedTileEntityType;
 import dan200.computercraft.shared.util.TickScheduler;
 import net.minecraft.entity.player.PlayerEntity;
@@ -26,12 +26,17 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.world.World;
+import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.util.LazyOptional;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.HashSet;
 import java.util.Set;
 
-public class TileMonitor extends TileGeneric implements IPeripheralTile
+import static dan200.computercraft.shared.Capabilities.CAPABILITY_PERIPHERAL;
+
+public class TileMonitor extends TileGeneric
 {
     public static final NamedTileEntityType<TileMonitor> FACTORY_NORMAL = NamedTileEntityType.create(
         new ResourceLocation( ComputerCraft.MOD_ID, "monitor_normal" ),
@@ -59,7 +64,8 @@ public class TileMonitor extends TileGeneric implements IPeripheralTile
 
     private ServerMonitor m_serverMonitor;
     private ClientMonitor m_clientMonitor;
-    private MonitorPeripheral m_peripheral;
+    private MonitorPeripheral peripheral;
+    private LazyOptional<IPeripheral> peripheralCap;
     private final Set<IComputerAccess> m_computers = new HashSet<>();
 
     private boolean m_destroyed = false;
@@ -174,14 +180,25 @@ public class TileMonitor extends TileGeneric implements IPeripheralTile
         if( m_serverMonitor.pollTerminalChanged() ) updateBlock();
     }
 
-    // IPeripheralTile implementation
-
     @Override
-    public IPeripheral getPeripheral( @Nonnull Direction side )
+    protected void invalidateCaps()
     {
-        createServerMonitor(); // Ensure the monitor is created before doing anything else.
-        if( m_peripheral == null ) m_peripheral = new MonitorPeripheral( this );
-        return m_peripheral;
+        super.invalidateCaps();
+        peripheralCap = CapabilityUtil.invalidate( peripheralCap );
+    }
+
+    @Nonnull
+    @Override
+    public <T> LazyOptional<T> getCapability( @Nonnull Capability<T> cap, @Nullable Direction side )
+    {
+        if( cap == CAPABILITY_PERIPHERAL )
+        {
+            createServerMonitor(); // Ensure the monitor is created before doing anything else.
+            if( peripheral == null ) peripheral = new MonitorPeripheral( this );
+            if( peripheralCap == null ) peripheralCap = LazyOptional.of( () -> peripheral );
+            return peripheralCap.cast();
+        }
+        return super.getCapability( cap, side );
     }
 
     public ServerMonitor getCachedServerMonitor()
@@ -409,7 +426,7 @@ public class TileMonitor extends TileGeneric implements IPeripheralTile
             for( int y = 0; y < height; y++ )
             {
                 TileMonitor monitor = getNeighbour( x, y );
-                if( monitor != null && monitor.m_peripheral != null )
+                if( monitor != null && monitor.peripheral != null )
                 {
                     needsTerminal = true;
                     break terminalCheck;

@@ -15,7 +15,6 @@ import dan200.computercraft.api.turtle.*;
 import dan200.computercraft.core.computer.ComputerSide;
 import dan200.computercraft.shared.TurtleUpgrades;
 import dan200.computercraft.shared.computer.blocks.ComputerProxy;
-import dan200.computercraft.shared.computer.blocks.TileComputerBase;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.turtle.blocks.TileTurtle;
@@ -72,12 +71,12 @@ public class TurtleBrain implements ITurtleAccess
     private final IInventory m_inventory = (InventoryDelegate) () -> m_owner;
     private final IItemHandlerModifiable m_inventoryWrapper = new InvWrapper( m_inventory );
 
-    private Queue<TurtleCommandQueueEntry> m_commandQueue = new ArrayDeque<>();
+    private final Queue<TurtleCommandQueueEntry> m_commandQueue = new ArrayDeque<>();
     private int m_commandsIssued = 0;
 
-    private Map<TurtleSide, ITurtleUpgrade> m_upgrades = new EnumMap<>( TurtleSide.class );
-    private Map<TurtleSide, IPeripheral> peripherals = new EnumMap<>( TurtleSide.class );
-    private Map<TurtleSide, CompoundNBT> m_upgradeNBTData = new EnumMap<>( TurtleSide.class );
+    private final Map<TurtleSide, ITurtleUpgrade> m_upgrades = new EnumMap<>( TurtleSide.class );
+    private final Map<TurtleSide, IPeripheral> peripherals = new EnumMap<>( TurtleSide.class );
+    private final Map<TurtleSide, CompoundNBT> m_upgradeNBTData = new EnumMap<>( TurtleSide.class );
 
     private int m_selectedSlot = 0;
     private int m_fuelLevel = 0;
@@ -107,17 +106,7 @@ public class TurtleBrain implements ITurtleAccess
 
     public ComputerProxy getProxy()
     {
-        if( m_proxy == null )
-        {
-            m_proxy = new ComputerProxy()
-            {
-                @Override
-                protected TileComputerBase getTile()
-                {
-                    return m_owner;
-                }
-            };
-        }
+        if( m_proxy == null ) m_proxy = new ComputerProxy( () -> m_owner );
         return m_proxy;
     }
 

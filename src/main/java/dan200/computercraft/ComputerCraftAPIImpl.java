@@ -24,7 +24,6 @@ import dan200.computercraft.core.filesystem.ResourceMount;
 import dan200.computercraft.shared.*;
 import dan200.computercraft.shared.peripheral.modem.wireless.WirelessNetwork;
 import dan200.computercraft.shared.util.IDAssigner;
-import dan200.computercraft.shared.wired.CapabilityWiredElement;
 import dan200.computercraft.shared.wired.WiredNode;
 import net.minecraft.resources.IReloadableResourceManager;
 import net.minecraft.tileentity.TileEntity;
@@ -40,6 +39,8 @@ import javax.annotation.Nonnull;
 import java.io.File;
 import java.lang.ref.WeakReference;
 import java.util.Map;
+
+import static dan200.computercraft.shared.Capabilities.CAPABILITY_WIRED_ELEMENT;
 
 public final class ComputerCraftAPIImpl implements IComputerCraftAPI
 {
@@ -147,6 +148,6 @@ public final class ComputerCraftAPIImpl implements IComputerCraftAPI
     public LazyOptional<IWiredElement> getWiredElementAt( @Nonnull IBlockReader world, @Nonnull BlockPos pos, @Nonnull Direction side )
     {
         TileEntity tile = world.getTileEntity( pos );
-        return tile == null ? LazyOptional.empty() : tile.getCapability( CapabilityWiredElement.CAPABILITY, side );
+        return tile == null ? LazyOptional.empty() : tile.getCapability( CAPABILITY_WIRED_ELEMENT, side );
     }
 }

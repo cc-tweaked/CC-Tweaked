@@ -7,7 +7,6 @@ package dan200.computercraft.shared.computer.blocks;
 
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.peripheral.IPeripheral;
-import dan200.computercraft.api.peripheral.IPeripheralTile;
 import dan200.computercraft.core.computer.ComputerSide;
 import dan200.computercraft.shared.BundledRedstone;
 import dan200.computercraft.shared.Peripherals;
@@ -45,7 +44,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Objects;
 
-public abstract class TileComputerBase extends TileGeneric implements IComputerTile, ITickableTileEntity, IPeripheralTile, INameable, INamedContainerProvider
+public abstract class TileComputerBase extends TileGeneric implements IComputerTile, ITickableTileEntity, INameable, INamedContainerProvider
 {
     private static final String NBT_ID = "ComputerId";
     private static final String NBT_LABEL = "Label";
@@ -226,7 +225,8 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
         computer.setBundledRedstoneInput( localDir, BundledRedstone.getOutput( getWorld(), offset, offsetSide ) );
         if( !isPeripheralBlockedOnSide( localDir ) )
         {
-            computer.setPeripheral( localDir, Peripherals.getPeripheral( getWorld(), offset, offsetSide ) );
+            IPeripheral peripheral = Peripherals.getPeripheral( getWorld(), offset, offsetSide, o -> updateInput( dir ) );
+            computer.setPeripheral( localDir, peripheral );
         }
     }
 
@@ -272,7 +272,6 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
         ServerComputer computer = getServerComputer();
         if( computer == null ) return;
 
-        BlockPos pos = computer.getPosition();
         for( Direction dir : DirectionUtil.FACINGS )
         {
             BlockPos offset = pos.offset( dir );
@@ -287,6 +286,16 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
         updateInput();
     }
 
+    private void updateInput( Direction dir )
+    {
+        if( getWorld() == null || getWorld().isRemote ) return;
+
+        ServerComputer computer = getServerComputer();
+        if( computer == null ) return;
+
+        updateSideInput( computer, dir, pos.offset( dir ) );
+    }
+
     public void updateOutput()
     {
         // Update redstone
@@ -298,8 +307,6 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
     }
 
     protected abstract ServerComputer createComputer( int instanceID, int id );
-
-    public abstract ComputerProxy createProxy();
 
     @Override
     public final int getComputerID()
@@ -402,13 +409,6 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
             updateBlock();
         }
         copy.m_instanceID = -1;
-    }
-
-    @Nullable
-    @Override
-    public IPeripheral getPeripheral( @Nonnull Direction side )
-    {
-        return new ComputerPeripheral( "computer", createProxy() );
     }
 
     @Nonnull

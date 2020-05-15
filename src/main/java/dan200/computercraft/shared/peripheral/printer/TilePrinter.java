@@ -7,14 +7,10 @@ package dan200.computercraft.shared.peripheral.printer;
 
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.peripheral.IPeripheral;
-import dan200.computercraft.api.peripheral.IPeripheralTile;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.shared.common.TileGeneric;
 import dan200.computercraft.shared.media.items.ItemPrintout;
-import dan200.computercraft.shared.util.ColourUtils;
-import dan200.computercraft.shared.util.DefaultSidedInventory;
-import dan200.computercraft.shared.util.NamedTileEntityType;
-import dan200.computercraft.shared.util.WorldUtil;
+import dan200.computercraft.shared.util.*;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
@@ -32,16 +28,17 @@ import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.fml.network.NetworkHooks;
-import net.minecraftforge.items.IItemHandlerModifiable;
+import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.wrapper.InvWrapper;
 import net.minecraftforge.items.wrapper.SidedInvWrapper;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import static dan200.computercraft.shared.Capabilities.CAPABILITY_PERIPHERAL;
 import static net.minecraftforge.items.CapabilityItemHandler.ITEM_HANDLER_CAPABILITY;
 
-public final class TilePrinter extends TileGeneric implements DefaultSidedInventory, IPeripheralTile, INameable, INamedContainerProvider
+public final class TilePrinter extends TileGeneric implements DefaultSidedInventory, INameable, INamedContainerProvider
 {
     public static final NamedTileEntityType<TilePrinter> FACTORY = NamedTileEntityType.create(
         new ResourceLocation( ComputerCraft.MOD_ID, "printer" ),
@@ -61,7 +58,9 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
     ITextComponent customName;
 
     private final NonNullList<ItemStack> m_inventory = NonNullList.withSize( SLOTS, ItemStack.EMPTY );
-    private LazyOptional<IItemHandlerModifiable>[] itemHandlerCaps;
+    private final SidedCaps<IItemHandler> itemHandlerCaps =
+        SidedCaps.ofNullable( facing -> facing == null ? new InvWrapper( this ) : new SidedInvWrapper( this, facing ) );
+    private LazyOptional<IPeripheral> peripheralCap;
 
     private final Terminal m_page = new Terminal( ItemPrintout.LINE_MAX_LENGTH, ItemPrintout.LINES_PER_PAGE );
     private String m_pageTitle = "";
@@ -82,16 +81,8 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
     protected void invalidateCaps()
     {
         super.invalidateCaps();
-
-        if( itemHandlerCaps != null )
-        {
-            for( int i = 0; i < itemHandlerCaps.length; i++ )
-            {
-                if( itemHandlerCaps[i] == null ) continue;
-                itemHandlerCaps[i].invalidate();
-                itemHandlerCaps[i] = null;
-            }
-        }
+        itemHandlerCaps.invalidate();
+        peripheralCap = CapabilityUtil.invalidate( peripheralCap );
     }
 
     @Nonnull
@@ -260,14 +251,6 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
             default: // Sides (Ink)
                 return SIDE_SLOTS;
         }
-    }
-
-    // IPeripheralTile implementation
-
-    @Override
-    public IPeripheral getPeripheral( @Nonnull Direction side )
-    {
-        return new PrinterPeripheral( this );
     }
 
     @Nullable
@@ -465,26 +448,15 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
         getWorld().setBlockState( getPos(), state.with( BlockPrinter.TOP, top ).with( BlockPrinter.BOTTOM, bottom ) );
     }
 
-    @SuppressWarnings( { "unchecked", "rawtypes" } )
     @Nonnull
     @Override
     public <T> LazyOptional<T> getCapability( @Nonnull Capability<T> capability, @Nullable Direction facing )
     {
-        if( capability == ITEM_HANDLER_CAPABILITY )
+        if( capability == ITEM_HANDLER_CAPABILITY ) return itemHandlerCaps.get( facing ).cast();
+        if( capability == CAPABILITY_PERIPHERAL )
         {
-            LazyOptional<IItemHandlerModifiable>[] handlers = itemHandlerCaps;
-            if( handlers == null ) handlers = itemHandlerCaps = new LazyOptional[7];
-
-            int index = facing == null ? 0 : 1 + facing.getIndex();
-            LazyOptional<IItemHandlerModifiable> handler = handlers[index];
-            if( handler == null )
-            {
-                handler = handlers[index] = facing == null
-                    ? LazyOptional.of( () -> new InvWrapper( this ) )
-                    : LazyOptional.of( () -> new SidedInvWrapper( this, facing ) );
-            }
-
-            return handler.cast();
+            if( peripheralCap == null ) peripheralCap = LazyOptional.of( () -> new PrinterPeripheral( this ) );
+            return peripheralCap.cast();
         }
 
         return super.getCapability( capability, facing );

@@ -11,13 +11,9 @@ import dan200.computercraft.api.filesystem.IWritableMount;
 import dan200.computercraft.api.media.IMedia;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
-import dan200.computercraft.api.peripheral.IPeripheralTile;
 import dan200.computercraft.shared.MediaProviders;
 import dan200.computercraft.shared.common.TileGeneric;
-import dan200.computercraft.shared.util.DefaultInventory;
-import dan200.computercraft.shared.util.InventoryUtil;
-import dan200.computercraft.shared.util.NamedTileEntityType;
-import dan200.computercraft.shared.util.RecordUtil;
+import dan200.computercraft.shared.util.*;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -45,9 +41,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import static dan200.computercraft.shared.Capabilities.CAPABILITY_PERIPHERAL;
 import static net.minecraftforge.items.CapabilityItemHandler.ITEM_HANDLER_CAPABILITY;
 
-public final class TileDiskDrive extends TileGeneric implements DefaultInventory, ITickableTileEntity, IPeripheralTile, INameable, INamedContainerProvider
+public final class TileDiskDrive extends TileGeneric implements DefaultInventory, ITickableTileEntity, INameable, INamedContainerProvider
 {
     private static final String NBT_NAME = "CustomName";
     private static final String NBT_ITEM = "Item";
@@ -69,6 +66,7 @@ public final class TileDiskDrive extends TileGeneric implements DefaultInventory
     @Nonnull
     private ItemStack m_diskStack = ItemStack.EMPTY;
     private LazyOptional<IItemHandlerModifiable> itemHandlerCap;
+    private LazyOptional<IPeripheral> peripheralCap;
     private IMount m_diskMount = null;
 
     private boolean m_recordQueued = false;
@@ -92,11 +90,8 @@ public final class TileDiskDrive extends TileGeneric implements DefaultInventory
     protected void invalidateCaps()
     {
         super.invalidateCaps();
-        if( itemHandlerCap != null )
-        {
-            itemHandlerCap.invalidate();
-            itemHandlerCap = null;
-        }
+        itemHandlerCap = CapabilityUtil.invalidate( itemHandlerCap );
+        peripheralCap = CapabilityUtil.invalidate( peripheralCap );
     }
 
     @Nonnull
@@ -311,12 +306,6 @@ public final class TileDiskDrive extends TileGeneric implements DefaultInventory
     public void clear()
     {
         setInventorySlotContents( 0, ItemStack.EMPTY );
-    }
-
-    @Override
-    public IPeripheral getPeripheral( @Nonnull Direction side )
-    {
-        return new DiskDrivePeripheral( this );
     }
 
     @Nonnull
@@ -535,6 +524,13 @@ public final class TileDiskDrive extends TileGeneric implements DefaultInventory
             if( itemHandlerCap == null ) itemHandlerCap = LazyOptional.of( () -> new InvWrapper( this ) );
             return itemHandlerCap.cast();
         }
+
+        if( cap == CAPABILITY_PERIPHERAL )
+        {
+            if( peripheralCap == null ) peripheralCap = LazyOptional.of( () -> new DiskDrivePeripheral( this ) );
+            return peripheralCap.cast();
+        }
+
         return super.getCapability( cap, side );
     }
 

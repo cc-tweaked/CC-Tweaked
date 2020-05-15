@@ -8,12 +8,24 @@ package dan200.computercraft.shared.computer.blocks;
 import dan200.computercraft.shared.computer.core.IComputer;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 
+import java.util.function.Supplier;
+
 /**
  * A proxy object for computer objects, delegating to {@link IComputer} or {@link TileComputer} where appropriate.
  */
-public abstract class ComputerProxy
+public final class ComputerProxy
 {
-    protected abstract TileComputerBase getTile();
+    private final Supplier<TileComputerBase> get;
+
+    public ComputerProxy( Supplier<TileComputerBase> get )
+    {
+        this.get = get;
+    }
+
+    protected TileComputerBase getTile()
+    {
+        return get.get();
+    }
 
     public void turnOn()
     {

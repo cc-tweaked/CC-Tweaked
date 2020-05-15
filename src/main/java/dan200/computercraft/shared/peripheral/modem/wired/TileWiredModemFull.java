@@ -11,14 +11,10 @@ import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.network.wired.IWiredElement;
 import dan200.computercraft.api.network.wired.IWiredNode;
 import dan200.computercraft.api.peripheral.IPeripheral;
-import dan200.computercraft.api.peripheral.IPeripheralTile;
 import dan200.computercraft.shared.command.CommandCopy;
 import dan200.computercraft.shared.common.TileGeneric;
 import dan200.computercraft.shared.peripheral.modem.ModemState;
-import dan200.computercraft.shared.util.DirectionUtil;
-import dan200.computercraft.shared.util.NamedTileEntityType;
-import dan200.computercraft.shared.util.TickScheduler;
-import dan200.computercraft.shared.wired.CapabilityWiredElement;
+import dan200.computercraft.shared.util.*;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
@@ -40,10 +36,12 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
 
+import static dan200.computercraft.shared.Capabilities.CAPABILITY_PERIPHERAL;
+import static dan200.computercraft.shared.Capabilities.CAPABILITY_WIRED_ELEMENT;
 import static dan200.computercraft.shared.peripheral.modem.wired.BlockWiredModemFull.MODEM_ON;
 import static dan200.computercraft.shared.peripheral.modem.wired.BlockWiredModemFull.PERIPHERAL_ON;
 
-public class TileWiredModemFull extends TileGeneric implements IPeripheralTile
+public class TileWiredModemFull extends TileGeneric
 {
     public static final NamedTileEntityType<TileWiredModemFull> FACTORY = NamedTileEntityType.create(
         new ResourceLocation( ComputerCraft.MOD_ID, "wired_modem_full" ),
@@ -66,7 +64,7 @@ public class TileWiredModemFull extends TileGeneric implements IPeripheralTile
         {
             for( int i = 0; i < 6; i++ )
             {
-                WiredModemPeripheral modem = m_entity.m_modems[i];
+                WiredModemPeripheral modem = m_entity.modems[i];
                 if( modem != null ) modem.attachPeripheral( name, peripheral );
             }
         }
@@ -76,7 +74,7 @@ public class TileWiredModemFull extends TileGeneric implements IPeripheralTile
         {
             for( int i = 0; i < 6; i++ )
             {
-                WiredModemPeripheral modem = m_entity.m_modems[i];
+                WiredModemPeripheral modem = m_entity.modems[i];
                 if( modem != null ) modem.detachPeripheral( name );
             }
         }
@@ -97,10 +95,11 @@ public class TileWiredModemFull extends TileGeneric implements IPeripheralTile
         }
     }
 
-    private WiredModemPeripheral[] m_modems = new WiredModemPeripheral[6];
+    private final WiredModemPeripheral[] modems = new WiredModemPeripheral[6];
+    private final SidedCaps<IPeripheral> modemCaps = SidedCaps.ofNonNull( this::getPeripheral );
 
     private boolean m_peripheralAccessAllowed = false;
-    private WiredModemLocalPeripheral[] m_peripherals = new WiredModemLocalPeripheral[6];
+    private final WiredModemLocalPeripheral[] m_peripherals = new WiredModemLocalPeripheral[6];
 
     private boolean m_destroyed = false;
     private boolean m_connectionsFormed = false;
@@ -115,7 +114,11 @@ public class TileWiredModemFull extends TileGeneric implements IPeripheralTile
     public TileWiredModemFull()
     {
         super( FACTORY );
-        for( int i = 0; i < m_peripherals.length; i++ ) m_peripherals[i] = new WiredModemLocalPeripheral();
+        for( int i = 0; i < m_peripherals.length; i++ )
+        {
+            Direction facing = Direction.byIndex( i );
+            m_peripherals[i] = new WiredModemLocalPeripheral( () -> refreshPeripheral( facing ) );
+        }
     }
 
     private void doRemove()
@@ -149,11 +152,8 @@ public class TileWiredModemFull extends TileGeneric implements IPeripheralTile
     protected void invalidateCaps()
     {
         super.invalidateCaps();
-        if( elementCap != null )
-        {
-            elementCap.invalidate();
-            elementCap = null;
-        }
+        elementCap = CapabilityUtil.invalidate( elementCap );
+        modemCaps.invalidate();
     }
 
     @Override
@@ -176,12 +176,17 @@ public class TileWiredModemFull extends TileGeneric implements IPeripheralTile
         {
             for( Direction facing : DirectionUtil.FACINGS )
             {
-                if( getPos().offset( facing ).equals( neighbour ) )
-                {
-                    WiredModemLocalPeripheral peripheral = m_peripherals[facing.ordinal()];
-                    if( peripheral.attach( world, getPos(), facing ) ) updateConnectedPeripherals();
-                }
+                if( getPos().offset( facing ).equals( neighbour ) ) refreshPeripheral( facing );
             }
+        }
+    }
+
+    private void refreshPeripheral( @Nonnull Direction facing )
+    {
+        WiredModemLocalPeripheral peripheral = m_peripherals[facing.ordinal()];
+        if( world != null && !isRemoved() && peripheral.attach( world, getPos(), facing ) )
+        {
+            updateConnectedPeripherals();
         }
     }
 
@@ -223,7 +228,7 @@ public class TileWiredModemFull extends TileGeneric implements IPeripheralTile
     }
 
     @Override
-    public void read( CompoundNBT nbt )
+    public void read( @Nonnull CompoundNBT nbt )
     {
         super.read( nbt );
         m_peripheralAccessAllowed = nbt.getBoolean( NBT_PERIPHERAL_ENABLED );
@@ -362,14 +367,17 @@ public class TileWiredModemFull extends TileGeneric implements IPeripheralTile
 
     @Nonnull
     @Override
-    public <T> LazyOptional<T> getCapability( @Nonnull Capability<T> capability, @Nullable Direction facing )
+    public <T> LazyOptional<T> getCapability( @Nonnull Capability<T> capability, @Nullable Direction side )
     {
-        if( capability == CapabilityWiredElement.CAPABILITY )
+        if( capability == CAPABILITY_WIRED_ELEMENT )
         {
             if( elementCap == null ) elementCap = LazyOptional.of( () -> m_element );
             return elementCap.cast();
         }
-        return super.getCapability( capability, facing );
+
+        if( capability == CAPABILITY_PERIPHERAL ) return modemCaps.get( side ).cast();
+
+        return super.getCapability( capability, side );
     }
 
     public IWiredElement getElement()
@@ -377,35 +385,28 @@ public class TileWiredModemFull extends TileGeneric implements IPeripheralTile
         return m_element;
     }
 
-    // IPeripheralTile
-
-    @Override
-    public IPeripheral getPeripheral( @Nonnull Direction side )
+    private WiredModemPeripheral getPeripheral( @Nonnull Direction side )
     {
-        if( m_destroyed ) return null;
+        WiredModemPeripheral peripheral = modems[side.ordinal()];
+        if( peripheral != null ) return peripheral;
 
-        WiredModemPeripheral peripheral = m_modems[side.ordinal()];
-        if( peripheral == null )
+        WiredModemLocalPeripheral localPeripheral = m_peripherals[side.ordinal()];
+        return modems[side.ordinal()] = new WiredModemPeripheral( m_modemState, m_element )
         {
-            WiredModemLocalPeripheral localPeripheral = m_peripherals[side.ordinal()];
-            peripheral = m_modems[side.ordinal()] = new WiredModemPeripheral( m_modemState, m_element )
+            @Nonnull
+            @Override
+            protected WiredModemLocalPeripheral getLocalPeripheral()
             {
-                @Nonnull
-                @Override
-                protected WiredModemLocalPeripheral getLocalPeripheral()
-                {
-                    return localPeripheral;
-                }
+                return localPeripheral;
+            }
 
-                @Nonnull
-                @Override
-                public Vec3d getPosition()
-                {
-                    BlockPos pos = getPos().offset( side );
-                    return new Vec3d( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5 );
-                }
-            };
-        }
-        return peripheral;
+            @Nonnull
+            @Override
+            public Vec3d getPosition()
+            {
+                BlockPos pos = getPos().offset( side );
+                return new Vec3d( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5 );
+            }
+        };
     }
 }

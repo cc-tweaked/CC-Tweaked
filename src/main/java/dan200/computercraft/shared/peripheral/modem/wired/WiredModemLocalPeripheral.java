@@ -15,6 +15,8 @@ import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
+import net.minecraftforge.common.util.LazyOptional;
+import net.minecraftforge.common.util.NonNullConsumer;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -36,6 +38,12 @@ public final class WiredModemLocalPeripheral
     private String type;
 
     private IPeripheral peripheral;
+    private final NonNullConsumer<LazyOptional<IPeripheral>> invalidate;
+
+    public WiredModemLocalPeripheral( @Nonnull Runnable invalidate )
+    {
+        this.invalidate = x -> invalidate.run();
+    }
 
     /**
      * Attach a new peripheral from the world.
@@ -130,14 +138,15 @@ public final class WiredModemLocalPeripheral
             ? tag.getString( NBT_PERIPHERAL_TYPE + suffix ) : null;
     }
 
-    private static IPeripheral getPeripheralFrom( World world, BlockPos pos, Direction direction )
+    @Nullable
+    private IPeripheral getPeripheralFrom( World world, BlockPos pos, Direction direction )
     {
         BlockPos offset = pos.offset( direction );
 
         Block block = world.getBlockState( offset ).getBlock();
         if( block == ComputerCraft.Blocks.wiredModemFull || block == ComputerCraft.Blocks.cable ) return null;
 
-        IPeripheral peripheral = Peripherals.getPeripheral( world, offset, direction.getOpposite() );
+        IPeripheral peripheral = Peripherals.getPeripheral( world, offset, direction.getOpposite(), invalidate );
         return peripheral instanceof WiredModemPeripheral ? null : peripheral;
     }
 }

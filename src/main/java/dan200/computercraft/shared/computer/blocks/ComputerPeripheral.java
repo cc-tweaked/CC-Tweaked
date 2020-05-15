@@ -67,7 +67,7 @@ public class ComputerPeripheral implements IPeripheral
     @Override
     public boolean equals( IPeripheral other )
     {
-        return other != null && other.getClass() == getClass();
+        return other instanceof ComputerPeripheral && computer == ((ComputerPeripheral) other).computer;
     }
 
     @Nonnull

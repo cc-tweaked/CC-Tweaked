@@ -47,6 +47,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Collections;
 
+import static dan200.computercraft.shared.Capabilities.CAPABILITY_PERIPHERAL;
 import static net.minecraftforge.items.CapabilityItemHandler.ITEM_HANDLER_CAPABILITY;
 
 public class TileTurtle extends TileComputerBase implements ITurtleTile, DefaultInventory
@@ -79,6 +80,7 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
     private boolean m_inventoryChanged = false;
     private TurtleBrain m_brain = new TurtleBrain( this );
     private MoveState m_moveState = MoveState.NOT_MOVED;
+    private LazyOptional<IPeripheral> peripheral;
 
     public TileTurtle( TileEntityType<? extends TileGeneric> type, ComputerFamily family )
     {
@@ -103,7 +105,6 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
         return computer;
     }
 
-    @Override
     public ComputerProxy createProxy()
     {
         return m_brain.getProxy();
@@ -154,11 +155,8 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
     protected void invalidateCaps()
     {
         super.invalidateCaps();
-        if( itemHandlerCap != null )
-        {
-            itemHandlerCap.invalidate();
-            itemHandlerCap = null;
-        }
+        itemHandlerCap = CapabilityUtil.invalidate( itemHandlerCap );
+        peripheral = CapabilityUtil.invalidate( peripheral );
     }
 
     @Nonnull
@@ -545,14 +543,10 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
         m_inventoryChanged = copy.m_inventoryChanged;
         m_brain = copy.m_brain;
         m_brain.setOwner( this );
-        copy.m_moveState = MoveState.MOVED;
-    }
 
-    @Nullable
-    @Override
-    public IPeripheral getPeripheral( @Nonnull Direction side )
-    {
-        return hasMoved() ? null : new ComputerPeripheral( "turtle", createProxy() );
+        // Mark the other turtle as having moved, and so its peripheral is dead.
+        copy.m_moveState = MoveState.MOVED;
+        copy.peripheral = CapabilityUtil.invalidate( copy.peripheral );
     }
 
     public IItemHandlerModifiable getItemHandler()
@@ -569,6 +563,17 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
             if( itemHandlerCap == null ) itemHandlerCap = LazyOptional.of( () -> new InvWrapper( this ) );
             return itemHandlerCap.cast();
         }
+
+        if( cap == CAPABILITY_PERIPHERAL )
+        {
+            if( hasMoved() ) return LazyOptional.empty();
+            if( peripheral == null )
+            {
+                peripheral = LazyOptional.of( () -> new ComputerPeripheral( "turtle", createProxy() ) );
+            }
+            return peripheral.cast();
+        }
+
         return super.getCapability( cap, side );
     }
 

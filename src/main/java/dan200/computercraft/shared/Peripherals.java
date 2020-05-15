@@ -8,14 +8,21 @@ package dan200.computercraft.shared;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.peripheral.IPeripheralProvider;
+import dan200.computercraft.shared.util.CapabilityUtil;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.common.util.LazyOptional;
+import net.minecraftforge.common.util.NonNullConsumer;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Objects;
+
+import static dan200.computercraft.shared.Capabilities.CAPABILITY_PERIPHERAL;
 
 public final class Peripherals
 {
@@ -29,20 +36,29 @@ public final class Peripherals
         providers.add( provider );
     }
 
-    public static IPeripheral getPeripheral( World world, BlockPos pos, Direction side )
+    @Nullable
+    public static IPeripheral getPeripheral( World world, BlockPos pos, Direction side, NonNullConsumer<LazyOptional<IPeripheral>> invalidate )
     {
-        return World.isValid( pos ) && !world.isRemote ? getPeripheralAt( world, pos, side ) : null;
+        return World.isValid( pos ) && !world.isRemote ? getPeripheralAt( world, pos, side, invalidate ) : null;
     }
 
-    private static IPeripheral getPeripheralAt( World world, BlockPos pos, Direction side )
+    @Nullable
+    private static IPeripheral getPeripheralAt( World world, BlockPos pos, Direction side, NonNullConsumer<LazyOptional<IPeripheral>> invalidate )
     {
+        TileEntity block = world.getTileEntity( pos );
+        if( block != null )
+        {
+            LazyOptional<IPeripheral> peripheral = block.getCapability( CAPABILITY_PERIPHERAL, side );
+            if( peripheral.isPresent() ) return CapabilityUtil.unwrap( peripheral, invalidate );
+        }
+
         // Try the handlers in order:
         for( IPeripheralProvider peripheralProvider : providers )
         {
             try
             {
-                IPeripheral peripheral = peripheralProvider.getPeripheral( world, pos, side );
-                if( peripheral != null ) return peripheral;
+                LazyOptional<IPeripheral> peripheral = peripheralProvider.getPeripheral( world, pos, side );
+                if( peripheral.isPresent() ) return CapabilityUtil.unwrap( peripheral, invalidate );
             }
             catch( Exception e )
             {

@@ -8,7 +8,8 @@ package dan200.computercraft.shared.proxy;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.media.IMedia;
-import dan200.computercraft.api.peripheral.IPeripheralTile;
+import dan200.computercraft.api.network.wired.IWiredElement;
+import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.core.computer.MainThread;
 import dan200.computercraft.core.tracking.Tracking;
 import dan200.computercraft.shared.command.CommandComputerCraft;
@@ -23,20 +24,18 @@ import dan200.computercraft.shared.data.HasComputerIdLootCondition;
 import dan200.computercraft.shared.data.PlayerCreativeLootCondition;
 import dan200.computercraft.shared.media.items.RecordMedia;
 import dan200.computercraft.shared.network.NetworkHandler;
-import dan200.computercraft.shared.peripheral.commandblock.CommandBlockPeripheral;
 import dan200.computercraft.shared.peripheral.modem.wireless.WirelessNetwork;
-import dan200.computercraft.shared.wired.CapabilityWiredElement;
+import dan200.computercraft.shared.util.NullStorage;
 import net.minecraft.inventory.container.Container;
 import net.minecraft.item.Item;
 import net.minecraft.item.MusicDiscItem;
-import net.minecraft.tileentity.CommandBlockTileEntity;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.storage.loot.ConstantRange;
 import net.minecraft.world.storage.loot.LootPool;
 import net.minecraft.world.storage.loot.LootTables;
 import net.minecraft.world.storage.loot.TableLootEntry;
 import net.minecraft.world.storage.loot.conditions.LootConditionManager;
+import net.minecraftforge.common.capabilities.CapabilityManager;
 import net.minecraftforge.event.LootTableLoadEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.player.PlayerContainerEvent;
@@ -90,17 +89,6 @@ public final class ComputerCraftProxyCommon
 
     private static void registerProviders()
     {
-        // Register peripheral providers
-        ComputerCraftAPI.registerPeripheralProvider( ( world, pos, side ) -> {
-            TileEntity tile = world.getTileEntity( pos );
-            return tile instanceof IPeripheralTile ? ((IPeripheralTile) tile).getPeripheral( side ) : null;
-        } );
-
-        ComputerCraftAPI.registerPeripheralProvider( ( world, pos, side ) -> {
-            TileEntity tile = world.getTileEntity( pos );
-            return ComputerCraft.enableCommandBlock && tile instanceof CommandBlockTileEntity ? new CommandBlockPeripheral( (CommandBlockTileEntity) tile ) : null;
-        } );
-
         // Register bundled power providers
         ComputerCraftAPI.registerBundledRedstoneProvider( new DefaultBundledRedstoneProvider() );
 
@@ -112,8 +100,9 @@ public final class ComputerCraftProxyCommon
             return null;
         } );
 
-        // Register network providers
-        CapabilityWiredElement.register();
+        // Register capabilities
+        CapabilityManager.INSTANCE.register( IWiredElement.class, new NullStorage<>(), () -> null );
+        CapabilityManager.INSTANCE.register( IPeripheral.class, new NullStorage<>(), () -> null );
     }
 
     @Mod.EventBusSubscriber( modid = ComputerCraft.MOD_ID )

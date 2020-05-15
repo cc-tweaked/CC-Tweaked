@@ -50,7 +50,7 @@ public abstract class BlockGeneric extends Block
     @Nonnull
     @Override
     @Deprecated
-    public final ActionResultType onBlockActivated( BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockRayTraceResult hit )
+    public final ActionResultType onBlockActivated( @Nonnull BlockState state, World world, @Nonnull BlockPos pos, @Nonnull PlayerEntity player, @Nonnull Hand hand, @Nonnull BlockRayTraceResult hit )
     {
         TileEntity tile = world.getTileEntity( pos );
         return tile instanceof TileGeneric ? ((TileGeneric) tile).onActivate( player, hand, hit ) : ActionResultType.PASS;
@@ -58,7 +58,7 @@ public abstract class BlockGeneric extends Block
 
     @Override
     @Deprecated
-    public final void neighborChanged( BlockState state, World world, BlockPos pos, Block neighbourBlock, BlockPos neighbourPos, boolean isMoving )
+    public final void neighborChanged( @Nonnull BlockState state, World world, @Nonnull BlockPos pos, @Nonnull Block neighbourBlock, @Nonnull BlockPos neighbourPos, boolean isMoving )
     {
         TileEntity tile = world.getTileEntity( pos );
         if( tile instanceof TileGeneric ) ((TileGeneric) tile).onNeighbourChange( neighbourPos );
@@ -73,7 +73,7 @@ public abstract class BlockGeneric extends Block
 
     @Override
     @Deprecated
-    public void tick( BlockState state, ServerWorld world, BlockPos pos, Random rand )
+    public void tick( @Nonnull BlockState state, ServerWorld world, @Nonnull BlockPos pos, @Nonnull Random rand )
     {
         TileEntity te = world.getTileEntity( pos );
         if( te instanceof TileGeneric ) ((TileGeneric) te).blockTick();
