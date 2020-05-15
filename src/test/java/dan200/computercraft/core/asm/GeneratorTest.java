@@ -8,7 +8,6 @@ package dan200.computercraft.core.asm;
 
 import dan200.computercraft.api.lua.*;
 import dan200.computercraft.api.peripheral.IComputerAccess;
-import dan200.computercraft.core.computer.ComputerBootstrap;
 import dan200.computercraft.core.computer.ComputerSide;
 import org.hamcrest.Matcher;
 import org.junit.jupiter.api.Test;
