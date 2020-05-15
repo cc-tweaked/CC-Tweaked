@@ -101,17 +101,17 @@ public final class Config
             disableLua51Features = builder
                 .comment( "Set this to true to disable Lua 5.1 functions that will be removed in a future update. " +
                     "Useful for ensuring forward compatibility of your programs now." )
-                .define( "disable_lua51_features", ComputerCraft.disable_lua51_features );
+                .define( "disable_lua51_features", ComputerCraft.disableLua51Features );
 
             defaultComputerSettings = builder
                 .comment( "A comma separated list of default system settings to set on new computers. Example: " +
                     "\"shell.autocomplete=false,lua.autocomplete=false,edit.autocomplete=false\" will disable all " +
                     "autocompletion" )
-                .define( "default_computer_settings", ComputerCraft.default_computer_settings );
+                .define( "default_computer_settings", ComputerCraft.defaultComputerSettings );
 
             debugEnabled = builder
                 .comment( "Enable Lua's debug library. This is sandboxed to each computer, so is generally safe to be used by players." )
-                .define( "debug_enabled", ComputerCraft.debug_enable );
+                .define( "debug_enabled", ComputerCraft.debugEnable );
 
             logComputerErrors = builder
                 .comment( "Log exceptions thrown by peripherals and other Lua objects.\n" +
@@ -129,7 +129,7 @@ public final class Config
                     "at once, but may induce lag.\n" +
                     "Please note that some mods may not work with a thread count higher than 1. Use with caution." )
                 .worldRestart()
-                .defineInRange( "computer_threads", ComputerCraft.computer_threads, 1, Integer.MAX_VALUE );
+                .defineInRange( "computer_threads", ComputerCraft.computerThreads, 1, Integer.MAX_VALUE );
 
             maxMainGlobalTime = builder
                 .comment( "The maximum time that can be spent executing tasks in a single tick, in milliseconds.\n" +
@@ -191,19 +191,19 @@ public final class Config
 
             modemRange = builder
                 .comment( "The range of Wireless Modems at low altitude in clear weather, in meters" )
-                .defineInRange( "modem_range", ComputerCraft.modem_range, 0, MODEM_MAX_RANGE );
+                .defineInRange( "modem_range", ComputerCraft.modemRange, 0, MODEM_MAX_RANGE );
 
             modemHighAltitudeRange = builder
                 .comment( "The range of Wireless Modems at maximum altitude in clear weather, in meters" )
-                .defineInRange( "modem_high_altitude_range", ComputerCraft.modem_highAltitudeRange, 0, MODEM_MAX_RANGE );
+                .defineInRange( "modem_high_altitude_range", ComputerCraft.modemHighAltitudeRange, 0, MODEM_MAX_RANGE );
 
             modemRangeDuringStorm = builder
                 .comment( "The range of Wireless Modems at low altitude in stormy weather, in meters" )
-                .defineInRange( "modem_range_during_storm", ComputerCraft.modem_rangeDuringStorm, 0, MODEM_MAX_RANGE );
+                .defineInRange( "modem_range_during_storm", ComputerCraft.modemRangeDuringStorm, 0, MODEM_MAX_RANGE );
 
             modemHighAltitudeRangeDuringStorm = builder
                 .comment( "The range of Wireless Modems at maximum altitude in stormy weather, in meters" )
-                .defineInRange( "modem_high_altitude_range_during_storm", ComputerCraft.modem_highAltitudeRangeDuringStorm, 0, MODEM_MAX_RANGE );
+                .defineInRange( "modem_high_altitude_range_during_storm", ComputerCraft.modemHighAltitudeRangeDuringStorm, 0, MODEM_MAX_RANGE );
 
             maxNotesPerTick = builder
                 .comment( "Maximum amount of notes a speaker can play at once" )
@@ -265,14 +265,14 @@ public final class Config
         ComputerCraft.computerSpaceLimit = computerSpaceLimit.get();
         ComputerCraft.floppySpaceLimit = floppySpaceLimit.get();
         ComputerCraft.maximumFilesOpen = maximumFilesOpen.get();
-        ComputerCraft.disable_lua51_features = disableLua51Features.get();
-        ComputerCraft.default_computer_settings = defaultComputerSettings.get();
-        ComputerCraft.debug_enable = debugEnabled.get();
-        ComputerCraft.computer_threads = computerThreads.get();
+        ComputerCraft.disableLua51Features = disableLua51Features.get();
+        ComputerCraft.defaultComputerSettings = defaultComputerSettings.get();
+        ComputerCraft.debugEnable = debugEnabled.get();
+        ComputerCraft.computerThreads = computerThreads.get();
         ComputerCraft.logComputerErrors = logComputerErrors.get();
 
         // Execution
-        ComputerCraft.computer_threads = computerThreads.get();
+        ComputerCraft.computerThreads = computerThreads.get();
         ComputerCraft.maxMainGlobalTime = TimeUnit.MILLISECONDS.toNanos( maxMainGlobalTime.get() );
         ComputerCraft.maxMainComputerTime = TimeUnit.MILLISECONDS.toNanos( maxMainComputerTime.get() );
 
@@ -288,10 +288,10 @@ public final class Config
         // Peripheral
         ComputerCraft.enableCommandBlock = commandBlockEnabled.get();
         ComputerCraft.maxNotesPerTick = maxNotesPerTick.get();
-        ComputerCraft.modem_range = modemRange.get();
-        ComputerCraft.modem_highAltitudeRange = modemHighAltitudeRange.get();
-        ComputerCraft.modem_rangeDuringStorm = modemRangeDuringStorm.get();
-        ComputerCraft.modem_highAltitudeRangeDuringStorm = modemHighAltitudeRangeDuringStorm.get();
+        ComputerCraft.modemRange = modemRange.get();
+        ComputerCraft.modemHighAltitudeRange = modemHighAltitudeRange.get();
+        ComputerCraft.modemRangeDuringStorm = modemRangeDuringStorm.get();
+        ComputerCraft.modemHighAltitudeRangeDuringStorm = modemHighAltitudeRangeDuringStorm.get();
 
         // Turtles
         ComputerCraft.turtlesNeedFuel = turtlesNeedFuel.get();

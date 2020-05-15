@@ -95,7 +95,7 @@ public class CobaltLuaMachine implements ILuaMachine
         m_globals.load( state, new CoroutineLib() );
         m_globals.load( state, new Bit32Lib() );
         m_globals.load( state, new Utf8Lib() );
-        if( ComputerCraft.debug_enable ) m_globals.load( state, new DebugLib() );
+        if( ComputerCraft.debugEnable ) m_globals.load( state, new DebugLib() );
 
         // Remove globals we don't want to expose
         m_globals.rawset( "collectgarbage", Constants.NIL );
@@ -106,8 +106,8 @@ public class CobaltLuaMachine implements ILuaMachine
         // Add version globals
         m_globals.rawset( "_VERSION", valueOf( "Lua 5.1" ) );
         m_globals.rawset( "_HOST", valueOf( computer.getAPIEnvironment().getComputerEnvironment().getHostString() ) );
-        m_globals.rawset( "_CC_DEFAULT_SETTINGS", valueOf( ComputerCraft.default_computer_settings ) );
-        if( ComputerCraft.disable_lua51_features )
+        m_globals.rawset( "_CC_DEFAULT_SETTINGS", valueOf( ComputerCraft.defaultComputerSettings ) );
+        if( ComputerCraft.disableLua51Features )
         {
             m_globals.rawset( "_CC_DISABLE_LUA51_FEATURES", Constants.TRUE );
         }
