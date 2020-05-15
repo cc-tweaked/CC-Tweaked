@@ -7,16 +7,14 @@ package dan200.computercraft.core.computer;
 
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.filesystem.IWritableMount;
+import dan200.computercraft.api.lua.IArguments;
 import dan200.computercraft.api.lua.ILuaAPI;
-import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
-import dan200.computercraft.api.lua.ArgumentHelper;
+import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.core.filesystem.MemoryMount;
 import dan200.computercraft.core.terminal.Terminal;
 import org.junit.jupiter.api.Assertions;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.function.Consumer;
 
@@ -26,20 +24,26 @@ import java.util.function.Consumer;
 public class ComputerBootstrap
 {
     private static final int TPS = 20;
-    private static final int MAX_TIME = 10;
+    public static final int MAX_TIME = 10;
 
-    public static void run( String program )
+    public static void run( String program, Consumer<Computer> setup, int maxTimes )
     {
         MemoryMount mount = new MemoryMount()
             .addFile( "test.lua", program )
-            .addFile( "startup", "assertion.assert(pcall(loadfile('test.lua', nil, _ENV))) os.shutdown()" );
+            .addFile( "startup.lua", "assertion.assert(pcall(loadfile('test.lua', nil, _ENV))) os.shutdown()" );
 
-        run( mount, x -> { } );
+        run( mount, setup, maxTimes );
     }
 
-    public static void run( IWritableMount mount, Consumer<Computer> setup )
+    public static void run( String program, int maxTimes )
+    {
+        run( program, x -> { }, maxTimes );
+    }
+
+    public static void run( IWritableMount mount, Consumer<Computer> setup, int maxTicks )
     {
         ComputerCraft.logPeripheralErrors = true;
+        ComputerCraft.maxMainComputerTime = ComputerCraft.maxMainGlobalTime = Integer.MAX_VALUE;
 
         Terminal term = new Terminal( ComputerCraft.terminalWidth_computer, ComputerCraft.terminalHeight_computer );
         final Computer computer = new Computer( new BasicEnvironment( mount ), term, 0 );
@@ -54,7 +58,7 @@ public class ComputerBootstrap
             computer.turnOn();
             boolean everOn = false;
 
-            for( int tick = 0; tick < TPS * MAX_TIME; tick++ )
+            for( int tick = 0; tick < TPS * maxTicks; tick++ )
             {
                 long start = System.currentTimeMillis();
 
@@ -99,7 +103,7 @@ public class ComputerBootstrap
         }
     }
 
-    private static class AssertApi implements ILuaAPI
+    public static class AssertApi implements ILuaAPI
     {
         boolean didAssert;
         String message;
@@ -110,39 +114,25 @@ public class ComputerBootstrap
             return new String[] { "assertion" };
         }
 
-        @Nonnull
-        @Override
-        public String[] getMethodNames()
+        @LuaFunction
+        public final void log( IArguments arguments )
         {
-            return new String[] { "assert", "log" };
+            ComputerCraft.log.info( "[Computer] {}", Arrays.toString( arguments.getAll() ) );
         }
 
-        @Nullable
-        @Override
-        public Object[] callMethod( @Nonnull ILuaContext context, int method, @Nonnull Object[] arguments ) throws LuaException, InterruptedException
+        @LuaFunction( "assert" )
+        public final Object[] doAssert( IArguments arguments ) throws LuaException
         {
-            switch( method )
+            didAssert = true;
+
+            Object arg = arguments.get( 0 );
+            if( arg == null || arg == Boolean.FALSE )
             {
-                case 0: // assert
-                {
-                    didAssert = true;
-
-                    Object arg = arguments.length >= 1 ? arguments[0] : null;
-                    if( arg == null || arg == Boolean.FALSE )
-                    {
-                        message = ArgumentHelper.optString( arguments, 1, "Assertion failed" );
-                        throw new LuaException( message );
-                    }
-
-                    return arguments;
-                }
-                case 1:
-                    ComputerCraft.log.info( "[Computer] {}", Arrays.toString( arguments ) );
-                    return null;
-
-                default:
-                    return null;
+                message = arguments.optString( 1, "Assertion failed" );
+                throw new LuaException( message );
             }
+
+            return arguments.getAll();
         }
     }
 }

@@ -5,25 +5,22 @@
  */
 package dan200.computercraft.shared.peripheral.printer;
 
-import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
-import dan200.computercraft.api.peripheral.IComputerAccess;
+import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.shared.util.StringUtil;
 
 import javax.annotation.Nonnull;
-
-import static dan200.computercraft.api.lua.ArgumentHelper.getInt;
-import static dan200.computercraft.api.lua.ArgumentHelper.optString;
+import java.util.Optional;
 
 public class PrinterPeripheral implements IPeripheral
 {
-    private final TilePrinter m_printer;
+    private final TilePrinter printer;
 
     public PrinterPeripheral( TilePrinter printer )
     {
-        m_printer = printer;
+        this.printer = printer;
     }
 
     @Nonnull
@@ -33,108 +30,94 @@ public class PrinterPeripheral implements IPeripheral
         return "printer";
     }
 
-    @Nonnull
-    @Override
-    public String[] getMethodNames()
+    // FIXME: There's a theoretical race condition here between getCurrentPage and then using the page. Ideally
+    //  we'd lock on the page, consume it, and unlock.
+
+    // FIXME: None of our page modification functions actually mark the tile as dirty, so the page may not be
+    //  persisted correctly.
+
+    public final void write( Object[] args ) throws LuaException
     {
-        return new String[] {
-            "write",
-            "setCursorPos",
-            "getCursorPos",
-            "getPageSize",
-            "newPage",
-            "endPage",
-            "getInkLevel",
-            "setPageTitle",
-            "getPaperLevel",
-        };
+        String text = args.length > 0 && args[0] != null ? args[0].toString() : "";
+        Terminal page = getCurrentPage();
+        page.write( text );
+        page.setCursorPos( page.getCursorX() + text.length(), page.getCursorY() );
     }
 
-    @Override
-    public Object[] callMethod( @Nonnull IComputerAccess computer, @Nonnull ILuaContext context, int method, @Nonnull Object[] args ) throws LuaException, InterruptedException
+    @LuaFunction
+    public final Object[] getCursorPos() throws LuaException
     {
-        // FIXME: There's a theoretical race condition here between getCurrentPage and then using the page. Ideally
-        //  we'd lock on the page, consume it, and unlock.
+        Terminal page = getCurrentPage();
+        int x = page.getCursorX();
+        int y = page.getCursorY();
+        return new Object[] { x + 1, y + 1 };
+    }
 
-        // FIXME: None of our page modification functions actually mark the tile as dirty, so the page may not be
-        //  persisted correctly.
-        switch( method )
-        {
-            case 0: // write
-            {
-                String text = args.length > 0 && args[0] != null ? args[0].toString() : "";
-                Terminal page = getCurrentPage();
-                page.write( text );
-                page.setCursorPos( page.getCursorX() + text.length(), page.getCursorY() );
-                return null;
-            }
-            case 1:
-            {
-                // setCursorPos
-                int x = getInt( args, 0 ) - 1;
-                int y = getInt( args, 1 ) - 1;
-                Terminal page = getCurrentPage();
-                page.setCursorPos( x, y );
-                return null;
-            }
-            case 2:
-            {
-                // getCursorPos
-                Terminal page = getCurrentPage();
-                int x = page.getCursorX();
-                int y = page.getCursorY();
-                return new Object[] { x + 1, y + 1 };
-            }
-            case 3:
-            {
-                // getPageSize
-                Terminal page = getCurrentPage();
-                int width = page.getWidth();
-                int height = page.getHeight();
-                return new Object[] { width, height };
-            }
-            case 4: // newPage
-                return context.executeMainThreadTask( () -> new Object[] { m_printer.startNewPage() } );
-            case 5: // endPage
-                getCurrentPage();
-                return context.executeMainThreadTask( () -> {
-                    getCurrentPage();
-                    return new Object[] { m_printer.endCurrentPage() };
-                } );
-            case 6: // getInkLevel
-                return new Object[] { m_printer.getInkLevel() };
-            case 7:
-            {
-                // setPageTitle
-                String title = optString( args, 0, "" );
-                getCurrentPage();
-                m_printer.setPageTitle( StringUtil.normaliseLabel( title ) );
-                return null;
-            }
-            case 8: // getPaperLevel
-                return new Object[] { m_printer.getPaperLevel() };
-            default:
-                return null;
-        }
+    @LuaFunction
+    public final void setCursorPos( int x, int y ) throws LuaException
+    {
+        Terminal page = getCurrentPage();
+        page.setCursorPos( x - 1, y - 1 );
+    }
+
+    @LuaFunction
+    public final Object[] getPageSize() throws LuaException
+    {
+        Terminal page = getCurrentPage();
+        int width = page.getWidth();
+        int height = page.getHeight();
+        return new Object[] { width, height };
+    }
+
+    @LuaFunction( mainThread = true )
+    public final boolean newPage()
+    {
+        return printer.startNewPage();
+    }
+
+    @LuaFunction( mainThread = true )
+    public final boolean endPage() throws LuaException
+    {
+        getCurrentPage();
+        return printer.endCurrentPage();
+    }
+
+    @LuaFunction
+    public final void setPageTitle( Optional<String> title ) throws LuaException
+    {
+        getCurrentPage();
+        printer.setPageTitle( StringUtil.normaliseLabel( title.orElse( "" ) ) );
+    }
+
+    @LuaFunction
+    public final int getInkLevel()
+    {
+        return printer.getInkLevel();
+    }
+
+    @LuaFunction
+    public final int getPaperLevel()
+    {
+        return printer.getPaperLevel();
     }
 
     @Override
     public boolean equals( IPeripheral other )
     {
-        return other instanceof PrinterPeripheral && ((PrinterPeripheral) other).m_printer == m_printer;
+        return other instanceof PrinterPeripheral && ((PrinterPeripheral) other).printer == printer;
     }
 
     @Nonnull
     @Override
     public Object getTarget()
     {
-        return m_printer;
+        return printer;
     }
 
     @Nonnull
     private Terminal getCurrentPage() throws LuaException
     {
-        Terminal currentPage = m_printer.getCurrentPage();
+        Terminal currentPage = printer.getCurrentPage();
         if( currentPage == null ) throw new LuaException( "Page not started" );
         return currentPage;
     }

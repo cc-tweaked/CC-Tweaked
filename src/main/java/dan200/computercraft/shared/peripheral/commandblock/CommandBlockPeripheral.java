@@ -5,26 +5,20 @@
  */
 package dan200.computercraft.shared.peripheral.commandblock;
 
-import dan200.computercraft.api.lua.ILuaContext;
-import dan200.computercraft.api.lua.LuaException;
-import dan200.computercraft.api.peripheral.IComputerAccess;
+import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import net.minecraft.tileentity.CommandBlockTileEntity;
 
 import javax.annotation.Nonnull;
 
-import static dan200.computercraft.api.lua.ArgumentHelper.getString;
-
 public class CommandBlockPeripheral implements IPeripheral
 {
-    private final CommandBlockTileEntity m_commandBlock;
+    private final CommandBlockTileEntity commandBlock;
 
     public CommandBlockPeripheral( CommandBlockTileEntity commandBlock )
     {
-        m_commandBlock = commandBlock;
+        this.commandBlock = commandBlock;
     }
-
-    // IPeripheral methods
 
     @Nonnull
     @Override
@@ -33,54 +27,25 @@ public class CommandBlockPeripheral implements IPeripheral
         return "command";
     }
 
-    @Nonnull
-    @Override
-    public String[] getMethodNames()
+    @LuaFunction( mainThread = true )
+    public final String getCommand()
     {
-        return new String[] {
-            "getCommand",
-            "setCommand",
-            "runCommand",
-        };
+        return commandBlock.getCommandBlockLogic().getCommand();
     }
 
-    @Override
-    public Object[] callMethod( @Nonnull IComputerAccess computer, @Nonnull ILuaContext context, int method, @Nonnull final Object[] arguments ) throws LuaException, InterruptedException
+    @LuaFunction( mainThread = true )
+    public final void setCommand( String command )
     {
-        switch( method )
-        {
-            case 0: // getCommand
-                return context.executeMainThreadTask( () -> new Object[] {
-                    m_commandBlock.getCommandBlockLogic().getCommand(),
-                } );
-            case 1:
-            {
-                // setCommand
-                final String command = getString( arguments, 0 );
-                context.issueMainThreadTask( () ->
-                {
-                    m_commandBlock.getCommandBlockLogic().setCommand( command );
-                    m_commandBlock.getCommandBlockLogic().updateCommand();
-                    return null;
-                } );
-                return null;
-            }
-            case 2: // runCommand
-                return context.executeMainThreadTask( () ->
-                {
-                    m_commandBlock.getCommandBlockLogic().trigger( m_commandBlock.getWorld() );
-                    int result = m_commandBlock.getCommandBlockLogic().getSuccessCount();
-                    if( result > 0 )
-                    {
-                        return new Object[] { true };
-                    }
-                    else
-                    {
-                        return new Object[] { false, "Command failed" };
-                    }
-                } );
-        }
-        return null;
+        commandBlock.getCommandBlockLogic().setCommand( command );
+        commandBlock.getCommandBlockLogic().updateCommand();
+    }
+
+    @LuaFunction( mainThread = true )
+    public final Object runCommand()
+    {
+        commandBlock.getCommandBlockLogic().trigger( commandBlock.getWorld() );
+        int result = commandBlock.getCommandBlockLogic().getSuccessCount();
+        return result > 0 ? new Object[] { true } : new Object[] { false, "Command failed" };
     }
 
     @Override

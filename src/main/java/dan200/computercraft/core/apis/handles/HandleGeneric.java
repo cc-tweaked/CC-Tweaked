@@ -5,8 +5,9 @@
  */
 package dan200.computercraft.core.apis.handles;
 
-import dan200.computercraft.api.lua.ILuaObject;
+import dan200.computercraft.api.lua.IArguments;
 import dan200.computercraft.api.lua.LuaException;
+import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.shared.util.IoUtil;
 
 import javax.annotation.Nonnull;
@@ -15,35 +16,40 @@ import java.io.IOException;
 import java.nio.channels.Channel;
 import java.nio.channels.SeekableByteChannel;
 
-import static dan200.computercraft.api.lua.ArgumentHelper.optLong;
-import static dan200.computercraft.api.lua.ArgumentHelper.optString;
-
-public abstract class HandleGeneric implements ILuaObject
+public abstract class HandleGeneric
 {
-    private Closeable m_closable;
-    private boolean m_open = true;
+    private Closeable closable;
+    private boolean open = true;
 
     protected HandleGeneric( @Nonnull Closeable closable )
     {
-        m_closable = closable;
+        this.closable = closable;
     }
 
     protected void checkOpen() throws LuaException
     {
-        if( !m_open ) throw new LuaException( "attempt to use a closed file" );
+        if( !open ) throw new LuaException( "attempt to use a closed file" );
     }
 
     protected final void close()
     {
-        m_open = false;
+        open = false;
 
-        Closeable closeable = m_closable;
+        Closeable closeable = closable;
         if( closeable != null )
         {
             IoUtil.closeQuietly( closeable );
-            m_closable = null;
+            closable = null;
         }
     }
+
+    @LuaFunction( "close" )
+    public final void doClose() throws LuaException
+    {
+        checkOpen();
+        close();
+    }
+
 
     /**
      * Shared implementation for various file handle types.
@@ -54,12 +60,12 @@ public abstract class HandleGeneric implements ILuaObject
      * @throws LuaException If the arguments were invalid
      * @see <a href="https://www.lua.org/manual/5.1/manual.html#pdf-file:seek">{@code file:seek} in the Lua manual.</a>
      */
-    protected static Object[] handleSeek( SeekableByteChannel channel, Object[] args ) throws LuaException
+    protected static Object[] handleSeek( SeekableByteChannel channel, IArguments args ) throws LuaException
     {
+        String whence = args.optString( 0, "cur" );
+        long offset = args.optLong( 1, 0 );
         try
         {
-            String whence = optString( args, 0, "cur" );
-            long offset = optLong( args, 1, 0 );
             switch( whence )
             {
                 case "set":

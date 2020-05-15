@@ -109,6 +109,7 @@ dependencies {
 
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.4.2'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.4.2'
+    testImplementation 'org.hamcrest:hamcrest:2.2'
 
     deployerJars "org.apache.maven.wagon:wagon-ssh:3.0.0"
 }

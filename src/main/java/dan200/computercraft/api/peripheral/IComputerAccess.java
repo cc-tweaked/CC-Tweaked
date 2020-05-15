@@ -8,8 +8,10 @@ package dan200.computercraft.api.peripheral;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.api.filesystem.IWritableMount;
+import dan200.computercraft.api.lua.ILuaCallback;
 import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.ILuaTask;
+import dan200.computercraft.api.lua.MethodResult;
 import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
@@ -146,9 +148,9 @@ public interface IComputerAccess
      *
      *                  You may supply {@code null} to indicate that no arguments are to be supplied.
      * @throws NotAttachedException If the peripheral has been detached.
-     * @see IPeripheral#callMethod
+     * @see MethodResult#pullEvent(String, ILuaCallback)
      */
-    void queueEvent( @Nonnull String event, @Nullable Object[] arguments );
+    void queueEvent( @Nonnull String event, @Nullable Object... arguments );
 
     /**
      * Get a string, unique to the computer, by which the computer refers to this peripheral.

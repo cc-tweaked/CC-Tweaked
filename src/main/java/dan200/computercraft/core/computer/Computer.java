@@ -44,7 +44,7 @@ public class Computer
     // Additional state about the computer and its environment.
     private boolean m_blinking = false;
     private final Environment internalEnvironment = new Environment( this );
-    private AtomicBoolean externalOutputChanged = new AtomicBoolean();
+    private final AtomicBoolean externalOutputChanged = new AtomicBoolean();
 
     private boolean startRequested;
     private int m_ticksSinceStart = -1;

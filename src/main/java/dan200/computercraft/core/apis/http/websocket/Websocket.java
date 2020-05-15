@@ -187,7 +187,7 @@ public class Websocket extends Resource<Websocket>
         if( isClosed() ) return;
 
         WebsocketHandle handle = new WebsocketHandle( this, channel );
-        environment().queueEvent( SUCCESS_EVENT, new Object[] { address, handle } );
+        environment().queueEvent( SUCCESS_EVENT, address, handle );
         websocketHandle = createOwnerReference( handle );
 
         checkClosed();
@@ -195,18 +195,16 @@ public class Websocket extends Resource<Websocket>
 
     void failure( String message )
     {
-        if( tryClose() ) environment.queueEvent( FAILURE_EVENT, new Object[] { address, message } );
+        if( tryClose() ) environment.queueEvent( FAILURE_EVENT, address, message );
     }
 
     void close( int status, String reason )
     {
         if( tryClose() )
         {
-            environment.queueEvent( CLOSE_EVENT, new Object[] {
-                address,
+            environment.queueEvent( CLOSE_EVENT, address,
                 Strings.isNullOrEmpty( reason ) ? null : reason,
-                status < 0 ? null : status,
-            } );
+                status < 0 ? null : status );
         }
     }
 

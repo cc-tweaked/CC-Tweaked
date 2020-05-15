@@ -434,7 +434,7 @@ public final class TileDiskDrive extends TileGeneric implements DefaultInventory
                     info.mountPath = null;
                 }
             }
-            computer.queueEvent( "disk", new Object[] { computer.getAttachmentName() } );
+            computer.queueEvent( "disk", computer.getAttachmentName() );
         }
     }
 
@@ -449,7 +449,7 @@ public final class TileDiskDrive extends TileGeneric implements DefaultInventory
                 computer.unmount( info.mountPath );
                 info.mountPath = null;
             }
-            computer.queueEvent( "disk_eject", new Object[] { computer.getAttachmentName() } );
+            computer.queueEvent( "disk_eject", computer.getAttachmentName() );
         }
     }
 

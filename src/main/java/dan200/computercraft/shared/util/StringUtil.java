@@ -5,6 +5,8 @@
  */
 package dan200.computercraft.shared.util;
 
+import javax.annotation.Nullable;
+
 public final class StringUtil
 {
     private StringUtil() {}
@@ -31,16 +33,8 @@ public final class StringUtil
         return builder.toString();
     }
 
-    public static byte[] encodeString( String string )
+    public static String toString( @Nullable Object value )
     {
-        byte[] chars = new byte[string.length()];
-
-        for( int i = 0; i < chars.length; i++ )
-        {
-            char c = string.charAt( i );
-            chars[i] = c < 256 ? (byte) c : 63;
-        }
-
-        return chars;
+        return value == null ? "" : value.toString();
     }
 }

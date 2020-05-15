@@ -116,7 +116,7 @@ public abstract class ComputerAccess implements IComputerAccess
     }
 
     @Override
-    public void queueEvent( @Nonnull final String event, final Object[] arguments )
+    public void queueEvent( @Nonnull String event, Object... arguments )
     {
         Objects.requireNonNull( event, "event cannot be null" );
         m_environment.queueEvent( event, arguments );

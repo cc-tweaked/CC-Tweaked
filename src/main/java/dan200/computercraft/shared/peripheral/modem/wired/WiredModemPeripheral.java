@@ -8,26 +8,27 @@ package dan200.computercraft.shared.peripheral.modem.wired;
 import com.google.common.collect.ImmutableMap;
 import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.api.filesystem.IWritableMount;
-import dan200.computercraft.api.lua.ILuaContext;
-import dan200.computercraft.api.lua.LuaException;
+import dan200.computercraft.api.lua.*;
 import dan200.computercraft.api.network.IPacketNetwork;
 import dan200.computercraft.api.network.wired.IWiredNode;
 import dan200.computercraft.api.network.wired.IWiredSender;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.peripheral.IWorkMonitor;
+import dan200.computercraft.core.apis.PeripheralAPI;
+import dan200.computercraft.core.asm.PeripheralMethod;
 import dan200.computercraft.shared.peripheral.modem.ModemPeripheral;
 import dan200.computercraft.shared.peripheral.modem.ModemState;
 import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-
-import static dan200.computercraft.api.lua.ArgumentHelper.getString;
 
 public abstract class WiredModemPeripheral extends ModemPeripheral implements IWiredSender
 {
@@ -71,93 +72,51 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements IW
     protected abstract WiredModemLocalPeripheral getLocalPeripheral();
     //endregion
 
-    //region IPeripheral
-    @Nonnull
-    @Override
-    public String[] getMethodNames()
+    //region Peripheral methods
+    @LuaFunction
+    public final Collection<String> getNamesRemote( IComputerAccess computer )
     {
-        String[] methods = super.getMethodNames();
-        String[] newMethods = new String[methods.length + 6];
-        System.arraycopy( methods, 0, newMethods, 0, methods.length );
-        newMethods[methods.length] = "getNamesRemote";
-        newMethods[methods.length + 1] = "isPresentRemote";
-        newMethods[methods.length + 2] = "getTypeRemote";
-        newMethods[methods.length + 3] = "getMethodsRemote";
-        newMethods[methods.length + 4] = "callRemote";
-        newMethods[methods.length + 5] = "getNameLocal";
-        return newMethods;
+        return getWrappers( computer ).keySet();
     }
 
-    @Override
-    public Object[] callMethod( @Nonnull IComputerAccess computer, @Nonnull ILuaContext context, int method, @Nonnull Object[] arguments ) throws LuaException, InterruptedException
+    @LuaFunction
+    public final boolean isPresentRemote( IComputerAccess computer, String name )
     {
-        String[] methods = super.getMethodNames();
-        switch( method - methods.length )
-        {
-            case 0:
-            {
-                // getNamesRemote
-                Map<String, RemotePeripheralWrapper> wrappers = getWrappers( computer );
-                Map<Object, Object> table = new HashMap<>();
-                if( wrappers != null )
-                {
-                    int idx = 1;
-                    for( String name : wrappers.keySet() ) table.put( idx++, name );
-                }
-                return new Object[] { table };
-            }
-            case 1:
-            {
-                // isPresentRemote
-                String name = getString( arguments, 0 );
-                return new Object[] { getWrapper( computer, name ) != null };
-            }
-            case 2:
-            {
-                // getTypeRemote
-                String name = getString( arguments, 0 );
-                RemotePeripheralWrapper wrapper = getWrapper( computer, name );
-                return wrapper != null ? new Object[] { wrapper.getType() } : null;
-            }
-            case 3:
-            {
-                // getMethodsRemote
-                String name = getString( arguments, 0 );
-                RemotePeripheralWrapper wrapper = getWrapper( computer, name );
-                if( wrapper == null ) return null;
+        return getWrapper( computer, name ) != null;
+    }
 
-                String[] methodNames = wrapper.getMethodNames();
-                Map<Object, Object> table = new HashMap<>();
-                for( int i = 0; i < methodNames.length; i++ )
-                {
-                    table.put( i + 1, methodNames[i] );
-                }
-                return new Object[] { table };
-            }
-            case 4:
-            {
-                // callRemote
-                String remoteName = getString( arguments, 0 );
-                String methodName = getString( arguments, 1 );
-                RemotePeripheralWrapper wrapper = getWrapper( computer, remoteName );
-                if( wrapper == null ) throw new LuaException( "No peripheral: " + remoteName );
+    @LuaFunction
+    public final Object[] getTypeRemote( IComputerAccess computer, String name )
+    {
+        RemotePeripheralWrapper wrapper = getWrapper( computer, name );
+        return wrapper != null ? new Object[] { wrapper.getType() } : null;
+    }
 
-                Object[] methodArgs = new Object[arguments.length - 2];
-                System.arraycopy( arguments, 2, methodArgs, 0, arguments.length - 2 );
-                return wrapper.callMethod( context, methodName, methodArgs );
-            }
-            case 5:
-            {
-                // getNameLocal
-                String local = getLocalPeripheral().getConnectedName();
-                return local == null ? null : new Object[] { local };
-            }
-            default:
-            {
-                // The regular modem methods
-                return super.callMethod( computer, context, method, arguments );
-            }
-        }
+    @LuaFunction
+    public final Object[] getMethodsRemote( IComputerAccess computer, String name )
+    {
+        RemotePeripheralWrapper wrapper = getWrapper( computer, name );
+        if( wrapper == null ) return null;
+
+        return new Object[] { wrapper.getMethodNames() };
+    }
+
+    @LuaFunction
+    public final MethodResult callRemote( IComputerAccess computer, ILuaContext context, IArguments arguments ) throws LuaException
+    {
+        String remoteName = arguments.getString( 0 );
+        String methodName = arguments.getString( 1 );
+        RemotePeripheralWrapper wrapper = getWrapper( computer, remoteName );
+        if( wrapper == null ) throw new LuaException( "No peripheral: " + remoteName );
+
+        return wrapper.callMethod( context, methodName, arguments.drop( 2 ) );
+    }
+
+    @LuaFunction
+    public final Object[] getNameLocal()
+    {
+        String local = getLocalPeripheral().getConnectedName();
+        return local == null ? null : new Object[] { local };
     }
 
     @Override
@@ -267,67 +226,52 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements IW
 
     private static class RemotePeripheralWrapper implements IComputerAccess
     {
-        private final WiredModemElement m_element;
-        private final IPeripheral m_peripheral;
-        private final IComputerAccess m_computer;
-        private final String m_name;
+        private final WiredModemElement element;
+        private final IPeripheral peripheral;
+        private final IComputerAccess computer;
+        private final String name;
 
-        private final String m_type;
-        private final String[] m_methods;
-        private final Map<String, Integer> m_methodMap;
+        private final String type;
+        private final Map<String, PeripheralMethod> methodMap;
 
         RemotePeripheralWrapper( WiredModemElement element, IPeripheral peripheral, IComputerAccess computer, String name )
         {
-            m_element = element;
-            m_peripheral = peripheral;
-            m_computer = computer;
-            m_name = name;
+            this.element = element;
+            this.peripheral = peripheral;
+            this.computer = computer;
+            this.name = name;
 
-            m_type = peripheral.getType();
-            m_methods = peripheral.getMethodNames();
-            assert m_type != null;
-            assert m_methods != null;
-
-            m_methodMap = new HashMap<>();
-            for( int i = 0; i < m_methods.length; i++ )
-            {
-                if( m_methods[i] != null )
-                {
-                    m_methodMap.put( m_methods[i], i );
-                }
-            }
+            type = Objects.requireNonNull( peripheral.getType(), "Peripheral type cannot be null" );
+            methodMap = PeripheralAPI.getMethods( peripheral );
         }
 
         public void attach()
         {
-            m_peripheral.attach( this );
-            m_computer.queueEvent( "peripheral", new Object[] { getAttachmentName() } );
+            peripheral.attach( this );
+            computer.queueEvent( "peripheral", getAttachmentName() );
         }
 
         public void detach()
         {
-            m_peripheral.detach( this );
-            m_computer.queueEvent( "peripheral_detach", new Object[] { getAttachmentName() } );
+            peripheral.detach( this );
+            computer.queueEvent( "peripheral_detach", getAttachmentName() );
         }
 
         public String getType()
         {
-            return m_type;
+            return type;
         }
 
-        public String[] getMethodNames()
+        public Collection<String> getMethodNames()
         {
-            return m_methods;
+            return methodMap.keySet();
         }
 
-        public Object[] callMethod( ILuaContext context, String methodName, Object[] arguments ) throws LuaException, InterruptedException
+        public MethodResult callMethod( ILuaContext context, String methodName, IArguments arguments ) throws LuaException
         {
-            if( m_methodMap.containsKey( methodName ) )
-            {
-                int method = m_methodMap.get( methodName );
-                return m_peripheral.callMethod( this, context, method, arguments );
-            }
-            throw new LuaException( "No such method " + methodName );
+            PeripheralMethod method = methodMap.get( methodName );
+            if( method == null ) throw new LuaException( "No such method " + methodName );
+            return method.apply( peripheral, context, this, arguments );
         }
 
         // IComputerAccess implementation
@@ -335,66 +279,66 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements IW
         @Override
         public String mount( @Nonnull String desiredLocation, @Nonnull IMount mount )
         {
-            return m_computer.mount( desiredLocation, mount, m_name );
+            return computer.mount( desiredLocation, mount, name );
         }
 
         @Override
         public String mount( @Nonnull String desiredLocation, @Nonnull IMount mount, @Nonnull String driveName )
         {
-            return m_computer.mount( desiredLocation, mount, driveName );
+            return computer.mount( desiredLocation, mount, driveName );
         }
 
         @Override
         public String mountWritable( @Nonnull String desiredLocation, @Nonnull IWritableMount mount )
         {
-            return m_computer.mountWritable( desiredLocation, mount, m_name );
+            return computer.mountWritable( desiredLocation, mount, name );
         }
 
         @Override
         public String mountWritable( @Nonnull String desiredLocation, @Nonnull IWritableMount mount, @Nonnull String driveName )
         {
-            return m_computer.mountWritable( desiredLocation, mount, driveName );
+            return computer.mountWritable( desiredLocation, mount, driveName );
         }
 
         @Override
         public void unmount( String location )
         {
-            m_computer.unmount( location );
+            computer.unmount( location );
         }
 
         @Override
         public int getID()
         {
-            return m_computer.getID();
+            return computer.getID();
         }
 
         @Override
-        public void queueEvent( @Nonnull String event, Object[] arguments )
+        public void queueEvent( @Nonnull String event, Object... arguments )
         {
-            m_computer.queueEvent( event, arguments );
+            computer.queueEvent( event, arguments );
         }
 
         @Nonnull
         @Override
         public IWorkMonitor getMainThreadMonitor()
         {
-            return m_computer.getMainThreadMonitor();
+            return computer.getMainThreadMonitor();
         }
 
         @Nonnull
         @Override
         public String getAttachmentName()
         {
-            return m_name;
+            return name;
         }
 
         @Nonnull
         @Override
         public Map<String, IPeripheral> getAvailablePeripherals()
         {
-            synchronized( m_element.getRemotePeripherals() )
+            synchronized( element.getRemotePeripherals() )
             {
-                return ImmutableMap.copyOf( m_element.getRemotePeripherals() );
+                return ImmutableMap.copyOf( element.getRemotePeripherals() );
             }
         }
 
@@ -402,9 +346,9 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements IW
         @Override
         public IPeripheral getAvailablePeripheral( @Nonnull String name )
         {
-            synchronized( m_element.getRemotePeripherals() )
+            synchronized( element.getRemotePeripherals() )
             {
-                return m_element.getRemotePeripherals().get( name );
+                return element.getRemotePeripherals().get( name );
             }
         }
     }

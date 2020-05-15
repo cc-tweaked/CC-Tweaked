@@ -6,9 +6,10 @@
 package dan200.computercraft.core.apis;
 
 import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.api.lua.IArguments;
 import dan200.computercraft.api.lua.ILuaAPI;
-import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
+import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.core.apis.http.*;
 import dan200.computercraft.core.apis.http.request.HttpRequest;
 import dan200.computercraft.core.apis.http.websocket.Websocket;
@@ -21,8 +22,8 @@ import java.net.URI;
 import java.util.Collections;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 
-import static dan200.computercraft.api.lua.ArgumentHelper.*;
 import static dan200.computercraft.core.apis.TableHelper.*;
 
 public class HTTPAPI implements ILuaAPI
@@ -68,135 +69,112 @@ public class HTTPAPI implements ILuaAPI
         Resource.cleanup();
     }
 
-    @Nonnull
-    @Override
-    public String[] getMethodNames()
+    @LuaFunction
+    public final Object[] request( IArguments args ) throws LuaException
     {
-        return new String[] {
-            "request",
-            "checkURL",
-            "websocket",
-        };
+        String address, postString, requestMethod;
+        Map<?, ?> headerTable;
+        boolean binary, redirect;
+
+        if( args.get( 0 ) instanceof Map )
+        {
+            Map<?, ?> options = args.getTable( 0 );
+            address = getStringField( options, "url" );
+            postString = optStringField( options, "body", null );
+            headerTable = optTableField( options, "headers", Collections.emptyMap() );
+            binary = optBooleanField( options, "binary", false );
+            requestMethod = optStringField( options, "method", null );
+            redirect = optBooleanField( options, "redirect", true );
+
+        }
+        else
+        {
+            // Get URL and post information
+            address = args.getString( 0 );
+            postString = args.optString( 1, null );
+            headerTable = args.optTable( 2, Collections.emptyMap() );
+            binary = args.optBoolean( 3, false );
+            requestMethod = null;
+            redirect = true;
+        }
+
+        HttpHeaders headers = getHeaders( headerTable );
+
+        HttpMethod httpMethod;
+        if( requestMethod == null )
+        {
+            httpMethod = postString == null ? HttpMethod.GET : HttpMethod.POST;
+        }
+        else
+        {
+            httpMethod = HttpMethod.valueOf( requestMethod.toUpperCase( Locale.ROOT ) );
+            if( httpMethod == null || requestMethod.equalsIgnoreCase( "CONNECT" ) )
+            {
+                throw new LuaException( "Unsupported HTTP method" );
+            }
+        }
+
+        try
+        {
+            URI uri = HttpRequest.checkUri( address );
+            HttpRequest request = new HttpRequest( requests, m_apiEnvironment, address, postString, headers, binary, redirect );
+
+            long requestBody = request.body().readableBytes() + HttpRequest.getHeaderSize( headers );
+            if( ComputerCraft.httpMaxUpload != 0 && requestBody > ComputerCraft.httpMaxUpload )
+            {
+                throw new HTTPRequestException( "Request body is too large" );
+            }
+
+            // Make the request
+            request.queue( r -> r.request( uri, httpMethod ) );
+
+            return new Object[] { true };
+        }
+        catch( HTTPRequestException e )
+        {
+            return new Object[] { false, e.getMessage() };
+        }
     }
 
-    @Override
-    @SuppressWarnings( "resource" )
-    public Object[] callMethod( @Nonnull ILuaContext context, int method, @Nonnull Object[] args ) throws LuaException
+    @LuaFunction
+    public final Object[] checkURL( String address )
     {
-        switch( method )
+        try
         {
-            case 0: // request
+            URI uri = HttpRequest.checkUri( address );
+            new CheckUrl( checkUrls, m_apiEnvironment, address, uri ).queue( CheckUrl::run );
+
+            return new Object[] { true };
+        }
+        catch( HTTPRequestException e )
+        {
+            return new Object[] { false, e.getMessage() };
+        }
+    }
+
+    @LuaFunction
+    public final Object[] websocket( String address, Optional<Map<?, ?>> headerTbl ) throws LuaException
+    {
+        if( !ComputerCraft.httpWebsocketEnabled )
+        {
+            throw new LuaException( "Websocket connections are disabled" );
+        }
+
+        HttpHeaders headers = getHeaders( headerTbl.orElse( Collections.emptyMap() ) );
+
+        try
+        {
+            URI uri = Websocket.checkUri( address );
+            if( !new Websocket( websockets, m_apiEnvironment, uri, address, headers ).queue( Websocket::connect ) )
             {
-                String address, postString, requestMethod;
-                Map<?, ?> headerTable;
-                boolean binary, redirect;
-
-                if( args.length >= 1 && args[0] instanceof Map )
-                {
-                    Map<?, ?> options = (Map<?, ?>) args[0];
-                    address = getStringField( options, "url" );
-                    postString = optStringField( options, "body", null );
-                    headerTable = optTableField( options, "headers", Collections.emptyMap() );
-                    binary = optBooleanField( options, "binary", false );
-                    requestMethod = optStringField( options, "method", null );
-                    redirect = optBooleanField( options, "redirect", true );
-
-                }
-                else
-                {
-                    // Get URL and post information
-                    address = getString( args, 0 );
-                    postString = optString( args, 1, null );
-                    headerTable = optTable( args, 2, Collections.emptyMap() );
-                    binary = optBoolean( args, 3, false );
-                    requestMethod = null;
-                    redirect = true;
-                }
-
-                HttpHeaders headers = getHeaders( headerTable );
-
-
-                HttpMethod httpMethod;
-                if( requestMethod == null )
-                {
-                    httpMethod = postString == null ? HttpMethod.GET : HttpMethod.POST;
-                }
-                else
-                {
-                    httpMethod = HttpMethod.valueOf( requestMethod.toUpperCase( Locale.ROOT ) );
-                    if( httpMethod == null || requestMethod.equalsIgnoreCase( "CONNECT" ) )
-                    {
-                        throw new LuaException( "Unsupported HTTP method" );
-                    }
-                }
-
-                try
-                {
-                    URI uri = HttpRequest.checkUri( address );
-                    HttpRequest request = new HttpRequest( requests, m_apiEnvironment, address, postString, headers, binary, redirect );
-
-                    long requestBody = request.body().readableBytes() + HttpRequest.getHeaderSize( headers );
-                    if( ComputerCraft.httpMaxUpload != 0 && requestBody > ComputerCraft.httpMaxUpload )
-                    {
-                        throw new HTTPRequestException( "Request body is too large" );
-                    }
-
-                    // Make the request
-                    request.queue( r -> r.request( uri, httpMethod ) );
-
-                    return new Object[] { true };
-                }
-                catch( HTTPRequestException e )
-                {
-                    return new Object[] { false, e.getMessage() };
-                }
+                throw new LuaException( "Too many websockets already open" );
             }
-            case 1: // checkURL
-            {
-                String address = getString( args, 0 );
 
-                // Check URL
-                try
-                {
-                    URI uri = HttpRequest.checkUri( address );
-                    new CheckUrl( checkUrls, m_apiEnvironment, address, uri ).queue( CheckUrl::run );
-
-                    return new Object[] { true };
-                }
-                catch( HTTPRequestException e )
-                {
-                    return new Object[] { false, e.getMessage() };
-                }
-            }
-            case 2: // websocket
-            {
-                String address = getString( args, 0 );
-                Map<?, ?> headerTbl = optTable( args, 1, Collections.emptyMap() );
-
-                if( !ComputerCraft.httpWebsocketEnabled )
-                {
-                    throw new LuaException( "Websocket connections are disabled" );
-                }
-
-                HttpHeaders headers = getHeaders( headerTbl );
-
-                try
-                {
-                    URI uri = Websocket.checkUri( address );
-                    if( !new Websocket( websockets, m_apiEnvironment, uri, address, headers ).queue( Websocket::connect ) )
-                    {
-                        throw new LuaException( "Too many websockets already open" );
-                    }
-
-                    return new Object[] { true };
-                }
-                catch( HTTPRequestException e )
-                {
-                    return new Object[] { false, e.getMessage() };
-                }
-            }
-            default:
-                return null;
+            return new Object[] { true };
+        }
+        catch( HTTPRequestException e )
+        {
+            return new Object[] { false, e.getMessage() };
         }
     }
 

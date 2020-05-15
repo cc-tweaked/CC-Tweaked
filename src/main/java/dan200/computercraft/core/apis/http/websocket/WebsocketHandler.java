@@ -68,14 +68,14 @@ public class WebsocketHandler extends SimpleChannelInboundHandler<Object>
             String data = ((TextWebSocketFrame) frame).text();
 
             websocket.environment().addTrackingChange( TrackingField.WEBSOCKET_INCOMING, data.length() );
-            websocket.environment().queueEvent( MESSAGE_EVENT, new Object[] { websocket.address(), data, false } );
+            websocket.environment().queueEvent( MESSAGE_EVENT, websocket.address(), data, false );
         }
         else if( frame instanceof BinaryWebSocketFrame )
         {
             byte[] converted = NetworkUtils.toBytes( frame.content() );
 
             websocket.environment().addTrackingChange( TrackingField.WEBSOCKET_INCOMING, converted.length );
-            websocket.environment().queueEvent( MESSAGE_EVENT, new Object[] { websocket.address(), converted, true } );
+            websocket.environment().queueEvent( MESSAGE_EVENT, websocket.address(), converted, true );
         }
         else if( frame instanceof CloseWebSocketFrame )
         {

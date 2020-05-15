@@ -2,7 +2,7 @@ local function it_side(func, ...)
     local arg = table.pack(...)
     it("requires a specific side", function()
         expect.error(func, 0):eq("bad argument #1 (string expected, got number)")
-        expect.error(func, "blah", table.unpack(arg)):eq("Invalid side.")
+        expect.error(func, "blah", table.unpack(arg)):eq("bad argument #1 (unknown option blah)")
 
         func("top", table.unpack(arg))
         func("Top", table.unpack(arg))

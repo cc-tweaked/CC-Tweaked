@@ -6,8 +6,8 @@
 package dan200.computercraft.api.turtle;
 
 import com.mojang.authlib.GameProfile;
-import dan200.computercraft.api.lua.ILuaContext;
-import dan200.computercraft.api.lua.LuaException;
+import dan200.computercraft.api.lua.ILuaCallback;
+import dan200.computercraft.api.lua.MethodResult;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.nbt.CompoundNBT;
@@ -228,21 +228,15 @@ public interface ITurtleAccess
      * be supplied as a parameter to a "turtle_response" event issued to the turtle after the command has completed. Look at the
      * lua source code for "rom/apis/turtle" for how to build a lua wrapper around this functionality.
      *
-     * @param context The Lua context to pull events from.
      * @param command An object which will execute the custom command when its point in the queue is reached
      * @return The objects the command returned when executed. you should probably return these to the player
      * unchanged if called from a peripheral method.
      * @throws UnsupportedOperationException When attempting to execute a command on the client side.
-     * @throws LuaException                  If the user presses CTRL+T to terminate the current program while {@code executeCommand()} is
-     *                                       waiting for an event, a "Terminated" exception will be thrown here.
-     * @throws InterruptedException          If the user shuts down or reboots the computer while pullEvent() is waiting for an
-     *                                       event, InterruptedException will be thrown. This exception must not be caught or
-     *                                       intercepted, or the computer will leak memory and end up in a broken state.
      * @see ITurtleCommand
-     * @see ILuaContext#pullEvent(String)
+     * @see MethodResult#pullEvent(String, ILuaCallback)
      */
     @Nonnull
-    Object[] executeCommand( @Nonnull ILuaContext context, @Nonnull ITurtleCommand command ) throws LuaException, InterruptedException;
+    MethodResult executeCommand( @Nonnull ITurtleCommand command );
 
     /**
      * Start playing a specific animation. This will prevent other turtle commands from executing until

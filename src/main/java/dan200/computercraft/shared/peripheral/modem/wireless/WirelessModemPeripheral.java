@@ -14,7 +14,7 @@ import net.minecraft.world.World;
 
 public abstract class WirelessModemPeripheral extends ModemPeripheral
 {
-    private boolean m_advanced;
+    private final boolean m_advanced;
 
     public WirelessModemPeripheral( ModemState state, boolean advanced )
     {

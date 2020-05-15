@@ -5,16 +5,15 @@
  */
 package dan200.computercraft.shared.turtle.upgrades;
 
-import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
-import dan200.computercraft.api.peripheral.IComputerAccess;
+import dan200.computercraft.api.lua.LuaFunction;
+import dan200.computercraft.api.lua.MethodResult;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.shared.turtle.core.TurtleCraftCommand;
 
 import javax.annotation.Nonnull;
-
-import static dan200.computercraft.api.lua.ArgumentHelper.optInt;
+import java.util.Optional;
 
 public class CraftingTablePeripheral implements IPeripheral
 {
@@ -32,41 +31,17 @@ public class CraftingTablePeripheral implements IPeripheral
         return "workbench";
     }
 
-    @Nonnull
-    @Override
-    public String[] getMethodNames()
+    @LuaFunction
+    public final MethodResult craft( Optional<Integer> count ) throws LuaException
     {
-        return new String[] {
-            "craft",
-        };
-    }
-
-    private static int parseCount( Object[] arguments ) throws LuaException
-    {
-        int count = optInt( arguments, 0, 64 );
-        if( count < 0 || count > 64 ) throw new LuaException( "Crafting count " + count + " out of range" );
-        return count;
-    }
-
-    @Override
-    public Object[] callMethod( @Nonnull IComputerAccess computer, @Nonnull ILuaContext context, int method, @Nonnull Object[] arguments ) throws LuaException, InterruptedException
-    {
-        switch( method )
-        {
-            case 0:
-            {
-                // craft
-                final int limit = parseCount( arguments );
-                return turtle.executeCommand( context, new TurtleCraftCommand( limit ) );
-            }
-            default:
-                return null;
-        }
+        int limit = count.orElse( 65 );
+        if( limit < 0 || limit > 64 ) throw new LuaException( "Crafting count " + limit + " out of range" );
+        return turtle.executeCommand( new TurtleCraftCommand( limit ) );
     }
 
     @Override
     public boolean equals( IPeripheral other )
     {
-        return this == other || other instanceof CraftingTablePeripheral;
+        return other instanceof CraftingTablePeripheral;
     }
 }

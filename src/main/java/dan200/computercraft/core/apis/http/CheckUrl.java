@@ -47,11 +47,11 @@ public class CheckUrl extends Resource<CheckUrl>
         try
         {
             NetworkUtils.getAddress( host, 80, false );
-            if( tryClose() ) environment.queueEvent( EVENT, new Object[] { address, true } );
+            if( tryClose() ) environment.queueEvent( EVENT, address, true );
         }
         catch( HTTPRequestException e )
         {
-            if( tryClose() ) environment.queueEvent( EVENT, new Object[] { address, false, e.getMessage() } );
+            if( tryClose() ) environment.queueEvent( EVENT, address, false, e.getMessage() );
         }
     }
 
