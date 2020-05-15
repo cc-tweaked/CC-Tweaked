@@ -73,12 +73,10 @@
   (/doc/stub/fs.lua
    /doc/stub/http.lua
    /doc/stub/os.lua
-   /doc/stub/redstone.lua
    /doc/stub/term.lua
    /doc/stub/turtle.lua
    /src/main/resources/*/computercraft/lua/rom/apis/io.lua
-   /src/main/resources/*/computercraft/lua/rom/apis/window.lua
-   /src/main/resources/*/computercraft/lua/rom/modules/main/cc/shell/completion.lua)
+   /src/main/resources/*/computercraft/lua/rom/apis/window.lua)
 
   (linters -doc:undocumented -doc:undocumented-arg))
 
@@ -87,7 +85,6 @@
   (/src/main/resources/*/computercraft/lua/rom/apis/textutils.lua
    /src/main/resources/*/computercraft/lua/rom/modules/main/cc/completion.lua
    /src/main/resources/*/computercraft/lua/rom/modules/main/cc/shell/completion.lua
-   /src/main/resources/*/computercraft/lua/rom/programs/advanced/multishell.lua
    /src/main/resources/*/computercraft/lua/rom/programs/shell.lua)
   (linters -doc:unresolved-reference))
 

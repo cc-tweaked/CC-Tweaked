@@ -95,7 +95,10 @@ while bRunning do
             local n = 1
             while n < tResults.n or n <= nForcePrint do
                 local value = tResults[n + 1]
-                local ok, serialised = pcall(pretty.pretty, value)
+                local ok, serialised = pcall(pretty.pretty, value, {
+                    function_args = settings.get("lua.function_args"),
+                    function_source = settings.get("lua.function_source"),
+                })
                 if ok then
                     pretty.print(serialised)
                 else

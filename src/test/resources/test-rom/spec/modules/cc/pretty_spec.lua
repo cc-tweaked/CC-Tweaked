@@ -165,7 +165,7 @@ describe("cc.pretty", function()
     describe("pretty", function()
         -- We make use of "render" here, as it's considerably easier than checking against the actual structure.
         -- However, it does also mean our tests are less unit-like.
-        local function pretty(x, width) return pp.render(pp.pretty(x), width) end
+        local function pretty(x, width, options) return pp.render(pp.pretty(x, options), width) end
 
         describe("tables", function()
             it("displays empty tables", function()
@@ -201,8 +201,21 @@ describe("cc.pretty", function()
             expect(pretty("hello\nworld")):eq('"hello\\nworld"')
         end)
 
-        it("shows functions", function()
-            expect(pretty(pretty)):eq(tostring(pretty))
+        describe("functions", function()
+            it("shows functions", function()
+                expect(pretty(pretty)):eq(tostring(pretty))
+            end)
+
+            it("shows function arguments", function()
+                local f = function(a, ...) end
+                expect(pretty(f, nil, { function_args = true })):eq(tostring(f) .. "(a, ...)")
+            end)
+
+            it("shows the function source", function()
+                local f = function(a, ...) end
+                expect(pretty(f, nil, { function_source = true }))
+                    :str_match("^function<.*pretty_spec%.lua:%d+>$")
+            end)
         end)
     end)
 end)

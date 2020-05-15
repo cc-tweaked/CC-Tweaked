@@ -19,8 +19,12 @@
 --     local pretty = require "cc.pretty"
 --     pretty.write(pretty.group(pretty.text("hello") .. pretty.space_line .. pretty.text("world")))
 
-local expect = require "cc.expect".expect
-local type, getmetatable, setmetatable, colours, str_write = type, getmetatable, setmetatable, colours, write
+local expect = require "cc.expect"
+local expect, field = expect.expect, expect.field
+
+local type, getmetatable, setmetatable, colours, str_write, tostring = type, getmetatable, setmetatable, colours, write, tostring
+local debug_info = type(debug) == "table" and type(debug.getinfo) == "function" and debug.getinfo
+local debug_local = type(debug) == "table" and type(debug.getlocal) == "function" and debug.getlocal
 
 --- @{table.insert} alternative, but with the length stored inline.
 local function append(out, value)
@@ -343,13 +347,38 @@ local function key_compare(a, b)
     return false
 end
 
-local function pretty_impl(obj, tracking)
+local function show_function(fn, options)
+    local info = debug_info and debug_info(fn, "Su")
+
+    -- Include function source position if available
+    local name
+    if options.function_source and info and info.short_src and info.linedefined and info.linedefined >= 1 then
+        name = "function<" .. info.short_src .. ":" .. info.linedefined .. ">"
+    else
+        name = tostring(fn)
+    end
+
+    -- Include arguments if a Lua function and if available. Lua will report "C"
+    -- functions as variadic.
+    if options.function_args and info and info.what == "Lua" and info.nparams and debug_local then
+        local args = {}
+        for i = 1, info.nparams do args[i] = debug_local(fn, i) or "?" end
+        if info.isvararg then args[#args + 1] = "..." end
+        name = name .. "(" .. table.concat(args, ", ") .. ")"
+    end
+
+    return name
+end
+
+local function pretty_impl(obj, options, tracking)
     local obj_type = type(obj)
     if obj_type == "string" then
         local formatted = ("%q"):format(obj):gsub("\\\n", "\\n")
         return text(formatted, colours.red)
     elseif obj_type == "number" then
         return text(tostring(obj), colours.magenta)
+    elseif obj_type == "function" then
+        return text(show_function(obj, options), colours.lightGrey)
     elseif obj_type ~= "table" or tracking[obj] then
         return text(tostring(obj), colours.lightGrey)
     elseif getmetatable(obj) ~= nil and getmetatable(obj).__tostring then
@@ -371,15 +400,15 @@ local function pretty_impl(obj, tracking)
             local v = obj[k]
             local ty = type(k)
             if ty == "number" and k % 1 == 0 and k >= 1 and k <= length then
-                append(doc, pretty_impl(v, tracking))
+                append(doc, pretty_impl(v, options, tracking))
             elseif ty == "string" and not keywords[k] and k:match("^[%a_][%a%d_]*$") then
                 append(doc, text(k .. " = "))
-                append(doc, pretty_impl(v, tracking))
+                append(doc, pretty_impl(v, options, tracking))
             else
                 append(doc, obracket)
-                append(doc, pretty_impl(k, tracking))
+                append(doc, pretty_impl(k, options, tracking))
                 append(doc, cbracket)
-                append(doc, pretty_impl(v, tracking))
+                append(doc, pretty_impl(v, options, tracking))
             end
         end
 
@@ -393,12 +422,24 @@ end
 -- This can then be rendered with @{write} or @{print}.
 --
 -- @param obj The object to pretty-print.
+-- @tparam[opt] { function_args = boolean, function_source = boolean } options
+-- Controls how various properties are displayed.
+--  - `function_args`: Show the arguments to a function if known (`false` by default).
+--  - `function_source`: Show where the function was defined, instead of
+--    `function: xxxxxxxx` (`false` by default).
 -- @treturn Doc The object formatted as a document.
 -- @usage Display a table on the screen
 --     local pretty = require "cc.pretty"
 --     pretty.print(pretty.pretty({ 1, 2, 3 }))
-local function pretty(obj)
-    return pretty_impl(obj, {})
+local function pretty(obj, options)
+    expect(2, options, "table", "nil")
+    options = options or {}
+
+    local actual_options = {
+        function_source = field(options, "function_source", "boolean", "nil") or false,
+        function_args = field(options, "function_args", "boolean", "nil") or false,
+    }
+    return pretty_impl(obj, actual_options, {})
 end
 
 return {
