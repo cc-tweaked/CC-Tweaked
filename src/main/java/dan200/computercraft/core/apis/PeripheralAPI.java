@@ -129,7 +129,7 @@ public class PeripheralAPI implements ILuaAPI, IAPIEnvironment.IPeripheralChange
         }
 
         @Override
-        public void queueEvent( @Nonnull final String event, final Object[] arguments )
+        public void queueEvent( @Nonnull String event, Object... arguments )
         {
             if( !attached ) throw new NotAttachedException();
             super.queueEvent( event, arguments );

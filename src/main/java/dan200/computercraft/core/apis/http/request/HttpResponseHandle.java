@@ -5,7 +5,6 @@
  */
 package dan200.computercraft.core.apis.http.request;
 
-import dan200.computercraft.api.lua.IDynamicLuaObject;
 import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.core.apis.handles.HandleGeneric;
 import dan200.computercraft.core.asm.ObjectSource;
@@ -48,6 +47,6 @@ public class HttpResponseHandle implements ObjectSource
     @Override
     public Iterable<Object> getExtra()
     {
-        return Collections.singletonList(reader);
+        return Collections.singletonList( reader );
     }
 }
