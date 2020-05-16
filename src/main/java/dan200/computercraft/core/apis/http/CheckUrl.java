@@ -47,8 +47,8 @@ public class CheckUrl extends Resource<CheckUrl>
 
         try
         {
-            InetSocketAddress address = NetworkUtils.getAddress( host, 80, false );
-            NetworkUtils.getOptions( host, address );
+            InetSocketAddress netAddress = NetworkUtils.getAddress( host, 80, false );
+            NetworkUtils.getOptions( host, netAddress );
 
             if( tryClose() ) environment.queueEvent( EVENT, address, true );
         }
