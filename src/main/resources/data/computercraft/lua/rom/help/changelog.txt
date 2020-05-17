@@ -1,3 +1,7 @@
+# New features in CC: Tweaked 1.88.1
+
+* Fix error on objects with too many methods.
+
 # New features in CC: Tweaked 1.88.0
 
 * Computers and turtles now preserve their ID when broken.
