@@ -78,6 +78,15 @@ public class MethodTest
         );
     }
 
+    @Test
+    public void testMany()
+    {
+        ComputerBootstrap.run(
+            "assert(many.method_0)\n" +
+                "assert(many.method_39)",
+            x -> x.addApi( new ManyMethods() ), 50 );
+    }
+
     public static class MainThread implements ILuaAPI, IPeripheral
     {
         public final String thread = Thread.currentThread().getName();
@@ -203,6 +212,31 @@ public class MethodTest
         public boolean equals( @Nullable IPeripheral other )
         {
             return this == other;
+        }
+    }
+
+    public static class ManyMethods implements IDynamicLuaObject, ILuaAPI
+    {
+        @Nonnull
+        @Override
+        public String[] getMethodNames()
+        {
+            String[] methods = new String[40];
+            for( int i = 0; i < methods.length; i++ ) methods[i] = "method_" + i;
+            return methods;
+        }
+
+        @Nonnull
+        @Override
+        public MethodResult callMethod( @Nonnull ILuaContext context, int method, @Nonnull IArguments arguments ) throws LuaException
+        {
+            return MethodResult.of();
+        }
+
+        @Override
+        public String[] getNames()
+        {
+            return new String[] { "many" };
         }
     }
 }

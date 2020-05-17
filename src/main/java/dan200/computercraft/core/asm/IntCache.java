@@ -24,7 +24,7 @@ public final class IntCache<T>
     {
         if( index < 0 ) throw new IllegalArgumentException( "index < 0" );
 
-        if( index <= cache.length )
+        if( index < cache.length )
         {
             T current = (T) cache[index];
             if( current != null ) return current;
@@ -32,7 +32,7 @@ public final class IntCache<T>
 
         synchronized( this )
         {
-            if( index > cache.length ) cache = Arrays.copyOf( cache, Math.max( cache.length * 2, index ) );
+            if( index >= cache.length ) cache = Arrays.copyOf( cache, Math.max( cache.length * 2, index + 1 ) );
             T current = (T) cache[index];
             if( current == null ) cache[index] = current = factory.apply( index );
             return current;
