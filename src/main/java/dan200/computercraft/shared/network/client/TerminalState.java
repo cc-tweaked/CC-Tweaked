@@ -100,6 +100,7 @@ public class TerminalState
             buf.writeVarInt( height );
 
             ByteBuf sendBuffer = getCompressed();
+            buf.writeVarInt( sendBuffer.readableBytes() );
             buf.writeBytes( sendBuffer, sendBuffer.readerIndex(), sendBuffer.readableBytes() );
         }
     }
