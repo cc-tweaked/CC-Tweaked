@@ -100,10 +100,7 @@ public class TerminalState
             buf.writeVarInt( height );
 
             ByteBuf sendBuffer = getCompressed();
-            int index = sendBuffer.readerIndex();
-            buf.writeVarInt( sendBuffer.readableBytes() );
-            buf.writeBytes( sendBuffer );
-            sendBuffer.readerIndex( index );
+            buf.writeBytes( sendBuffer, sendBuffer.readerIndex(), sendBuffer.readableBytes() );
         }
     }
 
@@ -124,7 +121,7 @@ public class TerminalState
         if( !compress ) return buffer;
         if( compressed != null ) return compressed;
 
-        ByteBuf compressed = this.compressed = Unpooled.directBuffer();
+        ByteBuf compressed = Unpooled.directBuffer();
         OutputStream stream = null;
         try
         {
@@ -140,7 +137,7 @@ public class TerminalState
             IoUtil.closeQuietly( stream );
         }
 
-        return compressed;
+        return this.compressed = compressed;
     }
 
     private static ByteBuf readCompressed( ByteBuf buf, int length, boolean compress )
