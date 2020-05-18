@@ -5,14 +5,13 @@
  */
 package dan200.computercraft.shared.peripheral.monitor;
 
+import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.peripheral.IPeripheralTile;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.shared.common.ServerTerminal;
 import dan200.computercraft.shared.common.TileGeneric;
-import dan200.computercraft.shared.network.NetworkHandler;
-import dan200.computercraft.shared.network.client.MonitorClientMessage;
 import dan200.computercraft.shared.network.client.TerminalState;
 import dan200.computercraft.shared.peripheral.PeripheralType;
 import dan200.computercraft.shared.peripheral.common.BlockPeripheral;
@@ -26,7 +25,6 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.common.network.NetworkRegistry;
 
 import javax.annotation.Nonnull;
 import java.util.Collections;
@@ -49,6 +47,7 @@ public class TileMonitor extends TileGeneric implements ITilePeripheral, IPeriph
 
     private boolean m_destroyed = false;
     private boolean visiting = false;
+    boolean enqueued;
 
     private int m_width = 1;
     private int m_height = 1;
@@ -154,8 +153,7 @@ public class TileMonitor extends TileGeneric implements ITilePeripheral, IPeriph
 
         if( m_serverMonitor.pollTerminalChanged() && m_xIndex == 0 && m_yIndex == 0 && m_serverMonitor != null )
         {
-            NetworkRegistry.TargetPoint point = new NetworkRegistry.TargetPoint( world.provider.getDimension(), pos.getX(), pos.getY(), pos.getZ(), 0 );
-            NetworkHandler.sendToAllTracking( new MonitorClientMessage( getPos(), m_serverMonitor.write() ), point );
+            MonitorWatcher.enqueue( this );
         }
     }
 
@@ -276,7 +274,7 @@ public class TileMonitor extends TileGeneric implements ITilePeripheral, IPeriph
 
         if( m_xIndex == 0 && m_yIndex == 0 )
         {
-            // If we're the origin terminal then read the description
+            // If we're the origin terminal then create it.
             if( m_clientMonitor == null ) m_clientMonitor = new ClientMonitor( m_advanced, this );
         }
 
@@ -291,9 +289,12 @@ public class TileMonitor extends TileGeneric implements ITilePeripheral, IPeriph
 
     public final void read( TerminalState state )
     {
-        // This message may appear before the NBT update one, and so we construct a new monitor, but don't do anything
-        // with it.
-        // No, I'm not convinced this is correct.
+        if( m_xIndex != 0 || m_yIndex != 0 )
+        {
+            ComputerCraft.log.warn( "Receiving monitor state for non-origin terminal at {}", getPos() );
+            return;
+        }
+
         if( m_clientMonitor == null ) m_clientMonitor = new ClientMonitor( m_advanced, this );
         m_clientMonitor.read( state );
     }
