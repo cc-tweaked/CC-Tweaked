@@ -71,8 +71,11 @@ public final class MonitorWatcher
     {
         if( event.phase != TickEvent.Phase.END ) return;
 
+        long limit = ComputerCraft.monitorBandwidth;
+        boolean obeyLimit = limit > 0;
+
         TileMonitor tile;
-        while( (tile = watching.poll()) != null )
+        while( (!obeyLimit || limit > 0) && (tile = watching.poll()) != null )
         {
             tile.enqueued = false;
             ServerMonitor monitor = getMonitor( tile );
@@ -85,7 +88,10 @@ public final class MonitorWatcher
             if( entry == null || entry.getWatchingPlayers().isEmpty() ) continue;
 
             NetworkRegistry.TargetPoint point = new NetworkRegistry.TargetPoint( world.provider.getDimension(), pos.getX(), pos.getY(), pos.getZ(), 0 );
-            NetworkHandler.sendToAllTracking( new MonitorClientMessage( pos, tile.cached = monitor.write() ), point );
+            TerminalState state = tile.cached = monitor.write();
+            NetworkHandler.sendToAllTracking( new MonitorClientMessage( pos, state ), point );
+
+            limit -= state.size();
         }
     }
 

@@ -110,6 +110,11 @@ public class TerminalState
         return buffer != null;
     }
 
+    public int size()
+    {
+        return buffer == null ? 0 : buffer.readableBytes();
+    }
+
     public void apply( Terminal terminal )
     {
         if( buffer == null ) throw new NullPointerException( "buffer" );
