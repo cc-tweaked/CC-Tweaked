@@ -11,6 +11,9 @@ import dan200.computercraft.api.peripheral.IPeripheralTile;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.shared.common.ServerTerminal;
 import dan200.computercraft.shared.common.TileGeneric;
+import dan200.computercraft.shared.network.NetworkHandler;
+import dan200.computercraft.shared.network.client.MonitorClientMessage;
+import dan200.computercraft.shared.network.client.TerminalState;
 import dan200.computercraft.shared.peripheral.PeripheralType;
 import dan200.computercraft.shared.peripheral.common.BlockPeripheral;
 import dan200.computercraft.shared.peripheral.common.ITilePeripheral;
@@ -23,6 +26,7 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.common.network.NetworkRegistry;
 
 import javax.annotation.Nonnull;
 import java.util.Collections;
@@ -148,7 +152,11 @@ public class TileMonitor extends TileGeneric implements ITilePeripheral, IPeriph
             }
         }
 
-        if( m_serverMonitor.pollTerminalChanged() ) updateBlock();
+        if( m_serverMonitor.pollTerminalChanged() && m_xIndex == 0 && m_yIndex == 0 && m_serverMonitor != null )
+        {
+            NetworkRegistry.TargetPoint point = new NetworkRegistry.TargetPoint( world.provider.getDimension(), pos.getX(), pos.getY(), pos.getZ(), 0 );
+            NetworkHandler.sendToAllTracking( new MonitorClientMessage( getPos(), m_serverMonitor.write() ), point );
+        }
     }
 
     // IPeripheralTile implementation
@@ -239,11 +247,6 @@ public class TileMonitor extends TileGeneric implements ITilePeripheral, IPeriph
         nbt.setInteger( "width", m_width );
         nbt.setInteger( "height", m_height );
         nbt.setInteger( "monitorDir", m_dir );
-
-        if( m_xIndex == 0 && m_yIndex == 0 && m_serverMonitor != null )
-        {
-            m_serverMonitor.writeDescription( nbt );
-        }
     }
 
     @Override
@@ -275,7 +278,6 @@ public class TileMonitor extends TileGeneric implements ITilePeripheral, IPeriph
         {
             // If we're the origin terminal then read the description
             if( m_clientMonitor == null ) m_clientMonitor = new ClientMonitor( m_advanced, this );
-            m_clientMonitor.readDescription( nbt );
         }
 
         if( oldXIndex != m_xIndex || oldYIndex != m_yIndex ||
@@ -286,6 +288,16 @@ public class TileMonitor extends TileGeneric implements ITilePeripheral, IPeriph
             updateBlock();
         }
     }
+
+    public final void read( TerminalState state )
+    {
+        // This message may appear before the NBT update one, and so we construct a new monitor, but don't do anything
+        // with it.
+        // No, I'm not convinced this is correct.
+        if( m_clientMonitor == null ) m_clientMonitor = new ClientMonitor( m_advanced, this );
+        m_clientMonitor.read( state );
+    }
+
     // Sizing and placement stuff
 
     public EnumFacing getDirection()

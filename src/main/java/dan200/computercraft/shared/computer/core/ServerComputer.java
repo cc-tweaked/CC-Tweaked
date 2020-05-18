@@ -155,9 +155,7 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
 
     protected IMessage createTerminalPacket()
     {
-        NBTTagCompound tagCompound = new NBTTagCompound();
-        writeDescription( tagCompound );
-        return new ComputerTerminalClientMessage( getInstanceID(), tagCompound );
+        return new ComputerTerminalClientMessage( getInstanceID(), write() );
     }
 
     public void broadcastState( boolean force )

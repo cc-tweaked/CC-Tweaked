@@ -5,12 +5,8 @@
  */
 package dan200.computercraft.shared.common;
 
-import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.core.terminal.Terminal;
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.network.PacketBuffer;
+import dan200.computercraft.shared.network.client.TerminalState;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -73,8 +69,6 @@ public class ServerTerminal implements ITerminal
         return m_terminalChangedLastFrame;
     }
 
-    // ITerminal implementation
-
     @Override
     public Terminal getTerminal()
     {
@@ -87,29 +81,8 @@ public class ServerTerminal implements ITerminal
         return m_colour;
     }
 
-    public void writeDescription( NBTTagCompound nbt )
+    public TerminalState write()
     {
-        nbt.setBoolean( "colour", m_colour );
-        if( m_terminal != null )
-        {
-            // We have a 10 byte header (2 integer positions, then blinking and current colours), followed by the
-            // contents and palette.
-            // Yes, this serialisation code is terrible, but we need to serialise to NBT in order to work with monitors
-            // (or rather tile entity serialisation).
-            final int length = 10 + (2 * m_terminal.getWidth() * m_terminal.getHeight()) + (16 * 3);
-            ByteBuf buffer = Unpooled.buffer( length );
-            m_terminal.write( new PacketBuffer( buffer ) );
-
-            if( buffer.writableBytes() != 0 )
-            {
-                ComputerCraft.log.warn( "Should have written {} bytes, but have {} ({} remaining).", length, buffer.writerIndex(), buffer.writableBytes() );
-            }
-
-            NBTTagCompound terminal = new NBTTagCompound();
-            terminal.setInteger( "term_width", m_terminal.getWidth() );
-            terminal.setInteger( "term_height", m_terminal.getHeight() );
-            terminal.setByteArray( "term_contents", buffer.array() );
-            nbt.setTag( "terminal", terminal );
-        }
+        return new TerminalState( m_colour, m_terminal );
     }
 }
