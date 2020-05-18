@@ -9,6 +9,7 @@ package dan200.computercraft.shared.peripheral.monitor;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.network.NetworkHandler;
 import dan200.computercraft.shared.network.client.MonitorClientMessage;
+import dan200.computercraft.shared.network.client.TerminalState;
 import net.minecraft.server.management.PlayerChunkMapEntry;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
@@ -37,7 +38,9 @@ public final class MonitorWatcher
     static void enqueue( TileMonitor monitor )
     {
         if( monitor.enqueued ) return;
+
         monitor.enqueued = true;
+        monitor.cached = null;
         watching.add( monitor );
     }
 
@@ -56,9 +59,10 @@ public final class MonitorWatcher
             ServerMonitor serverMonitor = getMonitor( monitor );
             if( serverMonitor == null || monitor.enqueued ) continue;
 
-            // TODO: This does make chunk loads a little inefficient - we build a packet for every player! Can we
-            //  cache the terminal state, and then null it out when the monitor is dirty?
-            NetworkHandler.sendToPlayer( event.getPlayer(), new MonitorClientMessage( monitor.getPos(), serverMonitor.write() ) );
+            // We use the cached terminal state if available - this is guaranteed to
+            TerminalState state = monitor.cached;
+            if( state == null ) state = monitor.cached = serverMonitor.write();
+            NetworkHandler.sendToPlayer( event.getPlayer(), new MonitorClientMessage( monitor.getPos(), state ) );
         }
     }
 
@@ -81,7 +85,7 @@ public final class MonitorWatcher
             if( entry == null || entry.getWatchingPlayers().isEmpty() ) continue;
 
             NetworkRegistry.TargetPoint point = new NetworkRegistry.TargetPoint( world.provider.getDimension(), pos.getX(), pos.getY(), pos.getZ(), 0 );
-            NetworkHandler.sendToAllTracking( new MonitorClientMessage( pos, monitor.write() ), point );
+            NetworkHandler.sendToAllTracking( new MonitorClientMessage( pos, tile.cached = monitor.write() ), point );
         }
     }
 

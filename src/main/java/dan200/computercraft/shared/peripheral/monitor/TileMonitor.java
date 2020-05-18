@@ -47,7 +47,10 @@ public class TileMonitor extends TileGeneric implements ITilePeripheral, IPeriph
 
     private boolean m_destroyed = false;
     private boolean visiting = false;
+
+    // MonitorWatcher state.
     boolean enqueued;
+    TerminalState cached;
 
     private int m_width = 1;
     private int m_height = 1;
