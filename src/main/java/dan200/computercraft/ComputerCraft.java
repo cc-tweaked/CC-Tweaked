@@ -538,7 +538,7 @@ public class ComputerCraft
                     }
                     catch( IOException e )
                     {
-                        if( zipFile != null ) IoUtil.closeQuietly( zipFile );
+                        IoUtil.closeQuietly( zipFile );
                     }
                 }
             }
