@@ -154,10 +154,7 @@ public class TileMonitor extends TileGeneric implements ITilePeripheral, IPeriph
             }
         }
 
-        if( m_serverMonitor.pollTerminalChanged() && m_xIndex == 0 && m_yIndex == 0 && m_serverMonitor != null )
-        {
-            MonitorWatcher.enqueue( this );
-        }
+        if( m_serverMonitor.pollTerminalChanged() ) MonitorWatcher.enqueue( this );
     }
 
     // IPeripheralTile implementation
