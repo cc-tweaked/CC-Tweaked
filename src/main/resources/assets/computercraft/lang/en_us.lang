@@ -191,6 +191,7 @@ gui.computercraft:config.peripheral.monitor_renderer.best=Best
 gui.computercraft:config.peripheral.monitor_renderer.tbo=Texture Buffers
 gui.computercraft:config.peripheral.monitor_renderer.vbo=Vertex Buffers
 gui.computercraft:config.peripheral.monitor_renderer.display_list=Display Lists
+gui.computercraft:config.peripheral.monitor_bandwidth=Monitor bandwidth
 
 gui.computercraft:config.turtle=Turtles
 gui.computercraft:config.turtle.need_fuel=Enable fuel

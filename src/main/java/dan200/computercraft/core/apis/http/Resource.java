@@ -106,7 +106,7 @@ public abstract class Resource<T extends Resource<T>> implements Closeable
 
     protected static <T extends Closeable> T closeCloseable( T closeable )
     {
-        if( closeable != null ) IoUtil.closeQuietly( closeable );
+        IoUtil.closeQuietly( closeable );
         return null;
     }
 

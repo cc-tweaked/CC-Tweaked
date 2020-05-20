@@ -5,8 +5,6 @@
  */
 package dan200.computercraft.shared.network.client;
 
-import dan200.computercraft.shared.util.NBTUtil;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
@@ -14,12 +12,12 @@ import javax.annotation.Nonnull;
 
 public class ComputerTerminalClientMessage extends ComputerClientMessage
 {
-    private NBTTagCompound tag;
+    private TerminalState state;
 
-    public ComputerTerminalClientMessage( int instanceId, NBTTagCompound tag )
+    public ComputerTerminalClientMessage( int instanceId, TerminalState state )
     {
         super( instanceId );
-        this.tag = tag;
+        this.state = state;
     }
 
     public ComputerTerminalClientMessage()
@@ -30,19 +28,19 @@ public class ComputerTerminalClientMessage extends ComputerClientMessage
     public void toBytes( @Nonnull PacketBuffer buf )
     {
         super.toBytes( buf );
-        buf.writeCompoundTag( tag ); // TODO: Do we need to compress this?
+        state.write( buf );
     }
 
     @Override
     public void fromBytes( @Nonnull PacketBuffer buf )
     {
         super.fromBytes( buf );
-        tag = NBTUtil.readCompoundTag( buf );
+        state = new TerminalState( buf );
     }
 
     @Override
     public void handle( MessageContext context )
     {
-        getComputer().readDescription( tag );
+        getComputer().read( state );
     }
 }
