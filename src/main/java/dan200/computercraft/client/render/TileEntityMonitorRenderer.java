@@ -171,7 +171,8 @@ public class TileEntityMonitorRenderer extends TileEntitySpecialRenderer<TileMon
                     {
                         monitorBuffer = BufferUtils.createByteBuffer( width * height * 3 );
                         resize = true;
-                    } else
+                    }
+                    else
                     {
                         monitorBuffer = GL15.glMapBuffer( GL31.GL_TEXTURE_BUFFER, GL15.GL_WRITE_ONLY, monitor.monitorBuffer );
                         resize = false;
@@ -194,7 +195,8 @@ public class TileEntityMonitorRenderer extends TileEntitySpecialRenderer<TileMon
                     if( resize )
                     {
                         OpenGlHelper.glBufferData( GL31.GL_TEXTURE_BUFFER, monitorBuffer, GL15.GL_DYNAMIC_DRAW );
-                    } else
+                    }
+                    else
                     {
                         GL15.glUnmapBuffer( GL31.GL_TEXTURE_BUFFER );
                     }

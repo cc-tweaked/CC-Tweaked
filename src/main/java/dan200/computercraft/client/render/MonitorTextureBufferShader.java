@@ -58,7 +58,7 @@ public class MonitorTextureBufferShader
         MATRIX_BUFFER.rewind();
         OpenGlHelper.glUniformMatrix4( uniformP, false, MATRIX_BUFFER );
 
-        if( redraw)
+        if( redraw )
         {
             GL15.glBindBuffer( GL31.GL_UNIFORM_BUFFER, uniformBuffer );
             uboBuffer = GL15.glMapBuffer( GL31.GL_UNIFORM_BUFFER, GL15.GL_WRITE_ONLY, uboBuffer );
@@ -76,7 +76,8 @@ public class MonitorTextureBufferShader
                 {
                     float f = FixedWidthFontRenderer.toGreyscale( colour );
                     uboBuffer.putFloat( f ).putFloat( f ).putFloat( f );
-                } else
+                }
+                else
                 {
                     uboBuffer.putFloat( (float) colour[0] ).putFloat( (float) colour[1] ).putFloat( (float) colour[2] );
                 }
