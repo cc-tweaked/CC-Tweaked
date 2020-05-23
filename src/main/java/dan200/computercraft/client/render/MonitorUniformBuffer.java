@@ -1,5 +1,6 @@
 package dan200.computercraft.client.render;
 
+import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.client.gui.FixedWidthFontRenderer;
 import dan200.computercraft.shared.util.Palette;
 import org.lwjgl.BufferUtils;
@@ -45,10 +46,8 @@ class MonitorUniformBuffer implements Closeable
             this.greyscale = greyscale;
 
             GL15.glBindBuffer( GL31.GL_UNIFORM_BUFFER, uniformBuffer );
-            GL15.glMapBuffer( GL31.GL_UNIFORM_BUFFER, GL15.GL_WRITE_ONLY, UBO_BUFFER );
-            UBO_BUFFER.rewind();
-
-            UBO_BUFFER.putInt( width ).putInt( height );
+            ByteBuffer buffer = GL15.glMapBuffer( GL31.GL_UNIFORM_BUFFER, GL15.GL_WRITE_ONLY, UBO_BUFFER );
+            buffer.putInt( width ).putInt( height );
 
             for( int i = 0; i < 16; i++ )
             {
@@ -56,15 +55,16 @@ class MonitorUniformBuffer implements Closeable
                 if( greyscale )
                 {
                     float f = FixedWidthFontRenderer.toGreyscale( colour );
-                    UBO_BUFFER.putFloat( f ).putFloat( f ).putFloat( f );
+                    buffer.putFloat( f ).putFloat( f ).putFloat( f );
                 } else
                 {
-                    UBO_BUFFER.putFloat( (float) colour[0] ).putFloat( (float) colour[1] ).putFloat( (float) colour[2] );
+                    buffer.putFloat( (float) colour[0] ).putFloat( (float) colour[1] ).putFloat( (float) colour[2] );
                 }
             }
 
-            UBO_BUFFER.flip();
-            GL15.glUnmapBuffer( uniformBuffer );
+            buffer.flip();
+            GL15.glUnmapBuffer( GL31.GL_UNIFORM_BUFFER );
+            //GL15.glBufferData( GL31.GL_UNIFORM_BUFFER, UBO_BUFFER, GL15.GL_DYNAMIC_DRAW );
         }
     }
 
