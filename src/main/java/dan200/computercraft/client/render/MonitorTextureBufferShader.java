@@ -46,7 +46,7 @@ public class MonitorTextureBufferShader
     private static final IntBuffer UNIFORM_OFFSETS = BufferUtils.createIntBuffer( UNIFORM_NAMES.length );
     private static final IntBuffer UNIFORM_STRIDES = BufferUtils.createIntBuffer( UNIFORM_NAMES.length );
 
-    static void setupUniform( int width, int height, Palette palette, boolean greyscale, boolean redraw )
+    static void setupUniform( int width, int height, Palette palette, boolean greyscale )
     {
         MATRIX_BUFFER.rewind();
         GL11.glGetFloat( GL11.GL_MODELVIEW_MATRIX, MATRIX_BUFFER );
@@ -58,34 +58,29 @@ public class MonitorTextureBufferShader
         MATRIX_BUFFER.rewind();
         OpenGlHelper.glUniformMatrix4( uniformP, false, MATRIX_BUFFER );
 
-        if( redraw )
+        GL15.glBindBuffer( GL31.GL_UNIFORM_BUFFER, uniformBuffer );
+        uboBuffer = GL15.glMapBuffer( GL31.GL_UNIFORM_BUFFER, GL15.GL_WRITE_ONLY, uboBuffer );
+        uboBuffer.putInt( UNIFORM_OFFSETS.get( 0 ), width );
+        uboBuffer.putInt( UNIFORM_OFFSETS.get( 1 ), height );
+
+        for( int i = 0; i < 16; i++ )
         {
-            GL15.glBindBuffer( GL31.GL_UNIFORM_BUFFER, uniformBuffer );
-            uboBuffer = GL15.glMapBuffer( GL31.GL_UNIFORM_BUFFER, GL15.GL_WRITE_ONLY, uboBuffer );
-            uboBuffer.clear();
+            uboBuffer.position( UNIFORM_OFFSETS.get( 2 ) + UNIFORM_STRIDES.get( 2 ) * i );
 
-            uboBuffer.putInt( UNIFORM_OFFSETS.get( 0 ), width );
-            uboBuffer.putInt( UNIFORM_OFFSETS.get( 1 ), height );
-
-            for( int i = 0; i < 16; i++ )
+            double[] colour = palette.getColour( i );
+            if( greyscale )
             {
-                uboBuffer.position( UNIFORM_OFFSETS.get( 2 ) + UNIFORM_STRIDES.get( 2 ) * i );
-
-                double[] colour = palette.getColour( i );
-                if( greyscale )
-                {
-                    float f = FixedWidthFontRenderer.toGreyscale( colour );
-                    uboBuffer.putFloat( f ).putFloat( f ).putFloat( f );
-                }
-                else
-                {
-                    uboBuffer.putFloat( (float) colour[0] ).putFloat( (float) colour[1] ).putFloat( (float) colour[2] );
-                }
+                float f = FixedWidthFontRenderer.toGreyscale( colour );
+                uboBuffer.putFloat( f ).putFloat( f ).putFloat( f );
             }
-
-            uboBuffer.flip();
-            GL15.glUnmapBuffer( GL31.GL_UNIFORM_BUFFER );
+            else
+            {
+                uboBuffer.putFloat( (float) colour[0] ).putFloat( (float) colour[1] ).putFloat( (float) colour[2] );
+            }
         }
+
+        uboBuffer.flip();
+        GL15.glUnmapBuffer( GL31.GL_UNIFORM_BUFFER );
     }
 
     static boolean use()
@@ -149,13 +144,13 @@ public class MonitorTextureBufferShader
             GL15.glBindBuffer( GL31.GL_UNIFORM_BUFFER, uniformBuffer );
             GL15.glBufferData( GL31.GL_UNIFORM_BUFFER, uniformBufferSize, GL15.GL_DYNAMIC_DRAW );
 
-            GL30.glBindBufferBase( GL31.GL_UNIFORM_BUFFER, monitorDataIndex, uniformBuffer );
-
             IntBuffer indices = BufferUtils.createIntBuffer( UNIFORM_NAMES.length );
             GL31.glGetUniformIndices( program, UNIFORM_NAMES, indices );
 
             GL31.glGetActiveUniforms( program, indices, GL31.GL_UNIFORM_OFFSET, UNIFORM_OFFSETS );
             GL31.glGetActiveUniforms( program, indices, GL31.GL_UNIFORM_ARRAY_STRIDE, UNIFORM_STRIDES );
+
+            GL30.glBindBufferBase( GL31.GL_UNIFORM_BUFFER, monitorDataIndex, uniformBuffer );
 
             ComputerCraft.log.info( "Loaded monitor shader." );
             return true;

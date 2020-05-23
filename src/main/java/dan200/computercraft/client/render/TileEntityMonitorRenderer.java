@@ -207,7 +207,7 @@ public class TileEntityMonitorRenderer extends TileEntitySpecialRenderer<TileMon
                 GL11.glBindTexture( GL31.GL_TEXTURE_BUFFER, monitor.tboTexture );
                 GlStateManager.setActiveTexture( GL13.GL_TEXTURE0 );
 
-                MonitorTextureBufferShader.setupUniform( width, height, terminal.getPalette(), !monitor.isColour(), redraw );
+                MonitorTextureBufferShader.setupUniform( width, height, terminal.getPalette(), !monitor.isColour() );
 
                 buffer.begin( GL11.GL_TRIANGLE_STRIP, DefaultVertexFormats.POSITION );
                 buffer.pos( -xMargin, -yMargin, 0 ).endVertex();
