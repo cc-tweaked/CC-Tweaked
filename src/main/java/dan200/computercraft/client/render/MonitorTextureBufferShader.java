@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
 
 class MonitorTextureBufferShader
 {
@@ -37,9 +38,15 @@ class MonitorTextureBufferShader
     private static boolean ok;
     private static int program;
 
-    private static MonitorUniformBuffer monitorUBO;
+    private static int uniformBuffer = -1;
 
-    static void setupUniform( int width, int height, Palette palette, boolean greyscale )
+    private static ByteBuffer uboBuffer = null;
+
+    private static final String[] UNIFORM_NAMES = new String[] { "u_width", "u_height", "u_palette" };
+    private static final IntBuffer UNIFORM_OFFSETS = BufferUtils.createIntBuffer( UNIFORM_NAMES.length );
+    private static final IntBuffer UNIFORM_STRIDES = BufferUtils.createIntBuffer( UNIFORM_NAMES.length );
+
+    static void setupUniform( int width, int height, Palette palette, boolean greyscale, boolean redraw )
     {
         MATRIX_BUFFER.rewind();
         GL11.glGetFloat( GL11.GL_MODELVIEW_MATRIX, MATRIX_BUFFER );
@@ -51,7 +58,33 @@ class MonitorTextureBufferShader
         MATRIX_BUFFER.rewind();
         OpenGlHelper.glUniformMatrix4( uniformP, false, MATRIX_BUFFER );
 
-        monitorUBO.set( width, height, palette, greyscale );
+        if( redraw)
+        {
+            GL15.glBindBuffer( GL31.GL_UNIFORM_BUFFER, uniformBuffer );
+            ByteBuffer buffer = GL15.glMapBuffer( GL31.GL_UNIFORM_BUFFER, GL15.GL_WRITE_ONLY, uboBuffer );
+            buffer.clear();
+
+            buffer.putInt( UNIFORM_OFFSETS.get( 0 ), width );
+            buffer.putInt( UNIFORM_OFFSETS.get( 1 ), height );
+
+            for( int i = 0; i < 16; i++ )
+            {
+                buffer.position( UNIFORM_OFFSETS.get( 2 ) + UNIFORM_STRIDES.get( 2 ) * i );
+
+                double[] colour = palette.getColour( i );
+                if( greyscale )
+                {
+                    float f = FixedWidthFontRenderer.toGreyscale( colour );
+                    buffer.putFloat( f ).putFloat( f ).putFloat( f );
+                } else
+                {
+                    buffer.putFloat( (float) colour[0] ).putFloat( (float) colour[1] ).putFloat( (float) colour[2] );
+                }
+            }
+
+            buffer.flip();
+            GL15.glUnmapBuffer( GL31.GL_UNIFORM_BUFFER );
+        }
     }
 
     static boolean use()
@@ -64,7 +97,7 @@ class MonitorTextureBufferShader
 
         if( ok = load() )
         {
-            GL20.glUseProgram( program );
+            OpenGlHelper.glUseProgram( program );
             OpenGlHelper.glUniform1i( uniformFont, 0 );
             OpenGlHelper.glUniform1i( uniformTbo, TEXTURE_INDEX - GL13.GL_TEXTURE0 );
         }
@@ -107,9 +140,21 @@ class MonitorTextureBufferShader
             uniformFont = getUniformLocation( program, "u_font" );
             uniformTbo = getUniformLocation( program, "u_tbo" );
 
-            monitorUBO = new MonitorUniformBuffer();
             int monitorDataIndex = GL31.glGetUniformBlockIndex( program, "MonitorData" );
-            GL30.glBindBufferBase( GL31.GL_UNIFORM_BUFFER, monitorDataIndex, monitorUBO.getHandle() );
+            int uniformBufferSize = GL31.glGetActiveUniformBlocki( program, monitorDataIndex, GL31.GL_UNIFORM_BLOCK_DATA_SIZE );
+            uboBuffer = BufferUtils.createByteBuffer( uniformBufferSize );
+
+            uniformBuffer = GL15.glGenBuffers();
+            GL15.glBindBuffer( GL31.GL_UNIFORM_BUFFER, uniformBuffer );
+            GL15.glBufferData( GL31.GL_UNIFORM_BUFFER, uniformBufferSize, GL15.GL_DYNAMIC_DRAW );
+
+            GL30.glBindBufferBase( GL31.GL_UNIFORM_BUFFER, monitorDataIndex, uniformBuffer );
+
+            IntBuffer indices = BufferUtils.createIntBuffer( UNIFORM_NAMES.length );
+            GL31.glGetUniformIndices( program, UNIFORM_NAMES, indices );
+
+            GL31.glGetActiveUniforms( program, indices, GL31.GL_UNIFORM_OFFSET, UNIFORM_OFFSETS );
+            GL31.glGetActiveUniforms( program, indices, GL31.GL_UNIFORM_ARRAY_STRIDE, UNIFORM_STRIDES );
 
             ComputerCraft.log.info( "Loaded monitor shader." );
             return true;
