@@ -27,11 +27,7 @@ class MonitorTextureBufferShader
 {
     static final int TEXTURE_INDEX = GL13.GL_TEXTURE3;
 
-    private static final FloatBuffer MATRIX_BUFFER = BufferUtils.createFloatBuffer( 16 );
     private static final FloatBuffer PALETTE_BUFFER = BufferUtils.createFloatBuffer( 16 * 3 );
-
-    private static int uniformMv;
-    private static int uniformP;
 
     private static int uniformFont;
     private static int uniformWidth;
@@ -45,16 +41,6 @@ class MonitorTextureBufferShader
 
     static void setupUniform( int width, int height, Palette palette, boolean greyscale )
     {
-        MATRIX_BUFFER.rewind();
-        GL11.glGetFloat( GL11.GL_MODELVIEW_MATRIX, MATRIX_BUFFER );
-        MATRIX_BUFFER.rewind();
-        OpenGlHelper.glUniformMatrix4( uniformMv, false, MATRIX_BUFFER );
-
-        MATRIX_BUFFER.rewind();
-        GL11.glGetFloat( GL11.GL_PROJECTION_MATRIX, MATRIX_BUFFER );
-        MATRIX_BUFFER.rewind();
-        OpenGlHelper.glUniformMatrix4( uniformP, false, MATRIX_BUFFER );
-
         OpenGlHelper.glUniform1i( uniformWidth, width );
         OpenGlHelper.glUniform1i( uniformHeight, height );
 
@@ -122,9 +108,6 @@ class MonitorTextureBufferShader
             OpenGlHelper.glDeleteShader( fragmentShader );
 
             if( !ok ) return false;
-
-            uniformMv = getUniformLocation( program, "u_mv" );
-            uniformP = getUniformLocation( program, "u_p" );
 
             uniformFont = getUniformLocation( program, "u_font" );
             uniformWidth = getUniformLocation( program, "u_width" );
