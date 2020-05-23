@@ -194,7 +194,7 @@ public class TileEntityMonitorRenderer extends TileEntitySpecialRenderer<TileMon
 
                     if( resize )
                     {
-                        OpenGlHelper.glBufferData( GL31.GL_TEXTURE_BUFFER, monitorBuffer, GL15.GL_STATIC_DRAW );
+                        OpenGlHelper.glBufferData( GL31.GL_TEXTURE_BUFFER, monitorBuffer, GL15.GL_DYNAMIC_DRAW );
                     } else
                     {
                         GL15.glUnmapBuffer( GL31.GL_TEXTURE_BUFFER );
