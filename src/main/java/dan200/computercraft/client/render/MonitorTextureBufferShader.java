@@ -22,7 +22,7 @@ import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
-class MonitorTextureBufferShader
+public class MonitorTextureBufferShader
 {
     static final int TEXTURE_INDEX = GL13.GL_TEXTURE3;
 
@@ -196,5 +196,10 @@ class MonitorTextureBufferShader
         int uniform = OpenGlHelper.glGetUniformLocation( program, name );
         if( uniform == -1 ) throw new IllegalStateException( "Cannot find uniform " + name );
         return uniform;
+    }
+
+    public static void deleteUBO()
+    {
+        GL15.glDeleteBuffers( uniformBuffer );
     }
 }
