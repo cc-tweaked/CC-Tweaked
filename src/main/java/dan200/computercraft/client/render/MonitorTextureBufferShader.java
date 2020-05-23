@@ -13,9 +13,7 @@ import dan200.computercraft.shared.util.Palette;
 import net.minecraft.client.renderer.OpenGlHelper;
 import org.apache.commons.io.IOUtils;
 import org.lwjgl.BufferUtils;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL13;
-import org.lwjgl.opengl.GL20;
+import org.lwjgl.opengl.*;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -28,20 +26,18 @@ class MonitorTextureBufferShader
     static final int TEXTURE_INDEX = GL13.GL_TEXTURE3;
 
     private static final FloatBuffer MATRIX_BUFFER = BufferUtils.createFloatBuffer( 16 );
-    private static final FloatBuffer PALETTE_BUFFER = BufferUtils.createFloatBuffer( 16 * 3 );
 
     private static int uniformMv;
     private static int uniformP;
 
     private static int uniformFont;
-    private static int uniformWidth;
-    private static int uniformHeight;
     private static int uniformTbo;
-    private static int uniformPalette;
 
     private static boolean initialised;
     private static boolean ok;
     private static int program;
+
+    private static MonitorUniformBuffer monitorUBO;
 
     static void setupUniform( int width, int height, Palette palette, boolean greyscale )
     {
@@ -55,25 +51,7 @@ class MonitorTextureBufferShader
         MATRIX_BUFFER.rewind();
         OpenGlHelper.glUniformMatrix4( uniformP, false, MATRIX_BUFFER );
 
-        OpenGlHelper.glUniform1i( uniformWidth, width );
-        OpenGlHelper.glUniform1i( uniformHeight, height );
-
-        PALETTE_BUFFER.rewind();
-        for( int i = 0; i < 16; i++ )
-        {
-            double[] colour = palette.getColour( i );
-            if( greyscale )
-            {
-                float f = FixedWidthFontRenderer.toGreyscale( colour );
-                PALETTE_BUFFER.put( f ).put( f ).put( f );
-            }
-            else
-            {
-                PALETTE_BUFFER.put( (float) colour[0] ).put( (float) colour[1] ).put( (float) colour[2] );
-            }
-        }
-        PALETTE_BUFFER.flip();
-        OpenGlHelper.glUniform3( uniformPalette, PALETTE_BUFFER );
+        monitorUBO.set( width, height, palette, greyscale );
     }
 
     static boolean use()
@@ -127,10 +105,11 @@ class MonitorTextureBufferShader
             uniformP = getUniformLocation( program, "u_p" );
 
             uniformFont = getUniformLocation( program, "u_font" );
-            uniformWidth = getUniformLocation( program, "u_width" );
-            uniformHeight = getUniformLocation( program, "u_height" );
             uniformTbo = getUniformLocation( program, "u_tbo" );
-            uniformPalette = getUniformLocation( program, "u_palette" );
+
+            monitorUBO = new MonitorUniformBuffer();
+            int monitorDataIndex = GL31.glGetUniformBlockIndex( program, "MonitorData" );
+            GL30.glBindBufferBase( GL31.GL_UNIFORM_BUFFER, monitorDataIndex, monitorUBO.getHandle() );
 
             ComputerCraft.log.info( "Loaded monitor shader." );
             return true;

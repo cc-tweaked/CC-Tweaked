@@ -4,10 +4,13 @@
 #define FONT_HEIGHT 9.0
 
 uniform sampler2D u_font;
-uniform int u_width;
-uniform int u_height;
 uniform samplerBuffer u_tbo;
-uniform vec3 u_palette[16];
+
+uniform MonitorData {
+    int u_width;
+    int u_height;
+    vec3 u_palette[16];
+};
 
 in vec2 f_pos;
 
