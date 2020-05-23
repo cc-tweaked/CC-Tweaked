@@ -14,6 +14,7 @@ import dan200.computercraft.shared.peripheral.monitor.MonitorRenderer;
 import dan200.computercraft.shared.peripheral.monitor.TileMonitor;
 import dan200.computercraft.shared.util.Colour;
 import dan200.computercraft.shared.util.DirectionUtil;
+import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
@@ -21,6 +22,7 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexBuffer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
+import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GL15;
@@ -162,7 +164,22 @@ public class TileEntityMonitorRenderer extends TileEntitySpecialRenderer<TileMon
 
                 if( redraw )
                 {
-                    ByteBuffer monitorBuffer = GLAllocation.createDirectByteBuffer( width * height * 3 );
+                    GL15.glBindBuffer( GL31.GL_TEXTURE_BUFFER, monitor.tboBuffer );
+                    ByteBuffer monitorBuffer;
+                    boolean resize;
+
+                    if( monitor.monitorBuffer == null || monitor.monitorBuffer.capacity() != width * height * 3 )
+                    {
+                        monitorBuffer = BufferUtils.createByteBuffer( width * height * 3 );
+                        resize = true;
+                    } else
+                    {
+                        monitorBuffer = GL15.glMapBuffer( GL31.GL_TEXTURE_BUFFER, GL15.GL_WRITE_ONLY, monitor.monitorBuffer );
+                        resize = false;
+                    }
+
+                    monitor.monitorBuffer = monitorBuffer;
+
                     for( int y = 0; y < height; y++ )
                     {
                         TextBuffer text = terminal.getLine( y ), textColour = terminal.getTextColourLine( y ), background = terminal.getBackgroundColourLine( y );
@@ -175,8 +192,13 @@ public class TileEntityMonitorRenderer extends TileEntitySpecialRenderer<TileMon
                     }
                     monitorBuffer.flip();
 
-                    OpenGlHelper.glBindBuffer( GL31.GL_TEXTURE_BUFFER, monitor.tboBuffer );
-                    OpenGlHelper.glBufferData( GL31.GL_TEXTURE_BUFFER, monitorBuffer, GL15.GL_STATIC_DRAW );
+                    if( resize )
+                    {
+                        OpenGlHelper.glBufferData( GL31.GL_TEXTURE_BUFFER, monitorBuffer, GL15.GL_STATIC_DRAW );
+                    } else
+                    {
+                        GL15.glUnmapBuffer( GL31.GL_TEXTURE_BUFFER );
+                    }
                 }
 
                 // Bind TBO texture and set up the uniforms. We've already set up the main font above.

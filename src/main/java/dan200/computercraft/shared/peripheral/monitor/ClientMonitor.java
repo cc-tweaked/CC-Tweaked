@@ -21,6 +21,7 @@ import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL30;
 import org.lwjgl.opengl.GL31;
 
+import java.nio.ByteBuffer;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -35,6 +36,7 @@ public final class ClientMonitor extends ClientTerminal
     public BlockPos lastRenderPos = null;
 
     public int tboBuffer;
+    public ByteBuffer monitorBuffer;
     public int tboTexture;
     public VertexBuffer buffer;
     public int displayList = 0;
@@ -70,13 +72,11 @@ public final class ClientMonitor extends ClientTerminal
 
                 tboBuffer = OpenGlHelper.glGenBuffers();
                 OpenGlHelper.glBindBuffer( GL31.GL_TEXTURE_BUFFER, tboBuffer );
-                GL15.glBufferData( GL31.GL_TEXTURE_BUFFER, 0, GL15.GL_STATIC_DRAW );
+                monitorBuffer = null;
+
                 tboTexture = GlStateManager.generateTexture();
                 GL11.glBindTexture( GL31.GL_TEXTURE_BUFFER, tboTexture );
                 GL31.glTexBuffer( GL31.GL_TEXTURE_BUFFER, GL30.GL_R8, tboBuffer );
-                GL11.glBindTexture( GL31.GL_TEXTURE_BUFFER, 0 );
-
-                OpenGlHelper.glBindBuffer( GL31.GL_TEXTURE_BUFFER, 0 );
 
                 addMonitor();
                 return true;

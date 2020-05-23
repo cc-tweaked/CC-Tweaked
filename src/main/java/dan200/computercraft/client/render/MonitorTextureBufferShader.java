@@ -61,28 +61,28 @@ public class MonitorTextureBufferShader
         if( redraw)
         {
             GL15.glBindBuffer( GL31.GL_UNIFORM_BUFFER, uniformBuffer );
-            ByteBuffer buffer = GL15.glMapBuffer( GL31.GL_UNIFORM_BUFFER, GL15.GL_WRITE_ONLY, uboBuffer );
-            buffer.clear();
+            uboBuffer = GL15.glMapBuffer( GL31.GL_UNIFORM_BUFFER, GL15.GL_WRITE_ONLY, uboBuffer );
+            uboBuffer.clear();
 
-            buffer.putInt( UNIFORM_OFFSETS.get( 0 ), width );
-            buffer.putInt( UNIFORM_OFFSETS.get( 1 ), height );
+            uboBuffer.putInt( UNIFORM_OFFSETS.get( 0 ), width );
+            uboBuffer.putInt( UNIFORM_OFFSETS.get( 1 ), height );
 
             for( int i = 0; i < 16; i++ )
             {
-                buffer.position( UNIFORM_OFFSETS.get( 2 ) + UNIFORM_STRIDES.get( 2 ) * i );
+                uboBuffer.position( UNIFORM_OFFSETS.get( 2 ) + UNIFORM_STRIDES.get( 2 ) * i );
 
                 double[] colour = palette.getColour( i );
                 if( greyscale )
                 {
                     float f = FixedWidthFontRenderer.toGreyscale( colour );
-                    buffer.putFloat( f ).putFloat( f ).putFloat( f );
+                    uboBuffer.putFloat( f ).putFloat( f ).putFloat( f );
                 } else
                 {
-                    buffer.putFloat( (float) colour[0] ).putFloat( (float) colour[1] ).putFloat( (float) colour[2] );
+                    uboBuffer.putFloat( (float) colour[0] ).putFloat( (float) colour[1] ).putFloat( (float) colour[2] );
                 }
             }
 
-            buffer.flip();
+            uboBuffer.flip();
             GL15.glUnmapBuffer( GL31.GL_UNIFORM_BUFFER );
         }
     }
