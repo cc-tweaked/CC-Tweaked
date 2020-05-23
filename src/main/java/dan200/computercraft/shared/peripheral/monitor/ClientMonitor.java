@@ -7,7 +7,6 @@ package dan200.computercraft.shared.peripheral.monitor;
 
 import dan200.computercraft.client.gui.FixedWidthFontRenderer;
 import dan200.computercraft.client.render.MonitorTextureBufferShader;
-import dan200.computercraft.client.render.TileEntityMonitorRenderer;
 import dan200.computercraft.shared.common.ClientTerminal;
 import net.minecraft.client.renderer.GLAllocation;
 import net.minecraft.client.renderer.GlStateManager;
@@ -17,7 +16,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL30;
 import org.lwjgl.opengl.GL31;
 
