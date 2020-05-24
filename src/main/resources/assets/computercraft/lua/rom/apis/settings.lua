@@ -205,7 +205,7 @@ function load(sPath)
     end
 
     for k, v in pairs(tFile) do
-        local ty_v = type(k)
+        local ty_v = type(v)
         if type(k) == "string" and (ty_v == "string" or ty_v == "number" or ty_v == "boolean" or ty_v == "table") then
             local opt = details[k]
             if not opt or not opt.type or ty_v == opt.type then
