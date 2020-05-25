@@ -6,7 +6,6 @@
 package dan200.computercraft.shared.peripheral.monitor;
 
 import dan200.computercraft.client.gui.FixedWidthFontRenderer;
-import dan200.computercraft.client.render.MonitorTextureBufferShader;
 import dan200.computercraft.shared.common.ClientTerminal;
 import net.minecraft.client.renderer.GLAllocation;
 import net.minecraft.client.renderer.GlStateManager;
