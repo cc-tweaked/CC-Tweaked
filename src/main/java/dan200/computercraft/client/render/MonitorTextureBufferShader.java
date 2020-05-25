@@ -175,9 +175,4 @@ public class MonitorTextureBufferShader
         if( uniform == -1 ) throw new IllegalStateException( "Cannot find uniform " + name );
         return uniform;
     }
-
-    public static void deleteUBO()
-    {
-        GL15.glDeleteBuffers( uniformBuffer );
-    }
 }

@@ -163,7 +163,5 @@ public final class ClientMonitor extends ClientTerminal
                 iterator.remove();
             }
         }
-
-        MonitorTextureBufferShader.deleteUBO();
     }
 }
