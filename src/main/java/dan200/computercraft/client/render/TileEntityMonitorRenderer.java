@@ -21,11 +21,7 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexBuffer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
-import org.lwjgl.BufferUtils;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL13;
-import org.lwjgl.opengl.GL15;
-import org.lwjgl.opengl.GL31;
+import org.lwjgl.opengl.*;
 
 import javax.annotation.Nonnull;
 import java.nio.ByteBuffer;
@@ -164,21 +160,14 @@ public class TileEntityMonitorRenderer extends TileEntitySpecialRenderer<TileMon
                 if( redraw )
                 {
                     GL15.glBindBuffer( GL31.GL_TEXTURE_BUFFER, monitor.tboBuffer );
-                    ByteBuffer monitorBuffer;
-                    boolean resize;
 
                     if( monitor.tboContents == null || monitor.tboContents.capacity() != width * height * 3 )
                     {
-                        monitorBuffer = BufferUtils.createByteBuffer( width * height * 3 );
-                        resize = true;
-                    }
-                    else
-                    {
-                        monitorBuffer = GL15.glMapBuffer( GL31.GL_TEXTURE_BUFFER, GL15.GL_WRITE_ONLY, monitor.tboContents );
-                        resize = false;
+                        GL15.glBufferData( GL31.GL_TEXTURE_BUFFER, width * height * 3, GL15.GL_DYNAMIC_DRAW );
                     }
 
-                    monitor.tboContents = monitorBuffer;
+                    monitor.tboContents = GL15.glMapBuffer( GL31.GL_TEXTURE_BUFFER, GL15.GL_WRITE_ONLY, monitor.tboContents );
+                    ByteBuffer monitorBuffer = monitor.tboContents;
 
                     for( int y = 0; y < height; y++ )
                     {
@@ -190,16 +179,10 @@ public class TileEntityMonitorRenderer extends TileEntitySpecialRenderer<TileMon
                             monitorBuffer.put( (byte) getColour( background.charAt( x ), Colour.Black ) );
                         }
                     }
+
                     monitorBuffer.flip();
 
-                    if( resize )
-                    {
-                        OpenGlHelper.glBufferData( GL31.GL_TEXTURE_BUFFER, monitorBuffer, GL15.GL_DYNAMIC_DRAW );
-                    }
-                    else
-                    {
-                        GL15.glUnmapBuffer( GL31.GL_TEXTURE_BUFFER );
-                    }
+                    GL15.glUnmapBuffer( GL31.GL_TEXTURE_BUFFER );
                 }
 
                 // Bind TBO texture and set up the uniforms. We've already set up the main font above.
