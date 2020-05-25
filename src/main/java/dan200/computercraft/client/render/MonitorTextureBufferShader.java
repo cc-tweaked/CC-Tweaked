@@ -33,8 +33,7 @@ public class MonitorTextureBufferShader
     private static int program;
 
     private static int uniformBuffer = -1;
-
-    private static ByteBuffer uboBuffer = null;
+    private static int uniformBufferSize = -1;
 
     private static final String[] UNIFORM_NAMES = new String[] { "u_width", "u_height", "u_palette" };
 
@@ -44,7 +43,8 @@ public class MonitorTextureBufferShader
     static void setupUniform( int width, int height, Palette palette, boolean greyscale )
     {
         GL15.glBindBuffer( GL31.GL_UNIFORM_BUFFER, uniformBuffer );
-        uboBuffer = GL15.glMapBuffer( GL31.GL_UNIFORM_BUFFER, GL15.GL_WRITE_ONLY, uboBuffer );
+
+        ByteBuffer uboBuffer = GL15.glMapBuffer( GL31.GL_UNIFORM_BUFFER, GL15.GL_WRITE_ONLY, uniformBufferSize, null );
         uboBuffer.putInt( uniformWidthOffset, width );
         uboBuffer.putInt( uniformHeightOffset, height );
 
@@ -119,8 +119,7 @@ public class MonitorTextureBufferShader
             uniformTbo = getUniformLocation( program, "u_tbo" );
 
             int monitorDataIndex = GL31.glGetUniformBlockIndex( program, "MonitorData" );
-            int uniformBufferSize = GL31.glGetActiveUniformBlocki( program, monitorDataIndex, GL31.GL_UNIFORM_BLOCK_DATA_SIZE );
-            uboBuffer = BufferUtils.createByteBuffer( uniformBufferSize );
+            uniformBufferSize = GL31.glGetActiveUniformBlocki( program, monitorDataIndex, GL31.GL_UNIFORM_BLOCK_DATA_SIZE );
 
             uniformBuffer = GL15.glGenBuffers();
             GL15.glBindBuffer( GL31.GL_UNIFORM_BUFFER, uniformBuffer );

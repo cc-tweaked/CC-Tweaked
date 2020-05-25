@@ -15,10 +15,10 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL30;
 import org.lwjgl.opengl.GL31;
 
-import java.nio.ByteBuffer;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -33,8 +33,8 @@ public final class ClientMonitor extends ClientTerminal
     public BlockPos lastRenderPos = null;
 
     public int tboBuffer;
-    public ByteBuffer tboContents;
     public int tboTexture;
+    public int tboBufferSize = 0;
     public VertexBuffer buffer;
     public int displayList = 0;
 
@@ -68,7 +68,7 @@ public final class ClientMonitor extends ClientTerminal
                 deleteBuffers();
 
                 tboBuffer = OpenGlHelper.glGenBuffers();
-                OpenGlHelper.glBindBuffer( GL31.GL_TEXTURE_BUFFER, tboBuffer );
+                GL15.glBindBuffer( GL31.GL_TEXTURE_BUFFER, tboBuffer );
 
                 tboTexture = GlStateManager.generateTexture();
                 GL11.glBindTexture( GL31.GL_TEXTURE_BUFFER, tboTexture );

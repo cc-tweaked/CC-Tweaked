@@ -161,13 +161,13 @@ public class TileEntityMonitorRenderer extends TileEntitySpecialRenderer<TileMon
                 {
                     GL15.glBindBuffer( GL31.GL_TEXTURE_BUFFER, monitor.tboBuffer );
 
-                    if( monitor.tboContents == null || monitor.tboContents.capacity() != width * height * 3 )
+                    if( monitor.tboBufferSize != width * height * 3 )
                     {
-                        GL15.glBufferData( GL31.GL_TEXTURE_BUFFER, width * height * 3, GL15.GL_DYNAMIC_DRAW );
+                        monitor.tboBufferSize = width * height * 3;
+                        GL15.glBufferData( GL31.GL_TEXTURE_BUFFER, monitor.tboBufferSize, GL15.GL_DYNAMIC_DRAW );
                     }
 
-                    monitor.tboContents = GL15.glMapBuffer( GL31.GL_TEXTURE_BUFFER, GL15.GL_WRITE_ONLY, monitor.tboContents );
-                    ByteBuffer monitorBuffer = monitor.tboContents;
+                    ByteBuffer monitorBuffer = GL15.glMapBuffer( GL31.GL_TEXTURE_BUFFER, GL15.GL_WRITE_ONLY, monitor.tboBufferSize, null );
 
                     for( int y = 0; y < height; y++ )
                     {
