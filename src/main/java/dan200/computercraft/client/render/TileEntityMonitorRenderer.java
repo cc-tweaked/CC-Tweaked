@@ -167,22 +167,28 @@ public class TileEntityMonitorRenderer extends TileEntitySpecialRenderer<TileMon
                         GL15.glBufferData( GL31.GL_TEXTURE_BUFFER, monitor.tboBufferSize, GL15.GL_DYNAMIC_DRAW );
                     }
 
-                    ByteBuffer monitorBuffer = GL15.glMapBuffer( GL31.GL_TEXTURE_BUFFER, GL15.GL_WRITE_ONLY, monitor.tboBufferSize, null );
+                    monitor.tboContents = GL15.glMapBuffer( GL31.GL_TEXTURE_BUFFER, GL15.GL_WRITE_ONLY, monitor.tboBufferSize, monitor.tboContents );
+                    ByteBuffer monitorBuffer = monitor.tboContents;
 
-                    for( int y = 0; y < height; y++ )
+                    // When OptiFine is installed, glMapBuffer returns null sometimes for some reason.
+                    // TODO: Investigate this and fix it properly rather than using this hack.
+                    if ( monitorBuffer != null )
                     {
-                        TextBuffer text = terminal.getLine( y ), textColour = terminal.getTextColourLine( y ), background = terminal.getBackgroundColourLine( y );
-                        for( int x = 0; x < width; x++ )
+                        for( int y = 0; y < height; y++ )
                         {
-                            monitorBuffer.put( (byte) (text.charAt( x ) & 0xFF) );
-                            monitorBuffer.put( (byte) getColour( textColour.charAt( x ), Colour.White ) );
-                            monitorBuffer.put( (byte) getColour( background.charAt( x ), Colour.Black ) );
+                            TextBuffer text = terminal.getLine( y ), textColour = terminal.getTextColourLine( y ), background = terminal.getBackgroundColourLine( y );
+                            for( int x = 0; x < width; x++ )
+                            {
+                                monitorBuffer.put( (byte) (text.charAt( x ) & 0xFF) );
+                                monitorBuffer.put( (byte) getColour( textColour.charAt( x ), Colour.White ) );
+                                monitorBuffer.put( (byte) getColour( background.charAt( x ), Colour.Black ) );
+                            }
                         }
+
+                        monitorBuffer.flip();
+
+                        GL15.glUnmapBuffer( GL31.GL_TEXTURE_BUFFER );
                     }
-
-                    monitorBuffer.flip();
-
-                    GL15.glUnmapBuffer( GL31.GL_TEXTURE_BUFFER );
                 }
 
                 // Bind TBO texture and set up the uniforms. We've already set up the main font above.

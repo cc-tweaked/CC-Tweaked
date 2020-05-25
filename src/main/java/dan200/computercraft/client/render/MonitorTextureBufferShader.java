@@ -32,6 +32,7 @@ public class MonitorTextureBufferShader
     private static boolean ok;
     private static int program;
 
+    private static ByteBuffer uboBuffer;
     private static int uniformBuffer = -1;
     private static int uniformBufferSize = -1;
 
@@ -44,7 +45,7 @@ public class MonitorTextureBufferShader
     {
         GL15.glBindBuffer( GL31.GL_UNIFORM_BUFFER, uniformBuffer );
 
-        ByteBuffer uboBuffer = GL15.glMapBuffer( GL31.GL_UNIFORM_BUFFER, GL15.GL_WRITE_ONLY, uniformBufferSize, null );
+        uboBuffer = GL15.glMapBuffer( GL31.GL_UNIFORM_BUFFER, GL15.GL_WRITE_ONLY, uniformBufferSize, uboBuffer );
         uboBuffer.putInt( uniformWidthOffset, width );
         uboBuffer.putInt( uniformHeightOffset, height );
 

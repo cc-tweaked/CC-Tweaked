@@ -19,6 +19,7 @@ import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL30;
 import org.lwjgl.opengl.GL31;
 
+import java.nio.ByteBuffer;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -35,6 +36,7 @@ public final class ClientMonitor extends ClientTerminal
     public int tboBuffer;
     public int tboTexture;
     public int tboBufferSize = 0;
+    public ByteBuffer tboContents;
     public VertexBuffer buffer;
     public int displayList = 0;
 
