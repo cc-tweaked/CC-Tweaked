@@ -8,8 +8,6 @@ package dan200.computercraft.shared.util;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
 
-import java.util.Arrays;
-
 public class Palette
 {
     private static final int PALETTE_SIZE = 16;

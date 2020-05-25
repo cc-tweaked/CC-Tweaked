@@ -19,7 +19,6 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
-import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
 public class MonitorTextureBufferShader
@@ -38,19 +37,20 @@ public class MonitorTextureBufferShader
     private static ByteBuffer uboBuffer = null;
 
     private static final String[] UNIFORM_NAMES = new String[] { "u_width", "u_height", "u_palette" };
-    private static final IntBuffer UNIFORM_OFFSETS = BufferUtils.createIntBuffer( UNIFORM_NAMES.length );
-    private static final IntBuffer UNIFORM_STRIDES = BufferUtils.createIntBuffer( UNIFORM_NAMES.length );
+
+    private static int uniformWidthOffset, uniformHeightOffset;
+    private static int uniformPaletteOffset, uniformPaletteStride;
 
     static void setupUniform( int width, int height, Palette palette, boolean greyscale )
     {
         GL15.glBindBuffer( GL31.GL_UNIFORM_BUFFER, uniformBuffer );
         uboBuffer = GL15.glMapBuffer( GL31.GL_UNIFORM_BUFFER, GL15.GL_WRITE_ONLY, uboBuffer );
-        uboBuffer.putInt( UNIFORM_OFFSETS.get( 0 ), width );
-        uboBuffer.putInt( UNIFORM_OFFSETS.get( 1 ), height );
+        uboBuffer.putInt( uniformWidthOffset, width );
+        uboBuffer.putInt( uniformHeightOffset, height );
 
         for( int i = 0; i < 16; i++ )
         {
-            uboBuffer.position( UNIFORM_OFFSETS.get( 2 ) + UNIFORM_STRIDES.get( 2 ) * i );
+            uboBuffer.position( uniformPaletteOffset + uniformPaletteStride * i );
 
             double[] colour = palette.getColour( i );
             if( greyscale )
@@ -129,8 +129,16 @@ public class MonitorTextureBufferShader
             IntBuffer indices = BufferUtils.createIntBuffer( UNIFORM_NAMES.length );
             GL31.glGetUniformIndices( program, UNIFORM_NAMES, indices );
 
-            GL31.glGetActiveUniforms( program, indices, GL31.GL_UNIFORM_OFFSET, UNIFORM_OFFSETS );
-            GL31.glGetActiveUniforms( program, indices, GL31.GL_UNIFORM_ARRAY_STRIDE, UNIFORM_STRIDES );
+            IntBuffer uniformOffsets = BufferUtils.createIntBuffer( UNIFORM_NAMES.length );
+            IntBuffer uniformStrides = BufferUtils.createIntBuffer( UNIFORM_NAMES.length );
+
+            GL31.glGetActiveUniforms( program, indices, GL31.GL_UNIFORM_OFFSET, uniformOffsets );
+            GL31.glGetActiveUniforms( program, indices, GL31.GL_UNIFORM_ARRAY_STRIDE, uniformStrides );
+
+            uniformWidthOffset = uniformOffsets.get( 0 );
+            uniformHeightOffset = uniformOffsets.get( 1 );
+            uniformPaletteOffset = uniformOffsets.get( 2 );
+            uniformPaletteStride = uniformStrides.get( 2 );
 
             GL30.glBindBufferBase( GL31.GL_UNIFORM_BUFFER, monitorDataIndex, uniformBuffer );
 
