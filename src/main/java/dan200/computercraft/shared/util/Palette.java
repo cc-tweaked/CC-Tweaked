@@ -122,19 +122,4 @@ public class Palette
             colours[i] = decodeRGB8( rgb8[i] );
         }
     }
-
-    @Override
-    public boolean equals( Object o )
-    {
-        if( this == o ) return true;
-        if( o == null || getClass() != o.getClass() ) return false;
-        Palette palette = (Palette) o;
-        return Arrays.equals( colours, palette.colours );
-    }
-
-    @Override
-    public int hashCode()
-    {
-        return Arrays.hashCode( colours );
-    }
 }

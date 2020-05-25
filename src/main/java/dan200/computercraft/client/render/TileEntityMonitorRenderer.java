@@ -167,18 +167,18 @@ public class TileEntityMonitorRenderer extends TileEntitySpecialRenderer<TileMon
                     ByteBuffer monitorBuffer;
                     boolean resize;
 
-                    if( monitor.monitorBuffer == null || monitor.monitorBuffer.capacity() != width * height * 3 )
+                    if( monitor.tboContents == null || monitor.tboContents.capacity() != width * height * 3 )
                     {
                         monitorBuffer = BufferUtils.createByteBuffer( width * height * 3 );
                         resize = true;
                     }
                     else
                     {
-                        monitorBuffer = GL15.glMapBuffer( GL31.GL_TEXTURE_BUFFER, GL15.GL_WRITE_ONLY, monitor.monitorBuffer );
+                        monitorBuffer = GL15.glMapBuffer( GL31.GL_TEXTURE_BUFFER, GL15.GL_WRITE_ONLY, monitor.tboContents );
                         resize = false;
                     }
 
-                    monitor.monitorBuffer = monitorBuffer;
+                    monitor.tboContents = monitorBuffer;
 
                     for( int y = 0; y < height; y++ )
                     {

@@ -26,8 +26,6 @@ public class MonitorTextureBufferShader
 {
     static final int TEXTURE_INDEX = GL13.GL_TEXTURE3;
 
-    private static final FloatBuffer PALETTE_BUFFER = BufferUtils.createFloatBuffer( 16 * 3 );
-
     private static int uniformFont;
     private static int uniformTbo;
 

@@ -34,7 +34,7 @@ public final class ClientMonitor extends ClientTerminal
     public BlockPos lastRenderPos = null;
 
     public int tboBuffer;
-    public ByteBuffer monitorBuffer;
+    public ByteBuffer tboContents;
     public int tboTexture;
     public VertexBuffer buffer;
     public int displayList = 0;
@@ -70,7 +70,6 @@ public final class ClientMonitor extends ClientTerminal
 
                 tboBuffer = OpenGlHelper.glGenBuffers();
                 OpenGlHelper.glBindBuffer( GL31.GL_TEXTURE_BUFFER, tboBuffer );
-                monitorBuffer = null;
 
                 tboTexture = GlStateManager.generateTexture();
                 GL11.glBindTexture( GL31.GL_TEXTURE_BUFFER, tboTexture );
