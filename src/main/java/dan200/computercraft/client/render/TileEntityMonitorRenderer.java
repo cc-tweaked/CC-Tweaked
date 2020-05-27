@@ -21,6 +21,7 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexBuffer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
+import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.*;
 
 import javax.annotation.Nonnull;
@@ -163,6 +164,15 @@ public class TileEntityMonitorRenderer extends TileEntitySpecialRenderer<TileMon
 
                     if( monitor.tboBufferSize != width * height * 3 )
                     {
+                        // The buffer can no longer accommodate the screen, we need to resize it.
+
+                        /*
+                            NOTE: This will also shrink the buffer if it is bigger than necessary!
+                            Doing this is not strictly necessary, but saves on memory. One may consider whether
+                            it is worth exchanging wasted memory for less buffer reallocations. This probably
+                            doesn't matter either way.
+                         */
+
                         monitor.tboBufferSize = width * height * 3;
                         GL15.glBufferData( GL31.GL_TEXTURE_BUFFER, monitor.tboBufferSize, GL15.GL_DYNAMIC_DRAW );
                     }
@@ -170,23 +180,34 @@ public class TileEntityMonitorRenderer extends TileEntitySpecialRenderer<TileMon
                     monitor.tboContents = GL15.glMapBuffer( GL31.GL_TEXTURE_BUFFER, GL15.GL_WRITE_ONLY, monitor.tboBufferSize, monitor.tboContents );
                     ByteBuffer monitorBuffer = monitor.tboContents;
 
-                    // When OptiFine is installed, glMapBuffer returns null sometimes for some reason.
-                    // TODO: Investigate this and fix it properly rather than using this hack.
-                    if ( monitorBuffer != null )
+                    if( monitorBuffer == null )
                     {
-                        for( int y = 0; y < height; y++ )
+                        // Sometimes when playing with OptiFine, glMapBuffer returns null for some reason.
+                        // In this case, we'll fall back to glBufferSubData.
+                        monitorBuffer = BufferUtils.createByteBuffer( width * height * 3 );
+                    }
+
+                    for( int y = 0; y < height; y++ )
+                    {
+                        TextBuffer text = terminal.getLine( y ), textColour = terminal.getTextColourLine( y ), background = terminal.getBackgroundColourLine( y );
+                        for( int x = 0; x < width; x++ )
                         {
-                            TextBuffer text = terminal.getLine( y ), textColour = terminal.getTextColourLine( y ), background = terminal.getBackgroundColourLine( y );
-                            for( int x = 0; x < width; x++ )
-                            {
-                                monitorBuffer.put( (byte) (text.charAt( x ) & 0xFF) );
-                                monitorBuffer.put( (byte) getColour( textColour.charAt( x ), Colour.White ) );
-                                monitorBuffer.put( (byte) getColour( background.charAt( x ), Colour.Black ) );
-                            }
+                            monitorBuffer.put( (byte) (text.charAt( x ) & 0xFF) );
+                            monitorBuffer.put( (byte) getColour( textColour.charAt( x ), Colour.White ) );
+                            monitorBuffer.put( (byte) getColour( background.charAt( x ), Colour.Black ) );
                         }
+                    }
 
-                        monitorBuffer.flip();
+                    monitorBuffer.flip();
 
+                    if( monitor.tboContents == null )
+                    {
+                        // We did not map successfully, fall back to glBufferSubData.
+                        GL15.glBufferSubData( GL31.GL_TEXTURE_BUFFER, 0, monitorBuffer );
+                    }
+                    else
+                    {
+                        // The buffer was mapped successfully, and we need to unmap it now.
                         GL15.glUnmapBuffer( GL31.GL_TEXTURE_BUFFER );
                     }
                 }
