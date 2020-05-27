@@ -1,5 +1,7 @@
 #version 140
 
+#extension GL_ARB_compatibility : require
+
 in vec3 v_pos;
 
 out vec2 f_pos;
