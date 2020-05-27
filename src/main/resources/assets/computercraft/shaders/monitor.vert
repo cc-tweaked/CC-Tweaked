@@ -1,6 +1,4 @@
-#version 140
-
-#extension GL_ARB_compatibility : require
+#version 130
 
 in vec3 v_pos;
 
