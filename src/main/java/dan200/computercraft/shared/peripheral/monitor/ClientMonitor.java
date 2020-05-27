@@ -124,6 +124,8 @@ public final class ClientMonitor extends ClientTerminal
             tboTexture = 0;
         }
 
+        tboBufferSize = -1;
+
         if( buffer != null )
         {
             buffer.deleteGlBuffers();
