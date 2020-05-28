@@ -21,7 +21,7 @@ import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 
-public class MonitorTextureBufferShader
+class MonitorTextureBufferShader
 {
     static final int TEXTURE_INDEX = GL13.GL_TEXTURE3;
 

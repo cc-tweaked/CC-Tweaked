@@ -35,7 +35,7 @@ public final class ClientMonitor extends ClientTerminal
 
     public int tboBuffer;
     public int tboTexture;
-    public int tboBufferSize = 0;
+    public int tboBufferSize = -1;
     public ByteBuffer tboContents;
     public VertexBuffer buffer;
     public int displayList = 0;
