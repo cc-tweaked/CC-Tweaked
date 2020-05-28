@@ -38,6 +38,6 @@ void main() {
     int bg = int(texelFetch(u_tbo, index + 2).r * 255.0);
 
     vec2 pos = (term_pos - corner) * vec2(FONT_WIDTH, FONT_HEIGHT);
-    vec4 img = texture2D(u_font, (texture_corner(character) + pos) / 256.0);
+    vec4 img = texture(u_font, (texture_corner(character) + pos) / 256.0);
     colour = vec4(mix(u_palette[bg], img.rgb * u_palette[fg], img.a * mult), 1.0);
 }
