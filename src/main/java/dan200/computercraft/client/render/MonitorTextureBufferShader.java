@@ -34,7 +34,6 @@ class MonitorTextureBufferShader
 
     private static ByteBuffer uboBuffer;
     private static int uniformBuffer = -1;
-    private static int uniformBufferSize = -1;
 
     private static final String[] UNIFORM_NAMES = new String[] { "u_width", "u_height", "u_palette" };
 
@@ -45,7 +44,7 @@ class MonitorTextureBufferShader
     {
         GL15.glBindBuffer( GL31.GL_UNIFORM_BUFFER, uniformBuffer );
 
-        uboBuffer = GL15.glMapBuffer( GL31.GL_UNIFORM_BUFFER, GL15.GL_WRITE_ONLY, uniformBufferSize, uboBuffer );
+        uboBuffer.position( 0 );
         uboBuffer.putInt( uniformWidthOffset, width );
         uboBuffer.putInt( uniformHeightOffset, height );
 
@@ -65,8 +64,8 @@ class MonitorTextureBufferShader
             }
         }
 
-        uboBuffer.flip();
-        GL15.glUnmapBuffer( GL31.GL_UNIFORM_BUFFER );
+        uboBuffer.position( 0 );
+        GL15.glBufferData( GL31.GL_UNIFORM_BUFFER, uboBuffer, GL15.GL_DYNAMIC_DRAW );
     }
 
     static boolean use()
@@ -120,11 +119,12 @@ class MonitorTextureBufferShader
             uniformTbo = getUniformLocation( program, "u_tbo" );
 
             int monitorDataIndex = GL31.glGetUniformBlockIndex( program, "MonitorData" );
-            uniformBufferSize = GL31.glGetActiveUniformBlocki( program, monitorDataIndex, GL31.GL_UNIFORM_BLOCK_DATA_SIZE );
+            int uniformBufferSize = GL31.glGetActiveUniformBlocki( program, monitorDataIndex, GL31.GL_UNIFORM_BLOCK_DATA_SIZE );
+            uboBuffer = BufferUtils.createByteBuffer( uniformBufferSize );
 
             uniformBuffer = GL15.glGenBuffers();
             GL15.glBindBuffer( GL31.GL_UNIFORM_BUFFER, uniformBuffer );
-            GL15.glBufferData( GL31.GL_UNIFORM_BUFFER, uniformBufferSize, GL15.GL_DYNAMIC_DRAW );
+            GL15.glBufferData( GL31.GL_UNIFORM_BUFFER, uboBuffer, GL15.GL_DYNAMIC_DRAW );
 
             IntBuffer indices = BufferUtils.createIntBuffer( UNIFORM_NAMES.length );
             GL31.glGetUniformIndices( program, UNIFORM_NAMES, indices );
