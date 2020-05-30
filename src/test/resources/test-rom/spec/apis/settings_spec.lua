@@ -153,10 +153,49 @@ describe("The settings library", function()
             expect.error(settings.load, 1):eq("bad argument #1 (expected string, got number)")
         end)
 
+        local function setup_with(contents)
+            settings.clear()
+            local h = fs.open("/test-files/.settings", "w")
+            h.write(contents)
+            h.close()
+
+            return settings.load("/test-files/.settings")
+        end
+
+        local function setup(contents)
+            return setup_with(textutils.serialize(contents))
+        end
+
         it("defaults to .settings", function()
             local s = stub(fs, "open")
             settings.load()
             expect(s):called_with(".settings", "r")
+        end)
+
+        it("loads undefined settings", function()
+            expect(setup { ["test"] = 1 }):eq(true)
+            expect(settings.get("test")):eq(1)
+        end)
+
+        it("loads defined settings", function()
+            settings.define("test.defined", { type = "number" })
+            expect(setup { ["test.defined"] = 1 }):eq(true)
+            expect(settings.get("test.defined")):eq(1)
+        end)
+
+        it("skips defined settings with incorrect types", function()
+            settings.define("test.defined", { type = "number" })
+            expect(setup { ["test.defined"] = "abc" }):eq(true)
+            expect(settings.get("test.defined")):eq(nil)
+        end)
+
+        it("skips unserializable values", function()
+            expect(setup_with "{ test = function() end }"):eq(true)
+            expect(settings.get("test")):eq(nil)
+        end)
+
+        it("skips non-table files", function()
+            expect(setup "not a table"):eq(false)
         end)
     end)
 

@@ -47,6 +47,7 @@ public final class Config
     private static Property defaultComputerSettings;
     private static Property debugEnabled;
     private static Property logComputerErrors;
+    private static Property commandRequireCreative;
 
     private static Property computerThreads;
     private static Property maxMainGlobalTime;
@@ -71,6 +72,7 @@ public final class Config
     private static Property modemHighAltitudeRangeDuringStorm;
     private static Property maxNotesPerTick;
     private static Property monitorRenderer;
+    private static Property monitorBandwidth;
 
     private static Property turtlesNeedFuel;
     private static Property turtleFuelLimit;
@@ -119,10 +121,14 @@ public final class Config
             logComputerErrors.setComment( "Log exceptions thrown by peripherals and other Lua objects.\n" +
                 "This makes it easier for mod authors to debug problems, but may result in log spam should people use buggy methods." );
 
+            commandRequireCreative = config.get( CATEGORY_GENERAL, "command_require_creative", ComputerCraft.commandRequireCreative );
+            commandRequireCreative.setComment( "Require players to be in creative mode and be opped in order to interact with command computers." +
+                "This is the default behaviour for vanilla's Command blocks." );
+
             setOrder(
                 CATEGORY_GENERAL,
                 computerSpaceLimit, floppySpaceLimit, maximumFilesOpen,
-                disableLua51Features, defaultComputerSettings, debugEnabled, logComputerErrors
+                disableLua51Features, defaultComputerSettings, debugEnabled, logComputerErrors, commandRequireCreative
             );
         }
 
@@ -271,10 +277,21 @@ public final class Config
                 "monitors have performance issues, you may wish to experiment with alternative renderers." );
             monitorRenderer.setValidValues( MonitorRenderer.NAMES );
 
+            monitorBandwidth = config.get( CATEGORY_PERIPHERAL, "monitor_bandwidth", (int) ComputerCraft.monitorBandwidth );
+            monitorBandwidth.setComment( "The limit to how much monitor data can be sent *per tick*. Note:\n" +
+                " - Bandwidth is measured before compression, so the data sent to the client is smaller.\n" +
+                " - This ignores the number of players a packet is sent to. Updating a monitor for one player consumes " +
+                "the same bandwidth limit as sending to 20.\n" +
+                " - A full sized monitor sends ~25kb of data. So the default (1MB) allows for ~40 monitors to be updated " +
+                "in a single tick. \n" +
+                "Set to 0 to disable." );
+            monitorBandwidth.setValidValues( MonitorRenderer.NAMES );
+            monitorBandwidth.setMinValue( 0 );
+
             setOrder(
                 CATEGORY_PERIPHERAL,
                 commandBlockEnabled, modemRange, modemHighAltitudeRange, modemRangeDuringStorm, modemHighAltitudeRangeDuringStorm, maxNotesPerTick,
-                monitorRenderer
+                monitorRenderer, monitorBandwidth
             );
         }
 
@@ -441,6 +458,7 @@ public final class Config
         ComputerCraft.default_computer_settings = defaultComputerSettings.getString();
         ComputerCraft.debug_enable = debugEnabled.getBoolean();
         ComputerCraft.logPeripheralErrors = logComputerErrors.getBoolean();
+        ComputerCraft.commandRequireCreative = commandRequireCreative.getBoolean();
 
         // Execution
         ComputerCraft.computer_threads = computerThreads.getInt();
@@ -468,6 +486,7 @@ public final class Config
         ComputerCraft.modem_rangeDuringStorm = Math.min( modemRangeDuringStorm.getInt(), MODEM_MAX_RANGE );
         ComputerCraft.modem_highAltitudeRangeDuringStorm = Math.min( modemHighAltitudeRangeDuringStorm.getInt(), MODEM_MAX_RANGE );
         ComputerCraft.monitorRenderer = MonitorRenderer.ofString( monitorRenderer.getString() );
+        ComputerCraft.monitorBandwidth = Math.max( 0, monitorBandwidth.getLong() );
 
         // Turtles
         ComputerCraft.turtlesNeedFuel = turtlesNeedFuel.getBoolean();

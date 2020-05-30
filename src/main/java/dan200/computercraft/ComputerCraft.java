@@ -112,7 +112,8 @@ public class ComputerCraft
     public static boolean disable_lua51_features = false;
     public static String default_computer_settings = "";
     public static boolean debug_enable = true;
-    public static boolean logPeripheralErrors = false;
+    public static boolean logPeripheralErrors = true;
+    public static boolean commandRequireCreative = true;
 
     public static int computer_threads = 1;
     public static long maxMainGlobalTime = TimeUnit.MILLISECONDS.toNanos( 10 );
@@ -137,6 +138,7 @@ public class ComputerCraft
     public static int modem_highAltitudeRangeDuringStorm = 384;
     public static int maxNotesPerTick = 8;
     public static MonitorRenderer monitorRenderer = MonitorRenderer.BEST;
+    public static long monitorBandwidth = 1_000_000;
 
     public static boolean turtlesNeedFuel = true;
     public static int turtleFuelLimit = 20000;
@@ -536,7 +538,7 @@ public class ComputerCraft
                     }
                     catch( IOException e )
                     {
-                        if( zipFile != null ) IoUtil.closeQuietly( zipFile );
+                        IoUtil.closeQuietly( zipFile );
                     }
                 }
             }

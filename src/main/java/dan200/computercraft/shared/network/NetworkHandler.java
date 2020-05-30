@@ -45,6 +45,7 @@ public final class NetworkHandler
         registerMainThread( 12, Side.CLIENT, ComputerDeletedClientMessage::new );
         registerMainThread( 13, Side.CLIENT, ComputerTerminalClientMessage::new );
         registerMainThread( 14, Side.CLIENT, PlayRecordClientMessage::new );
+        registerMainThread( 15, Side.CLIENT, MonitorClientMessage::new );
     }
 
     public static void sendToPlayer( EntityPlayer player, IMessage packet )
@@ -65,6 +66,11 @@ public final class NetworkHandler
     public static void sendToAllAround( IMessage packet, NetworkRegistry.TargetPoint point )
     {
         network.sendToAllAround( packet, point );
+    }
+
+    public static void sendToAllTracking( IMessage packet, NetworkRegistry.TargetPoint point )
+    {
+        network.sendToAllTracking( packet, point );
     }
 
     /**

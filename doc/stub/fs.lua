@@ -19,6 +19,18 @@ function getFreeSpace(path) end
 function find(pattern) end
 function getDir(path) end
 
+--- Returns true if a path is mounted to the parent filesystem.
+--
+-- The root filesystem "/" is considered a mount, along with disk folders and
+-- the rom folder. Other programs (such as network shares) can exstend this to
+-- make other mount types by correctly assigning their return value for getDrive.
+--
+-- @tparam string path The path to check.
+-- @treturn boolean If the path is mounted, rather than a normal file/folder.
+-- @throws If the path does not exist.
+-- @see getDrive
+function isDriveRoot(path) end
+
 --- Get the capacity of the drive at the given path.
 --
 -- This may be used in conjunction with @{getFreeSpace} to determine what

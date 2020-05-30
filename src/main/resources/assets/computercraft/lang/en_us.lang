@@ -159,6 +159,7 @@ gui.computercraft:config.disable_lua51_features=Disable Lua 5.1 features
 gui.computercraft:config.default_computer_settings=Default Computer settings
 gui.computercraft:config.debug_enabled=Enable debug library
 gui.computercraft:config.log_computer_errors=Log computer errors
+gui.computercraft:config.command_require_creative=Command computers require creative
 
 gui.computercraft:config.execution=Execution
 gui.computercraft:config.execution.computer_threads=Computer threads
@@ -190,6 +191,7 @@ gui.computercraft:config.peripheral.monitor_renderer.best=Best
 gui.computercraft:config.peripheral.monitor_renderer.tbo=Texture Buffers
 gui.computercraft:config.peripheral.monitor_renderer.vbo=Vertex Buffers
 gui.computercraft:config.peripheral.monitor_renderer.display_list=Display Lists
+gui.computercraft:config.peripheral.monitor_bandwidth=Monitor bandwidth
 
 gui.computercraft:config.turtle=Turtles
 gui.computercraft:config.turtle.need_fuel=Enable fuel

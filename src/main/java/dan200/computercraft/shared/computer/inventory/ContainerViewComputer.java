@@ -6,11 +6,10 @@
 package dan200.computercraft.shared.computer.inventory;
 
 import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.shared.computer.blocks.TileCommandComputer;
 import dan200.computercraft.shared.computer.core.*;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Container;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.text.TextComponentTranslation;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -46,19 +45,9 @@ public class ContainerViewComputer extends Container implements IContainerComput
             }
 
             // If we're a command computer then ensure we're in creative
-            if( serverComputer.getFamily() == ComputerFamily.Command )
+            if( serverComputer.getFamily() == ComputerFamily.Command && !TileCommandComputer.isUsable( player ) )
             {
-                MinecraftServer server = player.getServer();
-                if( server == null || !server.isCommandBlockEnabled() )
-                {
-                    player.sendMessage( new TextComponentTranslation( "advMode.notEnabled" ) );
-                    return false;
-                }
-                else if( !player.canUseCommandBlock() )
-                {
-                    player.sendMessage( new TextComponentTranslation( "advMode.notAllowed" ) );
-                    return false;
-                }
+                return false;
             }
         }
 

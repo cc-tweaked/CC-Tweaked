@@ -5,12 +5,14 @@
  */
 package dan200.computercraft.shared.peripheral.monitor;
 
+import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.peripheral.IPeripheralTile;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.shared.common.ServerTerminal;
 import dan200.computercraft.shared.common.TileGeneric;
+import dan200.computercraft.shared.network.client.TerminalState;
 import dan200.computercraft.shared.peripheral.PeripheralType;
 import dan200.computercraft.shared.peripheral.common.BlockPeripheral;
 import dan200.computercraft.shared.peripheral.common.ITilePeripheral;
@@ -45,6 +47,10 @@ public class TileMonitor extends TileGeneric implements ITilePeripheral, IPeriph
 
     private boolean m_destroyed = false;
     private boolean visiting = false;
+
+    // MonitorWatcher state.
+    boolean enqueued;
+    TerminalState cached;
 
     private int m_width = 1;
     private int m_height = 1;
@@ -148,7 +154,7 @@ public class TileMonitor extends TileGeneric implements ITilePeripheral, IPeriph
             }
         }
 
-        if( m_serverMonitor.pollTerminalChanged() ) updateBlock();
+        if( m_serverMonitor.pollTerminalChanged() ) MonitorWatcher.enqueue( this );
     }
 
     // IPeripheralTile implementation
@@ -239,11 +245,6 @@ public class TileMonitor extends TileGeneric implements ITilePeripheral, IPeriph
         nbt.setInteger( "width", m_width );
         nbt.setInteger( "height", m_height );
         nbt.setInteger( "monitorDir", m_dir );
-
-        if( m_xIndex == 0 && m_yIndex == 0 && m_serverMonitor != null )
-        {
-            m_serverMonitor.writeDescription( nbt );
-        }
     }
 
     @Override
@@ -273,9 +274,8 @@ public class TileMonitor extends TileGeneric implements ITilePeripheral, IPeriph
 
         if( m_xIndex == 0 && m_yIndex == 0 )
         {
-            // If we're the origin terminal then read the description
+            // If we're the origin terminal then create it.
             if( m_clientMonitor == null ) m_clientMonitor = new ClientMonitor( m_advanced, this );
-            m_clientMonitor.readDescription( nbt );
         }
 
         if( oldXIndex != m_xIndex || oldYIndex != m_yIndex ||
@@ -286,6 +286,19 @@ public class TileMonitor extends TileGeneric implements ITilePeripheral, IPeriph
             updateBlock();
         }
     }
+
+    public final void read( TerminalState state )
+    {
+        if( m_xIndex != 0 || m_yIndex != 0 )
+        {
+            ComputerCraft.log.warn( "Receiving monitor state for non-origin terminal at {}", getPos() );
+            return;
+        }
+
+        if( m_clientMonitor == null ) m_clientMonitor = new ClientMonitor( m_advanced, this );
+        m_clientMonitor.read( state );
+    }
+
     // Sizing and placement stuff
 
     public EnumFacing getDirection()
