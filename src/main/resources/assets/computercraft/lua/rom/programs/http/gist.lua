@@ -53,7 +53,7 @@ if args[1] == "get" then
     if args[3]:sub(#args[3]) == "/" or fs.isDir(shell.resolve(args[3])) then
         fs.makeDir(shell.resolve(args[3]))
         local files, err = gist.getAll(args[2], write)
-        if files == nil then return 3 end
+        if files == nil then printError(err) return 3 end
         for k, v in pairs(files) do
             local file = fs.open(shell.resolve(fs.combine(args[3], k)), "wb")
             file.write(v)

@@ -1,10 +1,9 @@
-The gist program can be loaded as an API, allowing programs to easily download and upload Gists.
-You must load gist with the following command:
-os.loadAPI("rom/programs/http/gist.lua")
+The cc.http.gist module allows programs to easily download and upload Gists.
 Once loaded, these are the functions that will be available:
-gist.get(id)
-gist.getAll(id)
-gist.run(id, ...)
-gist.info(id)
+gist.get(id[, progress])
+gist.getAll(id[, progress])
+gist.run(id[, progress], ...)
+gist.info(id[, progress])
 gist.put(files[, description[, id[, interactive]]])
 gist.delete(id[, interactive])
+See the "gist" help for more information about Gist.

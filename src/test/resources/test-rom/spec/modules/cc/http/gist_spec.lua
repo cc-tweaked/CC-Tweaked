@@ -63,7 +63,7 @@ describe("cc.http.gist", function()
                 ["hello_world.rb"] = "class HelloWorld\n   def initialize(name)\n      @name = name.capitalize\n   end\n   def sayHi\n      puts \"Hello !\"\n   end\nend\n\nhello = HelloWorld.new(\"World\")\nhello.sayHi",
                 ["hello_world.py"] = "class HelloWorld:\n\n    def __init__(self, name):\n        self.name = name.capitalize()\n       \n    def sayHi(self):\n        print \"Hello \" + self.name + \"!\"\n\nhello = HelloWorld(\"world\")\nhello.sayHi()",
                 ["hello_world_ruby.txt"] = "Run `ruby hello_world.rb` to print Hello World",
-                ["hello_world_python.txt"] = "Run `python hello_world.py` to print Hello World"
+                ["hello_world_python.txt"] = "Run `python hello_world.py` to print Hello World",
             }
         end)
     end)
@@ -83,7 +83,7 @@ describe("cc.http.gist", function()
                 description = "Hello World Examples",
                 author = "octocat",
                 revisionCount = 1,
-                files = {"hello_world.py", "hello_world.rb", "hello_world_python.txt", "hello_world_ruby.txt", "init.lua"}
+                files = { "hello_world.py", "hello_world.rb", "hello_world_python.txt", "hello_world_ruby.txt", "init.lua" },
             }
         end)
     end)
@@ -92,13 +92,13 @@ describe("cc.http.gist", function()
         it("upload a program to Gist", function()
             setup_request()
 
-            expect(gist.put({["test.txt"] = "Hello"})):eq("aa5a315d61ae9438b18d", "https://gist.github.com/aa5a315d61ae9438b18d")
+            expect(gist.put({ ["test.txt"] = "Hello" })):eq("aa5a315d61ae9438b18d", "https://gist.github.com/aa5a315d61ae9438b18d")
         end)
 
         it("edit a Gist", function()
             setup_request()
 
-            expect(gist.put({["hello_world.rb"] = textutils.json_null}, "Hello World Examples (Updated)", "aa5a315d61ae9438b18d")):eq("aa5a315d61ae9438b18d", "https://gist.github.com/aa5a315d61ae9438b18d")
+            expect(gist.put({ ["hello_world.rb"] = textutils.json_null }, "Hello World Examples (Updated)", "aa5a315d61ae9438b18d")):eq("aa5a315d61ae9438b18d", "https://gist.github.com/aa5a315d61ae9438b18d")
         end)
     end)
 
