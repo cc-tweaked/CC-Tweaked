@@ -35,6 +35,7 @@ import static dan200.computercraft.shared.peripheral.monitor.TileMonitor.RENDER_
 public class TileEntityMonitorRenderer extends TileEntitySpecialRenderer<TileMonitor>
 {
     private static final float MARGIN = (float) (TileMonitor.RENDER_MARGIN * 1.1);
+    private static ByteBuffer tboContents;
 
     @Override
     public void render( @Nonnull TileMonitor tileEntity, double posX, double posY, double posZ, float f, int i, float f2 )
@@ -162,7 +163,14 @@ public class TileEntityMonitorRenderer extends TileEntitySpecialRenderer<TileMon
 
                 if( redraw )
                 {
-                    ByteBuffer monitorBuffer = GLAllocation.createDirectByteBuffer( width * height * 3 );
+                    int size = width * height * 3;
+                    if( tboContents == null || tboContents.capacity() < size )
+                    {
+                        tboContents = GLAllocation.createDirectByteBuffer( size );
+                    }
+
+                    ByteBuffer monitorBuffer = tboContents;
+                    monitorBuffer.position( 0 );
                     for( int y = 0; y < height; y++ )
                     {
                         TextBuffer text = terminal.getLine( y ), textColour = terminal.getTextColourLine( y ), background = terminal.getBackgroundColourLine( y );
