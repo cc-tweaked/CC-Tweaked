@@ -19,6 +19,7 @@ import dan200.computercraft.core.tracking.TrackingField;
 import dan200.computercraft.shared.turtle.core.*;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.registries.ForgeRegistries;
 
@@ -31,8 +32,8 @@ import static dan200.computercraft.api.lua.ArgumentHelper.*;
 
 public class TurtleAPI implements ILuaAPI
 {
-    private IAPIEnvironment m_environment;
-    private ITurtleAccess m_turtle;
+    private final IAPIEnvironment m_environment;
+    private final ITurtleAccess m_turtle;
 
     public TurtleAPI( IAPIEnvironment environment, ITurtleAccess turtle )
     {
@@ -350,6 +351,10 @@ public class TurtleAPI implements ILuaAPI
                 Map<String, Object> table = new HashMap<>();
                 table.put( "name", name );
                 table.put( "count", count );
+
+                Map<String, Boolean> tags = new HashMap<>();
+                for( ResourceLocation location : item.getTags() ) tags.put( location.toString(), true );
+                table.put( "tags", tags );
 
                 TurtleActionEvent event = new TurtleInspectItemEvent( m_turtle, stack, table );
                 if( MinecraftForge.EVENT_BUS.post( event ) ) return new Object[] { false, event.getFailureMessage() };

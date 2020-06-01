@@ -14,6 +14,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.state.IProperty;
 import net.minecraft.util.Direction;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
@@ -63,6 +64,10 @@ public class TurtleInspectCommand implements ITurtleCommand
             stateTable.put( property.getName(), getPropertyValue( property, entry.getValue() ) );
         }
         table.put( "state", stateTable );
+
+        Map<String, Boolean> tags = new HashMap<>();
+        for( ResourceLocation location : block.getTags() ) tags.put( location.toString(), true );
+        table.put( "tags", tags );
 
         // Fire the event, exiting if it is cancelled
         TurtlePlayer turtlePlayer = TurtlePlaceCommand.createPlayer( turtle, oldPosition, direction );
