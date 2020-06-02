@@ -48,7 +48,7 @@ describe("The Lua base library", function()
 
         it("prefixes the filename with @", function()
             local info = debug.getinfo(loadfile("/rom/startup.lua"), "S")
-            expect(info):matches { short_src = "startup.lua", source = "@startup.lua" }
+            expect(info):matches { short_src = "/rom/startup.lua", source = "@/rom/startup.lua" }
         end)
 
         it("loads a file with the global environment", function()
