@@ -7,7 +7,7 @@ local expect
 
 do
     local h = fs.open("rom/modules/main/cc/expect.lua", "r")
-    local f, err = loadstring(h.readAll(), "@expect.lua")
+    local f, err = loadstring(h.readAll(), "@rom/modules/main/cc/expect.lua")
     h.close()
 
     if not f then error(err) end
@@ -500,7 +500,7 @@ function loadfile(filename, mode, env)
     local file = fs.open(filename, "r")
     if not file then return nil, "File not found" end
 
-    local func, err = load(file.readAll(), "@" .. fs.getName(filename), mode, env)
+    local func, err = load(file.readAll(), "@" .. filename, mode, env)
     file.close()
     return func, err
 end
