@@ -48,6 +48,8 @@ public class CobaltLuaMachine implements ILuaMachine
         ThreadUtils.factory( "Coroutine" )
     );
 
+    private static final LuaMethod FUNCTION_METHOD = ( target, context, args ) -> ((ILuaFunction) target).call( args );
+
     private final Computer m_computer;
     private final TimeoutState timeout;
     private final TimeoutDebugHandler debug;
@@ -274,6 +276,11 @@ public class CobaltLuaMachine implements ILuaMachine
         if( values == null ) values = new IdentityHashMap<>( 1 );
         LuaValue result = values.get( object );
         if( result != null ) return result;
+
+        if( object instanceof ILuaFunction )
+        {
+            return new ResultInterpreterFunction( this, FUNCTION_METHOD, object, context, object.toString() );
+        }
 
         if( object instanceof IDynamicLuaObject )
         {

@@ -87,6 +87,14 @@ public class MethodTest
             x -> x.addApi( new ManyMethods() ), 50 );
     }
 
+    @Test
+    public void testFunction()
+    {
+        ComputerBootstrap.run(
+            "assert(func.call()(123) == 123)",
+            x -> x.addApi( new ReturnFunction() ), 50 );
+    }
+
     public static class MainThread implements ILuaAPI, IPeripheral
     {
         public final String thread = Thread.currentThread().getName();
@@ -237,6 +245,21 @@ public class MethodTest
         public String[] getNames()
         {
             return new String[] { "many" };
+        }
+    }
+
+    public static class ReturnFunction implements ILuaAPI
+    {
+        @LuaFunction
+        public final ILuaFunction call()
+        {
+            return args -> MethodResult.of( args.getAll() );
+        }
+
+        @Override
+        public String[] getNames()
+        {
+            return new String[] { "func" };
         }
     }
 }
