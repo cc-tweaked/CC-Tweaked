@@ -126,7 +126,7 @@ elseif sCommand == "disconnect" then
 elseif sCommand == "list" then
     local user_key = settings.get("pastebin.key")
     if not user_key then
-        io.stderr:write("You aren't logged")
+        io.stderr:write("You aren't logged\n")
         print("first use: pastebin connect")
         return
     end
@@ -144,7 +144,7 @@ elseif sCommand == "list" then
         response.close()
         if sResponse == "Bad API request, invalid api_user_key" then
             print("Failed.")
-            print("You aren't logged")
+            io.stderr:write("You aren't logged\n")
             print("first use: pastebin connect")
         elseif sResponse == "No pastes found." then
             print("Success.")
@@ -160,7 +160,7 @@ elseif sCommand == "list" then
 elseif sCommand == "infos" then
     local user_key = settings.get("pastebin.key")
     if not user_key then
-        io.stderr:write("You aren't logged")
+        io.stderr:write("You aren't logged\n")
         print("first use: pastebin connect")
         return
     end
@@ -178,7 +178,7 @@ elseif sCommand == "infos" then
         response.close()
         if sResponse == "Bad API request, invalid api_user_key" then
             print("Failed.")
-            print("You aren't logged")
+            io.stderr:write("You aren't logged\n")
             print("first use: pastebin connect")
         else
             print("Success.")
@@ -201,7 +201,7 @@ elseif sCommand == "delete" then
 
     local user_key = settings.get("pastebin.key")
     if not user_key then
-        io.stderr:write("You aren't logged")
+        io.stderr:write("You aren't logged\n")
         print("first use: pastebin connect")
         return
     end

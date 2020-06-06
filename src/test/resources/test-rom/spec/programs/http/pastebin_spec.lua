@@ -80,11 +80,11 @@ describe("The pastebin program", function()
         setup_request()
 
         expect(capture(stub, "pastebin", "list"))
-            :matches { ok = true, output = "You aren't loggedfirst use: pastebin connect\n", error = "" }
+            :matches { ok = true, output = "You aren't logged\nfirst use: pastebin connect\n", error = "" }
         expect(capture(stub, "pastebin", "infos"))
-            :matches { ok = true, output = "You aren't loggedfirst use: pastebin connect\n", error = "" }
+            :matches { ok = true, output = "You aren't logged\nfirst use: pastebin connect\n", error = "" }
         expect(capture(stub, "pastebin", "delete", "abcde"))
-            :matches { ok = true, output = "You aren't loggedfirst use: pastebin connect\n", error = "" }
+            :matches { ok = true, output = "You aren't logged\nfirst use: pastebin connect\n", error = "" }
     end)
 
     it("connect to pastebin", function()
