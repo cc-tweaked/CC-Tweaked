@@ -67,11 +67,23 @@ describe("The pastebin program", function()
         setup_request()
 
         expect(capture(stub, "pastebin"))
-            :matches { ok = true, output = "Usages:\npastebin put <filename>\npastebin get <code> <filename>\npastebin run <code> <arguments>\n", error = "" }
+            :matches { ok = true, output = [[Usages:
+pastebin put <filename>
+pastebin get <code> <filename>
+pastebin run <code> <arguments>
+pastebin connect
+pastebin disconnect
+pastebin list
+pastebin infos
+pastebin delete <code>
+]], error = "" }
+
     end)
 
     it("can be completed", function()
         local complete = shell.getCompletionInfo()["rom/programs/http/pastebin.lua"].fnComplete
-        expect(complete(shell, 1, "", {})):same { "put ", "get ", "run " }
+        expect(complete(shell, 1, "", {})):same { "put ", "get ", "run ",
+                                                  "connect", "disconnect",
+                                                  "list", "infos", "delete "}
     end)
 end)

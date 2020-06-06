@@ -93,7 +93,7 @@ shell.setCompletionFunction("rom/programs/fun/dj.lua", completion.build(
 ))
 shell.setCompletionFunction("rom/programs/fun/advanced/paint.lua", completion.build(completion.file))
 shell.setCompletionFunction("rom/programs/http/pastebin.lua", completion.build(
-    { completion.choice, { "put ", "get ", "run " } },
+    { completion.choice, { "put ", "get ", "run ", "connect", "disconnect", "list", "infos", "delete " } },
     completePastebinPut
 ))
 shell.setCompletionFunction("rom/programs/rednet/chat.lua", completion.build({ completion.choice, { "host ", "join " } }))
