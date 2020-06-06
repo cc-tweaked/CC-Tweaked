@@ -263,7 +263,6 @@ elseif sCommand == "put" then
     "api_paste_code=" .. textutils.urlEncode(sText)
     if user_key ~= nil then
         params = params .. "&" .. "api_user_key=" .. user_key
-        write("Connected")
     end
     local response = http.post(
         "https://pastebin.com/api/api_post.php",
