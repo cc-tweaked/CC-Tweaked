@@ -52,7 +52,7 @@ local function get(url)
     -- Add a cache buster so that spam protection is re-checked
     local cacheBuster = ("%x"):format(math.random(0, 2 ^ 30))
     local response, err = http.get(
-        "https://pastebin.com/raw/" .. textutils.urlEncode(paste) .. "?cb=" .. cacheBuster
+    "https://pastebin.com/raw/" .. textutils.urlEncode(paste) .. "?cb=" .. cacheBuster
     )
 
     if response then
@@ -76,13 +76,13 @@ local function get(url)
 end
 
 local function print_parsed_list(input)
-    local sCodes = string.gmatch(input, "<paste_key>([^\<]+)</paste_key>")
-    local sNames = string.gmatch(input, "<paste_title>([^\<]+)</paste_title>")
+    local sCodes = string.gmatch(input, "<paste_key>([^<]+)</paste_key>")
+    local sNames = string.gmatch(input, "<paste_title>([^<]+)</paste_title>")
     print("code     | name")
     local code = sCodes()
     local name = sNames()
     while code ~= nil and name ~= nil do
-        print(code.." | "..name)
+        print(code .. " | " .. name)
         code = sCodes()
         name = sNames()
     end
@@ -94,9 +94,9 @@ local dev_key = "0ec2eb25b6166c0c27a394ae118ad829"
 
 if sCommand == "connect" then
     write("Username: ")
-    username = read()
+    local username = read()
     write("Password: ")
-    password = read("*")
+    local password = read("*")
 
     write("Connecting to pastebin.com... ")
     local response = http.post(
@@ -182,10 +182,10 @@ elseif sCommand == "infos" then
             print("first use: pastebin connect")
         else
             print("Success.")
-            local sValues = string.gmatch(sResponse, "<user_([^\>]+)>([^\<]+)<")
+            local sValues = string.gmatch(sResponse, "<user_([^>]+)>([^<]+)<")
             local fields, value = sValues()
             while fields ~= nil do
-                print(fields..": "..value)
+                print(fields .. ": " .. value)
                 fields, value = sValues()
             end
         end
@@ -219,7 +219,7 @@ elseif sCommand == "delete" then
     "api_option=delete&" ..
     "api_dev_key=" .. dev_key .. "&" ..
     "api_user_key=" .. user_key .. "&" ..
-    "api_paste_key=" ..paste_key
+    "api_paste_key=" .. paste_key
     )
 
     if response then
