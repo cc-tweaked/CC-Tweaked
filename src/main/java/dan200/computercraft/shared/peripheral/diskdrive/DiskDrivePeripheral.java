@@ -104,7 +104,7 @@ public class DiskDrivePeripheral implements IPeripheral
     }
 
     @LuaFunction
-    public final void eject()
+    public final void ejectDisk()
     {
         diskDrive.ejectDisk();
     }
