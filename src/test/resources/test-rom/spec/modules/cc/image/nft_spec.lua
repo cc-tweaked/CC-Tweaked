@@ -1,5 +1,5 @@
-describe("image.nft", function()
-    local nft = require("image.nft")
+describe("cc,image.nft", function()
+    local nft = require("cc.image.nft")
 
     describe("parse", function()
         it("validates arguments", function()
