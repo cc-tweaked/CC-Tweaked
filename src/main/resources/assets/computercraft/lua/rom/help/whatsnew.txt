@@ -1,17 +1,10 @@
-New features in CC: Tweaked 1.88.0
+New features in CC: Tweaked 1.89.0
 
-* Computers and turtles now preserve their ID when broken.
-* Add `peripheral.getName` - returns the name of a wrapped peripheral.
-* Reduce network overhead of monitors and terminals.
-* Add a TBO backend for monitors, with a significant performance boost.
-* The Lua REPL warns when declaring locals (lupus590, exerro)
-* Add config to allow using command computers in survival.
-* Add fs.isDriveRoot - checks if a path is the root of a drive.
-* `cc.pretty` can now display a function's arguments and where it was defined. The Lua REPL will show arguments by default.
-* Move the shell's `require`/`package` implementation to a separate `cc.require` module.
+* Compress monitor data, reducing network traffic by a significant amount.
+* Allow limiting the bandwidth monitor updates use.
+* Several optimisations to monitor rendering (@Lignum)
 
 And several bug fixes:
-* Fix io.lines not accepting arguments.
-* Fix settings.load using an unknown global (MCJack123).
+* Fix settings.load failing on defined settings.
 
 Type "help changelog" to see the full version history.
