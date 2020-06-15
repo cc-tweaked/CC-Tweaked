@@ -13,7 +13,6 @@ import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.client.gui.FixedWidthFontRenderer;
 import dan200.computercraft.shared.util.Palette;
 import org.lwjgl.BufferUtils;
-import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GL20;
 
@@ -25,11 +24,7 @@ class MonitorTextureBufferShader
 {
     static final int TEXTURE_INDEX = GL13.GL_TEXTURE3;
 
-    private static final FloatBuffer MATRIX_BUFFER = BufferUtils.createFloatBuffer( 16 );
     private static final FloatBuffer PALETTE_BUFFER = BufferUtils.createFloatBuffer( 16 * 3 );
-
-    private static int uniformMv;
-    private static int uniformP;
 
     private static int uniformFont;
     private static int uniformWidth;
@@ -43,16 +38,6 @@ class MonitorTextureBufferShader
 
     static void setupUniform( int width, int height, Palette palette, boolean greyscale )
     {
-        MATRIX_BUFFER.rewind();
-        GL11.glGetFloatv( GL11.GL_MODELVIEW_MATRIX, MATRIX_BUFFER );
-        MATRIX_BUFFER.rewind();
-        GLX.glUniformMatrix4( uniformMv, false, MATRIX_BUFFER );
-
-        MATRIX_BUFFER.rewind();
-        GL11.glGetFloatv( GL11.GL_PROJECTION_MATRIX, MATRIX_BUFFER );
-        MATRIX_BUFFER.rewind();
-        GLX.glUniformMatrix4( uniformP, false, MATRIX_BUFFER );
-
         GLX.glUniform1i( uniformWidth, width );
         GLX.glUniform1i( uniformHeight, height );
 
@@ -120,9 +105,6 @@ class MonitorTextureBufferShader
             GLX.glDeleteShader( fragmentShader );
 
             if( !ok ) return false;
-
-            uniformMv = getUniformLocation( program, "u_mv" );
-            uniformP = getUniformLocation( program, "u_p" );
 
             uniformFont = getUniformLocation( program, "u_font" );
             uniformWidth = getUniformLocation( program, "u_width" );

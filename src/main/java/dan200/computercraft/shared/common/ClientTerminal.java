@@ -6,9 +6,7 @@
 package dan200.computercraft.shared.common;
 
 import dan200.computercraft.core.terminal.Terminal;
-import io.netty.buffer.Unpooled;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.PacketBuffer;
+import dan200.computercraft.shared.network.client.TerminalState;
 
 public class ClientTerminal implements ITerminal
 {
@@ -48,14 +46,13 @@ public class ClientTerminal implements ITerminal
         return m_colour;
     }
 
-    public void readDescription( CompoundNBT nbt )
+    public void read( TerminalState state )
     {
-        m_colour = nbt.getBoolean( "colour" );
-        if( nbt.contains( "terminal" ) )
+        m_colour = state.colour;
+        if( state.hasTerminal() )
         {
-            CompoundNBT terminal = nbt.getCompound( "terminal" );
-            resizeTerminal( terminal.getInt( "term_width" ), terminal.getInt( "term_height" ) );
-            m_terminal.read( new PacketBuffer( Unpooled.wrappedBuffer( terminal.getByteArray( "term_contents" ) ) ) );
+            resizeTerminal( state.width, state.height );
+            state.apply( m_terminal );
         }
         else
         {

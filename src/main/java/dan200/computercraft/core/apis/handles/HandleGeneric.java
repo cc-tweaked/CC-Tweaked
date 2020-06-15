@@ -37,12 +37,8 @@ public abstract class HandleGeneric implements ILuaObject
     {
         m_open = false;
 
-        Closeable closeable = m_closable;
-        if( closeable != null )
-        {
-            IoUtil.closeQuietly( closeable );
-            m_closable = null;
-        }
+        IoUtil.closeQuietly( m_closable );
+        m_closable = null;
     }
 
     /**

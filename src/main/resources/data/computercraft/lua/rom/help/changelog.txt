@@ -1,3 +1,13 @@
+# New features in CC: Tweaked 1.89.0
+
+* Compress monitor data, reducing network traffic by a significant amount.
+* Allow limiting the bandwidth monitor updates use.
+* Several optimisations to monitor rendering (@Lignum).
+* Expose block and item tags to turtle.inspect and turtle.getItemDetail.
+
+And several bug fixes:
+* Fix settings.load failing on defined settings.
+
 # New features in CC: Tweaked 1.88.0
 
 * Computers and turtles now preserve their ID when broken.

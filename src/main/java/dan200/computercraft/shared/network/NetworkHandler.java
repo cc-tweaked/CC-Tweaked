@@ -14,9 +14,11 @@ import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.fml.network.NetworkDirection;
 import net.minecraftforge.fml.network.NetworkEvent;
 import net.minecraftforge.fml.network.NetworkRegistry;
+import net.minecraftforge.fml.network.PacketDistributor;
 import net.minecraftforge.fml.network.simple.SimpleChannel;
 import net.minecraftforge.fml.server.ServerLifecycleHooks;
 
@@ -52,6 +54,7 @@ public final class NetworkHandler
         registerMainThread( 12, ComputerDeletedClientMessage::new );
         registerMainThread( 13, ComputerTerminalClientMessage::new );
         registerMainThread( 14, PlayRecordClientMessage.class, PlayRecordClientMessage::new );
+        registerMainThread( 15, MonitorClientMessage.class, MonitorClientMessage::new );
     }
 
     public static void sendToPlayer( PlayerEntity player, NetworkMessage packet )
@@ -74,15 +77,13 @@ public final class NetworkHandler
 
     public static void sendToAllAround( NetworkMessage packet, World world, Vec3d pos, double range )
     {
-        for( ServerPlayerEntity player : ServerLifecycleHooks.getCurrentServer().getPlayerList().getPlayers() )
-        {
-            if( player.getEntityWorld() != world ) continue;
+        PacketDistributor.TargetPoint target = new PacketDistributor.TargetPoint( pos.x, pos.y, pos.z, range, world.getDimension().getType() );
+        network.send( PacketDistributor.NEAR.with( () -> target ), packet );
+    }
 
-            double x = pos.x - player.posX;
-            double y = pos.y - player.posY;
-            double z = pos.z - player.posZ;
-            if( x * x + y * y + z * z < range * range ) sendToPlayer( player, packet );
-        }
+    public static void sendToAllTracking( NetworkMessage packet, Chunk chunk )
+    {
+        network.send( PacketDistributor.TRACKING_CHUNK.with( () -> chunk ), packet );
     }
 
     /**
