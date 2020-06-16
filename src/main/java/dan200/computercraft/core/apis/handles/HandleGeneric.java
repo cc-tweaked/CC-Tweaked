@@ -35,12 +35,8 @@ public abstract class HandleGeneric
     {
         open = false;
 
-        Closeable closeable = closable;
-        if( closeable != null )
-        {
-            IoUtil.closeQuietly( closeable );
-            closable = null;
-        }
+        IoUtil.closeQuietly( closable );
+        closable = null;
     }
 
     @LuaFunction( "close" )

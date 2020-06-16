@@ -63,6 +63,7 @@ public final class Config
     private static final ConfigValue<Integer> modemRangeDuringStorm;
     private static final ConfigValue<Integer> modemHighAltitudeRangeDuringStorm;
     private static final ConfigValue<Integer> maxNotesPerTick;
+    private static final ConfigValue<Integer> monitorBandwidth;
 
     private static final ConfigValue<Boolean> turtlesNeedFuel;
     private static final ConfigValue<Integer> turtleFuelLimit;
@@ -209,6 +210,16 @@ public final class Config
                 .comment( "Maximum amount of notes a speaker can play at once" )
                 .defineInRange( "max_notes_per_tick", ComputerCraft.maxNotesPerTick, 1, Integer.MAX_VALUE );
 
+            monitorBandwidth = builder
+                .comment( "The limit to how much monitor data can be sent *per tick*. Note:\n" +
+                    " - Bandwidth is measured before compression, so the data sent to the client is smaller.\n" +
+                    " - This ignores the number of players a packet is sent to. Updating a monitor for one player consumes " +
+                    "the same bandwidth limit as sending to 20.\n" +
+                    " - A full sized monitor sends ~25kb of data. So the default (1MB) allows for ~40 monitors to be updated " +
+                    "in a single tick. \n" +
+                    "Set to 0 to disable." )
+                .defineInRange( "monitor_bandwidth", (int) ComputerCraft.monitorBandwidth, 0, Integer.MAX_VALUE );
+
             builder.pop();
         }
 
@@ -292,6 +303,7 @@ public final class Config
         ComputerCraft.modemHighAltitudeRange = modemHighAltitudeRange.get();
         ComputerCraft.modemRangeDuringStorm = modemRangeDuringStorm.get();
         ComputerCraft.modemHighAltitudeRangeDuringStorm = modemHighAltitudeRangeDuringStorm.get();
+        ComputerCraft.monitorBandwidth = monitorBandwidth.get();
 
         // Turtles
         ComputerCraft.turtlesNeedFuel = turtlesNeedFuel.get();

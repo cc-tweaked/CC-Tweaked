@@ -12,6 +12,7 @@ import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.shared.common.ServerTerminal;
 import dan200.computercraft.shared.common.TileGeneric;
 import dan200.computercraft.shared.util.CapabilityUtil;
+import dan200.computercraft.shared.network.client.TerminalState;
 import dan200.computercraft.shared.util.NamedTileEntityType;
 import dan200.computercraft.shared.util.TickScheduler;
 import net.minecraft.entity.player.PlayerEntity;
@@ -70,6 +71,10 @@ public class TileMonitor extends TileGeneric
 
     private boolean m_destroyed = false;
     private boolean visiting = false;
+
+    // MonitorWatcher state.
+    boolean enqueued;
+    TerminalState cached;
 
     private int m_width = 1;
     private int m_height = 1;
@@ -177,7 +182,7 @@ public class TileMonitor extends TileGeneric
             }
         }
 
-        if( m_serverMonitor.pollTerminalChanged() ) updateBlock();
+        if( m_serverMonitor.pollTerminalChanged() ) MonitorWatcher.enqueue( this );
     }
 
     @Override
@@ -267,16 +272,10 @@ public class TileMonitor extends TileGeneric
     protected void writeDescription( @Nonnull CompoundNBT nbt )
     {
         super.writeDescription( nbt );
-
         nbt.putInt( NBT_X, m_xIndex );
         nbt.putInt( NBT_Y, m_yIndex );
         nbt.putInt( NBT_WIDTH, m_width );
         nbt.putInt( NBT_HEIGHT, m_height );
-
-        if( m_xIndex == 0 && m_yIndex == 0 && m_serverMonitor != null )
-        {
-            m_serverMonitor.writeDescription( nbt );
-        }
     }
 
     @Override
@@ -304,9 +303,8 @@ public class TileMonitor extends TileGeneric
 
         if( m_xIndex == 0 && m_yIndex == 0 )
         {
-            // If we're the origin terminal then read the description
+            // If we're the origin terminal then create it.
             if( m_clientMonitor == null ) m_clientMonitor = new ClientMonitor( advanced, this );
-            m_clientMonitor.readDescription( nbt );
         }
 
         if( oldXIndex != m_xIndex || oldYIndex != m_yIndex ||
@@ -316,6 +314,20 @@ public class TileMonitor extends TileGeneric
             updateBlock();
         }
     }
+
+    public final void read( TerminalState state )
+    {
+        if( m_xIndex != 0 || m_yIndex != 0 )
+        {
+            ComputerCraft.log.warn( "Receiving monitor state for non-origin terminal at {}", getPos() );
+            return;
+        }
+
+        if( m_clientMonitor == null ) m_clientMonitor = new ClientMonitor( advanced, this );
+        m_clientMonitor.read( state );
+    }
+
+    // Sizing and placement stuff
 
     private void updateBlockState()
     {

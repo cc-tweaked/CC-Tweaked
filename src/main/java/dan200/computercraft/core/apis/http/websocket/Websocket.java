@@ -220,7 +220,7 @@ public class Websocket extends Resource<Websocket>
 
         WeakReference<WebsocketHandle> websocketHandleRef = websocketHandle;
         WebsocketHandle websocketHandle = websocketHandleRef == null ? null : websocketHandleRef.get();
-        if( websocketHandle != null ) IoUtil.closeQuietly( websocketHandle );
+        IoUtil.closeQuietly( websocketHandle );
         this.websocketHandle = null;
     }
 

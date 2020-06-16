@@ -41,6 +41,7 @@ public class TileEntityMonitorRenderer extends TileEntityRenderer<TileMonitor>
      * the monitor frame and contents.
      */
     private static final float MARGIN = (float) (TileMonitor.RENDER_MARGIN * 1.1);
+    private static ByteBuffer tboContents;
 
     private static final Matrix4f IDENTITY = TransformationMatrix.identity().getMatrix();
 
@@ -153,6 +154,60 @@ public class TileEntityMonitorRenderer extends TileEntityRenderer<TileMonitor>
 
         switch( renderType )
         {
+            case TBO:
+            {
+                if( !MonitorTextureBufferShader.use() ) return;
+
+                int width = terminal.getWidth(), height = terminal.getHeight();
+                int pixelWidth = width * FONT_WIDTH, pixelHeight = height * FONT_HEIGHT;
+
+                if( redraw )
+                {
+                    int size = width * height * 3;
+                    if( tboContents == null || tboContents.capacity() < size )
+                    {
+                        tboContents = GLAllocation.createDirectByteBuffer( size );
+                    }
+
+                    ByteBuffer monitorBuffer = tboContents;
+                    monitorBuffer.position( 0 );
+                    for( int y = 0; y < height; y++ )
+                    {
+                        TextBuffer text = terminal.getLine( y ), textColour = terminal.getTextColourLine( y ), background = terminal.getBackgroundColourLine( y );
+                        for( int x = 0; x < width; x++ )
+                        {
+                            monitorBuffer.put( (byte) (text.charAt( x ) & 0xFF) );
+                            monitorBuffer.put( (byte) getColour( textColour.charAt( x ), Colour.WHITE ) );
+                            monitorBuffer.put( (byte) getColour( background.charAt( x ), Colour.BLACK ) );
+                        }
+                    }
+                    monitorBuffer.flip();
+
+                    GlStateManager.bindBuffer( GL31.GL_TEXTURE_BUFFER, monitor.tboBuffer );
+                    GlStateManager.bufferData( GL31.GL_TEXTURE_BUFFER, monitorBuffer, GL20.GL_STATIC_DRAW );
+                    GlStateManager.bindBuffer( GL31.GL_TEXTURE_BUFFER, 0 );
+                }
+
+                // Nobody knows what they're doing!
+                GlStateManager.activeTexture( MonitorTextureBufferShader.TEXTURE_INDEX );
+                GL11.glBindTexture( GL31.GL_TEXTURE_BUFFER, monitor.tboTexture );
+                GlStateManager.activeTexture( GL13.GL_TEXTURE0 );
+
+                MonitorTextureBufferShader.setupUniform( matrix, width, height, terminal.getPalette(), !monitor.isColour() );
+
+                Tessellator tessellator = Tessellator.getInstance();
+                BufferBuilder buffer = tessellator.getBuffer();
+                buffer.begin( GL11.GL_TRIANGLE_STRIP, DefaultVertexFormats.POSITION );
+                buffer.pos( -xMargin, -yMargin, 0 ).endVertex();
+                buffer.pos( -xMargin, pixelHeight + yMargin, 0 ).endVertex();
+                buffer.pos( pixelWidth + xMargin, -yMargin, 0 ).endVertex();
+                buffer.pos( pixelWidth + xMargin, pixelHeight + yMargin, 0 ).endVertex();
+                tessellator.draw();
+
+                GlStateManager.useProgram( 0 );
+                break;
+            }
+
             case VBO:
             {
                 VertexBuffer vbo = monitor.buffer;
@@ -175,53 +230,6 @@ public class TileEntityMonitorRenderer extends TileEntityRenderer<TileMonitor>
                 vbo.draw( matrix, FixedWidthFontRenderer.TYPE.getDrawMode() );
                 VertexBuffer.unbindBuffer();
                 FixedWidthFontRenderer.TYPE.getVertexFormat().clearBufferState();
-                break;
-            }
-
-            case TBO:
-            {
-                if( !MonitorTextureBufferShader.use() ) return;
-
-                int width = terminal.getWidth(), height = terminal.getHeight();
-                int pixelWidth = width * FONT_WIDTH, pixelHeight = height * FONT_HEIGHT;
-
-                if( redraw )
-                {
-                    ByteBuffer buffer = GLAllocation.createDirectByteBuffer( width * height * 3 );
-                    for( int y = 0; y < height; y++ )
-                    {
-                        TextBuffer text = terminal.getLine( y ), textColour = terminal.getTextColourLine( y ), background = terminal.getBackgroundColourLine( y );
-                        for( int x = 0; x < width; x++ )
-                        {
-                            buffer.put( (byte) (text.charAt( x ) & 0xFF) );
-                            buffer.put( (byte) getColour( textColour.charAt( x ), Colour.WHITE ) );
-                            buffer.put( (byte) getColour( background.charAt( x ), Colour.BLACK ) );
-                        }
-                    }
-                    buffer.flip();
-
-                    GlStateManager.bindBuffer( GL31.GL_TEXTURE_BUFFER, monitor.tboBuffer );
-                    GlStateManager.bufferData( GL31.GL_TEXTURE_BUFFER, buffer, GL20.GL_STATIC_DRAW );
-                    GlStateManager.bindBuffer( GL31.GL_TEXTURE_BUFFER, 0 );
-                }
-
-                // Nobody knows what they're doing!
-                GlStateManager.activeTexture( MonitorTextureBufferShader.TEXTURE_INDEX );
-                GL11.glBindTexture( GL31.GL_TEXTURE_BUFFER, monitor.tboTexture );
-                GlStateManager.activeTexture( GL13.GL_TEXTURE0 );
-
-                MonitorTextureBufferShader.setupUniform( matrix, width, height, terminal.getPalette(), !monitor.isColour() );
-
-                Tessellator tessellator = Tessellator.getInstance();
-                BufferBuilder buffer = tessellator.getBuffer();
-                buffer.begin( GL11.GL_TRIANGLE_STRIP, DefaultVertexFormats.POSITION );
-                buffer.pos( -xMargin, -yMargin, 0 ).endVertex();
-                buffer.pos( -xMargin, pixelHeight + yMargin, 0 ).endVertex();
-                buffer.pos( pixelWidth + xMargin, -yMargin, 0 ).endVertex();
-                buffer.pos( pixelWidth + xMargin, pixelHeight + yMargin, 0 ).endVertex();
-                tessellator.draw();
-
-                GlStateManager.useProgram( 0 );
                 break;
             }
         }

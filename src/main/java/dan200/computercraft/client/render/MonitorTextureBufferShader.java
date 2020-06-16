@@ -15,7 +15,6 @@ import dan200.computercraft.shared.util.Palette;
 import net.minecraft.client.renderer.Matrix4f;
 import net.minecraft.client.renderer.texture.TextureUtil;
 import org.lwjgl.BufferUtils;
-import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GL20;
 
@@ -30,7 +29,6 @@ class MonitorTextureBufferShader
     private static final FloatBuffer PALETTE_BUFFER = BufferUtils.createFloatBuffer( 16 * 3 );
 
     private static int uniformMv;
-    private static int uniformP;
 
     private static int uniformFont;
     private static int uniformWidth;
@@ -48,12 +46,6 @@ class MonitorTextureBufferShader
         transform.write( MATRIX_BUFFER );
         MATRIX_BUFFER.rewind();
         RenderSystem.glUniformMatrix4( uniformMv, false, MATRIX_BUFFER );
-
-        // TODO: Cache this?
-        MATRIX_BUFFER.rewind();
-        GL11.glGetFloatv( GL11.GL_PROJECTION_MATRIX, MATRIX_BUFFER );
-        MATRIX_BUFFER.rewind();
-        RenderSystem.glUniformMatrix4( uniformP, false, MATRIX_BUFFER );
 
         RenderSystem.glUniform1i( uniformWidth, width );
         RenderSystem.glUniform1i( uniformHeight, height );
@@ -125,8 +117,6 @@ class MonitorTextureBufferShader
             if( !ok ) return false;
 
             uniformMv = getUniformLocation( program, "u_mv" );
-            uniformP = getUniformLocation( program, "u_p" );
-
             uniformFont = getUniformLocation( program, "u_font" );
             uniformWidth = getUniformLocation( program, "u_width" );
             uniformHeight = getUniformLocation( program, "u_height" );

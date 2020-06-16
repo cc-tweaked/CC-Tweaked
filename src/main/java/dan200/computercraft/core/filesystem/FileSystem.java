@@ -366,8 +366,7 @@ public class FileSystem
             Reference<?> ref;
             while( (ref = m_openFileQueue.poll()) != null )
             {
-                Closeable file = m_openFiles.remove( ref );
-                if( file != null ) IoUtil.closeQuietly( file );
+                IoUtil.closeQuietly( m_openFiles.remove( ref ) );
             }
         }
     }
