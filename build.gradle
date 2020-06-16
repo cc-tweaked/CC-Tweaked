@@ -384,7 +384,7 @@ curseforge {
     apiKey = project.hasProperty('curseForgeApiKey') ? project.curseForgeApiKey : ''
     project {
         id = '282001'
-        releaseType = 'beta'
+        releaseType = 'release'
         changelog = "Release notes can be found on the GitHub repository (https://github.com/SquidDev-CC/CC-Tweaked/releases/tag/v${mc_version}-${mod_version})."
 
         relations {
@@ -462,7 +462,7 @@ githubRelease {
             .takeWhile { it != 'Type "help changelog" to see the full version history.' }
             .join("\n").trim()
     }
-    prerelease true
+    prerelease false
 }
 
 def uploadTasks = ["uploadArchives", "curseforge", "githubRelease"]
