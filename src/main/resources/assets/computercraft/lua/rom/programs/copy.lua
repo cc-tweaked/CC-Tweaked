@@ -1,6 +1,8 @@
+local translate = require("cc.translate")
+
 local tArgs = { ... }
 if #tArgs < 2 then
-    print("Usage: cp <source> <destination>")
+    print(translate.translate("cc.copy.usage"))
     return
 end
 
@@ -13,19 +15,19 @@ if #tFiles > 0 then
             fs.copy(sFile, fs.combine(sDest, fs.getName(sFile)))
         elseif #tFiles == 1 then
             if fs.exists(sDest) then
-                 printError("Destination exists")
+                 printError(translate.translate("cc.copy.exists"))
             elseif fs.isReadOnly(sDest) then
-                printError("Destination is read-only")
+                printError(translate.translate("cc.copy.read_only"))
             elseif fs.getFreeSpace(sDest) < fs.getSize(sFile) then
-                printError("Not enough space")
+                printError(translate.translate("cc.copy.space"))
             else
                  fs.copy(sFile, sDest)
             end
         else
-            printError("Cannot overwrite file multiple times")
+            printError(translate.translate("cc.copy.overwrite_files"))
             return
         end
     end
 else
-    printError("No matching files")
+    printError(translate.translate("cc.copy.no_matching"))
 end

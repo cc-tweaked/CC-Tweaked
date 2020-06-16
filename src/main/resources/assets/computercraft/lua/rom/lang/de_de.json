@@ -1,0 +1,8 @@
+{
+    "cc.copy.usage": "Benutzung: cp <quelle> <ziel>",
+    "cc.copy.exists": "Ziel existiert bereits",
+    "cc.copy.read_only": "Ziel ist nur lesbar",
+    "cc.copy.space": "Nicht genuegend Speicherplatz vorhanden",
+    "cc.copy.overwrite_files": "Dateien koennen nicht mehrmals ueberschrieben werden",
+    "cc.copy.no_matching": "Keine passenden Dateien gefunden"
+}

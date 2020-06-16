@@ -1,0 +1,8 @@
+{
+    "cc.copy.usage": "Usage: cp <source> <destination>",
+    "cc.copy.exists": "Destination exists",
+    "cc.copy.read_only": "Destination is read-only",
+    "cc.copy.space": "Not enough space",
+    "cc.copy.overwrite_files": "Cannot overwrite file multiple times",
+    "cc.copy.no_matching": "No matching files"
+}

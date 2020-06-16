@@ -954,6 +954,11 @@ settings.define("lua.function_source", {
     description = "Show where a function was defined when printing functions.",
     type = "boolean",
 })
+settings.define("language", {
+    default = "en_us",
+    description = "Set the system language.",
+    type = "string",
+})
 
 if term.isColour() then
     settings.define("bios.use_multishell", {
