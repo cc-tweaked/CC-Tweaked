@@ -1,7 +1,9 @@
+local translate = require("cc.translate").translate
+
 -- Get file to edit
 local tArgs = { ... }
 if #tArgs == 0 then
-    print("Usage: edit <path>")
+    print(translate("cc.edit.usage"))
     return
 end
 
@@ -9,7 +11,7 @@ end
 local sPath = shell.resolve(tArgs[1])
 local bReadOnly = fs.isReadOnly(sPath)
 if fs.exists(sPath) and fs.isDir(sPath) then
-    print("Cannot edit a directory.")
+    print(translate("cc.edit.directory_error"))
     return
 end
 
@@ -51,24 +53,24 @@ local bMenu = false
 local nMenuItem = 1
 local tMenuItems = {}
 if not bReadOnly then
-    table.insert(tMenuItems, "Save")
+    table.insert(tMenuItems, translate("cc.edit.save"))
 end
 if shell.openTab then
-    table.insert(tMenuItems, "Run")
+    table.insert(tMenuItems, translate("cc.edit.run"))
 end
 if peripheral.find("printer") then
-    table.insert(tMenuItems, "Print")
+    table.insert(tMenuItems, translate("cc.edit.print"))
 end
-table.insert(tMenuItems, "Exit")
+table.insert(tMenuItems, translate("cc.edit.exit"))
 
 local sStatus
 if term.isColour() then
-    sStatus = "Press Ctrl or click here to access menu"
+    sStatus = translate("cc.edit.status_with_mouse")
 else
-    sStatus = "Press Ctrl to access menu"
+    sStatus = translate("cc.edit.status_without_mouse")
 end
 if #sStatus > w - 5 then
-    sStatus = "Press Ctrl for menu"
+    sStatus = translate("cc.edit.status_short")
 end
 
 local function load(_sPath)
@@ -104,7 +106,7 @@ local function save(_sPath)
                 file.write(sLine .. "\n")
             end
         else
-            error("Failed to open " .. _sPath)
+            error(translate("cc.edit.open_failed"):format(_sPath))
         end
     end
 
@@ -288,37 +290,37 @@ local function redrawMenu()
 end
 
 local tMenuFuncs = {
-    Save = function()
+    [translate("cc.edit.save")] = function()
         if bReadOnly then
-            sStatus = "Access denied"
+            sStatus =  translate("cc.edit.access_denied")
         else
             local ok, _, fileerr  = save(sPath)
             if ok then
-                sStatus = "Saved to " .. sPath
+                sStatus = translate("cc.edit.saved"):format(sPath)
             else
                 if fileerr then
-                    sStatus = "Error saving to " .. fileerr
+                    sStatus = translate("cc.edit.error_saving"):format(fileerr)
                 else
-                    sStatus = "Error saving to " .. sPath
+                    sStatus = translate("cc.edit.error_saving"):format(sPath)
                 end
             end
         end
         redrawMenu()
     end,
-    Print = function()
+    [translate("cc.edit.print")] = function()
         local printer = peripheral.find("printer")
         if not printer then
-            sStatus = "No printer attached"
+            sStatus = translate("cc.edit.no_printer")
             return
         end
 
         local nPage = 0
         local sName = fs.getName(sPath)
         if printer.getInkLevel() < 1 then
-            sStatus = "Printer out of ink"
+            sStatus = translate("cc.edit.no_ink")
             return
         elseif printer.getPaperLevel() < 1 then
-            sStatus = "Printer out of paper"
+            sStatus =  translate("cc.edit.no_paper")
             return
         end
 
@@ -331,16 +333,16 @@ local tMenuFuncs = {
         }
         printerTerminal.scroll = function()
             if nPage == 1 then
-                printer.setPageTitle(sName .. " (page " .. nPage .. ")")
+                printer.setPageTitle(translate("cc.edit.page_title"):format(sName,nPage))
             end
 
             while not printer.newPage() do
                 if printer.getInkLevel() < 1 then
-                    sStatus = "Printer out of ink, please refill"
+                    sStatus = translate("cc.edit.no_ink")
                 elseif printer.getPaperLevel() < 1 then
-                    sStatus = "Printer out of paper, please refill"
+                    sStatus = translate("cc.edit.no_paper")
                 else
-                    sStatus = "Printer output tray full, please empty"
+                    sStatus = translate("cc.edit.printer_full")
                 end
 
                 term.redirect(screenTerminal)
@@ -354,7 +356,7 @@ local tMenuFuncs = {
             if nPage == 1 then
                 printer.setPageTitle(sName)
             else
-                printer.setPageTitle(sName .. " (page " .. nPage .. ")")
+                printer.setPageTitle(translate("cc.edit.page_title"):format(sName,nPage))
             end
         end
 
@@ -372,23 +374,23 @@ local tMenuFuncs = {
         end
 
         while not printer.endPage() do
-            sStatus = "Printer output tray full, please empty"
+            sStatus = translate("cc.edit.printer_full")
             redrawMenu()
             sleep(0.5)
         end
         bMenu = true
 
         if nPage > 1 then
-            sStatus = "Printed " .. nPage .. " Pages"
+            sStatus = translate("cc.edit.printed_multiple_pages"):format(nPage)
         else
-            sStatus = "Printed 1 Page"
+            sStatus = translate("cc.edit.printed_single_page")
         end
         redrawMenu()
     end,
-    Exit = function()
+    [translate("cc.edit.exit")] = function()
         bRunning = false
     end,
-    Run = function()
+    [translate("cc.edit.run")] = function()
         local sTempPath = "/.temp"
         local ok = save(sTempPath)
         if ok then
@@ -396,11 +398,11 @@ local tMenuFuncs = {
             if nTask then
                 shell.switchTab(nTask)
             else
-                sStatus = "Error starting Task"
+                sStatus = translate("cc.edit.error_saving")
             end
             fs.delete(sTempPath)
         else
-            sStatus = "Error saving to " .. sTempPath
+            sStatus = translate("cc.edit.error_saving"):format(sTempPath)
         end
         redrawMenu()
     end,

@@ -1,6 +1,8 @@
+local translate = require("cc.translate").translate
+
 local tArgs = { ... }
 if #tArgs > 2 then
-    print("Usage: alias <alias> <program>")
+    print(translate("cc.alias.usage"))
     return
 end
 

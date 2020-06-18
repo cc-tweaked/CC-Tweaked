@@ -1,8 +1,43 @@
 {
+    "cc.alias.usage": "Benutzung: alias <alias> <programm>",
+
+    "cc.cd.usage": "Benutzung: cd <pfad>",
+    "cc.cd.no_directory": "Der angegebene Pfad ist kein Verzeichnis",
+
     "cc.copy.usage": "Benutzung: cp <quelle> <ziel>",
     "cc.copy.exists": "Ziel existiert bereits",
     "cc.copy.read_only": "Ziel ist nur lesbar",
     "cc.copy.space": "Nicht genuegend Speicherplatz vorhanden",
     "cc.copy.overwrite_files": "Dateien koennen nicht mehrmals ueberschrieben werden",
-    "cc.copy.no_matching": "Keine passenden Dateien gefunden"
+    "cc.copy.no_matching": "Keine passenden Dateien gefunden",
+
+    "cc.delete.usage": "Benutzung: rm <pfade>",
+    "cc.delete.no_matching_files": "%s: Keine passenden Dateien",
+
+    "cc.drive.remaining.mb": "%s MB verfuegbar",
+    "cc.drive.remaining.kb": "%s KB verfuegbar",
+    "cc.drive.remaining.b": "%s B verfuegbar",
+    "cc.drive.no_path": "Der angegebene Pfad existiert nicht",
+
+    "cc.edit.usage": "Benutzung: edit <pfad>",
+    "cc.edit.directory_error": "Kann kein Verzeichnis bearbeiten.",
+    "cc.edit.save": "Speichern",
+    "cc.edit.run": "Ausfuehren",
+    "cc.edit.print": "Drucken",
+    "cc.edit.exit": "Beenden",
+    "cc.edit.status_with_mouse": "Druecke Strg oder klicke hier fuer das Menue",
+    "cc.edit.status_without_mouse": "Druecke Strg fuer das Menue",
+    "cc.edit.status_short": "Druecke Strg fuer das Menue",
+    "cc.edit.open_failed": "Konnte %s nicht oeffnen",
+    "cc.edit.access_denied": "Die Datei ist nur lesbar",
+    "cc.edit.saved": "Gespeichert als %s",
+    "cc.edit.error_saving": "Fehler beim speichern von %s",
+    "cc.edit.no_printer": "Kein Drucker verfuegbar",
+    "cc.edit.no_ink": "Keine Tinte mehr, bitte nachfuellen",
+    "cc.edit.no_paper": "Keine Papier mehr, bitte nachfuellen",
+    "cc.edit.printer_full": "Ausgabefach voll, bitte leeren",
+    "cc.edit.printed_multiple_pages": "%s Seiten gedruckt",
+    "cc.edit.printed_single_page": "Eine Seite gedruckt",
+    "cc.edit.error_saving": "Fehler beim starten", 
+    "cc.edit.page_title": "%s (Seite %s)"
 }

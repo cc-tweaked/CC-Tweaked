@@ -1,8 +1,43 @@
 {
+    "cc.alias.usage": "Usage: alias <alias> <program>",
+
+    "cc.cd.usage": "Usage: cd <path>",
+    "cc.cd.no_directory": "Not a directory",
+
     "cc.copy.usage": "Usage: cp <source> <destination>",
     "cc.copy.exists": "Destination exists",
     "cc.copy.read_only": "Destination is read-only",
     "cc.copy.space": "Not enough space",
     "cc.copy.overwrite_files": "Cannot overwrite file multiple times",
-    "cc.copy.no_matching": "No matching files"
+    "cc.copy.no_matching": "No matching files",
+
+    "cc.delete.usage": "Usage: rm <paths>",
+    "cc.delete.no_matching_files": "%s: No matching files",
+
+    "cc.drive.remaining.mb": "%s MB remaining",
+    "cc.drive.remaining.kb": "%s KB remaining",
+    "cc.drive.remaining.b": "%s B remaining",
+    "cc.drive.no_path": "No such path",
+
+    "cc.edit.usage": "Usage: edit <path>",
+    "cc.edit.directory_error": "Cannot edit a directory.",
+    "cc.edit.save": "Save",
+    "cc.edit.run": "Run",
+    "cc.edit.print": "Print",
+    "cc.edit.exit": "Exit",
+    "cc.edit.status_with_mouse": "Press Ctrl or click here to access menu",
+    "cc.edit.status_without_mouse": "Press Ctrl to access menu",
+    "cc.edit.status_short": "Press Ctrl for menu",
+    "cc.edit.open_failed": "Failed to open %s",
+    "cc.edit.access_denied": "Access denied",
+    "cc.edit.saved": "Saved to %s",
+    "cc.edit.error_saving": "Error saving to %s",
+    "cc.edit.no_printer": "No printer attached",
+    "cc.edit.no_ink": "Printer out of ink, please refill",
+    "cc.edit.no_paper": "Printer out of paper, please refill",
+    "cc.edit.printer_full": "Printer output tray full, please empty",
+    "cc.edit.printed_multiple_pages": "Printed %s Pages",
+    "cc.edit.printed_single_page": "Printed 1 Page",
+    "cc.edit.error_saving": "Error starting Task", 
+    "cc.edit.page_title": "%s (page %s)"
 }
