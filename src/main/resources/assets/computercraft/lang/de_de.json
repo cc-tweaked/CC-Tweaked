@@ -1,5 +1,5 @@
 {
-    "itemGroup.computercraft": "CC: Tweaked",
+    "itemGroup.computercraft": "ComputerCraft",
     "block.computercraft.computer_normal": "Computer",
     "block.computercraft.computer_advanced": "Erweiterter Computer",
     "block.computercraft.computer_command": "Befehlscomputer",
@@ -100,7 +100,7 @@
     "tracking_field.computercraft.turtle.name": "Turtle Operationen",
     "tracking_field.computercraft.http.name": "HTTP-Requests",
     "tracking_field.computercraft.http_upload.name": "HTTP Upload",
-    "tracking_field.computercraft.http_download.name": "HTTT Download",
+    "tracking_field.computercraft.http_download.name": "HTTP Download",
     "tracking_field.computercraft.websocket_incoming.name": "Websocket eingehend",
     "tracking_field.computercraft.websocket_outgoing.name": "Websocket ausgehend",
     "tracking_field.computercraft.coroutines_created.name": "Koroutinen erstellt",

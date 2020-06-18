@@ -1,5 +1,5 @@
 {
-    "itemGroup.computercraft": "CC: Tweaked",
+    "itemGroup.computercraft": "ComputerCraft",
     "block.computercraft.computer_normal": "计算机",
     "block.computercraft.computer_advanced": "高级计算机",
     "block.computercraft.computer_command": "命令电脑",
@@ -101,7 +101,7 @@
     "tracking_field.computercraft.turtle.name": "海龟操作",
     "tracking_field.computercraft.http.name": "HTTP需求",
     "tracking_field.computercraft.http_upload.name": "HTTP上传",
-    "tracking_field.computercraft.http_download.name": "HTTT下载",
+    "tracking_field.computercraft.http_download.name": "HTTP下载",
     "tracking_field.computercraft.websocket_incoming.name": "Websocket传入",
     "tracking_field.computercraft.websocket_outgoing.name": "Websocket传出",
     "tracking_field.computercraft.coroutines_created.name": "协同创建",
