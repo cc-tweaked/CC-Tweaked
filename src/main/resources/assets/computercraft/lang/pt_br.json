@@ -1,42 +1,32 @@
 {
-
     "block.computercraft.computer_normal": "Computador",
     "block.computercraft.computer_advanced": "Computador Avançado",
     "block.computercraft.computer_command": "Computador de Comandos",
-
     "block.computercraft.disk_drive": "Leitor de Disco",
     "block.computercraft.printer": "Impressora",
     "block.computercraft.speaker": "Alto-Falante",
-
     "block.computercraft.monitor_normal": "Monitor",
     "block.computercraft.monitor_advanced": "Monitor Avançado",
-
     "block.computercraft.wireless_modem_normal": "Modem sem Fio",
     "block.computercraft.wireless_modem_advanced": "Modem Ender",
-
     "block.computercraft.wired_modem": "Modem com Fio",
     "block.computercraft.cable": "Cabo de Rede",
     "block.computercraft.wired_modem_full": "Modem com Fio",
-
     "block.computercraft.turtle_normal": "Tartaruga",
     "block.computercraft.turtle_normal.upgraded": "Tartaruga %s",
     "block.computercraft.turtle_normal.upgraded_twice": "Tartaruga %s %s",
-
     "block.computercraft.turtle_advanced": "Tartaruga Avançada",
     "block.computercraft.turtle_advanced.upgraded": "Tartaruga Avançada %s",
     "block.computercraft.turtle_advanced.upgraded_twice": "Tartaruga Avançada %s %s",
-
     "item.computercraft.disk": "Disquete",
     "item.computercraft.treasure_disk": "Disquete",
     "item.computercraft.printed_page": "Página Impressa",
     "item.computercraft.printed_pages": "Páginas Impressas",
     "item.computercraft.printed_book": "Livro Impresso",
-
     "item.computercraft.pocket_computer_normal": "Computador Portátil",
     "item.computercraft.pocket_computer_normal.upgraded": "Computador Portátil %s",
     "item.computercraft.pocket_computer_advanced": "Computador Portátil Avançado",
     "item.computercraft.pocket_computer_advanced.upgraded": "Computador Portátil Avançado %s",
-
     "upgrade.minecraft.diamond_sword.adjective": "Lutadora",
     "upgrade.minecraft.diamond_shovel.adjective": "Escavadora",
     "upgrade.minecraft.diamond_pickaxe.adjective": "Mineiradora",
@@ -46,48 +36,7 @@
     "upgrade.computercraft.wireless_modem_normal.adjective": "sem Fio",
     "upgrade.computercraft.wireless_modem_advanced.adjective": "Ender",
     "upgrade.computercraft.speaker.adjective": "(Alto-Falante)",
-
     "chat.computercraft.wired_modem.peripheral_connected": "Periférico \"%s\" conectado à rede",
     "chat.computercraft.wired_modem.peripheral_disconnected": "Periférico \"%s\" desconectado da rede",
-
-    "gui.computercraft.tooltip.copy": "Copiar para a área de transferência",
-
-    "gui.computercraft.config.computer_space_limit": "Limite de espaço dos Computadores (bytes)",
-    "gui.computercraft.config.floppy_space_limit": "Limite de espaço dos Disquetes (bytes)",
-    "gui.computercraft.config.maximum_open_files": "Número máximo de arquivos em um computador",
-    "gui.computercraft.config.disable_lua51_features": "Desabilitar funcionalidade da Lua 5.1",
-    "gui.computercraft.config.default_computer_settings": "Configurações padrão para Computadores",
-    "gui.computercraft.config.debug_enabled": "Habilitar biblioteca de debug",
-    "gui.computercraft.config.log_computer_errors": "Registrar erros de computadores",
-
-    "gui.computercraft.config.execution.computer_threads": "Threads por computador",
-
-    "gui.computercraft.config.http": "HTTP",
-    "gui.computercraft.config.http.enabled": "Habilitar a biblioteca de HTTP",
-    "gui.computercraft.config.http.websocket_enabled": "Habilitar websockets",
-    "gui.computercraft.config.http.whitelist": "Lista de endereços autorizados",
-    "gui.computercraft.config.http.blacklist": "Lista de endereços proíbidos",
-
-    "gui.computercraft.config.http.timeout": "Tempo limite para conexões",
-    "gui.computercraft.config.http.max_requests": "Limite de conexões paralelas",
-    "gui.computercraft.config.http.max_download": "Tamanho limite de respostas",
-    "gui.computercraft.config.http.max_upload": "Tamanho limite de pedidos",
-    "gui.computercraft.config.http.max_websockets": "Limite de conexões websocket",
-    "gui.computercraft.config.http.max_websocket_message": "Tamanho limite de mensagens websocket",
-
-    "gui.computercraft.config.peripheral": "Periféricos",
-    "gui.computercraft.config.peripheral.command_block_enabled": "Habilitar periférico do bloco de comando",
-    "gui.computercraft.config.peripheral.modem_range": "Alcance do modem (padrão)",
-    "gui.computercraft.config.peripheral.modem_high_altitude_range": "Alcance do modem (altitude elevada)",
-    "gui.computercraft.config.peripheral.modem_range_during_storm": "Alcance do modem (clima ruim)",
-    "gui.computercraft.config.peripheral.modem_high_altitude_range_during_storm": "Alcance do modem (altitude elevada, clima ruim)",
-    "gui.computercraft.config.peripheral.max_notes_per_tick": "Número de notas que um computador pode tocar simultâneamente",
-
-    "gui.computercraft.config.turtle": "Tartarugas",
-    "gui.computercraft.config.turtle.need_fuel": "Habilitar combustível",
-    "gui.computercraft.config.turtle.normal_fuel_limit": "Limite de combustível de Tartarugas",
-    "gui.computercraft.config.turtle.advanced_fuel_limit": "Limite de combustível de Tartarugas Avançadas",
-    "gui.computercraft.config.turtle.obey_block_protection": "Tartarugas obedecem proteção de blocos",
-    "gui.computercraft.config.turtle.can_push": "Tartarugas podem empurrar entidades",
-    "gui.computercraft.config.turtle.disabled_actions": "Ações proíbidas para tartarugas"
+    "gui.computercraft.tooltip.copy": "Copiar para a área de transferência"
 }
