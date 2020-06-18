@@ -1,3 +1,5 @@
+local translate = require("cc.translate").translate
+
 local tArgs = { ... }
 
 -- Get all the files in the directory
@@ -7,7 +9,7 @@ if tArgs[1] ~= nil then
 end
 
 if not fs.isDir(sDir) then
-    printError("Not a directory")
+    printError(translate("cc.list.no_directory"))
     return
 end
 

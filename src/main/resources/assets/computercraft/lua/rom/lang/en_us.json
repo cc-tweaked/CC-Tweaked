@@ -39,5 +39,105 @@
     "cc.edit.printed_multiple_pages": "Printed %s Pages",
     "cc.edit.printed_single_page": "Printed 1 Page",
     "cc.edit.error_saving": "Error starting Task", 
-    "cc.edit.page_title": "%s (page %s)"
+    "cc.edit.page_title": "%s (page %s)",
+
+    "cc.eject.usage": "Usage: eject <drive>",
+    "cc.eject.no_drive": "Nothing in %s drive",
+
+    "cc.gps.usage": "Usages:",
+    "cc.gps.stationary_hosts": "GPS Hosts must be stationary",
+    "cc.gps.no_modem": "No wireless modems found. 1 required.",
+    "cc.gps.position_output": "Position is %s, %s, %s",
+    "cc.gps.position_ manually": "Run \"gps host <x> <y> <z>\" to set position manually",
+    "cc.gps.open_channel": "Opening channel on modem %s",
+    "cc.gps.requests_served": "%s GPS requests served",
+
+    "cc.help.available_topics": "Help topics available:",
+    "cc.help.not_available": "No help available",
+
+    "cc.id.computer_id": "This is computer #%s",
+    "cc.id.computer_label": "This computer is labelled \"%s\"",
+    "cc.id.no_disk": "No disk in drive %s",
+    "cc.id.disk_id": "The disk is #%s",
+    "cc.id.disk_label": "The disk is labelled \"%s\"",
+
+    "cc.label.usage_title": "Usages:",
+    "cc.label.usage_drive": "<drive>",
+    "cc.label.usage_text": "<text>",
+    "cc.label.no_disk": "No disk in %s drive",
+    "cc.label.no_drive": "No disk drive named %s",
+    "cc.label.disk_label_print": "Disk label is \"%s\"",
+    "cc.label.disk_label_empty": "No Disk label",
+    "cc.label.disk_label_set": "Disk label set to \"%s\"",
+    "cc.label.disk_label_clear": "Disk label cleared",
+    "cc.label.computer_label_print": "Computer label is \"%s\"",
+    "cc.label.computer_label_empty": "No Computer label",
+    "cc.label.computer_label_set": "Computer label set to \"%s\"",
+    "cc.label.computer_label_clear": "Computer label cleared",
+
+    "cc.list.no_directory": "Not a directory",
+
+    "cc.lua.run_with_args": "This is an interactive Lua prompt.\nTo run a lua program, just type its name.",
+    "cc.lua.call_exit": "Call exit() to exit.",
+    "cc.lua.startup_message": "Interactive Lua prompt.",
+    "cc.lua.local_warning": "To access local variables in later inputs, remove the local keyword.",
+
+    "cc.mkdir.usage": "Usage: mkdir <paths>",
+    "cc.mkdir.destination_exists": "%s: Destination exists",
+    "cc.mkdir.access_denied": "%s: Access denied",
+
+    "cc.monitor.usage": "Usage: monitor <name> <program> <arguments>",
+    "cc.monitor.no_monitor": "No monitor named %s",
+    "cc.monitor.no_program": "No such program: %s",
+    "cc.monitor.running": "Running %s on monitor %s",
+
+    "cc.move.usage": "Usage: mv <source> <destination>",
+    "cc.move.destination_exists": "Destination exists",
+    "cc.move.destination_read_only": "Destination is read-only",
+    "cc.move.source_mount": "Cannot move mount /%s",
+    "cc.move.source_read_only": "Cannot move read-only file /%s",
+    "cc.move.overwrite": "Cannot overwrite file multiple times",
+    "cc.move.no_matching": "No matching files",
+
+    "cc.peripherals.attached": "Attached Peripherals:",
+    "cc.peripherals.none": "None",
+
+    "cc.reboot.message": "Goodbye",
+
+    "cc.redstone.usage_title": "Usages:",
+    "cc.redstone.usage_side": "<side>",
+    "cc.redstone.usage_value": "<value>",
+    "cc.redstone.usage_color": "<color>",
+    "cc.redstone.count": "<count>",
+    "cc.redstone.usage_period": "<period>",
+    "cc.redstone.redstone_input": "Redstone inputs:",
+    "cc.redstone.bundled_inputs": "Bundled inputs:",
+    "cc.redstone.none": "None.",
+    "cc.redstone.no_color": "No such color",
+    "cc.redstone.no_boolean": "Value must be boolean",
+    "cc.redstone.no_number": "Value must be boolean or 0-15",
+
+    "cc.rename.usage": "Usage: rename <source> <destination>",
+    "cc.rename.matching": "No matching files",
+    "cc.rename.mount": "Can't rename mounts",
+    "cc.rename.source_read_only": "Source is read-only",
+    "cc.rename.exists": "Destination exists",
+    "cc.rename.destination_read_only": "Destination is read-only",
+
+    "cc.set.is": "is",
+    "cc.set.default": "default is",
+    "cc.set.unset": "%s unset",
+    "cc.set.not_valid": "%s is not a valid %s.",
+    "cc.set.set_to": "%s set to %s",
+
+    "cc.shell.no_program": "No such program",
+
+    "cc.shutdown.message": "Goodbye",
+
+    "cc.time.current_time": "The time is %s on Day %s",
+
+    "cc.type.usage": "Usage: type <path>",
+    "cc.type.directory": "Directory",
+    "cc.type.file": "File",
+    "cc.type.path": "No such path"
 }

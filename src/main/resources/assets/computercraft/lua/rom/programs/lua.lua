@@ -1,7 +1,8 @@
+local translate = require("cc.translate").translate
+
 local tArgs = { ... }
 if #tArgs > 0 then
-    print("This is an interactive Lua prompt.")
-    print("To run a lua program, just type its name.")
+    print(translate("cc.lua.run_with_args"))
     return
 end
 
@@ -11,7 +12,7 @@ local bRunning = true
 local tCommandHistory = {}
 local tEnv = {
     ["exit"] = setmetatable({}, {
-        __tostring = function() return "Call exit() to exit." end,
+        __tostring = function() return translate("cc.lua.call_exit") end,
         __call = function() bRunning = false end,
     }),
     ["_echo"] = function(...)
@@ -40,8 +41,8 @@ end
 if term.isColour() then
     term.setTextColour(colours.yellow)
 end
-print("Interactive Lua prompt.")
-print("Call exit() to exit.")
+print(translate("cc.lua.startup_message"))
+print(translate("cc.lua.call_exit"))
 term.setTextColour(colours.white)
 
 while bRunning do
@@ -70,7 +71,7 @@ while bRunning do
         if term.isColour() then
             term.setTextColour(colours.yellow)
         end
-       print("To access local variables in later inputs, remove the local keyword.")
+       print(translate("cc.lua.local_warning"))
        term.setTextColour(colours.white)
     end
 

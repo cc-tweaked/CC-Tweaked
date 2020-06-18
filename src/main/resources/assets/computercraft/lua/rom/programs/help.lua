@@ -1,3 +1,5 @@
+local translate = require("cc.translate").translate
+
 local tArgs = { ... }
 local sTopic
 if #tArgs > 0 then
@@ -7,7 +9,7 @@ else
 end
 
 if sTopic == "index" then
-    print("Help topics available:")
+    print(translate("cc.help.available_topics"))
     local tTopics = help.topics()
     textutils.pagedTabulate(tTopics)
     return
@@ -22,5 +24,5 @@ if file then
     local _, nHeight = term.getSize()
     textutils.pagedPrint(sContents, nHeight - 3)
 else
-    print("No help available")
+    print(translate("cc.help.not_available"))
 end

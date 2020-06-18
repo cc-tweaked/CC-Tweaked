@@ -1,11 +1,15 @@
+local translate = require("cc.translate").translate
+
 local function printUsage()
-    print("Usages:")
+    local drive = translate("cc.label.usage_drive")
+    local text = translate("cc.label.usage_text")
+    print(translate("cc.label.usage_title"))
     print("label get")
-    print("label get <drive>")
-    print("label set <text>")
-    print("label set <drive> <text>")
+    print("label get " .. drive)
+    print("label set " .. text)
+    print("label set " .. drive .. " " .. text)
     print("label clear")
-    print("label clear <drive>")
+    print("label clear " .. drive)
 end
 
 local function checkDrive(sDrive)
@@ -13,11 +17,11 @@ local function checkDrive(sDrive)
         -- Check the disk exists
         local bData = disk.hasData(sDrive)
         if not bData then
-            print("No disk in " .. sDrive .. " drive")
+            print(translate("cc.label.no_disk"):format(sDrive))
             return false
         end
     else
-        print("No disk drive named " .. sDrive)
+        print(translate("cc.label.no_drive"):format(sDrive))
         return false
     end
     return true
@@ -28,17 +32,17 @@ local function get(sDrive)
         if checkDrive(sDrive) then
             local sLabel = disk.getLabel(sDrive)
             if sLabel then
-                print("Disk label is \"" .. sLabel .. "\"")
+                print(translate("cc.label.disk_label_print"):format(sLabel))
             else
-                print("No Disk label")
+                print(translate("cc.label.disk_label_empty"))
             end
         end
     else
         local sLabel = os.getComputerLabel()
         if sLabel then
-            print("Computer label is \"" .. sLabel .. "\"")
+            print(translate("cc.label.computer_label_print"):format(sLabel))
         else
-            print("No Computer label")
+            print(ranslate("cc.label.computer_label_empty"))
         end
     end
 end
@@ -49,18 +53,18 @@ local function set(sDrive, sText)
             disk.setLabel(sDrive, sText)
             local sLabel = disk.getLabel(sDrive)
             if sLabel then
-                print("Disk label set to \"" .. sLabel .. "\"")
+                print(translate("cc.label.disk_label_set"):format(sLabel))
             else
-                print("Disk label cleared")
+                print(translate("cc.label.disk_label_clear"))
             end
         end
     else
         os.setComputerLabel(sText)
         local sLabel = os.getComputerLabel()
         if sLabel then
-            print("Computer label set to \"" .. sLabel .. "\"")
+            print(translate("cc.label.computer_label_set"):format(sLabel))
         else
-            print("Computer label cleared")
+            print(translate("cc.label.computer_label_clear"))
         end
     end
 end

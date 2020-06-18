@@ -1,3 +1,5 @@
+local translate = require("cc.translate").translate
+
 local nTime = os.time()
 local nDay = os.day()
-print("The time is " .. textutils.formatTime(nTime, false) .. " on Day " .. nDay)
+print(translate("cc.time.current_time"):format(textutils.formatTime(nTime, false), nDay))

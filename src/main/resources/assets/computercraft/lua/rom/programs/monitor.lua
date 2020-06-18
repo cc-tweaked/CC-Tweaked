@@ -1,5 +1,7 @@
+local translate = require("cc.translate").translate
+
 local function printUsage()
-    print("Usage: monitor <name> <program> <arguments>")
+    print(translate("cc.monitor.usage"))
     return
 end
 
@@ -11,18 +13,18 @@ end
 
 local sName = tArgs[1]
 if peripheral.getType(sName) ~= "monitor" then
-    print("No monitor named " .. sName)
+    print(translate("cc.monitor.no_monitor"):format(sName))
     return
 end
 
 local sProgram = tArgs[2]
 local sPath = shell.resolveProgram(sProgram)
 if sPath == nil then
-    print("No such program: " .. sProgram)
+    print(translate("cc.monitor.no_program"):format(sProgram))
     return
 end
 
-print("Running " .. sProgram .. " on monitor " .. sName)
+print(translate("cc.monitor.running"):format(sProgram,sName))
 
 local monitor = peripheral.wrap(sName)
 local previousTerm = term.redirect(monitor)

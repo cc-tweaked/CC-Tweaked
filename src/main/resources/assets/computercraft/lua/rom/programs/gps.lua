@@ -1,5 +1,7 @@
+local translate = require("cc.translate").translate
+
 local function printUsage()
-    print("Usages:")
+    print(translate("cc.gps.usage"))
     print("gps host")
     print("gps host <x> <y> <z>")
     print("gps locate")
@@ -21,7 +23,7 @@ elseif sCommand == "host" then
     -- "gps host"
     -- Act as a GPS host
     if pocket then
-        print("GPS Hosts must be stationary")
+        print(translate("cc.gps.stationary_hosts"))
         return
     end
 
@@ -35,7 +37,7 @@ elseif sCommand == "host" then
     end
 
     if sModemSide == nil then
-        print("No wireless modems found. 1 required.")
+        print(translate("cc.gps.no_modem"))
         return
     end
 
@@ -50,19 +52,19 @@ elseif sCommand == "host" then
             printUsage()
             return
         end
-        print("Position is " .. x .. "," .. y .. "," .. z)
+        print(translate("cc.gps.position_output"):format(x,y,z))
     else
         -- Position is to be determined using locate
         x, y, z = gps.locate(2, true)
         if x == nil then
-            print("Run \"gps host <x> <y> <z>\" to set position manually")
+            print(translate("cc.gps.position_ manually"))
             return
         end
     end
 
     -- Open a channel
     local modem = peripheral.wrap(sModemSide)
-    print("Opening channel on modem " .. sModemSide)
+    print(translate("cc.gps.open_channel"):format(sModemSide))
     modem.open(gps.CHANNEL_GPS)
 
     -- Serve requests indefinately
@@ -82,7 +84,7 @@ elseif sCommand == "host" then
                     local _, y = term.getCursorPos()
                     term.setCursorPos(1, y - 1)
                 end
-                print(nServed .. " GPS requests served")
+                print(translate("cc.gps.requests_served"):format(nServed))
             end
         end
     end

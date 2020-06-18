@@ -1,6 +1,8 @@
+local translate = require("cc.translate").translate
+
 local tArgs = { ... }
 if #tArgs < 2 then
-    print("Usage: mv <source> <destination>")
+    print(translate("cc.monitor.usage"))
     return
 end
 
@@ -10,16 +12,16 @@ local tFiles = fs.find(sSource)
 
 local function sanity_checks(source, dest)
     if fs.exists(dest) then
-        printError("Destination exists")
+        printError(translate("cc.move.destination_exists"))
         return false
     elseif fs.isReadOnly(dest) then
-        printError("Destination is read-only")
+        printError(translate("cc.move.destination_read_only"))
         return false
     elseif fs.isDriveRoot(source) then
-        printError("Cannot move mount /" .. source)
+        printError(translate("cc.move.source_mount"):format(source))
         return false
     elseif fs.isReadOnly(source) then
-        printError("Cannot move read-only file /" .. source)
+        printError(translate("cc.move.source_read_only"):format(source))
         return false
     end
     return true
@@ -37,10 +39,10 @@ if #tFiles > 0 then
                 fs.move(sFile, sDest)
             end
         else
-            printError("Cannot overwrite file multiple times")
+            printError(translate("cc.move.overwrite"))
             return
         end
     end
 else
-    printError("No matching files")
+    printError(translate("cc.move.no_matching"))
 end

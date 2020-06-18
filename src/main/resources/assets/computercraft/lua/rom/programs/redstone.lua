@@ -1,18 +1,25 @@
+local translate = require("cc.translate").translate
+
 local tArgs = { ... }
 
 local function printUsage()
-    print("Usages:")
+    local side = translate("cc.redstone.usage_side")
+    local value = translate("cc.redstone.usage_value")
+    local color = translate("cc.redstone.usage_color")
+    local count = translate("cc.redstone.count")
+    local period = translate("cc.redstone.usage_period")
+    print(translate("cc.redstone.usage_title"))
     print("redstone probe")
-    print("redstone set <side> <value>")
-    print("redstone set <side> <color> <value>")
-    print("redstone pulse <side> <count> <period>")
+    print("redstone set " .. side .. " " ..value)
+    print("redstone set " .. side .. " " .. color .. " " .. value)
+    print("redstone pulse " .. side .. " " .. count .. " " .. period)
 end
 
 local sCommand = tArgs[1]
 if sCommand == "probe" then
     -- "redstone probe"
     -- Regular input
-    print("Redstone inputs: ")
+    print(translate("cc.redstone.redstone_input"))
 
     local count = 0
     local bundledCount = 0
@@ -31,13 +38,13 @@ if sCommand == "probe" then
     if count > 0 then
         print(".")
     else
-        print("None.")
+        print(translate("cc.redstone.none"))
     end
 
     -- Bundled input
     if bundledCount > 0 then
         print()
-        print("Bundled inputs:")
+        print(translate("cc.redstone.bundled_inputs"))
         for _, sSide in ipairs(redstone.getSides()) do
             local nInput = redstone.getBundledInput(sSide)
             if nInput ~= 0 then
@@ -83,7 +90,7 @@ elseif sCommand == "set" then
         local sColour = tArgs[3]
         local nColour = colors[sColour] or colours[sColour]
         if type(nColour) ~= "number" then
-            printError("No such color")
+            printError(translate("cc.redstone.no_color"))
             return
         end
 
@@ -93,7 +100,7 @@ elseif sCommand == "set" then
         elseif sValue == "false" then
             rs.setBundledOutput(sSide, colors.subtract(rs.getBundledOutput(sSide), nColour))
         else
-            print("Value must be boolean")
+            print(translate("cc.redstone.no_boolean"))
         end
     else
         -- Regular output
@@ -106,7 +113,7 @@ elseif sCommand == "set" then
         elseif nValue and nValue >= 0 and nValue <= 15 then
             rs.setAnalogOutput(sSide, nValue)
         else
-            print("Value must be boolean or 0-15")
+            print(translate("cc.redstone.no_number"))
         end
     end
 

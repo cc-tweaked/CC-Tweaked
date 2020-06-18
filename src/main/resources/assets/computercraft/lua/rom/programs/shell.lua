@@ -12,6 +12,7 @@
 
 local expect = dofile("rom/modules/main/cc/expect.lua").expect
 local make_package = dofile("rom/modules/main/cc/require.lua").make
+local translate = dofile("rom/modules/main/cc/translate.lua").translate
 
 local multishell = multishell
 local parentShell = shell
@@ -95,7 +96,7 @@ function shell.execute(command, ...)
         end
         return result
        else
-        printError("No such program")
+        printError(translate("cc.shell.no_program"))
         return false
     end
 end
@@ -557,7 +558,7 @@ if multishell then
             elseif sPath ~= nil then
                 return multishell.launch(createShellEnv("rom/programs"), "rom/programs/shell.lua", sCommand, table.unpack(tWords, 2))
             else
-                printError("No such program")
+                printError(translate("cc.shell.no_program"))
             end
         end
     end
