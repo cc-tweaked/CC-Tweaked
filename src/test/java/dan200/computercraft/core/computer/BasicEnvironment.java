@@ -12,6 +12,7 @@ import dan200.computercraft.core.filesystem.FileMount;
 import dan200.computercraft.core.filesystem.JarMount;
 import dan200.computercraft.core.filesystem.MemoryMount;
 
+import javax.annotation.Nonnull;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -73,10 +74,18 @@ public class BasicEnvironment implements IComputerEnvironment
         return ComputerCraft.computerSpaceLimit;
     }
 
+    @Nonnull
     @Override
     public String getHostString()
     {
-        return "ComputerCraft ${version} (Test environment)";
+        return "ComputerCraft 1.0 (Test environment)";
+    }
+
+    @Nonnull
+    @Override
+    public String getUserAgent()
+    {
+        return "ComputerCraft/1.0";
     }
 
     @Override

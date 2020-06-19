@@ -197,11 +197,6 @@ public final class ComputerCraft
         Config.load();
     }
 
-    public static String getVersion()
-    {
-        return "${version}";
-    }
-
     public static InputStream getResourceFile( String domain, String subPath )
     {
         IReloadableResourceManager manager = ServerLifecycleHooks.getCurrentServer().getResourceManager();

@@ -30,6 +30,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.server.ServerLifecycleHooks;
 import net.minecraftforge.versions.mcp.MCPVersion;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.InputStream;
 
@@ -341,10 +342,18 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
         return ComputerCraft.computerSpaceLimit;
     }
 
+    @Nonnull
     @Override
     public String getHostString()
     {
-        return "ComputerCraft ${version} (Minecraft " + MCPVersion.getMCVersion() + ")";
+        return String.format( "ComputerCraft %s (Minecraft %s)", ComputerCraftAPI.getInstalledVersion(), MCPVersion.getMCVersion() );
+    }
+
+    @Nonnull
+    @Override
+    public String getUserAgent()
+    {
+        return ComputerCraft.MOD_ID + "/" + ComputerCraftAPI.getInstalledVersion();
     }
 
     @Override

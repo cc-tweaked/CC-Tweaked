@@ -84,7 +84,7 @@ public final class HttpRequestHandler extends SimpleChannelInboundHandler<HttpOb
         }
         if( !request.headers().contains( HttpHeaderNames.USER_AGENT ) )
         {
-            request.headers().set( HttpHeaderNames.USER_AGENT, ComputerCraft.MOD_ID + "/" + ComputerCraft.getVersion() );
+            request.headers().set( HttpHeaderNames.USER_AGENT, this.request.environment().getComputerEnvironment().getUserAgent() );
         }
         request.headers().set( HttpHeaderNames.HOST, uri.getHost() );
         request.headers().set( HttpHeaderNames.CONNECTION, HttpHeaderValues.CLOSE );

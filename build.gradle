@@ -202,8 +202,6 @@ task proguardMove(dependsOn: proguard) {
     }
 }
 
-
-
 processResources {
     inputs.property "version", mod_version
     inputs.property "mcversion", mc_version

@@ -5,7 +5,6 @@
  */
 package dan200.computercraft;
 
-import com.google.common.collect.MapMaker;
 import dan200.computercraft.api.ComputerCraftAPI.IComputerCraftAPI;
 import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.api.filesystem.IWritableMount;
@@ -28,17 +27,15 @@ import dan200.computercraft.shared.wired.WiredNode;
 import net.minecraft.resources.IReloadableResourceManager;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.LazyOptional;
+import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.server.ServerLifecycleHooks;
 
 import javax.annotation.Nonnull;
 import java.io.File;
-import java.lang.ref.WeakReference;
-import java.util.Map;
 
 import static dan200.computercraft.shared.Capabilities.CAPABILITY_WIRED_ELEMENT;
 
@@ -46,18 +43,20 @@ public final class ComputerCraftAPIImpl implements IComputerCraftAPI
 {
     public static final ComputerCraftAPIImpl INSTANCE = new ComputerCraftAPIImpl();
 
+    private String version;
+
     private ComputerCraftAPIImpl()
     {
     }
-
-    private WeakReference<IReloadableResourceManager> currentResources;
-    private final Map<ResourceLocation, ResourceMount> mountCache = new MapMaker().weakValues().concurrencyLevel( 1 ).makeMap();
 
     @Nonnull
     @Override
     public String getInstalledVersion()
     {
-        return "${version}";
+        if( version != null ) return version;
+        return version = ModList.get().getModContainerById( ComputerCraft.MOD_ID )
+            .map( x -> x.getModInfo().getVersion().toString() )
+            .orElse( "unknown" );
     }
 
     @Override

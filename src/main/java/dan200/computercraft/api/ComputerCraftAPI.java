@@ -43,9 +43,10 @@ public final class ComputerCraftAPI
     }
 
     @Nonnull
+    @Deprecated
     public static String getAPIVersion()
     {
-        return "${version}";
+        return getInstalledVersion();
     }
 
     /**

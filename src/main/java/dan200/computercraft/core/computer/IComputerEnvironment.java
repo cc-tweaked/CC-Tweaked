@@ -8,6 +8,8 @@ package dan200.computercraft.core.computer;
 import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.api.filesystem.IWritableMount;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.InputStream;
 
 public interface IComputerEnvironment
@@ -20,13 +22,20 @@ public interface IComputerEnvironment
 
     long getComputerSpaceLimit();
 
+    @Nonnull
     String getHostString();
+
+    @Nonnull
+    String getUserAgent();
 
     int assignNewID();
 
+    @Nullable
     IWritableMount createSaveDirMount( String subPath, long capacity );
 
+    @Nullable
     IMount createResourceMount( String domain, String subPath );
 
+    @Nullable
     InputStream createResourceFile( String domain, String subPath );
 }
