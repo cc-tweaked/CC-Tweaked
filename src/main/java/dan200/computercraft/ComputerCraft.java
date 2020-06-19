@@ -108,14 +108,17 @@ public final class ComputerCraft
     public static boolean turtlesCanPush = true;
     public static EnumSet<TurtleAction> turtleDisabledActions = EnumSet.noneOf( TurtleAction.class );
 
-    public static final int terminalWidth_computer = 51;
-    public static final int terminalHeight_computer = 19;
+    public static int computerTermWidth = 51;
+    public static int computerTermHeight = 19;
 
-    public static final int terminalWidth_turtle = 39;
-    public static final int terminalHeight_turtle = 13;
+    public static int turtleTermWidth = 39;
+    public static int turtleTermHeight = 13;
 
-    public static final int terminalWidth_pocketComputer = 26;
-    public static final int terminalHeight_pocketComputer = 20;
+    public static int pocketTermWidth = 26;
+    public static int pocketTermHeight = 20;
+
+    public static int monitorWidth = 8;
+    public static int monitorHeight = 6;
 
     // Blocks and Items
     public static final class Blocks

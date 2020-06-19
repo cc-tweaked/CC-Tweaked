@@ -49,13 +49,13 @@ public class GuiTurtle extends ContainerScreen<ContainerTurtle>
         super.init();
         minecraft.keyboardListener.enableRepeatEvents( true );
 
-        int termPxWidth = ComputerCraft.terminalWidth_turtle * FixedWidthFontRenderer.FONT_WIDTH;
-        int termPxHeight = ComputerCraft.terminalHeight_turtle * FixedWidthFontRenderer.FONT_HEIGHT;
+        int termPxWidth = ComputerCraft.turtleTermWidth * FixedWidthFontRenderer.FONT_WIDTH;
+        int termPxHeight = ComputerCraft.turtleTermHeight * FixedWidthFontRenderer.FONT_HEIGHT;
 
         terminal = new WidgetTerminal(
             minecraft, () -> m_computer,
-            ComputerCraft.terminalWidth_turtle,
-            ComputerCraft.terminalHeight_turtle,
+            ComputerCraft.turtleTermWidth,
+            ComputerCraft.turtleTermHeight,
             2, 2, 2, 2
         );
         terminalWrapper = new WidgetWrapper( terminal, 2 + 8 + guiLeft, 2 + 8 + guiTop, termPxWidth, termPxHeight );

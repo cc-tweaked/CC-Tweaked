@@ -53,9 +53,6 @@ public class TileMonitor extends TileGeneric
     public static final double RENDER_MARGIN = 0.5 / 16.0;
     public static final double RENDER_PIXEL_SCALE = 1.0 / 64.0;
 
-    private static final int MAX_WIDTH = 8;
-    private static final int MAX_HEIGHT = 6;
-
     private static final String NBT_X = "XIndex";
     private static final String NBT_Y = "YIndex";
     private static final String NBT_WIDTH = "Width";
@@ -485,7 +482,7 @@ public class TileMonitor extends TileGeneric
         if( left == null || left.m_yIndex != 0 || left.m_height != m_height ) return false;
 
         int width = left.m_width + m_width;
-        if( width > MAX_WIDTH ) return false;
+        if( width > ComputerCraft.monitorWidth ) return false;
 
         TileMonitor origin = left.getOrigin();
         if( origin != null ) origin.resize( width, m_height );
@@ -499,7 +496,7 @@ public class TileMonitor extends TileGeneric
         if( right == null || right.m_yIndex != 0 || right.m_height != m_height ) return false;
 
         int width = m_width + right.m_width;
-        if( width > MAX_WIDTH ) return false;
+        if( width > ComputerCraft.monitorWidth ) return false;
 
         TileMonitor origin = getOrigin();
         if( origin != null ) origin.resize( width, m_height );
@@ -513,7 +510,7 @@ public class TileMonitor extends TileGeneric
         if( above == null || above.m_xIndex != 0 || above.m_width != m_width ) return false;
 
         int height = above.m_height + m_height;
-        if( height > MAX_HEIGHT ) return false;
+        if( height > ComputerCraft.monitorHeight ) return false;
 
         TileMonitor origin = getOrigin();
         if( origin != null ) origin.resize( m_width, height );
@@ -527,7 +524,7 @@ public class TileMonitor extends TileGeneric
         if( below == null || below.m_xIndex != 0 || below.m_width != m_width ) return false;
 
         int height = m_height + below.m_height;
-        if( height > MAX_HEIGHT ) return false;
+        if( height > ComputerCraft.monitorHeight ) return false;
 
         TileMonitor origin = below.getOrigin();
         if( origin != null ) origin.resize( m_width, height );

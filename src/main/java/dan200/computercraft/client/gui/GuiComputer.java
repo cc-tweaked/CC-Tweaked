@@ -52,7 +52,7 @@ public final class GuiComputer<T extends ContainerComputerBase> extends Containe
     {
         return new GuiComputer<>(
             container, inventory, component,
-            ComputerCraft.terminalWidth_computer, ComputerCraft.terminalHeight_computer
+            ComputerCraft.computerTermWidth, ComputerCraft.computerTermHeight
         );
     }
 
@@ -60,7 +60,7 @@ public final class GuiComputer<T extends ContainerComputerBase> extends Containe
     {
         return new GuiComputer<>(
             container, inventory, component,
-            ComputerCraft.terminalWidth_pocketComputer, ComputerCraft.terminalHeight_pocketComputer
+            ComputerCraft.pocketTermWidth, ComputerCraft.pocketTermHeight
         );
     }
 
