@@ -1,5 +1,7 @@
+local translate = require("cc.translate").translate
+
 if not shell.openTab then
-    printError("Requires multishell")
+    printError(translate("cc.fg.requires_multishell"))
     return
 end
 

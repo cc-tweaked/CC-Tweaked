@@ -1,11 +1,13 @@
+local translate = require("cc.translate").translate
+
 if not turtle then
-    printError("Requires a Turtle")
+    printError(translate("cc.turtle_equip.requires_turtle"))
     return
 end
 
 local tArgs = { ... }
 local function printUsage()
-    print("Usage: equip <slot> <side>")
+    print(translate("cc.turtle_equip.usage"))
 end
 
 if #tArgs ~= 2 then
@@ -17,16 +19,16 @@ local function equip(nSlot, fnEquipFunction)
     turtle.select(nSlot)
     local nOldCount = turtle.getItemCount(nSlot)
     if nOldCount == 0 then
-        print("Nothing to equip")
+        print(translate("cc.turtle_equip.nothing"))
     elseif fnEquipFunction() then
         local nNewCount = turtle.getItemCount(nSlot)
         if nNewCount > 0 then
-            print("Items swapped")
+            print(translate("cc.turtle_equip.swapped"))
         else
-            print("Item equipped")
+            print(translate("cc.turtle_equip.equiped"))
         end
     else
-        print("Item not equippable")
+        print(translate("cc.turtle_equip.not_equippable"))
     end
 end
 

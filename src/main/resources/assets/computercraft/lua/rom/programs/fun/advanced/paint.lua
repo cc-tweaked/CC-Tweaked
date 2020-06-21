@@ -1,3 +1,4 @@
+local translate = require("cc.translate").translate
 -- Paint created by nitrogenfingers (edited by dan200)
 -- http://www.youtube.com/user/NitrogenFingers
 
@@ -16,10 +17,10 @@ local canvasColour = colours.black
 local canvas = {}
 
 -- The menu options
-local mChoices = { "Save", "Exit" }
+local mChoices = { translate("cc.paint.save"), translate("cc.paint.exit") }
 
 -- The message displayed in the footer bar
-local fMessage = "Press Ctrl or click here to access menu"
+local fMessage = translate("cc.paint.menu_message")
 
 -------------------------
 -- Initialisation --
@@ -27,20 +28,20 @@ local fMessage = "Press Ctrl or click here to access menu"
 
 -- Determine if we can even run this
 if not term.isColour() then
-    print("Requires an Advanced Computer")
+    print(translate("cc.paint.requires_advanced_computer"))
     return
 end
 
 -- Determines if the file exists, and can be edited on this computer
 local tArgs = { ... }
 if #tArgs == 0 then
-    print("Usage: paint <path>")
+    print(translate("cc.paint.usage"))
     return
 end
 local sPath = shell.resolve(tArgs[1])
 local bReadOnly = fs.isReadOnly(sPath)
 if fs.exists(sPath) and fs.isDir(sPath) then
-    print("Cannot edit a directory.")
+    print(translate("cc.paint.directory"))
     return
 end
 
@@ -253,24 +254,24 @@ local function drawCanvas()
 end
 
 local menu_choices = {
-    Save = function()
+    [translate("cc.paint.save")] = function()
         if bReadOnly then
-            fMessage = "Access denied"
+            fMessage = translate("cc.paint.access_denied")
             return false
         end
         local success, err = save(sPath)
         if success then
-            fMessage = "Saved to " .. sPath
+            fMessage = translate("cc.paint.saved"):format(sPath)
         else
             if err then
-                fMessage = "Error saving to " .. err
+                fMessage = translate("cc.paint.error_saving"):format(err)
             else
-                fMessage = "Error saving to " .. sPath
+                fMessage = translate("cc.paint.error_saving"):format(sPath)
             end
         end
         return false
     end,
-    Exit = function()
+    [translate("cc.paint.exit")] = function()
         return true
     end,
 }

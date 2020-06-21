@@ -1,5 +1,7 @@
+local translate = require("cc.translate").translate
+
 if not pocket then
-    printError("Requires a Pocket Computer")
+    printError(translate("cc.pocket_unequip.requires_pocket"))
     return
 end
 
@@ -7,5 +9,5 @@ local ok, err = pocket.unequipBack()
 if not ok then
     printError(err)
 else
-    print("Item unequipped")
+    print(translate("cc.pocket_unequip.item_unequipped"))
 end

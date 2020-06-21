@@ -1,11 +1,13 @@
+local translate = require("cc.translate").translate
+
 if not turtle then
-    printError("Requires a Turtle")
+    printError(translate("cc.turtle_unequip.requires_turtle"))
     return
 end
 
 local tArgs = { ... }
 local function printUsage()
-    print("Usage: unequip <side>")
+    print(translate("cc.turtle_unequip.usage"))
 end
 
 if #tArgs ~= 1 then
@@ -21,16 +23,16 @@ local function unequip(fnEquipFunction)
             if fnEquipFunction() then
                 local nNewCount = turtle.getItemCount(nSlot)
                 if nNewCount > 0 then
-                    print("Item unequipped")
+                    print(translate("cc.turtle_unequip.unequipped"))
                     return
                 else
-                    print("Nothing to unequip")
+                    print(translate("cc.turtle_unequip.nothing"))
                     return
                 end
             end
         end
     end
-    print("No space to unequip item")
+    print(translate("cc.turtle_unequip.space"))
 end
 
 local sSide = tArgs[1]

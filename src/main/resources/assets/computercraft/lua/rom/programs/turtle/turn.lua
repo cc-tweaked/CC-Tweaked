@@ -1,11 +1,13 @@
+local translate = require("cc.translate").translate
+
 if not turtle then
-    printError("Requires a Turtle")
+    printError(translate("cc.turn.requires_turtle"))
     return
 end
 
 local tArgs = { ... }
 if #tArgs < 1 then
-    print("Usage: turn <direction> <turns>")
+    print(translate("cc.turn.usage"))
     return
 end
 
@@ -35,8 +37,7 @@ while nArg <= #tArgs do
             fnHandler(nArg)
         end
     else
-        print("No such direction: " .. sDirection)
-        print("Try: left, right")
+        print(translate("cc.turn.unknown_direction"):format(sDirection))
         return
     end
 end

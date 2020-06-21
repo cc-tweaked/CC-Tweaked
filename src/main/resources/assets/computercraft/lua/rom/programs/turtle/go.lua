@@ -1,11 +1,13 @@
+local translate = require("cc.translate").translate
+
 if not turtle then
-    printError("Requires a Turtle")
+    printError(translate("cc.go.requires_turtle"))
     return
 end
 
 local tArgs = { ... }
 if #tArgs < 1 then
-    print("Usage: go <direction> <distance>")
+    print(translate("cc.go.usage"))
     return
 end
 
@@ -43,15 +45,14 @@ while nArg <= #tArgs do
             if fnHandler() then
                 nDistance = nDistance - 1
             elseif turtle.getFuelLevel() == 0 then
-                print("Out of fuel")
+                print(translate("cc.go.no_fuel"))
                 return
             else
                 sleep(0.5)
             end
         end
     else
-        print("No such direction: " .. sDirection)
-        print("Try: forward, back, up, down")
+        print(translate("cc.go.unknown_direction"):format(sDirection))
         return
     end
 

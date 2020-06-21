@@ -1,10 +1,12 @@
+local translate = require("cc.translate").translate
+
 local tArgs = { ... }
 if not commands then
-    printError("Requires a Command Computer.")
+    printError(translate("cc.exec.requires_command_computer"))
     return
 end
 if #tArgs == 0 then
-    printError("Usage: exec <command>")
+    printError(translate("cc.exec.usage"))
     return
 end
 
@@ -23,14 +25,14 @@ end
 
 local bResult, tOutput = commands.exec(sCommand)
 if bResult then
-    printSuccess("Success")
+    printSuccess(translate("cc.exec.success"))
     if #tOutput > 0 then
         for n = 1, #tOutput do
             print(tOutput[n])
         end
     end
 else
-    printError("Failed")
+    printError(translate("cc.exec.failed"))
     if #tOutput > 0 then
         for n = 1, #tOutput do
             print(tOutput[n])

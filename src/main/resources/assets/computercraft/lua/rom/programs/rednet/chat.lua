@@ -1,9 +1,11 @@
+local translate = require("cc.translate").translate
+
 local tArgs = { ... }
 
 local function printUsage()
-    print("Usages:")
-    print("chat host <hostname>")
-    print("chat join <hostname> <nickname>")
+    print(translate("cc.chat.usage_title"))
+    print("chat host " .. translate("cc.chat.usage_hostname"))
+    print("chat join " .. translate("cc.chat.usage_hostname") .. " " .. translate("cc.chat.usage_nickname"))
 end
 
 local sOpenedModem = nil
@@ -17,7 +19,7 @@ local function openModem()
             return true
         end
     end
-    print("No modems found.")
+    print(translate("cc.chat.no_modem"))
     return false
 end
 
@@ -53,7 +55,7 @@ if sCommand == "host" then
         return
     end
     rednet.host("chat", sHostname)
-    print("0 users connected.")
+    print(translate("cc.chat.multiple_users_connected"):format(0))
 
     local tUsers = {}
     local nUsers = 0
@@ -97,9 +99,9 @@ if sCommand == "host" then
         term.setCursorPos(1, y - 1)
         term.clearLine()
         if nUsers == 1 then
-            print(nUsers .. " user connected.")
+            print(translate("cc.chat.single_user_connected"))
         else
-            print(nUsers .. " users connected.")
+            print(translate("cc.chat.multiple_users_connected"):format(nUsers))
         end
     end
 
@@ -113,7 +115,7 @@ if sCommand == "host" then
                     local tUser = tUsers[nUserID]
                     if tUser then
                         if not tUser.bPingPonged then
-                            send("* " .. tUser.sUsername .. " has timed out")
+                            send("* " .. translate("cc.chat.timed_out"):format(tUser.sUsername))
                             tUsers[nUserID] = nil
                             nUsers = nUsers - 1
                             printUsers()
@@ -132,20 +134,20 @@ if sCommand == "host" then
                         if #sContent > 0 then
                             send("* " .. tUser.sUsername .. " " .. sContent)
                         else
-                            send("* Usage: /me [words]", tUser.nUserID)
+                            send("* " .. translate("cc.chat.me_usage"), tUser.nUserID)
                         end
                     end,
                     ["nick"] = function(tUser, sContent)
                         if #sContent > 0 then
                             local sOldName = tUser.sUsername
                             tUser.sUsername = sContent
-                            send("* " .. sOldName .. " is now known as " .. tUser.sUsername)
+                            send("* " .. translate("cc.chat.new_nick"):format(sOldName,tUser.sUsername))
                         else
-                            send("* Usage: /nick [nickname]", tUser.nUserID)
+                            send("* " .. translate("cc.chat.nick_usage"), tUser.nUserID)
                         end
                     end,
                     ["users"] = function(tUser, sContent)
-                        send("* Connected Users:", tUser.nUserID)
+                        send("* " .. translate("cc.chat.connected_users"), tUser.nUserID)
                         local sUsers = "*"
                         for _, tUser in pairs(tUsers) do
                             sUsers = sUsers .. " " .. tUser.sUsername
@@ -153,7 +155,7 @@ if sCommand == "host" then
                         send(sUsers, tUser.nUserID)
                     end,
                     ["help"] = function(tUser, sContent)
-                        send("* Available commands:", tUser.nUserID)
+                        send("* " .. translate("cc.chat.available_commands"), tUser.nUserID)
                         local sCommands = "*"
                         for sCommand in pairs(tCommands) do
                             sCommands = sCommands .. " /" .. sCommand
@@ -176,7 +178,7 @@ if sCommand == "host" then
                             }
                             nUsers = nUsers + 1
                             printUsers()
-                            send("* " .. sUsername .. " has joined the chat")
+                            send("* " .. translate("cc.chat.joined"):format(sUsername))
                             ping(nUserID)
                         end
 
@@ -186,7 +188,7 @@ if sCommand == "host" then
                         local tUser = tUsers[nUserID]
                         if tUser and tUser.nID == nSenderID then
                             if tMessage.sType == "logout" then
-                                send("* " .. tUser.sUsername .. " has left the chat")
+                                send("* " .. translate("cc.chat.left"):format(tUser.sUsername))
                                 tUsers[nUserID] = nil
                                 nUsers = nUsers - 1
                                 printUsers()
@@ -201,7 +203,7 @@ if sCommand == "host" then
                                             local sContent = string.sub(sMessage, #sCommand + 3)
                                             fnCommand(tUser, sContent)
                                         else
-                                            send("* Unrecognised command: /" .. sCommand, tUser.nUserID)
+                                            send("* " .. translate("cc.chat.unrecognised_command"):format("/" .. sCommand), tUser.nUserID)
                                         end
                                     else
                                         send("<" .. tUser.sUsername .. "> " .. tMessage.sText)
@@ -252,13 +254,13 @@ elseif sCommand == "join" then
     if not openModem() then
         return
     end
-    write("Looking up " .. sHostname .. "... ")
+    write(translate("cc.chat.looking_up"):format(sHostname) .. " ")
     local nHostID = rednet.lookup("chat", sHostname)
     if nHostID == nil then
-        print("Failed.")
+        print(translate("cc.chat.failed"))
         return
     else
-        print("Success.")
+        print(translate("cc.chat.success"))
     end
 
     -- Login
@@ -338,7 +340,7 @@ elseif sCommand == "join" then
                 if sEvent == "timer" then
                     if timer == pingPongTimer then
                         if not bPingPonged then
-                            printMessage("Server timeout.")
+                            printMessage(translate("cc.chat.server_timeout"))
                             return
                         else
                             ping()
@@ -424,7 +426,7 @@ elseif sCommand == "join" then
     closeModem()
 
     -- Print disconnection notice
-    print("Disconnected.")
+    print(translate("cc.chat.disconnected"))
 
 else
     -- "chat somethingelse"

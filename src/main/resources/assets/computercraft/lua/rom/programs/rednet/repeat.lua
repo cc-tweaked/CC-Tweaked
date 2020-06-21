@@ -1,3 +1,5 @@
+local translate = require("cc.translate").translate
+
 -- Find modems
 local tModems = {}
 for _, sModem in ipairs(peripheral.getNames()) do
@@ -6,12 +8,12 @@ for _, sModem in ipairs(peripheral.getNames()) do
     end
 end
 if #tModems == 0 then
-    print("No modems found.")
+    print(translate("cc.repeat.no_modem"))
     return
 elseif #tModems == 1 then
-    print("1 modem found.")
+    print(translate("cc.repeat.one_modem"))
 else
-    print(#tModems .. " modems found.")
+    print(translate("cc.repeat.more_modems"):format(#tModems))
 end
 
 local function open(nChannel)
@@ -29,7 +31,7 @@ local function close(nChannel)
 end
 
 -- Open channels
-print("0 messages repeated.")
+print(translate("cc.repeat.multiple_messages_repeated"):format(0))
 open(rednet.CHANNEL_REPEAT)
 
 -- Main loop (terminate to break)
@@ -62,9 +64,9 @@ local ok, error = pcall(function()
                         term.setCursorPos(1, y - 1)
                         term.clearLine()
                         if nTransmittedMessages == 1 then
-                            print(nTransmittedMessages .. " message repeated.")
+                            print(translate("cc.repeat.single_message_repeated"))
                         else
-                            print(nTransmittedMessages .. " messages repeated.")
+                            print(translate("cc.repeat.multiple_messages_repeated"):format(nTransmittedMessages))
                         end
                     end
                 end

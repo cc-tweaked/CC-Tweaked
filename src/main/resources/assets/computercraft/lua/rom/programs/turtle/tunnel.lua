@@ -1,18 +1,20 @@
+local translate = require("cc.translate").translate
+
 if not turtle then
-    printError("Requires a Turtle")
+    printError(translate("cc.tunnel.requires_turtle"))
     return
 end
 
 local tArgs = { ... }
 if #tArgs ~= 1 then
-    print("Usage: tunnel <length>")
+    print(translate("cc.tunnel.usage"))
     return
 end
 
 -- Mine in a quarry pattern until we hit something we can't dig
 local length = tonumber(tArgs[1])
 if length < 1 then
-    print("Tunnel length must be positive")
+    print(translate("cc.tunnel.positive_number"))
     return
 end
 local collected = 0
@@ -20,7 +22,7 @@ local collected = 0
 local function collect()
     collected = collected + 1
     if math.fmod(collected, 25) == 0 then
-        print("Mined " .. collected .. " items.")
+        print(translate("cc.tunnel.mining_counter"):format(collected))
     end
 end
 
@@ -81,11 +83,11 @@ local function refuel()
     end
 
     if not tryRefuel() then
-        print("Add more fuel to continue.")
+        print(translate("cc.tunnel.more_fuel"))
         while not tryRefuel() do
             os.pullEvent("turtle_inventory")
         end
-        print("Resuming Tunnel.")
+        print(translate("cc.tunnel.resume"))
     end
 end
 
@@ -137,7 +139,7 @@ local function tryForward()
     return true
 end
 
-print("Tunnelling...")
+print(translate("cc.tunnel.tunnelling"))
 
 for n = 1, length do
     turtle.placeDown()
@@ -156,11 +158,11 @@ for n = 1, length do
     if n < length then
         tryDig()
         if not tryForward() then
-            print("Aborting Tunnel.")
+            print(translate("cc.tunnel.abort"))
             break
         end
     else
-        print("Tunnel complete.")
+        print(translate("cc.tunnel.complete"))
     end
 
 end
@@ -182,5 +184,5 @@ turtle.turnRight()
 turtle.turnRight()
 ]]
 
-print("Tunnel complete.")
-print("Mined " .. collected .. " items total.")
+print(translate("cc.tunnel.complete"))
+print(translate("cc.tunnel.mining_counter_total"):format(collected))

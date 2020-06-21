@@ -1,6 +1,8 @@
+local translate = require("cc.translate").translate
+
 local function printUsage()
-    print("Usage:")
-    print("wget <url> [filename]")
+    print(translate("cc.wget.usage_title"))
+    print("wget <url> " .. translate("cc.wget.usage_filename"))
     print("wget run <url>")
 end
 
@@ -20,8 +22,7 @@ end
 local url = table.remove(tArgs, 1)
 
 if not http then
-    printError("wget requires the http API")
-    printError("Set http.enabled to true in CC: Tweaked's config")
+    printError(translate("cc.wget.no_http"))
     return
 end
 
@@ -34,19 +35,19 @@ local function get(sUrl)
     -- Check if the URL is valid
     local ok, err = http.checkURL(url)
     if not ok then
-        printError(err or "Invalid URL.")
+        printError(err or translate("cc.wget.invalid_url"))
         return
     end
 
-    write("Connecting to " .. sUrl .. "... ")
+    write(translate("cc.wget.connecting"):format(sUrl))
 
     local response = http.get(sUrl , nil , true)
     if not response then
-        print("Failed.")
+        print(translate("cc.wget.failed"))
         return nil
     end
 
-    print("Success.")
+    print(translate("cc.wget.success"))
 
     local sResponse = response.readAll()
     response.close()
@@ -71,7 +72,7 @@ else
     local sFile = tArgs[1] or getFilename(url)
     local sPath = shell.resolve(sFile)
     if fs.exists(sPath) then
-        print("File already exists")
+        print(translate("cc.wget.exists"))
         return
     end
 
@@ -82,5 +83,5 @@ else
     file.write(res)
     file.close()
 
-    print("Downloaded as " .. sFile)
+    print(translate("cc.wget.downloaded"):format(sFile))
 end

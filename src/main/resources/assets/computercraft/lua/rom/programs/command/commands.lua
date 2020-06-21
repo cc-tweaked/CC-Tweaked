@@ -1,5 +1,7 @@
+local translate = require("cc.translate").translate
+
 if not commands then
-    printError("Requires a Command Computer.")
+    printError(translate("cc.commands.requires_command_computer"))
     return
 end
 
@@ -9,7 +11,7 @@ table.sort(tCommands)
 if term.isColor() then
     term.setTextColor(colors.green)
 end
-print("Available commands:")
+print(translate("cc.commands.available_commands"))
 term.setTextColor(colors.white)
 
 textutils.pagedTabulate(tCommands)

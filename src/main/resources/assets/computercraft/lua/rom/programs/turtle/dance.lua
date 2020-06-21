@@ -1,5 +1,7 @@
+local translate = require("cc.translate").translate
+
 if not turtle then
-    printError("Requires a Turtle")
+    printError(translate("cc.dance.requires_turtle"))
 end
 
 local tMoves = {
@@ -77,20 +79,20 @@ local tMoves = {
     end,
 }
 
-textutils.slowWrite("Preparing to get down.")
+textutils.slowWrite(translate("cc.dance.get_down"))
 textutils.slowPrint("..", 0.75)
 
 local sAudio = nil
 for _, sName in pairs(peripheral.getNames()) do
     if disk.hasAudio(sName) then
         disk.playAudio(sName)
-        print("Jamming to " .. disk.getAudioTitle(sName))
+        print(translate("cc.dance.jamming"):format(disk.getAudioTitle(sName)))
         sAudio = sName
         break
     end
 end
 
-print("Press any key to stop the groove")
+print(translate("cc.dance.press_key"))
 
 parallel.waitForAny(
     function() os.pullEvent("key") end,

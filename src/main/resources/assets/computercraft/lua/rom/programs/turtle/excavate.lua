@@ -1,18 +1,20 @@
+local translate = require("cc.translate").translate
+
 if not turtle then
-    printError("Requires a Turtle")
+    printError(translate("cc.excavate.requires_turtle"))
     return
 end
 
 local tArgs = { ... }
 if #tArgs ~= 1 then
-    print("Usage: excavate <diameter>")
+    print(translate("cc.excavate.usage"))
     return
 end
 
 -- Mine in a quarry pattern until we hit something we can't dig
 local size = tonumber(tArgs[1])
 if size < 1 then
-    print("Excavate diameter must be positive")
+    print(translate("cc.excavate.positive_number"))
     return
 end
 
@@ -27,7 +29,7 @@ local goTo -- Filled in further down
 local refuel -- Filled in further down
 
 local function unload(_bKeepOneFuelStack)
-    print("Unloading items...")
+    print(translate("cc.excavate.unloading_items"))
     for n = 1, 16 do
         local nCount = turtle.getItemCount(n)
         if nCount > 0 then
@@ -49,13 +51,13 @@ end
 
 local function returnSupplies()
     local x, y, z, xd, zd = xPos, depth, zPos, xDir, zDir
-    print("Returning to surface...")
+    print(translate("cc.excavate.retutn_to_surface"))
     goTo(0, 0, 0, 0, -1)
 
     local fuelNeeded = 2 * (x + y + z) + 1
     if not refuel(fuelNeeded) then
         unload(true)
-        print("Waiting for fuel")
+        print(translate("cc.excavate.waiting_for_fuel"))
         while not refuel(fuelNeeded) do
             os.pullEvent("turtle_inventory")
         end
@@ -63,7 +65,7 @@ local function returnSupplies()
         unload(true)
     end
 
-    print("Resuming mining...")
+    print(translate("cc.excavate.resume_mining"))
     goTo(x, y, z, xd, zd)
 end
 
@@ -81,12 +83,12 @@ local function collect()
     if nTotalItems > collected then
         collected = nTotalItems
         if math.fmod(collected + unloaded, 50) == 0 then
-            print("Mined " .. collected + unloaded .. " items.")
+            print(translate("cc.excavate.mining_counter"):format(collected + unloaded))
         end
     end
 
     if bFull then
-        print("No empty slots left.")
+        print(translate("cc.excavate.no_empty_slots"))
         return false
     end
     return true
@@ -123,7 +125,7 @@ end
 
 local function tryForwards()
     if not refuel() then
-        print("Not enough Fuel")
+        print(translate("cc.excavate.no_fuel"))
         returnSupplies()
     end
 
@@ -152,7 +154,7 @@ end
 
 local function tryDown()
     if not refuel() then
-        print("Not enough Fuel")
+        print(translate("cc.excavate.no_fuel"))
         returnSupplies()
     end
 
@@ -176,7 +178,7 @@ local function tryDown()
 
     depth = depth + 1
     if math.fmod(depth, 10) == 0 then
-        print("Descended " .. depth .. " metres.")
+        print(translate("cc.excavate.descended_metres"):format(depth))
     end
 
     return true
@@ -275,11 +277,11 @@ function goTo(x, y, z, xd, zd)
 end
 
 if not refuel() then
-    print("Out of Fuel")
+    print(translate("cc.excavate.no_fuel"))
     return
 end
 
-print("Excavating...")
+print(translate("cc.excavate.excavating"))
 
 local reseal = false
 turtle.select(1)
@@ -341,7 +343,7 @@ while not done do
     end
 end
 
-print("Returning to surface...")
+print(translate("cc.excavate.retutn_to_surface"))
 
 -- Return to where we started
 goTo(0, 0, 0, 0, -1)
@@ -353,4 +355,4 @@ if reseal then
     turtle.placeDown()
 end
 
-print("Mined " .. collected + unloaded .. " items total.")
+print(translate("cc.excavate.mining_counter_total"):format(collected + unloaded))

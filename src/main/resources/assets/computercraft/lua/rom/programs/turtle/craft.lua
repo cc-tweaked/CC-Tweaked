@@ -1,17 +1,19 @@
+local translate = require("cc.translate").translate
+
 if not turtle then
-    printError("Requires a Turtle")
+    printError(translate("cc.craft.requires_turtle"))
     return
 end
 
 if not turtle.craft then
-    print("Requires a Crafty Turtle")
+    print(translate("cc.craft.requires_crafty_turtle"))
     return
 end
 
 local tArgs = { ... }
 local nLimit = nil
 if #tArgs < 1 then
-    print("Usage: craft [number]")
+    print(translate("cc.craft.usage"))
     return
 else
     nLimit = tonumber(tArgs[1])
@@ -29,9 +31,9 @@ if turtle.craft(nLimit) then
 end
 
 if nCrafted > 1 then
-    print(nCrafted .. " items crafted")
+    print(translate("cc.craft.more_items"):format(nCrafted))
 elseif nCrafted == 1 then
-    print("1 item crafted")
+    print(translate("cc.craft.one_item"))
 else
-    print("No items crafted")
+    print(translate("cc.craft.no_item"))
 end

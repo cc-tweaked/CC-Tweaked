@@ -1,12 +1,14 @@
+local translate = require("cc.translate").translate
+
 if not turtle then
-    printError("Requires a Turtle")
+    printError(translate("cc.refuel.requires_turtle"))
     return
 end
 
 local tArgs = { ... }
 local nLimit = 1
 if #tArgs > 1 then
-    print("Usage: refuel [number]")
+    print(translate("cc.refuel.usage"))
     return
 elseif #tArgs > 0 then
     if tArgs[1] == "all" then
@@ -14,7 +16,7 @@ elseif #tArgs > 0 then
     else
         nLimit = tonumber(tArgs[1])
         if not nLimit then
-            print("Invalid limit, expected a number or \"all\"")
+            print(translate("cc.refuel.invalid_limit"))
             return
         end
     end
@@ -36,10 +38,10 @@ if turtle.getFuelLevel() ~= "unlimited" then
             end
         end
     end
-    print("Fuel level is " .. turtle.getFuelLevel())
+    print(translate("cc.refuel.current_level"):format(turtle.getFuelLevel()))
     if turtle.getFuelLevel() == turtle.getFuelLimit() then
-        print("Fuel limit reached")
+        print(translate("cc.refuel.limit_reached"))
     end
 else
-    print("Fuel level is unlimited")
+    print(translate("cc.refuel.unlimeted"))
 end

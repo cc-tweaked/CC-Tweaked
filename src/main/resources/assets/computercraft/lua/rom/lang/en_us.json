@@ -1,8 +1,34 @@
 {
+    "cc.bg.requires_multishell": "Requires multishell",
+
     "cc.alias.usage": "Usage: alias <alias> <program>",
 
     "cc.cd.usage": "Usage: cd <path>",
     "cc.cd.no_directory": "Not a directory",
+
+    "cc.chat.usage_title": "Usages:",
+    "cc.chat.usage_hostname": "<hostname>",
+    "cc.chat.usage_nickname": "<nickname>",
+    "cc.chat.no_modem": "No modems found.",
+    "cc.chat.single_user_connected": "1 user connected.",
+    "cc.chat.multiple_users_connected": "%s users connected.",
+    "cc.chat.timed_out": "% has timed out",
+    "cc.chat.me_usage": "Usage: /nick [nickname]",
+    "cc.chat.new_nick": "%s is now known as %s",
+    "cc.chat.nick_usage": "Usage: /nick [nickname]",
+    "cc.chat.connected_users": "Connected Users:",
+    "cc.chat.available_commands": "Available commands:",
+    "cc.chat.joined": "%s has joined the chat",
+    "cc.chat.left": "%s has left the chat",
+    "cc.chat.unrecognised_command": "Unrecognised command: %s",
+    "cc.chat.looking_up": "Looking up %s...",
+    "cc.chat.failed": "Failed.",
+    "cc.chat.success": "Success.",
+    "cc.chat.server_timeout": "Server timeout.",
+    "cc.chat.disconnected": "Disconnected.",
+
+    "cc.commands.requires_command_computer": "Requires a Command Computer.",
+    "cc.commands.available_commands": "Available commands",
 
     "cc.copy.usage": "Usage: cp <source> <destination>",
     "cc.copy.exists": "Destination exists",
@@ -11,8 +37,26 @@
     "cc.copy.overwrite_files": "Cannot overwrite file multiple times",
     "cc.copy.no_matching": "No matching files",
 
+    "cc.craft.requires_turtle": "Requires a Turtle",
+    "cc.craft.requires_crafty_turtle": "Requires a Crafty Turtle",
+    "cc.craft.usage": "Usage: craft [number]",
+    "cc.craft.no_item": "No items crafted",
+    "cc.craft.one_item": "1 item crafted",
+    "cc.craft.more_items": "%s items crafted",
+
+    "cc.dance.requires_turtle": "Requires a Turtle",
+    "cc.dance.get_down": "Preparing to get down.",
+    "cc.dance.jamming": "Jamming to %s",
+    "cc.dance.press_key": "Press any key to stop the groove",
+
     "cc.delete.usage": "Usage: rm <paths>",
     "cc.delete.no_matching_files": "%s: No matching files",
+
+    "cc.dj.usage_title": "Usages:",
+    "cc.dj.usage_drive": "<drive>",
+    "cc.dj.no_disk_any": "No Music Discs in attached disk drives",
+    "cc.dj.no_disk_specific": "No Music Disc in disk drive: %s",
+    "cc.dj.playing": "Playing %s",
 
     "cc.drive.remaining.mb": "%s MB remaining",
     "cc.drive.remaining.kb": "%s KB remaining",
@@ -44,6 +88,32 @@
     "cc.eject.usage": "Usage: eject <drive>",
     "cc.eject.no_drive": "Nothing in %s drive",
 
+    "cc.excavate.requires_turtle": "Requires a Turtle",
+    "cc.excavate.usage": "Usage: excavate <diameter>",
+    "cc.excavate.positive_number": "Excavate diameter must be positive",
+    "cc.excavate.unloading_items": "Unloading items...",
+    "cc.excavate.retutn_to_surface": "Returning to surface...",
+    "cc.excavate.waiting_for_fuel": "Waiting for fuel",
+    "cc.excavate.resume_mining": "Resuming mining...",
+    "cc.excavate.mining_counter": "Mined %s items.",
+    "cc.excavate.no_empty_slots": "No empty slots left.",
+    "cc.excavate.no_fuel": "Not enough Fuel",
+    "cc.excavate.descended_metres": "Descended %s metres.",
+    "cc.excavate.excavating": "Excavating...",
+    "cc.excavate.mining_counter_total": "Mined %s items total.",
+
+    "cc.exec.requires_command_computer": "Requires a Command Computer.",
+    "cc.exec.usage": "Usage: exec <command>",
+    "cc.exec.success": "Success",
+    "cc.exec.failed": "Failed",
+
+    "cc.fg.requires_multishell": "Requires multishell",
+
+    "cc.go.requires_turtle": "Requires a Turtle",
+    "cc.go.usage": "Usage: go <direction> <distance>",
+    "cc.go.no_fuel": "Out of fuel",
+    "cc.go.unknown_direction": "No such direction: %s\nTry: forward, back, up, down, left right",
+
     "cc.gps.usage": "Usages:",
     "cc.gps.stationary_hosts": "GPS Hosts must be stationary",
     "cc.gps.no_modem": "No wireless modems found. 1 required.",
@@ -51,6 +121,8 @@
     "cc.gps.position_ manually": "Run \"gps host <x> <y> <z>\" to set position manually",
     "cc.gps.open_channel": "Opening channel on modem %s",
     "cc.gps.requests_served": "%s GPS requests served",
+
+    "cc.hello.text": "Hello World!",
 
     "cc.help.available_topics": "Help topics available:",
     "cc.help.not_available": "No help available",
@@ -99,8 +171,24 @@
     "cc.move.overwrite": "Cannot overwrite file multiple times",
     "cc.move.no_matching": "No matching files",
 
+    "cc.paint.save": "Save",
+    "cc.paint.exit": "Exit",
+    "cc.paint.menu_message": "Press Ctrl or click here to access menu",
+    "cc.paint.requires_advanced_computer": "Requires an Advanced Computer",
+    "cc.paint.usage": "Usage: paint <path>",
+    "cc.paint.directory": "Cannot edit a directory.",
+    "cc.paint.access_denied": "Access denied",
+    "cc.paint.saved": "Saved to %s",
+    "cc.paint.error_saving": "Error saving to %s",
+
     "cc.peripherals.attached": "Attached Peripherals:",
     "cc.peripherals.none": "None",
+
+    "cc.pocket_equip.requires_pocket": "Requires a Pocket Computer",
+    "cc.pocket_equip.item_equipped": "Item equipped",
+
+    "cc.pocket_unequip.requires_pocket": "Requires a Pocket Computer",
+    "cc.pocket_unequip.item_unequipped": "Item unequipped",
 
     "cc.reboot.message": "Goodbye",
 
@@ -117,12 +205,25 @@
     "cc.redstone.no_boolean": "Value must be boolean",
     "cc.redstone.no_number": "Value must be boolean or 0-15",
 
+    "cc.refuel.requires_turtle": "Requires a Turtle",
+    "cc.refuel.usage": "Usage: refuel [number]",
+    "cc.refuel.invalid_limit": "Invalid limit, expected a number or \"all\"",
+    "cc.refuel.current_level": "Fuel level is %s",
+    "cc.refuel.limit_reached": "Fuel limit reached",
+    "cc.refuel.unlimeted": "Fuel level is unlimited",
+
     "cc.rename.usage": "Usage: rename <source> <destination>",
     "cc.rename.matching": "No matching files",
     "cc.rename.mount": "Can't rename mounts",
     "cc.rename.source_read_only": "Source is read-only",
     "cc.rename.exists": "Destination exists",
     "cc.rename.destination_read_only": "Destination is read-only",
+
+    "cc.repeat.no_modem": "No modems found.",
+    "cc.repeat.one_modem": "1 modem found.",
+    "cc.repeat.more_modems": "%s modems found.",
+    "cc.repeat.single_message_repeated": "1 message repeated.",
+    "cc.repeat.multiple_messages_repeated": "%s messages repeated.",
 
     "cc.set.is": "is",
     "cc.set.default": "default is",
@@ -136,8 +237,46 @@
 
     "cc.time.current_time": "The time is %s on Day %s",
 
+    "cc.tunnel.requires_turtle": "Requires a Turtle",
+    "cc.tunnel.usage": "Usage: tunnel <length>",
+    "cc.tunnel.positive_number": "Tunnel length must be positive",
+    "cc.tunnel.mining_counter": "Mined %s items.",
+    "cc.tunnel.more_fuel": "Add more fuel to continue.",
+    "cc.tunnel.resume": "Resuming Tunnel.",
+    "cc.tunnel.tunnelling": "Tunnelling...",
+    "cc.tunnel.abort": "Aborting Tunnel.",
+    "cc.tunnel.complete": "Tunnel complete.",
+    "cc.tunnel.mining_counter_total": "Mined %s items total.",
+
+    "cc.turn.requires_turtle": "Requires a Turtle",
+    "cc.turn.usage": "Usage: turn <direction> <turns>",
+    "cc.turn.unknown_direction": "No such direction: %s\nTry: left, right",
+
+    "cc.turtle_equip.requires_turtle": "Requires a Turtle",
+    "cc.turtle_equip.usage": "Usage: equip <slot> <side>",
+    "cc.turtle_equip.nothing": "Nothing to equip",
+    "cc.turtle_equip.swapped": "Items swapped",
+    "cc.turtle_equip.equiped": "Item equipped",
+    "cc.turtle_equip.not_equippable": "Item not equippable",
+
+    "cc.turtle_unequip.requires_turtle": "Requires a Turtle",
+    "cc.turtle_unequip.usage": "Usage: unequip <side>",
+    "cc.turtle_unequip.unequipped": "Item unequipped",
+    "cc.turtle_unequip.nothing": "Nothing to unequip",
+    "cc.turtle_unequip.space": "No space to unequip item",
+
     "cc.type.usage": "Usage: type <path>",
     "cc.type.directory": "Directory",
     "cc.type.file": "File",
-    "cc.type.path": "No such path"
+    "cc.type.path": "No such path",
+
+    "cc.wget.usage_title": "Usage:",
+    "cc.wget.usage_filename": "[filename]",
+    "cc.wget.no_http": "wget requires the http API\nSet http.enabled to true in CC: Tweaked's config",
+    "cc.wget.invalid_url": "Invalid URL.",
+    "cc.wget.connecting": "Connecting to %s... ",
+    "cc.wget.failed": "Failed.",
+    "cc.wget.success": "Success.",
+    "cc.wget.exists": "File already exists",
+    "cc.wget.downloaded": "Downloaded as %s"
 }

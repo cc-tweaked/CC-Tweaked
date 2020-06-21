@@ -1,9 +1,11 @@
+local translate = require("cc.translate").translate
+
 local tArgs = { ... }
 
 local function printUsage()
-    print("Usages:")
+    print(translate("cc.dj.usage_title"))
     print("dj play")
-    print("dj play <drive>")
+    print("dj play " .. translate("cc.dj.usage_drive"))
     print("dj stop")
 end
 
@@ -29,7 +31,7 @@ elseif sCommand == "play" or sCommand == nil then
             end
         end
         if #tNames == 0 then
-            print("No Music Discs in attached disk drives")
+            print(translate("cc.dj.no_disk_any"))
             return
         end
         sName = tNames[math.random(1, #tNames)]
@@ -37,10 +39,10 @@ elseif sCommand == "play" or sCommand == nil then
 
     -- Play the disc
     if disk.isPresent(sName) and disk.hasAudio(sName) then
-        print("Playing " .. disk.getAudioTitle(sName))
+        print(translate("cc.dj.playing"):format(disk.getAudioTitle(sName)))
         disk.playAudio(sName)
     else
-        print("No Music Disc in disk drive: " .. sName)
+        print(translate("cc.dj.no_disk_specific"):format(sName))
         return
     end
 
