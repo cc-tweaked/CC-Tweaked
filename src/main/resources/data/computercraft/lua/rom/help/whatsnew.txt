@@ -1,12 +1,5 @@
-New features in CC: Tweaked 1.89.0
+New features in CC: Tweaked 1.89.1
 
-* Compress monitor data, reducing network traffic by a significant amount.
-* Allow limiting the bandwidth monitor updates use.
-* Several optimisations to monitor rendering (@Lignum).
-* Expose block and item tags to turtle.inspect and turtle.getItemDetail.
-
-And several bug fixes:
-* Fix settings.load failing on defined settings.
-* Fix name of the `ejectDisk` peripheral method.
+* Fix crashes when rendering monitors of varying sizes.
 
 Type "help changelog" to see the full version history.
