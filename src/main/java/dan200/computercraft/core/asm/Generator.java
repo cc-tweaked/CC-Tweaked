@@ -63,7 +63,7 @@ public class Generator<T>
         .newBuilder()
         .build( CacheLoader.from( this::build ) );
 
-    Generator( Class<T> base, List<Class<?>> context, Function<T, T> wrap )
+    public Generator( Class<T> base, List<Class<?>> context, Function<T, T> wrap )
     {
         this.base = base;
         this.context = context;
@@ -99,26 +99,28 @@ public class Generator<T>
             LuaFunction annotation = method.getAnnotation( LuaFunction.class );
             if( annotation == null ) continue;
 
+            if( Modifier.isStatic( method.getModifiers() ) )
+            {
+                ComputerCraft.log.warn( "LuaFunction method {}.{} should be an instance method.", method.getDeclaringClass(), method.getName() );
+                continue;
+            }
+
             T instance = methodCache.getUnchecked( method ).orElse( null );
             if( instance == null ) continue;
 
             if( methods == null ) methods = new ArrayList<>();
+            addMethod( methods, method, annotation, instance );
+        }
 
-            if( annotation.mainThread() ) instance = wrap.apply( instance );
+        for( GenericSource.GenericMethod method : GenericSource.GenericMethod.all() )
+        {
+            if( !method.target.isAssignableFrom( klass ) ) continue;
 
-            String[] names = annotation.value();
-            boolean isSimple = method.getReturnType() != MethodResult.class && !annotation.mainThread();
-            if( names.length == 0 )
-            {
-                methods.add( new NamedMethod<>( method.getName(), instance, isSimple ) );
-            }
-            else
-            {
-                for( String name : names )
-                {
-                    methods.add( new NamedMethod<>( name, instance, isSimple ) );
-                }
-            }
+            T instance = methodCache.getUnchecked( method.method ).orElse( null );
+            if( instance == null ) continue;
+
+            if( methods == null ) methods = new ArrayList<>();
+            addMethod( methods, method.method, method.annotation, instance );
         }
 
         if( methods == null ) return Collections.emptyList();
@@ -126,19 +128,40 @@ public class Generator<T>
         return Collections.unmodifiableList( methods );
     }
 
+    private void addMethod( List<NamedMethod<T>> methods, Method method, LuaFunction annotation, T instance )
+    {
+        if( annotation.mainThread() ) instance = wrap.apply( instance );
+
+        String[] names = annotation.value();
+        boolean isSimple = method.getReturnType() != MethodResult.class && !annotation.mainThread();
+        if( names.length == 0 )
+        {
+            methods.add( new NamedMethod<>( method.getName(), instance, isSimple ) );
+        }
+        else
+        {
+            for( String name : names )
+            {
+                methods.add( new NamedMethod<>( name, instance, isSimple ) );
+            }
+        }
+    }
+
     @Nonnull
     private Optional<T> build( Method method )
     {
         String name = method.getDeclaringClass().getName() + "." + method.getName();
         int modifiers = method.getModifiers();
-        if( !Modifier.isFinal( modifiers ) )
+
+        // Instance methods must be final - this prevents them being overridden and potentially exposed twice.
+        if( !Modifier.isStatic( modifiers ) && !Modifier.isFinal( modifiers ) )
         {
             ComputerCraft.log.warn( "Lua Method {} should be final.", name );
         }
 
-        if( Modifier.isStatic( modifiers ) || !Modifier.isPublic( modifiers ) )
+        if( !Modifier.isPublic( modifiers ) )
         {
-            ComputerCraft.log.error( "Lua Method {} should be a public instance method.", name );
+            ComputerCraft.log.error( "Lua Method {} should be a public method.", name );
             return Optional.empty();
         }
 
@@ -160,10 +183,14 @@ public class Generator<T>
             }
         }
 
+        // We have some rather ugly handling of static methods in both here and the main generate function. Static methods
+        // only come from generic sources, so this should be safe.
+        Class<?> target = Modifier.isStatic( modifiers ) ? method.getParameterTypes()[0] : method.getDeclaringClass();
+
         try
         {
             String className = method.getDeclaringClass().getName() + "$cc$" + method.getName() + METHOD_ID.getAndIncrement();
-            byte[] bytes = generate( className, method );
+            byte[] bytes = generate( className, target, method );
             if( bytes == null ) return Optional.empty();
 
             Class<?> klass = DeclaringClassLoader.INSTANCE.define( className, bytes, method.getDeclaringClass().getProtectionDomain() );
@@ -178,7 +205,7 @@ public class Generator<T>
     }
 
     @Nullable
-    private byte[] generate( String className, Method method )
+    private byte[] generate( String className, Class<?> target, Method method )
     {
         String internalName = className.replace( ".", "/" );
 
@@ -200,19 +227,27 @@ public class Generator<T>
         {
             MethodVisitor mw = cw.visitMethod( ACC_PUBLIC, METHOD_NAME, methodDesc, null, EXCEPTIONS );
             mw.visitCode();
-            mw.visitVarInsn( ALOAD, 1 );
-            mw.visitTypeInsn( CHECKCAST, Type.getInternalName( method.getDeclaringClass() ) );
+
+            // If we're an instance method, load the this parameter.
+            if( !Modifier.isStatic( method.getModifiers() ) )
+            {
+                mw.visitVarInsn( ALOAD, 1 );
+                mw.visitTypeInsn( CHECKCAST, Type.getInternalName( target ) );
+            }
 
             int argIndex = 0;
             for( java.lang.reflect.Type genericArg : method.getGenericParameterTypes() )
             {
-                Boolean loadedArg = loadArg( mw, method, genericArg, argIndex );
+                Boolean loadedArg = loadArg( mw, target, method, genericArg, argIndex );
                 if( loadedArg == null ) return null;
                 if( loadedArg ) argIndex++;
             }
 
-            mw.visitMethodInsn( INVOKEVIRTUAL, Type.getInternalName( method.getDeclaringClass() ), method.getName(),
-                Type.getMethodDescriptor( method ), false );
+            mw.visitMethodInsn(
+                Modifier.isStatic( method.getModifiers() ) ? INVOKESTATIC : INVOKEVIRTUAL,
+                Type.getInternalName( method.getDeclaringClass() ), method.getName(),
+                Type.getMethodDescriptor( method ), false
+            );
 
             // We allow a reasonable amount of flexibility on the return value's type. Alongside the obvious MethodResult,
             // we convert basic types into an immediate result.
@@ -250,8 +285,15 @@ public class Generator<T>
         return cw.toByteArray();
     }
 
-    private Boolean loadArg( MethodVisitor mw, Method method, java.lang.reflect.Type genericArg, int argIndex )
+    private Boolean loadArg( MethodVisitor mw, Class<?> target, Method method, java.lang.reflect.Type genericArg, int argIndex )
     {
+        if( genericArg == target )
+        {
+            mw.visitVarInsn( ALOAD, 1 );
+            mw.visitTypeInsn( CHECKCAST, Type.getInternalName( target ) );
+            return false;
+        }
+
         Class<?> arg = Reflect.getRawType( method, genericArg, true );
         if( arg == null ) return null;
 

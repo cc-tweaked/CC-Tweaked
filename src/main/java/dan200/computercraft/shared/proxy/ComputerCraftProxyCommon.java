@@ -24,6 +24,7 @@ import dan200.computercraft.shared.data.HasComputerIdLootCondition;
 import dan200.computercraft.shared.data.PlayerCreativeLootCondition;
 import dan200.computercraft.shared.media.items.RecordMedia;
 import dan200.computercraft.shared.network.NetworkHandler;
+import dan200.computercraft.shared.peripheral.generic.GenericPeripheralProvider;
 import dan200.computercraft.shared.peripheral.modem.wireless.WirelessNetwork;
 import dan200.computercraft.shared.util.NullStorage;
 import net.minecraft.inventory.container.Container;
@@ -99,6 +100,8 @@ public final class ComputerCraftProxyCommon
             if( item instanceof MusicDiscItem ) return RecordMedia.INSTANCE;
             return null;
         } );
+
+        ComputerCraftAPI.registerPeripheralProvider( new GenericPeripheralProvider() );
 
         // Register capabilities
         CapabilityManager.INSTANCE.register( IWiredElement.class, new NullStorage<>(), () -> null );
