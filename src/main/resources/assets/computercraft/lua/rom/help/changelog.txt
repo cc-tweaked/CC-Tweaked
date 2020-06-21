@@ -1,3 +1,7 @@
+# New features in CC: Tweaked 1.89.1
+
+* Fix crashes when rendering monitors of varying sizes.
+
 # New features in CC: Tweaked 1.89.0
 
 * Compress monitor data, reducing network traffic by a significant amount.
