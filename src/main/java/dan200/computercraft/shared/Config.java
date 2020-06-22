@@ -73,6 +73,8 @@ public final class Config
     private static final ConfigValue<Boolean> turtlesCanPush;
     private static final ConfigValue<List<? extends String>> turtleDisabledActions;
 
+    private static final ConfigValue<Boolean> genericPeripheral;
+
     private static final ConfigValue<MonitorRenderer> monitorRenderer;
 
     private static final ForgeConfigSpec serverSpec;
@@ -260,6 +262,17 @@ public final class Config
             builder.pop();
         }
 
+        {
+            builder.comment( "Options for various experimental features. These are not guaranteed to be stable, and may change or be removed across versions." );
+            builder.push( "experimental" );
+
+            genericPeripheral = builder
+                .comment( "Attempt to make any existing block (or tile entity) a peripheral.\n" +
+                    "This provides peripheral methods for any inventory, fluid tank or energy storage block. It will" +
+                    "_not_ provide methods which have an existing peripheral provider." )
+                .define( "generic_peripherals", false );
+        }
+
         serverSpec = builder.build();
 
         Builder clientBuilder = new Builder();
@@ -321,6 +334,8 @@ public final class Config
 
         ComputerCraft.turtleDisabledActions.clear();
         for( String value : turtleDisabledActions.get() ) ComputerCraft.turtleDisabledActions.add( getAction( value ) );
+
+        ComputerCraft.genericPeripheral = genericPeripheral.get();
 
         // Client
         ComputerCraft.monitorRenderer = monitorRenderer.get();

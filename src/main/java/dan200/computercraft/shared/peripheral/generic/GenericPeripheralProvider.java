@@ -6,8 +6,8 @@
 
 package dan200.computercraft.shared.peripheral.generic;
 
+import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.peripheral.IPeripheral;
-import dan200.computercraft.api.peripheral.IPeripheralProvider;
 import dan200.computercraft.core.asm.NamedMethod;
 import dan200.computercraft.core.asm.PeripheralMethod;
 import net.minecraft.tileentity.TileEntity;
@@ -24,7 +24,7 @@ import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 
-public class GenericPeripheralProvider implements IPeripheralProvider
+public class GenericPeripheralProvider
 {
     private static final Capability<?>[] CAPABILITIES = new Capability<?>[] {
         CapabilityItemHandler.ITEM_HANDLER_CAPABILITY,
@@ -33,9 +33,10 @@ public class GenericPeripheralProvider implements IPeripheralProvider
     };
 
     @Nonnull
-    @Override
-    public LazyOptional<IPeripheral> getPeripheral( @Nonnull World world, @Nonnull BlockPos pos, @Nonnull Direction side )
+    public static LazyOptional<IPeripheral> getPeripheral( @Nonnull World world, @Nonnull BlockPos pos, @Nonnull Direction side )
     {
+        if( !ComputerCraft.genericPeripheral ) return LazyOptional.empty();
+
         TileEntity tile = world.getTileEntity( pos );
         if( tile == null ) return LazyOptional.empty();
 

@@ -8,6 +8,7 @@ package dan200.computercraft.shared;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.peripheral.IPeripheralProvider;
+import dan200.computercraft.shared.peripheral.generic.GenericPeripheralProvider;
 import dan200.computercraft.shared.util.CapabilityUtil;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
@@ -66,7 +67,7 @@ public final class Peripherals
             }
         }
 
-        return null;
+        return CapabilityUtil.unwrap( GenericPeripheralProvider.getPeripheral( world, pos, side ), invalidate );
     }
 
 }

@@ -53,8 +53,6 @@ public final class ComputerCraft
 {
     public static final String MOD_ID = "computercraft";
 
-    public static final int DATAFIXER_VERSION = 0;
-
     // Configuration options
     public static final String[] DEFAULT_HTTP_ALLOW = new String[] { "*" };
     public static final String[] DEFAULT_HTTP_DENY = new String[] {
@@ -107,6 +105,8 @@ public final class ComputerCraft
     public static boolean turtlesObeyBlockProtection = true;
     public static boolean turtlesCanPush = true;
     public static EnumSet<TurtleAction> turtleDisabledActions = EnumSet.noneOf( TurtleAction.class );
+
+    public static boolean genericPeripheral = false;
 
     public static final int terminalWidth_computer = 51;
     public static final int terminalHeight_computer = 19;
