@@ -7,6 +7,7 @@
 package dan200.computercraft.shared.integration.minecraft;
 
 import com.google.auto.service.AutoService;
+import com.google.gson.JsonParseException;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.api.peripheral.IComputerAccess;
@@ -14,9 +15,14 @@ import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.core.asm.GenericSource;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.INBT;
+import net.minecraft.nbt.ListNBT;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
+import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
@@ -30,6 +36,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static dan200.computercraft.shared.integration.minecraft.ArgumentHelpers.assertBetween;
 
@@ -67,6 +74,15 @@ public class InventoryMethods implements GenericSource
         }
 
         return result;
+    }
+
+    @LuaFunction( mainThread = true )
+    public static Map<String, ?> getItemMeta( IItemHandler inventory, int slot ) throws LuaException
+    {
+        assertBetween( slot, 1, inventory.getSlots(), "Slot out of range (%s)" );
+
+        ItemStack stack = inventory.getStackInSlot( slot - 1 );
+        return stack.isEmpty() ? null : fillCompleteMeta( new HashMap<>(), stack );
     }
 
     @LuaFunction( mainThread = true )
@@ -114,7 +130,7 @@ public class InventoryMethods implements GenericSource
     }
 
     @Nullable
-    private static IItemHandler extractHandler( @Nonnull Object object )
+    private static IItemHandler extractHandler( @Nullable Object object )
     {
         if( object instanceof ICapabilityProvider )
         {
@@ -134,6 +150,46 @@ public class InventoryMethods implements GenericSource
         data.put( "count", stack.getCount() );
         return data;
     }
+
+    private static <T extends Map<? super String, Object>> T fillCompleteMeta( @Nonnull T data, @Nonnull ItemStack stack )
+    {
+        if( stack.isEmpty() ) return data;
+
+        fillBasicMeta( data, stack );
+
+        data.put( "displayName", stack.getDisplayName().getString() );
+        data.put( "rawName", stack.getTranslationKey() );
+        data.put( "maxCount", stack.getMaxStackSize() );
+
+        if( stack.isDamageable() )
+        {
+            data.put( "damage", stack.getDamage() );
+            data.put( "maxDamage", stack.getMaxDamage() );
+        }
+
+        if( stack.getItem().showDurabilityBar( stack ) )
+        {
+            data.put( "durability", stack.getItem().getDurabilityForDisplay( stack ) );
+        }
+
+        CompoundNBT tag = stack.getTag();
+        if( tag != null && tag.contains( "display", Constants.NBT.TAG_COMPOUND ) )
+        {
+            CompoundNBT displayTag = tag.getCompound( "display" );
+            if( displayTag.contains( "Lore", Constants.NBT.TAG_LIST ) )
+            {
+                ListNBT loreTag = displayTag.getList( "Lore", Constants.NBT.TAG_STRING );
+                data.put( "lore", loreTag.stream()
+                    .map( InventoryMethods::parseTextComponent )
+                    .filter( Objects::nonNull )
+                    .map( ITextComponent::getString )
+                    .collect( Collectors.toList() ) );
+            }
+        }
+
+        return data;
+    }
+
 
     /**
      * Move an item from one handler to another.
@@ -163,5 +219,18 @@ public class InventoryMethods implements GenericSource
         // about that.
         from.extractItem( fromSlot, inserted, false );
         return inserted;
+    }
+
+    @Nullable
+    private static ITextComponent parseTextComponent( @Nonnull INBT x )
+    {
+        try
+        {
+            return ITextComponent.Serializer.fromJson( x.getString() );
+        }
+        catch( JsonParseException e )
+        {
+            return null;
+        }
     }
 }
