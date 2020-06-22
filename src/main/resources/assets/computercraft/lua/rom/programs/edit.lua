@@ -333,7 +333,7 @@ local tMenuFuncs = {
         }
         printerTerminal.scroll = function()
             if nPage == 1 then
-                printer.setPageTitle(translate("cc.edit.page_title"):format(sName,nPage))
+                printer.setPageTitle(translate("cc.edit.page_title"):format(sName, nPage))
             end
 
             while not printer.newPage() do
@@ -356,7 +356,7 @@ local tMenuFuncs = {
             if nPage == 1 then
                 printer.setPageTitle(sName)
             else
-                printer.setPageTitle(translate("cc.edit.page_title"):format(sName,nPage))
+                printer.setPageTitle(translate("cc.edit.page_title"):format(sName, nPage))
             end
         end
 

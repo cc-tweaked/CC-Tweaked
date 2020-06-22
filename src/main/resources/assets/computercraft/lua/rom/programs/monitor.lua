@@ -24,7 +24,7 @@ if sPath == nil then
     return
 end
 
-print(translate("cc.monitor.running"):format(sProgram,sName))
+print(translate("cc.monitor.running"):format(sProgram, sName))
 
 local monitor = peripheral.wrap(sName)
 local previousTerm = term.redirect(monitor)

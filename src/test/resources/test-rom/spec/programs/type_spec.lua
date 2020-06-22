@@ -9,12 +9,12 @@ describe("The type program", function()
 
     it("displays the output for a file", function()
         expect(capture(stub, "type /rom/startup.lua"))
-            :matches { ok = true, output = "file\n", error = "" }
+            :matches { ok = true, output = "File\n", error = "" }
     end)
 
     it("displays the output for a directory", function()
         expect(capture(stub, "type /rom"))
-            :matches { ok = true, output = "directory\n", error = "" }
+            :matches { ok = true, output = "Directory\n", error = "" }
     end)
 
     it("displays the output for a not existing path", function()

@@ -141,7 +141,7 @@ if sCommand == "host" then
                         if #sContent > 0 then
                             local sOldName = tUser.sUsername
                             tUser.sUsername = sContent
-                            send("* " .. translate("cc.chat.new_nick"):format(sOldName,tUser.sUsername))
+                            send("* " .. translate("cc.chat.new_nick"):format(sOldName, tUser.sUsername))
                         else
                             send("* " .. translate("cc.chat.nick_usage"), tUser.nUserID)
                         end

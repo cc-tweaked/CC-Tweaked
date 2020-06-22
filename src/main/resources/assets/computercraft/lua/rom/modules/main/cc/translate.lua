@@ -1,38 +1,99 @@
+local expect = require("cc.expect").expect
+
+local programLanguage = nil
 local translations = {}
 
-local function loadFile(path)
-    local langCode = fs.getName(path):sub(1,-6)
-    if translations[langCode] == nil then
-        translations[langCode] = {}
+local function loadFile(lang, path)
+    expect(1, lang, "string")
+    expect(2, path, "string")
+    if not fs.exists(path) or fs.isDir(path) then
+        return false
     end
-    file = fs.open(path,"r")
-    data = textutils.unserialiseJSON(file.readAll())
+    if translations[lang] == nil then
+        translations[lang] = {}
+    end
+    local file = fs.open(path, "r")
+    local data, err = textutils.unserialiseJSON(file.readAll())
     file.close()
+    if not data then
+        return false, err
+    end
     for key, value in pairs(data) do
-        translations[langCode][key] = value
+        translations[lang][key] = value
+    end
+    return true
+end
+
+local function loadDirectory(path)
+    expect(1, path, "string")
+    local success = true
+    local files = fs.list(path)
+    for _, i in ipairs(files) do
+        local lang = fs.getName(i):sub(1, -6)
+        local ok = loadFile(lang, fs.combine(path, i))
+        if not ok then
+            success = false
+        end
+    end
+    return success
+end
+
+local function loadTable(lang, ta)
+    expect(1, lang, "string")
+    expect(2, ta, "table")
+    if translations[lang] == nil then
+        translations[lang] = {}
+    end
+    for key, value in pairs(ta) do
+        translations[lang][key] = value
     end
 end
 
-function loadDirectory(path)
-    files = fs.list(path)
-    for _,i in ipairs(files) do
-        loadFile(fs.combine(path,i))
+local function setKey(lang, key, value)
+    expect(1, lang, "string")
+    expect(2, key, "string")
+    expect(3, value, "string")
+    if translations[lang] == nil then
+        translations[lang] = {}
     end
+    translations[lang][key] = value
 end
 
-function translate(key)
-    lang = settings.get("language")
-    defaultLang = "en_us"
+local function listKeys()
+    local keylist = {}
+    for key in pairs(translations.en_us) do
+        table.insert(keylist, key)
+    end
+    return keylist
+end
+
+local function listLanguages()
+    local langlist = {}
+    for key in pairs(translations) do
+        table.insert(langlist, key)
+    end
+    return langlist
+end
+
+local function setLanguage(lang)
+    expect(1, lang, "string")
+    programLanguage = lang
+end
+
+local function translate(key, default, language)
+    expect(1, key, "string")
+    local lang = language or programLanguage or settings.get("language")
+    local defaultLang = "en_us"
     if translations[lang] == nil then
         if translations[defaultLang][key] == nil then
-            return key
+            return default or key
         else
             return translations[defaultLang][key]
         end
     end
     if translations[lang][key] == nil then
         if translations[defaultLang][key] == nil then
-            return key
+            return default or key
         else
             return translations[defaultLang][key]
         end
@@ -44,6 +105,12 @@ end
 loadDirectory("/rom/lang")
 
 return {
+    loadFile = loadFile,
     loadDirectory = loadDirectory,
-    translate = translate
+    loadTable = loadTable,
+    setKey = setKey,
+    listKeys = listKeys,
+    listLanguages = listLanguages,
+    setLanguage = setLanguage,
+    translate = translate,
 }

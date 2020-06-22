@@ -10,7 +10,7 @@ local function printUsage()
     local period = translate("cc.redstone.usage_period")
     print(translate("cc.redstone.usage_title"))
     print("redstone probe")
-    print("redstone set " .. side .. " " ..value)
+    print("redstone set " .. side .. " " .. value)
     print("redstone set " .. side .. " " .. color .. " " .. value)
     print("redstone pulse " .. side .. " " .. count .. " " .. period)
 end

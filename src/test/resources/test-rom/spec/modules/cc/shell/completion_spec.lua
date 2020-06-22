@@ -4,14 +4,14 @@ describe("cc.shell.completion", function()
     describe("dirOrFile", function()
         it("completes both", function()
             expect(c.dirOrFile(shell, "rom/")):same {
-                "apis/", "apis", "autorun/", "autorun", "help/", "help",
+                "apis/", "apis", "autorun/", "autorun", "help/", "help", "lang/", "lang",
                 "modules/", "modules", "motd.txt", "programs/", "programs", "startup.lua",
             }
         end)
 
         it("adds a space", function()
             expect(c.dirOrFile(shell, "rom/", nil, true)):same {
-                "apis/", "apis ", "autorun/", "autorun ", "help/", "help ",
+                "apis/", "apis ", "autorun/", "autorun ", "help/", "help ", "lang/", "lang ",
                 "modules/", "modules ", "motd.txt ", "programs/", "programs ", "startup.lua ",
             }
         end)

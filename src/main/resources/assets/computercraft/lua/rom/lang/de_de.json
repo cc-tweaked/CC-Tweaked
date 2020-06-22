@@ -50,6 +50,9 @@
     "cc.dance.press_key": "Drücke eine beliebige Taste, um den Groove zu stoppen",
 
     "cc.delete.usage": "Benutzung: rm <pfade>",
+    "cc.delete.read_only": "Du besitzt keine Schreibrechte für %s",
+    "cc.delete.mount": "Der Mountpunkt %s kann nicht gelöscht werden",
+    "cc.delete.contents": "Führe rm  %s aus, um den Inhalt zu löschen",
     "cc.delete.no_matching_files": "%s: Keine passenden Dateien",
 
     "cc.dj.usage_title": "Benutzung:",

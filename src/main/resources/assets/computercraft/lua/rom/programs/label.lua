@@ -42,7 +42,7 @@ local function get(sDrive)
         if sLabel then
             print(translate("cc.label.computer_label_print"):format(sLabel))
         else
-            print(ranslate("cc.label.computer_label_empty"))
+            print(translate("cc.label.computer_label_empty"))
         end
     end
 end

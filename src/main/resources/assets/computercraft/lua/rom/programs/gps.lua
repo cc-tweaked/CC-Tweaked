@@ -52,7 +52,7 @@ elseif sCommand == "host" then
             printUsage()
             return
         end
-        print(translate("cc.gps.position_output"):format(x,y,z))
+        print(translate("cc.gps.position_output"):format(x, y, z))
     else
         -- Position is to be determined using locate
         x, y, z = gps.locate(2, true)

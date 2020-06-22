@@ -7,7 +7,7 @@ if #tArgs == 0 then
     local _, y = term.getCursorPos()
     local tSettings = {}
     for n, sName in ipairs(settings.getNames()) do
-        tSettings[n] = textutils.serialize(sName) .. " " .. translate("cc.set.is") .. " ".. textutils.serialize(settings.get(sName))
+        tSettings[n] = textutils.serialize(sName) .. " " .. translate("cc.set.is") .. " " .. textutils.serialize(settings.get(sName))
     end
     textutils.pagedPrint(table.concat(tSettings, "\n"), y - 3)
 
@@ -47,7 +47,7 @@ else
         printError(translate("cc.set.not_valid"):format(textutils.serialize(sValue), option.type))
     else
         settings.set(sName, value)
-        print(translate("cc.set.set_to"):format(textutils.serialize(sName),textutils.serialize(value)))
+        print(translate("cc.set.set_to"):format(textutils.serialize(sName), textutils.serialize(value)))
     end
 
     if value ~= option.value then

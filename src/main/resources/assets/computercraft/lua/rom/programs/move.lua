@@ -2,7 +2,7 @@ local translate = require("cc.translate").translate
 
 local tArgs = { ... }
 if #tArgs < 2 then
-    print(translate("cc.monitor.usage"))
+    print(translate("cc.move.usage"))
     return
 end
 

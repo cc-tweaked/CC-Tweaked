@@ -28,7 +28,7 @@
     "cc.chat.disconnected": "Disconnected.",
 
     "cc.commands.requires_command_computer": "Requires a Command Computer.",
-    "cc.commands.available_commands": "Available commands",
+    "cc.commands.available_commands": "Available commands:",
 
     "cc.copy.usage": "Usage: cp <source> <destination>",
     "cc.copy.exists": "Destination exists",
@@ -50,6 +50,9 @@
     "cc.dance.press_key": "Press any key to stop the groove",
 
     "cc.delete.usage": "Usage: rm <paths>",
+    "cc.delete.read_only": "Cannot delete read-only file %s",
+    "cc.delete.mount": "Cannot delete mount %s",
+    "cc.delete.contents": "To delete its contents run rm %s",
     "cc.delete.no_matching_files": "%s: No matching files",
 
     "cc.dj.usage_title": "Usages:",
@@ -58,9 +61,9 @@
     "cc.dj.no_disk_specific": "No Music Disc in disk drive: %s",
     "cc.dj.playing": "Playing %s",
 
-    "cc.drive.remaining.mb": "%s MB remaining",
-    "cc.drive.remaining.kb": "%s KB remaining",
-    "cc.drive.remaining.b": "%s B remaining",
+    "cc.drive.remaining.mb": "%sMB remaining",
+    "cc.drive.remaining.kb": "%sKB remaining",
+    "cc.drive.remaining.b": "%sB remaining",
     "cc.drive.no_path": "No such path",
 
     "cc.edit.usage": "Usage: edit <path>",
