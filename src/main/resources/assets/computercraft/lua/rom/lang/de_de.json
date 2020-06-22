@@ -85,7 +85,7 @@
     "cc.edit.printer_full": "Ausgabefach voll, bitte leeren",
     "cc.edit.printed_multiple_pages": "%s Seiten gedruckt",
     "cc.edit.printed_single_page": "Eine Seite gedruckt",
-    "cc.edit.error_saving": "Fehler beim starten", 
+    "cc.edit.error_saving": "Fehler beim starten",
     "cc.edit.page_title": "%s (Seite %s)",
 
     "cc.eject.usage": "Bentzung: eject <laufwerk>",

@@ -29,4 +29,3 @@ for i = 1, args.n do
         printError(translate("cc.delete.no_matching_files"):format(args[i]))
     end
 end
-
