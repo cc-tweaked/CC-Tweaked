@@ -4,7 +4,7 @@
  * Send enquiries to dratcliffe@gmail.com
  */
 
-package dan200.computercraft.shared.peripheral.generic.methods;
+package dan200.computercraft.shared.integration.minecraft;
 
 import com.google.auto.service.AutoService;
 import dan200.computercraft.api.lua.LuaFunction;
@@ -13,9 +13,12 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.energy.IEnergyStorage;
 import net.minecraftforge.versions.forge.ForgeVersion;
 
+import javax.annotation.Nonnull;
+
 @AutoService( GenericSource.class )
 public class EnergyMethods implements GenericSource
 {
+    @Nonnull
     @Override
     public ResourceLocation id()
     {

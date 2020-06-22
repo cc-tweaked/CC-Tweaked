@@ -34,7 +34,7 @@ import java.util.function.Function;
 
 import static org.objectweb.asm.Opcodes.*;
 
-public class Generator<T>
+public final class Generator<T>
 {
     private static final AtomicInteger METHOD_ID = new AtomicInteger();
 
@@ -63,7 +63,7 @@ public class Generator<T>
         .newBuilder()
         .build( CacheLoader.from( this::build ) );
 
-    public Generator( Class<T> base, List<Class<?>> context, Function<T, T> wrap )
+    Generator( Class<T> base, List<Class<?>> context, Function<T, T> wrap )
     {
         this.base = base;
         this.context = context;

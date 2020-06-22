@@ -23,11 +23,13 @@ import java.util.List;
 class GenericPeripheral implements IDynamicPeripheral
 {
     private final String type;
+    private final TileEntity tile;
     private final List<SaturatedMethod> methods;
 
-    GenericPeripheral( TileEntity base, List<SaturatedMethod> methods )
+    GenericPeripheral( TileEntity tile, List<SaturatedMethod> methods )
     {
-        ResourceLocation type = base.getType().getRegistryName();
+        ResourceLocation type = tile.getType().getRegistryName();
+        this.tile = tile;
         this.type = type == null ? "unknown" : type.toString();
         this.methods = methods;
     }
@@ -55,9 +57,20 @@ class GenericPeripheral implements IDynamicPeripheral
         return type;
     }
 
+    @Nullable
+    @Override
+    public Object getTarget()
+    {
+        return tile;
+    }
+
     @Override
     public boolean equals( @Nullable IPeripheral other )
     {
-        return other == this || (other instanceof GenericPeripheral && ((GenericPeripheral) other).methods.equals( methods ));
+        if( other == this ) return true;
+        if( !(other instanceof GenericPeripheral) ) return false;
+
+        GenericPeripheral generic = (GenericPeripheral) other;
+        return tile == generic.tile && methods.equals( generic.methods );
     }
 }

@@ -11,7 +11,7 @@ import dan200.computercraft.api.lua.*;
 import javax.annotation.Nonnull;
 import java.util.Arrays;
 
-public class TaskCallback implements ILuaCallback
+public final class TaskCallback implements ILuaCallback
 {
     private final MethodResult pull = MethodResult.pullEvent( "task_complete", this );
     private final long task;
