@@ -5,79 +5,163 @@
  */
 package dan200.computercraft.shared.peripheral.modem.wireless;
 
-import dan200.computercraft.shared.common.IDirectionalTile;
-import dan200.computercraft.shared.peripheral.PeripheralType;
-import dan200.computercraft.shared.peripheral.common.BlockPeripheral;
-import dan200.computercraft.shared.peripheral.common.BlockPeripheralVariant;
-import dan200.computercraft.shared.peripheral.common.ITilePeripheral;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.util.EnumFacing;
+import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.api.peripheral.IPeripheral;
+import dan200.computercraft.shared.common.TileGeneric;
+import dan200.computercraft.shared.peripheral.modem.ModemPeripheral;
+import dan200.computercraft.shared.peripheral.modem.ModemState;
+import dan200.computercraft.shared.util.CapabilityUtil;
+import dan200.computercraft.shared.util.NamedTileEntityType;
+import dan200.computercraft.shared.util.TickScheduler;
+import net.minecraft.block.BlockState;
+import net.minecraft.tileentity.TileEntityType;
+import net.minecraft.util.Direction;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.util.LazyOptional;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
-public class TileWirelessModem extends TileWirelessModemBase implements IDirectionalTile, ITilePeripheral
+import static dan200.computercraft.shared.Capabilities.CAPABILITY_PERIPHERAL;
+
+public class TileWirelessModem extends TileGeneric
 {
-    public TileWirelessModem()
+    public static final NamedTileEntityType<TileWirelessModem> FACTORY_NORMAL = NamedTileEntityType.create(
+        new ResourceLocation( ComputerCraft.MOD_ID, "wireless_modem_normal" ),
+        f -> new TileWirelessModem( f, false )
+    );
+
+    public static final NamedTileEntityType<TileWirelessModem> FACTORY_ADVANCED = NamedTileEntityType.create(
+        new ResourceLocation( ComputerCraft.MOD_ID, "wireless_modem_advanced" ),
+        f -> new TileWirelessModem( f, true )
+    );
+
+    private static class Peripheral extends WirelessModemPeripheral
     {
-        super( false );
+        private final TileWirelessModem entity;
+
+        Peripheral( TileWirelessModem entity )
+        {
+            super( new ModemState( () -> TickScheduler.schedule( entity ) ), entity.advanced );
+            this.entity = entity;
+        }
+
+        @Nonnull
+        @Override
+        public World getWorld()
+        {
+            return entity.getWorld();
+        }
+
+        @Nonnull
+        @Override
+        public Vec3d getPosition()
+        {
+            BlockPos pos = entity.getPos().offset( entity.modemDirection );
+            return new Vec3d( pos.getX(), pos.getY(), pos.getZ() );
+        }
+
+        @Override
+        public boolean equals( IPeripheral other )
+        {
+            return this == other || (other instanceof Peripheral && entity == ((Peripheral) other).entity);
+        }
+
+        @Nonnull
+        @Override
+        public Object getTarget()
+        {
+            return entity;
+        }
+    }
+
+    private final boolean advanced;
+
+    private boolean hasModemDirection = false;
+    private Direction modemDirection = Direction.DOWN;
+    private final ModemPeripheral modem;
+    private boolean destroyed = false;
+    private LazyOptional<IPeripheral> modemCap;
+
+    public TileWirelessModem( TileEntityType<? extends TileWirelessModem> type, boolean advanced )
+    {
+        super( type );
+        this.advanced = advanced;
+        modem = new Peripheral( this );
     }
 
     @Override
-    public EnumFacing getDirection()
+    public void onLoad()
     {
-        // Wireless Modem
-        IBlockState state = getBlockState();
-        switch( state.getValue( BlockPeripheral.VARIANT ) )
+        super.onLoad();
+        TickScheduler.schedule( this );
+    }
+
+    @Override
+    public void destroy()
+    {
+        if( !destroyed )
         {
-            case WirelessModemDownOff:
-            case WirelessModemDownOn:
-                return EnumFacing.DOWN;
-            case WirelessModemUpOff:
-            case WirelessModemUpOn:
-                return EnumFacing.UP;
-            default:
-                return state.getValue( BlockPeripheral.FACING );
+            modem.destroy();
+            destroyed = true;
         }
     }
 
     @Override
-    public void setDirection( EnumFacing dir )
+    public void updateContainingBlockInfo()
     {
-        // Wireless Modem
-        if( dir == EnumFacing.UP )
-        {
-            setBlockState( getBlockState()
-                .withProperty( BlockPeripheral.VARIANT, BlockPeripheralVariant.WirelessModemUpOff )
-                .withProperty( BlockPeripheral.FACING, EnumFacing.NORTH )
-            );
-        }
-        else if( dir == EnumFacing.DOWN )
-        {
-            setBlockState( getBlockState()
-                .withProperty( BlockPeripheral.VARIANT, BlockPeripheralVariant.WirelessModemDownOff )
-                .withProperty( BlockPeripheral.FACING, EnumFacing.NORTH )
-            );
-        }
-        else
-        {
-            setBlockState( getBlockState()
-                .withProperty( BlockPeripheral.VARIANT, BlockPeripheralVariant.WirelessModemOff )
-                .withProperty( BlockPeripheral.FACING, dir )
-            );
-        }
+        super.updateContainingBlockInfo();
+        hasModemDirection = false;
+        world.getPendingBlockTicks().scheduleTick( getPos(), getBlockState().getBlock(), 0 );
     }
 
     @Override
-    public boolean shouldRefresh( World world, BlockPos pos, @Nonnull IBlockState oldState, @Nonnull IBlockState newState )
+    public void blockTick()
     {
-        return super.shouldRefresh( world, pos, oldState, newState ) || BlockPeripheral.getPeripheralType( newState ) != PeripheralType.WirelessModem;
+        Direction currentDirection = modemDirection;
+        refreshDirection();
+        // Invalidate the capability if the direction has changed. I'm not 100% happy with this implementation
+        //  - ideally we'd do it within refreshDirection or updateContainingBlockInfo, but this seems the _safest_
+        //  place.
+        if( currentDirection != modemDirection ) modemCap = CapabilityUtil.invalidate( modemCap );
+
+        if( modem.getModemState().pollChanged() ) updateBlockState();
     }
 
-    @Override
-    public PeripheralType getPeripheralType()
+    private void refreshDirection()
     {
-        return PeripheralType.WirelessModem;
+        if( hasModemDirection ) return;
+
+        hasModemDirection = true;
+        modemDirection = getBlockState().get( BlockWirelessModem.FACING );
+    }
+
+    private void updateBlockState()
+    {
+        boolean on = modem.getModemState().isOpen();
+        BlockState state = getBlockState();
+        if( state.get( BlockWirelessModem.ON ) != on )
+        {
+            getWorld().setBlockState( getPos(), state.with( BlockWirelessModem.ON, on ) );
+        }
+    }
+
+    @Nonnull
+    @Override
+    public <T> LazyOptional<T> getCapability( @Nonnull Capability<T> cap, @Nullable Direction side )
+    {
+        if( cap == CAPABILITY_PERIPHERAL )
+        {
+            refreshDirection();
+            if( side != null && modemDirection != side ) return LazyOptional.empty();
+            if( modemCap == null ) modemCap = LazyOptional.of( () -> modem );
+            return modemCap.cast();
+        }
+
+        return super.getCapability( cap, side );
     }
 }

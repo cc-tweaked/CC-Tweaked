@@ -6,9 +6,7 @@
 package dan200.computercraft.core.computer;
 
 import com.google.common.base.Objects;
-import dan200.computercraft.api.filesystem.IWritableMount;
 import dan200.computercraft.api.lua.ILuaAPI;
-import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.peripheral.IWorkMonitor;
 import dan200.computercraft.core.apis.IAPIEnvironment;
 import dan200.computercraft.core.filesystem.FileSystem;
@@ -46,7 +44,7 @@ public class Computer
     // Additional state about the computer and its environment.
     private boolean m_blinking = false;
     private final Environment internalEnvironment = new Environment( this );
-    private AtomicBoolean externalOutputChanged = new AtomicBoolean();
+    private final AtomicBoolean externalOutputChanged = new AtomicBoolean();
 
     private boolean startRequested;
     private int m_ticksSinceStart = -1;
@@ -218,37 +216,4 @@ public class Computer
     {
         executor.addApi( api );
     }
-
-    @Deprecated
-    public IPeripheral getPeripheral( int side )
-    {
-        return internalEnvironment.getPeripheral( ComputerSide.valueOf( side ) );
-    }
-
-    @Deprecated
-    public void setPeripheral( int side, IPeripheral peripheral )
-    {
-        internalEnvironment.setPeripheral( ComputerSide.valueOf( side ), peripheral );
-    }
-
-    @Deprecated
-    public void addAPI( dan200.computercraft.core.apis.ILuaAPI api )
-    {
-        addApi( api );
-    }
-
-    @Deprecated
-    public void advance( double dt )
-    {
-        tick();
-    }
-
-    @Deprecated
-    public IWritableMount getRootMount()
-    {
-        return executor.getRootMount();
-    }
-
-    @Deprecated
-    public static final String[] s_sideNames = ComputerSide.NAMES;
 }

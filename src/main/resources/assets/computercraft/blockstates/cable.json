@@ -13,7 +13,7 @@
                     }
                 ]
             },
-            "apply": { "model": "computercraft:cable_core_facing", "x": 90 }
+            "apply": { "model": "computercraft:block/cable_core_facing", "x": 90 }
         },
 
         {
@@ -33,7 +33,7 @@
                     }
                 ]
             },
-            "apply": { "model": "computercraft:cable_core_facing", "y": 0 }
+            "apply": { "model": "computercraft:block/cable_core_facing", "y": 0 }
         },
 
         {
@@ -49,7 +49,7 @@
                     }
                 ]
             },
-            "apply": { "model": "computercraft:cable_core_facing", "y": 90 }
+            "apply": { "model": "computercraft:block/cable_core_facing", "y": 90 }
         },
 
         {
@@ -69,129 +69,129 @@
                     { "cable": "true", "south": "true", "east": "true" }
                 ]
             },
-            "apply": { "model": "computercraft:cable_core_any" }
+            "apply": { "model": "computercraft:block/cable_core_any" }
         },
 
         {
             "when": { "up": true },
-            "apply": { "model": "computercraft:cable_arm", "x": 90 }
+            "apply": { "model": "computercraft:block/cable_arm", "x": 90 }
         },
         {
             "when": { "down": true },
-            "apply": { "model": "computercraft:cable_arm", "x": 270 }
+            "apply": { "model": "computercraft:block/cable_arm", "x": 270 }
         },
         {
             "when": { "north": true },
-            "apply": { "model": "computercraft:cable_arm", "y": 180 }
+            "apply": { "model": "computercraft:block/cable_arm", "y": 180 }
         },
         {
             "when": { "south": true },
-            "apply": { "model": "computercraft:cable_arm" }
+            "apply": { "model": "computercraft:block/cable_arm" }
         },
         {
             "when": { "west": true },
-            "apply": { "model": "computercraft:cable_arm", "y": 90 }
+            "apply": { "model": "computercraft:block/cable_arm", "y": 90 }
         },
         {
             "when": { "east": true },
-            "apply": { "model": "computercraft:cable_arm", "y": 270 }
+            "apply": { "model": "computercraft:block/cable_arm", "y": 270 }
         },
 
         {
             "when": { "modem": "up_off" },
-            "apply": { "model": "computercraft:wired_modem_off", "x": 270 }
+            "apply": { "model": "computercraft:block/wired_modem_off", "x": 270 }
         },
         {
             "when": { "modem": "down_off" },
-            "apply": { "model": "computercraft:wired_modem_off", "x": 90 }
+            "apply": { "model": "computercraft:block/wired_modem_off", "x": 90 }
         },
         {
             "when": { "modem": "north_off" },
-            "apply": { "model": "computercraft:wired_modem_off" }
+            "apply": { "model": "computercraft:block/wired_modem_off" }
         },
         {
             "when": { "modem": "south_off" },
-            "apply": { "model": "computercraft:wired_modem_off", "y": 180 }
+            "apply": { "model": "computercraft:block/wired_modem_off", "y": 180 }
         },
         {
             "when": { "modem": "west_off" },
-            "apply": { "model": "computercraft:wired_modem_off", "y": 270 }
+            "apply": { "model": "computercraft:block/wired_modem_off", "y": 270 }
         },
         {
             "when": { "modem": "east_off" },
-            "apply": { "model": "computercraft:wired_modem_off", "y": 90 }
+            "apply": { "model": "computercraft:block/wired_modem_off", "y": 90 }
         },
         {
             "when": { "modem": "up_on" },
-            "apply": { "model": "computercraft:wired_modem_on", "x": 270 }
+            "apply": { "model": "computercraft:block/wired_modem_on", "x": 270 }
         },
         {
             "when": { "modem": "down_on" },
-            "apply": { "model": "computercraft:wired_modem_on", "x": 90 }
+            "apply": { "model": "computercraft:block/wired_modem_on", "x": 90 }
         },
         {
             "when": { "modem": "north_on" },
-            "apply": { "model": "computercraft:wired_modem_on" }
+            "apply": { "model": "computercraft:block/wired_modem_on" }
         },
         {
             "when": { "modem": "south_on" },
-            "apply": { "model": "computercraft:wired_modem_on", "y": 180 }
+            "apply": { "model": "computercraft:block/wired_modem_on", "y": 180 }
         },
         {
             "when": { "modem": "west_on" },
-            "apply": { "model": "computercraft:wired_modem_on", "y": 270 }
+            "apply": { "model": "computercraft:block/wired_modem_on", "y": 270 }
         },
         {
             "when": { "modem": "east_on" },
-            "apply": { "model": "computercraft:wired_modem_on", "y": 90 }
+            "apply": { "model": "computercraft:block/wired_modem_on", "y": 90 }
         },
         {
             "when": { "modem": "up_off_peripheral" },
-            "apply": { "model": "computercraft:wired_modem_off_peripheral", "x": 270 }
+            "apply": { "model": "computercraft:block/wired_modem_off_peripheral", "x": 270 }
         },
         {
             "when": { "modem": "down_off_peripheral" },
-            "apply": { "model": "computercraft:wired_modem_off_peripheral", "x": 90 }
+            "apply": { "model": "computercraft:block/wired_modem_off_peripheral", "x": 90 }
         },
         {
             "when": { "modem": "north_off_peripheral" },
-            "apply": { "model": "computercraft:wired_modem_off_peripheral" }
+            "apply": { "model": "computercraft:block/wired_modem_off_peripheral" }
         },
         {
             "when": { "modem": "south_off_peripheral" },
-            "apply": { "model": "computercraft:wired_modem_off_peripheral", "y": 180 }
+            "apply": { "model": "computercraft:block/wired_modem_off_peripheral", "y": 180 }
         },
         {
             "when": { "modem": "west_off_peripheral" },
-            "apply": { "model": "computercraft:wired_modem_off_peripheral", "y": 270 }
+            "apply": { "model": "computercraft:block/wired_modem_off_peripheral", "y": 270 }
         },
         {
             "when": { "modem": "east_off_peripheral" },
-            "apply": { "model": "computercraft:wired_modem_off_peripheral", "y": 90 }
+            "apply": { "model": "computercraft:block/wired_modem_off_peripheral", "y": 90 }
         },
         {
             "when": { "modem": "up_on_peripheral" },
-            "apply": { "model": "computercraft:wired_modem_on_peripheral", "x": 270 }
+            "apply": { "model": "computercraft:block/wired_modem_on_peripheral", "x": 270 }
         },
         {
             "when": { "modem": "down_on_peripheral" },
-            "apply": { "model": "computercraft:wired_modem_on_peripheral", "x": 90 }
+            "apply": { "model": "computercraft:block/wired_modem_on_peripheral", "x": 90 }
         },
         {
             "when": { "modem": "north_on_peripheral" },
-            "apply": { "model": "computercraft:wired_modem_on_peripheral" }
+            "apply": { "model": "computercraft:block/wired_modem_on_peripheral" }
         },
         {
             "when": { "modem": "south_on_peripheral" },
-            "apply": { "model": "computercraft:wired_modem_on_peripheral", "y": 180 }
+            "apply": { "model": "computercraft:block/wired_modem_on_peripheral", "y": 180 }
         },
         {
             "when": { "modem": "west_on_peripheral" },
-            "apply": { "model": "computercraft:wired_modem_on_peripheral", "y": 270 }
+            "apply": { "model": "computercraft:block/wired_modem_on_peripheral", "y": 270 }
         },
         {
             "when": { "modem": "east_on_peripheral" },
-            "apply": { "model": "computercraft:wired_modem_on_peripheral", "y": 90 }
+            "apply": { "model": "computercraft:block/wired_modem_on_peripheral", "y": 90 }
         }
     ]
 }

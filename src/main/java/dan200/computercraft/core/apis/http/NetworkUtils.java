@@ -6,6 +6,9 @@
 package dan200.computercraft.core.apis.http;
 
 import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.core.apis.http.options.Action;
+import dan200.computercraft.core.apis.http.options.AddressRule;
+import dan200.computercraft.core.apis.http.options.Options;
 import dan200.computercraft.shared.util.ThreadUtils;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.EventLoopGroup;
@@ -15,7 +18,6 @@ import io.netty.handler.ssl.SslContextBuilder;
 
 import javax.net.ssl.SSLException;
 import javax.net.ssl.TrustManagerFactory;
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.security.KeyStore;
 import java.util.concurrent.ExecutorService;
@@ -98,20 +100,6 @@ public final class NetworkUtils
     }
 
     /**
-     * Checks a host is allowed.
-     *
-     * @param host The domain to check against
-     * @throws HTTPRequestException If the host is not permitted.
-     */
-    public static void checkHost( String host ) throws HTTPRequestException
-    {
-        if( !ComputerCraft.http_whitelist.matches( host ) || ComputerCraft.http_blacklist.matches( host ) )
-        {
-            throw new HTTPRequestException( "Domain not permitted" );
-        }
-    }
-
-    /**
      * Create a {@link InetSocketAddress} from the resolved {@code host} and port.
      *
      * Note, this may require a DNS lookup, and so should not be executed on the main CC thread.
@@ -120,22 +108,29 @@ public final class NetworkUtils
      * @param port The port, or -1 if not defined.
      * @param ssl  Whether to connect with SSL. This is used to find the default port if not otherwise specified.
      * @return The resolved address.
-     * @throws HTTPRequestException If the host is not permitted.
+     * @throws HTTPRequestException If the host is not malformed.
      */
     public static InetSocketAddress getAddress( String host, int port, boolean ssl ) throws HTTPRequestException
     {
         if( port < 0 ) port = ssl ? 443 : 80;
-
         InetSocketAddress socketAddress = new InetSocketAddress( host, port );
         if( socketAddress.isUnresolved() ) throw new HTTPRequestException( "Unknown host" );
-
-        InetAddress address = socketAddress.getAddress();
-        if( !ComputerCraft.http_whitelist.matches( address ) || ComputerCraft.http_blacklist.matches( address ) )
-        {
-            throw new HTTPRequestException( "Domain not permitted" );
-        }
-
         return socketAddress;
+    }
+
+    /**
+     * Get options for a specific domain.
+     *
+     * @param host    The host to resolve.
+     * @param address The address, resolved by {@link #getAddress(String, int, boolean)}.
+     * @return The options for this host.
+     * @throws HTTPRequestException If the host is not permitted
+     */
+    public static Options getOptions( String host, InetSocketAddress address ) throws HTTPRequestException
+    {
+        Options options = AddressRule.apply( ComputerCraft.httpRules, host, address.getAddress() );
+        if( options.action == Action.DENY ) throw new HTTPRequestException( "Domain not permitted" );
+        return options;
     }
 
     /**

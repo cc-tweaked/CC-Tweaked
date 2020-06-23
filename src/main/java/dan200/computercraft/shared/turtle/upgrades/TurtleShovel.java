@@ -11,11 +11,11 @@ import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.api.turtle.TurtleVerb;
 import dan200.computercraft.shared.turtle.core.TurtlePlaceCommand;
 import dan200.computercraft.shared.turtle.core.TurtlePlayer;
+import net.minecraft.block.BlockState;
 import net.minecraft.block.material.Material;
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -24,14 +24,14 @@ import javax.annotation.Nonnull;
 
 public class TurtleShovel extends TurtleTool
 {
-    public TurtleShovel( ResourceLocation id, int legacyId, String adjective, Item item )
+    public TurtleShovel( ResourceLocation id, String adjective, Item item )
     {
-        super( id, legacyId, adjective, item );
+        super( id, adjective, item );
     }
 
-    public TurtleShovel( ResourceLocation id, int legacyId, Item item )
+    public TurtleShovel( ResourceLocation id, Item item )
     {
-        super( id, legacyId, item );
+        super( id, item );
     }
 
     public TurtleShovel( ResourceLocation id, ItemStack craftItem, ItemStack toolItem )
@@ -40,29 +40,28 @@ public class TurtleShovel extends TurtleTool
     }
 
     @Override
-    protected boolean canBreakBlock( IBlockState state, World world, BlockPos pos, TurtlePlayer player )
+    protected boolean canBreakBlock( BlockState state, World world, BlockPos pos, TurtlePlayer player )
     {
         if( !super.canBreakBlock( state, world, pos, player ) ) return false;
 
         Material material = state.getMaterial();
-        return material == Material.GROUND ||
+        return material == Material.EARTH ||
             material == Material.SAND ||
             material == Material.SNOW ||
             material == Material.CLAY ||
-            material == Material.CRAFTED_SNOW ||
-            material == Material.GRASS ||
+            material == Material.SNOW_BLOCK ||
             material == Material.PLANTS ||
             material == Material.CACTUS ||
             material == Material.GOURD ||
             material == Material.LEAVES ||
-            material == Material.VINE;
+            material == Material.TALL_PLANTS;
     }
 
     @Nonnull
     @Override
-    public TurtleCommandResult useTool( @Nonnull ITurtleAccess turtle, @Nonnull TurtleSide side, @Nonnull TurtleVerb verb, @Nonnull EnumFacing direction )
+    public TurtleCommandResult useTool( @Nonnull ITurtleAccess turtle, @Nonnull TurtleSide side, @Nonnull TurtleVerb verb, @Nonnull Direction direction )
     {
-        if( verb == TurtleVerb.Dig )
+        if( verb == TurtleVerb.DIG )
         {
             ItemStack shovel = item.copy();
             ItemStack remainder = TurtlePlaceCommand.deploy( shovel, turtle, direction, null, null );

@@ -1,0 +1,19 @@
+{
+  "type": "computercraft:impostor_shaped",
+  "group": "computercraft:pocket_normal",
+  "pattern": [
+    "#",
+    "P"
+  ],
+  "key": {
+    "#": {
+      "item": "computercraft:pocket_computer_normal"
+    },
+    "P": {
+      "item": "computercraft:speaker"
+    }
+  },
+  "result": {
+    "item": "computercraft:pocket_computer_normal"
+  }
+}

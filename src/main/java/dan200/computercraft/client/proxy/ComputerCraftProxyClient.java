@@ -6,56 +6,83 @@
 package dan200.computercraft.client.proxy;
 
 import dan200.computercraft.ComputerCraft;
-import dan200.computercraft.client.render.TileEntityCableRenderer;
+import dan200.computercraft.client.gui.*;
 import dan200.computercraft.client.render.TileEntityMonitorRenderer;
 import dan200.computercraft.client.render.TileEntityTurtleRenderer;
-import dan200.computercraft.shared.command.CommandCopy;
-import dan200.computercraft.shared.peripheral.modem.wired.TileCable;
+import dan200.computercraft.client.render.TurtlePlayerRenderer;
+import dan200.computercraft.shared.common.ContainerHeldItem;
+import dan200.computercraft.shared.computer.inventory.ContainerComputer;
+import dan200.computercraft.shared.computer.inventory.ContainerViewComputer;
+import dan200.computercraft.shared.peripheral.diskdrive.ContainerDiskDrive;
 import dan200.computercraft.shared.peripheral.monitor.ClientMonitor;
 import dan200.computercraft.shared.peripheral.monitor.TileMonitor;
-import dan200.computercraft.shared.proxy.ComputerCraftProxyCommon;
+import dan200.computercraft.shared.peripheral.printer.ContainerPrinter;
+import dan200.computercraft.shared.pocket.inventory.ContainerPocketComputer;
 import dan200.computercraft.shared.turtle.blocks.TileTurtle;
-import net.minecraftforge.client.ClientCommandHandler;
+import dan200.computercraft.shared.turtle.core.TurtlePlayer;
+import dan200.computercraft.shared.turtle.inventory.ContainerTurtle;
+import net.minecraft.client.gui.ScreenManager;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.RenderTypeLookup;
+import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.event.world.WorldEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
+import net.minecraftforge.fml.client.registry.RenderingRegistry;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 
-public class ComputerCraftProxyClient extends ComputerCraftProxyCommon
+@Mod.EventBusSubscriber( modid = ComputerCraft.MOD_ID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.MOD )
+public final class ComputerCraftProxyClient
 {
-    @Override
-    public void preInit()
+    @SubscribeEvent
+    public static void setupClient( FMLClientSetupEvent event )
     {
-        super.preInit();
+        registerContainers();
 
-        // Register any client-specific commands
-        ClientCommandHandler.instance.registerCommand( CommandCopy.INSTANCE );
+        // While turtles themselves are not transparent, their upgrades may be.
+        RenderTypeLookup.setRenderLayer( ComputerCraft.Blocks.turtleNormal, RenderType.getTranslucent() );
+        RenderTypeLookup.setRenderLayer( ComputerCraft.Blocks.turtleAdvanced, RenderType.getTranslucent() );
+
+        // Monitors' textures have transparent fronts and so count as cutouts.
+        RenderTypeLookup.setRenderLayer( ComputerCraft.Blocks.monitorNormal, RenderType.getCutout() );
+        RenderTypeLookup.setRenderLayer( ComputerCraft.Blocks.monitorAdvanced, RenderType.getCutout() );
+
+        // Setup TESRs
+        ClientRegistry.bindTileEntityRenderer( TileMonitor.FACTORY_NORMAL, TileEntityMonitorRenderer::new );
+        ClientRegistry.bindTileEntityRenderer( TileMonitor.FACTORY_ADVANCED, TileEntityMonitorRenderer::new );
+        ClientRegistry.bindTileEntityRenderer( TileTurtle.FACTORY_NORMAL, TileEntityTurtleRenderer::new );
+        ClientRegistry.bindTileEntityRenderer( TileTurtle.FACTORY_ADVANCED, TileEntityTurtleRenderer::new );
+        // TODO: ClientRegistry.bindTileEntityRenderer( TileCable.FACTORY, x -> new TileEntityCableRenderer() );
+
+        RenderingRegistry.registerEntityRenderingHandler( TurtlePlayer.TYPE, TurtlePlayerRenderer::new );
     }
 
-    @Override
-    public void init()
+    private static void registerContainers()
     {
-        super.init();
+        // My IDE doesn't think so, but we do actually need these generics.
 
-        // Setup renderers
-        ClientRegistry.bindTileEntitySpecialRenderer( TileMonitor.class, new TileEntityMonitorRenderer() );
-        ClientRegistry.bindTileEntitySpecialRenderer( TileCable.class, new TileEntityCableRenderer() );
-        ClientRegistry.bindTileEntitySpecialRenderer( TileTurtle.class, new TileEntityTurtleRenderer() );
+        ScreenManager.<ContainerComputer, GuiComputer<ContainerComputer>>registerFactory( ContainerComputer.TYPE, GuiComputer::create );
+        ScreenManager.<ContainerPocketComputer, GuiComputer<ContainerPocketComputer>>registerFactory( ContainerPocketComputer.TYPE, GuiComputer::createPocket );
+        ScreenManager.registerFactory( ContainerTurtle.TYPE, GuiTurtle::new );
+
+        ScreenManager.registerFactory( ContainerPrinter.TYPE, GuiPrinter::new );
+        ScreenManager.registerFactory( ContainerDiskDrive.TYPE, GuiDiskDrive::new );
+        ScreenManager.registerFactory( ContainerHeldItem.PRINTOUT_TYPE, GuiPrintout::new );
+
+        ScreenManager.<ContainerViewComputer, GuiComputer<ContainerViewComputer>>registerFactory( ContainerViewComputer.TYPE, GuiComputer::createView );
     }
 
-    @Mod.EventBusSubscriber( modid = ComputerCraft.MOD_ID, value = Side.CLIENT )
+    @Mod.EventBusSubscriber( modid = ComputerCraft.MOD_ID, value = Dist.CLIENT )
     public static final class ForgeHandlers
     {
         @SubscribeEvent
         public static void onWorldUnload( WorldEvent.Unload event )
         {
-            if( event.getWorld().isRemote )
+            if( event.getWorld().isRemote() )
             {
                 ClientMonitor.destroyAll();
             }
         }
     }
-
-
 }

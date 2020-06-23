@@ -5,11 +5,10 @@
  */
 package dan200.computercraft.shared.pocket.peripherals;
 
+import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.pocket.AbstractPocketUpgrade;
 import dan200.computercraft.api.pocket.IPocketAccess;
-import dan200.computercraft.shared.peripheral.PeripheralType;
-import dan200.computercraft.shared.peripheral.common.PeripheralItemFactory;
 import dan200.computercraft.shared.peripheral.modem.ModemState;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.ResourceLocation;
@@ -24,13 +23,10 @@ public class PocketModem extends AbstractPocketUpgrade
     public PocketModem( boolean advanced )
     {
         super(
+            new ResourceLocation( "computercraft", advanced ? "wireless_modem_advanced" : "wireless_modem_normal" ),
             advanced
-                ? new ResourceLocation( "computercraft", "advanced_modem" )
-                : new ResourceLocation( "computercraft", "wireless_modem" ),
-            PeripheralItemFactory.create(
-                advanced ? PeripheralType.AdvancedModem : PeripheralType.WirelessModem,
-                null, 1
-            )
+                ? ComputerCraft.Blocks.wirelessModemAdvanced
+                : ComputerCraft.Blocks.wirelessModemNormal
         );
         this.advanced = advanced;
     }
@@ -47,11 +43,11 @@ public class PocketModem extends AbstractPocketUpgrade
     {
         if( !(peripheral instanceof PocketModemPeripheral) ) return;
 
-        Entity entity = access.getValidEntity();
+        Entity entity = access.getEntity();
 
         PocketModemPeripheral modem = (PocketModemPeripheral) peripheral;
 
-        if( entity != null ) modem.setLocation( entity.getEntityWorld(), entity.getPositionEyes( 1 ) );
+        if( entity != null ) modem.setLocation( entity.getEntityWorld(), entity.getEyePosition( 1 ) );
 
         ModemState state = modem.getModemState();
         if( state.pollChanged() ) access.setLight( state.isOpen() ? 0xBA0000 : -1 );

@@ -5,65 +5,67 @@
  */
 package dan200.computercraft.shared.integration.crafttweaker;
 
-import crafttweaker.CraftTweakerAPI;
-import crafttweaker.annotations.ModOnly;
-import crafttweaker.annotations.ZenDoc;
-import crafttweaker.annotations.ZenRegister;
-import crafttweaker.api.item.IItemStack;
-import crafttweaker.api.minecraft.CraftTweakerMC;
-import dan200.computercraft.ComputerCraft;
+import com.blamejared.crafttweaker.api.CraftTweakerAPI;
+import com.blamejared.crafttweaker.api.annotations.ZenRegister;
+import com.blamejared.crafttweaker.api.item.IItemStack;
 import dan200.computercraft.shared.integration.crafttweaker.actions.AddTurtleTool;
 import dan200.computercraft.shared.integration.crafttweaker.actions.RemoveTurtleUpgradeByItem;
 import dan200.computercraft.shared.integration.crafttweaker.actions.RemoveTurtleUpgradeByName;
-import stanhebben.zenscript.annotations.ZenClass;
-import stanhebben.zenscript.annotations.ZenMethod;
+import org.openzen.zencode.java.ZenCodeType;
 
 @ZenRegister
-@ZenClass( "dan200.computercraft.turtle" )
-@ModOnly( ComputerCraft.MOD_ID )
+@ZenCodeType.Name( "dan200.computercraft.turtle" )
 public class TurtleTweaker
 {
-    @ZenMethod
-    @ZenDoc( "Remove a turtle upgrade with the given id" )
+    /**
+     * Remove a turtle upgrade with the given id.
+     *
+     * @param upgrade The ID of the to remove
+     */
+    @ZenCodeType.Method
     public static void removeUpgrade( String upgrade )
     {
         CraftTweakerAPI.apply( new RemoveTurtleUpgradeByName( upgrade ) );
     }
 
-    @ZenMethod
-    @ZenDoc( "Remove a turtle upgrade crafted with the given item stack" )
+    /**
+     * Remove a turtle upgrade crafted with the given item stack".
+     *
+     * @param stack The stack with which the upgrade is crafted.
+     */
+    @ZenCodeType.Method
     public static void removeUpgrade( IItemStack stack )
     {
-        CraftTweakerAPI.apply( new RemoveTurtleUpgradeByItem( CraftTweakerMC.getItemStack( stack ) ) );
+        CraftTweakerAPI.apply( new RemoveTurtleUpgradeByItem( stack.getInternal() ) );
     }
 
-    @ZenMethod
-    @ZenDoc( "Add a new turtle tool with the given id, which crafts and acts using the given stack." )
+    /**
+     * Add a new turtle tool with the given id, which crafts and acts using the given stack.
+     *
+     * @param id    The new upgrade's ID
+     * @param stack The stack used for crafting the upgrade and used by the turtle as a tool.
+     */
+    @ZenCodeType.Method
     public static void addTool( String id, IItemStack stack )
     {
         addTool( id, stack, stack, "tool" );
     }
 
-    @ZenMethod
-    @ZenDoc( "Add a new turtle tool with the given id, which is crafted with one item, and uses another." )
+    @ZenCodeType.Method
     public static void addTool( String id, IItemStack craftingStack, IItemStack toolStack )
     {
         addTool( id, craftingStack, toolStack, "tool" );
     }
 
-    @ZenMethod
-    @ZenDoc( "Add a new turtle tool with the given id, which crafts and acts using the given stack. You may also" +
-        "specify a 'kind' of tool, which limits what blocks the turtle can break (for instance, an 'axe' may only break wood)." )
+    @ZenCodeType.Method
     public static void addTool( String id, IItemStack stack, String kind )
     {
         addTool( id, stack, stack, kind );
     }
 
-    @ZenMethod
-    @ZenDoc( "Add a new turtle tool with the given id, which is crafted with one item, and uses another. You may also" +
-        "specify a 'kind' of tool, which limits what blocks the turtle can break (for instance, an 'axe' may only break wood)." )
+    @ZenCodeType.Method
     public static void addTool( String id, IItemStack craftingStack, IItemStack toolStack, String kind )
     {
-        CraftTweakerAPI.apply( new AddTurtleTool( id, CraftTweakerMC.getItemStack( craftingStack ), CraftTweakerMC.getItemStack( toolStack ), kind ) );
+        CraftTweakerAPI.apply( new AddTurtleTool( id, craftingStack.getInternal(), toolStack.getInternal(), kind ) );
     }
 }

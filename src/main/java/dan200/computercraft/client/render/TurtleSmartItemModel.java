@@ -6,42 +6,43 @@
 package dan200.computercraft.client.render;
 
 import com.google.common.base.Objects;
+import com.mojang.blaze3d.matrix.MatrixStack;
+import dan200.computercraft.api.client.TransformedModel;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
-import dan200.computercraft.shared.turtle.items.ItemTurtleBase;
+import dan200.computercraft.shared.turtle.items.ItemTurtle;
 import dan200.computercraft.shared.util.Holiday;
 import dan200.computercraft.shared.util.HolidayUtil;
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.block.model.*;
+import net.minecraft.client.renderer.TransformationMatrix;
+import net.minecraft.client.renderer.model.*;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
-import org.apache.commons.lang3.tuple.Pair;
+import net.minecraftforge.client.model.data.IModelData;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.vecmath.Matrix4f;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Random;
 
 public class TurtleSmartItemModel implements IBakedModel
 {
-    private static final Matrix4f s_identity, s_flip;
+    private static final TransformationMatrix identity, flip;
 
     static
     {
-        s_identity = new Matrix4f();
-        s_identity.setIdentity();
+        MatrixStack stack = new MatrixStack();
+        stack.scale( 0, -1, 0 );
+        stack.translate( 0, 0, 1 );
 
-        s_flip = new Matrix4f();
-        s_flip.setIdentity();
-        s_flip.m11 = -1; // Flip on the y axis
-        s_flip.m13 = 1; // Models go from (0,0,0) to (1,1,1), so push back up.
+        identity = TransformationMatrix.identity();
+        flip = new TransformationMatrix( stack.getLast().getMatrix() );
     }
 
     private static class TurtleModelCombination
@@ -96,27 +97,26 @@ public class TurtleSmartItemModel implements IBakedModel
     private final IBakedModel familyModel;
     private final IBakedModel colourModel;
 
-    private HashMap<TurtleModelCombination, IBakedModel> m_cachedModels;
-    private ItemOverrideList m_overrides;
+    private final HashMap<TurtleModelCombination, IBakedModel> m_cachedModels = new HashMap<>();
+    private final ItemOverrideList m_overrides;
 
     public TurtleSmartItemModel( IBakedModel familyModel, IBakedModel colourModel )
     {
         this.familyModel = familyModel;
         this.colourModel = colourModel;
 
-        m_cachedModels = new HashMap<>();
-        m_overrides = new ItemOverrideList( new ArrayList<>() )
+        m_overrides = new ItemOverrideList()
         {
             @Nonnull
             @Override
-            public IBakedModel handleItemState( @Nonnull IBakedModel originalModel, @Nonnull ItemStack stack, @Nullable World world, @Nullable EntityLivingBase entity )
+            public IBakedModel getModelWithOverrides( @Nonnull IBakedModel originalModel, @Nonnull ItemStack stack, @Nullable World world, @Nullable LivingEntity entity )
             {
-                ItemTurtleBase turtle = (ItemTurtleBase) stack.getItem();
+                ItemTurtle turtle = (ItemTurtle) stack.getItem();
                 int colour = turtle.getColour( stack );
-                ITurtleUpgrade leftUpgrade = turtle.getUpgrade( stack, TurtleSide.Left );
-                ITurtleUpgrade rightUpgrade = turtle.getUpgrade( stack, TurtleSide.Right );
+                ITurtleUpgrade leftUpgrade = turtle.getUpgrade( stack, TurtleSide.LEFT );
+                ITurtleUpgrade rightUpgrade = turtle.getUpgrade( stack, TurtleSide.RIGHT );
                 ResourceLocation overlay = turtle.getOverlay( stack );
-                boolean christmas = HolidayUtil.getCurrentHoliday() == Holiday.Christmas;
+                boolean christmas = HolidayUtil.getCurrentHoliday() == Holiday.CHRISTMAS;
                 String label = turtle.getLabel( stack );
                 boolean flip = label != null && (label.equals( "Dinnerbone" ) || label.equals( "Grumm" ));
                 TurtleModelCombination combo = new TurtleModelCombination( colour != -1, leftUpgrade, rightUpgrade, overlay, christmas, flip );
@@ -137,38 +137,32 @@ public class TurtleSmartItemModel implements IBakedModel
 
     private IBakedModel buildModel( TurtleModelCombination combo )
     {
-        Minecraft mc = Minecraft.getMinecraft();
-        ModelManager modelManager = mc.getRenderItem().getItemModelMesher().getModelManager();
+        Minecraft mc = Minecraft.getInstance();
+        ModelManager modelManager = mc.getItemRenderer().getItemModelMesher().getModelManager();
         ModelResourceLocation overlayModelLocation = TileEntityTurtleRenderer.getTurtleOverlayModel( combo.m_overlay, combo.m_christmas );
 
         IBakedModel baseModel = combo.m_colour ? colourModel : familyModel;
         IBakedModel overlayModel = overlayModelLocation != null ? modelManager.getModel( overlayModelLocation ) : null;
-        Matrix4f transform = combo.m_flip ? s_flip : s_identity;
-        Pair<IBakedModel, Matrix4f> leftModel = combo.m_leftUpgrade != null ? combo.m_leftUpgrade.getModel( null, TurtleSide.Left ) : null;
-        Pair<IBakedModel, Matrix4f> rightModel = combo.m_rightUpgrade != null ? combo.m_rightUpgrade.getModel( null, TurtleSide.Right ) : null;
-        if( leftModel != null && rightModel != null )
-        {
-            return new TurtleMultiModel( baseModel, overlayModel, transform, leftModel.getLeft(), leftModel.getRight(), rightModel.getLeft(), rightModel.getRight() );
-        }
-        else if( leftModel != null )
-        {
-            return new TurtleMultiModel( baseModel, overlayModel, transform, leftModel.getLeft(), leftModel.getRight(), null, null );
-        }
-        else if( rightModel != null )
-        {
-            return new TurtleMultiModel( baseModel, overlayModel, transform, null, null, rightModel.getLeft(), rightModel.getRight() );
-        }
-        else
-        {
-            return new TurtleMultiModel( baseModel, overlayModel, transform, null, null, null, null );
-        }
+        TransformationMatrix transform = combo.m_flip ? flip : identity;
+        TransformedModel leftModel = combo.m_leftUpgrade != null ? combo.m_leftUpgrade.getModel( null, TurtleSide.LEFT ) : null;
+        TransformedModel rightModel = combo.m_rightUpgrade != null ? combo.m_rightUpgrade.getModel( null, TurtleSide.RIGHT ) : null;
+        return new TurtleMultiModel( baseModel, overlayModel, transform, leftModel, rightModel );
     }
 
     @Nonnull
     @Override
-    public List<BakedQuad> getQuads( IBlockState state, EnumFacing facing, long rand )
+    @Deprecated
+    public List<BakedQuad> getQuads( BlockState state, Direction facing, @Nonnull Random rand )
     {
         return familyModel.getQuads( state, facing, rand );
+    }
+
+    @Nonnull
+    @Override
+    @Deprecated
+    public List<BakedQuad> getQuads( BlockState state, Direction facing, @Nonnull Random rand, @Nonnull IModelData data )
+    {
+        return familyModel.getQuads( state, facing, rand, data );
     }
 
     @Override
@@ -189,8 +183,15 @@ public class TurtleSmartItemModel implements IBakedModel
         return familyModel.isBuiltInRenderer();
     }
 
+    @Override
+    public boolean func_230044_c_()
+    {
+        return familyModel.func_230044_c_();
+    }
+
     @Nonnull
     @Override
+    @Deprecated
     public TextureAtlasSprite getParticleTexture()
     {
         return familyModel.getParticleTexture();

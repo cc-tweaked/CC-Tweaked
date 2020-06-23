@@ -5,12 +5,13 @@
  */
 package dan200.computercraft.shared.util;
 
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.IInventory;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.text.ITextComponent;
 
 import javax.annotation.Nonnull;
+import java.util.Set;
 
 /**
  * Provides a delegate over inventories.
@@ -75,19 +76,19 @@ public interface InventoryDelegate extends IInventory
     }
 
     @Override
-    default boolean isUsableByPlayer( @Nonnull EntityPlayer player )
+    default boolean isUsableByPlayer( @Nonnull PlayerEntity player )
     {
         return getInventory().isUsableByPlayer( player );
     }
 
     @Override
-    default void openInventory( @Nonnull EntityPlayer player )
+    default void openInventory( @Nonnull PlayerEntity player )
     {
         getInventory().openInventory( player );
     }
 
     @Override
-    default void closeInventory( @Nonnull EntityPlayer player )
+    default void closeInventory( @Nonnull PlayerEntity player )
     {
         getInventory().closeInventory( player );
     }
@@ -99,47 +100,20 @@ public interface InventoryDelegate extends IInventory
     }
 
     @Override
-    default int getField( int id )
-    {
-        return getInventory().getField( id );
-    }
-
-    @Override
-    default void setField( int id, int val )
-    {
-        getInventory().setField( id, val );
-
-    }
-
-    @Override
-    default int getFieldCount()
-    {
-        return getInventory().getFieldCount();
-    }
-
-    @Override
     default void clear()
     {
         getInventory().clear();
     }
 
-    @Nonnull
     @Override
-    default String getName()
+    default int count( @Nonnull Item stack )
     {
-        return getInventory().getName();
+        return getInventory().count( stack );
     }
 
     @Override
-    default boolean hasCustomName()
+    default boolean hasAny( @Nonnull Set<Item> set )
     {
-        return getInventory().hasCustomName();
-    }
-
-    @Nonnull
-    @Override
-    default ITextComponent getDisplayName()
-    {
-        return getInventory().getDisplayName();
+        return getInventory().hasAny( set );
     }
 }

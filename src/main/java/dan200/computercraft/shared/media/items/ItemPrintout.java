@@ -6,17 +6,18 @@
 package dan200.computercraft.shared.media.items;
 
 import dan200.computercraft.ComputerCraft;
-import dan200.computercraft.shared.network.Containers;
+import dan200.computercraft.shared.common.ContainerHeldItem;
+import dan200.computercraft.shared.network.container.HeldItemContainerData;
 import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.ActionResult;
-import net.minecraft.util.EnumActionResult;
-import net.minecraft.util.EnumHand;
-import net.minecraft.util.NonNullList;
+import net.minecraft.util.ActionResultType;
+import net.minecraft.util.Hand;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
@@ -24,10 +25,10 @@ import java.util.List;
 
 public class ItemPrintout extends Item
 {
-    private static final String NBT_TITLE = "title";
-    private static final String NBT_PAGES = "pages";
-    private static final String NBT_LINE_TEXT = "line";
-    private static final String NBT_LINE_COLOUR = "colour";
+    private static final String NBT_TITLE = "Title";
+    private static final String NBT_PAGES = "Pages";
+    private static final String NBT_LINE_TEXT = "Text";
+    private static final String NBT_LINE_COLOUR = "Color";
 
     public static final int LINES_PER_PAGE = 21;
     public static final int LINE_MAX_LENGTH = 25;
@@ -35,149 +36,100 @@ public class ItemPrintout extends Item
 
     public enum Type
     {
-        Single,
-        Multiple,
-        Book
+        PAGE,
+        PAGES,
+        BOOK
     }
 
-    public ItemPrintout()
-    {
-        setMaxStackSize( 1 );
-        setHasSubtypes( true );
-        setTranslationKey( "computercraft:page" );
-        setCreativeTab( ComputerCraft.mainCreativeTab );
-    }
+    private final Type type;
 
-    @Override
-    public void getSubItems( @Nonnull CreativeTabs tabs, @Nonnull NonNullList<ItemStack> list )
+    public ItemPrintout( Properties settings, Type type )
     {
-        if( !isInCreativeTab( tabs ) ) return;
-        list.add( createSingleFromTitleAndText( null, new String[LINES_PER_PAGE], new String[LINES_PER_PAGE] ) );
-        list.add( createMultipleFromTitleAndText( null, new String[2 * LINES_PER_PAGE], new String[2 * LINES_PER_PAGE] ) );
-        list.add( createBookFromTitleAndText( null, new String[2 * LINES_PER_PAGE], new String[2 * LINES_PER_PAGE] ) );
+        super( settings );
+        this.type = type;
     }
 
     @Override
-    public void addInformation( @Nonnull ItemStack itemstack, World world, List<String> list, ITooltipFlag flag )
+    public void addInformation( @Nonnull ItemStack stack, World world, List<ITextComponent> list, ITooltipFlag options )
     {
-        String title = getTitle( itemstack );
-        if( title != null && !title.isEmpty() ) list.add( title );
+        String title = getTitle( stack );
+        if( title != null && !title.isEmpty() ) list.add( new StringTextComponent( title ) );
     }
 
     @Nonnull
     @Override
-    public String getTranslationKey( @Nonnull ItemStack stack )
+    public ActionResult<ItemStack> onItemRightClick( World world, PlayerEntity player, @Nonnull Hand hand )
     {
-        Type type = getType( stack );
-        switch( type )
+        if( !world.isRemote )
         {
-            case Single:
-            default:
-                return "item.computercraft:page";
-            case Multiple:
-                return "item.computercraft:pages";
-            case Book:
-                return "item.computercraft:book";
+            new HeldItemContainerData( hand )
+                .open( player, new ContainerHeldItem.Factory( ContainerHeldItem.PRINTOUT_TYPE, player.getHeldItem( hand ), hand ) );
         }
+        return new ActionResult<>( ActionResultType.SUCCESS, player.getHeldItem( hand ) );
     }
 
     @Nonnull
-    @Override
-    public ActionResult<ItemStack> onItemRightClick( World world, EntityPlayer player, @Nonnull EnumHand hand )
+    private ItemStack createFromTitleAndText( String title, String[] text, String[] colours )
     {
-        if( !world.isRemote ) Containers.openPrintoutGUI( player, hand );
-        return new ActionResult<>( EnumActionResult.SUCCESS, player.getHeldItem( hand ) );
-    }
-
-    @Nonnull
-    private static ItemStack createFromTitleAndText( Type type, String title, String[] text, String[] colours )
-    {
-        // Calculate damage
-        int damage;
-        switch( type )
-        {
-            case Single:
-            default:
-                damage = 0;
-                break;
-            case Multiple:
-                damage = 1;
-                break;
-            case Book:
-                damage = 2;
-                break;
-        }
-
-        // Create stack
-        ItemStack stack = new ItemStack( ComputerCraft.Items.printout, 1, damage );
+        ItemStack stack = new ItemStack( this );
 
         // Build NBT
-        NBTTagCompound nbt = new NBTTagCompound();
-        if( title != null ) nbt.setString( NBT_TITLE, title );
+        if( title != null ) stack.getOrCreateTag().putString( NBT_TITLE, title );
         if( text != null )
         {
-            nbt.setInteger( NBT_PAGES, text.length / LINES_PER_PAGE );
+            CompoundNBT tag = stack.getOrCreateTag();
+            tag.putInt( NBT_PAGES, text.length / LINES_PER_PAGE );
             for( int i = 0; i < text.length; i++ )
             {
-                if( text[i] != null ) nbt.setString( NBT_LINE_TEXT + i, text[i] );
+                if( text[i] != null ) tag.putString( NBT_LINE_TEXT + i, text[i] );
             }
         }
         if( colours != null )
         {
+            CompoundNBT tag = stack.getOrCreateTag();
             for( int i = 0; i < colours.length; i++ )
             {
-                if( colours[i] != null ) nbt.setString( NBT_LINE_COLOUR + i, colours[i] );
+                if( colours[i] != null ) tag.putString( NBT_LINE_COLOUR + i, colours[i] );
             }
         }
-        stack.setTagCompound( nbt );
 
-        // Return stack
+
         return stack;
     }
 
     @Nonnull
     public static ItemStack createSingleFromTitleAndText( String title, String[] text, String[] colours )
     {
-        return createFromTitleAndText( Type.Single, title, text, colours );
+        return ComputerCraft.Items.printedPage.createFromTitleAndText( title, text, colours );
     }
 
     @Nonnull
     public static ItemStack createMultipleFromTitleAndText( String title, String[] text, String[] colours )
     {
-        return createFromTitleAndText( Type.Multiple, title, text, colours );
+        return ComputerCraft.Items.printedPages.createFromTitleAndText( title, text, colours );
     }
 
     @Nonnull
     public static ItemStack createBookFromTitleAndText( String title, String[] text, String[] colours )
     {
-        return createFromTitleAndText( Type.Book, title, text, colours );
+        return ComputerCraft.Items.printedBook.createFromTitleAndText( title, text, colours );
     }
 
-    public static Type getType( @Nonnull ItemStack stack )
+    public Type getType()
     {
-        int damage = stack.getItemDamage();
-        switch( damage )
-        {
-            case 0:
-            default:
-                return Type.Single;
-            case 1:
-                return Type.Multiple;
-            case 2:
-                return Type.Book;
-        }
+        return type;
     }
 
     public static String getTitle( @Nonnull ItemStack stack )
     {
-        NBTTagCompound nbt = stack.getTagCompound();
-        return nbt != null && nbt.hasKey( NBT_TITLE ) ? nbt.getString( NBT_TITLE ) : null;
+        CompoundNBT nbt = stack.getTag();
+        return nbt != null && nbt.contains( NBT_TITLE ) ? nbt.getString( NBT_TITLE ) : null;
     }
 
     public static int getPageCount( @Nonnull ItemStack stack )
     {
-        NBTTagCompound nbt = stack.getTagCompound();
-        return nbt != null && nbt.hasKey( NBT_PAGES ) ? nbt.getInteger( NBT_PAGES ) : 1;
+        CompoundNBT nbt = stack.getTag();
+        return nbt != null && nbt.contains( NBT_PAGES ) ? nbt.getInt( NBT_PAGES ) : 1;
     }
 
     public static String[] getText( @Nonnull ItemStack stack )
@@ -192,7 +144,7 @@ public class ItemPrintout extends Item
 
     private static String[] getLines( @Nonnull ItemStack stack, String prefix )
     {
-        NBTTagCompound nbt = stack.getTagCompound();
+        CompoundNBT nbt = stack.getTag();
         int numLines = getPageCount( stack ) * LINES_PER_PAGE;
         String[] lines = new String[numLines];
         for( int i = 0; i < lines.length; i++ )

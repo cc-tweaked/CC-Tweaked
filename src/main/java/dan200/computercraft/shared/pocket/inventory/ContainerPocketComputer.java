@@ -5,47 +5,69 @@
  */
 package dan200.computercraft.shared.pocket.inventory;
 
-import dan200.computercraft.shared.computer.core.IComputer;
-import dan200.computercraft.shared.computer.core.IContainerComputer;
-import dan200.computercraft.shared.computer.core.InputState;
-import dan200.computercraft.shared.media.inventory.ContainerHeldItem;
+import dan200.computercraft.shared.computer.core.ServerComputer;
+import dan200.computercraft.shared.computer.inventory.ContainerComputerBase;
+import dan200.computercraft.shared.network.container.ComputerContainerData;
+import dan200.computercraft.shared.network.container.ContainerData;
 import dan200.computercraft.shared.pocket.items.ItemPocketComputer;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.inventory.container.Container;
+import net.minecraft.inventory.container.ContainerType;
+import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumHand;
+import net.minecraft.util.Hand;
+import net.minecraft.util.text.ITextComponent;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public class ContainerPocketComputer extends ContainerHeldItem implements IContainerComputer
+public final class ContainerPocketComputer extends ContainerComputerBase
 {
-    private final InputState input = new InputState( this );
+    public static final ContainerType<ContainerPocketComputer> TYPE = ContainerData.toType( ComputerContainerData::new, ContainerPocketComputer::new );
 
-    public ContainerPocketComputer( EntityPlayer player, EnumHand hand )
+    private ContainerPocketComputer( int id, ServerComputer computer, ItemPocketComputer item, Hand hand )
     {
-        super( player, hand );
+        super( TYPE, id, p -> {
+            ItemStack stack = p.getHeldItem( hand );
+            return stack.getItem() == item && ItemPocketComputer.getServerComputer( stack ) == computer;
+        }, computer, item.getFamily() );
     }
 
-    @Nullable
-    @Override
-    public IComputer getComputer()
+    private ContainerPocketComputer( int id, PlayerInventory player, ComputerContainerData data )
     {
-        ItemStack stack = getStack();
-        return !stack.isEmpty() && stack.getItem() instanceof ItemPocketComputer
-            ? ItemPocketComputer.getServerComputer( stack ) : null;
+        super( TYPE, id, player, data );
     }
 
-    @Nonnull
-    @Override
-    public InputState getInput()
+    public static class Factory implements INamedContainerProvider
     {
-        return input;
-    }
 
-    @Override
-    public void onContainerClosed( EntityPlayer player )
-    {
-        super.onContainerClosed( player );
-        input.close();
+        private final ServerComputer computer;
+        private final ITextComponent name;
+        private final ItemPocketComputer item;
+        private final Hand hand;
+
+        public Factory( ServerComputer computer, ItemStack stack, ItemPocketComputer item, Hand hand )
+        {
+            this.computer = computer;
+            this.name = stack.getDisplayName();
+            this.item = item;
+            this.hand = hand;
+        }
+
+
+        @Nonnull
+        @Override
+        public ITextComponent getDisplayName()
+        {
+            return name;
+        }
+
+        @Nullable
+        @Override
+        public Container createMenu( int id, @Nonnull PlayerInventory inventory, @Nonnull PlayerEntity entity )
+        {
+            return new ContainerPocketComputer( id, computer, item, hand );
+        }
     }
 }

@@ -6,12 +6,12 @@
 package dan200.computercraft.api.turtle;
 
 import com.mojang.authlib.GameProfile;
-import dan200.computercraft.api.lua.ILuaContext;
-import dan200.computercraft.api.lua.LuaException;
+import dan200.computercraft.api.lua.ILuaCallback;
+import dan200.computercraft.api.lua.MethodResult;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import net.minecraft.inventory.IInventory;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -53,8 +53,7 @@ public interface ITurtleAccess
      * @param world The new world to move it to
      * @param pos   The new position to move it to.
      * @return Whether the movement was successful. It may fail if the block was not loaded or the block placement
-     * was cancelled. Note this will not check
-     * {@link dan200.computercraft.api.permissions.ITurtlePermissionProvider#isBlockEnterable(World, BlockPos)}.
+     * was cancelled.
      * @throws UnsupportedOperationException When attempting to teleport on the client side.
      */
     boolean teleportTo( @Nonnull World world, @Nonnull BlockPos pos );
@@ -83,10 +82,10 @@ public interface ITurtleAccess
      * Returns the world direction the turtle is currently facing.
      *
      * @return The world direction the turtle is currently facing.
-     * @see #setDirection(EnumFacing)
+     * @see #setDirection(Direction)
      */
     @Nonnull
-    EnumFacing getDirection();
+    Direction getDirection();
 
     /**
      * Set the direction the turtle is facing. Note that this will not play a rotation animation, you will also need to
@@ -95,7 +94,7 @@ public interface ITurtleAccess
      * @param dir The new direction to set. This should be on either the x or z axis (so north, south, east or west).
      * @see #getDirection()
      */
-    void setDirection( @Nonnull EnumFacing dir );
+    void setDirection( @Nonnull Direction dir );
 
     /**
      * Get the currently selected slot in the turtle's inventory.
@@ -229,21 +228,15 @@ public interface ITurtleAccess
      * be supplied as a parameter to a "turtle_response" event issued to the turtle after the command has completed. Look at the
      * lua source code for "rom/apis/turtle" for how to build a lua wrapper around this functionality.
      *
-     * @param context The Lua context to pull events from.
      * @param command An object which will execute the custom command when its point in the queue is reached
      * @return The objects the command returned when executed. you should probably return these to the player
      * unchanged if called from a peripheral method.
      * @throws UnsupportedOperationException When attempting to execute a command on the client side.
-     * @throws LuaException                  If the user presses CTRL+T to terminate the current program while {@code executeCommand()} is
-     *                                       waiting for an event, a "Terminated" exception will be thrown here.
-     * @throws InterruptedException          If the user shuts down or reboots the computer while pullEvent() is waiting for an
-     *                                       event, InterruptedException will be thrown. This exception must not be caught or
-     *                                       intercepted, or the computer will leak memory and end up in a broken state.
      * @see ITurtleCommand
-     * @see ILuaContext#pullEvent(String)
+     * @see MethodResult#pullEvent(String, ILuaCallback)
      */
     @Nonnull
-    Object[] executeCommand( @Nonnull ILuaContext context, @Nonnull ITurtleCommand command ) throws LuaException, InterruptedException;
+    MethodResult executeCommand( @Nonnull ITurtleCommand command );
 
     /**
      * Start playing a specific animation. This will prevent other turtle commands from executing until
@@ -294,7 +287,7 @@ public interface ITurtleAccess
      * @see #updateUpgradeNBTData(TurtleSide)
      */
     @Nonnull
-    NBTTagCompound getUpgradeNBTData( @Nullable TurtleSide side );
+    CompoundNBT getUpgradeNBTData( @Nullable TurtleSide side );
 
     /**
      * Mark the upgrade-specific data as dirty on a specific side. This is required for the data to be synced to the

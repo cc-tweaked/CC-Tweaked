@@ -6,23 +6,21 @@
 package dan200.computercraft.api.turtle;
 
 import dan200.computercraft.api.ComputerCraftAPI;
+import dan200.computercraft.api.client.TransformedModel;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.turtle.event.TurtleAttackEvent;
 import dan200.computercraft.api.turtle.event.TurtleBlockEvent;
-import net.minecraft.client.renderer.block.model.IBakedModel;
-import net.minecraft.client.renderer.block.model.ModelResourceLocation;
+import net.minecraft.client.renderer.model.ModelResourceLocation;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.event.entity.player.AttackEntityEvent;
 import net.minecraftforge.event.world.BlockEvent;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
-import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.vecmath.Matrix4f;
 
 /**
  * The primary interface for defining an update for Turtles. A turtle update
@@ -42,17 +40,6 @@ public interface ITurtleUpgrade
      */
     @Nonnull
     ResourceLocation getUpgradeID();
-
-    /**
-     * Gets a numerical identifier representing this type of turtle upgrade,
-     * for backwards compatibility with pre-1.76 worlds. If your upgrade was
-     * not released for older ComputerCraft versions, you can return -1 here.
-     * The turtle will fail registration if an already used positive ID is specified.
-     *
-     * @return The legacy ID, or -1 if is needed.
-     * @see ComputerCraftAPI#registerTurtleUpgrade(ITurtleUpgrade)
-     */
-    int getLegacyUpgradeID();
 
     /**
      * Return an unlocalised string to describe this type of turtle in turtle item names.
@@ -123,7 +110,7 @@ public interface ITurtleUpgrade
      * to be called.
      */
     @Nonnull
-    default TurtleCommandResult useTool( @Nonnull ITurtleAccess turtle, @Nonnull TurtleSide side, @Nonnull TurtleVerb verb, @Nonnull EnumFacing direction )
+    default TurtleCommandResult useTool( @Nonnull ITurtleAccess turtle, @Nonnull TurtleSide side, @Nonnull TurtleVerb verb, @Nonnull Direction direction )
     {
         return TurtleCommandResult.failure();
     }
@@ -132,17 +119,16 @@ public interface ITurtleUpgrade
      * Called to obtain the model to be used when rendering a turtle peripheral.
      *
      * This can be obtained from {@link net.minecraft.client.renderer.ItemModelMesher#getItemModel(ItemStack)},
-     * {@link net.minecraft.client.renderer.block.model.ModelManager#getModel(ModelResourceLocation)} or any other
+     * {@link net.minecraft.client.renderer.model.ModelManager#getModel(ModelResourceLocation)} or any other
      * source.
      *
      * @param turtle Access to the turtle that the upgrade resides on. This will be null when getting item models!
      * @param side   Which side of the turtle (left or right) the upgrade resides on.
-     * @return The model that you wish to be used to render your upgrade, and a transformation to apply to it. Returning
-     * a transformation of {@code null} has the same effect as the identify matrix.
+     * @return The model that you wish to be used to render your upgrade.
      */
     @Nonnull
-    @SideOnly( Side.CLIENT )
-    Pair<IBakedModel, Matrix4f> getModel( @Nullable ITurtleAccess turtle, @Nonnull TurtleSide side );
+    @OnlyIn( Dist.CLIENT )
+    TransformedModel getModel( @Nullable ITurtleAccess turtle, @Nonnull TurtleSide side );
 
     /**
      * Called once per tick for each turtle which has the upgrade equipped.

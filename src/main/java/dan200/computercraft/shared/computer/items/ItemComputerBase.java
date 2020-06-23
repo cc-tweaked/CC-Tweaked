@@ -9,40 +9,42 @@ import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.api.media.IMedia;
+import dan200.computercraft.shared.computer.blocks.BlockComputerBase;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
-import dan200.computercraft.shared.util.StringUtil;
-import net.minecraft.block.Block;
 import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.item.ItemBlock;
+import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.util.text.TextFormatting;
+import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 
-public abstract class ItemComputerBase extends ItemBlock implements IComputerItem, IMedia
+public abstract class ItemComputerBase extends BlockItem implements IComputerItem, IMedia
 {
-    protected ItemComputerBase( Block block )
-    {
-        super( block );
-    }
+    private final ComputerFamily family;
 
-    public abstract ComputerFamily getFamily( int damage );
-
-    @Override
-    public final int getMetadata( int damage )
+    public ItemComputerBase( BlockComputerBase<?> block, Properties settings )
     {
-        return damage;
+        super( block, settings );
+        family = block.getFamily();
     }
 
     @Override
-    public void addInformation( @Nonnull ItemStack stack, @Nullable World world, @Nonnull List<String> list, @Nonnull ITooltipFlag flag )
+    public void addInformation( @Nonnull ItemStack stack, @Nullable World world, @Nonnull List<ITextComponent> list, @Nonnull ITooltipFlag options )
     {
-        if( flag.isAdvanced() || getLabel( stack ) == null )
+        if( options.isAdvanced() || getLabel( stack ) == null )
         {
             int id = getComputerID( stack );
-            if( id >= 0 ) list.add( StringUtil.translateFormatted( "gui.computercraft.tooltip.computer_id", id ) );
+            if( id >= 0 )
+            {
+                list.add( new TranslationTextComponent( "gui.computercraft.tooltip.computer_id", id )
+                    .applyTextStyle( TextFormatting.GRAY ) );
+            }
         }
     }
 
@@ -53,9 +55,9 @@ public abstract class ItemComputerBase extends ItemBlock implements IComputerIte
     }
 
     @Override
-    public final ComputerFamily getFamily( @Nonnull ItemStack stack )
+    public final ComputerFamily getFamily()
     {
-        return getFamily( stack.getItemDamage() );
+        return family;
     }
 
     // IMedia implementation
@@ -65,7 +67,7 @@ public abstract class ItemComputerBase extends ItemBlock implements IComputerIte
     {
         if( label != null )
         {
-            stack.setStackDisplayName( label );
+            stack.setDisplayName( new StringTextComponent( label ) );
         }
         else
         {
@@ -77,8 +79,8 @@ public abstract class ItemComputerBase extends ItemBlock implements IComputerIte
     @Override
     public IMount createDataMount( @Nonnull ItemStack stack, @Nonnull World world )
     {
-        ComputerFamily family = getFamily( stack );
-        if( family != ComputerFamily.Command )
+        ComputerFamily family = getFamily();
+        if( family != ComputerFamily.COMMAND )
         {
             int id = getComputerID( stack );
             if( id >= 0 )

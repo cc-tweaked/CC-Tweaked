@@ -1,7 +1,0 @@
-{
-    "parent": "item/generated",
-    "textures": {
-        "layer0": "computercraft:items/disk_frame",
-        "layer1": "computercraft:items/disk_colour"
-    }
-}

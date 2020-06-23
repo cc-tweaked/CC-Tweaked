@@ -55,9 +55,6 @@ final class ComputerExecutor
 {
     private static final int QUEUE_LIMIT = 256;
 
-    private static IMount romMount;
-    private static final Object romMountLock = new Object();
-
     private final Computer computer;
     private final List<ILuaAPI> apis = new ArrayList<>();
     final TimeoutState timeout = new TimeoutState();
@@ -174,7 +171,7 @@ final class ComputerExecutor
         apis.add( new FSAPI( environment ) );
         apis.add( new PeripheralAPI( environment ) );
         apis.add( new OSAPI( environment ) );
-        if( ComputerCraft.http_enable ) apis.add( new HTTPAPI( environment ) );
+        if( ComputerCraft.httpEnabled ) apis.add( new HTTPAPI( environment ) );
 
         // Load in the externally registered APIs.
         for( ILuaAPIFactory factory : ApiFactories.getAll() )
@@ -328,16 +325,10 @@ final class ComputerExecutor
 
     private IMount getRomMount()
     {
-        if( romMount != null ) return romMount;
-
-        synchronized( romMountLock )
-        {
-            if( romMount != null ) return romMount;
-            return romMount = computer.getComputerEnvironment().createResourceMount( "computercraft", "lua/rom" );
-        }
+        return computer.getComputerEnvironment().createResourceMount( "computercraft", "lua/rom" );
     }
 
-    IWritableMount getRootMount()
+    private IWritableMount getRootMount()
     {
         if( rootMount == null )
         {
@@ -397,8 +388,8 @@ final class ComputerExecutor
         // Create the lua machine
         ILuaMachine machine = new CobaltLuaMachine( computer, timeout );
 
-        // Add the APIs
-        for( ILuaAPI api : apis ) machine.addAPI( api );
+        // Add the APIs. We unwrap them (yes, this is horrible) to get access to the underlying object.
+        for( ILuaAPI api : apis ) machine.addAPI( api instanceof ApiWrapper ? ((ApiWrapper) api).getDelegate() : api );
 
         // Start the machine running the bios resource
         MachineResult result = machine.loadBios( biosStream );
@@ -620,7 +611,7 @@ final class ComputerExecutor
         terminal.reset();
 
         // Display our primary error message
-        if( colour ) terminal.setTextColour( 15 - Colour.Red.ordinal() );
+        if( colour ) terminal.setTextColour( 15 - Colour.RED.ordinal() );
         terminal.write( message );
 
         if( extra != null )
@@ -633,7 +624,7 @@ final class ComputerExecutor
 
         // And display our generic "CC may be installed incorrectly" message.
         terminal.setCursorPos( 0, terminal.getCursorY() + 1 );
-        if( colour ) terminal.setTextColour( 15 - Colour.White.ordinal() );
+        if( colour ) terminal.setTextColour( 15 - Colour.WHITE.ordinal() );
         terminal.write( "ComputerCraft may be installed incorrectly" );
     }
 

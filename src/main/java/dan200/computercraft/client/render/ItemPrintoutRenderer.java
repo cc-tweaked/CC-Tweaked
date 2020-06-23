@@ -5,15 +5,18 @@
  */
 package dan200.computercraft.client.render;
 
+import com.mojang.blaze3d.matrix.MatrixStack;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.media.items.ItemPrintout;
-import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.client.renderer.Matrix4f;
+import net.minecraft.client.renderer.Vector3f;
 import net.minecraft.item.ItemStack;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.client.event.RenderHandEvent;
 import net.minecraftforge.client.event.RenderItemInFrameEvent;
-import net.minecraftforge.client.event.RenderSpecificHandEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.relauncher.Side;
 
 import static dan200.computercraft.client.gui.FixedWidthFontRenderer.FONT_HEIGHT;
 import static dan200.computercraft.client.gui.FixedWidthFontRenderer.FONT_WIDTH;
@@ -24,7 +27,7 @@ import static dan200.computercraft.shared.media.items.ItemPrintout.LINE_MAX_LENG
 /**
  * Emulates map and item-frame rendering for printouts.
  */
-@Mod.EventBusSubscriber( modid = ComputerCraft.MOD_ID, value = Side.CLIENT )
+@Mod.EventBusSubscriber( modid = ComputerCraft.MOD_ID, value = Dist.CLIENT )
 public final class ItemPrintoutRenderer extends ItemMapLikeRenderer
 {
     private static final ItemPrintoutRenderer INSTANCE = new ItemPrintoutRenderer();
@@ -34,59 +37,50 @@ public final class ItemPrintoutRenderer extends ItemMapLikeRenderer
     }
 
     @SubscribeEvent
-    public static void onRenderInHand( RenderSpecificHandEvent event )
+    public static void onRenderInHand( RenderHandEvent event )
     {
         ItemStack stack = event.getItemStack();
-        if( stack.getItem() != ComputerCraft.Items.printout ) return;
+        if( !(stack.getItem() instanceof ItemPrintout) ) return;
 
         event.setCanceled( true );
-
-        INSTANCE.renderItemFirstPerson( event.getHand(), event.getInterpolatedPitch(), event.getEquipProgress(), event.getSwingProgress(), event.getItemStack() );
+        INSTANCE.renderItemFirstPerson(
+            event.getMatrixStack(), event.getBuffers(), event.getLight(),
+            event.getHand(), event.getInterpolatedPitch(), event.getEquipProgress(), event.getSwingProgress(), event.getItemStack()
+        );
     }
 
     @Override
-    protected void renderItem( ItemStack stack )
+    protected void renderItem( MatrixStack transform, IRenderTypeBuffer render, ItemStack stack )
     {
-        // Setup various transformations. Note that these are partially adapated from the corresponding method
-        // in ItemRenderer.renderMapFirstPerson
-        GlStateManager.disableLighting();
+        transform.rotate( Vector3f.XP.rotationDegrees( 180f ) );
+        transform.scale( 0.42f, 0.42f, -0.42f );
+        transform.translate( -0.5f, -0.48f, 0.0f );
 
-        GlStateManager.rotate( 180f, 0f, 1f, 0f );
-        GlStateManager.rotate( 180f, 0f, 0f, 1f );
-        GlStateManager.scale( 0.42f, 0.42f, -0.42f );
-        GlStateManager.translate( -0.5f, -0.48f, 0.0f );
-
-        drawPrintout( stack );
-
-        GlStateManager.enableLighting();
+        drawPrintout( transform, render, stack );
     }
 
     @SubscribeEvent
     public static void onRenderInFrame( RenderItemInFrameEvent event )
     {
         ItemStack stack = event.getItem();
-        if( stack.getItem() != ComputerCraft.Items.printout ) return;
-
+        if( !(stack.getItem() instanceof ItemPrintout) ) return;
         event.setCanceled( true );
 
-        GlStateManager.disableLighting();
+        MatrixStack transform = event.getMatrix();
 
         // Move a little bit forward to ensure we're not clipping with the frame
-        GlStateManager.translate( 0.0f, 0.0f, -0.001f );
-        GlStateManager.rotate( 180f, 0f, 0f, 1f );
-        GlStateManager.scale( 0.95f, 0.95f, -0.95f );
-        GlStateManager.translate( -0.5f, -0.5f, 0.0f );
+        transform.translate( 0.0f, 0.0f, -0.001f );
+        transform.rotate( Vector3f.ZP.rotationDegrees( 180f ) );
+        transform.scale( 0.95f, 0.95f, -0.95f );
+        transform.translate( -0.5f, -0.5f, 0.0f );
 
-        drawPrintout( stack );
-
-        GlStateManager.enableLighting();
-        GlStateManager.disableBlend();
+        drawPrintout( transform, event.getBuffers(), stack );
     }
 
-    private static void drawPrintout( ItemStack stack )
+    private static void drawPrintout( MatrixStack transform, IRenderTypeBuffer render, ItemStack stack )
     {
         int pages = ItemPrintout.getPageCount( stack );
-        boolean book = ItemPrintout.getType( stack ) == ItemPrintout.Type.Book;
+        boolean book = ((ItemPrintout) stack.getItem()).getType() == ItemPrintout.Type.BOOK;
 
         double width = LINE_MAX_LENGTH * FONT_WIDTH + X_TEXT_MARGIN * 2;
         double height = LINES_PER_PAGE * FONT_HEIGHT + Y_TEXT_MARGIN * 2;
@@ -106,11 +100,14 @@ public final class ItemPrintoutRenderer extends ItemMapLikeRenderer
         double max = Math.max( visualHeight, visualWidth );
 
         // Scale the printout to fit correctly.
-        double scale = 1.0 / max;
-        GlStateManager.scale( scale, scale, scale );
-        GlStateManager.translate( (max - width) / 2.0f, (max - height) / 2.0f, 0.0f );
+        float scale = (float) (1.0 / max);
+        transform.scale( scale, scale, scale );
+        transform.translate( (max - width) / 2.0, (max - height) / 2.0, 0.0 );
 
-        drawBorder( 0, 0, -0.01, 0, pages, book );
-        drawText( X_TEXT_MARGIN, Y_TEXT_MARGIN, 0, ItemPrintout.getText( stack ), ItemPrintout.getColours( stack ) );
+        Matrix4f matrix = transform.getLast().getMatrix();
+        drawBorder( matrix, render, 0, 0, -0.01f, 0, pages, book );
+        drawText( matrix, render,
+            X_TEXT_MARGIN, Y_TEXT_MARGIN, 0, ItemPrintout.getText( stack ), ItemPrintout.getColours( stack )
+        );
     }
 }

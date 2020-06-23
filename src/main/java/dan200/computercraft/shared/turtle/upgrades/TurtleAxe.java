@@ -11,14 +11,14 @@ import net.minecraft.util.ResourceLocation;
 
 public class TurtleAxe extends TurtleTool
 {
-    public TurtleAxe( ResourceLocation id, int legacyId, String adjective, Item item )
+    public TurtleAxe( ResourceLocation id, String adjective, Item item )
     {
-        super( id, legacyId, adjective, item );
+        super( id, adjective, item );
     }
 
-    public TurtleAxe( ResourceLocation id, int legacyId, Item item )
+    public TurtleAxe( ResourceLocation id, Item item )
     {
-        super( id, legacyId, item );
+        super( id, item );
     }
 
     public TurtleAxe( ResourceLocation id, ItemStack craftItem, ItemStack toolItem )

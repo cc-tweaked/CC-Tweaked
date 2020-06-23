@@ -39,7 +39,7 @@ public class TurtleRefuelCommand implements ITurtleCommand
         if( limit != 0 )
         {
             turtle.addFuel( event.getHandler().refuel( turtle, stack, slot, limit ) );
-            turtle.playAnimation( TurtleAnimation.Wait );
+            turtle.playAnimation( TurtleAnimation.WAIT );
         }
 
         return TurtleCommandResult.success();

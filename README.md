@@ -1,4 +1,4 @@
-# ![CC: Tweaked](doc/logo.png)
+# ![CC: Tweaked](logo.png)
 [![Current build status](https://github.com/SquidDev-CC/CC-Tweaked/workflows/Build/badge.svg)](https://github.com/SquidDev-CC/CC-Tweaked/actions "Current build status") [![Download CC: Tweaked on CurseForge](http://cf.way2muchnoise.eu/title/cc-tweaked.svg)](https://minecraft.curseforge.com/projects/cc-tweaked "Download CC: Tweaked on CurseForge")
 
 CC: Tweaked is a fork of [ComputerCraft](https://github.com/dan200/ComputerCraft), adding programmable computers,
@@ -60,7 +60,7 @@ dependencies {
 }
 
 dependencies {
-  implementation "org.squiddev:cc-tweaked-${mc_version}:${cct_version}"
+  implementation fg.deobf("org.squiddev:cc-tweaked-${mc_version}:${cct_version}")
 }
 ```
 

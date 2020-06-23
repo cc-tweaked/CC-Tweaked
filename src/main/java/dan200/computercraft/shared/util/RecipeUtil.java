@@ -7,25 +7,42 @@ package dan200.computercraft.shared.util;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import com.google.gson.*;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonSyntaxException;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import net.minecraft.item.crafting.Ingredient;
-import net.minecraft.util.JsonUtils;
+import net.minecraft.util.JSONUtils;
 import net.minecraft.util.NonNullList;
-import net.minecraftforge.common.crafting.CraftingHelper;
-import net.minecraftforge.common.crafting.JsonContext;
 
 import java.util.Map;
 import java.util.Set;
+
+// TODO: Replace some things with Forge??
 
 public final class RecipeUtil
 {
     private RecipeUtil() {}
 
-    public static CraftingHelper.ShapedPrimer getPrimer( JsonContext context, JsonObject json )
+    public static class ShapedTemplate
+    {
+        public final int width;
+        public final int height;
+        public final NonNullList<Ingredient> ingredients;
+
+        public ShapedTemplate( int width, int height, NonNullList<Ingredient> ingredients )
+        {
+            this.width = width;
+            this.height = height;
+            this.ingredients = ingredients;
+        }
+    }
+
+    public static ShapedTemplate getTemplate( JsonObject json )
     {
         Map<Character, Ingredient> ingMap = Maps.newHashMap();
-        for( Map.Entry<String, JsonElement> entry : JsonUtils.getJsonObject( json, "key" ).entrySet() )
+        for( Map.Entry<String, JsonElement> entry : JSONUtils.getJsonObject( json, "key" ).entrySet() )
         {
             if( entry.getKey().length() != 1 )
             {
@@ -36,12 +53,12 @@ public final class RecipeUtil
                 throw new JsonSyntaxException( "Invalid key entry: ' ' is a reserved symbol." );
             }
 
-            ingMap.put( entry.getKey().charAt( 0 ), CraftingHelper.getIngredient( entry.getValue(), context ) );
+            ingMap.put( entry.getKey().charAt( 0 ), Ingredient.deserialize( entry.getValue() ) );
         }
 
         ingMap.put( ' ', Ingredient.EMPTY );
 
-        JsonArray patternJ = JsonUtils.getJsonArray( json, "pattern" );
+        JsonArray patternJ = JSONUtils.getJsonArray( json, "pattern" );
 
         if( patternJ.size() == 0 )
         {
@@ -51,7 +68,7 @@ public final class RecipeUtil
         String[] pattern = new String[patternJ.size()];
         for( int x = 0; x < pattern.length; x++ )
         {
-            String line = JsonUtils.getString( patternJ.get( x ), "pattern[" + x + "]" );
+            String line = JSONUtils.getString( patternJ.get( x ), "pattern[" + x + "]" );
             if( x > 0 && pattern[0].length() != line.length() )
             {
                 throw new JsonSyntaxException( "Invalid pattern: each row must  be the same width" );
@@ -59,16 +76,14 @@ public final class RecipeUtil
             pattern[x] = line;
         }
 
-        CraftingHelper.ShapedPrimer primer = new CraftingHelper.ShapedPrimer();
-        primer.width = pattern[0].length();
-        primer.height = pattern.length;
-        primer.mirrored = false;
-        primer.input = NonNullList.withSize( primer.width * primer.height, Ingredient.EMPTY );
+        int width = pattern[0].length();
+        int height = pattern.length;
+        NonNullList<Ingredient> ingredients = NonNullList.withSize( width * height, Ingredient.EMPTY );
 
-        Set<Character> keys = Sets.newHashSet( ingMap.keySet() );
-        keys.remove( ' ' );
+        Set<Character> missingKeys = Sets.newHashSet( ingMap.keySet() );
+        missingKeys.remove( ' ' );
 
-        int x = 0;
+        int i = 0;
         for( String line : pattern )
         {
             for( char chr : line.toCharArray() )
@@ -78,41 +93,27 @@ public final class RecipeUtil
                 {
                     throw new JsonSyntaxException( "Pattern references symbol '" + chr + "' but it's not defined in the key" );
                 }
-                primer.input.set( x++, ing );
-                keys.remove( chr );
+                ingredients.set( i++, ing );
+                missingKeys.remove( chr );
             }
         }
 
-        if( !keys.isEmpty() )
+        if( !missingKeys.isEmpty() )
         {
-            throw new JsonSyntaxException( "Key defines symbols that aren't used in pattern: " + keys );
+            throw new JsonSyntaxException( "Key defines symbols that aren't used in pattern: " + missingKeys );
         }
 
-        return primer;
-    }
-
-    public static NonNullList<Ingredient> getIngredients( JsonContext context, JsonObject json )
-    {
-        NonNullList<Ingredient> ingredients = NonNullList.create();
-        for( JsonElement ele : JsonUtils.getJsonArray( json, "ingredients" ) )
-        {
-            ingredients.add( CraftingHelper.getIngredient( ele, context ) );
-        }
-
-        if( ingredients.isEmpty() ) throw new JsonParseException( "No ingredients for recipe" );
-        return ingredients;
+        return new ShapedTemplate( width, height, ingredients );
     }
 
     public static ComputerFamily getFamily( JsonObject json, String name )
     {
-        String familyName = JsonUtils.getString( json, name );
-        try
+        String familyName = JSONUtils.getString( json, name );
+        for( ComputerFamily family : ComputerFamily.values() )
         {
-            return ComputerFamily.valueOf( familyName );
+            if( family.name().equalsIgnoreCase( familyName ) ) return family;
         }
-        catch( IllegalArgumentException e )
-        {
-            throw new JsonSyntaxException( "Unknown computer family '" + familyName + "' for field " + name );
-        }
+
+        throw new JsonSyntaxException( "Unknown computer family '" + familyName + "' for field " + name );
     }
 }

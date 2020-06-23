@@ -33,7 +33,7 @@ public class TurtleTransferToCommand implements ITurtleCommand
         ItemStack stack = InventoryUtil.takeItems( m_quantity, turtle.getItemHandler(), turtle.getSelectedSlot(), 1, turtle.getSelectedSlot() );
         if( stack.isEmpty() )
         {
-            turtle.playAnimation( TurtleAnimation.Wait );
+            turtle.playAnimation( TurtleAnimation.WAIT );
             return TurtleCommandResult.success();
         }
 
@@ -48,7 +48,7 @@ public class TurtleTransferToCommand implements ITurtleCommand
         // Return true if we moved anything
         if( remainder != stack )
         {
-            turtle.playAnimation( TurtleAnimation.Wait );
+            turtle.playAnimation( TurtleAnimation.WAIT );
             return TurtleCommandResult.success();
         }
         else

@@ -5,532 +5,354 @@
  */
 package dan200.computercraft.shared;
 
+import com.electronwill.nightconfig.core.CommentedConfig;
+import com.electronwill.nightconfig.core.UnmodifiableConfig;
+import com.electronwill.nightconfig.core.file.CommentedFileConfig;
 import com.google.common.base.CaseFormat;
 import com.google.common.base.Converter;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.turtle.event.TurtleAction;
-import dan200.computercraft.core.apis.AddressPredicate;
-import dan200.computercraft.core.apis.http.websocket.Websocket;
+import dan200.computercraft.core.apis.http.options.Action;
+import dan200.computercraft.core.apis.http.options.AddressRuleConfig;
 import dan200.computercraft.shared.peripheral.monitor.MonitorRenderer;
-import net.minecraftforge.common.config.ConfigCategory;
-import net.minecraftforge.common.config.ConfigElement;
-import net.minecraftforge.common.config.Configuration;
-import net.minecraftforge.common.config.Property;
-import net.minecraftforge.fml.client.config.IConfigElement;
+import net.minecraftforge.common.ForgeConfigSpec;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.ModLoadingContext;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.config.ModConfig;
 
-import java.io.File;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-import static dan200.computercraft.ComputerCraft.DEFAULT_HTTP_BLACKLIST;
-import static dan200.computercraft.ComputerCraft.DEFAULT_HTTP_WHITELIST;
+import static net.minecraftforge.common.ForgeConfigSpec.Builder;
+import static net.minecraftforge.common.ForgeConfigSpec.ConfigValue;
 
+@Mod.EventBusSubscriber( modid = ComputerCraft.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD )
 public final class Config
 {
     private static final int MODEM_MAX_RANGE = 100000;
 
-    private static final String CATEGORY_GENERAL = "general";
-    private static final String CATEGORY_EXECUTION = "execution";
-    private static final String CATEGORY_HTTP = "http";
-    private static final String CATEGORY_PERIPHERAL = "peripheral";
-    private static final String CATEGORY_TURTLE = "turtle";
+    private static final String TRANSLATION_PREFIX = "gui.computercraft.config.";
 
-    private static Configuration config;
+    private static final ConfigValue<Integer> computerSpaceLimit;
+    private static final ConfigValue<Integer> floppySpaceLimit;
+    private static final ConfigValue<Integer> maximumFilesOpen;
+    private static final ConfigValue<Boolean> disableLua51Features;
+    private static final ConfigValue<String> defaultComputerSettings;
+    private static final ConfigValue<Boolean> debugEnabled;
+    private static final ConfigValue<Boolean> logComputerErrors;
+    private static final ConfigValue<Boolean> commandRequireCreative;
 
-    private static Property computerSpaceLimit;
-    private static Property floppySpaceLimit;
-    private static Property maximumFilesOpen;
-    private static Property disableLua51Features;
-    private static Property defaultComputerSettings;
-    private static Property debugEnabled;
-    private static Property logComputerErrors;
-    private static Property commandRequireCreative;
+    private static final ConfigValue<Integer> computerThreads;
+    private static final ConfigValue<Integer> maxMainGlobalTime;
+    private static final ConfigValue<Integer> maxMainComputerTime;
 
-    private static Property computerThreads;
-    private static Property maxMainGlobalTime;
-    private static Property maxMainComputerTime;
+    private static final ConfigValue<Boolean> httpEnabled;
+    private static final ConfigValue<Boolean> httpWebsocketEnabled;
+    private static final ConfigValue<List<? extends UnmodifiableConfig>> httpRules;
 
-    private static Property httpEnable;
-    private static Property httpWebsocketEnable;
-    private static Property httpAllowedDomains;
-    private static Property httpBlockedDomains;
+    private static final ConfigValue<Integer> httpMaxRequests;
+    private static final ConfigValue<Integer> httpMaxWebsockets;
 
-    private static Property httpTimeout;
-    private static Property httpMaxRequests;
-    private static Property httpMaxDownload;
-    private static Property httpMaxUpload;
-    private static Property httpMaxWebsockets;
-    private static Property httpMaxWebsocketMessage;
+    private static final ConfigValue<Boolean> commandBlockEnabled;
+    private static final ConfigValue<Integer> modemRange;
+    private static final ConfigValue<Integer> modemHighAltitudeRange;
+    private static final ConfigValue<Integer> modemRangeDuringStorm;
+    private static final ConfigValue<Integer> modemHighAltitudeRangeDuringStorm;
+    private static final ConfigValue<Integer> maxNotesPerTick;
+    private static final ConfigValue<Integer> monitorBandwidth;
 
-    private static Property commandBlockEnabled;
-    private static Property modemRange;
-    private static Property modemHighAltitudeRange;
-    private static Property modemRangeDuringStorm;
-    private static Property modemHighAltitudeRangeDuringStorm;
-    private static Property maxNotesPerTick;
-    private static Property monitorRenderer;
-    private static Property monitorBandwidth;
+    private static final ConfigValue<Boolean> turtlesNeedFuel;
+    private static final ConfigValue<Integer> turtleFuelLimit;
+    private static final ConfigValue<Integer> advancedTurtleFuelLimit;
+    private static final ConfigValue<Boolean> turtlesObeyBlockProtection;
+    private static final ConfigValue<Boolean> turtlesCanPush;
+    private static final ConfigValue<List<? extends String>> turtleDisabledActions;
 
-    private static Property turtlesNeedFuel;
-    private static Property turtleFuelLimit;
-    private static Property advancedTurtleFuelLimit;
-    private static Property turtlesObeyBlockProtection;
-    private static Property turtlesCanPush;
-    private static Property turtleDisabledActions;
+    private static final ConfigValue<MonitorRenderer> monitorRenderer;
+
+    private static final ForgeConfigSpec serverSpec;
+    private static final ForgeConfigSpec clientSpec;
 
     private Config() {}
 
-    public static void load( File configFile )
+    static
     {
-        config = new Configuration( configFile, ComputerCraft.getVersion() );
-
-        config.load();
+        Builder builder = new Builder();
 
         { // General computers
-            renameProperty( CATEGORY_GENERAL, "computerSpaceLimit", CATEGORY_GENERAL, "computer_space_limit" );
-            renameProperty( CATEGORY_GENERAL, "floppySpaceLimit", CATEGORY_GENERAL, "floppy_space_limit" );
-            renameProperty( CATEGORY_GENERAL, "maximumFilesOpen", CATEGORY_GENERAL, "maximum_open_files" );
-            renameProperty( CATEGORY_GENERAL, "debug_enable", CATEGORY_GENERAL, "debug_enabled" );
-            renameProperty( CATEGORY_GENERAL, "logPeripheralErrors", CATEGORY_GENERAL, "log_computer_errors" );
+            computerSpaceLimit = builder
+                .comment( "The disk space limit for computers and turtles, in bytes" )
+                .translation( TRANSLATION_PREFIX + "computer_space_limit" )
+                .define( "computer_space_limit", ComputerCraft.computerSpaceLimit );
 
-            computerSpaceLimit = config.get( CATEGORY_GENERAL, "computer_space_limit", ComputerCraft.computerSpaceLimit );
-            computerSpaceLimit.setComment( "The disk space limit for computers and turtles, in bytes" );
+            floppySpaceLimit = builder
+                .comment( "The disk space limit for floppy disks, in bytes" )
+                .translation( TRANSLATION_PREFIX + "floppy_space_limit" )
+                .define( "floppy_space_limit", ComputerCraft.floppySpaceLimit );
 
-            floppySpaceLimit = config.get( CATEGORY_GENERAL, "floppy_space_limit", ComputerCraft.floppySpaceLimit );
-            floppySpaceLimit.setComment( "The disk space limit for floppy disks, in bytes" );
+            maximumFilesOpen = builder
+                .comment( "Set how many files a computer can have open at the same time. Set to 0 for unlimited." )
+                .translation( TRANSLATION_PREFIX + "maximum_open_files" )
+                .defineInRange( "maximum_open_files", ComputerCraft.maximumFilesOpen, 0, Integer.MAX_VALUE );
 
-            maximumFilesOpen = config.get( CATEGORY_GENERAL, "maximum_open_files", ComputerCraft.maximumFilesOpen );
-            maximumFilesOpen.setComment( "Set how many files a computer can have open at the same time. Set to 0 for unlimited." );
-            maximumFilesOpen.setMinValue( 0 );
+            disableLua51Features = builder
+                .comment( "Set this to true to disable Lua 5.1 functions that will be removed in a future update. " +
+                    "Useful for ensuring forward compatibility of your programs now." )
+                .define( "disable_lua51_features", ComputerCraft.disableLua51Features );
 
-            disableLua51Features = config.get( CATEGORY_GENERAL, "disable_lua51_features", ComputerCraft.disable_lua51_features );
-            disableLua51Features.setComment( "Set this to true to disable Lua 5.1 functions that will be removed in a future " +
-                "update. Useful for ensuring forward compatibility of your programs now." );
+            defaultComputerSettings = builder
+                .comment( "A comma separated list of default system settings to set on new computers. Example: " +
+                    "\"shell.autocomplete=false,lua.autocomplete=false,edit.autocomplete=false\" will disable all " +
+                    "autocompletion" )
+                .define( "default_computer_settings", ComputerCraft.defaultComputerSettings );
 
-            defaultComputerSettings = config.get( CATEGORY_GENERAL, "default_computer_settings", ComputerCraft.default_computer_settings );
-            defaultComputerSettings.setComment( "A comma separated list of default system settings to set on new computers. Example: " +
-                "\"shell.autocomplete=false,lua.autocomplete=false,edit.autocomplete=false\" will disable all autocompletion" );
+            debugEnabled = builder
+                .comment( "Enable Lua's debug library. This is sandboxed to each computer, so is generally safe to be used by players." )
+                .define( "debug_enabled", ComputerCraft.debugEnable );
 
-            debugEnabled = config.get( CATEGORY_GENERAL, "debug_enabled", ComputerCraft.debug_enable );
-            debugEnabled.setComment( "Enable Lua's debug library. This is sandboxed to each computer, so is generally safe to be used by players." );
+            logComputerErrors = builder
+                .comment( "Log exceptions thrown by peripherals and other Lua objects.\n" +
+                    "This makes it easier for mod authors to debug problems, but may result in log spam should people use buggy methods." )
+                .define( "log_computer_errors", ComputerCraft.logComputerErrors );
 
-            logComputerErrors = config.get( CATEGORY_GENERAL, "log_computer_errors", ComputerCraft.logPeripheralErrors );
-            logComputerErrors.setComment( "Log exceptions thrown by peripherals and other Lua objects.\n" +
-                "This makes it easier for mod authors to debug problems, but may result in log spam should people use buggy methods." );
-
-            commandRequireCreative = config.get( CATEGORY_GENERAL, "command_require_creative", ComputerCraft.commandRequireCreative );
-            commandRequireCreative.setComment( "Require players to be in creative mode and be opped in order to interact with command computers." +
-                "This is the default behaviour for vanilla's Command blocks." );
-
-            setOrder(
-                CATEGORY_GENERAL,
-                computerSpaceLimit, floppySpaceLimit, maximumFilesOpen,
-                disableLua51Features, defaultComputerSettings, debugEnabled, logComputerErrors, commandRequireCreative
-            );
+            commandRequireCreative = builder
+                .comment( "Require players to be in creative mode and be opped in order to interact with command computers." +
+                    "This is the default behaviour for vanilla's Command blocks." )
+                .define( "command_require_creative", ComputerCraft.commandRequireCreative );
         }
 
-        { // Execution
-            renameProperty( CATEGORY_GENERAL, "computer_threads", CATEGORY_EXECUTION, "computer_threads" );
+        {
+            builder.comment( "Controls execution behaviour of computers. This is largely intended for fine-tuning " +
+                "servers, and generally shouldn't need to be touched" );
+            builder.push( "execution" );
 
-            config.getCategory( CATEGORY_EXECUTION )
-                .setComment( "Controls execution behaviour of computers. This is largely intended for fine-tuning " +
-                    "servers, and generally shouldn't need to be touched" );
+            computerThreads = builder
+                .comment( "Set the number of threads computers can run on. A higher number means more computers can run " +
+                    "at once, but may induce lag.\n" +
+                    "Please note that some mods may not work with a thread count higher than 1. Use with caution." )
+                .worldRestart()
+                .defineInRange( "computer_threads", ComputerCraft.computerThreads, 1, Integer.MAX_VALUE );
 
-            computerThreads = config.get( CATEGORY_EXECUTION, "computer_threads", ComputerCraft.computer_threads );
-            computerThreads
-                .setMinValue( 1 )
-                .setRequiresMcRestart( true )
-                .setComment( "Set the number of threads computers can run on. A higher number means more computers can " +
-                    "run at once, but may induce lag.\n" +
-                    "Please note that some mods may not work with a thread count higher than 1. Use with caution." );
+            maxMainGlobalTime = builder
+                .comment( "The maximum time that can be spent executing tasks in a single tick, in milliseconds.\n" +
+                    "Note, we will quite possibly go over this limit, as there's no way to tell how long a will take " +
+                    "- this aims to be the upper bound of the average time." )
+                .defineInRange( "max_main_global_time", (int) TimeUnit.NANOSECONDS.toMillis( ComputerCraft.maxMainGlobalTime ), 1, Integer.MAX_VALUE );
 
-            maxMainGlobalTime = config.get( CATEGORY_EXECUTION, "max_main_global_time", (int) TimeUnit.NANOSECONDS.toMillis( ComputerCraft.maxMainGlobalTime ) );
-            maxMainGlobalTime
-                .setMinValue( 1 )
-                .setComment( "The maximum time that can be spent executing tasks in a single tick, in milliseconds.\n" +
-                    "Note, we will quite possibly go over this limit, as there's no way to tell how long a will take - this aims " +
-                    "to be the upper bound of the average time." );
+            maxMainComputerTime = builder
+                .comment( "The ideal maximum time a computer can execute for in a tick, in milliseconds.\n" +
+                    "Note, we will quite possibly go over this limit, as there's no way to tell how long a will take " +
+                    "- this aims to be the upper bound of the average time." )
+                .defineInRange( "max_main_computer_time", (int) TimeUnit.NANOSECONDS.toMillis( ComputerCraft.maxMainComputerTime ), 1, Integer.MAX_VALUE );
 
-            maxMainComputerTime = config.get( CATEGORY_EXECUTION, "max_main_computer_time", (int) TimeUnit.NANOSECONDS.toMillis( ComputerCraft.maxMainComputerTime ) );
-            maxMainComputerTime
-                .setMinValue( 1 )
-                .setComment( "The ideal maximum time a computer can execute for in a tick, in milliseconds.\n" +
-                    "Note, we will quite possibly go over this limit, as there's no way to tell how long a will take - this aims " +
-                    "to be the upper bound of the average time." );
-
-            setOrder(
-                CATEGORY_EXECUTION,
-                computerThreads, maxMainGlobalTime, maxMainComputerTime
-            );
+            builder.pop();
         }
 
         { // HTTP
-            renameProperty( CATEGORY_GENERAL, "http_enable", CATEGORY_HTTP, "enabled" );
-            renameProperty( CATEGORY_GENERAL, "http_websocket_enable", CATEGORY_HTTP, "websocket_enabled" );
-            renameProperty( CATEGORY_GENERAL, "http_whitelist", CATEGORY_HTTP, "allowed_domains" );
-            renameProperty( CATEGORY_GENERAL, "http_blacklist", CATEGORY_HTTP, "blocked_domains" );
-            renameProperty( CATEGORY_HTTP, "whitelist", CATEGORY_HTTP, "allowed_domains" );
-            renameProperty( CATEGORY_HTTP, "blacklist", CATEGORY_HTTP, "blocked_domains" );
+            builder.comment( "Controls the HTTP API" );
+            builder.push( "http" );
 
-            config.getCategory( CATEGORY_HTTP )
-                .setComment( "Controls the HTTP API" );
+            httpEnabled = builder
+                .comment( "Enable the \"http\" API on Computers (see \"rules\" for more fine grained control than this)." )
+                .define( "enabled", ComputerCraft.httpEnabled );
 
-            httpEnable = config.get( CATEGORY_HTTP, "enabled", ComputerCraft.http_enable );
-            httpEnable.setComment( "Enable the \"http\" API on Computers (see \"allowed_domains\" and \"blocked_domains\" " +
-                "for more fine grained control than this)" );
+            httpWebsocketEnabled = builder
+                .comment( "Enable use of http websockets. This requires the \"http_enable\" option to also be true." )
+                .define( "websocket_enabled", ComputerCraft.httpWebsocketEnabled );
 
-            httpWebsocketEnable = config.get( CATEGORY_HTTP, "websocket_enabled", ComputerCraft.http_websocket_enable );
-            httpWebsocketEnable.setComment( "Enable use of http websockets. This requires the \"http.enabled\" option to also be true." );
+            httpRules = builder
+                .comment( "A list of rules which control behaviour of the \"http\" API for specific domains or IPs.\n" +
+                    "Each rule is an item with a 'host' to match against, and a series of properties. " +
+                    "The host may be a domain name (\"pastebin.com\"),\n" +
+                    "wildcard (\"*.pastebin.com\") or CIDR notation (\"127.0.0.0/8\"). If no rules, the domain is blocked." )
+                .defineList( "rules",
+                    Stream.concat(
+                        Stream.of( ComputerCraft.DEFAULT_HTTP_DENY ).map( x -> AddressRuleConfig.makeRule( x, Action.DENY ) ),
+                        Stream.of( ComputerCraft.DEFAULT_HTTP_ALLOW ).map( x -> AddressRuleConfig.makeRule( x, Action.ALLOW ) )
+                    ).collect( Collectors.toList() ),
+                    x -> x instanceof UnmodifiableConfig && AddressRuleConfig.checkRule( (UnmodifiableConfig) x ) );
 
-            httpAllowedDomains = config.get( CATEGORY_HTTP, "allowed_domains", DEFAULT_HTTP_WHITELIST );
-            httpAllowedDomains.setComment( "A list of wildcards for domains or IP ranges that can be accessed through the " +
-                "\"http\" API on Computers.\n" +
-                "Set this to \"*\" to access to the entire internet. Example: \"*.pastebin.com\" will restrict access to " +
-                "just subdomains of pastebin.com.\n" +
-                "You can use domain names (\"pastebin.com\"), wildcards (\"*.pastebin.com\") or CIDR notation (\"127.0.0.0/8\")." );
+            httpMaxRequests = builder
+                .comment( "The number of http requests a computer can make at one time. Additional requests will be queued, and sent when the running requests have finished. Set to 0 for unlimited." )
+                .defineInRange( "max_requests", ComputerCraft.httpMaxRequests, 0, Integer.MAX_VALUE );
 
-            httpBlockedDomains = config.get( CATEGORY_HTTP, "blocked_domains", DEFAULT_HTTP_BLACKLIST );
-            httpBlockedDomains.setComment( "A list of wildcards for domains or IP ranges that cannot be accessed through the " +
-                "\"http\" API on Computers.\n" +
-                "If this is empty then all explicitly allowed domains will be accessible. Example: \"*.github.com\" will block " +
-                "access to all subdomains of github.com.\n" +
-                "You can use domain names (\"pastebin.com\"), wildcards (\"*.pastebin.com\") or CIDR notation (\"127.0.0.0/8\")." );
+            httpMaxWebsockets = builder
+                .comment( "The number of websockets a computer can have open at one time. Set to 0 for unlimited." )
+                .defineInRange( "max_websockets", ComputerCraft.httpMaxWebsockets, 1, Integer.MAX_VALUE );
 
-            httpTimeout = config.get( CATEGORY_HTTP, "timeout", ComputerCraft.httpTimeout );
-            httpTimeout.setComment( "The period of time (in milliseconds) to wait before a HTTP request times out. Set to 0 for unlimited." );
-            httpTimeout.setMinValue( 0 );
-
-            httpMaxRequests = config.get( CATEGORY_HTTP, "max_requests", ComputerCraft.httpMaxRequests );
-            httpMaxRequests.setComment( "The number of http requests a computer can make at one time. Additional requests " +
-                "will be queued, and sent when the running requests have finished. Set to 0 for unlimited." );
-            httpMaxRequests.setMinValue( 0 );
-
-            httpMaxDownload = config.get( CATEGORY_HTTP, "max_download", (int) ComputerCraft.httpMaxDownload );
-            httpMaxDownload.setComment( "The maximum size (in bytes) that a computer can download in a single request. " +
-                "Note that responses may receive more data than allowed, but this data will not be returned to the client." );
-            httpMaxDownload.setMinValue( 0 );
-
-            httpMaxUpload = config.get( CATEGORY_HTTP, "max_upload", (int) ComputerCraft.httpMaxUpload );
-            httpMaxUpload.setComment( "The maximum size (in bytes) that a computer can upload in a single request. This " +
-                "includes headers and POST text." );
-            httpMaxUpload.setMinValue( 0 );
-
-            httpMaxWebsockets = config.get( CATEGORY_HTTP, "max_websockets", ComputerCraft.httpMaxWebsockets );
-            httpMaxWebsockets.setComment( "The number of websockets a computer can have open at one time. Set to 0 for unlimited." );
-            httpMaxWebsockets.setMinValue( 1 );
-
-            httpMaxWebsocketMessage = config.get( CATEGORY_HTTP, "max_websocket_message", ComputerCraft.httpMaxWebsocketMessage );
-            httpMaxWebsocketMessage.setComment( "The maximum size (in bytes) that a computer can send or receive in one websocket packet." );
-            httpMaxWebsocketMessage.setMinValue( 0 );
-            httpMaxWebsocketMessage.setMaxValue( Websocket.MAX_MESSAGE_SIZE );
-
-            setOrder(
-                CATEGORY_HTTP,
-                httpEnable, httpWebsocketEnable, httpAllowedDomains, httpBlockedDomains,
-                httpTimeout, httpMaxRequests, httpMaxDownload, httpMaxUpload, httpMaxWebsockets, httpMaxWebsocketMessage
-            );
+            builder.pop();
         }
 
         { // Peripherals
-            renameProperty( CATEGORY_GENERAL, "enableCommandBlock", CATEGORY_PERIPHERAL, "command_block_enabled" );
-            renameProperty( CATEGORY_GENERAL, "modem_range", CATEGORY_PERIPHERAL, "modem_range" );
-            renameProperty( CATEGORY_GENERAL, "modem_highAltitudeRange", CATEGORY_PERIPHERAL, "modem_high_altitude_range" );
-            renameProperty( CATEGORY_GENERAL, "modem_rangeDuringStorm", CATEGORY_PERIPHERAL, "modem_range_during_storm" );
-            renameProperty( CATEGORY_GENERAL, "modem_highAltitudeRangeDuringStorm", CATEGORY_PERIPHERAL, "modem_high_altitude_range_during_storm" );
-            renameProperty( CATEGORY_GENERAL, "maxNotesPerTick", CATEGORY_PERIPHERAL, "max_notes_per_tick" );
+            builder.comment( "Various options relating to peripherals." );
+            builder.push( "peripheral" );
 
-            config.getCategory( CATEGORY_PERIPHERAL )
-                .setComment( "Various options relating to peripherals." );
+            commandBlockEnabled = builder
+                .comment( "Enable Command Block peripheral support" )
+                .define( "command_block_enabled", ComputerCraft.enableCommandBlock );
 
-            commandBlockEnabled = config.get( CATEGORY_PERIPHERAL, "command_block_enabled", ComputerCraft.enableCommandBlock );
-            commandBlockEnabled.setComment( "Enable Command Block peripheral support" );
+            modemRange = builder
+                .comment( "The range of Wireless Modems at low altitude in clear weather, in meters" )
+                .defineInRange( "modem_range", ComputerCraft.modemRange, 0, MODEM_MAX_RANGE );
 
-            modemRange = config.get( CATEGORY_PERIPHERAL, "modem_range", ComputerCraft.modem_range );
-            modemRange.setComment( "The range of Wireless Modems at low altitude in clear weather, in meters" );
-            modemRange.setMinValue( 0 );
-            modemRange.setMaxValue( MODEM_MAX_RANGE );
+            modemHighAltitudeRange = builder
+                .comment( "The range of Wireless Modems at maximum altitude in clear weather, in meters" )
+                .defineInRange( "modem_high_altitude_range", ComputerCraft.modemHighAltitudeRange, 0, MODEM_MAX_RANGE );
 
-            modemHighAltitudeRange = config.get( CATEGORY_PERIPHERAL, "modem_high_altitude_range", ComputerCraft.modem_highAltitudeRange );
-            modemHighAltitudeRange.setComment( "The range of Wireless Modems at maximum altitude in clear weather, in meters" );
-            modemHighAltitudeRange.setMinValue( 0 );
-            modemHighAltitudeRange.setMaxValue( MODEM_MAX_RANGE );
+            modemRangeDuringStorm = builder
+                .comment( "The range of Wireless Modems at low altitude in stormy weather, in meters" )
+                .defineInRange( "modem_range_during_storm", ComputerCraft.modemRangeDuringStorm, 0, MODEM_MAX_RANGE );
 
-            modemRangeDuringStorm = config.get( CATEGORY_PERIPHERAL, "modem_range_during_storm", ComputerCraft.modem_rangeDuringStorm );
-            modemRangeDuringStorm.setComment( "The range of Wireless Modems at low altitude in stormy weather, in meters" );
-            modemRangeDuringStorm.setMinValue( 0 );
-            modemRangeDuringStorm.setMaxValue( MODEM_MAX_RANGE );
+            modemHighAltitudeRangeDuringStorm = builder
+                .comment( "The range of Wireless Modems at maximum altitude in stormy weather, in meters" )
+                .defineInRange( "modem_high_altitude_range_during_storm", ComputerCraft.modemHighAltitudeRangeDuringStorm, 0, MODEM_MAX_RANGE );
 
-            modemHighAltitudeRangeDuringStorm = config.get( CATEGORY_PERIPHERAL, "modem_high_altitude_range_during_storm", ComputerCraft.modem_highAltitudeRangeDuringStorm );
-            modemHighAltitudeRangeDuringStorm.setComment( "The range of Wireless Modems at maximum altitude in stormy weather, in meters" );
-            modemHighAltitudeRangeDuringStorm.setMinValue( 0 );
-            modemHighAltitudeRangeDuringStorm.setMaxValue( MODEM_MAX_RANGE );
+            maxNotesPerTick = builder
+                .comment( "Maximum amount of notes a speaker can play at once" )
+                .defineInRange( "max_notes_per_tick", ComputerCraft.maxNotesPerTick, 1, Integer.MAX_VALUE );
 
-            maxNotesPerTick = config.get( CATEGORY_PERIPHERAL, "max_notes_per_tick", ComputerCraft.maxNotesPerTick );
-            maxNotesPerTick.setComment( "Maximum amount of notes a speaker can play at once" );
-            maxNotesPerTick.setMinValue( 1 );
+            monitorBandwidth = builder
+                .comment( "The limit to how much monitor data can be sent *per tick*. Note:\n" +
+                    " - Bandwidth is measured before compression, so the data sent to the client is smaller.\n" +
+                    " - This ignores the number of players a packet is sent to. Updating a monitor for one player consumes " +
+                    "the same bandwidth limit as sending to 20.\n" +
+                    " - A full sized monitor sends ~25kb of data. So the default (1MB) allows for ~40 monitors to be updated " +
+                    "in a single tick. \n" +
+                    "Set to 0 to disable." )
+                .defineInRange( "monitor_bandwidth", (int) ComputerCraft.monitorBandwidth, 0, Integer.MAX_VALUE );
 
-            monitorRenderer = config.get( CATEGORY_PERIPHERAL, "monitor_renderer", ComputerCraft.monitorRenderer.displayName() );
-            monitorRenderer.setComment( "The renderer to use for monitors. Generally this should be kept at \"best\" - if " +
-                "monitors have performance issues, you may wish to experiment with alternative renderers." );
-            monitorRenderer.setValidValues( MonitorRenderer.NAMES );
-
-            monitorBandwidth = config.get( CATEGORY_PERIPHERAL, "monitor_bandwidth", (int) ComputerCraft.monitorBandwidth );
-            monitorBandwidth.setComment( "The limit to how much monitor data can be sent *per tick*. Note:\n" +
-                " - Bandwidth is measured before compression, so the data sent to the client is smaller.\n" +
-                " - This ignores the number of players a packet is sent to. Updating a monitor for one player consumes " +
-                "the same bandwidth limit as sending to 20.\n" +
-                " - A full sized monitor sends ~25kb of data. So the default (1MB) allows for ~40 monitors to be updated " +
-                "in a single tick. \n" +
-                "Set to 0 to disable." );
-            monitorBandwidth.setValidValues( MonitorRenderer.NAMES );
-            monitorBandwidth.setMinValue( 0 );
-
-            setOrder(
-                CATEGORY_PERIPHERAL,
-                commandBlockEnabled, modemRange, modemHighAltitudeRange, modemRangeDuringStorm, modemHighAltitudeRangeDuringStorm, maxNotesPerTick,
-                monitorRenderer, monitorBandwidth
-            );
+            builder.pop();
         }
 
         { // Turtles
-            renameProperty( CATEGORY_GENERAL, "turtlesNeedFuel", CATEGORY_TURTLE, "need_fuel" );
-            renameProperty( CATEGORY_GENERAL, "turtleFuelLimit", CATEGORY_TURTLE, "normal_fuel_limit" );
-            renameProperty( CATEGORY_GENERAL, "advancedTurtleFuelLimit", CATEGORY_TURTLE, "advanced_fuel_limit" );
-            renameProperty( CATEGORY_GENERAL, "turtlesObeyBlockProtection", CATEGORY_TURTLE, "obey_block_protection" );
-            renameProperty( CATEGORY_GENERAL, "turtlesCanPush", CATEGORY_TURTLE, "can_push" );
-            renameProperty( CATEGORY_GENERAL, "turtle_disabled_actions", CATEGORY_TURTLE, "disabled_actions" );
+            builder.comment( "Various options relating to turtles." );
+            builder.push( "turtle" );
 
-            config.getCategory( CATEGORY_TURTLE )
-                .setComment( "Various options relating to turtles." );
+            turtlesNeedFuel = builder
+                .comment( "Set whether Turtles require fuel to move" )
+                .define( "need_fuel", ComputerCraft.turtlesNeedFuel );
 
-            turtlesNeedFuel = config.get( CATEGORY_TURTLE, "need_fuel", ComputerCraft.turtlesNeedFuel );
-            turtlesNeedFuel.setComment( "Set whether Turtles require fuel to move" );
+            turtleFuelLimit = builder
+                .comment( "The fuel limit for Turtles" )
+                .defineInRange( "normal_fuel_limit", ComputerCraft.turtleFuelLimit, 0, Integer.MAX_VALUE );
 
-            turtleFuelLimit = config.get( CATEGORY_TURTLE, "normal_fuel_limit", ComputerCraft.turtleFuelLimit );
-            turtleFuelLimit.setComment( "The fuel limit for Turtles" );
-            turtleFuelLimit.setMinValue( 0 );
+            advancedTurtleFuelLimit = builder
+                .comment( "The fuel limit for Advanced Turtles" )
+                .defineInRange( "advanced_fuel_limit", ComputerCraft.advancedTurtleFuelLimit, 0, Integer.MAX_VALUE );
 
-            advancedTurtleFuelLimit = config.get( CATEGORY_TURTLE, "advanced_fuel_limit", ComputerCraft.advancedTurtleFuelLimit );
-            advancedTurtleFuelLimit.setComment( "The fuel limit for Advanced Turtles" );
-            advancedTurtleFuelLimit.setMinValue( 0 );
+            turtlesObeyBlockProtection = builder
+                .comment( "If set to true, Turtles will be unable to build, dig, or enter protected areas (such as near the server spawn point)" )
+                .define( "obey_block_protection", ComputerCraft.turtlesObeyBlockProtection );
 
-            turtlesObeyBlockProtection = config.get( CATEGORY_TURTLE, "obey_block_protection", ComputerCraft.turtlesObeyBlockProtection );
-            turtlesObeyBlockProtection.setComment( "If set to true, Turtles will be unable to build, dig, or enter protected " +
-                "areas (such as near the server spawn point)" );
+            turtlesCanPush = builder
+                .comment( "If set to true, Turtles will push entities out of the way instead of stopping if there is space to do so" )
+                .define( "can_push", ComputerCraft.turtlesCanPush );
 
-            turtlesCanPush = config.get( CATEGORY_TURTLE, "can_push", ComputerCraft.turtlesCanPush );
-            turtlesCanPush.setComment( "If set to true, Turtles will push entities out of the way instead of stopping if " +
-                "there is space to do so" );
+            turtleDisabledActions = builder
+                .comment( "A list of turtle actions which are disabled." )
+                .defineList( "disabled_actions", Collections.emptyList(), x -> x instanceof String && getAction( (String) x ) != null );
 
-            turtleDisabledActions = config.get( CATEGORY_TURTLE, "disabled_actions", new String[0] );
-            turtleDisabledActions.setComment( "A list of turtle actions which are disabled." );
-
-            setOrder(
-                CATEGORY_TURTLE,
-                turtlesNeedFuel, turtleFuelLimit, advancedTurtleFuelLimit, turtlesObeyBlockProtection, turtlesCanPush, turtleDisabledActions
-            );
+            builder.pop();
         }
 
-        for( String child : config.getCategoryNames() )
-        {
-            setupLanguage(
-                config.getCategory( child ),
-                child.equals( CATEGORY_GENERAL ) ? "gui.computercraft:config" : "gui.computercraft:config." + child
-            );
-        }
+        serverSpec = builder.build();
 
-        sync();
+        Builder clientBuilder = new Builder();
+        monitorRenderer = clientBuilder
+            .comment( "The renderer to use for monitors. Generally this should be kept at \"best\" - if " +
+                "monitors have performance issues, you may wish to experiment with alternative renderers." )
+            .defineEnum( "monitor_renderer", MonitorRenderer.BEST );
+        clientSpec = clientBuilder.build();
     }
 
-    private static void setOrder( String category, Property... properties )
+    public static void load()
     {
-        List<String> names = new ArrayList<>( properties.length );
-        for( Property property : properties ) names.add( property.getName() );
-        config.getCategory( category ).setPropertyOrder( names );
-    }
-
-    private static void renameProperty( String oldCat, String oldProp, String newCat, String newProp )
-    {
-        if( !config.hasCategory( oldCat ) ) return;
-
-        ConfigCategory cat = config.getCategory( oldCat );
-        if( !cat.containsKey( oldProp ) ) return;
-
-        Property prop = cat.remove( oldProp );
-        prop.setName( newProp );
-        config.getCategory( newCat ).put( newProp, prop );
-
-        // Clean up old categories
-        if( cat.isEmpty() ) config.removeCategory( cat );
-    }
-
-    private static void setupLanguage( ConfigCategory category, String key )
-    {
-        category.setLanguageKey( key );
-        for( Property property : category.getOrderedValues() )
-        {
-            property.setLanguageKey( key + "." + property.getName() );
-        }
-
-        for( ConfigCategory child : category.getChildren() )
-        {
-            setupLanguage( child, key + "." + child.getName() );
-        }
-    }
-
-    public static void reload()
-    {
-        Configuration newConfig = new Configuration( config.getConfigFile(), ComputerCraft.getVersion() );
-        Set<String> oldCategories = config.getCategoryNames(), newCategories = newConfig.getCategoryNames();
-
-        // Sync any categories on the original config
-        for( String category : oldCategories )
-        {
-            if( newCategories.contains( category ) )
-            {
-                reloadCategory( config.getCategory( category ), newConfig.getCategory( category ) );
-            }
-            else
-            {
-                for( Property property : config.getCategory( category ).getValues().values() ) property.setToDefault();
-            }
-        }
-
-        // And drop any unexpected ones.
-        for( String category : newCategories )
-        {
-            if( !oldCategories.contains( category ) )
-            {
-                ComputerCraft.log.warn( "Cannot sync unknown config category {}", category );
-            }
-        }
-
-        sync();
-    }
-
-    private static void reloadCategory( ConfigCategory oldCat, ConfigCategory newCat )
-    {
-        // Copy the config values across to the original config.
-        for( Map.Entry<String, Property> child : newCat.getValues().entrySet() )
-        {
-            Property oldProperty = oldCat.get( child.getKey() ), newProperty = child.getValue();
-            if( oldProperty.getType() != newProperty.getType() || oldProperty.isList() != newProperty.isList() )
-            {
-                ComputerCraft.log.warn(
-                    "Cannot sync config property {} (type changed from {} to {})",
-                    child.getKey(), getType( oldProperty ), getType( newProperty )
-                );
-                continue;
-            }
-
-            if( oldProperty.isList() )
-            {
-                oldProperty.setValues( newProperty.getStringList() );
-            }
-            else
-            {
-                oldProperty.setValue( newProperty.getString() );
-            }
-        }
-
-        // Reset any missing properties.
-        for( Map.Entry<String, Property> child : oldCat.getValues().entrySet() )
-        {
-            if( !newCat.containsKey( child.getKey() ) ) child.getValue().setToDefault();
-        }
-    }
-
-    private static String getType( Property property )
-    {
-        return property.getType() + (property.isList() ? " list" : "");
+        ModLoadingContext.get().registerConfig( ModConfig.Type.SERVER, serverSpec );
+        ModLoadingContext.get().registerConfig( ModConfig.Type.CLIENT, clientSpec );
     }
 
     public static void sync()
     {
         // General
-        ComputerCraft.computerSpaceLimit = computerSpaceLimit.getInt();
-        ComputerCraft.floppySpaceLimit = floppySpaceLimit.getInt();
-        ComputerCraft.maximumFilesOpen = Math.max( 0, maximumFilesOpen.getInt() );
-        ComputerCraft.disable_lua51_features = disableLua51Features.getBoolean();
-        ComputerCraft.default_computer_settings = defaultComputerSettings.getString();
-        ComputerCraft.debug_enable = debugEnabled.getBoolean();
-        ComputerCraft.logPeripheralErrors = logComputerErrors.getBoolean();
-        ComputerCraft.commandRequireCreative = commandRequireCreative.getBoolean();
+        ComputerCraft.computerSpaceLimit = computerSpaceLimit.get();
+        ComputerCraft.floppySpaceLimit = floppySpaceLimit.get();
+        ComputerCraft.maximumFilesOpen = maximumFilesOpen.get();
+        ComputerCraft.disableLua51Features = disableLua51Features.get();
+        ComputerCraft.defaultComputerSettings = defaultComputerSettings.get();
+        ComputerCraft.debugEnable = debugEnabled.get();
+        ComputerCraft.computerThreads = computerThreads.get();
+        ComputerCraft.logComputerErrors = logComputerErrors.get();
+        ComputerCraft.commandRequireCreative = commandRequireCreative.get();
 
         // Execution
-        ComputerCraft.computer_threads = computerThreads.getInt();
-        ComputerCraft.maxMainGlobalTime = TimeUnit.MILLISECONDS.toNanos( Math.max( 1, maxMainGlobalTime.getLong() ) );
-        ComputerCraft.maxMainComputerTime = TimeUnit.MILLISECONDS.toNanos( Math.max( 1, maxMainComputerTime.getLong() ) );
+        ComputerCraft.computerThreads = computerThreads.get();
+        ComputerCraft.maxMainGlobalTime = TimeUnit.MILLISECONDS.toNanos( maxMainGlobalTime.get() );
+        ComputerCraft.maxMainComputerTime = TimeUnit.MILLISECONDS.toNanos( maxMainComputerTime.get() );
 
         // HTTP
-        ComputerCraft.http_enable = httpEnable.getBoolean();
-        ComputerCraft.http_websocket_enable = httpWebsocketEnable.getBoolean();
-        ComputerCraft.http_whitelist = new AddressPredicate( httpAllowedDomains.getStringList() );
-        ComputerCraft.http_blacklist = new AddressPredicate( httpBlockedDomains.getStringList() );
+        ComputerCraft.httpEnabled = httpEnabled.get();
+        ComputerCraft.httpWebsocketEnabled = httpWebsocketEnabled.get();
+        ComputerCraft.httpRules = Collections.unmodifiableList( httpRules.get().stream()
+            .map( AddressRuleConfig::parseRule ).filter( Objects::nonNull ).collect( Collectors.toList() ) );
 
-        ComputerCraft.httpTimeout = Math.max( 0, httpTimeout.getInt() );
-        ComputerCraft.httpMaxRequests = Math.max( 1, httpMaxRequests.getInt() );
-        ComputerCraft.httpMaxDownload = Math.max( 0, httpMaxDownload.getLong() );
-        ComputerCraft.httpMaxUpload = Math.max( 0, httpMaxUpload.getLong() );
-        ComputerCraft.httpMaxWebsockets = Math.max( 1, httpMaxWebsockets.getInt() );
-        ComputerCraft.httpMaxWebsocketMessage = Math.max( 0, httpMaxWebsocketMessage.getInt() );
+        ComputerCraft.httpMaxRequests = httpMaxRequests.get();
+        ComputerCraft.httpMaxWebsockets = httpMaxWebsockets.get();
 
         // Peripheral
-        ComputerCraft.enableCommandBlock = commandBlockEnabled.getBoolean();
-        ComputerCraft.maxNotesPerTick = Math.max( 1, maxNotesPerTick.getInt() );
-        ComputerCraft.modem_range = Math.min( modemRange.getInt(), MODEM_MAX_RANGE );
-        ComputerCraft.modem_highAltitudeRange = Math.min( modemHighAltitudeRange.getInt(), MODEM_MAX_RANGE );
-        ComputerCraft.modem_rangeDuringStorm = Math.min( modemRangeDuringStorm.getInt(), MODEM_MAX_RANGE );
-        ComputerCraft.modem_highAltitudeRangeDuringStorm = Math.min( modemHighAltitudeRangeDuringStorm.getInt(), MODEM_MAX_RANGE );
-        ComputerCraft.monitorRenderer = MonitorRenderer.ofString( monitorRenderer.getString() );
-        ComputerCraft.monitorBandwidth = Math.max( 0, monitorBandwidth.getLong() );
+        ComputerCraft.enableCommandBlock = commandBlockEnabled.get();
+        ComputerCraft.maxNotesPerTick = maxNotesPerTick.get();
+        ComputerCraft.modemRange = modemRange.get();
+        ComputerCraft.modemHighAltitudeRange = modemHighAltitudeRange.get();
+        ComputerCraft.modemRangeDuringStorm = modemRangeDuringStorm.get();
+        ComputerCraft.modemHighAltitudeRangeDuringStorm = modemHighAltitudeRangeDuringStorm.get();
+        ComputerCraft.monitorBandwidth = monitorBandwidth.get();
 
         // Turtles
-        ComputerCraft.turtlesNeedFuel = turtlesNeedFuel.getBoolean();
-        ComputerCraft.turtleFuelLimit = turtleFuelLimit.getInt();
-        ComputerCraft.advancedTurtleFuelLimit = advancedTurtleFuelLimit.getInt();
-        ComputerCraft.turtlesObeyBlockProtection = turtlesObeyBlockProtection.getBoolean();
-        ComputerCraft.turtlesCanPush = turtlesCanPush.getBoolean();
+        ComputerCraft.turtlesNeedFuel = turtlesNeedFuel.get();
+        ComputerCraft.turtleFuelLimit = turtleFuelLimit.get();
+        ComputerCraft.advancedTurtleFuelLimit = advancedTurtleFuelLimit.get();
+        ComputerCraft.turtlesObeyBlockProtection = turtlesObeyBlockProtection.get();
+        ComputerCraft.turtlesCanPush = turtlesCanPush.get();
 
         ComputerCraft.turtleDisabledActions.clear();
-        Converter<String, String> converter = CaseFormat.LOWER_CAMEL.converterTo( CaseFormat.UPPER_UNDERSCORE );
-        for( String value : turtleDisabledActions.getStringList() )
-        {
-            try
-            {
-                ComputerCraft.turtleDisabledActions.add( TurtleAction.valueOf( converter.convert( value ) ) );
-            }
-            catch( IllegalArgumentException e )
-            {
-                ComputerCraft.log.error( "Unknown turtle action " + value );
-            }
-        }
+        for( String value : turtleDisabledActions.get() ) ComputerCraft.turtleDisabledActions.add( getAction( value ) );
 
-        config.save();
+        // Client
+        ComputerCraft.monitorRenderer = monitorRenderer.get();
     }
 
-    public static List<IConfigElement> getConfigElements()
+    @SubscribeEvent
+    public static void sync( ModConfig.Loading event )
     {
-        ArrayList<IConfigElement> elements = new ArrayList<>();
-
-        // Add all child categories
-        for( String categoryName : config.getCategoryNames() )
-        {
-            if( categoryName.equals( CATEGORY_GENERAL ) ) continue;
-            ConfigCategory category = config.getCategory( categoryName );
-            elements.add( new ConfigElement( category ) );
-        }
-
-        // Add the general category
-        for( Property property : config.getCategory( CATEGORY_GENERAL ).getOrderedValues() )
-        {
-            elements.add( new ConfigElement( property ) );
-        }
-
-        return elements;
+        sync();
     }
 
+    @SubscribeEvent
+    public static void sync( ModConfig.Reloading event )
+    {
+        // Ensure file configs are reloaded. Forge should probably do this, so worth checking in the future.
+        CommentedConfig config = event.getConfig().getConfigData();
+        if( config instanceof CommentedFileConfig ) ((CommentedFileConfig) config).load();
+
+        sync();
+    }
+
+    private static final Converter<String, String> converter = CaseFormat.LOWER_CAMEL.converterTo( CaseFormat.UPPER_UNDERSCORE );
+
+    private static TurtleAction getAction( String value )
+    {
+        try
+        {
+            return TurtleAction.valueOf( converter.convert( value ) );
+        }
+        catch( IllegalArgumentException e )
+        {
+            return null;
+        }
+    }
 }

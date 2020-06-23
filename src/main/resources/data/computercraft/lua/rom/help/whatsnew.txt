@@ -1,0 +1,5 @@
+New features in CC: Tweaked 1.89.1
+
+* Fix crashes when rendering monitors of varying sizes.
+
+Type "help changelog" to see the full version history.

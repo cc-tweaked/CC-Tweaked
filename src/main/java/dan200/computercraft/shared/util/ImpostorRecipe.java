@@ -6,61 +6,88 @@
 package dan200.computercraft.shared.util;
 
 import com.google.gson.JsonObject;
-import net.minecraft.inventory.InventoryCrafting;
+import net.minecraft.inventory.CraftingInventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.IRecipe;
+import net.minecraft.item.crafting.IRecipeSerializer;
 import net.minecraft.item.crafting.Ingredient;
-import net.minecraft.item.crafting.ShapedRecipes;
-import net.minecraft.util.JsonUtils;
+import net.minecraft.item.crafting.ShapedRecipe;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.JSONUtils;
 import net.minecraft.util.NonNullList;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.minecraftforge.common.crafting.CraftingHelper;
-import net.minecraftforge.common.crafting.IRecipeFactory;
-import net.minecraftforge.common.crafting.JsonContext;
 
 import javax.annotation.Nonnull;
 
-public class ImpostorRecipe extends ShapedRecipes
+public final class ImpostorRecipe extends ShapedRecipe
 {
-    public ImpostorRecipe( @Nonnull String group, int width, int height, NonNullList<Ingredient> ingredients, @Nonnull ItemStack result )
+    private final String group;
+
+    private ImpostorRecipe( @Nonnull ResourceLocation id, @Nonnull String group, int width, int height, NonNullList<Ingredient> ingredients, @Nonnull ItemStack result )
     {
-        super( group, width, height, ingredients, result );
+        super( id, group, width, height, ingredients, result );
+        this.group = group;
     }
 
-    public ImpostorRecipe( @Nonnull String group, int width, int height, ItemStack[] ingredients, @Nonnull ItemStack result )
+    @Nonnull
+    @Override
+    public String getGroup()
     {
-        super( group, width, height, convert( ingredients ), result );
-    }
-
-    private static NonNullList<Ingredient> convert( ItemStack[] items )
-    {
-        NonNullList<Ingredient> ingredients = NonNullList.withSize( items.length, Ingredient.EMPTY );
-        for( int i = 0; i < items.length; i++ ) ingredients.set( i, Ingredient.fromStacks( items[i] ) );
-        return ingredients;
+        return group;
     }
 
     @Override
-    public boolean matches( @Nonnull InventoryCrafting inv, World world )
+    public boolean matches( @Nonnull CraftingInventory inv, World world )
     {
         return false;
     }
 
     @Nonnull
     @Override
-    public ItemStack getCraftingResult( @Nonnull InventoryCrafting inventory )
+    public ItemStack getCraftingResult( @Nonnull CraftingInventory inventory )
     {
         return ItemStack.EMPTY;
     }
 
-    public static class Factory implements IRecipeFactory
+    @Nonnull
+    @Override
+    public IRecipeSerializer<?> getSerializer()
+    {
+        return SERIALIZER;
+    }
+
+    public static final IRecipeSerializer<ImpostorRecipe> SERIALIZER = new BasicRecipeSerializer<ImpostorRecipe>()
     {
         @Override
-        public IRecipe parse( JsonContext ctx, JsonObject json )
+        public ImpostorRecipe read( @Nonnull ResourceLocation identifier, @Nonnull JsonObject json )
         {
-            String group = JsonUtils.getString( json, "group", "" );
-            CraftingHelper.ShapedPrimer primer = RecipeUtil.getPrimer( ctx, json );
-            ItemStack result = CraftingHelper.getItemStack( JsonUtils.getJsonObject( json, "result" ), ctx );
-            return new ImpostorRecipe( group, primer.width, primer.height, primer.input, result );
+            String group = JSONUtils.getString( json, "group", "" );
+            ShapedRecipe recipe = IRecipeSerializer.CRAFTING_SHAPED.read( identifier, json );
+            ItemStack result = CraftingHelper.getItemStack( JSONUtils.getJsonObject( json, "result" ), true );
+            return new ImpostorRecipe( identifier, group, recipe.getWidth(), recipe.getHeight(), recipe.getIngredients(), result );
         }
-    }
+
+        @Override
+        public ImpostorRecipe read( @Nonnull ResourceLocation identifier, @Nonnull PacketBuffer buf )
+        {
+            int width = buf.readVarInt();
+            int height = buf.readVarInt();
+            String group = buf.readString( Short.MAX_VALUE );
+            NonNullList<Ingredient> items = NonNullList.withSize( width * height, Ingredient.EMPTY );
+            for( int k = 0; k < items.size(); ++k ) items.set( k, Ingredient.read( buf ) );
+            ItemStack result = buf.readItemStack();
+            return new ImpostorRecipe( identifier, group, width, height, items, result );
+        }
+
+        @Override
+        public void write( @Nonnull PacketBuffer buf, @Nonnull ImpostorRecipe recipe )
+        {
+            buf.writeVarInt( recipe.getRecipeWidth() );
+            buf.writeVarInt( recipe.getRecipeHeight() );
+            buf.writeString( recipe.getGroup() );
+            for( Ingredient ingredient : recipe.getIngredients() ) ingredient.write( buf );
+            buf.writeItemStack( recipe.getRecipeOutput() );
+        }
+    };
 }

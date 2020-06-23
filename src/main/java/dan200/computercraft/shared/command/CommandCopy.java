@@ -5,74 +5,62 @@
  */
 package dan200.computercraft.shared.command;
 
-import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.command.CommandBase;
-import net.minecraft.command.ICommandSender;
-import net.minecraft.server.MinecraftServer;
+import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.StringArgumentType;
+import dan200.computercraft.ComputerCraft;
+import net.minecraft.client.Minecraft;
+import net.minecraft.command.CommandSource;
 import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextComponentString;
-import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.util.text.event.ClickEvent;
 import net.minecraft.util.text.event.HoverEvent;
-import net.minecraftforge.client.IClientCommand;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.client.event.ClientChatEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
 
-import javax.annotation.Nonnull;
+import static net.minecraft.command.Commands.argument;
+import static net.minecraft.command.Commands.literal;
 
-public final class CommandCopy extends CommandBase implements IClientCommand
+@Mod.EventBusSubscriber( modid = ComputerCraft.MOD_ID, value = Dist.CLIENT )
+public final class CommandCopy
 {
-    public static final CommandCopy INSTANCE = new CommandCopy();
-
-    /**
-     * We start with a "~" so we're less likely to show up on completions.
-     */
-    private static final String NAME = "~computercraft_copy";
+    private static final String PREFIX = "/computercraft copy ";
 
     private CommandCopy()
     {
     }
 
-    @Override
-    public boolean allowUsageWithoutPrefix( ICommandSender sender, String message )
+    public static void register( CommandDispatcher<CommandSource> registry )
     {
-        return false;
+        registry.register( literal( "computercraft" )
+            .then( literal( "copy" ) )
+            .then( argument( "message", StringArgumentType.greedyString() ) )
+            .executes( context -> {
+                Minecraft.getInstance().keyboardListener.setClipboardString( context.getArgument( "message", String.class ) );
+                return 1;
+            } )
+        );
     }
 
-    @Nonnull
-    @Override
-    public String getName()
+    @SubscribeEvent
+    public static void onClientSendMessage( ClientChatEvent event )
     {
-        return NAME;
-    }
-
-    @Nonnull
-    @Override
-    public String getUsage( @Nonnull ICommandSender sender )
-    {
-        return "/" + NAME + " <text>";
-    }
-
-    @Override
-    public int getRequiredPermissionLevel()
-    {
-        return 0;
-    }
-
-    @Override
-    @SideOnly( Side.CLIENT )
-    public void execute( @Nonnull MinecraftServer server, @Nonnull ICommandSender sender, @Nonnull String[] args )
-    {
-        String message = String.join( " ", args );
-        if( !message.isEmpty() ) GuiScreen.setClipboardString( message );
+        // Emulate the command on the client side
+        if( event.getMessage().startsWith( PREFIX ) )
+        {
+            Minecraft.getInstance().keyboardListener.setClipboardString( event.getMessage().substring( PREFIX.length() ) );
+            event.setCanceled( true );
+        }
     }
 
     public static ITextComponent createCopyText( String text )
     {
-        TextComponentString name = new TextComponentString( text );
+        StringTextComponent name = new StringTextComponent( text );
         name.getStyle()
-            .setClickEvent( new ClickEvent( ClickEvent.Action.RUN_COMMAND, "/" + NAME + " " + text ) )
-            .setHoverEvent( new HoverEvent( HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation( "gui.computercraft.tooltip.copy" ) ) );
+            .setClickEvent( new ClickEvent( ClickEvent.Action.RUN_COMMAND, PREFIX + text ) )
+            .setHoverEvent( new HoverEvent( HoverEvent.Action.SHOW_TEXT, new TranslationTextComponent( "gui.computercraft.tooltip.copy" ) ) );
         return name;
     }
 }

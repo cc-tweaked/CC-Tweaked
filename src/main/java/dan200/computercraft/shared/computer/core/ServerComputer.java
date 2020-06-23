@@ -17,20 +17,20 @@ import dan200.computercraft.core.computer.ComputerSide;
 import dan200.computercraft.core.computer.IComputerEnvironment;
 import dan200.computercraft.shared.common.ServerTerminal;
 import dan200.computercraft.shared.network.NetworkHandler;
+import dan200.computercraft.shared.network.NetworkMessage;
 import dan200.computercraft.shared.network.client.ComputerDataClientMessage;
 import dan200.computercraft.shared.network.client.ComputerDeletedClientMessage;
 import dan200.computercraft.shared.network.client.ComputerTerminalClientMessage;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.inventory.Container;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.inventory.container.Container;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.fml.common.Loader;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
+import net.minecraftforge.fml.server.ServerLifecycleHooks;
+import net.minecraftforge.versions.mcp.MCPVersion;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.InputStream;
 
@@ -43,7 +43,7 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
 
     private final ComputerFamily m_family;
     private final Computer m_computer;
-    private NBTTagCompound m_userData;
+    private CompoundNBT m_userData;
     private boolean m_changed;
 
     private boolean m_changedLastFrame;
@@ -51,7 +51,7 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
 
     public ServerComputer( World world, int computerID, String label, int instanceID, ComputerFamily family, int terminalWidth, int terminalHeight )
     {
-        super( family != ComputerFamily.Normal, terminalWidth, terminalHeight );
+        super( family != ComputerFamily.NORMAL, terminalWidth, terminalHeight );
         m_instanceID = instanceID;
 
         m_world = world;
@@ -134,11 +134,11 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
         m_computer.unload();
     }
 
-    public NBTTagCompound getUserData()
+    public CompoundNBT getUserData()
     {
         if( m_userData == null )
         {
-            m_userData = new NBTTagCompound();
+            m_userData = new CompoundNBT();
         }
         return m_userData;
     }
@@ -148,12 +148,12 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
         m_changed = true;
     }
 
-    private IMessage createComputerPacket()
+    private NetworkMessage createComputerPacket()
     {
         return new ComputerDataClientMessage( this );
     }
 
-    protected IMessage createTerminalPacket()
+    protected NetworkMessage createTerminalPacket()
     {
         return new ComputerTerminalClientMessage( getInstanceID(), write() );
     }
@@ -169,30 +169,27 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
         if( hasTerminalChanged() || force )
         {
             // Send terminal state to clients who are currently interacting with the computer.
-            FMLCommonHandler handler = FMLCommonHandler.instance();
-            if( handler != null )
+            MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
+
+            NetworkMessage packet = null;
+            for( PlayerEntity player : server.getPlayerList().getPlayers() )
             {
-                IMessage packet = null;
-                MinecraftServer server = handler.getMinecraftServerInstance();
-                for( EntityPlayerMP player : server.getPlayerList().getPlayers() )
+                if( isInteracting( player ) )
                 {
-                    if( isInteracting( player ) )
-                    {
-                        if( packet == null ) packet = createTerminalPacket();
-                        NetworkHandler.sendToPlayer( player, packet );
-                    }
+                    if( packet == null ) packet = createTerminalPacket();
+                    NetworkHandler.sendToPlayer( player, packet );
                 }
             }
         }
     }
 
-    public void sendComputerState( EntityPlayer player )
+    public void sendComputerState( PlayerEntity player )
     {
         // Send state to client
         NetworkHandler.sendToPlayer( player, createComputerPacket() );
     }
 
-    public void sendTerminalState( EntityPlayer player )
+    public void sendTerminalState( PlayerEntity player )
     {
         // Send terminal state to client
         NetworkHandler.sendToPlayer( player, createTerminalPacket() );
@@ -217,22 +214,11 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
         return m_instanceID;
     }
 
-    /*
-     * getID and getLabel are deprecated on IComputer, as they do not make sense in ClientComputer.
-     * However, for compatibility reasons, we still need these here, and have no choice but to override the IComputer methods.
-     *
-     * Hence, we suppress the deprecation warning.
-     */
-
-    @Override
-    @SuppressWarnings( "deprecation" )
     public int getID()
     {
         return m_computer.getID();
     }
 
-    @Override
-    @SuppressWarnings( "deprecation" )
     public String getLabel()
     {
         return m_computer.getLabel();
@@ -303,27 +289,9 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
         m_computer.addApi( api );
     }
 
-    @Deprecated
-    public void addAPI( dan200.computercraft.core.apis.ILuaAPI api )
-    {
-        m_computer.addAPI( api );
-    }
-
-    @Deprecated
-    public void setPeripheral( int side, IPeripheral peripheral )
-    {
-        setPeripheral( ComputerSide.valueOf( side ), peripheral );
-    }
-
     public void setPeripheral( ComputerSide side, IPeripheral peripheral )
     {
         m_computer.getEnvironment().setPeripheral( side, peripheral );
-    }
-
-    @Deprecated
-    public IPeripheral getPeripheral( int side )
-    {
-        return getPeripheral( ComputerSide.valueOf( side ) );
     }
 
     public IPeripheral getPeripheral( ComputerSide side )
@@ -341,13 +309,13 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
     @Override
     public double getTimeOfDay()
     {
-        return (m_world.getWorldTime() + 6000) % 24000 / 1000.0;
+        return (m_world.getDayTime() + 6000) % 24000 / 1000.0;
     }
 
     @Override
     public int getDay()
     {
-        return (int) ((m_world.getWorldTime() + 6000) / 24000) + 1;
+        return (int) ((m_world.getDayTime() + 6000) / 24000) + 1;
     }
 
     @Override
@@ -359,13 +327,13 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
     @Override
     public IMount createResourceMount( String domain, String subPath )
     {
-        return ComputerCraftAPI.createResourceMount( ComputerCraft.class, domain, subPath );
+        return ComputerCraftAPI.createResourceMount( domain, subPath );
     }
 
     @Override
     public InputStream createResourceFile( String domain, String subPath )
     {
-        return ComputerCraft.getResourceFile( ComputerCraft.class, domain, subPath );
+        return ComputerCraft.getResourceFile( domain, subPath );
     }
 
     @Override
@@ -374,10 +342,18 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
         return ComputerCraft.computerSpaceLimit;
     }
 
+    @Nonnull
     @Override
     public String getHostString()
     {
-        return "ComputerCraft ${version} (Minecraft " + Loader.MC_VERSION + ")";
+        return String.format( "ComputerCraft %s (Minecraft %s)", ComputerCraftAPI.getInstalledVersion(), MCPVersion.getMCVersion() );
+    }
+
+    @Nonnull
+    @Override
+    public String getUserAgent()
+    {
+        return ComputerCraft.MOD_ID + "/" + ComputerCraftAPI.getInstalledVersion();
     }
 
     @Override
@@ -387,7 +363,7 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
     }
 
     @Nullable
-    public IContainerComputer getContainer( EntityPlayer player )
+    public IContainerComputer getContainer( PlayerEntity player )
     {
         if( player == null ) return null;
 
@@ -398,7 +374,7 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
         return computerContainer.getComputer() != this ? null : computerContainer;
     }
 
-    protected boolean isInteracting( EntityPlayer player )
+    protected boolean isInteracting( PlayerEntity player )
     {
         return getContainer( player ) != null;
     }

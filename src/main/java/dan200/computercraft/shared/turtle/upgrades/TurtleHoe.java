@@ -11,11 +11,11 @@ import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.api.turtle.TurtleVerb;
 import dan200.computercraft.shared.turtle.core.TurtlePlaceCommand;
 import dan200.computercraft.shared.turtle.core.TurtlePlayer;
+import net.minecraft.block.BlockState;
 import net.minecraft.block.material.Material;
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -24,14 +24,14 @@ import javax.annotation.Nonnull;
 
 public class TurtleHoe extends TurtleTool
 {
-    public TurtleHoe( ResourceLocation id, int legacyId, String adjective, Item item )
+    public TurtleHoe( ResourceLocation id, String adjective, Item item )
     {
-        super( id, legacyId, adjective, item );
+        super( id, adjective, item );
     }
 
-    public TurtleHoe( ResourceLocation id, int legacyId, Item item )
+    public TurtleHoe( ResourceLocation id, Item item )
     {
-        super( id, legacyId, item );
+        super( id, item );
     }
 
     public TurtleHoe( ResourceLocation id, ItemStack craftItem, ItemStack toolItem )
@@ -40,7 +40,7 @@ public class TurtleHoe extends TurtleTool
     }
 
     @Override
-    protected boolean canBreakBlock( IBlockState state, World world, BlockPos pos, TurtlePlayer player )
+    protected boolean canBreakBlock( BlockState state, World world, BlockPos pos, TurtlePlayer player )
     {
         if( !super.canBreakBlock( state, world, pos, player ) ) return false;
 
@@ -49,14 +49,15 @@ public class TurtleHoe extends TurtleTool
             material == Material.CACTUS ||
             material == Material.GOURD ||
             material == Material.LEAVES ||
-            material == Material.VINE;
+            material == Material.OCEAN_PLANT ||
+            material == Material.TALL_PLANTS;
     }
 
     @Nonnull
     @Override
-    public TurtleCommandResult useTool( @Nonnull ITurtleAccess turtle, @Nonnull TurtleSide side, @Nonnull TurtleVerb verb, @Nonnull EnumFacing direction )
+    public TurtleCommandResult useTool( @Nonnull ITurtleAccess turtle, @Nonnull TurtleSide side, @Nonnull TurtleVerb verb, @Nonnull Direction direction )
     {
-        if( verb == TurtleVerb.Dig )
+        if( verb == TurtleVerb.DIG )
         {
             ItemStack hoe = item.copy();
             ItemStack remainder = TurtlePlaceCommand.deploy( hoe, turtle, direction, null, null );

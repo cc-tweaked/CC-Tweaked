@@ -6,62 +6,39 @@
 package dan200.computercraft.shared.computer.apis;
 
 import com.google.common.collect.ImmutableMap;
+import com.mojang.brigadier.tree.CommandNode;
+import com.mojang.brigadier.tree.LiteralCommandNode;
 import dan200.computercraft.ComputerCraft;
-import dan200.computercraft.api.lua.ILuaAPI;
-import dan200.computercraft.api.lua.ILuaContext;
-import dan200.computercraft.api.lua.LuaException;
+import dan200.computercraft.api.lua.*;
 import dan200.computercraft.shared.computer.blocks.TileCommandComputer;
 import dan200.computercraft.shared.util.NBTUtil;
 import net.minecraft.block.Block;
-import net.minecraft.block.properties.IProperty;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.command.ICommand;
-import net.minecraft.command.ICommandManager;
-import net.minecraft.command.ICommandSender;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.block.BlockState;
+import net.minecraft.command.CommandSource;
+import net.minecraft.command.Commands;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.state.IProperty;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.registries.ForgeRegistries;
 
-import javax.annotation.Nonnull;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import static dan200.computercraft.api.lua.ArgumentHelper.getInt;
-import static dan200.computercraft.api.lua.ArgumentHelper.getString;
+import java.util.*;
 
 public class CommandAPI implements ILuaAPI
 {
-    private TileCommandComputer m_computer;
+    private final TileCommandComputer computer;
 
     public CommandAPI( TileCommandComputer computer )
     {
-        m_computer = computer;
+        this.computer = computer;
     }
-
-    // ILuaAPI implementation
 
     @Override
     public String[] getNames()
     {
         return new String[] { "commands" };
-    }
-
-    @Nonnull
-    @Override
-    public String[] getMethodNames()
-    {
-        return new String[] {
-            "exec",
-            "execAsync",
-            "list",
-            "getBlockPosition",
-            "getBlockInfos",
-            "getBlockInfo",
-        };
     }
 
     private static Object createOutput( String output )
@@ -71,39 +48,38 @@ public class CommandAPI implements ILuaAPI
 
     private Object[] doCommand( String command )
     {
-        MinecraftServer server = m_computer.getWorld().getMinecraftServer();
+        MinecraftServer server = computer.getWorld().getServer();
         if( server == null || !server.isCommandBlockEnabled() )
         {
             return new Object[] { false, createOutput( "Command blocks disabled by server" ) };
         }
 
-        ICommandManager commandManager = server.getCommandManager();
-        TileCommandComputer.CommandSender sender = m_computer.getCommandSender();
+        Commands commandManager = server.getCommandManager();
+        TileCommandComputer.CommandReceiver receiver = computer.getReceiver();
         try
         {
-            sender.clearOutput();
-            int result = commandManager.executeCommand( sender, command );
-            return new Object[] { result > 0, sender.copyOutput(), result };
+            receiver.clearOutput();
+            int result = commandManager.handleCommand( computer.getSource(), command );
+            return new Object[] { result > 0, receiver.copyOutput(), result };
         }
         catch( Throwable t )
         {
-            if( ComputerCraft.logPeripheralErrors ) ComputerCraft.log.error( "Error running command.", t );
+            if( ComputerCraft.logComputerErrors ) ComputerCraft.log.error( "Error running command.", t );
             return new Object[] { false, createOutput( "Java Exception Thrown: " + t ) };
         }
     }
 
-    private static Object getBlockInfo( World world, BlockPos pos )
+    private static Map<?, ?> getBlockInfo( World world, BlockPos pos )
     {
         // Get the details of the block
-        IBlockState state = world.getBlockState( pos );
+        BlockState state = world.getBlockState( pos );
         Block block = state.getBlock();
 
-        Map<Object, Object> table = new HashMap<>( 3 );
-        table.put( "name", Block.REGISTRY.getNameForObject( block ).toString() );
-        table.put( "metadata", block.getMetaFromState( state ) );
+        Map<Object, Object> table = new HashMap<>();
+        table.put( "name", ForgeRegistries.BLOCKS.getKey( block ).toString() );
 
         Map<Object, Object> stateTable = new HashMap<>();
-        for( ImmutableMap.Entry<IProperty<?>, Comparable<?>> entry : state.getActualState( world, pos ).getProperties().entrySet() )
+        for( ImmutableMap.Entry<IProperty<?>, Comparable<?>> entry : state.getValues().entrySet() )
         {
             IProperty<?> property = entry.getKey();
             stateTable.put( property.getName(), getPropertyValue( property, entry.getValue() ) );
@@ -111,7 +87,7 @@ public class CommandAPI implements ILuaAPI
         table.put( "state", stateTable );
 
         TileEntity tile = world.getTileEntity( pos );
-        if( tile != null ) table.put( "nbt", NBTUtil.toLua( tile.writeToNBT( new NBTTagCompound() ) ) );
+        if( tile != null ) table.put( "nbt", NBTUtil.toLua( tile.write( new CompoundNBT() ) ) );
 
         return table;
     }
@@ -123,132 +99,100 @@ public class CommandAPI implements ILuaAPI
         return property.getName( value );
     }
 
-    @Override
-    public Object[] callMethod( @Nonnull ILuaContext context, int method, @Nonnull Object[] arguments ) throws LuaException, InterruptedException
+    @LuaFunction( mainThread = true )
+    public final Object[] exec( String command )
     {
-        switch( method )
+        return doCommand( command );
+    }
+
+    @LuaFunction
+    public final long execAsync( ILuaContext context, String command ) throws LuaException
+    {
+        return context.issueMainThreadTask( () -> doCommand( command ) );
+    }
+
+    @LuaFunction( mainThread = true )
+    public final List<String> list( IArguments args ) throws LuaException
+    {
+        MinecraftServer server = computer.getWorld().getServer();
+
+        if( server == null ) return Collections.emptyList();
+        CommandNode<CommandSource> node = server.getCommandManager().getDispatcher().getRoot();
+        for( int j = 0; j < args.count(); j++ )
         {
-            case 0: // exec
-            {
-                final String command = getString( arguments, 0 );
-                return context.executeMainThreadTask( () -> doCommand( command ) );
-            }
-            case 1: // execAsync
-            {
-                final String command = getString( arguments, 0 );
-                long taskID = context.issueMainThreadTask( () -> doCommand( command ) );
-                return new Object[] { taskID };
-            }
-            case 2: // list
-                return context.executeMainThreadTask( () ->
-                {
-                    List<String> result = new ArrayList<>();
-                    MinecraftServer server = m_computer.getWorld().getMinecraftServer();
-                    if( server != null )
-                    {
-                        ICommandManager commandManager = server.getCommandManager();
-                        ICommandSender commandSender = m_computer.getCommandSender();
-                        Map<String, ICommand> commands = commandManager.getCommands();
-                        for( Map.Entry<String, ICommand> entry : commands.entrySet() )
-                        {
-                            String name = entry.getKey();
-                            ICommand command = entry.getValue();
-                            try
-                            {
-                                if( command.checkPermission( server, commandSender ) )
-                                {
-                                    result.add( name );
-                                }
-                            }
-                            catch( Throwable t )
-                            {
-                                // Ignore buggy command
-                                if( ComputerCraft.logPeripheralErrors )
-                                {
-                                    ComputerCraft.log.error( "Error checking permissions of command.", t );
-                                }
-                            }
-                        }
-                    }
-                    return new Object[] { result };
-                } );
-            case 3: // getBlockPosition
-            {
-                // This is probably safe to do on the Lua thread. Probably.
-                BlockPos pos = m_computer.getPos();
-                return new Object[] { pos.getX(), pos.getY(), pos.getZ() };
-            }
-            case 4:
-            {
-                // getBlockInfos
-                final int minX = getInt( arguments, 0 );
-                final int minY = getInt( arguments, 1 );
-                final int minZ = getInt( arguments, 2 );
-                final int maxX = getInt( arguments, 3 );
-                final int maxY = getInt( arguments, 4 );
-                final int maxZ = getInt( arguments, 5 );
-                return context.executeMainThreadTask( () ->
-                {
-                    // Get the details of the block
-                    World world = m_computer.getWorld();
-                    BlockPos min = new BlockPos(
-                        Math.min( minX, maxX ),
-                        Math.min( minY, maxY ),
-                        Math.min( minZ, maxZ )
-                    );
-                    BlockPos max = new BlockPos(
-                        Math.max( minX, maxX ),
-                        Math.max( minY, maxY ),
-                        Math.max( minZ, maxZ )
-                    );
-                    if( !world.isValid( min ) || !world.isValid( max ) )
-                    {
-                        throw new LuaException( "Co-ordinates out of range" );
-                    }
+            String name = args.getString( j );
+            node = node.getChild( name );
+            if( !(node instanceof LiteralCommandNode) ) return Collections.emptyList();
+        }
 
-                    int blocks = (max.getX() - min.getX() + 1) * (max.getY() - min.getY() + 1) * (max.getZ() - min.getZ() + 1);
-                    if( blocks > 4096 ) throw new LuaException( "Too many blocks" );
+        List<String> result = new ArrayList<>();
+        for( CommandNode<?> child : node.getChildren() )
+        {
+            if( child instanceof LiteralCommandNode<?> ) result.add( child.getName() );
+        }
+        return result;
+    }
 
-                    List<Object> results = new ArrayList<>( blocks );
-                    for( int y = min.getY(); y <= max.getY(); y++ )
-                    {
-                        for( int z = min.getZ(); z <= max.getZ(); z++ )
-                        {
-                            for( int x = min.getX(); x <= max.getX(); x++ )
-                            {
-                                BlockPos pos = new BlockPos( x, y, z );
-                                results.add( getBlockInfo( world, pos ) );
-                            }
-                        }
-                    }
-                    return new Object[] { results };
-                } );
-            }
-            case 5:
+    @LuaFunction
+    public final Object[] getBlockPosition()
+    {
+        // This is probably safe to do on the Lua thread. Probably.
+        BlockPos pos = computer.getPos();
+        return new Object[] { pos.getX(), pos.getY(), pos.getZ() };
+    }
+
+    @LuaFunction( mainThread = true )
+    public final List<Map<?, ?>> getBlockInfos( int minX, int minY, int minZ, int maxX, int maxY, int maxZ ) throws LuaException
+    {
+        // Get the details of the block
+        World world = computer.getWorld();
+        BlockPos min = new BlockPos(
+            Math.min( minX, maxX ),
+            Math.min( minY, maxY ),
+            Math.min( minZ, maxZ )
+        );
+        BlockPos max = new BlockPos(
+            Math.max( minX, maxX ),
+            Math.max( minY, maxY ),
+            Math.max( minZ, maxZ )
+        );
+        if( !World.isValid( min ) || !World.isValid( max ) )
+        {
+            throw new LuaException( "Co-ordinates out of range" );
+        }
+
+        int blocks = (max.getX() - min.getX() + 1) * (max.getY() - min.getY() + 1) * (max.getZ() - min.getZ() + 1);
+        if( blocks > 4096 ) throw new LuaException( "Too many blocks" );
+
+        List<Map<?, ?>> results = new ArrayList<>( blocks );
+        for( int y = min.getY(); y <= max.getY(); y++ )
+        {
+            for( int z = min.getZ(); z <= max.getZ(); z++ )
             {
-                // getBlockInfo
-                final int x = getInt( arguments, 0 );
-                final int y = getInt( arguments, 1 );
-                final int z = getInt( arguments, 2 );
-                return context.executeMainThreadTask( () ->
+                for( int x = min.getX(); x <= max.getX(); x++ )
                 {
-                    // Get the details of the block
-                    World world = m_computer.getWorld();
-                    BlockPos position = new BlockPos( x, y, z );
-                    if( world.isValid( position ) )
-                    {
-                        return new Object[] { getBlockInfo( world, position ) };
-                    }
-                    else
-                    {
-                        throw new LuaException( "Co-ordinates out of range" );
-                    }
-                } );
+                    BlockPos pos = new BlockPos( x, y, z );
+                    results.add( getBlockInfo( world, pos ) );
+                }
             }
-            default:
-            {
-                return null;
-            }
+        }
+
+        return results;
+    }
+
+    @LuaFunction( mainThread = true )
+    public final Map<?, ?> getBlockInfo( int x, int y, int z ) throws LuaException
+    {
+        // Get the details of the block
+        World world = computer.getWorld();
+        BlockPos position = new BlockPos( x, y, z );
+        if( World.isValid( position ) )
+        {
+            return getBlockInfo( world, position );
+        }
+        else
+        {
+            throw new LuaException( "Co-ordinates out of range" );
         }
     }
 }

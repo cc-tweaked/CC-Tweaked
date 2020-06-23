@@ -5,7 +5,6 @@
  */
 package dan200.computercraft.shared.turtle.blocks;
 
-import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.shared.computer.blocks.BlockComputerBase;
 import dan200.computercraft.shared.computer.blocks.TileComputerBase;
@@ -13,166 +12,107 @@ import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.turtle.core.TurtleBrain;
 import dan200.computercraft.shared.turtle.items.ITurtleItem;
 import dan200.computercraft.shared.turtle.items.TurtleItemFactory;
-import dan200.computercraft.shared.util.DirectionUtil;
-import net.minecraft.block.BlockHorizontal;
-import net.minecraft.block.material.Material;
-import net.minecraft.block.properties.PropertyDirection;
-import net.minecraft.block.state.BlockFaceShape;
-import net.minecraft.block.state.BlockStateContainer;
-import net.minecraft.block.state.IBlockState;
+import dan200.computercraft.shared.util.NamedTileEntityType;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockRenderType;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.IWaterLoggable;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.projectile.EntityFireball;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.projectile.DamagingProjectileEntity;
+import net.minecraft.fluid.IFluidState;
+import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.item.ItemStack;
+import net.minecraft.state.DirectionProperty;
+import net.minecraft.state.StateContainer;
+import net.minecraft.state.properties.BlockStateProperties;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumBlockRenderType;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.IBlockAccess;
-import net.minecraft.world.World;
+import net.minecraft.util.math.shapes.ISelectionContext;
+import net.minecraft.util.math.shapes.VoxelShape;
+import net.minecraft.util.math.shapes.VoxelShapes;
+import net.minecraft.world.*;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
-public class BlockTurtle extends BlockComputerBase
+import static dan200.computercraft.shared.util.WaterloggableHelpers.*;
+import static net.minecraft.state.properties.BlockStateProperties.WATERLOGGED;
+
+public class BlockTurtle extends BlockComputerBase<TileTurtle> implements IWaterLoggable
 {
-    public static final PropertyDirection FACING = BlockHorizontal.FACING;
+    public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
 
-    public BlockTurtle()
+    private static final VoxelShape DEFAULT_SHAPE = VoxelShapes.create(
+        0.125, 0.125, 0.125,
+        0.875, 0.875, 0.875
+    );
+
+    public BlockTurtle( Properties settings, ComputerFamily family, NamedTileEntityType<TileTurtle> type )
     {
-        super( Material.IRON );
-        setHardness( 2.5f );
-        setTranslationKey( "computercraft:turtle" );
-        setCreativeTab( ComputerCraft.mainCreativeTab );
-        setDefaultState( blockState.getBaseState()
-            .withProperty( FACING, EnumFacing.NORTH )
+        super( settings, family, type );
+        setDefaultState( getStateContainer().getBaseState()
+            .with( FACING, Direction.NORTH )
+            .with( WATERLOGGED, false )
         );
     }
 
-    @Nonnull
     @Override
-    @Deprecated
-    public EnumBlockRenderType getRenderType( IBlockState state )
+    protected void fillStateContainer( StateContainer.Builder<Block, BlockState> builder )
     {
-        return EnumBlockRenderType.ENTITYBLOCK_ANIMATED;
-    }
-
-    @Override
-    @Deprecated
-    public boolean isOpaqueCube( IBlockState state )
-    {
-        return false;
-    }
-
-    @Override
-    @Deprecated
-    public boolean isFullCube( IBlockState state )
-    {
-        return false;
+        builder.add( FACING, WATERLOGGED );
     }
 
     @Nonnull
     @Override
     @Deprecated
-    public BlockFaceShape getBlockFaceShape( IBlockAccess world, IBlockState state, BlockPos pos, EnumFacing side )
+    public BlockRenderType getRenderType( BlockState state )
     {
-        return BlockFaceShape.UNDEFINED;
-    }
-
-    @Nonnull
-    @Override
-    protected BlockStateContainer createBlockState()
-    {
-        return new BlockStateContainer( this, FACING );
+        return BlockRenderType.ENTITYBLOCK_ANIMATED;
     }
 
     @Nonnull
     @Override
     @Deprecated
-    public IBlockState getStateFromMeta( int meta )
-    {
-        return getDefaultState();
-    }
-
-    @Override
-    public int getMetaFromState( IBlockState state )
-    {
-        return 0;
-    }
-
-    @Nonnull
-    @Override
-    @Deprecated
-    public IBlockState getActualState( @Nonnull IBlockState state, IBlockAccess world, BlockPos pos )
-    {
-        return state.withProperty( FACING, getDirection( world, pos ) );
-    }
-
-    @Override
-    protected IBlockState getDefaultBlockState( ComputerFamily family, EnumFacing placedSide )
-    {
-        return getDefaultState();
-    }
-
-    @Nonnull
-    @Override
-    @Deprecated
-    public AxisAlignedBB getBoundingBox( IBlockState state, IBlockAccess world, BlockPos pos )
+    public VoxelShape getShape( BlockState state, IBlockReader world, BlockPos pos, ISelectionContext context )
     {
         TileEntity tile = world.getTileEntity( pos );
         Vec3d offset = tile instanceof TileTurtle ? ((TileTurtle) tile).getRenderOffset( 1.0f ) : Vec3d.ZERO;
-        return new AxisAlignedBB(
-            offset.x + 0.125, offset.y + 0.125, offset.z + 0.125,
-            offset.x + 0.875, offset.y + 0.875, offset.z + 0.875
-        );
+        return offset.equals( Vec3d.ZERO ) ? DEFAULT_SHAPE : DEFAULT_SHAPE.withOffset( offset.x, offset.y, offset.z );
     }
 
-    private ComputerFamily getFamily()
+    @Nullable
+    @Override
+    public BlockState getStateForPlacement( BlockItemUseContext placement )
     {
-        if( this == ComputerCraft.Blocks.turtleAdvanced )
-        {
-            return ComputerFamily.Advanced;
-        }
-        else
-        {
-            return ComputerFamily.Normal;
-        }
+        return getDefaultState()
+            .with( FACING, placement.getPlacementHorizontalFacing() )
+            .with( WATERLOGGED, getWaterloggedStateForPlacement( placement ) );
+    }
+
+    @Nonnull
+    @Override
+    @Deprecated
+    public IFluidState getFluidState( BlockState state )
+    {
+        return getWaterloggedFluidState( state );
+    }
+
+    @Nonnull
+    @Override
+    @Deprecated
+    public BlockState updatePostPlacement( @Nonnull BlockState state, Direction side, BlockState otherState, IWorld world, BlockPos pos, BlockPos otherPos )
+    {
+        updateWaterloggedPostPlacement( state, world, pos );
+        return state;
     }
 
     @Override
-    public ComputerFamily getFamily( int damage )
-    {
-        return getFamily();
-    }
-
-    @Override
-    public ComputerFamily getFamily( IBlockState state )
-    {
-        return getFamily();
-    }
-
-    @Override
-    protected TileComputerBase createTile( ComputerFamily family )
-    {
-        if( this == ComputerCraft.Blocks.turtleAdvanced )
-        {
-            return new TileTurtleAdvanced();
-        }
-        else if( this == ComputerCraft.Blocks.turtleExpanded )
-        {
-            return new TileTurtleExpanded();
-        }
-        else
-        {
-            return new TileTurtle();
-        }
-    }
-
-    @Override
-    public void onBlockPlacedBy( World world, BlockPos pos, IBlockState state, EntityLivingBase player, @Nonnull ItemStack stack )
+    public void onBlockPlacedBy( World world, BlockPos pos, BlockState state, @Nullable LivingEntity player, @Nonnull ItemStack stack )
     {
         super.onBlockPlacedBy( world, pos, state, player, stack );
 
@@ -181,9 +121,9 @@ public class BlockTurtle extends BlockComputerBase
         {
             TileTurtle turtle = (TileTurtle) tile;
 
-            if( player instanceof EntityPlayer )
+            if( player instanceof PlayerEntity )
             {
-                ((TileTurtle) tile).setOwningPlayer( ((EntityPlayer) player).getGameProfile() );
+                ((TileTurtle) tile).setOwningPlayer( ((PlayerEntity) player).getGameProfile() );
             }
 
             if( stack.getItem() instanceof ITurtleItem )
@@ -207,22 +147,17 @@ public class BlockTurtle extends BlockComputerBase
                 if( overlay != null ) ((TurtleBrain) turtle.getAccess()).setOverlay( overlay );
             }
         }
-
-        // Set direction
-        EnumFacing dir = DirectionUtil.fromEntityRot( player );
-        setDirection( world, pos, dir.getOpposite() );
     }
 
     @Override
-    @Deprecated
-    public float getExplosionResistance( Entity exploder )
+    public float getExplosionResistance( BlockState state, IWorldReader world, BlockPos pos, @Nullable Entity exploder, Explosion explosion )
     {
-        if( getFamily() == ComputerFamily.Advanced || exploder instanceof EntityLivingBase || exploder instanceof EntityFireball )
+        if( getFamily() == ComputerFamily.ADVANCED || exploder instanceof LivingEntity || exploder instanceof DamagingProjectileEntity )
         {
             return 2000;
         }
 
-        return super.getExplosionResistance( exploder );
+        return super.getExplosionResistance( state, world, pos, exploder, explosion );
     }
 
     @Nonnull

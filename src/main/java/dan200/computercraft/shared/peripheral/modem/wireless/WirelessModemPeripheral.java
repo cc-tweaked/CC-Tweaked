@@ -14,7 +14,7 @@ import net.minecraft.world.World;
 
 public abstract class WirelessModemPeripheral extends ModemPeripheral
 {
-    private boolean m_advanced;
+    private final boolean m_advanced;
 
     public WirelessModemPeripheral( ModemState state, boolean advanced )
     {
@@ -41,12 +41,12 @@ public abstract class WirelessModemPeripheral extends ModemPeripheral
             if( world != null )
             {
                 Vec3d position = getPosition();
-                double minRange = ComputerCraft.modem_range;
-                double maxRange = ComputerCraft.modem_highAltitudeRange;
+                double minRange = ComputerCraft.modemRange;
+                double maxRange = ComputerCraft.modemHighAltitudeRange;
                 if( world.isRaining() && world.isThundering() )
                 {
-                    minRange = ComputerCraft.modem_rangeDuringStorm;
-                    maxRange = ComputerCraft.modem_highAltitudeRangeDuringStorm;
+                    minRange = ComputerCraft.modemRangeDuringStorm;
+                    maxRange = ComputerCraft.modemHighAltitudeRangeDuringStorm;
                 }
                 if( position.y > 96.0 && maxRange > minRange )
                 {

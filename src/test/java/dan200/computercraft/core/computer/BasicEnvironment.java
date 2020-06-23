@@ -11,8 +11,8 @@ import dan200.computercraft.api.filesystem.IWritableMount;
 import dan200.computercraft.core.filesystem.FileMount;
 import dan200.computercraft.core.filesystem.JarMount;
 import dan200.computercraft.core.filesystem.MemoryMount;
-import net.minecraftforge.fml.common.Loader;
 
+import javax.annotation.Nonnull;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -74,22 +74,30 @@ public class BasicEnvironment implements IComputerEnvironment
         return ComputerCraft.computerSpaceLimit;
     }
 
+    @Nonnull
     @Override
     public String getHostString()
     {
-        return "ComputerCraft ${version} (Minecraft " + Loader.MC_VERSION + ")";
+        return "ComputerCraft 1.0 (Test environment)";
+    }
+
+    @Nonnull
+    @Override
+    public String getUserAgent()
+    {
+        return "ComputerCraft/1.0";
     }
 
     @Override
     public IMount createResourceMount( String domain, String subPath )
     {
-        return createMount( ComputerCraft.class, "assets/" + domain + "/" + subPath, "main" );
+        return createMount( ComputerCraft.class, "data/" + domain + "/" + subPath, "main" );
     }
 
     @Override
     public InputStream createResourceFile( String domain, String subPath )
     {
-        return ComputerCraft.class.getClassLoader().getResourceAsStream( "assets/" + domain + "/" + subPath );
+        return ComputerCraft.class.getClassLoader().getResourceAsStream( "data/" + domain + "/" + subPath );
     }
 
     public static IMount createMount( Class<?> klass, String path, String fallback )

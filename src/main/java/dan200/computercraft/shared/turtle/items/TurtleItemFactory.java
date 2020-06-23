@@ -27,7 +27,7 @@ public final class TurtleItemFactory
 
         return create(
             turtle.getComputerID(), turtle.getLabel(), turtle.getColour(), turtle.getFamily(),
-            access.getUpgrade( TurtleSide.Left ), access.getUpgrade( TurtleSide.Right ),
+            access.getUpgrade( TurtleSide.LEFT ), access.getUpgrade( TurtleSide.RIGHT ),
             access.getFuelLevel(), turtle.getOverlay()
         );
     }
@@ -37,9 +37,9 @@ public final class TurtleItemFactory
     {
         switch( family )
         {
-            case Normal:
-                return ComputerCraft.Items.turtleExpanded.create( id, label, colour, leftUpgrade, rightUpgrade, fuelLevel, overlay );
-            case Advanced:
+            case NORMAL:
+                return ComputerCraft.Items.turtleNormal.create( id, label, colour, leftUpgrade, rightUpgrade, fuelLevel, overlay );
+            case ADVANCED:
                 return ComputerCraft.Items.turtleAdvanced.create( id, label, colour, leftUpgrade, rightUpgrade, fuelLevel, overlay );
             default:
                 return ItemStack.EMPTY;

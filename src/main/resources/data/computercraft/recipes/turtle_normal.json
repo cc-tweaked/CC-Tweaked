@@ -1,0 +1,15 @@
+{
+    "type": "computercraft:turtle",
+    "pattern": [
+        "###",
+        "#C#",
+        "#I#"
+    ],
+    "key": {
+        "#": { "tag": "forge:ingots/iron" },
+        "C": { "item": "computercraft:computer_normal" },
+        "I": { "tag": "forge:chests/wooden" }
+    },
+    "family": "normal",
+    "result": { "item": "computercraft:turtle_normal" }
+}

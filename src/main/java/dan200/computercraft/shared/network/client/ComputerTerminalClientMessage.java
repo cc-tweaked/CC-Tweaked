@@ -6,7 +6,7 @@
 package dan200.computercraft.shared.network.client;
 
 import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
+import net.minecraftforge.fml.network.NetworkEvent;
 
 import javax.annotation.Nonnull;
 
@@ -39,7 +39,7 @@ public class ComputerTerminalClientMessage extends ComputerClientMessage
     }
 
     @Override
-    public void handle( MessageContext context )
+    public void handle( NetworkEvent.Context context )
     {
         getComputer().read( state );
     }

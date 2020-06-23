@@ -6,13 +6,10 @@
 
 package dan200.computercraft.shared.network.client;
 
-import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.core.terminal.TextBuffer;
 import io.netty.buffer.Unpooled;
 import net.minecraft.network.PacketBuffer;
-import org.apache.logging.log4j.LogManager;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.RepeatedTest;
 
 import java.util.Random;
@@ -24,12 +21,6 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 public class TerminalStateTest
 {
-    @BeforeAll
-    public static void before()
-    {
-        ComputerCraft.log = LogManager.getLogger( ComputerCraft.MOD_ID );
-    }
-
     @RepeatedTest( 5 )
     public void testCompressed()
     {

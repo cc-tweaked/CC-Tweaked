@@ -1,6 +1,6 @@
 {
     "parent": "computercraft:block/turtle_overlay",
     "textures": {
-        "texture": "computercraft:blocks/turtle_elf_overlay"
+        "texture": "computercraft:block/turtle_elf_overlay"
     }
 }

@@ -1,0 +1,24 @@
+{
+    "parent": "minecraft:recipes/root",
+    "rewards": {
+        "recipes": [ "computercraft:turtle_advanced" ]
+    },
+    "criteria": {
+        "has_advanced": {
+            "trigger": "minecraft:inventory_changed",
+            "conditions": {
+                "items": [ { "item": "computercraft:computer_advanced" } ]
+            }
+        },
+        "has_the_recipe": {
+            "trigger": "minecraft:recipe_unlocked",
+            "conditions": { "recipe": "computercraft:turtle_advanced" }
+        }
+    },
+    "requirements": [
+        [
+            "has_advanced",
+            "has_the_recipe"
+        ]
+    ]
+}

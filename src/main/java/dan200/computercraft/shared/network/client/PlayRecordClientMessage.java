@@ -10,11 +10,13 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nonnull;
+import java.util.Objects;
 
 /**
  * Starts or stops a record on the client, depending on if {@link #soundEvent} is {@code null}.
@@ -25,9 +27,9 @@ import javax.annotation.Nonnull;
  */
 public class PlayRecordClientMessage implements NetworkMessage
 {
-    private BlockPos pos;
-    private String name;
-    private SoundEvent soundEvent;
+    private final BlockPos pos;
+    private final String name;
+    private final SoundEvent soundEvent;
 
     public PlayRecordClientMessage( BlockPos pos, SoundEvent event, String name )
     {
@@ -39,10 +41,23 @@ public class PlayRecordClientMessage implements NetworkMessage
     public PlayRecordClientMessage( BlockPos pos )
     {
         this.pos = pos;
+        name = null;
+        soundEvent = null;
     }
 
-    public PlayRecordClientMessage()
+    public PlayRecordClientMessage( PacketBuffer buf )
     {
+        pos = buf.readBlockPos();
+        if( buf.readBoolean() )
+        {
+            name = buf.readString( Short.MAX_VALUE );
+            soundEvent = ForgeRegistries.SOUND_EVENTS.getValue( buf.readResourceLocation() );
+        }
+        else
+        {
+            name = null;
+            soundEvent = null;
+        }
     }
 
     @Override
@@ -57,27 +72,16 @@ public class PlayRecordClientMessage implements NetworkMessage
         {
             buf.writeBoolean( true );
             buf.writeString( name );
-            buf.writeInt( SoundEvent.REGISTRY.getIDForObject( soundEvent ) );
+            buf.writeResourceLocation( Objects.requireNonNull( soundEvent.getRegistryName(), "Sound is not registered" ) );
         }
     }
 
     @Override
-    public void fromBytes( @Nonnull PacketBuffer buf )
+    @OnlyIn( Dist.CLIENT )
+    public void handle( NetworkEvent.Context context )
     {
-        pos = buf.readBlockPos();
-        if( buf.readBoolean() )
-        {
-            name = buf.readString( Short.MAX_VALUE );
-            soundEvent = SoundEvent.REGISTRY.getObjectById( buf.readInt() );
-        }
-    }
-
-    @Override
-    @SideOnly( Side.CLIENT )
-    public void handle( MessageContext context )
-    {
-        Minecraft mc = Minecraft.getMinecraft();
-        mc.world.playRecord( pos, soundEvent );
+        Minecraft mc = Minecraft.getInstance();
+        mc.worldRenderer.playRecord( soundEvent, pos );
         if( name != null ) mc.ingameGUI.setRecordPlayingMessage( name );
     }
 }

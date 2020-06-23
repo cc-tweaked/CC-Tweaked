@@ -6,12 +6,13 @@
 package dan200.computercraft.core.apis.http.request;
 
 import dan200.computercraft.ComputerCraft;
-import dan200.computercraft.api.lua.ILuaObject;
 import dan200.computercraft.core.apis.handles.ArrayByteChannel;
 import dan200.computercraft.core.apis.handles.BinaryReadableHandle;
 import dan200.computercraft.core.apis.handles.EncodedReadableHandle;
+import dan200.computercraft.core.apis.handles.HandleGeneric;
 import dan200.computercraft.core.apis.http.HTTPRequestException;
 import dan200.computercraft.core.apis.http.NetworkUtils;
+import dan200.computercraft.core.apis.http.options.Options;
 import dan200.computercraft.core.tracking.TrackingField;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.CompositeByteBuf;
@@ -45,18 +46,20 @@ public final class HttpRequestHandler extends SimpleChannelInboundHandler<HttpOb
 
     private final URI uri;
     private final HttpMethod method;
+    private final Options options;
 
     private Charset responseCharset;
     private final HttpHeaders responseHeaders = new DefaultHttpHeaders();
     private HttpResponseStatus responseStatus;
     private CompositeByteBuf responseBody;
 
-    HttpRequestHandler( HttpRequest request, URI uri, HttpMethod method )
+    HttpRequestHandler( HttpRequest request, URI uri, HttpMethod method, Options options )
     {
         this.request = request;
 
         this.uri = uri;
         this.method = method;
+        this.options = options;
     }
 
     @Override
@@ -81,7 +84,7 @@ public final class HttpRequestHandler extends SimpleChannelInboundHandler<HttpOb
         }
         if( !request.headers().contains( HttpHeaderNames.USER_AGENT ) )
         {
-            request.headers().set( HttpHeaderNames.USER_AGENT, ComputerCraft.MOD_ID + "/" + ComputerCraft.getVersion() );
+            request.headers().set( HttpHeaderNames.USER_AGENT, this.request.environment().getComputerEnvironment().getUserAgent() );
         }
         request.headers().set( HttpHeaderNames.HOST, uri.getHost() );
         request.headers().set( HttpHeaderNames.CONNECTION, HttpHeaderValues.CLOSE );
@@ -153,7 +156,7 @@ public final class HttpRequestHandler extends SimpleChannelInboundHandler<HttpOb
             if( partial.isReadable() )
             {
                 // If we've read more than we're allowed to handle, abort as soon as possible.
-                if( ComputerCraft.httpMaxDownload != 0 && responseBody.readableBytes() + partial.readableBytes() > ComputerCraft.httpMaxDownload )
+                if( options.maxDownload != 0 && responseBody.readableBytes() + partial.readableBytes() > options.maxDownload )
                 {
                     closed = true;
                     ctx.close();
@@ -185,7 +188,7 @@ public final class HttpRequestHandler extends SimpleChannelInboundHandler<HttpOb
     @Override
     public void exceptionCaught( ChannelHandlerContext ctx, Throwable cause )
     {
-        if( ComputerCraft.logPeripheralErrors ) ComputerCraft.log.error( "Error handling HTTP response", cause );
+        if( ComputerCraft.logComputerErrors ) ComputerCraft.log.error( "Error handling HTTP response", cause );
         request.failure( cause );
     }
 
@@ -209,10 +212,10 @@ public final class HttpRequestHandler extends SimpleChannelInboundHandler<HttpOb
 
         // Prepare to queue an event
         ArrayByteChannel contents = new ArrayByteChannel( bytes );
-        final ILuaObject reader = request.isBinary()
-            ? new BinaryReadableHandle( contents )
+        HandleGeneric reader = request.isBinary()
+            ? BinaryReadableHandle.of( contents )
             : new EncodedReadableHandle( EncodedReadableHandle.open( contents, responseCharset ) );
-        ILuaObject stream = new HttpResponseHandle( reader, status.code(), status.reasonPhrase(), headers );
+        HttpResponseHandle stream = new HttpResponseHandle( reader, status.code(), status.reasonPhrase(), headers );
 
         if( status.code() >= 200 && status.code() < 400 )
         {

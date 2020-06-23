@@ -13,7 +13,7 @@ In order to develop CC: Tweaked, you'll need to download the source code and the
 process.
 
  - **Clone the repository:** `git clone https://github.com/SquidDev-CC/CC-Tweaked.git && cd CC-Tweaked`
- - **Setup Forge:** `./gradlew setupDecompWorkspace`
+ - **Setup Forge:** `./gradlew build`
  - **Run Minecraft:** `./gradlew runClient` (or run the `GradleStart` class from your IDE).
 
 If you want to run CC:T in a normal Minecraft instance, run `./gradlew build` and copy the `.jar` from `build/libs`.

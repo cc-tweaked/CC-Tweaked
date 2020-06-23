@@ -5,36 +5,34 @@
  */
 package dan200.computercraft.shared.media.recipes;
 
-import com.google.gson.JsonObject;
 import dan200.computercraft.shared.media.items.ItemPrintout;
-import net.minecraft.inventory.InventoryCrafting;
+import net.minecraft.inventory.CraftingInventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.IRecipe;
+import net.minecraft.item.Items;
+import net.minecraft.item.crafting.IRecipeSerializer;
 import net.minecraft.item.crafting.Ingredient;
+import net.minecraft.item.crafting.SpecialRecipe;
+import net.minecraft.item.crafting.SpecialRecipeSerializer;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
-import net.minecraftforge.common.crafting.IRecipeFactory;
-import net.minecraftforge.common.crafting.JsonContext;
-import net.minecraftforge.oredict.OreIngredient;
-import net.minecraftforge.registries.IForgeRegistryEntry;
 
 import javax.annotation.Nonnull;
 
-public class PrintoutRecipe extends IForgeRegistryEntry.Impl<IRecipe> implements IRecipe
+public final class PrintoutRecipe extends SpecialRecipe
 {
-    private final Ingredient paper = new OreIngredient( "paper" );
-    private final Ingredient leather = new OreIngredient( "leather" );
-    private final Ingredient string = new OreIngredient( "string" );
+    private final Ingredient paper = Ingredient.fromItems( net.minecraft.item.Items.PAPER );
+    private final Ingredient leather = Ingredient.fromItems( net.minecraft.item.Items.LEATHER );
+    private final Ingredient string = Ingredient.fromItems( Items.STRING );
+
+    private PrintoutRecipe( ResourceLocation id )
+    {
+        super( id );
+    }
 
     @Override
     public boolean canFit( int x, int y )
     {
         return x >= 3 && y >= 3;
-    }
-
-    @Override
-    public boolean isDynamic()
-    {
-        return true;
     }
 
     @Nonnull
@@ -45,14 +43,14 @@ public class PrintoutRecipe extends IForgeRegistryEntry.Impl<IRecipe> implements
     }
 
     @Override
-    public boolean matches( @Nonnull InventoryCrafting inventory, @Nonnull World world )
+    public boolean matches( @Nonnull CraftingInventory inventory, @Nonnull World world )
     {
         return !getCraftingResult( inventory ).isEmpty();
     }
 
     @Nonnull
     @Override
-    public ItemStack getCraftingResult( @Nonnull InventoryCrafting inventory )
+    public ItemStack getCraftingResult( @Nonnull CraftingInventory inventory )
     {
         // See if we match the recipe, and extract the input disk ID and dye colour
         int numPages = 0;
@@ -65,10 +63,10 @@ public class PrintoutRecipe extends IForgeRegistryEntry.Impl<IRecipe> implements
         {
             for( int x = 0; x < inventory.getWidth(); x++ )
             {
-                ItemStack stack = inventory.getStackInRowAndColumn( x, y );
+                ItemStack stack = inventory.getStackInSlot( x + y * inventory.getWidth() );
                 if( !stack.isEmpty() )
                 {
-                    if( stack.getItem() instanceof ItemPrintout && ItemPrintout.getType( stack ) != ItemPrintout.Type.Book )
+                    if( stack.getItem() instanceof ItemPrintout && ((ItemPrintout) stack.getItem()).getType() != ItemPrintout.Type.BOOK )
                     {
                         if( printouts == null )
                         {
@@ -79,7 +77,7 @@ public class PrintoutRecipe extends IForgeRegistryEntry.Impl<IRecipe> implements
                         numPrintouts++;
                         printoutFound = true;
                     }
-                    else if( paper.apply( stack ) )
+                    else if( paper.test( stack ) )
                     {
                         if( printouts == null )
                         {
@@ -89,11 +87,11 @@ public class PrintoutRecipe extends IForgeRegistryEntry.Impl<IRecipe> implements
                         numPages++;
                         numPrintouts++;
                     }
-                    else if( string.apply( stack ) && !stringFound )
+                    else if( string.test( stack ) && !stringFound )
                     {
                         stringFound = true;
                     }
-                    else if( leather.apply( stack ) && !leatherFound )
+                    else if( leather.test( stack ) && !leatherFound )
                     {
                         leatherFound = true;
                     }
@@ -158,12 +156,12 @@ public class PrintoutRecipe extends IForgeRegistryEntry.Impl<IRecipe> implements
         return ItemStack.EMPTY;
     }
 
-    public static class Factory implements IRecipeFactory
+    @Nonnull
+    @Override
+    public IRecipeSerializer<?> getSerializer()
     {
-        @Override
-        public IRecipe parse( JsonContext jsonContext, JsonObject jsonObject )
-        {
-            return new PrintoutRecipe();
-        }
+        return SERIALIZER;
     }
+
+    public static final IRecipeSerializer<?> SERIALIZER = new SpecialRecipeSerializer<>( PrintoutRecipe::new );
 }

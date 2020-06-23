@@ -16,12 +16,12 @@ import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.network.NetworkHandler;
 import dan200.computercraft.shared.pocket.items.ItemPocketComputer;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.entity.player.InventoryPlayer;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
@@ -30,6 +30,8 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.Map;
+
+import static dan200.computercraft.shared.pocket.items.ItemPocketComputer.NBT_LIGHT;
 
 public class PocketServerComputer extends ServerComputer implements IPocketAccess
 {
@@ -44,27 +46,19 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
 
     @Nullable
     @Override
-    @Deprecated
     public Entity getEntity()
     {
-        return m_entity;
-    }
-
-    @Nullable
-    @Override
-    public Entity getValidEntity()
-    {
         Entity entity = m_entity;
-        if( entity == null || m_stack == null || entity.isDead ) return null;
+        if( entity == null || m_stack == null || !entity.isAlive() ) return null;
 
-        if( m_entity instanceof EntityPlayer )
+        if( entity instanceof PlayerEntity )
         {
-            InventoryPlayer inventory = ((EntityPlayer) m_entity).inventory;
+            PlayerInventory inventory = ((PlayerEntity) entity).inventory;
             return inventory.mainInventory.contains( m_stack ) || inventory.offHandInventory.contains( m_stack ) ? entity : null;
         }
-        else if( m_entity instanceof EntityLivingBase )
+        else if( entity instanceof LivingEntity )
         {
-            EntityLivingBase living = (EntityLivingBase) m_entity;
+            LivingEntity living = (LivingEntity) entity;
             return living.getHeldItemMainhand() == m_stack || living.getHeldItemOffhand() == m_stack ? entity : null;
         }
         else
@@ -76,7 +70,7 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
     @Override
     public int getColour()
     {
-        return ComputerCraft.Items.pocketComputer.getColour( m_stack );
+        return IColouredItem.getColourBasic( m_stack );
     }
 
     @Override
@@ -89,33 +83,32 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
     @Override
     public int getLight()
     {
-        NBTTagCompound tag = getUserData();
-        return tag.hasKey( ItemPocketComputer.NBT_LIGHT, Constants.NBT.TAG_ANY_NUMERIC )
-            ? tag.getInteger( ItemPocketComputer.NBT_LIGHT ) : -1;
+        CompoundNBT tag = getUserData();
+        return tag.contains( NBT_LIGHT, Constants.NBT.TAG_ANY_NUMERIC ) ? tag.getInt( NBT_LIGHT ) : -1;
     }
 
     @Override
     public void setLight( int colour )
     {
-        NBTTagCompound tag = getUserData();
+        CompoundNBT tag = getUserData();
         if( colour >= 0 && colour <= 0xFFFFFF )
         {
-            if( !tag.hasKey( ItemPocketComputer.NBT_LIGHT, Constants.NBT.TAG_ANY_NUMERIC ) || tag.getInteger( ItemPocketComputer.NBT_LIGHT ) != colour )
+            if( !tag.contains( NBT_LIGHT, Constants.NBT.TAG_ANY_NUMERIC ) || tag.getInt( NBT_LIGHT ) != colour )
             {
-                tag.setInteger( ItemPocketComputer.NBT_LIGHT, colour );
+                tag.putInt( NBT_LIGHT, colour );
                 updateUserData();
             }
         }
-        else if( tag.hasKey( ItemPocketComputer.NBT_LIGHT, Constants.NBT.TAG_ANY_NUMERIC ) )
+        else if( tag.contains( NBT_LIGHT, Constants.NBT.TAG_ANY_NUMERIC ) )
         {
-            tag.removeTag( ItemPocketComputer.NBT_LIGHT );
+            tag.remove( NBT_LIGHT );
             updateUserData();
         }
     }
 
     @Nonnull
     @Override
-    public NBTTagCompound getUpgradeNBTData()
+    public CompoundNBT getUpgradeNBTData()
     {
         return ItemPocketComputer.getUpgradeInfo( m_stack );
     }
@@ -123,7 +116,7 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
     @Override
     public void updateUpgradeNBTData()
     {
-        if( m_entity instanceof EntityPlayer ) ((EntityPlayer) m_entity).inventory.markDirty();
+        if( m_entity instanceof PlayerEntity ) ((PlayerEntity) m_entity).inventory.markDirty();
     }
 
     @Override
@@ -160,7 +153,6 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
         {
             ItemPocketComputer.setUpgrade( m_stack, upgrade );
             updateUpgradeNBTData();
-
             m_upgrade = upgrade;
             invalidatePeripheral();
         }
@@ -175,7 +167,7 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
         }
 
         // If a new entity has picked it up then rebroadcast the terminal to them
-        if( entity != m_entity && entity instanceof EntityPlayerMP ) markTerminalChanged();
+        if( entity != m_entity && entity instanceof ServerPlayerEntity ) markTerminalChanged();
 
         m_entity = entity;
         m_stack = stack;
@@ -192,10 +184,10 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
     {
         super.broadcastState( force );
 
-        if( (hasTerminalChanged() || force) && m_entity instanceof EntityPlayerMP )
+        if( (hasTerminalChanged() || force) && m_entity instanceof ServerPlayerEntity )
         {
             // Broadcast the state to the current entity if they're not already interacting with it.
-            EntityPlayerMP player = (EntityPlayerMP) m_entity;
+            ServerPlayerEntity player = (ServerPlayerEntity) m_entity;
             if( player.connection != null && !isInteracting( player ) )
             {
                 NetworkHandler.sendToPlayer( player, createTerminalPacket() );

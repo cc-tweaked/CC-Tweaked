@@ -5,13 +5,16 @@
  */
 package dan200.computercraft.client.render;
 
+import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.ItemRenderer;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
+import net.minecraft.client.renderer.FirstPersonRenderer;
+import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.client.renderer.Vector3f;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumHand;
-import net.minecraft.util.EnumHandSide;
+import net.minecraft.util.Hand;
+import net.minecraft.util.HandSide;
 import net.minecraft.util.math.MathHelper;
 
 public abstract class ItemMapLikeRenderer
@@ -19,99 +22,118 @@ public abstract class ItemMapLikeRenderer
     /**
      * The main rendering method for the item.
      *
-     * @param stack The stack to render
-     * @see ItemRenderer#renderMapFirstPerson(ItemStack)
+     * @param transform The matrix transformation stack
+     * @param render    The buffer to render to
+     * @param stack     The stack to render
+     * @see FirstPersonRenderer#renderItemInFirstPerson(AbstractClientPlayerEntity, float, float, Hand, float, ItemStack, float, MatrixStack, IRenderTypeBuffer, int)
      */
-    protected abstract void renderItem( ItemStack stack );
+    protected abstract void renderItem( MatrixStack transform, IRenderTypeBuffer render, ItemStack stack );
 
-    protected void renderItemFirstPerson( EnumHand hand, float pitch, float equipProgress, float swingProgress, ItemStack stack )
+    protected void renderItemFirstPerson( MatrixStack transform, IRenderTypeBuffer render, int lightTexture, Hand hand, float pitch, float equipProgress, float swingProgress, ItemStack stack )
     {
-        EntityPlayer player = Minecraft.getMinecraft().player;
+        PlayerEntity player = Minecraft.getInstance().player;
 
-        GlStateManager.pushMatrix();
-        if( hand == EnumHand.MAIN_HAND && player.getHeldItemOffhand().isEmpty() )
+        transform.push();
+        if( hand == Hand.MAIN_HAND && player.getHeldItemOffhand().isEmpty() )
         {
-            renderItemFirstPersonCenter( pitch, equipProgress, swingProgress, stack );
+            renderItemFirstPersonCenter( transform, render, lightTexture, pitch, equipProgress, swingProgress, stack );
         }
         else
         {
             renderItemFirstPersonSide(
-                hand == EnumHand.MAIN_HAND ? player.getPrimaryHand() : player.getPrimaryHand().opposite(),
+                transform, render, lightTexture,
+                hand == Hand.MAIN_HAND ? player.getPrimaryHand() : player.getPrimaryHand().opposite(),
                 equipProgress, swingProgress, stack
             );
         }
-        GlStateManager.popMatrix();
+        transform.pop();
     }
 
     /**
      * Renders the item to one side of the player.
      *
+     * @param transform     The matrix transformation stack
+     * @param render        The buffer to render to
+     * @param combinedLight The current light level
      * @param side          The side to render on
      * @param equipProgress The equip progress of this item
      * @param swingProgress The swing progress of this item
      * @param stack         The stack to render
-     * @see ItemRenderer#renderMapFirstPersonSide(float, EnumHandSide, float, ItemStack)
+     * @see FirstPersonRenderer#renderMapFirstPersonSide(MatrixStack, IRenderTypeBuffer, int, float, HandSide, float, ItemStack)
      */
-    private void renderItemFirstPersonSide( EnumHandSide side, float equipProgress, float swingProgress, ItemStack stack )
+    private void renderItemFirstPersonSide( MatrixStack transform, IRenderTypeBuffer render, int combinedLight, HandSide side, float equipProgress, float swingProgress, ItemStack stack )
     {
-        Minecraft minecraft = Minecraft.getMinecraft();
-        float offset = side == EnumHandSide.RIGHT ? 1f : -1f;
-        GlStateManager.translate( offset * 0.125f, -0.125f, 0f );
+        Minecraft minecraft = Minecraft.getInstance();
+        float offset = side == HandSide.RIGHT ? 1f : -1f;
+        transform.translate( offset * 0.125f, -0.125f, 0f );
 
         // If the player is not invisible then render a single arm
         if( !minecraft.player.isInvisible() )
         {
-            GlStateManager.pushMatrix();
-            GlStateManager.rotate( offset * 10f, 0f, 0f, 1f );
-            minecraft.getItemRenderer().renderArmFirstPerson( equipProgress, swingProgress, side );
-            GlStateManager.popMatrix();
+            transform.push();
+            transform.rotate( Vector3f.ZP.rotationDegrees( offset * 10f ) );
+            minecraft.getFirstPersonRenderer().renderArmFirstPerson( transform, render, combinedLight, equipProgress, swingProgress, side );
+            transform.pop();
         }
 
         // Setup the appropriate transformations. This is just copied from the
         // corresponding method in ItemRenderer.
-        GlStateManager.pushMatrix();
-        GlStateManager.translate( offset * 0.51f, -0.08f + equipProgress * -1.2f, -0.75f );
+        transform.push();
+        transform.translate( offset * 0.51f, -0.08f + equipProgress * -1.2f, -0.75f );
         float f1 = MathHelper.sqrt( swingProgress );
         float f2 = MathHelper.sin( f1 * (float) Math.PI );
         float f3 = -0.5f * f2;
         float f4 = 0.4f * MathHelper.sin( f1 * ((float) Math.PI * 2f) );
         float f5 = -0.3f * MathHelper.sin( swingProgress * (float) Math.PI );
-        GlStateManager.translate( offset * f3, f4 - 0.3f * f2, f5 );
-        GlStateManager.rotate( f2 * -45f, 1f, 0f, 0f );
-        GlStateManager.rotate( offset * f2 * -30f, 0f, 1f, 0f );
+        transform.translate( offset * f3, f4 - 0.3f * f2, f5 );
+        transform.rotate( Vector3f.XP.rotationDegrees( f2 * -45f ) );
+        transform.rotate( Vector3f.YP.rotationDegrees( offset * f2 * -30f ) );
 
-        renderItem( stack );
+        renderItem( transform, render, stack );
 
-        GlStateManager.popMatrix();
+        transform.pop();
     }
 
     /**
      * Render an item in the middle of the screen.
      *
+     * @param transform     The matrix transformation stack
+     * @param render        The buffer to render to
+     * @param combinedLight The current light level
      * @param pitch         The pitch of the player
      * @param equipProgress The equip progress of this item
      * @param swingProgress The swing progress of this item
      * @param stack         The stack to render
-     * @see ItemRenderer#renderMapFirstPerson(float, float, float)
+     * @see FirstPersonRenderer#renderMapFirstPerson(MatrixStack, IRenderTypeBuffer, int, float, float, float)
      */
-    private void renderItemFirstPersonCenter( float pitch, float equipProgress, float swingProgress, ItemStack stack )
+    private void renderItemFirstPersonCenter( MatrixStack transform, IRenderTypeBuffer render, int combinedLight, float pitch, float equipProgress, float swingProgress, ItemStack stack )
     {
-        ItemRenderer itemRenderer = Minecraft.getMinecraft().getItemRenderer();
+        Minecraft minecraft = Minecraft.getInstance();
+        FirstPersonRenderer renderer = minecraft.getFirstPersonRenderer();
 
         // Setup the appropriate transformations. This is just copied from the
         // corresponding method in ItemRenderer.
         float swingRt = MathHelper.sqrt( swingProgress );
         float tX = -0.2f * MathHelper.sin( swingProgress * (float) Math.PI );
         float tZ = -0.4f * MathHelper.sin( swingRt * (float) Math.PI );
-        GlStateManager.translate( 0f, -tX / 2f, tZ );
-        float pitchAngle = itemRenderer.getMapAngleFromPitch( pitch );
-        GlStateManager.translate( 0f, 0.04f + equipProgress * -1.2f + pitchAngle * -0.5f, -0.72f );
-        GlStateManager.rotate( pitchAngle * -85f, 1f, 0f, 0f );
-        itemRenderer.renderArms();
-        float rX = MathHelper.sin( swingRt * (float) Math.PI );
-        GlStateManager.rotate( rX * 20f, 1f, 0f, 0f );
-        GlStateManager.scale( 2f, 2f, 2f );
+        transform.translate( 0, -tX / 2, tZ );
 
-        renderItem( stack );
+        float pitchAngle = renderer.getMapAngleFromPitch( pitch );
+        transform.translate( 0, 0.04F + equipProgress * -1.2f + pitchAngle * -0.5f, -0.72f );
+        transform.rotate( Vector3f.XP.rotationDegrees( pitchAngle * -85.0f ) );
+        if( !minecraft.player.isInvisible() )
+        {
+            transform.push();
+            transform.rotate( Vector3f.YP.rotationDegrees( 90.0F ) );
+            renderer.renderArm( transform, render, combinedLight, HandSide.RIGHT );
+            renderer.renderArm( transform, render, combinedLight, HandSide.LEFT );
+            transform.pop();
+        }
+
+        float rX = MathHelper.sin( swingRt * (float) Math.PI );
+        transform.rotate( Vector3f.XP.rotationDegrees( rX * 20.0F ) );
+        transform.scale( 2.0F, 2.0F, 2.0F );
+
+        renderItem( transform, render, stack );
     }
 }

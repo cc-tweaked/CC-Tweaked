@@ -7,20 +7,21 @@ package dan200.computercraft.shared.util;
 
 import net.minecraft.inventory.ISidedInventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public interface DefaultSidedInventory extends DefaultInventory, ISidedInventory
 {
     @Override
-    default boolean canInsertItem( int slot, @Nonnull ItemStack stack, @Nonnull EnumFacing side )
+    default boolean canInsertItem( int slot, @Nonnull ItemStack stack, @Nullable Direction side )
     {
         return isItemValidForSlot( slot, stack );
     }
 
     @Override
-    default boolean canExtractItem( int slot, @Nonnull ItemStack stack, @Nonnull EnumFacing side )
+    default boolean canExtractItem( int slot, @Nonnull ItemStack stack, @Nonnull Direction side )
     {
         return true;
     }

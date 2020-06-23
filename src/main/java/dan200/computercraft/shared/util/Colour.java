@@ -7,22 +7,22 @@ package dan200.computercraft.shared.util;
 
 public enum Colour
 {
-    Black( 0x111111 ),
-    Red( 0xcc4c4c ),
-    Green( 0x57A64E ),
-    Brown( 0x7f664c ),
-    Blue( 0x3366cc ),
-    Purple( 0xb266e5 ),
-    Cyan( 0x4c99b2 ),
-    LightGrey( 0x999999 ),
-    Grey( 0x4c4c4c ),
-    Pink( 0xf2b2cc ),
-    Lime( 0x7fcc19 ),
-    Yellow( 0xdede6c ),
-    LightBlue( 0x99b2f2 ),
-    Magenta( 0xe57fd8 ),
-    Orange( 0xf2b233 ),
-    White( 0xf0f0f0 );
+    BLACK( 0x111111 ),
+    RED( 0xcc4c4c ),
+    GREEN( 0x57A64E ),
+    BROWN( 0x7f664c ),
+    BLUE( 0x3366cc ),
+    PURPLE( 0xb266e5 ),
+    CYAN( 0x4c99b2 ),
+    LIGHT_GREY( 0x999999 ),
+    GREY( 0x4c4c4c ),
+    PINK( 0xf2b2cc ),
+    LIME( 0x7fcc19 ),
+    YELLOW( 0xdede6c ),
+    LIGHT_BLUE( 0x99b2f2 ),
+    MAGENTA( 0xe57fd8 ),
+    ORANGE( 0xf2b233 ),
+    WHITE( 0xf0f0f0 );
 
     public static final Colour[] VALUES = values();
 

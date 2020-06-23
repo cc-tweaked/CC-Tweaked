@@ -7,6 +7,7 @@ package dan200.computercraft.core.apis.http;
 
 import dan200.computercraft.core.apis.IAPIEnvironment;
 
+import java.net.InetSocketAddress;
 import java.net.URI;
 import java.util.concurrent.Future;
 
@@ -46,12 +47,14 @@ public class CheckUrl extends Resource<CheckUrl>
 
         try
         {
-            NetworkUtils.getAddress( host, 80, false );
-            if( tryClose() ) environment.queueEvent( EVENT, new Object[] { address, true } );
+            InetSocketAddress netAddress = NetworkUtils.getAddress( host, 80, false );
+            NetworkUtils.getOptions( host, netAddress );
+
+            if( tryClose() ) environment.queueEvent( EVENT, address, true );
         }
         catch( HTTPRequestException e )
         {
-            if( tryClose() ) environment.queueEvent( EVENT, new Object[] { address, false, e.getMessage() } );
+            if( tryClose() ) environment.queueEvent( EVENT, address, false, e.getMessage() );
         }
     }
 

@@ -5,7 +5,7 @@
  */
 package dan200.computercraft.shared.util;
 
-import net.minecraft.util.text.TextComponentTranslation;
+import javax.annotation.Nullable;
 
 public final class StringUtil
 {
@@ -33,45 +33,8 @@ public final class StringUtil
         return builder.toString();
     }
 
-    /**
-     * Translates a string.
-     *
-     * Try to avoid using this where possible - it is generally preferred to use {@link TextComponentTranslation}.
-     *
-     * @param key The key to translate.
-     * @return The translated string.
-     */
-    @SuppressWarnings( "deprecation" )
-    public static String translate( String key )
+    public static String toString( @Nullable Object value )
     {
-        return net.minecraft.util.text.translation.I18n.translateToLocal( key );
-    }
-
-    /**
-     * Translates and formats a string.
-     *
-     * Try to avoid using this where possible - it is generally preferred to use {@link TextComponentTranslation}.
-     *
-     * @param key  The key to translate.
-     * @param args The arguments to supply to {@link String#format(String, Object...)}.
-     * @return The translated and formatted string.
-     */
-    @SuppressWarnings( "deprecation" )
-    public static String translateFormatted( String key, Object... args )
-    {
-        return net.minecraft.util.text.translation.I18n.translateToLocalFormatted( key, args );
-    }
-
-    public static byte[] encodeString( String string )
-    {
-        byte[] chars = new byte[string.length()];
-
-        for( int i = 0; i < chars.length; i++ )
-        {
-            char c = string.charAt( i );
-            chars[i] = c < 256 ? (byte) c : 63;
-        }
-
-        return chars;
+        return value == null ? "" : value.toString();
     }
 }

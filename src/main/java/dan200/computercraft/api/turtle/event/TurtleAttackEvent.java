@@ -10,7 +10,7 @@ import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.api.turtle.TurtleVerb;
 import net.minecraft.entity.Entity;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.event.entity.player.AttackEntityEvent;
 
@@ -20,7 +20,7 @@ import java.util.Objects;
 /**
  * Fired when a turtle attempts to attack an entity.
  *
- * This must be fired by {@link ITurtleUpgrade#useTool(ITurtleAccess, TurtleSide, TurtleVerb, EnumFacing)},
+ * This must be fired by {@link ITurtleUpgrade#useTool(ITurtleAccess, TurtleSide, TurtleVerb, Direction)},
  * as the base {@code turtle.attack()} command does not fire it.
  *
  * Note that such commands should also fire {@link AttackEntityEvent}, so you do not need to listen to both.

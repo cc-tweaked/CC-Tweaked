@@ -5,26 +5,28 @@
  */
 package dan200.computercraft.client.render;
 
-import com.google.common.collect.ImmutableMap;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonObject;
+import com.mojang.datafixers.util.Pair;
 import dan200.computercraft.ComputerCraft;
-import net.minecraft.client.renderer.block.model.IBakedModel;
+import net.minecraft.client.renderer.model.*;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.renderer.vertex.VertexFormat;
-import net.minecraft.client.resources.IResourceManager;
+import net.minecraft.resources.IResourceManager;
+import net.minecraft.util.JSONUtils;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.client.model.ICustomModelLoader;
-import net.minecraftforge.client.model.IModel;
-import net.minecraftforge.client.model.ModelLoaderRegistry;
-import net.minecraftforge.common.model.IModelState;
+import net.minecraftforge.client.model.IModelConfiguration;
+import net.minecraftforge.client.model.IModelLoader;
+import net.minecraftforge.client.model.geometry.IModelGeometry;
 
 import javax.annotation.Nonnull;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.function.Function;
 
-public final class TurtleModelLoader implements ICustomModelLoader
+public final class TurtleModelLoader implements IModelLoader<TurtleModelLoader.TurtleModel>
 {
-    private static final ResourceLocation NORMAL_TURTLE_MODEL = new ResourceLocation( ComputerCraft.MOD_ID, "block/turtle" );
-    private static final ResourceLocation ADVANCED_TURTLE_MODEL = new ResourceLocation( ComputerCraft.MOD_ID, "block/advanced_turtle" );
-    private static final ResourceLocation COLOUR_TURTLE_MODEL = new ResourceLocation( ComputerCraft.MOD_ID, "block/turtle_white" );
+    private static final ResourceLocation COLOUR_TURTLE_MODEL = new ResourceLocation( ComputerCraft.MOD_ID, "block/turtle_colour" );
 
     public static final TurtleModelLoader INSTANCE = new TurtleModelLoader();
 
@@ -37,84 +39,39 @@ public final class TurtleModelLoader implements ICustomModelLoader
     {
     }
 
-    @Override
-    public boolean accepts( @Nonnull ResourceLocation name )
-    {
-        return name.getNamespace().equals( ComputerCraft.MOD_ID )
-            && (name.getPath().equals( "turtle" ) || name.getPath().equals( "turtle_advanced" ));
-    }
-
     @Nonnull
     @Override
-    public IModel loadModel( @Nonnull ResourceLocation name ) throws Exception
+    public TurtleModel read( @Nonnull JsonDeserializationContext deserializationContext, @Nonnull JsonObject modelContents )
     {
-        if( name.getNamespace().equals( ComputerCraft.MOD_ID ) )
-        {
-            IModel colourModel = ModelLoaderRegistry.getModel( COLOUR_TURTLE_MODEL );
-            switch( name.getPath() )
-            {
-                case "turtle":
-                    return new TurtleModel( ModelLoaderRegistry.getModel( NORMAL_TURTLE_MODEL ), colourModel );
-                case "turtle_advanced":
-                    return new TurtleModel( ModelLoaderRegistry.getModel( ADVANCED_TURTLE_MODEL ), colourModel );
-            }
-        }
-
-        throw new IllegalStateException( "Loader does not accept " + name );
+        ResourceLocation model = new ResourceLocation( JSONUtils.getString( modelContents, "model" ) );
+        return new TurtleModel( model );
     }
 
-    private static final class TurtleModel implements IModel
+    public static final class TurtleModel implements IModelGeometry<TurtleModel>
     {
-        private final IModel family;
-        private final IModel colour;
+        private final ResourceLocation family;
 
-        private TurtleModel( IModel family, IModel colour )
+        private TurtleModel( ResourceLocation family )
         {
             this.family = family;
-            this.colour = colour;
         }
 
-        @Nonnull
         @Override
-        public IBakedModel bake( @Nonnull IModelState state, @Nonnull VertexFormat format, @Nonnull Function<ResourceLocation, TextureAtlasSprite> function )
+        public Collection<Material> getTextures( IModelConfiguration owner, Function<ResourceLocation, IUnbakedModel> modelGetter, Set<Pair<String, String>> missingTextureErrors )
+        {
+            Set<Material> materials = new HashSet<>();
+            materials.addAll( modelGetter.apply( family ).getTextures( modelGetter, missingTextureErrors ) );
+            materials.addAll( modelGetter.apply( COLOUR_TURTLE_MODEL ).getTextures( modelGetter, missingTextureErrors ) );
+            return materials;
+        }
+
+        @Override
+        public IBakedModel bake( IModelConfiguration owner, ModelBakery bakery, Function<Material, TextureAtlasSprite> spriteGetter, IModelTransform transform, ItemOverrideList overrides, ResourceLocation modelLocation )
         {
             return new TurtleSmartItemModel(
-                family.bake( state, format, function ),
-                colour.bake( state, format, function )
+                bakery.getBakedModel( family, transform, spriteGetter ),
+                bakery.getBakedModel( COLOUR_TURTLE_MODEL, transform, spriteGetter )
             );
-        }
-
-        private TurtleModel copy( IModel family, IModel colour )
-        {
-            return this.family == family && this.colour == colour ? this : new TurtleModel( family, colour );
-        }
-
-        @Nonnull
-        @Override
-        public IModel smoothLighting( boolean value )
-        {
-            return copy( family.smoothLighting( value ), colour.smoothLighting( value ) );
-        }
-
-        @Nonnull
-        @Override
-        public IModel gui3d( boolean value )
-        {
-            return copy( family.gui3d( value ), colour.gui3d( value ) );
-        }
-
-        @Nonnull
-        @Override
-        public IModel uvlock( boolean value )
-        {
-            return copy( family.uvlock( value ), colour.uvlock( value ) );
-        }
-
-        @Nonnull
-        @Override
-        public IModel retexture( ImmutableMap<String, String> textures )
-        {
-            return copy( family.retexture( textures ), colour.retexture( textures ) );
         }
     }
 }

@@ -10,18 +10,16 @@ import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.network.NetworkHandler;
 import dan200.computercraft.shared.network.client.MonitorClientMessage;
 import dan200.computercraft.shared.network.client.TerminalState;
-import net.minecraft.server.management.PlayerChunkMapEntry;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.World;
-import net.minecraft.world.WorldServer;
 import net.minecraft.world.chunk.Chunk;
-import net.minecraftforge.common.DimensionManager;
+import net.minecraft.world.server.ServerWorld;
+import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.world.ChunkWatchEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent;
-import net.minecraftforge.fml.common.network.NetworkRegistry;
 
 import java.util.ArrayDeque;
 import java.util.Queue;
@@ -47,7 +45,8 @@ public final class MonitorWatcher
     @SubscribeEvent
     public static void onWatch( ChunkWatchEvent.Watch event )
     {
-        Chunk chunk = event.getChunkInstance();
+        ChunkPos chunkPos = event.getPos();
+        Chunk chunk = event.getWorld().getChunk( chunkPos.x, chunkPos.z );
         if( chunk == null ) return;
 
         for( TileEntity te : chunk.getTileEntityMap().values() )
@@ -83,13 +82,16 @@ public final class MonitorWatcher
 
             BlockPos pos = tile.getPos();
             World world = tile.getWorld();
-            WorldServer serverWorld = world instanceof WorldServer ? (WorldServer) world : DimensionManager.getWorld( world.provider.getDimension() );
-            PlayerChunkMapEntry entry = serverWorld.getPlayerChunkMap().getEntry( pos.getX() >> 4, pos.getZ() >> 4 );
-            if( entry == null || entry.getWatchingPlayers().isEmpty() ) continue;
+            if( !(world instanceof ServerWorld) ) continue;
 
-            NetworkRegistry.TargetPoint point = new NetworkRegistry.TargetPoint( world.provider.getDimension(), pos.getX(), pos.getY(), pos.getZ(), 0 );
+            Chunk chunk = world.getChunkAt( pos );
+            if( !((ServerWorld) world).getChunkProvider().chunkManager.getTrackingPlayers( chunk.getPos(), false ).findAny().isPresent() )
+            {
+                continue;
+            }
+
             TerminalState state = tile.cached = monitor.write();
-            NetworkHandler.sendToAllTracking( new MonitorClientMessage( pos, state ), point );
+            NetworkHandler.sendToAllTracking( new MonitorClientMessage( pos, state ), chunk );
 
             limit -= state.size();
         }
@@ -97,6 +99,6 @@ public final class MonitorWatcher
 
     private static ServerMonitor getMonitor( TileMonitor monitor )
     {
-        return !monitor.isInvalid() && monitor.getXIndex() == 0 && monitor.getYIndex() == 0 ? monitor.getCachedServerMonitor() : null;
+        return !monitor.isRemoved() && monitor.getXIndex() == 0 && monitor.getYIndex() == 0 ? monitor.getCachedServerMonitor() : null;
     }
 }

@@ -7,8 +7,7 @@ package dan200.computercraft.shared.computer.core;
 
 public enum ComputerFamily
 {
-    Normal,
-    Advanced,
-    @Deprecated Beginners,
-    Command
+    NORMAL,
+    ADVANCED,
+    COMMAND
 }

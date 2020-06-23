@@ -5,18 +5,20 @@
  */
 package dan200.computercraft.shared.integration.crafttweaker.actions;
 
+import com.blamejared.crafttweaker.api.actions.IUndoableAction;
+import com.blamejared.crafttweaker.api.logger.ILogger;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.shared.TurtleUpgrades;
 import net.minecraft.item.ItemStack;
-
-import java.util.Optional;
+import net.minecraftforge.fml.LogicalSide;
 
 /**
  * Removes a turtle upgrade crafted with the given stack.
  */
-public class RemoveTurtleUpgradeByItem implements IAction
+public class RemoveTurtleUpgradeByItem implements IUndoableAction
 {
     private final ItemStack stack;
+    private ITurtleUpgrade upgrade;
 
     public RemoveTurtleUpgradeByItem( ItemStack stack )
     {
@@ -26,7 +28,7 @@ public class RemoveTurtleUpgradeByItem implements IAction
     @Override
     public void apply()
     {
-        ITurtleUpgrade upgrade = TurtleUpgrades.get( stack );
+        ITurtleUpgrade upgrade = this.upgrade = TurtleUpgrades.get( stack );
         if( upgrade != null ) TurtleUpgrades.disable( upgrade );
     }
 
@@ -37,13 +39,32 @@ public class RemoveTurtleUpgradeByItem implements IAction
     }
 
     @Override
-    public Optional<String> getValidationProblem()
+    public void undo()
+    {
+        if( this.upgrade != null ) TurtleUpgrades.enable( upgrade );
+    }
+
+    @Override
+    public String describeUndo()
+    {
+        return String.format( "Adding back turtle upgrades crafted with '%s'", stack );
+    }
+
+    @Override
+    public boolean validate( ILogger logger )
     {
         if( TurtleUpgrades.get( stack ) == null )
         {
-            return Optional.of( String.format( "Unknown turtle upgrade crafted with '%s'.", stack ) );
+            logger.error( String.format( "Unknown turtle upgrade crafted with '%s'.", stack ) );
+            return false;
         }
 
-        return Optional.empty();
+        return true;
+    }
+
+    @Override
+    public boolean shouldApplyOn( LogicalSide side )
+    {
+        return true;
     }
 }

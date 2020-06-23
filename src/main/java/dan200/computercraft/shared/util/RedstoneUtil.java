@@ -5,9 +5,8 @@
  */
 package dan200.computercraft.shared.util;
 
-import dan200.computercraft.shared.BundledRedstone;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.block.BlockState;
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.event.ForgeEventFactory;
@@ -16,24 +15,10 @@ import java.util.EnumSet;
 
 public final class RedstoneUtil
 {
-    private RedstoneUtil() {}
-
-    @Deprecated
-    public static int getRedstoneOutput( World world, BlockPos pos, EnumFacing side )
-    {
-        return world.getRedstonePower( pos, side.getOpposite() );
-    }
-
-    @Deprecated
-    public static int getBundledRedstoneOutput( World world, BlockPos pos, EnumFacing side )
-    {
-        return BundledRedstone.getOutput( world, pos, side );
-    }
-
-    public static void propagateRedstoneOutput( World world, BlockPos pos, EnumFacing side )
+    public static void propagateRedstoneOutput( World world, BlockPos pos, Direction side )
     {
         // Propagate ordinary output. See BlockRedstoneDiode.notifyNeighbors
-        IBlockState block = world.getBlockState( pos );
+        BlockState block = world.getBlockState( pos );
         if( ForgeEventFactory.onNeighborNotify( world, pos, block, EnumSet.of( side ), false ).isCanceled() ) return;
 
         BlockPos neighbourPos = pos.offset( side );

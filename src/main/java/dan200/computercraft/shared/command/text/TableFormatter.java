@@ -6,7 +6,7 @@
 package dan200.computercraft.shared.command.text;
 
 import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TextFormatting;
 import org.apache.commons.lang3.StringUtils;
 
@@ -76,7 +76,7 @@ public interface TableFormatter
 
         if( headers != null )
         {
-            TextComponentString line = new TextComponentString( "" );
+            StringTextComponent line = new StringTextComponent( "" );
             for( int i = 0; i < columns - 1; i++ )
             {
                 line.appendSibling( headers[i] );
@@ -92,12 +92,12 @@ public interface TableFormatter
             // it a tad prettier.
             int rowCharWidth = getWidth( HEADER );
             int rowWidth = totalWidth / rowCharWidth + (totalWidth % rowCharWidth == 0 ? 0 : 1);
-            writeLine( rowId++, coloured( StringUtils.repeat( HEADER.getUnformattedText(), rowWidth ), TextFormatting.GRAY ) );
+            writeLine( rowId++, coloured( StringUtils.repeat( HEADER.getString(), rowWidth ), TextFormatting.GRAY ) );
         }
 
         for( ITextComponent[] row : table.getRows() )
         {
-            TextComponentString line = new TextComponentString( "" );
+            StringTextComponent line = new StringTextComponent( "" );
             for( int i = 0; i < columns - 1; i++ )
             {
                 line.appendSibling( row[i] );

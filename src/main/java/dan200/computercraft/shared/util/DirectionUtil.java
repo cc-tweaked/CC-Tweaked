@@ -6,33 +6,27 @@
 package dan200.computercraft.shared.util;
 
 import dan200.computercraft.core.computer.ComputerSide;
-import dan200.computercraft.shared.common.IDirectionalTile;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 
 public final class DirectionUtil
 {
     private DirectionUtil() {}
 
-    public static ComputerSide toLocal( IDirectionalTile directional, EnumFacing dir )
+    public static final Direction[] FACINGS = Direction.values();
+
+    public static ComputerSide toLocal( Direction front, Direction dir )
     {
-        EnumFacing front = directional.getDirection();
-        if( front.getAxis() == EnumFacing.Axis.Y ) front = EnumFacing.NORTH;
+        if( front.getAxis() == Direction.Axis.Y ) front = Direction.NORTH;
 
         if( dir == front ) return ComputerSide.FRONT;
         if( dir == front.getOpposite() ) return ComputerSide.BACK;
         if( dir == front.rotateYCCW() ) return ComputerSide.LEFT;
         if( dir == front.rotateY() ) return ComputerSide.RIGHT;
-        if( dir == EnumFacing.UP ) return ComputerSide.TOP;
+        if( dir == Direction.UP ) return ComputerSide.TOP;
         return ComputerSide.BOTTOM;
     }
 
-    public static EnumFacing fromEntityRot( EntityLivingBase player )
-    {
-        return EnumFacing.fromAngle( player.rotationYaw ).getOpposite();
-    }
-
-    public static float toPitchAngle( EnumFacing dir )
+    public static float toPitchAngle( Direction dir )
     {
         switch( dir )
         {
@@ -43,11 +37,5 @@ public final class DirectionUtil
             default:
                 return 0.0f;
         }
-    }
-
-    @Deprecated
-    public static float toYawAngle( EnumFacing dir )
-    {
-        return dir.getHorizontalAngle();
     }
 }

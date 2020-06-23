@@ -7,18 +7,19 @@ package dan200.computercraft.shared.util;
 
 import dan200.computercraft.ComputerCraft;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.item.EntityItem;
+import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.eventhandler.EventPriority;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.function.Function;
 
@@ -43,7 +44,7 @@ public final class DropConsumer
         dropWorld = new WeakReference<>( entity.world );
         dropBounds = new AxisAlignedBB( entity.getPosition() ).grow( 2, 2, 2 );
 
-        entity.captureDrops = true;
+        entity.captureDrops( new ArrayList<>() );
     }
 
     public static void set( World world, BlockPos pos, Function<ItemStack, ItemStack> consumer )
@@ -62,11 +63,10 @@ public final class DropConsumer
             Entity entity = dropEntity.get();
             if( entity != null )
             {
-                entity.captureDrops = false;
-                if( entity.capturedDrops != null )
+                Collection<ItemEntity> dropped = entity.captureDrops( null );
+                if( dropped != null )
                 {
-                    for( EntityItem entityItem : entity.capturedDrops ) handleDrops( entityItem.getItem() );
-                    entity.capturedDrops.clear();
+                    for( ItemEntity entityItem : dropped ) handleDrops( entityItem.getItem() );
                 }
             }
         }
@@ -92,10 +92,10 @@ public final class DropConsumer
     public static void onEntitySpawn( EntityJoinWorldEvent event )
     {
         // Capture any nearby item spawns
-        if( dropWorld != null && dropWorld.get() == event.getWorld() && event.getEntity() instanceof EntityItem
+        if( dropWorld != null && dropWorld.get() == event.getWorld() && event.getEntity() instanceof ItemEntity
             && dropBounds.contains( event.getEntity().getPositionVector() ) )
         {
-            handleDrops( ((EntityItem) event.getEntity()).getItem() );
+            handleDrops( ((ItemEntity) event.getEntity()).getItem() );
             event.setCanceled( true );
         }
     }

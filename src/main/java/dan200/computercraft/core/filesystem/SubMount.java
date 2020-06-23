@@ -9,7 +9,6 @@ import dan200.computercraft.api.filesystem.IMount;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.List;
@@ -51,17 +50,9 @@ public class SubMount implements IMount
 
     @Nonnull
     @Override
-    @Deprecated
-    public InputStream openForRead( @Nonnull String path ) throws IOException
+    public ReadableByteChannel openForRead( @Nonnull String path ) throws IOException
     {
         return parent.openForRead( getFullPath( path ) );
-    }
-
-    @Nonnull
-    @Override
-    public ReadableByteChannel openChannelForRead( @Nonnull String path ) throws IOException
-    {
-        return parent.openChannelForRead( getFullPath( path ) );
     }
 
     @Nonnull

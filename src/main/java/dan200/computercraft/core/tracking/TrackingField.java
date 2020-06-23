@@ -5,8 +5,6 @@
  */
 package dan200.computercraft.core.tracking;
 
-import dan200.computercraft.shared.util.StringUtil;
-
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -14,31 +12,29 @@ import java.util.function.LongFunction;
 
 public final class TrackingField
 {
-    public static final String TRANSLATE_PREFIX = "tracking_field.computercraft.";
-
     private static final Map<String, TrackingField> fields = new HashMap<>();
 
-    public static final TrackingField TASKS = TrackingField.of( "tasks", "Tasks", x -> String.format( "%4d", x ) );
-    public static final TrackingField TOTAL_TIME = TrackingField.of( "total", "Total time", x -> String.format( "%7.1fms", x / 1e6 ) );
-    public static final TrackingField AVERAGE_TIME = TrackingField.of( "average", "Average time", x -> String.format( "%4.1fms", x / 1e6 ) );
-    public static final TrackingField MAX_TIME = TrackingField.of( "max", "Max time", x -> String.format( "%5.1fms", x / 1e6 ) );
+    public static final TrackingField TASKS = TrackingField.of( "tasks", x -> String.format( "%4d", x ) );
+    public static final TrackingField TOTAL_TIME = TrackingField.of( "total", x -> String.format( "%7.1fms", x / 1e6 ) );
+    public static final TrackingField AVERAGE_TIME = TrackingField.of( "average", x -> String.format( "%4.1fms", x / 1e6 ) );
+    public static final TrackingField MAX_TIME = TrackingField.of( "max", x -> String.format( "%5.1fms", x / 1e6 ) );
 
-    public static final TrackingField SERVER_COUNT = TrackingField.of( "server_count", "Server task count", x -> String.format( "%4d", x ) );
-    public static final TrackingField SERVER_TIME = TrackingField.of( "server_time", "Server task time", x -> String.format( "%7.1fms", x / 1e6 ) );
+    public static final TrackingField SERVER_COUNT = TrackingField.of( "server_count", x -> String.format( "%4d", x ) );
+    public static final TrackingField SERVER_TIME = TrackingField.of( "server_time", x -> String.format( "%7.1fms", x / 1e6 ) );
 
-    public static final TrackingField PERIPHERAL_OPS = TrackingField.of( "peripheral", "Peripheral calls", TrackingField::formatDefault );
-    public static final TrackingField FS_OPS = TrackingField.of( "fs", "Filesystem operations", TrackingField::formatDefault );
-    public static final TrackingField TURTLE_OPS = TrackingField.of( "turtle", "Turtle operations", TrackingField::formatDefault );
+    public static final TrackingField PERIPHERAL_OPS = TrackingField.of( "peripheral", TrackingField::formatDefault );
+    public static final TrackingField FS_OPS = TrackingField.of( "fs", TrackingField::formatDefault );
+    public static final TrackingField TURTLE_OPS = TrackingField.of( "turtle", TrackingField::formatDefault );
 
-    public static final TrackingField HTTP_REQUESTS = TrackingField.of( "http", "HTTP requests", TrackingField::formatDefault );
-    public static final TrackingField HTTP_UPLOAD = TrackingField.of( "http_upload", "HTTP upload", TrackingField::formatBytes );
-    public static final TrackingField HTTP_DOWNLOAD = TrackingField.of( "http_download", "HTTP download", TrackingField::formatBytes );
+    public static final TrackingField HTTP_REQUESTS = TrackingField.of( "http", TrackingField::formatDefault );
+    public static final TrackingField HTTP_UPLOAD = TrackingField.of( "http_upload", TrackingField::formatBytes );
+    public static final TrackingField HTTP_DOWNLOAD = TrackingField.of( "http_download", TrackingField::formatBytes );
 
-    public static final TrackingField WEBSOCKET_INCOMING = TrackingField.of( "websocket_incoming", "Websocket incoming", TrackingField::formatBytes );
-    public static final TrackingField WEBSOCKET_OUTGOING = TrackingField.of( "websocket_outgoing", "Websocket outgoing", TrackingField::formatBytes );
+    public static final TrackingField WEBSOCKET_INCOMING = TrackingField.of( "websocket_incoming", TrackingField::formatBytes );
+    public static final TrackingField WEBSOCKET_OUTGOING = TrackingField.of( "websocket_outgoing", TrackingField::formatBytes );
 
-    public static final TrackingField COROUTINES_CREATED = TrackingField.of( "coroutines_created", "Coroutines created", x -> String.format( "%4d", x ) );
-    public static final TrackingField COROUTINES_DISPOSED = TrackingField.of( "coroutines_dead", "Coroutines disposed", x -> String.format( "%4d", x ) );
+    public static final TrackingField COROUTINES_CREATED = TrackingField.of( "coroutines_created", x -> String.format( "%4d", x ) );
+    public static final TrackingField COROUTINES_DISPOSED = TrackingField.of( "coroutines_dead", x -> String.format( "%4d", x ) );
 
     private final String id;
     private final String translationKey;
@@ -54,12 +50,6 @@ public final class TrackingField
         return translationKey;
     }
 
-    @Deprecated
-    public String displayName()
-    {
-        return StringUtil.translate( translationKey() );
-    }
-
     private TrackingField( String id, LongFunction<String> format )
     {
         this.id = id;
@@ -72,7 +62,7 @@ public final class TrackingField
         return format.apply( value );
     }
 
-    public static TrackingField of( String id, String displayName, LongFunction<String> format )
+    public static TrackingField of( String id, LongFunction<String> format )
     {
         TrackingField field = new TrackingField( id, format );
         fields.put( id, field );

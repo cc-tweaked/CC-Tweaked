@@ -7,52 +7,71 @@ package dan200.computercraft.shared;
 
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.ComputerCraftAPI;
-import dan200.computercraft.shared.computer.blocks.BlockCommandComputer;
+import dan200.computercraft.shared.common.ColourableRecipe;
+import dan200.computercraft.shared.common.ContainerHeldItem;
 import dan200.computercraft.shared.computer.blocks.BlockComputer;
 import dan200.computercraft.shared.computer.blocks.TileCommandComputer;
 import dan200.computercraft.shared.computer.blocks.TileComputer;
-import dan200.computercraft.shared.computer.items.ItemCommandComputer;
+import dan200.computercraft.shared.computer.core.ComputerFamily;
+import dan200.computercraft.shared.computer.inventory.ContainerComputer;
+import dan200.computercraft.shared.computer.inventory.ContainerViewComputer;
 import dan200.computercraft.shared.computer.items.ItemComputer;
-import dan200.computercraft.shared.media.items.ItemDiskExpanded;
-import dan200.computercraft.shared.media.items.ItemDiskLegacy;
+import dan200.computercraft.shared.computer.recipe.ComputerUpgradeRecipe;
+import dan200.computercraft.shared.media.items.ItemDisk;
 import dan200.computercraft.shared.media.items.ItemPrintout;
 import dan200.computercraft.shared.media.items.ItemTreasureDisk;
-import dan200.computercraft.shared.peripheral.common.BlockPeripheral;
-import dan200.computercraft.shared.peripheral.common.ItemPeripheral;
+import dan200.computercraft.shared.media.recipes.DiskRecipe;
+import dan200.computercraft.shared.media.recipes.PrintoutRecipe;
+import dan200.computercraft.shared.peripheral.diskdrive.BlockDiskDrive;
+import dan200.computercraft.shared.peripheral.diskdrive.ContainerDiskDrive;
 import dan200.computercraft.shared.peripheral.diskdrive.TileDiskDrive;
 import dan200.computercraft.shared.peripheral.modem.wired.*;
-import dan200.computercraft.shared.peripheral.modem.wireless.BlockAdvancedModem;
-import dan200.computercraft.shared.peripheral.modem.wireless.ItemAdvancedModem;
-import dan200.computercraft.shared.peripheral.modem.wireless.TileAdvancedModem;
+import dan200.computercraft.shared.peripheral.modem.wireless.BlockWirelessModem;
 import dan200.computercraft.shared.peripheral.modem.wireless.TileWirelessModem;
+import dan200.computercraft.shared.peripheral.monitor.BlockMonitor;
 import dan200.computercraft.shared.peripheral.monitor.TileMonitor;
+import dan200.computercraft.shared.peripheral.printer.BlockPrinter;
+import dan200.computercraft.shared.peripheral.printer.ContainerPrinter;
 import dan200.computercraft.shared.peripheral.printer.TilePrinter;
+import dan200.computercraft.shared.peripheral.speaker.BlockSpeaker;
 import dan200.computercraft.shared.peripheral.speaker.TileSpeaker;
+import dan200.computercraft.shared.pocket.inventory.ContainerPocketComputer;
 import dan200.computercraft.shared.pocket.items.ItemPocketComputer;
 import dan200.computercraft.shared.pocket.peripherals.PocketModem;
 import dan200.computercraft.shared.pocket.peripherals.PocketSpeaker;
+import dan200.computercraft.shared.pocket.recipes.PocketComputerUpgradeRecipe;
 import dan200.computercraft.shared.turtle.blocks.BlockTurtle;
 import dan200.computercraft.shared.turtle.blocks.TileTurtle;
-import dan200.computercraft.shared.turtle.blocks.TileTurtleAdvanced;
-import dan200.computercraft.shared.turtle.blocks.TileTurtleExpanded;
-import dan200.computercraft.shared.turtle.items.ItemTurtleAdvanced;
-import dan200.computercraft.shared.turtle.items.ItemTurtleLegacy;
-import dan200.computercraft.shared.turtle.items.ItemTurtleNormal;
+import dan200.computercraft.shared.turtle.core.TurtlePlayer;
+import dan200.computercraft.shared.turtle.inventory.ContainerTurtle;
+import dan200.computercraft.shared.turtle.items.ItemTurtle;
+import dan200.computercraft.shared.turtle.recipes.TurtleRecipe;
+import dan200.computercraft.shared.turtle.recipes.TurtleUpgradeRecipe;
 import dan200.computercraft.shared.turtle.upgrades.*;
+import dan200.computercraft.shared.util.CreativeTabMain;
+import dan200.computercraft.shared.util.ImpostorRecipe;
+import dan200.computercraft.shared.util.ImpostorShapelessRecipe;
 import net.minecraft.block.Block;
-import net.minecraft.init.Items;
+import net.minecraft.block.material.Material;
+import net.minecraft.entity.EntityType;
+import net.minecraft.inventory.container.ContainerType;
+import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemBlock;
+import net.minecraft.item.ItemGroup;
+import net.minecraft.item.Items;
+import net.minecraft.item.crafting.IRecipeSerializer;
+import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.event.RegistryEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.registries.IForgeRegistry;
 
-@Mod.EventBusSubscriber( modid = ComputerCraft.MOD_ID )
+@Mod.EventBusSubscriber( modid = ComputerCraft.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD )
 public final class Registry
 {
+    private static final ItemGroup mainItemGroup = new CreativeTabMain();
+
     private Registry()
     {
     }
@@ -63,67 +82,131 @@ public final class Registry
         IForgeRegistry<Block> registry = event.getRegistry();
 
         // Computers
-        ComputerCraft.Blocks.computer = new BlockComputer();
-        ComputerCraft.Blocks.commandComputer = new BlockCommandComputer();
-
-        registry.registerAll(
-            ComputerCraft.Blocks.computer.setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "computer" ) ),
-            ComputerCraft.Blocks.commandComputer.setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "command_computer" ) )
+        ComputerCraft.Blocks.computerNormal = new BlockComputer(
+            Block.Properties.create( Material.ROCK ).hardnessAndResistance( 2.0f ),
+            ComputerFamily.NORMAL, TileComputer.FACTORY_NORMAL
         );
 
-        // Turtle
-        ComputerCraft.Blocks.turtle = new BlockTurtle();
-        ComputerCraft.Blocks.turtleExpanded = new BlockTurtle();
-        ComputerCraft.Blocks.turtleAdvanced = new BlockTurtle();
+        ComputerCraft.Blocks.computerAdvanced = new BlockComputer(
+            Block.Properties.create( Material.ROCK ).hardnessAndResistance( 2.0f ),
+            ComputerFamily.ADVANCED, TileComputer.FACTORY_ADVANCED
+        );
+
+        ComputerCraft.Blocks.computerCommand = new BlockComputer(
+            Block.Properties.create( Material.ROCK ).hardnessAndResistance( -1, 6000000.0F ),
+            ComputerFamily.COMMAND, TileCommandComputer.FACTORY
+        );
 
         registry.registerAll(
-            ComputerCraft.Blocks.turtle.setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "turtle" ) ),
-            ComputerCraft.Blocks.turtleExpanded.setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "turtle_expanded" ) ),
+            ComputerCraft.Blocks.computerNormal.setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "computer_normal" ) ),
+            ComputerCraft.Blocks.computerAdvanced.setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "computer_advanced" ) ),
+            ComputerCraft.Blocks.computerCommand.setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "computer_command" ) )
+        );
+
+        // Turtles
+        ComputerCraft.Blocks.turtleNormal = new BlockTurtle(
+            Block.Properties.create( Material.ROCK ).hardnessAndResistance( 2.5f ),
+            ComputerFamily.NORMAL, TileTurtle.FACTORY_NORMAL
+        );
+
+        ComputerCraft.Blocks.turtleAdvanced = new BlockTurtle(
+            Block.Properties.create( Material.ROCK ).hardnessAndResistance( 2.5f ),
+            ComputerFamily.ADVANCED, TileTurtle.FACTORY_ADVANCED
+        );
+
+        registry.registerAll(
+            ComputerCraft.Blocks.turtleNormal.setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "turtle_normal" ) ),
             ComputerCraft.Blocks.turtleAdvanced.setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "turtle_advanced" ) )
         );
 
-        // Peripheral
-        ComputerCraft.Blocks.peripheral = new BlockPeripheral();
-        registry.register( ComputerCraft.Blocks.peripheral.setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "peripheral" ) ) );
+        // Peripherals
+        ComputerCraft.Blocks.speaker = new BlockSpeaker(
+            Block.Properties.create( Material.ROCK ).hardnessAndResistance( 2 )
+        );
 
-        // Cable
-        ComputerCraft.Blocks.cable = new BlockCable();
-        registry.register( ComputerCraft.Blocks.cable.setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "cable" ) ) );
+        ComputerCraft.Blocks.diskDrive = new BlockDiskDrive(
+            Block.Properties.create( Material.ROCK ).hardnessAndResistance( 2 )
+        );
 
-        // Advanced modem
-        ComputerCraft.Blocks.advancedModem = new BlockAdvancedModem();
-        registry.register( ComputerCraft.Blocks.advancedModem.setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "advanced_modem" ) ) );
+        ComputerCraft.Blocks.monitorNormal = new BlockMonitor(
+            Block.Properties.create( Material.ROCK ).hardnessAndResistance( 2 ),
+            TileMonitor.FACTORY_NORMAL
+        );
 
-        // Full block modem
-        ComputerCraft.Blocks.wiredModemFull = new BlockWiredModemFull();
-        registry.register( ComputerCraft.Blocks.wiredModemFull.setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "wired_modem_full" ) ) );
+        ComputerCraft.Blocks.monitorAdvanced = new BlockMonitor(
+            Block.Properties.create( Material.ROCK ).hardnessAndResistance( 2 ),
+            TileMonitor.FACTORY_ADVANCED
+        );
 
-        registerTileEntities();
+        ComputerCraft.Blocks.printer = new BlockPrinter(
+            Block.Properties.create( Material.ROCK ).hardnessAndResistance( 2 )
+        );
+
+        ComputerCraft.Blocks.wirelessModemNormal = new BlockWirelessModem(
+            Block.Properties.create( Material.ROCK ).hardnessAndResistance( 2 ),
+            TileWirelessModem.FACTORY_NORMAL
+        );
+
+        ComputerCraft.Blocks.wirelessModemAdvanced = new BlockWirelessModem(
+            Block.Properties.create( Material.ROCK ).hardnessAndResistance( 2 ),
+            TileWirelessModem.FACTORY_ADVANCED
+        );
+
+        ComputerCraft.Blocks.wiredModemFull = new BlockWiredModemFull(
+            Block.Properties.create( Material.ROCK ).hardnessAndResistance( 1.5f )
+        );
+
+        ComputerCraft.Blocks.cable = new BlockCable(
+            Block.Properties.create( Material.ROCK ).hardnessAndResistance( 1.5f )
+        );
+
+        registry.registerAll(
+            ComputerCraft.Blocks.speaker.setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "speaker" ) ),
+            ComputerCraft.Blocks.diskDrive.setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "disk_drive" ) ),
+            ComputerCraft.Blocks.monitorNormal.setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "monitor_normal" ) ),
+            ComputerCraft.Blocks.monitorAdvanced.setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "monitor_advanced" ) ),
+            ComputerCraft.Blocks.printer.setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "printer" ) ),
+            ComputerCraft.Blocks.wirelessModemNormal.setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "wireless_modem_normal" ) ),
+            ComputerCraft.Blocks.wirelessModemAdvanced.setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "wireless_modem_advanced" ) ),
+            ComputerCraft.Blocks.wiredModemFull.setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "wired_modem_full" ) ),
+            ComputerCraft.Blocks.cable.setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "cable" ) )
+        );
     }
 
-    private static void registerTileEntities()
+    @SubscribeEvent
+    public static void registerTileEntities( RegistryEvent.Register<TileEntityType<?>> event )
     {
-        GameRegistry.registerTileEntity( TileComputer.class, new ResourceLocation( ComputerCraft.MOD_ID, "computer" ) );
-        GameRegistry.registerTileEntity( TileCommandComputer.class, new ResourceLocation( ComputerCraft.MOD_ID, "command_computer" ) );
+        IForgeRegistry<TileEntityType<?>> registry = event.getRegistry();
 
-        GameRegistry.registerTileEntity( TileTurtle.class, new ResourceLocation( ComputerCraft.MOD_ID, "turtle" ) );
-        GameRegistry.registerTileEntity( TileTurtleExpanded.class, new ResourceLocation( ComputerCraft.MOD_ID, "turtleex" ) );
-        GameRegistry.registerTileEntity( TileTurtleAdvanced.class, new ResourceLocation( ComputerCraft.MOD_ID, "turtleadv" ) );
+        // Computers
+        registry.registerAll( TileComputer.FACTORY_NORMAL, TileComputer.FACTORY_ADVANCED, TileCommandComputer.FACTORY );
 
-        GameRegistry.registerTileEntity( TileDiskDrive.class, new ResourceLocation( ComputerCraft.MOD_ID, "diskdrive" ) );
-        GameRegistry.registerTileEntity( TileWirelessModem.class, new ResourceLocation( ComputerCraft.MOD_ID, "wirelessmodem" ) );
-        GameRegistry.registerTileEntity( TileMonitor.class, new ResourceLocation( ComputerCraft.MOD_ID, "monitor" ) );
-        GameRegistry.registerTileEntity( TilePrinter.class, new ResourceLocation( ComputerCraft.MOD_ID, "ccprinter" ) );
-        GameRegistry.registerTileEntity( TileCable.class, new ResourceLocation( ComputerCraft.MOD_ID, "wiredmodem" ) );
-        GameRegistry.registerTileEntity( TileAdvancedModem.class, new ResourceLocation( ComputerCraft.MOD_ID, "advanced_modem" ) );
-        GameRegistry.registerTileEntity( TileSpeaker.class, new ResourceLocation( ComputerCraft.MOD_ID, "speaker" ) );
-        GameRegistry.registerTileEntity( TileWiredModemFull.class, new ResourceLocation( ComputerCraft.MOD_ID, "wired_modem_full" ) );
+        // Turtles
+        registry.registerAll( TileTurtle.FACTORY_NORMAL, TileTurtle.FACTORY_ADVANCED );
+
+        // Peripherals
+        registry.registerAll(
+            TileSpeaker.FACTORY,
+            TileDiskDrive.FACTORY,
+            TileMonitor.FACTORY_NORMAL,
+            TileMonitor.FACTORY_ADVANCED,
+            TilePrinter.FACTORY,
+            TileWirelessModem.FACTORY_NORMAL,
+            TileWirelessModem.FACTORY_ADVANCED,
+            TileWiredModemFull.FACTORY,
+            TileCable.FACTORY
+        );
     }
 
-    private static <T extends ItemBlock> T setupItemBlock( T item )
+    private static <T extends BlockItem> T setupItemBlock( T item )
     {
         item.setRegistryName( item.getBlock().getRegistryName() );
         return item;
+    }
+
+    private static Item.Properties defaultItem()
+    {
+        return new Item.Properties().group( mainItemGroup );
     }
 
     @SubscribeEvent
@@ -131,198 +214,151 @@ public final class Registry
     {
         IForgeRegistry<Item> registry = event.getRegistry();
 
-        // Computers
-        ComputerCraft.Items.computer = new ItemComputer( ComputerCraft.Blocks.computer );
-        ComputerCraft.Items.commandComputer = new ItemCommandComputer( ComputerCraft.Blocks.commandComputer );
+        // Computer
+        ComputerCraft.Items.computerNormal = new ItemComputer( ComputerCraft.Blocks.computerNormal, defaultItem() );
+        ComputerCraft.Items.computerAdvanced = new ItemComputer( ComputerCraft.Blocks.computerAdvanced, defaultItem() );
+        ComputerCraft.Items.computerCommand = new ItemComputer( ComputerCraft.Blocks.computerCommand, defaultItem() );
 
         registry.registerAll(
-            setupItemBlock( ComputerCraft.Items.computer ),
-            setupItemBlock( ComputerCraft.Items.commandComputer )
-        );
-
-        // Pocket computer
-        ComputerCraft.Items.pocketComputer = new ItemPocketComputer();
-        registry.register(
-            ComputerCraft.Items.pocketComputer.setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "pocket_computer" ) )
+            setupItemBlock( ComputerCraft.Items.computerNormal ),
+            setupItemBlock( ComputerCraft.Items.computerAdvanced ),
+            setupItemBlock( ComputerCraft.Items.computerCommand )
         );
 
         // Turtle
-        ComputerCraft.Items.turtle = new ItemTurtleLegacy( ComputerCraft.Blocks.turtle );
-        ComputerCraft.Items.turtleExpanded = new ItemTurtleNormal( ComputerCraft.Blocks.turtleExpanded );
-        ComputerCraft.Items.turtleAdvanced = new ItemTurtleAdvanced( ComputerCraft.Blocks.turtleAdvanced );
-
+        ComputerCraft.Items.turtleNormal = new ItemTurtle( ComputerCraft.Blocks.turtleNormal, defaultItem() );
+        ComputerCraft.Items.turtleAdvanced = new ItemTurtle( ComputerCraft.Blocks.turtleAdvanced, defaultItem() );
         registry.registerAll(
-            setupItemBlock( ComputerCraft.Items.turtle ),
-            setupItemBlock( ComputerCraft.Items.turtleExpanded ),
+            setupItemBlock( ComputerCraft.Items.turtleNormal ),
             setupItemBlock( ComputerCraft.Items.turtleAdvanced )
         );
 
-        // Printouts
-        ComputerCraft.Items.printout = new ItemPrintout();
-        registry.register( ComputerCraft.Items.printout.setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "printout" ) ) );
+        // Pocket computer
+        ComputerCraft.Items.pocketComputerNormal = new ItemPocketComputer( defaultItem().maxStackSize( 1 ), ComputerFamily.NORMAL );
+        ComputerCraft.Items.pocketComputerAdvanced = new ItemPocketComputer( defaultItem().maxStackSize( 1 ), ComputerFamily.ADVANCED );
 
-        // Disks
-        ComputerCraft.Items.disk = new ItemDiskLegacy();
-        ComputerCraft.Items.diskExpanded = new ItemDiskExpanded();
-        ComputerCraft.Items.treasureDisk = new ItemTreasureDisk();
+        registry.registerAll(
+            ComputerCraft.Items.pocketComputerNormal.setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "pocket_computer_normal" ) ),
+            ComputerCraft.Items.pocketComputerAdvanced.setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "pocket_computer_advanced" ) )
+        );
+
+        // Floppy disk
+        ComputerCraft.Items.disk = new ItemDisk( defaultItem().maxStackSize( 1 ) );
+        ComputerCraft.Items.treasureDisk = new ItemTreasureDisk( defaultItem().maxStackSize( 1 ) );
 
         registry.registerAll(
             ComputerCraft.Items.disk.setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "disk" ) ),
-            ComputerCraft.Items.diskExpanded.setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "disk_expanded" ) ),
             ComputerCraft.Items.treasureDisk.setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "treasure_disk" ) )
         );
 
-        // Peripherals
-        ComputerCraft.Items.peripheral = new ItemPeripheral( ComputerCraft.Blocks.peripheral );
-        ComputerCraft.Items.advancedModem = new ItemAdvancedModem( ComputerCraft.Blocks.advancedModem );
-        ComputerCraft.Items.cable = new ItemCable( ComputerCraft.Blocks.cable );
-        ComputerCraft.Items.wiredModemFull = new ItemWiredModemFull( ComputerCraft.Blocks.wiredModemFull );
+        // Printouts
+        ComputerCraft.Items.printedPage = new ItemPrintout( defaultItem().maxStackSize( 1 ), ItemPrintout.Type.PAGE );
+        ComputerCraft.Items.printedPages = new ItemPrintout( defaultItem().maxStackSize( 1 ), ItemPrintout.Type.PAGES );
+        ComputerCraft.Items.printedBook = new ItemPrintout( defaultItem().maxStackSize( 1 ), ItemPrintout.Type.BOOK );
 
         registry.registerAll(
-            setupItemBlock( ComputerCraft.Items.peripheral ),
-            setupItemBlock( ComputerCraft.Items.advancedModem ),
-            setupItemBlock( ComputerCraft.Items.cable ),
-            setupItemBlock( ComputerCraft.Items.wiredModemFull )
+            ComputerCraft.Items.printedPage.setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "printed_page" ) ),
+            ComputerCraft.Items.printedPages.setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "printed_pages" ) ),
+            ComputerCraft.Items.printedBook.setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "printed_book" ) )
+        );
+
+        // Peripherals
+        registry.registerAll(
+            setupItemBlock( new BlockItem( ComputerCraft.Blocks.speaker, defaultItem() ) ),
+            setupItemBlock( new BlockItem( ComputerCraft.Blocks.diskDrive, defaultItem() ) ),
+            setupItemBlock( new BlockItem( ComputerCraft.Blocks.printer, defaultItem() ) ),
+            setupItemBlock( new BlockItem( ComputerCraft.Blocks.monitorNormal, defaultItem() ) ),
+            setupItemBlock( new BlockItem( ComputerCraft.Blocks.monitorAdvanced, defaultItem() ) ),
+            setupItemBlock( new BlockItem( ComputerCraft.Blocks.wirelessModemNormal, defaultItem() ) ),
+            setupItemBlock( new BlockItem( ComputerCraft.Blocks.wirelessModemAdvanced, defaultItem() ) ),
+            setupItemBlock( new BlockItem( ComputerCraft.Blocks.wiredModemFull, defaultItem() ) )
+        );
+
+        ComputerCraft.Items.cable = new ItemBlockCable.Cable( ComputerCraft.Blocks.cable, defaultItem() );
+        ComputerCraft.Items.wiredModem = new ItemBlockCable.WiredModem( ComputerCraft.Blocks.cable, defaultItem() );
+        registry.registerAll(
+            ComputerCraft.Items.cable.setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "cable" ) ),
+            ComputerCraft.Items.wiredModem.setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "wired_modem" ) )
         );
 
         registerTurtleUpgrades();
         registerPocketUpgrades();
-        registerLegacyUpgrades();
     }
 
     private static void registerTurtleUpgrades()
     {
         // Upgrades
-        ComputerCraft.TurtleUpgrades.wirelessModem = new TurtleModem( false, new ResourceLocation( "computercraft", "wireless_modem" ), 1 );
-        TurtleUpgrades.registerInternal( ComputerCraft.TurtleUpgrades.wirelessModem );
+        ComputerCraft.TurtleUpgrades.wirelessModemNormal = new TurtleModem( false, new ResourceLocation( ComputerCraft.MOD_ID, "wireless_modem_normal" ) );
+        TurtleUpgrades.register( ComputerCraft.TurtleUpgrades.wirelessModemNormal );
 
-        ComputerCraft.TurtleUpgrades.advancedModem = new TurtleModem( true, new ResourceLocation( "computercraft", "advanced_modem" ), -1 );
-        TurtleUpgrades.registerInternal( ComputerCraft.TurtleUpgrades.advancedModem );
+        ComputerCraft.TurtleUpgrades.wirelessModemAdvanced = new TurtleModem( true, new ResourceLocation( ComputerCraft.MOD_ID, "wireless_modem_advanced" ) );
+        ComputerCraftAPI.registerTurtleUpgrade( ComputerCraft.TurtleUpgrades.wirelessModemAdvanced );
 
-        ComputerCraft.TurtleUpgrades.speaker = new TurtleSpeaker( new ResourceLocation( "computercraft", "speaker" ), 8 );
-        TurtleUpgrades.registerInternal( ComputerCraft.TurtleUpgrades.speaker );
+        ComputerCraft.TurtleUpgrades.speaker = new TurtleSpeaker( new ResourceLocation( ComputerCraft.MOD_ID, "speaker" ) );
+        ComputerCraftAPI.registerTurtleUpgrade( ComputerCraft.TurtleUpgrades.speaker );
 
-        ComputerCraft.TurtleUpgrades.craftingTable = new TurtleCraftingTable( new ResourceLocation( "minecraft", "crafting_table" ), 2 );
-        TurtleUpgrades.registerInternal( ComputerCraft.TurtleUpgrades.craftingTable );
+        ComputerCraft.TurtleUpgrades.craftingTable = new TurtleCraftingTable( new ResourceLocation( "minecraft", "crafting_table" ) );
+        ComputerCraftAPI.registerTurtleUpgrade( ComputerCraft.TurtleUpgrades.craftingTable );
 
-        ComputerCraft.TurtleUpgrades.diamondSword = new TurtleSword( new ResourceLocation( "minecraft", "diamond_sword" ), 3, Items.DIAMOND_SWORD );
-        TurtleUpgrades.registerInternal( ComputerCraft.TurtleUpgrades.diamondSword );
+        ComputerCraft.TurtleUpgrades.diamondSword = new TurtleSword( new ResourceLocation( "minecraft", "diamond_sword" ), Items.DIAMOND_SWORD );
+        ComputerCraftAPI.registerTurtleUpgrade( ComputerCraft.TurtleUpgrades.diamondSword );
 
-        ComputerCraft.TurtleUpgrades.diamondShovel = new TurtleShovel( new ResourceLocation( "minecraft", "diamond_shovel" ), 4, Items.DIAMOND_SHOVEL );
-        TurtleUpgrades.registerInternal( ComputerCraft.TurtleUpgrades.diamondShovel );
+        ComputerCraft.TurtleUpgrades.diamondShovel = new TurtleShovel( new ResourceLocation( "minecraft", "diamond_shovel" ), net.minecraft.item.Items.DIAMOND_SHOVEL );
+        ComputerCraftAPI.registerTurtleUpgrade( ComputerCraft.TurtleUpgrades.diamondShovel );
 
-        ComputerCraft.TurtleUpgrades.diamondPickaxe = new TurtleTool( new ResourceLocation( "minecraft", "diamond_pickaxe" ), 5, Items.DIAMOND_PICKAXE );
-        TurtleUpgrades.registerInternal( ComputerCraft.TurtleUpgrades.diamondPickaxe );
+        ComputerCraft.TurtleUpgrades.diamondPickaxe = new TurtleTool( new ResourceLocation( "minecraft", "diamond_pickaxe" ), Items.DIAMOND_PICKAXE );
+        ComputerCraftAPI.registerTurtleUpgrade( ComputerCraft.TurtleUpgrades.diamondPickaxe );
 
-        ComputerCraft.TurtleUpgrades.diamondAxe = new TurtleAxe( new ResourceLocation( "minecraft", "diamond_axe" ), 6, Items.DIAMOND_AXE );
-        TurtleUpgrades.registerInternal( ComputerCraft.TurtleUpgrades.diamondAxe );
+        ComputerCraft.TurtleUpgrades.diamondAxe = new TurtleAxe( new ResourceLocation( "minecraft", "diamond_axe" ), Items.DIAMOND_AXE );
+        ComputerCraftAPI.registerTurtleUpgrade( ComputerCraft.TurtleUpgrades.diamondAxe );
 
-        ComputerCraft.TurtleUpgrades.diamondHoe = new TurtleHoe( new ResourceLocation( "minecraft", "diamond_hoe" ), 7, Items.DIAMOND_HOE );
-        TurtleUpgrades.registerInternal( ComputerCraft.TurtleUpgrades.diamondHoe );
+        ComputerCraft.TurtleUpgrades.diamondHoe = new TurtleHoe( new ResourceLocation( "minecraft", "diamond_hoe" ), Items.DIAMOND_HOE );
+        ComputerCraftAPI.registerTurtleUpgrade( ComputerCraft.TurtleUpgrades.diamondHoe );
     }
 
     private static void registerPocketUpgrades()
     {
-        // Register pocket upgrades
-        ComputerCraft.PocketUpgrades.wirelessModem = new PocketModem( false );
-        ComputerCraftAPI.registerPocketUpgrade( ComputerCraft.PocketUpgrades.wirelessModem );
-        ComputerCraft.PocketUpgrades.advancedModem = new PocketModem( true );
-        ComputerCraftAPI.registerPocketUpgrade( ComputerCraft.PocketUpgrades.advancedModem );
-
-        ComputerCraft.PocketUpgrades.speaker = new PocketSpeaker();
-        ComputerCraftAPI.registerPocketUpgrade( ComputerCraft.PocketUpgrades.speaker );
-    }
-
-    @SuppressWarnings( "deprecation" )
-    private static void registerLegacyUpgrades()
-    {
-        ComputerCraft.PocketUpgrades.pocketSpeaker = ComputerCraft.PocketUpgrades.speaker;
-        ComputerCraft.Upgrades.advancedModem = ComputerCraft.TurtleUpgrades.advancedModem;
+        ComputerCraftAPI.registerPocketUpgrade( ComputerCraft.PocketUpgrades.wirelessModemNormal = new PocketModem( false ) );
+        ComputerCraftAPI.registerPocketUpgrade( ComputerCraft.PocketUpgrades.wirelessModemAdvanced = new PocketModem( true ) );
+        ComputerCraftAPI.registerPocketUpgrade( ComputerCraft.PocketUpgrades.speaker = new PocketSpeaker() );
     }
 
     @SubscribeEvent
-    public static void remapItems( RegistryEvent.MissingMappings<Item> mappings )
+    public static void registerEntities( RegistryEvent.Register<EntityType<?>> registry )
     {
-        // We have to use mappings.getAllMappings() as the mod ID is upper case but the domain lower.
-        for( RegistryEvent.MissingMappings.Mapping<Item> mapping : mappings.getAllMappings() )
-        {
-            String domain = mapping.key.getNamespace();
-            if( !domain.equalsIgnoreCase( ComputerCraft.MOD_ID ) ) continue;
-
-            String key = mapping.key.getPath();
-            if( key.equalsIgnoreCase( "CC-Computer" ) )
-            {
-                mapping.remap( ComputerCraft.Items.computer );
-            }
-            else if( key.equalsIgnoreCase( "CC-Peripheral" ) )
-            {
-                mapping.remap( ComputerCraft.Items.peripheral );
-            }
-            else if( key.equalsIgnoreCase( "CC-Cable" ) )
-            {
-                mapping.remap( ComputerCraft.Items.cable );
-            }
-            else if( key.equalsIgnoreCase( "diskExpanded" ) )
-            {
-                mapping.remap( ComputerCraft.Items.diskExpanded );
-            }
-            else if( key.equalsIgnoreCase( "treasureDisk" ) )
-            {
-                mapping.remap( ComputerCraft.Items.treasureDisk );
-            }
-            else if( key.equalsIgnoreCase( "pocketComputer" ) )
-            {
-                mapping.remap( ComputerCraft.Items.pocketComputer );
-            }
-            else if( key.equalsIgnoreCase( "CC-Turtle" ) )
-            {
-                mapping.remap( ComputerCraft.Items.turtle );
-            }
-            else if( key.equalsIgnoreCase( "CC-TurtleExpanded" ) )
-            {
-                mapping.remap( ComputerCraft.Items.turtleExpanded );
-            }
-            else if( key.equalsIgnoreCase( "CC-TurtleAdvanced" ) )
-            {
-                mapping.remap( ComputerCraft.Items.turtleAdvanced );
-            }
-        }
+        registry.getRegistry().register( TurtlePlayer.TYPE.setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "turtle_player" ) ) );
     }
 
     @SubscribeEvent
-    public static void remapBlocks( RegistryEvent.MissingMappings<Block> mappings )
+    public static void registerContainers( RegistryEvent.Register<ContainerType<?>> event )
     {
-        // We have to use mappings.getAllMappings() as the mod ID is upper case but the domain lower.
-        for( RegistryEvent.MissingMappings.Mapping<Block> mapping : mappings.getAllMappings() )
-        {
-            String domain = mapping.key.getNamespace();
-            if( !domain.equalsIgnoreCase( ComputerCraft.MOD_ID ) ) continue;
+        event.getRegistry().registerAll(
+            ContainerComputer.TYPE.setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "computer" ) ),
+            ContainerPocketComputer.TYPE.setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "pocket_computer" ) ),
+            ContainerTurtle.TYPE.setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "turtle" ) ),
 
-            String key = mapping.key.getPath();
-            if( key.equalsIgnoreCase( "CC-Computer" ) )
-            {
-                mapping.remap( ComputerCraft.Blocks.computer );
-            }
-            else if( key.equalsIgnoreCase( "CC-Peripheral" ) )
-            {
-                mapping.remap( ComputerCraft.Blocks.peripheral );
-            }
-            else if( key.equalsIgnoreCase( "CC-Cable" ) )
-            {
-                mapping.remap( ComputerCraft.Blocks.cable );
-            }
-            else if( key.equalsIgnoreCase( "CC-Turtle" ) )
-            {
-                mapping.remap( ComputerCraft.Blocks.turtle );
-            }
-            else if( key.equalsIgnoreCase( "CC-TurtleExpanded" ) )
-            {
-                mapping.remap( ComputerCraft.Blocks.turtleExpanded );
-            }
-            else if( key.equalsIgnoreCase( "CC-TurtleAdvanced" ) )
-            {
-                mapping.remap( ComputerCraft.Blocks.turtleAdvanced );
-            }
-        }
+            ContainerDiskDrive.TYPE.setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "disk_drive" ) ),
+            ContainerPrinter.TYPE.setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "printer" ) ),
+            ContainerHeldItem.PRINTOUT_TYPE.setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "printout" ) ),
+
+            ContainerViewComputer.TYPE.setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "view_computer" ) )
+        );
+    }
+
+    @SubscribeEvent
+    public static void regsterRecipeSerializers( RegistryEvent.Register<IRecipeSerializer<?>> event )
+    {
+
+        event.getRegistry().registerAll(
+            ColourableRecipe.SERIALIZER.setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "colour" ) ),
+            ComputerUpgradeRecipe.SERIALIZER.setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "computer_upgrade" ) ),
+            PocketComputerUpgradeRecipe.SERIALIZER.setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "pocket_computer_upgrade" ) ),
+            DiskRecipe.SERIALIZER.setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "disk" ) ),
+            PrintoutRecipe.SERIALIZER.setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "printout" ) ),
+            TurtleRecipe.SERIALIZER.setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "turtle" ) ),
+            TurtleUpgradeRecipe.SERIALIZER.setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "turtle_upgrade" ) ),
+            ImpostorShapelessRecipe.SERIALIZER.setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "impostor_shapeless" ) ),
+            ImpostorRecipe.SERIALIZER.setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "impostor_shaped" ) )
+        );
     }
 }

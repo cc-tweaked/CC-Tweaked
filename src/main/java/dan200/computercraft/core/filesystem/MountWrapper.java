@@ -20,11 +20,11 @@ import java.util.OptionalLong;
 
 class MountWrapper
 {
-    private String label;
-    private String location;
+    private final String label;
+    private final String location;
 
-    private IMount mount;
-    private IWritableMount writableMount;
+    private final IMount mount;
+    private final IWritableMount writableMount;
 
     MountWrapper( String label, String location, IMount mount )
     {
@@ -36,7 +36,9 @@ class MountWrapper
 
     MountWrapper( String label, String location, IWritableMount mount )
     {
-        this( label, location, (IMount) mount );
+        this.label = label;
+        this.location = location;
+        this.mount = mount;
         writableMount = mount;
     }
 
@@ -154,7 +156,7 @@ class MountWrapper
         {
             if( mount.exists( path ) && !mount.isDirectory( path ) )
             {
-                return mount.openChannelForRead( path );
+                return mount.openForRead( path );
             }
             else
             {
@@ -232,7 +234,7 @@ class MountWrapper
                         writableMount.makeDirectory( dir );
                     }
                 }
-                return writableMount.openChannelForWrite( path );
+                return writableMount.openForWrite( path );
             }
         }
         catch( AccessDeniedException e )
@@ -262,7 +264,7 @@ class MountWrapper
                         writableMount.makeDirectory( dir );
                     }
                 }
-                return writableMount.openChannelForWrite( path );
+                return writableMount.openForWrite( path );
             }
             else if( mount.isDirectory( path ) )
             {
@@ -270,7 +272,7 @@ class MountWrapper
             }
             else
             {
-                return writableMount.openChannelForAppend( path );
+                return writableMount.openForAppend( path );
             }
         }
         catch( AccessDeniedException e )

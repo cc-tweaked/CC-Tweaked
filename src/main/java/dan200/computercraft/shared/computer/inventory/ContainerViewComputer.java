@@ -7,64 +7,61 @@ package dan200.computercraft.shared.computer.inventory;
 
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.computer.blocks.TileCommandComputer;
-import dan200.computercraft.shared.computer.core.*;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.Container;
+import dan200.computercraft.shared.computer.core.ComputerFamily;
+import dan200.computercraft.shared.computer.core.IContainerComputer;
+import dan200.computercraft.shared.computer.core.ServerComputer;
+import dan200.computercraft.shared.network.container.ContainerData;
+import dan200.computercraft.shared.network.container.ViewComputerContainerData;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.inventory.container.ContainerType;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
-public class ContainerViewComputer extends Container implements IContainerComputer
+public class ContainerViewComputer extends ContainerComputerBase implements IContainerComputer
 {
-    private final IComputer computer;
-    private final InputState input = new InputState( this );
+    public static final ContainerType<ContainerViewComputer> TYPE = ContainerData.toType( ViewComputerContainerData::new, ContainerViewComputer::new );
 
-    public ContainerViewComputer( IComputer computer )
+    private final int width;
+    private final int height;
+
+    public ContainerViewComputer( int id, ServerComputer computer )
     {
-        this.computer = computer;
+        super( TYPE, id, player -> canInteractWith( computer, player ), computer, computer.getFamily() );
+        this.width = this.height = 0;
     }
 
-    @Nullable
-    @Override
-    public IComputer getComputer()
+    public ContainerViewComputer( int id, PlayerInventory player, ViewComputerContainerData data )
     {
-        return computer;
+        super( TYPE, id, player, data );
+        this.width = data.getWidth();
+        this.height = data.getHeight();
     }
 
-    @Override
-    public boolean canInteractWith( @Nonnull EntityPlayer player )
+    private static boolean canInteractWith( @Nonnull ServerComputer computer, @Nonnull PlayerEntity player )
     {
-        if( computer instanceof ServerComputer )
+        // If this computer no longer exists then discard it.
+        if( ComputerCraft.serverComputerRegistry.get( computer.getInstanceID() ) != computer )
         {
-            ServerComputer serverComputer = (ServerComputer) computer;
+            return false;
+        }
 
-            // If this computer no longer exists then discard it.
-            if( ComputerCraft.serverComputerRegistry.get( serverComputer.getInstanceID() ) != serverComputer )
-            {
-                return false;
-            }
-
-            // If we're a command computer then ensure we're in creative
-            if( serverComputer.getFamily() == ComputerFamily.Command && !TileCommandComputer.isUsable( player ) )
-            {
-                return false;
-            }
+        // If we're a command computer then ensure we're in creative
+        if( computer.getFamily() == ComputerFamily.COMMAND && !TileCommandComputer.isUsable( player ) )
+        {
+            return false;
         }
 
         return true;
     }
 
-    @Nonnull
-    @Override
-    public InputState getInput()
+    public int getWidth()
     {
-        return input;
+        return width;
     }
 
-    @Override
-    public void onContainerClosed( EntityPlayer player )
+    public int getHeight()
     {
-        super.onContainerClosed( player );
-        input.close();
+        return height;
     }
 }

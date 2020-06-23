@@ -1,0 +1,49 @@
+{
+    "parent": "minecraft:recipes/root",
+    "rewards": {
+        "recipes": [
+            "computercraft:wired_modem",
+            "computercraft:wired_modem_full_to",
+            "computercraft:wired_modem_full_from"
+        ]
+    },
+    "criteria": {
+        "has_normal": {
+            "trigger": "minecraft:inventory_changed",
+            "conditions": {
+                "items": [ { "item": "computercraft:computer_normal" } ]
+            }
+        },
+        "has_advanced": {
+            "trigger": "minecraft:inventory_changed",
+            "conditions": {
+                "items": [ { "item": "computercraft:computer_advanced" } ]
+            }
+        },
+        "has_cable": {
+            "trigger": "minecraft:inventory_changed",
+            "conditions": {
+                "items": [ { "item": "computercraft:wired_modem" } ]
+            }
+        },
+        "has_modem_full": {
+            "trigger": "minecraft:inventory_changed",
+            "conditions": {
+                "items": [ { "item": "computercraft:wired_modem_full" } ]
+            }
+        },
+        "has_the_recipe": {
+            "trigger": "minecraft:recipe_unlocked",
+            "conditions": { "recipe": "computercraft:wired_modem" }
+        }
+    },
+    "requirements": [
+        [
+            "has_normal",
+            "has_advanced",
+            "has_cable",
+            "has_modem_full",
+            "has_the_recipe"
+        ]
+    ]
+}

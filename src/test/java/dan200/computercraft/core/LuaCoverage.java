@@ -23,7 +23,7 @@ import java.util.stream.Stream;
 
 class LuaCoverage
 {
-    private static final Path ROOT = new File( "src/main/resources/assets/computercraft/lua" ).toPath();
+    private static final Path ROOT = new File( "src/main/resources/data/computercraft/lua" ).toPath();
     private static final Path BIOS = ROOT.resolve( "bios.lua" );
     private static final Path APIS = ROOT.resolve( "rom/apis" );
     private static final Path SHELL = ROOT.resolve( "rom/programs/shell.lua" );

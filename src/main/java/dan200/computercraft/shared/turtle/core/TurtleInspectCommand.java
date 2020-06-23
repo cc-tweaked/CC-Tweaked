@@ -11,12 +11,14 @@ import dan200.computercraft.api.turtle.ITurtleCommand;
 import dan200.computercraft.api.turtle.TurtleCommandResult;
 import dan200.computercraft.api.turtle.event.TurtleBlockEvent;
 import net.minecraft.block.Block;
-import net.minecraft.block.properties.IProperty;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.block.BlockState;
+import net.minecraft.state.IProperty;
+import net.minecraft.util.Direction;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nonnull;
 import java.util.HashMap;
@@ -36,32 +38,36 @@ public class TurtleInspectCommand implements ITurtleCommand
     public TurtleCommandResult execute( @Nonnull ITurtleAccess turtle )
     {
         // Get world direction from direction
-        EnumFacing direction = this.direction.toWorldDir( turtle );
+        Direction direction = this.direction.toWorldDir( turtle );
 
         // Check if thing in front is air or not
         World world = turtle.getWorld();
         BlockPos oldPosition = turtle.getPosition();
         BlockPos newPosition = oldPosition.offset( direction );
 
-        IBlockState state = world.getBlockState( newPosition );
+        BlockState state = world.getBlockState( newPosition );
         if( state.getBlock().isAir( state, world, newPosition ) )
         {
             return TurtleCommandResult.failure( "No block to inspect" );
         }
 
         Block block = state.getBlock();
+        String name = ForgeRegistries.BLOCKS.getKey( block ).toString();
 
-        Map<String, Object> table = new HashMap<>( 3 );
-        table.put( "name", Block.REGISTRY.getNameForObject( block ).toString() );
-        table.put( "metadata", block.getMetaFromState( state ) );
+        Map<String, Object> table = new HashMap<>();
+        table.put( "name", name );
 
         Map<Object, Object> stateTable = new HashMap<>();
-        for( ImmutableMap.Entry<IProperty<?>, ? extends Comparable<?>> entry : state.getActualState( world, newPosition ).getProperties().entrySet() )
+        for( ImmutableMap.Entry<IProperty<?>, ? extends Comparable<?>> entry : state.getValues().entrySet() )
         {
             IProperty<?> property = entry.getKey();
             stateTable.put( property.getName(), getPropertyValue( property, entry.getValue() ) );
         }
         table.put( "state", stateTable );
+
+        Map<String, Boolean> tags = new HashMap<>();
+        for( ResourceLocation location : block.getTags() ) tags.put( location.toString(), true );
+        table.put( "tags", tags );
 
         // Fire the event, exiting if it is cancelled
         TurtlePlayer turtlePlayer = TurtlePlaceCommand.createPlayer( turtle, oldPosition, direction );

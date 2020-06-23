@@ -7,7 +7,7 @@ package dan200.computercraft.api.pocket;
 
 import dan200.computercraft.api.peripheral.IPeripheral;
 import net.minecraft.entity.Entity;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.ResourceLocation;
 
 import javax.annotation.Nonnull;
@@ -22,22 +22,12 @@ public interface IPocketAccess
     /**
      * Gets the entity holding this item.
      *
-     * @return The holding entity. This may be {@code null}.
-     * @deprecated Use {@link #getValidEntity()} where possible.
-     */
-    @Nullable
-    @Deprecated
-    Entity getEntity();
-
-    /**
-     * Gets the entity holding this item with additional safety checks.
-     *
      * This must be called on the server thread.
      *
      * @return The holding entity, or {@code null} if none exists.
      */
     @Nullable
-    Entity getValidEntity();
+    Entity getEntity();
 
     /**
      * Get the colour of this pocket computer as a RGB number.
@@ -84,7 +74,7 @@ public interface IPocketAccess
      * @see #updateUpgradeNBTData()
      */
     @Nonnull
-    NBTTagCompound getUpgradeNBTData();
+    CompoundNBT getUpgradeNBTData();
 
     /**
      * Mark the upgrade-specific NBT as dirty.

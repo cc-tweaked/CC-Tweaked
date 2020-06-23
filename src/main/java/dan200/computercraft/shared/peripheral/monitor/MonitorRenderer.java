@@ -8,11 +8,9 @@ package dan200.computercraft.shared.peripheral.monitor;
 
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.client.render.TileEntityMonitorRenderer;
-import net.minecraft.client.renderer.OpenGlHelper;
-import org.lwjgl.opengl.GLContext;
+import org.lwjgl.opengl.GL;
 
 import javax.annotation.Nonnull;
-import java.util.Locale;
 
 /**
  * The render type to use for monitors.
@@ -39,45 +37,7 @@ public enum MonitorRenderer
      *
      * @see net.minecraft.client.renderer.vertex.VertexBuffer
      */
-    VBO,
-
-    /**
-     * Render using display lists.
-     *
-     * @see net.minecraft.client.renderer.GLAllocation#generateDisplayLists(int)
-     */
-    DISPLAY_LIST;
-
-    private static final MonitorRenderer[] VALUES = values();
-    public static final String[] NAMES;
-
-    private final String displayName = "gui.computercraft:config.peripheral.monitor_renderer." + name().toLowerCase( Locale.ROOT );
-
-    static
-    {
-        NAMES = new String[VALUES.length];
-        for( int i = 0; i < VALUES.length; i++ ) NAMES[i] = VALUES[i].displayName();
-    }
-
-    public String displayName()
-    {
-        return displayName;
-    }
-
-    @Nonnull
-    public static MonitorRenderer ofString( String name )
-    {
-        for( MonitorRenderer backend : VALUES )
-        {
-            if( backend.displayName.equalsIgnoreCase( name ) || backend.name().equalsIgnoreCase( name ) )
-            {
-                return backend;
-            }
-        }
-
-        ComputerCraft.log.warn( "Unknown monitor renderer {}. Falling back to default.", name );
-        return BEST;
-    }
+    VBO;
 
     /**
      * Get the current renderer to use.
@@ -102,15 +62,6 @@ public enum MonitorRenderer
                 }
 
                 return TBO;
-            case VBO:
-                if( !OpenGlHelper.vboSupported )
-                {
-                    ComputerCraft.log.warn( "VBOs are not supported on your graphics card. Falling back to default." );
-                    ComputerCraft.monitorRenderer = BEST;
-                    return best();
-                }
-
-                return VBO;
             default:
                 return current;
         }
@@ -119,9 +70,7 @@ public enum MonitorRenderer
     private static MonitorRenderer best()
     {
         checkCapabilities();
-        if( textureBuffer ) return TBO;
-        if( OpenGlHelper.vboSupported ) return VBO;
-        return DISPLAY_LIST;
+        return textureBuffer ? TBO : VBO;
     }
 
     private static boolean initialised = false;
@@ -131,7 +80,7 @@ public enum MonitorRenderer
     {
         if( initialised ) return;
 
-        textureBuffer = GLContext.getCapabilities().OpenGL31;
+        textureBuffer = GL.getCapabilities().OpenGL31;
         initialised = true;
     }
 }

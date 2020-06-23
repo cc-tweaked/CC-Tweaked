@@ -6,28 +6,23 @@
 
 package dan200.computercraft.shared.turtle.upgrades;
 
-import dan200.computercraft.api.AbstractTurtleUpgrade;
+import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.api.client.TransformedModel;
 import dan200.computercraft.api.peripheral.IPeripheral;
+import dan200.computercraft.api.turtle.AbstractTurtleUpgrade;
 import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.api.turtle.TurtleUpgradeType;
-import dan200.computercraft.shared.peripheral.PeripheralType;
-import dan200.computercraft.shared.peripheral.common.PeripheralItemFactory;
 import dan200.computercraft.shared.peripheral.speaker.SpeakerPeripheral;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.block.model.IBakedModel;
-import net.minecraft.client.renderer.block.model.ModelManager;
-import net.minecraft.client.renderer.block.model.ModelResourceLocation;
+import net.minecraft.client.renderer.model.ModelResourceLocation;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
-import org.apache.commons.lang3.tuple.Pair;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 import javax.annotation.Nonnull;
-import javax.vecmath.Matrix4f;
 
 public class TurtleSpeaker extends AbstractTurtleUpgrade
 {
@@ -60,18 +55,15 @@ public class TurtleSpeaker extends AbstractTurtleUpgrade
         }
     }
 
-    @SideOnly( Side.CLIENT )
+    @OnlyIn( Dist.CLIENT )
     private ModelResourceLocation m_leftModel;
 
-    @SideOnly( Side.CLIENT )
+    @OnlyIn( Dist.CLIENT )
     private ModelResourceLocation m_rightModel;
 
-    public TurtleSpeaker( ResourceLocation id, int legacyId )
+    public TurtleSpeaker( ResourceLocation id )
     {
-        super(
-            id, legacyId, TurtleUpgradeType.Peripheral,
-            PeripheralItemFactory.create( PeripheralType.Speaker, null, 1 )
-        );
+        super( id, TurtleUpgradeType.PERIPHERAL, ComputerCraft.Blocks.speaker );
     }
 
     @Override
@@ -80,7 +72,7 @@ public class TurtleSpeaker extends AbstractTurtleUpgrade
         return new TurtleSpeaker.Peripheral( turtle );
     }
 
-    @SideOnly( Side.CLIENT )
+    @OnlyIn( Dist.CLIENT )
     private void loadModelLocations()
     {
         if( m_leftModel == null )
@@ -92,20 +84,11 @@ public class TurtleSpeaker extends AbstractTurtleUpgrade
 
     @Nonnull
     @Override
-    @SideOnly( Side.CLIENT )
-    public Pair<IBakedModel, Matrix4f> getModel( ITurtleAccess turtle, @Nonnull TurtleSide side )
+    @OnlyIn( Dist.CLIENT )
+    public TransformedModel getModel( ITurtleAccess turtle, @Nonnull TurtleSide side )
     {
         loadModelLocations();
-        ModelManager modelManager = Minecraft.getMinecraft().getRenderItem().getItemModelMesher().getModelManager();
-
-        if( side == TurtleSide.Left )
-        {
-            return Pair.of( modelManager.getModel( m_leftModel ), null );
-        }
-        else
-        {
-            return Pair.of( modelManager.getModel( m_rightModel ), null );
-        }
+        return TransformedModel.of( side == TurtleSide.LEFT ? m_leftModel : m_rightModel );
     }
 
     @Override

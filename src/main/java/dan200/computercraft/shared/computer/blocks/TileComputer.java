@@ -6,34 +6,55 @@
 package dan200.computercraft.shared.computer.blocks;
 
 import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.core.computer.ComputerSide;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
+import dan200.computercraft.shared.computer.core.ComputerState;
 import dan200.computercraft.shared.computer.core.ServerComputer;
-import dan200.computercraft.shared.network.Containers;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.EnumFacing;
+import dan200.computercraft.shared.computer.inventory.ContainerComputer;
+import dan200.computercraft.shared.util.CapabilityUtil;
+import dan200.computercraft.shared.util.NamedTileEntityType;
+import net.minecraft.block.BlockState;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.inventory.container.Container;
+import net.minecraft.tileentity.TileEntityType;
+import net.minecraft.util.Direction;
+import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.util.LazyOptional;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
+import static dan200.computercraft.shared.Capabilities.CAPABILITY_PERIPHERAL;
 
 public class TileComputer extends TileComputerBase
 {
-    private static final String TAG_STATE = "state";
+    public static final NamedTileEntityType<TileComputer> FACTORY_NORMAL = NamedTileEntityType.create(
+        new ResourceLocation( ComputerCraft.MOD_ID, "computer_normal" ),
+        f -> new TileComputer( ComputerFamily.NORMAL, f )
+    );
 
-    private ComputerProxy m_proxy;
-    private ComputerState state = ComputerState.Off;
+    public static final NamedTileEntityType<TileComputer> FACTORY_ADVANCED = NamedTileEntityType.create(
+        new ResourceLocation( ComputerCraft.MOD_ID, "computer_advanced" ),
+        f -> new TileComputer( ComputerFamily.ADVANCED, f )
+    );
+
+    private ComputerProxy proxy;
+    private LazyOptional<IPeripheral> peripheral;
+
+    public TileComputer( ComputerFamily family, TileEntityType<? extends TileComputer> type )
+    {
+        super( type, family );
+    }
 
     @Override
     protected ServerComputer createComputer( int instanceID, int id )
     {
         ComputerFamily family = getFamily();
         ServerComputer computer = new ServerComputer(
-            getWorld(),
-            id,
-            label,
-            instanceID,
-            family,
+            getWorld(), id, label, instanceID, family,
             ComputerCraft.terminalWidth_computer,
             ComputerCraft.terminalHeight_computer
         );
@@ -41,75 +62,25 @@ public class TileComputer extends TileComputerBase
         return computer;
     }
 
-    @Override
-    public ComputerProxy createProxy()
-    {
-        if( m_proxy == null )
-        {
-            m_proxy = new ComputerProxy()
-            {
-                @Override
-                protected TileComputerBase getTile()
-                {
-                    return TileComputer.this;
-                }
-            };
-        }
-        return m_proxy;
-    }
-
-    @Override
-    public void openGUI( EntityPlayer player )
-    {
-        Containers.openComputerGUI( player, this );
-    }
-
-    @Override
-    protected void writeDescription( @Nonnull NBTTagCompound nbt )
-    {
-        super.writeDescription( nbt );
-        nbt.setInteger( TAG_STATE, state.ordinal() );
-    }
-
-    @Override
-    protected final void readDescription( @Nonnull NBTTagCompound nbt )
-    {
-        super.readDescription( nbt );
-        state = ComputerState.valueOf( nbt.getInteger( TAG_STATE ) );
-        updateBlock();
-    }
-
-    public boolean isUsableByPlayer( EntityPlayer player )
+    public boolean isUsableByPlayer( PlayerEntity player )
     {
         return isUsable( player, false );
     }
 
     @Override
-    public void update()
+    public Direction getDirection()
     {
-        super.update();
-        if( !world.isRemote )
+        return getBlockState().get( BlockComputer.FACING );
+    }
+
+    @Override
+    protected void updateBlockState( ComputerState newState )
+    {
+        BlockState existing = getBlockState();
+        if( existing.get( BlockComputer.STATE ) != newState )
         {
-            ServerComputer computer = getServerComputer();
-            state = computer == null ? ComputerState.Off : computer.getState();
+            getWorld().setBlockState( getPos(), existing.with( BlockComputer.STATE, newState ), 3 );
         }
-    }
-
-    // IDirectionalTile
-
-    @Override
-    public EnumFacing getDirection()
-    {
-        IBlockState state = getBlockState();
-        return state.getValue( BlockComputer.Properties.FACING );
-    }
-
-    @Override
-    public void setDirection( EnumFacing dir )
-    {
-        if( dir.getAxis() == EnumFacing.Axis.Y ) dir = EnumFacing.NORTH;
-        setBlockState( getBlockState().withProperty( BlockComputer.Properties.FACING, dir ) );
-        updateInput();
     }
 
     @Override
@@ -122,8 +93,36 @@ public class TileComputer extends TileComputerBase
         return localSide;
     }
 
-    public ComputerState getState()
+    @Nullable
+    @Override
+    public Container createMenu( int id, @Nonnull PlayerInventory inventory, @Nonnull PlayerEntity player )
     {
-        return state;
+        return new ContainerComputer( id, this );
+    }
+
+    @Nonnull
+    @Override
+    public <T> LazyOptional<T> getCapability( @Nonnull Capability<T> cap, @Nullable Direction side )
+    {
+        if( cap == CAPABILITY_PERIPHERAL )
+        {
+            if( peripheral == null )
+            {
+                peripheral = LazyOptional.of( () -> {
+                    if( proxy == null ) proxy = new ComputerProxy( () -> this );
+                    return new ComputerPeripheral( "computer", proxy );
+                } );
+            }
+            return peripheral.cast();
+        }
+
+        return super.getCapability( cap, side );
+    }
+
+    @Override
+    protected void invalidateCaps()
+    {
+        super.invalidateCaps();
+        peripheral = CapabilityUtil.invalidate( peripheral );
     }
 }

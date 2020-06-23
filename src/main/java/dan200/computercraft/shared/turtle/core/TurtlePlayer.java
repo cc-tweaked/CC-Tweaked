@@ -6,53 +6,47 @@
 package dan200.computercraft.shared.turtle.core;
 
 import com.mojang.authlib.GameProfile;
+import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.shared.util.FakeNetHandler;
 import dan200.computercraft.shared.util.InventoryUtil;
 import dan200.computercraft.shared.util.WorldUtil;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.IMerchant;
-import net.minecraft.entity.passive.AbstractHorse;
+import net.minecraft.entity.*;
+import net.minecraft.entity.passive.horse.AbstractHorseEntity;
 import net.minecraft.inventory.IInventory;
+import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntitySign;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
+import net.minecraft.potion.EffectInstance;
+import net.minecraft.tileentity.SignTileEntity;
+import net.minecraft.util.Direction;
+import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.IInteractionObject;
-import net.minecraft.world.World;
-import net.minecraft.world.WorldServer;
+import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.common.util.FakePlayer;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.OptionalInt;
 import java.util.UUID;
 
-public class TurtlePlayer extends FakePlayer
+public final class TurtlePlayer extends FakePlayer
 {
-    public static final GameProfile DEFAULT_PROFILE = new GameProfile(
+    private static final GameProfile DEFAULT_PROFILE = new GameProfile(
         UUID.fromString( "0d0c4ca0-4ff1-11e4-916c-0800200c9a66" ),
         "[ComputerCraft]"
     );
 
-    /**
-     * Construct a TurtlePlayer which exists in the world.
-     *
-     * @param world The world the player exists in
-     * @deprecated This is required by {@link Entity}.
-     */
-    @Deprecated
-    public TurtlePlayer( World world )
-    {
-        super( (WorldServer) world, DEFAULT_PROFILE );
-        connection = new FakeNetHandler( this );
-    }
+    public static final EntityType<TurtlePlayer> TYPE = EntityType.Builder.<TurtlePlayer>create( EntityClassification.MISC )
+        .disableSerialization()
+        .disableSummoning()
+        .size( 0, 0 )
+        .build( ComputerCraft.MOD_ID + ":turtle_player" );
 
     private TurtlePlayer( ITurtleAccess turtle )
     {
-        super( (WorldServer) turtle.getWorld(), getProfile( turtle.getOwningPlayer() ) );
-        connection = new FakeNetHandler( this );
+        super( (ServerWorld) turtle.getWorld(), getProfile( turtle.getOwningPlayer() ) );
+        this.connection = new FakeNetHandler( this );
         setState( turtle );
     }
 
@@ -63,10 +57,15 @@ public class TurtlePlayer extends FakePlayer
 
     private void setState( ITurtleAccess turtle )
     {
+        if( openContainer != null )
+        {
+            ComputerCraft.log.warn( "Turtle has open container ({})", openContainer );
+            openContainer.onContainerClosed( this );
+            openContainer = null;
+        }
+
         BlockPos position = turtle.getPosition();
-        posX = position.getX() + 0.5;
-        posY = position.getY() + 0.5;
-        posZ = position.getZ() + 0.5;
+        setRawPosition( position.getX() + 0.5, position.getY() + 0.5, position.getZ() + 0.5 );
 
         rotationYaw = turtle.getDirection().getHorizontalAngle();
         rotationPitch = 0.0f;
@@ -108,7 +107,7 @@ public class TurtlePlayer extends FakePlayer
 
         // Store (or drop) anything else we found
         BlockPos dropPosition = turtle.getPosition();
-        EnumFacing dropDirection = turtle.getDirection().getOpposite();
+        Direction dropDirection = turtle.getDirection().getOpposite();
         for( int i = 0; i < inventory.getSizeInventory(); i++ )
         {
             ItemStack stack = inventory.getStackInSlot( i );
@@ -126,22 +125,37 @@ public class TurtlePlayer extends FakePlayer
         return results;
     }
 
+    @Nonnull
+    @Override
+    public EntityType<?> getType()
+    {
+        return TYPE;
+    }
+
     @Override
     public Vec3d getPositionVector()
     {
-        return new Vec3d( posX, posY, posZ );
+        return getPositionVec();
     }
 
     @Override
-    public float getEyeHeight()
+    public float getEyeHeight( @Nonnull Pose pose )
     {
-        return 0.0f;
+        return 0;
     }
 
     @Override
-    public float getDefaultEyeHeight()
+    public float getStandingEyeHeight( Pose pose, EntitySize size )
     {
-        return 0.0f;
+        return 0;
+    }
+
+    //region Code which depends on the connection
+    @Nonnull
+    @Override
+    public OptionalInt openContainer( @Nullable INamedContainerProvider prover )
+    {
+        return OptionalInt.empty();
     }
 
     @Override
@@ -154,40 +168,34 @@ public class TurtlePlayer extends FakePlayer
     {
     }
 
-    @Nonnull
     @Override
-    public SleepResult trySleep( @Nonnull BlockPos bedLocation )
+    public boolean startRiding( @Nonnull Entity entityIn, boolean force )
     {
-        return SleepResult.OTHER_PROBLEM;
+        return false;
     }
 
     @Override
-    public void openEditSign( TileEntitySign signTile )
-    {
-    }
-
-    @Override
-    public void displayGui( IInteractionObject guiOwner )
+    public void stopRiding()
     {
     }
 
     @Override
-    public void displayGUIChest( IInventory chestInventory )
+    public void openSignEditor( SignTileEntity signTile )
     {
     }
 
     @Override
-    public void displayVillagerTradeGui( IMerchant villager )
+    public void openHorseInventory( AbstractHorseEntity horse, IInventory inventory )
     {
     }
 
     @Override
-    public void openGuiHorseInventory( AbstractHorse horse, IInventory inventoryIn )
+    public void openBook( ItemStack stack, @Nonnull Hand hand )
     {
     }
 
     @Override
-    public void openBook( ItemStack stack, @Nonnull EnumHand hand )
+    public void closeScreen()
     {
     }
 
@@ -197,17 +205,18 @@ public class TurtlePlayer extends FakePlayer
     }
 
     @Override
-    protected void onItemUseFinish()
+    protected void onNewPotionEffect( EffectInstance id )
     {
     }
 
     @Override
-    public void mountEntityAndWakeUp()
+    protected void onChangedPotionEffect( EffectInstance id, boolean apply )
     {
     }
 
     @Override
-    public void dismountEntity( @Nonnull Entity entity )
+    protected void onFinishedPotionEffect( EffectInstance effect )
     {
     }
+    //endregion
 }

@@ -1,0 +1,14 @@
+{
+    "type": "computercraft:computer_upgrade",
+    "pattern": [
+        "###",
+        "#C#",
+        "# #"
+    ],
+    "key": {
+        "#": { "tag": "forge:ingots/gold" },
+        "C": { "item": "computercraft:pocket_computer_normal" }
+    },
+    "family": "advanced",
+    "result": { "item": "computercraft:pocket_computer_advanced" }
+}

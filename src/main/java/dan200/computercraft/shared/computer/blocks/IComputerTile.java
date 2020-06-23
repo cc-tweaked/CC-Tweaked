@@ -6,7 +6,6 @@
 package dan200.computercraft.shared.computer.blocks;
 
 import dan200.computercraft.shared.computer.core.ComputerFamily;
-import dan200.computercraft.shared.computer.core.IComputer;
 
 public interface IComputerTile
 {
@@ -19,7 +18,4 @@ public interface IComputerTile
     void setLabel( String label );
 
     ComputerFamily getFamily();
-
-    @Deprecated
-    IComputer getComputer();
 }

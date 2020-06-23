@@ -8,11 +8,10 @@ package dan200.computercraft.api.lua;
 import javax.annotation.Nullable;
 
 /**
- * A task which can be executed via {@link ILuaContext#executeMainThreadTask(ILuaTask)} or
- * {@link ILuaContext#issueMainThreadTask(ILuaTask)}. This will be run on the main thread, at the beginning of the
+ * A task which can be executed via {@link ILuaContext#issueMainThreadTask(ILuaTask)} This will be run on the main
+ * thread, at the beginning of the
  * next tick.
  *
- * @see ILuaContext#executeMainThreadTask(ILuaTask)
  * @see ILuaContext#issueMainThreadTask(ILuaTask)
  */
 @FunctionalInterface
@@ -21,8 +20,7 @@ public interface ILuaTask
     /**
      * Execute this task.
      *
-     * @return The arguments to add to the {@code task_completed} event. These will be returned by
-     * {@link ILuaContext#executeMainThreadTask(ILuaTask)}.
+     * @return The arguments to add to the {@code task_completed} event.
      * @throws LuaException If you throw any exception from this function, a lua error will be raised with the
      *                      same message as your exception. Use this to throw appropriate errors if the wrong
      *                      arguments are supplied to your method.

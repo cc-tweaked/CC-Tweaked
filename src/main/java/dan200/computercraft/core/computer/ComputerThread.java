@@ -136,7 +136,7 @@ public final class ComputerThread
             if( runners == null )
             {
                 // TODO: Change the runners length on config reloads
-                runners = new TaskRunner[ComputerCraft.computer_threads];
+                runners = new TaskRunner[ComputerCraft.computerThreads];
 
                 // latency and minPeriod are scaled by 1 + floor(log2(threads)). We can afford to execute tasks for
                 // longer when executing on more than one thread.
@@ -518,7 +518,7 @@ public final class ComputerThread
 
     private static void timeoutTask( ComputerExecutor executor, Thread thread, long time )
     {
-        if( !ComputerCraft.logPeripheralErrors ) return;
+        if( !ComputerCraft.logComputerErrors ) return;
 
         StringBuilder builder = new StringBuilder()
             .append( "Terminating computer #" ).append( executor.getComputer().getID() )

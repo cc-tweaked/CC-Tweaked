@@ -6,25 +6,25 @@
 package dan200.computercraft.shared.turtle.core;
 
 import dan200.computercraft.api.turtle.ITurtleAccess;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 
 public enum InteractDirection
 {
-    Forward,
-    Up,
-    Down;
+    FORWARD,
+    UP,
+    DOWN;
 
-    public EnumFacing toWorldDir( ITurtleAccess turtle )
+    public Direction toWorldDir( ITurtleAccess turtle )
     {
         switch( this )
         {
-            case Forward:
+            case FORWARD:
             default:
                 return turtle.getDirection();
-            case Up:
-                return EnumFacing.UP;
-            case Down:
-                return EnumFacing.DOWN;
+            case UP:
+                return Direction.UP;
+            case DOWN:
+                return Direction.DOWN;
         }
     }
 }

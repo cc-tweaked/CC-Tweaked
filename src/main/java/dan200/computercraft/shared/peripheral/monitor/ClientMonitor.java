@@ -5,15 +5,14 @@
  */
 package dan200.computercraft.shared.peripheral.monitor;
 
+import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import dan200.computercraft.client.gui.FixedWidthFontRenderer;
 import dan200.computercraft.shared.common.ClientTerminal;
-import net.minecraft.client.renderer.GLAllocation;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.vertex.VertexBuffer;
 import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL30;
@@ -35,7 +34,6 @@ public final class ClientMonitor extends ClientTerminal
     public int tboBuffer;
     public int tboTexture;
     public VertexBuffer buffer;
-    public int displayList = 0;
 
     public ClientMonitor( boolean colour, TileMonitor origin )
     {
@@ -55,7 +53,7 @@ public final class ClientMonitor extends ClientTerminal
      * @return If a buffer was created. This will return {@code false} if we already have an appropriate buffer,
      * or this mode does not require one.
      */
-    @SideOnly( Side.CLIENT )
+    @OnlyIn( Dist.CLIENT )
     public boolean createBuffer( MonitorRenderer renderer )
     {
         switch( renderer )
@@ -66,15 +64,15 @@ public final class ClientMonitor extends ClientTerminal
 
                 deleteBuffers();
 
-                tboBuffer = OpenGlHelper.glGenBuffers();
-                OpenGlHelper.glBindBuffer( GL31.GL_TEXTURE_BUFFER, tboBuffer );
+                tboBuffer = GlStateManager.genBuffers();
+                GlStateManager.bindBuffer( GL31.GL_TEXTURE_BUFFER, tboBuffer );
                 GL15.glBufferData( GL31.GL_TEXTURE_BUFFER, 0, GL15.GL_STATIC_DRAW );
-                tboTexture = GlStateManager.generateTexture();
+                tboTexture = GlStateManager.genTexture();
                 GL11.glBindTexture( GL31.GL_TEXTURE_BUFFER, tboTexture );
                 GL31.glTexBuffer( GL31.GL_TEXTURE_BUFFER, GL30.GL_R8, tboBuffer );
                 GL11.glBindTexture( GL31.GL_TEXTURE_BUFFER, 0 );
 
-                OpenGlHelper.glBindBuffer( GL31.GL_TEXTURE_BUFFER, 0 );
+                GlStateManager.bindBuffer( GL31.GL_TEXTURE_BUFFER, 0 );
 
                 addMonitor();
                 return true;
@@ -84,15 +82,7 @@ public final class ClientMonitor extends ClientTerminal
                 if( buffer != null ) return false;
 
                 deleteBuffers();
-                buffer = new VertexBuffer( FixedWidthFontRenderer.POSITION_COLOR_TEX );
-                addMonitor();
-                return true;
-
-            case DISPLAY_LIST:
-                if( displayList != 0 ) return false;
-
-                deleteBuffers();
-                displayList = GLAllocation.generateDisplayLists( 1 );
+                buffer = new VertexBuffer( FixedWidthFontRenderer.TYPE.getVertexFormat() );
                 addMonitor();
                 return true;
 
@@ -114,7 +104,7 @@ public final class ClientMonitor extends ClientTerminal
 
         if( tboBuffer != 0 )
         {
-            OpenGlHelper.glDeleteBuffers( tboBuffer );
+            RenderSystem.glDeleteBuffers( tboBuffer );
             tboBuffer = 0;
         }
 
@@ -126,21 +116,15 @@ public final class ClientMonitor extends ClientTerminal
 
         if( buffer != null )
         {
-            buffer.deleteGlBuffers();
+            buffer.close();
             buffer = null;
-        }
-
-        if( displayList != 0 )
-        {
-            GLAllocation.deleteDisplayLists( displayList );
-            displayList = 0;
         }
     }
 
-    @SideOnly( Side.CLIENT )
+    @OnlyIn( Dist.CLIENT )
     public void destroy()
     {
-        if( tboBuffer != 0 || buffer != null || displayList != 0 )
+        if( tboBuffer != 0 || buffer != null )
         {
             synchronized( allMonitors )
             {
@@ -151,7 +135,7 @@ public final class ClientMonitor extends ClientTerminal
         }
     }
 
-    @SideOnly( Side.CLIENT )
+    @OnlyIn( Dist.CLIENT )
     public static void destroyAll()
     {
         synchronized( allMonitors )

@@ -5,11 +5,13 @@
  */
 package dan200.computercraft.shared.computer.core;
 
+import net.minecraft.inventory.container.Container;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
- * An instance of {@link net.minecraft.inventory.Container} which provides a computer. You should implement this
+ * An instance of {@link Container} which provides a computer. You should implement this
  * if you provide custom computers/GUIs to interact with them.
  */
 @FunctionalInterface

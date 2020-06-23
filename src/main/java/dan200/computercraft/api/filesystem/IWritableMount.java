@@ -12,7 +12,6 @@ import net.minecraft.world.World;
 import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.nio.channels.Channels;
 import java.nio.channels.WritableByteChannel;
 import java.util.OptionalLong;
 
@@ -50,39 +49,12 @@ public interface IWritableMount extends IMount
      * Opens a file with a given path, and returns an {@link OutputStream} for writing to it.
      *
      * @param path A file path in normalised format, relative to the mount location. ie: "programs/myprogram".
-     * @return A stream for writing to
-     * @throws IOException If the file could not be opened for writing.
-     * @deprecated Use {@link #openChannelForWrite(String)} instead.
-     */
-    @Nonnull
-    @Deprecated
-    OutputStream openForWrite( @Nonnull String path ) throws IOException;
-
-    /**
-     * Opens a file with a given path, and returns an {@link OutputStream} for writing to it.
-     *
-     * @param path A file path in normalised format, relative to the mount location. ie: "programs/myprogram".
      * @return A stream for writing to. If the channel implements {@link java.nio.channels.SeekableByteChannel}, one
      * will be able to seek to arbitrary positions when using binary mode.
      * @throws IOException If the file could not be opened for writing.
      */
     @Nonnull
-    default WritableByteChannel openChannelForWrite( @Nonnull String path ) throws IOException
-    {
-        return Channels.newChannel( openForWrite( path ) );
-    }
-
-    /**
-     * Opens a file with a given path, and returns an {@link OutputStream} for appending to it.
-     *
-     * @param path A file path in normalised format, relative to the mount location. ie: "programs/myprogram".
-     * @return A stream for writing to.
-     * @throws IOException If the file could not be opened for writing.
-     * @deprecated Use {@link #openChannelForAppend(String)} instead.
-     */
-    @Nonnull
-    @Deprecated
-    OutputStream openForAppend( @Nonnull String path ) throws IOException;
+    WritableByteChannel openForWrite( @Nonnull String path ) throws IOException;
 
     /**
      * Opens a file with a given path, and returns an {@link OutputStream} for appending to it.
@@ -93,10 +65,7 @@ public interface IWritableMount extends IMount
      * @throws IOException If the file could not be opened for writing.
      */
     @Nonnull
-    default WritableByteChannel openChannelForAppend( @Nonnull String path ) throws IOException
-    {
-        return Channels.newChannel( openForAppend( path ) );
-    }
+    WritableByteChannel openForAppend( @Nonnull String path ) throws IOException;
 
     /**
      * Get the amount of free space on the mount, in bytes. You should decrease this value as the user writes to the

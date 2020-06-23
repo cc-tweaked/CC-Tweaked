@@ -6,12 +6,12 @@
 package dan200.computercraft.core.apis.http.request;
 
 import dan200.computercraft.ComputerCraft;
-import dan200.computercraft.api.lua.ILuaObject;
 import dan200.computercraft.core.apis.IAPIEnvironment;
 import dan200.computercraft.core.apis.http.HTTPRequestException;
 import dan200.computercraft.core.apis.http.NetworkUtils;
 import dan200.computercraft.core.apis.http.Resource;
 import dan200.computercraft.core.apis.http.ResourceGroup;
+import dan200.computercraft.core.apis.http.options.Options;
 import dan200.computercraft.core.tracking.TrackingField;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
@@ -119,8 +119,6 @@ public class HttpRequest extends Resource<HttpRequest>
         {
             throw new HTTPRequestException( "Invalid protocol '" + scheme + "'" );
         }
-
-        NetworkUtils.checkHost( url.getHost() );
     }
 
     public void request( URI uri, HttpMethod method )
@@ -139,16 +137,24 @@ public class HttpRequest extends Resource<HttpRequest>
         {
             boolean ssl = uri.getScheme().equalsIgnoreCase( "https" );
             InetSocketAddress socketAddress = NetworkUtils.getAddress( uri.getHost(), uri.getPort(), ssl );
+            Options options = NetworkUtils.getOptions( uri.getHost(), socketAddress );
             SslContext sslContext = ssl ? NetworkUtils.getSslContext() : null;
 
             // getAddress may have a slight delay, so let's perform another cancellation check.
             if( isClosed() ) return;
 
+            long requestBody = getHeaderSize( headers ) + postBuffer.capacity();
+            if( options.maxUpload != 0 && requestBody > options.maxUpload )
+            {
+                failure( "Request body is too large" );
+                return;
+            }
+
             // Add request size to the tracker before opening the connection
             environment.addTrackingChange( TrackingField.HTTP_REQUESTS, 1 );
-            environment.addTrackingChange( TrackingField.HTTP_UPLOAD, getHeaderSize( headers ) + postBuffer.capacity() );
+            environment.addTrackingChange( TrackingField.HTTP_UPLOAD, requestBody );
 
-            HttpRequestHandler handler = currentRequest = new HttpRequestHandler( this, uri, method );
+            HttpRequestHandler handler = currentRequest = new HttpRequestHandler( this, uri, method, options );
             connectFuture = new Bootstrap()
                 .group( NetworkUtils.LOOP_GROUP )
                 .channelFactory( NioSocketChannel::new )
@@ -158,9 +164,9 @@ public class HttpRequest extends Resource<HttpRequest>
                     protected void initChannel( SocketChannel ch )
                     {
 
-                        if( ComputerCraft.httpTimeout > 0 )
+                        if( options.timeout > 0 )
                         {
-                            ch.config().setConnectTimeoutMillis( ComputerCraft.httpTimeout );
+                            ch.config().setConnectTimeoutMillis( options.timeout );
                         }
 
                         ChannelPipeline p = ch.pipeline();
@@ -169,9 +175,9 @@ public class HttpRequest extends Resource<HttpRequest>
                             p.addLast( sslContext.newHandler( ch.alloc(), uri.getHost(), socketAddress.getPort() ) );
                         }
 
-                        if( ComputerCraft.httpTimeout > 0 )
+                        if( options.timeout > 0 )
                         {
-                            p.addLast( new ReadTimeoutHandler( ComputerCraft.httpTimeout, TimeUnit.MILLISECONDS ) );
+                            p.addLast( new ReadTimeoutHandler( options.timeout, TimeUnit.MILLISECONDS ) );
                         }
 
                         p.addLast(
@@ -197,13 +203,13 @@ public class HttpRequest extends Resource<HttpRequest>
         catch( Exception e )
         {
             failure( "Could not connect" );
-            if( ComputerCraft.logPeripheralErrors ) ComputerCraft.log.error( "Error in HTTP request", e );
+            if( ComputerCraft.logComputerErrors ) ComputerCraft.log.error( "Error in HTTP request", e );
         }
     }
 
     void failure( String message )
     {
-        if( tryClose() ) environment.queueEvent( FAILURE_EVENT, new Object[] { address, message } );
+        if( tryClose() ) environment.queueEvent( FAILURE_EVENT, address, message );
     }
 
     void failure( Throwable cause )
@@ -229,14 +235,14 @@ public class HttpRequest extends Resource<HttpRequest>
         failure( message );
     }
 
-    void failure( String message, ILuaObject object )
+    void failure( String message, HttpResponseHandle object )
     {
-        if( tryClose() ) environment.queueEvent( FAILURE_EVENT, new Object[] { address, message, object } );
+        if( tryClose() ) environment.queueEvent( FAILURE_EVENT, address, message, object );
     }
 
-    void success( ILuaObject object )
+    void success( HttpResponseHandle object )
     {
-        if( tryClose() ) environment.queueEvent( SUCCESS_EVENT, new Object[] { address, object } );
+        if( tryClose() ) environment.queueEvent( SUCCESS_EVENT, address, object );
     }
 
     @Override

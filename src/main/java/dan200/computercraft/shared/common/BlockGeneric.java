@@ -5,132 +5,96 @@
  */
 package dan200.computercraft.shared.common;
 
+import dan200.computercraft.shared.util.NamedTileEntityType;
 import net.minecraft.block.Block;
-import net.minecraft.block.ITileEntityProvider;
-import net.minecraft.block.material.Material;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.block.BlockState;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
+import net.minecraft.tileentity.TileEntityType;
+import net.minecraft.util.ActionResultType;
+import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IBlockAccess;
+import net.minecraft.util.math.BlockRayTraceResult;
+import net.minecraft.world.IBlockReader;
+import net.minecraft.world.IWorldReader;
 import net.minecraft.world.World;
+import net.minecraft.world.server.ServerWorld;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Random;
 
-public abstract class BlockGeneric extends Block implements ITileEntityProvider
+public abstract class BlockGeneric extends Block
 {
-    protected BlockGeneric( Material material )
+    private final TileEntityType<? extends TileGeneric> type;
+
+    public BlockGeneric( Properties settings, NamedTileEntityType<? extends TileGeneric> type )
     {
-        super( material );
-        hasTileEntity = true;
-    }
-
-    protected abstract TileGeneric createTile( IBlockState state );
-
-    protected abstract TileGeneric createTile( int damage );
-
-    @Override
-    public final void breakBlock( @Nonnull World world, @Nonnull BlockPos pos, @Nonnull IBlockState newState )
-    {
-        TileEntity tile = world.getTileEntity( pos );
-        super.breakBlock( world, pos, newState );
-        world.removeTileEntity( pos );
-        if( tile instanceof TileGeneric ) ((TileGeneric) tile).destroy();
-    }
-
-    @Override
-    public final boolean onBlockActivated( World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ )
-    {
-        TileEntity tile = world.getTileEntity( pos );
-        return tile instanceof TileGeneric && ((TileGeneric) tile).onActivate( player, hand, side, hitX, hitY, hitZ );
+        super( settings );
+        this.type = type;
+        type.setBlock( this );
     }
 
     @Override
     @Deprecated
-    public final void neighborChanged( IBlockState state, World world, BlockPos pos, Block neighbourBlock, BlockPos neighbourPos )
+    public final void onReplaced( @Nonnull BlockState block, @Nonnull World world, @Nonnull BlockPos pos, BlockState replace, boolean bool )
+    {
+        if( block.getBlock() == replace.getBlock() ) return;
+
+        TileEntity tile = world.getTileEntity( pos );
+        super.onReplaced( block, world, pos, replace, bool );
+        world.removeTileEntity( pos );
+        if( tile instanceof TileGeneric ) ((TileGeneric) tile).destroy();
+    }
+
+    @Nonnull
+    @Override
+    @Deprecated
+    public final ActionResultType onBlockActivated( @Nonnull BlockState state, World world, @Nonnull BlockPos pos, @Nonnull PlayerEntity player, @Nonnull Hand hand, @Nonnull BlockRayTraceResult hit )
+    {
+        TileEntity tile = world.getTileEntity( pos );
+        return tile instanceof TileGeneric ? ((TileGeneric) tile).onActivate( player, hand, hit ) : ActionResultType.PASS;
+    }
+
+    @Override
+    @Deprecated
+    public final void neighborChanged( @Nonnull BlockState state, World world, @Nonnull BlockPos pos, @Nonnull Block neighbourBlock, @Nonnull BlockPos neighbourPos, boolean isMoving )
     {
         TileEntity tile = world.getTileEntity( pos );
         if( tile instanceof TileGeneric ) ((TileGeneric) tile).onNeighbourChange( neighbourPos );
     }
 
     @Override
-    public final void onNeighborChange( IBlockAccess world, BlockPos pos, BlockPos neighbour )
+    public final void onNeighborChange( BlockState state, IWorldReader world, BlockPos pos, BlockPos neighbour )
     {
         TileEntity tile = world.getTileEntity( pos );
         if( tile instanceof TileGeneric ) ((TileGeneric) tile).onNeighbourTileEntityChange( neighbour );
     }
 
     @Override
-    public void updateTick( World world, BlockPos pos, IBlockState state, Random rand )
+    @Deprecated
+    public void tick( @Nonnull BlockState state, ServerWorld world, @Nonnull BlockPos pos, @Nonnull Random rand )
     {
         TileEntity te = world.getTileEntity( pos );
-        if( te instanceof TileGeneric ) ((TileGeneric) te).updateTick();
+        if( te instanceof TileGeneric ) ((TileGeneric) te).blockTick();
     }
 
     @Override
-    @Deprecated
-    public final boolean canProvidePower( IBlockState state )
+    public boolean hasTileEntity( BlockState state )
     {
         return true;
     }
 
+    @Nullable
     @Override
-    public final boolean canConnectRedstone( IBlockState state, IBlockAccess world, BlockPos pos, EnumFacing side )
+    public TileEntity createTileEntity( @Nonnull BlockState state, @Nonnull IBlockReader world )
     {
-        TileEntity tile = world.getTileEntity( pos );
-        return tile instanceof TileGeneric && ((TileGeneric) tile).getRedstoneConnectivity( side );
-    }
-
-    @Override
-    @Deprecated
-    public final int getStrongPower( IBlockState state, IBlockAccess world, BlockPos pos, EnumFacing oppositeSide )
-    {
-        TileEntity tile = world.getTileEntity( pos );
-        return tile instanceof TileGeneric && tile.hasWorld() ? ((TileGeneric) tile).getRedstoneOutput( oppositeSide.getOpposite() ) : 0;
+        return type.create();
     }
 
     @Override
-    @Deprecated
-    public final int getWeakPower( IBlockState state, IBlockAccess world, BlockPos pos, EnumFacing oppositeSide )
+    public boolean canBeReplacedByLeaves( BlockState state, IWorldReader world, BlockPos pos )
     {
-        return getStrongPower( state, world, pos, oppositeSide );
-    }
-
-    public boolean getBundledRedstoneConnectivity( World world, BlockPos pos, EnumFacing side )
-    {
-        TileEntity tile = world.getTileEntity( pos );
-        return tile instanceof TileGeneric && ((TileGeneric) tile).getBundledRedstoneConnectivity( side );
-    }
-
-    public int getBundledRedstoneOutput( World world, BlockPos pos, EnumFacing side )
-    {
-        TileEntity tile = world.getTileEntity( pos );
-        return tile instanceof TileGeneric && tile.hasWorld() ? ((TileGeneric) tile).getBundledRedstoneOutput( side ) : 0;
-    }
-
-    @Nonnull
-    @Override
-    public final TileEntity createTileEntity( @Nonnull World world, @Nonnull IBlockState state )
-    {
-        return createTile( state );
-    }
-
-    @Nonnull
-    @Override
-    public final TileEntity createNewTileEntity( @Nonnull World world, int damage )
-    {
-        return createTile( damage );
-    }
-
-    @Override
-    @Deprecated
-    public boolean isSideSolid( IBlockState state, @Nonnull IBlockAccess world, @Nonnull BlockPos pos, EnumFacing side )
-    {
-        // We need to override this as the default implementation uses isNormalCube, which returns false if
-        // it can provide power.
-        return isFullCube( state );
+        return false;
     }
 }

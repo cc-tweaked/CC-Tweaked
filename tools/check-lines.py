@@ -6,7 +6,8 @@ problems = False
 exclude = [ "*.png", "**/data/json-parsing/*.json" ]
 
 for path in pathlib.Path("src").glob("**/*"):
-    if path.is_dir() or path.suffix == "" or any(path.match(x) for x in exclude):
+    # Ideally we'd use generated as a glob, but .match("generated/**/*.json") doesn't work!
+    if path.is_dir() or path.suffix == "" or any(path.match(x) for x in exclude) or path.parts[1] == "generated":
         continue
 
     with path.open(encoding="utf-8") as file:

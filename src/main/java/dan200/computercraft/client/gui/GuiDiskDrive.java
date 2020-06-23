@@ -5,45 +5,43 @@
  */
 package dan200.computercraft.client.gui;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import dan200.computercraft.shared.peripheral.diskdrive.ContainerDiskDrive;
-import net.minecraft.client.gui.inventory.GuiContainer;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.resources.I18n;
+import net.minecraft.client.gui.screen.inventory.ContainerScreen;
+import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.ITextComponent;
 
-public class GuiDiskDrive extends GuiContainer
+public class GuiDiskDrive extends ContainerScreen<ContainerDiskDrive>
 {
-    private static final ResourceLocation BACKGROUND = new ResourceLocation( "computercraft", "textures/gui/diskdrive.png" );
+    private static final ResourceLocation BACKGROUND = new ResourceLocation( "computercraft", "textures/gui/disk_drive.png" );
 
-    private final ContainerDiskDrive m_container;
-
-    public GuiDiskDrive( ContainerDiskDrive container )
+    public GuiDiskDrive( ContainerDiskDrive container, PlayerInventory player, ITextComponent title )
     {
-        super( container );
-        m_container = container;
+        super( container, player, title );
     }
 
     @Override
     protected void drawGuiContainerForegroundLayer( int mouseX, int mouseY )
     {
-        String title = m_container.getDiskDrive().getDisplayName().getUnformattedText();
-        fontRenderer.drawString( title, (xSize - fontRenderer.getStringWidth( title )) / 2, 6, 0x404040 );
-        fontRenderer.drawString( I18n.format( "container.inventory" ), 8, ySize - 96 + 2, 0x404040 );
+        String title = this.title.getFormattedText();
+        font.drawString( title, (xSize - font.getStringWidth( title )) / 2.0f, 6, 0x404040 );
+        font.drawString( title, 8, ySize - 96 + 2, 0x404040 );
     }
 
     @Override
     protected void drawGuiContainerBackgroundLayer( float partialTicks, int mouseX, int mouseY )
     {
-        GlStateManager.color( 1.0F, 1.0F, 1.0F, 1.0F );
-        mc.getTextureManager().bindTexture( BACKGROUND );
-        drawTexturedModalRect( guiLeft, guiTop, 0, 0, xSize, ySize );
+        RenderSystem.color4f( 1.0F, 1.0F, 1.0F, 1.0F );
+        minecraft.getTextureManager().bindTexture( BACKGROUND );
+        blit( guiLeft, guiTop, 0, 0, xSize, ySize );
     }
 
     @Override
-    public void drawScreen( int mouseX, int mouseY, float partialTicks )
+    public void render( int mouseX, int mouseY, float partialTicks )
     {
-        drawDefaultBackground();
-        super.drawScreen( mouseX, mouseY, partialTicks );
+        renderBackground();
+        super.render( mouseX, mouseY, partialTicks );
         renderHoveredToolTip( mouseX, mouseY );
     }
 }

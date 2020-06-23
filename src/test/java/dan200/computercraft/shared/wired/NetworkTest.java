@@ -7,22 +7,17 @@ package dan200.computercraft.shared.wired;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.ComputerCraftAPI;
-import dan200.computercraft.api.lua.ILuaContext;
-import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.network.wired.IWiredElement;
 import dan200.computercraft.api.network.wired.IWiredNetwork;
 import dan200.computercraft.api.network.wired.IWiredNetworkChange;
 import dan200.computercraft.api.network.wired.IWiredNode;
-import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
-import net.minecraft.util.EnumFacing;
+import dan200.computercraft.shared.util.DirectionUtil;
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-import org.apache.logging.log4j.LogManager;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
@@ -37,12 +32,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class NetworkTest
 {
-    @BeforeEach
-    public void setup()
-    {
-        ComputerCraft.log = LogManager.getLogger();
-    }
-
     @Test
     public void testConnect()
     {
@@ -268,7 +257,7 @@ public class NetworkTest
             long start = System.nanoTime();
 
             grid.forEach( ( existing, pos ) -> {
-                for( EnumFacing facing : EnumFacing.VALUES )
+                for( Direction facing : DirectionUtil.FACINGS )
                 {
                     BlockPos offset = pos.offset( facing );
                     if( offset.getX() > BRUTE_SIZE / 2 == pos.getX() > BRUTE_SIZE / 2 )
@@ -403,20 +392,6 @@ public class NetworkTest
         public String getType()
         {
             return "test";
-        }
-
-        @Nonnull
-        @Override
-        public String[] getMethodNames()
-        {
-            return new String[0];
-        }
-
-        @Nullable
-        @Override
-        public Object[] callMethod( @Nonnull IComputerAccess computer, @Nonnull ILuaContext context, int method, @Nonnull Object[] arguments ) throws LuaException, InterruptedException
-        {
-            return new Object[0];
         }
 
         @Override

@@ -6,11 +6,11 @@
 package dan200.computercraft.shared.common;
 
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundNBT;
 
 public interface IColouredItem
 {
-    String NBT_COLOUR = "colour";
+    String NBT_COLOUR = "Color";
 
     default int getColour( ItemStack stack )
     {
@@ -26,21 +26,20 @@ public interface IColouredItem
 
     static int getColourBasic( ItemStack stack )
     {
-        NBTTagCompound tag = stack.getTagCompound();
-        return tag != null && tag.hasKey( NBT_COLOUR ) ? tag.getInteger( NBT_COLOUR ) : -1;
+        CompoundNBT tag = stack.getTag();
+        return tag != null && tag.contains( NBT_COLOUR ) ? tag.getInt( NBT_COLOUR ) : -1;
     }
 
     static void setColourBasic( ItemStack stack, int colour )
     {
-        NBTTagCompound tag = stack.getTagCompound();
         if( colour == -1 )
         {
-            if( tag != null ) tag.removeTag( NBT_COLOUR );
+            CompoundNBT tag = stack.getTag();
+            if( tag != null ) tag.remove( NBT_COLOUR );
         }
         else
         {
-            if( tag == null ) stack.setTagCompound( tag = new NBTTagCompound() );
-            tag.setInteger( NBT_COLOUR, colour );
+            stack.getOrCreateTag().putInt( NBT_COLOUR, colour );
         }
     }
 }

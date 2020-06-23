@@ -5,8 +5,7 @@
  */
 package dan200.computercraft.api.turtle.event;
 
-import dan200.computercraft.api.lua.ILuaContext;
-import dan200.computercraft.api.peripheral.IComputerAccess;
+import dan200.computercraft.api.lua.MethodResult;
 import dan200.computercraft.api.turtle.ITurtleAccess;
 import net.minecraft.item.ItemStack;
 
@@ -63,7 +62,7 @@ public class TurtleInspectItemEvent extends TurtleActionEvent
      * Add new information to the inspection result. Note this will override fields with the same name.
      *
      * @param newData The data to add. Note all values should be convertible to Lua (see
-     *                {@link dan200.computercraft.api.peripheral.IPeripheral#callMethod(IComputerAccess, ILuaContext, int, Object[])}).
+     *                {@link MethodResult#of(Object)}).
      */
     public void addData( @Nonnull Map<String, ?> newData )
     {

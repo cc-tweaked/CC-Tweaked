@@ -23,3 +23,5 @@
 .settings/
 bin/
 *.launch
+
+/src/generated/resources/.cache

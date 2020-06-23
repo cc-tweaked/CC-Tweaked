@@ -1,0 +1,15 @@
+{
+    "type": "computercraft:turtle",
+    "pattern": [
+        "###",
+        "#C#",
+        "#I#"
+    ],
+    "key": {
+        "#": { "tag": "forge:ingots/gold" },
+        "C": { "item": "computercraft:computer_advanced" },
+        "I": { "tag": "forge:chests/wooden" }
+    },
+    "family": "advanced",
+    "result": { "item": "computercraft:turtle_advanced" }
+}
