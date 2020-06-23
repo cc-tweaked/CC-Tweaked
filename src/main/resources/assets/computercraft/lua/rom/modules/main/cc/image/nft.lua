@@ -1,61 +1,105 @@
+--- Provides utilities for working with "nft" images.
+--
+-- nft ("Nitrogen Fingers Text") is a file format for drawing basic images.
+-- Unlike the images that @{paintutils.parseImage} uses, nft supports coloured
+-- text.
+--
+-- @module cc.image.nft
+-- @usage Load an image from `example.nft` and draw it.
+--
+--     local nft = require "cc.image.nft"
+--     local image = assert(nft.load("example.nft"))
+--     nft.draw(image)
+
 local expect = require "cc.expect".expect
 
-function parse(image)
+--- Parse an nft image from a string.
+--
+-- @tparam string image The image contents.
+-- @return table The parsed image.
+local function parse(image)
     expect(1, image, "string")
-    local tImage = {}
-    local nLine = 1
-    local sForeground = "0"
-    local sBackground = "F"
+
+    local result = {}
+    local line = 1
+    local foreground = "0"
+    local background = "f"
+
     local i, len = 1, #image
     while i <= len do
+        print(i)
+
         local c = image:sub(i, i)
         if c == "\31" and i < len then
             i = i + 1
-            sForeground = image:sub(i, i)
+            foreground = image:sub(i, i)
         elseif c == "\30" and i < len then
             i = i + 1
-            sBackground = image:sub(i, i)
+            background = image:sub(i, i)
         elseif c == "\n" then
-            nLine = nLine + 1
+            line = line + 1
         else
-            if tImage[nLine] == nil then
-                tImage[nLine] = {}
-                tImage[nLine]["foreground"] = ""
-                tImage[nLine]["background"] = ""
-                tImage[nLine]["text"] = ""
+            local next = image:find("[\n\30\31]", i) or #image + 1
+            local len = next - i
+
+            local this_line = result[line]
+            if this_line == nil then
+                this_line = { foreground = "", background = "", text = "" }
+                result[line] = this_line
             end
-            tImage[nLine]["foreground"] = tImage[nLine]["foreground"]..sForeground
-            tImage[nLine]["background"] = tImage[nLine]["background"]..sBackground
-            tImage[nLine]["text"] = tImage[nLine]["text"]..c
+
+            this_line.text = this_line.text .. image:sub(i, next - 1)
+            this_line.foreground = this_line.foreground .. foreground:rep(len)
+            this_line.background = this_line.background .. background:rep(len)
+
+            i = next - 1
         end
+
         i = i + 1
     end
-    return tImage
+    return result
 end
 
-function load(path)
+--- Load an nft image from a file.
+--
+-- @tparam string path The file to load.
+-- @treturn[1] table The parsed image.
+-- @treturn[2] nil If the file does not exist or could not be loaded.
+-- @treturn[2] string An error message explaining why the file could not be
+-- loaded.
+local function load(path)
     expect(1, path, "string")
-    local file = io.open(path, "r")
-    if file then
-        local sContent = file:read("*a")
-        file:close()
-        return parse(sContent)
-    end
-    return nil
+    local file, err = io.open(path, "r")
+    if not file then return nil, err end
+
+    local result = file:read("*a")
+    file:close()
+    return parse(result)
 end
 
-function draw(image, xPos, yPos)
+--- Draw an nft image to the screen.
+--
+-- @tparam table image An image, as returned from @{load} or @{draw}.
+-- @tparam number xPos The x position to start drawing at.
+-- @tparam number xPos The y position to start drawing at.
+-- @tparam[opt] term.Redirect target The terminal redirect to draw to. Defaults to the
+-- current terminal.
+local function draw(image, xPos, yPos, target)
     expect(1, image, "table")
     expect(2, xPos, "number")
     expect(3, yPos, "number")
-    for count,i in ipairs(image) do
-        term.setCursorPos(xPos,yPos-1+count)
-        term.blit(i["text"],i["foreground"],i["background"])
+    expect(4, target, "table", nil)
+
+    if not target then target = term end
+
+    for y, line in ipairs(image) do
+        target.setCursorPos(xPos, yPos + y - 1)
+        target.blit(line.text, line.foreground, line.background)
     end
 end
 
 return {
     parse = parse,
     load = load,
-    draw = draw
+    draw = draw,
 }
