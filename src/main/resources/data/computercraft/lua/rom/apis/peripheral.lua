@@ -23,7 +23,7 @@ local sides = rs.getSides()
 -- listed as the side it is attached to. If a device is attached via a Wired
 -- Modem, then it'll be reported according to its name on the wired network.
 --
--- @treturn table A list of the names of all attached peripherals.
+-- @treturn { string... } A list of the names of all attached peripherals.
 function getNames()
     local results = {}
     for n = 1, #sides do
@@ -96,7 +96,7 @@ end
 --- Get all available methods for the peripheral with the given name.
 --
 -- @tparam string name The name of the peripheral to find.
--- @treturn table|nil A list of methods provided by this peripheral, or `nil` if
+-- @treturn { string... }|nil A list of methods provided by this peripheral, or `nil` if
 -- it is not present.
 function getMethods(name)
     expect(1, name, "string")
