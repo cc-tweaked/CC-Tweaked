@@ -107,5 +107,7 @@
     "tracking_field.computercraft.coroutines_dead.name": "Koroutinen gelöscht",
     "gui.computercraft.tooltip.copy": "In die Zwischenablage kopieren",
     "gui.computercraft.tooltip.computer_id": "Computer ID: %s",
-    "gui.computercraft.tooltip.disk_id": "Disketten ID: %s"
+    "gui.computercraft.tooltip.disk_id": "Disketten ID: %s",
+    "argument.computercraft.argument_expected": "Parameter erwartet",
+    "commands.computercraft.help.desc": "Zeigt diese Hilfe"
 }
