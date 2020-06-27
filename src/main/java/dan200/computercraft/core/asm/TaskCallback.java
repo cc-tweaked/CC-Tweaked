@@ -6,19 +6,17 @@
 
 package dan200.computercraft.core.asm;
 
-import dan200.computercraft.api.lua.ILuaCallback;
-import dan200.computercraft.api.lua.LuaException;
-import dan200.computercraft.api.lua.MethodResult;
+import dan200.computercraft.api.lua.*;
 
 import javax.annotation.Nonnull;
 import java.util.Arrays;
 
-class TaskCallback implements ILuaCallback
+public final class TaskCallback implements ILuaCallback
 {
-    final MethodResult pull = MethodResult.pullEvent( "task_complete", this );
+    private final MethodResult pull = MethodResult.pullEvent( "task_complete", this );
     private final long task;
 
-    TaskCallback( long task )
+    private TaskCallback( long task )
     {
         this.task = task;
     }
@@ -54,5 +52,11 @@ class TaskCallback implements ILuaCallback
     {
         if( result.getCallback() != null ) throw new IllegalStateException( "Cannot return MethodResult currently" );
         return result.getResult();
+    }
+
+    public static MethodResult make( ILuaContext context, ILuaTask func ) throws LuaException
+    {
+        long task = context.issueMainThreadTask( func );
+        return new TaskCallback( task ).pull;
     }
 }

@@ -8,7 +8,7 @@ package dan200.computercraft.core.asm;
 
 import javax.annotation.Nonnull;
 
-public class NamedMethod<T>
+public final class NamedMethod<T>
 {
     private final String name;
     private final T method;

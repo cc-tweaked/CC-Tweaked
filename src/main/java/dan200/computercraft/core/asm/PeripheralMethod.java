@@ -19,10 +19,8 @@ import java.util.Arrays;
 public interface PeripheralMethod
 {
     Generator<PeripheralMethod> GENERATOR = new Generator<>( PeripheralMethod.class, Arrays.asList( ILuaContext.class, IComputerAccess.class ),
-        m -> ( target, context, computer, args ) -> {
-            long id = context.issueMainThreadTask( () -> TaskCallback.checkUnwrap( m.apply( target, context, computer, args ) ) );
-            return new TaskCallback( id ).pull;
-        } );
+        m -> ( target, context, computer, args ) -> TaskCallback.make( context, () -> TaskCallback.checkUnwrap( m.apply( target, context, computer, args ) ) )
+    );
 
     IntCache<PeripheralMethod> DYNAMIC = new IntCache<>(
         method -> ( instance, context, computer, args ) -> ((IDynamicPeripheral) instance).callMethod( computer, context, method, args )

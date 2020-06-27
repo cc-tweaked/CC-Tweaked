@@ -14,10 +14,8 @@ import java.util.Collections;
 public interface LuaMethod
 {
     Generator<LuaMethod> GENERATOR = new Generator<>( LuaMethod.class, Collections.singletonList( ILuaContext.class ),
-        m -> ( target, context, args ) -> {
-            long id = context.issueMainThreadTask( () -> TaskCallback.checkUnwrap( m.apply( target, context, args ) ) );
-            return new TaskCallback( id ).pull;
-        } );
+        m -> ( target, context, args ) -> TaskCallback.make( context, () -> TaskCallback.checkUnwrap( m.apply( target, context, args ) ) )
+    );
 
     IntCache<LuaMethod> DYNAMIC = new IntCache<>(
         method -> ( instance, context, args ) -> ((IDynamicLuaObject) instance).callMethod( context, method, args )
