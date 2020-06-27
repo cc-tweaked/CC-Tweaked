@@ -4,7 +4,7 @@
  * Send enquiries to dratcliffe@gmail.com
  */
 
-package dan200.computercraft.shared.integration.minecraft;
+package dan200.computercraft.shared.peripheral.generic.methods;
 
 import com.google.auto.service.AutoService;
 import dan200.computercraft.api.lua.LuaException;
@@ -12,6 +12,7 @@ import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.core.asm.GenericSource;
+import dan200.computercraft.shared.peripheral.generic.meta.FluidMeta;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
@@ -26,10 +27,9 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 
-import static dan200.computercraft.shared.integration.minecraft.ArgumentHelpers.getRegistryEntry;
+import static dan200.computercraft.shared.peripheral.generic.methods.ArgumentHelpers.getRegistryEntry;
 
 @AutoService( GenericSource.class )
 public class FluidMethods implements GenericSource
@@ -49,7 +49,7 @@ public class FluidMethods implements GenericSource
         for( int i = 0; i < size; i++ )
         {
             FluidStack stack = fluids.getFluidInTank( i );
-            if( !stack.isEmpty() ) result.put( i + 1, fillBasicMeta( new HashMap<>( 4 ), stack ) );
+            if( !stack.isEmpty() ) result.put( i + 1, FluidMeta.fillBasicMeta( new HashMap<>( 4 ), stack ) );
         }
 
         return result;
@@ -103,14 +103,6 @@ public class FluidMethods implements GenericSource
         return fluid == null
             ? moveFluid( from, actualLimit, to )
             : moveFluid( from, new FluidStack( fluid, actualLimit ), to );
-    }
-
-    @Nonnull
-    public static <T extends Map<? super String, Object>> T fillBasicMeta( @Nonnull T data, @Nonnull FluidStack stack )
-    {
-        data.put( "name", Objects.toString( stack.getFluid().getRegistryName() ) );
-        data.put( "amount", stack.getAmount() );
-        return data;
     }
 
     @Nullable

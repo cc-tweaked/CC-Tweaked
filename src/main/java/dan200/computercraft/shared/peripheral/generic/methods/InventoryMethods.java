@@ -4,25 +4,19 @@
  * Send enquiries to dratcliffe@gmail.com
  */
 
-package dan200.computercraft.shared.integration.minecraft;
+package dan200.computercraft.shared.peripheral.generic.methods;
 
 import com.google.auto.service.AutoService;
-import com.google.gson.JsonParseException;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.core.asm.GenericSource;
+import dan200.computercraft.shared.peripheral.generic.meta.ItemMeta;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.INBT;
-import net.minecraft.nbt.ListNBT;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
-import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
@@ -34,11 +28,9 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
-import static dan200.computercraft.shared.integration.minecraft.ArgumentHelpers.assertBetween;
+import static dan200.computercraft.shared.peripheral.generic.methods.ArgumentHelpers.assertBetween;
 
 @AutoService( GenericSource.class )
 public class InventoryMethods implements GenericSource
@@ -48,12 +40,6 @@ public class InventoryMethods implements GenericSource
     public ResourceLocation id()
     {
         return new ResourceLocation( ForgeVersion.MOD_ID, "inventory" );
-    }
-
-    @Nonnull
-    public static LazyOptional<IItemHandler> get( @Nullable TileEntity tile )
-    {
-        return tile == null ? LazyOptional.empty() : tile.getCapability( CapabilityItemHandler.ITEM_HANDLER_CAPABILITY );
     }
 
     @LuaFunction( mainThread = true )
@@ -70,7 +56,7 @@ public class InventoryMethods implements GenericSource
         for( int i = 0; i < size; i++ )
         {
             ItemStack stack = inventory.getStackInSlot( i );
-            if( !stack.isEmpty() ) result.put( i + 1, fillBasicMeta( new HashMap<>( 4 ), stack ) );
+            if( !stack.isEmpty() ) result.put( i + 1, ItemMeta.fillBasicMeta( new HashMap<>( 4 ), stack ) );
         }
 
         return result;
@@ -82,7 +68,7 @@ public class InventoryMethods implements GenericSource
         assertBetween( slot, 1, inventory.getSlots(), "Slot out of range (%s)" );
 
         ItemStack stack = inventory.getStackInSlot( slot - 1 );
-        return stack.isEmpty() ? null : fillCompleteMeta( new HashMap<>(), stack );
+        return stack.isEmpty() ? null : ItemMeta.fillMeta( new HashMap<>(), stack );
     }
 
     @LuaFunction( mainThread = true )
@@ -143,54 +129,6 @@ public class InventoryMethods implements GenericSource
         return null;
     }
 
-    @Nonnull
-    private static <T extends Map<? super String, Object>> T fillBasicMeta( @Nonnull T data, @Nonnull ItemStack stack )
-    {
-        data.put( "name", Objects.toString( stack.getItem().getRegistryName() ) );
-        data.put( "count", stack.getCount() );
-        return data;
-    }
-
-    private static <T extends Map<? super String, Object>> T fillCompleteMeta( @Nonnull T data, @Nonnull ItemStack stack )
-    {
-        if( stack.isEmpty() ) return data;
-
-        fillBasicMeta( data, stack );
-
-        data.put( "displayName", stack.getDisplayName().getString() );
-        data.put( "rawName", stack.getTranslationKey() );
-        data.put( "maxCount", stack.getMaxStackSize() );
-
-        if( stack.isDamageable() )
-        {
-            data.put( "damage", stack.getDamage() );
-            data.put( "maxDamage", stack.getMaxDamage() );
-        }
-
-        if( stack.getItem().showDurabilityBar( stack ) )
-        {
-            data.put( "durability", stack.getItem().getDurabilityForDisplay( stack ) );
-        }
-
-        CompoundNBT tag = stack.getTag();
-        if( tag != null && tag.contains( "display", Constants.NBT.TAG_COMPOUND ) )
-        {
-            CompoundNBT displayTag = tag.getCompound( "display" );
-            if( displayTag.contains( "Lore", Constants.NBT.TAG_LIST ) )
-            {
-                ListNBT loreTag = displayTag.getList( "Lore", Constants.NBT.TAG_STRING );
-                data.put( "lore", loreTag.stream()
-                    .map( InventoryMethods::parseTextComponent )
-                    .filter( Objects::nonNull )
-                    .map( ITextComponent::getString )
-                    .collect( Collectors.toList() ) );
-            }
-        }
-
-        return data;
-    }
-
-
     /**
      * Move an item from one handler to another.
      *
@@ -219,18 +157,5 @@ public class InventoryMethods implements GenericSource
         // about that.
         from.extractItem( fromSlot, inserted, false );
         return inserted;
-    }
-
-    @Nullable
-    private static ITextComponent parseTextComponent( @Nonnull INBT x )
-    {
-        try
-        {
-            return ITextComponent.Serializer.fromJson( x.getString() );
-        }
-        catch( JsonParseException e )
-        {
-            return null;
-        }
     }
 }

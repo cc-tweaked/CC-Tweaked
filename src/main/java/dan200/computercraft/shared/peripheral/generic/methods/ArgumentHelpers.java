@@ -4,7 +4,7 @@
  * Send enquiries to dratcliffe@gmail.com
  */
 
-package dan200.computercraft.shared.integration.minecraft;
+package dan200.computercraft.shared.peripheral.generic.methods;
 
 import dan200.computercraft.api.lua.LuaException;
 import net.minecraft.util.ResourceLocation;
