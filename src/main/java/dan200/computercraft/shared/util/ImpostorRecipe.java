@@ -38,7 +38,7 @@ public final class ImpostorRecipe extends ShapedRecipe
     }
 
     @Override
-    public boolean matches( @Nonnull CraftingInventory inv, World world )
+    public boolean matches( @Nonnull CraftingInventory inv, @Nonnull World world )
     {
         return false;
     }

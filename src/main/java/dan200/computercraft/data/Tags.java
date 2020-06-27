@@ -7,6 +7,7 @@
 package dan200.computercraft.data;
 
 import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.shared.Registry;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.ItemTagsProvider;
 import net.minecraft.item.Item;
@@ -35,14 +36,14 @@ public class Tags extends ItemTagsProvider
     protected void registerTags()
     {
         getBuilder( COMPUTER )
-            .add( ComputerCraft.Items.computerNormal )
-            .add( ComputerCraft.Items.computerAdvanced )
-            .add( ComputerCraft.Items.computerCommand );
-        getBuilder( TURTLE ).add( ComputerCraft.Items.turtleNormal, ComputerCraft.Items.turtleAdvanced );
-        getBuilder( WIRED_MODEM ).add( ComputerCraft.Items.wiredModem, ComputerCraft.Blocks.wiredModemFull.asItem() );
+            .add( Registry.ModItems.COMPUTER_NORMAL.get() )
+            .add( Registry.ModItems.COMPUTER_ADVANCED.get() )
+            .add( Registry.ModItems.COMPUTER_COMMAND.get() );
+        getBuilder( TURTLE ).add( Registry.ModItems.TURTLE_NORMAL.get(), Registry.ModItems.TURTLE_ADVANCED.get() );
+        getBuilder( WIRED_MODEM ).add( Registry.ModItems.WIRED_MODEM.get(), Registry.ModItems.WIRED_MODEM_FULL.get() );
         getBuilder( MONITOR )
-            .add( ComputerCraft.Blocks.monitorNormal.asItem() )
-            .add( ComputerCraft.Blocks.monitorAdvanced.asItem() );
+            .add( Registry.ModItems.MONITOR_NORMAL.get() )
+            .add( Registry.ModItems.MONITOR_ADVANCED.get() );
     }
 
     private static Tag<Item> item( String name )

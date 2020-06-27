@@ -6,27 +6,26 @@
 package dan200.computercraft.shared.peripheral.modem.wired;
 
 import com.google.common.base.Objects;
-import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.network.wired.IWiredElement;
 import dan200.computercraft.api.network.wired.IWiredNode;
 import dan200.computercraft.api.peripheral.IPeripheral;
+import dan200.computercraft.shared.Registry;
 import dan200.computercraft.shared.command.CommandCopy;
 import dan200.computercraft.shared.common.TileGeneric;
 import dan200.computercraft.shared.peripheral.modem.ModemState;
 import dan200.computercraft.shared.util.CapabilityUtil;
 import dan200.computercraft.shared.util.DirectionUtil;
-import dan200.computercraft.shared.util.NamedTileEntityType;
 import dan200.computercraft.shared.util.TickScheduler;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.ActionResultType;
 import net.minecraft.util.Direction;
 import net.minecraft.util.Hand;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.Vec3d;
@@ -46,11 +45,6 @@ import static dan200.computercraft.shared.Capabilities.CAPABILITY_WIRED_ELEMENT;
 
 public class TileCable extends TileGeneric
 {
-    public static final NamedTileEntityType<TileCable> FACTORY = NamedTileEntityType.create(
-        new ResourceLocation( ComputerCraft.MOD_ID, "cable" ),
-        TileCable::new
-    );
-
     private static final String NBT_PERIPHERAL_ENABLED = "PeirpheralAccess";
 
     private class CableElement extends WiredModemElement
@@ -126,9 +120,9 @@ public class TileCable extends TileGeneric
 
     private final NonNullConsumer<LazyOptional<IWiredElement>> connectedNodeChanged = x -> connectionsChanged();
 
-    public TileCable()
+    public TileCable( TileEntityType<? extends TileCable> type )
     {
-        super( FACTORY );
+        super( type );
     }
 
     private void onRemove()
@@ -219,7 +213,7 @@ public class TileCable extends TileGeneric
             if( hasCable() )
             {
                 // Drop the modem and convert to cable
-                Block.spawnAsEntity( getWorld(), getPos(), new ItemStack( ComputerCraft.Items.wiredModem ) );
+                Block.spawnAsEntity( getWorld(), getPos(), new ItemStack( Registry.ModItems.WIRED_MODEM.get() ) );
                 getWorld().setBlockState( getPos(), getBlockState().with( BlockCable.MODEM, CableModemVariant.None ) );
                 modemChanged();
                 connectionsChanged();
@@ -227,7 +221,7 @@ public class TileCable extends TileGeneric
             else
             {
                 // Drop everything and remove block
-                Block.spawnAsEntity( getWorld(), getPos(), new ItemStack( ComputerCraft.Items.wiredModem ) );
+                Block.spawnAsEntity( getWorld(), getPos(), new ItemStack( Registry.ModItems.WIRED_MODEM.get() ) );
                 getWorld().removeBlock( getPos(), false );
                 // This'll call #destroy(), so we don't need to reset the network here.
             }
@@ -287,7 +281,7 @@ public class TileCable extends TileGeneric
     }
 
     @Override
-    public void read( CompoundNBT nbt )
+    public void read( @Nonnull CompoundNBT nbt )
     {
         super.read( nbt );
         m_peripheralAccessAllowed = nbt.getBoolean( NBT_PERIPHERAL_ENABLED );

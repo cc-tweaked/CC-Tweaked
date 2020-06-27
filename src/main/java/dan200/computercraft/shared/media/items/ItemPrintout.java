@@ -5,7 +5,7 @@
  */
 package dan200.computercraft.shared.media.items;
 
-import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.shared.Registry;
 import dan200.computercraft.shared.common.ContainerHeldItem;
 import dan200.computercraft.shared.network.container.HeldItemContainerData;
 import net.minecraft.client.util.ITooltipFlag;
@@ -50,7 +50,7 @@ public class ItemPrintout extends Item
     }
 
     @Override
-    public void addInformation( @Nonnull ItemStack stack, World world, List<ITextComponent> list, ITooltipFlag options )
+    public void addInformation( @Nonnull ItemStack stack, World world, @Nonnull List<ITextComponent> list, @Nonnull ITooltipFlag options )
     {
         String title = getTitle( stack );
         if( title != null && !title.isEmpty() ) list.add( new StringTextComponent( title ) );
@@ -58,12 +58,12 @@ public class ItemPrintout extends Item
 
     @Nonnull
     @Override
-    public ActionResult<ItemStack> onItemRightClick( World world, PlayerEntity player, @Nonnull Hand hand )
+    public ActionResult<ItemStack> onItemRightClick( World world, @Nonnull PlayerEntity player, @Nonnull Hand hand )
     {
         if( !world.isRemote )
         {
             new HeldItemContainerData( hand )
-                .open( player, new ContainerHeldItem.Factory( ContainerHeldItem.PRINTOUT_TYPE, player.getHeldItem( hand ), hand ) );
+                .open( player, new ContainerHeldItem.Factory( Registry.ModContainers.PRINTOUT.get(), player.getHeldItem( hand ), hand ) );
         }
         return new ActionResult<>( ActionResultType.SUCCESS, player.getHeldItem( hand ) );
     }
@@ -100,19 +100,19 @@ public class ItemPrintout extends Item
     @Nonnull
     public static ItemStack createSingleFromTitleAndText( String title, String[] text, String[] colours )
     {
-        return ComputerCraft.Items.printedPage.createFromTitleAndText( title, text, colours );
+        return Registry.ModItems.PRINTED_PAGE.get().createFromTitleAndText( title, text, colours );
     }
 
     @Nonnull
     public static ItemStack createMultipleFromTitleAndText( String title, String[] text, String[] colours )
     {
-        return ComputerCraft.Items.printedPages.createFromTitleAndText( title, text, colours );
+        return Registry.ModItems.PRINTED_PAGES.get().createFromTitleAndText( title, text, colours );
     }
 
     @Nonnull
     public static ItemStack createBookFromTitleAndText( String title, String[] text, String[] colours )
     {
-        return ComputerCraft.Items.printedBook.createFromTitleAndText( title, text, colours );
+        return Registry.ModItems.PRINTED_BOOK.get().createFromTitleAndText( title, text, colours );
     }
 
     public Type getType()

@@ -8,10 +8,14 @@ package dan200.computercraft.shared.turtle.core;
 import com.mojang.authlib.GameProfile;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.turtle.ITurtleAccess;
+import dan200.computercraft.shared.Registry;
 import dan200.computercraft.shared.util.FakeNetHandler;
 import dan200.computercraft.shared.util.InventoryUtil;
 import dan200.computercraft.shared.util.WorldUtil;
-import net.minecraft.entity.*;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntitySize;
+import net.minecraft.entity.EntityType;
+import net.minecraft.entity.Pose;
 import net.minecraft.entity.passive.horse.AbstractHorseEntity;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.container.INamedContainerProvider;
@@ -36,12 +40,6 @@ public final class TurtlePlayer extends FakePlayer
         UUID.fromString( "0d0c4ca0-4ff1-11e4-916c-0800200c9a66" ),
         "[ComputerCraft]"
     );
-
-    public static final EntityType<TurtlePlayer> TYPE = EntityType.Builder.<TurtlePlayer>create( EntityClassification.MISC )
-        .disableSerialization()
-        .disableSummoning()
-        .size( 0, 0 )
-        .build( ComputerCraft.MOD_ID + ":turtle_player" );
 
     private TurtlePlayer( ITurtleAccess turtle )
     {
@@ -129,7 +127,7 @@ public final class TurtlePlayer extends FakePlayer
     @Override
     public EntityType<?> getType()
     {
-        return TYPE;
+        return Registry.ModEntities.TURTLE_PLAYER.get();
     }
 
     @Override
@@ -145,7 +143,7 @@ public final class TurtlePlayer extends FakePlayer
     }
 
     @Override
-    public float getStandingEyeHeight( Pose pose, EntitySize size )
+    public float getStandingEyeHeight( @Nonnull Pose pose, @Nonnull EntitySize size )
     {
         return 0;
     }
@@ -180,17 +178,17 @@ public final class TurtlePlayer extends FakePlayer
     }
 
     @Override
-    public void openSignEditor( SignTileEntity signTile )
+    public void openSignEditor( @Nonnull SignTileEntity signTile )
     {
     }
 
     @Override
-    public void openHorseInventory( AbstractHorseEntity horse, IInventory inventory )
+    public void openHorseInventory( @Nonnull AbstractHorseEntity horse, @Nonnull IInventory inventory )
     {
     }
 
     @Override
-    public void openBook( ItemStack stack, @Nonnull Hand hand )
+    public void openBook( @Nonnull ItemStack stack, @Nonnull Hand hand )
     {
     }
 
@@ -205,17 +203,17 @@ public final class TurtlePlayer extends FakePlayer
     }
 
     @Override
-    protected void onNewPotionEffect( EffectInstance id )
+    protected void onNewPotionEffect( @Nonnull EffectInstance id )
     {
     }
 
     @Override
-    protected void onChangedPotionEffect( EffectInstance id, boolean apply )
+    protected void onChangedPotionEffect( @Nonnull EffectInstance id, boolean apply )
     {
     }
 
     @Override
-    protected void onFinishedPotionEffect( EffectInstance effect )
+    protected void onFinishedPotionEffect( @Nonnull EffectInstance effect )
     {
     }
     //endregion

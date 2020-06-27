@@ -5,14 +5,12 @@
  */
 package dan200.computercraft.shared.peripheral.speaker;
 
-import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.shared.common.TileGeneric;
 import dan200.computercraft.shared.util.CapabilityUtil;
-import dan200.computercraft.shared.util.NamedTileEntityType;
 import net.minecraft.tileentity.ITickableTileEntity;
+import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.Direction;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -28,17 +26,12 @@ public class TileSpeaker extends TileGeneric implements ITickableTileEntity
 {
     public static final int MIN_TICKS_BETWEEN_SOUNDS = 1;
 
-    public static final NamedTileEntityType<TileSpeaker> FACTORY = NamedTileEntityType.create(
-        new ResourceLocation( ComputerCraft.MOD_ID, "speaker" ),
-        TileSpeaker::new
-    );
-
     private final SpeakerPeripheral peripheral;
     private LazyOptional<IPeripheral> peripheralCap;
 
-    public TileSpeaker()
+    public TileSpeaker( TileEntityType<TileSpeaker> type )
     {
-        super( FACTORY );
+        super( type );
         peripheral = new Peripheral( this );
     }
 

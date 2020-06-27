@@ -13,14 +13,12 @@ import dan200.computercraft.shared.computer.core.ComputerState;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.computer.inventory.ContainerComputer;
 import dan200.computercraft.shared.util.CapabilityUtil;
-import dan200.computercraft.shared.util.NamedTileEntityType;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.container.Container;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.Direction;
-import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
 
@@ -31,16 +29,6 @@ import static dan200.computercraft.shared.Capabilities.CAPABILITY_PERIPHERAL;
 
 public class TileComputer extends TileComputerBase
 {
-    public static final NamedTileEntityType<TileComputer> FACTORY_NORMAL = NamedTileEntityType.create(
-        new ResourceLocation( ComputerCraft.MOD_ID, "computer_normal" ),
-        f -> new TileComputer( ComputerFamily.NORMAL, f )
-    );
-
-    public static final NamedTileEntityType<TileComputer> FACTORY_ADVANCED = NamedTileEntityType.create(
-        new ResourceLocation( ComputerCraft.MOD_ID, "computer_advanced" ),
-        f -> new TileComputer( ComputerFamily.ADVANCED, f )
-    );
-
     private ComputerProxy proxy;
     private LazyOptional<IPeripheral> peripheral;
 

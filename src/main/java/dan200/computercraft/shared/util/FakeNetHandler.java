@@ -36,7 +36,7 @@ public class FakeNetHandler extends ServerPlayNetHandler
     }
 
     @Override
-    public void onDisconnect( ITextComponent reason )
+    public void onDisconnect( @Nonnull ITextComponent reason )
     {
     }
 
@@ -51,32 +51,32 @@ public class FakeNetHandler extends ServerPlayNetHandler
     }
 
     @Override
-    public void processInput( CInputPacket packet )
+    public void processInput( @Nonnull CInputPacket packet )
     {
     }
 
     @Override
-    public void processVehicleMove( CMoveVehiclePacket packet )
+    public void processVehicleMove( @Nonnull CMoveVehiclePacket packet )
     {
     }
 
     @Override
-    public void processConfirmTeleport( CConfirmTeleportPacket packet )
+    public void processConfirmTeleport( @Nonnull CConfirmTeleportPacket packet )
     {
     }
 
     @Override
-    public void handleRecipeBookUpdate( CRecipeInfoPacket packet )
+    public void handleRecipeBookUpdate( @Nonnull CRecipeInfoPacket packet )
     {
     }
 
     @Override
-    public void handleSeenAdvancements( CSeenAdvancementsPacket packet )
+    public void handleSeenAdvancements( @Nonnull CSeenAdvancementsPacket packet )
     {
     }
 
     @Override
-    public void processTabComplete( CTabCompletePacket packet )
+    public void processTabComplete( @Nonnull CTabCompletePacket packet )
     {
     }
 
@@ -91,7 +91,7 @@ public class FakeNetHandler extends ServerPlayNetHandler
     }
 
     @Override
-    public void processPickItem( CPickItemPacket packet )
+    public void processPickItem( @Nonnull CPickItemPacket packet )
     {
     }
 
@@ -116,12 +116,12 @@ public class FakeNetHandler extends ServerPlayNetHandler
     }
 
     @Override
-    public void processSelectTrade( CSelectTradePacket packet )
+    public void processSelectTrade( @Nonnull CSelectTradePacket packet )
     {
     }
 
     @Override
-    public void processEditBook( CEditBookPacket packet )
+    public void processEditBook( @Nonnull CEditBookPacket packet )
     {
     }
 
@@ -136,22 +136,22 @@ public class FakeNetHandler extends ServerPlayNetHandler
     }
 
     @Override
-    public void processPlayer( CPlayerPacket packet )
+    public void processPlayer( @Nonnull CPlayerPacket packet )
     {
     }
 
     @Override
-    public void processPlayerDigging( CPlayerDiggingPacket packet )
+    public void processPlayerDigging( @Nonnull CPlayerDiggingPacket packet )
     {
     }
 
     @Override
-    public void processTryUseItemOnBlock( CPlayerTryUseItemOnBlockPacket packet )
+    public void processTryUseItemOnBlock( @Nonnull CPlayerTryUseItemOnBlockPacket packet )
     {
     }
 
     @Override
-    public void processTryUseItem( CPlayerTryUseItemPacket packet )
+    public void processTryUseItem( @Nonnull CPlayerTryUseItemPacket packet )
     {
     }
 
@@ -161,7 +161,7 @@ public class FakeNetHandler extends ServerPlayNetHandler
     }
 
     @Override
-    public void handleResourcePackStatus( CResourcePackStatusPacket packet )
+    public void handleResourcePackStatus( @Nonnull CResourcePackStatusPacket packet )
     {
     }
 
@@ -171,7 +171,7 @@ public class FakeNetHandler extends ServerPlayNetHandler
     }
 
     @Override
-    public void processHeldItemChange( CHeldItemChangePacket packet )
+    public void processHeldItemChange( @Nonnull CHeldItemChangePacket packet )
     {
     }
 
@@ -181,22 +181,22 @@ public class FakeNetHandler extends ServerPlayNetHandler
     }
 
     @Override
-    public void handleAnimation( CAnimateHandPacket packet )
+    public void handleAnimation( @Nonnull CAnimateHandPacket packet )
     {
     }
 
     @Override
-    public void processEntityAction( CEntityActionPacket packet )
+    public void processEntityAction( @Nonnull CEntityActionPacket packet )
     {
     }
 
     @Override
-    public void processUseEntity( CUseEntityPacket packet )
+    public void processUseEntity( @Nonnull CUseEntityPacket packet )
     {
     }
 
     @Override
-    public void processClientStatus( CClientStatusPacket packet )
+    public void processClientStatus( @Nonnull CClientStatusPacket packet )
     {
     }
 
@@ -206,7 +206,7 @@ public class FakeNetHandler extends ServerPlayNetHandler
     }
 
     @Override
-    public void processClickWindow( CClickWindowPacket packet )
+    public void processClickWindow( @Nonnull CClickWindowPacket packet )
     {
     }
 
@@ -216,7 +216,7 @@ public class FakeNetHandler extends ServerPlayNetHandler
     }
 
     @Override
-    public void processEnchantItem( CEnchantItemPacket packet )
+    public void processEnchantItem( @Nonnull CEnchantItemPacket packet )
     {
     }
 
@@ -226,12 +226,12 @@ public class FakeNetHandler extends ServerPlayNetHandler
     }
 
     @Override
-    public void processConfirmTransaction( CConfirmTransactionPacket packet )
+    public void processConfirmTransaction( @Nonnull CConfirmTransactionPacket packet )
     {
     }
 
     @Override
-    public void processUpdateSign( CUpdateSignPacket packet )
+    public void processUpdateSign( @Nonnull CUpdateSignPacket packet )
     {
     }
 
@@ -241,7 +241,7 @@ public class FakeNetHandler extends ServerPlayNetHandler
     }
 
     @Override
-    public void processPlayerAbilities( CPlayerAbilitiesPacket packet )
+    public void processPlayerAbilities( @Nonnull CPlayerAbilitiesPacket packet )
     {
     }
 
@@ -251,7 +251,7 @@ public class FakeNetHandler extends ServerPlayNetHandler
     }
 
     @Override
-    public void processCustomPayload( CCustomPayloadPacket packet )
+    public void processCustomPayload( @Nonnull CCustomPayloadPacket packet )
     {
     }
 
@@ -276,7 +276,7 @@ public class FakeNetHandler extends ServerPlayNetHandler
         }
 
         @Override
-        public void channelActive( ChannelHandlerContext context )
+        public void channelActive( @Nonnull ChannelHandlerContext context )
         {
         }
 
@@ -286,22 +286,22 @@ public class FakeNetHandler extends ServerPlayNetHandler
         }
 
         @Override
-        public void channelInactive( ChannelHandlerContext context )
+        public void channelInactive( @Nonnull ChannelHandlerContext context )
         {
         }
 
         @Override
-        public void exceptionCaught( ChannelHandlerContext context, @Nonnull Throwable err )
+        public void exceptionCaught( @Nonnull ChannelHandlerContext context, @Nonnull Throwable err )
         {
         }
 
         @Override
-        protected void channelRead0( ChannelHandlerContext context, @Nonnull IPacket<?> packet )
+        protected void channelRead0( @Nonnull ChannelHandlerContext context, @Nonnull IPacket<?> packet )
         {
         }
 
         @Override
-        public void setNetHandler( INetHandler handler )
+        public void setNetHandler( @Nonnull INetHandler handler )
         {
             this.handler = handler;
         }
@@ -328,7 +328,7 @@ public class FakeNetHandler extends ServerPlayNetHandler
         }
 
         @Override
-        public void enableEncryption( SecretKey key )
+        public void enableEncryption( @Nonnull SecretKey key )
         {
         }
 

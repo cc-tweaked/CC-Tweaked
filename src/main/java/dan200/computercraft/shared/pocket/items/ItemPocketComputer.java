@@ -86,7 +86,7 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
     }
 
     @Override
-    public void inventoryTick( ItemStack stack, World world, Entity entity, int slotNum, boolean selected )
+    public void inventoryTick( @Nonnull ItemStack stack, World world, @Nonnull Entity entity, int slotNum, boolean selected )
     {
         if( !world.isRemote )
         {
@@ -182,7 +182,7 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
 
 
     @Override
-    public void addInformation( @Nonnull ItemStack stack, @Nullable World world, List<ITextComponent> list, ITooltipFlag flag )
+    public void addInformation( @Nonnull ItemStack stack, @Nullable World world, @Nonnull List<ITextComponent> list, ITooltipFlag flag )
     {
         if( flag.isAdvanced() || getLabel( stack ) == null )
         {

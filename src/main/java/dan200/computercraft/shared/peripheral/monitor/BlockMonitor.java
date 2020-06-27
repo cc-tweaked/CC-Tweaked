@@ -6,8 +6,6 @@
 package dan200.computercraft.shared.peripheral.monitor;
 
 import dan200.computercraft.shared.common.BlockGeneric;
-import dan200.computercraft.shared.common.TileGeneric;
-import dan200.computercraft.shared.util.NamedTileEntityType;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.LivingEntity;
@@ -18,10 +16,13 @@ import net.minecraft.state.EnumProperty;
 import net.minecraft.state.StateContainer;
 import net.minecraft.state.properties.BlockStateProperties;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.RegistryObject;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class BlockMonitor extends BlockGeneric
@@ -33,7 +34,7 @@ public class BlockMonitor extends BlockGeneric
 
     static final EnumProperty<MonitorEdgeState> STATE = EnumProperty.create( "state", MonitorEdgeState.class );
 
-    public BlockMonitor( Properties settings, NamedTileEntityType<? extends TileGeneric> type )
+    public BlockMonitor( Properties settings, RegistryObject<? extends TileEntityType<? extends TileMonitor>> type )
     {
         super( settings, type );
         // TODO: Test underwater - do we need isSolid at all?
@@ -76,7 +77,7 @@ public class BlockMonitor extends BlockGeneric
     }
 
     @Override
-    public void onBlockPlacedBy( World world, BlockPos pos, BlockState blockState, @Nullable LivingEntity livingEntity, ItemStack itemStack )
+    public void onBlockPlacedBy( @Nonnull World world, @Nonnull BlockPos pos, @Nonnull BlockState blockState, @Nullable LivingEntity livingEntity, @Nonnull ItemStack itemStack )
     {
         super.onBlockPlacedBy( world, pos, blockState, livingEntity, itemStack );
 

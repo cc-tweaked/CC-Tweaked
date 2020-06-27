@@ -7,7 +7,6 @@ package dan200.computercraft.shared.peripheral.modem.wireless;
 
 import dan200.computercraft.shared.common.BlockGeneric;
 import dan200.computercraft.shared.peripheral.modem.ModemShapes;
-import dan200.computercraft.shared.util.NamedTileEntityType;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.IWaterLoggable;
@@ -17,6 +16,7 @@ import net.minecraft.state.BooleanProperty;
 import net.minecraft.state.DirectionProperty;
 import net.minecraft.state.StateContainer;
 import net.minecraft.state.properties.BlockStateProperties;
+import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.shapes.ISelectionContext;
@@ -24,6 +24,7 @@ import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.IWorldReader;
+import net.minecraftforge.fml.RegistryObject;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -35,7 +36,7 @@ public class BlockWirelessModem extends BlockGeneric implements IWaterLoggable
     public static final DirectionProperty FACING = BlockStateProperties.FACING;
     public static final BooleanProperty ON = BooleanProperty.create( "on" );
 
-    public BlockWirelessModem( Properties settings, NamedTileEntityType<? extends TileWirelessModem> type )
+    public BlockWirelessModem( Properties settings, RegistryObject<? extends TileEntityType<? extends TileWirelessModem>> type )
     {
         super( settings, type );
         setDefaultState( getStateContainer().getBaseState()
@@ -53,7 +54,7 @@ public class BlockWirelessModem extends BlockGeneric implements IWaterLoggable
     @Nonnull
     @Override
     @Deprecated
-    public VoxelShape getShape( BlockState blockState, IBlockReader blockView, BlockPos blockPos, ISelectionContext context )
+    public VoxelShape getShape( BlockState blockState, @Nonnull IBlockReader blockView, @Nonnull BlockPos blockPos, @Nonnull ISelectionContext context )
     {
         return ModemShapes.getBounds( blockState.get( FACING ) );
     }
@@ -61,7 +62,7 @@ public class BlockWirelessModem extends BlockGeneric implements IWaterLoggable
     @Nonnull
     @Override
     @Deprecated
-    public IFluidState getFluidState( BlockState state )
+    public IFluidState getFluidState( @Nonnull BlockState state )
     {
         return getWaterloggedFluidState( state );
     }
@@ -69,7 +70,7 @@ public class BlockWirelessModem extends BlockGeneric implements IWaterLoggable
     @Nonnull
     @Override
     @Deprecated
-    public BlockState updatePostPlacement( @Nonnull BlockState state, Direction side, BlockState otherState, IWorld world, BlockPos pos, BlockPos otherPos )
+    public BlockState updatePostPlacement( @Nonnull BlockState state, @Nonnull Direction side, @Nonnull BlockState otherState, @Nonnull IWorld world, @Nonnull BlockPos pos, @Nonnull BlockPos otherPos )
     {
         updateWaterloggedPostPlacement( state, world, pos );
         return side == state.get( FACING ) && !state.isValidPosition( world, pos )

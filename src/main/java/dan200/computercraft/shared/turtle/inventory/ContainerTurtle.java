@@ -5,11 +5,11 @@
  */
 package dan200.computercraft.shared.turtle.inventory;
 
+import dan200.computercraft.shared.Registry;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.IComputer;
 import dan200.computercraft.shared.computer.inventory.ContainerComputerBase;
 import dan200.computercraft.shared.network.container.ComputerContainerData;
-import dan200.computercraft.shared.network.container.ContainerData;
 import dan200.computercraft.shared.turtle.blocks.TileTurtle;
 import dan200.computercraft.shared.turtle.core.TurtleBrain;
 import dan200.computercraft.shared.util.SingleIntArray;
@@ -17,7 +17,6 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Inventory;
-import net.minecraft.inventory.container.ContainerType;
 import net.minecraft.inventory.container.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.IIntArray;
@@ -28,8 +27,6 @@ import java.util.function.Predicate;
 
 public class ContainerTurtle extends ContainerComputerBase
 {
-    public static final ContainerType<ContainerTurtle> TYPE = ContainerData.toType( ComputerContainerData::new, ContainerTurtle::new );
-
     public static final int PLAYER_START_Y = 134;
     public static final int TURTLE_START_X = 175;
 
@@ -40,7 +37,7 @@ public class ContainerTurtle extends ContainerComputerBase
         PlayerInventory playerInventory, IInventory inventory, IIntArray properties
     )
     {
-        super( TYPE, id, canUse, computer, family );
+        super( Registry.ModContainers.TURTLE.get(), id, canUse, computer, family );
         this.properties = properties;
 
         trackIntArray( properties );
@@ -78,7 +75,7 @@ public class ContainerTurtle extends ContainerComputerBase
         );
     }
 
-    private ContainerTurtle( int id, PlayerInventory player, ComputerContainerData data )
+    public ContainerTurtle( int id, PlayerInventory player, ComputerContainerData data )
     {
         this(
             id, x -> true, getComputer( player, data ), data.getFamily(),
@@ -128,7 +125,7 @@ public class ContainerTurtle extends ContainerComputerBase
 
     @Nonnull
     @Override
-    public ItemStack transferStackInSlot( PlayerEntity player, int slotNum )
+    public ItemStack transferStackInSlot( @Nonnull PlayerEntity player, int slotNum )
     {
         if( slotNum >= 0 && slotNum < 16 )
         {

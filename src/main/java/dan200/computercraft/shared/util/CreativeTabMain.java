@@ -6,6 +6,7 @@
 package dan200.computercraft.shared.util;
 
 import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.shared.Registry;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
@@ -25,6 +26,6 @@ public class CreativeTabMain extends ItemGroup
     @OnlyIn( Dist.CLIENT )
     public ItemStack createIcon()
     {
-        return new ItemStack( ComputerCraft.Blocks.computerNormal );
+        return new ItemStack( Registry.ModBlocks.COMPUTER_NORMAL.get() );
     }
 }

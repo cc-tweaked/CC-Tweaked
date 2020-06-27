@@ -5,7 +5,6 @@
  */
 package dan200.computercraft.shared.peripheral.diskdrive;
 
-import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.api.filesystem.IWritableMount;
 import dan200.computercraft.api.media.IMedia;
@@ -13,7 +12,10 @@ import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.shared.MediaProviders;
 import dan200.computercraft.shared.common.TileGeneric;
-import dan200.computercraft.shared.util.*;
+import dan200.computercraft.shared.util.CapabilityUtil;
+import dan200.computercraft.shared.util.DefaultInventory;
+import dan200.computercraft.shared.util.InventoryUtil;
+import dan200.computercraft.shared.util.RecordUtil;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -24,6 +26,7 @@ import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.ITickableTileEntity;
+import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.*;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
@@ -49,11 +52,6 @@ public final class TileDiskDrive extends TileGeneric implements DefaultInventory
     private static final String NBT_NAME = "CustomName";
     private static final String NBT_ITEM = "Item";
 
-    public static final NamedTileEntityType<TileDiskDrive> FACTORY = NamedTileEntityType.create(
-        new ResourceLocation( ComputerCraft.MOD_ID, "disk_drive" ),
-        TileDiskDrive::new
-    );
-
     private static class MountInfo
     {
         String mountPath;
@@ -74,9 +72,9 @@ public final class TileDiskDrive extends TileGeneric implements DefaultInventory
     private boolean m_restartRecord = false;
     private boolean m_ejectQueued;
 
-    private TileDiskDrive()
+    public TileDiskDrive( TileEntityType<TileDiskDrive> type )
     {
-        super( FACTORY );
+        super( type );
     }
 
     @Override
@@ -124,7 +122,7 @@ public final class TileDiskDrive extends TileGeneric implements DefaultInventory
     }
 
     @Override
-    public void read( CompoundNBT nbt )
+    public void read( @Nonnull CompoundNBT nbt )
     {
         super.read( nbt );
         customName = nbt.contains( NBT_NAME ) ? ITextComponent.Serializer.fromJson( nbt.getString( NBT_NAME ) ) : null;
@@ -138,7 +136,7 @@ public final class TileDiskDrive extends TileGeneric implements DefaultInventory
 
     @Nonnull
     @Override
-    public CompoundNBT write( CompoundNBT nbt )
+    public CompoundNBT write( @Nonnull CompoundNBT nbt )
     {
         if( customName != null ) nbt.putString( NBT_NAME, ITextComponent.Serializer.toJson( customName ) );
 

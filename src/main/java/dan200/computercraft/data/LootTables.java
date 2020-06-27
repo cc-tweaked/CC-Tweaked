@@ -7,6 +7,7 @@
 package dan200.computercraft.data;
 
 import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.shared.Registry;
 import dan200.computercraft.shared.data.BlockNamedEntityLootCondition;
 import dan200.computercraft.shared.data.HasComputerIdLootCondition;
 import dan200.computercraft.shared.data.PlayerCreativeLootCondition;
@@ -17,6 +18,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.storage.loot.*;
 import net.minecraft.world.storage.loot.conditions.Alternative;
 import net.minecraft.world.storage.loot.conditions.SurvivesExplosion;
+import net.minecraftforge.fml.RegistryObject;
 
 import java.util.function.BiConsumer;
 
@@ -30,19 +32,19 @@ public class LootTables extends LootTableProvider
     @Override
     protected void registerLoot( BiConsumer<ResourceLocation, LootTable> add )
     {
-        basicDrop( add, ComputerCraft.Blocks.diskDrive );
-        basicDrop( add, ComputerCraft.Blocks.monitorNormal );
-        basicDrop( add, ComputerCraft.Blocks.monitorAdvanced );
-        basicDrop( add, ComputerCraft.Blocks.printer );
-        basicDrop( add, ComputerCraft.Blocks.speaker );
-        basicDrop( add, ComputerCraft.Blocks.wiredModemFull );
-        basicDrop( add, ComputerCraft.Blocks.wirelessModemNormal );
-        basicDrop( add, ComputerCraft.Blocks.wirelessModemAdvanced );
+        basicDrop( add, Registry.ModBlocks.DISK_DRIVE );
+        basicDrop( add, Registry.ModBlocks.MONITOR_NORMAL );
+        basicDrop( add, Registry.ModBlocks.MONITOR_ADVANCED );
+        basicDrop( add, Registry.ModBlocks.PRINTER );
+        basicDrop( add, Registry.ModBlocks.SPEAKER );
+        basicDrop( add, Registry.ModBlocks.WIRED_MODEM_FULL );
+        basicDrop( add, Registry.ModBlocks.WIRELESS_MODEM_NORMAL );
+        basicDrop( add, Registry.ModBlocks.WIRELESS_MODEM_ADVANCED );
 
-        computerDrop( add, ComputerCraft.Blocks.computerNormal );
-        computerDrop( add, ComputerCraft.Blocks.computerAdvanced );
-        computerDrop( add, ComputerCraft.Blocks.turtleNormal );
-        computerDrop( add, ComputerCraft.Blocks.turtleAdvanced );
+        computerDrop( add, Registry.ModBlocks.COMPUTER_NORMAL );
+        computerDrop( add, Registry.ModBlocks.COMPUTER_ADVANCED );
+        computerDrop( add, Registry.ModBlocks.TURTLE_NORMAL );
+        computerDrop( add, Registry.ModBlocks.TURTLE_ADVANCED );
 
         add.accept( ComputerCraftProxyCommon.ForgeHandlers.LOOT_TREASURE_DISK, LootTable
             .builder()
@@ -50,8 +52,9 @@ public class LootTables extends LootTableProvider
             .build() );
     }
 
-    private static void basicDrop( BiConsumer<ResourceLocation, LootTable> add, Block block )
+    private static <T extends Block> void basicDrop( BiConsumer<ResourceLocation, LootTable> add, RegistryObject<T> wrapper )
     {
+        Block block = wrapper.get();
         add.accept( block.getLootTable(), LootTable
             .builder()
             .setParameterSet( LootParameterSets.BLOCK )
@@ -63,8 +66,9 @@ public class LootTables extends LootTableProvider
             ).build() );
     }
 
-    private static void computerDrop( BiConsumer<ResourceLocation, LootTable> add, Block block )
+    private static <T extends Block> void computerDrop( BiConsumer<ResourceLocation, LootTable> add, RegistryObject<T> wrapper )
     {
+        Block block = wrapper.get();
         add.accept( block.getLootTable(), LootTable
             .builder()
             .setParameterSet( LootParameterSets.BLOCK )

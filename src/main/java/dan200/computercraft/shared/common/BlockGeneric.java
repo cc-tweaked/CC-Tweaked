@@ -5,7 +5,6 @@
  */
 package dan200.computercraft.shared.common;
 
-import dan200.computercraft.shared.util.NamedTileEntityType;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
@@ -19,6 +18,7 @@ import net.minecraft.world.IBlockReader;
 import net.minecraft.world.IWorldReader;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
+import net.minecraftforge.fml.RegistryObject;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -26,13 +26,12 @@ import java.util.Random;
 
 public abstract class BlockGeneric extends Block
 {
-    private final TileEntityType<? extends TileGeneric> type;
+    private final RegistryObject<? extends TileEntityType<? extends TileGeneric>> type;
 
-    public BlockGeneric( Properties settings, NamedTileEntityType<? extends TileGeneric> type )
+    public BlockGeneric( Properties settings, RegistryObject<? extends TileEntityType<? extends TileGeneric>> type )
     {
         super( settings );
         this.type = type;
-        type.setBlock( this );
     }
 
     @Override
@@ -89,7 +88,7 @@ public abstract class BlockGeneric extends Block
     @Override
     public TileEntity createTileEntity( @Nonnull BlockState state, @Nonnull IBlockReader world )
     {
-        return type.create();
+        return type.get().create();
     }
 
     @Override

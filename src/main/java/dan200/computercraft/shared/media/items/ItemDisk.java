@@ -9,6 +9,7 @@ import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.api.media.IMedia;
+import dan200.computercraft.shared.Registry;
 import dan200.computercraft.shared.common.IColouredItem;
 import dan200.computercraft.shared.util.Colour;
 import net.minecraft.client.util.ITooltipFlag;
@@ -42,9 +43,9 @@ public class ItemDisk extends Item implements IMedia, IColouredItem
     @Nonnull
     public static ItemStack createFromIDAndColour( int id, String label, int colour )
     {
-        ItemStack stack = new ItemStack( ComputerCraft.Items.disk );
+        ItemStack stack = new ItemStack( Registry.ModItems.DISK.get() );
         setDiskID( stack, id );
-        ComputerCraft.Items.disk.setLabel( stack, label );
+        Registry.ModItems.DISK.get().setLabel( stack, label );
         IColouredItem.setColourBasic( stack, colour );
         return stack;
     }
@@ -60,7 +61,7 @@ public class ItemDisk extends Item implements IMedia, IColouredItem
     }
 
     @Override
-    public void addInformation( ItemStack stack, @Nullable World world, List<ITextComponent> list, ITooltipFlag options )
+    public void addInformation( @Nonnull ItemStack stack, @Nullable World world, @Nonnull List<ITextComponent> list, ITooltipFlag options )
     {
         if( options.isAdvanced() )
         {

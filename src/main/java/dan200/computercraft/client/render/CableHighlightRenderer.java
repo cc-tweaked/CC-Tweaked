@@ -8,6 +8,7 @@ package dan200.computercraft.client.render;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
 import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.shared.Registry;
 import dan200.computercraft.shared.peripheral.modem.wired.BlockCable;
 import dan200.computercraft.shared.peripheral.modem.wired.CableShapes;
 import dan200.computercraft.shared.util.WorldUtil;
@@ -51,7 +52,7 @@ public final class CableHighlightRenderer
         BlockState state = world.getBlockState( pos );
 
         // We only care about instances with both cable and modem.
-        if( state.getBlock() != ComputerCraft.Blocks.cable || state.get( BlockCable.MODEM ).getFacing() == null || !state.get( BlockCable.CABLE ) )
+        if( state.getBlock() != Registry.ModBlocks.CABLE.get() || state.get( BlockCable.MODEM ).getFacing() == null || !state.get( BlockCable.CABLE ) )
         {
             return;
         }

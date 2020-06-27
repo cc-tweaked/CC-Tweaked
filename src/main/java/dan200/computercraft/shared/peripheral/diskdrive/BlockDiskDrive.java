@@ -5,6 +5,7 @@
  */
 package dan200.computercraft.shared.peripheral.diskdrive;
 
+import dan200.computercraft.shared.Registry;
 import dan200.computercraft.shared.common.BlockGeneric;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -33,7 +34,7 @@ public class BlockDiskDrive extends BlockGeneric
 
     public BlockDiskDrive( Properties settings )
     {
-        super( settings, TileDiskDrive.FACTORY );
+        super( settings, Registry.ModTiles.DISK_DRIVE );
         setDefaultState( getStateContainer().getBaseState()
             .with( FACING, Direction.NORTH )
             .with( STATE, DiskDriveState.EMPTY ) );
@@ -54,7 +55,7 @@ public class BlockDiskDrive extends BlockGeneric
     }
 
     @Override
-    public void harvestBlock( @Nonnull World world, PlayerEntity player, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nullable TileEntity te, ItemStack stack )
+    public void harvestBlock( @Nonnull World world, @Nonnull PlayerEntity player, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nullable TileEntity te, @Nonnull ItemStack stack )
     {
         if( te instanceof INameable && ((INameable) te).hasCustomName() )
         {
@@ -72,7 +73,7 @@ public class BlockDiskDrive extends BlockGeneric
     }
 
     @Override
-    public void onBlockPlacedBy( World world, BlockPos pos, BlockState state, LivingEntity placer, ItemStack stack )
+    public void onBlockPlacedBy( @Nonnull World world, @Nonnull BlockPos pos, @Nonnull BlockState state, LivingEntity placer, ItemStack stack )
     {
         if( stack.hasDisplayName() )
         {

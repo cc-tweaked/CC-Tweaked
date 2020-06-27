@@ -5,6 +5,7 @@
  */
 package dan200.computercraft.shared.peripheral.modem.wired;
 
+import dan200.computercraft.shared.Registry;
 import dan200.computercraft.shared.common.BlockGeneric;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -18,7 +19,7 @@ public class BlockWiredModemFull extends BlockGeneric
 
     public BlockWiredModemFull( Properties settings )
     {
-        super( settings, TileWiredModemFull.FACTORY );
+        super( settings, Registry.ModTiles.WIRED_MODEM_FULL );
         setDefaultState( getStateContainer().getBaseState()
             .with( MODEM_ON, false )
             .with( PERIPHERAL_ON, false )

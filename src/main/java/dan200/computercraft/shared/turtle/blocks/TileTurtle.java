@@ -56,16 +56,6 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
     public static final int INVENTORY_WIDTH = 4;
     public static final int INVENTORY_HEIGHT = 4;
 
-    public static final NamedTileEntityType<TileTurtle> FACTORY_NORMAL = NamedTileEntityType.create(
-        new ResourceLocation( ComputerCraft.MOD_ID, "turtle_normal" ),
-        type -> new TileTurtle( type, ComputerFamily.NORMAL )
-    );
-
-    public static final NamedTileEntityType<TileTurtle> FACTORY_ADVANCED = NamedTileEntityType.create(
-        new ResourceLocation( ComputerCraft.MOD_ID, "turtle_advanced" ),
-        type -> new TileTurtle( type, ComputerFamily.ADVANCED )
-    );
-
     enum MoveState
     {
         NOT_MOVED,
@@ -266,7 +256,7 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
     }
 
     @Override
-    public void read( CompoundNBT nbt )
+    public void read( @Nonnull CompoundNBT nbt )
     {
         super.read( nbt );
 
@@ -291,7 +281,7 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
 
     @Nonnull
     @Override
-    public CompoundNBT write( CompoundNBT nbt )
+    public CompoundNBT write( @Nonnull CompoundNBT nbt )
     {
         // Write inventory
         ListNBT nbttaglist = new ListNBT();

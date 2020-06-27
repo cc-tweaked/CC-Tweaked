@@ -5,12 +5,12 @@
  */
 package dan200.computercraft.shared.peripheral.diskdrive;
 
+import dan200.computercraft.shared.Registry;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.inventory.container.Container;
-import net.minecraft.inventory.container.ContainerType;
 import net.minecraft.inventory.container.Slot;
 import net.minecraft.item.ItemStack;
 
@@ -18,13 +18,11 @@ import javax.annotation.Nonnull;
 
 public class ContainerDiskDrive extends Container
 {
-    public static final ContainerType<ContainerDiskDrive> TYPE = new ContainerType<>( ContainerDiskDrive::new );
-
     private final IInventory inventory;
 
     public ContainerDiskDrive( int id, PlayerInventory player, IInventory inventory )
     {
-        super( TYPE, id );
+        super( Registry.ModContainers.DISK_DRIVE.get(), id );
 
         this.inventory = inventory;
 
@@ -44,7 +42,7 @@ public class ContainerDiskDrive extends Container
         }
     }
 
-    private ContainerDiskDrive( int id, PlayerInventory player )
+    public ContainerDiskDrive( int id, PlayerInventory player )
     {
         this( id, player, new Inventory( 1 ) );
     }
@@ -57,7 +55,7 @@ public class ContainerDiskDrive extends Container
 
     @Nonnull
     @Override
-    public ItemStack transferStackInSlot( PlayerEntity player, int slotIndex )
+    public ItemStack transferStackInSlot( @Nonnull PlayerEntity player, int slotIndex )
     {
         Slot slot = inventorySlots.get( slotIndex );
         if( slot == null || !slot.getHasStack() ) return ItemStack.EMPTY;

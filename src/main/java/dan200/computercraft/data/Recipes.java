@@ -8,6 +8,7 @@ package dan200.computercraft.data;
 
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.data.Tags.CCTags;
+import dan200.computercraft.shared.Registry;
 import dan200.computercraft.shared.TurtleUpgrades;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.pocket.items.PocketComputerItemFactory;
@@ -55,12 +56,12 @@ public class Recipes extends RecipeProvider
         for( Colour colour : Colour.VALUES )
         {
             ShapelessRecipeBuilder
-                .shapelessRecipe( ComputerCraft.Items.disk )
+                .shapelessRecipe( Registry.ModItems.DISK.get() )
                 .addIngredient( Tags.Items.DUSTS_REDSTONE )
                 .addIngredient( Items.PAPER )
                 .addIngredient( DyeItem.getItem( ofColour( colour ) ) )
                 .setGroup( "computercraft:disk" )
-                .addCriterion( "has_drive", inventoryChange( ComputerCraft.Blocks.diskDrive ) )
+                .addCriterion( "has_drive", inventoryChange( Registry.ModBlocks.DISK_DRIVE.get() ) )
                 .build( RecipeWrapper.wrap(
                     ImpostorShapelessRecipe.SERIALIZER, add,
                     x -> x.putInt( "color", colour.getHex() )
@@ -140,7 +141,7 @@ public class Recipes extends RecipeProvider
     private void basicRecipes( @Nonnull Consumer<IFinishedRecipe> add )
     {
         ShapedRecipeBuilder
-            .shapedRecipe( ComputerCraft.Items.cable, 6 )
+            .shapedRecipe( Registry.ModItems.CABLE.get(), 6 )
             .patternLine( " # " )
             .patternLine( "#R#" )
             .patternLine( " # " )
@@ -151,7 +152,7 @@ public class Recipes extends RecipeProvider
             .build( add );
 
         ShapedRecipeBuilder
-            .shapedRecipe( ComputerCraft.Blocks.computerNormal )
+            .shapedRecipe( Registry.ModBlocks.COMPUTER_NORMAL.get() )
             .patternLine( "###" )
             .patternLine( "#R#" )
             .patternLine( "#G#" )
@@ -162,7 +163,7 @@ public class Recipes extends RecipeProvider
             .build( add );
 
         ShapedRecipeBuilder
-            .shapedRecipe( ComputerCraft.Blocks.computerAdvanced )
+            .shapedRecipe( Registry.ModBlocks.COMPUTER_ADVANCED.get() )
             .patternLine( "###" )
             .patternLine( "#R#" )
             .patternLine( "#G#" )
@@ -173,7 +174,7 @@ public class Recipes extends RecipeProvider
             .build( add );
 
         ShapedRecipeBuilder
-            .shapedRecipe( ComputerCraft.Blocks.computerCommand )
+            .shapedRecipe( Registry.ModBlocks.COMPUTER_COMMAND.get() )
             .patternLine( "###" )
             .patternLine( "#R#" )
             .patternLine( "#G#" )
@@ -184,7 +185,7 @@ public class Recipes extends RecipeProvider
             .build( add );
 
         ShapedRecipeBuilder
-            .shapedRecipe( ComputerCraft.Blocks.diskDrive )
+            .shapedRecipe( Registry.ModBlocks.DISK_DRIVE.get() )
             .patternLine( "###" )
             .patternLine( "#R#" )
             .patternLine( "#R#" )
@@ -194,7 +195,7 @@ public class Recipes extends RecipeProvider
             .build( add );
 
         ShapedRecipeBuilder
-            .shapedRecipe( ComputerCraft.Blocks.monitorNormal )
+            .shapedRecipe( Registry.ModBlocks.MONITOR_NORMAL.get() )
             .patternLine( "###" )
             .patternLine( "#G#" )
             .patternLine( "###" )
@@ -204,7 +205,7 @@ public class Recipes extends RecipeProvider
             .build( add );
 
         ShapedRecipeBuilder
-            .shapedRecipe( ComputerCraft.Blocks.monitorAdvanced, 4 )
+            .shapedRecipe( Registry.ModBlocks.MONITOR_ADVANCED.get(), 4 )
             .patternLine( "###" )
             .patternLine( "#G#" )
             .patternLine( "###" )
@@ -214,7 +215,7 @@ public class Recipes extends RecipeProvider
             .build( add );
 
         ShapedRecipeBuilder
-            .shapedRecipe( ComputerCraft.Items.pocketComputerNormal )
+            .shapedRecipe( Registry.ModItems.POCKET_COMPUTER_NORMAL.get() )
             .patternLine( "###" )
             .patternLine( "#A#" )
             .patternLine( "#G#" )
@@ -226,7 +227,7 @@ public class Recipes extends RecipeProvider
             .build( add );
 
         ShapedRecipeBuilder
-            .shapedRecipe( ComputerCraft.Items.pocketComputerAdvanced )
+            .shapedRecipe( Registry.ModItems.POCKET_COMPUTER_ADVANCED.get() )
             .patternLine( "###" )
             .patternLine( "#A#" )
             .patternLine( "#G#" )
@@ -238,7 +239,7 @@ public class Recipes extends RecipeProvider
             .build( add );
 
         ShapedRecipeBuilder
-            .shapedRecipe( ComputerCraft.Blocks.printer )
+            .shapedRecipe( Registry.ModBlocks.PRINTER.get() )
             .patternLine( "###" )
             .patternLine( "#R#" )
             .patternLine( "#D#" )
@@ -249,7 +250,7 @@ public class Recipes extends RecipeProvider
             .build( add );
 
         ShapedRecipeBuilder
-            .shapedRecipe( ComputerCraft.Blocks.speaker )
+            .shapedRecipe( Registry.ModBlocks.SPEAKER.get() )
             .patternLine( "###" )
             .patternLine( "#N#" )
             .patternLine( "#R#" )
@@ -260,29 +261,29 @@ public class Recipes extends RecipeProvider
             .build( add );
 
         ShapedRecipeBuilder
-            .shapedRecipe( ComputerCraft.Items.wiredModem )
+            .shapedRecipe( Registry.ModItems.WIRED_MODEM.get() )
             .patternLine( "###" )
             .patternLine( "#R#" )
             .patternLine( "###" )
             .key( '#', Tags.Items.STONE )
             .key( 'R', Tags.Items.DUSTS_REDSTONE )
             .addCriterion( "has_computer", inventoryChange( CCTags.COMPUTER ) )
-            .addCriterion( "has_cable", inventoryChange( ComputerCraft.Items.cable ) )
+            .addCriterion( "has_cable", inventoryChange( Registry.ModItems.CABLE.get() ) )
             .build( add );
 
         ShapelessRecipeBuilder
-            .shapelessRecipe( ComputerCraft.Blocks.wiredModemFull )
-            .addIngredient( ComputerCraft.Items.wiredModem )
+            .shapelessRecipe( Registry.ModBlocks.WIRED_MODEM_FULL.get() )
+            .addIngredient( Registry.ModItems.WIRED_MODEM.get() )
             .addCriterion( "has_modem", inventoryChange( CCTags.WIRED_MODEM ) )
             .build( add, new ResourceLocation( ComputerCraft.MOD_ID, "wired_modem_full_from" ) );
         ShapelessRecipeBuilder
-            .shapelessRecipe( ComputerCraft.Items.wiredModem )
-            .addIngredient( ComputerCraft.Blocks.wiredModemFull )
+            .shapelessRecipe( Registry.ModItems.WIRED_MODEM.get() )
+            .addIngredient( Registry.ModBlocks.WIRED_MODEM_FULL.get() )
             .addCriterion( "has_modem", inventoryChange( CCTags.WIRED_MODEM ) )
             .build( add, new ResourceLocation( ComputerCraft.MOD_ID, "wired_modem_full_to" ) );
 
         ShapedRecipeBuilder
-            .shapedRecipe( ComputerCraft.Blocks.wirelessModemNormal )
+            .shapedRecipe( Registry.ModBlocks.WIRELESS_MODEM_NORMAL.get() )
             .patternLine( "###" )
             .patternLine( "#E#" )
             .patternLine( "###" )
@@ -292,14 +293,14 @@ public class Recipes extends RecipeProvider
             .build( add );
 
         ShapedRecipeBuilder
-            .shapedRecipe( ComputerCraft.Blocks.wirelessModemAdvanced )
+            .shapedRecipe( Registry.ModBlocks.WIRELESS_MODEM_ADVANCED.get() )
             .patternLine( "###" )
             .patternLine( "#E#" )
             .patternLine( "###" )
             .key( '#', Tags.Items.INGOTS_GOLD )
             .key( 'E', Items.ENDER_EYE )
             .addCriterion( "has_computer", inventoryChange( CCTags.COMPUTER ) )
-            .addCriterion( "has_wireless", inventoryChange( ComputerCraft.Blocks.wirelessModemNormal ) )
+            .addCriterion( "has_wireless", inventoryChange( Registry.ModBlocks.WIRELESS_MODEM_NORMAL.get() ) )
             .build( add );
     }
 

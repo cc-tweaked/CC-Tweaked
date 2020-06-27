@@ -270,7 +270,7 @@ public final class Config
         clientSpec = clientBuilder.build();
     }
 
-    public static void load()
+    public static void setup()
     {
         ModLoadingContext.get().registerConfig( ModConfig.Type.SERVER, serverSpec );
         ModLoadingContext.get().registerConfig( ModConfig.Type.CLIENT, clientSpec );
