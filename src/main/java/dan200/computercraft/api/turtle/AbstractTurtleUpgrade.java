@@ -5,12 +5,15 @@
  */
 package dan200.computercraft.api.turtle;
 
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.IItemProvider;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Util;
+import net.minecraftforge.common.util.NonNullSupplier;
 
 import javax.annotation.Nonnull;
+import java.util.function.Supplier;
 
 /**
  * A base class for {@link ITurtleUpgrade}s.
@@ -22,9 +25,9 @@ public abstract class AbstractTurtleUpgrade implements ITurtleUpgrade
     private final ResourceLocation id;
     private final TurtleUpgradeType type;
     private final String adjective;
-    private final ItemStack stack;
+    private final NonNullSupplier<ItemStack> stack;
 
-    protected AbstractTurtleUpgrade( ResourceLocation id, TurtleUpgradeType type, String adjective, ItemStack stack )
+    protected AbstractTurtleUpgrade( ResourceLocation id, TurtleUpgradeType type, String adjective, NonNullSupplier<ItemStack> stack )
     {
         this.id = id;
         this.type = type;
@@ -32,19 +35,39 @@ public abstract class AbstractTurtleUpgrade implements ITurtleUpgrade
         this.stack = stack;
     }
 
-    protected AbstractTurtleUpgrade( ResourceLocation id, TurtleUpgradeType type, String adjective, IItemProvider item )
-    {
-        this( id, type, adjective, new ItemStack( item ) );
-    }
-
-    protected AbstractTurtleUpgrade( ResourceLocation id, TurtleUpgradeType type, ItemStack stack )
+    protected AbstractTurtleUpgrade( ResourceLocation id, TurtleUpgradeType type, NonNullSupplier<ItemStack> stack )
     {
         this( id, type, Util.makeTranslationKey( "upgrade", id ) + ".adjective", stack );
     }
 
+    protected AbstractTurtleUpgrade( ResourceLocation id, TurtleUpgradeType type, String adjective, ItemStack stack )
+    {
+        this( id, type, adjective, () -> stack );
+    }
+
+    protected AbstractTurtleUpgrade( ResourceLocation id, TurtleUpgradeType type, ItemStack stack )
+    {
+        this( id, type, () -> stack );
+    }
+
+    protected AbstractTurtleUpgrade( ResourceLocation id, TurtleUpgradeType type, String adjective, IItemProvider item )
+    {
+        this( id, type, adjective, new CachedStack( () -> item ) );
+    }
+
     protected AbstractTurtleUpgrade( ResourceLocation id, TurtleUpgradeType type, IItemProvider item )
     {
-        this( id, type, new ItemStack( item ) );
+        this( id, type, new CachedStack( () -> item ) );
+    }
+
+    protected AbstractTurtleUpgrade( ResourceLocation id, TurtleUpgradeType type, String adjective, Supplier<? extends IItemProvider> item )
+    {
+        this( id, type, adjective, new CachedStack( item ) );
+    }
+
+    protected AbstractTurtleUpgrade( ResourceLocation id, TurtleUpgradeType type, Supplier<? extends IItemProvider> item )
+    {
+        this( id, type, new CachedStack( item ) );
     }
 
     @Nonnull
@@ -72,6 +95,32 @@ public abstract class AbstractTurtleUpgrade implements ITurtleUpgrade
     @Override
     public final ItemStack getCraftingItem()
     {
-        return stack;
+        return stack.get();
+    }
+
+    /**
+     * A supplier which converts an item into an item stack.
+     *
+     * Constructing item stacks is somewhat expensive due to attaching capabilities. We cache it if given a consistent item.
+     */
+    private static final class CachedStack implements NonNullSupplier<ItemStack>
+    {
+        private final Supplier<? extends IItemProvider> provider;
+        private Item item;
+        private ItemStack stack;
+
+        CachedStack( Supplier<? extends IItemProvider> provider )
+        {
+            this.provider = provider;
+        }
+
+        @Nonnull
+        @Override
+        public ItemStack get()
+        {
+            Item item = provider.get().asItem();
+            if( item == this.item && stack != null ) return stack;
+            return stack = new ItemStack( this.item = item );
+        }
     }
 }

@@ -170,7 +170,7 @@ public class TileEntityMonitorRenderer extends TileEntityRenderer<TileMonitor>
                     }
 
                     ByteBuffer monitorBuffer = tboContents;
-                    monitorBuffer.position( 0 );
+                    monitorBuffer.clear();
                     for( int y = 0; y < height; y++ )
                     {
                         TextBuffer text = terminal.getLine( y ), textColour = terminal.getTextColourLine( y ), background = terminal.getBackgroundColourLine( y );

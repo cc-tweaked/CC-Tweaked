@@ -6,7 +6,6 @@
 package dan200.computercraft.shared.peripheral.modem.wired;
 
 import com.google.common.base.Objects;
-import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.network.wired.IWiredElement;
 import dan200.computercraft.api.network.wired.IWiredNode;
@@ -14,14 +13,17 @@ import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.shared.command.CommandCopy;
 import dan200.computercraft.shared.common.TileGeneric;
 import dan200.computercraft.shared.peripheral.modem.ModemState;
-import dan200.computercraft.shared.util.*;
+import dan200.computercraft.shared.util.CapabilityUtil;
+import dan200.computercraft.shared.util.DirectionUtil;
+import dan200.computercraft.shared.util.SidedCaps;
+import dan200.computercraft.shared.util.TickScheduler;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.ActionResultType;
 import net.minecraft.util.Direction;
 import net.minecraft.util.Hand;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.Vec3d;
@@ -43,11 +45,6 @@ import static dan200.computercraft.shared.peripheral.modem.wired.BlockWiredModem
 
 public class TileWiredModemFull extends TileGeneric
 {
-    public static final NamedTileEntityType<TileWiredModemFull> FACTORY = NamedTileEntityType.create(
-        new ResourceLocation( ComputerCraft.MOD_ID, "wired_modem_full" ),
-        TileWiredModemFull::new
-    );
-
     private static final String NBT_PERIPHERAL_ENABLED = "PeripheralAccess";
 
     private static final class FullElement extends WiredModemElement
@@ -111,9 +108,9 @@ public class TileWiredModemFull extends TileGeneric
 
     private final NonNullConsumer<LazyOptional<IWiredElement>> connectedNodeChanged = x -> connectionsChanged();
 
-    public TileWiredModemFull()
+    public TileWiredModemFull( TileEntityType<TileWiredModemFull> type )
     {
-        super( FACTORY );
+        super( type );
         for( int i = 0; i < m_peripherals.length; i++ )
         {
             Direction facing = Direction.byIndex( i );

@@ -6,13 +6,13 @@
 
 package dan200.computercraft.shared.turtle.upgrades;
 
-import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.client.TransformedModel;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.turtle.AbstractTurtleUpgrade;
 import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.api.turtle.TurtleUpgradeType;
+import dan200.computercraft.shared.Registry;
 import dan200.computercraft.shared.peripheral.speaker.SpeakerPeripheral;
 import net.minecraft.client.renderer.model.ModelResourceLocation;
 import net.minecraft.util.ResourceLocation;
@@ -63,7 +63,7 @@ public class TurtleSpeaker extends AbstractTurtleUpgrade
 
     public TurtleSpeaker( ResourceLocation id )
     {
-        super( id, TurtleUpgradeType.PERIPHERAL, ComputerCraft.Blocks.speaker );
+        super( id, TurtleUpgradeType.PERIPHERAL, Registry.ModBlocks.SPEAKER );
     }
 
     @Override

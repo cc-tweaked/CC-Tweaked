@@ -38,7 +38,7 @@ public final class WorldUtil
         {
             @Nonnull
             @Override
-            public EntitySize getSize( Pose pose )
+            public EntitySize getSize( @Nonnull Pose pose )
             {
                 return EntitySize.fixed( 0, 0 );
             }

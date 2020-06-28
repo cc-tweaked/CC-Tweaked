@@ -5,7 +5,6 @@
  */
 package dan200.computercraft.shared.peripheral.printer;
 
-import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.shared.common.TileGeneric;
@@ -20,6 +19,7 @@ import net.minecraft.inventory.container.Container;
 import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.item.*;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.*;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.Vec3d;
@@ -40,11 +40,6 @@ import static net.minecraftforge.items.CapabilityItemHandler.ITEM_HANDLER_CAPABI
 
 public final class TilePrinter extends TileGeneric implements DefaultSidedInventory, INameable, INamedContainerProvider
 {
-    public static final NamedTileEntityType<TilePrinter> FACTORY = NamedTileEntityType.create(
-        new ResourceLocation( ComputerCraft.MOD_ID, "printer" ),
-        TilePrinter::new
-    );
-
     private static final String NBT_NAME = "CustomName";
     private static final String NBT_PRINTING = "Printing";
     private static final String NBT_PAGE_TITLE = "PageTitle";
@@ -66,9 +61,9 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
     private String m_pageTitle = "";
     private boolean m_printing = false;
 
-    private TilePrinter()
+    public TilePrinter( TileEntityType<TilePrinter> type )
     {
-        super( FACTORY );
+        super( type );
     }
 
     @Override
@@ -96,7 +91,7 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
     }
 
     @Override
-    public void read( CompoundNBT nbt )
+    public void read( @Nonnull CompoundNBT nbt )
     {
         super.read( nbt );
 
@@ -116,7 +111,7 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
 
     @Nonnull
     @Override
-    public CompoundNBT write( CompoundNBT nbt )
+    public CompoundNBT write( @Nonnull CompoundNBT nbt )
     {
         if( customName != null ) nbt.putString( NBT_NAME, ITextComponent.Serializer.toJson( customName ) );
 

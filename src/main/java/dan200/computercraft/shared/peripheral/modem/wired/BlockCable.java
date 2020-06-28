@@ -6,8 +6,8 @@
 package dan200.computercraft.shared.peripheral.modem.wired;
 
 import com.google.common.collect.ImmutableMap;
-import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.ComputerCraftAPI;
+import dan200.computercraft.shared.Registry;
 import dan200.computercraft.shared.common.BlockGeneric;
 import dan200.computercraft.shared.util.WorldUtil;
 import net.minecraft.block.Block;
@@ -61,7 +61,7 @@ public class BlockCable extends BlockGeneric implements IWaterLoggable
 
     public BlockCable( Properties settings )
     {
-        super( settings, TileCable.FACTORY );
+        super( settings, Registry.ModTiles.CABLE );
 
         setDefaultState( getStateContainer().getBaseState()
             .with( MODEM, CableModemVariant.None )
@@ -94,7 +94,7 @@ public class BlockCable extends BlockGeneric implements IWaterLoggable
     @Nonnull
     @Override
     @Deprecated
-    public VoxelShape getShape( BlockState state, IBlockReader world, BlockPos pos, ISelectionContext context )
+    public VoxelShape getShape( @Nonnull BlockState state, @Nonnull IBlockReader world, @Nonnull BlockPos pos, @Nonnull ISelectionContext context )
     {
         return CableShapes.getShape( state );
     }
@@ -121,12 +121,12 @@ public class BlockCable extends BlockGeneric implements IWaterLoggable
                     if( WorldUtil.isVecInside( CableShapes.getModemShape( state ), hit.getHitVec().subtract( pos.getX(), pos.getY(), pos.getZ() ) ) )
                     {
                         newState = state.with( MODEM, CableModemVariant.None );
-                        item = new ItemStack( ComputerCraft.Items.wiredModem );
+                        item = new ItemStack( Registry.ModItems.WIRED_MODEM.get() );
                     }
                     else
                     {
                         newState = state.with( CABLE, false );
-                        item = new ItemStack( ComputerCraft.Items.cable );
+                        item = new ItemStack( Registry.ModItems.CABLE.get() );
                     }
 
                     world.setBlockState( pos, correctConnections( world, pos, newState ), 3 );
@@ -154,18 +154,18 @@ public class BlockCable extends BlockGeneric implements IWaterLoggable
         boolean cable = state.get( CABLE );
 
         // If we've only got one, just use that.
-        if( !cable ) return new ItemStack( ComputerCraft.Items.wiredModem );
-        if( modem == null ) return new ItemStack( ComputerCraft.Items.cable );
+        if( !cable ) return new ItemStack( Registry.ModItems.WIRED_MODEM.get() );
+        if( modem == null ) return new ItemStack( Registry.ModItems.CABLE.get() );
 
         // We've a modem and cable, so try to work out which one we're interacting with
         return hit != null && WorldUtil.isVecInside( CableShapes.getModemShape( state ), hit.getHitVec().subtract( pos.getX(), pos.getY(), pos.getZ() ) )
-            ? new ItemStack( ComputerCraft.Items.wiredModem )
-            : new ItemStack( ComputerCraft.Items.cable );
+            ? new ItemStack( Registry.ModItems.WIRED_MODEM.get() )
+            : new ItemStack( Registry.ModItems.CABLE.get() );
 
     }
 
     @Override
-    public void onBlockPlacedBy( World world, BlockPos pos, BlockState state, LivingEntity placer, ItemStack stack )
+    public void onBlockPlacedBy( World world, @Nonnull BlockPos pos, @Nonnull BlockState state, LivingEntity placer, @Nonnull ItemStack stack )
     {
         TileEntity tile = world.getTileEntity( pos );
         if( tile instanceof TileCable )
@@ -180,7 +180,7 @@ public class BlockCable extends BlockGeneric implements IWaterLoggable
     @Nonnull
     @Override
     @Deprecated
-    public IFluidState getFluidState( BlockState state )
+    public IFluidState getFluidState( @Nonnull BlockState state )
     {
         return getWaterloggedFluidState( state );
     }
@@ -188,7 +188,7 @@ public class BlockCable extends BlockGeneric implements IWaterLoggable
     @Nonnull
     @Override
     @Deprecated
-    public BlockState updatePostPlacement( @Nonnull BlockState state, Direction side, BlockState otherState, IWorld world, BlockPos pos, BlockPos otherPos )
+    public BlockState updatePostPlacement( @Nonnull BlockState state, @Nonnull Direction side, @Nonnull BlockState otherState, @Nonnull IWorld world, @Nonnull BlockPos pos, @Nonnull BlockPos otherPos )
     {
         updateWaterloggedPostPlacement( state, world, pos );
         // Should never happen, but handle the case where we've no modem or cable.
@@ -202,7 +202,7 @@ public class BlockCable extends BlockGeneric implements IWaterLoggable
 
     @Override
     @Deprecated
-    public boolean isValidPosition( BlockState state, IWorldReader world, BlockPos pos )
+    public boolean isValidPosition( BlockState state, @Nonnull IWorldReader world, @Nonnull BlockPos pos )
     {
         Direction facing = state.get( MODEM ).getFacing();
         if( facing == null ) return true;
@@ -214,7 +214,7 @@ public class BlockCable extends BlockGeneric implements IWaterLoggable
 
     @Nullable
     @Override
-    public BlockState getStateForPlacement( BlockItemUseContext context )
+    public BlockState getStateForPlacement( @Nonnull BlockItemUseContext context )
     {
         BlockState state = getDefaultState()
             .with( WATERLOGGED, getWaterloggedStateForPlacement( context ) );

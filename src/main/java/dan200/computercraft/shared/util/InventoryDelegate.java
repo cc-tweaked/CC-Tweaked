@@ -58,7 +58,7 @@ public interface InventoryDelegate extends IInventory
     }
 
     @Override
-    default void setInventorySlotContents( int slot, ItemStack stack )
+    default void setInventorySlotContents( int slot, @Nonnull ItemStack stack )
     {
         getInventory().setInventorySlotContents( slot, stack );
     }

@@ -12,7 +12,6 @@ import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.turtle.core.TurtleBrain;
 import dan200.computercraft.shared.turtle.items.ITurtleItem;
 import dan200.computercraft.shared.turtle.items.TurtleItemFactory;
-import dan200.computercraft.shared.util.NamedTileEntityType;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
@@ -28,6 +27,7 @@ import net.minecraft.state.DirectionProperty;
 import net.minecraft.state.StateContainer;
 import net.minecraft.state.properties.BlockStateProperties;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
@@ -36,6 +36,7 @@ import net.minecraft.util.math.shapes.ISelectionContext;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.world.*;
+import net.minecraftforge.fml.RegistryObject;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -52,7 +53,7 @@ public class BlockTurtle extends BlockComputerBase<TileTurtle> implements IWater
         0.875, 0.875, 0.875
     );
 
-    public BlockTurtle( Properties settings, ComputerFamily family, NamedTileEntityType<TileTurtle> type )
+    public BlockTurtle( Properties settings, ComputerFamily family, RegistryObject<? extends TileEntityType<? extends TileTurtle>> type )
     {
         super( settings, family, type );
         setDefaultState( getStateContainer().getBaseState()
@@ -70,7 +71,7 @@ public class BlockTurtle extends BlockComputerBase<TileTurtle> implements IWater
     @Nonnull
     @Override
     @Deprecated
-    public BlockRenderType getRenderType( BlockState state )
+    public BlockRenderType getRenderType( @Nonnull BlockState state )
     {
         return BlockRenderType.ENTITYBLOCK_ANIMATED;
     }
@@ -78,7 +79,7 @@ public class BlockTurtle extends BlockComputerBase<TileTurtle> implements IWater
     @Nonnull
     @Override
     @Deprecated
-    public VoxelShape getShape( BlockState state, IBlockReader world, BlockPos pos, ISelectionContext context )
+    public VoxelShape getShape( @Nonnull BlockState state, IBlockReader world, @Nonnull BlockPos pos, @Nonnull ISelectionContext context )
     {
         TileEntity tile = world.getTileEntity( pos );
         Vec3d offset = tile instanceof TileTurtle ? ((TileTurtle) tile).getRenderOffset( 1.0f ) : Vec3d.ZERO;
@@ -97,7 +98,7 @@ public class BlockTurtle extends BlockComputerBase<TileTurtle> implements IWater
     @Nonnull
     @Override
     @Deprecated
-    public IFluidState getFluidState( BlockState state )
+    public IFluidState getFluidState( @Nonnull BlockState state )
     {
         return getWaterloggedFluidState( state );
     }
@@ -105,14 +106,14 @@ public class BlockTurtle extends BlockComputerBase<TileTurtle> implements IWater
     @Nonnull
     @Override
     @Deprecated
-    public BlockState updatePostPlacement( @Nonnull BlockState state, Direction side, BlockState otherState, IWorld world, BlockPos pos, BlockPos otherPos )
+    public BlockState updatePostPlacement( @Nonnull BlockState state, @Nonnull Direction side, @Nonnull BlockState otherState, @Nonnull IWorld world, @Nonnull BlockPos pos, @Nonnull BlockPos otherPos )
     {
         updateWaterloggedPostPlacement( state, world, pos );
         return state;
     }
 
     @Override
-    public void onBlockPlacedBy( World world, BlockPos pos, BlockState state, @Nullable LivingEntity player, @Nonnull ItemStack stack )
+    public void onBlockPlacedBy( @Nonnull World world, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nullable LivingEntity player, @Nonnull ItemStack stack )
     {
         super.onBlockPlacedBy( world, pos, state, player, stack );
 

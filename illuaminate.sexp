@@ -12,6 +12,9 @@
   (index doc/index.md)
   (source-link https://github.com/SquidDev-CC/CC-Tweaked/blob/${commit}/${path}#L${line})
 
+  (module-kinds
+    (peripheral Peripherals))
+
   (library-path
     /doc/stub/
 
@@ -70,11 +73,17 @@
 
 ;; Suppress warnings for currently undocumented modules.
 (at
-  (/doc/stub/fs.lua
+  (; Java APIs
+   /doc/stub/fs.lua
    /doc/stub/http.lua
    /doc/stub/os.lua
    /doc/stub/term.lua
    /doc/stub/turtle.lua
+   ; Peripherals
+   /doc/stub/drive.lua
+   /doc/stub/modem.lua
+   /doc/stub/printer.lua
+   ; Lua APIs
    /src/main/resources/*/computercraft/lua/rom/apis/io.lua
    /src/main/resources/*/computercraft/lua/rom/apis/window.lua)
 

@@ -6,34 +6,31 @@
 package dan200.computercraft.shared.computer.inventory;
 
 import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.shared.Registry;
 import dan200.computercraft.shared.computer.blocks.TileCommandComputer;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.IContainerComputer;
 import dan200.computercraft.shared.computer.core.ServerComputer;
-import dan200.computercraft.shared.network.container.ContainerData;
 import dan200.computercraft.shared.network.container.ViewComputerContainerData;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.container.ContainerType;
 
 import javax.annotation.Nonnull;
 
 public class ContainerViewComputer extends ContainerComputerBase implements IContainerComputer
 {
-    public static final ContainerType<ContainerViewComputer> TYPE = ContainerData.toType( ViewComputerContainerData::new, ContainerViewComputer::new );
-
     private final int width;
     private final int height;
 
     public ContainerViewComputer( int id, ServerComputer computer )
     {
-        super( TYPE, id, player -> canInteractWith( computer, player ), computer, computer.getFamily() );
+        super( Registry.ModContainers.VIEW_COMPUTER.get(), id, player -> canInteractWith( computer, player ), computer, computer.getFamily() );
         this.width = this.height = 0;
     }
 
     public ContainerViewComputer( int id, PlayerInventory player, ViewComputerContainerData data )
     {
-        super( TYPE, id, player, data );
+        super( Registry.ModContainers.VIEW_COMPUTER.get(), id, player, data );
         this.width = data.getWidth();
         this.height = data.getHeight();
     }

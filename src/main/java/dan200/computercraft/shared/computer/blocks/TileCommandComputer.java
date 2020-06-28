@@ -9,13 +9,11 @@ import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.computer.apis.CommandAPI;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ServerComputer;
-import dan200.computercraft.shared.util.NamedTileEntityType;
 import net.minecraft.command.CommandSource;
 import net.minecraft.command.ICommandSource;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.Vec2f;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.ITextComponent;
@@ -30,11 +28,6 @@ import java.util.Map;
 
 public class TileCommandComputer extends TileComputer
 {
-    public static final NamedTileEntityType<TileCommandComputer> FACTORY = NamedTileEntityType.create(
-        new ResourceLocation( ComputerCraft.MOD_ID, "command_computer" ),
-        f -> new TileCommandComputer( ComputerFamily.COMMAND, f )
-    );
-
     public class CommandReceiver implements ICommandSource
     {
         private final Map<Integer, String> output = new HashMap<>();

@@ -5,13 +5,13 @@
  */
 package dan200.computercraft.shared.peripheral.printer;
 
+import dan200.computercraft.shared.Registry;
 import dan200.computercraft.shared.util.SingleIntArray;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.inventory.container.Container;
-import net.minecraft.inventory.container.ContainerType;
 import net.minecraft.inventory.container.Slot;
 import net.minecraft.item.DyeItem;
 import net.minecraft.item.ItemStack;
@@ -22,14 +22,12 @@ import javax.annotation.Nonnull;
 
 public class ContainerPrinter extends Container
 {
-    public static final ContainerType<ContainerPrinter> TYPE = new ContainerType<>( ContainerPrinter::new );
-
     private final IInventory inventory;
     private final IIntArray properties;
 
     private ContainerPrinter( int id, PlayerInventory player, IInventory inventory, IIntArray properties )
     {
-        super( TYPE, id );
+        super( Registry.ModContainers.PRINTER.get(), id );
         this.properties = properties;
         this.inventory = inventory;
 
@@ -60,7 +58,7 @@ public class ContainerPrinter extends Container
         }
     }
 
-    private ContainerPrinter( int id, PlayerInventory player )
+    public ContainerPrinter( int id, PlayerInventory player )
     {
         this( id, player, new Inventory( TilePrinter.SLOTS ), new IntArray( 1 ) );
     }
@@ -83,7 +81,7 @@ public class ContainerPrinter extends Container
 
     @Nonnull
     @Override
-    public ItemStack transferStackInSlot( PlayerEntity player, int index )
+    public ItemStack transferStackInSlot( @Nonnull PlayerEntity player, int index )
     {
         Slot slot = inventorySlots.get( index );
         if( slot == null || !slot.getHasStack() ) return ItemStack.EMPTY;

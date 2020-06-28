@@ -2,7 +2,9 @@ name: Build documentation
 
 on:
   push:
-    branches: [ master ]
+    branches:
+    - master
+    - mc-1.15.x
     tags:
   release:
     types: [ published ]

@@ -206,7 +206,7 @@ public class TurtleInventoryCrafting extends CraftingInventory
     }
 
     @Override
-    public boolean isUsableByPlayer( PlayerEntity player )
+    public boolean isUsableByPlayer( @Nonnull PlayerEntity player )
     {
         return true;
     }

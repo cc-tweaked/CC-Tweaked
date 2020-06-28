@@ -5,7 +5,7 @@
  */
 package dan200.computercraft.shared.common;
 
-import dan200.computercraft.shared.network.container.ContainerData;
+import dan200.computercraft.shared.Registry;
 import dan200.computercraft.shared.network.container.HeldItemContainerData;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
@@ -21,8 +21,6 @@ import javax.annotation.Nullable;
 
 public class ContainerHeldItem extends Container
 {
-    public static final ContainerType<ContainerHeldItem> PRINTOUT_TYPE = ContainerData.toType( HeldItemContainerData::new, ContainerHeldItem::createPrintout );
-
     private final ItemStack stack;
     private final Hand hand;
 
@@ -34,9 +32,9 @@ public class ContainerHeldItem extends Container
         stack = player.getHeldItem( hand ).copy();
     }
 
-    private static ContainerHeldItem createPrintout( int id, PlayerInventory inventory, HeldItemContainerData data )
+    public static ContainerHeldItem createPrintout( int id, PlayerInventory inventory, HeldItemContainerData data )
     {
-        return new ContainerHeldItem( PRINTOUT_TYPE, id, inventory.player, data.getHand() );
+        return new ContainerHeldItem( Registry.ModContainers.PRINTOUT.get(), id, inventory.player, data.getHand() );
     }
 
     @Nonnull

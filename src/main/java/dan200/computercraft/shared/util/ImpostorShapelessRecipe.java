@@ -40,14 +40,14 @@ public final class ImpostorShapelessRecipe extends ShapelessRecipe
     }
 
     @Override
-    public boolean matches( CraftingInventory inv, World world )
+    public boolean matches( @Nonnull CraftingInventory inv, @Nonnull World world )
     {
         return false;
     }
 
     @Nonnull
     @Override
-    public ItemStack getCraftingResult( CraftingInventory inventory )
+    public ItemStack getCraftingResult( @Nonnull CraftingInventory inventory )
     {
         return ItemStack.EMPTY;
     }

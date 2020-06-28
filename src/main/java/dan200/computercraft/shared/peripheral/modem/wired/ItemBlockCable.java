@@ -5,7 +5,7 @@
  */
 package dan200.computercraft.shared.peripheral.modem.wired;
 
-import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.shared.Registry;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.SoundType;
 import net.minecraft.entity.player.PlayerEntity;
@@ -93,7 +93,7 @@ public abstract class ItemBlockCable extends BlockItem
             BlockState existingState = world.getBlockState( pos );
 
             // Try to add a modem to a cable
-            if( existingState.getBlock() == ComputerCraft.Blocks.cable && existingState.get( MODEM ) == CableModemVariant.None )
+            if( existingState.getBlock() == Registry.ModBlocks.CABLE.get() && existingState.get( MODEM ) == CableModemVariant.None )
             {
                 Direction side = context.getFace().getOpposite();
                 BlockState newState = existingState
@@ -130,7 +130,7 @@ public abstract class ItemBlockCable extends BlockItem
             // Try to add a cable to a modem inside the block we're clicking on.
             BlockPos insidePos = pos.offset( context.getFace().getOpposite() );
             BlockState insideState = world.getBlockState( insidePos );
-            if( insideState.getBlock() == ComputerCraft.Blocks.cable && !insideState.get( BlockCable.CABLE )
+            if( insideState.getBlock() == Registry.ModBlocks.CABLE.get() && !insideState.get( BlockCable.CABLE )
                 && placeAtCorrected( world, insidePos, insideState.with( BlockCable.CABLE, true ) ) )
             {
                 stack.shrink( 1 );
@@ -139,7 +139,7 @@ public abstract class ItemBlockCable extends BlockItem
 
             // Try to add a cable to a modem adjacent to this block
             BlockState existingState = world.getBlockState( pos );
-            if( existingState.getBlock() == ComputerCraft.Blocks.cable && !existingState.get( BlockCable.CABLE )
+            if( existingState.getBlock() == Registry.ModBlocks.CABLE.get() && !existingState.get( BlockCable.CABLE )
                 && placeAtCorrected( world, pos, existingState.with( BlockCable.CABLE, true ) ) )
             {
                 stack.shrink( 1 );

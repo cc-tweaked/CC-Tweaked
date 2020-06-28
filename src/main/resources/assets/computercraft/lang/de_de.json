@@ -33,7 +33,7 @@
     "upgrade.minecraft.diamond_pickaxe.adjective": "Bergbau",
     "upgrade.minecraft.diamond_axe.adjective": "Holzfällen",
     "upgrade.minecraft.diamond_hoe.adjective": "Ackerbau",
-    "upgrade.minecraft.crafting_table.adjective": "Fabrizierung",
+    "upgrade.minecraft.crafting_table.adjective": "Handwerk",
     "upgrade.computercraft.wireless_modem_normal.adjective": "Ender",
     "upgrade.computercraft.wireless_modem_advanced.adjective": "Kabellos",
     "upgrade.computercraft.speaker.adjective": "Laut",
@@ -107,5 +107,7 @@
     "tracking_field.computercraft.coroutines_dead.name": "Koroutinen gelöscht",
     "gui.computercraft.tooltip.copy": "In die Zwischenablage kopieren",
     "gui.computercraft.tooltip.computer_id": "Computer ID: %s",
-    "gui.computercraft.tooltip.disk_id": "Disketten ID: %s"
+    "gui.computercraft.tooltip.disk_id": "Disketten ID: %s",
+    "argument.computercraft.argument_expected": "Parameter erwartet",
+    "commands.computercraft.help.desc": "Zeigt diese Hilfe"
 }

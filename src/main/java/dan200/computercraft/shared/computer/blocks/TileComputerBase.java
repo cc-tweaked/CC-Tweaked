@@ -178,7 +178,7 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
 
     @Nonnull
     @Override
-    public CompoundNBT write( CompoundNBT nbt )
+    public CompoundNBT write( @Nonnull CompoundNBT nbt )
     {
         // Save ID, label and power state
         if( m_computerID >= 0 ) nbt.putInt( NBT_ID, m_computerID );
@@ -189,7 +189,7 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
     }
 
     @Override
-    public void read( CompoundNBT nbt )
+    public void read( @Nonnull CompoundNBT nbt )
     {
         super.read( nbt );
 

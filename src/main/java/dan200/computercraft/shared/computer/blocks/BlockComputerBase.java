@@ -12,13 +12,13 @@ import dan200.computercraft.shared.common.IBundledRedstoneBlock;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.computer.items.IComputerItem;
-import dan200.computercraft.shared.util.NamedTileEntityType;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.stats.Stats;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
@@ -28,6 +28,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraft.world.storage.loot.LootContext;
 import net.minecraft.world.storage.loot.LootParameters;
+import net.minecraftforge.fml.RegistryObject;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -38,7 +39,7 @@ public abstract class BlockComputerBase<T extends TileComputerBase> extends Bloc
 
     private final ComputerFamily family;
 
-    protected BlockComputerBase( Properties settings, ComputerFamily family, NamedTileEntityType<? extends T> type )
+    protected BlockComputerBase( Properties settings, ComputerFamily family, RegistryObject<? extends TileEntityType<? extends T>> type )
     {
         super( settings, type );
         this.family = family;
@@ -46,7 +47,7 @@ public abstract class BlockComputerBase<T extends TileComputerBase> extends Bloc
 
     @Override
     @Deprecated
-    public void onBlockAdded( BlockState state, World world, BlockPos pos, BlockState oldState, boolean isMoving )
+    public void onBlockAdded( @Nonnull BlockState state, @Nonnull World world, @Nonnull BlockPos pos, @Nonnull BlockState oldState, boolean isMoving )
     {
         super.onBlockAdded( state, world, pos, oldState, isMoving );
 
@@ -56,14 +57,14 @@ public abstract class BlockComputerBase<T extends TileComputerBase> extends Bloc
 
     @Override
     @Deprecated
-    public boolean canProvidePower( BlockState state )
+    public boolean canProvidePower( @Nonnull BlockState state )
     {
         return true;
     }
 
     @Override
     @Deprecated
-    public int getStrongPower( BlockState state, IBlockReader world, BlockPos pos, Direction incomingSide )
+    public int getStrongPower( @Nonnull BlockState state, IBlockReader world, @Nonnull BlockPos pos, @Nonnull Direction incomingSide )
     {
         TileEntity entity = world.getTileEntity( pos );
         if( !(entity instanceof TileComputerBase) ) return 0;
@@ -86,7 +87,7 @@ public abstract class BlockComputerBase<T extends TileComputerBase> extends Bloc
 
     @Override
     @Deprecated
-    public int getWeakPower( BlockState state, IBlockReader world, BlockPos pos, Direction incomingSide )
+    public int getWeakPower( @Nonnull BlockState state, @Nonnull IBlockReader world, @Nonnull BlockPos pos, @Nonnull Direction incomingSide )
     {
         return getStrongPower( state, world, pos, incomingSide );
     }
@@ -126,7 +127,7 @@ public abstract class BlockComputerBase<T extends TileComputerBase> extends Bloc
     }
 
     @Override
-    public void harvestBlock( @Nonnull World world, PlayerEntity player, @Nonnull BlockPos pos, BlockState state, @Nullable TileEntity tile, @Nonnull ItemStack tool )
+    public void harvestBlock( @Nonnull World world, PlayerEntity player, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nullable TileEntity tile, @Nonnull ItemStack tool )
     {
         // Don't drop blocks here - see onBlockHarvested.
         player.addStat( Stats.BLOCK_MINED.get( this ) );
@@ -134,7 +135,7 @@ public abstract class BlockComputerBase<T extends TileComputerBase> extends Bloc
     }
 
     @Override
-    public void onBlockHarvested( World world, @Nonnull BlockPos pos, BlockState state, @Nonnull PlayerEntity player )
+    public void onBlockHarvested( @Nonnull World world, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nonnull PlayerEntity player )
     {
         if( !(world instanceof ServerWorld) ) return;
 
@@ -162,7 +163,7 @@ public abstract class BlockComputerBase<T extends TileComputerBase> extends Bloc
     }
 
     @Override
-    public void onBlockPlacedBy( World world, BlockPos pos, BlockState state, LivingEntity placer, ItemStack stack )
+    public void onBlockPlacedBy( @Nonnull World world, @Nonnull BlockPos pos, @Nonnull BlockState state, LivingEntity placer, @Nonnull ItemStack stack )
     {
         super.onBlockPlacedBy( world, pos, state, placer, stack );
 

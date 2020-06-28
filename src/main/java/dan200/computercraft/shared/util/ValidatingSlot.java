@@ -9,6 +9,8 @@ import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.container.Slot;
 import net.minecraft.item.ItemStack;
 
+import javax.annotation.Nonnull;
+
 public class ValidatingSlot extends Slot
 {
     public ValidatingSlot( IInventory inventoryIn, int index, int xPosition, int yPosition )
@@ -17,7 +19,7 @@ public class ValidatingSlot extends Slot
     }
 
     @Override
-    public boolean isItemValid( ItemStack stack )
+    public boolean isItemValid( @Nonnull ItemStack stack )
     {
         return true; // inventory.isItemValidForSlot( slotNumber, stack );
     }

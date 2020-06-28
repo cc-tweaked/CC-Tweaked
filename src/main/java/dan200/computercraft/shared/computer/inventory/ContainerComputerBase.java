@@ -74,7 +74,7 @@ public class ContainerComputerBase extends Container implements IContainerComput
     }
 
     @Override
-    public void onContainerClosed( PlayerEntity player )
+    public void onContainerClosed( @Nonnull PlayerEntity player )
     {
         super.onContainerClosed( player );
         input.close();

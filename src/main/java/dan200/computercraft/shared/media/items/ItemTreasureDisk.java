@@ -5,11 +5,11 @@
  */
 package dan200.computercraft.shared.media.items;
 
-import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.api.media.IMedia;
 import dan200.computercraft.core.filesystem.SubMount;
+import dan200.computercraft.shared.Registry;
 import dan200.computercraft.shared.util.Colour;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.PlayerEntity;
@@ -46,7 +46,7 @@ public class ItemTreasureDisk extends Item implements IMedia
     }
 
     @Override
-    public void addInformation( ItemStack stack, @Nullable World world, List<ITextComponent> list, ITooltipFlag tooltipOptions )
+    public void addInformation( @Nonnull ItemStack stack, @Nullable World world, @Nonnull List<ITextComponent> list, @Nonnull ITooltipFlag tooltipOptions )
     {
         String label = getTitle( stack );
         if( !label.isEmpty() ) list.add( new StringTextComponent( label ) );
@@ -92,7 +92,7 @@ public class ItemTreasureDisk extends Item implements IMedia
 
     public static ItemStack create( String subPath, int colourIndex )
     {
-        ItemStack result = new ItemStack( ComputerCraft.Items.treasureDisk );
+        ItemStack result = new ItemStack( Registry.ModItems.TREASURE_DISK.get() );
         CompoundNBT nbt = result.getOrCreateTag();
         nbt.putString( NBT_SUB_PATH, subPath );
 

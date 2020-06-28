@@ -7,6 +7,7 @@ package dan200.computercraft.client;
 
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.client.render.TurtleModelLoader;
+import dan200.computercraft.shared.Registry;
 import dan200.computercraft.shared.common.IColouredItem;
 import dan200.computercraft.shared.media.items.ItemDisk;
 import dan200.computercraft.shared.media.items.ItemTreasureDisk;
@@ -109,7 +110,7 @@ public final class ClientRegistry
     @SubscribeEvent
     public static void onItemColours( ColorHandlerEvent.Item event )
     {
-        if( ComputerCraft.Items.disk == null || ComputerCraft.Blocks.turtleNormal == null )
+        if( Registry.ModItems.DISK == null || Registry.ModBlocks.TURTLE_NORMAL == null )
         {
             ComputerCraft.log.warn( "Block/item registration has failed. Skipping registration of item colours." );
             return;
@@ -117,12 +118,12 @@ public final class ClientRegistry
 
         event.getItemColors().register(
             ( stack, layer ) -> layer == 1 ? ((ItemDisk) stack.getItem()).getColour( stack ) : 0xFFFFFF,
-            ComputerCraft.Items.disk
+            Registry.ModItems.DISK.get()
         );
 
         event.getItemColors().register(
             ( stack, layer ) -> layer == 1 ? ItemTreasureDisk.getColour( stack ) : 0xFFFFFF,
-            ComputerCraft.Items.treasureDisk
+            Registry.ModItems.TREASURE_DISK.get()
         );
 
         event.getItemColors().register( ( stack, layer ) -> {
@@ -139,12 +140,12 @@ public final class ClientRegistry
                     return light == -1 ? Colour.BLACK.getHex() : light;
                 }
             }
-        }, ComputerCraft.Items.pocketComputerNormal, ComputerCraft.Items.pocketComputerAdvanced );
+        }, Registry.ModItems.POCKET_COMPUTER_NORMAL.get(), Registry.ModItems.POCKET_COMPUTER_ADVANCED.get() );
 
         // Setup turtle colours
         event.getItemColors().register(
             ( stack, tintIndex ) -> tintIndex == 0 ? ((IColouredItem) stack.getItem()).getColour( stack ) : 0xFFFFFF,
-            ComputerCraft.Blocks.turtleNormal, ComputerCraft.Blocks.turtleAdvanced
+            Registry.ModBlocks.TURTLE_NORMAL.get(), Registry.ModBlocks.TURTLE_ADVANCED.get()
         );
     }
 }

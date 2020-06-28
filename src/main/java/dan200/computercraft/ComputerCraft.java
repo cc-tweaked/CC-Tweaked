@@ -9,27 +9,12 @@ import dan200.computercraft.api.turtle.event.TurtleAction;
 import dan200.computercraft.core.apis.http.options.Action;
 import dan200.computercraft.core.apis.http.options.AddressRule;
 import dan200.computercraft.shared.Config;
-import dan200.computercraft.shared.computer.blocks.BlockComputer;
+import dan200.computercraft.shared.Registry;
 import dan200.computercraft.shared.computer.core.ClientComputerRegistry;
 import dan200.computercraft.shared.computer.core.ServerComputerRegistry;
-import dan200.computercraft.shared.computer.items.ItemComputer;
-import dan200.computercraft.shared.media.items.ItemDisk;
-import dan200.computercraft.shared.media.items.ItemPrintout;
-import dan200.computercraft.shared.media.items.ItemTreasureDisk;
-import dan200.computercraft.shared.peripheral.diskdrive.BlockDiskDrive;
-import dan200.computercraft.shared.peripheral.modem.wired.BlockCable;
-import dan200.computercraft.shared.peripheral.modem.wired.BlockWiredModemFull;
-import dan200.computercraft.shared.peripheral.modem.wired.ItemBlockCable;
-import dan200.computercraft.shared.peripheral.modem.wireless.BlockWirelessModem;
-import dan200.computercraft.shared.peripheral.monitor.BlockMonitor;
 import dan200.computercraft.shared.peripheral.monitor.MonitorRenderer;
-import dan200.computercraft.shared.peripheral.printer.BlockPrinter;
-import dan200.computercraft.shared.peripheral.speaker.BlockSpeaker;
-import dan200.computercraft.shared.pocket.items.ItemPocketComputer;
 import dan200.computercraft.shared.pocket.peripherals.PocketModem;
 import dan200.computercraft.shared.pocket.peripherals.PocketSpeaker;
-import dan200.computercraft.shared.turtle.blocks.BlockTurtle;
-import dan200.computercraft.shared.turtle.items.ItemTurtle;
 import dan200.computercraft.shared.turtle.upgrades.*;
 import net.minecraft.resources.IReloadableResourceManager;
 import net.minecraft.util.ResourceLocation;
@@ -52,8 +37,6 @@ import java.util.stream.Stream;
 public final class ComputerCraft
 {
     public static final String MOD_ID = "computercraft";
-
-    public static final int DATAFIXER_VERSION = 0;
 
     // Configuration options
     public static final String[] DEFAULT_HTTP_ALLOW = new String[] { "*" };
@@ -108,6 +91,8 @@ public final class ComputerCraft
     public static boolean turtlesCanPush = true;
     public static EnumSet<TurtleAction> turtleDisabledActions = EnumSet.noneOf( TurtleAction.class );
 
+    public static boolean genericPeripheral = false;
+
     public static int computerTermWidth = 51;
     public static int computerTermHeight = 19;
 
@@ -119,53 +104,6 @@ public final class ComputerCraft
 
     public static int monitorWidth = 8;
     public static int monitorHeight = 6;
-
-    // Blocks and Items
-    public static final class Blocks
-    {
-        public static BlockComputer computerNormal;
-        public static BlockComputer computerAdvanced;
-        public static BlockComputer computerCommand;
-
-        public static BlockTurtle turtleNormal;
-        public static BlockTurtle turtleAdvanced;
-
-        public static BlockSpeaker speaker;
-        public static BlockDiskDrive diskDrive;
-        public static BlockPrinter printer;
-
-        public static BlockMonitor monitorNormal;
-        public static BlockMonitor monitorAdvanced;
-
-        public static BlockWirelessModem wirelessModemNormal;
-        public static BlockWirelessModem wirelessModemAdvanced;
-
-        public static BlockWiredModemFull wiredModemFull;
-        public static BlockCable cable;
-    }
-
-    public static final class Items
-    {
-        public static ItemComputer computerNormal;
-        public static ItemComputer computerAdvanced;
-        public static ItemComputer computerCommand;
-
-        public static ItemPocketComputer pocketComputerNormal;
-        public static ItemPocketComputer pocketComputerAdvanced;
-
-        public static ItemTurtle turtleNormal;
-        public static ItemTurtle turtleAdvanced;
-
-        public static ItemDisk disk;
-        public static ItemTreasureDisk treasureDisk;
-
-        public static ItemPrintout printedPage;
-        public static ItemPrintout printedPages;
-        public static ItemPrintout printedBook;
-
-        public static ItemBlockCable.Cable cable;
-        public static ItemBlockCable.WiredModem wiredModem;
-    }
 
     public static final class TurtleUpgrades
     {
@@ -197,7 +135,8 @@ public final class ComputerCraft
 
     public ComputerCraft()
     {
-        Config.load();
+        Config.setup();
+        Registry.setup();
     }
 
     public static InputStream getResourceFile( String domain, String subPath )

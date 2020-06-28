@@ -51,7 +51,12 @@ h4 { font-size: 1.06em; }
 a, a:visited, a:active { font-weight: bold; color: #004080; text-decoration: none; }
 a:hover { text-decoration: underline; }
 
-blockquote { margin-left: 3em; }
+blockquote {
+    padding: 0.3em;
+    margin: 1em 0;
+    background: #f0f0f0;
+    border-left: solid 0.5em #ccc;
+}
 
 /* Stop sublists from having initial vertical space */
 ul ul { margin-top: 0px; }

@@ -5,6 +5,7 @@
  */
 package dan200.computercraft.shared.peripheral.printer;
 
+import dan200.computercraft.api.lua.IArguments;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.api.peripheral.IPeripheral;
@@ -36,9 +37,10 @@ public class PrinterPeripheral implements IPeripheral
     // FIXME: None of our page modification functions actually mark the tile as dirty, so the page may not be
     //  persisted correctly.
 
-    public final void write( Object[] args ) throws LuaException
+    @LuaFunction
+    public final void write( IArguments arguments ) throws LuaException
     {
-        String text = args.length > 0 && args[0] != null ? args[0].toString() : "";
+        String text = StringUtil.toString( arguments.get( 0 ) );
         Terminal page = getCurrentPage();
         page.write( text );
         page.setCursorPos( page.getCursorX() + text.length(), page.getCursorY() );

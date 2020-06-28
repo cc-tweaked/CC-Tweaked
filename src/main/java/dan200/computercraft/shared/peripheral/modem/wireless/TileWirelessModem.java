@@ -5,18 +5,15 @@
  */
 package dan200.computercraft.shared.peripheral.modem.wireless;
 
-import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.shared.common.TileGeneric;
 import dan200.computercraft.shared.peripheral.modem.ModemPeripheral;
 import dan200.computercraft.shared.peripheral.modem.ModemState;
 import dan200.computercraft.shared.util.CapabilityUtil;
-import dan200.computercraft.shared.util.NamedTileEntityType;
 import dan200.computercraft.shared.util.TickScheduler;
 import net.minecraft.block.BlockState;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.Direction;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -30,16 +27,6 @@ import static dan200.computercraft.shared.Capabilities.CAPABILITY_PERIPHERAL;
 
 public class TileWirelessModem extends TileGeneric
 {
-    public static final NamedTileEntityType<TileWirelessModem> FACTORY_NORMAL = NamedTileEntityType.create(
-        new ResourceLocation( ComputerCraft.MOD_ID, "wireless_modem_normal" ),
-        f -> new TileWirelessModem( f, false )
-    );
-
-    public static final NamedTileEntityType<TileWirelessModem> FACTORY_ADVANCED = NamedTileEntityType.create(
-        new ResourceLocation( ComputerCraft.MOD_ID, "wireless_modem_advanced" ),
-        f -> new TileWirelessModem( f, true )
-    );
-
     private static class Peripheral extends WirelessModemPeripheral
     {
         private final TileWirelessModem entity;

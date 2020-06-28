@@ -105,6 +105,9 @@ dependencies {
 
     runtimeOnly fg.deobf("mezz.jei:jei-1.15.2:6.0.0.3")
 
+    compileOnly 'com.google.auto.service:auto-service:1.0-rc7'
+    annotationProcessor 'com.google.auto.service:auto-service:1.0-rc7'
+
     shade 'org.squiddev:Cobalt:0.5.1-SNAPSHOT'
 
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.4.2'

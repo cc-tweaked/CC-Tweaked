@@ -13,7 +13,6 @@ import dan200.computercraft.shared.common.ServerTerminal;
 import dan200.computercraft.shared.common.TileGeneric;
 import dan200.computercraft.shared.network.client.TerminalState;
 import dan200.computercraft.shared.util.CapabilityUtil;
-import dan200.computercraft.shared.util.NamedTileEntityType;
 import dan200.computercraft.shared.util.TickScheduler;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
@@ -22,7 +21,6 @@ import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.ActionResultType;
 import net.minecraft.util.Direction;
 import net.minecraft.util.Hand;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
@@ -39,16 +37,6 @@ import static dan200.computercraft.shared.Capabilities.CAPABILITY_PERIPHERAL;
 
 public class TileMonitor extends TileGeneric
 {
-    public static final NamedTileEntityType<TileMonitor> FACTORY_NORMAL = NamedTileEntityType.create(
-        new ResourceLocation( ComputerCraft.MOD_ID, "monitor_normal" ),
-        f -> new TileMonitor( f, false )
-    );
-
-    public static final NamedTileEntityType<TileMonitor> FACTORY_ADVANCED = NamedTileEntityType.create(
-        new ResourceLocation( ComputerCraft.MOD_ID, "monitor_advanced" ),
-        f -> new TileMonitor( f, true )
-    );
-
     public static final double RENDER_BORDER = 2.0 / 16.0;
     public static final double RENDER_MARGIN = 0.5 / 16.0;
     public static final double RENDER_PIXEL_SCALE = 1.0 / 64.0;
@@ -146,7 +134,7 @@ public class TileMonitor extends TileGeneric
     }
 
     @Override
-    public void read( CompoundNBT tag )
+    public void read( @Nonnull CompoundNBT tag )
     {
         super.read( tag );
         m_xIndex = tag.getInt( NBT_X );

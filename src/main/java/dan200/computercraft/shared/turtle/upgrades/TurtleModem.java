@@ -5,10 +5,10 @@
  */
 package dan200.computercraft.shared.turtle.upgrades;
 
-import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.client.TransformedModel;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.turtle.*;
+import dan200.computercraft.shared.Registry;
 import dan200.computercraft.shared.peripheral.modem.ModemState;
 import dan200.computercraft.shared.peripheral.modem.wireless.WirelessModemPeripheral;
 import net.minecraft.client.renderer.model.ModelResourceLocation;
@@ -61,7 +61,7 @@ public class TurtleModem extends AbstractTurtleUpgrade
         }
     }
 
-    private boolean advanced;
+    private final boolean advanced;
 
     @OnlyIn( Dist.CLIENT )
     private ModelResourceLocation m_leftOffModel;
@@ -80,8 +80,8 @@ public class TurtleModem extends AbstractTurtleUpgrade
         super(
             id, TurtleUpgradeType.PERIPHERAL,
             advanced
-                ? ComputerCraft.Blocks.wirelessModemAdvanced
-                : ComputerCraft.Blocks.wirelessModemNormal
+                ? Registry.ModBlocks.WIRELESS_MODEM_ADVANCED
+                : Registry.ModBlocks.WIRELESS_MODEM_NORMAL
         );
         this.advanced = advanced;
     }

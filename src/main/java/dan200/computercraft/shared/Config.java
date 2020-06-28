@@ -45,6 +45,7 @@ public final class Config
     private static final ConfigValue<String> defaultComputerSettings;
     private static final ConfigValue<Boolean> debugEnabled;
     private static final ConfigValue<Boolean> logComputerErrors;
+    private static final ConfigValue<Boolean> commandRequireCreative;
 
     private static final ConfigValue<Integer> computerThreads;
     private static final ConfigValue<Integer> maxMainGlobalTime;
@@ -83,6 +84,8 @@ public final class Config
 
     private static final ConfigValue<Integer> monitorWidth;
     private static final ConfigValue<Integer> monitorHeight;
+
+    private static final ConfigValue<Boolean> genericPeripheral;
 
     private static final ConfigValue<MonitorRenderer> monitorRenderer;
 
@@ -130,6 +133,11 @@ public final class Config
                 .comment( "Log exceptions thrown by peripherals and other Lua objects.\n" +
                     "This makes it easier for mod authors to debug problems, but may result in log spam should people use buggy methods." )
                 .define( "log_computer_errors", ComputerCraft.logComputerErrors );
+
+            commandRequireCreative = builder
+                .comment( "Require players to be in creative mode and be opped in order to interact with command computers." +
+                    "This is the default behaviour for vanilla's Command blocks." )
+                .define( "command_require_creative", ComputerCraft.commandRequireCreative );
         }
 
         {
@@ -293,6 +301,17 @@ public final class Config
             builder.pop();
         }
 
+        {
+            builder.comment( "Options for various experimental features. These are not guaranteed to be stable, and may change or be removed across versions." );
+            builder.push( "experimental" );
+
+            genericPeripheral = builder
+                .comment( "Attempt to make any existing block (or tile entity) a peripheral.\n" +
+                    "This provides peripheral methods for any inventory, fluid tank or energy storage block. It will" +
+                    "_not_ provide methods which have an existing peripheral provider." )
+                .define( "generic_peripherals", false );
+        }
+
         serverSpec = builder.build();
 
         Builder clientBuilder = new Builder();
@@ -303,7 +322,7 @@ public final class Config
         clientSpec = clientBuilder.build();
     }
 
-    public static void load()
+    public static void setup()
     {
         ModLoadingContext.get().registerConfig( ModConfig.Type.SERVER, serverSpec );
         ModLoadingContext.get().registerConfig( ModConfig.Type.CLIENT, clientSpec );
@@ -320,6 +339,7 @@ public final class Config
         ComputerCraft.debugEnable = debugEnabled.get();
         ComputerCraft.computerThreads = computerThreads.get();
         ComputerCraft.logComputerErrors = logComputerErrors.get();
+        ComputerCraft.commandRequireCreative = commandRequireCreative.get();
 
         // Execution
         ComputerCraft.computerThreads = computerThreads.get();
@@ -363,6 +383,9 @@ public final class Config
         ComputerCraft.pocketTermHeight = pocketTermHeight.get();
         ComputerCraft.monitorWidth = monitorWidth.get();
         ComputerCraft.monitorHeight = monitorHeight.get();
+
+        // Experimental
+        ComputerCraft.genericPeripheral = genericPeripheral.get();
 
         // Client
         ComputerCraft.monitorRenderer = monitorRenderer.get();
