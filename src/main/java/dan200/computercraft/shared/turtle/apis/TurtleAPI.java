@@ -15,8 +15,10 @@ import dan200.computercraft.api.turtle.event.TurtleInspectItemEvent;
 import dan200.computercraft.core.apis.IAPIEnvironment;
 import dan200.computercraft.core.tracking.TrackingField;
 import dan200.computercraft.shared.turtle.core.*;
+import net.minecraft.item.EnchantedBookItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.ListNBT;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -320,15 +322,49 @@ public class TurtleAPI implements ILuaAPI
 
         Item item = stack.getItem();
         String name = ForgeRegistries.ITEMS.getKey( item ).toString();
+        String displayName = stack.getDisplayName().getString();
         int count = stack.getCount();
 
+        // WARN: displayname use localization
+        // - on dedicated server it's always en_US
+        // - on integrated server it's the locale is specified in the client language settings
+        // This mean that lua program can bug when move the world between client and server or change
+        // locale in single-player.
         Map<String, Object> table = new HashMap<>();
         table.put( "name", name );
+        table.put( "displayname", displayName);
         table.put( "count", count );
+
 
         Map<String, Boolean> tags = new HashMap<>();
         for( ResourceLocation location : item.getTags() ) tags.put( location.toString(), true );
         table.put( "tags", tags );
+
+        Map<String, Object> data = new HashMap<>();
+        int hideFlags = (stack.getTag() != null) ? stack.getTag().getInt("HideFlags") : 0;
+
+        if (stack.isDamageable())
+        {
+            Map<String, Integer> damage = new HashMap<>();
+            int currentDamage = stack.getDamage();
+            int maxDamage = stack.getMaxDamage();
+            damage.put( "current", currentDamage);
+            damage.put( "max", maxDamage);
+            data.put( "damage", damage);
+        }
+
+        if (stack.isEnchanted())
+        {
+            ListNBT enchants = ((hideFlags & 1) == 0) ? stack.getEnchantmentTagList() : new ListNBT();
+            data.put( "enchantments", enchants);
+        }
+
+        if (item instanceof EnchantedBookItem)
+        {
+            ListNBT storedEnchants = ((hideFlags & 32) == 0) ? EnchantedBookItem.getEnchantments(stack) : new ListNBT();
+            data.put( "storedenchantments", storedEnchants);
+        }
+        table.put("data", data);
 
         TurtleActionEvent event = new TurtleInspectItemEvent( turtle, stack, table );
         if( MinecraftForge.EVENT_BUS.post( event ) ) return new Object[] { false, event.getFailureMessage() };

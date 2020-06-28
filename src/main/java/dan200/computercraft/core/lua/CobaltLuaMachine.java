@@ -15,6 +15,7 @@ import dan200.computercraft.core.computer.TimeoutState;
 import dan200.computercraft.core.tracking.Tracking;
 import dan200.computercraft.core.tracking.TrackingField;
 import dan200.computercraft.shared.util.ThreadUtils;
+import net.minecraft.nbt.*;
 import org.squiddev.cobalt.*;
 import org.squiddev.cobalt.compiler.CompileException;
 import org.squiddev.cobalt.compiler.LoadState;
@@ -295,6 +296,7 @@ public class CobaltLuaMachine implements ILuaMachine
             LuaTable table = new LuaTable();
             values.put( object, table );
 
+            // Set<Map.Entry<K,V>> entrySet()
             for( Map.Entry<?, ?> pair : ((Map<?, ?>) object).entrySet() )
             {
                 LuaValue key = toValue( pair.getKey(), values );
@@ -320,6 +322,63 @@ public class CobaltLuaMachine implements ILuaMachine
             LuaTable table = new LuaTable( objects.length, 0 );
             values.put( object, table );
             for( int i = 0; i < objects.length; i++ ) table.rawset( i + 1, toValue( objects[i], values ) );
+            return table;
+        }
+
+        if( object instanceof CompoundNBT )
+        {
+            CompoundNBT NBT = (CompoundNBT) object;
+            LuaTable table = new LuaTable(NBT.size(), 0);
+            values.put( object, table );
+
+            // Set<K> keySet()
+            for( String rawKey : ((CompoundNBT) object).keySet() )
+            {
+                LuaValue key = toValue( rawKey, values );
+                LuaValue value;
+                switch(NBT.getTagId(rawKey))
+                {
+                    case 1: //ByteNBT
+                        value =toValue( NBT.getByte( rawKey), values);
+                        break;
+                    case 2: //ShortNBT
+                        value =toValue( NBT.getShort( rawKey), values);
+                        break;
+                    case 3: //IntNBT
+                        value =toValue( NBT.getInt( rawKey), values);
+                        break;
+                    case 4: //LongNBT
+                        value =toValue( NBT.getLong( rawKey), values);
+                        break;
+                    case 5: //FloatNBT
+                        value =toValue( NBT.getFloat( rawKey), values);
+                        break;
+                    case 6: //DoubleNBT
+                        value =toValue( NBT.getDouble( rawKey), values);
+                        break;
+                    case 7: //ByteArrayNBT
+                        value =toValue( NBT.getByteArray( rawKey), values);
+                        break;
+                    case 8: //StringNBT
+                        value =toValue( NBT.getString( rawKey), values);
+                        break;
+                    case 9: //ListNBT
+                        value =toValue( NBT.get( rawKey).getString(), values);
+                        break;
+                    case 10: //CompoundNBT
+                        value =toValue( NBT.getCompound( rawKey), values);
+                        break;
+                    case 11: //IntArrayNBT
+                        value =toValue( NBT.getIntArray( rawKey), values);
+                        break;
+                    case 12: //LongArrayNBT
+                        value =toValue( NBT.getLongArray( rawKey), values);
+                        break;
+                    default: //INBT
+                        value =toValue( NBT.get( rawKey).getString(), values);
+                }
+                if( !key.isNil() && !value.isNil() ) table.rawset( key, value );
+            }
             return table;
         }
 
