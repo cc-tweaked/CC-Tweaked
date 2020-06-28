@@ -96,8 +96,8 @@ public final class ComputerCraft
     public static int computerTermWidth = 51;
     public static int computerTermHeight = 19;
 
-    public static int turtleTermWidth = 39;
-    public static int turtleTermHeight = 13;
+    public static final int turtleTermWidth = 39;
+    public static final int turtleTermHeight = 13;
 
     public static int pocketTermWidth = 26;
     public static int pocketTermHeight = 20;

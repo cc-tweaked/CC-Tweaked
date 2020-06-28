@@ -76,9 +76,6 @@ public final class Config
     private static final ConfigValue<Integer> computerTermWidth;
     private static final ConfigValue<Integer> computerTermHeight;
 
-    private static final ConfigValue<Integer> turtleTermWidth;
-    private static final ConfigValue<Integer> turtleTermHeight;
-
     private static final ConfigValue<Integer> pocketTermWidth;
     private static final ConfigValue<Integer> pocketTermHeight;
 
@@ -283,11 +280,6 @@ public final class Config
             computerTermHeight = builder.defineInRange( "height", ComputerCraft.computerTermHeight, 1, 255 );
             builder.pop();
 
-            builder.comment( "Terminal size of turtles" ).push( "turtle" );
-            turtleTermWidth = builder.defineInRange( "width", ComputerCraft.turtleTermWidth, 1, 255 );
-            turtleTermHeight = builder.defineInRange( "height", ComputerCraft.turtleTermHeight, 1, 255 );
-            builder.pop();
-
             builder.comment( "Terminal size of pocket computers" ).push( "pocket_computer" );
             pocketTermWidth = builder.defineInRange( "width", ComputerCraft.pocketTermWidth, 1, 255 );
             pocketTermHeight = builder.defineInRange( "height", ComputerCraft.pocketTermHeight, 1, 255 );
@@ -377,8 +369,6 @@ public final class Config
         // Terminal size
         ComputerCraft.computerTermWidth = computerTermWidth.get();
         ComputerCraft.computerTermHeight = computerTermHeight.get();
-        ComputerCraft.turtleTermWidth = turtleTermWidth.get();
-        ComputerCraft.turtleTermHeight = turtleTermHeight.get();
         ComputerCraft.pocketTermWidth = pocketTermWidth.get();
         ComputerCraft.pocketTermHeight = pocketTermHeight.get();
         ComputerCraft.monitorWidth = monitorWidth.get();
