@@ -9,6 +9,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.client.gui.widgets.WidgetTerminal;
 import dan200.computercraft.client.gui.widgets.WidgetWrapper;
+import dan200.computercraft.client.render.ComputerBorderRenderer;
 import dan200.computercraft.shared.computer.core.ClientComputer;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.inventory.ContainerComputer;
@@ -17,21 +18,18 @@ import dan200.computercraft.shared.computer.inventory.ContainerViewComputer;
 import dan200.computercraft.shared.pocket.inventory.ContainerPocketComputer;
 import net.minecraft.client.gui.screen.inventory.ContainerScreen;
 import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 import org.lwjgl.glfw.GLFW;
 
+import static dan200.computercraft.client.render.ComputerBorderRenderer.BORDER;
+import static dan200.computercraft.client.render.ComputerBorderRenderer.MARGIN;
+
 public final class GuiComputer<T extends ContainerComputerBase> extends ContainerScreen<T>
 {
-    public static final ResourceLocation BACKGROUND_NORMAL = new ResourceLocation( ComputerCraft.MOD_ID, "textures/gui/corners_normal.png" );
-    public static final ResourceLocation BACKGROUND_ADVANCED = new ResourceLocation( ComputerCraft.MOD_ID, "textures/gui/corners_advanced.png" );
-    public static final ResourceLocation BACKGROUND_COMMAND = new ResourceLocation( ComputerCraft.MOD_ID, "textures/gui/corners_command.png" );
-    public static final ResourceLocation BACKGROUND_COLOUR = new ResourceLocation( ComputerCraft.MOD_ID, "textures/gui/corners_colour.png" );
-
-    private final ComputerFamily m_family;
-    private final ClientComputer m_computer;
-    private final int m_termWidth;
-    private final int m_termHeight;
+    private final ComputerFamily family;
+    private final ClientComputer computer;
+    private final int termWidth;
+    private final int termHeight;
 
     private WidgetTerminal terminal;
     private WidgetWrapper terminalWrapper;
@@ -41,10 +39,10 @@ public final class GuiComputer<T extends ContainerComputerBase> extends Containe
     )
     {
         super( container, player, title );
-        m_family = container.getFamily();
-        m_computer = (ClientComputer) container.getComputer();
-        m_termWidth = termWidth;
-        m_termHeight = termHeight;
+        family = container.getFamily();
+        computer = (ClientComputer) container.getComputer();
+        this.termWidth = termWidth;
+        this.termHeight = termHeight;
         terminal = null;
     }
 
@@ -78,16 +76,16 @@ public final class GuiComputer<T extends ContainerComputerBase> extends Containe
     {
         minecraft.keyboardListener.enableRepeatEvents( true );
 
-        int termPxWidth = m_termWidth * FixedWidthFontRenderer.FONT_WIDTH;
-        int termPxHeight = m_termHeight * FixedWidthFontRenderer.FONT_HEIGHT;
+        int termPxWidth = termWidth * FixedWidthFontRenderer.FONT_WIDTH;
+        int termPxHeight = termHeight * FixedWidthFontRenderer.FONT_HEIGHT;
 
-        xSize = termPxWidth + 4 + 24;
-        ySize = termPxHeight + 4 + 24;
+        xSize = termPxWidth + MARGIN * 2 + BORDER * 2;
+        ySize = termPxHeight + MARGIN * 2 + BORDER * 2;
 
         super.init();
 
-        terminal = new WidgetTerminal( minecraft, () -> m_computer, m_termWidth, m_termHeight, 2, 2, 2, 2 );
-        terminalWrapper = new WidgetWrapper( terminal, 2 + 12 + guiLeft, 2 + 12 + guiTop, termPxWidth, termPxHeight );
+        terminal = new WidgetTerminal( minecraft, () -> computer, termWidth, termHeight, MARGIN, MARGIN, MARGIN, MARGIN );
+        terminalWrapper = new WidgetWrapper( terminal, MARGIN + BORDER + guiLeft, MARGIN + BORDER + guiTop, termPxWidth, termPxHeight );
 
         children.add( terminalWrapper );
         setFocused( terminalWrapper );
@@ -124,41 +122,16 @@ public final class GuiComputer<T extends ContainerComputerBase> extends Containe
     @Override
     public void drawGuiContainerBackgroundLayer( float partialTicks, int mouseX, int mouseY )
     {
-        // Work out where to draw
-        int startX = terminalWrapper.getX() - 2;
-        int startY = terminalWrapper.getY() - 2;
-        int endX = startX + terminalWrapper.getWidth() + 4;
-        int endY = startY + terminalWrapper.getHeight() + 4;
-
         // Draw terminal
         terminal.draw( terminalWrapper.getX(), terminalWrapper.getY() );
 
         // Draw a border around the terminal
-        RenderSystem.color4f( 1.0f, 1.0f, 1.0f, 1.0f );
-        switch( m_family )
-        {
-            case NORMAL:
-            default:
-                minecraft.getTextureManager().bindTexture( BACKGROUND_NORMAL );
-                break;
-            case ADVANCED:
-                minecraft.getTextureManager().bindTexture( BACKGROUND_ADVANCED );
-                break;
-            case COMMAND:
-                minecraft.getTextureManager().bindTexture( BACKGROUND_COMMAND );
-                break;
-        }
-
-        blit( startX - 12, startY - 12, 12, 28, 12, 12 );
-        blit( startX - 12, endY, 12, 40, 12, 12 );
-        blit( endX, startY - 12, 24, 28, 12, 12 );
-        blit( endX, endY, 24, 40, 12, 12 );
-
-        blit( startX, startY - 12, 0, 0, endX - startX, 12 );
-        blit( startX, endY, 0, 12, endX - startX, 12 );
-
-        blit( startX - 12, startY, 0, 28, 12, endY - startY );
-        blit( endX, startY, 36, 28, 12, endY - startY );
+        RenderSystem.color4f( 1, 1, 1, 1 );
+        minecraft.getTextureManager().bindTexture( ComputerBorderRenderer.getTexture( family ) );
+        ComputerBorderRenderer.render(
+            terminalWrapper.getX() - MARGIN, terminalWrapper.getY() - MARGIN, getBlitOffset(),
+            terminalWrapper.getWidth() + MARGIN * 2, terminalWrapper.getHeight() + MARGIN * 2
+        );
     }
 
     @Override
