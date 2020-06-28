@@ -332,7 +332,7 @@ public class TurtleAPI implements ILuaAPI
         // locale in single-player.
         Map<String, Object> table = new HashMap<>();
         table.put( "name", name );
-        table.put( "displayname", displayName);
+        table.put( "displayname", displayName );
         table.put( "count", count );
 
 
@@ -341,30 +341,30 @@ public class TurtleAPI implements ILuaAPI
         table.put( "tags", tags );
 
         Map<String, Object> data = new HashMap<>();
-        int hideFlags = (stack.getTag() != null) ? stack.getTag().getInt("HideFlags") : 0;
+        int hideFlags = (stack.getTag() != null) ? stack.getTag().getInt( "HideFlags" ) : 0;
 
-        if (stack.isDamageable())
+        if ( stack.isDamageable() )
         {
             Map<String, Integer> damage = new HashMap<>();
             int currentDamage = stack.getDamage();
             int maxDamage = stack.getMaxDamage();
-            damage.put( "current", currentDamage);
-            damage.put( "max", maxDamage);
-            data.put( "damage", damage);
+            damage.put( "current", currentDamage );
+            damage.put( "max", maxDamage );
+            data.put( "damage", damage );
         }
 
-        if (stack.isEnchanted())
+        if ( stack.isEnchanted() )
         {
             ListNBT enchants = ((hideFlags & 1) == 0) ? stack.getEnchantmentTagList() : new ListNBT();
-            data.put( "enchantments", enchants);
+            data.put( "enchantments", enchants );
         }
 
-        if (item instanceof EnchantedBookItem)
+        if ( item instanceof EnchantedBookItem )
         {
-            ListNBT storedEnchants = ((hideFlags & 32) == 0) ? EnchantedBookItem.getEnchantments(stack) : new ListNBT();
-            data.put( "storedenchantments", storedEnchants);
+            ListNBT storedEnchants = ((hideFlags & 32) == 0) ? EnchantedBookItem.getEnchantments( stack ) : new ListNBT();
+            data.put( "storedenchantments", storedEnchants );
         }
-        table.put("data", data);
+        table.put( "data", data );
 
         TurtleActionEvent event = new TurtleInspectItemEvent( turtle, stack, table );
         if( MinecraftForge.EVENT_BUS.post( event ) ) return new Object[] { false, event.getFailureMessage() };

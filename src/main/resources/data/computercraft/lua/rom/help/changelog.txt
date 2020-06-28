@@ -1,3 +1,7 @@
+# New features in CC: Tweaked 1.90.0
+
+* Add more data to turtle.getItemDetail([slot])
+
 # New features in CC: Tweaked 1.89.1
 
 * Fix crashes when rendering monitors of varying sizes.

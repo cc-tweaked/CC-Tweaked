@@ -296,7 +296,6 @@ public class CobaltLuaMachine implements ILuaMachine
             LuaTable table = new LuaTable();
             values.put( object, table );
 
-            // Set<Map.Entry<K,V>> entrySet()
             for( Map.Entry<?, ?> pair : ((Map<?, ?>) object).entrySet() )
             {
                 LuaValue key = toValue( pair.getKey(), values );
@@ -327,8 +326,8 @@ public class CobaltLuaMachine implements ILuaMachine
 
         if( object instanceof CompoundNBT )
         {
-            CompoundNBT NBT = (CompoundNBT) object;
-            LuaTable table = new LuaTable(NBT.size(), 0);
+            CompoundNBT nbt = (CompoundNBT) object;
+            LuaTable table = new LuaTable( nbt.size(), 0 );
             values.put( object, table );
 
             // Set<K> keySet()
@@ -336,46 +335,46 @@ public class CobaltLuaMachine implements ILuaMachine
             {
                 LuaValue key = toValue( rawKey, values );
                 LuaValue value;
-                switch(NBT.getTagId(rawKey))
+                switch( nbt.getTagId( rawKey ) )
                 {
                     case 1: //ByteNBT
-                        value =toValue( NBT.getByte( rawKey), values);
+                        value = toValue( nbt.getByte( rawKey ), values );
                         break;
                     case 2: //ShortNBT
-                        value =toValue( NBT.getShort( rawKey), values);
+                        value = toValue( nbt.getShort( rawKey ), values );
                         break;
                     case 3: //IntNBT
-                        value =toValue( NBT.getInt( rawKey), values);
+                        value = toValue( nbt.getInt( rawKey ), values );
                         break;
                     case 4: //LongNBT
-                        value =toValue( NBT.getLong( rawKey), values);
+                        value = toValue( nbt.getLong( rawKey ), values );
                         break;
                     case 5: //FloatNBT
-                        value =toValue( NBT.getFloat( rawKey), values);
+                        value = toValue( nbt.getFloat( rawKey ), values );
                         break;
                     case 6: //DoubleNBT
-                        value =toValue( NBT.getDouble( rawKey), values);
+                        value = toValue( nbt.getDouble( rawKey ), values );
                         break;
                     case 7: //ByteArrayNBT
-                        value =toValue( NBT.getByteArray( rawKey), values);
+                        value = toValue( nbt.getByteArray( rawKey ), values );
                         break;
                     case 8: //StringNBT
-                        value =toValue( NBT.getString( rawKey), values);
+                        value = toValue( nbt.getString( rawKey ), values );
                         break;
                     case 9: //ListNBT
-                        value =toValue( NBT.get( rawKey).getString(), values);
+                        value = toValue( nbt.get( rawKey ).getString(), values );
                         break;
                     case 10: //CompoundNBT
-                        value =toValue( NBT.getCompound( rawKey), values);
+                        value = toValue( nbt.getCompound( rawKey ), values );
                         break;
                     case 11: //IntArrayNBT
-                        value =toValue( NBT.getIntArray( rawKey), values);
+                        value = toValue( nbt.getIntArray( rawKey ), values );
                         break;
                     case 12: //LongArrayNBT
-                        value =toValue( NBT.getLongArray( rawKey), values);
+                        value = toValue( nbt.getLongArray( rawKey ), values );
                         break;
                     default: //INBT
-                        value =toValue( NBT.get( rawKey).getString(), values);
+                        value = toValue( nbt.get( rawKey ).getString(), values );
                 }
                 if( !key.isNil() && !value.isNil() ) table.rawset( key, value );
             }
