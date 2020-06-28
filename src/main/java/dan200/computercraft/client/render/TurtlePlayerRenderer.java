@@ -7,7 +7,6 @@
 package dan200.computercraft.client.render;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
-import dan200.computercraft.client.gui.GuiComputer;
 import dan200.computercraft.shared.turtle.core.TurtlePlayer;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.entity.EntityRenderer;
@@ -27,7 +26,7 @@ public class TurtlePlayerRenderer extends EntityRenderer<TurtlePlayer>
     @Override
     public ResourceLocation getEntityTexture( @Nonnull TurtlePlayer entity )
     {
-        return GuiComputer.BACKGROUND_NORMAL;
+        return ComputerBorderRenderer.BACKGROUND_NORMAL;
     }
 
     @Override

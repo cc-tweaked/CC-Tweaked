@@ -43,8 +43,8 @@ public class TileComputer extends TileComputerBase
         ComputerFamily family = getFamily();
         ServerComputer computer = new ServerComputer(
             getWorld(), id, label, instanceID, family,
-            ComputerCraft.terminalWidth_computer,
-            ComputerCraft.terminalHeight_computer
+            ComputerCraft.computerTermWidth,
+            ComputerCraft.computerTermHeight
         );
         computer.setPosition( getPos() );
         return computer;

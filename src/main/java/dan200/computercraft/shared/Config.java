@@ -73,6 +73,15 @@ public final class Config
     private static final ConfigValue<Boolean> turtlesCanPush;
     private static final ConfigValue<List<? extends String>> turtleDisabledActions;
 
+    private static final ConfigValue<Integer> computerTermWidth;
+    private static final ConfigValue<Integer> computerTermHeight;
+
+    private static final ConfigValue<Integer> pocketTermWidth;
+    private static final ConfigValue<Integer> pocketTermHeight;
+
+    private static final ConfigValue<Integer> monitorWidth;
+    private static final ConfigValue<Integer> monitorHeight;
+
     private static final ConfigValue<Boolean> genericPeripheral;
 
     private static final ConfigValue<MonitorRenderer> monitorRenderer;
@@ -263,6 +272,28 @@ public final class Config
         }
 
         {
+            builder.comment( "Configure the size of various computer's terminals.\n" +
+                "Larger terminals require more bandwidth, so use with care." ).push( "term_sizes" );
+
+            builder.comment( "Terminal size of computers" ).push( "computer" );
+            computerTermWidth = builder.defineInRange( "width", ComputerCraft.computerTermWidth, 1, 255 );
+            computerTermHeight = builder.defineInRange( "height", ComputerCraft.computerTermHeight, 1, 255 );
+            builder.pop();
+
+            builder.comment( "Terminal size of pocket computers" ).push( "pocket_computer" );
+            pocketTermWidth = builder.defineInRange( "width", ComputerCraft.pocketTermWidth, 1, 255 );
+            pocketTermHeight = builder.defineInRange( "height", ComputerCraft.pocketTermHeight, 1, 255 );
+            builder.pop();
+
+            builder.comment( "Maximum size of monitors (in blocks)" ).push( "monitor" );
+            monitorWidth = builder.defineInRange( "width", ComputerCraft.monitorWidth, 1, 32 );
+            monitorHeight = builder.defineInRange( "height", ComputerCraft.monitorHeight, 1, 32 );
+            builder.pop();
+
+            builder.pop();
+        }
+
+        {
             builder.comment( "Options for various experimental features. These are not guaranteed to be stable, and may change or be removed across versions." );
             builder.push( "experimental" );
 
@@ -335,6 +366,15 @@ public final class Config
         ComputerCraft.turtleDisabledActions.clear();
         for( String value : turtleDisabledActions.get() ) ComputerCraft.turtleDisabledActions.add( getAction( value ) );
 
+        // Terminal size
+        ComputerCraft.computerTermWidth = computerTermWidth.get();
+        ComputerCraft.computerTermHeight = computerTermHeight.get();
+        ComputerCraft.pocketTermWidth = pocketTermWidth.get();
+        ComputerCraft.pocketTermHeight = pocketTermHeight.get();
+        ComputerCraft.monitorWidth = monitorWidth.get();
+        ComputerCraft.monitorHeight = monitorHeight.get();
+
+        // Experimental
         ComputerCraft.genericPeripheral = genericPeripheral.get();
 
         // Client
