@@ -13,13 +13,12 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
+import net.minecraftforge.event.entity.living.LivingDropsEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.function.Function;
 
@@ -32,16 +31,16 @@ public final class DropConsumer
 
     private static Function<ItemStack, ItemStack> dropConsumer;
     private static List<ItemStack> remainingDrops;
-    private static WeakReference<World> dropWorld;
+    private static World dropWorld;
     private static AxisAlignedBB dropBounds;
-    private static WeakReference<Entity> dropEntity;
+    private static Entity dropEntity;
 
     public static void set( Entity entity, Function<ItemStack, ItemStack> consumer )
     {
         dropConsumer = consumer;
         remainingDrops = new ArrayList<>();
-        dropEntity = new WeakReference<>( entity );
-        dropWorld = new WeakReference<>( entity.world );
+        dropEntity = entity;
+        dropWorld = entity.world;
         dropBounds = new AxisAlignedBB( entity.getPosition() ).grow( 2, 2, 2 );
 
         entity.captureDrops( new ArrayList<>() );
@@ -52,25 +51,12 @@ public final class DropConsumer
         dropConsumer = consumer;
         remainingDrops = new ArrayList<>( 2 );
         dropEntity = null;
-        dropWorld = new WeakReference<>( world );
+        dropWorld = world;
         dropBounds = new AxisAlignedBB( pos ).grow( 2, 2, 2 );
     }
 
     public static List<ItemStack> clear()
     {
-        if( dropEntity != null )
-        {
-            Entity entity = dropEntity.get();
-            if( entity != null )
-            {
-                Collection<ItemEntity> dropped = entity.captureDrops( null );
-                if( dropped != null )
-                {
-                    for( ItemEntity entityItem : dropped ) handleDrops( entityItem.getItem() );
-                }
-            }
-        }
-
         List<ItemStack> remainingStacks = remainingDrops;
 
         dropConsumer = null;
@@ -92,11 +78,20 @@ public final class DropConsumer
     public static void onEntitySpawn( EntityJoinWorldEvent event )
     {
         // Capture any nearby item spawns
-        if( dropWorld != null && dropWorld.get() == event.getWorld() && event.getEntity() instanceof ItemEntity
+        if( dropWorld == event.getWorld() && event.getEntity() instanceof ItemEntity
             && dropBounds.contains( event.getEntity().getPositionVector() ) )
         {
             handleDrops( ((ItemEntity) event.getEntity()).getItem() );
             event.setCanceled( true );
         }
+    }
+
+    @SubscribeEvent
+    public static void onLivingDrops( LivingDropsEvent drops )
+    {
+        if( dropEntity == null || drops.getEntity() != dropEntity ) return;
+
+        for( ItemEntity drop : drops.getDrops() ) handleDrops( drop.getItem() );
+        drops.setCanceled( true );
     }
 }

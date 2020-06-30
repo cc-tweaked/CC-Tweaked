@@ -1,3 +1,7 @@
+# New features in CC: Tweaked 1.89.2
+
+* Fix dupe bug when killing an entity with a turtle.
+
 # New features in CC: Tweaked 1.89.1
 
 * Fix crashes when rendering monitors of varying sizes.
