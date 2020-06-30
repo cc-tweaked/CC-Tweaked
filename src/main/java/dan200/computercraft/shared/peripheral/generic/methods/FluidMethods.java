@@ -12,7 +12,7 @@ import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.core.asm.GenericSource;
-import dan200.computercraft.shared.peripheral.generic.meta.FluidMeta;
+import dan200.computercraft.shared.peripheral.generic.data.FluidData;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
@@ -49,7 +49,7 @@ public class FluidMethods implements GenericSource
         for( int i = 0; i < size; i++ )
         {
             FluidStack stack = fluids.getFluidInTank( i );
-            if( !stack.isEmpty() ) result.put( i + 1, FluidMeta.fillBasicMeta( new HashMap<>( 4 ), stack ) );
+            if( !stack.isEmpty() ) result.put( i + 1, FluidData.fillBasic( new HashMap<>( 4 ), stack ) );
         }
 
         return result;

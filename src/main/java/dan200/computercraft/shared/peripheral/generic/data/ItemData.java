@@ -4,7 +4,7 @@
  * Send enquiries to dratcliffe@gmail.com
  */
 
-package dan200.computercraft.shared.peripheral.generic.meta;
+package dan200.computercraft.shared.peripheral.generic.data;
 
 import com.google.gson.JsonParseException;
 import net.minecraft.item.ItemStack;
@@ -20,10 +20,10 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-public class ItemMeta
+public class ItemData
 {
     @Nonnull
-    public static <T extends Map<? super String, Object>> T fillBasicMeta( @Nonnull T data, @Nonnull ItemStack stack )
+    public static <T extends Map<? super String, Object>> T fillBasic( @Nonnull T data, @Nonnull ItemStack stack )
     {
         data.put( "name", Objects.toString( stack.getItem().getRegistryName() ) );
         data.put( "count", stack.getCount() );
@@ -31,14 +31,13 @@ public class ItemMeta
     }
 
     @Nonnull
-    public static <T extends Map<? super String, Object>> T fillMeta( @Nonnull T data, @Nonnull ItemStack stack )
+    public static <T extends Map<? super String, Object>> T fill( @Nonnull T data, @Nonnull ItemStack stack )
     {
         if( stack.isEmpty() ) return data;
 
-        fillBasicMeta( data, stack );
+        fillBasic( data, stack );
 
         data.put( "displayName", stack.getDisplayName().getString() );
-        data.put( "rawName", stack.getTranslationKey() );
         data.put( "maxCount", stack.getMaxStackSize() );
 
         if( stack.isDamageable() )
@@ -52,6 +51,8 @@ public class ItemMeta
             data.put( "durability", stack.getItem().getDurabilityForDisplay( stack ) );
         }
 
+        data.put( "tags", DataHelpers.getTags( stack.getItem().getTags() ) );
+
         CompoundNBT tag = stack.getTag();
         if( tag != null && tag.contains( "display", Constants.NBT.TAG_COMPOUND ) )
         {
@@ -60,7 +61,7 @@ public class ItemMeta
             {
                 ListNBT loreTag = displayTag.getList( "Lore", Constants.NBT.TAG_STRING );
                 data.put( "lore", loreTag.stream()
-                    .map( ItemMeta::parseTextComponent )
+                    .map( ItemData::parseTextComponent )
                     .filter( Objects::nonNull )
                     .map( ITextComponent::getString )
                     .collect( Collectors.toList() ) );

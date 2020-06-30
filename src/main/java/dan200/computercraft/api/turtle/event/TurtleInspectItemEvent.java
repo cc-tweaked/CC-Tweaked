@@ -16,8 +16,8 @@ import java.util.Objects;
 /**
  * Fired when a turtle gathers data on an item in its inventory.
  *
- * You may prevent items being inspected, or add additional information to the result. Be aware that this is fired on
- * the computer thread, and so any operations on it must be thread safe.
+ * You may prevent items being inspected, or add additional information to the result. Be aware that this may be fired
+ * on the computer thread, and so any operations on it must be thread safe.
  *
  * @see TurtleAction#INSPECT_ITEM
  */
@@ -25,8 +25,15 @@ public class TurtleInspectItemEvent extends TurtleActionEvent
 {
     private final ItemStack stack;
     private final Map<String, Object> data;
+    private final boolean mainThread;
 
+    @Deprecated
     public TurtleInspectItemEvent( @Nonnull ITurtleAccess turtle, @Nonnull ItemStack stack, @Nonnull Map<String, Object> data )
+    {
+        this( turtle, stack, data, false );
+    }
+
+    public TurtleInspectItemEvent( @Nonnull ITurtleAccess turtle, @Nonnull ItemStack stack, @Nonnull Map<String, Object> data, boolean mainThread )
     {
         super( turtle, TurtleAction.INSPECT_ITEM );
 
@@ -34,6 +41,7 @@ public class TurtleInspectItemEvent extends TurtleActionEvent
         Objects.requireNonNull( data, "data cannot be null" );
         this.stack = stack;
         this.data = data;
+        this.mainThread = mainThread;
     }
 
     /**
@@ -56,6 +64,17 @@ public class TurtleInspectItemEvent extends TurtleActionEvent
     public Map<String, Object> getData()
     {
         return data;
+    }
+
+    /**
+     * If this event is being fired on the server thread. When true, information which relies on server state may be
+     * exposed.
+     *
+     * @return If this is run on the main thread.
+     */
+    public boolean onMainThread()
+    {
+        return mainThread;
     }
 
     /**

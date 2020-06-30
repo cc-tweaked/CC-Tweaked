@@ -5,24 +5,21 @@
  */
 package dan200.computercraft.shared.computer.apis;
 
-import com.google.common.collect.ImmutableMap;
 import com.mojang.brigadier.tree.CommandNode;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.lua.*;
 import dan200.computercraft.shared.computer.blocks.TileCommandComputer;
+import dan200.computercraft.shared.peripheral.generic.data.BlockData;
 import dan200.computercraft.shared.util.NBTUtil;
-import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.command.CommandSource;
 import net.minecraft.command.Commands;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.state.IProperty;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.*;
 
@@ -73,30 +70,12 @@ public class CommandAPI implements ILuaAPI
     {
         // Get the details of the block
         BlockState state = world.getBlockState( pos );
-        Block block = state.getBlock();
-
-        Map<Object, Object> table = new HashMap<>();
-        table.put( "name", ForgeRegistries.BLOCKS.getKey( block ).toString() );
-
-        Map<Object, Object> stateTable = new HashMap<>();
-        for( ImmutableMap.Entry<IProperty<?>, Comparable<?>> entry : state.getValues().entrySet() )
-        {
-            IProperty<?> property = entry.getKey();
-            stateTable.put( property.getName(), getPropertyValue( property, entry.getValue() ) );
-        }
-        table.put( "state", stateTable );
+        Map<String, Object> table = BlockData.fill( new HashMap<>(), state );
 
         TileEntity tile = world.getTileEntity( pos );
         if( tile != null ) table.put( "nbt", NBTUtil.toLua( tile.write( new CompoundNBT() ) ) );
 
         return table;
-    }
-
-    @SuppressWarnings( { "unchecked", "rawtypes" } )
-    private static Object getPropertyValue( IProperty property, Comparable value )
-    {
-        if( value instanceof String || value instanceof Number || value instanceof Boolean ) return value;
-        return property.getName( value );
     }
 
     @LuaFunction( mainThread = true )

@@ -12,7 +12,7 @@ import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.core.asm.GenericSource;
-import dan200.computercraft.shared.peripheral.generic.meta.ItemMeta;
+import dan200.computercraft.shared.peripheral.generic.data.ItemData;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
@@ -56,19 +56,19 @@ public class InventoryMethods implements GenericSource
         for( int i = 0; i < size; i++ )
         {
             ItemStack stack = inventory.getStackInSlot( i );
-            if( !stack.isEmpty() ) result.put( i + 1, ItemMeta.fillBasicMeta( new HashMap<>( 4 ), stack ) );
+            if( !stack.isEmpty() ) result.put( i + 1, ItemData.fillBasic( new HashMap<>( 4 ), stack ) );
         }
 
         return result;
     }
 
     @LuaFunction( mainThread = true )
-    public static Map<String, ?> getItemMeta( IItemHandler inventory, int slot ) throws LuaException
+    public static Map<String, ?> getItemDetail( IItemHandler inventory, int slot ) throws LuaException
     {
         assertBetween( slot, 1, inventory.getSlots(), "Slot out of range (%s)" );
 
         ItemStack stack = inventory.getStackInSlot( slot - 1 );
-        return stack.isEmpty() ? null : ItemMeta.fillMeta( new HashMap<>(), stack );
+        return stack.isEmpty() ? null : ItemData.fill( new HashMap<>(), stack );
     }
 
     @LuaFunction( mainThread = true )

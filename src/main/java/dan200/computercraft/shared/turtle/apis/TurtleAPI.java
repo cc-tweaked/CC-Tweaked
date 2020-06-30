@@ -13,13 +13,12 @@ import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.api.turtle.event.TurtleActionEvent;
 import dan200.computercraft.api.turtle.event.TurtleInspectItemEvent;
 import dan200.computercraft.core.apis.IAPIEnvironment;
+import dan200.computercraft.core.asm.TaskCallback;
 import dan200.computercraft.core.tracking.TrackingField;
+import dan200.computercraft.shared.peripheral.generic.data.ItemData;
 import dan200.computercraft.shared.turtle.core.*;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -309,28 +308,26 @@ public class TurtleAPI implements ILuaAPI
     }
 
     @LuaFunction
-    public final Object[] getItemDetail( Optional<Integer> slotArg ) throws LuaException
+    public final MethodResult getItemDetail( ILuaContext context, Optional<Integer> slotArg, Optional<Boolean> detailedArg ) throws LuaException
     {
-        // FIXME: There's a race condition here if the stack is being modified (mutating NBT, etc...)
-        //  on another thread. The obvious solution is to move this into a command, but some programs rely
-        //  on this having a 0-tick delay.
         int slot = checkSlot( slotArg ).orElse( turtle.getSelectedSlot() );
+        boolean detailed = detailedArg.orElse( false );
+
+        return detailed
+            ? TaskCallback.make( context, () -> getItemDetail( slot, true ) )
+            : MethodResult.of( getItemDetail( slot, false ) );
+    }
+
+    private Object[] getItemDetail( int slot, boolean detailed )
+    {
         ItemStack stack = turtle.getInventory().getStackInSlot( slot );
         if( stack.isEmpty() ) return new Object[] { null };
 
-        Item item = stack.getItem();
-        String name = ForgeRegistries.ITEMS.getKey( item ).toString();
-        int count = stack.getCount();
+        Map<String, Object> table = detailed
+            ? ItemData.fill( new HashMap<>(), stack )
+            : ItemData.fillBasic( new HashMap<>(), stack );
 
-        Map<String, Object> table = new HashMap<>();
-        table.put( "name", name );
-        table.put( "count", count );
-
-        Map<String, Boolean> tags = new HashMap<>();
-        for( ResourceLocation location : item.getTags() ) tags.put( location.toString(), true );
-        table.put( "tags", tags );
-
-        TurtleActionEvent event = new TurtleInspectItemEvent( turtle, stack, table );
+        TurtleActionEvent event = new TurtleInspectItemEvent( turtle, stack, table, detailed );
         if( MinecraftForge.EVENT_BUS.post( event ) ) return new Object[] { false, event.getFailureMessage() };
 
         return new Object[] { table };

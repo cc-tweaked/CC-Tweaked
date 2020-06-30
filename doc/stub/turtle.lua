@@ -206,16 +206,17 @@ function getItemSpace(slot) end
 --- Get detailed information about the items in the given slot.
 --
 -- @tparam[opt] number slot The slot to get information about. Defaults to the @{turtle.select|selected slot}.
+-- @tparam[opt] boolean detailed Whether to include "detailed" information. When @{true} the method will contain
+-- much more information about the item at the cost of taking longer to run.
 -- @treturn nil|table Information about the given slot, or @{nil} if it is empty.
 -- @usage Print the current slot, assuming it contains 13 dirt.
 --
 --     print(textutils.serialize(turtle.getItemDetail()))
 --     -- => {
 --     --    name = "minecraft:dirt",
---     --    damage = 0,
 --     --    count = 13,
 --     -- }
-function getItemDetail(slot) end
+function getItemDetail(slot, detailed) end
 
 function getFuelLevel() end
 

@@ -5,20 +5,16 @@
  */
 package dan200.computercraft.shared.turtle.core;
 
-import com.google.common.collect.ImmutableMap;
 import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.ITurtleCommand;
 import dan200.computercraft.api.turtle.TurtleCommandResult;
 import dan200.computercraft.api.turtle.event.TurtleBlockEvent;
-import net.minecraft.block.Block;
+import dan200.computercraft.shared.peripheral.generic.data.BlockData;
 import net.minecraft.block.BlockState;
-import net.minecraft.state.IProperty;
 import net.minecraft.util.Direction;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nonnull;
 import java.util.HashMap;
@@ -51,23 +47,7 @@ public class TurtleInspectCommand implements ITurtleCommand
             return TurtleCommandResult.failure( "No block to inspect" );
         }
 
-        Block block = state.getBlock();
-        String name = ForgeRegistries.BLOCKS.getKey( block ).toString();
-
-        Map<String, Object> table = new HashMap<>();
-        table.put( "name", name );
-
-        Map<Object, Object> stateTable = new HashMap<>();
-        for( ImmutableMap.Entry<IProperty<?>, ? extends Comparable<?>> entry : state.getValues().entrySet() )
-        {
-            IProperty<?> property = entry.getKey();
-            stateTable.put( property.getName(), getPropertyValue( property, entry.getValue() ) );
-        }
-        table.put( "state", stateTable );
-
-        Map<String, Boolean> tags = new HashMap<>();
-        for( ResourceLocation location : block.getTags() ) tags.put( location.toString(), true );
-        table.put( "tags", tags );
+        Map<String, Object> table = BlockData.fill( new HashMap<>(), state );
 
         // Fire the event, exiting if it is cancelled
         TurtlePlayer turtlePlayer = TurtlePlaceCommand.createPlayer( turtle, oldPosition, direction );
@@ -76,12 +56,5 @@ public class TurtleInspectCommand implements ITurtleCommand
 
         return TurtleCommandResult.success( new Object[] { table } );
 
-    }
-
-    @SuppressWarnings( { "unchecked", "rawtypes" } )
-    private static Object getPropertyValue( IProperty property, Comparable value )
-    {
-        if( value instanceof String || value instanceof Number || value instanceof Boolean ) return value;
-        return property.getName( value );
     }
 }

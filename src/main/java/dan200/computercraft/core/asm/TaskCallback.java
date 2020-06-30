@@ -48,9 +48,15 @@ public final class TaskCallback implements ILuaCallback
         }
     }
 
-    public static Object[] checkUnwrap( MethodResult result )
+    static Object[] checkUnwrap( MethodResult result )
     {
-        if( result.getCallback() != null ) throw new IllegalStateException( "Cannot return MethodResult currently" );
+        if( result.getCallback() != null )
+        {
+            // Due to how tasks are implemented, we can't currently return a MethodResult. This is an
+            // entirely artificial limitation - we can remove it if it ever becomes an issue.
+            throw new IllegalStateException( "Cannot return MethodResult for mainThread task." );
+        }
+
         return result.getResult();
     }
 
