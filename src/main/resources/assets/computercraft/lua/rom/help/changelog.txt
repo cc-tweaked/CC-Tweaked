@@ -1,3 +1,20 @@
+# New features in CC: Tweaked 1.89.2
+
+* Fix dupe bug when killing an entity with a turtle.
+
+# New features in CC: Tweaked 1.89.1
+
+* Fix crashes when rendering monitors of varying sizes.
+
+# New features in CC: Tweaked 1.89.0
+
+* Compress monitor data, reducing network traffic by a significant amount.
+* Allow limiting the bandwidth monitor updates use.
+* Several optimisations to monitor rendering (@Lignum)
+
+And several bug fixes:
+* Fix settings.load failing on defined settings.
+
 # New features in CC: Tweaked 1.88.0
 
 * Computers and turtles now preserve their ID when broken.
