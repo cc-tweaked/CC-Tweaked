@@ -7,6 +7,9 @@
 package dan200.computercraft.shared.peripheral.generic.data;
 
 import com.google.gson.JsonParseException;
+import net.minecraft.enchantment.Enchantment;
+import net.minecraft.enchantment.EnchantmentHelper;
+import net.minecraft.item.EnchantedBookItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.INBT;
@@ -16,6 +19,10 @@ import net.minecraftforge.common.util.Constants;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -68,6 +75,65 @@ public class ItemData
             }
         }
 
+
+        /*
+         * Used to hide some data from ItemStack tooltip.
+         * @see https://minecraft.gamepedia.com/Tutorials/Command_NBT_tags
+         * @see ItemStack.getTooltip(@ Nullable PlayerEntity playerIn, ITooltipFlag advanced)
+         */
+        int hideFlags = (tag != null) ? tag.getInt( "HideFlags" ) : 0;
+
+        if ( stack.isEnchanted() )
+        {
+            List<Map<String, Object>> enchants;
+            if ( (hideFlags & 1) == 0 )
+            {
+                /*
+                 * Mimic the EnchantmentHelper.getEnchantments(ItemStack stack) behavior without special case for Enchanted book.
+                 * I'll do that to have the same data than ones displayed in tooltip.
+                 * @see EnchantmentHelper.getEnchantments(ItemStack stack)
+                 */
+                enchants = enchantMapToList( EnchantmentHelper.func_226652_a_( stack.getEnchantmentTagList() ) );
+            }
+            else
+            {
+                enchants = Collections.emptyList();
+            }
+            data.put( "enchantments", enchants );
+        }
+
+        /*if ( (hideFlags & 2) == 0 )
+        {
+            //TODO: Add attributesModifiers
+        }*/
+
+        if ( tag.getBoolean( "Unbreakable" ) && (hideFlags & 4) == 0 )
+        {
+            data.put( "unbreakable", true );
+        }
+
+        /*if ( (hideFlags & 8) == 0 )
+        {
+            //TODO: Add CanDestroy
+        }*/
+
+        /*if ( (hideFlags & 16) == 0 )
+        {
+            //TODO: Add Can place on
+        }*/
+
+        if ( (hideFlags & 32) == 0 )
+        {
+            // All other vanilla data should go here
+
+            if ( stack.getItem() instanceof EnchantedBookItem )
+            {
+                data.put( "storedenchantments", enchantMapToList( EnchantmentHelper.func_226652_a_(
+                    EnchantedBookItem.getEnchantments( stack )
+                ) ) );
+            }
+        }
+
         return data;
     }
 
@@ -82,5 +148,20 @@ public class ItemData
         {
             return null;
         }
+    }
+
+    @Nonnull
+    private static List<Map<String, Object>> enchantMapToList( Map<Enchantment, Integer> rawEnchants )
+    {
+        List<Map<String, Object>> enchants = new ArrayList<>( rawEnchants.size() );
+        rawEnchants.forEach( ( enchantment, level ) ->
+        {
+            HashMap<String, Object> enchant = new HashMap<>( 3 );
+            enchant.put( "name", enchantment.getName() );
+            enchant.put( "level", level );
+            enchant.put( "displayName", enchantment.getDisplayName( level ).getString() );
+            enchants.add( enchant );
+        } );
+        return enchants;
     }
 }
