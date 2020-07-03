@@ -153,24 +153,54 @@ public class OSAPI implements ILuaAPI
         return c.getTime().getTime();
     }
 
+    /**
+     * Adds an event to the event queue. This event can later be pulled with
+     * os.pullEvent.
+     *
+     * @param name The name of the event to queue.
+     * @cc.tparam[opt] any ... The parameters of the event.
+     * @cc.see os.pullEvent To pull the event queued
+     */
     @LuaFunction
     public final void queueEvent( String name, IArguments args )
     {
         apiEnvironment.queueEvent( name, args.drop( 1 ).getAll() );
     }
 
+    /**
+     * Starts a timer that will run for the specified number of seconds. Once
+     * the timer fires, a timer event will be added to the queue with the ID
+     * returned from this function as the first parameter.
+     *
+     * @param timer The number of seconds until the timer fires.
+     * @return The ID of the new timer.
+     */
     @LuaFunction
     public final int startTimer( double timer ) throws LuaException
     {
         return apiEnvironment.startTimer( Math.round( checkFinite( 0, timer ) / 0.05 ) );
     }
 
+    /**
+     * Cancels a timer previously started with startTimer. This will stop the
+     * timer from firing.
+     *
+     * @param token The ID of the timer to cancel.
+     * @see #startTimer To start a timer.
+     */
     @LuaFunction
     public final void cancelTimer( int token )
     {
         apiEnvironment.cancelTimer( token );
     }
 
+    /**
+     * Sets an alarm that will fire at the specified world time. When it fires,
+     * an alarm event will be added to the event queue.
+     *
+     * @param time The time at which to fire the alarm, in the range [0.0, 24.0).
+     * @return The ID of the alarm that was set.
+     */
     @LuaFunction
     public final int setAlarm( double time ) throws LuaException
     {
@@ -184,6 +214,13 @@ public class OSAPI implements ILuaAPI
         }
     }
 
+    /**
+     * Cancels an alarm previously started with setAlarm. This will stop the
+     * alarm from firing.
+     *
+     * @param token The ID of the alarm to cancel.
+     * @see #os.setAlarm To set an alarm.
+     */
     @LuaFunction
     public final void cancelAlarm( int token )
     {
@@ -193,24 +230,40 @@ public class OSAPI implements ILuaAPI
         }
     }
 
+    /**
+     * Shuts down the computer immediately.
+     */
     @LuaFunction( "shutdown" )
     public final void doShutdown()
     {
         apiEnvironment.shutdown();
     }
 
+    /**
+     * Reboots the computer immediately.
+     */
     @LuaFunction( "reboot" )
     public final void doReboot()
     {
         apiEnvironment.reboot();
     }
 
+    /**
+     * Returns the ID of the computer.
+     *
+     * @return The ID of the computer.
+     */
     @LuaFunction( { "getComputerID", "computerID" } )
     public final int getComputerID()
     {
         return apiEnvironment.getComputerID();
     }
 
+    /**
+     * Returns the label of the computer, or {@code nil} if none is set.
+     *
+     * @return The label of the computer.
+     */
     @LuaFunction( { "getComputerLabel", "computerLabel" } )
     public final Object[] getComputerLabel()
     {
@@ -229,12 +282,35 @@ public class OSAPI implements ILuaAPI
         apiEnvironment.setLabel( StringUtil.normaliseLabel( label.orElse( null ) ) );
     }
 
+    /**
+     * Returns the number of seconds that the computer has been running.
+     *
+     * @return The computer's uptime.
+     */
     @LuaFunction
     public final double clock()
     {
         return m_clock * 0.05;
     }
 
+    /**
+     * Returns the current time depending on the string passed in. This will
+     * always be in the range [0.0, 24.0).
+     *
+     * * If called with {@code ingame}, the current world time will be returned.
+     *   This is the default if nothing is passed.
+     * * If called with {@code utc}, returns the hour of the day in UTC time.
+     * * If called with {@code local}, returns the hour of the day in the
+     *   timezone the server is located in.
+     *
+     * This function can also be called with a table returned from {@link #date},
+     * which will convert the date fields into a UNIX timestamp (number of
+     * seconds since 1 January 1970).
+     *
+     * @cc.tparam[opt] string/table locale The locale of the time, or a table filled by {@code os.date("*t")} to decode. Defaults to {@code ingame} locale if not specified.
+     * @cc.treturn number The hour of the selected locale, or a UNIX timestamp from the table, depending on the argument passed in.
+     * @see #date To get a date table that can be converted with this function.
+     */
     @LuaFunction
     public final Object time( IArguments args ) throws LuaException
     {
@@ -255,6 +331,19 @@ public class OSAPI implements ILuaAPI
         }
     }
 
+    /**
+     * Returns the day depending on the locale specified.
+     *
+     * * If called with {@code ingame}, returns the number of days since the
+     *   world was created. This is the default.
+     * * If called with {@code utc}, returns the number of days since 1 January
+     *   1970 in the UTC timezone.
+     * * If called with {@code local}, returns the number of days since 1
+     *   January 1970 in the server's local timezone.
+     *
+     * @cc.tparam[opt] string The locale to get the day for. Defaults to {@code ingame} if not set.
+     * @cc.treturn number The day depending on the selected locale.
+     */
     @LuaFunction
     public final int day( Optional<String> args ) throws LuaException
     {
@@ -271,6 +360,19 @@ public class OSAPI implements ILuaAPI
         }
     }
 
+    /**
+     * Returns the number of seconds since an epoch depending on the locale.
+     *
+     * * If called with {@code ingame}, returns the number of seconds since the
+     *   world was created. This is the default.
+     * * If called with {@code utc}, returns the number of seconds since 1
+     *   January 1970 in the UTC timezone.
+     * * If called with {@code local}, returns the number of seconds since 1
+     *   January 1970 in the server's local timezone.
+     *
+     * @cc.tparam[opt] string The locale to get the seconds for. Defaults to {@code ingame} if not set.
+     * @cc.treturn number The seconds since the epoch depending on the selected locale.
+     */
     @LuaFunction
     public final long epoch( Optional<String> args ) throws LuaException
     {
@@ -299,6 +401,25 @@ public class OSAPI implements ILuaAPI
         }
     }
 
+    /**
+     * Returns a date string (or table) using a specified format string and
+     * optional time to format.
+     *
+     * The format string takes the same formats as C's {@code strftime} function
+     * (http://www.cplusplus.com/reference/ctime/strftime/). In extension, it
+     * can be prefixed with an exclamation mark ({@code !}) to use UTC time
+     * instead of the server's local timezone.
+     *
+     * If the format is exactly {@code *t} (optionally prefixed with {@code !}), a
+     * table will be returned instead. This table has fields for the year, month,
+     * day, hour, minute, second, day of the week, day of the year, and whether
+     * Daylight Savings Time is in effect. This table can be converted to a UNIX
+     * timestamp (days since 1 January 1970) with {@link #date}.
+     *
+     * @cc.tparam[opt] string formatA The format of the string to return. This defaults to {@code %c}, which expands to a string similar to "Sat Dec 24 16:58:00 2011".
+     * @cc.tparam[opt] number timeA The time to convert to a string. This defaults to the current time.
+     * @cc.treturn string The resulting format string.
+     */
     @LuaFunction
     public final Object date( Optional<String> formatA, Optional<Long> timeA ) throws LuaException
     {

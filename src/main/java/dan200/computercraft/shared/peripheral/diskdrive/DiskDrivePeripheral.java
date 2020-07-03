@@ -47,12 +47,22 @@ public class DiskDrivePeripheral implements IPeripheral
         return "drive";
     }
 
+    /**
+     * Returns whether a disk is currently inserted in the drive.
+     *
+     * @return Whether a disk is currently inserted in the drive.
+     */
     @LuaFunction
     public final boolean isDiskPresent()
     {
         return !diskDrive.getDiskStack().isEmpty();
     }
 
+    /**
+     * Returns the label of the disk in the drive if available.
+     *
+     * @return The label of the disk, or {@code nil} if either no disk is inserted or the disk doesn't have a label.
+     */
     @LuaFunction
     public final Object[] getDiskLabel()
     {
@@ -61,6 +71,16 @@ public class DiskDrivePeripheral implements IPeripheral
         return media == null ? null : new Object[] { media.getLabel( stack ) };
     }
 
+    /**
+     * Sets or clears the label for a disk.
+     *
+     * If no label or {@code nil} is passed, the label will be cleared.
+     *
+     * If the inserted disk's label can't be changed (for example, a record),
+     * an error will be thrown.
+     *
+     * @cc.tparam[opt] string labelA The new label of the disk, or {@code nil} to clear.
+     */
     @LuaFunction( mainThread = true )
     public final void setDiskLabel( Optional<String> labelA ) throws LuaException
     {
@@ -76,18 +96,33 @@ public class DiskDrivePeripheral implements IPeripheral
         diskDrive.setDiskStack( stack );
     }
 
+    /**
+     * Returns whether a disk with data is inserted.
+     *
+     * @return Whether a disk with data is inserted.
+     */
     @LuaFunction
     public final boolean hasData( IComputerAccess computer )
     {
         return diskDrive.getDiskMountPath( computer ) != null;
     }
 
+    /**
+     * Returns the mount path for the inserted disk.
+     *
+     * @return The mount path for the disk, or {@code nil} if no data disk is inserted.
+     */
     @LuaFunction
     public final String getMountPath( IComputerAccess computer )
     {
         return diskDrive.getDiskMountPath( computer );
     }
 
+    /**
+     * Returns whether a disk with audio is inserted.
+     *
+     * @return Whether a disk with audio is inserted.
+     */
     @LuaFunction
     public final boolean hasAudio()
     {
@@ -96,6 +131,11 @@ public class DiskDrivePeripheral implements IPeripheral
         return media != null && media.getAudio( stack ) != null;
     }
 
+    /**
+     * Returns the title of the inserted audio disk.
+     *
+     * @return The title of the audio, or {@code nil} if no audio disk is inserted.
+     */
     @LuaFunction
     public final Object getAudioTitle()
     {
@@ -104,24 +144,40 @@ public class DiskDrivePeripheral implements IPeripheral
         return media != null ? media.getAudioTitle( stack ) : false;
     }
 
+    /**
+     * Plays the audio in the inserted disk, if available.
+     */
     @LuaFunction
     public final void playAudio()
     {
         diskDrive.playDiskAudio();
     }
 
+    /**
+     * Stops any audio that may be playing.
+     *
+     * @see #playAudio
+     */
     @LuaFunction
     public final void stopAudio()
     {
         diskDrive.stopDiskAudio();
     }
 
+    /**
+     * Ejects any disk that may be in the drive.
+     */
     @LuaFunction
     public final void ejectDisk()
     {
         diskDrive.ejectDisk();
     }
 
+    /**
+     * Returns the ID of the disk inserted in the drive.
+     *
+     * @return The ID of the disk in the drive, or {@code nil} if no disk with an ID is inserted.
+     */
     @LuaFunction
     public final Object[] getDiskID()
     {

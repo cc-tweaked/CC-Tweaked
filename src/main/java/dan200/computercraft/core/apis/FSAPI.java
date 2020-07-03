@@ -61,6 +61,12 @@ public class FSAPI implements ILuaAPI
         fileSystem = null;
     }
 
+    /**
+     * Returns a list of files in a directory.
+     *
+     * @param path The path to list.
+     * @return A table with a list of files in the directory.
+     */
     @LuaFunction
     public final String[] list( String path ) throws LuaException
     {
@@ -75,24 +81,50 @@ public class FSAPI implements ILuaAPI
         }
     }
 
+    /**
+     * Combines two parts of a path into one full path, adding separators as
+     * needed.
+     *
+     * @param pathA The first part of the path. For example, a parent directory path.
+     * @param pathB The second part of the path. For example, a file name.
+     * @return The new path, with separators added between parts as needed.
+     */
     @LuaFunction
     public final String combine( String pathA, String pathB )
     {
         return fileSystem.combine( pathA, pathB );
     }
 
+    /**
+     * Returns the file name portion of a path.
+     *
+     * @param path The path to get the name from.
+     * @return The final part of the path (the file name).
+     */
     @LuaFunction
     public final String getName( String path )
     {
         return FileSystem.getName( path );
     }
 
+    /**
+     * Returns the parent directory portion of a path.
+     *
+     * @param path The path to get the directory from.
+     * @return The path with the final part removed (the parent directory).
+     */
     @LuaFunction
     public final String getDir( String path )
     {
         return FileSystem.getDirectory( path );
     }
 
+    /**
+     * Returns the size of the specified file.
+     *
+     * @param path The file to get the file size of.
+     * @return The size of the file, in bytes.
+     */
     @LuaFunction
     public final long getSize( String path ) throws LuaException
     {
@@ -106,6 +138,12 @@ public class FSAPI implements ILuaAPI
         }
     }
 
+    /**
+     * Returns whether the specified path exists.
+     *
+     * @param path The path to check the existence of.
+     * @return Whether the path exists.
+     */
     @LuaFunction
     public final boolean exists( String path )
     {
@@ -119,6 +157,12 @@ public class FSAPI implements ILuaAPI
         }
     }
 
+    /**
+     * Returns whether the specified path is a directory.
+     *
+     * @param path The path to check.
+     * @return Whether the path is a directory.
+     */
     @LuaFunction
     public final boolean isDir( String path )
     {
@@ -132,6 +176,12 @@ public class FSAPI implements ILuaAPI
         }
     }
 
+    /**
+     * Returns whether a path is read-only.
+     *
+     * @param path The path to check.
+     * @return Whether the path cannot be written to.
+     */
     @LuaFunction
     public final boolean isReadOnly( String path )
     {
@@ -145,6 +195,11 @@ public class FSAPI implements ILuaAPI
         }
     }
 
+    /**
+     * Creates a directory, and any missing parents, at the specified path.
+     *
+     * @param path The path to the directory to create.
+     */
     @LuaFunction
     public final void makeDir( String path ) throws LuaException
     {
@@ -159,6 +214,14 @@ public class FSAPI implements ILuaAPI
         }
     }
 
+    /**
+     * Moves a file or directory from one path to another.
+     *
+     * Any parent directories are created as needed.
+     *
+     * @param path The current file or directory to move from.
+     * @param dest The destination path for the file or directory.
+     */
     @LuaFunction
     public final void move( String path, String dest ) throws LuaException
     {
@@ -173,6 +236,14 @@ public class FSAPI implements ILuaAPI
         }
     }
 
+    /**
+     * Copies a file or directory to a new path.
+     *
+     * Any parent directories are created as needed.
+     *
+     * @param path The file or directory to copy.
+     * @param dest The path to the destination file or directory.
+     */
     @LuaFunction
     public final void copy( String path, String dest ) throws LuaException
     {
@@ -187,6 +258,14 @@ public class FSAPI implements ILuaAPI
         }
     }
 
+    /**
+     * Deletes a file or directory.
+     *
+     * If the path points to a directory, all of the enclosed files and
+     * subdirectories are also deleted.
+     *
+     * @param path The path to the file or directory to delete.
+     */
     @LuaFunction
     public final void delete( String path ) throws LuaException
     {
@@ -201,6 +280,18 @@ public class FSAPI implements ILuaAPI
         }
     }
 
+    /**
+     * Opens a file for reading or writing at a path.
+     *
+     * The mode parameter can be {@code r} to read, {@code w} to write (deleting
+     * all contents), or {@code a} to append (keeping contents). If {@code b} is
+     * added to the end, the file will be opened in binary mode; otherwise, it's
+     * opened in text mode.
+     *
+     * @param path The path to the file to open.
+     * @param mode The mode to open the file with.
+     * @return A file handle object for the file, or {@code nil} + an error message on error.
+     */
     @LuaFunction
     public final Object[] open( String path, String mode ) throws LuaException
     {
@@ -255,6 +346,12 @@ public class FSAPI implements ILuaAPI
         }
     }
 
+    /**
+     * Returns the name of the mount that the specified path is located on.
+     *
+     * @param path The path to get the drive of.
+     * @return The name of the drive that the file is on; e.g. {@code hdd} for local files, or {@code rom} for ROM files.
+     */
     @LuaFunction
     public final Object[] getDrive( String path ) throws LuaException
     {
@@ -268,6 +365,13 @@ public class FSAPI implements ILuaAPI
         }
     }
 
+    /**
+     * Returns the amount of free space available on the drive the path is
+     * located on.
+     *
+     * @param path The path to check the free space for.
+     * @return The amount of free space available, in bytes.
+     */
     @LuaFunction
     public final Object getFreeSpace( String path ) throws LuaException
     {
@@ -282,6 +386,17 @@ public class FSAPI implements ILuaAPI
         }
     }
 
+    /**
+     * Searches for files matching a string with wildcards.
+     *
+     * This string is formatted like a normal path string, but can include any
+     * number of wildcards ({@code *}) to look for files matching anything.
+     * For example, {@code rom/* /command*} will look for any path starting with
+     * {@code command} inside any subdirectory of {@code /rom}.
+     *
+     * @param path The wildcard-qualified path to search for.
+     * @return A list of paths that match the search string.
+     */
     @LuaFunction
     public final String[] find( String path ) throws LuaException
     {
