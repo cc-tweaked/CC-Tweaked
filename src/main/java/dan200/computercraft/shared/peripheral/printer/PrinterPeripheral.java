@@ -45,7 +45,8 @@ public class PrinterPeripheral implements IPeripheral
     /**
      * Writes text to the current page.
      *
-     * @cc.tparam string/number ... The values to write to the page.
+     * @cc.tparam string/number arguments The values to write to the page.
+     * @throws LuaException If any values couldn't be converted to a string, or if no page is started.
      */
     @LuaFunction
     public final void write( IArguments arguments ) throws LuaException
@@ -61,6 +62,7 @@ public class PrinterPeripheral implements IPeripheral
      *
      * @cc.treturn number The X position of the cursor.
      * @cc.treturn number The Y position of the cursor.
+     * @throws LuaException If a page isn't being printed.
      */
     @LuaFunction
     public final Object[] getCursorPos() throws LuaException
@@ -76,6 +78,7 @@ public class PrinterPeripheral implements IPeripheral
      *
      * @param x The X coordinate to set the cursor at.
      * @param y The Y coordinate to set the cursor at.
+     * @throws LuaException If a page isn't being printed.
      */
     @LuaFunction
     public final void setCursorPos( int x, int y ) throws LuaException
@@ -89,6 +92,7 @@ public class PrinterPeripheral implements IPeripheral
      *
      * @cc.treturn number The width of the page.
      * @cc.treturn number The height of the page.
+     * @throws LuaException If a page isn't being printed.
      */
     @LuaFunction
     public final Object[] getPageSize() throws LuaException
@@ -114,6 +118,7 @@ public class PrinterPeripheral implements IPeripheral
      * Finalizes printing of the current page and outputs it to the tray.
      *
      * @return Whether the page could be successfully finished.
+     * @throws LuaException If a page isn't being printed.
      */
     @LuaFunction( mainThread = true )
     public final boolean endPage() throws LuaException
@@ -126,6 +131,7 @@ public class PrinterPeripheral implements IPeripheral
      * Sets the title of the current page.
      *
      * @cc.tparam[opt] string title The title to set for the page.
+     * @throws LuaException If a page isn't being printed.
      */
     @LuaFunction
     public final void setPageTitle( Optional<String> title ) throws LuaException

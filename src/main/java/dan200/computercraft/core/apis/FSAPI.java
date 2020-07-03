@@ -66,6 +66,7 @@ public class FSAPI implements ILuaAPI
      *
      * @param path The path to list.
      * @return A table with a list of files in the directory.
+     * @throws LuaException If the path doesn't exist.
      */
     @LuaFunction
     public final String[] list( String path ) throws LuaException
@@ -124,6 +125,7 @@ public class FSAPI implements ILuaAPI
      *
      * @param path The file to get the file size of.
      * @return The size of the file, in bytes.
+     * @throws LuaExeption If the path doesn't exist.
      */
     @LuaFunction
     public final long getSize( String path ) throws LuaException
@@ -199,6 +201,7 @@ public class FSAPI implements ILuaAPI
      * Creates a directory, and any missing parents, at the specified path.
      *
      * @param path The path to the directory to create.
+     * @throws LuaException If the directory couldn't be created.
      */
     @LuaFunction
     public final void makeDir( String path ) throws LuaException
@@ -221,6 +224,7 @@ public class FSAPI implements ILuaAPI
      *
      * @param path The current file or directory to move from.
      * @param dest The destination path for the file or directory.
+     * @throws LuaException If the file or directory couldn't be moved.
      */
     @LuaFunction
     public final void move( String path, String dest ) throws LuaException
@@ -243,6 +247,7 @@ public class FSAPI implements ILuaAPI
      *
      * @param path The file or directory to copy.
      * @param dest The path to the destination file or directory.
+     * @throws LuaException If the file or directory couldn't be copied.
      */
     @LuaFunction
     public final void copy( String path, String dest ) throws LuaException
@@ -265,6 +270,7 @@ public class FSAPI implements ILuaAPI
      * subdirectories are also deleted.
      *
      * @param path The path to the file or directory to delete.
+     * @throws LuaException If the file or directory couldn't be deleted.
      */
     @LuaFunction
     public final void delete( String path ) throws LuaException
@@ -291,6 +297,7 @@ public class FSAPI implements ILuaAPI
      * @param path The path to the file to open.
      * @param mode The mode to open the file with.
      * @return A file handle object for the file, or {@code nil} + an error message on error.
+     * @throws LuaException If an invalid mode was specified.
      */
     @LuaFunction
     public final Object[] open( String path, String mode ) throws LuaException
@@ -351,6 +358,7 @@ public class FSAPI implements ILuaAPI
      *
      * @param path The path to get the drive of.
      * @return The name of the drive that the file is on; e.g. {@code hdd} for local files, or {@code rom} for ROM files.
+     * @throws LuaExeption If the path doesn't exist.
      */
     @LuaFunction
     public final Object[] getDrive( String path ) throws LuaException
@@ -371,6 +379,7 @@ public class FSAPI implements ILuaAPI
      *
      * @param path The path to check the free space for.
      * @return The amount of free space available, in bytes.
+     * @throws LuaExeption If the path doesn't exist.
      */
     @LuaFunction
     public final Object getFreeSpace( String path ) throws LuaException
@@ -396,6 +405,7 @@ public class FSAPI implements ILuaAPI
      *
      * @param path The wildcard-qualified path to search for.
      * @return A list of paths that match the search string.
+     * @throws LuaExeption If the path doesn't exist.
      */
     @LuaFunction
     public final String[] find( String path ) throws LuaException

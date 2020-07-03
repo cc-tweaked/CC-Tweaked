@@ -66,9 +66,10 @@ public abstract class SpeakerPeripheral implements IPeripheral
      * with an optional volume and speed multiplier, and plays it through the speaker.
      *
      * @cc.tparam string name The name of the sound to play.
-     * @cc.tparam[opt] number volume The volume to play the sound at, from 0.0 to 3.0. Defaults to 1.0.
-     * @cc.tparam[opt] number speed The speed to play the sound at, from 0.5 to 2.0. Defaults to 1.0.
+     * @cc.tparam[opt] number volumeA The volume to play the sound at, from 0.0 to 3.0. Defaults to 1.0.
+     * @cc.tparam[opt] number pitchA The speed to play the sound at, from 0.5 to 2.0. Defaults to 1.0.
      * @return Whether the sound could be played.
+     * @throws LuaException If the sound name couldn't be decoded.
      */
     @LuaFunction
     public final boolean playSound( ILuaContext context, String name, Optional<Double> volumeA, Optional<Double> pitchA ) throws LuaException
@@ -100,9 +101,10 @@ public abstract class SpeakerPeripheral implements IPeripheral
      * and 6 and 18 map to C.
      *
      * @cc.tparam string name The name of the note to play.
-     * @cc.tparam[opt] number volume The volume to play the note at, from 0.0 to 3.0. Defaults to 1.0.
-     * @cc.tparam[opt] number pitch The pitch to play the note at in semitones, from 0 to 24. Defaults to 12.
+     * @cc.tparam[opt] number volumeA The volume to play the note at, from 0.0 to 3.0. Defaults to 1.0.
+     * @cc.tparam[opt] number pitchA The pitch to play the note at in semitones, from 0 to 24. Defaults to 12.
      * @return Whether the note could be played.
+     * @throws LuaException If the instrument doesn't exist.
      */
     @LuaFunction
     public final synchronized boolean playNote( ILuaContext context, String name, Optional<Double> volumeA, Optional<Double> pitchA ) throws LuaException

@@ -158,7 +158,7 @@ public class OSAPI implements ILuaAPI
      * os.pullEvent.
      *
      * @param name The name of the event to queue.
-     * @cc.tparam[opt] any ... The parameters of the event.
+     * @cc.tparam[opt] any args The parameters of the event.
      * @cc.see os.pullEvent To pull the event queued
      */
     @LuaFunction
@@ -174,6 +174,7 @@ public class OSAPI implements ILuaAPI
      *
      * @param timer The number of seconds until the timer fires.
      * @return The ID of the new timer.
+     * @throws LuaException If the time is below zero.
      */
     @LuaFunction
     public final int startTimer( double timer ) throws LuaException
@@ -200,6 +201,7 @@ public class OSAPI implements ILuaAPI
      *
      * @param time The time at which to fire the alarm, in the range [0.0, 24.0).
      * @return The ID of the alarm that was set.
+     * @throws LuaException If the time is out of range.
      */
     @LuaFunction
     public final int setAlarm( double time ) throws LuaException
@@ -310,6 +312,7 @@ public class OSAPI implements ILuaAPI
      * @cc.tparam[opt] string/table locale The locale of the time, or a table filled by {@code os.date("*t")} to decode. Defaults to {@code ingame} locale if not specified.
      * @cc.treturn number The hour of the selected locale, or a UNIX timestamp from the table, depending on the argument passed in.
      * @see #date To get a date table that can be converted with this function.
+     * @throws LuaException If an invalid locale is passed.
      */
     @LuaFunction
     public final Object time( IArguments args ) throws LuaException
@@ -343,6 +346,7 @@ public class OSAPI implements ILuaAPI
      *
      * @cc.tparam[opt] string The locale to get the day for. Defaults to {@code ingame} if not set.
      * @cc.treturn number The day depending on the selected locale.
+     * @throws LuaException If an invalid locale is passed.
      */
     @LuaFunction
     public final int day( Optional<String> args ) throws LuaException
@@ -372,6 +376,7 @@ public class OSAPI implements ILuaAPI
      *
      * @cc.tparam[opt] string The locale to get the seconds for. Defaults to {@code ingame} if not set.
      * @cc.treturn number The seconds since the epoch depending on the selected locale.
+     * @throws LuaException If an invalid locale is passed.
      */
     @LuaFunction
     public final long epoch( Optional<String> args ) throws LuaException
@@ -419,6 +424,7 @@ public class OSAPI implements ILuaAPI
      * @cc.tparam[opt] string formatA The format of the string to return. This defaults to {@code %c}, which expands to a string similar to "Sat Dec 24 16:58:00 2011".
      * @cc.tparam[opt] number timeA The time to convert to a string. This defaults to the current time.
      * @cc.treturn string The resulting format string.
+     * @throws LuaException If an invalid format is passed.
      */
     @LuaFunction
     public final Object date( Optional<String> formatA, Optional<Long> timeA ) throws LuaException
