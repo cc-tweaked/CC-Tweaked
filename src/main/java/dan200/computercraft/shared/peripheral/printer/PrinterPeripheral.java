@@ -134,7 +134,7 @@ public class PrinterPeripheral implements IPeripheral
      * Sets the title of the current page.
      *
      * @param title The title to set for the page.
-     * @cc.tparam[opt] string title The title to set for the page.
+     * @cc.tparam [opt] string title The title to set for the page.
      * @throws LuaException If a page isn't being printed.
      */
     @LuaFunction

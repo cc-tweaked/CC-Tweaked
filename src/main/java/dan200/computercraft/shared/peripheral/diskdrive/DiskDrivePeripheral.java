@@ -80,7 +80,7 @@ public class DiskDrivePeripheral implements IPeripheral
      * an error will be thrown.
      *
      * @param labelA The new label of the disk, or {@code nil} to clear.
-     * @cc.tparam[opt] string labelA The new label of the disk, or {@code nil} to clear.
+     * @cc.tparam [opt] string labelA The new label of the disk, or {@code nil} to clear.
      * @throws LuaException If the disk's label can't be changed.
      */
     @LuaFunction( mainThread = true )
