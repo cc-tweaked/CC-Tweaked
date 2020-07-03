@@ -23,6 +23,9 @@ import net.minecraft.world.World;
 
 import java.util.*;
 
+/**
+ * @cc.module commands
+ */
 public class CommandAPI implements ILuaAPI
 {
     private final TileCommandComputer computer;
@@ -78,18 +81,62 @@ public class CommandAPI implements ILuaAPI
         return table;
     }
 
+    /**
+     * Execute a specific command.
+     *
+     * @param command The command to execute.
+     * @return See {@code cc.treturn}.
+     * @cc.treturn boolean Whether the command executed successfully.
+     * @cc.treturn { string... } The output of this command, as a list of lines.
+     * @cc.treturn number|nil The number of "affected" objects, or `nil` if the command failed. The definition of this
+     * varies from command to command.
+     * @cc.usage Set the block above the command computer to stone.
+     * <pre>
+     * commands.exec("setblock ~ ~1 ~ minecraft:stone")
+     * </pre>
+     */
     @LuaFunction( mainThread = true )
     public final Object[] exec( String command )
     {
         return doCommand( command );
     }
 
+    /**
+     * Asynchronously execute a command.
+     *
+     * Unlike {@link #exec}, this will immediately return, instead of waiting for the
+     * command to execute. This allows you to run multiple commands at the same
+     * time.
+     *
+     * When this command has finished executing, it will queue a `task_complete`
+     * event containing the result of executing this command (what {@link #exec} would
+     * return).
+     *
+     * @param context The context this command executes under.
+     * @param command The command to execute.
+     * @return The "task id". When this command has been executed, it will queue a `task_complete` event with a matching id.
+     * @throws LuaException (hidden) If the task cannot be created.
+     * @cc.tparam string command The command to execute.
+     * @cc.usage Asynchronously sets the block above the computer to stone.
+     * <pre>
+     * commands.execAsync("~ ~1 ~ minecraft:stone")
+     * </pre>
+     * @cc.see parallel One may also use the parallel API to run multiple commands at once.
+     */
     @LuaFunction
     public final long execAsync( ILuaContext context, String command ) throws LuaException
     {
         return context.issueMainThreadTask( () -> doCommand( command ) );
     }
 
+    /**
+     * List all available commands which the computer has permission to execute.
+     *
+     * @param args Arguments to this function.
+     * @return A list of all available commands
+     * @throws LuaException (hidden) On non-string arguments.
+     * @cc.tparam string ... The sub-command to complete.
+     */
     @LuaFunction( mainThread = true )
     public final List<String> list( IArguments args ) throws LuaException
     {
@@ -112,6 +159,15 @@ public class CommandAPI implements ILuaAPI
         return result;
     }
 
+    /**
+     * Get the position of the current command computer.
+     *
+     * @return The block's position.
+     * @cc.treturn number This computer's x position.
+     * @cc.treturn number This computer's y position.
+     * @cc.treturn number This computer's z position.
+     * @cc.see gps.locate To get the position of a non-command computer.
+     */
     @LuaFunction
     public final Object[] getBlockPosition()
     {
@@ -120,6 +176,25 @@ public class CommandAPI implements ILuaAPI
         return new Object[] { pos.getX(), pos.getY(), pos.getZ() };
     }
 
+    /**
+     * Get information about a range of blocks.
+     *
+     * This returns the same information as @{getBlockInfo}, just for multiple
+     * blocks at once.
+     *
+     * Blocks are traversed by ascending y level, followed by z and x - the returned
+     * table may be indexed using `x + z*width + y*depth*depth`.
+     *
+     * @param minX The start x coordinate of the range to query.
+     * @param minY The start y coordinate of the range to query.
+     * @param minZ The start z coordinate of the range to query.
+     * @param maxX The end x coordinate of the range to query.
+     * @param maxY The end y coordinate of the range to query.
+     * @param maxZ The end z coordinate of the range to query.
+     * @return A list of information about each block.
+     * @throws LuaException If the coordinates are not within the world.
+     * @throws LuaException If trying to get information about more than 4096 blocks.
+     */
     @LuaFunction( mainThread = true )
     public final List<Map<?, ?>> getBlockInfos( int minX, int minY, int minZ, int maxX, int maxY, int maxZ ) throws LuaException
     {
@@ -159,6 +234,19 @@ public class CommandAPI implements ILuaAPI
         return results;
     }
 
+    /**
+     * Get some basic information about a block.
+     *
+     * The returned table contains the current name, metadata and block state (as
+     * with @{turtle.inspect}). If there is a tile entity for that block, its NBT
+     * will also be returned.
+     *
+     * @param x The x position of the block to query.
+     * @param y The y position of the block to query.
+     * @param z The z position of the block to query.
+     * @return The given block's information.
+     * @throws LuaException If the coordinates are not within the world, or are not currently loaded.
+     */
     @LuaFunction( mainThread = true )
     public final Map<?, ?> getBlockInfo( int x, int y, int z ) throws LuaException
     {

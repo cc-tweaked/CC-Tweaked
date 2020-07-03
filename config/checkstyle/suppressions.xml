@@ -9,4 +9,7 @@
 
     <!-- Do not check for missing package Javadoc. -->
     <suppress checks="JavadocStyle" files=".*[\\/]package-info.java" />
+
+    <!-- The commands API is documented in Lua. -->
+    <suppress checks="SummaryJavadocCheck" files=".*[\\/]CommandAPI.java" />
 </suppressions>

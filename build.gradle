@@ -33,6 +33,8 @@ version = mod_version
 group = "org.squiddev"
 archivesBaseName = "cc-tweaked-${mc_version}"
 
+sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8'
+
 minecraft {
     runs {
         client {
@@ -78,11 +80,14 @@ minecraft {
     accessTransformer file('src/main/resources/META-INF/accesstransformer.cfg')
 }
 
-sourceSets.main.resources {
-    srcDir 'src/generated/resources'
+sourceSets {
+    main.resources {
+        srcDir 'src/generated/resources'
+    }
 }
 
 repositories {
+    mavenCentral()
     maven {
         name "SquidDev"
         url "https://squiddev.cc/maven"
@@ -93,6 +98,7 @@ configurations {
     shade
     compile.extendsFrom shade
     deployerJars
+    cctJavadoc
 }
 
 dependencies {
@@ -115,12 +121,32 @@ dependencies {
     testImplementation 'org.hamcrest:hamcrest:2.2'
 
     deployerJars "org.apache.maven.wagon:wagon-ssh:3.0.0"
+
+    cctJavadoc 'cc.tweaked:cct-javadoc:1.0.0'
 }
 
 // Compile tasks
 
 javadoc {
     include "dan200/computercraft/api/**/*.java"
+}
+
+task luaJavadoc(type: Javadoc) {
+    description "Generates documentation for Java-side Lua functions."
+    group "documentation"
+
+    source = sourceSets.main.allJava
+    destinationDir = file("doc/javadoc")
+    classpath = sourceSets.main.compileClasspath
+
+    options.docletpath = configurations.cctJavadoc.files as List
+    options.doclet = "cc.tweaked.javadoc.LuaDoclet"
+
+    // Attempt to run under Java 11 (any Java >= 9 will work though).
+    if(System.getProperty("java.version").startsWith("1.")
+        && (System.getenv("JAVA_HOME_11_X64") != null || project.hasProperty("java11Home"))) {
+        executable = "${System.getenv("JAVA_HOME_11_X64") ?: project.property("java11Home")}/bin/javadoc"
+    }
 }
 
 jar {
@@ -148,8 +174,6 @@ jar {
         options.compilerArgs << "-Xlint" << "-Xlint:-processing"
     }
 }
-
-
 
 import java.nio.charset.StandardCharsets
 import java.nio.file.*

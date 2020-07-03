@@ -16,6 +16,24 @@ import dan200.computercraft.core.terminal.Terminal;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+/**
+ * Monitors are a block which act as a terminal, displaying information on one side. This allows them to be read and
+ * interacted with in-world without opening a GUI.
+ *
+ * Monitors act as @{term.Redirect|terminal redirects} and so expose the same methods, as well as several additional
+ * ones, which are documented below.
+ *
+ * Like computers, monitors come in both normal (no colour) and advanced (colour) varieties.
+ *
+ * @cc.module monitor
+ * @cc.usage Write "Hello, world!" to an adjacent monitor:
+ *
+ * <pre>
+ * local monitor = peripheral.find("monitor")
+ * monitor.setCursorPos(1, 1)
+ * monitor.write("Hello, world!")
+ * </pre>
+ */
 public class MonitorPeripheral extends TermMethods implements IPeripheral
 {
     private final TileMonitor monitor;
@@ -32,6 +50,14 @@ public class MonitorPeripheral extends TermMethods implements IPeripheral
         return "monitor";
     }
 
+    /**
+     * Set the scale of this monitor. A larger scale will result in the monitor having a lower resolution, but display
+     * text much larger.
+     *
+     * @param scaleArg The monitor's scale. This must be a multiple of 0.5 between 0.5 and 5.
+     * @throws LuaException If the scale is out of range.
+     * @see #getTextScale()
+     */
     @LuaFunction
     public final void setTextScale( double scaleArg ) throws LuaException
     {
@@ -40,6 +66,12 @@ public class MonitorPeripheral extends TermMethods implements IPeripheral
         getMonitor().setTextScale( scale );
     }
 
+    /**
+     * Get the monitor's current text scale.
+     *
+     * @return The monitor's current scale.
+     * @throws LuaException If the monitor cannot be found.
+     */
     @LuaFunction
     public final double getTextScale() throws LuaException
     {

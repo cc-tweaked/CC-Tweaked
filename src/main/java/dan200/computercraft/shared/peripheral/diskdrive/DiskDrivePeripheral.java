@@ -18,6 +18,19 @@ import net.minecraft.item.ItemStack;
 import javax.annotation.Nonnull;
 import java.util.Optional;
 
+/**
+ * Disk drives are a peripheral which allow you to read and write to floppy disks and other "mountable media" (such as
+ * computers or turtles). They also allow you to {@link #playAudio play records}.
+ *
+ * When a disk drive attaches some mount (such as a floppy disk or computer), it attaches a folder called {@code disk},
+ * {@code disk2}, etc... to the root directory of the computer. This folder can be used to interact with the files on
+ * that disk.
+ *
+ * When a disk is inserted, a {@code disk} event is fired, with the side peripheral is on. Likewise, when the disk is
+ * detached, a {@code disk_eject} event is fired.
+ *
+ * @cc.module drive
+ */
 public class DiskDrivePeripheral implements IPeripheral
 {
     private final TileDiskDrive diskDrive;

@@ -28,6 +28,11 @@ import java.util.Map;
 import java.util.OptionalLong;
 import java.util.function.Function;
 
+/**
+ * The FS API allows you to manipulate files and the filesystem.
+ *
+ * @cc.module fs
+ */
 public class FSAPI implements ILuaAPI
 {
     private final IAPIEnvironment environment;
@@ -291,6 +296,19 @@ public class FSAPI implements ILuaAPI
         }
     }
 
+    /**
+     * Returns true if a path is mounted to the parent filesystem.
+     *
+     * The root filesystem "/" is considered a mount, along with disk folders and the rom folder. Other programs
+     * (such as network shares) can extend this to make other mount types by correctly assigning their return value for
+     * getDrive.
+     *
+     * @param path The path of the drive to get.
+     * @return The drive's capacity.
+     * @throws LuaException If the capacity cannot be determined.
+     * @cc.treturn number|nil This drive's capacity. This will be nil for "read-only" drives, such as the ROM or
+     * treasure disks.
+     */
     @LuaFunction
     public final Object getCapacity( String path ) throws LuaException
     {
@@ -305,6 +323,22 @@ public class FSAPI implements ILuaAPI
         }
     }
 
+    /**
+     * Get attributes about a specific file or folder.
+     *
+     * The returned attributes table contains information about the size of the file, whether it is a directory, and
+     * when it was created and last modified.
+     *
+     * The creation and modification times are given as the number of milliseconds since the UNIX epoch. This may be
+     * given to {@link OSAPI#date} in order to convert it to more usable form.
+     *
+     * @param path The path to get attributes for.
+     * @return The resulting attributes.
+     * @throws LuaException If the path does not exist.
+     * @cc.treturn { size = number, isDir = boolean, created = number, modified = number } The resulting attributes.
+     * @see #getSize If you only care about the file's size.
+     * @see #isDir If you only care whether a path is a directory or not.
+     */
     @LuaFunction
     public final Map<String, Object> attributes( String path ) throws LuaException
     {

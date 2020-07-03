@@ -26,6 +26,12 @@ import java.util.Optional;
 
 import static dan200.computercraft.core.apis.TableHelper.*;
 
+/**
+ * The http library allows communicating with web servers, sending and receiving data from them.
+ *
+ * @cc.module http
+ * @hidden
+ */
 public class HTTPAPI implements ILuaAPI
 {
     private final IAPIEnvironment m_apiEnvironment;

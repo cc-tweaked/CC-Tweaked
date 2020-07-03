@@ -19,6 +19,22 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.NonNullList;
 import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
 
+/**
+ * Control the current pocket computer, adding or removing upgrades.
+ *
+ * This API is only available on pocket computers. As such, you may use its presence to determine what kind of computer
+ * you are using:
+ *
+ * <pre>
+ * if pocket then
+ *   print("On a pocket computer")
+ * else
+ *   print("On something else")
+ * end
+ * </pre>
+ *
+ * @cc.module pocket
+ */
 public class PocketAPI implements ILuaAPI
 {
     private final PocketServerComputer computer;
@@ -34,6 +50,15 @@ public class PocketAPI implements ILuaAPI
         return new String[] { "pocket" };
     }
 
+    /**
+     * Search the player's inventory for another upgrade, replacing the existing one with that item if found.
+     *
+     * This inventory search starts from the player's currently selected slot, allowing you to prioritise upgrades.
+     *
+     * @return The result of equipping.
+     * @cc.treturn boolean If an item was equipped.
+     * @cc.treturn string|nil The reason an item was not equipped.
+     */
     @LuaFunction( mainThread = true )
     public final Object[] equipBack()
     {
@@ -72,6 +97,13 @@ public class PocketAPI implements ILuaAPI
         return new Object[] { true };
     }
 
+    /**
+     * Remove the pocket computer's current upgrade.
+     *
+     * @return The result of unequipping.
+     * @cc.treturn boolean If the upgrade was unequipped.
+     * @cc.treturn string|nil The reason an upgrade was not unequipped.
+     */
     @LuaFunction( mainThread = true )
     public final Object[] unequipBack()
     {

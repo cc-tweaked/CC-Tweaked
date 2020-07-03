@@ -194,9 +194,9 @@ public final class Generator<T>
             if( bytes == null ) return Optional.empty();
 
             Class<?> klass = DeclaringClassLoader.INSTANCE.define( className, bytes, method.getDeclaringClass().getProtectionDomain() );
-            return Optional.of( klass.asSubclass( base ).newInstance() );
+            return Optional.of( klass.asSubclass( base ).getDeclaredConstructor().newInstance() );
         }
-        catch( InstantiationException | IllegalAccessException | ClassFormatError | RuntimeException e )
+        catch( ReflectiveOperationException | ClassFormatError | RuntimeException e )
         {
             ComputerCraft.log.error( "Error generating wrapper for {}.", name, e );
             return Optional.empty();

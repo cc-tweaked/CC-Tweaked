@@ -73,18 +73,54 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements IW
     //endregion
 
     //region Peripheral methods
+
+    /**
+     * List all remote peripherals on the wired network.
+     *
+     * If this computer is attached to the network, it _will not_ be included in
+     * this list.
+     *
+     * <blockquote><strong>Important:</strong> This function only appears on wired modems. Check {@link #isWireless}
+     * returns false before calling it.</blockquote>
+     *
+     * @param computer The calling computer.
+     * @return Remote peripheral names on the network.
+     */
     @LuaFunction
     public final Collection<String> getNamesRemote( IComputerAccess computer )
     {
         return getWrappers( computer ).keySet();
     }
 
+    /**
+     * Determine if a peripheral is available on this wired network.
+     *
+     * <blockquote><strong>Important:</strong> This function only appears on wired modems. Check {@link #isWireless}
+     * returns false before calling it.</blockquote>
+     *
+     * @param computer The calling computer.
+     * @param name     The peripheral's name.
+     * @return boolean If a peripheral is present with the given name.
+     * @see PeripheralAPI#isPresent
+     */
     @LuaFunction
     public final boolean isPresentRemote( IComputerAccess computer, String name )
     {
         return getWrapper( computer, name ) != null;
     }
 
+    /**
+     * Get the type of a peripheral is available on this wired network.
+     *
+     * <blockquote><strong>Important:</strong> This function only appears on wired modems. Check {@link #isWireless}
+     * returns false before calling it.</blockquote>
+     *
+     * @param computer The calling computer.
+     * @param name     The peripheral's name.
+     * @return The peripheral's name.
+     * @cc.treturn string|nil The peripheral's type, or {@code nil} if it is not present.
+     * @see PeripheralAPI#getType
+     */
     @LuaFunction
     public final Object[] getTypeRemote( IComputerAccess computer, String name )
     {
@@ -92,6 +128,17 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements IW
         return wrapper != null ? new Object[] { wrapper.getType() } : null;
     }
 
+    /**
+     * Get all available methods for the remote peripheral with the given name.
+     *
+     * <blockquote><strong>Important:</strong> This function only appears on wired modems. Check {@link #isWireless}
+     * returns false before calling it.</blockquote>
+     *
+     * @param computer The calling computer.
+     * @param name     The peripheral's name.
+     * @return A list of methods provided by this peripheral, or {@code nil} if it is not present.
+     * @see PeripheralAPI#getMethods
+     */
     @LuaFunction
     public final Object[] getMethodsRemote( IComputerAccess computer, String name )
     {
@@ -101,6 +148,23 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements IW
         return new Object[] { wrapper.getMethodNames() };
     }
 
+    /**
+     * Call a method on a peripheral on this wired network.
+     *
+     * <blockquote><strong>Important:</strong> This function only appears on wired modems. Check {@link #isWireless}
+     * returns false before calling it.</blockquote>
+     *
+     * @param computer  The calling computer.
+     * @param context   The Lua context we're executing in.
+     * @param arguments Arguments to this computer.
+     * @return The peripheral's result.
+     * @throws LuaException (hidden) If the method throws an error.
+     * @cc.tparam string remoteName The name of the peripheral to invoke the method on.
+     * @cc.tparam string method The name of the method
+     * @cc.param ...      Additional arguments to pass to the method
+     * @cc.treturn string The return values of the peripheral method.
+     * @see PeripheralAPI#call
+     */
     @LuaFunction
     public final MethodResult callRemote( IComputerAccess computer, ILuaContext context, IArguments arguments ) throws LuaException
     {
@@ -112,6 +176,17 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements IW
         return wrapper.callMethod( context, methodName, arguments.drop( 2 ) );
     }
 
+    /**
+     * Returns the network name of the current computer, if the modem is on. This
+     * may be used by other computers on the network to wrap this computer as a
+     * peripheral.
+     *
+     * <blockquote><strong>Important:</strong> This function only appears on wired modems. Check {@link #isWireless}
+     * returns false before calling it.</blockquote>
+     *
+     * @return The current computer's name.
+     * @cc.treturn string|nil The current computer's name on the wired network.
+     */
     @LuaFunction
     public final Object[] getNameLocal()
     {

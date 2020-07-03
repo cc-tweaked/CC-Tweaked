@@ -18,6 +18,9 @@ import javax.annotation.Nonnull;
 
 /**
  * A base class for all objects which interact with a terminal. Namely the {@link TermAPI} and monitors.
+ *
+ * @cc.module term.Redirect
+ * @hidden
  */
 public abstract class TermMethods
 {

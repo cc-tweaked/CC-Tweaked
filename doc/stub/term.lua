@@ -21,8 +21,6 @@ function setPaletteColour(colour, ...) end
 setPaletteColor = setPaletteColour
 function getPaletteColour(colour, ...) end
 getPaletteColor = getPaletteColour
-function nativePaletteColour(colour) end
-nativePaletteColor = nativePaletteColour
 
 --- @type Redirect
 local Redirect = {}

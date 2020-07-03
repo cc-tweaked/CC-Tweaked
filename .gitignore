@@ -4,6 +4,7 @@
 /build
 /out
 /doc/**/*.html
+/doc/javadoc/
 /doc/index.json
 
 # Runtime directories

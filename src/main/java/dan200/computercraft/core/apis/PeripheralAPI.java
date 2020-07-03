@@ -22,6 +22,12 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
 
+/**
+ * CC's "native" peripheral API. This is wrapped within CraftOS to provide a version which works with modems.
+ *
+ * @cc.module peripheral
+ * @hidden
+ */
 public class PeripheralAPI implements ILuaAPI, IAPIEnvironment.IPeripheralChangeListener
 {
     private class PeripheralWrapper extends ComputerAccess

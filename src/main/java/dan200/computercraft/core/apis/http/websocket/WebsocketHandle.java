@@ -25,6 +25,12 @@ import static dan200.computercraft.core.apis.IAPIEnvironment.TIMER_EVENT;
 import static dan200.computercraft.core.apis.http.websocket.Websocket.CLOSE_EVENT;
 import static dan200.computercraft.core.apis.http.websocket.Websocket.MESSAGE_EVENT;
 
+/**
+ * A websocket, which can be used to send an receive messages with a web server.
+ *
+ * @cc.module http.Websocket
+ * @see dan200.computercraft.core.apis.HTTPAPI#websocket On how to open a websocket.
+ */
 public class WebsocketHandle implements Closeable
 {
     private final Websocket websocket;
@@ -40,8 +46,18 @@ public class WebsocketHandle implements Closeable
         this.channel = channel;
     }
 
+    /**
+     * Wait for a message from the server.
+     *
+     * @param timeout The number of seconds to wait if no message is received.
+     * @return The result of receiving.
+     * @throws LuaException If the websocket has been closed.
+     * @cc.treturn [1] string The received message.
+     * @cc.treturn boolean If this was a binary message.
+     * @cc.treturn [2] nil If the websocket was closed while waiting, or if we timed out.
+     */
     @LuaFunction
-    public final MethodResult result( Optional<Double> timeout ) throws LuaException
+    public final MethodResult receive( Optional<Double> timeout ) throws LuaException
     {
         checkOpen();
         int timeoutId = timeout.isPresent()
@@ -51,29 +67,40 @@ public class WebsocketHandle implements Closeable
         return new ReceiveCallback( timeoutId ).pull;
     }
 
+    /**
+     * Send a websocket message to the connected server.
+     *
+     * @param message The message to send.
+     * @param binary  Whether this message should be treated as a
+     * @throws LuaException If the message is too large.
+     * @throws LuaException If the websocket has been closed.
+     */
     @LuaFunction
-    public final void send( IArguments args ) throws LuaException
+    public final void send( Object message, Optional<Boolean> binary ) throws LuaException
     {
         checkOpen();
 
-        String text = StringUtil.toString( args.get( 0 ) );
+        String text = StringUtil.toString( message );
         if( options.websocketMessage != 0 && text.length() > options.websocketMessage )
         {
             throw new LuaException( "Message is too large" );
         }
 
-        boolean binary = args.optBoolean( 1, false );
         websocket.environment().addTrackingChange( TrackingField.WEBSOCKET_OUTGOING, text.length() );
 
         Channel channel = this.channel;
         if( channel != null )
         {
-            channel.writeAndFlush( binary
+            channel.writeAndFlush( binary.orElse( false )
                 ? new BinaryWebSocketFrame( Unpooled.wrappedBuffer( LuaValues.encode( text ) ) )
                 : new TextWebSocketFrame( text ) );
         }
     }
 
+    /**
+     * Close this websocket. This will terminate the connection, meaning messages can no longer be sent or received
+     * along it.
+     */
     @LuaFunction( "close" )
     public final void doClose()
     {

@@ -23,6 +23,11 @@ import java.util.*;
 
 import static dan200.computercraft.api.lua.LuaValues.checkFinite;
 
+/**
+ * The {@link OSAPI} API allows interacting with the current computer.
+ *
+ * @cc.module os
+ */
 public class OSAPI implements ILuaAPI
 {
     private final IAPIEnvironment apiEnvironment;
@@ -213,6 +218,11 @@ public class OSAPI implements ILuaAPI
         return label == null ? null : new Object[] { label };
     }
 
+    /**
+     * Set the label of this computer.
+     *
+     * @param label The new label. May be {@code nil} in order to clear it.
+     */
     @LuaFunction
     public final void setComputerLabel( Optional<String> label )
     {

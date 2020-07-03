@@ -15,6 +15,13 @@ import dan200.computercraft.shared.turtle.core.TurtleCraftCommand;
 import javax.annotation.Nonnull;
 import java.util.Optional;
 
+/**
+ * The workbench peripheral allows you to craft items within the turtle's inventory.
+ *
+ * @cc.module workbench
+ * @hidden
+ * @cc.see turtle.craft This uses the {@link CraftingTablePeripheral} peripheral to craft items.
+ */
 public class CraftingTablePeripheral implements IPeripheral
 {
     private final ITurtleAccess turtle;

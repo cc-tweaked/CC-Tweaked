@@ -8,6 +8,7 @@ package dan200.computercraft.shared.peripheral.commandblock;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.api.peripheral.IPeripheral;
+import dan200.computercraft.shared.computer.apis.CommandAPI;
 import dan200.computercraft.shared.util.CapabilityUtil;
 import net.minecraft.tileentity.CommandBlockTileEntity;
 import net.minecraft.tileentity.TileEntity;
@@ -25,6 +26,16 @@ import javax.annotation.Nullable;
 
 import static dan200.computercraft.shared.Capabilities.CAPABILITY_PERIPHERAL;
 
+/**
+ * This peripheral allows you to interact with command blocks.
+ *
+ * Command blocks are only wrapped as peripherals if the {@literal enable_command_block} option is true within the
+ * config.
+ *
+ * This API is <em>not</em> the same as the {@link CommandAPI} API, which is exposed on command computers.
+ *
+ * @cc.module command
+ */
 @Mod.EventBusSubscriber
 public class CommandBlockPeripheral implements IPeripheral, ICapabilityProvider
 {
@@ -45,12 +56,22 @@ public class CommandBlockPeripheral implements IPeripheral, ICapabilityProvider
         return "command";
     }
 
+    /**
+     * Get the command this command block will run.
+     *
+     * @return The current command.
+     */
     @LuaFunction( mainThread = true )
     public final String getCommand()
     {
         return commandBlock.getCommandBlockLogic().getCommand();
     }
 
+    /**
+     * Set the command block's command.
+     *
+     * @param command The new command.
+     */
     @LuaFunction( mainThread = true )
     public final void setCommand( String command )
     {
@@ -58,8 +79,15 @@ public class CommandBlockPeripheral implements IPeripheral, ICapabilityProvider
         commandBlock.getCommandBlockLogic().updateCommand();
     }
 
+    /**
+     * Execute the command block once.
+     *
+     * @return The result of executing.
+     * @cc.treturn boolean If the command completed successfully.
+     * @cc.treturn string|nil A failure message.
+     */
     @LuaFunction( mainThread = true )
-    public final Object runCommand()
+    public final Object[] runCommand()
     {
         commandBlock.getCommandBlockLogic().trigger( commandBlock.getWorld() );
         int result = commandBlock.getCommandBlockLogic().getSuccessCount();
