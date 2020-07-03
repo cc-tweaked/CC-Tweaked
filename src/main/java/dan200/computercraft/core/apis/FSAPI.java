@@ -286,6 +286,8 @@ public class FSAPI implements ILuaAPI
         }
     }
 
+    // FIXME: Add individual handle type documentation
+
     /**
      * Opens a file for reading or writing at a path.
      *
@@ -298,7 +300,7 @@ public class FSAPI implements ILuaAPI
      * @param mode The mode to open the file with.
      * @return A file handle object for the file, or {@code nil} + an error message on error.
      * @throws LuaException If an invalid mode was specified.
-     * @cc.treturn Handle A file handle object for the file, or {@code nil} + an error message on error.
+     * @cc.treturn table A file handle object for the file, or {@code nil} + an error message on error.
      */
     @LuaFunction
     public final Object[] open( String path, String mode ) throws LuaException
