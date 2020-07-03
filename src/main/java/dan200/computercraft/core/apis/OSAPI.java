@@ -266,6 +266,7 @@ public class OSAPI implements ILuaAPI
      * Returns the label of the computer, or {@code nil} if none is set.
      *
      * @return The label of the computer.
+     * @cc.treturn string The label of the computer.
      */
     @LuaFunction( { "getComputerLabel", "computerLabel" } )
     public final Object[] getComputerLabel()
@@ -312,7 +313,7 @@ public class OSAPI implements ILuaAPI
      *
      * @param args The locale of the time, or a table filled by {@code os.date("*t")} to decode. Defaults to {@code ingame} locale if not specified.
      * @return The hour of the selected locale, or a UNIX timestamp from the table, depending on the argument passed in.
-     * @cc.tparam [opt] string/table locale The locale of the time, or a table filled by {@code os.date("*t")} to decode. Defaults to {@code ingame} locale if not specified.
+     * @cc.tparam [opt] string|table locale The locale of the time, or a table filled by {@code os.date("*t")} to decode. Defaults to {@code ingame} locale if not specified.
      * @cc.treturn number The hour of the selected locale, or a UNIX timestamp from the table, depending on the argument passed in.
      * @see #date To get a date table that can be converted with this function.
      * @throws LuaException If an invalid locale is passed.

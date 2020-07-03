@@ -298,6 +298,7 @@ public class FSAPI implements ILuaAPI
      * @param mode The mode to open the file with.
      * @return A file handle object for the file, or {@code nil} + an error message on error.
      * @throws LuaException If an invalid mode was specified.
+     * @cc.treturn Handle A file handle object for the file, or {@code nil} + an error message on error.
      */
     @LuaFunction
     public final Object[] open( String path, String mode ) throws LuaException
@@ -359,6 +360,7 @@ public class FSAPI implements ILuaAPI
      * @param path The path to get the drive of.
      * @return The name of the drive that the file is on; e.g. {@code hdd} for local files, or {@code rom} for ROM files.
      * @throws LuaException If the path doesn't exist.
+     * @cc.treturn string The name of the drive that the file is on; e.g. {@code hdd} for local files, or {@code rom} for ROM files.
      */
     @LuaFunction
     public final Object[] getDrive( String path ) throws LuaException

@@ -62,6 +62,7 @@ public class DiskDrivePeripheral implements IPeripheral
      * Returns the label of the disk in the drive if available.
      *
      * @return The label of the disk, or {@code nil} if either no disk is inserted or the disk doesn't have a label.
+     * @cc.treturn string The label of the disk, or {@code nil} if either no disk is inserted or the disk doesn't have a label.
      */
     @LuaFunction
     public final Object[] getDiskLabel()
@@ -181,6 +182,7 @@ public class DiskDrivePeripheral implements IPeripheral
      * Returns the ID of the disk inserted in the drive.
      *
      * @return The ID of the disk in the drive, or {@code nil} if no disk with an ID is inserted.
+     * @cc.treturn number The The ID of the disk in the drive, or {@code nil} if no disk with an ID is inserted.
      */
     @LuaFunction
     public final Object[] getDiskID()
