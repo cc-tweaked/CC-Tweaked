@@ -41,7 +41,7 @@ public class CraftingTablePeripheral implements IPeripheral
     @LuaFunction
     public final MethodResult craft( Optional<Integer> count ) throws LuaException
     {
-        int limit = count.orElse( 65 );
+        int limit = count.orElse( 64 );
         if( limit < 0 || limit > 64 ) throw new LuaException( "Crafting count " + limit + " out of range" );
         return turtle.executeCommand( new TurtleCraftCommand( limit ) );
     }
