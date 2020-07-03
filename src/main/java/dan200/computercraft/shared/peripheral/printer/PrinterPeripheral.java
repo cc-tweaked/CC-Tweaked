@@ -45,7 +45,8 @@ public class PrinterPeripheral implements IPeripheral
     /**
      * Writes text to the current page.
      *
-     * @cc.tparam string/number arguments The values to write to the page.
+     * @param arguments The values to write to the page.
+     * @cc.tparam string|number ... The values to write to the page.
      * @throws LuaException If any values couldn't be converted to a string, or if no page is started.
      */
     @LuaFunction
@@ -60,6 +61,7 @@ public class PrinterPeripheral implements IPeripheral
     /**
      * Returns the current position of the cursor on the page.
      *
+     * @return The position of the cursor.
      * @cc.treturn number The X position of the cursor.
      * @cc.treturn number The Y position of the cursor.
      * @throws LuaException If a page isn't being printed.
@@ -90,6 +92,7 @@ public class PrinterPeripheral implements IPeripheral
     /**
      * Returns the size of the current page.
      *
+     * @return The size of the page.
      * @cc.treturn number The width of the page.
      * @cc.treturn number The height of the page.
      * @throws LuaException If a page isn't being printed.
@@ -130,6 +133,7 @@ public class PrinterPeripheral implements IPeripheral
     /**
      * Sets the title of the current page.
      *
+     * @param title The title to set for the page.
      * @cc.tparam[opt] string title The title to set for the page.
      * @throws LuaException If a page isn't being printed.
      */

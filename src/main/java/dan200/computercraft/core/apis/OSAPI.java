@@ -158,7 +158,8 @@ public class OSAPI implements ILuaAPI
      * os.pullEvent.
      *
      * @param name The name of the event to queue.
-     * @cc.tparam[opt] any args The parameters of the event.
+     * @param args The parameters of the event.
+     * @cc.param[opt] ... The parameters of the event.
      * @cc.see os.pullEvent To pull the event queued
      */
     @LuaFunction
@@ -309,6 +310,8 @@ public class OSAPI implements ILuaAPI
      * which will convert the date fields into a UNIX timestamp (number of
      * seconds since 1 January 1970).
      *
+     * @param args The locale of the time, or a table filled by {@code os.date("*t")} to decode. Defaults to {@code ingame} locale if not specified.
+     * @return The hour of the selected locale, or a UNIX timestamp from the table, depending on the argument passed in.
      * @cc.tparam[opt] string/table locale The locale of the time, or a table filled by {@code os.date("*t")} to decode. Defaults to {@code ingame} locale if not specified.
      * @cc.treturn number The hour of the selected locale, or a UNIX timestamp from the table, depending on the argument passed in.
      * @see #date To get a date table that can be converted with this function.
@@ -344,6 +347,8 @@ public class OSAPI implements ILuaAPI
      * * If called with {@code local}, returns the number of days since 1
      *   January 1970 in the server's local timezone.
      *
+     * @param args The locale to get the day for. Defaults to {@code ingame} if not set.
+     * @return The day depending on the selected locale.
      * @cc.tparam[opt] string The locale to get the day for. Defaults to {@code ingame} if not set.
      * @cc.treturn number The day depending on the selected locale.
      * @throws LuaException If an invalid locale is passed.
@@ -374,6 +379,8 @@ public class OSAPI implements ILuaAPI
      * * If called with {@code local}, returns the number of seconds since 1
      *   January 1970 in the server's local timezone.
      *
+     * @param args The locale to get the seconds for. Defaults to {@code ingame} if not set.
+     * @return The seconds since the epoch depending on the selected locale.
      * @cc.tparam[opt] string The locale to get the seconds for. Defaults to {@code ingame} if not set.
      * @cc.treturn number The seconds since the epoch depending on the selected locale.
      * @throws LuaException If an invalid locale is passed.
@@ -421,6 +428,9 @@ public class OSAPI implements ILuaAPI
      * Daylight Savings Time is in effect. This table can be converted to a UNIX
      * timestamp (days since 1 January 1970) with {@link #date}.
      *
+     * @param formatA The format of the string to return. This defaults to {@code %c}, which expands to a string similar to "Sat Dec 24 16:58:00 2011".
+     * @param timeA The time to convert to a string. This defaults to the current time.
+     * @return The resulting format string.
      * @cc.tparam[opt] string formatA The format of the string to return. This defaults to {@code %c}, which expands to a string similar to "Sat Dec 24 16:58:00 2011".
      * @cc.tparam[opt] number timeA The time to convert to a string. This defaults to the current time.
      * @cc.treturn string The resulting format string.

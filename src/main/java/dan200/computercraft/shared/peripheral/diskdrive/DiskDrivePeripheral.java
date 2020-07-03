@@ -79,6 +79,7 @@ public class DiskDrivePeripheral implements IPeripheral
      * If the inserted disk's label can't be changed (for example, a record),
      * an error will be thrown.
      *
+     * @param labelA The new label of the disk, or {@code nil} to clear.
      * @cc.tparam[opt] string labelA The new label of the disk, or {@code nil} to clear.
      * @throws LuaException If the disk's label can't be changed.
      */
@@ -100,6 +101,7 @@ public class DiskDrivePeripheral implements IPeripheral
     /**
      * Returns whether a disk with data is inserted.
      *
+     * @param computer The computer object
      * @return Whether a disk with data is inserted.
      */
     @LuaFunction
@@ -111,6 +113,7 @@ public class DiskDrivePeripheral implements IPeripheral
     /**
      * Returns the mount path for the inserted disk.
      *
+     * @param computer The computer object
      * @return The mount path for the disk, or {@code nil} if no data disk is inserted.
      */
     @LuaFunction

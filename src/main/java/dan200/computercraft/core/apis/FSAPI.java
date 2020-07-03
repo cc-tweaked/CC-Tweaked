@@ -125,7 +125,7 @@ public class FSAPI implements ILuaAPI
      *
      * @param path The file to get the file size of.
      * @return The size of the file, in bytes.
-     * @throws LuaExeption If the path doesn't exist.
+     * @throws LuaException If the path doesn't exist.
      */
     @LuaFunction
     public final long getSize( String path ) throws LuaException
@@ -358,7 +358,7 @@ public class FSAPI implements ILuaAPI
      *
      * @param path The path to get the drive of.
      * @return The name of the drive that the file is on; e.g. {@code hdd} for local files, or {@code rom} for ROM files.
-     * @throws LuaExeption If the path doesn't exist.
+     * @throws LuaException If the path doesn't exist.
      */
     @LuaFunction
     public final Object[] getDrive( String path ) throws LuaException
@@ -379,7 +379,7 @@ public class FSAPI implements ILuaAPI
      *
      * @param path The path to check the free space for.
      * @return The amount of free space available, in bytes.
-     * @throws LuaExeption If the path doesn't exist.
+     * @throws LuaException If the path doesn't exist.
      */
     @LuaFunction
     public final Object getFreeSpace( String path ) throws LuaException
@@ -405,7 +405,7 @@ public class FSAPI implements ILuaAPI
      *
      * @param path The wildcard-qualified path to search for.
      * @return A list of paths that match the search string.
-     * @throws LuaExeption If the path doesn't exist.
+     * @throws LuaException If the path doesn't exist.
      */
     @LuaFunction
     public final String[] find( String path ) throws LuaException
