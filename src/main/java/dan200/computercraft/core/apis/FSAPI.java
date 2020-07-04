@@ -300,7 +300,9 @@ public class FSAPI implements ILuaAPI
      * @param mode The mode to open the file with.
      * @return A file handle object for the file, or {@code nil} + an error message on error.
      * @throws LuaException If an invalid mode was specified.
-     * @cc.treturn table A file handle object for the file, or {@code nil} + an error message on error.
+     * @cc.treturn [1] table A file handle object for the file.
+     * @cc.treturn [2] nil If the file does not exist, or cannot be opened.
+     * @cc.treturn string|nil A message explaining why the file cannot be opened.
      */
     @LuaFunction
     public final Object[] open( String path, String mode ) throws LuaException
@@ -383,6 +385,7 @@ public class FSAPI implements ILuaAPI
      *
      * @param path The path to check the free space for.
      * @return The amount of free space available, in bytes.
+     * @cc.treturn number|"unlimited" The amount of free space available, in bytes, or "unlimited".
      * @throws LuaException If the path doesn't exist.
      */
     @LuaFunction

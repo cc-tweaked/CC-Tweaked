@@ -16,6 +16,7 @@ import dan200.computercraft.shared.util.StringUtil;
 import net.minecraft.item.ItemStack;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Optional;
 
 /**
@@ -81,7 +82,6 @@ public class DiskDrivePeripheral implements IPeripheral
      * an error will be thrown.
      *
      * @param labelA The new label of the disk, or {@code nil} to clear.
-     * @cc.tparam [opt] string labelA The new label of the disk, or {@code nil} to clear.
      * @throws LuaException If the disk's label can't be changed.
      */
     @LuaFunction( mainThread = true )
@@ -118,6 +118,7 @@ public class DiskDrivePeripheral implements IPeripheral
      * @return The mount path for the disk, or {@code nil} if no data disk is inserted.
      */
     @LuaFunction
+    @Nullable
     public final String getMountPath( IComputerAccess computer )
     {
         return diskDrive.getDiskMountPath( computer );
@@ -142,6 +143,7 @@ public class DiskDrivePeripheral implements IPeripheral
      * @return The title of the audio, or {@code nil} if no audio disk is inserted.
      */
     @LuaFunction
+    @Nullable
     public final Object getAudioTitle()
     {
         ItemStack stack = diskDrive.getDiskStack();
