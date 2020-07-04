@@ -29,8 +29,13 @@ are run whenever you submit a PR, it's often useful to run this before committin
  - **[illuaminate]:** Checks Lua code for semantic and styleistic issues. See [the usage section][illuaminate-usage] for
    how to download and run it.
 
+## Translations
+Translations are managed through [Weblate], an online interface for managing language strings. This is synced
+automatically with GitHub, so please don't submit PRs adding/changing translations!
+
 [new-issue]: https://github.com/SquidDev-CC/CC-Tweaked/issues/new/choose "Create a new issue"
 [community]: README.md#Community "Get in touch with the community."
 [checkstyle]: https://checkstyle.org/
 [illuaminate]: https://github.com/SquidDev/illuaminate/
 [illuaminate-usage]: https://github.com/SquidDev/illuaminate/blob/master/README.md#usage
+[weblate]: https://i18n.tweaked.cc/projects/cc-tweaked/minecraft/
