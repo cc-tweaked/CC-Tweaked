@@ -86,7 +86,7 @@ public final class HttpRequestHandler extends SimpleChannelInboundHandler<HttpOb
         {
             request.headers().set( HttpHeaderNames.USER_AGENT, this.request.environment().getComputerEnvironment().getUserAgent() );
         }
-        request.headers().set( HttpHeaderNames.HOST, uri.getHost() );
+        request.headers().set( HttpHeaderNames.HOST, uri.getPort() < 0 ? uri.getHost() : uri.getHost() + ":" + uri.getPort() );
         request.headers().set( HttpHeaderNames.CONNECTION, HttpHeaderValues.CLOSE );
 
         ctx.channel().writeAndFlush( request );
