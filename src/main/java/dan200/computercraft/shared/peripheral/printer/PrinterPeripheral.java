@@ -42,6 +42,13 @@ public class PrinterPeripheral implements IPeripheral
     // FIXME: None of our page modification functions actually mark the tile as dirty, so the page may not be
     //  persisted correctly.
 
+    /**
+     * Writes text to the current page.
+     *
+     * @param arguments The values to write to the page.
+     * @cc.tparam string|number ... The values to write to the page.
+     * @throws LuaException If any values couldn't be converted to a string, or if no page is started.
+     */
     @LuaFunction
     public final void write( IArguments arguments ) throws LuaException
     {
@@ -51,6 +58,14 @@ public class PrinterPeripheral implements IPeripheral
         page.setCursorPos( page.getCursorX() + text.length(), page.getCursorY() );
     }
 
+    /**
+     * Returns the current position of the cursor on the page.
+     *
+     * @return The position of the cursor.
+     * @cc.treturn number The X position of the cursor.
+     * @cc.treturn number The Y position of the cursor.
+     * @throws LuaException If a page isn't being printed.
+     */
     @LuaFunction
     public final Object[] getCursorPos() throws LuaException
     {
@@ -60,6 +75,13 @@ public class PrinterPeripheral implements IPeripheral
         return new Object[] { x + 1, y + 1 };
     }
 
+    /**
+     * Sets the position of the cursor on the page.
+     *
+     * @param x The X coordinate to set the cursor at.
+     * @param y The Y coordinate to set the cursor at.
+     * @throws LuaException If a page isn't being printed.
+     */
     @LuaFunction
     public final void setCursorPos( int x, int y ) throws LuaException
     {
@@ -67,6 +89,14 @@ public class PrinterPeripheral implements IPeripheral
         page.setCursorPos( x - 1, y - 1 );
     }
 
+    /**
+     * Returns the size of the current page.
+     *
+     * @return The size of the page.
+     * @cc.treturn number The width of the page.
+     * @cc.treturn number The height of the page.
+     * @throws LuaException If a page isn't being printed.
+     */
     @LuaFunction
     public final Object[] getPageSize() throws LuaException
     {
@@ -76,12 +106,23 @@ public class PrinterPeripheral implements IPeripheral
         return new Object[] { width, height };
     }
 
+    /**
+     * Starts printing a new page.
+     *
+     * @return Whether a new page could be started.
+     */
     @LuaFunction( mainThread = true )
     public final boolean newPage()
     {
         return printer.startNewPage();
     }
 
+    /**
+     * Finalizes printing of the current page and outputs it to the tray.
+     *
+     * @return Whether the page could be successfully finished.
+     * @throws LuaException If a page isn't being printed.
+     */
     @LuaFunction( mainThread = true )
     public final boolean endPage() throws LuaException
     {
@@ -89,6 +130,12 @@ public class PrinterPeripheral implements IPeripheral
         return printer.endCurrentPage();
     }
 
+    /**
+     * Sets the title of the current page.
+     *
+     * @param title The title to set for the page.
+     * @throws LuaException If a page isn't being printed.
+     */
     @LuaFunction
     public final void setPageTitle( Optional<String> title ) throws LuaException
     {
@@ -96,12 +143,22 @@ public class PrinterPeripheral implements IPeripheral
         printer.setPageTitle( StringUtil.normaliseLabel( title.orElse( "" ) ) );
     }
 
+    /**
+     * Returns the amount of ink left in the printer.
+     *
+     * @return The amount of ink available to print with.
+     */
     @LuaFunction
     public final int getInkLevel()
     {
         return printer.getInkLevel();
     }
 
+    /**
+     * Returns the amount of paper left in the printer.
+     *
+     * @return The amount of paper available to print with.
+     */
     @LuaFunction
     public final int getPaperLevel()
     {
