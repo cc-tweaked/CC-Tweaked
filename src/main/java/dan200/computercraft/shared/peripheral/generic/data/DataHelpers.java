@@ -7,17 +7,31 @@
 package dan200.computercraft.shared.peripheral.generic.data;
 
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.registries.IForgeRegistryEntry;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-public class DataHelpers
+public final class DataHelpers
 {
-    public static Map<String, Boolean> getTags( Collection<ResourceLocation> tags )
+    private DataHelpers()
+    { }
+
+    @Nonnull
+    public static Map<String, Boolean> getTags( @Nonnull Collection<ResourceLocation> tags )
     {
         Map<String, Boolean> result = new HashMap<>( tags.size() );
         for( ResourceLocation location : tags ) result.put( location.toString(), true );
         return result;
+    }
+
+    @Nullable
+    public static String getId( @Nonnull IForgeRegistryEntry<?> entry )
+    {
+        ResourceLocation id = entry.getRegistryName();
+        return id == null ? null : id.toString();
     }
 }

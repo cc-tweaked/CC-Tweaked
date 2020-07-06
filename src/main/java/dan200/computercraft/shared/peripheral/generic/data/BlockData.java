@@ -13,14 +13,13 @@ import net.minecraft.state.IProperty;
 import javax.annotation.Nonnull;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 public class BlockData
 {
     @Nonnull
     public static <T extends Map<? super String, Object>> T fill( @Nonnull T data, @Nonnull BlockState state )
     {
-        data.put( "name", Objects.toString( state.getBlock().getRegistryName() ) );
+        data.put( "name", DataHelpers.getId( state.getBlock() ) );
 
         Map<Object, Object> stateTable = new HashMap<>();
         for( ImmutableMap.Entry<IProperty<?>, ? extends Comparable<?>> entry : state.getValues().entrySet() )

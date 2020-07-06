@@ -10,14 +10,13 @@ import net.minecraftforge.fluids.FluidStack;
 
 import javax.annotation.Nonnull;
 import java.util.Map;
-import java.util.Objects;
 
 public class FluidData
 {
     @Nonnull
     public static <T extends Map<? super String, Object>> T fillBasic( @Nonnull T data, @Nonnull FluidStack stack )
     {
-        data.put( "name", Objects.toString( stack.getFluid().getRegistryName() ) );
+        data.put( "name", DataHelpers.getId( stack.getFluid() ) );
         data.put( "amount", stack.getAmount() );
         return data;
     }

@@ -19,11 +19,7 @@ import net.minecraftforge.common.util.Constants;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class ItemData
@@ -31,7 +27,7 @@ public class ItemData
     @Nonnull
     public static <T extends Map<? super String, Object>> T fillBasic( @Nonnull T data, @Nonnull ItemStack stack )
     {
-        data.put( "name", Objects.toString( stack.getItem().getRegistryName() ) );
+        data.put( "name", DataHelpers.getId( stack.getItem() ) );
         data.put( "count", stack.getCount() );
         return data;
     }
@@ -74,45 +70,20 @@ public class ItemData
             }
         }
 
-
         /*
          * Used to hide some data from ItemStack tooltip.
          * @see https://minecraft.gamepedia.com/Tutorials/Command_NBT_tags
-         * @see ItemStack.getTooltip(@ Nullable PlayerEntity playerIn, ITooltipFlag advanced)
+         * @see ItemStack#getTooltip
          */
-        int hideFlags = (tag != null) ? tag.getInt( "HideFlags" ) : 0;
-
+        int hideFlags = tag != null ? tag.getInt( "HideFlags" ) : 0;
 
         List<Map<String, Object>> enchants = getAllEnchants( stack, hideFlags );
-        if ( enchants != null )
-        {
-            data.put( "enchantments", enchants );
-        }
+        if( !enchants.isEmpty() ) data.put( "enchantments", enchants );
 
-        /*if ( (hideFlags & 2) == 0 )
-        {
-            // attributesModifiers extraction should go here
-        }*/
-
-        if ( (tag != null) && tag.getBoolean( "Unbreakable" ) && ((hideFlags & 4) == 0) )
+        if( tag != null && tag.getBoolean( "Unbreakable" ) && (hideFlags & 4) == 0 )
         {
             data.put( "unbreakable", true );
         }
-
-        /*if ( (tag != null) && tag.contains( "CanDestroy", 9 ) && (hideFlags & 8) == 0 )
-        {
-            // canBreak extraction should go here
-        }*/
-
-        /*if ( (tag != null) && tag.contains( "CanPlaceOn", 9 ) && (hideFlags & 16) == 0 )
-        {
-            // canPlaceOn extraction should go here
-        }*/
-
-        /*if ( (hideFlags & 32) == 0 )
-        {
-            // All other vanilla data should go here
-        }*/
 
         return data;
     }
@@ -135,85 +106,53 @@ public class ItemData
      *
      * @param stack     Stack to analyse
      * @param hideFlags An int used as bit field to provide visibility rules.
-     * @return          A filled list that contain all **visible** enchantments.
-     *                  An empty list if there are enchants but all of them are hidden.
-     *                  <code>null</code> if there is no enchant at all.
+     * @return A filled list that contain all visible enchantments.
      */
-    @Nullable
-    private static ArrayList<Map<String, Object>> getAllEnchants( @Nonnull ItemStack stack, @Nonnull int hideFlags )
+    @Nonnull
+    private static List<Map<String, Object>> getAllEnchants( @Nonnull ItemStack stack, int hideFlags )
     {
-        ArrayList<Map<String, Object>> enchants = null;
+        ArrayList<Map<String, Object>> enchants = new ArrayList<>( 0 );
 
-        if ( stack.getItem() instanceof EnchantedBookItem )
+        if( stack.getItem() instanceof EnchantedBookItem && (hideFlags & 32) == 0 )
         {
-            ListNBT rawNbtEnchants = EnchantedBookItem.getEnchantments( stack );
-            if ( rawNbtEnchants.size() > 0 )
-            {
-                if ( (hideFlags & 32) == 0 )
-                {
-                    enchants = enchantMapToList( EnchantmentHelper.func_226652_a_( rawNbtEnchants ), enchants );
-                }
-                else if ( enchants == null )
-                {
-                    enchants = new ArrayList<>();
-                }
-            }
+            addEnchantments( EnchantedBookItem.getEnchantments( stack ), enchants );
         }
 
-        if ( stack.isEnchanted() )
+        if( stack.isEnchanted() && (hideFlags & 1) == 0 )
         {
-            if ( (hideFlags & 1) == 0 )
-            {
-                /*
-                 * Mimic the EnchantmentHelper.getEnchantments(ItemStack stack) behavior without special case for Enchanted book.
-                 * I'll do that to have the same data than ones displayed in tooltip.
-                 * @see EnchantmentHelper.getEnchantments(ItemStack stack)
-                 */
-                enchants = enchantMapToList( EnchantmentHelper.func_226652_a_( stack.getEnchantmentTagList() ), enchants );
-            }
-            else if ( enchants == null )
-            {
-                enchants = new ArrayList<>();
-            }
+            /*
+             * Mimic the EnchantmentHelper.getEnchantments(ItemStack stack) behavior without special case for Enchanted book.
+             * I'll do that to have the same data than ones displayed in tooltip.
+             * @see EnchantmentHelper.getEnchantments(ItemStack stack)
+             */
+            addEnchantments( stack.getEnchantmentTagList(), enchants );
         }
 
         return enchants;
     }
 
     /**
-     * Converts a Mojang enchant map to a more lua/user friendly list.
+     * Converts a Mojang enchant map to a Lua list.
      *
-     * @param rawEnchants   the map returned by some minecraft enchants methods. Does NOT accept raw nbt enchant list.
-     * @param enchants      A prev
-     * @return              the converted list
-     * @see                 net.minecraft.enchantment.EnchantmentHelper
+     * @param rawEnchants The raw NBT list of enchantments
+     * @param enchants    The enchantment map to add it to.
+     * @see net.minecraft.enchantment.EnchantmentHelper
      */
-    @Nonnull
-    private static ArrayList<Map<String, Object>> enchantMapToList(
-        @Nonnull Map<Enchantment, Integer> rawEnchants,
-        @Nullable ArrayList<Map<String, Object>> enchants
-    )
+    private static void addEnchantments( @Nonnull ListNBT rawEnchants, @Nonnull ArrayList<Map<String, Object>> enchants )
     {
-        if ( enchants == null )
-        {
-            enchants = new ArrayList<>( rawEnchants.size() );
-        }
-        else
-        {
-            enchants.ensureCapacity( enchants.size() + rawEnchants.size() );
-        }
+        if( rawEnchants.isEmpty() ) return;
 
-        for ( Map.Entry<Enchantment, Integer> entry : rawEnchants.entrySet() )
+        enchants.ensureCapacity( enchants.size() + rawEnchants.size() );
+
+        for( Map.Entry<Enchantment, Integer> entry : EnchantmentHelper.func_226652_a_( rawEnchants ).entrySet() )
         {
             Enchantment enchantment = entry.getKey();
             Integer level = entry.getValue();
             HashMap<String, Object> enchant = new HashMap<>( 3 );
-            enchant.put( "name", enchantment.getName() );
+            enchant.put( "name", DataHelpers.getId( enchantment ) );
             enchant.put( "level", level );
-            enchant.put( "displayName", enchantment.getDisplayName( level ).getString() ); // In server localisation
+            enchant.put( "displayName", enchantment.getDisplayName( level ).getString() );
             enchants.add( enchant );
         }
-
-        return enchants;
     }
 }
