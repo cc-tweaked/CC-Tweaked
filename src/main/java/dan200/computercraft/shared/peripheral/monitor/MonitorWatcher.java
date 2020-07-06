@@ -15,6 +15,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
+import net.minecraft.world.chunk.ChunkStatus;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.world.ChunkWatchEvent;
@@ -46,7 +47,7 @@ public final class MonitorWatcher
     public static void onWatch( ChunkWatchEvent.Watch event )
     {
         ChunkPos chunkPos = event.getPos();
-        Chunk chunk = event.getWorld().getChunk( chunkPos.x, chunkPos.z );
+        Chunk chunk = (Chunk) event.getWorld().getChunk( chunkPos.x, chunkPos.z, ChunkStatus.FULL, false );
         if( chunk == null ) return;
 
         for( TileEntity te : chunk.getTileEntityMap().values() )
