@@ -1,5 +1,16 @@
-New features in CC: Tweaked 1.89.2
+New features in CC: Tweaked 1.90.0
 
+* Add cc.image.nft module, for working with nft files. (JakobDev)
+* [experimental] Provide a generic peripheral for any tile entity without an existing one. We currently provide methods for working with inventories, fluid tanks and energy storage. This is disabled by default, and must be turned on in the config.
+* Add configuration to control the sizes of monitors and terminals.
+* Allow getting "detailed" information about an item, using `turtle.getItemDetail(slot, true)`. This will contain the same information that the generic peripheral supplies.
+
+And several bug fixes:
+* Add back config for allowing interacting with command computers.
+* Fix write method missing from printers.
 * Fix dupe bug when killing an entity with a turtle.
+* Correctly supply port in the Host header (neumond).
+* Fix turtle.craft failing when missing an argument.
+* Fix deadlock when mistakenly "watching" an unloaded chunk.
 
 Type "help changelog" to see the full version history.
