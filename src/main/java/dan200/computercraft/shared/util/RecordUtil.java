@@ -27,7 +27,7 @@ public final class RecordUtil
     public static void playRecord( SoundEvent record, String recordInfo, World world, BlockPos pos )
     {
         NetworkMessage packet = record != null ? new PlayRecordClientMessage( pos, record, recordInfo ) : new PlayRecordClientMessage( pos );
-        NetworkHandler.sendToAllAround( packet, world, new Vec3d( pos ), 64 );
+        NetworkHandler.sendToAllAround( packet, world, new Vec3d(pos.getX(), pos.getY(), pos.getZ()), 64 );
     }
 
     public static String getRecordInfo( @Nonnull ItemStack recordStack )

@@ -11,6 +11,7 @@ import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.turtle.event.TurtleActionEvent;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
@@ -19,13 +20,21 @@ public final class TurtlePermissions
     public static boolean isBlockEnterable( World world, BlockPos pos, PlayerEntity player )
     {
         MinecraftServer server = world.getServer();
-        return server == null || world.isClient || !server.isSpawnProtected( world, pos, player );
+
+        if (!world.isClient)
+            return !server.isSpawnProtected( (ServerWorld) world, pos, player );
+
+        return server == null || world.isClient;
     }
 
     public static boolean isBlockEditable( World world, BlockPos pos, PlayerEntity player )
     {
         MinecraftServer server = world.getServer();
-        return server == null || world.isClient || !server.isSpawnProtected( world, pos, player );
+
+        if (!world.isClient)
+            return !server.isSpawnProtected( (ServerWorld) world, pos, player );
+
+        return server == null || world.isClient;
     }
 
     @Subscribe
