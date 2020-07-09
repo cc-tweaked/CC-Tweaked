@@ -58,9 +58,6 @@ public class ServerTerminal implements ITerminal
 
     public void update()
     {
-        Terminal terminal = m_terminal;
-        if( terminal != null ) terminal.clearChanged();
-
         m_terminalChangedLastFrame = m_terminalChanged.getAndSet( false );
     }
 

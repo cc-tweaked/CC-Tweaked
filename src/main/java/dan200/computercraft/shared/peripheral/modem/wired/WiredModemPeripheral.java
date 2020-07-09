@@ -137,6 +137,7 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements IW
      * @param computer The calling computer.
      * @param name     The peripheral's name.
      * @return A list of methods provided by this peripheral, or {@code nil} if it is not present.
+     * @cc.treturn { string... }|nil A list of methods provided by this peripheral, or {@code nil} if it is not present.
      * @see PeripheralAPI#getMethods
      */
     @LuaFunction

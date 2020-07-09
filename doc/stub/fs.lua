@@ -14,27 +14,21 @@
 -- @see getDrive
 function isDriveRoot(path) end
 
--- Defined in bios.lua
-function complete(sPath, sLocation, bIncludeFiles, bIncludeDirs) end
+--[[- Provides completion for a file or directory name, suitable for use with
+@{read}.
 
---- A file handle which can be read from.
---
--- @type ReadHandle
--- @see fs.open
-local ReadHandle = {}
-function ReadHandle.read(count) end
-function ReadHandle.readAll() end
-function ReadHandle.readLine(with_trailing) end
-function ReadHandle.seek(whence, offset) end
-function ReadHandle.close() end
+When a directory is a possible candidate for completion, two entries are
+included - one with a trailing slash (indicating that entries within this
+directory exist) and one without it (meaning this entry is an immediate
+completion candidate). `include_dirs` can be set to @{false} to only include
+those with a trailing slash.
 
---- A file handle which can be written to.
---
--- @type WriteHandle
--- @see fs.open
-local WriteHandle = {}
-function WriteHandle.write(text) end
-function WriteHandle.writeLine(text) end
-function WriteHandle.flush(text) end
-function WriteHandle.seek(whence, offset) end
-function WriteHandle.close() end
+@tparam string path The path to complete.
+@tparam string location The location where paths are resolved from.
+@tparam[opt] boolean include_files When @{false}, only directories will be
+included in the returned list.
+@tparam[opt] boolean include_dirs When @{false}, "raw" directories will not be
+included in the returned list.
+@treturn { string... } A list of possible completion candidates.
+]]
+function complete(path, location, include_files, include_dirs) end

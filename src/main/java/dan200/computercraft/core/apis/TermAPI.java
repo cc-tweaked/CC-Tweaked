@@ -5,6 +5,7 @@
  */
 package dan200.computercraft.core.apis;
 
+import dan200.computercraft.api.lua.IArguments;
 import dan200.computercraft.api.lua.ILuaAPI;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
@@ -45,6 +46,7 @@ public class TermAPI extends TermMethods implements ILuaAPI
      * @cc.treturn number The red channel, will be between 0 and 1.
      * @cc.treturn number The green channel, will be between 0 and 1.
      * @cc.treturn number The blue channel, will be between 0 and 1.
+     * @see TermMethods#setPaletteColour(IArguments) To change the palette colour.
      */
     @LuaFunction( { "nativePaletteColour", "nativePaletteColor" } )
     public final Object[] nativePaletteColour( int colour ) throws LuaException

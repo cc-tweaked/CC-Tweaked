@@ -5,7 +5,6 @@
  */
 package dan200.computercraft.core.apis.handles;
 
-import dan200.computercraft.api.lua.IArguments;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.shared.util.IoUtil;
@@ -15,6 +14,7 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.nio.channels.Channel;
 import java.nio.channels.SeekableByteChannel;
+import java.util.Optional;
 
 public abstract class HandleGeneric
 {
@@ -39,6 +39,13 @@ public abstract class HandleGeneric
         closable = null;
     }
 
+    /**
+     * Close this file, freeing any resources it uses.
+     *
+     * Once a file is closed it may no longer be read or written to.
+     *
+     * @throws LuaException If the file has already been closed.
+     */
     @LuaFunction( "close" )
     public final void doClose() throws LuaException
     {
@@ -51,27 +58,27 @@ public abstract class HandleGeneric
      * Shared implementation for various file handle types.
      *
      * @param channel The channel to seek in
-     * @param args    The Lua arguments to process, like Lua's {@code file:seek}.
+     * @param whence  The seeking mode.
+     * @param offset  The offset to seek to.
      * @return The new position of the file, or null if some error occurred.
      * @throws LuaException If the arguments were invalid
      * @see <a href="https://www.lua.org/manual/5.1/manual.html#pdf-file:seek">{@code file:seek} in the Lua manual.</a>
      */
-    protected static Object[] handleSeek( SeekableByteChannel channel, IArguments args ) throws LuaException
+    protected static Object[] handleSeek( SeekableByteChannel channel, Optional<String> whence, Optional<Long> offset ) throws LuaException
     {
-        String whence = args.optString( 0, "cur" );
-        long offset = args.optLong( 1, 0 );
+        long actualOffset = offset.orElse( 0L );
         try
         {
-            switch( whence )
+            switch( whence.orElse( "cur" ) )
             {
                 case "set":
-                    channel.position( offset );
+                    channel.position( actualOffset );
                     break;
                 case "cur":
-                    channel.position( channel.position() + offset );
+                    channel.position( channel.position() + actualOffset );
                     break;
                 case "end":
-                    channel.position( channel.size() + offset );
+                    channel.position( channel.size() + actualOffset );
                     break;
                 default:
                     throw new LuaException( "bad argument #1 to 'seek' (invalid option '" + whence + "'" );
@@ -81,7 +88,7 @@ public abstract class HandleGeneric
         }
         catch( IllegalArgumentException e )
         {
-            return new Object[] { false, "Position is negative" };
+            return new Object[] { null, "Position is negative" };
         }
         catch( IOException e )
         {

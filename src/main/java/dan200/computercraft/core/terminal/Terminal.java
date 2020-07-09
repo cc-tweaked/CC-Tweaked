@@ -10,6 +10,8 @@ import dan200.computercraft.shared.util.Palette;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.PacketBuffer;
 
+import javax.annotation.Nonnull;
+
 public class Terminal
 {
     private static final String base16 = "0123456789abcdef";
@@ -29,7 +31,6 @@ public class Terminal
 
     private final Palette m_palette = new Palette();
 
-    private boolean m_changed = false;
     private final Runnable onChanged;
 
     public Terminal( int width, int height )
@@ -184,6 +185,7 @@ public class Terminal
         return m_cursorBackgroundColour;
     }
 
+    @Nonnull
     public Palette getPalette()
     {
         return m_palette;
@@ -305,13 +307,7 @@ public class Terminal
 
     public final void setChanged()
     {
-        m_changed = true;
         if( onChanged != null ) onChanged.run();
-    }
-
-    public final void clearChanged()
-    {
-        m_changed = false;
     }
 
     public synchronized void write( PacketBuffer buffer )

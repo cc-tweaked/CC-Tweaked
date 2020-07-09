@@ -21,6 +21,11 @@ import java.nio.charset.CharsetEncoder;
 import java.nio.charset.CodingErrorAction;
 import java.nio.charset.StandardCharsets;
 
+/**
+ * A file handle opened by {@link dan200.computercraft.core.apis.FSAPI#open} using the {@code "w"} or {@code "a"} modes.
+ *
+ * @cc.module fs.WriteHandle
+ */
 public class EncodedWritableHandle extends HandleGeneric
 {
     private final BufferedWriter writer;
@@ -31,6 +36,13 @@ public class EncodedWritableHandle extends HandleGeneric
         this.writer = writer;
     }
 
+    /**
+     * Write a string of characters to the file.
+     *
+     * @param args The value to write.
+     * @throws LuaException If the file has been closed.
+     * @cc.param The value to write to the file.
+     */
     @LuaFunction
     public final void write( IArguments args ) throws LuaException
     {
@@ -46,6 +58,13 @@ public class EncodedWritableHandle extends HandleGeneric
         }
     }
 
+    /**
+     * Write a string of characters to the file, follwing them with a new line character.
+     *
+     * @param args The value to write.
+     * @throws LuaException If the file has been closed.
+     * @cc.param The value to write to the file.
+     */
     @LuaFunction
     public final void writeLine( IArguments args ) throws LuaException
     {
@@ -62,6 +81,11 @@ public class EncodedWritableHandle extends HandleGeneric
         }
     }
 
+    /**
+     * Save the current file without closing it.
+     *
+     * @throws LuaException If the file has been closed.
+     */
     @LuaFunction
     public final void flush() throws LuaException
     {

@@ -5,7 +5,11 @@
  */
 package dan200.computercraft.core.apis.http.request;
 
+import dan200.computercraft.api.lua.IArguments;
 import dan200.computercraft.api.lua.LuaFunction;
+import dan200.computercraft.core.apis.HTTPAPI;
+import dan200.computercraft.core.apis.handles.BinaryReadableHandle;
+import dan200.computercraft.core.apis.handles.EncodedReadableHandle;
 import dan200.computercraft.core.apis.handles.HandleGeneric;
 import dan200.computercraft.core.asm.ObjectSource;
 
@@ -14,8 +18,12 @@ import java.util.Collections;
 import java.util.Map;
 
 /**
- * Wraps a {@link dan200.computercraft.core.apis.handles.HandleGeneric} and provides additional methods for
- * getting the response code and headers.
+ * A http response. This provides the same methods as a {@link EncodedReadableHandle file} (or
+ * {@link BinaryReadableHandle binary file} if the request used binary mode), though provides several request specific
+ * methods.
+ *
+ * @cc.module http.Response
+ * @see HTTPAPI#request(IArguments)  On how to make a http request.
  */
 public class HttpResponseHandle implements ObjectSource
 {
@@ -32,12 +40,37 @@ public class HttpResponseHandle implements ObjectSource
         this.responseHeaders = responseHeaders;
     }
 
+    /**
+     * Returns the response code and response message returned by the server.
+     *
+     * @return The response code and message.
+     * @cc.treturn number The response code (i.e. 200)
+     * @cc.treturn string The response message (i.e. "OK")
+     */
     @LuaFunction
     public final Object[] getResponseCode()
     {
         return new Object[] { responseCode, responseStatus };
     }
 
+    /**
+     * Get a table containing the response's headers, in a format similar to that required by {@link HTTPAPI#request}.
+     * If multiple headers are sent with the same name, they will be combined with a comma.
+     *
+     * @return The response's headers.
+     * @cc.usage Make a request to [example.computercraft.cc](https://example.computercraft.cc), and print the
+     * returned headers.
+     * <pre>{@code
+     * local request = http.get("https://example.computercraft.cc")
+     * print(textutils.serialize(request.getResponseHeaders()))
+     * -- => {
+     * --  [ "Content-Type" ] = "text/plain; charset=utf8",
+     * --  [ "content-length" ] = 17,
+     * --  ...
+     * -- }
+     * request.close()
+     * }</pre>
+     */
     @LuaFunction
     public final Map<String, String> getResponseHeaders()
     {

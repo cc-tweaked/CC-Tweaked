@@ -16,7 +16,14 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.SeekableByteChannel;
 import java.nio.channels.WritableByteChannel;
+import java.util.Optional;
 
+/**
+ * A file handle opened by {@link dan200.computercraft.core.apis.FSAPI#open} using the {@code "wb"} or {@code "ab"}
+ * modes.
+ *
+ * @cc.module fs.BinaryWriteHandle
+ */
 public class BinaryWritableHandle extends HandleGeneric
 {
     private final WritableByteChannel writer;
@@ -41,6 +48,14 @@ public class BinaryWritableHandle extends HandleGeneric
         return of( channel, channel );
     }
 
+    /**
+     * Write a string or byte to the file.
+     *
+     * @param arguments The value to write.
+     * @throws LuaException If the file has been closed.
+     * @cc.tparam [1] number The byte to write.
+     * @cc.tparam [2] string The string to write.
+     */
     @LuaFunction
     public final void write( IArguments arguments ) throws LuaException
     {
@@ -72,6 +87,11 @@ public class BinaryWritableHandle extends HandleGeneric
         }
     }
 
+    /**
+     * Save the current file without closing it.
+     *
+     * @throws LuaException If the file has been closed.
+     */
     @LuaFunction
     public final void flush() throws LuaException
     {
@@ -93,11 +113,29 @@ public class BinaryWritableHandle extends HandleGeneric
             super( seekable, seekable, closeable );
         }
 
+        /**
+         * Seek to a new position within the file, changing where bytes are written to. The new position is an offset
+         * given by {@code offset}, relative to a start position determined by {@code whence}:
+         *
+         * - {@code "set"}: {@code offset} is relative to the beginning of the file.
+         * - {@code "cur"}: Relative to the current position. This is the default.
+         * - {@code "end"}: Relative to the end of the file.
+         *
+         * In case of success, {@code seek} returns the new file position from the beginning of the file.
+         *
+         * @param whence Where the offset is relative to.
+         * @param offset The offset to seek to.
+         * @return The new position.
+         * @throws LuaException If the file has been closed.
+         * @cc.treturn [1] number The new position.
+         * @cc.treturn [2] nil If seeking failed.
+         * @cc.treturn string The reason seeking failed.
+         */
         @LuaFunction
-        public final Object[] seek( IArguments args ) throws LuaException
+        public final Object[] seek( Optional<String> whence, Optional<Long> offset ) throws LuaException
         {
             checkOpen();
-            return handleSeek( seekable, args );
+            return handleSeek( seekable, whence, offset );
         }
     }
 }

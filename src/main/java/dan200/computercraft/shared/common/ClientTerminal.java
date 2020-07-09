@@ -25,10 +25,6 @@ public class ClientTerminal implements ITerminal
     {
         boolean changed = m_terminalChanged;
         m_terminalChanged = false;
-
-        Terminal terminal = m_terminal;
-        if( terminal != null ) terminal.clearChanged();
-
         return changed;
     }
 

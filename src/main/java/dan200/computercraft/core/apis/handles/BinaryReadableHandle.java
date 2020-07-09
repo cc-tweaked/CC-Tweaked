@@ -5,7 +5,6 @@
  */
 package dan200.computercraft.core.apis.handles;
 
-import dan200.computercraft.api.lua.IArguments;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
 
@@ -19,6 +18,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * A file handle opened with {@link dan200.computercraft.core.apis.FSAPI#open(String, String)} with the {@code "rb"}
+ * mode.
+ *
+ * @cc.module fs.BinaryReadHandle
+ */
 public class BinaryReadableHandle extends HandleGeneric
 {
     private static final int BUFFER_SIZE = 8192;
@@ -27,7 +32,7 @@ public class BinaryReadableHandle extends HandleGeneric
     final SeekableByteChannel seekable;
     private final ByteBuffer single = ByteBuffer.allocate( 1 );
 
-    protected BinaryReadableHandle( ReadableByteChannel reader, SeekableByteChannel seekable, Closeable closeable )
+    BinaryReadableHandle( ReadableByteChannel reader, SeekableByteChannel seekable, Closeable closeable )
     {
         super( closeable );
         this.reader = reader;
@@ -45,6 +50,18 @@ public class BinaryReadableHandle extends HandleGeneric
         return of( channel, channel );
     }
 
+    /**
+     * Read a number of bytes from this file.
+     *
+     * @param countArg The number of bytes to read. When absent, a single byte will be read <em>as a number</em>. This
+     *                 may be 0 to determine we are at the end of the file.
+     * @return The read bytes.
+     * @throws LuaException When trying to read a negative number of bytes.
+     * @throws LuaException If the file has been closed.
+     * @cc.treturn [1] nil If we are at the end of the file.
+     * @cc.treturn [2] number The value of the byte read. This is returned when the {@code count} is absent.
+     * @cc.treturn [3] string The bytes read as a string. This is returned when the {@code count} is given.
+     */
     @LuaFunction
     public final Object[] read( Optional<Integer> countArg ) throws LuaException
     {
@@ -122,6 +139,13 @@ public class BinaryReadableHandle extends HandleGeneric
         }
     }
 
+    /**
+     * Read the remainder of the file.
+     *
+     * @return The file, or {@code null} if at the end of it.
+     * @throws LuaException If the file has been closed.
+     * @cc.treturn string|nil The remaining contents of the file, or {@code nil} if we are at the end.
+     */
     @LuaFunction
     public final Object[] readAll() throws LuaException
     {
@@ -151,6 +175,14 @@ public class BinaryReadableHandle extends HandleGeneric
         }
     }
 
+    /**
+     * Read a line from the file.
+     *
+     * @param withTrailingArg Whether to include the newline characters with the returned string. Defaults to {@code false}.
+     * @return The read string.
+     * @throws LuaException If the file has been closed.
+     * @cc.treturn string|nil The read line or {@code nil} if at the end of the file.
+     */
     @LuaFunction
     public final Object[] readLine( Optional<Boolean> withTrailingArg ) throws LuaException
     {
@@ -205,16 +237,34 @@ public class BinaryReadableHandle extends HandleGeneric
 
     public static class Seekable extends BinaryReadableHandle
     {
-        public Seekable( SeekableByteChannel seekable, Closeable closeable )
+        Seekable( SeekableByteChannel seekable, Closeable closeable )
         {
             super( seekable, seekable, closeable );
         }
 
+        /**
+         * Seek to a new position within the file, changing where bytes are written to. The new position is an offset
+         * given by {@code offset}, relative to a start position determined by {@code whence}:
+         *
+         * - {@code "set"}: {@code offset} is relative to the beginning of the file.
+         * - {@code "cur"}: Relative to the current position. This is the default.
+         * - {@code "end"}: Relative to the end of the file.
+         *
+         * In case of success, {@code seek} returns the new file position from the beginning of the file.
+         *
+         * @param whence Where the offset is relative to.
+         * @param offset The offset to seek to.
+         * @return The new position.
+         * @throws LuaException If the file has been closed.
+         * @cc.treturn [1] number The new position.
+         * @cc.treturn [2] nil If seeking failed.
+         * @cc.treturn string The reason seeking failed.
+         */
         @LuaFunction
-        public final Object[] seek( IArguments arguments ) throws LuaException
+        public final Object[] seek( Optional<String> whence, Optional<Long> offset ) throws LuaException
         {
             checkOpen();
-            return handleSeek( seekable, arguments );
+            return handleSeek( seekable, whence, offset );
         }
     }
 }

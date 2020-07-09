@@ -108,6 +108,8 @@ public class TurtleAPI implements ILuaAPI
      * Rotate the turtle 90 degress to the left.
      *
      * @return The turtle command result.
+     * @cc.treturn boolean Whether the turtle could successfully turn.
+     * @cc.treturn string|nil The reason the turtle could not turn.
      */
     @LuaFunction
     public final MethodResult turnLeft()
@@ -119,6 +121,8 @@ public class TurtleAPI implements ILuaAPI
      * Rotate the turtle 90 degress to the right.
      *
      * @return The turtle command result.
+     * @cc.treturn boolean Whether the turtle could successfully turn.
+     * @cc.treturn string|nil The reason the turtle could not turn.
      */
     @LuaFunction
     public final MethodResult turnRight()
@@ -279,6 +283,7 @@ public class TurtleAPI implements ILuaAPI
      * @param slot The slot to select.
      * @return The turtle command result.
      * @throws LuaException If the slot is out of range.
+     * @cc.treturn true When the slot has been selected.
      * @see #getSelectedSlot
      */
 
@@ -525,18 +530,39 @@ public class TurtleAPI implements ILuaAPI
         return trackCommand( new TurtleEquipCommand( TurtleSide.RIGHT ) );
     }
 
+    /**
+     * Get information about the block in front of the turtle.
+     *
+     * @return The turtle command result.
+     * @cc.treturn boolean Whether there is a block in front of the turtle.
+     * @cc.treturn table|string Information about the block in front, or a message explaining that there is no block.
+     */
     @LuaFunction
     public final MethodResult inspect()
     {
         return trackCommand( new TurtleInspectCommand( InteractDirection.FORWARD ) );
     }
 
+    /**
+     * Get information about the block above the turtle.
+     *
+     * @return The turtle command result.
+     * @cc.treturn boolean Whether there is a block above the turtle.
+     * @cc.treturn table|string Information about the above below, or a message explaining that there is no block.
+     */
     @LuaFunction
     public final MethodResult inspectUp()
     {
         return trackCommand( new TurtleInspectCommand( InteractDirection.UP ) );
     }
 
+    /**
+     * Get information about the block below the turtle.
+     *
+     * @return The turtle command result.
+     * @cc.treturn boolean Whether there is a block below the turtle.
+     * @cc.treturn table|string Information about the block below, or a message explaining that there is no block.
+     */
     @LuaFunction
     public final MethodResult inspectDown()
     {

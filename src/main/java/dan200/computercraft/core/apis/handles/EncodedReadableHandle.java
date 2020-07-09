@@ -20,6 +20,12 @@ import java.nio.charset.CodingErrorAction;
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 
+/**
+ * A file handle opened with {@link dan200.computercraft.core.apis.FSAPI#open(String, String)} with the {@code "r"}
+ * mode.
+ *
+ * @cc.module fs.ReadHandle
+ */
 public class EncodedReadableHandle extends HandleGeneric
 {
     private static final int BUFFER_SIZE = 8192;
@@ -37,6 +43,14 @@ public class EncodedReadableHandle extends HandleGeneric
         this( reader, reader );
     }
 
+    /**
+     * Read a line from the file.
+     *
+     * @param withTrailingArg Whether to include the newline characters with the returned string. Defaults to {@code false}.
+     * @return The read string.
+     * @throws LuaException If the file has been closed.
+     * @cc.treturn string|nil The read line or {@code nil} if at the end of the file.
+     */
     @LuaFunction
     public final Object[] readLine( Optional<Boolean> withTrailingArg ) throws LuaException
     {
@@ -62,6 +76,13 @@ public class EncodedReadableHandle extends HandleGeneric
         }
     }
 
+    /**
+     * Read the remainder of the file.
+     *
+     * @return The file, or {@code null} if at the end of it.
+     * @throws LuaException If the file has been closed.
+     * @cc.treturn nil|string The remaining contents of the file, or {@code nil} if we are at the end.
+     */
     @LuaFunction
     public final Object[] readAll() throws LuaException
     {
@@ -87,6 +108,15 @@ public class EncodedReadableHandle extends HandleGeneric
         }
     }
 
+    /**
+     * Read a number of characters from this file.
+     *
+     * @param countA The number of characters to read, defaulting to 1.
+     * @return The read characters.
+     * @throws LuaException When trying to read a negative number of characters.
+     * @throws LuaException If the file has been closed.
+     * @cc.treturn string|nil The read characters, or {@code nil} if at the of the file.
+     */
     @LuaFunction
     public final Object[] read( Optional<Integer> countA ) throws LuaException
     {
