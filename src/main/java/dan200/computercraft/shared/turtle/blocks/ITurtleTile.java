@@ -10,7 +10,7 @@ import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.shared.computer.blocks.IComputerTile;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.vector.Vector3d;
 
 public interface ITurtleTile extends IComputerTile
 {
@@ -22,7 +22,7 @@ public interface ITurtleTile extends IComputerTile
 
     ITurtleAccess getAccess();
 
-    Vec3d getRenderOffset( float f );
+    Vector3d getRenderOffset( float f );
 
     float getRenderYaw( float f );
 

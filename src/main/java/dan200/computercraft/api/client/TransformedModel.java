@@ -6,11 +6,11 @@
 package dan200.computercraft.api.client;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.TransformationMatrix;
 import net.minecraft.client.renderer.model.IBakedModel;
 import net.minecraft.client.renderer.model.ModelManager;
 import net.minecraft.client.renderer.model.ModelResourceLocation;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.math.vector.TransformationMatrix;
 
 import javax.annotation.Nonnull;
 import java.util.Objects;

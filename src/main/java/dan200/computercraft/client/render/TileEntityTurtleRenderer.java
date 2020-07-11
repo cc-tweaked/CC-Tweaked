@@ -19,8 +19,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.Atlases;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.client.renderer.Matrix4f;
-import net.minecraft.client.renderer.Vector3f;
 import net.minecraft.client.renderer.model.BakedQuad;
 import net.minecraft.client.renderer.model.IBakedModel;
 import net.minecraft.client.renderer.model.ModelManager;
@@ -31,7 +29,9 @@ import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.vector.Matrix4f;
+import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.util.math.vector.Vector3f;
 import net.minecraftforge.client.model.data.EmptyModelData;
 
 import javax.annotation.Nonnull;
@@ -99,7 +99,7 @@ public class TileEntityTurtleRenderer extends TileEntityRenderer<TileTurtle>
         transform.push();
 
         // Setup the transform.
-        Vec3d offset = turtle.getRenderOffset( partialTicks );
+        Vector3d offset = turtle.getRenderOffset( partialTicks );
         float yaw = turtle.getRenderYaw( partialTicks );
         transform.translate( offset.x, offset.y, offset.z );
 

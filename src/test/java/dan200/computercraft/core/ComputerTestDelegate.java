@@ -20,7 +20,7 @@ import dan200.computercraft.core.filesystem.FileSystemException;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.shared.peripheral.modem.ModemState;
 import dan200.computercraft.shared.peripheral.modem.wireless.WirelessModemPeripheral;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -281,9 +281,9 @@ public class ComputerTestDelegate
 
         @Nonnull
         @Override
-        public Vec3d getPosition()
+        public Vector3d getPosition()
         {
-            return Vec3d.ZERO;
+            return Vector3d.ZERO;
         }
 
         @Override

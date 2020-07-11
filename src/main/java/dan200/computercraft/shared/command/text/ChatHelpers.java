@@ -19,69 +19,69 @@ public final class ChatHelpers
 
     private ChatHelpers() {}
 
-    public static ITextComponent coloured( String text, TextFormatting colour )
+    public static IFormattableTextComponent coloured( String text, TextFormatting colour )
     {
-        ITextComponent component = new StringTextComponent( text == null ? "" : text );
-        component.getStyle().setColor( colour );
+        IFormattableTextComponent component = new StringTextComponent( text == null ? "" : text );
+        component.getStyle().setFormatting( colour );
         return component;
     }
 
-    public static <T extends ITextComponent> T coloured( T component, TextFormatting colour )
+    public static <T extends IFormattableTextComponent> T coloured( T component, TextFormatting colour )
     {
-        component.getStyle().setColor( colour );
+        component.getStyle().setFormatting( colour );
         return component;
     }
 
-    public static ITextComponent text( String text )
+    public static IFormattableTextComponent text( String text )
     {
         return new StringTextComponent( text == null ? "" : text );
     }
 
-    public static ITextComponent translate( String text )
+    public static IFormattableTextComponent translate( String text )
     {
         return new TranslationTextComponent( text == null ? "" : text );
     }
 
-    public static ITextComponent translate( String text, Object... args )
+    public static IFormattableTextComponent translate( String text, Object... args )
     {
         return new TranslationTextComponent( text == null ? "" : text, args );
     }
 
-    public static ITextComponent list( ITextComponent... children )
+    public static IFormattableTextComponent list( ITextComponent... children )
     {
-        ITextComponent component = new StringTextComponent( "" );
+        IFormattableTextComponent component = new StringTextComponent( "" );
         for( ITextComponent child : children )
         {
-            component.appendSibling( child );
+            component.func_230529_a_( child );
         }
         return component;
     }
 
-    public static ITextComponent position( BlockPos pos )
+    public static IFormattableTextComponent position( BlockPos pos )
     {
         if( pos == null ) return translate( "commands.computercraft.generic.no_position" );
         return translate( "commands.computercraft.generic.position", pos.getX(), pos.getY(), pos.getZ() );
     }
 
-    public static ITextComponent bool( boolean value )
+    public static IFormattableTextComponent bool( boolean value )
     {
         return value
             ? coloured( translate( "commands.computercraft.generic.yes" ), TextFormatting.GREEN )
             : coloured( translate( "commands.computercraft.generic.no" ), TextFormatting.RED );
     }
 
-    public static ITextComponent link( ITextComponent component, String command, ITextComponent toolTip )
+    public static IFormattableTextComponent link( IFormattableTextComponent component, String command, ITextComponent toolTip )
     {
         Style style = component.getStyle();
 
-        if( style.getColor() == null ) style.setColor( TextFormatting.YELLOW );
+        if( style.getColor() == null ) style.setFormatting( TextFormatting.YELLOW );
         style.setClickEvent( new ClickEvent( ClickEvent.Action.RUN_COMMAND, command ) );
         style.setHoverEvent( new HoverEvent( HoverEvent.Action.SHOW_TEXT, toolTip ) );
 
         return component;
     }
 
-    public static ITextComponent header( String text )
+    public static IFormattableTextComponent header( String text )
     {
         return coloured( text, HEADER );
     }

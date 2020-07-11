@@ -13,7 +13,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.fml.network.NetworkDirection;
@@ -76,9 +76,9 @@ public final class NetworkHandler
         network.sendToServer( packet );
     }
 
-    public static void sendToAllAround( NetworkMessage packet, World world, Vec3d pos, double range )
+    public static void sendToAllAround( NetworkMessage packet, World world, Vector3d pos, double range )
     {
-        PacketDistributor.TargetPoint target = new PacketDistributor.TargetPoint( pos.x, pos.y, pos.z, range, world.getDimension().getType() );
+        PacketDistributor.TargetPoint target = new PacketDistributor.TargetPoint( pos.x, pos.y, pos.z, range, world.func_234923_W_() );
         network.send( PacketDistributor.NEAR.with( () -> target ), packet );
     }
 

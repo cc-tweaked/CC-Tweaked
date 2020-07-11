@@ -19,12 +19,10 @@ import dan200.computercraft.shared.util.WorldUtil;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
-import net.minecraft.client.renderer.Matrix4f;
-import net.minecraft.client.renderer.TransformationMatrix;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.SharedMonsterAttributes;
+import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.entity.item.ArmorStandEntity;
-import net.minecraft.fluid.IFluidState;
+import net.minecraft.fluid.FluidState;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
@@ -32,7 +30,9 @@ import net.minecraft.util.DamageSource;
 import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.vector.Matrix4f;
+import net.minecraft.util.math.vector.TransformationMatrix;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -119,9 +119,9 @@ public class TurtleTool extends AbstractTurtleUpgrade
         final TurtlePlayer turtlePlayer = TurtlePlaceCommand.createPlayer( turtle, position, direction );
 
         // See if there is an entity present
-        Vec3d turtlePos = turtlePlayer.getPositionVec();
-        Vec3d rayDir = turtlePlayer.getLook( 1.0f );
-        Pair<Entity, Vec3d> hit = WorldUtil.rayTraceEntities( world, turtlePos, rayDir, 1.5 );
+        Vector3d turtlePos = turtlePlayer.getPositionVec();
+        Vector3d rayDir = turtlePlayer.getLook( 1.0f );
+        Pair<Entity, Vector3d> hit = WorldUtil.rayTraceEntities( world, turtlePos, rayDir, 1.5 );
         if( hit != null )
         {
             // Load up the turtle's inventory
@@ -149,7 +149,7 @@ public class TurtleTool extends AbstractTurtleUpgrade
             boolean attacked = false;
             if( !hitEntity.hitByEntity( turtlePlayer ) )
             {
-                float damage = (float) turtlePlayer.getAttribute( SharedMonsterAttributes.ATTACK_DAMAGE ).getValue();
+                float damage = (float) turtlePlayer.func_233637_b_( Attributes.ATTACK_DAMAGE );
                 damage *= getDamageMultiplier();
                 if( damage > 0.0f )
                 {
@@ -201,7 +201,7 @@ public class TurtleTool extends AbstractTurtleUpgrade
         }
 
         BlockState state = world.getBlockState( blockPosition );
-        IFluidState fluidState = world.getFluidState( blockPosition );
+        FluidState fluidState = world.getFluidState( blockPosition );
 
         TurtlePlayer turtlePlayer = TurtlePlaceCommand.createPlayer( turtle, turtlePosition, direction );
         turtlePlayer.loadInventory( item.copy() );

@@ -10,7 +10,6 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import dan200.computercraft.ComputerCraft;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.world.dimension.DimensionType;
 import net.minecraftforge.fml.server.ServerLifecycleHooks;
 
 import java.io.File;
@@ -41,9 +40,9 @@ public final class IDAssigner
 
     public static File getDir()
     {
-        MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
-        File worldDirectory = server.getWorld( DimensionType.OVERWORLD ).getSaveHandler().getWorldDirectory();
-        return new File( worldDirectory, ComputerCraft.MOD_ID );
+        File root = ServerLifecycleHooks.getCurrentServer().getDataDirectory();
+        // TODO: File worldDirectory = server.getWorld( World.field_234918_g_ ).getSaveHandler().getWorldDirectory();
+        return new File( root, ComputerCraft.MOD_ID );
     }
 
     private static MinecraftServer getCachedServer()

@@ -28,7 +28,7 @@ import net.minecraft.util.Direction;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeHooks;
@@ -210,9 +210,9 @@ public class TurtlePlaceCommand implements ITurtleCommand
         // See if there is an entity present
         final World world = turtle.getWorld();
         final BlockPos position = turtle.getPosition();
-        Vec3d turtlePos = turtlePlayer.getPositionVec();
-        Vec3d rayDir = turtlePlayer.getLook( 1.0f );
-        Pair<Entity, Vec3d> hit = WorldUtil.rayTraceEntities( world, turtlePos, rayDir, 1.5 );
+        Vector3d turtlePos = turtlePlayer.getPositionVec();
+        Vector3d rayDir = turtlePlayer.getLook( 1.0f );
+        Pair<Entity, Vector3d> hit = WorldUtil.rayTraceEntities( world, turtlePos, rayDir, 1.5 );
         if( hit == null )
         {
             return stack;
@@ -224,7 +224,7 @@ public class TurtlePlaceCommand implements ITurtleCommand
 
         // Start claiming entity drops
         Entity hitEntity = hit.getKey();
-        Vec3d hitPos = hit.getValue();
+        Vector3d hitPos = hit.getValue();
         DropConsumer.set(
             hitEntity,
             drop -> InventoryUtil.storeItems( drop, turtle.getItemHandler(), turtle.getSelectedSlot() )
@@ -252,13 +252,13 @@ public class TurtlePlaceCommand implements ITurtleCommand
             }
             else if( cancelResult == null )
             {
-                if( hitEntity.processInitialInteract( turtlePlayer, Hand.MAIN_HAND ) )
+                if( hitEntity.processInitialInteract( turtlePlayer, Hand.MAIN_HAND ) == ActionResultType.CONSUME )
                 {
                     placed = true;
                 }
                 else if( hitEntity instanceof LivingEntity )
                 {
-                    placed = stackCopy.interactWithEntity( turtlePlayer, (LivingEntity) hitEntity, Hand.MAIN_HAND );
+                    placed = stackCopy.interactWithEntity( turtlePlayer, (LivingEntity) hitEntity, Hand.MAIN_HAND ).isSuccessOrConsume();
                     if( placed ) turtlePlayer.loadInventory( stackCopy );
                 }
             }
@@ -338,7 +338,7 @@ public class TurtlePlaceCommand implements ITurtleCommand
         }
 
         // Check if there's something suitable to place onto
-        BlockRayTraceResult hit = new BlockRayTraceResult( new Vec3d( hitX, hitY, hitZ ), side, position, false );
+        BlockRayTraceResult hit = new BlockRayTraceResult( new Vector3d( hitX, hitY, hitZ ), side, position, false );
         ItemUseContext context = new ItemUseContext( turtlePlayer, Hand.MAIN_HAND, hit );
         if( !canDeployOnBlock( new BlockItemUseContext( context ), turtle, turtlePlayer, position, side, allowReplace, outErrorMessage ) )
         {
@@ -405,22 +405,22 @@ public class TurtlePlaceCommand implements ITurtleCommand
                     String s = (String) extraArguments[0];
                     String[] split = s.split( "\n" );
                     int firstLine = split.length <= 2 ? 1 : 0;
-                    for( int i = 0; i < signTile.signText.length; i++ )
+                    for( int i = 0; i < 4; i++ )
                     {
                         if( i >= firstLine && i < firstLine + split.length )
                         {
                             if( split[i - firstLine].length() > 15 )
                             {
-                                signTile.signText[i] = new StringTextComponent( split[i - firstLine].substring( 0, 15 ) );
+                                signTile.setText( i, new StringTextComponent( split[i - firstLine].substring( 0, 15 ) ) );
                             }
                             else
                             {
-                                signTile.signText[i] = new StringTextComponent( split[i - firstLine] );
+                                signTile.setText( i, new StringTextComponent( split[i - firstLine] ) );
                             }
                         }
                         else
                         {
-                            signTile.signText[i] = new StringTextComponent( "" );
+                            signTile.setText( i, new StringTextComponent( "" ) );
                         }
                     }
                     signTile.markDirty();

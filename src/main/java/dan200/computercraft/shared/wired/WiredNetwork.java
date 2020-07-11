@@ -10,7 +10,7 @@ import dan200.computercraft.api.network.Packet;
 import dan200.computercraft.api.network.wired.IWiredNetwork;
 import dan200.computercraft.api.network.wired.IWiredNode;
 import dan200.computercraft.api.peripheral.IPeripheral;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
@@ -337,7 +337,7 @@ public final class WiredNetwork implements IWiredNetwork
             while( (point = transmitTo.pollFirst()) != null )
             {
                 World world = point.node.element.getWorld();
-                Vec3d position = point.node.element.getPosition();
+                Vector3d position = point.node.element.getPosition();
                 for( WiredNode neighbour : point.node.neighbours )
                 {
                     TransmitPoint neighbourPoint = points.get( neighbour );

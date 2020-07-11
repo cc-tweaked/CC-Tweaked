@@ -9,12 +9,12 @@ import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.peripheral.monitor.TileMonitor;
-import net.minecraft.client.renderer.Matrix4f;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.vector.Matrix4f;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.DrawHighlightEvent;
@@ -61,7 +61,7 @@ public final class MonitorHighlightRenderer
         if( monitor.getYIndex() != monitor.getHeight() - 1 ) faces.remove( monitor.getDown() );
 
         MatrixStack transformStack = event.getMatrix();
-        Vec3d cameraPos = event.getInfo().getProjectedView();
+        Vector3d cameraPos = event.getInfo().getProjectedView();
         transformStack.push();
         transformStack.translate( pos.getX() - cameraPos.getX(), pos.getY() - cameraPos.getY(), pos.getZ() - cameraPos.getZ() );
 

@@ -41,7 +41,7 @@ public final class DropConsumer
         remainingDrops = new ArrayList<>();
         dropEntity = entity;
         dropWorld = entity.world;
-        dropBounds = new AxisAlignedBB( entity.getPosition() ).grow( 2, 2, 2 );
+        dropBounds = new AxisAlignedBB( entity.func_233580_cy_() ).grow( 2, 2, 2 );
 
         entity.captureDrops( new ArrayList<>() );
     }
@@ -79,7 +79,7 @@ public final class DropConsumer
     {
         // Capture any nearby item spawns
         if( dropWorld == event.getWorld() && event.getEntity() instanceof ItemEntity
-            && dropBounds.contains( event.getEntity().getPositionVector() ) )
+            && dropBounds.contains( event.getEntity().getPositionVec() ) )
         {
             handleDrops( ((ItemEntity) event.getEntity()).getItem() );
             event.setCanceled( true );

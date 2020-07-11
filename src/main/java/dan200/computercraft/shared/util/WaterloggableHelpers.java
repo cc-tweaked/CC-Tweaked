@@ -6,8 +6,8 @@
 package dan200.computercraft.shared.util;
 
 import net.minecraft.block.BlockState;
+import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
-import net.minecraft.fluid.IFluidState;
 import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.state.BooleanProperty;
 import net.minecraft.state.properties.BlockStateProperties;
@@ -34,7 +34,7 @@ public final class WaterloggableHelpers
      * @param state The current state
      * @return This waterlogged block's current fluid
      */
-    public static IFluidState getWaterloggedFluidState( BlockState state )
+    public static FluidState getWaterloggedFluidState( BlockState state )
     {
         return state.get( WATERLOGGED ) ? Fluids.WATER.getStillFluidState( false ) : Fluids.EMPTY.getDefaultState();
     }

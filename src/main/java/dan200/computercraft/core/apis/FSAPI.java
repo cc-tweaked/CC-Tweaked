@@ -385,8 +385,8 @@ public class FSAPI implements ILuaAPI
      *
      * @param path The path to check the free space for.
      * @return The amount of free space available, in bytes.
-     * @cc.treturn number|"unlimited" The amount of free space available, in bytes, or "unlimited".
      * @throws LuaException If the path doesn't exist.
+     * @cc.treturn number|"unlimited" The amount of free space available, in bytes, or "unlimited".
      */
     @LuaFunction
     public final Object getFreeSpace( String path ) throws LuaException

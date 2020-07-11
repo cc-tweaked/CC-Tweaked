@@ -189,9 +189,9 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
     }
 
     @Override
-    public void read( @Nonnull CompoundNBT nbt )
+    public void read( @Nonnull BlockState state, @Nonnull CompoundNBT nbt )
     {
-        super.read( nbt );
+        super.read( state, nbt );
 
         // Load ID, label and power state
         m_computerID = nbt.contains( NBT_ID ) ? nbt.getInt( NBT_ID ) : -1;

@@ -28,7 +28,7 @@ import net.minecraft.util.Direction;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
@@ -58,10 +58,10 @@ public class TileCable extends TileGeneric
 
         @Nonnull
         @Override
-        public Vec3d getPosition()
+        public Vector3d getPosition()
         {
             BlockPos pos = getPos();
-            return new Vec3d( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5 );
+            return new Vector3d( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5 );
         }
 
         @Override
@@ -103,10 +103,10 @@ public class TileCable extends TileGeneric
 
         @Nonnull
         @Override
-        public Vec3d getPosition()
+        public Vector3d getPosition()
         {
             BlockPos pos = getPos().offset( modemDirection );
-            return new Vec3d( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5 );
+            return new Vector3d( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5 );
         }
 
         @Nonnull
@@ -281,9 +281,9 @@ public class TileCable extends TileGeneric
     }
 
     @Override
-    public void read( @Nonnull CompoundNBT nbt )
+    public void read( @Nonnull BlockState state, @Nonnull CompoundNBT nbt )
     {
-        super.read( nbt );
+        super.read( state, nbt );
         m_peripheralAccessAllowed = nbt.getBoolean( NBT_PERIPHERAL_ENABLED );
         m_peripheral.read( nbt, "" );
     }
@@ -420,12 +420,6 @@ public class TileCable extends TileGeneric
         }
 
         m_node.updatePeripherals( peripherals );
-    }
-
-    @Override
-    public boolean canRenderBreaking()
-    {
-        return true;
     }
 
     @Nonnull

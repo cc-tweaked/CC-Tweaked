@@ -30,6 +30,7 @@ import net.minecraft.inventory.container.Container;
 import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.network.play.server.SPlayerPositionLookPacket;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.IFormattableTextComponent;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
@@ -283,16 +284,16 @@ public final class CommandComputerCraft
 
     private static ITextComponent linkComputer( CommandSource source, ServerComputer serverComputer, int computerId )
     {
-        ITextComponent out = new StringTextComponent( "" );
+        IFormattableTextComponent out = new StringTextComponent( "" );
 
         // Append the computer instance
         if( serverComputer == null )
         {
-            out.appendSibling( text( "?" ) );
+            out.func_230529_a_( text( "?" ) );
         }
         else
         {
-            out.appendSibling( link(
+            out.func_230529_a_( link(
                 text( Integer.toString( serverComputer.getInstanceID() ) ),
                 "/computercraft dump " + serverComputer.getInstanceID(),
                 translate( "commands.computercraft.dump.action" )
@@ -300,20 +301,20 @@ public final class CommandComputerCraft
         }
 
         // And ID
-        out.appendText( " (id " + computerId + ")" );
+        out.func_240702_b_( " (id " + computerId + ")" );
 
         // And, if we're a player, some useful links
         if( serverComputer != null && UserLevel.OP.test( source ) && isPlayer( source ) )
         {
             out
-                .appendText( " " )
-                .appendSibling( link(
+                .func_240702_b_( " " )
+                .func_230529_a_( link(
                     text( "\u261b" ),
                     "/computercraft tp " + serverComputer.getInstanceID(),
                     translate( "commands.computercraft.tp.action" )
                 ) )
-                .appendText( " " )
-                .appendSibling( link(
+                .func_240702_b_( " " )
+                .func_230529_a_( link(
                     text( "\u20e2" ),
                     "/computercraft view " + serverComputer.getInstanceID(),
                     translate( "commands.computercraft.view.action" )

@@ -6,11 +6,12 @@
 package dan200.computercraft.shared.data;
 
 import dan200.computercraft.shared.computer.blocks.IComputerTile;
+import net.minecraft.loot.LootConditionType;
+import net.minecraft.loot.LootContext;
+import net.minecraft.loot.LootParameter;
+import net.minecraft.loot.LootParameters;
+import net.minecraft.loot.conditions.ILootCondition;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.world.storage.loot.LootContext;
-import net.minecraft.world.storage.loot.LootParameter;
-import net.minecraft.world.storage.loot.LootParameters;
-import net.minecraft.world.storage.loot.conditions.ILootCondition;
 
 import javax.annotation.Nonnull;
 import java.util.Collections;
@@ -22,6 +23,8 @@ import java.util.Set;
 public final class HasComputerIdLootCondition implements ILootCondition
 {
     public static final HasComputerIdLootCondition INSTANCE = new HasComputerIdLootCondition();
+    public static final LootConditionType TYPE = ConstantLootConditionSerializer.type( INSTANCE );
+    public static final IBuilder BUILDER = () -> INSTANCE;
 
     private HasComputerIdLootCondition()
     {
@@ -41,8 +44,10 @@ public final class HasComputerIdLootCondition implements ILootCondition
         return Collections.singleton( LootParameters.BLOCK_ENTITY );
     }
 
-    public static IBuilder builder()
+    @Override
+    @Nonnull
+    public LootConditionType func_230419_b_()
     {
-        return () -> INSTANCE;
+        return TYPE;
     }
 }

@@ -15,14 +15,14 @@ import dan200.computercraft.shared.util.Holiday;
 import dan200.computercraft.shared.util.HolidayUtil;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.TransformationMatrix;
 import net.minecraft.client.renderer.model.*;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.world.World;
+import net.minecraft.util.math.vector.TransformationMatrix;
 import net.minecraftforge.client.model.data.IModelData;
 
 import javax.annotation.Nonnull;
@@ -109,7 +109,7 @@ public class TurtleSmartItemModel implements IBakedModel
         {
             @Nonnull
             @Override
-            public IBakedModel getModelWithOverrides( @Nonnull IBakedModel originalModel, @Nonnull ItemStack stack, @Nullable World world, @Nullable LivingEntity entity )
+            public IBakedModel func_239290_a_( @Nonnull IBakedModel originalModel, @Nonnull ItemStack stack, @Nullable ClientWorld world, @Nullable LivingEntity entity )
             {
                 ItemTurtle turtle = (ItemTurtle) stack.getItem();
                 int colour = turtle.getColour( stack );

@@ -19,14 +19,14 @@ import net.minecraft.item.crafting.SpecialRecipe;
 import net.minecraft.item.crafting.SpecialRecipeSerializer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
-import net.minecraftforge.common.Tags;
 
 import javax.annotation.Nonnull;
 
 public class DiskRecipe extends SpecialRecipe
 {
     private final Ingredient paper = Ingredient.fromItems( Items.PAPER );
-    private final Ingredient redstone = Ingredient.fromTag( Tags.Items.DUSTS_REDSTONE );
+    private final Ingredient redstone = Ingredient.fromItems( Items.REDSTONE );
+    // TODO: Ingredient.fromTag( Tags.Items.DUSTS_REDSTONE );
 
     public DiskRecipe( ResourceLocation id )
     {

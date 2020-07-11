@@ -26,7 +26,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.MoverType;
-import net.minecraft.fluid.IFluidState;
+import net.minecraft.fluid.FluidState;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.DyeColor;
 import net.minecraft.nbt.CompoundNBT;
@@ -38,7 +38,7 @@ import net.minecraft.util.EntityPredicates;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.items.IItemHandlerModifiable;
@@ -304,7 +304,7 @@ public class TurtleBrain implements ITurtleAccess
         // Ensure we're inside the world border
         if( !world.getWorldBorder().contains( pos ) ) return false;
 
-        IFluidState existingFluid = world.getBlockState( pos ).getFluidState();
+        FluidState existingFluid = world.getBlockState( pos ).getFluidState();
         BlockState newState = oldBlock
             // We only mark this as waterlogged when travelling into a source block. This prevents us from spreading
             // fluid by creating a new source when moving into a block, causing the next block to be almost full and
@@ -357,11 +357,11 @@ public class TurtleBrain implements ITurtleAccess
 
     @Nonnull
     @Override
-    public Vec3d getVisualPosition( float f )
+    public Vector3d getVisualPosition( float f )
     {
-        Vec3d offset = getRenderOffset( f );
+        Vector3d offset = getRenderOffset( f );
         BlockPos pos = m_owner.getPos();
-        return new Vec3d(
+        return new Vector3d(
             pos.getX() + 0.5 + offset.x,
             pos.getY() + 0.5 + offset.y,
             pos.getZ() + 0.5 + offset.z
@@ -659,7 +659,7 @@ public class TurtleBrain implements ITurtleAccess
         m_owner.updateBlock();
     }
 
-    public Vec3d getRenderOffset( float f )
+    public Vector3d getRenderOffset( float f )
     {
         switch( m_animation )
         {
@@ -688,7 +688,7 @@ public class TurtleBrain implements ITurtleAccess
                 }
 
                 double distance = -1.0 + getAnimationFraction( f );
-                return new Vec3d(
+                return new Vector3d(
                     distance * dir.getXOffset(),
                     distance * dir.getYOffset(),
                     distance * dir.getZOffset()
@@ -696,7 +696,7 @@ public class TurtleBrain implements ITurtleAccess
             }
             default:
             {
-                return Vec3d.ZERO;
+                return Vector3d.ZERO;
             }
         }
     }
@@ -880,7 +880,7 @@ public class TurtleBrain implements ITurtleAccess
                         double pushStepZ = moveDir.getZOffset() * pushStep;
                         for( Entity entity : list )
                         {
-                            entity.move( MoverType.PISTON, new Vec3d( pushStepX, pushStepY, pushStepZ ) );
+                            entity.move( MoverType.PISTON, new Vector3d( pushStepX, pushStepY, pushStepZ ) );
                         }
                     }
                 }
@@ -893,7 +893,7 @@ public class TurtleBrain implements ITurtleAccess
                 Holiday currentHoliday = HolidayUtil.getCurrentHoliday();
                 if( currentHoliday == Holiday.VALENTINES )
                 {
-                    Vec3d position = getVisualPosition( 1.0f );
+                    Vector3d position = getVisualPosition( 1.0f );
                     if( position != null )
                     {
                         double x = position.x + world.rand.nextGaussian() * 0.1;

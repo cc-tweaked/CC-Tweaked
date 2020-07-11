@@ -11,6 +11,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
@@ -20,13 +21,12 @@ public final class TurtlePermissions
     public static boolean isBlockEnterable( World world, BlockPos pos, PlayerEntity player )
     {
         MinecraftServer server = world.getServer();
-        return server == null || world.isRemote || !server.isBlockProtected( world, pos, player );
+        return server == null || world.isRemote || (world instanceof ServerWorld && !server.isBlockProtected( (ServerWorld) world, pos, player ));
     }
 
     public static boolean isBlockEditable( World world, BlockPos pos, PlayerEntity player )
     {
-        MinecraftServer server = world.getServer();
-        return server == null || world.isRemote || !server.isBlockProtected( world, pos, player );
+        return isBlockEnterable( world, pos, player );
     }
 
     @SubscribeEvent

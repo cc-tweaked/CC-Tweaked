@@ -10,7 +10,7 @@ import dan200.computercraft.shared.peripheral.modem.ModemShapes;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.IWaterLoggable;
-import net.minecraft.fluid.IFluidState;
+import net.minecraft.fluid.FluidState;
 import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.state.BooleanProperty;
 import net.minecraft.state.DirectionProperty;
@@ -62,7 +62,7 @@ public class BlockWirelessModem extends BlockGeneric implements IWaterLoggable
     @Nonnull
     @Override
     @Deprecated
-    public IFluidState getFluidState( @Nonnull BlockState state )
+    public FluidState getFluidState( @Nonnull BlockState state )
     {
         return getWaterloggedFluidState( state );
     }

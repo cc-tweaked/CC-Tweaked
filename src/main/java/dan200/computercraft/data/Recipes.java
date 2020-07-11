@@ -21,7 +21,7 @@ import net.minecraft.advancements.criterion.ItemPredicate;
 import net.minecraft.block.Blocks;
 import net.minecraft.data.*;
 import net.minecraft.item.*;
-import net.minecraft.tags.Tag;
+import net.minecraft.tags.ITag;
 import net.minecraft.util.IItemProvider;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.Tags;
@@ -309,7 +309,7 @@ public class Recipes extends RecipeProvider
         return DyeColor.byId( 15 - colour.ordinal() );
     }
 
-    private static InventoryChangeTrigger.Instance inventoryChange( Tag<Item> stack )
+    private static InventoryChangeTrigger.Instance inventoryChange( ITag<Item> stack )
     {
         return InventoryChangeTrigger.Instance.forItems( ItemPredicate.Builder.create().tag( stack ).build() );
     }

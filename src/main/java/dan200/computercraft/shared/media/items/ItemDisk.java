@@ -69,7 +69,7 @@ public class ItemDisk extends Item implements IMedia, IColouredItem
             if( id >= 0 )
             {
                 list.add( new TranslationTextComponent( "gui.computercraft.tooltip.disk_id", id )
-                    .applyTextStyle( TextFormatting.GRAY ) );
+                    .func_240699_a_( TextFormatting.GRAY ) );
             }
         }
     }

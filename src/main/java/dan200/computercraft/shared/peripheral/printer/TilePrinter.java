@@ -22,7 +22,7 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.*;
 import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.common.capabilities.Capability;
@@ -91,11 +91,11 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
     }
 
     @Override
-    public void read( @Nonnull CompoundNBT nbt )
+    public void read( @Nonnull BlockState state, @Nonnull CompoundNBT nbt )
     {
-        super.read( nbt );
+        super.read( state, nbt );
 
-        customName = nbt.contains( NBT_NAME ) ? ITextComponent.Serializer.fromJson( nbt.getString( NBT_NAME ) ) : null;
+        customName = nbt.contains( NBT_NAME ) ? ITextComponent.Serializer.func_240643_a_( nbt.getString( NBT_NAME ) ) : null;
 
         // Read page
         synchronized( m_page )
@@ -403,7 +403,7 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
                 setInventorySlotContents( i, ItemStack.EMPTY );
 
                 // Spawn the item in the world
-                WorldUtil.dropItemStack( stack, getWorld(), new Vec3d( getPos() ).add( 0.5, 0.75, 0.5 ) );
+                WorldUtil.dropItemStack( stack, getWorld(), Vector3d.func_237491_b_( getPos() ).add( 0.5, 0.75, 0.5 ) );
             }
         }
     }

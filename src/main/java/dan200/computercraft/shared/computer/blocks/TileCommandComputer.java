@@ -14,8 +14,8 @@ import net.minecraft.command.ICommandSource;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.math.Vec2f;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.vector.Vector2f;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
@@ -25,6 +25,7 @@ import net.minecraft.world.server.ServerWorld;
 import javax.annotation.Nonnull;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 public class TileCommandComputer extends TileComputer
 {
@@ -48,7 +49,7 @@ public class TileCommandComputer extends TileComputer
         }
 
         @Override
-        public void sendMessage( @Nonnull ITextComponent textComponent )
+        public void sendMessage( @Nonnull ITextComponent textComponent, @Nonnull UUID id )
         {
             output.put( output.size() + 1, textComponent.getString() );
         }
@@ -96,7 +97,7 @@ public class TileCommandComputer extends TileComputer
         }
 
         return new CommandSource( receiver,
-            new Vec3d( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5 ), Vec2f.ZERO,
+            new Vector3d( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5 ), Vector2f.ZERO,
             (ServerWorld) getWorld(), 2,
             name, new StringTextComponent( name ),
             getWorld().getServer(), null

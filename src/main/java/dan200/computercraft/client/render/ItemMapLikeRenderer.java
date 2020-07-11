@@ -10,12 +10,12 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
 import net.minecraft.client.renderer.FirstPersonRenderer;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.client.renderer.Vector3f;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Hand;
 import net.minecraft.util.HandSide;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.vector.Vector3f;
 
 public abstract class ItemMapLikeRenderer
 {

@@ -12,7 +12,7 @@ import net.minecraft.tileentity.ITickableTileEntity;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
@@ -77,10 +77,10 @@ public class TileSpeaker extends TileGeneric implements ITickableTileEntity
         }
 
         @Override
-        public Vec3d getPosition()
+        public Vector3d getPosition()
         {
             BlockPos pos = speaker.getPos();
-            return new Vec3d( pos.getX(), pos.getY(), pos.getZ() );
+            return new Vector3d( pos.getX(), pos.getY(), pos.getZ() );
         }
 
         @Override

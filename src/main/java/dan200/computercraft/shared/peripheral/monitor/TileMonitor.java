@@ -14,6 +14,7 @@ import dan200.computercraft.shared.common.TileGeneric;
 import dan200.computercraft.shared.network.client.TerminalState;
 import dan200.computercraft.shared.util.CapabilityUtil;
 import dan200.computercraft.shared.util.TickScheduler;
+import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.TileEntity;
@@ -134,13 +135,14 @@ public class TileMonitor extends TileGeneric
     }
 
     @Override
-    public void read( @Nonnull CompoundNBT tag )
+    public void read( @Nonnull BlockState state, @Nonnull CompoundNBT nbt )
     {
-        super.read( tag );
-        m_xIndex = tag.getInt( NBT_X );
-        m_yIndex = tag.getInt( NBT_Y );
-        m_width = tag.getInt( NBT_WIDTH );
-        m_height = tag.getInt( NBT_HEIGHT );
+        super.read( state, nbt );
+
+        m_xIndex = nbt.getInt( NBT_X );
+        m_yIndex = nbt.getInt( NBT_Y );
+        m_width = nbt.getInt( NBT_WIDTH );
+        m_height = nbt.getInt( NBT_HEIGHT );
     }
 
     @Override

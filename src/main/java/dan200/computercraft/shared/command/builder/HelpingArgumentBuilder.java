@@ -13,6 +13,7 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.tree.CommandNode;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import net.minecraft.command.CommandSource;
+import net.minecraft.util.text.IFormattableTextComponent;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TextFormatting;
@@ -173,12 +174,12 @@ public final class HelpingArgumentBuilder extends LiteralArgumentBuilder<Command
         temp.addChild( node );
         String usage = dispatcher.getSmartUsage( temp, context.getSource() ).get( node ).substring( node.getName().length() );
 
-        ITextComponent output = new StringTextComponent( "" )
-            .appendSibling( coloured( "/" + command + usage, HEADER ) )
-            .appendText( " " )
-            .appendSibling( coloured( translate( "commands." + id + ".synopsis" ), SYNOPSIS ) )
-            .appendText( "\n" )
-            .appendSibling( translate( "commands." + id + ".desc" ) );
+        IFormattableTextComponent output = new StringTextComponent( "" )
+            .func_230529_a_( coloured( "/" + command + usage, HEADER ) )
+            .func_240702_b_( " " )
+            .func_230529_a_( coloured( translate( "commands." + id + ".synopsis" ), SYNOPSIS ) )
+            .func_240702_b_( "\n" )
+            .func_230529_a_( translate( "commands." + id + ".desc" ) );
 
         for( CommandNode<CommandSource> child : node.getChildren() )
         {
@@ -187,16 +188,16 @@ public final class HelpingArgumentBuilder extends LiteralArgumentBuilder<Command
                 continue;
             }
 
-            output.appendText( "\n" );
+            output.func_240702_b_( "\n" );
 
-            ITextComponent component = coloured( child.getName(), NAME );
+            IFormattableTextComponent component = coloured( child.getName(), NAME );
             component.getStyle().setClickEvent( new ClickEvent(
                 ClickEvent.Action.SUGGEST_COMMAND,
                 "/" + command + " " + child.getName()
             ) );
-            output.appendSibling( component );
+            output.func_230529_a_( component );
 
-            output.appendText( " - " ).appendSibling( translate( "commands." + id + "." + child.getName() + ".synopsis" ) );
+            output.func_240702_b_( " - " ).func_230529_a_( translate( "commands." + id + "." + child.getName() + ".synopsis" ) );
         }
 
         return output;

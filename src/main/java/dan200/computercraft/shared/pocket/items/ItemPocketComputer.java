@@ -27,12 +27,14 @@ import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.IInventory;
-import net.minecraft.item.IItemPropertyGetter;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.*;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.ActionResultType;
+import net.minecraft.util.Hand;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TextFormatting;
@@ -60,8 +62,6 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
     {
         super( settings );
         this.family = family;
-        addPropertyOverride( new ResourceLocation( ComputerCraft.MOD_ID, "state" ), COMPUTER_STATE );
-        addPropertyOverride( new ResourceLocation( ComputerCraft.MOD_ID, "coloured" ), COMPUTER_COLOURED );
     }
 
     public ItemStack create( int id, String label, int colour, IPocketUpgrade upgrade )
@@ -190,7 +190,7 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
             if( id >= 0 )
             {
                 list.add( new TranslationTextComponent( "gui.computercraft.tooltip.computer_id", id )
-                    .applyTextStyle( TextFormatting.GRAY ) );
+                    .func_240699_a_( TextFormatting.GRAY ) );
             }
         }
     }
@@ -408,7 +408,4 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
     {
         return stack.getOrCreateChildTag( NBT_UPGRADE_INFO );
     }
-
-    private static final IItemPropertyGetter COMPUTER_STATE = ( stack, world, player ) -> getState( stack ).ordinal();
-    private static final IItemPropertyGetter COMPUTER_COLOURED = ( stack, world, player ) -> IColouredItem.getColourBasic( stack ) != -1 ? 1 : 0;
 }

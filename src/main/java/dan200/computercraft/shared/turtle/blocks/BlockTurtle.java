@@ -20,7 +20,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.DamagingProjectileEntity;
-import net.minecraft.fluid.IFluidState;
+import net.minecraft.fluid.FluidState;
 import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.state.DirectionProperty;
@@ -31,11 +31,14 @@ import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.shapes.ISelectionContext;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.shapes.VoxelShapes;
-import net.minecraft.world.*;
+import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.world.Explosion;
+import net.minecraft.world.IBlockReader;
+import net.minecraft.world.IWorld;
+import net.minecraft.world.World;
 import net.minecraftforge.fml.RegistryObject;
 
 import javax.annotation.Nonnull;
@@ -82,8 +85,8 @@ public class BlockTurtle extends BlockComputerBase<TileTurtle> implements IWater
     public VoxelShape getShape( @Nonnull BlockState state, IBlockReader world, @Nonnull BlockPos pos, @Nonnull ISelectionContext context )
     {
         TileEntity tile = world.getTileEntity( pos );
-        Vec3d offset = tile instanceof TileTurtle ? ((TileTurtle) tile).getRenderOffset( 1.0f ) : Vec3d.ZERO;
-        return offset.equals( Vec3d.ZERO ) ? DEFAULT_SHAPE : DEFAULT_SHAPE.withOffset( offset.x, offset.y, offset.z );
+        Vector3d offset = tile instanceof TileTurtle ? ((TileTurtle) tile).getRenderOffset( 1.0f ) : Vector3d.ZERO;
+        return offset.equals( Vector3d.ZERO ) ? DEFAULT_SHAPE : DEFAULT_SHAPE.withOffset( offset.x, offset.y, offset.z );
     }
 
     @Nullable
@@ -98,7 +101,7 @@ public class BlockTurtle extends BlockComputerBase<TileTurtle> implements IWater
     @Nonnull
     @Override
     @Deprecated
-    public IFluidState getFluidState( @Nonnull BlockState state )
+    public FluidState getFluidState( @Nonnull BlockState state )
     {
         return getWaterloggedFluidState( state );
     }
@@ -151,14 +154,15 @@ public class BlockTurtle extends BlockComputerBase<TileTurtle> implements IWater
     }
 
     @Override
-    public float getExplosionResistance( BlockState state, IWorldReader world, BlockPos pos, @Nullable Entity exploder, Explosion explosion )
+    public float getExplosionResistance( BlockState state, IBlockReader world, BlockPos pos, Explosion explosion )
     {
+        Entity exploder = explosion.getExploder();
         if( getFamily() == ComputerFamily.ADVANCED || exploder instanceof LivingEntity || exploder instanceof DamagingProjectileEntity )
         {
             return 2000;
         }
 
-        return super.getExplosionResistance( state, world, pos, exploder, explosion );
+        return super.getExplosionResistance( state, world, pos, explosion );
     }
 
     @Nonnull

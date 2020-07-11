@@ -13,7 +13,7 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.CapabilityItemHandler;
@@ -93,16 +93,16 @@ public final class InventoryUtil
         }
 
         // Look for entity with inventory
-        Vec3d vecStart = new Vec3d(
+        Vector3d vecStart = new Vector3d(
             pos.getX() + 0.5 + 0.6 * side.getXOffset(),
             pos.getY() + 0.5 + 0.6 * side.getYOffset(),
             pos.getZ() + 0.5 + 0.6 * side.getZOffset()
         );
         Direction dir = side.getOpposite();
-        Vec3d vecDir = new Vec3d(
+        Vector3d vecDir = new Vector3d(
             dir.getXOffset(), dir.getYOffset(), dir.getZOffset()
         );
-        Pair<Entity, Vec3d> hit = WorldUtil.rayTraceEntities( world, vecStart, vecDir, 1.1 );
+        Pair<Entity, Vector3d> hit = WorldUtil.rayTraceEntities( world, vecStart, vecDir, 1.1 );
         if( hit != null )
         {
             Entity entity = hit.getKey();

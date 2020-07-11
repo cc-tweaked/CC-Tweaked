@@ -5,6 +5,7 @@
  */
 package dan200.computercraft.client.gui;
 
+import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.client.gui.widgets.WidgetTerminal;
@@ -20,6 +21,8 @@ import net.minecraft.client.gui.screen.inventory.ContainerScreen;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.util.text.ITextComponent;
 import org.lwjgl.glfw.GLFW;
+
+import javax.annotation.Nonnull;
 
 import static dan200.computercraft.client.render.ComputerBorderRenderer.BORDER;
 import static dan200.computercraft.client.render.ComputerBorderRenderer.MARGIN;
@@ -120,7 +123,7 @@ public final class GuiComputer<T extends ContainerComputerBase> extends Containe
     }
 
     @Override
-    public void drawGuiContainerBackgroundLayer( float partialTicks, int mouseX, int mouseY )
+    public void func_230450_a_( @Nonnull MatrixStack stack, float partialTicks, int mouseX, int mouseY )
     {
         // Draw terminal
         terminal.draw( terminalWrapper.getX(), terminalWrapper.getY() );
@@ -135,11 +138,10 @@ public final class GuiComputer<T extends ContainerComputerBase> extends Containe
     }
 
     @Override
-    public void render( int mouseX, int mouseY, float partialTicks )
+    public void render( @Nonnull MatrixStack stack, int mouseX, int mouseY, float partialTicks )
     {
-        renderBackground();
-        super.render( mouseX, mouseY, partialTicks );
-        renderHoveredToolTip( mouseX, mouseY );
+        super.render( stack, mouseX, mouseY, partialTicks );
+        func_230459_a_( stack, mouseX, mouseY );
     }
 
     @Override

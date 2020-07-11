@@ -81,7 +81,7 @@ public final class ComputerCraftAPIImpl implements IComputerCraftAPI
     @Override
     public IMount createResourceMount( @Nonnull String domain, @Nonnull String subPath )
     {
-        IReloadableResourceManager manager = ServerLifecycleHooks.getCurrentServer().getResourceManager();
+        IReloadableResourceManager manager = (IReloadableResourceManager) ServerLifecycleHooks.getCurrentServer().getDataPackRegistries().func_240970_h_();
         ResourceMount mount = ResourceMount.get( domain, subPath, manager );
         return mount.exists( "" ) ? mount : null;
     }

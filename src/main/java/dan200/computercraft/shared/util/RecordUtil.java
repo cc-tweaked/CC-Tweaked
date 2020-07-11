@@ -10,7 +10,7 @@ import dan200.computercraft.shared.network.NetworkMessage;
 import dan200.computercraft.shared.network.client.PlayRecordClientMessage;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 
 public final class RecordUtil
@@ -20,6 +20,6 @@ public final class RecordUtil
     public static void playRecord( SoundEvent record, String recordInfo, World world, BlockPos pos )
     {
         NetworkMessage packet = record != null ? new PlayRecordClientMessage( pos, record, recordInfo ) : new PlayRecordClientMessage( pos );
-        NetworkHandler.sendToAllAround( packet, world, new Vec3d( pos ), 64 );
+        NetworkHandler.sendToAllAround( packet, world, Vector3d.func_237489_a_( pos ), 64 );
     }
 }

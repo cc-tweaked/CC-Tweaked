@@ -19,7 +19,6 @@ import dan200.computercraft.shared.computer.core.IComputer;
 import dan200.computercraft.shared.computer.core.IContainerComputer;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.data.BlockNamedEntityLootCondition;
-import dan200.computercraft.shared.data.ConstantLootConditionSerializer;
 import dan200.computercraft.shared.data.HasComputerIdLootCondition;
 import dan200.computercraft.shared.data.PlayerCreativeLootCondition;
 import dan200.computercraft.shared.media.items.RecordMedia;
@@ -29,12 +28,9 @@ import dan200.computercraft.shared.util.NullStorage;
 import net.minecraft.inventory.container.Container;
 import net.minecraft.item.Item;
 import net.minecraft.item.MusicDiscItem;
+import net.minecraft.loot.*;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.world.storage.loot.ConstantRange;
-import net.minecraft.world.storage.loot.LootPool;
-import net.minecraft.world.storage.loot.LootTables;
-import net.minecraft.world.storage.loot.TableLootEntry;
-import net.minecraft.world.storage.loot.conditions.LootConditionManager;
+import net.minecraft.util.registry.Registry;
 import net.minecraftforge.common.capabilities.CapabilityManager;
 import net.minecraftforge.event.LootTableLoadEvent;
 import net.minecraftforge.event.TickEvent;
@@ -68,23 +64,14 @@ public final class ComputerCraftProxyCommon
 
     public static void registerLoot()
     {
-        LootConditionManager.registerCondition( ConstantLootConditionSerializer.of(
-            new ResourceLocation( ComputerCraft.MOD_ID, "block_named" ),
-            BlockNamedEntityLootCondition.class,
-            BlockNamedEntityLootCondition.INSTANCE
-        ) );
+        registerCondition( "block_named", BlockNamedEntityLootCondition.TYPE );
+        registerCondition( "player_creative", PlayerCreativeLootCondition.TYPE );
+        registerCondition( "has_id", HasComputerIdLootCondition.TYPE );
+    }
 
-        LootConditionManager.registerCondition( ConstantLootConditionSerializer.of(
-            new ResourceLocation( ComputerCraft.MOD_ID, "player_creative" ),
-            PlayerCreativeLootCondition.class,
-            PlayerCreativeLootCondition.INSTANCE
-        ) );
-
-        LootConditionManager.registerCondition( ConstantLootConditionSerializer.of(
-            new ResourceLocation( ComputerCraft.MOD_ID, "has_id" ),
-            HasComputerIdLootCondition.class,
-            HasComputerIdLootCondition.INSTANCE
-        ) );
+    private static void registerCondition( String name, LootConditionType serializer )
+    {
+        Registry.register( Registry.field_239704_ba_, new ResourceLocation( ComputerCraft.MOD_ID, name ), serializer );
     }
 
     private static void registerProviders()

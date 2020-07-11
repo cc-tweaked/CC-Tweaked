@@ -17,7 +17,7 @@ import dan200.computercraft.shared.peripheral.speaker.SpeakerPeripheral;
 import net.minecraft.client.renderer.model.ModelResourceLocation;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -42,10 +42,10 @@ public class TurtleSpeaker extends AbstractTurtleUpgrade
         }
 
         @Override
-        public Vec3d getPosition()
+        public Vector3d getPosition()
         {
             BlockPos pos = turtle.getPosition();
-            return new Vec3d( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5 );
+            return new Vector3d( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5 );
         }
 
         @Override

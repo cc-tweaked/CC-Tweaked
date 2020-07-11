@@ -15,7 +15,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
@@ -46,10 +46,10 @@ public class TileWirelessModem extends TileGeneric
 
         @Nonnull
         @Override
-        public Vec3d getPosition()
+        public Vector3d getPosition()
         {
             BlockPos pos = entity.getPos().offset( entity.modemDirection );
-            return new Vec3d( pos.getX(), pos.getY(), pos.getZ() );
+            return new Vector3d( pos.getX(), pos.getY(), pos.getZ() );
         }
 
         @Override

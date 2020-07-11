@@ -93,7 +93,7 @@ public class ItemData
     {
         try
         {
-            return ITextComponent.Serializer.fromJson( x.getString() );
+            return ITextComponent.Serializer.func_240643_a_( x.getString() );
         }
         catch( JsonParseException e )
         {

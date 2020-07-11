@@ -16,7 +16,7 @@ import dan200.computercraft.shared.peripheral.monitor.MonitorRenderer;
 import dan200.computercraft.shared.pocket.peripherals.PocketModem;
 import dan200.computercraft.shared.pocket.peripherals.PocketSpeaker;
 import dan200.computercraft.shared.turtle.upgrades.*;
-import net.minecraft.resources.IReloadableResourceManager;
+import net.minecraft.resources.IResourceManager;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.server.ServerLifecycleHooks;
@@ -141,7 +141,7 @@ public final class ComputerCraft
 
     public static InputStream getResourceFile( String domain, String subPath )
     {
-        IReloadableResourceManager manager = ServerLifecycleHooks.getCurrentServer().getResourceManager();
+        IResourceManager manager = ServerLifecycleHooks.getCurrentServer().getDataPackRegistries().func_240970_h_();
         try
         {
             return manager.getResource( new ResourceLocation( domain, subPath ) ).getInputStream();

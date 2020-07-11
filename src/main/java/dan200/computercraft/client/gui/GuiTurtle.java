@@ -5,6 +5,7 @@
  */
 package dan200.computercraft.client.gui;
 
+import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.client.gui.widgets.WidgetTerminal;
@@ -17,6 +18,8 @@ import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 import org.lwjgl.glfw.GLFW;
+
+import javax.annotation.Nonnull;
 
 public class GuiTurtle extends ContainerScreen<ContainerTurtle>
 {
@@ -102,12 +105,12 @@ public class GuiTurtle extends ContainerScreen<ContainerTurtle>
             int slotX = slot % 4;
             int slotY = slot / 4;
             minecraft.getTextureManager().bindTexture( advanced ? BACKGROUND_ADVANCED : BACKGROUND_NORMAL );
-            blit( guiLeft + ContainerTurtle.TURTLE_START_X - 2 + slotX * 18, guiTop + ContainerTurtle.PLAYER_START_Y - 2 + slotY * 18, 0, 217, 24, 24 );
+            // TODO: blit( guiLeft + ContainerTurtle.TURTLE_START_X - 2 + slotX * 18, guiTop + ContainerTurtle.PLAYER_START_Y - 2 + slotY * 18, 0, 217, 24, 24 );
         }
     }
 
     @Override
-    protected void drawGuiContainerBackgroundLayer( float partialTicks, int mouseX, int mouseY )
+    protected void func_230450_a_( @Nonnull MatrixStack transform, float partialTicks, int mouseX, int mouseY )
     {
         // Draw term
         boolean advanced = m_family == ComputerFamily.ADVANCED;
@@ -116,17 +119,17 @@ public class GuiTurtle extends ContainerScreen<ContainerTurtle>
         // Draw border/inventory
         RenderSystem.color4f( 1.0F, 1.0F, 1.0F, 1.0F );
         minecraft.getTextureManager().bindTexture( advanced ? BACKGROUND_ADVANCED : BACKGROUND_NORMAL );
-        blit( guiLeft, guiTop, 0, 0, xSize, ySize );
+        blit( transform, guiLeft, guiTop, 0, 0, xSize, ySize );
 
         drawSelectionSlot( advanced );
     }
 
     @Override
-    public void render( int mouseX, int mouseY, float partialTicks )
+    public void render( @Nonnull MatrixStack stack, int mouseX, int mouseY, float partialTicks )
     {
-        renderBackground();
-        super.render( mouseX, mouseY, partialTicks );
-        renderHoveredToolTip( mouseX, mouseY );
+        renderBackground( stack );
+        super.render( stack, mouseX, mouseY, partialTicks );
+        func_230459_a_( stack, mouseX, mouseY );
     }
 
     @Override

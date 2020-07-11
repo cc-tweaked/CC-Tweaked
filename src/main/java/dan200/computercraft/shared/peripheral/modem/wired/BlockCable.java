@@ -15,7 +15,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.IWaterLoggable;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.fluid.IFluidState;
+import net.minecraft.fluid.FluidState;
 import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.state.BooleanProperty;
@@ -100,7 +100,7 @@ public class BlockCable extends BlockGeneric implements IWaterLoggable
     }
 
     @Override
-    public boolean removedByPlayer( BlockState state, World world, BlockPos pos, PlayerEntity player, boolean willHarvest, IFluidState fluid )
+    public boolean removedByPlayer( BlockState state, World world, BlockPos pos, PlayerEntity player, boolean willHarvest, FluidState fluid )
     {
         if( state.get( CABLE ) && state.get( MODEM ).getFacing() != null )
         {
@@ -180,7 +180,7 @@ public class BlockCable extends BlockGeneric implements IWaterLoggable
     @Nonnull
     @Override
     @Deprecated
-    public IFluidState getFluidState( @Nonnull BlockState state )
+    public FluidState getFluidState( @Nonnull BlockState state )
     {
         return getWaterloggedFluidState( state );
     }

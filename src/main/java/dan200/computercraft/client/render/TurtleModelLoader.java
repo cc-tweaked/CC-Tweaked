@@ -57,16 +57,16 @@ public final class TurtleModelLoader implements IModelLoader<TurtleModelLoader.T
         }
 
         @Override
-        public Collection<Material> getTextures( IModelConfiguration owner, Function<ResourceLocation, IUnbakedModel> modelGetter, Set<Pair<String, String>> missingTextureErrors )
+        public Collection<RenderMaterial> getTextures( IModelConfiguration owner, Function<ResourceLocation, IUnbakedModel> modelGetter, Set<Pair<String, String>> missingTextureErrors )
         {
-            Set<Material> materials = new HashSet<>();
+            Set<RenderMaterial> materials = new HashSet<>();
             materials.addAll( modelGetter.apply( family ).getTextures( modelGetter, missingTextureErrors ) );
             materials.addAll( modelGetter.apply( COLOUR_TURTLE_MODEL ).getTextures( modelGetter, missingTextureErrors ) );
             return materials;
         }
 
         @Override
-        public IBakedModel bake( IModelConfiguration owner, ModelBakery bakery, Function<Material, TextureAtlasSprite> spriteGetter, IModelTransform transform, ItemOverrideList overrides, ResourceLocation modelLocation )
+        public IBakedModel bake( IModelConfiguration owner, ModelBakery bakery, Function<RenderMaterial, TextureAtlasSprite> spriteGetter, IModelTransform transform, ItemOverrideList overrides, ResourceLocation modelLocation )
         {
             return new TurtleSmartItemModel(
                 bakery.getBakedModel( family, transform, spriteGetter ),

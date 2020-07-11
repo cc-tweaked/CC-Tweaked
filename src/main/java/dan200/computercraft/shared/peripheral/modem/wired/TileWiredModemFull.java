@@ -26,7 +26,7 @@ import net.minecraft.util.Direction;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
@@ -85,10 +85,10 @@ public class TileWiredModemFull extends TileGeneric
 
         @Nonnull
         @Override
-        public Vec3d getPosition()
+        public Vector3d getPosition()
         {
             BlockPos pos = m_entity.getPos();
-            return new Vec3d( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5 );
+            return new Vector3d( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5 );
         }
     }
 
@@ -217,17 +217,17 @@ public class TileWiredModemFull extends TileGeneric
         StringTextComponent base = new StringTextComponent( "" );
         for( int i = 0; i < names.size(); i++ )
         {
-            if( i > 0 ) base.appendText( ", " );
-            base.appendSibling( CommandCopy.createCopyText( names.get( i ) ) );
+            if( i > 0 ) base.func_240702_b_( ", " );
+            base.func_230529_a_( CommandCopy.createCopyText( names.get( i ) ) );
         }
 
         player.sendStatusMessage( new TranslationTextComponent( kind, base ), false );
     }
 
     @Override
-    public void read( @Nonnull CompoundNBT nbt )
+    public void read( @Nonnull BlockState state, @Nonnull CompoundNBT nbt )
     {
-        super.read( nbt );
+        super.read( state, nbt );
         m_peripheralAccessAllowed = nbt.getBoolean( NBT_PERIPHERAL_ENABLED );
         for( int i = 0; i < m_peripherals.length; i++ ) m_peripherals[i].read( nbt, Integer.toString( i ) );
     }
@@ -399,10 +399,10 @@ public class TileWiredModemFull extends TileGeneric
 
             @Nonnull
             @Override
-            public Vec3d getPosition()
+            public Vector3d getPosition()
             {
                 BlockPos pos = getPos().offset( side );
-                return new Vec3d( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5 );
+                return new Vector3d( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5 );
             }
 
             @Nonnull

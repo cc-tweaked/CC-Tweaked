@@ -13,7 +13,7 @@ import net.minecraft.inventory.IInventory;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 import net.minecraftforge.items.IItemHandlerModifiable;
 
@@ -67,7 +67,7 @@ public interface ITurtleAccess
      * @see #getVisualYaw(float)
      */
     @Nonnull
-    Vec3d getVisualPosition( float f );
+    Vector3d getVisualPosition( float f );
 
     /**
      * Returns the yaw the turtle is facing when it is rendered.

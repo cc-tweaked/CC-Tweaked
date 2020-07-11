@@ -23,6 +23,7 @@ import dan200.computercraft.shared.turtle.apis.TurtleAPI;
 import dan200.computercraft.shared.turtle.core.TurtleBrain;
 import dan200.computercraft.shared.turtle.inventory.ContainerTurtle;
 import dan200.computercraft.shared.util.*;
+import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.container.Container;
@@ -36,7 +37,7 @@ import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.*;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.LazyOptional;
@@ -256,9 +257,9 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
     }
 
     @Override
-    public void read( @Nonnull CompoundNBT nbt )
+    public void read( @Nonnull BlockState state, @Nonnull CompoundNBT nbt )
     {
-        super.read( nbt );
+        super.read( state, nbt );
 
         // Read inventory
         ListNBT nbttaglist = nbt.getList( "Items", Constants.NBT.TAG_COMPOUND );
@@ -353,7 +354,7 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
     }
 
     @Override
-    public Vec3d getRenderOffset( float f )
+    public Vector3d getRenderOffset( float f )
     {
         return m_brain.getRenderOffset( f );
     }

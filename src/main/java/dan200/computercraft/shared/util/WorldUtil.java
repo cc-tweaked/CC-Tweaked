@@ -12,9 +12,14 @@ import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Direction;
-import net.minecraft.util.math.*;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.RayTraceContext;
+import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.shapes.VoxelShape;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
+import net.minecraftforge.common.ForgeMod;
 import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nonnull;
@@ -56,7 +61,7 @@ public final class WorldUtil
         return world.getBlockState( pos ).getMaterial().isLiquid();
     }
 
-    public static boolean isVecInside( VoxelShape shape, Vec3d vec )
+    public static boolean isVecInside( VoxelShape shape, Vector3d vec )
     {
         if( shape.isEmpty() ) return false;
         // AxisAlignedBB.contains, but without strict inequalities.
@@ -64,9 +69,9 @@ public final class WorldUtil
         return vec.x >= bb.minX && vec.x <= bb.maxX && vec.y >= bb.minY && vec.y <= bb.maxY && vec.z >= bb.minZ && vec.z <= bb.maxZ;
     }
 
-    public static Pair<Entity, Vec3d> rayTraceEntities( World world, Vec3d vecStart, Vec3d vecDir, double distance )
+    public static Pair<Entity, Vector3d> rayTraceEntities( World world, Vector3d vecStart, Vector3d vecDir, double distance )
     {
-        Vec3d vecEnd = vecStart.add( vecDir.x * distance, vecDir.y * distance, vecDir.z * distance );
+        Vector3d vecEnd = vecStart.add( vecDir.x * distance, vecDir.y * distance, vecDir.z * distance );
 
         // Raycast for blocks
         Entity collisionEntity = getEntity( world );
@@ -105,7 +110,7 @@ public final class WorldUtil
                 continue;
             }
 
-            Vec3d littleBoxResult = littleBox.rayTrace( vecStart, vecEnd ).orElse( null );
+            Vector3d littleBoxResult = littleBox.rayTrace( vecStart, vecEnd ).orElse( null );
             if( littleBoxResult != null )
             {
                 double dist = vecStart.distanceTo( littleBoxResult );
@@ -126,21 +131,21 @@ public final class WorldUtil
         }
         if( closest != null && closestDist <= distance )
         {
-            Vec3d closestPos = vecStart.add( vecDir.x * closestDist, vecDir.y * closestDist, vecDir.z * closestDist );
+            Vector3d closestPos = vecStart.add( vecDir.x * closestDist, vecDir.y * closestDist, vecDir.z * closestDist );
             return Pair.of( closest, closestPos );
         }
         return null;
     }
 
-    public static Vec3d getRayStart( LivingEntity entity )
+    public static Vector3d getRayStart( LivingEntity entity )
     {
         return entity.getEyePosition( 1 );
     }
 
-    public static Vec3d getRayEnd( PlayerEntity player )
+    public static Vector3d getRayEnd( PlayerEntity player )
     {
-        double reach = player.getAttribute( PlayerEntity.REACH_DISTANCE ).getValue();
-        Vec3d look = player.getLookVec();
+        double reach = player.getAttribute( ForgeMod.REACH_DISTANCE.get() ).getValue();
+        Vector3d look = player.getLookVec();
         return getRayStart( player ).add( look.x * reach, look.y * reach, look.z * reach );
     }
 
@@ -170,15 +175,15 @@ public final class WorldUtil
         double xPos = pos.getX() + 0.5 + xDir * 0.4;
         double yPos = pos.getY() + 0.5 + yDir * 0.4;
         double zPos = pos.getZ() + 0.5 + zDir * 0.4;
-        dropItemStack( stack, world, new Vec3d( xPos, yPos, zPos ), xDir, yDir, zDir );
+        dropItemStack( stack, world, new Vector3d( xPos, yPos, zPos ), xDir, yDir, zDir );
     }
 
-    public static void dropItemStack( @Nonnull ItemStack stack, World world, Vec3d pos )
+    public static void dropItemStack( @Nonnull ItemStack stack, World world, Vector3d pos )
     {
         dropItemStack( stack, world, pos, 0.0, 0.0, 0.0 );
     }
 
-    public static void dropItemStack( @Nonnull ItemStack stack, World world, Vec3d pos, double xDir, double yDir, double zDir )
+    public static void dropItemStack( @Nonnull ItemStack stack, World world, Vector3d pos, double xDir, double yDir, double zDir )
     {
         ItemEntity item = new ItemEntity( world, pos.x, pos.y, pos.z, stack.copy() );
         item.setMotion(

@@ -11,13 +11,19 @@ import dan200.computercraft.client.render.TileEntityMonitorRenderer;
 import dan200.computercraft.client.render.TileEntityTurtleRenderer;
 import dan200.computercraft.client.render.TurtlePlayerRenderer;
 import dan200.computercraft.shared.Registry;
+import dan200.computercraft.shared.common.IColouredItem;
 import dan200.computercraft.shared.computer.inventory.ContainerComputer;
 import dan200.computercraft.shared.computer.inventory.ContainerViewComputer;
 import dan200.computercraft.shared.peripheral.monitor.ClientMonitor;
 import dan200.computercraft.shared.pocket.inventory.ContainerPocketComputer;
+import dan200.computercraft.shared.pocket.items.ItemPocketComputer;
 import net.minecraft.client.gui.ScreenManager;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.RenderTypeLookup;
+import net.minecraft.item.IItemPropertyGetter;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemModelsProperties;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -25,6 +31,8 @@ import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.client.registry.RenderingRegistry;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
+
+import java.util.function.Supplier;
 
 @Mod.EventBusSubscriber( modid = ComputerCraft.MOD_ID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.MOD )
 public final class ComputerCraftProxyClient
@@ -50,6 +58,25 @@ public final class ComputerCraftProxyClient
         // TODO: ClientRegistry.bindTileEntityRenderer( TileCable.FACTORY, x -> new TileEntityCableRenderer() );
 
         RenderingRegistry.registerEntityRenderingHandler( Registry.ModEntities.TURTLE_PLAYER.get(), TurtlePlayerRenderer::new );
+
+        registerItemProperty( "state",
+            ( stack, world, player ) -> ItemPocketComputer.getState( stack ).ordinal(),
+            Registry.ModItems.POCKET_COMPUTER_NORMAL, Registry.ModItems.POCKET_COMPUTER_ADVANCED
+        );
+        registerItemProperty( "state",
+            ( stack, world, player ) -> IColouredItem.getColourBasic( stack ) != -1 ? 1 : 0,
+            Registry.ModItems.POCKET_COMPUTER_NORMAL, Registry.ModItems.POCKET_COMPUTER_ADVANCED
+        );
+    }
+
+    @SafeVarargs
+    private static void registerItemProperty( String name, IItemPropertyGetter getter, Supplier<? extends Item>... items )
+    {
+        ResourceLocation id = new ResourceLocation( ComputerCraft.MOD_ID, name );
+        for( Supplier<? extends Item> item : items )
+        {
+            ItemModelsProperties.func_239418_a_( item.get(), id, getter );
+        }
     }
 
     private static void registerContainers()

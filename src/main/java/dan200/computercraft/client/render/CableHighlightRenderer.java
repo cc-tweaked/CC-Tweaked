@@ -14,14 +14,14 @@ import dan200.computercraft.shared.peripheral.modem.wired.CableShapes;
 import dan200.computercraft.shared.util.WorldUtil;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.renderer.ActiveRenderInfo;
-import net.minecraft.client.renderer.Matrix4f;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.WorldRenderer;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.shapes.VoxelShape;
+import net.minecraft.util.math.vector.Matrix4f;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.DrawHighlightEvent;
@@ -63,7 +63,7 @@ public final class CableHighlightRenderer
             ? CableShapes.getModemShape( state )
             : CableShapes.getCableShape( state );
 
-        Vec3d cameraPos = info.getProjectedView();
+        Vector3d cameraPos = info.getProjectedView();
         double xOffset = pos.getX() - cameraPos.getX();
         double yOffset = pos.getY() - cameraPos.getY();
         double zOffset = pos.getZ() - cameraPos.getZ();

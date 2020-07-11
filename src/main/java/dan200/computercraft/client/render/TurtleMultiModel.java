@@ -7,12 +7,12 @@ package dan200.computercraft.client.render;
 
 import dan200.computercraft.api.client.TransformedModel;
 import net.minecraft.block.BlockState;
-import net.minecraft.client.renderer.TransformationMatrix;
 import net.minecraft.client.renderer.model.BakedQuad;
 import net.minecraft.client.renderer.model.IBakedModel;
 import net.minecraft.client.renderer.model.ItemOverrideList;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.util.Direction;
+import net.minecraft.util.math.vector.TransformationMatrix;
 import net.minecraftforge.client.model.data.EmptyModelData;
 import net.minecraftforge.client.model.data.IModelData;
 import net.minecraftforge.client.model.pipeline.BakedQuadBuilder;

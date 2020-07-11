@@ -5,7 +5,7 @@
  */
 package dan200.computercraft.api.network;
 
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
@@ -29,7 +29,7 @@ public interface IPacketReceiver
      * @return The receiver's position.
      */
     @Nonnull
-    Vec3d getPosition();
+    Vector3d getPosition();
 
     /**
      * Get the maximum distance this receiver can send and receive messages.

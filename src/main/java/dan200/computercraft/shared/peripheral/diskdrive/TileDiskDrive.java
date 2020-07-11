@@ -122,10 +122,10 @@ public final class TileDiskDrive extends TileGeneric implements DefaultInventory
     }
 
     @Override
-    public void read( @Nonnull CompoundNBT nbt )
+    public void read( @Nonnull BlockState state, @Nonnull CompoundNBT nbt )
     {
-        super.read( nbt );
-        customName = nbt.contains( NBT_NAME ) ? ITextComponent.Serializer.fromJson( nbt.getString( NBT_NAME ) ) : null;
+        super.read( state, nbt );
+        customName = nbt.contains( NBT_NAME ) ? ITextComponent.Serializer.func_240643_a_( nbt.getString( NBT_NAME ) ) : null;
         if( nbt.contains( NBT_ITEM ) )
         {
             CompoundNBT item = nbt.getCompound( NBT_ITEM );

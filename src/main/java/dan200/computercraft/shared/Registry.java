@@ -92,7 +92,7 @@ public final class Registry
 
     public static final class ModBlocks
     {
-        static final DeferredRegister<Block> BLOCKS = new DeferredRegister<>( ForgeRegistries.BLOCKS, ComputerCraft.MOD_ID );
+        static final DeferredRegister<Block> BLOCKS = DeferredRegister.create( ForgeRegistries.BLOCKS, ComputerCraft.MOD_ID );
 
         private static Block.Properties properties()
         {
@@ -145,7 +145,7 @@ public final class Registry
 
     public static class ModTiles
     {
-        static final DeferredRegister<TileEntityType<?>> TILES = new DeferredRegister<>( ForgeRegistries.TILE_ENTITIES, ComputerCraft.MOD_ID );
+        static final DeferredRegister<TileEntityType<?>> TILES = DeferredRegister.create( ForgeRegistries.TILE_ENTITIES, ComputerCraft.MOD_ID );
 
         private static <T extends TileEntity> RegistryObject<TileEntityType<T>> ofBlock( RegistryObject<? extends Block> block, Function<TileEntityType<T>, T> factory )
         {
@@ -183,7 +183,7 @@ public final class Registry
 
     public static final class ModItems
     {
-        static final DeferredRegister<Item> ITEMS = new DeferredRegister<>( ForgeRegistries.ITEMS, ComputerCraft.MOD_ID );
+        static final DeferredRegister<Item> ITEMS = DeferredRegister.create( ForgeRegistries.ITEMS, ComputerCraft.MOD_ID );
 
         private static Item.Properties properties()
         {
@@ -281,7 +281,7 @@ public final class Registry
 
     public static class ModEntities
     {
-        static final DeferredRegister<EntityType<?>> ENTITIES = new DeferredRegister<>( ForgeRegistries.ENTITIES, ComputerCraft.MOD_ID );
+        static final DeferredRegister<EntityType<?>> ENTITIES = DeferredRegister.create( ForgeRegistries.ENTITIES, ComputerCraft.MOD_ID );
 
         public static final RegistryObject<EntityType<TurtlePlayer>> TURTLE_PLAYER = ENTITIES.register( "turtle_player", () ->
             EntityType.Builder.<TurtlePlayer>create( EntityClassification.MISC )
@@ -293,7 +293,7 @@ public final class Registry
 
     public static class ModContainers
     {
-        static final DeferredRegister<ContainerType<?>> CONTAINERS = new DeferredRegister<>( ForgeRegistries.CONTAINERS, ComputerCraft.MOD_ID );
+        static final DeferredRegister<ContainerType<?>> CONTAINERS = DeferredRegister.create( ForgeRegistries.CONTAINERS, ComputerCraft.MOD_ID );
 
         public static final RegistryObject<ContainerType<ContainerComputer>> COMPUTER = CONTAINERS.register( "computer",
             () -> ContainerData.toType( ComputerContainerData::new, ContainerComputer::new ) );

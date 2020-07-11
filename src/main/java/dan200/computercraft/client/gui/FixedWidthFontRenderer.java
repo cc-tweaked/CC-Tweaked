@@ -13,10 +13,14 @@ import dan200.computercraft.core.terminal.TextBuffer;
 import dan200.computercraft.shared.util.Colour;
 import dan200.computercraft.shared.util.Palette;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.*;
+import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.client.renderer.RenderState;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.vector.Matrix4f;
+import net.minecraft.util.math.vector.TransformationMatrix;
 import org.lwjgl.opengl.GL11;
 
 import javax.annotation.Nonnull;

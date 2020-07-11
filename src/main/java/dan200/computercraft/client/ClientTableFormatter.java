@@ -12,14 +12,12 @@ import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.NewChatGui;
-import net.minecraft.client.gui.RenderComponentsUtil;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextFormatting;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.Nullable;
-import java.util.List;
 
 public class ClientTableFormatter implements TableFormatter
 {
@@ -57,7 +55,7 @@ public class ClientTableFormatter implements TableFormatter
     @Override
     public int getWidth( ITextComponent component )
     {
-        return renderer().getStringWidth( component.getFormattedText() );
+        return renderer().func_238414_a_( component );
     }
 
     @Override
@@ -66,10 +64,11 @@ public class ClientTableFormatter implements TableFormatter
         Minecraft mc = Minecraft.getInstance();
         NewChatGui chat = mc.ingameGUI.getChatGUI();
 
-        // Trim the text if it goes over the allowed length
-        int maxWidth = MathHelper.floor( chat.getChatWidth() / chat.getScale() );
-        List<ITextComponent> list = RenderComponentsUtil.splitText( component, maxWidth, mc.fontRenderer, false, false );
-        if( !list.isEmpty() ) chat.printChatMessageWithOptionalDeletion( list.get( 0 ), id );
+        // TODO: Trim the text if it goes over the allowed length
+        // int maxWidth = MathHelper.floor( chat.getChatWidth() / chat.getScale() );
+        // List<ITextProperties> list = RenderComponentsUtil.func_238505_a_( component, maxWidth, mc.fontRenderer );
+        // if( !list.isEmpty() ) chat.printChatMessageWithOptionalDeletion( list.get( 0 ), id );
+        chat.printChatMessageWithOptionalDeletion( component, id );
     }
 
     @Override

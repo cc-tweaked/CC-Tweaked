@@ -10,6 +10,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.StringTextComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.network.NetworkEvent;
@@ -81,7 +82,7 @@ public class PlayRecordClientMessage implements NetworkMessage
     public void handle( NetworkEvent.Context context )
     {
         Minecraft mc = Minecraft.getInstance();
-        mc.worldRenderer.playRecord( soundEvent, pos );
-        if( name != null ) mc.ingameGUI.setRecordPlayingMessage( name );
+        mc.worldRenderer.playRecord( soundEvent, pos, null );
+        if( name != null ) mc.ingameGUI.func_238451_a_( new StringTextComponent( name ) );
     }
 }

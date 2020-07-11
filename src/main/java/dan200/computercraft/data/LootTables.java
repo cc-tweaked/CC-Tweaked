@@ -14,10 +14,10 @@ import dan200.computercraft.shared.data.PlayerCreativeLootCondition;
 import dan200.computercraft.shared.proxy.ComputerCraftProxyCommon;
 import net.minecraft.block.Block;
 import net.minecraft.data.DataGenerator;
+import net.minecraft.loot.*;
+import net.minecraft.loot.conditions.Alternative;
+import net.minecraft.loot.conditions.SurvivesExplosion;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.world.storage.loot.*;
-import net.minecraft.world.storage.loot.conditions.Alternative;
-import net.minecraft.world.storage.loot.conditions.SurvivesExplosion;
 import net.minecraftforge.fml.RegistryObject;
 
 import java.util.function.BiConsumer;
@@ -77,9 +77,9 @@ public class LootTables extends LootTableProvider
                 .rolls( ConstantRange.of( 1 ) )
                 .addEntry( DynamicLootEntry.func_216162_a( new ResourceLocation( ComputerCraft.MOD_ID, "computer" ) ) )
                 .acceptCondition( Alternative.builder(
-                    BlockNamedEntityLootCondition.builder(),
-                    HasComputerIdLootCondition.builder(),
-                    PlayerCreativeLootCondition.builder().inverted()
+                    BlockNamedEntityLootCondition.BUILDER,
+                    HasComputerIdLootCondition.BUILDER,
+                    PlayerCreativeLootCondition.BUILDER.inverted()
                 ) )
             ).build() );
     }

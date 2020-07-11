@@ -105,9 +105,9 @@ public abstract class TileGeneric extends TileEntity
     }
 
     @Override
-    public void handleUpdateTag( @Nonnull CompoundNBT tag )
+    public void handleUpdateTag( @Nonnull BlockState state, @Nonnull CompoundNBT tag )
     {
-        super.handleUpdateTag( tag );
+        super.handleUpdateTag( state, tag );
         readDescription( tag );
     }
 }

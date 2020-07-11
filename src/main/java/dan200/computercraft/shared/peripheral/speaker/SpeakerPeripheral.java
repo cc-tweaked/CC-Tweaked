@@ -16,7 +16,7 @@ import net.minecraft.state.properties.NoteBlockInstrument;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.ResourceLocationException;
 import net.minecraft.util.SoundCategory;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
@@ -44,7 +44,7 @@ public abstract class SpeakerPeripheral implements IPeripheral
 
     public abstract World getWorld();
 
-    public abstract Vec3d getPosition();
+    public abstract Vector3d getPosition();
 
     public boolean madeSound( long ticks )
     {
@@ -66,9 +66,9 @@ public abstract class SpeakerPeripheral implements IPeripheral
      * with an optional volume and speed multiplier, and plays it through the speaker.
      *
      * @param context The Lua context
-     * @param name The name of the sound to play.
+     * @param name    The name of the sound to play.
      * @param volumeA The volume to play the sound at, from 0.0 to 3.0. Defaults to 1.0.
-     * @param pitchA The speed to play the sound at, from 0.5 to 2.0. Defaults to 1.0.
+     * @param pitchA  The speed to play the sound at, from 0.5 to 2.0. Defaults to 1.0.
      * @return Whether the sound could be played.
      * @throws LuaException If the sound name couldn't be decoded.
      */
@@ -102,9 +102,9 @@ public abstract class SpeakerPeripheral implements IPeripheral
      * and 6 and 18 map to C.
      *
      * @param context The Lua context
-     * @param name The name of the note to play.
+     * @param name    The name of the note to play.
      * @param volumeA The volume to play the note at, from 0.0 to 3.0. Defaults to 1.0.
-     * @param pitchA The pitch to play the note at in semitones, from 0 to 24. Defaults to 12.
+     * @param pitchA  The pitch to play the note at in semitones, from 0 to 24. Defaults to 12.
      * @return Whether the note could be played.
      * @throws LuaException If the instrument doesn't exist.
      */
@@ -117,7 +117,7 @@ public abstract class SpeakerPeripheral implements IPeripheral
         NoteBlockInstrument instrument = null;
         for( NoteBlockInstrument testInstrument : NoteBlockInstrument.values() )
         {
-            if( testInstrument.getName().equalsIgnoreCase( name ) )
+            if( testInstrument.getString().equalsIgnoreCase( name ) )
             {
                 instrument = testInstrument;
                 break;
@@ -144,7 +144,7 @@ public abstract class SpeakerPeripheral implements IPeripheral
         }
 
         World world = getWorld();
-        Vec3d pos = getPosition();
+        Vector3d pos = getPosition();
 
         context.issueMainThreadTask( () -> {
             MinecraftServer server = world.getServer();
@@ -152,7 +152,7 @@ public abstract class SpeakerPeripheral implements IPeripheral
 
             float adjVolume = Math.min( volume, 3.0f );
             server.getPlayerList().sendToAllNearExcept(
-                null, pos.x, pos.y, pos.z, adjVolume > 1.0f ? 16 * adjVolume : 16.0, world.dimension.getType(),
+                null, pos.x, pos.y, pos.z, adjVolume > 1.0f ? 16 * adjVolume : 16.0, world.func_234923_W_(),
                 new SPlaySoundPacket( name, SoundCategory.RECORDS, pos, adjVolume, pitch )
             );
             return null;
