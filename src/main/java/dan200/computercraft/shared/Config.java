@@ -85,6 +85,7 @@ public final class Config
     private static final ConfigValue<Boolean> genericPeripheral;
 
     private static final ConfigValue<MonitorRenderer> monitorRenderer;
+    private static final ConfigValue<Integer> monitorDistance;
 
     private static final ForgeConfigSpec serverSpec;
     private static final ForgeConfigSpec clientSpec;
@@ -311,6 +312,10 @@ public final class Config
             .comment( "The renderer to use for monitors. Generally this should be kept at \"best\" - if " +
                 "monitors have performance issues, you may wish to experiment with alternative renderers." )
             .defineEnum( "monitor_renderer", MonitorRenderer.BEST );
+        monitorDistance = clientBuilder
+            .comment( "The maximum distance monitors will render at. This defaults to the standard tile entity limit, " +
+                "but may be extended if you wish to build larger monitors." )
+            .defineInRange( "monitor_distance", 64, 16, 1024 );
         clientSpec = clientBuilder.build();
     }
 
@@ -379,6 +384,7 @@ public final class Config
 
         // Client
         ComputerCraft.monitorRenderer = monitorRenderer.get();
+        ComputerCraft.monitorDistanceSq = monitorDistance.get() * monitorDistance.get();
     }
 
     @SubscribeEvent
