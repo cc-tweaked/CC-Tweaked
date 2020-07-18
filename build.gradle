@@ -9,7 +9,7 @@ buildscript {
     }
     dependencies {
         classpath 'com.google.code.gson:gson:2.8.1'
-        classpath 'net.minecraftforge.gradle:ForgeGradle:3.0.179'
+        classpath 'net.minecraftforge.gradle:ForgeGradle:3.0.181'
         classpath 'net.sf.proguard:proguard-gradle:6.1.0beta2'
         classpath 'org.ajoberstar.grgit:grgit-gradle:3.0.0'
     }
@@ -409,7 +409,7 @@ curseforge {
     apiKey = project.hasProperty('curseForgeApiKey') ? project.curseForgeApiKey : ''
     project {
         id = '282001'
-        releaseType = 'release'
+        releaseType = 'alpha'
         changelog = "Release notes can be found on the GitHub repository (https://github.com/SquidDev-CC/CC-Tweaked/releases/tag/v${mc_version}-${mod_version})."
 
         relations {
@@ -487,7 +487,7 @@ githubRelease {
             .takeWhile { it != 'Type "help changelog" to see the full version history.' }
             .join("\n").trim()
     }
-    prerelease false
+    prerelease true
 }
 
 def uploadTasks = ["uploadArchives", "curseforge", "githubRelease"]

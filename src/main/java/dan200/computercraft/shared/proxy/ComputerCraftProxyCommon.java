@@ -33,13 +33,13 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.registry.Registry;
 import net.minecraftforge.common.capabilities.CapabilityManager;
 import net.minecraftforge.event.LootTableLoadEvent;
+import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.player.PlayerContainerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.server.FMLServerStartedEvent;
-import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
 import net.minecraftforge.fml.event.server.FMLServerStoppedEvent;
 
 import java.util.Arrays;
@@ -139,9 +139,9 @@ public final class ComputerCraftProxyCommon
         }
 
         @SubscribeEvent
-        public static void onServerStarting( FMLServerStartingEvent event )
+        public static void onRegisterCommand( RegisterCommandsEvent event )
         {
-            CommandComputerCraft.register( event.getCommandDispatcher() );
+            CommandComputerCraft.register( event.getDispatcher() );
         }
 
         @SubscribeEvent
