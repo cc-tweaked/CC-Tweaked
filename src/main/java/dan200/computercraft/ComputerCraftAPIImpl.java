@@ -27,6 +27,7 @@ import dan200.computercraft.shared.wired.WiredNode;
 import net.minecraft.resources.IReloadableResourceManager;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
@@ -36,6 +37,8 @@ import net.minecraftforge.fml.server.ServerLifecycleHooks;
 
 import javax.annotation.Nonnull;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 
 import static dan200.computercraft.shared.Capabilities.CAPABILITY_WIRED_ELEMENT;
 
@@ -47,6 +50,19 @@ public final class ComputerCraftAPIImpl implements IComputerCraftAPI
 
     private ComputerCraftAPIImpl()
     {
+    }
+
+    public static InputStream getResourceFile( String domain, String subPath )
+    {
+        IReloadableResourceManager manager = (IReloadableResourceManager) ServerLifecycleHooks.getCurrentServer().getDataPackRegistries().func_240970_h_();
+        try
+        {
+            return manager.getResource( new ResourceLocation( domain, subPath ) ).getInputStream();
+        }
+        catch( IOException ignored )
+        {
+            return null;
+        }
     }
 
     @Nonnull

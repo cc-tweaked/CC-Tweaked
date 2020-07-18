@@ -99,6 +99,15 @@ describe("The fs library", function()
                 handle.close()
                 expect.error(handle.close):eq("attempt to use a closed file")
             end)
+
+            it("fails gracefully when opening 'CON' on Windows", function()
+                local ok, err = fs.open("test-files/con", "w")
+                if ok then fs.delete("test-files/con") return end
+
+                -- On my Windows/Java version the message appears to be "Incorrect function.". It may not be
+                -- consistent though, and honestly doesn't matter too much.
+                expect(err):str_match("^/test%-files/con: .*")
+            end)
         end)
 
         describe("writing in binary mode", function()

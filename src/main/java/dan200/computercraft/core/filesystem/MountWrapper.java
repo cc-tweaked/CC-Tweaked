@@ -10,6 +10,7 @@ import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.api.filesystem.IWritableMount;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
@@ -85,7 +86,7 @@ class MountWrapper
         }
         catch( IOException e )
         {
-            throw new FileSystemException( e.getMessage() );
+            throw localExceptionOf( path, e );
         }
     }
 
@@ -98,7 +99,7 @@ class MountWrapper
         }
         catch( IOException e )
         {
-            throw localExceptionOf( e );
+            throw localExceptionOf( path, e );
         }
     }
 
@@ -116,7 +117,7 @@ class MountWrapper
         }
         catch( IOException e )
         {
-            throw localExceptionOf( e );
+            throw localExceptionOf( path, e );
         }
     }
 
@@ -130,7 +131,7 @@ class MountWrapper
         }
         catch( IOException e )
         {
-            throw localExceptionOf( e );
+            throw localExceptionOf( path, e );
         }
     }
 
@@ -145,7 +146,7 @@ class MountWrapper
         }
         catch( IOException e )
         {
-            throw localExceptionOf( e );
+            throw localExceptionOf( path, e );
         }
     }
 
@@ -165,7 +166,7 @@ class MountWrapper
         }
         catch( IOException e )
         {
-            throw localExceptionOf( e );
+            throw localExceptionOf( path, e );
         }
     }
 
@@ -187,7 +188,7 @@ class MountWrapper
         }
         catch( IOException e )
         {
-            throw localExceptionOf( e );
+            throw localExceptionOf( path, e );
         }
     }
 
@@ -195,9 +196,9 @@ class MountWrapper
     {
         if( writableMount == null ) throw exceptionOf( path, "Access denied" );
 
+        path = toLocal( path );
         try
         {
-            path = toLocal( path );
             if( mount.exists( path ) )
             {
                 writableMount.delete( path );
@@ -209,7 +210,7 @@ class MountWrapper
         }
         catch( IOException e )
         {
-            throw localExceptionOf( e );
+            throw localExceptionOf( path, e );
         }
     }
 
@@ -243,7 +244,7 @@ class MountWrapper
         }
         catch( IOException e )
         {
-            throw localExceptionOf( e );
+            throw localExceptionOf( path, e );
         }
     }
 
@@ -281,7 +282,7 @@ class MountWrapper
         }
         catch( IOException e )
         {
-            throw localExceptionOf( e );
+            throw localExceptionOf( path, e );
         }
     }
 
@@ -290,12 +291,20 @@ class MountWrapper
         return FileSystem.toLocal( path, location );
     }
 
-    private FileSystemException localExceptionOf( IOException e )
+    private FileSystemException localExceptionOf( @Nullable String localPath, @Nonnull IOException e )
     {
         if( !location.isEmpty() && e instanceof FileOperationException )
         {
             FileOperationException ex = (FileOperationException) e;
             if( ex.getFilename() != null ) return localExceptionOf( ex.getFilename(), ex.getMessage() );
+        }
+
+        if( e instanceof java.nio.file.FileSystemException )
+        {
+            // This error will contain the absolute path, leaking information about where MC is installed. We drop that,
+            // just taking the reason. We assume that the error refers to the input path.
+            String message = ((java.nio.file.FileSystemException) e).getReason().trim();
+            return localPath == null ? new FileSystemException( message ) : localExceptionOf( localPath, message );
         }
 
         return new FileSystemException( e.getMessage() );

@@ -690,4 +690,10 @@ public class TileMonitor extends TileGeneric
             return new AxisAlignedBB( pos.getX(), pos.getY(), pos.getZ(), pos.getX() + 1, pos.getY() + 1, pos.getZ() + 1 );
         }
     }
+
+    @Override
+    public double getMaxRenderDistanceSquared()
+    {
+        return ComputerCraft.monitorDistanceSq;
+    }
 }
