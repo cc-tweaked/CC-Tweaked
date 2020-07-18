@@ -10,7 +10,7 @@ do use the issue templates - they provide a useful hint on what information to p
 
 ## Developing
 In order to develop CC: Tweaked, you'll need to download the source code and then run it. This is a pretty simple
-process.
+process. When building on Windows, Use `gradlew.bat` instead of `./gradlew`.
 
  - **Clone the repository:** `git clone https://github.com/SquidDev-CC/CC-Tweaked.git && cd CC-Tweaked`
  - **Setup Forge:** `./gradlew build`
