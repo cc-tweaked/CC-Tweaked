@@ -16,15 +16,10 @@ import dan200.computercraft.shared.peripheral.monitor.MonitorRenderer;
 import dan200.computercraft.shared.pocket.peripherals.PocketModem;
 import dan200.computercraft.shared.pocket.peripherals.PocketSpeaker;
 import dan200.computercraft.shared.turtle.upgrades.*;
-import net.minecraft.resources.IReloadableResourceManager;
-import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.server.ServerLifecycleHooks;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
@@ -140,16 +135,4 @@ public final class ComputerCraft
         Registry.setup();
     }
 
-    public static InputStream getResourceFile( String domain, String subPath )
-    {
-        IReloadableResourceManager manager = ServerLifecycleHooks.getCurrentServer().getResourceManager();
-        try
-        {
-            return manager.getResource( new ResourceLocation( domain, subPath ) ).getInputStream();
-        }
-        catch( IOException ignored )
-        {
-            return null;
-        }
-    }
 }
