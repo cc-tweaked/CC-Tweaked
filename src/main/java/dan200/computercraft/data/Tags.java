@@ -20,6 +20,8 @@ import static dan200.computercraft.data.Tags.CCTags.*;
 
 public class Tags extends ItemTagsProvider
 {
+    private static final ITag.INamedTag<Item> PIGLIN_LOVED = ItemTags.field_232903_N_;
+
     public static class CCTags
     {
         public static final ITag.INamedTag<Item> COMPUTER = item( "computer" );
@@ -44,6 +46,12 @@ public class Tags extends ItemTagsProvider
         func_240522_a_( TURTLE ).func_240534_a_( Registry.ModItems.TURTLE_NORMAL.get(), Registry.ModItems.TURTLE_ADVANCED.get() );
         func_240522_a_( WIRED_MODEM ).func_240534_a_( Registry.ModItems.WIRED_MODEM.get(), Registry.ModItems.WIRED_MODEM_FULL.get() );
         func_240522_a_( MONITOR ).func_240534_a_( Registry.ModItems.MONITOR_NORMAL.get(), Registry.ModItems.MONITOR_ADVANCED.get() );
+
+        func_240522_a_( PIGLIN_LOVED ).func_240534_a_(
+            Registry.ModItems.COMPUTER_ADVANCED.get(), Registry.ModItems.TURTLE_ADVANCED.get(),
+            Registry.ModItems.WIRELESS_MODEM_ADVANCED.get(), Registry.ModItems.POCKET_COMPUTER_ADVANCED.get(),
+            Registry.ModItems.MONITOR_ADVANCED.get()
+        );
     }
 
     private static ITag.INamedTag<Item> item( String name )
