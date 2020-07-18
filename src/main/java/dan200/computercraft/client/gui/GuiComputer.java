@@ -150,4 +150,10 @@ public final class GuiComputer<T extends ContainerComputerBase> extends Containe
         return (getFocused() != null && getFocused().mouseDragged( x, y, button, deltaX, deltaY ))
             || super.mouseDragged( x, y, button, deltaX, deltaY );
     }
+
+    @Override
+    protected void func_230451_b_( @Nonnull MatrixStack transform, int mouseX, int mouseY )
+    {
+        // Skip rendering labels.
+    }
 }

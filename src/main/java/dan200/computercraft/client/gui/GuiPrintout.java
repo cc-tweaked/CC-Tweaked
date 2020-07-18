@@ -118,4 +118,10 @@ public class GuiPrintout extends ContainerScreen<ContainerHeldItem>
         super.render( stack, mouseX, mouseY, partialTicks );
         func_230459_a_( stack, mouseX, mouseY );
     }
+
+    @Override
+    protected void func_230451_b_( @Nonnull MatrixStack transform, int mouseX, int mouseY )
+    {
+        // Skip rendering labels.
+    }
 }
