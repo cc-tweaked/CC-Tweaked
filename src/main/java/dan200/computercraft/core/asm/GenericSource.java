@@ -9,6 +9,7 @@ package dan200.computercraft.core.asm;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.shared.peripheral.generic.GenericPeripheralProvider;
+import dan200.computercraft.shared.util.ServiceUtil;
 import net.minecraft.util.ResourceLocation;
 
 import javax.annotation.Nonnull;
@@ -16,11 +17,12 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.ServiceLoader;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
+import java.util.stream.Stream;
 
 /**
  * A generic source of {@link LuaMethod} functions. This allows for injecting methods onto objects you do not own.
@@ -43,6 +45,18 @@ public interface GenericSource
     ResourceLocation id();
 
     /**
+     * Register a stream of generic sources.
+     *
+     * @param sources The source of generic methods.
+     * @see ServiceUtil For ways to load this. Sadly {@link java.util.ServiceLoader} is broken under Forge, but we don't
+     * want to add a hard-dep on Forge within core either.
+     */
+    static void setup( Supplier<Stream<GenericSource>> sources )
+    {
+        GenericMethod.sources = sources;
+    }
+
+    /**
      * A generic method is a method belonging to a {@link GenericSource} with a known target.
      */
     class GenericMethod
@@ -51,6 +65,7 @@ public interface GenericSource
         final LuaFunction annotation;
         final Class<?> target;
 
+        static Supplier<Stream<GenericSource>> sources;
         private static List<GenericMethod> cache;
 
         GenericMethod( Method method, LuaFunction annotation, Class<?> target )
@@ -68,10 +83,16 @@ public interface GenericSource
         static List<GenericMethod> all()
         {
             if( cache != null ) return cache;
-            return cache = StreamSupport
-                .stream( ServiceLoader.load( GenericSource.class, GenericSource.class.getClassLoader() ).spliterator(), false )
+            if( sources == null )
+            {
+                ComputerCraft.log.warn( "Getting GenericMethods without a provider" );
+                return cache = Collections.emptyList();
+            }
+
+            return cache = sources.get()
                 .flatMap( x -> Arrays.stream( x.getClass().getDeclaredMethods() ) )
-                .map( method -> {
+                .map( method ->
+                {
                     LuaFunction annotation = method.getAnnotation( LuaFunction.class );
                     if( annotation == null ) return null;
 

@@ -8,6 +8,7 @@ package dan200.computercraft;
 import dan200.computercraft.api.turtle.event.TurtleAction;
 import dan200.computercraft.core.apis.http.options.Action;
 import dan200.computercraft.core.apis.http.options.AddressRule;
+import dan200.computercraft.core.asm.GenericSource;
 import dan200.computercraft.shared.Config;
 import dan200.computercraft.shared.Registry;
 import dan200.computercraft.shared.computer.core.ClientComputerRegistry;
@@ -16,6 +17,7 @@ import dan200.computercraft.shared.peripheral.monitor.MonitorRenderer;
 import dan200.computercraft.shared.pocket.peripherals.PocketModem;
 import dan200.computercraft.shared.pocket.peripherals.PocketSpeaker;
 import dan200.computercraft.shared.turtle.upgrades.*;
+import dan200.computercraft.shared.util.ServiceUtil;
 import net.minecraftforge.fml.common.Mod;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -133,6 +135,6 @@ public final class ComputerCraft
     {
         Config.setup();
         Registry.setup();
+        GenericSource.setup( () -> ServiceUtil.loadServicesForge( GenericSource.class ) );
     }
-
 }
