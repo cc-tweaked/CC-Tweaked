@@ -25,6 +25,7 @@ import net.minecraft.tileentity.SignTileEntity;
 import net.minecraft.util.Direction;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.common.util.FakePlayer;
 
@@ -127,6 +128,12 @@ public final class TurtlePlayer extends FakePlayer
     public EntityType<?> getType()
     {
         return Registry.ModEntities.TURTLE_PLAYER.get();
+    }
+
+    @Override
+    public Vector3d getPositionVec()
+    {
+        return new Vector3d( getPosX(), getPosY(), getPosZ() );
     }
 
     @Override
