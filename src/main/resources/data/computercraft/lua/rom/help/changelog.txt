@@ -1,3 +1,9 @@
+# New features in CC: Tweaked 1.90.2
+
+* Fix generic peripherals not being registered outside a dev environment.
+* Fix `turtle.attack()` failing.
+* Correctly set styles for the output of `/computercraft` commands.
+
 # New features in CC: Tweaked 1.90.1
 
 * Update to Forge 32.0.69
