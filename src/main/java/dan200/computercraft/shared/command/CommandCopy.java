@@ -12,6 +12,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.command.CommandSource;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.util.text.event.ClickEvent;
 import net.minecraft.util.text.event.HoverEvent;
@@ -57,10 +58,8 @@ public final class CommandCopy
 
     public static ITextComponent createCopyText( String text )
     {
-        StringTextComponent name = new StringTextComponent( text );
-        name.getStyle()
+        return new StringTextComponent( text ).func_230530_a_( Style.EMPTY
             .setClickEvent( new ClickEvent( ClickEvent.Action.RUN_COMMAND, PREFIX + text ) )
-            .setHoverEvent( new HoverEvent( HoverEvent.Action.SHOW_TEXT, new TranslationTextComponent( "gui.computercraft.tooltip.copy" ) ) );
-        return name;
+            .setHoverEvent( new HoverEvent( HoverEvent.Action.SHOW_TEXT, new TranslationTextComponent( "gui.computercraft.tooltip.copy" ) ) ) );
     }
 }
