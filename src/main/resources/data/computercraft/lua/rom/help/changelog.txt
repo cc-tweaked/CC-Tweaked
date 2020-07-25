@@ -1,3 +1,7 @@
+# New features in CC: Tweaked 1.90.2
+
+* Fix generic peripherals not being registered outside a dev environment.
+
 # New features in CC: Tweaked 1.90.0
 
 * Add cc.image.nft module, for working with nft files. (JakobDev)
