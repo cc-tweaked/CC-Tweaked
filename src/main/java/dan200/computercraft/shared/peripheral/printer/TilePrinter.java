@@ -403,7 +403,7 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
                 setInventorySlotContents( i, ItemStack.EMPTY );
 
                 // Spawn the item in the world
-                WorldUtil.dropItemStack( stack, getWorld(), Vector3d.func_237491_b_( getPos() ).add( 0.5, 0.75, 0.5 ) );
+                WorldUtil.dropItemStack( stack, getWorld(), Vector3d.copy( getPos() ).add( 0.5, 0.75, 0.5 ) );
             }
         }
     }

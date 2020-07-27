@@ -289,11 +289,11 @@ public final class CommandComputerCraft
         // Append the computer instance
         if( serverComputer == null )
         {
-            out.func_230529_a_( text( "?" ) );
+            out.append( text( "?" ) );
         }
         else
         {
-            out.func_230529_a_( link(
+            out.append( link(
                 text( Integer.toString( serverComputer.getInstanceID() ) ),
                 "/computercraft dump " + serverComputer.getInstanceID(),
                 translate( "commands.computercraft.dump.action" )
@@ -301,20 +301,20 @@ public final class CommandComputerCraft
         }
 
         // And ID
-        out.func_240702_b_( " (id " + computerId + ")" );
+        out.appendString( " (id " + computerId + ")" );
 
         // And, if we're a player, some useful links
         if( serverComputer != null && UserLevel.OP.test( source ) && isPlayer( source ) )
         {
             out
-                .func_240702_b_( " " )
-                .func_230529_a_( link(
+                .appendString( " " )
+                .append( link(
                     text( "\u261b" ),
                     "/computercraft tp " + serverComputer.getInstanceID(),
                     translate( "commands.computercraft.tp.action" )
                 ) )
-                .func_240702_b_( " " )
-                .func_230529_a_( link(
+                .appendString( " " )
+                .append( link(
                     text( "\u20e2" ),
                     "/computercraft view " + serverComputer.getInstanceID(),
                     translate( "commands.computercraft.view.action" )

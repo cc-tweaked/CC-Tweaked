@@ -175,11 +175,11 @@ public final class HelpingArgumentBuilder extends LiteralArgumentBuilder<Command
         String usage = dispatcher.getSmartUsage( temp, context.getSource() ).get( node ).substring( node.getName().length() );
 
         IFormattableTextComponent output = new StringTextComponent( "" )
-            .func_230529_a_( coloured( "/" + command + usage, HEADER ) )
-            .func_240702_b_( " " )
-            .func_230529_a_( coloured( translate( "commands." + id + ".synopsis" ), SYNOPSIS ) )
-            .func_240702_b_( "\n" )
-            .func_230529_a_( translate( "commands." + id + ".desc" ) );
+            .append( coloured( "/" + command + usage, HEADER ) )
+            .appendString( " " )
+            .append( coloured( translate( "commands." + id + ".synopsis" ), SYNOPSIS ) )
+            .appendString( "\n" )
+            .append( translate( "commands." + id + ".desc" ) );
 
         for( CommandNode<CommandSource> child : node.getChildren() )
         {
@@ -188,16 +188,16 @@ public final class HelpingArgumentBuilder extends LiteralArgumentBuilder<Command
                 continue;
             }
 
-            output.func_240702_b_( "\n" );
+            output.appendString( "\n" );
 
             IFormattableTextComponent component = coloured( child.getName(), NAME );
             component.getStyle().setClickEvent( new ClickEvent(
                 ClickEvent.Action.SUGGEST_COMMAND,
                 "/" + command + " " + child.getName()
             ) );
-            output.func_230529_a_( component );
+            output.append( component );
 
-            output.func_240702_b_( " - " ).func_230529_a_( translate( "commands." + id + "." + child.getName() + ".synopsis" ) );
+            output.appendString( " - " ).append( translate( "commands." + id + "." + child.getName() + ".synopsis" ) );
         }
 
         return output;

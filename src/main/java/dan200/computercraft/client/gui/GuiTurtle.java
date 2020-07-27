@@ -64,13 +64,13 @@ public class GuiTurtle extends ContainerScreen<ContainerTurtle>
         terminalWrapper = new WidgetWrapper( terminal, 2 + 8 + guiLeft, 2 + 8 + guiTop, termPxWidth, termPxHeight );
 
         children.add( terminalWrapper );
-        setFocused( terminalWrapper );
+        setListener( terminalWrapper );
     }
 
     @Override
-    public void removed()
+    public void onClose()
     {
-        super.removed();
+        super.onClose();
         children.remove( terminal );
         terminal = null;
         minecraft.keyboardListener.enableRepeatEvents( false );
@@ -87,9 +87,9 @@ public class GuiTurtle extends ContainerScreen<ContainerTurtle>
     public boolean keyPressed( int key, int scancode, int modifiers )
     {
         // Forward the tab key to the terminal, rather than moving between controls.
-        if( key == GLFW.GLFW_KEY_TAB && getFocused() != null && getFocused() == terminalWrapper )
+        if( key == GLFW.GLFW_KEY_TAB && getListener() != null && getListener() == terminalWrapper )
         {
-            return getFocused().keyPressed( key, scancode, modifiers );
+            return getListener().keyPressed( key, scancode, modifiers );
         }
 
         return super.keyPressed( key, scancode, modifiers );
@@ -110,7 +110,7 @@ public class GuiTurtle extends ContainerScreen<ContainerTurtle>
     }
 
     @Override
-    protected void func_230450_a_( @Nonnull MatrixStack transform, float partialTicks, int mouseX, int mouseY )
+    protected void drawGuiContainerBackgroundLayer( @Nonnull MatrixStack transform, float partialTicks, int mouseX, int mouseY )
     {
         // Draw term
         boolean advanced = m_family == ComputerFamily.ADVANCED;
@@ -135,12 +135,12 @@ public class GuiTurtle extends ContainerScreen<ContainerTurtle>
     @Override
     public boolean mouseDragged( double x, double y, int button, double deltaX, double deltaY )
     {
-        return (getFocused() != null && getFocused().mouseDragged( x, y, button, deltaX, deltaY ))
+        return (getListener() != null && getListener().mouseDragged( x, y, button, deltaX, deltaY ))
             || super.mouseDragged( x, y, button, deltaX, deltaY );
     }
 
     @Override
-    protected void func_230451_b_( @Nonnull MatrixStack transform, int mouseX, int mouseY )
+    protected void drawGuiContainerForegroundLayer( @Nonnull MatrixStack transform, int mouseX, int mouseY )
     {
         // Skip rendering labels.
     }

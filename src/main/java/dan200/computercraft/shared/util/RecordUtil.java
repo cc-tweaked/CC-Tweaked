@@ -20,6 +20,6 @@ public final class RecordUtil
     public static void playRecord( SoundEvent record, String recordInfo, World world, BlockPos pos )
     {
         NetworkMessage packet = record != null ? new PlayRecordClientMessage( pos, record, recordInfo ) : new PlayRecordClientMessage( pos );
-        NetworkHandler.sendToAllAround( packet, world, Vector3d.func_237489_a_( pos ), 64 );
+        NetworkHandler.sendToAllAround( packet, world, Vector3d.copyCentered( pos ), 64 );
     }
 }

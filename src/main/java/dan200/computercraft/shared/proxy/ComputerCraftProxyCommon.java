@@ -71,7 +71,7 @@ public final class ComputerCraftProxyCommon
 
     private static void registerCondition( String name, LootConditionType serializer )
     {
-        Registry.register( Registry.field_239704_ba_, new ResourceLocation( ComputerCraft.MOD_ID, name ), serializer );
+        Registry.register( Registry.LOOT_CONDITION_TYPE, new ResourceLocation( ComputerCraft.MOD_ID, name ), serializer );
     }
 
     private static void registerProviders()

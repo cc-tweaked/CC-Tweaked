@@ -38,16 +38,16 @@ public class Tags extends ItemTagsProvider
     @Override
     protected void registerTags()
     {
-        func_240522_a_( COMPUTER ).func_240534_a_(
+        getOrCreateBuilder( COMPUTER ).add(
             Registry.ModItems.COMPUTER_NORMAL.get(),
             Registry.ModItems.COMPUTER_ADVANCED.get(),
             Registry.ModItems.COMPUTER_COMMAND.get()
         );
-        func_240522_a_( TURTLE ).func_240534_a_( Registry.ModItems.TURTLE_NORMAL.get(), Registry.ModItems.TURTLE_ADVANCED.get() );
-        func_240522_a_( WIRED_MODEM ).func_240534_a_( Registry.ModItems.WIRED_MODEM.get(), Registry.ModItems.WIRED_MODEM_FULL.get() );
-        func_240522_a_( MONITOR ).func_240534_a_( Registry.ModItems.MONITOR_NORMAL.get(), Registry.ModItems.MONITOR_ADVANCED.get() );
+        getOrCreateBuilder( TURTLE ).add( Registry.ModItems.TURTLE_NORMAL.get(), Registry.ModItems.TURTLE_ADVANCED.get() );
+        getOrCreateBuilder( WIRED_MODEM ).add( Registry.ModItems.WIRED_MODEM.get(), Registry.ModItems.WIRED_MODEM_FULL.get() );
+        getOrCreateBuilder( MONITOR ).add( Registry.ModItems.MONITOR_NORMAL.get(), Registry.ModItems.MONITOR_ADVANCED.get() );
 
-        func_240522_a_( PIGLIN_LOVED ).func_240534_a_(
+        getOrCreateBuilder( PIGLIN_LOVED ).add(
             Registry.ModItems.COMPUTER_ADVANCED.get(), Registry.ModItems.TURTLE_ADVANCED.get(),
             Registry.ModItems.WIRELESS_MODEM_ADVANCED.get(), Registry.ModItems.POCKET_COMPUTER_ADVANCED.get(),
             Registry.ModItems.MONITOR_ADVANCED.get()

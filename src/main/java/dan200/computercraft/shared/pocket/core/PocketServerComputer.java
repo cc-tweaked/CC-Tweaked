@@ -163,7 +163,7 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
         if( entity != null )
         {
             setWorld( entity.getEntityWorld() );
-            setPosition( entity.func_233580_cy_() );
+            setPosition( entity.getPosition() );
         }
 
         // If a new entity has picked it up then rebroadcast the terminal to them

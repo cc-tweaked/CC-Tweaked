@@ -41,7 +41,7 @@ public final class DropConsumer
         remainingDrops = new ArrayList<>();
         dropEntity = entity;
         dropWorld = entity.world;
-        dropBounds = new AxisAlignedBB( entity.func_233580_cy_() ).grow( 2, 2, 2 );
+        dropBounds = new AxisAlignedBB( entity.getPosition() ).grow( 2, 2, 2 );
 
         entity.captureDrops( new ArrayList<>() );
     }

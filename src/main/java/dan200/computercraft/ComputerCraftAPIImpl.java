@@ -54,7 +54,7 @@ public final class ComputerCraftAPIImpl implements IComputerCraftAPI
 
     public static InputStream getResourceFile( String domain, String subPath )
     {
-        IReloadableResourceManager manager = (IReloadableResourceManager) ServerLifecycleHooks.getCurrentServer().getDataPackRegistries().func_240970_h_();
+        IReloadableResourceManager manager = (IReloadableResourceManager) ServerLifecycleHooks.getCurrentServer().getDataPackRegistries().getResourceManager();
         try
         {
             return manager.getResource( new ResourceLocation( domain, subPath ) ).getInputStream();
@@ -97,7 +97,7 @@ public final class ComputerCraftAPIImpl implements IComputerCraftAPI
     @Override
     public IMount createResourceMount( @Nonnull String domain, @Nonnull String subPath )
     {
-        IReloadableResourceManager manager = (IReloadableResourceManager) ServerLifecycleHooks.getCurrentServer().getDataPackRegistries().func_240970_h_();
+        IReloadableResourceManager manager = (IReloadableResourceManager) ServerLifecycleHooks.getCurrentServer().getDataPackRegistries().getResourceManager();
         ResourceMount mount = ResourceMount.get( domain, subPath, manager );
         return mount.exists( "" ) ? mount : null;
     }

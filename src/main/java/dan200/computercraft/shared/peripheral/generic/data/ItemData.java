@@ -144,7 +144,7 @@ public class ItemData
 
         enchants.ensureCapacity( enchants.size() + rawEnchants.size() );
 
-        for( Map.Entry<Enchantment, Integer> entry : EnchantmentHelper.func_226652_a_( rawEnchants ).entrySet() )
+        for( Map.Entry<Enchantment, Integer> entry : EnchantmentHelper.deserializeEnchantments( rawEnchants ).entrySet() )
         {
             Enchantment enchantment = entry.getKey();
             Integer level = entry.getValue();

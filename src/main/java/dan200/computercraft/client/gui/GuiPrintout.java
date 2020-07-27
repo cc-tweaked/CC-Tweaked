@@ -15,7 +15,6 @@ import net.minecraft.client.gui.screen.inventory.ContainerScreen;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.util.math.vector.Matrix4f;
-import net.minecraft.util.math.vector.TransformationMatrix;
 import net.minecraft.util.text.ITextComponent;
 import org.lwjgl.glfw.GLFW;
 
@@ -25,8 +24,6 @@ import static dan200.computercraft.client.render.PrintoutRenderer.*;
 
 public class GuiPrintout extends ContainerScreen<ContainerHeldItem>
 {
-    private static final Matrix4f IDENTITY = TransformationMatrix.identity().getMatrix();
-
     private final boolean m_book;
     private final int m_pages;
     private final TextBuffer[] m_text;
@@ -94,7 +91,7 @@ public class GuiPrintout extends ContainerScreen<ContainerHeldItem>
     }
 
     @Override
-    protected void func_230450_a_( @Nonnull MatrixStack transform, float partialTicks, int mouseX, int mouseY )
+    protected void drawGuiContainerBackgroundLayer( @Nonnull MatrixStack transform, float partialTicks, int mouseX, int mouseY )
     {
         // Draw the printout
         RenderSystem.color4f( 1.0f, 1.0f, 1.0f, 1.0f );
@@ -120,7 +117,7 @@ public class GuiPrintout extends ContainerScreen<ContainerHeldItem>
     }
 
     @Override
-    protected void func_230451_b_( @Nonnull MatrixStack transform, int mouseX, int mouseY )
+    protected void drawGuiContainerForegroundLayer( @Nonnull MatrixStack transform, int mouseX, int mouseY )
     {
         // Skip rendering labels.
     }

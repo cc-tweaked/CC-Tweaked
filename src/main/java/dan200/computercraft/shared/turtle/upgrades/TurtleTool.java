@@ -149,7 +149,7 @@ public class TurtleTool extends AbstractTurtleUpgrade
             boolean attacked = false;
             if( !hitEntity.hitByEntity( turtlePlayer ) )
             {
-                float damage = (float) turtlePlayer.func_233637_b_( Attributes.ATTACK_DAMAGE );
+                float damage = (float) turtlePlayer.getAttributeValue( Attributes.ATTACK_DAMAGE );
                 damage *= getDamageMultiplier();
                 if( damage > 0.0f )
                 {

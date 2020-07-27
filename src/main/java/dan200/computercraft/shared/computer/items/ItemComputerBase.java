@@ -43,7 +43,7 @@ public abstract class ItemComputerBase extends BlockItem implements IComputerIte
             if( id >= 0 )
             {
                 list.add( new TranslationTextComponent( "gui.computercraft.tooltip.computer_id", id )
-                    .func_240699_a_( TextFormatting.GRAY ) );
+                    .mergeStyle( TextFormatting.GRAY ) );
             }
         }
     }

@@ -190,7 +190,7 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
             if( id >= 0 )
             {
                 list.add( new TranslationTextComponent( "gui.computercraft.tooltip.computer_id", id )
-                    .func_240699_a_( TextFormatting.GRAY ) );
+                    .mergeStyle( TextFormatting.GRAY ) );
             }
         }
     }

@@ -217,8 +217,8 @@ public class TileWiredModemFull extends TileGeneric
         StringTextComponent base = new StringTextComponent( "" );
         for( int i = 0; i < names.size(); i++ )
         {
-            if( i > 0 ) base.func_240702_b_( ", " );
-            base.func_230529_a_( CommandCopy.createCopyText( names.get( i ) ) );
+            if( i > 0 ) base.appendString( ", " );
+            base.append( CommandCopy.createCopyText( names.get( i ) ) );
         }
 
         player.sendStatusMessage( new TranslationTextComponent( kind, base ), false );
