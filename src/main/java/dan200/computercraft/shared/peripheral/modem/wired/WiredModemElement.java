@@ -19,6 +19,7 @@ public abstract class WiredModemElement implements IWiredElement
 {
     private final IWiredNode node = new WiredNode( this );
     private final Map<String, IPeripheral> remotePeripherals = new HashMap<>();
+    private boolean sharingPeripherals = false;
 
     @Nonnull
     @Override
@@ -61,4 +62,37 @@ public abstract class WiredModemElement implements IWiredElement
     protected abstract void attachPeripheral( String name, IPeripheral peripheral );
 
     protected abstract void detachPeripheral( String name );
+
+    public boolean isSharingPeripherals()
+    {
+        return sharingPeripherals;
+    }
+
+    public void forceSetSharingPeripherals( boolean enabled )
+    {
+        // doesn't update Tile
+        sharingPeripherals = enabled;
+    }
+
+    public boolean trySetSharingPeripherals( boolean enabled )
+    {
+        // updates Tile if necessary
+        if( sharingPeripherals == enabled ) return true;
+        sharingPeripherals = enabled;
+
+        if( sharingPeripherals )
+        {
+            sharingPeripherals = enableSharing();
+        }
+        else
+        {
+            disableSharing();
+        }
+
+        return sharingPeripherals == enabled;
+    }
+
+    protected abstract boolean enableSharing();
+
+    protected abstract void disableSharing();
 }
