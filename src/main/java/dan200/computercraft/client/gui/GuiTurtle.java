@@ -95,33 +95,30 @@ public class GuiTurtle extends ContainerScreen<ContainerTurtle>
         return super.keyPressed( key, scancode, modifiers );
     }
 
-    private void drawSelectionSlot( boolean advanced )
-    {
-        // Draw selection slot
-        int slot = m_container.getSelectedSlot();
-        if( slot >= 0 )
-        {
-            RenderSystem.color4f( 1.0F, 1.0F, 1.0F, 1.0F );
-            int slotX = slot % 4;
-            int slotY = slot / 4;
-            minecraft.getTextureManager().bindTexture( advanced ? BACKGROUND_ADVANCED : BACKGROUND_NORMAL );
-            // TODO: blit( guiLeft + ContainerTurtle.TURTLE_START_X - 2 + slotX * 18, guiTop + ContainerTurtle.PLAYER_START_Y - 2 + slotY * 18, 0, 217, 24, 24 );
-        }
-    }
-
     @Override
     protected void drawGuiContainerBackgroundLayer( @Nonnull MatrixStack transform, float partialTicks, int mouseX, int mouseY )
     {
         // Draw term
-        boolean advanced = m_family == ComputerFamily.ADVANCED;
+        ResourceLocation texture = m_family == ComputerFamily.ADVANCED ? BACKGROUND_ADVANCED : BACKGROUND_NORMAL;
         terminal.draw( terminalWrapper.getX(), terminalWrapper.getY() );
 
         // Draw border/inventory
         RenderSystem.color4f( 1.0F, 1.0F, 1.0F, 1.0F );
-        minecraft.getTextureManager().bindTexture( advanced ? BACKGROUND_ADVANCED : BACKGROUND_NORMAL );
+        minecraft.getTextureManager().bindTexture( texture );
         blit( transform, guiLeft, guiTop, 0, 0, xSize, ySize );
 
-        drawSelectionSlot( advanced );
+        // Draw selection slot
+        int slot = m_container.getSelectedSlot();
+        if( slot >= 0 )
+        {
+            int slotX = slot % 4;
+            int slotY = slot / 4;
+            blit( transform,
+                guiLeft + ContainerTurtle.TURTLE_START_X - 2 + slotX * 18,
+                guiTop + ContainerTurtle.PLAYER_START_Y - 2 + slotY * 18,
+                0, 217, 24, 24
+            );
+        }
     }
 
     @Override

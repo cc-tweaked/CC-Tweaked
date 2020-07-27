@@ -113,7 +113,6 @@ public class GuiPrintout extends ContainerScreen<ContainerHeldItem>
         setBlitOffset( getBlitOffset() + 1 );
 
         super.render( stack, mouseX, mouseY, partialTicks );
-        func_230459_a_( stack, mouseX, mouseY );
     }
 
     @Override
