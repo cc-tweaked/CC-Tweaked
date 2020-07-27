@@ -10,6 +10,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import dan200.computercraft.ComputerCraft;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.world.storage.FolderName;
 import net.minecraftforge.fml.server.ServerLifecycleHooks;
 
 import java.io.File;
@@ -25,6 +26,7 @@ import java.util.Map;
 
 public final class IDAssigner
 {
+    private static final FolderName FOLDER = new FolderName( ComputerCraft.MOD_ID );
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     private static final Type ID_TOKEN = new TypeToken<Map<String, Integer>>()
     {
@@ -40,9 +42,7 @@ public final class IDAssigner
 
     public static File getDir()
     {
-        File root = ServerLifecycleHooks.getCurrentServer().getDataDirectory();
-        // TODO: File worldDirectory = server.getWorld( World.field_234918_g_ ).getSaveHandler().getWorldDirectory();
-        return new File( root, ComputerCraft.MOD_ID );
+        return ServerLifecycleHooks.getCurrentServer().func_240776_a_( FOLDER ).toFile();
     }
 
     private static MinecraftServer getCachedServer()
