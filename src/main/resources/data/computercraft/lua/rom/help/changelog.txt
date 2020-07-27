@@ -1,3 +1,8 @@
+# New features in CC: Tweaked 1.90.3
+
+* Fix the selected slot indicator missing from the turtle GUI.
+* Ensure we load/save computer data from the world directory, rather than a global one.
+
 # New features in CC: Tweaked 1.90.2
 
 * Fix generic peripherals not being registered outside a dev environment.

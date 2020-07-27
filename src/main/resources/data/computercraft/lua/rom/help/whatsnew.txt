@@ -1,7 +1,6 @@
-New features in CC: Tweaked 1.90.2
+New features in CC: Tweaked 1.90.3
 
-* Fix generic peripherals not being registered outside a dev environment.
-* Fix `turtle.attack()` failing.
-* Correctly set styles for the output of `/computercraft` commands.
+* Fix the selected slot indicator missing from the turtle GUI.
+* Ensure we load/save computer data from the world directory, rather than a global one.
 
 Type "help changelog" to see the full version history.
