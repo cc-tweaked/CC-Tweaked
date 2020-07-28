@@ -208,8 +208,8 @@ describe("The fs library", function()
                 fail(("Expected created time (%d) to be within 1000ms of now (%d"):format(attributes.created, now))
             end
 
-            if attributes.modification - now >= 1000 then
-                fail(("Expected modification time (%d) to be within 1000ms of now (%d"):format(attributes.modification, now))
+            if attributes.modified - now >= 1000 then
+                fail(("Expected modified time (%d) to be within 1000ms of now (%d"):format(attributes.modified, now))
             end
         end)
     end)
