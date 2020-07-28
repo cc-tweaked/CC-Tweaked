@@ -467,7 +467,7 @@ public class FSAPI implements ILuaAPI
      * @param path The path to get attributes for.
      * @return The resulting attributes.
      * @throws LuaException If the path does not exist.
-     * @cc.treturn { size = number, isDir = boolean, created = number, modified = number } The resulting attributes.
+     * @cc.treturn { size = number, isDir = boolean, created = number, modification = number } The resulting attributes.
      * @see #getSize If you only care about the file's size.
      * @see #isDir If you only care whether a path is a directory or not.
      */
