@@ -211,6 +211,8 @@ describe("The fs library", function()
             if attributes.modified - now >= 1000 then
                 fail(("Expected modified time (%d) to be within 1000ms of now (%d"):format(attributes.modified, now))
             end
+
+            expect(attributes.modification):eq(attributes.modified)
         end)
     end)
 end)
