@@ -101,6 +101,9 @@
   (linters -doc:unresolved-reference))
 
 (at /src/test/resources/test-rom
+  ; We should still be able to test deprecated members.
+  (linters -var:deprecated)
+
   (lint
     (globals
       :max sleep write

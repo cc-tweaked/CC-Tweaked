@@ -181,9 +181,6 @@ end
 --- Either calls @{colors.packRGB} or @{colors.unpackRGB}, depending on how many
 -- arguments it receives.
 --
--- **Note:** This function is deprecated, and it is recommended you use the
--- specific pack/unpack function directly.
---
 -- @tparam[1] number r The red channel, as an argument to @{colors.packRGB}.
 -- @tparam[1] number g The green channel, as an argument to @{colors.packRGB}.
 -- @tparam[1] number b The blue channel, as an argument to @{colors.packRGB}.
@@ -192,6 +189,7 @@ end
 -- @treturn[2] number The red channel, as returned by @{colors.unpackRGB}
 -- @treturn[2] number The green channel, as returned by @{colors.unpackRGB}
 -- @treturn[2] number The blue channel, as returned by @{colors.unpackRGB}
+-- @deprecated Use @{packRGB} or @{unpackRGB} directly.
 -- @usage
 -- ```lua
 -- colors.rgb(0xb23399)
