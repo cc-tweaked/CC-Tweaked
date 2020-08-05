@@ -325,46 +325,33 @@ local function tabulateCommon(bPaged, ...)
     chopUpColumns(tMaxColumnWidths, tCopy)
 
     local _, yPos = term.getCursorPos()
-    local nAvailableLines = math.max(nHeight - yPos, 0) -- Maybe, for some reason, cursor was below screen
+    local scroll = bPaged and makePagedScroll(term, yPos - 2) or term.scroll
 
     for _, nRow in ipairs(tCopy) do
         if type(nRow) == "table" then
-            if nAvailableLines <= 0 then
-                if bPaged then
-                    local nFGColor = term.getTextColor()
-
-                    term.setTextColor(colors.white)
-                    term.setCursorPos(1, nHeight)
-                    term.write("Press any key to continue")
-                    term.setTextColor(nFGColor)
-
-                    os.pullEvent("key")
-                    term.clearLine()
-                end
-
-                term.scroll(1)
-                nAvailableLines = nAvailableLines + 1
-            end
-
             local xPos = 1
-
             for i = 1, #tMaxColumnWidths do
                 if nRow[i] then
-                    term.setCursorPos(xPos, nHeight - nAvailableLines)
+                    term.setCursorPos(xPos, yPos)
                     term.write(nRow[i])
                 end
 
                 xPos = xPos + tMaxColumnWidths[i] + 1
             end
 
-            nAvailableLines = nAvailableLines - 1
+            yPos = yPos + 1
+
+            if yPos > nHeight then
+                scroll(1)
+                yPos = yPos - 1
+            end
         else
             term.setTextColor(nRow)
         end
     end
 
     -- Jump to next line so the cursor doesn't stay behind last written column
-    term.setCursorPos(1, nHeight - nAvailableLines)
+    term.setCursorPos(1, yPos)
 end
 
 --- Prints tables in a structured form.
