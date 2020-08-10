@@ -189,7 +189,7 @@ local function adjustColumnWidths(nWidth, tWidths)
         local nShrinkAmount
         if nNextSmallerElement then
             if tWidths[nMaxElement] ~= tWidths[nNextSmallerElement] then
-                nShrinkAmount = math.min(nSum - nWidth, (tWidths[nMaxElement] - tWidths[nNextSmallerElement]))
+                nShrinkAmount = math.min(nSum - nWidth, tWidths[nMaxElement] - tWidths[nNextSmallerElement])
             else
                 -- This will alternate between the two elements
                 nShrinkAmount = 1
@@ -230,7 +230,7 @@ local function chopUpColumns(tWidths, tInput)
     local function insertNewLine(bInserted, tRows, nRow, nColumn, sText)
         if not bInserted then
             -- Only execute this the first time (upon creation of new line)
-            table.insert(tRows, nRow, {[nColumn] = sText})
+            table.insert(tRows, nRow, { [nColumn] = sText })
             return
         end
 
@@ -250,10 +250,10 @@ local function chopUpColumns(tWidths, tInput)
                     for sWord, sSpaces in sVal:gmatch("([^%s]+)(%s*)") do
                         local nWordLen = #sWord
 
-                        if (#sCurrString + nWordLen + #sSpaces) <= tWidths[nCol] then
+                        if #sCurrString + nWordLen + #sSpaces <= tWidths[nCol] then
                             -- This entire segment will still fit
                             sCurrString = sCurrString .. sWord .. sSpaces
-                        elseif (#sCurrString + nWordLen) <= tWidths[nCol] then
+                        elseif #sCurrString + nWordLen <= tWidths[nCol] then
                             -- We can fit the word without the succeeding spaces
                             -- fit the rest on a new line (spaces will be left out)
                             sCurrString = sCurrString .. sWord
