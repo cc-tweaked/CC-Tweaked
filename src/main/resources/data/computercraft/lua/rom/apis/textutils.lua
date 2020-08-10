@@ -286,10 +286,10 @@ local function chopUpColumns(tWidths, tInput)
 end
 
 local function tabulateCommon(bPaged, ...)
-    local tInput = {...}
+    local tInput = table.pack(...)
 
     -- Do some first input sanitizing
-    for i = 1, #tInput do
+    for i = 1, tInput.n do
         expect(i, tInput[i], "number", "table") -- Either a color or column data
     end
 
