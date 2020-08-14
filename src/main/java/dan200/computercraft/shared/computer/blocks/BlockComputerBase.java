@@ -25,6 +25,7 @@ import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
@@ -138,6 +139,7 @@ public abstract class BlockComputerBase<T extends TileComputerBase> extends Bloc
     public void onBlockHarvested( @Nonnull World world, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nonnull PlayerEntity player )
     {
         if( !(world instanceof ServerWorld) ) return;
+        ServerWorld serverWorld = (ServerWorld) world;
 
         // We drop the item here instead of doing it in the harvest method, as we should
         // drop computers for creative players too.
@@ -146,19 +148,19 @@ public abstract class BlockComputerBase<T extends TileComputerBase> extends Bloc
         if( tile instanceof TileComputerBase )
         {
             TileComputerBase computer = (TileComputerBase) tile;
-            LootContext.Builder context = new LootContext.Builder( (ServerWorld) world )
+            LootContext.Builder context = new LootContext.Builder( serverWorld )
                 .withRandom( world.rand )
-                .withParameter( LootParameters.POSITION, pos )
+                .withParameter( LootParameters.field_237457_g_, Vector3d.copyCentered( pos ) )
                 .withParameter( LootParameters.TOOL, player.getHeldItemMainhand() )
                 .withParameter( LootParameters.THIS_ENTITY, player )
-                .withNullableParameter( LootParameters.BLOCK_ENTITY, tile )
+                .withParameter( LootParameters.BLOCK_ENTITY, tile )
                 .withDynamicDrop( DROP, ( ctx, out ) -> out.accept( getItem( computer ) ) );
             for( ItemStack item : state.getDrops( context ) )
             {
                 spawnAsEntity( world, pos, item );
             }
 
-            state.spawnAdditionalDrops( world, pos, player.getHeldItemMainhand() );
+            state.spawnAdditionalDrops( serverWorld, pos, player.getHeldItemMainhand() );
         }
     }
 

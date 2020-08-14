@@ -66,11 +66,6 @@ public class FakeNetHandler extends ServerPlayNetHandler
     }
 
     @Override
-    public void handleRecipeBookUpdate( @Nonnull CRecipeInfoPacket packet )
-    {
-    }
-
-    @Override
     public void handleSeenAdvancements( @Nonnull CSeenAdvancementsPacket packet )
     {
     }

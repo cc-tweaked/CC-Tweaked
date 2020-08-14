@@ -207,9 +207,7 @@ public class BlockCable extends BlockGeneric implements IWaterLoggable
         Direction facing = state.get( MODEM ).getFacing();
         if( facing == null ) return true;
 
-        BlockPos offsetPos = pos.offset( facing );
-        BlockState offsetState = world.getBlockState( offsetPos );
-        return hasSolidSide( offsetState, world, offsetPos, facing.getOpposite() );
+        return hasEnoughSolidSide( world, pos.offset( facing ), facing.getOpposite() );
     }
 
     @Nullable

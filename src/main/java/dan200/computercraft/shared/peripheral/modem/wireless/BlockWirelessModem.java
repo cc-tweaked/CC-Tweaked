@@ -80,12 +80,10 @@ public class BlockWirelessModem extends BlockGeneric implements IWaterLoggable
 
     @Override
     @Deprecated
-    public boolean isValidPosition( BlockState state, IWorldReader world, BlockPos pos )
+    public boolean isValidPosition( BlockState state, @Nonnull IWorldReader world, BlockPos pos )
     {
         Direction facing = state.get( FACING );
-        BlockPos offsetPos = pos.offset( facing );
-        BlockState offsetState = world.getBlockState( offsetPos );
-        return hasSolidSide( offsetState, world, offsetPos, facing.getOpposite() );
+        return hasEnoughSolidSide( world, pos.offset( facing ), facing.getOpposite() );
     }
 
     @Nullable
