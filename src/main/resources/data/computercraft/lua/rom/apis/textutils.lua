@@ -77,7 +77,7 @@ function formatTime(nTime, bTwentyFourHour)
     local nHour = math.floor(nTime)
     local nMinute = math.floor((nTime - nHour) * 60)
     if sTOD then
-        return string.format("%d:%02d %s", nHour, nMinute, sTOD)
+        return string.format("%d:%02d %s", (nHour==0 and 12 or nHour), nMinute, sTOD)
     else
         return string.format("%d:%02d", nHour, nMinute)
     end
