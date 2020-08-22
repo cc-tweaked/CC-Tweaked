@@ -12,6 +12,14 @@ describe("The textutils library", function()
             expect.error(textutils.formatTime, nil):eq("bad argument #1 (expected number, got nil)")
             expect.error(textutils.formatTime, 1, 1):eq("bad argument #2 (expected boolean, got number)")
         end)
+
+        it("correctly formats 12 o'clock", function()
+            expect(textutils.formatTime(0, false)):eq("12:00 AM")
+            expect(textutils.formatTime(0.1, false)):eq("12:06 AM")
+
+            expect(textutils.formatTime(0, true)):eq("0:00")
+            expect(textutils.formatTime(0.1, true)):eq("0:06")
+        end)
     end)
 
     describe("textutils.pagedPrint", function()
@@ -49,7 +57,7 @@ describe("The textutils library", function()
     describe("textutils.empty_json_array", function()
         it("is immutable", function()
             expect.error(function() textutils.empty_json_array[1] = true end)
-                :str_match("^[^:]+:51: attempt to mutate textutils.empty_json_array$")
+                :str_match("^[^:]+:%d+: attempt to mutate textutils.empty_json_array$")
         end)
     end)
 
