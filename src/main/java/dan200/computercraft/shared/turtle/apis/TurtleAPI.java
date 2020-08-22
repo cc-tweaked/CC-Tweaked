@@ -605,7 +605,7 @@ public class TurtleAPI implements ILuaAPI
 
         Map<String, Object> table = detailed
             ? ItemData.fill( new HashMap<>(), stack )
-            : ItemData.fillBasic( new HashMap<>(), stack );
+            : ItemData.fillBasicSafe( new HashMap<>(), stack );
 
         TurtleActionEvent event = new TurtleInspectItemEvent( turtle, stack, table, detailed );
         if( MinecraftForge.EVENT_BUS.post( event ) ) return new Object[] { false, event.getFailureMessage() };
