@@ -190,11 +190,11 @@ public final class NBTUtil
         }
     }
 
-    private static class DigestOutputStream extends OutputStream
+    private static final class DigestOutputStream extends OutputStream
     {
         private final MessageDigest digest;
 
-        private DigestOutputStream( MessageDigest digest )
+        DigestOutputStream( MessageDigest digest )
         {
             this.digest = digest;
         }
