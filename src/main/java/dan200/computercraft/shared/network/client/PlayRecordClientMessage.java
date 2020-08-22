@@ -13,10 +13,8 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.network.NetworkEvent;
-import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nonnull;
-import java.util.Objects;
 
 /**
  * Starts or stops a record on the client, depending on if {@link #soundEvent} is {@code null}.
@@ -51,7 +49,7 @@ public class PlayRecordClientMessage implements NetworkMessage
         if( buf.readBoolean() )
         {
             name = buf.readString( Short.MAX_VALUE );
-            soundEvent = ForgeRegistries.SOUND_EVENTS.getValue( buf.readResourceLocation() );
+            soundEvent = buf.readRegistryIdSafe( SoundEvent.class );
         }
         else
         {
@@ -72,7 +70,7 @@ public class PlayRecordClientMessage implements NetworkMessage
         {
             buf.writeBoolean( true );
             buf.writeString( name );
-            buf.writeResourceLocation( Objects.requireNonNull( soundEvent.getRegistryName(), "Sound is not registered" ) );
+            buf.writeRegistryId( soundEvent );
         }
     }
 
