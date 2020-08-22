@@ -238,7 +238,7 @@ public class TurtlePlaceCommand implements ITurtleCommand
             cancelResult = hitEntity.applyPlayerInteraction( turtlePlayer, hitPos, Hand.MAIN_HAND );
         }
 
-        if( cancelResult == ActionResultType.SUCCESS )
+        if( cancelResult.isSuccessOrConsume() )
         {
             placed = true;
         }
@@ -246,7 +246,7 @@ public class TurtlePlaceCommand implements ITurtleCommand
         {
             // See EntityPlayer.interactOn
             cancelResult = ForgeHooks.onInteractEntity( turtlePlayer, hitEntity, Hand.MAIN_HAND );
-            if( cancelResult == ActionResultType.SUCCESS )
+            if( cancelResult.isSuccessOrConsume() )
             {
                 placed = true;
             }
@@ -353,17 +353,15 @@ public class TurtlePlaceCommand implements ITurtleCommand
         TileEntity existingTile = turtle.getWorld().getTileEntity( position );
 
         // See PlayerInteractionManager.processRightClickBlock
-        // TODO: ^ Check we're still consistent.
         PlayerInteractEvent.RightClickBlock event = ForgeHooks.onRightClickBlock( turtlePlayer, Hand.MAIN_HAND, position, side );
         if( !event.isCanceled() )
         {
-            if( item.onItemUseFirst( stack, context ) == ActionResultType.SUCCESS )
+            if( item.onItemUseFirst( stack, context ).isSuccessOrConsume() )
             {
                 placed = true;
                 turtlePlayer.loadInventory( stackCopy );
             }
-            else if( event.getUseItem() != Event.Result.DENY &&
-                stackCopy.onItemUse( context ) == ActionResultType.SUCCESS )
+            else if( event.getUseItem() != Event.Result.DENY && stackCopy.onItemUse( context ).isSuccessOrConsume() )
             {
                 placed = true;
                 turtlePlayer.loadInventory( stackCopy );
@@ -373,14 +371,14 @@ public class TurtlePlaceCommand implements ITurtleCommand
         if( !placed && (item instanceof BucketItem || item instanceof BoatItem || item instanceof LilyPadItem || item instanceof GlassBottleItem) )
         {
             ActionResultType actionResult = ForgeHooks.onItemRightClick( turtlePlayer, Hand.MAIN_HAND );
-            if( actionResult == ActionResultType.SUCCESS )
+            if( actionResult != null && actionResult.isSuccessOrConsume() )
             {
                 placed = true;
             }
             else if( actionResult == null )
             {
                 ActionResult<ItemStack> result = stackCopy.useItemRightClick( turtle.getWorld(), turtlePlayer, Hand.MAIN_HAND );
-                if( result.getType() == ActionResultType.SUCCESS && !ItemStack.areItemStacksEqual( stack, result.getResult() ) )
+                if( result.getType().isSuccessOrConsume() && !ItemStack.areItemStacksEqual( stack, result.getResult() ) )
                 {
                     placed = true;
                     turtlePlayer.loadInventory( result.getResult() );
