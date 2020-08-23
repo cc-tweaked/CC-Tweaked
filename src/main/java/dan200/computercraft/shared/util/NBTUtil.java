@@ -5,9 +5,19 @@
  */
 package dan200.computercraft.shared.util;
 
+import dan200.computercraft.ComputerCraft;
 import net.minecraft.nbt.*;
 import net.minecraftforge.common.util.Constants;
+import org.apache.commons.codec.binary.Hex;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.io.DataOutput;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -158,5 +168,47 @@ public final class NBTUtil
             }
         }
         return objects;
+    }
+
+    @Nullable
+    public static String getNBTHash( @Nullable CompoundNBT tag )
+    {
+        if( tag == null ) return null;
+
+        try
+        {
+            MessageDigest digest = MessageDigest.getInstance( "MD5" );
+            DataOutput output = new DataOutputStream( new DigestOutputStream( digest ) );
+            CompressedStreamTools.write( tag, output );
+            byte[] hash = digest.digest();
+            return new String( Hex.encodeHex( hash ) );
+        }
+        catch( NoSuchAlgorithmException | IOException e )
+        {
+            ComputerCraft.log.error( "Cannot hash NBT", e );
+            return null;
+        }
+    }
+
+    private static final class DigestOutputStream extends OutputStream
+    {
+        private final MessageDigest digest;
+
+        DigestOutputStream( MessageDigest digest )
+        {
+            this.digest = digest;
+        }
+
+        @Override
+        public void write( @Nonnull byte[] b, int off, int len )
+        {
+            digest.update( b, off, len );
+        }
+
+        @Override
+        public void write( int b )
+        {
+            digest.update( (byte) b );
+        }
     }
 }

@@ -395,14 +395,7 @@ public final class ComputerThread
                             executor.timeout.hardAbort();
                             executor.abort();
 
-                            if( afterHardAbort >= ABORT_TIMEOUT )
-                            {
-                                // If we've hard aborted but we're still not dead, dump the stack trace and interrupt
-                                // the task.
-                                timeoutTask( executor, runner.owner, afterStart );
-                                runner.owner.interrupt();
-                            }
-                            else if( afterHardAbort >= ABORT_TIMEOUT * 2 )
+                            if( afterHardAbort >= ABORT_TIMEOUT * 2 )
                             {
                                 // If we've hard aborted and interrupted, and we're still not dead, then mark the runner
                                 // as dead, finish off the task, and spawn a new runner.
@@ -420,6 +413,13 @@ public final class ComputerThread
                                         runnerFactory.newThread( currentRunners[i] = new TaskRunner() ).start();
                                     }
                                 }
+                            }
+                            else if( afterHardAbort >= ABORT_TIMEOUT )
+                            {
+                                // If we've hard aborted but we're still not dead, dump the stack trace and interrupt
+                                // the task.
+                                timeoutTask( executor, runner.owner, afterStart );
+                                runner.owner.interrupt();
                             }
                         }
                     }

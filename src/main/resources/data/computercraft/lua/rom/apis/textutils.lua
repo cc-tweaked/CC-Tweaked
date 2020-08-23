@@ -77,7 +77,7 @@ function formatTime(nTime, bTwentyFourHour)
     local nHour = math.floor(nTime)
     local nMinute = math.floor((nTime - nHour) * 60)
     if sTOD then
-        return string.format("%d:%02d %s", nHour, nMinute, sTOD)
+        return string.format("%d:%02d %s", nHour == 0 and 12 or nHour, nMinute, sTOD)
     else
         return string.format("%d:%02d", nHour, nMinute)
     end
@@ -335,6 +335,31 @@ empty_json_array = mk_tbl("[]", "empty_json_array")
 -- @see textutils.unserialiseJSON
 json_null = mk_tbl("null", "json_null")
 
+local serializeJSONString
+do
+    local function hexify(c)
+        return ("\\u00%02X"):format(c:byte())
+    end
+
+    local map = {
+        ["\""] = "\\\"",
+        ["\\"] = "\\\\",
+        ["\b"] = "\\b",
+        ["\f"] = "\\f",
+        ["\n"] = "\\n",
+        ["\r"] = "\\r",
+        ["\t"] = "\\t",
+    }
+    for i = 0, 0x1f do
+        local c = string.char(i)
+        if map[c] == nil then map[c] = hexify(c) end
+    end
+
+    serializeJSONString = function(s)
+        return ('"%s"'):format(s:gsub("[\0-\x1f\"\\]", map):gsub("[\x7f-\xff]", hexify))
+    end
+end
+
 local function serializeJSONImpl(t, tTracking, bNBTStyle)
     local sType = type(t)
     if t == empty_json_array then return "[]"
@@ -361,7 +386,7 @@ local function serializeJSONImpl(t, tTracking, bNBTStyle)
                     if bNBTStyle then
                         sEntry = tostring(k) .. ":" .. serializeJSONImpl(v, tTracking, bNBTStyle)
                     else
-                        sEntry = string.format("%q", k) .. ":" .. serializeJSONImpl(v, tTracking, bNBTStyle)
+                        sEntry = serializeJSONString(k) .. ":" .. serializeJSONImpl(v, tTracking, bNBTStyle)
                     end
                     if nObjectSize == 0 then
                         sObjectResult = sObjectResult .. sEntry
@@ -390,7 +415,7 @@ local function serializeJSONImpl(t, tTracking, bNBTStyle)
         end
 
     elseif sType == "string" then
-        return string.format("%q", t)
+        return serializeJSONString(t)
 
     elseif sType == "number" or sType == "boolean" then
         return tostring(t)

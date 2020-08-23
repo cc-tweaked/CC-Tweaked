@@ -7,6 +7,8 @@
 package dan200.computercraft.shared.peripheral.generic.data;
 
 import com.google.gson.JsonParseException;
+import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.shared.util.NBTUtil;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.item.EnchantedBookItem;
@@ -22,13 +24,29 @@ import javax.annotation.Nullable;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * Data providers for items.
+ *
+ * We guard using {@link ComputerCraft#genericPeripheral} in several places, as advanced functionality should not be
+ * exposed for {@code turtle.getItemDetail} when generic peripehrals are disabled.
+ */
 public class ItemData
 {
     @Nonnull
-    public static <T extends Map<? super String, Object>> T fillBasic( @Nonnull T data, @Nonnull ItemStack stack )
+    public static <T extends Map<? super String, Object>> T fillBasicSafe( @Nonnull T data, @Nonnull ItemStack stack )
     {
         data.put( "name", DataHelpers.getId( stack.getItem() ) );
         data.put( "count", stack.getCount() );
+
+        return data;
+    }
+
+    @Nonnull
+    public static <T extends Map<? super String, Object>> T fillBasic( @Nonnull T data, @Nonnull ItemStack stack )
+    {
+        fillBasicSafe( data, stack );
+        String hash = NBTUtil.getNBTHash( stack.getTag() );
+        if( hash != null ) data.put( "nbt", hash );
         return data;
     }
 
@@ -54,6 +72,8 @@ public class ItemData
         }
 
         data.put( "tags", DataHelpers.getTags( stack.getItem().getTags() ) );
+
+        if( !ComputerCraft.genericPeripheral ) return data;
 
         CompoundNBT tag = stack.getTag();
         if( tag != null && tag.contains( "display", Constants.NBT.TAG_COMPOUND ) )
