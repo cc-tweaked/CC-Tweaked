@@ -83,9 +83,9 @@ class VarargArguments implements IArguments
     public ByteBuffer getBytes( int index ) throws LuaException
     {
         LuaValue value = varargs.arg( index + 1 );
-        if( !(value instanceof LuaString) ) throw LuaValues.badArgument( index, "string", value.typeName() );
+        if( !(value instanceof LuaBaseString) ) throw LuaValues.badArgument( index, "string", value.typeName() );
 
-        LuaString str = (LuaString) value;
+        LuaString str = ((LuaBaseString) value).strvalue();
         return ByteBuffer.wrap( str.bytes, str.offset, str.length ).asReadOnlyBuffer();
     }
 
@@ -94,9 +94,9 @@ class VarargArguments implements IArguments
     {
         LuaValue value = varargs.arg( index + 1 );
         if( value.isNil() ) return Optional.empty();
-        if( !(value instanceof LuaString) ) throw LuaValues.badArgument( index, "string", value.typeName() );
+        if( !(value instanceof LuaBaseString) ) throw LuaValues.badArgument( index, "string", value.typeName() );
 
-        LuaString str = (LuaString) value;
+        LuaString str = ((LuaBaseString) value).strvalue();
         return Optional.of( ByteBuffer.wrap( str.bytes, str.offset, str.length ).asReadOnlyBuffer() );
     }
 }
