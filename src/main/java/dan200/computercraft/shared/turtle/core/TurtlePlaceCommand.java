@@ -246,7 +246,7 @@ public class TurtlePlaceCommand implements ITurtleCommand
         {
             // See EntityPlayer.interactOn
             cancelResult = ForgeHooks.onInteractEntity( turtlePlayer, hitEntity, Hand.MAIN_HAND );
-            if( cancelResult.isSuccessOrConsume() )
+            if( cancelResult != null && cancelResult.isSuccessOrConsume() )
             {
                 placed = true;
             }
