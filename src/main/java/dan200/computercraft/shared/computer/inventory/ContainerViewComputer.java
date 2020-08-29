@@ -6,78 +6,71 @@
 
 package dan200.computercraft.shared.computer.inventory;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 import dan200.computercraft.ComputerCraft;
-import dan200.computercraft.shared.computer.core.*;
+import dan200.computercraft.shared.computer.core.ComputerFamily;
+import dan200.computercraft.shared.computer.core.IComputer;
+import dan200.computercraft.shared.computer.core.IContainerComputer;
+import dan200.computercraft.shared.computer.core.InputState;
+import dan200.computercraft.shared.computer.core.ServerComputer;
+
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.text.TranslatableText;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
-public class ContainerViewComputer extends ScreenHandler implements IContainerComputer
-{
+public class ContainerViewComputer extends ScreenHandler implements IContainerComputer {
     private final IComputer computer;
-    private final InputState input = new InputState( this );
+    private final InputState input = new InputState(this);
 
-    public ContainerViewComputer( int id, IComputer computer )
-    {
-        super( null, id );
+    public ContainerViewComputer(int id, IComputer computer) {
+        super(null, id);
         this.computer = computer;
     }
 
     @Nullable
     @Override
-    public IComputer getComputer()
-    {
-        return computer;
+    public IComputer getComputer() {
+        return this.computer;
+    }
+
+    @Nonnull
+    @Override
+    public InputState getInput() {
+        return this.input;
     }
 
     @Override
-    public boolean canUse( @Nonnull PlayerEntity player )
-    {
-        if( computer instanceof ServerComputer )
-        {
-            ServerComputer serverComputer = (ServerComputer) computer;
+    public void close(PlayerEntity player) {
+        super.close(player);
+        this.input.close();
+    }
+
+    @Override
+    public boolean canUse(@Nonnull PlayerEntity player) {
+        if (this.computer instanceof ServerComputer) {
+            ServerComputer serverComputer = (ServerComputer) this.computer;
 
             // If this computer no longer exists then discard it.
-            if( ComputerCraft.serverComputerRegistry.get( serverComputer.getInstanceID() ) != serverComputer )
-            {
+            if (ComputerCraft.serverComputerRegistry.get(serverComputer.getInstanceID()) != serverComputer) {
                 return false;
             }
 
             // If we're a command computer then ensure we're in creative
-            if( serverComputer.getFamily() == ComputerFamily.Command )
-            {
+            if (serverComputer.getFamily() == ComputerFamily.Command) {
                 MinecraftServer server = player.getServer();
-                if( server == null || !server.areCommandBlocksEnabled() )
-                {
-                    player.sendMessage( new TranslatableText( "advMode.notEnabled" ), false );
+                if (server == null || !server.areCommandBlocksEnabled()) {
+                    player.sendMessage(new TranslatableText("advMode.notEnabled"), false);
                     return false;
-                }
-                else if( !player.isCreativeLevelTwoOp() )
-                {
-                    player.sendMessage( new TranslatableText( "advMode.notAllowed" ), false );
+                } else if (!player.isCreativeLevelTwoOp()) {
+                    player.sendMessage(new TranslatableText("advMode.notAllowed"), false);
                     return false;
                 }
             }
         }
 
         return true;
-    }
-
-    @Nonnull
-    @Override
-    public InputState getInput()
-    {
-        return input;
-    }
-
-    @Override
-    public void close( PlayerEntity player )
-    {
-        super.close( player );
-        input.close();
     }
 }

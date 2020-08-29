@@ -6,6 +6,11 @@
 
 package dan200.computercraft.shared.computer.blocks;
 
+import java.util.Objects;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.peripheral.IPeripheralTile;
@@ -20,6 +25,7 @@ import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.util.DirectionUtil;
 import dan200.computercraft.shared.util.RedstoneUtil;
 import joptsimple.internal.Strings;
+
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.RedstoneWireBlock;
@@ -38,48 +44,38 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.util.Objects;
-
-public abstract class TileComputerBase extends TileGeneric implements IComputerTile, Tickable, IPeripheralTile, Nameable
-{
+public abstract class TileComputerBase extends TileGeneric implements IComputerTile, Tickable, IPeripheralTile, Nameable {
     private static final String NBT_ID = "ComputerId";
     private static final String NBT_LABEL = "Label";
     private static final String NBT_INSTANCE = "InstanceId";
     private static final String NBT_ON = "On";
-
+    private final ComputerFamily family;
+    protected String m_label = null;
+    boolean m_startOn = false;
     private int m_instanceID = -1;
     private int m_computerID = -1;
-    protected String m_label = null;
     private boolean m_on = false;
-    boolean m_startOn = false;
     private boolean m_fresh = false;
 
-    private final ComputerFamily family;
-
-    public TileComputerBase( BlockEntityType<? extends TileGeneric> type, ComputerFamily family )
-    {
-        super( type );
+    public TileComputerBase(BlockEntityType<? extends TileGeneric> type, ComputerFamily family) {
+        super(type);
         this.family = family;
     }
 
-    protected void unload()
-    {
-        if( m_instanceID >= 0 )
-        {
-            if( !getWorld().isClient ) ComputerCraft.serverComputerRegistry.remove( m_instanceID );
-            m_instanceID = -1;
+    @Override
+    public void destroy() {
+        this.unload();
+        for (Direction dir : DirectionUtil.FACINGS) {
+            RedstoneUtil.propagateRedstoneOutput(this.getWorld(), this.getPos(), dir);
         }
     }
 
-    @Override
-    public void destroy()
-    {
-        unload();
-        for( Direction dir : DirectionUtil.FACINGS )
-        {
-            RedstoneUtil.propagateRedstoneOutput( getWorld(), getPos(), dir );
+    protected void unload() {
+        if (this.m_instanceID >= 0) {
+            if (!this.getWorld().isClient) {
+                ComputerCraft.serverComputerRegistry.remove(this.m_instanceID);
+            }
+            this.m_instanceID = -1;
         }
     }
 
@@ -92,368 +88,356 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
     */
 
     @Override
-    public void markRemoved()
-    {
-        unload();
-        super.markRemoved();
-    }
-
-    public abstract void openGUI( PlayerEntity player );
-
-    protected boolean canNameWithTag( PlayerEntity player )
-    {
-        return false;
-    }
-
-    @Override
-    public boolean onActivate( PlayerEntity player, Hand hand, BlockHitResult hit )
-    {
-        ItemStack currentItem = player.getStackInHand( hand );
-        if( !currentItem.isEmpty() && currentItem.getItem() == Items.NAME_TAG && canNameWithTag( player ) && currentItem.hasCustomName() )
-        {
+    public boolean onActivate(PlayerEntity player, Hand hand, BlockHitResult hit) {
+        ItemStack currentItem = player.getStackInHand(hand);
+        if (!currentItem.isEmpty() && currentItem.getItem() == Items.NAME_TAG && this.canNameWithTag(player) && currentItem.hasCustomName()) {
             // Label to rename computer
-            if( !getWorld().isClient )
-            {
-                setLabel( currentItem.getName().asString() );
-                currentItem.decrement( 1 );
+            if (!this.getWorld().isClient) {
+                this.setLabel(currentItem.getName()
+                                         .asString());
+                currentItem.decrement(1);
             }
             return true;
-        }
-        else if( !player.isSneaking() )
-        {
+        } else if (!player.isSneaking()) {
             // Regular right click to activate computer
-            if( !getWorld().isClient && isUsable( player, false ) )
-            {
-                createServerComputer().turnOn();
-                openGUI( player );
+            if (!this.getWorld().isClient && this.isUsable(player, false)) {
+                this.createServerComputer().turnOn();
+                this.openGUI(player);
             }
             return true;
         }
         return false;
     }
 
-    @Override
-    public void onNeighbourChange( @Nonnull BlockPos neighbour )
-    {
-        updateInput( neighbour );
-    }
-
-    @Override
-    public void onNeighbourTileEntityChange( @Nonnull BlockPos neighbour )
-    {
-        updateInput( neighbour );
-    }
-
-    @Override
-    public void tick()
-    {
-        if( !getWorld().isClient )
-        {
-            ServerComputer computer = createServerComputer();
-            if( computer == null ) return;
-
-            // If the computer isn't on and should be, then turn it on
-            if( m_startOn || (m_fresh && m_on) )
-            {
-                computer.turnOn();
-                m_startOn = false;
-            }
-
-            computer.keepAlive();
-
-            m_fresh = false;
-            m_computerID = computer.getID();
-            m_label = computer.getLabel();
-            m_on = computer.isOn();
-
-            if( computer.hasOutputChanged() ) updateOutput();
-
-            // Update the block state if needed. We don't fire a block update intentionally,
-            // as this only really is needed on the client side.
-            updateBlockState( computer.getState() );
-
-            if( computer.hasOutputChanged() ) updateOutput();
-        }
-        else
-        {
-            ClientComputer computer = createClientComputer();
-            if( computer != null && computer.hasOutputChanged() ) updateBlock();
-        }
-    }
-
-    protected abstract void updateBlockState( ComputerState newState );
-
-    @Nonnull
-    @Override
-    public CompoundTag toTag( CompoundTag nbt )
-    {
-        // Save ID, label and power state
-        if( m_computerID >= 0 ) nbt.putInt( NBT_ID, m_computerID );
-        if( m_label != null ) nbt.putString( NBT_LABEL, m_label );
-        nbt.putBoolean( NBT_ON, m_on );
-
-        return super.toTag( nbt );
-    }
-
-    @Override
-    public void fromTag( CompoundTag nbt )
-    {
-        super.fromTag( nbt );
-
-        // Load ID, label and power state
-        m_computerID = nbt.contains( NBT_ID ) ? nbt.getInt( NBT_ID ) : -1;
-        m_label = nbt.contains( NBT_LABEL ) ? nbt.getString( NBT_LABEL ) : null;
-        m_on = m_startOn = nbt.getBoolean( NBT_ON );
-    }
-
-    protected boolean isPeripheralBlockedOnSide( ComputerSide localSide )
-    {
+    protected boolean canNameWithTag(PlayerEntity player) {
         return false;
     }
 
-    protected abstract Direction getDirection();
-
-    protected ComputerSide remapToLocalSide( Direction globalSide )
-    {
-        return remapLocalSide( DirectionUtil.toLocal( getDirection(), globalSide ) );
-    }
-
-    protected ComputerSide remapLocalSide( ComputerSide localSide )
-    {
-        return localSide;
-    }
-
-    private void updateSideInput( ServerComputer computer, Direction dir, BlockPos offset )
-    {
-        Direction offsetSide = dir.getOpposite();
-        ComputerSide localDir = remapToLocalSide( dir );
-
-        computer.setRedstoneInput( localDir, getRedstoneInput( world, offset, dir ) );
-        computer.setBundledRedstoneInput( localDir, BundledRedstone.getOutput( getWorld(), offset, offsetSide ) );
-        if( !isPeripheralBlockedOnSide( localDir ) )
-        {
-            computer.setPeripheral( localDir, Peripherals.getPeripheral( getWorld(), offset, offsetSide ) );
+    public ServerComputer createServerComputer() {
+        if (this.getWorld().isClient) {
+            return null;
         }
+
+        boolean changed = false;
+        if (this.m_instanceID < 0) {
+            this.m_instanceID = ComputerCraft.serverComputerRegistry.getUnusedInstanceID();
+            changed = true;
+        }
+        if (!ComputerCraft.serverComputerRegistry.contains(this.m_instanceID)) {
+            ServerComputer computer = this.createComputer(this.m_instanceID, this.m_computerID);
+            ComputerCraft.serverComputerRegistry.add(this.m_instanceID, computer);
+            this.m_fresh = true;
+            changed = true;
+        }
+        if (changed) {
+            this.updateBlock();
+            this.updateInput();
+        }
+        return ComputerCraft.serverComputerRegistry.get(this.m_instanceID);
+    }
+
+    public abstract void openGUI(PlayerEntity player);
+
+    public ServerComputer getServerComputer() {
+        return this.getWorld().isClient ? null : ComputerCraft.serverComputerRegistry.get(this.m_instanceID);
+    }
+
+    protected abstract ServerComputer createComputer(int instanceID, int id);
+
+    public void updateInput() {
+        if (this.getWorld() == null || this.getWorld().isClient) {
+            return;
+        }
+
+        // Update all sides
+        ServerComputer computer = this.getServerComputer();
+        if (computer == null) {
+            return;
+        }
+
+        BlockPos pos = computer.getPosition();
+        for (Direction dir : DirectionUtil.FACINGS) {
+            this.updateSideInput(computer, dir, pos.offset(dir));
+        }
+    }
+
+    private void updateSideInput(ServerComputer computer, Direction dir, BlockPos offset) {
+        Direction offsetSide = dir.getOpposite();
+        ComputerSide localDir = this.remapToLocalSide(dir);
+
+        computer.setRedstoneInput(localDir, getRedstoneInput(this.world, offset, dir));
+        computer.setBundledRedstoneInput(localDir, BundledRedstone.getOutput(this.getWorld(), offset, offsetSide));
+        if (!this.isPeripheralBlockedOnSide(localDir)) {
+            computer.setPeripheral(localDir, Peripherals.getPeripheral(this.getWorld(), offset, offsetSide));
+        }
+    }
+
+    protected ComputerSide remapToLocalSide(Direction globalSide) {
+        return this.remapLocalSide(DirectionUtil.toLocal(this.getDirection(), globalSide));
     }
 
     /**
      * Gets the redstone input for an adjacent block
      *
      * @param world The world we exist in
-     * @param pos   The position of the neighbour
-     * @param side  The side we are reading from
+     * @param pos The position of the neighbour
+     * @param side The side we are reading from
      * @return The effective redstone power
      * @see net.minecraft.block.RedstoneBlock#method_9991(World, BlockPos, BlockState)
      */
-    protected static int getRedstoneInput( World world, BlockPos pos, Direction side )
-    {
-        int power = world.getEmittedRedstonePower( pos, side );
-        if( power >= 15 ) return power;
+    protected static int getRedstoneInput(World world, BlockPos pos, Direction side) {
+        int power = world.getEmittedRedstonePower(pos, side);
+        if (power >= 15) {
+            return power;
+        }
 
-        BlockState neighbour = world.getBlockState( pos );
-        return neighbour.getBlock() == Blocks.REDSTONE_WIRE
-            ? Math.max( power, neighbour.get( RedstoneWireBlock.POWER ) )
-            : power;
+        BlockState neighbour = world.getBlockState(pos);
+        return neighbour.getBlock() == Blocks.REDSTONE_WIRE ? Math.max(power, neighbour.get(RedstoneWireBlock.POWER)) : power;
     }
 
-    public void updateInput()
-    {
-        if( getWorld() == null || getWorld().isClient ) return;
+    protected boolean isPeripheralBlockedOnSide(ComputerSide localSide) {
+        return false;
+    }
 
-        // Update all sides
-        ServerComputer computer = getServerComputer();
-        if( computer == null ) return;
+    protected ComputerSide remapLocalSide(ComputerSide localSide) {
+        return localSide;
+    }
 
-        BlockPos pos = computer.getPosition();
-        for( Direction dir : DirectionUtil.FACINGS )
-        {
-            updateSideInput( computer, dir, pos.offset( dir ) );
+    protected abstract Direction getDirection();
+
+    @Override
+    public void onNeighbourChange(@Nonnull BlockPos neighbour) {
+        this.updateInput(neighbour);
+    }
+
+    @Override
+    public void onNeighbourTileEntityChange(@Nonnull BlockPos neighbour) {
+        this.updateInput(neighbour);
+    }
+
+    @Override
+    protected void readDescription(@Nonnull CompoundTag nbt) {
+        super.readDescription(nbt);
+        this.m_instanceID = nbt.contains(NBT_INSTANCE) ? nbt.getInt(NBT_INSTANCE) : -1;
+        this.m_label = nbt.contains(NBT_LABEL) ? nbt.getString(NBT_LABEL) : null;
+        this.m_computerID = nbt.contains(NBT_ID) ? nbt.getInt(NBT_ID) : -1;
+    }
+
+    @Override
+    protected void writeDescription(@Nonnull CompoundTag nbt) {
+        super.writeDescription(nbt);
+
+        if (this.m_computerID >= 0) {
+            nbt.putInt(NBT_ID, this.m_computerID);
+        }
+        if (this.m_label != null) {
+            nbt.putString(NBT_LABEL, this.m_label);
+        }
+        nbt.putInt(NBT_INSTANCE,
+                   this.createServerComputer().getInstanceID());
+    }
+
+    @Override
+    public void tick() {
+        if (!this.getWorld().isClient) {
+            ServerComputer computer = this.createServerComputer();
+            if (computer == null) {
+                return;
+            }
+
+            // If the computer isn't on and should be, then turn it on
+            if (this.m_startOn || (this.m_fresh && this.m_on)) {
+                computer.turnOn();
+                this.m_startOn = false;
+            }
+
+            computer.keepAlive();
+
+            this.m_fresh = false;
+            this.m_computerID = computer.getID();
+            this.m_label = computer.getLabel();
+            this.m_on = computer.isOn();
+
+            if (computer.hasOutputChanged()) {
+                this.updateOutput();
+            }
+
+            // Update the block state if needed. We don't fire a block update intentionally,
+            // as this only really is needed on the client side.
+            this.updateBlockState(computer.getState());
+
+            if (computer.hasOutputChanged()) {
+                this.updateOutput();
+            }
+        } else {
+            ClientComputer computer = this.createClientComputer();
+            if (computer != null && computer.hasOutputChanged()) {
+                this.updateBlock();
+            }
         }
     }
 
-    private void updateInput( BlockPos neighbour )
-    {
-        if( getWorld() == null || getWorld().isClient ) return;
+    public void updateOutput() {
+        // Update redstone
+        this.updateBlock();
+        for (Direction dir : DirectionUtil.FACINGS) {
+            RedstoneUtil.propagateRedstoneOutput(this.getWorld(), this.getPos(), dir);
+        }
+    }
 
-        ServerComputer computer = getServerComputer();
-        if( computer == null ) return;
+    protected abstract void updateBlockState(ComputerState newState);
+
+    public ClientComputer createClientComputer() {
+        if (!this.getWorld().isClient || this.m_instanceID < 0) {
+            return null;
+        }
+
+        ClientComputer computer = ComputerCraft.clientComputerRegistry.get(this.m_instanceID);
+        if (computer == null) {
+            ComputerCraft.clientComputerRegistry.add(this.m_instanceID, computer = new ClientComputer(this.m_instanceID));
+        }
+        return computer;
+    }
+
+    @Nonnull
+    @Override
+    public CompoundTag toTag(CompoundTag nbt) {
+        // Save ID, label and power state
+        if (this.m_computerID >= 0) {
+            nbt.putInt(NBT_ID, this.m_computerID);
+        }
+        if (this.m_label != null) {
+            nbt.putString(NBT_LABEL, this.m_label);
+        }
+        nbt.putBoolean(NBT_ON, this.m_on);
+
+        return super.toTag(nbt);
+    }
+
+    @Override
+    public void markRemoved() {
+        this.unload();
+        super.markRemoved();
+    }
+
+    @Override
+    public void fromTag(CompoundTag nbt) {
+        super.fromTag(nbt);
+
+        // Load ID, label and power state
+        this.m_computerID = nbt.contains(NBT_ID) ? nbt.getInt(NBT_ID) : -1;
+        this.m_label = nbt.contains(NBT_LABEL) ? nbt.getString(NBT_LABEL) : null;
+        this.m_on = this.m_startOn = nbt.getBoolean(NBT_ON);
+    }
+
+    private void updateInput(BlockPos neighbour) {
+        if (this.getWorld() == null || this.getWorld().isClient) {
+            return;
+        }
+
+        ServerComputer computer = this.getServerComputer();
+        if (computer == null) {
+            return;
+        }
 
         BlockPos pos = computer.getPosition();
-        for( Direction dir : DirectionUtil.FACINGS )
-        {
-            BlockPos offset = pos.offset( dir );
-            if( offset.equals( neighbour ) )
-            {
-                updateSideInput( computer, dir, offset );
+        for (Direction dir : DirectionUtil.FACINGS) {
+            BlockPos offset = pos.offset(dir);
+            if (offset.equals(neighbour)) {
+                this.updateSideInput(computer, dir, offset);
                 break;
             }
         }
 
         // If the position is not any adjacent one, update all inputs.
-        updateInput();
-    }
-
-    public void updateOutput()
-    {
-        // Update redstone
-        updateBlock();
-        for( Direction dir : DirectionUtil.FACINGS )
-        {
-            RedstoneUtil.propagateRedstoneOutput( getWorld(), getPos(), dir );
-        }
-    }
-
-    protected abstract ServerComputer createComputer( int instanceID, int id );
-
-    public abstract ComputerProxy createProxy();
-
-    @Override
-    public final int getComputerID()
-    {
-        return m_computerID;
+        this.updateInput();
     }
 
     @Override
-    public final String getLabel()
-    {
-        return m_label;
+    public final int getComputerID() {
+        return this.m_computerID;
     }
 
     @Override
-    public final void setComputerID( int id )
-    {
-        if( getWorld().isClient || m_computerID == id ) return;
+    public final void setComputerID(int id) {
+        if (this.getWorld().isClient || this.m_computerID == id) {
+            return;
+        }
 
-        m_computerID = id;
-        ServerComputer computer = getServerComputer();
-        if( computer != null ) computer.setID( m_computerID );
-        markDirty();
+        this.m_computerID = id;
+        ServerComputer computer = this.getServerComputer();
+        if (computer != null) {
+            computer.setID(this.m_computerID);
+        }
+        this.markDirty();
     }
 
     @Override
-    public final void setLabel( String label )
-    {
-        if( getWorld().isClient || Objects.equals( m_label, label ) ) return;
-
-        m_label = label;
-        ServerComputer computer = getServerComputer();
-        if( computer != null ) computer.setLabel( label );
-        markDirty();
+    public final String getLabel() {
+        return this.m_label;
     }
 
     @Override
-    public ComputerFamily getFamily()
-    {
-        return family;
+    public final void setLabel(String label) {
+        if (this.getWorld().isClient || Objects.equals(this.m_label, label)) {
+            return;
+        }
+
+        this.m_label = label;
+        ServerComputer computer = this.getServerComputer();
+        if (computer != null) {
+            computer.setLabel(label);
+        }
+        this.markDirty();
     }
 
-    public ServerComputer createServerComputer()
-    {
-        if( getWorld().isClient ) return null;
-
-        boolean changed = false;
-        if( m_instanceID < 0 )
-        {
-            m_instanceID = ComputerCraft.serverComputerRegistry.getUnusedInstanceID();
-            changed = true;
-        }
-        if( !ComputerCraft.serverComputerRegistry.contains( m_instanceID ) )
-        {
-            ServerComputer computer = createComputer( m_instanceID, m_computerID );
-            ComputerCraft.serverComputerRegistry.add( m_instanceID, computer );
-            m_fresh = true;
-            changed = true;
-        }
-        if( changed )
-        {
-            updateBlock();
-            updateInput();
-        }
-        return ComputerCraft.serverComputerRegistry.get( m_instanceID );
-    }
-
-    public ServerComputer getServerComputer()
-    {
-        return getWorld().isClient ? null : ComputerCraft.serverComputerRegistry.get( m_instanceID );
-    }
-
-    public ClientComputer createClientComputer()
-    {
-        if( !getWorld().isClient || m_instanceID < 0 ) return null;
-
-        ClientComputer computer = ComputerCraft.clientComputerRegistry.get( m_instanceID );
-        if( computer == null )
-        {
-            ComputerCraft.clientComputerRegistry.add( m_instanceID, computer = new ClientComputer( m_instanceID ) );
-        }
-        return computer;
-    }
-
-    public ClientComputer getClientComputer()
-    {
-        return getWorld().isClient ? ComputerCraft.clientComputerRegistry.get( m_instanceID ) : null;
+    @Override
+    public ComputerFamily getFamily() {
+        return this.family;
     }
 
     // Networking stuff
 
-    @Override
-    protected void writeDescription( @Nonnull CompoundTag nbt )
-    {
-        super.writeDescription( nbt );
-
-        if( m_computerID >= 0 ) nbt.putInt( NBT_ID, m_computerID );
-        if( m_label != null ) nbt.putString( NBT_LABEL, m_label );
-        nbt.putInt( NBT_INSTANCE, createServerComputer().getInstanceID() );
+    public ClientComputer getClientComputer() {
+        return this.getWorld().isClient ? ComputerCraft.clientComputerRegistry.get(this.m_instanceID) : null;
     }
 
-    @Override
-    protected void readDescription( @Nonnull CompoundTag nbt )
-    {
-        super.readDescription( nbt );
-        m_instanceID = nbt.contains( NBT_INSTANCE ) ? nbt.getInt( NBT_INSTANCE ) : -1;
-        m_label = nbt.contains( NBT_LABEL ) ? nbt.getString( NBT_LABEL ) : null;
-        m_computerID = nbt.contains( NBT_ID ) ? nbt.getInt( NBT_ID ) : -1;
-    }
-
-    protected void transferStateFrom( TileComputerBase copy )
-    {
-        if( copy.m_computerID != m_computerID || copy.m_instanceID != m_instanceID )
-        {
-            unload();
-            m_instanceID = copy.m_instanceID;
-            m_computerID = copy.m_computerID;
-            m_label = copy.m_label;
-            m_on = copy.m_on;
-            m_startOn = copy.m_startOn;
-            updateBlock();
+    protected void transferStateFrom(TileComputerBase copy) {
+        if (copy.m_computerID != this.m_computerID || copy.m_instanceID != this.m_instanceID) {
+            this.unload();
+            this.m_instanceID = copy.m_instanceID;
+            this.m_computerID = copy.m_computerID;
+            this.m_label = copy.m_label;
+            this.m_on = copy.m_on;
+            this.m_startOn = copy.m_startOn;
+            this.updateBlock();
         }
         copy.m_instanceID = -1;
     }
 
     @Nullable
     @Override
-    public IPeripheral getPeripheral( @Nonnull Direction side )
-    {
-        return new ComputerPeripheral( "computer", createProxy() );
+    public IPeripheral getPeripheral(@Nonnull Direction side) {
+        return new ComputerPeripheral("computer", this.createProxy());
     }
+
+    public abstract ComputerProxy createProxy();
 
     @Nonnull
     @Override
-    public Text getName()
-    {
-        return hasCustomName() ? new LiteralText( m_label ) : getCachedState().getBlock().getName();
+    public Text getName() {
+        return this.hasCustomName() ? new LiteralText(this.m_label) : this.getCachedState().getBlock()
+                                                                          .getName();
     }
 
     @Override
-    public boolean hasCustomName()
-    {
-        return !Strings.isNullOrEmpty( m_label );
+    public boolean hasCustomName() {
+        return !Strings.isNullOrEmpty(this.m_label);
     }
 
     @Nullable
     @Override
-    public Text getCustomName()
-    {
-        return hasCustomName() ? new LiteralText( m_label ) : null;
+    public Text getCustomName() {
+        return this.hasCustomName() ? new LiteralText(this.m_label) : null;
     }
 }

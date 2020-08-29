@@ -8,6 +8,4 @@ package dan200.computercraft.shared.util;
 
 import net.minecraft.inventory.Inventory;
 
-public interface DefaultInventory extends Inventory
-{
-}
+public interface DefaultInventory extends Inventory {}

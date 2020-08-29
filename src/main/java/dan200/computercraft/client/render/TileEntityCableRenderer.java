@@ -6,6 +6,10 @@
 
 package dan200.computercraft.client.render;
 
+import java.util.Random;
+
+import javax.annotation.Nonnull;
+
 import com.mojang.blaze3d.platform.GlStateManager;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.peripheral.modem.wired.BlockCable;
@@ -13,6 +17,8 @@ import dan200.computercraft.shared.peripheral.modem.wired.CableModemVariant;
 import dan200.computercraft.shared.peripheral.modem.wired.CableShapes;
 import dan200.computercraft.shared.peripheral.modem.wired.TileCable;
 import dan200.computercraft.shared.util.WorldUtil;
+import org.lwjgl.opengl.GL11;
+
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
@@ -27,72 +33,84 @@ import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import org.lwjgl.opengl.GL11;
-
-import javax.annotation.Nonnull;
-import java.util.Random;
 
 /**
  * Render breaking animation only over part of a {@link TileCable}.
  */
-public class TileEntityCableRenderer extends BlockEntityRenderer<TileCable>
-{
+public class TileEntityCableRenderer extends BlockEntityRenderer<TileCable> {
     private static final Random random = new Random();
 
     @Override
-    public void render( @Nonnull TileCable te, double x, double y, double z, float partialTicks, int destroyStage )
-    {
-        if( destroyStage < 0 ) return;
+    public void render(@Nonnull TileCable te, double x, double y, double z, float partialTicks, int destroyStage) {
+        if (destroyStage < 0) {
+            return;
+        }
 
         BlockPos pos = te.getPos();
 
         MinecraftClient mc = MinecraftClient.getInstance();
 
         HitResult hit = mc.crosshairTarget;
-        if( !(hit instanceof BlockHitResult) || !((BlockHitResult) hit).getBlockPos().equals( pos ) ) return;
+        if (!(hit instanceof BlockHitResult) || !((BlockHitResult) hit).getBlockPos()
+                                                                       .equals(pos)) {
+            return;
+        }
 
         World world = te.getWorld();
         BlockState state = te.getCachedState();
         Block block = state.getBlock();
-        if( block != ComputerCraft.Blocks.cable ) return;
+        if (block != ComputerCraft.Blocks.cable) {
+            return;
+        }
 
-        state = WorldUtil.isVecInside( CableShapes.getModemShape( state ), hit.getPos().subtract( pos.getX(), pos.getY(), pos.getZ() ) )
-            ? block.getDefaultState().with( BlockCable.MODEM, state.get( BlockCable.MODEM ) )
-            : state.with( BlockCable.MODEM, CableModemVariant.None );
+        state = WorldUtil.isVecInside(CableShapes.getModemShape(state),
+                                      hit.getPos()
+                                         .subtract(pos.getX(), pos.getY(), pos.getZ())) ? block.getDefaultState()
+                                                                                               .with(BlockCable.MODEM,
+                                                                                                     state.get(BlockCable.MODEM)) :
+                state.with(BlockCable.MODEM,
+                                                                                                                                               CableModemVariant.None);
 
-        BakedModel model = mc.getBlockRenderManager().getModel( state );
+        BakedModel model = mc.getBlockRenderManager()
+                             .getModel(state);
 
-        preRenderDamagedBlocks();
+        this.preRenderDamagedBlocks();
 
-        BufferBuilder buffer = Tessellator.getInstance().getBuffer();
-        buffer.begin( GL11.GL_QUADS, VertexFormats.POSITION_COLOR_UV_LMAP );
-        buffer.setOffset( x - pos.getX(), y - pos.getY(), z - pos.getZ() );
+        BufferBuilder buffer = Tessellator.getInstance()
+                                          .getBuffer();
+        buffer.begin(GL11.GL_QUADS, VertexFormats.POSITION_COLOR_UV_LMAP);
+        buffer.setOffset(x - pos.getX(), y - pos.getY(), z - pos.getZ());
         buffer.disableColor();
 
         // See BlockRendererDispatcher#renderBlockDamage
-        Sprite breakingTexture = mc.getSpriteAtlas().getSprite( DESTROY_STAGE_TEXTURES[destroyStage] );
-        mc.getBlockRenderManager().tesselateDamage( state, pos, breakingTexture, world );
+        Sprite breakingTexture = mc.getSpriteAtlas()
+                                   .getSprite(DESTROY_STAGE_TEXTURES[destroyStage]);
+        mc.getBlockRenderManager()
+          .tesselateDamage(state, pos, breakingTexture, world);
 
-        buffer.setOffset( 0, 0, 0 );
-        Tessellator.getInstance().draw();
+        buffer.setOffset(0, 0, 0);
+        Tessellator.getInstance()
+                   .draw();
 
-        postRenderDamagedBlocks();
+        this.postRenderDamagedBlocks();
     }
 
     /**
      * @see WorldRenderer#preRenderDamagedBlocks()
      */
-    private void preRenderDamagedBlocks()
-    {
+    private void preRenderDamagedBlocks() {
         GlStateManager.disableLighting();
 
         GlStateManager.enableBlend();
-        GlStateManager.blendFuncSeparate( GlStateManager.SourceFactor.DST_COLOR, GlStateManager.DestFactor.SRC_COLOR, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO );
+        GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.DST_COLOR,
+                                         GlStateManager.DestFactor.SRC_COLOR,
+                                         GlStateManager.SourceFactor.ONE,
+                                         GlStateManager.DestFactor.ZERO);
         GlStateManager.enableBlend();
-        GlStateManager.color4f( 1.0F, 1.0F, 1.0F, 0.5F );
-        GlStateManager.polygonOffset( -3.0F, -3.0F );
+        GlStateManager.color4f(1.0F, 1.0F, 1.0F, 0.5F);
+        GlStateManager.polygonOffset(-3.0F, -3.0F);
         GlStateManager.enablePolygonOffset();
-        GlStateManager.alphaFunc( 516, 0.1F );
+        GlStateManager.alphaFunc(516, 0.1F);
         GlStateManager.enableAlphaTest();
         GlStateManager.pushMatrix();
     }
@@ -100,13 +118,12 @@ public class TileEntityCableRenderer extends BlockEntityRenderer<TileCable>
     /**
      * @see WorldRenderer#postRenderDamagedBlocks()
      */
-    private void postRenderDamagedBlocks()
-    {
+    private void postRenderDamagedBlocks() {
         GlStateManager.disableAlphaTest();
-        GlStateManager.polygonOffset( 0.0F, 0.0F );
+        GlStateManager.polygonOffset(0.0F, 0.0F);
         GlStateManager.disablePolygonOffset();
         GlStateManager.disablePolygonOffset();
-        GlStateManager.depthMask( true );
+        GlStateManager.depthMask(true);
         GlStateManager.popMatrix();
     }
 }

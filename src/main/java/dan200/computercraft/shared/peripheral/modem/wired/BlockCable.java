@@ -6,14 +6,18 @@
 
 package dan200.computercraft.shared.peripheral.modem.wired;
 
+import java.util.EnumMap;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 import com.google.common.collect.ImmutableMap;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.shared.common.BlockGeneric;
 import dan200.computercraft.shared.util.WaterloggableBlock;
 import dan200.computercraft.shared.util.WorldUtil;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
+
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.ShapeContext;
@@ -34,66 +38,86 @@ import net.minecraft.world.BlockView;
 import net.minecraft.world.CollisionView;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.util.EnumMap;
 
-public class BlockCable extends BlockGeneric implements WaterloggableBlock
-{
-    public static final EnumProperty<CableModemVariant> MODEM = EnumProperty.of( "modem", CableModemVariant.class );
-    public static final BooleanProperty CABLE = BooleanProperty.of( "cable" );
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 
-    private static final BooleanProperty NORTH = BooleanProperty.of( "north" );
-    private static final BooleanProperty SOUTH = BooleanProperty.of( "south" );
-    private static final BooleanProperty EAST = BooleanProperty.of( "east" );
-    private static final BooleanProperty WEST = BooleanProperty.of( "west" );
-    private static final BooleanProperty UP = BooleanProperty.of( "up" );
-    private static final BooleanProperty DOWN = BooleanProperty.of( "down" );
+public class BlockCable extends BlockGeneric implements WaterloggableBlock {
+    public static final EnumProperty<CableModemVariant> MODEM = EnumProperty.of("modem", CableModemVariant.class);
+    public static final BooleanProperty CABLE = BooleanProperty.of("cable");
 
-    static final EnumMap<Direction, BooleanProperty> CONNECTIONS =
-        new EnumMap<>( new ImmutableMap.Builder<Direction, BooleanProperty>()
-            .put( Direction.DOWN, DOWN ).put( Direction.UP, UP )
-            .put( Direction.NORTH, NORTH ).put( Direction.SOUTH, SOUTH )
-            .put( Direction.WEST, WEST ).put( Direction.EAST, EAST )
-            .build() );
+    private static final BooleanProperty NORTH = BooleanProperty.of("north");
+    private static final BooleanProperty SOUTH = BooleanProperty.of("south");
+    private static final BooleanProperty EAST = BooleanProperty.of("east");
+    private static final BooleanProperty WEST = BooleanProperty.of("west");
+    private static final BooleanProperty UP = BooleanProperty.of("up");
+    private static final BooleanProperty DOWN = BooleanProperty.of("down");
 
-    public BlockCable( Settings settings )
-    {
-        super( settings, TileCable.FACTORY );
+    static final EnumMap<Direction, BooleanProperty> CONNECTIONS = new EnumMap<>(new ImmutableMap.Builder<Direction, BooleanProperty>().put(Direction.DOWN,
+                                                                                                                                            DOWN)
+                                                                                                                                       .put(Direction.UP,
+                                                                                                                                            UP)
+                                                                                                                                       .put(Direction.NORTH,
+                                                                                                                                            NORTH)
+                                                                                                                                       .put(Direction.SOUTH,
+                                                                                                                                            SOUTH)
+                                                                                                                                       .put(Direction.WEST,
+                                                                                                                                            WEST)
+                                                                                                                                       .put(Direction.EAST,
+                                                                                                                                            EAST)
+                                                                                                                                       .build());
 
-        setDefaultState( getStateManager().getDefaultState()
-            .with( MODEM, CableModemVariant.None )
-            .with( CABLE, false )
-            .with( NORTH, false ).with( SOUTH, false )
-            .with( EAST, false ).with( WEST, false )
-            .with( UP, false ).with( DOWN, false )
-            .with( WATERLOGGED, false )
-        );
+    public BlockCable(Settings settings) {
+        super(settings, TileCable.FACTORY);
+
+        this.setDefaultState(this.getStateManager().getDefaultState()
+                                 .with(MODEM, CableModemVariant.None)
+                                 .with(CABLE, false)
+                                 .with(NORTH, false)
+                                 .with(SOUTH, false)
+                                 .with(EAST, false)
+                                 .with(WEST, false)
+                                 .with(UP, false)
+                                 .with(DOWN, false)
+                                 .with(WATERLOGGED, false));
     }
 
-    @Override
-    protected void appendProperties( StateManager.Builder<Block, BlockState> builder )
-    {
-        builder.add( MODEM, CABLE, NORTH, SOUTH, EAST, WEST, UP, DOWN, WATERLOGGED );
+    public static boolean canConnectIn(BlockState state, Direction direction) {
+        return state.get(BlockCable.CABLE) && state.get(BlockCable.MODEM)
+                                                   .getFacing() != direction;
     }
 
-    public static boolean canConnectIn( BlockState state, Direction direction )
-    {
-        return state.get( BlockCable.CABLE ) && state.get( BlockCable.MODEM ).getFacing() != direction;
-    }
-
-    public static boolean doesConnectVisually( BlockState state, BlockView world, BlockPos pos, Direction direction )
-    {
-        if( !state.get( CABLE ) ) return false;
-        if( state.get( MODEM ).getFacing() == direction ) return true;
-        return ComputerCraftAPI.getWiredElementAt( world, pos.offset( direction ), direction.getOpposite() ) != null;
-    }
-
+    @Nonnull
     @Override
     @Deprecated
-    public VoxelShape getOutlineShape( BlockState state, BlockView world, BlockPos pos, ShapeContext position )
-    {
-        return CableShapes.getShape( state );
+    public BlockState getStateForNeighborUpdate(BlockState state, Direction side, BlockState otherState, WorldAccess world, BlockPos pos,
+                                                BlockPos otherPos) {
+        this.updateWaterloggedPostPlacement(state, world, pos);
+
+        // Should never happen, but handle the case where we've no modem or cable.
+        if (!state.get(CABLE) && state.get(MODEM) == CableModemVariant.None) {
+            return this.getFluidState(state).getBlockState();
+        }
+
+        return state.with(CONNECTIONS.get(side), doesConnectVisually(state, world, pos, side));
+    }
+
+    public static boolean doesConnectVisually(BlockState state, BlockView world, BlockPos pos, Direction direction) {
+        if (!state.get(CABLE)) {
+            return false;
+        }
+        if (state.get(MODEM)
+                 .getFacing() == direction) {
+            return true;
+        }
+        return ComputerCraftAPI.getWiredElementAt(world, pos.offset(direction), direction.getOpposite()) != null;
+    }
+
+    @Nonnull
+    @Override
+    @Deprecated
+    public FluidState getFluidState(BlockState state) {
+        return this.getWaterloggedFluidState(state);
     }
 
     /*
@@ -140,118 +164,109 @@ public class BlockCable extends BlockGeneric implements WaterloggableBlock
     }
     */
 
-    @Nonnull
     @Override
-    @Environment( EnvType.CLIENT )
-    public ItemStack getPickStack( BlockView world, BlockPos pos, BlockState state )
-    {
-        Direction modem = state.get( MODEM ).getFacing();
-        boolean cable = state.get( CABLE );
-
-        // If we've only got one, just use that.
-        if( !cable ) return new ItemStack( ComputerCraft.Items.wiredModem );
-        if( modem == null ) return new ItemStack( ComputerCraft.Items.cable );
-
-        // We've a modem and cable, so try to work out which one we're interacting with
-        HitResult hit = MinecraftClient.getInstance().crosshairTarget;
-        return hit != null && WorldUtil.isVecInside( CableShapes.getModemShape( state ), hit.getPos().subtract( pos.getX(), pos.getY(), pos.getZ() ) )
-            ? new ItemStack( ComputerCraft.Items.wiredModem )
-            : new ItemStack( ComputerCraft.Items.cable );
-
+    @Deprecated
+    public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext position) {
+        return CableShapes.getShape(state);
     }
 
     @Override
-    public void onPlaced( World world, BlockPos pos, BlockState state, LivingEntity placer, ItemStack stack )
-    {
-        BlockEntity tile = world.getBlockEntity( pos );
-        if( tile instanceof TileCable )
-        {
-            TileCable cable = (TileCable) tile;
-            if( cable.hasCable() ) cable.connectionsChanged();
+    @Deprecated
+    public boolean canPlaceAt(BlockState state, CollisionView world, BlockPos pos) {
+        Direction facing = state.get(MODEM)
+                                .getFacing();
+        if (facing == null) {
+            return true;
         }
 
-        super.onPlaced( world, pos, state, placer, stack );
-    }
-
-    @Nonnull
-    @Override
-    @Deprecated
-    public FluidState getFluidState( BlockState state )
-    {
-        return getWaterloggedFluidState( state );
-    }
-
-    @Nonnull
-    @Override
-    @Deprecated
-    public BlockState getStateForNeighborUpdate( BlockState state, Direction side, BlockState otherState, WorldAccess world, BlockPos pos, BlockPos otherPos )
-    {
-        updateWaterloggedPostPlacement( state, world, pos );
-
-        // Should never happen, but handle the case where we've no modem or cable.
-        if( !state.get( CABLE ) && state.get( MODEM ) == CableModemVariant.None )
-        {
-            return getFluidState( state ).getBlockState();
-        }
-
-        return state.with( CONNECTIONS.get( side ), doesConnectVisually( state, world, pos, side ) );
-    }
-
-    @Override
-    @Deprecated
-    public boolean canPlaceAt( BlockState state, CollisionView world, BlockPos pos )
-    {
-        Direction facing = state.get( MODEM ).getFacing();
-        if( facing == null ) return true;
-
-        BlockPos offsetPos = pos.offset( facing );
-        BlockState offsetState = world.getBlockState( offsetPos );
-        return Block.isFaceFullSquare( offsetState.getCollisionShape( world, offsetPos ), facing.getOpposite() );
+        BlockPos offsetPos = pos.offset(facing);
+        BlockState offsetState = world.getBlockState(offsetPos);
+        return Block.isFaceFullSquare(offsetState.getCollisionShape(world, offsetPos), facing.getOpposite());
     }
 
     @Nullable
     @Override
-    public BlockState getPlacementState( ItemPlacementContext context )
-    {
-        BlockState state = getDefaultState()
-            .with( WATERLOGGED, getWaterloggedStateForPlacement( context ) );
+    public BlockState getPlacementState(ItemPlacementContext context) {
+        BlockState state = this.getDefaultState().with(WATERLOGGED, this.getWaterloggedStateForPlacement(context));
 
-        if( context.getStack().getItem() instanceof ItemBlockCable.Cable )
-        {
+        if (context.getStack()
+                   .getItem() instanceof ItemBlockCable.Cable) {
             World world = context.getWorld();
             BlockPos pos = context.getBlockPos();
-            return correctConnections( world, pos, state.with( CABLE, true ) );
-        }
-        else
-        {
-            return state.with( MODEM, CableModemVariant.from( context.getSide().getOpposite() ) );
+            return correctConnections(world, pos, state.with(CABLE, true));
+        } else {
+            return state.with(MODEM,
+                              CableModemVariant.from(context.getSide()
+                                                            .getOpposite()));
         }
     }
 
-    public static BlockState correctConnections( World world, BlockPos pos, BlockState state )
-    {
-        if( state.get( CABLE ) )
-        {
-            return state
-                .with( NORTH, doesConnectVisually( state, world, pos, Direction.NORTH ) )
-                .with( SOUTH, doesConnectVisually( state, world, pos, Direction.SOUTH ) )
-                .with( EAST, doesConnectVisually( state, world, pos, Direction.EAST ) )
-                .with( WEST, doesConnectVisually( state, world, pos, Direction.WEST ) )
-                .with( UP, doesConnectVisually( state, world, pos, Direction.UP ) )
-                .with( DOWN, doesConnectVisually( state, world, pos, Direction.DOWN ) );
+    @Override
+    public void onPlaced(World world, BlockPos pos, BlockState state, LivingEntity placer, ItemStack stack) {
+        BlockEntity tile = world.getBlockEntity(pos);
+        if (tile instanceof TileCable) {
+            TileCable cable = (TileCable) tile;
+            if (cable.hasCable()) {
+                cable.connectionsChanged();
+            }
         }
-        else
-        {
-            return state
-                .with( NORTH, false ).with( SOUTH, false ).with( EAST, false )
-                .with( WEST, false ).with( UP, false ).with( DOWN, false );
+
+        super.onPlaced(world, pos, state, placer, stack);
+    }
+
+    @Nonnull
+    @Override
+    @Environment (EnvType.CLIENT)
+    public ItemStack getPickStack(BlockView world, BlockPos pos, BlockState state) {
+        Direction modem = state.get(MODEM)
+                               .getFacing();
+        boolean cable = state.get(CABLE);
+
+        // If we've only got one, just use that.
+        if (!cable) {
+            return new ItemStack(ComputerCraft.Items.wiredModem);
+        }
+        if (modem == null) {
+            return new ItemStack(ComputerCraft.Items.cable);
+        }
+
+        // We've a modem and cable, so try to work out which one we're interacting with
+        HitResult hit = MinecraftClient.getInstance().crosshairTarget;
+        return hit != null && WorldUtil.isVecInside(CableShapes.getModemShape(state),
+                                                    hit.getPos()
+                                                       .subtract(pos.getX(),
+                                                                 pos.getY(),
+                                                                 pos.getZ())) ? new ItemStack(ComputerCraft.Items.wiredModem) :
+               new ItemStack(ComputerCraft.Items.cable);
+
+    }
+
+    @Override
+    protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
+        builder.add(MODEM, CABLE, NORTH, SOUTH, EAST, WEST, UP, DOWN, WATERLOGGED);
+    }
+
+    public static BlockState correctConnections(World world, BlockPos pos, BlockState state) {
+        if (state.get(CABLE)) {
+            return state.with(NORTH, doesConnectVisually(state, world, pos, Direction.NORTH))
+                        .with(SOUTH, doesConnectVisually(state, world, pos, Direction.SOUTH))
+                        .with(EAST, doesConnectVisually(state, world, pos, Direction.EAST))
+                        .with(WEST, doesConnectVisually(state, world, pos, Direction.WEST))
+                        .with(UP, doesConnectVisually(state, world, pos, Direction.UP))
+                        .with(DOWN, doesConnectVisually(state, world, pos, Direction.DOWN));
+        } else {
+            return state.with(NORTH, false)
+                        .with(SOUTH, false)
+                        .with(EAST, false)
+                        .with(WEST, false)
+                        .with(UP, false)
+                        .with(DOWN, false);
         }
     }
 
     @Override
     @Deprecated
-    public boolean hasBlockEntityBreakingRender( BlockState state )
-    {
+    public boolean hasBlockEntityBreakingRender(BlockState state) {
         return true;
     }
 }

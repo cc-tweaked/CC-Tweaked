@@ -6,7 +6,8 @@
 
 package dan200.computercraft.shared.common;
 
-import net.fabricmc.fabric.api.block.entity.BlockEntityClientSerializable;
+import javax.annotation.Nonnull;
+
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
@@ -16,78 +17,67 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 
-import javax.annotation.Nonnull;
+import net.fabricmc.fabric.api.block.entity.BlockEntityClientSerializable;
 
-public abstract class TileGeneric extends BlockEntity implements BlockEntityClientSerializable
-{
-    public TileGeneric( BlockEntityType<? extends TileGeneric> type )
-    {
-        super( type );
+public abstract class TileGeneric extends BlockEntity implements BlockEntityClientSerializable {
+    public TileGeneric(BlockEntityType<? extends TileGeneric> type) {
+        super(type);
     }
 
-    public void destroy()
-    {
+    public void destroy() {
     }
 
-    public final void updateBlock()
-    {
-        markDirty();
-        BlockPos pos = getPos();
-        BlockState state = getCachedState();
-        getWorld().updateListeners( pos, state, state, 3 );
+    public final void updateBlock() {
+        this.markDirty();
+        BlockPos pos = this.getPos();
+        BlockState state = this.getCachedState();
+        this.getWorld().updateListeners(pos, state, state, 3);
     }
 
-    public boolean onActivate( PlayerEntity player, Hand hand, BlockHitResult hit )
-    {
+    public boolean onActivate(PlayerEntity player, Hand hand, BlockHitResult hit) {
         return false;
     }
 
-    public void onNeighbourChange( @Nonnull BlockPos neighbour )
-    {
+    public void onNeighbourChange(@Nonnull BlockPos neighbour) {
     }
 
-    public void onNeighbourTileEntityChange( @Nonnull BlockPos neighbour )
-    {
+    public void onNeighbourTileEntityChange(@Nonnull BlockPos neighbour) {
     }
 
-    protected void blockTick()
-    {
+    protected void blockTick() {
     }
 
-    protected double getInteractRange( PlayerEntity player )
-    {
+    public boolean isUsable(PlayerEntity player, boolean ignoreRange) {
+        if (player == null || !player.isAlive() || this.getWorld().getBlockEntity(this.getPos()) != this) {
+            return false;
+        }
+        if (ignoreRange) {
+            return true;
+        }
+
+        double range = this.getInteractRange(player);
+        BlockPos pos = this.getPos();
+        return player.getEntityWorld() == this.getWorld() && player.squaredDistanceTo(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5) <= range * range;
+    }
+
+    protected double getInteractRange(PlayerEntity player) {
         return 8.0;
     }
 
-    public boolean isUsable( PlayerEntity player, boolean ignoreRange )
-    {
-        if( player == null || !player.isAlive() || getWorld().getBlockEntity( getPos() ) != this ) return false;
-        if( ignoreRange ) return true;
-
-        double range = getInteractRange( player );
-        BlockPos pos = getPos();
-        return player.getEntityWorld() == getWorld() &&
-            player.squaredDistanceTo( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5 ) <= range * range;
+    @Override
+    public final void fromClientTag(CompoundTag tag) {
+        this.readDescription(tag);
     }
 
-    protected void writeDescription( @Nonnull CompoundTag nbt )
-    {
-    }
-
-    protected void readDescription( @Nonnull CompoundTag nbt )
-    {
+    protected void readDescription(@Nonnull CompoundTag nbt) {
     }
 
     @Override
-    public final CompoundTag toClientTag( CompoundTag tag )
-    {
-        writeDescription( tag );
+    public final CompoundTag toClientTag(CompoundTag tag) {
+        this.writeDescription(tag);
         return tag;
     }
 
-    @Override
-    public final void fromClientTag( CompoundTag tag )
-    {
-        readDescription( tag );
+    protected void writeDescription(@Nonnull CompoundTag nbt) {
     }
 }

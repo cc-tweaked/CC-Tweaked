@@ -6,6 +6,9 @@
 
 package dan200.computercraft.core.computer;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 import dan200.computercraft.api.filesystem.IFileSystem;
 import dan200.computercraft.api.lua.IComputerSystem;
 import dan200.computercraft.api.lua.ILuaAPIFactory;
@@ -14,9 +17,6 @@ import dan200.computercraft.core.apis.ComputerAccess;
 import dan200.computercraft.core.apis.IAPIEnvironment;
 import dan200.computercraft.core.filesystem.FileSystem;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
 /**
  * Implementation of {@link IComputerAccess}/{@link IComputerSystem} for usage by externally registered APIs.
  *
@@ -24,35 +24,30 @@ import javax.annotation.Nullable;
  * @see ILuaAPIFactory
  * @see ApiWrapper
  */
-public class ComputerSystem extends ComputerAccess implements IComputerSystem
-{
+public class ComputerSystem extends ComputerAccess implements IComputerSystem {
     private final IAPIEnvironment environment;
 
-    ComputerSystem( IAPIEnvironment environment )
-    {
-        super( environment );
+    ComputerSystem(IAPIEnvironment environment) {
+        super(environment);
         this.environment = environment;
     }
 
     @Nonnull
     @Override
-    public String getAttachmentName()
-    {
+    public String getAttachmentName() {
         return "computer";
     }
 
     @Nullable
     @Override
-    public IFileSystem getFileSystem()
-    {
-        FileSystem fs = environment.getFileSystem();
+    public IFileSystem getFileSystem() {
+        FileSystem fs = this.environment.getFileSystem();
         return fs == null ? null : fs.getMountWrapper();
     }
 
     @Nullable
     @Override
-    public String getLabel()
-    {
-        return environment.getLabel();
+    public String getLabel() {
+        return this.environment.getLabel();
     }
 }

@@ -6,35 +6,32 @@
 
 package dan200.computercraft.shared.turtle.core;
 
+import javax.annotation.Nonnull;
+
 import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.ITurtleCommand;
 import dan200.computercraft.api.turtle.TurtleCommandResult;
 import dan200.computercraft.shared.util.InventoryUtil;
+
 import net.minecraft.item.ItemStack;
 
-import javax.annotation.Nonnull;
-
-public class TurtleCompareToCommand implements ITurtleCommand
-{
+public class TurtleCompareToCommand implements ITurtleCommand {
     private final int m_slot;
 
-    public TurtleCompareToCommand( int slot )
-    {
-        m_slot = slot;
+    public TurtleCompareToCommand(int slot) {
+        this.m_slot = slot;
     }
 
     @Nonnull
     @Override
-    public TurtleCommandResult execute( @Nonnull ITurtleAccess turtle )
-    {
-        ItemStack selectedStack = turtle.getInventory().getStack( turtle.getSelectedSlot() );
-        ItemStack stack = turtle.getInventory().getStack( m_slot );
-        if( InventoryUtil.areItemsStackable( selectedStack, stack ) )
-        {
+    public TurtleCommandResult execute(@Nonnull ITurtleAccess turtle) {
+        ItemStack selectedStack = turtle.getInventory()
+                                        .getStack(turtle.getSelectedSlot());
+        ItemStack stack = turtle.getInventory()
+                                .getStack(this.m_slot);
+        if (InventoryUtil.areItemsStackable(selectedStack, stack)) {
             return TurtleCommandResult.success();
-        }
-        else
-        {
+        } else {
             return TurtleCommandResult.failure();
         }
     }

@@ -10,19 +10,16 @@ import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.screen.slot.Slot;
 
-public class ValidatingSlot extends Slot
-{
+public class ValidatingSlot extends Slot {
     private final int invSlot;
 
-    public ValidatingSlot( Inventory inventoryIn, int index, int xPosition, int yPosition )
-    {
-        super( inventoryIn, index, xPosition, yPosition );
+    public ValidatingSlot(Inventory inventoryIn, int index, int xPosition, int yPosition) {
+        super(inventoryIn, index, xPosition, yPosition);
         this.invSlot = index;
     }
 
     @Override
-    public boolean canInsert( ItemStack stack )
-    {
-        return inventory.isValid( invSlot, stack );
+    public boolean canInsert(ItemStack stack) {
+        return this.inventory.isValid(this.invSlot, stack);
     }
 }

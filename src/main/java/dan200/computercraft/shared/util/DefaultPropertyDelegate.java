@@ -8,10 +8,8 @@ package dan200.computercraft.shared.util;
 
 import net.minecraft.screen.PropertyDelegate;
 
-public interface DefaultPropertyDelegate extends PropertyDelegate
-{
+public interface DefaultPropertyDelegate extends PropertyDelegate {
     @Override
-    default void set( int property, int value )
-    {
+    default void set(int property, int value) {
     }
 }

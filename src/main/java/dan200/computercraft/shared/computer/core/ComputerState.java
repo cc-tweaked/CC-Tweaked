@@ -6,34 +6,28 @@
 
 package dan200.computercraft.shared.computer.core;
 
-import net.minecraft.util.StringIdentifiable;
-
 import javax.annotation.Nonnull;
 
-public enum ComputerState implements StringIdentifiable
-{
-    OFF( "off" ),
-    ON( "on" ),
-    BLINKING( "blinking" );
+import net.minecraft.util.StringIdentifiable;
+
+public enum ComputerState implements StringIdentifiable {
+    OFF("off"), ON("on"), BLINKING("blinking");
 
     private final String name;
 
-    ComputerState( String name )
-    {
+    ComputerState(String name) {
         this.name = name;
     }
 
     @Nonnull
     @Override
-    public String asString()
-    {
-        return name;
+    public String asString() {
+        return this.name;
     }
 
     @Override
-    public String toString()
-    {
-        return name;
+    public String toString() {
+        return this.name;
     }
 }
 

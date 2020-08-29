@@ -6,6 +6,10 @@
 
 package dan200.computercraft.core.computer;
 
+import java.util.Arrays;
+
+import javax.annotation.Nonnull;
+
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.peripheral.IWorkMonitor;
 import dan200.computercraft.core.apis.IAPIEnvironment;
@@ -13,9 +17,6 @@ import dan200.computercraft.core.filesystem.FileSystem;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.core.tracking.Tracking;
 import dan200.computercraft.core.tracking.TrackingField;
-
-import javax.annotation.Nonnull;
-import java.util.Arrays;
 
 /**
  * Represents the "environment" that a {@link Computer} exists in.
@@ -36,165 +37,162 @@ import java.util.Arrays;
  * <h1>Peripheral</h1>
  * We also keep track of peripherals. These are read on both threads, and only written on the main thread.
  */
-public final class Environment implements IAPIEnvironment
-{
+public final class Environment implements IAPIEnvironment {
     private final Computer computer;
-
-    private boolean internalOutputChanged = false;
     private final int[] internalOutput = new int[ComputerSide.COUNT];
     private final int[] internalBundledOutput = new int[ComputerSide.COUNT];
-
     private final int[] externalOutput = new int[ComputerSide.COUNT];
     private final int[] externalBundledOutput = new int[ComputerSide.COUNT];
-
-    private boolean inputChanged = false;
     private final int[] input = new int[ComputerSide.COUNT];
     private final int[] bundledInput = new int[ComputerSide.COUNT];
-
     private final IPeripheral[] peripherals = new IPeripheral[ComputerSide.COUNT];
+    private boolean internalOutputChanged = false;
+    private boolean inputChanged = false;
     private IPeripheralChangeListener peripheralListener = null;
 
-    Environment( Computer computer )
-    {
+    Environment(Computer computer) {
         this.computer = computer;
     }
 
     @Override
-    public int getComputerID()
-    {
-        return computer.assignID();
+    public int getComputerID() {
+        return this.computer.assignID();
     }
 
     @Nonnull
     @Override
-    public IComputerEnvironment getComputerEnvironment()
-    {
-        return computer.getComputerEnvironment();
+    public IComputerEnvironment getComputerEnvironment() {
+        return this.computer.getComputerEnvironment();
     }
 
     @Nonnull
     @Override
-    public IWorkMonitor getMainThreadMonitor()
-    {
-        return computer.getMainThreadMonitor();
+    public IWorkMonitor getMainThreadMonitor() {
+        return this.computer.getMainThreadMonitor();
     }
 
     @Nonnull
     @Override
-    public Terminal getTerminal()
-    {
-        return computer.getTerminal();
+    public Terminal getTerminal() {
+        return this.computer.getTerminal();
     }
 
     @Override
-    public FileSystem getFileSystem()
-    {
-        return computer.getFileSystem();
+    public FileSystem getFileSystem() {
+        return this.computer.getFileSystem();
     }
 
     @Override
-    public void shutdown()
-    {
-        computer.shutdown();
+    public void shutdown() {
+        this.computer.shutdown();
     }
 
     @Override
-    public void reboot()
-    {
-        computer.reboot();
+    public void reboot() {
+        this.computer.reboot();
     }
 
     @Override
-    public void queueEvent( String event, Object[] args )
-    {
-        computer.queueEvent( event, args );
+    public void queueEvent(String event, Object[] args) {
+        this.computer.queueEvent(event, args);
     }
 
     @Override
-    public int getInput( ComputerSide side )
-    {
-        return input[side.ordinal()];
-    }
-
-    @Override
-    public int getBundledInput( ComputerSide side )
-    {
-        return bundledInput[side.ordinal()];
-    }
-
-    @Override
-    public void setOutput( ComputerSide side, int output )
-    {
+    public void setOutput(ComputerSide side, int output) {
         int index = side.ordinal();
-        synchronized( internalOutput )
-        {
-            if( internalOutput[index] != output )
-            {
-                internalOutput[index] = output;
-                internalOutputChanged = true;
+        synchronized (this.internalOutput) {
+            if (this.internalOutput[index] != output) {
+                this.internalOutput[index] = output;
+                this.internalOutputChanged = true;
             }
         }
     }
 
     @Override
-    public int getOutput( ComputerSide side )
-    {
-        synchronized( internalOutput )
-        {
-            return computer.isOn() ? internalOutput[side.ordinal()] : 0;
+    public int getOutput(ComputerSide side) {
+        synchronized (this.internalOutput) {
+            return this.computer.isOn() ? this.internalOutput[side.ordinal()] : 0;
         }
     }
 
     @Override
-    public void setBundledOutput( ComputerSide side, int output )
-    {
+    public int getInput(ComputerSide side) {
+        return this.input[side.ordinal()];
+    }
+
+    @Override
+    public void setBundledOutput(ComputerSide side, int output) {
         int index = side.ordinal();
-        synchronized( internalOutput )
-        {
-            if( internalBundledOutput[index] != output )
-            {
-                internalBundledOutput[index] = output;
-                internalOutputChanged = true;
+        synchronized (this.internalOutput) {
+            if (this.internalBundledOutput[index] != output) {
+                this.internalBundledOutput[index] = output;
+                this.internalOutputChanged = true;
             }
         }
     }
 
     @Override
-    public int getBundledOutput( ComputerSide side )
-    {
-        synchronized( internalOutput )
-        {
-            return computer.isOn() ? internalBundledOutput[side.ordinal()] : 0;
+    public int getBundledOutput(ComputerSide side) {
+        synchronized (this.internalOutput) {
+            return this.computer.isOn() ? this.internalBundledOutput[side.ordinal()] : 0;
         }
     }
 
-    public int getExternalRedstoneOutput( ComputerSide side )
-    {
-        return computer.isOn() ? externalOutput[side.ordinal()] : 0;
+    @Override
+    public int getBundledInput(ComputerSide side) {
+        return this.bundledInput[side.ordinal()];
     }
 
-    public int getExternalBundledRedstoneOutput( ComputerSide side )
-    {
-        return computer.isOn() ? externalBundledOutput[side.ordinal()] : 0;
-    }
-
-    public void setRedstoneInput( ComputerSide side, int level )
-    {
-        int index = side.ordinal();
-        if( input[index] != level )
-        {
-            input[index] = level;
-            inputChanged = true;
+    @Override
+    public void setPeripheralChangeListener(IPeripheralChangeListener listener) {
+        synchronized (this.peripherals) {
+            this.peripheralListener = listener;
         }
     }
 
-    public void setBundledRedstoneInput( ComputerSide side, int combination )
-    {
+    @Override
+    public IPeripheral getPeripheral(ComputerSide side) {
+        synchronized (this.peripherals) {
+            return this.peripherals[side.ordinal()];
+        }
+    }
+
+    @Override
+    public String getLabel() {
+        return this.computer.getLabel();
+    }
+
+    @Override
+    public void setLabel(String label) {
+        this.computer.setLabel(label);
+    }
+
+    @Override
+    public void addTrackingChange(@Nonnull TrackingField field, long change) {
+        Tracking.addValue(this.computer, field, change);
+    }
+
+    public int getExternalRedstoneOutput(ComputerSide side) {
+        return this.computer.isOn() ? this.externalOutput[side.ordinal()] : 0;
+    }
+
+    public int getExternalBundledRedstoneOutput(ComputerSide side) {
+        return this.computer.isOn() ? this.externalBundledOutput[side.ordinal()] : 0;
+    }
+
+    public void setRedstoneInput(ComputerSide side, int level) {
         int index = side.ordinal();
-        if( bundledInput[index] != combination )
-        {
-            bundledInput[index] = combination;
-            inputChanged = true;
+        if (this.input[index] != level) {
+            this.input[index] = level;
+            this.inputChanged = true;
+        }
+    }
+
+    public void setBundledRedstoneInput(ComputerSide side, int combination) {
+        int index = side.ordinal();
+        if (this.bundledInput[index] != combination) {
+            this.bundledInput[index] = combination;
+            this.inputChanged = true;
         }
     }
 
@@ -203,12 +201,10 @@ public final class Environment implements IAPIEnvironment
      *
      * This just queues a {@code redstone} event if the input has changed.
      */
-    void update()
-    {
-        if( inputChanged )
-        {
-            inputChanged = false;
-            queueEvent( "redstone", null );
+    void update() {
+        if (this.inputChanged) {
+            this.inputChanged = false;
+            this.queueEvent("redstone", null);
         }
     }
 
@@ -217,96 +213,52 @@ public final class Environment implements IAPIEnvironment
      *
      * @return If the outputs have changed.
      */
-    boolean updateOutput()
-    {
+    boolean updateOutput() {
         // Mark output as changed if the internal redstone has changed
-        synchronized( internalOutput )
-        {
-            if( !internalOutputChanged ) return false;
+        synchronized (this.internalOutput) {
+            if (!this.internalOutputChanged) {
+                return false;
+            }
 
             boolean changed = false;
 
-            for( int i = 0; i < ComputerSide.COUNT; i++ )
-            {
-                if( externalOutput[i] != internalOutput[i] )
-                {
-                    externalOutput[i] = internalOutput[i];
+            for (int i = 0; i < ComputerSide.COUNT; i++) {
+                if (this.externalOutput[i] != this.internalOutput[i]) {
+                    this.externalOutput[i] = this.internalOutput[i];
                     changed = true;
                 }
 
-                if( externalBundledOutput[i] != internalBundledOutput[i] )
-                {
-                    externalBundledOutput[i] = internalBundledOutput[i];
+                if (this.externalBundledOutput[i] != this.internalBundledOutput[i]) {
+                    this.externalBundledOutput[i] = this.internalBundledOutput[i];
                     changed = true;
                 }
             }
 
-            internalOutputChanged = false;
+            this.internalOutputChanged = false;
 
             return changed;
         }
     }
 
-    void resetOutput()
-    {
+    void resetOutput() {
         // Reset redstone output
-        synchronized( internalOutput )
-        {
-            Arrays.fill( internalOutput, 0 );
-            Arrays.fill( internalBundledOutput, 0 );
-            internalOutputChanged = true;
+        synchronized (this.internalOutput) {
+            Arrays.fill(this.internalOutput, 0);
+            Arrays.fill(this.internalBundledOutput, 0);
+            this.internalOutputChanged = true;
         }
     }
 
-    @Override
-    public IPeripheral getPeripheral( ComputerSide side )
-    {
-        synchronized( peripherals )
-        {
-            return peripherals[side.ordinal()];
-        }
-    }
-
-    public void setPeripheral( ComputerSide side, IPeripheral peripheral )
-    {
-        synchronized( peripherals )
-        {
+    public void setPeripheral(ComputerSide side, IPeripheral peripheral) {
+        synchronized (this.peripherals) {
             int index = side.ordinal();
-            IPeripheral existing = peripherals[index];
-            if( (existing == null && peripheral != null) ||
-                (existing != null && peripheral == null) ||
-                (existing != null && !existing.equals( peripheral )) )
-            {
-                peripherals[index] = peripheral;
-                if( peripheralListener != null ) peripheralListener.onPeripheralChanged( side, peripheral );
+            IPeripheral existing = this.peripherals[index];
+            if ((existing == null && peripheral != null) || (existing != null && peripheral == null) || (existing != null && !existing.equals(peripheral))) {
+                this.peripherals[index] = peripheral;
+                if (this.peripheralListener != null) {
+                    this.peripheralListener.onPeripheralChanged(side, peripheral);
+                }
             }
         }
-    }
-
-    @Override
-    public void setPeripheralChangeListener( IPeripheralChangeListener listener )
-    {
-        synchronized( peripherals )
-        {
-            peripheralListener = listener;
-        }
-    }
-
-    @Override
-    public String getLabel()
-    {
-        return computer.getLabel();
-    }
-
-    @Override
-    public void setLabel( String label )
-    {
-        computer.setLabel( label );
-    }
-
-    @Override
-    public void addTrackingChange( @Nonnull TrackingField field, long change )
-    {
-        Tracking.addValue( computer, field, change );
     }
 }

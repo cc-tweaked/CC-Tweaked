@@ -17,27 +17,15 @@ import dan200.computercraft.shared.Registry;
 import dan200.computercraft.shared.TurtlePermissions;
 import dan200.computercraft.shared.command.CommandComputerCraft;
 import dan200.computercraft.shared.command.arguments.ArgumentSerializers;
-import dan200.computercraft.shared.common.ColourableRecipe;
 import dan200.computercraft.shared.common.DefaultBundledRedstoneProvider;
-import dan200.computercraft.shared.computer.recipe.ComputerUpgradeRecipe;
 import dan200.computercraft.shared.media.items.RecordMedia;
-import dan200.computercraft.shared.media.recipes.DiskRecipe;
-import dan200.computercraft.shared.media.recipes.PrintoutRecipe;
 import dan200.computercraft.shared.network.Containers;
 import dan200.computercraft.shared.network.NetworkHandler;
 import dan200.computercraft.shared.peripheral.commandblock.CommandBlockPeripheral;
 import dan200.computercraft.shared.peripheral.modem.wireless.WirelessNetwork;
-import dan200.computercraft.shared.pocket.recipes.PocketComputerUpgradeRecipe;
 import dan200.computercraft.shared.turtle.FurnaceRefuelHandler;
-import dan200.computercraft.shared.turtle.recipes.TurtleRecipe;
-import dan200.computercraft.shared.turtle.recipes.TurtleUpgradeRecipe;
-import dan200.computercraft.shared.util.ImpostorRecipe;
-import dan200.computercraft.shared.util.ImpostorShapelessRecipe;
 import dan200.computercraft.shared.util.TickScheduler;
-import net.fabricmc.fabric.api.event.server.ServerStartCallback;
-import net.fabricmc.fabric.api.event.server.ServerStopCallback;
-import net.fabricmc.fabric.api.event.server.ServerTickCallback;
-import net.fabricmc.fabric.api.registry.CommandRegistry;
+
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.block.entity.CommandBlockBlockEntity;
@@ -47,18 +35,21 @@ import net.minecraft.recipe.RecipeSerializer;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.registry.MutableRegistry;
 
-public class ComputerCraftProxyCommon
-{
+import net.fabricmc.fabric.api.event.server.ServerStartCallback;
+import net.fabricmc.fabric.api.event.server.ServerStopCallback;
+import net.fabricmc.fabric.api.event.server.ServerTickCallback;
+import net.fabricmc.fabric.api.registry.CommandRegistry;
+
+public class ComputerCraftProxyCommon {
     private static MinecraftServer server;
 
-    public static void setup()
-    {
+    public static void setup() {
         NetworkHandler.setup();
 
-        Registry.registerBlocks( net.minecraft.util.registry.Registry.BLOCK );
-        Registry.registerTileEntities( (MutableRegistry<BlockEntityType<?>>) net.minecraft.util.registry.Registry.BLOCK_ENTITY_TYPE );
-        Registry.registerItems( net.minecraft.util.registry.Registry.ITEM );
-        Registry.registerRecipes( (MutableRegistry<RecipeSerializer<?>>) net.minecraft.util.registry.Registry.RECIPE_SERIALIZER );
+        Registry.registerBlocks(net.minecraft.util.registry.Registry.BLOCK);
+        Registry.registerTileEntities((MutableRegistry<BlockEntityType<?>>) net.minecraft.util.registry.Registry.BLOCK_ENTITY_TYPE);
+        Registry.registerItems(net.minecraft.util.registry.Registry.ITEM);
+        Registry.registerRecipes((MutableRegistry<RecipeSerializer<?>>) net.minecraft.util.registry.Registry.RECIPE_SERIALIZER);
 
         Containers.setup();
 
@@ -68,71 +59,71 @@ public class ComputerCraftProxyCommon
         ArgumentSerializers.register();
     }
 
-    private static void registerProviders()
-    {
+    private static void registerProviders() {
         // Register peripheral providers
-        ComputerCraftAPI.registerPeripheralProvider( ( world, pos, side ) -> {
-            BlockEntity tile = world.getBlockEntity( pos );
-            return tile instanceof IPeripheralTile ? ((IPeripheralTile) tile).getPeripheral( side ) : null;
-        } );
+        ComputerCraftAPI.registerPeripheralProvider((world, pos, side) -> {
+            BlockEntity tile = world.getBlockEntity(pos);
+            return tile instanceof IPeripheralTile ? ((IPeripheralTile) tile).getPeripheral(side) : null;
+        });
 
-        ComputerCraftAPI.registerPeripheralProvider( ( world, pos, side ) -> {
-            BlockEntity tile = world.getBlockEntity( pos );
-            return ComputerCraft.enableCommandBlock && tile instanceof CommandBlockBlockEntity ? new CommandBlockPeripheral( (CommandBlockBlockEntity) tile ) : null;
-        } );
+        ComputerCraftAPI.registerPeripheralProvider((world, pos, side) -> {
+            BlockEntity tile = world.getBlockEntity(pos);
+            return ComputerCraft.enableCommandBlock && tile instanceof CommandBlockBlockEntity ?
+                   new CommandBlockPeripheral((CommandBlockBlockEntity) tile) : null;
+        });
 
         // Register bundled power providers
-        ComputerCraftAPI.registerBundledRedstoneProvider( new DefaultBundledRedstoneProvider() );
+        ComputerCraftAPI.registerBundledRedstoneProvider(new DefaultBundledRedstoneProvider());
 
         // Register media providers
-        ComputerCraftAPI.registerMediaProvider( stack -> {
+        ComputerCraftAPI.registerMediaProvider(stack -> {
             Item item = stack.getItem();
-            if( item instanceof IMedia ) return (IMedia) item;
-            if( item instanceof MusicDiscItem ) return RecordMedia.INSTANCE;
+            if (item instanceof IMedia) {
+                return (IMedia) item;
+            }
+            if (item instanceof MusicDiscItem) {
+                return RecordMedia.INSTANCE;
+            }
             return null;
-        } );
+        });
     }
 
-    private static void registerHandlers()
-    {
-        CommandRegistry.INSTANCE.register( false, CommandComputerCraft::register );
+    private static void registerHandlers() {
+        CommandRegistry.INSTANCE.register(false, CommandComputerCraft::register);
 
-        ServerTickCallback.EVENT.register( server -> {
+        ServerTickCallback.EVENT.register(server -> {
             MainThread.executePendingTasks();
             ComputerCraft.serverComputerRegistry.update();
             TickScheduler.tick();
-        } );
+        });
 
-        ServerStartCallback.EVENT.register( server -> {
+        ServerStartCallback.EVENT.register(server -> {
             ComputerCraftProxyCommon.server = server;
             ComputerCraft.serverComputerRegistry.reset();
             WirelessNetwork.resetNetworks();
             MainThread.reset();
             Tracking.reset();
-        } );
+        });
 
-        ServerStopCallback.EVENT.register( server -> {
+        ServerStopCallback.EVENT.register(server -> {
             ComputerCraft.serverComputerRegistry.reset();
             WirelessNetwork.resetNetworks();
             MainThread.reset();
             Tracking.reset();
             ComputerCraftProxyCommon.server = null;
-        } );
+        });
 
-        TurtleEvent.EVENT_BUS.register( FurnaceRefuelHandler.INSTANCE );
-        TurtleEvent.EVENT_BUS.register( new TurtlePermissions() );
+        TurtleEvent.EVENT_BUS.register(FurnaceRefuelHandler.INSTANCE);
+        TurtleEvent.EVENT_BUS.register(new TurtlePermissions());
     }
 
-    public static MinecraftServer getServer()
-    {
+    public static MinecraftServer getServer() {
         // Sorry asie
         return server;
     }
 
-    public static final class ForgeHandlers
-    {
-        private ForgeHandlers()
-        {
+    public static final class ForgeHandlers {
+        private ForgeHandlers() {
         }
 
         /*

@@ -6,26 +6,25 @@
 
 package dan200.computercraft.shared.util;
 
+import javax.annotation.Nonnull;
+
 import dan200.computercraft.ComputerCraft;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
+
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 
-import javax.annotation.Nonnull;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 
-public class CreativeTabMain extends ItemGroup
-{
-    public CreativeTabMain( int i )
-    {
-        super( i, ComputerCraft.MOD_ID );
+public class CreativeTabMain extends ItemGroup {
+    public CreativeTabMain(int i) {
+        super(i, ComputerCraft.MOD_ID);
     }
 
     @Nonnull
     @Override
-    @Environment( EnvType.CLIENT )
-    public ItemStack createIcon()
-    {
-        return new ItemStack( ComputerCraft.Blocks.computerNormal );
+    @Environment (EnvType.CLIENT)
+    public ItemStack createIcon() {
+        return new ItemStack(ComputerCraft.Blocks.computerNormal);
     }
 }

@@ -6,9 +6,11 @@
 
 package dan200.computercraft.shared.network;
 
-import net.fabricmc.fabric.api.network.PacketContext;
-import net.minecraft.network.PacketByteBuf;
 import javax.annotation.Nonnull;
+
+import net.minecraft.network.PacketByteBuf;
+
+import net.fabricmc.fabric.api.network.PacketContext;
 
 /**
  * The base interface for any message which will be sent to the client or server.
@@ -17,8 +19,7 @@ import javax.annotation.Nonnull;
  * @see dan200.computercraft.shared.network.server
  * @see net.fabricmc.fabric.api.network.PacketRegistry
  */
-public interface NetworkMessage
-{
+public interface NetworkMessage {
     /**
      * Write this packet to a buffer.
      *
@@ -26,7 +27,7 @@ public interface NetworkMessage
      *
      * @param buf The buffer to write data to.
      */
-    void toBytes( @Nonnull PacketByteBuf buf );
+    void toBytes(@Nonnull PacketByteBuf buf);
 
     /**
      * Read this packet from a buffer.
@@ -35,9 +36,8 @@ public interface NetworkMessage
      *
      * @param buf The buffer to read data from.
      */
-    default void fromBytes( @Nonnull PacketByteBuf buf )
-    {
-        throw new IllegalStateException( "Should have been registered using a \"from bytes\" method" );
+    default void fromBytes(@Nonnull PacketByteBuf buf) {
+        throw new IllegalStateException("Should have been registered using a \"from bytes\" method");
     }
 
     /**
@@ -45,5 +45,5 @@ public interface NetworkMessage
      *
      * @param context The context with which to handle this message
      */
-    void handle( PacketContext context );
+    void handle(PacketContext context);
 }

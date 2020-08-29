@@ -10,22 +10,22 @@ import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.shared.computer.blocks.IComputerTile;
+
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec3d;
 
-public interface ITurtleTile extends IComputerTile
-{
+public interface ITurtleTile extends IComputerTile {
     int getColour();
 
     Identifier getOverlay();
 
-    ITurtleUpgrade getUpgrade( TurtleSide side );
+    ITurtleUpgrade getUpgrade(TurtleSide side);
 
     ITurtleAccess getAccess();
 
-    Vec3d getRenderOffset( float f );
+    Vec3d getRenderOffset(float f);
 
-    float getRenderYaw( float f );
+    float getRenderYaw(float f);
 
-    float getToolRenderAngle( TurtleSide side, float f );
+    float getToolRenderAngle(TurtleSide side, float f);
 }

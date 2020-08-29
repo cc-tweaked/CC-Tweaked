@@ -7,22 +7,23 @@
 package dan200.computercraft.shared.mixin;
 
 import dan200.computercraft.shared.util.DropConsumer;
-import net.minecraft.entity.Entity;
-import net.minecraft.server.world.ServerWorld;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import net.minecraft.entity.Entity;
+import net.minecraft.server.world.ServerWorld;
+
 /**
  * @see ServerWorld#spawnEntity(Entity)
  */
-@Mixin( ServerWorld.class )
-public class MixinServerWorld
-{
-    @Inject( method = "spawnEntity", at = @At( "HEAD" ), cancellable = true )
-    public void spawnEntity( Entity entity, CallbackInfoReturnable<Boolean> callbackInfo )
-    {
-        if( DropConsumer.onEntitySpawn( entity ) ) callbackInfo.setReturnValue( false );
+@Mixin (ServerWorld.class)
+public class MixinServerWorld {
+    @Inject (method = "spawnEntity", at = @At ("HEAD"), cancellable = true)
+    public void spawnEntity(Entity entity, CallbackInfoReturnable<Boolean> callbackInfo) {
+        if (DropConsumer.onEntitySpawn(entity)) {
+            callbackInfo.setReturnValue(false);
+        }
     }
 }

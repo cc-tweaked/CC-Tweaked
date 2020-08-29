@@ -6,6 +6,18 @@
 
 package dan200.computercraft.core.apis.http.request;
 
+import static dan200.computercraft.core.apis.http.request.HttpRequest.getHeaderSize;
+
+import java.io.Closeable;
+import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URLDecoder;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
+
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.lua.ILuaObject;
 import dan200.computercraft.core.apis.handles.ArrayByteChannel;
@@ -18,22 +30,22 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.CompositeByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
-import io.netty.handler.codec.http.*;
+import io.netty.handler.codec.http.DefaultFullHttpRequest;
+import io.netty.handler.codec.http.DefaultHttpHeaders;
+import io.netty.handler.codec.http.FullHttpRequest;
+import io.netty.handler.codec.http.HttpContent;
+import io.netty.handler.codec.http.HttpHeaderNames;
+import io.netty.handler.codec.http.HttpHeaderValues;
+import io.netty.handler.codec.http.HttpHeaders;
+import io.netty.handler.codec.http.HttpMethod;
+import io.netty.handler.codec.http.HttpObject;
+import io.netty.handler.codec.http.HttpResponse;
+import io.netty.handler.codec.http.HttpResponseStatus;
+import io.netty.handler.codec.http.HttpUtil;
+import io.netty.handler.codec.http.HttpVersion;
+import io.netty.handler.codec.http.LastHttpContent;
 
-import java.io.Closeable;
-import java.io.UnsupportedEncodingException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URLDecoder;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.Map;
-
-import static dan200.computercraft.core.apis.http.request.HttpRequest.getHeaderSize;
-
-public final class HttpRequestHandler extends SimpleChannelInboundHandler<HttpObject> implements Closeable
-{
+public final class HttpRequestHandler extends SimpleChannelInboundHandler<HttpObject> implements Closeable {
     /**
      * Same as {@link io.netty.handler.codec.MessageAggregator}.
      */
@@ -42,18 +54,15 @@ public final class HttpRequestHandler extends SimpleChannelInboundHandler<HttpOb
     private static final byte[] EMPTY_BYTES = new byte[0];
 
     private final HttpRequest request;
-    private boolean closed = false;
-
     private final URI uri;
     private final HttpMethod method;
-
-    private Charset responseCharset;
     private final HttpHeaders responseHeaders = new DefaultHttpHeaders();
+    private boolean closed = false;
+    private Charset responseCharset;
     private HttpResponseStatus responseStatus;
     private CompositeByteBuf responseBody;
 
-    HttpRequestHandler( HttpRequest request, URI uri, HttpMethod method )
-    {
+    HttpRequestHandler(HttpRequest request, URI uri, HttpMethod method) {
         this.request = request;
 
         this.uri = uri;
@@ -61,199 +70,196 @@ public final class HttpRequestHandler extends SimpleChannelInboundHandler<HttpOb
     }
 
     @Override
-    public void channelActive( ChannelHandlerContext ctx ) throws Exception
-    {
-        if( request.checkClosed() ) return;
+    public void channelActive(ChannelHandlerContext ctx) throws Exception {
+        if (this.request.checkClosed()) {
+            return;
+        }
 
-        ByteBuf body = request.body();
-        body.resetReaderIndex().retain();
+        ByteBuf body = this.request.body();
+        body.resetReaderIndex()
+            .retain();
 
-        String requestUri = uri.getRawPath();
-        if( uri.getRawQuery() != null ) requestUri += "?" + uri.getRawQuery();
+        String requestUri = this.uri.getRawPath();
+        if (this.uri.getRawQuery() != null) {
+            requestUri += "?" + this.uri.getRawQuery();
+        }
 
-        FullHttpRequest request = new DefaultFullHttpRequest( HttpVersion.HTTP_1_1, HttpMethod.GET, requestUri, body );
-        request.setMethod( method );
-        request.headers().set( this.request.headers() );
+        FullHttpRequest request = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, requestUri, body);
+        request.setMethod(this.method);
+        request.headers()
+               .set(this.request.headers());
 
         // We force some headers to be always applied
-        if( !request.headers().contains( HttpHeaderNames.ACCEPT_CHARSET ) )
-        {
-            request.headers().set( HttpHeaderNames.ACCEPT_CHARSET, "UTF-8" );
+        if (!request.headers()
+                    .contains(HttpHeaderNames.ACCEPT_CHARSET)) {
+            request.headers()
+                   .set(HttpHeaderNames.ACCEPT_CHARSET, "UTF-8");
         }
-        if( !request.headers().contains( HttpHeaderNames.USER_AGENT ) )
-        {
-            request.headers().set( HttpHeaderNames.USER_AGENT, ComputerCraft.MOD_ID + "/" + ComputerCraft.getVersion() );
+        if (!request.headers()
+                    .contains(HttpHeaderNames.USER_AGENT)) {
+            request.headers()
+                   .set(HttpHeaderNames.USER_AGENT, ComputerCraft.MOD_ID + "/" + ComputerCraft.getVersion());
         }
-        request.headers().set( HttpHeaderNames.HOST, uri.getHost() );
-        request.headers().set( HttpHeaderNames.CONNECTION, HttpHeaderValues.CLOSE );
+        request.headers()
+               .set(HttpHeaderNames.HOST, this.uri.getHost());
+        request.headers()
+               .set(HttpHeaderNames.CONNECTION, HttpHeaderValues.CLOSE);
 
-        ctx.channel().writeAndFlush( request );
+        ctx.channel()
+           .writeAndFlush(request);
 
-        super.channelActive( ctx );
+        super.channelActive(ctx);
     }
 
     @Override
-    public void channelInactive( ChannelHandlerContext ctx ) throws Exception
-    {
-        if( !closed ) request.failure( "Could not connect" );
-        super.channelInactive( ctx );
+    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+        if (!this.closed) {
+            this.request.failure("Could not connect");
+        }
+        super.channelInactive(ctx);
     }
 
     @Override
-    public void channelRead0( ChannelHandlerContext ctx, HttpObject message )
-    {
-        if( closed || request.checkClosed() ) return;
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
+        if (ComputerCraft.logPeripheralErrors) {
+            ComputerCraft.log.error("Error handling HTTP response", cause);
+        }
+        this.request.failure(cause);
+    }
 
-        if( message instanceof HttpResponse )
-        {
+    @Override
+    public void channelRead0(ChannelHandlerContext ctx, HttpObject message) {
+        if (this.closed || this.request.checkClosed()) {
+            return;
+        }
+
+        if (message instanceof HttpResponse) {
             HttpResponse response = (HttpResponse) message;
 
-            if( request.redirects.get() > 0 )
-            {
-                URI redirect = getRedirect( response.status(), response.headers() );
-                if( redirect != null && !uri.equals( redirect ) && request.redirects.getAndDecrement() > 0 )
-                {
+            if (this.request.redirects.get() > 0) {
+                URI redirect = this.getRedirect(response.status(), response.headers());
+                if (redirect != null && !this.uri.equals(redirect) && this.request.redirects.getAndDecrement() > 0) {
                     // If we have a redirect, and don't end up at the same place, then follow it.
 
                     // We mark ourselves as disposed first though, to avoid firing events when the channel
                     // becomes inactive or disposed.
-                    closed = true;
+                    this.closed = true;
                     ctx.close();
 
-                    try
-                    {
-                        HttpRequest.checkUri( redirect );
-                    }
-                    catch( HTTPRequestException e )
-                    {
+                    try {
+                        HttpRequest.checkUri(redirect);
+                    } catch (HTTPRequestException e) {
                         // If we cannot visit this uri, then fail.
-                        request.failure( e.getMessage() );
+                        this.request.failure(e.getMessage());
                         return;
                     }
 
-                    request.request( redirect, response.status().code() == 303 ? HttpMethod.GET : method );
+                    this.request.request(redirect,
+                                    response.status()
+                                            .code() == 303 ? HttpMethod.GET : this.method);
                     return;
                 }
             }
 
-            responseCharset = HttpUtil.getCharset( response, StandardCharsets.UTF_8 );
-            responseStatus = response.status();
-            responseHeaders.add( response.headers() );
+            this.responseCharset = HttpUtil.getCharset(response, StandardCharsets.UTF_8);
+            this.responseStatus = response.status();
+            this.responseHeaders.add(response.headers());
         }
 
-        if( message instanceof HttpContent )
-        {
+        if (message instanceof HttpContent) {
             HttpContent content = (HttpContent) message;
 
-            if( responseBody == null )
-            {
-                responseBody = ctx.alloc().compositeBuffer( DEFAULT_MAX_COMPOSITE_BUFFER_COMPONENTS );
+            if (this.responseBody == null) {
+                this.responseBody = ctx.alloc()
+                                       .compositeBuffer(DEFAULT_MAX_COMPOSITE_BUFFER_COMPONENTS);
             }
 
             ByteBuf partial = content.content();
-            if( partial.isReadable() )
-            {
+            if (partial.isReadable()) {
                 // If we've read more than we're allowed to handle, abort as soon as possible.
-                if( ComputerCraft.httpMaxDownload != 0 && responseBody.readableBytes() + partial.readableBytes() > ComputerCraft.httpMaxDownload )
-                {
-                    closed = true;
+                if (ComputerCraft.httpMaxDownload != 0 && this.responseBody.readableBytes() + partial.readableBytes() > ComputerCraft.httpMaxDownload) {
+                    this.closed = true;
                     ctx.close();
 
-                    request.failure( "Response is too large" );
+                    this.request.failure("Response is too large");
                     return;
                 }
 
-                responseBody.addComponent( true, partial.retain() );
+                this.responseBody.addComponent(true, partial.retain());
             }
 
-            if( message instanceof LastHttpContent )
-            {
+            if (message instanceof LastHttpContent) {
                 LastHttpContent last = (LastHttpContent) message;
-                responseHeaders.add( last.trailingHeaders() );
+                this.responseHeaders.add(last.trailingHeaders());
 
                 // Set the content length, if not already given.
-                if( responseHeaders.contains( HttpHeaderNames.CONTENT_LENGTH ) )
-                {
-                    responseHeaders.set( HttpHeaderNames.CONTENT_LENGTH, responseBody.readableBytes() );
+                if (this.responseHeaders.contains(HttpHeaderNames.CONTENT_LENGTH)) {
+                    this.responseHeaders.set(HttpHeaderNames.CONTENT_LENGTH, this.responseBody.readableBytes());
                 }
 
                 ctx.close();
-                sendResponse();
+                this.sendResponse();
             }
-        }
-    }
-
-    @Override
-    public void exceptionCaught( ChannelHandlerContext ctx, Throwable cause )
-    {
-        if( ComputerCraft.logPeripheralErrors ) ComputerCraft.log.error( "Error handling HTTP response", cause );
-        request.failure( cause );
-    }
-
-    private void sendResponse()
-    {
-        // Read the ByteBuf into a channel.
-        CompositeByteBuf body = responseBody;
-        byte[] bytes = body == null ? EMPTY_BYTES : NetworkUtils.toBytes( body );
-
-        // Decode the headers
-        HttpResponseStatus status = responseStatus;
-        Map<String, String> headers = new HashMap<>();
-        for( Map.Entry<String, String> header : responseHeaders )
-        {
-            String existing = headers.get( header.getKey() );
-            headers.put( header.getKey(), existing == null ? header.getValue() : existing + "," + header.getValue() );
-        }
-
-        // Fire off a stats event
-        request.environment().addTrackingChange( TrackingField.HTTP_DOWNLOAD, getHeaderSize( responseHeaders ) + bytes.length );
-
-        // Prepare to queue an event
-        ArrayByteChannel contents = new ArrayByteChannel( bytes );
-        final ILuaObject reader = request.isBinary()
-            ? new BinaryReadableHandle( contents )
-            : new EncodedReadableHandle( EncodedReadableHandle.open( contents, responseCharset ) );
-        ILuaObject stream = new HttpResponseHandle( reader, status.code(), status.reasonPhrase(), headers );
-
-        if( status.code() >= 200 && status.code() < 400 )
-        {
-            request.success( stream );
-        }
-        else
-        {
-            request.failure( status.reasonPhrase(), stream );
         }
     }
 
     /**
      * Determine the redirect from this response
      */
-    private URI getRedirect( HttpResponseStatus status, HttpHeaders headers )
-    {
+    private URI getRedirect(HttpResponseStatus status, HttpHeaders headers) {
         int code = status.code();
-        if( code < 300 || code > 307 || code == 304 || code == 306 ) return null;
-
-        String location = headers.get( HttpHeaderNames.LOCATION );
-        if( location == null ) return null;
-
-        try
-        {
-            return uri.resolve( new URI( URLDecoder.decode( location, "UTF-8" ) ) );
+        if (code < 300 || code > 307 || code == 304 || code == 306) {
+            return null;
         }
-        catch( UnsupportedEncodingException | IllegalArgumentException | URISyntaxException e )
-        {
+
+        String location = headers.get(HttpHeaderNames.LOCATION);
+        if (location == null) {
+            return null;
+        }
+
+        try {
+            return this.uri.resolve(new URI(URLDecoder.decode(location, "UTF-8")));
+        } catch (UnsupportedEncodingException | IllegalArgumentException | URISyntaxException e) {
             return null;
         }
     }
 
+    private void sendResponse() {
+        // Read the ByteBuf into a channel.
+        CompositeByteBuf body = this.responseBody;
+        byte[] bytes = body == null ? EMPTY_BYTES : NetworkUtils.toBytes(body);
+
+        // Decode the headers
+        HttpResponseStatus status = this.responseStatus;
+        Map<String, String> headers = new HashMap<>();
+        for (Map.Entry<String, String> header : this.responseHeaders) {
+            String existing = headers.get(header.getKey());
+            headers.put(header.getKey(), existing == null ? header.getValue() : existing + "," + header.getValue());
+        }
+
+        // Fire off a stats event
+        this.request.environment()
+                    .addTrackingChange(TrackingField.HTTP_DOWNLOAD, getHeaderSize(this.responseHeaders) + bytes.length);
+
+        // Prepare to queue an event
+        ArrayByteChannel contents = new ArrayByteChannel(bytes);
+        final ILuaObject reader = this.request.isBinary() ? new BinaryReadableHandle(contents) : new EncodedReadableHandle(EncodedReadableHandle.open(contents,
+                                                                                                                                                      this.responseCharset));
+        ILuaObject stream = new HttpResponseHandle(reader, status.code(), status.reasonPhrase(), headers);
+
+        if (status.code() >= 200 && status.code() < 400) {
+            this.request.success(stream);
+        } else {
+            this.request.failure(status.reasonPhrase(), stream);
+        }
+    }
+
     @Override
-    public void close()
-    {
-        closed = true;
-        if( responseBody != null )
-        {
-            responseBody.release();
-            responseBody = null;
+    public void close() {
+        this.closed = true;
+        if (this.responseBody != null) {
+            this.responseBody.release();
+            this.responseBody = null;
         }
     }
 }

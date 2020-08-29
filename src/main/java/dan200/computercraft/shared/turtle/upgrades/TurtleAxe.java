@@ -9,21 +9,17 @@ package dan200.computercraft.shared.turtle.upgrades;
 import net.minecraft.item.Item;
 import net.minecraft.util.Identifier;
 
-public class TurtleAxe extends TurtleTool
-{
-    public TurtleAxe( Identifier id, String adjective, Item item )
-    {
-        super( id, adjective, item );
+public class TurtleAxe extends TurtleTool {
+    public TurtleAxe(Identifier id, String adjective, Item item) {
+        super(id, adjective, item);
     }
 
-    public TurtleAxe( Identifier id, Item item )
-    {
-        super( id, item );
+    public TurtleAxe(Identifier id, Item item) {
+        super(id, item);
     }
 
     @Override
-    protected float getDamageMultiplier()
-    {
+    protected float getDamageMultiplier() {
         return 6.0f;
     }
 }

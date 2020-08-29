@@ -7,21 +7,20 @@
 package dan200.computercraft.shared.mixin;
 
 import dan200.computercraft.client.FrameInfo;
-import net.minecraft.client.MinecraftClient;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin( MinecraftClient.class )
-public abstract class MixinMinecraftGame
-{
+import net.minecraft.client.MinecraftClient;
+
+@Mixin (MinecraftClient.class)
+public abstract class MixinMinecraftGame {
     /**
      * @see MinecraftClient#render(boolean)
      */
-    @Inject( method = "render", at = @At( "HEAD" ) )
-    private void onRender( CallbackInfo info )
-    {
+    @Inject (method = "render", at = @At ("HEAD"))
+    private void onRender(CallbackInfo info) {
         FrameInfo.onRenderFrame();
     }
 }

@@ -22,8 +22,7 @@ import net.minecraft.world.WorldAccess;
  *
  * I'm fairly sure this exists on 1.14, but it's a useful convenience wrapper to have on 1.13.
  */
-public interface WaterloggableBlock extends Waterloggable
-{
+public interface WaterloggableBlock extends Waterloggable {
     BooleanProperty WATERLOGGED = Properties.WATERLOGGED;
 
     /**
@@ -32,9 +31,8 @@ public interface WaterloggableBlock extends Waterloggable
      * @param state The current state
      * @return This waterlogged block's current fluid
      */
-    default FluidState getWaterloggedFluidState( BlockState state )
-    {
-        return state.get( WATERLOGGED ) ? Fluids.WATER.getStill( false ) : Fluids.EMPTY.getDefaultState();
+    default FluidState getWaterloggedFluidState(BlockState state) {
+        return state.get(WATERLOGGED) ? Fluids.WATER.getStill(false) : Fluids.EMPTY.getDefaultState();
     }
 
     /**
@@ -42,18 +40,18 @@ public interface WaterloggableBlock extends Waterloggable
      *
      * @param state The current state
      * @param world The position of this block
-     * @param pos   The world this block exists in
+     * @param pos The world this block exists in
      */
-    default void updateWaterloggedPostPlacement( BlockState state, WorldAccess world, BlockPos pos )
-    {
-        if( state.get( WATERLOGGED ) )
-        {
-            world.getFluidTickScheduler().schedule( pos, Fluids.WATER, Fluids.WATER.getTickRate( world ) );
+    default void updateWaterloggedPostPlacement(BlockState state, WorldAccess world, BlockPos pos) {
+        if (state.get(WATERLOGGED)) {
+            world.getFluidTickScheduler()
+                 .schedule(pos, Fluids.WATER, Fluids.WATER.getTickRate(world));
         }
     }
 
-    default boolean getWaterloggedStateForPlacement( ItemPlacementContext context )
-    {
-        return context.getWorld().getFluidState( context.getBlockPos() ).getFluid() == Fluids.WATER;
+    default boolean getWaterloggedStateForPlacement(ItemPlacementContext context) {
+        return context.getWorld()
+                      .getFluidState(context.getBlockPos())
+                      .getFluid() == Fluids.WATER;
     }
 }

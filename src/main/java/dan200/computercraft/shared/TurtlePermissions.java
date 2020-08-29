@@ -9,40 +9,27 @@ package dan200.computercraft.shared;
 import com.google.common.eventbus.Subscribe;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.turtle.event.TurtleActionEvent;
+
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
-public final class TurtlePermissions
-{
-    public static boolean isBlockEnterable( World world, BlockPos pos, PlayerEntity player )
-    {
+public final class TurtlePermissions {
+    public static boolean isBlockEnterable(World world, BlockPos pos, PlayerEntity player) {
         MinecraftServer server = world.getServer();
-
-        if (!world.isClient)
-            return !server.isSpawnProtected( (ServerWorld) world, pos, player );
-
-        return server == null || world.isClient;
+        return server == null || world.isClient || !server.isSpawnProtected(world, pos, player);
     }
 
-    public static boolean isBlockEditable( World world, BlockPos pos, PlayerEntity player )
-    {
+    public static boolean isBlockEditable(World world, BlockPos pos, PlayerEntity player) {
         MinecraftServer server = world.getServer();
-
-        if (!world.isClient)
-            return !server.isSpawnProtected( (ServerWorld) world, pos, player );
-
-        return server == null || world.isClient;
+        return server == null || world.isClient || !server.isSpawnProtected(world, pos, player);
     }
 
     @Subscribe
-    public void onTurtleAction( TurtleActionEvent event )
-    {
-        if( ComputerCraft.turtleDisabledActions.contains( event.getAction() ) )
-        {
-            event.setCanceled( true, "Action has been disabled" );
+    public void onTurtleAction(TurtleActionEvent event) {
+        if (ComputerCraft.turtleDisabledActions.contains(event.getAction())) {
+            event.setCanceled(true, "Action has been disabled");
         }
     }
 }

@@ -9,18 +9,13 @@ package dan200.computercraft.shared.util;
 import java.io.Closeable;
 import java.io.IOException;
 
-public final class IoUtil
-{
+public final class IoUtil {
     private IoUtil() {}
 
-    public static void closeQuietly( Closeable closeable )
-    {
-        try
-        {
+    public static void closeQuietly(Closeable closeable) {
+        try {
             closeable.close();
-        }
-        catch( IOException ignored )
-        {
+        } catch (IOException ignored) {
         }
     }
 }

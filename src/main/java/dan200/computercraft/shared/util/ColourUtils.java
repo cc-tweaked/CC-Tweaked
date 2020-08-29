@@ -11,12 +11,10 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.DyeColor;
 
-public final class ColourUtils
-{
+public final class ColourUtils {
     private ColourUtils() {}
 
-    public static DyeColor getStackColour( ItemStack stack )
-    {
+    public static DyeColor getStackColour(ItemStack stack) {
         Item item = stack.getItem();
         return item instanceof DyeItem ? ((DyeItem) item).getColor() : null;
     }

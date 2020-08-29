@@ -6,83 +6,81 @@
 
 package dan200.computercraft.shared.command.text;
 
-import net.minecraft.text.*;
+import net.minecraft.text.ClickEvent;
+import net.minecraft.text.HoverEvent;
+import net.minecraft.text.LiteralText;
+import net.minecraft.text.Style;
+import net.minecraft.text.Text;
+import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
 
 /**
  * Various helpers for building chat messages
  */
-public final class ChatHelpers
-{
+public final class ChatHelpers {
     private static final Formatting HEADER = Formatting.LIGHT_PURPLE;
 
     private ChatHelpers() {}
 
-    public static Text coloured( String text, Formatting colour )
-    {
-        LiteralText component = new LiteralText( text == null ? "" : text );
-        component.getStyle().withColor( colour );
-        return component;
+    public static Text text(String text) {
+        return new LiteralText(text == null ? "" : text);
     }
 
-    public static <T extends Text> T coloured( T component, Formatting colour )
-    {
-        component.getStyle().withColor( colour );
-        return component;
-    }
-
-    public static Text text( String text )
-    {
-        return new LiteralText( text == null ? "" : text );
-    }
-
-    public static Text translate( String text )
-    {
-        return new TranslatableText( text == null ? "" : text );
-    }
-
-    public static Text translate( String text, Object... args )
-    {
-        return new TranslatableText( text == null ? "" : text, args );
-    }
-
-    public static Text list( Text... children )
-    {
-        Text component = new LiteralText( "" );
-        for( Text child : children )
-        {
-            component.append( child );
+    public static Text list(Text... children) {
+        Text component = new LiteralText("");
+        for (Text child : children) {
+            component.append(child);
         }
         return component;
     }
 
-    public static Text position( BlockPos pos )
-    {
-        if( pos == null ) return translate( "commands.computercraft.generic.no_position" );
-        return translate( "commands.computercraft.generic.position", pos.getX(), pos.getY(), pos.getZ() );
+    public static Text position(BlockPos pos) {
+        if (pos == null) {
+            return translate("commands.computercraft.generic.no_position");
+        }
+        return translate("commands.computercraft.generic.position", pos.getX(), pos.getY(), pos.getZ());
     }
 
-    public static Text bool( boolean value )
-    {
-        return value
-            ? coloured( translate( "commands.computercraft.generic.yes" ), Formatting.GREEN )
-            : coloured( translate( "commands.computercraft.generic.no" ), Formatting.RED );
+    public static Text translate(String text) {
+        return new TranslatableText(text == null ? "" : text);
     }
 
-    public static Text link( Text component, String command, Text toolTip )
-    {
+    public static Text translate(String text, Object... args) {
+        return new TranslatableText(text == null ? "" : text, args);
+    }
+
+    public static Text bool(boolean value) {
+        return value ? coloured(translate("commands.computercraft.generic.yes"),
+                                Formatting.GREEN) : coloured(translate("commands.computercraft.generic.no"), Formatting.RED);
+    }
+
+    public static <T extends Text> T coloured(T component, Formatting colour) {
+        component.getStyle()
+                 .withColor(colour);
+        return component;
+    }
+
+    public static Text link(Text component, String command, Text toolTip) {
         Style style = component.getStyle();
 
-        if( style.getColor() == null ) style.withColor( Formatting.YELLOW );
-        style.withClickEvent( new ClickEvent( ClickEvent.Action.RUN_COMMAND, command ) );
-        style.setHoverEvent( new HoverEvent( HoverEvent.Action.SHOW_TEXT, toolTip ) );
+        if (style.getColor() == null) {
+            style.withColor(Formatting.YELLOW);
+        }
+        style.withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, command));
+        style.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, toolTip));
 
         return component;
     }
 
-    public static Text header( String text )
-    {
-        return coloured( text, HEADER );
+    public static Text header(String text) {
+        return coloured(text, HEADER);
+    }
+
+    public static Text coloured(String text, Formatting colour) {
+        LiteralText component = new LiteralText(text == null ? "" : text);
+        component.getStyle()
+                 .withColor(colour);
+        return component;
     }
 }

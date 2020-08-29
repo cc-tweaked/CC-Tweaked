@@ -8,13 +8,8 @@ package dan200.computercraft.shared.computer.core;
 
 import dan200.computercraft.shared.common.ITerminal;
 
-public interface IComputer extends ITerminal, InputHandler
-{
+public interface IComputer extends ITerminal, InputHandler {
     int getInstanceID();
-
-    boolean isOn();
-
-    boolean isCursorDisplayed();
 
     void turnOn();
 
@@ -22,17 +17,21 @@ public interface IComputer extends ITerminal, InputHandler
 
     void reboot();
 
+    default void queueEvent(String event) {
+        this.queueEvent(event, null);
+    }
+
     @Override
-    void queueEvent( String event, Object[] arguments );
+    void queueEvent(String event, Object[] arguments);
 
-    default void queueEvent( String event )
-    {
-        queueEvent( event, null );
+    default ComputerState getState() {
+        if (!this.isOn()) {
+            return ComputerState.OFF;
+        }
+        return this.isCursorDisplayed() ? ComputerState.BLINKING : ComputerState.ON;
     }
 
-    default ComputerState getState()
-    {
-        if( !isOn() ) return ComputerState.OFF;
-        return isCursorDisplayed() ? ComputerState.BLINKING : ComputerState.ON;
-    }
+    boolean isOn();
+
+    boolean isCursorDisplayed();
 }

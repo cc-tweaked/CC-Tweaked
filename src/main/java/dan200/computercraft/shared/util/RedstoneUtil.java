@@ -11,14 +11,12 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 
-public final class RedstoneUtil
-{
-    public static void propagateRedstoneOutput( World world, BlockPos pos, Direction side )
-    {
+public final class RedstoneUtil {
+    public static void propagateRedstoneOutput(World world, BlockPos pos, Direction side) {
         // Propagate ordinary output. See BlockRedstoneDiode.notifyNeighbors
-        BlockState block = world.getBlockState( pos );
-        BlockPos neighbourPos = pos.offset( side );
-        world.updateNeighbor( neighbourPos, block.getBlock(), pos );
-        world.updateNeighborsExcept( neighbourPos, block.getBlock(), side.getOpposite() );
+        BlockState block = world.getBlockState(pos);
+        BlockPos neighbourPos = pos.offset(side);
+        world.updateNeighbor(neighbourPos, block.getBlock(), pos);
+        world.updateNeighborsExcept(neighbourPos, block.getBlock(), side.getOpposite());
     }
 }

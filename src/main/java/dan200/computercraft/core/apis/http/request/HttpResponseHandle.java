@@ -6,20 +6,19 @@
 
 package dan200.computercraft.core.apis.http.request;
 
+import java.util.Arrays;
+import java.util.Map;
+
+import javax.annotation.Nonnull;
+
 import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.ILuaObject;
 import dan200.computercraft.api.lua.LuaException;
 
-import javax.annotation.Nonnull;
-import java.util.Arrays;
-import java.util.Map;
-
 /**
- * Wraps a {@link dan200.computercraft.core.apis.handles.HandleGeneric} and provides additional methods for
- * getting the response code and headers.
+ * Wraps a {@link dan200.computercraft.core.apis.handles.HandleGeneric} and provides additional methods for getting the response code and headers.
  */
-public class HttpResponseHandle implements ILuaObject
-{
+public class HttpResponseHandle implements ILuaObject {
     private final String[] newMethods;
     private final int methodOffset;
     private final ILuaObject reader;
@@ -27,8 +26,7 @@ public class HttpResponseHandle implements ILuaObject
     private final String responseStatus;
     private final Map<String, String> responseHeaders;
 
-    public HttpResponseHandle( @Nonnull ILuaObject reader, int responseCode, String responseStatus, @Nonnull Map<String, String> responseHeaders )
-    {
+    public HttpResponseHandle(@Nonnull ILuaObject reader, int responseCode, String responseStatus, @Nonnull Map<String, String> responseHeaders) {
         this.reader = reader;
         this.responseCode = responseCode;
         this.responseStatus = responseStatus;
@@ -37,31 +35,33 @@ public class HttpResponseHandle implements ILuaObject
         String[] oldMethods = reader.getMethodNames();
         final int methodOffset = this.methodOffset = oldMethods.length;
 
-        final String[] newMethods = this.newMethods = Arrays.copyOf( oldMethods, oldMethods.length + 2 );
+        final String[] newMethods = this.newMethods = Arrays.copyOf(oldMethods, oldMethods.length + 2);
         newMethods[methodOffset + 0] = "getResponseCode";
         newMethods[methodOffset + 1] = "getResponseHeaders";
     }
 
     @Nonnull
     @Override
-    public String[] getMethodNames()
-    {
-        return newMethods;
+    public String[] getMethodNames() {
+        return this.newMethods;
     }
 
     @Override
-    public Object[] callMethod( @Nonnull ILuaContext context, int method, @Nonnull Object[] args ) throws LuaException, InterruptedException
-    {
-        if( method < methodOffset ) return reader.callMethod( context, method, args );
+    public Object[] callMethod(@Nonnull ILuaContext context, int method, @Nonnull Object[] args) throws LuaException, InterruptedException {
+        if (method < this.methodOffset) {
+            return this.reader.callMethod(context, method, args);
+        }
 
-        switch( method - methodOffset )
-        {
-            case 0: // getResponseCode
-                return new Object[] { responseCode, responseStatus };
-            case 1: // getResponseHeaders
-                return new Object[] { responseHeaders };
-            default:
-                return null;
+        switch (method - this.methodOffset) {
+        case 0: // getResponseCode
+            return new Object[] {
+                this.responseCode,
+                this.responseStatus
+            };
+        case 1: // getResponseHeaders
+            return new Object[] {this.responseHeaders};
+        default:
+            return null;
         }
     }
 }

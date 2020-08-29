@@ -6,87 +6,82 @@
 
 package dan200.computercraft.shared.peripheral.commandblock;
 
+import static dan200.computercraft.core.apis.ArgumentHelper.getString;
+
+import javax.annotation.Nonnull;
+
 import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
+
 import net.minecraft.block.entity.CommandBlockBlockEntity;
 
-import javax.annotation.Nonnull;
-
-import static dan200.computercraft.core.apis.ArgumentHelper.getString;
-
-public class CommandBlockPeripheral implements IPeripheral
-{
+public class CommandBlockPeripheral implements IPeripheral {
     private final CommandBlockBlockEntity m_commandBlock;
 
-    public CommandBlockPeripheral( CommandBlockBlockEntity commandBlock )
-    {
-        m_commandBlock = commandBlock;
+    public CommandBlockPeripheral(CommandBlockBlockEntity commandBlock) {
+        this.m_commandBlock = commandBlock;
     }
 
     // IPeripheral methods
 
     @Nonnull
     @Override
-    public String getType()
-    {
+    public String getType() {
         return "command";
     }
 
     @Nonnull
     @Override
-    public String[] getMethodNames()
-    {
+    public String[] getMethodNames() {
         return new String[] {
             "getCommand",
             "setCommand",
             "runCommand",
-        };
+            };
     }
 
     @Override
-    public Object[] callMethod( @Nonnull IComputerAccess computer, @Nonnull ILuaContext context, int method, @Nonnull final Object[] arguments ) throws LuaException, InterruptedException
-    {
-        switch( method )
-        {
-            case 0: // getCommand
-                return context.executeMainThreadTask( () -> new Object[] {
-                    m_commandBlock.getCommandExecutor().getCommand()
-                } );
-            case 1:
-            {
-                // setCommand
-                final String command = getString( arguments, 0 );
-                context.issueMainThreadTask( () ->
-                {
-                    m_commandBlock.getCommandExecutor().setCommand( command );
-                    m_commandBlock.getCommandExecutor().markDirty();
-                    return null;
-                } );
+    public Object[] callMethod(@Nonnull IComputerAccess computer, @Nonnull ILuaContext context, int method, @Nonnull final Object[] arguments) throws LuaException, InterruptedException {
+        switch (method) {
+        case 0: // getCommand
+            return context.executeMainThreadTask(() -> new Object[] {
+                this.m_commandBlock.getCommandExecutor().getCommand()
+            });
+        case 1: {
+            // setCommand
+            final String command = getString(arguments, 0);
+            context.issueMainThreadTask(() -> {
+                this.m_commandBlock.getCommandExecutor()
+                                   .setCommand(command);
+                this.m_commandBlock.getCommandExecutor()
+                                   .markDirty();
                 return null;
-            }
-            case 2: // runCommand
-                return context.executeMainThreadTask( () ->
-                {
-                    m_commandBlock.getCommandExecutor().execute( m_commandBlock.getWorld() );
-                    int result = m_commandBlock.getCommandExecutor().getSuccessCount();
-                    if( result > 0 )
-                    {
-                        return new Object[] { true };
-                    }
-                    else
-                    {
-                        return new Object[] { false, "Command failed" };
-                    }
-                } );
+            });
+            return null;
+        }
+        case 2: // runCommand
+            return context.executeMainThreadTask(() -> {
+                this.m_commandBlock.getCommandExecutor()
+                                   .execute(this.m_commandBlock.getWorld());
+                int result = this.m_commandBlock.getCommandExecutor()
+                                                .getSuccessCount();
+                if (result > 0) {
+                    return new Object[] {true};
+                } else {
+                    return new Object[] {
+                        false,
+                        "Command failed"
+                    };
+                }
+            });
         }
         return null;
     }
 
     @Override
-    public boolean equals( IPeripheral other )
-    {
-        return other != null && other.getClass() == getClass();
+    public boolean equals(IPeripheral other) {
+        return other != null && other.getClass() == this.getClass();
     }
 }

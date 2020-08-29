@@ -3,23 +3,22 @@
  * Copyright Daniel Ratcliffe, 2011-2019. This API may be redistributed unmodified and in full only.
  * For help using the API, and posting your mods, visit the forums at computercraft.info.
  */
+
 package dan200.computercraft.api.peripheral;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
 /**
  * A {@link net.minecraft.block.entity.BlockEntity} which may act as a peripheral.
  *
- * If you need more complex capabilities (such as handling TEs not belonging to your mod), you should use
- * {@link IPeripheralProvider}.
+ * If you need more complex capabilities (such as handling TEs not belonging to your mod), you should use {@link IPeripheralProvider}.
  */
-public interface IPeripheralTile
-{
+public interface IPeripheralTile {
     /**
      * Get the peripheral on the given {@code side}.
      *
@@ -28,5 +27,5 @@ public interface IPeripheralTile
      * @see IPeripheralProvider#getPeripheral(World, BlockPos, Direction)
      */
     @Nullable
-    IPeripheral getPeripheral( @Nonnull Direction side );
+    IPeripheral getPeripheral(@Nonnull Direction side);
 }

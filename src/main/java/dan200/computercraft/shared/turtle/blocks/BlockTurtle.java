@@ -6,6 +6,9 @@
 
 package dan200.computercraft.shared.turtle.blocks;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.shared.computer.blocks.BlockComputerBase;
 import dan200.computercraft.shared.computer.blocks.TileComputerBase;
@@ -15,6 +18,7 @@ import dan200.computercraft.shared.turtle.items.ITurtleItem;
 import dan200.computercraft.shared.turtle.items.TurtleItemFactory;
 import dan200.computercraft.shared.util.NamedBlockEntityType;
 import dan200.computercraft.shared.util.WaterloggableBlock;
+
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
@@ -37,119 +41,106 @@ import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
-public class BlockTurtle extends BlockComputerBase<TileTurtle> implements WaterloggableBlock
-{
+public class BlockTurtle extends BlockComputerBase<TileTurtle> implements WaterloggableBlock {
     public static final DirectionProperty FACING = Properties.HORIZONTAL_FACING;
 
-    private static final VoxelShape DEFAULT_SHAPE = VoxelShapes.cuboid(
-        0.125, 0.125, 0.125,
-        0.875, 0.875, 0.875
-    );
+    private static final VoxelShape DEFAULT_SHAPE = VoxelShapes.cuboid(0.125, 0.125, 0.125, 0.875, 0.875, 0.875);
 
-    public BlockTurtle( Settings settings, ComputerFamily family, NamedBlockEntityType<TileTurtle> type )
-    {
-        super( settings, family, type );
-        setDefaultState( getStateManager().getDefaultState()
-            .with( FACING, Direction.NORTH )
-            .with( WATERLOGGED, false )
-        );
+    public BlockTurtle(Settings settings, ComputerFamily family, NamedBlockEntityType<TileTurtle> type) {
+        super(settings, family, type);
+        this.setDefaultState(this.getStateManager().getDefaultState()
+                                 .with(FACING, Direction.NORTH)
+                                 .with(WATERLOGGED, false));
+    }
+
+    @Nullable
+    @Override
+    public BlockState getPlacementState(ItemPlacementContext placement) {
+        return this.getDefaultState().with(FACING, placement.getPlayerFacing())
+                   .with(WATERLOGGED, this.getWaterloggedStateForPlacement(placement));
     }
 
     @Override
-    protected void appendProperties( StateManager.Builder<Block, BlockState> builder )
-    {
-        builder.add( FACING, WATERLOGGED );
+    protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
+        builder.add(FACING, WATERLOGGED);
     }
 
     @Nonnull
     @Override
     @Deprecated
-    public BlockRenderType getRenderType( BlockState state )
-    {
+    public BlockState getStateForNeighborUpdate(@Nonnull BlockState state, Direction side, BlockState otherState, WorldAccess world, BlockPos pos,
+                                                BlockPos otherPos) {
+        this.updateWaterloggedPostPlacement(state, world, pos);
+        return state;
+    }
+
+    @Nonnull
+    @Override
+    @Deprecated
+    public BlockRenderType getRenderType(BlockState state) {
         return BlockRenderType.INVISIBLE;
     }
 
     @Nonnull
     @Override
     @Deprecated
-    public VoxelShape getOutlineShape( BlockState state, BlockView world, BlockPos pos, ShapeContext position )
-    {
-        BlockEntity tile = world.getBlockEntity( pos );
-        Vec3d offset = tile instanceof TileTurtle ? ((TileTurtle) tile).getRenderOffset( 1.0f ) : Vec3d.ZERO;
-        return offset.equals( Vec3d.ZERO ) ? DEFAULT_SHAPE : DEFAULT_SHAPE.offset( offset.x, offset.y, offset.z );
-    }
-
-    @Nullable
-    @Override
-    public BlockState getPlacementState( ItemPlacementContext placement )
-    {
-        return getDefaultState()
-            .with( FACING, placement.getPlayerFacing() )
-            .with( WATERLOGGED, getWaterloggedStateForPlacement( placement ) );
+    public FluidState getFluidState(BlockState state) {
+        return this.getWaterloggedFluidState(state);
     }
 
     @Nonnull
     @Override
     @Deprecated
-    public FluidState getFluidState( BlockState state )
-    {
-        return getWaterloggedFluidState( state );
+    public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext position) {
+        BlockEntity tile = world.getBlockEntity(pos);
+        Vec3d offset = tile instanceof TileTurtle ? ((TileTurtle) tile).getRenderOffset(1.0f) : Vec3d.ZERO;
+        return offset.equals(Vec3d.ZERO) ? DEFAULT_SHAPE : DEFAULT_SHAPE.offset(offset.x, offset.y, offset.z);
     }
 
     @Nonnull
     @Override
-    @Deprecated
-    public BlockState getStateForNeighborUpdate( @Nonnull BlockState state, Direction side, BlockState otherState, WorldAccess world, BlockPos pos, BlockPos otherPos )
-    {
-        updateWaterloggedPostPlacement( state, world, pos );
-        return state;
+    protected ItemStack getItem(TileComputerBase tile) {
+        return tile instanceof TileTurtle ? TurtleItemFactory.create((TileTurtle) tile) : ItemStack.EMPTY;
     }
 
     @Override
-    public void onPlaced( World world, BlockPos pos, BlockState state, @Nullable LivingEntity player, @Nonnull ItemStack stack )
-    {
-        super.onPlaced( world, pos, state, player, stack );
+    public void onPlaced(World world, BlockPos pos, BlockState state, @Nullable LivingEntity player, @Nonnull ItemStack stack) {
+        super.onPlaced(world, pos, state, player, stack);
 
-        BlockEntity tile = world.getBlockEntity( pos );
-        if( !world.isClient && tile instanceof TileTurtle )
-        {
+        BlockEntity tile = world.getBlockEntity(pos);
+        if (!world.isClient && tile instanceof TileTurtle) {
             TileTurtle turtle = (TileTurtle) tile;
 
-            if( player instanceof PlayerEntity )
-            {
-                ((TileTurtle) tile).setOwningPlayer( ((PlayerEntity) player).getGameProfile() );
+            if (player instanceof PlayerEntity) {
+                ((TileTurtle) tile).setOwningPlayer(((PlayerEntity) player).getGameProfile());
             }
 
-            if( stack.getItem() instanceof ITurtleItem )
-            {
+            if (stack.getItem() instanceof ITurtleItem) {
                 ITurtleItem item = (ITurtleItem) stack.getItem();
 
                 // Set Upgrades
-                for( TurtleSide side : TurtleSide.values() )
-                {
-                    turtle.getAccess().setUpgrade( side, item.getUpgrade( stack, side ) );
+                for (TurtleSide side : TurtleSide.values()) {
+                    turtle.getAccess()
+                          .setUpgrade(side, item.getUpgrade(stack, side));
                 }
 
-                turtle.getAccess().setFuelLevel( item.getFuelLevel( stack ) );
+                turtle.getAccess()
+                      .setFuelLevel(item.getFuelLevel(stack));
 
                 // Set colour
-                int colour = item.getColour( stack );
-                if( colour != -1 ) turtle.getAccess().setColour( colour );
+                int colour = item.getColour(stack);
+                if (colour != -1) {
+                    turtle.getAccess()
+                          .setColour(colour);
+                }
 
                 // Set overlay
-                Identifier overlay = item.getOverlay( stack );
-                if( overlay != null ) ((TurtleBrain) turtle.getAccess()).setOverlay( overlay );
+                Identifier overlay = item.getOverlay(stack);
+                if (overlay != null) {
+                    ((TurtleBrain) turtle.getAccess()).setOverlay(overlay);
+                }
             }
         }
-    }
-
-    @Nonnull
-    @Override
-    protected ItemStack getItem( TileComputerBase tile )
-    {
-        return tile instanceof TileTurtle ? TurtleItemFactory.create( (TileTurtle) tile ) : ItemStack.EMPTY;
     }
 }

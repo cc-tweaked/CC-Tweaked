@@ -14,128 +14,112 @@ import dan200.computercraft.shared.computer.core.ClientComputer;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.turtle.blocks.TileTurtle;
 import dan200.computercraft.shared.turtle.inventory.ContainerTurtle;
+import org.lwjgl.glfw.GLFW;
+
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.util.Identifier;
-import org.lwjgl.glfw.GLFW;
 
-public class GuiTurtle extends HandledScreen<ContainerTurtle>
-{
-    private static final Identifier BACKGROUND_NORMAL = new Identifier( "computercraft", "textures/gui/turtle_normal.png" );
-    private static final Identifier BACKGROUND_ADVANCED = new Identifier( "computercraft", "textures/gui/turtle_advanced.png" );
-
-    private ContainerTurtle m_container;
-
+public class GuiTurtle extends HandledScreen<ContainerTurtle> {
+    private static final Identifier BACKGROUND_NORMAL = new Identifier("computercraft", "textures/gui/turtle_normal.png");
+    private static final Identifier BACKGROUND_ADVANCED = new Identifier("computercraft", "textures/gui/turtle_advanced.png");
     private final ComputerFamily m_family;
     private final ClientComputer m_computer;
-
+    private ContainerTurtle m_container;
     private WidgetTerminal terminal;
     private WidgetWrapper terminalWrapper;
 
-    public GuiTurtle( TileTurtle turtle, ContainerTurtle container, PlayerInventory player )
-    {
-        super( container, player, turtle.getDisplayName() );
+    public GuiTurtle(TileTurtle turtle, ContainerTurtle container, PlayerInventory player) {
+        super(container, player, turtle.getDisplayName());
 
-        m_container = container;
-        m_family = turtle.getFamily();
-        m_computer = turtle.getClientComputer();
+        this.m_container = container;
+        this.m_family = turtle.getFamily();
+        this.m_computer = turtle.getClientComputer();
 
-        backgroundWidth = 254;
-        backgroundHeight = 217;
+        this.backgroundWidth = 254;
+        this.backgroundHeight = 217;
     }
 
     @Override
-    protected void init()
-    {
+    protected void init() {
         super.init();
-        minecraft.keyboard.enableRepeatEvents( true );
+        minecraft.keyboard.enableRepeatEvents(true);
 
         int termPxWidth = ComputerCraft.terminalWidth_turtle * FixedWidthFontRenderer.FONT_WIDTH;
         int termPxHeight = ComputerCraft.terminalHeight_turtle * FixedWidthFontRenderer.FONT_HEIGHT;
 
-        terminal = new WidgetTerminal(
-            minecraft, () -> m_computer,
-            ComputerCraft.terminalWidth_turtle,
-            ComputerCraft.terminalHeight_turtle,
-            2, 2, 2, 2
-        );
-        terminalWrapper = new WidgetWrapper( terminal, 2 + 8 + x, 2 + 8 + y, termPxWidth, termPxHeight );
+        this.terminal = new WidgetTerminal(minecraft, () -> this.m_computer, ComputerCraft.terminalWidth_turtle, ComputerCraft.terminalHeight_turtle, 2, 2, 2, 2);
+        this.terminalWrapper = new WidgetWrapper(this.terminal, 2 + 8 + this.x, 2 + 8 + this.y, termPxWidth, termPxHeight);
 
-        children.add( terminalWrapper );
-        setFocused( terminalWrapper );
+        this.children.add(this.terminalWrapper);
+        this.setFocused(this.terminalWrapper);
     }
 
     @Override
-    public void removed()
-    {
+    public boolean mouseDragged(double x, double y, int button, double deltaX, double deltaY) {
+        return (this.getFocused() != null && this.getFocused().mouseDragged(x, y, button, deltaX, deltaY)) || super.mouseDragged(x, y, button, deltaX, deltaY);
+    }
+
+    @Override
+    public boolean mouseReleased(double x, double y, int button) {
+        return (this.getFocused() != null && this.getFocused().mouseReleased(x, y, button)) || super.mouseReleased(x, y, button);
+    }
+
+    @Override
+    public boolean keyPressed(int key, int scancode, int modifiers) {
+        return (key == GLFW.GLFW_KEY_TAB && this.getFocused() == this.terminalWrapper && this.terminalWrapper.keyPressed(key,
+                                                                                                                         scancode,
+                                                                                                                         modifiers)) || super.keyPressed(key,
+                                                                                                                                          scancode,
+                                                                                                                                          modifiers);
+    }
+
+    @Override
+    public void removed() {
         super.removed();
-        children.remove( terminal );
-        terminal = null;
-        minecraft.keyboard.enableRepeatEvents( false );
+        this.children.remove(this.terminal);
+        this.terminal = null;
+        minecraft.keyboard.enableRepeatEvents(false);
     }
 
     @Override
-    public void tick()
-    {
+    public void tick() {
         super.tick();
-        terminal.update();
+        this.terminal.update();
     }
 
-    private void drawSelectionSlot( boolean advanced )
-    {
+    @Override
+    protected void drawBackground(float partialTicks, int mouseX, int mouseY) {
+        // Draw term
+        boolean advanced = this.m_family == ComputerFamily.Advanced;
+        this.terminal.draw(this.terminalWrapper.getX(), this.terminalWrapper.getY());
+
+        // Draw border/inventory
+        GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        minecraft.getTextureManager()
+                 .bindTextureInner(advanced ? BACKGROUND_ADVANCED : BACKGROUND_NORMAL);
+        blit(this.x, this.y, 0, 0, this.backgroundWidth, this.backgroundHeight);
+
+        this.drawSelectionSlot(advanced);
+    }
+
+    private void drawSelectionSlot(boolean advanced) {
         // Draw selection slot
-        int slot = m_container.getSelectedSlot();
-        if( slot >= 0 )
-        {
-            GlStateManager.color4f( 1.0F, 1.0F, 1.0F, 1.0F );
+        int slot = this.m_container.getSelectedSlot();
+        if (slot >= 0) {
+            GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
             int slotX = slot % 4;
             int slotY = slot / 4;
-            minecraft.getTextureManager().bindTextureInner( advanced ? BACKGROUND_ADVANCED : BACKGROUND_NORMAL );
-            blit( x + m_container.m_turtleInvStartX - 2 + slotX * 18, y + m_container.m_playerInvStartY - 2 + slotY * 18, 0, 217, 24, 24 );
+            minecraft.getTextureManager()
+                     .bindTextureInner(advanced ? BACKGROUND_ADVANCED : BACKGROUND_NORMAL);
+            blit(this.x + this.m_container.m_turtleInvStartX - 2 + slotX * 18, this.y + this.m_container.m_playerInvStartY - 2 + slotY * 18, 0, 217, 24, 24);
         }
     }
 
     @Override
-    protected void drawBackground( float partialTicks, int mouseX, int mouseY )
-    {
-        // Draw term
-        boolean advanced = m_family == ComputerFamily.Advanced;
-        terminal.draw( terminalWrapper.getX(), terminalWrapper.getY() );
-
-        // Draw border/inventory
-        GlStateManager.color4f( 1.0F, 1.0F, 1.0F, 1.0F );
-        minecraft.getTextureManager().bindTextureInner( advanced ? BACKGROUND_ADVANCED : BACKGROUND_NORMAL );
-        blit( x, y, 0, 0, backgroundWidth, backgroundHeight );
-
-        drawSelectionSlot( advanced );
-    }
-
-    @Override
-    public void render( int mouseX, int mouseY, float partialTicks )
-    {
+    public void render(int mouseX, int mouseY, float partialTicks) {
         renderBackground();
-        super.render( mouseX, mouseY, partialTicks );
-        drawMouseoverTooltip( mouseX, mouseY );
-    }
-
-    @Override
-    public boolean keyPressed( int key, int scancode, int modifiers )
-    {
-        return (key == GLFW.GLFW_KEY_TAB && getFocused() == terminalWrapper && terminalWrapper.keyPressed( key, scancode, modifiers ))
-            || super.keyPressed( key, scancode, modifiers );
-    }
-
-    @Override
-    public boolean mouseDragged( double x, double y, int button, double deltaX, double deltaY )
-    {
-        return (getFocused() != null && getFocused().mouseDragged( x, y, button, deltaX, deltaY ))
-            || super.mouseDragged( x, y, button, deltaX, deltaY );
-    }
-
-    @Override
-    public boolean mouseReleased( double x, double y, int button )
-    {
-        return (getFocused() != null && getFocused().mouseReleased( x, y, button ))
-            || super.mouseReleased( x, y, button );
+        super.render(mouseX, mouseY, partialTicks);
+        this.drawMouseoverTooltip(mouseX, mouseY);
     }
 }

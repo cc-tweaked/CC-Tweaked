@@ -6,9 +6,6 @@
 
 package dan200.computercraft.shared.computer.core;
 
-public enum ComputerFamily
-{
-    Normal,
-    Advanced,
-    Command
+public enum ComputerFamily {
+    Normal, Advanced, Command
 }

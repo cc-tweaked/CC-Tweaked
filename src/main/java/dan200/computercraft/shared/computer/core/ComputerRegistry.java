@@ -11,69 +11,56 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
-public class ComputerRegistry<TComputer extends IComputer>
-{
+public class ComputerRegistry<TComputer extends IComputer> {
     private Map<Integer, TComputer> m_computers;
     private int m_nextUnusedInstanceID;
     private int m_sessionID;
 
-    protected ComputerRegistry()
-    {
-        m_computers = new HashMap<>();
-        reset();
+    protected ComputerRegistry() {
+        this.m_computers = new HashMap<>();
+        this.reset();
     }
 
-    public int getSessionID()
-    {
-        return m_sessionID;
+    public void reset() {
+        this.m_computers.clear();
+        this.m_nextUnusedInstanceID = 0;
+        this.m_sessionID = new Random().nextInt();
     }
 
-    public int getUnusedInstanceID()
-    {
-        return m_nextUnusedInstanceID++;
+    public int getSessionID() {
+        return this.m_sessionID;
     }
 
-    public Collection<TComputer> getComputers()
-    {
-        return m_computers.values();
+    public int getUnusedInstanceID() {
+        return this.m_nextUnusedInstanceID++;
     }
 
-    public TComputer get( int instanceID )
-    {
-        if( instanceID >= 0 )
-        {
-            if( m_computers.containsKey( instanceID ) )
-            {
-                return m_computers.get( instanceID );
+    public Collection<TComputer> getComputers() {
+        return this.m_computers.values();
+    }
+
+    public TComputer get(int instanceID) {
+        if (instanceID >= 0) {
+            if (this.m_computers.containsKey(instanceID)) {
+                return this.m_computers.get(instanceID);
             }
         }
         return null;
     }
 
-    public boolean contains( int instanceID )
-    {
-        return m_computers.containsKey( instanceID );
+    public boolean contains(int instanceID) {
+        return this.m_computers.containsKey(instanceID);
     }
 
-    public void add( int instanceID, TComputer computer )
-    {
-        if( m_computers.containsKey( instanceID ) )
-        {
-            remove( instanceID );
+    public void add(int instanceID, TComputer computer) {
+        if (this.m_computers.containsKey(instanceID)) {
+            this.remove(instanceID);
         }
-        m_computers.put( instanceID, computer );
-        m_nextUnusedInstanceID = Math.max( m_nextUnusedInstanceID, instanceID + 1 );
+        this.m_computers.put(instanceID, computer);
+        this.m_nextUnusedInstanceID = Math.max(this.m_nextUnusedInstanceID, instanceID + 1);
     }
 
-    public void remove( int instanceID )
-    {
-        m_computers.remove( instanceID );
-    }
-
-    public void reset()
-    {
-        m_computers.clear();
-        m_nextUnusedInstanceID = 0;
-        m_sessionID = new Random().nextInt();
+    public void remove(int instanceID) {
+        this.m_computers.remove(instanceID);
     }
 }

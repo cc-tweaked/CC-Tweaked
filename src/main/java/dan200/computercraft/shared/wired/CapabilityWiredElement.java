@@ -6,8 +6,7 @@
 
 package dan200.computercraft.shared.wired;
 
-public final class CapabilityWiredElement
-{
+public final class CapabilityWiredElement {
     /*
     @CapabilityInject( IWiredElement.class )
     public static Capability<IWiredElement> CAPABILITY = null;

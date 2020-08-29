@@ -6,6 +6,10 @@
 
 package dan200.computercraft.shared.peripheral.printer;
 
+import static dan200.computercraft.shared.peripheral.printer.TilePrinter.PROPERTY_PRINTING;
+
+import javax.annotation.Nonnull;
+
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.Inventory;
@@ -16,104 +20,100 @@ import net.minecraft.screen.ArrayPropertyDelegate;
 import net.minecraft.screen.PropertyDelegate;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.slot.Slot;
-import javax.annotation.Nonnull;
 
-import static dan200.computercraft.shared.peripheral.printer.TilePrinter.PROPERTY_PRINTING;
-
-public class ContainerPrinter extends ScreenHandler
-{
+public class ContainerPrinter extends ScreenHandler {
     private final Inventory m_printer;
     private final PropertyDelegate properties;
 
-    public ContainerPrinter( int id, PlayerInventory player, TilePrinter printer )
-    {
-        this( id, player, printer, printer );
+    public ContainerPrinter(int id, PlayerInventory player, TilePrinter printer) {
+        this(id, player, printer, printer);
     }
 
-    public ContainerPrinter( int id, PlayerInventory player )
-    {
-        this( id, player, new SimpleInventory( TilePrinter.INVENTORY_SIZE ), new ArrayPropertyDelegate( TilePrinter.PROPERTY_SIZE ) );
-    }
-
-    public ContainerPrinter( int id, PlayerInventory playerInventory, Inventory printer, PropertyDelegate printerInfo )
-    {
-        super( null, id );
-        m_printer = printer;
-        properties = printerInfo;
+    public ContainerPrinter(int id, PlayerInventory playerInventory, Inventory printer, PropertyDelegate printerInfo) {
+        super(null, id);
+        this.m_printer = printer;
+        this.properties = printerInfo;
 
         // Ink slot
-        addSlot( new Slot( printer, 0, 13, 35 ) );
+        this.addSlot(new Slot(printer, 0, 13, 35));
 
         // In-tray
-        for( int x = 0; x < 6; x++ ) addSlot( new Slot( printer, x + 1, 61 + x * 18, 22 ) );
+        for (int x = 0; x < 6; x++) {
+            this.addSlot(new Slot(printer, x + 1, 61 + x * 18, 22));
+        }
 
         // Out-tray
-        for( int x = 0; x < 6; x++ ) addSlot( new Slot( printer, x + 7, 61 + x * 18, 49 ) );
+        for (int x = 0; x < 6; x++) {
+            this.addSlot(new Slot(printer, x + 7, 61 + x * 18, 49));
+        }
 
         // Player inv
-        for( int y = 0; y < 3; y++ )
-        {
-            for( int x = 0; x < 9; x++ )
-            {
-                addSlot( new Slot( playerInventory, x + y * 9 + 9, 8 + x * 18, 84 + y * 18 ) );
+        for (int y = 0; y < 3; y++) {
+            for (int x = 0; x < 9; x++) {
+                this.addSlot(new Slot(playerInventory, x + y * 9 + 9, 8 + x * 18, 84 + y * 18));
             }
         }
 
         // Player hotbar
-        for( int x = 0; x < 9; x++ ) addSlot( new Slot( playerInventory, x, 8 + x * 18, 142 ) );
+        for (int x = 0; x < 9; x++) {
+            this.addSlot(new Slot(playerInventory, x, 8 + x * 18, 142));
+        }
 
-        addProperties( printerInfo );
+        this.addProperties(printerInfo);
     }
 
-    public boolean isPrinting()
-    {
-        return properties.get( PROPERTY_PRINTING ) != 0;
+    public ContainerPrinter(int id, PlayerInventory player) {
+        this(id, player, new SimpleInventory(TilePrinter.INVENTORY_SIZE), new ArrayPropertyDelegate(TilePrinter.PROPERTY_SIZE));
     }
 
-    @Override
-    public boolean canUse( @Nonnull PlayerEntity player )
-    {
-        return m_printer.canPlayerUse( player );
+    public boolean isPrinting() {
+        return this.properties.get(PROPERTY_PRINTING) != 0;
     }
 
     @Nonnull
     @Override
-    public ItemStack transferSlot( PlayerEntity player, int index )
-    {
-        Slot slot = slots.get( index );
-        if( slot == null || !slot.hasStack() ) return ItemStack.EMPTY;
+    public ItemStack transferSlot(PlayerEntity player, int index) {
+        Slot slot = this.slots.get(index);
+        if (slot == null || !slot.hasStack()) {
+            return ItemStack.EMPTY;
+        }
         ItemStack stack = slot.getStack();
         ItemStack result = stack.copy();
-        if( index < 13 )
-        {
+        if (index < 13) {
             // Transfer from printer to inventory
-            if( !insertItem( stack, 13, 49, true ) ) return ItemStack.EMPTY;
-        }
-        else
-        {
-            // Transfer from inventory to printer
-            if( stack.getItem() instanceof DyeItem )
-            {
-                if( !insertItem( stack, 0, 1, false ) ) return ItemStack.EMPTY;
+            if (!this.insertItem(stack, 13, 49, true)) {
+                return ItemStack.EMPTY;
             }
-            else //if is paper
+        } else {
+            // Transfer from inventory to printer
+            if (stack.getItem() instanceof DyeItem) {
+                if (!this.insertItem(stack, 0, 1, false)) {
+                    return ItemStack.EMPTY;
+                }
+            } else //if is paper
             {
-                if( !insertItem( stack, 1, 13, false ) ) return ItemStack.EMPTY;
+                if (!this.insertItem(stack, 1, 13, false)) {
+                    return ItemStack.EMPTY;
+                }
             }
         }
 
-        if( stack.isEmpty() )
-        {
-            slot.setStack( ItemStack.EMPTY );
-        }
-        else
-        {
+        if (stack.isEmpty()) {
+            slot.setStack(ItemStack.EMPTY);
+        } else {
             slot.markDirty();
         }
 
-        if( stack.getCount() == result.getCount() ) return ItemStack.EMPTY;
+        if (stack.getCount() == result.getCount()) {
+            return ItemStack.EMPTY;
+        }
 
-        slot.onTakeItem( player, stack );
+        slot.onTakeItem(player, stack);
         return result;
+    }
+
+    @Override
+    public boolean canUse(@Nonnull PlayerEntity player) {
+        return this.m_printer.canPlayerUse(player);
     }
 }

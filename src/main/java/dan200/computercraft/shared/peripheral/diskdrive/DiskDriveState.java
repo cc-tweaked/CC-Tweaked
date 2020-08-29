@@ -8,23 +8,18 @@ package dan200.computercraft.shared.peripheral.diskdrive;
 
 import net.minecraft.util.StringIdentifiable;
 
-public enum DiskDriveState implements StringIdentifiable
-{
-    EMPTY( "empty" ),
-    FULL( "full" ),
-    INVALID( "invalid" );
+public enum DiskDriveState implements StringIdentifiable {
+    EMPTY("empty"), FULL("full"), INVALID("invalid");
 
     private final String name;
 
-    DiskDriveState( String name )
-    {
+    DiskDriveState(String name) {
         this.name = name;
     }
 
 
     @Override
-    public String asString()
-    {
-        return name;
+    public String asString() {
+        return this.name;
     }
 }

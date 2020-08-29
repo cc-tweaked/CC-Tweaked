@@ -8,11 +8,10 @@ package dan200.computercraft.shared.mixed;
 
 import net.minecraft.util.Arm;
 
-public interface MixedFirstPersonRenderer
-{
+public interface MixedFirstPersonRenderer {
     void renderArms_CC();
 
-    void renderArmFirstPerson_CC( float equip, float swing, Arm hand );
+    void renderArmFirstPerson_CC(float equip, float swing, Arm hand);
 
-    float getMapAngleFromPitch_CC( float pitch );
+    float getMapAngleFromPitch_CC(float pitch);
 }

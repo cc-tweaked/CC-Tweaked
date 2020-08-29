@@ -14,7 +14,6 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
  * A {@link Command} which accepts an argument
  */
 @FunctionalInterface
-public interface ArgCommand<S, T>
-{
-    int run( CommandContext<S> ctx, T arg ) throws CommandSyntaxException;
+public interface ArgCommand<S, T> {
+    int run(CommandContext<S> ctx, T arg) throws CommandSyntaxException;
 }

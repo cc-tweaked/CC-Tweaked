@@ -12,68 +12,52 @@ import dan200.computercraft.shared.computer.core.ServerComputer;
 /**
  * A proxy object for computer objects, delegating to {@link IComputer} or {@link TileComputer} where appropriate.
  */
-public abstract class ComputerProxy
-{
-    protected abstract TileComputerBase getTile();
-
-    public void turnOn()
-    {
-        TileComputerBase tile = getTile();
+public abstract class ComputerProxy {
+    public void turnOn() {
+        TileComputerBase tile = this.getTile();
         ServerComputer computer = tile.getServerComputer();
-        if( computer == null )
-        {
+        if (computer == null) {
             tile.m_startOn = true;
-        }
-        else
-        {
+        } else {
             computer.turnOn();
         }
     }
 
-    public void shutdown()
-    {
-        TileComputerBase tile = getTile();
+    protected abstract TileComputerBase getTile();
+
+    public void shutdown() {
+        TileComputerBase tile = this.getTile();
         ServerComputer computer = tile.getServerComputer();
-        if( computer == null )
-        {
+        if (computer == null) {
             tile.m_startOn = false;
-        }
-        else
-        {
+        } else {
             computer.shutdown();
         }
     }
 
-    public void reboot()
-    {
-        TileComputerBase tile = getTile();
+    public void reboot() {
+        TileComputerBase tile = this.getTile();
         ServerComputer computer = tile.getServerComputer();
-        if( computer == null )
-        {
+        if (computer == null) {
             tile.m_startOn = true;
-        }
-        else
-        {
+        } else {
             computer.reboot();
         }
     }
 
-    public int assignID()
-    {
-        TileComputerBase tile = getTile();
+    public int assignID() {
+        TileComputerBase tile = this.getTile();
         ServerComputer computer = tile.getServerComputer();
         return computer == null ? tile.getComputerID() : computer.getID();
     }
 
-    public boolean isOn()
-    {
-        ServerComputer computer = getTile().getServerComputer();
+    public boolean isOn() {
+        ServerComputer computer = this.getTile().getServerComputer();
         return computer != null && computer.isOn();
     }
 
-    public String getLabel()
-    {
-        TileComputerBase tile = getTile();
+    public String getLabel() {
+        TileComputerBase tile = this.getTile();
         ServerComputer computer = tile.getServerComputer();
         return computer == null ? tile.getLabel() : computer.getLabel();
     }

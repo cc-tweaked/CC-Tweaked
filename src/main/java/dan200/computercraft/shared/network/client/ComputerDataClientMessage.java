@@ -6,51 +6,48 @@
 
 package dan200.computercraft.shared.network.client;
 
+import javax.annotation.Nonnull;
+
 import dan200.computercraft.shared.computer.core.ComputerState;
 import dan200.computercraft.shared.computer.core.ServerComputer;
-import net.fabricmc.fabric.api.network.PacketContext;
+
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.PacketByteBuf;
-import javax.annotation.Nonnull;
+
+import net.fabricmc.fabric.api.network.PacketContext;
 
 /**
  * Provides additional data about a client computer, such as its ID and current state.
  */
-public class ComputerDataClientMessage extends ComputerClientMessage
-{
+public class ComputerDataClientMessage extends ComputerClientMessage {
     private ComputerState state;
     private CompoundTag userData;
 
-    public ComputerDataClientMessage( ServerComputer computer )
-    {
-        super( computer.getInstanceID() );
-        state = computer.getState();
-        userData = computer.getUserData();
+    public ComputerDataClientMessage(ServerComputer computer) {
+        super(computer.getInstanceID());
+        this.state = computer.getState();
+        this.userData = computer.getUserData();
     }
 
-    public ComputerDataClientMessage()
-    {
-    }
-
-    @Override
-    public void toBytes( @Nonnull PacketByteBuf buf )
-    {
-        super.toBytes( buf );
-        buf.writeEnumConstant( state );
-        buf.writeCompoundTag( userData );
+    public ComputerDataClientMessage() {
     }
 
     @Override
-    public void fromBytes( @Nonnull PacketByteBuf buf )
-    {
-        super.fromBytes( buf );
-        state = buf.readEnumConstant( ComputerState.class );
-        userData = buf.readCompoundTag();
+    public void toBytes(@Nonnull PacketByteBuf buf) {
+        super.toBytes(buf);
+        buf.writeEnumConstant(this.state);
+        buf.writeCompoundTag(this.userData);
     }
 
     @Override
-    public void handle( PacketContext context )
-    {
-        getComputer().setState( state, userData );
+    public void fromBytes(@Nonnull PacketByteBuf buf) {
+        super.fromBytes(buf);
+        this.state = buf.readEnumConstant(ComputerState.class);
+        this.userData = buf.readCompoundTag();
+    }
+
+    @Override
+    public void handle(PacketContext context) {
+        this.getComputer().setState(this.state, this.userData);
     }
 }

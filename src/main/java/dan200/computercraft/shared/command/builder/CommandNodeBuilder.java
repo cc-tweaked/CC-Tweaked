@@ -12,13 +12,12 @@ import com.mojang.brigadier.tree.CommandNode;
  * A builder which generates a {@link CommandNode} from the provided action.
  */
 @FunctionalInterface
-public interface CommandNodeBuilder<S, T>
-{
+public interface CommandNodeBuilder<S, T> {
     /**
      * Generate a command node which executes this command.
      *
      * @param command The command to run
      * @return The constructed node.
      */
-    CommandNode<S> executes( T command );
+    CommandNode<S> executes(T command);
 }

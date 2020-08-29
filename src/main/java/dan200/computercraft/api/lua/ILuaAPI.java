@@ -11,14 +11,13 @@ import dan200.computercraft.api.ComputerCraftAPI;
 /**
  * Represents a {@link ILuaObject} which is stored as a global variable on computer startup.
  *
- * Before implementing this interface, consider alternative methods of providing methods. It is generally preferred
- * to use peripherals to provide functionality to users.
+ * Before implementing this interface, consider alternative methods of providing methods. It is generally preferred to use peripherals to provide
+ * functionality to users.
  *
  * @see ILuaAPIFactory
  * @see ComputerCraftAPI#registerAPIFactory(ILuaAPIFactory)
  */
-public interface ILuaAPI extends ILuaObject
-{
+public interface ILuaAPI extends ILuaObject {
     /**
      * Get the globals this API will be assigned to. This will override any other global, so you should
      *
@@ -31,15 +30,13 @@ public interface ILuaAPI extends ILuaObject
      *
      * One should only interact with the file system.
      */
-    default void startup()
-    {
+    default void startup() {
     }
 
     /**
      * Called every time the computer is ticked. This can be used to process various.
      */
-    default void update()
-    {
+    default void update() {
     }
 
     /**
@@ -47,7 +44,6 @@ public interface ILuaAPI extends ILuaObject
      *
      * This should reset the state of the object, disposing any remaining file handles, or other resources.
      */
-    default void shutdown()
-    {
+    default void shutdown() {
     }
 }

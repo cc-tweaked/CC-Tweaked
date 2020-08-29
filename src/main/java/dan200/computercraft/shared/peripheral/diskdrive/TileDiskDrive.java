@@ -6,6 +6,13 @@
 
 package dan200.computercraft.shared.peripheral.diskdrive;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.api.filesystem.IWritableMount;
@@ -20,6 +27,7 @@ import dan200.computercraft.shared.util.DefaultInventory;
 import dan200.computercraft.shared.util.InventoryUtil;
 import dan200.computercraft.shared.util.NamedBlockEntityType;
 import dan200.computercraft.shared.util.RecordUtil;
+
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.ItemEntity;
@@ -37,521 +45,441 @@ import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-
-public final class TileDiskDrive extends TileGeneric implements DefaultInventory, Tickable, IPeripheralTile, Nameable
-{
+public final class TileDiskDrive extends TileGeneric implements DefaultInventory, Tickable, IPeripheralTile, Nameable {
+    public static final NamedBlockEntityType<TileDiskDrive> FACTORY = NamedBlockEntityType.create(new Identifier(ComputerCraft.MOD_ID, "disk_drive"),
+                                                                                                  TileDiskDrive::new);
+    public static final int INVENTORY_SIZE = 1;
     private static final String NBT_NAME = "CustomName";
     private static final String NBT_ITEM = "Item";
-
-    public static final NamedBlockEntityType<TileDiskDrive> FACTORY = NamedBlockEntityType.create(
-        new Identifier( ComputerCraft.MOD_ID, "disk_drive" ),
-        TileDiskDrive::new
-    );
-
-    public static final int INVENTORY_SIZE = 1;
-
-    private static class MountInfo
-    {
-        String mountPath;
-    }
-
-    Text customName;
-
     private final Map<IComputerAccess, MountInfo> m_computers = new HashMap<>();
-
-    @Nonnull
-    private ItemStack m_diskStack = ItemStack.EMPTY;
+    Text customName;
+    @Nonnull private ItemStack m_diskStack = ItemStack.EMPTY;
     private IMount m_diskMount = null;
-
     private boolean m_recordQueued = false;
     private boolean m_recordPlaying = false;
     private boolean m_restartRecord = false;
     private boolean m_ejectQueued;
-
-    private TileDiskDrive( BlockEntityType<? extends TileDiskDrive> type )
-    {
-        super( type );
+    private TileDiskDrive(BlockEntityType<? extends TileDiskDrive> type) {
+        super(type);
     }
 
     @Override
-    public void destroy()
-    {
-        if( m_recordPlaying ) stopRecord();
+    public void destroy() {
+        if (this.m_recordPlaying) {
+            this.stopRecord();
+        }
     }
 
     @Override
-    public boolean onActivate( PlayerEntity player, Hand hand, BlockHitResult hit )
-    {
-        if( player.isSneaking() )
-        {
+    public boolean onActivate(PlayerEntity player, Hand hand, BlockHitResult hit) {
+        if (player.isSneaking()) {
             // Try to put a disk into the drive
-            ItemStack disk = player.getStackInHand( hand );
-            if( disk.isEmpty() ) return false;
-            if( !getWorld().isClient && getStack( 0 ).isEmpty() && MediaProviders.get( disk ) != null )
-            {
-                setDiskStack( disk );
-                player.setStackInHand( hand, ItemStack.EMPTY );
+            ItemStack disk = player.getStackInHand(hand);
+            if (disk.isEmpty()) {
+                return false;
+            }
+            if (!this.getWorld().isClient && this.getStack(0).isEmpty() && MediaProviders.get(disk) != null) {
+                this.setDiskStack(disk);
+                player.setStackInHand(hand, ItemStack.EMPTY);
             }
             return true;
-        }
-        else
-        {
+        } else {
             // Open the GUI
-            if( !getWorld().isClient ) Containers.openDiskDriveGUI( player, this );
+            if (!this.getWorld().isClient) {
+                Containers.openDiskDriveGUI(player, this);
+            }
             return true;
         }
     }
 
-    public Direction getDirection()
-    {
-        return getCachedState().get( BlockDiskDrive.FACING );
+    @Override
+    protected void readDescription(@Nonnull CompoundTag nbt) {
+        super.readDescription(nbt);
+        this.customName = nbt.contains(NBT_NAME) ? LiteralText.Serializer.fromJson(nbt.getString(NBT_NAME)) : null;
+        this.m_diskStack = nbt.contains(NBT_ITEM) ? ItemStack.fromTag(nbt.getCompound(NBT_ITEM)) : ItemStack.EMPTY;
+        this.updateBlock();
     }
 
     @Override
-    public void fromTag( CompoundTag nbt )
-    {
-        super.fromTag( nbt );
-        customName = nbt.contains( NBT_NAME ) ? LiteralText.Serializer.fromJson( nbt.getString( NBT_NAME ) ) : null;
-        if( nbt.contains( NBT_ITEM ) )
-        {
-            CompoundTag item = nbt.getCompound( NBT_ITEM );
-            m_diskStack = ItemStack.fromTag( item );
-            m_diskMount = null;
+    protected void writeDescription(@Nonnull CompoundTag nbt) {
+        super.writeDescription(nbt);
+        if (this.customName != null) {
+            nbt.putString(NBT_NAME, LiteralText.Serializer.toJson(this.customName));
         }
-    }
-
-    @Nonnull
-    @Override
-    public CompoundTag toTag( CompoundTag nbt )
-    {
-        if( customName != null ) nbt.putString( NBT_NAME, LiteralText.Serializer.toJson( customName ) );
-
-        if( !m_diskStack.isEmpty() )
-        {
+        if (!this.m_diskStack.isEmpty()) {
             CompoundTag item = new CompoundTag();
-            m_diskStack.toTag( item );
-            nbt.put( NBT_ITEM, item );
+            this.m_diskStack.toTag(item);
+            nbt.put(NBT_ITEM, item);
         }
-        return super.toTag( nbt );
+    }
+
+    private void stopRecord() {
+        RecordUtil.playRecord(null, null, this.getWorld(), this.getPos());
+    }
+
+    public Direction getDirection() {
+        return this.getCachedState().get(BlockDiskDrive.FACING);
     }
 
     @Override
-    public void tick()
-    {
-        // Ejection
-        if( m_ejectQueued )
-        {
-            ejectContents( false );
-            m_ejectQueued = false;
-        }
-
-        // Music
-        synchronized( this )
-        {
-            if( !world.isClient && m_recordPlaying != m_recordQueued || m_restartRecord )
-            {
-                m_restartRecord = false;
-                if( m_recordQueued )
-                {
-                    IMedia contents = getDiskMedia();
-                    SoundEvent record = contents != null ? contents.getAudio( m_diskStack ) : null;
-                    if( record != null )
-                    {
-                        m_recordPlaying = true;
-                        playRecord();
-                    }
-                    else
-                    {
-                        m_recordQueued = false;
-                    }
-                }
-                else
-                {
-                    stopRecord();
-                    m_recordPlaying = false;
-                }
-            }
+    public void fromTag(CompoundTag nbt) {
+        super.fromTag(nbt);
+        this.customName = nbt.contains(NBT_NAME) ? LiteralText.Serializer.fromJson(nbt.getString(NBT_NAME)) : null;
+        if (nbt.contains(NBT_ITEM)) {
+            CompoundTag item = nbt.getCompound(NBT_ITEM);
+            this.m_diskStack = ItemStack.fromTag(item);
+            this.m_diskMount = null;
         }
     }
 
     // Inventory implementation
 
-    @Override
-    public int size()
-    {
-        return INVENTORY_SIZE;
-    }
-
-    @Override
-    public boolean isEmpty()
-    {
-        return m_diskStack.isEmpty();
-    }
-
-    @Override
-    public ItemStack getStack( int slot )
-    {
-        return m_diskStack;
-    }
-
     @Nonnull
     @Override
-    public ItemStack removeStack( int slot )
-    {
-        ItemStack result = m_diskStack;
-        m_diskStack = ItemStack.EMPTY;
-        m_diskMount = null;
-
-        return result;
-    }
-
-    @Nonnull
-    @Override
-    public ItemStack removeStack( int slot, int count )
-    {
-        if( m_diskStack.isEmpty() ) return ItemStack.EMPTY;
-
-        if( m_diskStack.getCount() <= count )
-        {
-            ItemStack disk = m_diskStack;
-            setStack( slot, ItemStack.EMPTY );
-            return disk;
+    public CompoundTag toTag(CompoundTag nbt) {
+        if (this.customName != null) {
+            nbt.putString(NBT_NAME, LiteralText.Serializer.toJson(this.customName));
         }
 
-        ItemStack part = m_diskStack.split( count );
-        setStack( slot, m_diskStack.isEmpty() ? ItemStack.EMPTY : m_diskStack );
-        return part;
+        if (!this.m_diskStack.isEmpty()) {
+            CompoundTag item = new CompoundTag();
+            this.m_diskStack.toTag(item);
+            nbt.put(NBT_ITEM, item);
+        }
+        return super.toTag(nbt);
     }
 
     @Override
-    public void setStack( int slot, @Nonnull ItemStack stack )
-    {
-        if( getWorld().isClient )
-        {
-            m_diskStack = stack;
-            m_diskMount = null;
-            markDirty();
-            return;
+    public void markDirty() {
+        if (!this.world.isClient) {
+            this.updateBlockState();
         }
-
-        synchronized( this )
-        {
-            if( InventoryUtil.areItemsStackable( stack, m_diskStack ) )
-            {
-                m_diskStack = stack;
-                return;
-            }
-
-            // Unmount old disk
-            if( !m_diskStack.isEmpty() )
-            {
-                // TODO: Is this iteration thread safe?
-                Set<IComputerAccess> computers = m_computers.keySet();
-                for( IComputerAccess computer : computers ) unmountDisk( computer );
-            }
-
-            // Stop music
-            if( m_recordPlaying )
-            {
-                stopRecord();
-                m_recordPlaying = false;
-                m_recordQueued = false;
-            }
-
-            // Swap disk over
-            m_diskStack = stack;
-            m_diskMount = null;
-            markDirty();
-
-            // Mount new disk
-            if( !m_diskStack.isEmpty() )
-            {
-                Set<IComputerAccess> computers = m_computers.keySet();
-                for( IComputerAccess computer : computers ) mountDisk( computer );
-            }
-        }
-    }
-
-    @Override
-    public void markDirty()
-    {
-        if( !world.isClient ) updateBlockState();
         super.markDirty();
     }
 
     @Override
-    public boolean canPlayerUse( PlayerEntity player )
-    {
-        return isUsable( player, false );
+    public void tick() {
+        // Ejection
+        if (this.m_ejectQueued) {
+            this.ejectContents(false);
+            this.m_ejectQueued = false;
+        }
+
+        // Music
+        synchronized (this) {
+            if (!this.world.isClient && this.m_recordPlaying != this.m_recordQueued || this.m_restartRecord) {
+                this.m_restartRecord = false;
+                if (this.m_recordQueued) {
+                    IMedia contents = this.getDiskMedia();
+                    SoundEvent record = contents != null ? contents.getAudio(this.m_diskStack) : null;
+                    if (record != null) {
+                        this.m_recordPlaying = true;
+                        this.playRecord();
+                    } else {
+                        this.m_recordQueued = false;
+                    }
+                } else {
+                    this.stopRecord();
+                    this.m_recordPlaying = false;
+                }
+            }
+        }
     }
 
     @Override
-    public void clear()
-    {
-        setStack( 0, ItemStack.EMPTY );
+    public int size() {
+        return INVENTORY_SIZE;
     }
 
     @Override
-    public IPeripheral getPeripheral( @Nonnull Direction side )
-    {
-        return new DiskDrivePeripheral( this );
+    public boolean isEmpty() {
+        return this.m_diskStack.isEmpty();
+    }
+
+    @Override
+    public ItemStack getStack(int slot) {
+        return this.m_diskStack;
     }
 
     @Nonnull
-    public ItemStack getDiskStack()
-    {
-        return getStack( 0 );
+    @Override
+    public ItemStack removeStack(int slot, int count) {
+        if (this.m_diskStack.isEmpty()) {
+            return ItemStack.EMPTY;
+        }
+
+        if (this.m_diskStack.getCount() <= count) {
+            ItemStack disk = this.m_diskStack;
+            this.setStack(slot, ItemStack.EMPTY);
+            return disk;
+        }
+
+        ItemStack part = this.m_diskStack.split(count);
+        this.setStack(slot, this.m_diskStack.isEmpty() ? ItemStack.EMPTY : this.m_diskStack);
+        return part;
     }
 
-    public void setDiskStack( @Nonnull ItemStack stack )
-    {
-        setStack( 0, stack );
+    @Nonnull
+    @Override
+    public ItemStack removeStack(int slot) {
+        ItemStack result = this.m_diskStack;
+        this.m_diskStack = ItemStack.EMPTY;
+        this.m_diskMount = null;
+
+        return result;
     }
 
-    public IMedia getDiskMedia()
-    {
-        return MediaProviders.get( getDiskStack() );
+    @Override
+    public void setStack(int slot, @Nonnull ItemStack stack) {
+        if (this.getWorld().isClient) {
+            this.m_diskStack = stack;
+            this.m_diskMount = null;
+            this.markDirty();
+            return;
+        }
+
+        synchronized (this) {
+            if (InventoryUtil.areItemsStackable(stack, this.m_diskStack)) {
+                this.m_diskStack = stack;
+                return;
+            }
+
+            // Unmount old disk
+            if (!this.m_diskStack.isEmpty()) {
+                // TODO: Is this iteration thread safe?
+                Set<IComputerAccess> computers = this.m_computers.keySet();
+                for (IComputerAccess computer : computers) {
+                    this.unmountDisk(computer);
+                }
+            }
+
+            // Stop music
+            if (this.m_recordPlaying) {
+                this.stopRecord();
+                this.m_recordPlaying = false;
+                this.m_recordQueued = false;
+            }
+
+            // Swap disk over
+            this.m_diskStack = stack;
+            this.m_diskMount = null;
+            this.markDirty();
+
+            // Mount new disk
+            if (!this.m_diskStack.isEmpty()) {
+                Set<IComputerAccess> computers = this.m_computers.keySet();
+                for (IComputerAccess computer : computers) {
+                    this.mountDisk(computer);
+                }
+            }
+        }
     }
 
-    public String getDiskMountPath( IComputerAccess computer )
-    {
-        synchronized( this )
-        {
-            if( m_computers.containsKey( computer ) )
-            {
-                MountInfo info = m_computers.get( computer );
+    @Override
+    public boolean canPlayerUse(PlayerEntity player) {
+        return this.isUsable(player, false);
+    }
+
+    @Override
+    public void clear() {
+        this.setStack(0, ItemStack.EMPTY);
+    }
+
+    @Override
+    public IPeripheral getPeripheral(@Nonnull Direction side) {
+        return new DiskDrivePeripheral(this);
+    }
+
+    public String getDiskMountPath(IComputerAccess computer) {
+        synchronized (this) {
+            if (this.m_computers.containsKey(computer)) {
+                MountInfo info = this.m_computers.get(computer);
                 return info.mountPath;
             }
         }
         return null;
     }
 
-    public void mount( IComputerAccess computer )
-    {
-        synchronized( this )
-        {
-            m_computers.put( computer, new MountInfo() );
-            mountDisk( computer );
+    public void mount(IComputerAccess computer) {
+        synchronized (this) {
+            this.m_computers.put(computer, new MountInfo());
+            this.mountDisk(computer);
         }
     }
 
-    public void unmount( IComputerAccess computer )
-    {
-        synchronized( this )
-        {
-            unmountDisk( computer );
-            m_computers.remove( computer );
-        }
-    }
-
-    public void playDiskAudio()
-    {
-        synchronized( this )
-        {
-            IMedia media = getDiskMedia();
-            if( media != null && media.getAudioTitle( m_diskStack ) != null )
-            {
-                m_recordQueued = true;
-                m_restartRecord = m_recordPlaying;
+    private synchronized void mountDisk(IComputerAccess computer) {
+        if (!this.m_diskStack.isEmpty()) {
+            MountInfo info = this.m_computers.get(computer);
+            IMedia contents = this.getDiskMedia();
+            if (contents != null) {
+                if (this.m_diskMount == null) {
+                    this.m_diskMount = contents.createDataMount(this.m_diskStack, this.getWorld());
+                }
+                if (this.m_diskMount != null) {
+                    if (this.m_diskMount instanceof IWritableMount) {
+                        // Try mounting at the lowest numbered "disk" name we can
+                        int n = 1;
+                        while (info.mountPath == null) {
+                            info.mountPath = computer.mountWritable(n == 1 ? "disk" : "disk" + n, (IWritableMount) this.m_diskMount);
+                            n++;
+                        }
+                    } else {
+                        // Try mounting at the lowest numbered "disk" name we can
+                        int n = 1;
+                        while (info.mountPath == null) {
+                            info.mountPath = computer.mount(n == 1 ? "disk" : "disk" + n, this.m_diskMount);
+                            n++;
+                        }
+                    }
+                } else {
+                    info.mountPath = null;
+                }
             }
+            computer.queueEvent("disk", new Object[] {computer.getAttachmentName()});
         }
     }
 
-    public void stopDiskAudio()
-    {
-        synchronized( this )
-        {
-            m_recordQueued = false;
-            m_restartRecord = false;
-        }
+    public IMedia getDiskMedia() {
+        return MediaProviders.get(this.getDiskStack());
     }
 
-    public void ejectDisk()
-    {
-        synchronized( this )
-        {
-            m_ejectQueued = true;
+    @Nonnull
+    public ItemStack getDiskStack() {
+        return this.getStack(0);
+    }
+
+    public void setDiskStack(@Nonnull ItemStack stack) {
+        this.setStack(0, stack);
+    }
+
+    public void unmount(IComputerAccess computer) {
+        synchronized (this) {
+            this.unmountDisk(computer);
+            this.m_computers.remove(computer);
         }
     }
 
     // private methods
 
-    private synchronized void mountDisk( IComputerAccess computer )
-    {
-        if( !m_diskStack.isEmpty() )
-        {
-            MountInfo info = m_computers.get( computer );
-            IMedia contents = getDiskMedia();
-            if( contents != null )
-            {
-                if( m_diskMount == null )
-                {
-                    m_diskMount = contents.createDataMount( m_diskStack, getWorld() );
-                }
-                if( m_diskMount != null )
-                {
-                    if( m_diskMount instanceof IWritableMount )
-                    {
-                        // Try mounting at the lowest numbered "disk" name we can
-                        int n = 1;
-                        while( info.mountPath == null )
-                        {
-                            info.mountPath = computer.mountWritable( n == 1 ? "disk" : "disk" + n, (IWritableMount) m_diskMount );
-                            n++;
-                        }
-                    }
-                    else
-                    {
-                        // Try mounting at the lowest numbered "disk" name we can
-                        int n = 1;
-                        while( info.mountPath == null )
-                        {
-                            info.mountPath = computer.mount( n == 1 ? "disk" : "disk" + n, m_diskMount );
-                            n++;
-                        }
-                    }
-                }
-                else
-                {
-                    info.mountPath = null;
-                }
-            }
-            computer.queueEvent( "disk", new Object[] { computer.getAttachmentName() } );
-        }
-    }
-
-    private synchronized void unmountDisk( IComputerAccess computer )
-    {
-        if( !m_diskStack.isEmpty() )
-        {
-            MountInfo info = m_computers.get( computer );
+    private synchronized void unmountDisk(IComputerAccess computer) {
+        if (!this.m_diskStack.isEmpty()) {
+            MountInfo info = this.m_computers.get(computer);
             assert info != null;
-            if( info.mountPath != null )
-            {
-                computer.unmount( info.mountPath );
+            if (info.mountPath != null) {
+                computer.unmount(info.mountPath);
                 info.mountPath = null;
             }
-            computer.queueEvent( "disk_eject", new Object[] { computer.getAttachmentName() } );
+            computer.queueEvent("disk_eject", new Object[] {computer.getAttachmentName()});
         }
     }
 
-    private void updateBlockState()
-    {
-        if( removed ) return;
-
-        if( !m_diskStack.isEmpty() )
-        {
-            IMedia contents = getDiskMedia();
-            updateBlockState( contents != null ? DiskDriveState.FULL : DiskDriveState.INVALID );
-        }
-        else
-        {
-            updateBlockState( DiskDriveState.EMPTY );
+    public void playDiskAudio() {
+        synchronized (this) {
+            IMedia media = this.getDiskMedia();
+            if (media != null && media.getAudioTitle(this.m_diskStack) != null) {
+                this.m_recordQueued = true;
+                this.m_restartRecord = this.m_recordPlaying;
+            }
         }
     }
 
-    private void updateBlockState( DiskDriveState state )
-    {
-        BlockState blockState = getCachedState();
-        if( blockState.get( BlockDiskDrive.STATE ) == state ) return;
-
-        getWorld().setBlockState( getPos(), blockState.with( BlockDiskDrive.STATE, state ) );
+    public void stopDiskAudio() {
+        synchronized (this) {
+            this.m_recordQueued = false;
+            this.m_restartRecord = false;
+        }
     }
 
-    private synchronized void ejectContents( boolean destroyed )
-    {
-        if( getWorld().isClient || m_diskStack.isEmpty() ) return;
+    public void ejectDisk() {
+        synchronized (this) {
+            this.m_ejectQueued = true;
+        }
+    }
+
+    private void updateBlockState() {
+        if (this.removed) {
+            return;
+        }
+
+        if (!this.m_diskStack.isEmpty()) {
+            IMedia contents = this.getDiskMedia();
+            this.updateBlockState(contents != null ? DiskDriveState.FULL : DiskDriveState.INVALID);
+        } else {
+            this.updateBlockState(DiskDriveState.EMPTY);
+        }
+    }
+
+    private void updateBlockState(DiskDriveState state) {
+        BlockState blockState = this.getCachedState();
+        if (blockState.get(BlockDiskDrive.STATE) == state) {
+            return;
+        }
+
+        this.getWorld().setBlockState(this.getPos(), blockState.with(BlockDiskDrive.STATE, state));
+    }
+
+    private synchronized void ejectContents(boolean destroyed) {
+        if (this.getWorld().isClient || this.m_diskStack.isEmpty()) {
+            return;
+        }
 
         // Remove the disks from the inventory
-        ItemStack disks = m_diskStack;
-        setDiskStack( ItemStack.EMPTY );
+        ItemStack disks = this.m_diskStack;
+        this.setDiskStack(ItemStack.EMPTY);
 
         // Spawn the item in the world
         int xOff = 0;
         int zOff = 0;
-        if( !destroyed )
-        {
-            Direction dir = getDirection();
+        if (!destroyed) {
+            Direction dir = this.getDirection();
             xOff = dir.getOffsetX();
             zOff = dir.getOffsetZ();
         }
 
-        BlockPos pos = getPos();
+        BlockPos pos = this.getPos();
         double x = pos.getX() + 0.5 + xOff * 0.5;
         double y = pos.getY() + 0.75;
         double z = pos.getZ() + 0.5 + zOff * 0.5;
-        ItemEntity entityitem = new ItemEntity( getWorld(), x, y, z, disks );
-        entityitem.setVelocity( xOff * 0.15, 0.0, zOff * 0.15 );
+        ItemEntity entityitem = new ItemEntity(this.getWorld(), x, y, z, disks);
+        entityitem.setVelocity(xOff * 0.15, 0.0, zOff * 0.15);
 
-        getWorld().spawnEntity( entityitem );
-        if( !destroyed ) getWorld().syncGlobalEvent( 1000, getPos(), 0 );
-    }
-
-    @Override
-    protected void readDescription( @Nonnull CompoundTag nbt )
-    {
-        super.readDescription( nbt );
-        customName = nbt.contains( NBT_NAME ) ? LiteralText.Serializer.fromJson( nbt.getString( NBT_NAME ) ) : null;
-        m_diskStack = nbt.contains( NBT_ITEM ) ? ItemStack.fromTag( nbt.getCompound( NBT_ITEM ) ) : ItemStack.EMPTY;
-        updateBlock();
-    }
-
-    @Override
-    protected void writeDescription( @Nonnull CompoundTag nbt )
-    {
-        super.writeDescription( nbt );
-        if( customName != null ) nbt.putString( NBT_NAME, LiteralText.Serializer.toJson( customName ) );
-        if( !m_diskStack.isEmpty() )
-        {
-            CompoundTag item = new CompoundTag();
-            m_diskStack.toTag( item );
-            nbt.put( NBT_ITEM, item );
+        this.getWorld().spawnEntity(entityitem);
+        if (!destroyed) {
+            this.getWorld().syncGlobalEvent(1000, this.getPos(), 0);
         }
     }
 
     // Private methods
 
-    private void playRecord()
-    {
-        IMedia contents = getDiskMedia();
-        SoundEvent record = contents != null ? contents.getAudio( m_diskStack ) : null;
-        if( record != null )
-        {
-            RecordUtil.playRecord( record, contents.getAudioTitle( m_diskStack ), getWorld(), getPos() );
+    private void playRecord() {
+        IMedia contents = this.getDiskMedia();
+        SoundEvent record = contents != null ? contents.getAudio(this.m_diskStack) : null;
+        if (record != null) {
+            RecordUtil.playRecord(record, contents.getAudioTitle(this.m_diskStack), this.getWorld(), this.getPos());
+        } else {
+            RecordUtil.playRecord(null, null, this.getWorld(), this.getPos());
         }
-        else
-        {
-            RecordUtil.playRecord( null, null, getWorld(), getPos() );
-        }
-    }
-
-    private void stopRecord()
-    {
-        RecordUtil.playRecord( null, null, getWorld(), getPos() );
-    }
-
-    @Override
-    public boolean hasCustomName()
-    {
-        return customName != null;
-    }
-
-    @Nullable
-    @Override
-    public Text getCustomName()
-    {
-        return customName;
     }
 
     @Nonnull
     @Override
-    public Text getName()
-    {
-        return customName != null ? customName : getCachedState().getBlock().getName();
+    public Text getName() {
+        return this.customName != null ? this.customName : this.getCachedState().getBlock()
+                                                               .getName();
+    }
+
+    @Override
+    public boolean hasCustomName() {
+        return this.customName != null;
+    }
+
+    @Nullable
+    @Override
+    public Text getCustomName() {
+        return this.customName;
+    }
+
+    private static class MountInfo {
+        String mountPath;
     }
 }

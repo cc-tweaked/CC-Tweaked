@@ -6,38 +6,37 @@
 
 package dan200.computercraft.shared.common;
 
+import javax.annotation.Nonnull;
+
 import dan200.computercraft.shared.util.InventoryUtil;
+
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.util.Hand;
 
-import javax.annotation.Nonnull;
-
-public class ContainerHeldItem extends ScreenHandler
-{
+public class ContainerHeldItem extends ScreenHandler {
     private final ItemStack m_stack;
     private final Hand m_hand;
 
-    public ContainerHeldItem( int id, PlayerEntity player, Hand hand )
-    {
-        super( null, id );
-        m_hand = hand;
-        m_stack = InventoryUtil.copyItem( player.getStackInHand( hand ) );
+    public ContainerHeldItem(int id, PlayerEntity player, Hand hand) {
+        super(null, id);
+        this.m_hand = hand;
+        this.m_stack = InventoryUtil.copyItem(player.getStackInHand(hand));
     }
 
     @Nonnull
-    public ItemStack getStack()
-    {
-        return m_stack;
+    public ItemStack getStack() {
+        return this.m_stack;
     }
 
     @Override
-    public boolean canUse( @Nonnull PlayerEntity player )
-    {
-        if( !player.isAlive() ) return false;
+    public boolean canUse(@Nonnull PlayerEntity player) {
+        if (!player.isAlive()) {
+            return false;
+        }
 
-        ItemStack stack = player.getStackInHand( m_hand );
-        return stack == m_stack || !stack.isEmpty() && !m_stack.isEmpty() && stack.getItem() == m_stack.getItem();
+        ItemStack stack = player.getStackInHand(this.m_hand);
+        return stack == this.m_stack || !stack.isEmpty() && !this.m_stack.isEmpty() && stack.getItem() == this.m_stack.getItem();
     }
 }

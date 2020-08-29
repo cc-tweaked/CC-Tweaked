@@ -6,6 +6,12 @@
 
 package dan200.computercraft;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Paths;
+import java.util.EnumSet;
+import java.util.concurrent.TimeUnit;
+
 import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.api.turtle.event.TurtleAction;
 import dan200.computercraft.client.proxy.ComputerCraftProxyClient;
@@ -33,38 +39,50 @@ import dan200.computercraft.shared.pocket.peripherals.PocketSpeaker;
 import dan200.computercraft.shared.proxy.ComputerCraftProxyCommon;
 import dan200.computercraft.shared.turtle.blocks.BlockTurtle;
 import dan200.computercraft.shared.turtle.items.ItemTurtle;
-import dan200.computercraft.shared.turtle.upgrades.*;
+import dan200.computercraft.shared.turtle.upgrades.TurtleAxe;
+import dan200.computercraft.shared.turtle.upgrades.TurtleCraftingTable;
+import dan200.computercraft.shared.turtle.upgrades.TurtleHoe;
+import dan200.computercraft.shared.turtle.upgrades.TurtleModem;
+import dan200.computercraft.shared.turtle.upgrades.TurtleShovel;
+import dan200.computercraft.shared.turtle.upgrades.TurtleSpeaker;
+import dan200.computercraft.shared.turtle.upgrades.TurtleSword;
+import dan200.computercraft.shared.turtle.upgrades.TurtleTool;
 import dan200.computercraft.shared.util.Config;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.ModInitializer;
-import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.resource.ReloadableResourceManager;
-import net.minecraft.util.Identifier;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Paths;
-import java.util.EnumSet;
-import java.util.concurrent.TimeUnit;
+import net.minecraft.resource.ReloadableResourceManager;
+import net.minecraft.util.Identifier;
 
-public final class ComputerCraft implements ModInitializer
-{
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.ModInitializer;
+import net.fabricmc.loader.api.FabricLoader;
+
+public final class ComputerCraft implements ModInitializer {
     public static final String MOD_ID = "computercraft";
 
     public static final int DATAFIXER_VERSION = 0;
 
     // Configuration options
-    public static final String[] DEFAULT_HTTP_WHITELIST = new String[] { "*" };
+    public static final String[] DEFAULT_HTTP_WHITELIST = new String[] {"*"};
     public static final String[] DEFAULT_HTTP_BLACKLIST = new String[] {
         "127.0.0.0/8",
         "10.0.0.0/8",
         "172.16.0.0/12",
         "192.168.0.0/16",
         "fd00::/8",
-    };
-
+        };
+    public static final int terminalWidth_computer = 51;
+    public static final int terminalHeight_computer = 19;
+    public static final int terminalWidth_turtle = 39;
+    public static final int terminalHeight_turtle = 13;
+    public static final int terminalWidth_pocketComputer = 26;
+    public static final int terminalHeight_pocketComputer = 20;
+    // Registries
+    public static final ClientComputerRegistry clientComputerRegistry = new ClientComputerRegistry();
+    public static final ServerComputerRegistry serverComputerRegistry = new ServerComputerRegistry();
+    // Logging
+    public static final Logger log = LogManager.getLogger(MOD_ID);
     public static int computerSpaceLimit = 1000 * 1000;
     public static int floppySpaceLimit = 125 * 1000;
     public static int maximumFilesOpen = 128;
@@ -72,49 +90,74 @@ public final class ComputerCraft implements ModInitializer
     public static String default_computer_settings = "";
     public static boolean debug_enable = true;
     public static boolean logPeripheralErrors = false;
-
     public static int computer_threads = 1;
-    public static long maxMainGlobalTime = TimeUnit.MILLISECONDS.toNanos( 10 );
-    public static long maxMainComputerTime = TimeUnit.MILLISECONDS.toNanos( 5 );
-
+    public static long maxMainGlobalTime = TimeUnit.MILLISECONDS.toNanos(10);
+    public static long maxMainComputerTime = TimeUnit.MILLISECONDS.toNanos(5);
     public static boolean http_enable = true;
     public static boolean http_websocket_enable = true;
-    public static AddressPredicate http_whitelist = new AddressPredicate( DEFAULT_HTTP_WHITELIST );
-    public static AddressPredicate http_blacklist = new AddressPredicate( DEFAULT_HTTP_BLACKLIST );
-
+    public static AddressPredicate http_whitelist = new AddressPredicate(DEFAULT_HTTP_WHITELIST);
+    public static AddressPredicate http_blacklist = new AddressPredicate(DEFAULT_HTTP_BLACKLIST);
     public static int httpTimeout = 30000;
     public static int httpMaxRequests = 16;
     public static long httpMaxDownload = 16 * 1024 * 1024;
     public static long httpMaxUpload = 4 * 1024 * 1024;
     public static int httpMaxWebsockets = 4;
     public static int httpMaxWebsocketMessage = Websocket.MAX_MESSAGE_SIZE;
-
     public static boolean enableCommandBlock = false;
     public static int modem_range = 64;
     public static int modem_highAltitudeRange = 384;
     public static int modem_rangeDuringStorm = 64;
     public static int modem_highAltitudeRangeDuringStorm = 384;
     public static int maxNotesPerTick = 8;
-
     public static boolean turtlesNeedFuel = true;
     public static int turtleFuelLimit = 20000;
     public static int advancedTurtleFuelLimit = 100000;
     public static boolean turtlesObeyBlockProtection = true;
     public static boolean turtlesCanPush = true;
-    public static EnumSet<TurtleAction> turtleDisabledActions = EnumSet.noneOf( TurtleAction.class );
+    public static EnumSet<TurtleAction> turtleDisabledActions = EnumSet.noneOf(TurtleAction.class);
+    // Implementation
+    public static ComputerCraft instance;
 
-    public static final int terminalWidth_computer = 51;
-    public static final int terminalHeight_computer = 19;
+    public ComputerCraft() {
+        instance = this;
+    }
 
-    public static final int terminalWidth_turtle = 39;
-    public static final int terminalHeight_turtle = 13;
+    public static String getVersion() {
+        return "${version}";
+    }
 
-    public static final int terminalWidth_pocketComputer = 26;
-    public static final int terminalHeight_pocketComputer = 20;
+    static IMount createResourceMount(String domain, String subPath) {
+        ReloadableResourceManager manager = ComputerCraftProxyCommon.getServer()
+                                                                    .getDataManager();
+        ResourceMount mount = new ResourceMount(domain, subPath, manager);
+        return mount.exists("") ? mount : null;
+    }
+
+    public static InputStream getResourceFile(String domain, String subPath) {
+        ReloadableResourceManager manager = ComputerCraftProxyCommon.getServer()
+                                                                    .getDataManager();
+        try {
+            return manager.getResource(new Identifier(domain, subPath))
+                          .getInputStream();
+        } catch (IOException ignored) {
+            return null;
+        }
+    }
+
+    @Override
+    public void onInitialize() {
+        Config.load(Paths.get(FabricLoader.getInstance()
+                                          .getConfigDirectory()
+                                          .getPath(), MOD_ID + ".json5"));
+        ComputerCraftProxyCommon.setup();
+        if (FabricLoader.getInstance()
+                        .getEnvironmentType() == EnvType.CLIENT) {
+            ComputerCraftProxyClient.setup();
+        }
+    }
 
     // Blocks and Items
-    public static final class Blocks
-    {
+    public static final class Blocks {
         public static BlockComputer computerNormal;
         public static BlockComputer computerAdvanced;
         public static BlockComputer computerCommand;
@@ -136,8 +179,7 @@ public final class ComputerCraft implements ModInitializer
         public static BlockCable cable;
     }
 
-    public static final class Items
-    {
+    public static final class Items {
         public static ItemComputer computerNormal;
         public static ItemComputer computerAdvanced;
         public static ItemComputer computerCommand;
@@ -159,8 +201,7 @@ public final class ComputerCraft implements ModInitializer
         public static ItemBlockCable.WiredModem wiredModem;
     }
 
-    public static final class TurtleUpgrades
-    {
+    public static final class TurtleUpgrades {
         public static TurtleModem wirelessModemNormal;
         public static TurtleModem wirelessModemAdvanced;
         public static TurtleSpeaker speaker;
@@ -173,61 +214,9 @@ public final class ComputerCraft implements ModInitializer
         public static TurtleHoe diamondHoe;
     }
 
-    public static final class PocketUpgrades
-    {
+    public static final class PocketUpgrades {
         public static PocketModem wirelessModemNormal;
         public static PocketModem wirelessModemAdvanced;
         public static PocketSpeaker speaker;
-    }
-
-    // Registries
-    public static final ClientComputerRegistry clientComputerRegistry = new ClientComputerRegistry();
-    public static final ServerComputerRegistry serverComputerRegistry = new ServerComputerRegistry();
-
-    // Logging
-    public static final Logger log = LogManager.getLogger( MOD_ID );
-
-    // Implementation
-    public static ComputerCraft instance;
-
-    public ComputerCraft()
-    {
-        instance = this;
-    }
-
-    @Override
-    public void onInitialize()
-    {
-        Config.load( Paths.get( FabricLoader.getInstance().getConfigDirectory().getPath(), MOD_ID + ".json5" ) );
-        ComputerCraftProxyCommon.setup();
-        if( FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT )
-        {
-            ComputerCraftProxyClient.setup();
-        }
-    }
-
-    public static String getVersion()
-    {
-        return "${version}";
-    }
-
-    static IMount createResourceMount( String domain, String subPath )
-    {
-        ReloadableResourceManager manager = ComputerCraftProxyCommon.getServer().getDataManager();
-        ResourceMount mount = new ResourceMount( domain, subPath, manager );
-        return mount.exists( "" ) ? mount : null;
-    }
-
-    public static InputStream getResourceFile( String domain, String subPath )
-    {
-        ReloadableResourceManager manager = ComputerCraftProxyCommon.getServer().getDataManager();
-        try
-        {
-            return manager.getResource( new Identifier( domain, subPath ) ).getInputStream();
-        }
-        catch( IOException ignored )
-        {
-            return null;
-        }
     }
 }

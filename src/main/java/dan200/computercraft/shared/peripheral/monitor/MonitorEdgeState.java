@@ -6,67 +6,63 @@
 
 package dan200.computercraft.shared.peripheral.monitor;
 
-import net.minecraft.util.StringIdentifiable;
+import static dan200.computercraft.shared.peripheral.monitor.MonitorEdgeState.Flags.DOWN;
+import static dan200.computercraft.shared.peripheral.monitor.MonitorEdgeState.Flags.LEFT;
+import static dan200.computercraft.shared.peripheral.monitor.MonitorEdgeState.Flags.RIGHT;
+import static dan200.computercraft.shared.peripheral.monitor.MonitorEdgeState.Flags.UP;
 
 import javax.annotation.Nonnull;
 
-import static dan200.computercraft.shared.peripheral.monitor.MonitorEdgeState.Flags.*;
+import net.minecraft.util.StringIdentifiable;
 
-public enum MonitorEdgeState implements StringIdentifiable
-{
-    NONE( "none", 0 ),
+public enum MonitorEdgeState implements StringIdentifiable {
+    NONE("none", 0),
 
-    L( "l", LEFT ),
-    R( "r", RIGHT ),
-    LR( "lr", LEFT | RIGHT ),
-    U( "u", UP ),
-    D( "d", DOWN ),
+    L("l", LEFT),
+    R("r", RIGHT),
+    LR("lr", LEFT | RIGHT),
+    U("u", UP),
+    D("d", DOWN),
 
-    UD( "ud", UP | DOWN ),
-    RD( "rd", RIGHT | DOWN ),
-    LD( "ld", LEFT | DOWN ),
-    RU( "ru", RIGHT | UP ),
-    LU( "lu", LEFT | UP ),
+    UD("ud", UP | DOWN),
+    RD("rd", RIGHT | DOWN),
+    LD("ld", LEFT | DOWN),
+    RU("ru", RIGHT | UP),
+    LU("lu", LEFT | UP),
 
-    LRD( "lrd", LEFT | RIGHT | DOWN ),
-    RUD( "rud", RIGHT | UP | DOWN ),
-    LUD( "lud", LEFT | UP | DOWN ),
-    LRU( "lru", LEFT | RIGHT | UP ),
-    LRUD( "lrud", LEFT | RIGHT | UP | DOWN );
-
-    private final String name;
-    private final int flags;
-
-    MonitorEdgeState( String name, int flags )
-    {
-        this.name = name;
-        this.flags = flags;
-    }
+    LRD("lrd", LEFT | RIGHT | DOWN),
+    RUD("rud", RIGHT | UP | DOWN),
+    LUD("lud", LEFT | UP | DOWN),
+    LRU("lru", LEFT | RIGHT | UP),
+    LRUD("lrud", LEFT | RIGHT | UP | DOWN);
 
     private static final MonitorEdgeState[] BY_FLAG = new MonitorEdgeState[16];
 
-    static
-    {
-        for( MonitorEdgeState state : values() )
-        {
+    static {
+        for (MonitorEdgeState state : values()) {
             BY_FLAG[state.flags] = state;
         }
     }
 
-    public static MonitorEdgeState fromConnections( boolean up, boolean down, boolean left, boolean right )
-    {
+    private final String name;
+    private final int flags;
+
+    MonitorEdgeState(String name, int flags) {
+        this.name = name;
+        this.flags = flags;
+    }
+
+    public static MonitorEdgeState fromConnections(boolean up, boolean down, boolean left, boolean right) {
         return BY_FLAG[(up ? UP : 0) | (down ? DOWN : 0) | (left ? LEFT : 0) | (right ? RIGHT : 0)];
     }
 
     @Nonnull
     @Override
-    public String asString()
-    {
-        return name;
+    public String asString() {
+        return this.name;
     }
 
-    static final class Flags
-    {
+    static final class Flags {
         static final int UP = 1 << 0;
         static final int DOWN = 1 << 1;
         static final int LEFT = 1 << 2;
