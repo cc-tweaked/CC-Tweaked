@@ -209,7 +209,7 @@ public class TurtleBrain implements ITurtleAccess {
         }
 
         // Ensure the chunk is loaded
-        if (!world.isBlockLoaded(pos)) {
+        if (!world.isChunkLoaded(pos)) {
             return false;
         }
 
@@ -239,7 +239,7 @@ public class TurtleBrain implements ITurtleAccess {
                     if (newTile instanceof TileTurtle) {
                         // Copy the old turtle state into the new turtle
                         TileTurtle newTurtle = (TileTurtle) newTile;
-                        newTurtle.setLocation(world);
+                        newTurtle.setLocation(world, pos);
                         newTurtle.setPos(pos);
                         newTurtle.transferStateFrom(oldOwner);
                         newTurtle.createServerComputer()
@@ -631,7 +631,7 @@ public class TurtleBrain implements ITurtleAccess {
                     }
 
                     Box aabb = new Box(minX, minY, minZ, maxX, maxY, maxZ);
-                    List<Entity> list = world.getEntities((Entity) null, aabb, EntityPredicates.EXCEPT_SPECTATOR);
+                    List<Entity> list = world.getOtherEntities((Entity) null, aabb, EntityPredicates.EXCEPT_SPECTATOR);
                     if (!list.isEmpty()) {
                         double pushStep = 1.0f / ANIM_DURATION;
                         double pushStepX = moveDir.getOffsetX() * pushStep;

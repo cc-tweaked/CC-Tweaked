@@ -36,7 +36,7 @@ import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 
-import net.minecraft.command.arguments.serialize.ArgumentSerializer;
+import net.minecraft.command.argument.serialize.ArgumentSerializer;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.command.ServerCommandSource;
 

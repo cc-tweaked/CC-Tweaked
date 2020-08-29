@@ -8,7 +8,7 @@ import java.util.concurrent.TimeUnit;
 import blue.endless.jankson.Comment;
 import blue.endless.jankson.Jankson;
 import blue.endless.jankson.JsonObject;
-import blue.endless.jankson.impl.SyntaxError;
+import blue.endless.jankson.api.SyntaxError;
 import com.google.common.base.CaseFormat;
 import com.google.common.base.Converter;
 import dan200.computercraft.ComputerCraft;

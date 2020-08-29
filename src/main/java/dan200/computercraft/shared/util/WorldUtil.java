@@ -11,6 +11,7 @@ import java.util.List;
 import javax.annotation.Nonnull;
 
 import com.google.common.base.Predicate;
+import net.minecraft.world.RaycastContext;
 import org.apache.commons.lang3.tuple.Pair;
 
 import net.minecraft.block.BlockState;
@@ -28,7 +29,6 @@ import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.shape.VoxelShape;
-import net.minecraft.world.RayTraceContext;
 import net.minecraft.world.World;
 
 public final class WorldUtil {
@@ -69,10 +69,10 @@ public final class WorldUtil {
 
         // Raycast for blocks
         ENTITY.updatePosition(vecStart.x, vecStart.y, vecStart.z);
-        HitResult result = world.rayTrace(new RayTraceContext(vecStart,
+        HitResult result = world.raycast(new RaycastContext(vecStart,
                                                               vecEnd,
-                                                              RayTraceContext.ShapeType.OUTLINE,
-                                                              RayTraceContext.FluidHandling.NONE,
+                                                              RaycastContext.ShapeType.OUTLINE,
+                                                              RaycastContext.FluidHandling.NONE,
                                                               ENTITY));
         if (result != null && result.getType() == HitResult.Type.BLOCK) {
             distance = vecStart.distanceTo(result.getPos());
@@ -92,7 +92,7 @@ public final class WorldUtil {
 
         Entity closest = null;
         double closestDist = 99.0;
-        List<Entity> list = world.getEntities(Entity.class, bigBox, CAN_COLLIDE);
+        List<Entity> list = world.getEntitiesByClass(Entity.class, bigBox, CAN_COLLIDE);
         for (Entity entity : list) {
             Box littleBox = entity.getBoundingBox();
 

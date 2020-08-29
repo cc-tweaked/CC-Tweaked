@@ -183,7 +183,6 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
      * @param pos The position of the neighbour
      * @param side The side we are reading from
      * @return The effective redstone power
-     * @see net.minecraft.block.RedstoneBlock#method_9991(World, BlockPos, BlockState)
      */
     protected static int getRedstoneInput(World world, BlockPos pos, Direction side) {
         int power = world.getEmittedRedstonePower(pos, side);
@@ -321,8 +320,8 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
     }
 
     @Override
-    public void fromTag(CompoundTag nbt) {
-        super.fromTag(nbt);
+    public void fromTag(BlockState state, CompoundTag nbt) {
+        super.fromTag(state, nbt);
 
         // Load ID, label and power state
         this.m_computerID = nbt.contains(NBT_ID) ? nbt.getInt(NBT_ID) : -1;

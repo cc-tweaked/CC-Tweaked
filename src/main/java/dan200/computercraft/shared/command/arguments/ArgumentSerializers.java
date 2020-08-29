@@ -9,9 +9,9 @@ package dan200.computercraft.shared.command.arguments;
 import com.mojang.brigadier.arguments.ArgumentType;
 import dan200.computercraft.ComputerCraft;
 
-import net.minecraft.command.arguments.ArgumentTypes;
-import net.minecraft.command.arguments.serialize.ArgumentSerializer;
-import net.minecraft.command.arguments.serialize.ConstantArgumentSerializer;
+import net.minecraft.command.argument.ArgumentTypes;
+import net.minecraft.command.argument.serialize.ArgumentSerializer;
+import net.minecraft.command.argument.serialize.ConstantArgumentSerializer;
 import net.minecraft.util.Identifier;
 
 public final class ArgumentSerializers {

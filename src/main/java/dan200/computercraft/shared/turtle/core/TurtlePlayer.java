@@ -43,9 +43,8 @@ public final class TurtlePlayer extends FakePlayer {
 
     private void setState(ITurtleAccess turtle) {
         BlockPos position = turtle.getPosition();
-        x = position.getX() + 0.5;
-        y = position.getY() + 0.5;
-        z = position.getZ() + 0.5;
+
+        this.pos.add(0.5, 0.5, 0.5);
 
         this.yaw = turtle.getDirection()
                          .asRotation();
@@ -102,9 +101,9 @@ public final class TurtlePlayer extends FakePlayer {
 
     @Override
     public Vec3d getCameraPosVec(float float_1) {
-        y -= this.getStandingEyeHeight();
+        this.pos.subtract(0, this.getStandingEyeHeight(), 0);
         Vec3d r = super.getCameraPosVec(float_1);
-        y += this.getStandingEyeHeight();
+        this.pos.add(0, this.getStandingEyeHeight(), 0);
         return r;
     }
 }

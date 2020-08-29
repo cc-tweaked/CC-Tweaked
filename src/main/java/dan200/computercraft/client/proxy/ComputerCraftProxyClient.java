@@ -32,12 +32,12 @@ import dan200.computercraft.shared.peripheral.monitor.TileMonitor;
 import dan200.computercraft.shared.turtle.blocks.TileTurtle;
 import dan200.computercraft.shared.turtle.inventory.ContainerTurtle;
 
+import net.fabricmc.fabric.api.client.rendereregistry.v1.BlockEntityRendererRegistry;
 import net.minecraft.client.texture.SpriteAtlasTexture;
 import net.minecraft.inventory.SimpleInventory;
 import net.minecraft.screen.ArrayPropertyDelegate;
 
 import net.fabricmc.fabric.api.client.model.ModelLoadingRegistry;
-import net.fabricmc.fabric.api.client.render.BlockEntityRendererRegistry;
 import net.fabricmc.fabric.api.event.client.ClientSpriteRegistryCallback;
 import net.fabricmc.fabric.api.event.client.ClientTickCallback;
 
