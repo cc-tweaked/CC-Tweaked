@@ -20,6 +20,7 @@ repositories {
 }
 
 minecraft {
+    accessWidener = file("src/main/resources/computercraft.accesswidener")
 }
 
 configurations {

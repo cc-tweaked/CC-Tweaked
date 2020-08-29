@@ -20,6 +20,8 @@ import dan200.computercraft.shared.computer.core.ClientComputer;
 import dan200.computercraft.shared.computer.core.IComputer;
 import dan200.computercraft.shared.util.Colour;
 import dan200.computercraft.shared.util.Palette;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.opengl.GL11;
 
@@ -30,6 +32,7 @@ import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.client.render.Tessellator;
 import net.minecraft.client.render.VertexFormats;
 
+@Environment(EnvType.CLIENT)
 public class WidgetTerminal implements Element {
     private static final float TERMINATE_TIME = 0.5f;
 
@@ -410,16 +413,16 @@ public class WidgetTerminal implements Element {
                     BufferBuilder buffer = tesslector.getBuffer();
                     buffer.begin(GL11.GL_QUADS, VertexFormats.POSITION_TEXTURE);
                     buffer.vertex(x, y + height, 0)
-                          .texture(0 / 256.0, height / 256.0)
+                          .texture(0 / 256.0f, height / 256.0f)
                           .next();
                     buffer.vertex(x + width, y + height, 0)
-                          .texture(width / 256.0, height / 256.0)
+                          .texture(width / 256.0f, height / 256.f)
                           .next();
                     buffer.vertex(x + width, y, 0)
-                          .texture(width / 256.0, 0 / 256.0)
+                          .texture(width / 256.0f, 0 / 256.0f)
                           .next();
                     buffer.vertex(x, y, 0)
-                          .texture(0 / 256.0, 0 / 256.0)
+                          .texture(0 / 256.0f, 0 / 256.0f)
                           .next();
                     tesslector.draw();
                 } finally {

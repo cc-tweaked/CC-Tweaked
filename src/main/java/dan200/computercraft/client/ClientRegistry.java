@@ -15,6 +15,8 @@ import dan200.computercraft.shared.media.items.ItemDisk;
 import dan200.computercraft.shared.pocket.items.ItemPocketComputer;
 import dan200.computercraft.shared.util.Colour;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.model.BakedModel;
 import net.minecraft.client.render.model.ModelLoader;
@@ -31,6 +33,7 @@ import net.fabricmc.fabric.api.event.client.ClientSpriteRegistryCallback;
 /**
  * Registers textures and models for items.
  */
+@Environment(EnvType.CLIENT)
 public final class ClientRegistry {
     private static final String[] EXTRA_MODELS = new String[] {
         "turtle_modem_normal_off_left",
@@ -104,6 +107,7 @@ public final class ClientRegistry {
         model.getTextureDependencies(loader::getOrLoadModel, new HashSet<>());
         SpriteAtlasTexture sprite = MinecraftClient.getInstance()
                                                    .getSpriteAtlas();
-        return model.bake(loader, sprite::getSprite, ModelRotation.X0_Y0);
+        return model.bake(loader, spriteIdentifier -> MinecraftClient.getInstance()
+            .getSpriteAtlas(spriteIdentifier.getAtlasId()).apply(spriteIdentifier.getTextureId()), ModelRotation.X0_Y0);
     }
 }

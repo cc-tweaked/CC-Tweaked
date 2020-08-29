@@ -6,12 +6,7 @@
 
 package dan200.computercraft.shared.command.text;
 
-import net.minecraft.text.ClickEvent;
-import net.minecraft.text.HoverEvent;
-import net.minecraft.text.LiteralText;
-import net.minecraft.text.Style;
-import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
+import net.minecraft.text.*;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
 
@@ -28,7 +23,7 @@ public final class ChatHelpers {
     }
 
     public static Text list(Text... children) {
-        Text component = new LiteralText("");
+        MutableText component = new LiteralText("");
         for (Text child : children) {
             component.append(child);
         }
@@ -68,7 +63,7 @@ public final class ChatHelpers {
             style.withColor(Formatting.YELLOW);
         }
         style.withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, command));
-        style.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, toolTip));
+        style.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, toolTip));
 
         return component;
     }

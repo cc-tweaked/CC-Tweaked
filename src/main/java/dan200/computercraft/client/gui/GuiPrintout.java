@@ -16,6 +16,7 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import dan200.computercraft.core.terminal.TextBuffer;
 import dan200.computercraft.shared.common.ContainerHeldItem;
 import dan200.computercraft.shared.media.items.ItemPrintout;
+import net.minecraft.client.util.math.MatrixStack;
 import org.lwjgl.glfw.GLFW;
 
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
@@ -102,23 +103,23 @@ public class GuiPrintout extends HandledScreen<ContainerHeldItem> {
     }
 
     @Override
-    public void drawBackground(float partialTicks, int mouseX, int mouseY) {
+    public void drawBackground(MatrixStack stack, float partialTicks, int mouseX, int mouseY) {
         // Draw the printout
         GlStateManager.color4f(1.0f, 1.0f, 1.0f, 1.0f);
         GlStateManager.enableDepthTest();
 
-        drawBorder(this.x, this.y, blitOffset, this.m_page, this.m_pages, this.m_book);
+        drawBorder(this.x, this.y, getZOffset(), this.m_page, this.m_pages, this.m_book);
         drawText(this.x + X_TEXT_MARGIN, this.y + Y_TEXT_MARGIN, ItemPrintout.LINES_PER_PAGE * this.m_page, this.m_text, this.m_colours);
     }
 
     @Override
-    public void render(int mouseX, int mouseY, float partialTicks) {
+    public void render(MatrixStack stack, int mouseX, int mouseY, float partialTicks) {
         // We must take the background further back in order to not overlap with our printed pages.
-        blitOffset--;
-        renderBackground();
-        blitOffset++;
+        setZOffset(getZOffset() - 1);
+        renderBackground(stack);
+        setZOffset(getZOffset() + 1);
 
-        super.render(mouseX, mouseY, partialTicks);
-        this.drawMouseoverTooltip(mouseX, mouseY);
+        super.render(stack, mouseX, mouseY, partialTicks);
+        this.drawMouseoverTooltip(stack, mouseX, mouseY);
     }
 }

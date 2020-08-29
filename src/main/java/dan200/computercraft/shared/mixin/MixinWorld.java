@@ -39,7 +39,7 @@ public class MixinWorld {
 
     private static void setWorld(BlockEntity entity, Object world) {
         if (entity.getWorld() != world && entity instanceof TileGeneric) {
-            entity.setLocation((World) world);
+            entity.setLocation((World) world, entity.getPos());
         }
     }
 

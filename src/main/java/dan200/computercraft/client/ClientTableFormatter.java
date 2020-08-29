@@ -14,6 +14,9 @@ import dan200.computercraft.shared.command.text.ChatHelpers;
 import dan200.computercraft.shared.command.text.TableBuilder;
 import dan200.computercraft.shared.command.text.TableFormatter;
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.minecraft.text.OrderedText;
 import org.apache.commons.lang3.StringUtils;
 
 import net.minecraft.client.MinecraftClient;
@@ -24,6 +27,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.math.MathHelper;
 
+@Environment(EnvType.CLIENT)
 public class ClientTableFormatter implements TableFormatter {
     public static final ClientTableFormatter INSTANCE = new ClientTableFormatter();
 
@@ -39,7 +43,7 @@ public class ClientTableFormatter implements TableFormatter {
 
         TextRenderer renderer = renderer();
 
-        float spaceWidth = renderer.getCharWidth(' ');
+        float spaceWidth = renderer.getWidth(" ");
         int spaces = MathHelper.floor(extraWidth / spaceWidth);
         int extra = extraWidth - (int) (spaces * spaceWidth);
 
@@ -57,7 +61,7 @@ public class ClientTableFormatter implements TableFormatter {
 
     @Override
     public int getWidth(Text component) {
-        return renderer().getWidth(component.asFormattedString());
+        return renderer().getWidth(component.asString());
     }
 
     @Override
@@ -67,9 +71,9 @@ public class ClientTableFormatter implements TableFormatter {
 
         // Trim the text if it goes over the allowed length
         int maxWidth = MathHelper.floor(chat.getWidth() / chat.getChatScale());
-        List<Text> list = ChatMessages.breakRenderedChatMessageLines(component, maxWidth, mc.textRenderer, false, false);
+        List<OrderedText> list = ChatMessages.breakRenderedChatMessageLines(component, maxWidth, mc.textRenderer);
         if (!list.isEmpty()) {
-            chat.addMessage(list.get(0), id);
+            chat.addMessage((Text) list.get(0), id);
         }
     }
 
