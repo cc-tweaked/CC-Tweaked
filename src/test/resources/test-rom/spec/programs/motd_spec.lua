@@ -8,7 +8,7 @@ describe("The motd program", function()
             run = os.run,
             queueEvent = os.queueEvent,
             pullEvent = os.pullEvent,
-            startTimer = os.startTimer
+            startTimer = os.startTimer,
         })
     end
 
