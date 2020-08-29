@@ -3,7 +3,7 @@ local capture = require "test_helpers".capture_program
 describe("The motd program", function()
         
     local function setup_date(month, day)
-        stub(_G, "os", { date = function() return { month = month, day = day } end })
+        os.date = function() return { month = month, day = day } end
     end
 
     it("displays MOTD", function()
