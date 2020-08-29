@@ -19,7 +19,7 @@ import io.netty.util.concurrent.GenericFutureListener;
 
 import net.minecraft.block.entity.CommandBlockBlockEntity;
 import net.minecraft.block.entity.SignBlockEntity;
-import net.minecraft.command.arguments.EntityAnchorArgumentType;
+import net.minecraft.command.argument.EntityAnchorArgumentType;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.effect.StatusEffectInstance;
@@ -139,7 +139,7 @@ public class FakePlayer extends ServerPlayerEntity {
     protected void consumeItem() { }
 
     @Override
-    public void lookAt(EntityAnchorArgumentType.EntityAnchor anchor, Vec3d vec3d) { }
+    public void lookAt(EntityAnchorArgumentType.EntityAnchor anchor, Vec3d vec3d) {}
 
     @Override
     public void method_14222(EntityAnchorArgumentType.EntityAnchor self, Entity entity, EntityAnchorArgumentType.EntityAnchor target) { }

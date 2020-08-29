@@ -173,8 +173,8 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
     }
 
     @Override
-    public void fromTag(CompoundTag nbt) {
-        super.fromTag(nbt);
+    public void fromTag(BlockState state, CompoundTag nbt) {
+        super.fromTag(state, nbt);
 
         this.customName = nbt.contains(NBT_NAME) ? LiteralText.Serializer.fromJson(nbt.getString(NBT_NAME)) : null;
 
@@ -492,6 +492,8 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
     @Nonnull
     @Override
     public Text getName() {
+        // todo possible crash problem
+        //noinspection MethodCallSideOnly
         return this.customName != null ? this.customName : this.getCachedState().getBlock()
                                                                .getName();
     }

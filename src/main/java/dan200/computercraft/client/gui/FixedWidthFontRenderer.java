@@ -9,190 +9,319 @@ package dan200.computercraft.client.gui;
 import java.util.Arrays;
 
 import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
+import dan200.computercraft.client.FrameInfo;
+import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.core.terminal.TextBuffer;
+import dan200.computercraft.shared.util.Colour;
 import dan200.computercraft.shared.util.Palette;
 import org.lwjgl.opengl.GL11;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.BufferBuilder;
+import net.minecraft.client.render.RenderLayer;
+import net.minecraft.client.render.RenderPhase;
 import net.minecraft.client.render.Tessellator;
+import net.minecraft.client.render.VertexConsumer;
+import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.client.render.VertexFormat;
 import net.minecraft.client.render.VertexFormats;
 import net.minecraft.client.texture.TextureManager;
+import net.minecraft.client.util.math.AffineTransformation;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.Matrix4f;
 
+@SuppressWarnings ({
+    "MethodCallSideOnly",
+    "LocalVariableDeclarationSideOnly",
+    "VariableUseSideOnly"
+})
 public final class FixedWidthFontRenderer {
-    public static final Identifier BACKGROUND = new Identifier("computercraft", "textures/gui/term_background.png");
+    private static final Matrix4f IDENTITY = AffineTransformation.identity().getMatrix();
+
+    private static final Identifier FONT = new Identifier( "computercraft", "textures/gui/term_font.png" );
+
     public static final int FONT_HEIGHT = 9;
     public static final int FONT_WIDTH = 6;
-    private static final Identifier FONT = new Identifier("computercraft", "textures/gui/term_font.png");
-    private static FixedWidthFontRenderer instance;
-    private final TextureManager m_textureManager;
+    public static final float WIDTH = 256.0f;
 
-    private FixedWidthFontRenderer() {
-        this.m_textureManager = MinecraftClient.getInstance()
-                                               .getTextureManager();
+    public static final float BACKGROUND_START = (WIDTH - 6.0f) / WIDTH;
+    public static final float BACKGROUND_END = (WIDTH - 4.0f) / WIDTH;
+
+    public static final RenderLayer TYPE = Type.MAIN;
+
+    private FixedWidthFontRenderer()
+    {
     }
 
-    public static FixedWidthFontRenderer instance() {
-        if (instance != null) {
-            return instance;
-        }
-        return instance = new FixedWidthFontRenderer();
+    public static float toGreyscale( double[] rgb )
+    {
+        return (float) ((rgb[0] + rgb[1] + rgb[2]) / 3);
     }
 
-    public void drawString(TextBuffer s, int x, int y, TextBuffer textColour, TextBuffer backgroundColour, double leftMarginSize, double rightMarginSize,
-                           boolean greyScale, Palette p) {
-        // Draw background
-        if (backgroundColour != null) {
-            // Bind the background texture
-            this.m_textureManager.bindTextureInner(BACKGROUND);
-
-            // Draw the quads
-            this.drawStringBackgroundPart(x, y, backgroundColour, leftMarginSize, rightMarginSize, greyScale, p);
-        }
-
-        // Draw text
-        if (s != null && textColour != null) {
-            // Bind the font texture
-            this.bindFont();
-
-            // Draw the quads
-            this.drawStringTextPart(x, y, s, textColour, greyScale, p);
-        }
+    public static int getColour( char c, Colour def )
+    {
+        return 15 - Terminal.getColour(c, def );
     }
 
-    public void drawStringBackgroundPart(int x, int y, TextBuffer backgroundColour, double leftMarginSize, double rightMarginSize, boolean greyScale,
-                                         Palette p) {
-        // Draw the quads
-        Tessellator tessellator = Tessellator.getInstance();
-        BufferBuilder renderer = tessellator.getBuffer();
-        renderer.begin(GL11.GL_TRIANGLES, VertexFormats.POSITION_COLOR);
-        if (leftMarginSize > 0.0) {
-            int colour1 = "0123456789abcdef".indexOf(backgroundColour.charAt(0));
-            if (colour1 < 0 || (greyScale && !this.isGreyScale(colour1))) {
-                colour1 = 15;
+    private static void drawQuad(Matrix4f transform, VertexConsumer buffer, float x, float y, float width, float height, float r, float g, float b )
+    {
+        buffer.vertex( transform, x, y, 0 ).color( r, g, b, 1.0f ).texture( BACKGROUND_START, BACKGROUND_START ).next();
+        buffer.vertex( transform, x, y + height, 0 ).color( r, g, b, 1.0f ).texture( BACKGROUND_START, BACKGROUND_END ).next();
+        buffer.vertex( transform, x + width, y, 0 ).color( r, g, b, 1.0f ).texture( BACKGROUND_END, BACKGROUND_START ).next();
+        buffer.vertex( transform, x + width, y, 0 ).color( r, g, b, 1.0f ).texture( BACKGROUND_END, BACKGROUND_START ).next();
+        buffer.vertex( transform, x, y + height, 0 ).color( r, g, b, 1.0f ).texture( BACKGROUND_START, BACKGROUND_END ).next();
+        buffer.vertex( transform, x + width, y + height, 0 ).color( r, g, b, 1.0f ).texture( BACKGROUND_END, BACKGROUND_END ).next();
+    }
+
+    private static void drawQuad( Matrix4f transform, VertexConsumer buffer, float x, float y, float width, float height, Palette palette, boolean greyscale, char colourIndex )
+    {
+        double[] colour = palette.getColour( getColour( colourIndex, Colour.Black ) );
+        float r, g, b;
+        if( greyscale )
+        {
+            r = g = b = toGreyscale( colour );
+        }
+        else
+        {
+            r = (float) colour[0];
+            g = (float) colour[1];
+            b = (float) colour[2];
+        }
+
+        drawQuad( transform, buffer, x, y, width, height, r, g, b );
+    }
+
+    private static void drawBackground(
+        Matrix4f transform, VertexConsumer renderer, float x, float y,
+        TextBuffer backgroundColour, Palette palette, boolean greyscale,
+        float leftMarginSize, float rightMarginSize, float height
+    )
+    {
+        if( leftMarginSize > 0 )
+        {
+            drawQuad( transform, renderer, x - leftMarginSize, y, leftMarginSize, height, palette, greyscale, backgroundColour.charAt( 0 ) );
+        }
+
+        if( rightMarginSize > 0 )
+        {
+            drawQuad( transform, renderer, x + backgroundColour.length() * FONT_WIDTH, y, rightMarginSize, height, palette, greyscale, backgroundColour.charAt( backgroundColour.length() - 1 ) );
+        }
+
+        // Batch together runs of identical background cells.
+        int blockStart = 0;
+        char blockColour = '\0';
+        for( int i = 0; i < backgroundColour.length(); i++ )
+        {
+            char colourIndex = backgroundColour.charAt( i );
+            if( colourIndex == blockColour ) continue;
+
+            if( blockColour != '\0' )
+            {
+                drawQuad( transform, renderer, x + blockStart * FONT_WIDTH, y, FONT_WIDTH * (i - blockStart), height, palette, greyscale, blockColour );
             }
-            this.drawQuad(renderer, x - leftMarginSize, y, colour1, leftMarginSize, p, greyScale);
+
+            blockColour = colourIndex;
+            blockStart = i;
         }
-        if (rightMarginSize > 0.0) {
-            int colour2 = "0123456789abcdef".indexOf(backgroundColour.charAt(backgroundColour.length() - 1));
-            if (colour2 < 0 || (greyScale && !this.isGreyScale(colour2))) {
-                colour2 = 15;
-            }
-            this.drawQuad(renderer, x + backgroundColour.length() * FONT_WIDTH, y, colour2, rightMarginSize, p, greyScale);
+
+        if( blockColour != '\0' )
+        {
+            drawQuad( transform, renderer, x + blockStart * FONT_WIDTH, y, FONT_WIDTH * (backgroundColour.length() - blockStart), height, palette, greyscale, blockColour );
         }
-        for (int i = 0; i < backgroundColour.length(); i++) {
-            int colour = "0123456789abcdef".indexOf(backgroundColour.charAt(i));
-            if (colour < 0 || (greyScale && !this.isGreyScale(colour))) {
-                colour = 15;
-            }
-            this.drawQuad(renderer, x + i * FONT_WIDTH, y, colour, FONT_WIDTH, p, greyScale);
-        }
-        GlStateManager.disableTexture();
-        tessellator.draw();
-        GlStateManager.enableTexture();
     }
 
-    public void bindFont() {
-        this.m_textureManager.bindTextureInner(FONT);
-        GlStateManager.texParameter(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL11.GL_CLAMP);
-    }
+    public static void drawString(
+         Matrix4f transform, VertexConsumer renderer, float x, float y,
+         TextBuffer text,  TextBuffer textColour, TextBuffer backgroundColour,
+         Palette palette, boolean greyscale, float leftMarginSize, float rightMarginSize
+    )
+    {
+        if( backgroundColour != null )
+        {
+            drawBackground( transform, renderer, x, y, backgroundColour, palette, greyscale, leftMarginSize, rightMarginSize, FONT_HEIGHT );
+        }
 
-    public void drawStringTextPart(int x, int y, TextBuffer s, TextBuffer textColour, boolean greyScale, Palette p) {
-        // Draw the quads
-        Tessellator tessellator = Tessellator.getInstance();
-        BufferBuilder renderer = tessellator.getBuffer();
-        renderer.begin(GL11.GL_TRIANGLES, VertexFormats.POSITION_TEXTURE_COLOR);
-        for (int i = 0; i < s.length(); i++) {
-            // Switch colour
-            int colour = "0123456789abcdef".indexOf(textColour.charAt(i));
-            if (colour < 0 || (greyScale && !this.isGreyScale(colour))) {
-                colour = 0;
+        for( int i = 0; i < text.length(); i++ )
+        {
+            double[] colour = palette.getColour( getColour( textColour.charAt( i ), Colour.Black ) );
+            float r, g, b;
+            if( greyscale )
+            {
+                r = g = b = toGreyscale( colour );
+            }
+            else
+            {
+                r = (float) colour[0];
+                g = (float) colour[1];
+                b = (float) colour[2];
             }
 
             // Draw char
-            int index = s.charAt(i);
-            if (index < 0 || index > 255) {
-                index = '?';
+            int index = text.charAt( i );
+            if( index > 255 ) index = '?';
+            drawChar( transform, renderer, x + i * FONT_WIDTH, y, index, r, g, b );
+        }
+
+    }
+
+    public static void drawString(
+        float x, float y,  TextBuffer text,  TextBuffer textColour, TextBuffer backgroundColour,
+         Palette palette, boolean greyscale, float leftMarginSize, float rightMarginSize
+    )
+    {
+        bindFont();
+
+        VertexConsumerProvider.Immediate renderer = MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers();
+        drawString( IDENTITY, ((VertexConsumerProvider) renderer).getBuffer( TYPE ), x, y, text, textColour, backgroundColour, palette, greyscale, leftMarginSize, rightMarginSize );
+        renderer.draw();
+    }
+
+    public static void drawTerminalWithoutCursor(
+         Matrix4f transform,  VertexConsumer buffer, float x, float y,
+         Terminal terminal, boolean greyscale,
+        float topMarginSize, float bottomMarginSize, float leftMarginSize, float rightMarginSize
+    )
+    {
+        Palette palette = terminal.getPalette();
+        int height = terminal.getHeight();
+
+        // Top and bottom margins
+        drawBackground(
+            transform, buffer, x, y - topMarginSize,
+            terminal.getBackgroundColourLine( 0 ), palette, greyscale,
+            leftMarginSize, rightMarginSize, topMarginSize
+        );
+
+        drawBackground(
+            transform, buffer, x, y + height * FONT_HEIGHT,
+            terminal.getBackgroundColourLine( height - 1 ), palette, greyscale,
+            leftMarginSize, rightMarginSize, bottomMarginSize
+        );
+
+        // The main text
+        for( int i = 0; i < height; i++ )
+        {
+            drawString(
+                transform, buffer, x, y + FixedWidthFontRenderer.FONT_HEIGHT * i,
+                terminal.getLine( i ), terminal.getTextColourLine( i ), terminal.getBackgroundColourLine( i ),
+                palette, greyscale, leftMarginSize, rightMarginSize
+            );
+        }
+    }
+
+    public static void drawCursor(
+         Matrix4f transform,  VertexConsumer buffer, float x, float y,
+         Terminal terminal, boolean greyscale
+    )
+    {
+        Palette palette = terminal.getPalette();
+        int width = terminal.getWidth();
+        int height = terminal.getHeight();
+
+        int cursorX = terminal.getCursorX();
+        int cursorY = terminal.getCursorY();
+        if(terminal.getCursorBlink() && cursorX >= 0 && cursorX < width && cursorY >= 0 && cursorY < height && FrameInfo.getGlobalCursorBlink() )
+        {
+            double[] colour = palette.getColour( 15 - terminal.getTextColour() );
+            float r, g, b;
+            if( greyscale )
+            {
+                r = g = b = toGreyscale( colour );
             }
-            this.drawChar(renderer, x + i * FONT_WIDTH, y, index, colour, p, greyScale);
+            else
+            {
+                r = (float) colour[0];
+                g = (float) colour[1];
+                b = (float) colour[2];
+            }
+
+            drawChar( transform, buffer, x + cursorX * FONT_WIDTH, y + cursorY * FONT_HEIGHT, '_', r, g, b );
         }
-        tessellator.draw();
     }
 
-    private boolean isGreyScale(int colour) {
-        return colour == 0 || colour == 15 || colour == 7 || colour == 8;
+    public static void drawTerminal(
+         Matrix4f transform,  VertexConsumer buffer, float x, float y,
+         Terminal terminal, boolean greyscale,
+        float topMarginSize, float bottomMarginSize, float leftMarginSize, float rightMarginSize
+    )
+    {
+        drawTerminalWithoutCursor( transform, buffer, x, y, terminal, greyscale, topMarginSize, bottomMarginSize, leftMarginSize, rightMarginSize );
+        drawCursor( transform, buffer, x, y, terminal, greyscale );
     }
 
-    private void drawQuad(BufferBuilder renderer, double x, double y, int color, double width, Palette p, boolean greyscale) {
-        double[] colour = p.getColour(15 - color);
-        if (greyscale) {
-            greyscaleify(colour);
-        }
-        float r = (float) colour[0];
-        float g = (float) colour[1];
-        float b = (float) colour[2];
+    public static void drawTerminal(
+         Matrix4f transform, float x, float y,  Terminal terminal, boolean greyscale,
+        float topMarginSize, float bottomMarginSize, float leftMarginSize, float rightMarginSize
+    )
+    {
+        bindFont();
 
-        renderer.vertex(x, y, 0.0)
-                .color(r, g, b, 1.0f)
-                .next();
-        renderer.vertex(x, y + FONT_HEIGHT, 0.0)
-                .color(r, g, b, 1.0f)
-                .next();
-        renderer.vertex(x + width, y, 0.0)
-                .color(r, g, b, 1.0f)
-                .next();
-        renderer.vertex(x + width, y, 0.0)
-                .color(r, g, b, 1.0f)
-                .next();
-        renderer.vertex(x, y + FONT_HEIGHT, 0.0)
-                .color(r, g, b, 1.0f)
-                .next();
-        renderer.vertex(x + width, y + FONT_HEIGHT, 0.0)
-                .color(r, g, b, 1.0f)
-                .next();
+        VertexConsumerProvider.Immediate renderer = MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers();
+        VertexConsumer buffer = renderer.getBuffer( TYPE );
+        drawTerminal( transform, buffer, x, y, terminal, greyscale, topMarginSize, bottomMarginSize, leftMarginSize, rightMarginSize );
+        renderer.draw( TYPE );
     }
 
-    private void drawChar(BufferBuilder renderer, double x, double y, int index, int color, Palette p, boolean greyscale) {
+    public static void drawTerminal(
+        float x, float y,  Terminal terminal, boolean greyscale,
+        float topMarginSize, float bottomMarginSize, float leftMarginSize, float rightMarginSize
+    )
+    {
+        drawTerminal( IDENTITY, x, y, terminal, greyscale, topMarginSize, bottomMarginSize, leftMarginSize, rightMarginSize );
+    }
+
+    public static void drawEmptyTerminal(  Matrix4f transform,  VertexConsumerProvider renderer, float x, float y, float width, float height )
+    {
+        Colour colour = Colour.Black;
+        drawQuad( transform, renderer.getBuffer( TYPE ), x, y, width, height, colour.getR(), colour.getG(), colour.getB() );
+    }
+
+    public static void drawEmptyTerminal(  Matrix4f transform, float x, float y, float width, float height )
+    {
+        bindFont();
+
+        VertexConsumerProvider.Immediate renderer = MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers();
+        drawEmptyTerminal( transform, renderer, x, y, width, height );
+        renderer.draw();
+    }
+
+    public static void drawEmptyTerminal( float x, float y, float width, float height )
+    {
+        drawEmptyTerminal( IDENTITY, x, y, width, height );
+    }
+
+    public static void drawBlocker(  Matrix4f transform,  VertexConsumerProvider renderer, float x, float y, float width, float height )
+    {
+        Colour colour = Colour.Black;
+        drawQuad( transform, renderer.getBuffer( Type.BLOCKER ), x, y, width, height, colour.getR(), colour.getG(), colour.getB() );
+    }
+
+    private static void bindFont()
+    {
+        MinecraftClient.getInstance().getTextureManager().bindTexture( FONT );
+        RenderSystem.texParameter(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL11.GL_CLAMP );
+    }
+
+    private static void drawChar( Matrix4f transform, VertexConsumer buffer, float x, float y, int index, float r, float g, float b )
+    {
+        // Short circuit to avoid the common case - the texture should be blank here after all.
+        if( index == '\0' || index == ' ' ) return;
+
         int column = index % 16;
         int row = index / 16;
-
-        double[] colour = p.getColour(15 - color);
-        if (greyscale) {
-            greyscaleify(colour);
-        }
-        float r = (float) colour[0];
-        float g = (float) colour[1];
-        float b = (float) colour[2];
 
         int xStart = 1 + column * (FONT_WIDTH + 2);
         int yStart = 1 + row * (FONT_HEIGHT + 2);
 
-        renderer.vertex(x, y, 0.0)
-                .texture(xStart / 256.0, yStart / 256.0)
-                .color(r, g, b, 1.0f)
-                .next();
-        renderer.vertex(x, y + FONT_HEIGHT, 0.0)
-                .texture(xStart / 256.0, (yStart + FONT_HEIGHT) / 256.0)
-                .color(r, g, b, 1.0f)
-                .next();
-        renderer.vertex(x + FONT_WIDTH, y, 0.0)
-                .texture((xStart + FONT_WIDTH) / 256.0, yStart / 256.0)
-                .color(r, g, b, 1.0f)
-                .next();
-        renderer.vertex(x + FONT_WIDTH, y, 0.0)
-                .texture((xStart + FONT_WIDTH) / 256.0, yStart / 256.0)
-                .color(r, g, b, 1.0f)
-                .next();
-        renderer.vertex(x, y + FONT_HEIGHT, 0.0)
-                .texture(xStart / 256.0, (yStart + FONT_HEIGHT) / 256.0)
-                .color(r, g, b, 1.0f)
-                .next();
-        renderer.vertex(x + FONT_WIDTH, y + FONT_HEIGHT, 0.0)
-                .texture((xStart + FONT_WIDTH) / 256.0, (yStart + FONT_HEIGHT) / 256.0)
-                .color(r, g, b, 1.0f)
-                .next();
+        buffer.vertex( transform, x, y, 0f ).color( r, g, b, 1.0f ).texture( xStart / WIDTH, yStart / WIDTH ).next();
+        buffer.vertex( transform, x, y + FONT_HEIGHT, 0f ).color( r, g, b, 1.0f ).texture( xStart / WIDTH, (yStart + FONT_HEIGHT) / WIDTH ).next();
+        buffer.vertex( transform, x + FONT_WIDTH, y, 0f ).color( r, g, b, 1.0f ).texture( (xStart + FONT_WIDTH) / WIDTH, yStart / WIDTH ).next();
+        buffer.vertex( transform, x + FONT_WIDTH, y, 0f ).color( r, g, b, 1.0f ).texture( (xStart + FONT_WIDTH) / WIDTH, yStart / WIDTH ).next();
+        buffer.vertex( transform, x, y + FONT_HEIGHT, 0f ).color( r, g, b, 1.0f ).texture( xStart / WIDTH, (yStart + FONT_HEIGHT) / WIDTH ).next();
+        buffer.vertex( transform, x + FONT_WIDTH, y + FONT_HEIGHT, 0f ).color( r, g, b, 1.0f ).texture( (xStart + FONT_WIDTH) / WIDTH, (yStart + FONT_HEIGHT) / WIDTH ).next();
     }
+
 
     private static void greyscaleify(double[] rgb) {
         Arrays.fill(rgb, (rgb[0] + rgb[1] + rgb[2]) / 3.0f);
@@ -203,5 +332,40 @@ public final class FixedWidthFontRenderer {
             return 0;
         }
         return s.length() * FONT_WIDTH;
+    }
+
+    private static final class Type extends RenderPhase
+    {
+        private static final int GL_MODE = GL11.GL_TRIANGLES;
+
+        private static final VertexFormat FORMAT = VertexFormats.POSITION_COLOR_TEXTURE;
+
+        static final RenderLayer MAIN = RenderLayer.of(
+            "terminal_font", FORMAT, GL_MODE, 1024,
+            false, false, // useDelegate, needsSorting
+            RenderLayer.MultiPhaseParameters.builder()
+                                            .texture( new Texture(FONT, false, false ) ) // blur, minimap
+                                            .alpha( ONE_TENTH_ALPHA )
+                                            .lightmap( DISABLE_LIGHTMAP )
+                                            .writeMaskState( COLOR_MASK )
+                                            .build( false )
+        );
+
+        static final RenderLayer BLOCKER = RenderLayer.of(
+            "terminal_blocker", FORMAT, GL_MODE, 256,
+            false, false, // useDelegate, needsSorting
+            RenderLayer.MultiPhaseParameters.builder()
+                            .texture( new Texture(FONT, false, false ) ) // blur, minimap
+                            .alpha( ONE_TENTH_ALPHA )
+                            .writeMaskState( DEPTH_MASK )
+                            .lightmap( DISABLE_LIGHTMAP )
+                            .build( false )
+        );
+
+        private Type( String name, Runnable setup, Runnable destroy )
+        {
+            super( name, setup, destroy );
+        }
+
     }
 }

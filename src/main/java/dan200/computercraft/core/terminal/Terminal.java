@@ -6,6 +6,7 @@
 
 package dan200.computercraft.core.terminal;
 
+import dan200.computercraft.shared.util.Colour;
 import dan200.computercraft.shared.util.Palette;
 
 import net.minecraft.nbt.CompoundTag;
@@ -320,5 +321,12 @@ public class Terminal {
             this.m_palette.readFromNBT(nbt);
         }
         this.setChanged();
+    }
+
+    public static int getColour( char c, Colour def )
+    {
+        if( c >= '0' && c <= '9' ) return c - '0';
+        if( c >= 'a' && c <= 'f' ) return c - 'a' + 10;
+        return 15 - def.ordinal();
     }
 }

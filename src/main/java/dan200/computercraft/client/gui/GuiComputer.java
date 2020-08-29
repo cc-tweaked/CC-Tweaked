@@ -25,6 +25,7 @@ import net.minecraft.text.LiteralText;
 import net.minecraft.util.Identifier;
 
 public class GuiComputer<T extends ScreenHandler> extends HandledScreen<T> {
+    private static final MinecraftClient MINECRAFT = MinecraftClient.getInstance();
     public static final Identifier BACKGROUND_NORMAL = new Identifier(ComputerCraft.MOD_ID, "textures/gui/corners_normal.png");
     public static final Identifier BACKGROUND_ADVANCED = new Identifier(ComputerCraft.MOD_ID, "textures/gui/corners_advanced.png");
     public static final Identifier BACKGROUND_COMMAND = new Identifier(ComputerCraft.MOD_ID, "textures/gui/corners_command.png");
@@ -60,7 +61,7 @@ public class GuiComputer<T extends ScreenHandler> extends HandledScreen<T> {
 
     @Override
     protected void init() {
-        MinecraftClient.getInstance().keyboard.enableRepeatEvents(true);
+        MinecraftClient.getInstance().keyboard.setRepeatEvents(true);
 
         int termPxWidth = this.m_termWidth * FixedWidthFontRenderer.FONT_WIDTH;
         int termPxHeight = this.m_termHeight * FixedWidthFontRenderer.FONT_HEIGHT;
@@ -70,7 +71,7 @@ public class GuiComputer<T extends ScreenHandler> extends HandledScreen<T> {
 
         super.init();
 
-        this.terminal = new WidgetTerminal(minecraft, () -> this.m_computer, this.m_termWidth, this.m_termHeight, 2, 2, 2, 2);
+        this.terminal = new WidgetTerminal(MINECRAFT, () -> this.m_computer, this.m_termWidth, this.m_termHeight, 2, 2, 2, 2);
         this.terminalWrapper = new WidgetWrapper(this.terminal, 2 + 12 + this.x, 2 + 12 + this.y, termPxWidth, termPxHeight);
 
         this.children.add(this.terminalWrapper);
@@ -100,16 +101,16 @@ public class GuiComputer<T extends ScreenHandler> extends HandledScreen<T> {
         switch (this.m_family) {
         case Normal:
         default:
-            minecraft.getTextureManager()
-                     .bindTextureInner(BACKGROUND_NORMAL);
+            MINECRAFT.getTextureManager()
+                     .bindTexture(BACKGROUND_NORMAL);
             break;
         case Advanced:
-            minecraft.getTextureManager()
-                     .bindTextureInner(BACKGROUND_ADVANCED);
+            MINECRAFT.getTextureManager()
+                     .bindTexture(BACKGROUND_ADVANCED);
             break;
         case Command:
-            minecraft.getTextureManager()
-                     .bindTextureInner(BACKGROUND_COMMAND);
+            MINECRAFT.getTextureManager()
+                     .bindTexture(BACKGROUND_COMMAND);
             break;
         }
 
@@ -152,7 +153,7 @@ public class GuiComputer<T extends ScreenHandler> extends HandledScreen<T> {
         super.removed();
         this.children.remove(this.terminal);
         this.terminal = null;
-        minecraft.keyboard.enableRepeatEvents(false);
+        MINECRAFT.keyboard.setRepeatEvents(false);
     }
 
     @Override
