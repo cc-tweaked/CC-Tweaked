@@ -27,7 +27,8 @@
     "environment": "*",
     "entrypoints": {
         "main": [ "dan200.computercraft.ComputerCraft" ],
-        "modmenu": [ "dan200.computercraft.client.ModMenuIntegration" ]
+        "modmenu": [ "dan200.computercraft.client.ModMenuIntegration" ],
+        "client": ["dan200.computercraft.client.proxy.ComputerCraftProxyClient"]
     },
     "mixins": [
         { "config": "computercraft.client.json", "environment": "client" },
