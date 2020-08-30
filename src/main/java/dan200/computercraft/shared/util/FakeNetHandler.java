@@ -5,10 +5,19 @@
  */
 package dan200.computercraft.shared.util;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.crypto.SecretKey;
+
+import dan200.computercraft.api.turtle.FakePlayer;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
-import net.minecraft.network.*;
+
+import net.minecraft.network.ClientConnection;
+import net.minecraft.network.NetworkSide;
+import net.minecraft.network.NetworkState;
+import net.minecraft.network.Packet;
 import net.minecraft.network.listener.PacketListener;
 import net.minecraft.network.packet.c2s.play.AdvancementTabC2SPacket;
 import net.minecraft.network.packet.c2s.play.BoatPaddleStateC2SPacket;
@@ -52,14 +61,8 @@ import net.minecraft.network.packet.c2s.play.UpdateSelectedSlotC2SPacket;
 import net.minecraft.network.packet.c2s.play.UpdateSignC2SPacket;
 import net.minecraft.network.packet.c2s.play.UpdateStructureBlockC2SPacket;
 import net.minecraft.network.packet.c2s.play.VehicleMoveC2SPacket;
-import net.minecraft.network.play.client.*;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.text.Text;
-import net.minecraftforge.common.util.FakePlayer;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.crypto.SecretKey;
 
 public class FakeNetHandler extends ServerPlayNetworkHandler
 {

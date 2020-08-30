@@ -34,6 +34,10 @@ import java.util.function.Consumer;
 /**
  * Registers textures and models for items.
  */
+@SuppressWarnings ({
+    "MethodCallSideOnly",
+    "LocalVariableDeclarationSideOnly"
+})
 public final class ClientRegistry
 {
     private static final String[] EXTRA_MODELS = new String[] {
@@ -102,8 +106,8 @@ public final class ClientRegistry
 
         // Setup turtle colours
         ColorProviderRegistry.ITEM.register((stack, tintIndex) -> tintIndex == 0 ? ((IColouredItem) stack.getItem()).getColour(stack) : 0xFFFFFF,
-            ComputerCraft.Blocks.turtleNormal,
-            ComputerCraft.Blocks.turtleAdvanced);
+            Registry.ModBlocks.TURTLE_NORMAL,
+                                            Registry.ModBlocks.TURTLE_ADVANCED);
     }
 
     private static BakedModel bake(ModelLoader loader, UnbakedModel model) {

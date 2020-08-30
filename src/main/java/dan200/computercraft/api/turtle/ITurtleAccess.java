@@ -9,6 +9,9 @@ import com.mojang.authlib.GameProfile;
 import dan200.computercraft.api.lua.ILuaCallback;
 import dan200.computercraft.api.lua.MethodResult;
 import dan200.computercraft.api.peripheral.IPeripheral;
+import dan200.computercraft.shared.util.InventoryUtil;
+import dan200.computercraft.shared.util.ItemStorage;
+
 import net.minecraft.inventory.Inventory;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.math.BlockPos;
@@ -282,4 +285,8 @@ public interface ITurtleAccess
      * @see #updateUpgradeNBTData(TurtleSide)
      */
     void updateUpgradeNBTData( @Nonnull TurtleSide side );
+
+    default ItemStorage getItemHandler() {
+        return ItemStorage.wrap(this.getInventory());
+    }
 }

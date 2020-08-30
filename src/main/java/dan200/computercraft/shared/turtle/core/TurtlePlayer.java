@@ -5,6 +5,12 @@
  */
 package dan200.computercraft.shared.turtle.core;
 
+import java.util.OptionalInt;
+import java.util.UUID;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 import com.mojang.authlib.GameProfile;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.turtle.FakePlayer;
@@ -13,6 +19,7 @@ import dan200.computercraft.shared.Registry;
 import dan200.computercraft.shared.util.FakeNetHandler;
 import dan200.computercraft.shared.util.InventoryUtil;
 import dan200.computercraft.shared.util.WorldUtil;
+
 import net.minecraft.block.entity.SignBlockEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityDimensions;
@@ -28,13 +35,8 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
-import net.minecraftforge.common.util.FakePlayer;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.util.OptionalInt;
-import java.util.UUID;
-
+@SuppressWarnings ("EntityConstructor")
 public final class TurtlePlayer extends FakePlayer
 {
     private static final GameProfile DEFAULT_PROFILE = new GameProfile(
@@ -128,7 +130,7 @@ public final class TurtlePlayer extends FakePlayer
     @Override
     public EntityType<?> getType()
     {
-        return Registry.ModEntities.TURTLE_PLAYER.get();
+        return Registry.ModEntities.TURTLE_PLAYER;
     }
 
     @Override
