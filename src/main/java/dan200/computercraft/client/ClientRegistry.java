@@ -120,5 +120,4 @@ public final class ClientRegistry {
                                                              .apply(spriteIdentifier.getTextureId()),
                           ModelRotation.X0_Y0, identifier);
     }
-
 }

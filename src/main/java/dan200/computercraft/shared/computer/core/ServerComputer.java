@@ -22,14 +22,13 @@ import dan200.computercraft.shared.network.NetworkMessage;
 import dan200.computercraft.shared.network.client.ComputerDataClientMessage;
 import dan200.computercraft.shared.network.client.ComputerDeletedClientMessage;
 import dan200.computercraft.shared.network.client.ComputerTerminalClientMessage;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.server.ServerLifecycleHooks;
-import net.minecraftforge.versions.mcp.MCPVersion;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -169,16 +168,16 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
 
         if( hasTerminalChanged() || force )
         {
-            // Send terminal state to clients who are currently interacting with the computer.
-            MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
+            if (FabricLoader.getInstance().getGameInstance() instanceof MinecraftServer) {
+                // Send terminal state to clients who are currently interacting with the computer.
+                MinecraftServer server = (MinecraftServer) FabricLoader.getInstance().getGameInstance();
 
-            NetworkMessage packet = null;
-            for( PlayerEntity player : server.getPlayerManager().getPlayerList() )
-            {
-                if( isInteracting( player ) )
-                {
-                    if( packet == null ) packet = createTerminalPacket();
-                    NetworkHandler.sendToPlayer( player, packet );
+                NetworkMessage packet = null;
+                for (PlayerEntity player : server.getPlayerManager().getPlayerList()) {
+                    if (isInteracting(player)) {
+                        if (packet == null) packet = createTerminalPacket();
+                        NetworkHandler.sendToPlayer(player, packet);
+                    }
                 }
             }
         }
@@ -347,7 +346,7 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
     @Override
     public String getHostString()
     {
-        return String.format( "ComputerCraft %s (Minecraft %s)", ComputerCraftAPI.getInstalledVersion(), MCPVersion.getMCVersion() );
+        return String.format( "ComputerCraft %s (Minecraft %s)", ComputerCraftAPI.getInstalledVersion(), "1.16.2" );
     }
 
     @Nonnull
