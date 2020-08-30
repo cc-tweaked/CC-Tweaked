@@ -1,4 +1,4 @@
-Please report bugs at https://github.com/SquidDev-CC/CC-Tweaked. Thanks!
+Please report bugs at https://github.com/Zundrel/cc-tweaked-fabric. Thanks!
 View the documentation at https://wiki.computercraft.cc
 Show off your programs or ask for help at our forum: https://forums.computercraft.cc
 You can disable these messages by running "set motd.enable false".
