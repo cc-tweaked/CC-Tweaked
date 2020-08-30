@@ -1,18 +1,25 @@
+local pp = require "cc.pretty"
 
 local tArgs = { ... }
 if #tArgs == 0 then
     -- "set"
-    local x,y = term.getCursorPos()
+    local _, y = term.getCursorPos()
     local tSettings = {}
-    for n,sName in ipairs( settings.getNames() ) do
+    for n, sName in ipairs(settings.getNames()) do
         tSettings[n] = textutils.serialize(sName) .. " is " .. textutils.serialize(settings.get(sName))
     end
-    textutils.pagedPrint(table.concat(tSettings,"\n"),y-3)
+    textutils.pagedPrint(table.concat(tSettings, "\n"), y - 3)
 
 elseif #tArgs == 1 then
     -- "set foo"
     local sName = tArgs[1]
-    print( textutils.serialize(sName) .. " is " .. textutils.serialize(settings.get(sName)) )
+    local deets = settings.getDetails(sName)
+    local msg = pp.text(sName, colors.cyan) .. " is " .. pp.pretty(deets.value)
+    if deets.default ~= nil and deets.value ~= deets.default then
+        msg = msg .. " (default is " .. pp.pretty(deets.default) .. ")"
+    end
+    pp.print(msg)
+    if deets.description then print(deets.description) end
 
 else
     -- "set foo bar"
@@ -31,15 +38,18 @@ else
         value = sValue
     end
 
-    local oldValue = settings.get( sValue )
-    if value ~= nil then
-        settings.set( sName, value )
-        print( textutils.serialize(sName) .. " set to " .. textutils.serialize(value) )
+    local option = settings.getDetails(sName)
+    if value == nil then
+        settings.unset(sName)
+        print(textutils.serialize(sName) .. " unset")
+    elseif option.type and option.type ~= type(value) then
+        printError(("%s is not a valid %s."):format(textutils.serialize(sValue), option.type))
     else
-        settings.unset( sName )
-        print( textutils.serialize(sName) .. " unset" )
+        settings.set(sName, value)
+        print(textutils.serialize(sName) .. " set to " .. textutils.serialize(value))
     end
-    if value ~= oldValue then
-        settings.save( ".settings" )
+
+    if value ~= option.value then
+        settings.save()
     end
 end

@@ -1,6 +1,4 @@
 {
-    "parent": "computercraft:block/turtle_base",
-    "textures": {
-        "texture": "computercraft:block/turtle_advanced"
-    }
+    "loader": "computercraft:turtle",
+    "model": "computercraft:block/turtle_advanced_base"
 }

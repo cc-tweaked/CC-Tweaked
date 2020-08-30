@@ -1,26 +1,26 @@
 if not turtle then
-    printError( "Requires a Turtle" )
+    printError("Requires a Turtle")
     return
 end
 
 if not turtle.craft then
-    print( "Requires a Crafty Turtle" )
+    print("Requires a Crafty Turtle")
     return
 end
 
 local tArgs = { ... }
 local nLimit = nil
 if #tArgs < 1 then
-    print( "Usage: craft [number]" )
+    print("Usage: craft [number]")
     return
 else
-    nLimit = tonumber( tArgs[1] )
+    nLimit = tonumber(tArgs[1])
 end
 
 local nCrafted = 0
-local nOldCount = turtle.getItemCount( turtle.getSelectedSlot() )
-if turtle.craft( nLimit ) then
-    local nNewCount = turtle.getItemCount( turtle.getSelectedSlot() )
+local nOldCount = turtle.getItemCount(turtle.getSelectedSlot())
+if turtle.craft(nLimit) then
+    local nNewCount = turtle.getItemCount(turtle.getSelectedSlot())
     if nOldCount <= nLimit then
         nCrafted = nNewCount
     else
@@ -29,9 +29,9 @@ if turtle.craft( nLimit ) then
 end
 
 if nCrafted > 1 then
-    print( nCrafted.." items crafted" )
+    print(nCrafted .. " items crafted")
 elseif nCrafted == 1 then
-    print( "1 item crafted" )
+    print("1 item crafted")
 else
-    print( "No items crafted" )
+    print("No items crafted")
 end

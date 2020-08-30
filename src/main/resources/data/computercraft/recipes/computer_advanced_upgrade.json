@@ -6,9 +6,9 @@
         "# #"
     ],
     "key": {
-        "#": { "item": "minecraft:gold_ingot" },
+        "#": { "tag": "forge:ingots/gold" },
         "C": { "item": "computercraft:computer_normal" }
     },
-    "family": "Advanced",
+    "family": "advanced",
     "result": { "item": "computercraft:computer_advanced" }
 }

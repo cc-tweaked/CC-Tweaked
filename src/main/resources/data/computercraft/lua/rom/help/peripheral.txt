@@ -3,6 +3,7 @@ The peripheral API is for interacting with external peripheral devices. Type "he
 Functions in the peripheral API:
 peripheral.getNames()
 peripheral.isPresent( name )
+peripheral.getName( peripheral )
 peripheral.getType( name )
 peripheral.getMethods( name )
 peripheral.call( name, methodName, param1, param2, etc )

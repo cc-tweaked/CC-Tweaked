@@ -1,4 +1,3 @@
-
 local tBiomes = {
     "in a forest",
     "in a pine forest",
@@ -9,15 +8,15 @@ local tBiomes = {
     "in frozen tundra",
 }
 
-local function hasTrees( _nBiome )
+local function hasTrees(_nBiome)
     return _nBiome <= 3
 end
 
-local function hasStone( _nBiome )
+local function hasStone(_nBiome)
     return _nBiome == 4
 end
 
-local function hasRivers( _nBiome )
+local function hasRivers(_nBiome)
     return _nBiome ~= 3 and _nBiome ~= 5
 end
 
@@ -112,7 +111,7 @@ local items = {
         desc = "A perfect handle for torches or a pickaxe.",
     },
     ["a crafting table"] = {
-        aliases = { "crafting table", "craft table", "work bench", "workbench", "crafting bench", "table", },
+        aliases = { "crafting table", "craft table", "work bench", "workbench", "crafting bench", "table" },
         desc = "It's a crafting table. I shouldn't tell you this, but these don't actually do anything in this game, you can craft tools whenever you like.",
     },
     ["a furnace"] = {
@@ -270,7 +269,7 @@ local tAnimals = {
 }
 
 local tMonsters = {
-    "a creeper", "a skeleton", "a zombie", "a spider"
+    "a creeper", "a skeleton", "a zombie", "a spider",
 }
 
 local tRecipes = {
@@ -309,8 +308,8 @@ local tGoWest = {
 local nGoWest = 0
 
 local bRunning = true
-local tMap = { { {}, }, }
-local x,y,z = 0,0,0
+local tMap = { { {} } }
+local x, y, z = 0, 0, 0
 local inventory = {
     ["no tea"] = items["no tea"],
 }
@@ -338,14 +337,14 @@ local tDayCycle = {
 }
 
 local function getTimeOfDay()
-    return math.fmod( math.floor(nTurn/3), #tDayCycle ) + 1
+    return math.fmod(math.floor(nTurn / 3), #tDayCycle) + 1
 end
 
 local function isSunny()
-    return (getTimeOfDay() < 10)
+    return getTimeOfDay() < 10
 end
 
-local function getRoom( x, y, z, dontCreate )
+local function getRoom(x, y, z, dontCreate)
     tMap[x] = tMap[x] or {}
     tMap[x][y] = tMap[x][y] or {}
     if not tMap[x][y][z] and dontCreate ~= true then
@@ -360,26 +359,26 @@ local function getRoom( x, y, z, dontCreate )
             -- Room is above ground
 
             -- Pick biome
-            room.nBiome = math.random( 1, #tBiomes )
-            room.trees = hasTrees( room.nBiome )
+            room.nBiome = math.random(1, #tBiomes)
+            room.trees = hasTrees(room.nBiome)
 
             -- Add animals
-            if math.random(1,3) == 1 then
-                for n = 1,math.random(1,2) do
-                    local sAnimal = tAnimals[ math.random( 1, #tAnimals ) ]
-                    room.items[ sAnimal ] = items[ sAnimal ]
+            if math.random(1, 3) == 1 then
+                for _ = 1, math.random(1, 2) do
+                    local sAnimal = tAnimals[math.random(1, #tAnimals)]
+                    room.items[sAnimal] = items[sAnimal]
                 end
             end
 
             -- Add surface ore
-            if math.random(1,5) == 1 or hasStone( room.nBiome ) then
-                room.items[ "some stone" ] = items[ "some stone" ]
+            if math.random(1, 5) == 1 or hasStone(room.nBiome) then
+                room.items["some stone"] = items["some stone"]
             end
-            if math.random(1,8) == 1 then
-                room.items[ "some coal" ] = items[ "some coal" ]
+            if math.random(1, 8) == 1 then
+                room.items["some coal"] = items["some coal"]
             end
-            if math.random(1,8) == 1 and hasRivers( room.nBiome ) then
-                room.items[ "a river" ] = items[ "a river" ]
+            if math.random(1, 8) == 1 and hasRivers(room.nBiome) then
+                room.items["a river"] = items["a river"]
             end
 
             -- Add exits
@@ -389,56 +388,56 @@ local function getRoom( x, y, z, dontCreate )
                 ["east"] = true,
                 ["west"] = true,
             }
-            if math.random(1,8) == 1 then
-                room.exits["down"] = true
+            if math.random(1, 8) == 1 then
+                room.exits.down = true
                 room.items["a cave entrance"] = items["a cave entrance"]
             end
 
         else
             -- Room is underground
             -- Add exits
-            local function tryExit( sDir, sOpp, x, y, z )
-                local adj = getRoom( x, y, z, true )
+            local function tryExit(sDir, sOpp, x, y, z)
+                local adj = getRoom(x, y, z, true)
                 if adj then
                     if adj.exits[sOpp] then
                         room.exits[sDir] = true
                     end
                 else
-                    if math.random(1,3) == 1 then
+                    if math.random(1, 3) == 1 then
                         room.exits[sDir] = true
                     end
                 end
             end
 
             if y == -1 then
-                local above = getRoom( x, y + 1, z )
-                if above.exits["down"] then
-                    room.exits["up"] = true
+                local above = getRoom(x, y + 1, z)
+                if above.exits.down then
+                    room.exits.up = true
                     room.items["an exit to the surface"] = items["an exit to the surface"]
                 end
             else
-                tryExit( "up", "down", x, y + 1, z )
+                tryExit("up", "down", x, y + 1, z)
             end
 
             if y > -3 then
-                tryExit( "down", "up", x, y - 1, z )
+                tryExit("down", "up", x, y - 1, z)
             end
 
-            tryExit( "east", "west", x - 1, y, z )
-            tryExit( "west", "east", x + 1, y, z )
-            tryExit( "north", "south", x, y, z + 1 )
-            tryExit( "south", "north", x, y, z - 1 )
+            tryExit("east", "west", x - 1, y, z)
+            tryExit("west", "east", x + 1, y, z)
+            tryExit("north", "south", x, y, z + 1)
+            tryExit("south", "north", x, y, z - 1)
 
             -- Add ores
-            room.items[ "some stone" ] = items[ "some stone" ]
-            if math.random(1,3) == 1 then
-                room.items[ "some coal" ] = items[ "some coal" ]
+            room.items["some stone"] = items["some stone"]
+            if math.random(1, 3) == 1 then
+                room.items["some coal"] = items["some coal"]
             end
-            if math.random(1,8) == 1 then
-                room.items[ "some iron" ] = items[ "some iron" ]
+            if math.random(1, 8) == 1 then
+                room.items["some iron"] = items["some iron"]
             end
-            if y == -3 and math.random(1,15) == 1 then
-                room.items[ "some diamond" ] = items[ "some diamond" ]
+            if y == -3 and math.random(1, 15) == 1 then
+                room.items["some diamond"] = items["some diamond"]
             end
 
             -- Turn out the lights
@@ -448,8 +447,8 @@ local function getRoom( x, y, z, dontCreate )
     return tMap[x][y][z]
 end
 
-local function itemize( t )
-    local item = next( t )
+local function itemize(t)
+    local item = next(t)
     if item == nil then
         return "nothing"
     end
@@ -458,9 +457,9 @@ local function itemize( t )
     while item do
         text = text .. item
 
-        local nextItem = next( t, item )
+        local nextItem = next(t, item)
         if nextItem ~= nil then
-            local nextNextItem = next( t, nextItem )
+            local nextNextItem = next(t, nextItem)
             if nextNextItem == nil then
                 text = text .. " and "
             else
@@ -472,13 +471,13 @@ local function itemize( t )
     return text
 end
 
-local function findItem( _tList, _sQuery )
-    for sItem, tItem in pairs( _tList ) do
+local function findItem(_tList, _sQuery)
+    for sItem, tItem in pairs(_tList) do
         if sItem == _sQuery then
             return sItem
         end
         if tItem.aliases ~= nil then
-            for n, sAlias in pairs( tItem.aliases ) do
+            for _, sAlias in pairs(tItem.aliases) do
                 if sAlias == _sQuery then
                     return sItem
                 end
@@ -606,91 +605,91 @@ local tMatches = {
 }
 
 local commands = {}
-local function doCommand( text )
+local function doCommand(text)
     if text == "" then
-        commands[ "noinput" ]()
+        commands.noinput()
         return
     end
 
-    for sCommand, t in pairs( tMatches ) do
-        for n, sMatch in pairs( t ) do
-            local tCaptures = { string.match( text, "^" .. sMatch .. "$" ) }
+    for sCommand, t in pairs(tMatches) do
+        for _, sMatch in pairs(t) do
+            local tCaptures = { string.match(text, "^" .. sMatch .. "$") }
             if #tCaptures ~= 0 then
-                local fnCommand = commands[ sCommand ]
+                local fnCommand = commands[sCommand]
                 if #tCaptures == 1 and tCaptures[1] == sMatch then
                     fnCommand()
                 else
-                    fnCommand( table.unpack( tCaptures ) )
+                    fnCommand(table.unpack(tCaptures))
                 end
                 return
             end
         end
     end
-    commands[ "badinput" ]()
+    commands.badinput()
 end
 
 function commands.wait()
-    print( "Time passes..." )
+    print("Time passes...")
 end
 
-function commands.look( _sTarget )
-    local room = getRoom( x,y,z )
+function commands.look(_sTarget)
+    local room = getRoom(x, y, z)
     if room.dark then
-        print( "It is pitch dark." )
+        print("It is pitch dark.")
         return
     end
 
     if _sTarget == nil then
         -- Look at the world
         if y == 0 then
-            io.write( "You are standing " .. tBiomes[room.nBiome] .. ". " )
-            print( tDayCycle[ getTimeOfDay() ] )
+            io.write("You are standing " .. tBiomes[room.nBiome] .. ". ")
+            print(tDayCycle[getTimeOfDay()])
         else
-            io.write( "You are underground. " )
-            if next( room.exits ) ~= nil then
-                print( "You can travel "..itemize( room.exits ).."." )
+            io.write("You are underground. ")
+            if next(room.exits) ~= nil then
+                print("You can travel " .. itemize(room.exits) .. ".")
             else
                 print()
             end
         end
-        if next( room.items ) ~= nil then
-            print( "There is " .. itemize( room.items ) .. " here." )
+        if next(room.items) ~= nil then
+            print("There is " .. itemize(room.items) .. " here.")
         end
         if room.trees then
-            print( "There are trees here." )
+            print("There are trees here.")
         end
 
     else
         -- Look at stuff
         if room.trees and (_sTarget == "tree" or _sTarget == "trees") then
-            print( "The trees look easy to break." )
+            print("The trees look easy to break.")
         elseif _sTarget == "self" or _sTarget == "myself" then
-            print( "Very handsome." )
+            print("Very handsome.")
         else
             local tItem = nil
-            local sItem = findItem( room.items, _sTarget )
+            local sItem = findItem(room.items, _sTarget)
             if sItem then
                 tItem = room.items[sItem]
             else
-                sItem = findItem( inventory, _sTarget )
+                sItem = findItem(inventory, _sTarget)
                 if sItem then
                     tItem = inventory[sItem]
                 end
             end
 
             if tItem then
-                print( tItem.desc or ("You see nothing special about "..sItem..".") )
+                print(tItem.desc or "You see nothing special about " .. sItem .. ".")
             else
-                print( "You don't see any ".._sTarget.." here." )
+                print("You don't see any " .. _sTarget .. " here.")
             end
         end
     end
 end
 
-function commands.go( _sDir )
-    local room = getRoom( x,y,z )
+function commands.go(_sDir)
+    local room = getRoom(x, y, z)
     if _sDir == nil then
-        print( "Go where?" )
+        print("Go where?")
         return
     end
 
@@ -700,7 +699,7 @@ function commands.go( _sDir )
             if nGoWest > #tGoWest then
                 nGoWest = 1
             end
-            print( tGoWest[ nGoWest ] )
+            print(tGoWest[nGoWest])
         else
             if nGoWest > 0 or nTurn > 6 then
                 nGoWest = nil
@@ -709,7 +708,7 @@ function commands.go( _sDir )
     end
 
     if room.exits[_sDir] == nil then
-        print( "You can't go that way." )
+        print("You can't go that way.")
         return
     end
 
@@ -726,98 +725,98 @@ function commands.go( _sDir )
     elseif _sDir == "down" then
         y = y - 1
     else
-        print( "I don't understand that direction." )
+        print("I don't understand that direction.")
         return
     end
 
     nTimeInRoom = 0
-    doCommand( "look" )
+    doCommand("look")
 end
 
-function commands.dig( _sDir, _sTool )
-    local room = getRoom( x,y,z )
+function commands.dig(_sDir, _sTool)
+    local room = getRoom(x, y, z)
     if _sDir == nil then
-        print( "Dig where?" )
+        print("Dig where?")
         return
     end
 
     local sTool = nil
     local tTool = nil
     if _sTool ~= nil then
-        sTool = findItem( inventory, _sTool )
+        sTool = findItem(inventory, _sTool)
         if not sTool then
-            print( "You're not carrying a ".._sTool.."." )
+            print("You're not carrying a " .. _sTool .. ".")
             return
         end
-        tTool = inventory[ sTool ]
+        tTool = inventory[sTool]
     end
 
-    local bActuallyDigging = (room.exits[ _sDir ] ~= true)
+    local bActuallyDigging = room.exits[_sDir] ~= true
     if bActuallyDigging then
         if sTool == nil or tTool.toolType ~= "pick" then
-            print( "You need to use a pickaxe to dig through stone." )
+            print("You need to use a pickaxe to dig through stone.")
             return
         end
     end
 
     if _sDir == "north" then
-        room.exits["north"] = true
+        room.exits.north = true
         z = z + 1
-        getRoom( x, y, z ).exits["south"] = true
+        getRoom(x, y, z).exits.south = true
 
     elseif _sDir == "south" then
-        room.exits["south"] = true
+        room.exits.south = true
         z = z - 1
-        getRoom( x, y, z ).exits["north"] = true
+        getRoom(x, y, z).exits.north = true
 
     elseif _sDir == "east" then
-        room.exits["east"] = true
+        room.exits.east = true
         x = x - 1
-        getRoom( x, y, z ).exits["west"] = true
+        getRoom(x, y, z).exits.west = true
 
     elseif _sDir == "west" then
-        room.exits["west"] = true
+        room.exits.west = true
         x = x + 1
-        getRoom( x, y, z ).exits["east"] = true
+        getRoom(x, y, z).exits.east = true
 
     elseif _sDir == "up" then
         if y == 0 then
-            print( "You can't dig that way." )
+            print("You can't dig that way.")
             return
         end
 
-        room.exits["up"] = true
+        room.exits.up = true
         if y == -1 then
-            room.items[ "an exit to the surface" ] = items[ "an exit to the surface" ]
+            room.items["an exit to the surface"] = items["an exit to the surface"]
         end
         y = y + 1
 
-        room = getRoom( x, y, z )
-        room.exits["down"] = true
+        room = getRoom(x, y, z)
+        room.exits.down = true
         if y == 0 then
-            room.items[ "a cave entrance" ] = items[ "a cave entrance" ]
+            room.items["a cave entrance"] = items["a cave entrance"]
         end
 
     elseif _sDir == "down" then
         if y <= -3 then
-            print( "You hit bedrock." )
+            print("You hit bedrock.")
             return
         end
 
-        room.exits["down"] = true
+        room.exits.down = true
         if y == 0 then
-            room.items[ "a cave entrance" ] = items[ "a cave entrance" ]
+            room.items["a cave entrance"] = items["a cave entrance"]
         end
         y = y - 1
 
-        room = getRoom( x, y, z )
-        room.exits["up"] = true
+        room = getRoom(x, y, z)
+        room.exits.up = true
         if y == -1 then
-            room.items[ "an exit to the surface" ] = items[ "an exit to the surface" ]
+            room.items["an exit to the surface"] = items["an exit to the surface"]
         end
 
     else
-        print( "I don't understand that direction." )
+        print("I don't understand that direction.")
         return
     end
 
@@ -825,183 +824,183 @@ function commands.dig( _sDir, _sTool )
     if bActuallyDigging then
         if _sDir == "down" and y == -1 or
            _sDir == "up" and y == 0 then
-            inventory[ "some dirt" ] = items[ "some dirt" ]
-            inventory[ "some stone" ] = items[ "some stone" ]
-            print( "You dig ".._sDir.." using "..sTool.." and collect some dirt and stone." )
+            inventory["some dirt"] = items["some dirt"]
+            inventory["some stone"] = items["some stone"]
+            print("You dig " .. _sDir .. " using " .. sTool .. " and collect some dirt and stone.")
         else
-            inventory[ "some stone" ] = items[ "some stone" ]
-            print( "You dig ".._sDir.." using "..sTool.." and collect some stone." )
+            inventory["some stone"] = items["some stone"]
+            print("You dig " .. _sDir .. " using " .. sTool .. " and collect some stone.")
         end
     end
 
     nTimeInRoom = 0
-    doCommand( "look" )
+    doCommand("look")
 end
 
 function commands.inventory()
-    print( "You are carrying " .. itemize( inventory ) .. "." )
+    print("You are carrying " .. itemize(inventory) .. ".")
 end
 
-function commands.drop( _sItem )
+function commands.drop(_sItem)
     if _sItem == nil then
-        print( "Drop what?" )
+        print("Drop what?")
         return
     end
 
-    local room = getRoom( x,y,z )
-    local sItem = findItem( inventory, _sItem )
+    local room = getRoom(x, y, z)
+    local sItem = findItem(inventory, _sItem)
     if sItem then
-        local tItem = inventory[ sItem ]
+        local tItem = inventory[sItem]
         if tItem.droppable == false then
-            print( "You can't drop that." )
+            print("You can't drop that.")
         else
-            room.items[ sItem ] = tItem
-            inventory[ sItem ] = nil
-            print( "Dropped." )
+            room.items[sItem] = tItem
+            inventory[sItem] = nil
+            print("Dropped.")
         end
     else
-        print( "You don't have a ".._sItem.."." )
+        print("You don't have a " .. _sItem .. ".")
     end
 end
 
-function commands.place( _sItem )
+function commands.place(_sItem)
     if _sItem == nil then
-        print( "Place what?" )
+        print("Place what?")
         return
     end
 
     if _sItem == "torch" or _sItem == "a torch" then
-        local room = getRoom( x,y,z )
+        local room = getRoom(x, y, z)
         if inventory["some torches"] or inventory["a torch"] then
             inventory["a torch"] = nil
             room.items["a torch"] = items["a torch"]
             if room.dark then
-                print( "The cave lights up under the torchflame." )
+                print("The cave lights up under the torchflame.")
                 room.dark = false
             elseif y == 0 and not isSunny() then
-                print( "The night gets a little brighter." )
+                print("The night gets a little brighter.")
             else
-                print( "Placed." )
+                print("Placed.")
             end
         else
-            print( "You don't have torches." )
+            print("You don't have torches.")
         end
         return
     end
 
-    commands.drop( _sItem )
+    commands.drop(_sItem)
 end
 
-function commands.take( _sItem )
+function commands.take(_sItem)
     if _sItem == nil then
-        print( "Take what?" )
+        print("Take what?")
         return
     end
 
-    local room = getRoom( x,y,z )
-    local sItem = findItem( room.items, _sItem )
+    local room = getRoom(x, y, z)
+    local sItem = findItem(room.items, _sItem)
     if sItem then
-        local tItem = room.items[ sItem ]
+        local tItem = room.items[sItem]
         if tItem.heavy == true then
-            print( "You can't carry "..sItem.."." )
+            print("You can't carry " .. sItem .. ".")
         elseif tItem.ore == true then
-            print( "You need to mine this ore." )
+            print("You need to mine this ore.")
         else
             if tItem.infinite ~= true then
-                room.items[ sItem ] = nil
+                room.items[sItem] = nil
             end
-            inventory[ sItem ] = tItem
+            inventory[sItem] = tItem
 
             if inventory["some torches"] and inventory["a torch"] then
                 inventory["a torch"] = nil
             end
             if sItem == "a torch" and y < 0 then
                 room.dark = true
-                print( "The cave plunges into darkness." )
+                print("The cave plunges into darkness.")
             else
-                print( "Taken." )
+                print("Taken.")
             end
         end
     else
-        print( "You don't see a ".._sItem.." here." )
+        print("You don't see a " .. _sItem .. " here.")
     end
 end
 
-function commands.mine( _sItem, _sTool )
+function commands.mine(_sItem, _sTool)
     if _sItem == nil then
-        print( "Mine what?" )
+        print("Mine what?")
         return
     end
     if _sTool == nil then
-        print( "Mine ".._sItem.." with what?" )
+        print("Mine " .. _sItem .. " with what?")
         return
     end
-    commands.cbreak( _sItem, _sTool )
+    commands.cbreak(_sItem, _sTool)
 end
 
-function commands.attack( _sItem, _sTool )
+function commands.attack(_sItem, _sTool)
     if _sItem == nil then
-        print( "Attack what?" )
+        print("Attack what?")
         return
     end
-    commands.cbreak( _sItem, _sTool )
+    commands.cbreak(_sItem, _sTool)
 end
 
-function commands.cbreak( _sItem, _sTool )
+function commands.cbreak(_sItem, _sTool)
     if _sItem == nil then
-        print( "Break what?" )
+        print("Break what?")
         return
     end
 
     local sTool = nil
     if _sTool ~= nil then
-        sTool = findItem( inventory, _sTool )
+        sTool = findItem(inventory, _sTool)
         if sTool == nil then
-            print( "You're not carrying a ".._sTool.."." )
+            print("You're not carrying a " .. _sTool .. ".")
             return
         end
     end
 
-    local room = getRoom( x,y,z )
+    local room = getRoom(x, y, z)
     if _sItem == "tree" or _sItem == "trees" or _sItem == "a tree" then
-        print( "The tree breaks into blocks of wood, which you pick up." )
-        inventory[ "some wood" ] = items[ "some wood" ]
+        print("The tree breaks into blocks of wood, which you pick up.")
+        inventory["some wood"] = items["some wood"]
         return
     elseif _sItem == "self" or _sItem == "myself" then
         if term.isColour() then
-            term.setTextColour( colours.red )
+            term.setTextColour(colours.red)
         end
-        print( "You have died." )
-        print( "Score: &e0" )
-        term.setTextColour( colours.white )
+        print("You have died.")
+        print("Score: &e0")
+        term.setTextColour(colours.white)
         bRunning = false
         return
     end
 
-    local sItem = findItem( room.items, _sItem )
+    local sItem = findItem(room.items, _sItem)
     if sItem then
-        local tItem = room.items[ sItem ]
+        local tItem = room.items[sItem]
         if tItem.ore == true then
             -- Breaking ore
             if not sTool then
-                print( "You need a tool to break this ore." )
+                print("You need a tool to break this ore.")
                 return
             end
-            local tTool = inventory[ sTool ]
+            local tTool = inventory[sTool]
             if tTool.tool then
                 if tTool.toolLevel < tItem.toolLevel then
-                    print( sTool .." is not strong enough to break this ore." )
+                    print(sTool .. " is not strong enough to break this ore.")
                 elseif tTool.toolType ~= tItem.toolType then
-                    print( "You need a different kind of tool to break this ore." )
+                    print("You need a different kind of tool to break this ore.")
                 else
-                    print( "The ore breaks, dropping "..sItem..", which you pick up." )
-                    inventory[ sItem ] = items[ sItem ]
+                    print("The ore breaks, dropping " .. sItem .. ", which you pick up.")
+                    inventory[sItem] = items[sItem]
                     if tItem.infinite ~= true then
-                        room.items[ sItem ] = nil
+                        room.items[sItem] = nil
                     end
                 end
             else
-                print( "You can't break "..sItem.." with "..sTool..".")
+                print("You can't break " .. sItem .. " with " .. sTool .. ".")
             end
 
         elseif tItem.creature == true then
@@ -1009,21 +1008,21 @@ function commands.cbreak( _sItem, _sTool )
             local toolLevel = 0
             local tTool = nil
             if sTool then
-                tTool = inventory[ sTool ]
+                tTool = inventory[sTool]
                 if tTool.toolType == "sword" then
                     toolLevel = tTool.toolLevel
                 end
             end
 
             local tChances = { 0.2, 0.4, 0.55, 0.8, 1 }
-            if math.random() <= tChances[ toolLevel + 1 ] then
-                room.items[ sItem ] = nil
-                print( "The "..tItem.aliases[1].." dies." )
+            if math.random() <= tChances[toolLevel + 1] then
+                room.items[sItem] = nil
+                print("The " .. tItem.aliases[1] .. " dies.")
 
                 if tItem.drops then
-                    for n, sDrop in pairs( tItem.drops ) do
+                    for _, sDrop in pairs(tItem.drops) do
                         if not room.items[sDrop] then
-                            print( "The "..tItem.aliases[1].." dropped "..sDrop.."." )
+                            print("The " .. tItem.aliases[1] .. " dropped " .. sDrop .. ".")
                             room.items[sDrop] = items[sDrop]
                         end
                     end
@@ -1033,113 +1032,112 @@ function commands.cbreak( _sItem, _sTool )
                     room.nMonsters = room.nMonsters - 1
                 end
             else
-                print( "The "..tItem.aliases[1].." is injured by your blow." )
+                print("The " .. tItem.aliases[1] .. " is injured by your blow.")
             end
 
             if tItem.hitDrops then
-                for n, sDrop in pairs( tItem.hitDrops ) do
+                for _, sDrop in pairs(tItem.hitDrops) do
                     if not room.items[sDrop] then
-                        print( "The "..tItem.aliases[1].." dropped "..sDrop.."." )
+                        print("The " .. tItem.aliases[1] .. " dropped " .. sDrop .. ".")
                         room.items[sDrop] = items[sDrop]
                     end
                 end
             end
 
         else
-            print( "You can't break "..sItem.."." )
+            print("You can't break " .. sItem .. ".")
         end
     else
-        print( "You don't see a ".._sItem.." here." )
+        print("You don't see a " .. _sItem .. " here.")
     end
 end
 
-function commands.craft( _sItem )
+function commands.craft(_sItem)
     if _sItem == nil then
-        print( "Craft what?" )
+        print("Craft what?")
         return
     end
 
     if _sItem == "computer" or _sItem == "a computer" then
-        print( "By creating a computer in a computer in a computer, you tear a hole in the spacetime continuum from which no mortal being can escape." )
+        print("By creating a computer in a computer in a computer, you tear a hole in the spacetime continuum from which no mortal being can escape.")
         if term.isColour() then
-            term.setTextColour( colours.red )
+            term.setTextColour(colours.red)
         end
-        print( "You have died." )
-        print( "Score: &e0" )
-        term.setTextColour( colours.white )
+        print("You have died.")
+        print("Score: &e0")
+        term.setTextColour(colours.white)
         bRunning = false
         return
     end
 
-    local room = getRoom( x,y,z )
-    local sItem = findItem( items, _sItem )
-    local tRecipe = (sItem and tRecipes[ sItem ]) or nil
+    local sItem = findItem(items, _sItem)
+    local tRecipe = sItem and tRecipes[sItem] or nil
     if tRecipe then
-        for n,sReq in ipairs( tRecipe ) do
+        for _, sReq in ipairs(tRecipe) do
             if inventory[sReq] == nil then
-                print( "You don't have the items you need to craft "..sItem.."." )
+                print("You don't have the items you need to craft " .. sItem .. ".")
                 return
             end
         end
 
-        for n,sReq in ipairs( tRecipe ) do
+        for _, sReq in ipairs(tRecipe) do
             inventory[sReq] = nil
         end
-        inventory[ sItem ] = items[ sItem ]
+        inventory[sItem] = items[sItem]
         if inventory["some torches"] and inventory["a torch"] then
             inventory["a torch"] = nil
         end
-        print( "Crafted." )
+        print("Crafted.")
     else
-        print( "You don't know how to make "..(sItem or _sItem).."." )
+        print("You don't know how to make " .. (sItem or _sItem) .. ".")
     end
 end
 
-function commands.build( _sThing, _sMaterial )
+function commands.build(_sThing, _sMaterial)
     if _sThing == nil then
-        print( "Build what?" )
+        print("Build what?")
         return
     end
 
     local sMaterial = nil
     if _sMaterial == nil then
-        for sItem, tItem in pairs( inventory ) do
+        for sItem, tItem in pairs(inventory) do
             if tItem.material then
                 sMaterial = sItem
                 break
             end
         end
         if sMaterial == nil then
-            print( "You don't have any building materials." )
+            print("You don't have any building materials.")
             return
         end
     else
-        sMaterial = findItem( inventory, _sMaterial )
+        sMaterial = findItem(inventory, _sMaterial)
         if not sMaterial then
-            print( "You don't have any ".._sMaterial )
+            print("You don't have any " .. _sMaterial)
             return
         end
 
         if inventory[sMaterial].material ~= true then
-            print( sMaterial.." is not a good building material." )
+            print(sMaterial .. " is not a good building material.")
             return
         end
     end
 
     local alias = nil
     if string.sub(_sThing, 1, 1) == "a" then
-        alias = string.match( _sThing, "a ([%a ]+)" )
+        alias = string.match(_sThing, "a ([%a ]+)")
     end
 
-    local room = getRoom( x,y,z )
+    local room = getRoom(x, y, z)
     inventory[sMaterial] = nil
-    room.items[ _sThing ] = {
+    room.items[_sThing] = {
         heavy = true,
         aliases = { alias },
-        desc = "As you look at your creation (made from "..sMaterial.."), you feel a swelling sense of pride.",
+        desc = "As you look at your creation (made from " .. sMaterial .. "), you feel a swelling sense of pride.",
     }
 
-    print( "Your construction is complete." )
+    print("Your construction is complete.")
 end
 
 function commands.help()
@@ -1148,32 +1146,32 @@ function commands.help()
         "To get around the world, type actions, and the adventure will " ..
         "be read back to you. The actions availiable to you are go, look, inspect, inventory, " ..
         "take, drop, place, punch, attack, mine, dig, craft, build, eat and exit."
-    print( sText )
+    print(sText)
 end
 
-function commands.eat( _sItem )
+function commands.eat(_sItem)
     if _sItem == nil then
-        print( "Eat what?" )
+        print("Eat what?")
         return
     end
 
-    local sItem = findItem( inventory, _sItem )
+    local sItem = findItem(inventory, _sItem)
     if not sItem then
-        print( "You don't have any ".._sItem.."." )
+        print("You don't have any " .. _sItem .. ".")
         return
     end
 
     local tItem = inventory[sItem]
     if tItem.food then
-        print( "That was delicious!" )
+        print("That was delicious!")
         inventory[sItem] = nil
 
         if bInjured then
-            print( "You are no longer injured." )
+            print("You are no longer injured.")
             bInjured = false
         end
     else
-        print( "You can't eat "..sItem.."." )
+        print("You can't eat " .. sItem .. ".")
     end
 end
 
@@ -1196,7 +1194,7 @@ function commands.badinput()
         "That doesn't make any sense.",
         "What?",
     }
-    print( tResponses[ math.random(1,#tResponses) ] )
+    print(tResponses[math.random(1, #tResponses)])
 end
 
 function commands.noinput()
@@ -1207,32 +1205,32 @@ function commands.noinput()
         "Don't be shy.",
         "Use your words.",
     }
-    print( tResponses[ math.random(1,#tResponses) ] )
+    print(tResponses[math.random(1, #tResponses)])
 end
 
 local function simulate()
     local bNewMonstersThisRoom = false
 
     -- Spawn monsters in nearby rooms
-    for sx = -2,2 do
-        for sy = -1,1 do
-            for sz = -2,2 do
+    for sx = -2, 2 do
+        for sy = -1, 1 do
+            for sz = -2, 2 do
                 local h = y + sy
                 if h >= -3 and h <= 0 then
-                    local room = getRoom( x + sx, h, z + sz )
+                    local room = getRoom(x + sx, h, z + sz)
 
                     -- Spawn monsters
                     if room.nMonsters < 2 and
-                       ((h == 0 and not isSunny() and not room.items["a torch"]) or room.dark) and
-                       math.random(1,6) == 1 then
+                       (h == 0 and not isSunny() and not room.items["a torch"] or room.dark) and
+                       math.random(1, 6) == 1 then
 
-                        local sMonster = tMonsters[ math.random(1,#tMonsters) ]
-                        if room.items[ sMonster ] == nil then
-                               room.items[ sMonster ] = items[ sMonster ]
+                        local sMonster = tMonsters[math.random(1, #tMonsters)]
+                        if room.items[sMonster] == nil then
+                               room.items[sMonster] = items[sMonster]
                                room.nMonsters = room.nMonsters + 1
 
                                if sx == 0 and sy == 0 and sz == 0 and not room.dark then
-                                   print( "From the shadows, "..sMonster.." appears." )
+                                   print("From the shadows, " .. sMonster .. " appears.")
                                    bNewMonstersThisRoom = true
                                end
                         end
@@ -1240,11 +1238,11 @@ local function simulate()
 
                     -- Burn monsters
                     if h == 0 and isSunny() then
-                        for n,sMonster in ipairs( tMonsters ) do
+                        for _, sMonster in ipairs(tMonsters) do
                             if room.items[sMonster] and items[sMonster].nocturnal then
                                 room.items[sMonster] = nil
                                    if sx == 0 and sy == 0 and sz == 0 and not room.dark then
-                                       print( "With the sun high in the sky, the "..items[sMonster].aliases[1].." bursts into flame and dies." )
+                                       print("With the sun high in the sky, the " .. items[sMonster].aliases[1] .. " bursts into flame and dies.")
                                    end
                                    room.nMonsters = room.nMonsters - 1
                                end
@@ -1256,35 +1254,35 @@ local function simulate()
     end
 
     -- Make monsters attack
-    local room = getRoom( x, y, z )
+    local room = getRoom(x, y, z)
     if nTimeInRoom >= 2 and not bNewMonstersThisRoom then
-        for n,sMonster in ipairs( tMonsters ) do
+        for _, sMonster in ipairs(tMonsters) do
             if room.items[sMonster] then
-                if math.random(1,4) == 1 and
-                   not (y == 0 and isSunny() and (sMonster == "a spider")) then
+                if math.random(1, 4) == 1 and
+                   not (y == 0 and isSunny() and sMonster == "a spider") then
                     if sMonster == "a creeper" then
                         if room.dark then
-                            print( "A creeper explodes." )
+                            print("A creeper explodes.")
                         else
-                            print( "The creeper explodes." )
+                            print("The creeper explodes.")
                         end
                         room.items[sMonster] = nil
                         room.nMonsters = room.nMonsters - 1
                     else
                         if room.dark then
-                            print( "A "..items[sMonster].aliases[1].." attacks you." )
+                            print("A " .. items[sMonster].aliases[1] .. " attacks you.")
                         else
-                            print( "The "..items[sMonster].aliases[1].." attacks you." )
+                            print("The " .. items[sMonster].aliases[1] .. " attacks you.")
                         end
                     end
 
                     if bInjured then
                         if term.isColour() then
-                            term.setTextColour( colours.red )
+                            term.setTextColour(colours.red)
                         end
-                        print( "You have died." )
-                        print( "Score: &e0" )
-                        term.setTextColour( colours.white )
+                        print("You have died.")
+                        print("Score: &e0")
+                        term.setTextColour(colours.white)
                         bRunning = false
                         return
                     else
@@ -1300,10 +1298,10 @@ local function simulate()
     -- Always print this
     if bInjured then
         if term.isColour() then
-            term.setTextColour( colours.red )
+            term.setTextColour(colours.red)
         end
-        print( "You are injured." )
-        term.setTextColour( colours.white )
+        print("You are injured.")
+        term.setTextColour(colours.white)
     end
 
     -- Advance time
@@ -1311,19 +1309,19 @@ local function simulate()
     nTimeInRoom = nTimeInRoom + 1
 end
 
-doCommand( "look" )
+doCommand("look")
 simulate()
 
 local tCommandHistory = {}
 while bRunning do
     if term.isColour() then
-        term.setTextColour( colours.yellow )
+        term.setTextColour(colours.yellow)
     end
-    write( "? " )
-    term.setTextColour( colours.white )
+    write("? ")
+    term.setTextColour(colours.white)
 
-    local sRawLine = read( nil, tCommandHistory )
-    table.insert( tCommandHistory, sRawLine )
+    local sRawLine = read(nil, tCommandHistory)
+    table.insert(tCommandHistory, sRawLine)
 
     local sLine = nil
     for match in string.gmatch(sRawLine, "%a+") do
@@ -1334,7 +1332,7 @@ while bRunning do
         end
     end
 
-    doCommand( sLine or "" )
+    doCommand(sLine or "")
     if bRunning then
         simulate()
     end

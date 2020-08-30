@@ -2,6 +2,7 @@
     "type": "minecraft:block",
     "pools": [
         {
+            "name": "cable",
             "rolls": 1,
             "entries": [
                 { "type": "minecraft:item", "name": "computercraft:cable" }
@@ -16,6 +17,7 @@
             ]
         },
         {
+            "name": "wired_modem",
             "rolls": 1,
             "entries": [
                 { "type": "minecraft:item", "name": "computercraft:wired_modem" }

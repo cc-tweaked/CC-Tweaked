@@ -1,28 +1,26 @@
 if not turtle then
-    printError( "Requires a Turtle" )
+    printError("Requires a Turtle")
     return
 end
 
 local tArgs = { ... }
 if #tArgs ~= 1 then
-    print( "Usage: tunnel <length>" )
+    print("Usage: tunnel <length>")
     return
 end
 
 -- Mine in a quarry pattern until we hit something we can't dig
-local length = tonumber( tArgs[1] )
+local length = tonumber(tArgs[1])
 if length < 1 then
-    print( "Tunnel length must be positive" )
+    print("Tunnel length must be positive")
     return
 end
-
-local depth = 0
 local collected = 0
 
 local function collect()
     collected = collected + 1
     if math.fmod(collected, 25) == 0 then
-        print( "Mined "..collected.." items." )
+        print("Mined " .. collected .. " items.")
     end
 end
 
@@ -69,7 +67,7 @@ local function refuel()
     end
 
     local function tryRefuel()
-        for n=1,16 do
+        for n = 1, 16 do
             if turtle.getItemCount(n) > 0 then
                 turtle.select(n)
                 if turtle.refuel(1) then
@@ -83,11 +81,11 @@ local function refuel()
     end
 
     if not tryRefuel() then
-        print( "Add more fuel to continue." )
+        print("Add more fuel to continue.")
         while not tryRefuel() do
-            os.pullEvent( "turtle_inventory" )
+            os.pullEvent("turtle_inventory")
         end
-        print( "Resuming Tunnel." )
+        print("Resuming Tunnel.")
     end
 end
 
@@ -101,7 +99,7 @@ local function tryUp()
         elseif turtle.attackUp() then
             collect()
         else
-            sleep( 0.5 )
+            sleep(0.5)
         end
     end
     return true
@@ -117,7 +115,7 @@ local function tryDown()
         elseif turtle.attackDown() then
             collect()
         else
-            sleep( 0.5 )
+            sleep(0.5)
         end
     end
     return true
@@ -133,15 +131,15 @@ local function tryForward()
         elseif turtle.attack() then
             collect()
         else
-            sleep( 0.5 )
+            sleep(0.5)
         end
     end
     return true
 end
 
-print( "Tunnelling..." )
+print("Tunnelling...")
 
-for n=1,length do
+for n = 1, length do
     turtle.placeDown()
     tryDigUp()
     turtle.turnLeft()
@@ -155,14 +153,14 @@ for n=1,length do
     tryDig()
     turtle.turnLeft()
 
-    if n<length then
+    if n < length then
         tryDig()
         if not tryForward() then
-            print( "Aborting Tunnel." )
+            print("Aborting Tunnel.")
             break
         end
     else
-        print( "Tunnel complete." )
+        print("Tunnel complete.")
     end
 
 end
@@ -184,5 +182,5 @@ turtle.turnRight()
 turtle.turnRight()
 ]]
 
-print( "Tunnel complete." )
-print( "Mined "..collected.." items total." )
+print("Tunnel complete.")
+print("Mined " .. collected .. " items total.")

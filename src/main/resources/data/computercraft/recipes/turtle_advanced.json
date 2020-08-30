@@ -6,10 +6,10 @@
         "#I#"
     ],
     "key": {
-        "#": { "item": "minecraft:gold_ingot" },
+        "#": { "tag": "forge:ingots/gold" },
         "C": { "item": "computercraft:computer_advanced" },
-        "I": { "item": "minecraft:chest" }
+        "I": { "tag": "forge:chests/wooden" }
     },
-    "family": "Advanced",
+    "family": "advanced",
     "result": { "item": "computercraft:turtle_advanced" }
 }

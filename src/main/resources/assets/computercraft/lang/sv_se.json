@@ -1,42 +1,32 @@
 {
-
     "block.computercraft.computer_normal": "Dator",
     "block.computercraft.computer_advanced": "Avancerad Dator",
     "block.computercraft.computer_command": "Kommando Dator",
-
     "block.computercraft.disk_drive": "Diskettläsare",
     "block.computercraft.printer": "Skrivare",
     "block.computercraft.speaker": "Högtalare",
-
     "block.computercraft.monitor_normal": "Skärm",
     "block.computercraft.monitor_advanced": "Avancerad Skärm",
-
     "block.computercraft.wireless_modem_normal": "Trådlöst Modem",
     "block.computercraft.wireless_modem_advanced": "Ender Modem",
-
     "block.computercraft.wired_modem": "Trådat Modem",
     "block.computercraft.cable": "Nätverkskabel",
     "block.computercraft.wired_modem_full": "Trådat Modem",
-
     "block.computercraft.turtle_normal": "Turtle",
     "block.computercraft.turtle_normal.upgraded": "%s Turtle",
     "block.computercraft.turtle_normal.upgraded_twice": "%s %s Turtle",
-
     "block.computercraft.turtle_advanced": "Avancerad Turtle",
     "block.computercraft.turtle_advanced.upgraded": "Avancerad %s Turtle",
     "block.computercraft.turtle_advanced.upgraded_twice": "Avancerad %s %s Turtle",
-
     "item.computercraft.disk": "Diskett",
     "item.computercraft.treasure_disk": "Diskett",
     "item.computercraft.printed_page": "Utskriven Sida",
     "item.computercraft.printed_pages": "Utskrivna Sidor",
     "item.computercraft.printed_book": "Tryckt bok",
-
     "item.computercraft.pocket_computer_normal": "Fickdator",
     "item.computercraft.pocket_computer_normal.upgraded": "%s Fickdator",
     "item.computercraft.pocket_computer_advanced": "Avancerad Fickdator",
     "item.computercraft.pocket_computer_advanced.upgraded": "Avancerad %s Fickdator",
-
     "upgrade.minecraft.diamond_sword.adjective": "Närstridande",
     "upgrade.minecraft.diamond_shovel.adjective": "Grävande",
     "upgrade.minecraft.diamond_pickaxe.adjective": "Brytande",
@@ -46,48 +36,7 @@
     "upgrade.computercraft.wireless_modem_normal.adjective": "Trådlös",
     "upgrade.computercraft.wireless_modem_advanced.adjective": "Ender",
     "upgrade.computercraft.speaker.adjective": "Högljudd",
-
     "chat.computercraft.wired_modem.peripheral_connected": "Kringutrustning \"%s\" är kopplad till nätverket",
     "chat.computercraft.wired_modem.peripheral_disconnected": "Kringutrustning \"%s\" är frånkopplad från nätverket",
-
-    "gui.computercraft.tooltip.copy": "Kopiera till urklipp",
-
-    "gui.computercraft.config.computer_space_limit": "Dator maximalt utrymme (bytes)",
-    "gui.computercraft.config.floppy_space_limit": "Diskett maximalt utrymme (bytes)",
-    "gui.computercraft.config.maximum_open_files": "Max antal filer öppna per dator",
-    "gui.computercraft.config.disable_lua51_features": "Avaktivera Lua 5.1 funktioner",
-    "gui.computercraft.config.default_computer_settings": "Standard Datorinställningar",
-    "gui.computercraft.config.debug_enabled": "Aktivera debug bibliotek",
-    "gui.computercraft.config.log_computer_errors": "Logga datorfel",
-
-    "gui.computercraft.config.execution.computer_threads": "Dator trådar",
-
-    "gui.computercraft.config.http": "HTTP",
-    "gui.computercraft.config.http.enabled": "Aktivera HTTP API",
-    "gui.computercraft.config.http.websocket_enabled": "Aktivera websockets",
-    "gui.computercraft.config.http.whitelist": "HTTP vitlista",
-    "gui.computercraft.config.http.blacklist": "HTTP svartlista",
-
-    "gui.computercraft.config.http.timeout": "Timeout",
-    "gui.computercraft.config.http.max_requests": "Maximalt antal samgående förfrågningar",
-    "gui.computercraft.config.http.max_download": "Maximal svarsstorlek",
-    "gui.computercraft.config.http.max_upload": "Maximal förfrågan",
-    "gui.computercraft.config.http.max_websockets": "Maximalt antal samgående websockets",
-    "gui.computercraft.config.http.max_websocket_message": "Maximal websocket meddelandestorlek",
-
-    "gui.computercraft.config.peripheral": "Kringutrustning",
-    "gui.computercraft.config.peripheral.command_block_enabled": "Aktivera kommandoblock som kringutrustning",
-    "gui.computercraft.config.peripheral.modem_range": "Modem räckvidd (standard)",
-    "gui.computercraft.config.peripheral.modem_high_altitude_range": "Modem räckvidd (hög altitud)",
-    "gui.computercraft.config.peripheral.modem_range_during_storm": "Modem räckvidd (dåligt väder)",
-    "gui.computercraft.config.peripheral.modem_high_altitude_range_during_storm": "Modem räckvidd (hög altitud, dåligt väder)",
-    "gui.computercraft.config.peripheral.max_notes_per_tick": "Maximalt antal musiknoter en dator kan spela samtidigt",
-
-    "gui.computercraft.config.turtle": "Turtles",
-    "gui.computercraft.config.turtle.need_fuel": "Aktivera bränsle",
-    "gui.computercraft.config.turtle.normal_fuel_limit": "Turtle bränslegräns",
-    "gui.computercraft.config.turtle.advanced_fuel_limit": "Advanced Turtle bränslegräns",
-    "gui.computercraft.config.turtle.obey_block_protection": "Turtles lyder blockskydd",
-    "gui.computercraft.config.turtle.can_push": "Turtles kan putta entiteter",
-    "gui.computercraft.config.turtle.disabled_actions": "Avaktiverade turtle åtgärder"
+    "gui.computercraft.tooltip.copy": "Kopiera till urklipp"
 }

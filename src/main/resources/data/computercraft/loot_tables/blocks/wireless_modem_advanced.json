@@ -1,12 +1,20 @@
 {
-    "type": "minecraft:block",
-    "pools": [
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "name": "main",
+      "rolls": 1,
+      "entries": [
         {
-            "rolls": 1,
-            "entries": [
-                { "type": "minecraft:item", "name": "computercraft:wireless_modem_advanced" }
-            ],
-            "conditions": [ { "condition": "minecraft:survives_explosion" } ]
+          "type": "minecraft:item",
+          "name": "computercraft:wireless_modem_advanced"
         }
-    ]
+      ],
+      "conditions": [
+        {
+          "condition": "minecraft:survives_explosion"
+        }
+      ]
+    }
+  ]
 }

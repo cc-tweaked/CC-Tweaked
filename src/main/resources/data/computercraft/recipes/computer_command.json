@@ -1,14 +1,22 @@
 {
-    "type": "crafting_shaped",
-    "pattern": [
-        "###",
-        "#R#",
-        "#G#"
-    ],
-    "key": {
-        "#": { "item": "minecraft:stone" },
-        "R": { "item": "minecraft:command_block" },
-        "G": { "item": "minecraft:glass_pane" }
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "###",
+    "#R#",
+    "#G#"
+  ],
+  "key": {
+    "#": {
+      "tag": "forge:ingots/gold"
     },
-    "result": { "item": "computercraft:computer_command" }
+    "R": {
+      "item": "minecraft:command_block"
+    },
+    "G": {
+      "tag": "forge:glass_panes"
+    }
+  },
+  "result": {
+    "item": "computercraft:computer_command"
+  }
 }

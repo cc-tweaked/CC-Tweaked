@@ -1,14 +1,22 @@
 {
-    "type": "crafting_shaped",
-    "pattern": [
-        "###",
-        "#R#",
-        "#G#"
-    ],
-    "key": {
-        "#": { "item": "minecraft:stone" },
-        "R": { "item": "minecraft:redstone" },
-        "G": { "item": "minecraft:glass_pane" }
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "###",
+    "#R#",
+    "#G#"
+  ],
+  "key": {
+    "#": {
+      "tag": "forge:stone"
     },
-    "result": { "item": "computercraft:computer_normal" }
+    "R": {
+      "tag": "forge:dusts/redstone"
+    },
+    "G": {
+      "tag": "forge:glass_panes"
+    }
+  },
+  "result": {
+    "item": "computercraft:computer_normal"
+  }
 }

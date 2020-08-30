@@ -1,13 +1,19 @@
 {
-    "type": "crafting_shaped",
-    "pattern": [
-        "###",
-        "#R#",
-        "#R#"
-    ],
-    "key": {
-        "#": { "item": "minecraft:stone" },
-        "R": { "item": "minecraft:redstone" }
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "###",
+    "#R#",
+    "#R#"
+  ],
+  "key": {
+    "#": {
+      "tag": "forge:stone"
     },
-    "result": { "item": "computercraft:disk_drive" }
+    "R": {
+      "tag": "forge:dusts/redstone"
+    }
+  },
+  "result": {
+    "item": "computercraft:disk_drive"
+  }
 }

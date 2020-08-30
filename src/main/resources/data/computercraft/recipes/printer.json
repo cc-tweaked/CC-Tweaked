@@ -1,15 +1,22 @@
 {
-    "type": "crafting_shaped",
-    "pattern": [
-        "###",
-        "#R#",
-        "#D#"
-    ],
-    "key": {
-        "#": { "item": "minecraft:stone" },
-        "R": { "item": "minecraft:glass_pane" },
-        "D": { "item": "minecraft:black_dye" }
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "###",
+    "#R#",
+    "#D#"
+  ],
+  "key": {
+    "#": {
+      "tag": "forge:stone"
     },
-    "_comment": "TODO: All dyes",
-    "result": { "item": "computercraft:printer" }
+    "R": {
+      "tag": "forge:dusts/redstone"
+    },
+    "D": {
+      "tag": "forge:dyes"
+    }
+  },
+  "result": {
+    "item": "computercraft:printer"
+  }
 }

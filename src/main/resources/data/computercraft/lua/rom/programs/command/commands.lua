@@ -1,16 +1,15 @@
-
 if not commands then
-    printError( "Requires a Command Computer." )
+    printError("Requires a Command Computer.")
     return
 end
 
 local tCommands = commands.list()
-table.sort( tCommands )
+table.sort(tCommands)
 
 if term.isColor() then
-    term.setTextColor( colors.green )
+    term.setTextColor(colors.green)
 end
-print( "Available commands:" )
-term.setTextColor( colors.white )
+print("Available commands:")
+term.setTextColor(colors.white)
 
-textutils.pagedTabulate( tCommands )
+textutils.pagedTabulate(tCommands)

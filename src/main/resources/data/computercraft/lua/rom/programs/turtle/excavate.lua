@@ -1,18 +1,18 @@
 if not turtle then
-    printError( "Requires a Turtle" )
+    printError("Requires a Turtle")
     return
 end
 
 local tArgs = { ... }
 if #tArgs ~= 1 then
-    print( "Usage: excavate <diameter>" )
+    print("Usage: excavate <diameter>")
     return
 end
 
 -- Mine in a quarry pattern until we hit something we can't dig
-local size = tonumber( tArgs[1] )
+local size = tonumber(tArgs[1])
 if size < 1 then
-    print( "Excavate diameter must be positive" )
+    print("Excavate diameter must be positive")
     return
 end
 
@@ -20,15 +20,15 @@ local depth = 0
 local unloaded = 0
 local collected = 0
 
-local xPos,zPos = 0,0
-local xDir,zDir = 0,1
+local xPos, zPos = 0, 0
+local xDir, zDir = 0, 1
 
 local goTo -- Filled in further down
 local refuel -- Filled in further down
 
-local function unload( _bKeepOneFuelStack )
-    print( "Unloading items..." )
-    for n=1,16 do
+local function unload(_bKeepOneFuelStack)
+    print("Unloading items...")
+    for n = 1, 16 do
         local nCount = turtle.getItemCount(n)
         if nCount > 0 then
             turtle.select(n)
@@ -48,29 +48,29 @@ local function unload( _bKeepOneFuelStack )
 end
 
 local function returnSupplies()
-    local x,y,z,xd,zd = xPos,depth,zPos,xDir,zDir
-    print( "Returning to surface..." )
-    goTo( 0,0,0,0,-1 )
+    local x, y, z, xd, zd = xPos, depth, zPos, xDir, zDir
+    print("Returning to surface...")
+    goTo(0, 0, 0, 0, -1)
 
-    local fuelNeeded = 2*(x+y+z) + 1
-    if not refuel( fuelNeeded ) then
-        unload( true )
-        print( "Waiting for fuel" )
-        while not refuel( fuelNeeded ) do
-            os.pullEvent( "turtle_inventory" )
+    local fuelNeeded = 2 * (x + y + z) + 1
+    if not refuel(fuelNeeded) then
+        unload(true)
+        print("Waiting for fuel")
+        while not refuel(fuelNeeded) do
+            os.pullEvent("turtle_inventory")
         end
     else
-        unload( true )
+        unload(true)
     end
 
-    print( "Resuming mining..." )
-    goTo( x,y,z,xd,zd )
+    print("Resuming mining...")
+    goTo(x, y, z, xd, zd)
 end
 
 local function collect()
     local bFull = true
     local nTotalItems = 0
-    for n=1,16 do
+    for n = 1, 16 do
         local nCount = turtle.getItemCount(n)
         if nCount == 0 then
             bFull = false
@@ -81,27 +81,26 @@ local function collect()
     if nTotalItems > collected then
         collected = nTotalItems
         if math.fmod(collected + unloaded, 50) == 0 then
-            print( "Mined "..(collected + unloaded).." items." )
+            print("Mined " .. collected + unloaded .. " items.")
         end
     end
 
     if bFull then
-        print( "No empty slots left." )
+        print("No empty slots left.")
         return false
     end
     return true
 end
 
-function refuel( ammount )
+function refuel(ammount)
     local fuelLevel = turtle.getFuelLevel()
     if fuelLevel == "unlimited" then
         return true
     end
 
-    local needed = ammount or (xPos + zPos + depth + 2)
+    local needed = ammount or xPos + zPos + depth + 2
     if turtle.getFuelLevel() < needed then
-        local fueled = false
-        for n=1,16 do
+        for n = 1, 16 do
             if turtle.getItemCount(n) > 0 then
                 turtle.select(n)
                 if turtle.refuel(1) then
@@ -124,7 +123,7 @@ end
 
 local function tryForwards()
     if not refuel() then
-        print( "Not enough Fuel" )
+        print("Not enough Fuel")
         returnSupplies()
     end
 
@@ -142,7 +141,7 @@ local function tryForwards()
                 returnSupplies()
             end
         else
-            sleep( 0.5 )
+            sleep(0.5)
         end
     end
 
@@ -153,7 +152,7 @@ end
 
 local function tryDown()
     if not refuel() then
-        print( "Not enough Fuel" )
+        print("Not enough Fuel")
         returnSupplies()
     end
 
@@ -171,13 +170,13 @@ local function tryDown()
                 returnSupplies()
             end
         else
-            sleep( 0.5 )
+            sleep(0.5)
         end
     end
 
     depth = depth + 1
-    if math.fmod( depth, 10 ) == 0 then
-        print( "Descended "..depth.." metres." )
+    if math.fmod(depth, 10) == 0 then
+        print("Descended " .. depth .. " metres.")
     end
 
     return true
@@ -193,14 +192,14 @@ local function turnRight()
     xDir, zDir = zDir, -xDir
 end
 
-function goTo( x, y, z, xd, zd )
+function goTo(x, y, z, xd, zd)
     while depth > y do
         if turtle.up() then
             depth = depth - 1
         elseif turtle.digUp() or turtle.attackUp() then
             collect()
         else
-            sleep( 0.5 )
+            sleep(0.5)
         end
     end
 
@@ -214,7 +213,7 @@ function goTo( x, y, z, xd, zd )
             elseif turtle.dig() or turtle.attack() then
                 collect()
             else
-                sleep( 0.5 )
+                sleep(0.5)
             end
         end
     elseif xPos < x then
@@ -227,7 +226,7 @@ function goTo( x, y, z, xd, zd )
             elseif turtle.dig() or turtle.attack() then
                 collect()
             else
-                sleep( 0.5 )
+                sleep(0.5)
             end
         end
     end
@@ -242,7 +241,7 @@ function goTo( x, y, z, xd, zd )
             elseif turtle.dig() or turtle.attack() then
                 collect()
             else
-                sleep( 0.5 )
+                sleep(0.5)
             end
         end
     elseif zPos < z then
@@ -255,7 +254,7 @@ function goTo( x, y, z, xd, zd )
             elseif turtle.dig() or turtle.attack() then
                 collect()
             else
-                sleep( 0.5 )
+                sleep(0.5)
             end
         end
     end
@@ -266,7 +265,7 @@ function goTo( x, y, z, xd, zd )
         elseif turtle.digDown() or turtle.attackDown() then
             collect()
         else
-            sleep( 0.5 )
+            sleep(0.5)
         end
     end
 
@@ -276,11 +275,11 @@ function goTo( x, y, z, xd, zd )
 end
 
 if not refuel() then
-    print( "Out of Fuel" )
+    print("Out of Fuel")
     return
 end
 
-print( "Excavating..." )
+print("Excavating...")
 
 local reseal = false
 turtle.select(1)
@@ -291,8 +290,8 @@ end
 local alternate = 0
 local done = false
 while not done do
-    for n=1,size do
-        for m=1,size-1 do
+    for n = 1, size do
+        for _ = 1, size - 1 do
             if not tryForwards() then
                 done = true
                 break
@@ -301,8 +300,8 @@ while not done do
         if done then
             break
         end
-        if n<size then
-            if math.fmod(n + alternate,2) == 0 then
+        if n < size then
+            if math.fmod(n + alternate, 2) == 0 then
                 turnLeft()
                 if not tryForwards() then
                     done = true
@@ -324,7 +323,7 @@ while not done do
     end
 
     if size > 1 then
-        if math.fmod(size,2) == 0 then
+        if math.fmod(size, 2) == 0 then
             turnRight()
         else
             if alternate == 0 then
@@ -342,16 +341,16 @@ while not done do
     end
 end
 
-print( "Returning to surface..." )
+print("Returning to surface...")
 
 -- Return to where we started
-goTo( 0,0,0,0,-1 )
-unload( false )
-goTo( 0,0,0,0,1 )
+goTo(0, 0, 0, 0, -1)
+unload(false)
+goTo(0, 0, 0, 0, 1)
 
 -- Seal the hole
 if reseal then
     turtle.placeDown()
 end
 
-print( "Mined "..(collected + unloaded).." items total." )
+print("Mined " .. collected + unloaded .. " items total.")

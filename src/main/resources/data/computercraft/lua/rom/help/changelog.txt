@@ -1,41 +1,196 @@
-New features in CC:T for Fabric 1.83.2+build.9
+# New features in CC: Tweaked 1.91.0
 
-* Add an argument `dimension` to commands.getBlockInfo and getBlockInfos (hugeblank)
-* Update dependencies
+* [Generic peripherals] Expose NBT hashes of items to inventory methods.
+* Bump Cobalt version
+  * Optimise handling of string concatenation.
+  * Add string.{pack,unpack,packsize} (MCJack123)
+* Update to 1.16.2
 
-New features in CC:T for Fabric 1.83.2+build.8
+And several bug fixes:
+* Escape non-ASCII characters in JSON strings (neumond)
+* Make field names in fs.attributes more consistent (abby)
+* Fix textutils.formatTime correctly handle 12 AM (R93950X)
+* Fix turtles placing buckets multiple times.
 
-* Fix an issue where the results of commands.exec were incomplete (hugeblank)
-* Update dependencies
+# New features in CC: Tweaked 1.90.3
 
-New features in CC:T for Fabric 1.83.2+build.7
+* Fix the selected slot indicator missing from the turtle GUI.
+* Ensure we load/save computer data from the world directory, rather than a global one.
 
-* Fix a bug that most turtle functions hang
-* Update ClothConfig
+# New features in CC: Tweaked 1.90.2
 
-New features in CC:T for Fabric 1.83.2+build.5
+* Fix generic peripherals not being registered outside a dev environment.
+* Fix `turtle.attack()` failing.
+* Correctly set styles for the output of `/computercraft` commands.
 
-* Fix rendering issues with OptiFine
-* Fix version of bundled Jankson (svitoos)
-* Update ClothConfig
+# New features in CC: Tweaked 1.90.1
 
-# New features in CC:T for Fabric 1.83.2+build.4
+* Update to Forge 32.0.69
 
-* Add support for config file and in-game config GUI (svitoos)
-* Fix the repository url in motd
+# New features in CC: Tweaked 1.90.0
 
-# New features in CC:T for Fabric 1.83.2+build.3
+* Add cc.image.nft module, for working with nft files. (JakobDev)
+* [experimental] Provide a generic peripheral for any tile entity without an existing one. We currently provide methods for working with inventories, fluid tanks and energy storage. This is disabled by default, and must be turned on in the config.
+* Add configuration to control the sizes of monitors and terminals.
+* Add configuration to control maximum render distance of monitors.
+* Allow getting "detailed" information about an item, using `turtle.getItemDetail(slot, true)`. This will contain the same information that the generic peripheral supplies.
 
-* Fix turtle.place bugs (svitoos)
+And several bug fixes:
+* Add back config for allowing interacting with command computers.
+* Fix write method missing from printers.
+* Fix dupe bug when killing an entity with a turtle.
+* Correctly supply port in the Host header (neumond).
+* Fix `turtle.craft` failing when missing an argument.
+* Fix deadlock when mistakenly "watching" an unloaded chunk.
+* Fix full path of files being leaked in some errors.
 
-# New features in CC:T for Fabric 1.83.2+build.2
+Type "help changelog" to see the full version history.
 
-* Fix os.time() and os.day() behavior (doomy64)
-* Change versioning scheme (add build number for each version)
+# New features in CC: Tweaked 1.89.1
 
-# New features in CC:T for Fabric 1.83.2
+* Fix crashes when rendering monitors of varying sizes.
 
-* Update to Minecraft 1.14.4
+# New features in CC: Tweaked 1.89.0
+
+* Compress monitor data, reducing network traffic by a significant amount.
+* Allow limiting the bandwidth monitor updates use.
+* Several optimisations to monitor rendering (@Lignum).
+* Expose block and item tags to turtle.inspect and turtle.getItemDetail.
+
+And several bug fixes:
+* Fix settings.load failing on defined settings.
+* Fix name of the `ejectDisk` peripheral method.
+
+# New features in CC: Tweaked 1.88.1
+
+* Fix error on objects with too many methods.
+
+# New features in CC: Tweaked 1.88.0
+
+* Computers and turtles now preserve their ID when broken.
+* Add `peripheral.getName` - returns the name of a wrapped peripheral.
+* Reduce network overhead of monitors and terminals.
+* Add a TBO backend for monitors, with a significant performance boost.
+* The Lua REPL warns when declaring locals (lupus590, exerro)
+* Add config to allow using command computers in survival.
+* Add fs.isDriveRoot - checks if a path is the root of a drive.
+* `cc.pretty` can now display a function's arguments and where it was defined. The Lua REPL will show arguments by default.
+* Move the shell's `require`/`package` implementation to a separate `cc.require` module.
+* Move treasure programs into a separate external data pack.
+
+And several bug fixes:
+* Fix io.lines not accepting arguments.
+* Fix settings.load using an unknown global (MCJack123).
+* Prevent computers scanning peripherals twice.
+
+# New features in CC: Tweaked 1.87.1
+
+* Fix blocks not dropping items in survival.
+
+# New features in CC: Tweaked 1.87.0
+
+* Add documentation to many Lua functions. This is published online at https://tweaked.cc/.
+* Replace to pretty-printer in the Lua REPL. It now supports displaying functions and recursive tables. This printer is may be used within your own code through the `cc.pretty` module.
+* Add `fs.getCapacity`. A complement to `fs.getFreeSpace`, this returns the capacity of the supplied drive.
+* Add `fs.getAttributes`. This provides file size and type, as well as creation and modification time.
+* Update Cobalt version. This backports several features from Lua 5.2 and 5.3:
+  - The `__len` metamethod may now be used by tables.
+  - Add `\z`, hexadecimal (`\x00`) and unicode (`\u0000`) string escape codes.
+  - Add `utf8` lib.
+  - Mirror Lua's behaviour of tail calls more closely. Native functions are no longer tail called, and tail calls are displayed in the stack trace.
+  - `table.unpack` now uses `__len` and `__index` metamethods.
+  - Parser errors now include the token where the error occured.
+* Add `textutils.unserializeJSON`. This can be used to decode standard JSON and stringified-NBT.
+* The `settings` API now allows "defining" settings. This allows settings to specify a default value and description.
+* Enable the motd on non-pocket computers.
+* Allow using the menu with the mouse in edit and paint (JakobDev).
+* Add Danish and Korean translations (ChristianLW, mindy15963)
+* Fire `mouse_up` events in the monitor program.
+* Allow specifying a timeout to `websocket.receive`.
+* Increase the maximimum limit for websocket messages.
+* Optimise capacity checking of computer/disk folders.
+
+And several bug fixes:
+* Fix turtle texture being incorrectly oriented (magiczocker10).
+* Prevent copying folders into themselves.
+* Normalise file paths within shell.setDir (JakobDev)
+* Fix turtles treating waterlogged blocks as water.
+* Register an entity renderer for the turtle's fake player.
+
+# New features in CC: Tweaked 1.86.2
+
+* Fix peripheral.getMethods returning an empty table
+* Update to Minecraft 1.15.2. This is currently alpha-quality and so is missing
+  missing features and may be unstable.
+
+# New features in CC: Tweaked 1.86.1
+
+* Add a help message to the Lua REPL's exit function
+* Add more MOTD messages. (osmarks)
+* GPS requests are now made anonymously (osmarks)
+* Minor memory usage improvements to Cobalt VM.
+
+And several bug fixes:
+* Fix error when calling `write` with a number.
+* Add missing assertion to `io.write`.
+* Fix incorrect coordinates in `mouse_scroll` events.
+
+# New features in CC: Tweaked 1.86.0
+
+* Add PATCH and TRACE HTTP methods. (jaredallard)
+* Add more MOTD messages. (JakobDev)
+* Allow removing and adding turtle upgrades via CraftTweaker.
+
+And several bug fixes:
+* Fix crash when interacting with Wearable Backpacks.
+
+# New features in CC: Tweaked 1.85.2
+
+* Fix crashes when using the mouse with advanced computers.
+
+# New features in CC: Tweaked 1.85.1
+
+* Add basic mouse support to `read`
+
+And several bug fixes:
+* Fix turtles not having breaking particles.
+* Correct rendering of monitors when underwater.
+* Adjust the position from where turtle performs actions, correcting the behaviour of some interactions.
+* Fix several crashes when the turtle performs some action.
+
+# New features in CC: Tweaked 1.85.0
+
+* Window.reposition now allows changing the redirect buffer
+* Add cc.completion and cc.shell.completion modules
+* command.exec also returns the number of affected objects, when exposed by the game.
+
+And several bug fixes:
+* Change how turtle mining drops are handled, improving compatibility with some mods.
+* Fix several GUI desyncs after a turtle moves.
+* Fix os.day/os.time using the incorrect world time.
+* Prevent wired modems dropping incorrectly.
+* Fix mouse events not firing within the computer GUI.
+
+# New features in CC: Tweaked 1.84.1
+
+* Update to latest Forge
+
+# New features in CC: Tweaked 1.84.0
+
+* Improve validation in rename, copy and delete programs
+* Add window.getLine - the inverse of blit
+* turtle.refuel no longer consumes more fuel than needed
+* Add "cc.expect" module, for improved argument type checks
+* Mount the ROM from all mod jars, not just CC's
+
+And several bug fixes:
+* Ensure file error messages use the absolute correct path
+* Fix NPE when closing a file multiple times.
+* Do not load chunks when calling writeDescription.
+* Fix the signature of loadfile
+* Fix turtles harvesting blocks multiple times
+* Improve thread-safety of various peripherals
+* Prevent printed pages having massive/malformed titles
 
 # New features in CC: Tweaked 1.83.1
 

@@ -1,47 +1,18 @@
-local native_select, native_type = select, type
-
---- Expect an argument to have a specific type.
+-- Load in expect from the module path.
 --
--- @tparam int index The 1-based argument index.
--- @param value The argument's value.
--- @tparam string ... The allowed types of the argument.
--- @throws If the value is not one of the allowed types.
-local function expect(index, value, ...)
-    local t = native_type(value)
-    for i = 1, native_select("#", ...) do
-        if t == native_select(i, ...) then return true end
-    end
+-- Ideally we'd use require, but that is part of the shell, and so is not
+-- available to the BIOS or any APIs. All APIs load this using dofile, but that
+-- has not been defined at this point.
+local expect
 
-    local types = table.pack(...)
-    for i = types.n, 1, -1 do
-        if types[i] == "nil" then table.remove(types, i) end
-    end
+do
+    local h = fs.open("rom/modules/main/cc/expect.lua", "r")
+    local f, err = loadstring(h.readAll(), "@expect.lua")
+    h.close()
 
-    local type_names
-    if #types <= 1 then
-        type_names = tostring(...)
-    else
-        type_names = table.concat(types, ", ", 1, #types - 1) .. " or " .. types[#types]
-    end
-
-    -- If we can determine the function name with a high level of confidence, try to include it.
-    local name
-    if native_type(debug) == "table" and native_type(debug.getinfo) == "function" then
-        local ok, info = pcall(debug.getinfo, 3, "nS")
-        if ok and info.name and #info.name ~= "" and info.what ~= "C" then name = info.name end
-    end
-
-    if name then
-        error( ("bad argument #%d to '%s' (expected %s, got %s)"):format(index, name, type_names, t), 3 )
-    else
-        error( ("bad argument #%d (expected %s, got %s)"):format(index, type_names, t), 3 )
-    end
+    if not f then error(err) end
+    expect = f().expect
 end
-
--- We expose expect in the global table as APIs need to access it, but give it
--- a non-identifier name - meaning it does not show up in auto-completion.
--- expect is an internal function, and should not be used by users.
-_G["~expect"] = expect
 
 if _VERSION == "Lua 5.1" then
     -- If we're on Lua 5.1, install parts of the Lua 5.2/5.3 API so that programs can be written against it
@@ -50,7 +21,7 @@ if _VERSION == "Lua 5.1" then
     local nativeloadstring = loadstring
     local nativesetfenv = setfenv
 
-    --- Historically load/loadstring would handle the chunk name as if it has
+    -- Historically load/loadstring would handle the chunk name as if it has
     -- been prefixed with "=". We emulate that behaviour here.
     local function prefix(chunkname)
         if type(chunkname) ~= "string" then return chunkname end
@@ -62,45 +33,43 @@ if _VERSION == "Lua 5.1" then
         end
     end
 
-    function load( x, name, mode, env )
+    function load(x, name, mode, env)
         expect(1, x, "function", "string")
         expect(2, name, "string", "nil")
         expect(3, mode, "string", "nil")
         expect(4, env, "table", "nil")
 
-        local ok, p1, p2 = pcall( function()
+        local ok, p1, p2 = pcall(function()
             if type(x) == "string" then
-                local result, err = nativeloadstring( x, name )
+                local result, err = nativeloadstring(x, name)
                 if result then
                     if env then
                         env._ENV = env
-                        nativesetfenv( result, env )
+                        nativesetfenv(result, env)
                     end
                     return result
                 else
                     return nil, err
                 end
             else
-                local result, err = nativeload( x, name )
+                local result, err = nativeload(x, name)
                 if result then
                     if env then
                         env._ENV = env
-                        nativesetfenv( result, env )
+                        nativesetfenv(result, env)
                     end
                     return result
                 else
                     return nil, err
                 end
             end
-        end )
+        end)
         if ok then
             return p1, p2
         else
-            error( p1, 2 )
+            error(p1, 2)
         end
     end
-    table.unpack = unpack
-    table.pack = function( ... ) return { n = select( "#", ... ), ... } end
 
     if _CC_DISABLE_LUA51_FEATURES then
         -- Remove the Lua 5.1 features that will be removed when we update to Lua 5.2, for compatibility testing.
@@ -112,7 +81,7 @@ if _VERSION == "Lua 5.1" then
         math.log10 = nil
         table.maxn = nil
     else
-        loadstring = function(string, chunkname) return nativeloadstring(string, prefix( chunkname )) end
+        loadstring = function(string, chunkname) return nativeloadstring(string, prefix(chunkname)) end
 
         -- Inject a stub for the old bit library
         _G.bit = {
@@ -122,73 +91,9 @@ if _VERSION == "Lua 5.1" then
             bxor = bit32.bxor,
             brshift = bit32.arshift,
             blshift = bit32.lshift,
-            blogic_rshift = bit32.rshift
+            blogic_rshift = bit32.rshift,
         }
     end
-end
-
-if _VERSION == "Lua 5.3" and not bit32 then
-    -- If we're on Lua 5.3, install the bit32 api from Lua 5.2
-    -- (Loaded from a string so this file will still parse on <5.3 lua)
-    load( [[
-        bit32 = {}
-
-        function bit32.arshift( n, bits )
-            if type(n) ~= "number" or type(bits) ~= "number" then
-                error( "Expected number, number", 2 )
-            end
-            return n >> bits
-        end
-
-        function bit32.band( m, n )
-            if type(m) ~= "number" or type(n) ~= "number" then
-                error( "Expected number, number", 2 )
-            end
-            return m & n
-        end
-
-        function bit32.bnot( n )
-            if type(n) ~= "number" then
-                error( "Expected number", 2 )
-            end
-            return ~n
-        end
-
-        function bit32.bor( m, n )
-            if type(m) ~= "number" or type(n) ~= "number" then
-                error( "Expected number, number", 2 )
-            end
-            return m | n
-        end
-
-        function bit32.btest( m, n )
-            if type(m) ~= "number" or type(n) ~= "number" then
-                error( "Expected number, number", 2 )
-            end
-            return (m & n) ~= 0
-        end
-
-        function bit32.bxor( m, n )
-            if type(m) ~= "number" or type(n) ~= "number" then
-                error( "Expected number, number", 2 )
-            end
-            return m ~ n
-        end
-
-        function bit32.lshift( n, bits )
-            if type(n) ~= "number" or type(bits) ~= "number" then
-                error( "Expected number, number", 2 )
-            end
-            return n << bits
-        end
-
-        function bit32.rshift( n, bits )
-            if type(n) ~= "number" or type(bits) ~= "number" then
-                error( "Expected number, number", 2 )
-            end
-            return n >> bits
-        end
-    ]] )()
 end
 
 -- Install lua parts of the os api
@@ -196,32 +101,32 @@ function os.version()
     return "CraftOS 1.8"
 end
 
-function os.pullEventRaw( sFilter )
-    return coroutine.yield( sFilter )
+function os.pullEventRaw(sFilter)
+    return coroutine.yield(sFilter)
 end
 
-function os.pullEvent( sFilter )
-    local eventData = table.pack( os.pullEventRaw( sFilter ) )
+function os.pullEvent(sFilter)
+    local eventData = table.pack(os.pullEventRaw(sFilter))
     if eventData[1] == "terminate" then
-        error( "Terminated", 0 )
+        error("Terminated", 0)
     end
-    return table.unpack( eventData, 1, eventData.n )
+    return table.unpack(eventData, 1, eventData.n)
 end
 
 -- Install globals
-function sleep( nTime )
+function sleep(nTime)
     expect(1, nTime, "number", "nil")
-    local timer = os.startTimer( nTime or 0 )
+    local timer = os.startTimer(nTime or 0)
     repeat
-        local sEvent, param = os.pullEvent( "timer" )
+        local _, param = os.pullEvent("timer")
     until param == timer
 end
 
-function write( sText )
+function write(sText)
     expect(1, sText, "string", "number")
 
-    local w,h = term.getSize()
-    local x,y = term.getCursorPos()
+    local w, h = term.getSize()
+    local x, y = term.getCursorPos()
 
     local nLinesPrinted = 0
     local function newLine()
@@ -236,42 +141,43 @@ function write( sText )
     end
 
     -- Print the line with proper word wrapping
-    while string.len(sText) > 0 do
-        local whitespace = string.match( sText, "^[ \t]+" )
+    sText = tostring(sText)
+    while #sText > 0 do
+        local whitespace = string.match(sText, "^[ \t]+")
         if whitespace then
             -- Print whitespace
-            term.write( whitespace )
-            x,y = term.getCursorPos()
-            sText = string.sub( sText, string.len(whitespace) + 1 )
+            term.write(whitespace)
+            x, y = term.getCursorPos()
+            sText = string.sub(sText, #whitespace + 1)
         end
 
-        local newline = string.match( sText, "^\n" )
+        local newline = string.match(sText, "^\n")
         if newline then
             -- Print newlines
             newLine()
-            sText = string.sub( sText, 2 )
+            sText = string.sub(sText, 2)
         end
 
-        local text = string.match( sText, "^[^ \t\n]+" )
+        local text = string.match(sText, "^[^ \t\n]+")
         if text then
-            sText = string.sub( sText, string.len(text) + 1 )
-            if string.len(text) > w then
+            sText = string.sub(sText, #text + 1)
+            if #text > w then
                 -- Print a multiline word
-                while string.len( text ) > 0 do
+                while #text > 0 do
                     if x > w then
                         newLine()
                     end
-                    term.write( text )
-                    text = string.sub( text, (w-x) + 2 )
-                    x,y = term.getCursorPos()
+                    term.write(text)
+                    text = string.sub(text, w - x + 2)
+                    x, y = term.getCursorPos()
                 end
             else
                 -- Print a word normally
-                if x + string.len(text) - 1 > w then
+                if x + #text - 1 > w then
                     newLine()
                 end
-                term.write( text )
-                x,y = term.getCursorPos()
+                term.write(text)
+                x, y = term.getCursorPos()
             end
         end
     end
@@ -279,57 +185,57 @@ function write( sText )
     return nLinesPrinted
 end
 
-function print( ... )
+function print(...)
     local nLinesPrinted = 0
-    local nLimit = select("#", ... )
+    local nLimit = select("#", ...)
     for n = 1, nLimit do
-        local s = tostring( select( n, ... ) )
+        local s = tostring(select(n, ...))
         if n < nLimit then
             s = s .. "\t"
         end
-        nLinesPrinted = nLinesPrinted + write( s )
+        nLinesPrinted = nLinesPrinted + write(s)
     end
-    nLinesPrinted = nLinesPrinted + write( "\n" )
+    nLinesPrinted = nLinesPrinted + write("\n")
     return nLinesPrinted
 end
 
-function printError( ... )
+function printError(...)
     local oldColour
     if term.isColour() then
         oldColour = term.getTextColour()
-        term.setTextColour( colors.red )
+        term.setTextColour(colors.red)
     end
-    print( ... )
+    print(...)
     if term.isColour() then
-        term.setTextColour( oldColour )
+        term.setTextColour(oldColour)
     end
 end
 
-function read( _sReplaceChar, _tHistory, _fnComplete, _sDefault )
+function read(_sReplaceChar, _tHistory, _fnComplete, _sDefault)
     expect(1, _sReplaceChar, "string", "nil")
     expect(2, _tHistory, "table", "nil")
     expect(3, _fnComplete, "function", "nil")
     expect(4, _sDefault, "string", "nil")
 
-    term.setCursorBlink( true )
+    term.setCursorBlink(true)
 
     local sLine
-    if type( _sDefault ) == "string" then
+    if type(_sDefault) == "string" then
         sLine = _sDefault
     else
         sLine = ""
     end
     local nHistoryPos
-    local nPos = #sLine
+    local nPos, nScroll = #sLine, 0
     if _sReplaceChar then
-        _sReplaceChar = string.sub( _sReplaceChar, 1, 1 )
+        _sReplaceChar = string.sub(_sReplaceChar, 1, 1)
     end
 
     local tCompletions
     local nCompletion
     local function recomplete()
-        if _fnComplete and nPos == string.len(sLine) then
-            tCompletions = _fnComplete( sLine )
+        if _fnComplete and nPos == #sLine then
+            tCompletions = _fnComplete(sLine)
             if tCompletions and #tCompletions > 0 then
                 nCompletion = 1
             else
@@ -349,46 +255,50 @@ function read( _sReplaceChar, _tHistory, _fnComplete, _sDefault )
     local w = term.getSize()
     local sx = term.getCursorPos()
 
-    local function redraw( _bClear )
-        local nScroll = 0
-        if sx + nPos >= w then
-            nScroll = (sx + nPos) - w
+    local function redraw(_bClear)
+        local cursor_pos = nPos - nScroll
+        if sx + cursor_pos >= w then
+            -- We've moved beyond the RHS, ensure we're on the edge.
+            nScroll = sx + nPos - w
+        elseif cursor_pos < 0 then
+            -- We've moved beyond the LHS, ensure we're on the edge.
+            nScroll = nPos
         end
 
-        local cx,cy = term.getCursorPos()
-        term.setCursorPos( sx, cy )
-        local sReplace = (_bClear and " ") or _sReplaceChar
+        local _, cy = term.getCursorPos()
+        term.setCursorPos(sx, cy)
+        local sReplace = _bClear and " " or _sReplaceChar
         if sReplace then
-            term.write( string.rep( sReplace, math.max( string.len(sLine) - nScroll, 0 ) ) )
+            term.write(string.rep(sReplace, math.max(#sLine - nScroll, 0)))
         else
-            term.write( string.sub( sLine, nScroll + 1 ) )
+            term.write(string.sub(sLine, nScroll + 1))
         end
 
         if nCompletion then
-            local sCompletion = tCompletions[ nCompletion ]
+            local sCompletion = tCompletions[nCompletion]
             local oldText, oldBg
             if not _bClear then
                 oldText = term.getTextColor()
                 oldBg = term.getBackgroundColor()
-                term.setTextColor( colors.white )
-                term.setBackgroundColor( colors.gray )
+                term.setTextColor(colors.white)
+                term.setBackgroundColor(colors.gray)
             end
             if sReplace then
-                term.write( string.rep( sReplace, string.len( sCompletion ) ) )
+                term.write(string.rep(sReplace, #sCompletion))
             else
-                term.write( sCompletion )
+                term.write(sCompletion)
             end
             if not _bClear then
-                term.setTextColor( oldText )
-                term.setBackgroundColor( oldBg )
+                term.setTextColor(oldText)
+                term.setBackgroundColor(oldBg)
             end
         end
 
-        term.setCursorPos( sx + nPos - nScroll, cy )
+        term.setCursorPos(sx + nPos - nScroll, cy)
     end
 
     local function clear()
-        redraw( true )
+        redraw(true)
     end
 
     recomplete()
@@ -400,9 +310,9 @@ function read( _sReplaceChar, _tHistory, _fnComplete, _sDefault )
             clear()
 
             -- Find the common prefix of all the other suggestions which start with the same letter as the current one
-            local sCompletion = tCompletions[ nCompletion ]
+            local sCompletion = tCompletions[nCompletion]
             sLine = sLine .. sCompletion
-            nPos = string.len( sLine )
+            nPos = #sLine
 
             -- Redraw
             recomplete()
@@ -410,11 +320,11 @@ function read( _sReplaceChar, _tHistory, _fnComplete, _sDefault )
         end
     end
     while true do
-        local sEvent, param = os.pullEvent()
+        local sEvent, param, param1, param2 = os.pullEvent()
         if sEvent == "char" then
             -- Typed key
             clear()
-            sLine = string.sub( sLine, 1, nPos ) .. param .. string.sub( sLine, nPos + 1 )
+            sLine = string.sub(sLine, 1, nPos) .. param .. string.sub(sLine, nPos + 1)
             nPos = nPos + 1
             recomplete()
             redraw()
@@ -422,8 +332,8 @@ function read( _sReplaceChar, _tHistory, _fnComplete, _sDefault )
         elseif sEvent == "paste" then
             -- Pasted text
             clear()
-            sLine = string.sub( sLine, 1, nPos ) .. param .. string.sub( sLine, nPos + 1 )
-            nPos = nPos + string.len( param )
+            sLine = string.sub(sLine, 1, nPos) .. param .. string.sub(sLine, nPos + 1)
+            nPos = nPos + #param
             recomplete()
             redraw()
 
@@ -448,7 +358,7 @@ function read( _sReplaceChar, _tHistory, _fnComplete, _sDefault )
 
             elseif param == keys.right then
                 -- Right
-                if nPos < string.len(sLine) then
+                if nPos < #sLine then
                     -- Move right
                     clear()
                     nPos = nPos + 1
@@ -499,10 +409,10 @@ function read( _sReplaceChar, _tHistory, _fnComplete, _sDefault )
                     end
                     if nHistoryPos then
                         sLine = _tHistory[nHistoryPos]
-                        nPos = string.len( sLine )
+                        nPos, nScroll = #sLine, 0
                     else
                         sLine = ""
-                        nPos = 0
+                        nPos, nScroll = 0, 0
                     end
                     uncomplete()
                     redraw()
@@ -513,8 +423,9 @@ function read( _sReplaceChar, _tHistory, _fnComplete, _sDefault )
                 -- Backspace
                 if nPos > 0 then
                     clear()
-                    sLine = string.sub( sLine, 1, nPos - 1 ) .. string.sub( sLine, nPos + 1 )
+                    sLine = string.sub(sLine, 1, nPos - 1) .. string.sub(sLine, nPos + 1)
                     nPos = nPos - 1
+                    if nScroll > 0 then nScroll = nScroll - 1 end
                     recomplete()
                     redraw()
                 end
@@ -530,18 +441,18 @@ function read( _sReplaceChar, _tHistory, _fnComplete, _sDefault )
 
             elseif param == keys.delete then
                 -- Delete
-                if nPos < string.len(sLine) then
+                if nPos < #sLine then
                     clear()
-                    sLine = string.sub( sLine, 1, nPos ) .. string.sub( sLine, nPos + 2 )
+                    sLine = string.sub(sLine, 1, nPos) .. string.sub(sLine, nPos + 2)
                     recomplete()
                     redraw()
                 end
 
             elseif param == keys["end"] then
                 -- End
-                if nPos < string.len(sLine ) then
+                if nPos < #sLine then
                     clear()
-                    nPos = string.len(sLine)
+                    nPos = #sLine
                     recomplete()
                     redraw()
                 end
@@ -552,6 +463,14 @@ function read( _sReplaceChar, _tHistory, _fnComplete, _sDefault )
 
             end
 
+        elseif sEvent == "mouse_click" or sEvent == "mouse_drag" and param == 1 then
+            local _, cy = term.getCursorPos()
+            if param1 >= sx and param1 <= w and param2 == cy then
+                -- Ensure we don't scroll beyond the current line
+                nPos = math.min(math.max(nScroll + param1 - sx, 0), #sLine)
+                redraw()
+            end
+
         elseif sEvent == "term_resize" then
             -- Terminal resized
             w = term.getSize()
@@ -560,94 +479,96 @@ function read( _sReplaceChar, _tHistory, _fnComplete, _sDefault )
         end
     end
 
-    local cx, cy = term.getCursorPos()
-    term.setCursorBlink( false )
-    term.setCursorPos( w + 1, cy )
+    local _, cy = term.getCursorPos()
+    term.setCursorBlink(false)
+    term.setCursorPos(w + 1, cy)
     print()
 
     return sLine
 end
 
-function loadfile( _sFile, _tEnv )
-    expect(1, _sFile, "string")
-    expect(2, _tEnv, "table", "nil")
-
-    local file = fs.open( _sFile, "r" )
-    if file then
-        local func, err = load( file.readAll(), "@" .. fs.getName( _sFile ), "t", _tEnv )
-        file.close()
-        return func, err
+function loadfile(filename, mode, env)
+    -- Support the previous `loadfile(filename, env)` form instead.
+    if type(mode) == "table" and env == nil then
+        mode, env = nil, mode
     end
-    return nil, "File not found"
+
+    expect(1, filename, "string")
+    expect(2, mode, "string", "nil")
+    expect(3, env, "table", "nil")
+
+    local file = fs.open(filename, "r")
+    if not file then return nil, "File not found" end
+
+    local func, err = load(file.readAll(), "@" .. fs.getName(filename), mode, env)
+    file.close()
+    return func, err
 end
 
-function dofile( _sFile )
+function dofile(_sFile)
     expect(1, _sFile, "string")
 
-    local fnFile, e = loadfile( _sFile, _G )
+    local fnFile, e = loadfile(_sFile, nil, _G)
     if fnFile then
         return fnFile()
     else
-        error( e, 2 )
+        error(e, 2)
     end
 end
 
 -- Install the rest of the OS api
-function os.run( _tEnv, _sPath, ... )
+function os.run(_tEnv, _sPath, ...)
     expect(1, _tEnv, "table")
     expect(2, _sPath, "string")
 
-    local tArgs = table.pack( ... )
     local tEnv = _tEnv
-    setmetatable( tEnv, { __index = _G } )
-    local fnFile, err = loadfile( _sPath, tEnv )
+    setmetatable(tEnv, { __index = _G })
+    local fnFile, err = loadfile(_sPath, nil, tEnv)
     if fnFile then
-        local ok, err = pcall( function()
-            fnFile( table.unpack( tArgs, 1, tArgs.n ) )
-        end )
+        local ok, err = pcall(fnFile, ...)
         if not ok then
             if err and err ~= "" then
-                printError( err )
+                printError(err)
             end
             return false
         end
         return true
     end
     if err and err ~= "" then
-        printError( err )
+        printError(err)
     end
     return false
 end
 
 local tAPIsLoading = {}
-function os.loadAPI( _sPath )
+function os.loadAPI(_sPath)
     expect(1, _sPath, "string")
-    local sName = fs.getName( _sPath )
+    local sName = fs.getName(_sPath)
     if sName:sub(-4) == ".lua" then
-        sName = sName:sub(1,-5)
+        sName = sName:sub(1, -5)
     end
     if tAPIsLoading[sName] == true then
-        printError( "API "..sName.." is already being loaded" )
+        printError("API " .. sName .. " is already being loaded")
         return false
     end
     tAPIsLoading[sName] = true
 
     local tEnv = {}
-    setmetatable( tEnv, { __index = _G } )
-    local fnAPI, err = loadfile( _sPath, tEnv )
+    setmetatable(tEnv, { __index = _G })
+    local fnAPI, err = loadfile(_sPath, nil, tEnv)
     if fnAPI then
-        local ok, err = pcall( fnAPI )
+        local ok, err = pcall(fnAPI)
         if not ok then
             tAPIsLoading[sName] = nil
-            return error( "Failed to load API " .. sName .. " due to " .. err, 1 )
+            return error("Failed to load API " .. sName .. " due to " .. err, 1)
         end
     else
         tAPIsLoading[sName] = nil
-        return error( "Failed to load API " .. sName .. " due to " .. err, 1 )
+        return error("Failed to load API " .. sName .. " due to " .. err, 1)
     end
 
     local tAPI = {}
-    for k,v in pairs( tEnv ) do
+    for k, v in pairs(tEnv) do
         if k ~= "_ENV" then
             tAPI[k] =  v
         end
@@ -658,15 +579,15 @@ function os.loadAPI( _sPath )
     return true
 end
 
-function os.unloadAPI( _sName )
+function os.unloadAPI(_sName)
     expect(1, _sName, "string")
     if _sName ~= "_G" and type(_G[_sName]) == "table" then
         _G[_sName] = nil
     end
 end
 
-function os.sleep( nTime )
-    sleep( nTime )
+function os.sleep(nTime)
+    sleep(nTime)
 end
 
 local nativeShutdown = os.shutdown
@@ -691,10 +612,11 @@ if http then
 
     local methods = {
         GET = true, POST = true, HEAD = true,
-        OPTIONS = true, PUT = true, DELETE = true
+        OPTIONS = true, PUT = true, DELETE = true,
+        PATCH = true, TRACE = true,
     }
 
-    local function checkKey( options, key, ty, opt )
+    local function checkKey(options, key, ty, opt)
         local value = options[key]
         local valueTy = type(value)
 
@@ -703,24 +625,24 @@ if http then
         end
     end
 
-    local function checkOptions( options, body )
-        checkKey( options, "url", "string")
+    local function checkOptions(options, body)
+        checkKey(options, "url", "string")
         if body == false then
-          checkKey( options, "body", "nil" )
+          checkKey(options, "body", "nil")
         else
-          checkKey( options, "body", "string", not body )
+          checkKey(options, "body", "string", not body)
         end
-        checkKey( options, "headers", "table", true )
-        checkKey( options, "method", "string", true )
-        checkKey( options, "redirect", "boolean", true )
+        checkKey(options, "headers", "table", true)
+        checkKey(options, "method", "string", true)
+        checkKey(options, "redirect", "boolean", true)
 
         if options.method and not methods[options.method] then
-            error( "Unsupported HTTP method", 3 )
+            error("Unsupported HTTP method", 3)
         end
     end
 
-    local function wrapRequest( _url, ... )
-        local ok, err = nativeHTTPRequest( ... )
+    local function wrapRequest(_url, ...)
+        local ok, err = nativeHTTPRequest(...)
         if ok then
             while true do
                 local event, param1, param2, param3 = os.pullEvent()
@@ -734,35 +656,35 @@ if http then
         return nil, err
     end
 
-    http.get = function( _url, _headers, _binary)
-        if type( _url ) == "table" then
-            checkOptions( _url, false )
-            return wrapRequest( _url.url, _url )
+    http.get = function(_url, _headers, _binary)
+        if type(_url) == "table" then
+            checkOptions(_url, false)
+            return wrapRequest(_url.url, _url)
         end
 
         expect(1, _url, "string")
         expect(2, _headers, "table", "nil")
         expect(3, _binary, "boolean", "nil")
-        return wrapRequest( _url, _url, nil, _headers, _binary )
+        return wrapRequest(_url, _url, nil, _headers, _binary)
     end
 
-    http.post = function( _url, _post, _headers, _binary)
-        if type( _url ) == "table" then
-            checkOptions( _url, true )
-            return wrapRequest( _url.url, _url )
+    http.post = function(_url, _post, _headers, _binary)
+        if type(_url) == "table" then
+            checkOptions(_url, true)
+            return wrapRequest(_url.url, _url)
         end
 
         expect(1, _url, "string")
         expect(2, _post, "string")
         expect(3, _headers, "table", "nil")
         expect(4, _binary, "boolean", "nil")
-        return wrapRequest( _url, _url, _post, _headers, _binary )
+        return wrapRequest(_url, _url, _post, _headers, _binary)
     end
 
-    http.request = function( _url, _post, _headers, _binary )
+    http.request = function(_url, _post, _headers, _binary)
         local url
-        if type( _url ) == "table" then
-            checkOptions( _url )
+        if type(_url) == "table" then
+            checkOptions(_url)
             url = _url.url
         else
             expect(1, _url, "string")
@@ -772,32 +694,32 @@ if http then
             url = _url.url
         end
 
-        local ok, err = nativeHTTPRequest( _url, _post, _headers, _binary )
+        local ok, err = nativeHTTPRequest(_url, _post, _headers, _binary)
         if not ok then
-            os.queueEvent( "http_failure", url, err )
+            os.queueEvent("http_failure", url, err)
         end
         return ok, err
     end
 
     local nativeCheckURL = http.checkURL
     http.checkURLAsync = nativeCheckURL
-    http.checkURL = function( _url )
-        local ok, err = nativeCheckURL( _url )
+    http.checkURL = function(_url)
+        local ok, err = nativeCheckURL(_url)
         if not ok then return ok, err end
 
         while true do
-            local event, url, ok, err = os.pullEvent( "http_check" )
+            local _, url, ok, err = os.pullEvent("http_check")
             if url == _url then return ok, err end
         end
     end
 
     local nativeWebsocket = http.websocket
     http.websocketAsync = nativeWebsocket
-    http.websocket = function( _url, _headers )
+    http.websocket = function(_url, _headers)
         expect(1, _url, "string")
         expect(2, _headers, "table", "nil")
 
-        local ok, err = nativeWebsocket( _url, _headers )
+        local ok, err = nativeWebsocket(_url, _headers)
         if not ok then return ok, err end
 
         while true do
@@ -813,59 +735,59 @@ end
 
 -- Install the lua part of the FS api
 local tEmpty = {}
-function fs.complete( sPath, sLocation, bIncludeFiles, bIncludeDirs )
+function fs.complete(sPath, sLocation, bIncludeFiles, bIncludeDirs)
     expect(1, sPath, "string")
     expect(2, sLocation, "string")
     expect(3, bIncludeFiles, "boolean", "nil")
     expect(4, bIncludeDirs, "boolean", "nil")
 
-    bIncludeFiles = (bIncludeFiles ~= false)
-    bIncludeDirs = (bIncludeDirs ~= false)
+    bIncludeFiles = bIncludeFiles ~= false
+    bIncludeDirs = bIncludeDirs ~= false
     local sDir = sLocation
     local nStart = 1
-    local nSlash = string.find( sPath, "[/\\]", nStart )
+    local nSlash = string.find(sPath, "[/\\]", nStart)
     if nSlash == 1 then
         sDir = ""
         nStart = 2
     end
     local sName
     while not sName do
-        local nSlash = string.find( sPath, "[/\\]", nStart )
+        local nSlash = string.find(sPath, "[/\\]", nStart)
         if nSlash then
-            local sPart = string.sub( sPath, nStart, nSlash - 1 )
-            sDir = fs.combine( sDir, sPart )
+            local sPart = string.sub(sPath, nStart, nSlash - 1)
+            sDir = fs.combine(sDir, sPart)
             nStart = nSlash + 1
         else
-            sName = string.sub( sPath, nStart )
+            sName = string.sub(sPath, nStart)
         end
     end
 
-    if fs.isDir( sDir ) then
+    if fs.isDir(sDir) then
         local tResults = {}
         if bIncludeDirs and sPath == "" then
-            table.insert( tResults, "." )
+            table.insert(tResults, ".")
         end
         if sDir ~= "" then
             if sPath == "" then
-                table.insert( tResults, (bIncludeDirs and "..") or "../" )
+                table.insert(tResults, bIncludeDirs and ".." or "../")
             elseif sPath == "." then
-                table.insert( tResults, (bIncludeDirs and ".") or "./" )
+                table.insert(tResults, bIncludeDirs and "." or "./")
             end
         end
-        local tFiles = fs.list( sDir )
-        for n=1,#tFiles do
+        local tFiles = fs.list(sDir)
+        for n = 1, #tFiles do
             local sFile = tFiles[n]
-            if #sFile >= #sName and string.sub( sFile, 1, #sName ) == sName then
-                local bIsDir = fs.isDir( fs.combine( sDir, sFile ) )
-                local sResult = string.sub( sFile, #sName + 1 )
+            if #sFile >= #sName and string.sub(sFile, 1, #sName) == sName then
+                local bIsDir = fs.isDir(fs.combine(sDir, sFile))
+                local sResult = string.sub(sFile, #sName + 1)
                 if bIsDir then
-                    table.insert( tResults, sResult .. "/" )
+                    table.insert(tResults, sResult .. "/")
                     if bIncludeDirs and #sResult > 0 then
-                        table.insert( tResults, sResult )
+                        table.insert(tResults, sResult)
                     end
                 else
                     if bIncludeFiles and #sResult > 0 then
-                        table.insert( tResults, sResult )
+                        table.insert(tResults, sResult)
                     end
                 end
             end
@@ -875,28 +797,34 @@ function fs.complete( sPath, sLocation, bIncludeFiles, bIncludeDirs )
     return tEmpty
 end
 
+function fs.isDriveRoot(sPath)
+    expect(1, sPath, "string")
+    -- Force the root directory to be a mount.
+    return fs.getDir(sPath) == ".." or fs.getDrive(sPath) ~= fs.getDrive(fs.getDir(sPath))
+end
+
 -- Load APIs
 local bAPIError = false
-local tApis = fs.list( "rom/apis" )
-for n,sFile in ipairs( tApis ) do
-    if string.sub( sFile, 1, 1 ) ~= "." then
-        local sPath = fs.combine( "rom/apis", sFile )
-        if not fs.isDir( sPath ) then
-            if not os.loadAPI( sPath ) then
+local tApis = fs.list("rom/apis")
+for _, sFile in ipairs(tApis) do
+    if string.sub(sFile, 1, 1) ~= "." then
+        local sPath = fs.combine("rom/apis", sFile)
+        if not fs.isDir(sPath) then
+            if not os.loadAPI(sPath) then
                 bAPIError = true
             end
         end
     end
 end
 
-if turtle and fs.isDir( "rom/apis/turtle" ) then
+if turtle and fs.isDir("rom/apis/turtle") then
     -- Load turtle APIs
-    local tApis = fs.list( "rom/apis/turtle" )
-    for n,sFile in ipairs( tApis ) do
-        if string.sub( sFile, 1, 1 ) ~= "." then
-            local sPath = fs.combine( "rom/apis/turtle", sFile )
-            if not fs.isDir( sPath ) then
-                if not os.loadAPI( sPath ) then
+    local tApis = fs.list("rom/apis/turtle")
+    for _, sFile in ipairs(tApis) do
+        if string.sub(sFile, 1, 1) ~= "." then
+            local sPath = fs.combine("rom/apis/turtle", sFile)
+            if not fs.isDir(sPath) then
+                if not os.loadAPI(sPath) then
                     bAPIError = true
                 end
             end
@@ -904,14 +832,14 @@ if turtle and fs.isDir( "rom/apis/turtle" ) then
     end
 end
 
-if pocket and fs.isDir( "rom/apis/pocket" ) then
+if pocket and fs.isDir("rom/apis/pocket") then
     -- Load pocket APIs
-    local tApis = fs.list( "rom/apis/pocket" )
-    for n,sFile in ipairs( tApis ) do
-        if string.sub( sFile, 1, 1 ) ~= "." then
-            local sPath = fs.combine( "rom/apis/pocket", sFile )
-            if not fs.isDir( sPath ) then
-                if not os.loadAPI( sPath ) then
+    local tApis = fs.list("rom/apis/pocket")
+    for _, sFile in ipairs(tApis) do
+        if string.sub(sFile, 1, 1) ~= "." then
+            local sPath = fs.combine("rom/apis/pocket", sFile)
+            if not fs.isDir(sPath) then
+                if not os.loadAPI(sPath) then
                     bAPIError = true
                 end
             end
@@ -919,27 +847,27 @@ if pocket and fs.isDir( "rom/apis/pocket" ) then
     end
 end
 
-if commands and fs.isDir( "rom/apis/command" ) then
+if commands and fs.isDir("rom/apis/command") then
     -- Load command APIs
-    if os.loadAPI( "rom/apis/command/commands.lua" ) then
+    if os.loadAPI("rom/apis/command/commands.lua") then
         -- Add a special case-insensitive metatable to the commands api
         local tCaseInsensitiveMetatable = {
-            __index = function( table, key )
-                local value = rawget( table, key )
+            __index = function(table, key)
+                local value = rawget(table, key)
                 if value ~= nil then
                     return value
                 end
                 if type(key) == "string" then
-                    local value = rawget( table, string.lower(key) )
+                    local value = rawget(table, string.lower(key))
                     if value ~= nil then
                         return value
                     end
                 end
                 return nil
-            end
+            end,
         }
-        setmetatable( commands, tCaseInsensitiveMetatable )
-        setmetatable( commands.async, tCaseInsensitiveMetatable )
+        setmetatable(commands, tCaseInsensitiveMetatable)
+        setmetatable(commands.async, tCaseInsensitiveMetatable)
 
         -- Add global "exec" function
         exec = commands.exec
@@ -949,29 +877,94 @@ if commands and fs.isDir( "rom/apis/command" ) then
 end
 
 if bAPIError then
-    print( "Press any key to continue" )
-    os.pullEvent( "key" )
+    print("Press any key to continue")
+    os.pullEvent("key")
     term.clear()
-    term.setCursorPos( 1,1 )
+    term.setCursorPos(1, 1)
 end
 
 -- Set default settings
-settings.set( "shell.allow_startup", true )
-settings.set( "shell.allow_disk_startup", (commands == nil) )
-settings.set( "shell.autocomplete", true )
-settings.set( "edit.autocomplete", true )
-settings.set( "edit.default_extension", "lua" )
-settings.set( "paint.default_extension", "nfp" )
-settings.set( "lua.autocomplete", true )
-settings.set( "list.show_hidden", false )
-settings.set( "motd.enable", false )
-settings.set( "motd.path", "/rom/motd.txt:/motd.txt" )
+settings.define("shell.allow_startup", {
+    default = true,
+    description = "Run startup files when the computer turns on.",
+    type = "boolean",
+})
+settings.define("shell.allow_disk_startup", {
+    default = commands == nil,
+    description = "Run startup files from disk drives when the computer turns on.",
+    type = "boolean",
+})
+
+settings.define("shell.autocomplete", {
+    default = true,
+    description = "Autocomplete program and arguments in the shell.",
+    type = "boolean",
+})
+settings.define("edit.autocomplete", {
+    default = true,
+    description = "Autocomplete API and function names in the editor.",
+        type = "boolean",
+})
+settings.define("lua.autocomplete", {
+    default = true,
+    description = "Autocomplete API and function names in the Lua REPL.",
+        type = "boolean",
+})
+
+settings.define("edit.default_extension", {
+    default = "lua",
+    description = [[The file extension the editor will use if none is given. Set to "" to disable.]],
+    type = "string",
+})
+settings.define("paint.default_extension", {
+    default = "nfp",
+    description = [[The file extension the paint program will use if none is given. Set to "" to disable.]],
+    type = "string",
+})
+
+settings.define("list.show_hidden", {
+    default = false,
+    description = [[Show hidden files (those starting with "." in the Lua REPL)]],
+    type = "boolean",
+})
+
+settings.define("motd.enable", {
+    default = pocket == nil,
+    description = "Display a random message when the computer starts up.",
+    type = "boolean",
+})
+settings.define("motd.path", {
+    default = "/rom/motd.txt:/motd.txt",
+    description = [[The path to load random messages from. Should be a colon (":") separated string of file paths.]],
+    type = "string",
+})
+
+settings.define("lua.warn_against_use_of_local", {
+    default = true,
+    description = [[Print a message when input in the Lua REPL starts with the word 'local'. Local variables defined in the Lua REPL are be inaccessable on the next input.]],
+    type = "boolean",
+})
+settings.define("lua.function_args", {
+    default = true,
+    description = "Show function arguments when printing functions.",
+    type = "boolean",
+})
+settings.define("lua.function_source", {
+    default = false,
+    description = "Show where a function was defined when printing functions.",
+    type = "boolean",
+})
+
 if term.isColour() then
-    settings.set( "bios.use_multishell", true )
+    settings.define("bios.use_multishell", {
+        default = true,
+        description = [[Allow running multiple programs at once, through the use of the "fg" and "bg" programs.]],
+        type = "boolean",
+    })
 end
 if _CC_DEFAULT_SETTINGS then
-    for sPair in string.gmatch( _CC_DEFAULT_SETTINGS, "[^,]+" ) do
-        local sName, sValue = string.match( sPair, "([^=]*)=(.*)" )
+    for sPair in string.gmatch(_CC_DEFAULT_SETTINGS, "[^,]+") do
+        local sName, sValue = string.match(sPair, "([^=]*)=(.*)")
         if sName and sValue then
             local value
             if sValue == "true" then
@@ -986,46 +979,43 @@ if _CC_DEFAULT_SETTINGS then
                 value = sValue
             end
             if value ~= nil then
-                settings.set( sName, value )
+                settings.set(sName, value)
             else
-                settings.unset( sName )
+                settings.unset(sName)
             end
         end
     end
 end
 
 -- Load user settings
-if fs.exists( ".settings" ) then
-    settings.load( ".settings" )
+if fs.exists(".settings") then
+    settings.load(".settings")
 end
 
 -- Run the shell
-local ok, err = pcall( function()
-    parallel.waitForAny(
-        function()
-            local sShell
-            if term.isColour() and settings.get( "bios.use_multishell" ) then
-                sShell = "rom/programs/advanced/multishell.lua"
-            else
-                sShell = "rom/programs/shell.lua"
-            end
-            os.run( {}, sShell )
-            os.run( {}, "rom/programs/shutdown.lua" )
-        end,
-        function()
-            rednet.run()
-        end )
-end )
+local ok, err = pcall(parallel.waitForAny,
+    function()
+        local sShell
+        if term.isColour() and settings.get("bios.use_multishell") then
+            sShell = "rom/programs/advanced/multishell.lua"
+        else
+            sShell = "rom/programs/shell.lua"
+        end
+        os.run({}, sShell)
+        os.run({}, "rom/programs/shutdown.lua")
+    end,
+    rednet.run
+)
 
 -- If the shell errored, let the user read it.
-term.redirect( term.native() )
+term.redirect(term.native())
 if not ok then
-    printError( err )
-    pcall( function()
-        term.setCursorBlink( false )
-        print( "Press any key to continue" )
-        os.pullEvent( "key" )
-    end )
+    printError(err)
+    pcall(function()
+        term.setCursorBlink(false)
+        print("Press any key to continue")
+        os.pullEvent("key")
+    end)
 end
 
 -- End

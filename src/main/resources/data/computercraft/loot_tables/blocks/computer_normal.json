@@ -1,9 +1,34 @@
 {
-    "type": "minecraft:block",
-    "pools": [
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "name": "main",
+      "rolls": 1,
+      "entries": [
         {
-            "rolls": 1,
-            "entries": [ { "type": "minecraft:dynamic", "name": "computercraft:computer" } ]
+          "type": "minecraft:dynamic",
+          "name": "computercraft:computer"
         }
-    ]
+      ],
+      "conditions": [
+        {
+          "condition": "minecraft:alternative",
+          "terms": [
+            {
+              "condition": "computercraft:block_named"
+            },
+            {
+              "condition": "computercraft:has_id"
+            },
+            {
+              "condition": "minecraft:inverted",
+              "term": {
+                "condition": "computercraft:player_creative"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
 }

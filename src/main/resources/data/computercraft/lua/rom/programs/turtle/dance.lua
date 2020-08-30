@@ -1,5 +1,5 @@
 if not turtle then
-    printError( "Requires a Turtle" )
+    printError("Requires a Turtle")
 end
 
 local tMoves = {
@@ -77,38 +77,30 @@ local tMoves = {
     end,
 }
 
-textutils.slowWrite( "Preparing to get down." )
-textutils.slowPrint( "..", 0.75 )
+textutils.slowWrite("Preparing to get down.")
+textutils.slowPrint("..", 0.75)
 
 local sAudio = nil
-for n,sName in pairs( peripheral.getNames() ) do
-    if disk.hasAudio( sName ) then
-        disk.playAudio( sName )
-        print( "Jamming to "..disk.getAudioTitle( sName ) )
+for _, sName in pairs(peripheral.getNames()) do
+    if disk.hasAudio(sName) then
+        disk.playAudio(sName)
+        print("Jamming to " .. disk.getAudioTitle(sName))
         sAudio = sName
         break
     end
 end
 
-print( "Press any key to stop the groove" )
+print("Press any key to stop the groove")
 
 parallel.waitForAny(
-    function()
-        while not bEnd do
-            local event, key = os.pullEvent("key")
-            if key ~= keys.escape then
-                return
-            end
-        end
-    end,
+    function() os.pullEvent("key") end,
     function()
         while true do
-            local fnMove = tMoves[math.random(1,#tMoves)]
-            fnMove()
+            tMoves[math.random(1, #tMoves)]()
         end
     end
 )
 
 if sAudio then
-    disk.stopAudio( sAudio )
+    disk.stopAudio(sAudio)
 end

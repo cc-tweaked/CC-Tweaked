@@ -1,15 +1,20 @@
 {
-    "type": "minecraft:block",
-    "pools": [
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "name": "main",
+      "rolls": 1,
+      "entries": [
         {
-            "rolls": 1,
-            "entries": [ { "type": "minecraft:item", "name": "computercraft:printer" } ],
-            "conditions": [ { "condition": "minecraft:survives_explosion" } ]
-        },
-        {
-            "rolls": 1,
-            "entries": [ { "type": "minecraft:dynamic", "name": "computercraft:contents" } ],
-            "conditions": [ { "condition": "minecraft:survives_explosion" } ]
+          "type": "minecraft:item",
+          "name": "computercraft:printer"
         }
-    ]
+      ],
+      "conditions": [
+        {
+          "condition": "minecraft:survives_explosion"
+        }
+      ]
+    }
+  ]
 }

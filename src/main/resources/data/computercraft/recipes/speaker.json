@@ -1,14 +1,22 @@
 {
-    "type": "crafting_shaped",
-    "pattern": [
-        "###",
-        "#N#",
-        "#R#"
-    ],
-    "key": {
-        "#": { "item": "minecraft:stone" },
-        "R": { "item": "minecraft:redstone" },
-        "N": { "item": "minecraft:note_block" }
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "###",
+    "#N#",
+    "#R#"
+  ],
+  "key": {
+    "#": {
+      "tag": "forge:stone"
     },
-    "result": { "item": "computercraft:speaker" }
+    "N": {
+      "item": "minecraft:note_block"
+    },
+    "R": {
+      "tag": "forge:dusts/redstone"
+    }
+  },
+  "result": {
+    "item": "computercraft:speaker"
+  }
 }

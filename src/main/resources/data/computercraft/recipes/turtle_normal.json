@@ -6,10 +6,10 @@
         "#I#"
     ],
     "key": {
-        "#": { "item": "minecraft:iron_ingot" },
+        "#": { "tag": "forge:ingots/iron" },
         "C": { "item": "computercraft:computer_normal" },
-        "I": { "item": "minecraft:chest" }
+        "I": { "tag": "forge:chests/wooden" }
     },
-    "family": "Normal",
+    "family": "normal",
     "result": { "item": "computercraft:turtle_normal" }
 }

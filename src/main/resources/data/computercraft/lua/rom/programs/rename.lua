@@ -1,14 +1,27 @@
 local tArgs = { ... }
 if #tArgs < 2 then
-    print( "Usage: rename <source> <destination>" )
+    print("Usage: rename <source> <destination>")
     return
 end
 
-local sSource = shell.resolve( tArgs[1] )
-local sDest = shell.resolve( tArgs[2] )
+local sSource = shell.resolve(tArgs[1])
+local sDest = shell.resolve(tArgs[2])
 
-if fs.exists( sDest ) then
-    printError( "Destination exists" )
+if not fs.exists(sSource) then
+    printError("No matching files")
+    return
+elseif fs.isDriveRoot(sSource) then
+    printError("Can't rename mounts")
+    return
+elseif fs.isReadOnly(sSource) then
+    printError("Source is read-only")
+    return
+elseif fs.exists(sDest) then
+    printError("Destination exists")
+    return
+elseif fs.isReadOnly(sDest) then
+    printError("Destination is read-only")
+    return
 end
 
-fs.move( sSource, sDest )
+fs.move(sSource, sDest)

@@ -1,11 +1,11 @@
 if not turtle then
-    printError( "Requires a Turtle" )
+    printError("Requires a Turtle")
     return
 end
 
 local tArgs = { ... }
 if #tArgs < 1 then
-    print( "Usage: go <direction> <distance>" )
+    print("Usage: go <direction> <distance>")
     return
 end
 
@@ -29,7 +29,7 @@ while nArg <= #tArgs do
     local sDirection = tArgs[nArg]
     local nDistance = 1
     if nArg < #tArgs then
-        local num = tonumber( tArgs[nArg + 1] )
+        local num = tonumber(tArgs[nArg + 1])
         if num then
             nDistance = num
             nArg = nArg + 1
@@ -43,15 +43,15 @@ while nArg <= #tArgs do
             if fnHandler() then
                 nDistance = nDistance - 1
             elseif turtle.getFuelLevel() == 0 then
-                print( "Out of fuel" )
+                print("Out of fuel")
                 return
             else
                 sleep(0.5)
             end
         end
     else
-        print( "No such direction: "..sDirection )
-        print( "Try: forward, back, up, down" )
+        print("No such direction: " .. sDirection)
+        print("Try: forward, back, up, down")
         return
     end
 

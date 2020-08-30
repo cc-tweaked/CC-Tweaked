@@ -1,13 +1,19 @@
 {
-    "type": "crafting_shaped",
-    "pattern": [
-        "###",
-        "#R#",
-        "###"
-    ],
-    "key": {
-        "#": { "item": "minecraft:stone" },
-        "R": { "item": "minecraft:redstone" }
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "###",
+    "#R#",
+    "###"
+  ],
+  "key": {
+    "#": {
+      "tag": "forge:stone"
     },
-    "result": { "item": "computercraft:wired_modem" }
+    "R": {
+      "tag": "forge:dusts/redstone"
+    }
+  },
+  "result": {
+    "item": "computercraft:wired_modem"
+  }
 }
