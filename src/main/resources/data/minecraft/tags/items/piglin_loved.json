@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "values": [
+    "computercraft:computer_advanced",
+    "computercraft:turtle_advanced",
+    "computercraft:wireless_modem_advanced",
+    "computercraft:pocket_computer_advanced",
+    "computercraft:monitor_advanced"
+  ]
+}

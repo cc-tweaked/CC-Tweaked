@@ -1,0 +1,19 @@
+{
+  "type": "computercraft:impostor_shaped",
+  "group": "computercraft:turtle_advanced",
+  "pattern": [
+    "#T"
+  ],
+  "key": {
+    "#": {
+      "item": "computercraft:turtle_advanced"
+    },
+    "T": {
+      "item": "minecraft:diamond_pickaxe"
+    }
+  },
+  "result": {
+    "item": "computercraft:turtle_advanced",
+    "nbt": "{RightUpgrade:\"minecraft:diamond_pickaxe\"}"
+  }
+}

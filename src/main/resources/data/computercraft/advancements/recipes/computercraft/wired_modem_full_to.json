@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "rewards": {
+    "recipes": [
+      "computercraft:wired_modem_full_to"
+    ]
+  },
+  "criteria": {
+    "has_modem": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "tag": "computercraft:wired_modem"
+          }
+        ]
+      }
+    },
+    "has_the_recipe": {
+      "trigger": "minecraft:recipe_unlocked",
+      "conditions": {
+        "recipe": "computercraft:wired_modem_full_to"
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_modem",
+      "has_the_recipe"
+    ]
+  ]
+}
