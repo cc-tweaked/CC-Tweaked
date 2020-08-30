@@ -5,6 +5,7 @@
  */
 package dan200.computercraft.client;
 
+import com.sun.org.apache.xpath.internal.operations.Mod;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.client.render.TurtleModelLoader;
 import dan200.computercraft.shared.Registry;
@@ -13,29 +14,26 @@ import dan200.computercraft.shared.media.items.ItemDisk;
 import dan200.computercraft.shared.media.items.ItemTreasureDisk;
 import dan200.computercraft.shared.pocket.items.ItemPocketComputer;
 import dan200.computercraft.shared.util.Colour;
+import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
+import net.fabricmc.fabric.api.event.client.ClientSpriteRegistryCallback;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.model.BakedModel;
+import net.minecraft.client.render.model.ModelLoader;
+import net.minecraft.client.render.model.ModelRotation;
 import net.minecraft.client.render.model.UnbakedModel;
+import net.minecraft.client.texture.SpriteAtlasTexture;
 import net.minecraft.client.util.ModelIdentifier;
+import net.minecraft.resource.ResourceManager;
 import net.minecraft.screen.PlayerScreenHandler;
 import net.minecraft.util.Identifier;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.ColorHandlerEvent;
-import net.minecraftforge.client.event.ModelBakeEvent;
-import net.minecraftforge.client.event.ModelRegistryEvent;
-import net.minecraftforge.client.event.TextureStitchEvent;
-import net.minecraftforge.client.model.ModelLoader;
-import net.minecraftforge.client.model.ModelLoaderRegistry;
-import net.minecraftforge.client.model.SimpleModelTransform;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
 
 import java.util.HashSet;
 import java.util.Map;
+import java.util.function.Consumer;
 
 /**
  * Registers textures and models for items.
  */
-@Mod.EventBusSubscriber( modid = ComputerCraft.MOD_ID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.MOD )
 public final class ClientRegistry
 {
     private static final String[] EXTRA_MODELS = new String[] {
@@ -69,42 +67,50 @@ public final class ClientRegistry
 
     private ClientRegistry() {}
 
-    @SubscribeEvent
-    public static void registerModels( ModelRegistryEvent event )
-    {
-        ModelLoaderRegistry.registerLoader( new Identifier( ComputerCraft.MOD_ID, "turtle" ), TurtleModelLoader.INSTANCE );
-    }
-
-    @SubscribeEvent
-    public static void onTextureStitchEvent( TextureStitchEvent.Pre event )
-    {
-        if( !event.getMap().getId().equals( PlayerScreenHandler.BLOCK_ATLAS_TEXTURE ) ) return;
-
-        for( String extra : EXTRA_TEXTURES )
-        {
-            event.addSprite( new Identifier( ComputerCraft.MOD_ID, extra ) );
+    public static void onTextureStitchEvent(SpriteAtlasTexture atlasTexture, ClientSpriteRegistryCallback.Registry registry) {
+        for (String extra : EXTRA_TEXTURES) {
+            registry.register(new Identifier(ComputerCraft.MOD_ID, extra));
         }
     }
 
-    @SubscribeEvent
-    public static void onModelBakeEvent( ModelBakeEvent event )
-    {
-        // Load all extra models
-        ModelLoader loader = event.getModelLoader();
-        Map<Identifier, BakedModel> registry = event.getModelRegistry();
+    public static void onModelBakeEvent(ResourceManager manager, Consumer<ModelIdentifier> out) {
+        for (String model : EXTRA_MODELS) {
+            out.accept(new ModelIdentifier(new Identifier(ComputerCraft.MOD_ID, model), "inventory"));
+        }
+    }
 
-        for( String modelName : EXTRA_MODELS )
-        {
-            Identifier location = new Identifier( ComputerCraft.MOD_ID, "item/" + modelName );
-            UnbakedModel model = loader.getOrLoadModel( location );
-            model.getTextureDependencies( loader::getOrLoadModel, new HashSet<>() );
+    public static void onItemColours() {
+        ColorProviderRegistry.ITEM.register((stack, layer) -> {
+            return layer == 1 ? ((ItemDisk) stack.getItem()).getColour(stack) : 0xFFFFFF, Registry.ModItems.DISK);
+        });
 
-            BakedModel baked = model.bake( loader, ModelLoader.defaultTextureGetter(), SimpleModelTransform.IDENTITY, location );
-            if( baked != null )
-            {
-                registry.put( new ModelIdentifier( new Identifier( ComputerCraft.MOD_ID, modelName ), "inventory" ), baked );
+        ColorProviderRegistry.ITEM.register((stack, layer) -> {
+            switch (layer) {
+                case 0:
+                default:
+                    return 0xFFFFFF;
+                case 1: // Frame colour
+                    return IColouredItem.getColourBasic(stack);
+                case 2: // Light colour
+                {
+                    int light = ItemPocketComputer.getLightState(stack);
+                    return light == -1 ? Colour.BLACK.getHex() : light;
+                }
             }
-        }
+        }, Registry.ModItems.POCKET_COMPUTER_NORMAL, Registry.ModItems.POCKET_COMPUTER_ADVANCED);
+
+        // Setup turtle colours
+        ColorProviderRegistry.ITEM.register((stack, tintIndex) -> tintIndex == 0 ? ((IColouredItem) stack.getItem()).getColour(stack) : 0xFFFFFF,
+            ComputerCraft.Blocks.turtleNormal,
+            ComputerCraft.Blocks.turtleAdvanced);
+    }
+
+    private static BakedModel bake(ModelLoader loader, UnbakedModel model) {
+        model.getTextureDependencies(loader::getOrLoadModel, new HashSet<>());
+        SpriteAtlasTexture sprite = MinecraftClient.getInstance()
+            .getSpriteAtlas();
+        return model.bake(loader, spriteIdentifier -> MinecraftClient.getInstance()
+            .getSpriteAtlas(spriteIdentifier.getAtlasId()).apply(spriteIdentifier.getTextureId()), ModelRotation.X0_Y0);
     }
 
     @SubscribeEvent

@@ -8,17 +8,11 @@ package dan200.computercraft.api.turtle;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.client.TransformedModel;
 import dan200.computercraft.api.peripheral.IPeripheral;
-import dan200.computercraft.api.turtle.event.TurtleAttackEvent;
-import dan200.computercraft.api.turtle.event.TurtleBlockEvent;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Direction;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.event.entity.player.AttackEntityEvent;
-import net.minecraftforge.event.world.BlockEvent;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -96,9 +90,6 @@ public interface ITurtleUpgrade
      * Will only be called for Tool turtle. Called when turtle.dig() or turtle.attack() is called
      * by the turtle, and the tool is required to do some work.
      *
-     * Conforming implementations should fire {@link BlockEvent.BreakEvent} and {@link TurtleBlockEvent.Dig} for
-     * digging, {@link AttackEntityEvent} and {@link TurtleAttackEvent} for attacking.
-     *
      * @param turtle    Access to the turtle that the tool resides on.
      * @param side      Which side of the turtle (left or right) the tool resides on.
      * @param verb      Which action (dig or attack) the turtle is being called on to perform.
@@ -118,10 +109,6 @@ public interface ITurtleUpgrade
 
     /**
      * Called to obtain the model to be used when rendering a turtle peripheral.
-     *
-     * This can be obtained from {@link net.minecraft.client.renderer.ItemModelMesher#getItemModel(ItemStack)},
-     * {@link net.minecraft.client.renderer.model.ModelManager#getModel(ModelResourceLocation)} or any other
-     * source.
      *
      * @param turtle Access to the turtle that the upgrade resides on. This will be null when getting item models!
      * @param side   Which side of the turtle (left or right) the upgrade resides on.

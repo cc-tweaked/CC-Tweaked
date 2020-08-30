@@ -6,16 +6,11 @@
 package dan200.computercraft.api.turtle.event;
 
 import dan200.computercraft.api.lua.MethodResult;
-import dan200.computercraft.api.turtle.ITurtleAccess;
-import dan200.computercraft.api.turtle.ITurtleUpgrade;
-import dan200.computercraft.api.turtle.TurtleSide;
-import dan200.computercraft.api.turtle.TurtleVerb;
+import dan200.computercraft.api.turtle.*;
 import net.minecraft.block.BlockState;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraftforge.common.util.FakePlayer;
-import net.minecraftforge.event.world.BlockEvent;
 
 import javax.annotation.Nonnull;
 import java.util.Map;
@@ -38,7 +33,7 @@ public abstract class TurtleBlockEvent extends TurtlePlayerEvent
     private final World world;
     private final BlockPos pos;
 
-    protected TurtleBlockEvent( @Nonnull ITurtleAccess turtle, @Nonnull TurtleAction action, @Nonnull FakePlayer player, @Nonnull World world, @Nonnull BlockPos pos )
+    protected TurtleBlockEvent(@Nonnull ITurtleAccess turtle, @Nonnull TurtleAction action, @Nonnull FakePlayer player, @Nonnull World world, @Nonnull BlockPos pos )
     {
         super( turtle, action, player );
 
@@ -71,11 +66,6 @@ public abstract class TurtleBlockEvent extends TurtlePlayerEvent
 
     /**
      * Fired when a turtle attempts to dig a block.
-     *
-     * This must be fired by {@link ITurtleUpgrade#useTool(ITurtleAccess, TurtleSide, TurtleVerb, Direction)},
-     * as the base {@code turtle.dig()} command does not fire it.
-     *
-     * Note that such commands should also fire {@link BlockEvent.BreakEvent}, so you do not need to listen to both.
      *
      * @see TurtleAction#DIG
      */

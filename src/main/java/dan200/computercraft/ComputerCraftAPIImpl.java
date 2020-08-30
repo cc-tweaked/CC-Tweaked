@@ -24,21 +24,21 @@ import dan200.computercraft.shared.*;
 import dan200.computercraft.shared.peripheral.modem.wireless.WirelessNetwork;
 import dan200.computercraft.shared.util.IDAssigner;
 import dan200.computercraft.shared.wired.WiredNode;
-import net.minecraft.block.entity.BlockEntity;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.resource.ReloadableResourceManager;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.fml.ModList;
-import net.minecraftforge.fml.server.ServerLifecycleHooks;
 
 import javax.annotation.Nonnull;
+import javax.swing.text.html.Option;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Optional;
 
 import static dan200.computercraft.shared.Capabilities.CAPABILITY_WIRED_ELEMENT;
 
@@ -54,15 +54,15 @@ public final class ComputerCraftAPIImpl implements IComputerCraftAPI
 
     public static InputStream getResourceFile( String domain, String subPath )
     {
-        ReloadableResourceManager manager = (ReloadableResourceManager) ServerLifecycleHooks.getCurrentServer().getDataPackRegistries().getResourceManager();
-        try
-        {
-            return manager.getResource( new Identifier( domain, subPath ) ).getInputStream();
+        if (FabricLoader.getInstance().getGameInstance() instanceof MinecraftServer) {
+            ReloadableResourceManager manager = (ReloadableResourceManager) ((MinecraftServer) FabricLoader.getInstance().getGameInstance()).getDataPackManager();
+            try {
+                return manager.getResource(new Identifier(domain, subPath)).getInputStream();
+            } catch (IOException ignored) {
+                return null;
+            }
         }
-        catch( IOException ignored )
-        {
-            return null;
-        }
+        return null;
     }
 
     @Nonnull
@@ -70,8 +70,8 @@ public final class ComputerCraftAPIImpl implements IComputerCraftAPI
     public String getInstalledVersion()
     {
         if( version != null ) return version;
-        return version = ModList.get().getModContainerById( ComputerCraft.MOD_ID )
-            .map( x -> x.getModInfo().getVersion().toString() )
+        return version = FabricLoader.getInstance().getModContainer( ComputerCraft.MOD_ID )
+            .map( x -> x.getMetadata().getVersion().toString() )
             .orElse( "unknown" );
     }
 
@@ -97,9 +97,12 @@ public final class ComputerCraftAPIImpl implements IComputerCraftAPI
     @Override
     public IMount createResourceMount( @Nonnull String domain, @Nonnull String subPath )
     {
-        ReloadableResourceManager manager = (ReloadableResourceManager) ServerLifecycleHooks.getCurrentServer().getDataPackRegistries().getResourceManager();
-        ResourceMount mount = ResourceMount.get( domain, subPath, manager );
-        return mount.exists( "" ) ? mount : null;
+        if (FabricLoader.getInstance().getGameInstance() instanceof MinecraftServer) {
+            ReloadableResourceManager manager = (ReloadableResourceManager) ((MinecraftServer) FabricLoader.getInstance().getGameInstance()).getDataPackManager();
+            ResourceMount mount = ResourceMount.get(domain, subPath, manager);
+            return mount.exists("") ? mount : null;
+        }
+        return null;
     }
 
     @Override
@@ -160,9 +163,11 @@ public final class ComputerCraftAPIImpl implements IComputerCraftAPI
 
     @Nonnull
     @Override
-    public LazyOptional<IWiredElement> getWiredElementAt( @Nonnull BlockView world, @Nonnull BlockPos pos, @Nonnull Direction side )
+    public Optional<IWiredElement> getWiredElementAt( @Nonnull BlockView world, @Nonnull BlockPos pos, @Nonnull Direction side )
     {
-        BlockEntity tile = world.getBlockEntity( pos );
-        return tile == null ? LazyOptional.empty() : tile.getCapability( CAPABILITY_WIRED_ELEMENT, side );
+        // TODO Fix this thing
+//        BlockEntity tile = world.getBlockEntity( pos );
+//        return tile == null ? Optional.empty() : tile.getCapability( CAPABILITY_WIRED_ELEMENT, side );
+        return Optional.empty();
     }
 }

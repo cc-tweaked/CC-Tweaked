@@ -7,7 +7,6 @@ package dan200.computercraft.api.turtle.event;
 
 import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.TurtleCommandResult;
-import net.minecraftforge.eventbus.api.Cancelable;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -16,11 +15,11 @@ import java.util.Objects;
 /**
  * An event fired when a turtle is performing a known action.
  */
-@Cancelable
 public class TurtleActionEvent extends TurtleEvent
 {
     private final TurtleAction action;
     private String failureMessage;
+    private boolean cancelled = false;
 
     public TurtleActionEvent( @Nonnull ITurtleAccess turtle, @Nonnull TurtleAction action )
     {
@@ -44,7 +43,6 @@ public class TurtleActionEvent extends TurtleEvent
      * @see TurtleCommandResult#failure()
      * @deprecated Use {@link #setCanceled(boolean, String)} instead.
      */
-    @Override
     @Deprecated
     public void setCanceled( boolean cancel )
     {
@@ -62,7 +60,7 @@ public class TurtleActionEvent extends TurtleEvent
      */
     public void setCanceled( boolean cancel, @Nullable String failureMessage )
     {
-        super.setCanceled( cancel );
+        this.cancelled = true;
         this.failureMessage = cancel ? failureMessage : null;
     }
 
@@ -77,5 +75,9 @@ public class TurtleActionEvent extends TurtleEvent
     public String getFailureMessage()
     {
         return failureMessage;
+    }
+
+    public boolean isCancelled() {
+        return cancelled;
     }
 }

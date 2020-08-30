@@ -69,6 +69,7 @@ import net.minecraft.item.Items;
 import net.minecraft.recipe.RecipeSerializer;
 import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.registry.MutableRegistry;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -90,256 +91,221 @@ public final class Registry
     {
     }
 
-    public static final class ModBlocks
-    {
-        static final DeferredRegister<Block> BLOCKS = DeferredRegister.create( ForgeRegistries.BLOCKS, ComputerCraft.MOD_ID );
+    public static void registerBlocks(MutableRegistry<Block> registry) {
+        // Computers
+        ComputerCraft.Blocks.computerNormal = new BlockComputer(FabricBlockSettings.of(Material.STONE)
+            .hardness(2.0f)
+            .build(), ComputerFamily.NORMAL, TileComputer.FACTORY_NORMAL);
 
-        private static Block.Properties properties()
-        {
-            return Block.Properties.of( Material.STONE ).strength( 2 );
-        }
+        ComputerCraft.Blocks.computerAdvanced = new BlockComputer(FabricBlockSettings.of(Material.STONE)
+            .hardness(2.0f)
+            .build(), ComputerFamily.Advanced, TileComputer.FACTORY_ADVANCED);
 
-        private static Block.Properties turtleProperties()
-        {
-            return Block.Properties.of( Material.STONE ).strength( 2.5f );
-        }
+        ComputerCraft.Blocks.computerCommand = new BlockComputer(FabricBlockSettings.of(Material.STONE)
+            .strength(-1, 6000000.0F)
+            .build(), ComputerFamily.Command, TileCommandComputer.FACTORY);
 
-        private static Block.Properties modemProperties()
-        {
-            return Block.Properties.of( Material.STONE ).strength( 1.5f );
-        }
+        registry.add(new Identifier(ComputerCraft.MOD_ID, "computer_normal"), ComputerCraft.Blocks.computerNormal);
+        registry.add(new Identifier(ComputerCraft.MOD_ID, "computer_advanced"), ComputerCraft.Blocks.computerAdvanced);
+        registry.add(new Identifier(ComputerCraft.MOD_ID, "computer_command"), ComputerCraft.Blocks.computerCommand);
 
-        public static final RegistryObject<BlockComputer> COMPUTER_NORMAL = BLOCKS.register( "computer_normal",
-            () -> new BlockComputer( properties(), ComputerFamily.NORMAL, ModTiles.COMPUTER_NORMAL ) );
-        public static final RegistryObject<BlockComputer> COMPUTER_ADVANCED = BLOCKS.register( "computer_advanced",
-            () -> new BlockComputer( properties(), ComputerFamily.ADVANCED, ModTiles.COMPUTER_ADVANCED ) );
+        // Turtles
+        ComputerCraft.Blocks.turtleNormal = new BlockTurtle(FabricBlockSettings.of(Material.STONE)
+            .hardness(2.5f)
+            .build(), ComputerFamily.Normal, TileTurtle.FACTORY_NORMAL);
 
-        public static final RegistryObject<BlockComputer> COMPUTER_COMMAND = BLOCKS.register( "computer_command", () -> new BlockComputer(
-            Block.Properties.of( Material.STONE ).strength( -1, 6000000.0F ),
-            ComputerFamily.COMMAND, ModTiles.COMPUTER_COMMAND
-        ) );
+        ComputerCraft.Blocks.turtleAdvanced = new BlockTurtle(FabricBlockSettings.of(Material.STONE)
+            .hardness(2.5f)
+            .build(), ComputerFamily.Advanced, TileTurtle.FACTORY_ADVANCED);
 
-        public static final RegistryObject<BlockTurtle> TURTLE_NORMAL = BLOCKS.register( "turtle_normal",
-            () -> new BlockTurtle( turtleProperties(), ComputerFamily.NORMAL, ModTiles.TURTLE_NORMAL ) );
-        public static final RegistryObject<BlockTurtle> TURTLE_ADVANCED = BLOCKS.register( "turtle_advanced",
-            () -> new BlockTurtle( turtleProperties(), ComputerFamily.ADVANCED, ModTiles.TURTLE_ADVANCED ) );
+        registry.add(new Identifier(ComputerCraft.MOD_ID, "turtle_normal"), ComputerCraft.Blocks.turtleNormal);
+        registry.add(new Identifier(ComputerCraft.MOD_ID, "turtle_advanced"), ComputerCraft.Blocks.turtleAdvanced);
 
-        public static final RegistryObject<BlockSpeaker> SPEAKER = BLOCKS.register( "speaker", () -> new BlockSpeaker( properties() ) );
-        public static final RegistryObject<BlockDiskDrive> DISK_DRIVE = BLOCKS.register( "disk_drive", () -> new BlockDiskDrive( properties() ) );
-        public static final RegistryObject<BlockPrinter> PRINTER = BLOCKS.register( "printer", () -> new BlockPrinter( properties() ) );
+        // Peripherals
+        ComputerCraft.Blocks.speaker = new BlockSpeaker(FabricBlockSettings.of(Material.STONE)
+            .hardness(2)
+            .build());
 
-        public static final RegistryObject<BlockMonitor> MONITOR_NORMAL = BLOCKS.register( "monitor_normal",
-            () -> new BlockMonitor( properties(), ModTiles.MONITOR_NORMAL ) );
-        public static final RegistryObject<BlockMonitor> MONITOR_ADVANCED = BLOCKS.register( "monitor_advanced",
-            () -> new BlockMonitor( properties(), ModTiles.MONITOR_ADVANCED ) );
+        ComputerCraft.Blocks.diskDrive = new BlockDiskDrive(FabricBlockSettings.of(Material.STONE)
+            .hardness(2)
+            .build());
 
-        public static final RegistryObject<BlockWirelessModem> WIRELESS_MODEM_NORMAL = BLOCKS.register( "wireless_modem_normal",
-            () -> new BlockWirelessModem( properties(), ModTiles.WIRELESS_MODEM_NORMAL ) );
-        public static final RegistryObject<BlockWirelessModem> WIRELESS_MODEM_ADVANCED = BLOCKS.register( "wireless_modem_advanced",
-            () -> new BlockWirelessModem( properties(), ModTiles.WIRELESS_MODEM_ADVANCED ) );
+        ComputerCraft.Blocks.monitorNormal = new BlockMonitor(FabricBlockSettings.of(Material.STONE)
+            .hardness(2)
+            .build(), TileMonitor.FACTORY_NORMAL);
 
-        public static final RegistryObject<BlockWiredModemFull> WIRED_MODEM_FULL = BLOCKS.register( "wired_modem_full",
-            () -> new BlockWiredModemFull( modemProperties() ) );
-        public static final RegistryObject<BlockCable> CABLE = BLOCKS.register( "cable", () -> new BlockCable( modemProperties() ) );
+        ComputerCraft.Blocks.monitorAdvanced = new BlockMonitor(FabricBlockSettings.of(Material.STONE)
+            .hardness(2)
+            .build(), TileMonitor.FACTORY_ADVANCED);
+
+        ComputerCraft.Blocks.printer = new BlockPrinter(FabricBlockSettings.of(Material.STONE)
+            .hardness(2)
+            .build());
+
+        ComputerCraft.Blocks.wirelessModemNormal = new BlockWirelessModem(FabricBlockSettings.of(Material.STONE)
+            .hardness(2)
+            .build(), TileWirelessModem.FACTORY_NORMAL);
+
+        ComputerCraft.Blocks.wirelessModemAdvanced = new BlockWirelessModem(FabricBlockSettings.of(Material.STONE)
+            .hardness(2)
+            .build(), TileWirelessModem.FACTORY_ADVANCED);
+
+        ComputerCraft.Blocks.wiredModemFull = new BlockWiredModemFull(FabricBlockSettings.of(Material.STONE)
+            .hardness(1.5f)
+            .build());
+
+        ComputerCraft.Blocks.cable = new BlockCable(FabricBlockSettings.of(Material.STONE)
+            .hardness(1.5f)
+            .build());
+
+        registry.add(new Identifier(ComputerCraft.MOD_ID, "speaker"), ComputerCraft.Blocks.speaker);
+        registry.add(new Identifier(ComputerCraft.MOD_ID, "disk_drive"), ComputerCraft.Blocks.diskDrive);
+        registry.add(new Identifier(ComputerCraft.MOD_ID, "monitor_normal"), ComputerCraft.Blocks.monitorNormal);
+        registry.add(new Identifier(ComputerCraft.MOD_ID, "monitor_advanced"), ComputerCraft.Blocks.monitorAdvanced);
+        registry.add(new Identifier(ComputerCraft.MOD_ID, "printer"), ComputerCraft.Blocks.printer);
+        registry.add(new Identifier(ComputerCraft.MOD_ID, "wireless_modem_normal"), ComputerCraft.Blocks.wirelessModemNormal);
+        registry.add(new Identifier(ComputerCraft.MOD_ID, "wireless_modem_advanced"), ComputerCraft.Blocks.wirelessModemAdvanced);
+        registry.add(new Identifier(ComputerCraft.MOD_ID, "wired_modem_full"), ComputerCraft.Blocks.wiredModemFull);
+        registry.add(new Identifier(ComputerCraft.MOD_ID, "cable"), ComputerCraft.Blocks.cable);
     }
 
-    public static class ModTiles
-    {
-        static final DeferredRegister<BlockEntityType<?>> TILES = DeferredRegister.create( ForgeRegistries.TILE_ENTITIES, ComputerCraft.MOD_ID );
+    public static void registerTileEntities(MutableRegistry<BlockEntityType<?>> registry) {
+        // Computers
+        registry.add(TileComputer.FACTORY_NORMAL.getId(), TileComputer.FACTORY_NORMAL);
+        registry.add(TileComputer.FACTORY_ADVANCED.getId(), TileComputer.FACTORY_ADVANCED);
+        registry.add(TileCommandComputer.FACTORY.getId(), TileCommandComputer.FACTORY);
 
-        private static <T extends BlockEntity> RegistryObject<BlockEntityType<T>> ofBlock( RegistryObject<? extends Block> block, Function<BlockEntityType<T>, T> factory )
-        {
-            return TILES.register( block.getId().getPath(), () -> FixedPointTileEntityType.create( block, factory ) );
-        }
+        // Turtles
+        registry.add(TileTurtle.FACTORY_NORMAL.getId(), TileTurtle.FACTORY_NORMAL);
+        registry.add(TileTurtle.FACTORY_ADVANCED.getId(), TileTurtle.FACTORY_ADVANCED);
 
-        public static final RegistryObject<BlockEntityType<TileMonitor>> MONITOR_NORMAL =
-            ofBlock( ModBlocks.MONITOR_NORMAL, f -> new TileMonitor( f, false ) );
-        public static final RegistryObject<BlockEntityType<TileMonitor>> MONITOR_ADVANCED =
-            ofBlock( ModBlocks.MONITOR_ADVANCED, f -> new TileMonitor( f, true ) );
+        // Peripherals
+        registry.add(TileSpeaker.FACTORY.getId(), TileSpeaker.FACTORY);
+        registry.add(TileDiskDrive.FACTORY.getId(), TileDiskDrive.FACTORY);
+        registry.add(TilePrinter.FACTORY.getId(), TilePrinter.FACTORY);
 
-        public static final RegistryObject<BlockEntityType<TileComputer>> COMPUTER_NORMAL =
-            ofBlock( ModBlocks.COMPUTER_NORMAL, f -> new TileComputer( ComputerFamily.NORMAL, f ) );
-        public static final RegistryObject<BlockEntityType<TileComputer>> COMPUTER_ADVANCED =
-            ofBlock( ModBlocks.COMPUTER_ADVANCED, f -> new TileComputer( ComputerFamily.ADVANCED, f ) );
-        public static final RegistryObject<BlockEntityType<TileCommandComputer>> COMPUTER_COMMAND =
-            ofBlock( ModBlocks.COMPUTER_COMMAND, f -> new TileCommandComputer( ComputerFamily.COMMAND, f ) );
+        registry.add(TileMonitor.FACTORY_NORMAL.getId(), TileMonitor.FACTORY_NORMAL);
+        registry.add(TileMonitor.FACTORY_ADVANCED.getId(), TileMonitor.FACTORY_ADVANCED);
 
-        public static final RegistryObject<BlockEntityType<TileTurtle>> TURTLE_NORMAL =
-            ofBlock( ModBlocks.TURTLE_NORMAL, f -> new TileTurtle( f, ComputerFamily.NORMAL ) );
-        public static final RegistryObject<BlockEntityType<TileTurtle>> TURTLE_ADVANCED =
-            ofBlock( ModBlocks.TURTLE_ADVANCED, f -> new TileTurtle( f, ComputerFamily.ADVANCED ) );
-
-        public static final RegistryObject<BlockEntityType<TileSpeaker>> SPEAKER = ofBlock( ModBlocks.SPEAKER, TileSpeaker::new );
-        public static final RegistryObject<BlockEntityType<TileDiskDrive>> DISK_DRIVE = ofBlock( ModBlocks.DISK_DRIVE, TileDiskDrive::new );
-        public static final RegistryObject<BlockEntityType<TilePrinter>> PRINTER = ofBlock( ModBlocks.PRINTER, TilePrinter::new );
-        public static final RegistryObject<BlockEntityType<TileWiredModemFull>> WIRED_MODEM_FULL = ofBlock( ModBlocks.WIRED_MODEM_FULL, TileWiredModemFull::new );
-        public static final RegistryObject<BlockEntityType<TileCable>> CABLE = ofBlock( ModBlocks.CABLE, TileCable::new );
-
-        public static final RegistryObject<BlockEntityType<TileWirelessModem>> WIRELESS_MODEM_NORMAL =
-            ofBlock( ModBlocks.WIRELESS_MODEM_NORMAL, f -> new TileWirelessModem( f, false ) );
-        public static final RegistryObject<BlockEntityType<TileWirelessModem>> WIRELESS_MODEM_ADVANCED =
-            ofBlock( ModBlocks.WIRELESS_MODEM_ADVANCED, f -> new TileWirelessModem( f, true ) );
+        registry.add(TileWirelessModem.FACTORY_NORMAL.getId(), TileWirelessModem.FACTORY_NORMAL);
+        registry.add(TileWirelessModem.FACTORY_ADVANCED.getId(), TileWirelessModem.FACTORY_ADVANCED);
+        registry.add(TileCable.FACTORY.getId(), TileCable.FACTORY);
+        registry.add(TileWiredModemFull.FACTORY.getId(), TileWiredModemFull.FACTORY);
     }
 
-    public static final class ModItems
-    {
-        static final DeferredRegister<Item> ITEMS = DeferredRegister.create( ForgeRegistries.ITEMS, ComputerCraft.MOD_ID );
+    public static void registerItems(MutableRegistry<Item> registry) {
+        // Computer
+        ComputerCraft.Items.computerNormal = new ItemComputer(ComputerCraft.Blocks.computerNormal, defaultItem());
+        ComputerCraft.Items.computerAdvanced = new ItemComputer(ComputerCraft.Blocks.computerAdvanced, defaultItem());
+        ComputerCraft.Items.computerCommand = new ItemComputer(ComputerCraft.Blocks.computerCommand, defaultItem());
 
-        private static Item.Settings properties()
-        {
-            return new Item.Settings().group( mainItemGroup );
-        }
+        registerItemBlock(registry, ComputerCraft.Items.computerNormal);
+        registerItemBlock(registry, ComputerCraft.Items.computerAdvanced);
+        registerItemBlock(registry, ComputerCraft.Items.computerCommand);
 
-        private static <B extends Block, I extends Item> RegistryObject<I> ofBlock( RegistryObject<B> parent, BiFunction<B, Item.Settings, I> supplier )
-        {
-            return ITEMS.register( parent.getId().getPath(), () -> supplier.apply( parent.get(), properties() ) );
-        }
+        // Turtle
+        ComputerCraft.Items.turtleNormal = new ItemTurtle(ComputerCraft.Blocks.turtleNormal, defaultItem());
+        ComputerCraft.Items.turtleAdvanced = new ItemTurtle(ComputerCraft.Blocks.turtleAdvanced, defaultItem());
 
-        public static final RegistryObject<ItemComputer> COMPUTER_NORMAL = ofBlock( ModBlocks.COMPUTER_NORMAL, ItemComputer::new );
-        public static final RegistryObject<ItemComputer> COMPUTER_ADVANCED = ofBlock( ModBlocks.COMPUTER_ADVANCED, ItemComputer::new );
-        public static final RegistryObject<ItemComputer> COMPUTER_COMMAND = ofBlock( ModBlocks.COMPUTER_COMMAND, ItemComputer::new );
+        registerItemBlock(registry, ComputerCraft.Items.turtleNormal);
+        registerItemBlock(registry, ComputerCraft.Items.turtleAdvanced);
 
-        public static final RegistryObject<ItemPocketComputer> POCKET_COMPUTER_NORMAL = ITEMS.register( "pocket_computer_normal",
-            () -> new ItemPocketComputer( properties().maxCount( 1 ), ComputerFamily.NORMAL ) );
-        public static final RegistryObject<ItemPocketComputer> POCKET_COMPUTER_ADVANCED = ITEMS.register( "pocket_computer_advanced",
-            () -> new ItemPocketComputer( properties().maxCount( 1 ), ComputerFamily.ADVANCED ) );
+        // Pocket computer
+        ComputerCraft.Items.pocketComputerNormal = new ItemPocketComputer(defaultItem().maxCount(1), ComputerFamily.Normal);
+        ComputerCraft.Items.pocketComputerAdvanced = new ItemPocketComputer(defaultItem().maxCount(1), ComputerFamily.Advanced);
 
-        public static final RegistryObject<ItemTurtle> TURTLE_NORMAL = ofBlock( ModBlocks.TURTLE_NORMAL, ItemTurtle::new );
-        public static final RegistryObject<ItemTurtle> TURTLE_ADVANCED = ofBlock( ModBlocks.TURTLE_ADVANCED, ItemTurtle::new );
+        registry.add(new Identifier(ComputerCraft.MOD_ID, "pocket_computer_normal"), ComputerCraft.Items.pocketComputerNormal);
+        registry.add(new Identifier(ComputerCraft.MOD_ID, "pocket_computer_advanced"), ComputerCraft.Items.pocketComputerAdvanced);
 
-        public static final RegistryObject<ItemDisk> DISK =
-            ITEMS.register( "disk", () -> new ItemDisk( properties().maxCount( 1 ) ) );
-        public static final RegistryObject<ItemTreasureDisk> TREASURE_DISK =
-            ITEMS.register( "treasure_disk", () -> new ItemTreasureDisk( properties().maxCount( 1 ) ) );
+        // Floppy disk
+        ComputerCraft.Items.disk = new ItemDisk(defaultItem().maxCount(1));
+        ComputerCraft.Items.treasureDisk = new ItemTreasureDisk(defaultItem().maxCount(1));
 
-        public static final RegistryObject<ItemPrintout> PRINTED_PAGE = ITEMS.register( "printed_page",
-            () -> new ItemPrintout( properties().maxCount( 1 ), ItemPrintout.Type.PAGE ) );
-        public static final RegistryObject<ItemPrintout> PRINTED_PAGES = ITEMS.register( "printed_pages",
-            () -> new ItemPrintout( properties().maxCount( 1 ), ItemPrintout.Type.PAGES ) );
-        public static final RegistryObject<ItemPrintout> PRINTED_BOOK = ITEMS.register( "printed_book",
-            () -> new ItemPrintout( properties().maxCount( 1 ), ItemPrintout.Type.BOOK ) );
+        registry.add(new Identifier(ComputerCraft.MOD_ID, "disk"), ComputerCraft.Items.disk);
+        registry.add(new Identifier(ComputerCraft.MOD_ID, "treasure_disk"), ComputerCraft.Items.treasureDisk);
 
-        public static final RegistryObject<BlockItem> SPEAKER = ofBlock( ModBlocks.SPEAKER, BlockItem::new );
-        public static final RegistryObject<BlockItem> DISK_DRIVE = ofBlock( ModBlocks.DISK_DRIVE, BlockItem::new );
-        public static final RegistryObject<BlockItem> PRINTER = ofBlock( ModBlocks.PRINTER, BlockItem::new );
-        public static final RegistryObject<BlockItem> MONITOR_NORMAL = ofBlock( ModBlocks.MONITOR_NORMAL, BlockItem::new );
-        public static final RegistryObject<BlockItem> MONITOR_ADVANCED = ofBlock( ModBlocks.MONITOR_ADVANCED, BlockItem::new );
-        public static final RegistryObject<BlockItem> WIRELESS_MODEM_NORMAL = ofBlock( ModBlocks.WIRELESS_MODEM_NORMAL, BlockItem::new );
-        public static final RegistryObject<BlockItem> WIRELESS_MODEM_ADVANCED = ofBlock( ModBlocks.WIRELESS_MODEM_ADVANCED, BlockItem::new );
-        public static final RegistryObject<BlockItem> WIRED_MODEM_FULL = ofBlock( ModBlocks.WIRED_MODEM_FULL, BlockItem::new );
+        // Printouts
+        ComputerCraft.Items.printedPage = new ItemPrintout(defaultItem().maxCount(1), ItemPrintout.Type.PAGE);
+        ComputerCraft.Items.printedPages = new ItemPrintout(defaultItem().maxCount(1), ItemPrintout.Type.PAGES);
+        ComputerCraft.Items.printedBook = new ItemPrintout(defaultItem().maxCount(1), ItemPrintout.Type.BOOK);
 
-        public static final RegistryObject<ItemBlockCable.Cable> CABLE = ITEMS.register( "cable",
-            () -> new ItemBlockCable.Cable( ModBlocks.CABLE.get(), properties() ) );
-        public static final RegistryObject<ItemBlockCable.WiredModem> WIRED_MODEM = ITEMS.register( "wired_modem",
-            () -> new ItemBlockCable.WiredModem( ModBlocks.CABLE.get(), properties() ) );
-    }
+        registry.add(new Identifier(ComputerCraft.MOD_ID, "printed_page"), ComputerCraft.Items.printedPage);
+        registry.add(new Identifier(ComputerCraft.MOD_ID, "printed_pages"), ComputerCraft.Items.printedPages);
+        registry.add(new Identifier(ComputerCraft.MOD_ID, "printed_book"), ComputerCraft.Items.printedBook);
 
-    @SubscribeEvent
-    public static void registerItems( RegistryEvent.Register<Item> event )
-    {
+        // Peripherals
+        registerItemBlock(registry, new BlockItem(ComputerCraft.Blocks.speaker, defaultItem()));
+        registerItemBlock(registry, new BlockItem(ComputerCraft.Blocks.diskDrive, defaultItem()));
+        registerItemBlock(registry, new BlockItem(ComputerCraft.Blocks.printer, defaultItem()));
+        registerItemBlock(registry, new BlockItem(ComputerCraft.Blocks.monitorNormal, defaultItem()));
+        registerItemBlock(registry, new BlockItem(ComputerCraft.Blocks.monitorAdvanced, defaultItem()));
+        registerItemBlock(registry, new BlockItem(ComputerCraft.Blocks.wirelessModemNormal, defaultItem()));
+        registerItemBlock(registry, new BlockItem(ComputerCraft.Blocks.wirelessModemAdvanced, defaultItem()));
+        registerItemBlock(registry, new BlockItem(ComputerCraft.Blocks.wiredModemFull, defaultItem()));
+
+        ComputerCraft.Items.cable = new ItemBlockCable.Cable(ComputerCraft.Blocks.cable, defaultItem());
+        ComputerCraft.Items.wiredModem = new ItemBlockCable.WiredModem(ComputerCraft.Blocks.cable, defaultItem());
+
+        registry.add(new Identifier(ComputerCraft.MOD_ID, "cable"), ComputerCraft.Items.cable);
+        registry.add(new Identifier(ComputerCraft.MOD_ID, "wired_modem"), ComputerCraft.Items.wiredModem);
+
         registerTurtleUpgrades();
         registerPocketUpgrades();
     }
 
-    private static void registerTurtleUpgrades()
-    {
+    private static Item.Settings defaultItem() {
+        return new Item.Settings().group(mainItemGroup);
+    }
+
+    private static void registerItemBlock(MutableRegistry<Item> registry, BlockItem item) {
+        registry.add(net.minecraft.util.registry.Registry.BLOCK.getId(item.getBlock()), item);
+    }
+
+    private static void registerTurtleUpgrades() {
         // Upgrades
-        ComputerCraft.TurtleUpgrades.wirelessModemNormal = new TurtleModem( false, new Identifier( ComputerCraft.MOD_ID, "wireless_modem_normal" ) );
-        TurtleUpgrades.register( ComputerCraft.TurtleUpgrades.wirelessModemNormal );
+        ComputerCraft.TurtleUpgrades.wirelessModemNormal = new TurtleModem(false, new Identifier(ComputerCraft.MOD_ID, "wireless_modem_normal"));
+        ComputerCraftAPI.registerTurtleUpgrade(ComputerCraft.TurtleUpgrades.wirelessModemNormal);
 
-        ComputerCraft.TurtleUpgrades.wirelessModemAdvanced = new TurtleModem( true, new Identifier( ComputerCraft.MOD_ID, "wireless_modem_advanced" ) );
-        ComputerCraftAPI.registerTurtleUpgrade( ComputerCraft.TurtleUpgrades.wirelessModemAdvanced );
+        ComputerCraft.TurtleUpgrades.wirelessModemAdvanced = new TurtleModem(true, new Identifier(ComputerCraft.MOD_ID, "wireless_modem_advanced"));
+        ComputerCraftAPI.registerTurtleUpgrade(ComputerCraft.TurtleUpgrades.wirelessModemAdvanced);
 
-        ComputerCraft.TurtleUpgrades.speaker = new TurtleSpeaker( new Identifier( ComputerCraft.MOD_ID, "speaker" ) );
-        ComputerCraftAPI.registerTurtleUpgrade( ComputerCraft.TurtleUpgrades.speaker );
+        ComputerCraft.TurtleUpgrades.speaker = new TurtleSpeaker(new Identifier(ComputerCraft.MOD_ID, "speaker"));
+        ComputerCraftAPI.registerTurtleUpgrade(ComputerCraft.TurtleUpgrades.speaker);
 
-        ComputerCraft.TurtleUpgrades.craftingTable = new TurtleCraftingTable( new Identifier( "minecraft", "crafting_table" ) );
-        ComputerCraftAPI.registerTurtleUpgrade( ComputerCraft.TurtleUpgrades.craftingTable );
+        ComputerCraft.TurtleUpgrades.craftingTable = new TurtleCraftingTable(new Identifier("minecraft", "crafting_table"));
+        ComputerCraftAPI.registerTurtleUpgrade(ComputerCraft.TurtleUpgrades.craftingTable);
 
-        ComputerCraft.TurtleUpgrades.diamondSword = new TurtleSword( new Identifier( "minecraft", "diamond_sword" ), Items.DIAMOND_SWORD );
-        ComputerCraftAPI.registerTurtleUpgrade( ComputerCraft.TurtleUpgrades.diamondSword );
+        ComputerCraft.TurtleUpgrades.diamondSword = new TurtleSword(new Identifier("minecraft", "diamond_sword"), Items.DIAMOND_SWORD);
+        ComputerCraftAPI.registerTurtleUpgrade(ComputerCraft.TurtleUpgrades.diamondSword);
 
-        ComputerCraft.TurtleUpgrades.diamondShovel = new TurtleShovel( new Identifier( "minecraft", "diamond_shovel" ), Items.DIAMOND_SHOVEL );
-        ComputerCraftAPI.registerTurtleUpgrade( ComputerCraft.TurtleUpgrades.diamondShovel );
+        ComputerCraft.TurtleUpgrades.diamondShovel = new TurtleShovel(new Identifier("minecraft", "diamond_shovel"), Items.DIAMOND_SHOVEL);
+        ComputerCraftAPI.registerTurtleUpgrade(ComputerCraft.TurtleUpgrades.diamondShovel);
 
-        ComputerCraft.TurtleUpgrades.diamondPickaxe = new TurtleTool( new Identifier( "minecraft", "diamond_pickaxe" ), Items.DIAMOND_PICKAXE );
-        ComputerCraftAPI.registerTurtleUpgrade( ComputerCraft.TurtleUpgrades.diamondPickaxe );
+        ComputerCraft.TurtleUpgrades.diamondPickaxe = new TurtleTool(new Identifier("minecraft", "diamond_pickaxe"), Items.DIAMOND_PICKAXE);
+        ComputerCraftAPI.registerTurtleUpgrade(ComputerCraft.TurtleUpgrades.diamondPickaxe);
 
-        ComputerCraft.TurtleUpgrades.diamondAxe = new TurtleAxe( new Identifier( "minecraft", "diamond_axe" ), Items.DIAMOND_AXE );
-        ComputerCraftAPI.registerTurtleUpgrade( ComputerCraft.TurtleUpgrades.diamondAxe );
+        ComputerCraft.TurtleUpgrades.diamondAxe = new TurtleAxe(new Identifier("minecraft", "diamond_axe"), Items.DIAMOND_AXE);
+        ComputerCraftAPI.registerTurtleUpgrade(ComputerCraft.TurtleUpgrades.diamondAxe);
 
-        ComputerCraft.TurtleUpgrades.diamondHoe = new TurtleHoe( new Identifier( "minecraft", "diamond_hoe" ), Items.DIAMOND_HOE );
-        ComputerCraftAPI.registerTurtleUpgrade( ComputerCraft.TurtleUpgrades.diamondHoe );
+        ComputerCraft.TurtleUpgrades.diamondHoe = new TurtleHoe(new Identifier("minecraft", "diamond_hoe"), Items.DIAMOND_HOE);
+        ComputerCraftAPI.registerTurtleUpgrade(ComputerCraft.TurtleUpgrades.diamondHoe);
     }
 
-    private static void registerPocketUpgrades()
-    {
-        ComputerCraftAPI.registerPocketUpgrade( ComputerCraft.PocketUpgrades.wirelessModemNormal = new PocketModem( false ) );
-        ComputerCraftAPI.registerPocketUpgrade( ComputerCraft.PocketUpgrades.wirelessModemAdvanced = new PocketModem( true ) );
-        ComputerCraftAPI.registerPocketUpgrade( ComputerCraft.PocketUpgrades.speaker = new PocketSpeaker() );
+    private static void registerPocketUpgrades() {
+        ComputerCraftAPI.registerPocketUpgrade(ComputerCraft.PocketUpgrades.wirelessModemNormal = new PocketModem(false));
+        ComputerCraftAPI.registerPocketUpgrade(ComputerCraft.PocketUpgrades.wirelessModemAdvanced = new PocketModem(true));
+        ComputerCraftAPI.registerPocketUpgrade(ComputerCraft.PocketUpgrades.speaker = new PocketSpeaker());
     }
 
-    public static class ModEntities
-    {
-        static final DeferredRegister<EntityType<?>> ENTITIES = DeferredRegister.create( ForgeRegistries.ENTITIES, ComputerCraft.MOD_ID );
-
-        public static final RegistryObject<EntityType<TurtlePlayer>> TURTLE_PLAYER = ENTITIES.register( "turtle_player", () ->
-            EntityType.Builder.<TurtlePlayer>create( SpawnGroup.MISC )
-                .disableSaving()
-                .disableSummon()
-                .setDimensions( 0, 0 )
-                .build( ComputerCraft.MOD_ID + ":turtle_player" ) );
-    }
-
-    public static class ModContainers
-    {
-        static final DeferredRegister<ScreenHandlerType<?>> CONTAINERS = DeferredRegister.create( ForgeRegistries.CONTAINERS, ComputerCraft.MOD_ID );
-
-        public static final RegistryObject<ScreenHandlerType<ContainerComputer>> COMPUTER = CONTAINERS.register( "computer",
-            () -> ContainerData.toType( ComputerContainerData::new, ContainerComputer::new ) );
-
-        public static final RegistryObject<ScreenHandlerType<ContainerPocketComputer>> POCKET_COMPUTER = CONTAINERS.register( "pocket_computer",
-            () -> ContainerData.toType( ComputerContainerData::new, ContainerPocketComputer::new ) );
-
-        public static final RegistryObject<ScreenHandlerType<ContainerTurtle>> TURTLE = CONTAINERS.register( "turtle",
-            () -> ContainerData.toType( ComputerContainerData::new, ContainerTurtle::new ) );
-
-        public static final RegistryObject<ScreenHandlerType<ContainerDiskDrive>> DISK_DRIVE = CONTAINERS.register( "disk_drive",
-            () -> new ScreenHandlerType<>( ContainerDiskDrive::new ) );
-
-        public static final RegistryObject<ScreenHandlerType<ContainerPrinter>> PRINTER = CONTAINERS.register( "printer",
-            () -> new ScreenHandlerType<>( ContainerPrinter::new ) );
-
-        public static final RegistryObject<ScreenHandlerType<ContainerHeldItem>> PRINTOUT = CONTAINERS.register( "printout",
-            () -> ContainerData.toType( HeldItemContainerData::new, ContainerHeldItem::createPrintout ) );
-
-        public static final RegistryObject<ScreenHandlerType<ContainerViewComputer>> VIEW_COMPUTER = CONTAINERS.register( "view_computer",
-            () -> ContainerData.toType( ViewComputerContainerData::new, ContainerViewComputer::new ) );
-    }
-
-    @SubscribeEvent
-    public static void registerRecipeSerializers( RegistryEvent.Register<RecipeSerializer<?>> event )
-    {
-        event.getRegistry().registerAll(
-            ColourableRecipe.SERIALIZER.setRegistryName( new Identifier( ComputerCraft.MOD_ID, "colour" ) ),
-            ComputerUpgradeRecipe.SERIALIZER.setRegistryName( new Identifier( ComputerCraft.MOD_ID, "computer_upgrade" ) ),
-            PocketComputerUpgradeRecipe.SERIALIZER.setRegistryName( new Identifier( ComputerCraft.MOD_ID, "pocket_computer_upgrade" ) ),
-            DiskRecipe.SERIALIZER.setRegistryName( new Identifier( ComputerCraft.MOD_ID, "disk" ) ),
-            PrintoutRecipe.SERIALIZER.setRegistryName( new Identifier( ComputerCraft.MOD_ID, "printout" ) ),
-            TurtleRecipe.SERIALIZER.setRegistryName( new Identifier( ComputerCraft.MOD_ID, "turtle" ) ),
-            TurtleUpgradeRecipe.SERIALIZER.setRegistryName( new Identifier( ComputerCraft.MOD_ID, "turtle_upgrade" ) ),
-            ImpostorShapelessRecipe.SERIALIZER.setRegistryName( new Identifier( ComputerCraft.MOD_ID, "impostor_shapeless" ) ),
-            ImpostorRecipe.SERIALIZER.setRegistryName( new Identifier( ComputerCraft.MOD_ID, "impostor_shaped" ) )
-        );
-    }
-
-    public static void setup()
-    {
-        IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
-        ModBlocks.BLOCKS.register( bus );
-        ModTiles.TILES.register( bus );
-        ModItems.ITEMS.register( bus );
-        ModEntities.ENTITIES.register( bus );
-        ModContainers.CONTAINERS.register( bus );
+    public static void registerRecipes(MutableRegistry<RecipeSerializer<?>> registry) {
+        registry.add(new Identifier(ComputerCraft.MOD_ID, "colour"), ColourableRecipe.SERIALIZER);
+        registry.add(new Identifier(ComputerCraft.MOD_ID, "computer_upgrade"), ComputerUpgradeRecipe.SERIALIZER);
+        registry.add(new Identifier(ComputerCraft.MOD_ID, "pocket_computer_upgrade"), PocketComputerUpgradeRecipe.SERIALIZER);
+        registry.add(new Identifier(ComputerCraft.MOD_ID, "disk"), DiskRecipe.SERIALIZER);
+        registry.add(new Identifier(ComputerCraft.MOD_ID, "printout"), PrintoutRecipe.SERIALIZER);
+        registry.add(new Identifier(ComputerCraft.MOD_ID, "turtle"), TurtleRecipe.SERIALIZER);
+        registry.add(new Identifier(ComputerCraft.MOD_ID, "turtle_upgrade"), TurtleUpgradeRecipe.SERIALIZER);
+        registry.add(new Identifier(ComputerCraft.MOD_ID, "impostor_shaped"), ImpostorRecipe.SERIALIZER);
+        registry.add(new Identifier(ComputerCraft.MOD_ID, "impostor_shapeless"), ImpostorShapelessRecipe.SERIALIZER);
     }
 }

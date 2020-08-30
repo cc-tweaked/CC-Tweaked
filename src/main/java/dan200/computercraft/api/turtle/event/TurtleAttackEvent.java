@@ -5,24 +5,14 @@
  */
 package dan200.computercraft.api.turtle.event;
 
-import dan200.computercraft.api.turtle.ITurtleAccess;
-import dan200.computercraft.api.turtle.ITurtleUpgrade;
-import dan200.computercraft.api.turtle.TurtleSide;
-import dan200.computercraft.api.turtle.TurtleVerb;
+import dan200.computercraft.api.turtle.*;
 import net.minecraft.entity.Entity;
-import net.minecraftforge.common.util.FakePlayer;
-import net.minecraftforge.event.entity.player.AttackEntityEvent;
 
 import javax.annotation.Nonnull;
 import java.util.Objects;
 
 /**
  * Fired when a turtle attempts to attack an entity.
- *
- * This must be fired by {@link ITurtleUpgrade#useTool(ITurtleAccess, TurtleSide, TurtleVerb, Direction)},
- * as the base {@code turtle.attack()} command does not fire it.
- *
- * Note that such commands should also fire {@link AttackEntityEvent}, so you do not need to listen to both.
  *
  * @see TurtleAction#ATTACK
  */
@@ -32,7 +22,7 @@ public class TurtleAttackEvent extends TurtlePlayerEvent
     private final ITurtleUpgrade upgrade;
     private final TurtleSide side;
 
-    public TurtleAttackEvent( @Nonnull ITurtleAccess turtle, @Nonnull FakePlayer player, @Nonnull Entity target, @Nonnull ITurtleUpgrade upgrade, @Nonnull TurtleSide side )
+    public TurtleAttackEvent(@Nonnull ITurtleAccess turtle, @Nonnull FakePlayer player, @Nonnull Entity target, @Nonnull ITurtleUpgrade upgrade, @Nonnull TurtleSide side )
     {
         super( turtle, TurtleAction.ATTACK, player );
         Objects.requireNonNull( target, "target cannot be null" );

@@ -5,17 +5,18 @@
  */
 package dan200.computercraft.api.peripheral;
 
+import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
-import net.minecraftforge.common.util.LazyOptional;
 
 import javax.annotation.Nonnull;
+import java.util.Optional;
 
 /**
  * This interface is used to create peripheral implementations for blocks.
  *
- * If you have a {@link TileEntity} which acts as a peripheral, you may alternatively expose the {@link IPeripheral}
+ * If you have a {@link BlockEntity} which acts as a peripheral, you may alternatively expose the {@link IPeripheral}
  * capability.
  *
  * @see dan200.computercraft.api.ComputerCraftAPI#registerPeripheralProvider(IPeripheralProvider)
@@ -29,9 +30,9 @@ public interface IPeripheralProvider
      * @param world The world the block is in.
      * @param pos   The position the block is at.
      * @param side  The side to get the peripheral from.
-     * @return A peripheral, or {@link LazyOptional#empty()} if there is not a peripheral here you'd like to handle.
+     * @return A peripheral, or {@link Optional#empty()} if there is not a peripheral here you'd like to handle.
      * @see dan200.computercraft.api.ComputerCraftAPI#registerPeripheralProvider(IPeripheralProvider)
      */
     @Nonnull
-    LazyOptional<IPeripheral> getPeripheral( @Nonnull World world, @Nonnull BlockPos pos, @Nonnull Direction side );
+    Optional<IPeripheral> getPeripheral( @Nonnull World world, @Nonnull BlockPos pos, @Nonnull Direction side );
 }
