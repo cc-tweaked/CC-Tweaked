@@ -10,3 +10,5 @@ accessible method net/minecraft/client/render/item/HeldItemRenderer getMapAngle 
 accessible method net/minecraft/client/texture/TextureManager bindTextureInner (Lnet/minecraft/util/Identifier;)V
 accessible field net/minecraft/entity/Entity pos Lnet/minecraft/util/math/Vec3d;
 extendable method net/minecraft/entity/Entity getCameraPosVec (F)Lnet/minecraft/util/math/Vec3d;
+accessible method net/minecraft/screen/ScreenHandlerType <init> (Lnet/minecraft/screen/ScreenHandlerType$Factory;)V
+accessible class net/minecraft/screen/ScreenHandlerType$Factory

@@ -34,7 +34,7 @@ public class BlockMonitor extends BlockGeneric
 
     static final EnumProperty<MonitorEdgeState> STATE = EnumProperty.of( "state", MonitorEdgeState.class );
 
-    public BlockMonitor( Settings settings, RegistryObject<? extends BlockEntityType<? extends TileMonitor>> type )
+    public BlockMonitor( Settings settings, BlockEntityType<? extends TileMonitor> type )
     {
         super( settings, type );
         // TODO: Test underwater - do we need isSolid at all?

@@ -73,6 +73,7 @@ public final class ClientRegistry
         }
     }
 
+    @SuppressWarnings ("NewExpressionSideOnly")
     public static void onModelBakeEvent(ResourceManager manager, Consumer<ModelIdentifier> out) {
         for (String model : EXTRA_MODELS) {
             out.accept(new ModelIdentifier(new Identifier(ComputerCraft.MOD_ID, model), "inventory"));
@@ -81,7 +82,7 @@ public final class ClientRegistry
 
     public static void onItemColours() {
         ColorProviderRegistry.ITEM.register((stack, layer) -> {
-            return layer == 1 ? ((ItemDisk) stack.getItem()).getColour(stack) : 0xFFFFFF, Registry.ModItems.DISK);
+            return layer == 1 ? ((ItemDisk) stack.getItem()).getColour(stack) : 0xFFFFFF;
         });
 
         ColorProviderRegistry.ITEM.register((stack, layer) -> {

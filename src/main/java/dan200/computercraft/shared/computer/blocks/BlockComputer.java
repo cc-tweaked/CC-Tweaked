@@ -28,7 +28,7 @@ public class BlockComputer extends BlockComputerBase<TileComputer>
     public static final EnumProperty<ComputerState> STATE = EnumProperty.of( "state", ComputerState.class );
     public static final DirectionProperty FACING = Properties.HORIZONTAL_FACING;
 
-    public BlockComputer( Settings settings, ComputerFamily family, RegistryObject<? extends BlockEntityType<? extends TileComputer>> type )
+    public BlockComputer( Settings settings, ComputerFamily family, BlockEntityType<? extends TileComputer> type )
     {
         super( settings, family, type );
         setDefaultState( getDefaultState()

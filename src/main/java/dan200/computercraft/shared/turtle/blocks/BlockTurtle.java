@@ -56,7 +56,7 @@ public class BlockTurtle extends BlockComputerBase<TileTurtle> implements Waterl
         0.875, 0.875, 0.875
     );
 
-    public BlockTurtle( Settings settings, ComputerFamily family, RegistryObject<? extends BlockEntityType<? extends TileTurtle>> type )
+    public BlockTurtle( Settings settings, ComputerFamily family, BlockEntityType<? extends TileTurtle> type )
     {
         super( settings, family, type );
         setDefaultState( getStateManager().getDefaultState()

@@ -7,6 +7,7 @@ package dan200.computercraft.shared.turtle.core;
 
 import com.mojang.authlib.GameProfile;
 import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.api.turtle.FakePlayer;
 import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.shared.Registry;
 import dan200.computercraft.shared.util.FakeNetHandler;

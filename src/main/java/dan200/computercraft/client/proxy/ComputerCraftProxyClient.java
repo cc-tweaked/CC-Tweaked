@@ -85,11 +85,11 @@ public final class ComputerCraftProxyClient
 
         HandledScreens.<ContainerComputer, GuiComputer<ContainerComputer>>register( Registry.ModContainers.COMPUTER.get(), GuiComputer::create );
         HandledScreens.<ContainerPocketComputer, GuiComputer<ContainerPocketComputer>>register( Registry.ModContainers.POCKET_COMPUTER.get(), GuiComputer::createPocket );
-        HandledScreens.register( Registry.ModContainers.TURTLE.get(), GuiTurtle::new );
+        HandledScreens.register( Registry.ModContainers.TURTLE, GuiTurtle::new );
 
-        HandledScreens.register( Registry.ModContainers.PRINTER.get(), GuiPrinter::new );
-        HandledScreens.register( Registry.ModContainers.DISK_DRIVE.get(), GuiDiskDrive::new );
-        HandledScreens.register( Registry.ModContainers.PRINTOUT.get(), GuiPrintout::new );
+        HandledScreens.register( Registry.ModContainers.PRINTER, GuiPrinter::new );
+        HandledScreens.register( Registry.ModContainers.DISK_DRIVE, GuiDiskDrive::new );
+        HandledScreens.register( Registry.ModContainers.PRINTOUT, GuiPrintout::new );
 
         HandledScreens.<ContainerViewComputer, GuiComputer<ContainerViewComputer>>register( Registry.ModContainers.VIEW_COMPUTER.get(), GuiComputer::createView );
     }

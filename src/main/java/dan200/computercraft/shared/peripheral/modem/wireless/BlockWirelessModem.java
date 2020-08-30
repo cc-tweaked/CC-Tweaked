@@ -5,8 +5,17 @@
  */
 package dan200.computercraft.shared.peripheral.modem.wireless;
 
+import static dan200.computercraft.shared.util.WaterloggableHelpers.WATERLOGGED;
+import static dan200.computercraft.shared.util.WaterloggableHelpers.getWaterloggedFluidState;
+import static dan200.computercraft.shared.util.WaterloggableHelpers.getWaterloggedStateForPlacement;
+import static dan200.computercraft.shared.util.WaterloggableHelpers.updateWaterloggedPostPlacement;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 import dan200.computercraft.shared.common.BlockGeneric;
 import dan200.computercraft.shared.peripheral.modem.ModemShapes;
+
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.ShapeContext;
@@ -24,19 +33,13 @@ import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.WorldAccess;
 import net.minecraft.world.WorldView;
-import net.minecraftforge.fml.RegistryObject;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
-import static dan200.computercraft.shared.util.WaterloggableHelpers.*;
 
 public class BlockWirelessModem extends BlockGeneric implements Waterloggable
 {
     public static final DirectionProperty FACING = Properties.FACING;
     public static final BooleanProperty ON = BooleanProperty.of( "on" );
 
-    public BlockWirelessModem( Settings settings, RegistryObject<? extends BlockEntityType<? extends TileWirelessModem>> type )
+    public BlockWirelessModem( Settings settings, BlockEntityType<? extends TileWirelessModem> type )
     {
         super( settings, type );
         setDefaultState( getStateManager().getDefaultState()

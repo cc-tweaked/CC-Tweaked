@@ -40,7 +40,7 @@ public abstract class BlockComputerBase<T extends TileComputerBase> extends Bloc
 
     private final ComputerFamily family;
 
-    protected BlockComputerBase( Settings settings, ComputerFamily family, RegistryObject<? extends BlockEntityType<? extends T>> type )
+    protected BlockComputerBase( Settings settings, ComputerFamily family, BlockEntityType<? extends T> type )
     {
         super( settings, type );
         this.family = family;

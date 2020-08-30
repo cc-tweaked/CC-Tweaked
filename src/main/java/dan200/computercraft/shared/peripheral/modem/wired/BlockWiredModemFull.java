@@ -7,8 +7,11 @@ package dan200.computercraft.shared.peripheral.modem.wired;
 
 import dan200.computercraft.shared.Registry;
 import dan200.computercraft.shared.common.BlockGeneric;
+import dan200.computercraft.shared.peripheral.monitor.TileMonitor;
+
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
 
@@ -17,9 +20,9 @@ public class BlockWiredModemFull extends BlockGeneric
     public static final BooleanProperty MODEM_ON = BooleanProperty.of( "modem" );
     public static final BooleanProperty PERIPHERAL_ON = BooleanProperty.of( "peripheral" );
 
-    public BlockWiredModemFull( Settings settings )
+    public BlockWiredModemFull( Settings settings , BlockEntityType<? extends TileWiredModemFull> type )
     {
-        super( settings, Registry.ModTiles.WIRED_MODEM_FULL );
+        super( settings, type);
         setDefaultState( getStateManager().getDefaultState()
             .with( MODEM_ON, false )
             .with( PERIPHERAL_ON, false )

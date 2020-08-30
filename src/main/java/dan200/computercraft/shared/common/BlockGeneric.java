@@ -26,9 +26,9 @@ import java.util.Random;
 
 public abstract class BlockGeneric extends Block
 {
-    private final RegistryObject<? extends BlockEntityType<? extends TileGeneric>> type;
+    private final BlockEntityType<? extends TileGeneric> type;
 
-    public BlockGeneric( Settings settings, RegistryObject<? extends BlockEntityType<? extends TileGeneric>> type )
+    public BlockGeneric( Settings settings, BlockEntityType<? extends TileGeneric> type )
     {
         super( settings );
         this.type = type;

@@ -26,7 +26,7 @@ public class ContainerPrinter extends ScreenHandler
 
     private ContainerPrinter( int id, PlayerInventory player, Inventory inventory, PropertyDelegate properties )
     {
-        super( Registry.ModContainers.PRINTER.get(), id );
+        super( Registry.ModContainers.PRINTER, id );
         this.properties = properties;
         this.inventory = inventory;
 

@@ -6,6 +6,8 @@
 
 package dan200.computercraft;
 
+import static dan200.computercraft.shared.Registry.*;
+
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
@@ -19,7 +21,6 @@ import dan200.computercraft.core.apis.http.options.Action;
 import dan200.computercraft.core.apis.http.options.AddressRule;
 import dan200.computercraft.core.asm.GenericSource;
 import dan200.computercraft.shared.Config;
-import dan200.computercraft.shared.Registry;
 import dan200.computercraft.shared.computer.core.ClientComputerRegistry;
 import dan200.computercraft.shared.computer.core.ServerComputerRegistry;
 import dan200.computercraft.shared.peripheral.monitor.MonitorRenderer;
@@ -79,10 +80,10 @@ public final class ComputerCraft implements ModInitializer {
     public static int httpMaxWebsockets = 4;
 
     public static boolean enableCommandBlock = false;
-    public static int modemRange = 64;
-    public static int modemHighAltitudeRange = 384;
-    public static int modemRangeDuringStorm = 64;
-    public static int modemHighAltitudeRangeDuringStorm = 384;
+    public static int emRange = 64;
+    public static int emHighAltitudeRange = 384;
+    public static int emRangeDuringStorm = 64;
+    public static int emHighAltitudeRangeDuringStorm = 384;
     public static int maxNotesPerTick = 8;
     public static MonitorRenderer monitorRenderer = MonitorRenderer.BEST;
     public static double monitorDistanceSq = 4096;
@@ -110,8 +111,8 @@ public final class ComputerCraft implements ModInitializer {
     public static int monitorHeight = 6;
 
     public static final class TurtleUpgrades {
-        public static TurtleModem wirelessModemNormal;
-        public static TurtleModem wirelessModemAdvanced;
+        public static TurtleModem wirelessemNormal;
+        public static TurtleModem wirelessemAdvanced;
         public static TurtleSpeaker speaker;
 
         public static TurtleCraftingTable craftingTable;
@@ -123,8 +124,8 @@ public final class ComputerCraft implements ModInitializer {
     }
 
     public static final class PocketUpgrades {
-        public static PocketModem wirelessModemNormal;
-        public static PocketModem wirelessModemAdvanced;
+        public static PocketModem wirelessemNormal;
+        public static PocketModem wirelessemAdvanced;
         public static PocketSpeaker speaker;
     }
 
@@ -139,7 +140,9 @@ public final class ComputerCraft implements ModInitializer {
     @Override
     public void onInitialize() {
         Config.setup();
-        Registry.setup();
         GenericSource.setup(() -> ServiceUtil.loadServicesForge(GenericSource.class));
+        init();
     }
+
+
 }
