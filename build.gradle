@@ -11,6 +11,11 @@ version = mod_version
 group = "org.mystia.craft"
 archivesBaseName = "cc-t-fabric-${mc_version}"
 
+// yeef
+compileJava {
+    options.compilerArgs << '-Xmaxerrs' << '10000'
+}
+
 repositories {
     mavenCentral()
     maven {
