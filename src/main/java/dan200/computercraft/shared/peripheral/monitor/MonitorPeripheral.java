@@ -45,7 +45,7 @@ public class MonitorPeripheral extends TermMethods implements IPeripheral
 
     @Nonnull
     @Override
-    public String getType()
+    public String getType0()
     {
         return "monitor";
     }

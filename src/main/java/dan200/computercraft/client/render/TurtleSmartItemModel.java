@@ -5,6 +5,13 @@
  */
 package dan200.computercraft.client.render;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Random;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 import com.google.common.base.Objects;
 import dan200.computercraft.api.client.TransformedModel;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
@@ -12,6 +19,8 @@ import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.shared.turtle.items.ItemTurtle;
 import dan200.computercraft.shared.util.Holiday;
 import dan200.computercraft.shared.util.HolidayUtil;
+import net.minecraftforge.client.model.data.IModelData;
+
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.model.BakedModel;
@@ -29,14 +38,12 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Direction;
-import net.minecraftforge.client.model.data.IModelData;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Random;
-
+@SuppressWarnings ({
+    "MethodCallSideOnly",
+    "LocalVariableDeclarationSideOnly",
+    "NewExpressionSideOnly"
+})
 public class TurtleSmartItemModel implements BakedModel
 {
     private static final AffineTransformation identity, flip;

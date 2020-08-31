@@ -201,7 +201,7 @@ public class TurtleBrain implements ITurtleAccess
         m_selectedSlot = nbt.getInt( NBT_SLOT );
 
         // Read owner
-        if( nbt.contains( "Owner", Constants.NBT.TAG_COMPOUND ) )
+        if( nbt.contains( "Owner", NBTUtil.TAG_COMPOUND ) )
         {
             CompoundTag owner = nbt.getCompound( "Owner" );
             m_owningPlayer = new GameProfile(

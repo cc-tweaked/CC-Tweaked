@@ -11,6 +11,7 @@ import dan200.computercraft.client.gui.widgets.WidgetTerminal;
 import dan200.computercraft.client.gui.widgets.WidgetWrapper;
 import dan200.computercraft.shared.computer.core.ClientComputer;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
+import dan200.computercraft.shared.turtle.blocks.TileTurtle;
 import dan200.computercraft.shared.turtle.inventory.ContainerTurtle;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.client.util.math.MatrixStack;
@@ -34,12 +35,12 @@ public class GuiTurtle extends HandledScreen<ContainerTurtle>
     private WidgetTerminal terminal;
     private WidgetWrapper terminalWrapper;
 
-    public GuiTurtle( ContainerTurtle container, PlayerInventory player, Text title )
+    public GuiTurtle(TileTurtle turtle, ContainerTurtle container, PlayerInventory player )
     {
-        super( container, player, title );
+        super( container, player, turtle.getDisplayName() );
 
         m_container = container;
-        m_family = container.getFamily();
+        m_family = turtle.getFamily();
         m_computer = (ClientComputer) container.getComputer();
 
         backgroundWidth = 254;
@@ -114,8 +115,8 @@ public class GuiTurtle extends HandledScreen<ContainerTurtle>
             int slotX = slot % 4;
             int slotY = slot / 4;
             drawTexture( transform,
-                x + ContainerTurtle.TURTLE_START_X - 2 + slotX * 18,
-                y + ContainerTurtle.PLAYER_START_Y - 2 + slotY * 18,
+                x + m_container.m_turtleInvStartX - 2 + slotX * 18,
+                y + m_container.m_playerInvStartY - 2 + slotY * 18,
                 0, 217, 24, 24
             );
         }

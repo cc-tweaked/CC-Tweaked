@@ -80,10 +80,10 @@ public final class ComputerCraft implements ModInitializer {
     public static int httpMaxWebsockets = 4;
 
     public static boolean enableCommandBlock = false;
-    public static int emRange = 64;
-    public static int emHighAltitudeRange = 384;
-    public static int emRangeDuringStorm = 64;
-    public static int emHighAltitudeRangeDuringStorm = 384;
+    public static int modemRange = 64;
+    public static int modemHighAltitudeRange = 384;
+    public static int modemRangeDuringStorm = 64;
+    public static int modemHighAltitudeRangeDuringStorm = 384;
     public static int maxNotesPerTick = 8;
     public static MonitorRenderer monitorRenderer = MonitorRenderer.BEST;
     public static double monitorDistanceSq = 4096;
@@ -111,8 +111,8 @@ public final class ComputerCraft implements ModInitializer {
     public static int monitorHeight = 6;
 
     public static final class TurtleUpgrades {
-        public static TurtleModem wirelessemNormal;
-        public static TurtleModem wirelessemAdvanced;
+        public static TurtleModem wirelessModemNormal;
+        public static TurtleModem wirelessModemAdvanced;
         public static TurtleSpeaker speaker;
 
         public static TurtleCraftingTable craftingTable;
@@ -124,8 +124,8 @@ public final class ComputerCraft implements ModInitializer {
     }
 
     public static final class PocketUpgrades {
-        public static PocketModem wirelessemNormal;
-        public static PocketModem wirelessemAdvanced;
+        public static PocketModem wirelessModemNormal;
+        public static PocketModem wirelessModemAdvanced;
         public static PocketSpeaker speaker;
     }
 

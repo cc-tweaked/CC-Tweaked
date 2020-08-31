@@ -30,9 +30,9 @@ public class GuiPrintout extends HandledScreen<ContainerHeldItem>
     private final TextBuffer[] m_colours;
     private int m_page;
 
-    public GuiPrintout( ContainerHeldItem container, PlayerInventory player, Text title )
+    public GuiPrintout( ContainerHeldItem container, PlayerInventory player )
     {
-        super( container, player, title );
+        super( container, player, container.getStack().getName() );
 
         backgroundHeight = Y_SIZE;
 

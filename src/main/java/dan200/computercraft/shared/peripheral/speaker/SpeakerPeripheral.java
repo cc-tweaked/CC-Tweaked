@@ -53,7 +53,7 @@ public abstract class SpeakerPeripheral implements IPeripheral
 
     @Nonnull
     @Override
-    public String getType()
+    public String getType0()
     {
         return "speaker";
     }

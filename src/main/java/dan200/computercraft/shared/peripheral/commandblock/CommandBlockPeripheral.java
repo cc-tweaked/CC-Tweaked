@@ -51,7 +51,7 @@ public class CommandBlockPeripheral implements IPeripheral, ICapabilityProvider
 
     @Nonnull
     @Override
-    public String getType()
+    public String getType0()
     {
         return "command";
     }

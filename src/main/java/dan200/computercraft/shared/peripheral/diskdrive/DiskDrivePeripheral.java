@@ -43,7 +43,7 @@ public class DiskDrivePeripheral implements IPeripheral
 
     @Nonnull
     @Override
-    public String getType()
+    public String getType0()
     {
         return "drive";
     }

@@ -51,7 +51,7 @@ class GenericPeripheral implements IDynamicPeripheral
 
     @Nonnull
     @Override
-    public String getType()
+    public String getType0()
     {
         return type;
     }

@@ -393,7 +393,7 @@ public class NetworkTest
     {
         @Nonnull
         @Override
-        public String getType()
+        public String getType0()
         {
             return "test";
         }

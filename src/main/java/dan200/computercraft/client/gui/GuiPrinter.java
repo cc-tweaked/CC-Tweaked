@@ -6,6 +6,7 @@
 package dan200.computercraft.client.gui;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import dan200.computercraft.shared.Registry;
 import dan200.computercraft.shared.peripheral.printer.ContainerPrinter;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.client.util.math.MatrixStack;
@@ -18,9 +19,9 @@ public class GuiPrinter extends HandledScreen<ContainerPrinter>
 {
     private static final Identifier BACKGROUND = new Identifier( "computercraft", "textures/gui/printer.png" );
 
-    public GuiPrinter( ContainerPrinter container, PlayerInventory player, Text title )
+    public GuiPrinter( ContainerPrinter container, PlayerInventory player)
     {
-        super( container, player, title );
+        super(container, player, Registry.ModBlocks.PRINTER.getName());
     }
 
     /*@Override

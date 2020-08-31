@@ -33,7 +33,7 @@ public class CraftingTablePeripheral implements IPeripheral
 
     @Nonnull
     @Override
-    public String getType()
+    public String getType0()
     {
         return "workbench";
     }

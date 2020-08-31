@@ -76,12 +76,12 @@ public class ItemData
         if( !ComputerCraft.genericPeripheral ) return data;
 
         CompoundTag tag = stack.getTag();
-        if( tag != null && tag.contains( "display", Constants.NBT.TAG_COMPOUND ) )
+        if( tag != null && tag.contains( "display", NBTUtil.TAG_COMPOUND ) )
         {
             CompoundTag displayTag = tag.getCompound( "display" );
-            if( displayTag.contains( "Lore", Constants.NBT.TAG_LIST ) )
+            if( displayTag.contains( "Lore", NBTUtil.TAG_LIST ) )
             {
-                ListTag loreTag = displayTag.getList( "Lore", Constants.NBT.TAG_STRING );
+                ListTag loreTag = displayTag.getList( "Lore", NBTUtil.TAG_STRING );
                 data.put( "lore", loreTag.stream()
                     .map( ItemData::parseTextComponent )
                     .filter( Objects::nonNull )

@@ -5,10 +5,11 @@
  */
 package dan200.computercraft.shared.network;
 
-import net.minecraft.network.PacketByteBuf;
-import net.minecraftforge.fml.network.NetworkEvent;
-
 import javax.annotation.Nonnull;
+
+import net.minecraft.network.PacketByteBuf;
+
+import net.fabricmc.fabric.api.network.PacketContext;
 
 /**
  * The base interface for any message which will be sent to the client or server.
@@ -44,5 +45,5 @@ public interface NetworkMessage
      *
      * @param context The context with which to handle this message
      */
-    void handle( NetworkEvent.Context context );
+    void handle( PacketContext context );
 }

@@ -36,8 +36,7 @@ public final class TurtleModelLoader implements IModelLoader<TurtleModelLoader.T
 
     public static final TurtleModelLoader INSTANCE = new TurtleModelLoader();
 
-    private TurtleModelLoader()
-    {
+    private TurtleModelLoader() {
     }
 
     @Override

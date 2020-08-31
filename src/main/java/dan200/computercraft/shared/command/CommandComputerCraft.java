@@ -127,7 +127,7 @@ public final class CommandComputerCraft
                             IPeripheral peripheral = computer.getPeripheral( side );
                             if( peripheral != null )
                             {
-                                table.row( header( "Peripheral " + side.getName() ), text( peripheral.getType() ) );
+                                table.row( header( "Peripheral " + side.getName() ), text( peripheral.getType0() ) );
                             }
                         }
 
