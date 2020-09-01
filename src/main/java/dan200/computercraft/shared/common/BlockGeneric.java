@@ -6,7 +6,7 @@
 package dan200.computercraft.shared.common;
 
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockEntityProvider;
+import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.BlockWithEntity;
 import net.minecraft.block.entity.BlockEntity;
@@ -17,11 +17,8 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
-import net.minecraft.world.WorldAccess;
-import net.minecraft.world.WorldView;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -35,6 +32,12 @@ public abstract class BlockGeneric extends BlockWithEntity
     {
         super( settings );
         this.type = type;
+    }
+
+    @Override
+    public BlockRenderType getRenderType( BlockState state )
+    {
+        return BlockRenderType.MODEL;
     }
 
     @Override
