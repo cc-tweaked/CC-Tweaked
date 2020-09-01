@@ -10,6 +10,8 @@ import dan200.computercraft.api.filesystem.IWritableMount;
 import dan200.computercraft.api.media.IMedia;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
+import dan200.computercraft.api.peripheral.IPeripheralProvider;
+import dan200.computercraft.api.peripheral.IPeripheralTile;
 import dan200.computercraft.shared.MediaProviders;
 import dan200.computercraft.shared.common.TileGeneric;
 import dan200.computercraft.shared.util.DefaultInventory;
@@ -32,6 +34,7 @@ import net.minecraft.util.*;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -39,7 +42,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-public final class TileDiskDrive extends TileGeneric implements DefaultInventory, Tickable, Nameable, NamedScreenHandlerFactory
+public final class TileDiskDrive extends TileGeneric implements DefaultInventory, Tickable, IPeripheralTile, Nameable, NamedScreenHandlerFactory
 {
     private static final String NBT_NAME = "CustomName";
     private static final String NBT_ITEM = "Item";
@@ -286,6 +289,12 @@ public final class TileDiskDrive extends TileGeneric implements DefaultInventory
     public void clear()
     {
         setStack( 0, ItemStack.EMPTY );
+    }
+
+    @Nonnull
+    @Override
+    public IPeripheral getPeripheral(Direction side) {
+        return new DiskDrivePeripheral(this);
     }
 
     @Nonnull

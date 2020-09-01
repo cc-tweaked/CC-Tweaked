@@ -13,7 +13,7 @@ import java.util.function.Supplier;
 /**
  * A proxy object for computer objects, delegating to {@link IComputer} or {@link TileComputer} where appropriate.
  */
-public final class ComputerProxy
+public class ComputerProxy
 {
     private final Supplier<TileComputerBase> get;
 

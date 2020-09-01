@@ -10,6 +10,8 @@ import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.network.wired.IWiredElement;
 import dan200.computercraft.api.network.wired.IWiredNode;
 import dan200.computercraft.api.peripheral.IPeripheral;
+import dan200.computercraft.api.peripheral.IPeripheralProvider;
+import dan200.computercraft.api.peripheral.IPeripheralTile;
 import dan200.computercraft.shared.ComputerCraftRegistry;
 import dan200.computercraft.shared.command.CommandCopy;
 import dan200.computercraft.shared.common.TileGeneric;
@@ -36,7 +38,7 @@ import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.Map;
 
-public class TileCable extends TileGeneric
+public class TileCable extends TileGeneric implements IPeripheralTile
 {
     private static final String NBT_PERIPHERAL_ENABLED = "PeirpheralAccess";
 
@@ -313,24 +315,23 @@ public class TileCable extends TileGeneric
         BlockState state = getCachedState();
         World world = getWorld();
         BlockPos current = getPos();
-        for( Direction facing : DirectionUtil.FACINGS )
-        {
-            BlockPos offset = current.offset( facing );
-            if( !world.isChunkLoaded( offset ) ) continue;
+        for( Direction facing : DirectionUtil.FACINGS ) {
+            BlockPos offset = current.offset(facing);
+            if (!world.isChunkLoaded(offset)) continue;
 
-            IWiredElement element = ComputerCraftAPI.getWiredElementAt( world, offset, facing.getOpposite() );
-            if( element != null ) continue;
+            IWiredElement element = ComputerCraftAPI.getWiredElementAt(world, offset, facing.getOpposite());
+            if (element != null) continue;
 
+            // TODO Figure out why this crashes.
             IWiredNode node = element.getNode();
-            if( BlockCable.canConnectIn( state, facing ) )
-            {
-                // If we can connect to it then do so
-                m_node.connectTo( node );
-            }
-            else if( m_node.getNetwork() == node.getNetwork() )
-            {
-                // Otherwise if we're on the same network then attempt to void it.
-                m_node.disconnectFrom( node );
+            if (node != null && m_node != null) {
+                if (BlockCable.canConnectIn(state, facing)) {
+                    // If we can connect to it then do so
+                    m_node.connectTo(node);
+                } else if (m_node.getNetwork() == node.getNetwork()) {
+                    // Otherwise if we're on the same network then attempt to void it.
+                    m_node.disconnectFrom(node);
+                }
             }
         }
     }
@@ -354,6 +355,12 @@ public class TileCable extends TileGeneric
 
     public IWiredElement getElement(Direction facing) {
         return BlockCable.canConnectIn(this.getCachedState(), facing) ? this.m_cable : null;
+    }
+
+    @Nonnull
+    @Override
+    public IPeripheral getPeripheral(Direction side) {
+        return !this.m_destroyed && this.hasModem() && side == this.getDirection() ? this.m_modem : null;
     }
 
     private void togglePeripheralAccess()

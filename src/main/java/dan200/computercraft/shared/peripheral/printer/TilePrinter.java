@@ -6,6 +6,8 @@
 package dan200.computercraft.shared.peripheral.printer;
 
 import dan200.computercraft.api.peripheral.IPeripheral;
+import dan200.computercraft.api.peripheral.IPeripheralProvider;
+import dan200.computercraft.api.peripheral.IPeripheralTile;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.shared.common.TileGeneric;
 import dan200.computercraft.shared.media.items.ItemPrintout;
@@ -25,13 +27,15 @@ import net.minecraft.text.TranslatableText;
 import net.minecraft.util.*;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.hit.BlockHitResult;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public final class TilePrinter extends TileGeneric implements DefaultSidedInventory, Nameable, NamedScreenHandlerFactory
+public final class TilePrinter extends TileGeneric implements DefaultSidedInventory, IPeripheralTile, Nameable, NamedScreenHandlerFactory
 {
     private static final String NBT_NAME = "CustomName";
     private static final String NBT_PRINTING = "Printing";
@@ -229,6 +233,12 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
             default: // Sides (Ink)
                 return SIDE_SLOTS;
         }
+    }
+
+    @Nonnull
+    @Override
+    public IPeripheral getPeripheral(Direction side) {
+        return new PrinterPeripheral(this);
     }
 
     @Nullable

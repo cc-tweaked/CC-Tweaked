@@ -7,6 +7,8 @@ package dan200.computercraft.shared.computer.blocks;
 
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.peripheral.IPeripheral;
+import dan200.computercraft.api.peripheral.IPeripheralProvider;
+import dan200.computercraft.api.peripheral.IPeripheralTile;
 import dan200.computercraft.core.computer.ComputerSide;
 import dan200.computercraft.shared.BundledRedstone;
 import dan200.computercraft.shared.Peripherals;
@@ -46,7 +48,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Objects;
 
-public abstract class TileComputerBase extends TileGeneric implements IComputerTile, Tickable, Nameable, NamedScreenHandlerFactory, ExtendedScreenHandlerFactory
+public abstract class TileComputerBase extends TileGeneric implements IComputerTile, Tickable, IPeripheralTile, Nameable, NamedScreenHandlerFactory, ExtendedScreenHandlerFactory
 {
     private static final String NBT_ID = "ComputerId";
     private static final String NBT_LABEL = "Label";
@@ -405,6 +407,14 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
         }
         copy.m_instanceID = -1;
     }
+
+    @Nonnull
+    @Override
+    public IPeripheral getPeripheral(Direction side) {
+        return new ComputerPeripheral("computer", this.createProxy());
+    }
+
+    public abstract ComputerProxy createProxy();
 
     @Nonnull
     @Override

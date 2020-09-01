@@ -6,6 +6,8 @@
 package dan200.computercraft.shared.peripheral.modem.wireless;
 
 import dan200.computercraft.api.peripheral.IPeripheral;
+import dan200.computercraft.api.peripheral.IPeripheralProvider;
+import dan200.computercraft.api.peripheral.IPeripheralTile;
 import dan200.computercraft.shared.common.TileGeneric;
 import dan200.computercraft.shared.peripheral.modem.ModemPeripheral;
 import dan200.computercraft.shared.peripheral.modem.ModemState;
@@ -20,7 +22,7 @@ import net.minecraft.world.World;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public class TileWirelessModem extends TileGeneric
+public class TileWirelessModem extends TileGeneric implements IPeripheralTile
 {
     private static class Peripheral extends WirelessModemPeripheral
     {
@@ -117,6 +119,13 @@ public class TileWirelessModem extends TileGeneric
 
         hasModemDirection = true;
         modemDirection = getCachedState().get( BlockWirelessModem.FACING );
+    }
+
+    @Nonnull
+    @Override
+    public IPeripheral getPeripheral(Direction side) {
+        this.refreshDirection();
+        return side == this.modemDirection ? this.modem : null;
     }
 
     private void updateBlockState()

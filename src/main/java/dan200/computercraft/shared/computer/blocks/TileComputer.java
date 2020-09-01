@@ -81,4 +81,18 @@ public class TileComputer extends TileComputerBase
     {
         return new ContainerComputer( id, this );
     }
+
+    @Override
+    public ComputerProxy createProxy() {
+        if (this.proxy == null) {
+            this.proxy = new ComputerProxy(() -> this) {
+                @Override
+                protected TileComputerBase getTile() {
+                    return TileComputer.this;
+                }
+            };
+        }
+        return this.proxy;
+    }
+
 }

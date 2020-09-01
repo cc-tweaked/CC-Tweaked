@@ -8,6 +8,7 @@ package dan200.computercraft.shared.proxy;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.media.IMedia;
+import dan200.computercraft.api.peripheral.IPeripheralTile;
 import dan200.computercraft.api.turtle.event.TurtleEvent;
 import dan200.computercraft.core.computer.MainThread;
 import dan200.computercraft.core.tracking.Tracking;
@@ -20,12 +21,15 @@ import dan200.computercraft.shared.data.HasComputerIdLootCondition;
 import dan200.computercraft.shared.data.PlayerCreativeLootCondition;
 import dan200.computercraft.shared.media.items.RecordMedia;
 import dan200.computercraft.shared.network.NetworkHandler;
+import dan200.computercraft.shared.peripheral.commandblock.CommandBlockPeripheral;
 import dan200.computercraft.shared.peripheral.modem.wireless.WirelessNetwork;
 import dan200.computercraft.shared.turtle.FurnaceRefuelHandler;
 import dan200.computercraft.shared.util.TickScheduler;
 import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.block.entity.CommandBlockBlockEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.MusicDiscItem;
 import net.minecraft.loot.condition.LootConditionType;
@@ -60,6 +64,17 @@ public final class ComputerCraftProxyCommon
 
     private static void registerProviders()
     {
+        ComputerCraftAPI.registerPeripheralProvider((world, pos, side) -> {
+            BlockEntity tile = world.getBlockEntity(pos);
+            return tile instanceof IPeripheralTile ? ((IPeripheralTile) tile).getPeripheral(side) : null;
+        });
+
+        ComputerCraftAPI.registerPeripheralProvider((world, pos, side) -> {
+            BlockEntity tile = world.getBlockEntity(pos);
+            return ComputerCraft.enableCommandBlock && tile instanceof CommandBlockBlockEntity ?
+                new CommandBlockPeripheral((CommandBlockBlockEntity) tile) : null;
+        });
+
         // Register bundled power providers
         ComputerCraftAPI.registerBundledRedstoneProvider( new DefaultBundledRedstoneProvider() );
 

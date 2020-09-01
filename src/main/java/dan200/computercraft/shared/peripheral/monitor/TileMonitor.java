@@ -7,6 +7,9 @@ package dan200.computercraft.shared.peripheral.monitor;
 
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.peripheral.IComputerAccess;
+import dan200.computercraft.api.peripheral.IPeripheral;
+import dan200.computercraft.api.peripheral.IPeripheralProvider;
+import dan200.computercraft.api.peripheral.IPeripheralTile;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.shared.common.ServerTerminal;
 import dan200.computercraft.shared.common.TileGeneric;
@@ -32,7 +35,7 @@ import javax.annotation.Nullable;
 import java.util.HashSet;
 import java.util.Set;
 
-public class TileMonitor extends TileGeneric
+public class TileMonitor extends TileGeneric implements IPeripheralTile
 {
     public static final double RENDER_BORDER = 2.0 / 16.0;
     public static final double RENDER_MARGIN = 0.5 / 16.0;
@@ -132,6 +135,16 @@ public class TileMonitor extends TileGeneric
         m_yIndex = nbt.getInt( NBT_Y );
         m_width = nbt.getInt( NBT_WIDTH );
         m_height = nbt.getInt( NBT_HEIGHT );
+    }
+
+    @Nonnull
+    @Override
+    public IPeripheral getPeripheral(Direction side) {
+        this.createServerMonitor(); // Ensure the monitor is created before doing anything else.
+        if (this.peripheral == null) {
+            this.peripheral = new MonitorPeripheral(this);
+        }
+        return this.peripheral;
     }
 
     @Override
@@ -252,7 +265,7 @@ public class TileMonitor extends TileGeneric
         {
             // If our index has changed then it's possible the origin monitor has changed. Thus
             // we'll clear our cache. If we're the origin then we'll need to remove the glList as well.
-            if(world.isClient() && oldXIndex == 0 && oldYIndex == 0 && m_clientMonitor != null) m_clientMonitor.destroy();
+            if(oldXIndex == 0 && oldYIndex == 0 && m_clientMonitor != null) m_clientMonitor.destroy();
             m_clientMonitor = null;
         }
 

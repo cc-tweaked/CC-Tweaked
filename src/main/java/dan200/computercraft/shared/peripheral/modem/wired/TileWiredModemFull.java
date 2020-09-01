@@ -11,6 +11,8 @@ import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.network.wired.IWiredElement;
 import dan200.computercraft.api.network.wired.IWiredNode;
 import dan200.computercraft.api.peripheral.IPeripheral;
+import dan200.computercraft.api.peripheral.IPeripheralProvider;
+import dan200.computercraft.api.peripheral.IPeripheralTile;
 import dan200.computercraft.shared.command.CommandCopy;
 import dan200.computercraft.shared.common.TileGeneric;
 import dan200.computercraft.shared.peripheral.modem.ModemState;
@@ -37,7 +39,7 @@ import java.util.*;
 import static dan200.computercraft.shared.peripheral.modem.wired.BlockWiredModemFull.MODEM_ON;
 import static dan200.computercraft.shared.peripheral.modem.wired.BlockWiredModemFull.PERIPHERAL_ON;
 
-public class TileWiredModemFull extends TileGeneric
+public class TileWiredModemFull extends TileGeneric implements IPeripheralTile
 {
     private static final String NBT_PERIPHERAL_ENABLED = "PeripheralAccess";
 
@@ -341,33 +343,30 @@ public class TileWiredModemFull extends TileGeneric
         return m_element;
     }
 
-    private WiredModemPeripheral getPeripheral( @Nonnull Direction side )
-    {
+    @Nonnull
+    @Override
+    public IPeripheral getPeripheral(Direction side) {
         WiredModemPeripheral peripheral = modems[side.ordinal()];
-        if( peripheral != null ) return peripheral;
+        if (peripheral != null) return peripheral;
 
         WiredModemLocalPeripheral localPeripheral = m_peripherals[side.ordinal()];
-        return modems[side.ordinal()] = new WiredModemPeripheral( m_modemState, m_element )
-        {
+        return modems[side.ordinal()] = new WiredModemPeripheral(m_modemState, m_element) {
             @Nonnull
             @Override
-            protected WiredModemLocalPeripheral getLocalPeripheral()
-            {
+            protected WiredModemLocalPeripheral getLocalPeripheral() {
                 return localPeripheral;
             }
 
             @Nonnull
             @Override
-            public Vec3d getPosition()
-            {
-                BlockPos pos = getPos().offset( side );
-                return new Vec3d( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5 );
+            public Vec3d getPosition() {
+                BlockPos pos = getPos().offset(side);
+                return new Vec3d(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5);
             }
 
             @Nonnull
             @Override
-            public Object getTarget()
-            {
+            public Object getTarget() {
                 return TileWiredModemFull.this;
             }
         };

@@ -6,6 +6,8 @@
 package dan200.computercraft.shared.peripheral.speaker;
 
 import dan200.computercraft.api.peripheral.IPeripheral;
+import dan200.computercraft.api.peripheral.IPeripheralProvider;
+import dan200.computercraft.api.peripheral.IPeripheralTile;
 import dan200.computercraft.shared.common.TileGeneric;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.util.Tickable;
@@ -17,7 +19,7 @@ import net.minecraft.world.World;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public class TileSpeaker extends TileGeneric implements Tickable
+public class TileSpeaker extends TileGeneric implements Tickable, IPeripheralTile
 {
     public static final int MIN_TICKS_BETWEEN_SOUNDS = 1;
 
@@ -33,6 +35,12 @@ public class TileSpeaker extends TileGeneric implements Tickable
     public void tick()
     {
         peripheral.update();
+    }
+
+    @Nonnull
+    @Override
+    public IPeripheral getPeripheral(Direction side) {
+        return this.peripheral;
     }
 
     private static final class Peripheral extends SpeakerPeripheral
