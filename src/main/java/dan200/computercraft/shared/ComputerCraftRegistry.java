@@ -8,8 +8,10 @@ package dan200.computercraft.shared;
 
 import static net.minecraft.util.registry.Registry.BLOCK_ENTITY_TYPE;
 
+import java.util.Objects;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.common.ContainerHeldItem;
@@ -70,11 +72,11 @@ public final class ComputerCraftRegistry {
 
     public static void init() {
         Object[] o = {
+            ModTiles.CABLE,
             ModBlocks.CABLE,
             ModItems.CABLE,
             ModEntities.TURTLE_PLAYER,
             ModContainers.COMPUTER,
-            ModTiles.CABLE
         };
     }
 
@@ -135,33 +137,33 @@ public final class ComputerCraftRegistry {
 
     public static class ModTiles {
 
-        private static <T extends BlockEntity> BlockEntityType<T> ofBlock(Block block, String id, Function<BlockEntityType<T>, T> factory) {
-            return Registry.register(BLOCK_ENTITY_TYPE, new Identifier(MOD_ID, id), FixedPointTileEntityType.create(block, factory));
+        private static <T extends BlockEntity> BlockEntityType<T> ofBlock( Supplier<Block> block, String id, Function<BlockEntityType<T>, T> factory) {
+            return Registry.register(BLOCK_ENTITY_TYPE, new Identifier(MOD_ID, id), FixedPointTileEntityType.create( Objects.requireNonNull(block), factory));
         }
 
-        public static final BlockEntityType<TileMonitor> MONITOR_NORMAL = ofBlock(ModBlocks.MONITOR_NORMAL, "monitor_normal",f -> new TileMonitor(f, false));
-        public static final BlockEntityType<TileMonitor> MONITOR_ADVANCED = ofBlock(ModBlocks.MONITOR_ADVANCED, "monitor_advanced",f -> new TileMonitor(f, true));
+        public static final BlockEntityType<TileMonitor> MONITOR_NORMAL = ofBlock(() ->ModBlocks.MONITOR_NORMAL, "monitor_normal",f -> new TileMonitor(f, false));
+        public static final BlockEntityType<TileMonitor> MONITOR_ADVANCED = ofBlock(() ->ModBlocks.MONITOR_ADVANCED, "monitor_advanced",f -> new TileMonitor(f, true));
 
-        public static final BlockEntityType<TileComputer> COMPUTER_NORMAL = ofBlock(ModBlocks.COMPUTER_NORMAL,"computer_normal",
+        public static final BlockEntityType<TileComputer> COMPUTER_NORMAL = ofBlock(() ->ModBlocks.COMPUTER_NORMAL,"computer_normal",
                                                                                     f -> new TileComputer(ComputerFamily.NORMAL, f));
-        public static final BlockEntityType<TileComputer> COMPUTER_ADVANCED = ofBlock(ModBlocks.COMPUTER_ADVANCED,"computer_advanced",
+        public static final BlockEntityType<TileComputer> COMPUTER_ADVANCED = ofBlock(() ->ModBlocks.COMPUTER_ADVANCED,"computer_advanced",
                                                                                       f -> new TileComputer(ComputerFamily.ADVANCED, f));
-        public static final BlockEntityType<TileCommandComputer> COMPUTER_COMMAND = ofBlock(ModBlocks.COMPUTER_COMMAND, "computer_command",
+        public static final BlockEntityType<TileCommandComputer> COMPUTER_COMMAND = ofBlock(() ->ModBlocks.COMPUTER_COMMAND, "computer_command",
                                                                                             f -> new TileCommandComputer(ComputerFamily.COMMAND, f));
 
-        public static final BlockEntityType<TileTurtle> TURTLE_NORMAL = ofBlock(ModBlocks.TURTLE_NORMAL, "turtle_normal",f -> new TileTurtle(f, ComputerFamily.NORMAL));
-        public static final BlockEntityType<TileTurtle> TURTLE_ADVANCED = ofBlock(ModBlocks.TURTLE_ADVANCED,"turtle_advanced",
+        public static final BlockEntityType<TileTurtle> TURTLE_NORMAL = ofBlock(() ->ModBlocks.TURTLE_NORMAL, "turtle_normal",f -> new TileTurtle(f, ComputerFamily.NORMAL));
+        public static final BlockEntityType<TileTurtle> TURTLE_ADVANCED = ofBlock(() ->ModBlocks.TURTLE_ADVANCED,"turtle_advanced",
                                                                                   f -> new TileTurtle(f, ComputerFamily.ADVANCED));
 
-        public static final BlockEntityType<TileSpeaker> SPEAKER = ofBlock(ModBlocks.SPEAKER, "speaker",TileSpeaker::new);
-        public static final BlockEntityType<TileDiskDrive> DISK_DRIVE = ofBlock(ModBlocks.DISK_DRIVE, "disk_drive",TileDiskDrive::new);
-        public static final BlockEntityType<TilePrinter> PRINTER = ofBlock(ModBlocks.PRINTER, "printer",TilePrinter::new);
-        public static final BlockEntityType<TileWiredModemFull> WIRED_MODEM_FULL = ofBlock(ModBlocks.WIRED_MODEM_FULL,"wired_modem_full", TileWiredModemFull::new);
-        public static final BlockEntityType<TileCable> CABLE = ofBlock(ModBlocks.CABLE, "cable",TileCable::new);
+        public static final BlockEntityType<TileSpeaker> SPEAKER = ofBlock(() ->ModBlocks.SPEAKER, "speaker",TileSpeaker::new);
+        public static final BlockEntityType<TileDiskDrive> DISK_DRIVE = ofBlock(() ->ModBlocks.DISK_DRIVE, "disk_drive",TileDiskDrive::new);
+        public static final BlockEntityType<TilePrinter> PRINTER = ofBlock(() ->ModBlocks.PRINTER, "printer",TilePrinter::new);
+        public static final BlockEntityType<TileWiredModemFull> WIRED_MODEM_FULL = ofBlock(() ->ModBlocks.WIRED_MODEM_FULL,"wired_modem_full", TileWiredModemFull::new);
+        public static final BlockEntityType<TileCable> CABLE = ofBlock(() -> ModBlocks.CABLE, "cable",TileCable::new);
 
-        public static final BlockEntityType<TileWirelessModem> WIRELESS_MODEM_NORMAL = ofBlock(ModBlocks.WIRELESS_MODEM_NORMAL,"wireless_modem_normal",
+        public static final BlockEntityType<TileWirelessModem> WIRELESS_MODEM_NORMAL = ofBlock(() ->ModBlocks.WIRELESS_MODEM_NORMAL,"wireless_modem_normal",
                                                                                                f -> new TileWirelessModem(f, false));
-        public static final BlockEntityType<TileWirelessModem> WIRELESS_MODEM_ADVANCED = ofBlock(ModBlocks.WIRELESS_MODEM_ADVANCED,"wireless_modem_advanced",
+        public static final BlockEntityType<TileWirelessModem> WIRELESS_MODEM_ADVANCED = ofBlock(() ->ModBlocks.WIRELESS_MODEM_ADVANCED,"wireless_modem_advanced",
                                                                                                  f -> new TileWirelessModem(f, true));
     }
 

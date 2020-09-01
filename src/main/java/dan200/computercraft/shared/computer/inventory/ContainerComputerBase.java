@@ -15,6 +15,7 @@ import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.ScreenHandlerType;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Objects;
 import java.util.function.Predicate;
 
 public class ContainerComputerBase extends ScreenHandler implements IContainerComputer
@@ -28,13 +29,13 @@ public class ContainerComputerBase extends ScreenHandler implements IContainerCo
     {
         super( type, id );
         this.canUse = canUse;
-        this.computer = computer;
+        this.computer = Objects.requireNonNull(computer);
         this.family = family;
     }
 
     protected ContainerComputerBase(ScreenHandlerType<? extends ContainerComputerBase> type, int id, PlayerInventory player, PacketByteBuf packetByteBuf)
     {
-        this( type, id, x -> true, getComputer( player, new ComputerContainerData((PacketByteBuf) packetByteBuf.copy()) ), new ComputerContainerData(packetByteBuf).getFamily() );
+        this( type, id, x -> true, getComputer( player, new ComputerContainerData(new PacketByteBuf( packetByteBuf.copy() )) ), new ComputerContainerData(packetByteBuf).getFamily() );
     }
 
     protected static IComputer getComputer( PlayerInventory player, ComputerContainerData data )

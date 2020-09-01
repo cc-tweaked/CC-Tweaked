@@ -22,6 +22,7 @@ import dan200.computercraft.shared.network.NetworkMessage;
 import dan200.computercraft.shared.network.client.ComputerDataClientMessage;
 import dan200.computercraft.shared.network.client.ComputerDeletedClientMessage;
 import dan200.computercraft.shared.network.client.ComputerTerminalClientMessage;
+import me.shedaniel.cloth.api.utils.v1.GameInstanceUtils;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundTag;
@@ -163,15 +164,16 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
         if( hasOutputChanged() || force )
         {
             // Send computer state to all clients
-            if (FabricLoader.getInstance().getGameInstance() instanceof MinecraftServer)
-                NetworkHandler.sendToAllPlayers((MinecraftServer) FabricLoader.getInstance().getGameInstance(), createComputerPacket() );
+            MinecraftServer server = GameInstanceUtils.getServer();
+            if ( server != null )
+                NetworkHandler.sendToAllPlayers(server, createComputerPacket() );
         }
 
         if( hasTerminalChanged() || force )
         {
-            if (FabricLoader.getInstance().getGameInstance() instanceof MinecraftServer) {
+            MinecraftServer server = GameInstanceUtils.getServer();
+            if ( server != null ) {
                 // Send terminal state to clients who are currently interacting with the computer.
-                MinecraftServer server = (MinecraftServer) FabricLoader.getInstance().getGameInstance();
 
                 NetworkMessage packet = null;
                 for (PlayerEntity player : server.getPlayerManager().getPlayerList()) {
@@ -199,8 +201,9 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
     public void broadcastDelete()
     {
         // Send deletion to client
-        if (FabricLoader.getInstance().getGameInstance() instanceof MinecraftServer)
-        NetworkHandler.sendToAllPlayers((MinecraftServer) FabricLoader.getInstance().getGameInstance(), new ComputerDeletedClientMessage( getInstanceID() ) );
+        MinecraftServer server = GameInstanceUtils.getServer();
+        if ( server != null )
+            NetworkHandler.sendToAllPlayers(server, new ComputerDeletedClientMessage( getInstanceID() ) );
     }
 
     public void setID( int id )

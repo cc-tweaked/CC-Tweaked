@@ -20,15 +20,15 @@ import java.util.function.Supplier;
  */
 public final class FixedPointTileEntityType<T extends BlockEntity> extends BlockEntityType<T>
 {
-    private final Block block;
+    private final Supplier<Block> block;
 
-    private FixedPointTileEntityType( Block block, Supplier<T> builder )
+    private FixedPointTileEntityType( Supplier<Block> block, Supplier<T> builder )
     {
         super( builder, Collections.emptySet(), null );
         this.block = block;
     }
 
-    public static <T extends BlockEntity> FixedPointTileEntityType<T> create( Block block, Function<BlockEntityType<T>, T> builder )
+    public static <T extends BlockEntity> FixedPointTileEntityType<T> create( Supplier<Block> block, Function<BlockEntityType<T>, T> builder )
     {
         return new FixedPointSupplier<>( block, builder ).factory;
     }
@@ -36,7 +36,7 @@ public final class FixedPointTileEntityType<T extends BlockEntity> extends Block
     @Override
     public boolean supports( @Nonnull Block block )
     {
-        return block == this.block;
+        return block == this.block.get();
     }
 
     private static final class FixedPointSupplier<T extends BlockEntity> implements Supplier<T>
@@ -44,7 +44,7 @@ public final class FixedPointTileEntityType<T extends BlockEntity> extends Block
         final FixedPointTileEntityType<T> factory;
         private final Function<BlockEntityType<T>, T> builder;
 
-        private FixedPointSupplier( Block block, Function<BlockEntityType<T>, T> builder )
+        private FixedPointSupplier( Supplier<Block> block, Function<BlockEntityType<T>, T> builder )
         {
             factory = new FixedPointTileEntityType<>( block, this );
             this.builder = builder;

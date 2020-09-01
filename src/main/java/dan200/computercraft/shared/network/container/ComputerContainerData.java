@@ -14,7 +14,7 @@ import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.Identifier;
 
 public class ComputerContainerData implements ContainerData {
-    private static final Identifier IDENTIFIER = new Identifier(ComputerCraft.MOD_ID, "computerContainerData");
+    private static final Identifier IDENTIFIER = new Identifier(ComputerCraft.MOD_ID, "computer_container_data");
     private int id;
     private ComputerFamily family;
 

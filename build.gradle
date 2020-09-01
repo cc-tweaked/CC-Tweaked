@@ -41,6 +41,9 @@ dependencies {
     modImplementation "me.shedaniel.cloth:config-2:${cloth_config_version}"
     modImplementation "io.github.prospector:modmenu:${modmenu_version}"
 
+    modApi "me.shedaniel.cloth.api:cloth-utils-v1:${project.cloth_api_version}"
+    include "me.shedaniel.cloth.api:cloth-utils-v1:${project.cloth_api_version}"
+
     implementation "blue.endless:jankson:${jankson_version}"
     implementation 'com.google.code.findbugs:jsr305:3.0.2'
 

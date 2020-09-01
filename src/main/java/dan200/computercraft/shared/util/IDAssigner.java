@@ -9,6 +9,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import dan200.computercraft.ComputerCraft;
+import me.shedaniel.cloth.api.utils.v1.GameInstanceUtils;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.WorldSavePath;
@@ -42,7 +43,7 @@ public final class IDAssigner
 
     public static File getDir()
     {
-        return FabricLoader.getInstance().getGameInstance() instanceof MinecraftServer ? ((MinecraftServer) FabricLoader.getInstance().getGameInstance()).getSavePath( FOLDER ).toFile() : null;
+        return GameInstanceUtils.getServer().getSavePath( FOLDER ).toFile();
     }
 
     private static MinecraftServer getCachedServer()
@@ -52,7 +53,7 @@ public final class IDAssigner
         MinecraftServer currentServer = server.get();
         if( currentServer == null ) return null;
 
-        if(FabricLoader.getInstance().getGameInstance() instanceof MinecraftServer && currentServer != FabricLoader.getInstance().getGameInstance() ) return null;
+        if( currentServer != GameInstanceUtils.getServer() ) return null;
         return currentServer;
     }
 
@@ -62,8 +63,9 @@ public final class IDAssigner
         if( currentServer == null )
         {
             // The server has changed, refetch our ID map
-            if (FabricLoader.getInstance().getGameInstance() instanceof MinecraftServer) {
-                server = new WeakReference<>((MinecraftServer) FabricLoader.getInstance().getGameInstance());
+            if ( GameInstanceUtils.getServer() != null )
+            {
+                server = new WeakReference<>( GameInstanceUtils.getServer() );
 
                 File dir = getDir();
                 dir.mkdirs();

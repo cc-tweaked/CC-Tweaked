@@ -26,6 +26,7 @@ import dan200.computercraft.shared.peripheral.modem.wired.TileWiredModemFull;
 import dan200.computercraft.shared.peripheral.modem.wireless.WirelessNetwork;
 import dan200.computercraft.shared.util.IDAssigner;
 import dan200.computercraft.shared.wired.WiredNode;
+import me.shedaniel.cloth.api.utils.v1.GameInstanceUtils;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.resource.ReloadableResourceManager;
@@ -40,7 +41,6 @@ import javax.annotation.Nonnull;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Optional;
 
 public final class ComputerCraftAPIImpl implements IComputerCraftAPI
 {
@@ -54,8 +54,9 @@ public final class ComputerCraftAPIImpl implements IComputerCraftAPI
 
     public static InputStream getResourceFile( String domain, String subPath )
     {
-        if (FabricLoader.getInstance().getGameInstance() instanceof MinecraftServer) {
-            ReloadableResourceManager manager = (ReloadableResourceManager) ((MinecraftServer) FabricLoader.getInstance().getGameInstance()).getDataPackManager();
+        MinecraftServer server = GameInstanceUtils.getServer();
+        if (server != null) {
+            ReloadableResourceManager manager = (ReloadableResourceManager) server.serverResourceManager.getResourceManager();
             try {
                 return manager.getResource(new Identifier(domain, subPath)).getInputStream();
             } catch (IOException ignored) {
@@ -97,8 +98,10 @@ public final class ComputerCraftAPIImpl implements IComputerCraftAPI
     @Override
     public IMount createResourceMount( @Nonnull String domain, @Nonnull String subPath )
     {
-        if (FabricLoader.getInstance().getGameInstance() instanceof MinecraftServer) {
-            ReloadableResourceManager manager = (ReloadableResourceManager) ((MinecraftServer) FabricLoader.getInstance().getGameInstance()).getDataPackManager();
+        MinecraftServer server = GameInstanceUtils.getServer();
+        if ( server != null )
+        {
+            ReloadableResourceManager manager = (ReloadableResourceManager) server.serverResourceManager.getResourceManager();
             ResourceMount mount = ResourceMount.get(domain, subPath, manager);
             return mount.exists("") ? mount : null;
         }
