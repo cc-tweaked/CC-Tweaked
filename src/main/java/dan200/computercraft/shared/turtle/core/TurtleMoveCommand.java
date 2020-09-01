@@ -11,6 +11,7 @@ import dan200.computercraft.api.turtle.ITurtleCommand;
 import dan200.computercraft.api.turtle.TurtleAnimation;
 import dan200.computercraft.api.turtle.TurtleCommandResult;
 import dan200.computercraft.api.turtle.event.TurtleBlockEvent;
+import dan200.computercraft.api.turtle.event.TurtleEvent;
 import dan200.computercraft.shared.TurtlePermissions;
 import dan200.computercraft.shared.util.WorldUtil;
 import net.minecraft.block.BlockState;
@@ -21,7 +22,6 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.World;
-import net.minecraftforge.common.MinecraftForge;
 
 import javax.annotation.Nonnull;
 import java.util.List;
@@ -94,7 +94,7 @@ public class TurtleMoveCommand implements ITurtleCommand
         }
 
         TurtleBlockEvent.Move moveEvent = new TurtleBlockEvent.Move( turtle, turtlePlayer, oldWorld, newPosition );
-        if( MinecraftForge.EVENT_BUS.post( moveEvent ) )
+        if( TurtleEvent.post( moveEvent ) )
         {
             return TurtleCommandResult.failure( moveEvent.getFailureMessage() );
         }
@@ -145,7 +145,7 @@ public class TurtleMoveCommand implements ITurtleCommand
             return TurtleCommandResult.failure( "Cannot enter protected area" );
         }
 
-        if( !world.isAreaLoaded( position, 0 ) ) return TurtleCommandResult.failure( "Cannot leave loaded world" );
+        if( !world.isChunkLoaded( position ) ) return TurtleCommandResult.failure( "Cannot leave loaded world" );
         if( !world.getWorldBorder().contains( position ) )
         {
             return TurtleCommandResult.failure( "Cannot pass the world border" );

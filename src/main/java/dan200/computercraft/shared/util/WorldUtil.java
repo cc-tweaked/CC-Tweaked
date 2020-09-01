@@ -18,7 +18,6 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.RaycastContext;
 import net.minecraft.world.World;
-import net.minecraftforge.common.ForgeMod;
 import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nonnull;
@@ -143,7 +142,7 @@ public final class WorldUtil
 
     public static Vec3d getRayEnd( PlayerEntity player )
     {
-        double reach = player.getAttributeInstance( ForgeMod.REACH_DISTANCE.get() ).getValue();
+        double reach = 5;
         Vec3d look = player.getRotationVector();
         return getRayStart( player ).add( look.x * reach, look.y * reach, look.z * reach );
     }

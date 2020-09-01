@@ -1,9 +1,8 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2019. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.core.filesystem;
 
 import com.google.common.io.Files;
@@ -26,6 +25,10 @@ public class FileSystemTest
 
     /**
      * Ensures writing a file truncates it.
+     *
+     * @throws FileSystemException When the file system cannot be constructed.
+     * @throws LuaException        When Lua functions fail.
+     * @throws IOException         When reading and writing from strings
      */
     @Test
     public void testWriteTruncates() throws FileSystemException, LuaException, IOException
@@ -40,7 +43,7 @@ public class FileSystemTest
             wrapper.call( "close" );
         }
 
-        assertEquals( "This is a long line", Files.toString( new File( ROOT, "out.txt" ), StandardCharsets.UTF_8 ) );
+        assertEquals( "This is a long line", Files.asCharSource( new File( ROOT, "out.txt" ), StandardCharsets.UTF_8 ).read() );
 
         {
             FileSystemWrapper<BufferedWriter> writer = fs.openForWrite( "out.txt", false, EncodedWritableHandle::openUtf8 );
@@ -49,6 +52,6 @@ public class FileSystemTest
             wrapper.call( "close" );
         }
 
-        assertEquals( "Tiny line", Files.toString( new File( ROOT, "out.txt" ), StandardCharsets.UTF_8 ) );
+        assertEquals( "Tiny line", Files.asCharSource( new File( ROOT, "out.txt" ), StandardCharsets.UTF_8 ).read() );
     }
 }

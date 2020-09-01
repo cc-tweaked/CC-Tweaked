@@ -41,12 +41,12 @@ public abstract class WirelessModemPeripheral extends ModemPeripheral
             if( world != null )
             {
                 Vec3d position = getPosition();
-                double minRange = ComputerCraft.modemRange;
-                double maxRange = ComputerCraft.modemHighAltitudeRange;
+                double minRange = ComputerCraft.modem_range;
+                double maxRange = ComputerCraft.modem_highAltitudeRange;
                 if( world.isRaining() && world.isThundering() )
                 {
-                    minRange = ComputerCraft.modemRangeDuringStorm;
-                    maxRange = ComputerCraft.modemHighAltitudeRangeDuringStorm;
+                    minRange = ComputerCraft.modem_rangeDuringStorm;
+                    maxRange = ComputerCraft.modem_highAltitudeRangeDuringStorm;
                 }
                 if( position.y > 96.0 && maxRange > minRange )
                 {

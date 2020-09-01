@@ -1,21 +1,17 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2019. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.shared.wired;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import dan200.computercraft.api.ComputerCraftAPI;
-import dan200.computercraft.api.lua.ILuaContext;
-import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.network.wired.IWiredElement;
 import dan200.computercraft.api.network.wired.IWiredNetwork;
 import dan200.computercraft.api.network.wired.IWiredNetworkChange;
 import dan200.computercraft.api.network.wired.IWiredNode;
-import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.shared.util.DirectionUtil;
 import net.minecraft.util.math.BlockPos;
@@ -245,14 +241,14 @@ public class NetworkTest
         assertEquals( Sets.newHashSet(), cE.allPeripherals().keySet(), "C's peripheral set should be empty" );
     }
 
+    private static final int BRUTE_SIZE = 16;
+    private static final int TOGGLE_CONNECTION_TIMES = 5;
+    private static final int TOGGLE_NODE_TIMES = 5;
+
     @Test
     @Disabled( "Takes a long time to run, mostly for stress testing" )
     public void testLarge()
     {
-        final int BRUTE_SIZE = 16;
-        final int TOGGLE_CONNECTION_TIMES = 5;
-        final int TOGGLE_NODE_TIMES = 5;
-
         Grid<IWiredNode> grid = new Grid<>( BRUTE_SIZE );
         grid.map( ( existing, pos ) -> new NetworkElement( null, null, "n_" + pos ).getNode() );
 
@@ -316,7 +312,7 @@ public class NetworkTest
         }
     }
 
-    private static class NetworkElement implements IWiredElement
+    private static final class NetworkElement implements IWiredElement
     {
         private final World world;
         private final Vec3d position;
@@ -393,23 +389,9 @@ public class NetworkTest
     {
         @Nonnull
         @Override
-        public String getType0()
+        public String getType()
         {
             return "test";
-        }
-
-        @Nonnull
-        @Override
-        public String[] getMethodNames()
-        {
-            return new String[0];
-        }
-
-        @Nullable
-        @Override
-        public Object[] callMethod( @Nonnull IComputerAccess computer, @Nonnull ILuaContext context, int method, @Nonnull Object[] arguments ) throws LuaException, InterruptedException
-        {
-            return new Object[0];
         }
 
         @Override
@@ -425,24 +407,10 @@ public class NetworkTest
         private final T[] box;
 
         @SuppressWarnings( "unchecked" )
-        public Grid( int size )
+        Grid( int size )
         {
             this.size = size;
             this.box = (T[]) new Object[size * size * size];
-        }
-
-        public void set( BlockPos pos, T elem )
-        {
-            int x = pos.getX(), y = pos.getY(), z = pos.getZ();
-
-            if( x >= 0 && x < size && y >= 0 && y < size && z >= 0 && z < size )
-            {
-                box[x * size * size + y * size + z] = elem;
-            }
-            else
-            {
-                throw new IndexOutOfBoundsException( pos.toString() );
-            }
         }
 
         public T get( BlockPos pos )

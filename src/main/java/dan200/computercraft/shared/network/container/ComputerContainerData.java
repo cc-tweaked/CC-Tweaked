@@ -23,18 +23,19 @@ public class ComputerContainerData implements ContainerData {
         this.family = computer.getFamily();
     }
 
-    @Override
+    public ComputerContainerData(PacketByteBuf byteBuf) {
+        fromBytes(byteBuf);
+    }
+
     public Identifier getId() {
         return IDENTIFIER;
     }
 
-    @Override
     public void fromBytes(PacketByteBuf buf) {
         this.id = buf.readInt();
         this.family = buf.readEnumConstant(ComputerFamily.class);
     }
 
-    @Override
     public void toBytes(PacketByteBuf buf) {
         buf.writeInt(id);
         buf.writeEnumConstant(family);

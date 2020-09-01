@@ -6,7 +6,7 @@
 package dan200.computercraft.shared.network.client;
 
 import dan200.computercraft.ComputerCraft;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.fabricmc.fabric.api.network.PacketContext;
 
 public class ComputerDeletedClientMessage extends ComputerClientMessage
 {
@@ -20,7 +20,7 @@ public class ComputerDeletedClientMessage extends ComputerClientMessage
     }
 
     @Override
-    public void handle( NetworkEvent.Context context )
+    public void handle( PacketContext context )
     {
         ComputerCraft.clientComputerRegistry.remove( getInstanceId() );
     }

@@ -10,11 +10,9 @@ import dan200.computercraft.shared.command.text.TableBuilder;
 import dan200.computercraft.shared.network.NetworkMessage;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.network.PacketContext;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.text.Text;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.fml.network.NetworkEvent;
 
 import javax.annotation.Nonnull;
 
@@ -83,7 +81,7 @@ public class ChatTableClientMessage implements NetworkMessage
 
     @Override
     @Environment(EnvType.CLIENT)
-    public void handle( NetworkEvent.Context context )
+    public void handle( PacketContext context )
     {
         ClientTableFormatter.INSTANCE.display( table );
     }

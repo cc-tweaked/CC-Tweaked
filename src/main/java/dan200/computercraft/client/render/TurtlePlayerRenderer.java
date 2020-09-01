@@ -8,6 +8,8 @@ package dan200.computercraft.client.render;
 
 import dan200.computercraft.shared.turtle.core.TurtlePlayer;
 import javax.annotation.Nonnull;
+
+import net.fabricmc.fabric.api.client.rendereregistry.v1.EntityRendererRegistry;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.EntityRenderDispatcher;
 import net.minecraft.client.render.entity.EntityRenderer;
@@ -21,9 +23,13 @@ public class TurtlePlayerRenderer extends EntityRenderer<TurtlePlayer>
         super( renderManager );
     }
 
+    public TurtlePlayerRenderer(EntityRenderDispatcher entityRenderDispatcher, EntityRendererRegistry.Context context) {
+        super(entityRenderDispatcher);
+    }
+
     @Nonnull
     @Override
-    public Identifier getEntityTexture( @Nonnull TurtlePlayer entity )
+    public Identifier getTexture( @Nonnull TurtlePlayer entity )
     {
         return ComputerBorderRenderer.BACKGROUND_NORMAL;
     }

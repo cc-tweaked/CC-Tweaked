@@ -5,20 +5,23 @@
  */
 package dan200.computercraft.shared.computer.apis;
 
+import com.google.common.collect.ImmutableMap;
 import com.mojang.brigadier.tree.CommandNode;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.lua.*;
 import dan200.computercraft.shared.computer.blocks.TileCommandComputer;
-import dan200.computercraft.shared.peripheral.generic.data.BlockData;
 import dan200.computercraft.shared.util.NBTUtil;
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.state.property.Property;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
 
 import java.util.*;
@@ -64,7 +67,7 @@ public class CommandAPI implements ILuaAPI
         }
         catch( Throwable t )
         {
-            if( ComputerCraft.logComputerErrors ) ComputerCraft.log.error( "Error running command.", t );
+            if( ComputerCraft.logPeripheralErrors ) ComputerCraft.log.error( "Error running command.", t );
             return new Object[] { false, createOutput( "Java Exception Thrown: " + t ) };
         }
     }
@@ -72,13 +75,40 @@ public class CommandAPI implements ILuaAPI
     private static Map<?, ?> getBlockInfo( World world, BlockPos pos )
     {
         // Get the details of the block
-        BlockState state = world.getBlockState( pos );
-        Map<String, Object> table = BlockData.fill( new HashMap<>(), state );
+        BlockState state = world.getBlockState(pos);
+        Block block = state.getBlock();
 
-        BlockEntity tile = world.getBlockEntity( pos );
-        if( tile != null ) table.put( "nbt", NBTUtil.toLua( tile.toTag( new CompoundTag() ) ) );
+        Map<Object, Object> table = new HashMap<>();
+        table.put("name",
+            Registry.BLOCK.getId(block)
+                .toString());
+        table.put("world", world.getRegistryKey());
+
+        Map<Object, Object> stateTable = new HashMap<>();
+        for (ImmutableMap.Entry<Property<?>, Comparable<?>> entry : state.getEntries()
+            .entrySet()) {
+            Property<?> property = entry.getKey();
+            stateTable.put(property.getName(), getPropertyValue(property, entry.getValue()));
+        }
+        table.put("state", stateTable);
+
+        BlockEntity tile = world.getBlockEntity(pos);
+        if (tile != null) {
+            table.put("nbt", NBTUtil.toLua(tile.toTag(new CompoundTag())));
+        }
 
         return table;
+    }
+
+    @SuppressWarnings ({
+        "unchecked",
+        "rawtypes"
+    })
+    private static Object getPropertyValue(Property property, Comparable value) {
+        if (value instanceof String || value instanceof Number || value instanceof Boolean) {
+            return value;
+        }
+        return property.name(value);
     }
 
     /**

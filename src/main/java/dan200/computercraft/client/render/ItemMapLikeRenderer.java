@@ -5,6 +5,8 @@
  */
 package dan200.computercraft.client.render;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.item.HeldItemRenderer;
@@ -16,6 +18,7 @@ import net.minecraft.util.Arm;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.MathHelper;
 
+@Environment(EnvType.CLIENT)
 public abstract class ItemMapLikeRenderer
 {
     /**
@@ -24,11 +27,10 @@ public abstract class ItemMapLikeRenderer
      * @param transform The matrix transformation stack
      * @param render    The buffer to render to
      * @param stack     The stack to render
-     * @see FirstPersonRenderer#renderItemInFirstPerson(AbstractClientPlayerEntity, float, float, Hand, float, ItemStack, float, MatrixStack, IRenderTypeBuffer, int)
      */
     protected abstract void renderItem( MatrixStack transform, VertexConsumerProvider render, ItemStack stack );
 
-    protected void renderItemFirstPerson( MatrixStack transform, VertexConsumerProvider render, int lightTexture, Hand hand, float pitch, float equipProgress, float swingProgress, ItemStack stack )
+    public void renderItemFirstPerson(MatrixStack transform, VertexConsumerProvider render, int lightTexture, Hand hand, float pitch, float equipProgress, float swingProgress, ItemStack stack)
     {
         PlayerEntity player = MinecraftClient.getInstance().player;
 
@@ -58,7 +60,6 @@ public abstract class ItemMapLikeRenderer
      * @param equipProgress The equip progress of this item
      * @param swingProgress The swing progress of this item
      * @param stack         The stack to render
-     * @see FirstPersonRenderer#renderMapFirstPersonSide(MatrixStack, IRenderTypeBuffer, int, float, HandSide, float, ItemStack)
      */
     private void renderItemFirstPersonSide( MatrixStack transform, VertexConsumerProvider render, int combinedLight, Arm side, float equipProgress, float swingProgress, ItemStack stack )
     {
@@ -103,7 +104,6 @@ public abstract class ItemMapLikeRenderer
      * @param equipProgress The equip progress of this item
      * @param swingProgress The swing progress of this item
      * @param stack         The stack to render
-     * @see FirstPersonRenderer#renderMapFirstPerson(MatrixStack, IRenderTypeBuffer, int, float, float, float)
      */
     private void renderItemFirstPersonCenter( MatrixStack transform, VertexConsumerProvider render, int combinedLight, float pitch, float equipProgress, float swingProgress, ItemStack stack )
     {

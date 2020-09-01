@@ -11,6 +11,7 @@ import dan200.computercraft.api.turtle.ITurtleCommand;
 import dan200.computercraft.api.turtle.TurtleAnimation;
 import dan200.computercraft.api.turtle.TurtleCommandResult;
 import dan200.computercraft.api.turtle.event.TurtleBlockEvent;
+import dan200.computercraft.api.turtle.event.TurtleEvent;
 import dan200.computercraft.shared.TurtlePermissions;
 import dan200.computercraft.shared.util.DirectionUtil;
 import dan200.computercraft.shared.util.DropConsumer;
@@ -31,10 +32,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-import net.minecraftforge.common.ForgeHooks;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent;
-import net.minecraftforge.eventbus.api.Event;
 import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nonnull;
@@ -71,7 +68,7 @@ public class TurtlePlaceCommand implements ITurtleCommand
         TurtlePlayer turtlePlayer = createPlayer( turtle, playerPosition, direction );
 
         TurtleBlockEvent.Place place = new TurtleBlockEvent.Place( turtle, turtlePlayer, turtle.getWorld(), coordinates, stack );
-        if( MinecraftForge.EVENT_BUS.post( place ) )
+        if( TurtleEvent.post( place ) )
         {
             return TurtleCommandResult.failure( place.getFailureMessage() );
         }
@@ -232,7 +229,7 @@ public class TurtlePlaceCommand implements ITurtleCommand
 
         // Place on the entity
         boolean placed = false;
-        ActionResult cancelResult = ForgeHooks.onInteractEntityAt( turtlePlayer, hitEntity, hitPos, Hand.MAIN_HAND );
+        ActionResult cancelResult = hitEntity.interactAt(turtlePlayer, hitPos, Hand.MAIN_HAND);;
         if( cancelResult == null )
         {
             cancelResult = hitEntity.interactAt( turtlePlayer, hitPos, Hand.MAIN_HAND );
@@ -245,7 +242,7 @@ public class TurtlePlaceCommand implements ITurtleCommand
         else
         {
             // See EntityPlayer.interactOn
-            cancelResult = ForgeHooks.onInteractEntity( turtlePlayer, hitEntity, Hand.MAIN_HAND );
+            cancelResult = stackCopy.useOnEntity(turtlePlayer, (LivingEntity) hitEntity, Hand.MAIN_HAND);
             if( cancelResult != null && cancelResult.isAccepted() )
             {
                 placed = true;
@@ -340,6 +337,7 @@ public class TurtlePlaceCommand implements ITurtleCommand
         // Check if there's something suitable to place onto
         BlockHitResult hit = new BlockHitResult( new Vec3d( hitX, hitY, hitZ ), side, position, false );
         ItemUsageContext context = new ItemUsageContext( turtlePlayer, Hand.MAIN_HAND, hit );
+        ItemPlacementContext placementContext = new ItemPlacementContext( context );
         if( !canDeployOnBlock( new ItemPlacementContext( context ), turtle, turtlePlayer, position, side, allowReplace, outErrorMessage ) )
         {
             return stack;
@@ -352,26 +350,17 @@ public class TurtlePlaceCommand implements ITurtleCommand
         boolean placed = false;
         BlockEntity existingTile = turtle.getWorld().getBlockEntity( position );
 
-        // See PlayerInteractionManager.processRightClickBlock
-        PlayerInteractEvent.RightClickBlock event = ForgeHooks.onRightClickBlock( turtlePlayer, Hand.MAIN_HAND, position, side );
-        if( !event.isCanceled() )
-        {
-            if( item.onItemUseFirst( stack, context ).isAccepted() )
-            {
+        if (placementContext.canPlace()) {
+            if (stackCopy.useOnBlock(context) == ActionResult.SUCCESS) {
                 placed = true;
-                turtlePlayer.loadInventory( stackCopy );
-            }
-            else if( event.getUseItem() != Event.Result.DENY && stackCopy.useOnBlock( context ).isAccepted() )
-            {
-                placed = true;
-                turtlePlayer.loadInventory( stackCopy );
+                turtlePlayer.loadInventory(stackCopy);
             }
         }
 
         if( !placed && (item instanceof BucketItem || item instanceof BoatItem || item instanceof LilyPadItem || item instanceof GlassBottleItem) )
         {
-            ActionResult actionResult = ForgeHooks.onItemRightClick( turtlePlayer, Hand.MAIN_HAND );
-            if( actionResult != null && actionResult.isAccepted() )
+            TypedActionResult<ItemStack> actionResult = stackCopy.use(turtle.getWorld(), turtlePlayer, Hand.MAIN_HAND);
+            if( actionResult != null && actionResult.getResult().isAccepted() )
             {
                 placed = true;
             }

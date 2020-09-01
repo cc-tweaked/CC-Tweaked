@@ -7,16 +7,14 @@ package dan200.computercraft.shared.peripheral.modem.wired;
 
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.shared.Peripherals;
-import dan200.computercraft.shared.Registry;
+import dan200.computercraft.shared.ComputerCraftRegistry;
 import dan200.computercraft.shared.util.IDAssigner;
+import dan200.computercraft.shared.util.NBTUtil;
 import net.minecraft.block.Block;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
-import net.minecraftforge.common.util.Constants;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.common.util.NonNullConsumer;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -38,12 +36,6 @@ public final class WiredModemLocalPeripheral
     private String type;
 
     private IPeripheral peripheral;
-    private final NonNullConsumer<LazyOptional<IPeripheral>> invalidate;
-
-    public WiredModemLocalPeripheral( @Nonnull Runnable invalidate )
-    {
-        this.invalidate = x -> invalidate.run();
-    }
 
     /**
      * Attach a new peripheral from the world.
@@ -64,7 +56,7 @@ public final class WiredModemLocalPeripheral
         }
         else
         {
-            String type = peripheral.getType0();
+            String type = peripheral.getType();
             int id = this.id;
 
             if( id > 0 && this.type == null )
@@ -144,9 +136,9 @@ public final class WiredModemLocalPeripheral
         BlockPos offset = pos.offset( direction );
 
         Block block = world.getBlockState( offset ).getBlock();
-        if( block == Registry.ModBlocks.WIRED_MODEM_FULL.get() || block == Registry.ModBlocks.CABLE.get() ) return null;
+        if( block == ComputerCraftRegistry.ModBlocks.WIRED_MODEM_FULL || block == ComputerCraftRegistry.ModBlocks.CABLE ) return null;
 
-        IPeripheral peripheral = Peripherals.getPeripheral( world, offset, direction.getOpposite(), invalidate );
+        IPeripheral peripheral = Peripherals.getPeripheral( world, offset, direction.getOpposite() );
         return peripheral instanceof WiredModemPeripheral ? null : peripheral;
     }
 }

@@ -12,7 +12,7 @@ import dan200.computercraft.api.turtle.AbstractTurtleUpgrade;
 import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.api.turtle.TurtleUpgradeType;
-import dan200.computercraft.shared.Registry;
+import dan200.computercraft.shared.ComputerCraftRegistry;
 import dan200.computercraft.shared.peripheral.speaker.SpeakerPeripheral;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -21,8 +21,6 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 import javax.annotation.Nonnull;
 
@@ -65,7 +63,7 @@ public class TurtleSpeaker extends AbstractTurtleUpgrade
 
     public TurtleSpeaker( Identifier id )
     {
-        super( id, TurtleUpgradeType.PERIPHERAL, Registry.ModBlocks.SPEAKER );
+        super( id, TurtleUpgradeType.PERIPHERAL, ComputerCraftRegistry.ModBlocks.SPEAKER );
     }
 
     @Override

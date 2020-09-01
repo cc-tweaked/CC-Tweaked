@@ -11,13 +11,13 @@ import dan200.computercraft.api.pocket.IPocketUpgrade;
 import dan200.computercraft.shared.PocketUpgrades;
 import dan200.computercraft.shared.pocket.core.PocketServerComputer;
 import dan200.computercraft.shared.util.InventoryUtil;
+import dan200.computercraft.shared.util.ItemStorage;
 import dan200.computercraft.shared.util.WorldUtil;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.collection.DefaultedList;
-import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
 
 /**
  * Control the current pocket computer, adding or removing upgrades.
@@ -83,7 +83,7 @@ public class PocketAPI implements ILuaAPI
             ItemStack stack = previousUpgrade.getCraftingItem();
             if( !stack.isEmpty() )
             {
-                stack = InventoryUtil.storeItems( stack, new PlayerMainInvWrapper( inventory ), inventory.selectedSlot );
+                stack = InventoryUtil.storeItems( stack, ItemStorage.wrap( inventory ), inventory.selectedSlot );
                 if( !stack.isEmpty() )
                 {
                     WorldUtil.dropItemStack( stack, player.getEntityWorld(), player.getPos() );
@@ -120,7 +120,7 @@ public class PocketAPI implements ILuaAPI
         ItemStack stack = previousUpgrade.getCraftingItem();
         if( !stack.isEmpty() )
         {
-            stack = InventoryUtil.storeItems( stack, new PlayerMainInvWrapper( inventory ), inventory.selectedSlot );
+            stack = InventoryUtil.storeItems( stack, ItemStorage.wrap( inventory ), inventory.selectedSlot );
             if( stack.isEmpty() )
             {
                 WorldUtil.dropItemStack( stack, player.getEntityWorld(), player.getPos() );

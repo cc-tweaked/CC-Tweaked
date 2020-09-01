@@ -5,6 +5,7 @@
  */
 package dan200.computercraft.shared;
 
+import com.google.common.eventbus.Subscribe;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.turtle.event.TurtleActionEvent;
 import net.minecraft.entity.player.PlayerEntity;
@@ -12,10 +13,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
 
-@Mod.EventBusSubscriber( modid = ComputerCraft.MOD_ID )
 public final class TurtlePermissions
 {
     public static boolean isBlockEnterable( World world, BlockPos pos, PlayerEntity player )
@@ -29,12 +27,10 @@ public final class TurtlePermissions
         return isBlockEnterable( world, pos, player );
     }
 
-    @SubscribeEvent
-    public static void onTurtleAction( TurtleActionEvent event )
-    {
-        if( ComputerCraft.turtleDisabledActions.contains( event.getAction() ) )
-        {
-            event.setCanceled( true, "Action has been disabled" );
+    @Subscribe
+    public void onTurtleAction(TurtleActionEvent event) {
+        if (ComputerCraft.turtleDisabledActions.contains(event.getAction())) {
+            event.setCanceled(true, "Action has been disabled");
         }
     }
 }

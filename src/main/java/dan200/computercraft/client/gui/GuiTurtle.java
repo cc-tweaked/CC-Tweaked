@@ -11,7 +11,6 @@ import dan200.computercraft.client.gui.widgets.WidgetTerminal;
 import dan200.computercraft.client.gui.widgets.WidgetWrapper;
 import dan200.computercraft.shared.computer.core.ClientComputer;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
-import dan200.computercraft.shared.turtle.blocks.TileTurtle;
 import dan200.computercraft.shared.turtle.inventory.ContainerTurtle;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.client.util.math.MatrixStack;
@@ -35,12 +34,12 @@ public class GuiTurtle extends HandledScreen<ContainerTurtle>
     private WidgetTerminal terminal;
     private WidgetWrapper terminalWrapper;
 
-    public GuiTurtle(TileTurtle turtle, ContainerTurtle container, PlayerInventory player )
+    public GuiTurtle( ContainerTurtle container, PlayerInventory player, Text title )
     {
-        super( container, player, turtle.getDisplayName() );
+        super( container, player, title );
 
         m_container = container;
-        m_family = turtle.getFamily();
+        m_family = container.getFamily();
         m_computer = (ClientComputer) container.getComputer();
 
         backgroundWidth = 254;
@@ -53,13 +52,13 @@ public class GuiTurtle extends HandledScreen<ContainerTurtle>
         super.init();
         client.keyboard.setRepeatEvents( true );
 
-        int termPxWidth = ComputerCraft.turtleTermWidth * FixedWidthFontRenderer.FONT_WIDTH;
-        int termPxHeight = ComputerCraft.turtleTermHeight * FixedWidthFontRenderer.FONT_HEIGHT;
+        int termPxWidth = ComputerCraft.terminalWidth_turtle * FixedWidthFontRenderer.FONT_WIDTH;
+        int termPxHeight = ComputerCraft.terminalHeight_turtle * FixedWidthFontRenderer.FONT_HEIGHT;
 
         terminal = new WidgetTerminal(
             client, () -> m_computer,
-            ComputerCraft.turtleTermWidth,
-            ComputerCraft.turtleTermHeight,
+            ComputerCraft.terminalWidth_turtle,
+            ComputerCraft.terminalHeight_turtle,
             2, 2, 2, 2
         );
         terminalWrapper = new WidgetWrapper( terminal, 2 + 8 + x, 2 + 8 + y, termPxWidth, termPxHeight );
@@ -115,8 +114,8 @@ public class GuiTurtle extends HandledScreen<ContainerTurtle>
             int slotX = slot % 4;
             int slotY = slot / 4;
             drawTexture( transform,
-                x + m_container.m_turtleInvStartX - 2 + slotX * 18,
-                y + m_container.m_playerInvStartY - 2 + slotY * 18,
+                x + ContainerTurtle.TURTLE_START_X - 2 + slotX * 18,
+                y + ContainerTurtle.PLAYER_START_Y - 2 + slotY * 18,
                 0, 217, 24, 24
             );
         }

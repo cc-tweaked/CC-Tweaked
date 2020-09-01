@@ -13,8 +13,6 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gl.VertexBuffer;
 import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL30;
@@ -24,6 +22,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
+@Environment(EnvType.CLIENT)
 public final class ClientMonitor extends ClientTerminal
 {
     private static final Set<ClientMonitor> allMonitors = new HashSet<>();

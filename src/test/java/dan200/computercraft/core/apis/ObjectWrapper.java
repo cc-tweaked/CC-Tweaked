@@ -1,57 +1,51 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2019. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.core.apis;
 
-import dan200.computercraft.api.lua.ILuaContext;
-import dan200.computercraft.api.lua.ILuaObject;
-import dan200.computercraft.api.lua.ILuaTask;
-import dan200.computercraft.api.lua.LuaException;
+import dan200.computercraft.api.lua.*;
+import dan200.computercraft.core.asm.LuaMethod;
+import dan200.computercraft.core.asm.NamedMethod;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 public class ObjectWrapper implements ILuaContext
 {
-    private final ILuaObject object;
-    private final String[] methods;
+    private final Object object;
+    private final Map<String, LuaMethod> methodMap;
 
-    public ObjectWrapper( ILuaObject object )
+    public ObjectWrapper( Object object )
     {
         this.object = object;
-        this.methods = object.getMethodNames();
-    }
+        String[] dynamicMethods = object instanceof IDynamicLuaObject
+            ? Objects.requireNonNull( ((IDynamicLuaObject) object).getMethodNames(), "Methods cannot be null" )
+            : LuaMethod.EMPTY_METHODS;
 
-    private int findMethod( String method )
-    {
-        for( int i = 0; i < methods.length; i++ )
+        List<NamedMethod<LuaMethod>> methods = LuaMethod.GENERATOR.getMethods( object.getClass() );
+
+        Map<String, LuaMethod> methodMap = this.methodMap = new HashMap<>( methods.size() + dynamicMethods.length );
+        for( int i = 0; i < dynamicMethods.length; i++ )
         {
-            if( method.equals( methods[i] ) ) return i;
+            methodMap.put( dynamicMethods[i], LuaMethod.DYNAMIC.get( i ) );
         }
-        return -1;
-    }
-
-    public boolean hasMethod( String method )
-    {
-        return findMethod( method ) >= 0;
+        for( NamedMethod<LuaMethod> method : methods )
+        {
+            methodMap.put( method.getName(), method.getMethod() );
+        }
     }
 
     public Object[] call( String name, Object... args ) throws LuaException
     {
-        int method = findMethod( name );
-        if( method < 0 ) throw new IllegalStateException( "No such method '" + name + "'" );
+        LuaMethod method = methodMap.get( name );
+        if( method == null ) throw new IllegalStateException( "No such method '" + name + "'" );
 
-        try
-        {
-            return object.callMethod( this, method, args );
-        }
-        catch( InterruptedException e )
-        {
-            throw new IllegalStateException( "Should never be interrupted", e );
-        }
+        return method.apply( object, this, new ObjectArguments( args ) ).getResult();
     }
 
     @SuppressWarnings( "unchecked" )
@@ -63,34 +57,6 @@ public class ObjectWrapper implements ILuaContext
     public <T> T callOf( Class<T> klass, String name, Object... args ) throws LuaException
     {
         return klass.cast( call( name, args )[0] );
-    }
-
-    @Nonnull
-    @Override
-    public Object[] pullEvent( @Nullable String filter )
-    {
-        throw new IllegalStateException( "Method should never yield" );
-    }
-
-    @Nonnull
-    @Override
-    public Object[] pullEventRaw( @Nullable String filter )
-    {
-        throw new IllegalStateException( "Method should never yield" );
-    }
-
-    @Nonnull
-    @Override
-    public Object[] yield( @Nullable Object[] arguments )
-    {
-        throw new IllegalStateException( "Method should never yield" );
-    }
-
-    @Nullable
-    @Override
-    public Object[] executeMainThreadTask( @Nonnull ILuaTask task )
-    {
-        throw new IllegalStateException( "Method should never yield" );
     }
 
     @Override

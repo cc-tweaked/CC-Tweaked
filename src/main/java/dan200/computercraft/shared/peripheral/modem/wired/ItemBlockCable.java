@@ -5,7 +5,7 @@
  */
 package dan200.computercraft.shared.peripheral.modem.wired;
 
-import dan200.computercraft.shared.Registry;
+import dan200.computercraft.shared.ComputerCraftRegistry;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -19,8 +19,8 @@ import net.minecraft.util.*;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
-import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nonnull;
 
@@ -41,7 +41,7 @@ public abstract class ItemBlockCable extends BlockItem
         if( !state.canPlaceAt( world, pos ) ) return false;
 
         world.setBlockState( pos, state, 3 );
-        BlockSoundGroup soundType = state.getBlock().getSoundType( state, world, pos, player );
+        BlockSoundGroup soundType = state.getBlock().getSoundGroup( state );
         world.playSound( null, pos, soundType.getPlaceSound(), SoundCategory.BLOCKS, (soundType.getVolume() + 1.0F) / 2.0F, soundType.getPitch() * 0.8F );
 
         BlockEntity tile = world.getBlockEntity( pos );
@@ -72,7 +72,7 @@ public abstract class ItemBlockCable extends BlockItem
     {
         if( translationKey == null )
         {
-            translationKey = Util.createTranslationKey( "block", ForgeRegistries.ITEMS.getKey( this ) );
+            translationKey = Util.createTranslationKey( "block", Registry.ITEM.getId( this ) );
         }
         return translationKey;
     }
@@ -96,7 +96,7 @@ public abstract class ItemBlockCable extends BlockItem
             BlockState existingState = world.getBlockState( pos );
 
             // Try to add a modem to a cable
-            if( existingState.getBlock() == Registry.ModBlocks.CABLE.get() && existingState.get( MODEM ) == CableModemVariant.None )
+            if( existingState.getBlock() == ComputerCraftRegistry.ModBlocks.CABLE && existingState.get( MODEM ) == CableModemVariant.None )
             {
                 Direction side = context.getSide().getOpposite();
                 BlockState newState = existingState
@@ -133,7 +133,7 @@ public abstract class ItemBlockCable extends BlockItem
             // Try to add a cable to a modem inside the block we're clicking on.
             BlockPos insidePos = pos.offset( context.getSide().getOpposite() );
             BlockState insideState = world.getBlockState( insidePos );
-            if( insideState.getBlock() == Registry.ModBlocks.CABLE.get() && !insideState.get( BlockCable.CABLE )
+            if( insideState.getBlock() == ComputerCraftRegistry.ModBlocks.CABLE && !insideState.get( BlockCable.CABLE )
                 && placeAtCorrected( world, insidePos, insideState.with( BlockCable.CABLE, true ) ) )
             {
                 stack.decrement( 1 );
@@ -142,7 +142,7 @@ public abstract class ItemBlockCable extends BlockItem
 
             // Try to add a cable to a modem adjacent to this block
             BlockState existingState = world.getBlockState( pos );
-            if( existingState.getBlock() == Registry.ModBlocks.CABLE.get() && !existingState.get( BlockCable.CABLE )
+            if( existingState.getBlock() == ComputerCraftRegistry.ModBlocks.CABLE && !existingState.get( BlockCable.CABLE )
                 && placeAtCorrected( world, pos, existingState.with( BlockCable.CABLE, true ) ) )
             {
                 stack.decrement( 1 );

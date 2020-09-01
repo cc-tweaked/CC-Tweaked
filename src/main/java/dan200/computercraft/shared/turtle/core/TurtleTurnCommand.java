@@ -11,7 +11,7 @@ import dan200.computercraft.api.turtle.TurtleAnimation;
 import dan200.computercraft.api.turtle.TurtleCommandResult;
 import dan200.computercraft.api.turtle.event.TurtleAction;
 import dan200.computercraft.api.turtle.event.TurtleActionEvent;
-import net.minecraftforge.common.MinecraftForge;
+import dan200.computercraft.api.turtle.event.TurtleEvent;
 
 import javax.annotation.Nonnull;
 
@@ -29,7 +29,7 @@ public class TurtleTurnCommand implements ITurtleCommand
     public TurtleCommandResult execute( @Nonnull ITurtleAccess turtle )
     {
         TurtleActionEvent event = new TurtleActionEvent( turtle, TurtleAction.TURN );
-        if( MinecraftForge.EVENT_BUS.post( event ) )
+        if( TurtleEvent.post( event ) )
         {
             return TurtleCommandResult.failure( event.getFailureMessage() );
         }

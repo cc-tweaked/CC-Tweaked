@@ -33,7 +33,7 @@ public class ComputerPeripheral implements IPeripheral
 
     @Nonnull
     @Override
-    public String getType0()
+    public String getType()
     {
         return type;
     }

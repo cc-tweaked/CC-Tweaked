@@ -12,3 +12,6 @@ accessible field net/minecraft/entity/Entity pos Lnet/minecraft/util/math/Vec3d;
 extendable method net/minecraft/entity/Entity getCameraPosVec (F)Lnet/minecraft/util/math/Vec3d;
 accessible method net/minecraft/screen/ScreenHandlerType <init> (Lnet/minecraft/screen/ScreenHandlerType$Factory;)V
 accessible class net/minecraft/screen/ScreenHandlerType$Factory
+accessible method net/minecraft/client/render/model/json/ModelOverrideList <init> ()V
+extendable class net/minecraft/util/math/Matrix4f
+accessible method net/minecraft/util/WorldSavePath <init> (Ljava/lang/String;)V

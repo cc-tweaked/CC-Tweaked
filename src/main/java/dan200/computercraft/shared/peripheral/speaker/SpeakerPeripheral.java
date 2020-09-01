@@ -53,7 +53,7 @@ public abstract class SpeakerPeripheral implements IPeripheral
 
     @Nonnull
     @Override
-    public String getType0()
+    public String getType()
     {
         return "speaker";
     }
@@ -128,7 +128,7 @@ public abstract class SpeakerPeripheral implements IPeripheral
         if( instrument == null ) throw new LuaException( "Invalid instrument, \"" + name + "\"!" );
 
         // If the resource location for note block notes changes, this method call will need to be updated
-        boolean success = playSound( context, instrument.getSound().getRegistryName(), volume, (float) Math.pow( 2.0, (pitch - 12.0) / 12.0 ), true );
+        boolean success = playSound( context, instrument.getSound().getId(), volume, (float) Math.pow( 2.0, (pitch - 12.0) / 12.0 ), true );
         if( success ) m_notesThisTick.incrementAndGet();
         return success;
     }

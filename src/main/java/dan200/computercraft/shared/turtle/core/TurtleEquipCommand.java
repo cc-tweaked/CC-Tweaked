@@ -8,13 +8,14 @@ package dan200.computercraft.shared.turtle.core;
 import dan200.computercraft.api.turtle.*;
 import dan200.computercraft.api.turtle.event.TurtleAction;
 import dan200.computercraft.api.turtle.event.TurtleActionEvent;
+import dan200.computercraft.api.turtle.event.TurtleEvent;
 import dan200.computercraft.shared.TurtleUpgrades;
 import dan200.computercraft.shared.util.InventoryUtil;
+import dan200.computercraft.shared.util.ItemStorage;
 import dan200.computercraft.shared.util.WorldUtil;
+import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.items.IItemHandler;
 
 import javax.annotation.Nonnull;
 
@@ -34,8 +35,8 @@ public class TurtleEquipCommand implements ITurtleCommand
         // Determine the upgrade to equipLeft
         ITurtleUpgrade newUpgrade;
         ItemStack newUpgradeStack;
-        IItemHandler inventory = turtle.getItemHandler();
-        ItemStack selectedStack = inventory.getStackInSlot( turtle.getSelectedSlot() );
+        Inventory inventory = turtle.getInventory();
+        ItemStack selectedStack = inventory.getStack( turtle.getSelectedSlot() );
         if( !selectedStack.isEmpty() )
         {
             newUpgradeStack = selectedStack.copy();
@@ -65,7 +66,7 @@ public class TurtleEquipCommand implements ITurtleCommand
         }
 
         TurtleActionEvent event = new TurtleActionEvent( turtle, TurtleAction.EQUIP );
-        if( MinecraftForge.EVENT_BUS.post( event ) )
+        if( TurtleEvent.post( event ) )
         {
             return TurtleCommandResult.failure( event.getFailureMessage() );
         }
@@ -74,12 +75,12 @@ public class TurtleEquipCommand implements ITurtleCommand
         if( newUpgradeStack != null )
         {
             // Consume new upgrades item
-            InventoryUtil.takeItems( 1, inventory, turtle.getSelectedSlot(), 1, turtle.getSelectedSlot() );
+            InventoryUtil.takeItems( 1, ItemStorage.wrap(inventory), turtle.getSelectedSlot(), 1, turtle.getSelectedSlot() );
         }
         if( oldUpgradeStack != null )
         {
             // Store old upgrades item
-            ItemStack remainder = InventoryUtil.storeItems( oldUpgradeStack, inventory, turtle.getSelectedSlot() );
+            ItemStack remainder = InventoryUtil.storeItems( oldUpgradeStack, ItemStorage.wrap(inventory), turtle.getSelectedSlot() );
             if( !remainder.isEmpty() )
             {
                 // If there's no room for the items, drop them

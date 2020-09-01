@@ -12,9 +12,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.MusicDiscItem;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.text.TranslatableText;
-import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
-import net.minecraftforge.fml.common.ObfuscationReflectionHelper.UnableToAccessFieldException;
-import net.minecraftforge.fml.common.ObfuscationReflectionHelper.UnableToFindFieldException;
 
 import javax.annotation.Nonnull;
 
@@ -47,17 +44,6 @@ public final class RecordMedia implements IMedia
     @Override
     public SoundEvent getAudio( @Nonnull ItemStack stack )
     {
-        Item item = stack.getItem();
-        if( !(item instanceof MusicDiscItem) ) return null;
-
-        try
-        {
-            return ObfuscationReflectionHelper.getPrivateValue( MusicDiscItem.class, (MusicDiscItem) item, "field_185076_b" );
-        }
-        catch( UnableToAccessFieldException | UnableToFindFieldException e )
-        {
-            ComputerCraft.log.error( "Cannot get disk sound", e );
-            return null;
-        }
+        return ((MusicDiscItem) stack.getItem()).getSound();
     }
 }

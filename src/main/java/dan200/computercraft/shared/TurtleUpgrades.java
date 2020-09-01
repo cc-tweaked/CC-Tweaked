@@ -9,8 +9,8 @@ import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.util.InventoryUtil;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.item.ItemStack;
-import net.minecraftforge.fml.ModLoadingContext;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -30,7 +30,8 @@ public final class TurtleUpgrades
         {
             this.upgrade = upgrade;
             this.id = upgrade.getUpgradeID().toString();
-            this.modId = ModLoadingContext.get().getActiveNamespace();
+            // TODO This should be the mod id of the mod the peripheral comes from
+            this.modId = ComputerCraft.MOD_ID;
             this.enabled = true;
         }
     }

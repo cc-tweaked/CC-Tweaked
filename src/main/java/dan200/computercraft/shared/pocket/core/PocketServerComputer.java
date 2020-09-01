@@ -16,14 +16,12 @@ import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.network.NetworkHandler;
 import dan200.computercraft.shared.pocket.items.ItemPocketComputer;
 import dan200.computercraft.shared.util.NBTUtil;
-
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtHelper;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.World;
@@ -35,8 +33,6 @@ import java.util.Map;
 
 import static dan200.computercraft.shared.pocket.items.ItemPocketComputer.NBT_LIGHT;
 
-import net.fabricmc.fabric.api.util.NbtType;
-
 public class PocketServerComputer extends ServerComputer implements IPocketAccess
 {
     private IPocketUpgrade m_upgrade;
@@ -45,7 +41,7 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
 
     public PocketServerComputer( World world, int computerID, String label, int instanceID, ComputerFamily family )
     {
-        super( world, computerID, label, instanceID, family, ComputerCraft.pocketTermWidth, ComputerCraft.pocketTermHeight );
+        super( world, computerID, label, instanceID, family, ComputerCraft.terminalWidth_pocketComputer, ComputerCraft.terminalHeight_pocketComputer );
     }
 
     @Nullable
@@ -88,7 +84,7 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
     public int getLight()
     {
         CompoundTag tag = getUserData();
-        return tag.contains(NBT_LIGHT, NBTUtil.TAG_ANY_NUMERIC) ? tag.getInt(NBT_LIGHT ) : -1;
+        return tag.contains( NBT_LIGHT, NBTUtil.TAG_ANY_NUMERIC) ? tag.getInt( NBT_LIGHT ) : -1;
     }
 
     @Override

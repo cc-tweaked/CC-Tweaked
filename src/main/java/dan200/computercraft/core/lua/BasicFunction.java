@@ -54,7 +54,7 @@ class BasicFunction extends VarArgFunction
         }
         catch( Throwable t )
         {
-            if( ComputerCraft.logComputerErrors )
+            if( ComputerCraft.logPeripheralErrors )
             {
                 ComputerCraft.log.error( "Error calling " + name + " on " + instance, t );
             }

@@ -45,12 +45,12 @@ public final class PrintoutRecipe extends SpecialCraftingRecipe
     @Override
     public boolean matches( @Nonnull CraftingInventory inventory, @Nonnull World world )
     {
-        return !getCraftingResult( inventory ).isEmpty();
+        return !craft( inventory ).isEmpty();
     }
 
     @Nonnull
     @Override
-    public ItemStack getCraftingResult( @Nonnull CraftingInventory inventory )
+    public ItemStack craft( @Nonnull CraftingInventory inventory )
     {
         // See if we match the recipe, and extract the input disk ID and dye colour
         int numPages = 0;

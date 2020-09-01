@@ -5,7 +5,7 @@
  */
 package dan200.computercraft.shared.peripheral.printer;
 
-import dan200.computercraft.shared.Registry;
+import dan200.computercraft.shared.ComputerCraftRegistry;
 import dan200.computercraft.shared.common.BlockGeneric;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -35,7 +35,7 @@ public class BlockPrinter extends BlockGeneric
 
     public BlockPrinter( Settings settings )
     {
-        super( settings, Registry.ModTiles.PRINTER );
+        super( settings, ComputerCraftRegistry.ModTiles.PRINTER );
         setDefaultState( getStateManager().getDefaultState()
             .with( FACING, Direction.NORTH )
             .with( TOP, false )

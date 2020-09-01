@@ -5,7 +5,7 @@
  */
 package dan200.computercraft.shared.media.items;
 
-import dan200.computercraft.shared.Registry;
+import dan200.computercraft.shared.ComputerCraftRegistry;
 import dan200.computercraft.shared.common.ContainerHeldItem;
 import dan200.computercraft.shared.network.container.HeldItemContainerData;
 import net.minecraft.client.item.TooltipContext;
@@ -63,7 +63,7 @@ public class ItemPrintout extends Item
         if( !world.isClient )
         {
             new HeldItemContainerData( hand )
-                .open( player, new ContainerHeldItem.Factory( Registry.ModContainers.PRINTOUT.get(), player.getStackInHand( hand ), hand ) );
+                .open( player, new ContainerHeldItem.Factory( ComputerCraftRegistry.ModContainers.PRINTOUT, player.getStackInHand( hand ), hand ) );
         }
         return new TypedActionResult<>( ActionResult.SUCCESS, player.getStackInHand( hand ) );
     }
@@ -100,19 +100,19 @@ public class ItemPrintout extends Item
     @Nonnull
     public static ItemStack createSingleFromTitleAndText( String title, String[] text, String[] colours )
     {
-        return Registry.ModItems.PRINTED_PAGE.get().createFromTitleAndText( title, text, colours );
+        return ComputerCraftRegistry.ModItems.PRINTED_PAGE.createFromTitleAndText( title, text, colours );
     }
 
     @Nonnull
     public static ItemStack createMultipleFromTitleAndText( String title, String[] text, String[] colours )
     {
-        return Registry.ModItems.PRINTED_PAGES.get().createFromTitleAndText( title, text, colours );
+        return ComputerCraftRegistry.ModItems.PRINTED_PAGES.createFromTitleAndText( title, text, colours );
     }
 
     @Nonnull
     public static ItemStack createBookFromTitleAndText( String title, String[] text, String[] colours )
     {
-        return Registry.ModItems.PRINTED_BOOK.get().createFromTitleAndText( title, text, colours );
+        return ComputerCraftRegistry.ModItems.PRINTED_BOOK.createFromTitleAndText( title, text, colours );
     }
 
     public Type getType()

@@ -10,6 +10,7 @@ import dan200.computercraft.shared.computer.core.*;
 import dan200.computercraft.shared.network.container.ComputerContainerData;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.ScreenHandlerType;
 import javax.annotation.Nonnull;
@@ -31,9 +32,9 @@ public class ContainerComputerBase extends ScreenHandler implements IContainerCo
         this.family = family;
     }
 
-    protected ContainerComputerBase( ScreenHandlerType<? extends ContainerComputerBase> type, int id, PlayerInventory player, ComputerContainerData data )
+    protected ContainerComputerBase(ScreenHandlerType<? extends ContainerComputerBase> type, int id, PlayerInventory player, PacketByteBuf packetByteBuf)
     {
-        this( type, id, x -> true, getComputer( player, data ), data.getFamily() );
+        this( type, id, x -> true, getComputer( player, new ComputerContainerData((PacketByteBuf) packetByteBuf.copy()) ), new ComputerContainerData(packetByteBuf).getFamily() );
     }
 
     protected static IComputer getComputer( PlayerInventory player, ComputerContainerData data )

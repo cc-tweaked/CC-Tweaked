@@ -32,7 +32,6 @@ import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Matrix4f;
 import net.minecraft.util.math.Vec3d;
-import net.minecraftforge.client.model.data.EmptyModelData;
 
 import javax.annotation.Nonnull;
 import java.util.List;
@@ -80,7 +79,7 @@ public class TileEntityTurtleRenderer extends BlockEntityRenderer<TileTurtle>
         if( label != null && hit.getType() == HitResult.Type.BLOCK && turtle.getPos().equals( ((BlockHitResult) hit).getBlockPos() ) )
         {
             MinecraftClient mc = MinecraftClient.getInstance();
-            TextRenderer font = dispatcher.textRenderer;
+            TextRenderer font = mc.textRenderer;
 
             transform.push();
             transform.translate( 0.5, 1.2, 0.5 );
@@ -146,7 +145,7 @@ public class TileEntityTurtleRenderer extends BlockEntityRenderer<TileTurtle>
         transform.translate( 0.0f, -0.5f, -0.5f );
 
         TransformedModel model = upgrade.getModel( turtle.getAccess(), side );
-        model.getMatrix().push( transform );
+        // model.getMatrix().multiply(transform);
         renderModel( transform, renderer, lightmapCoord, overlayLight, model.getModel(), null );
         transform.pop();
 
@@ -162,10 +161,10 @@ public class TileEntityTurtleRenderer extends BlockEntityRenderer<TileTurtle>
     private void renderModel( @Nonnull MatrixStack transform, @Nonnull VertexConsumer renderer, int lightmapCoord, int overlayLight, BakedModel model, int[] tints )
     {
         random.setSeed( 0 );
-        renderQuads( transform, renderer, lightmapCoord, overlayLight, model.getQuads( null, null, random, EmptyModelData.INSTANCE ), tints );
+        renderQuads( transform, renderer, lightmapCoord, overlayLight, model.getQuads( null, null, random ), tints );
         for( Direction facing : DirectionUtil.FACINGS )
         {
-            renderQuads( transform, renderer, lightmapCoord, overlayLight, model.getQuads( null, facing, random, EmptyModelData.INSTANCE ), tints );
+            renderQuads( transform, renderer, lightmapCoord, overlayLight, model.getQuads( null, facing, random ), tints );
         }
     }
 
@@ -185,7 +184,7 @@ public class TileEntityTurtleRenderer extends BlockEntityRenderer<TileTurtle>
             float f = (float) (tint >> 16 & 255) / 255.0F;
             float f1 = (float) (tint >> 8 & 255) / 255.0F;
             float f2 = (float) (tint & 255) / 255.0F;
-            buffer.addVertexData( matrix, bakedquad, f, f1, f2, lightmapCoord, overlayLight, true );
+            buffer.quad( matrix, bakedquad, new float[]{1.0F, 1.0F, 1.0F, 1.0F}, f, f1, f2, new int[] {lightmapCoord, lightmapCoord, lightmapCoord, lightmapCoord}, overlayLight, true );
         }
     }
 }

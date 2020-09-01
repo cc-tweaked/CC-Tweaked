@@ -8,14 +8,13 @@ package dan200.computercraft.shared.network.client;
 import dan200.computercraft.shared.network.NetworkMessage;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.network.PacketContext;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.text.LiteralText;
 import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.util.registry.Registry;
 
 import javax.annotation.Nonnull;
 
@@ -52,7 +51,7 @@ public class PlayRecordClientMessage implements NetworkMessage
         if( buf.readBoolean() )
         {
             name = buf.readString( Short.MAX_VALUE );
-            soundEvent = buf.readRegistryIdSafe( SoundEvent.class );
+            soundEvent = Registry.SOUND_EVENT.get(buf.readIdentifier());
         }
         else
         {
@@ -73,16 +72,16 @@ public class PlayRecordClientMessage implements NetworkMessage
         {
             buf.writeBoolean( true );
             buf.writeString( name );
-            buf.writeRegistryId( soundEvent );
+            buf.writeIdentifier( soundEvent.getId() );
         }
     }
 
     @Override
     @Environment(EnvType.CLIENT)
-    public void handle( NetworkEvent.Context context )
+    public void handle( PacketContext context )
     {
         MinecraftClient mc = MinecraftClient.getInstance();
-        mc.worldRenderer.playRecord( soundEvent, pos, null );
+        mc.worldRenderer.playSong( soundEvent, pos );
         if( name != null ) mc.inGameHud.setRecordPlayingOverlay( new LiteralText( name ) );
     }
 }

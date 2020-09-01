@@ -29,7 +29,6 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.RegistryObject;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -115,7 +114,7 @@ public abstract class BlockComputerBase<T extends TileComputerBase> extends Bloc
 
     @Nonnull
     @Override
-    public ItemStack getPickBlock( BlockState state, HitResult target, BlockView world, BlockPos pos, PlayerEntity player )
+    public ItemStack getPickStack( BlockView world, BlockPos pos, BlockState state )
     {
         BlockEntity tile = world.getBlockEntity( pos );
         if( tile instanceof TileComputerBase )
@@ -124,7 +123,7 @@ public abstract class BlockComputerBase<T extends TileComputerBase> extends Bloc
             if( !result.isEmpty() ) return result;
         }
 
-        return super.getPickBlock( state, target, world, pos, player );
+        return super.getPickStack(world, pos, state);
     }
 
     @Override

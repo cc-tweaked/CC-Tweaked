@@ -35,6 +35,11 @@ public class ViewComputerContainerData extends ComputerContainerData {
         }
     }
 
+    public ViewComputerContainerData(PacketByteBuf packetByteBuf) {
+        super(packetByteBuf);
+        toBytes(packetByteBuf);
+    }
+
     private static final Identifier IDENTIFIER = new Identifier(ComputerCraft.MOD_ID, "viewComputerContainerData");
 
     @Override

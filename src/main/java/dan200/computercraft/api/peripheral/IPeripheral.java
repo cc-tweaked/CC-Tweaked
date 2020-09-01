@@ -28,7 +28,7 @@ public interface IPeripheral
      * @return A string identifying the type of peripheral.
      */
     @Nonnull
-    String getType0();
+    String getType();
 
     /**
      * Is called when when a computer is attaching to the peripheral.

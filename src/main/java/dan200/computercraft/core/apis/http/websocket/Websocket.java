@@ -180,7 +180,7 @@ public class Websocket extends Resource<Websocket>
         catch( Exception e )
         {
             failure( "Could not connect" );
-            if( ComputerCraft.logComputerErrors ) ComputerCraft.log.error( "Error in websocket", e );
+            if( ComputerCraft.logPeripheralErrors ) ComputerCraft.log.error( "Error in websocket", e );
         }
     }
 

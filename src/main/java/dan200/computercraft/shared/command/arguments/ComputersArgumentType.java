@@ -174,7 +174,7 @@ public final class ComputersArgumentType implements ArgumentType<ComputersArgume
     {
 
         @Override
-        public void write( @Nonnull ComputersArgumentType arg, @Nonnull PacketByteBuf buf )
+        public void toPacket( @Nonnull ComputersArgumentType arg, @Nonnull PacketByteBuf buf )
         {
             buf.writeBoolean( arg.requireSome );
         }
@@ -187,7 +187,7 @@ public final class ComputersArgumentType implements ArgumentType<ComputersArgume
         }
 
         @Override
-        public void write( @Nonnull ComputersArgumentType arg, @Nonnull JsonObject json )
+        public void toJson( @Nonnull ComputersArgumentType arg, @Nonnull JsonObject json )
         {
             json.addProperty( "requireSome", arg.requireSome );
         }

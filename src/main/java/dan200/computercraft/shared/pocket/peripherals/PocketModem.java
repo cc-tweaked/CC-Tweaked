@@ -8,7 +8,7 @@ package dan200.computercraft.shared.pocket.peripherals;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.pocket.AbstractPocketUpgrade;
 import dan200.computercraft.api.pocket.IPocketAccess;
-import dan200.computercraft.shared.Registry;
+import dan200.computercraft.shared.ComputerCraftRegistry;
 import dan200.computercraft.shared.peripheral.modem.ModemState;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.Identifier;
@@ -24,8 +24,8 @@ public class PocketModem extends AbstractPocketUpgrade
         super(
             new Identifier( "computercraft", advanced ? "wireless_modem_advanced" : "wireless_modem_normal" ),
             advanced
-                ? Registry.ModBlocks.WIRELESS_MODEM_ADVANCED
-                : Registry.ModBlocks.WIRELESS_MODEM_NORMAL
+                ? ComputerCraftRegistry.ModBlocks.WIRELESS_MODEM_ADVANCED
+                : ComputerCraftRegistry.ModBlocks.WIRELESS_MODEM_NORMAL
         );
         this.advanced = advanced;
     }

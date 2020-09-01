@@ -8,11 +8,11 @@ package dan200.computercraft.shared.command;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
+import dan200.computercraft.api.turtle.FakePlayer;
 import net.minecraft.entity.Entity;
 import net.minecraft.server.command.CommandSource;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraftforge.common.util.FakePlayer;
 
 import java.util.Arrays;
 import java.util.Locale;

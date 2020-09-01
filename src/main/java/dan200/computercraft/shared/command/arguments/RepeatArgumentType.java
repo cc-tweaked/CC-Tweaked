@@ -127,7 +127,7 @@ public final class RepeatArgumentType<T, U> implements ArgumentType<List<T>>
     public static class Serializer implements ArgumentSerializer<RepeatArgumentType<?, ?>>
     {
         @Override
-        public void write( @Nonnull RepeatArgumentType<?, ?> arg, @Nonnull PacketByteBuf buf )
+        public void toPacket( @Nonnull RepeatArgumentType<?, ?> arg, @Nonnull PacketByteBuf buf )
         {
             buf.writeBoolean( arg.flatten );
             ArgumentTypes.toPacket( buf, arg.child );
@@ -147,7 +147,7 @@ public final class RepeatArgumentType<T, U> implements ArgumentType<List<T>>
         }
 
         @Override
-        public void write( @Nonnull RepeatArgumentType<?, ?> arg, @Nonnull JsonObject json )
+        public void toJson( @Nonnull RepeatArgumentType<?, ?> arg, @Nonnull JsonObject json )
         {
             json.addProperty( "flatten", arg.flatten );
             json.addProperty( "child", "<<cannot serialize>>" ); // TODO: Potentially serialize this using reflection.

@@ -7,16 +7,12 @@ package dan200.computercraft.client.render;
 
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.media.items.ItemPrintout;
+import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.util.math.Vector3f;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.Matrix4f;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.RenderHandEvent;
-import net.minecraftforge.client.event.RenderItemInFrameEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
 
 import static dan200.computercraft.client.gui.FixedWidthFontRenderer.FONT_HEIGHT;
 import static dan200.computercraft.client.gui.FixedWidthFontRenderer.FONT_WIDTH;
@@ -27,26 +23,12 @@ import static dan200.computercraft.shared.media.items.ItemPrintout.LINE_MAX_LENG
 /**
  * Emulates map and item-frame rendering for printouts.
  */
-@Mod.EventBusSubscriber( modid = ComputerCraft.MOD_ID, value = Dist.CLIENT )
 public final class ItemPrintoutRenderer extends ItemMapLikeRenderer
 {
-    private static final ItemPrintoutRenderer INSTANCE = new ItemPrintoutRenderer();
+    public static final ItemPrintoutRenderer INSTANCE = new ItemPrintoutRenderer();
 
     private ItemPrintoutRenderer()
     {
-    }
-
-    @SubscribeEvent
-    public static void onRenderInHand( RenderHandEvent event )
-    {
-        ItemStack stack = event.getItemStack();
-        if( !(stack.getItem() instanceof ItemPrintout) ) return;
-
-        event.setCanceled( true );
-        INSTANCE.renderItemFirstPerson(
-            event.getMatrixStack(), event.getBuffers(), event.getLight(),
-            event.getHand(), event.getInterpolatedPitch(), event.getEquipProgress(), event.getSwingProgress(), event.getItemStack()
-        );
     }
 
     @Override
@@ -59,22 +41,19 @@ public final class ItemPrintoutRenderer extends ItemMapLikeRenderer
         drawPrintout( transform, render, stack );
     }
 
-    @SubscribeEvent
-    public static void onRenderInFrame( RenderItemInFrameEvent event )
+    public boolean renderInFrame(MatrixStack matrixStack, VertexConsumerProvider consumerProvider, ItemStack stack )
     {
-        ItemStack stack = event.getItem();
-        if( !(stack.getItem() instanceof ItemPrintout) ) return;
-        event.setCanceled( true );
-
-        MatrixStack transform = event.getMatrix();
+        if( !(stack.getItem() instanceof ItemPrintout) ) return false;
 
         // Move a little bit forward to ensure we're not clipping with the frame
-        transform.translate( 0.0f, 0.0f, -0.001f );
-        transform.multiply( Vector3f.POSITIVE_Z.getDegreesQuaternion( 180f ) );
-        transform.scale( 0.95f, 0.95f, -0.95f );
-        transform.translate( -0.5f, -0.5f, 0.0f );
+        matrixStack.translate( 0.0f, 0.0f, -0.001f );
+        matrixStack.multiply( Vector3f.POSITIVE_Z.getDegreesQuaternion( 180f ) );
+        matrixStack.scale( 0.95f, 0.95f, -0.95f );
+        matrixStack.translate( -0.5f, -0.5f, 0.0f );
 
-        drawPrintout( transform, event.getBuffers(), stack );
+        drawPrintout( matrixStack, consumerProvider, stack );
+
+        return true;
     }
 
     private static void drawPrintout( MatrixStack transform, VertexConsumerProvider render, ItemStack stack )

@@ -15,7 +15,6 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 
 import javax.annotation.Nonnull;
 import java.lang.reflect.Method;
@@ -50,21 +49,8 @@ public class TurtleCompareCommand implements ITurtleCommand
         {
             BlockState lookAtState = world.getBlockState( newPosition );
             Block lookAtBlock = lookAtState.getBlock();
-            if( !lookAtBlock.isAir( lookAtState, world, newPosition ) )
+            if( !lookAtState.isAir() )
             {
-                // Try getSilkTouchDrop first
-                if( !lookAtBlock.hasTileEntity( lookAtState ) )
-                {
-                    try
-                    {
-                        Method method = ObfuscationReflectionHelper.findMethod( Block.class, "func_180643_i", BlockState.class );
-                        lookAtStack = (ItemStack) method.invoke( lookAtBlock, lookAtState );
-                    }
-                    catch( ReflectiveOperationException | RuntimeException ignored )
-                    {
-                    }
-                }
-
                 // See if the block drops anything with the same ID as itself
                 // (try 5 times to try and beat random number generators)
                 for( int i = 0; i < 5 && lookAtStack.isEmpty(); i++ )

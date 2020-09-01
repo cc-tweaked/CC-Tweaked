@@ -9,22 +9,13 @@ import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.shared.computer.apis.CommandAPI;
-import dan200.computercraft.shared.util.CapabilityUtil;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.CommandBlockBlockEntity;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Direction;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.ICapabilityProvider;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.event.AttachCapabilitiesEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-
-import static dan200.computercraft.shared.Capabilities.CAPABILITY_PERIPHERAL;
 
 /**
  * This peripheral allows you to interact with command blocks.
@@ -36,13 +27,11 @@ import static dan200.computercraft.shared.Capabilities.CAPABILITY_PERIPHERAL;
  *
  * @cc.module command
  */
-@Mod.EventBusSubscriber
-public class CommandBlockPeripheral implements IPeripheral, ICapabilityProvider
+public class CommandBlockPeripheral implements IPeripheral
 {
     private static final Identifier CAP_ID = new Identifier( ComputerCraft.MOD_ID, "command_block" );
 
     private final CommandBlockBlockEntity commandBlock;
-    private LazyOptional<IPeripheral> self;
 
     public CommandBlockPeripheral( CommandBlockBlockEntity commandBlock )
     {
@@ -51,7 +40,7 @@ public class CommandBlockPeripheral implements IPeripheral, ICapabilityProvider
 
     @Nonnull
     @Override
-    public String getType0()
+    public String getType()
     {
         return "command";
     }
@@ -105,34 +94,5 @@ public class CommandBlockPeripheral implements IPeripheral, ICapabilityProvider
     public Object getTarget()
     {
         return commandBlock;
-    }
-
-    @Nonnull
-    @Override
-    public <T> LazyOptional<T> getCapability( @Nonnull Capability<T> cap, @Nullable Direction side )
-    {
-        if( cap == CAPABILITY_PERIPHERAL )
-        {
-            if( self == null ) self = LazyOptional.of( () -> this );
-            return self.cast();
-        }
-        return LazyOptional.empty();
-    }
-
-    private void invalidate()
-    {
-        self = CapabilityUtil.invalidate( self );
-    }
-
-    @SubscribeEvent
-    public static void onCapability( AttachCapabilitiesEvent<BlockEntity> event )
-    {
-        BlockEntity tile = event.getObject();
-        if( tile instanceof CommandBlockBlockEntity )
-        {
-            CommandBlockPeripheral peripheral = new CommandBlockPeripheral( (CommandBlockBlockEntity) tile );
-            event.addCapability( CAP_ID, peripheral );
-            event.addListener( peripheral::invalidate );
-        }
     }
 }

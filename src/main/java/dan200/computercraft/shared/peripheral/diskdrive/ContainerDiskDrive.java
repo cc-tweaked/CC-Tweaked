@@ -5,7 +5,7 @@
  */
 package dan200.computercraft.shared.peripheral.diskdrive;
 
-import dan200.computercraft.shared.Registry;
+import dan200.computercraft.shared.ComputerCraftRegistry;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.Inventory;
@@ -21,7 +21,7 @@ public class ContainerDiskDrive extends ScreenHandler
 
     public ContainerDiskDrive( int id, PlayerInventory player, Inventory inventory )
     {
-        super( Registry.ModContainers.DISK_DRIVE.get(), id );
+        super( ComputerCraftRegistry.ModContainers.DISK_DRIVE, id );
 
         this.inventory = inventory;
 

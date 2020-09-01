@@ -6,7 +6,9 @@
 package dan200.computercraft.shared.common;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockEntityProvider;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.BlockWithEntity;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.player.PlayerEntity;
@@ -15,16 +17,17 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
+import net.minecraft.world.WorldAccess;
 import net.minecraft.world.WorldView;
-import net.minecraftforge.fml.RegistryObject;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Random;
 
-public abstract class BlockGeneric extends Block
+public abstract class BlockGeneric extends BlockWithEntity
 {
     private final BlockEntityType<? extends TileGeneric> type;
 
@@ -64,13 +67,6 @@ public abstract class BlockGeneric extends Block
     }
 
     @Override
-    public final void onNeighborChange( BlockState state, WorldView world, BlockPos pos, BlockPos neighbour )
-    {
-        BlockEntity tile = world.getBlockEntity( pos );
-        if( tile instanceof TileGeneric ) ((TileGeneric) tile).onNeighbourTileEntityChange( neighbour );
-    }
-
-    @Override
     @Deprecated
     public void scheduledTick( @Nonnull BlockState state, ServerWorld world, @Nonnull BlockPos pos, @Nonnull Random rand )
     {
@@ -78,22 +74,10 @@ public abstract class BlockGeneric extends Block
         if( te instanceof TileGeneric ) ((TileGeneric) te).blockTick();
     }
 
-    @Override
-    public boolean hasTileEntity( BlockState state )
-    {
-        return true;
-    }
-
     @Nullable
     @Override
-    public BlockEntity createTileEntity( @Nonnull BlockState state, @Nonnull BlockView world )
+    public BlockEntity createBlockEntity(@Nonnull BlockView world )
     {
-        return type.get().instantiate();
-    }
-
-    @Override
-    public boolean canBeReplacedByLeaves( BlockState state, WorldView world, BlockPos pos )
-    {
-        return false;
+        return type.instantiate();
     }
 }

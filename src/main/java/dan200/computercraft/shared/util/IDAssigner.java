@@ -9,9 +9,9 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import dan200.computercraft.ComputerCraft;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.WorldSavePath;
-import net.minecraftforge.fml.server.ServerLifecycleHooks;
 
 import java.io.File;
 import java.io.Reader;
@@ -42,7 +42,7 @@ public final class IDAssigner
 
     public static File getDir()
     {
-        return ServerLifecycleHooks.getCurrentServer().getSavePath( FOLDER ).toFile();
+        return FabricLoader.getInstance().getGameInstance() instanceof MinecraftServer ? ((MinecraftServer) FabricLoader.getInstance().getGameInstance()).getSavePath( FOLDER ).toFile() : null;
     }
 
     private static MinecraftServer getCachedServer()
@@ -52,7 +52,7 @@ public final class IDAssigner
         MinecraftServer currentServer = server.get();
         if( currentServer == null ) return null;
 
-        if( currentServer != ServerLifecycleHooks.getCurrentServer() ) return null;
+        if(FabricLoader.getInstance().getGameInstance() instanceof MinecraftServer && currentServer != FabricLoader.getInstance().getGameInstance() ) return null;
         return currentServer;
     }
 
@@ -62,28 +62,24 @@ public final class IDAssigner
         if( currentServer == null )
         {
             // The server has changed, refetch our ID map
-            server = new WeakReference<>( ServerLifecycleHooks.getCurrentServer() );
+            if (FabricLoader.getInstance().getGameInstance() instanceof MinecraftServer) {
+                server = new WeakReference<>((MinecraftServer) FabricLoader.getInstance().getGameInstance());
 
-            File dir = getDir();
-            dir.mkdirs();
+                File dir = getDir();
+                dir.mkdirs();
 
-            // Load our ID file from disk
-            idFile = new File( dir, "ids.json" ).toPath();
-            if( Files.isRegularFile( idFile ) )
-            {
-                try( Reader reader = Files.newBufferedReader( idFile, StandardCharsets.UTF_8 ) )
-                {
-                    ids = GSON.fromJson( reader, ID_TOKEN );
-                }
-                catch( Exception e )
-                {
-                    ComputerCraft.log.error( "Cannot load id file '" + idFile + "'", e );
+                // Load our ID file from disk
+                idFile = new File(dir, "ids.json").toPath();
+                if (Files.isRegularFile(idFile)) {
+                    try (Reader reader = Files.newBufferedReader(idFile, StandardCharsets.UTF_8)) {
+                        ids = GSON.fromJson(reader, ID_TOKEN);
+                    } catch (Exception e) {
+                        ComputerCraft.log.error("Cannot load id file '" + idFile + "'", e);
+                        ids = new HashMap<>();
+                    }
+                } else {
                     ids = new HashMap<>();
                 }
-            }
-            else
-            {
-                ids = new HashMap<>();
             }
         }
 

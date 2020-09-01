@@ -7,7 +7,8 @@ package dan200.computercraft.shared.command;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
-import dan200.computercraft.ComputerCraft;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.ClickEvent;
@@ -16,15 +17,11 @@ import net.minecraft.text.LiteralText;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.ClientChatEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
 
 import static net.minecraft.server.command.CommandManager.argument;
 import static net.minecraft.server.command.CommandManager.literal;
 
-@Mod.EventBusSubscriber( modid = ComputerCraft.MOD_ID, value = Dist.CLIENT )
+@Environment(EnvType.CLIENT)
 public final class CommandCopy
 {
     private static final String PREFIX = "/computercraft copy ";
@@ -45,15 +42,15 @@ public final class CommandCopy
         );
     }
 
-    @SubscribeEvent
-    public static void onClientSendMessage( ClientChatEvent event )
+    public static boolean onClientSendMessage( String message )
     {
         // Emulate the command on the client side
-        if( event.getMessage().startsWith( PREFIX ) )
+        if( message.startsWith( PREFIX ) )
         {
-            MinecraftClient.getInstance().keyboard.setClipboard( event.getMessage().substring( PREFIX.length() ) );
-            event.setCanceled( true );
+            MinecraftClient.getInstance().keyboard.setClipboard( message.substring( PREFIX.length() ) );
+            return true;
         }
+        return false;
     }
 
     public static Text createCopyText( String text )

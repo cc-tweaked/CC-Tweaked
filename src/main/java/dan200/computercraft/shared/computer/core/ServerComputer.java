@@ -163,7 +163,8 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
         if( hasOutputChanged() || force )
         {
             // Send computer state to all clients
-            NetworkHandler.sendToAllPlayers( createComputerPacket() );
+            if (FabricLoader.getInstance().getGameInstance() instanceof MinecraftServer)
+                NetworkHandler.sendToAllPlayers((MinecraftServer) FabricLoader.getInstance().getGameInstance(), createComputerPacket() );
         }
 
         if( hasTerminalChanged() || force )
@@ -198,7 +199,8 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
     public void broadcastDelete()
     {
         // Send deletion to client
-        NetworkHandler.sendToAllPlayers( new ComputerDeletedClientMessage( getInstanceID() ) );
+        if (FabricLoader.getInstance().getGameInstance() instanceof MinecraftServer)
+        NetworkHandler.sendToAllPlayers((MinecraftServer) FabricLoader.getInstance().getGameInstance(), new ComputerDeletedClientMessage( getInstanceID() ) );
     }
 
     public void setID( int id )

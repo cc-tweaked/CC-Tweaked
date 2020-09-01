@@ -94,7 +94,7 @@ public abstract class ModemPeripheral implements IPeripheral, IPacketSender, IPa
 
     @Nonnull
     @Override
-    public String getType0()
+    public String getType()
     {
         return "modem";
     }

@@ -5,7 +5,7 @@
  */
 package dan200.computercraft.shared.peripheral.diskdrive;
 
-import dan200.computercraft.shared.Registry;
+import dan200.computercraft.shared.ComputerCraftRegistry;
 import dan200.computercraft.shared.common.BlockGeneric;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -34,7 +34,7 @@ public class BlockDiskDrive extends BlockGeneric
 
     public BlockDiskDrive( Settings settings )
     {
-        super( settings, Registry.ModTiles.DISK_DRIVE );
+        super( settings, ComputerCraftRegistry.ModTiles.DISK_DRIVE );
         setDefaultState( getStateManager().getDefaultState()
             .with( FACING, Direction.NORTH )
             .with( STATE, DiskDriveState.EMPTY ) );

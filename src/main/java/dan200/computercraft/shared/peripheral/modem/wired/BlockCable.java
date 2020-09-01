@@ -7,7 +7,7 @@ package dan200.computercraft.shared.peripheral.modem.wired;
 
 import com.google.common.collect.ImmutableMap;
 import dan200.computercraft.api.ComputerCraftAPI;
-import dan200.computercraft.shared.Registry;
+import dan200.computercraft.shared.ComputerCraftRegistry;
 import dan200.computercraft.shared.common.BlockGeneric;
 import dan200.computercraft.shared.util.WorldUtil;
 import net.minecraft.block.Block;
@@ -60,7 +60,7 @@ public class BlockCable extends BlockGeneric implements Waterloggable
 
     public BlockCable( Settings settings )
     {
-        super( settings, Registry.ModTiles.CABLE );
+        super( settings, ComputerCraftRegistry.ModTiles.CABLE );
 
         setDefaultState( getStateManager().getDefaultState()
             .with( MODEM, CableModemVariant.None )
@@ -87,7 +87,7 @@ public class BlockCable extends BlockGeneric implements Waterloggable
     {
         if( !state.get( CABLE ) ) return false;
         if( state.get( MODEM ).getFacing() == direction ) return true;
-        return ComputerCraftAPI.getWiredElementAt( world, pos.offset( direction ), direction.getOpposite() ).isPresent();
+        return ComputerCraftAPI.getWiredElementAt( world, pos.offset( direction ), direction.getOpposite() ) != null;
     }
 
     @Nonnull
@@ -98,70 +98,68 @@ public class BlockCable extends BlockGeneric implements Waterloggable
         return CableShapes.getShape( state );
     }
 
-    @Override
-    public boolean removedByPlayer( BlockState state, World world, BlockPos pos, PlayerEntity player, boolean willHarvest, FluidState fluid )
-    {
-        if( state.get( CABLE ) && state.get( MODEM ).getFacing() != null )
-        {
-            BlockHitResult hit = world.raycast( new RaycastContext(
-                WorldUtil.getRayStart( player ), WorldUtil.getRayEnd( player ),
-                RaycastContext.ShapeType.COLLIDER, RaycastContext.FluidHandling.NONE, player
-            ) );
-            if( hit.getType() == HitResult.Type.BLOCK )
-            {
-                BlockEntity tile = world.getBlockEntity( pos );
-                if( tile instanceof TileCable && tile.hasWorld() )
-                {
-                    TileCable cable = (TileCable) tile;
+//    @Override
+//    public boolean removedByPlayer( BlockState state, World world, BlockPos pos, PlayerEntity player, boolean willHarvest, FluidState fluid )
+//    {
+//        if( state.get( CABLE ) && state.get( MODEM ).getFacing() != null )
+//        {
+//            BlockHitResult hit = world.raycast( new RaycastContext(
+//                WorldUtil.getRayStart( player ), WorldUtil.getRayEnd( player ),
+//                RaycastContext.ShapeType.COLLIDER, RaycastContext.FluidHandling.NONE, player
+//            ) );
+//            if( hit.getType() == HitResult.Type.BLOCK )
+//            {
+//                BlockEntity tile = world.getBlockEntity( pos );
+//                if( tile instanceof TileCable && tile.hasWorld() )
+//                {
+//                    TileCable cable = (TileCable) tile;
+//
+//                    ItemStack item;
+//                    BlockState newState;
+//
+//                    if( WorldUtil.isVecInside( CableShapes.getModemShape( state ), hit.getPos().subtract( pos.getX(), pos.getY(), pos.getZ() ) ) )
+//                    {
+//                        newState = state.with( MODEM, CableModemVariant.None );
+//                        item = new ItemStack( ComputerCraftRegistry.ModItems.WIRED_MODEM.get() );
+//                    }
+//                    else
+//                    {
+//                        newState = state.with( CABLE, false );
+//                        item = new ItemStack( ComputerCraftRegistry.ModItems.CABLE.get() );
+//                    }
+//
+//                    world.setBlockState( pos, correctConnections( world, pos, newState ), 3 );
+//
+//                    cable.modemChanged();
+//                    cable.connectionsChanged();
+//                    if( !world.isClient && !player.abilities.creativeMode )
+//                    {
+//                        Block.dropStack( world, pos, item );
+//                    }
+//
+//                    return false;
+//                }
+//            }
+//        }
+//
+//        return super.removedByPlayer( state, world, pos, player, willHarvest, fluid );
+//    }
 
-                    ItemStack item;
-                    BlockState newState;
-
-                    if( WorldUtil.isVecInside( CableShapes.getModemShape( state ), hit.getPos().subtract( pos.getX(), pos.getY(), pos.getZ() ) ) )
-                    {
-                        newState = state.with( MODEM, CableModemVariant.None );
-                        item = new ItemStack( Registry.ModItems.WIRED_MODEM.get() );
-                    }
-                    else
-                    {
-                        newState = state.with( CABLE, false );
-                        item = new ItemStack( Registry.ModItems.CABLE.get() );
-                    }
-
-                    world.setBlockState( pos, correctConnections( world, pos, newState ), 3 );
-
-                    cable.modemChanged();
-                    cable.connectionsChanged();
-                    if( !world.isClient && !player.abilities.creativeMode )
-                    {
-                        Block.dropStack( world, pos, item );
-                    }
-
-                    return false;
-                }
-            }
-        }
-
-        return super.removedByPlayer( state, world, pos, player, willHarvest, fluid );
-    }
-
-    @Nonnull
-    @Override
-    public ItemStack getPickBlock( BlockState state, HitResult hit, BlockView world, BlockPos pos, PlayerEntity player )
-    {
-        Direction modem = state.get( MODEM ).getFacing();
-        boolean cable = state.get( CABLE );
-
-        // If we've only got one, just use that.
-        if( !cable ) return new ItemStack( Registry.ModItems.WIRED_MODEM.get() );
-        if( modem == null ) return new ItemStack( Registry.ModItems.CABLE.get() );
-
-        // We've a modem and cable, so try to work out which one we're interacting with
-        return hit != null && WorldUtil.isVecInside( CableShapes.getModemShape( state ), hit.getPos().subtract( pos.getX(), pos.getY(), pos.getZ() ) )
-            ? new ItemStack( Registry.ModItems.WIRED_MODEM.get() )
-            : new ItemStack( Registry.ModItems.CABLE.get() );
-
-    }
+    // TODO Re-implement, likely will need mixin
+//    @Override
+//    public ItemStack getPickStack(BlockView world, BlockPos pos, BlockState state) {
+//        Direction modem = state.get( MODEM ).getFacing();
+//        boolean cable = state.get( CABLE );
+//
+//        // If we've only got one, just use that.
+//        if( !cable ) return new ItemStack( ComputerCraftRegistry.ModItems.WIRED_MODEM.get() );
+//        if( modem == null ) return new ItemStack( ComputerCraftRegistry.ModItems.CABLE.get() );
+//
+//        // We've a modem and cable, so try to work out which one we're interacting with
+//        return hit != null && WorldUtil.isVecInside( CableShapes.getModemShape( state ), hit.getPos().subtract( pos.getX(), pos.getY(), pos.getZ() ) )
+//            ? new ItemStack( ComputerCraftRegistry.ModItems.WIRED_MODEM.get() )
+//            : new ItemStack( ComputerCraftRegistry.ModItems.CABLE.get() );
+//    }
 
     @Override
     public void onPlaced( World world, @Nonnull BlockPos pos, @Nonnull BlockState state, LivingEntity placer, @Nonnull ItemStack stack )

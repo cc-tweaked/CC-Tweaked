@@ -8,8 +8,6 @@ package dan200.computercraft.core.asm;
 
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.lua.LuaFunction;
-import dan200.computercraft.shared.peripheral.generic.GenericPeripheralProvider;
-import dan200.computercraft.shared.util.ServiceUtil;
 import javax.annotation.Nonnull;
 import net.minecraft.util.Identifier;
 import java.lang.reflect.Method;
@@ -28,10 +26,6 @@ import java.util.stream.Stream;
  *
  * Unlike conventional Lua objects, the annotated methods should be {@code static}, with their target as the first
  * parameter.
- *
- * This is used by the generic peripheral system ({@link GenericPeripheralProvider}) to provide methods for arbitrary
- * tile entities. Eventually this'll be be exposed in the public API. Until it is stabilised, it will remain in this
- * package - do not use it in external mods!
  */
 public interface GenericSource
 {
@@ -47,8 +41,6 @@ public interface GenericSource
      * Register a stream of generic sources.
      *
      * @param sources The source of generic methods.
-     * @see ServiceUtil For ways to load this. Sadly {@link java.util.ServiceLoader} is broken under Forge, but we don't
-     * want to add a hard-dep on Forge within core either.
      */
     static void setup( Supplier<Stream<GenericSource>> sources )
     {

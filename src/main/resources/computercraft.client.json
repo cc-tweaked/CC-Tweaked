@@ -1,0 +1,15 @@
+{
+    "required": true,
+    "package": "dan200.computercraft.shared.mixin",
+    "compatibilityLevel": "JAVA_8",
+    "mixins": [
+        "MixinHeldItemRenderer",
+        "MixinItemFrameEntityRenderer",
+        "MixinMinecraftGame",
+        "MixinScreen",
+        "MixinWorldRenderer"
+    ],
+    "injectors": {
+        "defaultRequire": 1
+    }
+}

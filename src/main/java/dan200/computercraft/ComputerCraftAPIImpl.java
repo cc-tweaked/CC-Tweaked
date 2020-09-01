@@ -21,10 +21,13 @@ import dan200.computercraft.core.apis.ApiFactories;
 import dan200.computercraft.core.filesystem.FileMount;
 import dan200.computercraft.core.filesystem.ResourceMount;
 import dan200.computercraft.shared.*;
+import dan200.computercraft.shared.peripheral.modem.wired.TileCable;
+import dan200.computercraft.shared.peripheral.modem.wired.TileWiredModemFull;
 import dan200.computercraft.shared.peripheral.modem.wireless.WirelessNetwork;
 import dan200.computercraft.shared.util.IDAssigner;
 import dan200.computercraft.shared.wired.WiredNode;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.resource.ReloadableResourceManager;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.Identifier;
@@ -34,13 +37,10 @@ import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
-import javax.swing.text.html.Option;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Optional;
-
-import static dan200.computercraft.shared.Capabilities.CAPABILITY_WIRED_ELEMENT;
 
 public final class ComputerCraftAPIImpl implements IComputerCraftAPI
 {
@@ -163,11 +163,14 @@ public final class ComputerCraftAPIImpl implements IComputerCraftAPI
 
     @Nonnull
     @Override
-    public Optional<IWiredElement> getWiredElementAt( @Nonnull BlockView world, @Nonnull BlockPos pos, @Nonnull Direction side )
+    public IWiredElement getWiredElementAt( @Nonnull BlockView world, @Nonnull BlockPos pos, @Nonnull Direction side )
     {
-        // TODO Fix this thing
-//        BlockEntity tile = world.getBlockEntity( pos );
-//        return tile == null ? Optional.empty() : tile.getCapability( CAPABILITY_WIRED_ELEMENT, side );
-        return Optional.empty();
+        BlockEntity tile = world.getBlockEntity(pos);
+        if (tile instanceof TileCable) {
+            return ((TileCable) tile).getElement(side);
+        } else if (tile instanceof TileWiredModemFull) {
+            return ((TileWiredModemFull) tile).getElement();
+        }
+        return null;
     }
 }

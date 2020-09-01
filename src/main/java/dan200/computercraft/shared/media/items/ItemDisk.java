@@ -9,7 +9,7 @@ import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.api.media.IMedia;
-import dan200.computercraft.shared.Registry;
+import dan200.computercraft.shared.ComputerCraftRegistry;
 import dan200.computercraft.shared.common.IColouredItem;
 import dan200.computercraft.shared.util.Colour;
 import net.minecraft.client.item.TooltipContext;
@@ -42,9 +42,9 @@ public class ItemDisk extends Item implements IMedia, IColouredItem
     @Nonnull
     public static ItemStack createFromIDAndColour( int id, String label, int colour )
     {
-        ItemStack stack = new ItemStack( Registry.ModItems.DISK.get() );
+        ItemStack stack = new ItemStack( ComputerCraftRegistry.ModItems.DISK );
         setDiskID( stack, id );
-        Registry.ModItems.DISK.get().setLabel( stack, label );
+        ComputerCraftRegistry.ModItems.DISK.setLabel( stack, label );
         IColouredItem.setColourBasic( stack, colour );
         return stack;
     }
@@ -71,12 +71,6 @@ public class ItemDisk extends Item implements IMedia, IColouredItem
                     .formatted( Formatting.GRAY ) );
             }
         }
-    }
-
-    @Override
-    public boolean doesSneakBypassUse( ItemStack stack, WorldView world, BlockPos pos, PlayerEntity player )
-    {
-        return true;
     }
 
     @Override

@@ -5,6 +5,8 @@
  */
 package dan200.computercraft.api.client;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.model.BakedModel;
 import net.minecraft.client.render.model.BakedModelManager;
@@ -17,6 +19,7 @@ import java.util.Objects;
 /**
  * A model to render, combined with a transformation matrix to apply.
  */
+@Environment(EnvType.CLIENT)
 public final class TransformedModel
 {
     private final BakedModel model;

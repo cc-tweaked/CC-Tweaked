@@ -7,13 +7,13 @@ package dan200.computercraft.shared.peripheral.monitor;
 
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.peripheral.IComputerAccess;
-import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.shared.common.ServerTerminal;
 import dan200.computercraft.shared.common.TileGeneric;
 import dan200.computercraft.shared.network.client.TerminalState;
-import dan200.computercraft.shared.util.CapabilityUtil;
 import dan200.computercraft.shared.util.TickScheduler;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
@@ -26,15 +26,11 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.util.LazyOptional;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.HashSet;
 import java.util.Set;
-
-import static dan200.computercraft.shared.Capabilities.CAPABILITY_PERIPHERAL;
 
 public class TileMonitor extends TileGeneric
 {
@@ -52,7 +48,6 @@ public class TileMonitor extends TileGeneric
     private ServerMonitor m_serverMonitor;
     private ClientMonitor m_clientMonitor;
     private MonitorPeripheral peripheral;
-    private LazyOptional<IPeripheral> peripheralCap;
     private final Set<IComputerAccess> m_computers = new HashSet<>();
 
     private boolean m_destroyed = false;
@@ -74,9 +69,9 @@ public class TileMonitor extends TileGeneric
     }
 
     @Override
-    public void onLoad()
+    public void cancelRemoval()
     {
-        super.onLoad();
+        super.cancelRemoval();
         TickScheduler.schedule( this );
     }
 
@@ -90,16 +85,10 @@ public class TileMonitor extends TileGeneric
     }
 
     @Override
+    @Environment(EnvType.CLIENT)
     public void markRemoved()
     {
         super.markRemoved();
-        if( m_clientMonitor != null && m_xIndex == 0 && m_yIndex == 0 ) m_clientMonitor.destroy();
-    }
-
-    @Override
-    public void onChunkUnloaded()
-    {
-        super.onChunkUnloaded();
         if( m_clientMonitor != null && m_xIndex == 0 && m_yIndex == 0 ) m_clientMonitor.destroy();
     }
 
@@ -169,28 +158,7 @@ public class TileMonitor extends TileGeneric
             }
         }
 
-        if( m_serverMonitor.pollTerminalChanged() ) MonitorWatcher.enqueue( this );
-    }
-
-    @Override
-    protected void invalidateCaps()
-    {
-        super.invalidateCaps();
-        peripheralCap = CapabilityUtil.invalidate( peripheralCap );
-    }
-
-    @Nonnull
-    @Override
-    public <T> LazyOptional<T> getCapability( @Nonnull Capability<T> cap, @Nullable Direction side )
-    {
-        if( cap == CAPABILITY_PERIPHERAL )
-        {
-            createServerMonitor(); // Ensure the monitor is created before doing anything else.
-            if( peripheral == null ) peripheral = new MonitorPeripheral( this );
-            if( peripheralCap == null ) peripheralCap = LazyOptional.of( () -> peripheral );
-            return peripheralCap.cast();
-        }
-        return super.getCapability( cap, side );
+        if( m_serverMonitor.pollTerminalChanged() ) updateBlock();
     }
 
     public ServerMonitor getCachedServerMonitor()
@@ -284,7 +252,7 @@ public class TileMonitor extends TileGeneric
         {
             // If our index has changed then it's possible the origin monitor has changed. Thus
             // we'll clear our cache. If we're the origin then we'll need to remove the glList as well.
-            if( oldXIndex == 0 && oldYIndex == 0 && m_clientMonitor != null ) m_clientMonitor.destroy();
+            if(world.isClient() && oldXIndex == 0 && oldYIndex == 0 && m_clientMonitor != null) m_clientMonitor.destroy();
             m_clientMonitor = null;
         }
 
@@ -379,7 +347,7 @@ public class TileMonitor extends TileGeneric
 
         int y = pos.getY();
         World world = getWorld();
-        if( world == null || !world.isAreaLoaded( pos, 0 ) ) return null;
+        if( world == null || !world.isChunkLoaded(pos) ) return null;
 
         BlockEntity tile = world.getBlockEntity( pos );
         if( !(tile instanceof TileMonitor) ) return null;
@@ -666,30 +634,30 @@ public class TileMonitor extends TileGeneric
         m_computers.remove( computer );
     }
 
-    @Nonnull
-    @Override
-    public Box getRenderBoundingBox()
-    {
-        TileMonitor start = getNeighbour( 0, 0 );
-        TileMonitor end = getNeighbour( m_width - 1, m_height - 1 );
-        if( start != null && end != null )
-        {
-            BlockPos startPos = start.getPos();
-            BlockPos endPos = end.getPos();
-            int minX = Math.min( startPos.getX(), endPos.getX() );
-            int minY = Math.min( startPos.getY(), endPos.getY() );
-            int minZ = Math.min( startPos.getZ(), endPos.getZ() );
-            int maxX = Math.max( startPos.getX(), endPos.getX() ) + 1;
-            int maxY = Math.max( startPos.getY(), endPos.getY() ) + 1;
-            int maxZ = Math.max( startPos.getZ(), endPos.getZ() ) + 1;
-            return new Box( minX, minY, minZ, maxX, maxY, maxZ );
-        }
-        else
-        {
-            BlockPos pos = getPos();
-            return new Box( pos.getX(), pos.getY(), pos.getZ(), pos.getX() + 1, pos.getY() + 1, pos.getZ() + 1 );
-        }
-    }
+//    @Nonnull
+//    @Override
+//    public Box getRenderBoundingBox()
+//    {
+//        TileMonitor start = getNeighbour( 0, 0 );
+//        TileMonitor end = getNeighbour( m_width - 1, m_height - 1 );
+//        if( start != null && end != null )
+//        {
+//            BlockPos startPos = start.getPos();
+//            BlockPos endPos = end.getPos();
+//            int minX = Math.min( startPos.getX(), endPos.getX() );
+//            int minY = Math.min( startPos.getY(), endPos.getY() );
+//            int minZ = Math.min( startPos.getZ(), endPos.getZ() );
+//            int maxX = Math.max( startPos.getX(), endPos.getX() ) + 1;
+//            int maxY = Math.max( startPos.getY(), endPos.getY() ) + 1;
+//            int maxZ = Math.max( startPos.getZ(), endPos.getZ() ) + 1;
+//            return new Box( minX, minY, minZ, maxX, maxY, maxZ );
+//        }
+//        else
+//        {
+//            BlockPos pos = getPos();
+//            return new Box( pos.getX(), pos.getY(), pos.getZ(), pos.getX() + 1, pos.getY() + 1, pos.getZ() + 1 );
+//        }
+//    }
 
     @Override
     public double getSquaredRenderDistance()

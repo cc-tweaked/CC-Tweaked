@@ -7,9 +7,9 @@ package dan200.computercraft.shared.network.client;
 
 import dan200.computercraft.shared.computer.core.ComputerState;
 import dan200.computercraft.shared.computer.core.ServerComputer;
+import net.fabricmc.fabric.api.network.PacketContext;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.PacketByteBuf;
-import net.minecraftforge.fml.network.NetworkEvent;
 
 import javax.annotation.Nonnull;
 
@@ -49,7 +49,7 @@ public class ComputerDataClientMessage extends ComputerClientMessage
     }
 
     @Override
-    public void handle( NetworkEvent.Context context )
+    public void handle( PacketContext context )
     {
         getComputer().setState( state, userData );
     }

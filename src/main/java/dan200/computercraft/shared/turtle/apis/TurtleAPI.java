@@ -11,14 +11,15 @@ import dan200.computercraft.api.turtle.ITurtleCommand;
 import dan200.computercraft.api.turtle.TurtleCommandResult;
 import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.api.turtle.event.TurtleActionEvent;
+import dan200.computercraft.api.turtle.event.TurtleEvent;
 import dan200.computercraft.api.turtle.event.TurtleInspectItemEvent;
 import dan200.computercraft.core.apis.IAPIEnvironment;
 import dan200.computercraft.core.asm.TaskCallback;
 import dan200.computercraft.core.tracking.TrackingField;
-import dan200.computercraft.shared.peripheral.generic.data.ItemData;
 import dan200.computercraft.shared.turtle.core.*;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraftforge.common.MinecraftForge;
+import net.minecraft.util.registry.Registry;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -603,12 +604,15 @@ public class TurtleAPI implements ILuaAPI
         ItemStack stack = turtle.getInventory().getStack( slot );
         if( stack.isEmpty() ) return new Object[] { null };
 
-        Map<String, Object> table = detailed
-            ? ItemData.fill( new HashMap<>(), stack )
-            : ItemData.fillBasicSafe( new HashMap<>(), stack );
+        Item item = stack.getItem();
+        String name = Registry.ITEM.getId(item).toString();
+        int count = stack.getCount();
+        Map<String, Object> table = new HashMap<>();
+        table.put("name", name);
+        table.put("count", count);
 
         TurtleActionEvent event = new TurtleInspectItemEvent( turtle, stack, table, detailed );
-        if( MinecraftForge.EVENT_BUS.post( event ) ) return new Object[] { false, event.getFailureMessage() };
+        if( TurtleEvent.post( event ) ) return new Object[] { false, event.getFailureMessage() };
 
         return new Object[] { table };
     }

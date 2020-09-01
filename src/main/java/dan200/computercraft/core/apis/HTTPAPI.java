@@ -155,7 +155,7 @@ public class HTTPAPI implements ILuaAPI
     @LuaFunction
     public final Object[] websocket( String address, Optional<Map<?, ?>> headerTbl ) throws LuaException
     {
-        if( !ComputerCraft.httpWebsocketEnabled )
+        if( !ComputerCraft.http_websocket_enable )
         {
             throw new LuaException( "Websocket connections are disabled" );
         }

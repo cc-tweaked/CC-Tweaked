@@ -16,8 +16,6 @@ import net.fabricmc.api.Environment;
 import net.minecraft.block.Blocks;
 import net.minecraft.client.util.ModelIdentifier;
 import net.minecraft.util.Identifier;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 import javax.annotation.Nonnull;
 

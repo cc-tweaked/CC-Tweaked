@@ -102,29 +102,29 @@ public class ItemTurtle extends ItemComputerBase implements ITurtleItem
         }
     }
 
-    @Nullable
-    @Override
-    public String getCreatorModId( ItemStack stack )
-    {
-        // Determine our "creator mod" from the upgrades. We attempt to find the first non-vanilla/non-CC
-        // upgrade (starting from the left).
-
-        ITurtleUpgrade left = getUpgrade( stack, TurtleSide.LEFT );
-        if( left != null )
-        {
-            String mod = TurtleUpgrades.getOwner( left );
-            if( mod != null && !mod.equals( ComputerCraft.MOD_ID ) ) return mod;
-        }
-
-        ITurtleUpgrade right = getUpgrade( stack, TurtleSide.RIGHT );
-        if( right != null )
-        {
-            String mod = TurtleUpgrades.getOwner( right );
-            if( mod != null && !mod.equals( ComputerCraft.MOD_ID ) ) return mod;
-        }
-
-        return super.getCreatorModId( stack );
-    }
+//    @Nullable
+//    @Override
+//    public String getCreatorModId( ItemStack stack )
+//    {
+//        // Determine our "creator mod" from the upgrades. We attempt to find the first non-vanilla/non-CC
+//        // upgrade (starting from the left).
+//
+//        ITurtleUpgrade left = getUpgrade( stack, TurtleSide.LEFT );
+//        if( left != null )
+//        {
+//            String mod = TurtleUpgrades.getOwner( left );
+//            if( mod != null && !mod.equals( ComputerCraft.MOD_ID ) ) return mod;
+//        }
+//
+//        ITurtleUpgrade right = getUpgrade( stack, TurtleSide.RIGHT );
+//        if( right != null )
+//        {
+//            String mod = TurtleUpgrades.getOwner( right );
+//            if( mod != null && !mod.equals( ComputerCraft.MOD_ID ) ) return mod;
+//        }
+//
+//        return super.getCreatorModId( stack );
+//    }
 
     @Override
     public ItemStack withFamily( @Nonnull ItemStack stack, @Nonnull ComputerFamily family )

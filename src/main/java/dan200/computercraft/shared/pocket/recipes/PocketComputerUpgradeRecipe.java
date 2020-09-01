@@ -43,12 +43,12 @@ public final class PocketComputerUpgradeRecipe extends SpecialCraftingRecipe
     @Override
     public boolean matches( @Nonnull CraftingInventory inventory, @Nonnull World world )
     {
-        return !getCraftingResult( inventory ).isEmpty();
+        return !craft( inventory ).isEmpty();
     }
 
     @Nonnull
     @Override
-    public ItemStack getCraftingResult( @Nonnull CraftingInventory inventory )
+    public ItemStack craft( @Nonnull CraftingInventory inventory )
     {
         // Scan the grid for a pocket computer
         ItemStack computer = ItemStack.EMPTY;

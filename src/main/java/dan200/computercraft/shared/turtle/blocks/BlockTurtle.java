@@ -39,7 +39,6 @@ import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
 import net.minecraft.world.explosion.Explosion;
-import net.minecraftforge.fml.RegistryObject;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -154,16 +153,22 @@ public class BlockTurtle extends BlockComputerBase<TileTurtle> implements Waterl
     }
 
     @Override
-    public float getExplosionResistance( BlockState state, BlockView world, BlockPos pos, Explosion explosion )
-    {
-        Entity exploder = explosion.getExploder();
-        if( getFamily() == ComputerFamily.ADVANCED || exploder instanceof LivingEntity || exploder instanceof ExplosiveProjectileEntity )
-        {
-            return 2000;
-        }
-
-        return super.getExplosionResistance( state, world, pos, explosion );
+    public float getBlastResistance() {
+        // TODO Implement below functionality
+        return 2000;
     }
+
+//    @Override
+//    public float getBlastResistance( BlockState state, BlockView world, BlockPos pos, Explosion explosion )
+//    {
+//        Entity exploder = explosion.getExploder();
+//        if( getFamily() == ComputerFamily.ADVANCED || exploder instanceof LivingEntity || exploder instanceof ExplosiveProjectileEntity )
+//        {
+//            return 2000;
+//        }
+//
+//        return super.getExplosionResistance( state, world, pos, explosion );
+//    }
 
     @Nonnull
     @Override

@@ -8,10 +8,9 @@ package dan200.computercraft.client;
 
 import java.util.HashSet;
 import java.util.function.Consumer;
-import java.util.function.Function;
 
 import dan200.computercraft.ComputerCraft;
-import dan200.computercraft.shared.Registry;
+import dan200.computercraft.shared.ComputerCraftRegistry;
 import dan200.computercraft.shared.common.IColouredItem;
 import dan200.computercraft.shared.media.items.ItemDisk;
 import dan200.computercraft.shared.media.items.ItemTreasureDisk;
@@ -23,7 +22,6 @@ import net.minecraft.client.render.model.BakedModel;
 import net.minecraft.client.render.model.ModelLoader;
 import net.minecraft.client.render.model.ModelRotation;
 import net.minecraft.client.render.model.UnbakedModel;
-import net.minecraft.client.texture.Sprite;
 import net.minecraft.client.texture.SpriteAtlasTexture;
 import net.minecraft.client.util.ModelIdentifier;
 import net.minecraft.resource.ResourceManager;
@@ -87,9 +85,9 @@ public final class ClientRegistry {
     public static void onItemColours() {
         ColorProviderRegistry.ITEM.register((stack, layer) -> {
             return layer == 1 ? ((ItemDisk) stack.getItem()).getColour(stack) : 0xFFFFFF;
-        }, Registry.ModItems.DISK);
+        }, ComputerCraftRegistry.ModItems.DISK);
 
-        ColorProviderRegistry.ITEM.register((stack, layer) -> layer == 1 ? ItemTreasureDisk.getColour(stack) : 0xFFFFFF, Registry.ModItems.TREASURE_DISK);
+        ColorProviderRegistry.ITEM.register((stack, layer) -> layer == 1 ? ItemTreasureDisk.getColour(stack) : 0xFFFFFF, ComputerCraftRegistry.ModItems.TREASURE_DISK);
 
         ColorProviderRegistry.ITEM.register((stack, layer) -> {
             switch (layer) {
@@ -104,12 +102,12 @@ public final class ClientRegistry {
                 return light == -1 ? Colour.BLACK.getHex() : light;
             }
             }
-        }, Registry.ModItems.POCKET_COMPUTER_NORMAL, Registry.ModItems.POCKET_COMPUTER_ADVANCED);
+        }, ComputerCraftRegistry.ModItems.POCKET_COMPUTER_NORMAL, ComputerCraftRegistry.ModItems.POCKET_COMPUTER_ADVANCED);
 
         // Setup turtle colours
         ColorProviderRegistry.ITEM.register((stack, tintIndex) -> tintIndex == 0 ? ((IColouredItem) stack.getItem()).getColour(stack) : 0xFFFFFF,
-                                            Registry.ModBlocks.TURTLE_NORMAL,
-                                            Registry.ModBlocks.TURTLE_ADVANCED);
+                                            ComputerCraftRegistry.ModBlocks.TURTLE_NORMAL,
+                                            ComputerCraftRegistry.ModBlocks.TURTLE_ADVANCED);
     }
 
     private static BakedModel bake(ModelLoader loader, UnbakedModel model, Identifier identifier) {

@@ -31,7 +31,7 @@ public class PrinterPeripheral implements IPeripheral
 
     @Nonnull
     @Override
-    public String getType0()
+    public String getType()
     {
         return "printer";
     }

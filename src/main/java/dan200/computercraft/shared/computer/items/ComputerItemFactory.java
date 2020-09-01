@@ -5,7 +5,7 @@
  */
 package dan200.computercraft.shared.computer.items;
 
-import dan200.computercraft.shared.Registry;
+import dan200.computercraft.shared.ComputerCraftRegistry;
 import dan200.computercraft.shared.computer.blocks.TileComputer;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import net.minecraft.item.ItemStack;
@@ -28,11 +28,11 @@ public final class ComputerItemFactory
         switch( family )
         {
             case NORMAL:
-                return Registry.ModItems.COMPUTER_NORMAL.get().create( id, label );
+                return ComputerCraftRegistry.ModItems.COMPUTER_NORMAL.create( id, label );
             case ADVANCED:
-                return Registry.ModItems.COMPUTER_ADVANCED.get().create( id, label );
+                return ComputerCraftRegistry.ModItems.COMPUTER_ADVANCED.create( id, label );
             case COMMAND:
-                return Registry.ModItems.COMPUTER_COMMAND.get().create( id, label );
+                return ComputerCraftRegistry.ModItems.COMPUTER_COMMAND.create( id, label );
             default:
                 return ItemStack.EMPTY;
         }

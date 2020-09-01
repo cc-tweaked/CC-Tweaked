@@ -9,8 +9,8 @@ import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.computer.core.IContainerComputer;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.network.NetworkMessage;
+import net.fabricmc.fabric.api.network.PacketContext;
 import net.minecraft.network.PacketByteBuf;
-import net.minecraftforge.fml.network.NetworkEvent;
 
 import javax.annotation.Nonnull;
 
@@ -46,12 +46,12 @@ public abstract class ComputerServerMessage implements NetworkMessage
     }
 
     @Override
-    public void handle( NetworkEvent.Context context )
+    public void handle( PacketContext context )
     {
         ServerComputer computer = ComputerCraft.serverComputerRegistry.get( instanceId );
         if( computer == null ) return;
 
-        IContainerComputer container = computer.getContainer( context.getSender() );
+        IContainerComputer container = computer.getContainer( context.getPlayer() );
         if( container == null ) return;
 
         handle( computer, container );

@@ -22,10 +22,6 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.util.math.Vector3f;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.Matrix4f;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.RenderHandEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
 import org.lwjgl.opengl.GL11;
 
 import static dan200.computercraft.client.gui.FixedWidthFontRenderer.FONT_HEIGHT;
@@ -36,28 +32,14 @@ import static dan200.computercraft.client.render.ComputerBorderRenderer.MARGIN;
 /**
  * Emulates map rendering for pocket computers.
  */
-@Mod.EventBusSubscriber( modid = ComputerCraft.MOD_ID, value = Dist.CLIENT )
 public final class ItemPocketRenderer extends ItemMapLikeRenderer
 {
     private static final int LIGHT_HEIGHT = 8;
 
-    private static final ItemPocketRenderer INSTANCE = new ItemPocketRenderer();
+    public static final ItemPocketRenderer INSTANCE = new ItemPocketRenderer();
 
     private ItemPocketRenderer()
     {
-    }
-
-    @SubscribeEvent
-    public static void onRenderInHand( RenderHandEvent event )
-    {
-        ItemStack stack = event.getItemStack();
-        if( !(stack.getItem() instanceof ItemPocketComputer) ) return;
-
-        event.setCanceled( true );
-        INSTANCE.renderItemFirstPerson(
-            event.getMatrixStack(), event.getBuffers(), event.getLight(),
-            event.getHand(), event.getInterpolatedPitch(), event.getEquipProgress(), event.getSwingProgress(), event.getItemStack()
-        );
     }
 
     @Override
@@ -69,8 +51,8 @@ public final class ItemPocketRenderer extends ItemMapLikeRenderer
         int termWidth, termHeight;
         if( terminal == null )
         {
-            termWidth = ComputerCraft.pocketTermWidth;
-            termHeight = ComputerCraft.pocketTermHeight;
+            termWidth = ComputerCraft.terminalWidth_pocketComputer;
+            termHeight = ComputerCraft.terminalHeight_pocketComputer;
         }
         else
         {

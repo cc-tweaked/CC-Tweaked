@@ -18,10 +18,7 @@ import dan200.computercraft.shared.computer.blocks.ComputerProxy;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.turtle.blocks.TileTurtle;
-import dan200.computercraft.shared.util.Colour;
-import dan200.computercraft.shared.util.Holiday;
-import dan200.computercraft.shared.util.HolidayUtil;
-import dan200.computercraft.shared.util.InventoryDelegate;
+import dan200.computercraft.shared.util.*;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
@@ -40,9 +37,6 @@ import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-import net.minecraftforge.common.util.Constants;
-import net.minecraftforge.items.IItemHandlerModifiable;
-import net.minecraftforge.items.wrapper.InvWrapper;
 
 import javax.annotation.Nonnull;
 import java.util.*;
@@ -69,7 +63,6 @@ public class TurtleBrain implements ITurtleAccess
     private GameProfile m_owningPlayer;
 
     private final Inventory m_inventory = (InventoryDelegate) () -> m_owner;
-    private final IItemHandlerModifiable m_inventoryWrapper = new InvWrapper( m_inventory );
 
     private final Queue<TurtleCommandQueueEntry> m_commandQueue = new ArrayDeque<>();
     private int m_commandsIssued = 0;
@@ -299,7 +292,7 @@ public class TurtleBrain implements ITurtleAccess
         }
 
         // Ensure the chunk is loaded
-        if( !world.isAreaLoaded( pos, 0 ) ) return false;
+        if( !world.isChunkLoaded( pos ) ) return false;
 
         // Ensure we're inside the world border
         if( !world.getWorldBorder().contains( pos ) ) return false;
@@ -432,13 +425,6 @@ public class TurtleBrain implements ITurtleAccess
     public Inventory getInventory()
     {
         return m_inventory;
-    }
-
-    @Nonnull
-    @Override
-    public IItemHandlerModifiable getItemHandler()
-    {
-        return m_inventoryWrapper;
     }
 
     @Override

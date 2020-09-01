@@ -5,6 +5,7 @@
  */
 package dan200.computercraft.shared.common;
 
+import net.fabricmc.fabric.api.block.entity.BlockEntityClientSerializable;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
@@ -18,7 +19,7 @@ import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import javax.annotation.Nonnull;
 
-public abstract class TileGeneric extends BlockEntity
+public abstract class TileGeneric extends BlockEntity implements BlockEntityClientSerializable
 {
     public TileGeneric( BlockEntityType<? extends TileGeneric> type )
     {
@@ -89,9 +90,14 @@ public abstract class TileGeneric extends BlockEntity
     }
 
     @Override
-    public final void onDataPacket( ClientConnection net, BlockEntityUpdateS2CPacket packet )
-    {
-        if( packet.getBlockEntityType() == 0 ) readDescription( packet.getCompoundTag() );
+    public CompoundTag toClientTag(CompoundTag compoundTag) {
+        writeDescription(compoundTag);
+        return compoundTag;
+    }
+
+    @Override
+    public void fromClientTag(CompoundTag compoundTag) {
+        readDescription(compoundTag);
     }
 
     @Nonnull
@@ -101,12 +107,5 @@ public abstract class TileGeneric extends BlockEntity
         CompoundTag tag = super.toInitialChunkDataTag();
         writeDescription( tag );
         return tag;
-    }
-
-    @Override
-    public void handleUpdateTag( @Nonnull BlockState state, @Nonnull CompoundTag tag )
-    {
-        super.handleUpdateTag( state, tag );
-        readDescription( tag );
     }
 }

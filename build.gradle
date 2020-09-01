@@ -50,7 +50,7 @@ dependencies {
 
     compile 'javax.vecmath:vecmath:1.5.2'
 
-    shade 'org.squiddev:Cobalt:0.5.0-SNAPSHOT'
+    shade 'org.squiddev:Cobalt:0.5.1-SNAPSHOT'
 
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.1.0'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.1.0'

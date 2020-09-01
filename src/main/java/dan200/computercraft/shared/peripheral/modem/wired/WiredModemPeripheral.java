@@ -317,7 +317,7 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements IW
             this.computer = computer;
             this.name = name;
 
-            type = Objects.requireNonNull(peripheral.getType0(), "Peripheral type cannot be null" );
+            type = Objects.requireNonNull( peripheral.getType(), "Peripheral type cannot be null" );
             methodMap = PeripheralAPI.getMethods( peripheral );
         }
 

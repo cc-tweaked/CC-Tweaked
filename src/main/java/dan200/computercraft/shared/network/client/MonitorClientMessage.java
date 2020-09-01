@@ -8,12 +8,12 @@ package dan200.computercraft.shared.network.client;
 
 import dan200.computercraft.shared.network.NetworkMessage;
 import dan200.computercraft.shared.peripheral.monitor.TileMonitor;
+import net.fabricmc.fabric.api.network.PacketContext;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.fml.network.NetworkEvent;
 
 import javax.annotation.Nonnull;
 
@@ -42,7 +42,7 @@ public class MonitorClientMessage implements NetworkMessage
     }
 
     @Override
-    public void handle( NetworkEvent.Context context )
+    public void handle( PacketContext context )
     {
         ClientPlayerEntity player = MinecraftClient.getInstance().player;
         if( player == null || player.world == null ) return;

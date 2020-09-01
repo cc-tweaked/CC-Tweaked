@@ -5,9 +5,7 @@
  */
 package dan200.computercraft.shared.peripheral.modem.wired;
 
-import dan200.computercraft.shared.Registry;
 import dan200.computercraft.shared.common.BlockGeneric;
-import dan200.computercraft.shared.peripheral.monitor.TileMonitor;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;

@@ -1,15 +1,11 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2018. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.core.filesystem;
 
 import dan200.computercraft.api.filesystem.IMount;
-import net.minecraft.resource.DirectoryResourcePack;
-import net.minecraft.resource.ReloadableResourceManagerImpl;
-import net.minecraft.resource.ResourceType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -29,10 +25,10 @@ public class ResourceMountTest
     @BeforeEach
     public void before()
     {
-        ReloadableResourceManagerImpl manager = new ReloadableResourceManagerImpl( ResourceType.SERVER_DATA, null );
-        manager.addPack( new DirectoryResourcePack( new File( "src/main/resources" ) ) );
-
-        mount = new ResourceMount( "computercraft", "lua/rom", manager );
+//        ReloadableResourceManager manager = new SimpleResourceReloadListener(ResourceType.SERVER_DATA);
+//        manager.addResourcePack( new FolderPack( new File( "src/main/resources" ) ) );
+//
+//        mount = ResourceMount.get( "computercraft", "lua/rom", manager );
     }
 
     @Test
@@ -43,7 +39,7 @@ public class ResourceMountTest
         files.sort( Comparator.naturalOrder() );
 
         assertEquals(
-            Arrays.asList( "apis", "autorun", "help", "modules", "programs", "startup.lua" ),
+            Arrays.asList( "apis", "autorun", "help", "modules", "motd.txt", "programs", "startup.lua" ),
             files
         );
     }

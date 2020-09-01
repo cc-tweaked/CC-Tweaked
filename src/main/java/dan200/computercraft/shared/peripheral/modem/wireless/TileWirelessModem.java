@@ -9,7 +9,6 @@ import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.shared.common.TileGeneric;
 import dan200.computercraft.shared.peripheral.modem.ModemPeripheral;
 import dan200.computercraft.shared.peripheral.modem.ModemState;
-import dan200.computercraft.shared.util.CapabilityUtil;
 import dan200.computercraft.shared.util.TickScheduler;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntityType;
@@ -17,13 +16,9 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.util.LazyOptional;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-
-import static dan200.computercraft.shared.Capabilities.CAPABILITY_PERIPHERAL;
 
 public class TileWirelessModem extends TileGeneric
 {
@@ -72,7 +67,6 @@ public class TileWirelessModem extends TileGeneric
     private Direction modemDirection = Direction.DOWN;
     private final ModemPeripheral modem;
     private boolean destroyed = false;
-    private LazyOptional<IPeripheral> modemCap;
 
     public TileWirelessModem( BlockEntityType<? extends TileWirelessModem> type, boolean advanced )
     {
@@ -82,9 +76,9 @@ public class TileWirelessModem extends TileGeneric
     }
 
     @Override
-    public void onLoad()
+    public void cancelRemoval()
     {
-        super.onLoad();
+        super.cancelRemoval();
         TickScheduler.schedule( this );
     }
 
@@ -114,8 +108,6 @@ public class TileWirelessModem extends TileGeneric
         // Invalidate the capability if the direction has changed. I'm not 100% happy with this implementation
         //  - ideally we'd do it within refreshDirection or updateContainingBlockInfo, but this seems the _safest_
         //  place.
-        if( currentDirection != modemDirection ) modemCap = CapabilityUtil.invalidate( modemCap );
-
         if( modem.getModemState().pollChanged() ) updateBlockState();
     }
 
@@ -135,20 +127,5 @@ public class TileWirelessModem extends TileGeneric
         {
             getWorld().setBlockState( getPos(), state.with( BlockWirelessModem.ON, on ) );
         }
-    }
-
-    @Nonnull
-    @Override
-    public <T> LazyOptional<T> getCapability( @Nonnull Capability<T> cap, @Nullable Direction side )
-    {
-        if( cap == CAPABILITY_PERIPHERAL )
-        {
-            refreshDirection();
-            if( side != null && modemDirection != side ) return LazyOptional.empty();
-            if( modemCap == null ) modemCap = LazyOptional.of( () -> modem );
-            return modemCap.cast();
-        }
-
-        return super.getCapability( cap, side );
     }
 }

@@ -12,14 +12,13 @@ import com.google.common.io.ByteStreams;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.core.apis.handles.ArrayByteChannel;
-import dan200.computercraft.core.filesystem.ResourceMount.Listener;
 import net.minecraft.resource.ReloadableResourceManager;
 import net.minecraft.resource.Resource;
 import net.minecraft.resource.ResourceManager;
+import net.minecraft.resource.ResourceReloadListener;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.InvalidIdentifierException;
-import net.minecraftforge.resource.IResourceType;
-import net.minecraftforge.resource.ISelectiveResourceReloadListener;
+import net.minecraft.util.profiler.Profiler;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -29,6 +28,8 @@ import java.io.InputStream;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 
@@ -271,12 +272,10 @@ public final class ResourceMount implements IMount
     }
 
     /**
-     * A {@link ISelectiveResourceReloadListener} which reloads any associated mounts.
-     *
      * While people should really be keeping a permanent reference to this, some people construct it every
      * method call, so let's make this as small as possible.
      */
-    static class Listener implements ISelectiveResourceReloadListener
+    static class Listener implements ResourceReloadListener
     {
         private static final Listener INSTANCE = new Listener();
 
@@ -284,22 +283,25 @@ public final class ResourceMount implements IMount
         private final Set<ReloadableResourceManager> managers = Collections.newSetFromMap( new WeakHashMap<>() );
 
         @Override
-        public void apply( @Nonnull ResourceManager manager )
-        {
-            // FIXME: Remove this. We need this patch in order to prevent trying to load ReloadRequirements.
-            onResourceManagerReload( manager, x -> true );
+        public CompletableFuture<Void> reload(Synchronizer synchronizer, ResourceManager resourceManager, Profiler profiler, Profiler profiler1,
+                                              Executor executor, Executor executor1) {
+            return CompletableFuture.runAsync(() -> {
+                profiler.push("Mount reloading");
+                try {
+                    for (ResourceMount mount : this.mounts) {
+                        mount.load();
+                    }
+                } finally {
+                    profiler.pop();
+                }
+            }, executor);
         }
 
-        @Override
-        public synchronized void onResourceManagerReload( @Nonnull ResourceManager manager, @Nonnull Predicate<IResourceType> predicate )
-        {
-            for( ResourceMount mount : mounts ) mount.load();
-        }
-
-        synchronized void add( ReloadableResourceManager manager, ResourceMount mount )
-        {
-            if( managers.add( manager ) ) manager.registerListener( this );
-            mounts.add( mount );
+        synchronized void add(ReloadableResourceManager manager, ResourceMount mount) {
+            if (this.managers.add(manager)) {
+                manager.registerListener(this);
+            }
+            this.mounts.add(mount);
         }
     }
 }

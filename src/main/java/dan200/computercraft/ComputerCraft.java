@@ -6,8 +6,9 @@
 
 package dan200.computercraft;
 
-import static dan200.computercraft.shared.Registry.*;
+import static dan200.computercraft.shared.ComputerCraftRegistry.*;
 
+import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
@@ -17,15 +18,17 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import dan200.computercraft.api.turtle.event.TurtleAction;
+import dan200.computercraft.core.apis.AddressPredicate;
 import dan200.computercraft.core.apis.http.options.Action;
 import dan200.computercraft.core.apis.http.options.AddressRule;
-import dan200.computercraft.core.asm.GenericSource;
-import dan200.computercraft.shared.Config;
+import dan200.computercraft.core.apis.http.websocket.Websocket;
+import dan200.computercraft.shared.ComputerCraftRegistry;
 import dan200.computercraft.shared.computer.core.ClientComputerRegistry;
 import dan200.computercraft.shared.computer.core.ServerComputerRegistry;
 import dan200.computercraft.shared.peripheral.monitor.MonitorRenderer;
 import dan200.computercraft.shared.pocket.peripherals.PocketModem;
 import dan200.computercraft.shared.pocket.peripherals.PocketSpeaker;
+import dan200.computercraft.shared.proxy.ComputerCraftProxyCommon;
 import dan200.computercraft.shared.turtle.upgrades.TurtleAxe;
 import dan200.computercraft.shared.turtle.upgrades.TurtleCraftingTable;
 import dan200.computercraft.shared.turtle.upgrades.TurtleHoe;
@@ -34,7 +37,12 @@ import dan200.computercraft.shared.turtle.upgrades.TurtleShovel;
 import dan200.computercraft.shared.turtle.upgrades.TurtleSpeaker;
 import dan200.computercraft.shared.turtle.upgrades.TurtleSword;
 import dan200.computercraft.shared.turtle.upgrades.TurtleTool;
-import dan200.computercraft.shared.util.ServiceUtil;
+import dan200.computercraft.shared.util.Config;
+import net.fabricmc.fabric.api.client.itemgroup.FabricItemGroupBuilder;
+import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.item.ItemGroup;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.Identifier;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -43,52 +51,59 @@ import net.fabricmc.api.ModInitializer;
 public final class ComputerCraft implements ModInitializer {
     public static final String MOD_ID = "computercraft";
 
+    public static ItemGroup MAIN_GROUP = FabricItemGroupBuilder.build(new Identifier(MOD_ID, "main"), () -> new ItemStack(ModBlocks.COMPUTER_NORMAL));
+
     // Configuration options
-    public static final String[] DEFAULT_HTTP_ALLOW = new String[] {"*"};
-    public static final String[] DEFAULT_HTTP_DENY = new String[] {
+    public static final String[] DEFAULT_HTTP_WHITELIST = new String[] {"*"};
+    public static final String[] DEFAULT_HTTP_BLACKLIST = new String[] {
         "127.0.0.0/8",
         "10.0.0.0/8",
         "172.16.0.0/12",
         "192.168.0.0/16",
         "fd00::/8",
-        };
-
+    };
+    public static List<AddressRule> httpRules = Collections.unmodifiableList( Stream.concat(
+        Stream.of( DEFAULT_HTTP_BLACKLIST )
+            .map( x -> AddressRule.parse( x, Action.DENY.toPartial() ) )
+            .filter( Objects::nonNull ),
+        Stream.of( DEFAULT_HTTP_WHITELIST )
+            .map( x -> AddressRule.parse( x, Action.ALLOW.toPartial() ) )
+            .filter( Objects::nonNull )
+    ).collect( Collectors.toList() ) );
+    public static boolean commandRequireCreative = false;
+    public static MonitorRenderer monitorRenderer = MonitorRenderer.BEST;
+    public static final int terminalWidth_computer = 51;
+    public static final int terminalHeight_computer = 19;
+    public static final int terminalWidth_turtle = 39;
+    public static final int terminalHeight_turtle = 13;
+    public static final int terminalWidth_pocketComputer = 26;
+    public static final int terminalHeight_pocketComputer = 20;
     public static int computerSpaceLimit = 1000 * 1000;
     public static int floppySpaceLimit = 125 * 1000;
     public static int maximumFilesOpen = 128;
-    public static boolean disableLua51Features = false;
-    public static String defaultComputerSettings = "";
-    public static boolean debugEnable = true;
-    public static boolean logComputerErrors = true;
-    public static boolean commandRequireCreative = true;
-
-    public static int computerThreads = 1;
+    public static boolean disable_lua51_features = false;
+    public static String default_computer_settings = "";
+    public static boolean debug_enable = true;
+    public static boolean logPeripheralErrors = false;
+    public static int computer_threads = 1;
     public static long maxMainGlobalTime = TimeUnit.MILLISECONDS.toNanos(10);
     public static long maxMainComputerTime = TimeUnit.MILLISECONDS.toNanos(5);
-
-    public static boolean httpEnabled = true;
-    public static boolean httpWebsocketEnabled = true;
-    public static List<AddressRule> httpRules = Collections.unmodifiableList(Stream.concat(Stream.of(DEFAULT_HTTP_DENY)
-                                                                                                 .map(x -> AddressRule.parse(x, Action.DENY.toPartial()))
-                                                                                                 .filter(Objects::nonNull),
-                                                                                           Stream.of(DEFAULT_HTTP_ALLOW)
-                                                                                                 .map(x -> AddressRule.parse(x, Action.ALLOW.toPartial()))
-                                                                                                 .filter(Objects::nonNull))
-                                                                                   .collect(Collectors.toList()));
-
+    public static boolean http_enable = true;
+    public static boolean http_websocket_enable = true;
+    public static AddressPredicate http_whitelist = new AddressPredicate(DEFAULT_HTTP_WHITELIST);
+    public static AddressPredicate http_blacklist = new AddressPredicate(DEFAULT_HTTP_BLACKLIST);
+    public static int httpTimeout = 30000;
     public static int httpMaxRequests = 16;
+    public static long httpMaxDownload = 16 * 1024 * 1024;
+    public static long httpMaxUpload = 4 * 1024 * 1024;
     public static int httpMaxWebsockets = 4;
-
+    public static int httpMaxWebsocketMessage = Websocket.MAX_MESSAGE_SIZE;
     public static boolean enableCommandBlock = false;
-    public static int modemRange = 64;
-    public static int modemHighAltitudeRange = 384;
-    public static int modemRangeDuringStorm = 64;
-    public static int modemHighAltitudeRangeDuringStorm = 384;
+    public static int modem_range = 64;
+    public static int modem_highAltitudeRange = 384;
+    public static int modem_rangeDuringStorm = 64;
+    public static int modem_highAltitudeRangeDuringStorm = 384;
     public static int maxNotesPerTick = 8;
-    public static MonitorRenderer monitorRenderer = MonitorRenderer.BEST;
-    public static double monitorDistanceSq = 4096;
-    public static long monitorBandwidth = 1_000_000;
-
     public static boolean turtlesNeedFuel = true;
     public static int turtleFuelLimit = 20000;
     public static int advancedTurtleFuelLimit = 100000;
@@ -96,19 +111,9 @@ public final class ComputerCraft implements ModInitializer {
     public static boolean turtlesCanPush = true;
     public static EnumSet<TurtleAction> turtleDisabledActions = EnumSet.noneOf(TurtleAction.class);
 
-    public static boolean genericPeripheral = false;
-
-    public static int computerTermWidth = 51;
-    public static int computerTermHeight = 19;
-
-    public static final int turtleTermWidth = 39;
-    public static final int turtleTermHeight = 13;
-
-    public static int pocketTermWidth = 26;
-    public static int pocketTermHeight = 20;
-
     public static int monitorWidth = 8;
     public static int monitorHeight = 6;
+    public static double monitorDistanceSq = 4096;
 
     public static final class TurtleUpgrades {
         public static TurtleModem wirelessModemNormal;
@@ -139,10 +144,8 @@ public final class ComputerCraft implements ModInitializer {
 
     @Override
     public void onInitialize() {
-        Config.setup();
-        GenericSource.setup(() -> ServiceUtil.loadServicesForge(GenericSource.class));
+        Config.load(Paths.get(FabricLoader.getInstance().getConfigDir().toFile().getPath(), MOD_ID + ".json5"));
+        ComputerCraftProxyCommon.init();
         init();
     }
-
-
 }

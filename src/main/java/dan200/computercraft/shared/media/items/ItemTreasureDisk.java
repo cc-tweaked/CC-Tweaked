@@ -9,7 +9,7 @@ import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.api.media.IMedia;
 import dan200.computercraft.core.filesystem.SubMount;
-import dan200.computercraft.shared.Registry;
+import dan200.computercraft.shared.ComputerCraftRegistry;
 import dan200.computercraft.shared.util.Colour;
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.entity.player.PlayerEntity;
@@ -52,12 +52,6 @@ public class ItemTreasureDisk extends Item implements IMedia
     }
 
     @Override
-    public boolean doesSneakBypassUse( @Nonnull ItemStack stack, WorldView world, BlockPos pos, PlayerEntity player )
-    {
-        return true;
-    }
-
-    @Override
     public String getLabel( @Nonnull ItemStack stack )
     {
         return getTitle( stack );
@@ -91,7 +85,7 @@ public class ItemTreasureDisk extends Item implements IMedia
 
     public static ItemStack create( String subPath, int colourIndex )
     {
-        ItemStack result = new ItemStack( Registry.ModItems.TREASURE_DISK.get() );
+        ItemStack result = new ItemStack( ComputerCraftRegistry.ModItems.TREASURE_DISK );
         CompoundTag nbt = result.getOrCreateTag();
         nbt.putString( NBT_SUB_PATH, subPath );
 

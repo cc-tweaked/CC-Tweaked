@@ -46,7 +46,7 @@ public class PeripheralAPI implements ILuaAPI, IAPIEnvironment.IPeripheralChange
             this.peripheral = peripheral;
             attached = false;
 
-            type = Objects.requireNonNull(peripheral.getType0(), "Peripheral type cannot be null" );
+            type = Objects.requireNonNull( peripheral.getType(), "Peripheral type cannot be null" );
 
             methodMap = PeripheralAPI.getMethods( peripheral );
         }

@@ -67,7 +67,7 @@ public class DiskRecipe extends SpecialCraftingRecipe
 
     @Nonnull
     @Override
-    public ItemStack getCraftingResult( @Nonnull CraftingInventory inv )
+    public ItemStack craft( @Nonnull CraftingInventory inv )
     {
         ColourTracker tracker = new ColourTracker();
 

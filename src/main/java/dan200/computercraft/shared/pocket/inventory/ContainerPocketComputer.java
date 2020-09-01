@@ -5,16 +5,19 @@
  */
 package dan200.computercraft.shared.pocket.inventory;
 
-import dan200.computercraft.shared.Registry;
+import dan200.computercraft.shared.ComputerCraftRegistry;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.computer.inventory.ContainerComputerBase;
 import dan200.computercraft.shared.network.container.ComputerContainerData;
 import dan200.computercraft.shared.pocket.items.ItemPocketComputer;
+import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.screen.NamedScreenHandlerFactory;
 import net.minecraft.screen.ScreenHandler;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Hand;
 import javax.annotation.Nonnull;
@@ -24,18 +27,18 @@ public final class ContainerPocketComputer extends ContainerComputerBase
 {
     private ContainerPocketComputer( int id, ServerComputer computer, ItemPocketComputer item, Hand hand )
     {
-        super( Registry.ModContainers.POCKET_COMPUTER.get(), id, p -> {
+        super( ComputerCraftRegistry.ModContainers.POCKET_COMPUTER, id, p -> {
             ItemStack stack = p.getStackInHand( hand );
             return stack.getItem() == item && ItemPocketComputer.getServerComputer( stack ) == computer;
         }, computer, item.getFamily() );
     }
 
-    public ContainerPocketComputer( int id, PlayerInventory player, ComputerContainerData data )
+    public ContainerPocketComputer( int id, PlayerInventory player, PacketByteBuf packetByteBuf )
     {
-        super( Registry.ModContainers.POCKET_COMPUTER.get(), id, player, data );
+        super( ComputerCraftRegistry.ModContainers.POCKET_COMPUTER, id, player, packetByteBuf );
     }
 
-    public static class Factory implements NamedScreenHandlerFactory
+    public static class Factory implements NamedScreenHandlerFactory, ExtendedScreenHandlerFactory
     {
         private final ServerComputer computer;
         private final Text name;
@@ -63,6 +66,12 @@ public final class ContainerPocketComputer extends ContainerComputerBase
         public ScreenHandler createMenu( int id, @Nonnull PlayerInventory inventory, @Nonnull PlayerEntity entity )
         {
             return new ContainerPocketComputer( id, computer, item, hand );
+        }
+
+        @Override
+        public void writeScreenOpeningData(ServerPlayerEntity serverPlayerEntity, PacketByteBuf packetByteBuf) {
+            packetByteBuf.writeInt(computer.getInstanceID());
+            packetByteBuf.writeEnumConstant(computer.getFamily());
         }
     }
 }

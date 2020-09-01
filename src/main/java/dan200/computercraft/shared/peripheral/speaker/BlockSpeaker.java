@@ -5,7 +5,7 @@
  */
 package dan200.computercraft.shared.peripheral.speaker;
 
-import dan200.computercraft.shared.Registry;
+import dan200.computercraft.shared.ComputerCraftRegistry;
 import dan200.computercraft.shared.common.BlockGeneric;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -22,7 +22,7 @@ public class BlockSpeaker extends BlockGeneric
 
     public BlockSpeaker( Settings settings )
     {
-        super( settings, Registry.ModTiles.SPEAKER );
+        super( settings, ComputerCraftRegistry.ModTiles.SPEAKER );
         setDefaultState( getStateManager().getDefaultState()
             .with( FACING, Direction.NORTH ) );
     }

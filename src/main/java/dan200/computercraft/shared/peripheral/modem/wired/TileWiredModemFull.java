@@ -6,6 +6,7 @@
 package dan200.computercraft.shared.peripheral.modem.wired;
 
 import com.google.common.base.Objects;
+import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.network.wired.IWiredElement;
 import dan200.computercraft.api.network.wired.IWiredNode;
@@ -13,9 +14,7 @@ import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.shared.command.CommandCopy;
 import dan200.computercraft.shared.common.TileGeneric;
 import dan200.computercraft.shared.peripheral.modem.ModemState;
-import dan200.computercraft.shared.util.CapabilityUtil;
 import dan200.computercraft.shared.util.DirectionUtil;
-import dan200.computercraft.shared.util.SidedCaps;
 import dan200.computercraft.shared.util.TickScheduler;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntityType;
@@ -30,16 +29,11 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.common.util.NonNullConsumer;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
 
-import static dan200.computercraft.shared.Capabilities.CAPABILITY_PERIPHERAL;
-import static dan200.computercraft.shared.Capabilities.CAPABILITY_WIRED_ELEMENT;
 import static dan200.computercraft.shared.peripheral.modem.wired.BlockWiredModemFull.MODEM_ON;
 import static dan200.computercraft.shared.peripheral.modem.wired.BlockWiredModemFull.PERIPHERAL_ON;
 
@@ -93,7 +87,6 @@ public class TileWiredModemFull extends TileGeneric
     }
 
     private final WiredModemPeripheral[] modems = new WiredModemPeripheral[6];
-    private final SidedCaps<IPeripheral> modemCaps = SidedCaps.ofNonNull( this::getPeripheral );
 
     private boolean m_peripheralAccessAllowed = false;
     private final WiredModemLocalPeripheral[] m_peripherals = new WiredModemLocalPeripheral[6];
@@ -103,10 +96,7 @@ public class TileWiredModemFull extends TileGeneric
 
     private final ModemState m_modemState = new ModemState( () -> TickScheduler.schedule( this ) );
     private final WiredModemElement m_element = new FullElement( this );
-    private LazyOptional<IWiredElement> elementCap;
     private final IWiredNode m_node = m_element.getNode();
-
-    private final NonNullConsumer<LazyOptional<IWiredElement>> connectedNodeChanged = x -> connectionsChanged();
 
     public TileWiredModemFull( BlockEntityType<TileWiredModemFull> type )
     {
@@ -114,7 +104,7 @@ public class TileWiredModemFull extends TileGeneric
         for( int i = 0; i < m_peripherals.length; i++ )
         {
             Direction facing = Direction.byId( i );
-            m_peripherals[i] = new WiredModemLocalPeripheral( () -> refreshPeripheral( facing ) );
+            m_peripherals[i] = new WiredModemLocalPeripheral();
         }
     }
 
@@ -136,21 +126,6 @@ public class TileWiredModemFull extends TileGeneric
             doRemove();
         }
         super.destroy();
-    }
-
-    @Override
-    public void onChunkUnloaded()
-    {
-        super.onChunkUnloaded();
-        doRemove();
-    }
-
-    @Override
-    protected void invalidateCaps()
-    {
-        super.invalidateCaps();
-        elementCap = CapabilityUtil.invalidate( elementCap );
-        modemCaps.invalidate();
     }
 
     @Override
@@ -218,7 +193,7 @@ public class TileWiredModemFull extends TileGeneric
         for( int i = 0; i < names.size(); i++ )
         {
             if( i > 0 ) base.append( ", " );
-            base.append( CommandCopy.createCopyText( names.get( i ) ) );
+            base.append(CommandCopy.createCopyText( names.get( i ) ) );
         }
 
         player.sendMessage( new TranslatableText( kind, base ), false );
@@ -251,9 +226,9 @@ public class TileWiredModemFull extends TileGeneric
     }
 
     @Override
-    public void onLoad()
+    public void cancelRemoval()
     {
-        super.onLoad();
+        super.cancelRemoval();
         TickScheduler.schedule( this );
     }
 
@@ -289,13 +264,12 @@ public class TileWiredModemFull extends TileGeneric
         for( Direction facing : DirectionUtil.FACINGS )
         {
             BlockPos offset = current.offset( facing );
-            if( !world.isAreaLoaded( offset, 0 ) ) continue;
+            if( !world.isChunkLoaded(offset) ) continue;
 
-            LazyOptional<IWiredElement> element = ComputerCraftAPI.getWiredElementAt( world, offset, facing.getOpposite() );
-            if( !element.isPresent() ) continue;
+            IWiredElement element = ComputerCraftAPI.getWiredElementAt( world, offset, facing.getOpposite() );
+            if( element == null ) continue;
 
-            element.addListener( connectedNodeChanged );
-            m_node.connectTo( element.orElseThrow( NullPointerException::new ).getNode() );
+            m_node.connectTo( element.getNode() );
         }
     }
 
@@ -360,21 +334,6 @@ public class TileWiredModemFull extends TileGeneric
         }
 
         m_node.updatePeripherals( peripherals );
-    }
-
-    @Nonnull
-    @Override
-    public <T> LazyOptional<T> getCapability( @Nonnull Capability<T> capability, @Nullable Direction side )
-    {
-        if( capability == CAPABILITY_WIRED_ELEMENT )
-        {
-            if( elementCap == null ) elementCap = LazyOptional.of( () -> m_element );
-            return elementCap.cast();
-        }
-
-        if( capability == CAPABILITY_PERIPHERAL ) return modemCaps.get( side ).cast();
-
-        return super.getCapability( capability, side );
     }
 
     public IWiredElement getElement()

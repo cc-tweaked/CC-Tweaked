@@ -203,7 +203,7 @@ public class HttpRequest extends Resource<HttpRequest>
         catch( Exception e )
         {
             failure( "Could not connect" );
-            if( ComputerCraft.logComputerErrors ) ComputerCraft.log.error( "Error in HTTP request", e );
+            if( ComputerCraft.logPeripheralErrors ) ComputerCraft.log.error( "Error in HTTP request", e );
         }
     }
 

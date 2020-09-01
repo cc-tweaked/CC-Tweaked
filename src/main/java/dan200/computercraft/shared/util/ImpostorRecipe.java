@@ -16,7 +16,6 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.JsonHelper;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.world.World;
-import net.minecraftforge.common.crafting.CraftingHelper;
 
 import javax.annotation.Nonnull;
 
@@ -57,14 +56,14 @@ public final class ImpostorRecipe extends ShapedRecipe
         return SERIALIZER;
     }
 
-    public static final RecipeSerializer<ImpostorRecipe> SERIALIZER = new BasicRecipeSerializer<ImpostorRecipe>()
+    public static final RecipeSerializer<ImpostorRecipe> SERIALIZER = new RecipeSerializer<ImpostorRecipe>()
     {
         @Override
         public ImpostorRecipe read( @Nonnull Identifier identifier, @Nonnull JsonObject json )
         {
             String group = JsonHelper.getString( json, "group", "" );
             ShapedRecipe recipe = RecipeSerializer.SHAPED.read( identifier, json );
-            ItemStack result = CraftingHelper.getItemStack( JsonHelper.getObject( json, "result" ), true );
+            ItemStack result = ShapedRecipe.getItemStack( JsonHelper.getObject( json, "result" ) );
             return new ImpostorRecipe( identifier, group, recipe.getWidth(), recipe.getHeight(), recipe.getPreviewInputs(), result );
         }
 
@@ -83,8 +82,8 @@ public final class ImpostorRecipe extends ShapedRecipe
         @Override
         public void write( @Nonnull PacketByteBuf buf, @Nonnull ImpostorRecipe recipe )
         {
-            buf.writeVarInt( recipe.getRecipeWidth() );
-            buf.writeVarInt( recipe.getRecipeHeight() );
+            buf.writeVarInt( recipe.getWidth() );
+            buf.writeVarInt( recipe.getHeight() );
             buf.writeString( recipe.getGroup() );
             for( Ingredient ingredient : recipe.getPreviewInputs() ) ingredient.write( buf );
             buf.writeItemStack( recipe.getOutput() );

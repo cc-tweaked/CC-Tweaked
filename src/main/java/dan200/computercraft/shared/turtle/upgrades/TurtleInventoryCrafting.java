@@ -16,8 +16,6 @@ import net.minecraft.recipe.RecipeType;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.world.World;
-import net.minecraftforge.common.ForgeHooks;
-import net.minecraftforge.fml.hooks.BasicEventHooks;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -93,11 +91,7 @@ public class TurtleInventoryCrafting extends CraftingInventory
             results.add( result );
 
             result.onCraft( world, player, result.getCount() );
-            BasicEventHooks.firePlayerCraftingEvent( player, result, this );
-
-            ForgeHooks.setCraftingPlayer( player );
             DefaultedList<ItemStack> remainders = recipe.getRemainingStacks( this );
-            ForgeHooks.setCraftingPlayer( null );
 
             for( int slot = 0; slot < remainders.size(); slot++ )
             {

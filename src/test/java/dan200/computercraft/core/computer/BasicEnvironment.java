@@ -1,9 +1,8 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2019. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.core.computer;
 
 import dan200.computercraft.ComputerCraft;
@@ -13,6 +12,7 @@ import dan200.computercraft.core.filesystem.FileMount;
 import dan200.computercraft.core.filesystem.JarMount;
 import dan200.computercraft.core.filesystem.MemoryMount;
 
+import javax.annotation.Nonnull;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -22,7 +22,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 
 /**
- * A very basic environment
+ * A very basic environment.
  */
 public class BasicEnvironment implements IComputerEnvironment
 {
@@ -74,10 +74,18 @@ public class BasicEnvironment implements IComputerEnvironment
         return ComputerCraft.computerSpaceLimit;
     }
 
+    @Nonnull
     @Override
     public String getHostString()
     {
-        return "ComputerCraft ${version} (Test environment)";
+        return "ComputerCraft 1.0 (Test environment)";
+    }
+
+    @Nonnull
+    @Override
+    public String getUserAgent()
+    {
+        return "ComputerCraft/1.0";
     }
 
     @Override
@@ -92,10 +100,9 @@ public class BasicEnvironment implements IComputerEnvironment
         return ComputerCraft.class.getClassLoader().getResourceAsStream( "data/" + domain + "/" + subPath );
     }
 
-
     public static IMount createMount( Class<?> klass, String path, String fallback )
     {
-        File file = getContainingFile(klass);
+        File file = getContainingFile( klass );
 
         if( file.isFile() )
         {
@@ -117,7 +124,7 @@ public class BasicEnvironment implements IComputerEnvironment
             while( baseFile != null && !wholeFile.exists() )
             {
                 baseFile = baseFile.getParentFile();
-                wholeFile = new File( baseFile, "resources/" + fallback + "/" + path );
+                wholeFile = new File( baseFile, "src/" + fallback + "/resources/" + path );
             }
 
             if( !wholeFile.exists() ) throw new IllegalStateException( "Cannot find ROM mount at " + file );
@@ -127,7 +134,7 @@ public class BasicEnvironment implements IComputerEnvironment
     }
 
 
-    private static File getContainingFile(Class<?> klass)
+    private static File getContainingFile( Class<?> klass )
     {
         String path = klass.getProtectionDomain().getCodeSource().getLocation().getPath();
         int bangIndex = path.indexOf( "!" );

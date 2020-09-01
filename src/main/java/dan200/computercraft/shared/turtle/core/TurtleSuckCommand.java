@@ -9,17 +9,18 @@ import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.ITurtleCommand;
 import dan200.computercraft.api.turtle.TurtleAnimation;
 import dan200.computercraft.api.turtle.TurtleCommandResult;
+import dan200.computercraft.api.turtle.event.TurtleEvent;
 import dan200.computercraft.api.turtle.event.TurtleInventoryEvent;
 import dan200.computercraft.shared.util.InventoryUtil;
+import dan200.computercraft.shared.util.ItemStorage;
 import net.minecraft.entity.ItemEntity;
+import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.predicate.entity.EntityPredicates;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.items.IItemHandler;
 
 import javax.annotation.Nonnull;
 import java.util.List;
@@ -55,12 +56,12 @@ public class TurtleSuckCommand implements ITurtleCommand
         BlockPos blockPosition = turtlePosition.offset( direction );
         Direction side = direction.getOpposite();
 
-        IItemHandler inventory = InventoryUtil.getInventory( world, blockPosition, side );
+        Inventory inventory = InventoryUtil.getInventory( world, blockPosition, side );
 
         // Fire the event, exiting if it is cancelled.
         TurtlePlayer player = TurtlePlaceCommand.createPlayer( turtle, turtlePosition, direction );
         TurtleInventoryEvent.Suck event = new TurtleInventoryEvent.Suck( turtle, player, world, blockPosition, inventory );
-        if( MinecraftForge.EVENT_BUS.post( event ) )
+        if( TurtleEvent.post( event ) )
         {
             return TurtleCommandResult.failure( event.getFailureMessage() );
         }
@@ -68,7 +69,7 @@ public class TurtleSuckCommand implements ITurtleCommand
         if( inventory != null )
         {
             // Take from inventory of thing in front
-            ItemStack stack = InventoryUtil.takeItems( m_quantity, inventory );
+            ItemStack stack = InventoryUtil.takeItems( m_quantity, ItemStorage.wrap(inventory) );
             if( stack.isEmpty() ) return TurtleCommandResult.failure( "No items to take" );
 
             // Try to place into the turtle
@@ -76,7 +77,7 @@ public class TurtleSuckCommand implements ITurtleCommand
             if( !remainder.isEmpty() )
             {
                 // Put the remainder back in the inventory
-                InventoryUtil.storeItems( remainder, inventory );
+                InventoryUtil.storeItems( remainder, ItemStorage.wrap(inventory) );
             }
 
             // Return true if we consumed anything

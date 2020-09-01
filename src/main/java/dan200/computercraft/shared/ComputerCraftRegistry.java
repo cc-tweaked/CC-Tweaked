@@ -22,10 +22,6 @@ import dan200.computercraft.shared.computer.items.ItemComputer;
 import dan200.computercraft.shared.media.items.ItemDisk;
 import dan200.computercraft.shared.media.items.ItemPrintout;
 import dan200.computercraft.shared.media.items.ItemTreasureDisk;
-import dan200.computercraft.shared.network.container.ComputerContainerData;
-import dan200.computercraft.shared.network.container.ContainerData;
-import dan200.computercraft.shared.network.container.HeldItemContainerData;
-import dan200.computercraft.shared.network.container.ViewComputerContainerData;
 import dan200.computercraft.shared.peripheral.diskdrive.BlockDiskDrive;
 import dan200.computercraft.shared.peripheral.diskdrive.ContainerDiskDrive;
 import dan200.computercraft.shared.peripheral.diskdrive.TileDiskDrive;
@@ -50,9 +46,9 @@ import dan200.computercraft.shared.turtle.blocks.TileTurtle;
 import dan200.computercraft.shared.turtle.core.TurtlePlayer;
 import dan200.computercraft.shared.turtle.inventory.ContainerTurtle;
 import dan200.computercraft.shared.turtle.items.ItemTurtle;
-import dan200.computercraft.shared.util.CreativeTabMain;
 import dan200.computercraft.shared.util.FixedPointTileEntityType;
 
+import net.fabricmc.fabric.api.screenhandler.v1.ScreenHandlerRegistry;
 import net.minecraft.block.Block;
 import net.minecraft.block.Material;
 import net.minecraft.block.entity.BlockEntity;
@@ -66,7 +62,7 @@ import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.util.Identifier;
 
-public final class Registry {
+public final class ComputerCraftRegistry {
     public static final String MOD_ID = ComputerCraft.MOD_ID;
 
     public static void init() {
@@ -125,10 +121,10 @@ public final class Registry {
                                                                                                           "monitor_advanced",
                                                                                                           new BlockMonitor(properties(), ModTiles.MONITOR_ADVANCED));
 
-        public static final BlockWirelessModem WIRELESS_EM_NORMAL = net.minecraft.util.registry.Registry.register(net.minecraft.util.registry.Registry.BLOCK,
+        public static final BlockWirelessModem WIRELESS_MODEM_NORMAL = net.minecraft.util.registry.Registry.register(net.minecraft.util.registry.Registry.BLOCK,
                                                                                                                   "wireless_em_normal",
                                                                                                                   new BlockWirelessModem(properties(), ModTiles.WIRELESS_MODEM_NORMAL));
-        public static final BlockWirelessModem WIRELESS_EM_ADVANCED = net.minecraft.util.registry.Registry.register(net.minecraft.util.registry.Registry.BLOCK,
+        public static final BlockWirelessModem WIRELESS_MODEM_ADVANCED = net.minecraft.util.registry.Registry.register(net.minecraft.util.registry.Registry.BLOCK,
                                                                                                                     "wireless_em_advanced",
                                                                                                                     new BlockWirelessModem(properties(),
                                                                                                                                            ModTiles.WIRELESS_MODEM_ADVANCED));
@@ -164,13 +160,13 @@ public final class Registry {
         public static final BlockEntityType<TileWiredModemFull> WIRED_MODEM_FULL = ofBlock(ModBlocks.WIRED_MODEM_FULL, TileWiredModemFull::new);
         public static final BlockEntityType<TileCable> CABLE = ofBlock(ModBlocks.CABLE, TileCable::new);
 
-        public static final BlockEntityType<TileWirelessModem> WIRELESS_MODEM_NORMAL = ofBlock(ModBlocks.WIRELESS_EM_NORMAL, f -> new TileWirelessModem(f,
+        public static final BlockEntityType<TileWirelessModem> WIRELESS_MODEM_NORMAL = ofBlock(ModBlocks.WIRELESS_MODEM_NORMAL, f -> new TileWirelessModem(f,
                                                                                                                                                         false));
-        public static final BlockEntityType<TileWirelessModem> WIRELESS_MODEM_ADVANCED = ofBlock(ModBlocks.WIRELESS_EM_ADVANCED, f -> new TileWirelessModem(f, true));
+        public static final BlockEntityType<TileWirelessModem> WIRELESS_MODEM_ADVANCED = ofBlock(ModBlocks.WIRELESS_MODEM_ADVANCED, f -> new TileWirelessModem(f, true));
     }
 
     public static final class ModItems {
-        private static final ItemGroup mainItemGroup = new CreativeTabMain();
+        private static final ItemGroup mainItemGroup = ComputerCraft.MAIN_GROUP;
 
         private static Item.Settings properties() {
             return new Item.Settings().group(mainItemGroup);
@@ -210,12 +206,12 @@ public final class Registry {
         public static final BlockItem PRINTER = ofBlock(ModBlocks.PRINTER, BlockItem::new);
         public static final BlockItem MONITOR_NORMAL = ofBlock(ModBlocks.MONITOR_NORMAL, BlockItem::new);
         public static final BlockItem MONITOR_ADVANCED = ofBlock(ModBlocks.MONITOR_ADVANCED, BlockItem::new);
-        public static final BlockItem WIRELESS_EM_NORMAL = ofBlock(ModBlocks.WIRELESS_EM_NORMAL, BlockItem::new);
-        public static final BlockItem WIRELESS_EM_ADVANCED = ofBlock(ModBlocks.WIRELESS_EM_ADVANCED, BlockItem::new);
-        public static final BlockItem WIRED_EM_FULL = ofBlock(ModBlocks.WIRED_MODEM_FULL, BlockItem::new);
+        public static final BlockItem WIRELESS_MODEM_NORMAL = ofBlock(ModBlocks.WIRELESS_MODEM_NORMAL, BlockItem::new);
+        public static final BlockItem WIRELESS_MODEM_ADVANCED = ofBlock(ModBlocks.WIRELESS_MODEM_ADVANCED, BlockItem::new);
+        public static final BlockItem WIRED_MODEM_FULL = ofBlock(ModBlocks.WIRED_MODEM_FULL, BlockItem::new);
 
         public static final ItemBlockCable.Cable CABLE = register("cable", new ItemBlockCable.Cable(ModBlocks.CABLE, properties()));
-        public static final ItemBlockCable.WiredModem WIRED_EM = register("wired_em", new ItemBlockCable.WiredModem(ModBlocks.CABLE, properties()));
+        public static final ItemBlockCable.WiredModem WIRED_MODEM = register("wired_em", new ItemBlockCable.WiredModem(ModBlocks.CABLE, properties()));
     }
 
     public static class ModEntities {
@@ -230,34 +226,27 @@ public final class Registry {
     }
 
     public static class ModContainers {
-        private static <B extends ScreenHandler, T extends ScreenHandlerType<B>> T register(String id, T item) {
-            return net.minecraft.util.registry.Registry.register(net.minecraft.util.registry.Registry.SCREEN_HANDLER, new Identifier(MOD_ID, id), item);
+        private static <T extends ScreenHandler> ScreenHandlerType<T> registerSimple(String id, ScreenHandlerRegistry.SimpleClientHandlerFactory<T> function) {
+            return ScreenHandlerRegistry.registerSimple(new Identifier(MOD_ID, id), function);
         }
 
-        public static final ScreenHandlerType<ContainerComputer> COMPUTER = register("computer",
-                                                                                     ContainerData.toType(ComputerContainerData::new,
-                                                                                                          ContainerComputer::new));
+        private static <T extends ScreenHandler> ScreenHandlerType<T> registerExtended(String id, ScreenHandlerRegistry.ExtendedClientHandlerFactory<T> function) {
+            return ScreenHandlerRegistry.registerExtended(new Identifier(MOD_ID, id), function);
+        }
 
-        public static final ScreenHandlerType<ContainerPocketComputer> POCKET_COMPUTER = register("pocket_computer",
-                                                                                                  ContainerData.toType(ComputerContainerData::new,
-                                                                                                                       ContainerPocketComputer::new));
+        public static final ScreenHandlerType<ContainerComputer> COMPUTER = registerExtended("computer", ContainerComputer::new);
 
-        public static final ScreenHandlerType<ContainerTurtle> TURTLE = register("turtle",
-                                                                                 ContainerData.toType(ComputerContainerData::new,
-                                                                                                      ContainerTurtle::new));
+        public static final ScreenHandlerType<ContainerPocketComputer> POCKET_COMPUTER = registerExtended("pocket_computer", ContainerPocketComputer::new);
+
+        public static final ScreenHandlerType<ContainerTurtle> TURTLE = registerExtended("turtle", ContainerTurtle::new);
 
 
-        public static final ScreenHandlerType<ContainerDiskDrive> DISK_DRIVE = register("disk_drive",
-                                                                                        new ScreenHandlerType<>(ContainerDiskDrive::new));
+        public static final ScreenHandlerType<ContainerDiskDrive> DISK_DRIVE = registerSimple("disk_drive", ContainerDiskDrive::new);
 
-        public static final ScreenHandlerType<ContainerPrinter> PRINTER = register("printer", new ScreenHandlerType<>(ContainerPrinter::new));
+        public static final ScreenHandlerType<ContainerPrinter> PRINTER = registerSimple("printer", ContainerPrinter::new);
 
-        public static final ScreenHandlerType<ContainerHeldItem> PRINTOUT = register("printout",
-                                                                                     ContainerData.toType(HeldItemContainerData::new,
-                                                                                                          ContainerHeldItem::createPrintout));
+        public static final ScreenHandlerType<ContainerHeldItem> PRINTOUT = registerExtended("printout", ContainerHeldItem::createPrintout);
 
-        public static final ScreenHandlerType<ContainerViewComputer> VIEW_COMPUTER = register("view_computer",
-                                                                                              ContainerData.toType(ViewComputerContainerData::new,
-                                                                                                                   ContainerViewComputer::new));
+        public static final ScreenHandlerType<ContainerViewComputer> VIEW_COMPUTER = registerExtended("view_computer", ContainerViewComputer::new);
     }
 }

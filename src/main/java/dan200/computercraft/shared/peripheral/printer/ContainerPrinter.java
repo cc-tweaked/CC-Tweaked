@@ -5,7 +5,7 @@
  */
 package dan200.computercraft.shared.peripheral.printer;
 
-import dan200.computercraft.shared.Registry;
+import dan200.computercraft.shared.ComputerCraftRegistry;
 import dan200.computercraft.shared.util.SingleIntArray;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
@@ -26,7 +26,7 @@ public class ContainerPrinter extends ScreenHandler
 
     private ContainerPrinter( int id, PlayerInventory player, Inventory inventory, PropertyDelegate properties )
     {
-        super( Registry.ModContainers.PRINTER, id );
+        super( ComputerCraftRegistry.ModContainers.PRINTER, id );
         this.properties = properties;
         this.inventory = inventory;
 

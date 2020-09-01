@@ -5,11 +5,10 @@
  */
 package dan200.computercraft.shared.network;
 
-import javax.annotation.Nonnull;
-
+import net.fabricmc.fabric.api.network.PacketContext;
 import net.minecraft.network.PacketByteBuf;
 
-import net.fabricmc.fabric.api.network.PacketContext;
+import javax.annotation.Nonnull;
 
 /**
  * The base interface for any message which will be sent to the client or server.

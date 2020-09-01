@@ -28,7 +28,7 @@ public final class ConstantLootConditionSerializer<T extends LootCondition> impl
     }
 
     @Override
-    public void func_230424_a_( @Nonnull JsonObject json, @Nonnull T object, @Nonnull JsonSerializationContext context )
+    public void toJson( @Nonnull JsonObject json, @Nonnull T object, @Nonnull JsonSerializationContext context )
     {
     }
 

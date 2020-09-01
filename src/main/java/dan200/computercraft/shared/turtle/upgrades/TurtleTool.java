@@ -10,14 +10,18 @@ import dan200.computercraft.api.client.TransformedModel;
 import dan200.computercraft.api.turtle.*;
 import dan200.computercraft.api.turtle.event.TurtleAttackEvent;
 import dan200.computercraft.api.turtle.event.TurtleBlockEvent;
+import dan200.computercraft.api.turtle.event.TurtleEvent;
 import dan200.computercraft.shared.TurtlePermissions;
 import dan200.computercraft.shared.turtle.core.TurtlePlaceCommand;
 import dan200.computercraft.shared.turtle.core.TurtlePlayer;
 import dan200.computercraft.shared.util.DropConsumer;
+import dan200.computercraft.shared.util.FillableMatrix4f;
 import dan200.computercraft.shared.util.InventoryUtil;
 import dan200.computercraft.shared.util.WorldUtil;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.event.player.AttackEntityCallback;
+import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -30,17 +34,15 @@ import net.minecraft.entity.decoration.ArmorStandEntity;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.server.world.BlockEvent;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Matrix4f;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.entity.player.AttackEntityEvent;
-import net.minecraftforge.event.world.BlockEvent;
 import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nonnull;
@@ -75,7 +77,7 @@ public class TurtleTool extends AbstractTurtleUpgrade
     public TransformedModel getModel( ITurtleAccess turtle, @Nonnull TurtleSide side )
     {
         float xOffset = side == TurtleSide.LEFT ? -0.40625f : 0.40625f;
-        Matrix4f transform = new Matrix4f( new float[] {
+        Matrix4f transform = new FillableMatrix4f( new float[] {
             0.0f, 0.0f, -1.0f, 1.0f + xOffset,
             1.0f, 0.0f, 0.0f, 0.0f,
             0.0f, -1.0f, 0.0f, 1.0f,
@@ -102,10 +104,9 @@ public class TurtleTool extends AbstractTurtleUpgrade
     protected boolean canBreakBlock( BlockState state, World world, BlockPos pos, TurtlePlayer player )
     {
         Block block = state.getBlock();
-        return !state.isAir( world, pos )
+        return !state.isAir()
             && block != Blocks.BEDROCK
-            && state.calcBlockBreakingDelta( player, world, pos ) > 0
-            && block.canEntityDestroy( state, world, pos, player );
+            && state.calcBlockBreakingDelta( player, world, pos ) > 0;
     }
 
     protected float getDamageMultiplier()
@@ -133,13 +134,18 @@ public class TurtleTool extends AbstractTurtleUpgrade
             Entity hitEntity = hit.getKey();
 
             // Fire several events to ensure we have permissions.
-            if( MinecraftForge.EVENT_BUS.post( new AttackEntityEvent( turtlePlayer, hitEntity ) ) || !hitEntity.isAttackable() )
+            if(AttackEntityCallback.EVENT.invoker()
+                .interact(turtlePlayer,
+                    world,
+                    Hand.MAIN_HAND,
+                    hitEntity,
+                    null) == ActionResult.FAIL || !hitEntity.isAttackable())
             {
                 return TurtleCommandResult.failure( "Nothing to attack here" );
             }
 
             TurtleAttackEvent attackEvent = new TurtleAttackEvent( turtle, turtlePlayer, hitEntity, this, side );
-            if( MinecraftForge.EVENT_BUS.post( attackEvent ) )
+            if( TurtleEvent.post( attackEvent ) )
             {
                 return TurtleCommandResult.failure( attackEvent.getFailureMessage() );
             }
@@ -211,7 +217,7 @@ public class TurtleTool extends AbstractTurtleUpgrade
         if( ComputerCraft.turtlesObeyBlockProtection )
         {
             // Check spawn protection
-            if( MinecraftForge.EVENT_BUS.post( new BlockEvent.BreakEvent( world, blockPosition, state, turtlePlayer ) ) )
+            if(PlayerBlockBreakEvents.BEFORE.invoker().beforeBlockBreak(world, turtlePlayer, blockPosition, state, null))
             {
                 return TurtleCommandResult.failure( "Cannot break protected block" );
             }
@@ -230,7 +236,7 @@ public class TurtleTool extends AbstractTurtleUpgrade
 
         // Fire the dig event, checking whether it was cancelled.
         TurtleBlockEvent.Dig digEvent = new TurtleBlockEvent.Dig( turtle, turtlePlayer, world, blockPosition, state, this, side );
-        if( MinecraftForge.EVENT_BUS.post( digEvent ) )
+        if( TurtleEvent.post( digEvent ) )
         {
             return TurtleCommandResult.failure( digEvent.getFailureMessage() );
         }
@@ -247,12 +253,12 @@ public class TurtleTool extends AbstractTurtleUpgrade
         world.syncWorldEvent( 2001, blockPosition, Block.getRawIdFromState( state ) );
 
         // Destroy the block
-        boolean canHarvest = state.canHarvestBlock( world, blockPosition, turtlePlayer );
-        boolean canBreak = state.removedByPlayer( world, blockPosition, turtlePlayer, canHarvest, fluidState );
-        if( canBreak ) state.getBlock().onBroken( world, blockPosition, state );
-        if( canHarvest && canBreak )
+        state.getBlock().onBroken( world, blockPosition, state );
+        if( world.removeBlock(blockPosition, false) )
         {
-            state.getBlock().afterBreak( world, turtlePlayer, blockPosition, state, tile, turtlePlayer.getMainHandStack() );
+            state.getBlock().onBroken(world, blockPosition, state);
+            if (turtlePlayer.isUsingEffectiveTool(state))
+                state.getBlock().afterBreak( world, turtlePlayer, blockPosition, state, tile, turtlePlayer.getMainHandStack() );
         }
 
         stopConsuming( turtle );

@@ -59,11 +59,11 @@ public final class CommandComputerCraft
     private static final int DUMP_SINGLE_ID = 1844510720;
     private static final int TRACK_ID = 373882880;
 
-    private CommandComputerCraft()
+    public CommandComputerCraft()
     {
     }
 
-    public static void register( CommandDispatcher<ServerCommandSource> dispatcher )
+    public static void register( CommandDispatcher<ServerCommandSource> dispatcher, boolean bool )
     {
         dispatcher.register( choice( "computercraft" )
             .then( literal( "dump" )
@@ -127,7 +127,7 @@ public final class CommandComputerCraft
                             IPeripheral peripheral = computer.getPeripheral( side );
                             if( peripheral != null )
                             {
-                                table.row( header( "Peripheral " + side.getName() ), text( peripheral.getType0() ) );
+                                table.row( header( "Peripheral " + side.getName() ), text( peripheral.getType() ) );
                             }
                         }
 

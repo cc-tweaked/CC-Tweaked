@@ -22,12 +22,9 @@ import net.minecraft.util.math.Direction;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import java.util.Optional;
-
 public class TileComputer extends TileComputerBase
 {
     private ComputerProxy proxy;
-    private Optional<IPeripheral> peripheral;
 
     public TileComputer( ComputerFamily family, BlockEntityType<? extends TileComputer> type )
     {
@@ -40,8 +37,8 @@ public class TileComputer extends TileComputerBase
         ComputerFamily family = getFamily();
         ServerComputer computer = new ServerComputer(
             getWorld(), id, label, instanceID, family,
-            ComputerCraft.computerTermWidth,
-            ComputerCraft.computerTermHeight
+            ComputerCraft.terminalWidth_computer,
+            ComputerCraft.terminalHeight_computer
         );
         computer.setPosition( getPos() );
         return computer;

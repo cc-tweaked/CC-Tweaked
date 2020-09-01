@@ -34,5 +34,5 @@ public interface IPeripheralProvider
      * @see dan200.computercraft.api.ComputerCraftAPI#registerPeripheralProvider(IPeripheralProvider)
      */
     @Nonnull
-    Optional<IPeripheral> getPeripheral( @Nonnull World world, @Nonnull BlockPos pos, @Nonnull Direction side );
+    IPeripheral getPeripheral( @Nonnull World world, @Nonnull BlockPos pos, @Nonnull Direction side );
 }

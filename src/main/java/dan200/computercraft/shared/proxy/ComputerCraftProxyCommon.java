@@ -8,60 +8,42 @@ package dan200.computercraft.shared.proxy;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.media.IMedia;
-import dan200.computercraft.api.network.wired.IWiredElement;
-import dan200.computercraft.api.peripheral.IPeripheral;
+import dan200.computercraft.api.turtle.event.TurtleEvent;
 import dan200.computercraft.core.computer.MainThread;
 import dan200.computercraft.core.tracking.Tracking;
+import dan200.computercraft.shared.TurtlePermissions;
 import dan200.computercraft.shared.command.CommandComputerCraft;
 import dan200.computercraft.shared.command.arguments.ArgumentSerializers;
 import dan200.computercraft.shared.common.DefaultBundledRedstoneProvider;
-import dan200.computercraft.shared.computer.core.IComputer;
-import dan200.computercraft.shared.computer.core.IContainerComputer;
-import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.data.BlockNamedEntityLootCondition;
 import dan200.computercraft.shared.data.HasComputerIdLootCondition;
 import dan200.computercraft.shared.data.PlayerCreativeLootCondition;
 import dan200.computercraft.shared.media.items.RecordMedia;
 import dan200.computercraft.shared.network.NetworkHandler;
 import dan200.computercraft.shared.peripheral.modem.wireless.WirelessNetwork;
-import dan200.computercraft.shared.util.NullStorage;
+import dan200.computercraft.shared.turtle.FurnaceRefuelHandler;
+import dan200.computercraft.shared.util.TickScheduler;
+import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.item.Item;
 import net.minecraft.item.MusicDiscItem;
-import net.minecraft.loot.*;
 import net.minecraft.loot.condition.LootConditionType;
-import net.minecraft.loot.entry.LootTableEntry;
-import net.minecraft.screen.ScreenHandler;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
-import net.minecraftforge.common.capabilities.CapabilityManager;
-import net.minecraftforge.event.LootTableLoadEvent;
-import net.minecraftforge.event.RegisterCommandsEvent;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.entity.player.PlayerContainerEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.minecraftforge.fml.event.server.FMLServerStartedEvent;
-import net.minecraftforge.fml.event.server.FMLServerStoppedEvent;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
-
-@Mod.EventBusSubscriber( modid = ComputerCraft.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD )
 public final class ComputerCraftProxyCommon
 {
-    @SubscribeEvent
-    @SuppressWarnings( "deprecation" )
-    public static void init( FMLCommonSetupEvent event )
-    {
+    private static MinecraftServer server;
+
+    public static void init() {
         NetworkHandler.setup();
 
-        net.minecraftforge.fml.DeferredWorkQueue.runLater( () -> {
-            registerProviders();
-            ArgumentSerializers.register();
-            registerLoot();
-        } );
+        registerProviders();
+        registerHandlers();
+
+        ArgumentSerializers.register();
     }
 
     public static void registerLoot()
@@ -88,106 +70,34 @@ public final class ComputerCraftProxyCommon
             if( item instanceof MusicDiscItem ) return RecordMedia.INSTANCE;
             return null;
         } );
-
-        // Register capabilities
-        CapabilityManager.INSTANCE.register( IWiredElement.class, new NullStorage<>(), () -> null );
-        CapabilityManager.INSTANCE.register( IPeripheral.class, new NullStorage<>(), () -> null );
     }
 
-    @Mod.EventBusSubscriber( modid = ComputerCraft.MOD_ID )
-    public static final class ForgeHandlers
-    {
-        private ForgeHandlers()
-        {
-        }
+    private static void registerHandlers() {
+        CommandRegistrationCallback.EVENT.register(CommandComputerCraft::register);
 
-        /*
-        @SubscribeEvent
-        public static void onConnectionOpened( FMLNetworkEvent.ClientConnectedToServerEvent event )
-        {
-            ComputerCraft.clientComputerRegistry.reset();
-        }
+        ServerTickEvents.START_SERVER_TICK.register(server -> {
+            MainThread.executePendingTasks();
+            ComputerCraft.serverComputerRegistry.update();
+            TickScheduler.tick();
+        });
 
-        @SubscribeEvent
-        public static void onConnectionClosed( FMLNetworkEvent.ClientDisconnectionFromServerEvent event )
-        {
-            ComputerCraft.clientComputerRegistry.reset();
-        }
-        */
-
-        @SubscribeEvent
-        public static void onServerTick( TickEvent.ServerTickEvent event )
-        {
-            if( event.phase == TickEvent.Phase.START )
-            {
-                MainThread.executePendingTasks();
-                ComputerCraft.serverComputerRegistry.update();
-            }
-        }
-
-        @SubscribeEvent
-        public static void onContainerOpen( PlayerContainerEvent.Open event )
-        {
-            // If we're opening a computer container then broadcast the terminal state
-            ScreenHandler container = event.getContainer();
-            if( container instanceof IContainerComputer )
-            {
-                IComputer computer = ((IContainerComputer) container).getComputer();
-                if( computer instanceof ServerComputer )
-                {
-                    ((ServerComputer) computer).sendTerminalState( event.getPlayer() );
-                }
-            }
-        }
-
-        @SubscribeEvent
-        public static void onRegisterCommand( RegisterCommandsEvent event )
-        {
-            CommandComputerCraft.register( event.getDispatcher() );
-        }
-
-        @SubscribeEvent
-        public static void onServerStarted( FMLServerStartedEvent event )
-        {
+        ServerLifecycleEvents.SERVER_STARTED.register(server -> {
+            ComputerCraftProxyCommon.server = server;
             ComputerCraft.serverComputerRegistry.reset();
             WirelessNetwork.resetNetworks();
+            MainThread.reset();
             Tracking.reset();
-        }
+        });
 
-        @SubscribeEvent
-        public static void onServerStopped( FMLServerStoppedEvent event )
-        {
+        ServerLifecycleEvents.SERVER_STOPPING.register(server -> {
             ComputerCraft.serverComputerRegistry.reset();
             WirelessNetwork.resetNetworks();
+            MainThread.reset();
             Tracking.reset();
-        }
+            ComputerCraftProxyCommon.server = null;
+        });
 
-        public static final Identifier LOOT_TREASURE_DISK = new Identifier( ComputerCraft.MOD_ID, "treasure_disk" );
-
-        private static final Set<Identifier> TABLES = new HashSet<>( Arrays.asList(
-            LootTables.SIMPLE_DUNGEON_CHEST,
-            LootTables.ABANDONED_MINESHAFT_CHEST,
-            LootTables.STRONGHOLD_CORRIDOR_CHEST,
-            LootTables.STRONGHOLD_CROSSING_CHEST,
-            LootTables.STRONGHOLD_LIBRARY_CHEST,
-            LootTables.DESERT_PYRAMID_CHEST,
-            LootTables.JUNGLE_TEMPLE_CHEST,
-            LootTables.IGLOO_CHEST_CHEST,
-            LootTables.WOODLAND_MANSION_CHEST,
-            LootTables.VILLAGE_CARTOGRAPHER_CHEST
-        ) );
-
-        @SubscribeEvent
-        public static void lootLoad( LootTableLoadEvent event )
-        {
-            Identifier name = event.getName();
-            if( !name.getNamespace().equals( "minecraft" ) || !TABLES.contains( name ) ) return;
-
-            event.getTable().addPool( LootPool.builder()
-                .with( LootTableEntry.builder( LOOT_TREASURE_DISK ) )
-                .rolls( ConstantLootTableRange.create( 1 ) )
-                .name( "computercraft_treasure" )
-                .build() );
-        }
+        TurtleEvent.EVENT_BUS.register(FurnaceRefuelHandler.INSTANCE);
+        TurtleEvent.EVENT_BUS.register(new TurtlePermissions());
     }
 }

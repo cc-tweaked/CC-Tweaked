@@ -97,7 +97,7 @@ public class CobaltLuaMachine implements ILuaMachine
         m_globals.load( state, new CoroutineLib() );
         m_globals.load( state, new Bit32Lib() );
         m_globals.load( state, new Utf8Lib() );
-        if( ComputerCraft.debugEnable ) m_globals.load( state, new DebugLib() );
+        if( ComputerCraft.debug_enable ) m_globals.load( state, new DebugLib() );
 
         // Remove globals we don't want to expose
         m_globals.rawset( "collectgarbage", Constants.NIL );
@@ -108,8 +108,8 @@ public class CobaltLuaMachine implements ILuaMachine
         // Add version globals
         m_globals.rawset( "_VERSION", valueOf( "Lua 5.1" ) );
         m_globals.rawset( "_HOST", valueOf( computer.getAPIEnvironment().getComputerEnvironment().getHostString() ) );
-        m_globals.rawset( "_CC_DEFAULT_SETTINGS", valueOf( ComputerCraft.defaultComputerSettings ) );
-        if( ComputerCraft.disableLua51Features )
+        m_globals.rawset( "_CC_DEFAULT_SETTINGS", valueOf( ComputerCraft.default_computer_settings ) );
+        if( ComputerCraft.disable_lua51_features )
         {
             m_globals.rawset( "_CC_DISABLE_LUA51_FEATURES", Constants.TRUE );
         }
@@ -237,10 +237,10 @@ public class CobaltLuaMachine implements ILuaMachine
             table.rawset( method, new ResultInterpreterFunction( this, LuaMethod.DYNAMIC.get( i ), object, context, method ) );
         }
 
-        ObjectSource.allMethods( LuaMethod.GENERATOR, object, ( instance, method ) ->
+        ObjectSource.allMethods( LuaMethod.GENERATOR, object, (instance, method ) ->
             table.rawset( method.getName(), method.nonYielding()
-                ? new BasicFunction( this, method.getMethod(), instance, context, method.getName() )
-                : new ResultInterpreterFunction( this, method.getMethod(), instance, context, method.getName() ) ) );
+                ? new BasicFunction( this, (LuaMethod) method.getMethod(), instance, context, method.getName() )
+                : new ResultInterpreterFunction( this, (LuaMethod) method.getMethod(), instance, context, method.getName() ) ) );
 
         try
         {
@@ -330,7 +330,7 @@ public class CobaltLuaMachine implements ILuaMachine
             return wrapped;
         }
 
-        if( ComputerCraft.logComputerErrors )
+        if( ComputerCraft.logPeripheralErrors )
         {
             ComputerCraft.log.warn( "Received unknown type '{}', returning nil.", object.getClass().getName() );
         }
@@ -539,7 +539,7 @@ public class CobaltLuaMachine implements ILuaMachine
                 }
                 catch( Throwable t )
                 {
-                    if( ComputerCraft.logComputerErrors ) ComputerCraft.log.error( "Error running task", t );
+                    if( ComputerCraft.logPeripheralErrors ) ComputerCraft.log.error( "Error running task", t );
                     m_computer.queueEvent( "task_complete", new Object[] {
                         taskID, false, "Java Exception Thrown: " + t,
                     } );

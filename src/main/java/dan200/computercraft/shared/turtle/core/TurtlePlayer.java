@@ -15,7 +15,7 @@ import com.mojang.authlib.GameProfile;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.turtle.FakePlayer;
 import dan200.computercraft.api.turtle.ITurtleAccess;
-import dan200.computercraft.shared.Registry;
+import dan200.computercraft.shared.ComputerCraftRegistry;
 import dan200.computercraft.shared.util.FakeNetHandler;
 import dan200.computercraft.shared.util.InventoryUtil;
 import dan200.computercraft.shared.util.WorldUtil;
@@ -130,7 +130,7 @@ public final class TurtlePlayer extends FakePlayer
     @Override
     public EntityType<?> getType()
     {
-        return Registry.ModEntities.TURTLE_PLAYER;
+        return ComputerCraftRegistry.ModEntities.TURTLE_PLAYER;
     }
 
     @Override

@@ -13,12 +13,12 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.recipe.Ingredient;
 import net.minecraft.recipe.RecipeSerializer;
+import net.minecraft.recipe.ShapedRecipe;
 import net.minecraft.recipe.ShapelessRecipe;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.JsonHelper;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.world.World;
-import net.minecraftforge.common.crafting.CraftingHelper;
 
 import javax.annotation.Nonnull;
 
@@ -59,7 +59,7 @@ public final class ImpostorShapelessRecipe extends ShapelessRecipe
         return SERIALIZER;
     }
 
-    public static final RecipeSerializer<ImpostorShapelessRecipe> SERIALIZER = new BasicRecipeSerializer<ImpostorShapelessRecipe>()
+    public static final RecipeSerializer<ImpostorShapelessRecipe> SERIALIZER = new RecipeSerializer<ImpostorShapelessRecipe>()
     {
         @Override
         public ImpostorShapelessRecipe read( @Nonnull Identifier id, @Nonnull JsonObject json )
@@ -73,7 +73,7 @@ public final class ImpostorShapelessRecipe extends ShapelessRecipe
                 throw new JsonParseException( "Too many ingredients for shapeless recipe the max is 9" );
             }
 
-            ItemStack itemstack = CraftingHelper.getItemStack( JsonHelper.getObject( json, "result" ), true );
+            ItemStack itemstack = ShapedRecipe.getItemStack( JsonHelper.getObject( json, "result" ) );
             return new ImpostorShapelessRecipe( id, s, itemstack, ingredients );
         }
 

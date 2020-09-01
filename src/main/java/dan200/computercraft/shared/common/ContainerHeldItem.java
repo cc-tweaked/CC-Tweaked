@@ -5,14 +5,17 @@
  */
 package dan200.computercraft.shared.common;
 
-import dan200.computercraft.shared.Registry;
+import dan200.computercraft.shared.ComputerCraftRegistry;
 import dan200.computercraft.shared.network.container.HeldItemContainerData;
+import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.screen.NamedScreenHandlerFactory;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.ScreenHandlerType;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Hand;
 import javax.annotation.Nonnull;
@@ -31,9 +34,14 @@ public class ContainerHeldItem extends ScreenHandler
         stack = player.getStackInHand( hand ).copy();
     }
 
+    public static ContainerHeldItem createPrintout( int id, PlayerInventory inventory, PacketByteBuf data )
+    {
+        return createPrintout(id, inventory, new HeldItemContainerData(data));
+    }
+
     public static ContainerHeldItem createPrintout( int id, PlayerInventory inventory, HeldItemContainerData data )
     {
-        return new ContainerHeldItem( Registry.ModContainers.PRINTOUT.get(), id, inventory.player, data.getHand() );
+        return new ContainerHeldItem( ComputerCraftRegistry.ModContainers.PRINTOUT, id, inventory.player, data.getHand() );
     }
 
     @Nonnull
@@ -51,7 +59,7 @@ public class ContainerHeldItem extends ScreenHandler
         return stack == this.stack || !stack.isEmpty() && !this.stack.isEmpty() && stack.getItem() == this.stack.getItem();
     }
 
-    public static class Factory implements NamedScreenHandlerFactory
+    public static class Factory implements NamedScreenHandlerFactory, ExtendedScreenHandlerFactory
     {
         private final ScreenHandlerType<ContainerHeldItem> type;
         private final Text name;
@@ -76,6 +84,11 @@ public class ContainerHeldItem extends ScreenHandler
         public ScreenHandler createMenu( int id, @Nonnull PlayerInventory inventory, @Nonnull PlayerEntity player )
         {
             return new ContainerHeldItem( type, id, player, hand );
+        }
+
+        @Override
+        public void writeScreenOpeningData(ServerPlayerEntity serverPlayerEntity, PacketByteBuf packetByteBuf) {
+            packetByteBuf.writeEnumConstant(hand);
         }
     }
 }
