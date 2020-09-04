@@ -1,3 +1,7 @@
+# New features in CC: Tweaked 1.91.1
+
+* Fix crash when turtles interact with an entity.
+
 # New features in CC: Tweaked 1.91.0
 
 * [Generic peripherals] Expose NBT hashes of items to inventory methods.

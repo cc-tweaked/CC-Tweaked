@@ -1,15 +1,5 @@
-New features in CC: Tweaked 1.91.0
+New features in CC: Tweaked 1.91.1
 
-* [Generic peripherals] Expose NBT hashes of items to inventory methods.
-* Bump Cobalt version
-  * Optimise handling of string concatenation.
-  * Add string.{pack,unpack,packsize} (MCJack123)
-* Update to 1.16.2
-
-And several bug fixes:
-* Escape non-ASCII characters in JSON strings (neumond)
-* Make field names in fs.attributes more consistent (abby)
-* Fix textutils.formatTime correctly handle 12 AM (R93950X)
-* Fix turtles placing buckets multiple times.
+* Fix crash when turtles interact with an entity.
 
 Type "help changelog" to see the full version history.
