@@ -6,7 +6,8 @@
 
 package dan200.computercraft;
 
-import static dan200.computercraft.shared.ComputerCraftRegistry.*;
+import static dan200.computercraft.shared.ComputerCraftRegistry.ModBlocks;
+import static dan200.computercraft.shared.ComputerCraftRegistry.init;
 
 import java.nio.file.Paths;
 import java.util.Collections;
@@ -22,13 +23,22 @@ import dan200.computercraft.core.apis.AddressPredicate;
 import dan200.computercraft.core.apis.http.options.Action;
 import dan200.computercraft.core.apis.http.options.AddressRule;
 import dan200.computercraft.core.apis.http.websocket.Websocket;
-import dan200.computercraft.shared.ComputerCraftRegistry;
+import dan200.computercraft.shared.common.ColourableRecipe;
 import dan200.computercraft.shared.computer.core.ClientComputerRegistry;
 import dan200.computercraft.shared.computer.core.ServerComputerRegistry;
+import dan200.computercraft.shared.computer.recipe.ComputerUpgradeRecipe;
+import dan200.computercraft.shared.data.BlockNamedEntityLootCondition;
+import dan200.computercraft.shared.data.HasComputerIdLootCondition;
+import dan200.computercraft.shared.data.PlayerCreativeLootCondition;
+import dan200.computercraft.shared.media.recipes.DiskRecipe;
+import dan200.computercraft.shared.media.recipes.PrintoutRecipe;
 import dan200.computercraft.shared.peripheral.monitor.MonitorRenderer;
 import dan200.computercraft.shared.pocket.peripherals.PocketModem;
 import dan200.computercraft.shared.pocket.peripherals.PocketSpeaker;
+import dan200.computercraft.shared.pocket.recipes.PocketComputerUpgradeRecipe;
 import dan200.computercraft.shared.proxy.ComputerCraftProxyCommon;
+import dan200.computercraft.shared.turtle.recipes.TurtleRecipe;
+import dan200.computercraft.shared.turtle.recipes.TurtleUpgradeRecipe;
 import dan200.computercraft.shared.turtle.upgrades.TurtleAxe;
 import dan200.computercraft.shared.turtle.upgrades.TurtleCraftingTable;
 import dan200.computercraft.shared.turtle.upgrades.TurtleHoe;
@@ -38,15 +48,19 @@ import dan200.computercraft.shared.turtle.upgrades.TurtleSpeaker;
 import dan200.computercraft.shared.turtle.upgrades.TurtleSword;
 import dan200.computercraft.shared.turtle.upgrades.TurtleTool;
 import dan200.computercraft.shared.util.Config;
-import net.fabricmc.fabric.api.client.itemgroup.FabricItemGroupBuilder;
-import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.Identifier;
+import dan200.computercraft.shared.util.ImpostorRecipe;
+import dan200.computercraft.shared.util.ImpostorShapelessRecipe;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import net.minecraft.item.ItemGroup;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.registry.Registry;
+
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.client.itemgroup.FabricItemGroupBuilder;
+import net.fabricmc.loader.api.FabricLoader;
 
 public final class ComputerCraft implements ModInitializer {
     public static final String MOD_ID = "computercraft";
@@ -61,15 +75,14 @@ public final class ComputerCraft implements ModInitializer {
         "172.16.0.0/12",
         "192.168.0.0/16",
         "fd00::/8",
-    };
-    public static List<AddressRule> httpRules = Collections.unmodifiableList( Stream.concat(
-        Stream.of( DEFAULT_HTTP_BLACKLIST )
-            .map( x -> AddressRule.parse( x, Action.DENY.toPartial() ) )
-            .filter( Objects::nonNull ),
-        Stream.of( DEFAULT_HTTP_WHITELIST )
-            .map( x -> AddressRule.parse( x, Action.ALLOW.toPartial() ) )
-            .filter( Objects::nonNull )
-    ).collect( Collectors.toList() ) );
+        };
+    public static List<AddressRule> httpRules = Collections.unmodifiableList(Stream.concat(Stream.of(DEFAULT_HTTP_BLACKLIST)
+                                                                                                 .map(x -> AddressRule.parse(x, Action.DENY.toPartial()))
+                                                                                                 .filter(Objects::nonNull),
+                                                                                           Stream.of(DEFAULT_HTTP_WHITELIST)
+                                                                                                 .map(x -> AddressRule.parse(x, Action.ALLOW.toPartial()))
+                                                                                                 .filter(Objects::nonNull))
+                                                                                   .collect(Collectors.toList()));
     public static boolean commandRequireCreative = false;
     public static MonitorRenderer monitorRenderer = MonitorRenderer.BEST;
     public static final int terminalWidth_computer = 51;
@@ -144,8 +157,26 @@ public final class ComputerCraft implements ModInitializer {
 
     @Override
     public void onInitialize() {
-        Config.load(Paths.get(FabricLoader.getInstance().getConfigDir().toFile().getPath(), MOD_ID + ".json5"));
+        Config.load(Paths.get(FabricLoader.getInstance()
+                                          .getConfigDir()
+                                          .toFile()
+                                          .getPath(), MOD_ID + ".json5"));
         ComputerCraftProxyCommon.init();
+        Registry.register(Registry.RECIPE_SERIALIZER, new Identifier(ComputerCraft.MOD_ID, "colour"), ColourableRecipe.SERIALIZER);
+        Registry.register(Registry.RECIPE_SERIALIZER, new Identifier(ComputerCraft.MOD_ID, "computer_upgrade"), ComputerUpgradeRecipe.SERIALIZER);
+        Registry.register(Registry.RECIPE_SERIALIZER,
+                          new Identifier(ComputerCraft.MOD_ID, "pocket_computer_upgrade"),
+                          PocketComputerUpgradeRecipe.SERIALIZER);
+        Registry.register(Registry.RECIPE_SERIALIZER, new Identifier(ComputerCraft.MOD_ID, "disk"), DiskRecipe.SERIALIZER);
+        Registry.register(Registry.RECIPE_SERIALIZER, new Identifier(ComputerCraft.MOD_ID, "printout"), PrintoutRecipe.SERIALIZER);
+        Registry.register(Registry.RECIPE_SERIALIZER, new Identifier(ComputerCraft.MOD_ID, "turtle"), TurtleRecipe.SERIALIZER);
+        Registry.register(Registry.RECIPE_SERIALIZER, new Identifier(ComputerCraft.MOD_ID, "turtle_upgrade"), TurtleUpgradeRecipe.SERIALIZER);
+        Registry.register(Registry.RECIPE_SERIALIZER, new Identifier(ComputerCraft.MOD_ID, "impostor_shaped"), ImpostorRecipe.SERIALIZER);
+        Registry.register(Registry.RECIPE_SERIALIZER, new Identifier(ComputerCraft.MOD_ID, "impostor_shapeless"), ImpostorShapelessRecipe.SERIALIZER);
+        Registry.register(Registry.LOOT_CONDITION_TYPE, new Identifier( ComputerCraft.MOD_ID, "block_named" ), BlockNamedEntityLootCondition.TYPE);
+        Registry.register(Registry.LOOT_CONDITION_TYPE, new Identifier( ComputerCraft.MOD_ID, "player_creative" ), PlayerCreativeLootCondition.TYPE);
+        Registry.register(Registry.LOOT_CONDITION_TYPE, new Identifier( ComputerCraft.MOD_ID, "has_id" ), HasComputerIdLootCondition.TYPE);
         init();
     }
+
 }
