@@ -94,7 +94,7 @@ public final class ComputerCraftProxyClient implements ClientModInitializer {
 
         ClientSpriteRegistryCallback.event(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE)
             .register(ClientRegistry::onTextureStitchEvent);
-        ModelLoadingRegistry.INSTANCE.registerAppender(ClientRegistry::onMeodelBakeEvent);
+        ModelLoadingRegistry.INSTANCE.registerAppender(ClientRegistry::onModelBakeEvent);
         ModelLoadingRegistry.INSTANCE.registerResourceProvider(loader -> (name, context) -> TurtleModelLoader.INSTANCE.accepts(name) ?
             TurtleModelLoader.INSTANCE.loadModel(
                 name) : null);
