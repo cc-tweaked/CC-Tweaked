@@ -32,5 +32,6 @@
     "mixins": [
         { "config": "computercraft.client.json", "environment": "client" },
         "computercraft.common.json"
-    ]
+    ],
+    "accessWidener" : "computercraft.accesswidener"
 }
