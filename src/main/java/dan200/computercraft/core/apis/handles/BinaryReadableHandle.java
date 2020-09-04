@@ -3,10 +3,8 @@
  * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-package dan200.computercraft.core.apis.handles;
 
-import dan200.computercraft.api.lua.LuaException;
-import dan200.computercraft.api.lua.LuaFunction;
+package dan200.computercraft.core.apis.handles;
 
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
@@ -18,43 +16,40 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import dan200.computercraft.api.lua.LuaException;
+import dan200.computercraft.api.lua.LuaFunction;
+
 /**
- * A file handle opened with {@link dan200.computercraft.core.apis.FSAPI#open(String, String)} with the {@code "rb"}
- * mode.
+ * A file handle opened with {@link dan200.computercraft.core.apis.FSAPI#open(String, String)} with the {@code "rb"} mode.
  *
  * @cc.module fs.BinaryReadHandle
  */
-public class BinaryReadableHandle extends HandleGeneric
-{
+public class BinaryReadableHandle extends HandleGeneric {
     private static final int BUFFER_SIZE = 8192;
-
-    private final ReadableByteChannel reader;
     final SeekableByteChannel seekable;
-    private final ByteBuffer single = ByteBuffer.allocate( 1 );
+    private final ReadableByteChannel reader;
+    private final ByteBuffer single = ByteBuffer.allocate(1);
 
-    BinaryReadableHandle( ReadableByteChannel reader, SeekableByteChannel seekable, Closeable closeable )
-    {
-        super( closeable );
+    BinaryReadableHandle(ReadableByteChannel reader, SeekableByteChannel seekable, Closeable closeable) {
+        super(closeable);
         this.reader = reader;
         this.seekable = seekable;
     }
 
-    public static BinaryReadableHandle of( ReadableByteChannel channel, Closeable closeable )
-    {
-        SeekableByteChannel seekable = asSeekable( channel );
-        return seekable == null ? new BinaryReadableHandle( channel, null, closeable ) : new Seekable( seekable, closeable );
+    public static BinaryReadableHandle of(ReadableByteChannel channel) {
+        return of(channel, channel);
     }
 
-    public static BinaryReadableHandle of( ReadableByteChannel channel )
-    {
-        return of( channel, channel );
+    public static BinaryReadableHandle of(ReadableByteChannel channel, Closeable closeable) {
+        SeekableByteChannel seekable = asSeekable(channel);
+        return seekable == null ? new BinaryReadableHandle(channel, null, closeable) : new Seekable(seekable, closeable);
     }
 
     /**
      * Read a number of bytes from this file.
      *
-     * @param countArg The number of bytes to read. When absent, a single byte will be read <em>as a number</em>. This
-     *                 may be 0 to determine we are at the end of the file.
+     * @param countArg The number of bytes to read. When absent, a single byte will be read <em>as a number</em>. This may be 0 to determine we are at
+     *     the end of the file.
      * @return The read bytes.
      * @throws LuaException When trying to read a negative number of bytes.
      * @throws LuaException If the file has been closed.
@@ -63,78 +58,72 @@ public class BinaryReadableHandle extends HandleGeneric
      * @cc.treturn [3] string The bytes read as a string. This is returned when the {@code count} is given.
      */
     @LuaFunction
-    public final Object[] read( Optional<Integer> countArg ) throws LuaException
-    {
-        checkOpen();
-        try
-        {
-            if( countArg.isPresent() )
-            {
+    public final Object[] read(Optional<Integer> countArg) throws LuaException {
+        this.checkOpen();
+        try {
+            if (countArg.isPresent()) {
                 int count = countArg.get();
-                if( count < 0 ) throw new LuaException( "Cannot read a negative number of bytes" );
-                if( count == 0 && seekable != null )
-                {
-                    return seekable.position() >= seekable.size() ? null : new Object[] { "" };
+                if (count < 0) {
+                    throw new LuaException("Cannot read a negative number of bytes");
+                }
+                if (count == 0 && this.seekable != null) {
+                    return this.seekable.position() >= this.seekable.size() ? null : new Object[] {""};
                 }
 
-                if( count <= BUFFER_SIZE )
-                {
-                    ByteBuffer buffer = ByteBuffer.allocate( count );
+                if (count <= BUFFER_SIZE) {
+                    ByteBuffer buffer = ByteBuffer.allocate(count);
 
-                    int read = reader.read( buffer );
-                    if( read < 0 ) return null;
+                    int read = this.reader.read(buffer);
+                    if (read < 0) {
+                        return null;
+                    }
                     buffer.flip();
-                    return new Object[] { buffer };
-                }
-                else
-                {
+                    return new Object[] {buffer};
+                } else {
                     // Read the initial set of characters, failing if none are read.
-                    ByteBuffer buffer = ByteBuffer.allocate( BUFFER_SIZE );
-                    int read = reader.read( buffer );
-                    if( read < 0 ) return null;
+                    ByteBuffer buffer = ByteBuffer.allocate(BUFFER_SIZE);
+                    int read = this.reader.read(buffer);
+                    if (read < 0) {
+                        return null;
+                    }
 
                     // If we failed to read "enough" here, let's just abort
-                    if( read >= count || read < BUFFER_SIZE )
-                    {
+                    if (read >= count || read < BUFFER_SIZE) {
                         buffer.flip();
-                        return new Object[] { buffer };
+                        return new Object[] {buffer};
                     }
 
                     // Build up an array of ByteBuffers. Hopefully this means we can perform less allocation
                     // than doubling up the buffer each time.
                     int totalRead = read;
-                    List<ByteBuffer> parts = new ArrayList<>( 4 );
-                    parts.add( buffer );
-                    while( read >= BUFFER_SIZE && totalRead < count )
-                    {
-                        buffer = ByteBuffer.allocate( Math.min( BUFFER_SIZE, count - totalRead ) );
-                        read = reader.read( buffer );
-                        if( read < 0 ) break;
+                    List<ByteBuffer> parts = new ArrayList<>(4);
+                    parts.add(buffer);
+                    while (read >= BUFFER_SIZE && totalRead < count) {
+                        buffer = ByteBuffer.allocate(Math.min(BUFFER_SIZE, count - totalRead));
+                        read = this.reader.read(buffer);
+                        if (read < 0) {
+                            break;
+                        }
 
                         totalRead += read;
-                        parts.add( buffer );
+                        parts.add(buffer);
                     }
 
                     // Now just copy all the bytes across!
                     byte[] bytes = new byte[totalRead];
                     int pos = 0;
-                    for( ByteBuffer part : parts )
-                    {
-                        System.arraycopy( part.array(), 0, bytes, pos, part.position() );
+                    for (ByteBuffer part : parts) {
+                        System.arraycopy(part.array(), 0, bytes, pos, part.position());
                         pos += part.position();
                     }
-                    return new Object[] { bytes };
+                    return new Object[] {bytes};
                 }
+            } else {
+                this.single.clear();
+                int b = this.reader.read(this.single);
+                return b == -1 ? null : new Object[] {this.single.get(0) & 0xFF};
             }
-            else
-            {
-                single.clear();
-                int b = reader.read( single );
-                return b == -1 ? null : new Object[] { single.get( 0 ) & 0xFF };
-            }
-        }
-        catch( IOException e )
-        {
+        } catch (IOException e) {
             return null;
         }
     }
@@ -147,30 +136,29 @@ public class BinaryReadableHandle extends HandleGeneric
      * @cc.treturn string|nil The remaining contents of the file, or {@code nil} if we are at the end.
      */
     @LuaFunction
-    public final Object[] readAll() throws LuaException
-    {
-        checkOpen();
-        try
-        {
+    public final Object[] readAll() throws LuaException {
+        this.checkOpen();
+        try {
             int expected = 32;
-            if( seekable != null ) expected = Math.max( expected, (int) (seekable.size() - seekable.position()) );
-            ByteArrayOutputStream stream = new ByteArrayOutputStream( expected );
+            if (this.seekable != null) {
+                expected = Math.max(expected, (int) (this.seekable.size() - this.seekable.position()));
+            }
+            ByteArrayOutputStream stream = new ByteArrayOutputStream(expected);
 
-            ByteBuffer buf = ByteBuffer.allocate( 8192 );
+            ByteBuffer buf = ByteBuffer.allocate(8192);
             boolean readAnything = false;
-            while( true )
-            {
+            while (true) {
                 buf.clear();
-                int r = reader.read( buf );
-                if( r == -1 ) break;
+                int r = this.reader.read(buf);
+                if (r == -1) {
+                    break;
+                }
 
                 readAnything = true;
-                stream.write( buf.array(), 0, r );
+                stream.write(buf.array(), 0, r);
             }
-            return readAnything ? new Object[] { stream.toByteArray() } : null;
-        }
-        catch( IOException e )
-        {
+            return readAnything ? new Object[] {stream.toByteArray()} : null;
+        } catch (IOException e) {
             return null;
         }
     }
@@ -184,70 +172,65 @@ public class BinaryReadableHandle extends HandleGeneric
      * @cc.treturn string|nil The read line or {@code nil} if at the end of the file.
      */
     @LuaFunction
-    public final Object[] readLine( Optional<Boolean> withTrailingArg ) throws LuaException
-    {
-        checkOpen();
-        boolean withTrailing = withTrailingArg.orElse( false );
-        try
-        {
+    public final Object[] readLine(Optional<Boolean> withTrailingArg) throws LuaException {
+        this.checkOpen();
+        boolean withTrailing = withTrailingArg.orElse(false);
+        try {
             ByteArrayOutputStream stream = new ByteArrayOutputStream();
 
             boolean readAnything = false, readRc = false;
-            while( true )
-            {
-                single.clear();
-                int read = reader.read( single );
-                if( read <= 0 )
-                {
+            while (true) {
+                this.single.clear();
+                int read = this.reader.read(this.single);
+                if (read <= 0) {
                     // Nothing else to read, and we saw no \n. Return the array. If we saw a \r, then add it
                     // back.
-                    if( readRc ) stream.write( '\r' );
-                    return readAnything ? new Object[] { stream.toByteArray() } : null;
+                    if (readRc) {
+                        stream.write('\r');
+                    }
+                    return readAnything ? new Object[] {stream.toByteArray()} : null;
                 }
 
                 readAnything = true;
 
-                byte chr = single.get( 0 );
-                if( chr == '\n' )
-                {
-                    if( withTrailing )
-                    {
-                        if( readRc ) stream.write( '\r' );
-                        stream.write( chr );
+                byte chr = this.single.get(0);
+                if (chr == '\n') {
+                    if (withTrailing) {
+                        if (readRc) {
+                            stream.write('\r');
+                        }
+                        stream.write(chr);
                     }
-                    return new Object[] { stream.toByteArray() };
-                }
-                else
-                {
+                    return new Object[] {stream.toByteArray()};
+                } else {
                     // We want to skip \r\n, but obviously need to include cases where \r is not followed by \n.
                     // Note, this behaviour is non-standard compliant (strictly speaking we should have no
                     // special logic for \r), but we preserve compatibility with EncodedReadableHandle and
                     // previous behaviour of the io library.
-                    if( readRc ) stream.write( '\r' );
+                    if (readRc) {
+                        stream.write('\r');
+                    }
                     readRc = chr == '\r';
-                    if( !readRc ) stream.write( chr );
+                    if (!readRc) {
+                        stream.write(chr);
+                    }
                 }
             }
-        }
-        catch( IOException e )
-        {
+        } catch (IOException e) {
             return null;
         }
     }
 
-    public static class Seekable extends BinaryReadableHandle
-    {
-        Seekable( SeekableByteChannel seekable, Closeable closeable )
-        {
-            super( seekable, seekable, closeable );
+    public static class Seekable extends BinaryReadableHandle {
+        Seekable(SeekableByteChannel seekable, Closeable closeable) {
+            super(seekable, seekable, closeable);
         }
 
         /**
-         * Seek to a new position within the file, changing where bytes are written to. The new position is an offset
-         * given by {@code offset}, relative to a start position determined by {@code whence}:
+         * Seek to a new position within the file, changing where bytes are written to. The new position is an offset given by {@code offset}, relative to a
+         * start position determined by {@code whence}:
          *
-         * - {@code "set"}: {@code offset} is relative to the beginning of the file.
-         * - {@code "cur"}: Relative to the current position. This is the default.
+         * - {@code "set"}: {@code offset} is relative to the beginning of the file. - {@code "cur"}: Relative to the current position. This is the default.
          * - {@code "end"}: Relative to the end of the file.
          *
          * In case of success, {@code seek} returns the new file position from the beginning of the file.
@@ -261,10 +244,9 @@ public class BinaryReadableHandle extends HandleGeneric
          * @cc.treturn string The reason seeking failed.
          */
         @LuaFunction
-        public final Object[] seek( Optional<String> whence, Optional<Long> offset ) throws LuaException
-        {
-            checkOpen();
-            return handleSeek( seekable, whence, offset );
+        public final Object[] seek(Optional<String> whence, Optional<Long> offset) throws LuaException {
+            this.checkOpen();
+            return handleSeek(this.seekable, whence, offset);
         }
     }
 }

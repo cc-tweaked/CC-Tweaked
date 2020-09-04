@@ -6,36 +6,35 @@
 
 package dan200.computercraft.client.render;
 
-import dan200.computercraft.shared.turtle.core.TurtlePlayer;
 import javax.annotation.Nonnull;
 
-import net.fabricmc.fabric.api.client.rendereregistry.v1.EntityRendererRegistry;
+import dan200.computercraft.shared.turtle.core.TurtlePlayer;
+
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.EntityRenderDispatcher;
 import net.minecraft.client.render.entity.EntityRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
 
-public class TurtlePlayerRenderer extends EntityRenderer<TurtlePlayer>
-{
-    public TurtlePlayerRenderer( EntityRenderDispatcher renderManager )
-    {
-        super( renderManager );
+import net.fabricmc.fabric.api.client.rendereregistry.v1.EntityRendererRegistry;
+
+public class TurtlePlayerRenderer extends EntityRenderer<TurtlePlayer> {
+    public TurtlePlayerRenderer(EntityRenderDispatcher renderManager) {
+        super(renderManager);
     }
 
     public TurtlePlayerRenderer(EntityRenderDispatcher entityRenderDispatcher, EntityRendererRegistry.Context context) {
         super(entityRenderDispatcher);
     }
 
-    @Nonnull
     @Override
-    public Identifier getTexture( @Nonnull TurtlePlayer entity )
-    {
-        return ComputerBorderRenderer.BACKGROUND_NORMAL;
+    public void render(@Nonnull TurtlePlayer entityIn, float entityYaw, float partialTicks, @Nonnull MatrixStack transform,
+                       @Nonnull VertexConsumerProvider buffer, int packedLightIn) {
     }
 
+    @Nonnull
     @Override
-    public void render( @Nonnull TurtlePlayer entityIn, float entityYaw, float partialTicks, @Nonnull MatrixStack transform, @Nonnull VertexConsumerProvider buffer, int packedLightIn )
-    {
+    public Identifier getTexture(@Nonnull TurtlePlayer entity) {
+        return ComputerBorderRenderer.BACKGROUND_NORMAL;
     }
 }

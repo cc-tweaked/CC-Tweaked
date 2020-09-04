@@ -3,13 +3,9 @@
  * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
+
 package dan200.computercraft.shared.util;
 
-public enum Holiday
-{
-    NONE,
-    VALENTINES,
-    APRIL_FOOLS_DAY,
-    HALLOWEEN,
-    CHRISTMAS,
+public enum Holiday {
+    NONE, VALENTINES, APRIL_FOOLS_DAY, HALLOWEEN, CHRISTMAS,
 }

@@ -3,24 +3,22 @@
  * Copyright Daniel Ratcliffe, 2011-2020. This API may be redistributed unmodified and in full only.
  * For help using the API, and posting your mods, visit the forums at computercraft.info.
  */
+
 package dan200.computercraft.api.turtle;
 
-import net.minecraft.item.Item;
+import javax.annotation.Nonnull;
+
 import net.minecraft.item.ItemConvertible;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
-
-import javax.annotation.Nonnull;
-import java.util.function.Supplier;
 
 /**
  * A base class for {@link ITurtleUpgrade}s.
  *
  * One does not have to use this, but it does provide a convenient template.
  */
-public abstract class AbstractTurtleUpgrade implements ITurtleUpgrade
-{
+public abstract class AbstractTurtleUpgrade implements ITurtleUpgrade {
     private final Identifier id;
     private final TurtleUpgradeType type;
     private final String adjective;
@@ -48,29 +46,25 @@ public abstract class AbstractTurtleUpgrade implements ITurtleUpgrade
 
     @Nonnull
     @Override
-    public final Identifier getUpgradeID()
-    {
-        return id;
+    public final Identifier getUpgradeID() {
+        return this.id;
     }
 
     @Nonnull
     @Override
-    public final String getUnlocalisedAdjective()
-    {
-        return adjective;
+    public final String getUnlocalisedAdjective() {
+        return this.adjective;
     }
 
     @Nonnull
     @Override
-    public final TurtleUpgradeType getType()
-    {
-        return type;
+    public final TurtleUpgradeType getType() {
+        return this.type;
     }
 
     @Nonnull
     @Override
-    public final ItemStack getCraftingItem()
-    {
-        return stack;
+    public final ItemStack getCraftingItem() {
+        return this.stack;
     }
 }

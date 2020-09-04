@@ -50,7 +50,6 @@ import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.village.TraderOfferList;
 import net.minecraft.world.GameMode;
-import net.minecraft.world.dimension.DimensionType;
 
 /**
  * A wrapper for {@link ServerPlayerEntity} which denotes a "fake" player.
@@ -78,6 +77,16 @@ public class FakePlayer extends ServerPlayerEntity {
 
     @Override
     public void onDeath(DamageSource damage) { }
+
+    @Override
+    public Entity moveToWorld(ServerWorld destination) {
+        return this;
+    }
+
+    @Override
+    public void wakeUp(boolean bl, boolean updateSleepingPlayers) {
+
+    }
 
     @Override
     public boolean startRiding(Entity entity, boolean flag) {
@@ -161,6 +170,11 @@ public class FakePlayer extends ServerPlayerEntity {
     public void setGameMode(GameMode gameMode) { }
 
     @Override
+    public void sendMessage(Text message, MessageType type, UUID senderUuid) {
+
+    }
+
+    @Override
     public String getIp() {
         return "[Fake Player]";
     }
@@ -185,21 +199,6 @@ public class FakePlayer extends ServerPlayerEntity {
 
     @Override
     public void playSound(SoundEvent soundEvent, SoundCategory soundCategory, float volume, float pitch) { }
-
-    @Override
-    public Entity moveToWorld(ServerWorld destination) {
-        return this;
-    }
-
-    @Override
-    public void wakeUp(boolean bl, boolean updateSleepingPlayers) {
-
-    }
-
-    @Override
-    public void sendMessage(Text message, MessageType type, UUID senderUuid) {
-
-    }
 
     private static class FakeNetHandler extends ServerPlayNetworkHandler {
         FakeNetHandler(ServerPlayerEntity player) {

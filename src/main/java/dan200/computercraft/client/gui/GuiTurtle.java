@@ -3,7 +3,10 @@
  * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
+
 package dan200.computercraft.client.gui;
+
+import javax.annotation.Nonnull;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import dan200.computercraft.ComputerCraft;
@@ -12,133 +15,112 @@ import dan200.computercraft.client.gui.widgets.WidgetWrapper;
 import dan200.computercraft.shared.computer.core.ClientComputer;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.turtle.inventory.ContainerTurtle;
+import org.lwjgl.glfw.GLFW;
+
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
-import org.lwjgl.glfw.GLFW;
 
-import javax.annotation.Nonnull;
-
-public class GuiTurtle extends HandledScreen<ContainerTurtle>
-{
-    private static final Identifier BACKGROUND_NORMAL = new Identifier( "computercraft", "textures/gui/turtle_normal.png" );
-    private static final Identifier BACKGROUND_ADVANCED = new Identifier( "computercraft", "textures/gui/turtle_advanced.png" );
-
-    private ContainerTurtle m_container;
-
+public class GuiTurtle extends HandledScreen<ContainerTurtle> {
+    private static final Identifier BACKGROUND_NORMAL = new Identifier("computercraft", "textures/gui/turtle_normal.png");
+    private static final Identifier BACKGROUND_ADVANCED = new Identifier("computercraft", "textures/gui/turtle_advanced.png");
     private final ComputerFamily m_family;
     private final ClientComputer m_computer;
-
+    private ContainerTurtle m_container;
     private WidgetTerminal terminal;
     private WidgetWrapper terminalWrapper;
 
-    public GuiTurtle( ContainerTurtle container, PlayerInventory player, Text title )
-    {
-        super( container, player, title );
+    public GuiTurtle(ContainerTurtle container, PlayerInventory player, Text title) {
+        super(container, player, title);
 
-        m_container = container;
-        m_family = container.getFamily();
-        m_computer = (ClientComputer) container.getComputer();
+        this.m_container = container;
+        this.m_family = container.getFamily();
+        this.m_computer = (ClientComputer) container.getComputer();
 
-        backgroundWidth = 254;
-        backgroundHeight = 217;
+        this.backgroundWidth = 254;
+        this.backgroundHeight = 217;
     }
 
     @Override
-    protected void init()
-    {
+    protected void init() {
         super.init();
-        client.keyboard.setRepeatEvents( true );
+        this.client.keyboard.setRepeatEvents(true);
 
         int termPxWidth = ComputerCraft.terminalWidth_turtle * FixedWidthFontRenderer.FONT_WIDTH;
         int termPxHeight = ComputerCraft.terminalHeight_turtle * FixedWidthFontRenderer.FONT_HEIGHT;
 
-        terminal = new WidgetTerminal(
-            client, () -> m_computer,
-            ComputerCraft.terminalWidth_turtle,
-            ComputerCraft.terminalHeight_turtle,
-            2, 2, 2, 2
-        );
-        terminalWrapper = new WidgetWrapper( terminal, 2 + 8 + x, 2 + 8 + y, termPxWidth, termPxHeight );
+        this.terminal = new WidgetTerminal(this.client, () -> this.m_computer, ComputerCraft.terminalWidth_turtle, ComputerCraft.terminalHeight_turtle, 2, 2, 2, 2);
+        this.terminalWrapper = new WidgetWrapper(this.terminal, 2 + 8 + this.x, 2 + 8 + this.y, termPxWidth, termPxHeight);
 
-        children.add( terminalWrapper );
-        setFocused( terminalWrapper );
+        this.children.add(this.terminalWrapper);
+        this.setFocused(this.terminalWrapper);
     }
 
     @Override
-    public void removed()
-    {
-        super.removed();
-        children.remove( terminal );
-        terminal = null;
-        client.keyboard.setRepeatEvents( false );
+    public void render(@Nonnull MatrixStack stack, int mouseX, int mouseY, float partialTicks) {
+        this.renderBackground(stack);
+        super.render(stack, mouseX, mouseY, partialTicks);
+        this.drawMouseoverTooltip(stack, mouseX, mouseY);
     }
 
     @Override
-    public void tick()
-    {
-        super.tick();
-        terminal.update();
+    protected void drawForeground(@Nonnull MatrixStack transform, int mouseX, int mouseY) {
+        // Skip rendering labels.
     }
 
     @Override
-    public boolean keyPressed( int key, int scancode, int modifiers )
-    {
-        // Forward the tab key to the terminal, rather than moving between controls.
-        if( key == GLFW.GLFW_KEY_TAB && getFocused() != null && getFocused() == terminalWrapper )
-        {
-            return getFocused().keyPressed( key, scancode, modifiers );
-        }
-
-        return super.keyPressed( key, scancode, modifiers );
-    }
-
-    @Override
-    protected void drawBackground( @Nonnull MatrixStack transform, float partialTicks, int mouseX, int mouseY )
-    {
+    protected void drawBackground(@Nonnull MatrixStack transform, float partialTicks, int mouseX, int mouseY) {
         // Draw term
-        Identifier texture = m_family == ComputerFamily.ADVANCED ? BACKGROUND_ADVANCED : BACKGROUND_NORMAL;
-        terminal.draw( terminalWrapper.getX(), terminalWrapper.getY() );
+        Identifier texture = this.m_family == ComputerFamily.ADVANCED ? BACKGROUND_ADVANCED : BACKGROUND_NORMAL;
+        this.terminal.draw(this.terminalWrapper.getX(), this.terminalWrapper.getY());
 
         // Draw border/inventory
-        RenderSystem.color4f( 1.0F, 1.0F, 1.0F, 1.0F );
-        client.getTextureManager().bindTexture( texture );
-        drawTexture( transform, x, y, 0, 0, backgroundWidth, backgroundHeight );
+        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        this.client.getTextureManager()
+                   .bindTexture(texture);
+        this.drawTexture(transform, this.x, this.y, 0, 0, this.backgroundWidth, this.backgroundHeight);
 
         // Draw selection slot
-        int slot = m_container.getSelectedSlot();
-        if( slot >= 0 )
-        {
+        int slot = this.m_container.getSelectedSlot();
+        if (slot >= 0) {
             int slotX = slot % 4;
             int slotY = slot / 4;
-            drawTexture( transform,
-                x + ContainerTurtle.TURTLE_START_X - 2 + slotX * 18,
-                y + ContainerTurtle.PLAYER_START_Y - 2 + slotY * 18,
-                0, 217, 24, 24
-            );
+            this.drawTexture(transform, this.x + ContainerTurtle.TURTLE_START_X - 2 + slotX * 18, this.y + ContainerTurtle.PLAYER_START_Y - 2 + slotY * 18,
+                             0,
+                             217,
+                             24,
+                             24);
         }
     }
 
     @Override
-    public void render( @Nonnull MatrixStack stack, int mouseX, int mouseY, float partialTicks )
-    {
-        renderBackground( stack );
-        super.render( stack, mouseX, mouseY, partialTicks );
-        drawMouseoverTooltip( stack, mouseX, mouseY );
+    public boolean mouseDragged(double x, double y, int button, double deltaX, double deltaY) {
+        return (this.getFocused() != null && this.getFocused().mouseDragged(x, y, button, deltaX, deltaY)) || super.mouseDragged(x, y, button, deltaX, deltaY);
     }
 
     @Override
-    public boolean mouseDragged( double x, double y, int button, double deltaX, double deltaY )
-    {
-        return (getFocused() != null && getFocused().mouseDragged( x, y, button, deltaX, deltaY ))
-            || super.mouseDragged( x, y, button, deltaX, deltaY );
+    public boolean keyPressed(int key, int scancode, int modifiers) {
+        // Forward the tab key to the terminal, rather than moving between controls.
+        if (key == GLFW.GLFW_KEY_TAB && this.getFocused() != null && this.getFocused() == this.terminalWrapper) {
+            return this.getFocused().keyPressed(key, scancode, modifiers);
+        }
+
+        return super.keyPressed(key, scancode, modifiers);
     }
 
     @Override
-    protected void drawForeground( @Nonnull MatrixStack transform, int mouseX, int mouseY )
-    {
-        // Skip rendering labels.
+    public void removed() {
+        super.removed();
+        this.children.remove(this.terminal);
+        this.terminal = null;
+        this.client.keyboard.setRepeatEvents(false);
+    }
+
+    @Override
+    public void tick() {
+        super.tick();
+        this.terminal.update();
     }
 }

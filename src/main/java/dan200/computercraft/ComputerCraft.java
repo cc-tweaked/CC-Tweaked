@@ -64,9 +64,6 @@ import net.fabricmc.loader.api.FabricLoader;
 
 public final class ComputerCraft implements ModInitializer {
     public static final String MOD_ID = "computercraft";
-
-    public static ItemGroup MAIN_GROUP = FabricItemGroupBuilder.build(new Identifier(MOD_ID, "main"), () -> new ItemStack(ModBlocks.COMPUTER_NORMAL));
-
     // Configuration options
     public static final String[] DEFAULT_HTTP_WHITELIST = new String[] {"*"};
     public static final String[] DEFAULT_HTTP_BLACKLIST = new String[] {
@@ -76,6 +73,18 @@ public final class ComputerCraft implements ModInitializer {
         "192.168.0.0/16",
         "fd00::/8",
         };
+    public static final int terminalWidth_computer = 51;
+    public static final int terminalHeight_computer = 19;
+    public static final int terminalWidth_turtle = 39;
+    public static final int terminalHeight_turtle = 13;
+    public static final int terminalWidth_pocketComputer = 26;
+    public static final int terminalHeight_pocketComputer = 20;
+    // Registries
+    public static final ClientComputerRegistry clientComputerRegistry = new ClientComputerRegistry();
+    public static final ServerComputerRegistry serverComputerRegistry = new ServerComputerRegistry();
+    // Logging
+    public static final Logger log = LogManager.getLogger(MOD_ID);
+    public static ItemGroup MAIN_GROUP = FabricItemGroupBuilder.build(new Identifier(MOD_ID, "main"), () -> new ItemStack(ModBlocks.COMPUTER_NORMAL));
     public static List<AddressRule> httpRules = Collections.unmodifiableList(Stream.concat(Stream.of(DEFAULT_HTTP_BLACKLIST)
                                                                                                  .map(x -> AddressRule.parse(x, Action.DENY.toPartial()))
                                                                                                  .filter(Objects::nonNull),
@@ -85,12 +94,6 @@ public final class ComputerCraft implements ModInitializer {
                                                                                    .collect(Collectors.toList()));
     public static boolean commandRequireCreative = false;
     public static MonitorRenderer monitorRenderer = MonitorRenderer.BEST;
-    public static final int terminalWidth_computer = 51;
-    public static final int terminalHeight_computer = 19;
-    public static final int terminalWidth_turtle = 39;
-    public static final int terminalHeight_turtle = 13;
-    public static final int terminalWidth_pocketComputer = 26;
-    public static final int terminalHeight_pocketComputer = 20;
     public static int computerSpaceLimit = 1000 * 1000;
     public static int floppySpaceLimit = 125 * 1000;
     public static int maximumFilesOpen = 128;
@@ -123,37 +126,9 @@ public final class ComputerCraft implements ModInitializer {
     public static boolean turtlesObeyBlockProtection = true;
     public static boolean turtlesCanPush = true;
     public static EnumSet<TurtleAction> turtleDisabledActions = EnumSet.noneOf(TurtleAction.class);
-
     public static int monitorWidth = 8;
     public static int monitorHeight = 6;
     public static double monitorDistanceSq = 4096;
-
-    public static final class TurtleUpgrades {
-        public static TurtleModem wirelessModemNormal;
-        public static TurtleModem wirelessModemAdvanced;
-        public static TurtleSpeaker speaker;
-
-        public static TurtleCraftingTable craftingTable;
-        public static TurtleSword diamondSword;
-        public static TurtleShovel diamondShovel;
-        public static TurtleTool diamondPickaxe;
-        public static TurtleAxe diamondAxe;
-        public static TurtleHoe diamondHoe;
-    }
-
-    public static final class PocketUpgrades {
-        public static PocketModem wirelessModemNormal;
-        public static PocketModem wirelessModemAdvanced;
-        public static PocketSpeaker speaker;
-    }
-
-    // Registries
-    public static final ClientComputerRegistry clientComputerRegistry = new ClientComputerRegistry();
-    public static final ServerComputerRegistry serverComputerRegistry = new ServerComputerRegistry();
-
-    // Logging
-    public static final Logger log = LogManager.getLogger(MOD_ID);
-
 
     @Override
     public void onInitialize() {
@@ -173,10 +148,29 @@ public final class ComputerCraft implements ModInitializer {
         Registry.register(Registry.RECIPE_SERIALIZER, new Identifier(ComputerCraft.MOD_ID, "turtle_upgrade"), TurtleUpgradeRecipe.SERIALIZER);
         Registry.register(Registry.RECIPE_SERIALIZER, new Identifier(ComputerCraft.MOD_ID, "impostor_shaped"), ImpostorRecipe.SERIALIZER);
         Registry.register(Registry.RECIPE_SERIALIZER, new Identifier(ComputerCraft.MOD_ID, "impostor_shapeless"), ImpostorShapelessRecipe.SERIALIZER);
-        Registry.register(Registry.LOOT_CONDITION_TYPE, new Identifier( ComputerCraft.MOD_ID, "block_named" ), BlockNamedEntityLootCondition.TYPE);
-        Registry.register(Registry.LOOT_CONDITION_TYPE, new Identifier( ComputerCraft.MOD_ID, "player_creative" ), PlayerCreativeLootCondition.TYPE);
-        Registry.register(Registry.LOOT_CONDITION_TYPE, new Identifier( ComputerCraft.MOD_ID, "has_id" ), HasComputerIdLootCondition.TYPE);
+        Registry.register(Registry.LOOT_CONDITION_TYPE, new Identifier(ComputerCraft.MOD_ID, "block_named"), BlockNamedEntityLootCondition.TYPE);
+        Registry.register(Registry.LOOT_CONDITION_TYPE, new Identifier(ComputerCraft.MOD_ID, "player_creative"), PlayerCreativeLootCondition.TYPE);
+        Registry.register(Registry.LOOT_CONDITION_TYPE, new Identifier(ComputerCraft.MOD_ID, "has_id"), HasComputerIdLootCondition.TYPE);
         init();
+    }
+
+    public static final class TurtleUpgrades {
+        public static TurtleModem wirelessModemNormal;
+        public static TurtleModem wirelessModemAdvanced;
+        public static TurtleSpeaker speaker;
+
+        public static TurtleCraftingTable craftingTable;
+        public static TurtleSword diamondSword;
+        public static TurtleShovel diamondShovel;
+        public static TurtleTool diamondPickaxe;
+        public static TurtleAxe diamondAxe;
+        public static TurtleHoe diamondHoe;
+    }
+
+    public static final class PocketUpgrades {
+        public static PocketModem wirelessModemNormal;
+        public static PocketModem wirelessModemAdvanced;
+        public static PocketSpeaker speaker;
     }
 
 }

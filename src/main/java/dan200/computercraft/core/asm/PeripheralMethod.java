@@ -6,6 +6,10 @@
 
 package dan200.computercraft.core.asm;
 
+import java.util.Arrays;
+
+import javax.annotation.Nonnull;
+
 import dan200.computercraft.api.lua.IArguments;
 import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
@@ -13,19 +17,21 @@ import dan200.computercraft.api.lua.MethodResult;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IDynamicPeripheral;
 
-import javax.annotation.Nonnull;
-import java.util.Arrays;
+public interface PeripheralMethod {
+    Generator<PeripheralMethod> GENERATOR = new Generator<>(PeripheralMethod.class,
+                                                            Arrays.asList(ILuaContext.class, IComputerAccess.class),
+                                                            m -> (target, context, computer, args) -> TaskCallback.make(context,
+                                                                                                                        () -> TaskCallback.checkUnwrap(m.apply(
+                                                                                                                            target,
+                                                                                                                            context,
+                                                                                                                            computer,
+                                                                                                                            args))));
 
-public interface PeripheralMethod
-{
-    Generator<PeripheralMethod> GENERATOR = new Generator<>( PeripheralMethod.class, Arrays.asList( ILuaContext.class, IComputerAccess.class ),
-        m -> ( target, context, computer, args ) -> TaskCallback.make( context, () -> TaskCallback.checkUnwrap( m.apply( target, context, computer, args ) ) )
-    );
-
-    IntCache<PeripheralMethod> DYNAMIC = new IntCache<>(
-        method -> ( instance, context, computer, args ) -> ((IDynamicPeripheral) instance).callMethod( computer, context, method, args )
-    );
+    IntCache<PeripheralMethod> DYNAMIC = new IntCache<>(method -> (instance, context, computer, args) -> ((IDynamicPeripheral) instance).callMethod(computer,
+                                                                                                                                                    context,
+                                                                                                                                                    method,
+                                                                                                                                                    args));
 
     @Nonnull
-    MethodResult apply( @Nonnull Object target, @Nonnull ILuaContext context, @Nonnull IComputerAccess computer, @Nonnull IArguments args ) throws LuaException;
+    MethodResult apply(@Nonnull Object target, @Nonnull ILuaContext context, @Nonnull IComputerAccess computer, @Nonnull IArguments args) throws LuaException;
 }

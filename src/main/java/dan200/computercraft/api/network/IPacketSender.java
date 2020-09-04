@@ -3,18 +3,18 @@
  * Copyright Daniel Ratcliffe, 2011-2020. This API may be redistributed unmodified and in full only.
  * For help using the API, and posting your mods, visit the forums at computercraft.info.
  */
+
 package dan200.computercraft.api.network;
+
+import javax.annotation.Nonnull;
 
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
-import javax.annotation.Nonnull;
-
 /**
  * An object on a {@link IPacketNetwork}, capable of sending packets.
  */
-public interface IPacketSender
-{
+public interface IPacketSender {
     /**
      * Get the world in which this packet sender exists.
      *
@@ -32,8 +32,8 @@ public interface IPacketSender
     Vec3d getPosition();
 
     /**
-     * Get some sort of identification string for this sender. This does not strictly need to be unique, but you
-     * should be able to extract some identifiable information from it.
+     * Get some sort of identification string for this sender. This does not strictly need to be unique, but you should be able to extract some identifiable
+     * information from it.
      *
      * @return This device's id.
      */

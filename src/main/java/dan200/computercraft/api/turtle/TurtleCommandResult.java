@@ -3,6 +3,7 @@
  * Copyright Daniel Ratcliffe, 2011-2020. This API may be redistributed unmodified and in full only.
  * For help using the API, and posting your mods, visit the forums at computercraft.info.
  */
+
 package dan200.computercraft.api.turtle;
 
 import javax.annotation.Nonnull;
@@ -14,10 +15,18 @@ import javax.annotation.Nullable;
  * @see ITurtleCommand#execute(ITurtleAccess)
  * @see ITurtleUpgrade#useTool(ITurtleAccess, TurtleSide, TurtleVerb, Direction)
  */
-public final class TurtleCommandResult
-{
-    private static final TurtleCommandResult EMPTY_SUCCESS = new TurtleCommandResult( true, null, null );
-    private static final TurtleCommandResult EMPTY_FAILURE = new TurtleCommandResult( false, null, null );
+public final class TurtleCommandResult {
+    private static final TurtleCommandResult EMPTY_SUCCESS = new TurtleCommandResult(true, null, null);
+    private static final TurtleCommandResult EMPTY_FAILURE = new TurtleCommandResult(false, null, null);
+    private final boolean success;
+    private final String errorMessage;
+    private final Object[] results;
+
+    private TurtleCommandResult(boolean success, String errorMessage, Object[] results) {
+        this.success = success;
+        this.errorMessage = errorMessage;
+        this.results = results;
+    }
 
     /**
      * Create a successful command result with no result.
@@ -25,8 +34,7 @@ public final class TurtleCommandResult
      * @return A successful command result with no values.
      */
     @Nonnull
-    public static TurtleCommandResult success()
-    {
+    public static TurtleCommandResult success() {
         return EMPTY_SUCCESS;
     }
 
@@ -37,10 +45,11 @@ public final class TurtleCommandResult
      * @return A successful command result with the given values.
      */
     @Nonnull
-    public static TurtleCommandResult success( @Nullable Object[] results )
-    {
-        if( results == null || results.length == 0 ) return EMPTY_SUCCESS;
-        return new TurtleCommandResult( true, null, results );
+    public static TurtleCommandResult success(@Nullable Object[] results) {
+        if (results == null || results.length == 0) {
+            return EMPTY_SUCCESS;
+        }
+        return new TurtleCommandResult(true, null, results);
     }
 
     /**
@@ -49,8 +58,7 @@ public final class TurtleCommandResult
      * @return A failed command result with no message.
      */
     @Nonnull
-    public static TurtleCommandResult failure()
-    {
+    public static TurtleCommandResult failure() {
         return EMPTY_FAILURE;
     }
 
@@ -61,21 +69,11 @@ public final class TurtleCommandResult
      * @return A failed command result with a message.
      */
     @Nonnull
-    public static TurtleCommandResult failure( @Nullable String errorMessage )
-    {
-        if( errorMessage == null ) return EMPTY_FAILURE;
-        return new TurtleCommandResult( false, errorMessage, null );
-    }
-
-    private final boolean success;
-    private final String errorMessage;
-    private final Object[] results;
-
-    private TurtleCommandResult( boolean success, String errorMessage, Object[] results )
-    {
-        this.success = success;
-        this.errorMessage = errorMessage;
-        this.results = results;
+    public static TurtleCommandResult failure(@Nullable String errorMessage) {
+        if (errorMessage == null) {
+            return EMPTY_FAILURE;
+        }
+        return new TurtleCommandResult(false, errorMessage, null);
     }
 
     /**
@@ -83,9 +81,8 @@ public final class TurtleCommandResult
      *
      * @return If the command was successful.
      */
-    public boolean isSuccess()
-    {
-        return success;
+    public boolean isSuccess() {
+        return this.success;
     }
 
     /**
@@ -94,9 +91,8 @@ public final class TurtleCommandResult
      * @return The command's error message, or {@code null} if it was a success.
      */
     @Nullable
-    public String getErrorMessage()
-    {
-        return errorMessage;
+    public String getErrorMessage() {
+        return this.errorMessage;
     }
 
     /**
@@ -105,8 +101,7 @@ public final class TurtleCommandResult
      * @return The command's result, or {@code null} if it was a failure.
      */
     @Nullable
-    public Object[] getResults()
-    {
-        return results;
+    public Object[] getResults() {
+        return this.results;
     }
 }

@@ -87,7 +87,8 @@ public final class ClientRegistry {
             return layer == 1 ? ((ItemDisk) stack.getItem()).getColour(stack) : 0xFFFFFF;
         }, ComputerCraftRegistry.ModItems.DISK);
 
-        ColorProviderRegistry.ITEM.register((stack, layer) -> layer == 1 ? ItemTreasureDisk.getColour(stack) : 0xFFFFFF, ComputerCraftRegistry.ModItems.TREASURE_DISK);
+        ColorProviderRegistry.ITEM.register((stack, layer) -> layer == 1 ? ItemTreasureDisk.getColour(stack) : 0xFFFFFF,
+                                            ComputerCraftRegistry.ModItems.TREASURE_DISK);
 
         ColorProviderRegistry.ITEM.register((stack, layer) -> {
             switch (layer) {
@@ -116,6 +117,7 @@ public final class ClientRegistry {
                           spriteIdentifier -> MinecraftClient.getInstance()
                                                              .getSpriteAtlas(spriteIdentifier.getAtlasId())
                                                              .apply(spriteIdentifier.getTextureId()),
-                          ModelRotation.X0_Y0, identifier);
+                          ModelRotation.X0_Y0,
+                          identifier);
     }
 }

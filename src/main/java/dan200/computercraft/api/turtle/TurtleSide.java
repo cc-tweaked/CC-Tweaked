@@ -3,13 +3,13 @@
  * Copyright Daniel Ratcliffe, 2011-2020. This API may be redistributed unmodified and in full only.
  * For help using the API, and posting your mods, visit the forums at computercraft.info.
  */
+
 package dan200.computercraft.api.turtle;
 
 /**
  * An enum representing the two sides of the turtle that a turtle turtle might reside.
  */
-public enum TurtleSide
-{
+public enum TurtleSide {
     /**
      * The turtle's left side (where the pickaxe usually is on a Wireless Mining Turtle).
      */

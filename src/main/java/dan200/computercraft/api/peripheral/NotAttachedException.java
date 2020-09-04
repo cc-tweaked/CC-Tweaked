@@ -3,23 +3,20 @@
  * Copyright Daniel Ratcliffe, 2011-2020. This API may be redistributed unmodified and in full only.
  * For help using the API, and posting your mods, visit the forums at computercraft.info.
  */
+
 package dan200.computercraft.api.peripheral;
 
 /**
- * Thrown when performing operations on {@link IComputerAccess} when the current peripheral is no longer attached to
- * the computer.
+ * Thrown when performing operations on {@link IComputerAccess} when the current peripheral is no longer attached to the computer.
  */
-public class NotAttachedException extends IllegalStateException
-{
+public class NotAttachedException extends IllegalStateException {
     private static final long serialVersionUID = 1221244785535553536L;
 
-    public NotAttachedException()
-    {
-        super( "You are not attached to this computer" );
+    public NotAttachedException() {
+        super("You are not attached to this computer");
     }
 
-    public NotAttachedException( String s )
-    {
-        super( s );
+    public NotAttachedException(String s) {
+        super(s);
     }
 }

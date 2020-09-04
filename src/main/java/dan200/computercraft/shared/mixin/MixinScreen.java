@@ -7,8 +7,6 @@
 package dan200.computercraft.shared.mixin;
 
 import dan200.computercraft.shared.command.CommandCopy;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -16,8 +14,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import net.minecraft.client.gui.screen.Screen;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+
 @Mixin (Screen.class)
-@Environment(EnvType.CLIENT)
+@Environment (EnvType.CLIENT)
 public class MixinScreen {
     @Inject (method = "sendMessage(Ljava/lang/String;Z)V", at = @At ("HEAD"), cancellable = true)
     public void sendClientCommand(String message, boolean add, CallbackInfo info) {

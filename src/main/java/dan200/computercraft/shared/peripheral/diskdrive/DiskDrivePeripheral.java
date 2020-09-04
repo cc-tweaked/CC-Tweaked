@@ -3,7 +3,13 @@
  * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
+
 package dan200.computercraft.shared.peripheral.diskdrive;
+
+import java.util.Optional;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
@@ -13,39 +19,53 @@ import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.shared.MediaProviders;
 import dan200.computercraft.shared.media.items.ItemDisk;
 import dan200.computercraft.shared.util.StringUtil;
+
 import net.minecraft.item.ItemStack;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.util.Optional;
-
 /**
- * Disk drives are a peripheral which allow you to read and write to floppy disks and other "mountable media" (such as
- * computers or turtles). They also allow you to {@link #playAudio play records}.
+ * Disk drives are a peripheral which allow you to read and write to floppy disks and other "mountable media" (such as computers or turtles). They also
+ * allow you to {@link #playAudio play records}.
  *
- * When a disk drive attaches some mount (such as a floppy disk or computer), it attaches a folder called {@code disk},
- * {@code disk2}, etc... to the root directory of the computer. This folder can be used to interact with the files on
- * that disk.
+ * When a disk drive attaches some mount (such as a floppy disk or computer), it attaches a folder called {@code disk}, {@code disk2}, etc... to the root
+ * directory of the computer. This folder can be used to interact with the files on that disk.
  *
- * When a disk is inserted, a {@code disk} event is fired, with the side peripheral is on. Likewise, when the disk is
- * detached, a {@code disk_eject} event is fired.
+ * When a disk is inserted, a {@code disk} event is fired, with the side peripheral is on. Likewise, when the disk is detached, a {@code disk_eject} event
+ * is fired.
  *
  * @cc.module drive
  */
-public class DiskDrivePeripheral implements IPeripheral
-{
+public class DiskDrivePeripheral implements IPeripheral {
     private final TileDiskDrive diskDrive;
 
-    DiskDrivePeripheral( TileDiskDrive diskDrive )
-    {
+    DiskDrivePeripheral(TileDiskDrive diskDrive) {
         this.diskDrive = diskDrive;
     }
 
     @Nonnull
     @Override
-    public String getType()
-    {
+    public String getType() {
         return "drive";
+    }
+
+    @Override
+    public void attach(@Nonnull IComputerAccess computer) {
+        this.diskDrive.mount(computer);
+    }
+
+    @Override
+    public void detach(@Nonnull IComputerAccess computer) {
+        this.diskDrive.unmount(computer);
+    }
+
+    @Nonnull
+    @Override
+    public Object getTarget() {
+        return this.diskDrive;
+    }
+
+    @Override
+    public boolean equals(IPeripheral other) {
+        return this == other || other instanceof DiskDrivePeripheral && ((DiskDrivePeripheral) other).diskDrive == this.diskDrive;
     }
 
     /**
@@ -54,9 +74,9 @@ public class DiskDrivePeripheral implements IPeripheral
      * @return Whether a disk is currently inserted in the drive.
      */
     @LuaFunction
-    public final boolean isDiskPresent()
-    {
-        return !diskDrive.getDiskStack().isEmpty();
+    public final boolean isDiskPresent() {
+        return !this.diskDrive.getDiskStack()
+                              .isEmpty();
     }
 
     /**
@@ -66,11 +86,10 @@ public class DiskDrivePeripheral implements IPeripheral
      * @cc.treturn string The label of the disk, or {@code nil} if either no disk is inserted or the disk doesn't have a label.
      */
     @LuaFunction
-    public final Object[] getDiskLabel()
-    {
-        ItemStack stack = diskDrive.getDiskStack();
-        IMedia media = MediaProviders.get( stack );
-        return media == null ? null : new Object[] { media.getLabel( stack ) };
+    public final Object[] getDiskLabel() {
+        ItemStack stack = this.diskDrive.getDiskStack();
+        IMedia media = MediaProviders.get(stack);
+        return media == null ? null : new Object[] {media.getLabel(stack)};
     }
 
     /**
@@ -78,25 +97,24 @@ public class DiskDrivePeripheral implements IPeripheral
      *
      * If no label or {@code nil} is passed, the label will be cleared.
      *
-     * If the inserted disk's label can't be changed (for example, a record),
-     * an error will be thrown.
+     * If the inserted disk's label can't be changed (for example, a record), an error will be thrown.
      *
      * @param labelA The new label of the disk, or {@code nil} to clear.
      * @throws LuaException If the disk's label can't be changed.
      */
-    @LuaFunction( mainThread = true )
-    public final void setDiskLabel( Optional<String> labelA ) throws LuaException
-    {
-        String label = labelA.orElse( null );
-        ItemStack stack = diskDrive.getDiskStack();
-        IMedia media = MediaProviders.get( stack );
-        if( media == null ) return;
-
-        if( !media.setLabel( stack, StringUtil.normaliseLabel( label ) ) )
-        {
-            throw new LuaException( "Disk label cannot be changed" );
+    @LuaFunction (mainThread = true)
+    public final void setDiskLabel(Optional<String> labelA) throws LuaException {
+        String label = labelA.orElse(null);
+        ItemStack stack = this.diskDrive.getDiskStack();
+        IMedia media = MediaProviders.get(stack);
+        if (media == null) {
+            return;
         }
-        diskDrive.setDiskStack( stack );
+
+        if (!media.setLabel(stack, StringUtil.normaliseLabel(label))) {
+            throw new LuaException("Disk label cannot be changed");
+        }
+        this.diskDrive.setDiskStack(stack);
     }
 
     /**
@@ -106,9 +124,8 @@ public class DiskDrivePeripheral implements IPeripheral
      * @return Whether a disk with data is inserted.
      */
     @LuaFunction
-    public final boolean hasData( IComputerAccess computer )
-    {
-        return diskDrive.getDiskMountPath( computer ) != null;
+    public final boolean hasData(IComputerAccess computer) {
+        return this.diskDrive.getDiskMountPath(computer) != null;
     }
 
     /**
@@ -119,9 +136,8 @@ public class DiskDrivePeripheral implements IPeripheral
      */
     @LuaFunction
     @Nullable
-    public final String getMountPath( IComputerAccess computer )
-    {
-        return diskDrive.getDiskMountPath( computer );
+    public final String getMountPath(IComputerAccess computer) {
+        return this.diskDrive.getDiskMountPath(computer);
     }
 
     /**
@@ -130,11 +146,10 @@ public class DiskDrivePeripheral implements IPeripheral
      * @return Whether a disk with audio is inserted.
      */
     @LuaFunction
-    public final boolean hasAudio()
-    {
-        ItemStack stack = diskDrive.getDiskStack();
-        IMedia media = MediaProviders.get( stack );
-        return media != null && media.getAudio( stack ) != null;
+    public final boolean hasAudio() {
+        ItemStack stack = this.diskDrive.getDiskStack();
+        IMedia media = MediaProviders.get(stack);
+        return media != null && media.getAudio(stack) != null;
     }
 
     /**
@@ -144,20 +159,18 @@ public class DiskDrivePeripheral implements IPeripheral
      */
     @LuaFunction
     @Nullable
-    public final Object getAudioTitle()
-    {
-        ItemStack stack = diskDrive.getDiskStack();
-        IMedia media = MediaProviders.get( stack );
-        return media != null ? media.getAudioTitle( stack ) : false;
+    public final Object getAudioTitle() {
+        ItemStack stack = this.diskDrive.getDiskStack();
+        IMedia media = MediaProviders.get(stack);
+        return media != null ? media.getAudioTitle(stack) : false;
     }
 
     /**
      * Plays the audio in the inserted disk, if available.
      */
     @LuaFunction
-    public final void playAudio()
-    {
-        diskDrive.playDiskAudio();
+    public final void playAudio() {
+        this.diskDrive.playDiskAudio();
     }
 
     /**
@@ -166,18 +179,16 @@ public class DiskDrivePeripheral implements IPeripheral
      * @see #playAudio
      */
     @LuaFunction
-    public final void stopAudio()
-    {
-        diskDrive.stopDiskAudio();
+    public final void stopAudio() {
+        this.diskDrive.stopDiskAudio();
     }
 
     /**
      * Ejects any disk that may be in the drive.
      */
     @LuaFunction
-    public final void ejectDisk()
-    {
-        diskDrive.ejectDisk();
+    public final void ejectDisk() {
+        this.diskDrive.ejectDisk();
     }
 
     /**
@@ -187,34 +198,8 @@ public class DiskDrivePeripheral implements IPeripheral
      * @cc.treturn number The The ID of the disk in the drive, or {@code nil} if no disk with an ID is inserted.
      */
     @LuaFunction
-    public final Object[] getDiskID()
-    {
-        ItemStack disk = diskDrive.getDiskStack();
-        return disk.getItem() instanceof ItemDisk ? new Object[] { ItemDisk.getDiskID( disk ) } : null;
-    }
-
-    @Override
-    public void attach( @Nonnull IComputerAccess computer )
-    {
-        diskDrive.mount( computer );
-    }
-
-    @Override
-    public void detach( @Nonnull IComputerAccess computer )
-    {
-        diskDrive.unmount( computer );
-    }
-
-    @Override
-    public boolean equals( IPeripheral other )
-    {
-        return this == other || other instanceof DiskDrivePeripheral && ((DiskDrivePeripheral) other).diskDrive == diskDrive;
-    }
-
-    @Nonnull
-    @Override
-    public Object getTarget()
-    {
-        return diskDrive;
+    public final Object[] getDiskID() {
+        ItemStack disk = this.diskDrive.getDiskStack();
+        return disk.getItem() instanceof ItemDisk ? new Object[] {ItemDisk.getDiskID(disk)} : null;
     }
 }

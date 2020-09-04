@@ -3,28 +3,25 @@
  * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
+
 package dan200.computercraft.shared.peripheral.diskdrive;
 
 import javax.annotation.Nonnull;
+
 import net.minecraft.util.StringIdentifiable;
 
-public enum DiskDriveState implements StringIdentifiable
-{
-    EMPTY( "empty" ),
-    FULL( "full" ),
-    INVALID( "invalid" );
+public enum DiskDriveState implements StringIdentifiable {
+    EMPTY("empty"), FULL("full"), INVALID("invalid");
 
     private final String name;
 
-    DiskDriveState( String name )
-    {
+    DiskDriveState(String name) {
         this.name = name;
     }
 
     @Override
     @Nonnull
-    public String asString()
-    {
-        return name;
+    public String asString() {
+        return this.name;
     }
 }

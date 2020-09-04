@@ -6,6 +6,8 @@
 
 package dan200.computercraft.core.apis;
 
+import javax.annotation.Nonnull;
+
 import dan200.computercraft.api.lua.IArguments;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
@@ -14,66 +16,46 @@ import dan200.computercraft.shared.util.Palette;
 import dan200.computercraft.shared.util.StringUtil;
 import org.apache.commons.lang3.ArrayUtils;
 
-import javax.annotation.Nonnull;
-
 /**
  * A base class for all objects which interact with a terminal. Namely the {@link TermAPI} and monitors.
  *
  * @cc.module term.Redirect
  */
-public abstract class TermMethods
-{
-    private static int getHighestBit( int group )
-    {
-        int bit = 0;
-        while( group > 0 )
-        {
-            group >>= 1;
-            bit++;
-        }
-        return bit;
-    }
-
-    @Nonnull
-    public abstract Terminal getTerminal() throws LuaException;
-
-    public abstract boolean isColour() throws LuaException;
-
+public abstract class TermMethods {
     /**
      * Write {@code text} at the current cursor position, moving the cursor to the end of the text.
      *
-     * Unlike functions like {@code write} and {@code print}, this does not wrap the text - it simply copies the
-     * text to the current terminal line.
+     * Unlike functions like {@code write} and {@code print}, this does not wrap the text - it simply copies the text to the current terminal line.
      *
      * @param arguments The text to write.
      * @throws LuaException (hidden) If the terminal cannot be found.
      * @cc.param text The text to write.
      */
     @LuaFunction
-    public final void write( IArguments arguments ) throws LuaException
-    {
-        String text = StringUtil.toString( arguments.get( 0 ) );
-        Terminal terminal = getTerminal();
-        synchronized( terminal )
-        {
-            terminal.write( text );
-            terminal.setCursorPos( terminal.getCursorX() + text.length(), terminal.getCursorY() );
+    public final void write(IArguments arguments) throws LuaException {
+        String text = StringUtil.toString(arguments.get(0));
+        Terminal terminal = this.getTerminal();
+        synchronized (terminal) {
+            terminal.write(text);
+            terminal.setCursorPos(terminal.getCursorX() + text.length(), terminal.getCursorY());
         }
     }
+
+    @Nonnull
+    public abstract Terminal getTerminal() throws LuaException;
 
     /**
      * Move all positions up (or down) by {@code y} pixels.
      *
-     * Every pixel in the terminal will be replaced by the line {@code y} pixels below it. If {@code y} is negative, it
-     * will copy pixels from above instead.
+     * Every pixel in the terminal will be replaced by the line {@code y} pixels below it. If {@code y} is negative, it will copy pixels from above
+     * instead.
      *
      * @param y The number of lines to move up by. This may be a negative number.
      * @throws LuaException (hidden) If the terminal cannot be found.
      */
     @LuaFunction
-    public final void scroll( int y ) throws LuaException
-    {
-        getTerminal().scroll( y );
+    public final void scroll(int y) throws LuaException {
+        this.getTerminal().scroll(y);
     }
 
     /**
@@ -85,10 +67,12 @@ public abstract class TermMethods
      * @cc.treturn number The y position of the cursor.
      */
     @LuaFunction
-    public final Object[] getCursorPos() throws LuaException
-    {
-        Terminal terminal = getTerminal();
-        return new Object[] { terminal.getCursorX() + 1, terminal.getCursorY() + 1 };
+    public final Object[] getCursorPos() throws LuaException {
+        Terminal terminal = this.getTerminal();
+        return new Object[] {
+            terminal.getCursorX() + 1,
+            terminal.getCursorY() + 1
+        };
     }
 
     /**
@@ -99,12 +83,10 @@ public abstract class TermMethods
      * @throws LuaException (hidden) If the terminal cannot be found.
      */
     @LuaFunction
-    public final void setCursorPos( int x, int y ) throws LuaException
-    {
-        Terminal terminal = getTerminal();
-        synchronized( terminal )
-        {
-            terminal.setCursorPos( x - 1, y - 1 );
+    public final void setCursorPos(int x, int y) throws LuaException {
+        Terminal terminal = this.getTerminal();
+        synchronized (terminal) {
+            terminal.setCursorPos(x - 1, y - 1);
         }
     }
 
@@ -115,9 +97,8 @@ public abstract class TermMethods
      * @throws LuaException (hidden) If the terminal cannot be found.
      */
     @LuaFunction
-    public final boolean getCursorBlink() throws LuaException
-    {
-        return getTerminal().getCursorBlink();
+    public final boolean getCursorBlink() throws LuaException {
+        return this.getTerminal().getCursorBlink();
     }
 
     /**
@@ -127,12 +108,10 @@ public abstract class TermMethods
      * @throws LuaException (hidden) If the terminal cannot be found.
      */
     @LuaFunction
-    public final void setCursorBlink( boolean blink ) throws LuaException
-    {
-        Terminal terminal = getTerminal();
-        synchronized( terminal )
-        {
-            terminal.setCursorBlink( blink );
+    public final void setCursorBlink(boolean blink) throws LuaException {
+        Terminal terminal = this.getTerminal();
+        synchronized (terminal) {
+            terminal.setCursorBlink(blink);
         }
     }
 
@@ -145,10 +124,12 @@ public abstract class TermMethods
      * @cc.treturn number The terminal's height.
      */
     @LuaFunction
-    public final Object[] getSize() throws LuaException
-    {
-        Terminal terminal = getTerminal();
-        return new Object[] { terminal.getWidth(), terminal.getHeight() };
+    public final Object[] getSize() throws LuaException {
+        Terminal terminal = this.getTerminal();
+        return new Object[] {
+            terminal.getWidth(),
+            terminal.getHeight()
+        };
     }
 
     /**
@@ -157,21 +138,18 @@ public abstract class TermMethods
      * @throws LuaException (hidden) If the terminal cannot be found.
      */
     @LuaFunction
-    public final void clear() throws LuaException
-    {
-        getTerminal().clear();
+    public final void clear() throws LuaException {
+        this.getTerminal().clear();
     }
 
     /**
-     * Clears the line the cursor is currently on, filling it with the {@link #getBackgroundColour() current background
-     * colour}.
+     * Clears the line the cursor is currently on, filling it with the {@link #getBackgroundColour() current background colour}.
      *
      * @throws LuaException (hidden) If the terminal cannot be found.
      */
     @LuaFunction
-    public final void clearLine() throws LuaException
-    {
-        getTerminal().clearLine();
+    public final void clearLine() throws LuaException {
+        this.getTerminal().clearLine();
     }
 
     /**
@@ -181,10 +159,12 @@ public abstract class TermMethods
      * @throws LuaException (hidden) If the terminal cannot be found.
      * @cc.see colors For a list of colour constants, returned by this function.
      */
-    @LuaFunction( { "getTextColour", "getTextColor" } )
-    public final int getTextColour() throws LuaException
-    {
-        return encodeColour( getTerminal().getTextColour() );
+    @LuaFunction ({
+        "getTextColour",
+        "getTextColor"
+    })
+    public final int getTextColour() throws LuaException {
+        return encodeColour(this.getTerminal().getTextColour());
     }
 
     /**
@@ -194,150 +174,178 @@ public abstract class TermMethods
      * @throws LuaException (hidden) If the terminal cannot be found.
      * @cc.see colors For a list of colour constants.
      */
-    @LuaFunction( { "setTextColour", "setTextColor" } )
-    public final void setTextColour( int colourArg ) throws LuaException
-    {
-        int colour = parseColour( colourArg );
-        Terminal terminal = getTerminal();
-        synchronized( terminal )
-        {
-            terminal.setTextColour( colour );
+    @LuaFunction ({
+        "setTextColour",
+        "setTextColor"
+    })
+    public final void setTextColour(int colourArg) throws LuaException {
+        int colour = parseColour(colourArg);
+        Terminal terminal = this.getTerminal();
+        synchronized (terminal) {
+            terminal.setTextColour(colour);
         }
     }
 
+    public static int parseColour(int colour) throws LuaException {
+        if (colour <= 0) {
+            throw new LuaException("Colour out of range");
+        }
+        colour = getHighestBit(colour) - 1;
+        if (colour < 0 || colour > 15) {
+            throw new LuaException("Colour out of range");
+        }
+        return colour;
+    }
+
+    private static int getHighestBit(int group) {
+        int bit = 0;
+        while (group > 0) {
+            group >>= 1;
+            bit++;
+        }
+        return bit;
+    }
+
+    public static int encodeColour(int colour) {
+        return 1 << colour;
+    }
+
     /**
-     * Return the current background colour. This is used when {@link #write writing text} and {@link #clear clearing}
-     * the terminal.
+     * Return the current background colour. This is used when {@link #write writing text} and {@link #clear clearing} the terminal.
      *
      * @return The current background colour.
      * @throws LuaException (hidden) If the terminal cannot be found.
      * @cc.see colors For a list of colour constants, returned by this function.
      */
-    @LuaFunction( { "getBackgroundColour", "getBackgroundColor" } )
-    public final int getBackgroundColour() throws LuaException
-    {
-        return encodeColour( getTerminal().getBackgroundColour() );
+    @LuaFunction ({
+        "getBackgroundColour",
+        "getBackgroundColor"
+    })
+    public final int getBackgroundColour() throws LuaException {
+        return encodeColour(this.getTerminal().getBackgroundColour());
     }
 
     /**
-     * Set the current background colour. This is used when {@link #write writing text} and {@link #clear clearing} the
-     * terminal.
+     * Set the current background colour. This is used when {@link #write writing text} and {@link #clear clearing} the terminal.
      *
      * @param colourArg The new background colour.
      * @throws LuaException (hidden) If the terminal cannot be found.
      * @cc.see colors For a list of colour constants.
      */
-    @LuaFunction( { "setBackgroundColour", "setBackgroundColor" } )
-    public final void setBackgroundColour( int colourArg ) throws LuaException
-    {
-        int colour = parseColour( colourArg );
-        Terminal terminal = getTerminal();
-        synchronized( terminal )
-        {
-            terminal.setBackgroundColour( colour );
+    @LuaFunction ({
+        "setBackgroundColour",
+        "setBackgroundColor"
+    })
+    public final void setBackgroundColour(int colourArg) throws LuaException {
+        int colour = parseColour(colourArg);
+        Terminal terminal = this.getTerminal();
+        synchronized (terminal) {
+            terminal.setBackgroundColour(colour);
         }
     }
 
     /**
      * Determine if this terminal supports colour.
      *
-     * Terminals which do not support colour will still allow writing coloured text/backgrounds, but it will be
-     * displayed in greyscale.
+     * Terminals which do not support colour will still allow writing coloured text/backgrounds, but it will be displayed in greyscale.
      *
      * @return Whether this terminal supports colour.
      * @throws LuaException (hidden) If the terminal cannot be found.
      */
-    @LuaFunction( { "isColour", "isColor" } )
-    public final boolean getIsColour() throws LuaException
-    {
-        return isColour();
+    @LuaFunction ({
+        "isColour",
+        "isColor"
+    })
+    public final boolean getIsColour() throws LuaException {
+        return this.isColour();
     }
+
+    public abstract boolean isColour() throws LuaException;
 
     /**
      * Writes {@code text} to the terminal with the specific foreground and background characters.
      *
-     * As with {@link #write(IArguments)}, the text will be written at the current cursor location, with the cursor
-     * moving to the end of the text.
+     * As with {@link #write(IArguments)}, the text will be written at the current cursor location, with the cursor moving to the end of the text.
      *
-     * {@code textColour} and {@code backgroundColour} must both be strings the same length as {@code text}. All
-     * characters represent a single hexadecimal digit, which is converted to one of CC's colours. For instance,
-     * {@code "a"} corresponds to purple.
+     * {@code textColour} and {@code backgroundColour} must both be strings the same length as {@code text}. All characters represent a single hexadecimal
+     * digit, which is converted to one of CC's colours. For instance, {@code "a"} corresponds to purple.
      *
-     * @param text             The text to write.
-     * @param textColour       The corresponding text colours.
+     * @param text The text to write.
+     * @param textColour The corresponding text colours.
      * @param backgroundColour The corresponding background colours.
      * @throws LuaException If the three inputs are not the same length.
      * @cc.see colors For a list of colour constants, and their hexadecimal values.
      * @cc.usage Prints "Hello, world!" in rainbow text.
-     * <pre>{@code
-     * term.blit("Hello, world!","01234456789ab","0000000000000")
-     * }</pre>
+     *     <pre>{@code
+     *     term.blit("Hello, world!","01234456789ab","0000000000000")
+     *     }</pre>
      */
     @LuaFunction
-    public final void blit( String text, String textColour, String backgroundColour ) throws LuaException
-    {
-        if( textColour.length() != text.length() || backgroundColour.length() != text.length() )
-        {
-            throw new LuaException( "Arguments must be the same length" );
+    public final void blit(String text, String textColour, String backgroundColour) throws LuaException {
+        if (textColour.length() != text.length() || backgroundColour.length() != text.length()) {
+            throw new LuaException("Arguments must be the same length");
         }
 
-        Terminal terminal = getTerminal();
-        synchronized( terminal )
-        {
-            terminal.blit( text, textColour, backgroundColour );
-            terminal.setCursorPos( terminal.getCursorX() + text.length(), terminal.getCursorY() );
+        Terminal terminal = this.getTerminal();
+        synchronized (terminal) {
+            terminal.blit(text, textColour, backgroundColour);
+            terminal.setCursorPos(terminal.getCursorX() + text.length(), terminal.getCursorY());
         }
     }
 
     /**
      * Set the palette for a specific colour.
      *
-     * ComputerCraft's palette system allows you to change how a specific colour should be displayed. For instance, you
-     * can make @{colors.red} <em>more red</em> by setting its palette to #FF0000. This does now allow you to draw more
-     * colours - you are still limited to 16 on the screen at one time - but you can change <em>which</em> colours are
-     * used.
+     * ComputerCraft's palette system allows you to change how a specific colour should be displayed. For instance, you can make @{colors.red} <em>more
+     * red</em> by setting its palette to #FF0000. This does now allow you to draw more colours - you are still limited to 16 on the screen at one time -
+     * but you can change <em>which</em> colours are used.
      *
      * @param args The new palette values.
      * @throws LuaException (hidden) If the terminal cannot be found.
      * @cc.tparam [1] number index The colour whose palette should be changed.
-     * @cc.tparam number colour A 24-bit integer representing the RGB value of the colour. For instance the integer
-     * `0xFF0000` corresponds to the colour #FF0000.
+     * @cc.tparam number colour A 24-bit integer representing the RGB value of the colour. For instance the integer `0xFF0000` corresponds to the colour
+     *     #FF0000.
      * @cc.tparam [2] number index The colour whose palette should be changed.
      * @cc.tparam number r The intensity of the red channel, between 0 and 1.
      * @cc.tparam number g The intensity of the green channel, between 0 and 1.
      * @cc.tparam number b The intensity of the blue channel, between 0 and 1.
      * @cc.usage Change the @{colors.red|red colour} from the default #CC4C4C to #FF0000.
-     * <pre>{@code
-     * term.setPaletteColour(colors.red, 0xFF0000)
-     * term.setTextColour(colors.red)
-     * print("Hello, world!")
-     * }</pre>
+     *     <pre>{@code
+     *     term.setPaletteColour(colors.red, 0xFF0000)
+     *     term.setTextColour(colors.red)
+     *     print("Hello, world!")
+     *     }</pre>
      * @cc.usage As above, but specifying each colour channel separately.
-     * <pre>{@code
-     * term.setPaletteColour(colors.red, 1, 0, 0)
-     * term.setTextColour(colors.red)
-     * print("Hello, world!")
-     * }</pre>
+     *     <pre>{@code
+     *     term.setPaletteColour(colors.red, 1, 0, 0)
+     *     term.setTextColour(colors.red)
+     *     print("Hello, world!")
+     *     }</pre>
      * @cc.see colors.unpackRGB To convert from the 24-bit format to three separate channels.
      * @cc.see colors.packRGB To convert from three separate channels to the 24-bit format.
      */
-    @LuaFunction( { "setPaletteColour", "setPaletteColor" } )
-    public final void setPaletteColour( IArguments args ) throws LuaException
-    {
-        int colour = 15 - parseColour( args.getInt( 0 ) );
-        if( args.count() == 2 )
-        {
-            int hex = args.getInt( 1 );
-            double[] rgb = Palette.decodeRGB8( hex );
-            setColour( getTerminal(), colour, rgb[0], rgb[1], rgb[2] );
+    @LuaFunction ({
+        "setPaletteColour",
+        "setPaletteColor"
+    })
+    public final void setPaletteColour(IArguments args) throws LuaException {
+        int colour = 15 - parseColour(args.getInt(0));
+        if (args.count() == 2) {
+            int hex = args.getInt(1);
+            double[] rgb = Palette.decodeRGB8(hex);
+            setColour(this.getTerminal(), colour, rgb[0], rgb[1], rgb[2]);
+        } else {
+            double r = args.getFiniteDouble(1);
+            double g = args.getFiniteDouble(2);
+            double b = args.getFiniteDouble(3);
+            setColour(this.getTerminal(), colour, r, g, b);
         }
-        else
-        {
-            double r = args.getFiniteDouble( 1 );
-            double g = args.getFiniteDouble( 2 );
-            double b = args.getFiniteDouble( 3 );
-            setColour( getTerminal(), colour, r, g, b );
-        }
+    }
+
+    public static void setColour(Terminal terminal, int colour, double r, double g, double b) {
+        terminal.getPalette()
+                .setColour(colour, r, g, b);
+        terminal.setChanged();
     }
 
     /**
@@ -350,34 +358,16 @@ public abstract class TermMethods
      * @cc.treturn number The green channel, will be between 0 and 1.
      * @cc.treturn number The blue channel, will be between 0 and 1.
      */
-    @LuaFunction( { "getPaletteColour", "getPaletteColor" } )
-    public final Object[] getPaletteColour( int colourArg ) throws LuaException
-    {
-        int colour = 15 - parseColour( colourArg );
-        Terminal terminal = getTerminal();
-        synchronized( terminal )
-        {
-            return ArrayUtils.toObject( terminal.getPalette().getColour( colour ) );
+    @LuaFunction ({
+        "getPaletteColour",
+        "getPaletteColor"
+    })
+    public final Object[] getPaletteColour(int colourArg) throws LuaException {
+        int colour = 15 - parseColour(colourArg);
+        Terminal terminal = this.getTerminal();
+        synchronized (terminal) {
+            return ArrayUtils.toObject(terminal.getPalette()
+                                               .getColour(colour));
         }
-    }
-
-    public static int parseColour( int colour ) throws LuaException
-    {
-        if( colour <= 0 ) throw new LuaException( "Colour out of range" );
-        colour = getHighestBit( colour ) - 1;
-        if( colour < 0 || colour > 15 ) throw new LuaException( "Colour out of range" );
-        return colour;
-    }
-
-
-    public static int encodeColour( int colour )
-    {
-        return 1 << colour;
-    }
-
-    public static void setColour( Terminal terminal, int colour, double r, double g, double b )
-    {
-        terminal.getPalette().setColour( colour, r, g, b );
-        terminal.setChanged();
     }
 }

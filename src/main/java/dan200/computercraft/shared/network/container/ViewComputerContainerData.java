@@ -21,6 +21,7 @@ import net.minecraft.util.Identifier;
  * @see dan200.computercraft.shared.command.CommandComputerCraft
  */
 public class ViewComputerContainerData extends ComputerContainerData {
+    private static final Identifier IDENTIFIER = new Identifier(ComputerCraft.MOD_ID, "viewComputerContainerData");
     private int width;
     private int height;
 
@@ -28,19 +29,24 @@ public class ViewComputerContainerData extends ComputerContainerData {
         super(computer);
         Terminal terminal = computer.getTerminal();
         if (terminal != null) {
-            width = terminal.getWidth();
-            height = terminal.getHeight();
+            this.width = terminal.getWidth();
+            this.height = terminal.getHeight();
         } else {
-            width = height = 0;
+            this.width = this.height = 0;
         }
     }
 
     public ViewComputerContainerData(PacketByteBuf packetByteBuf) {
         super(packetByteBuf);
-        toBytes(packetByteBuf);
+        this.toBytes(packetByteBuf);
     }
 
-    private static final Identifier IDENTIFIER = new Identifier(ComputerCraft.MOD_ID, "viewComputerContainerData");
+    @Override
+    public void fromBytes(PacketByteBuf buf) {
+        super.fromBytes(buf);
+        this.width = buf.readVarInt();
+        this.height = buf.readVarInt();
+    }
 
     @Override
     public Identifier getId() {
@@ -48,24 +54,17 @@ public class ViewComputerContainerData extends ComputerContainerData {
     }
 
     @Override
-    public void fromBytes(PacketByteBuf buf) {
-        super.fromBytes(buf);
-        width = buf.readVarInt();
-        height = buf.readVarInt();
-    }
-
-    @Override
     public void toBytes(@Nonnull PacketByteBuf buf) {
         super.toBytes(buf);
-        buf.writeVarInt(width);
-        buf.writeVarInt(height);
+        buf.writeVarInt(this.width);
+        buf.writeVarInt(this.height);
     }
 
     public int getWidth() {
-        return width;
+        return this.width;
     }
 
     public int getHeight() {
-        return height;
+        return this.height;
     }
 }

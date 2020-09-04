@@ -22,6 +22,7 @@ import dan200.computercraft.ComputerCraft;
 public class AddressPredicate {
     private final List<Pattern> wildcards;
     private final List<HostRange> ranges;
+
     public AddressPredicate(String... filters) {
         this(Arrays.asList(filters));
     }
@@ -95,7 +96,8 @@ public class AddressPredicate {
         }
 
         // If we're an IPv4 address in disguise then let's check that.
-        return address instanceof Inet6Address && InetAddresses.is6to4Address((Inet6Address) address) && this.matchesAddress(InetAddresses.get6to4IPv4Address((Inet6Address) address));
+        return address instanceof Inet6Address && InetAddresses.is6to4Address((Inet6Address) address) && this.matchesAddress(InetAddresses.get6to4IPv4Address(
+            (Inet6Address) address));
 
     }
 

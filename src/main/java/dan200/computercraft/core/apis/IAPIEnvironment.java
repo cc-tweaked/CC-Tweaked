@@ -3,7 +3,11 @@
  * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
+
 package dan200.computercraft.core.apis;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.peripheral.IWorkMonitor;
@@ -13,18 +17,8 @@ import dan200.computercraft.core.filesystem.FileSystem;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.core.tracking.TrackingField;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
-public interface IAPIEnvironment
-{
+public interface IAPIEnvironment {
     String TIMER_EVENT = "timer";
-
-    @FunctionalInterface
-    interface IPeripheralChangeListener
-    {
-        void onPeripheralChanged( ComputerSide side, @Nullable IPeripheral newPeripheral );
-    }
 
     int getComputerID();
 
@@ -43,37 +37,41 @@ public interface IAPIEnvironment
 
     void reboot();
 
-    void queueEvent( String event, Object... args );
+    void queueEvent(String event, Object... args);
 
-    void setOutput( ComputerSide side, int output );
+    void setOutput(ComputerSide side, int output);
 
-    int getOutput( ComputerSide side );
+    int getOutput(ComputerSide side);
 
-    int getInput( ComputerSide side );
+    int getInput(ComputerSide side);
 
-    void setBundledOutput( ComputerSide side, int output );
+    void setBundledOutput(ComputerSide side, int output);
 
-    int getBundledOutput( ComputerSide side );
+    int getBundledOutput(ComputerSide side);
 
-    int getBundledInput( ComputerSide side );
+    int getBundledInput(ComputerSide side);
 
-    void setPeripheralChangeListener( @Nullable IPeripheralChangeListener listener );
+    void setPeripheralChangeListener(@Nullable IPeripheralChangeListener listener);
 
     @Nullable
-    IPeripheral getPeripheral( ComputerSide side );
+    IPeripheral getPeripheral(ComputerSide side);
 
     String getLabel();
 
-    void setLabel( @Nullable String label );
+    void setLabel(@Nullable String label);
 
-    int startTimer( long ticks );
+    int startTimer(long ticks);
 
-    void cancelTimer( int id );
+    void cancelTimer(int id);
 
-    void addTrackingChange( @Nonnull TrackingField field, long change );
+    default void addTrackingChange(@Nonnull TrackingField field) {
+        this.addTrackingChange(field, 1);
+    }
 
-    default void addTrackingChange( @Nonnull TrackingField field )
-    {
-        addTrackingChange( field, 1 );
+    void addTrackingChange(@Nonnull TrackingField field, long change);
+
+    @FunctionalInterface
+    interface IPeripheralChangeListener {
+        void onPeripheralChanged(ComputerSide side, @Nullable IPeripheral newPeripheral);
     }
 }

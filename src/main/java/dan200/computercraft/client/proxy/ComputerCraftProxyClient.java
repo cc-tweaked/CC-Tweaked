@@ -21,12 +21,25 @@ import dan200.computercraft.client.render.TileEntityTurtleRenderer;
 import dan200.computercraft.client.render.TurtleModelLoader;
 import dan200.computercraft.client.render.TurtlePlayerRenderer;
 import dan200.computercraft.shared.ComputerCraftRegistry;
+import dan200.computercraft.shared.common.ContainerHeldItem;
 import dan200.computercraft.shared.common.IColouredItem;
 import dan200.computercraft.shared.computer.inventory.ContainerComputer;
 import dan200.computercraft.shared.computer.inventory.ContainerViewComputer;
+import dan200.computercraft.shared.network.container.ViewComputerContainerData;
+import dan200.computercraft.shared.peripheral.diskdrive.ContainerDiskDrive;
 import dan200.computercraft.shared.peripheral.monitor.ClientMonitor;
+import dan200.computercraft.shared.peripheral.printer.ContainerPrinter;
 import dan200.computercraft.shared.pocket.inventory.ContainerPocketComputer;
 import dan200.computercraft.shared.pocket.items.ItemPocketComputer;
+import dan200.computercraft.shared.turtle.inventory.ContainerTurtle;
+
+import net.minecraft.client.item.ModelPredicateProvider;
+import net.minecraft.client.render.RenderLayer;
+import net.minecraft.item.Item;
+import net.minecraft.screen.PlayerScreenHandler;
+import net.minecraft.util.Identifier;
+
+import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
@@ -38,38 +51,11 @@ import net.fabricmc.fabric.api.event.client.ClientSpriteRegistryCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
 import net.fabricmc.fabric.mixin.object.builder.ModelPredicateProviderRegistrySpecificAccessor;
 
-import net.minecraft.client.item.ModelPredicateProvider;
-import net.minecraft.client.render.RenderLayer;
-import net.minecraft.client.texture.SpriteAtlasTexture;
-import net.minecraft.item.Item;
-import net.minecraft.screen.PlayerScreenHandler;
-import net.minecraft.util.Identifier;
-
-import net.fabricmc.api.ClientModInitializer;
-
-@Environment(EnvType.CLIENT)
+@Environment (EnvType.CLIENT)
 public final class ComputerCraftProxyClient implements ClientModInitializer {
 
-    @SafeVarargs
-    private static void registerItemProperty(String name, ModelPredicateProvider getter, Supplier<? extends Item>... items) {
-        Identifier id = new Identifier(ComputerCraft.MOD_ID, name);
-        for (Supplier<? extends Item> item : items) {
-            ModelPredicateProviderRegistrySpecificAccessor.callRegister(item.get(), id, getter);
-        }
-    }
+    public static void initEvents() {
 
-    private static void registerContainers() {
-        // My IDE doesn't think so, but we do actually need these generics.
-
-        ScreenRegistry.<ContainerComputer, GuiComputer<ContainerComputer>>register(ComputerCraftRegistry.ModContainers.COMPUTER, GuiComputer::create);
-        ScreenRegistry.<ContainerPocketComputer, GuiComputer<ContainerPocketComputer>>register(ComputerCraftRegistry.ModContainers.POCKET_COMPUTER, GuiComputer::createPocket);
-        ScreenRegistry.register(ComputerCraftRegistry.ModContainers.TURTLE, GuiTurtle::new);
-
-        ScreenRegistry.register(ComputerCraftRegistry.ModContainers.PRINTER, GuiPrinter::new);
-        ScreenRegistry.register(ComputerCraftRegistry.ModContainers.DISK_DRIVE, GuiDiskDrive::new);
-        ScreenRegistry.register(ComputerCraftRegistry.ModContainers.PRINTOUT, GuiPrintout::new);
-
-        ScreenRegistry.<ContainerViewComputer, GuiComputer<ContainerViewComputer>>register(ComputerCraftRegistry.ModContainers.VIEW_COMPUTER, GuiComputer::createView);
     }
 
     @Override
@@ -93,11 +79,11 @@ public final class ComputerCraftProxyClient implements ClientModInitializer {
         // TODO: ClientRegistry.bindTileEntityRenderer( TileCable.FACTORY, x -> new TileEntityCableRenderer() );
 
         ClientSpriteRegistryCallback.event(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE)
-            .register(ClientRegistry::onTextureStitchEvent);
+                                    .register(ClientRegistry::onTextureStitchEvent);
         ModelLoadingRegistry.INSTANCE.registerAppender(ClientRegistry::onModelBakeEvent);
         ModelLoadingRegistry.INSTANCE.registerResourceProvider(loader -> (name, context) -> TurtleModelLoader.INSTANCE.accepts(name) ?
-            TurtleModelLoader.INSTANCE.loadModel(
-                name) : null);
+                                                                                            TurtleModelLoader.INSTANCE.loadModel(
+            name) : null);
 
         EntityRendererRegistry.INSTANCE.register(ComputerCraftRegistry.ModEntities.TURTLE_PLAYER, TurtlePlayerRenderer::new);
 
@@ -108,8 +94,8 @@ public final class ComputerCraftProxyClient implements ClientModInitializer {
                              () -> ComputerCraftRegistry.ModItems.POCKET_COMPUTER_ADVANCED);
         registerItemProperty("state",
                              (stack, world, player) -> IColouredItem.getColourBasic(stack) != -1 ? 1 : 0,
-            () -> ComputerCraftRegistry.ModItems.POCKET_COMPUTER_NORMAL,
-            () -> ComputerCraftRegistry.ModItems.POCKET_COMPUTER_ADVANCED);
+                             () -> ComputerCraftRegistry.ModItems.POCKET_COMPUTER_NORMAL,
+                             () -> ComputerCraftRegistry.ModItems.POCKET_COMPUTER_ADVANCED);
         ClientRegistry.onItemColours();
 
         // TODO Verify this does things properly
@@ -118,18 +104,38 @@ public final class ComputerCraftProxyClient implements ClientModInitializer {
         }));
     }
 
-    public static void initEvents() {
 
+    // My IDE doesn't think so, but we do actually need these generics.
+    private static void registerContainers() {
+        ScreenRegistry.<ContainerComputer, GuiComputer<ContainerComputer>>register(ComputerCraftRegistry.ModContainers.COMPUTER, GuiComputer::create);
+        ScreenRegistry.<ContainerPocketComputer, GuiComputer<ContainerPocketComputer>>register(ComputerCraftRegistry.ModContainers.POCKET_COMPUTER,
+                                GuiComputer::createPocket);
+        ScreenRegistry.<ContainerTurtle, GuiTurtle>register(ComputerCraftRegistry.ModContainers.TURTLE, GuiTurtle::new);
+
+        ScreenRegistry.<ContainerPrinter, GuiPrinter>register(ComputerCraftRegistry.ModContainers.PRINTER, GuiPrinter::new);
+        ScreenRegistry.<ContainerDiskDrive, GuiDiskDrive>register(ComputerCraftRegistry.ModContainers.DISK_DRIVE, GuiDiskDrive::new);
+        ScreenRegistry.<ContainerHeldItem, GuiPrintout>register(ComputerCraftRegistry.ModContainers.PRINTOUT, GuiPrintout::new);
+
+        ScreenRegistry.<ContainerViewComputer, GuiComputer<ContainerViewComputer>>register(ComputerCraftRegistry.ModContainers.VIEW_COMPUTER,
+                                                                        GuiComputer::createView);
     }
 
-//    @Mod.EventBusSubscriber (modid = ComputerCraft.MOD_ID, value = Dist.CLIENT)
-//    public static final class ForgeHandlers {
-//        @SubscribeEvent
-//        public static void onWorldUnload(WorldEvent.Unload event) {
-//            if (event.getWorld()
-//                     .isClient()) {
-//                ClientMonitor.destroyAll();
-//            }
-//        }
-//    }
+    @SafeVarargs
+    private static void registerItemProperty(String name, ModelPredicateProvider getter, Supplier<? extends Item>... items) {
+        Identifier id = new Identifier(ComputerCraft.MOD_ID, name);
+        for (Supplier<? extends Item> item : items) {
+            ModelPredicateProviderRegistrySpecificAccessor.callRegister(item.get(), id, getter);
+        }
+    }
+
+    //    @Mod.EventBusSubscriber (modid = ComputerCraft.MOD_ID, value = Dist.CLIENT)
+    //    public static final class ForgeHandlers {
+    //        @SubscribeEvent
+    //        public static void onWorldUnload(WorldEvent.Unload event) {
+    //            if (event.getWorld()
+    //                     .isClient()) {
+    //                ClientMonitor.destroyAll();
+    //            }
+    //        }
+    //    }
 }

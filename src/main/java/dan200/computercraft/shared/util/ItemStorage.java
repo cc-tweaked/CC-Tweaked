@@ -17,6 +17,22 @@ import net.minecraft.util.math.Direction;
  * The most cutesy alternative of {@code IItemHandler} the world has ever seen.
  */
 public interface ItemStorage {
+    static ItemStorage wrap(Inventory inventory) {
+        return new InventoryWrapper(inventory);
+    }
+
+    static ItemStorage wrap(@Nonnull SidedInventory inventory, @Nonnull Direction facing) {
+        return new SidedInventoryWrapper(inventory, facing);
+    }
+
+    static ItemStorage wrap(@Nonnull Inventory inventory, @Nonnull Direction facing) {
+        return inventory instanceof SidedInventory ? new SidedInventoryWrapper((SidedInventory) inventory, facing) : new InventoryWrapper(inventory);
+    }
+
+    static boolean areStackable(@Nonnull ItemStack a, @Nonnull ItemStack b) {
+        return a == b || (a.getItem() == b.getItem() && ItemStack.areTagsEqual(a, b));
+    }
+
     int size();
 
     @Nonnull
@@ -36,25 +52,16 @@ public interface ItemStorage {
             this.inventory = inventory;
         }
 
-        private void setAndDirty(int slot, @Nonnull ItemStack stack) {
-            inventory.setStack(slot, stack);
-            inventory.markDirty();
-        }
-
-        protected boolean canExtract(int slot, ItemStack stack) {
-            return true;
-        }
-
         @Override
         public int size() {
-            return inventory.size();
+            return this.inventory.size();
         }
 
         @Override
         @Nonnull
         public ItemStack take(int slot, int limit, @Nonnull ItemStack filter, boolean simulate) {
-            ItemStack existing = inventory.getStack(slot);
-            if (existing.isEmpty() || !canExtract(slot, existing) || (!filter.isEmpty() && !areStackable(existing, filter))) {
+            ItemStack existing = this.inventory.getStack(slot);
+            if (existing.isEmpty() || !this.canExtract(slot, existing) || (!filter.isEmpty() && !areStackable(existing, filter))) {
                 return ItemStack.EMPTY;
             }
 
@@ -65,44 +72,53 @@ public interface ItemStorage {
                 }
                 return existing;
             } else if (existing.getCount() < limit) {
-                setAndDirty(slot, ItemStack.EMPTY);
+                this.setAndDirty(slot, ItemStack.EMPTY);
                 return existing;
             } else {
                 ItemStack result = existing.split(limit);
-                setAndDirty(slot, existing);
+                this.setAndDirty(slot, existing);
                 return result;
             }
+        }
+
+        protected boolean canExtract(int slot, ItemStack stack) {
+            return true;
+        }
+
+        private void setAndDirty(int slot, @Nonnull ItemStack stack) {
+            this.inventory.setStack(slot, stack);
+            this.inventory.markDirty();
         }
 
         @Override
         @Nonnull
         public ItemStack store(int slot, @Nonnull ItemStack stack, boolean simulate) {
-            if (stack.isEmpty() || !inventory.isValid(slot, stack)) {
+            if (stack.isEmpty() || !this.inventory.isValid(slot, stack)) {
                 return stack;
             }
 
-            ItemStack existing = inventory.getStack(slot);
+            ItemStack existing = this.inventory.getStack(slot);
             if (existing.isEmpty()) {
-                int limit = Math.min(stack.getMaxCount(), inventory.getMaxCountPerStack());
+                int limit = Math.min(stack.getMaxCount(), this.inventory.getMaxCountPerStack());
                 if (limit <= 0) {
                     return stack;
                 }
 
                 if (stack.getCount() < limit) {
                     if (!simulate) {
-                        setAndDirty(slot, stack);
+                        this.setAndDirty(slot, stack);
                     }
                     return ItemStack.EMPTY;
                 } else {
                     stack = stack.copy();
                     ItemStack insert = stack.split(limit);
                     if (!simulate) {
-                        setAndDirty(slot, insert);
+                        this.setAndDirty(slot, insert);
                     }
                     return stack;
                 }
             } else if (areStackable(stack, existing)) {
-                int limit = Math.min(existing.getMaxCount(), inventory.getMaxCountPerStack()) - existing.getCount();
+                int limit = Math.min(existing.getMaxCount(), this.inventory.getMaxCountPerStack()) - existing.getCount();
                 if (limit <= 0) {
                     return stack;
                 }
@@ -110,7 +126,7 @@ public interface ItemStorage {
                 if (stack.getCount() < limit) {
                     if (!simulate) {
                         existing.increment(stack.getCount());
-                        setAndDirty(slot, existing);
+                        this.setAndDirty(slot, existing);
                     }
                     return ItemStack.EMPTY;
                 } else {
@@ -118,7 +134,7 @@ public interface ItemStorage {
                     stack.decrement(limit);
                     if (!simulate) {
                         existing.increment(limit);
-                        setAndDirty(slot, existing);
+                        this.setAndDirty(slot, existing);
                     }
                     return stack;
                 }
@@ -139,32 +155,32 @@ public interface ItemStorage {
         }
 
         @Override
-        public int size() {
-            return inventory.getAvailableSlots(facing).length;
+        protected boolean canExtract(int slot, ItemStack stack) {
+            return super.canExtract(slot, stack) && this.inventory.canExtract(slot, stack, this.facing);
         }
 
         @Override
-        protected boolean canExtract(int slot, ItemStack stack) {
-            return super.canExtract(slot, stack) && inventory.canExtract(slot, stack, facing);
+        public int size() {
+            return this.inventory.getAvailableSlots(this.facing).length;
         }
 
         @Nonnull
         @Override
         public ItemStack take(int slot, int limit, @Nonnull ItemStack filter, boolean simulate) {
-            int[] slots = inventory.getAvailableSlots(facing);
+            int[] slots = this.inventory.getAvailableSlots(this.facing);
             return slot >= 0 && slot < slots.length ? super.take(slots[slot], limit, filter, simulate) : ItemStack.EMPTY;
         }
 
         @Nonnull
         @Override
         public ItemStack store(int slot, @Nonnull ItemStack stack, boolean simulate) {
-            int[] slots = inventory.getAvailableSlots(facing);
+            int[] slots = this.inventory.getAvailableSlots(this.facing);
             if (slot < 0 || slot >= slots.length) {
                 return stack;
             }
 
             int mappedSlot = slots[slot];
-            if (!inventory.canInsert(slot, stack, facing)) {
+            if (!this.inventory.canInsert(slot, stack, this.facing)) {
                 return stack;
             }
             return super.store(mappedSlot, stack, simulate);
@@ -184,46 +200,30 @@ public interface ItemStorage {
 
         @Override
         public int size() {
-            return size;
+            return this.size;
         }
 
         @Nonnull
         @Override
         public ItemStack take(int slot, int limit, @Nonnull ItemStack filter, boolean simulate) {
-            if (slot < start || slot >= start + size) {
+            if (slot < this.start || slot >= this.start + this.size) {
                 return ItemStack.EMPTY;
             }
-            return parent.take(slot - start, limit, filter, simulate);
+            return this.parent.take(slot - this.start, limit, filter, simulate);
         }
 
         @Nonnull
         @Override
         public ItemStack store(int slot, @Nonnull ItemStack stack, boolean simulate) {
-            if (slot < start || slot >= start + size) {
+            if (slot < this.start || slot >= this.start + this.size) {
                 return stack;
             }
-            return parent.store(slot - start, stack, simulate);
+            return this.parent.store(slot - this.start, stack, simulate);
         }
 
         @Override
         public ItemStorage view(int start, int size) {
             return new View(this.parent, this.start + start, size);
         }
-    }
-
-    static ItemStorage wrap(Inventory inventory) {
-        return new InventoryWrapper(inventory);
-    }
-
-    static ItemStorage wrap(@Nonnull SidedInventory inventory, @Nonnull Direction facing) {
-        return new SidedInventoryWrapper(inventory, facing);
-    }
-
-    static ItemStorage wrap(@Nonnull Inventory inventory, @Nonnull Direction facing) {
-        return inventory instanceof SidedInventory ? new SidedInventoryWrapper((SidedInventory) inventory, facing) : new InventoryWrapper(inventory);
-    }
-
-    static boolean areStackable(@Nonnull ItemStack a, @Nonnull ItemStack b) {
-        return a == b || (a.getItem() == b.getItem() && ItemStack.areTagsEqual(a, b));
     }
 }

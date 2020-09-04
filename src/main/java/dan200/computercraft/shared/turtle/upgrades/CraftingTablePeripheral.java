@@ -3,7 +3,12 @@
  * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
+
 package dan200.computercraft.shared.turtle.upgrades;
+
+import java.util.Optional;
+
+import javax.annotation.Nonnull;
 
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
@@ -12,9 +17,6 @@ import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.shared.turtle.core.TurtleCraftCommand;
 
-import javax.annotation.Nonnull;
-import java.util.Optional;
-
 /**
  * The workbench peripheral allows you to craft items within the turtle's inventory.
  *
@@ -22,40 +24,36 @@ import java.util.Optional;
  * @hidden
  * @cc.see turtle.craft This uses the {@link CraftingTablePeripheral} peripheral to craft items.
  */
-public class CraftingTablePeripheral implements IPeripheral
-{
+public class CraftingTablePeripheral implements IPeripheral {
     private final ITurtleAccess turtle;
 
-    public CraftingTablePeripheral( ITurtleAccess turtle )
-    {
+    public CraftingTablePeripheral(ITurtleAccess turtle) {
         this.turtle = turtle;
     }
 
     @Nonnull
     @Override
-    public String getType()
-    {
+    public String getType() {
         return "workbench";
-    }
-
-    @LuaFunction
-    public final MethodResult craft( Optional<Integer> count ) throws LuaException
-    {
-        int limit = count.orElse( 64 );
-        if( limit < 0 || limit > 64 ) throw new LuaException( "Crafting count " + limit + " out of range" );
-        return turtle.executeCommand( new TurtleCraftCommand( limit ) );
-    }
-
-    @Override
-    public boolean equals( IPeripheral other )
-    {
-        return other instanceof CraftingTablePeripheral;
     }
 
     @Nonnull
     @Override
-    public Object getTarget()
-    {
-        return turtle;
+    public Object getTarget() {
+        return this.turtle;
+    }
+
+    @Override
+    public boolean equals(IPeripheral other) {
+        return other instanceof CraftingTablePeripheral;
+    }
+
+    @LuaFunction
+    public final MethodResult craft(Optional<Integer> count) throws LuaException {
+        int limit = count.orElse(64);
+        if (limit < 0 || limit > 64) {
+            throw new LuaException("Crafting count " + limit + " out of range");
+        }
+        return this.turtle.executeCommand(new TurtleCraftCommand(limit));
     }
 }

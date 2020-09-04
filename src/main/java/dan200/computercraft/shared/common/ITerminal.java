@@ -3,12 +3,12 @@
  * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
+
 package dan200.computercraft.shared.common;
 
 import dan200.computercraft.core.terminal.Terminal;
 
-public interface ITerminal
-{
+public interface ITerminal {
     Terminal getTerminal();
 
     boolean isColour();

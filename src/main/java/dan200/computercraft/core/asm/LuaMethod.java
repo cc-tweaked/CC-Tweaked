@@ -6,23 +6,28 @@
 
 package dan200.computercraft.core.asm;
 
-import dan200.computercraft.api.lua.*;
-
-import javax.annotation.Nonnull;
 import java.util.Collections;
 
-public interface LuaMethod
-{
-    Generator<LuaMethod> GENERATOR = new Generator<>( LuaMethod.class, Collections.singletonList( ILuaContext.class ),
-        m -> ( target, context, args ) -> TaskCallback.make( context, () -> TaskCallback.checkUnwrap( m.apply( target, context, args ) ) )
-    );
+import javax.annotation.Nonnull;
 
-    IntCache<LuaMethod> DYNAMIC = new IntCache<>(
-        method -> ( instance, context, args ) -> ((IDynamicLuaObject) instance).callMethod( context, method, args )
-    );
+import dan200.computercraft.api.lua.IArguments;
+import dan200.computercraft.api.lua.IDynamicLuaObject;
+import dan200.computercraft.api.lua.ILuaContext;
+import dan200.computercraft.api.lua.LuaException;
+import dan200.computercraft.api.lua.MethodResult;
+
+public interface LuaMethod {
+    Generator<LuaMethod> GENERATOR = new Generator<>(LuaMethod.class,
+                                                     Collections.singletonList(ILuaContext.class),
+                                                     m -> (target, context, args) -> TaskCallback.make(context,
+                                                                                                       () -> TaskCallback.checkUnwrap(m.apply(target,
+                                                                                                                                              context,
+                                                                                                                                              args))));
+
+    IntCache<LuaMethod> DYNAMIC = new IntCache<>(method -> (instance, context, args) -> ((IDynamicLuaObject) instance).callMethod(context, method, args));
 
     String[] EMPTY_METHODS = new String[0];
 
     @Nonnull
-    MethodResult apply( @Nonnull Object target, @Nonnull ILuaContext context, @Nonnull IArguments args ) throws LuaException;
+    MethodResult apply(@Nonnull Object target, @Nonnull ILuaContext context, @Nonnull IArguments args) throws LuaException;
 }

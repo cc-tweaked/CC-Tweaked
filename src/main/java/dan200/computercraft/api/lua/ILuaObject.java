@@ -9,9 +9,6 @@ package dan200.computercraft.api.lua;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import dan200.computercraft.api.peripheral.IComputerAccess;
-import dan200.computercraft.api.peripheral.IPeripheral;
-
 public interface ILuaObject {
     @Nonnull
     String[] getMethodNames();

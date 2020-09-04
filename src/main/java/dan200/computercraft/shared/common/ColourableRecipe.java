@@ -3,11 +3,15 @@
  * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
+
 package dan200.computercraft.shared.common;
+
+import javax.annotation.Nonnull;
 
 import dan200.computercraft.shared.util.Colour;
 import dan200.computercraft.shared.util.ColourTracker;
 import dan200.computercraft.shared.util.ColourUtils;
+
 import net.minecraft.inventory.CraftingInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.recipe.RecipeSerializer;
@@ -17,36 +21,31 @@ import net.minecraft.util.DyeColor;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.World;
 
-import javax.annotation.Nonnull;
+public final class ColourableRecipe extends SpecialCraftingRecipe {
+    public static final RecipeSerializer<?> SERIALIZER = new SpecialRecipeSerializer<>(ColourableRecipe::new);
 
-public final class ColourableRecipe extends SpecialCraftingRecipe
-{
-    private ColourableRecipe( Identifier id )
-    {
-        super( id );
+    private ColourableRecipe(Identifier id) {
+        super(id);
     }
 
     @Override
-    public boolean matches( @Nonnull CraftingInventory inv, @Nonnull World world )
-    {
+    public boolean matches(@Nonnull CraftingInventory inv, @Nonnull World world) {
         boolean hasColourable = false;
         boolean hasDye = false;
-        for( int i = 0; i < inv.size(); i++ )
-        {
-            ItemStack stack = inv.getStack( i );
-            if( stack.isEmpty() ) continue;
+        for (int i = 0; i < inv.size(); i++) {
+            ItemStack stack = inv.getStack(i);
+            if (stack.isEmpty()) {
+                continue;
+            }
 
-            if( stack.getItem() instanceof IColouredItem )
-            {
-                if( hasColourable ) return false;
+            if (stack.getItem() instanceof IColouredItem) {
+                if (hasColourable) {
+                    return false;
+                }
                 hasColourable = true;
-            }
-            else if( ColourUtils.getStackColour( stack ) != null )
-            {
+            } else if (ColourUtils.getStackColour(stack) != null) {
                 hasDye = true;
-            }
-            else
-            {
+            } else {
                 return false;
             }
         }
@@ -56,48 +55,45 @@ public final class ColourableRecipe extends SpecialCraftingRecipe
 
     @Nonnull
     @Override
-    public ItemStack craft( @Nonnull CraftingInventory inv )
-    {
+    public ItemStack craft(@Nonnull CraftingInventory inv) {
         ItemStack colourable = ItemStack.EMPTY;
 
         ColourTracker tracker = new ColourTracker();
 
-        for( int i = 0; i < inv.size(); i++ )
-        {
-            ItemStack stack = inv.getStack( i );
+        for (int i = 0; i < inv.size(); i++) {
+            ItemStack stack = inv.getStack(i);
 
-            if( stack.isEmpty() ) continue;
-
-            if( stack.getItem() instanceof IColouredItem )
-            {
-                colourable = stack;
+            if (stack.isEmpty()) {
+                continue;
             }
-            else
-            {
-                DyeColor dye = ColourUtils.getStackColour( stack );
-                if( dye == null ) continue;
 
-                Colour colour = Colour.fromInt( 15 - dye.getId() );
-                tracker.addColour( colour.getR(), colour.getG(), colour.getB() );
+            if (stack.getItem() instanceof IColouredItem) {
+                colourable = stack;
+            } else {
+                DyeColor dye = ColourUtils.getStackColour(stack);
+                if (dye == null) {
+                    continue;
+                }
+
+                Colour colour = Colour.fromInt(15 - dye.getId());
+                tracker.addColour(colour.getR(), colour.getG(), colour.getB());
             }
         }
 
-        if( colourable.isEmpty() ) return ItemStack.EMPTY;
-        return ((IColouredItem) colourable.getItem()).withColour( colourable, tracker.getColour() );
+        if (colourable.isEmpty()) {
+            return ItemStack.EMPTY;
+        }
+        return ((IColouredItem) colourable.getItem()).withColour(colourable, tracker.getColour());
     }
 
     @Override
-    public boolean fits( int x, int y )
-    {
+    public boolean fits(int x, int y) {
         return x >= 2 && y >= 2;
     }
 
     @Override
     @Nonnull
-    public RecipeSerializer<?> getSerializer()
-    {
+    public RecipeSerializer<?> getSerializer() {
         return SERIALIZER;
     }
-
-    public static final RecipeSerializer<?> SERIALIZER = new SpecialRecipeSerializer<>( ColourableRecipe::new );
 }

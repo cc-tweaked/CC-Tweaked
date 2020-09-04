@@ -22,8 +22,7 @@ public class Config {
     private static transient Path configPath;
     private static transient Config config;
     public General general = new General();
-    @Comment ("\nControls execution behaviour of computers. This is largely intended for fine-tuning " + "servers, and generally shouldn't need to be " +
-              "touched") public Execution execution = new Execution();
+    @Comment ("\nControls execution behaviour of computers. This is largely intended for fine-tuning " + "servers, and generally shouldn't need to be " + "touched") public Execution execution = new Execution();
     @Comment ("\nControls the HTTP API") public Http http = new Http();
     @Comment ("\nVarious options relating to peripherals.") public Peripheral peripheral = new Peripheral();
     @Comment ("\nVarious options relating to turtles.") public Turtle turtle = new Turtle();
@@ -138,8 +137,7 @@ public class Config {
 
         @Comment ("\nEnable Lua's debug library. This is sandboxed to each computer, so is generally safe to be used by players.") public boolean debug_enabled = ComputerCraft.debug_enable;
 
-        @Comment ("\nLog exceptions thrown by peripherals and other Lua objects.\n" + "This makes it easier for mod authors to debug problems, but may " +
-                  "result in log spam should people use buggy methods.") public boolean log_computer_errors = ComputerCraft.logPeripheralErrors;
+        @Comment ("\nLog exceptions thrown by peripherals and other Lua objects.\n" + "This makes it easier for mod authors to debug problems, but may " + "result in log spam should people use buggy methods.") public boolean log_computer_errors = ComputerCraft.logPeripheralErrors;
     }
 
     public static class Execution {
@@ -147,12 +145,11 @@ public class Config {
                   "Please note that some mods may not work with a thread count higher than 1. Use with caution.") public int computer_threads =
             ComputerCraft.computer_threads;
 
-        @Comment ("\nThe maximum time that can be spent executing tasks in a single tick, in milliseconds.\n" + "Note, we will quite possibly go over " +
-                  "this limit, as there's no way to tell how long a will take - this aims " + "to be the upper bound of the average time.") public long max_main_global_time = TimeUnit.NANOSECONDS.toMillis(
+        @Comment ("\nThe maximum time that can be spent executing tasks in a single tick, in milliseconds.\n" + "Note, we will quite possibly go over " + "this limit, as there's no way to tell how long a will take - this aims " + "to be the upper bound of the average time.") public long max_main_global_time = TimeUnit.NANOSECONDS.toMillis(
             ComputerCraft.maxMainGlobalTime);
 
-        @Comment ("\nThe ideal maximum time a computer can execute for in a tick, in milliseconds.\n" + "Note, we will quite possibly go over this limit," +
-                  " as there's no way to tell how long a will take - this aims " + "to be the upper bound of the average time.") public long max_main_computer_time = TimeUnit.NANOSECONDS.toMillis(
+        @Comment ("\nThe ideal maximum time a computer can execute for in a tick, in milliseconds.\n" + "Note, we will quite possibly go over this limit,"
+                  + " as there's no way to tell how long a will take - this aims " + "to be the upper bound of the average time.") public long max_main_computer_time = TimeUnit.NANOSECONDS.toMillis(
             ComputerCraft.maxMainComputerTime);
     }
 
@@ -165,9 +162,7 @@ public class Config {
         @Comment ("\nA list of wildcards for domains or IP ranges that can be accessed through the " + "\"http\" API on Computers.\n" + "Set this to " +
                   "\"*\" to access to the entire internet. Example: \"*.pastebin.com\" will restrict access to " + "just subdomains of pastebin.com.\n" + "You can use domain names (\"pastebin.com\"), wilcards (\"*.pastebin.com\") or CIDR notation (\"127.0.0.0/8\").") public String[] whitelist = ComputerCraft.DEFAULT_HTTP_WHITELIST.clone();
 
-        @Comment ("\nA list of wildcards for domains or IP ranges that cannot be accessed through the " + "\"http\" API on Computers.\n" + "If this is " +
-                  "empty then all whitelisted domains will be accessible. Example: \"*.github.com\" will block " + "access to all subdomains of github" +
-                  ".com.\n" + "You can use domain names (\"pastebin.com\"), wilcards (\"*.pastebin.com\") or CIDR notation (\"127.0.0.0/8\").") public String[] blacklist = ComputerCraft.DEFAULT_HTTP_BLACKLIST.clone();
+        @Comment ("\nA list of wildcards for domains or IP ranges that cannot be accessed through the " + "\"http\" API on Computers.\n" + "If this is " + "empty then all whitelisted domains will be accessible. Example: \"*.github.com\" will block " + "access to all subdomains of github" + ".com.\n" + "You can use domain names (\"pastebin.com\"), wilcards (\"*.pastebin.com\") or CIDR notation (\"127.0.0.0/8\").") public String[] blacklist = ComputerCraft.DEFAULT_HTTP_BLACKLIST.clone();
 
         @Comment ("\nThe period of time (in milliseconds) to wait before a HTTP request times out. Set to 0 for unlimited.") public int timeout =
             ComputerCraft.httpTimeout;
@@ -175,8 +170,7 @@ public class Config {
         @Comment ("\nThe number of http requests a computer can make at one time. Additional requests " + "will be queued, and sent when the running " +
                   "requests have finished. Set to 0 for unlimited.") public int max_requests = ComputerCraft.httpMaxRequests;
 
-        @Comment ("\nThe maximum size (in bytes) that a computer can download in a single request. " + "Note that responses may receive more data than " +
-                  "allowed, but this data will not be returned to the client.") public long max_download = ComputerCraft.httpMaxDownload;
+        @Comment ("\nThe maximum size (in bytes) that a computer can download in a single request. " + "Note that responses may receive more data than " + "allowed, but this data will not be returned to the client.") public long max_download = ComputerCraft.httpMaxDownload;
 
         @Comment ("\nThe maximum size (in bytes) that a computer can upload in a single request. This " + "includes headers and POST text.") public long max_upload = ComputerCraft.httpMaxUpload;
 

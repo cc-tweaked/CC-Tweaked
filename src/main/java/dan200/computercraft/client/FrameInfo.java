@@ -8,21 +8,21 @@ package dan200.computercraft.client;
 
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 
-public final class FrameInfo
-{
+public final class FrameInfo {
     private static int tick;
     private static long renderFrame;
+
     static {
 
+    }
+
+    private FrameInfo() {
     }
 
     public static void init() {
         ClientTickEvents.START_CLIENT_TICK.register(m -> {
             tick++;
         });
-    }
-
-    private FrameInfo() {
     }
 
     public static boolean getGlobalCursorBlink() {

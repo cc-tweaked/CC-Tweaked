@@ -3,16 +3,8 @@
  * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-package dan200.computercraft.shared.util;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.reflect.TypeToken;
-import dan200.computercraft.ComputerCraft;
-import me.shedaniel.cloth.api.utils.v1.GameInstanceUtils;
-import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.WorldSavePath;
+package dan200.computercraft.shared.util;
 
 import java.io.File;
 import java.io.Reader;
@@ -25,47 +17,32 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 
-public final class IDAssigner
-{
-    private static final WorldSavePath FOLDER = new WorldSavePath( ComputerCraft.MOD_ID );
-    private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
-    private static final Type ID_TOKEN = new TypeToken<Map<String, Integer>>()
-    {
-    }.getType();
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
+import dan200.computercraft.ComputerCraft;
+import me.shedaniel.cloth.api.utils.v1.GameInstanceUtils;
 
-    private IDAssigner()
-    {
-    }
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.WorldSavePath;
 
+public final class IDAssigner {
+    private static final WorldSavePath FOLDER = new WorldSavePath(ComputerCraft.MOD_ID);
+    private static final Gson GSON = new GsonBuilder().setPrettyPrinting()
+                                                      .create();
+    private static final Type ID_TOKEN = new TypeToken<Map<String, Integer>>() {}.getType();
     private static Map<String, Integer> ids;
     private static WeakReference<MinecraftServer> server;
     private static Path idFile;
-
-    public static File getDir()
-    {
-        return GameInstanceUtils.getServer().getSavePath( FOLDER ).toFile();
+    private IDAssigner() {
     }
 
-    private static MinecraftServer getCachedServer()
-    {
-        if( server == null ) return null;
-
-        MinecraftServer currentServer = server.get();
-        if( currentServer == null ) return null;
-
-        if( currentServer != GameInstanceUtils.getServer() ) return null;
-        return currentServer;
-    }
-
-    public static synchronized int getNextId( String kind )
-    {
+    public static synchronized int getNextId(String kind) {
         MinecraftServer currentServer = getCachedServer();
-        if( currentServer == null )
-        {
+        if (currentServer == null) {
             // The server has changed, refetch our ID map
-            if ( GameInstanceUtils.getServer() != null )
-            {
-                server = new WeakReference<>( GameInstanceUtils.getServer() );
+            if (GameInstanceUtils.getServer() != null) {
+                server = new WeakReference<>(GameInstanceUtils.getServer());
 
                 File dir = getDir();
                 dir.mkdirs();
@@ -85,20 +62,39 @@ public final class IDAssigner
             }
         }
 
-        Integer existing = ids.get( kind );
+        Integer existing = ids.get(kind);
         int next = existing == null ? 0 : existing + 1;
-        ids.put( kind, next );
+        ids.put(kind, next);
 
         // We've changed the ID file, so save it back again.
-        try( Writer writer = Files.newBufferedWriter( idFile, StandardCharsets.UTF_8 ) )
-        {
-            GSON.toJson( ids, writer );
-        }
-        catch( Exception e )
-        {
-            ComputerCraft.log.error( "Cannot update ID file '" + idFile + "'", e );
+        try (Writer writer = Files.newBufferedWriter(idFile, StandardCharsets.UTF_8)) {
+            GSON.toJson(ids, writer);
+        } catch (Exception e) {
+            ComputerCraft.log.error("Cannot update ID file '" + idFile + "'", e);
         }
 
         return next;
+    }
+
+    private static MinecraftServer getCachedServer() {
+        if (server == null) {
+            return null;
+        }
+
+        MinecraftServer currentServer = server.get();
+        if (currentServer == null) {
+            return null;
+        }
+
+        if (currentServer != GameInstanceUtils.getServer()) {
+            return null;
+        }
+        return currentServer;
+    }
+
+    public static File getDir() {
+        return GameInstanceUtils.getServer()
+                                .getSavePath(FOLDER)
+                                .toFile();
     }
 }

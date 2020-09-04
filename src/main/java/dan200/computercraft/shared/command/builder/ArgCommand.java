@@ -3,6 +3,7 @@
  * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
+
 package dan200.computercraft.shared.command.builder;
 
 import com.mojang.brigadier.Command;
@@ -16,7 +17,6 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
  * @param <T> The argument given to this command when executed.
  */
 @FunctionalInterface
-public interface ArgCommand<S, T>
-{
-    int run( CommandContext<S> ctx, T arg ) throws CommandSyntaxException;
+public interface ArgCommand<S, T> {
+    int run(CommandContext<S> ctx, T arg) throws CommandSyntaxException;
 }

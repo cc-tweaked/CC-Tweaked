@@ -24,11 +24,7 @@ public class ComputerContainerData implements ContainerData {
     }
 
     public ComputerContainerData(PacketByteBuf byteBuf) {
-        fromBytes(byteBuf);
-    }
-
-    public Identifier getId() {
-        return IDENTIFIER;
+        this.fromBytes(byteBuf);
     }
 
     public void fromBytes(PacketByteBuf buf) {
@@ -36,16 +32,21 @@ public class ComputerContainerData implements ContainerData {
         this.family = buf.readEnumConstant(ComputerFamily.class);
     }
 
+    public Identifier getId() {
+        return IDENTIFIER;
+    }
+
+    @Override
     public void toBytes(PacketByteBuf buf) {
-        buf.writeInt(id);
-        buf.writeEnumConstant(family);
+        buf.writeInt(this.id);
+        buf.writeEnumConstant(this.family);
     }
 
     public int getInstanceId() {
-        return id;
+        return this.id;
     }
 
     public ComputerFamily getFamily() {
-        return family;
+        return this.family;
     }
 }

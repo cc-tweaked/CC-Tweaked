@@ -3,20 +3,25 @@
  * Copyright Daniel Ratcliffe, 2011-2020. This API may be redistributed unmodified and in full only.
  * For help using the API, and posting your mods, visit the forums at computercraft.info.
  */
+
 package dan200.computercraft.api.lua;
+
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+import java.util.Map;
+import java.util.Optional;
 
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
 
-import java.lang.annotation.*;
-import java.util.Map;
-import java.util.Optional;
-
 /**
  * Used to mark a Java function which is callable from Lua.
  *
- * Methods annotated with {@link LuaFunction} must be public final instance methods. They can have any number of
- * parameters, but they must be of the following types:
+ * Methods annotated with {@link LuaFunction} must be public final instance methods. They can have any number of parameters, but they must be of the
+ * following types:
  *
  * <ul>
  *   <li>{@link ILuaContext} (and {@link IComputerAccess} if on a {@link IPeripheral})</li>
@@ -36,10 +41,9 @@ import java.util.Optional;
  * {@link MethodResult#of(Object...)}.
  */
 @Documented
-@Retention( RetentionPolicy.RUNTIME )
-@Target( ElementType.METHOD )
-public @interface LuaFunction
-{
+@Retention (RetentionPolicy.RUNTIME)
+@Target (ElementType.METHOD)
+public @interface LuaFunction {
     /**
      * Explicitly specify the method names of this function. If not given, it uses the name of the annotated method.
      *
@@ -48,8 +52,7 @@ public @interface LuaFunction
     String[] value() default {};
 
     /**
-     * Run this function on the main server thread. This should be specified for any method which interacts with
-     * Minecraft in a thread-unsafe manner.
+     * Run this function on the main server thread. This should be specified for any method which interacts with Minecraft in a thread-unsafe manner.
      *
      * @return Whether this functi
      * @see ILuaContext#issueMainThreadTask(ILuaTask)

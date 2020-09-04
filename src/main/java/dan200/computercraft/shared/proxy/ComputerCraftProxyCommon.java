@@ -3,6 +3,7 @@
  * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
+
 package dan200.computercraft.shared.proxy;
 
 import dan200.computercraft.ComputerCraft;
@@ -25,9 +26,7 @@ import dan200.computercraft.shared.peripheral.commandblock.CommandBlockPeriphera
 import dan200.computercraft.shared.peripheral.modem.wireless.WirelessNetwork;
 import dan200.computercraft.shared.turtle.FurnaceRefuelHandler;
 import dan200.computercraft.shared.util.TickScheduler;
-import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.CommandBlockBlockEntity;
 import net.minecraft.item.Item;
@@ -37,8 +36,11 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 
-public final class ComputerCraftProxyCommon
-{
+import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+
+public final class ComputerCraftProxyCommon {
     private static MinecraftServer server;
 
     public static void init() {
@@ -50,20 +52,7 @@ public final class ComputerCraftProxyCommon
         ArgumentSerializers.register();
     }
 
-    public static void registerLoot()
-    {
-        registerCondition( "block_named", BlockNamedEntityLootCondition.TYPE );
-        registerCondition( "player_creative", PlayerCreativeLootCondition.TYPE );
-        registerCondition( "has_id", HasComputerIdLootCondition.TYPE );
-    }
-
-    private static void registerCondition( String name, LootConditionType serializer )
-    {
-        Registry.register( Registry.LOOT_CONDITION_TYPE, new Identifier( ComputerCraft.MOD_ID, name ), serializer );
-    }
-
-    private static void registerProviders()
-    {
+    private static void registerProviders() {
         ComputerCraftAPI.registerPeripheralProvider((world, pos, side) -> {
             BlockEntity tile = world.getBlockEntity(pos);
             return tile instanceof IPeripheralTile ? ((IPeripheralTile) tile).getPeripheral(side) : null;
@@ -72,19 +61,23 @@ public final class ComputerCraftProxyCommon
         ComputerCraftAPI.registerPeripheralProvider((world, pos, side) -> {
             BlockEntity tile = world.getBlockEntity(pos);
             return ComputerCraft.enableCommandBlock && tile instanceof CommandBlockBlockEntity ?
-                new CommandBlockPeripheral((CommandBlockBlockEntity) tile) : null;
+                   new CommandBlockPeripheral((CommandBlockBlockEntity) tile) : null;
         });
 
         // Register bundled power providers
-        ComputerCraftAPI.registerBundledRedstoneProvider( new DefaultBundledRedstoneProvider() );
+        ComputerCraftAPI.registerBundledRedstoneProvider(new DefaultBundledRedstoneProvider());
 
         // Register media providers
-        ComputerCraftAPI.registerMediaProvider( stack -> {
+        ComputerCraftAPI.registerMediaProvider(stack -> {
             Item item = stack.getItem();
-            if( item instanceof IMedia ) return (IMedia) item;
-            if( item instanceof MusicDiscItem ) return RecordMedia.INSTANCE;
+            if (item instanceof IMedia) {
+                return (IMedia) item;
+            }
+            if (item instanceof MusicDiscItem) {
+                return RecordMedia.INSTANCE;
+            }
             return null;
-        } );
+        });
     }
 
     private static void registerHandlers() {
@@ -114,5 +107,15 @@ public final class ComputerCraftProxyCommon
 
         TurtleEvent.EVENT_BUS.register(FurnaceRefuelHandler.INSTANCE);
         TurtleEvent.EVENT_BUS.register(new TurtlePermissions());
+    }
+
+    public static void registerLoot() {
+        registerCondition("block_named", BlockNamedEntityLootCondition.TYPE);
+        registerCondition("player_creative", PlayerCreativeLootCondition.TYPE);
+        registerCondition("has_id", HasComputerIdLootCondition.TYPE);
+    }
+
+    private static void registerCondition(String name, LootConditionType serializer) {
+        Registry.register(Registry.LOOT_CONDITION_TYPE, new Identifier(ComputerCraft.MOD_ID, name), serializer);
     }
 }

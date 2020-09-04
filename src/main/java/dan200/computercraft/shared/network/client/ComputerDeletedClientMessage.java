@@ -3,25 +3,23 @@
  * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
+
 package dan200.computercraft.shared.network.client;
 
 import dan200.computercraft.ComputerCraft;
+
 import net.fabricmc.fabric.api.network.PacketContext;
 
-public class ComputerDeletedClientMessage extends ComputerClientMessage
-{
-    public ComputerDeletedClientMessage( int instanceId )
-    {
-        super( instanceId );
+public class ComputerDeletedClientMessage extends ComputerClientMessage {
+    public ComputerDeletedClientMessage(int instanceId) {
+        super(instanceId);
     }
 
-    public ComputerDeletedClientMessage()
-    {
+    public ComputerDeletedClientMessage() {
     }
 
     @Override
-    public void handle( PacketContext context )
-    {
-        ComputerCraft.clientComputerRegistry.remove( getInstanceId() );
+    public void handle(PacketContext context) {
+        ComputerCraft.clientComputerRegistry.remove(this.getInstanceId());
     }
 }

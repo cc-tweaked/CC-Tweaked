@@ -32,8 +32,7 @@ public class BadHtmlParser {
 
 
         System.out.println(IDS);
-        print("wooden_chests");
-        print("gold_blocks");
+        print("iron_ingots");
 
         // todo replace dyes by hand
     }

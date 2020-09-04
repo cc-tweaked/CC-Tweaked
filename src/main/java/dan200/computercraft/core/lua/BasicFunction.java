@@ -22,16 +22,14 @@ import org.squiddev.cobalt.function.VarArgFunction;
  *
  * As we never yield, we do not need to push a function to the stack, which removes a small amount of overhead.
  */
-class BasicFunction extends VarArgFunction
-{
+class BasicFunction extends VarArgFunction {
     private final CobaltLuaMachine machine;
     private final LuaMethod method;
     private final Object instance;
     private final ILuaContext context;
     private final String name;
 
-    BasicFunction( CobaltLuaMachine machine, LuaMethod method, Object instance, ILuaContext context, String name )
-    {
+    BasicFunction(CobaltLuaMachine machine, LuaMethod method, Object instance, ILuaContext context, String name) {
         this.machine = machine;
         this.method = method;
         this.instance = instance;
@@ -40,36 +38,27 @@ class BasicFunction extends VarArgFunction
     }
 
     @Override
-    public Varargs invoke( LuaState luaState, Varargs args ) throws LuaError
-    {
-        IArguments arguments = CobaltLuaMachine.toArguments( args );
+    public Varargs invoke(LuaState luaState, Varargs args) throws LuaError {
+        IArguments arguments = CobaltLuaMachine.toArguments(args);
         MethodResult results;
-        try
-        {
-            results = method.apply( instance, context, arguments );
-        }
-        catch( LuaException e )
-        {
-            throw wrap( e );
-        }
-        catch( Throwable t )
-        {
-            if( ComputerCraft.logPeripheralErrors )
-            {
-                ComputerCraft.log.error( "Error calling " + name + " on " + instance, t );
+        try {
+            results = this.method.apply(this.instance, this.context, arguments);
+        } catch (LuaException e) {
+            throw wrap(e);
+        } catch (Throwable t) {
+            if (ComputerCraft.logPeripheralErrors) {
+                ComputerCraft.log.error("Error calling " + this.name + " on " + this.instance, t);
             }
-            throw new LuaError( "Java Exception Thrown: " + t, 0 );
+            throw new LuaError("Java Exception Thrown: " + t, 0);
         }
 
-        if( results.getCallback() != null )
-        {
-            throw new IllegalStateException( "Cannot have a yielding non-yielding function" );
+        if (results.getCallback() != null) {
+            throw new IllegalStateException("Cannot have a yielding non-yielding function");
         }
-        return machine.toValues( results.getResult() );
+        return this.machine.toValues(results.getResult());
     }
 
-    public static LuaError wrap( LuaException exception )
-    {
-        return exception.hasLevel() ? new LuaError( exception.getMessage() ) : new LuaError( exception.getMessage(), exception.getLevel() );
+    public static LuaError wrap(LuaException exception) {
+        return exception.hasLevel() ? new LuaError(exception.getMessage()) : new LuaError(exception.getMessage(), exception.getLevel());
     }
 }

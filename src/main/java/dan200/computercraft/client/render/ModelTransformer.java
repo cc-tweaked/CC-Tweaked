@@ -8,10 +8,6 @@ package dan200.computercraft.client.render;
 
 import java.util.List;
 
-import javax.vecmath.Vector4f;
-
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 import net.minecraft.client.render.VertexFormat;
 import net.minecraft.client.render.VertexFormatElement;
 import net.minecraft.client.render.VertexFormats;
@@ -19,10 +15,13 @@ import net.minecraft.client.render.model.BakedQuad;
 import net.minecraft.util.math.Matrix4f;
 import net.minecraft.util.math.Quaternion;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+
 /**
  * Transforms vertices of a model, remaining aware of winding order, and rearranging vertices if needed.
  */
-@Environment(EnvType.CLIENT)
+@Environment (EnvType.CLIENT)
 public final class ModelTransformer {
     private static final Matrix4f identity;
 
@@ -53,11 +52,13 @@ public final class ModelTransformer {
                                .clone();
         int offset = 0;
         BakedQuad copy = new BakedQuad(vertexData, -1, quad.getFace(), quad.sprite, true);
-        for (int i = 0; i < format.getElements().size(); ++i) // For each vertex element
+        for (int i = 0; i < format.getElements()
+                                  .size(); ++i) // For each vertex element
         {
-            VertexFormatElement element = format.getElements().get(i);
+            VertexFormatElement element = format.getElements()
+                                                .get(i);
             if (element.getType() == VertexFormatElement.Type.POSITION && element.getFormat() == VertexFormatElement.Format.FLOAT && element.getSize() == 3) // When we find a position
-                // element
+            // element
             {
                 for (int j = 0; j < 4; ++j) // For each corner of the quad
                 {
@@ -67,9 +68,9 @@ public final class ModelTransformer {
 
                         // Extract the position
                         Quaternion pos = new Quaternion(Float.intBitsToFloat(vertexData[start]),
-                                                    Float.intBitsToFloat(vertexData[start + 1]),
-                                                    Float.intBitsToFloat(vertexData[start + 2]),
-                                                    1);
+                                                        Float.intBitsToFloat(vertexData[start + 1]),
+                                                        Float.intBitsToFloat(vertexData[start + 2]),
+                                                        1);
 
                         // Transform the position
                         transform.multiply(pos);

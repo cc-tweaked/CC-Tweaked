@@ -3,29 +3,31 @@
  * Copyright Daniel Ratcliffe, 2011-2020. This API may be redistributed unmodified and in full only.
  * For help using the API, and posting your mods, visit the forums at computercraft.info.
  */
+
 package dan200.computercraft.api.turtle.event;
+
+import java.util.Objects;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import dan200.computercraft.api.turtle.FakePlayer;
 import dan200.computercraft.api.turtle.ITurtleAccess;
+
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.util.Objects;
-
 /**
  * Fired when a turtle attempts to interact with an inventory.
  */
-public abstract class TurtleInventoryEvent extends TurtleBlockEvent
-{
+public abstract class TurtleInventoryEvent extends TurtleBlockEvent {
     private final Inventory handler;
 
-    protected TurtleInventoryEvent(@Nonnull ITurtleAccess turtle, @Nonnull TurtleAction action, @Nonnull FakePlayer player, @Nonnull World world, @Nonnull BlockPos pos, @Nullable Inventory handler )
-    {
-        super( turtle, action, player, world, pos );
+    protected TurtleInventoryEvent(@Nonnull ITurtleAccess turtle, @Nonnull TurtleAction action, @Nonnull FakePlayer player, @Nonnull World world,
+                                   @Nonnull BlockPos pos, @Nullable Inventory handler) {
+        super(turtle, action, player, world, pos);
         this.handler = handler;
     }
 
@@ -35,9 +37,8 @@ public abstract class TurtleInventoryEvent extends TurtleBlockEvent
      * @return The inventory being interacted with, {@code null} if the item will be dropped to/sucked from the world.
      */
     @Nullable
-    public Inventory getItemHandler()
-    {
-        return handler;
+    public Inventory getItemHandler() {
+        return this.handler;
     }
 
     /**
@@ -45,11 +46,9 @@ public abstract class TurtleInventoryEvent extends TurtleBlockEvent
      *
      * @see TurtleAction#SUCK
      */
-    public static class Suck extends TurtleInventoryEvent
-    {
-        public Suck( @Nonnull ITurtleAccess turtle, @Nonnull FakePlayer player, @Nonnull World world, @Nonnull BlockPos pos, @Nullable Inventory handler )
-        {
-            super( turtle, TurtleAction.SUCK, player, world, pos, handler );
+    public static class Suck extends TurtleInventoryEvent {
+        public Suck(@Nonnull ITurtleAccess turtle, @Nonnull FakePlayer player, @Nonnull World world, @Nonnull BlockPos pos, @Nullable Inventory handler) {
+            super(turtle, TurtleAction.SUCK, player, world, pos, handler);
         }
     }
 
@@ -58,15 +57,14 @@ public abstract class TurtleInventoryEvent extends TurtleBlockEvent
      *
      * @see TurtleAction#DROP
      */
-    public static class Drop extends TurtleInventoryEvent
-    {
+    public static class Drop extends TurtleInventoryEvent {
         private final ItemStack stack;
 
-        public Drop( @Nonnull ITurtleAccess turtle, @Nonnull FakePlayer player, @Nonnull World world, @Nonnull BlockPos pos, @Nullable Inventory handler, @Nonnull ItemStack stack )
-        {
-            super( turtle, TurtleAction.DROP, player, world, pos, handler );
+        public Drop(@Nonnull ITurtleAccess turtle, @Nonnull FakePlayer player, @Nonnull World world, @Nonnull BlockPos pos, @Nullable Inventory handler,
+                    @Nonnull ItemStack stack) {
+            super(turtle, TurtleAction.DROP, player, world, pos, handler);
 
-            Objects.requireNonNull( stack, "stack cannot be null" );
+            Objects.requireNonNull(stack, "stack cannot be null");
             this.stack = stack;
         }
 
@@ -76,9 +74,8 @@ public abstract class TurtleInventoryEvent extends TurtleBlockEvent
          * @return The item stack which will be dropped. This should <b>not</b> be modified.
          */
         @Nonnull
-        public ItemStack getStack()
-        {
-            return stack;
+        public ItemStack getStack() {
+            return this.stack;
         }
     }
 }

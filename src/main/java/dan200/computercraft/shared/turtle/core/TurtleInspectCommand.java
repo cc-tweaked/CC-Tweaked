@@ -3,7 +3,13 @@
  * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
+
 package dan200.computercraft.shared.turtle.core;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.annotation.Nonnull;
 
 import com.google.common.collect.ImmutableMap;
 import dan200.computercraft.api.turtle.ITurtleAccess;
@@ -11,6 +17,7 @@ import dan200.computercraft.api.turtle.ITurtleCommand;
 import dan200.computercraft.api.turtle.TurtleCommandResult;
 import dan200.computercraft.api.turtle.event.TurtleBlockEvent;
 import dan200.computercraft.api.turtle.event.TurtleEvent;
+
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.state.property.Property;
@@ -19,47 +26,39 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
 
-import javax.annotation.Nonnull;
-import java.util.HashMap;
-import java.util.Map;
-
-public class TurtleInspectCommand implements ITurtleCommand
-{
+public class TurtleInspectCommand implements ITurtleCommand {
     private final InteractDirection direction;
 
-    public TurtleInspectCommand( InteractDirection direction )
-    {
+    public TurtleInspectCommand(InteractDirection direction) {
         this.direction = direction;
     }
 
     @Nonnull
     @Override
-    public TurtleCommandResult execute( @Nonnull ITurtleAccess turtle )
-    {
+    public TurtleCommandResult execute(@Nonnull ITurtleAccess turtle) {
         // Get world direction from direction
-        Direction direction = this.direction.toWorldDir( turtle );
+        Direction direction = this.direction.toWorldDir(turtle);
 
         // Check if thing in front is air or not
         World world = turtle.getWorld();
         BlockPos oldPosition = turtle.getPosition();
-        BlockPos newPosition = oldPosition.offset( direction );
+        BlockPos newPosition = oldPosition.offset(direction);
 
-        BlockState state = world.getBlockState( newPosition );
-        if( state.isAir() )
-        {
-            return TurtleCommandResult.failure( "No block to inspect" );
+        BlockState state = world.getBlockState(newPosition);
+        if (state.isAir()) {
+            return TurtleCommandResult.failure("No block to inspect");
         }
 
         Block block = state.getBlock();
         String name = Registry.BLOCK.getId(block)
-            .toString();
+                                    .toString();
 
         Map<String, Object> table = new HashMap<>();
         table.put("name", name);
 
         Map<Object, Object> stateTable = new HashMap<>();
         for (ImmutableMap.Entry<Property<?>, ? extends Comparable<?>> entry : state.getEntries()
-            .entrySet()) {
+                                                                                   .entrySet()) {
             Property<?> property = entry.getKey();
             stateTable.put(property.getName(), getPropertyValue(property, entry.getValue()));
         }

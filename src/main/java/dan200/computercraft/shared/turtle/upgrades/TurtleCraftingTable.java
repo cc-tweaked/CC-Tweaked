@@ -3,7 +3,10 @@
  * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
+
 package dan200.computercraft.shared.turtle.upgrades;
+
+import javax.annotation.Nonnull;
 
 import dan200.computercraft.api.client.TransformedModel;
 import dan200.computercraft.api.peripheral.IPeripheral;
@@ -11,49 +14,41 @@ import dan200.computercraft.api.turtle.AbstractTurtleUpgrade;
 import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.api.turtle.TurtleUpgradeType;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
+
 import net.minecraft.block.Blocks;
 import net.minecraft.client.util.ModelIdentifier;
 import net.minecraft.util.Identifier;
 
-import javax.annotation.Nonnull;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 
-public class TurtleCraftingTable extends AbstractTurtleUpgrade
-{
-    @Environment(EnvType.CLIENT)
-    private ModelIdentifier m_leftModel;
+public class TurtleCraftingTable extends AbstractTurtleUpgrade {
+    @Environment (EnvType.CLIENT) private ModelIdentifier m_leftModel;
 
-    @Environment(EnvType.CLIENT)
-    private ModelIdentifier m_rightModel;
+    @Environment (EnvType.CLIENT) private ModelIdentifier m_rightModel;
 
-    public TurtleCraftingTable( Identifier id )
-    {
-        super( id, TurtleUpgradeType.PERIPHERAL, Blocks.CRAFTING_TABLE );
+    public TurtleCraftingTable(Identifier id) {
+        super(id, TurtleUpgradeType.PERIPHERAL, Blocks.CRAFTING_TABLE);
     }
 
     @Override
-    public IPeripheral createPeripheral( @Nonnull ITurtleAccess turtle, @Nonnull TurtleSide side )
-    {
-        return new CraftingTablePeripheral( turtle );
-    }
-
-    @Environment(EnvType.CLIENT)
-    private void loadModelLocations()
-    {
-        if( m_leftModel == null )
-        {
-            m_leftModel = new ModelIdentifier( "computercraft:turtle_crafting_table_left", "inventory" );
-            m_rightModel = new ModelIdentifier( "computercraft:turtle_crafting_table_right", "inventory" );
-        }
+    public IPeripheral createPeripheral(@Nonnull ITurtleAccess turtle, @Nonnull TurtleSide side) {
+        return new CraftingTablePeripheral(turtle);
     }
 
     @Nonnull
     @Override
-    @Environment(EnvType.CLIENT)
-    public TransformedModel getModel( ITurtleAccess turtle, @Nonnull TurtleSide side )
-    {
-        loadModelLocations();
-        return TransformedModel.of( side == TurtleSide.LEFT ? m_leftModel : m_rightModel );
+    @Environment (EnvType.CLIENT)
+    public TransformedModel getModel(ITurtleAccess turtle, @Nonnull TurtleSide side) {
+        this.loadModelLocations();
+        return TransformedModel.of(side == TurtleSide.LEFT ? this.m_leftModel : this.m_rightModel);
+    }
+
+    @Environment (EnvType.CLIENT)
+    private void loadModelLocations() {
+        if (this.m_leftModel == null) {
+            this.m_leftModel = new ModelIdentifier("computercraft:turtle_crafting_table_left", "inventory");
+            this.m_rightModel = new ModelIdentifier("computercraft:turtle_crafting_table_right", "inventory");
+        }
     }
 }
