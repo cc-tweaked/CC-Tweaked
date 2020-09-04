@@ -6,7 +6,7 @@
         "# #"
     ],
     "key": {
-        "#": { "tag": "forge:ingots/gold" },
+        "#": { "tag": "c:gold_ingots" },
         "C": { "item": "computercraft:pocket_computer_normal" }
     },
     "family": "advanced",

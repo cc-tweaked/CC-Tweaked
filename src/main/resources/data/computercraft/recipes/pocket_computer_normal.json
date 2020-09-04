@@ -7,13 +7,13 @@
   ],
   "key": {
     "#": {
-      "tag": "forge:stone"
+      "tag": "c:stones"
     },
     "A": {
       "item": "minecraft:golden_apple"
     },
     "G": {
-      "tag": "forge:glass_panes"
+      "tag": "c:glass_panes"
     }
   },
   "result": {

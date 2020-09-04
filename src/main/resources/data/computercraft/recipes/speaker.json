@@ -7,13 +7,13 @@
   ],
   "key": {
     "#": {
-      "tag": "forge:stone"
+      "tag": "c:stones"
     },
     "N": {
       "item": "minecraft:note_block"
     },
     "R": {
-      "tag": "forge:dusts/redstone"
+      "tag": "c:redstone_dusts"
     }
   },
   "result": {

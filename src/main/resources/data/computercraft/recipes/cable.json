@@ -7,10 +7,10 @@
   ],
   "key": {
     "#": {
-      "tag": "forge:stone"
+      "tag": "c:stones"
     },
     "R": {
-      "tag": "forge:dusts/redstone"
+      "tag": "c:redstone_dusts"
     }
   },
   "result": {

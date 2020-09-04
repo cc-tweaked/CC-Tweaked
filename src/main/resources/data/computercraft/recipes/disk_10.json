@@ -3,7 +3,7 @@
   "group": "computercraft:disk",
   "ingredients": [
     {
-      "tag": "forge:dusts/redstone"
+      "tag": "c:redstone_dusts"
     },
     {
       "item": "minecraft:paper"

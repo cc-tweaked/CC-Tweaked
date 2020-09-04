@@ -6,8 +6,8 @@
         " B "
     ],
     "key": {
-        "#": { "tag": "forge:ingots/gold" },
-        "B": { "tag": "forge:storage_blocks/gold" },
+        "#": { "tag": "c:gold_ingots" },
+        "B": { "tag": "c:gold_blocks" },
         "C": { "item": "computercraft:turtle_normal" }
     },
     "family": "advanced",

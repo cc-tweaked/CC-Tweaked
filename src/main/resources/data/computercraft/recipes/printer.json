@@ -7,14 +7,29 @@
   ],
   "key": {
     "#": {
-      "tag": "forge:stone"
+      "tag": "c:stones"
     },
     "R": {
-      "tag": "forge:dusts/redstone"
+      "tag": "c:redstone_dusts"
     },
-    "D": {
-      "tag": "forge:dyes"
-    }
+    "D": [
+        {"tag": "c:black_dyes"},
+        {"tag": "c:blue_dyes"},
+        {"tag": "c:brown_dyes"},
+        {"tag": "c:cyan_dyes"},
+        {"tag": "c:gray_dyes"},
+        {"tag": "c:green_dyes"},
+        {"tag": "c:light_blue_dyes"},
+        {"tag": "c:light_gray_dyes"},
+        {"tag": "c:lime_dyes"},
+        {"tag": "c:magenta_dyes"},
+        {"tag": "c:orange_dyes"},
+        {"tag": "c:pink_dyes"},
+        {"tag": "c:purple_dyes"},
+        {"tag": "c:red_dyes"},
+        {"tag": "c:white_dyes"},
+        {"tag": "c:yellow_dyes"}
+    ]
   },
   "result": {
     "item": "computercraft:printer"

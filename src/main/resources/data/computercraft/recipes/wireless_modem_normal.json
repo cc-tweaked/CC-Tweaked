@@ -7,10 +7,10 @@
   ],
   "key": {
     "#": {
-      "tag": "forge:stone"
+      "tag": "c:stones"
     },
     "E": {
-      "tag": "forge:ender_pearls"
+      "tag": "c:ender_pearls"
     }
   },
   "result": {
