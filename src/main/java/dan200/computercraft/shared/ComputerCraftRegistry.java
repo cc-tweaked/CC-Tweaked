@@ -90,7 +90,7 @@ public final class ComputerCraftRegistry {
                                                                                          ComputerFamily.ADVANCED,
                                                                                          ModTiles.COMPUTER_ADVANCED));
         public static final BlockComputer COMPUTER_COMMAND = register("computer_command",
-                                                                      new BlockComputer(Block.Settings.of(Material.STONE)
+                                                                      new BlockComputer(FabricBlockSettings.copyOf(Blocks.STONE)
                                                                                                       .strength(-1, 6000000.0F),
                                                                                         ComputerFamily.COMMAND,
                                                                                         ModTiles.COMPUTER_COMMAND));
