@@ -161,6 +161,8 @@ public abstract class BlockComputerBase<T extends TileComputerBase> extends Bloc
 
             state.onStacksDropped( serverWorld, pos, player.getMainHandStack() );
         }
+        // Call super as it is what provides sound and block break particles. Does not do anything else.
+        super.onBreak(world, pos, state, player);
     }
 
     @Override
