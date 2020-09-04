@@ -244,6 +244,10 @@ public class TileMonitor extends TileGeneric implements IPeripheralTile
         nbt.putInt( NBT_Y, m_yIndex );
         nbt.putInt( NBT_WIDTH, m_width );
         nbt.putInt( NBT_HEIGHT, m_height );
+
+        if (this.m_xIndex == 0 && this.m_yIndex == 0 && this.m_serverMonitor != null) {
+            this.m_serverMonitor.writeDescription(nbt);
+        }
     }
 
     @Override
@@ -273,6 +277,7 @@ public class TileMonitor extends TileGeneric implements IPeripheralTile
         {
             // If we're the origin terminal then create it.
             if( m_clientMonitor == null ) m_clientMonitor = new ClientMonitor( advanced, this );
+            m_clientMonitor.readDescription(nbt);
         }
 
         if( oldXIndex != m_xIndex || oldYIndex != m_yIndex ||

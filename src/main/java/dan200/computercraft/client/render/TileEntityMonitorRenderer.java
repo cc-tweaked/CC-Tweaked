@@ -61,7 +61,6 @@ public class TileEntityMonitorRenderer extends BlockEntityRenderer<TileMonitor>
     public void render( @Nonnull TileMonitor monitor, float partialTicks, @Nonnull MatrixStack transform, @Nonnull VertexConsumerProvider renderer, int lightmapCoord, int overlayLight )
     {
         // Render from the origin monitor
-        // TODO Figure out why this is null.
         ClientMonitor originTerminal = monitor.getClientMonitor();
 
         if( originTerminal == null ) return;

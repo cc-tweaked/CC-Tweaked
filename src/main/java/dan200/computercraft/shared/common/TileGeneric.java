@@ -80,15 +80,6 @@ public abstract class TileGeneric extends BlockEntity implements BlockEntityClie
     {
     }
 
-    @Nonnull
-    @Override
-    public final BlockEntityUpdateS2CPacket toUpdatePacket()
-    {
-        CompoundTag nbt = new CompoundTag();
-        writeDescription( nbt );
-        return new BlockEntityUpdateS2CPacket( pos, 0, nbt );
-    }
-
     @Override
     public CompoundTag toClientTag(CompoundTag compoundTag) {
         writeDescription(compoundTag);
@@ -98,14 +89,5 @@ public abstract class TileGeneric extends BlockEntity implements BlockEntityClie
     @Override
     public void fromClientTag(CompoundTag compoundTag) {
         readDescription(compoundTag);
-    }
-
-    @Nonnull
-    @Override
-    public CompoundTag toInitialChunkDataTag()
-    {
-        CompoundTag tag = super.toInitialChunkDataTag();
-        writeDescription( tag );
-        return tag;
     }
 }

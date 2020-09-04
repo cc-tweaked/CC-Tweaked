@@ -34,8 +34,6 @@ public enum MonitorRenderer
 
     /**
      * Render using VBOs.
-     *
-     * @see net.minecraft.client.renderer.vertex.VertexBuffer
      */
     VBO;
 

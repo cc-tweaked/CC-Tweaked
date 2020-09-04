@@ -156,6 +156,7 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
 
             if( !stop && computer != null )
             {
+                computer.sendTerminalState(player);
                 new ComputerContainerData( computer ).open( player, new ContainerPocketComputer.Factory( computer, stack, this, hand ) );
             }
         }
