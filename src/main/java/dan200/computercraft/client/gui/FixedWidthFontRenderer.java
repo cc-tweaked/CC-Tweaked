@@ -34,10 +34,11 @@ public final class FixedWidthFontRenderer {
     public static final float WIDTH = 256.0f;
     public static final float BACKGROUND_START = (WIDTH - 6.0f) / WIDTH;
     public static final float BACKGROUND_END = (WIDTH - 4.0f) / WIDTH;
-    public static final RenderLayer TYPE = Type.MAIN;
     private static final Matrix4f IDENTITY = AffineTransformation.identity()
                                                                  .getMatrix();
     private static final Identifier FONT = new Identifier("computercraft", "textures/gui/term_font.png");
+    public static final RenderLayer TYPE = Type.MAIN;
+
 
     private FixedWidthFontRenderer() {
     }
