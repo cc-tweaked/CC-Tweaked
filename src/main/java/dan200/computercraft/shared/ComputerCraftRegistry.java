@@ -51,7 +51,9 @@ import dan200.computercraft.shared.turtle.inventory.ContainerTurtle;
 import dan200.computercraft.shared.turtle.items.ItemTurtle;
 import dan200.computercraft.shared.util.FixedPointTileEntityType;
 
+import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.minecraft.block.Block;
+import net.minecraft.block.Blocks;
 import net.minecraft.block.Material;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
@@ -82,18 +84,18 @@ public final class ComputerCraftRegistry {
 
     public static final class ModBlocks {
         private static Block.Settings properties() {
-            return Block.Settings.of(Material.STONE)
+            return FabricBlockSettings.copyOf(Blocks.STONE)
                                  .strength(2);
         }
 
         private static Block.Settings turtleProperties() {
-            return Block.Settings.of(Material.STONE)
-                                 .strength(2.5f);
+            return FabricBlockSettings.copyOf(Blocks.STONE)
+                .strength(2.5f);
         }
 
         private static Block.Settings emProperties() {
-            return Block.Settings.of(Material.STONE)
-                                 .strength(1.5f);
+            return FabricBlockSettings.copyOf(Blocks.STONE)
+                .strength(1.5f);
         }
 
         public static final BlockComputer COMPUTER_NORMAL = register("computer_normal",
