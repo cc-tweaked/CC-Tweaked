@@ -32,22 +32,8 @@ public class BadHtmlParser {
 
 
         System.out.println(IDS);
-        print("white_dyes");
-        print("orange_dyes");
-        print("magenta_dyes");
-        print("light_blue_dyes");
-        print("yellow_dyes");
-        print("lime_dyes");
-        print("pink_dyes");
-        print("gray_dyes");
-        print("light_gray_dyes");
-        print("cyan_dyes");
-        print("purple_dyes");
-        print("blue_dyes");
-        print("brown_dyes");
-        print("green_dyes");
-        print("red_dyes");
-        print("black_dyes");
+        print("wooden_chests");
+        print("gold_blocks");
 
         // todo replace dyes by hand
     }
