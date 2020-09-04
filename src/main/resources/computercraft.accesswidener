@@ -16,3 +16,7 @@ accessible method net/minecraft/client/render/model/json/ModelOverrideList <init
 extendable class net/minecraft/util/math/Matrix4f
 accessible method net/minecraft/util/WorldSavePath <init> (Ljava/lang/String;)V
 accessible field net/minecraft/server/MinecraftServer serverResourceManager Lnet/minecraft/resource/ServerResourceManager;
+accessible field net/minecraft/client/render/model/BakedQuad sprite Lnet/minecraft/client/texture/Sprite;
+accessible field net/minecraft/client/util/math/AffineTransformation translation Lnet/minecraft/client/util/math/Vector3f;
+accessible field net/minecraft/client/util/math/AffineTransformation scale Lnet/minecraft/client/util/math/Vector3f;
+accessible field net/minecraft/client/util/math/AffineTransformation rotation1 Lnet/minecraft/util/math/Quaternion;

@@ -12,6 +12,8 @@ import net.minecraft.client.render.model.BakedModel;
 import net.minecraft.client.render.model.BakedModelManager;
 import net.minecraft.client.util.ModelIdentifier;
 import net.minecraft.client.util.math.AffineTransformation;
+import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.client.util.math.Vector3f;
 import net.minecraft.item.ItemStack;
 import javax.annotation.Nonnull;
 import java.util.Objects;
@@ -59,5 +61,17 @@ public final class TransformedModel
     public AffineTransformation getMatrix()
     {
         return matrix;
+    }
+
+    public void push(MatrixStack matrixStack) {
+        matrixStack.push();
+
+        matrixStack.translate(matrix.translation.getX(), matrix.translation.getY(), matrix.translation.getZ());
+
+        matrixStack.multiply(matrix.getRotation2());
+
+        matrixStack.scale(matrix.scale.getX(), matrix.scale.getY(), matrix.scale.getZ());
+
+        matrixStack.multiply(matrix.rotation1);
     }
 }

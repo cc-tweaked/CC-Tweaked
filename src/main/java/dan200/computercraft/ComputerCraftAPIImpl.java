@@ -38,6 +38,7 @@ import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -164,7 +165,7 @@ public final class ComputerCraftAPIImpl implements IComputerCraftAPI
         return new WiredNode( element );
     }
 
-    @Nonnull
+    @Nullable
     @Override
     public IWiredElement getWiredElementAt( @Nonnull BlockView world, @Nonnull BlockPos pos, @Nonnull Direction side )
     {

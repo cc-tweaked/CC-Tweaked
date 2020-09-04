@@ -217,7 +217,7 @@ public final class ComputerCraftAPI
      * @return The element's node
      * @see IWiredElement#getNode()
      */
-    @Nonnull
+    @Nullable
     public static IWiredElement getWiredElementAt(@Nonnull BlockView world, @Nonnull BlockPos pos, @Nonnull Direction side )
     {
         return getInstance().getWiredElementAt( world, pos, side );
@@ -274,7 +274,7 @@ public final class ComputerCraftAPI
         @Nonnull
         IWiredNode createWiredNodeForElement( @Nonnull IWiredElement element );
 
-        @Nonnull
+        @Nullable
         IWiredElement getWiredElementAt( @Nonnull BlockView world, @Nonnull BlockPos pos, @Nonnull Direction side );
     }
 }

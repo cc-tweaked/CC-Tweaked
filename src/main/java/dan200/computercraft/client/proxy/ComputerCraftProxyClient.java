@@ -18,6 +18,7 @@ import dan200.computercraft.client.gui.GuiPrintout;
 import dan200.computercraft.client.gui.GuiTurtle;
 import dan200.computercraft.client.render.TileEntityMonitorRenderer;
 import dan200.computercraft.client.render.TileEntityTurtleRenderer;
+import dan200.computercraft.client.render.TurtleModelLoader;
 import dan200.computercraft.client.render.TurtlePlayerRenderer;
 import dan200.computercraft.shared.ComputerCraftRegistry;
 import dan200.computercraft.shared.common.IColouredItem;
@@ -26,21 +27,27 @@ import dan200.computercraft.shared.computer.inventory.ContainerViewComputer;
 import dan200.computercraft.shared.peripheral.monitor.ClientMonitor;
 import dan200.computercraft.shared.pocket.inventory.ContainerPocketComputer;
 import dan200.computercraft.shared.pocket.items.ItemPocketComputer;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
+import net.fabricmc.fabric.api.client.model.ModelLoadingRegistry;
 import net.fabricmc.fabric.api.client.rendereregistry.v1.BlockEntityRendererRegistry;
 import net.fabricmc.fabric.api.client.rendereregistry.v1.EntityRendererRegistry;
 import net.fabricmc.fabric.api.client.screenhandler.v1.ScreenRegistry;
+import net.fabricmc.fabric.api.event.client.ClientSpriteRegistryCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
 import net.fabricmc.fabric.mixin.object.builder.ModelPredicateProviderRegistrySpecificAccessor;
 
 import net.minecraft.client.item.ModelPredicateProvider;
 import net.minecraft.client.render.RenderLayer;
+import net.minecraft.client.texture.SpriteAtlasTexture;
 import net.minecraft.item.Item;
+import net.minecraft.screen.PlayerScreenHandler;
 import net.minecraft.util.Identifier;
 
 import net.fabricmc.api.ClientModInitializer;
 
-@SuppressWarnings ("MethodCallSideOnly")
+@Environment(EnvType.CLIENT)
 public final class ComputerCraftProxyClient implements ClientModInitializer {
 
     @SafeVarargs
@@ -55,16 +62,14 @@ public final class ComputerCraftProxyClient implements ClientModInitializer {
         // My IDE doesn't think so, but we do actually need these generics.
 
         ScreenRegistry.<ContainerComputer, GuiComputer<ContainerComputer>>register(ComputerCraftRegistry.ModContainers.COMPUTER, GuiComputer::create);
-        ScreenRegistry.<ContainerPocketComputer, GuiComputer<ContainerPocketComputer>>register(ComputerCraftRegistry.ModContainers.POCKET_COMPUTER,
-                                                                                               GuiComputer::createPocket);
+        ScreenRegistry.<ContainerPocketComputer, GuiComputer<ContainerPocketComputer>>register(ComputerCraftRegistry.ModContainers.POCKET_COMPUTER, GuiComputer::createPocket);
         ScreenRegistry.register(ComputerCraftRegistry.ModContainers.TURTLE, GuiTurtle::new);
 
         ScreenRegistry.register(ComputerCraftRegistry.ModContainers.PRINTER, GuiPrinter::new);
         ScreenRegistry.register(ComputerCraftRegistry.ModContainers.DISK_DRIVE, GuiDiskDrive::new);
         ScreenRegistry.register(ComputerCraftRegistry.ModContainers.PRINTOUT, GuiPrintout::new);
 
-        ScreenRegistry.<ContainerViewComputer, GuiComputer<ContainerViewComputer>>register(ComputerCraftRegistry.ModContainers.VIEW_COMPUTER,
-                                                                                           GuiComputer::createView);
+        ScreenRegistry.<ContainerViewComputer, GuiComputer<ContainerViewComputer>>register(ComputerCraftRegistry.ModContainers.VIEW_COMPUTER, GuiComputer::createView);
     }
 
     @Override
@@ -86,6 +91,13 @@ public final class ComputerCraftProxyClient implements ClientModInitializer {
         BlockEntityRendererRegistry.INSTANCE.register(ComputerCraftRegistry.ModTiles.TURTLE_NORMAL, TileEntityTurtleRenderer::new);
         BlockEntityRendererRegistry.INSTANCE.register(ComputerCraftRegistry.ModTiles.TURTLE_ADVANCED, TileEntityTurtleRenderer::new);
         // TODO: ClientRegistry.bindTileEntityRenderer( TileCable.FACTORY, x -> new TileEntityCableRenderer() );
+
+        ClientSpriteRegistryCallback.event(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE)
+            .register(ClientRegistry::onTextureStitchEvent);
+        ModelLoadingRegistry.INSTANCE.registerAppender(ClientRegistry::onMeodelBakeEvent);
+        ModelLoadingRegistry.INSTANCE.registerResourceProvider(loader -> (name, context) -> TurtleModelLoader.INSTANCE.accepts(name) ?
+            TurtleModelLoader.INSTANCE.loadModel(
+                name) : null);
 
         EntityRendererRegistry.INSTANCE.register(ComputerCraftRegistry.ModEntities.TURTLE_PLAYER, TurtlePlayerRenderer::new);
 

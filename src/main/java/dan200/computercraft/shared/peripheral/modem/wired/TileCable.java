@@ -320,17 +320,17 @@ public class TileCable extends TileGeneric implements IPeripheralTile
             if (!world.isChunkLoaded(offset)) continue;
 
             IWiredElement element = ComputerCraftAPI.getWiredElementAt(world, offset, facing.getOpposite());
-            if (element != null) continue;
-
-            // TODO Figure out why this crashes.
-            IWiredNode node = element.getNode();
-            if (node != null && m_node != null) {
-                if (BlockCable.canConnectIn(state, facing)) {
-                    // If we can connect to it then do so
-                    m_node.connectTo(node);
-                } else if (m_node.getNetwork() == node.getNetwork()) {
-                    // Otherwise if we're on the same network then attempt to void it.
-                    m_node.disconnectFrom(node);
+            if (element != null) {
+                // TODO Figure out why this crashes.
+                IWiredNode node = element.getNode();
+                if (node != null && m_node != null) {
+                    if (BlockCable.canConnectIn(state, facing)) {
+                        // If we can connect to it then do so
+                        m_node.connectTo(node);
+                    } else if (m_node.getNetwork() == node.getNetwork()) {
+                        // Otherwise if we're on the same network then attempt to void it.
+                        m_node.disconnectFrom(node);
+                    }
                 }
             }
         }

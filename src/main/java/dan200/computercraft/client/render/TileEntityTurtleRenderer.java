@@ -145,7 +145,7 @@ public class TileEntityTurtleRenderer extends BlockEntityRenderer<TileTurtle>
         transform.translate( 0.0f, -0.5f, -0.5f );
 
         TransformedModel model = upgrade.getModel( turtle.getAccess(), side );
-        // model.getMatrix().multiply(transform);
+        model.push(transform);
         renderModel( transform, renderer, lightmapCoord, overlayLight, model.getModel(), null );
         transform.pop();
 

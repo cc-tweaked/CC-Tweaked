@@ -61,20 +61,20 @@ public class TurtleMultiModel implements BakedModel
         ArrayList<BakedQuad> quads = new ArrayList<>();
 
 
-        transformQuadsTo( quads, m_baseModel.getQuads( state, side, rand ), m_generalTransform );
+        ModelTransformer.transformQuadsTo( quads, m_baseModel.getQuads( state, side, rand ), m_generalTransform.getMatrix() );
         if( m_overlayModel != null )
         {
-            transformQuadsTo( quads, m_overlayModel.getQuads( state, side, rand ), m_generalTransform );
+            ModelTransformer.transformQuadsTo( quads, m_overlayModel.getQuads( state, side, rand ), m_generalTransform.getMatrix() );
         }
         if( m_leftUpgradeModel != null )
         {
             AffineTransformation upgradeTransform = m_generalTransform.multiply( m_leftUpgradeModel.getMatrix() );
-            transformQuadsTo( quads, m_leftUpgradeModel.getModel().getQuads( state, side, rand ), upgradeTransform );
+            ModelTransformer.transformQuadsTo( quads, m_leftUpgradeModel.getModel().getQuads( state, side, rand ), upgradeTransform.getMatrix() );
         }
         if( m_rightUpgradeModel != null )
         {
             AffineTransformation upgradeTransform = m_generalTransform.multiply( m_rightUpgradeModel.getMatrix() );
-            transformQuadsTo( quads, m_rightUpgradeModel.getModel().getQuads( state, side, rand ), upgradeTransform );
+            ModelTransformer.transformQuadsTo( quads, m_rightUpgradeModel.getModel().getQuads( state, side, rand ), upgradeTransform.getMatrix() );
         }
         quads.trimToSize();
         return quads;
@@ -125,17 +125,5 @@ public class TurtleMultiModel implements BakedModel
     public ModelOverrideList getOverrides()
     {
         return ModelOverrideList.EMPTY;
-    }
-
-    private void transformQuadsTo( List<BakedQuad> output, List<BakedQuad> quads, AffineTransformation transform )
-    {
-        for( BakedQuad quad : quads )
-        {
-            // TODO Figure out what the fuck to do here
-//            BakedQuadBuilder builder = new BakedQuadBuilder();
-//            TRSRTransformer transformer = new TRSRTransformer( builder, transform );
-//            quad.pipe( transformer );
-//            output.add( builder.build() );
-        }
     }
 }
