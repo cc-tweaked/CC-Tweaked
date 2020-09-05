@@ -159,6 +159,9 @@ public abstract class BlockComputerBase<T extends TileComputerBase> extends Bloc
 
     @Override
     public void onBreak(@Nonnull World world, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nonnull PlayerEntity player) {
+        // Call super as it is what provides sound and block break particles. Does not do anything else.
+        super.onBreak(world, pos, state, player);
+
         if (!(world instanceof ServerWorld)) {
             return;
         }
@@ -182,7 +185,5 @@ public abstract class BlockComputerBase<T extends TileComputerBase> extends Bloc
 
             state.onStacksDropped(serverWorld, pos, player.getMainHandStack());
         }
-        // Call super as it is what provides sound and block break particles. Does not do anything else.
-        super.onBreak(world, pos, state, player);
     }
 }

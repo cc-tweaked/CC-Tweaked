@@ -14,6 +14,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.shared.common.ContainerHeldItem;
 import dan200.computercraft.shared.computer.blocks.BlockComputer;
 import dan200.computercraft.shared.computer.blocks.TileCommandComputer;
@@ -44,11 +45,14 @@ import dan200.computercraft.shared.peripheral.speaker.BlockSpeaker;
 import dan200.computercraft.shared.peripheral.speaker.TileSpeaker;
 import dan200.computercraft.shared.pocket.inventory.ContainerPocketComputer;
 import dan200.computercraft.shared.pocket.items.ItemPocketComputer;
+import dan200.computercraft.shared.pocket.peripherals.PocketModem;
+import dan200.computercraft.shared.pocket.peripherals.PocketSpeaker;
 import dan200.computercraft.shared.turtle.blocks.BlockTurtle;
 import dan200.computercraft.shared.turtle.blocks.TileTurtle;
 import dan200.computercraft.shared.turtle.core.TurtlePlayer;
 import dan200.computercraft.shared.turtle.inventory.ContainerTurtle;
 import dan200.computercraft.shared.turtle.items.ItemTurtle;
+import dan200.computercraft.shared.turtle.upgrades.*;
 import dan200.computercraft.shared.util.FixedPointTileEntityType;
 
 import net.minecraft.block.Block;
@@ -61,6 +65,7 @@ import net.minecraft.entity.SpawnGroup;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
+import net.minecraft.item.Items;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.util.Identifier;
@@ -68,6 +73,7 @@ import net.minecraft.util.registry.Registry;
 
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.fabricmc.fabric.api.screenhandler.v1.ScreenHandlerRegistry;
+import org.apache.http.client.utils.Idn;
 
 public final class ComputerCraftRegistry {
     public static final String MOD_ID = ComputerCraft.MOD_ID;
@@ -80,6 +86,9 @@ public final class ComputerCraftRegistry {
             ModEntities.TURTLE_PLAYER,
             ModContainers.COMPUTER,
             };
+
+        TurtleUpgrades.registerTurtleUpgrades();
+        PocketUpgrades.registerPocketUpgrades();
     }
 
     public static final class ModBlocks {
@@ -244,6 +253,44 @@ public final class ComputerCraftRegistry {
 
         private static <T extends ScreenHandler> ScreenHandlerType<T> registerExtended(String id, ScreenHandlerRegistry.ExtendedClientHandlerFactory<T> function) {
             return ScreenHandlerRegistry.registerExtended(new Identifier(MOD_ID, id), function);
+        }
+    }
+
+    public static final class TurtleUpgrades {
+        public static TurtleModem wirelessModemNormal = new TurtleModem(false, new Identifier(ComputerCraft.MOD_ID, "wireless_modem_normal"));
+        public static TurtleModem wirelessModemAdvanced = new TurtleModem(true, new Identifier(ComputerCraft.MOD_ID, "wireless_modem_advanced"));
+        public static TurtleSpeaker speaker = new TurtleSpeaker(new Identifier(ComputerCraft.MOD_ID, "speaker"));
+
+        public static TurtleCraftingTable craftingTable = new TurtleCraftingTable(new Identifier("minecraft", "crafting_table"));
+        public static TurtleSword diamondSword = new TurtleSword(new Identifier("minecraft", "diamond_sword"), Items.DIAMOND_SWORD);
+        public static TurtleShovel diamondShovel = new TurtleShovel(new Identifier("minecraft", "diamond_shovel"), Items.DIAMOND_SHOVEL);
+        public static TurtleTool diamondPickaxe = new TurtleTool(new Identifier("minecraft", "diamond_pickaxe"), Items.DIAMOND_PICKAXE);
+        public static TurtleAxe diamondAxe = new TurtleAxe(new Identifier("minecraft", "diamond_axe"), Items.DIAMOND_AXE);
+        public static TurtleHoe diamondHoe = new TurtleHoe(new Identifier("minecraft", "diamond_hoe"), Items.DIAMOND_HOE);
+
+        public static void registerTurtleUpgrades() {
+            ComputerCraftAPI.registerTurtleUpgrade(wirelessModemNormal);
+            ComputerCraftAPI.registerTurtleUpgrade(wirelessModemAdvanced);
+            ComputerCraftAPI.registerTurtleUpgrade(speaker);
+
+            ComputerCraftAPI.registerTurtleUpgrade(craftingTable);
+            ComputerCraftAPI.registerTurtleUpgrade(diamondSword);
+            ComputerCraftAPI.registerTurtleUpgrade(diamondShovel);
+            ComputerCraftAPI.registerTurtleUpgrade(diamondPickaxe);
+            ComputerCraftAPI.registerTurtleUpgrade(diamondAxe);
+            ComputerCraftAPI.registerTurtleUpgrade(diamondHoe);
+        }
+    }
+
+    public static final class PocketUpgrades {
+        public static PocketModem wirelessModemNormal = new PocketModem(false);
+        public static PocketModem wirelessModemAdvanced = new PocketModem(true);
+        public static PocketSpeaker speaker = new PocketSpeaker();
+
+        public static void registerPocketUpgrades() {
+            ComputerCraftAPI.registerPocketUpgrade(wirelessModemNormal);
+            ComputerCraftAPI.registerPocketUpgrade(wirelessModemAdvanced);
+            ComputerCraftAPI.registerPocketUpgrade(speaker);
         }
     }
 

@@ -66,12 +66,15 @@ public final class TransformedModel {
     public void push(MatrixStack matrixStack) {
         matrixStack.push();
 
-        matrixStack.translate(this.matrix.translation.getX(), this.matrix.translation.getY(), this.matrix.translation.getZ());
+        if (matrix.translation != null)
+            matrixStack.translate(this.matrix.translation.getX(), this.matrix.translation.getY(), this.matrix.translation.getZ());
 
         matrixStack.multiply(this.matrix.getRotation2());
 
-        matrixStack.scale(this.matrix.scale.getX(), this.matrix.scale.getY(), this.matrix.scale.getZ());
+        if (matrix.scale != null)
+            matrixStack.scale(this.matrix.scale.getX(), this.matrix.scale.getY(), this.matrix.scale.getZ());
 
-        matrixStack.multiply(this.matrix.rotation1);
+        if (matrix.rotation1 != null)
+            matrixStack.multiply(this.matrix.rotation1);
     }
 }

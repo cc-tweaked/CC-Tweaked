@@ -154,23 +154,4 @@ public final class ComputerCraft implements ModInitializer {
         init();
     }
 
-    public static final class TurtleUpgrades {
-        public static TurtleModem wirelessModemNormal;
-        public static TurtleModem wirelessModemAdvanced;
-        public static TurtleSpeaker speaker;
-
-        public static TurtleCraftingTable craftingTable;
-        public static TurtleSword diamondSword;
-        public static TurtleShovel diamondShovel;
-        public static TurtleTool diamondPickaxe;
-        public static TurtleAxe diamondAxe;
-        public static TurtleHoe diamondHoe;
-    }
-
-    public static final class PocketUpgrades {
-        public static PocketModem wirelessModemNormal;
-        public static PocketModem wirelessModemAdvanced;
-        public static PocketSpeaker speaker;
-    }
-
 }

@@ -74,9 +74,9 @@ public final class PocketUpgrades {
 
     public static Iterable<IPocketUpgrade> getVanillaUpgrades() {
         List<IPocketUpgrade> vanilla = new ArrayList<>();
-        vanilla.add(ComputerCraft.PocketUpgrades.wirelessModemNormal);
-        vanilla.add(ComputerCraft.PocketUpgrades.wirelessModemAdvanced);
-        vanilla.add(ComputerCraft.PocketUpgrades.speaker);
+        vanilla.add(ComputerCraftRegistry.PocketUpgrades.wirelessModemNormal);
+        vanilla.add(ComputerCraftRegistry.PocketUpgrades.wirelessModemAdvanced);
+        vanilla.add(ComputerCraftRegistry.PocketUpgrades.speaker);
         return vanilla;
     }
 

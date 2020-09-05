@@ -29,6 +29,8 @@ import dan200.computercraft.shared.util.DropConsumer;
 import dan200.computercraft.shared.util.FillableMatrix4f;
 import dan200.computercraft.shared.util.InventoryUtil;
 import dan200.computercraft.shared.util.WorldUtil;
+import net.minecraft.client.util.math.Vector3f;
+import net.minecraft.util.math.*;
 import org.apache.commons.lang3.tuple.Pair;
 
 import net.minecraft.block.Block;
@@ -46,10 +48,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Matrix4f;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
 import net.fabricmc.api.EnvType;
@@ -93,25 +91,7 @@ public class TurtleTool extends AbstractTurtleUpgrade {
     @Environment (EnvType.CLIENT)
     public TransformedModel getModel(ITurtleAccess turtle, @Nonnull TurtleSide side) {
         float xOffset = side == TurtleSide.LEFT ? -0.40625f : 0.40625f;
-        Matrix4f transform = new FillableMatrix4f(new float[] {
-            0.0f,
-            0.0f,
-            -1.0f,
-            1.0f + xOffset,
-            1.0f,
-            0.0f,
-            0.0f,
-            0.0f,
-            0.0f,
-            -1.0f,
-            0.0f,
-            1.0f,
-            0.0f,
-            0.0f,
-            0.0f,
-            1.0f,
-            });
-        return TransformedModel.of(this.getCraftingItem(), new AffineTransformation(transform));
+        return TransformedModel.of(this.getCraftingItem(), new AffineTransformation(new Vector3f(xOffset, 0, 1), Vector3f.POSITIVE_Y.getDegreesQuaternion(90), new Vector3f(1, 1, 1), Quaternion.IDENTITY));
     }
 
     private TurtleCommandResult attack(final ITurtleAccess turtle, Direction direction, TurtleSide side) {

@@ -159,22 +159,22 @@ public class TileEntityTurtleRenderer extends BlockEntityRenderer<TileTurtle> {
         Identifier overlay = turtle.getOverlay();
 
         VertexConsumer buffer = renderer.getBuffer(TexturedRenderLayers.getEntityTranslucentCull());
-        this.renderModel(transform, buffer, lightmapCoord, overlayLight, getTurtleModel(family, colour != -1), colour == -1 ? null : new int[] {colour});
+        renderModel(transform, buffer, lightmapCoord, overlayLight, getTurtleModel(family, colour != -1), colour == -1 ? null : new int[] {colour});
 
         // Render the overlay
         ModelIdentifier overlayModel = getTurtleOverlayModel(overlay, HolidayUtil.getCurrentHoliday() == Holiday.CHRISTMAS);
         if (overlayModel != null) {
-            this.renderModel(transform, buffer, lightmapCoord, overlayLight, overlayModel, null);
+            renderModel(transform, buffer, lightmapCoord, overlayLight, overlayModel, null);
         }
 
         // Render the upgrades
-        this.renderUpgrade(transform, buffer, lightmapCoord, overlayLight, turtle, TurtleSide.LEFT, partialTicks);
-        this.renderUpgrade(transform, buffer, lightmapCoord, overlayLight, turtle, TurtleSide.RIGHT, partialTicks);
+        renderUpgrade(transform, buffer, lightmapCoord, overlayLight, turtle, TurtleSide.LEFT, partialTicks);
+        renderUpgrade(transform, buffer, lightmapCoord, overlayLight, turtle, TurtleSide.RIGHT, partialTicks);
 
         transform.pop();
     }
 
-    private void renderUpgrade(@Nonnull MatrixStack transform, @Nonnull VertexConsumer renderer, int lightmapCoord, int overlayLight, TileTurtle turtle,
+    public static void renderUpgrade(@Nonnull MatrixStack transform, @Nonnull VertexConsumer renderer, int lightmapCoord, int overlayLight, TileTurtle turtle,
                                TurtleSide side, float f) {
         ITurtleUpgrade upgrade = turtle.getUpgrade(side);
         if (upgrade == null) {
@@ -189,27 +189,28 @@ public class TileEntityTurtleRenderer extends BlockEntityRenderer<TileTurtle> {
 
         TransformedModel model = upgrade.getModel(turtle.getAccess(), side);
         model.push(transform);
-        this.renderModel(transform, renderer, lightmapCoord, overlayLight, model.getModel(), null);
+        TileEntityTurtleRenderer.renderModel(transform, renderer, lightmapCoord, overlayLight, model.getModel(), null);
         transform.pop();
 
         transform.pop();
     }
 
-    private void renderModel(@Nonnull MatrixStack transform, @Nonnull VertexConsumer renderer, int lightmapCoord, int overlayLight,
+    public static void renderModel(@Nonnull MatrixStack transform, @Nonnull VertexConsumer renderer, int lightmapCoord, int overlayLight,
                              ModelIdentifier modelLocation, int[] tints) {
         BakedModelManager modelManager = MinecraftClient.getInstance()
                                                         .getItemRenderer()
                                                         .getModels()
                                                         .getModelManager();
-        this.renderModel(transform, renderer, lightmapCoord, overlayLight, modelManager.getModel(modelLocation), tints);
+        renderModel(transform, renderer, lightmapCoord, overlayLight, modelManager.getModel(modelLocation), tints);
     }
 
-    private void renderModel(@Nonnull MatrixStack transform, @Nonnull VertexConsumer renderer, int lightmapCoord, int overlayLight, BakedModel model,
+    public static void renderModel(@Nonnull MatrixStack transform, @Nonnull VertexConsumer renderer, int lightmapCoord, int overlayLight, BakedModel model,
                              int[] tints) {
-        this.random.setSeed(0);
-        renderQuads(transform, renderer, lightmapCoord, overlayLight, model.getQuads(null, null, this.random), tints);
+        Random random = new Random();
+        random.setSeed(0);
+        renderQuads(transform, renderer, lightmapCoord, overlayLight, model.getQuads(null, null, random), tints);
         for (Direction facing : DirectionUtil.FACINGS) {
-            renderQuads(transform, renderer, lightmapCoord, overlayLight, model.getQuads(null, facing, this.random), tints);
+            renderQuads(transform, renderer, lightmapCoord, overlayLight, model.getQuads(null, facing, random), tints);
         }
     }
 }

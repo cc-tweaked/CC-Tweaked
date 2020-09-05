@@ -108,18 +108,18 @@ public final class TurtleUpgrades {
         if (vanilla == null) {
             vanilla = new ITurtleUpgrade[] {
                 // ComputerCraft upgrades
-                ComputerCraft.TurtleUpgrades.wirelessModemNormal,
-                ComputerCraft.TurtleUpgrades.wirelessModemAdvanced,
-                ComputerCraft.TurtleUpgrades.speaker,
+                ComputerCraftRegistry.TurtleUpgrades.wirelessModemNormal,
+                ComputerCraftRegistry.TurtleUpgrades.wirelessModemAdvanced,
+                ComputerCraftRegistry.TurtleUpgrades.speaker,
 
                 // Vanilla Minecraft upgrades
-                ComputerCraft.TurtleUpgrades.diamondPickaxe,
-                ComputerCraft.TurtleUpgrades.diamondAxe,
-                ComputerCraft.TurtleUpgrades.diamondSword,
-                ComputerCraft.TurtleUpgrades.diamondShovel,
-                ComputerCraft.TurtleUpgrades.diamondHoe,
-                ComputerCraft.TurtleUpgrades.craftingTable,
-                };
+                ComputerCraftRegistry.TurtleUpgrades.diamondPickaxe,
+                ComputerCraftRegistry.TurtleUpgrades.diamondAxe,
+                ComputerCraftRegistry.TurtleUpgrades.diamondSword,
+                ComputerCraftRegistry.TurtleUpgrades.diamondShovel,
+                ComputerCraftRegistry.TurtleUpgrades.diamondHoe,
+                ComputerCraftRegistry.TurtleUpgrades.craftingTable,
+            };
         }
 
         return Arrays.stream(vanilla)
