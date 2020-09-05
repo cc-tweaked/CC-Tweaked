@@ -21,7 +21,7 @@ import net.minecraft.util.Identifier;
  * @see dan200.computercraft.shared.command.CommandComputerCraft
  */
 public class ViewComputerContainerData extends ComputerContainerData {
-    private static final Identifier IDENTIFIER = new Identifier(ComputerCraft.MOD_ID, "viewComputerContainerData");
+    private static final Identifier IDENTIFIER = new Identifier(ComputerCraft.MOD_ID, "view_computer_container_data");
     private int width;
     private int height;
 
