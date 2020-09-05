@@ -9,4 +9,4 @@ pluginManagement {
     }
 }
 
-rootProject.name = "cc-t-fabric-${mc_version}"
+rootProject.name = "cc-tweaked-fabric-${mc_version}"

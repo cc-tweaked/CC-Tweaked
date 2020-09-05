@@ -8,13 +8,8 @@ targetCompatibility = JavaVersion.VERSION_1_8
 
 version = mod_version
 
-group = "org.mystia.craft"
+group = "dan200.computercraft"
 archivesBaseName = "cc-tweaked-fabric-${mc_version}"
-
-// yeef
-compileJava {
-    options.compilerArgs << '-Xmaxerrs' << '10000'
-}
 
 repositories {
     mavenCentral()
