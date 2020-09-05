@@ -268,6 +268,8 @@ public final class ComputerCraftRegistry {
         public static TurtleAxe diamondAxe = new TurtleAxe(new Identifier("minecraft", "diamond_axe"), Items.DIAMOND_AXE);
         public static TurtleHoe diamondHoe = new TurtleHoe(new Identifier("minecraft", "diamond_hoe"), Items.DIAMOND_HOE);
 
+        public static TurtleTool netheritePickaxe = new TurtleTool(new Identifier("minecraft", "netherite_pickaxe"), Items.NETHERITE_PICKAXE);
+
         public static void registerTurtleUpgrades() {
             ComputerCraftAPI.registerTurtleUpgrade(wirelessModemNormal);
             ComputerCraftAPI.registerTurtleUpgrade(wirelessModemAdvanced);
@@ -279,6 +281,8 @@ public final class ComputerCraftRegistry {
             ComputerCraftAPI.registerTurtleUpgrade(diamondPickaxe);
             ComputerCraftAPI.registerTurtleUpgrade(diamondAxe);
             ComputerCraftAPI.registerTurtleUpgrade(diamondHoe);
+
+            ComputerCraftAPI.registerTurtleUpgrade(netheritePickaxe);
         }
     }
 

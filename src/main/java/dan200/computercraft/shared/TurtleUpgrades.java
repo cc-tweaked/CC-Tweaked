@@ -119,6 +119,8 @@ public final class TurtleUpgrades {
                 ComputerCraftRegistry.TurtleUpgrades.diamondShovel,
                 ComputerCraftRegistry.TurtleUpgrades.diamondHoe,
                 ComputerCraftRegistry.TurtleUpgrades.craftingTable,
+
+                ComputerCraftRegistry.TurtleUpgrades.netheritePickaxe,
             };
         }
 
