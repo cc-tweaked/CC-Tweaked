@@ -181,12 +181,6 @@ public class TurtleTool extends AbstractTurtleUpgrade {
         turtlePlayer.loadInventory(this.item.copy());
 
         if (ComputerCraft.turtlesObeyBlockProtection) {
-            // Check spawn protection
-            if (PlayerBlockBreakEvents.BEFORE.invoker()
-                                             .beforeBlockBreak(world, turtlePlayer, blockPosition, state, null)) {
-                return TurtleCommandResult.failure("Cannot break protected block");
-            }
-
             if (!TurtlePermissions.isBlockEditable(world, blockPosition, turtlePlayer)) {
                 return TurtleCommandResult.failure("Cannot break protected block");
             }
