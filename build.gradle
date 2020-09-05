@@ -9,7 +9,7 @@ targetCompatibility = JavaVersion.VERSION_1_8
 version = mod_version
 
 group = "org.mystia.craft"
-archivesBaseName = "cc-t-fabric-${mc_version}"
+archivesBaseName = "cc-tweaked-fabric-${mc_version}"
 
 // yeef
 compileJava {
