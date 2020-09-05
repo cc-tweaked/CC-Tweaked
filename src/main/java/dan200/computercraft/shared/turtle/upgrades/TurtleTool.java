@@ -91,7 +91,7 @@ public class TurtleTool extends AbstractTurtleUpgrade {
     @Environment (EnvType.CLIENT)
     public TransformedModel getModel(ITurtleAccess turtle, @Nonnull TurtleSide side) {
         float xOffset = side == TurtleSide.LEFT ? -0.40625f : 0.40625f;
-        return TransformedModel.of(this.getCraftingItem(), new AffineTransformation(new Vector3f(xOffset, 0, 1), Vector3f.POSITIVE_Y.getDegreesQuaternion(90), new Vector3f(1, 1, 1), Quaternion.IDENTITY));
+        return TransformedModel.of(this.getCraftingItem(), new AffineTransformation(new Vector3f(xOffset + 1, 0, 1), Vector3f.POSITIVE_Y.getDegreesQuaternion(270), new Vector3f(1, 1, 1), Vector3f.POSITIVE_Z.getDegreesQuaternion(90)));
     }
 
     private TurtleCommandResult attack(final ITurtleAccess turtle, Direction direction, TurtleSide side) {
