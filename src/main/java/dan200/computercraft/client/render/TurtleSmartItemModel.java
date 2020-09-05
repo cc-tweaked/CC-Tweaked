@@ -18,6 +18,7 @@ import dan200.computercraft.api.client.TransformedModel;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.shared.turtle.items.ItemTurtle;
+import dan200.computercraft.shared.turtle.upgrades.TurtleTool;
 import dan200.computercraft.shared.util.Holiday;
 import dan200.computercraft.shared.util.HolidayUtil;
 
@@ -76,7 +77,8 @@ public class TurtleSmartItemModel implements BakedModel {
                 boolean christmas = HolidayUtil.getCurrentHoliday() == Holiday.CHRISTMAS;
                 String label = turtle.getLabel(stack);
                 boolean flip = label != null && (label.equals("Dinnerbone") || label.equals("Grumm"));
-                TurtleModelCombination combo = new TurtleModelCombination(colour != -1, leftUpgrade, rightUpgrade, overlay, christmas, flip);
+                // TODO Make TurtleTool render for turtle items again.
+                TurtleModelCombination combo = new TurtleModelCombination(colour != -1, !(leftUpgrade instanceof TurtleTool) ? leftUpgrade : null, !(rightUpgrade instanceof TurtleTool) ? rightUpgrade : null, overlay, christmas, flip);
 
                 BakedModel model = TurtleSmartItemModel.this.m_cachedModels.get(combo);
                 if (model == null) {
