@@ -21,3 +21,4 @@ accessible field net/minecraft/client/util/math/AffineTransformation translation
 accessible field net/minecraft/client/util/math/AffineTransformation scale Lnet/minecraft/client/util/math/Vector3f;
 accessible field net/minecraft/client/util/math/AffineTransformation rotation1 Lnet/minecraft/util/math/Quaternion;
 accessible field net/minecraft/sound/SoundEvent id Lnet/minecraft/util/Identifier;
+accessible field net/minecraft/block/entity/SignBlockEntity text [Lnet/minecraft/text/Text;

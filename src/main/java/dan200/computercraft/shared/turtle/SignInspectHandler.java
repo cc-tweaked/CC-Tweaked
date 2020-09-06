@@ -17,7 +17,7 @@ public class SignInspectHandler {
             SignBlockEntity sbe = (SignBlockEntity)be;
             Map<Integer, String> textTable = new HashMap<>();
             for(int k = 0; k < 4; k++) {
-                textTable.put(k+1, sbe.getTextOnRow(k).asString());
+                textTable.put(k+1, sbe.text[k].asString());
             }
             event.getData().put("text", textTable);
         }
