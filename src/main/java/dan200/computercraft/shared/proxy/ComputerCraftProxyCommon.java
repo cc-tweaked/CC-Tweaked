@@ -25,6 +25,7 @@ import dan200.computercraft.shared.network.NetworkHandler;
 import dan200.computercraft.shared.peripheral.commandblock.CommandBlockPeripheral;
 import dan200.computercraft.shared.peripheral.modem.wireless.WirelessNetwork;
 import dan200.computercraft.shared.turtle.FurnaceRefuelHandler;
+import dan200.computercraft.shared.turtle.SignInspectHandler;
 import dan200.computercraft.shared.util.TickScheduler;
 
 import net.minecraft.block.entity.BlockEntity;
@@ -107,6 +108,7 @@ public final class ComputerCraftProxyCommon {
 
         TurtleEvent.EVENT_BUS.register(FurnaceRefuelHandler.INSTANCE);
         TurtleEvent.EVENT_BUS.register(new TurtlePermissions());
+        TurtleEvent.EVENT_BUS.register(new SignInspectHandler());
     }
 
     public static void registerLoot() {
