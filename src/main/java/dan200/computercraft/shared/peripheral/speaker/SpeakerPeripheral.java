@@ -153,8 +153,7 @@ public abstract class SpeakerPeripheral implements IPeripheral {
 
         // If the resource location for note block notes changes, this method call will need to be updated
         boolean success = this.playSound(context,
-                                         instrument.getSound()
-                                              .getId(),
+                                         instrument.getSound().id,
                                          volume,
                                          (float) Math.pow(2.0, (pitch - 12.0) / 12.0),
                                          true);

@@ -64,7 +64,7 @@ public class PlayRecordClientMessage implements NetworkMessage {
         } else {
             buf.writeBoolean(true);
             buf.writeString(this.name);
-            buf.writeIdentifier(this.soundEvent.getId());
+            buf.writeIdentifier(this.soundEvent.id);
         }
     }
 

@@ -20,3 +20,4 @@ accessible field net/minecraft/client/render/model/BakedQuad sprite Lnet/minecra
 accessible field net/minecraft/client/util/math/AffineTransformation translation Lnet/minecraft/client/util/math/Vector3f;
 accessible field net/minecraft/client/util/math/AffineTransformation scale Lnet/minecraft/client/util/math/Vector3f;
 accessible field net/minecraft/client/util/math/AffineTransformation rotation1 Lnet/minecraft/util/math/Quaternion;
+accessible field net/minecraft/sound/SoundEvent id Lnet/minecraft/util/Identifier;
