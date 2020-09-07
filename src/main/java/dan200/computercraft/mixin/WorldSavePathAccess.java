@@ -7,6 +7,6 @@ import net.minecraft.util.WorldSavePath;
 
 @Mixin (WorldSavePath.class)
 public interface WorldSavePathAccess {
-	@Invoker
+	@Invoker("<init>")
 	static WorldSavePath createWorldSavePath(String relativePath) { throw new UnsupportedOperationException(); }
 }
