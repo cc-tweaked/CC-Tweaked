@@ -30,8 +30,6 @@
         "client": ["dan200.computercraft.client.proxy.ComputerCraftProxyClient"]
     },
     "mixins": [
-        { "config": "computercraft.client.json", "environment": "client" },
-        "computercraft.common.json"
-    ],
-    "accessWidener" : "computercraft.accesswidener"
+        "computercraft.mixins.json"
+    ]
 }

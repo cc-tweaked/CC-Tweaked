@@ -4,7 +4,7 @@
  * Send enquiries to dratcliffe@gmail.com
  */
 
-package dan200.computercraft.shared.mixin;
+package dan200.computercraft.mixin;
 
 import dan200.computercraft.shared.command.CommandCopy;
 import org.spongepowered.asm.mixin.Mixin;

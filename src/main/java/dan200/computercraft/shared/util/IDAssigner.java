@@ -21,13 +21,14 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.mixin.WorldSavePathAccess;
 import me.shedaniel.cloth.api.utils.v1.GameInstanceUtils;
 
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.WorldSavePath;
 
 public final class IDAssigner {
-    private static final WorldSavePath FOLDER = new WorldSavePath(ComputerCraft.MOD_ID);
+    private static final WorldSavePath FOLDER = WorldSavePathAccess.createWorldSavePath(ComputerCraft.MOD_ID);
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting()
                                                       .create();
     private static final Type ID_TOKEN = new TypeToken<Map<String, Integer>>() {}.getType();

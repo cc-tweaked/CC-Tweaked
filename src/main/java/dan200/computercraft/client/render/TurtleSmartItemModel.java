@@ -6,6 +6,7 @@
 
 package dan200.computercraft.client.render;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
@@ -64,7 +65,8 @@ public class TurtleSmartItemModel implements BakedModel {
         this.familyModel = familyModel;
         this.colourModel = colourModel;
 
-        this.m_overrides = new ModelOverrideList() {
+        // this actually works I think, trust me
+        this.m_overrides = new ModelOverrideList(null, null, null, Collections.emptyList()) {
             @Nonnull
             @Override
             public BakedModel apply(@Nonnull BakedModel originalModel, @Nonnull ItemStack stack, @Nullable ClientWorld world,

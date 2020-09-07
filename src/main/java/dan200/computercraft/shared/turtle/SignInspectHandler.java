@@ -6,6 +6,8 @@ import java.util.Map;
 import com.google.common.eventbus.Subscribe;
 
 import dan200.computercraft.api.turtle.event.TurtleBlockEvent;
+import dan200.computercraft.mixin.SignBlockEntityAccess;
+
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.SignBlockEntity;
 
@@ -17,7 +19,7 @@ public class SignInspectHandler {
             SignBlockEntity sbe = (SignBlockEntity)be;
             Map<Integer, String> textTable = new HashMap<>();
             for(int k = 0; k < 4; k++) {
-                textTable.put(k+1, sbe.text[k].asString());
+                textTable.put(k+1, ((SignBlockEntityAccess)sbe).getText()[k].asString());
             }
             event.getData().put("text", textTable);
         }

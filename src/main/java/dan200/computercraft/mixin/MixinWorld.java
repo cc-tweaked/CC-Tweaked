@@ -4,7 +4,7 @@
  * Send enquiries to dratcliffe@gmail.com
  */
 
-package dan200.computercraft.shared.mixin;
+package dan200.computercraft.mixin;
 
 import java.util.Collection;
 

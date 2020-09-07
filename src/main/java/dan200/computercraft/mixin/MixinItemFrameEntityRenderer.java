@@ -4,7 +4,7 @@
  * Send enquiries to dratcliffe@gmail.com
  */
 
-package dan200.computercraft.shared.mixin;
+package dan200.computercraft.mixin;
 
 import dan200.computercraft.client.render.ItemPrintoutRenderer;
 import dan200.computercraft.shared.media.items.ItemPrintout;
