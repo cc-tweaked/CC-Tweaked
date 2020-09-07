@@ -10,6 +10,8 @@ import java.util.Objects;
 
 import javax.annotation.Nonnull;
 
+import dan200.computercraft.mixin.AffineTransformationAccess;
+
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.model.BakedModel;
 import net.minecraft.client.render.model.BakedModelManager;
@@ -66,15 +68,16 @@ public final class TransformedModel {
     public void push(MatrixStack matrixStack) {
         matrixStack.push();
 
-        if (matrix.translation != null)
-            matrixStack.translate(this.matrix.translation.getX(), this.matrix.translation.getY(), this.matrix.translation.getZ());
+        AffineTransformationAccess access = (AffineTransformationAccess) (Object) this.matrix;
+        if (access.getTranslation() != null)
+            matrixStack.translate(access.getTranslation().getX(), access.getTranslation().getY(), access.getTranslation().getZ());
 
         matrixStack.multiply(this.matrix.getRotation2());
 
-        if (matrix.scale != null)
-            matrixStack.scale(this.matrix.scale.getX(), this.matrix.scale.getY(), this.matrix.scale.getZ());
+        if (access.getScale() != null)
+            matrixStack.scale(access.getScale().getX(), access.getScale().getY(), access.getScale().getZ());
 
-        if (matrix.rotation1 != null)
-            matrixStack.multiply(this.matrix.rotation1);
+        if (access.getRotation1() != null)
+            matrixStack.multiply(access.getRotation1());
     }
 }

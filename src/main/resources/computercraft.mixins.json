@@ -1,0 +1,29 @@
+{
+    "required": true,
+    "package": "dan200.computercraft.mixin",
+    "compatibilityLevel": "JAVA_8",
+    "mixins": [
+        "AffineTransformationAccess",
+        "BakedQuadAccess",
+        "ChatHudAccess",
+        "HeldItemRendererAccess",
+        "MinecraftServerAccess",
+        "MixinBlock",
+        "MixinEntity",
+        "MixinServerWorld",
+        "MixinWorld",
+        "SignBlockEntityAccess",
+        "SoundEventAccess",
+        "WorldSavePathAccess"
+    ],
+    "client": [
+        "MixinHeldItemRenderer",
+        "MixinItemFrameEntityRenderer",
+        "MixinMinecraftGame",
+        "MixinScreen",
+        "MixinWorldRenderer"
+    ],
+    "injectors": {
+        "defaultRequire": 1
+    }
+}

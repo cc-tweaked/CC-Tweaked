@@ -28,6 +28,7 @@ import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.core.apis.ApiFactories;
 import dan200.computercraft.core.filesystem.FileMount;
 import dan200.computercraft.core.filesystem.ResourceMount;
+import dan200.computercraft.mixin.MinecraftServerAccess;
 import dan200.computercraft.shared.BundledRedstone;
 import dan200.computercraft.shared.MediaProviders;
 import dan200.computercraft.shared.Peripherals;
@@ -62,7 +63,7 @@ public final class ComputerCraftAPIImpl implements IComputerCraftAPI {
     public static InputStream getResourceFile(String domain, String subPath) {
         MinecraftServer server = GameInstanceUtils.getServer();
         if (server != null) {
-            ReloadableResourceManager manager = (ReloadableResourceManager) server.serverResourceManager.getResourceManager();
+            ReloadableResourceManager manager = (ReloadableResourceManager) ((MinecraftServerAccess)server).getServerResourceManager().getResourceManager();
             try {
                 return manager.getResource(new Identifier(domain, subPath))
                               .getInputStream();
@@ -105,7 +106,7 @@ public final class ComputerCraftAPIImpl implements IComputerCraftAPI {
     public IMount createResourceMount(@Nonnull String domain, @Nonnull String subPath) {
         MinecraftServer server = GameInstanceUtils.getServer();
         if (server != null) {
-            ReloadableResourceManager manager = (ReloadableResourceManager) server.serverResourceManager.getResourceManager();
+            ReloadableResourceManager manager = (ReloadableResourceManager) ((MinecraftServerAccess)server).getServerResourceManager().getResourceManager();
             ResourceMount mount = ResourceMount.get(domain, subPath, manager);
             return mount.exists("") ? mount : null;
         }

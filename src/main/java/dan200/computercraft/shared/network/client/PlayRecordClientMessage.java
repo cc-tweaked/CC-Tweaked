@@ -8,6 +8,7 @@ package dan200.computercraft.shared.network.client;
 
 import javax.annotation.Nonnull;
 
+import dan200.computercraft.mixin.SoundEventAccess;
 import dan200.computercraft.shared.network.NetworkMessage;
 
 import net.minecraft.client.MinecraftClient;
@@ -64,7 +65,7 @@ public class PlayRecordClientMessage implements NetworkMessage {
         } else {
             buf.writeBoolean(true);
             buf.writeString(this.name);
-            buf.writeIdentifier(this.soundEvent.id);
+            buf.writeIdentifier(((SoundEventAccess)this.soundEvent).getId());
         }
     }
 

@@ -18,6 +18,7 @@ import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.api.peripheral.IPeripheral;
+import dan200.computercraft.mixin.SoundEventAccess;
 
 import net.minecraft.block.enums.Instrument;
 import net.minecraft.network.packet.s2c.play.PlaySoundIdS2CPacket;
@@ -153,7 +154,7 @@ public abstract class SpeakerPeripheral implements IPeripheral {
 
         // If the resource location for note block notes changes, this method call will need to be updated
         boolean success = this.playSound(context,
-                                         instrument.getSound().id,
+                                         ((SoundEventAccess)instrument.getSound()).getId(),
                                          volume,
                                          (float) Math.pow(2.0, (pitch - 12.0) / 12.0),
                                          true);

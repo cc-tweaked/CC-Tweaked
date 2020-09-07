@@ -8,6 +8,8 @@ package dan200.computercraft.client.render;
 
 import java.util.List;
 
+import dan200.computercraft.mixin.BakedQuadAccess;
+
 import net.minecraft.client.render.VertexFormat;
 import net.minecraft.client.render.VertexFormatElement;
 import net.minecraft.client.render.VertexFormats;
@@ -51,7 +53,7 @@ public final class ModelTransformer {
         int[] vertexData = quad.getVertexData()
                                .clone();
         int offset = 0;
-        BakedQuad copy = new BakedQuad(vertexData, -1, quad.getFace(), quad.sprite, true);
+        BakedQuad copy = new BakedQuad(vertexData, -1, quad.getFace(), ((BakedQuadAccess)quad).getSprite(), true);
         for (int i = 0; i < format.getElements()
                                   .size(); ++i) // For each vertex element
         {

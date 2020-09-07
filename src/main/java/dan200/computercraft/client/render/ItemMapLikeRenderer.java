@@ -6,6 +6,8 @@
 
 package dan200.computercraft.client.render;
 
+import dan200.computercraft.mixin.HeldItemRendererAccess;
+
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.item.HeldItemRenderer;
@@ -66,14 +68,15 @@ public abstract class ItemMapLikeRenderer {
         float tZ = -0.4f * MathHelper.sin(swingRt * (float) Math.PI);
         transform.translate(0, -tX / 2, tZ);
 
-        float pitchAngle = renderer.getMapAngle(pitch);
+        HeldItemRendererAccess access = (HeldItemRendererAccess) render;
+        float pitchAngle = access.callGetMapAngle(pitch);
         transform.translate(0, 0.04F + equipProgress * -1.2f + pitchAngle * -0.5f, -0.72f);
         transform.multiply(Vector3f.POSITIVE_X.getDegreesQuaternion(pitchAngle * -85.0f));
         if (!minecraft.player.isInvisible()) {
             transform.push();
             transform.multiply(Vector3f.POSITIVE_Y.getDegreesQuaternion(90.0F));
-            renderer.renderArm(transform, render, combinedLight, Arm.RIGHT);
-            renderer.renderArm(transform, render, combinedLight, Arm.LEFT);
+            access.callRenderArm(transform, render, combinedLight, Arm.RIGHT);
+            access.callRenderArm(transform, render, combinedLight, Arm.LEFT);
             transform.pop();
         }
 
@@ -105,8 +108,8 @@ public abstract class ItemMapLikeRenderer {
         if (!minecraft.player.isInvisible()) {
             transform.push();
             transform.multiply(Vector3f.POSITIVE_Z.getDegreesQuaternion(offset * 10f));
-            minecraft.getHeldItemRenderer()
-                     .renderArmHoldingItem(transform, render, combinedLight, equipProgress, swingProgress, side);
+            ((HeldItemRendererAccess)minecraft.getHeldItemRenderer())
+                     .callRenderArmHoldingItem(transform, render, combinedLight, equipProgress, swingProgress, side);
             transform.pop();
         }
 
