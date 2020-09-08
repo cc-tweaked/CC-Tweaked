@@ -1,5 +1,5 @@
 {
-    "gui.computercraft.tooltip.disk_id": "ID đĩa: %s",
+    "gui.computercraft.tooltip.disk_id": "ID của đĩa: %s",
     "upgrade.computercraft.speaker.adjective": "Ồn ào",
     "upgrade.computercraft.wireless_modem_advanced.adjective": "Ender",
     "upgrade.computercraft.wireless_modem_normal.adjective": "Không dây",
@@ -35,5 +35,14 @@
     "block.computercraft.computer_command": "Máy tính điều khiển",
     "block.computercraft.computer_normal": "Máy tính",
     "itemGroup.computercraft": "ComputerCraft",
-    "block.computercraft.computer_advanced": "Máy tính tiên tiến"
+    "block.computercraft.computer_advanced": "Máy tính tiên tiến",
+    "tracking_field.computercraft.websocket_incoming.name": "Websocket đến",
+    "tracking_field.computercraft.websocket_outgoing.name": "Websocket đi",
+    "gui.computercraft.tooltip.computer_id": "ID của máy tính: %s",
+    "tracking_field.computercraft.coroutines_dead.name": "Coroutine bỏ đi",
+    "tracking_field.computercraft.coroutines_created.name": "Coroutine đã tạo",
+    "tracking_field.computercraft.http_download.name": "HTTP tải xuống",
+    "tracking_field.computercraft.http_upload.name": "HTTP tải lên",
+    "tracking_field.computercraft.http.name": "Yêu cầu HTTP",
+    "gui.computercraft.tooltip.copy": "Sao chép vào clipboard"
 }
