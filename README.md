@@ -1,6 +1,6 @@
 # CC:T for Fabric
 
-* [Download on CurseForge](https://www.curseforge.com/minecraft/mc-mods/cc-tweaked-fabric)
+* [Download on CurseForge](https://www.curseforge.com/minecraft/mc-mods/cc-restitched)
 
 A fork of [CC: Tweaked](https://github.com/SquidDev-CC/CC-Tweaked) for use with the latest Fabric.
 
