@@ -228,7 +228,7 @@ public class TurtlePlaceCommand implements ITurtleCommand {
             cancelResult = hitEntity.interactAt(turtlePlayer, hitPos, Hand.MAIN_HAND);
         }
 
-        if (cancelResult.isAccepted()) {
+        if (cancelResult != null && cancelResult.isAccepted()) {
             placed = true;
         } else {
             // See EntityPlayer.interactOn
