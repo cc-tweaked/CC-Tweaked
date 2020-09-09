@@ -230,7 +230,7 @@ public class TurtlePlaceCommand implements ITurtleCommand {
 
         if (cancelResult != null && cancelResult.isAccepted()) {
             placed = true;
-        } else {
+        } else if (hitEntity instanceof LivingEntity) {
             // See EntityPlayer.interactOn
             cancelResult = stackCopy.useOnEntity(turtlePlayer, (LivingEntity) hitEntity, Hand.MAIN_HAND);
             if (cancelResult != null && cancelResult.isAccepted()) {
@@ -238,7 +238,7 @@ public class TurtlePlaceCommand implements ITurtleCommand {
             } else if (cancelResult == null) {
                 if (hitEntity.interact(turtlePlayer, Hand.MAIN_HAND) == ActionResult.CONSUME) {
                     placed = true;
-                } else if (hitEntity instanceof LivingEntity) {
+                } else {
                     placed = stackCopy.useOnEntity(turtlePlayer, (LivingEntity) hitEntity, Hand.MAIN_HAND)
                                       .isAccepted();
                     if (placed) {
