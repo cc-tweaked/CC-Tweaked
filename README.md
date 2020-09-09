@@ -55,7 +55,7 @@ dependency in your `mods.toml` file, with the appropriate version bounds, to ens
 on is present.
 
 ```groovy
-dependencies {
+repositories {
   maven { url 'https://squiddev.cc/maven/' }
 }
 
