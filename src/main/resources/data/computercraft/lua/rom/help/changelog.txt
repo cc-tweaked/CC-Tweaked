@@ -1,3 +1,14 @@
+# New features in CC: Tweaked 1.92.0
+
+* Bump Cobalt version:
+  * Add support for the __pairs metamethod.
+  * string.format now uses the __tostring metamethod.
+* Add date-specific MOTDs (MCJack123).
+
+And several bug fixes:
+* Correctly handle tabs within textutils.unserailizeJSON.
+* Fix sheep not dropping items when sheered by turtles.
+
 # New features in CC: Tweaked 1.91.0
 
 * [Generic peripherals] Expose NBT hashes of items to inventory methods.

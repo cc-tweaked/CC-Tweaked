@@ -1,13 +1,12 @@
-New features in CC: Tweaked 1.91.0
+New features in CC: Tweaked 1.92.0
 
-* [Generic peripherals] Expose NBT hashes of items to inventory methods.
-* Bump Cobalt version
-  * Optimise handling of string concatenation.
-  * Add string.{pack,unpack,packsize} (MCJack123)
+* Bump Cobalt version:
+  * Add support for the __pairs metamethod.
+  * string.format now uses the __tostring metamethod.
+* Add date-specific MOTDs (MCJack123).
 
 And several bug fixes:
-* Escape non-ASCII characters in JSON strings (neumond)
-* Make field names in fs.attributes more consistent (abby)
-* Fix textutils.formatTime correctly handle 12 AM (R93950X)
+* Correctly handle tabs within textutils.unserailizeJSON.
+* Fix sheep not dropping items when sheered by turtles.
 
 Type "help changelog" to see the full version history.
