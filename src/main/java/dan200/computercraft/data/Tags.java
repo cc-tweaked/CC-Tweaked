@@ -15,6 +15,7 @@ import net.minecraft.item.Item;
 import net.minecraft.tags.ITag;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.common.data.ExistingFileHelper;
 
 import static dan200.computercraft.data.Tags.CCTags.*;
 
@@ -30,9 +31,9 @@ public class Tags extends ItemTagsProvider
         public static final ITag.INamedTag<Item> MONITOR = item( "monitor" );
     }
 
-    public Tags( DataGenerator generator, BlockTagsProvider tags )
+    public Tags( DataGenerator generator, ExistingFileHelper helper )
     {
-        super( generator, tags );
+        super( generator, new BlockTagsProvider( generator, ComputerCraft.MOD_ID, helper ), ComputerCraft.MOD_ID, helper );
     }
 
     @Override
