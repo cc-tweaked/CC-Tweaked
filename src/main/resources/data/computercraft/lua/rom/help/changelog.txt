@@ -7,7 +7,7 @@
 
 And several bug fixes:
 * Correctly handle tabs within textutils.unserailizeJSON.
-* Fix sheep not dropping items when sheered by turtles.
+* Fix sheep not dropping items when sheared by turtles.
 
 # New features in CC: Tweaked 1.91.0
 
