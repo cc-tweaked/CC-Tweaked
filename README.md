@@ -50,12 +50,12 @@ I'd generally recommend you don't contact me directly (email, DM, etc...) unless
 report exploits). You'll get a far quicker response if you ask the whole community!
 
 ## Using
-If you want to depend on CC: Tweaked, we have a maven repo. However, you should be wary that some functionality is only
-exposed by CC:T's API and not vanilla ComputerCraft. If you wish to support all variations of ComputerCraft, I recommend
-using [cc.crzd.me's maven](https://cc.crzd.me/maven/) instead.
+CC: Tweaked is hosted on my maven repo, and so is relatively simple to depend on. You may wish to add a soft (or hard)
+dependency in your `mods.toml` file, with the appropriate version bounds, to ensure that API functionality you depend
+on is present.
 
 ```groovy
-dependencies {
+repositories {
   maven { url 'https://squiddev.cc/maven/' }
 }
 

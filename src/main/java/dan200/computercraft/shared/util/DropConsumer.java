@@ -42,8 +42,6 @@ public final class DropConsumer
         dropEntity = entity;
         dropWorld = entity.world;
         dropBounds = new AxisAlignedBB( entity.getPosition() ).grow( 2, 2, 2 );
-
-        entity.captureDrops( new ArrayList<>() );
     }
 
     public static void set( World world, BlockPos pos, Function<ItemStack, ItemStack> consumer )
@@ -86,7 +84,7 @@ public final class DropConsumer
         }
     }
 
-    @SubscribeEvent
+    @SubscribeEvent( priority = EventPriority.LOW )
     public static void onLivingDrops( LivingDropsEvent drops )
     {
         if( dropEntity == null || drops.getEntity() != dropEntity ) return;

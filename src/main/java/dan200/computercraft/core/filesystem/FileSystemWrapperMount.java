@@ -124,7 +124,7 @@ public class FileSystemWrapperMount implements IFileSystem
     {
         try
         {
-            return m_filesystem.exists( path );
+            return m_filesystem.isDir( path );
         }
         catch( FileSystemException e )
         {
