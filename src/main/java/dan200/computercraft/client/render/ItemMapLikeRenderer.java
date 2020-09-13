@@ -68,7 +68,7 @@ public abstract class ItemMapLikeRenderer {
         float tZ = -0.4f * MathHelper.sin(swingRt * (float) Math.PI);
         transform.translate(0, -tX / 2, tZ);
 
-        HeldItemRendererAccess access = (HeldItemRendererAccess) render;
+        HeldItemRendererAccess access = (HeldItemRendererAccess) renderer;
         float pitchAngle = access.callGetMapAngle(pitch);
         transform.translate(0, 0.04F + equipProgress * -1.2f + pitchAngle * -0.5f, -0.72f);
         transform.multiply(Vector3f.POSITIVE_X.getDegreesQuaternion(pitchAngle * -85.0f));

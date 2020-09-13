@@ -1,6 +1,5 @@
 {
     "schemaVersion": 1,
-
     "id": "computercraft",
     "name": "CC:T for Fabric",
     "version": "${version}",
@@ -26,8 +25,12 @@
     },
     "environment": "*",
     "entrypoints": {
-        "main": [ "dan200.computercraft.ComputerCraft" ],
-        "client": ["dan200.computercraft.client.proxy.ComputerCraftProxyClient"]
+        "main": [
+            "dan200.computercraft.ComputerCraft"
+        ],
+        "client": [
+            "dan200.computercraft.client.proxy.ComputerCraftProxyClient"
+        ]
     },
     "mixins": [
         "computercraft.mixins.json"

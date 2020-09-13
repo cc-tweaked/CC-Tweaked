@@ -3,10 +3,6 @@
     "package": "dan200.computercraft.mixin",
     "compatibilityLevel": "JAVA_8",
     "mixins": [
-        "AffineTransformationAccess",
-        "BakedQuadAccess",
-        "ChatHudAccess",
-        "HeldItemRendererAccess",
         "MinecraftServerAccess",
         "MixinBlock",
         "MixinEntity",
@@ -17,6 +13,10 @@
         "WorldSavePathAccess"
     ],
     "client": [
+        "AffineTransformationAccess",
+        "BakedQuadAccess",
+        "ChatHudAccess",
+        "HeldItemRendererAccess",
         "MixinHeldItemRenderer",
         "MixinItemFrameEntityRenderer",
         "MixinMinecraftGame",
