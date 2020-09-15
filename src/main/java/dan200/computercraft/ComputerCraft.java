@@ -63,10 +63,10 @@ public final class ComputerCraft
     public static boolean httpWebsocketEnabled = true;
     public static List<AddressRule> httpRules = Collections.unmodifiableList( Stream.concat(
         Stream.of( DEFAULT_HTTP_DENY )
-            .map( x -> AddressRule.parse( x, Action.DENY.toPartial() ) )
+            .map( x -> AddressRule.parse( x, null, Action.DENY.toPartial() ) )
             .filter( Objects::nonNull ),
         Stream.of( DEFAULT_HTTP_ALLOW )
-            .map( x -> AddressRule.parse( x, Action.ALLOW.toPartial() ) )
+            .map( x -> AddressRule.parse( x, null, Action.ALLOW.toPartial() ) )
             .filter( Objects::nonNull )
     ).collect( Collectors.toList() ) );
 

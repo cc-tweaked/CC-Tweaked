@@ -129,8 +129,7 @@ public class Websocket extends Resource<Websocket>
         try
         {
             boolean ssl = uri.getScheme().equalsIgnoreCase( "wss" );
-
-            InetSocketAddress socketAddress = NetworkUtils.getAddress( uri.getHost(), uri.getPort(), ssl );
+            InetSocketAddress socketAddress = NetworkUtils.getAddress( uri, ssl );
             Options options = NetworkUtils.getOptions( uri.getHost(), socketAddress );
             SslContext sslContext = ssl ? NetworkUtils.getSslContext() : null;
 
