@@ -312,17 +312,11 @@ public class TurtlePlaceCommand implements ITurtleCommand {
         }
 
         if (!placed && (item instanceof BucketItem || item instanceof BoatItem || item instanceof LilyPadItem || item instanceof GlassBottleItem)) {
-            TypedActionResult<ItemStack> actionResult = stackCopy.use(turtle.getWorld(), turtlePlayer, Hand.MAIN_HAND);
-            if (actionResult != null && actionResult.getResult()
-                                                    .isAccepted()) {
+            TypedActionResult<ItemStack> result = stackCopy.use(turtle.getWorld(), turtlePlayer, Hand.MAIN_HAND);
+            if (result.getResult()
+                      .isAccepted() && !ItemStack.areEqual(stack, result.getValue())) {
                 placed = true;
-            } else if (actionResult == null) {
-                TypedActionResult<ItemStack> result = stackCopy.use(turtle.getWorld(), turtlePlayer, Hand.MAIN_HAND);
-                if (result.getResult()
-                          .isAccepted() && !ItemStack.areEqual(stack, result.getValue())) {
-                    placed = true;
-                    turtlePlayer.loadInventory(result.getValue());
-                }
+                turtlePlayer.loadInventory(result.getValue());
             }
         }
 
