@@ -36,7 +36,7 @@ public final class DropConsumer {
         dropPos = null;
         dropBounds = new Box(entity.getBlockPos()).expand(2, 2, 2);
 
-        // entity.captureDrops( new ArrayList<>() );
+        // entity.getScale().captureDrops( new ArrayList<>() );
     }
 
     public static void set(World world, BlockPos pos, Function<ItemStack, ItemStack> consumer) {

@@ -106,7 +106,7 @@ public class FileSystemWrapperMount implements IFileSystem {
     @Override
     public boolean isDirectory(@Nonnull String path) throws IOException {
         try {
-            return this.m_filesystem.exists(path);
+            return this.m_filesystem.isDir(path);
         } catch (FileSystemException e) {
             throw new IOException(e.getMessage());
         }

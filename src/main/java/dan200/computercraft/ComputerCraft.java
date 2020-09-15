@@ -72,6 +72,7 @@ public final class ComputerCraft implements ModInitializer {
         "172.16.0.0/12",
         "192.168.0.0/16",
         "fd00::/8",
+        "0.0.0.0/8"
         };
     public static final int terminalWidth_computer = 51;
     public static final int terminalHeight_computer = 19;
