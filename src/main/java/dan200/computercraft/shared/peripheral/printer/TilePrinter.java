@@ -300,9 +300,9 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
         }
     }
 
-    private static boolean isInk( @Nonnull ItemStack stack )
+    static boolean isInk( @Nonnull ItemStack stack )
     {
-        return stack.getItem() instanceof DyeItem;
+        return ColourUtils.getStackColour( stack ) != null;
     }
 
     private static boolean isPaper( @Nonnull ItemStack stack )
@@ -321,7 +321,8 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
     private boolean inputPage()
     {
         ItemStack inkStack = m_inventory.get( 0 );
-        if( !isInk( inkStack ) ) return false;
+        DyeColor dye = ColourUtils.getStackColour( inkStack );
+        if( dye == null ) return false;
 
         for( int i = 1; i < 7; i++ )
         {
@@ -329,8 +330,7 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
             if( paperStack.isEmpty() || !isPaper( paperStack ) ) continue;
 
             // Setup the new page
-            DyeColor dye = ColourUtils.getStackColour( inkStack );
-            m_page.setTextColour( dye != null ? dye.getId() : 15 );
+            m_page.setTextColour( dye.getId() );
 
             m_page.clear();
             if( paperStack.getItem() instanceof ItemPrintout )

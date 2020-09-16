@@ -40,6 +40,8 @@ public final class ColourUtils
 
     public static DyeColor getStackColour( ItemStack stack )
     {
+        if( stack.isEmpty() ) return null;
+
         for( int i = 0; i < DYES.length; i++ )
         {
             Tag<Item> dye = DYES[i];
