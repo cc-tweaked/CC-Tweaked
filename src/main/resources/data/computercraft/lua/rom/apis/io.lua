@@ -289,7 +289,7 @@ end
 -- The `mode` string can be any of the following:
 --  - **"r"**: Read mode
 --  - **"w"**: Write mode
---  - **"w"**: Append mode
+--  - **"a"**: Append mode
 --
 -- The mode may also have a `b` at the end, which opens the file in "binary
 -- mode". This allows you to read binary files, as well as seek within a file.
