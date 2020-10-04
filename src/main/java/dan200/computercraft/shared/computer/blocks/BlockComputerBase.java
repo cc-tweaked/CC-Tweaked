@@ -27,6 +27,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.IBlockReader;
+import net.minecraft.world.IWorldReader;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.fml.RegistryObject;
@@ -181,5 +182,11 @@ public abstract class BlockComputerBase<T extends TileComputerBase> extends Bloc
             String label = item.getLabel( stack );
             if( label != null ) computer.setLabel( label );
         }
+    }
+
+    @Override
+    public boolean shouldCheckWeakPower( BlockState state, IWorldReader world, BlockPos pos, Direction side )
+    {
+        return false;
     }
 }

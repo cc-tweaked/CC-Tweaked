@@ -49,12 +49,14 @@ public class AddressRuleConfig
     public static boolean checkRule( UnmodifiableConfig builder )
     {
         String hostObj = get( builder, "host", String.class ).orElse( null );
+        Integer port = get( builder, "port", Number.class ).map( Number::intValue ).orElse( null );
         return hostObj != null && checkEnum( builder, "action", Action.class )
+            && check( builder, "port", Number.class )
             && check( builder, "timeout", Number.class )
             && check( builder, "max_upload", Number.class )
             && check( builder, "max_download", Number.class )
             && check( builder, "websocket_message", Number.class )
-            && AddressRule.parse( hostObj, PartialOptions.DEFAULT ) != null;
+            && AddressRule.parse( hostObj, port, PartialOptions.DEFAULT ) != null;
     }
 
     @Nullable
@@ -64,6 +66,7 @@ public class AddressRuleConfig
         if( hostObj == null ) return null;
 
         Action action = getEnum( builder, "action", Action.class ).orElse( null );
+        Integer port = get( builder, "port", Number.class ).map( Number::intValue ).orElse( null );
         Integer timeout = get( builder, "timeout", Number.class ).map( Number::intValue ).orElse( null );
         Long maxUpload = get( builder, "max_upload", Number.class ).map( Number::longValue ).orElse( null );
         Long maxDownload = get( builder, "max_download", Number.class ).map( Number::longValue ).orElse( null );
@@ -77,7 +80,7 @@ public class AddressRuleConfig
             websocketMessage
         );
 
-        return AddressRule.parse( hostObj, options );
+        return AddressRule.parse( hostObj, port, options );
     }
 
     private static <T> boolean check( UnmodifiableConfig config, String field, Class<T> klass )

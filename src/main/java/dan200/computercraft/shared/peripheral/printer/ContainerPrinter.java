@@ -13,7 +13,6 @@ import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.inventory.container.Container;
 import net.minecraft.inventory.container.Slot;
-import net.minecraft.item.DyeItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.IIntArray;
 import net.minecraft.util.IntArray;
@@ -95,7 +94,7 @@ public class ContainerPrinter extends Container
         else
         {
             // Transfer from inventory to printer
-            if( stack.getItem() instanceof DyeItem )
+            if( TilePrinter.isInk( stack ) )
             {
                 if( !mergeItemStack( stack, 0, 1, false ) ) return ItemStack.EMPTY;
             }

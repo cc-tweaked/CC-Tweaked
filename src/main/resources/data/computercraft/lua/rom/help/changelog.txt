@@ -1,3 +1,13 @@
+# New features in CC: Tweaked 1.93.0
+
+* Update Swedish translations (Granddave).
+* Printers use item tags to check dyes.
+* HTTP rules may now be targetted for a specific port.
+* Don't propagate adjacent redstone signals through computers.
+
+And several bug fixes:
+* Fix NPEs when turtles interact with containers.
+
 # New features in CC: Tweaked 1.92.0
 
 * Bump Cobalt version:
@@ -7,7 +17,7 @@
 
 And several bug fixes:
 * Correctly handle tabs within textutils.unserailizeJSON.
-* Fix sheep not dropping items when sheered by turtles.
+* Fix sheep not dropping items when sheared by turtles.
 
 # New features in CC: Tweaked 1.91.1
 

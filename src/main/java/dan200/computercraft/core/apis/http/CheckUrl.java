@@ -24,14 +24,14 @@ public class CheckUrl extends Resource<CheckUrl>
 
     private final IAPIEnvironment environment;
     private final String address;
-    private final String host;
+    private final URI uri;
 
     public CheckUrl( ResourceGroup<CheckUrl> limiter, IAPIEnvironment environment, String address, URI uri )
     {
         super( limiter );
         this.environment = environment;
         this.address = address;
-        host = uri.getHost();
+        this.uri = uri;
     }
 
     public void run()
@@ -47,8 +47,9 @@ public class CheckUrl extends Resource<CheckUrl>
 
         try
         {
-            InetSocketAddress netAddress = NetworkUtils.getAddress( host, 80, false );
-            NetworkUtils.getOptions( host, netAddress );
+            boolean ssl = uri.getScheme().equalsIgnoreCase( "https" );
+            InetSocketAddress netAddress = NetworkUtils.getAddress( uri, ssl );
+            NetworkUtils.getOptions( uri.getHost(), netAddress );
 
             if( tryClose() ) environment.queueEvent( EVENT, address, true );
         }

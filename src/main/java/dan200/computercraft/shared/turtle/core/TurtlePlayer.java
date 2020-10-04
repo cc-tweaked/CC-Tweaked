@@ -55,11 +55,10 @@ public final class TurtlePlayer extends FakePlayer
 
     private void setState( ITurtleAccess turtle )
     {
-        if( openContainer != null )
+        if( openContainer != container )
         {
             ComputerCraft.log.warn( "Turtle has open container ({})", openContainer );
-            openContainer.onContainerClosed( this );
-            openContainer = null;
+            closeContainer();
         }
 
         BlockPos position = turtle.getPosition();

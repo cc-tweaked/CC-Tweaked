@@ -440,7 +440,7 @@ function create(parent, nX, nY, nWidth, nHeight, bStartVisible)
     end
 
     --- Get the buffered contents of a line in this window.
-    ---
+    --
     -- @tparam number y The y position of the line to get.
     -- @treturn string The textual content of this line.
     -- @treturn string The text colours of this line, suitable for use with @{term.blit}.

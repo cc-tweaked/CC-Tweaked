@@ -12,6 +12,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.net.Inet6Address;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.util.regex.Pattern;
 
 /**
@@ -52,17 +53,23 @@ public final class AddressRule
 
     private final HostRange ip;
     private final Pattern domainPattern;
+    private final Integer port;
     private final PartialOptions partial;
 
-    private AddressRule( @Nullable HostRange ip, @Nullable Pattern domainPattern, @Nonnull PartialOptions partial )
+    private AddressRule(
+        @Nullable HostRange ip,
+        @Nullable Pattern domainPattern,
+        @Nullable Integer port,
+        @Nonnull PartialOptions partial )
     {
         this.ip = ip;
         this.domainPattern = domainPattern;
         this.partial = partial;
+        this.port = port;
     }
 
     @Nullable
-    public static AddressRule parse( String filter, @Nonnull PartialOptions partial )
+    public static AddressRule parse( String filter, @Nullable Integer port, @Nonnull PartialOptions partial )
     {
         int cidr = filter.indexOf( '/' );
         if( cidr >= 0 )
@@ -117,24 +124,27 @@ public final class AddressRule
                 size -= 8;
             }
 
-            return new AddressRule( new HostRange( minBytes, maxBytes ), null, partial );
+            return new AddressRule( new HostRange( minBytes, maxBytes ), null, port, partial );
         }
         else
         {
             Pattern pattern = Pattern.compile( "^\\Q" + filter.replaceAll( "\\*", "\\\\E.*\\\\Q" ) + "\\E$" );
-            return new AddressRule( null, pattern, partial );
+            return new AddressRule( null, pattern, port, partial );
         }
     }
 
     /**
      * Determine whether the given address matches a series of patterns.
      *
-     * @param domain  The domain to match
-     * @param address The address to check.
+     * @param domain        The domain to match
+     * @param socketAddress The address to check.
      * @return Whether it matches any of these patterns.
      */
-    private boolean matches( String domain, InetAddress address )
+    private boolean matches( String domain, InetSocketAddress socketAddress )
     {
+        InetAddress address = socketAddress.getAddress();
+        if( port != null && port != socketAddress.getPort() ) return false;
+
         if( domainPattern != null )
         {
             if( domainPattern.matcher( domain ).matches() ) return true;
@@ -155,7 +165,7 @@ public final class AddressRule
         return ip != null && ip.contains( address );
     }
 
-    public static Options apply( Iterable<? extends AddressRule> rules, String domain, InetAddress address )
+    public static Options apply( Iterable<? extends AddressRule> rules, String domain, InetSocketAddress address )
     {
         PartialOptions options = null;
         boolean hasMany = false;
