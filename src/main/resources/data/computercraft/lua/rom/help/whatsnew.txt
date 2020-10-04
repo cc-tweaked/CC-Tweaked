@@ -1,12 +1,11 @@
-New features in CC: Tweaked 1.92.0
+New features in CC: Tweaked 1.93.0
 
-* Bump Cobalt version:
-  * Add support for the __pairs metamethod.
-  * string.format now uses the __tostring metamethod.
-* Add date-specific MOTDs (MCJack123).
+* Update Swedish translations (Granddave).
+* Printers use item tags to check dyes.
+* HTTP rules may now be targetted for a specific port.
+* Don't propagate adjacent redstone signals through computers.
 
 And several bug fixes:
-* Correctly handle tabs within textutils.unserailizeJSON.
-* Fix sheep not dropping items when sheared by turtles.
+* Fix NPEs when turtles interact with containers.
 
 Type "help changelog" to see the full version history.
