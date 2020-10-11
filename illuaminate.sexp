@@ -50,7 +50,7 @@
 
     ;; colours imports from colors, and we don't handle that right now.
     ;; keys is entirely dynamic, so we skip it.
-    (dynamic-modules colours keys)
+    (dynamic-modules colours keys _G)
 
     (globals
       :max
@@ -100,6 +100,10 @@
    /src/main/resources/*/computercraft/lua/rom/programs/shell.lua
    /doc/stub/fs.lua)
   (linters -doc:unresolved-reference))
+
+;; Suppress warnings for the BIOS using its own deprecated members for now.
+(at /src/main/resources/*/computercraft/lua/bios.lua
+  (linters -var:deprecated))
 
 (at /src/test/resources/test-rom
   ; We should still be able to test deprecated members.
