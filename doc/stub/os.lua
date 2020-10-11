@@ -113,7 +113,7 @@ such as @{loadfile}.
 @treturn boolean Whether or not the program ran successfully.
 @usage Run the default shell from within your program:
 
-os.run({}, "/rom/programs/shell")
+    os.run({}, "/rom/programs/shell")
 
 @see shell.run
 @see loadfile

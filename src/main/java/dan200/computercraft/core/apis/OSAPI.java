@@ -180,7 +180,7 @@ public class OSAPI implements ILuaAPI
      *
      * @param timer The number of seconds until the timer fires.
      * @return The ID of the new timer. This can be used to filter the
-     *   {@code timer} event, or @{os.cancelTimer|cancel the timer}.
+     *   {@code timer} event, or {@link #cancelTimer cancel the timer}.
      * @throws LuaException If the time is below zero.
      * @see #cancelTimer To cancel a timer.
      */
@@ -210,7 +210,7 @@ public class OSAPI implements ILuaAPI
      *
      * @param time The time at which to fire the alarm, in the range [0.0, 24.0).
      * @return The ID of the new alarm. This can be used to filter the
-     *   {@code alarm} event, or @{os.cancelAlarm|cancel the alarm}.
+     *   {@code alarm} event, or {@link #cancelAlarm cancel the alarm}.
      * @throws LuaException If the time is out of range.
      * @see #cancelAlarm To cancel an alarm.
      */
