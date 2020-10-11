@@ -111,7 +111,7 @@ footer {
 }
 
 /* The definition lists at the top of each page */
-table.definition-list {
+table.definition-list, table.pretty-table {
     border-collapse: collapse;
     width: 100%;
 }
@@ -129,6 +129,16 @@ table.definition-list th {
 }
 
 table.definition-list td { width: 100%; }
+
+/* Pretty tables, mostly inherited from table.definition-list */
+table.pretty-table td, table.pretty-table th {
+    border: 1px solid #cccccc;
+    padding: 2px 4px;
+}
+
+table.pretty-table th {
+    background-color: #f0f0f0;
+}
 
 dl.definition dt {
     border-top: 1px solid #ccc;
