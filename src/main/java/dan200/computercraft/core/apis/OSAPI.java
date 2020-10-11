@@ -171,12 +171,18 @@ public class OSAPI implements ILuaAPI
 
     /**
      * Starts a timer that will run for the specified number of seconds. Once
-     * the timer fires, a timer event will be added to the queue with the ID
-     * returned from this function as the first parameter.
+     * the timer fires, a {@code timer} event will be added to the queue with
+     * the ID returned from this function as the first parameter.
+     *
+     * As with @{os.sleep|sleep}, {@code timer} will automatically be rounded up
+     * to the nearest multiple of 0.05 seconds, as it waits for a fixed amount
+     * of world ticks.
      *
      * @param timer The number of seconds until the timer fires.
-     * @return The ID of the new timer.
+     * @return The ID of the new timer. This can be used to filter the
+     *   {@code timer} event, or @{os.cancelTimer|cancel the timer}.
      * @throws LuaException If the time is below zero.
+     * @see #cancelTimer To cancel a timer.
      */
     @LuaFunction
     public final int startTimer( double timer ) throws LuaException
@@ -199,11 +205,14 @@ public class OSAPI implements ILuaAPI
 
     /**
      * Sets an alarm that will fire at the specified world time. When it fires,
-     * an alarm event will be added to the event queue.
+     * an {@code alarm} event will be added to the event queue with the ID
+     * returned from this function as the first parameter.
      *
      * @param time The time at which to fire the alarm, in the range [0.0, 24.0).
-     * @return The ID of the alarm that was set.
+     * @return The ID of the new alarm. This can be used to filter the
+     *   {@code alarm} event, or @{os.cancelAlarm|cancel the alarm}.
      * @throws LuaException If the time is out of range.
+     * @see #cancelAlarm To cancel an alarm.
      */
     @LuaFunction
     public final int setAlarm( double time ) throws LuaException
