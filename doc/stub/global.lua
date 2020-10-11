@@ -35,3 +35,21 @@ function print(...) end
 function printError(...) end
 
 function read(replaceChar, history, completeFn, default) end
+
+--- The ComputerCraft and Minecraft version of the current computer environment.
+--
+-- For example, `ComputerCraft 1.93.0 (Minecraft 1.15.2)`.
+_HOST = _HOST
+
+--[[- The default computer settings as defined in the ComputerCraft
+configuration.
+
+This is a comma-separated list of settings pairs defined by the mod
+configuration or server owner. By default, it is empty.
+
+An example value to disable autocompletion:
+
+    shell.autocomplete=false,lua.autocomplete=false,edit.autocomplete=false
+
+]]
+_CC_DEFAULT_SETTINGS = _CC_DEFAULT_SETTINGS
