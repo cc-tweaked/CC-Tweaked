@@ -10,7 +10,7 @@ variables and functions exported by it will by available through the use of
 `myAPI.<function name>`, where `myAPI` is the base name of the API file.
 
 @tparam string path The path of the API to load.
-@treturn bool Whether or not the API was successfully loaded.
+@treturn boolean Whether or not the API was successfully loaded.
 
 @deprecated Use @{require}.
 ]]
@@ -34,7 +34,7 @@ If no `filter` is supplied, this will match all events.
 Unlike @{os.pullEventRaw}, it will stop the application upon a "terminate"
 event, printing the error "Terminated".
 
-@tparam string[opt] filter Event to filter for.
+@tparam[opt] string filter Event to filter for.
 @treturn string event The name of the event that fired.
 @treturn any param... Optional additional parameters of the event.
 @usage Listen for `mouse_click` events.
@@ -68,7 +68,7 @@ This behaves almost the same as @{os.pullEvent}, except it allows you to handle
 the `terminate` event yourself - the program will not stop execution when
 <kbd>Ctrl+T</kbd> is pressed.
 
-@tparam string[opt] filter Event to filter for.
+@tparam[opt] string filter Event to filter for.
 @treturn string event The name of the event that fired.
 @treturn any param... Optional additional parameters of the event.
 @usage Listen for `terminate` events.
@@ -110,7 +110,7 @@ such as @{loadfile}.
 @tparam table env The environment to run the program with.
 @tparam string path The exact path of the program to run.
 @param ... The arguments to pass to the program.
-@treturn bool Whether or not the program ran successfully.
+@treturn boolean Whether or not the program ran successfully.
 @usage Run the default shell from within your program:
 
 os.run({}, "/rom/programs/shell")

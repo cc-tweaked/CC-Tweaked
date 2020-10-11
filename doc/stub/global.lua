@@ -35,6 +35,3 @@ function print(...) end
 function printError(...) end
 
 function read(replaceChar, history, completeFn, default) end
-
-function loadfile(filename, mode, env) end
-function dofile(filename) end

@@ -79,6 +79,7 @@
    /doc/stub/http.lua
    /doc/stub/os.lua
    /doc/stub/turtle.lua
+   /doc/stub/global.lua
    ; Java generated APIs
    /doc/javadoc/turtle.lua
    ; Peripherals
