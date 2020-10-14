@@ -128,6 +128,11 @@ table.definition-list th {
     text-align: right;
 }
 
+/* Deprecated definitions */
+table.definition-list tr.definition-deprecated th {
+    text-decoration: line-through;
+}
+
 table.definition-list td { width: 100%; }
 
 /* Pretty tables, mostly inherited from table.definition-list */
@@ -152,6 +157,10 @@ dl.definition dt .definition-name {
     flex-grow: 1;
 }
 
+/* Deprecated definitions */
+dl.definition dt .definition-name.definition-deprecated {
+    text-decoration: line-through;
+}
 
 dl.definition dd {
     padding-bottom: 1em;
