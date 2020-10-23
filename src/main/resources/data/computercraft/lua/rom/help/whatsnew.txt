@@ -1,11 +1,6 @@
-New features in CC: Tweaked 1.93.0
+New features in CC: Tweaked 1.93.1
 
-* Update Swedish translations (Granddave).
-* Printers use item tags to check dyes.
-* HTTP rules may now be targetted for a specific port.
-* Don't propagate adjacent redstone signals through computers.
-
-And several bug fixes:
-* Fix NPEs when turtles interact with containers.
+* Various documentation improvements (Lemmmy).
+* Fix TBO monitor renderer on some older graphics cards (Lemmmy).
 
 Type "help changelog" to see the full version history.

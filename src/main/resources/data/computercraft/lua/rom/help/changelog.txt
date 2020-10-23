@@ -1,3 +1,8 @@
+# New features in CC: Tweaked 1.93.1
+
+* Various documentation improvements (Lemmmy).
+* Fix TBO monitor renderer on some older graphics cards (Lemmmy).
+
 # New features in CC: Tweaked 1.93.0
 
 * Update Swedish translations (Granddave).
