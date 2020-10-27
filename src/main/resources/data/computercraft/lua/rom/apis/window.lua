@@ -235,17 +235,7 @@ function create(parent, nX, nY, nWidth, nHeight, bStartVisible)
     -- @type Window
     -- @see term.Redirect
     local window = {}
-    function window.isVisible()
-        return bVisible
-    end
-    
-    function window.setVisible(b)
-        if type(b) ~= "boolean" then
-            expect(1, b, "boolean)
-        end
-        bVisible = b
-    end
-    
+
     function window.write(sText)
         sText = tostring(sText)
         internalBlit(sText, string_rep(tHex[nTextColor], #sText), string_rep(tHex[nBackgroundColor], #sText))
@@ -484,6 +474,17 @@ function create(parent, nX, nY, nWidth, nHeight, bStartVisible)
         end
     end
 
+    ---Get the "Invisible" state of the window. 
+    -- Invisible windows will not be drawn to 
+    --the screen until they are made visible again.
+    --
+    -- Making an invisible window visible will immediately draw it.
+    --
+    -- @treturn boolean Whether this window is visible.
+    
+    function window.isVisible()
+        return bVisible
+    end
     --- Draw this window. This does nothing if the window is not visible.
     --
     -- @see Window:setVisible
