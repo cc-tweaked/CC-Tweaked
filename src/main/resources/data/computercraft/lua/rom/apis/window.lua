@@ -235,7 +235,12 @@ function create(parent, nX, nY, nWidth, nHeight, bStartVisible)
     -- @type Window
     -- @see term.Redirect
     local window = {}
-
+    function window.isVisible()
+        return bVisible
+    end
+    function window.setVisible(b)
+        bVisible = b
+    end
     function window.write(sText)
         sText = tostring(sText)
         internalBlit(sText, string_rep(tHex[nTextColor], #sText), string_rep(tHex[nBackgroundColor], #sText))
