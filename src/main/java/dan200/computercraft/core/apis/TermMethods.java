@@ -380,4 +380,31 @@ public abstract class TermMethods
         terminal.getPalette().setColour( colour, r, g, b );
         terminal.setChanged();
     }
+
+    /**
+     * Get the contents of a line.
+     *
+     * @param line The line.
+     * @return The contents of the line.
+     * @throws LuaException (hidden) If the terminal cannot be found.
+     * @cc.treturn number The text.
+     * @cc.treturn number The foreground colour.
+     * @cc.treturn number The background colour.
+     */
+    @LuaFunction
+    public final Object[] getLine( int line ) throws LuaException
+    {
+        line--;
+        Terminal terminal = getTerminal();
+        synchronized( terminal )
+        {
+            if(line < 0 || line >= terminal.getHeight()) {
+                throw new LuaException( "Line is out of range" );
+            }
+            String text = terminal.getLine(line).toString();
+            String foreground = terminal.getTextColourLine(line).toString();
+            String background = terminal.getBackgroundColourLine(line).toString();
+            return new Object[] { text, foreground, background };
+        }
+    }
 }
