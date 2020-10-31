@@ -1,8 +1,6 @@
 --- The http library allows communicating with web servers, sending and
 -- receiving data from them.
 --
--- #### `http_check` event
---
 -- @module http
 
 --- Asynchronously make a HTTP request to the given url.
