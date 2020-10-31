@@ -17,6 +17,7 @@ import net.minecraft.entity.EntitySize;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.Pose;
 import net.minecraft.entity.passive.horse.AbstractHorseEntity;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.item.ItemStack;
@@ -41,11 +42,30 @@ public final class TurtlePlayer extends FakePlayer
         "[ComputerCraft]"
     );
 
-    private TurtlePlayer( ITurtleAccess turtle )
+    private TurtlePlayer( ServerWorld world, GameProfile name )
     {
-        super( (ServerWorld) turtle.getWorld(), getProfile( turtle.getOwningPlayer() ) );
-        this.connection = new FakeNetHandler( this );
-        setState( turtle );
+        super( world, name );
+    }
+
+    private static TurtlePlayer create( ITurtleAccess turtle )
+    {
+        ServerWorld world = (ServerWorld) turtle.getWorld();
+        GameProfile profile = turtle.getOwningPlayer();
+
+        TurtlePlayer player = new TurtlePlayer( world, getProfile( profile ) );
+        player.connection = new FakeNetHandler( player );
+        player.setState( turtle );
+
+        if( profile != null && profile.getId() != null )
+        {
+            // Constructing a player overrides the "active player" variable in advancements. As fake players cannot
+            // get advancements, this prevents a normal player who has placed a turtle from getting advancements.
+            // We try to locate the "actual" player and restore them.
+            ServerPlayerEntity actualPlayer = world.getServer().getPlayerList().getPlayerByUUID( profile.getId() );
+            if( actualPlayer != null ) player.getAdvancements().setPlayer( actualPlayer );
+        }
+
+        return player;
     }
 
     private static GameProfile getProfile( @Nullable GameProfile profile )
@@ -72,14 +92,14 @@ public final class TurtlePlayer extends FakePlayer
 
     public static TurtlePlayer get( ITurtleAccess access )
     {
-        if( !(access instanceof TurtleBrain) ) return new TurtlePlayer( access );
+        if( !(access instanceof TurtleBrain) ) return create( access );
 
         TurtleBrain brain = (TurtleBrain) access;
         TurtlePlayer player = brain.m_cachedPlayer;
         if( player == null || player.getGameProfile() != getProfile( access.getOwningPlayer() )
             || player.getEntityWorld() != access.getWorld() )
         {
-            player = brain.m_cachedPlayer = new TurtlePlayer( brain );
+            player = brain.m_cachedPlayer = create( brain );
         }
         else
         {

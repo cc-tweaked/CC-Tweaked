@@ -45,6 +45,7 @@ import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.wrapper.InvWrapper;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -598,7 +599,7 @@ public class TurtleBrain implements ITurtleAccess
         m_owningPlayer = profile;
     }
 
-    @Nonnull
+    @Nullable
     @Override
     public GameProfile getOwningPlayer()
     {
