@@ -90,8 +90,6 @@ public final class ComputerCraft
     public static boolean turtlesCanPush = true;
     public static EnumSet<TurtleAction> turtleDisabledActions = EnumSet.noneOf( TurtleAction.class );
 
-    public static boolean genericPeripheral = false;
-
     public static int computerTermWidth = 51;
     public static int computerTermHeight = 19;
 
