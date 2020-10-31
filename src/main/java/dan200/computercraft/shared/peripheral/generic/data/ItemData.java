@@ -7,7 +7,6 @@
 package dan200.computercraft.shared.peripheral.generic.data;
 
 import com.google.gson.JsonParseException;
-import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.util.NBTUtil;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
