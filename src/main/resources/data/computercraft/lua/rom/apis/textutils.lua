@@ -453,13 +453,13 @@ do
         error_at(pos, "Unexpected %s, expected %s.", actual, exp)
     end
 
-    local function parse_string(str, pos)
+    local function parse_string(str, pos, terminate)
         local buf, n = {}, 1
 
         while true do
             local c = sub(str, pos, pos)
             if c == "" then error_at(pos, "Unexpected end of input, expected '\"'.") end
-            if c == '"' then break end
+            if c == terminate then break end
 
             if c == '\\' then
                 -- Handle the various escapes
@@ -485,13 +485,13 @@ do
         return concat(buf, "", 1, n - 1), pos + 1
     end
 
-    local valid = { b = true, B = true, s = true, S = true, l = true, L = true, f = true, F = true, d = true, D = true }
+    local num_types = { b = true, B = true, s = true, S = true, l = true, L = true, f = true, F = true, d = true, D = true }
     local function parse_number(str, pos, opts)
         local _, last, num_str = find(str, '^(-?%d+%.?%d*[eE]?[+-]?%d*)', pos)
         local val = tonumber(num_str)
         if not val then error_at(pos, "Malformed number %q.", num_str) end
 
-        if opts.nbt_style and valid[sub(str, pos + 1, pos + 1)] then return val, last + 2 end
+        if opts.nbt_style and num_types[sub(str, last + 1, last + 1)] then return val, last + 2 end
 
         return val, last + 1
     end
@@ -501,9 +501,11 @@ do
         return val, last + 1
     end
 
+    local arr_types = { I = true, L = true, B = true }
     local function decode_impl(str, pos, opts)
         local c = sub(str, pos, pos)
-        if c == '"' then return parse_string(str, pos + 1)
+        if c == '"' then return parse_string(str, pos + 1, '"')
+        elseif c == "'" and opts.nbt_style then return parse_string(str, pos + 1, "\'")
         elseif c == "-" or c >= "0" and c <= "9" then return parse_number(str, pos, opts)
         elseif c == "t" then
             if sub(str, pos + 1, pos + 3) == "rue" then return true, pos + 4 end
@@ -559,6 +561,11 @@ do
 
             pos = skip(str, pos + 1)
             c = sub(str, pos, pos)
+
+            if arr_types[c] and sub(str, pos + 1, pos + 1) == ";" and opts.nbt_style then
+                pos = skip(str, pos + 2)
+                c = sub(str, pos, pos)
+            end
 
             if c == "" then return expected(pos, c, "']'") end
             if c == "]" then return empty_json_array, pos + 1 end

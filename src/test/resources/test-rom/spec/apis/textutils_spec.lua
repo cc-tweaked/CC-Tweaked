@@ -126,12 +126,28 @@ describe("The textutils library", function()
         end)
 
         describe("parses using NBT-style syntax", function()
+            local function exp(x)
+                local res, err = textutils.unserializeJSON(x, { nbt_style = true })
+                if not res then error(err, 2) end
+                return expect(res)
+            end
             it("basic objects", function()
-                expect(textutils.unserializeJSON([[{ a: 1, b:2 }]], { nbt_style = true })):same { a = 1, b = 2 }
+                exp([[{ a: 1, b:2 }]]):same { a = 1, b = 2 }
             end)
 
             it("suffixed numbers", function()
-                expect(textutils.unserializeJSON("1b", { nbt_style = true })):eq(1)
+                exp("1b"):eq(1)
+                exp("1.1d"):eq(1.1)
+            end)
+
+            it("strings", function()
+                exp("'123'"):eq("123")
+                exp("\"123\""):eq("123")
+            end)
+
+            it("typed arrays", function()
+                exp("[B; 1, 2, 3]"):same { 1, 2, 3 }
+                exp("[B;]"):same {}
             end)
         end)
 
