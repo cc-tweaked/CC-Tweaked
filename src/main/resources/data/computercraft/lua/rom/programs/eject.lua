@@ -1,7 +1,8 @@
 -- Get arguments
 local tArgs = { ... }
 if #tArgs == 0 then
-    print("Usage: eject <drive>")
+    local programName = arg[0] or fs.getName(shell.getRunningProgram())
+    print("Usage: "..programName.." <drive>")
     return
 end
 

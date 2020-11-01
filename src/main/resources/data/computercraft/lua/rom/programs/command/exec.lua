@@ -4,7 +4,8 @@ if not commands then
     return
 end
 if #tArgs == 0 then
-    printError("Usage: exec <command>")
+    local programName = arg[0] or fs.getName(shell.getRunningProgram())
+    printError("Usage: "..programName.." <command>")
     return
 end
 

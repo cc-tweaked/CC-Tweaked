@@ -11,7 +11,8 @@ end
 local tArgs = { ... }
 local nLimit = nil
 if #tArgs < 1 then
-    print("Usage: craft [number]")
+    local programName = arg[0] or fs.getName(shell.getRunningProgram())
+    print("Usage: "..programName.." [number]")
     return
 else
     nLimit = tonumber(tArgs[1])

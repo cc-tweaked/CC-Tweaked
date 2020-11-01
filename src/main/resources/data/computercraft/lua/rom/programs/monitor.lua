@@ -1,5 +1,6 @@
 local function printUsage()
-    print("Usage: monitor <name> <program> <arguments>")
+    local programName = arg[0] or fs.getName(shell.getRunningProgram())
+    print("Usage: "..programName.." <name> <program> <arguments>")
     return
 end
 

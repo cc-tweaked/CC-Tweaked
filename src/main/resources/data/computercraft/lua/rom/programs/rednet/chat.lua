@@ -1,9 +1,10 @@
 local tArgs = { ... }
 
 local function printUsage()
+    local programName = arg[0] or fs.getName(shell.getRunningProgram())
     print("Usages:")
-    print("chat host <hostname>")
-    print("chat join <hostname> <nickname>")
+    print(programName.." host <hostname>")
+    print(programName.." join <hostname> <nickname>")
 end
 
 local sOpenedModem = nil

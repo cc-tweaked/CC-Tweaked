@@ -1,8 +1,9 @@
 local function printUsage()
+    local programName = arg[0] or fs.getName(shell.getRunningProgram())
     print("Usages:")
-    print("pastebin put <filename>")
-    print("pastebin get <code> <filename>")
-    print("pastebin run <code> <arguments>")
+    print(programName.." put <filename>")
+    print(programName.." get <code> <filename>")
+    print(programName.." run <code> <arguments>")
 end
 
 local tArgs = { ... }

@@ -1,6 +1,7 @@
 local tArgs = { ... }
 if #tArgs < 2 then
-    print("Usage: mv <source> <destination>")
+    local programName = arg[0] or fs.getName(shell.getRunningProgram())
+    print("Usage: "..programName.." <source> <destination>")
     return
 end
 

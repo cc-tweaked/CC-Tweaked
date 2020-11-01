@@ -5,7 +5,8 @@ end
 
 local tArgs = { ... }
 if #tArgs ~= 1 then
-    print("Usage: tunnel <length>")
+    local programName = arg[0] or fs.getName(shell.getRunningProgram())
+    print("Usage: "..programName.." <length>")
     return
 end
 
