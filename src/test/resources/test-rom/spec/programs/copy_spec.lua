@@ -35,6 +35,6 @@ describe("The copy program", function()
 
     it("displays the usage when given no arguments", function()
         expect(capture(stub, "copy"))
-            :matches { ok = true, output = "Usage: cp <source> <destination>\n", error = "" }
+            :matches { ok = true, output = "Usage: copy <source> <destination>\n", error = "" }
     end)
 end)
