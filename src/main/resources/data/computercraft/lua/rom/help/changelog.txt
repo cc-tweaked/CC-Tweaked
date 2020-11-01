@@ -57,8 +57,6 @@ And several bug fixes:
 * Fix deadlock when mistakenly "watching" an unloaded chunk.
 * Fix full path of files being leaked in some errors.
 
-Type "help changelog" to see the full version history.
-
 # New features in CC: Tweaked 1.89.1
 
 * Fix crashes when rendering monitors of varying sizes.
