@@ -115,6 +115,7 @@ public final class ItemPocketRenderer extends ItemMapLikeRenderer
 
     private static void renderFrame( Matrix4f transform, ComputerFamily family, int colour, int width, int height )
     {
+        RenderSystem.enableBlend();
         Minecraft.getInstance().getTextureManager()
             .bindTexture( colour != -1 ? ComputerBorderRenderer.BACKGROUND_COLOUR : ComputerBorderRenderer.getTexture( family ) );
 
@@ -133,7 +134,6 @@ public final class ItemPocketRenderer extends ItemMapLikeRenderer
 
     private static void renderLight( Matrix4f transform, int colour, int width, int height )
     {
-        RenderSystem.enableBlend();
         RenderSystem.disableTexture();
 
         float r = ((colour >>> 16) & 0xFF) / 255.0f;
