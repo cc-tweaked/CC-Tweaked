@@ -332,3 +332,14 @@ function rgb8(r, g, b)
         return packRGB(r, g, b)
     end
 end
+
+--- Converts the given color to a paint/blit hex character (0-9a-f).
+--
+-- This is equivalent to converting floor(log_2(color)) to hexadecimal.
+--
+-- @tparam number color The color to convert.
+-- @treturn string The blit hex code of the color.
+function toBlit(color)
+    expect(1, color, "number")
+    return string.format("%x", math.floor(math.log(color) / math.log(2)))
+end

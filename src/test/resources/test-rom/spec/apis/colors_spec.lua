@@ -73,4 +73,39 @@ describe("The colors library", function()
         expect(colors.rgb8(0.3, 0.5, 0.6)):equals(0x4c7f99)
         expect({ colors.rgb8(0x4c7f99) }):same { 0x4c / 0xFF, 0x7f / 0xFF, 0.6 }
     end)
+
+    describe("colors.toBlit", function()
+        it("validates arguments", function()
+            expect.error(colors.toBlit, nil):eq("bad argument #1 (expected number, got nil)")
+        end)
+
+        it("converts all colors", function()
+            local colorsHex = {
+                [colors.white] = "0",
+                [colors.orange] = "1",
+                [colors.magenta] = "2",
+                [colors.lightBlue] = "3",
+                [colors.yellow] = "4",
+                [colors.lime] = "5",
+                [colors.pink] = "6",
+                [colors.gray] = "7",
+                [colors.lightGray] = "8",
+                [colors.cyan] = "9",
+                [colors.purple] = "a",
+                [colors.blue] = "b",
+                [colors.brown] = "c",
+                [colors.green] = "d",
+                [colors.red] = "e",
+                [colors.black] = "f",
+            }
+
+            for color, hex in pairs(colorsHex) do
+                expect(colors.toBlit(color)):eq(hex)
+            end
+        end)
+
+        it("floors colors", function()
+            expect(colors.toBlit(16385)):eq("e")
+        end)
+    end)
 end)
