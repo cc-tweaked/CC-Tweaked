@@ -34,6 +34,7 @@ jobs:
 
     - name: Upload Coverage
       run: bash <(curl -s https://codecov.io/bash)
+      continue-on-error: true
 
     - name: Generate Java documentation stubs
       run: ./gradlew luaJavadoc --no-daemon
