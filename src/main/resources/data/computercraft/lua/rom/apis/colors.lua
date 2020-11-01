@@ -333,6 +333,12 @@ function rgb8(r, g, b)
     end
 end
 
+-- Colour to hex lookup table for toBlit
+local color_hex_lookup = {}
+for i = 0, 15 do
+    color_hex_lookup[2 ^ i] = string.format("%x", i)
+end
+
 --- Converts the given color to a paint/blit hex character (0-9a-f).
 --
 -- This is equivalent to converting floor(log_2(color)) to hexadecimal.
@@ -341,5 +347,6 @@ end
 -- @treturn string The blit hex code of the color.
 function toBlit(color)
     expect(1, color, "number")
-    return string.format("%x", math.floor(math.log(color) / math.log(2)))
+    return color_hex_lookup[color] or
+        string.format("%x", math.floor(math.log(color) / math.log(2)))
 end

@@ -80,27 +80,8 @@ describe("The colors library", function()
         end)
 
         it("converts all colors", function()
-            local colorsHex = {
-                [colors.white] = "0",
-                [colors.orange] = "1",
-                [colors.magenta] = "2",
-                [colors.lightBlue] = "3",
-                [colors.yellow] = "4",
-                [colors.lime] = "5",
-                [colors.pink] = "6",
-                [colors.gray] = "7",
-                [colors.lightGray] = "8",
-                [colors.cyan] = "9",
-                [colors.purple] = "a",
-                [colors.blue] = "b",
-                [colors.brown] = "c",
-                [colors.green] = "d",
-                [colors.red] = "e",
-                [colors.black] = "f",
-            }
-
-            for color, hex in pairs(colorsHex) do
-                expect(colors.toBlit(color)):eq(hex)
+            for i = 0, 15 do
+                expect(colors.toBlit(2 ^ i)):eq(string.format("%x", i))
             end
         end)
 
