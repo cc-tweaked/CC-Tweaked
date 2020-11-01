@@ -530,7 +530,7 @@ do
 
             while true do
                 local key, value
-                if c == "\"" then key, pos = parse_string(str, pos + 1)
+                if c == "\"" then key, pos = parse_string(str, pos + 1, "\"")
                 elseif opts.nbt_style then key, pos = parse_ident(str, pos)
                 else return expected(pos, c, "object key")
                 end
