@@ -13,7 +13,7 @@ describe("The turtle unequip program", function()
         stub(_G, "turtle", {})
 
         expect(capture(stub, "/rom/programs/turtle/unequip.lua"))
-            :matches { ok = true, output = "Usage: unequip <side>\n", error = "" }
+            :matches { ok = true, output = "Usage: /rom/programs/turtle/unequip.lua <side>\n", error = "" }
     end)
 
     it("says when nothing was unequipped", function()
