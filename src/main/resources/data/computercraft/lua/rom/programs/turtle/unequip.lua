@@ -6,7 +6,7 @@ end
 local tArgs = { ... }
 local function printUsage()
     local programName = arg[0] or fs.getName(shell.getRunningProgram())
-    print("Usage: "..programName.." <side>")
+    print("Usage: " .. programName .. " <side>")
 end
 
 if #tArgs ~= 1 then

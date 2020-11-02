@@ -2,7 +2,7 @@ local tArgs = { ... }
 
 if #tArgs < 1 then
     local programName = arg[0] or fs.getName(shell.getRunningProgram())
-    print("Usage: "..programName.." <paths>")
+    print("Usage: " .. programName .. " <paths>")
     return
 end
 

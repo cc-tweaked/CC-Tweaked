@@ -3,10 +3,10 @@ local tArgs = { ... }
 local function printUsage()
     local programName = arg[0] or fs.getName(shell.getRunningProgram())
     print("Usages:")
-    print(programName.." probe")
-    print(programName.." set <side> <value>")
-    print(programName.." set <side> <color> <value>")
-    print(programName.." pulse <side> <count> <period>")
+    print(programName .. " probe")
+    print(programName .. " set <side> <value>")
+    print(programName .. " set <side> <color> <value>")
+    print(programName .. " pulse <side> <count> <period>")
 end
 
 local sCommand = tArgs[1]

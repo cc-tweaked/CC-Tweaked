@@ -1,12 +1,12 @@
 local function printUsage()
     local programName = arg[0] or fs.getName(shell.getRunningProgram())
     print("Usages:")
-    print(programName.." get")
-    print(programName.." get <drive>")
-    print(programName.." set <text>")
-    print(programName.." set <drive> <text>")
-    print(programName.." clear")
-    print(programName.." clear <drive>")
+    print(programName .. " get")
+    print(programName .. " get <drive>")
+    print(programName .. " set <text>")
+    print(programName .. " set <drive> <text>")
+    print(programName .. " clear")
+    print(programName .. " clear <drive>")
 end
 
 local function checkDrive(sDrive)

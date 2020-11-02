@@ -1,8 +1,8 @@
 local function printUsage()
     local programName = arg[0] or fs.getName(shell.getRunningProgram())
     print("Usage:")
-    print(programName.." <url> [filename]")
-    print(programName.." run <url>")
+    print(programName .. " <url> [filename]")
+    print(programName .. " run <url>")
 end
 
 local tArgs = { ... }

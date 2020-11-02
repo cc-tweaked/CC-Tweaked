@@ -5,7 +5,7 @@ if not commands then
 end
 if #tArgs == 0 then
     local programName = arg[0] or fs.getName(shell.getRunningProgram())
-    printError("Usage: "..programName.." <command>")
+    printError("Usage: " .. programName .. " <command>")
     return
 end
 
