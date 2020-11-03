@@ -37,6 +37,6 @@ public class GuiDiskDrive extends ContainerScreen<ContainerDiskDrive>
     {
         renderBackground( transform );
         super.render( transform, mouseX, mouseY, partialTicks );
-        func_230459_a_( transform, mouseX, mouseY );
+        renderHoveredTooltip( transform, mouseX, mouseY );
     }
 }

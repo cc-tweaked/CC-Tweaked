@@ -141,7 +141,7 @@ public final class GuiComputer<T extends ContainerComputerBase> extends Containe
     public void render( @Nonnull MatrixStack stack, int mouseX, int mouseY, float partialTicks )
     {
         super.render( stack, mouseX, mouseY, partialTicks );
-        func_230459_a_( stack, mouseX, mouseY );
+        renderHoveredTooltip( stack, mouseX, mouseY );
     }
 
     @Override

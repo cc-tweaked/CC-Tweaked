@@ -126,7 +126,7 @@ public class GuiTurtle extends ContainerScreen<ContainerTurtle>
     {
         renderBackground( stack );
         super.render( stack, mouseX, mouseY, partialTicks );
-        func_230459_a_( stack, mouseX, mouseY );
+        renderHoveredTooltip( stack, mouseX, mouseY );
     }
 
     @Override

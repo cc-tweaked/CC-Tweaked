@@ -78,7 +78,7 @@ public final class NetworkHandler
 
     public static void sendToAllAround( NetworkMessage packet, World world, Vector3d pos, double range )
     {
-        PacketDistributor.TargetPoint target = new PacketDistributor.TargetPoint( pos.x, pos.y, pos.z, range, world.func_234923_W_() );
+        PacketDistributor.TargetPoint target = new PacketDistributor.TargetPoint( pos.x, pos.y, pos.z, range, world.getDimensionKey() );
         network.send( PacketDistributor.NEAR.with( () -> target ), packet );
     }
 

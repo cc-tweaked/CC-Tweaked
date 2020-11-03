@@ -21,7 +21,7 @@ import static dan200.computercraft.data.Tags.CCTags.*;
 
 public class Tags extends ItemTagsProvider
 {
-    private static final ITag.INamedTag<Item> PIGLIN_LOVED = ItemTags.field_232903_N_;
+    private static final ITag.INamedTag<Item> PIGLIN_LOVED = ItemTags.PIGLIN_LOVED;
 
     public static class CCTags
     {

@@ -29,13 +29,13 @@ public final class ConstantLootConditionSerializer<T extends ILootCondition> imp
     }
 
     @Override
-    public void func_230424_a_( @Nonnull JsonObject json, @Nonnull T object, @Nonnull JsonSerializationContext context )
+    public void serialize( @Nonnull JsonObject json, @Nonnull T object, @Nonnull JsonSerializationContext context )
     {
     }
 
     @Nonnull
     @Override
-    public T func_230423_a_( @Nonnull JsonObject json, @Nonnull JsonDeserializationContext context )
+    public T deserialize( @Nonnull JsonObject json, @Nonnull JsonDeserializationContext context )
     {
         return instance;
     }

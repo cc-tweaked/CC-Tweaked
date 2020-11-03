@@ -23,7 +23,7 @@ public class ClientTableFormatter implements TableFormatter
 {
     public static final ClientTableFormatter INSTANCE = new ClientTableFormatter();
 
-    private static Int2IntOpenHashMap lastHeights = new Int2IntOpenHashMap();
+    private static final Int2IntOpenHashMap lastHeights = new Int2IntOpenHashMap();
 
     private static FontRenderer renderer()
     {
@@ -55,7 +55,7 @@ public class ClientTableFormatter implements TableFormatter
     @Override
     public int getWidth( ITextComponent component )
     {
-        return renderer().func_238414_a_( component );
+        return renderer().getStringPropertyWidth( component );
     }
 
     @Override

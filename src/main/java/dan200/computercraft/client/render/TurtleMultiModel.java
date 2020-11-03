@@ -108,9 +108,9 @@ public class TurtleMultiModel implements IBakedModel
     }
 
     @Override
-    public boolean func_230044_c_()
+    public boolean isSideLit()
     {
-        return m_baseModel.func_230044_c_();
+        return m_baseModel.isSideLit();
     }
 
     @Nonnull

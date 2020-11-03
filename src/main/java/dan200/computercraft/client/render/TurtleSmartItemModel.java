@@ -109,7 +109,7 @@ public class TurtleSmartItemModel implements IBakedModel
         {
             @Nonnull
             @Override
-            public IBakedModel func_239290_a_( @Nonnull IBakedModel originalModel, @Nonnull ItemStack stack, @Nullable ClientWorld world, @Nullable LivingEntity entity )
+            public IBakedModel getOverrideModel( @Nonnull IBakedModel originalModel, @Nonnull ItemStack stack, @Nullable ClientWorld world, @Nullable LivingEntity entity )
             {
                 ItemTurtle turtle = (ItemTurtle) stack.getItem();
                 int colour = turtle.getColour( stack );
@@ -184,9 +184,9 @@ public class TurtleSmartItemModel implements IBakedModel
     }
 
     @Override
-    public boolean func_230044_c_()
+    public boolean isSideLit()
     {
-        return familyModel.func_230044_c_();
+        return familyModel.isSideLit();
     }
 
     @Nonnull

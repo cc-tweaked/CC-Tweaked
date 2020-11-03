@@ -95,7 +95,7 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
     {
         super.read( state, nbt );
 
-        customName = nbt.contains( NBT_NAME ) ? ITextComponent.Serializer.func_240643_a_( nbt.getString( NBT_NAME ) ) : null;
+        customName = nbt.contains( NBT_NAME ) ? ITextComponent.Serializer.getComponentFromJson( nbt.getString( NBT_NAME ) ) : null;
 
         // Read page
         synchronized( m_page )

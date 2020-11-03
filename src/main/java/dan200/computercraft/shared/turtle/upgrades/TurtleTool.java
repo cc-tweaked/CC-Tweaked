@@ -100,7 +100,7 @@ public class TurtleTool extends AbstractTurtleUpgrade
     protected boolean canBreakBlock( BlockState state, World world, BlockPos pos, TurtlePlayer player )
     {
         Block block = state.getBlock();
-        return !state.isAir( world, pos )
+        return !state.isAir()
             && block != Blocks.BEDROCK
             && state.getPlayerRelativeBlockHardness( player, world, pos ) > 0
             && block.canEntityDestroy( state, world, pos, player );

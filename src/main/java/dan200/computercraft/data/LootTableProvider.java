@@ -51,7 +51,7 @@ public abstract class LootTableProvider implements IDataProvider
             tables.put( id, table );
         } );
 
-        tables.forEach( ( key, value ) -> LootTableManager.func_227508_a_( validation, key, value ) );
+        tables.forEach( ( key, value ) -> LootTableManager.validateLootTable( validation, key, value ) );
 
         Multimap<String, String> problems = validation.getProblems();
         if( !problems.isEmpty() )

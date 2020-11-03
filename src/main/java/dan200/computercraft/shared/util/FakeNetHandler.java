@@ -16,7 +16,6 @@ import net.minecraftforge.common.util.FakePlayer;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.crypto.SecretKey;
 
 public class FakeNetHandler extends ServerPlayNetHandler
 {
@@ -320,11 +319,6 @@ public class FakeNetHandler extends ServerPlayNetHandler
         public void closeChannel( @Nonnull ITextComponent message )
         {
             this.closeReason = message;
-        }
-
-        @Override
-        public void enableEncryption( @Nonnull SecretKey key )
-        {
         }
 
         @Nonnull

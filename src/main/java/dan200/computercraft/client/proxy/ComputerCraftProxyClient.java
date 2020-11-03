@@ -75,7 +75,7 @@ public final class ComputerCraftProxyClient
         ResourceLocation id = new ResourceLocation( ComputerCraft.MOD_ID, name );
         for( Supplier<? extends Item> item : items )
         {
-            ItemModelsProperties.func_239418_a_( item.get(), id, getter );
+            ItemModelsProperties.registerProperty( item.get(), id, getter );
         }
     }
 
