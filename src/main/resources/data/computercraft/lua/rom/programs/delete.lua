@@ -1,7 +1,8 @@
 local args = table.pack(...)
 
 if args.n < 1 then
-    print("Usage: rm <paths>")
+    local programName = arg[0] or fs.getName(shell.getRunningProgram())
+    print("Usage: " .. programName .. " <paths>")
     return
 end
 

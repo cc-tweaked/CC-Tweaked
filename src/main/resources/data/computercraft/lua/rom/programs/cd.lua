@@ -1,6 +1,7 @@
 local tArgs = { ... }
 if #tArgs < 1 then
-    print("Usage: cd <path>")
+    local programName = arg[0] or fs.getName(shell.getRunningProgram())
+    print("Usage: " .. programName .. " <path>")
     return
 end
 

@@ -1,7 +1,8 @@
 -- Get file to edit
 local tArgs = { ... }
 if #tArgs == 0 then
-    print("Usage: edit <path>")
+    local programName = arg[0] or fs.getName(shell.getRunningProgram())
+    print("Usage: " .. programName .. " <path>")
     return
 end
 
