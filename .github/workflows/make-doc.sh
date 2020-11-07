@@ -12,5 +12,5 @@ chmod 600 "$HOME/.ssh/key"
 
 # And upload
 rsync -avc -e "ssh -i $HOME/.ssh/key -o StrictHostKeyChecking=no -p $SSH_PORT" \
-      "$GITHUB_WORKSPACE/doc/" \
+      "$GITHUB_WORKSPACE/doc/out/" \
       "$SSH_USER@$SSH_HOST:/var/www/tweaked.cc/$DEST"

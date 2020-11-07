@@ -32,7 +32,7 @@ describe("The refuel program", function()
     it("displays its usage when given too many argument", function()
         setup_turtle(0, 5, 0)
         expect(capture(stub, "/rom/programs/turtle/refuel.lua a b"))
-            :matches { ok = true, output = "Usage: refuel [number]\n", error = "" }
+            :matches { ok = true, output = "Usage: /rom/programs/turtle/refuel.lua [number]\n", error = "" }
     end)
 
     it("requires a numeric argument", function()

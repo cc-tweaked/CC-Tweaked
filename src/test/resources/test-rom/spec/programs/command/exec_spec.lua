@@ -10,7 +10,7 @@ describe("The exec program", function()
     it("displays its usage when given no argument", function()
         stub(_G, "commands", {})
         expect(capture(stub, "/rom/programs/command/exec.lua"))
-            :matches { ok = true, output = "", error = "Usage: exec <command>\n" }
+            :matches { ok = true, output = "", error = "Usage: /rom/programs/command/exec.lua <command>\n" }
     end)
 
     it("runs a command", function()

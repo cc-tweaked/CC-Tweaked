@@ -140,7 +140,8 @@ public class DiskDrivePeripheral implements IPeripheral
     /**
      * Returns the title of the inserted audio disk.
      *
-     * @return The title of the audio, or {@code nil} if no audio disk is inserted.
+     * @return The title of the audio, or {@code false} if no audio disk is inserted.
+     * @cc.treturn string|nil|false The title of the audio, {@code false} if no disk is inserted, or {@code nil} if the disk has no audio.
      */
     @LuaFunction
     @Nullable

@@ -6,7 +6,8 @@ end
 local tArgs = { ... }
 local nLimit = 1
 if #tArgs > 1 then
-    print("Usage: refuel [number]")
+    local programName = arg[0] or fs.getName(shell.getRunningProgram())
+    print("Usage: " .. programName .. " [number]")
     return
 elseif #tArgs > 0 then
     if tArgs[1] == "all" then

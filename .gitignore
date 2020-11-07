@@ -3,9 +3,8 @@
 /logs
 /build
 /out
-/doc/**/*.html
+/doc/out/
 /doc/javadoc/
-/doc/index.json
 
 # Runtime directories
 /run

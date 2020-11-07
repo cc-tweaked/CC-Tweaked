@@ -6,7 +6,6 @@
 
 package dan200.computercraft.shared.peripheral.generic;
 
-import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.core.asm.NamedMethod;
 import dan200.computercraft.core.asm.PeripheralMethod;
@@ -35,8 +34,6 @@ public class GenericPeripheralProvider
     @Nonnull
     public static LazyOptional<IPeripheral> getPeripheral( @Nonnull World world, @Nonnull BlockPos pos, @Nonnull Direction side )
     {
-        if( !ComputerCraft.genericPeripheral ) return LazyOptional.empty();
-
         TileEntity tile = world.getTileEntity( pos );
         if( tile == null ) return LazyOptional.empty();
 

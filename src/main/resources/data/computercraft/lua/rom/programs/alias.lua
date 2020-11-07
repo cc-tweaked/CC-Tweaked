@@ -1,6 +1,7 @@
 local tArgs = { ... }
 if #tArgs > 2 then
-    print("Usage: alias <alias> <program>")
+    local programName = arg[0] or fs.getName(shell.getRunningProgram())
+    print("Usage: " .. programName .. " <alias> <program>")
     return
 end
 

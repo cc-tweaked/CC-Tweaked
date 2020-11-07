@@ -1,3 +1,15 @@
+# New features in CC: Tweaked 1.94.0
+
+* Add getter for window visibility (devomaa)
+* Generic peripherals are no longer experimental, and on by default.
+* Use term.blit to draw boxes in paintutils (Lemmmy).
+
+And several bug fixes:
+* Fix turtles not getting advancements when turtles are on.
+* Draw in-hand pocket computers with the correct transparent flags enabled.
+* Several bug fixes to SNBT parsing.
+* Fix several programs using their original name instead of aliases in usage hints (Lupus590).
+
 # New features in CC: Tweaked 1.93.1
 
 * Various documentation improvements (Lemmmy).
@@ -73,8 +85,6 @@ And several bug fixes:
 * Fix `turtle.craft` failing when missing an argument.
 * Fix deadlock when mistakenly "watching" an unloaded chunk.
 * Fix full path of files being leaked in some errors.
-
-Type "help changelog" to see the full version history.
 
 # New features in CC: Tweaked 1.89.1
 

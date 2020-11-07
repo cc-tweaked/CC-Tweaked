@@ -69,6 +69,6 @@ describe("The move program", function()
 
     it("displays the usage with no arguments", function()
         expect(capture(stub, "move"))
-            :matches { ok = true, output = "Usage: mv <source> <destination>\n", error = "" }
+            :matches { ok = true, output = "Usage: move <source> <destination>\n", error = "" }
     end)
 end)

@@ -7,7 +7,6 @@
 package dan200.computercraft.shared.peripheral.generic.data;
 
 import com.google.gson.JsonParseException;
-import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.util.NBTUtil;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
@@ -26,9 +25,6 @@ import java.util.stream.Collectors;
 
 /**
  * Data providers for items.
- *
- * We guard using {@link ComputerCraft#genericPeripheral} in several places, as advanced functionality should not be
- * exposed for {@code turtle.getItemDetail} when generic peripehrals are disabled.
  */
 public class ItemData
 {
@@ -72,8 +68,6 @@ public class ItemData
         }
 
         data.put( "tags", DataHelpers.getTags( stack.getItem().getTags() ) );
-
-        if( !ComputerCraft.genericPeripheral ) return data;
 
         CompoundNBT tag = stack.getTag();
         if( tag != null && tag.contains( "display", Constants.NBT.TAG_COMPOUND ) )

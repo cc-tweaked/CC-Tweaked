@@ -73,4 +73,20 @@ describe("The colors library", function()
         expect(colors.rgb8(0.3, 0.5, 0.6)):equals(0x4c7f99)
         expect({ colors.rgb8(0x4c7f99) }):same { 0x4c / 0xFF, 0x7f / 0xFF, 0.6 }
     end)
+
+    describe("colors.toBlit", function()
+        it("validates arguments", function()
+            expect.error(colors.toBlit, nil):eq("bad argument #1 (expected number, got nil)")
+        end)
+
+        it("converts all colors", function()
+            for i = 0, 15 do
+                expect(colors.toBlit(2 ^ i)):eq(string.format("%x", i))
+            end
+        end)
+
+        it("floors colors", function()
+            expect(colors.toBlit(16385)):eq("e")
+        end)
+    end)
 end)
