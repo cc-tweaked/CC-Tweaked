@@ -10,10 +10,11 @@
 
 (doc
   (title "CC: Tweaked")
-  (destination doc/out)
+  (destination build/docs/lua)
   (logo src/main/resources/pack.png)
   (index doc/index.md)
-  (styles doc/styles.css)
+  (styles src/web/styles.css)
+  (scripts build/rollup/index.js)
   (source-link https://github.com/SquidDev-CC/CC-Tweaked/blob/${commit}/${path}#L${line})
 
   (module-kinds

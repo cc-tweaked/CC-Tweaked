@@ -1,0 +1,70 @@
+/* Pretty tables, mostly inherited from table.definition-list */
+table.pretty-table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+table.pretty-table td, table.pretty-table th {
+    border: 1px solid #cccccc;
+    padding: 2px 4px;
+}
+
+table.pretty-table th {
+    background-color: #f0f0f0;
+}
+
+
+
+.highlight.highlight-lua {
+    position: relative;
+    background: #eee;
+    padding: 2px;
+}
+
+.example-run {
+    position: absolute;
+    top: 0;
+    right: 0;
+    background: #058e05;
+    color: #fff;
+    padding: 0px 5px;
+}
+
+.example-window {
+  position: fixed;
+  z-index: 200;
+  bottom: 20px;
+  right: 20px;
+
+  width: 620px;
+  height: 420px; /* 350px */
+}
+
+.example-window-hidden {
+    display: none;
+}
+
+.titlebar {
+    display: flex;
+    background: blue;
+    margin-bottom: -30px;
+
+    height: 40px;
+}
+
+.titlebar-drag {
+    flex-grow: 1;
+    cursor: grab;
+}
+
+.titlebar-close {
+    background: none;
+    padding: 0px 5px;
+    border: none;
+    border-radius: 0px;
+    margin: 0px;
+}
+
+.titlebar-close:hover {
+    background: white;
+}

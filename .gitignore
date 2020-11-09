@@ -5,6 +5,7 @@
 /out
 /doc/out/
 /doc/javadoc/
+/node_modules
 
 # Runtime directories
 /run
