@@ -1,109 +1,138 @@
 import { render, h, Component, Computer } from "copycat/embed";
 import type { ComponentChild } from "preact";
 
-const Click = ({ run }: { run: () => void }) => {
-  return <button type="button" class="example-run" onClick={run}>Run ᐅ</button>
+const clamp = (value: number, min: number, max: number): number => {
+    if (value < min) return min;
+    if (value > max) return max;
+    return value;
 }
+
+const Click = (options: { run: () => void }) =>
+    <button type="button" class="example-run" onClick={options.run}>Run ᐅ</button>
 
 type WindowProps = {};
 
 type WindowState = {
-  visible: boolean,
+    visible: boolean,
 
-  example: string,
-  exampleIdx: number,
+    example: string,
+    exampleIdx: number,
 }
 
 type Touch = { clientX: number, clientY: number };
 
 class Window extends Component<WindowProps, WindowState> {
-  private positioned: boolean = false;
-  private left: number = 0;
-  private top: number = 0;
-  private dragging?: { downX: number, downY: number, initialX: number, initialY: number };
+    private positioned: boolean = false;
+    private left: number = 0;
+    private top: number = 0;
+    private dragging?: { downX: number, downY: number, initialX: number, initialY: number };
 
-  constructor(props: WindowProps, context: unknown) {
-    super(props, context);
+    constructor(props: WindowProps, context: unknown) {
+        super(props, context);
 
-    this.state = {
-      visible: false,
-      example: "",
-      exampleIdx: 0,
-    }
-  }
-
-  componentDidMount() {
-    const elements = document.querySelectorAll("pre.highlight-lua");
-    for (let i = 0; i < elements.length; i++) {
-      const element = elements[i] as HTMLElement;
-
-      const example = element.innerText;
-      render(<Click run={this.runExample(example)} />, element);
+        this.state = {
+            visible: false,
+            example: "",
+            exampleIdx: 0,
+        }
     }
 
-    // Inject <link rel="stylesheet" href="https://copy-cat.squiddev.cc/main.css" />. We could defer this for sure,
-    // but it's better to load it at the right time.
-    const style = document.createElement("link");
-    style.rel = "stylesheet";
-    style.href = "https://copy-cat.squiddev.cc/main.css"
-    document.head.appendChild(style);
-  }
+    componentDidMount() {
+        const elements = document.querySelectorAll("pre.highlight-lua");
+        for (let i = 0; i < elements.length; i++) {
+            const element = elements[i] as HTMLElement;
 
-  public render({ }: WindowProps, { visible, example, exampleIdx }: WindowState): ComponentChild {
-    return visible ? <div class="example-window" style={`transform: translate(${this.left}px, ${this.top}px);`}>
-      <div class="titlebar">
-        <div class="titlebar-drag"
-          onMouseDown={this.onDown} onTouchStart={this.onTouchDown}
-          onMouseMove={this.onDrag} onTouchMove={this.onTouchDrag}
-          onMouseUp={this.onUp} onTouchEnd={this.onUp} // onMouseLeave={this.onUp}
-        />
-        <button type="button" class="titlebar-close" onClick={this.close}>x</button>
-      </div>
-      <Computer key={exampleIdx} files={{ "startup.lua": example }} />
-    </div> : <div class="example-window example-window-hidden" />;
-  }
-
-  private runExample(example: string): () => void {
-    return () => {
-      if (!this.positioned) {
-        this.positioned = true;
-        this.left = 0;
-        this.top = 0;
-      }
-
-      this.setState(({ exampleIdx }: WindowState) => ({
-        visible: true,
-        example: example,
-        exampleIdx: exampleIdx + 1,
-      }));
+            const example = element.innerText;
+            render(<Click run={this.runExample(example)} />, element);
+        }
     }
-  }
 
-  private readonly close = () => this.setState({ visible: false });
+    componentDidUpdate(_: WindowProps, { visible }: WindowState) {
+        if (!visible && this.state.visible) this.setPosition(this.left, this.top);
+    }
 
-  // All the dragging code is terrible. However, I've had massive performance
-  // issues doing it other ways, so this'll have to do.
-  private readonly onDown = (e: Touch) => {
-    this.dragging = {
-      initialX: this.left, initialY: this.top,
-      downX: e.clientX, downY: e.clientY
+    public render(_: WindowProps, { visible, example, exampleIdx }: WindowState): ComponentChild {
+        return visible ? <div class="example-window" style={`transform: translate(${this.left}px, ${this.top}px);`}>
+            <div class="titlebar">
+                <div class="titlebar-drag" onMouseDown={this.onMouseDown} onTouchStart={this.onTouchDown} />
+                <button type="button" class="titlebar-close" onClick={this.close}>x</button>
+            </div>
+            <div class="computer-container">
+                <Computer key={exampleIdx} files={{ "startup.lua": example }} />
+            </div>
+        </div> : <div class="example-window example-window-hidden" />;
+    }
+
+    private runExample(example: string): () => void {
+        return () => {
+            if (!this.positioned) {
+                this.positioned = true;
+                this.left = 20;
+                this.top = 20;
+            }
+
+            this.setState(({ exampleIdx }: WindowState) => ({
+                visible: true,
+                example: example,
+                exampleIdx: exampleIdx + 1,
+            }));
+        }
+    }
+
+    private readonly close = () => this.setState({ visible: false });
+
+    // All the dragging code is terrible. However, I've had massive performance
+    // issues doing it other ways, so this'll have to do.
+    private onDown(e: Event, touch: Touch) {
+        e.stopPropagation();
+        e.preventDefault();
+
+        this.dragging = {
+            initialX: this.left, initialY: this.top,
+            downX: touch.clientX, downY: touch.clientY
+        };
+
+        window.addEventListener("mousemove", this.onMouseDrag, true);
+        window.addEventListener("touchmove", this.onTouchDrag, true);
+        window.addEventListener("mouseup", this.onUp, true);
+        window.addEventListener("touchend", this.onUp, true);
+    }
+    private readonly onMouseDown = (e: MouseEvent) => this.onDown(e, e);
+    private readonly onTouchDown = (e: TouchEvent) => this.onDown(e, e.touches[0]);
+
+    private onDrag(e: Event, touch: Touch) {
+        e.stopPropagation();
+        e.preventDefault();
+
+        const dragging = this.dragging;
+        if (!dragging) return;
+
+        this.setPosition(
+            dragging.initialX + (touch.clientX - dragging.downX),
+            dragging.initialY + (touch.clientY - dragging.downY),
+        );
     };
-  }
-  private readonly onTouchDown = (e: TouchEvent) => this.onDown(e.touches[0]);
+    private readonly onMouseDrag = (e: MouseEvent) => this.onDrag(e, e);
+    private readonly onTouchDrag = (e: TouchEvent) => this.onDrag(e, e.touches[0]);
 
-  private readonly onDrag = (e: Touch) => {
-    const dragging = this.dragging;
-    if (!dragging) return;
+    private readonly onUp = (e: Event) => {
+        e.stopPropagation();
 
-    const root = this.base as HTMLElement;
-    const left = this.left = dragging.initialX + (e.clientX - dragging.downX);
-    const top = this.top = dragging.initialY + (e.clientY - dragging.downY);
-    root.style.transform = `translate(${left}px, ${top}px)`;
-  };
+        this.dragging = undefined;
 
-  private readonly onTouchDrag = (e: TouchEvent) => this.onDrag(e.touches[0]);
+        window.removeEventListener("mousemove", this.onMouseDrag, true);
+        window.removeEventListener("touchmove", this.onTouchDrag, true);
+        window.removeEventListener("mouseup", this.onUp, true);
+        window.removeEventListener("touchend", this.onUp, true);
+    }
 
-  private readonly onUp = () => this.dragging = undefined;
+    private readonly setPosition = (left: number, top: number): void => {
+        const root = this.base as HTMLElement;
+
+        left = this.left = clamp(left, 0, window.innerWidth - root.offsetWidth);
+        top = this.top = clamp(top, 0, window.innerHeight - root.offsetHeight);
+        root.style.transform = `translate(${left}px, ${top}px)`;
+    }
 
 }
 

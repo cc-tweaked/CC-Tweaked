@@ -13,8 +13,6 @@ table.pretty-table th {
     background-color: #f0f0f0;
 }
 
-
-
 .highlight.highlight-lua {
     position: relative;
     background: #eee;
@@ -31,13 +29,23 @@ table.pretty-table th {
 }
 
 .example-window {
-  position: fixed;
-  z-index: 200;
-  bottom: 20px;
-  right: 20px;
+    position: fixed;
+    z-index: 200;
+    top: 0px;
+    top: 0px;;
+}
 
-  width: 620px;
-  height: 420px; /* 350px */
+/* Behold, the most cursed CSS! copy-cat's resizing algorithm is a weird, in
+   that it basically does "wrapper height - 40px" to determine the effective
+   size. But the footer is actually 1em+6px high, so we need to do very weird
+   things.
+
+   Yes, it should probably be fixed on the copy-cat side.
+ */
+.computer-container {
+    width: 620px;
+    height: calc(350px + 40px);
+    margin-top: calc((1em + 6px - 40px) / 2);
 }
 
 .example-window-hidden {
@@ -47,7 +55,6 @@ table.pretty-table th {
 .titlebar {
     display: flex;
     background: blue;
-    margin-bottom: -30px;
 
     height: 40px;
 }
@@ -67,4 +74,15 @@ table.pretty-table th {
 
 .titlebar-close:hover {
     background: white;
+}
+
+@media (max-width: 700px) {
+    .computer-container {
+        width: 314px;
+        height: calc(179px + 40px);
+    }
+
+    .titlebar {
+        height: 20px;
+    }
 }
