@@ -25,7 +25,7 @@ table.pretty-table th {
     right: 0;
     background: #058e05;
     color: #fff;
-    padding: 0px 5px;
+    padding: 2px 5px;
 }
 
 .example-window {
@@ -54,9 +54,8 @@ table.pretty-table th {
 
 .titlebar {
     display: flex;
-    background: blue;
-
-    height: 40px;
+    background: #dede6c;
+    height: 30px;
 }
 
 .titlebar-drag {

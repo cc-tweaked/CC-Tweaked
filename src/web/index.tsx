@@ -58,7 +58,10 @@ class Window extends Component<WindowProps, WindowState> {
                 <button type="button" class="titlebar-close" onClick={this.close}>x</button>
             </div>
             <div class="computer-container">
-                <Computer key={exampleIdx} files={{ "startup.lua": example }} />
+                <Computer key={exampleIdx} files={{
+                    "startup.lua": example,
+                    ".settings": `{["motd.enable"]=false}`,
+                }} />
             </div>
         </div> : <div class="example-window example-window-hidden" />;
     }
