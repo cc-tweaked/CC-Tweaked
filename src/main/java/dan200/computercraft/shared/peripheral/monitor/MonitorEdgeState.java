@@ -57,6 +57,12 @@ public enum MonitorEdgeState implements IStringSerializable
         return BY_FLAG[(up ? UP : 0) | (down ? DOWN : 0) | (left ? LEFT : 0) | (right ? RIGHT : 0)];
     }
 
+    @Override
+    public String toString()
+    {
+        return getName();
+    }
+
     @Nonnull
     @Override
     public String getName()

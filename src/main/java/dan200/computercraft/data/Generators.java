@@ -24,5 +24,6 @@ public class Generators
         generator.addProvider( new Recipes( generator ) );
         generator.addProvider( new LootTables( generator ) );
         generator.addProvider( new Tags( generator ) );
+        generator.addProvider( new BlockModelProvider( generator, event.getExistingFileHelper() ) );
     }
 }
