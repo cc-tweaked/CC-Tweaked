@@ -1,0 +1,3 @@
+{
+  [ "motd.enable" ] = false,
+}

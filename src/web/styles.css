@@ -69,11 +69,10 @@ table.pretty-table th {
     border: none;
     border-radius: 0px;
     margin: 0px;
+    font-size: 15px;
 }
 
-.titlebar-close:hover {
-    background: white;
-}
+.titlebar-close:hover { background: #cc4c4c; }
 
 @media (max-width: 700px) {
     .computer-container {
@@ -81,7 +80,6 @@ table.pretty-table th {
         height: calc(179px + 40px);
     }
 
-    .titlebar {
-        height: 20px;
-    }
+    .titlebar { height: 20px; }
+    .titlebar-close { font-size: 7px; }
 }

@@ -136,7 +136,7 @@ task luaJavadoc(type: Javadoc) {
     group "documentation"
 
     source = sourceSets.main.allJava
-    destinationDir = file("doc/javadoc")
+    destinationDir = file("${project.docsDir}/luaJavadoc")
     classpath = sourceSets.main.compileClasspath
 
     options.docletpath = configurations.cctJavadoc.files as List
@@ -353,7 +353,7 @@ task illuaminateDocs(type: Exec, dependsOn: [minifyWeb, luaJavadoc]) {
 
 task docWebsite(type: Copy, dependsOn: [illuaminateDocs]) {
     from 'doc/logo.png'
-    into 'build/docs/lua'
+    into "${project.docsDir}/lua"
 }
 
 // Check tasks

@@ -1,6 +1,15 @@
 import { render, h, Component, Computer } from "copycat/embed";
 import type { ComponentChild } from "preact";
 
+import settingsFile from "./mount/.settings";
+import startupFile from "./mount/startup.lua";
+import exprTemplate from "./mount/expr_template.lua";
+
+const defaultFiles: { [filename: string]: string } = {
+    ".settings": settingsFile,
+    "startup.lua": startupFile,
+};
+
 const clamp = (value: number, min: number, max: number): number => {
     if (value < min) return min;
     if (value > max) return max;
@@ -38,11 +47,14 @@ class Window extends Component<WindowProps, WindowState> {
     }
 
     componentDidMount() {
-        const elements = document.querySelectorAll("pre.highlight-lua");
+        const elements = document.querySelectorAll("pre[data-lua-kind]");
         for (let i = 0; i < elements.length; i++) {
             const element = elements[i] as HTMLElement;
 
-            const example = element.innerText;
+            let example = element.innerText;
+            if (element.getAttribute("data-lua-kind") == "expr") {
+                example = exprTemplate.replace("__expr__", example);
+            }
             render(<Click run={this.runExample(example)} />, element);
         }
     }
@@ -55,12 +67,11 @@ class Window extends Component<WindowProps, WindowState> {
         return visible ? <div class="example-window" style={`transform: translate(${this.left}px, ${this.top}px);`}>
             <div class="titlebar">
                 <div class="titlebar-drag" onMouseDown={this.onMouseDown} onTouchStart={this.onTouchDown} />
-                <button type="button" class="titlebar-close" onClick={this.close}>x</button>
+                <button type="button" class="titlebar-close" onClick={this.close}>{"\u2715"}</button>
             </div>
             <div class="computer-container">
                 <Computer key={exampleIdx} files={{
-                    "startup.lua": example,
-                    ".settings": `{["motd.enable"]=false}`,
+                    "example.lua": example, ...defaultFiles
                 }} />
             </div>
         </div> : <div class="example-window example-window-hidden" />;

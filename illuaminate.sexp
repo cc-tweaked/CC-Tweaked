@@ -2,10 +2,11 @@
 
 (sources
   /doc/stub/
-  /doc/javadoc/
+  /build/docs/luaJavadoc/
   /src/main/resources/*/computercraft/lua/bios.lua
   /src/main/resources/*/computercraft/lua/rom/
-  /src/test/resources/test-rom)
+  /src/test/resources/test-rom
+  /src/web/mount)
 
 
 (doc
@@ -22,7 +23,7 @@
 
   (library-path
     /doc/stub/
-    /doc/javadoc/
+    /build/docs/luaJavadoc/
 
     /src/main/resources/*/computercraft/lua/rom/apis
     /src/main/resources/*/computercraft/lua/rom/apis/command
@@ -73,7 +74,7 @@
   (lint (allow-toplevel-global true)))
 
 ;; Silence some variable warnings in documentation stubs.
-(at (/doc/stub/ /doc/javadoc/)
+(at (/doc/stub/ /build/docs/luaJavadoc/)
   (linters -var:unused-global)
   (lint (allow-toplevel-global true)))
 
@@ -85,11 +86,11 @@
    /doc/stub/turtle.lua
    /doc/stub/global.lua
    ; Java generated APIs
-   /doc/javadoc/turtle.lua
+   /build/docs/luaJavadoc/turtle.lua
    ; Peripherals
-   /doc/javadoc/drive.lua
-   /doc/javadoc/speaker.lua
-   /doc/javadoc/printer.lua
+   /build/docs/luaJavadoc/drive.lua
+   /build/docs/luaJavadoc/speaker.lua
+   /build/docs/luaJavadoc/printer.lua
    ; Lua APIs
    /src/main/resources/*/computercraft/lua/rom/apis/io.lua
    /src/main/resources/*/computercraft/lua/rom/apis/window.lua)
