@@ -97,15 +97,6 @@
 
   (linters -doc:undocumented -doc:undocumented-arg -doc:undocumented-return))
 
-;; These currently rely on unknown references.
-(at
-  (/src/main/resources/*/computercraft/lua/rom/apis/textutils.lua
-   /src/main/resources/*/computercraft/lua/rom/modules/main/cc/completion.lua
-   /src/main/resources/*/computercraft/lua/rom/modules/main/cc/shell/completion.lua
-   /src/main/resources/*/computercraft/lua/rom/programs/shell.lua
-   /doc/stub/fs.lua)
-  (linters -doc:unresolved-reference))
-
 ;; Suppress warnings for the BIOS using its own deprecated members for now.
 (at /src/main/resources/*/computercraft/lua/bios.lua
   (linters -var:deprecated))

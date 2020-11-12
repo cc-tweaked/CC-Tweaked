@@ -9,7 +9,7 @@ local expect, field = expect.expect, expect.field
 --- Slowly writes string text at current cursor position,
 -- character-by-character.
 --
--- Like @{write}, this does not insert a newline at the end.
+-- Like @{_G.write}, this does not insert a newline at the end.
 --
 -- @tparam string sText The the text to write to the screen
 -- @tparam[opt] number nRate The number of characters to write each second,
@@ -119,8 +119,8 @@ end
 -- displayed before prompting.
 -- @treturn number The number of lines printed.
 -- @usage
--- local width, height = term.getSize()
--- textutils.pagedPrint(("This is a rather verbose dose of repetition.\n"):rep(30), height - 2)
+--     local width, height = term.getSize()
+--     textutils.pagedPrint(("This is a rather verbose dose of repetition.\n"):rep(30), height - 2)
 function pagedPrint(_sText, _nFreeLines)
     expect(2, _nFreeLines, "number", "nil")
     -- Setup a redirector
@@ -706,7 +706,7 @@ unserialiseJSON = unserialise_json
 --
 -- @tparam string str The string to encode
 -- @treturn string The encoded string.
--- @usage print("https://example.com/?view=" .. textutils.urlEncode(read()))
+-- @usage print("https://example.com/?view=" .. textutils.urlEncode("some text&things"))
 function urlEncode(str)
     expect(1, str, "string")
     if str then
@@ -744,8 +744,8 @@ local tEmpty = {}
 --
 -- @treturn { string... } The (possibly empty) list of completions.
 -- @see shell.setCompletionFunction
--- @see read
--- @usage textutils.complete( "pa", getfenv() )
+-- @see _G.read
+-- @usage textutils.complete( "pa", _ENV )
 function complete(sSearchText, tSearchTable)
     expect(1, sSearchText, "string")
     expect(2, tSearchTable, "table", "nil")
