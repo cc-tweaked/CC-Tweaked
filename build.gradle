@@ -136,7 +136,7 @@ task luaJavadoc(type: Javadoc) {
     group "documentation"
 
     source = sourceSets.main.allJava
-    destinationDir = file("doc/javadoc")
+    destinationDir = file("${project.docsDir}/luaJavadoc")
     classpath = sourceSets.main.compileClasspath
 
     options.docletpath = configurations.cctJavadoc.files as List
@@ -305,6 +305,56 @@ task compressJson(dependsOn: jar) {
 }
 
 assemble.dependsOn compressJson
+
+// Web tasks
+
+import org.apache.tools.ant.taskdefs.condition.Os
+
+List<String> mkCommand(String command) {
+    return Os.isFamily(Os.FAMILY_WINDOWS) ? ["cmd", "/c", command] : ["sh", "-c", command]
+}
+
+task rollup(type: Exec) {
+    group = "build"
+    description = "Bundles JS into rollup"
+
+    inputs.files(fileTree("src/web")).withPropertyName("sources")
+    inputs.file("package-lock.json").withPropertyName("package-lock.json")
+    inputs.file("tsconfig.json").withPropertyName("Typescript config")
+    inputs.file("rollup.config.js").withPropertyName("Rollup config")
+    outputs.file("$buildDir/rollup/index.js").withPropertyName("output")
+
+    commandLine mkCommand('"node_modules/.bin/rollup" --config rollup.config.js')
+}
+
+task minifyWeb(type: Exec, dependsOn: rollup) {
+    group = "build"
+    description = "Bundles JS into rollup"
+
+    inputs.file("$buildDir/rollup/index.js").withPropertyName("sources")
+    inputs.file("package-lock.json").withPropertyName("package-lock.json")
+    outputs.file("$buildDir/rollup/index.min.js").withPropertyName("output")
+
+    commandLine mkCommand('"node_modules/.bin/terser"' + " -o $buildDir/rollup/index.min.js $buildDir/rollup/index.js")
+}
+
+task illuaminateDocs(type: Exec, dependsOn: [minifyWeb, luaJavadoc]) {
+    group = "build"
+    description = "Bundles JS into rollup"
+
+    inputs.files(fileTree("doc")).withPropertyName("sources")
+    inputs.file("illuaminate.sexp").withPropertyName("illuaminate.sexp")
+    inputs.file("$buildDir/rollup/index.min.js").withPropertyName("scripts")
+    inputs.file("src/web/styles.css").withPropertyName("styles")
+    outputs.dir("$buildDir/docs/lua")
+
+    commandLine mkCommand('"bin/illuaminate" doc-gen')
+}
+
+task docWebsite(type: Copy, dependsOn: [illuaminateDocs]) {
+    from 'doc/logo.png'
+    into "${project.docsDir}/lua"
+}
 
 // Check tasks
 

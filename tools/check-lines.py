@@ -18,7 +18,7 @@ for path in pathlib.Path("src").glob("**/*"):
                 if line.strip() == "":
                     print("%s has empty first line" % path)
 
-            if len(line) >= 2 and line[-2] == "\r" and line[-1] == "\n" and not has_line:
+            if len(line) >= 2 and line[-2] == "\r" and line[-1] == "\n" and not has_dos:
                 print("%s has contains '\\r\\n' on line %d" % (path, i + 1))
                 problems = has_dos = True
 

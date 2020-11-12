@@ -30,18 +30,20 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-gradle-
 
-    - name: Build with Gradle
-      run: ./gradlew compileJava --no-daemon || ./gradlew compileJava --no-daemon
-
-    - name: Generate Java documentation stubs
-      run: ./gradlew luaJavadoc --no-daemon
-
-    - name: Build documentation
+    - name: Setup illuaminate
       run: |
         test -d bin || mkdir bin
         test -f bin/illuaminate || wget -q -Obin/illuaminate https://squiddev.cc/illuaminate/linux-x86-64/illuaminate
         chmod +x bin/illuaminate
-        bin/illuaminate doc-gen
+
+    - name: Setup node
+      run: npm ci
+
+    - name: Build with Gradle
+      run: ./gradlew compileJava --no-daemon || ./gradlew compileJava --no-daemon
+
+    - name: Generate documentation
+      run: ./gradlew docWebsite --no-daemon
 
     - name: Upload documentation
       run: .github/workflows/make-doc.sh 2> /dev/null

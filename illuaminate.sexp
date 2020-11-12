@@ -2,18 +2,20 @@
 
 (sources
   /doc/stub/
-  /doc/javadoc/
+  /build/docs/luaJavadoc/
   /src/main/resources/*/computercraft/lua/bios.lua
   /src/main/resources/*/computercraft/lua/rom/
-  /src/test/resources/test-rom)
+  /src/test/resources/test-rom
+  /src/web/mount)
 
 
 (doc
   (title "CC: Tweaked")
-  (destination doc/out)
+  (destination build/docs/lua)
   (logo src/main/resources/pack.png)
   (index doc/index.md)
-  (styles doc/styles.css)
+  (styles src/web/styles.css)
+  (scripts build/rollup/index.js)
   (source-link https://github.com/SquidDev-CC/CC-Tweaked/blob/${commit}/${path}#L${line})
 
   (module-kinds
@@ -21,7 +23,7 @@
 
   (library-path
     /doc/stub/
-    /doc/javadoc/
+    /build/docs/luaJavadoc/
 
     /src/main/resources/*/computercraft/lua/rom/apis
     /src/main/resources/*/computercraft/lua/rom/apis/command
@@ -72,7 +74,7 @@
   (lint (allow-toplevel-global true)))
 
 ;; Silence some variable warnings in documentation stubs.
-(at (/doc/stub/ /doc/javadoc/)
+(at (/doc/stub/ /build/docs/luaJavadoc/)
   (linters -var:unused-global)
   (lint (allow-toplevel-global true)))
 
@@ -84,11 +86,11 @@
    /doc/stub/turtle.lua
    /doc/stub/global.lua
    ; Java generated APIs
-   /doc/javadoc/turtle.lua
+   /build/docs/luaJavadoc/turtle.lua
    ; Peripherals
-   /doc/javadoc/drive.lua
-   /doc/javadoc/speaker.lua
-   /doc/javadoc/printer.lua
+   /build/docs/luaJavadoc/drive.lua
+   /build/docs/luaJavadoc/speaker.lua
+   /build/docs/luaJavadoc/printer.lua
    ; Lua APIs
    /src/main/resources/*/computercraft/lua/rom/apis/io.lua
    /src/main/resources/*/computercraft/lua/rom/apis/window.lua)
@@ -116,3 +118,5 @@
     (globals
       :max sleep write
       cct_test describe expect howlci fail it pending stub)))
+
+(at /src/web/mount/expr_template.lua (lint (globals :max __expr__)))
