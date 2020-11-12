@@ -3,11 +3,7 @@ name: Build documentation
 on:
   push:
     branches:
-    - master
     - mc-1.15.x
-    tags:
-  release:
-    types: [ published ]
 
 jobs:
   make_doc:
@@ -43,7 +39,7 @@ jobs:
       run: ./gradlew compileJava --no-daemon || ./gradlew compileJava --no-daemon
 
     - name: Generate documentation
-      run: ./gradlew docWebsite --no-daemon
+      run: ./gradlew docWebsite javadoc --no-daemon
 
     - name: Upload documentation
       run: .github/workflows/make-doc.sh 2> /dev/null
