@@ -378,7 +378,7 @@ public class OSAPI implements ILuaAPI
     }
 
     /**
-     * Returns the number of seconds since an epoch depending on the locale.
+     * Returns the number of milliseconds since an epoch depending on the locale.
      *
      * * If called with {@code ingame}, returns the number of milliseconds since the
      * world was created. This is the default.
