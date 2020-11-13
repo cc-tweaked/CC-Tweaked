@@ -387,7 +387,7 @@ public class OSAPI implements ILuaAPI
      * * If called with {@code local}, returns the number of milliseconds since 1
      * January 1970 in the server's local timezone.
      *
-     * @param args The locale to get the seconds for. Defaults to {@code ingame} if not set.
+     * @param args The locale to get the milliseconds for. Defaults to {@code ingame} if not set.
      * @return The milliseconds since the epoch depending on the selected locale.
      * @throws LuaException If an invalid locale is passed.
      */
