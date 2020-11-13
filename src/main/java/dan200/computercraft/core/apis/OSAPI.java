@@ -378,17 +378,17 @@ public class OSAPI implements ILuaAPI
     }
 
     /**
-     * Returns the number of seconds since an epoch depending on the locale.
+     * Returns the number of milliseconds since an epoch depending on the locale.
      *
-     * * If called with {@code ingame}, returns the number of seconds since the
+     * * If called with {@code ingame}, returns the number of milliseconds since the
      * world was created. This is the default.
-     * * If called with {@code utc}, returns the number of seconds since 1
+     * * If called with {@code utc}, returns the number of milliseconds since 1
      * January 1970 in the UTC timezone.
-     * * If called with {@code local}, returns the number of seconds since 1
+     * * If called with {@code local}, returns the number of milliseconds since 1
      * January 1970 in the server's local timezone.
      *
-     * @param args The locale to get the seconds for. Defaults to {@code ingame} if not set.
-     * @return The seconds since the epoch depending on the selected locale.
+     * @param args The locale to get the milliseconds for. Defaults to {@code ingame} if not set.
+     * @return The milliseconds since the epoch depending on the selected locale.
      * @throws LuaException If an invalid locale is passed.
      */
     @LuaFunction
