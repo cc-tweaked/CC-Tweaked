@@ -150,7 +150,7 @@ public class OSAPI implements ILuaAPI
 
     private static long getEpochForCalendar( Calendar c )
     {
-        return c.getTime().getTime();
+        return c.getTime().getTime() / 1000;
     }
 
     /**
