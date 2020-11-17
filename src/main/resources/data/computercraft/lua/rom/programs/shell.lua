@@ -32,6 +32,17 @@ local shell = {} --- @export
 local function createShellEnv(dir)
     local env = { shell = shell, multishell = multishell }
     env.require, env.package = make_package(env, dir)
+    if settings.get("shell.strict_globals", false)  then
+        -- shell.execute will attempt to set arg on this environment, which
+        -- throws an error with this protection enabled. Thus we set it here first.
+        env.arg = {}
+        if not getmetatable(env) then
+            setmetatable(env, {})
+        end
+        getmetatable(env).__newindex = function(_, name)
+          error("Attempt to create global " .. tostring(name), 2)
+        end
+    end
     return env
 end
 

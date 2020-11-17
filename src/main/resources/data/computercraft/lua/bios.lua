@@ -900,6 +900,11 @@ settings.define("shell.autocomplete", {
     description = "Autocomplete program and arguments in the shell.",
     type = "boolean",
 })
+settings.define("shell.strict_globals", {
+    default = false,
+    description = "Prevents assigning variables into a program's enviroment. Make sure you use the local keyword or assign to _G explicitly.",
+        type = "boolean",
+})
 settings.define("edit.autocomplete", {
     default = true,
     description = "Autocomplete API and function names in the editor.",
