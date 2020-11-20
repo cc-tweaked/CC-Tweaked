@@ -35,14 +35,20 @@ export default {
 
                 await Promise.all(files
                     .filter(x => path.extname(x) !== ".ts")
-                    .map(file => fs.writeFile(`${input}/mount/${file}.d.ts`, template))
+                    .map(async file => {
+                        const path = `${input}/mount/${file}.d.ts`;
+                        const contents = await fs.readFile(path, { encoding: "utf-8" }).catch(() => "");
+                        if (contents !== template) await fs.writeFile(path, template);
+                    })
                 );
                 return options;
             },
             async transform(code, file) {
                 // Allow loading files in /mount.
-                if (path.extname(file) != ".lua" && path.basename(file) != ".settings") return null;
-                return `export default ${JSON.stringify(code)};\n`;
+                const ext = path.extname(file);
+                return ext != '.tsx' && ext != '.ts' && path.dirname(file) === path.resolve(`${input}/mount`)
+                    ? `export default ${JSON.stringify(code)};\n`
+                    : null;
             },
         }
     ],

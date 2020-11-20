@@ -252,8 +252,8 @@ local function drawCanvasLine(y)
             bg = bg .. color_hex_lookup[pixel or canvasColour]
         else
             text = text .. "\127"
-            fg = fg .. color_hex_lookup[canvasColour]
-            bg = bg .. color_hex_lookup[colours.grey]
+            fg = fg .. color_hex_lookup[colours.grey]
+            bg = bg .. color_hex_lookup[canvasColour]
         end
     end
 
