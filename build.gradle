@@ -342,7 +342,8 @@ task illuaminateDocs(type: Exec, dependsOn: [minifyWeb, luaJavadoc]) {
     group = "build"
     description = "Bundles JS into rollup"
 
-    inputs.files(fileTree("doc")).withPropertyName("sources")
+    inputs.files(fileTree("doc")).withPropertyName("docs")
+    inputs.files(fileTree("src/main/resources/data/computercraft/lua/rom")).withPropertyName("lua rom")
     inputs.file("illuaminate.sexp").withPropertyName("illuaminate.sexp")
     inputs.file("$buildDir/rollup/index.min.js").withPropertyName("scripts")
     inputs.file("src/web/styles.css").withPropertyName("styles")

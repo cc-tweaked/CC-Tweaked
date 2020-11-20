@@ -1,15 +1,28 @@
---- A collection of helper methods for working with shell completion.
---
--- Most programs may be completed using the @{build} helper method, rather than
--- manually switching on the argument index.
---
--- Note, the helper functions within this module do not accept an argument index,
--- and so are not directly usable with the @{shell.setCompletionFunction}. Instead,
--- wrap them using @{build}, or your own custom function.
---
--- @module cc.shell.completion
--- @see cc.completion For more general helpers, suitable for use with @{_G.read}.
--- @see shell.setCompletionFunction
+--[[- A collection of helper methods for working with shell completion.
+
+Most programs may be completed using the @{build} helper method, rather than
+manually switching on the argument index.
+
+Note, the helper functions within this module do not accept an argument index,
+and so are not directly usable with the @{shell.setCompletionFunction}. Instead,
+wrap them using @{build}, or your own custom function.
+
+@module cc.shell.completion
+@see cc.completion For more general helpers, suitable for use with @{_G.read}.
+@see shell.setCompletionFunction
+
+@usage Register a completion handler for example.lua which prompts for a
+choice of options, followed by a directory, and then multiple files.
+
+    local completion = require "cc.shell.completion"
+    local complete = completion.build(
+      { completion.choice, { "get", "put" } },
+      completion.dir,
+      { completion.file, many = true }
+    )
+    shell.setCompletionFunction("example.lua", complete)
+    read(nil, nil, shell.complete, "example ")
+]]
 
 local expect = require "cc.expect".expect
 local completion = require "cc.completion"
@@ -69,37 +82,29 @@ local function program(shell, text)
     return shell.completeProgram(text)
 end
 
---- A helper function for building shell completion arguments.
---
--- This accepts a series of single-argument completion functions, and combines
--- them into a function suitable for use with @{shell.setCompletionFunction}.
---
--- @tparam nil|table|function ... Every argument to @{build} represents an argument
--- to the program you wish to complete. Each argument can be one of three types:
---
---  - `nil`: This argument will not be completed.
---
---  - A function: This argument will be completed with the given function. It is
---    called with the @{shell} object, the string to complete and the arguments
---    before this one.
---
---  - A table: This acts as a more powerful version of the function case. The table
---    must have a function as the first item - this will be called with the shell,
---    string and preceding arguments as above, but also followed by any additional
---    items in the table. This provides a more convenient interface to pass
---    options to your completion functions.
---
---    If this table is the last argument, it may also set the `many` key to true,
---    which states this function should be used to complete any remaining arguments.
---
--- @usage Prompt for a choice of options, followed by a directory, and then multiple
--- files.
---
---     complete.build(
---       { complete.choice, { "get", "put" } },
---       complete.dir,
---       { complete.file, many = true }
---     )
+--[[- A helper function for building shell completion arguments.
+
+This accepts a series of single-argument completion functions, and combines
+them into a function suitable for use with @{shell.setCompletionFunction}.
+
+@tparam nil|table|function ... Every argument to @{build} represents an argument
+to the program you wish to complete. Each argument can be one of three types:
+
+ - `nil`: This argument will not be completed.
+
+ - A function: This argument will be completed with the given function. It is
+   called with the @{shell} object, the string to complete and the arguments
+   before this one.
+
+ - A table: This acts as a more powerful version of the function case. The table
+   must have a function as the first item - this will be called with the shell,
+   string and preceding arguments as above, but also followed by any additional
+   items in the table. This provides a more convenient interface to pass
+   options to your completion functions.
+
+   If this table is the last argument, it may also set the `many` key to true,
+   which states this function should be used to complete any remaining arguments.
+]]
 local function build(...)
     local arguments = table.pack(...)
     for i = 1, arguments.n do
