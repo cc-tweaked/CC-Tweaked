@@ -966,7 +966,7 @@ settings.define("lua.function_source", {
 })
 settings.define("bios.strict_globals", {
     default = false,
-    description = "Prevents assigning variables into a program's enviroment. Make sure you use the local keyword or assign to _G explicitly.",
+    description = "Prevents assigning variables into a program's environment. Make sure you use the local keyword or assign to _G explicitly.",
     type = "boolean",
 })
 
