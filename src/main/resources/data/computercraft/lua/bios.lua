@@ -524,7 +524,7 @@ function os.run(_tEnv, _sPath, ...)
     local tEnv = _tEnv
     setmetatable(tEnv, { __index = _G })
 
-    if settings.get("bios.strict_globals", false)  then
+    if settings.get("bios.strict_globals", false) then
         -- load will attempt to set _ENV on this environment, which
         -- throws an error with this protection enabled. Thus we set it here first.
         tEnv._ENV = tEnv
