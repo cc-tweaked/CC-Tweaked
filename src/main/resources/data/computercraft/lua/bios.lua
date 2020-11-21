@@ -523,6 +523,13 @@ function os.run(_tEnv, _sPath, ...)
 
     local tEnv = _tEnv
     setmetatable(tEnv, { __index = _G })
+
+    if settings.get("bios.strict_globals", false)  then
+        getmetatable(tEnv).__newindex = function(_, name)
+          error("Attempt to create global " .. tostring(name), 2)
+        end
+    end
+
     local fnFile, err = loadfile(_sPath, nil, tEnv)
     if fnFile then
         local ok, err = pcall(fnFile, ...)
@@ -900,11 +907,6 @@ settings.define("shell.autocomplete", {
     description = "Autocomplete program and arguments in the shell.",
     type = "boolean",
 })
-settings.define("shell.strict_globals", {
-    default = false,
-    description = "Prevents assigning variables into a program's enviroment. Make sure you use the local keyword or assign to _G explicitly.",
-        type = "boolean",
-})
 settings.define("edit.autocomplete", {
     default = true,
     description = "Autocomplete API and function names in the editor.",
@@ -957,6 +959,11 @@ settings.define("lua.function_args", {
 settings.define("lua.function_source", {
     default = false,
     description = "Show where a function was defined when printing functions.",
+    type = "boolean",
+})
+settings.define("bios.strict_globals", {
+    default = false,
+    description = "Prevents assigning variables into a program's enviroment. Make sure you use the local keyword or assign to _G explicitly.",
     type = "boolean",
 })
 
