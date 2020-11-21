@@ -523,6 +523,16 @@ function os.run(_tEnv, _sPath, ...)
 
     local tEnv = _tEnv
     setmetatable(tEnv, { __index = _G })
+
+    if settings.get("bios.strict_globals", false)  then
+        -- load will attempt to set _ENV on this environment, which
+        -- throws an error with this protection enabled. Thus we set it here first.
+        tEnv._ENV = tEnv
+        getmetatable(tEnv).__newindex = function(_, name)
+          error("Attempt to create global " .. tostring(name), 2)
+        end
+    end
+
     local fnFile, err = loadfile(_sPath, nil, tEnv)
     if fnFile then
         local ok, err = pcall(fnFile, ...)
@@ -952,6 +962,11 @@ settings.define("lua.function_args", {
 settings.define("lua.function_source", {
     default = false,
     description = "Show where a function was defined when printing functions.",
+    type = "boolean",
+})
+settings.define("bios.strict_globals", {
+    default = false,
+    description = "Prevents assigning variables into a program's environment. Make sure you use the local keyword or assign to _G explicitly.",
     type = "boolean",
 })
 
