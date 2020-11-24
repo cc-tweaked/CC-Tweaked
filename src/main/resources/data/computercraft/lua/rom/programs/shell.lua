@@ -78,7 +78,8 @@ function shell.execute(command, ...)
 
         local sDir = fs.getDir(sPath)
         local env = createShellEnv(sDir)
-        env.arg = { [0] = command, ... }
+        env.arg = table.pack(...)
+        env.arg[0] = command
         local result = os.run(env, sPath, ...)
 
         tProgramStack[#tProgramStack] = nil
