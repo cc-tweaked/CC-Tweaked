@@ -53,7 +53,7 @@ local function expect(index, value, ...)
     local name
     if native_type(debug) == "table" and native_type(debug.getinfo) == "function" then
         local ok, info = pcall(debug.getinfo, 3, "nS")
-        if ok and info.name and #info.name ~= "" and info.what ~= "C" then name = info.name end
+        if ok and info.name and info.name ~= "" and info.what ~= "C" then name = info.name end
     end
 
     local type_names = get_type_names(...)
