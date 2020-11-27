@@ -163,10 +163,11 @@ local function tabulateCommon(bPaged, ...)
     for n, t in ipairs(tAll) do
         if type(t) == "table" then
             for nu, sItem in pairs(t) do
-                if type(sItem) ~= "string" then
-                    error("bad argument #" .. n .. "." .. nu .. " (expected string, got " .. type(sItem) .. ")", 3)
+                local ty = type(sItem)
+                if ty ~= "string" and ty ~= "number" then
+                    error("bad argument #" .. n .. "." .. nu .. " (expected string, got " .. ty .. ")", 3)
                 end
-                nMaxLen = math.max(#sItem + 1, nMaxLen)
+                nMaxLen = math.max(#tostring(sItem) + 1, nMaxLen)
             end
         end
     end
