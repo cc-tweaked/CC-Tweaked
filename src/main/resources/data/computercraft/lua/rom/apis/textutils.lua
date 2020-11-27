@@ -152,61 +152,206 @@ function pagedPrint(_sText, _nFreeLines)
     return result
 end
 
-local function tabulateCommon(bPaged, ...)
-    local tAll = table.pack(...)
-    for i = 1, tAll.n do
-        expect(i, tAll[i], "number", "table")
+local function adjustColumnWidths(nWidth, tWidths)
+    --[[
+    Tries to fit all columns in tWidths on the screen width (nWidth)
+    Shrinks biggest columns down to either
+    1. Match the next smaller column
+    2. by 1 if there are equally sized columns to alternate between the two
+    3. By the amount the entire table is too wide if the column doesn't get too small
+    ]]
+    nWidth = nWidth - (#tWidths - 1) -- Spaces in between columns
+
+    local nSum = 0
+    -- Figure out the sum once; this well get adjusted accordingly later
+    -- and thus just needs to be done once
+    for _, v in pairs(tWidths) do
+        nSum = nSum + v
     end
 
-    local w, h = term.getSize()
-    local nMaxLen = w / 8
-    for n, t in ipairs(tAll) do
-        if type(t) == "table" then
-            for nu, sItem in pairs(t) do
-                if type(sItem) ~= "string" then
-                    error("bad argument #" .. n .. "." .. nu .. " (expected string, got " .. type(sItem) .. ")", 3)
-                end
-                nMaxLen = math.max(#sItem + 1, nMaxLen)
+    while nSum > nWidth do
+        -- Next smaller elements holds element <= nMaxElement
+        -- This way we can prevent big elements being shrunk into oblivion if they are
+        -- way too large but there are other big elements
+        -- Both are only indices to the table
+        local nMaxElement, nNextSmallerElement = 1
+
+        for nKey, nColumnWidth in pairs(tWidths) do
+            if nColumnWidth > tWidths[nMaxElement] then
+                nNextSmallerElement = nMaxElement
+                nMaxElement = nKey
+            elseif nColumnWidth <= tWidths[nMaxElement] and (not nNextSmallerElement or nColumnWidth > tWidths[nNextSmallerElement]) then
+                nNextSmallerElement = nKey
             end
         end
-    end
-    local nCols = math.floor(w / nMaxLen)
-    local nLines = 0
-    local function newLine()
-        if bPaged and nLines >= h - 3 then
-            pagedPrint()
+
+        -- At this point we _will_ have a max element, but _may_ only have a next smaller element
+        local nShrinkAmount
+        if nNextSmallerElement then
+            if tWidths[nMaxElement] ~= tWidths[nNextSmallerElement] then
+                nShrinkAmount = math.min(nSum - nWidth, tWidths[nMaxElement] - tWidths[nNextSmallerElement])
+            else
+                -- This will alternate between the two elements
+                nShrinkAmount = 1
+            end
         else
-            print()
+            -- This will only happen in a one element table where theres no
+            -- nNextSmallerElement <= nMaxElement
+            nShrinkAmount = nSum - nWidth
         end
-        nLines = nLines + 1
+
+        local nNewWidth = tWidths[nMaxElement] - nShrinkAmount
+        -- Either the column contained text and would shrink to zero width
+        -- or it would shrink below zero
+        if nNewWidth < 1 and tWidths[nMaxElement] > 0 or nNewWidth < 0 then
+            error("Unable to fit table on screen width, column " .. nMaxElement .. " would shrink too much!", 2)
+        end
+
+        tWidths[nMaxElement] = nNewWidth
+        nSum = nSum - nShrinkAmount -- Adjust the sum accordingly
+    end
+end
+
+local function chopUpColumns(tWidths, tInput)
+    --[[
+    This chops up all columns that would bee too wide to fit in the given space.
+    As this would be _very_ hard/messy to do whilst printing the table out,
+    it is done beforehand.
+    This will be done this way:
+    -> Columns that already fit will be left that way
+    -> Try to fit the maximum amount of words (non-space) on one line and wrap the rest into
+       the next line to be dealt with in next iteration
+       -> If word would still fit without whitespaces, those will be left out and the
+          rest wrapped
+       -> If word itself is longer than column width, it will get chopped up
+          and the rest of it wrapped into next line
+    ]]
+
+    local function insertNewLine(bInserted, tRows, nRow, nColumn, sText)
+        if not bInserted then
+            -- Only execute this the first time (upon creation of new line)
+            table.insert(tRows, nRow, { [nColumn] = sText })
+            return
+        end
+
+        tRows[nRow][nColumn] = sText
     end
 
-    local function drawCols(_t)
-        local nCol = 1
-        for _, s in ipairs(_t) do
-            if nCol > nCols then
-                nCol = 1
-                newLine()
+    for nRow, vElement in ipairs(tInput) do
+        if type(vElement) == "table" then
+            -- A new row shall only be inserted once. This is needed as we are
+            -- checking multiple columns that may each be too long
+            local bInsertedRow = false
+            local sCurrString = ""
+
+            for nCol, sVal in pairs(vElement) do
+                if #sVal > tWidths[nCol] then
+                    -- Now begin splitting up the string
+                    for sWord, sSpaces in sVal:gmatch("([^%s]+)(%s*)") do
+                        local nWordLen = #sWord
+
+                        if #sCurrString + nWordLen + #sSpaces <= tWidths[nCol] then
+                            -- This entire segment will still fit
+                            sCurrString = sCurrString .. sWord .. sSpaces
+                        elseif #sCurrString + nWordLen <= tWidths[nCol] then
+                            -- We can fit the word without the succeeding spaces
+                            -- fit the rest on a new line (spaces will be left out)
+                            sCurrString = sCurrString .. sWord
+
+                            tInput[nRow][nCol] = sCurrString
+
+                            -- Don't carry over the spaces (copy substring after word len + space len)
+                            insertNewLine(bInsertedRow, tInput, nRow + 1, nCol, sVal:sub(#sCurrString + #sSpaces + 1))
+                            bInsertedRow = true
+
+                            break
+                        else
+                            if nWordLen > tWidths[nCol] then
+                                -- Word needs to be split as it would not even fit on an empty column
+                                -- This is so we don't endlessly try to fit it on a new line
+                                sCurrString = sCurrString .. sWord:sub(1, tWidths[nCol] - #sCurrString)
+                            end
+
+                            tInput[nRow][nCol] = sCurrString
+                            insertNewLine(bInsertedRow, tInput, nRow + 1, nCol, sVal:sub(#sCurrString + 1))
+                            bInsertedRow = true
+
+                            break
+                        end
+                    end
+                end
+            end
+        end
+    end
+end
+
+local function tabulateCommon(bPaged, ...)
+    local tInput = table.pack(...)
+
+    -- Do some first input sanitizing
+    for i = 1, tInput.n do
+        expect(i, tInput[i], "number", "table") -- Either a color or column data
+    end
+
+    local tMaxColumnWidths = {}
+    local tCopy = {}
+
+    --[[
+    This loop serves multiple purposes:
+    1. Assure each row (table argument) only consists of string data
+    2. Find out the maximum width for every single column
+    3. Copy over the input to a new table, it will be mutated later
+    ]]
+    for nIndex, vElement in ipairs(tInput) do
+        if type(vElement) == "table" then -- Actual column data
+            tCopy[nIndex] = {}
+
+            for nColumn, sValue in pairs(vElement) do
+                if type(sValue) ~= "string" then
+                    error("Bad argument #" .. nIndex .. "." .. nColumn .. " (expected string, got " .. type(sValue) .. ")", 3)
+                end
+
+                tCopy[nIndex][nColumn] = sValue -- Copy over current column data
+                tMaxColumnWidths[nColumn] = math.max(tMaxColumnWidths[nColumn] or 0, #sValue)
+            end
+        else
+            -- Copy over color
+            tCopy[nIndex] = vElement
+        end
+    end
+
+    local nWidth, nHeight = term.getSize()
+    adjustColumnWidths(nWidth, tMaxColumnWidths)
+    chopUpColumns(tMaxColumnWidths, tCopy)
+
+    local _, yPos = term.getCursorPos()
+    local scroll = bPaged and makePagedScroll(term, yPos - 2) or term.scroll
+
+    for _, nRow in ipairs(tCopy) do
+        if type(nRow) == "table" then
+            local xPos = 1
+            for i = 1, #tMaxColumnWidths do
+                if nRow[i] then
+                    term.setCursorPos(xPos, yPos)
+                    term.write(nRow[i])
+                end
+
+                xPos = xPos + tMaxColumnWidths[i] + 1
             end
 
-            local cx, cy = term.getCursorPos()
-            cx = 1 + (nCol - 1) * nMaxLen
-            term.setCursorPos(cx, cy)
-            term.write(s)
+            yPos = yPos + 1
 
-            nCol = nCol + 1
-        end
-        print()
-    end
-    for _, t in ipairs(tAll) do
-        if type(t) == "table" then
-            if #t > 0 then
-                drawCols(t)
+            if yPos > nHeight then
+                scroll(1)
+                yPos = yPos - 1
             end
-        elseif type(t) == "number" then
-            term.setTextColor(t)
+        else
+            term.setTextColor(nRow)
         end
     end
+
+    -- Jump to next line so the cursor doesn't stay behind last written column
+    term.setCursorPos(1, yPos)
 end
 
 --- Prints tables in a structured form.
