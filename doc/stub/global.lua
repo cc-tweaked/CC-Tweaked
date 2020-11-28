@@ -30,10 +30,43 @@ nearest multiple of 0.05.
 ]]
 function sleep(time) end
 
+--- Writes a line of text to the screen without a newline at the end, wrapping
+-- text if necessary.
+--
+-- @tparam string text The text to write to the string
+-- @treturn number The number of lines written
+-- @see print A wrapper around write that adds a newline and accepts multiple arguments
 function write(text) end
+
+--- Prints the specified values to the screen separated by spaces, wrapping if
+-- necessary. After printing, the cursor is moved to the next line.
+--
+-- @tparam any ... The values to print on the screen
+-- @treturn number The number of lines written
 function print(...) end
+
+--- Prints the specified values to the screen in red, separated by spaces, 
+-- wrapping if necessary. After printing, the cursor is moved to the next line.
+--
+-- @tparam any ... The values to print on the screen
 function printError(...) end
 
+--[[- Reads user input from the terminal, automatically handling arrow keys,
+pasting, character replacement, history scrollback, auto-completion, and
+default values.
+
+@tparam[opt] string replaceChar A character to replace each typed character with.
+This can be used for hiding passwords, for example.
+@tparam[opt] table history A table holding history items that can be scrolled
+back to with the up/down arrow keys. The oldest item is at index 1, while the
+newest item is at the highest index.
+@tparam[opt] function(partial: string):({ string}|nil) completeFn A function to be
+used for completion. This function should take the partial text typed so far, and
+returns a list of possible completion options.
+@tparam[opt] string default The default value to return if no text is entered.
+@treturn string The text typed in, or if nothing was entered and a default value
+was specified, the default string.
+]]
 function read(replaceChar, history, completeFn, default) end
 
 --- The ComputerCraft and Minecraft version of the current computer environment.
