@@ -8,6 +8,8 @@ package dan200.computercraft.data;
 
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.Registry;
+import dan200.computercraft.shared.computer.blocks.BlockComputer;
+import dan200.computercraft.shared.computer.core.ComputerState;
 import dan200.computercraft.shared.peripheral.monitor.BlockMonitor;
 import dan200.computercraft.shared.peripheral.monitor.MonitorEdgeState;
 import net.minecraft.block.Block;
@@ -20,12 +22,14 @@ import javax.annotation.Nonnull;
 
 public class BlockModelProvider extends BlockStateProvider
 {
-    private final ModelFile root;
+    private final ModelFile monitorBase;
+    private final ModelFile orientable;
 
     public BlockModelProvider( DataGenerator generator, ExistingFileHelper existingFileHelper )
     {
         super( generator, ComputerCraft.MOD_ID, existingFileHelper );
-        root = models().getExistingFile( new ResourceLocation( ComputerCraft.MOD_ID, "block/monitor_base" ) );
+        monitorBase = models().getExistingFile( new ResourceLocation( ComputerCraft.MOD_ID, "block/monitor_base" ) );
+        orientable = models().getExistingFile( new ResourceLocation( "block/orientable" ) );
     }
 
     @Nonnull
@@ -40,9 +44,35 @@ public class BlockModelProvider extends BlockStateProvider
     {
         registerMonitors( Registry.ModBlocks.MONITOR_NORMAL.get() );
         registerMonitors( Registry.ModBlocks.MONITOR_ADVANCED.get() );
+
+        registerComputer( Registry.ModBlocks.COMPUTER_NORMAL.get() );
+        registerComputer( Registry.ModBlocks.COMPUTER_ADVANCED.get() );
+        registerComputer( Registry.ModBlocks.COMPUTER_COMMAND.get() );
     }
 
-    private void registerMonitors( Block block )
+    private void registerComputer( BlockComputer block )
+    {
+        VariantBlockStateBuilder builder = getVariantBuilder( block );
+        for( ComputerState state : BlockComputer.STATE.getAllowedValues() )
+        {
+            BlockModelBuilder model = models()
+                .getBuilder( suffix( block, "_" + state ) )
+                .parent( orientable )
+                .texture( "top", suffix( block, "_top" ) )
+                .texture( "side", suffix( block, "_side" ) )
+                .texture( "front", suffix( block, "_front" + toSuffix( state ) ) );
+
+            for( Direction facing : BlockComputer.FACING.getAllowedValues() )
+            {
+                builder.partialState()
+                    .with( BlockComputer.STATE, state )
+                    .with( BlockComputer.FACING, facing )
+                    .addModels( new ConfiguredModel( model, 0, toYAngle( facing ), false ) );
+            }
+        }
+    }
+
+    private void registerMonitors( BlockMonitor block )
     {
         String name = block.getRegistryName().getPath();
         registerMonitorModel( name, "", 16, 4, 0, 32 );
@@ -66,8 +96,7 @@ public class BlockModelProvider extends BlockStateProvider
         for( MonitorEdgeState edge : BlockMonitor.STATE.getAllowedValues() )
         {
             String suffix = edge == MonitorEdgeState.NONE ? "" : "_" + edge.getName();
-            ResourceLocation modelName = new ResourceLocation( ComputerCraft.MOD_ID, "block/" + name + suffix );
-            ModelFile model = models().getBuilder( modelName.toString() );
+            ModelFile model = models().getBuilder( suffix( block, suffix ) );
 
             for( Direction facing : BlockMonitor.FACING.getAllowedValues() )
             {
@@ -77,7 +106,7 @@ public class BlockModelProvider extends BlockStateProvider
                         .with( BlockMonitor.STATE, edge )
                         .with( BlockMonitor.FACING, facing )
                         .with( BlockMonitor.ORIENTATION, orientation )
-                        .addModels( new ConfiguredModel( model, toXAngle( orientation ), 180 - (int) facing.getHorizontalAngle(), false ) );
+                        .addModels( new ConfiguredModel( model, toXAngle( orientation ), toYAngle( facing ), false ) );
                 }
             }
         }
@@ -87,14 +116,14 @@ public class BlockModelProvider extends BlockStateProvider
     {
         String texturePrefix = ComputerCraft.MOD_ID + ":block/" + prefix + "_";
         models().getBuilder( prefix + corners )
-            .parent( root )
+            .parent( monitorBase )
             .texture( "front", texturePrefix + front )
             .texture( "side", texturePrefix + side )
             .texture( "top", texturePrefix + top )
             .texture( "back", texturePrefix + back );
     }
 
-    private int toXAngle( Direction direction )
+    private static int toXAngle( Direction direction )
     {
         switch( direction )
         {
@@ -105,5 +134,30 @@ public class BlockModelProvider extends BlockStateProvider
             case DOWN:
                 return 90;
         }
+    }
+
+    private static int toYAngle( Direction direction )
+    {
+        return ((int) direction.getHorizontalAngle() + 180) % 360;
+    }
+
+    private static String toSuffix( ComputerState state )
+    {
+        switch( state )
+        {
+            default:
+            case OFF:
+                return "";
+            case ON:
+                return "_on";
+            case BLINKING:
+                return "_blink";
+        }
+    }
+
+    private static String suffix( Block block, String suffix )
+    {
+        ResourceLocation id = block.getRegistryName();
+        return new ResourceLocation( id.getNamespace(), "block/" + id.getPath() + suffix ).toString();
     }
 }

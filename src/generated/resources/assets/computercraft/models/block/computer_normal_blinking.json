@@ -1,0 +1,8 @@
+{
+  "parent": "block/orientable",
+  "textures": {
+    "top": "computercraft:block/computer_normal_top",
+    "side": "computercraft:block/computer_normal_side",
+    "front": "computercraft:block/computer_normal_front_blink"
+  }
+}

@@ -12,12 +12,12 @@
     "facing=west,orientation=down,state=none": {
       "model": "computercraft:block/monitor_advanced",
       "x": 90,
-      "y": 90
+      "y": 270
     },
     "facing=east,orientation=down,state=none": {
       "model": "computercraft:block/monitor_advanced",
       "x": 90,
-      "y": -90
+      "y": 90
     },
     "facing=north,orientation=up,state=none": {
       "model": "computercraft:block/monitor_advanced",
@@ -31,12 +31,12 @@
     "facing=west,orientation=up,state=none": {
       "model": "computercraft:block/monitor_advanced",
       "x": 270,
-      "y": 90
+      "y": 270
     },
     "facing=east,orientation=up,state=none": {
       "model": "computercraft:block/monitor_advanced",
       "x": 270,
-      "y": -90
+      "y": 90
     },
     "facing=north,orientation=north,state=none": {
       "model": "computercraft:block/monitor_advanced"
@@ -47,11 +47,11 @@
     },
     "facing=west,orientation=north,state=none": {
       "model": "computercraft:block/monitor_advanced",
-      "y": 90
+      "y": 270
     },
     "facing=east,orientation=north,state=none": {
       "model": "computercraft:block/monitor_advanced",
-      "y": -90
+      "y": 90
     },
     "facing=north,orientation=down,state=l": {
       "model": "computercraft:block/monitor_advanced_l",
@@ -65,12 +65,12 @@
     "facing=west,orientation=down,state=l": {
       "model": "computercraft:block/monitor_advanced_l",
       "x": 90,
-      "y": 90
+      "y": 270
     },
     "facing=east,orientation=down,state=l": {
       "model": "computercraft:block/monitor_advanced_l",
       "x": 90,
-      "y": -90
+      "y": 90
     },
     "facing=north,orientation=up,state=l": {
       "model": "computercraft:block/monitor_advanced_l",
@@ -84,12 +84,12 @@
     "facing=west,orientation=up,state=l": {
       "model": "computercraft:block/monitor_advanced_l",
       "x": 270,
-      "y": 90
+      "y": 270
     },
     "facing=east,orientation=up,state=l": {
       "model": "computercraft:block/monitor_advanced_l",
       "x": 270,
-      "y": -90
+      "y": 90
     },
     "facing=north,orientation=north,state=l": {
       "model": "computercraft:block/monitor_advanced_l"
@@ -100,11 +100,11 @@
     },
     "facing=west,orientation=north,state=l": {
       "model": "computercraft:block/monitor_advanced_l",
-      "y": 90
+      "y": 270
     },
     "facing=east,orientation=north,state=l": {
       "model": "computercraft:block/monitor_advanced_l",
-      "y": -90
+      "y": 90
     },
     "facing=north,orientation=down,state=r": {
       "model": "computercraft:block/monitor_advanced_r",
@@ -118,12 +118,12 @@
     "facing=west,orientation=down,state=r": {
       "model": "computercraft:block/monitor_advanced_r",
       "x": 90,
-      "y": 90
+      "y": 270
     },
     "facing=east,orientation=down,state=r": {
       "model": "computercraft:block/monitor_advanced_r",
       "x": 90,
-      "y": -90
+      "y": 90
     },
     "facing=north,orientation=up,state=r": {
       "model": "computercraft:block/monitor_advanced_r",
@@ -137,12 +137,12 @@
     "facing=west,orientation=up,state=r": {
       "model": "computercraft:block/monitor_advanced_r",
       "x": 270,
-      "y": 90
+      "y": 270
     },
     "facing=east,orientation=up,state=r": {
       "model": "computercraft:block/monitor_advanced_r",
       "x": 270,
-      "y": -90
+      "y": 90
     },
     "facing=north,orientation=north,state=r": {
       "model": "computercraft:block/monitor_advanced_r"
@@ -153,11 +153,11 @@
     },
     "facing=west,orientation=north,state=r": {
       "model": "computercraft:block/monitor_advanced_r",
-      "y": 90
+      "y": 270
     },
     "facing=east,orientation=north,state=r": {
       "model": "computercraft:block/monitor_advanced_r",
-      "y": -90
+      "y": 90
     },
     "facing=north,orientation=down,state=lr": {
       "model": "computercraft:block/monitor_advanced_lr",
@@ -171,12 +171,12 @@
     "facing=west,orientation=down,state=lr": {
       "model": "computercraft:block/monitor_advanced_lr",
       "x": 90,
-      "y": 90
+      "y": 270
     },
     "facing=east,orientation=down,state=lr": {
       "model": "computercraft:block/monitor_advanced_lr",
       "x": 90,
-      "y": -90
+      "y": 90
     },
     "facing=north,orientation=up,state=lr": {
       "model": "computercraft:block/monitor_advanced_lr",
@@ -190,12 +190,12 @@
     "facing=west,orientation=up,state=lr": {
       "model": "computercraft:block/monitor_advanced_lr",
       "x": 270,
-      "y": 90
+      "y": 270
     },
     "facing=east,orientation=up,state=lr": {
       "model": "computercraft:block/monitor_advanced_lr",
       "x": 270,
-      "y": -90
+      "y": 90
     },
     "facing=north,orientation=north,state=lr": {
       "model": "computercraft:block/monitor_advanced_lr"
@@ -206,11 +206,11 @@
     },
     "facing=west,orientation=north,state=lr": {
       "model": "computercraft:block/monitor_advanced_lr",
-      "y": 90
+      "y": 270
     },
     "facing=east,orientation=north,state=lr": {
       "model": "computercraft:block/monitor_advanced_lr",
-      "y": -90
+      "y": 90
     },
     "facing=north,orientation=down,state=u": {
       "model": "computercraft:block/monitor_advanced_u",
@@ -224,12 +224,12 @@
     "facing=west,orientation=down,state=u": {
       "model": "computercraft:block/monitor_advanced_u",
       "x": 90,
-      "y": 90
+      "y": 270
     },
     "facing=east,orientation=down,state=u": {
       "model": "computercraft:block/monitor_advanced_u",
       "x": 90,
-      "y": -90
+      "y": 90
     },
     "facing=north,orientation=up,state=u": {
       "model": "computercraft:block/monitor_advanced_u",
@@ -243,12 +243,12 @@
     "facing=west,orientation=up,state=u": {
       "model": "computercraft:block/monitor_advanced_u",
       "x": 270,
-      "y": 90
+      "y": 270
     },
     "facing=east,orientation=up,state=u": {
       "model": "computercraft:block/monitor_advanced_u",
       "x": 270,
-      "y": -90
+      "y": 90
     },
     "facing=north,orientation=north,state=u": {
       "model": "computercraft:block/monitor_advanced_u"
@@ -259,11 +259,11 @@
     },
     "facing=west,orientation=north,state=u": {
       "model": "computercraft:block/monitor_advanced_u",
-      "y": 90
+      "y": 270
     },
     "facing=east,orientation=north,state=u": {
       "model": "computercraft:block/monitor_advanced_u",
-      "y": -90
+      "y": 90
     },
     "facing=north,orientation=down,state=d": {
       "model": "computercraft:block/monitor_advanced_d",
@@ -277,12 +277,12 @@
     "facing=west,orientation=down,state=d": {
       "model": "computercraft:block/monitor_advanced_d",
       "x": 90,
-      "y": 90
+      "y": 270
     },
     "facing=east,orientation=down,state=d": {
       "model": "computercraft:block/monitor_advanced_d",
       "x": 90,
-      "y": -90
+      "y": 90
     },
     "facing=north,orientation=up,state=d": {
       "model": "computercraft:block/monitor_advanced_d",
@@ -296,12 +296,12 @@
     "facing=west,orientation=up,state=d": {
       "model": "computercraft:block/monitor_advanced_d",
       "x": 270,
-      "y": 90
+      "y": 270
     },
     "facing=east,orientation=up,state=d": {
       "model": "computercraft:block/monitor_advanced_d",
       "x": 270,
-      "y": -90
+      "y": 90
     },
     "facing=north,orientation=north,state=d": {
       "model": "computercraft:block/monitor_advanced_d"
@@ -312,11 +312,11 @@
     },
     "facing=west,orientation=north,state=d": {
       "model": "computercraft:block/monitor_advanced_d",
-      "y": 90
+      "y": 270
     },
     "facing=east,orientation=north,state=d": {
       "model": "computercraft:block/monitor_advanced_d",
-      "y": -90
+      "y": 90
     },
     "facing=north,orientation=down,state=ud": {
       "model": "computercraft:block/monitor_advanced_ud",
@@ -330,12 +330,12 @@
     "facing=west,orientation=down,state=ud": {
       "model": "computercraft:block/monitor_advanced_ud",
       "x": 90,
-      "y": 90
+      "y": 270
     },
     "facing=east,orientation=down,state=ud": {
       "model": "computercraft:block/monitor_advanced_ud",
       "x": 90,
-      "y": -90
+      "y": 90
     },
     "facing=north,orientation=up,state=ud": {
       "model": "computercraft:block/monitor_advanced_ud",
@@ -349,12 +349,12 @@
     "facing=west,orientation=up,state=ud": {
       "model": "computercraft:block/monitor_advanced_ud",
       "x": 270,
-      "y": 90
+      "y": 270
     },
     "facing=east,orientation=up,state=ud": {
       "model": "computercraft:block/monitor_advanced_ud",
       "x": 270,
-      "y": -90
+      "y": 90
     },
     "facing=north,orientation=north,state=ud": {
       "model": "computercraft:block/monitor_advanced_ud"
@@ -365,11 +365,11 @@
     },
     "facing=west,orientation=north,state=ud": {
       "model": "computercraft:block/monitor_advanced_ud",
-      "y": 90
+      "y": 270
     },
     "facing=east,orientation=north,state=ud": {
       "model": "computercraft:block/monitor_advanced_ud",
-      "y": -90
+      "y": 90
     },
     "facing=north,orientation=down,state=rd": {
       "model": "computercraft:block/monitor_advanced_rd",
@@ -383,12 +383,12 @@
     "facing=west,orientation=down,state=rd": {
       "model": "computercraft:block/monitor_advanced_rd",
       "x": 90,
-      "y": 90
+      "y": 270
     },
     "facing=east,orientation=down,state=rd": {
       "model": "computercraft:block/monitor_advanced_rd",
       "x": 90,
-      "y": -90
+      "y": 90
     },
     "facing=north,orientation=up,state=rd": {
       "model": "computercraft:block/monitor_advanced_rd",
@@ -402,12 +402,12 @@
     "facing=west,orientation=up,state=rd": {
       "model": "computercraft:block/monitor_advanced_rd",
       "x": 270,
-      "y": 90
+      "y": 270
     },
     "facing=east,orientation=up,state=rd": {
       "model": "computercraft:block/monitor_advanced_rd",
       "x": 270,
-      "y": -90
+      "y": 90
     },
     "facing=north,orientation=north,state=rd": {
       "model": "computercraft:block/monitor_advanced_rd"
@@ -418,11 +418,11 @@
     },
     "facing=west,orientation=north,state=rd": {
       "model": "computercraft:block/monitor_advanced_rd",
-      "y": 90
+      "y": 270
     },
     "facing=east,orientation=north,state=rd": {
       "model": "computercraft:block/monitor_advanced_rd",
-      "y": -90
+      "y": 90
     },
     "facing=north,orientation=down,state=ld": {
       "model": "computercraft:block/monitor_advanced_ld",
@@ -436,12 +436,12 @@
     "facing=west,orientation=down,state=ld": {
       "model": "computercraft:block/monitor_advanced_ld",
       "x": 90,
-      "y": 90
+      "y": 270
     },
     "facing=east,orientation=down,state=ld": {
       "model": "computercraft:block/monitor_advanced_ld",
       "x": 90,
-      "y": -90
+      "y": 90
     },
     "facing=north,orientation=up,state=ld": {
       "model": "computercraft:block/monitor_advanced_ld",
@@ -455,12 +455,12 @@
     "facing=west,orientation=up,state=ld": {
       "model": "computercraft:block/monitor_advanced_ld",
       "x": 270,
-      "y": 90
+      "y": 270
     },
     "facing=east,orientation=up,state=ld": {
       "model": "computercraft:block/monitor_advanced_ld",
       "x": 270,
-      "y": -90
+      "y": 90
     },
     "facing=north,orientation=north,state=ld": {
       "model": "computercraft:block/monitor_advanced_ld"
@@ -471,11 +471,11 @@
     },
     "facing=west,orientation=north,state=ld": {
       "model": "computercraft:block/monitor_advanced_ld",
-      "y": 90
+      "y": 270
     },
     "facing=east,orientation=north,state=ld": {
       "model": "computercraft:block/monitor_advanced_ld",
-      "y": -90
+      "y": 90
     },
     "facing=north,orientation=down,state=ru": {
       "model": "computercraft:block/monitor_advanced_ru",
@@ -489,12 +489,12 @@
     "facing=west,orientation=down,state=ru": {
       "model": "computercraft:block/monitor_advanced_ru",
       "x": 90,
-      "y": 90
+      "y": 270
     },
     "facing=east,orientation=down,state=ru": {
       "model": "computercraft:block/monitor_advanced_ru",
       "x": 90,
-      "y": -90
+      "y": 90
     },
     "facing=north,orientation=up,state=ru": {
       "model": "computercraft:block/monitor_advanced_ru",
@@ -508,12 +508,12 @@
     "facing=west,orientation=up,state=ru": {
       "model": "computercraft:block/monitor_advanced_ru",
       "x": 270,
-      "y": 90
+      "y": 270
     },
     "facing=east,orientation=up,state=ru": {
       "model": "computercraft:block/monitor_advanced_ru",
       "x": 270,
-      "y": -90
+      "y": 90
     },
     "facing=north,orientation=north,state=ru": {
       "model": "computercraft:block/monitor_advanced_ru"
@@ -524,11 +524,11 @@
     },
     "facing=west,orientation=north,state=ru": {
       "model": "computercraft:block/monitor_advanced_ru",
-      "y": 90
+      "y": 270
     },
     "facing=east,orientation=north,state=ru": {
       "model": "computercraft:block/monitor_advanced_ru",
-      "y": -90
+      "y": 90
     },
     "facing=north,orientation=down,state=lu": {
       "model": "computercraft:block/monitor_advanced_lu",
@@ -542,12 +542,12 @@
     "facing=west,orientation=down,state=lu": {
       "model": "computercraft:block/monitor_advanced_lu",
       "x": 90,
-      "y": 90
+      "y": 270
     },
     "facing=east,orientation=down,state=lu": {
       "model": "computercraft:block/monitor_advanced_lu",
       "x": 90,
-      "y": -90
+      "y": 90
     },
     "facing=north,orientation=up,state=lu": {
       "model": "computercraft:block/monitor_advanced_lu",
@@ -561,12 +561,12 @@
     "facing=west,orientation=up,state=lu": {
       "model": "computercraft:block/monitor_advanced_lu",
       "x": 270,
-      "y": 90
+      "y": 270
     },
     "facing=east,orientation=up,state=lu": {
       "model": "computercraft:block/monitor_advanced_lu",
       "x": 270,
-      "y": -90
+      "y": 90
     },
     "facing=north,orientation=north,state=lu": {
       "model": "computercraft:block/monitor_advanced_lu"
@@ -577,11 +577,11 @@
     },
     "facing=west,orientation=north,state=lu": {
       "model": "computercraft:block/monitor_advanced_lu",
-      "y": 90
+      "y": 270
     },
     "facing=east,orientation=north,state=lu": {
       "model": "computercraft:block/monitor_advanced_lu",
-      "y": -90
+      "y": 90
     },
     "facing=north,orientation=down,state=lrd": {
       "model": "computercraft:block/monitor_advanced_lrd",
@@ -595,12 +595,12 @@
     "facing=west,orientation=down,state=lrd": {
       "model": "computercraft:block/monitor_advanced_lrd",
       "x": 90,
-      "y": 90
+      "y": 270
     },
     "facing=east,orientation=down,state=lrd": {
       "model": "computercraft:block/monitor_advanced_lrd",
       "x": 90,
-      "y": -90
+      "y": 90
     },
     "facing=north,orientation=up,state=lrd": {
       "model": "computercraft:block/monitor_advanced_lrd",
@@ -614,12 +614,12 @@
     "facing=west,orientation=up,state=lrd": {
       "model": "computercraft:block/monitor_advanced_lrd",
       "x": 270,
-      "y": 90
+      "y": 270
     },
     "facing=east,orientation=up,state=lrd": {
       "model": "computercraft:block/monitor_advanced_lrd",
       "x": 270,
-      "y": -90
+      "y": 90
     },
     "facing=north,orientation=north,state=lrd": {
       "model": "computercraft:block/monitor_advanced_lrd"
@@ -630,11 +630,11 @@
     },
     "facing=west,orientation=north,state=lrd": {
       "model": "computercraft:block/monitor_advanced_lrd",
-      "y": 90
+      "y": 270
     },
     "facing=east,orientation=north,state=lrd": {
       "model": "computercraft:block/monitor_advanced_lrd",
-      "y": -90
+      "y": 90
     },
     "facing=north,orientation=down,state=rud": {
       "model": "computercraft:block/monitor_advanced_rud",
@@ -648,12 +648,12 @@
     "facing=west,orientation=down,state=rud": {
       "model": "computercraft:block/monitor_advanced_rud",
       "x": 90,
-      "y": 90
+      "y": 270
     },
     "facing=east,orientation=down,state=rud": {
       "model": "computercraft:block/monitor_advanced_rud",
       "x": 90,
-      "y": -90
+      "y": 90
     },
     "facing=north,orientation=up,state=rud": {
       "model": "computercraft:block/monitor_advanced_rud",
@@ -667,12 +667,12 @@
     "facing=west,orientation=up,state=rud": {
       "model": "computercraft:block/monitor_advanced_rud",
       "x": 270,
-      "y": 90
+      "y": 270
     },
     "facing=east,orientation=up,state=rud": {
       "model": "computercraft:block/monitor_advanced_rud",
       "x": 270,
-      "y": -90
+      "y": 90
     },
     "facing=north,orientation=north,state=rud": {
       "model": "computercraft:block/monitor_advanced_rud"
@@ -683,11 +683,11 @@
     },
     "facing=west,orientation=north,state=rud": {
       "model": "computercraft:block/monitor_advanced_rud",
-      "y": 90
+      "y": 270
     },
     "facing=east,orientation=north,state=rud": {
       "model": "computercraft:block/monitor_advanced_rud",
-      "y": -90
+      "y": 90
     },
     "facing=north,orientation=down,state=lud": {
       "model": "computercraft:block/monitor_advanced_lud",
@@ -701,12 +701,12 @@
     "facing=west,orientation=down,state=lud": {
       "model": "computercraft:block/monitor_advanced_lud",
       "x": 90,
-      "y": 90
+      "y": 270
     },
     "facing=east,orientation=down,state=lud": {
       "model": "computercraft:block/monitor_advanced_lud",
       "x": 90,
-      "y": -90
+      "y": 90
     },
     "facing=north,orientation=up,state=lud": {
       "model": "computercraft:block/monitor_advanced_lud",
@@ -720,12 +720,12 @@
     "facing=west,orientation=up,state=lud": {
       "model": "computercraft:block/monitor_advanced_lud",
       "x": 270,
-      "y": 90
+      "y": 270
     },
     "facing=east,orientation=up,state=lud": {
       "model": "computercraft:block/monitor_advanced_lud",
       "x": 270,
-      "y": -90
+      "y": 90
     },
     "facing=north,orientation=north,state=lud": {
       "model": "computercraft:block/monitor_advanced_lud"
@@ -736,11 +736,11 @@
     },
     "facing=west,orientation=north,state=lud": {
       "model": "computercraft:block/monitor_advanced_lud",
-      "y": 90
+      "y": 270
     },
     "facing=east,orientation=north,state=lud": {
       "model": "computercraft:block/monitor_advanced_lud",
-      "y": -90
+      "y": 90
     },
     "facing=north,orientation=down,state=lru": {
       "model": "computercraft:block/monitor_advanced_lru",
@@ -754,12 +754,12 @@
     "facing=west,orientation=down,state=lru": {
       "model": "computercraft:block/monitor_advanced_lru",
       "x": 90,
-      "y": 90
+      "y": 270
     },
     "facing=east,orientation=down,state=lru": {
       "model": "computercraft:block/monitor_advanced_lru",
       "x": 90,
-      "y": -90
+      "y": 90
     },
     "facing=north,orientation=up,state=lru": {
       "model": "computercraft:block/monitor_advanced_lru",
@@ -773,12 +773,12 @@
     "facing=west,orientation=up,state=lru": {
       "model": "computercraft:block/monitor_advanced_lru",
       "x": 270,
-      "y": 90
+      "y": 270
     },
     "facing=east,orientation=up,state=lru": {
       "model": "computercraft:block/monitor_advanced_lru",
       "x": 270,
-      "y": -90
+      "y": 90
     },
     "facing=north,orientation=north,state=lru": {
       "model": "computercraft:block/monitor_advanced_lru"
@@ -789,11 +789,11 @@
     },
     "facing=west,orientation=north,state=lru": {
       "model": "computercraft:block/monitor_advanced_lru",
-      "y": 90
+      "y": 270
     },
     "facing=east,orientation=north,state=lru": {
       "model": "computercraft:block/monitor_advanced_lru",
-      "y": -90
+      "y": 90
     },
     "facing=north,orientation=down,state=lrud": {
       "model": "computercraft:block/monitor_advanced_lrud",
@@ -807,12 +807,12 @@
     "facing=west,orientation=down,state=lrud": {
       "model": "computercraft:block/monitor_advanced_lrud",
       "x": 90,
-      "y": 90
+      "y": 270
     },
     "facing=east,orientation=down,state=lrud": {
       "model": "computercraft:block/monitor_advanced_lrud",
       "x": 90,
-      "y": -90
+      "y": 90
     },
     "facing=north,orientation=up,state=lrud": {
       "model": "computercraft:block/monitor_advanced_lrud",
@@ -826,12 +826,12 @@
     "facing=west,orientation=up,state=lrud": {
       "model": "computercraft:block/monitor_advanced_lrud",
       "x": 270,
-      "y": 90
+      "y": 270
     },
     "facing=east,orientation=up,state=lrud": {
       "model": "computercraft:block/monitor_advanced_lrud",
       "x": 270,
-      "y": -90
+      "y": 90
     },
     "facing=north,orientation=north,state=lrud": {
       "model": "computercraft:block/monitor_advanced_lrud"
@@ -842,11 +842,11 @@
     },
     "facing=west,orientation=north,state=lrud": {
       "model": "computercraft:block/monitor_advanced_lrud",
-      "y": 90
+      "y": 270
     },
     "facing=east,orientation=north,state=lrud": {
       "model": "computercraft:block/monitor_advanced_lrud",
-      "y": -90
+      "y": 90
     }
   }
 }
