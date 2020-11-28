@@ -128,6 +128,10 @@ public class TurtleBrain implements ITurtleAccess
         {
             // Advance movement
             updateCommands();
+
+            // The block may have been broken while the command was executing (for instance, if a block explodes
+            // when being mined). If so, abort.
+            if( m_owner.isRemoved() ) return;
         }
 
         // Advance animation
