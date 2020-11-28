@@ -104,7 +104,7 @@ end
 --
 -- @tparam Doc|string ... The documents to concatenate.
 -- @treturn Doc The concatenated documents.
--- @usage <!-- -->
+-- @usage
 --     local pretty = require "cc.pretty"
 --     local doc1, doc2 = pretty.text("doc1"), pretty.text("doc2")
 --     print(pretty.concat(doc1, " - ", doc2))
@@ -141,7 +141,7 @@ Doc.__concat = concat --- @local
 -- @tparam number depth The number of spaces with which the document should be indented.
 -- @tparam Doc    doc   The document to indent.
 -- @treturn Doc The nested document.
--- @usage <!-- -->
+-- @usage
 --     local pretty = require "cc.pretty"
 --     print(pretty.nest(2, pretty.text("foo\nbar")))
 local function nest(depth, doc)
