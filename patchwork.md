@@ -343,7 +343,6 @@ Cleanup examples for the various modules
 ```
 
 Ignored Documentation Changes, these are locate
-```
 
 ```
 9a749642d294506095e697a3a4345dfe260bd68c
@@ -395,4 +394,10 @@ find any programs which would break. Fingers crossed.
 Try to handle a turtle being broken while ticked
 
 Hopefully fixes #585. Hopefully.
+```
+
+```
+511eea39a11956c82e2c11a47b2e7cad27f9887e
+
+Remove <!-- -->s in usages 
 ```
