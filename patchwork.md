@@ -401,3 +401,10 @@ Hopefully fixes #585. Hopefully.
 
 Remove <!-- -->s in usages 
 ```
+
+```
+826797cbd579e867f0f35f0be44b6a28c8c094a9
+
+Added documentation for global functions (#592)
+```
+Didn't port the docs over.
