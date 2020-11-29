@@ -501,7 +501,7 @@ public class TurtleAPI implements ILuaAPI
     }
 
     /**
-     * Get the currently sleected slot.
+     * Get the currently selected slot.
      *
      * @return The current slot.
      * @see #select
