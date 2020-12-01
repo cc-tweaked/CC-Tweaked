@@ -21,7 +21,7 @@ if file then
 
     local w, h = term.getSize()
     local oldterm = term.redirect(window.create(term.current(), 1, 1, w, h, false))
-    local len = print(sContents:gsub("[-*]", "\7"))
+    local len = print(sContents:gsub("(\n *)[-*]( +)", "%1\7%2"))
     term.redirect(oldterm)
     local win = window.create(term.current(), 1, 1, w, len)
     term.clear()
