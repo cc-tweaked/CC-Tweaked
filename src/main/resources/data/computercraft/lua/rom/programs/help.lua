@@ -34,7 +34,7 @@ if file then
     term.clear()
     oldterm = term.redirect(win)
     write(sContents:gsub("(\n *)[-*]( +)", "%1\7%2"))
-    oldterm.redraw()
+    infowin.redraw()
     local yPos = 1
     while true do
         local ev = { os.pullEvent() }
@@ -43,27 +43,27 @@ if file then
                 if ev[2] == keys.up and yPos < 1 then
                     yPos = yPos + 1
                     win.reposition(1, yPos)
-                    oldterm.redraw()
+                    infowin.redraw()
                 elseif ev[2] == keys.down and yPos > -len + h then
                     yPos = yPos - 1
                     win.reposition(1, yPos)
-                    oldterm.redraw()
+                    infowin.redraw()
                 elseif ev[2] == keys.pageUp and yPos < 1 then
                     yPos = math.min(yPos + h, 1)
                     win.reposition(1, yPos)
-                    oldterm.redraw()
+                    infowin.redraw()
                 elseif ev[2] == keys.pageDown and yPos > -len + h then
                     yPos = math.max(yPos - h, -len + h)
                     win.reposition(1, yPos)
-                    oldterm.redraw()
+                    infowin.redraw()
                 elseif ev[2] == keys.home then
                     yPos = 1
                     win.reposition(1, yPos)
-                    oldterm.redraw()
+                    infowin.redraw()
                 elseif ev[2] == keys["end"] then
                     yPos = -len + h
                     win.reposition(1, yPos)
-                    oldterm.redraw()
+                    infowin.redraw()
                 end
             end
             if ev[2] == keys.q then break end
@@ -71,11 +71,11 @@ if file then
             if ev[2] == -1 and yPos < 1 then
                 yPos = yPos + 1
                 win.reposition(1, yPos)
-                oldterm.redraw()
+                infowin.redraw()
             elseif ev[2] == 1 and yPos > -len + h then
                 yPos = yPos - 1
                 win.reposition(1, yPos)
-                oldterm.redraw()
+                infowin.redraw()
             end
         end
     end
