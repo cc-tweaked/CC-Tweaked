@@ -86,10 +86,10 @@ while true do
             offset = offset + 1
             draw()
         elseif param == keys.pageUp and offset > 0 then
-            offset = math.min(offset + height, 0)
+            offset = math.max(offset - height + 2, 0)
             draw()
         elseif param == keys.pageDown and offset < print_height - height then
-            offset = math.max(offset - height, print_height - height)
+            offset = math.min(offset + height - 2, print_height - height)
             draw()
         elseif param == keys.home then
             offset = 0
