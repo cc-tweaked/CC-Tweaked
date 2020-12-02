@@ -17,6 +17,7 @@ local sFile = help.lookup(sTopic)
 local file = sFile ~= nil and io.open(sFile) or nil
 if not file then
     printError("No help available")
+    return
 end
 
 local contents = file:read("*a"):gsub("(\n *)[-*]( +)", "%1\7%2")
