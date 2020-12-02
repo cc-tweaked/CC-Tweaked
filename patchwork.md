@@ -415,3 +415,10 @@ d83a68f3ff6e3833278a38798d06215293656e85
 Allow $private HTTP rule to block any private IP
 ```
 The config still uses a `blacklist` and `whitelist` array.
+
+```
+24d3777722812f975d2bc4594437fbbb0431d910
+
+Added improved help viewer (#595)
+```
+Didn't port the lua tests over.
