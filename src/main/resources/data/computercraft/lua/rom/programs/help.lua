@@ -21,12 +21,20 @@ if file then
 
     local w, h = term.getSize()
     local oldterm = term.redirect(window.create(term.current(), 1, 1, w, h, false))
-    local len = print(sContents:gsub("(\n *)[-*]( +)", "%1\7%2"))
+    local len = print(sContents)
     term.redirect(oldterm)
     local win = window.create(term.current(), 1, 1, w, len)
+    local infowin = window.create(term.current(), 1, h, w, 1)
+    if term.isColor() then infowin.setTextColor(colors.yellow)
+    else infowin.setTextColor(colors.lightGray) end
+    infowin.clear()
+    infowin.write("Help: " .. sTopic)
+    infowin.setCursorPos(w - 14, 1)
+    infowin.write("Press Q to exit")
     term.clear()
     oldterm = term.redirect(win)
-    write(sContents)
+    write(sContents:gsub("(\n *)[-*]( +)", "%1\7%2"))
+    oldterm.redraw()
     local yPos = 1
     while true do
         local ev = { os.pullEvent() }
@@ -35,21 +43,27 @@ if file then
                 if ev[2] == keys.up and yPos < 1 then
                     yPos = yPos + 1
                     win.reposition(1, yPos)
-                elseif ev[2] == keys.down and yPos > -len + h + 1 then
+                    oldterm.redraw()
+                elseif ev[2] == keys.down and yPos > -len + h then
                     yPos = yPos - 1
                     win.reposition(1, yPos)
+                    oldterm.redraw()
                 elseif ev[2] == keys.pageUp and yPos < 1 then
                     yPos = math.min(yPos + h, 1)
                     win.reposition(1, yPos)
-                elseif ev[2] == keys.pageDown and yPos > -len + h + 1 then
-                    yPos = math.max(yPos - h, -len + h + 1)
+                    oldterm.redraw()
+                elseif ev[2] == keys.pageDown and yPos > -len + h then
+                    yPos = math.max(yPos - h, -len + h)
                     win.reposition(1, yPos)
+                    oldterm.redraw()
                 elseif ev[2] == keys.home then
                     yPos = 1
                     win.reposition(1, yPos)
+                    oldterm.redraw()
                 elseif ev[2] == keys["end"] then
-                    yPos = -len + h + 1
+                    yPos = -len + h
                     win.reposition(1, yPos)
+                    oldterm.redraw()
                 end
             end
             if ev[2] == keys.q then break end
@@ -57,9 +71,11 @@ if file then
             if ev[2] == -1 and yPos < 1 then
                 yPos = yPos + 1
                 win.reposition(1, yPos)
-            elseif ev[2] == 1 and yPos > -len + h + 1 then
+                oldterm.redraw()
+            elseif ev[2] == 1 and yPos > -len + h then
                 yPos = yPos - 1
                 win.reposition(1, yPos)
+                oldterm.redraw()
             end
         end
     end
