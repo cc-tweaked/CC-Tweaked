@@ -103,10 +103,10 @@ while true do
         end
     elseif event == "mouse_scroll" then
         if param < 0 and offset > 0 then
-            offset = offset + 1
+            offset = offset - 1
             draw()
         elseif param > 0 and offset < print_height - height then
-            offset = offset - 1
+            offset = offset + 1
             draw()
         end
     elseif event == "term_resize" then
