@@ -39,7 +39,7 @@ if file then
     while true do
         local ev = { os.pullEvent() }
         if ev[1] == "key" then
-            if len > h then
+            if len > h - 1 then
                 if ev[2] == keys.up and yPos < 1 then
                     yPos = yPos + 1
                     win.reposition(1, yPos)
@@ -67,7 +67,7 @@ if file then
                 end
             end
             if ev[2] == keys.q then break end
-       elseif ev[1] == "mouse_scroll" and len > h then
+       elseif ev[1] == "mouse_scroll" and len > h - 1 then
             if ev[2] == -1 and yPos < 1 then
                 yPos = yPos + 1
                 win.reposition(1, yPos)
