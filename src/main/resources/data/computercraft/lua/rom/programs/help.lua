@@ -67,7 +67,7 @@ local function draw_menu()
     local tag = "Help: " .. sTopic
     term.write("Help: " .. sTopic)
 
-    if width >= #tag + 15 then
+    if width >= #tag + 16 then
         term.setCursorPos(width - 14, height)
         term.write("Press Q to exit")
     end
