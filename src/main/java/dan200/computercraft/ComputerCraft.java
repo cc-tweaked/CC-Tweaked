@@ -22,29 +22,16 @@ import net.minecraftforge.fml.common.Mod;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Mod( ComputerCraft.MOD_ID )
 public final class ComputerCraft
 {
     public static final String MOD_ID = "computercraft";
-
-    // Configuration options
-    public static final String[] DEFAULT_HTTP_ALLOW = new String[] { "*" };
-    public static final String[] DEFAULT_HTTP_DENY = new String[] {
-        "127.0.0.0/8",
-        "0.0.0.0/8",
-        "10.0.0.0/8",
-        "172.16.0.0/12",
-        "192.168.0.0/16",
-        "fd00::/8",
-    };
 
     public static int computerSpaceLimit = 1000 * 1000;
     public static int floppySpaceLimit = 125 * 1000;
@@ -61,14 +48,10 @@ public final class ComputerCraft
 
     public static boolean httpEnabled = true;
     public static boolean httpWebsocketEnabled = true;
-    public static List<AddressRule> httpRules = Collections.unmodifiableList( Stream.concat(
-        Stream.of( DEFAULT_HTTP_DENY )
-            .map( x -> AddressRule.parse( x, null, Action.DENY.toPartial() ) )
-            .filter( Objects::nonNull ),
-        Stream.of( DEFAULT_HTTP_ALLOW )
-            .map( x -> AddressRule.parse( x, null, Action.ALLOW.toPartial() ) )
-            .filter( Objects::nonNull )
-    ).collect( Collectors.toList() ) );
+    public static List<AddressRule> httpRules = Collections.unmodifiableList( Arrays.asList(
+        AddressRule.parse( "$private", null, Action.DENY.toPartial() ),
+        AddressRule.parse( "*", null, Action.ALLOW.toPartial() )
+    ) );
 
     public static int httpMaxRequests = 16;
     public static int httpMaxWebsockets = 4;
