@@ -442,3 +442,10 @@ bb8f4c624bf87169b73fb631d8250cfc38181e15
 Some sanity checks for get{Direction,Orientation}
 ```
 Use `getCachedState` instead of forge's `getBlockState` and `contains` instead of `has`.
+
+```
+05c3c8ad3269c9025757f9261e7f609889fb6bdc
+
+Generate docs for generic peripherals
+```
+Skipped everything except some removed whitespace.
