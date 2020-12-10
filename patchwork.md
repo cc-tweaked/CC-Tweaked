@@ -435,3 +435,10 @@ ea3a16036794357c3a44edffc90fdb652e03881e
 
 Remove a couple of todos
 ```
+
+```
+bb8f4c624bf87169b73fb631d8250cfc38181e15
+
+Some sanity checks for get{Direction,Orientation}
+```
+Use `getCachedState` instead of forge's `getBlockState` and `contains` instead of `has`.
