@@ -429,3 +429,9 @@ Didn't port the lua tests over.
 Don't use capabilities for generic peripherals 
 ```
 Not ported, related to forges capability system which is not used in the port.
+
+```
+ea3a16036794357c3a44edffc90fdb652e03881e
+
+Remove a couple of todos
+```
