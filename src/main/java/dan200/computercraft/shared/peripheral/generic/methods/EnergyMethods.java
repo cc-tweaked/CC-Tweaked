@@ -15,6 +15,11 @@ import net.minecraftforge.versions.forge.ForgeVersion;
 
 import javax.annotation.Nonnull;
 
+/**
+ * Methods for interacting with blocks using Forge's energy storage system.
+ *
+ * @cc.module energy_storage
+ */
 @AutoService( GenericSource.class )
 public class EnergyMethods implements GenericSource
 {

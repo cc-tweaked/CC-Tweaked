@@ -19,7 +19,8 @@
   (source-link https://github.com/SquidDev-CC/CC-Tweaked/blob/${commit}/${path}#L${line})
 
   (module-kinds
-    (peripheral Peripherals))
+    (peripheral Peripherals)
+    (generic_peripheral "Generic Peripherals"))
 
   (library-path
     /doc/stub/
@@ -91,6 +92,10 @@
    /build/docs/luaJavadoc/drive.lua
    /build/docs/luaJavadoc/speaker.lua
    /build/docs/luaJavadoc/printer.lua
+   ; Generic peripherals
+   /build/docs/luaJavadoc/energy_storage.lua
+   /build/docs/luaJavadoc/fluid_storage.lua
+   /build/docs/luaJavadoc/inventory.lua
    ; Lua APIs
    /src/main/resources/*/computercraft/lua/rom/apis/io.lua
    /src/main/resources/*/computercraft/lua/rom/apis/window.lua)
