@@ -50,6 +50,7 @@ public class InventoryMethods implements GenericSource
     /**
      * Get the size of this inventory.
      *
+     * @param inventory The current inventory.
      * @return The number of slots in this inventory.
      */
     @LuaFunction( mainThread = true )
@@ -68,6 +69,7 @@ public class InventoryMethods implements GenericSource
      * The table is sparse, and so empty slots will be `nil` - it is recommended to loop over using `pairs` rather than
      * `ipairs`.
      *
+     * @param inventory The current inventory.
      * @return All items in this inventory.
      * @cc.treturn { (table|nil)... } All items in this inventory.
      */
@@ -88,6 +90,7 @@ public class InventoryMethods implements GenericSource
     /**
      * Get detailed information about an item.
      *
+     * @param inventory The current inventory.
      * @param slot The slot to get information about.
      * @return Information about the item in this slot, or {@code nil} if not present.
      * @throws LuaException If the slot is out of range.
@@ -109,6 +112,8 @@ public class InventoryMethods implements GenericSource
      * This allows you to push an item in an inventory to another inventory <em>on the same wired network</em>. Both
      * inventories must attached to wired modems which are connected via a cable.
      *
+     * @param from Inventory to move items from.
+     * @param computer The current computer.
      * @param toName The name of the peripheral/inventory to push to. This is the string given to @{peripheral.wrap},
      * and displayed by the wired modem.
      * @param fromSlot The slot in the current inventory to move items to.
@@ -155,6 +160,8 @@ public class InventoryMethods implements GenericSource
      * This allows you to transfer items between inventories <em>on the same wired network</em>. Both this and the source
      * inventory must attached to wired modems which are connected via a cable.
      *
+     * @param to Inventory to move items to.
+     * @param computer The current computer.
      * @param fromName The name of the peripheral/inventory to pull from. This is the string given to @{peripheral.wrap},
      * and displayed by the wired modem.
      * @param fromSlot The slot in the source inventory to move items from.

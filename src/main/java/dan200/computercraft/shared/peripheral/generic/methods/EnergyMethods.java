@@ -40,6 +40,7 @@ public class EnergyMethods implements GenericSource
     /**
      * Get the energy of this block.
      *
+     * @param energy The current energy storage.
      * @return The energy stored in this block, in FE.
      */
     @LuaFunction( mainThread = true )
@@ -51,6 +52,7 @@ public class EnergyMethods implements GenericSource
     /**
      * Get the maximum amount of energy this block can store.
      *
+     * @param energy The current energy storage.
      * @return The energy capacity of this block.
      */
     @LuaFunction( mainThread = true )
