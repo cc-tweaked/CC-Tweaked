@@ -18,6 +18,13 @@ import javax.annotation.Nonnull;
 /**
  * Methods for interacting with blocks using Forge's energy storage system.
  *
+ * This works with energy storage blocks, as well as generators and machines which consume energy.
+ *
+ * <blockquote>
+ * <strong>Note:</strong> Due to limitations with Forge's energy API, it is not possible to measure throughput (i.e. RF
+ * used/generated per tick).
+ * </blockquote>
+ *
  * @cc.module energy_storage
  */
 @AutoService( GenericSource.class )
@@ -30,12 +37,22 @@ public class EnergyMethods implements GenericSource
         return new ResourceLocation( ForgeVersion.MOD_ID, "energy" );
     }
 
+    /**
+     * Get the energy of this block.
+     *
+     * @return The energy stored in this block, in FE.
+     */
     @LuaFunction( mainThread = true )
     public static int getEnergy( IEnergyStorage energy )
     {
         return energy.getEnergyStored();
     }
 
+    /**
+     * Get the maximum amount of energy this block can store.
+     *
+     * @return The energy capacity of this block.
+     */
     @LuaFunction( mainThread = true )
     public static int getEnergyCapacity( IEnergyStorage energy )
     {

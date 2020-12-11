@@ -93,9 +93,7 @@
    /build/docs/luaJavadoc/speaker.lua
    /build/docs/luaJavadoc/printer.lua
    ; Generic peripherals
-   /build/docs/luaJavadoc/energy_storage.lua
    /build/docs/luaJavadoc/fluid_storage.lua
-   /build/docs/luaJavadoc/inventory.lua
    ; Lua APIs
    /src/main/resources/*/computercraft/lua/rom/apis/io.lua
    /src/main/resources/*/computercraft/lua/rom/apis/window.lua)
