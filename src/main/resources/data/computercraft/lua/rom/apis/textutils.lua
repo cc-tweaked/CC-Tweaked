@@ -823,6 +823,17 @@ function complete(sSearchText, tSearchTable)
     return tResults
 end
 
+--- Converts a long string into a table of strings of fixed length.
+--
+-- It attemps to split on whitespace and converts \n into the next table entry.
+--
+-- @tparam string text The string to wrap.
+--
+-- @tparam[opt] number width The width to contrain to, defualts to the width of
+-- the terminal.
+--
+-- @treturn { string... } The wrapped input string.
+-- @usage textutils.wrap( "long string", 5 )
 function wrap(text, width)
     expect(1, text, "string")
     expect(2, width, "number", "nil")
