@@ -17,10 +17,7 @@ import dan200.computercraft.shared.peripheral.monitor.MonitorRenderer;
 import dan200.computercraft.shared.peripheral.monitor.TileMonitor;
 import dan200.computercraft.shared.util.Colour;
 import dan200.computercraft.shared.util.DirectionUtil;
-import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.GLAllocation;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.tileentity.TileEntityRenderer;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
@@ -146,6 +143,10 @@ public class TileEntityMonitorRenderer extends TileEntityRenderer<TileMonitor>
             (float) -TileMonitor.RENDER_MARGIN, (float) TileMonitor.RENDER_MARGIN,
             (float) (xSize + 2 * TileMonitor.RENDER_MARGIN), (float) -(ySize + TileMonitor.RENDER_MARGIN * 2)
         );
+
+        // Force a flush of the blocker. WorldRenderer.updateCameraAndRender will "finish" all the built-in
+        // buffers before calling renderer.finish, which means the blocker isn't actually rendered at that point!
+        renderer.getBuffer( RenderType.getSolid() );
 
         transform.pop();
     }
