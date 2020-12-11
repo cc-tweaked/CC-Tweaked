@@ -106,10 +106,10 @@ dependencies {
 
     minecraft "net.minecraftforge:forge:${mc_version}-${forge_version}"
 
-    compileOnly fg.deobf("mezz.jei:jei-1.16.3:7.6.0.49:api")
-    compileOnly fg.deobf("com.blamejared.crafttweaker:CraftTweaker-1.16.3:7.0.0.48")
+    compileOnly fg.deobf("mezz.jei:jei-1.16.4:7.6.0.58:api")
+    compileOnly fg.deobf("com.blamejared.crafttweaker:CraftTweaker-1.16.4:7.0.0.63")
 
-    runtimeOnly fg.deobf("mezz.jei:jei-1.16.3:7.6.0.49")
+    runtimeOnly fg.deobf("mezz.jei:jei-1.16.4:7.6.0.58")
 
     compileOnly 'com.google.auto.service:auto-service:1.0-rc7'
     annotationProcessor 'com.google.auto.service:auto-service:1.0-rc7'
