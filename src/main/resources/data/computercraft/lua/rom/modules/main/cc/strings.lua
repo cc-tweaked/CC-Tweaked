@@ -14,7 +14,7 @@ local expect = require "cc.expect".expect
 -- the terminal.
 --
 -- @treturn { string... } The wrapped input string.
--- @usage strings.wrap( "long string", 5 )
+-- @usage strings.wrap("This is a long piece of text", 10)
 local function wrap(text, width)
     expect(1, text, "string")
     expect(2, width, "number", "nil")
