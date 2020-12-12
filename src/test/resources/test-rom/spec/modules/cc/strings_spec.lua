@@ -1,5 +1,3 @@
-local with_window = require "test_helpers".with_window
-
 describe("cc.pretty", function()
     local str = require("cc.strings")
 

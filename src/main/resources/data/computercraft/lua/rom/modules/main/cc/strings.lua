@@ -1,8 +1,7 @@
 --- Varous string utilities that might go into textutils if we weren't avoiding
 -- globals.
 
-local expect = require "cc.expect"
-local expect, field = expect.expect, expect.field
+local expect = require "cc.expect".expect
 
 --- Converts a long string into a table of strings of length shorter than a
 -- given width.
