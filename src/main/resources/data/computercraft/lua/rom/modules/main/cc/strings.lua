@@ -10,7 +10,7 @@ local expect = require "cc.expect".expect
 --
 -- @tparam string text The string to wrap.
 --
--- @tparam[opt] number width The width to contrain to, defaults to the width of
+-- @tparam[opt] number width The width to constrain to, defaults to the width of
 -- the terminal.
 --
 -- @treturn { string... } The wrapped input string.
