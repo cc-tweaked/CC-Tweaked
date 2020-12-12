@@ -65,6 +65,12 @@ local function wrap(text, width)
 
     push_line()
 
+    -- trim trailing white space
+    for k, line in pairs(lines) do
+        line = line:sub(1, width)
+        lines[k] = line
+    end
+
     return lines
 end
 
