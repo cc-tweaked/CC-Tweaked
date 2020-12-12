@@ -189,26 +189,4 @@ describe("The textutils library", function()
             expect.error(textutils.complete, "", false):eq("bad argument #2 (expected table, got boolean)")
         end)
     end)
-
-    describe("textutils.wrap", function()
-        it("validates arguments", function()
-            textutils.wrap("test string is long")
-            textutils.wrap("test string is long", 11)
-            expect.error(textutils.wrap, nil):eq("bad argument #1 (expected string, got nil)")
-            expect.error(textutils.wrap, "", false):eq("bad argument #2 (expected number, got boolean)")
-        end)
-
-        it("wraps lines", function()
-            expect(textutils.wrap("test string is long")[1]):eq("test string is long                                                           ")
-
-            expect(textutils.wrap("test string is long", 15)[1]):eq("test string is ")
-            expect(textutils.wrap("test string is long", 15)[2]):eq("long           ")
-
-            expect(textutils.wrap("test string is long", 12)[1]):eq("test string ")
-            expect(textutils.wrap("test string is long", 12)[2]):eq("is long     ")
-
-            expect(textutils.wrap("test string is long", 11)[1]):eq("test string")
-            expect(textutils.wrap("test string is long", 11)[2]):eq("is long    ")
-        end)
-    end)
 end)

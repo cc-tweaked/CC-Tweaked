@@ -456,65 +456,6 @@ local function pretty(obj, options)
     return pretty_impl(obj, actual_options, {})
 end
 
---- Converts a long string into a table of strings of fixed length.
---
--- It attemps to split on whitespace and converts \n into the next table entry.
---
--- @tparam string text The string to wrap.
---
--- @tparam[opt] number width The width to contrain to, defualts to the width of
--- the terminal.
---
--- @treturn { string... } The wrapped input string.
--- @usage pretty.wrap( "long string", 5 )
-local function wrap(text, width)
-    expect(1, text, "string")
-    expect(2, width, "number", "nil")
-    width = width or term.getSize()
-
-
-    local lines, lines_n, current_line = {}, 0, ""
-    local function push_line()
-        lines_n = lines_n + 1
-        lines[lines_n] = current_line
-        current_line = ""
-    end
-
-    local pos, length = 1, #text
-    local sub, match = string.sub, string.match
-    while pos <= length do
-        local head = sub(text, pos, pos)
-        if head == " " or head == "\t" then
-            local whitespace = match(text, "^[ \t]+", pos)
-            current_line = current_line .. whitespace
-            pos = pos + #whitespace
-        elseif head == "\n" then
-            push_line()
-            pos = pos + 1
-        else
-            local word = match(text, "^[^ \t\n]+", pos)
-            pos = pos + #word
-            if #word > width then
-                -- Print a multiline word
-                while #word > 0 do
-                    local space_remaining = width - #current_line - 1
-                    if space_remaining <= 0 then
-                        push_line()
-                        space_remaining = width
-                    end
-
-                    current_line = current_line .. sub(word, 1, space_remaining)
-                    word = sub(word, space_remaining + 1)
-                end
-            else
-                -- Print a word normally
-                if width - #current_line < #word then push_line() end
-                current_line = current_line .. word
-            end
-        end
-    end
-end
-
 return {
     empty = empty,
     space = space,
@@ -530,6 +471,4 @@ return {
     render = render,
 
     pretty = pretty,
-
-    wrap = wrap,
 }

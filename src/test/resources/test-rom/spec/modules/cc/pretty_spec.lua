@@ -218,26 +218,4 @@ describe("cc.pretty", function()
             end)
         end)
     end)
-
-    describe("wrap", function()
-        it("validates arguments", function()
-            pp.wrap("test string is long")
-            pp.wrap("test string is long", 11)
-            expect.error(pp.wrap, nil):eq("bad argument #1 (expected string, got nil)")
-            expect.error(pp.wrap, "", false):eq("bad argument #2 (expected number, got boolean)")
-        end)
-
-        it("wraps lines", function()
-            expect(pp.wrap("test string is long")[1]):eq("test string is long                                                           ")
-
-            expect(pp.wrap("test string is long", 15)[1]):eq("test string is ")
-            expect(pp.wrap("test string is long", 15)[2]):eq("long           ")
-
-            expect(pp.wrap("test string is long", 12)[1]):eq("test string ")
-            expect(pp.wrap("test string is long", 12)[2]):eq("is long     ")
-
-            expect(pp.wrap("test string is long", 11)[1]):eq("test string")
-            expect(pp.wrap("test string is long", 11)[2]):eq("is long    ")
-        end)
-    end)
 end)
