@@ -3,10 +3,11 @@
 
 local expect = require "cc.expect".expect
 
---- Converts a long string into a table of strings of length shorter than a
--- given width.
+--- Wraps a block of text, so that each line fits within the given width.
 --
--- It attemps to split on whitespace and converts \n into the next table entry.
+-- Converts a long string into a table of strings of length shorter than the
+-- given width. Attemps to split on whitespace and converts \n into the next
+-- table entry.
 --
 -- @tparam string text The string to wrap.
 --
