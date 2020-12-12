@@ -338,8 +338,8 @@ function read(_sReplaceChar, _tHistory, _fnComplete, _sDefault)
             redraw()
 
         elseif sEvent == "key" then
-            if param == keys.enter then
-                -- Enter
+            if param == keys.enter or param == keys.numPadEnter then
+                -- Enter/Numpad Enter
                 if nCompletion then
                     clear()
                     uncomplete()
