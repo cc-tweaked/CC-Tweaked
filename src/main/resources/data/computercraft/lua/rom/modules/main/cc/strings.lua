@@ -85,7 +85,7 @@ end
 --
 -- @treturn { string... } The wrapped input string.
 -- @usage strings.normalise( "long string", 5 )
--- @usage strings.normalize( "long string", 5 )
+-- @usage strings.fix_width( "this is a very long string" )
 local function normalise(line, width)
     expect(1, line, "string")
     expect(2, width, "number", "nil")
@@ -103,4 +103,5 @@ return {
     wrap = wrap,
     normalise = normalise,
     normalize = normalise,
+    fix_width = normalise,
 }
