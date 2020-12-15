@@ -127,7 +127,7 @@ public class InventoryMethods implements GenericSource
      * @cc.usage Wrap two chests, and push an item from one to another.
      * <pre>{@code
      * local chest_a = peripheral.wrap("minecraft:chest_0")
-     * local chest_b = peripheral.wrap("minecraft:chest_0")
+     * local chest_b = peripheral.wrap("minecraft:chest_1")
      *
      * chest_a.pushItems(peripheral.getName(chest_b), 1)
      * }</pre>
@@ -175,7 +175,7 @@ public class InventoryMethods implements GenericSource
      * @cc.usage Wrap two chests, and push an item from one to another.
      * <pre>{@code
      * local chest_a = peripheral.wrap("minecraft:chest_0")
-     * local chest_b = peripheral.wrap("minecraft:chest_0")
+     * local chest_b = peripheral.wrap("minecraft:chest_1")
      *
      * chest_a.pullItems(peripheral.getName(chest_b), 1)
      * }</pre>
