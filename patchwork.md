@@ -465,12 +465,14 @@ both skipped because the changes where already ported.
 
 ```
 4ae370b9dbaf1de0ed32a5f32340b1448136c9cc
+
 Merge pull request #606 from TheWireLord/numpadenter-support
 ```
 Just lua changes.
 
 ```
 f5eb6ce03e0d9bbbf77130452afd4b49e758f7bd
+
 Fix copy-paste error in inventory docs
 ```
 Skipped because it was already ported.
@@ -482,17 +484,20 @@ Fix double URL decode
 
 ```
 abf425dfb5553483cdc51c50a6b7d8b5e44814f4
+
 Fix overflow in os.epoch
 ```
 
 ```
 e3a672099c1b5d2c06f9fe4d8ccd024fef0873a2
+
 Fix JEI integration with turtle/pocket upgrades
 ```
 Skipped because there seems to be no REI integration.
 
 ```
 2f0cae0bc1b038ac092bafa7f65a317537203cd8
+
 Make upgrade recipe requirements a little more lax
 ```
 Crafting is still messed up, but this port didn't change the behavior.
