@@ -6,6 +6,7 @@
 package dan200.computercraft.shared.integration.jei;
 
 import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.api.IUpgradeBase;
 import dan200.computercraft.api.pocket.IPocketUpgrade;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
@@ -16,7 +17,6 @@ import dan200.computercraft.shared.pocket.items.ItemPocketComputer;
 import dan200.computercraft.shared.pocket.items.PocketComputerItemFactory;
 import dan200.computercraft.shared.turtle.items.ITurtleItem;
 import dan200.computercraft.shared.turtle.items.TurtleItemFactory;
-import dan200.computercraft.shared.util.InventoryUtil;
 import mezz.jei.api.constants.VanillaRecipeCategoryUid;
 import mezz.jei.api.recipe.IFocus;
 import mezz.jei.api.recipe.advanced.IRecipeManagerPlugin;
@@ -83,7 +83,10 @@ class RecipeResolver implements IRecipeManagerPlugin
         for( UpgradeInfo upgrade : upgrades )
         {
             ItemStack craftingStack = upgrade.stack;
-            if( !craftingStack.isEmpty() && InventoryUtil.areItemsSimilar( stack, craftingStack ) ) return true;
+            if( !craftingStack.isEmpty() && craftingStack.getItem() == stack.getItem() && upgrade.upgrade.isItemSuitable( stack ) )
+            {
+                return true;
+            }
         }
 
         return false;
@@ -194,11 +197,10 @@ class RecipeResolver implements IRecipeManagerPlugin
 
             List<Shaped> recipes = null;
             boolean multiple = false;
-            Ingredient ingredient = fromStacks( stack );
             for( UpgradeInfo upgrade : upgrades )
             {
                 ItemStack craftingStack = upgrade.stack;
-                if( craftingStack.isEmpty() || !InventoryUtil.areItemsSimilar( stack, craftingStack ) )
+                if( !craftingStack.isEmpty() && craftingStack.getItem() == stack.getItem() && upgrade.upgrade.isItemSuitable( stack ) )
                 {
                     continue;
                 }
@@ -332,42 +334,29 @@ class RecipeResolver implements IRecipeManagerPlugin
         }
     }
 
-    private static final class Upgrade<T>
-    {
-        final T upgrade;
-        final ItemStack stack;
-        final Ingredient ingredient;
-
-        private Upgrade( T upgrade, ItemStack stack )
-        {
-            this.upgrade = upgrade;
-            this.stack = stack;
-            ingredient = fromStacks( stack );
-        }
-    }
-
     private static class UpgradeInfo
     {
         final ItemStack stack;
         final Ingredient ingredient;
         final ITurtleUpgrade turtle;
         final IPocketUpgrade pocket;
+        final IUpgradeBase upgrade;
         ArrayList<Shaped> recipes;
 
         UpgradeInfo( ItemStack stack, ITurtleUpgrade turtle )
         {
             this.stack = stack;
-            ingredient = fromStacks( stack );
-            this.turtle = turtle;
-            pocket = null;
+            this.ingredient = fromStacks( stack );
+            this.upgrade = this.turtle = turtle;
+            this.pocket = null;
         }
 
         UpgradeInfo( ItemStack stack, IPocketUpgrade pocket )
         {
             this.stack = stack;
-            ingredient = fromStacks( stack );
-            turtle = null;
-            this.pocket = pocket;
+            this.ingredient = fromStacks( stack );
+            this.turtle = null;
+            this.upgrade = this.pocket = pocket;
         }
 
         List<Shaped> getRecipes()

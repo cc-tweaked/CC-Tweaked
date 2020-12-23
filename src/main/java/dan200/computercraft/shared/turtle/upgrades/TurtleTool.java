@@ -28,6 +28,7 @@ import net.minecraft.entity.item.ArmorStandEntity;
 import net.minecraft.fluid.IFluidState;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.Direction;
@@ -38,6 +39,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.event.entity.player.AttackEntityEvent;
 import net.minecraftforge.event.world.BlockEvent;
 import org.apache.commons.lang3.tuple.Pair;
@@ -66,6 +68,24 @@ public class TurtleTool extends AbstractTurtleUpgrade
     {
         super( id, TurtleUpgradeType.TOOL, craftItem );
         this.item = toolItem;
+    }
+
+    @Override
+    public boolean isItemSuitable( @Nonnull ItemStack stack )
+    {
+        CompoundNBT tag = stack.getTag();
+        if( tag == null || tag.isEmpty() ) return true;
+
+        // Check we've not got anything vaguely interesting on the item. We allow other mods to add their
+        // own NBT, with the understanding such details will be lost to the mist of time.
+        if( stack.isDamaged() || stack.isEnchanted() || stack.hasDisplayName() ) return false;
+        if( tag.contains( "AttributeModifiers", Constants.NBT.TAG_LIST ) &&
+            !tag.getList( "AttributeModifiers", Constants.NBT.TAG_COMPOUND ).isEmpty() )
+        {
+            return false;
+        }
+
+        return true;
     }
 
     @Nonnull
