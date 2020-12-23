@@ -13,6 +13,19 @@ if sTopic == "index" then
     return
 end
 
+local strings = require "cc.strings"
+local function word_wrap(text, width)
+    local lines = strings.wrap(text, width)
+
+    -- Normalise the strings suitable for use with blit. We could skip this and
+    -- just use term.write, but saves us a clearLine call.
+    for k, line in pairs(lines) do
+        lines[k] = strings.ensure_width(line, width)
+    end
+
+    return lines
+end
+
 local sFile = help.lookup(sTopic)
 local file = sFile ~= nil and io.open(sFile) or nil
 if not file then
@@ -24,37 +37,27 @@ local contents = file:read("*a"):gsub("(\n *)[-*]( +)", "%1\7%2")
 file:close()
 
 local width, height = term.getSize()
-local buffer = window.create(term.current(), 1, 1, width, height, false)
-local old_term = term.redirect(buffer)
-
-local print_height = print(contents) + 1
+local lines = word_wrap(contents, width)
+local print_height = #lines
 
 -- If we fit within the screen, just display without pagination.
 if print_height <= height then
-    term.redirect(old_term)
     print(contents)
     return
-end
-
-local function draw_buffer(width)
-    buffer.reposition(1, 1, width, print_height)
-    buffer.clear()
-    buffer.setCursorPos(1, 1)
-    print(contents)
-    term.redirect(old_term)
 end
 
 local offset = 0
 
 local function draw()
+    local fg, bg = ("0"):rep(width), ("f"):rep(width)
     for y = 1, height - 1 do
         term.setCursorPos(1, y)
         if y + offset > print_height then
-             -- Should only happen if we resize the terminal to a larger one
-             -- than actually needed for the current text.
+            -- Should only happen if we resize the terminal to a larger one
+            -- than actually needed for the current text.
             term.clearLine()
         else
-            term.blit(buffer.getLine(y + offset))
+            term.blit(lines[y + offset], fg, bg)
         end
     end
 end
@@ -73,7 +76,6 @@ local function draw_menu()
     end
 end
 
-draw_buffer(width)
 draw()
 draw_menu()
 
@@ -114,11 +116,8 @@ while true do
         local new_width, new_height = term.getSize()
 
         if new_width ~= width then
-            buffer.setCursorPos(1, 1)
-            buffer.reposition(1, 1, new_width, print_height)
-            term.redirect(buffer)
-            print_height = print(contents) + 1
-            draw_buffer(new_width)
+            lines = word_wrap(contents, new_width)
+            print_height = #lines
         end
 
         width, height = new_width, new_height
@@ -128,6 +127,5 @@ while true do
     end
 end
 
-term.redirect(old_term)
 term.setCursorPos(1, 1)
 term.clear()
