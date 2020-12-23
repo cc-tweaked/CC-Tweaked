@@ -14,6 +14,7 @@ import dan200.computercraft.shared.common.TileGeneric;
 import dan200.computercraft.shared.network.client.TerminalState;
 import dan200.computercraft.shared.util.CapabilityUtil;
 import dan200.computercraft.shared.util.TickScheduler;
+import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.TileEntity;
@@ -325,12 +326,16 @@ public class TileMonitor extends TileGeneric
     // region Sizing and placement stuff
     public Direction getDirection()
     {
-        return getBlockState().get( BlockMonitor.FACING );
+        // Ensure we're actually a monitor block. This _should_ always be the case, but sometimes there's
+        // fun problems with the block being missing on the client.
+        BlockState state = getBlockState();
+        return state.has( BlockMonitor.FACING ) ? state.get( BlockMonitor.FACING ) : Direction.NORTH;
     }
 
     public Direction getOrientation()
     {
-        return getBlockState().get( BlockMonitor.ORIENTATION );
+        BlockState state = getBlockState();
+        return state.has( BlockMonitor.ORIENTATION ) ? state.get( BlockMonitor.ORIENTATION ) : Direction.NORTH;
     }
 
     public Direction getFront()

@@ -8,6 +8,7 @@ package dan200.computercraft.data;
 
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.data.Tags.CCTags;
+import dan200.computercraft.shared.PocketUpgrades;
 import dan200.computercraft.shared.Registry;
 import dan200.computercraft.shared.TurtleUpgrades;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
@@ -117,7 +118,7 @@ public class Recipes extends RecipeProvider
 
             String nameId = family.name().toLowerCase( Locale.ROOT );
 
-            TurtleUpgrades.getVanillaUpgrades().forEach( upgrade -> {
+            PocketUpgrades.getVanillaUpgrades().forEach( upgrade -> {
                 ItemStack result = PocketComputerItemFactory.create( -1, null, -1, family, null );
                 ShapedRecipeBuilder
                     .shapedRecipe( result.getItem() )

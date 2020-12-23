@@ -7,7 +7,6 @@ package dan200.computercraft.shared;
 
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.pocket.IPocketUpgrade;
-import dan200.computercraft.shared.util.InventoryUtil;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.ModContainer;
 import net.minecraftforge.fml.ModLoadingContext;
@@ -55,7 +54,7 @@ public final class PocketUpgrades
         for( IPocketUpgrade upgrade : upgrades.values() )
         {
             ItemStack craftingStack = upgrade.getCraftingItem();
-            if( !craftingStack.isEmpty() && InventoryUtil.areItemsSimilar( stack, craftingStack ) )
+            if( !craftingStack.isEmpty() && craftingStack.getItem() == stack.getItem() && upgrade.isItemSuitable( stack ) )
             {
                 return upgrade;
             }

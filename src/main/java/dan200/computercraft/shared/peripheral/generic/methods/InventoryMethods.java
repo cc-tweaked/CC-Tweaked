@@ -32,6 +32,11 @@ import java.util.Optional;
 
 import static dan200.computercraft.shared.peripheral.generic.methods.ArgumentHelpers.assertBetween;
 
+/**
+ * Methods for interacting with inventories.
+ *
+ * @cc.module inventory
+ */
 @AutoService( GenericSource.class )
 public class InventoryMethods implements GenericSource
 {
@@ -42,12 +47,32 @@ public class InventoryMethods implements GenericSource
         return new ResourceLocation( ForgeVersion.MOD_ID, "inventory" );
     }
 
+    /**
+     * Get the size of this inventory.
+     *
+     * @param inventory The current inventory.
+     * @return The number of slots in this inventory.
+     */
     @LuaFunction( mainThread = true )
     public static int size( IItemHandler inventory )
     {
         return inventory.getSlots();
     }
 
+    /**
+     * List all items in this inventory. This returns a table, with an entry for each slot.
+     *
+     * Each item in the inventory is represented by a table containing some basic information, much like
+     * {@link dan200.computercraft.shared.turtle.apis.TurtleAPI#getItemDetail} includes. More information can be fetched
+     * with {@link #getItemDetail}.
+     *
+     * The table is sparse, and so empty slots will be `nil` - it is recommended to loop over using `pairs` rather than
+     * `ipairs`.
+     *
+     * @param inventory The current inventory.
+     * @return All items in this inventory.
+     * @cc.treturn { (table|nil)... } All items in this inventory.
+     */
     @LuaFunction( mainThread = true )
     public static Map<Integer, Map<String, ?>> list( IItemHandler inventory )
     {
@@ -62,6 +87,16 @@ public class InventoryMethods implements GenericSource
         return result;
     }
 
+    /**
+     * Get detailed information about an item.
+     *
+     * @param inventory The current inventory.
+     * @param slot The slot to get information about.
+     * @return Information about the item in this slot, or {@code nil} if not present.
+     * @throws LuaException If the slot is out of range.
+     * @cc.treturn table Information about the item in this slot, or {@code nil} if not present.
+     */
+    @Nullable
     @LuaFunction( mainThread = true )
     public static Map<String, ?> getItemDetail( IItemHandler inventory, int slot ) throws LuaException
     {
@@ -71,6 +106,32 @@ public class InventoryMethods implements GenericSource
         return stack.isEmpty() ? null : ItemData.fill( new HashMap<>(), stack );
     }
 
+    /**
+     * Push items from one inventory to another connected one.
+     *
+     * This allows you to push an item in an inventory to another inventory <em>on the same wired network</em>. Both
+     * inventories must attached to wired modems which are connected via a cable.
+     *
+     * @param from Inventory to move items from.
+     * @param computer The current computer.
+     * @param toName The name of the peripheral/inventory to push to. This is the string given to @{peripheral.wrap},
+     * and displayed by the wired modem.
+     * @param fromSlot The slot in the current inventory to move items to.
+     * @param limit The maximum number of items to move. Defaults to the current stack limit.
+     * @param toSlot The slot in the target inventory to move to. If not given, the item will be inserted into any slot.
+     * @return The number of transferred items.
+     * @throws LuaException If the peripheral to transfer to doesn't exist or isn't an inventory.
+     * @throws LuaException If either source or destination slot is out of range.
+     *
+     * @cc.see peripheral.getName Allows you to get the name of a @{peripheral.wrap|wrapped} peripheral.
+     * @cc.usage Wrap two chests, and push an item from one to another.
+     * <pre>{@code
+     * local chest_a = peripheral.wrap("minecraft:chest_0")
+     * local chest_b = peripheral.wrap("minecraft:chest_1")
+     *
+     * chest_a.pushItems(peripheral.getName(chest_b), 1)
+     * }</pre>
+     */
     @LuaFunction( mainThread = true )
     public static int pushItems(
         IItemHandler from, IComputerAccess computer,
@@ -86,13 +147,39 @@ public class InventoryMethods implements GenericSource
 
         // Validate slots
         int actualLimit = limit.orElse( Integer.MAX_VALUE );
-        if( actualLimit <= 0 ) throw new LuaException( "Limit must be > 0" );
         assertBetween( fromSlot, 1, from.getSlots(), "From slot out of range (%s)" );
         if( toSlot.isPresent() ) assertBetween( toSlot.get(), 1, to.getSlots(), "To slot out of range (%s)" );
 
+        if( actualLimit <= 0 ) return 0;
         return moveItem( from, fromSlot - 1, to, toSlot.orElse( 0 ) - 1, actualLimit );
     }
 
+    /**
+     * Pull items from a connected inventory into this one.
+     *
+     * This allows you to transfer items between inventories <em>on the same wired network</em>. Both this and the source
+     * inventory must attached to wired modems which are connected via a cable.
+     *
+     * @param to Inventory to move items to.
+     * @param computer The current computer.
+     * @param fromName The name of the peripheral/inventory to pull from. This is the string given to @{peripheral.wrap},
+     * and displayed by the wired modem.
+     * @param fromSlot The slot in the source inventory to move items from.
+     * @param limit The maximum number of items to move. Defaults to the current stack limit.
+     * @param toSlot The slot in current inventory to move to. If not given, the item will be inserted into any slot.
+     * @return The number of transferred items.
+     * @throws LuaException If the peripheral to transfer to doesn't exist or isn't an inventory.
+     * @throws LuaException If either source or destination slot is out of range.
+     *
+     * @cc.see peripheral.getName Allows you to get the name of a @{peripheral.wrap|wrapped} peripheral.
+     * @cc.usage Wrap two chests, and push an item from one to another.
+     * <pre>{@code
+     * local chest_a = peripheral.wrap("minecraft:chest_0")
+     * local chest_b = peripheral.wrap("minecraft:chest_1")
+     *
+     * chest_a.pullItems(peripheral.getName(chest_b), 1)
+     * }</pre>
+     */
     @LuaFunction( mainThread = true )
     public static int pullItems(
         IItemHandler to, IComputerAccess computer,
@@ -108,10 +195,10 @@ public class InventoryMethods implements GenericSource
 
         // Validate slots
         int actualLimit = limit.orElse( Integer.MAX_VALUE );
-        if( actualLimit <= 0 ) throw new LuaException( "Limit must be > 0" );
         assertBetween( fromSlot, 1, from.getSlots(), "From slot out of range (%s)" );
         if( toSlot.isPresent() ) assertBetween( toSlot.get(), 1, to.getSlots(), "To slot out of range (%s)" );
 
+        if( actualLimit <= 0 ) return 0;
         return moveItem( from, fromSlot - 1, to, toSlot.orElse( 0 ) - 1, actualLimit );
     }
 

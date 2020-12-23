@@ -67,7 +67,7 @@ public final class Peripherals
             }
         }
 
-        return CapabilityUtil.unwrap( GenericPeripheralProvider.getPeripheral( world, pos, side ), invalidate );
+        return GenericPeripheralProvider.getPeripheral( world, pos, side, invalidate );
     }
 
 }

@@ -15,11 +15,13 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
+import net.minecraftforge.common.util.NonNullConsumer;
 import net.minecraftforge.energy.CapabilityEnergy;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.items.CapabilityItemHandler;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,14 +33,13 @@ public class GenericPeripheralProvider
         CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY,
     };
 
-    @Nonnull
-    public static LazyOptional<IPeripheral> getPeripheral( @Nonnull World world, @Nonnull BlockPos pos, @Nonnull Direction side )
+    @Nullable
+    public static IPeripheral getPeripheral( @Nonnull World world, @Nonnull BlockPos pos, @Nonnull Direction side, NonNullConsumer<LazyOptional<IPeripheral>> invalidate )
     {
         TileEntity tile = world.getTileEntity( pos );
-        if( tile == null ) return LazyOptional.empty();
+        if( tile == null ) return null;
 
         ArrayList<SaturatedMethod> saturated = new ArrayList<>( 0 );
-        LazyOptional<IPeripheral> peripheral = LazyOptional.of( () -> new GenericPeripheral( tile, saturated ) );
 
         List<NamedMethod<PeripheralMethod>> tileMethods = PeripheralMethod.GENERATOR.getMethods( tile.getClass() );
         if( !tileMethods.isEmpty() ) addSaturated( saturated, tile, tileMethods );
@@ -51,11 +52,11 @@ public class GenericPeripheralProvider
                 if( capabilityMethods.isEmpty() ) return;
 
                 addSaturated( saturated, contents, capabilityMethods );
-                wrapper.addListener( x -> peripheral.invalidate() );
+                wrapper.addListener( cast( invalidate ) );
             } );
         }
 
-        return saturated.isEmpty() ? LazyOptional.empty() : peripheral;
+        return saturated.isEmpty() ? null : new GenericPeripheral( tile, saturated );
     }
 
     private static void addSaturated( ArrayList<SaturatedMethod> saturated, Object target, List<NamedMethod<PeripheralMethod>> methods )
@@ -65,5 +66,11 @@ public class GenericPeripheralProvider
         {
             saturated.add( new SaturatedMethod( target, method ) );
         }
+    }
+
+    @SuppressWarnings( { "unchecked", "rawtypes" } )
+    private static <T> NonNullConsumer<T> cast( NonNullConsumer<?> consumer )
+    {
+        return (NonNullConsumer) consumer;
     }
 }
