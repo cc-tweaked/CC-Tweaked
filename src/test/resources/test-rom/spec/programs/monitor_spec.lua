@@ -8,7 +8,7 @@ describe("The monitor program", function()
         
     it("changes the text scale with the resolution command", function()
         local r = 1
-        stub(peripheral, "call", function(s, t) r = t end)
+        stub(peripheral, "call", function(s, f, t) r = t end)
         expect(capture(stub, "monitor", "left", "resolution", "0.5"))
             :matches { ok = true, output = "", error = "" }
         expect(r):equals(0.5)
