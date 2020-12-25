@@ -60,7 +60,7 @@ public enum MonitorEdgeState implements IStringSerializable
     @Override
     public String toString()
     {
-        return getName();
+        return getString();
     }
 
     @Nonnull

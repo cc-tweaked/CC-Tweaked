@@ -17,6 +17,7 @@ import net.minecraft.data.DataGenerator;
 import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.model.generators.*;
+import net.minecraftforge.common.data.ExistingFileHelper;
 
 import javax.annotation.Nonnull;
 
@@ -95,7 +96,7 @@ public class BlockModelProvider extends BlockStateProvider
         VariantBlockStateBuilder builder = getVariantBuilder( block );
         for( MonitorEdgeState edge : BlockMonitor.STATE.getAllowedValues() )
         {
-            String suffix = edge == MonitorEdgeState.NONE ? "" : "_" + edge.getName();
+            String suffix = edge == MonitorEdgeState.NONE ? "" : "_" + edge.getString();
             ModelFile model = models().getBuilder( suffix( block, suffix ) );
 
             for( Direction facing : BlockMonitor.FACING.getAllowedValues() )

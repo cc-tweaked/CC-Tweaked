@@ -330,13 +330,13 @@ public class TileMonitor extends TileGeneric
         // Ensure we're actually a monitor block. This _should_ always be the case, but sometimes there's
         // fun problems with the block being missing on the client.
         BlockState state = getBlockState();
-        return state.has( BlockMonitor.FACING ) ? state.get( BlockMonitor.FACING ) : Direction.NORTH;
+        return state.hasProperty( BlockMonitor.FACING ) ? state.get( BlockMonitor.FACING ) : Direction.NORTH;
     }
 
     public Direction getOrientation()
     {
         BlockState state = getBlockState();
-        return state.has( BlockMonitor.ORIENTATION ) ? state.get( BlockMonitor.ORIENTATION ) : Direction.NORTH;
+        return state.hasProperty( BlockMonitor.ORIENTATION ) ? state.get( BlockMonitor.ORIENTATION ) : Direction.NORTH;
     }
 
     public Direction getFront()
