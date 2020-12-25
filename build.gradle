@@ -336,7 +336,7 @@ task minifyWeb(type: Exec, dependsOn: rollup) {
     inputs.file("package-lock.json").withPropertyName("package-lock.json")
     outputs.file("$buildDir/rollup/index.min.js").withPropertyName("output")
 
-    commandLine mkCommand('"node_modules/.bin/terser"' + " -o $buildDir/rollup/index.min.js $buildDir/rollup/index.js")
+    commandLine mkCommand('"node_modules/.bin/terser"' + " -o '$buildDir/rollup/index.min.js' '$buildDir/rollup/index.js'")
 }
 
 task illuaminateDocs(type: Exec, dependsOn: [minifyWeb, luaJavadoc]) {
