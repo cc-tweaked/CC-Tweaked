@@ -21,10 +21,8 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.*;
 
 import java.io.Closeable;
-import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URLDecoder;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
@@ -244,9 +242,9 @@ public final class HttpRequestHandler extends SimpleChannelInboundHandler<HttpOb
 
         try
         {
-            return uri.resolve( new URI( URLDecoder.decode( location, "UTF-8" ) ) );
+            return uri.resolve( new URI( location ) );
         }
-        catch( UnsupportedEncodingException | IllegalArgumentException | URISyntaxException e )
+        catch( IllegalArgumentException | URISyntaxException e )
         {
             return null;
         }

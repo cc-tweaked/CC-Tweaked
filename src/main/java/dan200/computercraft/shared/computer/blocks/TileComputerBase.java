@@ -39,6 +39,8 @@ import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
+import net.minecraftforge.common.util.LazyOptional;
+import net.minecraftforge.common.util.NonNullConsumer;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -56,6 +58,7 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
     private boolean m_on = false;
     boolean m_startOn = false;
     private boolean m_fresh = false;
+    private final NonNullConsumer<LazyOptional<IPeripheral>>[] invalidate;
 
     private final ComputerFamily family;
 
@@ -63,6 +66,14 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
     {
         super( type );
         this.family = family;
+
+        // We cache these so we can guarantee we only ever register one listener for adjacent capabilities.
+        @SuppressWarnings( { "unchecked", "rawtypes" } )
+        NonNullConsumer<LazyOptional<IPeripheral>>[] invalidate = this.invalidate = new NonNullConsumer[6];
+        for( Direction direction : Direction.values() )
+        {
+            invalidate[direction.ordinal()] = o -> updateInput( direction );
+        }
     }
 
     protected void unload()
@@ -225,7 +236,7 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
         computer.setBundledRedstoneInput( localDir, BundledRedstone.getOutput( getWorld(), offset, offsetSide ) );
         if( !isPeripheralBlockedOnSide( localDir ) )
         {
-            IPeripheral peripheral = Peripherals.getPeripheral( getWorld(), offset, offsetSide, o -> updateInput( dir ) );
+            IPeripheral peripheral = Peripherals.getPeripheral( getWorld(), offset, offsetSide, invalidate[dir.ordinal()] );
             computer.setPeripheral( localDir, peripheral );
         }
     }

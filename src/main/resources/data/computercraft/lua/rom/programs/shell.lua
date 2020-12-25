@@ -383,7 +383,7 @@ end
 --
 -- @tparam string sLine The input to complete.
 -- @treturn { string }|nil The list of possible completions.
--- @see read For more information about completion.
+-- @see _G.read For more information about completion.
 -- @see shell.completeProgram
 -- @see shell.setCompletionFunction
 -- @see shell.getCompletionInfo
@@ -461,7 +461,7 @@ end
 -- The completion function.
 -- @see cc.shell.completion Various utilities to help with writing completion functions.
 -- @see shell.complete
--- @see read For more information about completion.
+-- @see _G.read For more information about completion.
 function shell.setCompletionFunction(program, complete)
     expect(1, program, "string")
     expect(2, complete, "function")

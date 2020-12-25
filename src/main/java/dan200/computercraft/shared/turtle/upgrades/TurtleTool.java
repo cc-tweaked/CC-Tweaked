@@ -11,6 +11,7 @@ import dan200.computercraft.api.turtle.*;
 import dan200.computercraft.api.turtle.event.TurtleAttackEvent;
 import dan200.computercraft.api.turtle.event.TurtleBlockEvent;
 import dan200.computercraft.shared.TurtlePermissions;
+import dan200.computercraft.shared.turtle.core.TurtleBrain;
 import dan200.computercraft.shared.turtle.core.TurtlePlaceCommand;
 import dan200.computercraft.shared.turtle.core.TurtlePlayer;
 import dan200.computercraft.shared.util.DropConsumer;
@@ -25,6 +26,7 @@ import net.minecraft.entity.item.ArmorStandEntity;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.Direction;
@@ -37,6 +39,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.event.entity.player.AttackEntityEvent;
 import net.minecraftforge.event.world.BlockEvent;
 import org.apache.commons.lang3.tuple.Pair;
@@ -65,6 +68,24 @@ public class TurtleTool extends AbstractTurtleUpgrade
     {
         super( id, TurtleUpgradeType.TOOL, craftItem );
         this.item = toolItem;
+    }
+
+    @Override
+    public boolean isItemSuitable( @Nonnull ItemStack stack )
+    {
+        CompoundNBT tag = stack.getTag();
+        if( tag == null || tag.isEmpty() ) return true;
+
+        // Check we've not got anything vaguely interesting on the item. We allow other mods to add their
+        // own NBT, with the understanding such details will be lost to the mist of time.
+        if( stack.isDamaged() || stack.isEnchanted() || stack.hasDisplayName() ) return false;
+        if( tag.contains( "AttributeModifiers", Constants.NBT.TAG_LIST ) &&
+            !tag.getList( "AttributeModifiers", Constants.NBT.TAG_COMPOUND ).isEmpty() )
+        {
+            return false;
+        }
+
+        return true;
     }
 
     @Nonnull
@@ -111,11 +132,14 @@ public class TurtleTool extends AbstractTurtleUpgrade
         return 3.0f;
     }
 
-    private TurtleCommandResult attack( final ITurtleAccess turtle, Direction direction, TurtleSide side )
+    private TurtleCommandResult attack( ITurtleAccess turtle, Direction direction, TurtleSide side )
     {
         // Create a fake player, and orient it appropriately
-        final World world = turtle.getWorld();
-        final BlockPos position = turtle.getPosition();
+        World world = turtle.getWorld();
+        BlockPos position = turtle.getPosition();
+        TileEntity turtleTile = turtle instanceof TurtleBrain ? ((TurtleBrain) turtle).getOwner() : world.getTileEntity( position );
+        if( turtleTile == null ) return TurtleCommandResult.failure( "Turtle has vanished from existence." );
+
         final TurtlePlayer turtlePlayer = TurtlePlaceCommand.createPlayer( turtle, position, direction );
 
         // See if there is an entity present
@@ -143,7 +167,7 @@ public class TurtleTool extends AbstractTurtleUpgrade
             }
 
             // Start claiming entity drops
-            DropConsumer.set( hitEntity, turtleDropConsumer( turtle ) );
+            DropConsumer.set( hitEntity, turtleDropConsumer( turtleTile, turtle ) );
 
             // Attack the entity
             boolean attacked = false;
@@ -175,7 +199,7 @@ public class TurtleTool extends AbstractTurtleUpgrade
             }
 
             // Stop claiming drops
-            stopConsuming( turtle );
+            stopConsuming( turtleTile, turtle );
 
             // Put everything we collected into the turtles inventory, then return
             if( attacked )
@@ -193,8 +217,10 @@ public class TurtleTool extends AbstractTurtleUpgrade
         // Get ready to dig
         World world = turtle.getWorld();
         BlockPos turtlePosition = turtle.getPosition();
-        BlockPos blockPosition = turtlePosition.offset( direction );
+        TileEntity turtleTile = turtle instanceof TurtleBrain ? ((TurtleBrain) turtle).getOwner() : world.getTileEntity( turtlePosition );
+        if( turtleTile == null ) return TurtleCommandResult.failure( "Turtle has vanished from existence." );
 
+        BlockPos blockPosition = turtlePosition.offset( direction );
         if( world.isAirBlock( blockPosition ) || WorldUtil.isLiquidBlock( world, blockPosition ) )
         {
             return TurtleCommandResult.failure( "Nothing to dig here" );
@@ -234,7 +260,7 @@ public class TurtleTool extends AbstractTurtleUpgrade
         }
 
         // Consume the items the block drops
-        DropConsumer.set( world, blockPosition, turtleDropConsumer( turtle ) );
+        DropConsumer.set( world, blockPosition, turtleDropConsumer( turtleTile, turtle ) );
 
         TileEntity tile = world.getTileEntity( blockPosition );
 
@@ -253,23 +279,24 @@ public class TurtleTool extends AbstractTurtleUpgrade
             state.getBlock().harvestBlock( world, turtlePlayer, blockPosition, state, tile, turtlePlayer.getHeldItemMainhand() );
         }
 
-        stopConsuming( turtle );
+        stopConsuming( turtleTile, turtle );
 
         return TurtleCommandResult.success();
 
     }
 
-    private static Function<ItemStack, ItemStack> turtleDropConsumer( ITurtleAccess turtle )
+    private static Function<ItemStack, ItemStack> turtleDropConsumer( TileEntity tile, ITurtleAccess turtle )
     {
-        return drop -> InventoryUtil.storeItems( drop, turtle.getItemHandler(), turtle.getSelectedSlot() );
+        return drop -> tile.isRemoved() ? drop : InventoryUtil.storeItems( drop, turtle.getItemHandler(), turtle.getSelectedSlot() );
     }
 
-    private static void stopConsuming( ITurtleAccess turtle )
+    private static void stopConsuming( TileEntity tile, ITurtleAccess turtle )
     {
+        Direction direction = tile.isRemoved() ? null : turtle.getDirection().getOpposite();
         List<ItemStack> extra = DropConsumer.clear();
         for( ItemStack remainder : extra )
         {
-            WorldUtil.dropItemStack( remainder, turtle.getWorld(), turtle.getPosition(), turtle.getDirection().getOpposite() );
+            WorldUtil.dropItemStack( remainder, turtle.getWorld(), turtle.getPosition(), direction );
         }
     }
 }

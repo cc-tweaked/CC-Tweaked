@@ -4,7 +4,7 @@
 /build
 /out
 /doc/out/
-/doc/javadoc/
+/node_modules
 
 # Runtime directories
 /run
@@ -18,10 +18,12 @@
 .gradle
 *.DS_Store
 
-.classpath
-.project
-.settings/
+/.classpath
+/.project
+/.settings
+/.vscode
 bin/
 *.launch
 
 /src/generated/resources/.cache
+/src/web/mount/*.d.ts

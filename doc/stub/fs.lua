@@ -15,7 +15,7 @@
 function isDriveRoot(path) end
 
 --[[- Provides completion for a file or directory name, suitable for use with
-@{read}.
+@{_G.read}.
 
 When a directory is a possible candidate for completion, two entries are
 included - one with a trailing slash (indicating that entries within this

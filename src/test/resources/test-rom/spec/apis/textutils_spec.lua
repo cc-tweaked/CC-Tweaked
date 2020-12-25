@@ -33,11 +33,12 @@ describe("The textutils library", function()
             term.redirect(window.create(term.current(), 1, 1, 5, 5, false))
 
             textutils.tabulate()
-            textutils.tabulate({ "test" })
+            textutils.tabulate({ "test", 1 })
             textutils.tabulate(colors.white)
 
             expect.error(textutils.tabulate, nil):eq("bad argument #1 (expected number or table, got nil)")
             expect.error(textutils.tabulate, { "test" }, nil):eq("bad argument #2 (expected number or table, got nil)")
+            expect.error(textutils.tabulate, { false }):eq("bad argument #1.1 (expected string, got boolean)")
         end)
     end)
 

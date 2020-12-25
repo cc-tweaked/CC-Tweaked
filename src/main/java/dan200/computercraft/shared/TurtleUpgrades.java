@@ -8,7 +8,6 @@ package dan200.computercraft.shared;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
-import dan200.computercraft.shared.util.InventoryUtil;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.ModLoadingContext;
 
@@ -83,7 +82,7 @@ public final class TurtleUpgrades
             if( !wrapper.enabled ) continue;
 
             ItemStack craftingStack = wrapper.upgrade.getCraftingItem();
-            if( !craftingStack.isEmpty() && InventoryUtil.areItemsSimilar( stack, craftingStack ) )
+            if( !craftingStack.isEmpty() && craftingStack.getItem() == stack.getItem() && wrapper.upgrade.isItemSuitable( stack ) )
             {
                 return wrapper.upgrade;
             }

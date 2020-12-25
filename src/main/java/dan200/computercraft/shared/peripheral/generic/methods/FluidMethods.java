@@ -31,6 +31,11 @@ import java.util.Optional;
 
 import static dan200.computercraft.shared.peripheral.generic.methods.ArgumentHelpers.getRegistryEntry;
 
+/**
+ * Methods for interacting with tanks and other fluid storage blocks.
+ *
+ * @cc.module fluid_storage
+ */
 @AutoService( GenericSource.class )
 public class FluidMethods implements GenericSource
 {

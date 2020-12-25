@@ -85,6 +85,9 @@ the `terminate` event yourself - the program will not stop execution when
 function pullEventRaw(filter) end
 
 --- Pauses execution for the specified number of seconds, alias of @{_G.sleep}.
+--
+-- @tparam number time The number of seconds to sleep for, rounded up to the
+-- nearest multiple of 0.05.
 function sleep(time) end
 
 --- Get the current CraftOS version (for example, `CraftOS 1.8`).
@@ -93,6 +96,7 @@ function sleep(time) end
 -- should return `CraftOS 1.8`.
 --
 -- @treturn string The current CraftOS version.
+-- @usage os.version()
 function version() end
 
 --[[- Run the program at the given path with the specified environment and
@@ -113,7 +117,7 @@ such as @{loadfile}.
 @treturn boolean Whether or not the program ran successfully.
 @usage Run the default shell from within your program:
 
-    os.run({}, "/rom/programs/shell")
+    os.run({}, "/rom/programs/shell.lua")
 
 @see shell.run
 @see loadfile

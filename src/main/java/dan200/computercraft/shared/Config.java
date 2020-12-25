@@ -21,12 +21,12 @@ import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static net.minecraftforge.common.ForgeConfigSpec.Builder;
 import static net.minecraftforge.common.ForgeConfigSpec.ConfigValue;
@@ -180,12 +180,10 @@ public final class Config
                     "Each rule is an item with a 'host' to match against, and a series of properties. " +
                     "The host may be a domain name (\"pastebin.com\"),\n" +
                     "wildcard (\"*.pastebin.com\") or CIDR notation (\"127.0.0.0/8\"). If no rules, the domain is blocked." )
-                .defineList( "rules",
-                    Stream.concat(
-                        Stream.of( ComputerCraft.DEFAULT_HTTP_DENY ).map( x -> AddressRuleConfig.makeRule( x, Action.DENY ) ),
-                        Stream.of( ComputerCraft.DEFAULT_HTTP_ALLOW ).map( x -> AddressRuleConfig.makeRule( x, Action.ALLOW ) )
-                    ).collect( Collectors.toList() ),
-                    x -> x instanceof UnmodifiableConfig && AddressRuleConfig.checkRule( (UnmodifiableConfig) x ) );
+                .defineList( "rules", Arrays.asList(
+                    AddressRuleConfig.makeRule( "$private", Action.DENY ),
+                    AddressRuleConfig.makeRule( "*", Action.ALLOW )
+                ), x -> x instanceof UnmodifiableConfig && AddressRuleConfig.checkRule( (UnmodifiableConfig) x ) );
 
             httpMaxRequests = builder
                 .comment( "The number of http requests a computer can make at one time. Additional requests will be queued, and sent when the running requests have finished. Set to 0 for unlimited." )

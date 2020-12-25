@@ -98,7 +98,7 @@ public class FileSystem
         mounts.remove( sanitizePath( path ) );
     }
 
-    public synchronized String combine( String path, String childPath )
+    public String combine( String path, String childPath )
     {
         path = sanitizePath( path, true );
         childPath = sanitizePath( childPath, true );
@@ -479,7 +479,7 @@ public class FileSystem
 
     private static final Pattern threeDotsPattern = Pattern.compile( "^\\.{3,}$" );
 
-    private static String sanitizePath( String path, boolean allowWildcards )
+    public static String sanitizePath( String path, boolean allowWildcards )
     {
         // Allow windowsy slashes
         path = path.replace( '\\', '/' );

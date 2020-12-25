@@ -6,10 +6,13 @@
 package dan200.computercraft.core.apis.http.options;
 
 import com.google.common.net.InetAddresses;
-import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.core.apis.http.options.AddressPredicate.DomainPattern;
+import dan200.computercraft.core.apis.http.options.AddressPredicate.HostRange;
+import dan200.computercraft.core.apis.http.options.AddressPredicate.PrivatePattern;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.net.Inet4Address;
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -25,45 +28,13 @@ public final class AddressRule
     public static final int TIMEOUT = 30_000;
     public static final int WEBSOCKET_MESSAGE = 128 * 1024;
 
-    private static final class HostRange
-    {
-        private final byte[] min;
-        private final byte[] max;
-
-        private HostRange( byte[] min, byte[] max )
-        {
-            this.min = min;
-            this.max = max;
-        }
-
-        public boolean contains( InetAddress address )
-        {
-            byte[] entry = address.getAddress();
-            if( entry.length != min.length ) return false;
-
-            for( int i = 0; i < entry.length; i++ )
-            {
-                int value = 0xFF & entry[i];
-                if( value < (0xFF & min[i]) || value > (0xFF & max[i]) ) return false;
-            }
-
-            return true;
-        }
-    }
-
-    private final HostRange ip;
-    private final Pattern domainPattern;
+    private final AddressPredicate predicate;
     private final Integer port;
     private final PartialOptions partial;
 
-    private AddressRule(
-        @Nullable HostRange ip,
-        @Nullable Pattern domainPattern,
-        @Nullable Integer port,
-        @Nonnull PartialOptions partial )
+    private AddressRule( @Nonnull AddressPredicate predicate, @Nullable Integer port, @Nonnull PartialOptions partial )
     {
-        this.ip = ip;
-        this.domainPattern = domainPattern;
+        this.predicate = predicate;
         this.partial = partial;
         this.port = port;
     }
@@ -76,103 +47,50 @@ public final class AddressRule
         {
             String addressStr = filter.substring( 0, cidr );
             String prefixSizeStr = filter.substring( cidr + 1 );
-
-            int prefixSize;
-            try
-            {
-                prefixSize = Integer.parseInt( prefixSizeStr );
-            }
-            catch( NumberFormatException e )
-            {
-                ComputerCraft.log.error(
-                    "Malformed http whitelist/blacklist entry '{}': Cannot extract size of CIDR mask from '{}'.",
-                    filter, prefixSizeStr
-                );
-                return null;
-            }
-
-            InetAddress address;
-            try
-            {
-                address = InetAddresses.forString( addressStr );
-            }
-            catch( IllegalArgumentException e )
-            {
-                ComputerCraft.log.error(
-                    "Malformed http whitelist/blacklist entry '{}': Cannot extract IP address from '{}'.",
-                    filter, prefixSizeStr
-                );
-                return null;
-            }
-
-            // Mask the bytes of the IP address.
-            byte[] minBytes = address.getAddress(), maxBytes = address.getAddress();
-            int size = prefixSize;
-            for( int i = 0; i < minBytes.length; i++ )
-            {
-                if( size <= 0 )
-                {
-                    minBytes[i] &= 0;
-                    maxBytes[i] |= 0xFF;
-                }
-                else if( size < 8 )
-                {
-                    minBytes[i] &= 0xFF << (8 - size);
-                    maxBytes[i] |= ~(0xFF << (8 - size));
-                }
-
-                size -= 8;
-            }
-
-            return new AddressRule( new HostRange( minBytes, maxBytes ), null, port, partial );
+            HostRange range = HostRange.parse( addressStr, prefixSizeStr );
+            return range == null ? null : new AddressRule( range, port, partial );
+        }
+        else if( filter.equalsIgnoreCase( "$private" ) )
+        {
+            return new AddressRule( PrivatePattern.INSTANCE, port, partial );
         }
         else
         {
-            Pattern pattern = Pattern.compile( "^\\Q" + filter.replaceAll( "\\*", "\\\\E.*\\\\Q" ) + "\\E$" );
-            return new AddressRule( null, pattern, port, partial );
+            Pattern pattern = Pattern.compile( "^\\Q" + filter.replaceAll( "\\*", "\\\\E.*\\\\Q" ) + "\\E$", Pattern.CASE_INSENSITIVE );
+            return new AddressRule( new DomainPattern( pattern ), port, partial );
         }
     }
 
     /**
      * Determine whether the given address matches a series of patterns.
      *
-     * @param domain        The domain to match
-     * @param socketAddress The address to check.
+     * @param domain      The domain to match
+     * @param port        The port of the address.
+     * @param address     The address to check.
+     * @param ipv4Address An ipv4 version of the address, if the original was an ipv6 address.
      * @return Whether it matches any of these patterns.
      */
-    private boolean matches( String domain, InetSocketAddress socketAddress )
+    private boolean matches( String domain, int port, InetAddress address, Inet4Address ipv4Address )
     {
-        InetAddress address = socketAddress.getAddress();
-        if( port != null && port != socketAddress.getPort() ) return false;
-
-        if( domainPattern != null )
-        {
-            if( domainPattern.matcher( domain ).matches() ) return true;
-            if( domainPattern.matcher( address.getHostName() ).matches() ) return true;
-        }
-
-        // Match the normal address
-        if( matchesAddress( address ) ) return true;
-
-        // If we're an IPv4 address in disguise then let's check that.
-        return address instanceof Inet6Address && InetAddresses.is6to4Address( (Inet6Address) address )
-            && matchesAddress( InetAddresses.get6to4IPv4Address( (Inet6Address) address ) );
+        if( this.port != null && this.port != port ) return false;
+        return predicate.matches( domain )
+            || predicate.matches( address )
+            || (ipv4Address != null && predicate.matches( ipv4Address ));
     }
 
-    private boolean matchesAddress( InetAddress address )
-    {
-        if( domainPattern != null && domainPattern.matcher( address.getHostAddress() ).matches() ) return true;
-        return ip != null && ip.contains( address );
-    }
-
-    public static Options apply( Iterable<? extends AddressRule> rules, String domain, InetSocketAddress address )
+    public static Options apply( Iterable<? extends AddressRule> rules, String domain, InetSocketAddress socketAddress )
     {
         PartialOptions options = null;
         boolean hasMany = false;
 
+        int port = socketAddress.getPort();
+        InetAddress address = socketAddress.getAddress();
+        Inet4Address ipv4Address = address instanceof Inet6Address && InetAddresses.is6to4Address( (Inet6Address) address )
+            ? InetAddresses.get6to4IPv4Address( (Inet6Address) address ) : null;
+
         for( AddressRule rule : rules )
         {
-            if( !rule.matches( domain, address ) ) continue;
+            if( !rule.matches( domain, port, address, ipv4Address ) ) continue;
 
             if( options == null )
             {

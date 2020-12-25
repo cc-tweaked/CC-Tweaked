@@ -32,7 +32,7 @@ end
 -- @tparam string topic The topic to find
 -- @treturn string|nil The path to the given topic's help file, or `nil` if it
 -- cannot be found.
--- @usage print(help.lookup("disk"))
+-- @usage help.lookup("disk")
 function lookup(_sTopic)
     expect(1, _sTopic, "string")
     -- Look on the path variable
@@ -52,6 +52,7 @@ end
 --- Returns a list of topics that can be looked up and/or displayed.
 --
 -- @treturn table A list of topics in alphabetical order.
+-- @usage help.topics()
 function topics()
     -- Add index
     local tItems = {

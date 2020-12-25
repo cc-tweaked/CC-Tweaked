@@ -1,7 +1,26 @@
---- The @{cc.expect} library provides helper functions for verifying that
--- function arguments are well-formed and of the correct type.
---
--- @module cc.expect
+--[[- The @{cc.expect} library provides helper functions for verifying that
+function arguments are well-formed and of the correct type.
+
+@module cc.expect
+@usage Define a basic function and check it has the correct arguments.
+
+    local expect = require "cc.expect"
+    local expect, field = expect.expect, expect.field
+
+    local function add_person(name, info)
+        expect(1, name, "string")
+        expect(2, info, "table", "nil")
+
+        if info then
+            print("Got age=", field(info, "age", "number"))
+            print("Got gender=", field(info, "gender", "string", "nil"))
+        end
+    end
+
+    add_person("Anastazja") -- `info' is optional
+    add_person("Kion", { age = 23 }) -- `gender' is optional
+    add_person("Caoimhin", { age = 23, gender = true }) -- error!
+]]
 
 local native_select, native_type = select, type
 
@@ -34,7 +53,7 @@ local function expect(index, value, ...)
     local name
     if native_type(debug) == "table" and native_type(debug.getinfo) == "function" then
         local ok, info = pcall(debug.getinfo, 3, "nS")
-        if ok and info.name and #info.name ~= "" and info.what ~= "C" then name = info.name end
+        if ok and info.name and info.name ~= "" and info.what ~= "C" then name = info.name end
     end
 
     local type_names = get_type_names(...)

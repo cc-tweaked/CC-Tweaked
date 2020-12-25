@@ -9,7 +9,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.ISidedInventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
@@ -38,35 +37,6 @@ public final class InventoryUtil
     public static boolean areItemsStackable( @Nonnull ItemStack a, @Nonnull ItemStack b )
     {
         return a == b || ItemHandlerHelper.canItemStacksStack( a, b );
-    }
-
-    /**
-     * Determines if two items are "mostly" equivalent. Namely, they have the same item and damage, and identical
-     * share stacks.
-     *
-     * This is largely based on {@link net.minecraftforge.common.crafting.IngredientNBT#test(ItemStack)}. It is
-     * sufficient to ensure basic information (such as enchantments) are the same, while not having to worry about
-     * capabilities.
-     *
-     * @param a The first stack to check
-     * @param b The second stack to check
-     * @return If these items are largely the same.
-     */
-    public static boolean areItemsSimilar( @Nonnull ItemStack a, @Nonnull ItemStack b )
-    {
-        if( a == b ) return true;
-        if( a.isEmpty() ) return !b.isEmpty();
-
-        if( a.getItem() != b.getItem() ) return false;
-
-        // A more expanded form of ItemStack.areShareTagsEqual, but allowing an empty tag to be equal to a
-        // null one.
-        CompoundNBT shareTagA = a.getItem().getShareTag( a );
-        CompoundNBT shareTagB = b.getItem().getShareTag( b );
-        if( shareTagA == shareTagB ) return true;
-        if( shareTagA == null ) return shareTagB.isEmpty();
-        if( shareTagB == null ) return shareTagA.isEmpty();
-        return shareTagA.equals( shareTagB );
     }
 
     // Methods for finding inventories:

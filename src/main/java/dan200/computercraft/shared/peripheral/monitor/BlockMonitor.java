@@ -32,7 +32,7 @@ public class BlockMonitor extends BlockGeneric
 
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
 
-    static final EnumProperty<MonitorEdgeState> STATE = EnumProperty.create( "state", MonitorEdgeState.class );
+    public static final EnumProperty<MonitorEdgeState> STATE = EnumProperty.create( "state", MonitorEdgeState.class );
 
     public BlockMonitor( Properties settings, RegistryObject<? extends TileEntityType<? extends TileMonitor>> type )
     {

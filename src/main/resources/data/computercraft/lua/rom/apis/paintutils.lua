@@ -64,6 +64,10 @@ end
 --
 -- @treturn table|nil The parsed image data, suitable for use with
 -- @{paintutils.drawImage}, or `nil` if the file does not exist.
+-- @usage Load an image and draw it.
+--
+--     local image = paintutils.loadImage("test-image.nfp")
+--     paintutils.drawImage(image, term.getCursorPos())
 function loadImage(path)
     expect(1, path, "string")
 
@@ -107,6 +111,7 @@ end
 -- @tparam number endY The end y position of the line.
 -- @tparam[opt] number colour The @{colors|color} of this pixel. This will be
 -- the current background colour if not specified.
+-- @usage paintutils.drawLine(2, 3, 30, 7, colors.red)
 function drawLine(startX, startY, endX, endY, colour)
     expect(1, startX, "number")
     expect(2, startY, "number")
@@ -170,6 +175,7 @@ end
 -- @tparam number endY The end y position of the line.
 -- @tparam[opt] number colour The @{colors|color} of this pixel. This will be
 -- the current background colour if not specified.
+-- @usage paintutils.drawBox(2, 3, 30, 7, colors.red)
 function drawBox(startX, startY, endX, endY, nColour)
     expect(1, startX, "number")
     expect(2, startY, "number")
@@ -222,6 +228,7 @@ end
 -- @tparam number endY The end y position of the line.
 -- @tparam[opt] number colour The @{colors|color} of this pixel. This will be
 -- the current background colour if not specified.
+-- @usage paintutils.drawFilledBox(2, 3, 30, 7, colors.red)
 function drawFilledBox(startX, startY, endX, endY, nColour)
     expect(1, startX, "number")
     expect(2, startY, "number")
