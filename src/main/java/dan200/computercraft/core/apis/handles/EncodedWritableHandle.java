@@ -41,7 +41,7 @@ public class EncodedWritableHandle extends HandleGeneric
      *
      * @param args The value to write.
      * @throws LuaException If the file has been closed.
-     * @cc.param value The value(s) to write to the file.
+     * @cc.param value The value to write to the file.
      */
     @LuaFunction
     public final void write( IArguments args ) throws LuaException
@@ -63,7 +63,7 @@ public class EncodedWritableHandle extends HandleGeneric
      *
      * @param args The value to write.
      * @throws LuaException If the file has been closed.
-     * @cc.param value The value(s) to write to the file.
+     * @cc.param value The value to write to the file.
      */
     @LuaFunction
     public final void writeLine( IArguments args ) throws LuaException
