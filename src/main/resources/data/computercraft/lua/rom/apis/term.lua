@@ -43,7 +43,7 @@ term.redirect = function(target)
         if type(k) == "string" and type(v) == "function" then
             if type(target[k]) ~= "function" then
                 local delegate
-                
+
                 if k:sub(-6, -1) == 'Colour' then
                     delegate = target[k:sub(1, -7) .. 'Color']
                 elseif k:sub(-5, -1) == 'Color' then
