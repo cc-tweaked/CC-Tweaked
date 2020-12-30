@@ -46,13 +46,13 @@ term.redirect = function(target)
                     local delegate = target[k:sub(1, -7) .. 'Color']
 
                     target[k] = function(...)
-                        target[delegate](...)
+                        return target[delegate](...)
                     end
                 elseif k:sub(-5, -1) == 'Color' then
                     local delegate = target[k:sub(1, -6) .. 'Colour']
 
                     target[k] = function(...)
-                        target[delegate](...)
+                        return target[delegate](...)
                     end
                 else
                     target[k] = function()
