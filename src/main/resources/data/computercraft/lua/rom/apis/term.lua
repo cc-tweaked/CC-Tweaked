@@ -57,7 +57,7 @@ term.redirect = function(target)
                     target[k] = function()
                         error("Redirect object is missing method " .. k .. ".", 2)
                     end
-                    
+
                     -- prevent the delegate from redirecting back to this one and providing a mismatching error message
                     if delegate then
                         target[delegate] = function()
