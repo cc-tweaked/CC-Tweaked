@@ -51,9 +51,7 @@ term.redirect = function(target)
                 end
 
                 if delegate and type(target[delegate]) == 'function' then
-                    target[k] = function(...)
-                        return target[delegate](...)
-                    end
+                    target[k] = target[delegate]
                 else
                     -- can happen if both colour and color variants are missing
                     target[k] = function()
