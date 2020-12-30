@@ -11,7 +11,6 @@ import dan200.computercraft.api.media.IMedia;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.shared.MediaProviders;
-import dan200.computercraft.shared.computer.items.ItemComputer;
 import dan200.computercraft.shared.computer.items.ItemComputerBase;
 import dan200.computercraft.shared.media.items.ItemDisk;
 import dan200.computercraft.shared.pocket.items.ItemPocketComputer;
