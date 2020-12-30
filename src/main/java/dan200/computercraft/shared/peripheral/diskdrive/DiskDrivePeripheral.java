@@ -11,7 +11,11 @@ import dan200.computercraft.api.media.IMedia;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.shared.MediaProviders;
+import dan200.computercraft.shared.computer.items.ItemComputer;
+import dan200.computercraft.shared.computer.items.ItemComputerBase;
 import dan200.computercraft.shared.media.items.ItemDisk;
+import dan200.computercraft.shared.pocket.items.ItemPocketComputer;
+import dan200.computercraft.shared.turtle.items.ItemTurtle;
 import dan200.computercraft.shared.util.StringUtil;
 import net.minecraft.item.ItemStack;
 
@@ -192,6 +196,25 @@ public class DiskDrivePeripheral implements IPeripheral
     {
         ItemStack disk = diskDrive.getDiskStack();
         return disk.getItem() instanceof ItemDisk ? new Object[] { ItemDisk.getDiskID( disk ) } : null;
+    }
+
+    /**
+     * Returns the type of media currently in the disk drive.
+     *
+     * @return The type of media currently in the disk drive.
+     * @cc.treturn string|nil The type of media currently in the disk drive, or {@code nil} if the type could not be determined.
+     */
+    @LuaFunction
+    public final String getDiskType()
+    {
+        ItemStack stack = diskDrive.getDiskStack();
+        if (stack.isEmpty()) return "empty";
+        else if (stack.getItem() instanceof ItemDisk) return "disk";
+        else if (stack.getItem() instanceof ItemComputerBase) return "computer";
+        else if (stack.getItem() instanceof ItemTurtle) return "turtle";
+        else if (stack.getItem() instanceof ItemPocketComputer) return "pocket";
+        else if (MediaProviders.get(stack) != null && MediaProviders.get(stack).getAudio(stack) != null) return "record";
+        else return null;
     }
 
     @Override

@@ -169,3 +169,17 @@ function getID(name)
     end
     return nil
 end
+
+--- Returns a string describing the contents of the drive.
+--
+-- This string can be any of "empty", "disk", "record", "computer", "turtle", or "pocket".
+-- It may also be `nil` if the type cannot be detected; however, this should not normally happen.
+--
+-- @tparam string name The name of the disk drive.
+-- @treturn string|nil The type of media in the drive, or `nil` if the type could not be determined.
+function getType(name)
+    if isDrive(name) then
+        return peripheral.call(name, "getDiskType")
+    end
+    return nil
+end
