@@ -194,7 +194,7 @@ describe("The fs library", function()
         end)
 
         it("returns information about read-only mounts", function()
-            expect(fs.attributes("rom")):matches { isDir = true, size = 0 }
+            expect(fs.attributes("rom")):matches { isDir = true, size = 0, isReadOnly = true}
         end)
 
         it("returns information about files", function()
@@ -206,7 +206,7 @@ describe("The fs library", function()
             h.close()
 
             local attributes = fs.attributes("tmp/basic-file")
-            expect(attributes):matches { isDir = false, size = 25 }
+            expect(attributes):matches { isDir = false, size = 25, isReadOnly = false }
 
             if attributes.created - now >= 1000 then
                 fail(("Expected created time (%d) to be within 1000ms of now (%d"):format(attributes.created, now))

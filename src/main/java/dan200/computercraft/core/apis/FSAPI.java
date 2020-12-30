@@ -496,6 +496,7 @@ public class FSAPI implements ILuaAPI
             result.put( "created", getFileTime( attributes.creationTime() ) );
             result.put( "size", attributes.isDirectory() ? 0 : attributes.size() );
             result.put( "isDir", attributes.isDirectory() );
+            result.put( "isReadOnly", fileSystem.isReadOnly( path ) );
             return result;
         }
         catch( FileSystemException e )
