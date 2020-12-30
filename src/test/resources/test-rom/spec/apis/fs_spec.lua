@@ -194,7 +194,7 @@ describe("The fs library", function()
         end)
 
         it("returns information about read-only mounts", function()
-            expect(fs.attributes("rom")):matches { isDir = true, size = 0, isReadOnly = true}
+            expect(fs.attributes("rom")):matches { isDir = true, size = 0, isReadOnly = true }
         end)
 
         it("returns information about files", function()
