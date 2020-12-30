@@ -208,13 +208,34 @@ public class DiskDrivePeripheral implements IPeripheral
     public final String getDiskType()
     {
         ItemStack stack = diskDrive.getDiskStack();
-        if (stack.isEmpty()) return "empty";
-        else if (stack.getItem() instanceof ItemDisk) return "disk";
-        else if (stack.getItem() instanceof ItemComputerBase) return "computer";
-        else if (stack.getItem() instanceof ItemTurtle) return "turtle";
-        else if (stack.getItem() instanceof ItemPocketComputer) return "pocket";
-        else if (MediaProviders.get(stack) != null && MediaProviders.get(stack).getAudio(stack) != null) return "record";
-        else return null;
+        if ( stack.isEmpty() )
+        {
+            return "empty";
+        }
+        else if ( stack.getItem() instanceof ItemDisk )
+        {
+            return "disk";
+        }
+        else if ( stack.getItem() instanceof ItemComputerBase )
+        {
+            return "computer";
+        }
+        else if ( stack.getItem() instanceof ItemTurtle )
+        {
+            return "turtle";
+        }
+        else if ( stack.getItem() instanceof ItemPocketComputer )
+        {
+            return "pocket";
+        }
+        else if ( MediaProviders.get( stack ) != null && MediaProviders.get( stack ).getAudio( stack ) != null )
+        {
+            return "record";
+        }
+        else
+        {
+            return null;
+        }
     }
 
     @Override
