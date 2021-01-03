@@ -1,5 +1,5 @@
 {
-  "parent": "block/orientable",
+  "parent": "minecraft:block/orientable",
   "textures": {
     "top": "computercraft:block/computer_advanced_top",
     "side": "computercraft:block/computer_advanced_side",

@@ -43,6 +43,7 @@ public class LootTables extends LootTableProvider
 
         computerDrop( add, Registry.ModBlocks.COMPUTER_NORMAL );
         computerDrop( add, Registry.ModBlocks.COMPUTER_ADVANCED );
+        computerDrop( add, Registry.ModBlocks.COMPUTER_COMMAND );
         computerDrop( add, Registry.ModBlocks.TURTLE_NORMAL );
         computerDrop( add, Registry.ModBlocks.TURTLE_ADVANCED );
 
