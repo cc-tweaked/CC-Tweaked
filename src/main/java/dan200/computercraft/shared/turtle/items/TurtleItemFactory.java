@@ -25,8 +25,11 @@ public final class TurtleItemFactory
     {
         ITurtleAccess access = turtle.getAccess();
 
+        String label = turtle.getLabel();
+        int id = label != null ? turtle.getComputerID() : -1;
+
         return create(
-            turtle.getComputerID(), turtle.getLabel(), turtle.getColour(), turtle.getFamily(),
+            id, turtle.getLabel(), turtle.getColour(), turtle.getFamily(),
             access.getUpgrade( TurtleSide.LEFT ), access.getUpgrade( TurtleSide.RIGHT ),
             access.getFuelLevel(), turtle.getOverlay()
         );

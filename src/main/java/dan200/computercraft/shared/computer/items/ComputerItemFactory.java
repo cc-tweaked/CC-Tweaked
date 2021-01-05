@@ -19,7 +19,9 @@ public final class ComputerItemFactory
     @Nonnull
     public static ItemStack create( TileComputer tile )
     {
-        return create( tile.getComputerID(), tile.getLabel(), tile.getFamily() );
+        String label = tile.getLabel();
+        int id = label != null ? tile.getComputerID() : -1;
+        return create( id, label, tile.getFamily() );
     }
 
     @Nonnull
