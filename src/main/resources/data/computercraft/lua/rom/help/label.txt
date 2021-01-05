@@ -1,4 +1,5 @@
 label gets or sets the label of the Computer, or of Floppy Disks in attached disk drives.
+Unlabeled Computers will lose their files when broken.
 
 ex:
 "label get" prints the label of the computer.
