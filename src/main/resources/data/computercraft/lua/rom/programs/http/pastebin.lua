@@ -138,6 +138,11 @@ elseif sCommand == "get" then
         file.close()
 
         print("Downloaded as " .. sFile)
+        -- Print warning if unlabeled
+        if not os.getComputerLabel() then
+            print("Warning! This computer is unlabeled. You will lose your files if you break the block. Type 'help label' for more info.")
+        end
+
     end
 elseif sCommand == "run" then
     local sCode = tArgs[2]

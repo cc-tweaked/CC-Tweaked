@@ -797,3 +797,8 @@ end
 term.clear()
 term.setCursorBlink(false)
 term.setCursorPos(1, 1)
+
+-- Print warning if unlabeled
+if not os.getComputerLabel() then
+    print("Warning! This computer is unlabeled. You will lose your files if you break the block. Type 'help label' for more info.")
+end
