@@ -27,7 +27,6 @@ public final class TrackingLogger
 
     public void warning( String message )
     {
-        ok = false;
         logger.warning( message );
     }
 

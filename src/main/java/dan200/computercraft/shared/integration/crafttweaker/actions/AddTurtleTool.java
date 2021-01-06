@@ -103,7 +103,7 @@ public class AddTurtleTool implements IUndoableAction
     {
         TrackingLogger trackLog = new TrackingLogger( logger );
 
-        if( craftItem.isEmpty() ) trackLog.warning( "Crafting item stack is empty." );
+        if( craftItem.isEmpty() ) trackLog.error( "Crafting item stack is empty." );
 
         if( craftItem.hasTag() && !craftItem.getTag().isEmpty() ) trackLog.warning( "Crafting item has NBT." );
         if( toolItem.isEmpty() ) trackLog.error( "Tool item stack is empty." );
