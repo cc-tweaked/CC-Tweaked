@@ -31,13 +31,13 @@
     /doc/stub/
     /build/docs/luaJavadoc/
 
-    /src/main/resources/*/computercraft/lua/rom/apis
-    /src/main/resources/*/computercraft/lua/rom/apis/command
-    /src/main/resources/*/computercraft/lua/rom/apis/turtle
+    /src/main/resources/*/computercraft/lua/rom/apis/
+    /src/main/resources/*/computercraft/lua/rom/apis/command/
+    /src/main/resources/*/computercraft/lua/rom/apis/turtle/
 
-    /src/main/resources/*/computercraft/lua/rom/modules/main
-    /src/main/resources/*/computercraft/lua/rom/modules/command
-    /src/main/resources/*/computercraft/lua/rom/modules/turtle))
+    /src/main/resources/*/computercraft/lua/rom/modules/main/
+    /src/main/resources/*/computercraft/lua/rom/modules/command/
+    /src/main/resources/*/computercraft/lua/rom/modules/turtle/))
 
 (at /
   (linters
