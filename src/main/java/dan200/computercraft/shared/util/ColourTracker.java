@@ -5,6 +5,7 @@
  */
 package dan200.computercraft.shared.util;
 
+import net.minecraft.item.DyeColor;
 import net.minecraft.item.crafting.ArmorDyeRecipe;
 
 /**
@@ -31,6 +32,12 @@ public class ColourTracker
     public void addColour( float r, float g, float b )
     {
         addColour( (int) (r * 255), (int) (g * 255), (int) (b * 255) );
+    }
+
+    public void addColour( DyeColor dye )
+    {
+        Colour colour = Colour.VALUES[15 - dye.getId()];
+        addColour( colour.getR(), colour.getG(), colour.getB() );
     }
 
     public boolean hasColour()

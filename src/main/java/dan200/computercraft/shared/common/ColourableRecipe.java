@@ -5,7 +5,6 @@
  */
 package dan200.computercraft.shared.common;
 
-import dan200.computercraft.shared.util.Colour;
 import dan200.computercraft.shared.util.ColourTracker;
 import dan200.computercraft.shared.util.ColourUtils;
 import net.minecraft.inventory.CraftingInventory;
@@ -75,10 +74,7 @@ public final class ColourableRecipe extends SpecialRecipe
             else
             {
                 DyeColor dye = ColourUtils.getStackColour( stack );
-                if( dye == null ) continue;
-
-                Colour colour = Colour.fromInt( 15 - dye.getId() );
-                tracker.addColour( colour.getR(), colour.getG(), colour.getB() );
+                if( dye != null ) tracker.addColour( dye );
             }
         }
 
