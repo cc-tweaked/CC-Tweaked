@@ -65,11 +65,9 @@ public final class ColourableRecipe extends SpecialCraftingRecipe {
             if (stack.isEmpty()) {
                 continue;
             }
-
-            if (stack.getItem() instanceof IColouredItem) {
-                colourable = stack;
-            } else {
-                DyeColor dye = ColourUtils.getStackColour(stack);
+            else
+            {
+                DyeColor dye = ColourUtils.getStackColour( stack );
                 if( dye != null ) tracker.addColour( dye );
             }
         }
