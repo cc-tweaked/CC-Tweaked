@@ -53,7 +53,9 @@ public class DiskRecipe extends SpecialCraftingRecipe {
                         return false;
                     }
                     redstoneFound = true;
-                } else if (ColourUtils.getStackColour(stack) != null) {
+                }
+                else if( ColourUtils.getStackColour( stack ) == null )
+                {
                     return false;
                 }
             }
@@ -74,14 +76,10 @@ public class DiskRecipe extends SpecialCraftingRecipe {
                 continue;
             }
 
-            if (!this.paper.test(stack) && !this.redstone.test(stack)) {
-                DyeColor dye = ColourUtils.getStackColour(stack);
-                if (dye == null) {
-                    continue;
-                }
-
-                Colour colour = Colour.VALUES[dye.getId()];
-                tracker.addColour(colour.getR(), colour.getG(), colour.getB());
+            if( !paper.test( stack ) && !redstone.test( stack ) )
+            {
+                DyeColor dye = ColourUtils.getStackColour( stack );
+                if( dye != null ) tracker.addColour( dye );
             }
         }
 

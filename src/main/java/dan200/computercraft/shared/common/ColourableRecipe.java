@@ -8,7 +8,6 @@ package dan200.computercraft.shared.common;
 
 import javax.annotation.Nonnull;
 
-import dan200.computercraft.shared.util.Colour;
 import dan200.computercraft.shared.util.ColourTracker;
 import dan200.computercraft.shared.util.ColourUtils;
 
@@ -71,12 +70,7 @@ public final class ColourableRecipe extends SpecialCraftingRecipe {
                 colourable = stack;
             } else {
                 DyeColor dye = ColourUtils.getStackColour(stack);
-                if (dye == null) {
-                    continue;
-                }
-
-                Colour colour = Colour.fromInt(15 - dye.getId());
-                tracker.addColour(colour.getR(), colour.getG(), colour.getB());
+                if( dye != null ) tracker.addColour( dye );
             }
         }
 

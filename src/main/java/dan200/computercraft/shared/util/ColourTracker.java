@@ -6,6 +6,8 @@
 
 package dan200.computercraft.shared.util;
 
+import net.minecraft.util.DyeColor;
+
 /**
  * A reimplementation of the colour system in {@link ArmorDyeRecipe}, but bundled together as an object.
  */
@@ -28,8 +30,15 @@ public class ColourTracker {
         this.count++;
     }
 
-    public boolean hasColour() {
-        return this.count > 0;
+    public void addColour( DyeColor dye )
+    {
+        Colour colour = Colour.VALUES[15 - dye.getId()];
+        addColour( colour.getR(), colour.getG(), colour.getB() );
+    }
+
+    public boolean hasColour()
+    {
+        return count > 0;
     }
 
     public int getColour() {
