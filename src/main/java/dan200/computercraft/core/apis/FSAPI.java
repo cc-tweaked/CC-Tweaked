@@ -472,7 +472,7 @@ public class FSAPI implements ILuaAPI
      * Get attributes about a specific file or folder.
      *
      * The returned attributes table contains information about the size of the file, whether it is a directory,
-     * when it was created and last modified, and  whether it is read only.
+     * when it was created and last modified, and whether it is read only.
      *
      * The creation and modification times are given as the number of milliseconds since the UNIX epoch. This may be
      * given to {@link OSAPI#date} in order to convert it to more usable form.
