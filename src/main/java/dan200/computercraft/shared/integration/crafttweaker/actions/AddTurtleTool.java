@@ -1,6 +1,6 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.shared.integration.crafttweaker.actions;
@@ -103,7 +103,7 @@ public class AddTurtleTool implements IUndoableAction
     {
         TrackingLogger trackLog = new TrackingLogger( logger );
 
-        if( craftItem.isEmpty() ) trackLog.warning( "Crafting item stack is empty." );
+        if( craftItem.isEmpty() ) trackLog.error( "Crafting item stack is empty." );
 
         if( craftItem.hasTag() && !craftItem.getTag().isEmpty() ) trackLog.warning( "Crafting item has NBT." );
         if( toolItem.isEmpty() ) trackLog.error( "Tool item stack is empty." );

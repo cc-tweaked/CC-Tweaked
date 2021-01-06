@@ -1,9 +1,8 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.data;
 
 import dan200.computercraft.ComputerCraft;
@@ -43,6 +42,7 @@ public class LootTables extends LootTableProvider
 
         computerDrop( add, Registry.ModBlocks.COMPUTER_NORMAL );
         computerDrop( add, Registry.ModBlocks.COMPUTER_ADVANCED );
+        computerDrop( add, Registry.ModBlocks.COMPUTER_COMMAND );
         computerDrop( add, Registry.ModBlocks.TURTLE_NORMAL );
         computerDrop( add, Registry.ModBlocks.TURTLE_ADVANCED );
 

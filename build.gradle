@@ -9,7 +9,7 @@ buildscript {
     }
     dependencies {
         classpath 'com.google.code.gson:gson:2.8.1'
-        classpath 'net.minecraftforge.gradle:ForgeGradle:3.0.187'
+        classpath 'net.minecraftforge.gradle:ForgeGradle:3.0.190'
         classpath 'net.sf.proguard:proguard-gradle:6.1.0beta2'
         classpath 'org.ajoberstar.grgit:grgit-gradle:3.0.0'
     }
@@ -336,7 +336,7 @@ task minifyWeb(type: Exec, dependsOn: rollup) {
     inputs.file("package-lock.json").withPropertyName("package-lock.json")
     outputs.file("$buildDir/rollup/index.min.js").withPropertyName("output")
 
-    commandLine mkCommand('"node_modules/.bin/terser"' + " -o $buildDir/rollup/index.min.js $buildDir/rollup/index.js")
+    commandLine mkCommand('"node_modules/.bin/terser"' + " -o '$buildDir/rollup/index.min.js' '$buildDir/rollup/index.js'")
 }
 
 task illuaminateDocs(type: Exec, dependsOn: [minifyWeb, luaJavadoc]) {

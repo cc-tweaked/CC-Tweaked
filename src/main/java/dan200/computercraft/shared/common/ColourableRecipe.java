@@ -1,11 +1,10 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.shared.common;
 
-import dan200.computercraft.shared.util.Colour;
 import dan200.computercraft.shared.util.ColourTracker;
 import dan200.computercraft.shared.util.ColourUtils;
 import net.minecraft.inventory.CraftingInventory;
@@ -75,10 +74,7 @@ public final class ColourableRecipe extends SpecialRecipe
             else
             {
                 DyeColor dye = ColourUtils.getStackColour( stack );
-                if( dye == null ) continue;
-
-                Colour colour = Colour.fromInt( 15 - dye.getId() );
-                tracker.addColour( colour.getR(), colour.getG(), colour.getB() );
+                if( dye != null ) tracker.addColour( dye );
             }
         }
 

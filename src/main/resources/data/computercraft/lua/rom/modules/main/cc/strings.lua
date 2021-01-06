@@ -1,5 +1,6 @@
 --- Various utilities for working with strings and text.
 --
+-- @module cc.strings
 -- @see textutils For additional string related utilities.
 
 local expect = require "cc.expect".expect

@@ -10,13 +10,18 @@
 
 
 (doc
-  (title "CC: Tweaked")
   (destination build/docs/lua)
-  (logo src/main/resources/pack.png)
   (index doc/index.md)
-  (styles src/web/styles.css)
-  (scripts build/rollup/index.js)
-  (source-link https://github.com/SquidDev-CC/CC-Tweaked/blob/${commit}/${path}#L${line})
+
+  (site
+    (title "CC: Tweaked")
+    (logo src/main/resources/pack.png)
+    (url https://tweaked.cc/)
+    (source-link https://github.com/SquidDev-CC/CC-Tweaked/blob/${commit}/${path}#L${line})
+
+    (styles src/web/styles.css)
+    (scripts build/rollup/index.js)
+    (head doc/head.html))
 
   (module-kinds
     (peripheral Peripherals)
@@ -26,13 +31,13 @@
     /doc/stub/
     /build/docs/luaJavadoc/
 
-    /src/main/resources/*/computercraft/lua/rom/apis
-    /src/main/resources/*/computercraft/lua/rom/apis/command
-    /src/main/resources/*/computercraft/lua/rom/apis/turtle
+    /src/main/resources/*/computercraft/lua/rom/apis/
+    /src/main/resources/*/computercraft/lua/rom/apis/command/
+    /src/main/resources/*/computercraft/lua/rom/apis/turtle/
 
-    /src/main/resources/*/computercraft/lua/rom/modules/main
-    /src/main/resources/*/computercraft/lua/rom/modules/command
-    /src/main/resources/*/computercraft/lua/rom/modules/turtle))
+    /src/main/resources/*/computercraft/lua/rom/modules/main/
+    /src/main/resources/*/computercraft/lua/rom/modules/command/
+    /src/main/resources/*/computercraft/lua/rom/modules/turtle/))
 
 (at /
   (linters
