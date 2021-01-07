@@ -90,12 +90,38 @@ public class TileWiredModemFull extends TileGeneric
             BlockPos pos = m_entity.getPos();
             return new Vec3d( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5 );
         }
+
+        protected boolean enableSharing()
+        {
+            boolean hasAny = false;
+            for( Direction facing : DirectionUtil.FACINGS )
+            {
+                WiredModemLocalPeripheral peripheral = m_entity.m_peripherals[facing.ordinal()];
+                peripheral.attach( m_entity.world, m_entity.getPos(), facing );
+                hasAny |= peripheral.hasPeripheral();
+            }
+
+            if( !hasAny ) return false;
+
+            m_entity.m_node.updatePeripherals( m_entity.getConnectedPeripherals() );
+
+            m_entity.updateBlockState();
+
+            return true;
+        }
+
+        protected void disableSharing()
+        {
+            for( WiredModemLocalPeripheral peripheral : m_entity.m_peripherals ) peripheral.detach();
+            m_entity.m_node.updatePeripherals( Collections.emptyMap() );
+
+            m_entity.updateBlockState();
+        }
     }
 
     private final WiredModemPeripheral[] modems = new WiredModemPeripheral[6];
     private final SidedCaps<IPeripheral> modemCaps = SidedCaps.ofNonNull( this::getPeripheral );
 
-    private boolean m_peripheralAccessAllowed = false;
     private final WiredModemLocalPeripheral[] m_peripherals = new WiredModemLocalPeripheral[6];
 
     private boolean m_destroyed = false;
@@ -169,7 +195,7 @@ public class TileWiredModemFull extends TileGeneric
     @Override
     public void onNeighbourTileEntityChange( @Nonnull BlockPos neighbour )
     {
-        if( !world.isRemote && m_peripheralAccessAllowed )
+        if( !world.isRemote && m_element.isSharingPeripherals() )
         {
             for( Direction facing : DirectionUtil.FACINGS )
             {
@@ -195,7 +221,7 @@ public class TileWiredModemFull extends TileGeneric
 
         // On server, we interacted if a peripheral was found
         Set<String> oldPeriphNames = getConnectedPeripheralNames();
-        togglePeripheralAccess();
+        m_element.trySetSharingPeripherals( !m_element.isSharingPeripherals() );
         Set<String> periphNames = getConnectedPeripheralNames();
 
         if( !Objects.equal( periphNames, oldPeriphNames ) )
@@ -228,7 +254,7 @@ public class TileWiredModemFull extends TileGeneric
     public void read( @Nonnull CompoundNBT nbt )
     {
         super.read( nbt );
-        m_peripheralAccessAllowed = nbt.getBoolean( NBT_PERIPHERAL_ENABLED );
+        m_element.forceSetSharingPeripherals( nbt.getBoolean( NBT_PERIPHERAL_ENABLED ) );
         for( int i = 0; i < m_peripherals.length; i++ ) m_peripherals[i].read( nbt, Integer.toString( i ) );
     }
 
@@ -236,7 +262,7 @@ public class TileWiredModemFull extends TileGeneric
     @Override
     public CompoundNBT write( CompoundNBT nbt )
     {
-        nbt.putBoolean( NBT_PERIPHERAL_ENABLED, m_peripheralAccessAllowed );
+        nbt.putBoolean( NBT_PERIPHERAL_ENABLED, m_element.isSharingPeripherals() );
         for( int i = 0; i < m_peripherals.length; i++ ) m_peripherals[i].write( nbt, Integer.toString( i ) );
         return super.write( nbt );
     }
@@ -244,7 +270,7 @@ public class TileWiredModemFull extends TileGeneric
     private void updateBlockState()
     {
         BlockState state = getBlockState();
-        boolean modemOn = m_modemState.isOpen(), peripheralOn = m_peripheralAccessAllowed;
+        boolean modemOn = m_modemState.isOpen(), peripheralOn = m_element.isSharingPeripherals();
         if( state.get( MODEM_ON ) == modemOn && state.get( PERIPHERAL_ON ) == peripheralOn ) return;
 
         getWorld().setBlockState( getPos(), state.with( MODEM_ON, modemOn ).with( PERIPHERAL_ON, peripheralOn ) );
@@ -269,7 +295,7 @@ public class TileWiredModemFull extends TileGeneric
             m_connectionsFormed = true;
 
             connectionsChanged();
-            if( m_peripheralAccessAllowed )
+            if( m_element.isSharingPeripherals() )
             {
                 for( Direction facing : DirectionUtil.FACINGS )
                 {
@@ -299,37 +325,9 @@ public class TileWiredModemFull extends TileGeneric
         }
     }
 
-    private void togglePeripheralAccess()
-    {
-        if( !m_peripheralAccessAllowed )
-        {
-            boolean hasAny = false;
-            for( Direction facing : DirectionUtil.FACINGS )
-            {
-                WiredModemLocalPeripheral peripheral = m_peripherals[facing.ordinal()];
-                peripheral.attach( world, getPos(), facing );
-                hasAny |= peripheral.hasPeripheral();
-            }
-
-            if( !hasAny ) return;
-
-            m_peripheralAccessAllowed = true;
-            m_node.updatePeripherals( getConnectedPeripherals() );
-        }
-        else
-        {
-            m_peripheralAccessAllowed = false;
-
-            for( WiredModemLocalPeripheral peripheral : m_peripherals ) peripheral.detach();
-            m_node.updatePeripherals( Collections.emptyMap() );
-        }
-
-        updateBlockState();
-    }
-
     private Set<String> getConnectedPeripheralNames()
     {
-        if( !m_peripheralAccessAllowed ) return Collections.emptySet();
+        if( !m_element.isSharingPeripherals() ) return Collections.emptySet();
 
         Set<String> peripherals = new HashSet<>( 6 );
         for( WiredModemLocalPeripheral peripheral : m_peripherals )
@@ -342,7 +340,7 @@ public class TileWiredModemFull extends TileGeneric
 
     private Map<String, IPeripheral> getConnectedPeripherals()
     {
-        if( !m_peripheralAccessAllowed ) return Collections.emptyMap();
+        if( !m_element.isSharingPeripherals() ) return Collections.emptyMap();
 
         Map<String, IPeripheral> peripherals = new HashMap<>( 6 );
         for( WiredModemLocalPeripheral peripheral : m_peripherals ) peripheral.extendMap( peripherals );
@@ -355,8 +353,7 @@ public class TileWiredModemFull extends TileGeneric
         if( peripherals.isEmpty() )
         {
             // If there are no peripherals then disable access and update the display state.
-            m_peripheralAccessAllowed = false;
-            updateBlockState();
+            if( !m_element.trySetSharingPeripherals( false ) ) updateBlockState();
         }
 
         m_node.updatePeripherals( peripherals );

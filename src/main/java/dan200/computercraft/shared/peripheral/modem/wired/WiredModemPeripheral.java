@@ -33,7 +33,6 @@ import java.util.concurrent.ConcurrentMap;
 public abstract class WiredModemPeripheral extends ModemPeripheral implements IWiredSender
 {
     private final WiredModemElement modem;
-
     private final Map<IComputerAccess, ConcurrentMap<String, RemotePeripheralWrapper>> peripheralWrappers = new HashMap<>( 1 );
 
     public WiredModemPeripheral( ModemState state, WiredModemElement modem )
@@ -193,6 +192,40 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements IW
     {
         String local = getLocalPeripheral().getConnectedName();
         return local == null ? null : new Object[] { local };
+    }
+
+    /**
+     * Returns current state of modem
+     * whether it shares locally connected peripherals to the network as named remote peripherals.
+     *
+     * <blockquote><strong>Important:</strong> This function only appears on wired modems. Check {@link #isWireless}
+     * returns false before calling it.</blockquote>
+     *
+     * @return If the modem shares peripherals to the network.
+     * @cc.treturn boolean If the modem shares peripherals to the network.
+     */
+    @LuaFunction
+    public final boolean isSharingPeripherals()
+    {
+        return modem.isSharingPeripherals();
+    }
+
+    /**
+     * Attempt to change peripheral sharing state of modem.
+     * That's what players can do by right-clicking the modem tile.
+     *
+     * <blockquote><strong>Important:</strong> This function only appears on wired modems. Check {@link #isWireless}
+     * returns false before calling it.</blockquote>
+     *
+     * @param enabled New state.
+     * @return Whether the setting of new state was successful.
+     * @cc.tparam boolean enabled New state.
+     * @cc.treturn boolean Whether the setting of new state was successful.
+     */
+    @LuaFunction( mainThread = true )
+    public final boolean setSharingPeripherals( boolean enabled )
+    {
+        return modem.trySetSharingPeripherals( enabled );
     }
 
     @Override
