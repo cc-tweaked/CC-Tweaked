@@ -546,7 +546,7 @@ local function playGame()
   msgBox("Game Over!")
   while true do
     local _, k = os.pullEvent("key")
-    if k == keys.space or k == keys.enter or key == keys.numPadEnter then
+    if k == keys.space or k == keys.enter or k == keys.numPadEnter then
       break
     end
   end
