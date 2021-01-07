@@ -199,8 +199,8 @@ while true do
             drawMenu()
             drawFrontend()
         end
-    elseif key == keys.enter then
-        -- Enter
+    elseif key == keys.enter or key == keys.numPadEnter then
+        -- Enter/Numpad Enter
         break
     end
 end
