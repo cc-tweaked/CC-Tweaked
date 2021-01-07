@@ -396,7 +396,8 @@ public class FSAPI implements ILuaAPI {
     /**
      * Get attributes about a specific file or folder.
      *
-     * The returned attributes table contains information about the size of the file, whether it is a directory, and when it was created and last modified.
+     * The returned attributes table contains information about the size of the file, whether it is a directory,
+     * when it was created and last modified, and whether it is read only.
      *
      * The creation and modification times are given as the number of milliseconds since the UNIX epoch. This may be given to {@link OSAPI#date} in order to
      * convert it to more usable form.
@@ -404,7 +405,7 @@ public class FSAPI implements ILuaAPI {
      * @param path The path to get attributes for.
      * @return The resulting attributes.
      * @throws LuaException If the path does not exist.
-     * @cc.treturn { size = number, isDir = boolean, created = number, modified = number } The resulting attributes.
+     * @cc.treturn { size = number, isDir = boolean, isReadOnly = boolean, created = number, modified = number } The resulting attributes.
      * @see #getSize If you only care about the file's size.
      * @see #isDir If you only care whether a path is a directory or not.
      */
@@ -413,11 +414,12 @@ public class FSAPI implements ILuaAPI {
         try {
             BasicFileAttributes attributes = this.fileSystem.getAttributes(path);
             Map<String, Object> result = new HashMap<>();
-            result.put("modification", getFileTime(attributes.lastModifiedTime()));
-            result.put("modified", getFileTime(attributes.lastModifiedTime()));
-            result.put("created", getFileTime(attributes.creationTime()));
-            result.put("size", attributes.isDirectory() ? 0 : attributes.size());
-            result.put("isDir", attributes.isDirectory());
+            result.put( "modification", getFileTime( attributes.lastModifiedTime() ) );
+            result.put( "modified", getFileTime( attributes.lastModifiedTime() ) );
+            result.put( "created", getFileTime( attributes.creationTime() ) );
+            result.put( "size", attributes.isDirectory() ? 0 : attributes.size() );
+            result.put( "isDir", attributes.isDirectory() );
+            result.put( "isReadOnly", fileSystem.isReadOnly( path ) );
             return result;
         } catch (FileSystemException e) {
             throw new LuaException(e.getMessage());
