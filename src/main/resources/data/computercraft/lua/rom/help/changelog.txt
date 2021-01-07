@@ -1,3 +1,11 @@
+# New features in CC: Tweaked 1.95.1
+
+Several bug fixes:
+* Command computers now drop items again.
+* Restore crafting of disks with dyes.
+* Fix CraftTweaker integrations for damageable items.
+* Catch reflection errors in the generic peripheral system, resolving crashes with Botania.
+
 # New features in CC: Tweaked 1.95.0
 
 * Optimise the paint program's initial render.
