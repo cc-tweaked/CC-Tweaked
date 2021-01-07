@@ -21,7 +21,7 @@ for _, sItem in pairs(tAll) do
     if bShowHidden or string.sub(sItem, 1, 1) ~= "." then
         local sPath = fs.combine(sDir, sItem)
         if fs.isDir(sPath) then
-            table.insert(tDirs, sItem.."/")
+            table.insert(tDirs, sItem .. "/")
         else
             table.insert(tFiles, sItem)
         end
