@@ -532,7 +532,7 @@ while bRunning do
                 else
                     -- Indent line
                     local sLine = tLines[y]
-                    local indent = settings.get("edit.indent")
+                    local indent = settings.get("edit.indentWidth")
                     tLines[y] = string.sub(sLine, 1, x - 1) .. (" "):rep(indent) .. string.sub(sLine, x)
                     setCursor(x + indent, y)
                 end
