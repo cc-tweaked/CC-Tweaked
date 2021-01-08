@@ -969,7 +969,7 @@ settings.define("bios.strict_globals", {
     description = "Prevents assigning variables into a program's environment. Make sure you use the local keyword or assign to _G explicitly.",
     type = "boolean",
 })
-settings.define("edit.indent", {
+settings.define("edit.indentWidth", {
     default = 4,
     description = "Changes how many spaces will be created when you hit tab in edit.lua.",
     type = "number",
