@@ -970,9 +970,9 @@ settings.define("bios.strict_globals", {
     type = "boolean",
 })
 settings.define("edit.indent", {
-    default = 2,    
+    default = 4,    
     description = "Changes how many spaces will be created when you hit tab in edit.lua.",
-    type = "number"
+    type = "number",
 })
 
 if term.isColour() then
