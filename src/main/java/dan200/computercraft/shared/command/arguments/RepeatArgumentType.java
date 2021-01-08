@@ -55,8 +55,9 @@ public final class RepeatArgumentType<T, U> implements ArgumentType<List<T>> {
         this.some = some;
     }
 
-    public static <T> RepeatArgumentType<T, T> some(ArgumentType<T> appender, SimpleCommandExceptionType missing) {
-        return new RepeatArgumentType<>(appender, List::add, true, missing);
+    public static <T> RepeatArgumentType<T, T> some( ArgumentType<T> appender, SimpleCommandExceptionType missing )
+    {
+        return new RepeatArgumentType<>( appender, List::add, false, missing );
     }
 
     public static <T> RepeatArgumentType<T, List<T>> someFlat(ArgumentType<List<T>> appender, SimpleCommandExceptionType missing) {

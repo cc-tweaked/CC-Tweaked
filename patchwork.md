@@ -578,3 +578,9 @@ b2e54014869fac4b819b01b6c24e550ca113ce8a
 Added Numpad Enter Support in rom lua programs. (#657)
 ```
 Just lua changes.
+
+```
+247c05305d106af430fcdaee41371a152bf7c38c
+
+Fix problem with RepeatArgumentType
+```
