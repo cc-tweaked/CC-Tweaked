@@ -651,9 +651,10 @@ while bRunning do
                 if x > 1 then
                     -- Remove character
                     local sLine = tLines[y]
-                    if x > 4 and string.sub(sLine, x - 4, x - 1) == "    " and not string.sub(sLine, 1, x - 1):find("%S") then
-                        tLines[y] = string.sub(sLine, 1, x - 5) .. string.sub(sLine, x)
-                        setCursor(x - 4, y)
+                    local indent = settings.get("edit.indentWidth")
+                    if x > indent and string.sub(sLine, x - indent, x - 1) == "    " and not string.sub(sLine, 1, x - 1):find("%S") then
+                        tLines[y] = string.sub(sLine, 1, x - (indent + 1)) .. string.sub(sLine, x)
+                        setCursor(x - indent, y)
                     else
                         tLines[y] = string.sub(sLine, 1, x - 2) .. string.sub(sLine, x)
                         setCursor(x - 1, y)
