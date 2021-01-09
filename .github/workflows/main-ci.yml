@@ -26,6 +26,11 @@ jobs:
     - name: Build with Gradle
       run: ./gradlew build --no-daemon || ./gradlew build --no-daemon
 
+    - name: Run in-game tests
+      run: |
+        ./gradlew setupServer --no-daemon
+        ./gradlew runTestServerRun --no-daemon
+
     - name: Upload Jar
       uses: actions/upload-artifact@v1
       with:
