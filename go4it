@@ -131,7 +131,7 @@ def release() -> None:
     if check != "y":
         sys.exit(1)
 
-    subprocess.check_call(["git", "push", "--all", "origin"])
+    subprocess.check_call(["git", "push",  "origin", *(b.name for b in BRANCHES)])
     for branch in BRANCHES:
         log(f"Uploading {branch.name}")
         ret = run_in(branch, "./gradlew", "uploadAll", "--no-daemon").returncode

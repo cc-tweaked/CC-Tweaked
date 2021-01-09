@@ -14,10 +14,10 @@ and semi-automate releases.
 > git checkout build-tools
 
 # Set up the various worktrees.
-> ./gfi setup
+> ./go4it setup
 # Merge branches and publish a release. You probably don't want this unless you
 # have all my secret keys.
-> ./gfi release
+> ./go4it release
 ```
 
 
