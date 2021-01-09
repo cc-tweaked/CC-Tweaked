@@ -1,3 +1,8 @@
+/*
+ * This file is part of ComputerCraft - http://www.computercraft.info
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
+ * Send enquiries to dratcliffe@gmail.com
+ */
 package dan200.computercraft.utils;
 
 import com.google.common.io.MoreFiles;
@@ -9,7 +14,7 @@ import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 
-public class Copier extends SimpleFileVisitor<Path>
+public final class Copier extends SimpleFileVisitor<Path>
 {
     private final Path sourceDir;
     private final Path targetDir;
